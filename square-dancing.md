@@ -82,7 +82,35 @@ $$\text{Call} = \text{Entry Padding} + \text{Core Movement} + \text{Exit Padding
 
 ---
 
-## 5. Execution Rules & Collision Logic
+## 5. Tips: The Structural Unit of a Square Dance
+
+### 5.1 What a Tip Is
+
+- A **tip** is the fundamental unit of a Modern Western Square Dance program — the continuous block of dancing performed between two musical records (or, in a live setting, between caller pauses). A typical tip lasts roughly **10–15 minutes**.
+- An evening (dance) is made up of several tips — commonly **6 to 10** — that alternate between **patter tips** (instrumental music, no vocals) and **singing call tips** (a familiar tune with sung calls). The caller calls every figure in each tip.
+- A tip is **self-contained**: its choreography is a *zero*, meaning it begins and ends at the **squared set** (home, in-sequence). This lets each tip start fresh from the same state, regardless of what came before.
+
+### 5.2 How a Tip Is Constructed
+
+A caller builds a tip from a sequence of **figures**, each a short, self-contained call routine. In the engine's terms, every figure is a **zero** — it must begin and end at the squared set with the dancers' home FASR restored (the same condition the engine's `getout`/FASR machinery enforces). The standard components, in order:
+
+1. **Opener (Opening).** The first figure, which takes the dancers out of the squared set, moves them, and brings them back home — warming the square up. Common openers: *Circle Left + Forward and Back + Circle Right*, *Grand Square*, or an *Allemande Left + Promenade Home*.
+2. **Figure (the core).** The main call sequence, performed by the whole square. In both singing calls and patter, the same figure is usually repeated **four times**, once with each couple leading — Heads, Sides, then their opposites — so all eight dancers get a turn as the active couple. Each repeat is a zero so the next couple can take the lead.
+3. **Break / Middle Break.** A shorter, simpler zero figure inserted for variety and to give dancers a breather. In a singing call a **break** follows the opener; in a patter tip a **middle break** may split the tip into two halves.
+4. **Closer.** A figure near the end used to wind the tip down and return everyone to the squared set.
+5. **Finale (Grand Swing / Promenade Home).** The closing sequence — typically *Allemande Left, Grand Right and Left, Promenade Home* — that returns the dancers to the squared set. The final tip of the evening may close with a **Goodnight**.
+
+### 5.3 Beat Structure
+
+Consistent with section 4, a tip is built from the **16-beat phrase** unit:
+
+- In the singing-call model, each figure is **16 beats**, and the four figures (one per leading couple) sum to the **64-beat segment** described in §4.
+- The opener, breaks, and closer likewise each fit the 16-beat phrase structure, so an entire tip is assembled from 16-beat phrases.
+- The engine models a tip as a **top-level sequence of calls that is a zero** — it must both start and finish in-sequence at the squared set, so it can be safely chained with the next tip.
+
+---
+
+## 6. Execution Rules & Collision Logic
 
 - **The Passing Rule:** When two moving dancers' paths intersect head-on, they default to passing Right Shoulders, unless modified by a specific call parameter (e.g., Left Pass Thru).
 - **Spatial Occupancy:** No two physical dancers may occupy the same $(x, y)$ coordinate space simultaneously during intermediate animation/transition frames. Ghost dancers bypass occupancy checks.

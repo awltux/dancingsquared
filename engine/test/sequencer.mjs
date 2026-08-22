@@ -26,6 +26,8 @@ const seq = new Sequencer(movesXml, formationsXml, [
   { name: 'Swing Thru', xml: ms('swing_thru') },
   { name: 'Promenade', xml: ms('promenade') },
   { name: 'Circle Left', xml: ms('circle') },
+  { name: 'Heads Spin the Top', xml: ms('spin_the_top') },
+  { name: 'Double Pass Thru', xml: ms('double_pass_thru') },
 ]);
 
 console.log('== Sequencer: start ==');
@@ -78,6 +80,21 @@ const c4west = byId[7].x < 0 && byId[8].x < 0;
 check(cr.legal, 'Circle Left legal from home');
 check(al.legal, 'Allemande Left legal after Circle Left');
 check(c3north && c1south && c2east && c4west, `re-base keeps home couple orientation (c3 north=${c3north}, c1 south=${c1south}, c2 east=${c2east}, c4 west=${c4west})`);
+
+console.log('== Sequencer: re-base must not rotate the set (Heads Spin the Top -> Double Pass Thru) ==');
+seq.reset();
+const hst = seq.apply('Heads Spin the Top');
+const dpt = seq.apply('Double Pass Thru');
+// After Heads Spin the Top the set is a Quarter Tag facing N-S (headings ~+/-90).
+// Re-basing onto Double Pass Thru's canonical setup must keep that N-S facing,
+// not spin the set 90 deg to E-W (headings ~0/180).
+check(hst.legal, 'Heads Spin the Top legal from home');
+check(dpt.legal, 'Double Pass Thru legal after Heads Spin the Top');
+const facingNS = dpt.board.dancers.every((d) => {
+  const deg = Math.abs((d.heading * 180) / Math.PI);
+  return deg > 60 && deg < 120;
+});
+check(facingNS, `re-base keeps the set facing N-S (no 90deg flip): ${dpt.board.dancers.map((d) => (d.heading * 180 / Math.PI).toFixed(0)).join(', ')}`);
 
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');

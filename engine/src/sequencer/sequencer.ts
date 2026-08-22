@@ -48,6 +48,23 @@ const rot = (a: number, v: { x: number; y: number }) => ({
   y: v.x * Math.sin(a) + v.y * Math.cos(a),
 });
 
+/**
+ * Transform a canonical-start pose into the board's OWN frame using the match's
+ * rotation/reflection and the two centers. Re-base must use this: it places each
+ * dancer onto the canonical SHAPE at the board's current location/orientation.
+ * Using the raw canonical pose instead would snap dancers to the canonical
+ * orientation, spinning the whole set whenever a call's setup is authored at a
+ * different absolute rotation (the source of both the 180 and 90 degree flips).
+ */
+function rebasedPose(pose: { x: number; y: number; heading: number }, m: { rot: number; reflect: boolean; cSrc: { x: number; y: number }; cTgt: { x: number; y: number } }): { x: number; y: number; heading: number } {
+  let x = pose.x - m.cTgt.x;
+  let y = pose.y - m.cTgt.y;
+  if (m.reflect) x = -x;
+  const rx = x * Math.cos(m.rot) - y * Math.sin(m.rot);
+  const ry = x * Math.sin(m.rot) + y * Math.cos(m.rot);
+  return { x: rx + m.cSrc.x, y: ry + m.cSrc.y, heading: normAngle(pose.heading + m.rot + (m.reflect ? Math.PI : 0)) };
+}
+
 // Standard Mainstream formations used for RECOGNITION. Matching against a
 // curated list avoids mislabeling a setup as a congruent-but-unrelated named
 // formation (many 4-dancer setups become geometrically congruent once mirrored,
@@ -71,6 +88,18 @@ const STANDARD_FORMATIONS = [
 
 // Default tolerance for formation matching (matchFormations' maxError).
 const DEFAULT_MATCH_MAX = 6.0;
+
+// A matched call variant plus the rigid transform (rotation/reflection + both
+// centers) that overlays its canonical setup onto the board.
+interface VariantMatch {
+  variant: CallBundle;
+  mapping: number[];
+  error: number;
+  rot: number;
+  reflect: boolean;
+  cSrc: { x: number; y: number };
+  cTgt: { x: number; y: number };
+}
 
 // Calls that are conceptually sequences of multiple smaller calls (e.g. Running
 // Bear) but are authored in the data as a single call. The picker shows these as
@@ -252,7 +281,7 @@ export class Sequencer {
     return null;
   }
 
-  private evaluateVariantAt(board: Board, m: { variant: CallBundle; mapping: number[]; error: number }, localBeat: number): Board {
+  private evaluateVariantAt(board: Board, m: VariantMatch, localBeat: number): Board {
     const { variant, mapping } = m;
     const f = this.rebaseFactor;
     const newDancers = board.dancers.map((d, i) => {
@@ -261,10 +290,12 @@ export class Sequencer {
       const cur = poseFor(t, Math.min(localBeat, dancerBeats(t)));
       const localDisp = rot(-start.heading, { x: cur.x - start.x, y: cur.y - start.y });
       const delta = normAngle(cur.heading - start.heading);
-      // Same re-base blend as applyToBoardInner so the animation matches the board.
-      const bx = d.x + (start.x - d.x) * f;
-      const by = d.y + (start.y - d.y) * f;
-      const bh = normAngle(d.heading + (start.heading - d.heading) * f);
+      // Same re-base blend as applyToBoardInner (canonical pose transformed into
+      // the board's frame) so the animation matches the board.
+      const base = rebasedPose(start, m);
+      const bx = d.x + (base.x - d.x) * f;
+      const by = d.y + (base.y - d.y) * f;
+      const bh = normAngle(d.heading + (base.heading - d.heading) * f);
       const disp = rot(bh, localDisp);
       return { ...d, x: bx + disp.x, y: by + disp.y, heading: normAngle(bh + delta) };
     });
@@ -302,15 +333,17 @@ export class Sequencer {
   }
 
   /** Which of this call's variants matches the given board? */
-  private findMatchingVariant(board: Board, callName: string): { variant: CallBundle; mapping: number[]; error: number } | null {
+  private findMatchingVariant(board: Board, callName: string): VariantMatch | null {
     const variants = this.variants.get(callName);
     if (!variants) return null;
     const src = this.matchables(board);
-    let best: { variant: CallBundle; mapping: number[]; error: number } | null = null;
+    let best: VariantMatch | null = null;
     for (const v of variants) {
       const tgt = v.dancers.map((d) => this.variantMatchable(d));
       const m = matchFormations(src, tgt, DEFAULT_MATCH_MAX + this.matchMargin);
-      if (m && (best === null || m.error < best.error)) best = { variant: v, mapping: m.mapping, error: m.error };
+      if (m && (best === null || m.error < best.error)) {
+        best = { variant: v, mapping: m.mapping, error: m.error, rot: m.rot, reflect: m.reflect, cSrc: m.cSrc, cTgt: m.cTgt };
+      }
     }
     return best;
   }
@@ -369,9 +402,11 @@ export class Sequencer {
     const { variant, mapping } = match;
     // Re-base for the interactive apply: snap each dancer onto the call's
     // canonical start (times the rebase factor) so the next call always executes
-    // from its canonical setup and margin drift never accumulates. The search
-    // paths pass rebase=false and use pure relative motion so a getout can still
-    // un-permute dancers back home.
+    // from its canonical setup and margin drift never accumulates. The base is
+    // the canonical pose transformed into the board's OWN frame (via the match's
+    // rotation/reflection), so the set is not spun when a setup is authored at a
+    // different absolute orientation. The search paths pass rebase=false and use
+    // pure relative motion so a getout can still un-permute dancers back home.
     const f = rebase ? this.rebaseFactor : 0;
     const newDancers = board.dancers.map((d, i) => {
       const t = variant.dancers[mapping[i]];
@@ -379,12 +414,12 @@ export class Sequencer {
       const end = poseFor(t, dancerBeats(t));
       const localDisp = rot(-start.heading, { x: end.x - start.x, y: end.y - start.y });
       const delta = normAngle(end.heading - start.heading);
-      // Blend the dancer's base toward the call's canonical start (f=1 full
-      // reset, f=0 keep the board exactly where it was) so margin-based drift
-      // doesn't accumulate, then apply the canonical motion.
-      const bx = d.x + (start.x - d.x) * f;
-      const by = d.y + (start.y - d.y) * f;
-      const bh = normAngle(d.heading + (start.heading - d.heading) * f);
+      // Blend the dancer's base toward the (rebased) call start (f=1 full reset,
+      // f=0 keep the board exactly where it was), then apply the canonical motion.
+      const base = rebase ? rebasedPose(start, match) : start;
+      const bx = d.x + (base.x - d.x) * f;
+      const by = d.y + (base.y - d.y) * f;
+      const bh = normAngle(d.heading + (base.heading - d.heading) * f);
       const disp = rot(bh, localDisp);
       return { ...d, x: bx + disp.x, y: by + disp.y, heading: normAngle(bh + delta) };
     });

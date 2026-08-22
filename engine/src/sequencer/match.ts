@@ -15,6 +15,10 @@ export interface Matchable {
 export interface FormationMatch {
   mapping: number[]; // mapping[boardIdx] = candidateIdx
   error: number; // total offset (position + facing)
+  rot: number; // the rotation applied to the target to overlay it on the source
+  reflect: boolean; // whether a reflection (mirror) was applied to the target
+  cSrc: { x: number; y: number }; // center of the source (board)
+  cTgt: { x: number; y: number }; // center of the target (candidate)
 }
 
 const ROTS = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
@@ -124,7 +128,7 @@ export function matchFormations(
       const t = transformTarget(target, rot, reflect, cTgt);
       const res = greedyAssign(centered, t);
       if (best === null || res.error < best.error - TIE_EPS) {
-        best = { mapping: res.mapping, error: res.error };
+        best = { mapping: res.mapping, error: res.error, rot, reflect, cSrc, cTgt };
       }
     }
   }

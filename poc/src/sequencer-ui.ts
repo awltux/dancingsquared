@@ -112,12 +112,19 @@ export function initSequencer(stage: Stage): SequencerUI {
   function refreshCallSelect() {
     const prev = callSelect.value;
     const legal = seq.legalNext().sort((a, b) => a.localeCompare(b));
+    const modules = legal.filter((n) => seq.isModule(n));
+    const calls = legal.filter((n) => !seq.isModule(n));
     callSelect.innerHTML = '';
-    callSelect.add(new Option('— valid next calls —', ''));
-    for (const n of legal) {
-      const isMod = seq.listModules().includes(n);
-      callSelect.add(new Option(isMod ? `${n} (module)` : n, n));
-    }
+    callSelect.add(new Option('— valid next call —', ''));
+    const group = (label: string, names: string[]) => {
+      if (!names.length) return;
+      const og = document.createElement('optgroup');
+      og.label = label;
+      for (const n of names) og.appendChild(new Option(n, n));
+      callSelect.appendChild(og);
+    };
+    group('Calls', calls);
+    group('Modules', modules);
     if (prev && legal.includes(prev)) callSelect.value = prev;
   }
   refreshCallSelect();

@@ -72,6 +72,12 @@ const STANDARD_FORMATIONS = [
 // Default tolerance for formation matching (matchFormations' maxError).
 const DEFAULT_MATCH_MAX = 6.0;
 
+// Calls that are conceptually sequences of multiple smaller calls (e.g. Running
+// Bear) but are authored in the data as a single call. The picker shows these as
+// "modules" so their composite nature is visible. Extend this list as more are
+// identified; user-defined modules (registerModule) are handled separately.
+const CURATED_MODULE_CALLS: string[] = ['Running Bear'];
+
 export class Sequencer {
   private variants: Map<string, CallBundle[]> = new Map();
   private modules: Map<string, string[]> = new Map(); // module name -> call names
@@ -148,6 +154,14 @@ export class Sequencer {
   /** Registered user-defined module names. */
   listModules(): string[] {
     return [...this.modules.keys()];
+  }
+
+  /**
+   * Whether a call name is a "module" for picker purposes: either a user-defined
+   * module (registerModule) or a curated composite call (e.g. Running Bear).
+   */
+  isModule(name: string): boolean {
+    return this.modules.has(name) || CURATED_MODULE_CALLS.includes(name);
   }
 
   /** Registered modules as objects. */

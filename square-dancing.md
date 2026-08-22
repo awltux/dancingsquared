@@ -87,7 +87,9 @@ $$\text{Call} = \text{Entry Padding} + \text{Core Movement} + \text{Exit Padding
 ### 5.1 What a Tip Is
 
 - A **tip** is the fundamental unit of a Modern Western Square Dance program — the continuous block of dancing performed between two musical records (or, in a live setting, between caller pauses). A typical tip lasts roughly **10–15 minutes**.
-- An evening (dance) is made up of several tips — commonly **6 to 10** — that alternate between **patter tips** (instrumental music, no vocals) and **singing call tips** (a familiar tune with sung calls). The caller calls every figure in each tip.
+- An evening (dance) is made up of several tips — commonly **6 to 10** — that alternate between:
+**patter tips** (instrumental music, no vocals) and 
+**singing call tips** (a familiar tune with sung calls). The caller calls every figure in each tip.
 - A tip is **self-contained**: its choreography is a *zero*, meaning it begins and ends at the **squared set** (home, in-sequence). This lets each tip start fresh from the same state, regardless of what came before.
 
 ### 5.2 How a Tip Is Constructed

@@ -1,0 +1,21 @@
+{
+  "name": "dancing-squared-teacher",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "PRD item 15 PoC: a Teachers Session Tracker for planning class sessions, tracking attendance/call knowledge, and generating/editing practice tips as reusable modules.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "dancing-squared-engine": "file:../engine"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "^0.9.11",
+    "typescript": "^5.6.0",
+    "vite": "^5.4.0"
+  }
+}

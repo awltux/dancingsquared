@@ -274,3 +274,11 @@ function onFrame(ms: number) {
 - **Authoring format going forward:** keep XML as canonical, or migrate the bundle to hand-authored JSON.
 - **Scope of sequencer/FASR:** confirm deferral to v2.
 - **Target platform/consumers** of the downstream game/tutor to finalize API surface.
+
+## 15. Teachers Session Tracker
+
+A teacher wants to run a class teaching a level of dancing e.g. SSD or MS. 
+A default programme initiates a class instance by assigning calls to each session. As session is therefore like a multi-level level. 
+Each session introduces a new set of calls, however some sessions they are unable to teach all of the calls and the untaught calls move the next session. Or they have time to teach more and pull calls forward from the next session. 
+They may have multiple class instances in progress with different sets of students. Each class instance should have a register of students and each session will have a registers of who was there and who wasnt. This tells the teacher what calls they should  know and what they have missed and will need retaught in the next session. The teacher can also record which call-setup a student or class is having problems with, prioritising which call-setup should be practised more. 
+Before a session starts, the teacher can auto-generate of manually create tips/modules that use only the current and previous sessions calls. They will prioritise the current sessions calls and any in the set that have been prioritised. Practising calls from different positions is key. These tips will be saved as modules against the session they were created from. The tips can be auto or manually generated and can be modified by inserting, changing or removing calls. The app offers calls that can fit before, replace or after the selected call.

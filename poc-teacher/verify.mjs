@@ -1,0 +1,184 @@
+// Headless check of the Teacher Session Tracker core (PRD item 15) against the
+// real Mainstream catalog + engine Sequencer. Run with `npm run verify` (Node 26
+// runs the .ts sources directly via type stripping).
+import { readFileSync, readdirSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { DOMParser } from '@xmldom/xmldom';
+import { setParser } from 'dancing-squared-engine';
+
+import { buildCatalog, makeSequencer } from './src/catalog.ts';
+import {
+  availableTitles,
+  fitsAround,
+  generateTips,
+  priorityWeights,
+  pullForward,
+  rollUntaughtForward,
+  studentKnowledge,
+  insertInto,
+  removeAt,
+  replaceAt,
+} from './src/teacher.ts';
+
+setParser(DOMParser);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.join(__dirname, '..');
+const assets = path.join(root, 'poc/src/assets');
+const read = (p) => readFileSync(path.join(root, p), 'utf8');
+
+let failures = 0;
+const check = (cond, msg) => {
+  console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
+  if (!cond) failures++;
+};
+
+const movesXml = read('poc/src/assets/moves.xml');
+const formationsXml = read('poc/src/assets/formations.xml');
+
+const files = {};
+for (const f of readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'))) {
+  files[`ms/${f}`] = read(`poc/src/assets/ms/${f}`);
+}
+const catalog = buildCatalog(files);
+const seq = makeSequencer(movesXml, formationsXml, catalog);
+const titles = catalog.map((c) => c.title);
+
+console.log(`== Catalog: ${catalog.length} distinct titles, ${titles.length} total ==`);
+check(catalog.length >= 60, `catalog has >= 60 ms calls (${catalog.length})`);
+check(titles.includes('Circle Left') && titles.includes('Allemande Left'), 'catalog includes Circle Left + Allemande Left');
+
+console.log('\n== Class / sessions ==');
+// A realistic MS curriculum; sessions teach overlapping subsets so tips can chain.
+const CORE = [
+  'Circle Left',
+  'Forward and Back',
+  'Allemande Left',
+  'Courtesy Turn',
+  'Flutterwheel',
+  'Ladies Chain',
+  'Right and Left Thru',
+  'Sides Face, Grand Square',
+  'Sides Face, Grand Spin',
+  'Heads Promenade 1/2',
+  'Right and Left Grand',
+  'Pass Thru',
+  'Square Thru',
+  'Swing Thru',
+  'Grand Square',
+  'All 4 Couples Promenade',
+];
+const toRef = (title) => {
+  const c = catalog.find((x) => x.title === title);
+  return c ? { title: c.title, level: 'ms', setupIdx: 0, setup: c.setups[0].label } : null;
+};
+const taught = CORE.map(toRef).filter(Boolean);
+check(taught.length >= 8, `curriculum resolved ${taught.length} calls`);
+const s1Calls = taught.slice(0, 6);
+const s2Calls = taught.slice(6, 11);
+const s3Calls = taught.slice(11);
+
+const cls = {
+  id: 'c1',
+  name: 'Beginner MS',
+  level: 'ms',
+  students: [
+    { id: 'a', name: 'Alice' },
+    { id: 'b', name: 'Bob' },
+    { id: 'c', name: 'Carol' },
+  ],
+  sessions: [
+    {
+      id: 's1',
+      name: 'Session 1',
+      level: 'ms',
+      planned: s1Calls,
+      taught: s1Calls.slice(0, 4), // taught 4 of 6 planned
+      attendance: { a: true, b: true, c: false },
+      problems: [{ title: s1Calls[3].title, setupIdx: 0, priority: 3, note: 'sides struggle' }],
+    },
+    {
+      id: 's2',
+      name: 'Session 2',
+      level: 'ms',
+      planned: s2Calls,
+      taught: s2Calls,
+      attendance: { a: true, b: false, c: true },
+      problems: [],
+    },
+    {
+      id: 's3',
+      name: 'Session 3',
+      level: 'ms',
+      planned: s3Calls,
+      taught: [],
+      attendance: {},
+      problems: [],
+    },
+  ],
+};
+
+const avail1 = availableTitles(cls, 0);
+check(avail1.has(cls.sessions[0].taught[0].title), 'session 1 available includes its taught calls');
+check(!avail1.has(cls.sessions[1].taught[0].title), 'session 1 available excludes later session calls');
+
+console.log('\n== Roll untaught forward ==');
+rollUntaughtForward(cls, 0);
+const rolled = cls.sessions[1].planned.map((r) => r.title);
+const untaughtTitle = cls.sessions[0].planned[cls.sessions[0].taught.length].title;
+check(rolled.includes(untaughtTitle), `untaught call rolled into session 2 plan (has ${untaughtTitle})`);
+
+console.log('\n== Pull forward ==');
+const s3StartLen = cls.sessions[2].planned.length;
+const pullTarget = s3Calls[0];
+pullForward(cls, 1, 1);
+check(cls.sessions[1].taught.some((r) => r.title === pullTarget.title), 'pulled a call forward from session 3 into session 2 taught');
+check(cls.sessions[2].planned.length === s3StartLen - 1, 'pulled call removed from next session plan');
+
+console.log('\n== Student knowledge ==');
+const carol = studentKnowledge(cls, 'c');
+check(carol.missed.includes(cls.sessions[0].taught[0].title), `Carol missed session-1 taught call (${carol.missed.join(',')})`);
+check(carol.known.includes(cls.sessions[1].taught[0].title), 'Carol knows session-2 taught call (attended)');
+const alice = studentKnowledge(cls, 'a');
+check(!alice.missed.includes(cls.sessions[1].taught[0].title), 'Alice knows calls she attended');
+
+console.log('\n== Priorities (current taught + problems) ==');
+const pri = priorityWeights(cls, 1);
+check((pri.get(cls.sessions[1].taught[0].title) ?? 0) >= 2, 'current-session taught call prioritised');
+check((pri.get(cls.sessions[0].problems[0].title) ?? 0) >= 3, 'problem call-setup prioritised');
+
+console.log('\n== Tip generation (uses only current+previous calls, prioritised) ==');
+// Session 2 knows sessions 0..1 taught calls only.
+const available = availableTitles(cls, 1);
+const priority = priorityWeights(cls, 1);
+const tips = generateTips(seq, available, priority, { minLen: 3, maxLen: 6, count: 3 });
+check(tips.length > 0, `generated ${tips.length} tips`);
+for (const tip of tips) {
+  const legalTitles = tip.every((t) => available.has(t));
+  check(legalTitles, `tip uses only available calls: ${tip.join(' > ')}`);
+  // Verify each tip is actually legal to play from home.
+  seq.reset();
+  let legal = true;
+  for (const t of tip) legal = legal && seq.apply(t).legal;
+  check(legal, `tip plays legally from home: ${tip.join(' > ')}`);
+}
+
+console.log('\n== Fits around a selected call (before / after) ==');
+const sampleTip = tips[0] ?? ['Circle Left', 'Forward and Back', 'Allemande Left'];
+const idx = Math.min(1, sampleTip.length - 1);
+const fits = fitsAround(seq, available, sampleTip, idx);
+check(Array.isArray(fits.before) && fits.before.length >= 0, `fits before/after returned (before=${fits.before.length}, after=${fits.after.length})`);
+check(sampleTip[idx] != null, `selected call = ${sampleTip[idx]}`);
+const replaced = replaceAt(sampleTip, idx, fits.before[0] ?? sampleTip[idx]);
+const inserted = insertInto(sampleTip, idx, fits.before[0] ?? sampleTip[idx]);
+const removed = removeAt(sampleTip, idx);
+check(replaced.length === sampleTip.length, 'replaceAt keeps length');
+check(inserted.length === sampleTip.length + 1, 'insertInto adds one');
+check(removed.length === sampleTip.length - 1, 'removeAt removes one');
+
+console.log('\n=================');
+if (failures === 0) console.log('TEACHER POC VERIFY PASSED');
+else {
+  console.log(`${failures} CHECK(S) FAILED`);
+  process.exit(1);
+}

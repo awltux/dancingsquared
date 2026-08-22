@@ -5,13 +5,17 @@
   "description": "Square-dance engine + 3D PoC (npm workspaces monorepo)",
   "workspaces": [
     "engine",
-    "poc"
+    "poc",
+    "poc-teacher"
   ],
   "scripts": {
     "build:engine": "npm run build -w dancing-squared-engine",
     "build": "npm run build -w dancing-squared-engine && npm run build -w dancing-squared-poc",
     "dev": "npm run dev -w dancing-squared-poc",
     "preview": "npm run preview -w dancing-squared-poc",
+    "dev:teacher": "npm run dev -w dancing-squared-teacher",
+    "build:teacher": "npm run build -w dancing-squared-teacher",
+    "verify:teacher": "npm run verify -w dancing-squared-teacher",
     "verify": "npm run build -w dancing-squared-engine && npm run verify -w dancing-squared-poc",
     "verify:engine": "npm run verify -w dancing-squared-engine"
   }

@@ -276,7 +276,10 @@ function applyMode() {
   // Browse + editor share the main dancer views (editor previews synthesized
   // calls here); the sequencer renders its own board avatars.
   const showDancers = browse || ed;
-  for (const v of views) v.group.visible = showDancers;
+  for (const v of views) {
+    v.group.visible = showDancers;
+    v.trail.visible = showDancers; // hide leftover browse traces outside browse/editor
+  }
   connectors.group.visible = showDancers;
   seqUi.setActive(seq);
   editorUi.setActive(ed);

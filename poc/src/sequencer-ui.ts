@@ -3,7 +3,7 @@
 
 import * as THREE from 'three';
 
-import { Sequencer, computeHandholds } from 'dancing-squared-engine';
+import { Sequencer, computeHandholds, sampleTrail } from 'dancing-squared-engine';
 import type { Board, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { DancerView, buildHandConnectors } from './scene';
@@ -49,6 +49,9 @@ export function initSequencer(stage: Stage): SequencerUI {
   let totalBeats = 0;
   let flat: string[] = [];
   let lastFrame = performance.now();
+  // Key of the call whose floor trace is currently drawn; avoids rebuilding the
+  // trail geometry every frame (only when the playing call changes).
+  let lastTraceKey = '';
 
   // ---- user-defined modules ----
   const modules: Module[] = loadModules();
@@ -87,8 +90,12 @@ export function initSequencer(stage: Stage): SequencerUI {
     totalBeats = 0;
     flat = [];
     playBtn.textContent = '▶ Play';
-    for (const v of views) stage.scene.remove(v.group);
+    for (const v of views) {
+      stage.scene.remove(v.group);
+      stage.scene.remove(v.trail);
+    }
     views = [];
+    lastTraceKey = '';
     seq.setMatchMargin(parseFloat(marginInput.value) || 0);
     statusEl.textContent = `level ${levelSelect.value.toUpperCase()} loaded`;
     refreshCallSelect();
@@ -136,12 +143,18 @@ export function initSequencer(stage: Stage): SequencerUI {
   });
 
   function rebuildViews() {
-    for (const v of views) stage.scene.remove(v.group);
+    for (const v of views) {
+      stage.scene.remove(v.group);
+      stage.scene.remove(v.trail);
+    }
     views = seq.board.dancers.map((d) => new DancerView({ gender: d.gender, x: 0, y: 0, angleDeg: 0, path: [] }, d.couple));
     for (const v of views) {
       v.group.visible = active;
       stage.scene.add(v.group);
+      stage.scene.add(v.trail);
+      v.trail.visible = active;
     }
+    lastTraceKey = '';
   }
 
   function renderBoard(board: Board, walk?: WalkCycle) {
@@ -197,6 +210,27 @@ export function initSequencer(stage: Stage): SequencerUI {
     const walkPhase = ((playhead + 1000) % 2) / 2;
     renderBoard(res.board, { phase: walkPhase });
     if (res.beats > 0) render(); // past the end -> final state
+    updateCurrentTrace();
+  }
+
+  // Draw the floor trace of the CURRENTLY-playing call only: each dancer gets a
+  // trail of its path through this call's canonical motion (matched variant). It
+  // is rebuilt only when the playing call changes, so it doesn't flicker while a
+  // single call plays, and switches cleanly when the next call starts.
+  function updateCurrentTrace() {
+    if (!active || views.length === 0) return;
+    const info = seq.sequenceInfo(flat, playhead);
+    const key = info && views.length === info.variant.dancers.length ? `${info.name}:${info.mapping.join(',')}` : '';
+    if (key === lastTraceKey) return;
+    lastTraceKey = key;
+    if (info) {
+      views.forEach((v, i) => {
+        v.setTrail(sampleTrail(info.variant.dancers[info.mapping[i]], 80));
+        v.trail.visible = active;
+      });
+    } else {
+      for (const v of views) v.trail.visible = false;
+    }
   }
 
   function frame() {
@@ -342,11 +376,15 @@ export function initSequencer(stage: Stage): SequencerUI {
       playing = false;
       playBtn.textContent = '▶ Play';
       connectors.group.visible = active;
-      for (const v of views) v.group.visible = active;
+      for (const v of views) {
+        v.group.visible = active;
+        v.trail.visible = active;
+      }
       if (active) {
         if (views.length !== seq.board.dancers.length) rebuildViews();
         syncAnimation();
         render();
+        updateCurrentTrace();
       }
     },
     render,

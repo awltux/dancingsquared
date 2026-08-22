@@ -214,6 +214,30 @@ export class Sequencer {
     return { board, beats: acc };
   }
 
+  /**
+   * Which call in `flat` is playing at global `beat`, together with its matched
+   * variant (canonical dancers) and the board->variant mapping. Returns null past
+   * the end of the sequence. Mirrors the board accumulation in evaluateSequence,
+   * so the variant + mapping correspond exactly to what is displayed. The UI uses
+   * it to draw the currently-playing call's floor trace.
+   */
+  sequenceInfo(flat: string[], beat: number): { name: string; variant: CallBundle; mapping: number[] } | null {
+    let board = makeSquaredSet();
+    let acc = 0;
+    for (const name of flat) {
+      const m = this.findMatchingVariant(board, name);
+      if (!m) return null;
+      const beats = Math.max(...m.variant.dancers.map((d) => dancerBeats(d)));
+      if (beat < acc + beats) {
+        return { name, variant: m.variant, mapping: m.mapping };
+      }
+      const r = this.applyToBoard(board, name);
+      if (r.legal) board = r.board;
+      acc += beats;
+    }
+    return null;
+  }
+
   private evaluateVariantAt(board: Board, m: { variant: CallBundle; mapping: number[]; error: number }, localBeat: number): Board {
     const { variant, mapping } = m;
     const f = this.rebaseFactor;
@@ -468,15 +492,30 @@ export class Sequencer {
   }
 
   // Is a getout (sequence ending at `target`) reachable from `board` within
-  // `depth` calls?
+  // `depth` calls? Memoised: the reachability is deterministic, so revisiting the
+  // same full board state at the same remaining depth is a no-op. Without this the
+  // search is exponential over the legal-call branching and can hang the UI/tests.
+  private canGetoutMemo = new Map<string, boolean>();
   private canGetoutFrom(board: Board, target: string, depth: number): boolean {
-    if (this.reachesTarget(board, target)) return true;
-    if (depth <= 0) return false;
-    for (const name of this.legalCalls(board)) {
-      const res = this.applySearch(board, name);
-      if (res.legal && this.canGetoutFrom(res.board, target, depth - 1)) return true;
+    const key = `${target}|${depth}|${board.dancers
+      .map((d) => `${d.id},${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}`)
+      .join(';')}`;
+    const memo = this.canGetoutMemo.get(key);
+    if (memo !== undefined) return memo;
+    let result = false;
+    if (!this.reachesTarget(board, target) && depth > 0) {
+      for (const name of this.legalCalls(board)) {
+        const res = this.applySearch(board, name);
+        if (res.legal && this.canGetoutFrom(res.board, target, depth - 1)) {
+          result = true;
+          break;
+        }
+      }
+    } else {
+      result = this.reachesTarget(board, target);
     }
-    return false;
+    this.canGetoutMemo.set(key, result);
+    return result;
   }
 
   /**
@@ -487,6 +526,7 @@ export class Sequencer {
   fixIt(opts: { target?: string; depth?: number } = {}): string[] {
     const target = opts.target ?? 'Static Square';
     const depth = opts.depth ?? 3;
+    this.canGetoutMemo.clear(); // memo is per-fixIt exploration
     return this.legalCalls(this.board).filter((name) => {
       const res = this.applySearch(this.board, name);
       return res.legal && this.canGetoutFrom(res.board, target, depth);

@@ -25,6 +25,7 @@ const seq = new Sequencer(movesXml, formationsXml, [
   { name: 'Allemande Left', xml: ms('allemande') },
   { name: 'Swing Thru', xml: ms('swing_thru') },
   { name: 'Promenade', xml: ms('promenade') },
+  { name: 'Circle Left', xml: ms('circle') },
 ]);
 
 console.log('== Sequencer: start ==');
@@ -61,6 +62,22 @@ console.log('== Sequencer: getout (bounded) ==');
 seq.reset();
 const g = seq.getout({ maxCalls: 2 });
 check(Array.isArray(g) || g === null, `getout returns a path or null: ${g ? g.join(' > ') : 'null'}`);
+
+console.log('== Sequencer: re-base must not rotate the set (Circle Left -> Allemande Left) ==');
+seq.reset();
+const cr = seq.apply('Circle Left');
+const al = seq.apply('Allemande Left');
+// Dancer identities stay with the dancers; the couples must keep their home
+// orientation (couple 3 north, couple 1 south) rather than flipping 180 deg
+// because the matcher chose an arbitrary rotation of the symmetric squared set.
+const byId = Object.fromEntries(al.board.dancers.map((d) => [d.id, d]));
+const c3north = byId[1].y > 0 && byId[2].y > 0;
+const c1south = byId[5].y < 0 && byId[6].y < 0;
+const c2east = byId[3].x > 0 && byId[4].x > 0;
+const c4west = byId[7].x < 0 && byId[8].x < 0;
+check(cr.legal, 'Circle Left legal from home');
+check(al.legal, 'Allemande Left legal after Circle Left');
+check(c3north && c1south && c2east && c4west, `re-base keeps home couple orientation (c3 north=${c3north}, c1 south=${c1south}, c2 east=${c2east}, c4 west=${c4west})`);
 
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');

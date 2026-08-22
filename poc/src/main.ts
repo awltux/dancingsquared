@@ -2,15 +2,30 @@
 
 import * as THREE from 'three';
 
-import { allPoses, sampleTrail, computeHandholds } from 'dancing-squared-engine';
+import { allPoses, sampleTrail, computeHandholds, assignHomeIdentity } from 'dancing-squared-engine';
 import type { HeadingMode, HoldMode, CallBundle, Pose } from 'dancing-squared-engine';
-import { availableCalls, loadCall } from './data';
+import { availableCalls, loadCall, loadCatalog } from './data';
 import { createStage, DancerView, buildHandConnectors, assignCouples } from './scene';
 import { initSequencer } from './sequencer-ui';
 import { initEditor } from './editor-ui';
 
+// ---------------------------------------------------------------- loading bar
+
+// Drive the loading bar from real download/parse progress. Download fills the
+// first ~70%, parsing the remaining ~30%.
+function updateLoading(phase: 'download' | 'parse', frac: number): void {
+  const fill = document.getElementById('loadingFill');
+  const label = document.getElementById('loadingLabel');
+  const pct = phase === 'download' ? frac * 0.7 : 0.7 + frac * 0.3;
+  if (fill) fill.style.width = `${Math.round(Math.min(1, Math.max(0, pct)) * 100)}%`;
+  if (label) label.textContent = phase === 'download' ? `Downloading data ${Math.round(frac * 100)}%` : 'Initialising';
+}
+
 const canvas = document.getElementById('stage') as HTMLCanvasElement;
 const stage = createStage(canvas);
+
+// Load the catalog over the network first; the UI initialisers below need it.
+await loadCatalog(updateLoading);
 
 const modeSelect = document.getElementById('modeSelect') as HTMLSelectElement;
 const browseControls = document.getElementById('browseControls') as HTMLDivElement;
@@ -35,6 +50,38 @@ const partLabel = document.getElementById('partLabel') as HTMLSpanElement;
 const legend = document.getElementById('legend') as HTMLDivElement;
 
 const catalog = availableCalls();
+
+// ---------------------------------------------------------------- build footer
+
+// Show which git commit this build came from, so a reload can be checked against
+// the latest version. Populated from build-time constants injected by Vite.
+function initBuildFooter(): void {
+  const el = document.getElementById('buildFooter');
+  if (!el) return;
+  const short = __GIT_COMMIT_SHORT__;
+  const date = __GIT_COMMIT_DATE__ ? ` · ${new Date(__GIT_COMMIT_DATE__).toISOString().slice(0, 16).replace('T', ' ')}Z` : '';
+  const dirty = __GIT_DIRTY__ === 'dirty' ? ' · uncommitted changes' : '';
+  const built = __BUILD_TIME__ ? ` · built ${new Date(__BUILD_TIME__).toISOString().slice(0, 16).replace('T', ' ')}Z` : '';
+  el.textContent = `build ${short}${dirty}${date}${built}`;
+  el.title = `git commit ${__GIT_COMMIT__ || 'unknown'}${dirty ? ' (working tree not clean)' : ''}${date ? `\ncommitted ${__GIT_COMMIT_DATE__}` : ''}`;
+}
+initBuildFooter();
+
+// ---------------------------------------------------------------- loading overlay
+
+// Complete the loading overlay once the app has initialised: snap the progress
+// bar to full and fade the overlay out. Yields to the event loop first so the
+// browser can paint the final bar state before it disappears.
+function finishLoading(): void {
+  const overlay = document.getElementById('loadingOverlay');
+  const fill = document.getElementById('loadingFill');
+  const label = document.getElementById('loadingLabel');
+  if (fill) fill.style.width = '100%';
+  if (label) label.textContent = 'Ready';
+  requestAnimationFrame(() => {
+    overlay?.classList.add('hidden');
+  });
+}
 
 // ---------------------------------------------------------------- state
 
@@ -112,12 +159,12 @@ function showCall(c: CallBundle | null) {
     legend.innerHTML = '<i>no call</i>';
     return;
   }
-  const couples = assignCouples(call.dancers);
-  views = call.dancers.map((d, i) => new DancerView(d, couples[i]));
+  const dancers = assignHomeIdentity(call.dancers);
+  views = dancers.map((d) => new DancerView(d, d.couple ?? 0));
   for (let i = 0; i < views.length; i++) {
     stage.scene.add(views[i].group);
     stage.scene.add(views[i].trail);
-    views[i].setTrail(sampleTrail(call.dancers[i], 80));
+    views[i].setTrail(sampleTrail(dancers[i], 80));
   }
   if (call.taminator) legend.innerHTML = `<b>${call.title}</b> — ${call.taminator}`;
   else legend.innerHTML = `<b>${call.title}</b><br>from ${call.from || '(default setup)'}`;
@@ -344,3 +391,4 @@ function onResize() {
 }
 window.addEventListener('resize', onResize);
 requestAnimationFrame(tick);
+finishLoading();

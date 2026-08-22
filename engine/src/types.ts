@@ -39,6 +39,11 @@ export interface DancerSpec {
   y: number; // grid y
   angleDeg: number; // initial facing in degrees (0 = +X, ccw)
   path: Seg[]; // normalized, one path per dancer
+  // Home-square identity, stamped by assignHomeIdentity. A dancer keeps this
+  // from the start of the square throughout the dance; it is NOT derived from
+  // the dancer's position or array index.
+  id?: number; // 1..8 home identity
+  couple?: number; // 1..4 home couple
   // When true this dancer is the duplicate half of the set: the pose is rotated
   // 180 degrees about the origin (x,y -> -x,-y, heading -> heading + pi). Used
   // to build the full square from taminations' half-group calls.

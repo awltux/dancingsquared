@@ -48,3 +48,38 @@ html, body {
 #edSaved button { margin-left: 6px; }
 #legend { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 2px; }
 #legend b { color: var(--text); }
+.build-footer {
+  position: absolute; right: 12px; bottom: 10px; z-index: 10;
+  font-size: 11px; color: var(--dim); font-family: ui-monospace, monospace;
+  background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px; padding: 3px 8px; backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+}
+.build-footer:hover { color: var(--text); border-color: var(--accent); cursor: default; }
+/* Loading overlay: visible from first paint (no JS needed) while the app bundle
+   loads, then completed and faded by JS once initialisation finishes. */
+.loading-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(1200px 800px at 50% 40%, #111a24, var(--bg));
+  transition: opacity 0.4s ease;
+}
+.loading-overlay.hidden { opacity: 0; pointer-events: none; }
+.loading-card {
+  width: 320px; padding: 22px 24px; text-align: center;
+  background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; backdrop-filter: blur(6px); box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.loading-title { font-size: 16px; letter-spacing: 0.4px; margin-bottom: 16px; }
+.loading-title span { color: var(--accent); font-weight: 600; }
+.loading-bar {
+  height: 8px; border-radius: 4px; overflow: hidden;
+  background: #131a22; border: 1px solid #2a3542;
+}
+.loading-fill {
+  height: 100%; width: 0; border-radius: 4px;
+  background: linear-gradient(90deg, #22b576, var(--accent));
+  box-shadow: 0 0 10px rgba(57, 217, 138, 0.6);
+  transition: width 0.15s ease-out;
+}
+.loading-label { margin-top: 12px; font-size: 12px; color: var(--dim); }

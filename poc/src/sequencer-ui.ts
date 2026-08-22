@@ -16,6 +16,7 @@ export interface SequencerUI {
 
 export function initSequencer(stage: Stage): SequencerUI {
   const levelSelect = document.getElementById('seqLevel') as HTMLSelectElement;
+  const marginInput = document.getElementById('seqMargin') as HTMLInputElement;
   const callSelect = document.getElementById('seqCallSelect') as HTMLSelectElement;
   const applyBtn = document.getElementById('seqApply') as HTMLButtonElement;
   const undoBtn = document.getElementById('seqUndo') as HTMLButtonElement;
@@ -73,6 +74,10 @@ export function initSequencer(stage: Stage): SequencerUI {
   // ---- level selection: restricts the calls available to the sequence ----
   for (const lv of availableLevels()) levelSelect.add(new Option(lv.toUpperCase(), lv));
   levelSelect.value = 'ms';
+  function applyMargin() {
+    seq.setMatchMargin(parseFloat(marginInput.value) || 0);
+    refreshCallSelect();
+  }
   function rebuildSeq() {
     seq = new Sequencer(movesXmlText, formationsXmlText, sequencerCallsUpTo(levelSelect.value));
     for (const m of modules) seq.registerModule(m.name, m.calls);
@@ -84,12 +89,16 @@ export function initSequencer(stage: Stage): SequencerUI {
     playBtn.textContent = '▶ Play';
     for (const v of views) stage.scene.remove(v.group);
     views = [];
+    seq.setMatchMargin(parseFloat(marginInput.value) || 0);
     statusEl.textContent = `level ${levelSelect.value.toUpperCase()} loaded`;
     refreshCallSelect();
     syncAnimation();
     render();
   }
   levelSelect.addEventListener('change', rebuildSeq);
+  marginInput.addEventListener('input', applyMargin);
+  // Apply the initial margin to the starting sequencer.
+  seq.setMatchMargin(parseFloat(marginInput.value) || 0);
 
   // The call picker shows ONLY calls (and modules) that are legal from the
   // current board. Refresh it whenever the board changes.

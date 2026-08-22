@@ -23,6 +23,7 @@ export type { HeadingMode } from './core.js';
 
 // Sequencer / FASR.
 export { Sequencer } from './sequencer/sequencer.js';
+export { assignHomeIdentity } from './sequencer/sequencer.js';
 export * from './sequencer/types.js';
 export { matchFormations } from './sequencer/match.js';
 export type { FormationMatch, Matchable } from './sequencer/match.js';

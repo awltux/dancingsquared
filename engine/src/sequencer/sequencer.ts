@@ -9,7 +9,7 @@ import { buildCall, parseCallXml, parseFormations, parseMoves } from '../convert
 import { matchFormations, type Matchable } from './match.js';
 import { analyzeFasr } from './fasr.js';
 import type { Board, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep } from './types.js';
-import type { CallBundle } from '../types.js';
+import type { CallBundle, DancerSpec } from '../types.js';
 
 // ------------------------------------------------------------ starting board
 
@@ -69,12 +69,33 @@ const STANDARD_FORMATIONS = [
 
 // ------------------------------------------------------------ Sequencer
 
+// Default tolerance for formation matching (matchFormations' maxError).
+const DEFAULT_MATCH_MAX = 6.0;
+
 export class Sequencer {
   private variants: Map<string, CallBundle[]> = new Map();
   private modules: Map<string, string[]> = new Map(); // module name -> call names
   private namedFormations: { name: string; dancers: Matchable[] }[] = [];
 
   board: Board;
+  private matchMargin = 0;
+  private rebaseFactor = 1; // 1 = reset drift to the call's canonical setup, 0 = keep it
+
+  /** Set an extra matching tolerance (in position units) added to the default
+   * when matching the current board against a next call's start setup, and when
+   * checking whether a result lands in a known formation. A larger margin lets
+   * a slightly-off end position still line up with viable next calls. */
+  setMatchMargin(margin: number): void {
+    this.matchMargin = margin;
+  }
+
+  /** Set how much of the difference between the board's current position and the
+   * call's canonical start is absorbed when the call is applied (0..1). At 1 the
+   * dancers are reset onto the canonical setup so margin-based drift doesn't
+   * accumulate; lower values ease across the difference instead of snapping. */
+  setRebaseFactor(factor: number): void {
+    this.rebaseFactor = Math.max(0, Math.min(1, factor));
+  }
 
   constructor(
     private movesXml: string,
@@ -193,16 +214,21 @@ export class Sequencer {
     return { board, beats: acc };
   }
 
-  private evaluateVariantAt(board: Board, m: { variant: CallBundle; mapping: number[] }, localBeat: number): Board {
+  private evaluateVariantAt(board: Board, m: { variant: CallBundle; mapping: number[]; error: number }, localBeat: number): Board {
     const { variant, mapping } = m;
+    const f = this.rebaseFactor;
     const newDancers = board.dancers.map((d, i) => {
       const t = variant.dancers[mapping[i]];
       const start = poseFor(t, 0);
       const cur = poseFor(t, Math.min(localBeat, dancerBeats(t)));
       const localDisp = rot(-start.heading, { x: cur.x - start.x, y: cur.y - start.y });
-      const disp = rot(d.heading, localDisp);
       const delta = normAngle(cur.heading - start.heading);
-      return { ...d, x: d.x + disp.x, y: d.y + disp.y, heading: normAngle(d.heading + delta) };
+      // Same re-base blend as applyToBoardInner so the animation matches the board.
+      const bx = d.x + (start.x - d.x) * f;
+      const by = d.y + (start.y - d.y) * f;
+      const bh = normAngle(d.heading + (start.heading - d.heading) * f);
+      const disp = rot(bh, localDisp);
+      return { ...d, x: bx + disp.x, y: by + disp.y, heading: normAngle(bh + delta) };
     });
     return { dancers: newDancers };
   }
@@ -245,21 +271,36 @@ export class Sequencer {
     let best: { variant: CallBundle; mapping: number[]; error: number } | null = null;
     for (const v of variants) {
       const tgt = v.dancers.map((d) => this.variantMatchable(d));
-      const m = matchFormations(src, tgt);
+      const m = matchFormations(src, tgt, DEFAULT_MATCH_MAX + this.matchMargin);
       if (m && (best === null || m.error < best.error)) best = { variant: v, mapping: m.mapping, error: m.error };
     }
     return best;
   }
 
-  /** Apply a call (or module) to a COPY of the given board (does not mutate). */
+  /** Apply a call (or module) to a COPY of the given board (does not mutate).
+   *
+   * The interactive apply re-bases the board onto the call's canonical start so
+   * margin-based drift doesn't accumulate on the live sequence. */
   applyToBoard(board: Board, callName: string): { board: Board; legal: boolean; reason?: string } {
-    return this.applyToBoardInner(board, callName, []);
+    return this.applyToBoardInner(board, callName, [], true);
+  }
+
+  /**
+   * Apply a call to a copy of the board using PURE relative motion — no drift
+   * re-base. Used by the search operations (legalCalls, getout, fixIt, etc.)
+   * where re-basing onto the matched variant's start would pin dancers to their
+   * current (possibly permuted) positions and destroy the identity information
+   * those searches need to un-permute a board back home.
+   */
+  private applySearch(board: Board, callName: string): { board: Board; legal: boolean; reason?: string } {
+    return this.applyToBoardInner(board, callName, [], false);
   }
 
   private applyToBoardInner(
     board: Board,
     callName: string,
     stack: string[],
+    rebase: boolean,
   ): { board: Board; legal: boolean; reason?: string } {
     if (this.modules.has(callName)) {
       if (stack.includes(callName)) {
@@ -268,7 +309,7 @@ export class Sequencer {
       const nextStack = [...stack, callName];
       let cur = board;
       for (const sub of this.modules.get(callName)!) {
-        const r = this.applyToBoardInner(cur, sub, nextStack);
+        const r = this.applyToBoardInner(cur, sub, nextStack, rebase);
         if (!r.legal) {
           return { board: cloneBoard(board), legal: false, reason: `Module ${callName}: "${sub}" not legal here` };
         }
@@ -288,14 +329,26 @@ export class Sequencer {
       };
     }
     const { variant, mapping } = match;
+    // Re-base for the interactive apply: snap each dancer onto the call's
+    // canonical start (times the rebase factor) so the next call always executes
+    // from its canonical setup and margin drift never accumulates. The search
+    // paths pass rebase=false and use pure relative motion so a getout can still
+    // un-permute dancers back home.
+    const f = rebase ? this.rebaseFactor : 0;
     const newDancers = board.dancers.map((d, i) => {
       const t = variant.dancers[mapping[i]];
       const start = poseFor(t, 0);
       const end = poseFor(t, dancerBeats(t));
       const localDisp = rot(-start.heading, { x: end.x - start.x, y: end.y - start.y });
-      const disp = rot(d.heading, localDisp);
       const delta = normAngle(end.heading - start.heading);
-      return { ...d, x: d.x + disp.x, y: d.y + disp.y, heading: normAngle(d.heading + delta) };
+      // Blend the dancer's base toward the call's canonical start (f=1 full
+      // reset, f=0 keep the board exactly where it was) so margin-based drift
+      // doesn't accumulate, then apply the canonical motion.
+      const bx = d.x + (start.x - d.x) * f;
+      const by = d.y + (start.y - d.y) * f;
+      const bh = normAngle(d.heading + (start.heading - d.heading) * f);
+      const disp = rot(bh, localDisp);
+      return { ...d, x: bx + disp.x, y: by + disp.y, heading: normAngle(bh + delta) };
     });
     return { board: { dancers: newDancers }, legal: true };
   }
@@ -333,13 +386,13 @@ export class Sequencer {
   legalCalls(board: Board): string[] {
     const names: string[] = [];
     for (const name of this.variants.keys()) {
-      const res = this.applyToBoard(board, name);
+      const res = this.applySearch(board, name);
       if (res.legal && this.knownFormation(res.board) !== null) names.push(name);
     }
     // User-defined modules: legal iff every contained call is legal in sequence
     // and the whole module ends in a known formation.
     for (const mname of this.modules.keys()) {
-      const res = this.applyToBoard(board, mname);
+      const res = this.applySearch(board, mname);
       if (res.legal && this.knownFormation(res.board) !== null) names.push(mname);
     }
     return names;
@@ -353,7 +406,7 @@ export class Sequencer {
     const src = this.matchables(board);
     for (const f of this.namedFormations) {
       if (f.dancers.length !== src.length) continue;
-      if (matchFormations(src, f.dancers)) return f.name;
+      if (matchFormations(src, f.dancers, DEFAULT_MATCH_MAX + this.matchMargin)) return f.name;
     }
     return null;
   }
@@ -382,7 +435,7 @@ export class Sequencer {
       if (path.length > 0 && this.reachesTarget(board, target)) return path;
       if (path.length >= maxCalls) continue;
       for (const name of this.legalCalls(board)) {
-        const res = this.applyToBoard(board, name);
+        const res = this.applySearch(board, name);
         if (!res.legal) continue;
         const sig = boardSig(res.board);
         if (seen.has(sig)) continue;
@@ -420,7 +473,7 @@ export class Sequencer {
     if (this.reachesTarget(board, target)) return true;
     if (depth <= 0) return false;
     for (const name of this.legalCalls(board)) {
-      const res = this.applyToBoard(board, name);
+      const res = this.applySearch(board, name);
       if (res.legal && this.canGetoutFrom(res.board, target, depth - 1)) return true;
     }
     return false;
@@ -435,7 +488,7 @@ export class Sequencer {
     const target = opts.target ?? 'Static Square';
     const depth = opts.depth ?? 3;
     return this.legalCalls(this.board).filter((name) => {
-      const res = this.applyToBoard(this.board, name);
+      const res = this.applySearch(this.board, name);
       return res.legal && this.canGetoutFrom(res.board, target, depth);
     });
   }
@@ -467,6 +520,43 @@ function isSymmetric(board: Board): boolean {
 
 function cloneBoard(b: Board): Board {
   return { dancers: b.dancers.map((d) => ({ ...d })) };
+}
+
+// ------------------------------------------------------------ identity
+
+// The home squared-set positions (dancer id -> its home pose). Identity (which
+// couple / which dancer id) is fixed from this square at the start of the dance
+// and never changes, regardless of where a call moves the dancers.
+const HOME_MATCHABLES: Matchable[] = makeSquaredSet().dancers.map((d) => ({
+  x: d.x,
+  y: d.y,
+  heading: d.heading,
+}));
+
+/**
+ * Stamp each dancer of a full-set call with its home-square identity (id +
+ * couple) by matching the call's start formation to the home squared set up to
+ * rotation/reflection. Callers then colour by `couple` (a stable property of
+ * the dancer) instead of re-deriving identity from position or array index each
+ * call.
+ *
+ * Mirrored (half-set) dancers use their full-set position for matching. When the
+ * call's setup isn't an 8-dancer home square (e.g. a smaller group or a phantom
+ * setup), no identity can be assigned and the dancers are returned un-stamped.
+ */
+export function assignHomeIdentity(dancers: DancerSpec[]): DancerSpec[] {
+  if (dancers.length !== HOME_MATCHABLES.length) return dancers;
+  const full = dancers.map((d): Matchable => {
+    if (d.mirror) return { x: -d.x, y: -d.y, heading: normAngle(d.angleDeg * DEG + Math.PI) };
+    return { x: d.x, y: d.y, heading: d.angleDeg * DEG };
+  });
+  const m = matchFormations(full, HOME_MATCHABLES);
+  if (!m) return dancers;
+  const home = makeSquaredSet().dancers;
+  return dancers.map((d, i) => {
+    const h = home[m.mapping[i]];
+    return { ...d, id: h.id, couple: h.couple };
+  });
 }
 
 // Rotation/translation/reflection-invariant signature for BFS dedup: the sorted

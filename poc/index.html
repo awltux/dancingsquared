@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
+    <div id="loadingOverlay" class="loading-overlay">
+      <div class="loading-card">
+        <div class="loading-title">Dancing Squared</div>
+        <div class="loading-bar"><div id="loadingFill" class="loading-fill"></div></div>
+        <div id="loadingLabel" class="loading-label">Loading&hellip;</div>
+      </div>
+    </div>
     <div id="app">
       <canvas id="stage"></canvas>
       <div id="hud">
@@ -23,6 +30,8 @@
         <div class="row">
           <label>Level</label>
           <select id="levelSelect"></select>
+        </div>
+        <div class="row">
           <label>Call</label>
           <select id="callSelect"></select>
           <label>Setup</label>
@@ -60,9 +69,15 @@
         </div>
         <div id="seqPanel" hidden>
           <div class="row">
+            <label>Margin</label>
+            <input id="seqMargin" type="number" min="0" max="6" step="0.5" value="4" class="small" title="Extra matching tolerance for viable next calls" />
+          </div>
+          <div class="row">
             <label>Level</label>
             <select id="seqLevel"></select>
             <select id="seqCallSelect" class="wide"></select>
+          </div>
+          <div class="row">
             <button id="seqApply">Apply</button>
             <button id="seqUndo">Undo</button>
             <button id="seqReset">Reset</button>
@@ -94,6 +109,8 @@
               <option value="fix">Fix closure</option>
               <option value="create">Create position</option>
             </select>
+          </div>
+          <div class="row">
             <label>Edit call</label>
             <select id="edCall" class="wide"></select>
             <label>Setup</label>
@@ -139,6 +156,7 @@
         </div>
       </div>
     </div>
+    <footer id="buildFooter" class="build-footer"></footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

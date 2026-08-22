@@ -31,12 +31,13 @@ import movesXml from './assets/moves.xml?raw';
 import formationsXml from './assets/formations.xml?raw';
 import callsXml from './assets/src/calls.xml?raw';
 
-// All level call files: ./assets/<level>/<call>.xml  (root moves/formations are
-// deliberately excluded by the `*/*` pattern).
-const levelFiles = import.meta.glob<string>('./assets/*/*.xml', {
+// Each per-level call XML is kept as its OWN async-loadable chunk (not inlined
+// into the main bundle). loadCatalog() fetches them all and reports real
+// download + parse progress; the catalog getters below are valid only once it
+// has resolved.
+const levelLoaders = import.meta.glob<string>('./assets/*/*.xml', {
   query: '?raw',
   import: 'default',
-  eager: true,
 });
 
 export interface CallInfo {
@@ -56,15 +57,24 @@ const LEVEL_ORDER = ['b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c
 // are cleared so the live catalog returns to the shipped version.
 const DATA_VERSION = '1';
 
-// Parse the shared moves/formations once.
+// Parse the shared moves/formations once (small, eager).
 const movesMap = parseMoves(movesXml);
 const formationsMap = parseFormations(formationsXml);
 
-// Build the catalog: one entry per distinct <tam> title within a file.
-const catalog: CallInfo[] = [];
-for (const [path, xml] of Object.entries(levelFiles)) {
+// Populated by loadCatalog(). The getters below are valid only once it resolves.
+let fullCatalog: CallInfo[] = [];
+let levelXml = new Map<string, string>();
+let loadPromise: Promise<void> | null = null;
+
+function byLevelThenTitle(a: CallInfo, b: CallInfo): number {
+  const l = LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level);
+  return l !== 0 ? l : a.title.localeCompare(b.title);
+}
+
+// Parse one per-level XML file into its distinct-call catalog entries.
+function parseCatalogFile(xml: string, path: string): CallInfo[] {
   const m = /\.\/assets\/([^/]+)\/([^/]+)\.xml$/.exec(path);
-  if (!m) continue;
+  if (!m) return [];
   const level = m[1];
   const base = m[2];
   const file = `${level}/${base}`;
@@ -72,10 +82,9 @@ for (const [path, xml] of Object.entries(levelFiles)) {
   try {
     tams = parseCallXml(xml);
   } catch {
-    continue;
+    return [];
   }
-  if (tams.length === 0) continue; // skip non-call files (no <tam>)
-
+  if (tams.length === 0) return []; // skip non-call files (no <tam>)
   const byTitle = new Map<string, number[]>();
   tams.forEach((t, i) => {
     const key = t.title || file;
@@ -83,8 +92,9 @@ for (const [path, xml] of Object.entries(levelFiles)) {
     arr.push(i);
     byTitle.set(key, arr);
   });
+  const out: CallInfo[] = [];
   for (const [title, indices] of byTitle) {
-    catalog.push({
+    out.push({
       id: `${file}::${title}`,
       level,
       file,
@@ -93,19 +103,13 @@ for (const [path, xml] of Object.entries(levelFiles)) {
       tamIndices: indices,
     });
   }
-}
-catalog.sort(byLevelThenTitle);
-
-function byLevelThenTitle(a: CallInfo, b: CallInfo): number {
-  const l = LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level);
-  return l !== 0 ? l : a.title.localeCompare(b.title);
+  return out;
 }
 
-// b1/b2/ssd: real b1/b2 animation files are bundled; ssd has no directory in the
-// data and is the same as ms, so it is added as a level alias that loads the
-// shared ms/plus file for the matching call basename. Aliases carry over every
-// distinct title in the target file.
-function buildBasicAliases(): CallInfo[] {
+// b1/b2/ssd aliases: real b1/b2 animation files are bundled; ssd has no
+// directory in the data and is the same as ms, so it is added as a level alias
+// that loads the shared ms/plus file for the matching call basename.
+function buildAliases(catalog: CallInfo[], xmlMap: Map<string, string>): CallInfo[] {
   const aliases: CallInfo[] = [];
   const doc = new DOMParser().parseFromString(callsXml, 'application/xml');
   for (const call of Array.from(doc.getElementsByTagName('call'))) {
@@ -114,7 +118,7 @@ function buildBasicAliases(): CallInfo[] {
     if (!m) continue;
     const level = m[1];
     const base = m[2];
-    if (levelFiles[`./assets/${level}/${base}.xml`] != null) continue; // real file bundled
+    if (xmlMap.has(`./assets/${level}/${base}.xml`)) continue; // real file bundled
     for (const found of catalog.filter((c) => c.file.split('/')[1] === base)) {
       const id = `${level}/${base}::${found.title}`;
       if (aliases.some((a) => a.id === id)) continue;
@@ -133,10 +137,52 @@ function buildBasicAliases(): CallInfo[] {
   return aliases;
 }
 
-const basicAliases = buildBasicAliases();
-
-// Full catalog: real per-level files + the b1/b2/ssd aliases.
-const fullCatalog: CallInfo[] = [...catalog, ...basicAliases].sort(byLevelThenTitle);
+/**
+ * Load the catalog over the network with real progress. Fetches each per-level
+ * XML as its own chunk, then parses it. `onProgress(phase, frac)` reports a 0..1
+ * fraction for 'download' then 'parse'. Idempotent: concurrent callers share
+ * one in-flight load.
+ */
+export async function loadCatalog(
+  onProgress?: (phase: 'download' | 'parse', frac: number) => void,
+): Promise<void> {
+  if (!loadPromise) {
+    loadPromise = (async () => {
+      const paths = Object.keys(levelLoaders).sort();
+      const xmlMap = new Map<string, string>();
+      // Download with a small concurrency pool so the bar advances as each file
+      // actually arrives, without issuing hundreds of simultaneous requests.
+      const POOL = 6;
+      const total = paths.length;
+      let next = 0;
+      let done = 0;
+      const worker = async () => {
+        while (next < total) {
+          const p = paths[next++];
+          try {
+            xmlMap.set(p, await levelLoaders[p]());
+          } catch {
+            // Skip a file that failed to load; the rest of the catalog still works.
+          }
+          done++;
+          onProgress?.('download', done / total);
+        }
+      };
+      await Promise.all(Array.from({ length: Math.min(POOL, total) }, () => worker()));
+      // Parse each file, advancing per file.
+      const catalog: CallInfo[] = [];
+      for (const [path, xml] of xmlMap) {
+        catalog.push(...parseCatalogFile(xml, path));
+      }
+      catalog.sort(byLevelThenTitle);
+      const aliases = buildAliases(catalog, xmlMap);
+      levelXml = xmlMap;
+      fullCatalog = [...catalog, ...aliases].sort(byLevelThenTitle);
+      onProgress?.('parse', 1);
+    })();
+  }
+  return loadPromise;
+}
 
 export function availableCalls(): CallInfo[] {
   return fullCatalog;
@@ -226,7 +272,7 @@ export function effectiveSetups(callId: string): { label: string; from: string }
 function loadCallBase(id: string, tamIndex: number, mirror = true): CallBundle {
   const entry = fullCatalog.find((c) => c.id === id);
   if (!entry) throw new Error(`Unknown call: ${id}`);
-  const xml = levelFiles[`./assets/${entry.file}.xml`];
+  const xml = levelXml.get(`./assets/${entry.file}.xml`);
   if (xml == null) throw new Error(`Missing XML for ${entry.file}`);
   const tams = parseCallXml(xml);
   const fileIdx = entry.tamIndices[tamIndex] ?? entry.tamIndices[0];
@@ -352,7 +398,7 @@ function tamFromCall(call: CallBundle): string | null {
   return m ? m[0] : null;
 }
 function registrationXml(entry: CallInfo): string | null {
-  const xml = levelFiles[`./assets/${entry.file}.xml`];
+  const xml = levelXml.get(`./assets/${entry.file}.xml`);
   if (xml == null) return null;
   const blocks = xml.match(/<tam\b[\s\S]*?<\/tam>/g) || [];
   const edits = appliedEdits().filter((e) => e.callId === entry.id);

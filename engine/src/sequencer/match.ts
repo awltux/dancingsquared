@@ -19,6 +19,14 @@ export interface FormationMatch {
 
 const ROTS = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
 
+// When two alignments tie on error (common for rotationally-symmetric
+// formations like a squared set, where all four rotations fit equally well),
+// prefer the EARLIER one — i.e. the smallest rotation, no reflection. This keeps
+// a symmetric board from being re-oriented to an arbitrary 90/180/-90 rotation
+// during a re-base (which would spin the whole set), and otherwise only breaks
+// floating-point ties that are geometrically equivalent.
+const TIE_EPS = 1e-9;
+
 const angDiff = (a: number, b: number) => {
   let d = (a - b) % (2 * Math.PI);
   if (d < -Math.PI) d += 2 * Math.PI;
@@ -100,8 +108,11 @@ export function matchFormations(
   };
   const s1 = sig(source);
   const s2 = sig(target);
+  // Signature tolerance scales with maxError so a caller-provided margin also
+  // relaxes this quick reject (0.5 at the default maxError of 6.0).
+  const sigTol = maxError / 12;
   for (let k = 0; k < s1.length; k++) {
-    if (Math.abs(s1[k] - s2[k]) > 0.5) return null;
+    if (Math.abs(s1[k] - s2[k]) > sigTol) return null;
   }
 
   const cSrc = center(source);
@@ -112,7 +123,7 @@ export function matchFormations(
     for (const reflect of [false, true]) {
       const t = transformTarget(target, rot, reflect, cTgt);
       const res = greedyAssign(centered, t);
-      if (best === null || res.error < best.error) {
+      if (best === null || res.error < best.error - TIE_EPS) {
         best = { mapping: res.mapping, error: res.error };
       }
     }

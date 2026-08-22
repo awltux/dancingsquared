@@ -310,6 +310,10 @@ export class DancerView {
     const parts = buildAvatar(color, phantom, spec.gender);
     this.group = parts.group;
     this.parts = parts;
+    // Double the avatar size (geometry is authored in ~1.6-unit tall units).
+    // Feet stay at the group origin, and the arm IK is done in local space, so
+    // a uniform group scale keeps the whole figure — and its reach — consistent.
+    this.group.scale.set(2, 2, 2);
     if (couple > 0) this.group.add(makeNumberLabel(String(couple)));
 
     this.trail = new THREE.Line(

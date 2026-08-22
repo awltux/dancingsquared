@@ -1,0 +1,18 @@
+{
+  "name": "dancing-squared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Square-dance engine + 3D PoC (npm workspaces monorepo)",
+  "workspaces": [
+    "engine",
+    "poc"
+  ],
+  "scripts": {
+    "build:engine": "npm run build -w dancing-squared-engine",
+    "build": "npm run build -w dancing-squared-engine && npm run build -w dancing-squared-poc",
+    "dev": "npm run dev -w dancing-squared-poc",
+    "preview": "npm run preview -w dancing-squared-poc",
+    "verify": "npm run build -w dancing-squared-engine && npm run verify -w dancing-squared-poc",
+    "verify:engine": "npm run verify -w dancing-squared-engine"
+  }
+}

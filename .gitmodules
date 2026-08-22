@@ -1,0 +1,3 @@
+[submodule "taminations-flutter"]
+	path = taminations-flutter
+	url = https://github.com/bradchristie/taminations-flutter.git

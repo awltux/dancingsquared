@@ -1,0 +1,33 @@
+{
+  "name": "dancing-squared-engine",
+  "version": "0.1.0",
+  "description": "Standalone square-dance engine: parses taminations XML into a normalized call bundle and evaluates dancer poses, facing, and hand holds. Renderer-agnostic.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "verify": "tsc -p tsconfig.json && node test/verify.mjs && node test/sequencer.mjs && node test/mainstream.mjs && node test/editor.mjs"
+  },
+  "keywords": [
+    "square-dance",
+    "taminations",
+    "dance",
+    "animation",
+    "engine"
+  ],
+  "license": "AGPL-3.0",
+  "devDependencies": {
+    "@xmldom/xmldom": "^0.9.11",
+    "typescript": "^5.6.0"
+  }
+}

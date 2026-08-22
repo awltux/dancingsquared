@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dancing Squared — 3D Square Dance PoC</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="stage"></canvas>
+      <div id="hud">
+        <h1>Dancing Squared <span>PoC</span></h1>
+        <div class="row">
+          <label>Mode</label>
+          <select id="modeSelect">
+            <option value="browse">Browse calls</option>
+            <option value="sequence">Sequencer</option>
+            <option value="editor">Call editor</option>
+          </select>
+        </div>
+        <div id="browseControls">
+        <div class="row">
+          <label>Level</label>
+          <select id="levelSelect"></select>
+          <label>Call</label>
+          <select id="callSelect"></select>
+          <label>Setup</label>
+          <select id="tamSelect"></select>
+        </div>
+        <div class="row">
+          <button id="play" title="Play / resume">▶ Play</button>
+          <button id="pause" title="Pause (hold current frame)">⏸ Pause</button>
+          <button id="stepBack" title="Step backward 1/4 beat">⏪</button>
+          <button id="stepFwd" title="Step forward 1/4 beat">⏩</button>
+          <label>Speed</label>
+          <select id="speed">
+            <option value="0.5">Half</option>
+            <option value="1" selected>1×</option>
+            <option value="2">2×</option>
+            <option value="4">4×</option>
+          </select>
+          <span id="partLabel" class="part"></span>
+        </div>
+        <div class="row">
+          <label>Facing</label>
+          <select id="facing">
+            <option value="rotation" selected>Rotation Bézier (data)</option>
+            <option value="travel">Along travel</option>
+          </select>
+        </div>
+        <div class="row">
+          <label><input id="mirror" type="checkbox" checked /> Full square (mirror)</label>
+        </div>
+        <div class="row">
+          <input id="scrub" type="range" min="0" max="100" value="0" />
+          <span id="beatReadout" class="part"></span>
+        </div>
+        <div id="legend"></div>
+        </div>
+        <div id="seqPanel" hidden>
+          <div class="row">
+            <label>Level</label>
+            <select id="seqLevel"></select>
+            <select id="seqCallSelect" class="wide"></select>
+            <button id="seqApply">Apply</button>
+            <button id="seqUndo">Undo</button>
+            <button id="seqReset">Reset</button>
+          </div>
+          <div class="row">
+            <button id="seqGetout">Getout</button>
+            <button id="seqApplyGetout">Apply getout</button>
+            <button id="seqFixIt">Fix it</button>
+            <span id="seqStatus" class="part"></span>
+          </div>
+          <div class="row">
+            <button id="seqPlay">▶ Play</button>
+            <input id="seqScrub" type="range" min="0" max="100" value="100" />
+            <span id="seqBeat" class="part"></span>
+          </div>
+          <div id="seqSequence" class="small"></div>
+          <div id="seqFasr" class="small"></div>
+          <div id="seqFixList" class="small"></div>
+          <div class="row">
+            <input id="seqModuleName" class="wide" placeholder="Module name (fix/getout)" />
+            <button id="seqSaveModule">Save module</button>
+          </div>
+          <div id="seqModules" class="small"></div>
+        </div>
+        <div id="editorPanel" hidden>
+          <div class="row">
+            <label>Mode</label>
+            <select id="edMode">
+              <option value="fix">Fix closure</option>
+              <option value="create">Create position</option>
+            </select>
+            <label>Edit call</label>
+            <select id="edCall" class="wide"></select>
+            <label>Setup</label>
+            <select id="edSetup"></select>
+          </div>
+          <div class="row">
+            <label>Post call</label>
+            <select id="edPostCall" class="wide"></select>
+            <label>Post setup</label>
+            <select id="edPostSetup"></select>
+          </div>
+          <div id="edFixPanel">
+            <div class="row">
+              <button id="edShowEnd" title="Show the edit call setup's end position">Show end</button>
+              <button id="edShowTarget" title="Show the post call's start position (the target)">Show target</button>
+              <button id="edFix" title="Retarget the final move so the selected setup ends at the post-call start (beats unchanged)">Fix closure</button>
+              <span id="edFixInfo" class="part"></span>
+            </div>
+          </div>
+          <div id="edCreatePanel" hidden>
+            <div class="row">
+              <label>Pre call</label>
+              <select id="edPreCall" class="wide"></select>
+              <label>Pre setup</label>
+              <select id="edPreSetup"></select>
+              <button id="edShowStart" title="Show the pre call's end position (the new start)">Show start</button>
+            </div>
+            <div class="row">
+              <label>Name</label>
+              <input id="edName" class="wide" placeholder="New position name" />
+              <label>Pad beats</label>
+              <input id="edPadBeats" type="number" min="0" max="8" step="0.5" value="2" class="small" />
+              <button id="edCreate" title="Synthesize a new position from pre-end to post-start through the selected setup">Create</button>
+            </div>
+          </div>
+          <div class="row">
+            <button id="edSave">Save</button>
+            <button id="edExport">Export &lt;tam&gt; XML</button>
+            <span id="edStatus" class="part"></span>
+          </div>
+          <div id="edSaved" class="small"></div>
+          <textarea id="edXml" class="small" rows="6" readonly placeholder="Exported <tam> XML appears here."></textarea>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

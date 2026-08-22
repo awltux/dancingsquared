@@ -1,0 +1,23 @@
+{
+  "name": "dancing-squared-poc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Proof-of-concept: taminations XML -> pure engine -> Three.js 3D avatars",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "verify": "node verify.cjs"
+  },
+  "dependencies": {
+    "three": "^0.169.0",
+    "dancing-squared-engine": "file:../engine"
+  },
+  "devDependencies": {
+    "@types/three": "^0.169.0",
+    "@xmldom/xmldom": "^0.9.11",
+    "typescript": "^5.6.0",
+    "vite": "^5.4.0"
+  }
+}

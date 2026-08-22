@@ -1,0 +1,57 @@
+// Dancing-Squared Engine — public API.
+//
+// A standalone, renderer-agnostic square-dance engine:
+//   - convert:   taminations XML -> normalized CallBundle
+//   - core:      pure pose evaluation (position, facing, hands)
+//   - handholds: hand-hold derivation from poses
+//
+// Usage (browser): DOMParser is global, so:
+//   const engine = new Engine(movesXml, formationsXml);
+//   const call = engine.loadCall(callXml);
+//   const poses = engine.poses(call, 3.5);
+//   const holds = engine.handholds(poses);
+//
+// In Node, first call setParser(@xmldom/xmldom's DOMParser).
+
+export * from './types.js';
+export * from './core.js';
+export * from './handholds.js';
+
+export { Engine } from './engine.js';
+export type { HoldMode, HoldEdge, Hand } from './handholds.js';
+export type { HeadingMode } from './core.js';
+
+// Sequencer / FASR.
+export { Sequencer } from './sequencer/sequencer.js';
+export * from './sequencer/types.js';
+export { matchFormations } from './sequencer/match.js';
+export type { FormationMatch, Matchable } from './sequencer/match.js';
+export { analyzeFasr } from './sequencer/fasr.js';
+
+// Call editor: synthesize missing setups by padding core moves.
+export {
+  rigidFit,
+  alignFormationToCore,
+  padSegment,
+  synthesizeSetup,
+  synthesizeSetupChain,
+  setupToXml,
+  callToXml,
+  endPoses,
+  closureDiscrepancy,
+  correctEndTo,
+  alignTargetToStart,
+} from './editor.js';
+export type { FormDancer, NewSetup, ChainSpec, ClosureDiscrepancy, Rigid } from './editor.js';
+
+export {
+  setParser,
+  parseMoves,
+  parseFormations,
+  parseCallXml,
+  buildCall,
+  buildCallVariants,
+  callMeta,
+  loadCallFromXml,
+} from './convert.js';
+export type { CallMeta } from './convert.js';

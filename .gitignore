@@ -1,0 +1,7 @@
+node_modules/
+dist/
+dist-test/
+.npm-cache/
+*.local
+# leftover diagnostic referencing the excluded dist-test build
+poc/diag.cjs

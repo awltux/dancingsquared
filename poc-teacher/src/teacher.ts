@@ -160,6 +160,8 @@ export interface TipGenOpts {
   minLen?: number;
   maxLen?: number;
   count?: number;
+  /** Max getout calls used to bring the tip back to the squared set (default 6). */
+  getoutMax?: number;
 }
 
 // Deterministic pick: prefer legal available calls, scored by priority weight,
@@ -180,10 +182,13 @@ function applicableFrom(seq: Sequencer, board: import('dancing-squared-engine').
 }
 
 /**
- * Generate `count` practice tips from `seq` (a Sequencer pre-loaded with the
- * available calls) that only use calls in `available`, prioritising the highest
- * `priority` calls first and preferring calls that keep the tip going. Each tip
- * is a list of call titles.
+ * Generate `count` practice tips from `seq` (a Sequencer pre-loaded with ONLY the
+ * available calls) that start and finish in the squared set. Each tip uses only
+ * the available calls, prioritises the highest `priority` calls first and
+ * prefers calls that keep the tip going, then closes back to the squared set via
+ * a getout (so every tip is a zero). Tips that cannot be brought home are
+ * dropped. `seq` should be registered with the available calls so the getout
+ * only uses calls the class knows.
  */
 export function generateTips(
   seq: Sequencer,
@@ -194,10 +199,11 @@ export function generateTips(
   const minLen = opts.minLen ?? 4;
   const maxLen = opts.maxLen ?? 8;
   const count = opts.count ?? 3;
+  const getoutMax = opts.getoutMax ?? 6;
   const tips: string[][] = [];
   const usedAny = new Set<string>();
   for (let t = 0; t < count; t++) {
-    seq.reset();
+    seq.reset(); // start in the squared set
     const tip: string[] = [];
     const usedHere = new Set<string>();
     let guard = 0;
@@ -220,8 +226,12 @@ export function generateTips(
       if (!step.legal) break;
       tip.push(pick);
       usedHere.add(pick);
-      if (tip.length >= minLen) break; // a complete practice tip
     }
+    // Close the tip back to the squared set (finish in square). If no getout is
+    // found within the bound, discard this tip.
+    const getout = seq.getout({ target: 'Static Square', maxCalls: getoutMax });
+    if (!getout || !getout.length) continue;
+    tip.push(...getout);
     if (tip.length >= minLen) {
       tips.push(tip);
       for (const c of tip) usedAny.add(c);

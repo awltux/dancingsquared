@@ -178,20 +178,24 @@ const pri = priorityWeights(cls, 1);
 check((pri.get(cls.sessions[1].taught[0].title) ?? 0) >= 2, 'current-session taught call prioritised');
 check((pri.get(cls.sessions[0].problems[0].title) ?? 0) >= 3, 'problem call-setup prioritised');
 
-console.log('\n== Tip generation (uses only current+previous calls, prioritised) ==');
+console.log('\n== Tip generation (starts and finishes in the squared set, uses only taught calls) ==');
 // Session 2 knows sessions 0..1 taught calls only.
 const available = availableTitles(cls, 1);
 const priority = priorityWeights(cls, 1);
-const tips = generateTips(seq, available, priority, { minLen: 3, maxLen: 6, count: 3 });
+// A Sequencer registered with ONLY the class's taught calls.
+const availSeq = makeSequencer(movesXml, formationsXml, catalog.filter((x) => available.has(x.title)));
+const tips = generateTips(availSeq, available, priority, { minLen: 3, maxLen: 6, count: 3 });
 check(tips.length > 0, `generated ${tips.length} tips`);
 for (const tip of tips) {
   const legalTitles = tip.every((t) => available.has(t));
   check(legalTitles, `tip uses only available calls: ${tip.join(' > ')}`);
-  // Verify each tip is actually legal to play from home.
-  seq.reset();
+  // Verify the tip is legal to play and BEGINS and ENDS in the squared set.
+  availSeq.reset();
+  const startsSquare = availSeq.isAt('Static Square');
   let legal = true;
-  for (const t of tip) legal = legal && seq.apply(t).legal;
-  check(legal, `tip plays legally from home: ${tip.join(' > ')}`);
+  for (const t of tip) legal = legal && availSeq.apply(t).legal;
+  const endsSquare = availSeq.isAt('Static Square');
+  check(legal && startsSquare && endsSquare, `tip starts in square and finishes in square: ${tip.join(' > ')}`);
 }
 
 console.log('\n== Fits around a selected call (before / after) ==');

@@ -369,9 +369,11 @@ function tipsPage(id: string): string {
 }
 
 function renderTip(id: string, t: Tip, ti: number, ts: { selectedTip: number; selectedIdx: number }): string {
+  const c = cls(id)!;
+  const sIdx = c.sessions.length - 1;
   const selected = ts.selectedTip === ti;
   const selCall = selected ? t.titles[ts.selectedIdx] : null;
-  const fits = selected && selCall != null ? fitsAround(seq, availableTitles(cls(id)!, 0), t.titles, ts.selectedIdx) : null;
+  const fits = selected && selCall != null ? fitsAround(seq, availableTitles(c, sIdx), t.titles, ts.selectedIdx) : null;
   return `
     <div class="tip">
       <div class="tip-head">
@@ -603,7 +605,11 @@ function wire(): void {
       const id = b.dataset.id!;
       const c = cls(id)!;
       const sIdx = c.sessions.length - 1;
-      tipsByClass[id] = generateTips(seq, availableTitles(c, sIdx), priorityWeights(c, sIdx), { minLen: 3, maxLen: 6, count: 3 })
+      const avail = availableTitles(c, sIdx);
+      // A Sequencer registered with ONLY the class's known calls, so generated
+      // tips (and their getouts home) use only calls the class has been taught.
+      const availSeq = makeSequencer(movesXml, formationsXml, catalog.filter((x) => avail.has(x.title)));
+      tipsByClass[id] = generateTips(availSeq, avail, priorityWeights(c, sIdx), { minLen: 3, maxLen: 6, count: 3 })
         .map((titles, i) => ({ name: `Tip ${i + 1}`, sourceSessionId: c.sessions[sIdx].id, titles }));
       tipsState[id] = { selectedTip: tipsByClass[id].length ? 0 : -1, selectedIdx: -1 };
       render();

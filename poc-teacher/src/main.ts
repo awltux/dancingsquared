@@ -593,8 +593,10 @@ function tipsPage(id: string, fromSession?: number): string {
         <button class="big primary" data-act="gentips" data-id="${id}" data-session="${sIdx}">Generate tips</button>
       </div>
 
-      <h2 class="section-title">Call probabilities</h2>
-      ${renderCallProbs(id, c, sIdx, avail)}
+      <details class="collapsible">
+        <summary>Call probabilities</summary>
+        ${renderCallProbs(id, c, sIdx, avail)}
+      </details>
 
       ${tips.length ? tips.map((t, ti) => renderTip(id, t, ti, ts)).join('') : '<p class="hint">No tips yet — tap "Generate tips".</p>'}
 

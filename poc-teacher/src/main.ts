@@ -312,6 +312,9 @@ function sessionPage(id: string, i: number): string {
       </div>
       <p class="hint">Tap a call under Planned to teach it (it moves up to Taught). Tap a taught call to move it back.</p>
 
+      <h2 class="section-title">Taught in previous sessions</h2>
+      ${renderPrevTaught(c, i)}
+
       <h2 class="section-title">Who was here?</h2>
       <div class="attend">
         ${c.students.map((st) => `
@@ -355,6 +358,25 @@ function studentsPage(id: string): string {
         </div>`;
       }).join('') : '<p class="hint">No dancers yet — add the first one above.</p>'}
     </div>`;
+}
+
+// Distinct calls taught in sessions before index `i`, as chips.
+function renderPrevTaught(c: ClassInstance, i: number): string {
+  if (i <= 0 || c.sessions.length === 0) {
+    return '<span class="muted">No previous sessions yet</span>';
+  }
+  const seen = new Set<string>();
+  const chips: string[] = [];
+  for (const sess of c.sessions.slice(0, i)) {
+    for (const r of sess.taught) {
+      if (seen.has(r.title)) continue;
+      seen.add(r.title);
+      chips.push(chip(r));
+    }
+  }
+  return chips.length
+    ? `<div class="chips">${chips.join('')}</div>`
+    : '<span class="muted">Nothing was taught in previous sessions</span>';
 }
 
 function studentPage(id: string, sid: string): string {

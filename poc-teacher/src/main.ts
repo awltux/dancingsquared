@@ -285,6 +285,17 @@ let programmes: Programme[] = loadProgrammes();
 let notice = '';
 let noticeWarn = false;
 
+// Persisted open/closed state of collapsible <details> sections, keyed by a
+// stable id. A re-render (e.g. toggling a student's attendance) re-creates the
+// DOM, so without this a section the user collapsed would snap back open.
+const detailsState = new Map<string, boolean>();
+/** The `open` attribute for a <details> whose state is persisted by `key`,
+ * defaulting to `def` the first time. */
+function detailsOpenAttr(key: string, def: boolean): string {
+  const v = detailsState.get(key);
+  return (v === undefined ? def : v) ? ' open' : '';
+}
+
 /** Set the transient action notice; pass `warn: true` for a prominent warning
  * (e.g. "already saved" feedback) rendered in the warning colours. */
 function setNotice(text: string, warn = false): void {
@@ -556,19 +567,19 @@ function sessionPage(id: string, i: number): string {
     <div class="content">
       ${notice ? `<p class="notice${noticeWarn ? ' warn' : ''}">${esc(notice)}</p>` : ''}
       ${s.capturedAt ? `<p class="muted">Completed — captured taught ${s.capturedTaught?.length ?? 0} of ${(s.capturedTaught?.length ?? 0) + (s.capturedPlanned?.length ?? 0)} calls (taught + planned) at the time of completion.</p>` : ''}
-      <details class="collapsible" open>
+      <details class="collapsible" data-dkey="s:${id}:${i}:taught"${detailsOpenAttr(`s:${id}:${i}:taught`, true)}>
         <summary>Taught this session</summary>
         ${s.taught.length ? renderGrouped(s.taught, (r, ti) => sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)) : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}
       </details>
 
-      <details class="collapsible" open>
+      <details class="collapsible" data-dkey="s:${id}:${i}:planned"${detailsOpenAttr(`s:${id}:${i}:planned`, true)}>
         <summary>Planned <button class="small-btn" data-moveall="${id}:${i}">Move all → taught</button></summary>
         ${s.planned.length ? renderGrouped(s.planned, (r, pi) => sessionCallChip(r, `data-teach="${id}:${i}:${pi}"`, '', id, i, s)) : '<span class="muted">No plan</span>'}
         <button class="big" data-act="pull" data-id="${id}" data-i="${i}" style="margin-top:12px">Pull 1 from next</button>
         <p class="hint">Tap a call under Planned to teach it (it moves up to Taught). Tap a taught call to move it back.</p>
       </details>
 
-      <details class="collapsible">
+      <details class="collapsible" data-dkey="s:${id}:${i}:prev"${detailsOpenAttr(`s:${id}:${i}:prev`, false)}>
         <summary>Taught in previous sessions</summary>
         ${renderPrevTaught(c, i)}
       </details>
@@ -585,7 +596,7 @@ function sessionPage(id: string, i: number): string {
 
       <button class="big primary" data-nav="#/class/${id}/tips/${i}">Make practice tips →</button>
 
-      <details class="collapsible" style="margin-top:16px">
+      <details class="collapsible" style="margin-top:16px" data-dkey="s:${id}:${i}:mods"${detailsOpenAttr(`s:${id}:${i}:mods`, false)}>
         <summary>Saved modules</summary>
         ${savedModules[id]?.length ? savedModules[id].map((m, mi) => renderModule(id, m, mi)).join('') : '<p class="hint">No saved modules yet — save a tip from the Practice tips page.</p>'}
       </details>
@@ -957,6 +968,13 @@ function ico(key: string): string {
 // ---------------------------------------------------------------- events
 
 function wire(): void {
+  // Persist the open/closed state of collapsible sections so a re-render (e.g.
+  // toggling a student's attendance) doesn't snap a collapsed list back open.
+  root.querySelectorAll<HTMLDetailsElement>('details[data-dkey]').forEach((el) => {
+    const k = el.dataset.dkey!;
+    el.addEventListener('toggle', () => detailsState.set(k, el.open));
+  });
+
   root.querySelectorAll<HTMLElement>('[data-nav]').forEach((el) =>
     el.addEventListener('click', (e) => {
       e.preventDefault();

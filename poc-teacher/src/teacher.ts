@@ -294,13 +294,18 @@ export function pullForward(cls: ClassInstance, sessionIdx: number, count: numbe
   const s = cls.sessions[sessionIdx];
   const next = cls.sessions[sessionIdx + 1];
   if (!s || !next || count <= 0) return;
+  // Pull prioritised (starred) call-setups from the next session first, then the rest.
+  const isPrio = (r: CallRef) =>
+    next.problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
+  const prio = next.planned.filter(isPrio);
+  const normal = next.planned.filter((r) => !isPrio(r));
   const taken: CallRef[] = [];
-  const kept: CallRef[] = [];
-  for (const r of next.planned) {
-    if (taken.length < count && !hasCallPosition(s, r)) taken.push(r);
-    else kept.push(r);
+  for (const r of [...prio, ...normal]) {
+    if (taken.length >= count) break;
+    if (!hasCallPosition(s, r)) taken.push(r);
   }
-  next.planned = kept;
+  const takenKeys = new Set(taken.map(refKey));
+  next.planned = next.planned.filter((r) => !takenKeys.has(refKey(r))); // keep original order
   s.planned.push(...taken);
 }
 

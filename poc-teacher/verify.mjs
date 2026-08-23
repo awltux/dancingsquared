@@ -301,6 +301,14 @@ check(
   `note groups missed by session: ${JSON.stringify(note)}`,
 );
 
+console.log('\n== Pull forward prefers prioritised calls ==');
+const pfProg = parseProgramme(JSON.stringify({ name: 'P', level: 'ms', sessions: [{ name: 'S1', calls: [] }, { name: 'S2', calls: ['Circle Left', 'Allemande Left'] }] }));
+const pf = buildClassFromProgramme('x', 'X', pfProg, [], resolveLocal);
+const b = pf.sessions[1].planned[1]; // Allemande Left — prioritise this
+pf.sessions[1].problems = [{ title: b.title, setupIdx: b.setupIdx, priority: 4, note: 'prio' }];
+pullForward(pf, 0, 1); // pull 1 from session 2 into session 1
+check(pf.sessions[0].planned.length === 1 && pf.sessions[0].planned[0].title === b.title, 'pulls the prioritised call first');
+
 console.log('\n== Teach / unteach (planned -> taught) ==');
 const tc = structuredClone(emptyTaught);
 const plan0 = tc.sessions[0].planned.length;

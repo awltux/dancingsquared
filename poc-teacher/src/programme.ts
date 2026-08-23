@@ -24,7 +24,7 @@ export function defaultProgramme(): Programme {
     sessions: [
       { name: 'Session 1', calls: ['Circle Left', 'Forward and Back', 'Allemande Left', 'Courtesy Turn', 'Flutterwheel'] },
       { name: 'Session 2', calls: ['Ladies Chain', 'Right and Left Thru', 'Sides Face, Grand Square', 'Sides Face, Grand Spin', 'Heads Promenade 1/2'] },
-      { name: 'Session 3', calls: ['Right and Left Grand', 'Pass Thru', 'Square Thru', 'Swing Thru', 'Grand Square'] },
+      { name: 'Session 3', calls: ['Right and Left Grand', 'Pass Thru', 'Spin the Top', 'Swing Thru', 'Grand Square'] },
     ],
   };
 }

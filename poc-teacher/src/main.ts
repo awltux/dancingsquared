@@ -39,6 +39,12 @@ const toRef = (title: string): CallRef => {
   const c = findCall(title)!;
   return { title: c.title, level: c.level, setupIdx: 0, setup: c.setups[0].label };
 };
+// Null-safe resolver for building courses from imported programmes (drops calls
+// that aren't in the loaded catalog instead of throwing).
+const toRefOrNull = (title: string): CallRef | null => {
+  const c = findCall(title);
+  return c ? { title: c.title, level: c.level, setupIdx: 0, setup: c.setups[0].label } : null;
+};
 
 // ---------------------------------------------------------------- seed
 
@@ -392,16 +398,18 @@ function newCoursePage(): string {
       <div><h1>New course</h1><p class="sub">Start from a programme</p></div>
     </header>
     <div class="content">
-      <label class="field">Course name
+      <label class="field">Course name <span class="req">*</span>
         <input id="newName" type="text" placeholder="e.g. Monday Beginners" />
+        <span class="err" id="err-name"></span>
       </label>
       <label class="field">Programme (sessions &amp; calls)
         <select id="newProg">
-          ${programmes.map((p, i) => `<option value="${i}">${esc(p.name)} · ${p.level.toUpperCase()} · ${p.sessions.length} sessions</option>`).join('')}
+          ${programmes.length ? programmes.map((p, i) => `<option value="${i}">${esc(p.name)} · ${p.level.toUpperCase()} · ${p.sessions.length} sessions</option>`).join('') : '<option value="-1">No programmes — add one first</option>'}
         </select>
+        <span class="err" id="err-prog"></span>
       </label>
       <label class="field">Students (comma separated, optional)
-        <input id="newStudents" type="text" placeholder="Alice, Bob, Carol" />
+        <input id="newStudents" type="text" placeholder="e.g. Alice, Bob, Carol" />
       </label>
       <button class="big primary" data-act="createcourse">Create course</button>
       <p class="hint">The course starts with each session's planned calls from the programme. Nothing is taught yet.</p>
@@ -485,13 +493,37 @@ function wire(): void {
 
   root.querySelectorAll<HTMLElement>('[data-act="createcourse"]').forEach((b) =>
     b.addEventListener('click', () => {
-      const name = (root.querySelector('#newName') as HTMLInputElement).value.trim() || 'New course';
-      const pi = +((root.querySelector('#newProg') as HTMLSelectElement).value || '0');
-      const students = (root.querySelector('#newStudents') as HTMLInputElement).value.split(',').map((s) => s.trim()).filter(Boolean);
+      const nameEl = root.querySelector('#newName') as HTMLInputElement;
+      const progEl = root.querySelector('#newProg') as HTMLSelectElement;
+      const errName = root.querySelector('#err-name') as HTMLElement;
+      const errProg = root.querySelector('#err-prog') as HTMLElement;
+
+      const name = nameEl.value.trim();
+      const pi = +progEl.value;
       const p = programmes[pi];
-      if (!p) return;
+
+      let ok = true;
+      if (!name) {
+        errName.textContent = 'Please give the course a name.';
+        nameEl.classList.add('invalid');
+        ok = false;
+      } else {
+        errName.textContent = '';
+        nameEl.classList.remove('invalid');
+      }
+      if (!p) {
+        errProg.textContent = 'Pick a programme, or add one under Programmes first.';
+        progEl.classList.add('invalid');
+        ok = false;
+      } else {
+        errProg.textContent = '';
+        progEl.classList.remove('invalid');
+      }
+      if (!ok) return;
+
+      const students = (root.querySelector('#newStudents') as HTMLInputElement).value.split(',').map((s) => s.trim()).filter(Boolean);
       const id = 'c' + Date.now().toString(36);
-      classes.push(buildClassFromProgramme(id, name, p, students, toRef));
+      classes.push(buildClassFromProgramme(id, name, p, students, toRefOrNull));
       save();
       navigate(`#/class/${id}`);
     }));
@@ -523,14 +555,26 @@ function wire(): void {
 
   root.querySelectorAll<HTMLElement>('[data-import]').forEach((b) =>
     b.addEventListener('click', () => {
-      const text = (root.querySelector('#importText') as HTMLTextAreaElement).value;
+      const ta = root.querySelector('#importText') as HTMLTextAreaElement;
+      const text = ta.value;
+      if (!text.trim()) {
+        ta.classList.add('invalid');
+        notice = 'Nothing to import — paste a programme or choose a file first.';
+        render();
+        return;
+      }
+      ta.classList.remove('invalid');
       importProgrammeText(text);
     }));
 
   root.querySelectorAll<HTMLInputElement>('#importFile').forEach((file) =>
     file.addEventListener('change', () => {
       const f = file.files?.[0];
-      if (!f) return;
+      if (!f) {
+        notice = 'No file was chosen.';
+        render();
+        return;
+      }
       const reader = new FileReader();
       reader.onload = () => importProgrammeText(String(reader.result ?? ''));
       reader.readAsText(f);

@@ -109,6 +109,9 @@ textarea { resize: vertical; min-height: 110px; line-height: 1.4; }
 .field { display: block; font-size: 14px; color: var(--muted); font-weight: 600; margin: 4px 0 14px; }
 .field input, .field select { margin-top: 6px; font-weight: 400; }
 .primary-card { background: var(--accent-bg); border-color: var(--accent); }
+.req { color: var(--bad); }
+.err { display: block; color: var(--bad); font-size: 14px; font-weight: 500; margin-top: 6px; }
+input.invalid, select.invalid, textarea.invalid { border-color: var(--bad); box-shadow: 0 0 0 2px rgba(163,36,44,0.25); }
 .notice {
   background: var(--accent-bg); border: 1px solid var(--accent);
   color: var(--accent); border-radius: 10px; padding: 12px; font-size: 15px; margin-top: 8px;

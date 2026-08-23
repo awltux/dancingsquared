@@ -414,23 +414,29 @@ function studentsPage(id: string): string {
 }
 
 // Per-call probability sliders, grouped by the session each call was taught in.
-// Each slider starts at the effective probability (override or the global
-// current/prev default from Tip settings).
+// Each call is shown in the same chip style as the session page (name + position
+// + star to prioritise) with its probability slider underneath. Each slider
+// starts at the effective probability (override or the global current/prev
+// default from Tip settings).
 function renderCallProbs(id: string, c: ClassInstance, sIdx: number, avail: Set<string>): string {
   const currentSet = new Set(c.sessions[sIdx].taught.map((r) => r.title));
   const seen = new Set<string>();
   let out = '';
   for (let si = 0; si <= sIdx; si++) {
-    const list = c.sessions[si].taught.filter((r) => avail.has(r.title) && !seen.has(r.title));
+    const s = c.sessions[si];
+    const list = s.taught.filter((r) => avail.has(r.title) && !seen.has(r.title));
     for (const r of list) seen.add(r.title);
     if (!list.length) continue;
-    out += `<h3>${esc(c.sessions[si].name)}</h3>`;
+    out += `<h3>${esc(s.name)}</h3>`;
     out += list
       .map((r) => {
         const pct = Math.round(effectiveCallProb(id, r.title, currentSet) * 100);
-        return `<label class="field callprob-field">${callLabel(r)}
+        const on = s.problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
+        return `<div class="callprob-item">
+          <span class="chip wrap ${on ? 'warn' : ''}"><span class="chip-main">${callLabel(r)}</span><button class="star ${on ? 'on' : ''}" data-star="${id}::${si}::${r.title}::${r.setupIdx}" title="Prioritise this call">${on ? '★' : '☆'}</button></span>
           <input type="range" class="callprob" data-callprob="${id}::${r.title}" min="0" max="100" step="5" value="${pct}" />
-          <span class="cpval">${pct}%</span></label>`;
+          <span class="cpval">${pct}%</span>
+        </div>`;
       })
       .join('');
   }
@@ -634,7 +640,7 @@ let probModal: ProbModal | null = null;
 function sessionCallChip(r: CallRef, action: string, prefix: string, id: string, i: number, s: SessionPlan): string {
   const on = s.problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
   const tip = prefix === '✓' ? 'Tap to move back to planned' : 'Tap to teach this call';
-  return `<span class="chip wrap"><button class="chip-main" ${action} title="${tip}">${prefix ? `${prefix} ` : ''}${callLabel(r)}</button><button class="star ${on ? 'on' : ''}" data-star="${id}::${i}::${r.title}::${r.setupIdx}" title="Prioritise this call">★</button></span>`;
+  return `<span class="chip wrap ${on ? 'warn' : ''}"><button class="chip-main" ${action} title="${tip}">${prefix ? `${prefix} ` : ''}${callLabel(r)}</button><button class="star ${on ? 'on' : ''}" data-star="${id}::${i}::${r.title}::${r.setupIdx}" title="Prioritise this call">${on ? '★' : '☆'}</button></span>`;
 }
 
 // Render a call with its name (bold) and position (dimmer) clearly separated.

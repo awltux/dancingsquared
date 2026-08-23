@@ -51,6 +51,58 @@ const toRef = (title: string): CallRef => {
   const c = findCall(title)!;
   return { title: c.title, level: c.level, setupIdx: 0, setup: c.setups[0].label };
 };
+
+// ------------------------------------------------------- creative module names
+
+// Creative name generator for saved modules. The generated name is influenced by
+// the calls actually in the tip (its dominant call family becomes the theme), so
+// it feels relevant, while a seeded word bank keeps it varied and playful. The
+// same tip always suggests the same name; the user can edit it in the prompt.
+const MOD_FLAIR = [
+  'Grand', 'Golden', 'Moonlit', 'Twirling', 'Sassy', 'Jolly', 'Fancy', 'Sneaky',
+  'Waltzing', 'Velvet', 'Spinning', 'Sunny', 'Rambling', 'Roaring', 'Feathered',
+];
+const MOD_NOUN = [
+  'Reunion', 'Rendezvous', 'Serenade', 'Caper', 'Flourish', 'Galop', 'Stroll',
+  'Romp', 'Twirl', 'Jig', 'Promenade', 'Turn', 'Whirl', 'Rag', 'Finale',
+];
+// name = [flair] [theme] [noun] combinations, chosen per-tip for variety.
+const MOD_STYLES: ((theme: string, flair: string, noun: string) => string)[] = [
+  (t: string, f: string) => `${f} ${t}`,
+  (t: string, _f: string, n: string) => `${t} ${n}`,
+  (_t: string, f: string, n: string) => `The ${f} ${n}`,
+  (t: string, f: string, n: string) => `${f} ${t} ${n}`,
+  (t: string, f: string) => `${t} by ${f}`,
+];
+
+/** A short theme word drawn from a tip's most common call family. */
+function tipTheme(titles: string[]): string {
+  const counts = new Map<string, number>();
+  for (const t of titles) {
+    const fam = familyOf(t);
+    if (fam && fam !== 'Other') counts.set(fam, (counts.get(fam) ?? 0) + 1);
+  }
+  let theme = '';
+  let best = 0;
+  for (const [f, n] of counts) if (n > best) { best = n; theme = f; }
+  const core = theme.replace(/\s*Family$/i, '').trim(); // "Circle Family" -> "Circle"
+  if (core) return core;
+  // fall back to the first call (minus common fragments) for a theme word.
+  const first = titles[0] ?? '';
+  return first.replace(/^(Heads|Sides|All 4 Couples)\s*/i, '').trim() || 'Square';
+}
+
+/** Suggest a creative module name from the tip's calls (stable per tip). */
+function suggestModuleName(titles: string[]): string {
+  const theme = tipTheme(titles);
+  let seed = 0;
+  for (const ch of titles.join('>')) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+  const flair = MOD_FLAIR[seed % MOD_FLAIR.length];
+  const noun = MOD_NOUN[(seed >>> 3) % MOD_NOUN.length];
+  const style = MOD_STYLES[seed % MOD_STYLES.length];
+  return style(theme, flair, noun);
+}
+
 // Null-safe resolver for building courses from imported programmes (drops calls
 // that aren't in the loaded catalog instead of throwing).
 const toRefOrNull = (title: string): CallRef | null => {
@@ -1234,8 +1286,9 @@ function wire(): void {
       const t = tipsByClass[id][+ti];
       // The session the tip was generated for (its sourceSessionId), not the last one.
       const sIdx = Math.max(0, c.sessions.findIndex((s) => s.id === t.sourceSessionId));
-      const defaultName = t.name || `Saved tip ${(savedModules[id]?.length ?? 0) + 1}`;
-      const name = window.prompt('Name this module', defaultName) || defaultName;
+      // Suggest a creative name from the tip's calls; fall back to a plain count.
+      const defaultName = suggestModuleName(t.titles) || `Saved tip ${(savedModules[id]?.length ?? 0) + 1}`;
+      const name = (window.prompt(`Name this module — suggested: "${defaultName}"`, defaultName) || '').trim() || defaultName;
       (savedModules[id] ??= []).push({
         name,
         titles: [...t.titles],

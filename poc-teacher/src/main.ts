@@ -1110,7 +1110,8 @@ function wire(): void {
       const [id, ti] = b.dataset.savetip!.split(':');
       const c = cls(id)!;
       const t = tipsByClass[id][+ti];
-      const sIdx = c.sessions.length - 1;
+      // The session the tip was generated for (its sourceSessionId), not the last one.
+      const sIdx = Math.max(0, c.sessions.findIndex((s) => s.id === t.sourceSessionId));
       const defaultName = t.name || `Saved tip ${(savedModules[id]?.length ?? 0) + 1}`;
       const name = window.prompt('Name this module', defaultName) || defaultName;
       (savedModules[id] ??= []).push({

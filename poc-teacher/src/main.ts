@@ -1303,7 +1303,7 @@ function wire(): void {
       const t = tipsByClass[id][+ti];
       // Avoid duplicates: if the exact call sequence is already saved, don't save
       // it again — just point the user at the existing module.
-      const modules = savedModules[id] ?? [];
+      const modules = (savedModules[id] ??= []);
       const seq = t.titles;
       const dup = modules.findIndex((m) => sameSequence(m.titles, seq));
       if (dup >= 0) {

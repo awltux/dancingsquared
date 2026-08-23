@@ -55,8 +55,7 @@ npm run build:teacher
 Emits a static build to **`poc-teacher/dist/`** (TypeScript check via `tsc`,
 then Vite build with `base: './'`, so all asset URLs are relative). The build
 injects the current **git commit** into `index.html` (`<meta name="app-version">`)
-and `public/sw.js` (service worker) so the installed app can detect a new deploy
-and reload.
+so the running app can detect a new deploy and reload.
 
 ## Test
 

@@ -628,17 +628,17 @@ export async function generateTips(
         tips.push(tip);
         made++;
         for (const c of tip) usedAny.add(c);
-        console.log(`[generateTips] attempt ${t + 1}/${attempts}: made tip ${made}/${count}: ${tip.join(' > ')}`);
+
       } else {
-        console.log(`[generateTips] attempt ${t + 1}/${attempts}: getout found but tip length ${tip.length} < minLen ${minLen}, discarded`);
+
       }
     } else {
-      console.log(`[generateTips] attempt ${t + 1}/${attempts}: body=${tip.length} calls, no getout home in ${getoutMax}, discarded`);
+
     }
     // Report progress; an async onProgress hook can repaint the UI between attempts.
     await onProgress(t + 1, made, count);
   }
-  console.log(`[generateTips] done: ${tips.length}/${count} tips generated from ${attempts} attempts`);
+
   return tips;
 }
 

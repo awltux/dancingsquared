@@ -582,7 +582,7 @@ function renderModal(m: ProbModal): string {
         <h2>Prioritise</h2>
         <p class="modal-call">${callLabel({ title: m.title, level: '', setupIdx: m.setupIdx, setup: '' })}</p>
         <label class="field">Notes
-          <textarea id="probNote" rows="3" placeholder="What do they struggle with?">${esc(note)}</textarea>
+          <textarea id="probNote" rows="3" aria-label="Problem note" placeholder="What do they struggle with?">${esc(note)}</textarea>
         </label>
         <label class="field">Priority
           <input id="probPriority" type="range" min="1" max="5" step="1" value="${p}" />
@@ -713,7 +713,7 @@ function sessionPage(id: string, i: number): string {
         </div>
         <span class="mod-export-msg" data-modexportmsg="${id}"></span>
         <div id="modImportBox" hidden style="margin-top:10px">
-          <textarea id="modImportText" rows="3" placeholder="Paste exported module JSON here…"></textarea>
+          <textarea id="modImportText" rows="3" aria-label="Module JSON" placeholder="Paste exported module JSON here…"></textarea>
           <div class="row two" style="margin-top:8px">
             <label class="big filebtn">Choose file<input type="file" id="modImportFile" data-modid="${id}" accept=".json,application/json" hidden /></label>
             <button class="big primary" data-modimport="${id}">Import</button>
@@ -733,7 +733,7 @@ function studentsPage(id: string): string {
     </header>
     <div class="content">
       <div class="row two addstudent-row">
-        <input id="addStudent" type="text" placeholder="New dancer's name" data-id="${id}" />
+        <input id="addStudent" type="text" aria-label="New dancer's name" placeholder="New dancer's name" data-id="${id}" />
         <button class="big primary" type="button" data-addstudent data-id="${id}">Add</button>
       </div>
       ${c.students.length ? c.students.map((st) => {
@@ -869,7 +869,7 @@ function studentPage(id: string, sid: string): string {
       ${k.missed.length ? `
         <h2 class="section-title">Missed — needs re-teaching</h2>
         <div class="chips">${k.missed.map((t) => chip({ title: t, level: '', setupIdx: 0, setup: '' }, new Set(k.missed))).join('')}</div>
-        <p class="hint">These were taught on a session ${st.name} was absent from.</p>` : ''}
+        <p class="hint">These were taught on a session ${esc(st.name)} was absent from.</p>` : ''}
     </div>`;
 }
 
@@ -989,7 +989,7 @@ function newCoursePage(): string {
     </header>
     <div class="content">
       <label class="field">Course name <span class="req">*</span>
-        <input id="newName" type="text" placeholder="e.g. Monday Beginners" />
+        <input id="newName" type="text" aria-label="Course name" placeholder="e.g. Monday Beginners" />
         <span class="err" id="err-name"></span>
       </label>
       <label class="field">Programme (sessions &amp; calls)
@@ -999,7 +999,7 @@ function newCoursePage(): string {
         <span class="err" id="err-prog"></span>
       </label>
       <label class="field">Students (comma separated, optional)
-        <input id="newStudents" type="text" placeholder="e.g. Alice, Bob, Carol" />
+        <input id="newStudents" type="text" aria-label="Student names" placeholder="e.g. Alice, Bob, Carol" />
       </label>
       <button class="big primary" data-act="createcourse">Create course</button>
       <p class="hint">The course starts with each session's planned calls from the programme. Nothing is taught yet.</p>
@@ -1024,7 +1024,7 @@ function programmesPage(): string {
           </div>
         </div>`).join('')}
       <h2 class="section-title">Import a programme</h2>
-      <textarea id="importText" rows="5" placeholder="Paste a programme JSON here…"></textarea>
+      <textarea id="importText" rows="5" aria-label="Programme JSON" placeholder="Paste a programme JSON here…"></textarea>
       <div class="row two" style="margin-top:8px">
         <label class="big filebtn">Choose file<input type="file" id="importFile" accept=".json,application/json" hidden /></label>
         <button class="big primary" data-import="text">Import</button>
@@ -1506,7 +1506,7 @@ function wire(): void {
     const prioritised = new Set(c.sessions[sIdx].problems.map((p) => p.title));
     const familyMap: Record<string, string> = {};
     for (const x of catalog) familyMap[x.title] = x.family;
-    console.log('[gentips] starting for class', id, 'session', sIdx, 'avail=', avail.size, 'calls=', calls.length, 'current=', c.sessions[sIdx].taught.length);
+
 
     // Register a Sequencer with ONLY the class's known calls so tips and their
     // getouts home use only calls the class has been taught.
@@ -1531,7 +1531,7 @@ function wire(): void {
             return new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
           },
         });
-        console.log('[gentips] generated', tips.length, 'tips');
+
         tipsByClass[id] = tips.map((titles, i) => ({
           name: `Tip ${i + 1}`,
           sourceSessionId: c.sessions[sIdx].id,

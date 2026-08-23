@@ -74,15 +74,28 @@ export function availableTitles(cls: ClassInstance, sessionIdx: number): Set<str
   return set;
 }
 
-/** Untaught planned calls of `sessionIdx` roll into the next session's plan. */
+/**
+ * Move every planned call of `sessionIdx` into the next session's plan (clearing
+ * the current plan). If there is no next session, one is created to hold them.
+ */
 export function rollUntaughtForward(cls: ClassInstance, sessionIdx: number): void {
   const s = cls.sessions[sessionIdx];
-  const next = cls.sessions[sessionIdx + 1];
-  if (!s || !next) return;
-  const taught = new Set(s.taught.map(refKey));
-  for (const r of s.planned) {
-    if (!taught.has(refKey(r))) next.planned.push(r);
+  if (!s) return;
+  let next = cls.sessions[sessionIdx + 1];
+  if (!next) {
+    next = {
+      id: `${s.id}-n${cls.sessions.length + 1}`,
+      name: `Session ${cls.sessions.length + 1}`,
+      level: s.level,
+      planned: [],
+      taught: [],
+      attendance: {},
+      problems: [],
+    };
+    cls.sessions.push(next);
   }
+  next.planned.push(...s.planned);
+  s.planned = [];
 }
 
 /** If `sessionIdx` covered all its planned calls, pull `count` from the next plan. */

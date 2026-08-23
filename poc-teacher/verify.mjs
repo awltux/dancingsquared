@@ -123,11 +123,22 @@ const avail1 = availableTitles(cls, 0);
 check(avail1.has(cls.sessions[0].taught[0].title), 'session 1 available includes its taught calls');
 check(!avail1.has(cls.sessions[1].taught[0].title), 'session 1 available excludes later session calls');
 
-console.log('\n== Roll untaught forward ==');
-rollUntaughtForward(cls, 0);
-const rolled = cls.sessions[1].planned.map((r) => r.title);
-const untaughtTitle = cls.sessions[0].planned[cls.sessions[0].taught.length].title;
-check(rolled.includes(untaughtTitle), `untaught call rolled into session 2 plan (has ${untaughtTitle})`);
+console.log('\n== Roll plan forward ==');
+const rollCls = structuredClone(cls);
+const s0planned = rollCls.sessions[0].planned.map((r) => r.title);
+rollUntaughtForward(rollCls, 0);
+const rolled = rollCls.sessions[1].planned.map((r) => r.title);
+check(s0planned.every((t) => rolled.includes(t)), `all planned calls moved into session 2 plan`);
+check(rollCls.sessions[0].planned.length === 0, 'current session plan cleared after moving');
+check(rolled.length === s0planned.length + (rollCls.sessions[1].planned.length - s0planned.length), 'session 2 plan has the moved calls');
+
+// Rolling the LAST session creates a new session to hold the plan.
+const last = rollCls.sessions.length - 1;
+const before = rollCls.sessions.length;
+rollUntaughtForward(rollCls, last);
+check(rollCls.sessions.length === before + 1, `rolling the last session creates a new one (${before} -> ${rollCls.sessions.length})`);
+check(rollCls.sessions[last].planned.length === 0, 'last session plan cleared after moving');
+check(rollCls.sessions[last + 1].planned.length > 0, 'new session holds the moved calls');
 
 console.log('\n== Pull forward ==');
 const s3StartLen = cls.sessions[2].planned.length;

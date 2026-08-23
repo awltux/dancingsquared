@@ -353,6 +353,72 @@ function saveSavedModules(): void {
   }
 }
 
+/** Serialize a class's saved modules for export/sharing. */
+function serializeModules(modules: SavedModule[]): string {
+  return JSON.stringify(
+    {
+      app: 'dancing-squared-teacher',
+      kind: 'modules',
+      version: 1,
+      modules: modules.map((m) => ({ name: m.name, titles: m.titles })),
+    },
+    null,
+    2,
+  );
+}
+
+/** Parse exported module JSON; returns the valid modules or null if it isn't a
+ * module export. Invalid entries are skipped. */
+function parseModules(text: string): SavedModule[] | null {
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  const arr =
+    data && typeof data === 'object' && Array.isArray((data as { modules?: unknown }).modules)
+      ? (data as { modules: unknown[] }).modules
+      : Array.isArray(data)
+        ? data
+        : null;
+  if (!arr) return null;
+  const out: SavedModule[] = [];
+  for (const m of arr) {
+    if (!m || typeof m !== 'object') continue;
+    const o = m as { name?: unknown; titles?: unknown };
+    if (typeof o.name !== 'string' || !Array.isArray(o.titles)) continue;
+    const titles = o.titles.filter((t): t is string => typeof t === 'string');
+    if (!titles.length) continue;
+    out.push({ name: o.name, titles, createdAt: Date.now(), createdClass: '', createdSession: '' });
+  }
+  return out.length ? out : null;
+}
+
+/** Add parsed modules to a class's saved list, skipping duplicates. */
+function importModulesText(id: string, text: string): void {
+  const parsed = parseModules(text);
+  if (!parsed) {
+    setNotice('That is not valid module JSON. Export modules first and paste their text.');
+    render();
+    return;
+  }
+  const list = (savedModules[id] ??= []);
+  let added = 0;
+  for (const m of parsed) {
+    if (list.some((x) => sameSequence(x.titles, m.titles))) continue;
+    list.push(m);
+    added++;
+  }
+  saveSavedModules();
+  setNotice(
+    added
+      ? `Imported ${added} module(s).${parsed.length - added ? ` ${parsed.length - added} skipped as duplicates.` : ''}`
+      : 'No new modules imported — they were all duplicates.',
+  );
+  render();
+}
+
 function load(): ClassInstance[] {
   try {
     const raw = localStorage.getItem(STORE_KEY);
@@ -599,6 +665,17 @@ function sessionPage(id: string, i: number): string {
       <details class="collapsible" style="margin-top:16px" data-dkey="s:${id}:${i}:mods"${detailsOpenAttr(`s:${id}:${i}:mods`, false)}>
         <summary>Saved modules</summary>
         ${savedModules[id]?.length ? savedModules[id].map((m, mi) => renderModule(id, m, mi)).join('') : '<p class="hint">No saved modules yet — save a tip from the Practice tips page.</p>'}
+        <div class="row two" style="margin-top:10px">
+          <button class="big" data-modexport="${id}">Export</button>
+          <button class="big" data-modimporttoggle="${id}">Import</button>
+        </div>
+        <div id="modImportBox" hidden style="margin-top:10px">
+          <textarea id="modImportText" rows="3" placeholder="Paste exported module JSON here…"></textarea>
+          <div class="row two" style="margin-top:8px">
+            <label class="big filebtn">Choose file<input type="file" id="modImportFile" data-modid="${id}" accept=".json,application/json" hidden /></label>
+            <button class="big primary" data-modimport="${id}">Import</button>
+          </div>
+        </div>
       </details>
     </div>`;
 }
@@ -1198,6 +1275,53 @@ function wire(): void {
       a.download = `${p.name.replace(/\W+/g, '-').toLowerCase()}-programme.json`;
       a.click();
       URL.revokeObjectURL(url);
+    }));
+
+  // ---- saved-modules import / export ----
+  root.querySelectorAll<HTMLElement>('[data-modexport]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const id = b.dataset.modexport!;
+      const list = savedModules[id] ?? [];
+      if (!list.length) { setNotice('No saved modules to export.'); render(); return; }
+      const text = serializeModules(list);
+      const doCopy = () => { setNotice(`Copied ${list.length} module(s) to clipboard.`); render(); };
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(doCopy, () => { setNotice('Could not copy — see console.'); render(); });
+      } else {
+        setNotice('Clipboard unavailable on this device.');
+        render();
+      }
+    }));
+
+  root.querySelectorAll<HTMLElement>('[data-modimporttoggle]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const box = root.querySelector('#modImportBox') as HTMLElement | null;
+      if (box) box.hidden = !box.hidden;
+    }));
+
+  root.querySelectorAll<HTMLElement>('[data-modimport]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const id = b.dataset.modimport!;
+      const ta = root.querySelector('#modImportText') as HTMLTextAreaElement;
+      const text = ta.value;
+      if (!text.trim()) {
+        ta.classList.add('invalid');
+        setNotice('Nothing to import — paste module JSON or choose a file first.');
+        render();
+        return;
+      }
+      ta.classList.remove('invalid');
+      importModulesText(id, text);
+    }));
+
+  root.querySelectorAll<HTMLInputElement>('#modImportFile').forEach((file) =>
+    file.addEventListener('change', () => {
+      const id = file.dataset.modid!;
+      const f = file.files?.[0];
+      if (!f) { setNotice('No file was chosen.'); render(); return; }
+      const reader = new FileReader();
+      reader.onload = () => importModulesText(id, String(reader.result ?? ''));
+      reader.readAsText(f);
     }));
 
   root.querySelectorAll<HTMLElement>('[data-import]').forEach((b) =>

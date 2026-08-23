@@ -238,8 +238,26 @@ let noticeWarn = false;
 
 // Persisted open/closed state of collapsible <details> sections, keyed by a
 // stable id. A re-render (e.g. toggling a student's attendance) re-creates the
-// DOM, so without this a section the user collapsed would snap back open.
-const detailsState = new Map<string, boolean>();
+// DOM, so without this a section the user collapsed would snap back open. The
+// state is also persisted to localStorage so a list's open/closed position is
+// remembered across navigation and reloads.
+const DETAILS_KEY = 'dsTeacherDetailsOpen';
+const detailsState: Map<string, boolean> = (() => {
+  try {
+    const raw = localStorage.getItem(DETAILS_KEY);
+    if (raw) return new Map(Object.entries(JSON.parse(raw) as Record<string, boolean>));
+  } catch {
+    /* ignore */
+  }
+  return new Map();
+})();
+function saveDetailsState(): void {
+  try {
+    localStorage.setItem(DETAILS_KEY, JSON.stringify(Object.fromEntries(detailsState)));
+  } catch {
+    /* ignore */
+  }
+}
 /** The `open` attribute for a <details> whose state is persisted by `key`,
  * defaulting to `def` the first time. */
 function detailsOpenAttr(key: string, def: boolean): string {
@@ -998,10 +1016,14 @@ function ico(key: string): string {
 
 function wire(): void {
   // Persist the open/closed state of collapsible sections so a re-render (e.g.
-  // toggling a student's attendance) doesn't snap a collapsed list back open.
+  // toggling a student's attendance) doesn't snap a collapsed list back open,
+  // and it's remembered across navigation and reloads.
   root.querySelectorAll<HTMLDetailsElement>('details[data-dkey]').forEach((el) => {
     const k = el.dataset.dkey!;
-    el.addEventListener('toggle', () => detailsState.set(k, el.open));
+    el.addEventListener('toggle', () => {
+      detailsState.set(k, el.open);
+      saveDetailsState();
+    });
   });
 
   root.querySelectorAll<HTMLElement>('[data-nav]').forEach((el) =>

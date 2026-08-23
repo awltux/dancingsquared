@@ -379,6 +379,24 @@ for (const tip of cfgTips) {
 }
 check(Array.isArray(cfgTips) && cfgValid && cfgEndsSquare, 'tip config (repeat/priority/current/prev probabilities) is accepted and tips still close home');
 
+// Family rule: a generated tip never contains two calls from the same family.
+const famMap = new Map(catalog.map((c) => [c.title, c.family]));
+const famTips = generateTips(availSeq, available, priority, {
+  minLen: 3,
+  maxLen: 6,
+  count: 3,
+  getoutMax: 6,
+  rand: seededRandom(11),
+  family: (t) => famMap.get(t) ?? '',
+});
+// The rule applies to the tip body (the getout tail is the closure back home).
+const noFamDup = famTips.every((tip) => {
+  const body = tip.slice(0, Math.max(0, tip.length - 6));
+  const fams = body.map((t) => famMap.get(t) ?? '');
+  return new Set(fams).size === fams.length;
+});
+check(noFamDup, `no two calls from the same family in a tip body (${famTips.length} tips checked)`);
+
 // Per-call probability weighting is accepted and tips still only use available calls.
 const probTips = generateTips(availSeq, available, priority, {
   minLen: 3,

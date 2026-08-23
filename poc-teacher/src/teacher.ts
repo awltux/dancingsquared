@@ -471,6 +471,8 @@ export interface TipGenOpts {
   current?: Set<string>;
   /** Per-call weight 0..1 used to bias the pick (higher = more likely). Default 1 for all. */
   callProb?: (title: string) => number;
+  /** Returns a call's family; when provided, a tip avoids two calls of the same family. */
+  family?: (title: string) => string;
   /** Injectable RNG for deterministic testing (default Math.random). */
   rand?: () => number;
 }
@@ -524,12 +526,15 @@ export function generateTips(
   const config = { ...DEFAULT_TIP_CONFIG, ...(opts.config ?? {}) };
   const rand = opts.rand ?? Math.random;
   const callProb = opts.callProb ?? (() => 1);
+  const family = opts.family ?? (() => '');
+  const hasFamily = opts.family != null;
   const tips: string[][] = [];
   const usedAny = new Set<string>();
   for (let t = 0; t < count; t++) {
     seq.reset(); // start in the squared set
     const tip: string[] = [];
     const usedHere = new Set<string>();
+    const usedFamilies = new Set<string>();
     let guard = 0;
     while (tip.length < maxLen && guard++ < 300) {
       const snapshot = seq.startBoard();
@@ -558,6 +563,12 @@ export function generateTips(
         const prv = pool.filter((n) => !current.has(n));
         if (prv.length) pool = prv;
       }
+      // Family rule: don't pick a second call from a family already in this tip
+      // (fall back to same-family only if nothing else continues the tip).
+      if (hasFamily) {
+        const freshFam = pool.filter((n) => !usedFamilies.has(family(n)));
+        if (freshFam.length) pool = freshFam;
+      }
       // Weighted pick: per-call probability plus a strong preference for calls not
       // yet used in this tip (stronger when repeatProb is low) and for calls not
       // used in earlier tips, so tips stay varied. Random weighted selection makes
@@ -577,6 +588,7 @@ export function generateTips(
       if (!step.legal) break;
       tip.push(pick);
       usedHere.add(pick);
+      if (hasFamily) usedFamilies.add(family(pick));
     }
     // Close the tip back to the squared set (finish in square). If no getout is
     // found within the bound, discard this tip.

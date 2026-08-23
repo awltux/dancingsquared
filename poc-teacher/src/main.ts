@@ -1086,6 +1086,7 @@ function wire(): void {
         config: tipConfigGlobal,
         current: currentSet,
         callProb: (t) => effectiveCallProb(id, t, currentSet),
+        family: familyOf,
       }).map((titles, i) => ({ name: `Tip ${i + 1}`, sourceSessionId: c.sessions[sIdx].id, titles }));
       tipsState[id] = { selectedTip: tipsByClass[id].length ? 0 : -1, selectedIdx: -1 };
       render();

@@ -1116,7 +1116,9 @@ function wire(): void {
     console.log('[gentips] starting worker for class', id, 'session', sIdx, 'avail=', avail.size, 'calls=', calls.length, 'current=', c.sessions[sIdx].taught.length);
 
     const worker = new Worker(new URL('./tips-worker.ts', import.meta.url), { type: 'module' });
-    worker.onmessage = (e: MessageEvent<{ tips: string[][]; error?: string }>) => {
+    // Total attempts used for the progress readout (matches the worker's retry count).
+    const totalAttempts = 3 * 8;
+    worker.onmessage = (e: MessageEvent<{ tips?: string[][]; error?: string; progress?: { attempts: number; made: number; total: number } }>) => {
       if (e.data.error) {
         console.error('[gentips] worker reported error:', e.data.error);
         worker.terminate();
@@ -1125,8 +1127,13 @@ function wire(): void {
         render();
         return;
       }
-      console.log('[gentips] worker returned', e.data.tips.length, 'tips');
-      tipsByClass[id] = e.data.tips.map((titles, i) => ({
+      if (e.data.progress) {
+        const p = e.data.progress;
+        btn.innerHTML = `<span class="spinner"></span>Searching ${p.attempts}/${totalAttempts} · ${p.made}/3 tips`;
+        return;
+      }
+      console.log('[gentips] worker returned', e.data.tips?.length, 'tips');
+      tipsByClass[id] = (e.data.tips ?? []).map((titles, i) => ({
         name: `Tip ${i + 1}`,
         sourceSessionId: c.sessions[sIdx].id,
         titles,

@@ -475,6 +475,8 @@ export interface TipGenOpts {
   family?: (title: string) => string;
   /** Injectable RNG for deterministic testing (default Math.random). */
   rand?: () => number;
+  /** Called after each attempt with how many attempts ran and tips collected so far. */
+  onProgress?: (attempts: number, made: number, total: number) => void;
 }
 
 // Weighted random pick: higher `prob` -> more likely. Calls with prob 0 are
@@ -528,6 +530,7 @@ export function generateTips(
   const callProb = opts.callProb ?? (() => 1);
   const family = opts.family ?? (() => '');
   const hasFamily = opts.family != null;
+  const onProgress = opts.onProgress ?? (() => {});
   const tips: string[][] = [];
   const usedAny = new Set<string>();
   // Retry more times than `count`: each attempt is random, and a greedy body
@@ -599,19 +602,20 @@ export function generateTips(
     // Close the tip back to the squared set (finish in square). If no getout is
     // found within the bound, discard this tip.
     const getout = seq.getout({ target: 'Static Square', maxCalls: getoutMax });
-    if (!getout || !getout.length) {
-      console.log(`[generateTips] attempt ${t + 1}/${attempts}: body=${tip.length} calls, no getout home in ${getoutMax}, discarded`);
-      continue;
-    }
-    tip.push(...getout);
-    if (tip.length >= minLen) {
-      tips.push(tip);
-      made++;
-      for (const c of tip) usedAny.add(c);
-      console.log(`[generateTips] attempt ${t + 1}/${attempts}: made tip ${made}/${count}: ${tip.join(' > ')}`);
+    if (getout && getout.length) {
+      tip.push(...getout);
+      if (tip.length >= minLen) {
+        tips.push(tip);
+        made++;
+        for (const c of tip) usedAny.add(c);
+        console.log(`[generateTips] attempt ${t + 1}/${attempts}: made tip ${made}/${count}: ${tip.join(' > ')}`);
+      } else {
+        console.log(`[generateTips] attempt ${t + 1}/${attempts}: getout found but tip length ${tip.length} < minLen ${minLen}, discarded`);
+      }
     } else {
-      console.log(`[generateTips] attempt ${t + 1}/${attempts}: getout found but tip length ${tip.length} < minLen ${minLen}, discarded`);
+      console.log(`[generateTips] attempt ${t + 1}/${attempts}: body=${tip.length} calls, no getout home in ${getoutMax}, discarded`);
     }
+    onProgress(t + 1, made, count);
   }
   console.log(`[generateTips] done: ${tips.length}/${count} tips generated from ${attempts} attempts`);
   return tips;

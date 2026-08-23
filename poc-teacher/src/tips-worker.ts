@@ -36,7 +36,7 @@ interface GenRequest {
 
 const ctx = self as unknown as {
   onmessage: (e: MessageEvent<GenRequest>) => void;
-  postMessage: (msg: { tips: string[][]; error?: string }) => void;
+  postMessage: (msg: { tips?: string[][]; error?: string; progress?: { attempts: number; made: number; total: number } }) => void;
 };
 
 ctx.onmessage = (e) => {
@@ -60,12 +60,15 @@ ctx.onmessage = (e) => {
     };
     const family = (t: string) => d.familyMap[t] ?? '';
     console.log('[tips-worker] sequencer built, calls =', d.calls.map((c) => c.title));
+    const onProgress = (attempts: number, made: number, total: number) =>
+      ctx.postMessage({ progress: { attempts, made, total } });
     const tips = generateTips(seq, new Set(d.avail), new Map(Object.entries(d.priority)), {
       ...d.opts,
       config: { ...DEFAULT_TIP_CONFIG, ...(d.config ?? {}) },
       current,
       callProb,
       family,
+      onProgress,
     });
     console.log('[tips-worker] generated', tips.length, 'tips:', tips.map((t) => t.join(' > ')));
     ctx.postMessage({ tips });

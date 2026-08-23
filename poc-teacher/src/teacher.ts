@@ -203,8 +203,24 @@ export interface TipGenOpts {
   config?: TipConfig;
   /** Call titles taught in the current (latest) session, for the current/prev mix. */
   current?: Set<string>;
+  /** Per-call weight 0..1 used to bias the pick (higher = more likely). Default 1 for all. */
+  callProb?: (title: string) => number;
   /** Injectable RNG for deterministic testing (default Math.random). */
   rand?: () => number;
+}
+
+// Weighted random pick: higher `prob` -> more likely. Calls with prob 0 are
+// never picked; if every candidate has weight ~0 it falls back to uniform.
+function weightedPick(pool: string[], prob: (title: string) => number, rand: () => number): string {
+  const weights = pool.map((n) => Math.max(0, prob(n)));
+  const total = weights.reduce((a, b) => a + b, 0);
+  if (total <= 1e-9) return pool[Math.floor(rand() * pool.length)];
+  let r = rand() * total;
+  for (let i = 0; i < pool.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return pool[i];
+  }
+  return pool[pool.length - 1];
 }
 
 // Deterministic pick: prefer legal available calls, scored by priority weight,
@@ -241,6 +257,7 @@ export function generateTips(
   const getoutMax = opts.getoutMax ?? 6;
   const config = { ...DEFAULT_TIP_CONFIG, ...(opts.config ?? {}) };
   const rand = opts.rand ?? Math.random;
+  const callProb = opts.callProb ?? (() => 1);
   const tips: string[][] = [];
   const usedAny = new Set<string>();
   for (let t = 0; t < count; t++) {
@@ -281,7 +298,8 @@ export function generateTips(
         const prv = pool.filter((n) => !current.has(n));
         if (prv.length) pool = prv;
       }
-      const pick = pool[Math.floor(rand() * pool.length)];
+      // Final pick weighted by each call's per-call probability.
+      const pick = weightedPick(pool, callProb, rand);
       const step = seq.apply(pick);
       if (!step.legal) break;
       tip.push(pick);

@@ -134,6 +134,33 @@ function saveTipConfig(): void {
   }
 }
 
+// Per-class, per-call probability overrides (title -> 0..1). A call with no
+// override uses the global default (currentProb for this-session calls, prevProb
+// otherwise).
+const CALLPROB_KEY = 'dsTeacherCallProbs';
+let callProbs: Record<string, Record<string, number>> = loadCallProbs();
+function loadCallProbs(): Record<string, Record<string, number>> {
+  try {
+    const raw = localStorage.getItem(CALLPROB_KEY);
+    if (raw) return JSON.parse(raw) as Record<string, Record<string, number>>;
+  } catch {
+    /* fall through */
+  }
+  return {};
+}
+function saveCallProbs(): void {
+  try {
+    localStorage.setItem(CALLPROB_KEY, JSON.stringify(callProbs));
+  } catch {
+    /* ignore */
+  }
+}
+function effectiveCallProb(id: string, title: string, currentSet: Set<string>): number {
+  const ov = callProbs[id]?.[title];
+  if (ov != null) return ov;
+  return currentSet.has(title) ? tipConfigGlobal.currentProb : tipConfigGlobal.prevProb;
+}
+
 // Programmes: the default course structures (built-in + imported).
 let programmes: Programme[] = loadProgrammes();
 let notice = '';
@@ -360,6 +387,30 @@ function studentsPage(id: string): string {
     </div>`;
 }
 
+// Per-call probability sliders, grouped by the session each call was taught in.
+// Each slider starts at the effective probability (override or the global
+// current/prev default from Tip settings).
+function renderCallProbs(id: string, c: ClassInstance, sIdx: number, avail: Set<string>): string {
+  const currentSet = new Set(c.sessions[sIdx].taught.map((r) => r.title));
+  const seen = new Set<string>();
+  let out = '';
+  for (let si = 0; si <= sIdx; si++) {
+    const list = c.sessions[si].taught.filter((r) => avail.has(r.title) && !seen.has(r.title));
+    for (const r of list) seen.add(r.title);
+    if (!list.length) continue;
+    out += `<h3>${esc(c.sessions[si].name)}</h3>`;
+    out += list
+      .map((r) => {
+        const pct = Math.round(effectiveCallProb(id, r.title, currentSet) * 100);
+        return `<label class="field">${esc(r.title)}
+          <input type="range" class="callprob" data-callprob="${id}::${r.title}" min="0" max="100" step="5" value="${pct}" />
+          <span class="cpval">${pct}%</span></label>`;
+      })
+      .join('');
+  }
+  return out || '<span class="muted">No taught calls to tune yet.</span>';
+}
+
 // Distinct calls taught in sessions before index `i`, as chips.
 function renderPrevTaught(c: ClassInstance, i: number): string {
   if (i <= 0 || c.sessions.length === 0) {
@@ -421,6 +472,9 @@ function tipsPage(id: string, fromSession?: number): string {
         <button class="big primary" data-act="gentips" data-id="${id}">Generate tips</button>
       </div>
       ${pri.size ? `<div class="row two" style="margin-top:10px"><span class="muted">Prioritised:</span> ${[...pri.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([n]) => `<span class="chip warn">${esc(n)}</span>`).join('')}</div>` : ''}
+
+      <h2 class="section-title">Call probabilities</h2>
+      ${renderCallProbs(id, c, sIdx, avail)}
 
       ${tips.length ? tips.map((t, ti) => renderTip(id, t, ti, ts)).join('') : '<p class="hint">No tips yet — tap "Generate tips".</p>'}
 
@@ -738,12 +792,14 @@ function wire(): void {
       // A Sequencer registered with ONLY the class's known calls, so generated
       // tips (and their getouts home) use only calls the class has been taught.
       const availSeq = makeSequencer(movesXml, formationsXml, catalog.filter((x) => avail.has(x.title)));
+      const currentSet = new Set(c.sessions[sIdx].taught.map((r) => r.title));
       tipsByClass[id] = generateTips(availSeq, avail, priorityWeights(c, sIdx), {
         minLen: 3,
         maxLen: 6,
         count: 3,
         config: tipConfigGlobal,
-        current: new Set(c.sessions[sIdx].taught.map((r) => r.title)),
+        current: currentSet,
+        callProb: (t) => effectiveCallProb(id, t, currentSet),
       }).map((titles, i) => ({ name: `Tip ${i + 1}`, sourceSessionId: c.sessions[sIdx].id, titles }));
       tipsState[id] = { selectedTip: tipsByClass[id].length ? 0 : -1, selectedIdx: -1 };
       render();
@@ -804,6 +860,18 @@ function wire(): void {
       tipsByClass[id][+ti].titles = insertInto(tipsByClass[id][+ti].titles, st.selectedIdx + 1, title);
       render();
     }));
+
+  root.querySelectorAll<HTMLInputElement>('input.callprob').forEach((el) => {
+    el.addEventListener('input', () => {
+      const val = el.nextElementSibling as HTMLElement | null;
+      if (val) val.textContent = `${el.value}%`;
+    });
+    el.addEventListener('change', () => {
+      const [cid, title] = el.dataset.callprob!.split('::');
+      (callProbs[cid] ??= {})[title] = +el.value / 100;
+      saveCallProbs();
+    });
+  });
 
   root.querySelectorAll<HTMLElement>('[data-savemod]').forEach((b) =>
     b.addEventListener('click', () => {

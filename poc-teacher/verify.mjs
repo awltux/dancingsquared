@@ -237,6 +237,18 @@ for (const tip of cfgTips) {
 }
 check(Array.isArray(cfgTips) && cfgValid && cfgEndsSquare, 'tip config (repeat/priority/current/prev probabilities) is accepted and tips still close home');
 
+// Per-call probability weighting is accepted and tips still only use available calls.
+const probTips = generateTips(availSeq, available, priority, {
+  minLen: 3,
+  maxLen: 6,
+  count: 1,
+  config: { repeatProb: 1, priorityProb: 1, currentProb: 1, prevProb: 1 },
+  current: currentSet,
+  callProb: (t) => (available.has(t) ? 1 : 0),
+  rand: () => 0,
+});
+check(Array.isArray(probTips) && probTips.every((tip) => tip.every((t) => available.has(t))), 'per-call callProb option is accepted and tips only use available calls');
+
 console.log('\n== Fits around a selected call (before / after) ==');
 const sampleTip = tips[0] ?? ['Circle Left', 'Forward and Back', 'Allemande Left'];
 const idx = Math.min(1, sampleTip.length - 1);

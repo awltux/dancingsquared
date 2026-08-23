@@ -162,6 +162,97 @@ export function rollPrioritisedForward(cls: ClassInstance, sessionIdx: number): 
 }
 
 /**
+ * For a call-position taught by `sessionIdx`, return a human-readable list of the
+ * students who missed it, aggregating across EVERY session (0..sessionIdx) where
+ * that call-position was taught — a student may have missed several. Each entry
+ * is "Name (Session A, Session B)".
+ */
+export function missedForCallPosition(cls: ClassInstance, sessionIdx: number, ref: CallRef): string[] {
+  const byStudent = new Map<string, string[]>();
+  for (let j = 0; j <= sessionIdx; j++) {
+    const s = cls.sessions[j];
+    if (!s.taught.some((r) => refKey(r) === refKey(ref))) continue;
+    for (const st of cls.students) {
+      if (s.attendance[st.id]) continue;
+      const arr = byStudent.get(st.id) ?? [];
+      if (!arr.includes(s.name)) arr.push(s.name);
+      byStudent.set(st.id, arr);
+    }
+  }
+  const out: string[] = [];
+  for (const st of cls.students) {
+    const sessions = byStudent.get(st.id);
+    if (sessions && sessions.length) out.push(`${st.name} (${sessions.join(', ')})`);
+  }
+  return out;
+}
+
+/**
+ * Complete a session: (1) move any planned calls into the next session's plan if
+ * not already there, and (2) carry each taught call-position that someone missed
+ * into the next session as a priority, with a note naming who missed it and which
+ * session(s). Existing prioritised (starred) call-setups are carried too. Returns
+ * counts. Creates the next session if needed.
+ */
+export function completeSession(cls: ClassInstance, sessionIdx: number): { movedPlanned: number; carried: number } {
+  const s = cls.sessions[sessionIdx];
+  if (!s) return { movedPlanned: 0, carried: 0 };
+  let next = cls.sessions[sessionIdx + 1];
+  if (!next) {
+    next = {
+      id: `${s.id}-n${cls.sessions.length + 1}`,
+      name: `Session ${cls.sessions.length + 1}`,
+      level: s.level,
+      planned: [],
+      taught: [],
+      attendance: {},
+      problems: [],
+    };
+    cls.sessions.push(next);
+  }
+
+  const plannedRefs = [...s.planned];
+  const taughtRefs = [...s.taught];
+
+  // 1. Move the plan forward (deduped against the next plan).
+  next.planned = dedupeCallRefs([...next.planned, ...plannedRefs]);
+  s.planned = [];
+
+  // 2. Collect call-positions to carry as priorities (deduped by call-position).
+  const toCarry = new Map<string, { ref: CallRef; note: string; priority: number }>();
+  const add = (ref: CallRef, note: string, priority: number) => {
+    const k = refKey(ref);
+    const ex = toCarry.get(k);
+    if (!ex) toCarry.set(k, { ref, note, priority });
+    else if (note) ex.note = note;
+  };
+  // Starred (prioritised) call-setups always carry.
+  for (const p of s.problems) {
+    const ref = [...plannedRefs, ...taughtRefs].find((r) => r.title === p.title && r.setupIdx === p.setupIdx);
+    if (ref) add(ref, p.note ?? '', p.priority);
+  }
+  // Taught call-positions missed by someone carry with an aggregated note.
+  for (const t of taughtRefs) {
+    const missing = missedForCallPosition(cls, sessionIdx, t);
+    if (missing.length) add(t, `Missed by ${missing.join(', ')}`, 3);
+  }
+
+  let carried = 0;
+  for (const { ref, note, priority } of toCarry.values()) {
+    if (hasCallPosition(next, ref)) continue;
+    next.planned.push(ref);
+    const idx = next.problems.findIndex((q) => q.title === ref.title && q.setupIdx === ref.setupIdx);
+    if (idx === -1) next.problems.push({ title: ref.title, setupIdx: ref.setupIdx, priority, note });
+    else {
+      next.problems[idx].priority = Math.max(next.problems[idx].priority, priority);
+      if (note) next.problems[idx].note = note;
+    }
+    carried++;
+  }
+  return { movedPlanned: plannedRefs.length, carried };
+}
+
+/**
  * If one or more students were absent from `sessionIdx`, carry the calls taught
  * that session into the next session's plan (creating it if needed), tagging each
  * added call-setup with a priority note listing who missed it. Returns the number

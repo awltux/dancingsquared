@@ -28,6 +28,7 @@ import {
   rollMissedCallsForward,
   rollPrioritisedForward,
   archivedNote,
+  completeSession,
 } from './teacher';
 import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
 import { DEFAULT_TIP_CONFIG } from './teacher';
@@ -813,14 +814,19 @@ function wire(): void {
       const [id, i] = cb.dataset.completed!.split(':');
       const c = cls(id)!;
       c.sessions[+i].completed = cb.checked;
-      // On completion, automatically carry prioritised calls AND missed-calls
-      // (for absent dancers) into the next session.
+      // On completion: move any planned calls forward, and carry taught
+      // call-positions that were missed (as priorities) into the next session.
+      let moved = 0;
       let carried = 0;
-      if (cb.checked) carried += rollPrioritisedForward(c, +i) + rollMissedCallsForward(c, +i);
+      if (cb.checked) {
+        const res = completeSession(c, +i);
+        moved = res.movedPlanned;
+        carried = res.carried;
+      }
       save();
       notice = cb.checked
-        ? carried
-          ? `Session completed — ${carried} call(s) carried to the next session.`
+        ? carried || moved
+          ? `Session completed — ${moved} planned call(s) moved on, ${carried} missed/prioritised call(s) carried.`
           : 'Session completed.'
         : 'Session marked not complete.';
       render();

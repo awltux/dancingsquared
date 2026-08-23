@@ -26,6 +26,8 @@ import {
   rollMissedCallsForward,
   rollPrioritisedForward,
   archivedNote,
+  completeSession,
+  missedForCallPosition,
   insertInto,
   removeAt,
   replaceAt,
@@ -253,6 +255,35 @@ check(prNote != null && prNote.priority === 5, `prioritised call carried with it
 const prNone = structuredClone(emptyTaught);
 prNone.sessions[0].problems = [];
 check(rollPrioritisedForward(prNone, 0) === 0, 'nothing carried when no calls are prioritised');
+
+console.log('\n== Complete session (move plan + prioritise missed taught calls) ==');
+const cs = structuredClone(emptyTaught);
+const csPlan = cs.sessions[0].planned;
+cs.sessions[0].taught = [csPlan[0], csPlan[1]]; // teach the first two
+cs.sessions[0].planned = csPlan.slice(2); // taught calls leave the plan
+cs.sessions[0].attendance = { a: true, b: false, c: false, d: true }; // Bob & Carol missed
+const planned0 = cs.sessions[0].planned.length;
+const res = completeSession(cs, 0);
+check(res.movedPlanned === planned0, `completion moves all planned calls to the next session (${res.movedPlanned})`);
+check(res.carried === 2, `completion carries ${res.carried} missed taught calls (expected 2)`);
+const cnote = cs.sessions[1].problems.find((p) => p.title === csPlan[0].title);
+check(cnote != null && /Bob/.test(cnote.note ?? '') && /Carol/.test(cnote.note ?? '') && /Session 1/.test(cnote.note ?? ''), `priority note names absentees and the session (${cnote?.note})`);
+// Taught calls are prioritised ONLY if someone missed.
+const np = structuredClone(emptyTaught);
+np.sessions[0].taught = [np.sessions[0].planned[0]];
+np.sessions[0].attendance = { a: true, b: true, c: true, d: true };
+completeSession(np, 0);
+check(np.sessions[1].problems.length === 0, 'taught calls are NOT prioritised when no one missed');
+
+console.log('\n== Missed aggregation across multiple sessions ==');
+const mf = structuredClone(emptyTaught);
+const ref = mf.sessions[0].planned[0];
+mf.sessions[0].taught = [ref];
+mf.sessions[0].attendance = { a: false, b: true, c: true, d: true }; // Alice misses S1
+mf.sessions[1].taught = [ref]; // same call taught again in S2
+mf.sessions[1].attendance = { a: false, b: true, c: true, d: true }; // Alice misses S2
+const list = missedForCallPosition(mf, 1, ref);
+check(list.length === 1 && /Alice/.test(list[0]) && /Session 1/.test(list[0]) && /Session 2/.test(list[0]), `note aggregates all missed sessions (${list[0]})`);
 
 console.log('\n== Teach / unteach (planned -> taught) ==');
 const tc = structuredClone(emptyTaught);

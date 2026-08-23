@@ -919,8 +919,9 @@ function wire(): void {
       const currentSet = new Set(c.sessions[sIdx].taught.map((r) => r.title));
       tipsByClass[id] = generateTips(availSeq, avail, priorityWeights(c, sIdx), {
         minLen: 3,
-        maxLen: 6,
+        maxLen: 5,
         count: 3,
+        getoutMax: 5,
         config: tipConfigGlobal,
         current: currentSet,
         callProb: (t) => effectiveCallProb(id, t, currentSet),

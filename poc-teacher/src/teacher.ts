@@ -409,12 +409,6 @@ export function generateTips(
         return probe.legal && applicableFrom(seq, probe.board, available).length > 0;
       });
       let pool = withCont.length ? withCont : candidates;
-      // Repeat control: unless the repeat roll allows it, prefer calls not yet
-      // used in this tip.
-      if (rand() >= config.repeatProb) {
-        const fresh = pool.filter((n) => !usedHere.has(n));
-        if (fresh.length) pool = fresh;
-      }
       // Priority control: on a priority roll, restrict to prioritised calls.
       if (rand() < config.priorityProb) {
         const prio = pool.filter((n) => (priority.get(n) ?? 0) > 0);
@@ -430,8 +424,21 @@ export function generateTips(
         const prv = pool.filter((n) => !current.has(n));
         if (prv.length) pool = prv;
       }
-      // Final pick weighted by each call's per-call probability.
-      const pick = weightedPick(pool, callProb, rand);
+      // Weighted pick: per-call probability plus a strong preference for calls not
+      // yet used in this tip (stronger when repeatProb is low) and for calls not
+      // used in earlier tips, so tips stay varied. Random weighted selection makes
+      // each generated tip differ. A call set to 0% probability is never picked.
+      const freshBonus = (1 - config.repeatProb) * 3;
+      const combinedProb = (n: string) => {
+        const prob = callProb(n);
+        if (prob <= 0.001) return 0;
+        let s = prob;
+        if (!usedHere.has(n)) s += freshBonus;
+        if (!usedAny.has(n)) s += 0.6;
+        if ((priority.get(n) ?? 0) > 0) s += 0.2;
+        return s;
+      };
+      const pick = weightedPick(pool, combinedProb, rand);
       const step = seq.apply(pick);
       if (!step.legal) break;
       tip.push(pick);

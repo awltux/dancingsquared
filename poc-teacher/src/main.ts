@@ -451,10 +451,12 @@ function renderPrevTaught(c: ClassInstance, i: number): string {
   const seen = new Set<string>();
   const chips: string[] = [];
   for (const sess of c.sessions.slice(0, i)) {
+    // Prioritised call-setups in this session render with the warn (orange) style.
+    const warnSet = new Set(sess.problems.map((p) => p.title));
     for (const r of sess.taught) {
       if (seen.has(r.title)) continue;
       seen.add(r.title);
-      chips.push(chip(r));
+      chips.push(chip(r, warnSet));
     }
   }
   return chips.length

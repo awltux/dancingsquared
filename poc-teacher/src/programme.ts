@@ -84,7 +84,19 @@ export function buildClassFromProgramme(
       id: `${id}-s${i + 1}`,
       name: s.name,
       level: p.level,
-      planned: s.calls.map(resolve).filter((r): r is CallRef => r != null),
+      planned: (() => {
+        // Build the plan, dropping duplicate call-positions within a session.
+        const seen = new Set<string>();
+        const out: CallRef[] = [];
+        for (const c of s.calls.map(resolve).filter((r): r is CallRef => r != null)) {
+          const k = `${c.title}#${c.setupIdx}`;
+          if (!seen.has(k)) {
+            seen.add(k);
+            out.push(c);
+          }
+        }
+        return out;
+      })(),
       taught: [],
       attendance: {},
       problems: [],

@@ -175,6 +175,26 @@ removeStudent(mc, eve.id);
 check(mc.students.length === origCount, 'removeStudent removes the dancer');
 check(mc.sessions.every((s) => s.attendance[eve.id] === undefined), 'removed dancer cleared from session registers');
 
+console.log('\n== No duplicate call-positions within a session ==');
+const key = (r) => `${r.title}#${r.setupIdx}`;
+// pullForward must not pull a call-position already present in this session.
+const dupPull = structuredClone(emptyTaught);
+dupPull.sessions[1].planned.push(dupPull.sessions[2].planned[0]); // already present in current
+pullForward(dupPull, 1, 5);
+const k1 = dupPull.sessions[1].planned.map(key);
+check(new Set(k1).size === k1.length, 'pullForward does not duplicate a call-position within a session');
+// move-plan-to-next must dedupe the next session's plan.
+const dupRoll = structuredClone(emptyTaught);
+dupRoll.sessions[1].planned.push(dupRoll.sessions[0].planned[0]); // next already has it
+rollUntaughtForward(dupRoll, 0);
+const k2 = dupRoll.sessions[1].planned.map(key);
+check(new Set(k2).size === k2.length, 'move plan to next dedupes the next session plan');
+// building a course from a programme with duplicate calls dedupes each plan.
+const pDup = parseProgramme(JSON.stringify({ name: 'D', level: 'ms', sessions: [{ name: 'S', calls: ['Circle Left', 'Circle Left'] }] }));
+const resolveLocal = (t) => { const c = catalog.find((x) => x.title === t); return c ? { title: c.title, level: c.level, setupIdx: 0, setup: c.setups[0].label } : null; };
+const cd = buildClassFromProgramme('x', 'X', pDup, [], resolveLocal);
+check(cd.sessions[0].planned.length === 1, 'programme with duplicate calls builds a deduped plan');
+
 console.log('\n== Teach / unteach (planned -> taught) ==');
 const tc = structuredClone(emptyTaught);
 const plan0 = tc.sessions[0].planned.length;

@@ -94,17 +94,46 @@ export function rollUntaughtForward(cls: ClassInstance, sessionIdx: number): voi
     };
     cls.sessions.push(next);
   }
-  next.planned.push(...s.planned);
+  // Move the plan across, then drop any call-positions duplicated within the
+  // next session's plan (duplicates across sessions are allowed).
+  next.planned = dedupeCallRefs([...next.planned, ...s.planned]);
   s.planned = [];
 }
 
-/** Pull `count` planned calls from the next session's plan into THIS session's plan. */
+/** Whether a call-position is already present (planned or taught) in a session. */
+function hasCallPosition(s: SessionPlan, r: { title: string; setupIdx: number }): boolean {
+  const k = refKey(r);
+  return s.planned.some((x) => refKey(x) === k) || s.taught.some((x) => refKey(x) === k);
+}
+
+/** Remove duplicate call-positions from a list, keeping the first occurrence. */
+export function dedupeCallRefs<T extends { title: string; setupIdx: number }>(list: T[]): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const r of list) {
+    const k = refKey(r);
+    if (!seen.has(k)) {
+      seen.add(k);
+      out.push(r);
+    }
+  }
+  return out;
+}
+
+/** Pull `count` planned calls from the next session's plan into THIS session's plan,
+ * skipping any that would duplicate a call-position already in this session. */
 export function pullForward(cls: ClassInstance, sessionIdx: number, count: number): void {
   const s = cls.sessions[sessionIdx];
   const next = cls.sessions[sessionIdx + 1];
   if (!s || !next || count <= 0) return;
-  const pulled = next.planned.splice(0, count);
-  for (const r of pulled) s.planned.push(r);
+  const taken: CallRef[] = [];
+  const kept: CallRef[] = [];
+  for (const r of next.planned) {
+    if (taken.length < count && !hasCallPosition(s, r)) taken.push(r);
+    else kept.push(r);
+  }
+  next.planned = kept;
+  s.planned.push(...taken);
 }
 
 /** Add a student to the class and to the register of every session (absent by default). */

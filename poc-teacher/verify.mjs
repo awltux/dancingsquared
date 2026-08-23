@@ -265,6 +265,9 @@ cs.sessions[0].attendance = { a: true, b: false, c: false, d: true }; // Bob & C
 const planned0 = cs.sessions[0].planned.length;
 const res = completeSession(cs, 0);
 check(res.movedPlanned === planned0, `completion moves all planned calls to the next session (${res.movedPlanned})`);
+check(cs.sessions[0].capturedTaught?.length === 2, 'captures taught count before the plan is moved');
+check((cs.sessions[0].capturedTaught?.length ?? 0) + (cs.sessions[0].capturedPlanned?.length ?? 0) === 2 + planned0, 'captured total = taught + planned');
+check(cs.sessions[0].planned.length === 0, 'planned moved away, but capturedPlanned keeps the pre-move count');
 check(res.carried === 2, `completion carries ${res.carried} missed taught calls (expected 2)`);
 const cnote = cs.sessions[1].problems.find((p) => p.title === csPlan[0].title);
 check(cnote != null && /Bob/.test(cnote.note ?? '') && /Carol/.test(cnote.note ?? '') && /Session 1/.test(cnote.note ?? ''), `priority note names absentees and the session (${cnote?.note})`);

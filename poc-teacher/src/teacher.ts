@@ -192,6 +192,13 @@ export function missedNote(cls: ClassInstance, sessionIdx: number, ref: CallRef)
 export function completeSession(cls: ClassInstance, sessionIdx: number): { movedPlanned: number; carried: number } {
   const s = cls.sessions[sessionIdx];
   if (!s) return { movedPlanned: 0, carried: 0 };
+  // Snapshot the taught / taught+planned state BEFORE the plan is moved on — it
+  // cannot be recalculated afterwards because the planned calls are removed.
+  if (!s.capturedAt) {
+    s.capturedTaught = [...s.taught];
+    s.capturedPlanned = [...s.planned];
+    s.capturedAt = Date.now();
+  }
   let next = cls.sessions[sessionIdx + 1];
   if (!next) {
     next = {

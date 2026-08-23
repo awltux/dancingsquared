@@ -345,15 +345,22 @@ function sessionsPage(id: string): string {
     </header>
     <div class="content">
       ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
-      ${c.sessions.map((s, i) => `
+      ${c.sessions.map((s, i) => {
+        // For a completed session use the captured (pre-copy) counts; otherwise
+        // taught + planned. The total is the sum of taught and planned calls.
+        const taughtN = s.capturedTaught?.length ?? s.taught.length;
+        const totalN = taughtN + (s.capturedPlanned?.length ?? s.planned.length);
+        const pct = totalN ? Math.round((taughtN / totalN) * 100) : 0;
+        return `
         <div class="card session-card ${s.completed ? 'done' : ''}">
           <button class="session-main tap" data-nav="#/class/${id}/session/${i}">
             <div class="card-main">${esc(s.name)} ${s.completed ? '<span class="done-badge">✓</span>' : ''}</div>
-            <div class="card-sub">Taught ${s.taught.length} of ${s.planned.length} calls</div>
-            <div class="progress"><span style="width:${s.planned.length ? (s.taught.length / s.planned.length) * 100 : 0}%"></span></div>
+            <div class="card-sub">Taught ${taughtN} of ${totalN} calls</div>
+            <div class="progress"><span style="width:${pct}%"></span></div>
           </button>
           <label class="complete-check"><input type="checkbox" data-completed="${id}:${i}" ${s.completed ? 'checked' : ''} /></label>
-        </div>`).join('')}
+        </div>`;
+      }).join('')}
       <p class="hint">Tap a session to take the register and plan the practice.</p>
     </div>`;
 }
@@ -833,17 +840,10 @@ function wire(): void {
       const [id, i] = cb.dataset.completed!.split(':');
       const c = cls(id)!;
       const s = c.sessions[+i];
-      const wasCompleted = s.completed;
       s.completed = cb.checked;
-      // On first transition to complete, capture the taught / taught+planned
-      // call-positions before the plan is moved on.
-      if (cb.checked && !wasCompleted) {
-        s.capturedTaught = [...s.taught];
-        s.capturedPlanned = [...s.planned];
-        s.capturedAt = Date.now();
-      }
       // On completion: move any planned calls forward, and carry taught
       // call-positions that were missed (as priorities) into the next session.
+      // completeSession snapshots the taught/planned counts before moving the plan.
       let moved = 0;
       let carried = 0;
       if (cb.checked) {

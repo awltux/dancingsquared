@@ -371,10 +371,13 @@ function homePage(): string {
     <div class="content">
       <h2 class="section-title">Your classes</h2>
       ${classes.map((c) => `
-        <button class="card tap" data-nav="#/class/${c.id}">
-          <div class="card-main">${esc(c.name)}</div>
-          <div class="card-sub">${c.level.toUpperCase()} · ${c.students.length} students · ${c.sessions.length} sessions</div>
-        </button>`).join('')}
+        <div class="card session-card">
+          <button class="session-main tap" data-nav="#/class/${c.id}">
+            <div class="card-main">${esc(c.name)}</div>
+            <div class="card-sub">${c.level.toUpperCase()} · ${c.students.length} students · ${c.sessions.length} sessions</div>
+          </button>
+          <button class="delete-btn" data-delclass="${c.id}" title="Delete class">✕</button>
+        </div>`).join('')}
       <button class="card tap primary-card" data-nav="#/new">
         <div class="card-main">＋ New course</div>
         <div class="card-sub">Pick a programme of sessions to start a new class</div>
@@ -856,6 +859,17 @@ function wire(): void {
   root.querySelectorAll<HTMLElement>('[data-closeprob]').forEach((el) =>
     el.addEventListener('click', (e) => {
       if ((e.target as HTMLElement).classList.contains('overlay')) { probModal = null; render(); }
+    }));
+
+  root.querySelectorAll<HTMLElement>('[data-delclass]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const id = b.dataset.delclass!;
+      const c = classes.find((x) => x.id === id);
+      if (c && window.confirm(`Delete class "${c.name}"?`)) {
+        classes = classes.filter((x) => x.id !== id);
+        save();
+        render();
+      }
     }));
 
   root.querySelectorAll<HTMLElement>('[data-addstudent]').forEach((b) =>

@@ -128,6 +128,11 @@ textarea { resize: vertical; min-height: 110px; line-height: 1.4; }
   width: 60px; border-left: 1px solid var(--line); margin: 0; flex: 0 0 auto;
 }
 .complete-check input { width: 26px; height: 26px; accent-color: var(--accent); }
+.delete-btn {
+  flex: 0 0 auto; width: 60px; background: none; border: none; border-left: 1px solid var(--line);
+  color: var(--bad); font-size: 18px; border-radius: 0;
+}
+.delete-btn:hover { color: var(--bad); }
 .version { text-align: center; color: var(--muted); font-size: 11px; padding: 12px 0 4px; font-family: ui-monospace, monospace; }
 details.collapsible { margin: 0 0 16px; }
 details.collapsible summary {

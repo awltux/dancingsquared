@@ -233,6 +233,22 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// Reload-safe update check: the build injects the git commit into index.html.
+// If the deployed page advertises a different commit than the one we're running,
+// a newer version is available — reload to pick it up. Only runs when online.
+const APP_VERSION = __GIT_COMMIT__;
+async function checkForUpdate(): Promise<void> {
+  try {
+    const html = await fetch('./index.html', { cache: 'no-store' }).then((r) => r.text());
+    const m = html.match(/name="app-version" content="([^"]+)"/);
+    if (m && m[1] && m[1] !== APP_VERSION) location.reload();
+  } catch {
+    /* offline — keep the current version */
+  }
+}
+setInterval(checkForUpdate, 60000);
+window.addEventListener('focus', checkForUpdate);
+
 function navigate(hash: string): void {
   if (location.hash !== hash) location.hash = hash;
   else render();

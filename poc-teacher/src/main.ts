@@ -329,10 +329,10 @@ function sessionPage(id: string, i: number): string {
     </header>
     <div class="content">
       <h2 class="section-title">Taught this session</h2>
-      <div class="chips">${s.taught.length ? s.taught.map((r, ti) => `<button class="chip tap" data-unteach="${id}:${i}:${ti}" title="Tap to move back to planned">✓ ${esc(r.title)}</button>`).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
+      <div class="chips">${s.taught.length ? s.taught.map((r, ti) => `<button class="chip tap" data-unteach="${id}:${i}:${ti}" title="Tap to move back to planned">✓ ${callLabel(r)}</button>`).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
 
       <h2 class="section-title">Planned</h2>
-      <div class="chips">${s.planned.length ? s.planned.map((r, pi) => `<button class="chip tap" data-teach="${id}:${i}:${pi}" title="Tap to teach this call">${esc(r.title)} ${s.problems.some((p) => p.title === r.title) ? '<span class="dim">★</span>' : ''}</button>`).join('') : '<span class="muted">No plan</span>'}</div>
+      <div class="chips">${s.planned.length ? s.planned.map((r, pi) => `<button class="chip tap" data-teach="${id}:${i}:${pi}" title="Tap to teach this call">${callLabel(r)} ${s.problems.some((p) => p.title === r.title) ? '<span class="dim">★</span>' : ''}</button>`).join('') : '<span class="muted">No plan</span>'}</div>
       <div class="row two" style="margin-top:12px">
         <button class="big" data-act="roll" data-id="${id}" data-i="${i}">Move plan → next</button>
         <button class="big" data-act="pull" data-id="${id}" data-i="${i}">Pull 1 from next</button>
@@ -402,8 +402,7 @@ function renderCallProbs(id: string, c: ClassInstance, sIdx: number, avail: Set<
     out += list
       .map((r) => {
         const pct = Math.round(effectiveCallProb(id, r.title, currentSet) * 100);
-        const label = `${r.title}${r.setup ? ` from ${r.setup}` : ''}`;
-        return `<label class="field">${esc(label)}
+        return `<label class="field callprob-field">${callLabel(r)}
           <input type="range" class="callprob" data-callprob="${id}::${r.title}" min="0" max="100" step="5" value="${pct}" />
           <span class="cpval">${pct}%</span></label>`;
       })
@@ -593,9 +592,14 @@ function programmesPage(): string {
     </div>`;
 }
 
+// Render a call with its name (bold) and position (dimmer) clearly separated.
+function callLabel(r: CallRef): string {
+  return `<span class="cl-name">${esc(r.title)}</span>${r.setup ? `<span class="cl-pos">from ${esc(r.setup)}</span>` : ''}`;
+}
+
 function chip(r: CallRef, warn = new Set<string>()): string {
   const w = warn.has(r.title);
-  return `<span class="chip ${w ? 'warn' : ''}">${esc(r.title)}${r.setup ? ` <span class="dim">from ${esc(r.setup)}</span>` : ''}</span>`;
+  return `<span class="chip ${w ? 'warn' : ''}">${callLabel(r)}</span>`;
 }
 
 function notFound(): string {

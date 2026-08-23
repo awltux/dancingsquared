@@ -592,7 +592,7 @@ function renderModal(m: ProbModal): string {
           <button class="big primary" data-probsave>Save</button>
           <button class="big" data-probcancel>Cancel</button>
         </div>
-        ${m.existing ? `<button class="big danger" data-probremove>Remove prioritisation</button>` : ''}
+        ${m.existing ? `<button class="big danger" data-probremove style="margin-top:12px">Remove prioritisation</button>` : ''}
       </div>
     </div>`;
 }

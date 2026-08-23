@@ -161,10 +161,13 @@ function saveCallProbs(): void {
     /* ignore */
   }
 }
-function effectiveCallProb(id: string, title: string, currentSet: Set<string>): number {
+function effectiveCallProb(id: string, title: string, currentSet: Set<string>, prioritised?: Set<string>): number {
   const ov = callProbs[id]?.[title];
   if (ov != null) return ov;
-  return currentSet.has(title) ? tipConfigGlobal.currentProb : tipConfigGlobal.prevProb;
+  const base = currentSet.has(title) ? tipConfigGlobal.currentProb : tipConfigGlobal.prevProb;
+  // Prioritised (starred) call-setups default to a higher probability, capped at 100%.
+  if (prioritised && prioritised.has(title)) return Math.min(1, base + 0.25);
+  return base;
 }
 
 // Programmes: the default course structures (built-in + imported).
@@ -507,6 +510,7 @@ function studentsPage(id: string): string {
 // default from Tip settings).
 function renderCallProbs(id: string, c: ClassInstance, sIdx: number, avail: Set<string>): string {
   const currentSet = new Set(c.sessions[sIdx].taught.map((r) => r.title));
+  const prioritised = new Set(c.sessions[sIdx].problems.map((p) => p.title));
   const seen = new Set<string>();
   let out = '';
   for (let si = 0; si <= sIdx; si++) {
@@ -517,7 +521,7 @@ function renderCallProbs(id: string, c: ClassInstance, sIdx: number, avail: Set<
     out += `<h3>${esc(s.name)}</h3>`;
     out += list
       .map((r) => {
-        const pct = Math.round(effectiveCallProb(id, r.title, currentSet) * 100);
+        const pct = Math.round(effectiveCallProb(id, r.title, currentSet, prioritised) * 100);
         const on = s.problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
         return `<div class="callprob-item">
           <span class="chip wrap ${on ? 'warn' : ''}"><span class="chip-main">${callLabel(r)}</span><button class="star ${on ? 'on' : ''}" data-star="${id}::${si}::${r.title}::${r.setupIdx}" title="Prioritise this call">${on ? '★' : '☆'}</button></span>
@@ -1085,7 +1089,7 @@ function wire(): void {
         getoutMax: 5,
         config: tipConfigGlobal,
         current: currentSet,
-        callProb: (t) => effectiveCallProb(id, t, currentSet),
+        callProb: (t) => effectiveCallProb(id, t, currentSet, new Set(c.sessions[sIdx].problems.map((p) => p.title))),
         family: familyOf,
       }).map((titles, i) => ({ name: `Tip ${i + 1}`, sourceSessionId: c.sessions[sIdx].id, titles }));
       tipsState[id] = { selectedTip: tipsByClass[id].length ? 0 : -1, selectedIdx: -1 };

@@ -761,8 +761,9 @@ function renderTip(id: string, t: Tip, ti: number, ts: { selectedTip: number; se
           <div><b>Add before / replace</b>: ${fits.before.length ? fits.before.map((c) => `<button class="chip tap" data-before="${id}:${ti}:${c}">${esc(c)}</button>`).join('') : '<span class="muted">—</span>'}</div>
           <div><b>Add after</b>: ${fits.after.length ? fits.after.map((c) => `<button class="chip tap" data-after="${id}:${ti}:${c}">${esc(c)}</button>`).join('') : '<span class="muted">—</span>'}</div>
         </div>` : '<p class="hint">Tap a call to see what can go before / after it.</p>'}
-      <div class="row two" style="margin-top:8px">
+      <div style="margin-top:8px">
         <button class="big primary" data-savetip="${id}:${ti}">Save tip</button>
+        <span class="save-err" data-saveerr="${id}:${ti}"></span>
       </div>
     </div>`;
 }
@@ -1307,8 +1308,21 @@ function wire(): void {
       const seq = t.titles;
       const dup = modules.findIndex((m) => sameSequence(m.titles, seq));
       if (dup >= 0) {
-        setNotice(`Already saved — "${modules[dup].name}" has this exact call sequence.`, true);
-        render();
+        // Show an inline error next to THIS Save tip button and flash a red outline
+        // around it for ~2s (no re-render, so the outline persists).
+        const err = root.querySelector<HTMLElement>(`[data-saveerr="${id}:${ti}"]`);
+        if (err) {
+          err.textContent = 'Already saved — a module with this exact sequence exists.';
+          err.classList.add('show');
+        }
+        b.classList.add('dup');
+        window.setTimeout(() => {
+          b.classList.remove('dup');
+          if (err) {
+            err.classList.remove('show');
+            err.textContent = '';
+          }
+        }, 2000);
         return;
       }
       // The session the tip was generated for (its sourceSessionId), not the last one.

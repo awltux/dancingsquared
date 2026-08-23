@@ -303,7 +303,7 @@ function render(): void {
 
   const sub = route.page === 'session' || route.page === 'student' || route.page === 'new' || route.page === 'programmes' || route.page === 'tipssettings';
   root.innerHTML = `
-    <div class="screen">${content}</div>
+    <div class="screen">${content}<footer class="version" title="git commit ${__GIT_COMMIT__}">build ${__GIT_COMMIT_SHORT__}</footer></div>
     ${sub ? '' : bottomNav(route.page === 'home' ? null : route.id, tab)}
     ${probModal ? renderModal(probModal) : ''}
   `;

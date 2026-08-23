@@ -128,6 +128,7 @@ textarea { resize: vertical; min-height: 110px; line-height: 1.4; }
   width: 60px; border-left: 1px solid var(--line); margin: 0; flex: 0 0 auto;
 }
 .complete-check input { width: 26px; height: 26px; accent-color: var(--accent); }
+.version { text-align: center; color: var(--muted); font-size: 11px; padding: 12px 0 4px; font-family: ui-monospace, monospace; }
 .chip.wrap { padding: 0; overflow: hidden; display: inline-flex; align-items: stretch; }
 .chip-main { background: none; border: none; font: inherit; color: var(--text); padding: 8px 4px 8px 12px; min-height: 40px; }
 .chip .star { background: none; border: none; font-size: 17px; color: var(--muted); padding: 0 10px; cursor: pointer; }

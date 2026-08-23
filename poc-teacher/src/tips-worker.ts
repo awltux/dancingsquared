@@ -1,8 +1,19 @@
 // Web worker: run tip generation off the main thread so the UI stays responsive
 // and a spinner can animate while the (potentially slow) getout search runs.
+import { setParser } from 'dancing-squared-engine';
 import { makeSequencer } from './catalog';
 import { generateTips, DEFAULT_TIP_CONFIG } from './teacher';
 import type { TipConfig } from './teacher';
+
+// The engine auto-detects the global DOMParser at module load, but in a bundled
+// worker that detection can miss the worker-global DOMParser, leaving the parser
+// unset and tip generation to throw. Set it explicitly here.
+if (typeof DOMParser !== 'undefined') {
+  setParser(DOMParser);
+  console.log('[tips-worker] set parser to native DOMParser');
+} else {
+  console.warn('[tips-worker] DOMParser is NOT a global here; parser left unset');
+}
 
 interface GenRequest {
   movesXml: string;

@@ -431,8 +431,10 @@ function renderCallProbs(id: string, c: ClassInstance, sIdx: number, avail: Set<
         const on = s.problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
         return `<div class="callprob-item">
           <span class="chip wrap ${on ? 'warn' : ''}"><span class="chip-main">${callLabel(r)}</span><button class="star ${on ? 'on' : ''}" data-star="${id}::${si}::${r.title}::${r.setupIdx}" title="Prioritise this call">${on ? '★' : '☆'}</button></span>
-          <input type="range" class="callprob" data-callprob="${id}::${r.title}" min="0" max="100" step="5" value="${pct}" />
-          <span class="cpval">${pct}%</span>
+          <div class="callprob-slider">
+            <span class="cpval">${pct}%</span>
+            <input type="range" class="callprob" data-callprob="${id}::${r.title}" min="0" max="100" step="5" value="${pct}" />
+          </div>
         </div>`;
       })
       .join('');

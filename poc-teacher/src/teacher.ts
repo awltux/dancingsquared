@@ -217,9 +217,8 @@ export function completeSession(cls: ClassInstance, sessionIdx: number): { moved
     if (!ex) toCarry.set(k, { ref, note, priority });
     else {
       ex.priority = Math.max(ex.priority, priority);
-      // Keep an existing (authored) note; only fill an empty one with the
-      // automated missed note so it never overwrites a teacher's note.
-      if (!ex.note) ex.note = note;
+      // Append the new text (e.g. the automated missed note) to any existing note.
+      if (note) ex.note = ex.note ? `${ex.note}\n${note}` : note;
     }
   };
   // Starred (prioritised) call-setups always carry.
@@ -241,7 +240,8 @@ export function completeSession(cls: ClassInstance, sessionIdx: number): { moved
     if (idx === -1) next.problems.push({ title: ref.title, setupIdx: ref.setupIdx, priority, note });
     else {
       next.problems[idx].priority = Math.max(next.problems[idx].priority, priority);
-      // Do not overwrite an existing note with the automated missed text.
+      // Append to, rather than overwrite, any existing note.
+      if (note) next.problems[idx].note = next.problems[idx].note ? `${next.problems[idx].note}\n${note}` : note;
     }
     carried++;
   }
@@ -278,7 +278,7 @@ export function rollMissedCallsForward(cls: ClassInstance, sessionIdx: number): 
     next.planned.push(r);
     const idx = next.problems.findIndex((p) => p.title === r.title && p.setupIdx === r.setupIdx);
     if (idx === -1) next.problems.push({ title: r.title, setupIdx: r.setupIdx, priority: 3, note });
-    // else: keep any existing note (don't overwrite with the automated missed text)
+    else if (note) next.problems[idx].note = next.problems[idx].note ? `${next.problems[idx].note}\n${note}` : note;
     moved++;
   }
   return moved;

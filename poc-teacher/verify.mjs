@@ -283,7 +283,10 @@ ov.sessions[0].problems = [{ title: ovCall.title, setupIdx: ovCall.setupIdx, pri
 ov.sessions[0].attendance = { a: true, b: false, c: true, d: true }; // Bob missed
 completeSession(ov, 0);
 const ovNote = ov.sessions[1].problems.find((p) => p.title === ovCall.title);
-check(ovNote != null && ovNote.note === 'teacher wrote this', `existing authored note is kept, not overwritten (${ovNote?.note})`);
+check(
+  ovNote != null && ovNote.note.startsWith('teacher wrote this') && ovNote.note.includes('Session 1: Missed by Bob'),
+  `automated missed note is appended to the existing note (${JSON.stringify(ovNote?.note)})`,
+);
 
 console.log('\n== Missed aggregation across multiple sessions ==');
 const mf = structuredClone(emptyTaught);

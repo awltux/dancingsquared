@@ -220,6 +220,7 @@ const session = (id: string, i: number): SessionPlan | undefined => cls(id)?.ses
 // ---------------------------------------------------------------- routing
 
 const root = document.getElementById('app') as HTMLElement;
+let lastSessionKey = ''; // (classId|sessionIdx) of the last rendered session page
 
 function navigate(hash: string): void {
   if (location.hash !== hash) location.hash = hash;
@@ -255,6 +256,11 @@ function parseRoute(): Route {
 
 function render(): void {
   const route = parseRoute();
+  // A completion/action notice belongs to the session it was triggered on; clear
+  // it when moving to a different session so it doesn't bleed over.
+  const sessionKey = route.page === 'session' ? `${route.id}|${route.i}` : '';
+  if (sessionKey && sessionKey !== lastSessionKey) notice = '';
+  lastSessionKey = sessionKey;
   let content = '';
   let tab: 'home' | 'sessions' | 'students' | 'tips' = 'home';
 
@@ -338,6 +344,7 @@ function sessionsPage(id: string): string {
       <div><h1>${esc(c.name)}</h1><p class="sub">${c.level.toUpperCase()}</p></div>
     </header>
     <div class="content">
+      ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
       ${c.sessions.map((s, i) => `
         <div class="card ${s.completed ? 'done' : ''}">
           <div class="card-title-row">

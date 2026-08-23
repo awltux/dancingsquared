@@ -3,7 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Square Dance Teacher</title>
+    <meta name="color-scheme" content="light" />
+    <title>Square Dance Teacher — session tracker &amp; practice-tip generator</title>
+
+    <!-- Primary SEO -->
+    <meta name="description" content="A square dance teacher's companion: track sessions, attendance and call progress, and auto-generate practice tips that start and finish in the squared set." />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Square Dance Teacher" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Canonical URL (REPLACE with the deployed domain) -->
+    <link rel="canonical" href="https://squaredanceteacher.invalid/" />
+
+    <!-- PWA / installability -->
+    <meta name="theme-color" content="#0b7a43" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Square Dance Teacher" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="apple-touch-icon" href="./icon.svg" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Square Dance Teacher" />
+    <meta property="og:title" content="Square Dance Teacher" />
+    <meta property="og:description" content="Track square dance sessions, attendance and call progress, and auto-generate practice tips that start and finish in the squared set." />
+    <meta property="og:url" content="https://squaredanceteacher.invalid/" />
+    <meta property="og:image" content="./icon.svg" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Square Dance Teacher" />
+    <meta name="twitter:description" content="A square dance teacher's session tracker and practice-tip generator." />
+    <meta name="twitter:image" content="./icon.svg" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Square Dance Teacher",
+      "description": "A square dance teacher's session tracker and practice-tip generator.",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>

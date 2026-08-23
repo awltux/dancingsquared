@@ -530,7 +530,13 @@ export function generateTips(
   const hasFamily = opts.family != null;
   const tips: string[][] = [];
   const usedAny = new Set<string>();
-  for (let t = 0; t < count; t++) {
+  // Retry more times than `count`: each attempt is random, and a greedy body
+  // frequently dead-ends on a board with no getout home within the bound, which
+  // would otherwise discard the attempt. Trying several times per tip makes it
+  // far more likely we actually collect `count` closing tips.
+  const attempts = count * 8;
+  let made = 0;
+  for (let t = 0; t < attempts && made < count; t++) {
     seq.reset(); // start in the squared set
     const tip: string[] = [];
     const usedHere = new Set<string>();
@@ -597,6 +603,7 @@ export function generateTips(
     tip.push(...getout);
     if (tip.length >= minLen) {
       tips.push(tip);
+      made++;
       for (const c of tip) usedAny.add(c);
     }
   }

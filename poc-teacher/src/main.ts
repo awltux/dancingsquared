@@ -1131,7 +1131,11 @@ function wire(): void {
       const name = sanitizeText(window.prompt('Rename class', c.name) ?? '', 60);
       if (name) {
         c.name = name;
+        // Keep saved modules in sync so their "created class" label follows the class.
+        const mods = savedModules[id];
+        if (mods) for (const m of mods) m.createdClass = name;
         save();
+        saveSavedModules();
         render();
       }
     }));

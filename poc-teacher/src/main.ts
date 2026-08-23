@@ -339,12 +339,14 @@ function sessionsPage(id: string): string {
     <div class="content">
       ${c.sessions.map((s, i) => `
         <div class="card ${s.completed ? 'done' : ''}">
+          <div class="card-title-row">
+            <button class="card-title tap" data-nav="#/class/${id}/session/${i}">${esc(s.name)}</button>
+            <label class="complete-check"><input type="checkbox" data-completed="${id}:${i}" ${s.completed ? 'checked' : ''} /></label>
+          </div>
           <button class="card-body tap" data-nav="#/class/${id}/session/${i}">
-            <div class="card-main">${esc(s.name)} ${s.completed ? '<span class="done-badge">✓</span>' : ''}</div>
             <div class="card-sub">Taught ${s.taught.length} of ${s.planned.length} calls</div>
             <div class="progress"><span style="width:${s.planned.length ? (s.taught.length / s.planned.length) * 100 : 0}%"></span></div>
           </button>
-          <label class="complete-check"><input type="checkbox" data-completed="${id}:${i}" ${s.completed ? 'checked' : ''} /> Completed</label>
         </div>`).join('')}
       <p class="hint">Tap a session to take the register and plan the practice.</p>
     </div>`;
@@ -361,7 +363,6 @@ function sessionPage(id: string, i: number): string {
     </header>
     <div class="content">
       ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
-      <label class="completed-row"><input type="checkbox" data-completed="${id}:${i}" ${s.completed ? 'checked' : ''} /> <b>Session completed</b></label>
       <h2 class="section-title">Taught this session</h2>
       <div class="chips">${s.taught.length ? s.taught.map((r, ti) => sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
 

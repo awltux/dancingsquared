@@ -12,6 +12,7 @@ export interface CallSetup {
 
 export interface CatalogCall {
   title: string;
+  family: string; // the <tamination> title this call belongs to
   level: string;
   setups: CallSetup[];
   xml: string; // a <calls> wrapper containing only this title's <tam> blocks
@@ -32,6 +33,8 @@ export function buildCatalog(files: Record<string, string>): CatalogCall[] {
   for (const [path, xml] of Object.entries(files)) {
     const m = /([^/]+)\/[^/]+\.xml$/.exec(path);
     const level = m ? m[1] : '?';
+    // The <tamination> title is the call FAMILY; each <tam> is a specific call in it.
+    const family = (xml.match(/<tamination title="([^"]*)"/) || [])[1] ?? 'Other';
     const byTitle = new Map<string, string[]>();
     for (const b of tamBlocks(xml)) {
       const t = attr(b, 'title') || '?';
@@ -42,6 +45,7 @@ export function buildCatalog(files: Record<string, string>): CatalogCall[] {
     for (const [title, blocks] of byTitle) {
       out.push({
         title,
+        family,
         level,
         setups: blocks.map((b) => ({ label: attr(b, 'from') || '(default)', from: attr(b, 'from') })),
         xml: `<calls>\n${blocks.join('\n')}\n</calls>`,

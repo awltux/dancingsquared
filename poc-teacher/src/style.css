@@ -170,6 +170,7 @@ input.callprob { flex: 1; height: 40px; accent-color: var(--accent); }
 .modal-call { margin: 0 0 12px; color: var(--muted); font-size: 15px; }
 .modal .field .row b { color: var(--accent); min-width: 30px; text-align: right; }
 .cl-name { font-weight: 700; }
+.family-head { font-size: 12px; letter-spacing: .3px; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
 .cl-pos { color: var(--muted); font-size: 0.8em; font-weight: 500; margin-left: 6px; }
 .callprob-field .cl-pos { display: block; margin: 2px 0 0; font-size: 0.78em; }
 .primary-card { background: var(--accent-bg); border-color: var(--accent); }

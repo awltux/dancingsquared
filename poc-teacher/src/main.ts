@@ -46,6 +46,7 @@ const catalog: CatalogCall[] = buildCatalog(msFiles);
 const seq = makeSequencer(movesXml, formationsXml, catalog);
 
 const findCall = (title: string): CatalogCall | undefined => catalog.find((c) => c.title === title);
+const familyOf = (title: string): string => findCall(title)?.family ?? 'Other';
 const toRef = (title: string): CallRef => {
   const c = findCall(title)!;
   return { title: c.title, level: c.level, setupIdx: 0, setup: c.setups[0].label };
@@ -436,12 +437,12 @@ function sessionPage(id: string, i: number): string {
       ${s.capturedAt ? `<p class="muted">Completed — captured taught ${s.capturedTaught?.length ?? 0} of ${(s.capturedTaught?.length ?? 0) + (s.capturedPlanned?.length ?? 0)} calls (taught + planned) at the time of completion.</p>` : ''}
       <details class="collapsible" open>
         <summary>Taught this session</summary>
-        <div class="chips">${s.taught.length ? s.taught.map((r, ti) => sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
+        ${s.taught.length ? renderGrouped(s.taught, (r, ti) => sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)) : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}
       </details>
 
       <details class="collapsible" open>
         <summary>Planned <button class="small-btn" data-moveall="${id}:${i}">Move all → taught</button></summary>
-        <div class="chips">${s.planned.length ? s.planned.map((r, pi) => sessionCallChip(r, `data-teach="${id}:${i}:${pi}"`, '', id, i, s)).join('') : '<span class="muted">No plan</span>'}</div>
+        ${s.planned.length ? renderGrouped(s.planned, (r, pi) => sessionCallChip(r, `data-teach="${id}:${i}:${pi}"`, '', id, i, s)) : '<span class="muted">No plan</span>'}
         <button class="big" data-act="pull" data-id="${id}" data-i="${i}" style="margin-top:12px">Pull 1 from next</button>
         <p class="hint">Tap a call under Planned to teach it (it moves up to Taught). Tap a taught call to move it back.</p>
       </details>
@@ -543,7 +544,23 @@ function renderStudentAttendance(c: ClassInstance, studentId: string): string {
     .join('');
 }
 
-// Distinct calls taught in sessions before index `i`, as chips.
+// Group call chips under sub-headings by their call family (tamination title).
+function renderGrouped(calls: CallRef[], render: (r: CallRef, index: number) => string): string {
+  const groups = new Map<string, { r: CallRef; idx: number }[]>();
+  calls.forEach((r, idx) => {
+    const fam = familyOf(r.title);
+    const arr = groups.get(fam) ?? [];
+    arr.push({ r, idx });
+    groups.set(fam, arr);
+  });
+  let out = '';
+  for (const [fam, list] of groups) {
+    out += `<h3 class="family-head">${esc(fam)}</h3><div class="chips">${list.map(({ r, idx }) => render(r, idx)).join('')}</div>`;
+  }
+  return out;
+}
+
+// Distinct calls taught in sessions before index `i`, as chips grouped by family.
 function renderPrevTaught(c: ClassInstance, i: number): string {
   if (i <= 0 || c.sessions.length === 0) {
     return '<span class="muted">No previous sessions yet</span>';
@@ -553,16 +570,16 @@ function renderPrevTaught(c: ClassInstance, i: number): string {
   // as it does in Planned.
   const warnKeys = new Set((c.sessions[i]?.problems ?? []).map((p) => `${p.title}#${p.setupIdx}`));
   const seen = new Set<string>();
-  const chips: string[] = [];
+  const unique: CallRef[] = [];
   for (const sess of c.sessions.slice(0, i)) {
     for (const r of sess.taught) {
       if (seen.has(r.title)) continue;
       seen.add(r.title);
-      chips.push(chip(r, warnKeys));
+      unique.push(r);
     }
   }
-  return chips.length
-    ? `<div class="chips">${chips.join('')}</div>`
+  return unique.length
+    ? renderGrouped(unique, (r) => chip(r, warnKeys))
     : '<span class="muted">Nothing was taught in previous sessions</span>';
 }
 

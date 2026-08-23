@@ -456,15 +456,17 @@ function renderPrevTaught(c: ClassInstance, i: number): string {
   if (i <= 0 || c.sessions.length === 0) {
     return '<span class="muted">No previous sessions yet</span>';
   }
+  // Highlight using the CURRENT session's prioritised call-setups — the same
+  // source as the planned list — so a prioritised call shows the same style here
+  // as it does in Planned.
+  const warnKeys = new Set((c.sessions[i]?.problems ?? []).map((p) => `${p.title}#${p.setupIdx}`));
   const seen = new Set<string>();
   const chips: string[] = [];
   for (const sess of c.sessions.slice(0, i)) {
-    // Prioritised call-setups in this session render with the warn (orange) style.
-    const warnSet = new Set(sess.problems.map((p) => p.title));
     for (const r of sess.taught) {
       if (seen.has(r.title)) continue;
       seen.add(r.title);
-      chips.push(chip(r, warnSet));
+      chips.push(chip(r, warnKeys));
     }
   }
   return chips.length
@@ -658,7 +660,8 @@ function callLabel(r: CallRef): string {
 }
 
 function chip(r: CallRef, warn = new Set<string>()): string {
-  const w = warn.has(r.title);
+  // Matches by title or by exact call-position (title#setupIdx).
+  const w = warn.has(r.title) || warn.has(`${r.title}#${r.setupIdx}`);
   return `<span class="chip ${w ? 'warn' : ''}">${callLabel(r)}</span>`;
 }
 

@@ -387,8 +387,6 @@ function sessionPage(id: string, i: number): string {
       </div>
       <p class="hint">Tap a name to mark them present/absent. Absent dancers miss the taught calls.</p>
 
-      <button class="big" data-act="carrymissed" data-id="${id}" data-i="${i}">Carry missed calls → next session</button>
-
       <button class="big primary" data-nav="#/class/${id}/tips/${i}">Make practice tips →</button>
     </div>`;
 }
@@ -807,24 +805,19 @@ function wire(): void {
     }));
   root.querySelectorAll<HTMLElement>('[data-act="pull"]').forEach((b) =>
     b.addEventListener('click', () => { pullForward(cls(b.dataset.id!)!, +b.dataset.i!, 1); save(); render(); }));
-  root.querySelectorAll<HTMLElement>('[data-act="carrymissed"]').forEach((b) =>
-    b.addEventListener('click', () => {
-      const moved = rollMissedCallsForward(cls(b.dataset.id!)!, +b.dataset.i!);
-      save();
-      notice = moved ? `Carried ${moved} missed call(s) to the next session.` : 'No absent dancers — nothing to carry.';
-      render();
-    }));
   root.querySelectorAll<HTMLInputElement>('[data-completed]').forEach((cb) =>
     cb.addEventListener('change', () => {
       const [id, i] = cb.dataset.completed!.split(':');
       const c = cls(id)!;
       c.sessions[+i].completed = cb.checked;
-      let moved = 0;
-      if (cb.checked) moved = rollPrioritisedForward(c, +i); // auto-carry prioritised calls
+      // On completion, automatically carry prioritised calls AND missed-calls
+      // (for absent dancers) into the next session.
+      let carried = 0;
+      if (cb.checked) carried += rollPrioritisedForward(c, +i) + rollMissedCallsForward(c, +i);
       save();
       notice = cb.checked
-        ? moved
-          ? `Session completed — ${moved} prioritised call(s) added to the next session.`
+        ? carried
+          ? `Session completed — ${carried} call(s) carried to the next session.`
           : 'Session completed.'
         : 'Session marked not complete.';
       render();

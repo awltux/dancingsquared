@@ -5,14 +5,17 @@ import { makeSequencer } from './catalog';
 import { generateTips, DEFAULT_TIP_CONFIG } from './teacher';
 import type { TipConfig } from './teacher';
 
-// The engine auto-detects the global DOMParser at module load, but in a bundled
-// worker that detection can miss the worker-global DOMParser, leaving the parser
-// unset and tip generation to throw. Set it explicitly here.
+// The engine auto-detects the global DOMParser at module load, but a bundled
+// module worker may run in a restricted origin without a native DOMParser, so we
+// set the parser explicitly. Prefer the native global; fall back to
+// @xmldom/xmldom (already used by the headless tests) when it's absent.
 if (typeof DOMParser !== 'undefined') {
   setParser(DOMParser);
   console.log('[tips-worker] set parser to native DOMParser');
 } else {
-  console.warn('[tips-worker] DOMParser is NOT a global here; parser left unset');
+  const { DOMParser: XDomParser } = await import('@xmldom/xmldom');
+  setParser(XDomParser as unknown as typeof DOMParser);
+  console.log('[tips-worker] set parser to @xmldom/xmldom fallback');
 }
 
 interface GenRequest {

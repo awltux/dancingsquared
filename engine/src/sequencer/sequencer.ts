@@ -327,6 +327,7 @@ export class Sequencer {
   reset(): void {
     this.board = makeSquaredSet();
     this.matchMemo.clear();
+    this.homeScoreCache.clear();
   }
 
   startBoard(): Board {
@@ -463,6 +464,7 @@ export class Sequencer {
     const res = this.applyToBoard(this.board, callName);
     this.board = res.board;
     this.matchMemo.clear(); // the primary board moved; start a fresh match cache
+    this.homeScoreCache.clear();
     return { call: callName, legal: res.legal, reason: res.reason, board: res.board, formation: this.recognize(res.board) };
   }
 
@@ -487,18 +489,25 @@ export class Sequencer {
    * withheld, so the sequence always lands somewhere recognizable.
    */
   legalCalls(board: Board): string[] {
-    const names: string[] = [];
+    return this.legalWithResults(board).map((x) => x.name);
+  }
+
+  /** Legal calls from `board`, each paired with its already-computed result board
+   * so a caller (e.g. the getout heuristic) can inspect the outcome without
+   * re-applying the call. */
+  private legalWithResults(board: Board): { name: string; res: { board: Board; legal: boolean } }[] {
+    const out: { name: string; res: { board: Board; legal: boolean } }[] = [];
     for (const name of this.variants.keys()) {
       const res = this.applySearch(board, name);
-      if (res.legal && this.knownFormation(res.board) !== null) names.push(name);
+      if (res.legal && this.knownFormation(res.board) !== null) out.push({ name, res });
     }
     // User-defined modules: legal iff every contained call is legal in sequence
     // and the whole module ends in a known formation.
     for (const mname of this.modules.keys()) {
       const res = this.applySearch(board, mname);
-      if (res.legal && this.knownFormation(res.board) !== null) names.push(mname);
+      if (res.legal && this.knownFormation(res.board) !== null) out.push({ name: mname, res });
     }
-    return names;
+    return out;
   }
 
   /** The name of any formation in the FULL catalog that `board` matches, else
@@ -520,33 +529,142 @@ export class Sequencer {
   }
 
   /**
-   * Bounded BFS search for a sequence of legal calls that ends in the target
-   * formation (default: a squared set). Returns the call path or null.
+   * Search for a sequence of legal calls that ends in the target formation
+   * (default: a squared set). Returns the call path or null.
    *
-   * For the default home target the search also requires the final board to
-   * restore the START FASR (dancers back with their partners, in sequence) —
-   * not merely land on a geometrically-congruent square with the identities
-   * permuted.
+   * Uses a depth-first search that descends the most promising (home-closest)
+   * branches first, dedupes visited boards, and is capped by a node budget so a
+   * hard-to-close state can never hang the UI. Callers that exhaust the budget
+   * get null and may retry. For the default home target the search also requires
+   * the final board to restore the START FASR (dancers back in sequence) — not
+   * merely land on a geometrically-congruent square with identities permuted.
    */
-  getout(opts: { target?: string; maxCalls?: number } = {}): string[] | null {
+  getout(opts: { target?: string; maxCalls?: number; budget?: number } = {}): string[] | null {
     const target = opts.target ?? 'Static Square';
     const maxCalls = opts.maxCalls ?? 5;
-    const queue: { board: Board; path: string[] }[] = [{ board: cloneBoard(this.board), path: [] }];
+    const budget = opts.budget ?? 400;
+    this.matchMemo.clear();
+    this.canGetoutMemo.clear();
+    this.homeScoreCache.clear();
+
+    // Fast path: greedy best-first straight toward home. Handles the common
+    // "nearly home" body in milliseconds with no backtracking.
+    const greedy = this.greedyHome(target, maxCalls);
+    if (greedy) return greedy;
+
+    // Fallback: budgeted DFS for harder bodies (bounded so it can't hang).
     const seen = new Set<string>([boardSig(this.board)]);
-    while (queue.length) {
-      const { board, path } = queue.shift()!;
+    const state = { nodes: 0, budget };
+    return this.getoutPath(this.board, target, maxCalls, [], seen, state);
+  }
+
+  /** Greedy best-first: at each step pick the legal call whose result scores
+   * closest to home, never moving to a worse-scoring board. Returns a valid home
+   * path or null (when stuck or out of calls). */
+  private greedyHome(target: string, maxCalls: number): string[] | null {
+    let board = cloneBoard(this.board);
+    const path: string[] = [];
+    const seen = new Set<string>([boardSig(board)]);
+    let curScore = -Infinity;
+    for (let i = 0; i < maxCalls; i++) {
       if (path.length > 0 && this.reachesTarget(board, target)) return path;
-      if (path.length >= maxCalls) continue;
-      for (const name of this.legalCalls(board)) {
-        const res = this.applySearch(board, name);
-        if (!res.legal) continue;
-        const sig = boardSig(res.board);
+      let best: { name: string; res: { board: Board; legal: boolean } } | null = null;
+      let bestScore = -Infinity;
+      for (const c of this.legalWithResults(board)) {
+        const sig = boardSig(c.res.board);
         if (seen.has(sig)) continue;
-        seen.add(sig);
-        queue.push({ board: res.board, path: [...path, name] });
+        const s = this.homeScore(c.res.board);
+        if (s > bestScore) {
+          bestScore = s;
+          best = c;
+        }
       }
+      if (!best || bestScore < curScore) return null; // no move, or not improving
+      seen.add(boardSig(best.res.board));
+      board = best.res.board;
+      path.push(best.name);
+      curScore = bestScore;
+    }
+    return this.reachesTarget(board, target) ? path : null;
+  }
+
+  /** Depth-first getout search. `depth` = calls still allowed (remaining).
+   * Candidates are ordered by how close their result lands to the target (for
+   * the home target: geometric closeness to the squared set plus in-sequence
+   * ordering), so promising branches are descended first. `seen` dedupes by board
+   * signature so the same state is never revisited (the BFS used the same guard)
+   * — without it the DFS would explore cycles exponentially. */
+  private getoutPath(
+    board: Board,
+    target: string,
+    depth: number,
+    path: string[],
+    seen: Set<string>,
+    state: { nodes: number; budget: number },
+  ): string[] | null {
+    if (depth <= 0) return null;
+    if (state.nodes >= state.budget) return null;
+    const candidates = this.legalWithResults(board);
+    candidates.sort((a, b) => this.homeScore(b.res.board) - this.homeScore(a.res.board));
+    for (const { name, res } of candidates) {
+      const sig = boardSig(res.board);
+      if (seen.has(sig)) continue;
+      seen.add(sig);
+      state.nodes++;
+      path.push(name);
+      if (this.reachesTarget(res.board, target)) return [...path];
+      const sub = this.getoutPath(res.board, target, depth - 1, path, seen, state);
+      if (sub) return sub;
+      path.pop();
     }
     return null;
+  }
+
+  /** Closeness of `board` (default: current) to the home squared set; higher is
+   * closer. Exposed for callers (e.g. tip generation) to prefer easily-closable
+   * boards so a getout home is short and cheap. */
+  closenessToHome(board: Board = this.board): number {
+    return this.homeScore(board);
+  }
+
+  /** Closeness of `board` to the home squared set (higher = closer). Uses the
+   * rigid-match error to the square (always finite because the huge tolerance
+   * disables the pairwise-signature quick-reject), so even boards far from home
+   * get an ordering signal — plus a bonus for being in sequence. Cached by board
+   * signature; used only as a getout-ordering heuristic. */
+  private homeScoreCache = new Map<string, number>();
+  private homeScore(board: Board): number {
+    const sig = boardSig(board);
+    const cached = this.homeScoreCache.get(sig);
+    if (cached !== undefined) return cached;
+    let s = 0;
+    const sq = this.namedFormations.find((f) => f.name === 'Static Square');
+    if (sq && sq.dancers.length === board.dancers.length) {
+      const m = matchFormations(this.matchables(board), sq.dancers, 1e9);
+      if (m) s -= m.error * 100; // geometric closeness dominates (the hard part)
+    }
+    const seq = this.sequenceOf(board);
+    if (seq === 'in') s += 10; // sequence fix is usually 1-2 calls once at the square
+    else if (seq === 'out') s += 1;
+    this.homeScoreCache.set(sig, s);
+    return s;
+  }
+
+  /** Cheap in/out-of-sequence status of a board (identity order around the set). */
+  private sequenceOf(board: Board): string {
+    const dancers = board.dancers;
+    const cx = dancers.reduce((s, d) => s + d.x, 0) / dancers.length;
+    const cy = dancers.reduce((s, d) => s + d.y, 0) / dancers.length;
+    const boys = dancers.filter((d) => d.gender === 'boy');
+    const angles = new Map<number, number>();
+    for (const d of boys) angles.set(d.couple, Math.atan2(d.y - cy, d.x - cx));
+    if (angles.size !== 4) return 'unknown';
+    const order = [...angles.entries()].sort((a, b) => a[1] - b[1]).map(([c]) => c);
+    const is = (pat: string) =>
+      order.some((_, i) => [order[i], order[(i + 1) % 4], order[(i + 2) % 4], order[(i + 3) % 4]].join() === pat);
+    if (is('1,2,3,4')) return 'in';
+    if (is('1,4,3,2')) return 'out';
+    return 'unknown';
   }
 
   // Whether `board` counts as "reaching" the getout target. For the home target

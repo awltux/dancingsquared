@@ -506,6 +506,16 @@ function applicableFrom(seq: Sequencer, board: import('dancing-squared-engine').
   return out;
 }
 
+// Cheap "is ANY available call legal from this board" — stops at the first match
+// instead of evaluating every call (used for the continuation check, which only
+// needs a yes/no, not the full applicable list).
+function hasApplicable(seq: Sequencer, board: import('dancing-squared-engine').Board, available: Set<string>): boolean {
+  for (const name of available) {
+    if (seq.applyToBoard(board, name).legal) return true;
+  }
+  return false;
+}
+
 /**
  * Generate `count` practice tips from `seq` (a Sequencer pre-loaded with ONLY the
  * available calls) that start and finish in the squared set. Each tip uses only
@@ -554,7 +564,7 @@ export async function generateTips(
       // isolated call. Fall back only if nothing continues.
       const withCont = candidates.filter((name) => {
         const probe = seq.applyToBoard(snapshot, name);
-        return probe.legal && applicableFrom(seq, probe.board, available).length > 0;
+        return probe.legal && hasApplicable(seq, probe.board, available);
       });
       let pool = withCont.length ? withCont : candidates;
       // Priority control: on a priority roll, restrict to prioritised calls.
@@ -582,6 +592,14 @@ export async function generateTips(
       // yet used in this tip (stronger when repeatProb is low) and for calls not
       // used in earlier tips, so tips stay varied. Random weighted selection makes
       // each generated tip differ. A call set to 0% probability is never picked.
+      // A mild bonus is given to calls whose result lands closer to home, so the
+      // final getout is short and cheap (keeps tip generation fast without making
+      // tips repetitive).
+      const closeWeight = new Map<string, number>();
+      for (const n of pool) {
+        const r = seq.applyToBoard(snapshot, n);
+        closeWeight.set(n, r.legal ? seq.closenessToHome(r.board) : -Infinity);
+      }
       const freshBonus = (1 - config.repeatProb) * 3;
       const combinedProb = (n: string) => {
         const prob = callProb(n);
@@ -590,6 +608,8 @@ export async function generateTips(
         if (!usedHere.has(n)) s += freshBonus;
         if (!usedAny.has(n)) s += 0.6;
         if ((priority.get(n) ?? 0) > 0) s += 0.2;
+        const cl = closeWeight.get(n) ?? 0;
+        if (cl > -Infinity) s += cl * 0.005; // mild bias toward closer-to-home
         return s;
       };
       const pick = weightedPick(pool, combinedProb, rand);
@@ -601,7 +621,7 @@ export async function generateTips(
     }
     // Close the tip back to the squared set (finish in square). If no getout is
     // found within the bound, discard this tip.
-    const getout = seq.getout({ target: 'Static Square', maxCalls: getoutMax });
+    const getout = seq.getout({ target: 'Static Square', maxCalls: getoutMax, budget: 15 });
     if (getout && getout.length) {
       tip.push(...getout);
       if (tip.length >= minLen) {

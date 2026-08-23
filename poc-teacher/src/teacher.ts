@@ -136,6 +136,33 @@ export function pullForward(cls: ClassInstance, sessionIdx: number, count: numbe
   s.planned.push(...taken);
 }
 
+/**
+ * Set (or clear) a call-setup as prioritised (problem) practice. When `on`, adds
+ * or updates its priority and note; when `off`, removes it.
+ */
+export function setProblem(
+  cls: ClassInstance,
+  sessionIdx: number,
+  title: string,
+  setupIdx: number,
+  priority: number,
+  note: string,
+  on: boolean,
+): void {
+  const s = cls.sessions[sessionIdx];
+  if (!s) return;
+  const idx = s.problems.findIndex((p) => p.title === title && p.setupIdx === setupIdx);
+  if (on) {
+    if (idx === -1) s.problems.push({ title, setupIdx, priority, note });
+    else {
+      s.problems[idx].priority = priority;
+      s.problems[idx].note = note;
+    }
+  } else if (idx !== -1) {
+    s.problems.splice(idx, 1);
+  }
+}
+
 /** Add a student to the class and to the register of every session (absent by default). */
 export function addStudent(cls: ClassInstance, name: string): void {
   const trimmed = name.trim();

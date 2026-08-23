@@ -22,6 +22,7 @@ import {
   addStudent,
   removeStudent,
   renameStudent,
+  setProblem,
   insertInto,
   removeAt,
   replaceAt,
@@ -194,6 +195,20 @@ const pDup = parseProgramme(JSON.stringify({ name: 'D', level: 'ms', sessions: [
 const resolveLocal = (t) => { const c = catalog.find((x) => x.title === t); return c ? { title: c.title, level: c.level, setupIdx: 0, setup: c.setups[0].label } : null; };
 const cd = buildClassFromProgramme('x', 'X', pDup, [], resolveLocal);
 check(cd.sessions[0].planned.length === 1, 'programme with duplicate calls builds a deduped plan');
+
+console.log('\n== Prioritised call-setups (setProblem) ==');
+const pc = structuredClone(emptyTaught);
+pc.sessions[0].problems = [];
+const first = pc.sessions[0].planned[0];
+const has = () => pc.sessions[0].problems.some((p) => p.title === first.title && p.setupIdx === first.setupIdx);
+setProblem(pc, 0, first.title, first.setupIdx, 5, 'heads struggle', true);
+const added = pc.sessions[0].problems.find((p) => p.title === first.title);
+check(has() && added.priority === 5 && added.note === 'heads struggle', 'setProblem adds a prioritised call-setup with priority + note');
+setProblem(pc, 0, first.title, first.setupIdx, 2, 'improving', true);
+const upd = pc.sessions[0].problems.find((p) => p.title === first.title);
+check(has() && upd.priority === 2 && upd.note === 'improving', 'setProblem updates priority + note');
+setProblem(pc, 0, first.title, first.setupIdx, 3, '', false);
+check(!has(), 'setProblem removes the prioritised call-setup');
 
 console.log('\n== Teach / unteach (planned -> taught) ==');
 const tc = structuredClone(emptyTaught);

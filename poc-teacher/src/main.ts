@@ -24,6 +24,7 @@ import {
   addStudent,
   removeStudent,
   renameStudent,
+  setProblem,
 } from './teacher';
 import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
 import { DEFAULT_TIP_CONFIG } from './teacher';
@@ -267,8 +268,33 @@ function render(): void {
   root.innerHTML = `
     <div class="screen">${content}</div>
     ${sub ? '' : bottomNav(route.page === 'home' ? null : route.id, tab)}
+    ${probModal ? renderModal(probModal) : ''}
   `;
   wire();
+}
+
+function renderModal(m: ProbModal): string {
+  const p = m.existing?.priority ?? 3;
+  const note = m.existing?.note ?? '';
+  return `
+    <div class="overlay" data-closeprob>
+      <div class="modal">
+        <h2>Prioritise</h2>
+        <p class="modal-call">${callLabel({ title: m.title, level: '', setupIdx: m.setupIdx, setup: '' })}</p>
+        <label class="field">Notes
+          <textarea id="probNote" rows="3" placeholder="What do they struggle with?">${esc(note)}</textarea>
+        </label>
+        <label class="field">Priority
+          <input id="probPriority" type="range" min="1" max="5" step="1" value="${p}" />
+          <span class="row"><span class="muted">1 = low, 5 = high</span><b id="probPriorityVal">${p}</b></span>
+        </label>
+        <div class="row two">
+          <button class="big primary" data-probsave>Save</button>
+          <button class="big" data-probcancel>Cancel</button>
+        </div>
+        ${m.existing ? `<button class="big danger" data-probremove>Remove prioritisation</button>` : ''}
+      </div>
+    </div>`;
 }
 
 // ---------------------------------------------------------------- pages
@@ -329,10 +355,10 @@ function sessionPage(id: string, i: number): string {
     </header>
     <div class="content">
       <h2 class="section-title">Taught this session</h2>
-      <div class="chips">${s.taught.length ? s.taught.map((r, ti) => `<button class="chip tap" data-unteach="${id}:${i}:${ti}" title="Tap to move back to planned">✓ ${callLabel(r)}</button>`).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
+      <div class="chips">${s.taught.length ? s.taught.map((r, ti) => sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
 
       <h2 class="section-title">Planned</h2>
-      <div class="chips">${s.planned.length ? s.planned.map((r, pi) => `<button class="chip tap" data-teach="${id}:${i}:${pi}" title="Tap to teach this call">${callLabel(r)} ${s.problems.some((p) => p.title === r.title) ? '<span class="dim">★</span>' : ''}</button>`).join('') : '<span class="muted">No plan</span>'}</div>
+      <div class="chips">${s.planned.length ? s.planned.map((r, pi) => sessionCallChip(r, `data-teach="${id}:${i}:${pi}"`, '', id, i, s)).join('') : '<span class="muted">No plan</span>'}</div>
       <div class="row two" style="margin-top:12px">
         <button class="big" data-act="roll" data-id="${id}" data-i="${i}">Move plan → next</button>
         <button class="big" data-act="pull" data-id="${id}" data-i="${i}">Pull 1 from next</button>
@@ -593,6 +619,24 @@ function programmesPage(): string {
     </div>`;
 }
 
+// Modal state for prioritising a call-setup: null = closed.
+interface ProbModal {
+  id: string;
+  i: number;
+  title: string;
+  setupIdx: number;
+  existing?: { priority: number; note?: string };
+}
+let probModal: ProbModal | null = null;
+
+// A session call chip: the tappable call (teach/unteach) plus a star that opens
+// the prioritisation dialog.
+function sessionCallChip(r: CallRef, action: string, prefix: string, id: string, i: number, s: SessionPlan): string {
+  const on = s.problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
+  const tip = prefix === '✓' ? 'Tap to move back to planned' : 'Tap to teach this call';
+  return `<span class="chip wrap"><button class="chip-main" ${action} title="${tip}">${prefix ? `${prefix} ` : ''}${callLabel(r)}</button><button class="star ${on ? 'on' : ''}" data-star="${id}::${i}::${r.title}::${r.setupIdx}" title="Prioritise this call">★</button></span>`;
+}
+
 // Render a call with its name (bold) and position (dimmer) clearly separated.
 function callLabel(r: CallRef): string {
   return `<span class="cl-name">${esc(r.title)}</span>${r.setup ? `<span class="cl-pos">from ${esc(r.setup)}</span>` : ''}`;
@@ -640,6 +684,44 @@ function wire(): void {
       session(id, i)!.attendance[sid] = !session(id, i)!.attendance[sid];
       save();
       render();
+    }));
+
+  root.querySelectorAll<HTMLElement>('[data-star]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const [id, i, title, setupIdx] = b.dataset.star!.split('::');
+      const c = cls(id)!;
+      const existing = c.sessions[+i].problems.find((p) => p.title === title && p.setupIdx === +setupIdx);
+      probModal = { id, i: +i, title, setupIdx: +setupIdx, existing: existing ? { priority: existing.priority, note: existing.note } : undefined };
+      render();
+    }));
+  root.querySelectorAll<HTMLInputElement>('#probPriority').forEach((el) => {
+    el.addEventListener('input', () => { (root.querySelector('#probPriorityVal') as HTMLElement).textContent = el.value; });
+  });
+  root.querySelectorAll<HTMLElement>('[data-probsave]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const note = (root.querySelector('#probNote') as HTMLTextAreaElement).value;
+      const pri = +(root.querySelector('#probPriority') as HTMLInputElement).value;
+      if (probModal) {
+        setProblem(cls(probModal.id)!, probModal.i, probModal.title, probModal.setupIdx, pri, note, true);
+        save();
+      }
+      probModal = null;
+      render();
+    }));
+  root.querySelectorAll<HTMLElement>('[data-probcancel]').forEach((b) =>
+    b.addEventListener('click', () => { probModal = null; render(); }));
+  root.querySelectorAll<HTMLElement>('[data-probremove]').forEach((b) =>
+    b.addEventListener('click', () => {
+      if (probModal) {
+        setProblem(cls(probModal.id)!, probModal.i, probModal.title, probModal.setupIdx, 3, '', false);
+        save();
+      }
+      probModal = null;
+      render();
+    }));
+  root.querySelectorAll<HTMLElement>('[data-closeprob]').forEach((el) =>
+    el.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).classList.contains('overlay')) { probModal = null; render(); }
     }));
 
   root.querySelectorAll<HTMLElement>('[data-addstudent]').forEach((b) =>

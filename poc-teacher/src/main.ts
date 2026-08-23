@@ -762,21 +762,22 @@ function renderPrevTaught(c: ClassInstance, i: number): string {
   if (i <= 0 || c.sessions.length === 0) {
     return '<span class="muted">No previous sessions yet</span>';
   }
-  // Highlight using the CURRENT session's prioritised call-setups — the same
-  // source as the planned list — so a prioritised call shows the same style here
-  // as it does in Planned.
-  const warnKeys = new Set((c.sessions[i]?.problems ?? []).map((p) => `${p.title}#${p.setupIdx}`));
+  // Current session (whose planned list we can add to, and whose problems drive
+  // the star / warn highlight).
+  const s = c.sessions[i];
   const seen = new Set<string>();
   const unique: CallRef[] = [];
   for (const sess of c.sessions.slice(0, i)) {
     for (const r of sess.taught) {
-      if (seen.has(r.title)) continue;
-      seen.add(r.title);
+      const key = `${r.title}#${r.setupIdx}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
       unique.push(r);
     }
   }
   return unique.length
-    ? renderGrouped(unique, (r) => chip(r, warnKeys))
+    ? renderGrouped(unique, (r) =>
+        sessionCallChip(r, `data-moveplanned="${c.id}::${i}::${r.title}::${r.setupIdx}"`, '+', c.id, i, s))
     : '<span class="muted">Nothing was taught in previous sessions</span>';
 }
 
@@ -976,7 +977,7 @@ let probModal: ProbModal | null = null;
 // the prioritisation dialog.
 function sessionCallChip(r: CallRef, action: string, prefix: string, id: string, i: number, s: SessionPlan): string {
   const on = s.problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
-  const tip = prefix === '✓' ? 'Tap to move back to planned' : 'Tap to teach this call';
+  const tip = prefix === '✓' ? 'Tap to move back to planned' : prefix === '+' ? 'Tap to add to this session\'s plan' : 'Tap to teach this call';
   return `<span class="chip wrap ${on ? 'warn' : ''}"><button class="chip-main" ${action} title="${tip}">${prefix ? `${prefix} ` : ''}${callLabel(r)}</button><button class="star ${on ? 'on' : ''}" data-star="${id}::${i}::${r.title}::${r.setupIdx}" title="Prioritise this call">${on ? '★' : '☆'}</button></span>`;
 }
 
@@ -1180,6 +1181,22 @@ function wire(): void {
     b.addEventListener('click', () => {
       const [id, i, ti] = b.dataset.unteach!.split(':');
       unteachCall(cls(id)!, +i, +ti);
+      save();
+      render();
+    }));
+  // Move a call taught in a previous session into the current session's plan.
+  root.querySelectorAll<HTMLElement>('[data-moveplanned]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const [id, i, title, setupIdx] = b.dataset.moveplanned!.split('::');
+      const c = cls(id);
+      if (!c) return;
+      const s = c.sessions[+i];
+      if (!s) return;
+      const si = +setupIdx;
+      if (s.planned.some((p) => p.title === title && p.setupIdx === si)) return;
+      const prev = c.sessions.slice(0, +i).flatMap((sess) => sess.taught).find((r) => r.title === title && r.setupIdx === si);
+      const ref = prev ?? toRefOrNull(title) ?? { title, level: c.level, setupIdx: si, setup: '' };
+      s.planned.push(ref);
       save();
       render();
     }));

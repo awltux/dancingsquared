@@ -641,8 +641,8 @@ function studentsPage(id: string): string {
     </header>
     <div class="content">
       <div class="row two addstudent-row">
-        <input id="addStudent" type="text" placeholder="New dancer's name" />
-        <button class="big primary" data-addstudent data-id="${id}">Add</button>
+        <input id="addStudent" type="text" placeholder="New dancer's name" data-id="${id}" />
+        <button class="big primary" type="button" data-addstudent data-id="${id}">Add</button>
       </div>
       ${c.students.length ? c.students.map((st) => {
         const k = studentKnowledge(c, st.id);
@@ -1075,19 +1075,27 @@ function wire(): void {
       }
     }));
 
+  const doAddStudent = (id: string): void => {
+    const input = root.querySelector('#addStudent') as HTMLInputElement;
+    if (!input.value.trim()) {
+      input.classList.add('invalid');
+      return;
+    }
+    input.classList.remove('invalid');
+    addStudent(cls(id)!, input.value);
+    input.value = '';
+    save();
+    render();
+  };
   root.querySelectorAll<HTMLElement>('[data-addstudent]').forEach((b) =>
-    b.addEventListener('click', () => {
-      const id = b.dataset.id!;
-      const input = root.querySelector('#addStudent') as HTMLInputElement;
-      if (!input.value.trim()) {
-        input.classList.add('invalid');
-        return;
+    b.addEventListener('click', () => doAddStudent(b.dataset.id!)));
+  // Pressing Enter in the name field should add the dancer, not submit/reload.
+  root.querySelectorAll<HTMLInputElement>('#addStudent').forEach((el) =>
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        doAddStudent(el.dataset.id!);
       }
-      input.classList.remove('invalid');
-      addStudent(cls(id)!, input.value);
-      input.value = '';
-      save();
-      render();
     }));
   root.querySelectorAll<HTMLElement>('[data-rename]').forEach((b) =>
     b.addEventListener('click', () => {

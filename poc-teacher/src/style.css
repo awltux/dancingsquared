@@ -192,6 +192,8 @@ input.invalid, select.invalid, textarea.invalid { border-color: var(--bad); box-
 .save-err { display: none; color: #d32f2f; font-size: 14px; font-weight: 600; margin-left: 10px; vertical-align: middle; }
 .save-err.show { display: inline-block; }
 button.dup { outline: 3px solid #d32f2f; outline-offset: 2px; }
+.mod-export-msg { display: none; color: var(--accent); font-size: 14px; font-weight: 600; margin-top: 8px; }
+.mod-export-msg.show { display: block; }
 .filebtn { display: flex; align-items: center; justify-content: center; text-align: center; }
 
 /* ---------- bottom navigation ---------- */

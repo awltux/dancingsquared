@@ -620,6 +620,7 @@ function sessionPage(id: string, i: number): string {
           <button class="big" data-modexport="${id}">Export</button>
           <button class="big" data-modimporttoggle="${id}">Import</button>
         </div>
+        <span class="mod-export-msg" data-modexportmsg="${id}"></span>
         <div id="modImportBox" hidden style="margin-top:10px">
           <textarea id="modImportText" rows="3" placeholder="Paste exported module JSON here…"></textarea>
           <div class="row two" style="margin-top:8px">
@@ -1242,14 +1243,15 @@ function wire(): void {
     b.addEventListener('click', () => {
       const id = b.dataset.modexport!;
       const list = savedModules[id] ?? [];
-      if (!list.length) { setNotice('No saved modules to export.'); render(); return; }
+      const msg = root.querySelector<HTMLElement>(`[data-modexportmsg="${id}"]`);
+      const show = (text: string) => { if (msg) { msg.textContent = text; msg.classList.add('show'); } };
+      if (!list.length) { show('No saved modules to export.'); return; }
       const text = serializeModules(list);
-      const doCopy = () => { setNotice(`Copied ${list.length} module(s) to clipboard.`); render(); };
+      const doCopy = () => show(`Copied ${list.length} module(s) to clipboard.`);
       if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(text).then(doCopy, () => { setNotice('Could not copy — see console.'); render(); });
+        navigator.clipboard.writeText(text).then(doCopy, () => show('Could not copy — see console.'));
       } else {
-        setNotice('Clipboard unavailable on this device.');
-        render();
+        show('Clipboard unavailable on this device.');
       }
     }));
 

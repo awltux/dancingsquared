@@ -17,7 +17,6 @@ import {
   pullForward,
   removeAt,
   replaceAt,
-  rollUntaughtForward,
   studentKnowledge,
   teachCall,
   unteachCall,
@@ -409,10 +408,7 @@ function sessionPage(id: string, i: number): string {
 
       <h2 class="section-title">Planned</h2>
       <div class="chips">${s.planned.length ? s.planned.map((r, pi) => sessionCallChip(r, `data-teach="${id}:${i}:${pi}"`, '', id, i, s)).join('') : '<span class="muted">No plan</span>'}</div>
-      <div class="row two" style="margin-top:12px">
-        <button class="big" data-act="roll" data-id="${id}" data-i="${i}">Move plan → next</button>
-        <button class="big" data-act="pull" data-id="${id}" data-i="${i}">Pull 1 from next</button>
-      </div>
+      <button class="big" data-act="pull" data-id="${id}" data-i="${i}">Pull 1 from next</button>
       <p class="hint">Tap a call under Planned to teach it (it moves up to Taught). Tap a taught call to move it back.</p>
 
       <h2 class="section-title">Taught in previous sessions</h2>
@@ -842,9 +838,6 @@ function wire(): void {
         render();
       }
     }));
-
-  root.querySelectorAll<HTMLElement>('[data-act="roll"]').forEach((b) =>
-    b.addEventListener('click', () => { rollUntaughtForward(cls(b.dataset.id!)!, +b.dataset.i!); save(); render(); }));
 
   root.querySelectorAll<HTMLElement>('[data-teach]').forEach((b) =>
     b.addEventListener('click', () => {

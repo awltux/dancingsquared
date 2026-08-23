@@ -341,7 +341,7 @@ function parseModules(text: string): SavedModule[] | null {
     if (typeof o.name !== 'string' || !Array.isArray(o.titles)) continue;
     const titles = o.titles.filter((t): t is string => typeof t === 'string');
     if (!titles.length) continue;
-    out.push({ name: o.name, titles, createdAt: Date.now(), createdClass: '', createdSession: '' });
+    out.push({ name: sanitizeText(o.name, 60), titles, createdAt: Date.now(), createdClass: '', createdSession: '' });
   }
   return out.length ? out : null;
 }
@@ -1039,8 +1039,8 @@ function wire(): void {
   });
   root.querySelectorAll<HTMLElement>('[data-probsave]').forEach((b) =>
     b.addEventListener('click', () => {
-      const note = (root.querySelector('#probNote') as HTMLTextAreaElement).value;
-      const pri = +(root.querySelector('#probPriority') as HTMLInputElement).value;
+      const note = sanitizeText((root.querySelector('#probNote') as HTMLTextAreaElement).value, 500);
+      const pri = clampNum(+(root.querySelector('#probPriority') as HTMLInputElement).value, 1, 5);
       if (probModal) {
         setProblem(cls(probModal.id)!, probModal.i, probModal.title, probModal.setupIdx, pri, note, true);
         save();
@@ -1077,12 +1077,13 @@ function wire(): void {
 
   const doAddStudent = (id: string): void => {
     const input = root.querySelector('#addStudent') as HTMLInputElement;
-    if (!input.value.trim()) {
+    const name = sanitizeText(input.value);
+    if (!name) {
       input.classList.add('invalid');
       return;
     }
     input.classList.remove('invalid');
-    addStudent(cls(id)!, input.value);
+    addStudent(cls(id)!, name);
     input.value = '';
     save();
     render();
@@ -1102,8 +1103,8 @@ function wire(): void {
       const [id, sid] = b.dataset.rename!.split(':');
       const c = cls(id)!;
       const st = c.students.find((s) => s.id === sid);
-      const name = window.prompt('Rename dancer', st?.name ?? '');
-      if (name != null) {
+      const name = sanitizeText(window.prompt('Rename dancer', st?.name ?? '') ?? '');
+      if (name) {
         renameStudent(c, sid, name);
         save();
         render();
@@ -1181,7 +1182,7 @@ function wire(): void {
       const errName = root.querySelector('#err-name') as HTMLElement;
       const errProg = root.querySelector('#err-prog') as HTMLElement;
 
-      const name = nameEl.value.trim();
+      const name = sanitizeText(nameEl.value);
       const pi = +progEl.value;
       const p = programmes[pi];
 
@@ -1204,7 +1205,7 @@ function wire(): void {
       }
       if (!ok) return;
 
-      const students = (root.querySelector('#newStudents') as HTMLInputElement).value.split(',').map((s) => s.trim()).filter(Boolean);
+      const students = (root.querySelector('#newStudents') as HTMLInputElement).value.split(',').map((s) => sanitizeText(s)).filter(Boolean);
       const id = 'c' + Date.now().toString(36);
       classes.push(buildClassFromProgramme(id, name, p, students, toRefOrNull));
       save();
@@ -1394,7 +1395,7 @@ function wire(): void {
   wireSlider('cfgPrev', 'cfgPrevVal');
   root.querySelectorAll<HTMLElement>('[data-savecfg]').forEach((b) =>
     b.addEventListener('click', () => {
-      const v = (sel: string) => +(root.querySelector(sel) as HTMLInputElement).value / 100;
+      const v = (sel: string) => clampNum(+(root.querySelector(sel) as HTMLInputElement).value, 0, 100) / 100;
       tipConfigGlobal = {
         repeatProb: v('#cfgRepeat'),
         priorityProb: v('#cfgPriority'),
@@ -1443,7 +1444,7 @@ function wire(): void {
     });
     el.addEventListener('change', () => {
       const [cid, title] = el.dataset.callprob!.split('::');
-      (callProbs[cid] ??= {})[title] = +el.value / 100;
+      (callProbs[cid] ??= {})[title] = clampNum(+el.value, 0, 100) / 100;
       saveCallProbs();
     });
   });
@@ -1481,7 +1482,7 @@ function wire(): void {
       const sIdx = Math.max(0, c.sessions.findIndex((s) => s.id === t.sourceSessionId));
       // Suggest a creative name from the tip's calls; fall back to a plain count.
       const defaultName = suggestModuleName(t.titles) || `Saved tip ${modules.length + 1}`;
-      const name = (window.prompt(`Name this module — suggested: "${defaultName}"`, defaultName) || '').trim() || defaultName;
+      const name = sanitizeText(window.prompt(`Name this module — suggested: "${defaultName}"`, defaultName) ?? '', 60) || defaultName;
       modules.push({
         name,
         titles: [...t.titles],
@@ -1512,7 +1513,7 @@ function wire(): void {
       if (!m) return;
       const name = window.prompt('Rename module', m.name);
       if (name != null) {
-        m.name = name.trim() || m.name;
+        m.name = sanitizeText(name) || m.name;
         saveSavedModules();
         render();
       }
@@ -1532,7 +1533,29 @@ function wire(): void {
 }
 
 function esc(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** Trim and sanitize user-entered text: strip HTML tags, markup/control chars and
+ * cap length, so nothing dangerous can be stored even if an `esc` is missed. */
+function sanitizeText(s: string, maxLen = 80): string {
+  return s
+    .replace(/<[^>]*>/g, '') // strip any HTML tags
+    .replace(/[<>'`]/g, '') // drop markup / attribute-breaking chars
+    .replace(/[\u0000-\u001f\u007f]/g, '') // strip control chars
+    .trim()
+    .slice(0, maxLen);
+}
+
+/** Clamp a numeric input to a sensible range. */
+function clampNum(v: number, min: number, max: number): number {
+  if (!Number.isFinite(v)) return min;
+  return Math.min(max, Math.max(min, v));
 }
 
 function importProgrammeText(text: string): void {

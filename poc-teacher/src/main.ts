@@ -94,15 +94,64 @@ function tipTheme(titles: string[]): string {
   return first.replace(/^(Heads|Sides|All 4 Couples)\s*/i, '').trim() || 'Square';
 }
 
-/** Suggest a creative module name from the tip's calls (stable per tip). */
+/** Suggest a creative module name from the tip's calls (stable per tip).
+ * The name is built from a pool of square-dance figure words that actually
+ * appear in the tip's calls plus the dominant call family (deduplicated), so it
+ * reflects the calls rather than being purely random. */
 function suggestModuleName(titles: string[]): string {
   const theme = tipTheme(titles);
+  // Pool of distinct words drawn from the tip's calls + its family. Drop a short
+  // word when a longer pool entry starts with it (e.g. "Slide" vs "Slide Thru",
+  // "Scoot" vs "Scoot Back") so names aren't redundant.
+  const rawPool = [...new Set([theme, ...extractFigureWords(titles)])];
+  const pool = rawPool.filter((w) => !rawPool.some((o) => o !== w && o.startsWith(w + ' ')));
   let seed = 0;
   for (const ch of titles.join('>')) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+  const styleIdx = seed % 4;
+  if (pool.length >= 2) {
+    // Two distinct parts, drawn from the tip's actual words/family.
+    const a = pool[seed % pool.length];
+    const b = pool[(seed + 1) % pool.length];
+    switch (styleIdx) {
+      case 0: return `${a} ${b}`;
+      case 1: return `The ${a} ${b}`;
+      case 2: return `${a} & ${b}`;
+      default: return `${b} ${a}`;
+    }
+  }
+  // Only a single distinctive word — pair it with a square-dance flair/noun.
+  const single = pool[0];
   const flair = MOD_FLAIR[seed % MOD_FLAIR.length];
   const noun = MOD_NOUN[(seed >>> 3) % MOD_NOUN.length];
-  const style = MOD_STYLES[seed % MOD_STYLES.length];
-  return style(theme, flair, noun);
+  const style = MOD_STYLES[styleIdx];
+  return style(single, flair, noun);
+}
+
+// Distinct square-dance figure words worth surfacing in a module name, e.g. the
+// "Grand" of "Right and Left Grand" or the "Allemande" of "Allemande Left".
+const FIGURE_WORDS = [
+  'Allemande', 'Circle', 'Grand', 'Swing', 'Star', 'Chain', 'Promenade', 'Wheel',
+  'Weave', 'Dosado', 'Corner', 'Turn', 'Pass', 'Thru', 'Bend', 'Split', 'Trade',
+  'Circulate', 'Fold', 'Tag', 'Recycle', 'Forward', 'Back', 'Sashay', 'Sweep',
+  'Scoot', 'Cast', 'Hinge', 'Extend', 'Run', 'Roll', 'Slide',
+];
+
+/** Square-dance figure words found in the tip's call titles, in order of first
+ * appearance, deduplicated. */
+function extractFigureWords(titles: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const t of titles) {
+    for (const word of t.split(/[\s/,]+/)) {
+      if (!word) continue;
+      const match = FIGURE_WORDS.find((w) => w.toLowerCase() === word.toLowerCase());
+      if (match && !seen.has(match)) {
+        seen.add(match);
+        out.push(match);
+      }
+    }
+  }
+  return out;
 }
 
 /** Whether two call sequences are identical (same calls, same order). */

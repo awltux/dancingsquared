@@ -378,9 +378,6 @@ function sessionPage(id: string, i: number): string {
       </div>
       <p class="hint">Tap a name to mark them present/absent. Absent dancers miss the taught calls.</p>
 
-      <h2 class="section-title">Prioritised practice</h2>
-      <div class="chips">${s.problems.length ? s.problems.map((p) => `<span class="chip warn">${esc(p.title)} · pri ${p.priority}</span>`).join('') : '<span class="muted">No problem call-setups yet</span>'}</div>
-
       <button class="big primary" data-nav="#/class/${id}/tips/${i}">Make practice tips →</button>
     </div>`;
 }
@@ -490,7 +487,6 @@ function tipsPage(id: string, fromSession?: number): string {
   // The "current" session is the one this page was launched from (or the last).
   const sIdx = fromSession != null ? Math.min(fromSession, c.sessions.length - 1) : c.sessions.length - 1;
   const avail = availableTitles(c, sIdx);
-  const pri = priorityWeights(c, sIdx);
   const tips = tipsByClass[id] ?? [];
   const ts = tipsState[id] ?? { selectedTip: -1, selectedIdx: -1 };
   // Return to the session this page was launched from, else the sessions list.
@@ -506,7 +502,6 @@ function tipsPage(id: string, fromSession?: number): string {
         <div class="card-sub">Each tip starts and finishes in the squared set, uses only calls taught so far, and prioritises the highlighted ones.</div>
         <button class="big primary" data-act="gentips" data-id="${id}" data-session="${sIdx}">Generate tips</button>
       </div>
-      ${pri.size ? `<div class="row two" style="margin-top:10px"><span class="muted">Prioritised:</span> ${[...pri.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([n]) => `<span class="chip warn">${esc(n)}</span>`).join('')}</div>` : ''}
 
       <h2 class="section-title">Call probabilities</h2>
       ${renderCallProbs(id, c, sIdx, avail)}

@@ -222,6 +222,17 @@ const session = (id: string, i: number): SessionPlan | undefined => cls(id)?.ses
 const root = document.getElementById('app') as HTMLElement;
 let lastSessionKey = ''; // (classId|sessionIdx) of the last rendered session page
 
+// Register a service worker so the app can be reloaded even when the network is
+// down (the app shell is cached after the first online load; data already lives
+// in localStorage).
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {
+      /* offline-first caching is optional */
+    });
+  });
+}
+
 function navigate(hash: string): void {
   if (location.hash !== hash) location.hash = hash;
   else render();

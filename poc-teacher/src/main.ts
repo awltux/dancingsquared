@@ -503,37 +503,53 @@ function studentsPage(id: string): string {
     </div>`;
 }
 
-// Per-call probability sliders, grouped by the session each call was taught in.
-// Each call is shown in the same chip style as the session page (name + position
-// + star to prioritise) with its probability slider underneath. Each slider
-// starts at the effective probability (override or the global current/prev
-// default from Tip settings).
+// Per-call probability sliders, grouped by call family (tamination title). Each
+// call is shown in the same chip style as the session page (name + position +
+// star to prioritise) with its probability slider underneath. Each slider starts
+// at the effective probability (override or the global current/prev default from
+// Tip settings). Calls taught in any session up to the current one are included.
 function renderCallProbs(id: string, c: ClassInstance, sIdx: number, avail: Set<string>): string {
   const currentSet = new Set(c.sessions[sIdx].taught.map((r) => r.title));
   const prioritised = new Set(c.sessions[sIdx].problems.map((p) => p.title));
+  // Collect each distinct taught call (in teach order across sessions) once.
   const seen = new Set<string>();
-  let out = '';
+  const refs: CallRef[] = [];
   for (let si = 0; si <= sIdx; si++) {
-    const s = c.sessions[si];
-    const list = s.taught.filter((r) => avail.has(r.title) && !seen.has(r.title));
-    for (const r of list) seen.add(r.title);
-    if (!list.length) continue;
-    out += `<h3>${esc(s.name)}</h3>`;
-    out += list
-      .map((r) => {
-        const pct = Math.round(effectiveCallProb(id, r.title, currentSet, prioritised) * 100);
-        const on = s.problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
-        return `<div class="callprob-item">
-          <span class="chip wrap ${on ? 'warn' : ''}"><span class="chip-main">${callLabel(r)}</span><button class="star ${on ? 'on' : ''}" data-star="${id}::${si}::${r.title}::${r.setupIdx}" title="Prioritise this call">${on ? '★' : '☆'}</button></span>
-          <div class="callprob-slider">
-            <span class="cpval">${pct}%</span>
-            <input type="range" class="callprob" data-callprob="${id}::${r.title}" min="0" max="100" step="5" value="${pct}" />
-          </div>
-        </div>`;
-      })
-      .join('');
+    for (const r of c.sessions[si].taught) {
+      if (avail.has(r.title) && !seen.has(r.title)) {
+        seen.add(r.title);
+        refs.push(r);
+      }
+    }
   }
-  return out || '<span class="muted">No taught calls to tune yet.</span>';
+  if (!refs.length) return '<span class="muted">No taught calls to tune yet.</span>';
+
+  const item = (r: CallRef) => {
+    const pct = Math.round(effectiveCallProb(id, r.title, currentSet, prioritised) * 100);
+    const si = c.sessions.findIndex((s) => s.taught.some((t) => t.title === r.title && t.setupIdx === r.setupIdx));
+    const on = si >= 0 && c.sessions[si].problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
+    return `<div class="callprob-item">
+      <span class="chip wrap ${on ? 'warn' : ''}"><span class="chip-main">${callLabel(r)}</span><button class="star ${on ? 'on' : ''}" data-star="${id}::${si}::${r.title}::${r.setupIdx}" title="Prioritise this call">${on ? '★' : '☆'}</button></span>
+      <div class="callprob-slider">
+        <span class="cpval">${pct}%</span>
+        <input type="range" class="callprob" data-callprob="${id}::${r.title}" min="0" max="100" step="5" value="${pct}" />
+      </div>
+    </div>`;
+  };
+
+  // Group the items under sub-headings by their call family.
+  const groups = new Map<string, CallRef[]>();
+  for (const r of refs) {
+    const fam = familyOf(r.title);
+    const arr = groups.get(fam) ?? [];
+    arr.push(r);
+    groups.set(fam, arr);
+  }
+  let out = '';
+  for (const [fam, list] of groups) {
+    out += `<h3 class="family-head">${esc(fam)}</h3>${list.map(item).join('')}`;
+  }
+  return out;
 }
 
 // Attendance for a student across completed sessions, as small present/missed chips.

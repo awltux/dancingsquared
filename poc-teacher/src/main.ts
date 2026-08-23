@@ -453,7 +453,8 @@ function studentPage(id: string, sid: string): string {
 function tipsPage(id: string, fromSession?: number): string {
   const c = cls(id);
   if (!c) return notFound();
-  const sIdx = c.sessions.length - 1;
+  // The "current" session is the one this page was launched from (or the last).
+  const sIdx = fromSession != null ? Math.min(fromSession, c.sessions.length - 1) : c.sessions.length - 1;
   const avail = availableTitles(c, sIdx);
   const pri = priorityWeights(c, sIdx);
   const tips = tipsByClass[id] ?? [];
@@ -469,7 +470,7 @@ function tipsPage(id: string, fromSession?: number): string {
       <div class="card">
         <div class="card-main">Auto-make 3 tips</div>
         <div class="card-sub">Each tip starts and finishes in the squared set, uses only calls taught so far, and prioritises the highlighted ones.</div>
-        <button class="big primary" data-act="gentips" data-id="${id}">Generate tips</button>
+        <button class="big primary" data-act="gentips" data-id="${id}" data-session="${sIdx}">Generate tips</button>
       </div>
       ${pri.size ? `<div class="row two" style="margin-top:10px"><span class="muted">Prioritised:</span> ${[...pri.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([n]) => `<span class="chip warn">${esc(n)}</span>`).join('')}</div>` : ''}
 
@@ -485,7 +486,7 @@ function tipsPage(id: string, fromSession?: number): string {
 
 function renderTip(id: string, t: Tip, ti: number, ts: { selectedTip: number; selectedIdx: number }): string {
   const c = cls(id)!;
-  const sIdx = c.sessions.length - 1;
+  const sIdx = Math.max(0, c.sessions.length - 1);
   const selected = ts.selectedTip === ti;
   const selCall = selected ? t.titles[ts.selectedIdx] : null;
   const fits = selected && selCall != null ? fitsAround(seq, availableTitles(c, sIdx), t.titles, ts.selectedIdx) : null;
@@ -792,7 +793,7 @@ function wire(): void {
     b.addEventListener('click', () => {
       const id = b.dataset.id!;
       const c = cls(id)!;
-      const sIdx = c.sessions.length - 1;
+      const sIdx = b.dataset.session != null ? Math.min(+b.dataset.session, c.sessions.length - 1) : c.sessions.length - 1;
       const avail = availableTitles(c, sIdx);
       // A Sequencer registered with ONLY the class's known calls, so generated
       // tips (and their getouts home) use only calls the class has been taught.

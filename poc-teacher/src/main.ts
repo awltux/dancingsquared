@@ -369,6 +369,7 @@ function sessionPage(id: string, i: number): string {
     </header>
     <div class="content">
       ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
+      ${s.capturedAt ? `<p class="muted">Completed — captured taught ${s.capturedTaught?.length ?? 0} of ${(s.capturedTaught?.length ?? 0) + (s.capturedPlanned?.length ?? 0)} calls (taught + planned) at the time of completion.</p>` : ''}
       <h2 class="section-title">Taught this session</h2>
       <div class="chips">${s.taught.length ? s.taught.map((r, ti) => sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
 
@@ -831,7 +832,16 @@ function wire(): void {
     cb.addEventListener('change', () => {
       const [id, i] = cb.dataset.completed!.split(':');
       const c = cls(id)!;
-      c.sessions[+i].completed = cb.checked;
+      const s = c.sessions[+i];
+      const wasCompleted = s.completed;
+      s.completed = cb.checked;
+      // On first transition to complete, capture the taught / taught+planned
+      // call-positions before the plan is moved on.
+      if (cb.checked && !wasCompleted) {
+        s.capturedTaught = [...s.taught];
+        s.capturedPlanned = [...s.planned];
+        s.capturedAt = Date.now();
+      }
       // On completion: move any planned calls forward, and carry taught
       // call-positions that were missed (as priorities) into the next session.
       let moved = 0;

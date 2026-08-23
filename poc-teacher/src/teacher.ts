@@ -48,6 +48,10 @@ export interface SessionPlan {
   /** Removed prioritisations kept for reference, keyed by `title#setupIdx`. */
   prioritisedArchive?: Record<string, { priority: number; note?: string }>;
   completed?: boolean; // teacher marked this session complete
+  /** Snapshot of taught/planned call-positions captured on first completion. */
+  capturedTaught?: CallRef[];
+  capturedPlanned?: CallRef[];
+  capturedAt?: number;
 }
 
 export interface ClassInstance {

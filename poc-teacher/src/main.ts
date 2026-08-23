@@ -103,6 +103,13 @@ function suggestModuleName(titles: string[]): string {
   return style(theme, flair, noun);
 }
 
+/** Whether two call sequences are identical (same calls, same order). */
+function sameSequence(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
+
 // Null-safe resolver for building courses from imported programmes (drops calls
 // that aren't in the loaded catalog instead of throwing).
 const toRefOrNull = (title: string): CallRef | null => {
@@ -1284,12 +1291,22 @@ function wire(): void {
       const [id, ti] = b.dataset.savetip!.split(':');
       const c = cls(id)!;
       const t = tipsByClass[id][+ti];
+      // Avoid duplicates: if the exact call sequence is already saved, don't save
+      // it again — just point the user at the existing module.
+      const modules = savedModules[id] ?? [];
+      const seq = t.titles;
+      const dup = modules.findIndex((m) => sameSequence(m.titles, seq));
+      if (dup >= 0) {
+        notice = `Already saved — "${modules[dup].name}" has this exact call sequence.`;
+        render();
+        return;
+      }
       // The session the tip was generated for (its sourceSessionId), not the last one.
       const sIdx = Math.max(0, c.sessions.findIndex((s) => s.id === t.sourceSessionId));
       // Suggest a creative name from the tip's calls; fall back to a plain count.
-      const defaultName = suggestModuleName(t.titles) || `Saved tip ${(savedModules[id]?.length ?? 0) + 1}`;
+      const defaultName = suggestModuleName(t.titles) || `Saved tip ${modules.length + 1}`;
       const name = (window.prompt(`Name this module — suggested: "${defaultName}"`, defaultName) || '').trim() || defaultName;
-      (savedModules[id] ??= []).push({
+      modules.push({
         name,
         titles: [...t.titles],
         createdAt: Date.now(),

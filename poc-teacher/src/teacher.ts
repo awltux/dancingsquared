@@ -98,13 +98,29 @@ export function rollUntaughtForward(cls: ClassInstance, sessionIdx: number): voi
   s.planned = [];
 }
 
-/** If `sessionIdx` covered all its planned calls, pull `count` from the next plan. */
+/** Pull `count` planned calls from the next session's plan into THIS session's plan. */
 export function pullForward(cls: ClassInstance, sessionIdx: number, count: number): void {
   const s = cls.sessions[sessionIdx];
   const next = cls.sessions[sessionIdx + 1];
   if (!s || !next || count <= 0) return;
   const pulled = next.planned.splice(0, count);
-  for (const r of pulled) s.taught.push(r);
+  for (const r of pulled) s.planned.push(r);
+}
+
+/** Move the planned call at `plannedIdx` into this session's taught list. */
+export function teachCall(cls: ClassInstance, sessionIdx: number, plannedIdx: number): void {
+  const s = cls.sessions[sessionIdx];
+  if (!s || plannedIdx < 0 || plannedIdx >= s.planned.length) return;
+  const [call] = s.planned.splice(plannedIdx, 1);
+  s.taught.push(call);
+}
+
+/** Move the taught call at `taughtIdx` back into this session's plan. */
+export function unteachCall(cls: ClassInstance, sessionIdx: number, taughtIdx: number): void {
+  const s = cls.sessions[sessionIdx];
+  if (!s || taughtIdx < 0 || taughtIdx >= s.taught.length) return;
+  const [call] = s.taught.splice(taughtIdx, 1);
+  s.planned.push(call);
 }
 
 /**

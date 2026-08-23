@@ -17,6 +17,8 @@ import {
   pullForward,
   rollUntaughtForward,
   studentKnowledge,
+  teachCall,
+  unteachCall,
   insertInto,
   removeAt,
   replaceAt,
@@ -140,12 +142,29 @@ check(rollCls.sessions.length === before + 1, `rolling the last session creates 
 check(rollCls.sessions[last].planned.length === 0, 'last session plan cleared after moving');
 check(rollCls.sessions[last + 1].planned.length > 0, 'new session holds the moved calls');
 
+// A class whose sessions start with an empty taught list (the model the UI uses).
+const emptyTaught = structuredClone(cls);
+for (const s of emptyTaught.sessions) s.taught = [];
+
 console.log('\n== Pull forward ==');
-const s3StartLen = cls.sessions[2].planned.length;
+const pullCls = structuredClone(emptyTaught);
+const s3StartLen = pullCls.sessions[2].planned.length;
 const pullTarget = s3Calls[0];
-pullForward(cls, 1, 1);
-check(cls.sessions[1].taught.some((r) => r.title === pullTarget.title), 'pulled a call forward from session 3 into session 2 taught');
-check(cls.sessions[2].planned.length === s3StartLen - 1, 'pulled call removed from next session plan');
+const s2PlannedBefore = pullCls.sessions[1].planned.length;
+pullForward(pullCls, 1, 1);
+check(pullCls.sessions[1].planned.some((r) => r.title === pullTarget.title), 'pulled a call into THIS session\'s planned');
+check(pullCls.sessions[1].planned.length === s2PlannedBefore + 1, 'session planned grew by the pulled call');
+check(pullCls.sessions[2].planned.length === s3StartLen - 1, 'pulled call removed from next session plan');
+check(pullCls.sessions[1].taught.length === 0, 'pulled call did NOT go into taught');
+
+console.log('\n== Teach / unteach (planned -> taught) ==');
+const tc = structuredClone(emptyTaught);
+const plan0 = tc.sessions[0].planned.length;
+teachCall(tc, 0, 0);
+check(tc.sessions[0].taught.length === 1 && tc.sessions[0].planned.length === plan0 - 1, 'teach moves a planned call into taught');
+check(tc.sessions[0].taught[0].title === emptyTaught.sessions[0].planned[0].title, 'taught call is the first planned call');
+unteachCall(tc, 0, 0);
+check(tc.sessions[0].planned.length === plan0 && tc.sessions[0].taught.length === 0, 'unteach moves it back to planned');
 
 console.log('\n== Student knowledge ==');
 const carol = studentKnowledge(cls, 'c');

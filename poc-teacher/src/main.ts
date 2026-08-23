@@ -19,6 +19,8 @@ import {
   replaceAt,
   rollUntaughtForward,
   studentKnowledge,
+  teachCall,
+  unteachCall,
 } from './teacher';
 import type { CallRef, ClassInstance, SessionPlan, Tip } from './teacher';
 import { buildClassFromProgramme, defaultProgramme, parseProgramme, serializeProgramme } from './programme';
@@ -84,8 +86,8 @@ function seedClasses(): ClassInstance[] {
     level,
     students: students.map((n, i) => ({ id: String(i + 1), name: n })),
     sessions: [
-      { id: `${id}-s1`, name: 'Session 1', level, planned: mkRefs(s1), taught: mkRefs(s1.slice(0, Math.max(1, s1.length - 1))), attendance: attendance[0], problems: [{ title: s1[2], setupIdx: 0, priority: 3, note: 'hard from the sides' }] },
-      { id: `${id}-s2`, name: 'Session 2', level, planned: mkRefs(s2), taught: mkRefs(s2), attendance: attendance[1], problems: [] },
+      { id: `${id}-s1`, name: 'Session 1', level, planned: mkRefs(s1), taught: [], attendance: attendance[0], problems: [{ title: s1[2], setupIdx: 0, priority: 3, note: 'hard from the sides' }] },
+      { id: `${id}-s2`, name: 'Session 2', level, planned: mkRefs(s2), taught: [], attendance: attendance[1], problems: [] },
       { id: `${id}-s3`, name: 'Session 3', level, planned: mkRefs(s3), taught: [], attendance: attendance[2], problems: [] },
     ],
   });
@@ -264,7 +266,6 @@ function sessionPage(id: string, i: number): string {
   const c = cls(id);
   const s = session(id, i);
   if (!c || !s) return notFound();
-  const probs = new Set(s.problems.map((p) => p.title));
   return `
     <header class="appbar">
       <button class="back" data-nav="#/class/${id}">‹</button>
@@ -272,14 +273,15 @@ function sessionPage(id: string, i: number): string {
     </header>
     <div class="content">
       <h2 class="section-title">Taught this session</h2>
-      <div class="chips">${s.taught.length ? s.taught.map((r) => chip(r, probs)).join('') : '<span class="muted">Nothing taught yet</span>'}</div>
+      <div class="chips">${s.taught.length ? s.taught.map((r, ti) => `<button class="chip tap" data-unteach="${id}:${i}:${ti}" title="Tap to move back to planned">✓ ${esc(r.title)}</button>`).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
 
       <h2 class="section-title">Planned</h2>
-      <div class="chips">${s.planned.length ? s.planned.map((r) => chip(r)).join('') : '<span class="muted">No plan</span>'}</div>
+      <div class="chips">${s.planned.length ? s.planned.map((r, pi) => `<button class="chip tap" data-teach="${id}:${i}:${pi}" title="Tap to teach this call">${esc(r.title)} ${s.problems.some((p) => p.title === r.title) ? '<span class="dim">★</span>' : ''}</button>`).join('') : '<span class="muted">No plan</span>'}</div>
       <div class="row two" style="margin-top:12px">
-        <button class="big" data-act="roll" data-id="${id}" data-i="${i}">Move untaught → next</button>
+        <button class="big" data-act="roll" data-id="${id}" data-i="${i}">Move plan → next</button>
         <button class="big" data-act="pull" data-id="${id}" data-i="${i}">Pull 1 from next</button>
       </div>
+      <p class="hint">Tap a call under Planned to teach it (it moves up to Taught). Tap a taught call to move it back.</p>
 
       <h2 class="section-title">Who was here?</h2>
       <div class="attend">
@@ -489,6 +491,21 @@ function wire(): void {
 
   root.querySelectorAll<HTMLElement>('[data-act="roll"]').forEach((b) =>
     b.addEventListener('click', () => { rollUntaughtForward(cls(b.dataset.id!)!, +b.dataset.i!); save(); render(); }));
+
+  root.querySelectorAll<HTMLElement>('[data-teach]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const [id, i, pi] = b.dataset.teach!.split(':');
+      teachCall(cls(id)!, +i, +pi);
+      save();
+      render();
+    }));
+  root.querySelectorAll<HTMLElement>('[data-unteach]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const [id, i, ti] = b.dataset.unteach!.split(':');
+      unteachCall(cls(id)!, +i, +ti);
+      save();
+      render();
+    }));
   root.querySelectorAll<HTMLElement>('[data-act="pull"]').forEach((b) =>
     b.addEventListener('click', () => { pullForward(cls(b.dataset.id!)!, +b.dataset.i!, 1); save(); render(); }));
 

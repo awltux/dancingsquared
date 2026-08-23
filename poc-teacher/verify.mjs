@@ -198,6 +198,24 @@ for (const tip of tips) {
   check(legal && startsSquare && endsSquare, `tip starts in square and finishes in square: ${tip.join(' > ')}`);
 }
 
+// The config probabilities are accepted and still produce valid closing tips.
+const cfgTips = generateTips(availSeq, available, priority, {
+  minLen: 3,
+  maxLen: 6,
+  count: 1,
+  config: { repeatProb: 1, priorityProb: 1 },
+  rand: () => 0,
+});
+const cfgValid = cfgTips.every((tip) => tip.every((t) => available.has(t)));
+availSeq.reset();
+let cfgEndsSquare = true;
+for (const tip of cfgTips) {
+  availSeq.reset();
+  for (const t of tip) cfgEndsSquare = cfgEndsSquare && availSeq.apply(t).legal;
+  cfgEndsSquare = cfgEndsSquare && availSeq.isAt('Static Square');
+}
+check(Array.isArray(cfgTips) && cfgValid && cfgEndsSquare, 'tip config (repeat/priority probabilities) is accepted and tips still close home');
+
 console.log('\n== Fits around a selected call (before / after) ==');
 const sampleTip = tips[0] ?? ['Circle Left', 'Forward and Back', 'Allemande Left'];
 const idx = Math.min(1, sampleTip.length - 1);

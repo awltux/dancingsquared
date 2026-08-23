@@ -156,20 +156,30 @@ export function priorityWeights(cls: ClassInstance, sessionIdx: number): Map<str
 
 // ---------------------------------------------------------------- tip generation
 
+/** Teacher-tunable probabilities for tip generation (0..1). */
+export interface TipConfig {
+  /** 0..1 — chance a call already in the tip may be repeated. */
+  repeatProb: number;
+  /** 0..1 — chance a priority (current/problem) call is preferred over others. */
+  priorityProb: number;
+}
+
+export const DEFAULT_TIP_CONFIG: TipConfig = { repeatProb: 0.2, priorityProb: 0.7 };
+
 export interface TipGenOpts {
   minLen?: number;
   maxLen?: number;
   count?: number;
   /** Max getout calls used to bring the tip back to the squared set (default 6). */
   getoutMax?: number;
+  /** Probabilities controlling repetition and priority preference. */
+  config?: TipConfig;
+  /** Injectable RNG for deterministic testing (default Math.random). */
+  rand?: () => number;
 }
 
 // Deterministic pick: prefer legal available calls, scored by priority weight,
 // then not-yet-used-in-this-tip, then not-yet-used-in-any-tip.
-function pickScore(name: string, priority: Map<string, number>, usedHere: Set<string>, usedAny: Set<string>): number {
-  return (priority.get(name) ?? 0) * 100 + (usedHere.has(name) ? 0 : 10) + (usedAny.has(name) ? 0 : 1);
-}
-
 // Applicable titles from `available` at the given board (via apply/re-base, not
 // the stricter legalNext pure-motion check — a call is usable if it can be
 // applied, even if it doesn't end in a catalog formation).
@@ -200,6 +210,8 @@ export function generateTips(
   const maxLen = opts.maxLen ?? 8;
   const count = opts.count ?? 3;
   const getoutMax = opts.getoutMax ?? 6;
+  const config = { ...DEFAULT_TIP_CONFIG, ...(opts.config ?? {}) };
+  const rand = opts.rand ?? Math.random;
   const tips: string[][] = [];
   const usedAny = new Set<string>();
   for (let t = 0; t < count; t++) {
@@ -218,10 +230,19 @@ export function generateTips(
         const probe = seq.applyToBoard(snapshot, name);
         return probe.legal && applicableFrom(seq, probe.board, available).length > 0;
       });
-      const pool = withCont.length ? withCont : candidates;
-      const pick = [...pool].sort(
-        (a, b) => pickScore(b, priority, usedHere, usedAny) - pickScore(a, priority, usedHere, usedAny),
-      )[0];
+      let pool = withCont.length ? withCont : candidates;
+      // Repeat control: unless the repeat roll allows it, prefer calls not yet
+      // used in this tip.
+      if (rand() >= config.repeatProb) {
+        const fresh = pool.filter((n) => !usedHere.has(n));
+        if (fresh.length) pool = fresh;
+      }
+      // Priority control: on a priority roll, restrict to prioritised calls.
+      if (rand() < config.priorityProb) {
+        const prio = pool.filter((n) => (priority.get(n) ?? 0) > 0);
+        if (prio.length) pool = prio;
+      }
+      const pick = pool[Math.floor(rand() * pool.length)];
       const step = seq.apply(pick);
       if (!step.legal) break;
       tip.push(pick);

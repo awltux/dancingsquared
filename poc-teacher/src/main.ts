@@ -22,7 +22,8 @@ import {
   teachCall,
   unteachCall,
 } from './teacher';
-import type { CallRef, ClassInstance, SessionPlan, Tip } from './teacher';
+import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
+import { DEFAULT_TIP_CONFIG } from './teacher';
 import { buildClassFromProgramme, defaultProgramme, parseProgramme, serializeProgramme } from './programme';
 import type { Programme } from './programme';
 
@@ -108,7 +109,27 @@ function seedClasses(): ClassInstance[] {
 
 const STORE_KEY = 'dsTeacherData';
 const PROG_KEY = 'dsTeacherProgrammes';
+const CFG_KEY = 'dsTeacherTipConfig';
 let classes: ClassInstance[] = load();
+
+// Global tip-generation configuration (repeat + priority probabilities).
+let tipConfigGlobal: TipConfig = loadTipConfig();
+function loadTipConfig(): TipConfig {
+  try {
+    const raw = localStorage.getItem(CFG_KEY);
+    if (raw) return { ...DEFAULT_TIP_CONFIG, ...(JSON.parse(raw) as TipConfig) };
+  } catch {
+    /* fall through */
+  }
+  return { ...DEFAULT_TIP_CONFIG };
+}
+function saveTipConfig(): void {
+  try {
+    localStorage.setItem(CFG_KEY, JSON.stringify(tipConfigGlobal));
+  } catch {
+    /* ignore */
+  }
+}
 
 // Programmes: the default course structures (built-in + imported).
 let programmes: Programme[] = loadProgrammes();
@@ -172,7 +193,7 @@ function navigate(hash: string): void {
 window.addEventListener('hashchange', render);
 
 interface Route {
-  page: 'home' | 'class' | 'session' | 'students' | 'tips' | 'student' | 'new' | 'programmes';
+  page: 'home' | 'class' | 'session' | 'students' | 'tips' | 'student' | 'new' | 'programmes' | 'tipssettings';
   id?: string;
   i?: number;
   sid?: string;
@@ -182,11 +203,13 @@ function parseRoute(): Route {
   const parts = (location.hash || '#/').replace(/^#\/?/, '').split('/').filter(Boolean);
   if (parts[0] === 'new') return { page: 'new' };
   if (parts[0] === 'programmes') return { page: 'programmes' };
+  if (parts[0] === 'tips' && parts[1] === 'settings') return { page: 'tipssettings' };
   if (parts[0] !== 'class' || parts.length < 2) return { page: 'home' };
   const id = parts[1];
   if (parts[2] === 'session' && parts[3] != null) return { page: 'session', id, i: +parts[3] };
   if (parts[2] === 'students') return { page: 'students', id };
   if (parts[2] === 'student' && parts[3] != null) return { page: 'student', id, sid: parts[3] };
+  if (parts[2] === 'tips' && parts[3] === 'settings') return { page: 'tipssettings' };
   if (parts[2] === 'tips') return { page: 'tips', id };
   return { page: 'class', id };
 }
@@ -204,10 +227,11 @@ function render(): void {
   else if (route.page === 'students') { tab = 'students'; content = studentsPage(route.id!); }
   else if (route.page === 'student') { tab = 'students'; content = studentPage(route.id!, route.sid!); }
   else if (route.page === 'tips') { tab = 'tips'; content = tipsPage(route.id!); }
+  else if (route.page === 'tipssettings') { tab = 'tips'; content = tipSettingsPage(); }
   else if (route.page === 'new') content = newCoursePage();
   else if (route.page === 'programmes') content = programmesPage();
 
-  const sub = route.page === 'session' || route.page === 'student' || route.page === 'new' || route.page === 'programmes';
+  const sub = route.page === 'session' || route.page === 'student' || route.page === 'new' || route.page === 'programmes' || route.page === 'tipssettings';
   root.innerHTML = `
     <div class="screen">${content}</div>
     ${sub ? '' : bottomNav(route.page === 'home' ? null : route.id, tab)}
@@ -356,10 +380,11 @@ function tipsPage(id: string): string {
     <div class="content">
       <div class="card">
         <div class="card-main">Auto-make 3 tips</div>
-        <div class="card-sub">Uses only calls taught so far, prioritising the highlighted ones.</div>
+        <div class="card-sub">Each tip starts and finishes in the squared set, uses only calls taught so far, and prioritises the highlighted ones.</div>
         <button class="big primary" data-act="gentips" data-id="${id}">Generate tips</button>
       </div>
-      ${pri.size ? `<div class="row two"><span class="muted">Prioritised:</span> ${[...pri.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([n]) => `<span class="chip warn">${esc(n)}</span>`).join('')}</div>` : ''}
+      <button class="big" data-nav="#/tips/settings" style="margin-top:10px">⚙ Tip settings</button>
+      ${pri.size ? `<div class="row two" style="margin-top:10px"><span class="muted">Prioritised:</span> ${[...pri.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([n]) => `<span class="chip warn">${esc(n)}</span>`).join('')}</div>` : ''}
 
       ${tips.length ? tips.map((t, ti) => renderTip(id, t, ti, ts)).join('') : '<p class="hint">No tips yet — tap "Generate tips".</p>'}
 
@@ -391,6 +416,28 @@ function renderTip(id: string, t: Tip, ti: number, ts: { selectedTip: number; se
           <input id="modName" type="text" placeholder="Module name" />
           <button class="big primary" data-savemod="${id}:${ti}">Save module</button>
         </div>` : '<p class="hint">Tap a call to see what can go before / after it.</p>'}
+    </div>`;
+}
+
+function tipSettingsPage(): string {
+  const cfg = tipConfigGlobal;
+  const pct = (v: number) => Math.round(v * 100);
+  return `
+    <header class="appbar">
+      <button class="back" data-nav="#/">‹</button>
+      <div><h1>Tip settings</h1><p class="sub">General</p></div>
+    </header>
+    <div class="content">
+      <label class="field">Repeat calls
+        <input id="cfgRepeat" type="range" min="0" max="100" step="5" value="${pct(cfg.repeatProb)}" />
+        <div class="row"><span class="muted">How likely a call already in a tip may be repeated.</span><b id="cfgRepeatVal">${pct(cfg.repeatProb)}%</b></div>
+      </label>
+      <label class="field">Use priority calls
+        <input id="cfgPriority" type="range" min="0" max="100" step="5" value="${pct(cfg.priorityProb)}" />
+        <div class="row"><span class="muted">How often a prioritised (current/problem) call is preferred.</span><b id="cfgPriorityVal">${pct(cfg.priorityProb)}%</b></div>
+      </label>
+      <button class="big primary" data-savecfg>Save settings</button>
+      <p class="hint">0% = never, 100% = always. These apply next time you Generate tips.</p>
     </div>`;
 }
 
@@ -466,7 +513,7 @@ function bottomNav(classId: string | null | undefined, active: 'home' | 'session
     ${item('Home', 'home', '#/')}
     ${item('Sessions', 'sessions', base)}
     ${item('Students', 'students', hasClass ? `${base}/students` : '#/', !hasClass)}
-    ${item('Tips', 'tips', hasClass ? `${base}/tips` : '#/', !hasClass)}
+    ${item('Tips', 'tips', hasClass ? `${base}/tips` : '#/tips/settings')}
   </nav>`;
 }
 
@@ -609,10 +656,31 @@ function wire(): void {
       // A Sequencer registered with ONLY the class's known calls, so generated
       // tips (and their getouts home) use only calls the class has been taught.
       const availSeq = makeSequencer(movesXml, formationsXml, catalog.filter((x) => avail.has(x.title)));
-      tipsByClass[id] = generateTips(availSeq, avail, priorityWeights(c, sIdx), { minLen: 3, maxLen: 6, count: 3 })
-        .map((titles, i) => ({ name: `Tip ${i + 1}`, sourceSessionId: c.sessions[sIdx].id, titles }));
+      tipsByClass[id] = generateTips(availSeq, avail, priorityWeights(c, sIdx), {
+        minLen: 3,
+        maxLen: 6,
+        count: 3,
+        config: tipConfigGlobal,
+      }).map((titles, i) => ({ name: `Tip ${i + 1}`, sourceSessionId: c.sessions[sIdx].id, titles }));
       tipsState[id] = { selectedTip: tipsByClass[id].length ? 0 : -1, selectedIdx: -1 };
       render();
+    }));
+
+  // Tip settings page: live readout + save.
+  root.querySelectorAll<HTMLInputElement>('#cfgRepeat').forEach((el) => {
+    el.addEventListener('input', () => { (root.querySelector('#cfgRepeatVal') as HTMLElement).textContent = `${el.value}%`; });
+  });
+  root.querySelectorAll<HTMLInputElement>('#cfgPriority').forEach((el) => {
+    el.addEventListener('input', () => { (root.querySelector('#cfgPriorityVal') as HTMLElement).textContent = `${el.value}%`; });
+  });
+  root.querySelectorAll<HTMLElement>('[data-savecfg]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const rep = +(root.querySelector('#cfgRepeat') as HTMLInputElement).value / 100;
+      const pri = +(root.querySelector('#cfgPriority') as HTMLInputElement).value / 100;
+      tipConfigGlobal = { repeatProb: rep, priorityProb: pri };
+      saveTipConfig();
+      notice = 'Tip settings saved.';
+      navigate('#/');
     }));
 
   root.querySelectorAll<HTMLElement>('[data-rmtip]').forEach((b) =>

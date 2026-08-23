@@ -185,9 +185,13 @@ export interface TipConfig {
   repeatProb: number;
   /** 0..1 — chance a priority (current/problem) call is preferred over others. */
   priorityProb: number;
+  /** 0..1 — chance a call newly taught THIS session is preferred. */
+  currentProb: number;
+  /** 0..1 — chance a call from PREVIOUS sessions is preferred. */
+  prevProb: number;
 }
 
-export const DEFAULT_TIP_CONFIG: TipConfig = { repeatProb: 0.2, priorityProb: 0.7 };
+export const DEFAULT_TIP_CONFIG: TipConfig = { repeatProb: 0.2, priorityProb: 0.7, currentProb: 0.6, prevProb: 0.4 };
 
 export interface TipGenOpts {
   minLen?: number;
@@ -197,6 +201,8 @@ export interface TipGenOpts {
   getoutMax?: number;
   /** Probabilities controlling repetition and priority preference. */
   config?: TipConfig;
+  /** Call titles taught in the current (latest) session, for the current/prev mix. */
+  current?: Set<string>;
   /** Injectable RNG for deterministic testing (default Math.random). */
   rand?: () => number;
 }
@@ -264,6 +270,16 @@ export function generateTips(
       if (rand() < config.priorityProb) {
         const prio = pool.filter((n) => (priority.get(n) ?? 0) > 0);
         if (prio.length) pool = prio;
+      }
+      // Current/previous mix: bias toward calls taught this session vs earlier.
+      const current = opts.current;
+      if (current && rand() < config.currentProb) {
+        const cur = pool.filter((n) => current.has(n));
+        if (cur.length) pool = cur;
+      }
+      if (current && rand() < config.prevProb) {
+        const prv = pool.filter((n) => !current.has(n));
+        if (prv.length) pool = prv;
       }
       const pick = pool[Math.floor(rand() * pool.length)];
       const step = seq.apply(pick);

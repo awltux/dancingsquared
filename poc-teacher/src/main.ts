@@ -472,6 +472,14 @@ function tipSettingsPage(): string {
         <input id="cfgPriority" type="range" min="0" max="100" step="5" value="${pct(cfg.priorityProb)}" />
         <div class="row"><span class="muted">How often a prioritised (current/problem) call is preferred.</span><b id="cfgPriorityVal">${pct(cfg.priorityProb)}%</b></div>
       </label>
+      <label class="field">Use calls taught this session
+        <input id="cfgCurrent" type="range" min="0" max="100" step="5" value="${pct(cfg.currentProb)}" />
+        <div class="row"><span class="muted">How often newly-taught calls are preferred.</span><b id="cfgCurrentVal">${pct(cfg.currentProb)}%</b></div>
+      </label>
+      <label class="field">Use previously taught calls
+        <input id="cfgPrev" type="range" min="0" max="100" step="5" value="${pct(cfg.prevProb)}" />
+        <div class="row"><span class="muted">How often calls from earlier sessions are preferred.</span><b id="cfgPrevVal">${pct(cfg.prevProb)}%</b></div>
+      </label>
       <button class="big primary" data-savecfg>Save settings</button>
       <p class="hint">0% = never, 100% = always. These apply next time you Generate tips.</p>
     </div>`;
@@ -735,6 +743,7 @@ function wire(): void {
         maxLen: 6,
         count: 3,
         config: tipConfigGlobal,
+        current: new Set(c.sessions[sIdx].taught.map((r) => r.title)),
       }).map((titles, i) => ({ name: `Tip ${i + 1}`, sourceSessionId: c.sessions[sIdx].id, titles }));
       tipsState[id] = { selectedTip: tipsByClass[id].length ? 0 : -1, selectedIdx: -1 };
       render();
@@ -744,14 +753,23 @@ function wire(): void {
   root.querySelectorAll<HTMLInputElement>('#cfgRepeat').forEach((el) => {
     el.addEventListener('input', () => { (root.querySelector('#cfgRepeatVal') as HTMLElement).textContent = `${el.value}%`; });
   });
-  root.querySelectorAll<HTMLInputElement>('#cfgPriority').forEach((el) => {
-    el.addEventListener('input', () => { (root.querySelector('#cfgPriorityVal') as HTMLElement).textContent = `${el.value}%`; });
-  });
+  const wireSlider = (id: string, valId: string) => {
+    root.querySelectorAll<HTMLInputElement>(`#${id}`).forEach((el) => {
+      el.addEventListener('input', () => { (root.querySelector(`#${valId}`) as HTMLElement).textContent = `${el.value}%`; });
+    });
+  };
+  wireSlider('cfgPriority', 'cfgPriorityVal');
+  wireSlider('cfgCurrent', 'cfgCurrentVal');
+  wireSlider('cfgPrev', 'cfgPrevVal');
   root.querySelectorAll<HTMLElement>('[data-savecfg]').forEach((b) =>
     b.addEventListener('click', () => {
-      const rep = +(root.querySelector('#cfgRepeat') as HTMLInputElement).value / 100;
-      const pri = +(root.querySelector('#cfgPriority') as HTMLInputElement).value / 100;
-      tipConfigGlobal = { repeatProb: rep, priorityProb: pri };
+      const v = (sel: string) => +(root.querySelector(sel) as HTMLInputElement).value / 100;
+      tipConfigGlobal = {
+        repeatProb: v('#cfgRepeat'),
+        priorityProb: v('#cfgPriority'),
+        currentProb: v('#cfgCurrent'),
+        prevProb: v('#cfgPrev'),
+      };
       saveTipConfig();
       notice = 'Tip settings saved.';
       navigate('#/');

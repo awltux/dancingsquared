@@ -430,16 +430,22 @@ function sessionPage(id: string, i: number): string {
     <div class="content">
       ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
       ${s.capturedAt ? `<p class="muted">Completed — captured taught ${s.capturedTaught?.length ?? 0} of ${(s.capturedTaught?.length ?? 0) + (s.capturedPlanned?.length ?? 0)} calls (taught + planned) at the time of completion.</p>` : ''}
-      <h2 class="section-title">Taught this session</h2>
-      <div class="chips">${s.taught.length ? s.taught.map((r, ti) => sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
+      <details class="collapsible" open>
+        <summary>Taught this session</summary>
+        <div class="chips">${s.taught.length ? s.taught.map((r, ti) => sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
+      </details>
 
-      <h2 class="section-title">Planned</h2>
-      <div class="chips">${s.planned.length ? s.planned.map((r, pi) => sessionCallChip(r, `data-teach="${id}:${i}:${pi}"`, '', id, i, s)).join('') : '<span class="muted">No plan</span>'}</div>
-      <button class="big" data-act="pull" data-id="${id}" data-i="${i}">Pull 1 from next</button>
-      <p class="hint">Tap a call under Planned to teach it (it moves up to Taught). Tap a taught call to move it back.</p>
+      <details class="collapsible" open>
+        <summary>Planned</summary>
+        <div class="chips">${s.planned.length ? s.planned.map((r, pi) => sessionCallChip(r, `data-teach="${id}:${i}:${pi}"`, '', id, i, s)).join('') : '<span class="muted">No plan</span>'}</div>
+        <button class="big" data-act="pull" data-id="${id}" data-i="${i}" style="margin-top:12px">Pull 1 from next</button>
+        <p class="hint">Tap a call under Planned to teach it (it moves up to Taught). Tap a taught call to move it back.</p>
+      </details>
 
-      <h2 class="section-title">Taught in previous sessions</h2>
-      ${renderPrevTaught(c, i)}
+      <details class="collapsible">
+        <summary>Taught in previous sessions</summary>
+        ${renderPrevTaught(c, i)}
+      </details>
 
       <h2 class="section-title">Who was here?</h2>
       <div class="attend">

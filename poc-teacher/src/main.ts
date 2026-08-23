@@ -368,7 +368,7 @@ function studentsPage(id: string): string {
       <div><h1>Students</h1><p class="sub">${esc(c.name)}</p></div>
     </header>
     <div class="content">
-      <div class="row two">
+      <div class="row two addstudent-row">
         <input id="addStudent" type="text" placeholder="New dancer's name" />
         <button class="big primary" data-addstudent data-id="${id}">Add</button>
       </div>

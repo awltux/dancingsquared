@@ -9,7 +9,7 @@ import { buildCall, parseCallXml, parseFormations, parseMoves } from '../convert
 import { matchFormations, type Matchable } from './match.js';
 import { analyzeFasr } from './fasr.js';
 import type { Board, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep } from './types.js';
-import type { CallBundle, DancerSpec } from '../types.js';
+import type { CallBundle, DancerSpec, Pose } from '../types.js';
 
 // ------------------------------------------------------------ starting board
 
@@ -115,6 +115,21 @@ export class Sequencer {
   board: Board;
   private matchMargin = 0;
   private rebaseFactor = 1; // 1 = reset drift to the call's canonical setup, 0 = keep it
+
+  // Cached canonical end pose (at each dancer's last beat) per variant. The end
+  // formation of a call is a pure function of its compiled <tam> paths, so it is
+  // computed once per variant instead of on every apply.
+  private variantEndCache = new WeakMap<CallBundle, Pose[]>();
+
+  /** The canonical end pose of each dancer of a variant (pure, cached). */
+  private endPoses(variant: CallBundle): Pose[] {
+    let end = this.variantEndCache.get(variant);
+    if (!end) {
+      end = variant.dancers.map((d) => poseFor(d, dancerBeats(d)));
+      this.variantEndCache.set(variant, end);
+    }
+    return end;
+  }
 
   /** Set an extra matching tolerance (in position units) added to the default
    * when matching the current board against a next call's start setup, and when
@@ -311,6 +326,7 @@ export class Sequencer {
 
   reset(): void {
     this.board = makeSquaredSet();
+    this.matchMemo.clear();
   }
 
   startBoard(): Board {
@@ -332,10 +348,21 @@ export class Sequencer {
     return { x: d.x, y: d.y, heading: d.angleDeg * DEG };
   }
 
-  /** Which of this call's variants matches the given board? */
+  /** Which of this call's variants matches the given board? Memoised by call name
+   * + board geometry: boards are immutable (always cloned before mutation), so a
+   * given signature + call always yields the same result, and the same (board,
+   * call) pair recurs a lot while probing legality and continuations. */
+  private matchMemo = new Map<string, VariantMatch | null>();
   private findMatchingVariant(board: Board, callName: string): VariantMatch | null {
     const variants = this.variants.get(callName);
     if (!variants) return null;
+    // Key on the call's position/heading signature only (id is irrelevant to the
+    // geometric match, so two boards with identical geometry share a cache entry).
+    const key = `${callName}|${board.dancers
+      .map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}`)
+      .join(';')}`;
+    const cached = this.matchMemo.get(key);
+    if (cached !== undefined) return cached;
     const src = this.matchables(board);
     let best: VariantMatch | null = null;
     for (const v of variants) {
@@ -345,6 +372,7 @@ export class Sequencer {
         best = { variant: v, mapping: m.mapping, error: m.error, rot: m.rot, reflect: m.reflect, cSrc: m.cSrc, cTgt: m.cTgt };
       }
     }
+    this.matchMemo.set(key, best);
     return best;
   }
 
@@ -408,10 +436,11 @@ export class Sequencer {
     // different absolute orientation. The search paths pass rebase=false and use
     // pure relative motion so a getout can still un-permute dancers back home.
     const f = rebase ? this.rebaseFactor : 0;
+    const ends = this.endPoses(variant);
     const newDancers = board.dancers.map((d, i) => {
       const t = variant.dancers[mapping[i]];
       const start = poseFor(t, 0);
-      const end = poseFor(t, dancerBeats(t));
+      const end = ends[mapping[i]];
       const localDisp = rot(-start.heading, { x: end.x - start.x, y: end.y - start.y });
       const delta = normAngle(end.heading - start.heading);
       // Blend the dancer's base toward the (rebased) call start (f=1 full reset,
@@ -433,6 +462,7 @@ export class Sequencer {
   apply(callName: string): SeqStep {
     const res = this.applyToBoard(this.board, callName);
     this.board = res.board;
+    this.matchMemo.clear(); // the primary board moved; start a fresh match cache
     return { call: callName, legal: res.legal, reason: res.reason, board: res.board, formation: this.recognize(res.board) };
   }
 

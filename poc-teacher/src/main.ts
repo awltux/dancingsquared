@@ -20,6 +20,7 @@ import {
   studentKnowledge,
   teachCall,
   unteachCall,
+  teachAll,
   addStudent,
   removeStudent,
   renameStudent,
@@ -439,7 +440,7 @@ function sessionPage(id: string, i: number): string {
       </details>
 
       <details class="collapsible" open>
-        <summary>Planned</summary>
+        <summary>Planned <button class="small-btn" data-moveall="${id}:${i}">Move all → taught</button></summary>
         <div class="chips">${s.planned.length ? s.planned.map((r, pi) => sessionCallChip(r, `data-teach="${id}:${i}:${pi}"`, '', id, i, s)).join('') : '<span class="muted">No plan</span>'}</div>
         <button class="big" data-act="pull" data-id="${id}" data-i="${i}" style="margin-top:12px">Pull 1 from next</button>
         <p class="hint">Tap a call under Planned to teach it (it moves up to Taught). Tap a taught call to move it back.</p>
@@ -908,6 +909,16 @@ function wire(): void {
         save();
         render();
       }
+    }));
+
+  root.querySelectorAll<HTMLElement>('[data-moveall]').forEach((b) =>
+    b.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation(); // don't toggle the <details> section
+      const [id, i] = b.dataset.moveall!.split(':');
+      teachAll(cls(id)!, +i);
+      save();
+      render();
     }));
 
   root.querySelectorAll<HTMLElement>('[data-teach]').forEach((b) =>

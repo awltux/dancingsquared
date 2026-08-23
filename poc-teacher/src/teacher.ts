@@ -396,6 +396,14 @@ export function teachCall(cls: ClassInstance, sessionIdx: number, plannedIdx: nu
   s.taught.push(call);
 }
 
+/** Move all planned calls of a session into its taught list. */
+export function teachAll(cls: ClassInstance, sessionIdx: number): void {
+  const s = cls.sessions[sessionIdx];
+  if (!s) return;
+  s.taught.push(...s.planned);
+  s.planned = [];
+}
+
 /** Move the taught call at `taughtIdx` back into this session's plan. */
 export function unteachCall(cls: ClassInstance, sessionIdx: number, taughtIdx: number): void {
   const s = cls.sessions[sessionIdx];

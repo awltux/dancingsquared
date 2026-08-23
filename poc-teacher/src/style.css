@@ -133,6 +133,11 @@ textarea { resize: vertical; min-height: 110px; line-height: 1.4; }
   color: var(--bad); font-size: 18px; border-radius: 0;
 }
 .delete-btn:hover { color: var(--bad); }
+.small-btn {
+  background: none; border: 1px solid var(--line); color: var(--accent); border-radius: 999px;
+  font-size: 12px; padding: 2px 8px; min-height: 0; font-weight: 600;
+}
+details.collapsible summary .small-btn { text-transform: none; letter-spacing: 0; color: var(--accent); }
 .version { text-align: center; color: var(--muted); font-size: 11px; padding: 12px 0 4px; font-family: ui-monospace, monospace; }
 details.collapsible { margin: 0 0 16px; }
 details.collapsible summary {

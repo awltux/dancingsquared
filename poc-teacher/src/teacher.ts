@@ -162,29 +162,20 @@ export function rollPrioritisedForward(cls: ClassInstance, sessionIdx: number): 
 }
 
 /**
- * For a call-position taught by `sessionIdx`, return a human-readable list of the
- * students who missed it, aggregating across EVERY session (0..sessionIdx) where
- * that call-position was taught — a student may have missed several. Each entry
- * is "Name (Session A, Session B)".
+ * For a call-position taught by `sessionIdx`, build the missed note grouped by
+ * session: each session where the call was taught and someone was absent lists
+ * the absentees, e.g. "Session 1: Missed by Carol, Alice\nSession 2: Missed by
+ * Bob, Alice". Returns an empty string if no one missed it.
  */
-export function missedForCallPosition(cls: ClassInstance, sessionIdx: number, ref: CallRef): string[] {
-  const byStudent = new Map<string, string[]>();
+export function missedNote(cls: ClassInstance, sessionIdx: number, ref: CallRef): string {
+  const lines: string[] = [];
   for (let j = 0; j <= sessionIdx; j++) {
     const s = cls.sessions[j];
     if (!s.taught.some((r) => refKey(r) === refKey(ref))) continue;
-    for (const st of cls.students) {
-      if (s.attendance[st.id]) continue;
-      const arr = byStudent.get(st.id) ?? [];
-      if (!arr.includes(s.name)) arr.push(s.name);
-      byStudent.set(st.id, arr);
-    }
+    const names = cls.students.filter((st) => !s.attendance[st.id]).map((st) => st.name);
+    if (names.length) lines.push(`${s.name}: Missed by ${names.join(', ')}`);
   }
-  const out: string[] = [];
-  for (const st of cls.students) {
-    const sessions = byStudent.get(st.id);
-    if (sessions && sessions.length) out.push(`${st.name} (${sessions.join(', ')})`);
-  }
-  return out;
+  return lines.join('\n');
 }
 
 /**
@@ -231,10 +222,10 @@ export function completeSession(cls: ClassInstance, sessionIdx: number): { moved
     const ref = [...plannedRefs, ...taughtRefs].find((r) => r.title === p.title && r.setupIdx === p.setupIdx);
     if (ref) add(ref, p.note ?? '', p.priority);
   }
-  // Taught call-positions missed by someone carry with an aggregated note.
+  // Taught call-positions missed by someone carry with a session-grouped note.
   for (const t of taughtRefs) {
-    const missing = missedForCallPosition(cls, sessionIdx, t);
-    if (missing.length) add(t, `Missed by ${missing.join(', ')}`, 3);
+    const note = missedNote(cls, sessionIdx, t);
+    if (note) add(t, note, 3);
   }
 
   let carried = 0;
@@ -261,9 +252,6 @@ export function completeSession(cls: ClassInstance, sessionIdx: number): { moved
 export function rollMissedCallsForward(cls: ClassInstance, sessionIdx: number): number {
   const s = cls.sessions[sessionIdx];
   if (!s) return 0;
-  const absent = cls.students.filter((st) => !s.attendance[st.id]).map((st) => st.name);
-  if (absent.length === 0) return 0;
-  const note = `Missed by ${absent.join(', ')}`;
   let next = cls.sessions[sessionIdx + 1];
   if (!next) {
     next = {
@@ -279,6 +267,8 @@ export function rollMissedCallsForward(cls: ClassInstance, sessionIdx: number): 
   }
   let moved = 0;
   for (const r of s.taught) {
+    const note = missedNote(cls, sessionIdx, r);
+    if (!note) continue; // no one missed this call
     if (hasCallPosition(next, r)) continue; // already planned/taught in the next session
     next.planned.push(r);
     const idx = next.problems.findIndex((p) => p.title === r.title && p.setupIdx === r.setupIdx);

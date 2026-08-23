@@ -27,7 +27,7 @@ import {
   rollPrioritisedForward,
   archivedNote,
   completeSession,
-  missedForCallPosition,
+  missedNote,
   insertInto,
   removeAt,
   replaceAt,
@@ -282,8 +282,11 @@ mf.sessions[0].taught = [ref];
 mf.sessions[0].attendance = { a: false, b: true, c: true, d: true }; // Alice misses S1
 mf.sessions[1].taught = [ref]; // same call taught again in S2
 mf.sessions[1].attendance = { a: false, b: true, c: true, d: true }; // Alice misses S2
-const list = missedForCallPosition(mf, 1, ref);
-check(list.length === 1 && /Alice/.test(list[0]) && /Session 1/.test(list[0]) && /Session 2/.test(list[0]), `note aggregates all missed sessions (${list[0]})`);
+const note = missedNote(mf, 1, ref);
+check(
+  note.includes('Session 1: Missed by Alice') && note.includes('Session 2: Missed by Alice'),
+  `note groups missed by session: ${JSON.stringify(note)}`,
+);
 
 console.log('\n== Teach / unteach (planned -> taught) ==');
 const tc = structuredClone(emptyTaught);

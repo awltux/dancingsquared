@@ -24,6 +24,7 @@ import {
   renameStudent,
   setProblem,
   rollMissedCallsForward,
+  rollPrioritisedForward,
   insertInto,
   removeAt,
   replaceAt,
@@ -234,6 +235,19 @@ lastMiss.sessions[li].attendance = { a: false, b: true, c: true, d: true };
 const beforeSess = lastMiss.sessions.length;
 rollMissedCallsForward(lastMiss, li);
 check(lastMiss.sessions.length === beforeSess + 1, 'carrying from the last session creates a new one');
+
+console.log('\n== Auto-carry prioritised calls to next session ==');
+const pr = structuredClone(emptyTaught);
+pr.sessions[0].problems = [{ title: pr.sessions[0].planned[0].title, setupIdx: pr.sessions[0].planned[0].setupIdx, priority: 5, note: 'heads struggle' }];
+const prioMoved = rollPrioritisedForward(pr, 0);
+check(prioMoved === 1, `carried ${prioMoved} prioritised call(s) to the next session (expected 1)`);
+check(pr.sessions[1].planned.some((r) => r.title === pr.sessions[0].planned[0].title), 'prioritised call added to the next session plan');
+const prNote = pr.sessions[1].problems.find((p) => p.title === pr.sessions[0].planned[0].title);
+check(prNote != null && prNote.priority === 5, `prioritised call carried with its priority (pri ${prNote?.priority})`);
+// No prioritised calls -> nothing carried.
+const prNone = structuredClone(emptyTaught);
+prNone.sessions[0].problems = [];
+check(rollPrioritisedForward(prNone, 0) === 0, 'nothing carried when no calls are prioritised');
 
 console.log('\n== Teach / unteach (planned -> taught) ==');
 const tc = structuredClone(emptyTaught);

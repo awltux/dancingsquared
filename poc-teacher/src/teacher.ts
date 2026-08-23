@@ -45,6 +45,7 @@ export interface SessionPlan {
   taught: CallRef[]; // calls actually taught
   attendance: Attendance;
   problems: Problem[];
+  completed?: boolean; // teacher marked this session complete
 }
 
 export interface ClassInstance {
@@ -118,6 +119,44 @@ export function dedupeCallRefs<T extends { title: string; setupIdx: number }>(li
     }
   }
   return out;
+}
+
+/**
+ * Carry every prioritised (starred) call-position of `sessionIdx` into the next
+ * session's plan (creating it if needed), keeping its priority/note. Returns the
+ * number carried. Used to re-teach problem call-setups next session.
+ */
+export function rollPrioritisedForward(cls: ClassInstance, sessionIdx: number): number {
+  const s = cls.sessions[sessionIdx];
+  if (!s) return 0;
+  const pool = [...s.planned, ...s.taught];
+  const prioCalls = s.problems
+    .map((p) => ({ p, ref: pool.find((r) => r.title === p.title && r.setupIdx === p.setupIdx) }))
+    .filter((x): x is { p: Problem; ref: CallRef } => !!x.ref);
+  if (!prioCalls.length) return 0;
+  let next = cls.sessions[sessionIdx + 1];
+  if (!next) {
+    next = {
+      id: `${s.id}-n${cls.sessions.length + 1}`,
+      name: `Session ${cls.sessions.length + 1}`,
+      level: s.level,
+      planned: [],
+      taught: [],
+      attendance: {},
+      problems: [],
+    };
+    cls.sessions.push(next);
+  }
+  let moved = 0;
+  for (const { p, ref } of prioCalls) {
+    if (hasCallPosition(next, ref)) continue;
+    next.planned.push(ref);
+    const idx = next.problems.findIndex((q) => q.title === p.title && q.setupIdx === p.setupIdx);
+    if (idx === -1) next.problems.push({ title: p.title, setupIdx: p.setupIdx, priority: p.priority, note: p.note });
+    else next.problems[idx].priority = Math.max(next.problems[idx].priority, p.priority);
+    moved++;
+  }
+  return moved;
 }
 
 /**

@@ -115,6 +115,13 @@ textarea { resize: vertical; min-height: 110px; line-height: 1.4; }
 .field .row b { color: var(--accent); min-width: 44px; text-align: right; }
 .cpval { display: inline-block; margin-top: 4px; color: var(--accent); font-weight: 600; font-size: 14px; }
 .addstudent-row { margin-bottom: 18px; }
+.completed-row { display: flex; align-items: center; gap: 10px; font-size: 16px; margin: 2px 0 14px; }
+.completed-row input { width: 24px; height: 24px; accent-color: var(--accent); }
+.card.done { border-color: var(--accent); background: var(--accent-bg); }
+.done-badge { color: var(--accent); font-weight: 800; }
+.card-body { display: block; width: 100%; text-align: left; background: none; border: none; font: inherit; padding: 0; min-height: 0; }
+.complete-check { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; margin-top: 10px; color: var(--muted); }
+.complete-check input { width: 22px; height: 22px; accent-color: var(--accent); }
 .chip.wrap { padding: 0; overflow: hidden; display: inline-flex; align-items: stretch; }
 .chip-main { background: none; border: none; font: inherit; color: var(--text); padding: 8px 4px 8px 12px; min-height: 40px; }
 .chip .star { background: none; border: none; font-size: 17px; color: var(--muted); padding: 0 10px; cursor: pointer; }

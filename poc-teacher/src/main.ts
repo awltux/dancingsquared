@@ -26,6 +26,7 @@ import {
   renameStudent,
   setProblem,
   rollMissedCallsForward,
+  rollPrioritisedForward,
 } from './teacher';
 import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
 import { DEFAULT_TIP_CONFIG } from './teacher';
@@ -336,11 +337,14 @@ function sessionsPage(id: string): string {
     </header>
     <div class="content">
       ${c.sessions.map((s, i) => `
-        <button class="card tap" data-nav="#/class/${id}/session/${i}">
-          <div class="card-main">${esc(s.name)}</div>
-          <div class="card-sub">Taught ${s.taught.length} of ${s.planned.length} calls</div>
-          <div class="progress"><span style="width:${s.planned.length ? (s.taught.length / s.planned.length) * 100 : 0}%"></span></div>
-        </button>`).join('')}
+        <div class="card ${s.completed ? 'done' : ''}">
+          <button class="card-body tap" data-nav="#/class/${id}/session/${i}">
+            <div class="card-main">${esc(s.name)} ${s.completed ? '<span class="done-badge">✓</span>' : ''}</div>
+            <div class="card-sub">Taught ${s.taught.length} of ${s.planned.length} calls</div>
+            <div class="progress"><span style="width:${s.planned.length ? (s.taught.length / s.planned.length) * 100 : 0}%"></span></div>
+          </button>
+          <label class="complete-check"><input type="checkbox" data-completed="${id}:${i}" ${s.completed ? 'checked' : ''} /> Completed</label>
+        </div>`).join('')}
       <p class="hint">Tap a session to take the register and plan the practice.</p>
     </div>`;
 }
@@ -356,6 +360,7 @@ function sessionPage(id: string, i: number): string {
     </header>
     <div class="content">
       ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
+      <label class="completed-row"><input type="checkbox" data-completed="${id}:${i}" ${s.completed ? 'checked' : ''} /> <b>Session completed</b></label>
       <h2 class="section-title">Taught this session</h2>
       <div class="chips">${s.taught.length ? s.taught.map((r, ti) => sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
 
@@ -795,6 +800,21 @@ function wire(): void {
       const moved = rollMissedCallsForward(cls(b.dataset.id!)!, +b.dataset.i!);
       save();
       notice = moved ? `Carried ${moved} missed call(s) to the next session.` : 'No absent dancers — nothing to carry.';
+      render();
+    }));
+  root.querySelectorAll<HTMLInputElement>('[data-completed]').forEach((cb) =>
+    cb.addEventListener('change', () => {
+      const [id, i] = cb.dataset.completed!.split(':');
+      const c = cls(id)!;
+      c.sessions[+i].completed = cb.checked;
+      let moved = 0;
+      if (cb.checked) moved = rollPrioritisedForward(c, +i); // auto-carry prioritised calls
+      save();
+      notice = cb.checked
+        ? moved
+          ? `Session completed — ${moved} prioritised call(s) added to the next session.`
+          : 'Session completed.'
+        : 'Session marked not complete.';
       render();
     }));
 

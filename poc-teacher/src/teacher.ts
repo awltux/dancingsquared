@@ -107,6 +107,29 @@ export function pullForward(cls: ClassInstance, sessionIdx: number, count: numbe
   for (const r of pulled) s.planned.push(r);
 }
 
+/** Add a student to the class and to the register of every session (absent by default). */
+export function addStudent(cls: ClassInstance, name: string): void {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  const nextId = cls.students.length ? Math.max(...cls.students.map((s) => Number(s.id))) + 1 : 1;
+  cls.students.push({ id: String(nextId), name: trimmed });
+  for (const sess of cls.sessions) sess.attendance[String(nextId)] = false;
+}
+
+/** Remove a student from the class and from every session's register. */
+export function removeStudent(cls: ClassInstance, studentId: string): void {
+  cls.students = cls.students.filter((s) => s.id !== studentId);
+  for (const sess of cls.sessions) delete sess.attendance[studentId];
+}
+
+/** Rename a student. */
+export function renameStudent(cls: ClassInstance, studentId: string, name: string): void {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  const s = cls.students.find((x) => x.id === studentId);
+  if (s) s.name = trimmed;
+}
+
 /** Move the planned call at `plannedIdx` into this session's taught list. */
 export function teachCall(cls: ClassInstance, sessionIdx: number, plannedIdx: number): void {
   const s = cls.sessions[sessionIdx];

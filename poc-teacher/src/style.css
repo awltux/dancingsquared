@@ -68,6 +68,7 @@ button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
   background: var(--card); border-color: var(--line);
 }
 .big.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.big.danger { color: var(--bad); border-color: var(--bad); background: #fdf0f0; }
 .row.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .row.two .big { width: auto; }
 

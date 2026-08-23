@@ -21,6 +21,9 @@ import {
   studentKnowledge,
   teachCall,
   unteachCall,
+  addStudent,
+  removeStudent,
+  renameStudent,
 } from './teacher';
 import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
 import { DEFAULT_TIP_CONFIG } from './teacher';
@@ -333,14 +336,22 @@ function studentsPage(id: string): string {
       <div><h1>Students</h1><p class="sub">${esc(c.name)}</p></div>
     </header>
     <div class="content">
-      ${c.students.map((st) => {
+      <div class="row two">
+        <input id="addStudent" type="text" placeholder="New dancer's name" />
+        <button class="big primary" data-addstudent data-id="${id}">Add</button>
+      </div>
+      ${c.students.length ? c.students.map((st) => {
         const k = studentKnowledge(c, st.id);
         return `
-        <button class="card tap" data-nav="#/class/${id}/student/${st.id}">
-          <div class="card-main">${esc(st.name)}</div>
+        <div class="card">
+          <button class="card-main tap" data-nav="#/class/${id}/student/${st.id}" style="width:100%;text-align:left;background:none;border:none;padding:0;min-height:auto">${esc(st.name)}</button>
           <div class="card-sub">Knows ${k.known.length} call${k.known.length === 1 ? '' : 's'} ${k.missed.length ? `· missed ${k.missed.length}` : ''}</div>
-        </button>`;
-      }).join('')}
+          <div class="row two" style="margin-top:10px">
+            <button class="big" data-rename="${id}:${st.id}">Rename</button>
+            <button class="big danger" data-remove="${id}:${st.id}">Remove</button>
+          </div>
+        </div>`;
+      }).join('') : '<p class="hint">No dancers yet — add the first one above.</p>'}
     </div>`;
 }
 
@@ -535,6 +546,44 @@ function wire(): void {
       session(id, i)!.attendance[sid] = !session(id, i)!.attendance[sid];
       save();
       render();
+    }));
+
+  root.querySelectorAll<HTMLElement>('[data-addstudent]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const id = b.dataset.id!;
+      const input = root.querySelector('#addStudent') as HTMLInputElement;
+      if (!input.value.trim()) {
+        input.classList.add('invalid');
+        return;
+      }
+      input.classList.remove('invalid');
+      addStudent(cls(id)!, input.value);
+      input.value = '';
+      save();
+      render();
+    }));
+  root.querySelectorAll<HTMLElement>('[data-rename]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const [id, sid] = b.dataset.rename!.split(':');
+      const c = cls(id)!;
+      const st = c.students.find((s) => s.id === sid);
+      const name = window.prompt('Rename dancer', st?.name ?? '');
+      if (name != null) {
+        renameStudent(c, sid, name);
+        save();
+        render();
+      }
+    }));
+  root.querySelectorAll<HTMLElement>('[data-remove]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const [id, sid] = b.dataset.remove!.split(':');
+      const c = cls(id)!;
+      const st = c.students.find((s) => s.id === sid);
+      if (window.confirm(`Remove ${st?.name ?? 'this dancer'} from the class?`)) {
+        removeStudent(c, sid);
+        save();
+        render();
+      }
     }));
 
   root.querySelectorAll<HTMLElement>('[data-act="roll"]').forEach((b) =>

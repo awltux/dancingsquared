@@ -19,6 +19,9 @@ import {
   studentKnowledge,
   teachCall,
   unteachCall,
+  addStudent,
+  removeStudent,
+  renameStudent,
   insertInto,
   removeAt,
   replaceAt,
@@ -156,6 +159,21 @@ check(pullCls.sessions[1].planned.some((r) => r.title === pullTarget.title), 'pu
 check(pullCls.sessions[1].planned.length === s2PlannedBefore + 1, 'session planned grew by the pulled call');
 check(pullCls.sessions[2].planned.length === s3StartLen - 1, 'pulled call removed from next session plan');
 check(pullCls.sessions[1].taught.length === 0, 'pulled call did NOT go into taught');
+
+console.log('\n== Dancer management (add / rename / remove) ==');
+const mc = structuredClone(emptyTaught);
+const origCount = mc.students.length;
+addStudent(mc, 'Eve');
+check(mc.students.length === origCount + 1, 'addStudent adds a dancer');
+const eve = mc.students.find((s) => s.name === 'Eve');
+check(eve != null && mc.sessions.every((s) => s.attendance[eve.id] === false), 'new dancer appears in every session register (absent)');
+addStudent(mc, '   ');
+check(mc.students.length === origCount + 1, 'blank name is ignored');
+renameStudent(mc, eve.id, 'Evelyn');
+check(mc.students.find((s) => s.id === eve.id)?.name === 'Evelyn', 'renameStudent renames the dancer');
+removeStudent(mc, eve.id);
+check(mc.students.length === origCount, 'removeStudent removes the dancer');
+check(mc.sessions.every((s) => s.attendance[eve.id] === undefined), 'removed dancer cleared from session registers');
 
 console.log('\n== Teach / unteach (planned -> taught) ==');
 const tc = structuredClone(emptyTaught);

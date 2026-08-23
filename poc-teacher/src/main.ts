@@ -1113,9 +1113,19 @@ function wire(): void {
     const prioritised = c.sessions[sIdx].problems.map((p) => p.title);
     const familyMap: Record<string, string> = {};
     for (const x of catalog) familyMap[x.title] = x.family;
+    console.log('[gentips] starting worker for class', id, 'session', sIdx, 'avail=', avail.size, 'calls=', calls.length, 'current=', c.sessions[sIdx].taught.length);
 
     const worker = new Worker(new URL('./tips-worker.ts', import.meta.url), { type: 'module' });
-    worker.onmessage = (e: MessageEvent<{ tips: string[][] }>) => {
+    worker.onmessage = (e: MessageEvent<{ tips: string[][]; error?: string }>) => {
+      if (e.data.error) {
+        console.error('[gentips] worker reported error:', e.data.error);
+        worker.terminate();
+        done();
+        notice = 'Tip generation failed.';
+        render();
+        return;
+      }
+      console.log('[gentips] worker returned', e.data.tips.length, 'tips');
       tipsByClass[id] = e.data.tips.map((titles, i) => ({
         name: `Tip ${i + 1}`,
         sourceSessionId: c.sessions[sIdx].id,
@@ -1126,27 +1136,37 @@ function wire(): void {
       done();
       render();
     };
-    worker.onerror = () => {
+    worker.onerror = (err) => {
+      console.error('[gentips] worker load/runtime error:', err);
       worker.terminate();
       done();
       notice = 'Tip generation failed.';
       render();
     };
-    worker.postMessage({
-      movesXml,
-      formationsXml,
-      calls,
-      avail: [...avail],
-      priority: Object.fromEntries(priorityWeights(c, sIdx)),
-      config: tipConfigGlobal,
-      current: c.sessions[sIdx].taught.map((r) => r.title),
-      overrides: callProbs[id] ?? {},
-      currentProb: tipConfigGlobal.currentProb,
-      prevProb: tipConfigGlobal.prevProb,
-      prioritised,
-      familyMap,
-      opts: { minLen: 3, maxLen: 5, count: 3, getoutMax: 5 },
-    });
+    try {
+      worker.postMessage({
+        movesXml,
+        formationsXml,
+        calls,
+        avail: [...avail],
+        priority: Object.fromEntries(priorityWeights(c, sIdx)),
+        config: tipConfigGlobal,
+        current: c.sessions[sIdx].taught.map((r) => r.title),
+        overrides: callProbs[id] ?? {},
+        currentProb: tipConfigGlobal.currentProb,
+        prevProb: tipConfigGlobal.prevProb,
+        prioritised,
+        familyMap,
+        opts: { minLen: 3, maxLen: 5, count: 3, getoutMax: 5 },
+      });
+      console.log('[gentips] posted request to worker');
+    } catch (err) {
+      console.error('[gentips] postMessage threw:', err);
+      worker.terminate();
+      done();
+      notice = 'Tip generation failed.';
+      render();
+    }
   }
 
   // Tip settings page: live readout + save.

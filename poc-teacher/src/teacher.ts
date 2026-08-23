@@ -599,14 +599,21 @@ export function generateTips(
     // Close the tip back to the squared set (finish in square). If no getout is
     // found within the bound, discard this tip.
     const getout = seq.getout({ target: 'Static Square', maxCalls: getoutMax });
-    if (!getout || !getout.length) continue;
+    if (!getout || !getout.length) {
+      console.log(`[generateTips] attempt ${t + 1}/${attempts}: body=${tip.length} calls, no getout home in ${getoutMax}, discarded`);
+      continue;
+    }
     tip.push(...getout);
     if (tip.length >= minLen) {
       tips.push(tip);
       made++;
       for (const c of tip) usedAny.add(c);
+      console.log(`[generateTips] attempt ${t + 1}/${attempts}: made tip ${made}/${count}: ${tip.join(' > ')}`);
+    } else {
+      console.log(`[generateTips] attempt ${t + 1}/${attempts}: getout found but tip length ${tip.length} < minLen ${minLen}, discarded`);
     }
   }
+  console.log(`[generateTips] done: ${tips.length}/${count} tips generated from ${attempts} attempts`);
   return tips;
 }
 

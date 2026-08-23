@@ -418,6 +418,7 @@ function studentsPage(id: string): string {
         <div class="card">
           <button class="card-main tap" data-nav="#/class/${id}/student/${st.id}" style="width:100%;text-align:left;background:none;border:none;padding:0;min-height:auto">${esc(st.name)}</button>
           <div class="card-sub">Knows ${k.known.length} call${k.known.length === 1 ? '' : 's'} ${k.missed.length ? `· missed ${k.missed.length}` : ''}</div>
+          <div class="card-sub">Completed: ${renderStudentAttendance(c, st.id)}</div>
           <div class="row two" style="margin-top:10px">
             <button class="big" data-rename="${id}:${st.id}">Rename</button>
             <button class="big danger" data-remove="${id}:${st.id}">Remove</button>
@@ -457,6 +458,18 @@ function renderCallProbs(id: string, c: ClassInstance, sIdx: number, avail: Set<
       .join('');
   }
   return out || '<span class="muted">No taught calls to tune yet.</span>';
+}
+
+// Attendance for a student across completed sessions, as small present/missed chips.
+function renderStudentAttendance(c: ClassInstance, studentId: string): string {
+  const done = c.sessions.map((s, i) => ({ i, s })).filter((x) => x.s.completed);
+  if (!done.length) return '<span class="muted">no completed sessions</span>';
+  return done
+    .map(({ i, s }) => {
+      const present = !!s.attendance[studentId];
+      return `<span class="chip ${present ? 'present' : 'missed'}">S${i + 1} ${present ? '✓' : '✗'}</span>`;
+    })
+    .join('');
 }
 
 // Distinct calls taught in sessions before index `i`, as chips.

@@ -82,6 +82,8 @@ button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .chip.tap { cursor: pointer; }
 .chip.warn { background: var(--warn-bg); border-color: #e6c56a; color: var(--warn); font-weight: 600; }
 .chip.sel { border-color: var(--focus); background: #e7f1fc; box-shadow: 0 0 0 2px var(--focus); }
+.chip.present { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+.chip.missed { background: #fdf0f0; border-color: var(--bad); color: var(--bad); }
 
 /* ---------- attendance ---------- */
 .attend { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

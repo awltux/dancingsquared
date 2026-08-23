@@ -402,7 +402,8 @@ function renderCallProbs(id: string, c: ClassInstance, sIdx: number, avail: Set<
     out += list
       .map((r) => {
         const pct = Math.round(effectiveCallProb(id, r.title, currentSet) * 100);
-        return `<label class="field">${esc(r.title)}
+        const label = `${r.title}${r.setup ? ` from ${r.setup}` : ''}`;
+        return `<label class="field">${esc(label)}
           <input type="range" class="callprob" data-callprob="${id}::${r.title}" min="0" max="100" step="5" value="${pct}" />
           <span class="cpval">${pct}%</span></label>`;
       })
@@ -594,7 +595,7 @@ function programmesPage(): string {
 
 function chip(r: CallRef, warn = new Set<string>()): string {
   const w = warn.has(r.title);
-  return `<span class="chip ${w ? 'warn' : ''}">${esc(r.title)}${r.setup ? ` <span class="dim">(${esc(r.setup)})</span>` : ''}</span>`;
+  return `<span class="chip ${w ? 'warn' : ''}">${esc(r.title)}${r.setup ? ` <span class="dim">from ${esc(r.setup)}</span>` : ''}</span>`;
 }
 
 function notFound(): string {

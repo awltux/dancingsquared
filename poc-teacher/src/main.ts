@@ -567,6 +567,7 @@ function sessionsPage(id: string): string {
     <header class="appbar">
       <button class="back" data-nav="#/">‹</button>
       <div><h1>${esc(c.name)}</h1><p class="sub">${c.level.toUpperCase()}</p></div>
+      <button class="icon-btn" data-renameclass="${id}" title="Rename class">✎</button>
     </header>
     <div class="content">
       ${notice ? `<p class="notice${noticeWarn ? ' warn' : ''}">${esc(notice)}</p>` : ''}
@@ -1121,7 +1122,20 @@ function wire(): void {
         doAddStudent(el.dataset.id!);
       }
     }));
-  root.querySelectorAll<HTMLElement>('[data-rename]').forEach((b) =>
+  root.querySelectorAll<HTMLElement>('[data-renameclass]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const id = b.dataset.renameclass!;
+      const c = cls(id);
+      if (!c) return;
+      const name = sanitizeText(window.prompt('Rename class', c.name) ?? '', 60);
+      if (name) {
+        c.name = name;
+        save();
+        render();
+      }
+    }));
+
+    root.querySelectorAll<HTMLElement>('[data-rename]').forEach((b) =>
     b.addEventListener('click', () => {
       const [id, sid] = b.dataset.rename!.split(':');
       const c = cls(id)!;

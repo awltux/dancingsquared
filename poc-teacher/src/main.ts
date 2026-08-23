@@ -346,15 +346,13 @@ function sessionsPage(id: string): string {
     <div class="content">
       ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
       ${c.sessions.map((s, i) => `
-        <div class="card ${s.completed ? 'done' : ''}">
-          <div class="card-title-row">
-            <button class="card-title tap" data-nav="#/class/${id}/session/${i}">${esc(s.name)}</button>
-            <label class="complete-check"><input type="checkbox" data-completed="${id}:${i}" ${s.completed ? 'checked' : ''} /></label>
-          </div>
-          <button class="card-body tap" data-nav="#/class/${id}/session/${i}">
+        <div class="card session-card ${s.completed ? 'done' : ''}">
+          <button class="session-main tap" data-nav="#/class/${id}/session/${i}">
+            <div class="card-main">${esc(s.name)} ${s.completed ? '<span class="done-badge">✓</span>' : ''}</div>
             <div class="card-sub">Taught ${s.taught.length} of ${s.planned.length} calls</div>
             <div class="progress"><span style="width:${s.planned.length ? (s.taught.length / s.planned.length) * 100 : 0}%"></span></div>
           </button>
+          <label class="complete-check"><input type="checkbox" data-completed="${id}:${i}" ${s.completed ? 'checked' : ''} /></label>
         </div>`).join('')}
       <p class="hint">Tap a session to take the register and plan the practice.</p>
     </div>`;

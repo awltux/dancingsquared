@@ -56,7 +56,7 @@ export function buildCatalog(files: Record<string, string>): CatalogCall[] {
 }
 
 /** A Sequencer loaded with the given catalog calls (keyed by title). */
-export function makeSequencer(movesXml: string, formationsXml: string, calls: CatalogCall[], margin = 4): Sequencer {
+export function makeSequencer(movesXml: string, formationsXml: string, calls: { title: string; xml: string }[], margin = 4): Sequencer {
   const seq = new Sequencer(movesXml, formationsXml, calls.map((c) => ({ name: c.title, xml: c.xml })));
   // A little match tolerance so legal-next accepts setups that are fractionally
   // off the canonical start (mirrors the main poc sequencer's default margin).

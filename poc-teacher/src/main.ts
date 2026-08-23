@@ -1072,29 +1072,66 @@ function wire(): void {
       reader.readAsText(f);
     }));
 
-  root.querySelectorAll<HTMLElement>('[data-act="gentips"]').forEach((b) =>
+  root.querySelectorAll<HTMLButtonElement>('[data-act="gentips"]').forEach((b) =>
     b.addEventListener('click', () => {
       const id = b.dataset.id!;
       const c = cls(id)!;
       const sIdx = b.dataset.session != null ? Math.min(+b.dataset.session, c.sessions.length - 1) : c.sessions.length - 1;
-      const avail = availableTitles(c, sIdx);
-      // A Sequencer registered with ONLY the class's known calls, so generated
-      // tips (and their getouts home) use only calls the class has been taught.
-      const availSeq = makeSequencer(movesXml, formationsXml, catalog.filter((x) => avail.has(x.title)));
-      const currentSet = new Set(c.sessions[sIdx].taught.map((r) => r.title));
-      tipsByClass[id] = generateTips(availSeq, avail, priorityWeights(c, sIdx), {
-        minLen: 3,
-        maxLen: 5,
-        count: 3,
-        getoutMax: 5,
-        config: tipConfigGlobal,
-        current: currentSet,
-        callProb: (t) => effectiveCallProb(id, t, currentSet, new Set(c.sessions[sIdx].problems.map((p) => p.title))),
-        family: familyOf,
-      }).map((titles, i) => ({ name: `Tip ${i + 1}`, sourceSessionId: c.sessions[sIdx].id, titles }));
-      tipsState[id] = { selectedTip: tipsByClass[id].length ? 0 : -1, selectedIdx: -1 };
-      render();
+      generateTipsInBackground(b, id, c, sIdx);
     }));
+
+  // Run tip generation in a Web Worker so the button spinner can tumble while the
+  // (potentially slow) getout search runs off the main thread.
+  function generateTipsInBackground(btn: HTMLButtonElement, id: string, c: ClassInstance, sIdx: number): void {
+    const done = () => {
+      btn.disabled = false;
+      btn.classList.remove('busy');
+      btn.textContent = 'Generate tips';
+    };
+    btn.disabled = true;
+    btn.classList.add('busy');
+    btn.innerHTML = '<span class="spinner"></span>Generating…';
+
+    const avail = availableTitles(c, sIdx);
+    const calls = catalog.filter((x) => avail.has(x.title)).map((x) => ({ title: x.title, xml: x.xml }));
+    const prioritised = c.sessions[sIdx].problems.map((p) => p.title);
+    const familyMap: Record<string, string> = {};
+    for (const x of catalog) familyMap[x.title] = x.family;
+
+    const worker = new Worker(new URL('./tips-worker.ts', import.meta.url), { type: 'module' });
+    worker.onmessage = (e: MessageEvent<{ tips: string[][] }>) => {
+      tipsByClass[id] = e.data.tips.map((titles, i) => ({
+        name: `Tip ${i + 1}`,
+        sourceSessionId: c.sessions[sIdx].id,
+        titles,
+      }));
+      tipsState[id] = { selectedTip: tipsByClass[id].length ? 0 : -1, selectedIdx: -1 };
+      worker.terminate();
+      done();
+      render();
+    };
+    worker.onerror = () => {
+      worker.terminate();
+      done();
+      notice = 'Tip generation failed.';
+      render();
+    };
+    worker.postMessage({
+      movesXml,
+      formationsXml,
+      calls,
+      avail: [...avail],
+      priority: Object.fromEntries(priorityWeights(c, sIdx)),
+      config: tipConfigGlobal,
+      current: c.sessions[sIdx].taught.map((r) => r.title),
+      overrides: callProbs[id] ?? {},
+      currentProb: tipConfigGlobal.currentProb,
+      prevProb: tipConfigGlobal.prevProb,
+      prioritised,
+      familyMap,
+      opts: { minLen: 3, maxLen: 5, count: 3, getoutMax: 5 },
+    });
+  }
 
   // Tip settings page: live readout + save.
   root.querySelectorAll<HTMLInputElement>('#cfgRepeat').forEach((el) => {

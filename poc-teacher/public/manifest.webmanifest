@@ -1,6 +1,6 @@
 {
-  "name": "Square Dance Teacher",
-  "short_name": "SD Teacher",
+  "name": "SQD Teacher",
+  "short_name": "SQD Teacher",
   "description": "A square dance teacher's session tracker and practice-tip generator.",
   "start_url": "./",
   "scope": "./",

@@ -602,7 +602,7 @@ function renderModal(m: ProbModal): string {
 function homePage(): string {
   return `
     <header class="appbar">
-      <h1>Teacher</h1>
+      <h1>SQD Teacher</h1>
       <p class="sub">Square dance class planner</p>
     </header>
     <div class="content">

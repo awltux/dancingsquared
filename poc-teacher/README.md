@@ -1,4 +1,4 @@
-# Square Dance Teacher
+# SQD Teacher
 
 A mobile-first web app for square dance teachers: plan class sessions, mark
 attendance and call knowledge, and auto-generate practice tips that start and

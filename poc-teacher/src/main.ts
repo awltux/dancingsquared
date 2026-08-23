@@ -190,7 +190,34 @@ function saveProgrammes(): void {
 }
 const tipsByClass: Record<string, Tip[]> = {};
 const tipsState: Record<string, { selectedTip: number; selectedIdx: number }> = {};
-const savedModules: Record<string, { name: string; titles: string[] }[]> = {};
+
+// A saved practice tip/module, with metadata on when and where it was created.
+interface SavedModule {
+  name: string;
+  titles: string[];
+  createdAt: number;
+  createdClass: string;
+  createdSession: string;
+  expanded?: boolean;
+}
+const MODULES_KEY = 'dsTeacherSavedModules';
+let savedModules: Record<string, SavedModule[]> = loadSavedModules();
+function loadSavedModules(): Record<string, SavedModule[]> {
+  try {
+    const raw = localStorage.getItem(MODULES_KEY);
+    if (raw) return JSON.parse(raw) as Record<string, SavedModule[]>;
+  } catch {
+    /* fall through */
+  }
+  return {};
+}
+function saveSavedModules(): void {
+  try {
+    localStorage.setItem(MODULES_KEY, JSON.stringify(savedModules));
+  } catch {
+    /* ignore */
+  }
+}
 
 function load(): ClassInstance[] {
   try {
@@ -572,7 +599,25 @@ function tipsPage(id: string, fromSession?: number): string {
       ${tips.length ? tips.map((t, ti) => renderTip(id, t, ti, ts)).join('') : '<p class="hint">No tips yet — tap "Generate tips".</p>'}
 
       <h2 class="section-title">Saved modules</h2>
-      <div class="chips">${savedModules[id]?.length ? savedModules[id].map((m) => `<span class="chip">${esc(m.name)}</span>`).join('') : '<span class="muted">None saved yet</span>'}</div>
+      ${(savedModules[id]?.length ? savedModules[id].map((m, mi) => renderModule(id, m, mi)).join('') : '<p class="hint">None saved yet — tap "Save tip" on a generated tip to keep it.</p>')}
+    </div>`;
+}
+
+function renderModule(id: string, m: SavedModule, mi: number): string {
+  const when = new Date(m.createdAt).toLocaleString();
+  const where = [m.createdClass, m.createdSession].filter(Boolean).join(' · ');
+  return `
+    <div class="card">
+      <div class="card-title-row">
+        <button class="card-title tap" data-modview="${id}:${mi}">${esc(m.name)}</button>
+        <button class="icon-btn danger" data-delmod="${id}:${mi}" title="Delete">✕</button>
+      </div>
+      <div class="card-sub">${where ? `${esc(where)} · ` : ''}${esc(when)}</div>
+      ${m.expanded ? `<div class="chips" style="margin-top:8px">${m.titles.map((t) => `<span class="chip">${esc(t)}</span>`).join('')}</div>` : ''}
+      <div class="row two" style="margin-top:10px">
+        <button class="big" data-renamemod="${id}:${mi}">Rename</button>
+        <button class="big" data-modview="${id}:${mi}">${m.expanded ? 'Hide' : 'View'}</button>
+      </div>
     </div>`;
 }
 
@@ -594,11 +639,10 @@ function renderTip(id: string, t: Tip, ti: number, ts: { selectedTip: number; se
         <div class="fits">
           <div><b>Add before / replace</b>: ${fits.before.length ? fits.before.map((c) => `<button class="chip tap" data-before="${id}:${ti}:${c}">${esc(c)}</button>`).join('') : '<span class="muted">—</span>'}</div>
           <div><b>Add after</b>: ${fits.after.length ? fits.after.map((c) => `<button class="chip tap" data-after="${id}:${ti}:${c}">${esc(c)}</button>`).join('') : '<span class="muted">—</span>'}</div>
-        </div>
-        <div class="row two">
-          <input id="modName" type="text" placeholder="Module name" />
-          <button class="big primary" data-savemod="${id}:${ti}">Save module</button>
         </div>` : '<p class="hint">Tap a call to see what can go before / after it.</p>'}
+      <div class="row two" style="margin-top:8px">
+        <button class="big primary" data-savetip="${id}:${ti}">Save tip</button>
+      </div>
     </div>`;
 }
 
@@ -1060,12 +1104,61 @@ function wire(): void {
     });
   });
 
-  root.querySelectorAll<HTMLElement>('[data-savemod]').forEach((b) =>
+  // Save a generated tip to the saved modules list, with when/where metadata.
+  root.querySelectorAll<HTMLElement>('[data-savetip]').forEach((b) =>
     b.addEventListener('click', () => {
-      const [id, ti] = b.dataset.savemod!.split(':');
-      const name = (root.querySelector('#modName') as HTMLInputElement).value.trim() || 'Practice tip';
-      (savedModules[id] ??= []).push({ name, titles: [...tipsByClass[id][+ti].titles] });
+      const [id, ti] = b.dataset.savetip!.split(':');
+      const c = cls(id)!;
+      const t = tipsByClass[id][+ti];
+      const sIdx = c.sessions.length - 1;
+      const defaultName = t.name || `Saved tip ${(savedModules[id]?.length ?? 0) + 1}`;
+      const name = window.prompt('Name this module', defaultName) || defaultName;
+      (savedModules[id] ??= []).push({
+        name,
+        titles: [...t.titles],
+        createdAt: Date.now(),
+        createdClass: c.name,
+        createdSession: c.sessions[sIdx]?.name ?? '',
+      });
+      saveSavedModules();
+      notice = `Saved "${name}" to modules.`;
       render();
+    }));
+
+  // View / hide a saved module's calls.
+  root.querySelectorAll<HTMLElement>('[data-modview]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const [id, mi] = b.dataset.modview!.split(':');
+      const m = savedModules[id]?.[+mi];
+      if (m) m.expanded = !m.expanded;
+      saveSavedModules();
+      render();
+    }));
+
+  // Rename a saved module.
+  root.querySelectorAll<HTMLElement>('[data-renamemod]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const [id, mi] = b.dataset.renamemod!.split(':');
+      const m = savedModules[id]?.[+mi];
+      if (!m) return;
+      const name = window.prompt('Rename module', m.name);
+      if (name != null) {
+        m.name = name.trim() || m.name;
+        saveSavedModules();
+        render();
+      }
+    }));
+
+  // Delete a saved module.
+  root.querySelectorAll<HTMLElement>('[data-delmod]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const [id, mi] = b.dataset.delmod!.split(':');
+      const m = savedModules[id]?.[+mi];
+      if (m && window.confirm(`Delete module "${m.name}"?`)) {
+        savedModules[id].splice(+mi, 1);
+        saveSavedModules();
+        render();
+      }
     }));
 }
 

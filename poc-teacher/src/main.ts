@@ -458,6 +458,11 @@ function sessionPage(id: string, i: number): string {
       <p class="hint">Tap a name to mark them present/absent. Absent dancers miss the taught calls.</p>
 
       <button class="big primary" data-nav="#/class/${id}/tips/${i}">Make practice tips →</button>
+
+      <details class="collapsible" style="margin-top:16px">
+        <summary>Saved modules</summary>
+        ${savedModules[id]?.length ? savedModules[id].map((m, mi) => renderModule(id, m, mi)).join('') : '<p class="hint">No saved modules yet — save a tip from the Practice tips page.</p>'}
+      </details>
     </div>`;
 }
 

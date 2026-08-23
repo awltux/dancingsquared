@@ -306,6 +306,19 @@ export function pullForward(cls: ClassInstance, sessionIdx: number, count: numbe
   }
   const takenKeys = new Set(taken.map(refKey));
   next.planned = next.planned.filter((r) => !takenKeys.has(refKey(r))); // keep original order
+  // Carry each pulled call's priority + note with it (and remove it from next).
+  for (const r of taken) {
+    const pi = next.problems.findIndex((q) => q.title === r.title && q.setupIdx === r.setupIdx);
+    if (pi === -1) continue;
+    const p = next.problems[pi];
+    next.problems.splice(pi, 1);
+    const si = s.problems.findIndex((q) => q.title === r.title && q.setupIdx === r.setupIdx);
+    if (si === -1) s.problems.push({ title: r.title, setupIdx: r.setupIdx, priority: p.priority, note: p.note });
+    else {
+      s.problems[si].priority = Math.max(s.problems[si].priority, p.priority);
+      if (p.note) s.problems[si].note = p.note;
+    }
+  }
   s.planned.push(...taken);
 }
 

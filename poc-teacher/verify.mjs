@@ -308,6 +308,10 @@ const b = pf.sessions[1].planned[1]; // Allemande Left — prioritise this
 pf.sessions[1].problems = [{ title: b.title, setupIdx: b.setupIdx, priority: 4, note: 'prio' }];
 pullForward(pf, 0, 1); // pull 1 from session 2 into session 1
 check(pf.sessions[0].planned.length === 1 && pf.sessions[0].planned[0].title === b.title, 'pulls the prioritised call first');
+// The pulled call keeps its priority + note in THIS session, and next no longer has it.
+const pulledProb = pf.sessions[0].problems.find((q) => q.title === b.title);
+check(pulledProb != null && pulledProb.priority === 4 && pulledProb.note === 'prio', `pulled call keeps its priority and note (${pulledProb?.note})`);
+check(!pf.sessions[1].problems.some((q) => q.title === b.title), 'priority removed from the next session after pulling');
 
 console.log('\n== Teach / unteach (planned -> taught) ==');
 const tc = structuredClone(emptyTaught);

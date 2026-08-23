@@ -200,6 +200,7 @@ interface Route {
   id?: string;
   i?: number;
   sid?: string;
+  fromSession?: number;
 }
 
 function parseRoute(): Route {
@@ -213,6 +214,7 @@ function parseRoute(): Route {
   if (parts[2] === 'students') return { page: 'students', id };
   if (parts[2] === 'student' && parts[3] != null) return { page: 'student', id, sid: parts[3] };
   if (parts[2] === 'tips' && parts[3] === 'settings') return { page: 'tipssettings' };
+  if (parts[2] === 'tips' && parts[3] != null) return { page: 'tips', id, fromSession: +parts[3] };
   if (parts[2] === 'tips') return { page: 'tips', id };
   return { page: 'class', id };
 }
@@ -229,7 +231,7 @@ function render(): void {
   else if (route.page === 'session') { tab = 'sessions'; content = sessionPage(route.id!, route.i!); }
   else if (route.page === 'students') { tab = 'students'; content = studentsPage(route.id!); }
   else if (route.page === 'student') { tab = 'students'; content = studentPage(route.id!, route.sid!); }
-  else if (route.page === 'tips') { tab = 'tips'; content = tipsPage(route.id!); }
+  else if (route.page === 'tips') { tab = 'tips'; content = tipsPage(route.id!, route.fromSession); }
   else if (route.page === 'tipssettings') { tab = 'tips'; content = tipSettingsPage(); }
   else if (route.page === 'new') content = newCoursePage();
   else if (route.page === 'programmes') content = programmesPage();
@@ -323,7 +325,7 @@ function sessionPage(id: string, i: number): string {
       <h2 class="section-title">Prioritised practice</h2>
       <div class="chips">${s.problems.length ? s.problems.map((p) => `<span class="chip warn">${esc(p.title)} · pri ${p.priority}</span>`).join('') : '<span class="muted">No problem call-setups yet</span>'}</div>
 
-      <button class="big primary" data-nav="#/class/${id}/tips">Make practice tips →</button>
+      <button class="big primary" data-nav="#/class/${id}/tips/${i}">Make practice tips →</button>
     </div>`;
 }
 
@@ -375,7 +377,7 @@ function studentPage(id: string, sid: string): string {
     </div>`;
 }
 
-function tipsPage(id: string): string {
+function tipsPage(id: string, fromSession?: number): string {
   const c = cls(id);
   if (!c) return notFound();
   const sIdx = c.sessions.length - 1;
@@ -383,9 +385,11 @@ function tipsPage(id: string): string {
   const pri = priorityWeights(c, sIdx);
   const tips = tipsByClass[id] ?? [];
   const ts = tipsState[id] ?? { selectedTip: -1, selectedIdx: -1 };
+  // Return to the session this page was launched from, else the sessions list.
+  const back = fromSession != null ? `#/class/${id}/session/${fromSession}` : `#/class/${id}`;
   return `
     <header class="appbar">
-      <button class="back" data-nav="#/class/${id}">‹</button>
+      <button class="back" data-nav="${back}">‹</button>
       <div><h1>Practice tips</h1><p class="sub">${esc(c.name)}</p></div>
     </header>
     <div class="content">

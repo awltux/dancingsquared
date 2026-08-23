@@ -383,7 +383,6 @@ function tipsPage(id: string): string {
         <div class="card-sub">Each tip starts and finishes in the squared set, uses only calls taught so far, and prioritises the highlighted ones.</div>
         <button class="big primary" data-act="gentips" data-id="${id}">Generate tips</button>
       </div>
-      <button class="big" data-nav="#/tips/settings" style="margin-top:10px">⚙ Tip settings</button>
       ${pri.size ? `<div class="row two" style="margin-top:10px"><span class="muted">Prioritised:</span> ${[...pri.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([n]) => `<span class="chip warn">${esc(n)}</span>`).join('')}</div>` : ''}
 
       ${tips.length ? tips.map((t, ti) => renderTip(id, t, ti, ts)).join('') : '<p class="hint">No tips yet — tap "Generate tips".</p>'}

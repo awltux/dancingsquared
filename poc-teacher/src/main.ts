@@ -454,14 +454,16 @@ function notFound(): string {
 }
 
 function bottomNav(classId: string | null | undefined, active: 'home' | 'sessions' | 'students' | 'tips'): string {
-  const item = (label: string, key: string, href: string) =>
-    `<a href="${href}" class="nav-item ${active === key ? 'active' : ''}"><span class="nav-ico">${ico(key)}</span><span>${label}</span></a>`;
+  const hasClass = !!classId;
   const base = classId ? `#/class/${classId}` : '#/';
+  const item = (label: string, key: string, href: string, disabled = false) =>
+    `<a href="${disabled ? undefined : href}" class="nav-item ${active === key ? 'active' : ''} ${disabled ? 'disabled' : ''}" ${disabled ? 'aria-disabled="true"' : ''}>
+      <span class="nav-ico">${ico(key)}</span><span>${label}</span></a>`;
   return `<nav class="bottombar">
     ${item('Home', 'home', '#/')}
     ${item('Sessions', 'sessions', base)}
-    ${item('Students', 'students', classId ? `${base}/students` : '#/')}
-    ${item('Tips', 'tips', classId ? `${base}/tips` : '#/')}
+    ${item('Students', 'students', hasClass ? `${base}/students` : '#/', !hasClass)}
+    ${item('Tips', 'tips', hasClass ? `${base}/tips` : '#/', !hasClass)}
   </nav>`;
 }
 

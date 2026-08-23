@@ -188,6 +188,7 @@ input.invalid, select.invalid, textarea.invalid { border-color: var(--bad); box-
   background: var(--accent-bg); border: 1px solid var(--accent);
   color: var(--accent); border-radius: 10px; padding: 12px; font-size: 15px; margin-top: 8px;
 }
+.notice.warn { background: var(--warn-bg); border-color: #e6c56a; color: var(--warn); font-weight: 600; }
 .filebtn { display: flex; align-items: center; justify-content: center; text-align: center; }
 
 /* ---------- bottom navigation ---------- */

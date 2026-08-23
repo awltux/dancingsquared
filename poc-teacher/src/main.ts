@@ -232,6 +232,14 @@ function effectiveCallProb(id: string, title: string, currentSet: Set<string>, p
 // Programmes: the default course structures (built-in + imported).
 let programmes: Programme[] = loadProgrammes();
 let notice = '';
+let noticeWarn = false;
+
+/** Set the transient action notice; pass `warn: true` for a prominent warning
+ * (e.g. "already saved" feedback) rendered in the warning colours. */
+function setNotice(text: string, warn = false): void {
+  notice = text;
+  noticeWarn = warn;
+}
 
 function loadProgrammes(): Programme[] {
   try {
@@ -376,7 +384,7 @@ function render(): void {
   // A completion/action notice belongs to the session it was triggered on; clear
   // it when moving to a different session so it doesn't bleed over.
   const sessionKey = route.page === 'session' ? `${route.id}|${route.i}` : '';
-  if (sessionKey && sessionKey !== lastSessionKey) notice = '';
+  if (sessionKey && sessionKey !== lastSessionKey) setNotice('');
   lastSessionKey = sessionKey;
   let content = '';
   let tab: 'home' | 'sessions' | 'students' | 'tips' = 'home';
@@ -450,7 +458,7 @@ function homePage(): string {
         <div class="card-main">⇅ Programmes</div>
         <div class="card-sub">Import / export the default course of sessions</div>
       </button>
-      ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
+      ${notice ? `<p class="notice${noticeWarn ? ' warn' : ''}">${esc(notice)}</p>` : ''}
       <p class="hint">Tap a class to open its sessions.</p>
     </div>`;
 }
@@ -464,7 +472,7 @@ function sessionsPage(id: string): string {
       <div><h1>${esc(c.name)}</h1><p class="sub">${c.level.toUpperCase()}</p></div>
     </header>
     <div class="content">
-      ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
+      ${notice ? `<p class="notice${noticeWarn ? ' warn' : ''}">${esc(notice)}</p>` : ''}
       ${c.sessions.map((s, i) => {
         // For a completed session use the captured (pre-copy) counts; otherwise
         // taught + planned. The total is the sum of taught and planned calls.
@@ -495,7 +503,7 @@ function sessionPage(id: string, i: number): string {
       <div><h1>${esc(s.name)}</h1><p class="sub">${esc(c.name)}</p></div>
     </header>
     <div class="content">
-      ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
+      ${notice ? `<p class="notice${noticeWarn ? ' warn' : ''}">${esc(notice)}</p>` : ''}
       ${s.capturedAt ? `<p class="muted">Completed — captured taught ${s.capturedTaught?.length ?? 0} of ${(s.capturedTaught?.length ?? 0) + (s.capturedPlanned?.length ?? 0)} calls (taught + planned) at the time of completion.</p>` : ''}
       <details class="collapsible" open>
         <summary>Taught this session</summary>
@@ -837,7 +845,7 @@ function programmesPage(): string {
         <label class="big filebtn">Choose file<input type="file" id="importFile" accept=".json,application/json" hidden /></label>
         <button class="big primary" data-import="text">Import</button>
       </div>
-      ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
+      ${notice ? `<p class="notice${noticeWarn ? ' warn' : ''}">${esc(notice)}</p>` : ''}
       <p class="hint">A programme is a list of sessions, each with the calls assigned to it. Export one to share it, then import it on another device.</p>
     </div>`;
 }
@@ -1050,11 +1058,13 @@ function wire(): void {
         carried = res.carried;
       }
       save();
-      notice = cb.checked
-        ? carried || moved
-          ? `Session completed — ${moved} planned call(s) moved on, ${carried} missed/prioritised call(s) carried.`
-          : 'Session completed.'
-        : 'Session marked not complete.';
+      setNotice(
+        cb.checked
+          ? carried || moved
+            ? `Session completed — ${moved} planned call(s) moved on, ${carried} missed/prioritised call(s) carried.`
+            : 'Session completed.'
+          : 'Session marked not complete.',
+      );
       render();
     }));
 
@@ -1099,11 +1109,11 @@ function wire(): void {
     b.addEventListener('click', () => {
       const p = programmes[+b.dataset.export!];
       const text = serializeProgramme(p);
-      const doCopy = () => { notice = `Copied "${p.name}" to clipboard.`; render(); };
+      const doCopy = () => { setNotice(`Copied "${p.name}" to clipboard.`); render(); };
       if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(text).then(doCopy, () => { notice = 'Could not copy — see console.'; render(); });
+        navigator.clipboard.writeText(text).then(doCopy, () => { setNotice('Could not copy — see console.'); render(); });
       } else {
-        notice = 'Clipboard unavailable on this device.';
+        setNotice('Clipboard unavailable on this device.');
         render();
       }
     }));
@@ -1126,7 +1136,7 @@ function wire(): void {
       const text = ta.value;
       if (!text.trim()) {
         ta.classList.add('invalid');
-        notice = 'Nothing to import — paste a programme or choose a file first.';
+        setNotice('Nothing to import — paste a programme or choose a file first.');
         render();
         return;
       }
@@ -1138,7 +1148,7 @@ function wire(): void {
     file.addEventListener('change', () => {
       const f = file.files?.[0];
       if (!f) {
-        notice = 'No file was chosen.';
+        setNotice('No file was chosen.');
         render();
         return;
       }
@@ -1211,7 +1221,7 @@ function wire(): void {
       } catch (err) {
         console.error('[gentips] error generating tips:', err);
         done();
-        notice = 'Tip generation failed.';
+        setNotice('Tip generation failed.');
         render();
       }
     })();
@@ -1239,7 +1249,7 @@ function wire(): void {
         prevProb: v('#cfgPrev'),
       };
       saveTipConfig();
-      notice = 'Tip settings saved.';
+      setNotice('Tip settings saved.');
       navigate('#/');
     }));
 
@@ -1297,7 +1307,7 @@ function wire(): void {
       const seq = t.titles;
       const dup = modules.findIndex((m) => sameSequence(m.titles, seq));
       if (dup >= 0) {
-        notice = `Already saved — "${modules[dup].name}" has this exact call sequence.`;
+        setNotice(`Already saved — "${modules[dup].name}" has this exact call sequence.`, true);
         render();
         return;
       }
@@ -1314,7 +1324,7 @@ function wire(): void {
         createdSession: c.sessions[sIdx]?.name ?? '',
       });
       saveSavedModules();
-      notice = `Saved "${name}" to modules.`;
+      setNotice(`Saved "${name}" to modules.`);
       render();
     }));
 
@@ -1362,7 +1372,7 @@ function esc(s: string): string {
 function importProgrammeText(text: string): void {
   const p = parseProgramme(text);
   if (!p) {
-    notice = 'That is not a valid programme. Export one first and paste its text.';
+    setNotice('That is not a valid programme. Export one first and paste its text.');
     render();
     return;
   }
@@ -1370,7 +1380,7 @@ function importProgrammeText(text: string): void {
   if (existing) programmes = programmes.map((x) => (x.name === p.name ? p : x));
   else programmes.push(p);
   saveProgrammes();
-  notice = `Imported "${p.name}" (${p.sessions.length} sessions). It is now a New course option.`;
+  setNotice(`Imported "${p.name}" (${p.sessions.length} sessions). It is now a New course option.`);
   render();
 }
 

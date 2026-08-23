@@ -59,12 +59,14 @@ const toRef = (title: string): CallRef => {
 // it feels relevant, while a seeded word bank keeps it varied and playful. The
 // same tip always suggests the same name; the user can edit it in the prompt.
 const MOD_FLAIR = [
-  'Grand', 'Golden', 'Moonlit', 'Twirling', 'Sassy', 'Jolly', 'Fancy', 'Sneaky',
-  'Waltzing', 'Velvet', 'Spinning', 'Sunny', 'Rambling', 'Roaring', 'Feathered',
+  'Grand', 'Golden', 'Do-Sa', 'Right and Left', 'Swinging', 'Spinning', 'Twirling',
+  'Smooth', 'Snappy', 'Weaving', 'Sliding', 'Rolling', 'Sassy', 'Jolly', 'Fancy',
+  'Rambling',
 ];
 const MOD_NOUN = [
-  'Reunion', 'Rendezvous', 'Serenade', 'Caper', 'Flourish', 'Galop', 'Stroll',
-  'Romp', 'Twirl', 'Jig', 'Promenade', 'Turn', 'Whirl', 'Rag', 'Finale',
+  'Allemande', 'Promenade', 'Dosado', 'Swing', 'Star', 'Chain', 'Corner', 'Wheel',
+  'Recycle', 'Weave', 'Circulate', 'Trade', 'Split', 'Bend', 'Slide', 'Roll', 'Tag',
+  'Honor', 'Gypsy', 'Sashay',
 ];
 // name = [flair] [theme] [noun] combinations, chosen per-tip for variety.
 const MOD_STYLES: ((theme: string, flair: string, noun: string) => string)[] = [

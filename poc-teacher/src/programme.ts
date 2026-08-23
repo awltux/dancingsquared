@@ -35,7 +35,7 @@ export function ssdProgramme(): Programme {
     name: 'SSD Teaching Programme',
     level: 'ssd',
     sessions: [
-      { name: 'Lesson 1', calls: ['Circle Left', 'Circle Right', 'Forward and Back', 'Dosado', 'Swing Your Partner', 'Sides Promenade 1/2', 'Allemande Left', 'Left Arm Turn 3/4', 'Right and Left Grand', 'Weave the Ring', 'Wrong Way Grand', 'Left Hand Star', 'Right Hand Star', 'Courtesy Turn', 'Ladies Chain', 'Pass Thru', 'Wheel Around', 'Reverse Wheel Around'] },
+      { name: 'Lesson 1', calls: ['Circle Left', 'Circle Right', 'Forward and Back', 'Dosado', 'Swing Your Partner', 'All 4 Couples Promenade 1/2', 'Single File Promenade', 'All 4 Couples Wrong Way Promenade 1/2', 'Star Promenade', 'Allemande Left', 'Left Arm Turn 3/4', 'Right and Left Grand', 'Weave the Ring', 'Wrong Way Grand', 'Left Hand Star', 'Right Hand Star', 'Courtesy Turn', 'Ladies Chain', 'Pass Thru', 'Wheel Around', 'Reverse Wheel Around'] },
       { name: 'Lesson 2', calls: ['Star Thru', 'Slide Thru', 'Half Sashay', 'Rollaway', 'Ladies In, Men Sashay'] },
       { name: 'Lesson 3', calls: ['California Twirl', 'Bend the Line', 'U-Turn Back', 'Girls Backtrack', 'Dive Thru'] },
       { name: 'Lesson 4', calls: ['Square Thru 2', 'Grand Square'] },

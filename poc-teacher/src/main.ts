@@ -871,7 +871,7 @@ function renderTip(id: string, t: Tip, ti: number, ts: { selectedTip: number; se
         <div class="fits">
           <div><b>Add before / replace</b>: ${fits.before.length ? fits.before.map((c) => `<button class="chip tap" data-before="${id}:${ti}:${c}">${esc(c)}</button>`).join('') : '<span class="muted">—</span>'}</div>
           <div><b>Add after</b>: ${fits.after.length ? fits.after.map((c) => `<button class="chip tap" data-after="${id}:${ti}:${c}">${esc(c)}</button>`).join('') : '<span class="muted">—</span>'}</div>
-        </div>` : '<p class="hint">Tap a call to see what can go before / after it.</p>'}
+        </div>` : ''}
       <div style="margin-top:8px">
         <button class="big primary" data-savetip="${id}:${ti}">Save tip</button>
         <span class="save-err" data-saveerr="${id}:${ti}"></span>

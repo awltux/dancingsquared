@@ -29,6 +29,28 @@ export function defaultProgramme(): Programme {
   };
 }
 
+/** The SSD (Standard Square Dance) teaching programme, 12 lessons. */
+export function ssdProgramme(): Programme {
+  return {
+    name: 'SSD Teaching Programme',
+    level: 'ssd',
+    sessions: [
+      { name: 'Lesson 1', calls: ['Circle Left', 'Circle Right', 'Forward and Back', 'Dosado', 'Swing Your Partner', 'Sides Promenade 1/2', 'Allemande Left', 'Left Arm Turn 3/4', 'Right and Left Grand', 'Weave the Ring', 'Wrong Way Grand', 'Left Hand Star', 'Right Hand Star', 'Courtesy Turn', 'Ladies Chain', 'Pass Thru', 'Wheel Around', 'Reverse Wheel Around'] },
+      { name: 'Lesson 2', calls: ['Star Thru', 'Slide Thru', 'Half Sashay', 'Rollaway', 'Ladies In, Men Sashay'] },
+      { name: 'Lesson 3', calls: ['California Twirl', 'Bend the Line', 'U-Turn Back', 'Girls Backtrack', 'Dive Thru'] },
+      { name: 'Lesson 4', calls: ['Square Thru 2', 'Grand Square'] },
+      { name: 'Lesson 5', calls: ['Lead Right', 'Lead Left', 'Veer Left', 'Veer Right', 'Circulate', 'Trade', 'Chain Down the Line'] },
+      { name: 'Lesson 6', calls: ['Right and Left Thru', 'Flutterwheel', 'Reverse Flutterwheel', 'Sweep a Quarter Left'] },
+      { name: 'Lesson 7', calls: ['Heads Separate', 'Centers Split Two', 'Wheel and Deal', 'Double Pass Thru', 'First Couple Go Left, Next Couple Go Right'] },
+      { name: 'Lesson 8', calls: ['Step to a Wave', 'Allemande Left in the Alamo Style', 'Balance', 'Trade', 'Swing Thru', 'Boys Run', 'Ends Cross Run'] },
+      { name: 'Lesson 9', calls: ['Pass the Ocean', 'Extend', 'Zoom'] },
+      { name: 'Lesson 10', calls: ['Centers In', 'Cast Off Three Quarters', 'Ferris Wheel', 'Partner Trade', 'Trade By'] },
+      { name: 'Lesson 11', calls: ['Box the Gnat', 'Hinge', 'Touch a Quarter', 'Circulate', 'Tag the Line', 'Half Tag'] },
+      { name: 'Lesson 12', calls: ['Circulate', 'Boys Fold', 'Ends Cross Fold', 'Scoot Back', 'Recycle'] },
+    ],
+  };
+}
+
 /** Serialise a programme to a shareable JSON string. */
 export function serializeProgramme(p: Programme): string {
   return JSON.stringify({ kind: 'dancingsquared-programme', version: 1, ...p }, null, 2);

@@ -8,7 +8,7 @@ import { DOMParser } from '@xmldom/xmldom';
 import { setParser } from 'dancing-squared-engine';
 
 import { buildCatalog, makeSequencer } from './src/catalog.ts';
-import { defaultProgramme, parseProgramme, serializeProgramme, buildClassFromProgramme } from './src/programme.ts';
+import { defaultProgramme, ssdProgramme, parseProgramme, serializeProgramme, buildClassFromProgramme } from './src/programme.ts';
 import {
   availableTitles,
   fitsAround,
@@ -343,7 +343,8 @@ const available = availableTitles(cls, 1);
 const priority = priorityWeights(cls, 1);
 // A Sequencer registered with ONLY the class's taught calls.
 const availSeq = makeSequencer(movesXml, formationsXml, catalog.filter((x) => available.has(x.title)));
-const tips = generateTips(availSeq, available, priority, { minLen: 3, maxLen: 6, count: 3 });
+const seededRandom = (seed) => { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; };
+const tips = generateTips(availSeq, available, priority, { minLen: 3, maxLen: 6, count: 3, rand: seededRandom(7) });
 check(tips.length > 0, `generated ${tips.length} tips`);
 for (const tip of tips) {
   const legalTitles = tip.every((t) => available.has(t));
@@ -407,6 +408,11 @@ console.log('\n== Programme import / export ==');
 const def = defaultProgramme();
 check(def.sessions.length >= 3, `default programme has >= 3 sessions (${def.sessions.length})`);
 check(def.sessions.every((s) => s.calls.length > 0), 'default programme sessions each have calls');
+const ssd = ssdProgramme();
+check(ssd.sessions.length === 12, `SSD programme has 12 lessons (${ssd.sessions.length})`);
+const resolveAll = (calls) => calls.every((c) => catalog.some((x) => x.title === c));
+check(ssd.sessions.every((s) => resolveAll(s.calls)), 'every SSD lesson call resolves in the catalog');
+
 const round = parseProgramme(serializeProgramme(def));
 check(round != null && round.name === def.name && round.sessions.length === def.sessions.length, 'programme round-trips through export/import');
 check(round.sessions[0].calls.join() === def.sessions[0].calls.join(), 'imported session calls match');

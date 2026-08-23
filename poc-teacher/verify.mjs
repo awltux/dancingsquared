@@ -25,6 +25,7 @@ import {
   setProblem,
   rollMissedCallsForward,
   rollPrioritisedForward,
+  archivedNote,
   insertInto,
   removeAt,
   replaceAt,
@@ -211,6 +212,10 @@ const upd = pc.sessions[0].problems.find((p) => p.title === first.title);
 check(has() && upd.priority === 2 && upd.note === 'improving', 'setProblem updates priority + note');
 setProblem(pc, 0, first.title, first.setupIdx, 3, '', false);
 check(!has(), 'setProblem removes the prioritised call-setup');
+// Removing keeps the note in the archive for future re-prioritisation.
+check(archivedNote(pc, 0, first.title, first.setupIdx) === 'improving', 'removed priority note is kept in the archive');
+setProblem(pc, 0, first.title, first.setupIdx, 4, '', true);
+check(pc.sessions[0].problems.some((p) => p.title === first.title), 'call-setup can be re-prioritised after removal');
 
 console.log('\n== Carry missed calls forward (re-teach for absent dancers) ==');
 const missCls = structuredClone(emptyTaught);

@@ -27,6 +27,7 @@ import {
   setProblem,
   rollMissedCallsForward,
   rollPrioritisedForward,
+  archivedNote,
 } from './teacher';
 import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
 import { DEFAULT_TIP_CONFIG } from './teacher';
@@ -277,7 +278,7 @@ function render(): void {
 
 function renderModal(m: ProbModal): string {
   const p = m.existing?.priority ?? 3;
-  const note = m.existing?.note ?? '';
+  const note = m.existing?.note ?? m.archivedNote ?? '';
   return `
     <div class="overlay" data-closeprob>
       <div class="modal">
@@ -640,6 +641,7 @@ interface ProbModal {
   title: string;
   setupIdx: number;
   existing?: { priority: number; note?: string };
+  archivedNote?: string; // note kept from a previous prioritisation, for re-prioritising
 }
 let probModal: ProbModal | null = null;
 
@@ -705,7 +707,16 @@ function wire(): void {
       const [id, i, title, setupIdx] = b.dataset.star!.split('::');
       const c = cls(id)!;
       const existing = c.sessions[+i].problems.find((p) => p.title === title && p.setupIdx === +setupIdx);
-      probModal = { id, i: +i, title, setupIdx: +setupIdx, existing: existing ? { priority: existing.priority, note: existing.note } : undefined };
+      // Prefill the note from the current priority, else from an archived note.
+      const archived = archivedNote(c, +i, title, +setupIdx);
+      probModal = {
+        id,
+        i: +i,
+        title,
+        setupIdx: +setupIdx,
+        existing: existing ? { priority: existing.priority, note: existing.note } : undefined,
+        archivedNote: archived,
+      };
       render();
     }));
   root.querySelectorAll<HTMLInputElement>('#probPriority').forEach((el) => {

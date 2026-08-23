@@ -45,6 +45,8 @@ export interface SessionPlan {
   taught: CallRef[]; // calls actually taught
   attendance: Attendance;
   problems: Problem[];
+  /** Removed prioritisations kept for reference, keyed by `title#setupIdx`. */
+  prioritisedArchive?: Record<string, { priority: number; note?: string }>;
   completed?: boolean; // teacher marked this session complete
 }
 
@@ -227,6 +229,7 @@ export function setProblem(
 ): void {
   const s = cls.sessions[sessionIdx];
   if (!s) return;
+  const key = refKey({ title, setupIdx });
   const idx = s.problems.findIndex((p) => p.title === title && p.setupIdx === setupIdx);
   if (on) {
     if (idx === -1) s.problems.push({ title, setupIdx, priority, note });
@@ -235,8 +238,16 @@ export function setProblem(
       s.problems[idx].note = note;
     }
   } else if (idx !== -1) {
+    // Keep the note/priority in the archive in case it's re-prioritised later.
+    s.prioritisedArchive ??= {};
+    s.prioritisedArchive[key] = { priority: s.problems[idx].priority, note: s.problems[idx].note };
     s.problems.splice(idx, 1);
   }
+}
+
+/** The archived note (if any) for a call-setup that was previously prioritised. */
+export function archivedNote(cls: ClassInstance, sessionIdx: number, title: string, setupIdx: number): string | undefined {
+  return cls.sessions[sessionIdx]?.prioritisedArchive?.[refKey({ title, setupIdx })]?.note;
 }
 
 /** Add a student to the class and to the register of every session (absent by default). */

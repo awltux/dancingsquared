@@ -215,7 +215,12 @@ export function completeSession(cls: ClassInstance, sessionIdx: number): { moved
     const k = refKey(ref);
     const ex = toCarry.get(k);
     if (!ex) toCarry.set(k, { ref, note, priority });
-    else if (note) ex.note = note;
+    else {
+      ex.priority = Math.max(ex.priority, priority);
+      // Keep an existing (authored) note; only fill an empty one with the
+      // automated missed note so it never overwrites a teacher's note.
+      if (!ex.note) ex.note = note;
+    }
   };
   // Starred (prioritised) call-setups always carry.
   for (const p of s.problems) {
@@ -236,7 +241,7 @@ export function completeSession(cls: ClassInstance, sessionIdx: number): { moved
     if (idx === -1) next.problems.push({ title: ref.title, setupIdx: ref.setupIdx, priority, note });
     else {
       next.problems[idx].priority = Math.max(next.problems[idx].priority, priority);
-      if (note) next.problems[idx].note = note;
+      // Do not overwrite an existing note with the automated missed text.
     }
     carried++;
   }
@@ -273,7 +278,7 @@ export function rollMissedCallsForward(cls: ClassInstance, sessionIdx: number): 
     next.planned.push(r);
     const idx = next.problems.findIndex((p) => p.title === r.title && p.setupIdx === r.setupIdx);
     if (idx === -1) next.problems.push({ title: r.title, setupIdx: r.setupIdx, priority: 3, note });
-    else next.problems[idx].note = note;
+    // else: keep any existing note (don't overwrite with the automated missed text)
     moved++;
   }
   return moved;

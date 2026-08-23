@@ -274,6 +274,16 @@ np.sessions[0].taught = [np.sessions[0].planned[0]];
 np.sessions[0].attendance = { a: true, b: true, c: true, d: true };
 completeSession(np, 0);
 check(np.sessions[1].problems.length === 0, 'taught calls are NOT prioritised when no one missed');
+// An existing (teacher-authored) note is NOT overwritten by the automated missed text.
+const ov = structuredClone(emptyTaught);
+const ovCall = ov.sessions[0].planned[0];
+ov.sessions[0].taught = [ovCall];
+ov.sessions[0].planned = ov.sessions[0].planned.slice(1);
+ov.sessions[0].problems = [{ title: ovCall.title, setupIdx: ovCall.setupIdx, priority: 5, note: 'teacher wrote this' }];
+ov.sessions[0].attendance = { a: true, b: false, c: true, d: true }; // Bob missed
+completeSession(ov, 0);
+const ovNote = ov.sessions[1].problems.find((p) => p.title === ovCall.title);
+check(ovNote != null && ovNote.note === 'teacher wrote this', `existing authored note is kept, not overwritten (${ovNote?.note})`);
 
 console.log('\n== Missed aggregation across multiple sessions ==');
 const mf = structuredClone(emptyTaught);

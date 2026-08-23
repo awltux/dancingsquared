@@ -21,6 +21,8 @@ import {
   studentKnowledge,
 } from './teacher';
 import type { CallRef, ClassInstance, SessionPlan, Tip } from './teacher';
+import { buildClassFromProgramme, defaultProgramme, parseProgramme, serializeProgramme } from './programme';
+import type { Programme } from './programme';
 
 // ---------------------------------------------------------------- catalog
 
@@ -97,7 +99,32 @@ function seedClasses(): ClassInstance[] {
 // ---------------------------------------------------------------- state + persistence
 
 const STORE_KEY = 'dsTeacherData';
+const PROG_KEY = 'dsTeacherProgrammes';
 let classes: ClassInstance[] = load();
+
+// Programmes: the default course structures (built-in + imported).
+let programmes: Programme[] = loadProgrammes();
+let notice = '';
+
+function loadProgrammes(): Programme[] {
+  try {
+    const raw = localStorage.getItem(PROG_KEY);
+    if (raw) {
+      const p = JSON.parse(raw) as Programme[];
+      if (Array.isArray(p) && p.length) return p;
+    }
+  } catch {
+    /* fall through to default */
+  }
+  return [defaultProgramme()];
+}
+function saveProgrammes(): void {
+  try {
+    localStorage.setItem(PROG_KEY, JSON.stringify(programmes));
+  } catch {
+    /* storage may be unavailable */
+  }
+}
 const tipsByClass: Record<string, Tip[]> = {};
 const tipsState: Record<string, { selectedTip: number; selectedIdx: number }> = {};
 const savedModules: Record<string, { name: string; titles: string[] }[]> = {};
@@ -137,7 +164,7 @@ function navigate(hash: string): void {
 window.addEventListener('hashchange', render);
 
 interface Route {
-  page: 'home' | 'class' | 'session' | 'students' | 'tips' | 'student';
+  page: 'home' | 'class' | 'session' | 'students' | 'tips' | 'student' | 'new' | 'programmes';
   id?: string;
   i?: number;
   sid?: string;
@@ -145,6 +172,8 @@ interface Route {
 
 function parseRoute(): Route {
   const parts = (location.hash || '#/').replace(/^#\/?/, '').split('/').filter(Boolean);
+  if (parts[0] === 'new') return { page: 'new' };
+  if (parts[0] === 'programmes') return { page: 'programmes' };
   if (parts[0] !== 'class' || parts.length < 2) return { page: 'home' };
   const id = parts[1];
   if (parts[2] === 'session' && parts[3] != null) return { page: 'session', id, i: +parts[3] };
@@ -167,8 +196,10 @@ function render(): void {
   else if (route.page === 'students') { tab = 'students'; content = studentsPage(route.id!); }
   else if (route.page === 'student') { tab = 'students'; content = studentPage(route.id!, route.sid!); }
   else if (route.page === 'tips') { tab = 'tips'; content = tipsPage(route.id!); }
+  else if (route.page === 'new') content = newCoursePage();
+  else if (route.page === 'programmes') content = programmesPage();
 
-  const sub = route.page === 'session' || route.page === 'student';
+  const sub = route.page === 'session' || route.page === 'student' || route.page === 'new' || route.page === 'programmes';
   root.innerHTML = `
     <div class="screen">${content}</div>
     ${sub ? '' : bottomNav(route.page === 'home' ? null : route.id, tab)}
@@ -191,10 +222,15 @@ function homePage(): string {
           <div class="card-main">${esc(c.name)}</div>
           <div class="card-sub">${c.level.toUpperCase()} · ${c.students.length} students · ${c.sessions.length} sessions</div>
         </button>`).join('')}
-      <button class="card tap dashed" data-nav="#/class/${classes[0].id}">
-        <div class="card-main">＋ Start a new class</div>
-        <div class="card-sub">Sample a new class for now</div>
+      <button class="card tap primary-card" data-nav="#/new">
+        <div class="card-main">＋ New course</div>
+        <div class="card-sub">Pick a programme of sessions to start a new class</div>
       </button>
+      <button class="card tap dashed" data-nav="#/programmes">
+        <div class="card-main">⇅ Programmes</div>
+        <div class="card-sub">Import / export the default course of sessions</div>
+      </button>
+      ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
       <p class="hint">Tap a class to open its sessions.</p>
     </div>`;
 }
@@ -349,6 +385,57 @@ function renderTip(id: string, t: Tip, ti: number, ts: { selectedTip: number; se
     </div>`;
 }
 
+function newCoursePage(): string {
+  return `
+    <header class="appbar">
+      <button class="back" data-nav="#/">‹</button>
+      <div><h1>New course</h1><p class="sub">Start from a programme</p></div>
+    </header>
+    <div class="content">
+      <label class="field">Course name
+        <input id="newName" type="text" placeholder="e.g. Monday Beginners" />
+      </label>
+      <label class="field">Programme (sessions &amp; calls)
+        <select id="newProg">
+          ${programmes.map((p, i) => `<option value="${i}">${esc(p.name)} · ${p.level.toUpperCase()} · ${p.sessions.length} sessions</option>`).join('')}
+        </select>
+      </label>
+      <label class="field">Students (comma separated, optional)
+        <input id="newStudents" type="text" placeholder="Alice, Bob, Carol" />
+      </label>
+      <button class="big primary" data-act="createcourse">Create course</button>
+      <p class="hint">The course starts with each session's planned calls from the programme. Nothing is taught yet.</p>
+    </div>`;
+}
+
+function programmesPage(): string {
+  return `
+    <header class="appbar">
+      <button class="back" data-nav="#/">‹</button>
+      <div><h1>Programmes</h1><p class="sub">Import / export the default course</p></div>
+    </header>
+    <div class="content">
+      <h2 class="section-title">Your programmes</h2>
+      ${programmes.map((p, i) => `
+        <div class="card">
+          <div class="card-main">${esc(p.name)}</div>
+          <div class="card-sub">${p.level.toUpperCase()} · ${p.sessions.length} sessions</div>
+          <div class="row two" style="margin-top:10px">
+            <button class="big" data-export="${i}">Copy</button>
+            <button class="big" data-download="${i}">Download</button>
+          </div>
+        </div>`).join('')}
+      <h2 class="section-title">Import a programme</h2>
+      <textarea id="importText" rows="5" placeholder="Paste a programme JSON here…"></textarea>
+      <div class="row two" style="margin-top:8px">
+        <label class="big filebtn">Choose file<input type="file" id="importFile" accept=".json,application/json" hidden /></label>
+        <button class="big primary" data-import="text">Import</button>
+      </div>
+      ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
+      <p class="hint">A programme is a list of sessions, each with the calls assigned to it. Export one to share it, then import it on another device.</p>
+    </div>`;
+}
+
 function chip(r: CallRef, warn = new Set<string>()): string {
   const w = warn.has(r.title);
   return `<span class="chip ${w ? 'warn' : ''}">${esc(r.title)}${r.setup ? ` <span class="dim">(${esc(r.setup)})</span>` : ''}</span>`;
@@ -395,6 +482,59 @@ function wire(): void {
     b.addEventListener('click', () => { rollUntaughtForward(cls(b.dataset.id!)!, +b.dataset.i!); save(); render(); }));
   root.querySelectorAll<HTMLElement>('[data-act="pull"]').forEach((b) =>
     b.addEventListener('click', () => { pullForward(cls(b.dataset.id!)!, +b.dataset.i!, 1); save(); render(); }));
+
+  root.querySelectorAll<HTMLElement>('[data-act="createcourse"]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const name = (root.querySelector('#newName') as HTMLInputElement).value.trim() || 'New course';
+      const pi = +((root.querySelector('#newProg') as HTMLSelectElement).value || '0');
+      const students = (root.querySelector('#newStudents') as HTMLInputElement).value.split(',').map((s) => s.trim()).filter(Boolean);
+      const p = programmes[pi];
+      if (!p) return;
+      const id = 'c' + Date.now().toString(36);
+      classes.push(buildClassFromProgramme(id, name, p, students, toRef));
+      save();
+      navigate(`#/class/${id}`);
+    }));
+
+  root.querySelectorAll<HTMLElement>('[data-export]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const p = programmes[+b.dataset.export!];
+      const text = serializeProgramme(p);
+      const doCopy = () => { notice = `Copied "${p.name}" to clipboard.`; render(); };
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(doCopy, () => { notice = 'Could not copy — see console.'; render(); });
+      } else {
+        notice = 'Clipboard unavailable on this device.';
+        render();
+      }
+    }));
+
+  root.querySelectorAll<HTMLElement>('[data-download]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const p = programmes[+b.dataset.download!];
+      const blob = new Blob([serializeProgramme(p)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${p.name.replace(/\W+/g, '-').toLowerCase()}-programme.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }));
+
+  root.querySelectorAll<HTMLElement>('[data-import]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const text = (root.querySelector('#importText') as HTMLTextAreaElement).value;
+      importProgrammeText(text);
+    }));
+
+  root.querySelectorAll<HTMLInputElement>('#importFile').forEach((file) =>
+    file.addEventListener('change', () => {
+      const f = file.files?.[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => importProgrammeText(String(reader.result ?? ''));
+      reader.readAsText(f);
+    }));
 
   root.querySelectorAll<HTMLElement>('[data-act="gentips"]').forEach((b) =>
     b.addEventListener('click', () => {
@@ -448,6 +588,21 @@ function wire(): void {
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function importProgrammeText(text: string): void {
+  const p = parseProgramme(text);
+  if (!p) {
+    notice = 'That is not a valid programme. Export one first and paste its text.';
+    render();
+    return;
+  }
+  const existing = programmes.some((x) => x.name === p.name);
+  if (existing) programmes = programmes.map((x) => (x.name === p.name ? p : x));
+  else programmes.push(p);
+  saveProgrammes();
+  notice = `Imported "${p.name}" (${p.sessions.length} sessions). It is now a New course option.`;
+  render();
 }
 
 render();

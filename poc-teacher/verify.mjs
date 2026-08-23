@@ -8,6 +8,7 @@ import { DOMParser } from '@xmldom/xmldom';
 import { setParser } from 'dancing-squared-engine';
 
 import { buildCatalog, makeSequencer } from './src/catalog.ts';
+import { defaultProgramme, parseProgramme, serializeProgramme, buildClassFromProgramme } from './src/programme.ts';
 import {
   availableTitles,
   fitsAround,
@@ -175,6 +176,28 @@ const removed = removeAt(sampleTip, idx);
 check(replaced.length === sampleTip.length, 'replaceAt keeps length');
 check(inserted.length === sampleTip.length + 1, 'insertInto adds one');
 check(removed.length === sampleTip.length - 1, 'removeAt removes one');
+
+console.log('\n== Programme import / export ==');
+const def = defaultProgramme();
+check(def.sessions.length >= 3, `default programme has >= 3 sessions (${def.sessions.length})`);
+check(def.sessions.every((s) => s.calls.length > 0), 'default programme sessions each have calls');
+const round = parseProgramme(serializeProgramme(def));
+check(round != null && round.name === def.name && round.sessions.length === def.sessions.length, 'programme round-trips through export/import');
+check(round.sessions[0].calls.join() === def.sessions[0].calls.join(), 'imported session calls match');
+check(parseProgramme('not json') === null, 'invalid programme JSON is rejected');
+check(parseProgramme('{"name":""}') === null, 'programme with no name is rejected');
+
+console.log('\n== Build a course from a programme ==');
+const resolve = (title) => { const c = catalog.find((x) => x.title === title); return c ? { title: c.title, level: c.level, setupIdx: 0, setup: c.setups[0].label } : null; };
+const course = buildClassFromProgramme('n1', 'Monday Beginners', def, ['Amy', 'Bea', 'Cy'], resolve);
+check(course.students.length === 3, `course built with 3 students (${course.students.length})`);
+check(course.sessions.length === def.sessions.length, 'course has one session per programme session');
+check(course.sessions[0].planned.length === def.sessions[0].calls.length, 'course session 1 planned calls match the programme');
+check(course.sessions.every((s) => s.taught.length === 0 && Object.keys(s.attendance).length === 0), 'new course sessions start untaught with empty registers');
+// A programme referencing an unknown call drops it but keeps the rest.
+const withUnknown = parseProgramme(JSON.stringify({ name: 'X', level: 'ms', sessions: [{ name: 'S', calls: ['Circle Left', 'Not A Real Call'] }] }));
+const c2 = buildClassFromProgramme('n2', 'X', withUnknown, [], resolve);
+check(c2.sessions[0].planned.length === 1 && c2.sessions[0].planned[0].title === 'Circle Left', 'unknown calls are dropped when building a course');
 
 console.log('\n=================');
 if (failures === 0) console.log('TEACHER POC VERIFY PASSED');

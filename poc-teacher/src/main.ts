@@ -271,16 +271,15 @@ function sessionPage(id: string, i: number): string {
       <div><h1>${esc(s.name)}</h1><p class="sub">${esc(c.name)}</p></div>
     </header>
     <div class="content">
-      <div class="row two">
-        <button class="big" data-act="roll" data-id="${id}" data-i="${i}">Move untaught → next</button>
-        <button class="big" data-act="pull" data-id="${id}" data-i="${i}">Pull 1 from next</button>
-      </div>
-
       <h2 class="section-title">Taught this session</h2>
       <div class="chips">${s.taught.length ? s.taught.map((r) => chip(r, probs)).join('') : '<span class="muted">Nothing taught yet</span>'}</div>
 
       <h2 class="section-title">Planned</h2>
       <div class="chips">${s.planned.length ? s.planned.map((r) => chip(r)).join('') : '<span class="muted">No plan</span>'}</div>
+      <div class="row two" style="margin-top:12px">
+        <button class="big" data-act="roll" data-id="${id}" data-i="${i}">Move untaught → next</button>
+        <button class="big" data-act="pull" data-id="${id}" data-i="${i}">Pull 1 from next</button>
+      </div>
 
       <h2 class="section-title">Who was here?</h2>
       <div class="attend">

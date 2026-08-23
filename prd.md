@@ -277,8 +277,60 @@ function onFrame(ms: number) {
 
 ## 15. Teachers Session Tracker
 
-A teacher wants to run a class teaching a level of dancing e.g. SSD or MS. 
-A default programme initiates a class instance by assigning calls to each session. As session is therefore like a multi-level level. 
-Each session introduces a new set of calls, however some sessions they are unable to teach all of the calls and the untaught calls move the next session. Or they have time to teach more and pull calls forward from the next session. 
-They may have multiple class instances in progress with different sets of students. Each class instance should have a register of students and each session will have a registers of who was there and who wasnt. This tells the teacher what calls they should  know and what they have missed and will need retaught in the next session. The teacher can also record which call-setup a student or class is having problems with, prioritising which call-setup should be practised more. 
-Before a session starts, the teacher can auto-generate of manually create tips/modules that use only the current and previous sessions calls. They will prioritise the current sessions calls and any in the set that have been prioritised. Practising calls from different positions is key. These tips will be saved as modules against the session they were created from. The tips can be auto or manually generated and can be modified by inserting, changing or removing calls. The app offers calls that can fit before, replace or after the selected call.
+A teacher wants to run a class teaching a level of dancing (e.g. SSD or MS). The
+tool is **primarily mobile**, targeted at an older audience, so it must be easy to
+read, tap, and understand: large type, big touch targets, high contrast, and a
+set of **inter-related pages** with a simple bottom navigation.
+
+### 15.1 Class instances & sessions
+
+- A teacher may have **multiple class instances** in progress, each with a
+  different set of students and its own **register of students**.
+- A class is an **ordered list of sessions**. Each session is "like a multi-level
+  level": it **introduces a new set of calls** (the session's *planned* calls) that
+  build on everything taught in earlier sessions.
+- A **session starts with an empty *taught* list.** During the session the teacher
+  moves calls from the session's *planned* into its *taught* list (in the PoC,
+  tap a planned call to teach it, tap a taught call to move it back).
+- **Move plan to next:** the teacher can move **all** of the current session's
+  planned calls to the next session's plan. If there is no next session, **create
+  a new one** to hold them.
+- **Pull from next:** the teacher can **pull the next call** from the next
+  session's planned list into the **current session's planned** list (when there
+  is time to teach more).
+
+### 15.2 Attendance & student knowledge
+
+- Each session keeps a **register of who was present and who was not.** A session
+  starts with an empty register; the teacher marks each student present/absent.
+- From the attendance registers the app derives, **per student**, which calls they
+  **know** (taught in a session they attended) and which they **missed** and will
+  **need re-teaching** (taught in a session they were absent from and not known
+  from before).
+
+### 15.3 Problem call-setups & prioritisation
+
+- The teacher can **record which call-setup a student or the class is having
+  problems with**, with a **priority**, so it is practised more.
+
+### 15.4 Programmes (default course) & import/export
+
+- A **Programme** is the default course: an ordered list of sessions, each with
+  the **calls assigned to it** (by title).
+- A programme is **importable and exportable** (a shareable JSON list of sessions
+  with their calls), so a teacher can move a default course between devices.
+- **Creating a new course** lets the teacher **pick a programme** (the built-in
+  default or an imported one) and name the class; the programme's sessions become
+  the course's sessions. Fields are validated with clear error feedback (e.g. the
+  course name is required).
+
+### 15.5 Practice tips / modules
+
+- Before a session, the teacher can **auto-generate or manually create
+  tips/modules** that use **only the current and previous sessions' calls**.
+- Tips **prioritise the current session's calls and any call-setups flagged as
+  problems.** Practising calls **from different positions** (setups) is key.
+- Tips are **saved as modules against the session they were created from.**
+- Tips can be **modified by inserting, changing, or removing calls.** The app
+  **offers calls that can fit before, replace, or after the selected call** (from
+  the calls the class knows, checked for legality against the current board).

@@ -515,12 +515,12 @@ function applicableFrom(seq: Sequencer, board: import('dancing-squared-engine').
  * dropped. `seq` should be registered with the available calls so the getout
  * only uses calls the class knows.
  */
-export function generateTips(
+export async function generateTips(
   seq: Sequencer,
   available: Set<string>,
   priority: Map<string, number>,
   opts: TipGenOpts = {},
-): string[][] {
+): Promise<string[][]> {
   const minLen = opts.minLen ?? 4;
   const maxLen = opts.maxLen ?? 8;
   const count = opts.count ?? 3;
@@ -615,7 +615,8 @@ export function generateTips(
     } else {
       console.log(`[generateTips] attempt ${t + 1}/${attempts}: body=${tip.length} calls, no getout home in ${getoutMax}, discarded`);
     }
-    onProgress(t + 1, made, count);
+    // Report progress; an async onProgress hook can repaint the UI between attempts.
+    await onProgress(t + 1, made, count);
   }
   console.log(`[generateTips] done: ${tips.length}/${count} tips generated from ${attempts} attempts`);
   return tips;

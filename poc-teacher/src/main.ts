@@ -1096,8 +1096,10 @@ function wire(): void {
       generateTipsInBackground(b, id, c, sIdx);
     }));
 
-  // Run tip generation in a Web Worker so the button spinner can tumble while the
-  // (potentially slow) getout search runs off the main thread.
+  // Generate tips synchronously on the main thread (no worker). It yields to the
+  // event loop between attempts so the button can repaint its progress, but the
+  // search itself is a simple direct call — far more reliable than round-tripping
+  // results through a worker, and it uses the page's own (working) DOMParser.
   function generateTipsInBackground(btn: HTMLButtonElement, id: string, c: ClassInstance, sIdx: number): void {
     const done = () => {
       btn.disabled = false;
@@ -1110,70 +1112,50 @@ function wire(): void {
 
     const avail = availableTitles(c, sIdx);
     const calls = catalog.filter((x) => avail.has(x.title)).map((x) => ({ title: x.title, xml: x.xml }));
-    const prioritised = c.sessions[sIdx].problems.map((p) => p.title);
+    const prioritised = new Set(c.sessions[sIdx].problems.map((p) => p.title));
     const familyMap: Record<string, string> = {};
     for (const x of catalog) familyMap[x.title] = x.family;
-    console.log('[gentips] starting worker for class', id, 'session', sIdx, 'avail=', avail.size, 'calls=', calls.length, 'current=', c.sessions[sIdx].taught.length);
+    console.log('[gentips] starting for class', id, 'session', sIdx, 'avail=', avail.size, 'calls=', calls.length, 'current=', c.sessions[sIdx].taught.length);
 
-    const worker = new Worker(new URL('./tips-worker.ts', import.meta.url), { type: 'module' });
-    // Total attempts used for the progress readout (matches the worker's retry count).
+    // Register a Sequencer with ONLY the class's known calls so tips and their
+    // getouts home use only calls the class has been taught.
+    const availSeq = makeSequencer(movesXml, formationsXml, calls);
+    const currentSet = new Set(c.sessions[sIdx].taught.map((r) => r.title));
+    const priority = priorityWeights(c, sIdx);
     const totalAttempts = 3 * 8;
-    worker.onmessage = (e: MessageEvent<{ tips?: string[][]; error?: string; progress?: { attempts: number; made: number; total: number } }>) => {
-      if (e.data.error) {
-        console.error('[gentips] worker reported error:', e.data.error);
-        worker.terminate();
+
+    (async () => {
+      try {
+        const tips = await generateTips(availSeq, avail, priority, {
+          minLen: 3,
+          maxLen: 5,
+          count: 3,
+          getoutMax: 5,
+          config: tipConfigGlobal,
+          current: currentSet,
+          callProb: (t) => effectiveCallProb(id, t, currentSet, prioritised),
+          family: (t) => familyMap[t] ?? '',
+          onProgress: (attempts, made) => {
+            btn.innerHTML = `<span class="spinner"></span>Searching ${attempts}/${totalAttempts} · ${made}/3 tips`;
+            return new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+          },
+        });
+        console.log('[gentips] generated', tips.length, 'tips');
+        tipsByClass[id] = tips.map((titles, i) => ({
+          name: `Tip ${i + 1}`,
+          sourceSessionId: c.sessions[sIdx].id,
+          titles,
+        }));
+        tipsState[id] = { selectedTip: tipsByClass[id].length ? 0 : -1, selectedIdx: -1 };
+        done();
+        render();
+      } catch (err) {
+        console.error('[gentips] error generating tips:', err);
         done();
         notice = 'Tip generation failed.';
         render();
-        return;
       }
-      if (e.data.progress) {
-        const p = e.data.progress;
-        btn.innerHTML = `<span class="spinner"></span>Searching ${p.attempts}/${totalAttempts} · ${p.made}/3 tips`;
-        return;
-      }
-      console.log('[gentips] worker returned', e.data.tips?.length, 'tips');
-      tipsByClass[id] = (e.data.tips ?? []).map((titles, i) => ({
-        name: `Tip ${i + 1}`,
-        sourceSessionId: c.sessions[sIdx].id,
-        titles,
-      }));
-      tipsState[id] = { selectedTip: tipsByClass[id].length ? 0 : -1, selectedIdx: -1 };
-      worker.terminate();
-      done();
-      render();
-    };
-    worker.onerror = (err) => {
-      console.error('[gentips] worker load/runtime error:', err);
-      worker.terminate();
-      done();
-      notice = 'Tip generation failed.';
-      render();
-    };
-    try {
-      worker.postMessage({
-        movesXml,
-        formationsXml,
-        calls,
-        avail: [...avail],
-        priority: Object.fromEntries(priorityWeights(c, sIdx)),
-        config: tipConfigGlobal,
-        current: c.sessions[sIdx].taught.map((r) => r.title),
-        overrides: callProbs[id] ?? {},
-        currentProb: tipConfigGlobal.currentProb,
-        prevProb: tipConfigGlobal.prevProb,
-        prioritised,
-        familyMap,
-        opts: { minLen: 3, maxLen: 5, count: 3, getoutMax: 5 },
-      });
-      console.log('[gentips] posted request to worker');
-    } catch (err) {
-      console.error('[gentips] postMessage threw:', err);
-      worker.terminate();
-      done();
-      notice = 'Tip generation failed.';
-      render();
-    }
+    })();
   }
 
   // Tip settings page: live readout + save.

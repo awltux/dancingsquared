@@ -344,7 +344,7 @@ const priority = priorityWeights(cls, 1);
 // A Sequencer registered with ONLY the class's taught calls.
 const availSeq = makeSequencer(movesXml, formationsXml, catalog.filter((x) => available.has(x.title)));
 const seededRandom = (seed) => { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; };
-const tips = generateTips(availSeq, available, priority, { minLen: 3, maxLen: 6, count: 3, rand: seededRandom(7) });
+const tips = await generateTips(availSeq, available, priority, { minLen: 3, maxLen: 6, count: 3, rand: seededRandom(7) });
 check(tips.length > 0, `generated ${tips.length} tips`);
 for (const tip of tips) {
   const legalTitles = tip.every((t) => available.has(t));
@@ -361,7 +361,7 @@ for (const tip of tips) {
 // The config probabilities (repeat/priority/current/prev) are accepted and still
 // produce valid closing tips.
 const currentSet = new Set(cls.sessions[1].taught.map((r) => r.title));
-const cfgTips = generateTips(availSeq, available, priority, {
+const cfgTips = await generateTips(availSeq, available, priority, {
   minLen: 3,
   maxLen: 6,
   count: 1,
@@ -381,7 +381,7 @@ check(Array.isArray(cfgTips) && cfgValid && cfgEndsSquare, 'tip config (repeat/p
 
 // Family rule: a generated tip never contains two calls from the same family.
 const famMap = new Map(catalog.map((c) => [c.title, c.family]));
-const famTips = generateTips(availSeq, available, priority, {
+const famTips = await generateTips(availSeq, available, priority, {
   minLen: 3,
   maxLen: 6,
   count: 3,
@@ -398,7 +398,7 @@ const noFamDup = famTips.every((tip) => {
 check(noFamDup, `no two calls from the same family in a tip body (${famTips.length} tips checked)`);
 
 // Per-call probability weighting is accepted and tips still only use available calls.
-const probTips = generateTips(availSeq, available, priority, {
+const probTips = await generateTips(availSeq, available, priority, {
   minLen: 3,
   maxLen: 6,
   count: 1,

@@ -8,7 +8,7 @@ import { DOMParser } from '@xmldom/xmldom';
 import { setParser } from 'dancing-squared-engine';
 
 import { buildCatalog, makeSequencer } from './src/catalog.ts';
-import { defaultProgramme, ssdProgramme, parseProgramme, serializeProgramme, buildClassFromProgramme } from './src/programme.ts';
+import { ssdProgramme, parseProgramme, serializeProgramme, buildClassFromProgramme } from './src/programme.ts';
 import {
   availableTitles,
   fitsAround,
@@ -423,13 +423,12 @@ check(inserted.length === sampleTip.length + 1, 'insertInto adds one');
 check(removed.length === sampleTip.length - 1, 'removeAt removes one');
 
 console.log('\n== Programme import / export ==');
-const def = defaultProgramme();
+const def = ssdProgramme();
 check(def.sessions.length >= 3, `default programme has >= 3 sessions (${def.sessions.length})`);
 check(def.sessions.every((s) => s.calls.length > 0), 'default programme sessions each have calls');
-const ssd = ssdProgramme();
-check(ssd.sessions.length === 12, `SSD programme has 12 lessons (${ssd.sessions.length})`);
+check(def.sessions.length === 12, `SSD programme has 12 lessons (${def.sessions.length})`);
 const resolveAll = (calls) => calls.every((c) => catalog.some((x) => x.title === c));
-check(ssd.sessions.every((s) => resolveAll(s.calls)), 'every SSD lesson call resolves in the catalog');
+check(def.sessions.every((s) => resolveAll(s.calls)), 'every SSD lesson call resolves in the catalog');
 
 const round = parseProgramme(serializeProgramme(def));
 check(round != null && round.name === def.name && round.sessions.length === def.sessions.length, 'programme round-trips through export/import');

@@ -25,6 +25,7 @@ import {
   removeStudent,
   renameStudent,
   setProblem,
+  rollMissedCallsForward,
 } from './teacher';
 import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
 import { DEFAULT_TIP_CONFIG } from './teacher';
@@ -354,6 +355,7 @@ function sessionPage(id: string, i: number): string {
       <div><h1>${esc(s.name)}</h1><p class="sub">${esc(c.name)}</p></div>
     </header>
     <div class="content">
+      ${notice ? `<p class="notice">${esc(notice)}</p>` : ''}
       <h2 class="section-title">Taught this session</h2>
       <div class="chips">${s.taught.length ? s.taught.map((r, ti) => sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)).join('') : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}</div>
 
@@ -377,6 +379,8 @@ function sessionPage(id: string, i: number): string {
           </button>`).join('')}
       </div>
       <p class="hint">Tap a name to mark them present/absent. Absent dancers miss the taught calls.</p>
+
+      <button class="big" data-act="carrymissed" data-id="${id}" data-i="${i}">Carry missed calls → next session</button>
 
       <button class="big primary" data-nav="#/class/${id}/tips/${i}">Make practice tips →</button>
     </div>`;
@@ -786,6 +790,13 @@ function wire(): void {
     }));
   root.querySelectorAll<HTMLElement>('[data-act="pull"]').forEach((b) =>
     b.addEventListener('click', () => { pullForward(cls(b.dataset.id!)!, +b.dataset.i!, 1); save(); render(); }));
+  root.querySelectorAll<HTMLElement>('[data-act="carrymissed"]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const moved = rollMissedCallsForward(cls(b.dataset.id!)!, +b.dataset.i!);
+      save();
+      notice = moved ? `Carried ${moved} missed call(s) to the next session.` : 'No absent dancers — nothing to carry.';
+      render();
+    }));
 
   root.querySelectorAll<HTMLElement>('[data-act="createcourse"]').forEach((b) =>
     b.addEventListener('click', () => {

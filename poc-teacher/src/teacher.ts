@@ -120,6 +120,43 @@ export function dedupeCallRefs<T extends { title: string; setupIdx: number }>(li
   return out;
 }
 
+/**
+ * If one or more students were absent from `sessionIdx`, carry the calls taught
+ * that session into the next session's plan (creating it if needed), tagging each
+ * added call-setup with a priority note listing who missed it. Returns the number
+ * of call-positions carried. Does nothing if everyone attended.
+ */
+export function rollMissedCallsForward(cls: ClassInstance, sessionIdx: number): number {
+  const s = cls.sessions[sessionIdx];
+  if (!s) return 0;
+  const absent = cls.students.filter((st) => !s.attendance[st.id]).map((st) => st.name);
+  if (absent.length === 0) return 0;
+  const note = `Missed by ${absent.join(', ')}`;
+  let next = cls.sessions[sessionIdx + 1];
+  if (!next) {
+    next = {
+      id: `${s.id}-n${cls.sessions.length + 1}`,
+      name: `Session ${cls.sessions.length + 1}`,
+      level: s.level,
+      planned: [],
+      taught: [],
+      attendance: {},
+      problems: [],
+    };
+    cls.sessions.push(next);
+  }
+  let moved = 0;
+  for (const r of s.taught) {
+    if (hasCallPosition(next, r)) continue; // already planned/taught in the next session
+    next.planned.push(r);
+    const idx = next.problems.findIndex((p) => p.title === r.title && p.setupIdx === r.setupIdx);
+    if (idx === -1) next.problems.push({ title: r.title, setupIdx: r.setupIdx, priority: 3, note });
+    else next.problems[idx].note = note;
+    moved++;
+  }
+  return moved;
+}
+
 /** Pull `count` planned calls from the next session's plan into THIS session's plan,
  * skipping any that would duplicate a call-position already in this session. */
 export function pullForward(cls: ClassInstance, sessionIdx: number, count: number): void {

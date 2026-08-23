@@ -23,6 +23,7 @@ import {
   removeStudent,
   renameStudent,
   setProblem,
+  rollMissedCallsForward,
   insertInto,
   removeAt,
   replaceAt,
@@ -209,6 +210,30 @@ const upd = pc.sessions[0].problems.find((p) => p.title === first.title);
 check(has() && upd.priority === 2 && upd.note === 'improving', 'setProblem updates priority + note');
 setProblem(pc, 0, first.title, first.setupIdx, 3, '', false);
 check(!has(), 'setProblem removes the prioritised call-setup');
+
+console.log('\n== Carry missed calls forward (re-teach for absent dancers) ==');
+const missCls = structuredClone(emptyTaught);
+// Session 0: Carol (id 3) is absent; teach 2 calls in session 0.
+missCls.sessions[0].taught = [missCls.sessions[0].planned[0], missCls.sessions[0].planned[1]];
+missCls.sessions[0].attendance = { a: true, b: true, c: false, d: true };
+const moved = rollMissedCallsForward(missCls, 0);
+check(moved === 2, `carried ${moved} taught calls to the next session (expected 2)`);
+check(missCls.sessions[1].planned.some((r) => r.title === missCls.sessions[0].planned[0].title), 'a taught call was added to the next session plan');
+const missNote = missCls.sessions[1].problems.find((p) => p.title === missCls.sessions[0].planned[0].title);
+check(missNote != null && /Carol/.test(missNote.note ?? ''), `next session has a priority note naming the absentee (${missNote?.note})`);
+// No absent dancers -> nothing carried.
+const allHere = structuredClone(emptyTaught);
+allHere.sessions[0].taught = [allHere.sessions[0].planned[0]];
+allHere.sessions[0].attendance = { a: true, b: true, c: true, d: true };
+check(rollMissedCallsForward(allHere, 0) === 0, 'no calls carried when everyone attended');
+// Carry from the last session creates a new session.
+const lastMiss = structuredClone(emptyTaught);
+const li = lastMiss.sessions.length - 1;
+lastMiss.sessions[li].taught = [lastMiss.sessions[li].planned[0]];
+lastMiss.sessions[li].attendance = { a: false, b: true, c: true, d: true };
+const beforeSess = lastMiss.sessions.length;
+rollMissedCallsForward(lastMiss, li);
+check(lastMiss.sessions.length === beforeSess + 1, 'carrying from the last session creates a new one');
 
 console.log('\n== Teach / unteach (planned -> taught) ==');
 const tc = structuredClone(emptyTaught);

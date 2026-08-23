@@ -170,58 +170,9 @@ const toRefOrNull = (title: string): CallRef | null => {
 
 // ---------------------------------------------------------------- seed
 
-const CURRICULUM = [
-  'Circle Left',
-  'Forward and Back',
-  'Allemande Left',
-  'Courtesy Turn',
-  'Flutterwheel',
-  'Ladies Chain',
-  'Right and Left Thru',
-  'Sides Face, Grand Square',
-  'Sides Face, Grand Spin',
-  'Heads Promenade 1/2',
-  'Right and Left Grand',
-  'Pass Thru',
-  'Square Thru',
-  'Swing Thru',
-  'Grand Square',
-].filter((t) => findCall(t));
-
-const mkRefs = (arr: string[]) => arr.map(toRef);
-
+// No example classes are pre-seeded; new installs start with an empty class list.
 function seedClasses(): ClassInstance[] {
-  const mk = (
-    id: string,
-    name: string,
-    level: string,
-    students: string[],
-    s1: string[],
-    s2: string[],
-    s3: string[],
-    attendance: Record<string, boolean>[],
-  ): ClassInstance => ({
-    id,
-    name,
-    level,
-    students: students.map((n, i) => ({ id: String(i + 1), name: n })),
-    sessions: [
-      { id: `${id}-s1`, name: 'Session 1', level, planned: mkRefs(s1), taught: [], attendance: attendance[0], problems: [{ title: s1[2], setupIdx: 0, priority: 3, note: 'hard from the sides' }] },
-      { id: `${id}-s2`, name: 'Session 2', level, planned: mkRefs(s2), taught: [], attendance: attendance[1], problems: [] },
-      { id: `${id}-s3`, name: 'Session 3', level, planned: mkRefs(s3), taught: [], attendance: attendance[2], problems: [] },
-    ],
-  });
-
-  return [
-    mk('c1', 'Beginner Mainstream', 'ms',
-      ['Alice', 'Bob', 'Carol', 'David'],
-      CURRICULUM.slice(0, 6), CURRICULUM.slice(6, 11), CURRICULUM.slice(11, 15),
-      [{ 1: true, 2: true, 3: false, 4: true }, { 1: true, 2: false, 3: true, 4: true }, {}]),
-    mk('c2', 'Tuesday Evening', 'plus',
-      ['Ed', 'Fay', 'Gus', 'Hal'],
-      CURRICULUM.slice(0, 6), CURRICULUM.slice(6, 11), CURRICULUM.slice(11, 15),
-      [{ 1: true, 2: true, 3: true, 4: false }, { 1: false, 2: true, 3: true, 4: true }, {}]),
-  ];
+  return [];
 }
 
 // ---------------------------------------------------------------- state + persistence

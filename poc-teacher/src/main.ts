@@ -1864,7 +1864,7 @@ function wire(): void {
 
   root.querySelectorAll<HTMLInputElement>('input.callprob').forEach((el) => {
     el.addEventListener('input', () => {
-      const val = el.nextElementSibling as HTMLElement | null;
+      const val = el.previousElementSibling as HTMLElement | null;
       if (val) val.textContent = `${el.value}%`;
     });
     el.addEventListener('change', () => {

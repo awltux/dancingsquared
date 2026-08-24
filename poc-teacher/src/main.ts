@@ -543,21 +543,6 @@ function parseRoute(): Route {
 
 // ---------------------------------------------------------------- render
 
-/** Thin progress bar along the top of the screen for long-running async work
- * (e.g. tip generation). `frac` is 0..1 to fill it, or null to hide it. */
-function setLoadingBar(frac: number | null): void {
-  const bar = root.querySelector('#loadingBar') as HTMLElement | null;
-  if (!bar) return;
-  const fill = bar.querySelector('span') as HTMLElement | null;
-  if (frac === null) {
-    bar.classList.remove('active');
-  } else {
-    const w = Math.max(0, Math.min(1, frac)) * 100;
-    if (fill) fill.style.width = `${w}%`;
-    bar.classList.add('active');
-  }
-}
-
 function render(): void {
   const route = parseRoute();
   // A completion/action notice belongs to the session it was triggered on; clear
@@ -1509,7 +1494,6 @@ function wire(): void {
   // results through a worker, and it uses the page's own (working) DOMParser.
   function generateTipsInBackground(btn: HTMLButtonElement, id: string, c: ClassInstance, sIdx: number): void {
     const done = () => {
-      setLoadingBar(null);
       btn.disabled = false;
       btn.classList.remove('busy');
       btn.textContent = 'Generate tips';
@@ -1544,7 +1528,6 @@ function wire(): void {
           callProb: (t) => effectiveCallProb(id, t, currentSet, prioritised),
           family: (t) => familyMap[t] ?? '',
           onProgress: (attempts, made) => {
-            setLoadingBar(attempts / totalAttempts);
             btn.innerHTML = `<span class="spinner"></span>Searching ${attempts}/${totalAttempts} · ${made}/3 tips`;
             return new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
           },

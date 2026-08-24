@@ -234,13 +234,17 @@ button.dup { outline: 3px solid #d32f2f; outline-offset: 2px; }
 .tour-actions { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
 .tour-actions .big { flex: 1; }
 
-/* ---------- top loading progress bar (async work, e.g. tip generation) ---------- */
+/* ---------- top loading progress bar (shown while the app boots) ---------- */
 .loading-bar {
   position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 70;
-  pointer-events: none; opacity: 0; transition: opacity .2s;
+  pointer-events: none; opacity: 0; overflow: hidden; transition: opacity .2s;
 }
 .loading-bar.active { opacity: 1; }
 .loading-bar span {
-  display: block; height: 100%; width: 0%;
-  background: var(--accent); transition: width .25s ease;
+  display: block; height: 100%; width: 40%; border-radius: 2px; background: var(--accent);
+}
+.loading-bar.active span { animation: loadind 1.1s ease-in-out infinite; }
+@keyframes loadind {
+  0% { margin-left: -40%; }
+  100% { margin-left: 100%; }
 }

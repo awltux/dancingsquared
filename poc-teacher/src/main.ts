@@ -1075,6 +1075,7 @@ interface PreviewState {
   timer?: number;
   trail: { x: number; y: number }[][]; // cached path per dancer for the current call
   trailKey: string; // identifies which call the cached trail belongs to
+  view: { minX: number; maxX: number; minY: number; maxY: number }; // fixed zoom for the whole sequence
 }
 let preview: PreviewState | null = null;
 const COUPLE_HEX = ['#e33b3b', '#e8c23a', '#3fbf6f', '#3b7ee8']; // 1 red, 2 yellow, 3 green, 4 blue
@@ -1097,6 +1098,23 @@ function callKey(titles: string[], beat: number): string {
   return `${name}|${callBounds(titles, beat).start}`;
 }
 
+/** Fixed bounds covering the whole sequence, so the view never zooms/pulses while
+ * the dancers move. Sampled across all beats with a small padding. */
+function sequenceBounds(titles: string[]): { minX: number; maxX: number; minY: number; maxY: number } {
+  const total = Math.round(seq.evaluateSequence(titles, 1e9).beats);
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  const steps = Math.max(10, total);
+  for (let s = 0; s <= steps; s++) {
+    const bo = seq.evaluateSequence(titles, (total * s) / steps).board;
+    bo.dancers.forEach((d) => {
+      minX = Math.min(minX, d.x); maxX = Math.max(maxX, d.x);
+      minY = Math.min(minY, d.y); maxY = Math.max(maxY, d.y);
+    });
+  }
+  const pad = 0.5;
+  return { minX: minX - pad, maxX: maxX + pad, minY: minY - pad, maxY: maxY + pad };
+}
+
 /** Sample each dancer's path through the call playing at `beat` (world coords). */
 function computeTrail(titles: string[], beat: number): { x: number; y: number }[][] {
   const { start, end } = callBounds(titles, beat);
@@ -1117,21 +1135,20 @@ function computeTrail(titles: string[], beat: number): { x: number; y: number }[
 }
 
 /** Render the current board + the cached call path as a top-down 2D SVG (couple
- * colour + number, shape by gender, triangle = front). */
-function boardSVG(titles: string[], beat: number, trail: { x: number; y: number }[][]): string {
+ * colour + number, shape by gender, triangle = front). `view` is the fixed,
+ * whole-sequence bounds so the framing never zooms during playback. */
+function boardSVG(
+  titles: string[],
+  beat: number,
+  trail: { x: number; y: number }[][],
+  view: { minX: number; maxX: number; minY: number; maxY: number },
+): string {
   const board = seq.evaluateSequence(titles, beat).board;
   const ds = board.dancers;
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  const consider = (x: number, y: number) => {
-    minX = Math.min(minX, x); maxX = Math.max(maxX, x);
-    minY = Math.min(minY, y); maxY = Math.max(maxY, y);
-  };
-  ds.forEach((d) => consider(d.x, d.y));
-  trail.forEach((t) => t.forEach((p) => consider(p.x, p.y)));
-  const rx = maxX - minX || 1, ry = maxY - minY || 1;
+  const rx = view.maxX - view.minX || 1, ry = view.maxY - view.minY || 1;
   const W = 460, H = 460, pad = 40, R = 14;
-  const sx = (x: number) => pad + ((x - minX) / rx) * (W - 2 * pad);
-  const sy = (y: number) => H - pad - ((y - minY) / ry) * (H - 2 * pad); // flip y so "north" is up
+  const sx = (x: number) => pad + ((x - view.minX) / rx) * (W - 2 * pad);
+  const sy = (y: number) => H - pad - ((y - view.minY) / ry) * (H - 2 * pad); // flip y so "north" is up
   const path = trail.map((t, i) => {
     if (t.length < 2) return '';
     const color = COUPLE_HEX[(ds[i].couple - 1) % COUPLE_HEX.length] ?? '#9aa6b2';
@@ -1163,7 +1180,7 @@ function renderPreview(p: PreviewState): string {
     <div class="overlay" data-closepreview>
       <div class="modal preview-modal">
         <h2>Preview</h2>
-        <div class="preview-board" id="previewBoard">${boardSVG(p.titles, p.beat, p.trail)}</div>
+        <div class="preview-board" id="previewBoard">${boardSVG(p.titles, p.beat, p.trail, p.view)}</div>
         <input type="range" id="previewScrub" class="preview-scrub" min="0" max="${p.total}" step="1" value="${p.beat}" />
         <div class="preview-controls">
           <button class="big preview-play" data-prevplay>${p.playing ? '⏸' : '▶'}</button>
@@ -1187,7 +1204,7 @@ function updatePreview(): void {
       p.trail = computeTrail(p.titles, p.beat);
       p.trailKey = ck;
     }
-    board.innerHTML = boardSVG(p.titles, p.beat, p.trail);
+    board.innerHTML = boardSVG(p.titles, p.beat, p.trail, p.view);
   }
   const scrub = root.querySelector('#previewScrub') as HTMLInputElement | null;
   if (scrub) scrub.value = String(Math.min(p.beat, p.total));
@@ -1406,6 +1423,7 @@ function wire(): void {
         playing: false,
         trail: computeTrail(titles, 0),
         trailKey: callKey(titles, 0),
+        view: sequenceBounds(titles),
       };
       render();
     }));

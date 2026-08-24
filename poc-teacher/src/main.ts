@@ -1076,6 +1076,7 @@ interface PreviewState {
 }
 let preview: PreviewState | null = null;
 const COUPLE_HEX = ['#e33b3b', '#e8c23a', '#3fbf6f', '#3b7ee8']; // 1 red, 2 yellow, 3 green, 4 blue
+const PREVIEW_BPM = 64; // playback tempo for the 2D preview
 
 /** Render the current board as a top-down 2D SVG (couple colour + number, shape by
  * gender, triangle = front). */
@@ -1142,8 +1143,12 @@ function updatePreview(): void {
   if (play) play.textContent = p.playing ? '⏸' : '▶';
 }
 
+function cancelPreviewTimer(): void {
+  if (preview && preview.timer != null) cancelAnimationFrame(preview.timer);
+  if (preview) preview.timer = undefined;
+}
 function closePreview(): void {
-  if (preview && preview.timer) clearInterval(preview.timer);
+  cancelPreviewTimer();
   preview = null;
   render();
 }
@@ -1152,20 +1157,29 @@ function togglePreviewPlay(): void {
   preview.playing = !preview.playing;
   if (preview.playing) {
     if (preview.beat >= preview.total) preview.beat = 0;
-    preview.timer = window.setInterval(() => {
-      if (!preview) return;
-      preview.beat += 2;
+    // Advance one beat per (60000 / bpm) ms so the preview plays at the chosen
+    // tempo (64 bpm). rAF keeps the motion smooth and handles variable frame rate.
+    const MS_PER_BEAT = 60000 / PREVIEW_BPM;
+    let last = performance.now();
+    const frame = (now: number): void => {
+      if (!preview || !preview.playing) return;
+      const dt = Math.min(now - last, 250); // clamp a big tab-wake gap
+      last = now;
+      preview.beat += dt / MS_PER_BEAT;
       if (preview.beat >= preview.total) {
         preview.beat = preview.total;
         preview.playing = false;
-        if (preview.timer) clearInterval(preview.timer);
         preview.timer = undefined;
+        updatePreview();
+        return;
       }
       updatePreview();
-    }, 70);
+      preview.timer = requestAnimationFrame(frame);
+    };
+    cancelPreviewTimer();
+    preview.timer = requestAnimationFrame(frame);
   } else {
-    if (preview.timer) clearInterval(preview.timer);
-    preview.timer = undefined;
+    cancelPreviewTimer();
   }
   updatePreview();
 }
@@ -1330,7 +1344,7 @@ function wire(): void {
       let titles: string[] = [];
       try { titles = JSON.parse(el.dataset.preview || '[]'); } catch { titles = []; }
       const total = Math.round(seq.evaluateSequence(titles, 1e9).beats);
-      if (preview && preview.timer) clearInterval(preview.timer);
+      cancelPreviewTimer();
       preview = { titles, beat: 0, total, playing: false };
       render();
     }));
@@ -1345,8 +1359,8 @@ function wire(): void {
   root.querySelectorAll<HTMLInputElement>('#previewScrub').forEach((el) =>
     el.addEventListener('input', () => {
       if (!preview) return;
+      cancelPreviewTimer();
       preview.playing = false;
-      if (preview.timer) { clearInterval(preview.timer); preview.timer = undefined; }
       preview.beat = +el.value;
       updatePreview();
     }));

@@ -436,6 +436,23 @@ const ms26 = mainstream2026Programme();
 check(ms26.sessions.length === 19, `Mainstream 2026 has 19 sessions (${ms26.sessions.length})`);
 check(ms26.sessions.every((s) => resolveAll(s.calls)), 'every Mainstream 2026 call resolves in the catalog');
 
+console.log('\n== Formation table (get-ins / get-outs) ==');
+const { buildFormationTable } = await import('./src/formation-table.ts');
+const ft = buildFormationTable(seq, { getInMax: 5, getOutMax: 7, budget: 300 });
+seq.reset();
+check(Object.keys(ft.getIns).length >= 3, `formation table has get-ins (${Object.keys(ft.getIns).length})`);
+check(Object.keys(ft.getOuts).length >= 1, `formation table has get-outs (${Object.keys(ft.getOuts).length})`);
+// Every get-in, when replayed, actually reaches its target formation.
+let getInOk = true;
+for (const [f, gi] of Object.entries(ft.getIns)) {
+  seq.reset();
+  let ok = true;
+  for (const c of gi) if (!seq.apply(c).legal) { ok = false; break; }
+  if (!ok || !seq.isAt(f)) getInOk = false;
+}
+check(getInOk, 'every tabled get-in reaches its formation');
+
+
 const round = parseProgramme(serializeProgramme(def));
 check(round != null && round.name === def.name && round.sessions.length === def.sessions.length, 'programme round-trips through export/import');
 check(round.sessions[0].calls.join() === def.sessions[0].calls.join(), 'imported session calls match');

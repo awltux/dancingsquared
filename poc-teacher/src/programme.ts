@@ -16,6 +16,36 @@ export interface Programme {
   sessions: ProgrammeSession[];
 }
 
+/** The Mainstream 2026 teaching programme (19 sessions), built from the lesson
+ * plan by matching each item to a call that resolves in the catalog. */
+export function mainstream2026Programme(): Programme {
+  return {
+    name: 'Mainstream 2026',
+    level: 'ms',
+    sessions: [
+      { name: 'Session 1', calls: ['Circle Left', 'Circle Left 1/4', 'Circle Left 1/2', 'Circle Left 3/4', 'Circle Right', 'Circle Right 1/4', 'Circle Right 1/2', 'Circle Right 3/4', 'Circle Four Left 1/4', 'Circle Four Right 1/4', 'Circle Four Left 1/2', 'Circle Four Right 1/2', 'Circle Four Left 3/4', 'Circle Four Right 3/4', 'Single Circle Left 1/4', 'Single Circle Right 1/4', 'Single Circle Left 1/2', 'Single Circle Right 1/2', 'Single Circle Left 3/4', 'Single Circle Right 3/4', 'Dosado', 'All 4 Couples Promenade 1/4', 'All 4 Couples Promenade 1/2', 'All 4 Couples Promenade 3/4', 'All 4 Couples Promenade Full', 'Single File Promenade', 'All 4 Couples Wrong Way Promenade 1/4', 'All 4 Couples Wrong Way Promenade 1/2', 'All 4 Couples Wrong Way Promenade 3/4', 'All 4 Couples Wrong Way Promenade Full', 'Turn Partner by the Right', 'Turn Partner by the Left', 'Left Arm Turn 3/4', 'Centers Arm Turn 3/4', 'Allemande Left', 'Right Hand Star', 'Left Hand Star', 'Right-Hand Star 1/4', 'Right-Hand Star 1/2', 'Right-Hand Star 3/4', 'Right-Hand Star a Full Turn', 'Left-Hand Star 1/4', 'Left-Hand Star 1/2', 'Left-Hand Star 3/4', 'Left-Hand Star a Full Turn', 'Right and Left Grand', 'Weave the Ring', 'Wrong Way Grand', 'Pass Thru'] },
+      { name: 'Session 2', calls: ['Wheel Around', 'Reverse Wheel Around', 'Courtesy Turn', 'Right and Left Thru', 'Swing Your Partner', 'Swing Your Corner', 'Ladies Chain', 'Head Ladies Chain', 'Side Ladies Chain', 'Four Ladies Chain', 'Four Ladies Chain 3/4'] },
+      { name: 'Session 3', calls: ['Ladies In, Men Sashay', 'U-Turn Back', 'Girls Backtrack', 'Heads Separate', 'Sides Separate', 'Heads Pass Thru, Separate Around 1 to a Line', 'Heads Pass Thru, Separate Around 2 to a Line', 'Around One to a Line', 'Around Two to a Line', 'Heads Pass Thru, Separate Around 1 and Come Into the Middle', 'Heads Pass Thru, Separate Around 2 and Come Into the Middle', 'Around One and Come Into the Middle', 'Around Two and Come Into the Middle'] },
+      { name: 'Session 4', calls: ['Lead Right', 'Lead Left', 'Veer Left', 'Veer Right', 'Chain Down the Line', 'Star Thru', 'Couples Circulate', 'Circulate', 'Centers Circulate', 'Ends Circulate', 'Bend the Line'] },
+      { name: 'Session 5', calls: ['Half Sashay', 'Square Thru 2', 'Square Thru 3', 'Square Thru 4', 'Centers Split Two', 'Centers Split the Outside Couple', 'Star Promenade', 'Rollaway'] },
+      { name: 'Session 6', calls: ['Grand Square', 'Heads Face, Grand Square', 'Sides Face, Grand Square', 'Double Pass Thru', 'First Couple Go Left, Next Couple Go Right', 'First Couple Go Right, Next Couple Go Left', 'First Couple Go Left, Next Couple Go Left', 'First Couple Go Right, Next Couple Go Right', 'Wheel and Deal', 'California Twirl'] },
+      { name: 'Session 7', calls: ['Slide Thru', 'Dive Thru', 'Box the Gnat'] },
+      { name: 'Session 8', calls: ['Allemande Left in the Alamo Style', 'Balance', 'Step to a Wave', 'Dosado to a Wave', 'All 8 Circulate'] },
+      { name: 'Session 9', calls: ['Couples Trade', 'Boys Trade', 'Girls Trade', 'Centers Trade', 'Ends Trade', 'Partner Trade'] },
+      { name: 'Session 10', calls: ['Swing Thru', 'Boys Run', 'Girls Run', 'Centers Run', 'Ends Run', 'Pass the Ocean', 'Extend'] },
+      { name: 'Session 11', calls: ['Flutterwheel', 'Reverse Flutterwheel', 'Sweep a Quarter Left', 'Sweep a Quarter Right', 'Trade By', 'Single Circle to a Wave'] },
+      { name: 'Session 12', calls: ['Ferris Wheel', 'Zoom', 'Touch a Quarter', 'Hinge'] },
+      { name: 'Session 13', calls: ['Couples Hinge', 'Column Circulate', 'Centers In'] },
+      { name: 'Session 14', calls: ['Cast Off Three Quarters', 'Spin the Top', 'Box Circulate', 'Split Circulate'] },
+      { name: 'Session 15', calls: ['Scoot Back', 'Boys Fold', 'Girls Fold', 'Ends Fold', 'Tag the Line'] },
+      { name: 'Session 16', calls: ['Ends Cross Fold', 'Recycle'] },
+      { name: 'Session 17', calls: ['Centers Cross Run', 'Ends Cross Run'] },
+      { name: 'Session 18', calls: ['3/4 Tag the Line', 'Left 3/4 Tag the Line', 'Quarter Tag', 'Half Tag', 'Left Half Tag', 'Left Square Thru 4'] },
+      { name: 'Session 19', calls: ['Left Swing Thru', 'Reverse Wheel Around'] },
+    ],
+  };
+}
+
 /** The SSD (Standard Square Dance) teaching programme, 12 sessions. */
 export function ssdProgramme(): Programme {
   return {

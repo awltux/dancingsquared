@@ -32,7 +32,7 @@ import {
 } from './teacher';
 import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
 import { DEFAULT_TIP_CONFIG } from './teacher';
-import { buildClassFromProgramme, ssdProgramme, parseProgramme, serializeProgramme } from './programme';
+import { buildClassFromProgramme, ssdProgramme, mainstream2026Programme, parseProgramme, serializeProgramme } from './programme';
 import type { Programme } from './programme';
 
 // ---------------------------------------------------------------- catalog
@@ -349,7 +349,7 @@ function loadProgrammes(): Programme[] {
   } catch {
     /* fall through to defaults */
   }
-  return [ssdProgramme()];
+  return [ssdProgramme(), mainstream2026Programme()];
 }
 function saveProgrammes(): void {
   try {

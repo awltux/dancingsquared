@@ -541,6 +541,23 @@ export async function generateTips(
   const family = opts.family ?? (() => '');
   const hasFamily = opts.family != null;
   const onProgress = opts.onProgress ?? (() => {});
+  // The highest-probability calls to actively steer the tip toward. If one starts
+  // from a formation we're not in yet (e.g. "Single Circle Left 1/4" starts from
+  // Facing Couples), the body picker favours calls that set that formation up so
+  // the high-probability call can actually be used.
+  let topCalls: string[] = [];
+  {
+    let maxP = 0;
+    const entries: { n: string; p: number }[] = [];
+    for (const n of available) {
+      const p = callProb(n);
+      if (p > 0.001) {
+        entries.push({ n, p });
+        if (p > maxP) maxP = p;
+      }
+    }
+    topCalls = entries.filter((x) => x.p >= maxP - 0.05).map((x) => x.n);
+  }
   const tips: string[][] = [];
   const usedAny = new Set<string>();
   // Retry more times than `count`: each attempt is random, and a greedy body
@@ -567,6 +584,22 @@ export async function generateTips(
         return probe.legal && hasApplicable(seq, probe.board, available);
       });
       let pool = withCont.length ? withCont : candidates;
+      // Always include any applicable highest-probability call, even if it doesn't
+      // itself continue — that's the call we want to play (its high probability
+      // weight then makes it dominate the pick).
+      const applicableTop = topCalls.filter((n) => candidates.includes(n));
+      if (applicableTop.length) {
+        pool = [...new Set([...pool, ...applicableTop])];
+      } else if (topCalls.length) {
+        // No top call applicable yet: add candidates that get the formation to one
+        // of their start setups (e.g. leads to Facing Couples). The setupBonus below
+        // then favours them, so the tip can reach a high-probability call.
+        const setup = candidates.filter((n) => {
+          const r = seq.applyToBoard(snapshot, n);
+          return r.legal && topCalls.some((hp) => seq.applyToBoard(r.board, hp).legal);
+        });
+        if (setup.length) pool = [...new Set([...pool, ...setup])];
+      }
       // Priority control: on a priority roll, restrict to prioritised calls.
       if (rand() < config.priorityProb) {
         const prio = pool.filter((n) => (priority.get(n) ?? 0) > 0);
@@ -588,26 +621,36 @@ export async function generateTips(
         const freshFam = pool.filter((n) => !usedFamilies.has(family(n)));
         if (freshFam.length) pool = freshFam;
       }
-      // Weighted pick: per-call probability plus a strong preference for calls not
-      // yet used in this tip (stronger when repeatProb is low) and for calls not
-      // used in earlier tips, so tips stay varied. Random weighted selection makes
-      // each generated tip differ. A call set to 0% probability is never picked.
-      // A mild bonus is given to calls whose result lands closer to home, so the
-      // final getout is short and cheap (keeps tip generation fast without making
-      // tips repetitive).
+      // Weighted pick: the per-call probability is the PRIMARY driver (scaled up so
+      // the highest-probability calls are actually chosen), with a smaller bonus for
+      // calls not yet used in this tip / earlier tips so tips stay varied. If a top
+      // probability call isn't applicable from here, a strong bonus goes to any
+      // candidate that moves the formation to that call's start setup (e.g. leads to
+      // Facing Couples), so high-probability calls can be reached. A call set to 0%
+      // probability is never picked.
       const closeWeight = new Map<string, number>();
+      const setupBonus = new Map<string, number>();
+      const needsSetup = topCalls.length > 0 && !pool.some((n) => topCalls.includes(n));
       for (const n of pool) {
         const r = seq.applyToBoard(snapshot, n);
         closeWeight.set(n, r.legal ? seq.closenessToHome(r.board) : -Infinity);
+        if (needsSetup && r.legal) {
+          for (const hp of topCalls) {
+            if (seq.applyToBoard(r.board, hp).legal) {
+              setupBonus.set(n, 1);
+              break;
+            }
+          }
+        }
       }
-      const freshBonus = (1 - config.repeatProb) * 3;
       const combinedProb = (n: string) => {
         const prob = callProb(n);
         if (prob <= 0.001) return 0;
-        let s = prob;
-        if (!usedHere.has(n)) s += freshBonus;
-        if (!usedAny.has(n)) s += 0.6;
-        if ((priority.get(n) ?? 0) > 0) s += 0.2;
+        let s = prob * 8; // probability dominates
+        if (!usedHere.has(n)) s += 1;
+        if (!usedAny.has(n)) s += 0.4;
+        if ((priority.get(n) ?? 0) > 0) s += 0.3;
+        if (setupBonus.get(n)) s += 3; // sets up a top-probability call
         const cl = closeWeight.get(n) ?? 0;
         if (cl > -Infinity) s += cl * 0.005; // mild bias toward closer-to-home
         return s;

@@ -59,6 +59,9 @@ const titles = catalog.map((c) => c.title);
 console.log(`== Catalog: ${catalog.length} distinct titles, ${titles.length} total ==`);
 check(catalog.length >= 60, `catalog has >= 60 ms calls (${catalog.length})`);
 check(titles.includes('Circle Left') && titles.includes('Allemande Left'), 'catalog includes Circle Left + Allemande Left');
+// display="no"/"none" tams must be excluded from the catalog.
+const hidden = ['Circle Left 1/8', '_Finish Line of 8 Tag the Line', 'Right-Hand Star 1/4 and Roll', 'Sides Forward and Back'];
+check(hidden.every((h) => !titles.includes(h)), `display=no/none calls are excluded (${hidden.filter((h) => titles.includes(h)).join(', ') || 'all excluded'})`);
 
 console.log('\n== Class / sessions ==');
 // A realistic MS curriculum; sessions teach overlapping subsets so tips can chain.

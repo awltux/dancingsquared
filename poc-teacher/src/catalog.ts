@@ -27,6 +27,16 @@ function attr(block: string, name: string): string {
   return (block.match(re) ?? [])[1] ?? '';
 }
 
+/** True if the <tam> itself (its opening tag) is hidden. We only inspect the
+ * opening tag, not child <formation>/<path> attributes, because display="no" /
+ * display="none" on a *formation* means that one start setup is hidden but the
+ * call itself is legitimate (e.g. "Circulate"). Only a hidden <tam> is excluded. */
+function isHiddenTam(block: string): boolean {
+  const end = block.indexOf('>');
+  const open = end >= 0 ? block.slice(0, end + 1) : block;
+  return /display="(no|none)"/.test(open);
+}
+
 /** Parse every per-level XML file into one CatalogCall per distinct call title. */
 export function buildCatalog(files: Record<string, string>): CatalogCall[] {
   const out: CatalogCall[] = [];
@@ -37,6 +47,9 @@ export function buildCatalog(files: Record<string, string>): CatalogCall[] {
     const family = (xml.match(/<tamination title="([^"]*)"/) || [])[1] ?? 'Other';
     const byTitle = new Map<string, string[]>();
     for (const b of tamBlocks(xml)) {
+      // Skip hidden variants (display="no" / display="none"). They must never
+      // appear in tips, modules or getouts.
+      if (isHiddenTam(b)) continue;
       const t = attr(b, 'title') || '?';
       const arr = byTitle.get(t) ?? [];
       arr.push(b);

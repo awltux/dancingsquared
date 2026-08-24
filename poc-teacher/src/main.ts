@@ -1073,25 +1073,71 @@ interface PreviewState {
   total: number; // total beats in the sequence
   playing: boolean;
   timer?: number;
+  trail: { x: number; y: number }[][]; // cached path per dancer for the current call
+  trailKey: string; // identifies which call the cached trail belongs to
 }
 let preview: PreviewState | null = null;
 const COUPLE_HEX = ['#e33b3b', '#e8c23a', '#3fbf6f', '#3b7ee8']; // 1 red, 2 yellow, 3 green, 4 blue
 const PREVIEW_BPM = 64; // playback tempo for the 2D preview
 
-/** Render the current board as a top-down 2D SVG (couple colour + number, shape by
- * gender, triangle = front). */
-function boardSVG(titles: string[], beat: number): string {
+/** The global-beat range [start, end] of the call playing at `beat`. */
+function callBounds(titles: string[], beat: number): { start: number; end: number } {
+  const name = seq.sequenceInfo(titles, beat)?.name;
+  if (!name) return { start: 0, end: 0 };
+  let start = beat;
+  while (start > 0 && seq.sequenceInfo(titles, start - 1)?.name === name) start--;
+  let end = beat;
+  while (seq.sequenceInfo(titles, end + 1)?.name === name) end++;
+  return { start, end };
+}
+
+/** A stable key identifying the call playing at `beat` (for caching its path). */
+function callKey(titles: string[], beat: number): string {
+  const name = seq.sequenceInfo(titles, beat)?.name ?? '';
+  return `${name}|${callBounds(titles, beat).start}`;
+}
+
+/** Sample each dancer's path through the call playing at `beat` (world coords). */
+function computeTrail(titles: string[], beat: number): { x: number; y: number }[][] {
+  const { start, end } = callBounds(titles, beat);
+  const N = seq.evaluateSequence(titles, beat).board.dancers.length;
+  const trails: { x: number; y: number }[][] = Array.from({ length: N }, () => []);
+  if (end <= start) {
+    const bo = seq.evaluateSequence(titles, beat).board;
+    bo.dancers.forEach((d, i) => trails[i].push({ x: d.x, y: d.y }));
+    return trails;
+  }
+  const steps = Math.max(4, Math.round((end - start) * 3));
+  for (let s = 0; s <= steps; s++) {
+    const b = start + ((end - start) * s) / steps;
+    const bo = seq.evaluateSequence(titles, b).board;
+    bo.dancers.forEach((d, i) => trails[i].push({ x: d.x, y: d.y }));
+  }
+  return trails;
+}
+
+/** Render the current board + the cached call path as a top-down 2D SVG (couple
+ * colour + number, shape by gender, triangle = front). */
+function boardSVG(titles: string[], beat: number, trail: { x: number; y: number }[][]): string {
   const board = seq.evaluateSequence(titles, beat).board;
   const ds = board.dancers;
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (const d of ds) {
-    minX = Math.min(minX, d.x); maxX = Math.max(maxX, d.x);
-    minY = Math.min(minY, d.y); maxY = Math.max(maxY, d.y);
-  }
+  const consider = (x: number, y: number) => {
+    minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+  };
+  ds.forEach((d) => consider(d.x, d.y));
+  trail.forEach((t) => t.forEach((p) => consider(p.x, p.y)));
   const rx = maxX - minX || 1, ry = maxY - minY || 1;
   const W = 460, H = 460, pad = 40, R = 14;
   const sx = (x: number) => pad + ((x - minX) / rx) * (W - 2 * pad);
   const sy = (y: number) => H - pad - ((y - minY) / ry) * (H - 2 * pad); // flip y so "north" is up
+  const path = trail.map((t, i) => {
+    if (t.length < 2) return '';
+    const color = COUPLE_HEX[(ds[i].couple - 1) % COUPLE_HEX.length] ?? '#9aa6b2';
+    const pts = t.map((p) => `${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ');
+    return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" opacity="0.45" stroke-linejoin="round" stroke-linecap="round"/>`;
+  }).join('');
   const icons = ds.map((d) => {
     const color = COUPLE_HEX[(d.couple - 1) % COUPLE_HEX.length] ?? '#9aa6b2';
     const cx = sx(d.x), cy = sy(d.y);
@@ -1103,7 +1149,7 @@ function boardSVG(titles: string[], beat: number): string {
     return `<g transform="translate(${cx},${cy}) rotate(${deg})">${shape}${front}</g>
       <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="bold" fill="#fff" pointer-events="none">${d.couple}</text>`;
   }).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Top-down board view">${icons}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Top-down board view">${path}${icons}</svg>`;
 }
 
 /** The call playing at a global beat, or '…'. */
@@ -1117,7 +1163,7 @@ function renderPreview(p: PreviewState): string {
     <div class="overlay" data-closepreview>
       <div class="modal preview-modal">
         <h2>Preview</h2>
-        <div class="preview-board" id="previewBoard">${boardSVG(p.titles, p.beat)}</div>
+        <div class="preview-board" id="previewBoard">${boardSVG(p.titles, p.beat, p.trail)}</div>
         <input type="range" id="previewScrub" class="preview-scrub" min="0" max="${p.total}" step="1" value="${p.beat}" />
         <div class="preview-controls">
           <button class="big preview-play" data-prevplay>${p.playing ? '⏸' : '▶'}</button>
@@ -1134,7 +1180,15 @@ function updatePreview(): void {
   if (!preview) return;
   const p = preview;
   const board = root.querySelector('#previewBoard') as HTMLElement | null;
-  if (board) board.innerHTML = boardSVG(p.titles, p.beat);
+  if (board) {
+    // Cache the current call's path; recompute only when the call changes.
+    const ck = callKey(p.titles, p.beat);
+    if (p.trailKey !== ck) {
+      p.trail = computeTrail(p.titles, p.beat);
+      p.trailKey = ck;
+    }
+    board.innerHTML = boardSVG(p.titles, p.beat, p.trail);
+  }
   const scrub = root.querySelector('#previewScrub') as HTMLInputElement | null;
   if (scrub) scrub.value = String(Math.min(p.beat, p.total));
   const call = root.querySelector('#previewCall') as HTMLElement | null;
@@ -1345,7 +1399,14 @@ function wire(): void {
       try { titles = JSON.parse(el.dataset.preview || '[]'); } catch { titles = []; }
       const total = Math.round(seq.evaluateSequence(titles, 1e9).beats);
       cancelPreviewTimer();
-      preview = { titles, beat: 0, total, playing: false };
+      preview = {
+        titles,
+        beat: 0,
+        total,
+        playing: false,
+        trail: computeTrail(titles, 0),
+        trailKey: callKey(titles, 0),
+      };
       render();
     }));
   root.querySelectorAll<HTMLElement>('[data-prevclose]').forEach((el) =>

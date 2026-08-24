@@ -563,11 +563,14 @@ function render(): void {
   else if (route.page === 'new') content = newCoursePage();
   else if (route.page === 'programmes') content = programmesPage();
 
-  const sub = route.page === 'session' || route.page === 'student' || route.page === 'new' || route.page === 'programmes' || route.page === 'tipssettings';
+  // The footer navigation is shown on every page; the class id is null on
+  // pages with no class context (home, new course, programmes, tip settings),
+  // where the Sessions/Students/Tips items fall back to the home/settings routes.
+  const classId = route.page === 'home' ? null : (route.id ?? null);
   root.innerHTML = `
     <div id="loadingBar" class="loading-bar"><span></span></div>
     <div class="screen">${content}${route.page === 'home' ? `<footer class="version" title="git commit ${__GIT_COMMIT__}">build ${__GIT_COMMIT_SHORT__}</footer>` : ''}</div>
-    ${sub ? '' : bottomNav(route.page === 'home' ? null : route.id, tab)}
+    ${bottomNav(classId, tab)}
     ${probModal ? renderModal(probModal) : ''}
     ${tourOverlay()}
   `;

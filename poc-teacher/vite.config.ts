@@ -7,7 +7,12 @@ import { execSync } from 'node:child_process';
 function gitInfo(): { commit: string; short: string } {
   try {
     const commit = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
-    return { commit, short: commit.slice(0, 7) };
+    // Mark the version if the working tree has uncommitted changes, so the shown
+    // hash always matches the code that was actually built (never "clean" when it
+    // isn't). The dirty marker keeps a locally-built deploy from looking identical
+    // to the committed HEAD.
+    const dirty = execSync('git status --porcelain', { encoding: 'utf8' }).trim().length > 0;
+    return { commit, short: commit.slice(0, 7) + (dirty ? '-dirty' : '') };
   } catch {
     return { commit: 'unknown', short: 'unknown' };
   }

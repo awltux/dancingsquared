@@ -170,6 +170,18 @@ input.callprob { flex: 1; height: 40px; accent-color: var(--accent); }
 .modal-call { margin: 0 0 12px; color: var(--muted); font-size: 15px; }
 .modal .field .row b { color: var(--accent); min-width: 30px; text-align: right; }
 .cl-name { font-weight: 700; }
+
+/* ---------- 2D top-down preview ---------- */
+.preview-modal .modal-call, .preview-board { width: 100%; }
+.preview-board {
+  background: #eef2f5; border: 1px solid var(--line); border-radius: 12px;
+  margin-top: 8px; overflow: hidden;
+}
+.preview-board svg { display: block; width: 100%; height: auto; }
+.preview-controls { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.preview-controls input[type="range"] { flex: 1; }
+.preview-play { flex: 0 0 auto; min-width: 54px; }
+.preview-call { margin-top: 8px; font-weight: 600; color: var(--accent); min-height: 20px; }
 .family-head { font-size: 12px; letter-spacing: .3px; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
 button.busy { opacity: 0.85; }
 .spinner {

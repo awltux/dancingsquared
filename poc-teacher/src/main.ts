@@ -581,6 +581,7 @@ function render(): void {
     <div class="screen">${content}${route.page === 'home' ? `<footer class="version" title="git commit ${__GIT_COMMIT__}">build ${__GIT_COMMIT_SHORT__}</footer>` : ''}</div>
     ${bottomNav(classId, tab)}
     ${probModal ? renderModal(probModal) : ''}
+    ${preview ? renderPreview(preview) : ''}
     ${tourOverlay()}
   `;
   wire();
@@ -931,9 +932,10 @@ function renderModule(id: string, m: SavedModule, mi: number): string {
       </div>
       <div class="card-sub">${where ? `${esc(where)} · ` : ''}${esc(when)}</div>
       ${m.expanded ? `<div class="chips" style="margin-top:8px">${m.titles.map((t) => `<span class="chip">${esc(t)}</span>`).join('')}</div>` : ''}
-      <div class="row two" style="margin-top:10px">
+      <div class="row" style="margin-top:10px">
         <button class="big" data-renamemod="${id}:${mi}">Rename</button>
         <button class="big" data-modview="${id}:${mi}">${m.expanded ? 'Hide' : 'View'}</button>
+        <button class="big" data-preview="${esc(JSON.stringify(m.titles))}">Preview</button>
       </div>
     </div>`;
 }
@@ -959,6 +961,7 @@ function renderTip(id: string, t: Tip, ti: number, ts: { selectedTip: number; se
         </div>` : ''}
       <div style="margin-top:8px">
         <button class="big primary" data-savetip="${id}:${ti}">Save tip</button>
+        <button class="big" data-preview="${esc(JSON.stringify(t.titles))}">Preview</button>
         <span class="save-err" data-saveerr="${id}:${ti}"></span>
       </div>
     </div>`;
@@ -1057,6 +1060,116 @@ interface ProbModal {
   archivedNote?: string; // note kept from a previous prioritisation, for re-prioritising
 }
 let probModal: ProbModal | null = null;
+
+// ---------------------------------------------------------------- 2D preview
+
+// A top-down, 2D board view of a module/tip: dancers are drawn as squares (men)
+// or circles (women), coloured by home couple and numbered with the couple number
+// (matching the 3D view), with a small triangle marking their front. The view is
+// animated by stepping the Sequencer beat forward through the call sequence.
+interface PreviewState {
+  titles: string[];
+  beat: number;
+  total: number; // total beats in the sequence
+  playing: boolean;
+  timer?: number;
+}
+let preview: PreviewState | null = null;
+const COUPLE_HEX = ['#e33b3b', '#e8c23a', '#3fbf6f', '#3b7ee8']; // 1 red, 2 yellow, 3 green, 4 blue
+
+/** Render the current board as a top-down 2D SVG (couple colour + number, shape by
+ * gender, triangle = front). */
+function boardSVG(titles: string[], beat: number): string {
+  const board = seq.evaluateSequence(titles, beat).board;
+  const ds = board.dancers;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const d of ds) {
+    minX = Math.min(minX, d.x); maxX = Math.max(maxX, d.x);
+    minY = Math.min(minY, d.y); maxY = Math.max(maxY, d.y);
+  }
+  const rx = maxX - minX || 1, ry = maxY - minY || 1;
+  const W = 460, H = 460, pad = 40, R = 14;
+  const sx = (x: number) => pad + ((x - minX) / rx) * (W - 2 * pad);
+  const sy = (y: number) => H - pad - ((y - minY) / ry) * (H - 2 * pad); // flip y so "north" is up
+  const icons = ds.map((d) => {
+    const color = COUPLE_HEX[(d.couple - 1) % COUPLE_HEX.length] ?? '#9aa6b2';
+    const cx = sx(d.x), cy = sy(d.y);
+    const deg = -((d.heading * 180) / Math.PI); // SVG rotate so the front (+x local) points along heading
+    const shape = d.gender === 'boy'
+      ? `<rect x="${-R}" y="${-R}" width="${2 * R}" height="${2 * R}" rx="4" fill="${color}" stroke="#fff" stroke-width="2"/>`
+      : `<circle r="${R}" fill="${color}" stroke="#fff" stroke-width="2"/>`;
+    const front = `<polygon points="${R},0 ${R - 6},-5 ${R - 6},5" fill="#fff"/>`;
+    return `<g transform="translate(${cx},${cy}) rotate(${deg})">${shape}${front}</g>
+      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="bold" fill="#fff" pointer-events="none">${d.couple}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Top-down board view">${icons}</svg>`;
+}
+
+/** The call playing at a global beat, or '…'. */
+function callAt(titles: string[], beat: number): string {
+  const info = seq.sequenceInfo(titles, beat);
+  return info ? info.name : '…';
+}
+
+function renderPreview(p: PreviewState): string {
+  return `
+    <div class="overlay" data-closepreview>
+      <div class="modal preview-modal">
+        <h2>Preview</h2>
+        <div id="previewBoard" class="preview-board">${boardSVG(p.titles, p.beat)}</div>
+        <div class="preview-controls">
+          <button class="big preview-play" data-prevplay>${p.playing ? '⏸' : '▶'}</button>
+          <input type="range" id="previewScrub" min="0" max="${p.total}" step="1" value="${p.beat}" />
+        </div>
+        <div class="preview-call" id="previewCall">${callAt(p.titles, p.beat)}</div>
+        <button class="big primary" data-prevclose style="margin-top:12px">Close</button>
+      </div>
+    </div>`;
+}
+
+/** Refresh the open preview overlay in place (no full re-render, so the animation
+ * stays smooth). */
+function updatePreview(): void {
+  if (!preview) return;
+  const p = preview;
+  const board = root.querySelector('#previewBoard') as HTMLElement | null;
+  if (board) board.innerHTML = boardSVG(p.titles, p.beat);
+  const scrub = root.querySelector('#previewScrub') as HTMLInputElement | null;
+  if (scrub) scrub.value = String(Math.min(p.beat, p.total));
+  const call = root.querySelector('#previewCall') as HTMLElement | null;
+  if (call) call.textContent = callAt(p.titles, p.beat);
+  const play = root.querySelector('[data-prevplay]');
+  if (play) play.textContent = p.playing ? '⏸' : '▶';
+}
+
+function closePreview(): void {
+  if (preview && preview.timer) clearInterval(preview.timer);
+  preview = null;
+  render();
+}
+function togglePreviewPlay(): void {
+  if (!preview) return;
+  preview.playing = !preview.playing;
+  if (preview.playing) {
+    if (preview.beat >= preview.total) preview.beat = 0;
+    preview.timer = window.setInterval(() => {
+      if (!preview) return;
+      preview.beat += 2;
+      if (preview.beat >= preview.total) {
+        preview.beat = preview.total;
+        preview.playing = false;
+        if (preview.timer) clearInterval(preview.timer);
+        preview.timer = undefined;
+      }
+      updatePreview();
+    }, 70);
+  } else {
+    if (preview.timer) clearInterval(preview.timer);
+    preview.timer = undefined;
+  }
+  updatePreview();
+}
+
 
 // A session call chip: the tappable call (teach/unteach) plus a star that opens
 // the prioritisation dialog.
@@ -1209,6 +1322,33 @@ function wire(): void {
   root.querySelectorAll<HTMLElement>('[data-closeprob]').forEach((el) =>
     el.addEventListener('click', (e) => {
       if ((e.target as HTMLElement).classList.contains('overlay')) { probModal = null; render(); }
+    }));
+
+  // ---- 2D preview ----
+  root.querySelectorAll<HTMLElement>('[data-preview]').forEach((el) =>
+    el.addEventListener('click', () => {
+      let titles: string[] = [];
+      try { titles = JSON.parse(el.dataset.preview || '[]'); } catch { titles = []; }
+      const total = Math.round(seq.evaluateSequence(titles, 1e9).beats);
+      if (preview && preview.timer) clearInterval(preview.timer);
+      preview = { titles, beat: 0, total, playing: false };
+      render();
+    }));
+  root.querySelectorAll<HTMLElement>('[data-prevclose]').forEach((el) =>
+    el.addEventListener('click', closePreview));
+  root.querySelectorAll<HTMLElement>('[data-closepreview]').forEach((el) =>
+    el.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).classList.contains('overlay')) closePreview();
+    }));
+  root.querySelectorAll<HTMLElement>('[data-prevplay]').forEach((el) =>
+    el.addEventListener('click', togglePreviewPlay));
+  root.querySelectorAll<HTMLInputElement>('#previewScrub').forEach((el) =>
+    el.addEventListener('input', () => {
+      if (!preview) return;
+      preview.playing = false;
+      if (preview.timer) { clearInterval(preview.timer); preview.timer = undefined; }
+      preview.beat = +el.value;
+      updatePreview();
     }));
 
   root.querySelectorAll<HTMLElement>('[data-delclass]').forEach((b) =>

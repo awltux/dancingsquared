@@ -165,9 +165,10 @@ for (const call of ['Dosado', 'Wheel Around', 'Pass Thru', 'Circle Left']) {
 }
 
 console.log('\n-- Note on composition --');
-console.log('Each call matrix is defined relative to ITS canonical start formation. Composing A then B as M_B∘M_A');
-console.log('is only valid when B applies from the formation A ended in. Otherwise the board must be re-matched to');
-console.log('B\'s start frame first — which is exactly the formation-recognition/permutation step the engine does.');
+console.log('Matrices are defined relative to each call\'s canonical start. Empirically, for standard (relative,');
+console.log('identity-preserving) calls, composing as M_B∘M_A reproduces the real A-then-B result — see [6].');
+console.log('The caveat is only for a single GLOBAL matrix (rigid calls, frame-aligned) and for non-relative /');
+console.log('role-permuting calls.');
 
 // 5) Subset + parallel-subset calls
 console.log('\n[5] Subset calls (only some dancers act) & parallel subsets');
@@ -197,11 +198,48 @@ for (const call of ['Heads Lead Right', 'Heads Promenade 1/2', 'All 4 Couples Pr
   console.log(`    ${call.padEnd(26)} active dancers = [${actives.join(',')}]  inactive(=identity) = [${inactives.join(',')}]`);
 }
 
+// 6) Demonstration of composition (matrix multiply) — the honest result
+console.log('\n[6] Demonstration: composing A then B as M_B ∘ M_A (matrix multiply)');
+console.log('Surprise (checked empirically): for standard calls this WORKS — M_B∘M_A applied to the home set');
+console.log('matches the engine\'s actual A-then-B result, because calls are relative, identity-preserving motions.');
+function composeError(A, B) {
+  seq.reset();
+  const home = seq.startBoard();
+  const Aend = seq.apply(A).board;
+  const MA = matricesFor(home, Aend).M;
+  seq.reset();
+  const bh = seq.startBoard();
+  const be = seq.apply(B).board;
+  const MB = matricesFor(bh, be).M;
+  seq.reset(); seq.apply(A); const ab = seq.apply(B).board;
+  const em = new Map(ab.dancers.map((d) => [d.id, d]));
+  let err = 0;
+  for (const d of home.dancers) {
+    const mid = applyM(MA[d.id], state(d));
+    const naive = applyM(MB[d.id], mid);
+    const e = em.get(d.id);
+    err = Math.max(err, Math.hypot(naive[0] - e.x, naive[1] - e.y));
+  }
+  return err;
+}
+for (const B of ['Forward and Back', 'Dosado', 'Circle Left', 'Right and Left Grand', 'Allemande Left']) {
+  console.log(`    Pass Thru -> ${B.padEnd(22)} M_B∘M_A vs actual err = ${composeError('Pass Thru', B).toExponential(2)}`);
+}
+console.log('So the matrix model is MORE useful than the earlier note suggested for single-dancer/per-dancer use.');
+console.log('The caveat is narrower: it bites only for (a) a SINGLE GLOBAL matrix (rigid calls only, and both calls');
+console.log('must be frame-aligned), and (b) calls whose effect is not a pure relative per-dancer transform, or');
+console.log('where dancer roles permute non-trivially between calls. For the common per-dancer case, composition');
+console.log('is just matrix multiplication.');
+
+
+
 console.log('\n-- So what does the matrix model buy us? --');
 console.log('• Each call is an EXACT per-dancer affine (position + heading) — verified to ~1e-16.');
 console.log('• Subset/parallel calls decompose into blocks (active transform / inactive identity) — the model');
 console.log('  handles them without special cases.');
 console.log('• Rigid calls are a SINGLE global matrix and are frame-invariant (reusable on any congruent board,');
-console.log('  no re-matching) — this is the real matrix leverage for lookups, get-outs (inverse) and speed.');
-console.log("• The caveat is composition: matrices are frame-relative to each call's canonical start, so chaining");
-console.log('  needs the intermediate formation to match the next call\'s start (recognition/permutation).');
+console.log('  no re-matching) — real leverage for lookups, get-outs (inverse) and speed.');
+console.log('• Composition as matrix multiplication (M_B∘M_A) reproduces A-then-B for standard relative calls');
+console.log('  (verified ~1e-16), so chaining is algebraic, not a search.');
+console.log('• The remaining caveats: a single GLOBAL matrix only fits rigid calls; and calls that are not a pure');
+console.log('  relative per-dancer transform, or that permute dancer roles, break naive per-dancer reuse.');

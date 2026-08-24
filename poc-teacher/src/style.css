@@ -233,3 +233,14 @@ button.dup { outline: 3px solid #d32f2f; outline-offset: 2px; }
 .tour-step { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
 .tour-actions { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
 .tour-actions .big { flex: 1; }
+
+/* ---------- top loading progress bar (async work, e.g. tip generation) ---------- */
+.loading-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 70;
+  pointer-events: none; opacity: 0; transition: opacity .2s;
+}
+.loading-bar.active { opacity: 1; }
+.loading-bar span {
+  display: block; height: 100%; width: 0%;
+  background: var(--accent); transition: width .25s ease;
+}

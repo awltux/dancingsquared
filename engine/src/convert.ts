@@ -376,7 +376,11 @@ export function callMeta(xmlText: string): CallMeta {
   const tams = parseCallXmlImpl(xmlText);
   return {
     title: tams[0]?.title ?? '',
-    setups: tams.map((t) => ({ label: t.from || '(default)', from: t.from })),
+    // Prefer the human `from` label; fall back to the named `formation` when it
+    // is empty (e.g. a tam authored as formation="T-Bone URLU" with no from), so
+    // every setup is still identified. Embedded-formation tams always carry a
+    // `from`, so this fallback only affects the attribute case.
+    setups: tams.map((t) => ({ label: t.from || t.formationAttr || '(default)', from: t.from })),
   };
 }
 

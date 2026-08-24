@@ -60,7 +60,10 @@ export function buildCatalog(files: Record<string, string>): CatalogCall[] {
         title,
         family,
         level,
-        setups: blocks.map((b) => ({ label: attr(b, 'from') || '(default)', from: attr(b, 'from') })),
+        setups: blocks.map((b) => ({
+          label: attr(b, 'from') || attr(b, 'formation') || '(default)',
+          from: attr(b, 'from'),
+        })),
         xml: `<calls>\n${blocks.join('\n')}\n</calls>`,
       });
     }
@@ -69,10 +72,13 @@ export function buildCatalog(files: Record<string, string>): CatalogCall[] {
 }
 
 /** A Sequencer loaded with the given catalog calls (keyed by title). */
-export function makeSequencer(movesXml: string, formationsXml: string, calls: { title: string; xml: string }[], margin = 4): Sequencer {
+export function makeSequencer(movesXml: string, formationsXml: string, calls: { title: string; xml: string }[], margin = 1.5): Sequencer {
   const seq = new Sequencer(movesXml, formationsXml, calls.map((c) => ({ name: c.title, xml: c.xml })));
-  // A little match tolerance so legal-next accepts setups that are fractionally
-  // off the canonical start (mirrors the main poc sequencer's default margin).
+  // Small match tolerance on top of the engine's DEFAULT_MATCH_MAX so a call is
+  // only legal when its start setup genuinely matches the board. Ends are
+  // snap-clamped to formation slots, so exact matches score ~0 and a wrong
+  // formation force-fit is rejected; keep the margin small (must stay under
+  // ~2.0, else e.g. a T-Bone start force-fits onto a Double Pass Thru board).
   seq.setMatchMargin(margin);
   return seq;
 }

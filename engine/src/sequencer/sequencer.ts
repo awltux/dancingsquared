@@ -6,8 +6,9 @@
 
 import { DEG, dancerBeats, poseFor } from '../core.js';
 import { buildCall, parseCallXml, parseFormations, parseMoves } from '../convert.js';
-import { matchFormations, type Matchable } from './match.js';
+import { matchFormations, type FormationMatch, type Matchable } from './match.js';
 import { analyzeFasr } from './fasr.js';
+import { apply5, dancerMatrix, fitRigidMatrix, identity5, invert5, mul5, poseToVec, type Mat5 } from '../matrix.js';
 import type { Board, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep } from './types.js';
 import type { CallBundle, DancerSpec, Pose } from '../types.js';
 
@@ -86,8 +87,27 @@ const STANDARD_FORMATIONS = [
 
 // ------------------------------------------------------------ Sequencer
 
-// Default tolerance for formation matching (matchFormations' maxError).
-const DEFAULT_MATCH_MAX = 6.0;
+// Default tolerance for formation matching (matchFormations' maxError) when
+// deciding whether a call is LEGAL from a board (its start setup must genuinely
+// match). This is a SUM over all 8 dancers of (position offset + heading
+// offset*0.5), so 6.0 allowed an average of 0.75 units per dancer — loose enough
+// to force-fit a call onto a genuinely different formation (e.g. a T-Bone start
+// onto a Double Pass Thru board). Genuine starts match at ~0.0 while
+// wrong-formation force-fits start well above 1.5, so 1.5 (=0.19/dancer) keeps
+// correct calls and rejects the spurious ones.
+const DEFAULT_MATCH_MAX = 1.5;
+
+// Tolerance for the SEARCH path (getout/fixIt). Those operate on PURE-relative
+// boards that are not snap-clamped, so intermediate states drift slightly off the
+// canonical setup and need a looser tolerance to chain multi-call sequences. The
+// interactive path keeps the tight DEFAULT_MATCH_MAX (its boards are exact).
+const SEARCH_MATCH_MAX = 6.0;
+
+// Tolerance for END-recognition: whether a call's RESULT lands in any known
+// catalog formation. This gates sequencing continuity, not legality, so it stays
+// loose — many genuine calls end on a formation that isn't an exact catalog
+// shape, and forcing it to the tight legality threshold makes them illegal.
+const KNOWN_FORMATION_MAX = 6.0;
 
 // A matched call variant plus the rigid transform (rotation/reflection + both
 // centers) that overlays its canonical setup onto the board.
@@ -111,15 +131,22 @@ export class Sequencer {
   private variants: Map<string, CallBundle[]> = new Map();
   private modules: Map<string, string[]> = new Map(); // module name -> call names
   private namedFormations: { name: string; dancers: Matchable[] }[] = [];
+  private uniqueFormations: { name: string; dancers: Matchable[] }[] = [];
 
   board: Board;
   private matchMargin = 0;
   private rebaseFactor = 1; // 1 = reset drift to the call's canonical setup, 0 = keep it
+  private snapMaxError = 1.0; // clamp a computed end onto a recognized formation when within this
 
   // Cached canonical end pose (at each dancer's last beat) per variant. The end
   // formation of a call is a pure function of its compiled <tam> paths, so it is
   // computed once per variant instead of on every apply.
   private variantEndCache = new WeakMap<CallBundle, Pose[]>();
+  // Cached per-dancer 5x5 matrix (canonical start -> canonical end) per variant.
+  // The matrix produces the same end pose as bezier evaluation (~1e-16) but is
+  // the reusable representation for composition/inversion; bezier remains the
+  // fallback when a variant has no matrix (e.g. degenerate path data).
+  private variantMatrixCache = new WeakMap<CallBundle, Mat5[] | null>();
 
   /** The canonical end pose of each dancer of a variant (pure, cached). */
   private endPoses(variant: CallBundle): Pose[] {
@@ -129,6 +156,28 @@ export class Sequencer {
       this.variantEndCache.set(variant, end);
     }
     return end;
+  }
+
+  /**
+   * Per-dancer matrix (canonical start -> canonical end) for a variant, or null
+   * if it can't be built. Indexed by the variant dancer's canonical order; callers
+   * map through `match.mapping` (board index -> variant dancer index).
+   */
+  private variantMatrices(variant: CallBundle): Mat5[] | null {
+    const cached = this.variantMatrixCache.get(variant);
+    if (cached !== undefined) return cached;
+    const M: Mat5[] = [];
+    for (const d of variant.dancers) {
+      const s = poseFor(d, 0);
+      const e = poseFor(d, dancerBeats(d));
+      if (!isFinite(s.x) || !isFinite(e.x)) {
+        this.variantMatrixCache.set(variant, null);
+        return null;
+      }
+      M.push(dancerMatrix(s.x, s.y, s.heading, e.x, e.y, e.heading));
+    }
+    this.variantMatrixCache.set(variant, M);
+    return M;
   }
 
   /** Set an extra matching tolerance (in position units) added to the default
@@ -145,6 +194,17 @@ export class Sequencer {
    * accumulate; lower values ease across the difference instead of snapping. */
   setRebaseFactor(factor: number): void {
     this.rebaseFactor = Math.max(0, Math.min(1, factor));
+  }
+
+  /**
+   * Set how far (in position units) a computed end board may be from a
+   * recognized formation before it is snapped onto that formation's canonical
+   * slots. Only ends within this tolerance are clamped (so small bezier-end
+   * drift lands EXACTLY on formation values); ends genuinely off-pattern are
+   * left untouched. 0 disables snapping.
+   */
+  setSnapMaxError(error: number): void {
+    this.snapMaxError = Math.max(0, error);
   }
 
   constructor(
@@ -170,6 +230,17 @@ export class Sequencer {
           this.namedFormations.push({ name: fm.name, dancers: merged });
         }
       }
+    }
+    // Collapse the many differently-named formations that share an identical
+    // dancer geometry (positions AND headings, up to rotation/reflection) into
+    // one representative per unique shape. Snapping and known-formation checks
+    // only need the geometry, not the display label, so this cuts the scan from
+    // ~210 named formations down to ~33 unique shapes (verified empirically).
+    this.uniqueFormations = [];
+    for (const fm of this.namedFormations) {
+      const dup = this.uniqueFormations.find((u) => matchFormations(u.dancers, fm.dancers, 0.5) !== null);
+      if (dup) continue;
+      this.uniqueFormations.push(fm);
     }
     this.board = makeSquaredSet();
     for (const c of calls) {
@@ -234,7 +305,7 @@ export class Sequencer {
 
   /** Beats of the variant of `name` that matches `board` (0 if none). */
   stepBeats(board: Board, name: string): number {
-    const m = this.findMatchingVariant(board, name);
+    const m = this.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.matchMargin);
     if (!m) return 0;
     return Math.max(...m.variant.dancers.map((d) => dancerBeats(d)));
   }
@@ -259,7 +330,7 @@ export class Sequencer {
     let board = makeSquaredSet();
     let acc = 0;
     for (const name of flat) {
-      const m = this.findMatchingVariant(board, name);
+      const m = this.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.matchMargin);
       if (!m) break;
       const beats = Math.max(...m.variant.dancers.map((d) => dancerBeats(d)));
       if (beat < acc + beats) {
@@ -283,7 +354,7 @@ export class Sequencer {
     let board = makeSquaredSet();
     let acc = 0;
     for (const name of flat) {
-      const m = this.findMatchingVariant(board, name);
+      const m = this.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.matchMargin);
       if (!m) return null;
       const beats = Math.max(...m.variant.dancers.map((d) => dancerBeats(d)));
       if (beat < acc + beats) {
@@ -328,6 +399,7 @@ export class Sequencer {
     this.board = makeSquaredSet();
     this.matchMemo.clear();
     this.homeScoreCache.clear();
+    this.formationMatchCache.clear();
   }
 
   startBoard(): Board {
@@ -352,14 +424,20 @@ export class Sequencer {
   /** Which of this call's variants matches the given board? Memoised by call name
    * + board geometry: boards are immutable (always cloned before mutation), so a
    * given signature + call always yields the same result, and the same (board,
-   * call) pair recurs a lot while probing legality and continuations. */
+   * call) pair recurs a lot while probing legality and continuations.
+   *
+   * `maxError` is the matching tolerance. The INTERACTIVE path (boards are
+   * snap-clamped to exact formation slots) uses the tight `DEFAULT_MATCH_MAX`;
+   * the SEARCH path (pure relative boards that drift because they are not
+   * snapped) uses a looser tolerance so multi-call get-ins/get-outs can chain.
+   */
   private matchMemo = new Map<string, VariantMatch | null>();
-  private findMatchingVariant(board: Board, callName: string): VariantMatch | null {
+  private findMatchingVariant(board: Board, callName: string, maxError: number): VariantMatch | null {
     const variants = this.variants.get(callName);
     if (!variants) return null;
     // Key on the call's position/heading signature only (id is irrelevant to the
     // geometric match, so two boards with identical geometry share a cache entry).
-    const key = `${callName}|${board.dancers
+    const key = `${maxError}|${callName}|${board.dancers
       .map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}`)
       .join(';')}`;
     const cached = this.matchMemo.get(key);
@@ -368,7 +446,7 @@ export class Sequencer {
     let best: VariantMatch | null = null;
     for (const v of variants) {
       const tgt = v.dancers.map((d) => this.variantMatchable(d));
-      const m = matchFormations(src, tgt, DEFAULT_MATCH_MAX + this.matchMargin);
+      const m = matchFormations(src, tgt, maxError);
       if (m && (best === null || m.error < best.error)) {
         best = { variant: v, mapping: m.mapping, error: m.error, rot: m.rot, reflect: m.reflect, cSrc: m.cSrc, cTgt: m.cTgt };
       }
@@ -418,7 +496,12 @@ export class Sequencer {
       return { board: cur, legal: true };
     }
 
-    const match = this.findMatchingVariant(board, callName);
+    // Interactive (rebase) boards are snap-clamped to exact formation slots, so a
+    // call is legal only if its start genuinely matches (tight tolerance). The
+    // search path (rebase=false) uses pure relative boards that drift and need the
+    // looser tolerance to chain multi-call get-ins/get-outs.
+    const matchTol = rebase ? DEFAULT_MATCH_MAX + this.matchMargin : SEARCH_MATCH_MAX + this.matchMargin;
+    const match = this.findMatchingVariant(board, callName, matchTol);
     if (!match) {
       return {
         board: cloneBoard(board),
@@ -438,10 +521,21 @@ export class Sequencer {
     // pure relative motion so a getout can still un-permute dancers back home.
     const f = rebase ? this.rebaseFactor : 0;
     const ends = this.endPoses(variant);
+    // Per-dancer matrix end pose is only used on the INTERACTIVE path (rebase):
+    // it's the reusable matrix representation there, and the search path stays
+    // on the cached bezier end so the hot getout/fixIt probes don't pay the
+    // per-dancer matrix cost. Both produce the same canonical end (~1e-16).
+    const mats = rebase ? this.variantMatrices(variant) : null;
     const newDancers = board.dancers.map((d, i) => {
       const t = variant.dancers[mapping[i]];
       const start = poseFor(t, 0);
-      const end = ends[mapping[i]];
+      // End pose via the per-dancer matrix when available (exact, cached), else
+      // fall back to the canonical bezier-evaluated end pose.
+      const end = mats ? (() => {
+        const v = poseToVec(start.x, start.y, start.heading);
+        const o = apply5(mats[mapping[i]], v);
+        return { x: o[0], y: o[1], heading: Math.atan2(o[3], o[2]) };
+      })() : ends[mapping[i]];
       const localDisp = rot(-start.heading, { x: end.x - start.x, y: end.y - start.y });
       const delta = normAngle(end.heading - start.heading);
       // Blend the dancer's base toward the (rebased) call start (f=1 full reset,
@@ -453,7 +547,13 @@ export class Sequencer {
       const disp = rot(bh, localDisp);
       return { ...d, x: bx + disp.x, y: by + disp.y, heading: normAngle(bh + delta) };
     });
-    return { board: { dancers: newDancers }, legal: true };
+    // Snap the result onto the nearest recognized formation's slots so a call's
+    // bezier-end drift doesn't leave the dancers a few decimals off the grid.
+    // Only the INTERACTIVE path (rebase=true) snaps: the search path (rebase=false)
+    // must preserve pure relative motion so a getout can still un-permute dancers
+    // back home, and snapping there would shift boards off the identity-preserving
+    // state the search needs.
+    return { board: rebase ? this.snapBoard({ dancers: newDancers }) : { dancers: newDancers }, legal: true };
   }
 
   /**
@@ -465,6 +565,7 @@ export class Sequencer {
     this.board = res.board;
     this.matchMemo.clear(); // the primary board moved; start a fresh match cache
     this.homeScoreCache.clear();
+    this.formationMatchCache.clear();
     return { call: callName, legal: res.legal, reason: res.reason, board: res.board, formation: this.recognize(res.board) };
   }
 
@@ -513,14 +614,71 @@ export class Sequencer {
   /** The name of any formation in the FULL catalog that `board` matches, else
    * null. Unlike `recognize` (which is restricted to a curated list for stable
    * display labels), this is permissive: any standard formation the result
-   * lands in counts as "known". */
+   * lands in counts as "known". Uses the loose end-recognition tolerance (a call
+   * is legal if it STARTS from the right formation; its end just needs to land
+   * somewhere recognizable for sequencing continuity). */
   private knownFormation(board: Board): string | null {
+    const best = this.bestFormationMatch(board);
+    return best && best.m.error <= KNOWN_FORMATION_MAX + this.matchMargin ? best.f.name : null;
+  }
+
+  /**
+   * Clamp a computed end board onto the nearest recognized formation's canonical
+   * slots, when the board is within `snapMaxError` of that formation. This
+   * absorbs small bezier-end numeric drift so calls land EXACTLY on formation
+   * values (positions AND headings) instead of a few decimals off. Dancer
+   * identity (id/couple/gender) is preserved; only x/y/heading are snapped onto
+   * the matched formation's slot via the same transform `rebasedPose` uses for
+   * re-base. Boards that are not within tolerance (genuinely mid-transition or
+   * off-pattern) are returned unchanged so we never invent a formation.
+   */
+  private snapBoard(board: Board): Board {
+    if (this.snapMaxError <= 0) return board;
+    const best = this.bestFormationMatch(board);
+    if (!best || best.m.error > this.snapMaxError) return board;
+    const { f, m } = best;
+    const snapped = board.dancers.map((d, i) => {
+      const p = rebasedPose(f.dancers[m.mapping[i]], m);
+      return { ...d, x: p.x, y: p.y, heading: p.heading };
+    });
+    return { dancers: snapped };
+  }
+
+  // Shared, memoized best-formation match for a board. `legalWithResults` needs
+  // both "is the result a known formation" (knownFormation) and "snap it onto
+  // the formation" (snapBoard), and both do the same expensive scan over the
+  // named formations. Caching by an exact geometry signature means each board is
+  // scanned once regardless of how many callers probe it (the same boards recur
+  // heavily in the getout/fixIt searches).
+  private formationMatchCache = new Map<string, { f: { name: string; dancers: Matchable[] }; m: FormationMatch } | null>();
+
+  private bestFormationMatch(board: Board): { f: { name: string; dancers: Matchable[] }; m: FormationMatch } | null {
+    const sig = this.formationSig(board);
+    const cached = this.formationMatchCache.get(sig);
+    if (cached !== undefined) return cached;
     const src = this.matchables(board);
-    for (const f of this.namedFormations) {
+    let best: { f: { name: string; dancers: Matchable[] }; m: FormationMatch } | null = null;
+    for (const f of this.uniqueFormations) {
       if (f.dancers.length !== src.length) continue;
-      if (matchFormations(src, f.dancers, DEFAULT_MATCH_MAX + this.matchMargin)) return f.name;
+      const m = matchFormations(src, f.dancers, this.snapMatchMax());
+      if (m && (best === null || m.error < best.m.error)) best = { f, m };
     }
-    return null;
+    this.formationMatchCache.set(sig, best);
+    return best;
+  }
+
+  /** Tolerance used for the shared formation scan: loose enough to catch boards
+   * that land in a recognized formation (for knownFormation and snapping). The
+   * snap itself then applies the tight `snapMaxError`; knownFormation applies
+   * `KNOWN_FORMATION_MAX`. */
+  private snapMatchMax(): number {
+    return Math.max(this.snapMaxError, KNOWN_FORMATION_MAX + this.matchMargin);
+  }
+
+  /** Exact per-dancer geometry signature (finer than boardSig, which bins for
+   * search dedup) so cached formation matches are keyed to the exact pose. */
+  private formationSig(board: Board): string {
+    return board.dancers.map((d) => `${d.x.toFixed(5)},${d.y.toFixed(5)},${d.heading.toFixed(5)}`).join(';');
   }
 
   /** Calls legal from the current board. */
@@ -546,8 +704,21 @@ export class Sequencer {
     this.matchMemo.clear();
     this.canGetoutMemo.clear();
     this.homeScoreCache.clear();
+    this.formationMatchCache.clear();
 
-    // Fast path: greedy best-first straight toward home. Handles the common
+    // Fast path #1: a single rigid, self-inverse call that (applied to the home
+    // set) produces the current board. Since C∘C = I for these calls, playing it
+    // once more returns home — an O(1) matrix-verified getout. Only applicable
+    // when the TARGET is the home squared set (this is a get-OUT home, not a
+    // get-in to an arbitrary formation), and only returned when the candidate is
+    // verified legal and reaches home, so it can never regress.
+    const isHomeTarget = target === 'Static Square' || target === 'Squared Set';
+    if (isHomeTarget) {
+      const rigid = this.rigidSingleCallGetout();
+      if (rigid) return rigid;
+    }
+
+    // Fast path #2: greedy best-first straight toward home. Handles the common
     // "nearly home" body in milliseconds with no backtracking.
     const greedy = this.greedyHome(target, maxCalls);
     if (greedy) return greedy;
@@ -586,6 +757,71 @@ export class Sequencer {
       curScore = bestScore;
     }
     return this.reachesTarget(board, target) ? path : null;
+  }
+
+  // ----------------------------------------------------------------- matrix fast-path
+
+  // Rigid self-inverse getouts: for each registered call, precompute its image
+  // when applied to the home set. If the call is rigid (a single global matrix
+  // fits its motion) AND self-inverse (M∘M = I), then whenever the current board
+  // is congruent to that image, playing the same call once more returns home.
+  // This is an exact, matrix-verified single-call getout.
+  private rigidGetoutCache: { name: string; M: Mat5; image: Matchable[]; seqDancers: SeqDancer[] }[] | null = null;
+
+  private buildRigidGetoutCache(): { name: string; M: Mat5; image: Matchable[]; seqDancers: SeqDancer[] }[] {
+    if (this.rigidGetoutCache) return this.rigidGetoutCache;
+    const home = makeSquaredSet();
+    const homeDancers = home.dancers;
+    const out: { name: string; M: Mat5; image: Matchable[]; seqDancers: SeqDancer[] }[] = [];
+    for (const name of this.variants.keys()) {
+      if (this.modules.has(name)) continue;
+      // Reset a throwaway sequencer reference: apply the call to home and test
+      // rigidity + self-inversion via the matrix.
+      const res = this.applyToBoard(home, name);
+      if (!res.legal) continue;
+      const fit = fitRigidMatrix(homeDancers, res.board.dancers, 1e-3);
+      if (!fit) continue;
+      // Self-inverse: M^2 == identity (within tolerance). Compose the rigid
+      // matrix with itself and compare to I.
+      const M2 = mul5(fit.M, fit.M);
+      const I = identity5();
+      let selfInverse = true;
+      for (let r = 0; r < 5 && selfInverse; r++)
+        for (let c = 0; c < 5; c++)
+          if (Math.abs(M2[r][c] - I[r][c]) > 1e-6) {
+            selfInverse = false;
+            break;
+          }
+      if (!selfInverse) continue;
+      out.push({ name, M: fit.M, image: this.matchables(res.board), seqDancers: res.board.dancers });
+    }
+    this.rigidGetoutCache = out;
+    return out;
+  }
+
+  /** Try a single rigid self-inverse call to close the current board home. */
+  private rigidSingleCallGetout(): string[] | null {
+    const cur = this.matchables(this.board);
+    for (const e of this.buildRigidGetoutCache()) {
+      // The current board is congruent to the call's home-image (rigid match).
+      if (matchFormations(cur, e.image, KNOWN_FORMATION_MAX + this.matchMargin) === null) continue;
+      // Verify: applying the call to the current board must actually reach home.
+      const res = this.applySearch(this.board, e.name);
+      if (res.legal && this.reachesTarget(res.board, 'Static Square')) return [e.name];
+    }
+    return null;
+  }
+
+  /**
+   * Matrix-based getout: if the current board is exactly the image of home under
+   * a rigid, self-inverse call, returns that SAME single call as a guaranteed,
+   * replayable getout. This is the algebraically-derived formation-transition:
+   * because the call is rigid and self-inverse, its matrix M satisfies M² = I, so
+   * playing it once more returns home — exact and O(1), no search needed. Returns
+   * null when no such call applies (callers fall back to the live search).
+   */
+  matrixGetout(): string[] | null {
+    return this.rigidSingleCallGetout();
   }
 
   /** Depth-first getout search. `depth` = calls still allowed (remaining).

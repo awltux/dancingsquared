@@ -83,8 +83,16 @@ export function buildFormationTable(
     for (const c of getIn) if (!seq.apply(c).legal) { ok = false; break; }
     if (!ok || !seq.isAt(f)) continue;
     getIns[f] = getIn;
-    const getOut = seq.getout({ target: 'Static Square', maxCalls: getOutMax, budget });
-    if (getOut && getOut.length) getOuts[f] = getOut;
+    // Prefer the matrix-derived get-out: if the get-in's resulting board is the
+    // image of home under a rigid, self-inverse call, that SAME call is an exact,
+    // replayable single-step get-out (M² = I), no search required. Fall back to
+    // the live search otherwise.
+    const matrixOut = seq.matrixGetout();
+    if (matrixOut && matrixOut.length) getOuts[f] = matrixOut;
+    else {
+      const getOut = seq.getout({ target: 'Static Square', maxCalls: getOutMax, budget });
+      if (getOut && getOut.length) getOuts[f] = getOut;
+    }
   }
   return { getIns, getOuts };
 }

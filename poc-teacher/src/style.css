@@ -236,14 +236,17 @@ button.dup { outline: 3px solid #d32f2f; outline-offset: 2px; }
 
 /* ---------- top loading progress bar (shown while the app boots) ---------- */
 .loading-bar {
-  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 70;
-  pointer-events: none; opacity: 0; overflow: hidden; transition: opacity .2s;
+  position: fixed; top: 0; left: 0; right: 0; height: 6px; z-index: 70;
+  pointer-events: none; opacity: 0; overflow: hidden;
+  background: var(--accent-bg); transition: opacity .2s;
+  box-shadow: 0 1px 4px rgba(11, 122, 67, 0.35);
 }
 .loading-bar.active { opacity: 1; }
 .loading-bar span {
-  display: block; height: 100%; width: 40%; border-radius: 2px; background: var(--accent);
+  display: block; height: 100%; width: 40%; border-radius: 0;
+  background: linear-gradient(90deg, var(--accent), #2fae6d);
 }
-.loading-bar.active span { animation: loadind 1.1s ease-in-out infinite; }
+.loading-bar.active span { animation: loadind 0.9s ease-in-out infinite; }
 @keyframes loadind {
   0% { margin-left: -40%; }
   100% { margin-left: 100%; }

@@ -426,9 +426,9 @@ console.log('\n== Programme import / export ==');
 const def = ssdProgramme();
 check(def.sessions.length >= 3, `default programme has >= 3 sessions (${def.sessions.length})`);
 check(def.sessions.every((s) => s.calls.length > 0), 'default programme sessions each have calls');
-check(def.sessions.length === 12, `SSD programme has 12 lessons (${def.sessions.length})`);
+check(def.sessions.length === 12, `SSD programme has 12 sessions (${def.sessions.length})`);
 const resolveAll = (calls) => calls.every((c) => catalog.some((x) => x.title === c));
-check(def.sessions.every((s) => resolveAll(s.calls)), 'every SSD lesson call resolves in the catalog');
+check(def.sessions.every((s) => resolveAll(s.calls)), 'every SSD session call resolves in the catalog');
 
 const round = parseProgramme(serializeProgramme(def));
 check(round != null && round.name === def.name && round.sessions.length === def.sessions.length, 'programme round-trips through export/import');

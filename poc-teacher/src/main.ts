@@ -1289,6 +1289,12 @@ function wire(): void {
       teachAll(cls(id)!, +i);
       save();
       render();
+      // Feedback highlight on the (re-created) button so the action is visible.
+      const btn = root.querySelector<HTMLElement>(`[data-moveall="${id}:${i}"]`);
+      if (btn) {
+        btn.classList.add('flash');
+        window.setTimeout(() => btn.classList.remove('flash'), 1500);
+      }
     }));
 
   root.querySelectorAll<HTMLElement>('[data-teach]').forEach((b) =>

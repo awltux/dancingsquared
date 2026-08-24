@@ -248,3 +248,10 @@ button.dup { outline: 3px solid #d32f2f; outline-offset: 2px; }
   0% { margin-left: -40%; }
   100% { margin-left: 100%; }
 }
+
+/* Feedback highlight for an action button (e.g. Move all → taught). */
+button.flash { animation: btnflash .9s ease; }
+@keyframes btnflash {
+  0% { background: var(--accent); color: #fff; }
+  60% { background: var(--accent-bg); color: var(--accent); }
+}

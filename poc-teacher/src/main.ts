@@ -361,6 +361,10 @@ function saveProgrammes(): void {
 const tipsByClass: Record<string, Tip[]> = {};
 const tipsState: Record<string, { selectedTip: number; selectedIdx: number }> = {};
 
+// Generating tips needs enough distinct taught calls to build varied, closable
+// tips; below this the generator can't meaningfully produce three.
+const MIN_TAUGHT_CALLS = 4;
+
 // A saved practice tip/module, with metadata on when and where it was created.
 interface SavedModule {
   name: string;
@@ -1496,6 +1500,12 @@ function wire(): void {
   // search itself is a simple direct call — far more reliable than round-tripping
   // results through a worker, and it uses the page's own (working) DOMParser.
   function generateTipsInBackground(btn: HTMLButtonElement, id: string, c: ClassInstance, sIdx: number): void {
+    const avail = availableTitles(c, sIdx);
+    if (avail.size < MIN_TAUGHT_CALLS) {
+      setNotice(`Not enough taught calls to generate tips — teach at least ${MIN_TAUGHT_CALLS} calls first.`, true);
+      render();
+      return;
+    }
     const done = () => {
       btn.disabled = false;
       btn.classList.remove('busy');
@@ -1505,7 +1515,6 @@ function wire(): void {
     btn.classList.add('busy');
     btn.innerHTML = '<span class="spinner"></span>Generating…';
 
-    const avail = availableTitles(c, sIdx);
     const calls = catalog.filter((x) => avail.has(x.title)).map((x) => ({ title: x.title, xml: x.xml }));
     const prioritised = new Set(c.sessions[sIdx].problems.map((p) => p.title));
     const familyMap: Record<string, string> = {};

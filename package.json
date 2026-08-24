@@ -6,7 +6,8 @@
   "workspaces": [
     "engine",
     "poc",
-    "poc-teacher"
+    "poc-teacher",
+    "poc-matrix"
   ],
   "scripts": {
     "build:engine": "npm run build -w dancing-squared-engine",

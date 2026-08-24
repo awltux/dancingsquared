@@ -1,0 +1,16 @@
+{
+  "name": "dancing-squared-matrix-poc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Exploratory POC: treat a call from a start formation as a matrix transformation of dancer (position, heading) into an end formation, and probe whether matrix mathematics helps.",
+  "scripts": {
+    "poc": "node poc.mjs"
+  },
+  "dependencies": {
+    "dancing-squared-engine": "file:../engine"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "^0.9.11"
+  }
+}

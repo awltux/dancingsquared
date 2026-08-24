@@ -572,7 +572,12 @@ function render(): void {
   // where the Sessions/Students/Tips items fall back to the home/settings routes.
   const classId = route.page === 'home' ? null : (route.id ?? null);
   root.innerHTML = `
-    <div id="loadingBar" class="loading-bar"><span></span></div>
+    <div id="loadingBar" class="loading-bar">
+      <div class="loading-inner">
+        <div class="loading-track"><span></span></div>
+        <div class="loading-text">Loading…</div>
+      </div>
+    </div>
     <div class="screen">${content}${route.page === 'home' ? `<footer class="version" title="git commit ${__GIT_COMMIT__}">build ${__GIT_COMMIT_SHORT__}</footer>` : ''}</div>
     ${bottomNav(classId, tab)}
     ${probModal ? renderModal(probModal) : ''}

@@ -58,7 +58,12 @@
   </head>
   <body>
     <div id="app">
-      <div id="loadingBar" class="loading-bar active"><span></span></div>
+      <div id="loadingBar" class="loading-bar active">
+        <div class="loading-inner">
+          <div class="loading-track"><span></span></div>
+          <div class="loading-text">Loading…</div>
+        </div>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

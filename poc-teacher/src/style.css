@@ -234,19 +234,28 @@ button.dup { outline: 3px solid #d32f2f; outline-offset: 2px; }
 .tour-actions { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
 .tour-actions .big { flex: 1; }
 
-/* ---------- top loading progress bar (shown while the app boots) ---------- */
+/* ---------- app loading indicator (centered bar + 'Loading' text while booting) ---------- */
 .loading-bar {
-  position: fixed; top: 0; left: 0; right: 0; height: 6px; z-index: 70;
-  pointer-events: none; opacity: 0; overflow: hidden;
-  background: var(--accent-bg); transition: opacity .2s;
-  box-shadow: 0 1px 4px rgba(11, 122, 67, 0.35);
+  position: fixed; inset: 0; z-index: 70;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(244, 246, 248, 0.85);
+  pointer-events: none; opacity: 0; transition: opacity .2s;
 }
 .loading-bar.active { opacity: 1; }
-.loading-bar span {
-  display: block; height: 100%; width: 40%; border-radius: 0;
+.loading-inner { width: min(240px, 70vw); }
+.loading-track {
+  height: 8px; border-radius: 999px; overflow: hidden;
+  background: var(--accent-bg); box-shadow: 0 1px 4px rgba(11, 122, 67, 0.35);
+}
+.loading-track span {
+  display: block; height: 100%; width: 40%;
   background: linear-gradient(90deg, var(--accent), #2fae6d);
 }
-.loading-bar.active span { animation: loadind 0.9s ease-in-out infinite; }
+.loading-bar.active .loading-track span { animation: loadind 0.9s ease-in-out infinite; }
+.loading-text {
+  margin-top: 12px; text-align: center; color: var(--accent);
+  font-size: 16px; font-weight: 600; letter-spacing: .3px;
+}
 @keyframes loadind {
   0% { margin-left: -40%; }
   100% { margin-left: 100%; }

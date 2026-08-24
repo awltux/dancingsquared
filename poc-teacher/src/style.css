@@ -178,9 +178,9 @@ input.callprob { flex: 1; height: 40px; accent-color: var(--accent); }
   margin-top: 8px; overflow: hidden;
 }
 .preview-board svg { display: block; width: 100%; height: auto; }
-.preview-controls { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-.preview-controls input[type="range"] { flex: 1; }
-.preview-play { flex: 0 0 auto; min-width: 54px; }
+.preview-scrub { width: 100%; margin-top: 12px; }
+.preview-controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+.preview-play { min-width: 64px; }
 .preview-call { margin-top: 8px; font-weight: 600; color: var(--accent); min-height: 20px; }
 .family-head { font-size: 12px; letter-spacing: .3px; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
 button.busy { opacity: 0.85; }

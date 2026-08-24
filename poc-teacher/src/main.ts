@@ -1117,10 +1117,10 @@ function renderPreview(p: PreviewState): string {
     <div class="overlay" data-closepreview>
       <div class="modal preview-modal">
         <h2>Preview</h2>
-        <div id="previewBoard" class="preview-board">${boardSVG(p.titles, p.beat)}</div>
+        <div class="preview-board" id="previewBoard">${boardSVG(p.titles, p.beat)}</div>
+        <input type="range" id="previewScrub" class="preview-scrub" min="0" max="${p.total}" step="1" value="${p.beat}" />
         <div class="preview-controls">
           <button class="big preview-play" data-prevplay>${p.playing ? '⏸' : '▶'}</button>
-          <input type="range" id="previewScrub" min="0" max="${p.total}" step="1" value="${p.beat}" />
         </div>
         <div class="preview-call" id="previewCall">${callAt(p.titles, p.beat)}</div>
         <button class="big primary" data-prevclose style="margin-top:12px">Close</button>

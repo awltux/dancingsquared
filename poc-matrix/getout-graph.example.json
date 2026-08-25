@@ -1,0 +1,119 @@
+{
+  "generatedAt": "2026-08-25T13:08:17.643Z",
+  "params": {
+    "depth": 12,
+    "states": 20000
+  },
+  "home": {
+    "name": "Static Square"
+  },
+  "_schema": {
+    "version": 1,
+    "rotation": {
+      "rot": "Radians. The rotation applied to the canonical target shape to overlay it on the board. One of 0, pi/2, pi, -pi/2.",
+      "reflect": "MATCHER flag (NOT the half-set completion mirror). Whether aligning the canonical shape to THIS board needed a mirror. Empirically ~86% of recognized states use reflect=false; only some formations (e.g. Quarter Tag, Tidal Line RH, Two-Faced Lines) ever need reflect=true. Do not conflate with the 180-degree-about-origin mirror that builds a full 8-dancer formation from a 4-dancer half-set at build time (that one is always applied and is NOT stored here).",
+      "cSrc": "Centroid of the SOURCE board. In this auto-generated graph every board is origin-centered, so cSrc == (0,0) always. Only a board translated off-origin (e.g. an editor board) yields non-zero.",
+      "cTgt": "Centroid of the canonical 8-dancer target formation. Always (0,0) because recognized formations are completed to a full 8-dancer set centered at the origin. cSrc/cTgt are computed BEFORE rot/reflect are applied, so reflection never makes them non-zero."
+    },
+    "getoutVsModule": {
+      "module": "Generic call sequence: may start at any formation and end at any formation. No home restriction.",
+      "getout": "A SPECIAL kind of module: always ENDS at home (home.name) and can never START at home. Invariant: kind=='getout'  =>  end.formation == home.name  AND  start.formation != home.name.",
+      "note": "The legacy top-level 'getout' object is a per-formation list of first-step calls (reverse-search result), distinct from modules. A future schema may drop it and express all getouts purely as kind:'getout' modules."
+    }
+  },
+  "getout": {
+    "Static MiniWaves RH": {
+      "rotation": {
+        "rot": 0,
+        "reflect": false,
+        "cSrc": { "x": 0, "y": 0 },
+        "cTgt": { "x": 0, "y": 0 }
+      },
+      "getouts": [
+        "Circle Left 1/2"
+      ]
+    },
+    "Ocean Waves RH BGGB": {
+      "rotation": {
+        "rot": 1.5707963267948966,
+        "reflect": false,
+        "cSrc": { "x": 0, "y": 0 },
+        "cTgt": { "x": 0, "y": 0 }
+      },
+      "getouts": [
+        "Circle Left 1/2",
+        "Heads Pass Thru and Courtesy Turn"
+      ]
+    },
+    "Double Pass Thru": {
+      "rotation": {
+        "rot": 3.141592653589793,
+        "reflect": true,
+        "cSrc": { "x": 0, "y": 0 },
+        "cTgt": { "x": 0, "y": 0 }
+      },
+      "getouts": [
+        "Half Sashay"
+      ]
+    }
+  },
+  "modules": {
+    "mod:0:CircleTwice": {
+      "kind": "module",
+      "start": {
+        "formation": "Static Square",
+        "rotation": {
+          "rot": 0,
+          "reflect": false,
+          "cSrc": { "x": 0, "y": 0 },
+          "cTgt": { "x": 0, "y": 0 }
+        }
+      },
+      "end": {
+        "formation": "Static Square"
+      },
+      "calls": [
+        "Circle Left",
+        "Circle Left"
+      ]
+    },
+    "mod:1:HeadsPromGrandSquare": {
+      "kind": "module",
+      "start": {
+        "formation": "Static Square",
+        "rotation": {
+          "rot": 0,
+          "reflect": false,
+          "cSrc": { "x": 0, "y": 0 },
+          "cTgt": { "x": 0, "y": 0 }
+        }
+      },
+      "end": {
+        "formation": "Static Facing Out"
+      },
+      "calls": [
+        "Heads Promenade 1/2",
+        "Sides Face, Grand Square"
+      ]
+    },
+    "mod:2:HeadsPromenadeHome": {
+      "kind": "getout",
+      "start": {
+        "formation": "Static MiniWaves RH",
+        "rotation": {
+          "rot": 0,
+          "reflect": false,
+          "cSrc": { "x": 0, "y": 0 },
+          "cTgt": { "x": 0, "y": 0 }
+        }
+      },
+      "end": {
+        "formation": "Static Square"
+      },
+      "calls": [
+        "Heads Promenade 1/2",
+        "Sides Face, Grand Square"
+      ]
+    }
+  }
+}

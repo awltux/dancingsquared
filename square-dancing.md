@@ -117,3 +117,65 @@ Consistent with section 4, a tip is built from the **16-beat phrase** unit:
 - **The Passing Rule:** When two moving dancers' paths intersect head-on, they default to passing Right Shoulders, unless modified by a specific call parameter (e.g., Left Pass Thru).
 - **Spatial Occupancy:** No two physical dancers may occupy the same $(x, y)$ coordinate space simultaneously during intermediate animation/transition frames. Ghost dancers bypass occupancy checks.
 - **Resolution Logic:** An engine must track sequence parity to ensure that multi-call sequences can be deterministically resolved back to the home position using standard resolution lookup trees.
+
+---
+
+## 7. Formation Symmetry, Centering & Getouts
+
+### 7.1 Formation Symmetry & Half-Set Authoring
+
+A square-dance formation is **inherently symmetric**: it is built around a central point, and its geometry is usually invariant under rotation (in 90° steps) and, in many cases, reflection. Because of this symmetry, a formation is commonly **defined by only half (or a quarter) of the dancers**, with the remainder implied by rotating that half 180° about the set's center.
+
+Consequences of this symmetric, center-anchored model:
+
+- The **center of a formation** is the shared geometric center of the set, and dancers are positioned symmetrically around it.
+- A half-set definition is *not* centered on its own — it sits offset from the center precisely so that its 180°-rotated duplicate completes the full, centered formation.
+- The full formation (the unit dancers actually occupy) is centered and symmetric; the half-set offset is an authoring convenience and does not describe where the dancers stand.
+
+### 7.2 Subset Formations
+
+Most formations describe the **full 8-dancer set**, but some describe a **subset** — a smaller group of dancers (e.g. Facing Couples with 2, a Box of 4 or a Wave of 4 with 4, a Tidal formation with 6). These subset formations exist for two reasons:
+
+- **Parallel execution:** the same call can be danced by several identical subsets **at the same time** (see §7.5). A 2-dancer Facing Couples formation describes the call *Circle Right* once, and when the set holds four separate facing couples, all four dance it concurrently.
+- **Named-group execution:** different calls are danced by **different named sets** of the dancers — e.g. Heads and Sides, Boys and Girls, Centers and Ends, or Couples 1–4. Each named group is itself a subset, so the subset formation is the unit the call acts on.
+
+Because a subset occupies only part of the set, its own geometry is **not centered on the set's center** the way a full formation is — it sits offset to wherever that group of dancers actually stands. That offset must be applied to match the subset to the real dancer positions.
+
+#### 7.2.1 Edge Cases of Subset Formations
+
+- **Uneven remainder:** an 8-dancer set does not always split into equal subsets. Calls that target a 6-dancer Tidal formation, or that name a group that leaves others out, must define where the *unused* dancers go (typically they stand still, or act as the complementary subset). A clean model must account for the dancers not covered by the subset.
+- **Complementary (split) subsets:** many calls split the set into two complementary halves — e.g. "Centers … while Outsides …", or "Heads … while Sides …". Each half is a subset, but the two halves move *simultaneously and differently*, so a subset model that assumes all subsets do the same call does not fit; the call is really two parallel subset-actions with different choreography.
+- **Overlapping / non-disjoint subsets:** a dancer can belong to more than one named subset at once (a dancer is simultaneously a Boy, a Head, a specific Couple, and a Center/End). A call selects one framing; the model must not assume the subsets partition the set into disjoint groups for every call.
+- **Subset that must re-join the set:** a subset formation describes a transient grouping. After the call the dancers must resolve back into a recognizable full formation (or another consistent subset), so the endpoint of a subset call has to be defined in the context of the *whole* set, not just the subset.
+- **Offset ambiguity:** because a subset is offset from the set's center, the same subset shape can appear at several distinct locations/orientations. The model must disambiguate which physical position a given subset definition matches — the offset, not just the shape, is what identifies it.
+- **Single-group = whole set:** a "subset" can coincidentally cover the entire set (e.g. "All Eight"), in which case the offset is zero and the subset formation is indistinguishable from a full formation. The subset model should degrade gracefully to the full-formation case.
+- **Half-set vs quarter-set authoring (§7.1) vs subsets:** a *half-set definition* is an authoring shortcut to build a full symmetric formation, which is different from a *subset formation* the dancers genuinely occupy as a group. A 4-dancer wave defined as a half-set and completed to an 8-dancer set is not the same as a 4-dancer wave used as a subset that only four dancers actually stand in.
+
+### 7.3 Two Kinds of "Reflection"
+In square dancing, "reflection" can mean two distinct things:
+
+- **Completion reflection:** the 180° rotation about the center that turns a half-set into the full formation. This always applies — every formation is conceptually complete and symmetric.
+- **Orientation reflection:** whether a formation appears in its **left-hand** or **right-hand** (mirror-image) version on the floor. Some formations are handed (a Left-Hand Wave vs a Right-Hand Wave); others are their own mirror image and have no distinguishable reflection.
+
+These are unrelated. A formation is *always* completed by its rotational mirror, but whether it needs a mirror-image *orientation* depends on the specific formation and how the dancers are arranged — many formations (e.g. a Squared Set) are unhanded, while handed ones (Waves, Lines, Quarter Tags) genuinely occur in mirror-image forms.
+
+### 7.4 Getouts vs Modules
+
+- **Module:** a general call sequence that moves the set from one formation to another. It is a reusable building block and may begin and end at any formation.
+- **Getout:** a *special kind of module* whose purpose is to **return the dancers to home** (the squared set, in sequence). A getout always ends at home and, by definition, cannot start at home — if you are already home, there is nothing to get out of.
+- **Getin:** a *special kind of module* whose purpose is to **take the dancers from home to a common formation** — the mirror-image companion of a getout. A getin always starts at home and ends at some non-home formation.
+
+Every getout and every getin is a module, but not every module is a getout or a getin: the distinction is purely the constraint each places on home.
+
+**Getouts and getins are directional and not interchangeable.** A getout is a forward call sequence that *leads* the set home; a getin is a forward call sequence that *leads* the set out of home into a formation. They are **not** simply reverses of one another — you cannot obtain a getin by running a getout backwards (or vice versa), because calls do not run in reverse. A call's inverse is a geometric neighbour, not a callable forward sequence. This is what makes getins and getouts genuinely distinct families of modules rather than two views of the same data.
+
+Both are normally authored for *common* target formations — the frequently used layouts a caller actually wants to enter or exit (e.g. Facing Couples, Parallel Waves, Lines) — rather than for every conceivable formation, so they read as a compact library of standard opening and closing sequences rather than an exhaustive mapping.
+
+
+### 7.5 Calls Act on Everyone They Apply To (Parallel Action)
+
+A call is performed **simultaneously by every group of dancers to whom the call applies**. A single-couple call such as *Circle Right* is not limited to one couple: when the set is split into separate Facing Couples, each couple dances the call **at the same time** — the action happens in parallel across all the couples (or boxes, or columns) present.
+
+This parallel-action principle is central to square dancing: the caller names one call, and it is executed by all relevant groups concurrently, so the whole set moves together.
+
+

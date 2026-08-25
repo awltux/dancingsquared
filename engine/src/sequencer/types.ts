@@ -10,6 +10,11 @@ export interface SeqDancer {
   x: number;
   y: number;
   heading: number; // radians
+  // Ghost (phantom) dancer: a non-physical reference point used to complete
+  // phantom/fractional setups. Does not occupy collision space; provides
+  // geometric reference for calls defined around a larger matrix.
+  isGhost?: boolean;
+  ghostAnchor?: number; // id of the physical dancer or virtual axis it is tethered to
 }
 
 export interface Board {

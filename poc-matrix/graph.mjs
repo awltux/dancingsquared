@@ -134,6 +134,20 @@ function buildGraph() {
       }
       out.push({ call, nextKey: nk });
     }
+    // PARALLEL edges (§7.5): a call that fails whole-board but applies to two or
+    // more disjoint subsets at once (e.g. a Facing Couples call on a board of two
+    // separate facing couples). These are real, legal transitions the whole-board
+    // legalCalls miss, so enumerate them as forward edges too. Marked `parallel`.
+    for (const p of seq.parallelLegalCalls(st.board)) {
+      const nk = canonicalKey(p.board);
+      let ns = states.get(nk);
+      if (!ns) {
+        ns = { key: nk, board: p.board, depth: st.depth + 1 };
+        states.set(nk, ns);
+        order.push(nk);
+      }
+      out.push({ call: p.name, nextKey: nk, parallel: true });
+    }
     if (out.length) { edges.set(key, out); totalEdges += out.length; }
   }
   report(`build DONE: ${states.size}/${MAX_STATES} states, depth<=${MAX_DEPTH}, ${totalEdges} edges (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
@@ -292,6 +306,70 @@ const getoutCache = prepopulateGetouts(graph);
 console.log(`\n[0] GETOUT cache PRE-POPULATED backward from home (one pass):`);
 console.log(`  states with a cached getout: ${getoutCache.size}`);
 console.log(`  (getout is now an O(1) lookup for these states)`);
+
+// Persist the pre-populated getout cache + modules as a GRAPH to a file.
+// Run with `--persist [file]` to write it; without, nothing is written.
+//
+// Structure:
+//   getout: { "<formation-name>": { rotation: {rot,reflect,cSrc,cTgt},
+//                                   getouts: [call, ...] } }
+//     Keyed by formation NAME (the graph node); the rotation is the transform
+//     overlaying the canonical formation onto that board state. Same formation at
+//     a different orientation -> same name, different rotation.
+//   modules: { "<hash>": { start: { formation, rotation }, end: { formation },
+//                          calls: [...] } }
+//     Keyed by a hash; start formation may carry a rotation, end formation is
+//     just the target name (no rotation needed).
+const persistArg = process.argv.indexOf('--persist');
+const persistFile = persistArg >= 0 ? (process.argv[persistArg + 1] || 'getout-graph.json') : null;
+if (persistFile) {
+  const { writeFileSync } = await import('node:fs');
+  // ---- getout graph keyed by formation name + rotation ----
+  const getout = {}; // name -> { rotation, getouts:[] }
+  for (const [key, rec] of getoutCache) {
+    const st = graph.states.get(key);
+    const fsState = st ? seq.formationState(st.board) : null;
+    const name = fsState ? fsState.name : key; // fall back to the canonical key
+    const rotation = fsState ? { rot: fsState.rot, reflect: fsState.reflect, cSrc: fsState.cSrc, cTgt: fsState.cTgt } : null;
+    const node = (getout[name] ??= { rotation, getouts: [] });
+    for (const call of rec.options) if (!node.getouts.includes(call)) node.getouts.push(call);
+  }
+  // ---- modules keyed by hash, start+end formations ----
+  const moduleGraph = {};
+  let mi = 0;
+  for (const [startKey, list] of modules) {
+    const startSt = graph.states.get(startKey);
+    const startFs = startSt ? seq.formationState(startSt.board) : null;
+    for (const m of list) {
+      const endSt = graph.states.get(m.endKey);
+      const endFs = endSt ? seq.formationState(endSt.board) : null;
+      const id = `mod:${(mi++).toString(36)}:${m.name.replace(/[^A-Za-z0-9]+/g, '')}`;
+      moduleGraph[id] = {
+        start: startFs ? { formation: startFs.name, rotation: { rot: startFs.rot, reflect: startFs.reflect, cSrc: startFs.cSrc, cTgt: startFs.cTgt } } : { formation: startKey },
+        end: endFs ? { formation: endFs.name } : { formation: m.endKey },
+        calls: m.calls,
+      };
+    }
+  }
+  const payload = {
+    generatedAt: new Date().toISOString(),
+    params: { depth: MAX_DEPTH, states: graph.states.size },
+    home: { name: 'Static Square' },
+    getout,
+    modules: moduleGraph,
+  };
+  // A GETOUT is a special kind of module: it always ENDS at home and can never
+  // START at home. Everything else is a generic MODULE (may start/end anywhere).
+  const homeName = payload.home.name;
+  for (const mod of Object.values(moduleGraph)) {
+    const endsHome = mod.end.formation === homeName;
+    const startsHome = mod.start.formation === homeName;
+    mod.kind = endsHome && !startsHome ? 'getout' : 'module';
+  }
+  writeFileSync(persistFile, JSON.stringify(payload, null, 2));
+  report(`persisted getout graph (${Object.keys(getout).length} formation nodes) + modules to ${persistFile}`);
+  console.log(`\n  wrote getout graph (${Object.keys(getout).length} formation nodes) + ${Object.keys(moduleGraph).length} modules to ${persistFile}`);
+}
 
 // Pick a few interesting states: home, and a couple of mid-graph formations.
 const homeKey = graph.homeKey;

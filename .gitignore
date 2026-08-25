@@ -5,3 +5,9 @@ dist-test/
 *.local
 # leftover diagnostic referencing the excluded dist-test build
 poc/diag.cjs
+# poc-matrix scratch / run artifacts (not source)
+poc-matrix/_g.txt
+poc-matrix/_ge.txt
+poc-matrix/graph-progress.log
+poc-matrix/analysis-progress.log
+poc-matrix/getout-graph.json

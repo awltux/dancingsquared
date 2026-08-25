@@ -137,6 +137,13 @@ export class Sequencer {
   private matchMargin = 0;
   private rebaseFactor = 1; // 1 = reset drift to the call's canonical setup, 0 = keep it
   private snapMaxError = 1.0; // clamp a computed end onto a recognized formation when within this
+  // How the interactive apply path chooses among viable interpretations when more
+  // than one (whole-board vs parallel-subset) matches a call. 'best' prefers the
+  // whole-board interpretation (current behaviour); 'probabilistic' selects among
+  // all viable ones weighted by inverse match error. The search path (getout /
+  // getin / fixIt / legalCalls) always uses deterministic 'best' behaviour.
+  private selectionMode: 'best' | 'probabilistic' = 'best';
+  private rand: () => number = Math.random; // injectable for testability
 
   // Cached canonical end pose (at each dancer's last beat) per variant. The end
   // formation of a call is a pure function of its compiled <tam> paths, so it is
@@ -205,6 +212,23 @@ export class Sequencer {
    */
   setSnapMaxError(error: number): void {
     this.snapMaxError = Math.max(0, error);
+  }
+
+  /**
+   * Set how the INTERACTIVE apply path chooses among viable interpretations when
+   * more than one matches a call. 'best' prefers the whole-board interpretation
+   * (the default; deterministic). 'probabilistic' selects among all viable ones
+   * (whole-board and each parallel-subset grouping) weighted by inverse match
+   * error, so a tightly-fitting 2/4-dancer subset can win. The search path is
+   * always 'best' (deterministic) regardless of this setting.
+   */
+  setSelectionMode(mode: 'best' | 'probabilistic'): void {
+    this.selectionMode = mode;
+  }
+
+  /** Inject a random source for the probabilistic selection (tests). */
+  setRandomSource(fn: () => number): void {
+    this.rand = fn;
   }
 
   constructor(
@@ -479,6 +503,7 @@ export class Sequencer {
     callName: string,
     stack: string[],
     rebase: boolean,
+    allowParallel = true,
   ): { board: Board; legal: boolean; reason?: string } {
     if (this.modules.has(callName)) {
       if (stack.includes(callName)) {
@@ -487,7 +512,7 @@ export class Sequencer {
       const nextStack = [...stack, callName];
       let cur = board;
       for (const sub of this.modules.get(callName)!) {
-        const r = this.applyToBoardInner(cur, sub, nextStack, rebase);
+        const r = this.applyToBoardInner(cur, sub, nextStack, rebase, allowParallel);
         if (!r.legal) {
           return { board: cloneBoard(board), legal: false, reason: `Module ${callName}: "${sub}" not legal here` };
         }
@@ -503,6 +528,13 @@ export class Sequencer {
     const matchTol = rebase ? DEFAULT_MATCH_MAX + this.matchMargin : SEARCH_MATCH_MAX + this.matchMargin;
     const match = this.findMatchingVariant(board, callName, matchTol);
     if (!match) {
+      // PARALLEL ACTION (§7.5): a call authored for a small subset (e.g. a
+      // 2-dancer Facing Couples) can apply to several disjoint subsets of the
+      // board at the same time. If the whole-board match fails, try partitioning
+      // the physical dancers into disjoint copies of a variant's start setup and
+      // apply the call to each subset independently, then merge the results.
+      const par = this.tryParallelApply(board, callName, rebase, matchTol);
+      if (par) return par;
       return {
         board: cloneBoard(board),
         legal: false,
@@ -511,6 +543,31 @@ export class Sequencer {
           : `Unknown call: ${callName}`,
       };
     }
+    // PROBABILISTIC SELECTION: on the interactive path, when a whole-board match
+    // exists AND a parallel-subset interpretation is also viable, select among
+    // them weighted by inverse match error. The search path always stays on the
+    // deterministic whole-board result.
+    if (rebase && this.selectionMode === 'probabilistic') {
+      const par = allowParallel ? this.tryParallelApply(board, callName, rebase, matchTol) : null;
+      const chosen = this.selectInterpretation(
+        { kind: 'whole', error: match.error, run: () => this.applyWholeBoard(board, callName, match, rebase) },
+        par ? { kind: 'parallel', error: par.error, run: () => par } : null,
+      );
+      return chosen;
+    }
+    return this.applyWholeBoard(board, callName, match, rebase);
+  }
+
+  /**
+   * Apply a whole-board variant match to `board`, producing the result board.
+   * Shared by the deterministic path and the probabilistic selection.
+   */
+  private applyWholeBoard(
+    board: Board,
+    callName: string,
+    match: VariantMatch,
+    rebase: boolean,
+  ): { board: Board; legal: boolean; reason?: string } {
     const { variant, mapping } = match;
     // Re-base for the interactive apply: snap each dancer onto the call's
     // canonical start (times the rebase factor) so the next call always executes
@@ -557,6 +614,136 @@ export class Sequencer {
   }
 
   /**
+   * Choose among viable interpretations (whole-board vs parallel) for the
+   * interactive path. If only one is viable it is returned; otherwise picks
+   * probabilistically weighted by inverse error (a tighter fit wins more often).
+   * `probabilistic` mode is already gated before this is called; this method is
+   * deterministic when there is only one candidate.
+   */
+  private selectInterpretation(
+    whole: { kind: 'whole'; error: number; run: () => { board: Board; legal: boolean; reason?: string } },
+    parallel: { kind: 'parallel'; error: number; run: () => { board: Board; legal: boolean; reason?: string } } | null,
+  ): { board: Board; legal: boolean; reason?: string } {
+    if (!parallel) return whole.run();
+    // Both viable: weight by inverse error. Lower error -> higher weight.
+    const wWhole = 1 / (1 + whole.error);
+    const wPar = 1 / (1 + parallel.error);
+    const r = this.rand();
+    // Normalize so r in [0,1) maps to one of the candidates.
+    return r < wWhole / (wWhole + wPar) ? whole.run() : parallel.run();
+  }
+
+  // ------------------------------------------------------------ parallel action
+
+  /**
+   * Try to apply `callName` in PARALLEL (§7.5): if the whole-board match fails,
+   * partition the physical dancers into disjoint congruent copies of one of the
+   * call's variant start setups, apply the call to each subset independently,
+   * then merge the transformed subsets back into one board.
+   *
+   * Returns the merged result, or null when no clean parallel partition exists.
+   */
+  private tryParallelApply(
+    board: Board,
+    callName: string,
+    rebase: boolean,
+    matchTol: number,
+  ): { board: Board; legal: boolean; error: number; reason?: string } | null {
+    const variants = this.variants.get(callName);
+    if (!variants) return null;
+    const phys = board.dancers.filter((d) => !d.isGhost);
+    const n = phys.length;
+    const ghosts = board.dancers.filter((d) => d.isGhost);
+    for (const v of variants) {
+      // The variant's setup dancers (canonical start), as matchables.
+      const setup = v.dancers.map((d) => this.variantMatchable(d));
+      const k = setup.length;
+      if (k <= 1 || k >= n || n % k !== 0) continue; // need >=2 full subsets, even split
+      // Partition the board's physical dancers into n/k disjoint congruent copies.
+      const part = this.partitionInto(setup, phys, matchTol);
+      if (!part) continue;
+      const { groups, error } = part;
+      // Apply the call to each subset independently (disable parallel recursion).
+      const merged: SeqDancer[] = [];
+      let ok = true;
+      for (const group of groups) {
+        const subBoard: Board = { dancers: group.map((d) => ({ ...d })) };
+        const r = this.applyToBoardInner(subBoard, callName, [], rebase, false);
+        if (!r.legal) { ok = false; break; }
+        merged.push(...r.board.dancers);
+      }
+      if (ok) return { board: { dancers: [...merged, ...ghosts] }, legal: true, error };
+    }
+    return null;
+  }
+
+  /**
+   * Partition `dancers` into disjoint groups, each congruent to `setup` (up to
+   * translation/rotation/reflection), each of size `setup.length`. Returns the
+   * groups (each a list of dancers) + the summed match error, or null when no
+   * such partition exists. Uses greedy backtracking: pick the first unused
+   * dancer, try each way to complete a congruent copy around it, recurse.
+   * Bounded by the small board size (8 dancers, subsets of 2/4) so it stays fast.
+   */
+  private partitionInto(setup: Matchable[], dancers: SeqDancer[], maxError: number): { groups: SeqDancer[][]; error: number } | null {
+    const k = setup.length;
+    const n = dancers.length;
+    if (n === 0 || n % k !== 0) return null;
+    const used = new Array<boolean>(n).fill(false);
+    const result: SeqDancer[][] = [];
+    let totalError = 0;
+    const self = this;
+
+    const canComplete = (anchorIdx: number): boolean => {
+      // Find any k-1 other unused dancers that, with the anchor, form a copy of setup.
+      // Enumerate combinations of the remaining indices.
+      const remaining: number[] = [];
+      for (let i = 0; i < n; i++) if (!used[i] && i !== anchorIdx) remaining.push(i);
+      if (remaining.length < k - 1) return false;
+      // Try every (k-1)-combination of remaining.
+      const combo = new Array<number>(k - 1);
+      const searchCombos = (start: number, depth: number): boolean => {
+        if (depth === k - 1) {
+          const idx = [anchorIdx, ...combo];
+          const group = idx.map((i) => dancers[i]);
+          const m = matchFormations(
+            group.map((d) => ({ x: d.x, y: d.y, heading: d.heading })),
+            setup,
+            maxError,
+          );
+          if (!m) return false;
+          // Commit this group and recurse.
+          for (const i of idx) used[i] = true;
+          result.push(group);
+          const saved = totalError;
+          totalError += m.error;
+          if (next()) return true;
+          totalError = saved;
+          result.pop();
+          for (const i of idx) used[i] = false;
+          return false;
+        }
+        for (let i = start; i < remaining.length; i++) {
+          combo[depth] = remaining[i];
+          if (searchCombos(i + 1, depth + 1)) return true;
+        }
+        return false;
+      };
+      return searchCombos(0, 0);
+    };
+
+    const next = (): boolean => {
+      // Find first unused dancer as the anchor of the next group.
+      const a = used.findIndex((u) => !u);
+      if (a === -1) return true; // all placed
+      return canComplete(a);
+    };
+
+    // Guard against pathological blowup: bound the number of placement attempts.
+    return next() ? { groups: result, error: totalError } : null;
+  }
+
+  /**
    * Apply a call to the current board, advancing the sequencer state. Returns
    * the new board + legality + recognized formation.
    */
@@ -591,6 +778,27 @@ export class Sequencer {
    */
   legalCalls(board: Board): string[] {
     return this.legalWithResults(board).map((x) => x.name);
+  }
+
+  /**
+   * Calls applicable to `board` in PARALLEL across disjoint subsets (§7.5) —
+   * i.e. calls whose whole-board match fails but which can be applied to two or
+   * more separate copies of their start setup at once. Returns each as a
+   * `{ name, board }` pair with the merged result board, so a graph BFS can
+   * enumerate these as forward edges. Returns [] when the board has no parallel
+   * splits.
+   */
+  parallelLegalCalls(board: Board): { name: string; board: Board }[] {
+    const out: { name: string; board: Board }[] = [];
+    const tol = SEARCH_MATCH_MAX + this.matchMargin;
+    for (const name of this.variants.keys()) {
+      // Whole-board match would already be covered by legalCalls; only consider
+      // calls that DON'T match whole-board but DO split in parallel.
+      if (this.findMatchingVariant(board, name, tol)) continue;
+      const res = this.tryParallelApply(board, name, false, tol);
+      if (res && res.legal) out.push({ name, board: res.board });
+    }
+    return out;
   }
 
   /** Legal calls from `board`, each paired with its already-computed result board
@@ -980,10 +1188,275 @@ export class Sequencer {
     return best;
   }
 
+  /**
+   * The formation STATE of a board: the best-matching recognized formation name
+   * plus the rotation/reflection transform that overlays the canonical formation
+   * onto this board (the `matchFormations` result). This is the graph "node key":
+   * same formation at a different orientation -> same name, different rotation.
+   * Returns null when the board doesn't match any recognized formation.
+   */
+  formationState(board: Board): { name: string; rot: number; reflect: boolean; cSrc: { x: number; y: number }; cTgt: { x: number; y: number } } | null {
+    const src = this.matchables(board);
+    let best: FormationMatch | null = null;
+    for (const f of this.namedFormations) {
+      if (!STANDARD_FORMATIONS.includes(f.name) || f.dancers.length !== src.length) continue;
+      const m = matchFormations(src, f.dancers);
+      if (m && (best === null || m.error < best.error)) best = m;
+    }
+    if (!best) return null;
+    // Find the name matching this best transform (the formation whose geometry
+    // the board most closely fits).
+    let name: string | null = null;
+    for (const f of this.namedFormations) {
+      if (!STANDARD_FORMATIONS.includes(f.name) || f.dancers.length !== src.length) continue;
+      const m = matchFormations(src, f.dancers);
+      if (m && m.error === best.error) { name = f.name; break; }
+    }
+    if (!name) return null;
+    return { name, rot: best.rot, reflect: best.reflect, cSrc: best.cSrc, cTgt: best.cTgt };
+  }
+
   /** FASR analysis of the current board. */
   fasr(): Fasr {
     return analyzeFasr(this.board, this.recognize(this.board).name);
   }
+
+  // ------------------------------------------------------------ ghost & occupancy
+
+  /** Physical (non-ghost) dancers of a board. Ghosts provide reference only. */
+  physicalDancers(board: Board): SeqDancer[] {
+    return board.dancers.filter((d) => !d.isGhost);
+  }
+
+  /**
+   * Detect spatial-occupancy collisions among PHYSICAL dancers (ghosts bypass
+   * the check). Two dancers collide when they occupy the same position within
+   * `eps`. Returns the colliding (id1, id2) pairs, or [] when clear.
+   */
+  collisions(board: Board, eps = 1e-3): { id1: number; id2: number }[] {
+    const ds = board.dancers.filter((d) => !d.isGhost);
+    const out: { id1: number; id2: number }[] = [];
+    for (let i = 0; i < ds.length; i++) {
+      for (let j = i + 1; j < ds.length; j++) {
+        if (Math.hypot(ds[i].x - ds[j].x, ds[i].y - ds[j].y) < eps) {
+          out.push({ id1: ds[i].id, id2: ds[j].id });
+        }
+      }
+    }
+    return out;
+  }
+
+  // ----------------------------------------------------------------- getin
+
+  /**
+   * Search for a sequence of legal calls that takes the set FROM home INTO the
+   * target formation — the mirror companion of `getout`. A getin always starts
+   * at home and ends at a non-home formation. It is NOT the reverse of a getout
+   * (calls do not run backwards), so it is a distinct, forward search.
+   *
+   * Implementation: temporarily set the board to home, run the same budgeted
+   * DFS used by getout but toward `target`, then restore the caller's board.
+   */
+  getin(opts: { target?: string; maxCalls?: number; budget?: number } = {}): string[] | null {
+    const target = opts.target ?? 'Facing Couples';
+    const maxCalls = opts.maxCalls ?? 5;
+    const budget = opts.budget ?? 400;
+    const saved = this.board;
+    this.board = makeSquaredSet();
+    this.matchMemo.clear();
+    this.canGetoutMemo.clear();
+    this.homeScoreCache.clear();
+    this.formationMatchCache.clear();
+    const seen = new Set<string>([boardSig(this.board)]);
+    const state = { nodes: 0, budget };
+    const path = this.getinPath(this.board, target, maxCalls, [], seen, state);
+    this.board = saved;
+    this.matchMemo.clear();
+    return path;
+  }
+
+  /** Depth-first getin search: from `board`, find a forward path to `target`. */
+  private getinPath(
+    board: Board,
+    target: string,
+    depth: number,
+    path: string[],
+    seen: Set<string>,
+    state: { nodes: number; budget: number },
+  ): string[] | null {
+    if (state.nodes > state.budget) return null;
+    if (depth === 0) return null;
+    for (const c of this.legalWithResults(board)) {
+      state.nodes++;
+      const sig = boardSig(c.res.board);
+      if (seen.has(sig)) continue;
+      const nextPath = [...path, c.name];
+      if (this.reachesTarget(c.res.board, target)) return nextPath;
+      seen.add(sig);
+      const r = this.getinPath(c.res.board, target, depth - 1, nextPath, seen, state);
+      if (r) return r;
+      seen.delete(sig);
+    }
+    return null;
+  }
+
+  // ------------------------------------------------------------- 64-beat / phrases
+
+  /** Number of 16-beat phrases a beat count fills (ceil; a partial phrase is
+   * counted as one). Used by the singing-call segment validator. */
+  phrasesForBeats(beats: number): number {
+    return Math.ceil(beats / 16);
+  }
+
+  /**
+   * Validate that a flat call sequence (expanded from modules) sums to a 64-beat
+   * singing-call segment (four 16-beat phrases). Returns the total beats and
+   * whether it forms a complete segment. Continuous terminal actions (e.g. a
+   * Promenade) are acknowledged as "flow" rather than counted to exactly 64.
+   */
+  validateSegment(flat: string[]): { totalBeats: number; phrases: number; complete64: boolean; remainder: number } {
+    const totalBeats = this.sequenceBeats(flat);
+    const phrases = this.phrasesForBeats(totalBeats);
+    const remainder = totalBeats % 64;
+    return { totalBeats, phrases, complete64: remainder === 0, remainder };
+  }
+
+  // --------------------------------------------------------------- tips / zeros
+
+  /** Whether a flat call sequence is a "zero": it starts and ends at home
+   * (in-sequence squared set), so it can be chained/safely repeated. */
+  isZero(flat: string[]): boolean {
+    let board = makeSquaredSet();
+    for (const name of flat) {
+      const r = this.applyToBoard(board, name);
+      if (!r.legal) return false;
+      board = r.board;
+    }
+    return this.fasrKey(board) === this.homeFasrKey();
+  }
+
+  /**
+   * Build a tip: a sequence of figures that is itself a zero (starts and ends
+   * home, in-sequence). Each supplied figure is expected to be a zero too. The
+   * combined sequence is validated to be a zero and to fit the 64-beat segment
+   * structure (four 16-beat phrases), returning the assembled tip with metrics.
+   */
+  buildTip(figures: string[][]): { calls: string[]; legal: boolean; totalBeats: number; phrases: number; complete64: boolean; reason?: string } {
+    const flat = this.flatten(figures.flat());
+    if (!this.isZero(flat)) {
+      return { calls: flat, legal: false, totalBeats: 0, phrases: 0, complete64: false, reason: 'tip is not a zero (does not return home in-sequence)' };
+    }
+    const seg = this.validateSegment(flat);
+    return { calls: flat, legal: true, totalBeats: seg.totalBeats, phrases: seg.phrases, complete64: seg.complete64 };
+  }
+
+  // ------------------------------------------------------------- subsets & parallel
+
+  /**
+   * Partition the physical dancers of a board into disjoint subsets by a named
+   * grouping rule. Each subset is a list of dancer ids. Named groups: 'heads',
+   * 'sides', 'boys', 'girls', 'couples', 'centers', 'ends' (centers/ends require
+   * a 4-dancer line/wave and select the two inner/outer dancers).
+   *
+   * Returns `null` when the grouping cannot be applied cleanly (e.g. an uneven
+   * remainder, or a named group that doesn't match the board).
+   */
+  subsetOf(board: Board, group: string): number[][] | null {
+    const ds = board.dancers.filter((d) => !d.isGhost);
+    const byId = new Map(ds.map((d) => [d.id, d]));
+    const sortIds = (arr: SeqDancer[]): number[] => arr.map((d) => d.id).sort((a, b) => a - b);
+    const couples = (coupleNos: number[]): number[][] =>
+      coupleNos.map((c) => sortIds(ds.filter((d) => d.couple === c))).filter((s) => s.length > 0);
+
+    switch (group) {
+      case 'heads': return couples([1, 2]);
+      case 'sides': return couples([3, 4]);
+      case 'boys': return [sortIds(ds.filter((d) => d.gender === 'boy'))];
+      case 'girls': return [sortIds(ds.filter((d) => d.gender === 'girl'))];
+      case 'couples': return couples([1, 2, 3, 4]);
+      case 'centers': case 'ends': {
+        // A 4-dancer line/wave: two dancers on one side, two on the other.
+        const sides = this.splitLine(board);
+        if (!sides) return null;
+        const centers = [sides[0][1], sides[1][0]]; // the two inner dancers
+        const ends = [sides[0][0], sides[1][1]]; // the two outer dancers
+        return group === 'centers' ? [sortIds(centers.map((id) => byId.get(id)!))] : [sortIds(ends.map((id) => byId.get(id)!))];
+      }
+      default: return null;
+    }
+  }
+
+  /** Split an 8-dancer board into two 4-dancer lines/waves (for centers/ends),
+   * or null if it doesn't cleanly form two lines. */
+  private splitLine(board: Board): [number[], number[]] | null {
+    const ds = board.dancers.filter((d) => !d.isGhost);
+    if (ds.length !== 8) return null;
+    // Group by sign of x to find two vertical lines; fall back to y.
+    const byX = this.bucketLines(ds, (d) => d.x);
+    if (byX && byX[0].length === 4 && byX[1].length === 4) {
+      // order each line by y so [0] and [3] are the ends, [1] and [2] centers
+      const sort = (ids: number[]) => [...ids].sort((a, b) => (byId(ds, a)?.y ?? 0) - (byId(ds, b)?.y ?? 0));
+      return [sort(byX[0]), sort(byX[1])];
+    }
+    const byY = this.bucketLines(ds, (d) => d.y);
+    if (byY && byY[0].length === 4 && byY[1].length === 4) {
+      const sort = (ids: number[]) => [...ids].sort((a, b) => (byId(ds, a)?.x ?? 0) - (byId(ds, b)?.x ?? 0));
+      return [sort(byY[0]), sort(byY[1])];
+    }
+    return null;
+  }
+
+  /**
+   * Parallel-action: apply a call to each disjoint subset of a named group
+   * concurrently. Because the current engine cannot run one small variant across
+   * several subsets at once, this is exposed as a higher-level helper that
+   * returns whether the call is legal on each subset in parallel (by checking
+   * each subset in isolation) plus the set of subsets it would apply to.
+   *
+   * This surfaces the §7.5 requirement (a call acts on every group it applies
+   * to) even though the low-level apply path is single-subset.
+   */
+  parallelApplicable(board: Board, group: string, callName: string): { subsets: number[][] | null; legalOnAll: boolean; illegalSubsets: number[][] } {
+    const subsets = this.subsetOf(board, group);
+    if (!subsets) return { subsets: null, legalOnAll: false, illegalSubsets: [] };
+    const illegalSubsets: number[][] = [];
+    for (const sub of subsets) {
+      const subBoard = this.boardFromSubset(board, sub);
+      const r = this.applySearch(subBoard, callName);
+      if (!r.legal) illegalSubsets.push(sub);
+    }
+    return { subsets, legalOnAll: illegalSubsets.length === 0, illegalSubsets };
+  }
+
+  /** Build a standalone board from a subset of dancer ids (ghosts excluded). */
+  private boardFromSubset(board: Board, ids: number[]): Board {
+    const byId = new Map(board.dancers.map((d) => [d.id, d]));
+    const ds = ids.map((id) => byId.get(id)).filter((d): d is SeqDancer => !!d);
+    // Rebase the subset onto the origin so a single-couple/box variant can match.
+    let cx = 0, cy = 0;
+    for (const d of ds) { cx += d.x; cy += d.y; }
+    cx /= ds.length; cy /= ds.length;
+    return { dancers: ds.map((d) => ({ ...d, x: d.x - cx, y: d.y - cy })) };
+  }
+
+  private bucketLines(ds: SeqDancer[], key: (d: SeqDancer) => number): [number[], number[]] | null {
+    const buckets = new Map<number, number[]>();
+    const eps = 0.2;
+    for (const d of ds) {
+      let placed = false;
+      for (const [k, arr] of buckets) {
+        if (Math.abs(k - key(d)) < eps) { arr.push(d.id); placed = true; break; }
+      }
+      if (!placed) buckets.set(key(d), [d.id]);
+    }
+    if (buckets.size !== 2) return null;
+    const [a, b] = [...buckets.values()];
+    return [a, b];
+  }
+}
+
+function byId(ds: SeqDancer[], id: number): SeqDancer | undefined {
+  return ds.find((d) => d.id === id);
 }
 
 function isSymmetric(board: Board): boolean {

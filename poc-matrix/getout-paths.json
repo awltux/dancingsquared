@@ -1,0 +1,448 @@
+{
+  "generatedAt": "2026-08-25T13:08:17.643Z",
+  "params": {
+    "depth": 12,
+    "states": 15000,
+    "cap": 15000
+  },
+  "homeKey": "3.162,0.000,-162;2.530,1.897,-162;0.000,-3.162,108;1.897,-2.530,108;-3.162,0.000,18;-2.530,-1.897,18;0.000,3.162,-72;-1.897,2.530,-72|1,2,3,4,5,6,7,8",
+  "getoutPaths": [
+    [
+      "Circle Left 1/2"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn"
+    ],
+    [
+      "All 4 Men Lead Reverse Flutterwheel"
+    ],
+    [
+      "Head Ladies Chain"
+    ],
+    [
+      "Side Ladies Chain"
+    ],
+    [
+      "Head Ladies Chain Right"
+    ],
+    [
+      "Side Ladies Chain Right"
+    ],
+    [
+      "Four Ladies Chain 1/4"
+    ],
+    [
+      "Four Ladies Chain 3/4"
+    ],
+    [
+      "Sides Promenade 1/2"
+    ],
+    [
+      "Circle Left"
+    ],
+    [
+      "Half Sashay"
+    ],
+    [
+      "All 4 Women Lead Flutterwheel"
+    ],
+    [
+      "Circle Left 1/2",
+      "All 4 Men Lead Reverse Flutterwheel"
+    ],
+    [
+      "Circle Left 1/2",
+      "Head Ladies Chain"
+    ],
+    [
+      "Circle Left 1/2",
+      "Side Ladies Chain"
+    ],
+    [
+      "Circle Left 1/2",
+      "Head Ladies Chain Right"
+    ],
+    [
+      "Circle Left 1/2",
+      "Side Ladies Chain Right"
+    ],
+    [
+      "Circle Left 1/2",
+      "Four Ladies Chain 1/4"
+    ],
+    [
+      "Circle Left 1/2",
+      "Four Ladies Chain 3/4"
+    ],
+    [
+      "Circle Left 1/2",
+      "Half Sashay"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "All 4 Women Lead Flutterwheel"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "All 4 Men Lead Reverse Flutterwheel"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "Head Ladies Chain"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "Side Ladies Chain"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "Head Ladies Chain Right"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "Side Ladies Chain Right"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "Four Ladies Chain 1/4"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "Four Ladies Chain 3/4"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "Half Sashay"
+    ],
+    [
+      "All 4 Men Lead Reverse Flutterwheel",
+      "Half Sashay"
+    ],
+    [
+      "Head Ladies Chain",
+      "Sides Promenade 1/2"
+    ],
+    [
+      "Head Ladies Chain",
+      "Half Sashay"
+    ],
+    [
+      "Head Ladies Chain",
+      "Rollaway"
+    ],
+    [
+      "Side Ladies Chain",
+      "Half Sashay"
+    ],
+    [
+      "Side Ladies Chain Right",
+      "Rollaway"
+    ],
+    [
+      "Four Ladies Chain 1/4",
+      "Rollaway"
+    ],
+    [
+      "Four Ladies Chain 3/4",
+      "Sides Promenade 1/2"
+    ],
+    [
+      "Four Ladies Chain 3/4",
+      "Half Sashay"
+    ],
+    [
+      "Sides Promenade 1/2",
+      "Side Ladies Chain Right"
+    ],
+    [
+      "Sides Promenade 1/2",
+      "Head Ladies Chain Right"
+    ],
+    [
+      "Sides Promenade 1/2",
+      "Four Ladies Chain 3/4"
+    ],
+    [
+      "Sides Promenade 1/2",
+      "Half Sashay"
+    ],
+    [
+      "Half Sashay",
+      "All 4 Men Lead Reverse Flutterwheel"
+    ],
+    [
+      "Half Sashay",
+      "Head Ladies Chain"
+    ],
+    [
+      "Half Sashay",
+      "Side Ladies Chain"
+    ],
+    [
+      "Half Sashay",
+      "Head Ladies Chain Right"
+    ],
+    [
+      "Half Sashay",
+      "Side Ladies Chain Right"
+    ],
+    [
+      "Half Sashay",
+      "Four Ladies Chain 3/4"
+    ],
+    [
+      "Half Sashay",
+      "Four Ladies Chain 1/4"
+    ],
+    [
+      "Sides Promenade 1/2",
+      "Side Ladies Chain"
+    ],
+    [
+      "Side Ladies Chain Right",
+      "Half Sashay"
+    ],
+    [
+      "Circle Left 1/2",
+      "Head Ladies Chain",
+      "Half Sashay"
+    ],
+    [
+      "Circle Left 1/2",
+      "Side Ladies Chain",
+      "Half Sashay"
+    ],
+    [
+      "Circle Left 1/2",
+      "Head Ladies Chain Right",
+      "Half Sashay"
+    ],
+    [
+      "Circle Left 1/2",
+      "Side Ladies Chain Right",
+      "Half Sashay"
+    ],
+    [
+      "Circle Left 1/2",
+      "Half Sashay",
+      "Head Ladies Chain"
+    ],
+    [
+      "Circle Left 1/2",
+      "Half Sashay",
+      "Side Ladies Chain"
+    ],
+    [
+      "Circle Left 1/2",
+      "Half Sashay",
+      "Head Ladies Chain Right"
+    ],
+    [
+      "Circle Left 1/2",
+      "Half Sashay",
+      "Side Ladies Chain Right"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "All 4 Women Lead Flutterwheel",
+      "Half Sashay"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "All 4 Men Lead Reverse Flutterwheel",
+      "Rollaway"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "Four Ladies Chain 1/4",
+      "Half Sashay"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "Four Ladies Chain 3/4",
+      "Half Sashay"
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      "Half Sashay",
+      "Four Ladies Chain 3/4"
+    ]
+  ],
+  "commonModules": [
+    {
+      "seq": [
+        "Circle Left 1/2",
+        "Half Sashay"
+      ],
+      "count": 5
+    },
+    {
+      "seq": [
+        "Circle Left 1/2",
+        "Head Ladies Chain"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Circle Left 1/2",
+        "Side Ladies Chain"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Circle Left 1/2",
+        "Head Ladies Chain Right"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Circle Left 1/2",
+        "Side Ladies Chain Right"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Heads Pass Thru and Courtesy Turn",
+        "All 4 Women Lead Flutterwheel"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Heads Pass Thru and Courtesy Turn",
+        "All 4 Men Lead Reverse Flutterwheel"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Heads Pass Thru and Courtesy Turn",
+        "Four Ladies Chain 1/4"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Heads Pass Thru and Courtesy Turn",
+        "Four Ladies Chain 3/4"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Heads Pass Thru and Courtesy Turn",
+        "Half Sashay"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Head Ladies Chain",
+        "Half Sashay"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Side Ladies Chain",
+        "Half Sashay"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Four Ladies Chain 3/4",
+        "Half Sashay"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Half Sashay",
+        "Head Ladies Chain"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Half Sashay",
+        "Side Ladies Chain"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Half Sashay",
+        "Head Ladies Chain Right"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Half Sashay",
+        "Side Ladies Chain Right"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Half Sashay",
+        "Four Ladies Chain 3/4"
+      ],
+      "count": 2
+    },
+    {
+      "seq": [
+        "Side Ladies Chain Right",
+        "Half Sashay"
+      ],
+      "count": 2
+    }
+  ],
+  "closingCalls": [
+    [
+      "Half Sashay",
+      28
+    ],
+    [
+      "Circle Left 1/2",
+      17
+    ],
+    [
+      "Heads Pass Thru and Courtesy Turn",
+      15
+    ],
+    [
+      "Head Ladies Chain",
+      9
+    ],
+    [
+      "Side Ladies Chain Right",
+      9
+    ],
+    [
+      "Four Ladies Chain 3/4",
+      9
+    ],
+    [
+      "Side Ladies Chain",
+      8
+    ],
+    [
+      "Sides Promenade 1/2",
+      8
+    ],
+    [
+      "Head Ladies Chain Right",
+      7
+    ],
+    [
+      "All 4 Men Lead Reverse Flutterwheel",
+      6
+    ]
+  ]
+}

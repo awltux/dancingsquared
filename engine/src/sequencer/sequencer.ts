@@ -432,7 +432,7 @@ export class Sequencer {
 
   /** The current board as a list of matchable dancers. */
   private matchables(board: Board): Matchable[] {
-    return board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading }));
+    return board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender }));
   }
 
   // A variant dancer's matchable position. Mirrored (duplicate-half) dancers
@@ -440,9 +440,9 @@ export class Sequencer {
   // 180-degree rotation here for matching.
   private variantMatchable(d: CallBundle['dancers'][number]): Matchable {
     if (d.mirror) {
-      return { x: -d.x, y: -d.y, heading: normAngle(d.angleDeg * DEG + Math.PI) };
+      return { x: -d.x, y: -d.y, heading: normAngle(d.angleDeg * DEG + Math.PI), gender: d.gender };
     }
-    return { x: d.x, y: d.y, heading: d.angleDeg * DEG };
+    return { x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender };
   }
 
   /** Which of this call's variants matches the given board? Memoised by call name
@@ -459,10 +459,13 @@ export class Sequencer {
   private findMatchingVariant(board: Board, callName: string, maxError: number): VariantMatch | null {
     const variants = this.variants.get(callName);
     if (!variants) return null;
-    // Key on the call's position/heading signature only (id is irrelevant to the
-    // geometric match, so two boards with identical geometry share a cache entry).
+    // Key on the call's position/heading signature. When the call is gender-
+    // specific the result depends on the board's GENDER arrangement too, so the
+    // gender pattern must be part of the key (two identical-geometry boards with
+    // different boy/girl placements must not share a cache entry).
+    const genderSensitive = variants.some((v) => v.genderSpecific);
     const key = `${maxError}|${callName}|${board.dancers
-      .map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}`)
+      .map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}${genderSensitive ? '|' + d.gender : ''}`)
       .join(';')}`;
     const cached = this.matchMemo.get(key);
     if (cached !== undefined) return cached;
@@ -470,7 +473,10 @@ export class Sequencer {
     let best: VariantMatch | null = null;
     for (const v of variants) {
       const tgt = v.dancers.map((d) => this.variantMatchable(d));
-      const m = matchFormations(src, tgt, maxError);
+      // Gender-specific calls (e.g. "Boys Turn Back") only match when the board's
+      // boy/girl arrangement aligns with the setup's gender slots; other calls
+      // ignore gender.
+      const m = matchFormations(src, tgt, maxError, !!v.genderSpecific);
       if (m && (best === null || m.error < best.error)) {
         best = { variant: v, mapping: m.mapping, error: m.error, rot: m.rot, reflect: m.reflect, cSrc: m.cSrc, cTgt: m.cTgt };
       }
@@ -780,6 +786,53 @@ export class Sequencer {
     return this.legalWithResults(board).map((x) => x.name);
   }
 
+  /** Loose-tolerance legal calls (for display/enumeration). See `searchLegalCalls`
+   * for the tight-gated variant used by the getout/getin search. */
+  private legalWithResults(board: Board): { name: string; res: { board: Board; legal: boolean } }[] {
+    const out: { name: string; res: { board: Board; legal: boolean } }[] = [];
+    for (const name of this.variants.keys()) {
+      const res = this.applySearch(board, name);
+      if (res.legal && this.knownFormation(res.board) !== null) out.push({ name, res });
+    }
+    for (const mname of this.modules.keys()) {
+      const res = this.applySearch(board, mname);
+      if (res.legal && this.knownFormation(res.board) !== null) out.push({ name: mname, res });
+    }
+    return out;
+  }
+
+  /**
+   * Candidates for the getout/getin SEARCH, reconciled with the matrix model.
+   *
+   * The matrix model treats a call as an exact per-dancer affine whose start
+   * setup must genuinely overlay the board. The plain `legalWithResults` accepts
+   * a candidate under the loose search tolerance, which lets a force-fit through
+   * (e.g. a T-Bone start onto a Double Pass Thru board) that would be rejected
+   * when actually applied. Here each candidate must ALSO match under the tight,
+   * interactive tolerance — the same gate the interactive apply uses — so
+   * force-fits are pruned at search time rather than surfacing as a getout that
+   * fails on apply. Chaining still uses the pure-relative search apply so dancer
+   * identity/permutation is preserved for un-permuting home.
+   */
+  private searchLegalCalls(board: Board): { name: string; res: { board: Board; legal: boolean } }[] {
+    const out: { name: string; res: { board: Board; legal: boolean } }[] = [];
+    const tight = DEFAULT_MATCH_MAX + this.matchMargin;
+    for (const name of this.variants.keys()) {
+      // Matrix-exact gate: the call's start setup must genuinely match the board
+      // under the tight tolerance, or it is a force-fit and is rejected.
+      if (!this.findMatchingVariant(board, name, tight)) continue;
+      const res = this.applySearch(board, name);
+      if (res.legal && this.knownFormation(res.board) !== null) out.push({ name, res });
+    }
+    for (const mname of this.modules.keys()) {
+      const tightApply = this.applyToBoard(board, mname);
+      if (!tightApply.legal || this.knownFormation(tightApply.board) === null) continue;
+      const res = this.applySearch(board, mname);
+      if (res.legal && this.knownFormation(res.board) !== null) out.push({ name: mname, res });
+    }
+    return out;
+  }
+
   /**
    * Calls applicable to `board` in PARALLEL across disjoint subsets (§7.5) —
    * i.e. calls whose whole-board match fails but which can be applied to two or
@@ -797,24 +850,6 @@ export class Sequencer {
       if (this.findMatchingVariant(board, name, tol)) continue;
       const res = this.tryParallelApply(board, name, false, tol);
       if (res && res.legal) out.push({ name, board: res.board });
-    }
-    return out;
-  }
-
-  /** Legal calls from `board`, each paired with its already-computed result board
-   * so a caller (e.g. the getout heuristic) can inspect the outcome without
-   * re-applying the call. */
-  private legalWithResults(board: Board): { name: string; res: { board: Board; legal: boolean } }[] {
-    const out: { name: string; res: { board: Board; legal: boolean } }[] = [];
-    for (const name of this.variants.keys()) {
-      const res = this.applySearch(board, name);
-      if (res.legal && this.knownFormation(res.board) !== null) out.push({ name, res });
-    }
-    // User-defined modules: legal iff every contained call is legal in sequence
-    // and the whole module ends in a known formation.
-    for (const mname of this.modules.keys()) {
-      const res = this.applySearch(board, mname);
-      if (res.legal && this.knownFormation(res.board) !== null) out.push({ name: mname, res });
     }
     return out;
   }
@@ -926,15 +961,42 @@ export class Sequencer {
       if (rigid) return rigid;
     }
 
-    // Fast path #2: greedy best-first straight toward home. Handles the common
-    // "nearly home" body in milliseconds with no backtracking.
+    // The search paths below use the LOOSE search tolerance to chain multi-call
+    // sequences on pure-relative (un-snapped) boards. But a getout is APPLIED
+    // through the interactive path (tight tolerance, snap-clamped), so a call
+    // that force-fits under the loose tolerance (e.g. a T-Bone start onto a
+    // Double Pass Thru board) would be rejected on apply. So the DFS is seeded
+    // with a validator that only accepts paths which replay correctly on the
+    // interactive path — ensuring any returned getout genuinely starts from the
+    // current formation and reaches home when applied.
+
+    // Fast path #2: greedy best-first straight toward home.
     const greedy = this.greedyHome(target, maxCalls);
-    if (greedy) return greedy;
+    if (greedy && this.verifyInteractivePath(greedy, target)) return greedy;
 
     // Fallback: budgeted DFS for harder bodies (bounded so it can't hang).
     const seen = new Set<string>([boardSig(this.board)]);
     const state = { nodes: 0, budget };
-    return this.getoutPath(this.board, target, maxCalls, [], seen, state);
+    return this.getoutPath(this.board, target, maxCalls, [], seen, state, (path) =>
+      this.verifyInteractivePath(path, target),
+    );
+  }
+
+  /**
+   * Replay a candidate getout path through the INTERACTIVE apply path (tight
+   * tolerance, snap-clamped) to confirm every call is genuinely legal and the
+   * final board reaches `target`. The search paths use a looser tolerance, so a
+   * path they find may include a force-fit call that is rejected when actually
+   * applied; this guards against returning such a path.
+   */
+  private verifyInteractivePath(path: string[], target: string): boolean {
+    let board = cloneBoard(this.board);
+    for (const name of path) {
+      const r = this.applyToBoard(board, name);
+      if (!r.legal) return false;
+      board = r.board;
+    }
+    return this.reachesTarget(board, target);
   }
 
   /** Greedy best-first: at each step pick the legal call whose result scores
@@ -949,7 +1011,7 @@ export class Sequencer {
       if (path.length > 0 && this.reachesTarget(board, target)) return path;
       let best: { name: string; res: { board: Board; legal: boolean } } | null = null;
       let bestScore = -Infinity;
-      for (const c of this.legalWithResults(board)) {
+      for (const c of this.searchLegalCalls(board)) {
         const sig = boardSig(c.res.board);
         if (seen.has(sig)) continue;
         const s = this.homeScore(c.res.board);
@@ -1045,10 +1107,11 @@ export class Sequencer {
     path: string[],
     seen: Set<string>,
     state: { nodes: number; budget: number },
+    validate?: (path: string[]) => boolean,
   ): string[] | null {
     if (depth <= 0) return null;
     if (state.nodes >= state.budget) return null;
-    const candidates = this.legalWithResults(board);
+    const candidates = this.searchLegalCalls(board);
     candidates.sort((a, b) => this.homeScore(b.res.board) - this.homeScore(a.res.board));
     for (const { name, res } of candidates) {
       const sig = boardSig(res.board);
@@ -1056,8 +1119,12 @@ export class Sequencer {
       seen.add(sig);
       state.nodes++;
       path.push(name);
-      if (this.reachesTarget(res.board, target)) return [...path];
-      const sub = this.getoutPath(res.board, target, depth - 1, path, seen, state);
+      if (this.reachesTarget(res.board, target)) {
+        // Only accept a path that (when provided) also replays correctly on the
+        // interactive apply path; otherwise keep searching for a valid one.
+        if (!validate || validate([...path])) return [...path];
+      }
+      const sub = this.getoutPath(res.board, target, depth - 1, path, seen, state, validate);
       if (sub) return sub;
       path.pop();
     }
@@ -1286,7 +1353,7 @@ export class Sequencer {
   ): string[] | null {
     if (state.nodes > state.budget) return null;
     if (depth === 0) return null;
-    for (const c of this.legalWithResults(board)) {
+    for (const c of this.searchLegalCalls(board)) {
       state.nodes++;
       const sig = boardSig(c.res.board);
       if (seen.has(sig)) continue;

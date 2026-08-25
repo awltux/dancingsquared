@@ -61,6 +61,9 @@ export interface CallBundle {
   leadin: number;
   leadout: number;
   totalBeats: number; // leadin + beats + leadout
+  // sequencer="gender-specific": the call only applies when the board's gender
+  // arrangement matches the setup's gender slots (e.g. "Boys Turn Back").
+  genderSpecific?: boolean;
 }
 
 export interface Pose {

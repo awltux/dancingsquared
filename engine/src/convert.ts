@@ -241,6 +241,9 @@ interface TamRaw {
   formationAttr: string | null;
   dancers: DancerBase[];
   paths: PathItem[][];
+  // sequencer="gender-specific" marks calls whose arrangement only works when
+  // the board's boy/girl placement matches the setup's gender slots.
+  genderSpecific?: boolean;
 }
 
 function parseCallXmlImpl(xmlText: string): TamRaw[] {
@@ -267,6 +270,7 @@ function parseCallXmlImpl(xmlText: string): TamRaw[] {
       formationAttr: tam.getAttribute('formation'),
       dancers,
       paths,
+      genderSpecific: tam.getAttribute('sequencer') === 'gender-specific',
     });
   }
   return tams;
@@ -341,6 +345,7 @@ function buildCallImpl(
     leadin,
     leadout,
     totalBeats: leadin + beats + leadout,
+    genderSpecific: tam.genderSpecific,
   };
 }
 

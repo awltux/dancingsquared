@@ -168,6 +168,60 @@ const pb = seq.applyToBoard(twoFC, 'Single Circle Right Full');
 check(pb.legal === true, `default 'best' mode applies legally`);
 check(typeof seq['selectionMode'] === 'string', 'selectionMode is a settable field');
 
+console.log('== Getout first-call validity regression (§7.4) ==');
+// A getout path is APPLIED through the interactive (tight-tolerance) path, so
+// its first call must start from the current formation. The search uses a looser
+// tolerance; ensure getout never returns a path whose first call is rejected on
+// interactive apply. We probe a Double Pass Thru board (the historical force-fit
+// case: a T-Bone start was previously returned against a Double Pass Thru board).
+const seq2 = new Sequencer(movesXml, formationsXml, [
+  { name: 'Heads Promenade 3/4', xml: ms('promenade') },
+  { name: 'Around Two and Come Into the Middle', xml: ms('dixie_style') },
+  { name: 'Single Circle Right Full', xml: ms('circle') },
+  { name: 'Four Ladies Chain 1/4', xml: ms('ladies_chain') },
+  { name: 'Sides Face, Grand Spin', xml: ms('grand_spin') },
+  { name: 'Single File Promenade', xml: ms('promenade') },
+]);
+seq2.reset();
+const p0 = seq2.apply('Heads Promenade 3/4');
+check(p0.legal, `Heads Promenade 3/4 leads to ${p0.formation.name}`);
+const startB = seq2.startBoard();
+const go = seq2.getout({ target: 'Static Square', maxCalls: 5 });
+// Regardless of whether a getout is found, ANY returned path must replay
+// interactively (every call legal, ending home).
+if (go) {
+  let b = seq2.startBoard();
+  let allLegal = true;
+  let failReason = '';
+  for (const name of go) {
+    const r = seq2.applyToBoard(b, name);
+    if (!r.legal) { allLegal = false; failReason = `${name}: ${r.reason}`; break; }
+    b = r.board;
+  }
+  check(allLegal, `getout [${go.join(' > ')}] replays legal on interactive path (${failReason || 'ok'})`);
+  check(allLegal && seq2.isAt('Static Square', b), 'getout ends at home');
+} else {
+  check(true, 'getout returned null for this hard body (no invalid path)');
+}
+
+console.log('== Gender-specific matching (§1.1) ==');
+// A gender-specific call (e.g. "Allemande Left", marked sequencer="gender-specific")
+// must only apply when the board's boy/girl arrangement matches its setup. A board
+// with IDENTICAL geometry but swapped genders must be rejected.
+const seq3 = new Sequencer(movesXml, formationsXml, [
+  { name: 'Allemande Left', xml: ms('allemande') },
+  { name: 'Rollaway', xml: ms('sashay') }, // non-gender-specific control
+]);
+seq3.reset();
+const homeB = seq3.startBoard();
+const gsOk = seq3.applyToBoard(homeB, 'Allemande Left');
+check(gsOk.legal === true, `Allemande Left (gender-specific) legal from correct arrangement`);
+const swappedG = { dancers: homeB.dancers.map((d) => ({ ...d, gender: d.gender === 'boy' ? 'girl' : 'boy' })) };
+const gsSwap = seq3.applyToBoard(swappedG, 'Allemande Left');
+check(gsSwap.legal === false, `Allemande Left rejected when genders swapped (same geometry)`);
+const ctl = seq3.applyToBoard(swappedG, 'Rollaway');
+check(ctl.legal === true, `Rollaway (gender-agnostic) still applies on swapped board`);
+
 console.log('=================');
 if (failures === 0) console.log('FEATURES TEST PASSED');
 else {

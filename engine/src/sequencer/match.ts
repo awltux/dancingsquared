@@ -10,6 +10,7 @@ export interface Matchable {
   x: number;
   y: number;
   heading: number; // radians
+  gender?: 'boy' | 'girl' | 'phantom';
 }
 
 export interface FormationMatch {
@@ -19,6 +20,13 @@ export interface FormationMatch {
   reflect: boolean; // whether a reflection (mirror) was applied to the target
   cSrc: { x: number; y: number }; // center of the source (board)
   cTgt: { x: number; y: number }; // center of the target (candidate)
+}
+
+// Gender compatibility for gender-specific matching. 'phantom' is a wildcard
+// (matches boy, girl or phantom); any two real genders must be equal.
+function genderCompatible(a: Matchable['gender'], b: Matchable['gender']): boolean {
+  if (!a || !b || a === 'phantom' || b === 'phantom') return true;
+  return a === b;
 }
 
 const ROTS = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
@@ -48,7 +56,8 @@ function center(ds: Matchable[]): { x: number; y: number } {
   return { x: cx / ds.length, y: cy / ds.length };
 }
 
-// Rotate then (optionally) reflect a copy of `target`, and center it.
+// Rotate then (optionally) reflect a copy of `target`, and center it. Gender is
+// carried with the dancer through the transform.
 function transformTarget(target: Matchable[], rot: number, reflect: boolean, c: { x: number; y: number }): Matchable[] {
   const cos = Math.cos(rot);
   const sin = Math.sin(rot);
@@ -58,11 +67,15 @@ function transformTarget(target: Matchable[], rot: number, reflect: boolean, c: 
     if (reflect) x = -x;
     const rx = x * cos - y * sin;
     const ry = x * sin + y * cos;
-    return { x: rx, y: ry, heading: d.heading + rot + (reflect ? Math.PI : 0) };
+    return { x: rx, y: ry, heading: d.heading + rot + (reflect ? Math.PI : 0), gender: d.gender };
   });
 }
 
-function greedyAssign(source: Matchable[], target: Matchable[]): { mapping: number[]; error: number } {
+function greedyAssign(
+  source: Matchable[],
+  target: Matchable[],
+  requireGender: boolean,
+): { mapping: number[]; error: number } {
   const mapping = new Array(source.length).fill(-1);
   const used = new Array(target.length).fill(false);
   const order = source
@@ -74,6 +87,7 @@ function greedyAssign(source: Matchable[], target: Matchable[]): { mapping: numb
     let bestD = Infinity;
     for (let j = 0; j < target.length; j++) {
       if (used[j]) continue;
+      if (requireGender && !genderCompatible(source[i].gender, target[j].gender)) continue;
       const dx = source[i].x - target[j].x;
       const dy = source[i].y - target[j].y;
       const d = Math.hypot(dx, dy) + angDiff(source[i].heading, target[j].heading) * 0.5;
@@ -82,6 +96,7 @@ function greedyAssign(source: Matchable[], target: Matchable[]): { mapping: numb
         best = j;
       }
     }
+    if (best === -1) return { mapping: [], error: Infinity }; // no gender-compatible slot
     used[best] = true;
     mapping[i] = best;
     error += bestD;
@@ -93,11 +108,18 @@ function greedyAssign(source: Matchable[], target: Matchable[]): { mapping: numb
  * Find whether `source` (board) and `target` (candidate) are the same formation
  * up to translation/rotation/reflection. Returns the best mapping + total
  * offset, or null if the best error exceeds `maxError`.
+ *
+ * When `requireGender` is true, the mapping must also be GENDER-CONSISTENT: each
+ * board dancer is only assigned to a candidate slot whose gender is compatible.
+ * This is used for gender-specific calls (e.g. "Boys Turn Back"), so a call
+ * only applies when the board's boy/girl arrangement actually matches its setup.
+ * Recognition and generic calls pass false and ignore gender.
  */
 export function matchFormations(
   source: Matchable[],
   target: Matchable[],
   maxError = 6.0,
+  requireGender = false,
 ): FormationMatch | null {
   if (source.length !== target.length) return null;
 
@@ -121,12 +143,13 @@ export function matchFormations(
 
   const cSrc = center(source);
   const cTgt = center(target);
-  const centered = source.map((d) => ({ x: d.x - cSrc.x, y: d.y - cSrc.y, heading: d.heading }));
+  const centered = source.map((d) => ({ x: d.x - cSrc.x, y: d.y - cSrc.y, heading: d.heading, gender: d.gender }));
   let best: FormationMatch | null = null;
   for (const rot of ROTS) {
     for (const reflect of [false, true]) {
       const t = transformTarget(target, rot, reflect, cTgt);
-      const res = greedyAssign(centered, t);
+      const res = greedyAssign(centered, t, requireGender);
+      if (!isFinite(res.error)) continue;
       if (best === null || res.error < best.error - TIE_EPS) {
         best = { mapping: res.mapping, error: res.error, rot, reflect, cSrc, cTgt };
       }

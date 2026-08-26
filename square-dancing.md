@@ -151,6 +151,37 @@ Because a subset occupies only part of the set, its own geometry is **not center
 - **Single-group = whole set:** a "subset" can coincidentally cover the entire set (e.g. "All Eight"), in which case the offset is zero and the subset formation is indistinguishable from a full formation. The subset model should degrade gracefully to the full-formation case.
 - **Half-set vs quarter-set authoring (§7.1) vs subsets:** a *half-set definition* is an authoring shortcut to build a full symmetric formation, which is different from a *subset formation* the dancers genuinely occupy as a group. A 4-dancer wave defined as a half-set and completed to an 8-dancer set is not the same as a 4-dancer wave used as a subset that only four dancers actually stand in.
 
+#### 7.2.2 Multi-Match: One Call, Several Simultaneous Formations
+
+A smaller formation can occur **several times in the same board at once**, and a
+single call then acts on **all of those copies simultaneously**. This is the
+"multi-formation from a single call" behaviour — distinct from the authoring
+convenience of §7.1 and the *reason* it matters (parallel action, §7.5).
+
+- **A formation may appear more than once.** A 2-dancer Facing Couples formation
+  is present in *four* separate copies in a squared set (one per side); a Box of 4
+  appears in *two* copies in a two-box setup. Each copy is a **disjoint** group of
+  dancers (no dancer is part of two copies at once).
+- **One call resolves against every copy.** When a call is authored for that
+  smaller formation, it does not pick a single best copy — it finds **all**
+  disjoint copies and applies to each concurrently. The set as a whole executes
+  the call once per copy, and the copies do not interact.
+- **Matching must return multiple copies.** The matcher therefore exposes
+  multi-match: given the board and the smaller formation, return *all* disjoint
+  subsets that reproduce it (not just the best one). The engine's
+  `matchFormationsAll` does this; `matchFormations` returns the best single copy
+  for callers that only need one.
+- **The copies must be disjoint and exhaustive.** Multi-match guarantees no dancer
+  is reused across copies, and it covers every copy the board actually contains.
+  This is what lets a single call legitimately move several formations at once.
+- **Distinct from subset authoring (§7.2).** A subset formation describes one
+  group *once*; multi-match describes that the same group *repeats*. The former is
+  about how the call is authored, the latter about how it is matched and executed
+  when the board holds many copies.
+
+This is the same capability documented for the engine in `prd.md` §9.5 (multi-match
+via `matchFormationsAll`), stated here in domain terms.
+
 ### 7.3 Two Kinds of "Reflection"
 In square dancing, "reflection" can mean two distinct things:
 

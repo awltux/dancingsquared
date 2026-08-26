@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer } from '../dist/index.js';
+import { setParser, Sequencer, matchFormations, matchFormationsAll } from '../dist/index.js';
 
 setParser(DOMParser);
 
@@ -221,6 +221,54 @@ const gsSwap = seq3.applyToBoard(swappedG, 'Allemande Left');
 check(gsSwap.legal === false, `Allemande Left rejected when genders swapped (same geometry)`);
 const ctl = seq3.applyToBoard(swappedG, 'Rollaway');
 check(ctl.legal === true, `Rollaway (gender-agnostic) still applies on swapped board`);
+
+console.log('== matchFormations subset matching (§7.2) ==');
+// matchFormations must handle a full board (8) matching a PARTIAL target (4 or 2
+// dancers) by finding which subset of the board reproduces the target, and stay
+// order-independent for equal-length sets.
+const DEG = Math.PI / 180;
+const mm = (ds) => ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender ?? 'boy' }));
+const dpt8 = mm([
+  { gender: 'boy', x: -3, y: 1, angleDeg: 0 }, { gender: 'girl', x: -3, y: -1, angleDeg: 0 },
+  { gender: 'boy', x: -1, y: 1, angleDeg: 0 }, { gender: 'girl', x: -1, y: -1, angleDeg: 0 },
+  { gender: 'boy', x: 3, y: -1, angleDeg: 180 }, { gender: 'girl', x: 3, y: 1, angleDeg: 180 },
+  { gender: 'boy', x: 1, y: -1, angleDeg: 180 }, { gender: 'girl', x: 1, y: 1, angleDeg: 180 },
+]);
+const fcSubset = mm([
+  { gender: 'boy', x: -3, y: 1, angleDeg: 0 }, { gender: 'girl', x: -3, y: -1, angleDeg: 0 },
+]);
+const fcOutside = mm([
+  { gender: 'boy', x: -5, y: 3, angleDeg: 0 }, { gender: 'girl', x: 0, y: 3, angleDeg: 0 },
+]);
+check(matchFormations(dpt8, dpt8, 6.0) !== null, 'equal-length 8v8 matches');
+check(matchFormations(dpt8, [...dpt8].reverse(), 6.0) !== null, 'equal-length 8v8 is order-independent');
+const sub2 = matchFormations(dpt8, fcSubset, 6.0);
+check(sub2 !== null, `8-dancer board matches a 2-dancer subset setup (previously null)`);
+if (sub2) check(sub2.subset && sub2.subset.length === 2, `  subset indices found: [${sub2.subset}]`);
+check(matchFormations(dpt8, fcOutside, 6.0) === null, 'absent 2-dancer subset stays null');
+const sub4 = matchFormations(dpt8, dpt8.slice(0, 4), 6.0);
+check(sub4 !== null && sub4.subset && sub4.subset.length === 4, `8v4 subset matches (indices [${sub4 && sub4.subset}])`);
+
+console.log('== matchFormations multi-match (smaller formation, many copies) ==');
+// A squared set contains FOUR separate Facing-Couple copies of a 2-dancer setup.
+const sq = mm([
+  { gender: 'boy', x: -3, y: 1, angleDeg: 0 }, { gender: 'girl', x: -3, y: -1, angleDeg: 0 },
+  { gender: 'boy', x: 3, y: -1, angleDeg: 180 }, { gender: 'girl', x: 3, y: 1, angleDeg: 180 },
+  { gender: 'boy', x: 1, y: -3, angleDeg: 90 }, { gender: 'girl', x: -1, y: -3, angleDeg: 90 },
+  { gender: 'boy', x: -1, y: 3, angleDeg: 270 }, { gender: 'girl', x: 1, y: 3, angleDeg: 270 },
+]);
+const couple2 = mm([
+  { gender: 'boy', x: -1, y: 1, angleDeg: 0 }, { gender: 'girl', x: -1, y: -1, angleDeg: 0 },
+]);
+const allCopies = matchFormationsAll(sq, couple2, 6.0);
+check(allCopies.length === 4, `found ${allCopies.length} Facing-Couple copies in the square (expect 4)`);
+if (allCopies.length === 4) {
+  const counts = new Array(8).fill(0);
+  for (const m of allCopies) for (const i of m.subset) counts[i]++;
+  check(counts.every((c) => c === 1), 'copies are disjoint and cover all 8 dancers');
+}
+check(matchFormations(sq, couple2, 6.0) !== null, 'single best match still returns one copy');
+check(matchFormationsAll(sq, couple2, 6.0, false, 2).length === 2, 'maxMatches caps the number of copies');
 
 console.log('=================');
 if (failures === 0) console.log('FEATURES TEST PASSED');

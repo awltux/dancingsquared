@@ -20,6 +20,10 @@ export interface FormationMatch {
   reflect: boolean; // whether a reflection (mirror) was applied to the target
   cSrc: { x: number; y: number }; // center of the source (board)
   cTgt: { x: number; y: number }; // center of the target (candidate)
+  // When the match is a SUBSET match (source.length > target.length), `subset`
+  // lists the source dancer indices selected to form the target (length ==
+  // target.length). `mapping` then only covers those indices; the others are -1.
+  subset?: number[];
 }
 
 // Gender compatibility for gender-specific matching. 'phantom' is a wildcard
@@ -105,37 +109,30 @@ function greedyAssign(
 }
 
 /**
- * Find whether `source` (board) and `target` (candidate) are the same formation
- * up to translation/rotation/reflection. Returns the best mapping + total
- * offset, or null if the best error exceeds `maxError`.
- *
- * When `requireGender` is true, the mapping must also be GENDER-CONSISTENT: each
- * board dancer is only assigned to a candidate slot whose gender is compatible.
- * This is used for gender-specific calls (e.g. "Boys Turn Back"), so a call
- * only applies when the board's boy/girl arrangement actually matches its setup.
- * Recognition and generic calls pass false and ignore gender.
+ * The sorted pairwise-distance signature of a set, invariant to
+ * translation/rotation/reflection. Two congruent sets always produce the same
+ * sorted list of pairwise distances, so comparing signatures (element-wise on
+ * the sorted arrays) is a correct, ORDER-INDEPENDENT quick reject: it does not
+ * assume the dancers are indexed in the same order in both sets.
  */
-export function matchFormations(
+function distanceSignature(ds: Matchable[]): number[] {
+  const d: number[] = [];
+  for (let i = 0; i < ds.length; i++)
+    for (let j = i + 1; j < ds.length; j++) d.push(Math.hypot(ds[i].x - ds[j].x, ds[i].y - ds[j].y));
+  return d.sort((a, b) => a - b);
+}
+
+/** Match `source` against `target`, both assumed EQUAL length, up to
+ * rotation/reflection. Returns the best alignment or null. Order-independent
+ * (uses the sorted distance signature + greedy one-to-all assignment). */
+function matchEqualLength(
   source: Matchable[],
   target: Matchable[],
-  maxError = 6.0,
-  requireGender = false,
+  maxError: number,
+  requireGender: boolean,
 ): FormationMatch | null {
-  if (source.length !== target.length) return null;
-
-  // Quick reject: the sorted pairwise-distance signature is invariant to
-  // translation/rotation/reflection, so formations that differ in spacing are
-  // definitely not the same. This stops recognition matching unrelated setups.
-  const sig = (ds: Matchable[]) => {
-    const d: number[] = [];
-    for (let i = 0; i < ds.length; i++)
-      for (let j = i + 1; j < ds.length; j++) d.push(Math.hypot(ds[i].x - ds[j].x, ds[i].y - ds[j].y));
-    return d.sort((a, b) => a - b);
-  };
-  const s1 = sig(source);
-  const s2 = sig(target);
-  // Signature tolerance scales with maxError so a caller-provided margin also
-  // relaxes this quick reject (0.5 at the default maxError of 6.0).
+  const s1 = distanceSignature(source);
+  const s2 = distanceSignature(target);
   const sigTol = maxError / 12;
   for (let k = 0; k < s1.length; k++) {
     if (Math.abs(s1[k] - s2[k]) > sigTol) return null;
@@ -156,6 +153,116 @@ export function matchFormations(
     }
   }
   return best !== null && best.error <= maxError ? best : null;
+}
+
+/** Enumerate all k-combinations of the indices 0..n-1, calling `visit` for each. */
+function forEachCombination(n: number, k: number, visit: (combo: number[]) => void): void {
+  if (k > n) return;
+  const idx = new Array<number>(k);
+  const rec = (start: number, depth: number): void => {
+    if (depth === k) {
+      visit(idx);
+      return;
+    }
+    for (let i = start; i <= n - (k - depth); i++) {
+      idx[depth] = i;
+      rec(i + 1, depth + 1);
+    }
+  };
+  rec(0, 0);
+}
+
+/**
+ * Find whether `source` (a board, usually 8 dancers) CONTAINS `target` (a
+ * candidate formation or call setup, which may be a partial set of 2 or 4
+ * dancers) up to translation/rotation/reflection. Returns the best mapping +
+ * total offset, or null if no match within `maxError`.
+ *
+ * Lengths:
+ *  - `source.length === target.length`: a full one-to-one match (any dancer
+ *    ordering works — the sorted distance signature + greedy assignment make it
+ *    order-independent).
+ *  - `source.length > target.length`: a SUBSET match — we search all
+ *    (source.length choose target.length) subsets of the board and return the
+ *    best one that reproduces the target. `match.subset` lists the chosen board
+ *    indices.
+ *  - `source.length < target.length`: impossible (target bigger than board) ->
+ *    null.
+ *
+ * When `requireGender` is true, the mapping must also be GENDER-CONSISTENT: each
+ * board dancer is only assigned to a candidate slot whose gender is compatible.
+ * This is used for gender-specific calls (e.g. "Boys Turn Back"), so a call
+ * only applies when the board's boy/girl arrangement actually matches its setup.
+ * Recognition and generic calls pass false and ignore gender.
+ */
+export function matchFormations(
+  source: Matchable[],
+  target: Matchable[],
+  maxError = 6.0,
+  requireGender = false,
+): FormationMatch | null {
+  if (target.length === 0 || source.length < target.length) return null;
+  if (source.length === target.length) {
+    return matchEqualLength(source, target, maxError, requireGender);
+  }
+  // Best single subset match.
+  return matchFormationsAll(source, target, maxError, requireGender, 1)[0] ?? null;
+}
+
+/**
+ * Like `matchFormations`, but returns ALL (up to `maxMatches`) DISJOINT subsets
+ * of `source` that reproduce the smaller `target` — i.e. the target formation
+ * appearing several times in the board at once (e.g. four separate Facing
+ * Couples in a squared set). Each result has `match.subset` = the board indices
+ * of that copy; the copies are pairwise disjoint (no dancer is reused). Sorted
+ * by error (best first). Returns [] when `target` is not present or when
+ * `source.length < target.length`.
+ */
+export function matchFormationsAll(
+  source: Matchable[],
+  target: Matchable[],
+  maxError = 6.0,
+  requireGender = false,
+  maxMatches = Infinity,
+): FormationMatch[] {
+  if (target.length === 0 || source.length < target.length) return [];
+  if (source.length === target.length) {
+    const m = matchEqualLength(source, target, maxError, requireGender);
+    return m ? [m] : [];
+  }
+
+  // Collect every matching subset (expanded to full source-index mappings).
+  const tgtSig = distanceSignature(target);
+  const sigTol = maxError / 12;
+  const candidates: { m: FormationMatch; combo: number[] }[] = [];
+  forEachCombination(source.length, target.length, (combo) => {
+    // Snapshot the combo: forEachCombination reuses one internal array, so store
+    // a copy to keep each candidate's subset/mapping stable.
+    const selected = [...combo];
+    const sub = selected.map((i) => source[i]);
+    const sSig = distanceSignature(sub);
+    for (let k = 0; k < sSig.length; k++) {
+      if (Math.abs(sSig[k] - tgtSig[k]) > sigTol) return;
+    }
+    const m = matchEqualLength(sub, target, maxError, requireGender);
+    if (!m) return;
+    const mapping = new Array<number>(source.length).fill(-1);
+    for (let s = 0; s < selected.length; s++) mapping[selected[s]] = m.mapping[s];
+    candidates.push({ m: { ...m, mapping, subset: selected }, combo: selected });
+  });
+
+  // Greedily pack as many DISJOINT matches as possible, best (lowest error) first.
+  candidates.sort((a, b) => a.m.error - b.m.error);
+  const results: FormationMatch[] = [];
+  const used = new Set<number>();
+  for (const c of candidates) {
+    if (results.length >= maxMatches) break;
+    const combo = c.combo;
+    if (combo.some((i) => used.has(i))) continue;
+    for (const i of combo) used.add(i);
+    results.push(c.m);
+  }
+  return results;
 }
 
 /** Position error of a single mapped pair (for the recognized-formation label). */

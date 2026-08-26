@@ -220,6 +220,77 @@ interface Module {
 
 ---
 
+## 9.5 Formation & Call Matching — Contract, Restrictions & Edge Cases
+
+The engine matches a **board** (usually 8 dancers) against a **candidate** — a
+recognized formation or a call's `<tam>` start setup — up to translation,
+rotation (multiples of 90°) and reflection. This is the foundation of
+recognition, call legality, and every getout/getin/fixIt search, so its contract
+must be explicit. The reference implementation is `matchFormations` /
+`matchFormationsAll` in `engine/src/sequencer/match.ts`.
+
+### 9.5.1 Core contract
+
+- **Order-independent.** Matching must not assume the board dancers are indexed
+  in the same order as the candidate. It uses the **sorted pairwise-distance
+  signature** (invariant to translation/rotation/reflection) as an order-
+  independent quick-reject, then a **greedy one-to-all assignment** per
+  rotation/reflection. Reordering the dancers in either set must not change the
+  result.
+- **Length handling:**
+  - `source.length === target.length` → a **full one-to-one** match.
+  - `source.length > target.length` → a **subset match**: the board *contains*
+    the smaller target; we search all `(n choose k)` board subsets and return the
+    best one that reproduces it (`match.subset` lists the chosen board indices;
+    `mapping` is full-length with `-1` for unselected dancers).
+  - `source.length < target.length` → **null** (a target cannot fit in a smaller
+    board).
+- **Multi-match.** A smaller formation can appear **several times** in one board
+  (e.g. four separate Facing Couples in a squared set). `matchFormationsAll`
+  returns **all disjoint copies** (no dancer reused across copies), sorted by
+  error, with a `maxMatches` cap. The single `matchFormations` returns only the
+  best copy for backward compatibility.
+- **Gender consistency (opt-in).** For calls marked `sequencer="gender-specific"`
+  (e.g. "Boys Turn Back", "Allemande Left"), a board dancer is only assigned to a
+  candidate slot whose gender is compatible (`phantom` is a wildcard). Gender-
+  specific calls must NOT match a board whose boy/girl arrangement differs, even
+  if the geometry is identical. Non-gender-specific calls ignore gender.
+
+### 9.5.2 Restrictions
+
+- **Subset matches are not whole-board applies.** A subset match means "this
+  setup lives somewhere in the board"; it must NOT be applied as a full-board
+  call (its `mapping` has `-1`). Subset application is handled separately by the
+  parallel-subset path (`partitionInto` / `parallelLegalCalls`).
+- **Force-fits must be rejected.** A candidate that shares the same spacing
+  lattice but is a *different* formation (e.g. a T-Bone start onto a Double Pass
+  Thru board) must not be treated as legal. The distance-signature quick-reject
+  passes for identical lattices, so the final assignment error must be within the
+  caller's tolerance to reject it.
+- **Search vs interactive tolerance.** The getout/getin **search** uses a looser
+  tolerance (pure-relative, drifting boards) than the **interactive apply**
+  (tight, snap-clamped). Any search-found path must be **re-validated on the
+  interactive apply path** before it is returned, so a returned getout genuinely
+  starts from the current formation and reaches home (`verifyInteractivePath`).
+
+### 9.5.3 Edge cases
+
+- **Same-geometry, different-gender boards.** Two boards with identical geometry
+  but different boy/girl placements must be distinct inputs to a gender-sensitive
+  match: the match memo key **must include gender** for such calls, or a cached
+  result leaks across arrangements.
+- **Uneven remainder.** A board that cannot be split evenly into equal subsets
+  (e.g. 6 dancers for a 4-dancer subset) has no clean partition and must not
+  force one.
+- **Offset / frame invariance.** The same shape translated or rotated in the board
+  must still match (the signature + recentring handle absolute position/orientation).
+- **Half-set authoring vs genuine subset.** A 4-dancer wave authored as a half-set
+  and completed to an 8-dancer formation is **not** the same as a 4-dancer subset
+  the dancers actually occupy. Matching treats the full, centered formation as the
+  unit; a genuine subset match requires the board to actually contain that group.
+
+---
+
 ## 10. Rendering
 
 - Renderers are thin adapters over `Pose[]`/`AvatarPose[]`:
@@ -252,6 +323,13 @@ function onFrame(ms: number) {
 - **Snapshot tests:** compare `pose(call, t)` against taminations' known-good output for a sampled set of calls.
 - **Data schema tests:** every bundle entry validates against Zod; converter rejects malformed XML/DAG cycles.
 - **Invariants:** dancer count, one-path-per-dancer, total-beat sums, 64-beat macro-checks, no-position-collision, ghost-vs-physical separation.
+- **Matching invariants (§9.5):**
+  - Order independence: matching is unchanged when the dancers of either set are reordered.
+  - Equal-length full match, and unequal-length subset match (a full board contains a 2/4-dancer target).
+  - Multi-match: a smaller formation present N times yields N disjoint copies; copies never reuse a dancer; `maxMatches` caps results.
+  - Gender-specific calls reject a same-geometry board with a different boy/girl arrangement; gender-agnostic calls still match.
+  - A getout/fixIt search never returns a path whose first (or any) call fails the interactive apply.
+  - Uneven-remainder boards (not evenly divisible into equal subsets) are rejected, never force-partitioned.
 - **Golden 3D stills:** fixed-camera renders at key beats for visual regression.
 
 ---

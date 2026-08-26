@@ -22,9 +22,12 @@ export function initSequencer(stage: Stage): SequencerUI {
   const undoBtn = document.getElementById('seqUndo') as HTMLButtonElement;
   const resetBtn = document.getElementById('seqReset') as HTMLButtonElement;
   const getoutBtn = document.getElementById('seqGetout') as HTMLButtonElement;
+  const matrixGetoutBtn = document.getElementById('seqMatrixGetout') as HTMLButtonElement;
   const applyGetoutBtn = document.getElementById('seqApplyGetout') as HTMLButtonElement;
+  const getinBtn = document.getElementById('seqGetin') as HTMLButtonElement;
   const fixBtn = document.getElementById('seqFixIt') as HTMLButtonElement;
   const statusEl = document.getElementById('seqStatus') as HTMLSpanElement;
+  const matrixInfoEl = document.getElementById('seqMatrixInfo') as HTMLDivElement;
   const seqListEl = document.getElementById('seqSequence') as HTMLDivElement;
   const fasrEl = document.getElementById('seqFasr') as HTMLDivElement;
   const fixListEl = document.getElementById('seqFixList') as HTMLDivElement;
@@ -335,6 +338,38 @@ export function initSequencer(stage: Stage): SequencerUI {
   function showGetout() {
     const path = seq.getout({ target: 'Static Square', maxCalls: 5 });
     statusEl.textContent = path ? `getout: ${path.join(' > ')}` : 'no getout found (≤5 calls)';
+    updateMatrixInfo();
+  }
+
+  // Show the matrix-driven diagnostics: whether a rigid self-inverse single-call
+  // getout exists (O(1) matrix fast-path), and the board's matrix closeness to
+  // home (higher = closer). This surfaces the matrix model's role in the search.
+  function updateMatrixInfo() {
+    const rigid = seq.matrixGetout();
+    const closeness = seq.closenessToHome();
+    const parts = [
+      `closeness-to-home: <b>${closeness.toFixed(2)}</b>`,
+      `matrix rigid getout: <b>${rigid ? rigid.join(' > ') : '—'}</b>`,
+    ];
+    matrixInfoEl.innerHTML = parts.join(' · ');
+  }
+
+  function showMatrixGetout() {
+    const rigid = seq.matrixGetout();
+    statusEl.textContent = rigid
+      ? `matrix getout (rigid, self-inverse): ${rigid.join(' > ')}`
+      : 'no rigid single-call matrix getout (falls back to search)';
+    updateMatrixInfo();
+  }
+
+  function showGetin() {
+    // A getin takes the set from home INTO a formation; from the current board we
+    // target its recognized formation so we can see how to get back in.
+    const target = seq.recognize(seq.board).name ?? 'Static Square';
+    const gi = seq.getin({ target, maxCalls: 5, budget: 400 });
+    statusEl.textContent = gi
+      ? `getin → ${target}: ${gi.join(' > ')}`
+      : `no getin found → ${target} (≤5 calls)`;
   }
 
   // Apply the current getout: run each call of the found path onto the board,
@@ -357,6 +392,7 @@ export function initSequencer(stage: Stage): SequencerUI {
     render();
     refreshCallSelect();
     syncAnimation();
+    updateMatrixInfo();
   }
 
   function showFixIt() {
@@ -371,7 +407,9 @@ export function initSequencer(stage: Stage): SequencerUI {
   undoBtn.addEventListener('click', undo);
   resetBtn.addEventListener('click', reset);
   getoutBtn.addEventListener('click', showGetout);
+  matrixGetoutBtn.addEventListener('click', showMatrixGetout);
   applyGetoutBtn.addEventListener('click', applyGetout);
+  getinBtn.addEventListener('click', showGetin);
   fixBtn.addEventListener('click', showFixIt);
 
   // Start the animation frame loop.

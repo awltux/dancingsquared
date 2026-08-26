@@ -84,10 +84,13 @@
           </div>
           <div class="row">
             <button id="seqGetout">Getout</button>
+            <button id="seqMatrixGetout" title="Rigid self-inverse single-call getout via the matrix fast-path (O(1), exact)">Matrix getout</button>
             <button id="seqApplyGetout">Apply getout</button>
+            <button id="seqGetin" title="Search from home into the current formation (getin)">Getin</button>
             <button id="seqFixIt">Fix it</button>
             <span id="seqStatus" class="part"></span>
           </div>
+          <div id="seqMatrixInfo" class="small"></div>
           <div class="row">
             <button id="seqPlay">▶ Play</button>
             <input id="seqScrub" type="range" min="0" max="100" value="100" />

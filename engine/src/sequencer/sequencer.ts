@@ -477,7 +477,13 @@ export class Sequencer {
       // boy/girl arrangement aligns with the setup's gender slots; other calls
       // ignore gender.
       const m = matchFormations(src, tgt, maxError, !!v.genderSpecific);
-      if (m && (best === null || m.error < best.error)) {
+      // The whole-board APPLY path needs a full 1:1 mapping (every board dancer
+      // maps to a variant dancer). A SUBSET match (m.subset set; mapping has -1
+      // for non-selected dancers) is a "this setup lives somewhere in the board"
+      // result — that is handled by the parallel-subset path, not by a whole-board
+      // apply — so it is rejected here.
+      if (!m || m.subset) continue;
+      if (best === null || m.error < best.error) {
         best = { variant: v, mapping: m.mapping, error: m.error, rot: m.rot, reflect: m.reflect, cSrc: m.cSrc, cTgt: m.cTgt };
       }
     }

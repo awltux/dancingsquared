@@ -37,6 +37,7 @@ import { TeacherStore, type SavedModule } from './store';
 import { Tour } from './tour';
 import { Preview } from './preview';
 import { View, type ProbModal } from './view';
+import { esc, sanitizeText, clampNum } from './util';
 
 // ---------------------------------------------------------------- catalog
 
@@ -990,32 +991,6 @@ function wire(): void {
         render();
       }
     }));
-}
-
-function esc(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-/** Trim and sanitize user-entered text: strip HTML tags, markup/control chars and
- * cap length, so nothing dangerous can be stored even if an `esc` is missed. */
-function sanitizeText(s: string, maxLen = 80): string {
-  return s
-    .replace(/<[^>]*>/g, '') // strip any HTML tags
-    .replace(/[<>'`]/g, '') // drop markup / attribute-breaking chars
-    .replace(/[\u0000-\u001f\u007f]/g, '') // strip control chars
-    .trim()
-    .slice(0, maxLen);
-}
-
-/** Clamp a numeric input to a sensible range. */
-function clampNum(v: number, min: number, max: number): number {
-  if (!Number.isFinite(v)) return min;
-  return Math.min(max, Math.max(min, v));
 }
 
 function importProgrammeText(text: string): void {

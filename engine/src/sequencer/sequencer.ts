@@ -489,7 +489,12 @@ export class Sequencer {
     const moves = parseMoves(this.movesXml);
     const formations = parseFormations(this.formationsXml);
     const tams = parseCallXml(callXml);
-    return tams.map((tam) => buildCall(tam, formations, moves, true));
+    // Stamp each 8-dancer setup with its home identity so matching can preserve
+    // home couples (keeping "Heads X"/"Sides X" on the original heads/sides).
+    return tams.map((tam) => {
+      const call = buildCall(tam, formations, moves, true);
+      return { ...call, dancers: assignHomeIdentity(call.dancers) };
+    });
   }
 
   reset(): void {
@@ -505,7 +510,7 @@ export class Sequencer {
 
   /** The current board as a list of matchable dancers. */
   private matchables(board: Board): Matchable[] {
-    return board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender }));
+    return board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender, couple: d.couple }));
   }
 
   // A variant dancer's matchable position. Mirrored (duplicate-half) dancers
@@ -513,9 +518,9 @@ export class Sequencer {
   // 180-degree rotation here for matching.
   private variantMatchable(d: CallBundle['dancers'][number]): Matchable {
     if (d.mirror) {
-      return { x: -d.x, y: -d.y, heading: normAngle(d.angleDeg * DEG + Math.PI), gender: d.gender };
+      return { x: -d.x, y: -d.y, heading: normAngle(d.angleDeg * DEG + Math.PI), gender: d.gender, couple: d.couple };
     }
-    return { x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender };
+    return { x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender, couple: d.couple };
   }
 
   /** Which of this call's variants matches the given board? Memoised by call name
@@ -535,10 +540,13 @@ export class Sequencer {
     // Key on the call's position/heading signature. When the call is gender-
     // specific the result depends on the board's GENDER arrangement too, so the
     // gender pattern must be part of the key (two identical-geometry boards with
-    // different boy/girl placements must not share a cache entry).
+    // different boy/girl placements must not share a cache entry). Home couple is
+    // always included because identity-aware matching (keeps heads/sides on their
+    // home couples) depends on it — two identical-geometry boards with different
+    // couple assignments must not share a match.
     const genderSensitive = variants.some((v) => v.genderSpecific);
     const key = `${maxError}|${callName}|${board.dancers
-      .map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}${genderSensitive ? '|' + d.gender : ''}`)
+      .map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}${genderSensitive ? '|' + d.gender : ''}|c${d.couple}`)
       .join(';')}`;
     const cached = this.matchMemo.get(key);
     if (cached !== undefined) return cached;

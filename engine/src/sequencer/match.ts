@@ -11,6 +11,12 @@ export interface Matchable {
   y: number;
   heading: number; // radians
   gender?: 'boy' | 'girl' | 'phantom';
+  // Home-square couple (1..4). When present on BOTH the source (board) and the
+  // target (call setup), matching prefers an alignment that maps each dancer to
+  // a slot of the SAME home couple. This is what keeps a "Heads X"/"Sides X"
+  // call acting on the ORIGINAL head/side couples (home identity) instead of
+  // whoever currently stands at the N/S position after the set has rotated.
+  couple?: number;
 }
 
 export interface FormationMatch {
@@ -71,7 +77,7 @@ function transformTarget(target: Matchable[], rot: number, reflect: boolean, c: 
     if (reflect) x = -x;
     const rx = x * cos - y * sin;
     const ry = x * sin + y * cos;
-    return { x: rx, y: ry, heading: d.heading + rot + (reflect ? Math.PI : 0), gender: d.gender };
+    return { x: rx, y: ry, heading: d.heading + rot + (reflect ? Math.PI : 0), gender: d.gender, couple: d.couple };
   });
 }
 
@@ -79,8 +85,7 @@ function greedyAssign(
   source: Matchable[],
   target: Matchable[],
   requireGender: boolean,
-): { mapping: number[]; error: number } {
-  const mapping = new Array(source.length).fill(-1);
+): { mapping: number[]; error: number } {  const mapping = new Array(source.length).fill(-1);
   const used = new Array(target.length).fill(false);
   const order = source
     .map((_, i) => i)
@@ -122,11 +127,27 @@ function distanceSignature(ds: Matchable[]): number[] {
   return d.sort((a, b) => a - b);
 }
 
+// How many source<->target pairs share the same home couple, counted only when
+// both dancers carry a couple. Used as a tie-break in matchEqualLength so a
+// rotationally-symmetric setup resolves to the alignment that keeps each dancer
+// on its home couple — which is what makes "Heads X"/"Sides X" act on the
+// ORIGINAL head/side couples rather than whoever currently stands at N/S.
+function identityScore(source: Matchable[], target: Matchable[], mapping: number[]): number {
+  let s = 0;
+  for (let i = 0; i < source.length; i++) {
+    const j = mapping[i];
+    if (j < 0) continue;
+    const a = source[i].couple;
+    const b = target[j].couple;
+    if (a != null && b != null && a === b) s++;
+  }
+  return s;
+}
+
 /** Match `source` against `target`, both assumed EQUAL length, up to
  * rotation/reflection. Returns the best alignment or null. Order-independent
  * (uses the sorted distance signature + greedy one-to-all assignment). */
-function matchEqualLength(
-  source: Matchable[],
+function matchEqualLength(  source: Matchable[],
   target: Matchable[],
   maxError: number,
   requireGender: boolean,
@@ -140,15 +161,22 @@ function matchEqualLength(
 
   const cSrc = center(source);
   const cTgt = center(target);
-  const centered = source.map((d) => ({ x: d.x - cSrc.x, y: d.y - cSrc.y, heading: d.heading, gender: d.gender }));
+  const centered = source.map((d) => ({ x: d.x - cSrc.x, y: d.y - cSrc.y, heading: d.heading, gender: d.gender, couple: d.couple }));
   let best: FormationMatch | null = null;
+  let bestIdent = -1;
   for (const rot of ROTS) {
     for (const reflect of [false, true]) {
       const t = transformTarget(target, rot, reflect, cTgt);
       const res = greedyAssign(centered, t, requireGender);
       if (!isFinite(res.error)) continue;
-      if (best === null || res.error < best.error - TIE_EPS) {
+      const ident = identityScore(centered, t, res.mapping);
+      if (
+        best === null ||
+        res.error < best.error - TIE_EPS ||
+        (Math.abs(res.error - best.error) <= TIE_EPS && ident > bestIdent)
+      ) {
         best = { mapping: res.mapping, error: res.error, rot, reflect, cSrc, cTgt };
+        bestIdent = ident;
       }
     }
   }

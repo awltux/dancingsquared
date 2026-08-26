@@ -11,6 +11,15 @@ setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const read = (p) => readFileSync(path.join(__dirname, p), 'utf8');
 
+// Extract just the <tam> blocks whose title matches, so a call with several
+// setups (e.g. Heads/Sides Pass Thru) doesn't pollute a name's variant list.
+const filterTam = (p, title) => {
+  const xml = read(p);
+  const blocks = xml.match(/<tam\b[\s\S]*?<\/tam>/g) || [];
+  const kept = blocks.filter((b) => new RegExp(`title="${title}"`).test(b));
+  return '<calls>\n' + kept.join('\n') + '\n</calls>';
+};
+
 let failures = 0;
 const check = (cond, msg) => {
   console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
@@ -28,6 +37,7 @@ const seq = new Sequencer(movesXml, formationsXml, [
   { name: 'Circle Left', xml: ms('circle') },
   { name: 'Heads Spin the Top', xml: ms('spin_the_top') },
   { name: 'Double Pass Thru', xml: ms('double_pass_thru') },
+  { name: 'Heads Pass Thru', xml: filterTam('../../poc/src/assets/b1/pass_thru.xml', 'Heads Pass Thru') },
 ]);
 
 console.log('== Sequencer: start ==');
@@ -106,6 +116,24 @@ const hstMode = facingMode(hst.board);
 check(hstMode === 90 || hstMode === 0, `Heads Spin the Top ends in a coherent NS/EW facing (mode=${hstMode})`);
 const dptMode = facingMode(dpt.board);
 check(dptMode === hstMode, `re-base keeps the set facing (${hstMode === 90 ? 'N-S' : 'E-W'}, no 90deg flip): ${dpt.board.dancers.map((d) => (d.heading * 180 / Math.PI).toFixed(0)).join(', ')}`);
+
+console.log('== Sequencer: Heads calls act on HOME heads after the set rotates ==');
+seq.reset();
+// Rotate the home square 90deg CCW (positions + headings), keeping identities,
+// so the original heads are no longer at the N/S slots. A "Heads X" call must
+// still target those original heads, not whoever now stands at N/S.
+const rotP = (x, y, hDeg, deg) => { const r = deg * Math.PI / 180; return { x: x * Math.cos(r) - y * Math.sin(r), y: x * Math.sin(r) + y * Math.cos(r), h: hDeg + deg }; };
+const rotated = seq.startBoard().dancers.map((d) => {
+  const p = rotP(d.x, d.y, d.heading * 180 / Math.PI, 90);
+  return { ...d, x: Math.round(p.x), y: Math.round(p.y), heading: p.h * Math.PI / 180 };
+});
+const rHPT = seq.applyToBoard({ dancers: rotated }, 'Heads Pass Thru');
+const startR = Object.fromEntries(rotated.map((d) => [d.id, d]));
+const movedIds = rHPT.board.dancers.filter((d) => Math.hypot(d.x - startR[d.id].x, d.y - startR[d.id].y) > 0.01)
+  .map((d) => d.id).sort((a, b) => a - b);
+const expectedHeads = rotated.filter((d) => d.couple % 2 === 1).map((d) => d.id).sort((a, b) => a - b);
+check(JSON.stringify(movedIds) === JSON.stringify(expectedHeads),
+  `Heads Pass Thru on a rotated square moves the ORIGINAL heads (moved=[${movedIds}], expect=[${expectedHeads}])`);
 
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');

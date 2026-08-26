@@ -79,6 +79,58 @@
     </taminator>
   </tam>
 
+  <tam title="Circle Left" from="Circle" sequencer="gender-specific">
+    <formation>
+      <dancer gender="boy" x="-2.45" y="1" angle="0"/>
+      <dancer gender="girl" x="-2.45" y="-1" angle="45"/>
+      <dancer gender="boy" x="-1" y="-2.45" angle="90"/>
+      <dancer gender="girl" x="1" y="-2.45" angle="135"/>
+    </formation>
+    <path>
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+    </path>
+    <path>
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+    </path>
+    <path>
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+    </path>
+    <path>
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+      <move select="cl" />
+    </path>
+    <taminator>
+      Already in a circle, dancers continue circling left until the next call is given.
+    </taminator>
+  </tam>
+
   <tam title="Circle Left 1/8"
        from="Static Square" group=" " display="no"
        formation="Static Square">
@@ -270,6 +322,58 @@
     <taminator>
       This animation shows the dancers circling all the way around once.
       However, in general dancers continue to circle right until the next call is given.
+    </taminator>
+  </tam>
+
+  <tam title="Circle Right" from="Circle" sequencer="gender-specific">
+    <formation>
+      <dancer gender="boy" x="-2.45" y="1" angle="0"/>
+      <dancer gender="girl" x="-2.45" y="-1" angle="45"/>
+      <dancer gender="boy" x="-1" y="-2.45" angle="90"/>
+      <dancer gender="girl" x="1" y="-2.45" angle="135"/>
+    </formation>
+    <path>
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+    </path>
+    <path>
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+    </path>
+    <path>
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+    </path>
+    <path>
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+      <move select="cr" />
+    </path>
+    <taminator>
+      Already in a circle, dancers continue circling right until the next call is given.
     </taminator>
   </tam>
 

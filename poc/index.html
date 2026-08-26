@@ -88,13 +88,18 @@
             <button id="seqApplyGetout">Apply getout</button>
             <button id="seqGetin" title="Search from home into the current formation (getin)">Getin</button>
             <button id="seqFixIt">Fix it</button>
+            <button id="seqCopyPos" title="Copy all dancers' positions to the clipboard (for debug reports)">Copy positions</button>
             <span id="seqStatus" class="part"></span>
           </div>
           <div id="seqMatrixInfo" class="small"></div>
           <div class="row">
             <button id="seqPlay">▶ Play</button>
-            <input id="seqScrub" type="range" min="0" max="100" value="100" />
+            <label>Beat</label>
+            <input id="seqBeatInput" type="number" min="0" step="0.1" value="0" class="small" title="Jump the playback to a specific beat" />
             <span id="seqBeat" class="part"></span>
+          </div>
+          <div class="row">
+            <input id="seqScrub" type="range" min="0" max="100" step="0.1" value="100" style="flex:1" />
           </div>
           <div id="seqSequence" class="small"></div>
           <div id="seqFasr" class="small"></div>

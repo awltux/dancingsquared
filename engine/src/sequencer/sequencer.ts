@@ -329,9 +329,42 @@ export class Sequencer {
 
   /** Beats of the variant of `name` that matches `board` (0 if none). */
   stepBeats(board: Board, name: string): number {
+    const v = this.matchingVariantInfo(board, name);
+    return v ? v.beats : 0;
+  }
+
+  /**
+   * Find the call variant that applies to `board` (WHOLE-BOARD first, else the
+   * PARALLEL-subset path) and return its beat count and, when available, the
+   * variant itself. This is the shared core for `stepBeats` / `evaluateSequence`
+   * / `sequenceInfo`, so subset calls (e.g. Box Circulate on a Double Pass Thru)
+   * are counted and animated even though they do not whole-board match.
+   */
+  private matchingVariantInfo(
+    board: Board,
+    name: string,
+  ): { beats: number; variant: CallBundle | null } | null {
     const m = this.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.matchMargin);
-    if (!m) return 0;
-    return Math.max(...m.variant.dancers.map((d) => dancerBeats(d)));
+    if (m) return { beats: Math.max(...m.variant.dancers.map((d) => dancerBeats(d))), variant: m.variant };
+    // No whole-board match: try the parallel-subset path. Use the same LOOSE
+    // search tolerance as parallelLegalCalls/tryParallelApply so a subset call
+    // that is legal in the list is also countable and animatable here (the tight
+    // interactive tolerance would fail to partition it).
+    const tol = SEARCH_MATCH_MAX + this.matchMargin;
+    const variants = this.variants.get(name);
+    if (variants) {
+      const phys = board.dancers.filter((d) => !d.isGhost);
+      const n = phys.length;
+      for (const v of variants) {
+        const setup = v.dancers.map((d) => this.variantMatchable(d));
+        const k = setup.length;
+        if (k <= 1 || k >= n || n % k !== 0) continue;
+        if (this.partitionInto(setup, phys, tol)) {
+          return { beats: Math.max(...v.dancers.map((d) => dancerBeats(d))), variant: v };
+        }
+      }
+    }
+    return null;
   }
 
   /** Total beats to play a flat sequence starting from home. */
@@ -354,17 +387,52 @@ export class Sequencer {
     let board = makeSquaredSet();
     let acc = 0;
     for (const name of flat) {
-      const m = this.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.matchMargin);
-      if (!m) break;
-      const beats = Math.max(...m.variant.dancers.map((d) => dancerBeats(d)));
+      const info = this.matchingVariantInfo(board, name);
+      if (!info) break;
+      const beats = info.beats;
       if (beat < acc + beats) {
-        return { board: this.evaluateVariantAt(board, m, beat - acc), beats: 0 };
+        // This call is playing. Whole-board vs parallel-subset animation.
+        const evBoard = this.evaluateCallAt(board, name, info, beat - acc);
+        return { board: evBoard, beats: 0 };
       }
       const r = this.applyToBoard(board, name);
       if (r.legal) board = r.board;
       acc += beats;
     }
     return { board, beats: acc };
+  }
+
+  /**
+   * Place the board at a local beat of a call, handling BOTH whole-board and
+   * parallel-subset calls. For a parallel call, each disjoint sub-group is
+   * animated through the call's motion and merged back in place.
+   */
+  private evaluateCallAt(board: Board, name: string, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
+    const whole = this.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.matchMargin);
+    if (whole) return this.evaluateVariantAt(board, whole, localBeat);
+    // Parallel path: partition into disjoint groups, animate each at the same
+    // local beat, and merge. Use the loose search tolerance so a subset call that
+    // is legal/animatable is actually partitioned here.
+    const tol = SEARCH_MATCH_MAX + this.matchMargin;
+    const phys = board.dancers.filter((d) => !d.isGhost);
+    const ghosts = board.dancers.filter((d) => d.isGhost);
+    const n = phys.length;
+    for (const v of this.variants.get(name) ?? []) {
+      const setup = v.dancers.map((d) => this.variantMatchable(d));
+      const k = setup.length;
+      if (k <= 1 || k >= n || n % k !== 0) continue;
+      const part = this.partitionInto(setup, phys, tol);
+      if (!part) continue;
+      const merged: SeqDancer[] = [];
+      for (const group of part.groups) {
+        const subBoard: Board = { dancers: group.map((d) => ({ ...d })) };
+        const subWhole = this.findMatchingVariant(subBoard, name, tol);
+        if (!subWhole) { merged.push(...group); continue; }
+        merged.push(...this.evaluateVariantAt(subBoard, subWhole, localBeat).dancers);
+      }
+      return { dancers: [...merged, ...ghosts] };
+    }
+    return board;
   }
 
   /**
@@ -378,11 +446,16 @@ export class Sequencer {
     let board = makeSquaredSet();
     let acc = 0;
     for (const name of flat) {
-      const m = this.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.matchMargin);
-      if (!m) return null;
-      const beats = Math.max(...m.variant.dancers.map((d) => dancerBeats(d)));
+      const info = this.matchingVariantInfo(board, name);
+      if (!info) return null;
+      const beats = info.beats;
       if (beat < acc + beats) {
-        return { name, variant: m.variant, mapping: m.mapping };
+        // For a whole-board match return the canonical mapping (used for trails).
+        const whole = this.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.matchMargin);
+        if (whole) return { name, variant: whole.variant, mapping: whole.mapping };
+        // Parallel call: no single board->variant mapping exists, so trails cannot
+        // be drawn for it; return null so the UI simply skips the trace.
+        return null;
       }
       const r = this.applyToBoard(board, name);
       if (r.legal) board = r.board;
@@ -676,11 +749,17 @@ export class Sequencer {
       if (!part) continue;
       const { groups, error } = part;
       // Apply the call to each subset independently (disable parallel recursion).
+      // Use rebase=false (PURE RELATIVE motion): each sub-group is already at its
+      // real position on the floor, and re-basing (rebase=true) would re-anchor it
+      // onto the call's canonical start and snap, ERASING the group's actual
+      // motion (a Box Circulate group would be reset to its start positions). The
+      // relative path keeps each dancer where it is and applies the call's
+      // displacement, so the parallel result preserves every group's movement.
       const merged: SeqDancer[] = [];
       let ok = true;
       for (const group of groups) {
         const subBoard: Board = { dancers: group.map((d) => ({ ...d })) };
-        const r = this.applyToBoardInner(subBoard, callName, [], rebase, false);
+        const r = this.applyToBoardInner(subBoard, callName, [], false, false);
         if (!r.legal) { ok = false; break; }
         merged.push(...r.board.dancers);
       }
@@ -697,10 +776,37 @@ export class Sequencer {
    * dancer, try each way to complete a congruent copy around it, recurse.
    * Bounded by the small board size (8 dancers, subsets of 2/4) so it stays fast.
    */
+  /**
+   * Partition `dancers` into disjoint groups, each congruent to `setup` (up to
+   * translation/rotation/reflection), each of size `setup.length`. Returns the
+   * groups (each a list of dancers) + the summed match error, or null when no
+   * such partition exists. Uses greedy backtracking: pick the first unused
+   * dancer, try each way to complete a congruent copy around it, recurse.
+   * Bounded by the small board size (8 dancers, subsets of 2/4) so it stays fast.
+   *
+   * Each group must ALSO be COUPLE-COHERENT: a couple that appears in a group
+   * must have BOTH dancers in that group. This prevents matching a bare geometric
+   * silhouette that scrambles who the dancers are (e.g. picking one dancer from
+   * couple 2, one from couple 4 and a whole couple as a "box") — which would
+   * apply the call to a non-group and mirror the set instead of moving it.
+   */
   private partitionInto(setup: Matchable[], dancers: SeqDancer[], maxError: number): { groups: SeqDancer[][]; error: number } | null {
     const k = setup.length;
     const n = dancers.length;
     if (n === 0 || n % k !== 0) return null;
+    // couple -> number of that couple's dancers on the board (should be 2).
+    const coupleCount = new Map<number, number>();
+    for (const d of dancers) coupleCount.set(d.couple, (coupleCount.get(d.couple) ?? 0) + 1);
+    // A group is couple-coherent when, for every dancer in it, both members of
+    // its couple (that are on the board) are in the group.
+    const isCoupleCoherent = (group: SeqDancer[]): boolean => {
+      const couples = new Set(group.map((d) => d.couple));
+      for (const c of couples) {
+        const need = coupleCount.get(c) ?? 0;
+        if (group.filter((d) => d.couple === c).length !== need) return false;
+      }
+      return true;
+    };
     const used = new Array<boolean>(n).fill(false);
     const result: SeqDancer[][] = [];
     let totalError = 0;
@@ -723,7 +829,7 @@ export class Sequencer {
             setup,
             maxError,
           );
-          if (!m) return false;
+          if (!m || !isCoupleCoherent(group)) return false;
           // Commit this group and recurse.
           for (const i of idx) used[i] = true;
           result.push(group);
@@ -792,16 +898,20 @@ export class Sequencer {
     return this.legalWithResults(board).map((x) => x.name);
   }
 
-  /** Loose-tolerance legal calls (for display/enumeration). See `searchLegalCalls`
-   * for the tight-gated variant used by the getout/getin search. */
+  /** Calls legal from `board` for DISPLAY/enumeration (e.g. the picker's "valid
+   * next call" list). Uses the TIGHT interactive apply — the same path the UI
+   * actually runs — so it only lists calls that genuinely apply from the board,
+   * and ends in a known formation. (The getout/getin search uses `searchLegalCalls`
+   * instead, which is similarly tight-gated.) A call listed here will not fail on
+   * apply. */
   private legalWithResults(board: Board): { name: string; res: { board: Board; legal: boolean } }[] {
     const out: { name: string; res: { board: Board; legal: boolean } }[] = [];
     for (const name of this.variants.keys()) {
-      const res = this.applySearch(board, name);
+      const res = this.applyToBoard(board, name);
       if (res.legal && this.knownFormation(res.board) !== null) out.push({ name, res });
     }
     for (const mname of this.modules.keys()) {
-      const res = this.applySearch(board, mname);
+      const res = this.applyToBoard(board, mname);
       if (res.legal && this.knownFormation(res.board) !== null) out.push({ name: mname, res });
     }
     return out;
@@ -959,12 +1069,14 @@ export class Sequencer {
     // set) produces the current board. Since C∘C = I for these calls, playing it
     // once more returns home — an O(1) matrix-verified getout. Only applicable
     // when the TARGET is the home squared set (this is a get-OUT home, not a
-    // get-in to an arbitrary formation), and only returned when the candidate is
-    // verified legal and reaches home, so it can never regress.
+    // get-in to an arbitrary formation). The candidate is still validated on the
+    // interactive apply path (as the search paths below are), because a call that
+    // is matrix-self-inverse from home may not be interactively legal from the
+    // CURRENT board, and returning it would make the getout fail on apply.
     const isHomeTarget = target === 'Static Square' || target === 'Squared Set';
     if (isHomeTarget) {
       const rigid = this.rigidSingleCallGetout();
-      if (rigid) return rigid;
+      if (rigid && this.verifyInteractivePath(rigid, target)) return rigid;
     }
 
     // The search paths below use the LOOSE search tolerance to chain multi-call

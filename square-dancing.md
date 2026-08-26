@@ -10,19 +10,19 @@ This document defines the computational model, mechanics, and terminology for a 
 
 A square consists of **8 active dancer entities**. Each dancer entity maintains the following properties:
 
-- **`id`**: Unique identifier (`0` to `7`).
-- **`role`**: `BOY` (or Head/Lead) or `GIRL` (or Trail/Follow).
-- **`couple_id`**: Home couple assignment (`1` to `4`).
-- **`position`**: Absolute Cartesian coordinates `(x, y)` on a normalized floor grid.
-- **`facing`**: Cardinal or ordinal heading vector (North, East, South, West, or directional offsets).
-- **`role_flags`**: Metadata tracking original partners, corners, and active/inactive status.
+- **Identity:** a unique identifier per dancer.
+- **Role:** BOY (or Head/Lead) or GIRL (or Trail/Follow).
+- **Couple:** the home couple assignment (`1` to `4`).
+- **Position:** absolute Cartesian coordinates on a normalized floor grid.
+- **Facing:** a cardinal or ordinal heading vector (North, East, South, West, or directional offsets).
+- **Role flags:** metadata tracking original partners, corners, and active/inactive status.
 
 #### Ghost Dancers and Imaginary Pairs
 
-To resolve complex conceptual mechanics—such as phantom columns, incomplete boxes, or fractional formations where dancers must interact with missing partners—the engine supports **Ghost Dancers** (or *phantoms*):
+To resolve complex conceptual mechanics—such as phantom columns, incomplete boxes, or fractional formations where dancers must interact with missing partners—the dance model supports **Ghost Dancers** (or *phantoms*):
 
-- **`is_ghost`**: Boolean flag (`true`/`false`) marking non-physical entities.
-- **`ghost_anchor`**: Reference ID of the active dancer or virtual axis the ghost is tethered to.
+- **Ghost marker:** marks a non-physical entity (as opposed to a physical dancer).
+- **Anchor:** the reference active dancer or virtual axis the ghost is tethered to.
 
 **Function:** Ghost dancers do not occupy physical collision space on the floor, but they provide necessary geometric reference points for calls defined around larger matrices (e.g., fractional setups, phantom waves, or split-phantom processing).
 
@@ -47,7 +47,7 @@ Every frame of execution evaluates the current formation using four hierarchical
 ### 2.2 Off-Grid and Intermediate Positions
 
 - **Dynamic Fluctuations:** While static formations (like waves and lines) snap cleanly to grid intersections, intermediate animation frames require fractional or off-grid coordinates (e.g., half-way through a Circulate or Hinge).
-- **Collision Handling:** The engine must treat grid points as discrete snap-targets for end-states, while using vector interpolation for intermediate transition frames. Ghost dancers are omitted from spatial occupancy exclusion checks.
+- **Collision Handling:** Grid points serve as discrete snap-targets for end-states, while intermediate transition frames use vector interpolation. Ghost dancers are omitted from spatial occupancy exclusion checks.
 
 ---
 
@@ -78,7 +78,7 @@ $$\text{Call} = \text{Entry Padding} + \text{Core Movement} + \text{Exit Padding
 
 - **Metric Unit:** Square dancing operates strictly on musical beats. Standard hoedown and singing call tempo is $128\text{ BPM}$.
 - **Beat-Weights:** Every call has a fixed integer beat cost (e.g., Pass Thru = 4 beats, Grand Square = 32 beats, Left Allemande = 8 beats).
-- **Singing Call Macro-Structure:** A standard segment consists of exactly 64 beats (subdivided into four 16-beat phrases). The engine's validator must ensure that any generated sequence sums to $64\text{ beats}$ (or accounts for continuous terminal actions like a Promenade).
+- **Singing Call Macro-Structure:** A standard segment consists of exactly 64 beats (subdivided into four 16-beat phrases). A valid sequence must sum to $64\text{ beats}$ (or account for continuous terminal actions like a Promenade).
 
 ---
 
@@ -94,7 +94,7 @@ $$\text{Call} = \text{Entry Padding} + \text{Core Movement} + \text{Exit Padding
 
 ### 5.2 How a Tip Is Constructed
 
-A caller builds a tip from a sequence of **figures**, each a short, self-contained call routine. In the engine's terms, every figure is a **zero** — it must begin and end at the squared set with the dancers' home FASR restored (the same condition the engine's `getout`/FASR machinery enforces). The standard components, in order:
+A caller builds a tip from a sequence of **figures**, each a short, self-contained call routine. Every figure is a **zero** — it must begin and end at the squared set with the dancers' home FASR restored. The standard components, in order:
 
 1. **Opener (Opening).** The first figure, which takes the dancers out of the squared set, moves them, and brings them back home — warming the square up. Common openers: *Circle Left + Forward and Back + Circle Right*, *Grand Square*, or an *Allemande Left + Promenade Home*.
 2. **Figure (the core).** The main call sequence, performed by the whole square. In both singing calls and patter, the same figure is usually repeated **four times**, once with each couple leading — Heads, Sides, then their opposites — so all eight dancers get a turn as the active couple. Each repeat is a zero so the next couple can take the lead.
@@ -108,7 +108,7 @@ Consistent with section 4, a tip is built from the **16-beat phrase** unit:
 
 - In the singing-call model, each figure is **16 beats**, and the four figures (one per leading couple) sum to the **64-beat segment** described in §4.
 - The opener, breaks, and closer likewise each fit the 16-beat phrase structure, so an entire tip is assembled from 16-beat phrases.
-- The engine models a tip as a **top-level sequence of calls that is a zero** — it must both start and finish in-sequence at the squared set, so it can be safely chained with the next tip.
+- A tip is a **top-level sequence of calls that is a zero** — it must both start and finish in-sequence at the squared set, so it can be safely chained with the next tip.
 
 ---
 
@@ -116,7 +116,7 @@ Consistent with section 4, a tip is built from the **16-beat phrase** unit:
 
 - **The Passing Rule:** When two moving dancers' paths intersect head-on, they default to passing Right Shoulders, unless modified by a specific call parameter (e.g., Left Pass Thru).
 - **Spatial Occupancy:** No two physical dancers may occupy the same $(x, y)$ coordinate space simultaneously during intermediate animation/transition frames. Ghost dancers bypass occupancy checks.
-- **Resolution Logic:** An engine must track sequence parity to ensure that multi-call sequences can be deterministically resolved back to the home position using standard resolution lookup trees.
+- **Resolution Logic:** Sequence parity must be tracked so that multi-call sequences can be deterministically resolved back to the home position using standard resolution lookup trees.
 
 ---
 
@@ -166,21 +166,14 @@ convenience of §7.1 and the *reason* it matters (parallel action, §7.5).
   smaller formation, it does not pick a single best copy — it finds **all**
   disjoint copies and applies to each concurrently. The set as a whole executes
   the call once per copy, and the copies do not interact.
-- **Matching must return multiple copies.** The matcher therefore exposes
-  multi-match: given the board and the smaller formation, return *all* disjoint
-  subsets that reproduce it (not just the best one). The engine's
-  `matchFormationsAll` does this; `matchFormations` returns the best single copy
-  for callers that only need one.
-- **The copies must be disjoint and exhaustive.** Multi-match guarantees no dancer
-  is reused across copies, and it covers every copy the board actually contains.
-  This is what lets a single call legitimately move several formations at once.
+- **Matching must find every copy.** When a call is named, the dancers recognise **all** of the disjoint copies present, not just the best one.
+- **The copies must be disjoint and exhaustive.** No dancer is reused across
+  copies, and every copy the board actually contains is covered. This is what lets
+  a single call legitimately move several formations at once.
 - **Distinct from subset authoring (§7.2).** A subset formation describes one
   group *once*; multi-match describes that the same group *repeats*. The former is
   about how the call is authored, the latter about how it is matched and executed
   when the board holds many copies.
-
-This is the same capability documented for the engine in `prd.md` §9.5 (multi-match
-via `matchFormationsAll`), stated here in domain terms.
 
 ### 7.3 Two Kinds of "Reflection"
 In square dancing, "reflection" can mean two distinct things:

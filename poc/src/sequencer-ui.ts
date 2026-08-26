@@ -36,6 +36,8 @@ export function initSequencer(stage: Stage): SequencerUI {
   const modulesEl = document.getElementById('seqModules') as HTMLDivElement;
   const playBtn = document.getElementById('seqPlay') as HTMLButtonElement;
   const scrub = document.getElementById('seqScrub') as HTMLInputElement;
+  const beatInput = document.getElementById('seqBeatInput') as HTMLInputElement;
+  const copyPosBtn = document.getElementById('seqCopyPos') as HTMLButtonElement;
   const beatEl = document.getElementById('seqBeat') as HTMLSpanElement;
 
   const STORAGE_KEY = 'dsModules';
@@ -209,6 +211,7 @@ export function initSequencer(stage: Stage): SequencerUI {
 
   function updateBeatLabel() {
     beatEl.textContent = `${playhead.toFixed(1)} / ${totalBeats.toFixed(1)} b`;
+    if (beatInput) beatInput.value = String(Math.round(playhead * 2) / 2);
   }
 
   function renderPlayhead() {
@@ -278,6 +281,51 @@ export function initSequencer(stage: Stage): SequencerUI {
     playhead = parseFloat(scrub.value);
     renderPlayhead();
     updateBeatLabel();
+  });
+
+  // Set the playback beat from a typed value (pauses playback so the user can
+  // inspect a specific frame).
+  beatInput.addEventListener('change', () => {
+    const v = parseFloat(beatInput.value);
+    if (isNaN(v)) return;
+    playing = false;
+    playBtn.textContent = '▶ Play';
+    playhead = Math.max(0, Math.min(totalBeats, v));
+    scrub.value = String(playhead);
+    renderPlayhead();
+    updateBeatLabel();
+  });
+
+  // Copy the current dancer positions to the clipboard as JSON (for debug reports).
+  copyPosBtn.addEventListener('click', () => {
+    const board = seq.evaluateSequence(flat, playhead).board;
+    const fasr = seq.fasr();
+    const rel = fasr.relationship;
+    const payload = {
+      playhead,
+      totalBeats,
+      sequence: history,
+      formation: fasr.formation,
+      arrangement: fasr.arrangement,
+      sequenceParity: fasr.sequence,
+      dancers: board.dancers.map((d) => ({
+        id: d.id,
+        couple: d.couple,
+        group: d.couple <= 2 ? 'heads' : 'sides',
+        gender: d.gender,
+        x: d.x,
+        y: d.y,
+        heading: d.heading,
+        headingDeg: Number((d.heading * 180 / Math.PI).toFixed(2)),
+        partner: rel[d.id]?.partner ?? null,
+        corner: rel[d.id]?.corner ?? null,
+      })),
+    };
+    const text = JSON.stringify(payload, null, 2);
+    navigator.clipboard.writeText(text).then(
+      () => { statusEl.textContent = '✓ dancer positions copied (JSON)'; },
+      () => { statusEl.textContent = '✗ clipboard unavailable — positions are in the console'; console.log(text); },
+    );
   });
 
   let lastReadout = '';

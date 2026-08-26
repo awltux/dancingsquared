@@ -270,6 +270,69 @@ if (allCopies.length === 4) {
 check(matchFormations(sq, couple2, 6.0) !== null, 'single best match still returns one copy');
 check(matchFormationsAll(sq, couple2, 6.0, false, 2).length === 2, 'maxMatches caps the number of copies');
 
+console.log('== legalCalls lists only genuinely-applicable calls (§9.5) ==');
+// The picker's "valid next call" list must only contain calls that ACTUALLY
+// apply on the interactive path (tight tolerance). Regression for the Double
+// Pass Thru force-fit calls (Trade By, Veer, Face, Turn Back, ...).
+const seq4 = new Sequencer(movesXml, formationsXml, [
+  { name: 'Trade By', xml: ms('trade_by') },
+  { name: 'Veer Left', xml: ms('veer') },
+  { name: 'Face Left', xml: ms('face') },
+  { name: 'Boys Turn Back', xml: ms('turn_back') },
+  { name: 'Zoom', xml: ms('zoom') },
+  { name: 'Rollaway', xml: ms('sashay') },
+]);
+// A canonical Double Pass Thru board (8 dancers, two facing columns).
+seq4.board = { dancers: [
+  { id: 1, couple: 1, gender: 'boy', x: -3, y: 1, heading: 0 },
+  { id: 2, couple: 1, gender: 'girl', x: -3, y: -1, heading: 0 },
+  { id: 3, couple: 2, gender: 'boy', x: -1, y: 1, heading: 0 },
+  { id: 4, couple: 2, gender: 'girl', x: -1, y: -1, heading: 0 },
+  { id: 5, couple: 3, gender: 'boy', x: 3, y: -1, heading: 180 },
+  { id: 6, couple: 3, gender: 'girl', x: 3, y: 1, heading: 180 },
+  { id: 7, couple: 4, gender: 'boy', x: 1, y: -1, heading: 180 },
+  { id: 8, couple: 4, gender: 'girl', x: 1, y: 1, heading: 180 },
+]};
+check(seq4.recognize(seq4.board).name === 'Double Pass Thru', `board is Double Pass Thru`);
+const listed = seq4.legalNext();
+let allApplicable = true;
+let badList = [];
+for (const name of listed) {
+  const r = seq4.applyToBoard(seq4.board, name);
+  if (!r.legal) { allApplicable = false; badList.push(name); }
+}
+check(allApplicable, `every listed call applies interactively (listed ${listed.length}; invalid: ${badList.join(', ') || 'none'})`);
+check(!listed.includes('Trade By'), `force-fit 'Trade By' not listed from Double Pass Thru`);
+
+console.log('== parallel-subset calls contribute beats to the sequence (§7.5) ==');
+// A subset call that only applies via the parallel path (e.g. Box Circulate from
+// a Double Pass Thru) must still add beats to sequenceBeats and be animatable,
+// even though it does not whole-board match.
+const seq5 = new Sequencer(movesXml, formationsXml, [
+  { name: 'Heads Promenade 3/4', xml: ms('promenade') },
+  { name: 'Box Circulate', xml: ms('circulate') },
+]);
+seq5.setMatchMargin(4);
+seq5.board = { dancers: [
+  { id: 1, couple: 1, gender: 'boy', x: -3, y: 1, heading: 0 },
+  { id: 2, couple: 1, gender: 'girl', x: -3, y: -1, heading: 0 },
+  { id: 3, couple: 2, gender: 'boy', x: -1, y: 1, heading: 0 },
+  { id: 4, couple: 2, gender: 'girl', x: -1, y: -1, heading: 0 },
+  { id: 5, couple: 3, gender: 'boy', x: 3, y: -1, heading: 180 },
+  { id: 6, couple: 3, gender: 'girl', x: 3, y: 1, heading: 180 },
+  { id: 7, couple: 4, gender: 'boy', x: 1, y: -1, heading: 180 },
+  { id: 8, couple: 4, gender: 'girl', x: 1, y: 1, heading: 180 },
+]};
+const dpt5 = seq5.board;
+check(seq5.recognize(dpt5).name === 'Double Pass Thru', `board is Double Pass Thru`);
+// stepBeats returns the parallel path's beat count for a subset call.
+check(seq5.stepBeats(dpt5, 'Box Circulate') > 0, `stepBeats(Box Circulate on DPT) > 0 (${seq5.stepBeats(dpt5, 'Box Circulate')})`);
+// sequenceBeats always starts from home, so it cannot reflect a DPT-only call;
+// the animatable check below exercises the parallel path directly.
+const beatsBoth = seq5.sequenceBeats(seq5.flatten(['Box Circulate']));
+const ev5 = seq5.evaluateSequence(seq5.flatten(['Box Circulate']), beatsBoth - 1);
+check(ev5.board.dancers.length === 8, `evaluateSequence can animate into the Box Circulate (8 dancers)`);
+
 console.log('=================');
 if (failures === 0) console.log('FEATURES TEST PASSED');
 else {

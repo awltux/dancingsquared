@@ -55,7 +55,7 @@ const LEVEL_ORDER = ['b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c
 
 // Bump this whenever the bundled call data changes: applied edit override flags
 // are cleared so the live catalog returns to the shipped version.
-const DATA_VERSION = '4';
+const DATA_VERSION = '5';
 
 // Parse the shared moves/formations once (small, eager).
 const movesMap = parseMoves(movesXml);

@@ -57,6 +57,8 @@
 
   <tam title="Heads Forward and Back" from="Static Square"
        formation="Static Square" group=" ">
+    <path/>
+    <path/>
     <path>
       <move select="Forward 2" hands="right" beats="4" />
       <move select="Back 2" hands="right" beats="4" />
@@ -65,14 +67,10 @@
       <move select="Forward 2" hands="left" beats="4" />
       <move select="Back 2" hands="left" beats="4" />
     </path>
-    <path/>
-    <path/>
   </tam>
 
   <tam title="Sides Forward and Back" from="Static Square"
        formation="Static Square" display="none">
-    <path/>
-    <path/>
     <path>
       <move select="Forward 2" hands="right" beats="4" />
       <move select="Back 2" hands="right" beats="4" />
@@ -81,6 +79,8 @@
       <move select="Forward 2" hands="left" beats="4" />
       <move select="Back 2" hands="left" beats="4" />
     </path>
+    <path/>
+    <path/>
   </tam>
 
 </tamination>

@@ -34,6 +34,7 @@ import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teac
 import { buildClassFromProgramme, parseProgramme, serializeProgramme } from './programme';
 import type { Programme } from './programme';
 import { TeacherStore, type SavedModule } from './store';
+import { Tour } from './tour';
 
 // ---------------------------------------------------------------- catalog
 
@@ -186,69 +187,9 @@ function setNotice(text: string, warn = false): void {
 // ---------------------------------------------------------------- tour overlay
 
 // A short guided tour shown the first time the app opens (and replayable via a
-// "Replay the tour" button on the home page). Each step can highlight a target
-// element on the current page; when the target isn't present the step still shows
-// its text with no spotlight.
-const TOUR_KEY = 'dsTeacherTourDone';
-let tourStep: number | null = null;
-interface TourStep {
-  title: string;
-  text: string;
-  target?: string; // CSS selector for the element to spotlight
-}
-const TOUR_STEPS: TourStep[] = [
-  { title: 'Welcome', text: 'This app plans your square dance classes — sessions, attendance, call progress and practice tips.' },
-  { title: 'Your classes', text: 'Each card is a class you are teaching. Tap one to open its sessions.', target: '.section-title' },
-  { title: 'New course', text: 'Start a new class from a programme of sessions.', target: '[data-nav="#/new"]' },
-  { title: 'Programmes', text: 'Import, export and manage the session programmes.', target: '[data-nav="#/programmes"]' },
-  { title: 'Bottom navigation', text: 'Jump between Home, Sessions, Students and Tips from the bar at the bottom.', target: '.bottombar' },
-];
-
-function startTour(): void {
-  tourStep = 0;
-  render();
-}
-function endTour(): void {
-  tourStep = null;
-  try {
-    localStorage.setItem(TOUR_KEY, '1');
-  } catch {
-    /* ignore */
-  }
-  render();
-}
-/** Show the tour on first open (if it hasn't been seen). Call after the initial
- * render so the page is laid out and targets can be spotlighted. */
-function maybeStartTour(): void {
-  try {
-    if (localStorage.getItem(TOUR_KEY) === '1') return;
-  } catch {
-    return;
-  }
-  startTour();
-}
-
-/** Markup for the active tour overlay (empty string when no tour is running). */
-function tourOverlay(): string {
-  if (tourStep === null) return '';
-  const s = TOUR_STEPS[tourStep];
-  return `
-    <div class="tour-overlay">
-      <div class="tour-highlight"></div>
-      <div class="tour-pop">
-        <div class="tour-step">Step ${tourStep + 1} of ${TOUR_STEPS.length}</div>
-        <h2>${esc(s.title)}</h2>
-        <p>${esc(s.text)}</p>
-        <div class="tour-actions">
-          ${tourStep > 0 ? '<button class="big" data-tour-prev>Back</button>' : ''}
-          ${tourStep < TOUR_STEPS.length - 1
-            ? '<button class="big primary" data-tour-next>Next</button>'
-            : '<button class="big primary" data-tour-done>Done</button>'}
-          <button class="icon-btn" data-tour-close title="Close">✕</button>
-        </div>
-      </div>
-    </div>`;
-}
+// "Replay the tour" button on the home page).
+const tour = new Tour(esc);
+tour.attachRender(render);
 
 const tipsByClass: Record<string, Tip[]> = {};
 const tipsState: Record<string, { selectedTip: number; selectedIdx: number }> = {};
@@ -425,7 +366,7 @@ function render(): void {
     ${bottomNav(classId, tab)}
     ${probModal ? renderModal(probModal) : ''}
     ${preview ? renderPreview(preview) : ''}
-    ${tourOverlay()}
+    ${tour.overlay()}
   `;
   wire();
 }
@@ -1161,41 +1102,7 @@ function wire(): void {
     }));
 
   // ---- tour ----
-  root.querySelectorAll<HTMLElement>('[data-tour]').forEach((el) =>
-    el.addEventListener('click', startTour));
-  root.querySelectorAll<HTMLElement>('[data-tour-next]').forEach((el) =>
-    el.addEventListener('click', () => {
-      if (tourStep !== null && tourStep < TOUR_STEPS.length - 1) { tourStep++; render(); }
-    }));
-  root.querySelectorAll<HTMLElement>('[data-tour-prev]').forEach((el) =>
-    el.addEventListener('click', () => {
-      if (tourStep !== null && tourStep > 0) { tourStep--; render(); }
-    }));
-  root.querySelectorAll<HTMLElement>('[data-tour-done], [data-tour-close]').forEach((el) =>
-    el.addEventListener('click', endTour));
-  root.querySelectorAll<HTMLElement>('.tour-overlay').forEach((el) =>
-    el.addEventListener('click', (e) => {
-      if (e.target === el) endTour(); // backdrop click closes
-    }));
-  if (tourStep !== null) {
-    const s = TOUR_STEPS[tourStep];
-    const hl = root.querySelector('.tour-highlight') as HTMLElement | null;
-    if (s.target && hl) {
-      const target = root.querySelector(s.target);
-      if (target) {
-        const r = (target as HTMLElement).getBoundingClientRect();
-        hl.style.display = 'block';
-        hl.style.top = `${r.top}px`;
-        hl.style.left = `${r.left}px`;
-        hl.style.width = `${r.width}px`;
-        hl.style.height = `${r.height}px`;
-      } else {
-        hl.style.display = 'none';
-      }
-    } else if (hl) {
-      hl.style.display = 'none';
-    }
-  }
+  tour.wire(root);
 
   root.querySelectorAll<HTMLElement>('[data-att]').forEach((b) =>
     b.addEventListener('click', () => {
@@ -1842,4 +1749,4 @@ function importProgrammeText(text: string): void {
 }
 
 render();
-maybeStartTour();
+tour.maybeStart();

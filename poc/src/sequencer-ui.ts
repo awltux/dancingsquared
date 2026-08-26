@@ -337,7 +337,9 @@ export function initSequencer(stage: Stage): SequencerUI {
     const fasrText =
       `Formation: <b>${fasr.formation ?? '?'}</b> · ${fasr.arrangement}<br>` +
       `Sequence: <b>${fasr.sequence}</b>${rel}`;
-    const listText = history.length ? history.map((c, i) => `${i + 1}. ${c}`).join('<br>') : '<i>(no calls yet)</i>';
+    const listText = history.length
+      ? history.map((c, i) => `<span class="seq-call" data-idx="${i}">${i + 1}. ${c}</span>`).join('<br>')
+      : '<i>(no calls yet)</i>';
     const key = fasrText + '\u0000' + listText;
     if (key === lastReadout) return; // avoid DOM churn when re-rendering every frame
     lastReadout = key;
@@ -368,6 +370,18 @@ export function initSequencer(stage: Stage): SequencerUI {
     history.pop();
     seq.reset();
     for (const name of history) seq.apply(name);
+    statusEl.textContent = '';
+    render();
+    refreshCallSelect();
+    syncAnimation();
+  }
+
+  // Jump the board to a call's START formation: reset and replay every call
+  // before the given index, leaving the clicked call un-applied.
+  function seekTo(idx: number) {
+    if (idx < 0 || idx >= history.length) return;
+    seq.reset();
+    for (const name of history.slice(0, idx)) seq.apply(name);
     statusEl.textContent = '';
     render();
     refreshCallSelect();
@@ -459,6 +473,11 @@ export function initSequencer(stage: Stage): SequencerUI {
   applyGetoutBtn.addEventListener('click', applyGetout);
   getinBtn.addEventListener('click', showGetin);
   fixBtn.addEventListener('click', showFixIt);
+  // Click a call in the sequence list to seek the board to that call's start.
+  seqListEl.addEventListener('click', (e) => {
+    const t = (e.target as HTMLElement).closest('.seq-call') as HTMLElement | null;
+    if (t && t.dataset.idx != null) seekTo(Number(t.dataset.idx));
+  });
 
   // Start the animation frame loop.
   requestAnimationFrame(frame);

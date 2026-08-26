@@ -36,6 +36,8 @@ html, body {
 #hud .wide { flex: 2; }
 #hud .small { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 4px; }
 #hud .small b { color: var(--text); }
+#hud .seq-call { cursor: pointer; display: inline-block; }
+#hud .seq-call:hover { color: var(--text); text-decoration: underline; }
 #editorPanel input[type="text"], #editorPanel input[type="number"], #editorPanel select {
   background: #0e141b; color: #dbe4ef; border: 1px solid #2a3542; border-radius: 4px; padding: 3px 5px;
 }

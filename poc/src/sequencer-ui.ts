@@ -377,12 +377,17 @@ export function initSequencer(stage: Stage): SequencerUI {
   }
 
   // Jump the board to a call's START formation: reset and replay every call
-  // before the given index, leaving the clicked call un-applied.
+  // before the given index, leaving the clicked call un-applied, and drop the
+  // calls after it so the sequence/board/playhead stay consistent.
   function seekTo(idx: number) {
     if (idx < 0 || idx >= history.length) return;
+    playing = false;
+    playBtn.textContent = '▶ Play';
+    history.length = idx; // truncate: the clicked call is the next to apply
     seq.reset();
-    for (const name of history.slice(0, idx)) seq.apply(name);
+    for (const name of history) seq.apply(name);
     statusEl.textContent = '';
+    lastTraceKey = '';
     render();
     refreshCallSelect();
     syncAnimation();

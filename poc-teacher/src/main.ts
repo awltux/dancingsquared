@@ -33,11 +33,13 @@ import {
 import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
 import { buildClassFromProgramme, parseProgramme, serializeProgramme } from './programme';
 import type { Programme } from './programme';
-import { TeacherStore, type SavedModule } from './store';
+import { TeacherStore } from './store';
 import { Tour } from './tour';
 import { Preview } from './preview';
 import { View, type ProbModal } from './view';
 import { esc, sanitizeText, clampNum } from './util';
+import { suggestModuleName, sameSequence } from './names';
+import { serializeModules, parseModules } from './modules';
 
 // ---------------------------------------------------------------- catalog
 
@@ -55,115 +57,6 @@ const toRef = (title: string): CallRef => {
   const c = findCall(title)!;
   return { title: c.title, level: c.level, setupIdx: 0, setup: c.setups[0].label };
 };
-
-// ------------------------------------------------------- creative module names
-
-// Creative name generator for saved modules. The generated name is influenced by
-// the calls actually in the tip (its dominant call family becomes the theme), so
-// it feels relevant, while a seeded word bank keeps it varied and playful. The
-// same tip always suggests the same name; the user can edit it in the prompt.
-const MOD_FLAIR = [
-  'Grand', 'Golden', 'Do-Sa', 'Right and Left', 'Swinging', 'Spinning', 'Twirling',
-  'Smooth', 'Snappy', 'Weaving', 'Sliding', 'Rolling', 'Sassy', 'Jolly', 'Fancy',
-  'Rambling',
-];
-const MOD_NOUN = [
-  'Allemande', 'Promenade', 'Dosado', 'Swing', 'Star', 'Chain', 'Corner', 'Wheel',
-  'Recycle', 'Weave', 'Circulate', 'Trade', 'Split', 'Bend', 'Slide', 'Roll', 'Tag',
-  'Honor', 'Gypsy', 'Sashay',
-];
-// name = [flair] [theme] [noun] combinations, chosen per-tip for variety.
-const MOD_STYLES: ((theme: string, flair: string, noun: string) => string)[] = [
-  (t: string, f: string) => `${f} ${t}`,
-  (t: string, _f: string, n: string) => `${t} ${n}`,
-  (_t: string, f: string, n: string) => `The ${f} ${n}`,
-  (t: string, f: string, n: string) => `${f} ${t} ${n}`,
-  (t: string, f: string) => `${t} by ${f}`,
-];
-
-/** A short theme word drawn from a tip's most common call family. */
-function tipTheme(titles: string[]): string {
-  const counts = new Map<string, number>();
-  for (const t of titles) {
-    const fam = familyOf(t);
-    if (fam && fam !== 'Other') counts.set(fam, (counts.get(fam) ?? 0) + 1);
-  }
-  let theme = '';
-  let best = 0;
-  for (const [f, n] of counts) if (n > best) { best = n; theme = f; }
-  const core = theme.replace(/\s*Family$/i, '').trim(); // "Circle Family" -> "Circle"
-  if (core) return core;
-  // fall back to the first call (minus common fragments) for a theme word.
-  const first = titles[0] ?? '';
-  return first.replace(/^(Heads|Sides|All 4 Couples)\s*/i, '').trim() || 'Square';
-}
-
-/** Suggest a creative module name from the tip's calls (stable per tip).
- * The name is built from a pool of square-dance figure words that actually
- * appear in the tip's calls plus the dominant call family (deduplicated), so it
- * reflects the calls rather than being purely random. */
-function suggestModuleName(titles: string[]): string {
-  const theme = tipTheme(titles);
-  // Pool of distinct words drawn from the tip's calls + its family. Drop a short
-  // word when a longer pool entry starts with it (e.g. "Slide" vs "Slide Thru",
-  // "Scoot" vs "Scoot Back") so names aren't redundant.
-  const rawPool = [...new Set([theme, ...extractFigureWords(titles)])];
-  const pool = rawPool.filter((w) => !rawPool.some((o) => o !== w && o.startsWith(w + ' ')));
-  let seed = 0;
-  for (const ch of titles.join('>')) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
-  const styleIdx = seed % 4;
-  if (pool.length >= 2) {
-    // Two distinct parts, drawn from the tip's actual words/family.
-    const a = pool[seed % pool.length];
-    const b = pool[(seed + 1) % pool.length];
-    switch (styleIdx) {
-      case 0: return `${a} ${b}`;
-      case 1: return `The ${a} ${b}`;
-      case 2: return `${a} & ${b}`;
-      default: return `${b} ${a}`;
-    }
-  }
-  // Only a single distinctive word — pair it with a square-dance flair/noun.
-  const single = pool[0];
-  const flair = MOD_FLAIR[seed % MOD_FLAIR.length];
-  const noun = MOD_NOUN[(seed >>> 3) % MOD_NOUN.length];
-  const style = MOD_STYLES[styleIdx];
-  return style(single, flair, noun);
-}
-
-// Distinct square-dance figure words worth surfacing in a module name, e.g. the
-// "Grand" of "Right and Left Grand" or the "Allemande" of "Allemande Left".
-const FIGURE_WORDS = [
-  'Allemande', 'Circle', 'Grand', 'Swing', 'Star', 'Chain', 'Promenade', 'Wheel',
-  'Weave', 'Dosado', 'Corner', 'Turn', 'Pass', 'Thru', 'Bend', 'Split', 'Trade',
-  'Circulate', 'Fold', 'Tag', 'Recycle', 'Forward', 'Back', 'Sashay', 'Sweep',
-  'Scoot', 'Cast', 'Hinge', 'Extend', 'Run', 'Roll', 'Slide',
-];
-
-/** Square-dance figure words found in the tip's call titles, in order of first
- * appearance, deduplicated. */
-function extractFigureWords(titles: string[]): string[] {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const t of titles) {
-    for (const word of t.split(/[\s/,]+/)) {
-      if (!word) continue;
-      const match = FIGURE_WORDS.find((w) => w.toLowerCase() === word.toLowerCase());
-      if (match && !seen.has(match)) {
-        seen.add(match);
-        out.push(match);
-      }
-    }
-  }
-  return out;
-}
-
-/** Whether two call sequences are identical (same calls, same order). */
-function sameSequence(a: string[], b: string[]): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
-  return true;
-}
 
 // Null-safe resolver for building courses from imported programmes (drops calls
 // that aren't in the loaded catalog instead of throwing).
@@ -200,48 +93,6 @@ const tipsState: Record<string, { selectedTip: number; selectedIdx: number }> = 
 // Generating tips needs enough distinct taught calls to build varied, closable
 // tips; below this the generator can't meaningfully produce three.
 const MIN_TAUGHT_CALLS = 4;
-
-/** Serialize a class's saved modules for export/sharing. */
-function serializeModules(modules: SavedModule[]): string {
-  return JSON.stringify(
-    {
-      app: 'dancing-squared-teacher',
-      kind: 'modules',
-      version: 1,
-      modules: modules.map((m) => ({ name: m.name, titles: m.titles })),
-    },
-    null,
-    2,
-  );
-}
-
-/** Parse exported module JSON; returns the valid modules or null if it isn't a
- * module export. Invalid entries are skipped. */
-function parseModules(text: string): SavedModule[] | null {
-  let data: unknown;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    return null;
-  }
-  const arr =
-    data && typeof data === 'object' && Array.isArray((data as { modules?: unknown }).modules)
-      ? (data as { modules: unknown[] }).modules
-      : Array.isArray(data)
-        ? data
-        : null;
-  if (!arr) return null;
-  const out: SavedModule[] = [];
-  for (const m of arr) {
-    if (!m || typeof m !== 'object') continue;
-    const o = m as { name?: unknown; titles?: unknown };
-    if (typeof o.name !== 'string' || !Array.isArray(o.titles)) continue;
-    const titles = o.titles.filter((t): t is string => typeof t === 'string');
-    if (!titles.length) continue;
-    out.push({ name: sanitizeText(o.name, 60), titles, createdAt: Date.now(), createdClass: '', createdSession: '' });
-  }
-  return out.length ? out : null;
-}
 
 /** Add parsed modules to a class's saved list, skipping duplicates. */
 function importModulesText(id: string, text: string): void {
@@ -942,7 +793,7 @@ function wire(): void {
       // The session the tip was generated for (its sourceSessionId), not the last one.
       const sIdx = Math.max(0, c.sessions.findIndex((s) => s.id === t.sourceSessionId));
       // Suggest a creative name from the tip's calls; fall back to a plain count.
-      const defaultName = suggestModuleName(t.titles) || `Saved tip ${modules.length + 1}`;
+      const defaultName = suggestModuleName(t.titles, familyOf) || `Saved tip ${modules.length + 1}`;
       const name = sanitizeText(window.prompt(`Name this module — suggested: "${defaultName}"`, defaultName) ?? '', 60) || defaultName;
       modules.push({
         name,

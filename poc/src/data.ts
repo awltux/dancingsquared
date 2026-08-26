@@ -456,17 +456,21 @@ export function sequencerCalls(level: string): { name: string; xml: string }[] {
 export function sequencerCallsUpTo(level: string): { name: string; xml: string }[] {
   const idx = LEVEL_ORDER.indexOf(level);
   const maxIdx = idx >= 0 ? idx : LEVEL_ORDER.length - 1;
-  const seen = new Set<string>();
-  const out: { name: string; xml: string }[] = [];
+  // Each title should be registered from its HIGHEST available level (LEVEL_ORDER
+  // ascends, so the last occurrence wins) so the sequencer sees the most complete
+  // setup set (e.g. ms "Circle Left" includes its from="Circle" start, which the
+  // b1 variant lacks). First-seen order is preserved for the returned list.
+  const order: string[] = [];
+  const best = new Map<string, { xml: string }>();
   for (let k = 0; k <= maxIdx; k++) {
     const lv = LEVEL_ORDER[k];
     for (const c of fullCatalog) {
       if (c.level !== lv) continue;
-      if (seen.has(c.title)) continue;
-      seen.add(c.title);
       const xml = registrationXml(c);
-      if (xml != null) out.push({ name: c.title, xml });
+      if (xml == null) continue;
+      if (!best.has(c.title)) order.push(c.title);
+      best.set(c.title, { xml });
     }
   }
-  return out;
+  return order.map((title) => ({ name: title, xml: best.get(title)!.xml }));
 }

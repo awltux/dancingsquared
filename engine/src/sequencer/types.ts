@@ -56,3 +56,15 @@ export interface Module {
   tags?: string[];
   notes?: string;
 }
+
+/** A matched call variant plus the rigid transform (rotation/reflection + both
+ * centers) that overlays its canonical setup onto the board. */
+export interface VariantMatch {
+  variant: import('../types.js').CallBundle;
+  mapping: number[];
+  error: number;
+  rot: number;
+  reflect: boolean;
+  cSrc: { x: number; y: number };
+  cTgt: { x: number; y: number };
+}

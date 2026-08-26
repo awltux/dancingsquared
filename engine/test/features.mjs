@@ -110,10 +110,9 @@ check(typeof par.legalOnAll === 'boolean', 'parallelApplicable reports legalOnAl
 // to an 8-dancer board of two separate Facing Couples should be LEGAL (applied
 // to each couple concurrently) instead of failing the whole-board match.
 console.log('== True parallel apply (Single Circle Right Full on 2 Facing Couples) ==');
-const variants = seq['variants'].get('Single Circle Right Full');
-let fcv = null;
-for (const x of variants) if (!fcv || x.dancers.length < fcv.dancers.length) fcv = x;
-const fSetup = fcv.dancers.map((d) => seq['variantMatchable'](d)); // mirror-aware canonical positions
+const starts = seq.variantStarts('Single Circle Right Full');
+let fSetup = null;
+for (const s of starts) if (!fSetup || s.length < fSetup.length) fSetup = s;
 const mkCopy = (tx, idBase, coupleBase) =>
   fSetup.map((m, i) => ({ id: idBase + i + 1, couple: coupleBase, gender: i % 2 ? 'girl' : 'boy', x: m.x + tx, y: m.y, heading: m.heading }));
 const twoFC = { dancers: [...mkCopy(-6, 0, 1), ...mkCopy(6, 4, 2)] };
@@ -166,7 +165,7 @@ seq.setRandomSource(Math.random);
 seq.setSelectionMode('best');
 const pb = seq.applyToBoard(twoFC, 'Single Circle Right Full');
 check(pb.legal === true, `default 'best' mode applies legally`);
-check(typeof seq['selectionMode'] === 'string', 'selectionMode is a settable field');
+check(typeof seq.setSelectionMode === 'function' && typeof seq.setRandomSource === 'function', 'selectionMode/randomSource are settable via public methods');
 
 console.log('== Getout first-call validity regression (§7.4) ==');
 // A getout path is APPLIED through the interactive (tight-tolerance) path, so

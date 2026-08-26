@@ -7,6 +7,7 @@
 //  - Relationship: partner + corner for each dancer.
 
 import type { Board, Fasr } from './types.js';
+import { makeSquaredSet } from './board.js';
 
 const angDiff = (a: number, b: number) => {
   let d = (a - b) % (2 * Math.PI);
@@ -66,4 +67,15 @@ export function analyzeFasr(board: Board, formationName: string | null): Fasr {
   }
 
   return { formation: formationName, arrangement, sequence, relationship };
+}
+
+/** A canonical key of a board's FASR (sequence + relationships). */
+export function fasrKey(board: Board): string {
+  const f = analyzeFasr(board, null);
+  return `${f.sequence}|${JSON.stringify(f.relationship)}`;
+}
+
+/** The FASR key of the fresh home squared set. */
+export function homeFasrKey(): string {
+  return fasrKey(makeSquaredSet());
 }

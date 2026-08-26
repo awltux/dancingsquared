@@ -1,15 +1,10 @@
-// Call editor UI.
-//
-// Two distinct features:
+// Call editor UI controller: two features.
 //   1. FIX CLOSURE — correct an existing call setup so it ends at the start
-//      position of a chosen POST call setup (the target). Appends corrective
-//      moves when the end is misaligned.
+//      position of a chosen POST call setup.
 //   2. CREATE POSITION — synthesize a NEW position for a call from the END of a
-//      PRE call setup (new start) to the START of a POST call setup (new end),
-//      through the edit call's chosen core setup, with a new position name.
-//
-// Targets (pre/post positions) are mapped to the edit call's dancer identities
-// by aligning to the edit call's START, tolerating a whole-set rotation.
+//      PRE call setup to the START of a POST call setup, through the edit call's
+//      core setup.
+// Encapsulates the editor's state + DOM wiring behind a class.
 
 import {
   alignFormationToCore,
@@ -42,66 +37,83 @@ export interface EditorUI {
 const HEADING_WARN = 0.35; // rad (~20deg)
 const POS_WARN = 2.0; // units
 
-export function initEditor(stage: Stage, preview: (call: CallBundle) => void): EditorUI {
-  const modeSel = document.getElementById('edMode') as HTMLSelectElement;
-  const editCallSel = document.getElementById('edCall') as HTMLSelectElement;
-  const editSetupSel = document.getElementById('edSetup') as HTMLSelectElement;
-  const postCallSel = document.getElementById('edPostCall') as HTMLSelectElement;
-  const postSetupSel = document.getElementById('edPostSetup') as HTMLSelectElement;
-  const showTargetBtn = document.getElementById('edShowTarget') as HTMLButtonElement;
-  const fixPanel = document.getElementById('edFixPanel') as HTMLDivElement;
-  const showEndBtn = document.getElementById('edShowEnd') as HTMLButtonElement;
-  const fixBtn = document.getElementById('edFix') as HTMLButtonElement;
-  const fixInfoEl = document.getElementById('edFixInfo') as HTMLSpanElement;
-  const createPanel = document.getElementById('edCreatePanel') as HTMLDivElement;
-  const preCallSel = document.getElementById('edPreCall') as HTMLSelectElement;
-  const preSetupSel = document.getElementById('edPreSetup') as HTMLSelectElement;
-  const showStartBtn = document.getElementById('edShowStart') as HTMLButtonElement;
-  const nameInput = document.getElementById('edName') as HTMLInputElement;
-  const padInput = document.getElementById('edPadBeats') as HTMLInputElement;
-  const createBtn = document.getElementById('edCreate') as HTMLButtonElement;
-  const saveBtn = document.getElementById('edSave') as HTMLButtonElement;
-  const exportBtn = document.getElementById('edExport') as HTMLButtonElement;
-  const statusEl = document.getElementById('edStatus') as HTMLSpanElement;
-  const savedEl = document.getElementById('edSaved') as HTMLDivElement;
-  const xmlEl = document.getElementById('edXml') as HTMLTextAreaElement;
+export class EditorController implements EditorUI {
+  private stage: Stage;
+  private preview: (call: CallBundle) => void;
 
-  const catalog = availableCalls();
-  let saved: CallEdit[] = loadEdits();
+  private modeSel = el<HTMLSelectElement>('edMode');
+  private editCallSel = el<HTMLSelectElement>('edCall');
+  private editSetupSel = el<HTMLSelectElement>('edSetup');
+  private postCallSel = el<HTMLSelectElement>('edPostCall');
+  private postSetupSel = el<HTMLSelectElement>('edPostSetup');
+  private showTargetBtn = el<HTMLButtonElement>('edShowTarget');
+  private fixPanel = el<HTMLDivElement>('edFixPanel');
+  private showEndBtn = el<HTMLButtonElement>('edShowEnd');
+  private fixBtn = el<HTMLButtonElement>('edFix');
+  private fixInfoEl = el<HTMLSpanElement>('edFixInfo');
+  private createPanel = el<HTMLDivElement>('edCreatePanel');
+  private preCallSel = el<HTMLSelectElement>('edPreCall');
+  private preSetupSel = el<HTMLSelectElement>('edPreSetup');
+  private showStartBtn = el<HTMLButtonElement>('edShowStart');
+  private nameInput = el<HTMLInputElement>('edName');
+  private padInput = el<HTMLInputElement>('edPadBeats');
+  private createBtn = el<HTMLButtonElement>('edCreate');
+  private saveBtn = el<HTMLButtonElement>('edSave');
+  private exportBtn = el<HTMLButtonElement>('edExport');
+  private statusEl = el<HTMLSpanElement>('edStatus');
+  private savedEl = el<HTMLDivElement>('edSaved');
+  private xmlEl = el<HTMLTextAreaElement>('edXml');
 
-  for (const c of catalog) {
-    const label = `${c.level.toUpperCase()} · ${c.title}`;
-    editCallSel.add(new Option(label, c.id));
-    postCallSel.add(new Option(label, c.id));
-    preCallSel.add(new Option(label, c.id));
+  private catalog = availableCalls();
+  private saved: CallEdit[] = loadEdits();
+
+  // current state
+  private editSetup: CallBundle | null = null;
+  private postStart: FormDancer[] | null = null;
+  private preEnd: FormDancer[] | null = null;
+  private generated: CallBundle | null = null;
+  private generatedName = '';
+
+  constructor(stage: Stage, preview: (call: CallBundle) => void) {
+    this.stage = stage;
+    this.preview = preview;
+
+    for (const c of this.catalog) {
+      const label = `${c.level.toUpperCase()} · ${c.title}`;
+      this.editCallSel.add(new Option(label, c.id));
+      this.postCallSel.add(new Option(label, c.id));
+      this.preCallSel.add(new Option(label, c.id));
+    }
+
+    this.wireEvents();
+    this.fillSetupSelect(this.editSetupSel, this.editCallSel.value);
+    this.fillSetupSelect(this.postSetupSel, this.postCallSel.value);
+    this.fillSetupSelect(this.preSetupSel, this.preCallSel.value);
+    this.loadEditSetup();
+    this.loadPost();
+    this.loadPre();
+    this.applyMode();
   }
 
-  // ---- current state ----
-  let editSetup: CallBundle | null = null; // the edit call's selected setup (core / the setup to fix)
-  let postStart: FormDancer[] | null = null; // POST call setup start -> target end
-  let preEnd: FormDancer[] | null = null; // PRE call setup end -> new start
-  let generated: CallBundle | null = null;
-  let generatedName = '';
+  // ---- geometry helpers ----
 
-  function callStart(c: CallBundle): FormDancer[] {
+  private callStart(c: CallBundle): FormDancer[] {
     return c.dancers.map((d) => {
       const p = poseFor(d, 0);
       return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
     });
   }
-  function callEnd(c: CallBundle): FormDancer[] {
+  private callEnd(c: CallBundle): FormDancer[] {
     return c.dancers.map((d) => {
       const p = poseFor(d, c.beats);
       return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
     });
   }
-  // Map a target formation onto the edit setup's dancer identities (align to its
-  // START, tolerating a whole-set rotation).
-  function alignToSetup(c: CallBundle, formation: FormDancer[]): FormDancer[] {
-    return alignFormationToCore(callStart(c), formation);
+  private alignToSetup(c: CallBundle, formation: FormDancer[]): FormDancer[] {
+    return alignFormationToCore(this.callStart(c), formation);
   }
 
-  function staticCall(name: string, form: FormDancer[]): CallBundle {
+  private staticCall(name: string, form: FormDancer[]): CallBundle {
     const dancers = form.map((f) => ({
       gender: (f.gender ?? 'boy') as Gender,
       x: f.x,
@@ -112,64 +124,61 @@ export function initEditor(stage: Stage, preview: (call: CallBundle) => void): E
     return { title: name, from: name, parts: '', taminator: '', dancers, beats: 1, leadin: 0, leadout: 0, totalBeats: 1 };
   }
 
-  function fillSetupSelect(sel: HTMLSelectElement, callId: string) {
+  private fillSetupSelect(sel: HTMLSelectElement, callId: string) {
     sel.innerHTML = '';
     effectiveSetups(callId).forEach((s, i) => sel.add(new Option(s.label, String(i))));
   }
 
-  function loadEditSetup() {
-    const id = editCallSel.value;
-    const tam = parseInt(editSetupSel.value || '0', 10);
+  // ---- loading ----
+
+  private loadEditSetup() {
+    const id = this.editCallSel.value;
+    const tam = parseInt(this.editSetupSel.value || '0', 10);
     try {
-      editSetup = loadCall(id, tam, true);
-      preview(staticCall(`edit setup start — ${editSetup.title}`, callStart(editSetup)));
-      refreshFixInfo();
+      this.editSetup = loadCall(id, tam, true);
+      this.preview(this.staticCall(`edit setup start — ${this.editSetup.title}`, this.callStart(this.editSetup)));
+      this.refreshFixInfo();
     } catch (err) {
-      editSetup = null;
-      statusEl.textContent = `edit call failed: ${(err as Error).message}`;
+      this.editSetup = null;
+      this.statusEl.textContent = `edit call failed: ${(err as Error).message}`;
     }
-    renderSaved();
+    this.renderSaved();
   }
 
-  function loadPost() {
+  private loadPost() {
     try {
-      const c = loadCall(postCallSel.value, parseInt(postSetupSel.value || '0', 10), true);
-      postStart = callStart(c);
-      statusEl.textContent = `post start — ${c.title}`;
+      const c = loadCall(this.postCallSel.value, parseInt(this.postSetupSel.value || '0', 10), true);
+      this.postStart = this.callStart(c);
+      this.statusEl.textContent = `post start — ${c.title}`;
     } catch (err) {
-      postStart = null;
-      statusEl.textContent = `post call failed: ${(err as Error).message}`;
+      this.postStart = null;
+      this.statusEl.textContent = `post call failed: ${(err as Error).message}`;
     }
-    refreshFixInfo();
+    this.refreshFixInfo();
   }
 
-  function loadPre() {
+  private loadPre() {
     try {
-      const c = loadCall(preCallSel.value, parseInt(preSetupSel.value || '0', 10), true);
-      preEnd = callEnd(c);
-      statusEl.textContent = `pre end — ${c.title}`;
+      const c = loadCall(this.preCallSel.value, parseInt(this.preSetupSel.value || '0', 10), true);
+      this.preEnd = this.callEnd(c);
+      this.statusEl.textContent = `pre end — ${c.title}`;
     } catch (err) {
-      preEnd = null;
-      statusEl.textContent = `pre call failed: ${(err as Error).message}`;
+      this.preEnd = null;
+      this.statusEl.textContent = `pre call failed: ${(err as Error).message}`;
     }
   }
 
-  // Show the closure discrepancy between the edit setup's end and the target,
-  // measured at the FORMATION level (rigid fit, allowing a whole-set rotation)
-  // so it isn't inflated by the call's own movement between its start and end.
-  // Formation-level discrepancy between the edit setup's end and the post-call
-  // start: position distance (rigid fit) + best heading residual over the four
-  // whole-set rotations. Measured at the FORMATION level so a call's own
-  // start->end movement and symmetric-rotation ambiguity don't inflate it.
-  function fixDiscrepancy(): { posErr: number; maxHead: number } {
-    const editEnd = endPoses(editSetup!);
-    const fit = rigidFit(editEnd.map((p) => ({ x: p.x, y: p.y })), postStart!.map((p) => ({ x: p.x, y: p.y })));
+  // ---- closure discrepancy ----
+
+  private fixDiscrepancy(): { posErr: number; maxHead: number } {
+    const editEnd = endPoses(this.editSetup!);
+    const fit = rigidFit(editEnd.map((p) => ({ x: p.x, y: p.y })), this.postStart!.map((p) => ({ x: p.x, y: p.y })));
     let maxHead = Infinity;
     const ROTS = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
     for (const rot of ROTS) {
       let m = 0;
-      for (let i = 0; i < Math.min(editEnd.length, postStart!.length); i++) {
-        let d = editEnd[i].heading - postStart![i].heading - rot;
+      for (let i = 0; i < Math.min(editEnd.length, this.postStart!.length); i++) {
+        let d = editEnd[i].heading - this.postStart![i].heading - rot;
         while (d > Math.PI) d -= 2 * Math.PI;
         while (d <= -Math.PI) d += 2 * Math.PI;
         m = Math.max(m, Math.abs(d));
@@ -179,143 +188,143 @@ export function initEditor(stage: Stage, preview: (call: CallBundle) => void): E
     return { posErr: fit.error, maxHead };
   }
 
-  // Show the closure discrepancy between the edit setup's end and the target.
-  function refreshFixInfo() {
-    if (!editSetup || !postStart) {
-      fixInfoEl.textContent = 'pick an edit call+setup and a post call+setup';
+  private refreshFixInfo() {
+    if (!this.editSetup || !this.postStart) {
+      this.fixInfoEl.textContent = 'pick an edit call+setup and a post call+setup';
       return;
     }
-    const { posErr, maxHead } = fixDiscrepancy();
-    fixInfoEl.textContent =
+    const { posErr, maxHead } = this.fixDiscrepancy();
+    this.fixInfoEl.textContent =
       `end formation ${posErr.toFixed(2)} apart from post-call start (rigid fit)` +
       (maxHead > 0.1 ? `, headings up to ${(maxHead * 180 / Math.PI).toFixed(0)}° apart` : '');
   }
 
-  function applyMode() {
-    const create = modeSel.value === 'create';
-    fixPanel.hidden = create;
-    createPanel.hidden = !create;
-    renderSaved();
-    refreshFixInfo();
+  private applyMode() {
+    const create = this.modeSel.value === 'create';
+    this.fixPanel.hidden = create;
+    this.createPanel.hidden = !create;
+    this.renderSaved();
+    this.refreshFixInfo();
   }
 
-  // ---- feature 1: fix closure ----
-  fixBtn.addEventListener('click', () => {
-    if (!editSetup || !postStart) {
-      statusEl.textContent = 'pick an edit call+setup and a post call+setup';
+  // ---- actions ----
+
+  private doFix() {
+    if (!this.editSetup || !this.postStart) {
+      this.statusEl.textContent = 'pick an edit call+setup and a post call+setup';
       return;
     }
-    const { posErr, maxHead } = fixDiscrepancy();
+    const { posErr, maxHead } = this.fixDiscrepancy();
     if (posErr > POS_WARN || maxHead > HEADING_WARN) {
       const size = `heading ${(maxHead * 180 / Math.PI).toFixed(0)}°, pos ${posErr.toFixed(1)}`;
       if (!window.confirm(`Correction is large (${size}) — this may not be a simple closure misalignment. Proceed?`)) return;
     }
-    const target = alignToSetup(editSetup, postStart);
-    const fixed = correctEndTo(editSetup, target);
-    generated = fixed;
-    generatedName = `${editSetup.title} (fixed)`;
-    preview(fixed);
-    fixInfoEl.textContent =
+    const target = this.alignToSetup(this.editSetup, this.postStart);
+    const fixed = correctEndTo(this.editSetup, target);
+    this.generated = fixed;
+    this.generatedName = `${this.editSetup.title} (fixed)`;
+    this.preview(fixed);
+    this.fixInfoEl.textContent =
       `corrected: end formation now ${posErr.toFixed(2)} apart from post-call start` +
       (maxHead > 0.1 ? `, headings ${(maxHead * 180 / Math.PI).toFixed(0)}° apart` : '');
-    statusEl.textContent = '✓ fixed closure';
-  });
+    this.statusEl.textContent = '✓ fixed closure';
+  }
 
-  // ---- feature 2: create position ----
-  createBtn.addEventListener('click', () => {
-    if (!editSetup || !preEnd || !postStart) {
-      statusEl.textContent = 'pick an edit call+setup, a pre call+setup, and a post call+setup';
+  private doCreate() {
+    if (!this.editSetup || !this.preEnd || !this.postStart) {
+      this.statusEl.textContent = 'pick an edit call+setup, a pre call+setup, and a post call+setup';
       return;
     }
-    const name = nameInput.value.trim() || `${preCallSel.value} → ${postCallSel.value}`;
-    const beats = parseFloat(padInput.value) || 2;
-    const start = alignToSetup(editSetup, preEnd);
-    const end = alignToSetup(editSetup, postStart);
+    const name = this.nameInput.value.trim() || `${this.preCallSel.value} → ${this.postCallSel.value}`;
+    const beats = parseFloat(this.padInput.value) || 2;
+    const start = this.alignToSetup(this.editSetup, this.preEnd);
+    const end = this.alignToSetup(this.editSetup, this.postStart);
     try {
-      const created = synthesizeSetup(editSetup, { name, start, end, padBeats: beats });
-      generated = created;
-      generatedName = name;
-      preview(created);
-      statusEl.textContent = `✓ created "${name}" (${created.beats} beats)`;
+      const created = synthesizeSetup(this.editSetup, { name, start, end, padBeats: beats });
+      this.generated = created;
+      this.generatedName = name;
+      this.preview(created);
+      this.statusEl.textContent = `✓ created "${name}" (${created.beats} beats)`;
     } catch (err) {
-      statusEl.textContent = `✗ ${(err as Error).message}`;
+      this.statusEl.textContent = `✗ ${(err as Error).message}`;
     }
-  });
+  }
 
-  showTargetBtn.addEventListener('click', () => {
-    if (!postStart) return;
-    const name = postCallSel.selectedOptions[0]?.textContent ?? postCallSel.value;
-    preview(staticCall(`post start — ${name}`, postStart));
-  });
-  showEndBtn.addEventListener('click', () => {
-    if (!editSetup) return;
-    const name = editCallSel.selectedOptions[0]?.textContent ?? editCallSel.value;
-    preview(staticCall(`edit end — ${name}`, callEnd(editSetup)));
-  });
-  showStartBtn.addEventListener('click', () => {
-    if (!preEnd) return;
-    const name = preCallSel.selectedOptions[0]?.textContent ?? preCallSel.value;
-    preview(staticCall(`pre end — ${name}`, preEnd));
-  });
+  private showTarget() {
+    if (!this.postStart) return;
+    const name = this.postCallSel.selectedOptions[0]?.textContent ?? this.postCallSel.value;
+    this.preview(this.staticCall(`post start — ${name}`, this.postStart));
+  }
+  private showEnd() {
+    if (!this.editSetup) return;
+    const name = this.editCallSel.selectedOptions[0]?.textContent ?? this.editCallSel.value;
+    this.preview(this.staticCall(`edit end — ${name}`, this.callEnd(this.editSetup)));
+  }
+  private showStart() {
+    if (!this.preEnd) return;
+    const name = this.preCallSel.selectedOptions[0]?.textContent ?? this.preCallSel.value;
+    this.preview(this.staticCall(`pre end — ${name}`, this.preEnd));
+  }
 
   // ---- save / export ----
-  function currentSpec(): CallEdit | null {
-    const id = editCallSel.value;
+
+  private currentSpec(): CallEdit | null {
+    const id = this.editCallSel.value;
     if (!id) return null;
-    const isCreate = modeSel.value === 'create';
+    const isCreate = this.modeSel.value === 'create';
     const base: CallEdit = {
       kind: isCreate ? 'create' : 'fix',
       callId: id,
-      setupIdx: parseInt(editSetupSel.value || '0', 10),
-      postCallId: postCallSel.value,
-      postSetupIdx: parseInt(postSetupSel.value || '0', 10),
-      name: generatedName || nameInput.value.trim() || `${id} → ${postCallSel.value}`,
-      padBeats: isCreate ? (parseFloat(padInput.value) || 2) : 1, // beats can't change for a fix
+      setupIdx: parseInt(this.editSetupSel.value || '0', 10),
+      postCallId: this.postCallSel.value,
+      postSetupIdx: parseInt(this.postSetupSel.value || '0', 10),
+      name: this.generatedName || this.nameInput.value.trim() || `${id} → ${this.postCallSel.value}`,
+      padBeats: isCreate ? (parseFloat(this.padInput.value) || 2) : 1,
     };
     if (base.kind === 'create') {
-      base.preCallId = preCallSel.value;
-      base.preSetupIdx = parseInt(preSetupSel.value || '0', 10);
+      base.preCallId = this.preCallSel.value;
+      base.preSetupIdx = parseInt(this.preSetupSel.value || '0', 10);
     }
     return base;
   }
 
-  saveBtn.addEventListener('click', () => {
-    const spec = currentSpec();
+  private doSave() {
+    const spec = this.currentSpec();
     if (!spec) return;
-    saved = saved.filter((s) => !(s.kind === spec.kind && s.callId === spec.callId && s.setupIdx === spec.setupIdx && s.name === spec.name));
-    saved.push(spec);
-    persistEdits(saved);
-    renderSaved();
-    statusEl.textContent = `saved "${spec.name}"`;
-  });
+    this.saved = this.saved.filter((s) => !(s.kind === spec.kind && s.callId === spec.callId && s.setupIdx === spec.setupIdx && s.name === spec.name));
+    this.saved.push(spec);
+    persistEdits(this.saved);
+    this.renderSaved();
+    this.statusEl.textContent = `saved "${spec.name}"`;
+  }
 
-  exportBtn.addEventListener('click', () => {
+  private doExport() {
     try {
-      const call = generated ?? (() => {
-        const spec = currentSpec();
+      const call = this.generated ?? (() => {
+        const spec = this.currentSpec();
         if (!spec) return null;
         return rebuildEdit(spec);
       })();
       if (!call) {
-        statusEl.textContent = 'nothing to export yet';
+        this.statusEl.textContent = 'nothing to export yet';
         return;
       }
-      const xml = callToXml(call, generatedName || call.from || call.title);
-      xmlEl.value = '<calls>\n' + xml + '\n</calls>';
-      void navigator.clipboard?.writeText(xmlEl.value);
-      statusEl.textContent = 'exported <tam> XML (copied)';
+      const xml = callToXml(call, this.generatedName || call.from || call.title);
+      this.xmlEl.value = '<calls>\n' + xml + '\n</calls>';
+      void navigator.clipboard?.writeText(this.xmlEl.value);
+      this.statusEl.textContent = 'exported <tam> XML (copied)';
     } catch (err) {
-      statusEl.textContent = `✗ ${(err as Error).message}`;
+      this.statusEl.textContent = `✗ ${(err as Error).message}`;
     }
-  });
+  }
 
-  function renderSaved() {
-    savedEl.innerHTML = '';
-    if (saved.length === 0) {
-      savedEl.innerHTML = '<i>no saved editor results</i>';
+  private renderSaved() {
+    this.savedEl.innerHTML = '';
+    if (this.saved.length === 0) {
+      this.savedEl.innerHTML = '<i>no saved editor results</i>';
       return;
     }
-    for (const s of saved) {
+    for (const s of this.saved) {
       const row = document.createElement('div');
       row.className = 'setup' + (s.applied ? ' applied' : '');
       const label = document.createElement('b');
@@ -325,10 +334,10 @@ export function initEditor(stage: Stage, preview: (call: CallBundle) => void): E
       loadBtn.textContent = 'preview';
       loadBtn.addEventListener('click', () => {
         try {
-          preview(rebuildEdit(s));
-          statusEl.textContent = `✓ ${s.name}`;
+          this.preview(rebuildEdit(s));
+          this.statusEl.textContent = `✓ ${s.name}`;
         } catch (err) {
-          statusEl.textContent = `✗ ${(err as Error).message}`;
+          this.statusEl.textContent = `✗ ${(err as Error).message}`;
         }
       });
       const applyBtn = document.createElement('button');
@@ -336,53 +345,60 @@ export function initEditor(stage: Stage, preview: (call: CallBundle) => void): E
       applyBtn.addEventListener('click', () => {
         const wasApplied = !!s.applied;
         setApplied(s, !wasApplied);
-        saved = loadEdits();
-        renderSaved();
-        statusEl.textContent = wasApplied ? `removed "${s.name}" from live catalog` : `✓ "${s.name}" applied to live catalog`;
+        this.saved = loadEdits();
+        this.renderSaved();
+        this.statusEl.textContent = wasApplied ? `removed "${s.name}" from live catalog` : `✓ "${s.name}" applied to live catalog`;
       });
       const delBtn = document.createElement('button');
       delBtn.textContent = 'del';
       delBtn.addEventListener('click', () => {
-        saved = saved.filter((x) => x !== s);
-        persistEdits(saved);
-        renderSaved();
+        this.saved = this.saved.filter((x) => x !== s);
+        persistEdits(this.saved);
+        this.renderSaved();
       });
       row.appendChild(loadBtn);
       row.appendChild(applyBtn);
       row.appendChild(delBtn);
-      savedEl.appendChild(row);
+      this.savedEl.appendChild(row);
     }
   }
 
-  // ---- wiring ----
-  modeSel.addEventListener('change', applyMode);
-  editCallSel.addEventListener('change', () => {
-    fillSetupSelect(editSetupSel, editCallSel.value);
-    loadEditSetup();
-  });
-  editSetupSel.addEventListener('change', loadEditSetup);
-  postCallSel.addEventListener('change', () => {
-    fillSetupSelect(postSetupSel, postCallSel.value);
-    loadPost();
-  });
-  postSetupSel.addEventListener('change', loadPost);
-  preCallSel.addEventListener('change', () => {
-    fillSetupSelect(preSetupSel, preCallSel.value);
-    loadPre();
-  });
-  preSetupSel.addEventListener('change', loadPre);
+  private wireEvents() {
+    this.fixBtn.addEventListener('click', () => this.doFix());
+    this.createBtn.addEventListener('click', () => this.doCreate());
+    this.saveBtn.addEventListener('click', () => this.doSave());
+    this.exportBtn.addEventListener('click', () => this.doExport());
+    this.showTargetBtn.addEventListener('click', () => this.showTarget());
+    this.showEndBtn.addEventListener('click', () => this.showEnd());
+    this.showStartBtn.addEventListener('click', () => this.showStart());
+    this.modeSel.addEventListener('change', () => this.applyMode());
+    this.editCallSel.addEventListener('change', () => {
+      this.fillSetupSelect(this.editSetupSel, this.editCallSel.value);
+      this.loadEditSetup();
+    });
+    this.editSetupSel.addEventListener('change', () => this.loadEditSetup());
+    this.postCallSel.addEventListener('change', () => {
+      this.fillSetupSelect(this.postSetupSel, this.postCallSel.value);
+      this.loadPost();
+    });
+    this.postSetupSel.addEventListener('change', () => this.loadPost());
+    this.preCallSel.addEventListener('change', () => {
+      this.fillSetupSelect(this.preSetupSel, this.preCallSel.value);
+      this.loadPre();
+    });
+    this.preSetupSel.addEventListener('change', () => this.loadPre());
+  }
 
-  fillSetupSelect(editSetupSel, editCallSel.value);
-  fillSetupSelect(postSetupSel, postCallSel.value);
-  fillSetupSelect(preSetupSel, preCallSel.value);
-  loadEditSetup();
-  loadPost();
-  loadPre();
-  applyMode();
+  setActive(a: boolean) {
+    if (a) this.renderSaved();
+  }
+}
 
-  return {
-    setActive(a: boolean) {
-      if (a) renderSaved();
-    },
-  };
+function el<T extends HTMLElement>(id: string): T {
+  return document.getElementById(id) as T;
+}
+
+/** Backwards-compatible factory (used by main.ts). */
+export function initEditor(stage: Stage, preview: (call: CallBundle) => void): EditorUI {
+  return new EditorController(stage, preview);
 }

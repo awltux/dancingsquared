@@ -1,5 +1,7 @@
-// Sequencer UI: build/validate a call sequence on the 3D board. Reuses the
-// stage + DancerView from scene.ts and the Sequencer engine.
+// Sequencer UI controller: build/validate a call sequence on the 3D board.
+// Encapsulates the sequence panel's state (the board, playhead, history,
+// modules) and DOM wiring behind a class, so the animation/apply/undo logic no
+// longer lives in one large closure.
 
 import * as THREE from 'three';
 
@@ -14,163 +16,172 @@ export interface SequencerUI {
   render(): void;
 }
 
-export function initSequencer(stage: Stage): SequencerUI {
-  const levelSelect = document.getElementById('seqLevel') as HTMLSelectElement;
-  const marginInput = document.getElementById('seqMargin') as HTMLInputElement;
-  const callSelect = document.getElementById('seqCallSelect') as HTMLSelectElement;
-  const applyBtn = document.getElementById('seqApply') as HTMLButtonElement;
-  const undoBtn = document.getElementById('seqUndo') as HTMLButtonElement;
-  const resetBtn = document.getElementById('seqReset') as HTMLButtonElement;
-  const getoutBtn = document.getElementById('seqGetout') as HTMLButtonElement;
-  const matrixGetoutBtn = document.getElementById('seqMatrixGetout') as HTMLButtonElement;
-  const applyGetoutBtn = document.getElementById('seqApplyGetout') as HTMLButtonElement;
-  const getinBtn = document.getElementById('seqGetin') as HTMLButtonElement;
-  const fixBtn = document.getElementById('seqFixIt') as HTMLButtonElement;
-  const statusEl = document.getElementById('seqStatus') as HTMLSpanElement;
-  const matrixInfoEl = document.getElementById('seqMatrixInfo') as HTMLDivElement;
-  const seqListEl = document.getElementById('seqSequence') as HTMLDivElement;
-  const fasrEl = document.getElementById('seqFasr') as HTMLDivElement;
-  const fixListEl = document.getElementById('seqFixList') as HTMLDivElement;
-  const moduleNameInput = document.getElementById('seqModuleName') as HTMLInputElement;
-  const saveModuleBtn = document.getElementById('seqSaveModule') as HTMLButtonElement;
-  const modulesEl = document.getElementById('seqModules') as HTMLDivElement;
-  const playBtn = document.getElementById('seqPlay') as HTMLButtonElement;
-  const scrub = document.getElementById('seqScrub') as HTMLInputElement;
-  const beatInput = document.getElementById('seqBeatInput') as HTMLInputElement;
-  const copyPosBtn = document.getElementById('seqCopyPos') as HTMLButtonElement;
-  const beatEl = document.getElementById('seqBeat') as HTMLSpanElement;
+const STORAGE_KEY = 'dsModules';
+const MS_PER_BEAT = 500;
 
-  const STORAGE_KEY = 'dsModules';
-  const MS_PER_BEAT = 500;
+export class SequencerController implements SequencerUI {
+  private stage: Stage;
 
-  let seq = new Sequencer(movesXmlText, formationsXmlText, sequencerCallsUpTo('ms'));
+  // DOM elements.
+  private levelSelect = el<HTMLSelectElement>('seqLevel');
+  private marginInput = el<HTMLInputElement>('seqMargin');
+  private callSelect = el<HTMLSelectElement>('seqCallSelect');
+  private applyBtn = el<HTMLButtonElement>('seqApply');
+  private undoBtn = el<HTMLButtonElement>('seqUndo');
+  private resetBtn = el<HTMLButtonElement>('seqReset');
+  private getoutBtn = el<HTMLButtonElement>('seqGetout');
+  private matrixGetoutBtn = el<HTMLButtonElement>('seqMatrixGetout');
+  private applyGetoutBtn = el<HTMLButtonElement>('seqApplyGetout');
+  private getinBtn = el<HTMLButtonElement>('seqGetin');
+  private fixBtn = el<HTMLButtonElement>('seqFixIt');
+  private statusEl = el<HTMLSpanElement>('seqStatus');
+  private matrixInfoEl = el<HTMLDivElement>('seqMatrixInfo');
+  private seqListEl = el<HTMLDivElement>('seqSequence');
+  private fasrEl = el<HTMLDivElement>('seqFasr');
+  private fixListEl = el<HTMLDivElement>('seqFixList');
+  private moduleNameInput = el<HTMLInputElement>('seqModuleName');
+  private saveModuleBtn = el<HTMLButtonElement>('seqSaveModule');
+  private modulesEl = el<HTMLDivElement>('seqModules');
+  private playBtn = el<HTMLButtonElement>('seqPlay');
+  private scrub = el<HTMLInputElement>('seqScrub');
+  private beatInput = el<HTMLInputElement>('seqBeatInput');
+  private copyPosBtn = el<HTMLButtonElement>('seqCopyPos');
+  private beatEl = el<HTMLSpanElement>('seqBeat');
 
-  let views: DancerView[] = [];
-  const connectors = buildHandConnectors(stage.scene);
-  const history: string[] = [];
-  let active = false;
-  let playing = false;
-  let playhead = 0; // beats
-  let totalBeats = 0;
-  let flat: string[] = [];
-  let lastFrame = performance.now();
-  // Key of the call whose floor trace is currently drawn; avoids rebuilding the
-  // trail geometry every frame (only when the playing call changes).
-  let lastTraceKey = '';
+  // State.
+  private seq: Sequencer;
+  private views: DancerView[] = [];
+  private connectors: ReturnType<typeof buildHandConnectors>;
+  private history: string[] = [];
+  private modules: Module[] = [];
+  private active = false;
+  private playing = false;
+  private playhead = 0;
+  private totalBeats = 0;
+  private flat: string[] = [];
+  private lastFrame = performance.now();
+  private lastTraceKey = '';
+  private lastReadout = '';
 
-  // ---- user-defined modules ----
-  const modules: Module[] = loadModules();
-  function loadModules(): Module[] {
+  constructor(stage: Stage) {
+    this.stage = stage;
+    this.connectors = buildHandConnectors(stage.scene);
+    this.seq = new Sequencer(movesXmlText, formationsXmlText, sequencerCallsUpTo('ms'));
+    this.loadModules();
+    this.refreshModulesList();
+    this.restoreModules();
+
+    for (const lv of availableLevels()) this.levelSelect.add(new Option(lv.toUpperCase(), lv));
+    this.levelSelect.value = 'ms';
+    this.seq.setMatchMargin(parseFloat(this.marginInput.value) || 0);
+
+    this.wireEvents();
+    this.refreshCallSelect();
+    this.requestFrame();
+  }
+
+  private loadModules() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      this.modules = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') as Module[];
     } catch {
-      return [];
+      this.modules = [];
     }
   }
-  function persistModules() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(modules));
+  private persistModules() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.modules));
   }
-  function refreshModulesList() {
-    modulesEl.innerHTML = modules.length
-      ? modules.map((m) => `<b>${m.name}:</b> ${m.calls.join(' · ')}`).join('<br>')
+  private restoreModules() {
+    for (const m of this.modules) this.seq.registerModule(m.name, m.calls);
+  }
+  private refreshModulesList() {
+    this.modulesEl.innerHTML = this.modules.length
+      ? this.modules.map((m) => `<b>${m.name}:</b> ${m.calls.join(' · ')}`).join('<br>')
       : '<i>(no modules saved yet)</i>';
   }
-  // Restore persisted modules.
-  for (const m of modules) seq.registerModule(m.name, m.calls);
-  refreshModulesList();
 
-  // ---- level selection: restricts the calls available to the sequence ----
-  for (const lv of availableLevels()) levelSelect.add(new Option(lv.toUpperCase(), lv));
-  levelSelect.value = 'ms';
-  function applyMargin() {
-    seq.setMatchMargin(parseFloat(marginInput.value) || 0);
-    refreshCallSelect();
+  private applyMargin() {
+    this.seq.setMatchMargin(parseFloat(this.marginInput.value) || 0);
+    this.refreshCallSelect();
   }
-  function rebuildSeq() {
-    seq = new Sequencer(movesXmlText, formationsXmlText, sequencerCallsUpTo(levelSelect.value));
-    for (const m of modules) seq.registerModule(m.name, m.calls);
-    history.length = 0;
-    playing = false;
-    playhead = 0;
-    totalBeats = 0;
-    flat = [];
-    playBtn.textContent = '▶ Play';
-    for (const v of views) {
-      stage.scene.remove(v.group);
-      stage.scene.remove(v.trail);
+
+  private rebuildSeq() {
+    this.seq = new Sequencer(movesXmlText, formationsXmlText, sequencerCallsUpTo(this.levelSelect.value));
+    for (const m of this.modules) this.seq.registerModule(m.name, m.calls);
+    this.history.length = 0;
+    this.playing = false;
+    this.playhead = 0;
+    this.totalBeats = 0;
+    this.flat = [];
+    this.playBtn.textContent = '▶ Play';
+    for (const v of this.views) {
+      this.stage.scene.remove(v.group);
+      this.stage.scene.remove(v.trail);
     }
-    views = [];
-    lastTraceKey = '';
-    seq.setMatchMargin(parseFloat(marginInput.value) || 0);
-    statusEl.textContent = `level ${levelSelect.value.toUpperCase()} loaded`;
-    refreshCallSelect();
-    syncAnimation();
-    render();
+    this.views = [];
+    this.lastTraceKey = '';
+    this.seq.setMatchMargin(parseFloat(this.marginInput.value) || 0);
+    this.statusEl.textContent = `level ${this.levelSelect.value.toUpperCase()} loaded`;
+    this.syncAnimation();
+    this.refreshCallSelect();
+    this.render();
   }
-  levelSelect.addEventListener('change', rebuildSeq);
-  marginInput.addEventListener('input', applyMargin);
-  // Apply the initial margin to the starting sequencer.
-  seq.setMatchMargin(parseFloat(marginInput.value) || 0);
 
-  // The call picker shows ONLY calls (and modules) that are legal from the
-  // current board. Refresh it whenever the board changes.
-  function refreshCallSelect() {
-    const prev = callSelect.value;
-    const legal = seq.legalNext().sort((a, b) => a.localeCompare(b));
-    const modules = legal.filter((n) => seq.isModule(n));
-    const calls = legal.filter((n) => !seq.isModule(n));
-    callSelect.innerHTML = '';
-    callSelect.add(new Option('— valid next call —', ''));
+  /** The call picker shows ONLY calls (and modules) legal from the current board. */
+  private refreshCallSelect() {
+    const prev = this.callSelect.value;
+    const legal = this.seq.legalNext().sort((a, b) => a.localeCompare(b));
+    const modules = legal.filter((n) => this.seq.isModule(n));
+    const calls = legal.filter((n) => !this.seq.isModule(n));
+    this.callSelect.innerHTML = '';
+    this.callSelect.add(new Option('— valid next call —', ''));
     const group = (label: string, names: string[]) => {
       if (!names.length) return;
       const og = document.createElement('optgroup');
       og.label = label;
       for (const n of names) og.appendChild(new Option(n, n));
-      callSelect.appendChild(og);
+      this.callSelect.appendChild(og);
     };
     group('Calls', calls);
     group('Modules', modules);
-    if (prev && legal.includes(prev)) callSelect.value = prev;
+    if (prev && legal.includes(prev)) this.callSelect.value = prev;
   }
-  refreshCallSelect();
-  syncAnimation();
 
-  saveModuleBtn.addEventListener('click', () => {
-    const name = moduleNameInput.value.trim();
+  private saveModule() {
+    const name = this.moduleNameInput.value.trim();
     if (!name) {
-      statusEl.textContent = 'Enter a module name first';
+      this.statusEl.textContent = 'Enter a module name first';
       return;
     }
-    if (history.length === 0) {
-      statusEl.textContent = 'Nothing to save — add calls first';
+    if (this.history.length === 0) {
+      this.statusEl.textContent = 'Nothing to save — add calls first';
       return;
     }
-    seq.registerModule(name, [...history]);
-    modules.push({ name, calls: [...history] });
-    persistModules();
-    refreshModulesList();
-    refreshCallSelect();
-    statusEl.textContent = `Saved module "${name}"`;
-    moduleNameInput.value = '';
-  });
-
-  function rebuildViews() {
-    for (const v of views) {
-      stage.scene.remove(v.group);
-      stage.scene.remove(v.trail);
-    }
-    views = seq.board.dancers.map((d) => new DancerView({ gender: d.gender, x: 0, y: 0, angleDeg: 0, path: [] }, d.couple));
-    for (const v of views) {
-      v.group.visible = active;
-      stage.scene.add(v.group);
-      stage.scene.add(v.trail);
-      v.trail.visible = active;
-    }
-    lastTraceKey = '';
+    this.seq.registerModule(name, [...this.history]);
+    this.modules.push({ name, calls: [...this.history] });
+    this.persistModules();
+    this.refreshModulesList();
+    this.refreshCallSelect();
+    this.statusEl.textContent = `Saved module "${name}"`;
+    this.moduleNameInput.value = '';
   }
 
-  function renderBoard(board: Board, walk?: WalkCycle) {
-    if (views.length !== board.dancers.length) rebuildViews();
+  private rebuildViews() {
+    for (const v of this.views) {
+      this.stage.scene.remove(v.group);
+      this.stage.scene.remove(v.trail);
+    }
+    this.views = this.seq.board.dancers.map((d) => new DancerView({ gender: d.gender, x: 0, y: 0, angleDeg: 0, path: [] }, d.couple));
+    for (const v of this.views) {
+      v.group.visible = this.active;
+      this.stage.scene.add(v.group);
+      this.stage.scene.add(v.trail);
+      v.trail.visible = this.active;
+    }
+    this.lastTraceKey = '';
+  }
+
+  private renderBoard(board: Board, walk?: WalkCycle) {
+    if (this.views.length !== board.dancers.length) this.rebuildViews();
 
     const poses: Pose[] = board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, hands: 'both' }));
     const holds = computeHandholds(poses, 'static');
@@ -180,131 +191,120 @@ export function initSequencer(stage: Stage): SequencerUI {
     for (const h of holds) {
       const mx = (poses[h.i].x + poses[h.j].x) / 2;
       const my = (poses[h.i].y + poses[h.j].y) / 2;
-      const hold = new THREE.Vector3(mx, 1.0, -my); // z = -y matches scene mapping
+      const hold = new THREE.Vector3(mx, 1.0, -my);
       if (h.hi === 'left') targets[h.i].left = hold.clone();
       else targets[h.i].right = hold.clone();
       if (h.hj === 'left') targets[h.j].left = hold.clone();
       else targets[h.j].right = hold.clone();
       lines.push([h.i, h.j]);
     }
-    views.forEach((v, i) => v.update(poses[i], targets[i], walk));
-    connectors.set(lines, poses);
-    connectors.group.visible = active;
-    for (const v of views) v.group.visible = active;
+    this.views.forEach((v, i) => v.update(poses[i], targets[i], walk));
+    this.connectors.set(lines, poses);
+    this.connectors.group.visible = this.active;
+    for (const v of this.views) v.group.visible = this.active;
   }
 
-  function render() {
-    if (!active) return;
-    renderBoard(seq.board);
-    updateReadout();
+  render() {
+    if (!this.active) return;
+    this.renderBoard(this.seq.board);
+    this.updateReadout();
   }
 
-  // ---- sequence animation ----
-  function syncAnimation() {
-    flat = seq.flatten(history);
-    totalBeats = seq.sequenceBeats(flat);
-    playhead = totalBeats; // show the current (end) state
-    scrub.max = String(Math.max(1, totalBeats));
-    scrub.value = String(playhead);
-    updateBeatLabel();
+  private syncAnimation() {
+    this.flat = this.seq.flatten(this.history);
+    this.totalBeats = this.seq.sequenceBeats(this.flat);
+    this.playhead = this.totalBeats;
+    this.scrub.max = String(Math.max(1, this.totalBeats));
+    this.scrub.value = String(this.playhead);
+    this.updateBeatLabel();
   }
 
-  function updateBeatLabel() {
-    beatEl.textContent = `${playhead.toFixed(1)} / ${totalBeats.toFixed(1)} b`;
-    if (beatInput) beatInput.value = String(Math.round(playhead * 2) / 2);
+  private updateBeatLabel() {
+    this.beatEl.textContent = `${this.playhead.toFixed(1)} / ${this.totalBeats.toFixed(1)} b`;
+    if (this.beatInput) this.beatInput.value = String(Math.round(this.playhead * 2) / 2);
   }
 
-  function renderPlayhead() {
-    if (!active) return;
-    const res = seq.evaluateSequence(flat, playhead);
-    // Drive the walk phase with the playhead beat (a step lands each beat);
-    // whether each dancer actually steps is decided inside DancerView from its
-    // own motion, so stopped dancers settle to rest.
-    const walkPhase = ((playhead + 1000) % 2) / 2;
-    renderBoard(res.board, { phase: walkPhase });
-    if (res.beats > 0) render(); // past the end -> final state
-    updateCurrentTrace();
+  private renderPlayhead() {
+    if (!this.active) return;
+    const res = this.seq.evaluateSequence(this.flat, this.playhead);
+    const walkPhase = ((this.playhead + 1000) % 2) / 2;
+    this.renderBoard(res.board, { phase: walkPhase });
+    if (res.beats > 0) this.render();
+    this.updateCurrentTrace();
   }
 
-  // Draw the floor trace of the CURRENTLY-playing call only: each dancer gets a
-  // trail of its path through this call's canonical motion (matched variant). It
-  // is rebuilt only when the playing call changes, so it doesn't flicker while a
-  // single call plays, and switches cleanly when the next call starts.
-  function updateCurrentTrace() {
-    if (!active || views.length === 0) return;
-    const info = seq.sequenceInfo(flat, playhead);
-    const key = info && views.length === info.variant.dancers.length ? `${info.name}:${info.mapping.join(',')}` : '';
-    if (key === lastTraceKey) return;
-    lastTraceKey = key;
+  private updateCurrentTrace() {
+    if (!this.active || this.views.length === 0) return;
+    const info = this.seq.sequenceInfo(this.flat, this.playhead);
+    const key = info && this.views.length === info.variant.dancers.length ? `${info.name}:${info.mapping.join(',')}` : '';
+    if (key === this.lastTraceKey) return;
+    this.lastTraceKey = key;
     if (info) {
-      views.forEach((v, i) => {
+      this.views.forEach((v, i) => {
         v.setTrail(sampleTrail(info.variant.dancers[info.mapping[i]], 80));
-        v.trail.visible = active;
+        v.trail.visible = this.active;
       });
     } else {
-      for (const v of views) v.trail.visible = false;
+      for (const v of this.views) v.trail.visible = false;
     }
   }
 
-  function frame() {
-    if (active && totalBeats > 0) {
+  private frame() {
+    if (this.active && this.totalBeats > 0) {
       const now = performance.now();
-      const dt = now - lastFrame;
-      lastFrame = now;
-      if (playing) {
-        playhead += dt / MS_PER_BEAT;
-        if (playhead >= totalBeats) {
-          playhead = totalBeats;
-          playing = false;
-          playBtn.textContent = '▶ Play';
+      const dt = now - this.lastFrame;
+      this.lastFrame = now;
+      if (this.playing) {
+        this.playhead += dt / MS_PER_BEAT;
+        if (this.playhead >= this.totalBeats) {
+          this.playhead = this.totalBeats;
+          this.playing = false;
+          this.playBtn.textContent = '▶ Play';
         }
       }
-      // Always re-render the current playhead frame while the panel is active.
-      // DancerView eases its walk stride to rest off its own measured motion,
-      // so once playback ends or is paused the legs settle instead of freezing
-      // (or continuing to walk) mid-stride.
-      renderPlayhead();
-      scrub.value = String(playhead);
-      updateBeatLabel();
+      this.renderPlayhead();
+      this.scrub.value = String(this.playhead);
+      this.updateBeatLabel();
     }
-    requestAnimationFrame(frame);
+    requestAnimationFrame(() => this.frame());
+  }
+  private requestFrame() {
+    requestAnimationFrame(() => this.frame());
   }
 
-  playBtn.addEventListener('click', () => {
-    if (totalBeats <= 0) return;
-    if (playhead >= totalBeats) playhead = 0;
-    playing = !playing;
-    lastFrame = performance.now();
-    playBtn.textContent = playing ? '⏸ Pause' : '▶ Play';
-  });
-  scrub.addEventListener('input', () => {
-    playhead = parseFloat(scrub.value);
-    renderPlayhead();
-    updateBeatLabel();
-  });
+  private togglePlay() {
+    if (this.totalBeats <= 0) return;
+    if (this.playhead >= this.totalBeats) this.playhead = 0;
+    this.playing = !this.playing;
+    this.lastFrame = performance.now();
+    this.playBtn.textContent = this.playing ? '⏸ Pause' : '▶ Play';
+  }
 
-  // Set the playback beat from a typed value (pauses playback so the user can
-  // inspect a specific frame).
-  beatInput.addEventListener('change', () => {
-    const v = parseFloat(beatInput.value);
+  private onScrub() {
+    this.playhead = parseFloat(this.scrub.value);
+    this.renderPlayhead();
+    this.updateBeatLabel();
+  }
+
+  private onBeatInput() {
+    const v = parseFloat(this.beatInput.value);
     if (isNaN(v)) return;
-    playing = false;
-    playBtn.textContent = '▶ Play';
-    playhead = Math.max(0, Math.min(totalBeats, v));
-    scrub.value = String(playhead);
-    renderPlayhead();
-    updateBeatLabel();
-  });
+    this.playing = false;
+    this.playBtn.textContent = '▶ Play';
+    this.playhead = Math.max(0, Math.min(this.totalBeats, v));
+    this.scrub.value = String(this.playhead);
+    this.renderPlayhead();
+    this.updateBeatLabel();
+  }
 
-  // Copy the current dancer positions to the clipboard as JSON (for debug reports).
-  copyPosBtn.addEventListener('click', () => {
-    const board = seq.evaluateSequence(flat, playhead).board;
-    const fasr = seq.fasr();
+  private copyPositions() {
+    const board = this.seq.evaluateSequence(this.flat, this.playhead).board;
+    const fasr = this.seq.fasr();
     const rel = fasr.relationship;
     const payload = {
-      playhead,
-      totalBeats,
-      sequence: history,
+      playhead: this.playhead,
+      totalBeats: this.totalBeats,
+      sequence: this.history,
       formation: fasr.formation,
       arrangement: fasr.arrangement,
       sequenceParity: fasr.sequence,
@@ -323,187 +323,183 @@ export function initSequencer(stage: Stage): SequencerUI {
     };
     const text = JSON.stringify(payload, null, 2);
     navigator.clipboard.writeText(text).then(
-      () => { statusEl.textContent = '✓ dancer positions copied (JSON)'; },
-      () => { statusEl.textContent = '✗ clipboard unavailable — positions are in the console'; console.log(text); },
+      () => { this.statusEl.textContent = '✓ dancer positions copied (JSON)'; },
+      () => { this.statusEl.textContent = '✗ clipboard unavailable — positions are in the console'; console.log(text); },
     );
-  });
+  }
 
-  let lastReadout = '';
-  function updateReadout() {
-    const fasr = seq.fasr();
+  private updateReadout() {
+    const fasr = this.seq.fasr();
     const rel = fasr.relationship[1]
       ? ` · dancer1: partner=${fasr.relationship[1].partner ?? '?'} corner=${fasr.relationship[1].corner ?? '?'}`
       : '';
     const fasrText =
       `Formation: <b>${fasr.formation ?? '?'}</b> · ${fasr.arrangement}<br>` +
       `Sequence: <b>${fasr.sequence}</b>${rel}`;
-    const listText = history.length
-      ? history.map((c, i) => `<span class="seq-call" data-idx="${i}">${i + 1}. ${c}</span>`).join('<br>')
+    const listText = this.history.length
+      ? this.history.map((c, i) => `<span class="seq-call" data-idx="${i}">${i + 1}. ${c}</span>`).join('<br>')
       : '<i>(no calls yet)</i>';
     const key = fasrText + '\u0000' + listText;
-    if (key === lastReadout) return; // avoid DOM churn when re-rendering every frame
-    lastReadout = key;
-    fasrEl.innerHTML = fasrText;
-    seqListEl.innerHTML = listText;
+    if (key === this.lastReadout) return;
+    this.lastReadout = key;
+    this.fasrEl.innerHTML = fasrText;
+    this.seqListEl.innerHTML = listText;
   }
 
-  function applySelected() {
-    const name = callSelect.value;
+  private applySelected() {
+    const name = this.callSelect.value;
     if (!name) return;
-    const step = seq.apply(name);
+    const step = this.seq.apply(name);
     if (!step.legal) {
-      statusEl.textContent = `✗ ${name}${step.reason ? ` — ${step.reason}` : ''}`;
+      this.statusEl.textContent = `✗ ${name}${step.reason ? ` — ${step.reason}` : ''}`;
       return;
     }
-    // A module is just a named group of calls: record its constituent calls in
-    // the sequence so the choreography is visible (and undoable) call-by-call.
-    const expanded = seq.flatten([name]);
-    history.push(...expanded);
-    statusEl.textContent = `✓ ${name}${expanded.length > 1 ? ` (${expanded.length} calls)` : ''}`;
-    render();
-    refreshCallSelect();
-    syncAnimation();
+    const expanded = this.seq.flatten([name]);
+    this.history.push(...expanded);
+    this.statusEl.textContent = `✓ ${name}${expanded.length > 1 ? ` (${expanded.length} calls)` : ''}`;
+    this.render();
+    this.refreshCallSelect();
+    this.syncAnimation();
   }
 
-  function undo() {
-    if (history.length === 0) return;
-    history.pop();
-    seq.reset();
-    for (const name of history) seq.apply(name);
-    statusEl.textContent = '';
-    render();
-    refreshCallSelect();
-    syncAnimation();
+  private undo() {
+    if (this.history.length === 0) return;
+    this.history.pop();
+    this.seq.reset();
+    for (const name of this.history) this.seq.apply(name);
+    this.statusEl.textContent = '';
+    this.render();
+    this.refreshCallSelect();
+    this.syncAnimation();
   }
 
-  // Jump the board to a call's START formation: reset and replay every call
-  // before the given index, leaving the clicked call un-applied, and drop the
-  // calls after it so the sequence/board/playhead stay consistent.
-  function seekTo(idx: number) {
-    if (idx < 0 || idx >= history.length) return;
-    playing = false;
-    playBtn.textContent = '▶ Play';
-    history.length = idx; // truncate: the clicked call is the next to apply
-    seq.reset();
-    for (const name of history) seq.apply(name);
-    statusEl.textContent = '';
-    lastTraceKey = '';
-    render();
-    refreshCallSelect();
-    syncAnimation();
+  private seekTo(idx: number) {
+    if (idx < 0 || idx >= this.history.length) return;
+    this.playing = false;
+    this.playBtn.textContent = '▶ Play';
+    this.history.length = idx;
+    this.seq.reset();
+    for (const name of this.history) this.seq.apply(name);
+    this.statusEl.textContent = '';
+    this.lastTraceKey = '';
+    this.render();
+    this.refreshCallSelect();
+    this.syncAnimation();
   }
 
-  function reset() {
-    history.length = 0;
-    seq.reset();
-    statusEl.textContent = '';
-    render();
-    refreshCallSelect();
-    syncAnimation();
+  private reset() {
+    this.history.length = 0;
+    this.seq.reset();
+    this.statusEl.textContent = '';
+    this.render();
+    this.refreshCallSelect();
+    this.syncAnimation();
   }
 
-  function showGetout() {
-    const path = seq.getout({ target: 'Static Square', maxCalls: 5 });
-    statusEl.textContent = path ? `getout: ${path.join(' > ')}` : 'no getout found (≤5 calls)';
-    updateMatrixInfo();
+  private showGetout() {
+    const path = this.seq.getout({ target: 'Static Square', maxCalls: 5 });
+    this.statusEl.textContent = path ? `getout: ${path.join(' > ')}` : 'no getout found (≤5 calls)';
+    this.updateMatrixInfo();
   }
 
-  // Show the matrix-driven diagnostics: whether a rigid self-inverse single-call
-  // getout exists (O(1) matrix fast-path), and the board's matrix closeness to
-  // home (higher = closer). This surfaces the matrix model's role in the search.
-  function updateMatrixInfo() {
-    const rigid = seq.matrixGetout();
-    const closeness = seq.closenessToHome();
-    const parts = [
-      `closeness-to-home: <b>${closeness.toFixed(2)}</b>`,
-      `matrix rigid getout: <b>${rigid ? rigid.join(' > ') : '—'}</b>`,
-    ];
-    matrixInfoEl.innerHTML = parts.join(' · ');
+  private updateMatrixInfo() {
+    const rigid = this.seq.matrixGetout();
+    const closeness = this.seq.closenessToHome();
+    this.matrixInfoEl.innerHTML =
+      `closeness-to-home: <b>${closeness.toFixed(2)}</b> · ` +
+      `matrix rigid getout: <b>${rigid ? rigid.join(' > ') : '—'}</b>`;
   }
 
-  function showMatrixGetout() {
-    const rigid = seq.matrixGetout();
-    statusEl.textContent = rigid
+  private showMatrixGetout() {
+    const rigid = this.seq.matrixGetout();
+    this.statusEl.textContent = rigid
       ? `matrix getout (rigid, self-inverse): ${rigid.join(' > ')}`
       : 'no rigid single-call matrix getout (falls back to search)';
-    updateMatrixInfo();
+    this.updateMatrixInfo();
   }
 
-  function showGetin() {
-    // A getin takes the set from home INTO a formation; from the current board we
-    // target its recognized formation so we can see how to get back in.
-    const target = seq.recognize(seq.board).name ?? 'Static Square';
-    const gi = seq.getin({ target, maxCalls: 5, budget: 400 });
-    statusEl.textContent = gi
+  private showGetin() {
+    const target = this.seq.recognize(this.seq.board).name ?? 'Static Square';
+    const gi = this.seq.getin({ target, maxCalls: 5, budget: 400 });
+    this.statusEl.textContent = gi
       ? `getin → ${target}: ${gi.join(' > ')}`
       : `no getin found → ${target} (≤5 calls)`;
   }
 
-  // Apply the current getout: run each call of the found path onto the board,
-  // recording (and expanding) them in the sequence.
-  function applyGetout() {
-    const path = seq.getout({ target: 'Static Square', maxCalls: 5 });
+  private applyGetout() {
+    const path = this.seq.getout({ target: 'Static Square', maxCalls: 5 });
     if (!path || path.length === 0) {
-      statusEl.textContent = 'no getout found (≤5 calls)';
+      this.statusEl.textContent = 'no getout found (≤5 calls)';
       return;
     }
     for (const name of path) {
-      const step = seq.apply(name);
+      const step = this.seq.apply(name);
       if (!step.legal) {
-        statusEl.textContent = `✗ getout failed at "${name}"`;
+        this.statusEl.textContent = `✗ getout failed at "${name}"`;
         return;
       }
-      history.push(...seq.flatten([name]));
+      this.history.push(...this.seq.flatten([name]));
     }
-    statusEl.textContent = `✓ applied getout: ${path.join(' > ')}`;
-    render();
-    refreshCallSelect();
-    syncAnimation();
-    updateMatrixInfo();
+    this.statusEl.textContent = `✓ applied getout: ${path.join(' > ')}`;
+    this.render();
+    this.refreshCallSelect();
+    this.syncAnimation();
+    this.updateMatrixInfo();
   }
 
-  function showFixIt() {
-    const fixes = seq.fixIt({ target: 'Static Square', depth: 3 });
-    fixListEl.innerHTML = fixes.length
+  private showFixIt() {
+    const fixes = this.seq.fixIt({ target: 'Static Square', depth: 3 });
+    this.fixListEl.innerHTML = fixes.length
       ? `keep a getout: <b>${fixes.join(', ')}</b>`
       : 'no fix-it move keeps a getout alive';
   }
 
-  applyBtn.addEventListener('click', applySelected);
-  callSelect.addEventListener('change', () => (statusEl.textContent = ''));
-  undoBtn.addEventListener('click', undo);
-  resetBtn.addEventListener('click', reset);
-  getoutBtn.addEventListener('click', showGetout);
-  matrixGetoutBtn.addEventListener('click', showMatrixGetout);
-  applyGetoutBtn.addEventListener('click', applyGetout);
-  getinBtn.addEventListener('click', showGetin);
-  fixBtn.addEventListener('click', showFixIt);
-  // Click a call in the sequence list to seek the board to that call's start.
-  seqListEl.addEventListener('click', (e) => {
-    const t = (e.target as HTMLElement).closest('.seq-call') as HTMLElement | null;
-    if (t && t.dataset.idx != null) seekTo(Number(t.dataset.idx));
-  });
+  private wireEvents() {
+    this.applyBtn.addEventListener('click', () => this.applySelected());
+    this.callSelect.addEventListener('change', () => (this.statusEl.textContent = ''));
+    this.undoBtn.addEventListener('click', () => this.undo());
+    this.resetBtn.addEventListener('click', () => this.reset());
+    this.getoutBtn.addEventListener('click', () => this.showGetout());
+    this.matrixGetoutBtn.addEventListener('click', () => this.showMatrixGetout());
+    this.applyGetoutBtn.addEventListener('click', () => this.applyGetout());
+    this.getinBtn.addEventListener('click', () => this.showGetin());
+    this.fixBtn.addEventListener('click', () => this.showFixIt());
+    this.saveModuleBtn.addEventListener('click', () => this.saveModule());
+    this.levelSelect.addEventListener('change', () => this.rebuildSeq());
+    this.marginInput.addEventListener('input', () => this.applyMargin());
+    this.playBtn.addEventListener('click', () => this.togglePlay());
+    this.scrub.addEventListener('input', () => this.onScrub());
+    this.beatInput.addEventListener('change', () => this.onBeatInput());
+    this.copyPosBtn.addEventListener('click', () => this.copyPositions());
+    this.seqListEl.addEventListener('click', (e) => {
+      const t = (e.target as HTMLElement).closest('.seq-call') as HTMLElement | null;
+      if (t && t.dataset.idx != null) this.seekTo(Number(t.dataset.idx));
+    });
+  }
 
-  // Start the animation frame loop.
-  requestAnimationFrame(frame);
+  setActive(a: boolean) {
+    this.active = a;
+    this.playing = false;
+    this.playBtn.textContent = '▶ Play';
+    this.connectors.group.visible = this.active;
+    for (const v of this.views) {
+      v.group.visible = this.active;
+      v.trail.visible = this.active;
+    }
+    if (this.active) {
+      if (this.views.length !== this.seq.board.dancers.length) this.rebuildViews();
+      this.syncAnimation();
+      this.render();
+      this.updateCurrentTrace();
+    }
+  }
+}
 
-  return {
-    setActive(a: boolean) {
-      active = a;
-      playing = false;
-      playBtn.textContent = '▶ Play';
-      connectors.group.visible = active;
-      for (const v of views) {
-        v.group.visible = active;
-        v.trail.visible = active;
-      }
-      if (active) {
-        if (views.length !== seq.board.dancers.length) rebuildViews();
-        syncAnimation();
-        render();
-        updateCurrentTrace();
-      }
-    },
-    render,
-  };
+function el<T extends HTMLElement>(id: string): T {
+  return document.getElementById(id) as T;
+}
+
+/** Backwards-compatible factory (used by main.ts). */
+export function initSequencer(stage: Stage): SequencerUI {
+  return new SequencerController(stage);
 }

@@ -31,9 +31,9 @@ import {
   completeSession,
 } from './teacher';
 import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
-import { DEFAULT_TIP_CONFIG } from './teacher';
-import { buildClassFromProgramme, ssdProgramme, mainstream2026Programme, parseProgramme, serializeProgramme } from './programme';
+import { buildClassFromProgramme, parseProgramme, serializeProgramme } from './programme';
 import type { Programme } from './programme';
+import { TeacherStore, type SavedModule } from './store';
 
 // ---------------------------------------------------------------- catalog
 
@@ -168,102 +168,13 @@ const toRefOrNull = (title: string): CallRef | null => {
   return c ? { title: c.title, level: c.level, setupIdx: 0, setup: c.setups[0].label } : null;
 };
 
-// ---------------------------------------------------------------- seed
-
-// No example classes are pre-seeded; new installs start with an empty class list.
-function seedClasses(): ClassInstance[] {
-  return [];
-}
-
 // ---------------------------------------------------------------- state + persistence
 
-const STORE_KEY = 'dsTeacherData';
-const PROG_KEY = 'dsTeacherProgrammes';
-const CFG_KEY = 'dsTeacherTipConfig';
-let classes: ClassInstance[] = load();
-
-// Global tip-generation configuration (repeat + priority probabilities).
-let tipConfigGlobal: TipConfig = loadTipConfig();
-function loadTipConfig(): TipConfig {
-  try {
-    const raw = localStorage.getItem(CFG_KEY);
-    if (raw) return { ...DEFAULT_TIP_CONFIG, ...(JSON.parse(raw) as TipConfig) };
-  } catch {
-    /* fall through */
-  }
-  return { ...DEFAULT_TIP_CONFIG };
-}
-function saveTipConfig(): void {
-  try {
-    localStorage.setItem(CFG_KEY, JSON.stringify(tipConfigGlobal));
-  } catch {
-    /* ignore */
-  }
-}
-
-// Per-class, per-call probability overrides (title -> 0..1). A call with no
-// override uses the global default (currentProb for this-session calls, prevProb
-// otherwise).
-const CALLPROB_KEY = 'dsTeacherCallProbs';
-let callProbs: Record<string, Record<string, number>> = loadCallProbs();
-function loadCallProbs(): Record<string, Record<string, number>> {
-  try {
-    const raw = localStorage.getItem(CALLPROB_KEY);
-    if (raw) return JSON.parse(raw) as Record<string, Record<string, number>>;
-  } catch {
-    /* fall through */
-  }
-  return {};
-}
-function saveCallProbs(): void {
-  try {
-    localStorage.setItem(CALLPROB_KEY, JSON.stringify(callProbs));
-  } catch {
-    /* ignore */
-  }
-}
-function effectiveCallProb(id: string, title: string, currentSet: Set<string>, prioritised?: Set<string>): number {
-  const ov = callProbs[id]?.[title];
-  if (ov != null) return ov;
-  const base = currentSet.has(title) ? tipConfigGlobal.currentProb : tipConfigGlobal.prevProb;
-  // Prioritised (starred) call-setups default to a higher probability, capped at 100%.
-  if (prioritised && prioritised.has(title)) return Math.min(1, base + 0.25);
-  return base;
-}
-
-// Programmes: the default course structures (built-in + imported).
-let programmes: Programme[] = loadProgrammes();
+// Persistent app data (classes, programmes, tip config, saved modules, etc.)
+// lives in a TeacherStore; only transient UI state stays here.
+const store = new TeacherStore();
 let notice = '';
 let noticeWarn = false;
-
-// Persisted open/closed state of collapsible <details> sections, keyed by a
-// stable id. A re-render (e.g. toggling a student's attendance) re-creates the
-// DOM, so without this a section the user collapsed would snap back open. The
-// state is also persisted to localStorage so a list's open/closed position is
-// remembered across navigation and reloads.
-const DETAILS_KEY = 'dsTeacherDetailsOpen';
-const detailsState: Map<string, boolean> = (() => {
-  try {
-    const raw = localStorage.getItem(DETAILS_KEY);
-    if (raw) return new Map(Object.entries(JSON.parse(raw) as Record<string, boolean>));
-  } catch {
-    /* ignore */
-  }
-  return new Map();
-})();
-function saveDetailsState(): void {
-  try {
-    localStorage.setItem(DETAILS_KEY, JSON.stringify(Object.fromEntries(detailsState)));
-  } catch {
-    /* ignore */
-  }
-}
-/** The `open` attribute for a <details> whose state is persisted by `key`,
- * defaulting to `def` the first time. */
-function detailsOpenAttr(key: string, def: boolean): string {
-  const v = detailsState.get(key);
-  return (v === undefined ? def : v) ? ' open' : '';
-}
 
 /** Set the transient action notice; pass `warn: true` for a prominent warning
  * (e.g. "already saved" feedback) rendered in the warning colours. */
@@ -339,59 +250,12 @@ function tourOverlay(): string {
     </div>`;
 }
 
-function loadProgrammes(): Programme[] {
-  try {
-    const raw = localStorage.getItem(PROG_KEY);
-    if (raw) {
-      const p = JSON.parse(raw) as Programme[];
-      if (Array.isArray(p) && p.length) return p;
-    }
-  } catch {
-    /* fall through to defaults */
-  }
-  return [ssdProgramme(), mainstream2026Programme()];
-}
-function saveProgrammes(): void {
-  try {
-    localStorage.setItem(PROG_KEY, JSON.stringify(programmes));
-  } catch {
-    /* storage may be unavailable */
-  }
-}
 const tipsByClass: Record<string, Tip[]> = {};
 const tipsState: Record<string, { selectedTip: number; selectedIdx: number }> = {};
 
 // Generating tips needs enough distinct taught calls to build varied, closable
 // tips; below this the generator can't meaningfully produce three.
 const MIN_TAUGHT_CALLS = 4;
-
-// A saved practice tip/module, with metadata on when and where it was created.
-interface SavedModule {
-  name: string;
-  titles: string[];
-  createdAt: number;
-  createdClass: string;
-  createdSession: string;
-  expanded?: boolean;
-}
-const MODULES_KEY = 'dsTeacherSavedModules';
-let savedModules: Record<string, SavedModule[]> = loadSavedModules();
-function loadSavedModules(): Record<string, SavedModule[]> {
-  try {
-    const raw = localStorage.getItem(MODULES_KEY);
-    if (raw) return JSON.parse(raw) as Record<string, SavedModule[]>;
-  } catch {
-    /* fall through */
-  }
-  return {};
-}
-function saveSavedModules(): void {
-  try {
-    localStorage.setItem(MODULES_KEY, JSON.stringify(savedModules));
-  } catch {
-    /* ignore */
-  }
-}
 
 /** Serialize a class's saved modules for export/sharing. */
 function serializeModules(modules: SavedModule[]): string {
@@ -443,14 +307,14 @@ function importModulesText(id: string, text: string): void {
     render();
     return;
   }
-  const list = (savedModules[id] ??= []);
+  const list = (store.savedModules[id] ??= []);
   let added = 0;
   for (const m of parsed) {
     if (list.some((x) => sameSequence(x.titles, m.titles))) continue;
     list.push(m);
     added++;
   }
-  saveSavedModules();
+  store.saveSavedModules();
   setNotice(
     added
       ? `Imported ${added} module(s).${parsed.length - added ? ` ${parsed.length - added} skipped as duplicates.` : ''}`
@@ -459,28 +323,7 @@ function importModulesText(id: string, text: string): void {
   render();
 }
 
-function load(): ClassInstance[] {
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as ClassInstance[];
-      if (Array.isArray(parsed) && parsed.length) return parsed;
-    }
-  } catch {
-    /* fall through to seed */
-  }
-  return seedClasses();
-}
-
-function save(): void {
-  try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(classes));
-  } catch {
-    /* storage may be unavailable */
-  }
-}
-
-const cls = (id: string): ClassInstance | undefined => classes.find((c) => c.id === id);
+const cls = (id: string): ClassInstance | undefined => store.classes.find((c) => c.id === id);
 const session = (id: string, i: number): SessionPlan | undefined => cls(id)?.sessions[i];
 
 // ---------------------------------------------------------------- routing
@@ -621,7 +464,7 @@ function homePage(): string {
     </header>
     <div class="content">
       <h2 class="section-title">Your classes</h2>
-      ${classes.map((c) => `
+      ${store.classes.map((c) => `
         <div class="card session-card">
           <button class="session-main tap" data-nav="#/class/${c.id}">
             <div class="card-main">${esc(c.name)}</div>
@@ -689,19 +532,19 @@ function sessionPage(id: string, i: number): string {
     <div class="content">
       ${notice ? `<p class="notice${noticeWarn ? ' warn' : ''}">${esc(notice)}</p>` : ''}
       ${s.capturedAt ? `<p class="muted">Completed — captured taught ${s.capturedTaught?.length ?? 0} of ${(s.capturedTaught?.length ?? 0) + (s.capturedPlanned?.length ?? 0)} calls (taught + planned) at the time of completion.</p>` : ''}
-      <details class="collapsible" data-dkey="s:${id}:${i}:taught"${detailsOpenAttr(`s:${id}:${i}:taught`, true)}>
+      <details class="collapsible" data-dkey="s:${id}:${i}:taught"${store.detailsOpenAttr(`s:${id}:${i}:taught`, true)}>
         <summary>Taught this session</summary>
         ${s.taught.length ? renderGrouped(s.taught, (r, ti) => sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)) : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}
       </details>
 
-      <details class="collapsible" data-dkey="s:${id}:${i}:planned"${detailsOpenAttr(`s:${id}:${i}:planned`, true)}>
+      <details class="collapsible" data-dkey="s:${id}:${i}:planned"${store.detailsOpenAttr(`s:${id}:${i}:planned`, true)}>
         <summary>Planned <button class="small-btn" data-moveall="${id}:${i}">Move all → taught</button></summary>
         ${s.planned.length ? renderGrouped(s.planned, (r, pi) => sessionCallChip(r, `data-teach="${id}:${i}:${pi}"`, '', id, i, s)) : '<span class="muted">No plan</span>'}
         <button class="big" data-act="pull" data-id="${id}" data-i="${i}" style="margin-top:12px">Pull 1 from next</button>
         <p class="hint">Tap a call under Planned to teach it (it moves up to Taught). Tap a taught call to move it back.</p>
       </details>
 
-      <details class="collapsible" data-dkey="s:${id}:${i}:prev"${detailsOpenAttr(`s:${id}:${i}:prev`, false)}>
+      <details class="collapsible" data-dkey="s:${id}:${i}:prev"${store.detailsOpenAttr(`s:${id}:${i}:prev`, false)}>
         <summary>Taught in previous sessions</summary>
         ${renderPrevTaught(c, i)}
       </details>
@@ -718,9 +561,9 @@ function sessionPage(id: string, i: number): string {
 
       <button class="big primary" data-nav="#/class/${id}/tips/${i}">Make practice tips →</button>
 
-      <details class="collapsible" style="margin-top:16px" data-dkey="s:${id}:${i}:mods"${detailsOpenAttr(`s:${id}:${i}:mods`, false)}>
+      <details class="collapsible" style="margin-top:16px" data-dkey="s:${id}:${i}:mods"${store.detailsOpenAttr(`s:${id}:${i}:mods`, false)}>
         <summary>Saved modules</summary>
-        ${savedModules[id]?.length ? savedModules[id].map((m, mi) => renderModule(id, m, mi)).join('') : '<p class="hint">No saved modules yet — save a tip from the Practice tips page.</p>'}
+        ${store.savedModules[id]?.length ? store.savedModules[id].map((m, mi) => renderModule(id, m, mi)).join('') : '<p class="hint">No saved modules yet — save a tip from the Practice tips page.</p>'}
         <div class="row two" style="margin-top:10px">
           <button class="big" data-modexport="${id}">Export</button>
           <button class="big" data-modimporttoggle="${id}">Import</button>
@@ -788,7 +631,7 @@ function renderCallProbs(id: string, c: ClassInstance, sIdx: number, avail: Set<
   if (!refs.length) return '<span class="muted">No taught calls to tune yet.</span>';
 
   const item = (r: CallRef) => {
-    const pct = Math.round(effectiveCallProb(id, r.title, currentSet, prioritised) * 100);
+    const pct = Math.round(store.effectiveCallProb(id, r.title, currentSet, prioritised) * 100);
     const si = c.sessions.findIndex((s) => s.taught.some((t) => t.title === r.title && t.setupIdx === r.setupIdx));
     const on = si >= 0 && c.sessions[si].problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
     return `<div class="callprob-item">
@@ -917,7 +760,7 @@ function tipsPage(id: string, fromSession?: number): string {
       ${tips.length ? tips.map((t, ti) => renderTip(id, t, ti, ts)).join('') : '<p class="hint">No tips yet — tap "Generate tips".</p>'}
 
       <h2 class="section-title">Saved modules</h2>
-      ${(savedModules[id]?.length ? savedModules[id].map((m, mi) => renderModule(id, m, mi)).join('') : '<p class="hint">None saved yet — tap "Save tip" on a generated tip to keep it.</p>')}
+      ${(store.savedModules[id]?.length ? store.savedModules[id].map((m, mi) => renderModule(id, m, mi)).join('') : '<p class="hint">None saved yet — tap "Save tip" on a generated tip to keep it.</p>')}
     </div>`;
 }
 
@@ -968,7 +811,7 @@ function renderTip(id: string, t: Tip, ti: number, ts: { selectedTip: number; se
 }
 
 function tipSettingsPage(): string {
-  const cfg = tipConfigGlobal;
+  const cfg = store.tipConfig;
   const pct = (v: number) => Math.round(v * 100);
   return `
     <header class="appbar">
@@ -1010,7 +853,7 @@ function newCoursePage(): string {
       </label>
       <label class="field">Programme (sessions &amp; calls)
         <select id="newProg">
-          ${programmes.length ? programmes.map((p, i) => `<option value="${i}">${esc(p.name)} · ${p.level.toUpperCase()} · ${p.sessions.length} sessions</option>`).join('') : '<option value="-1">No programmes — add one first</option>'}
+          ${store.programmes.length ? store.programmes.map((p, i) => `<option value="${i}">${esc(p.name)} · ${p.level.toUpperCase()} · ${p.sessions.length} sessions</option>`).join('') : '<option value="-1">No programmes — add one first</option>'}
         </select>
         <span class="err" id="err-prog"></span>
       </label>
@@ -1030,7 +873,7 @@ function programmesPage(): string {
     </header>
     <div class="content">
       <h2 class="section-title">Your programmes</h2>
-      ${programmes.map((p, i) => `
+      ${store.programmes.map((p, i) => `
         <div class="card">
           <div class="card-main">${esc(p.name)}</div>
           <div class="card-sub">${p.level.toUpperCase()} · ${p.sessions.length} sessions</div>
@@ -1306,8 +1149,8 @@ function wire(): void {
   root.querySelectorAll<HTMLDetailsElement>('details[data-dkey]').forEach((el) => {
     const k = el.dataset.dkey!;
     el.addEventListener('toggle', () => {
-      detailsState.set(k, el.open);
-      saveDetailsState();
+      store.detailsState.set(k, el.open);
+      store.saveDetailsState();
     });
   });
 
@@ -1358,7 +1201,7 @@ function wire(): void {
     b.addEventListener('click', () => {
       const id = b.dataset.id!, i = +b.dataset.i!, sid = b.dataset.att!;
       session(id, i)!.attendance[sid] = !session(id, i)!.attendance[sid];
-      save();
+      store.saveClasses();
       render();
     }));
 
@@ -1388,7 +1231,7 @@ function wire(): void {
       const pri = clampNum(+(root.querySelector('#probPriority') as HTMLInputElement).value, 1, 5);
       if (probModal) {
         setProblem(cls(probModal.id)!, probModal.i, probModal.title, probModal.setupIdx, pri, note, true);
-        save();
+        store.saveClasses();
       }
       probModal = null;
       render();
@@ -1399,7 +1242,7 @@ function wire(): void {
     b.addEventListener('click', () => {
       if (probModal) {
         setProblem(cls(probModal.id)!, probModal.i, probModal.title, probModal.setupIdx, 3, '', false);
-        save();
+        store.saveClasses();
       }
       probModal = null;
       render();
@@ -1447,10 +1290,10 @@ function wire(): void {
   root.querySelectorAll<HTMLElement>('[data-delclass]').forEach((b) =>
     b.addEventListener('click', () => {
       const id = b.dataset.delclass!;
-      const c = classes.find((x) => x.id === id);
+      const c = store.classes.find((x) => x.id === id);
       if (c && window.confirm(`Delete class "${c.name}"?`)) {
-        classes = classes.filter((x) => x.id !== id);
-        save();
+        store.classes = store.classes.filter((x) => x.id !== id);
+        store.saveClasses();
         render();
       }
     }));
@@ -1465,7 +1308,7 @@ function wire(): void {
     input.classList.remove('invalid');
     addStudent(cls(id)!, name);
     input.value = '';
-    save();
+    store.saveClasses();
     render();
   };
   root.querySelectorAll<HTMLElement>('[data-addstudent]').forEach((b) =>
@@ -1487,10 +1330,10 @@ function wire(): void {
       if (name) {
         c.name = name;
         // Keep saved modules in sync so their "created class" label follows the class.
-        const mods = savedModules[id];
+        const mods = store.savedModules[id];
         if (mods) for (const m of mods) m.createdClass = name;
-        save();
-        saveSavedModules();
+        store.saveClasses();
+        store.saveSavedModules();
         render();
       }
     }));
@@ -1503,7 +1346,7 @@ function wire(): void {
       const name = sanitizeText(window.prompt('Rename dancer', st?.name ?? '') ?? '');
       if (name) {
         renameStudent(c, sid, name);
-        save();
+        store.saveClasses();
         render();
       }
     }));
@@ -1514,7 +1357,7 @@ function wire(): void {
       const st = c.students.find((s) => s.id === sid);
       if (window.confirm(`Remove ${st?.name ?? 'this dancer'} from the class?`)) {
         removeStudent(c, sid);
-        save();
+        store.saveClasses();
         render();
       }
     }));
@@ -1525,7 +1368,7 @@ function wire(): void {
       e.stopPropagation(); // don't toggle the <details> section
       const [id, i] = b.dataset.moveall!.split(':');
       teachAll(cls(id)!, +i);
-      save();
+      store.saveClasses();
       render();
       // Feedback highlight on the (re-created) button so the action is visible.
       const btn = root.querySelector<HTMLElement>(`[data-moveall="${id}:${i}"]`);
@@ -1539,14 +1382,14 @@ function wire(): void {
     b.addEventListener('click', () => {
       const [id, i, pi] = b.dataset.teach!.split(':');
       teachCall(cls(id)!, +i, +pi);
-      save();
+      store.saveClasses();
       render();
     }));
   root.querySelectorAll<HTMLElement>('[data-unteach]').forEach((b) =>
     b.addEventListener('click', () => {
       const [id, i, ti] = b.dataset.unteach!.split(':');
       unteachCall(cls(id)!, +i, +ti);
-      save();
+      store.saveClasses();
       render();
     }));
   // Move a call taught in a previous session into the current session's plan.
@@ -1562,11 +1405,11 @@ function wire(): void {
       const prev = c.sessions.slice(0, +i).flatMap((sess) => sess.taught).find((r) => r.title === title && r.setupIdx === si);
       const ref = prev ?? toRefOrNull(title) ?? { title, level: c.level, setupIdx: si, setup: '' };
       s.planned.push(ref);
-      save();
+      store.saveClasses();
       render();
     }));
   root.querySelectorAll<HTMLElement>('[data-act="pull"]').forEach((b) =>
-    b.addEventListener('click', () => { pullForward(cls(b.dataset.id!)!, +b.dataset.i!, 1); save(); render(); }));
+    b.addEventListener('click', () => { pullForward(cls(b.dataset.id!)!, +b.dataset.i!, 1); store.saveClasses(); render(); }));
   root.querySelectorAll<HTMLInputElement>('[data-completed]').forEach((cb) =>
     cb.addEventListener('change', () => {
       const [id, i] = cb.dataset.completed!.split(':');
@@ -1583,7 +1426,7 @@ function wire(): void {
         moved = res.movedPlanned;
         carried = res.carried;
       }
-      save();
+      store.saveClasses();
       setNotice(
         cb.checked
           ? carried || moved
@@ -1603,7 +1446,7 @@ function wire(): void {
 
       const name = sanitizeText(nameEl.value);
       const pi = +progEl.value;
-      const p = programmes[pi];
+      const p = store.programmes[pi];
 
       let ok = true;
       if (!name) {
@@ -1626,14 +1469,14 @@ function wire(): void {
 
       const students = (root.querySelector('#newStudents') as HTMLInputElement).value.split(',').map((s) => sanitizeText(s)).filter(Boolean);
       const id = 'c' + Date.now().toString(36);
-      classes.push(buildClassFromProgramme(id, name, p, students, toRefOrNull));
-      save();
+      store.classes.push(buildClassFromProgramme(id, name, p, students, toRefOrNull));
+      store.saveClasses();
       navigate(`#/class/${id}`);
     }));
 
   root.querySelectorAll<HTMLElement>('[data-export]').forEach((b) =>
     b.addEventListener('click', () => {
-      const p = programmes[+b.dataset.export!];
+      const p = store.programmes[+b.dataset.export!];
       const text = serializeProgramme(p);
       const doCopy = () => { setNotice(`Copied "${p.name}" to clipboard.`); render(); };
       if (navigator.clipboard?.writeText) {
@@ -1646,7 +1489,7 @@ function wire(): void {
 
   root.querySelectorAll<HTMLElement>('[data-download]').forEach((b) =>
     b.addEventListener('click', () => {
-      const p = programmes[+b.dataset.download!];
+      const p = store.programmes[+b.dataset.download!];
       const blob = new Blob([serializeProgramme(p)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1660,7 +1503,7 @@ function wire(): void {
   root.querySelectorAll<HTMLElement>('[data-modexport]').forEach((b) =>
     b.addEventListener('click', () => {
       const id = b.dataset.modexport!;
-      const list = savedModules[id] ?? [];
+      const list = store.savedModules[id] ?? [];
       const msg = root.querySelector<HTMLElement>(`[data-modexportmsg="${id}"]`);
       const show = (text: string) => { if (msg) { msg.textContent = text; msg.classList.add('show'); } };
       if (!list.length) { show('No saved modules to export.'); return; }
@@ -1779,9 +1622,9 @@ function wire(): void {
           maxLen: 5,
           count: 3,
           getoutMax: 5,
-          config: tipConfigGlobal,
+          config: store.tipConfig,
           current: currentSet,
-          callProb: (t) => effectiveCallProb(id, t, currentSet, prioritised),
+          callProb: (t) => store.effectiveCallProb(id, t, currentSet, prioritised),
           family: (t) => familyMap[t] ?? '',
           onProgress: (attempts, made) => {
             btn.innerHTML = `<span class="spinner"></span>Searching ${attempts}/${totalAttempts} · ${made}/3 tips`;
@@ -1821,13 +1664,13 @@ function wire(): void {
   root.querySelectorAll<HTMLElement>('[data-savecfg]').forEach((b) =>
     b.addEventListener('click', () => {
       const v = (sel: string) => clampNum(+(root.querySelector(sel) as HTMLInputElement).value, 0, 100) / 100;
-      tipConfigGlobal = {
+      store.tipConfig = {
         repeatProb: v('#cfgRepeat'),
         priorityProb: v('#cfgPriority'),
         currentProb: v('#cfgCurrent'),
         prevProb: v('#cfgPrev'),
       };
-      saveTipConfig();
+      store.saveTipConfig();
       setNotice('Tip settings saved.');
       navigate('#/');
     }));
@@ -1869,8 +1712,8 @@ function wire(): void {
     });
     el.addEventListener('change', () => {
       const [cid, title] = el.dataset.callprob!.split('::');
-      (callProbs[cid] ??= {})[title] = clampNum(+el.value, 0, 100) / 100;
-      saveCallProbs();
+      (store.callProbs[cid] ??= {})[title] = clampNum(+el.value, 0, 100) / 100;
+      store.saveCallProbs();
     });
   });
 
@@ -1882,7 +1725,7 @@ function wire(): void {
       const t = tipsByClass[id][+ti];
       // Avoid duplicates: if the exact call sequence is already saved, don't save
       // it again — just point the user at the existing module.
-      const modules = (savedModules[id] ??= []);
+      const modules = (store.savedModules[id] ??= []);
       const seq = t.titles;
       const dup = modules.findIndex((m) => sameSequence(m.titles, seq));
       if (dup >= 0) {
@@ -1915,7 +1758,7 @@ function wire(): void {
         createdClass: c.name,
         createdSession: c.sessions[sIdx]?.name ?? '',
       });
-      saveSavedModules();
+      store.saveSavedModules();
       setNotice(`Saved "${name}" to modules.`);
       render();
     }));
@@ -1924,9 +1767,9 @@ function wire(): void {
   root.querySelectorAll<HTMLElement>('[data-modview]').forEach((b) =>
     b.addEventListener('click', () => {
       const [id, mi] = b.dataset.modview!.split(':');
-      const m = savedModules[id]?.[+mi];
+      const m = store.savedModules[id]?.[+mi];
       if (m) m.expanded = !m.expanded;
-      saveSavedModules();
+      store.saveSavedModules();
       render();
     }));
 
@@ -1934,12 +1777,12 @@ function wire(): void {
   root.querySelectorAll<HTMLElement>('[data-renamemod]').forEach((b) =>
     b.addEventListener('click', () => {
       const [id, mi] = b.dataset.renamemod!.split(':');
-      const m = savedModules[id]?.[+mi];
+      const m = store.savedModules[id]?.[+mi];
       if (!m) return;
       const name = window.prompt('Rename module', m.name);
       if (name != null) {
         m.name = sanitizeText(name) || m.name;
-        saveSavedModules();
+        store.saveSavedModules();
         render();
       }
     }));
@@ -1948,10 +1791,10 @@ function wire(): void {
   root.querySelectorAll<HTMLElement>('[data-delmod]').forEach((b) =>
     b.addEventListener('click', () => {
       const [id, mi] = b.dataset.delmod!.split(':');
-      const m = savedModules[id]?.[+mi];
+      const m = store.savedModules[id]?.[+mi];
       if (m && window.confirm(`Delete module "${m.name}"?`)) {
-        savedModules[id].splice(+mi, 1);
-        saveSavedModules();
+        store.savedModules[id].splice(+mi, 1);
+        store.saveSavedModules();
         render();
       }
     }));
@@ -1990,10 +1833,10 @@ function importProgrammeText(text: string): void {
     render();
     return;
   }
-  const existing = programmes.some((x) => x.name === p.name);
-  if (existing) programmes = programmes.map((x) => (x.name === p.name ? p : x));
-  else programmes.push(p);
-  saveProgrammes();
+  const existing = store.programmes.some((x) => x.name === p.name);
+  if (existing) store.programmes = store.programmes.map((x) => (x.name === p.name ? p : x));
+  else store.programmes.push(p);
+  store.saveProgrammes();
   setNotice(`Imported "${p.name}" (${p.sessions.length} sessions). It is now a New course option.`);
   render();
 }

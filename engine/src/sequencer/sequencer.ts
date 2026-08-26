@@ -1554,8 +1554,8 @@ export class Sequencer {
       coupleNos.map((c) => sortIds(ds.filter((d) => d.couple === c))).filter((s) => s.length > 0);
 
     switch (group) {
-      case 'heads': return couples([1, 2]);
-      case 'sides': return couples([3, 4]);
+      case 'heads': return couples([1, 3]);
+      case 'sides': return couples([2, 4]);
       case 'boys': return [sortIds(ds.filter((d) => d.gender === 'boy'))];
       case 'girls': return [sortIds(ds.filter((d) => d.gender === 'girl'))];
       case 'couples': return couples([1, 2, 3, 4]);

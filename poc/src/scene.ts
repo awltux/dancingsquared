@@ -77,8 +77,17 @@ const PHANTOM_COLOR = 0x9aa6b2;
 export const coupleColor = (couple: number): number =>
   couple > 0 ? COUPLE_COLORS[(couple - 1) % COUPLE_COLORS.length] : PHANTOM_COLOR;
 
-// A small floating label showing a dancer's couple number (for verifying which
-// colour maps to which couple).
+// A lowercase role letter appended to the couple number so a dancer's couple
+// reads as e.g. "1h" (head) or "2s" (side). Heads are couples 1 & 3, sides are
+// couples 2 & 4; the pattern repeats for larger sets (odd couple = head, even
+// couple = side).
+export function coupleTag(couple: number): string {
+  return String(couple) + (couple % 2 === 1 ? 'h' : 's');
+}
+
+// A small floating label showing a dancer's couple number + role letter (e.g.
+// "1h" for a head couple, "2s" for a side couple) so you can verify which
+// colour maps to which couple and whether it's a head or a side.
 function makeNumberLabel(text: string): THREE.Sprite {
   const canvas = document.createElement('canvas');
   canvas.width = 64;
@@ -314,7 +323,7 @@ export class DancerView {
     // Feet stay at the group origin, and the arm IK is done in local space, so
     // a uniform group scale keeps the whole figure — and its reach — consistent.
     this.group.scale.set(2, 2, 2);
-    if (couple > 0) this.group.add(makeNumberLabel(String(couple)));
+    if (couple > 0) this.group.add(makeNumberLabel(coupleTag(couple)));
 
     this.trail = new THREE.Line(
       new THREE.BufferGeometry(),

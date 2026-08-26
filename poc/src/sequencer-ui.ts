@@ -311,7 +311,7 @@ export function initSequencer(stage: Stage): SequencerUI {
       dancers: board.dancers.map((d) => ({
         id: d.id,
         couple: d.couple,
-        group: d.couple <= 2 ? 'heads' : 'sides',
+        group: d.couple % 2 === 1 ? 'heads' : 'sides',
         gender: d.gender,
         x: d.x,
         y: d.y,

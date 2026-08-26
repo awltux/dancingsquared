@@ -137,7 +137,7 @@ Consequences of this symmetric, center-anchored model:
 Most formations describe the **full 8-dancer set**, but some describe a **subset** — a smaller group of dancers (e.g. Facing Couples with 2, a Box of 4 or a Wave of 4 with 4, a Tidal formation with 6). These subset formations exist for two reasons:
 
 - **Parallel execution:** the same call can be danced by several identical subsets **at the same time** (see §7.5). A 2-dancer Facing Couples formation describes the call *Circle Right* once, and when the set holds four separate facing couples, all four dance it concurrently.
-- **Named-group execution:** different calls are danced by **different named sets** of the dancers — e.g. Heads and Sides, Boys and Girls, Centers and Ends, or Couples 1–4. Each named group is itself a subset, so the subset formation is the unit the call acts on.
+- **Named-group execution:** different calls are danced by **different named sets** of the dancers — e.g. Heads and Sides, Boys and Girls, Centers and Ends, or Couples 1–4. Each named group is itself a subset, so the subset formation is the unit the call acts on. (A named group like Heads/Sides selects dancers by **home identity**, fixed for the tip — see §7.2.3 — not by current position.)
 
 Because a subset occupies only part of the set, its own geometry is **not centered on the set's center** the way a full formation is — it sits offset to wherever that group of dancers actually stands. That offset must be applied to match the subset to the real dancer positions.
 
@@ -174,6 +174,36 @@ convenience of §7.1 and the *reason* it matters (parallel action, §7.5).
   group *once*; multi-match describes that the same group *repeats*. The former is
   about how the call is authored, the latter about how it is matched and executed
   when the board holds many copies.
+
+#### 7.2.3 Home Identity: Heads/Sides Are Fixed for the Tip
+
+A dancer's **"Head"** or **"Side"** designation is a *home-identity* property,
+assigned once from the dancer's **home couple** at the start of the tip (or
+figure), and **never changes** for the duration of that tip — regardless of
+where calls move the dancer. It is **not** a property of the dancer's current
+floor position.
+
+- **Heads** are home couples **1 & 3**; **Sides** are home couples **2 & 4**
+  (odd couple = head, even couple = side; the pattern repeats for larger sets).
+  A dancer stamped as a head at the start remains a head even after the set
+  rotates and that dancer comes to stand on a "side" wall.
+- **A call that names a group acts on the home-designated dancers, not on
+  whoever currently occupies the corresponding position.** For example, *Heads
+  Pass Thru* acts on the *original* head couples even after a promenade or
+  circle has moved them off the North/South walls; it must not silently switch
+  to the couples that now happen to stand at N/S.
+- **Why it matters for matching:** many formations — most notably the squared
+  set — are 90°-rotationally symmetric, so a given geometric layout can be
+  aligned to the dancers in several equivalent ways. The engine must break that
+  ambiguity in favour of the alignment that maps each dancer back onto its
+  **home couple**; otherwise a Heads/Sides call would target the wrong dancers
+  whenever the set has rotated. Concretely, matching carries each dancer's home
+  couple and, on a geometric tie, prefers the rotation where a call's head slots
+  land on home couples 1 & 3 and its side slots on home couples 2 & 4.
+- **Scope of persistence:** identity is stamped from the opening squared set and
+  carried through every subsequent call, so the same couples remain "heads" for
+  the entire figure — even as their positions permute — and only a fresh tip
+  re-assigns designations from a new home square.
 
 ### 7.3 Two Kinds of "Reflection"
 In square dancing, "reflection" can mean two distinct things:

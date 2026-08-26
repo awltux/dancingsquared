@@ -85,16 +85,27 @@ console.log('== Sequencer: re-base must not rotate the set (Heads Spin the Top -
 seq.reset();
 const hst = seq.apply('Heads Spin the Top');
 const dpt = seq.apply('Double Pass Thru');
-// After Heads Spin the Top the set is a Quarter Tag facing N-S (headings ~+/-90).
-// Re-basing onto Double Pass Thru's canonical setup must keep that N-S facing,
-// not spin the set 90 deg to E-W (headings ~0/180).
+// After Heads Spin the Top the set is a Quarter Tag facing either N-S
+// (headings ~+/-90) or E-W (headings ~0/180) depending on the authored setup.
+// Re-basing onto Double Pass Thru's canonical setup must PRESERVE that facing,
+// not spin the set 90 deg (a N-S set must stay N-S, an E-W set must stay E-W).
 check(hst.legal, 'Heads Spin the Top legal from home');
 check(dpt.legal, 'Double Pass Thru legal after Heads Spin the Top');
-const facingNS = dpt.board.dancers.every((d) => {
-  const deg = Math.abs((d.heading * 180) / Math.PI);
-  return deg > 60 && deg < 120;
-});
-check(facingNS, `re-base keeps the set facing N-S (no 90deg flip): ${dpt.board.dancers.map((d) => (d.heading * 180 / Math.PI).toFixed(0)).join(', ')}`);
+const facingMode = (b) => {
+  const degs = b.dancers.map((d) => {
+    const deg = (d.heading * 180) / Math.PI;
+    return ((deg % 360) + 360) % 360; // normalize to [0,360)
+  });
+  // all headings must be within 30 deg of the 0/180 axis (E-W) or the 90/270
+  // axis (N-S). Compute which axis each heading is on, then require a single axis.
+  const offAxis = (a) => Math.min(a % 180, 180 - (a % 180));
+  const modes = degs.map((a) => (offAxis(a) < 30 ? 0 : offAxis(a - 90) < 30 ? 90 : -1));
+  return modes.every((m) => m === modes[0]) && modes[0] !== -1 ? modes[0] : -1;
+};
+const hstMode = facingMode(hst.board);
+check(hstMode === 90 || hstMode === 0, `Heads Spin the Top ends in a coherent NS/EW facing (mode=${hstMode})`);
+const dptMode = facingMode(dpt.board);
+check(dptMode === hstMode, `re-base keeps the set facing (${hstMode === 90 ? 'N-S' : 'E-W'}, no 90deg flip): ${dpt.board.dancers.map((d) => (d.heading * 180 / Math.PI).toFixed(0)).join(', ')}`);
 
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');

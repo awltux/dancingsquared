@@ -35,6 +35,7 @@ import { buildClassFromProgramme, parseProgramme, serializeProgramme } from './p
 import type { Programme } from './programme';
 import { TeacherStore, type SavedModule } from './store';
 import { Tour } from './tour';
+import { Preview } from './preview';
 
 // ---------------------------------------------------------------- catalog
 
@@ -365,7 +366,7 @@ function render(): void {
     <div class="screen">${content}${route.page === 'home' ? `<footer class="version" title="git commit ${__GIT_COMMIT__}">build ${__GIT_COMMIT_SHORT__}</footer>` : ''}</div>
     ${bottomNav(classId, tab)}
     ${probModal ? renderModal(probModal) : ''}
-    ${preview ? renderPreview(preview) : ''}
+    ${preview.active ? preview.overlay() : ''}
     ${tour.overlay()}
   `;
   wire();
@@ -847,197 +848,8 @@ let probModal: ProbModal | null = null;
 
 // ---------------------------------------------------------------- 2D preview
 
-// A top-down, 2D board view of a module/tip: dancers are drawn as squares (men)
-// or circles (women), coloured by home couple and numbered with the couple number
-// (matching the 3D view), with a small triangle marking their front. The view is
-// animated by stepping the Sequencer beat forward through the call sequence.
-interface PreviewState {
-  titles: string[];
-  beat: number;
-  total: number; // total beats in the sequence
-  playing: boolean;
-  timer?: number;
-  trail: { x: number; y: number }[][]; // cached path per dancer for the current call
-  trailKey: string; // identifies which call the cached trail belongs to
-  view: { minX: number; maxX: number; minY: number; maxY: number }; // fixed zoom for the whole sequence
-}
-let preview: PreviewState | null = null;
-const COUPLE_HEX = ['#e33b3b', '#e8c23a', '#3fbf6f', '#3b7ee8']; // 1 red, 2 yellow, 3 green, 4 blue
-const PREVIEW_BPM = 64; // playback tempo for the 2D preview
-
-/** The global-beat range [start, end] of the call playing at `beat`. */
-function callBounds(titles: string[], beat: number): { start: number; end: number } {
-  const name = seq.sequenceInfo(titles, beat)?.name;
-  if (!name) return { start: 0, end: 0 };
-  let start = beat;
-  while (start > 0 && seq.sequenceInfo(titles, start - 1)?.name === name) start--;
-  let end = beat;
-  while (seq.sequenceInfo(titles, end + 1)?.name === name) end++;
-  return { start, end };
-}
-
-/** A stable key identifying the call playing at `beat` (for caching its path). */
-function callKey(titles: string[], beat: number): string {
-  const name = seq.sequenceInfo(titles, beat)?.name ?? '';
-  return `${name}|${callBounds(titles, beat).start}`;
-}
-
-/** Fixed bounds covering the whole sequence, so the view never zooms/pulses while
- * the dancers move. Sampled across all beats with a small padding. */
-function sequenceBounds(titles: string[]): { minX: number; maxX: number; minY: number; maxY: number } {
-  const total = Math.round(seq.evaluateSequence(titles, 1e9).beats);
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  const steps = Math.max(10, total);
-  for (let s = 0; s <= steps; s++) {
-    const bo = seq.evaluateSequence(titles, (total * s) / steps).board;
-    bo.dancers.forEach((d) => {
-      minX = Math.min(minX, d.x); maxX = Math.max(maxX, d.x);
-      minY = Math.min(minY, d.y); maxY = Math.max(maxY, d.y);
-    });
-  }
-  const pad = 0.5;
-  return { minX: minX - pad, maxX: maxX + pad, minY: minY - pad, maxY: maxY + pad };
-}
-
-/** Sample each dancer's path through the call playing at `beat` (world coords). */
-function computeTrail(titles: string[], beat: number): { x: number; y: number }[][] {
-  const { start, end } = callBounds(titles, beat);
-  const N = seq.evaluateSequence(titles, beat).board.dancers.length;
-  const trails: { x: number; y: number }[][] = Array.from({ length: N }, () => []);
-  if (end <= start) {
-    const bo = seq.evaluateSequence(titles, beat).board;
-    bo.dancers.forEach((d, i) => trails[i].push({ x: d.x, y: d.y }));
-    return trails;
-  }
-  const steps = Math.max(4, Math.round((end - start) * 3));
-  for (let s = 0; s <= steps; s++) {
-    const b = start + ((end - start) * s) / steps;
-    const bo = seq.evaluateSequence(titles, b).board;
-    bo.dancers.forEach((d, i) => trails[i].push({ x: d.x, y: d.y }));
-  }
-  return trails;
-}
-
-/** Render the current board + the cached call path as a top-down 2D SVG (couple
- * colour + number, shape by gender, triangle = front). `view` is the fixed,
- * whole-sequence bounds so the framing never zooms during playback. */
-function boardSVG(
-  titles: string[],
-  beat: number,
-  trail: { x: number; y: number }[][],
-  view: { minX: number; maxX: number; minY: number; maxY: number },
-): string {
-  const board = seq.evaluateSequence(titles, beat).board;
-  const ds = board.dancers;
-  const rx = view.maxX - view.minX || 1, ry = view.maxY - view.minY || 1;
-  const W = 460, H = 460, pad = 40, R = 14;
-  const sx = (x: number) => pad + ((x - view.minX) / rx) * (W - 2 * pad);
-  const sy = (y: number) => H - pad - ((y - view.minY) / ry) * (H - 2 * pad); // flip y so "north" is up
-  const path = trail.map((t, i) => {
-    if (t.length < 2) return '';
-    const color = COUPLE_HEX[(ds[i].couple - 1) % COUPLE_HEX.length] ?? '#9aa6b2';
-    const pts = t.map((p) => `${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(' ');
-    return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" opacity="0.45" stroke-linejoin="round" stroke-linecap="round"/>`;
-  }).join('');
-  const icons = ds.map((d) => {
-    const color = COUPLE_HEX[(d.couple - 1) % COUPLE_HEX.length] ?? '#9aa6b2';
-    const cx = sx(d.x), cy = sy(d.y);
-    const deg = -((d.heading * 180) / Math.PI); // SVG rotate so the front (+x local) points along heading
-    const shape = d.gender === 'boy'
-      ? `<rect x="${-R}" y="${-R}" width="${2 * R}" height="${2 * R}" rx="4" fill="${color}" stroke="#fff" stroke-width="2"/>`
-      : `<circle r="${R}" fill="${color}" stroke="#fff" stroke-width="2"/>`;
-    const front = `<polygon points="${R},0 ${R - 6},-5 ${R - 6},5" fill="#fff"/>`;
-    return `<g transform="translate(${cx},${cy}) rotate(${deg})">${shape}${front}</g>
-      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="bold" fill="#fff" pointer-events="none">${d.couple}</text>`;
-  }).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Top-down board view">${path}${icons}</svg>`;
-}
-
-/** The call playing at a global beat, or '…'. */
-function callAt(titles: string[], beat: number): string {
-  const info = seq.sequenceInfo(titles, beat);
-  return info ? info.name : '…';
-}
-
-function renderPreview(p: PreviewState): string {
-  return `
-    <div class="overlay" data-closepreview>
-      <div class="modal preview-modal">
-        <h2>Preview</h2>
-        <div class="preview-board" id="previewBoard">${boardSVG(p.titles, p.beat, p.trail, p.view)}</div>
-        <input type="range" id="previewScrub" class="preview-scrub" min="0" max="${p.total}" step="1" value="${p.beat}" />
-        <div class="preview-controls">
-          <button class="big preview-play" data-prevplay>${p.playing ? '⏸' : '▶'}</button>
-        </div>
-        <div class="preview-call" id="previewCall">${callAt(p.titles, p.beat)}</div>
-        <button class="big primary" data-prevclose style="margin-top:12px">Close</button>
-      </div>
-    </div>`;
-}
-
-/** Refresh the open preview overlay in place (no full re-render, so the animation
- * stays smooth). */
-function updatePreview(): void {
-  if (!preview) return;
-  const p = preview;
-  const board = root.querySelector('#previewBoard') as HTMLElement | null;
-  if (board) {
-    // Cache the current call's path; recompute only when the call changes.
-    const ck = callKey(p.titles, p.beat);
-    if (p.trailKey !== ck) {
-      p.trail = computeTrail(p.titles, p.beat);
-      p.trailKey = ck;
-    }
-    board.innerHTML = boardSVG(p.titles, p.beat, p.trail, p.view);
-  }
-  const scrub = root.querySelector('#previewScrub') as HTMLInputElement | null;
-  if (scrub) scrub.value = String(Math.min(p.beat, p.total));
-  const call = root.querySelector('#previewCall') as HTMLElement | null;
-  if (call) call.textContent = callAt(p.titles, p.beat);
-  const play = root.querySelector('[data-prevplay]');
-  if (play) play.textContent = p.playing ? '⏸' : '▶';
-}
-
-function cancelPreviewTimer(): void {
-  if (preview && preview.timer != null) cancelAnimationFrame(preview.timer);
-  if (preview) preview.timer = undefined;
-}
-function closePreview(): void {
-  cancelPreviewTimer();
-  preview = null;
-  render();
-}
-function togglePreviewPlay(): void {
-  if (!preview) return;
-  preview.playing = !preview.playing;
-  if (preview.playing) {
-    if (preview.beat >= preview.total) preview.beat = 0;
-    // Advance one beat per (60000 / bpm) ms so the preview plays at the chosen
-    // tempo (64 bpm). rAF keeps the motion smooth and handles variable frame rate.
-    const MS_PER_BEAT = 60000 / PREVIEW_BPM;
-    let last = performance.now();
-    const frame = (now: number): void => {
-      if (!preview || !preview.playing) return;
-      const dt = Math.min(now - last, 250); // clamp a big tab-wake gap
-      last = now;
-      preview.beat += dt / MS_PER_BEAT;
-      if (preview.beat >= preview.total) {
-        preview.beat = preview.total;
-        preview.playing = false;
-        preview.timer = undefined;
-        updatePreview();
-        return;
-      }
-      updatePreview();
-      preview.timer = requestAnimationFrame(frame);
-    };
-    cancelPreviewTimer();
-    preview.timer = requestAnimationFrame(frame);
-  } else {
-    cancelPreviewTimer();
-  }
-  updatePreview();
-}
+// A top-down 2D preview of a module/tip (see preview.ts).
+const preview = new Preview(seq, root, render);
 
 
 // A session call chip: the tappable call (teach/unteach) plus a star that opens
@@ -1160,39 +972,7 @@ function wire(): void {
     }));
 
   // ---- 2D preview ----
-  root.querySelectorAll<HTMLElement>('[data-preview]').forEach((el) =>
-    el.addEventListener('click', () => {
-      let titles: string[] = [];
-      try { titles = JSON.parse(el.dataset.preview || '[]'); } catch { titles = []; }
-      const total = Math.round(seq.evaluateSequence(titles, 1e9).beats);
-      cancelPreviewTimer();
-      preview = {
-        titles,
-        beat: 0,
-        total,
-        playing: false,
-        trail: computeTrail(titles, 0),
-        trailKey: callKey(titles, 0),
-        view: sequenceBounds(titles),
-      };
-      render();
-    }));
-  root.querySelectorAll<HTMLElement>('[data-prevclose]').forEach((el) =>
-    el.addEventListener('click', closePreview));
-  root.querySelectorAll<HTMLElement>('[data-closepreview]').forEach((el) =>
-    el.addEventListener('click', (e) => {
-      if ((e.target as HTMLElement).classList.contains('overlay')) closePreview();
-    }));
-  root.querySelectorAll<HTMLElement>('[data-prevplay]').forEach((el) =>
-    el.addEventListener('click', togglePreviewPlay));
-  root.querySelectorAll<HTMLInputElement>('#previewScrub').forEach((el) =>
-    el.addEventListener('input', () => {
-      if (!preview) return;
-      cancelPreviewTimer();
-      preview.playing = false;
-      preview.beat = +el.value;
-      updatePreview();
-    }));
+  preview.wire(root);
 
   root.querySelectorAll<HTMLElement>('[data-delclass]').forEach((b) =>
     b.addEventListener('click', () => {

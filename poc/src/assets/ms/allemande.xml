@@ -265,13 +265,7 @@
     </path>
   </tam>
 
-  <tam title="Allemande Left" from="Circle Left" sequencer="gender-specific">
-    <formation>
-      <dancer gender="boy" x="-2.45" y="1" angle="0"/>
-      <dancer gender="girl" x="-2.45" y="-1" angle="45"/>
-      <dancer gender="boy" x="-1" y="-2.45" angle="90"/>
-      <dancer gender="girl" x="1" y="-2.45" angle="135"/>
-    </formation>
+  <tam title="Allemande Left" from="Circle Left" formation="Circle" sequencer="gender-specific">
     <path>
       <move select="Eighth Left" beats="1.5" offsetX="1.1" offsetY=".4"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>

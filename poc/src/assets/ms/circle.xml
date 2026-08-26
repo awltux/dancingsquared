@@ -79,7 +79,7 @@
     </taminator>
   </tam>
 
-  <tam title="Circle Left" from="Circle" formation="Circle Left" sequencer="gender-specific">
+  <tam title="Circle Left" from="Circle" formation="Circle" sequencer="gender-specific">
     <path>
       <move select="cl" />
       <move select="cl" />
@@ -319,7 +319,7 @@
     </taminator>
   </tam>
 
-  <tam title="Circle Right" from="Circle" formation="Circle Right" sequencer="gender-specific">
+  <tam title="Circle Right" from="Circle" formation="Circle" sequencer="gender-specific">
     <path>
       <move select="cr" />
       <move select="cr" />

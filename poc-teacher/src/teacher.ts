@@ -1,16 +1,16 @@
 // Teacher Session Tracker (PRD item 15) — pure, headless-testable core.
 //
-// Models a class instance with ordered sessions, per-session attendance, and
-// problem call-setup notes; derives which calls each student knows/missed; rolls
-// untaught calls forward (and pulls calls forward when there is time); and
-// generates / edits practice tips (as reusable modules) that only use calls from
-// the current and previous sessions, prioritising the current session's calls
-// and any problem setups. Tip legality and the "which calls fit before / replace
-// / after this call" suggestions are computed with the engine's Sequencer.
+// The domain logic lives in two classes:
+//   - TeacherModel: operations on a single ClassInstance (sessions, attendance,
+//     problems, students, teaching progress).
+//   - TipGenerator: generates / edits practice tips using the engine Sequencer.
+// The module-level functions below are thin facades kept for backward
+// compatibility (used by main.ts, view.ts and the verify script); each
+// delegates to the class.
 
 import { Sequencer } from 'dancing-squared-engine';
 
-// ---------------------------------------------------------------- model
+// ---------------------------------------------------------------- model types
 
 export interface Student {
   id: string;
@@ -68,44 +68,7 @@ export interface Tip {
   titles: string[]; // the call sequence
 }
 
-// ---------------------------------------------------------------- helpers
-
 export const refKey = (r: { title: string; setupIdx: number }): string => `${r.title}#${r.setupIdx}`;
-
-/** All distinct call titles taught in sessions 0..sessionIdx (current + previous). */
-export function availableTitles(cls: ClassInstance, sessionIdx: number): Set<string> {
-  const set = new Set<string>();
-  for (let i = 0; i <= sessionIdx; i++) {
-    for (const ref of cls.sessions[i].taught) set.add(ref.title);
-  }
-  return set;
-}
-
-/**
- * Move every planned call of `sessionIdx` into the next session's plan (clearing
- * the current plan). If there is no next session, one is created to hold them.
- */
-export function rollUntaughtForward(cls: ClassInstance, sessionIdx: number): void {
-  const s = cls.sessions[sessionIdx];
-  if (!s) return;
-  let next = cls.sessions[sessionIdx + 1];
-  if (!next) {
-    next = {
-      id: `${s.id}-n${cls.sessions.length + 1}`,
-      name: `Session ${cls.sessions.length + 1}`,
-      level: s.level,
-      planned: [],
-      taught: [],
-      attendance: {},
-      problems: [],
-    };
-    cls.sessions.push(next);
-  }
-  // Move the plan across, then drop any call-positions duplicated within the
-  // next session's plan (duplicates across sessions are allowed).
-  next.planned = dedupeCallRefs([...next.planned, ...s.planned]);
-  s.planned = [];
-}
 
 /** Whether a call-position is already present (planned or taught) in a session. */
 function hasCallPosition(s: SessionPlan, r: { title: string; setupIdx: number }): boolean {
@@ -127,20 +90,8 @@ export function dedupeCallRefs<T extends { title: string; setupIdx: number }>(li
   return out;
 }
 
-/**
- * Carry every prioritised (starred) call-position of `sessionIdx` into the next
- * session's plan (creating it if needed), keeping its priority/note. Returns the
- * number carried. Used to re-teach problem call-setups next session.
- */
-export function rollPrioritisedForward(cls: ClassInstance, sessionIdx: number): number {
-  const s = cls.sessions[sessionIdx];
-  if (!s) return 0;
-  const pool = [...s.planned, ...s.taught];
-  const prioCalls = s.problems
-    .map((p) => ({ p, ref: pool.find((r) => r.title === p.title && r.setupIdx === p.setupIdx) }))
-    .filter((x): x is { p: Problem; ref: CallRef } => !!x.ref);
-  if (!prioCalls.length) return 0;
-  let next = cls.sessions[sessionIdx + 1];
+function nextSessionFor(cls: ClassInstance, s: SessionPlan): SessionPlan {
+  let next = cls.sessions[cls.sessions.indexOf(s) + 1];
   if (!next) {
     next = {
       id: `${s.id}-n${cls.sessions.length + 1}`,
@@ -153,307 +104,281 @@ export function rollPrioritisedForward(cls: ClassInstance, sessionIdx: number): 
     };
     cls.sessions.push(next);
   }
-  let moved = 0;
-  for (const { p, ref } of prioCalls) {
-    if (hasCallPosition(next, ref)) continue;
-    next.planned.push(ref);
-    const idx = next.problems.findIndex((q) => q.title === p.title && q.setupIdx === p.setupIdx);
-    if (idx === -1) next.problems.push({ title: p.title, setupIdx: p.setupIdx, priority: p.priority, note: p.note });
-    else next.problems[idx].priority = Math.max(next.problems[idx].priority, p.priority);
-    moved++;
-  }
-  return moved;
+  return next;
 }
 
-/**
- * For a call-position taught by `sessionIdx`, build the missed note grouped by
- * session: each session where the call was taught and someone was absent lists
- * the absentees, e.g. "Session 1: Missed by Carol, Alice\nSession 2: Missed by
- * Bob, Alice". Returns an empty string if no one missed it.
- */
-export function missedNote(cls: ClassInstance, sessionIdx: number, ref: CallRef): string {
-  const lines: string[] = [];
-  for (let j = 0; j <= sessionIdx; j++) {
-    const s = cls.sessions[j];
-    if (!s.taught.some((r) => refKey(r) === refKey(ref))) continue;
-    const names = cls.students.filter((st) => !s.attendance[st.id]).map((st) => st.name);
-    if (names.length) lines.push(`${s.name}: Missed by ${names.join(', ')}`);
-  }
-  return lines.join('\n');
-}
+// ---------------------------------------------------------------- TeacherModel
 
-/**
- * Complete a session: (1) move any planned calls into the next session's plan if
- * not already there, and (2) carry each taught call-position that someone missed
- * into the next session as a priority, with a note naming who missed it and which
- * session(s). Existing prioritised (starred) call-setups are carried too. Returns
- * counts. Creates the next session if needed.
- */
-export function completeSession(cls: ClassInstance, sessionIdx: number): { movedPlanned: number; carried: number } {
-  const s = cls.sessions[sessionIdx];
-  if (!s) return { movedPlanned: 0, carried: 0 };
-  // Snapshot the taught / taught+planned state BEFORE the plan is moved on — it
-  // cannot be recalculated afterwards because the planned calls are removed.
-  if (!s.capturedAt) {
-    s.capturedTaught = [...s.taught];
-    s.capturedPlanned = [...s.planned];
-    s.capturedAt = Date.now();
+/** Domain operations over a single ClassInstance. */
+export class TeacherModel {
+  private readonly cls: ClassInstance;
+
+  constructor(cls: ClassInstance) {
+    this.cls = cls;
   }
-  let next = cls.sessions[sessionIdx + 1];
-  if (!next) {
-    next = {
-      id: `${s.id}-n${cls.sessions.length + 1}`,
-      name: `Session ${cls.sessions.length + 1}`,
-      level: s.level,
-      planned: [],
-      taught: [],
-      attendance: {},
-      problems: [],
+
+  /** All distinct call titles taught in sessions 0..sessionIdx (current + previous). */
+  availableTitles(sessionIdx: number): Set<string> {
+    const set = new Set<string>();
+    for (let i = 0; i <= sessionIdx; i++) {
+      for (const ref of this.cls.sessions[i].taught) set.add(ref.title);
+    }
+    return set;
+  }
+
+  /** Move every planned call of `sessionIdx` into the next session's plan. */
+  rollUntaughtForward(sessionIdx: number): void {
+    const s = this.cls.sessions[sessionIdx];
+    if (!s) return;
+    const next = nextSessionFor(this.cls, s);
+    next.planned = dedupeCallRefs([...next.planned, ...s.planned]);
+    s.planned = [];
+  }
+
+  /** Carry every prioritised (starred) call-position of `sessionIdx` into the next
+   * session's plan, keeping its priority/note. Returns the number carried. */
+  rollPrioritisedForward(sessionIdx: number): number {
+    const s = this.cls.sessions[sessionIdx];
+    if (!s) return 0;
+    const pool = [...s.planned, ...s.taught];
+    const prioCalls = s.problems
+      .map((p) => ({ p, ref: pool.find((r) => r.title === p.title && r.setupIdx === p.setupIdx) }))
+      .filter((x): x is { p: Problem; ref: CallRef } => !!x.ref);
+    if (!prioCalls.length) return 0;
+    const next = nextSessionFor(this.cls, s);
+    let moved = 0;
+    for (const { p, ref } of prioCalls) {
+      if (hasCallPosition(next, ref)) continue;
+      next.planned.push(ref);
+      const idx = next.problems.findIndex((q) => q.title === p.title && q.setupIdx === p.setupIdx);
+      if (idx === -1) next.problems.push({ title: p.title, setupIdx: p.setupIdx, priority: p.priority, note: p.note });
+      else next.problems[idx].priority = Math.max(next.problems[idx].priority, p.priority);
+      moved++;
+    }
+    return moved;
+  }
+
+  /** For a call-position taught by `sessionIdx`, build the missed note grouped by session. */
+  missedNote(sessionIdx: number, ref: CallRef): string {
+    const lines: string[] = [];
+    for (let j = 0; j <= sessionIdx; j++) {
+      const s = this.cls.sessions[j];
+      if (!s.taught.some((r) => refKey(r) === refKey(ref))) continue;
+      const names = this.cls.students.filter((st) => !s.attendance[st.id]).map((st) => st.name);
+      if (names.length) lines.push(`${s.name}: Missed by ${names.join(', ')}`);
+    }
+    return lines.join('\n');
+  }
+
+  /** Complete a session: move the plan forward and carry missed/starred calls as
+   * priorities. Returns counts. */
+  completeSession(sessionIdx: number): { movedPlanned: number; carried: number } {
+    const s = this.cls.sessions[sessionIdx];
+    if (!s) return { movedPlanned: 0, carried: 0 };
+    if (!s.capturedAt) {
+      s.capturedTaught = [...s.taught];
+      s.capturedPlanned = [...s.planned];
+      s.capturedAt = Date.now();
+    }
+    const next = nextSessionFor(this.cls, s);
+    const plannedRefs = [...s.planned];
+    const taughtRefs = [...s.taught];
+
+    next.planned = dedupeCallRefs([...next.planned, ...plannedRefs]);
+    s.planned = [];
+
+    const toCarry = new Map<string, { ref: CallRef; note: string; priority: number }>();
+    const add = (ref: CallRef, note: string, priority: number) => {
+      const k = refKey(ref);
+      const ex = toCarry.get(k);
+      if (!ex) toCarry.set(k, { ref, note, priority });
+      else {
+        ex.priority = Math.max(ex.priority, priority);
+        if (note) ex.note = ex.note ? `${ex.note}\n${note}` : note;
+      }
     };
-    cls.sessions.push(next);
-  }
-
-  const plannedRefs = [...s.planned];
-  const taughtRefs = [...s.taught];
-
-  // 1. Move the plan forward (deduped against the next plan).
-  next.planned = dedupeCallRefs([...next.planned, ...plannedRefs]);
-  s.planned = [];
-
-  // 2. Collect call-positions to carry as priorities (deduped by call-position).
-  const toCarry = new Map<string, { ref: CallRef; note: string; priority: number }>();
-  const add = (ref: CallRef, note: string, priority: number) => {
-    const k = refKey(ref);
-    const ex = toCarry.get(k);
-    if (!ex) toCarry.set(k, { ref, note, priority });
-    else {
-      ex.priority = Math.max(ex.priority, priority);
-      // Append the new text (e.g. the automated missed note) to any existing note.
-      if (note) ex.note = ex.note ? `${ex.note}\n${note}` : note;
+    for (const p of s.problems) {
+      const ref = [...plannedRefs, ...taughtRefs].find((r) => r.title === p.title && r.setupIdx === p.setupIdx);
+      if (ref) add(ref, p.note ?? '', p.priority);
     }
-  };
-  // Starred (prioritised) call-setups always carry.
-  for (const p of s.problems) {
-    const ref = [...plannedRefs, ...taughtRefs].find((r) => r.title === p.title && r.setupIdx === p.setupIdx);
-    if (ref) add(ref, p.note ?? '', p.priority);
-  }
-  // Taught call-positions missed by someone carry with a session-grouped note.
-  for (const t of taughtRefs) {
-    const note = missedNote(cls, sessionIdx, t);
-    if (note) add(t, note, 3);
-  }
-
-  let carried = 0;
-  for (const { ref, note, priority } of toCarry.values()) {
-    if (hasCallPosition(next, ref)) continue;
-    next.planned.push(ref);
-    const idx = next.problems.findIndex((q) => q.title === ref.title && q.setupIdx === ref.setupIdx);
-    if (idx === -1) next.problems.push({ title: ref.title, setupIdx: ref.setupIdx, priority, note });
-    else {
-      next.problems[idx].priority = Math.max(next.problems[idx].priority, priority);
-      // Append to, rather than overwrite, any existing note.
-      if (note) next.problems[idx].note = next.problems[idx].note ? `${next.problems[idx].note}\n${note}` : note;
+    for (const t of taughtRefs) {
+      const note = this.missedNote(sessionIdx, t);
+      if (note) add(t, note, 3);
     }
-    carried++;
-  }
-  return { movedPlanned: plannedRefs.length, carried };
-}
 
-/**
- * If one or more students were absent from `sessionIdx`, carry the calls taught
- * that session into the next session's plan (creating it if needed), tagging each
- * added call-setup with a priority note listing who missed it. Returns the number
- * of call-positions carried. Does nothing if everyone attended.
- */
-export function rollMissedCallsForward(cls: ClassInstance, sessionIdx: number): number {
-  const s = cls.sessions[sessionIdx];
-  if (!s) return 0;
-  let next = cls.sessions[sessionIdx + 1];
-  if (!next) {
-    next = {
-      id: `${s.id}-n${cls.sessions.length + 1}`,
-      name: `Session ${cls.sessions.length + 1}`,
-      level: s.level,
-      planned: [],
-      taught: [],
-      attendance: {},
-      problems: [],
-    };
-    cls.sessions.push(next);
+    let carried = 0;
+    for (const { ref, note, priority } of toCarry.values()) {
+      if (hasCallPosition(next, ref)) continue;
+      next.planned.push(ref);
+      const idx = next.problems.findIndex((q) => q.title === ref.title && q.setupIdx === ref.setupIdx);
+      if (idx === -1) next.problems.push({ title: ref.title, setupIdx: ref.setupIdx, priority, note });
+      else {
+        next.problems[idx].priority = Math.max(next.problems[idx].priority, priority);
+        if (note) next.problems[idx].note = next.problems[idx].note ? `${next.problems[idx].note}\n${note}` : note;
+      }
+      carried++;
+    }
+    return { movedPlanned: plannedRefs.length, carried };
   }
-  let moved = 0;
-  for (const r of s.taught) {
-    const note = missedNote(cls, sessionIdx, r);
-    if (!note) continue; // no one missed this call
-    if (hasCallPosition(next, r)) continue; // already planned/taught in the next session
-    next.planned.push(r);
-    const idx = next.problems.findIndex((p) => p.title === r.title && p.setupIdx === r.setupIdx);
-    if (idx === -1) next.problems.push({ title: r.title, setupIdx: r.setupIdx, priority: 3, note });
-    else if (note) next.problems[idx].note = next.problems[idx].note ? `${next.problems[idx].note}\n${note}` : note;
-    moved++;
-  }
-  return moved;
-}
 
-/** Pull `count` planned calls from the next session's plan into THIS session's plan,
- * skipping any that would duplicate a call-position already in this session. */
-export function pullForward(cls: ClassInstance, sessionIdx: number, count: number): void {
-  const s = cls.sessions[sessionIdx];
-  const next = cls.sessions[sessionIdx + 1];
-  if (!s || !next || count <= 0) return;
-  // Pull prioritised (starred) call-setups from the next session first, then the rest.
-  const isPrio = (r: CallRef) =>
-    next.problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
-  const prio = next.planned.filter(isPrio);
-  const normal = next.planned.filter((r) => !isPrio(r));
-  const taken: CallRef[] = [];
-  for (const r of [...prio, ...normal]) {
-    if (taken.length >= count) break;
-    if (!hasCallPosition(s, r)) taken.push(r);
+  /** If one or more students were absent from `sessionIdx`, carry the calls taught
+   * that session into the next session's plan, tagged with a missed note. */
+  rollMissedCallsForward(sessionIdx: number): number {
+    const s = this.cls.sessions[sessionIdx];
+    if (!s) return 0;
+    const next = nextSessionFor(this.cls, s);
+    let moved = 0;
+    for (const r of s.taught) {
+      const note = this.missedNote(sessionIdx, r);
+      if (!note) continue;
+      if (hasCallPosition(next, r)) continue;
+      next.planned.push(r);
+      const idx = next.problems.findIndex((p) => p.title === r.title && p.setupIdx === r.setupIdx);
+      if (idx === -1) next.problems.push({ title: r.title, setupIdx: r.setupIdx, priority: 3, note });
+      else if (note) next.problems[idx].note = next.problems[idx].note ? `${next.problems[idx].note}\n${note}` : note;
+      moved++;
+    }
+    return moved;
   }
-  const takenKeys = new Set(taken.map(refKey));
-  next.planned = next.planned.filter((r) => !takenKeys.has(refKey(r))); // keep original order
-  // Carry each pulled call's priority + note with it (and remove it from next).
-  for (const r of taken) {
-    const pi = next.problems.findIndex((q) => q.title === r.title && q.setupIdx === r.setupIdx);
-    if (pi === -1) continue;
-    const p = next.problems[pi];
-    next.problems.splice(pi, 1);
-    const si = s.problems.findIndex((q) => q.title === r.title && q.setupIdx === r.setupIdx);
-    if (si === -1) s.problems.push({ title: r.title, setupIdx: r.setupIdx, priority: p.priority, note: p.note });
-    else {
-      s.problems[si].priority = Math.max(s.problems[si].priority, p.priority);
-      if (p.note) s.problems[si].note = p.note;
+
+  /** Pull `count` planned calls from the next session's plan into THIS session's plan. */
+  pullForward(sessionIdx: number, count: number): void {
+    const s = this.cls.sessions[sessionIdx];
+    const next = this.cls.sessions[sessionIdx + 1];
+    if (!s || !next || count <= 0) return;
+    const isPrio = (r: CallRef) =>
+      next.problems.some((p) => p.title === r.title && p.setupIdx === r.setupIdx);
+    const prio = next.planned.filter(isPrio);
+    const normal = next.planned.filter((r) => !isPrio(r));
+    const taken: CallRef[] = [];
+    for (const r of [...prio, ...normal]) {
+      if (taken.length >= count) break;
+      if (!hasCallPosition(s, r)) taken.push(r);
+    }
+    const takenKeys = new Set(taken.map(refKey));
+    next.planned = next.planned.filter((r) => !takenKeys.has(refKey(r)));
+    for (const r of taken) {
+      const pi = next.problems.findIndex((q) => q.title === r.title && q.setupIdx === r.setupIdx);
+      if (pi === -1) continue;
+      const p = next.problems[pi];
+      next.problems.splice(pi, 1);
+      const si = s.problems.findIndex((q) => q.title === r.title && q.setupIdx === r.setupIdx);
+      if (si === -1) s.problems.push({ title: r.title, setupIdx: r.setupIdx, priority: p.priority, note: p.note });
+      else {
+        s.problems[si].priority = Math.max(s.problems[si].priority, p.priority);
+        if (p.note) s.problems[si].note = p.note;
+      }
+    }
+    s.planned.push(...taken);
+  }
+
+  /** Set (or clear) a call-setup as prioritised (problem) practice. */
+  setProblem(sessionIdx: number, title: string, setupIdx: number, priority: number, note: string, on: boolean): void {
+    const s = this.cls.sessions[sessionIdx];
+    if (!s) return;
+    const key = refKey({ title, setupIdx });
+    const idx = s.problems.findIndex((p) => p.title === title && p.setupIdx === setupIdx);
+    if (on) {
+      if (idx === -1) s.problems.push({ title, setupIdx, priority, note });
+      else {
+        s.problems[idx].priority = priority;
+        s.problems[idx].note = note;
+      }
+    } else if (idx !== -1) {
+      s.prioritisedArchive ??= {};
+      s.prioritisedArchive[key] = { priority: s.problems[idx].priority, note: s.problems[idx].note };
+      s.problems.splice(idx, 1);
     }
   }
-  s.planned.push(...taken);
-}
 
-/**
- * Set (or clear) a call-setup as prioritised (problem) practice. When `on`, adds
- * or updates its priority and note; when `off`, removes it.
- */
-export function setProblem(
-  cls: ClassInstance,
-  sessionIdx: number,
-  title: string,
-  setupIdx: number,
-  priority: number,
-  note: string,
-  on: boolean,
-): void {
-  const s = cls.sessions[sessionIdx];
-  if (!s) return;
-  const key = refKey({ title, setupIdx });
-  const idx = s.problems.findIndex((p) => p.title === title && p.setupIdx === setupIdx);
-  if (on) {
-    if (idx === -1) s.problems.push({ title, setupIdx, priority, note });
-    else {
-      s.problems[idx].priority = priority;
-      s.problems[idx].note = note;
-    }
-  } else if (idx !== -1) {
-    // Keep the note/priority in the archive in case it's re-prioritised later.
-    s.prioritisedArchive ??= {};
-    s.prioritisedArchive[key] = { priority: s.problems[idx].priority, note: s.problems[idx].note };
-    s.problems.splice(idx, 1);
+  /** The archived note (if any) for a call-setup previously prioritised. */
+  archivedNote(sessionIdx: number, title: string, setupIdx: number): string | undefined {
+    return this.cls.sessions[sessionIdx]?.prioritisedArchive?.[refKey({ title, setupIdx })]?.note;
   }
-}
 
-/** The archived note (if any) for a call-setup that was previously prioritised. */
-export function archivedNote(cls: ClassInstance, sessionIdx: number, title: string, setupIdx: number): string | undefined {
-  return cls.sessions[sessionIdx]?.prioritisedArchive?.[refKey({ title, setupIdx })]?.note;
-}
-
-/** Add a student to the class and to the register of every session (absent by default). */
-export function addStudent(cls: ClassInstance, name: string): void {
-  const trimmed = name.trim();
-  if (!trimmed) return;
-  const nextId = cls.students.length ? Math.max(...cls.students.map((s) => Number(s.id))) + 1 : 1;
-  cls.students.push({ id: String(nextId), name: trimmed });
-  for (const sess of cls.sessions) sess.attendance[String(nextId)] = false;
-}
-
-/** Remove a student from the class and from every session's register. */
-export function removeStudent(cls: ClassInstance, studentId: string): void {
-  cls.students = cls.students.filter((s) => s.id !== studentId);
-  for (const sess of cls.sessions) delete sess.attendance[studentId];
-}
-
-/** Rename a student. */
-export function renameStudent(cls: ClassInstance, studentId: string, name: string): void {
-  const trimmed = name.trim();
-  if (!trimmed) return;
-  const s = cls.students.find((x) => x.id === studentId);
-  if (s) s.name = trimmed;
-}
-
-/** Move the planned call at `plannedIdx` into this session's taught list. */
-export function teachCall(cls: ClassInstance, sessionIdx: number, plannedIdx: number): void {
-  const s = cls.sessions[sessionIdx];
-  if (!s || plannedIdx < 0 || plannedIdx >= s.planned.length) return;
-  const [call] = s.planned.splice(plannedIdx, 1);
-  s.taught.push(call);
-}
-
-/** Move all planned calls of a session into its taught list. */
-export function teachAll(cls: ClassInstance, sessionIdx: number): void {
-  const s = cls.sessions[sessionIdx];
-  if (!s) return;
-  s.taught.push(...s.planned);
-  s.planned = [];
-}
-
-/** Move the taught call at `taughtIdx` back into this session's plan. */
-export function unteachCall(cls: ClassInstance, sessionIdx: number, taughtIdx: number): void {
-  const s = cls.sessions[sessionIdx];
-  if (!s || taughtIdx < 0 || taughtIdx >= s.taught.length) return;
-  const [call] = s.taught.splice(taughtIdx, 1);
-  s.planned.push(call);
-}
-
-/**
- * Which call titles a student knows (taught in a session they attended) and which
- * they have missed (taught in a session they missed, and not known from before).
- */
-export function studentKnowledge(cls: ClassInstance, studentId: string): { known: string[]; missed: string[] } {
-  const known = new Set<string>();
-  const absentTaught = new Set<string>();
-  for (const s of cls.sessions) {
-    const present = !!s.attendance[studentId];
-    for (const ref of s.taught) {
-      if (present) known.add(ref.title);
-      else absentTaught.add(ref.title);
-    }
+  /** Add a student to the class and to every session's register (absent by default). */
+  addStudent(name: string): void {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const nextId = this.cls.students.length ? Math.max(...this.cls.students.map((s) => Number(s.id))) + 1 : 1;
+    this.cls.students.push({ id: String(nextId), name: trimmed });
+    for (const sess of this.cls.sessions) sess.attendance[String(nextId)] = false;
   }
-  const missed = [...absentTaught].filter((t) => !known.has(t)).sort();
-  return { known: [...known].sort(), missed };
-}
 
-/** Priority weight per call title for the given session: current taught + problem setups (all sessions so far). */
-export function priorityWeights(cls: ClassInstance, sessionIdx: number): Map<string, number> {
-  const map = new Map<string, number>();
-  const s = cls.sessions[sessionIdx];
-  if (s) for (const ref of s.taught) map.set(ref.title, (map.get(ref.title) ?? 0) + 2);
-  for (let i = 0; i <= sessionIdx; i++) {
-    for (const p of cls.sessions[i].problems) {
-      map.set(p.title, (map.get(p.title) ?? 0) + p.priority);
-    }
+  /** Remove a student from the class and from every session's register. */
+  removeStudent(studentId: string): void {
+    this.cls.students = this.cls.students.filter((s) => s.id !== studentId);
+    for (const sess of this.cls.sessions) delete sess.attendance[studentId];
   }
-  return map;
+
+  /** Rename a student. */
+  renameStudent(studentId: string, name: string): void {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const s = this.cls.students.find((x) => x.id === studentId);
+    if (s) s.name = trimmed;
+  }
+
+  /** Move the planned call at `plannedIdx` into this session's taught list. */
+  teachCall(sessionIdx: number, plannedIdx: number): void {
+    const s = this.cls.sessions[sessionIdx];
+    if (!s || plannedIdx < 0 || plannedIdx >= s.planned.length) return;
+    const [call] = s.planned.splice(plannedIdx, 1);
+    s.taught.push(call);
+  }
+
+  /** Move all planned calls of a session into its taught list. */
+  teachAll(sessionIdx: number): void {
+    const s = this.cls.sessions[sessionIdx];
+    if (!s) return;
+    s.taught.push(...s.planned);
+    s.planned = [];
+  }
+
+  /** Move the taught call at `taughtIdx` back into this session's plan. */
+  unteachCall(sessionIdx: number, taughtIdx: number): void {
+    const s = this.cls.sessions[sessionIdx];
+    if (!s || taughtIdx < 0 || taughtIdx >= s.taught.length) return;
+    const [call] = s.taught.splice(taughtIdx, 1);
+    s.planned.push(call);
+  }
+
+  /** Which call titles a student knows and which they have missed. */
+  studentKnowledge(studentId: string): { known: string[]; missed: string[] } {
+    const known = new Set<string>();
+    const absentTaught = new Set<string>();
+    for (const s of this.cls.sessions) {
+      const present = !!s.attendance[studentId];
+      for (const ref of s.taught) {
+        if (present) known.add(ref.title);
+        else absentTaught.add(ref.title);
+      }
+    }
+    const missed = [...absentTaught].filter((t) => !known.has(t)).sort();
+    return { known: [...known].sort(), missed };
+  }
+
+  /** Priority weight per call title for the given session. */
+  priorityWeights(sessionIdx: number): Map<string, number> {
+    const map = new Map<string, number>();
+    const s = this.cls.sessions[sessionIdx];
+    if (s) for (const ref of s.taught) map.set(ref.title, (map.get(ref.title) ?? 0) + 2);
+    for (let i = 0; i <= sessionIdx; i++) {
+      for (const p of this.cls.sessions[i].problems) {
+        map.set(p.title, (map.get(p.title) ?? 0) + p.priority);
+      }
+    }
+    return map;
+  }
 }
 
 // ---------------------------------------------------------------- tip generation
 
 /** Teacher-tunable probabilities for tip generation (0..1). */
 export interface TipConfig {
-  /** 0..1 — chance a call already in the tip may be repeated. */
   repeatProb: number;
-  /** 0..1 — chance a priority (current/problem) call is preferred over others. */
   priorityProb: number;
-  /** 0..1 — chance a call newly taught THIS session is preferred. */
   currentProb: number;
-  /** 0..1 — chance a call from PREVIOUS sessions is preferred. */
   prevProb: number;
 }
 
@@ -465,22 +390,15 @@ export interface TipGenOpts {
   count?: number;
   /** Max getout calls used to bring the tip back to the squared set (default 6). */
   getoutMax?: number;
-  /** Probabilities controlling repetition and priority preference. */
   config?: TipConfig;
-  /** Call titles taught in the current (latest) session, for the current/prev mix. */
   current?: Set<string>;
-  /** Per-call weight 0..1 used to bias the pick (higher = more likely). Default 1 for all. */
   callProb?: (title: string) => number;
-  /** Returns a call's family; when provided, a tip avoids two calls of the same family. */
   family?: (title: string) => string;
-  /** Injectable RNG for deterministic testing (default Math.random). */
   rand?: () => number;
-  /** Called after each attempt with how many attempts ran and tips collected so far. */
   onProgress?: (attempts: number, made: number, total: number) => void;
 }
 
-// Weighted random pick: higher `prob` -> more likely. Calls with prob 0 are
-// never picked; if every candidate has weight ~0 it falls back to uniform.
+// Weighted random pick: higher `prob` -> more likely.
 function weightedPick(pool: string[], prob: (title: string) => number, rand: () => number): string {
   const weights = pool.map((n) => Math.max(0, prob(n)));
   const total = weights.reduce((a, b) => a + b, 0);
@@ -493,11 +411,7 @@ function weightedPick(pool: string[], prob: (title: string) => number, rand: () 
   return pool[pool.length - 1];
 }
 
-// Deterministic pick: prefer legal available calls, scored by priority weight,
-// then not-yet-used-in-this-tip, then not-yet-used-in-any-tip.
-// Applicable titles from `available` at the given board (via apply/re-base, not
-// the stricter legalNext pure-motion check — a call is usable if it can be
-// applied, even if it doesn't end in a catalog formation).
+// Applicable titles from `available` at the given board.
 function applicableFrom(seq: Sequencer, board: import('dancing-squared-engine').Board, available: Set<string>): string[] {
   const out: string[] = [];
   for (const name of available) {
@@ -506,9 +420,7 @@ function applicableFrom(seq: Sequencer, board: import('dancing-squared-engine').
   return out;
 }
 
-// Cheap "is ANY available call legal from this board" — stops at the first match
-// instead of evaluating every call (used for the continuation check, which only
-// needs a yes/no, not the full applicable list).
+// Cheap "is ANY available call legal from this board".
 function hasApplicable(seq: Sequencer, board: import('dancing-squared-engine').Board, available: Set<string>): boolean {
   for (const name of available) {
     if (seq.applyToBoard(board, name).legal) return true;
@@ -516,192 +428,154 @@ function hasApplicable(seq: Sequencer, board: import('dancing-squared-engine').B
   return false;
 }
 
-/**
- * Generate `count` practice tips from `seq` (a Sequencer pre-loaded with ONLY the
- * available calls) that start and finish in the squared set. Each tip uses only
- * the available calls, prioritises the highest `priority` calls first and
- * prefers calls that keep the tip going, then closes back to the squared set via
- * a getout (so every tip is a zero). Tips that cannot be brought home are
- * dropped. `seq` should be registered with the available calls so the getout
- * only uses calls the class knows.
- */
-export async function generateTips(
-  seq: Sequencer,
-  available: Set<string>,
-  priority: Map<string, number>,
-  opts: TipGenOpts = {},
-): Promise<string[][]> {
-  const minLen = opts.minLen ?? 4;
-  const maxLen = opts.maxLen ?? 8;
-  const count = opts.count ?? 3;
-  const getoutMax = opts.getoutMax ?? 6;
-  const config = { ...DEFAULT_TIP_CONFIG, ...(opts.config ?? {}) };
-  const rand = opts.rand ?? Math.random;
-  const callProb = opts.callProb ?? (() => 1);
-  const family = opts.family ?? (() => '');
-  const hasFamily = opts.family != null;
-  const onProgress = opts.onProgress ?? (() => {});
-  // The highest-probability calls to actively steer the tip toward. If one starts
-  // from a formation we're not in yet (e.g. "Single Circle Left 1/4" starts from
-  // Facing Couples), the body picker favours calls that set that formation up so
-  // the high-probability call can actually be used.
-  let topCalls: string[] = [];
-  {
-    let maxP = 0;
-    const entries: { n: string; p: number }[] = [];
-    for (const n of available) {
-      const p = callProb(n);
-      if (p > 0.001) {
-        entries.push({ n, p });
-        if (p > maxP) maxP = p;
-      }
-    }
-    topCalls = entries.filter((x) => x.p >= maxP - 0.05).map((x) => x.n);
+/** Generates / edits practice tips for a class using the engine Sequencer. */
+export class TipGenerator {
+  private readonly seq: Sequencer;
+  private readonly available: Set<string>;
+  private readonly priority: Map<string, number>;
+  private readonly opts: TipGenOpts;
+
+  constructor(seq: Sequencer, available: Set<string>, priority: Map<string, number>, opts: TipGenOpts = {}) {
+    this.seq = seq;
+    this.available = available;
+    this.priority = priority;
+    this.opts = opts;
   }
-  const tips: string[][] = [];
-  const usedAny = new Set<string>();
-  // Retry more times than `count`: each attempt is random, and a greedy body
-  // frequently dead-ends on a board with no getout home within the bound, which
-  // would otherwise discard the attempt. Trying several times per tip makes it
-  // far more likely we actually collect `count` closing tips.
-  const attempts = count * 8;
-  let made = 0;
-  for (let t = 0; t < attempts && made < count; t++) {
-    seq.reset(); // start in the squared set
-    const tip: string[] = [];
-    const usedHere = new Set<string>();
-    const usedFamilies = new Set<string>();
-    let guard = 0;
-    while (tip.length < maxLen && guard++ < 300) {
-      const snapshot = seq.startBoard();
-      const candidates = applicableFrom(seq, snapshot, available);
-      if (!candidates.length) break;
-      // Prefer an available call that keeps the tip going (at least one more
-      // available call is applicable afterwards), so we don't dead-end on an
-      // isolated call. Fall back only if nothing continues.
-      const withCont = candidates.filter((name) => {
-        const probe = seq.applyToBoard(snapshot, name);
-        return probe.legal && hasApplicable(seq, probe.board, available);
-      });
-      let pool = withCont.length ? withCont : candidates;
-      // Always include any applicable highest-probability call, even if it doesn't
-      // itself continue — that's the call we want to play (its high probability
-      // weight then makes it dominate the pick).
-      const applicableTop = topCalls.filter((n) => candidates.includes(n));
-      if (applicableTop.length) {
-        pool = [...new Set([...pool, ...applicableTop])];
-      } else if (topCalls.length) {
-        // No top call applicable yet: add candidates that get the formation to one
-        // of their start setups (e.g. leads to Facing Couples). The setupBonus below
-        // then favours them, so the tip can reach a high-probability call.
-        const setup = candidates.filter((n) => {
-          const r = seq.applyToBoard(snapshot, n);
-          return r.legal && topCalls.some((hp) => seq.applyToBoard(r.board, hp).legal);
+
+  /** Generate `count` practice tips that start and finish in the squared set. */
+  async generate(): Promise<string[][]> {
+    const seq = this.seq;
+    const available = this.available;
+    const priority = this.priority;
+    const opts = this.opts;
+    const minLen = opts.minLen ?? 4;
+    const maxLen = opts.maxLen ?? 8;
+    const count = opts.count ?? 3;
+    const getoutMax = opts.getoutMax ?? 6;
+    const config = { ...DEFAULT_TIP_CONFIG, ...(opts.config ?? {}) };
+    const rand = opts.rand ?? Math.random;
+    const callProb = opts.callProb ?? (() => 1);
+    const family = opts.family ?? (() => '');
+    const hasFamily = opts.family != null;
+    const onProgress = opts.onProgress ?? (() => {});
+    let topCalls: string[] = [];
+    {
+      let maxP = 0;
+      const entries: { n: string; p: number }[] = [];
+      for (const n of available) {
+        const p = callProb(n);
+        if (p > 0.001) {
+          entries.push({ n, p });
+          if (p > maxP) maxP = p;
+        }
+      }
+      topCalls = entries.filter((x) => x.p >= maxP - 0.05).map((x) => x.n);
+    }
+    const tips: string[][] = [];
+    const usedAny = new Set<string>();
+    const attempts = count * 8;
+    let made = 0;
+    for (let t = 0; t < attempts && made < count; t++) {
+      seq.reset();
+      const tip: string[] = [];
+      const usedHere = new Set<string>();
+      const usedFamilies = new Set<string>();
+      let guard = 0;
+      while (tip.length < maxLen && guard++ < 300) {
+        const snapshot = seq.startBoard();
+        const candidates = applicableFrom(seq, snapshot, available);
+        if (!candidates.length) break;
+        const withCont = candidates.filter((name) => {
+          const probe = seq.applyToBoard(snapshot, name);
+          return probe.legal && hasApplicable(seq, probe.board, available);
         });
-        if (setup.length) pool = [...new Set([...pool, ...setup])];
-      }
-      // Priority control: on a priority roll, restrict to prioritised calls.
-      if (rand() < config.priorityProb) {
-        const prio = pool.filter((n) => (priority.get(n) ?? 0) > 0);
-        if (prio.length) pool = prio;
-      }
-      // Current/previous mix: bias toward calls taught this session vs earlier.
-      const current = opts.current;
-      if (current && rand() < config.currentProb) {
-        const cur = pool.filter((n) => current.has(n));
-        if (cur.length) pool = cur;
-      }
-      if (current && rand() < config.prevProb) {
-        const prv = pool.filter((n) => !current.has(n));
-        if (prv.length) pool = prv;
-      }
-      // Family rule: don't pick a second call from a family already in this tip
-      // (fall back to same-family only if nothing else continues the tip).
-      if (hasFamily) {
-        const freshFam = pool.filter((n) => !usedFamilies.has(family(n)));
-        if (freshFam.length) pool = freshFam;
-      }
-      // Weighted pick: the per-call probability is the PRIMARY driver (scaled up so
-      // the highest-probability calls are actually chosen), with a smaller bonus for
-      // calls not yet used in this tip / earlier tips so tips stay varied. If a top
-      // probability call isn't applicable from here, a strong bonus goes to any
-      // candidate that moves the formation to that call's start setup (e.g. leads to
-      // Facing Couples), so high-probability calls can be reached. A call set to 0%
-      // probability is never picked.
-      const closeWeight = new Map<string, number>();
-      const setupBonus = new Map<string, number>();
-      const needsSetup = topCalls.length > 0 && !pool.some((n) => topCalls.includes(n));
-      for (const n of pool) {
-        const r = seq.applyToBoard(snapshot, n);
-        closeWeight.set(n, r.legal ? seq.closenessToHome(r.board) : -Infinity);
-        if (needsSetup && r.legal) {
-          for (const hp of topCalls) {
-            if (seq.applyToBoard(r.board, hp).legal) {
-              setupBonus.set(n, 1);
-              break;
+        let pool = withCont.length ? withCont : candidates;
+        const applicableTop = topCalls.filter((n) => candidates.includes(n));
+        if (applicableTop.length) {
+          pool = [...new Set([...pool, ...applicableTop])];
+        } else if (topCalls.length) {
+          const setup = candidates.filter((n) => {
+            const r = seq.applyToBoard(snapshot, n);
+            return r.legal && topCalls.some((hp) => seq.applyToBoard(r.board, hp).legal);
+          });
+          if (setup.length) pool = [...new Set([...pool, ...setup])];
+        }
+        if (rand() < config.priorityProb) {
+          const prio = pool.filter((n) => (priority.get(n) ?? 0) > 0);
+          if (prio.length) pool = prio;
+        }
+        const current = opts.current;
+        if (current && rand() < config.currentProb) {
+          const cur = pool.filter((n) => current.has(n));
+          if (cur.length) pool = cur;
+        }
+        if (current && rand() < config.prevProb) {
+          const prv = pool.filter((n) => !current.has(n));
+          if (prv.length) pool = prv;
+        }
+        if (hasFamily) {
+          const freshFam = pool.filter((n) => !usedFamilies.has(family(n)));
+          if (freshFam.length) pool = freshFam;
+        }
+        const closeWeight = new Map<string, number>();
+        const setupBonus = new Map<string, number>();
+        const needsSetup = topCalls.length > 0 && !pool.some((n) => topCalls.includes(n));
+        for (const n of pool) {
+          const r = seq.applyToBoard(snapshot, n);
+          closeWeight.set(n, r.legal ? seq.closenessToHome(r.board) : -Infinity);
+          if (needsSetup && r.legal) {
+            for (const hp of topCalls) {
+              if (seq.applyToBoard(r.board, hp).legal) {
+                setupBonus.set(n, 1);
+                break;
+              }
             }
           }
         }
+        const combinedProb = (n: string) => {
+          const prob = callProb(n);
+          if (prob <= 0.001) return 0;
+          let s = prob * 8;
+          if (!usedHere.has(n)) s += 1;
+          if (!usedAny.has(n)) s += 0.4;
+          if ((priority.get(n) ?? 0) > 0) s += 0.3;
+          if (setupBonus.get(n)) s += 3;
+          const cl = closeWeight.get(n) ?? 0;
+          if (cl > -Infinity) s += cl * 0.005;
+          return s;
+        };
+        const pick = weightedPick(pool, combinedProb, rand);
+        const step = seq.apply(pick);
+        if (!step.legal) break;
+        tip.push(pick);
+        usedHere.add(pick);
+        if (hasFamily) usedFamilies.add(family(pick));
       }
-      const combinedProb = (n: string) => {
-        const prob = callProb(n);
-        if (prob <= 0.001) return 0;
-        let s = prob * 8; // probability dominates
-        if (!usedHere.has(n)) s += 1;
-        if (!usedAny.has(n)) s += 0.4;
-        if ((priority.get(n) ?? 0) > 0) s += 0.3;
-        if (setupBonus.get(n)) s += 3; // sets up a top-probability call
-        const cl = closeWeight.get(n) ?? 0;
-        if (cl > -Infinity) s += cl * 0.005; // mild bias toward closer-to-home
-        return s;
-      };
-      const pick = weightedPick(pool, combinedProb, rand);
-      const step = seq.apply(pick);
-      if (!step.legal) break;
-      tip.push(pick);
-      usedHere.add(pick);
-      if (hasFamily) usedFamilies.add(family(pick));
-    }
-    // Close the tip back to the squared set (finish in square). If no getout is
-    // found within the bound, discard this tip.
-    const getout = seq.getout({ target: 'Static Square', maxCalls: getoutMax, budget: 15 });
-    if (getout && getout.length) {
-      tip.push(...getout);
-      if (tip.length >= minLen) {
-        tips.push(tip);
-        made++;
-        for (const c of tip) usedAny.add(c);
-
-      } else {
-
+      const getout = seq.getout({ target: 'Static Square', maxCalls: getoutMax, budget: 15 });
+      if (getout && getout.length) {
+        tip.push(...getout);
+        if (tip.length >= minLen) {
+          tips.push(tip);
+          made++;
+          for (const c of tip) usedAny.add(c);
+        }
       }
-    } else {
-
+      await onProgress(t + 1, made, count);
     }
-    // Report progress; an async onProgress hook can repaint the UI between attempts.
-    await onProgress(t + 1, made, count);
+    return tips;
   }
 
-  return tips;
-}
-
-/**
- * Given an existing tip and a selected index, report the applicable calls (from
- * `available`) that could fit BEFORE it (including replacing it) and AFTER it,
- * based on the board state reached by walking the tip from home.
- */
-export function fitsAround(
-  seq: Sequencer,
-  available: Set<string>,
-  tipTitles: string[],
-  index: number,
-): { before: string[]; after: string[] } {
-  seq.reset();
-  for (let i = 0; i < index && i < tipTitles.length; i++) seq.apply(tipTitles[i]);
-  const before = applicableFrom(seq, seq.startBoard(), available).sort();
-  if (index < tipTitles.length) seq.apply(tipTitles[index]);
-  const after = applicableFrom(seq, seq.startBoard(), available).sort();
-  return { before, after };
+  /** Given an existing tip and a selected index, report the calls that could fit
+   * BEFORE it (including replacing it) and AFTER it. */
+  fitsAround(tipTitles: string[], index: number): { before: string[]; after: string[] } {
+    const seq = this.seq;
+    seq.reset();
+    for (let i = 0; i < index && i < tipTitles.length; i++) seq.apply(tipTitles[i]);
+    const before = applicableFrom(seq, seq.startBoard(), this.available).sort();
+    if (index < tipTitles.length) seq.apply(tipTitles[index]);
+    const after = applicableFrom(seq, seq.startBoard(), this.available).sort();
+    return { before, after };
+  }
 }
 
 /** Insert a title into a tip at `index` (before = replace/insert). */
@@ -721,4 +595,70 @@ export function replaceAt(tip: string[], index: number, title: string): string[]
   const out = [...tip];
   if (index < out.length) out[index] = title;
   return out;
+}
+
+// ---------------------------------------------------------------- facades (backward-compatible)
+
+export function availableTitles(cls: ClassInstance, sessionIdx: number): Set<string> {
+  return new TeacherModel(cls).availableTitles(sessionIdx);
+}
+export function rollUntaughtForward(cls: ClassInstance, sessionIdx: number): void {
+  new TeacherModel(cls).rollUntaughtForward(sessionIdx);
+}
+export function rollPrioritisedForward(cls: ClassInstance, sessionIdx: number): number {
+  return new TeacherModel(cls).rollPrioritisedForward(sessionIdx);
+}
+export function missedNote(cls: ClassInstance, sessionIdx: number, ref: CallRef): string {
+  return new TeacherModel(cls).missedNote(sessionIdx, ref);
+}
+export function completeSession(cls: ClassInstance, sessionIdx: number): { movedPlanned: number; carried: number } {
+  return new TeacherModel(cls).completeSession(sessionIdx);
+}
+export function rollMissedCallsForward(cls: ClassInstance, sessionIdx: number): number {
+  return new TeacherModel(cls).rollMissedCallsForward(sessionIdx);
+}
+export function pullForward(cls: ClassInstance, sessionIdx: number, count: number): void {
+  new TeacherModel(cls).pullForward(sessionIdx, count);
+}
+export function setProblem(
+  cls: ClassInstance, sessionIdx: number, title: string, setupIdx: number, priority: number, note: string, on: boolean,
+): void {
+  new TeacherModel(cls).setProblem(sessionIdx, title, setupIdx, priority, note, on);
+}
+export function archivedNote(cls: ClassInstance, sessionIdx: number, title: string, setupIdx: number): string | undefined {
+  return new TeacherModel(cls).archivedNote(sessionIdx, title, setupIdx);
+}
+export function addStudent(cls: ClassInstance, name: string): void {
+  new TeacherModel(cls).addStudent(name);
+}
+export function removeStudent(cls: ClassInstance, studentId: string): void {
+  new TeacherModel(cls).removeStudent(studentId);
+}
+export function renameStudent(cls: ClassInstance, studentId: string, name: string): void {
+  new TeacherModel(cls).renameStudent(studentId, name);
+}
+export function teachCall(cls: ClassInstance, sessionIdx: number, plannedIdx: number): void {
+  new TeacherModel(cls).teachCall(sessionIdx, plannedIdx);
+}
+export function teachAll(cls: ClassInstance, sessionIdx: number): void {
+  new TeacherModel(cls).teachAll(sessionIdx);
+}
+export function unteachCall(cls: ClassInstance, sessionIdx: number, taughtIdx: number): void {
+  new TeacherModel(cls).unteachCall(sessionIdx, taughtIdx);
+}
+export function studentKnowledge(cls: ClassInstance, studentId: string): { known: string[]; missed: string[] } {
+  return new TeacherModel(cls).studentKnowledge(studentId);
+}
+export function priorityWeights(cls: ClassInstance, sessionIdx: number): Map<string, number> {
+  return new TeacherModel(cls).priorityWeights(sessionIdx);
+}
+export async function generateTips(
+  seq: Sequencer, available: Set<string>, priority: Map<string, number>, opts: TipGenOpts = {},
+): Promise<string[][]> {
+  return new TipGenerator(seq, available, priority, opts).generate();
+}
+export function fitsAround(
+  seq: Sequencer, available: Set<string>, tipTitles: string[], index: number,
+): { before: string[]; after: string[] } {
+  return new TipGenerator(seq, available, new Map()).fitsAround(tipTitles, index);
 }

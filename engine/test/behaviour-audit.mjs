@@ -105,9 +105,20 @@ console.log('\n== Per-dancer direction / non-compositional metadata ==');
 console.log('\n== Normalised-state model (spec: all rotations collapse) ==');
 {
   seq.reset();
-  const fs = seq.formationState(seq.board);
-  check(fs !== null && 'rot' in fs, 'formationState returns {name, rot, reflect, ...}', fs && `name=${fs.name} rot=${fs.rot}`);
-  niReport('FSM state keyed on normalised formation (orientation-as-delta)');
+  const homeState = seq.fsmState(seq.board);
+  check(homeState !== null && typeof homeState.key === 'string', 'fsmState returns a normalised formation key', homeState && `key=${homeState.key}`);
+  // A 90-degree-rotated copy of the home square must resolve to the SAME key (orientation removed).
+  const rot = (p, deg) => { const r = deg * Math.PI / 180; return { x: p.x * Math.cos(r) - p.y * Math.sin(r), y: p.x * Math.sin(r) + p.y * Math.cos(r), h: p.heading * 180 / Math.PI + deg }; };
+  const rotated90 = seq.startBoard().dancers.map((d) => { const q = rot(d, 90); return { ...d, x: q.x, y: q.y, heading: q.h * Math.PI / 180 }; });
+  const rotState = seq.fsmState({ dancers: rotated90 });
+  check(rotState !== null && rotState.key === homeState.key, '90deg-rotated square resolves to the SAME normalised key', `home=${homeState && homeState.key} rot=${rotState && rotState.key}`);
+  // Orientation delta between home and a 90deg rotation = +2 eighth-steps (90deg CCW).
+  const delta = seq.fsmOrientationDelta(seq.startBoard(), { dancers: rotated90 });
+  check(delta === 2, 'orientation delta home->90deg rotation = +2 eighth-steps', String(delta));
+  // A 45deg rotation gives +1.
+  const rotated45 = seq.startBoard().dancers.map((d) => { const q = rot(d, 45); return { ...d, x: q.x, y: q.y, heading: q.h * Math.PI / 180 }; });
+  const delta45 = seq.fsmOrientationDelta(seq.startBoard(), { dancers: rotated45 });
+  check(delta45 === 1, 'orientation delta home->45deg rotation = +1 eighth-step', String(delta45));
 }
 
 console.log('\n== FSM user-amendment / export + ledger ==');

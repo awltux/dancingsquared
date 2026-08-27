@@ -14,6 +14,8 @@ import { HomeSolver } from './solver.js';
 import { Grouping } from './grouping.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { analyzeFasr } from './fasr.js';
+import { normalisedState, ORIENTATION_STEP } from './fsm.js';
+import { STANDARD_FORMATIONS } from './constants.js';
 import type { Matchable } from './match.js';
 import type { Board, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep, VariantMatch } from './types.js';
 import type { CallBundle } from '../types.js';
@@ -193,6 +195,48 @@ export class Sequencer {
 
   fasr(): Fasr {
     return analyzeFasr(this.board, this.recognize(this.board).name);
+  }
+
+  // ---- normalised FSM state & orientation delta ----
+
+  /** The normalised FSM state of a board: the formation name with orientation
+   * removed (all rotations of a shape collapse to one state). Returns null when
+   * the board matches no standard formation. */
+  fsmState(board: Board = this.board): { key: string; rot: number } | null {
+    const matchables = this.matcher.matchables(board);
+    return normalisedState(this.library.getNamedFormations(), matchables, STANDARD_FORMATIONS);
+  }
+
+  /** The orientation delta (in 45-degree/eighth-turn steps) from a start board to
+   * an end board, computed from the dancers' actual heading change (the true set
+   * rotation, independent of formation symmetry). Positive is counter-clockwise.
+   * Returns null when the two boards resolve to different normalised formations
+   * or when no dancer heading change can be measured. */
+  fsmOrientationDelta(start: Board, end: Board): number | null {
+    const s = this.fsmState(start);
+    const e = this.fsmState(end);
+    if (!s || !e || s.key !== e.key) return null;
+    const byId = (b: Board) => new Map(b.dancers.filter((d) => !d.isGhost).map((d) => [d.id, d]));
+    const sm = byId(start);
+    const em = byId(end);
+    let sum = 0;
+    let count = 0;
+    for (const [id, sd] of sm) {
+      const ed = em.get(id);
+      if (!ed) continue;
+      let d = ed.heading - sd.heading;
+      d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      if (d > Math.PI) d -= 2 * Math.PI;
+      sum += d;
+      count++;
+    }
+    if (count === 0) return null;
+    return Math.round((sum / count) / ORIENTATION_STEP);
+  }
+
+  /** One orientation step in radians (45 degrees), for callers computing deltas. */
+  orientationStepRad(): number {
+    return ORIENTATION_STEP;
   }
 
   // ---- sequence animation & analysis ----

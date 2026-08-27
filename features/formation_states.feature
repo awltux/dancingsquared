@@ -65,3 +65,26 @@ Feature: Formation States and FSM Structure
     When the next call transition is about to be applied
     Then the transition must consume the canonical start matrix
     And the resulting end matrix must become the new current state's canonical matrix
+
+  @bind:matchFormations @bind:getUniqueFormations
+  Scenario: Adding a new formation to the FSM from its geometry alone
+    Given a user wants to add a formation that is not yet on the valid-formation list
+    When the user supplies the formation's dancer coordinates and headings
+    Then the FSM must add it as a new state carrying its geometry, home-identity mapping, and orientation steps
+    And it must not be required to provide a getout or call-validity checks at the moment it is added
+    # Engine: the new formation enters the FSM by its shape (dancer positions/headings);
+    #          getout and call-validity remain deferred until later verified or amended.
+
+  @bind:matchFormations @bind:getUniqueFormations
+  Scenario: Deferring getout and call checks on a newly added formation
+    Given a formation has just been added to the FSM from its geometry alone
+    When the engine later checks whether a getout or any valid call exists from it
+    Then those checks must be allowed to return empty while the formation is still being filled in
+    And the formation must not be treated as a verified, callable state until those checks are satisfied
+
+  @bind:matchFormations @bind:getUniqueFormations
+  Scenario: Recording a newly added formation in the change ledger
+    Given a new formation has been added to the FSM
+    When the FSM records the change
+    Then the ledger must note the added formation with its author, timestamp, geometry, and the user's reason
+    And the change must be exported along with the rest of the FSM snapshot and delta ledger

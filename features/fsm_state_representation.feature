@@ -95,3 +95,55 @@ Feature: FSM State Representation and Build-Time Enumeration
     Given a call from a formation ends in an unrecognised formation, has no getout, or collides
     When the build-time enumerator runs
     Then it must not add that call to the formation's outgoing edge set
+
+  # ---- user amendment of the FSM ----
+
+  @bind:applyToBoard @bind:getout @bind:collisions @bind:legalCalls
+  Scenario: Amending the FSM with a call a user knows is valid
+    Given a user knows a call is valid from a particular formation even though the build-time enumerator did not list it
+    When the user amends the FSM to add that transition
+    Then the amendment must be accepted only if applying the call lands in a recognised formation
+    And the amended end formation must still have at least one valid getout to home
+    And the amendment must be rejected if it would collide dancers or dead-end with no getout
+    # Engine: the same checks the build-time step uses — applyToBoard, knownFormation,
+    #          getout, collisions — gate a manual override so it can never introduce an
+    #          illegal or dead-end transition.
+
+  @bind:applyToBoard @bind:getout @bind:collisions
+  Scenario: Rejecting an amendment that would create an illegal transition
+    Given a user proposes an amendment whose end formation is unrecognised, collides, or has no getout
+    When the FSM applies the proposed override
+    Then the amendment must be rejected rather than silently added to the live FSM
+
+  @bind:legalCalls
+  Scenario: Recording an accepted amendment in the change ledger
+    Given a user amendment passes the validity checks and is accepted
+    When the FSM records the change
+    Then the ledger must note the added (formation, call) edge with its author, timestamp, before-after values, and the user's reason
+    And the runtime engine must now select that call as a legal continuation from the formation
+
+  # ---- export and change ledger ----
+
+  @bind:getUniqueFormations @bind:legalCalls
+  Scenario: Exporting the FSM as a full snapshot plus a delta ledger
+    Given the FSM holds the full set of states and transitions, some of which are user amendments and new formations
+    When the user submits the FSM for integration with the master copy
+    Then the export must contain a complete snapshot of the current FSM states and edges
+    And it must be accompanied by a delta ledger of every change since the baseline
+    And the ledger must record for each change its author, timestamp, target, before-after values, and reason
+    # Engine: the snapshot reflects the current state set (getUniqueFormations) and edges;
+    #          the delta ledger is the change log the engine maintains as the FSM is amended.
+
+  @bind:legalCalls
+  Scenario: The delta ledger covers amendments, new formations, and removals
+    Given the change ledger tracks every modification to the FSM
+    When an amendment, a newly added formation, or a removal is made
+    Then each such change must appear in the ledger with its before-after values
+    And a removal must record the removed target and why it was removed
+
+  @bind:getUniqueFormations @bind:legalCalls
+  Scenario: Exporting the snapshot and ledger as a machine-readable submission
+    Given a user requests to submit the FSM to the master copy
+    When the export is produced
+    Then the snapshot and the delta ledger must be serialised in a machine-readable format suitable for review and import by the master
+    And the submission must let a reviewer see exactly which changes are user-authored versus build-time defaults

@@ -13,6 +13,7 @@ import { SequenceAnalyzer } from './sequence.js';
 import { HomeSolver } from './solver.js';
 import { Grouping } from './grouping.js';
 import { FsmStore, type FsmAmendment } from './fsm-store.js';
+import { buildFsmExport, type FsmExport } from './fsm-export.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { HOME_DANCERS } from './identity.js';
 import { matchFormations } from './match.js';
@@ -269,6 +270,23 @@ export class Sequencer {
 
   clearAmendments(): void {
     this.fsmStore.clear();
+  }
+
+  /** Export the FSM as a full snapshot plus a delta ledger, for submission to a
+   * master copy. States are the unique normalised formations; build-time edges
+   * come from the current legal transition table, and amendments are the user
+   * changes. */
+  exportFsm(): FsmExport {
+    const states = this.library.getUniqueFormations().map((f) => f.name);
+    const buildEdges = (formation: string) => {
+      const board = this.syntheticBoard(formation);
+      if (!board) return [];
+      return this.legalCalls(board).map((call) => {
+        const res = this.applicator.applyToBoard(board, call);
+        return { call, endFormation: res.legal ? this.matcher.knownFormation(res.board) : null };
+      });
+    };
+    return buildFsmExport(states, buildEdges, this.fsmStore.all());
   }
 
   /** Build a synthetic board sitting in the named formation (for amendment

@@ -145,7 +145,20 @@ console.log('\n== FSM user-amendment / export + ledger ==');
   // An unknown call must be rejected by validation.
   const bad = seq.amendTransition('Static Square', 'No Such Call XYZ');
   check(bad.ok === false, 'amendTransition rejects an inapplicable call', bad.reason ?? 'rejected');
-  niReport('FSM snapshot + delta ledger export');
+
+  // Add a fresh amendment so the exported ledger has an entry.
+  if (accepted) seq.amendTransition('Static Square', accepted);
+
+  // FSM snapshot + delta ledger export.
+  const exp = seq.exportFsm();
+  check(Array.isArray(exp.snapshot) && exp.snapshot.length > 0, 'exportFsm produces a snapshot', `states=${exp.snapshot.length}`);
+  check(Array.isArray(exp.ledger) && exp.ledger.length >= 1, 'exportFsm includes a delta ledger with amendments', `changes=${exp.ledger.length}`);
+  check(typeof exp.meta.edgeCount === 'number', 'exportFsm reports edge count', `edges=${exp.meta.edgeCount}`);
+  const hasAmendmentEdge = exp.snapshot.some((st) => st.edges.some((e) => e.source === 'amendment'));
+  check(hasAmendmentEdge, 'snapshot marks user amendments distinctly from build edges');
+  // Must serialise to JSON (machine-readable).
+  try { JSON.stringify(exp); check(true, 'exportFsm is JSON-serialisable'); }
+  catch { check(false, 'exportFsm is JSON-serialisable'); }
 }
 
 console.log('\n== Getout / getin / module ==');

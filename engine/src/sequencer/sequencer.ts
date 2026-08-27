@@ -15,7 +15,7 @@ import { Grouping } from './grouping.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { analyzeFasr } from './fasr.js';
 import type { Matchable } from './match.js';
-import type { Board, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep } from './types.js';
+import type { Board, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep, VariantMatch } from './types.js';
 import type { CallBundle } from '../types.js';
 
 export { assignHomeIdentity } from './identity.js';
@@ -129,6 +129,38 @@ export class Sequencer {
     const variants = this.library.getVariants(name);
     if (!variants) return [];
     return variants.map((v) => v.dancers.map((d) => this.library.variantMatchable(d)));
+  }
+
+  // ---- library introspection (passthroughs) ----
+
+  hasCall(name: string): boolean {
+    return this.library.hasCall(name);
+  }
+
+  getVariants(name: string): CallBundle[] | undefined {
+    return this.library.getVariants(name);
+  }
+
+  getUniqueFormations(): { name: string; dancers: Matchable[] }[] {
+    return this.library.getUniqueFormations();
+  }
+
+  // ---- matcher introspection (passthroughs) ----
+
+  findMatchingVariant(board: Board, callName: string, maxError: number): VariantMatch | null {
+    return this.matcher.findMatchingVariant(board, callName, maxError);
+  }
+
+  knownFormation(board: Board): string | null {
+    return this.matcher.knownFormation(board);
+  }
+
+  snapBoard(board: Board): Board {
+    return this.matcher.snapBoard(board);
+  }
+
+  matchesNamed(board: Board, name: string): boolean {
+    return this.matcher.matchesNamed(board, name);
   }
 
   // ---- legality ----

@@ -122,8 +122,31 @@ console.log('\n== Normalised-state model (spec: all rotations collapse) ==');
 }
 
 console.log('\n== FSM user-amendment / export + ledger ==');
-niReport('FSM user amendment of transitions');
-niReport('FSM snapshot + delta ledger export');
+{
+  seq.reset();
+  // Try the legal-from-home calls until one actually passes the amendment checks
+  // (end in a recognised formation AND has a getout AND no collision). The point
+  // is that the accept path works for a genuinely valid amendment.
+  const candidates = [...seq.legalCalls(seq.startBoard())];
+  let accepted = null;
+  let lastReason = '';
+  for (const c of candidates) {
+    const r = seq.amendTransition('Static Square', c);
+    if (r.ok) { accepted = c; break; }
+    lastReason = r.reason ?? '';
+  }
+  check(accepted !== null, 'amendTransition accepts at least one valid call from Static Square', accepted ?? lastReason);
+  if (accepted) {
+    check(seq.isAmended('Static Square', accepted), 'isAmended true after amend');
+    check(seq.getAmendments().length >= 1, 'getAmendments returns the amendment', `n=${seq.getAmendments().length}`);
+    check(seq.removeAmendment('Static Square', accepted), 'removeAmendment removes it');
+    check(!seq.isAmended('Static Square', accepted), 'isAmended false after remove');
+  }
+  // An unknown call must be rejected by validation.
+  const bad = seq.amendTransition('Static Square', 'No Such Call XYZ');
+  check(bad.ok === false, 'amendTransition rejects an inapplicable call', bad.reason ?? 'rejected');
+  niReport('FSM snapshot + delta ledger export');
+}
 
 console.log('\n== Getout / getin / module ==');
 {

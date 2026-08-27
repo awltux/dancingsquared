@@ -12,10 +12,13 @@ import { LegalityChecker } from './legality.js';
 import { SequenceAnalyzer } from './sequence.js';
 import { HomeSolver } from './solver.js';
 import { Grouping } from './grouping.js';
+import { FsmStore, type FsmAmendment } from './fsm-store.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
+import { HOME_DANCERS } from './identity.js';
+import { matchFormations } from './match.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
-import { STANDARD_FORMATIONS } from './constants.js';
+import { STANDARD_FORMATIONS, canonicalName } from './constants.js';
 import type { Matchable } from './match.js';
 import type { Board, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep, VariantMatch } from './types.js';
 import type { CallBundle } from '../types.js';
@@ -33,6 +36,7 @@ export class Sequencer {
   private readonly analyzer: SequenceAnalyzer;
   private readonly solver: HomeSolver;
   private readonly grouping: Grouping;
+  private readonly fsmStore: FsmStore;
 
   constructor(movesXml: string, formationsXml: string, calls: { name: string; xml: string }[] = []) {
     this.library = new CallLibrary(movesXml, formationsXml);
@@ -42,6 +46,7 @@ export class Sequencer {
     this.analyzer = new SequenceAnalyzer(this.library, this.matcher, this.applicator, this.config);
     this.solver = new HomeSolver(this.library, this.matcher, this.applicator, this.legality, this.config);
     this.grouping = new Grouping(this.applicator);
+    this.fsmStore = new FsmStore(this.applicator, this.matcher, this.solver);
     this.board = makeSquaredSet();
     for (const c of calls) {
       try {
@@ -237,6 +242,59 @@ export class Sequencer {
   /** One orientation step in radians (45 degrees), for callers computing deltas. */
   orientationStepRad(): number {
     return ORIENTATION_STEP;
+  }
+
+  // ---- FSM user amendment ----
+
+  /** Try to add a user amendment marking `call` as valid from `formation`. The
+   * amendment is validated (end lands in a recognised formation, a getout exists,
+   * no collision) before it is accepted. Returns {ok, reason}. */
+  amendTransition(formation: string, call: string): { ok: boolean; reason?: string; amendment?: FsmAmendment } {
+    const board = this.syntheticBoard(formation);
+    if (!board) return { ok: false, reason: `Unknown formation: ${formation}` };
+    return this.fsmStore.amend(formation, call, board);
+  }
+
+  isAmended(formation: string, call: string): boolean {
+    return this.fsmStore.isAmended(formation, call);
+  }
+
+  getAmendments(): FsmAmendment[] {
+    return this.fsmStore.all();
+  }
+
+  removeAmendment(formation: string, call: string): boolean {
+    return this.fsmStore.remove(formation, call);
+  }
+
+  clearAmendments(): void {
+    this.fsmStore.clear();
+  }
+
+  /** Build a synthetic board sitting in the named formation (for amendment
+   * validation). Assigns home identity (id/couple/gender) by matching the
+   * formation's geometry to the home square so the getout search can resolve it. */
+  private syntheticBoard(formation: string): Board | null {
+    const f = this.library.getNamedFormations().find((x) => x.name === canonicalName(formation));
+    if (!f) return null;
+    const home = HOME_DANCERS;
+    const m = matchFormations(
+      f.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading })),
+      home.map((h) => ({ x: h.x, y: h.y, heading: h.heading })),
+    );
+    return {
+      dancers: f.dancers.map((d, i) => {
+        const id = m ? home[m.mapping[i]] : null;
+        return {
+          id: id ? id.id : i + 1,
+          couple: id ? id.couple : ((i >> 1) % 4) + 1,
+          gender: id ? id.gender : 'boy',
+          x: d.x,
+          y: d.y,
+          heading: d.heading,
+        };
+      }),
+    };
   }
 
   // ---- sequence animation & analysis ----

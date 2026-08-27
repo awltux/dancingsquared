@@ -186,6 +186,44 @@ export class Sequencer {
     return this.legality.parallelLegalCalls(board);
   }
 
+  // ---- equivalent-call substitution ----
+
+  /** Calls that are choreographically equivalent to `call` from `board`: they are
+   * legal from the board AND reach the same end formation. Each equivalent
+   * remains a SEPARATE edge (they are not merged) — this is the set a resolver
+   * can substitute to widen a getout/getin search. */
+  equivalentCalls(board: Board, call: string): string[] {
+    const baseRes = this.applicator.applyToBoard(board, call);
+    if (!baseRes.legal) return [];
+    const baseEnd = this.matcher.knownFormation(baseRes.board);
+    if (baseEnd === null) return [];
+    const out: string[] = [];
+    for (const name of this.library.callNames()) {
+      if (name === call) continue;
+      const res = this.applicator.applyToBoard(board, name);
+      if (!res.legal) continue;
+      if (this.matcher.knownFormation(res.board) === baseEnd) out.push(name);
+    }
+    return out;
+  }
+
+  // ---- generative-prefix expansion ----
+
+  /** Concrete calls in a generative-prefix family, e.g. "anything_and_roll" maps
+   * to the registered calls whose file base name carries that prefix. Each
+   * concrete member is a distinct transition. Returns [] when the prefix is not
+   * registered. */
+  expandGenerativePrefix(prefix: string): string[] {
+    const canonical = canonicalName(prefix);
+    const names: string[] = [];
+    for (const name of this.library.callNames()) {
+      // Match the family: the call's registered name equals the prefix, or starts
+      // with "<prefix>_" (e.g. "anything_and_roll", "anything_and_cross").
+      if (name === canonical || name.startsWith(canonical + '_')) names.push(name);
+    }
+    return names;
+  }
+
   // ---- recognition & FASR ----
 
   isAt(name: string, board: Board = this.board): boolean {

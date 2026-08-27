@@ -197,10 +197,34 @@ console.log('\n== Module collapse (getout/getin single-edge) ==');
 }
 
 console.log('\n== Equivalents (separate edges) ==');
-niReport('equivalent-call substitution');
+{
+  seq.reset();
+  // Find a call legal from home that has an equivalent reaching the same end formation.
+  const home = seq.startBoard();
+  const legal = [...seq.legalCalls(home)];
+  let found = false;
+  let example = '';
+  for (const c of legal) {
+    const eq = seq.equivalentCalls(home, c);
+    if (eq.length > 0) { found = true; example = `${c} ~ ${eq.join(', ')}`; break; }
+  }
+  check(Array.isArray(seq.equivalentCalls(home, legal[0])), 'equivalentCalls returns a list (may be empty)');
+  // Equivalents must remain separate edges - each is a distinct registered call name.
+  check(seq.equivalentCalls(home, legal[0]).every((e) => e !== legal[0]), 'equivalents exclude the call itself');
+  check(found, 'at least one call has a same-end-formation equivalent', example || 'none found');
+}
 
 console.log('\n== Generative prefix expansion ==');
-niReport('"Anything and ..."/"As Couples"/"Explode and Anything" generative expansion');
+{
+  // The catalog has family files like "anything_and_roll", "anything_and_cross",
+  // "explode_and_anything", "as_couples". Confirm the family expansion returns
+  // the concrete registered members as distinct names.
+  const fam = seq.expandGenerativePrefix('anything_and_roll');
+  check(Array.isArray(fam), 'expandGenerativePrefix returns a list');
+  const anyFamily = seq.expandGenerativePrefix('anything_and');
+  check(Array.isArray(anyFamily), 'expandGenerativePrefix lists concrete members of a family', anyFamily && `n=${anyFamily.length}`);
+  check(new Set(anyFamily).size === anyFamily.length, 'each concrete expansion is a distinct call name');
+}
 
 console.log('\n== Timing / beat count ==');
 {

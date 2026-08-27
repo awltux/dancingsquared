@@ -10,7 +10,7 @@ import { CallApplicator } from './applicator.js';
 import { CallLibrary } from './library.js';
 import { LegalityChecker } from './legality.js';
 import { SequencerConfig } from './config.js';
-import { KNOWN_FORMATION_MAX } from './constants.js';
+import { KNOWN_FORMATION_MAX, canonicalName } from './constants.js';
 import { makeSquaredSet, cloneBoard, boardSig } from './board.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, SeqDancer } from './types.js';
@@ -36,12 +36,12 @@ export class HomeSolver {
   /** Search for a sequence of legal calls that ends in the target formation
    * (default: a squared set). Returns the call path or null. */
   getout(board: Board, opts: { target?: string; maxCalls?: number; budget?: number } = {}): string[] | null {
-    const target = opts.target ?? 'Static Square';
+    const target = canonicalName(opts.target ?? 'Static Square');
     const maxCalls = opts.maxCalls ?? 5;
     const budget = opts.budget ?? 400;
     this.canGetoutMemo.clear();
 
-    const isHomeTarget = target === 'Static Square' || target === 'Squared Set';
+    const isHomeTarget = target === 'Static Square';
     if (isHomeTarget) {
       const rigid = this.rigidSingleCallGetout(board);
       if (rigid && this.verifyInteractivePath(board, rigid, target)) return rigid;
@@ -216,8 +216,9 @@ export class HomeSolver {
   /** Whether `board` counts as "reaching" the getout target. For the home target
    * this additionally requires the board to reproduce the start/home FASR. */
   private reachesTarget(board: Board, target: string): boolean {
-    if (!this.matcher.matchesNamed(board, target)) return false;
-    if (target === 'Static Square') return fasrKey(board) === homeFasrKey();
+    const canonical = canonicalName(target);
+    if (!this.matcher.matchesNamed(board, canonical)) return false;
+    if (canonical === 'Static Square') return fasrKey(board) === homeFasrKey();
     return true;
   }
 
@@ -245,7 +246,7 @@ export class HomeSolver {
 
   /** The legal calls from the current board that keep a getout alive. */
   fixIt(board: Board, opts: { target?: string; depth?: number } = {}): string[] {
-    const target = opts.target ?? 'Static Square';
+    const target = canonicalName(opts.target ?? 'Static Square');
     const depth = opts.depth ?? 3;
     this.canGetoutMemo.clear();
     return this.legality.legalCalls(board).filter((name) => {
@@ -257,7 +258,7 @@ export class HomeSolver {
   /** Search for a sequence of legal calls that takes the set FROM home INTO the
    * target formation — the mirror companion of `getout`. */
   getin(_board: Board, opts: { target?: string; maxCalls?: number; budget?: number } = {}): string[] | null {
-    const target = opts.target ?? 'Facing Couples';
+    const target = canonicalName(opts.target ?? 'Facing Couples');
     const maxCalls = opts.maxCalls ?? 5;
     const budget = opts.budget ?? 400;
     const home = makeSquaredSet();

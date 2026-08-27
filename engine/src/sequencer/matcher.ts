@@ -7,7 +7,7 @@
 import { matchFormations, type FormationMatch, type Matchable } from './match.js';
 import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
-import { DEFAULT_MATCH_MAX, KNOWN_FORMATION_MAX, STANDARD_FORMATIONS } from './constants.js';
+import { DEFAULT_MATCH_MAX, KNOWN_FORMATION_MAX, STANDARD_FORMATIONS, canonicalName } from './constants.js';
 import type { Board, RecognizedFormation, VariantMatch } from './types.js';
 
 export class FormationMatcher {
@@ -68,7 +68,8 @@ export class FormationMatcher {
 
   /** Whether a board matches the named formation (by tolerant matching). */
   matchesNamed(board: Board, name: string): boolean {
-    const f = this.library.getNamedFormations().find((x) => x.name === name);
+    const canonical = canonicalName(name);
+    const f = this.library.getNamedFormations().find((x) => x.name === canonical);
     if (!f || f.dancers.length !== board.dancers.length) return false;
     return matchFormations(this.matchables(board), f.dancers) !== null;
   }

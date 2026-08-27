@@ -155,3 +155,13 @@ Feature: Formation States and FSM Structure
     When the engine checks whether the current board is at that start formation
     Then the board must be recognised as that topology within tolerance before the call is legal
     And calls that do not start from that topology must be rejected
+
+  @bind:canonicalName @bind:matchesNamed @bind:getout @bind:getin
+  Scenario: Recognising synonymous names for the same formation
+    Given the catalog names the same geometry under two different names, such as "Squared Set" and "Static Square"
+    When a caller or the solver uses either name for a formation
+    Then the engine must treat them as the SAME formation
+    And a getout, getin, or "is at formation" query must behave identically for either synonym
+    # Engine: constants.ts FORMATION_SYNONYMS maps aliases to a canonical name; canonicalName is
+    #          applied in the solver (getout/getin/fixIt targets) and matcher.matchesNamed, so
+    #          passing either "Squared Set" or "Static Square" gives consistent results.

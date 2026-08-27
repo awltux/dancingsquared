@@ -33,3 +33,18 @@ export const STANDARD_FORMATIONS = [
   'Two-Faced Lines',
   'Ocean Waves RH',
 ];
+
+// Synonym table for formation names: every key is an alias that canonicalises to
+// its value. The catalog sometimes names the same geometry differently (e.g.
+// "Squared Set" and "Static Square" are identical); callers and the solver can
+// pass either and get consistent behaviour.
+export const FORMATION_SYNONYMS: Record<string, string> = {
+  'Squared Set': 'Static Square',
+};
+
+/** Resolve a formation (or call) name to its canonical form. Non-aliases pass
+ * through unchanged, so this is safe to apply to any name. */
+export function canonicalName(name: string): string {
+  return FORMATION_SYNONYMS[name] ?? name;
+}
+

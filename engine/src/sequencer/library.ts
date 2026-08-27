@@ -17,6 +17,12 @@ import type { CallBundle } from '../types.js';
 // identified; user-defined modules (registerModule) are handled separately.
 const CURATED_MODULE_CALLS: string[] = ['Running Bear'];
 
+// Calls that are NON-COMPOSITIONAL: their behaviour is not the sum of their parts
+// (they may depend on the direction the dancer last turned, carried in metadata).
+// Such calls cannot be collapsed into a single matrix, and any MODULE containing
+// one also cannot be collapsed. Extend this list as such calls are identified.
+const NON_COMPOSITIONAL_CALLS: string[] = [];
+
 export class CallLibrary {
   private readonly variants: Map<string, CallBundle[]> = new Map();
   private readonly modules: Map<string, string[]> = new Map(); // module name -> call names
@@ -70,6 +76,12 @@ export class CallLibrary {
   isModule(name: string): boolean {
     const canonical = canonicalName(name);
     return this.modules.has(canonical) || CURATED_MODULE_CALLS.includes(canonical);
+  }
+
+  /** Whether a call is non-compositional (not the sum of its parts; may depend on
+   * remembered turn direction). Such calls cannot be collapsed into a matrix. */
+  isNonCompositional(name: string): boolean {
+    return NON_COMPOSITIONAL_CALLS.includes(canonicalName(name));
   }
 
   getModules(): Module[] {

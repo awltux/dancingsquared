@@ -17,6 +17,7 @@ import { buildFsmExport, type FsmExport } from './fsm-export.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { HOME_DANCERS } from './identity.js';
 import { matchFormations } from './match.js';
+import { mul5, dancerMatrix, type Mat5 } from '../matrix.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, canonicalName } from './constants.js';
@@ -313,6 +314,42 @@ export class Sequencer {
         };
       }),
     };
+  }
+
+  // ---- module collapse ----
+
+  /** Whether a module can be collapsed into a single composed transformation for a
+   * given start formation: the module must exist, its start must be a recognised
+   * formation, and NONE of its constituent calls may be non-compositional. */
+  moduleCollapsible(module: string, startFormation: string): boolean {
+    const calls = this.library.getModule(module);
+    if (!calls || calls.length === 0) return false;
+    if (calls.some((c) => this.library.isNonCompositional(c))) return false;
+    return this.syntheticBoard(startFormation) !== null;
+  }
+
+  /** Collapse a module into a single per-dancer composed matrix for the given
+   * start formation, by replaying the sequence and composing each dancer's
+   * start->end matrix via mul5. Returns null when not collapsible. The composed
+   * matrices are keyed by dancer id. */
+  collapseModule(module: string, startFormation: string): { matrices: Map<number, Mat5>; endFormation: string | null } | null {
+    if (!this.moduleCollapsible(module, startFormation)) return null;
+    const calls = this.library.getModule(module)!;
+    let board = this.syntheticBoard(startFormation)!;
+    const startById = new Map(board.dancers.map((d) => [d.id, d]));
+    for (const c of calls) {
+      const res = this.applicator.applyToBoard(board, c);
+      if (!res.legal) return null;
+      board = res.board;
+    }
+    const endById = new Map(board.dancers.map((d) => [d.id, d]));
+    const matrices = new Map<number, Mat5>();
+    for (const [id, sd] of startById) {
+      const ed = endById.get(id);
+      if (!ed) continue;
+      matrices.set(id, dancerMatrix(sd.x, sd.y, sd.heading, ed.x, ed.y, ed.heading));
+    }
+    return { matrices, endFormation: this.matcher.knownFormation(board) };
   }
 
   // ---- sequence animation & analysis ----

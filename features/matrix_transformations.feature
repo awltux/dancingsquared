@@ -47,9 +47,12 @@ Feature: Matrix Transformations of Formation States
     When the engine precomputes the module's composed matrix
     Then the module must be usable as ONE transformation from that start formation instead of a chain of separate calls
     And getouts and getins must be able to treat that single transformation as a single step when computing reachability
+    And this single-edge collapse MUST NOT be applied when the module contains a non-compositional call
     # Engine: the module's constituent matrices compose via mul5 into one 5x5 for the start
     #          formation; solver.getout/getin can then consider it as one edge, cheaper than
-    #          replaying each constituent call.
+    #          replaying each constituent call. But if any constituent call is non-compositional
+    #          (depends on remembered turn direction / is not the sum of its parts), the module
+    #          cannot be collapsed and must be replayed call-by-call.
 
   @bind:poseFor @bind:snapBoard @bind:knownFormation
   Scenario: Reaching an end formation needs a tolerance over the Bézier end pose

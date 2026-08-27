@@ -91,6 +91,16 @@ Feature: Transition Probability, Flow and Selection
     Then it must combine the static desirability, the runtime flow, and the family-repeat adjustment
     And any call with zero effective weight must not be selected
 
+  @bind:parallelLegalCalls @bind:matchFormationsAll @bind:setSelectionMode @bind:setRandomSource
+  Scenario: A whole-set parallel transition is weighed as one edge
+    Given a call applies concurrently across several disjoint sub-formations of the set
+    When the engine computes the effective weight of that whole-set transition
+    Then the static desirability, runtime flow, and family-repeat adjustment must all be evaluated over the combined whole-set outcome
+    And the parallel call must be selected as a single edge in proportion to that one combined weight
+    And it must never be selected per sub-formation independently
+    # Engine: parallelLegalCalls yields one {name, board} per whole-set transition; selection
+    #          ranks whole-set edges, so the parallel transition competes as one weighted edge.
+
   @bind:setSelectionMode @bind:setRandomSource @bind:legalCalls
   Scenario: Selecting among available calls with randomness
     Given multiple outgoing calls have positive effective weight

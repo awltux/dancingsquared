@@ -42,6 +42,15 @@ Feature: Sub-Formation Splitting and Concurrency
     And no dancer may be reused across two copies
     # Engine: matchFormationsAll packs disjoint subsets; parallelLegalCalls applies to all copies.
 
+  @bind:parallelLegalCalls @bind:matchFormationsAll
+  Scenario: A whole-set parallel transition carries one combined weight
+    Given a call applies concurrently across several disjoint sub-formations of the set
+    When the engine ranks this as a candidate next transition
+    Then the whole-set transition must carry exactly ONE desirability weight, not one per sub-group
+    And that single weight must be derived from the combined outcome of all sub-calls applied together
+    # Engine: parallelLegalCalls returns one {name, board} per whole-set transition; the
+    #          combined end board (not each sub-group in isolation) is what gets weighed.
+
   @bind:parallelLegalCalls
   Scenario: Requiring a clean even partition for parallel action
     Given the set cannot be partitioned into equal, disjoint copies of a call's start setup

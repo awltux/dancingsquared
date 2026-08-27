@@ -30,8 +30,69 @@ export class Grouping {
         const ends = [sides[0][0], sides[1][1]];
         return group === 'centers' ? [sortIds(centers.map((id) => byId.get(id)!))] : [sortIds(ends.map((id) => byId.get(id)!))];
       }
+      case 'beaus': case 'belles': return this.beauBelle(ds, group);
+      case 'leaders': case 'trailers': return this.leadersTrailers(ds, group);
       default: return null;
     }
+  }
+
+  /** Positional role within each couple: the dancer on the LEFT relative to the
+   * couple's shared facing is the beau; the dancer on the RIGHT is the belle.
+   * Couples are found by home couple (id grouping). Recomputed from current
+   * position/facing, independent of gender. */
+  private beauBelle(
+    ds: SeqDancer[],
+    role: 'beaus' | 'belles',
+  ): number[][] | null {
+    const coupleNos = [...new Set(ds.map((d) => d.couple))];
+    const out: number[] = [];
+    for (const c of coupleNos) {
+      const pair = ds.filter((d) => d.couple === c);
+      if (pair.length !== 2) continue;
+      const [a, b] = pair;
+      // Left direction in the dancer's frame: rotate heading 90deg CW.
+      const h = a.heading;
+      const leftX = Math.sin(h);
+      const leftY = -Math.cos(h);
+      // Which of a,b lies to the left of the other.
+      const va = { x: a.x - b.x, y: a.y - b.y };
+      const cross = va.x * leftY - va.y * leftX;
+      const beau = cross >= 0 ? a : b;
+      const belle = beau === a ? b : a;
+      out.push(role === 'beaus' ? beau.id : belle.id);
+    }
+    return out.length ? [[...out].sort((a, b) => a - b)] : null;
+  }
+
+  /** Positional role in a tandem (front/back pair sharing a travel axis): the
+   * dancer in front (leading) is the leader; the one behind is the trailer.
+   * Determined by which dancer is ahead along the shared heading. */
+  private leadersTrailers(
+    ds: SeqDancer[],
+    role: 'leaders' | 'trailers',
+  ): number[][] | null {
+    // Group by approximate heading axis so front/back pairs are within a tandem.
+    const dir = (h: number) => {
+      let d = ((h * 180) / Math.PI) % 360;
+      if (d < 0) d += 360;
+      return d < 180 ? 0 : 180; // facing along +x (0) or -x (180) after normalization
+    };
+    const buckets = new Map<number, SeqDancer[]>();
+    for (const d of ds) {
+      const axis = dir(d.heading);
+      if (!buckets.has(axis)) buckets.set(axis, []);
+      buckets.get(axis)!.push(d);
+    }
+    const out: number[] = [];
+    for (const [, arr] of buckets) {
+      if (arr.length < 2) continue;
+      const sorted = [...arr].sort((x, y) => x.x - y.x);
+      for (let i = 0; i < sorted.length - 1; i++) {
+        const front = role === 'leaders' ? sorted[i] : sorted[i + 1];
+        out.push(front.id);
+      }
+    }
+    return out.length ? [[...out].sort((a, b) => a - b)] : null;
   }
 
   /** Parallel-action: apply a call to each disjoint subset of a named group

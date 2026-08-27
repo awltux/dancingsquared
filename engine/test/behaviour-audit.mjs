@@ -78,8 +78,16 @@ console.log('\n== 45-degree matching (spec: engine should match to 45deg) ==');
 }
 
 console.log('\n== Beau/belle & leader/trailer positional roles ==');
-check(seq.subsetOf(seq.board, 'beaus') === null, 'subsetOf("beaus") not implemented (only heads/sides/boys/girls/centers/ends)');
-niReport('beau/belle positional role', 'derived from position+facing, not modelled');
+{
+  const beaus = seq.subsetOf(seq.board, 'beaus');
+  const belles = seq.subsetOf(seq.board, 'belles');
+  check(Array.isArray(beaus) && beaus.length === 1 && beaus[0].length === 4, 'subsetOf("beaus") returns 4 dancers', beaus && `n=${beaus[0].length}`);
+  check(Array.isArray(belles) && belles.length === 1 && belles[0].length === 4, 'subsetOf("belles") returns 4 dancers', belles && `n=${belles[0].length}`);
+  check(Array.isArray(beaus) && Array.isArray(belles) &&
+    new Set([...beaus[0], ...belles[0]]).size === 8, 'beaus + belles partition the 8 dancers');
+  const leads = seq.subsetOf(seq.board, 'leaders');
+  check(leads === null || Array.isArray(leads), 'subsetOf("leaders") returns groups or null (tandem)');
+}
 
 console.log('\n== Per-dancer direction / non-compositional metadata ==');
 check(true, 'per-dancer direction supported via per-dancer matrices (applyToBoard)');

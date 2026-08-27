@@ -42,3 +42,13 @@ Feature: Home Identity, Heads and Sides
     Then the call must only apply when the board's boy/girl arrangement aligns with the setup's gender slots
     And the call must be rejected if the genders are swapped on an otherwise identical geometry
     # Engine: matchFormations with requireGender=true enforces gender-compatible mapping.
+
+  @bind:matchFormations @bind:assignHomeIdentity
+  Scenario: Distinguishing the beau and belle roles within a couple
+    Given a call designates the beau or the belle of each couple rather than a head/side or a gender
+    When the engine must decide which dancer each role refers to
+    Then it must derive the beau/belle role from the dancer's position and facing within the couple
+    And a call addressed to the beaux must act on the left-hand dancer of each couple and the belles on the right-hand dancer
+    And the role must be recomputed for the current couple orientation, not from home identity
+    # Engine: beau/belle is a positional role (left/right within the couple) derived from heading,
+    #          distinct from assignHomeIdentity's id/couple; matching must respect it.

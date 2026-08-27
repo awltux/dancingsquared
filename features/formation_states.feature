@@ -104,3 +104,28 @@ Feature: Formation States and FSM Structure
     When the FSM records the change
     Then the ledger must note the added formation with its author, timestamp, geometry, and the user's reason
     And the change must be exported along with the rest of the FSM snapshot and delta ledger
+
+  @bind:findMatchingVariant @bind:variantStarts @bind:applyToBoard
+  Scenario: Resolving the correct variant when a call name has definitions per start formation
+    Given a call such as one covered by the Facing Couples Rule may be defined differently from facing couples than from another setup
+    When the engine is asked to apply that call from the current board
+    Then it must select the variant whose start setup matches the current formation
+    And it must use that variant's own end formation rather than a generic definition for the call name
+    # Engine: findMatchingVariant picks the variant (variantStarts) whose setup matches the board,
+    #          so the same name can yield different end formations from different start formations.
+
+  @bind:formationState @bind:matchFormations
+  Scenario: Distinguishing a wrong-way star from a normal star
+    Given a formation is a star or thar whose dancers circulate in the direction opposite to the held hand
+    When the FSM identifies the formation state
+    Then it must treat the wrong-way star as a distinct (formation, orientation) state from its normal counterpart
+    And the direction of circulation must be part of how the state is recognised, not inferred later
+
+  @bind:formationState @bind:matchFormations @bind:findMatchingVariant
+  Scenario: Distinguishing one-faced from two-faced lines
+    Given a line of dancers may face a single direction (one-faced) or opposite directions as couples (two-faced)
+    When the FSM decides which calls are legal from that line
+    Then the one-faced and two-faced arrangements MUST be distinct states even if their dancers sit at the same positions
+    And calls such as "Bend the Line" must only be legal from the arrangement they actually require
+    # Engine: formationState / findMatchingVariant distinguish by facing (heading), so a two-faced
+    #          line and a one-faced line with coincident dancers are different states.

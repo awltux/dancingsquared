@@ -122,3 +122,13 @@ Feature: FSM Transitions Between Formation Matrices
     # all eight orientations are distinct regardless of the formation's rotational symmetry.
     # The edge table stays small because transitions are shared across orientations via the
     # rotation-delta (rotation-equivariance), not by collapsing states.
+
+  @bind:registerModule @bind:flatten @bind:applyToBoard
+  Scenario: Expanding a generative prefix into concrete call transitions
+    Given a prefix such as "Anything and Roll", "As Couples", or "Explode and Anything" is combined with a base call
+    When the engine must produce the concrete transition
+    Then it must expand the generative prefix over the base call into each concrete call as a distinct transition
+    And each concrete expansion must be its own legal edge with its own end formation
+    # Engine: a generative prefix is not a single call; it yields a family of concrete calls.
+    #          registerModule/flatten model the expansion, and each concrete call is applied via
+    #          applyToBoard as its own deterministic transition.

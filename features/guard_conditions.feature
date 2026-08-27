@@ -35,3 +35,13 @@ Feature: Guard Conditions for Call Preconditions
     When the transition validation routine runs
     Then the system must block the transition, prevent execution, and flag the specific unmet prerequisite condition
     # Engine: applyToBoard returns {legal:false, reason} when the start setup does not match.
+
+  @bind:computeHandholds @bind:matchFormations
+  Scenario: Deriving a wave's handedness from which hands are connected
+    Given a line of dancers forms a wave where adjacent dancers hold hands
+    When the engine determines the wave's handedness
+    Then it must derive right-hand or left-hand handedness from the connected hands, not from the formation name alone
+    And a right-hand wave and a left-hand wave must be recognised as distinct states
+    And calls that require a specific handed wave must be gated on that derived handedness
+    # Engine: computeHandholds(poses) returns the connected-hand edges; the wave's RH/LH
+    #          handedness is derived from those edges and used to select the applicable variant.

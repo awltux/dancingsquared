@@ -84,3 +84,21 @@ Feature: Matrix Transformations of Formation States
     When the call is requested
     Then the engine must reject the transition before mutating the dancer-state matrix
     # Engine: matcher.findMatchingVariant / matchFormations rejects the mismatch before apply.
+
+  @bind:applyToBoard @bind:flatten
+  Scenario: Treating a non-compositional call as one atomic transformation
+    Given a call is defined non-compositionally, so its behaviour is not the sum of its named parts
+    When the engine applies the call
+    Then it must use the call's own authored end transformation, not reconstruct it from its name or parts
+    And it must not assume the call's matrix equals the composition of the matrices of its implied sub-calls
+    # Engine: each call is applied via its own applyToBoard end result; the FSM must not
+    #          substitute a compositional reconstruction for a call that is defined directly.
+
+  @bind:applyToBoard @bind:dancerMatrix @bind:apply5
+  Scenario: Applying a call with a different direction for each dancer
+    Given a call specifies a direction that may differ per dancer (e.g. beaux vs belles, or a run where dancers turn opposite ways)
+    When the call is applied
+    Then the engine must compute a per-dancer transform, not assume a single shared direction
+    And each dancer must still reach its unique deterministic end state
+    # Engine: applyToBoard applies a per-dancer matrix (dancerMatrix) for each dancer, so
+    #          mixed directions within one call are supported as long as each is deterministic.

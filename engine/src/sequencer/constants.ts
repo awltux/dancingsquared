@@ -42,9 +42,14 @@ export const FORMATION_SYNONYMS: Record<string, string> = {
   'Squared Set': 'Static Square',
 };
 
-/** Resolve a formation (or call) name to its canonical form. Non-aliases pass
- * through unchanged, so this is safe to apply to any name. */
+// Synonym table for CALL names: every key is an alias that resolves to the
+// canonical registered call name. Extend as alternate spellings/names are found.
+export const CALL_SYNONYMS: Record<string, string> = {};
+
+/** Resolve a name to its canonical form (checking call and formation synonyms
+ * in turn). Non-aliases pass through unchanged, so this is safe to apply to any
+ * name. */
 export function canonicalName(name: string): string {
-  return FORMATION_SYNONYMS[name] ?? name;
+  return CALL_SYNONYMS[name] ?? FORMATION_SYNONYMS[name] ?? name;
 }
 

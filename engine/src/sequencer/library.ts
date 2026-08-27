@@ -7,6 +7,7 @@ import { DEG } from '../core.js';
 import { buildCall, parseCallXml, parseFormations, parseMoves } from '../convert.js';
 import { matchFormations, type Matchable } from './match.js';
 import { assignHomeIdentity, normAngle } from './identity.js';
+import { canonicalName } from './constants.js';
 import type { Module } from './types.js';
 import type { CallBundle } from '../types.js';
 
@@ -55,11 +56,11 @@ export class CallLibrary {
   // ---- registration ----
 
   register(name: string, xml: string): void {
-    this.variants.set(name, this.loadVariants(xml));
+    this.variants.set(canonicalName(name), this.loadVariants(xml));
   }
 
   registerModule(name: string, calls: string[]): void {
-    this.modules.set(name, [...calls]);
+    this.modules.set(canonicalName(name), calls.map((c) => canonicalName(c)));
   }
 
   listModules(): string[] {
@@ -67,7 +68,8 @@ export class CallLibrary {
   }
 
   isModule(name: string): boolean {
-    return this.modules.has(name) || CURATED_MODULE_CALLS.includes(name);
+    const canonical = canonicalName(name);
+    return this.modules.has(canonical) || CURATED_MODULE_CALLS.includes(canonical);
   }
 
   getModules(): Module[] {
@@ -77,7 +79,7 @@ export class CallLibrary {
   // ---- read accessors ----
 
   hasCall(name: string): boolean {
-    return this.variants.has(name);
+    return this.variants.has(canonicalName(name));
   }
 
   callNames(): IterableIterator<string> {
@@ -85,7 +87,7 @@ export class CallLibrary {
   }
 
   getVariants(name: string): CallBundle[] | undefined {
-    return this.variants.get(name);
+    return this.variants.get(canonicalName(name));
   }
 
   moduleNames(): IterableIterator<string> {
@@ -93,11 +95,11 @@ export class CallLibrary {
   }
 
   hasModule(name: string): boolean {
-    return this.modules.has(name);
+    return this.modules.has(canonicalName(name));
   }
 
   getModule(name: string): string[] | undefined {
-    return this.modules.get(name);
+    return this.modules.get(canonicalName(name));
   }
 
   getNamedFormations(): { name: string; dancers: Matchable[] }[] {
@@ -113,11 +115,12 @@ export class CallLibrary {
     const out: string[] = [];
     const expand = (names: string[], stack: string[]): void => {
       for (const n of names) {
-        if (this.modules.has(n)) {
-          if (stack.includes(n)) continue; // cycle guard
-          expand(this.modules.get(n)!, [...stack, n]);
+        const canonical = canonicalName(n);
+        if (this.modules.has(canonical)) {
+          if (stack.includes(canonical)) continue; // cycle guard
+          expand(this.modules.get(canonical)!, [...stack, canonical]);
         } else {
-          out.push(n);
+          out.push(canonical);
         }
       }
     };

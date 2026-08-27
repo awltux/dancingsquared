@@ -136,3 +136,13 @@ Feature: FSM Transitions Between Formation Matrices
     # Engine: a generative prefix is not a single call; it yields a family of concrete calls.
     #          registerModule/flatten model the expansion, and each concrete call is applied via
     #          applyToBoard as its own deterministic transition.
+
+  @bind:registerModule @bind:flatten @bind:applyToBoard @bind:hasCall @bind:getVariants
+  Scenario: Resolving a call-name synonym to its canonical registered call
+    Given a call may be referenced by an alternate name or spelling for the same movement
+    When a caller or a module requests the call by its synonym
+    Then the engine must resolve it to the canonical registered call and apply that call
+    And lookups such as "is a known call" and "get this call's variants" must treat the synonym as the canonical name
+    # Engine: CALL_SYNONYMS in constants.ts maps aliases to canonical names; canonicalName is
+    #          applied in the library's hasCall/getVariants/register/flatten, so a synonym is
+    #          applied and flattened exactly as its canonical call.

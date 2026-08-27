@@ -29,7 +29,7 @@ export * from './sequencer/types.js';
 export { matchFormations, matchFormationsAll } from './sequencer/match.js';
 export type { FormationMatch, Matchable } from './sequencer/match.js';
 export { analyzeFasr } from './sequencer/fasr.js';
-export { canonicalName, FORMATION_SYNONYMS } from './sequencer/constants.js';
+export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS } from './sequencer/constants.js';
 
 // Call editor: synthesize missing setups by padding core moves.
 export {

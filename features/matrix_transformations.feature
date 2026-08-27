@@ -32,6 +32,23 @@ Feature: Matrix Transformations of Formation States
     And this must agree with applying M1 then M2 step by step
     # Engine: matrix.ts mul5 composes two 5x5 matrices.
 
+  @bind:mul5 @bind:apply5 @bind:flatten @bind:registerModule
+  Scenario: A module is a sequence of call transforms from one formation to another
+    Given a module is a named sequence of calls authored to run from a specific start formation to a specific end formation
+    When the module is applied from that start state
+    Then it must transform the start formation into exactly that end formation
+    And the whole sequence must be expressible as the composition of its constituent call matrices
+
+  @bind:mul5 @bind:apply5 @bind:flatten @bind:getout @bind:getin
+  Scenario: Collapsing a module into a single transformation for its start formation
+    Given a module runs from a known start formation to a known end formation
+    When the engine precomputes the module's composed matrix
+    Then the module must be usable as ONE transformation from that start formation instead of a chain of separate calls
+    And getouts and getins must be able to treat that single transformation as a single step when computing reachability
+    # Engine: the module's constituent matrices compose via mul5 into one 5x5 for the start
+    #          formation; solver.getout/getin can then consider it as one edge, cheaper than
+    #          replaying each constituent call.
+
   @bind:fitRigidMatrix @bind:mul5 @bind:identity5 @bind:matrixGetout
   Scenario: Using the inverse matrix for a getout fast-path
     Given a call is rigid and self-inverse, so its matrix M satisfies M·M = identity

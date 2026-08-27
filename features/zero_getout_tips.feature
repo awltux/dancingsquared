@@ -60,3 +60,12 @@ Feature: Zeros, Getouts and Tips
     Then it must expand to its constituent calls, cycle-guarded against self-reference
     And the module is legal only if every constituent call is legal from the state it is reached at
     # Engine: library.flatten expands modules cycle-guarded; registerModule/isModule.
+
+  @bind:getout @bind:getin @bind:flatten @bind:mul5
+  Scenario: Using a module as a single edge when computing a getout or getin
+    Given a module is defined from a known start formation to a known end formation
+    When the getout or getin search is considering paths through that formation
+    Then the module must be usable as one transition rather than replayed call-by-call
+    And the search must still verify the module's end formation and that it stays legal
+    # Engine: the module's composed matrix (mul5) lets solver.getout/getin treat it as one
+    #          step, while the resulting end formation is still validated.

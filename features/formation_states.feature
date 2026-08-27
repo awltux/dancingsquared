@@ -36,9 +36,11 @@ Feature: Formation States and FSM Structure
 
   Scenario: Distinguishing states that differ only by absolute orientation
     Given a formation state is settled with the set oriented to the north
-    When the identical structural formation is oriented to the east
+    When the identical structural formation is oriented to a different compass step
     Then the FSM must treat them as two distinct states because orientation is part of state identity
+    And orientation must be quantised to 45-degree (1/8-rotation) steps, giving eight distinct orientations
     And both states must share the same structural equivalence class for guard-condition purposes
+
 
   Scenario: Normalising a state to its canonical matrix for matching
     Given a state matrix may be translated, rotated, or reflected relative to its default template

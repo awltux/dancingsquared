@@ -46,6 +46,20 @@ Feature: FSM Transitions Between Formation Matrices
     And heads/sides designations must continue to refer to the original home couples, not to whichever couples now occupy the compass positions
 
   Scenario: Recording the orientation delta of a transition
-    Given a call is applied and the set rotates by some multiple of 90 degrees
+    Given a call is applied and the set rotates by some multiple of 45 degrees
     When the transition is recorded
-    Then the edge must capture the net orientation delta so the FSM can reconstruct absolute heading states
+    Then the edge must capture the net orientation delta at 45-degree granularity so the FSM can reconstruct absolute heading states
+
+  Scenario: Supporting 45-degree (1/8-rotation) orientation granularity
+    Given the FSM encodes orientation as one of eight compass steps at 45-degree intervals
+    When a move that rotates the set by an eighth of a turn is applied
+    Then the orientation component of the state must advance by one 45-degree step
+    And the orientation id must encode all eight steps (for example, a 3-bit orientation id)
+    And a move with no net rotation must leave the orientation id unchanged
+
+  Scenario: A 45-degree rotation lands on a distinct orientation state
+    Given a formation state is settled at a canonical orientation
+    When a call rotates the set by 45 degrees
+    Then the resulting state must differ from the original in its orientation component
+    And the structural formation template must remain the same
+

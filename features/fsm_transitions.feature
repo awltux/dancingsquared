@@ -27,6 +27,16 @@ Feature: FSM Transitions Between Formation Matrices
     # Engine: applicator.applyToBoard(board, call) computes the end board; matrix.ts
     #          dancerMatrix/dancerMatricesById yield the per-dancer affine maps.
 
+  @bind:applyToBoard @bind:matchFormations @bind:dancerMatrix @bind:apply5
+  Scenario: The transformation and end formation are expressed in the board's dancer frame
+    Given a call is authored against a formation's canonical position order, which may differ from the board's dancer order
+    When the call is applied to the board
+    Then the engine must re-base the canonical start, the transformation matrix, and the end formation into the board's own dancer order
+    And the mapping from board dancer to canonical position must be applied consistently to the start, the transform, and the end
+    And the resulting end board must carry each dancer to the position its identity reaches, not the canonical position's index
+    # Engine: findMatchingVariant yields the mapping; applyWholeBoard uses variant.dancers[mapping[i]]
+    #          and rebasedPose so start, matrix, and end all follow the board's dancer order.
+
   @bind:matchFormations @bind:formationState
   Scenario: Applying the same call from a rotated start state produces a rotated end state
     Given a start state S and a 90-degree-rotated copy S_rot of the same structural formation

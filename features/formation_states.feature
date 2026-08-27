@@ -59,6 +59,22 @@ Feature: Formation States and FSM Structure
     And any rotation/reflection that is NOT part of the state identity must be normalised away before matching
     # Engine: matcher.snapBoard clamps onto canonical slots while preserving id/couple/gender.
 
+  @bind:matchFormations
+  Scenario: The static formation's position order need not match the board's dancer order
+    Given a formation's canonical definition lists its dancers in a fixed order of positions
+    When the board places the same dancers in a different order, such as couple 1 not occupying positions 1 and 2
+    Then the engine must not assume the formation's position order equals the board's dancer order
+    And it must match by geometry and identity, deriving a mapping from each board dancer to its canonical position
+    # Engine: matchFormations returns mapping[boardIdx] = candidateIdx, so the canonical
+    #          position order and the board dancer order can differ freely.
+
+  @bind:matchFormations
+  Scenario: Matching a static formation to the board without trusting position order
+    Given a board's dancers are permuted relative to a formation's canonical position list
+    When the engine determines whether the board is at that formation state
+    Then it must still recognise the state through order-independent matching
+    And the resulting mapping must be used to align the transformation to the board's actual dancer order
+
   @bind:dancerMatrix @bind:apply5
   Scenario: Reusing the canonical matrix to seed the next transition
     Given the FSM is settled in a state node whose canonical matrix is cached

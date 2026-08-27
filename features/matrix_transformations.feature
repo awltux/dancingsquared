@@ -49,6 +49,26 @@ Feature: Matrix Transformations of Formation States
     #          formation; solver.getout/getin can then consider it as one edge, cheaper than
     #          replaying each constituent call.
 
+  @bind:poseFor @bind:snapBoard @bind:knownFormation
+  Scenario: Reaching an end formation needs a tolerance over the Bézier end pose
+    Given a call's end pose is computed from taminations Bézier curves
+    When the engine decides which formation the dancers have reached
+    Then it must accept the computed end pose as landing in a formation within a matching tolerance, not require an exact hit
+    And within tolerance it must snap the end pose onto the recognised formation's canonical slots
+    # Engine: poseFor evaluates the Bézier end pose; knownFormation accepts it within
+    #          KNOWN_FORMATION_MAX + config.matchMargin; snapBoard clamps onto slots within
+    #          config.snapMaxError. Exact equality is never required.
+
+  @bind:knownFormation @bind:snapBoard @bind:matchFormations
+  Scenario: The end-formation tolerance also covers the next call's start match
+    Given a call's computed end formation is the start formation of the following call
+    When the engine checks whether the next call's start setup matches that end state
+    Then the match must succeed within the configured matching tolerance, not require an exact pose match
+    And a near-exact continuation such as "Circle Left" into "Circle Right" must be accepted within tolerance
+    # Engine: the next call's setup is matched via matchFormations with DEFAULT_MATCH_MAX +
+    #          config.matchMargin (interactive) or SEARCH_MATCH_MAX (search), so a small pose
+    #          drift from the Bézier end is tolerated rather than rejected.
+
   @bind:fitRigidMatrix @bind:mul5 @bind:identity5 @bind:matrixGetout
   Scenario: Using the inverse matrix for a getout fast-path
     Given a call is rigid and self-inverse, so its matrix M satisfies M·M = identity

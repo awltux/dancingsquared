@@ -60,6 +60,16 @@ Feature: FSM Transitions Between Formation Matrices
     And the sequence must be rejected if any call has no outgoing edge from the current state
     # Engine: Sequencer.apply(name) applies one call and returns {legal, board, formation}.
 
+  @bind:apply @bind:legalCalls @bind:matchFormations @bind:setMatchMargin
+  Scenario: The walk tolerates small drift when matching the next call's start formation
+    Given the dancers reach the end of one call only approximately on the next call's canonical start formation
+    When the engine decides whether the next call is legal from that state
+    Then it must accept the next call if its start setup matches within the configured matching tolerance
+    And a natural continuation such as "Circle Left" into "Circle Right" must remain legal despite the small end-pose drift
+    # Engine: legalCalls gates each step via matchFormations with DEFAULT_MATCH_MAX +
+    #          config.matchMargin; Sequencer.setMatchMargin() widens/narrows that tolerance, so
+    #          near-exact end states (e.g. circle to circle) are accepted rather than rejected.
+
   @bind:assignHomeIdentity
   Scenario: Preserving identity across a transition
     Given each dancer carries a fixed home identity (id and home couple) stamped at the start of the tip

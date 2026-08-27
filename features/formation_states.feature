@@ -14,8 +14,10 @@ Feature: Formation States and FSM Structure
     Given two sets of dancers are arranged in identical wave structures but oriented toward different compass points
     When the state identification algorithm processes both sets
     Then both configurations must resolve to the same abstract structural equivalence class
-    # The structural template is the same; only the orientation component differs, so the FSM
-    # state (formation, orientation) differs but shares the template for guard matching.
+    # Template vs state: a formation TEMPLATE is the abstract structural equivalence class (shape
+    # + facing), shared by both boards. The FSM STATE is the normalised formation keyed on that
+    # template. They are distinct concepts: the template describes the shape; the state is the
+    # template's place in the FSM. Orientation is carried by the transition delta, not by the state.
 
   @bind:legalCalls @bind:applyToBoard
   Scenario: Mapping valid start and end conditions for standard formations
@@ -137,6 +139,15 @@ Feature: Formation States and FSM Structure
     And a call authored for a specific topology must only apply when that topology is the current state
     # Engine: recognition matches each named formation's geometry (matchFormations/formationState),
     #          so diamond, hourglass, T-bone, butterfly, etc. are distinct templates in the library.
+
+  @bind:matchFormations @bind:snapBoard
+  Scenario: Matching a formation at any 45-degree orientation offset
+    Given a board is at a formation whose orientation is offset from the template by a multiple of 45 degrees
+    When the engine recognises the formation state
+    Then the matcher must accept an orientation offset of 45, 90, 135, 180, 225, 270, or 315 degrees
+    And it must not be limited to 90-degree rotations when deciding the board is at that formation
+    # Engine requirement: matchFormations must try 45-degree rotation steps (not just the 90-degree
+    #          ROTS=[0,90,180,270] today), so a 45-degree-offset board still normalises to the same state.
 
   @bind:matchFormations @bind:formationState @bind:getUniqueFormations
   Scenario: A topology may be required as the start formation of a call

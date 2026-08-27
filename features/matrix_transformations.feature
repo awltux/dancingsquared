@@ -4,9 +4,11 @@ Feature: Matrix Transformations of Formation States
   So that applying a call is an exact, orientation-aware map from one formation state to another, and the same transformation composes cleanly
 
   Background:
-    Given each formation state is represented as a matrix whose rows are the eight dancers' (x, y, cos-heading, sin-heading) state vectors
+    Given each formation state is represented as a matrix whose rows are the dancers' (x, y, cos-heading, sin-heading) state vectors
     And a call is an affine transformation over that matrix (rotation + translation for position, rotation for heading)
     And the transformation is deterministic given the start state
+    # Default scope is the standard eight-dancer set, but the same matrix model extends to irregular
+    # sets (fewer dancers / uneven groups); the engine defaults to eight and adapts when needed.
 
   @bind:poseToVec @bind:apply5
   Scenario: Representing a formation as a dancer-state matrix
@@ -91,6 +93,9 @@ Feature: Matrix Transformations of Formation States
     When the engine applies the call
     Then it must use the call's own authored end transformation, not reconstruct it from its name or parts
     And it must not assume the call's matrix equals the composition of the matrices of its implied sub-calls
+    # Some calls depend on the direction each dancer last turned, which is carried in the call's
+    # metadata rather than inferable from the current geometry alone. The engine must honour that
+    # remembered turn direction from the metadata when applying the non-compositional call.
     # Engine: each call is applied via its own applyToBoard end result; the FSM must not
     #          substitute a compositional reconstruction for a call that is defined directly.
 

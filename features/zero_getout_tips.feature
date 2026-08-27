@@ -95,5 +95,6 @@ Feature: Zeros, Getouts and Tips
     When the engine seeks a getout or a resolution
     Then it must be able to substitute the equivalent call and treat it as interchangeable for the purpose of resolution
     And the substituted call must still be legal and reach the same end state as the call it replaces
-    # Engine: recognising equivalents lets the resolver try a simpler call that reaches the same
-    #          end formation, widening the getout/getin search without changing the outcome.
+    # Engine: equivalents remain SEPARATE FSM edges. They are not merged, because the resolver must
+    #          know which concrete call is used to know which path was taken. Substitution widens the
+    #          search; it does not collapse the two calls into one edge.

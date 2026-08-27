@@ -52,3 +52,5 @@ Feature: Home Identity, Heads and Sides
     And the role must be recomputed for the current couple orientation, not from home identity
     # Engine: beau/belle is a positional role (left/right within the couple) derived from heading,
     #          distinct from assignHomeIdentity's id/couple; matching must respect it.
+    # OPEN QUESTION (needs investigation): how head/side (home couple), gender, and beau/belle roles
+    #          interact when a call uses more than one, and which is authoritative in a conflict.

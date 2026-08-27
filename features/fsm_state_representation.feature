@@ -26,6 +26,9 @@ Feature: FSM State Representation and Build-Time Enumeration
     When the engine attempts to assign it an FSM state
     Then it must reject the configuration as not being a valid FSM state
     And it must not silently coerce it into a different valid formation
+    # "Not silently coerce" means: do NOT reassign a genuinely different shape onto a valid
+    # formation. Snapping a NEAR-EXACT pose onto the nearest formation's slots is allowed (see
+    # matrix_transformations tolerance scenarios); coercing a distinct shape is not.
 
   # ---- compact encoding ----
 

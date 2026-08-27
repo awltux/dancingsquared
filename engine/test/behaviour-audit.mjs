@@ -194,6 +194,8 @@ console.log('\n== Module collapse (getout/getin single-edge) ==');
   // A module containing a non-compositional call must NOT be collapsible.
   // (The registry is empty by default, so simulate by checking the guard exists.)
   check(typeof seq.moduleCollapsible === 'function', 'non-compositional guard exists (moduleCollapsible checks isNonCompositional)');
+  // The collapsed-module fast-path is wired into the getout search.
+  check(typeof seq.setUseCollapsedModules === 'function' && seq.getout({ maxCalls: 2 }) !== undefined, 'collapsed-module fast-path wired into getout (setUseCollapsedModules exists)');
 }
 
 console.log('\n== Equivalents (separate edges) ==');
@@ -212,6 +214,11 @@ console.log('\n== Equivalents (separate edges) ==');
   // Equivalents must remain separate edges - each is a distinct registered call name.
   check(seq.equivalentCalls(home, legal[0]).every((e) => e !== legal[0]), 'equivalents exclude the call itself');
   check(found, 'at least one call has a same-end-formation equivalent', example || 'none found');
+  // Equivalents are wired into the search (config flag controls it).
+  check(typeof seq.setUseEquivalents === 'function', 'equivalents wired into search (setUseEquivalents exists)');
+  seq.setUseEquivalents(false);
+  check(typeof seq.getout({ maxCalls: 2 }) !== 'undefined', 'getout still runs with equivalents disabled');
+  seq.setUseEquivalents(true);
 }
 
 console.log('\n== Generative prefix expansion ==');

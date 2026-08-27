@@ -21,6 +21,14 @@ export class SequencerConfig {
    * more than one matches a call. */
   selectionMode: 'best' | 'probabilistic' = 'best';
 
+  /** Whether the getout/getin/fixIt SEARCH also considers calls that are
+   * equivalent to each candidate (same end formation), widening the search. */
+  useEquivalents = true;
+
+  /** Whether the getout search uses a collapsed-module fast-path (a module that
+   * is rigid and self-inverse from home returns home in one step). */
+  useCollapsedModules = true;
+
   /** Injectable random source for the probabilistic selection (tests). */
   rand: () => number = Math.random;
 }

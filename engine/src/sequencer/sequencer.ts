@@ -107,6 +107,14 @@ export class Sequencer {
     this.config.rand = fn;
   }
 
+  setUseEquivalents(on: boolean): void {
+    this.config.useEquivalents = on;
+  }
+
+  setUseCollapsedModules(on: boolean): void {
+    this.config.useCollapsedModules = on;
+  }
+
   // ---- board state ----
 
   reset(): void {

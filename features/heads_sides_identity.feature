@@ -52,5 +52,34 @@ Feature: Home Identity, Heads and Sides
     And the role must be recomputed for the current couple orientation, not from home identity
     # Engine: beau/belle is a positional role (left/right within the couple) derived from heading,
     #          distinct from assignHomeIdentity's id/couple; matching must respect it.
-    # OPEN QUESTION (needs investigation): how head/side (home couple), gender, and beau/belle roles
-    #          interact when a call uses more than one, and which is authoritative in a conflict.
+
+  @bind:matchFormations @bind:assignHomeIdentity
+  Scenario: Beau and belle are positional, not derived from gender
+    Given a couple contains two dancers of the same gender or a gender arrangement that does not match the historic convention
+    When the engine resolves a beaux/belles designation
+    Then it must still assign the beau to the left-hand dancer and the belle to the right-hand dancer by position alone
+    And it must not fall back to gender when position and gender disagree
+    # RESOLVED: beau/belle is a POSITIONAL axis (left/right by facing), independent of gender.
+    # This is what lets gender-free calling work: the role is recomputed from geometry, so it
+    # remains well-defined regardless of the dancers' genders.
+
+  @bind:matchFormations @bind:assignHomeIdentity @bind:subsetOf
+  Scenario: Narrowing by group first, then applying a positional role within the group
+    Given a call designates a group and then a role within it, such as "Heads Beaux" or "Boys Beaus"
+    When the engine resolves which dancers act
+    Then it must first select the named group by its designation axis (home couple, gender, or position)
+    And within that group it must then apply the positional role to pick the acting dancers
+    # RESOLVED: the role axes are NOT in competition. A call names one axis for the group
+    # (head/side by couple, gender by gender) and may then narrow by a positional role
+    # (beau/belle, leader/trailer, centers/ends) within it. Narrowing is sequential, not a conflict.
+
+  @bind:matchFormations @bind:assignHomeIdentity
+  Scenario: Head/side stays identity-based while beau/belle and leader/trailer stay positional
+    Given a call may designate heads, sides, beaux, belles, leaders, or trailers
+    When the engine resolves the designation
+    Then head/side MUST always be resolved from the fixed home couple, surviving any rotation
+    And beau/belle and leader/trailer MUST always be resolved from the current position and facing, recomputed each transition
+    And the engine must not mix the two: identity designations never become positional, and positional roles never become identity
+    # RESOLVED interaction: head/side is an identity axis (home couple, fixed for the tip);
+    # beau/belle and leader/trailer are positional axes (geometry, dynamic). They address the
+    # same dancers through different, non-interchangeable rules.

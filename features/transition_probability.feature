@@ -20,10 +20,14 @@ Feature: Transition Probability, Flow and Selection
     And it must assign a static desirability weight from these verification outcomes
 
   @bind:applyToBoard @bind:legalCalls @bind:getout @bind:collisions
-  Scenario: Down-weighting or excluding a statically invalid transition
+  Scenario: Excluding a truly invalid transition but only down-weighting bad flow
     Given a call ends in an unrecognised formation, has no getout from that formation, or produces a collision
     When the build-time verifier runs
-    Then the call must be excluded from the state's outgoing edge set or given a very low static desirability
+    Then a call that is truly invalid and can never happen must be EXCLUDED from the state's outgoing edge set
+    And a call that is legal but has poor flow must instead be retained with a LOW static desirability
+    # Engine: the verifier separates hard invalidity (unrecognised end / no getout / collision ->
+    #          exclude) from mere bad flow (retained, low weight). Exclusion and low-weighting
+    #          are distinct outcomes, not interchangeable.
 
   @bind:legalCalls
   Scenario: Static desirability is fixed for a given build

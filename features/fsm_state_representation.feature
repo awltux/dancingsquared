@@ -30,12 +30,13 @@ Feature: FSM State Representation and Build-Time Enumeration
   # ---- compact encoding ----
 
   @bind:formationState
-  Scenario: Encoding a state with a short formation id and orientation id
+  Scenario: Encoding a state with a short formation id
     Given every valid formation is assigned a short numeric id
     When a state is encoded
-    Then the state id must combine the formation id with an orientation id
-    And the orientation id must encode eight 45-degree steps (for example, a 3-bit orientation id)
+    Then the state id must identify the normalised formation
     And the state id must therefore fit in a small integer
+    # Because state identity is the normalised formation, no orientation id is part of the state.
+    # Orientation lives only on the transition delta, so the state id is just the formation id.
 
   @bind:dancerMatrix @bind:poseToVec @bind:apply5
   Scenario: Storing the canonical translation matrix alongside the state id
@@ -95,6 +96,9 @@ Feature: FSM State Representation and Build-Time Enumeration
     Given a call from a formation ends in an unrecognised formation, has no getout, or collides
     When the build-time enumerator runs
     Then it must not add that call to the formation's outgoing edge set
+    # This exclusion is reserved for transitions that are truly invalid and cannot happen
+    # (unrecognised end, dead-end with no getout, or a collision). A legal call with merely
+    # poor flow is NOT excluded here; it is retained with a low desirability weight instead.
 
   # ---- user amendment of the FSM ----
 

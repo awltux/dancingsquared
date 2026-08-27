@@ -10,13 +10,13 @@ Feature: FSM Transitions Between Formation Matrices
     And every outgoing transition of a state carries a desirability weight in [0,1]
 
   @bind:formationState @bind:recognize
-  Scenario: A state is identified by both formation and absolute orientation
+  Scenario: A state is identified by the normalised formation, not absolute orientation
     Given a squared set is configured with the heads facing north
     When the same structural formation is configured with the heads facing east
-    Then the two configurations MUST resolve to different FSM states because they differ in absolute orientation
-    And each state must still share the same structural formation template for guard-condition matching
-    # Engine: matcher.formationState(board) returns {name, rot, reflect, ...}; a rotated board
-    #          must yield a different rot so the FSM keys states on (formation, orientation).
+    Then the two configurations MUST resolve to the SAME FSM state because the formation is normalised
+    And the orientation difference is carried by the transition delta, not by distinct states
+    # Engine: matcher.formationState(board) returns the normalised formation name; the FSM keys
+    #          states on that normalised identity, so symmetric rotations do not split the state set.
 
   @bind:applyToBoard @bind:dancerMatrix @bind:apply5
   Scenario: A call is a deterministic matrix transformation from one state to one end state
@@ -83,27 +83,31 @@ Feature: FSM Transitions Between Formation Matrices
     Given a call is applied and the set rotates by some multiple of 45 degrees
     When the transition is recorded
     Then the edge must capture the net orientation delta at 45-degree granularity so the FSM can reconstruct absolute heading states
+    # The state identity is the normalised formation; the edge delta records net rotation so the
+    # absolute heading of the dancers can still be reconstructed without making it a state.
 
   @bind:formationState
-  Scenario: Supporting 45-degree (1/8-rotation) orientation granularity
-    Given the FSM encodes orientation as one of eight compass steps at 45-degree intervals
+  Scenario: Supporting 45-degree (1/8-rotation) granularity in the transition delta
+    Given the engine tracks orientation changes at one of eight 45-degree steps
     When a move that rotates the set by an eighth of a turn is applied
-    Then the orientation component of the state must advance by one 45-degree step
-    And the orientation id must encode all eight steps (for example, a 3-bit orientation id)
-    And a move with no net rotation must leave the orientation id unchanged
+    Then the transition delta must advance by one 45-degree step
+    And the delta must be encodable in a small integer (for example, 3 bits for eight steps)
+    And a move with no net rotation must leave the delta at zero
+    # Orientation granularity lives on the EDGE (the delta), not on the state: the state itself is
+    # the normalised formation, so all orientations of a shape are the same state.
 
   @bind:formationState @bind:fitRigidMatrix
-  Scenario: A 45-degree rotation lands on a distinct orientation state
+  Scenario: A 45-degree rotation is recorded as a delta, not a new state
     Given a formation state is settled at a canonical orientation
     When a call rotates the set by 45 degrees
-    Then the resulting state must differ from the original in its orientation component
-    And the structural formation template must remain the same
+    Then the resulting state must be the SAME normalised state as the original
+    And the transition must record a 45-degree orientation delta instead of creating a distinct state
 
   @bind:formationState @bind:fitRigidMatrix
   Scenario: Naming calls that actually rotate the set by 1/8 of a turn
     Given a call is authored with 45-degree (Eighth) or half-hinge move primitives
     When the call's net rigid rotation is measured
-    Then the call must advance the orientation component by one 45-degree step
+    Then the call must record a 45-degree orientation delta on its transition
     And concrete examples that do this include Reverse, Wheel Around, Alamo Style, Circle By,
         Circle to a Line, Chain Reaction, Cross By, and the Concentric family
     # Data: moves.xml defines Eighth Left/Right (45deg turn in place), HalfHinge and
@@ -113,15 +117,15 @@ Feature: FSM Transitions Between Formation Matrices
     #       c1/concentric_concept.xml, are the concrete 1/8-rotation examples.
 
   @bind:formationState
-  Scenario: Orientations are never collapsed even for symmetric formations
+  Scenario: Orientations normalise into the same state for symmetric formations
     Given a formation is rotationally symmetric, such as a squared set under a 90-degree rotation
     When the FSM state set is built
-    Then every one of the eight 45-degree orientations MUST remain a distinct state
-    And the formation's symmetry must not merge 0 and 180 degrees or any other pair of orientations
-    # This is the resolved symmetry-collapse rule: orientation is part of state identity, so
-    # all eight orientations are distinct regardless of the formation's rotational symmetry.
-    # The edge table stays small because transitions are shared across orientations via the
-    # rotation-delta (rotation-equivariance), not by collapsing states.
+    Then orientations related by the formation's own symmetry MUST collapse to the same state
+    And a 90-degree rotation of a squared set must resolve to the SAME normalized state, not a new one
+    # This is the resolved symmetry rule: state identity is the NORMALISED formation, so rotations
+    # that map a formation onto itself (its symmetry) do not create new states. The transition's
+    # net orientation is still carried by the edge delta for reconstructing absolute headings, but
+    # the state itself is normalised — orientation is not part of the state's identity.
 
   @bind:registerModule @bind:flatten @bind:applyToBoard
   Scenario: Expanding a generative prefix into concrete call transitions

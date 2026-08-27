@@ -44,19 +44,18 @@ Feature: Formation States and FSM Structure
     And the matrix must carry each dancer's home identity so it is preserved across transitions
 
   @bind:formationState
-  Scenario: Distinguishing states that differ only by absolute orientation
+  Scenario: States that differ only by absolute orientation are the same normalised state
     Given a formation state is settled with the set oriented to the north
     When the identical structural formation is oriented to a different compass step
-    Then the FSM must treat them as two distinct states because orientation is part of state identity
-    And orientation must be quantised to 45-degree (1/8-rotation) steps, giving eight distinct orientations
-    And both states must share the same structural equivalence class for guard-condition purposes
+    Then the FSM must treat them as the SAME state because the formation is normalised
+    And the orientation difference must be captured by the transition delta, not by distinct states
 
   @bind:matchFormations @bind:snapBoard
   Scenario: Normalising a state to its canonical matrix for matching
     Given a state matrix may be translated, rotated, or reflected relative to its default template
     When a transition queries whether a board is at this state
-    Then the engine must recognise the board as this (formation, orientation) state
-    And any rotation/reflection that is NOT part of the state identity must be normalised away before matching
+    Then the engine must recognise the board as this normalised formation state
+    And all rotation/reflection must be normalised away before matching because the state identity is the abstract formation
     # Engine: matcher.snapBoard clamps onto canonical slots while preserving id/couple/gender.
 
   @bind:matchFormations
@@ -118,7 +117,7 @@ Feature: Formation States and FSM Structure
   Scenario: Distinguishing a wrong-way star from a normal star
     Given a formation is a star or thar whose dancers circulate in the direction opposite to the held hand
     When the FSM identifies the formation state
-    Then it must treat the wrong-way star as a distinct (formation, orientation) state from its normal counterpart
+    Then it must treat the wrong-way star as a distinct normalised formation state from its normal counterpart
     And the direction of circulation must be part of how the state is recognised, not inferred later
 
   @bind:formationState @bind:matchFormations @bind:findMatchingVariant

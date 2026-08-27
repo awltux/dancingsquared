@@ -44,8 +44,9 @@ Feature: Zeros, Getouts and Tips
     Given a flat sequence of calls (modules expanded) is proposed as a tip
     When the engine sums the call beats
     Then the tip is valid only if it is a zero and its total beats sum to a complete 64-beat segment (four 16-beat phrases)
-    And continuous terminal actions such as a promenade are acknowledged as flow rather than counted to exactly 64
-    # Engine: analyzer.sequenceBeats, phrasesForBeats, buildTip, isZero.
+    And a continuous terminal action such as a promenade is the recognised exception: it is acknowledged as flow rather than counted to exactly 64
+    # Engine: analyzer.sequenceBeats, phrasesForBeats, buildTip, isZero. Fixed per-call beats apply
+    #          except for the closing terminal action, which is allowed to land short of 64.
 
   @bind:sequenceBeats @bind:stepBeats @bind:phrasesForBeats
   Scenario: A call has a defined beat count independent of how it is reached
@@ -55,6 +56,15 @@ Feature: Zeros, Getouts and Tips
     And the phrasing must align to the 16-beat phrase boundary once calls are summed
     # Engine: each call's beat count comes from its authored timing (stepBeats/sequenceBeats) and
     #          is independent of context; the phrase count (phrasesForBeats) is derived from the sum.
+
+  @bind:sequenceBeats @bind:buildTip @bind:isZero
+  Scenario: A getout may end on a terminal action that does not hit exactly 64 beats
+    Given a tip is assembled from a sequence of calls with fixed beat counts
+    When the getout ends with a continuous terminal action such as a promenade
+    Then the preceding calls must sum to their fixed beats, but the promenade need not land exactly on the 64-beat boundary
+    And the terminal action must be acknowledged as continuous flow rather than counted to exactly 64
+    # Engine: each call before the terminal action contributes its fixed beat count; the closing
+    #          promenade is treated as continuous flow so the final total need not equal 64 exactly.
 
   @bind:isZero @bind:validateSegment
   Scenario: Rejecting a tip that is not a zero

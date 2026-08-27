@@ -10,6 +10,10 @@ export interface SeqDancer {
   x: number;
   y: number;
   heading: number; // radians
+  // Direction the dancer last turned during the most recent call that rotated
+  // them. Non-compositional calls may depend on this remembered direction rather
+  // than inferring it from geometry. undefined until a rotating call is applied.
+  lastTurnDir?: 'left' | 'right';
   // Ghost (phantom) dancer: a non-physical reference point used to complete
   // phantom/fractional setups. Does not occupy collision space; provides
   // geometric reference for calls defined around a larger matrix.

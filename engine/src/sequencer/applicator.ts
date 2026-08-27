@@ -118,7 +118,10 @@ export class CallApplicator {
       const by = d.y + (base.y - d.y) * f;
       const bh = normAngle(d.heading + (base.heading - d.heading) * f);
       const disp = rot(bh, localDisp);
-      return { ...d, x: bx + disp.x, y: by + disp.y, heading: normAngle(bh + delta) };
+      // Record which direction this dancer last turned (net heading delta), for
+      // non-compositional calls that depend on the remembered turn direction.
+      const turnDir = Math.abs(delta) < 1e-6 ? d.lastTurnDir : delta > 0 ? 'right' : 'left';
+      return { ...d, x: bx + disp.x, y: by + disp.y, heading: normAngle(bh + delta), lastTurnDir: turnDir };
     });
     // Snap only the INTERACTIVE path (rebase): the search path must preserve pure
     // relative motion so a getout can still un-permute dancers back home.

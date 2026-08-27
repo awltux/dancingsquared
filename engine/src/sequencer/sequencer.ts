@@ -267,6 +267,17 @@ export class Sequencer {
     return board.dancers.filter((d) => !d.isGhost);
   }
 
+  /** The remembered direction each physical dancer last turned (left/right), keyed
+   * by dancer id. Non-compositional calls may depend on this metadata. */
+  lastTurnDirections(board: Board = this.board): Record<number, 'left' | 'right'> {
+    const out: Record<number, 'left' | 'right'> = {};
+    for (const d of board.dancers) {
+      if (d.isGhost) continue;
+      if (d.lastTurnDir) out[d.id] = d.lastTurnDir;
+    }
+    return out;
+  }
+
   collisions(board: Board, eps = 1e-3): { id1: number; id2: number }[] {
     const ds = board.dancers.filter((d) => !d.isGhost);
     const out: { id1: number; id2: number }[] = [];

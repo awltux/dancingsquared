@@ -90,11 +90,21 @@ console.log('\n== Beau/belle & leader/trailer positional roles ==');
 }
 
 console.log('\n== Per-dancer direction / non-compositional metadata ==');
-check(true, 'per-dancer direction supported via per-dancer matrices (applyToBoard)');
-niReport('explicit "direction last turned" metadata');
+{
+  check(true, 'per-dancer direction supported via per-dancer matrices (applyToBoard)');
+  // Apply a registered call that is legal from home and rotates dancers (e.g. a circle).
+  seq.reset();
+  const legalNames = [...seq.legalCalls(seq.board)];
+  const rotating = legalNames.find((n) => /circle|wheel|turn|spin/i.test(n)) ?? legalNames[0];
+  seq.apply(rotating);
+  const dirs = seq.lastTurnDirections();
+  const n = Object.keys(dirs).length;
+  check(n >= 1, '"direction last turned" metadata recorded after a rotating call', `${rotating}: n=${n}`);
+}
 
 console.log('\n== Normalised-state model (spec: all rotations collapse) ==');
 {
+  seq.reset();
   const fs = seq.formationState(seq.board);
   check(fs !== null && 'rot' in fs, 'formationState returns {name, rot, reflect, ...}', fs && `name=${fs.name} rot=${fs.rot}`);
   niReport('FSM state keyed on normalised formation (orientation-as-delta)');

@@ -39,3 +39,30 @@ Feature: Fractional Calls and Handedness Variants
     Then the movement must be applied identically to the mirrored opposite half
     And both halves must reach a coherent end state together
     # Engine: mirrored (duplicate-half) dancers are materialised via 180-degree rotation at pose time.
+
+  @bind:applyToBoard @bind:bezierPoint @bind:dancerBeats
+  Scenario: A fractional call takes a proportional number of beats
+    Given a full call is timed to a certain number of beats
+    When a fractional variant such as a half or a quarter is selected
+    Then the fraction must be timed proportionally to its fraction of the full call
+    And the beat count of the fractional edge must reflect that proportion
+    # Engine: the fractional variant's end pose and beat span are a proportion of the full
+    #          call's path (dancerBeats), so the edge's beat count scales with the fraction.
+
+  @bind:variantStarts @bind:applyToBoard @bind:matchFormations
+  Scenario: The "Left" modifier mirrors a call into a distinct variant
+    Given a call is preceded by the modifier "Left"
+    When the engine builds the left-handed variant
+    Then it must interchange right with left and, where applicable, belle with beau and clockwise with counter-clockwise
+    And the resulting variant must be a distinct transition, not interchangeable with the unmodified call
+    # Engine: "Left" is a systematic mirror (right<->left, belle<->beau, cw<->ccw) producing its
+    #          own variant; applyToBoard/variantStarts select that variant from the current board.
+
+  @bind:applyToBoard @bind:matchFormations @bind:physicalDancers
+  Scenario: The "Split" modifier divides a line or box into two acting groups
+    Given a call is preceded by "Split" and applies from a line or box
+    When the engine applies the split modifier
+    Then it must divide the dancers into two groups, each executing the call from its own half
+    And the "Split" action must only be legal when the start formation is a line or box large enough to divide
+    # Engine: "Split" reuses the sub-formation splitting path on the line/box, acting separately
+    #          on each half rather than as one whole-board apply.

@@ -129,3 +129,19 @@ Feature: Formation States and FSM Structure
     And calls such as "Bend the Line" must only be legal from the arrangement they actually require
     # Engine: formationState / findMatchingVariant distinguish by facing (heading), so a two-faced
     #          line and a one-faced line with coincident dancers are different states.
+
+  @bind:matchFormations @bind:formationState @bind:recognize
+  Scenario: Recognising distinct topology classes such as diamonds, hourglasses, and T-bones
+    Given a formation such as a diamond, hourglass, T-bone, or butterfly occupies a distinct non-standard layout
+    When the FSM identifies the formation state
+    Then each topology class must be recognised and matched as its own structural template, not conflated with lines or waves
+    And a call authored for a specific topology must only apply when that topology is the current state
+    # Engine: recognition matches each named formation's geometry (matchFormations/formationState),
+    #          so diamond, hourglass, T-bone, butterfly, etc. are distinct templates in the library.
+
+  @bind:matchFormations @bind:formationState @bind:getUniqueFormations
+  Scenario: A topology may be required as the start formation of a call
+    Given a call is authored to begin from a specific topology such as a diamond or a box
+    When the engine checks whether the current board is at that start formation
+    Then the board must be recognised as that topology within tolerance before the call is legal
+    And calls that do not start from that topology must be rejected

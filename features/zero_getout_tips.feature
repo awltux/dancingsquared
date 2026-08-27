@@ -47,6 +47,15 @@ Feature: Zeros, Getouts and Tips
     And continuous terminal actions such as a promenade are acknowledged as flow rather than counted to exactly 64
     # Engine: analyzer.sequenceBeats, phrasesForBeats, buildTip, isZero.
 
+  @bind:sequenceBeats @bind:stepBeats @bind:phrasesForBeats
+  Scenario: A call has a defined beat count independent of how it is reached
+    Given a call is a candidate transition in a sequence
+    When the engine sums the beats of a sequence containing that call
+    Then the call must contribute its own fixed beat count regardless of the preceding or following calls
+    And the phrasing must align to the 16-beat phrase boundary once calls are summed
+    # Engine: each call's beat count comes from its authored timing (stepBeats/sequenceBeats) and
+    #          is independent of context; the phrase count (phrasesForBeats) is derived from the sum.
+
   @bind:isZero @bind:validateSegment
   Scenario: Rejecting a tip that is not a zero
     Given a tip sequence does not return to the home state in-sequence
@@ -69,3 +78,12 @@ Feature: Zeros, Getouts and Tips
     And the search must still verify the module's end formation and that it stays legal
     # Engine: the module's composed matrix (mul5) lets solver.getout/getin treat it as one
     #          step, while the resulting end formation is still validated.
+
+  @bind:getout @bind:getin @bind:applyToBoard @bind:legalCalls
+  Scenario: Substituting an equivalent call to resolve or get out
+    Given a call is choreographically equivalent to a simpler known call from the current formation
+    When the engine seeks a getout or a resolution
+    Then it must be able to substitute the equivalent call and treat it as interchangeable for the purpose of resolution
+    And the substituted call must still be legal and reach the same end state as the call it replaces
+    # Engine: recognising equivalents lets the resolver try a simpler call that reaches the same
+    #          end formation, widening the getout/getin search without changing the outcome.

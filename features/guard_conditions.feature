@@ -45,3 +45,12 @@ Feature: Guard Conditions for Call Preconditions
     And calls that require a specific handed wave must be gated on that derived handedness
     # Engine: computeHandholds(poses) returns the connected-hand edges; the wave's RH/LH
     #          handedness is derived from those edges and used to select the applicable variant.
+
+  @bind:matchFormations @bind:findMatchingVariant @bind:physicalDancers
+  Scenario: Enforcing a minimum size for centers/ends calls
+    Given a call is defined in terms of Centers or Ends
+    When the engine checks whether the call applies to the current formation
+    Then it must require the formation to be at least a 4-dancer line or diamond before the call is legal
+    And if the formation has fewer than the required dancers it must reject the call
+    # Engine: a centers/ends call needs a group large enough to designate distinct centers/ends;
+    #          matchFormations/findMatchingVariant and physicalDancers size-check the start setup.

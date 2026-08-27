@@ -74,7 +74,7 @@ console.log('\n== 45-degree matching (spec: engine should match to 45deg) ==');
   const src = rot45.map((x) => ({ x: x.x, y: x.y, heading: x.heading }));
   const tgt = d.dancers.map((x) => ({ x: x.x, y: x.y, heading: x.heading }));
   const m = matchFormations(src, tgt);
-  check(m === null, '45deg-offset square is NOT matched (90deg-only matcher)', `match=${m ? 'matched' : 'null'} -> spec wants matched`);
+  check(m !== null, '45deg-offset square IS matched (matcher now tries 45deg steps)', `match=${m ? 'matched' : 'null'}`);
 }
 
 console.log('\n== Beau/belle & leader/trailer positional roles ==');

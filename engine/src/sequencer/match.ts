@@ -39,7 +39,7 @@ function genderCompatible(a: Matchable['gender'], b: Matchable['gender']): boole
   return a === b;
 }
 
-const ROTS = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
+const ROTS = [0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI, (-3 * Math.PI) / 4, -Math.PI / 2, -Math.PI / 4];
 
 // When two alignments tie on error (common for rotationally-symmetric
 // formations like a squared set, where all four rotations fit equally well),

@@ -6,6 +6,8 @@
   "description": "PRD item 15 PoC: a Teachers Session Tracker for planning class sessions, tracking attendance/call knowledge, and generating/editing practice tips as reusable modules.",
   "scripts": {
     "dev": "vite",
+    "build:fsm": "node scripts/build-fsm-table.mjs",
+    "prebuild": "npm run build:fsm",
     "build": "tsc -p tsconfig.json && vite build",
     "preview": "vite preview",
     "verify": "node verify.mjs"

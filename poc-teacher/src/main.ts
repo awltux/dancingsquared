@@ -8,6 +8,7 @@ import formationsXml from '../../poc/src/assets/formations.xml?raw';
 
 import { buildCatalog, makeSequencer } from './catalog';
 import type { CatalogCall } from './catalog';
+import type { FsmTableData } from 'dancing-squared-engine';
 import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
 import { parseProgramme } from './programme';
 import type { Programme } from './programme';
@@ -29,6 +30,16 @@ const msFiles = import.meta.glob<string>('../../poc/src/assets/ms/*.xml', {
 });
 const catalog: CatalogCall[] = buildCatalog(msFiles);
 const seq = makeSequencer(movesXml, formationsXml, catalog);
+
+// The FSM transition table is PRECOMPUTED at build time (scripts/build-fsm-table.mjs,
+// run as part of `npm run build`) and shipped as a static asset. The app just
+// loads it — it never builds the table at runtime.
+import fsmTableBlob from './assets/fsm-table.json';
+if (seq.loadFsmTable(fsmTableBlob.table as FsmTableData)) {
+  console.log(`[fsm] loaded precomputed transition table (${seq.transitionTable().stateCount()} states, ${seq.transitionTable().edgeCount()} edges)`);
+} else {
+  console.warn('[fsm] precomputed transition table failed to load — will be built on demand.');
+}
 
 const findCall = (title: string): CatalogCall | undefined => catalog.find((c) => c.title === title);
 const familyOf = (title: string): string => findCall(title)?.family ?? 'Other';

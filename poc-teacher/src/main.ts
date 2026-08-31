@@ -28,7 +28,14 @@ const msFiles = import.meta.glob<string>('../../poc/src/assets/ms/*.xml', {
   import: 'default',
   eager: true,
 });
-const catalog: CatalogCall[] = buildCatalog(msFiles);
+// Discovered calls (home squared-set setups for plain call names) are folded in
+// so they're available alongside the main ms catalog.
+const discoveredFiles = import.meta.glob<string>('../../poc/src/assets/discovered/*.xml', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+const catalog: CatalogCall[] = buildCatalog({ ...msFiles, ...discoveredFiles });
 const seq = makeSequencer(movesXml, formationsXml, catalog);
 
 // The FSM transition table is PRECOMPUTED at build time (scripts/build-fsm-table.mjs,

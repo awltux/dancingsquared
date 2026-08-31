@@ -95,7 +95,7 @@ function storageSet(key: string, value: string) {
 /** Browser call catalog: owns the level-grouped catalog, the call XML map, and
  * edit-override persistence. A single shared instance is created at module load. */
 export class Catalog {
-  private readonly levelOrder = ['b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
+  private readonly levelOrder = ['discovered', 'b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
   // Bump whenever the bundled call data changes: applied edit override flags
   // are cleared so the live catalog returns to the shipped version.
   private readonly dataVersion = '5';

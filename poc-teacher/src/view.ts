@@ -137,12 +137,12 @@ export class View {
       ${s.capturedAt ? `<p class="muted">Completed — captured taught ${s.capturedTaught?.length ?? 0} of ${(s.capturedTaught?.length ?? 0) + (s.capturedPlanned?.length ?? 0)} calls (taught + planned) at the time of completion.</p>` : ''}
       <details class="collapsible" data-dkey="s:${id}:${i}:taught"${this.d.store.detailsOpenAttr(`s:${id}:${i}:taught`, true)}>
         <summary>Taught this session</summary>
-        ${s.taught.length ? this.renderGrouped(s.taught, (r, ti) => this.sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s)) : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}
+        ${s.taught.length ? this.renderGrouped(s.taught, (r, ti) => this.sessionCallChip(r, `data-unteach="${id}:${i}:${ti}"`, '✓', id, i, s), `s:${id}:${i}:taught`) : '<span class="muted">Nothing taught yet — tap a planned call below to teach it</span>'}
       </details>
 
       <details class="collapsible" data-dkey="s:${id}:${i}:planned"${this.d.store.detailsOpenAttr(`s:${id}:${i}:planned`, true)}>
         <summary>Planned <button class="small-btn" data-moveall="${id}:${i}">Move all → taught</button></summary>
-        ${s.planned.length ? this.renderGrouped(s.planned, (r, pi) => this.sessionCallChip(r, `data-teach="${id}:${i}:${pi}"`, '', id, i, s)) : '<span class="muted">No plan</span>'}
+        ${s.planned.length ? this.renderGrouped(s.planned, (r, pi) => this.sessionCallChip(r, `data-teach="${id}:${i}:${pi}"`, '', id, i, s), `s:${id}:${i}:planned`) : '<span class="muted">No plan</span>'}
         <button class="big" data-act="pull" data-id="${id}" data-i="${i}" style="margin-top:12px">Pull 1 from next</button>
         <p class="hint">Tap a call under Planned to teach it (it moves up to Taught). Tap a taught call to move it back.</p>
       </details>
@@ -402,7 +402,11 @@ export class View {
       .join('');
   }
 
-  renderGrouped(calls: CallRef[], render: (r: CallRef, index: number) => string): string {
+  /** Group `calls` by family and render each group under a collapsible family
+   * header (enabled/open by default). `prefix` scopes the persisted open/closed
+   * state so the same family in different sections (e.g. planned vs taught)
+   * keeps independent collapse state. */
+  renderGrouped(calls: CallRef[], render: (r: CallRef, index: number) => string, prefix = 'group'): string {
     const groups = new Map<string, { r: CallRef; idx: number }[]>();
     calls.forEach((r, idx) => {
       const fam = this.d.familyOf(r.title);
@@ -412,7 +416,12 @@ export class View {
     });
     let out = '';
     for (const [fam, list] of groups) {
-      out += `<h3 class="family-head">${this.d.esc(fam)}</h3><div class="chips">${list.map(({ r, idx }) => render(r, idx)).join('')}</div>`;
+      const key = `${prefix}:${fam}`;
+      const open = this.d.store.detailsOpenAttr(key, true);
+      out += `<details class="collapsible" data-dkey="${key}"${open}>`
+        + `<summary>${this.d.esc(fam)} · ${list.length}</summary>`
+        + `<div class="chips">${list.map(({ r, idx }) => render(r, idx)).join('')}</div>`
+        + `</details>`;
     }
     return out;
   }
@@ -434,7 +443,7 @@ export class View {
     }
     return unique.length
       ? this.renderGrouped(unique, (r) =>
-          this.sessionCallChip(r, `data-moveplanned="${c.id}::${i}::${r.title}::${r.setupIdx}"`, '+', c.id, i, s))
+          this.sessionCallChip(r, `data-moveplanned="${c.id}::${i}::${r.title}::${r.setupIdx}"`, '+', c.id, i, s), `s:${c.id}:${i}:prev`)
       : '<span class="muted">Nothing was taught in previous sessions</span>';
   }
 

@@ -388,8 +388,10 @@ export interface TipGenOpts {
   minLen?: number;
   maxLen?: number;
   count?: number;
-  /** Max getout calls used to bring the tip back to the squared set (default 6). */
+  /** Max getout calls used to bring the tip back to the squared set (default 5). */
   getoutMax?: number;
+  /** Search budget (nodes) for the closing getout search (default 200). */
+  getoutBudget?: number;
   config?: TipConfig;
   current?: Set<string>;
   callProb?: (title: string) => number;
@@ -451,7 +453,8 @@ export class TipGenerator {
     const minLen = opts.minLen ?? 4;
     const maxLen = opts.maxLen ?? 8;
     const count = opts.count ?? 3;
-    const getoutMax = opts.getoutMax ?? 6;
+    const getoutMax = opts.getoutMax ?? 5;
+    const getoutBudget = opts.getoutBudget ?? 200;
     const config = { ...DEFAULT_TIP_CONFIG, ...(opts.config ?? {}) };
     const rand = opts.rand ?? Math.random;
     const callProb = opts.callProb ?? (() => 1);
@@ -551,7 +554,7 @@ export class TipGenerator {
         usedHere.add(pick);
         if (hasFamily) usedFamilies.add(family(pick));
       }
-      const getout = seq.getout({ target: 'Static Square', maxCalls: getoutMax, budget: 15 });
+      const getout = seq.getout({ target: 'Static Square', maxCalls: getoutMax, budget: getoutBudget });
       if (getout && getout.length) {
         tip.push(...getout);
         if (tip.length >= minLen) {

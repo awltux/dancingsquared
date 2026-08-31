@@ -602,6 +602,7 @@ export class Controller {
           maxLen: 5,
           count: 3,
           getoutMax: 5,
+          getoutBudget: 200,
           config: d.store.tipConfig,
           current: currentSet,
           callProb: (t) => d.store.effectiveCallProb(id, t, currentSet, prioritised),
@@ -619,6 +620,9 @@ export class Controller {
         }));
         d.getTipsState()[id] = { selectedTip: d.getTipsByClass()[id].length ? 0 : -1, selectedIdx: -1 };
         done();
+        if (tips.length === 0) {
+          d.setNotice('Couldn\'t make any tips from the calls taught so far — the set can\'t get back to the squared set. Teach a few more calls (a circle, a promenade, or Allemande Left) and try again.', true);
+        }
         d.render();
       } catch (err) {
         console.error('[gentips] error generating tips:', err);

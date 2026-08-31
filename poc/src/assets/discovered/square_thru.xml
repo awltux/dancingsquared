@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<!DOCTYPE tamination SYSTEM "../src/tamination.dtd">
+<!--
+    Discovered calls: Square Thru 2, Square Thru 3, Square Thru 4 (home squared-set setups).
+
+    The catalog authors these calls' home applications under Heads/All-8 titles.
+    This discovered file provides plain-titled entries with the same Static Square
+    setups so they are legal from the FSM home state and their home->end edges are
+    defined.
+-->
+<tamination title="Square Thru 2">
+
+  <tam title="Square Thru 2"
+       from="Static Square"
+       formation="Static Square"
+       difficulty="1" sequencer="no">
+    <path>
+      <move select="Forward 2" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Extend Left" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Forward 2" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Extend Left" scaleY=".5" />
+    </path>
+    <path>
+    </path>
+    <path>
+    </path>
+  </tam>
+
+<tam title="Square Thru 3"
+       from="Static Square"
+       formation="Static Square"
+       difficulty="1" sequencer="no">
+    <path>
+      <move select="Forward 2" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Right" offsetX=".5" offsetY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Forward 2" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Lead Left" scaleX=".5" scaleY="1.5" />
+      <move select="Extend Right" scaleY=".5" />
+    </path>
+    <path>
+    </path>
+    <path>
+    </path>
+  </tam>
+
+<tam title="Square Thru 4"
+       from="Static Square"
+       formation="Static Square"
+       difficulty="1" sequencer="no">
+    <path>
+      <move select="Forward 2" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Right" offsetX=".5" offsetY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Extend Left" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Forward 2" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Lead Left" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Extend Left" scaleY=".5" />
+    </path>
+    <path>
+    </path>
+    <path>
+    </path>
+  </tam>
+
+</tamination>

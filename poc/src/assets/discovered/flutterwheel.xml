@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE tamination SYSTEM "../src/tamination.dtd">
+<!--
+    Discovered call: Flutterwheel (home squared-set setup).
+
+    The catalog authors these calls' home applications under Heads/All-8 titles.
+    This discovered file provides plain-titled entries with the same Static Square
+    setups so they are legal from the FSM home state and their home->end edges are
+    defined.
+-->
+<tamination title="Flutterwheel">
+
+  <tam title="Flutterwheel"
+       from="Static Square"
+       formation="Static Square"
+       difficulty="2" >
+    <path>
+      <move select="Quarter Left" beats="4.5" offsetY="-1" />
+      <move select="Hinge Right" beats="3" scaleX="3" scaleY="3" />
+      <move select="Hinge Right" beats="3" scaleX="3" scaleY="2" />
+      <move select="Quarter Right" beats="3" hands="right" offsetX="2" />
+    </path>
+    <path>
+      <move select="Extend Left" beats="3" scaleX="3" scaleY="2" />
+      <move select="Hinge Right" />
+      <move select="Hinge Right" beats="3" hands="both" />
+      <move select="Quarter Right" beats="3" hands="left" offsetX="1.5" />
+      <move select="Quarter Right" beats="3" hands="left" offsetY="1.5" />
+    </path>
+    <path>
+      <move select="Quarter Left" beats="4.5" offsetY="-1" />
+      <move select="Hinge Right" beats="3" scaleX="3" scaleY="3" />
+      <move select="Hinge Right" beats="3" scaleX="3" scaleY="2" />
+      <move select="Quarter Right" beats="3" hands="right" offsetX="2" />
+    </path>
+    <path>
+      <move select="Extend Left" beats="3" scaleX="3" scaleY="2" />
+      <move select="Hinge Right" />
+      <move select="Hinge Right" beats="3" hands="both" />
+      <move select="Quarter Right" beats="3" hands="left" offsetX="1.5" />
+      <move select="Quarter Right" beats="3" hands="left" offsetY="1.5" />
+    </path>
+  </tam>
+
+</tamination>

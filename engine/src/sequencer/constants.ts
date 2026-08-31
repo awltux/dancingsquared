@@ -32,6 +32,12 @@ export const STANDARD_FORMATIONS = [
   'Eight Chain Thru',
   'Two-Faced Lines',
   'Ocean Waves RH',
+  // Thars are common end formations (e.g. after Recycle/any "… and anything"
+  // that leaves a star); including them lets those end states resolve in the FSM.
+  'Thar LH Boys',
+  'Thar LH Girls',
+  'Thar RH Boys',
+  'Thar RH Girls',
 ];
 
 // Synonym table for formation names: every key is an alias that canonicalises to

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE tamination SYSTEM "../src/tamination.dtd">
+<!--
+    Discovered call: Pass Thru (home squared-set setup).
+
+    The catalog authors these calls' home applications under Heads/All-8 titles.
+    This discovered file provides plain-titled entries with the same Static Square
+    setups so they are legal from the FSM home state and their home->end edges are
+    defined.
+-->
+<tamination title="Pass Thru">
+
+  <tam title="Pass Thru"
+       formation="Static Square">
+    <path>
+      <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+    </path>
+    <path>
+    </path>
+    <path>
+    </path>
+  </tam>
+
+</tamination>

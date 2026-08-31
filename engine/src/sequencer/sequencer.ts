@@ -13,7 +13,8 @@ import { SequenceAnalyzer } from './sequence.js';
 import { HomeSolver } from './solver.js';
 import { Grouping } from './grouping.js';
 import { FsmStore, type FsmAmendment } from './fsm-store.js';
-import { buildFsmExport, type FsmExport } from './fsm-export.js';
+import { type FsmExport } from './fsm-export.js';
+import { FsmTable, type FsmTableEdge } from './fsm-table.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { HOME_DANCERS } from './identity.js';
 import { matchFormations } from './match.js';
@@ -39,6 +40,7 @@ export class Sequencer {
   private readonly solver: HomeSolver;
   private readonly grouping: Grouping;
   private readonly fsmStore: FsmStore;
+  private fsmTable: FsmTable | null = null;
 
   constructor(movesXml: string, formationsXml: string, calls: { name: string; xml: string }[] = []) {
     this.library = new CallLibrary(movesXml, formationsXml);
@@ -300,7 +302,9 @@ export class Sequencer {
   amendTransition(formation: string, call: string): { ok: boolean; reason?: string; amendment?: FsmAmendment } {
     const board = this.syntheticBoard(formation);
     if (!board) return { ok: false, reason: `Unknown formation: ${formation}` };
-    return this.fsmStore.amend(formation, call, board);
+    const r = this.fsmStore.amend(formation, call, board);
+    if (r.ok && this.fsmTable) this.fsmTable.merge([r.amendment!]);
+    return r;
   }
 
   isAmended(formation: string, call: string): boolean {
@@ -312,28 +316,52 @@ export class Sequencer {
   }
 
   removeAmendment(formation: string, call: string): boolean {
-    return this.fsmStore.remove(formation, call);
+    const r = this.fsmStore.remove(formation, call);
+    this.fsmTable = null; // rebuild on next access
+    return r;
   }
 
   clearAmendments(): void {
     this.fsmStore.clear();
+    this.fsmTable = null; // rebuild on next access
+  }
+
+  // ---- build-time transition table ----
+
+  /** The concrete build-time transition table: state -> edges[], with amendments
+   * merged in. Built once on first access and cached; rebuilt when amendments
+   * change. This is the held state machine that can be queried and exported. */
+  transitionTable(): FsmTable {
+    if (!this.fsmTable) {
+      this.fsmTable = this.buildFsmTable();
+    }
+    return this.fsmTable;
+  }
+
+  /** Rebuild (or force a rebuild of) the transition table from the current
+   * catalog and amendments. */
+  buildFsmTable(): FsmTable {
+    const states = this.library.getUniqueFormations().map((f) => f.name);
+    const enumerate = (state: string): Omit<FsmTableEdge, 'source'>[] => {
+      const board = this.syntheticBoard(state);
+      if (!board) return [];
+      return this.legalCalls(board).map((call) => {
+        const res = this.applicator.applyToBoard(board, call);
+        return {
+          call,
+          endFormation: res.legal ? this.matcher.knownFormation(res.board) : null,
+          orientationDelta: 0,
+        };
+      });
+    };
+    return FsmTable.build(states, enumerate, this.fsmStore.all());
   }
 
   /** Export the FSM as a full snapshot plus a delta ledger, for submission to a
    * master copy. States are the unique normalised formations; build-time edges
-   * come from the current legal transition table, and amendments are the user
-   * changes. */
+   * come from the stored transition table, and amendments are the user changes. */
   exportFsm(): FsmExport {
-    const states = this.library.getUniqueFormations().map((f) => f.name);
-    const buildEdges = (formation: string) => {
-      const board = this.syntheticBoard(formation);
-      if (!board) return [];
-      return this.legalCalls(board).map((call) => {
-        const res = this.applicator.applyToBoard(board, call);
-        return { call, endFormation: res.legal ? this.matcher.knownFormation(res.board) : null };
-      });
-    };
-    return buildFsmExport(states, buildEdges, this.fsmStore.all());
+    return this.transitionTable().exportFsm();
   }
 
   /** Build a synthetic board sitting in the named formation (for amendment

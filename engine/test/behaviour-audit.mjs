@@ -149,6 +149,17 @@ console.log('\n== FSM user-amendment / export + ledger ==');
   // Add a fresh amendment so the exported ledger has an entry.
   if (accepted) seq.amendTransition('Static Square', accepted);
 
+  // Concrete build-time transition table (state -> edges[], held once).
+  const tbl = seq.transitionTable();
+  check(typeof tbl.stateCount === 'function' && tbl.stateCount() > 0, 'transitionTable built with states', `states=${tbl.stateCount()}`);
+  check(typeof tbl.edgeCount === 'function' && tbl.edgeCount() > 0, 'transitionTable holds edges', `edges=${tbl.edgeCount()}`);
+  check(Array.isArray(tbl.states()) && tbl.states().length === tbl.stateCount(), 'transitionTable lists its states');
+  // The amendment merged into the table makes it a queryable transition.
+  if (accepted) {
+    check(tbl.hasTransition('Static Square', accepted), 'amendment merged into the transition table', accepted);
+    check(Array.isArray(tbl.edgesFor('Static Square')), 'transitionTable returns edgesFor(state)');
+  }
+
   // FSM snapshot + delta ledger export.
   const exp = seq.exportFsm();
   check(Array.isArray(exp.snapshot) && exp.snapshot.length > 0, 'exportFsm produces a snapshot', `states=${exp.snapshot.length}`);

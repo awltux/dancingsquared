@@ -31,6 +31,7 @@ export type { FormationMatch, Matchable } from './sequencer/match.js';
 export { analyzeFasr } from './sequencer/fasr.js';
 export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS } from './sequencer/constants.js';
 export { normalisedState, orientationDeltaSteps, ORIENTATION_STEP, ORIENTATION_STEPS } from './sequencer/fsm.js';
+export { FsmTable, type FsmTableEdge } from './sequencer/fsm-table.js';
 
 // Call editor: synthesize missing setups by padding core moves.
 export {

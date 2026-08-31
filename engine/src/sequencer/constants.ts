@@ -38,6 +38,23 @@ export const STANDARD_FORMATIONS = [
   'Thar LH Girls',
   'Thar RH Boys',
   'Thar RH Girls',
+  // Additional named formations from the all8 formations index that are common
+  // end-states and exist in the catalog (LH/mirror variants and tidal/diamond
+  // forms) — lets their end states resolve rather than being dropped.
+  'Tidal Line LH',
+  'Tidal Wave',
+  'Two-Faced Tidal Line RH',
+  'Two-Faced Tidal Line LH',
+  'Diamond RH',
+  'Diamond LH',
+  'Magic Column RH',
+  'Magic Column LH',
+  '3/4 Tag',
+  'Quarter Tag LH',
+  'Box RH',
+  'Quarter Lines RH',
+  'Quarter Lines LH',
+  'Ocean Waves',
 ];
 
 // Synonym table for formation names: every key is an alias that canonicalises to

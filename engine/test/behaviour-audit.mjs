@@ -154,6 +154,9 @@ console.log('\n== FSM user-amendment / export + ledger ==');
   check(typeof tbl.stateCount === 'function' && tbl.stateCount() > 0, 'transitionTable built with states', `states=${tbl.stateCount()}`);
   check(typeof tbl.edgeCount === 'function' && tbl.edgeCount() > 0, 'transitionTable holds edges', `edges=${tbl.edgeCount()}`);
   check(Array.isArray(tbl.states()) && tbl.states().length === tbl.stateCount(), 'transitionTable lists its states');
+  // Embedded (inline) formations must be folded into the state set, not just the named catalog.
+  const embeddedStates = tbl.states().filter((s) => s.startsWith('@embed'));
+  check(embeddedStates.length > 0, 'transition table includes embedded (inline) formation states', `embedded=${embeddedStates.length}`);
   // The amendment merged into the table makes it a queryable transition.
   if (accepted) {
     check(tbl.hasTransition('Static Square', accepted), 'amendment merged into the transition table', accepted);

@@ -164,6 +164,12 @@ export class Sequencer {
     return this.library.getUniqueFormations();
   }
 
+  /** Every call variant's start setup (mirror-aware matchables), including the
+   * embedded/inline formations not in the named catalog. */
+  allVariantSetups(): Matchable[][] {
+    return this.library.allVariantSetups();
+  }
+
   // ---- matcher introspection (passthroughs) ----
 
   findMatchingVariant(board: Board, callName: string, maxError: number): VariantMatch | null {
@@ -339,12 +345,30 @@ export class Sequencer {
   }
 
   /** Rebuild (or force a rebuild of) the transition table from the current
-   * catalog and amendments. */
+   * catalog and amendments. The state set is the union of named formations and
+   * all call-variant start setups (which includes the many EMBEDDED/inline
+   * formations not in the named catalog), deduped by geometry. */
   buildFsmTable(): FsmTable {
-    const states = this.library.getUniqueFormations().map((f) => f.name);
+    // Build a state-key -> geometry map, deduped by geometry.
+    const stateGeo = new Map<string, Matchable[]>();
+    const addState = (key: string, dancers: Matchable[]) => {
+      for (const existing of stateGeo.values()) {
+        if (matchFormations(dancers, existing, 1.0) !== null) return existing;
+      }
+      stateGeo.set(key, dancers);
+      return dancers;
+    };
+    // Named formations first (stable, human-readable keys).
+    for (const f of this.library.getUniqueFormations()) addState(f.name, f.dancers);
+    // Then every call-variant start setup (embedded/inline formations).
+    for (const setup of this.library.allVariantSetups()) {
+      addState(`@embed#${stateGeo.size}`, setup);
+    }
+    const states = [...stateGeo.keys()];
     const enumerate = (state: string): Omit<FsmTableEdge, 'source'>[] => {
-      const board = this.syntheticBoard(state);
-      if (!board) return [];
+      const geo = stateGeo.get(state);
+      if (!geo) return [];
+      const board = this.boardFromMatchables(geo);
       return this.legalCalls(board).map((call) => {
         const res = this.applicator.applyToBoard(board, call);
         return {
@@ -393,13 +417,21 @@ export class Sequencer {
   private syntheticBoard(formation: string): Board | null {
     const f = this.library.getNamedFormations().find((x) => x.name === canonicalName(formation));
     if (!f) return null;
+    return this.boardFromMatchables(f.dancers);
+  }
+
+  /** Build a synthetic board from arbitrary dancer geometry (named or embedded),
+   * stamping home identity when the geometry is an 8-dancer home-like square. */
+  private boardFromMatchables(dancers: Matchable[]): Board {
     const home = HOME_DANCERS;
-    const m = matchFormations(
-      f.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading })),
-      home.map((h) => ({ x: h.x, y: h.y, heading: h.heading })),
-    );
+    const m = dancers.length === home.length
+      ? matchFormations(
+          dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading })),
+          home.map((h) => ({ x: h.x, y: h.y, heading: h.heading })),
+        )
+      : null;
     return {
-      dancers: f.dancers.map((d, i) => {
+      dancers: dancers.map((d, i) => {
         const id = m ? home[m.mapping[i]] : null;
         return {
           id: id ? id.id : i + 1,

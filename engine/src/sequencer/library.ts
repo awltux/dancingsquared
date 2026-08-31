@@ -163,4 +163,17 @@ export class CallLibrary {
     }
     return { x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender, couple: d.couple };
   }
+
+  /** Every call variant's start setup as mirror-aware matchables. This includes
+   * the many EMBEDDED (inline) formations authored inside <tam> blocks that are
+   * not in the named-formation catalog. Used to build the full FSM state set. */
+  allVariantSetups(): Matchable[][] {
+    const out: Matchable[][] = [];
+    for (const variants of this.variants.values()) {
+      for (const v of variants) {
+        out.push(v.dancers.map((d) => this.variantMatchable(d)));
+      }
+    }
+    return out;
+  }
 }

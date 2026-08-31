@@ -18,17 +18,28 @@ export interface FsmTableEdge {
   amendedAt?: string;
 }
 
+/** Version of the persisted table format. Bump when the shape changes. */
+export const FSM_TABLE_SCHEMA_VERSION = 1;
+
+/** The persisted (serialised) form of an FsmTable. */
+export interface FsmTableData {
+  schemaVersion: number;
+  states: string[];
+  edges: Record<string, FsmTableEdge[]>;
+  amendments: FsmAmendment[];
+  builtAt: string;
+}
+
 /**
  * The build-time transition table. Holds `state -> edges[]`. States are the
  * unique normalised formations; build-time edges are enumerated once; user
  * amendments are merged in (and re-mergable after more amendments are added).
  */
 export class FsmTable {
-  private readonly adjacency = new Map<string, FsmTableEdge[]>();
-
   private constructor(
     private readonly stateOrder: string[],
     private readonly amendments: Map<string, FsmAmendment>,
+    private readonly adjacency: Map<string, FsmTableEdge[]>,
   ) {}
 
   /** Build the table from a full enumeration of build-time edges. */
@@ -37,7 +48,7 @@ export class FsmTable {
     enumerate: (state: string) => Omit<FsmTableEdge, 'source'>[],
     amendments: FsmAmendment[] = [],
   ): FsmTable {
-    const table = new FsmTable(states, new Map(amendments.map((a) => [`${a.formation}|${a.call}`, a])));
+    const table = new FsmTable(states, new Map(amendments.map((a) => [`${a.formation}|${a.call}`, a])), new Map());
     for (const state of states) {
       const build = enumerate(state);
       const amends = amendments.filter((a) => a.formation === state);
@@ -56,6 +67,41 @@ export class FsmTable {
       );
     }
     return table;
+  }
+
+  /** Reconstruct a table from previously-serialised data. Returns null when the
+   * data is malformed or has an unsupported schema version. */
+  static load(data: FsmTableData | string): FsmTable | null {
+    let d: FsmTableData;
+    try {
+      d = typeof data === 'string' ? (JSON.parse(data) as FsmTableData) : data;
+    } catch {
+      return null;
+    }
+    if (!d || d.schemaVersion !== FSM_TABLE_SCHEMA_VERSION || !Array.isArray(d.states)) return null;
+    const adjacency = new Map<string, FsmTableEdge[]>();
+    for (const s of d.states) adjacency.set(s, (d.edges?.[s] ?? []).map((e) => ({ ...e })));
+    const amendments = new Map<string, FsmAmendment>();
+    for (const a of d.amendments ?? []) amendments.set(`${a.formation}|${a.call}`, a);
+    return new FsmTable([...d.states], amendments, adjacency);
+  }
+
+  /** The persisted (serialised) form of this table. */
+  serialize(): FsmTableData {
+    const edges: Record<string, FsmTableEdge[]> = {};
+    for (const [state, list] of this.adjacency) edges[state] = list.map((e) => ({ ...e }));
+    return {
+      schemaVersion: FSM_TABLE_SCHEMA_VERSION,
+      states: [...this.stateOrder],
+      edges,
+      amendments: [...this.amendments.values()],
+      builtAt: new Date().toISOString(),
+    };
+  }
+
+  /** Convenience: serialise to a JSON string. */
+  toJSON(): string {
+    return JSON.stringify(this.serialize());
   }
 
   /** Merge additional amendments in, deduping by (state, call). */

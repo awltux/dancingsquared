@@ -160,6 +160,24 @@ console.log('\n== FSM user-amendment / export + ledger ==');
     check(Array.isArray(tbl.edgesFor('Static Square')), 'transitionTable returns edgesFor(state)');
   }
 
+  // Persistence: serialise, then load into a fresh Sequencer without rebuilding.
+  const data = seq.serializeFsmTable();
+  check(typeof data.schemaVersion === 'number', 'serializeFsmTable returns a versioned blob', `v${data.schemaVersion}`);
+  check(Array.isArray(data.states) && data.states.length === tbl.stateCount(), 'serialized blob holds states', `n=${data.states.length}`);
+  const json = seq.serializeFsmTable() && JSON.stringify(data);
+  check(typeof json === 'string', 'serialized table is JSON-serialisable');
+  // Load into a NEW sequencer sharing the same catalog/moves, verify round-trip.
+  const seq2 = new Sequencer(movesXml, formationsXml, calls);
+  const loaded = seq2.loadFsmTable(data);
+  check(loaded === true, 'loadFsmTable accepts a valid blob');
+  check(seq2.transitionTable().stateCount() === tbl.stateCount(), 'loaded table has same state count', `loaded=${seq2.transitionTable().stateCount()}`);
+  if (accepted) {
+    check(seq2.transitionTable().hasTransition('Static Square', accepted), 'loaded table includes the amendment', accepted);
+  }
+  // A malformed blob is rejected.
+  const seq3 = new Sequencer(movesXml, formationsXml, calls);
+  check(seq3.loadFsmTable('not json') === false, 'loadFsmTable rejects malformed data');
+
   // FSM snapshot + delta ledger export.
   const exp = seq.exportFsm();
   check(Array.isArray(exp.snapshot) && exp.snapshot.length > 0, 'exportFsm produces a snapshot', `states=${exp.snapshot.length}`);

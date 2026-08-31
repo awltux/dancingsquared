@@ -14,7 +14,7 @@ import { HomeSolver } from './solver.js';
 import { Grouping } from './grouping.js';
 import { FsmStore, type FsmAmendment } from './fsm-store.js';
 import { type FsmExport } from './fsm-export.js';
-import { FsmTable, type FsmTableEdge } from './fsm-table.js';
+import { FsmTable, type FsmTableEdge, type FsmTableData, FSM_TABLE_SCHEMA_VERSION } from './fsm-table.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { HOME_DANCERS } from './identity.js';
 import { matchFormations } from './match.js';
@@ -355,6 +355,29 @@ export class Sequencer {
       });
     };
     return FsmTable.build(states, enumerate, this.fsmStore.all());
+  }
+
+  // ---- transition table persistence ----
+
+  /** Serialise the built transition table to its persisted JSON form. If the
+   * table has not been built yet it is built first. */
+  serializeFsmTable(): FsmTableData {
+    return this.transitionTable().serialize();
+  }
+
+  /** Load a previously-serialised transition table (as an object or JSON string)
+   * into this Sequencer, skipping the expensive build-time enumeration. Returns
+   * false when the data is malformed or unsupported. */
+  loadFsmTable(data: FsmTableData | string): boolean {
+    const table = FsmTable.load(data);
+    if (!table) return false;
+    this.fsmTable = table;
+    return true;
+  }
+
+  /** The schema version of the persisted transition-table format. */
+  fsmTableSchemaVersion(): number {
+    return FSM_TABLE_SCHEMA_VERSION;
   }
 
   /** Export the FSM as a full snapshot plus a delta ledger, for submission to a

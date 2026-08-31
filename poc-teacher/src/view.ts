@@ -403,9 +403,10 @@ export class View {
   }
 
   /** Group `calls` by family and render each group under a collapsible family
-   * header (enabled/open by default). `prefix` scopes the persisted open/closed
+   * header (minimised by default). `prefix` scopes the persisted open/closed
    * state so the same family in different sections (e.g. planned vs taught)
-   * keeps independent collapse state. */
+   * keeps independent collapse state, and stays minimised when calls move
+   * between sections. */
   renderGrouped(calls: CallRef[], render: (r: CallRef, index: number) => string, prefix = 'group'): string {
     const groups = new Map<string, { r: CallRef; idx: number }[]>();
     calls.forEach((r, idx) => {
@@ -417,8 +418,8 @@ export class View {
     let out = '';
     for (const [fam, list] of groups) {
       const key = `${prefix}:${fam}`;
-      const open = this.d.store.detailsOpenAttr(key, true);
-      out += `<details class="collapsible" data-dkey="${key}"${open}>`
+      const open = this.d.store.detailsOpenAttr(key, false);
+      out += `<details class="collapsible family-group" data-dkey="${key}"${open}>`
         + `<summary>${this.d.esc(fam)} · ${list.length}</summary>`
         + `<div class="chips">${list.map(({ r, idx }) => render(r, idx)).join('')}</div>`
         + `</details>`;

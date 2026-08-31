@@ -147,6 +147,16 @@ details.collapsible summary {
 details.collapsible summary::-webkit-details-marker { display: none; }
 details.collapsible summary::before { content: '▸ '; }
 details.collapsible[open] summary::before { content: '▾ '; }
+/* Call-family groups nested inside a section: smaller, non-uppercase, dimmer and
+   indented so they read as sub-groups of the section, not as section titles. */
+details.collapsible.family-group { margin: 0 0 8px; padding-left: 12px; }
+details.collapsible.family-group summary {
+  font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--muted);
+  padding: 6px 0; font-weight: 500; opacity: .85;
+}
+details.collapsible.family-group summary::before { content: '› '; font-size: 14px; }
+details.collapsible.family-group[open] summary::before { content: '⌄ '; }
+details.collapsible.family-group .chips { padding-left: 12px; }
 .chip.wrap { padding: 0; overflow: hidden; display: inline-flex; align-items: stretch; }
 .chip-main { background: none; border: none; font: inherit; color: var(--text); padding: 8px 4px 8px 12px; min-height: 40px; }
 .chip .star { background: none; border: none; font-size: 17px; color: var(--muted); padding: 0 10px; cursor: pointer; }

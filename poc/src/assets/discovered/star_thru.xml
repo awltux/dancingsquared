@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE tamination SYSTEM "../src/tamination.dtd">
+<!--
+    Discovered call: Star Thru (home squared-set setup).
+
+    The mainstream catalog authors "Star Thru" with setups for Facing Couples,
+    Lines, Sashayed Couples, etc., but the home (squared-set) application lives
+    under the separate title "Heads Star Thru". This discovered file adds a
+    "Star Thru" entry with a Static Square setup so the call is legal from the
+    FSM home state and its home->end edge is defined.
+-->
+<tamination title="Star Thru">
+
+  <!-- Full 8-dancer squared-set setup: heads star thru, sides wait. The four
+       paths are heads (1,2) acting, heads (7,8) acting, and the two side
+       couples standing still. Mirrored by the engine to the full square. -->
+  <tam title="Star Thru"
+       from="Static Square"
+       formation="Static Square"
+       sequencer="gender-specific">
+    <path>
+      <move select="Extend Left" hands="gripright" beats="3" scaleX="3" scaleY=".5" />
+      <move select="Quarter Right" hands="gripright" beats="2" offsetX="1" offsetY="-.5" />
+    </path>
+    <path>
+      <move select="Extend Left" hands="gripright" beats="3" scaleX="3" scaleY=".5" />
+      <move select="Quarter Left" hands="gripright" offsetX="1" offsetY="-.5" />
+    </path>
+    <path/>
+    <path/>
+  </tam>
+
+</tamination>

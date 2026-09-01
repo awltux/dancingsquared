@@ -1,0 +1,24 @@
+{
+  "id": 2922,
+  "name": "ceder-2922",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Right and Left Thru",
+    "1/2 Square Thru",
+    "Trade By",
+    "Right and Left Thru",
+    "1/2 Square Thru",
+    "Partner Trade",
+    "1/2 Square Thru",
+    "Trade By",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

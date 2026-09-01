@@ -1,0 +1,21 @@
+{
+  "id": 6914,
+  "name": "ceder-6914",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 2,
+  "steps": [
+    "Partner Dosado",
+    "Allemande Left With The Corner",
+    "Heads Promenade 1/2",
+    "Sides Promenade 1/2",
+    "Circle Left Back To Home",
+    "Allemande Left With Corner",
+    "All 4 Couples Promenade"
+  ],
+  "note": "Untranslatable: \"Partner Dosado,\"; Untranslatable: \"Allemande Left With The Corner,\"; Untranslatable: \"Circle Left Back To Home,\"; Untranslatable: \"Allemande Left With Corner,\"",
+  "source": "ceder.net/choreodb"
+}

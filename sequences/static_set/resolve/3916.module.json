@@ -1,0 +1,25 @@
+{
+  "id": 3916,
+  "name": "ceder-3916",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Swing Thru",
+    "Boys Pass Thru",
+    "Centers Tag The Line, Face Right",
+    "Girls Pass Thru",
+    "Centers Recycle & Pass Thru",
+    "Centers In",
+    "All Pass Thru",
+    "Bend the Line",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"Centers Tag The Line, Face Right,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Centers Recycle & Pass Thru,\"; Untranslatable: \"All Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

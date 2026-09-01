@@ -1,0 +1,18 @@
+{
+  "id": 7282,
+  "name": "ceder-7282",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Swing Thru",
+    "Ends Cross Fold",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

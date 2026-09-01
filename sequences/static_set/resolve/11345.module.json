@@ -1,0 +1,23 @@
+{
+  "id": 11345,
+  "name": "ceder-11345",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "(Lesson 10-5)",
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Boys Run",
+    "Ferris Wheel",
+    "Centers Star Thru, Pass Thru",
+    "Partner Trade, & Back Away",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 10-5),\"; Untranslatable: \"Centers Star Thru, Pass Thru,\"; Untranslatable: \" Partner Trade, & Back Away,\"",
+  "source": "ceder.net/choreodb"
+}

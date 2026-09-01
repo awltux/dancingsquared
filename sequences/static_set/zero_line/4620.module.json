@@ -1,0 +1,18 @@
+{
+  "id": 4620,
+  "name": "ceder-4620",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Sides Half Sashay",
+    "Heads Lead Right",
+    "Swing Thru",
+    "Boys Run"
+  ],
+  "note": "Untranslatable: \"Sides Half Sashay,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 10557,
+  "name": "ceder-10557",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Four Ladies Chain",
+    "Four Ladies Chain 3/4",
+    "Head Position Square Thru 4",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Head Position Square Thru 4,\"",
+  "source": "ceder.net/choreodb"
+}

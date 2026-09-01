@@ -1,0 +1,17 @@
+{
+  "id": 6811,
+  "name": "ceder-6811",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "California Twirl (Zero Line) FCZ (Facing Couple Zero)"
+  ],
+  "note": "Untranslatable: \"California Twirl (Zero Line) FCZ (Facing Couple Zero)\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,18 @@
+{
+  "id": 8596,
+  "name": "ceder-8596",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Star Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Star Thru (Zero Box) This is a Technical Zero. It is also referred to as rotate and invert."
+  ],
+  "note": "Untranslatable: \"Star Thru (Zero Box) This is a Technical Zero. It is also referred to as rotate and invert.\"",
+  "source": "ceder.net/choreodb"
+}

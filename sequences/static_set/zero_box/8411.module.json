@@ -1,0 +1,19 @@
+{
+  "id": 8411,
+  "name": "ceder-8411",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Pass Thru",
+    "Wheel Around",
+    "Pass Thru",
+    "Separate Around 1 Come Into The Middle",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 Come Into The Middle,\"",
+  "source": "ceder.net/choreodb"
+}

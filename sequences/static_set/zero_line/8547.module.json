@@ -1,0 +1,20 @@
+{
+  "id": 8547,
+  "name": "ceder-8547",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Head Ladies Chain",
+    "Same 4 1/2 Square Thru",
+    "Step to a Wave",
+    "Ladies Trade",
+    "Recycle",
+    "Sweep a Quarter"
+  ],
+  "note": "Untranslatable: \"Same 4 1/2 Square Thru,\"; Untranslatable: \"Ladies Trade,\"",
+  "source": "ceder.net/choreodb"
+}

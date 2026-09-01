@@ -1,0 +1,25 @@
+{
+  "id": 11223,
+  "name": "ceder-11223",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 2,
+  "steps": [
+    "",
+    "Join Hands Circle Left Halfway",
+    "Allemande Left",
+    "Right and Left Grand",
+    "All 4 Couples Promenade",
+    "Heads Promenade Halfway",
+    "Sides Circle Up Four Halfway",
+    "Sides Back Away",
+    "Boys Star Left",
+    "(pick up your partner)",
+    "Star Promenade Home"
+  ],
+  "note": "Untranslatable: \",\"; Untranslatable: \"Join Hands Circle Left Halfway,\"; Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Sides Circle Up Four Halfway,\"; Untranslatable: \"Sides Back Away,\"; Untranslatable: \"Boys Star Left,\"; Untranslatable: \"(pick up your partner),\"; Untranslatable: \"Star Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

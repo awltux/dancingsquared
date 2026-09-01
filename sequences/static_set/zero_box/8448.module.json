@@ -1,0 +1,19 @@
+{
+  "id": 8448,
+  "name": "ceder-8448",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "All Pass Thru",
+    "Tag the Line",
+    "Ends Star Thru While The Centers 1/2 Square Thru"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Ends Star Thru While The Centers 1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

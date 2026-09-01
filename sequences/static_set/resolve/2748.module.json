@@ -1,0 +1,24 @@
+{
+  "id": 2748,
+  "name": "ceder-2748",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Lead Right",
+    "Veer Left",
+    "Couples Circulate",
+    "Bend the Line",
+    "Reverse Flutterwheel",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

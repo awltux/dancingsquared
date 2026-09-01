@@ -1,0 +1,28 @@
+{
+  "id": 3802,
+  "name": "ceder-3802",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 13,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Girls Circulate",
+    "Boys Trade",
+    "Boys Run",
+    "Tag the Line",
+    "Face In",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Pass the Ocean",
+    "Recycle"
+  ],
+  "note": "Untranslatable: \"Girls Circulate\"",
+  "source": "ceder.net/choreodb"
+}

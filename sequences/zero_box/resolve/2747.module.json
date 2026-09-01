@@ -1,0 +1,24 @@
+{
+  "id": 2747,
+  "name": "ceder-2747",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Trade By",
+    "Square Thru 3",
+    "Trade By",
+    "Swing Thru",
+    "Boys Run",
+    "Ferris Wheel",
+    "Zoom",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

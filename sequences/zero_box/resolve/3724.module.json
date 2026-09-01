@@ -1,0 +1,19 @@
+{
+  "id": 3724,
+  "name": "ceder-3724",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Square Thru 4",
+    "Tag the Line",
+    "Face In",
+    "Spin the Top",
+    "Recycle",
+    "Allemande Left"
+  ],
+  "source": "ceder.net/choreodb"
+}

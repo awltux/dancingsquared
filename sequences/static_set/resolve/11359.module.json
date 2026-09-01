@@ -1,0 +1,30 @@
+{
+  "id": 11359,
+  "name": "ceder-11359",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 16,
+  "mappedCount": 14,
+  "steps": [
+    "(Lesson 12-04)",
+    "Heads Pass the Ocean",
+    "Extend",
+    "Hinge",
+    "Scoot Back",
+    "Boys Run",
+    "Square Thru 2",
+    "Trade By",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Hinge",
+    "Girls Trade",
+    "Recycle",
+    "Dive Thru",
+    "Centers Square Thru 3",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"(Lesson 12-04),\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,18 @@
+{
+  "id": 7095,
+  "name": "ceder-7095",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Swing Thru",
+    "Men Run",
+    "Ferris Wheel",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

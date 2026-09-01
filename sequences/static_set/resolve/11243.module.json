@@ -1,0 +1,23 @@
+{
+  "id": 11243,
+  "name": "ceder-11243",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Zoom",
+    "Ends Pass Thru",
+    "All Tag The Line, Face In",
+    "Square Thru 3",
+    "Ends Cross Fold",
+    "Centers U-Turn Back & Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Ends Pass Thru,\"; Untranslatable: \"All Tag The Line, Face In,\"; Untranslatable: \" Centers U-Turn Back & Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

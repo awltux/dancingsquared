@@ -1,0 +1,18 @@
+{
+  "id": 6771,
+  "name": "ceder-6771",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around One",
+    "Come Into The Middle & Right & Left Thru",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around One,\"; Untranslatable: \" Come Into The Middle & Right & Left Thru,\"",
+  "source": "ceder.net/choreodb"
+}

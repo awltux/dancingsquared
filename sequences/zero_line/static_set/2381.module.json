@@ -1,0 +1,17 @@
+{
+  "id": 2381,
+  "name": "ceder-2381",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "U-Turn Back",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

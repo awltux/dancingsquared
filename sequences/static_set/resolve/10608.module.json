@@ -1,0 +1,21 @@
+{
+  "id": 10608,
+  "name": "ceder-10608",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "First Couple Go Left, Next Couple Go Right",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

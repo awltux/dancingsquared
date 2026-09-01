@@ -1,0 +1,24 @@
+{
+  "id": 4664,
+  "name": "ceder-4664",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 11,
+  "mappedCount": 11,
+  "steps": [
+    "Pass Thru",
+    "Boys Run",
+    "Hinge",
+    "Boys Trade",
+    "Boys Run",
+    "Couples Circulate",
+    "Chain Down the Line",
+    "Square Thru 4",
+    "Trade By",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

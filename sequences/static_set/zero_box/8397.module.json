@@ -1,0 +1,17 @@
+{
+  "id": 8397,
+  "name": "ceder-8397",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Pass Thru",
+    "Separate Around 1 Into The Middle Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Separate Around 1 Into The Middle Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

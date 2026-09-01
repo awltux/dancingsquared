@@ -1,0 +1,23 @@
+{
+  "id": 3548,
+  "name": "ceder-3548",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Couples Hinge",
+    "(Each side) 1/2 Tag",
+    "Girls Run",
+    "Left Swing Thru",
+    "Circulate",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"(Each side) 1/2 Tag\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 10684,
+  "name": "ceder-10684",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Four Ladies Chain 3/4",
+    "Head Position Half Sashay",
+    "Same 4 Star Thru",
+    "Everybody Dosado",
+    "Square Thru 3",
+    "Left Allemande",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Head Position Half Sashay,\"; Untranslatable: \"Same 4 Star Thru,\"; Untranslatable: \"Everybody Dosado,\"",
+  "source": "ceder.net/choreodb"
+}

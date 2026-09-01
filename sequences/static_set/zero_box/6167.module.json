@@ -1,0 +1,20 @@
+{
+  "id": 6167,
+  "name": "ceder-6167",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Swing Thru",
+    "Spin the Top",
+    "Extend",
+    "Swing Thru",
+    "Spin the Top",
+    "Slide Thru"
+  ],
+  "note": "Untranslatable: \"Heads Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

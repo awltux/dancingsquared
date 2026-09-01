@@ -1,0 +1,20 @@
+{
+  "id": 8601,
+  "name": "ceder-8601",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 2,
+  "steps": [
+    "Pass Thru",
+    "All Wheel Around",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Centers Wheel Around",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"All Wheel Around\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Centers Wheel Around\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

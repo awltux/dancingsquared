@@ -1,0 +1,24 @@
+{
+  "id": 7667,
+  "name": "ceder-7667",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Pass Thru",
+    "Boys Run",
+    "Girls Trade",
+    "Pass Thru",
+    "Girls Run",
+    "Boys Trade",
+    "Pass Thru",
+    "Boys Run",
+    "*Face Your Partner",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"*Face Your Partner\"",
+  "source": "ceder.net/choreodb"
+}

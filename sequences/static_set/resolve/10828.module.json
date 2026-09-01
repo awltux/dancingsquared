@@ -1,0 +1,22 @@
+{
+  "id": 10828,
+  "name": "ceder-10828",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Square Thru 4",
+    "Centers In",
+    "Centers Square Thru 3",
+    "(Centers In) Cast Off 3/4",
+    "Star Thru",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"(Centers In) Cast Off 3/4,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

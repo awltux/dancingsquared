@@ -1,0 +1,17 @@
+{
+  "id": 8423,
+  "name": "ceder-8423",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Head Ladies Chain",
+    "Flutterwheel",
+    "Star Thru",
+    "Pass Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

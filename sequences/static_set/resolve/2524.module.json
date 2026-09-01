@@ -1,0 +1,22 @@
+{
+  "id": 2524,
+  "name": "ceder-2524",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 9,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "Ends Fold",
+    "Square Thru 4",
+    "Ends Cross Fold",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

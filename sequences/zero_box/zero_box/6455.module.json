@@ -1,0 +1,18 @@
+{
+  "id": 6455,
+  "name": "ceder-6455",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Swing Thru",
+    "Spin the Top",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Sweep a Quarter"
+  ],
+  "source": "ceder.net/choreodb"
+}

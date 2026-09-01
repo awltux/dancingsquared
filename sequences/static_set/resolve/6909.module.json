@@ -1,0 +1,28 @@
+{
+  "id": 6909,
+  "name": "ceder-6909",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 10,
+  "steps": [
+    "Four Ladies Chain",
+    "Four Ladies Chain 3/4",
+    "Head Position Forward & Back",
+    "Same 4 Star Thru",
+    "Pass Thru",
+    "Star Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Forward and Back",
+    "Star Thru",
+    "Pass Thru",
+    "Centers Star Thru",
+    "Pass Thru",
+    "(With Lady On The Right) Left Allemande"
+  ],
+  "note": "Untranslatable: \"Head Position Forward & Back,\"; Untranslatable: \"Same 4 Star Thru,\"; Untranslatable: \"Centers Star Thru,\"; Untranslatable: \"(With Lady On The Right) Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

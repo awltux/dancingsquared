@@ -1,0 +1,21 @@
+{
+  "id": 10146,
+  "name": "ceder-10146",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Same 4 Star Thru",
+    "Double Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" Same 4 Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

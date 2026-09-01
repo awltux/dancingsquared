@@ -1,0 +1,23 @@
+{
+  "id": 6543,
+  "name": "ceder-6543",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 5,
+  "steps": [
+    "4 Ladies Chain 3/4",
+    "Head Position Half Sashay",
+    "Side Position Square Thru 4",
+    "Swing Thru",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Half Sashay",
+    "Star Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"Head Position Half Sashay,\"; Untranslatable: \"Side Position Square Thru 4,\"",
+  "source": "ceder.net/choreodb"
+}

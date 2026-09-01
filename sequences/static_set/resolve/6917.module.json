@@ -1,0 +1,21 @@
+{
+  "id": 6917,
+  "name": "ceder-6917",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 0,
+  "steps": [
+    "Turn Corner By The Left",
+    "Dosado Partner",
+    "4 Ladies Promenade Inside Single File",
+    "Dosado Partner",
+    "4 Men Promenade Inside Single File",
+    "Dosado Partner",
+    "All Promenade Home"
+  ],
+  "note": "Untranslatable: \"Turn Corner By The Left,\"; Untranslatable: \"Dosado Partner,\"; Untranslatable: \"4 Ladies Promenade Inside Single File,\"; Untranslatable: \"Dosado Partner,\"; Untranslatable: \"4 Men Promenade Inside Single File,\"; Untranslatable: \"Dosado Partner,\"; Untranslatable: \"All Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

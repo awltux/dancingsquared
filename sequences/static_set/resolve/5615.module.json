@@ -1,0 +1,23 @@
+{
+  "id": 5615,
+  "name": "ceder-5615",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Square Thru 4",
+    "Centers In",
+    "Ends Cross Fold",
+    "Double Pass Thru",
+    "First Right, Next Left",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"First Right, Next Left,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,17 @@
+{
+  "id": 8394,
+  "name": "ceder-8394",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 Into The Middle",
+    "Centers Circle 1/2 And Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 Into The Middle,\"; Untranslatable: \"Centers Circle 1/2 And Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,29 @@
+{
+  "id": 11137,
+  "name": "ceder-11137",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 15,
+  "mappedCount": 11,
+  "steps": [
+    "Heads Star Thru And California Twirl",
+    "Star Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Star Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Allemande Left",
+    "R.L.G., Promenade Home"
+  ],
+  "note": "Untranslatable: \"Heads Star Thru And California Twirl,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"R.L.G., Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

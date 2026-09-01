@@ -1,0 +1,26 @@
+{
+  "id": 4322,
+  "name": "ceder-4322",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Face In",
+    "Pass Thru",
+    "Tag the Line",
+    "Leaders U-Turn Back",
+    "Swing Thru",
+    "Boys Run",
+    "Star Thru",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

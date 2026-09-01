@@ -1,0 +1,25 @@
+{
+  "id": 10858,
+  "name": "ceder-10858",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Pass Thru",
+    "Boys U-Turn Back",
+    "All Couples Circulate",
+    "Boys U-Turn Back",
+    "All Square Thru 4",
+    "Centers Swing Thru, Others Partner Trade",
+    "Extend",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"Boys U-Turn Back,\"; Untranslatable: \"All Couples Circulate,\"; Untranslatable: \"Boys U-Turn Back,\"; Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"Centers Swing Thru, Others Partner Trade,\"",
+  "source": "ceder.net/choreodb"
+}

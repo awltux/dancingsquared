@@ -1,0 +1,21 @@
+{
+  "id": 6410,
+  "name": "ceder-6410",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Step to a Wave",
+    "Swing Thru",
+    "Boys Trade",
+    "Boys Run",
+    "Wheel and Deal",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Sweep a Quarter"
+  ],
+  "source": "ceder.net/choreodb"
+}

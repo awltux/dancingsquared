@@ -1,0 +1,16 @@
+{
+  "id": 4624,
+  "name": "ceder-4624",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 3,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Lead Right",
+    "Pass the Ocean",
+    "Recycle"
+  ],
+  "source": "ceder.net/choreodb"
+}

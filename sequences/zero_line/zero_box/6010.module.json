@@ -1,0 +1,22 @@
+{
+  "id": 6010,
+  "name": "ceder-6010",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Right and Left Thru",
+    "Dosado to a Wave",
+    "Spin the Top",
+    "Girls Circulate",
+    "Boys Trade",
+    "Boys Run",
+    "Bend the Line",
+    "Slide Thru"
+  ],
+  "note": "Untranslatable: \"Girls Circulate\"",
+  "source": "ceder.net/choreodb"
+}

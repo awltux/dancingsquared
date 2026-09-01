@@ -1,0 +1,25 @@
+{
+  "id": 6127,
+  "name": "ceder-6127",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Head Men & Corner Forward & Back",
+    "Star Thru",
+    "Split The Outside Two Around One To A Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Boys Pass Thru",
+    "Star Thru",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Head Men & Corner Forward & Back,\"; Untranslatable: \"Split The Outside Two Around One To A Line,\"; Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 2840,
+  "name": "ceder-2840",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Swing Thru Double",
+    "Circulate",
+    "Swing Thru",
+    "Boys Run",
+    "Veer Right",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Swing Thru Double\"",
+  "source": "ceder.net/choreodb"
+}

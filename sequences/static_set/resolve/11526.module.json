@@ -1,0 +1,27 @@
+{
+  "id": 11526,
+  "name": "ceder-11526",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Centers Trade",
+    "Recycle",
+    "Veer Left",
+    "Ends Run",
+    "Ends Zoom, Centers Trade",
+    "All Swing Thru",
+    "Recycle",
+    "Left Touch 1/4",
+    "Boy Run",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Ends Zoom, Centers Trade,\"; Untranslatable: \"All Swing Thru,\"; Untranslatable: \"Left Touch 1/4,\"; Untranslatable: \"Boy Run,\"",
+  "source": "ceder.net/choreodb"
+}

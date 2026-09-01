@@ -1,0 +1,19 @@
+{
+  "id": 11233,
+  "name": "ceder-11233",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Box The Gnat & Square Thru 4",
+    "All Slide Thru (same sex)",
+    "Ends Cross Fold",
+    "Centers Box The Gnat & Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Box The Gnat & Square Thru 4,\"; Untranslatable: \"All Slide Thru (same sex),\"; Untranslatable: \"Centers Box The Gnat & Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

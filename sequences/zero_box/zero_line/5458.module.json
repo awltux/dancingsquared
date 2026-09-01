@@ -1,0 +1,21 @@
+{
+  "id": 5458,
+  "name": "ceder-5458",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "3/4 Tag the Line",
+    "Boys Swing Thru",
+    "Girls Trade",
+    "Extend",
+    "Boys Run"
+  ],
+  "note": "Untranslatable: \"Boys Swing Thru\"",
+  "source": "ceder.net/choreodb"
+}

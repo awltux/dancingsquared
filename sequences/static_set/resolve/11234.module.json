@@ -1,0 +1,29 @@
+{
+  "id": 11234,
+  "name": "ceder-11234",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 15,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Box The Gnat & Backaway",
+    "All Join Hands & Circle Left",
+    "4 Girls Forward & Back",
+    "Girls Square Thru 4",
+    "Centers In",
+    "All 8 Circulate",
+    "Cast Off Three Quarters",
+    "Boys Run",
+    "Boys Square Thru 3",
+    "All Cast Off 3/4",
+    "All 8 Circulate",
+    "Boys Fold",
+    "Girls Pass Thru",
+    "All Star Thru",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Box The Gnat & Backaway,\"; Untranslatable: \"All Join Hands & Circle Left,\"; Untranslatable: \"4 Girls Forward & Back,\"; Untranslatable: \"Girls Square Thru 4,\"; Untranslatable: \"Boys Square Thru 3,\"; Untranslatable: \"All Cast Off 3/4,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"All Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

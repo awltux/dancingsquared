@@ -1,0 +1,20 @@
+{
+  "id": 8727,
+  "name": "ceder-8727",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Lead Couple Partner Trade",
+    "Circle Left 3/4 (Zero Line) : This is a Technical Zero. . If it starts in a 1P2P line",
+    "it moves from a 1P2P line to a 4P1P line"
+  ],
+  "note": "Untranslatable: \"Lead Couple Partner Trade\"; Untranslatable: \"Circle Left 3/4 (Zero Line) : This is a Technical Zero. . If it starts in a 1P2P line\"; Untranslatable: \"it moves from a 1P2P line to a 4P1P line\"",
+  "source": "ceder.net/choreodb"
+}

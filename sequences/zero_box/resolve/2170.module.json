@@ -1,0 +1,21 @@
+{
+  "id": 2170,
+  "name": "ceder-2170",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 8,
+  "mappedCount": 8,
+  "steps": [
+    "Swing Thru",
+    "Spin the Top",
+    "Recycle",
+    "Veer Left",
+    "Chain Down the Line",
+    "Swing Thru",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

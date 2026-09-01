@@ -1,0 +1,25 @@
+{
+  "id": 4676,
+  "name": "ceder-4676",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Face In",
+    "Square Thru 3",
+    "Tag the Line",
+    "Face Out",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Swing Thru",
+    "Boys Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

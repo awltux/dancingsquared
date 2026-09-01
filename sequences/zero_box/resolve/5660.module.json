@@ -1,0 +1,18 @@
+{
+  "id": 5660,
+  "name": "ceder-5660",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Swing Thru",
+    "Recycle",
+    "Left Square Thru 3/4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Left Square Thru 3/4\"",
+  "source": "ceder.net/choreodb"
+}

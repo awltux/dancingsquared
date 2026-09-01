@@ -1,0 +1,23 @@
+{
+  "id": 3821,
+  "name": "ceder-3821",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Touch a Quarter",
+    "Scoot Back",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Zoom",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

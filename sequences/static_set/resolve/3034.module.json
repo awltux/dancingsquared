@@ -1,0 +1,27 @@
+{
+  "id": 3034,
+  "name": "ceder-3034",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Scoot Back",
+    "Centers Swing Thru",
+    "All 4 Girls Run",
+    "Center 6 Circulate",
+    "4 Girls Wheel & Deal",
+    "Lead Boys Run",
+    "Girls Pass Thru",
+    "Star Thru",
+    "Couples Circulate",
+    "Wheel and Deal",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru,\"; Untranslatable: \"All 4 Girls Run,\"; Untranslatable: \"Center 6 Circulate,\"; Untranslatable: \"4 Girls Wheel & Deal,\"; Untranslatable: \"Lead Boys Run,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

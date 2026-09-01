@@ -1,0 +1,26 @@
+{
+  "id": 4103,
+  "name": "ceder-4103",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Couples Hinge",
+    "Very Center Boys Trade",
+    "All Boys Run",
+    "Boys Trade",
+    "Hinge",
+    "All 8 Circulate",
+    "Girls Run",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Very Center Boys Trade\"; Untranslatable: \"All Boys Run\"",
+  "source": "ceder.net/choreodb"
+}

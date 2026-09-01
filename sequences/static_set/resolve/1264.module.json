@@ -1,0 +1,20 @@
+{
+  "id": 1264,
+  "name": "ceder-1264",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Star Thru, All Zoom",
+    "Centers Right & Left Thru, All Zoom",
+    "Centers Right & Left Thru, All Zoom",
+    "Centers Right & Left Thru, All Zoom",
+    "Centers Pass Thru",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads Star Thru, All Zoom,\"; Untranslatable: \"Centers Right & Left Thru, All Zoom,\"; Untranslatable: \"Centers Right & Left Thru, All Zoom,\"; Untranslatable: \"Centers Right & Left Thru, All Zoom,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

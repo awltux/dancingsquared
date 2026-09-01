@@ -1,0 +1,26 @@
+{
+  "id": 5815,
+  "name": "ceder-5815",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass Thru",
+    "Partner Trade",
+    "Reverse Flutterwheel",
+    "Backaway",
+    "Sides Pass Thru",
+    "Partner Trade",
+    "Reverse Flutterwheel",
+    "Backaway",
+    "Circle Left",
+    "Ladies Center, Men Sashay",
+    "Ladies Center, Men Sashay",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \" Backaway,\"; Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \" Backaway,\"; Untranslatable: \"Ladies Center, Men Sashay,\"; Untranslatable: \"Ladies Center, Men Sashay,\"",
+  "source": "ceder.net/choreodb"
+}

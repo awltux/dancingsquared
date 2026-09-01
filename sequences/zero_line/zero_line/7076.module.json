@@ -1,0 +1,21 @@
+{
+  "id": 7076,
+  "name": "ceder-7076",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Star Thru",
+    "Pass Thru",
+    "Trade By",
+    "Star Thru",
+    "1/2 Square Thru",
+    "Trade By",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

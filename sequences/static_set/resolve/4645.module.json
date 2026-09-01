@@ -1,0 +1,25 @@
+{
+  "id": 4645,
+  "name": "ceder-4645",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 11,
+  "steps": [
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Centers Trade",
+    "Spin the Top",
+    "Hinge",
+    "Circulate",
+    "Face In",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,23 @@
+{
+  "id": 1674,
+  "name": "ceder-1674",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "Tag the Line",
+    "Face In",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Only Zoom",
+    "Centers Left Square Thru 3",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Only Zoom\"; Untranslatable: \"Centers Left Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

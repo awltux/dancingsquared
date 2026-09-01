@@ -1,0 +1,24 @@
+{
+  "id": 3404,
+  "name": "ceder-3404",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Touch a Quarter",
+    "Scoot Back",
+    "Centers Trade",
+    "Centers Run",
+    "3/4 Tag the Line",
+    "Centers Swing Thru Others Trade",
+    "Extend",
+    "Hinge",
+    "Split Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru Others Trade\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 10551,
+  "name": "ceder-10551",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "All 1/2 Square Thru",
+    "Ends Cross Fold",
+    "All Swing Thru",
+    "Girls Run",
+    "Reverse Flutterwheel",
+    "1/2 Square Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All 1/2 Square Thru,\"; Untranslatable: \"All Swing Thru,\"; Untranslatable: \"1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

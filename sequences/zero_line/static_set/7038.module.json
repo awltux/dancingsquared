@@ -1,0 +1,19 @@
+{
+  "id": 7038,
+  "name": "ceder-7038",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Star Thru",
+    "Pass Thru",
+    "U Turn Back",
+    "Square Thru 4",
+    "On The Third Hand Right & Left Grand"
+  ],
+  "note": "Untranslatable: \"U Turn Back\"; Untranslatable: \"On The Third Hand Right & Left Grand\"",
+  "source": "ceder.net/choreodb"
+}

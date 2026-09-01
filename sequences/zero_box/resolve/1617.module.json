@@ -1,0 +1,18 @@
+{
+  "id": 1617,
+  "name": "ceder-1617",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Trade By",
+    "Single Circle to a Wave",
+    "Circulate",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

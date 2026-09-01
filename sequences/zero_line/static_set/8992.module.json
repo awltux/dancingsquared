@@ -1,0 +1,19 @@
+{
+  "id": 8992,
+  "name": "ceder-8992",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Flutterwheel",
+    "Veer Left",
+    "Couples Hinge",
+    "Veer Right",
+    "Left Allemande TdBy Formation"
+  ],
+  "note": "Untranslatable: \"Left Allemande TdBy Formation\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 3658,
+  "name": "ceder-3658",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Ends Run",
+    "New Ends Cross Fold",
+    "Centers Left Square Thru 3",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"New Ends Cross Fold\"; Untranslatable: \"Centers Left Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

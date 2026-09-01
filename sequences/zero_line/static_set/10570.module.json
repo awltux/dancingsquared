@@ -1,0 +1,21 @@
+{
+  "id": 10570,
+  "name": "ceder-10570",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "Boys Run",
+    "Centers Trade",
+    "Swing Thru",
+    "Girls Run",
+    "Star Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

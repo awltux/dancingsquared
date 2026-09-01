@@ -1,0 +1,20 @@
+{
+  "id": 10868,
+  "name": "ceder-10868",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Lead Right",
+    "Circle 3/4",
+    "Lines Forward & Back",
+    "Centers Square Thru 4",
+    "Ends Touch 1/4 & That Girl Run",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Circle 3/4,\"; Untranslatable: \"Lines Forward & Back,\"; Untranslatable: \"Centers Square Thru 4,\"; Untranslatable: \"Ends Touch 1/4 & That Girl Run,\"",
+  "source": "ceder.net/choreodb"
+}

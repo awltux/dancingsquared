@@ -1,0 +1,25 @@
+{
+  "id": 11160,
+  "name": "ceder-11160",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Promenade 3/4",
+    "Sides Square Thru 3",
+    "Dosado",
+    "Star Thru",
+    "Pass Thru, Wheel Around",
+    "Two Ladies Chain",
+    "Star Thru",
+    "Square Thru 3",
+    "Allemande Left",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Sides Square Thru 3,\"; Untranslatable: \"Pass Thru, Wheel Around,\"; Untranslatable: \"Two Ladies Chain,\"",
+  "source": "ceder.net/choreodb"
+}

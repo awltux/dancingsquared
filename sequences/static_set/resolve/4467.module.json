@@ -1,0 +1,23 @@
+{
+  "id": 4467,
+  "name": "ceder-4467",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Lead Right",
+    "Swing Thru",
+    "Split Circulate",
+    "Scoot Back",
+    "Centers Trade",
+    "Girls Run",
+    "Centers Reverse Flutter Wheel",
+    "All Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Reverse Flutter Wheel,\"; Untranslatable: \"All Square Thru 4,\"",
+  "source": "ceder.net/choreodb"
+}

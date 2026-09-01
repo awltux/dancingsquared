@@ -1,0 +1,22 @@
+{
+  "id": 6882,
+  "name": "ceder-6882",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 2 To A Line",
+    "Forward and Back",
+    "Centers Pass Thru",
+    "Split Two Around 1 To A Line",
+    "New Centers Pass Thru",
+    "Split Two Around One To A Line",
+    "All Star Thru"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 2 To A Line,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Split Two Around 1 To A Line,\"; Untranslatable: \"New Centers Pass Thru,\"; Untranslatable: \"Split Two Around One To A Line,\"; Untranslatable: \"All Star Thru\"",
+  "source": "ceder.net/choreodb"
+}

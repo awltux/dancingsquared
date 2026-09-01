@@ -1,0 +1,22 @@
+{
+  "id": 8784,
+  "name": "ceder-8784",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Star Thru",
+    "Dive Thru",
+    "Centers Swing Thru",
+    "Swing Thru",
+    "Extend",
+    "Recycle",
+    "Sweep a Quarter",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru\"",
+  "source": "ceder.net/choreodb"
+}

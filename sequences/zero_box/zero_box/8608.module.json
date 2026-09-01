@@ -1,0 +1,20 @@
+{
+  "id": 8608,
+  "name": "ceder-8608",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Star Thru",
+    "Pass the Ocean",
+    "All 8 Circulate",
+    "Right and Left Thru",
+    "Dive Thru",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

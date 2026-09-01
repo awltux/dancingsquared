@@ -1,0 +1,18 @@
+{
+  "id": 9040,
+  "name": "ceder-9040",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Swing Thru",
+    "Spin the Top",
+    "Pass Thru",
+    "Left Allemande TdBy Formation."
+  ],
+  "note": "Untranslatable: \"Left Allemande TdBy Formation.\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 5618,
+  "name": "ceder-5618",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Square Thru 4",
+    "Wheel and Deal",
+    "Centers Swing Thru",
+    "Extend",
+    "Swing Thru",
+    "Split Circulate",
+    "Boys Run"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru\"",
+  "source": "ceder.net/choreodb"
+}

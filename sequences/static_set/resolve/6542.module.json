@@ -1,0 +1,25 @@
+{
+  "id": 6542,
+  "name": "ceder-6542",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Backaway & Half Sashay",
+    "All Join Hands, Circle Left",
+    "4 Girls Forward & Back",
+    "Girls Square Thru 3",
+    "Separate Around 1 To A Line",
+    "All Square Thru 3",
+    "Wheel and Deal",
+    "Centers Half Sashay",
+    "Centers Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" Backaway & Half Sashay,\"; Untranslatable: \"All Join Hands, Circle Left,\"; Untranslatable: \"4 Girls Forward & Back,\"; Untranslatable: \"Girls Square Thru 3,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Square Thru 3,\"; Untranslatable: \"Centers Half Sashay,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

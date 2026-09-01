@@ -1,0 +1,18 @@
+{
+  "id": 4658,
+  "name": "ceder-4658",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Half Tag",
+    "Swing Thru",
+    "Split Circulate",
+    "Boys Run"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,20 @@
+{
+  "id": 3811,
+  "name": "ceder-3811",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Only Zoom",
+    "Centers Square Thru 3",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Girls Only Zoom\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

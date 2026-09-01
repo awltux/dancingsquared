@@ -1,0 +1,22 @@
+{
+  "id": 4108,
+  "name": "ceder-4108",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Swing Thru",
+    "Boys Circulate",
+    "Spin the Top",
+    "Hinge",
+    "Circulate",
+    "Boys Run",
+    "Slide Thru Double",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Boys Circulate\"; Untranslatable: \"Slide Thru Double\"",
+  "source": "ceder.net/choreodb"
+}

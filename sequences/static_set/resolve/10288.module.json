@@ -1,0 +1,25 @@
+{
+  "id": 10288,
+  "name": "ceder-10288",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Square Thru 4",
+    "Swing Thru Twice",
+    "Square Thru 4",
+    "Partner Trade",
+    "Square Thru 4",
+    "U Turn Back",
+    "Swing Thru",
+    "Girls U Turn Back",
+    "Veer Right",
+    "California Twirl",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Swing Thru Twice,\"; Untranslatable: \"U Turn Back,\"; Untranslatable: \"Girls U Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,33 @@
+{
+  "id": 11357,
+  "name": "ceder-11357",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 19,
+  "mappedCount": 16,
+  "steps": [
+    "(Lesson 12-02)",
+    "Heads Square Thru",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Hinge",
+    "Girls Trade",
+    "Recycle",
+    "Pass Thru",
+    "Trade By",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Hinge",
+    "Girls Trade",
+    "Recycle",
+    "Allemande Left",
+    "R.L.G. On The 3rd Hand Box The Gnat",
+    "Wrong Way Grand",
+    "Slide Thru",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 12-02),\"; Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"R.L.G. On The 3rd Hand Box The Gnat,\"",
+  "source": "ceder.net/choreodb"
+}

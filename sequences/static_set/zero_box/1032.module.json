@@ -1,0 +1,17 @@
+{
+  "id": 1032,
+  "name": "ceder-1032",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 1,
+  "steps": [
+    "Sides Face, Grand Square",
+    "Heads Go 27 Steps Only",
+    "Heads U Turn Back"
+  ],
+  "note": "Untranslatable: \"Heads Go 27 Steps Only,\"; Untranslatable: \"Heads U Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

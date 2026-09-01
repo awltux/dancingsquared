@@ -1,0 +1,22 @@
+{
+  "id": 2909,
+  "name": "ceder-2909",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Star Thru",
+    "Zoom",
+    "Centers Trade",
+    "Swing Thru",
+    "Spin the Top",
+    "Right and Left Thru",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

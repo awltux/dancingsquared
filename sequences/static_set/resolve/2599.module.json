@@ -1,0 +1,25 @@
+{
+  "id": 2599,
+  "name": "ceder-2599",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Flutter Wheel, Sweep 1/4",
+    "Pass Thru",
+    "Boys Walk, Girls Dodge",
+    "Eight Circulate",
+    "Girls Run",
+    "Boys Walk, Girls Dodge",
+    "Eight Circulate",
+    "Girls Run",
+    "Pass Thru",
+    "Trade By",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel, Sweep 1/4,\"; Untranslatable: \"Eight Circulate,\"; Untranslatable: \"Eight Circulate,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 2994,
+  "name": "ceder-2994",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Face Right",
+    "Centers Scoot Back",
+    "All 1/2 Tag",
+    "Scoot Back",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Scoot Back\"; Untranslatable: \"All 1/2 Tag\"",
+  "source": "ceder.net/choreodb"
+}

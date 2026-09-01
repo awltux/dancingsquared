@@ -1,0 +1,21 @@
+{
+  "id": 7147,
+  "name": "ceder-7147",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Outsides Half Sashay",
+    "Swing Thru",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Outsides Half Sashay\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

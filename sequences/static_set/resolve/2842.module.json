@@ -1,0 +1,23 @@
+{
+  "id": 2842,
+  "name": "ceder-2842",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Lead Right",
+    "Pass the Ocean",
+    "Spin the Top",
+    "Swing Thru",
+    "Circulate",
+    "Spin the Top",
+    "Boys Run",
+    "Bend the Line",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

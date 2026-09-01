@@ -1,0 +1,22 @@
+{
+  "id": 7062,
+  "name": "ceder-7062",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Flutterwheel",
+    "Pass the Ocean",
+    "Swing Thru",
+    "Ends Circulate",
+    "Centers Run",
+    "Bend the Line",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

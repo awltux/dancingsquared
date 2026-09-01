@@ -1,0 +1,27 @@
+{
+  "id": 6136,
+  "name": "ceder-6136",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Spin the Top",
+    "Step Thru",
+    "Tag the Line",
+    "Leaders U-Turn Back",
+    "Square Thru 4",
+    "Tag the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 8436,
+  "name": "ceder-8436",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Head Ladies Chain",
+    "Same 4 Rollaway",
+    "Sides Circle Left 3/4",
+    "All Double Pass Thru",
+    "Centers In",
+    "California Twirl",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Same 4 Rollaway,\"; Untranslatable: \"Sides Circle Left 3/4,\"; Untranslatable: \"All Double Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

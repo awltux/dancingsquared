@@ -1,0 +1,26 @@
+{
+  "id": 4517,
+  "name": "ceder-4517",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Lead Right",
+    "Pass the Ocean",
+    "Hinge",
+    "Circulate",
+    "Face In",
+    "Pass the Ocean",
+    "Circulate",
+    "Hinge",
+    "Split Circulate",
+    "Boys U-Turn Back",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Boys U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

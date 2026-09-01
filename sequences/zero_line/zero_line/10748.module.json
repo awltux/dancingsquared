@@ -1,0 +1,23 @@
+{
+  "id": 10748,
+  "name": "ceder-10748",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "%Boys% Run Right",
+    "All Scoot Back",
+    "Scoot Back",
+    "%Girls% Run Right",
+    "Pass Thru",
+    "Tag the Line",
+    "Face In"
+  ],
+  "note": "Untranslatable: \"%Boys% Run Right\"; Untranslatable: \"All Scoot Back\"; Untranslatable: \"%Girls% Run Right\"",
+  "source": "ceder.net/choreodb"
+}

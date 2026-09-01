@@ -1,0 +1,19 @@
+{
+  "id": 5535,
+  "name": "ceder-5535",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Swing Thru",
+    "Boys Trade",
+    "Boys Circulate",
+    "Boys Run",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

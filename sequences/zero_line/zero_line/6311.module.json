@@ -1,0 +1,21 @@
+{
+  "id": 6311,
+  "name": "ceder-6311",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 1,
+  "steps": [
+    "Right and Left Thru",
+    "Everybody Half Sashay",
+    "Centers Half Sashay",
+    "Boys Half Sashay",
+    "Girls Half Sashay",
+    "Centers Half Sashay",
+    "Everybody Half Sashay"
+  ],
+  "note": "Untranslatable: \"Everybody Half Sashay\"; Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Boys Half Sashay\"; Untranslatable: \"Girls Half Sashay\"; Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Everybody Half Sashay\"",
+  "source": "ceder.net/choreodb"
+}

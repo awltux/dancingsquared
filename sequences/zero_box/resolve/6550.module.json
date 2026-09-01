@@ -1,0 +1,24 @@
+{
+  "id": 6550,
+  "name": "ceder-6550",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Swing Thru",
+    "Girls Run",
+    "Girls Circulate",
+    "Ferris Wheel",
+    "Half Sashay",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Centers Star Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Centers Star Thru\"",
+  "source": "ceder.net/choreodb"
+}

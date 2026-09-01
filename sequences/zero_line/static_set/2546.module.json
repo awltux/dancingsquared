@@ -1,0 +1,18 @@
+{
+  "id": 2546,
+  "name": "ceder-2546",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Star Thru",
+    "Centers In",
+    "Centers Run",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

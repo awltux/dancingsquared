@@ -1,0 +1,21 @@
+{
+  "id": 3769,
+  "name": "ceder-3769",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Pass Thru",
+    "Boys Run",
+    "Girls Fold",
+    "Double Pass Thru",
+    "Boys U-Turn Back",
+    "Star Thru",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Boys U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

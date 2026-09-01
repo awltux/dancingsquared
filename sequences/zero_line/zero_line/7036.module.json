@@ -1,0 +1,19 @@
+{
+  "id": 7036,
+  "name": "ceder-7036",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Ladies Trade",
+    "Centers Trade",
+    "Ends Trade",
+    "Ladies Trade"
+  ],
+  "note": "Untranslatable: \"Ladies Trade\"; Untranslatable: \"Ladies Trade\"",
+  "source": "ceder.net/choreodb"
+}

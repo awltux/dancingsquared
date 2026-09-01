@@ -1,0 +1,25 @@
+{
+  "id": 11063,
+  "name": "ceder-11063",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "(Lesson 8-04)",
+    "Heads Square Thru 2",
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Girls Cross Run",
+    "Boys Cross Run",
+    "Chain Down the Line",
+    "Slide Thru",
+    "Allemande Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 8-04),\"; Untranslatable: \"Girls Cross Run,\"; Untranslatable: \"Boys Cross Run,\"",
+  "source": "ceder.net/choreodb"
+}

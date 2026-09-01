@@ -1,0 +1,26 @@
+{
+  "id": 6064,
+  "name": "ceder-6064",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 12,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Wheel and Deal",
+    "Dosado to a Wave",
+    "Swing Thru",
+    "Girls Run",
+    "Pass Thru",
+    "Tag the Line",
+    "Wheel and Deal",
+    "Dosado to a Wave",
+    "Swing Thru",
+    "Boys Run",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

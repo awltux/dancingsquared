@@ -1,0 +1,19 @@
+{
+  "id": 6828,
+  "name": "ceder-6828",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Star Thru",
+    "Centers Box The Gnat",
+    "Same Four Square Thru",
+    "Ends Star Thru",
+    "Everyone Right & Left Thru"
+  ],
+  "note": "Untranslatable: \"Centers Box The Gnat\"; Untranslatable: \"Same Four Square Thru\"; Untranslatable: \"Ends Star Thru\"; Untranslatable: \"Everyone Right & Left Thru\"",
+  "source": "ceder.net/choreodb"
+}

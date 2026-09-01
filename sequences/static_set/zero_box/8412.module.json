@@ -1,0 +1,17 @@
+{
+  "id": 8412,
+  "name": "ceder-8412",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Box The Gnat",
+    "Dosado",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Heads Box The Gnat,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 6799,
+  "name": "ceder-6799",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Square Thru 3",
+    "Separate Around 1 To A Line",
+    "All Pass Thru",
+    "Tag the Line",
+    "Leaders Trade"
+  ],
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Leaders Trade\"",
+  "source": "ceder.net/choreodb"
+}

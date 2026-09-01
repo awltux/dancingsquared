@@ -1,0 +1,23 @@
+{
+  "id": 4425,
+  "name": "ceder-4425",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "4 Ladies Chain",
+    "Heads Promenade 1/2",
+    "Come Down The Middle",
+    "Square Thru 2",
+    "Square Thru 2",
+    "Tag the Line",
+    "Square Thru 2",
+    "Centers Square Thru 2",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \" Come Down The Middle,\"; Untranslatable: \"Centers Square Thru 2,\"",
+  "source": "ceder.net/choreodb"
+}

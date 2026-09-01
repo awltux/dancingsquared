@@ -1,0 +1,20 @@
+{
+  "id": 11123,
+  "name": "ceder-11123",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Dosado",
+    "Heads Pass Thru And Wheel Around",
+    "Heads Back Away While The Sides Dosado",
+    "Sides Pass Thru And Wheel Around",
+    "Sides Face Out (you corner)",
+    "Allemande Left, R.L.G., Promenade Home"
+  ],
+  "note": "Untranslatable: \"Heads Dosado,\"; Untranslatable: \"Heads Pass Thru And Wheel Around,\"; Untranslatable: \"Heads Back Away While The Sides Dosado,\"; Untranslatable: \"Sides Pass Thru And Wheel Around,\"; Untranslatable: \"Sides Face Out (you corner),\"; Untranslatable: \"Allemande Left, R.L.G., Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

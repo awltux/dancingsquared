@@ -1,0 +1,21 @@
+{
+  "id": 10193,
+  "name": "ceder-10193",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Swing Thru",
+    "Girls Run",
+    "Ferris Wheel",
+    "Centers Sweep 1/4",
+    "Centers Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Sweep 1/4\"; Untranslatable: \"Centers Square Thru 4\"",
+  "source": "ceder.net/choreodb"
+}

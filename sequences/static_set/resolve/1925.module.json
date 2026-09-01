@@ -1,0 +1,18 @@
+{
+  "id": 1925,
+  "name": "ceder-1925",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Square Thru 4",
+    "Swing Thru",
+    "Scoot Back",
+    "Ends Cross Run",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

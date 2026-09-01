@@ -1,0 +1,19 @@
+{
+  "id": 8488,
+  "name": "ceder-8488",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Forward and Back",
+    "Same 4 Lead Right",
+    "Veer Left",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" Same 4 Lead Right,\"",
+  "source": "ceder.net/choreodb"
+}

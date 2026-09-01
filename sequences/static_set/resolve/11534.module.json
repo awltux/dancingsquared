@@ -1,0 +1,25 @@
+{
+  "id": 11534,
+  "name": "ceder-11534",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Lead Right",
+    "All Swing Thru",
+    "Ends Circulate",
+    "Ends Run",
+    "New Ends Zoom",
+    "Centers Trade",
+    "All Couples Circulate",
+    "Ferris Wheel, Centers Sweep 1/4",
+    "Centers Lead Left",
+    "All Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"All Swing Thru,\"; Untranslatable: \"New Ends Zoom,\"; Untranslatable: \"All Couples Circulate,\"; Untranslatable: \"Ferris Wheel, Centers Sweep 1/4,\"; Untranslatable: \"Centers Lead Left,\"; Untranslatable: \"All Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

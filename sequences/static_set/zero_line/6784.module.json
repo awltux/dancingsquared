@@ -1,0 +1,15 @@
+{
+  "id": 6784,
+  "name": "ceder-6784",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 2,
+  "mappedCount": 1,
+  "steps": [
+    "All 4 Couples Promenade",
+    "Heads Wheel Around"
+  ],
+  "source": "ceder.net/choreodb"
+}

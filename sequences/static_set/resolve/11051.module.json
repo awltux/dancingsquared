@@ -1,0 +1,27 @@
+{
+  "id": 11051,
+  "name": "ceder-11051",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 10,
+  "steps": [
+    "(Lesson 9-06)",
+    "Heads Reverse Flutter Wheel",
+    "Heads Lead Left",
+    "Veer Right",
+    "Couples Circulate",
+    "Bend the Line",
+    "Pass Thru",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Zoom",
+    "Centers Star Thru & Backaway",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 9-06),\"; Untranslatable: \"Heads Reverse Flutter Wheel,\"; Untranslatable: \"Centers Star Thru & Backaway,\"",
+  "source": "ceder.net/choreodb"
+}

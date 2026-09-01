@@ -1,0 +1,25 @@
+{
+  "id": 6951,
+  "name": "ceder-6951",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 4,
+  "steps": [
+    "Sides Right & Left Thru",
+    "Side Ladies Chain",
+    "Heads Right & Left Thru",
+    "Head Ladies Chain",
+    "Heads Rollaway",
+    "Heads Forward and Back",
+    "Heads Pass Thru",
+    "Separate Around One To A Line",
+    "Forward and Back",
+    "Forward & Give The Opposite A Right & Step By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Sides Right & Left Thru,\"; Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around One To A Line,\"; Untranslatable: \"Forward & Give The Opposite A Right & Step By,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

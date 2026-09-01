@@ -1,0 +1,18 @@
+{
+  "id": 5966,
+  "name": "ceder-5966",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Ends Run",
+    "Right and Left Thru",
+    "Slide Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

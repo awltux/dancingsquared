@@ -1,0 +1,24 @@
+{
+  "id": 2919,
+  "name": "ceder-2919",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Girls Circulate",
+    "Boys Run",
+    "Chain Down the Line",
+    "Pass the Ocean",
+    "Boys Circulate",
+    "Swing Thru",
+    "Ends Trade",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

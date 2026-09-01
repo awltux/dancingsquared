@@ -1,0 +1,24 @@
+{
+  "id": 8722,
+  "name": "ceder-8722",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 4,
+  "steps": [
+    "Star Thru",
+    "Step to a Wave",
+    "All Eight Circulate",
+    "Ladies Trade",
+    "Men Trade",
+    "All Eight Circulate",
+    "Ladies Trade",
+    "Men Trade",
+    "Right and Left Thru",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"All Eight Circulate\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade\"; Untranslatable: \"All Eight Circulate\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade\"",
+  "source": "ceder.net/choreodb"
+}

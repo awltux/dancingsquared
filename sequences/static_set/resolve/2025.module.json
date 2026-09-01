@@ -1,0 +1,22 @@
+{
+  "id": 2025,
+  "name": "ceder-2025",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "1/2 Square Thru",
+    "Ends Fold",
+    "1/2 Square Thru",
+    "Ends Cross Fold",
+    "1/2 Square Thru",
+    "Ends Cross Fold",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

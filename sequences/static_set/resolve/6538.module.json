@@ -1,0 +1,21 @@
+{
+  "id": 6538,
+  "name": "ceder-6538",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Everybody Half Sashay",
+    "Heads 1/2 Square Thru",
+    "All Square Thru 4",
+    "Bend the Line",
+    "Box the Gnat",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Everybody Half Sashay,\"; Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All Square Thru 4,\"",
+  "source": "ceder.net/choreodb"
+}

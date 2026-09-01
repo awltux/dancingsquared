@@ -1,0 +1,21 @@
+{
+  "id": 9224,
+  "name": "ceder-9224",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Star Thru",
+    "Pass Thru",
+    "All Right & Left Thru",
+    "Veer Left",
+    "Boys Circulate",
+    "Ladies Trade",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"Boys Circulate,\"; Untranslatable: \"Ladies Trade,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,30 @@
+{
+  "id": 6371,
+  "name": "ceder-6371",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 16,
+  "mappedCount": 15,
+  "steps": [
+    "Heads Slide Thru",
+    "Pass Thru",
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line",
+    "Star Thru",
+    "Pass Thru",
+    "Trade By",
+    "Veer Left",
+    "Couples Circulate",
+    "Bend the Line",
+    "Pass Thru",
+    "Bend the Line",
+    "Square Thru 4",
+    "Trade By",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads Slide Thru,\"",
+  "source": "ceder.net/choreodb"
+}

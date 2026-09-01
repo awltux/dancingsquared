@@ -1,0 +1,18 @@
+{
+  "id": 8833,
+  "name": "ceder-8833",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 2 To A Line",
+    "Touch a Quarter",
+    "Boys Run"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 2 To A Line,\"",
+  "source": "ceder.net/choreodb"
+}

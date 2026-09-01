@@ -1,0 +1,18 @@
+{
+  "id": 10876,
+  "name": "ceder-10876",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Lead Right",
+    "Swing Thru",
+    "Boys Run",
+    "Circulate",
+    "Bend the Line"
+  ],
+  "source": "ceder.net/choreodb"
+}

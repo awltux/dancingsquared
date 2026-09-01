@@ -1,0 +1,19 @@
+{
+  "id": 8908,
+  "name": "ceder-8908",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Swing Thru",
+    "Men Trade",
+    "Box the Gnat",
+    "Change Hands",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Change Hands\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

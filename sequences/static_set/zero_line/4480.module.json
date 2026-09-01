@@ -1,0 +1,18 @@
+{
+  "id": 4480,
+  "name": "ceder-4480",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Head Lead Right",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Boys Run"
+  ],
+  "note": "Untranslatable: \"Head Lead Right,\"",
+  "source": "ceder.net/choreodb"
+}

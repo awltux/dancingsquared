@@ -1,0 +1,23 @@
+{
+  "id": 10221,
+  "name": "ceder-10221",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 4,
+  "steps": [
+    "Star Thru",
+    "Pass the Ocean",
+    "Boys Circulate Twice",
+    "Ladies Trade",
+    "Ladies Circulate",
+    "Swing Thru",
+    "Girls Circulate 1 & 1/2",
+    "Boys Circulate 2 & 1/2",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Boys Circulate Twice\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Girls Circulate 1 & 1/2\"; Untranslatable: \"Boys Circulate 2 & 1/2\"",
+  "source": "ceder.net/choreodb"
+}

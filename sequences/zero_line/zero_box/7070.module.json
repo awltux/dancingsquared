@@ -1,0 +1,19 @@
+{
+  "id": 7070,
+  "name": "ceder-7070",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "1/2 Square Thru",
+    "Trade By",
+    "Step to a Wave",
+    "Men Circulate",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Men Circulate\"",
+  "source": "ceder.net/choreodb"
+}

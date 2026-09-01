@@ -1,0 +1,23 @@
+{
+  "id": 10559,
+  "name": "ceder-10559",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Four Ladies Chain",
+    "Four Ladies Chain 3/4",
+    "Head Position Rollaway",
+    "Same 4 Square Thru 4",
+    "Dosado",
+    "Swing Thru",
+    "Cast Off Three Quarters",
+    "Left Swing Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Head Position Rollaway,\"; Untranslatable: \"Same 4 Square Thru 4,\"",
+  "source": "ceder.net/choreodb"
+}

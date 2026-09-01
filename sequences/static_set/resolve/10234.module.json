@@ -1,0 +1,19 @@
+{
+  "id": 10234,
+  "name": "ceder-10234",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Star Thru, Ends Face In",
+    "Centers Pass The Ocean",
+    "All Pass The Ocean",
+    "Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Star Thru, Ends Face In,\"; Untranslatable: \"Centers Pass The Ocean,\"; Untranslatable: \"All Pass The Ocean,\"",
+  "source": "ceder.net/choreodb"
+}

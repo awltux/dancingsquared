@@ -1,0 +1,18 @@
+{
+  "id": 7066,
+  "name": "ceder-7066",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Swing Thru",
+    "Men Trade",
+    "Ladies Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Circulate\"",
+  "source": "ceder.net/choreodb"
+}

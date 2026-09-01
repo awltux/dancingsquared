@@ -1,0 +1,19 @@
+{
+  "id": 4107,
+  "name": "ceder-4107",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Rollaway",
+    "Heads Square Thru 4",
+    "Swing Thru",
+    "Ends Circulate",
+    "Boys Run"
+  ],
+  "note": "Untranslatable: \"Heads Rollaway,\"",
+  "source": "ceder.net/choreodb"
+}

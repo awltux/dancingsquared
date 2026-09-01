@@ -1,0 +1,24 @@
+{
+  "id": 5616,
+  "name": "ceder-5616",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Square Thru 4",
+    "Sides Half Sashay",
+    "Centers In",
+    "Centers Pass Thru",
+    "Centers Trade",
+    "All Cast Off 3/4",
+    "Centers Trade",
+    "All Star Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \" Sides Half Sashay,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"All Cast Off 3/4,\"; Untranslatable: \"All Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

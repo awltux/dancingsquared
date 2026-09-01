@@ -1,0 +1,21 @@
+{
+  "id": 6150,
+  "name": "ceder-6150",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 8,
+  "mappedCount": 8,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Trade",
+    "Swing Thru",
+    "Split Circulate",
+    "Boys Run",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Square Thru 4"
+  ],
+  "source": "ceder.net/choreodb"
+}

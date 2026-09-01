@@ -1,0 +1,25 @@
+{
+  "id": 2786,
+  "name": "ceder-2786",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 9,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Face Right",
+    "Ferris Wheel",
+    "Double Pass Thru",
+    "Face Right",
+    "Ferris Wheel",
+    "Centers Swing Thru",
+    "Outsides Face",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Outsides Face\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 10531,
+  "name": "ceder-10531",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Lead Right",
+    "All Pass The Ocean",
+    "Girls Trade",
+    "Boys Run",
+    "Boys Trade",
+    "Couples Hinge",
+    "Couples Circulate",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"All Pass The Ocean,\"",
+  "source": "ceder.net/choreodb"
+}

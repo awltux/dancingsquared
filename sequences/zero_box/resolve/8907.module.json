@@ -1,0 +1,19 @@
+{
+  "id": 8907,
+  "name": "ceder-8907",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Step to a Wave",
+    "All 8 Circulate",
+    "Men Circulate",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Men Circulate\"",
+  "source": "ceder.net/choreodb"
+}

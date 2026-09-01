@@ -1,0 +1,22 @@
+{
+  "id": 2415,
+  "name": "ceder-2415",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Box the Gnat",
+    "Square Thru 2",
+    "Wheel and Deal",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

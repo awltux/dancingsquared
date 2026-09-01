@@ -1,0 +1,26 @@
+{
+  "id": 6507,
+  "name": "ceder-6507",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Reverse Flutterwheel",
+    "Half Sashay 1 & 1/2",
+    "4 Boys Swing Thru",
+    "Extend",
+    "Swing Thru",
+    "Boys Trade",
+    "Centers Trade",
+    "Girls Run",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Half Sashay 1 & 1/2\"; Untranslatable: \"4 Boys Swing Thru\"",
+  "source": "ceder.net/choreodb"
+}

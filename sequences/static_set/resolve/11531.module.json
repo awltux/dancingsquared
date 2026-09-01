@@ -1,0 +1,26 @@
+{
+  "id": 11531,
+  "name": "ceder-11531",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "All Pass Thru",
+    "Tag the Line",
+    "Ends Trade",
+    "Centers In",
+    "Ends Cross Fold",
+    "All Double Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "Centers Cross Fold",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Centers Cross Fold,\"",
+  "source": "ceder.net/choreodb"
+}

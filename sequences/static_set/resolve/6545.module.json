@@ -1,0 +1,29 @@
+{
+  "id": 6545,
+  "name": "ceder-6545",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 15,
+  "mappedCount": 8,
+  "steps": [
+    "Everybody Half Sashay",
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Everybody Pass Thru",
+    "Boys Partner Trade",
+    "Couples Circulate",
+    "Ferris Wheel",
+    "Girls Swing Thru Double",
+    "Extend",
+    "Scoot Back",
+    "Boy Run",
+    "Reverse Flutterwheel",
+    "Half Sashay",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Everybody Half Sashay,\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Everybody Pass Thru,\"; Untranslatable: \"Boys Partner Trade,\"; Untranslatable: \"Girls Swing Thru Double,\"; Untranslatable: \"Boy Run,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 5622,
+  "name": "ceder-5622",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Touch a Quarter",
+    "Split Circulate",
+    "Boys Run",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centres Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centres Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

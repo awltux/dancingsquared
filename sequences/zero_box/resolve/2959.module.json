@@ -1,0 +1,26 @@
+{
+  "id": 2959,
+  "name": "ceder-2959",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 12,
+  "steps": [
+    "Touch a Quarter",
+    "Scoot Back",
+    "Centers Trade",
+    "Swing Thru",
+    "Boys Run",
+    "Square Thru 3",
+    "Girls Run",
+    "Scoot Back",
+    "Centers Trade",
+    "Left Swing Thru",
+    "Girls Run",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

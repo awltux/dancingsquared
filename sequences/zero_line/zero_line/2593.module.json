@@ -1,0 +1,22 @@
+{
+  "id": 2593,
+  "name": "ceder-2593",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Girls Walk",
+    "Boys Dodge",
+    "Hinge",
+    "Boys Cross Run",
+    "Recycle",
+    "Sweep a Quarter",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Girls Walk\"; Untranslatable: \"Boys Dodge\"; Untranslatable: \"Boys Cross Run\"",
+  "source": "ceder.net/choreodb"
+}

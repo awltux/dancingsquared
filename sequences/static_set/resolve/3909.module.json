@@ -1,0 +1,21 @@
+{
+  "id": 3909,
+  "name": "ceder-3909",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Right & Left Thru & Backaway",
+    "Sides Touch 1/4",
+    "Girls Pass Thru",
+    "Centers Swing Thru",
+    "Boys Pass Thru",
+    "Centers Wheel & Deal",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru & Backaway,\"; Untranslatable: \"Sides Touch 1/4,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Centers Swing Thru,\"; Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"Centers Wheel & Deal,\"",
+  "source": "ceder.net/choreodb"
+}

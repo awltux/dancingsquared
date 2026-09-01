@@ -1,0 +1,29 @@
+{
+  "id": 4078,
+  "name": "ceder-4078",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 15,
+  "mappedCount": 12,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Face Right",
+    "Ferris Wheel",
+    "Centers Swing Thru",
+    "Extend",
+    "Swing Thru",
+    "Boys Run",
+    "Tag the Line",
+    "Face Left",
+    "Couples Circulate",
+    "Ferris Wheel",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

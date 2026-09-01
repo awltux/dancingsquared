@@ -1,0 +1,24 @@
+{
+  "id": 6505,
+  "name": "ceder-6505",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "Touch a Quarter",
+    "Circulate",
+    "Boys Run",
+    "Left Swing Thru",
+    "Girls Trade",
+    "Girls Run",
+    "Couples Circulate",
+    "Bend the Line",
+    "Half Sashay",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,18 @@
+{
+  "id": 7468,
+  "name": "ceder-7468",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Four Ladies Chain",
+    "Everybody Half Sashay",
+    "Heads Square Thru 4",
+    "Box the Gnat"
+  ],
+  "note": "Untranslatable: \"Everybody Half Sashay,\"",
+  "source": "ceder.net/choreodb"
+}

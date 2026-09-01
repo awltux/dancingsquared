@@ -1,0 +1,21 @@
+{
+  "id": 5623,
+  "name": "ceder-5623",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

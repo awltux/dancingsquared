@@ -1,0 +1,18 @@
+{
+  "id": 8513,
+  "name": "ceder-8513",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Lead Right",
+    "Veer Left",
+    "Wheel and Deal",
+    "Reverse Flutterwheel",
+    "Star Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

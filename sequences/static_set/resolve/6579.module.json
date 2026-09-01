@@ -1,0 +1,17 @@
+{
+  "id": 6579,
+  "name": "ceder-6579",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 2, Meet Your Partner, Dosado",
+    "Face Corner, Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 2, Meet Your Partner, Dosado,\"; Untranslatable: \"Face Corner, Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

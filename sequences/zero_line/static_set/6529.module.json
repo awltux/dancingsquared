@@ -1,0 +1,22 @@
+{
+  "id": 6529,
+  "name": "ceder-6529",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Touch a Quarter",
+    "Circulate",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "Half Sashay",
+    "1/2 Square Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

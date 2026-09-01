@@ -1,0 +1,24 @@
+{
+  "id": 11158,
+  "name": "ceder-11158",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Star Thru, Pass Thru",
+    "Star Thru",
+    "Square Thru 4",
+    "Dance Out & Back",
+    "Bend the Line",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Left Allemande",
+    "R.L.G. (ends at Home)"
+  ],
+  "note": "Untranslatable: \"Heads Star Thru, Pass Thru,\"; Untranslatable: \"Dance Out & Back,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"R.L.G. (ends at Home)\"",
+  "source": "ceder.net/choreodb"
+}

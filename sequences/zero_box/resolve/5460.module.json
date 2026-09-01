@@ -1,0 +1,22 @@
+{
+  "id": 5460,
+  "name": "ceder-5460",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Trade",
+    "Centers Run",
+    "3/4 Tag the Line",
+    "Centers Swing Thru Double",
+    "Others Trade",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru Double\"; Untranslatable: \"Others Trade\"",
+  "source": "ceder.net/choreodb"
+}

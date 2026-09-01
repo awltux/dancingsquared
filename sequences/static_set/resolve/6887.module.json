@@ -1,0 +1,19 @@
+{
+  "id": 6887,
+  "name": "ceder-6887",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Pass Thru And Step Ahead",
+    "Sides Pass Thru And Step Ahead",
+    "Everybody Face Their Partner And Pass Thru",
+    "Left Allemande",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru And Step Ahead,\"; Untranslatable: \"Sides Pass Thru And Step Ahead,\"; Untranslatable: \"Everybody Face Their Partner And Pass Thru,\"; Untranslatable: \"Left Allemande,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 8592,
+  "name": "ceder-8592",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Veer Left",
+    "Veer Right",
+    "Courtesy Turn",
+    "Veer Right",
+    "Veer Left",
+    "Courtesy Turn"
+  ],
+  "source": "ceder.net/choreodb"
+}

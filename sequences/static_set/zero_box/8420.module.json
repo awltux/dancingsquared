@@ -1,0 +1,20 @@
+{
+  "id": 8420,
+  "name": "ceder-8420",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Head Ladies Chain Right",
+    "Head Position Right & Left Thru",
+    "Same 4 Star Thru",
+    "Double Pass Thru",
+    "First Couple Left, Next Couple Right",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Head Position Right & Left Thru,\"; Untranslatable: \"Same 4 Star Thru,\"; Untranslatable: \"First Couple Left, Next Couple Right,\"",
+  "source": "ceder.net/choreodb"
+}

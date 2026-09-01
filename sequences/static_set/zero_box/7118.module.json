@@ -1,0 +1,20 @@
+{
+  "id": 7118,
+  "name": "ceder-7118",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Centers Box The Gnat",
+    "Everybody Square Thru",
+    "Trade By",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \"Everybody Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,27 @@
+{
+  "id": 6961,
+  "name": "ceder-6961",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Right & Left Thru, Full Turn Around (to face out)",
+    "Separate Around One Come Into The Middle",
+    "Right and Left Thru",
+    "Everybody Right & Left Thru",
+    "Dive Thru",
+    "Centers Star Thru And Backaway (ZS)",
+    "Sides Right & Left Thru, Full Turn Around (to face out)",
+    "Separate Around One Into The Middle",
+    "Right and Left Thru",
+    "Everybody Right & Left Thru",
+    "Dive Thru",
+    "Centers Pass Thru (ZB)",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru, Full Turn Around (to face out),\"; Untranslatable: \"Separate Around One Come Into The Middle,\"; Untranslatable: \"Everybody Right & Left Thru,\"; Untranslatable: \"Centers Star Thru And Backaway (ZS),\"; Untranslatable: \"Sides Right & Left Thru, Full Turn Around (to face out),\"; Untranslatable: \"Separate Around One Into The Middle,\"; Untranslatable: \"Everybody Right & Left Thru,\"; Untranslatable: \"Centers Pass Thru (ZB),\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

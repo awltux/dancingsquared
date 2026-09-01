@@ -1,0 +1,19 @@
+{
+  "id": 8996,
+  "name": "ceder-8996",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Ladies Chain",
+    "Right and Left Thru",
+    "Veer Right",
+    "Left Allemande TdBy Formation The 1/4 More on the Right & Left Thru will create a Right Hand Two Faced Line"
+  ],
+  "note": "Untranslatable: \"Left Allemande TdBy Formation The 1/4 More on the Right & Left Thru will create a Right Hand Two Faced Line\"",
+  "source": "ceder.net/choreodb"
+}

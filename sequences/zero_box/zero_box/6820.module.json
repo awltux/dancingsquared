@@ -1,0 +1,21 @@
+{
+  "id": 6820,
+  "name": "ceder-6820",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 2,
+  "steps": [
+    "Split The Outside 2",
+    "Separate Around 1",
+    "Come Into The Middle & Pass Thru",
+    "Courtesy Turn",
+    "Pass Thru",
+    "Separate Around 1",
+    "Come Into The Middle & Pass Thru (Zero Box) CDP Goal post pattern."
+  ],
+  "note": "Untranslatable: \"Split The Outside 2\"; Untranslatable: \"Separate Around 1\"; Untranslatable: \"Come Into The Middle & Pass Thru\"; Untranslatable: \"Separate Around 1\"; Untranslatable: \"Come Into The Middle & Pass Thru (Zero Box) CDP Goal post pattern.\"",
+  "source": "ceder.net/choreodb"
+}

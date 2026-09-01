@@ -1,0 +1,24 @@
+{
+  "id": 6148,
+  "name": "ceder-6148",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Centers In",
+    "Boys Trade",
+    "All Cast Off 3/4",
+    "Centers Right & Left Thru",
+    "Flutterwheel",
+    "Ends Run",
+    "Right and Left Thru",
+    "Touch a Quarter",
+    "Girls Run",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"All Cast Off 3/4\"; Untranslatable: \"Centers Right & Left Thru\"",
+  "source": "ceder.net/choreodb"
+}

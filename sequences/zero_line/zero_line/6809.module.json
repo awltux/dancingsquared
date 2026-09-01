@@ -1,0 +1,18 @@
+{
+  "id": 6809,
+  "name": "ceder-6809",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Bend the Line",
+    "Pass Thru",
+    "Bend The Line (Zero Line) Flip Flops the Set."
+  ],
+  "note": "Untranslatable: \"Bend The Line (Zero Line) Flip Flops the Set.\"",
+  "source": "ceder.net/choreodb"
+}

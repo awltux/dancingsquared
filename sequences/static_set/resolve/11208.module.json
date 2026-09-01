@@ -1,0 +1,25 @@
+{
+  "id": 11208,
+  "name": "ceder-11208",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Lead Right",
+    "All Right & Left Thru",
+    "Veer Left",
+    "Half Tag",
+    "Hinge",
+    "Girls Run",
+    "Couples Circulate Two Times",
+    "Half Tag",
+    "Hinge",
+    "Girls U-Turn Back",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"Couples Circulate Two Times,\"; Untranslatable: \"Girls U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

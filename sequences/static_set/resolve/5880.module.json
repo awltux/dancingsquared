@@ -1,0 +1,24 @@
+{
+  "id": 5880,
+  "name": "ceder-5880",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Hinge",
+    "Scoot Back",
+    "Extend",
+    "Girls Swing Thru",
+    "Boys Trade",
+    "Extend",
+    "Hinge",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

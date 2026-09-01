@@ -1,0 +1,23 @@
+{
+  "id": 4478,
+  "name": "ceder-4478",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 10,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "All 8 Circulate",
+    "Swing Thru",
+    "Cast Off Three Quarters",
+    "Centers Trade",
+    "Split Circulate",
+    "All 8 Circulate",
+    "Boys Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "source": "ceder.net/choreodb"
+}

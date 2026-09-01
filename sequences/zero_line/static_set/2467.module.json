@@ -1,0 +1,24 @@
+{
+  "id": 2467,
+  "name": "ceder-2467",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Pass Thru",
+    "Ends Trade",
+    "Centers U-Turn Back",
+    "Pass Thru",
+    "Ends Trade",
+    "Centers Partner Trade",
+    "Star Thru",
+    "Centers Pass Thru",
+    "Square Thru 4",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers U-Turn Back\"; Untranslatable: \"Centers Partner Trade\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

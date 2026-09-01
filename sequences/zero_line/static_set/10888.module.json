@@ -1,0 +1,23 @@
+{
+  "id": 10888,
+  "name": "ceder-10888",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 2,
+  "steps": [
+    "Touch a Quarter",
+    "Circulate",
+    "Centers Box Circulate",
+    "All Circulate Twice",
+    "Centers Box Circulate",
+    "All The Girls Run",
+    "Box the Gnat",
+    "Change Hands",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"All Circulate Twice\"; Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"All The Girls Run\"; Untranslatable: \"Change Hands\"",
+  "source": "ceder.net/choreodb"
+}

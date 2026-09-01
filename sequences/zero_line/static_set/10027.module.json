@@ -1,0 +1,20 @@
+{
+  "id": 10027,
+  "name": "ceder-10027",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Bend the Line",
+    "Touch a Quarter",
+    "Circulate",
+    "Girls Backtrack Around One To The Corner",
+    "Allemande Left Zero lines must be out of sequence before Touch a quarter."
+  ],
+  "note": "Untranslatable: \"Girls Backtrack Around One To The Corner\"; Untranslatable: \"Allemande Left Zero lines must be out of sequence before Touch a quarter.\"",
+  "source": "ceder.net/choreodb"
+}

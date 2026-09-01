@@ -1,0 +1,24 @@
+{
+  "id": 11360,
+  "name": "ceder-11360",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "(Lesson 12-05)",
+    "Heads Square Thru",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Boys Fold",
+    "Girls Right Pull By",
+    "Boys Courtesy Turn The Girls",
+    "Flutterwheel",
+    "Slide Thru",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"(Lesson 12-05),\"; Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"Girls Right Pull By,\"; Untranslatable: \"Boys Courtesy Turn The Girls,\"",
+  "source": "ceder.net/choreodb"
+}

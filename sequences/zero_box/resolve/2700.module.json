@@ -1,0 +1,19 @@
+{
+  "id": 2700,
+  "name": "ceder-2700",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Square Thru 4",
+    "U-Turn Back",
+    "Box the Gnat",
+    "Right and Left Thru",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

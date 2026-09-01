@@ -1,0 +1,22 @@
+{
+  "id": 4303,
+  "name": "ceder-4303",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Spin the Top",
+    "Scoot Back",
+    "Girls Circulate",
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line",
+    "Square Thru 4",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

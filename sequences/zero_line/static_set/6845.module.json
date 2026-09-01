@@ -1,0 +1,17 @@
+{
+  "id": 6845,
+  "name": "ceder-6845",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Star Thru",
+    "Square Thru 4",
+    "Left Allemande After Square Thru 3/4 the Formation = TdBy (0)"
+  ],
+  "note": "Untranslatable: \"Left Allemande After Square Thru 3/4 the Formation = TdBy (0)\"",
+  "source": "ceder.net/choreodb"
+}

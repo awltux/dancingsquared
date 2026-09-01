@@ -1,0 +1,19 @@
+{
+  "id": 10561,
+  "name": "ceder-10561",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Touch a Quarter",
+    "Circulate",
+    "Center 6 Trade",
+    "Girls Face (Each Other) And Backaway",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Center 6 Trade\"; Untranslatable: \"Girls Face (Each Other) And Backaway\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 6458,
+  "name": "ceder-6458",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Put Centers In",
+    "Cast Off Three Quarters",
+    "Star Thru",
+    "Double Pass Thru",
+    "Leaders Partner Trade"
+  ],
+  "note": "Untranslatable: \"Put Centers In,\"; Untranslatable: \"Leaders Partner Trade\"",
+  "source": "ceder.net/choreodb"
+}

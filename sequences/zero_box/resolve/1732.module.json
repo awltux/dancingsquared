@@ -1,0 +1,23 @@
+{
+  "id": 1732,
+  "name": "ceder-1732",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Square Thru 4",
+    "Ends Cross Fold",
+    "Square Thru 4",
+    "Partner Trade",
+    "Centers Square Thru 3",
+    "Ends Pass Thru",
+    "Ends Cross Fold",
+    "All Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3\"; Untranslatable: \"Ends Pass Thru\"; Untranslatable: \"All Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

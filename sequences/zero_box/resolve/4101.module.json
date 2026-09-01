@@ -1,0 +1,20 @@
+{
+  "id": 4101,
+  "name": "ceder-4101",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Spin the Top",
+    "Hinge",
+    "Circulate",
+    "Boys Run",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

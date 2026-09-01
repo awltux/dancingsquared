@@ -1,0 +1,22 @@
+{
+  "id": 6871,
+  "name": "ceder-6871",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Square Thru 3/4",
+    "Separate Around 1 Come Into The Middle",
+    "Square Thru 4",
+    "Split The Outsides Around 1 Come Into The Middle",
+    "Square Thru 4",
+    "Separate Around 1 Come Into The Middle",
+    "Square Thru 4",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru 3/4,\"; Untranslatable: \"Separate Around 1 Come Into The Middle,\"; Untranslatable: \"Split The Outsides Around 1 Come Into The Middle,\"; Untranslatable: \"Separate Around 1 Come Into The Middle,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

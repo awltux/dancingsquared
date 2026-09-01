@@ -1,0 +1,19 @@
+{
+  "id": 9006,
+  "name": "ceder-9006",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Box the Gnat",
+    "Change Ladies",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Left Allemande TdBy Formation"
+  ],
+  "note": "Untranslatable: \"Change Ladies\"; Untranslatable: \"Left Allemande TdBy Formation\"",
+  "source": "ceder.net/choreodb"
+}

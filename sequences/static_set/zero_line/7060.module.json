@@ -1,0 +1,22 @@
+{
+  "id": 7060,
+  "name": "ceder-7060",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Right and Left Thru",
+    "Step to a Wave",
+    "Ends Circulate",
+    "Swing Thru",
+    "Centers Trade",
+    "Centers Run",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

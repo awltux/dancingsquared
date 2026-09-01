@@ -1,0 +1,18 @@
+{
+  "id": 4143,
+  "name": "ceder-4143",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Veer Left",
+    "Half Tag",
+    "Girls Run",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

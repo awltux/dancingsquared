@@ -1,0 +1,22 @@
+{
+  "id": 6798,
+  "name": "ceder-6798",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Circle Right 3/4",
+    "Zoom",
+    "Centers Circle Left 3/4 And Backaway",
+    "Heads Circle Right 3/4",
+    "Zoom",
+    "Centers Circle Left 3/4 And Backaway",
+    "Allemande Left",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Circle Right 3/4,\"; Untranslatable: \"Centers Circle Left 3/4 And Backaway,\"; Untranslatable: \"Heads Circle Right 3/4,\"; Untranslatable: \"Centers Circle Left 3/4 And Backaway,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,28 @@
+{
+  "id": 11513,
+  "name": "ceder-11513",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 12,
+  "steps": [
+    "Heads Square Thru 4",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Boys Fold",
+    "Double Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Dosado to a Wave",
+    "Swing Thru",
+    "Swing Thru",
+    "Girls Trade",
+    "All Star Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"All Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

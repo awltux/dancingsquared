@@ -1,0 +1,23 @@
+{
+  "id": 2336,
+  "name": "ceder-2336",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Trade",
+    "All 8 Circulate",
+    "Swing Thru",
+    "Split Circulate",
+    "Girls Trade",
+    "Star Thru",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

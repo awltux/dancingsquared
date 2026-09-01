@@ -1,0 +1,18 @@
+{
+  "id": 3667,
+  "name": "ceder-3667",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Square Thru 3",
+    "Ends Fold",
+    "Star Thru",
+    "Ends Fold",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

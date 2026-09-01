@@ -1,0 +1,18 @@
+{
+  "id": 9024,
+  "name": "ceder-9024",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Two Ladies Chain",
+    "Sweep a Quarter",
+    "Pass Thru",
+    "Left Allemande TdBy Formation"
+  ],
+  "note": "Untranslatable: \"Two Ladies Chain\"; Untranslatable: \"Left Allemande TdBy Formation\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,27 @@
+{
+  "id": 11323,
+  "name": "ceder-11323",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Circle 3/4",
+    "All Double Pass Thru",
+    "Leaders U-Turn Back",
+    "Swing Thru",
+    "Boys Run",
+    "Forward and Back",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Pass the Ocean",
+    "Circulate",
+    "Recycle",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Circle 3/4,\"; Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Leaders U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,23 @@
+{
+  "id": 4490,
+  "name": "ceder-4490",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Swing Thru",
+    "Scoot Back 1 & 1/2 (mixed sex)",
+    "Couples Circulate",
+    "Ferris Wheel",
+    "Girls Square Thru 3",
+    "Star Thru",
+    "Boys Trade",
+    "Boys Circulate",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Scoot Back 1 & 1/2 (mixed sex)\"; Untranslatable: \"Girls Square Thru 3\"; Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

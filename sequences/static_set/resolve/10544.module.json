@@ -1,0 +1,27 @@
+{
+  "id": 10544,
+  "name": "ceder-10544",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 12,
+  "steps": [
+    "Heads Lead Right",
+    "Centers In",
+    "Centers Run",
+    "Pass Thru",
+    "Ends Fold",
+    "Square Thru 3",
+    "Trade By",
+    "Centers In",
+    "Centers Run",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Wheel Around",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Wheel Around,\"",
+  "source": "ceder.net/choreodb"
+}

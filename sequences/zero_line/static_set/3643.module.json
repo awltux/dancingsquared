@@ -1,0 +1,23 @@
+{
+  "id": 3643,
+  "name": "ceder-3643",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Half Tag",
+    "Swing Thru",
+    "Centers Run",
+    "Half Tag",
+    "Swing Thru Double",
+    "Ends Trade",
+    "Hinge",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Swing Thru Double\"",
+  "source": "ceder.net/choreodb"
+}

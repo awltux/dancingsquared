@@ -1,0 +1,28 @@
+{
+  "id": 11520,
+  "name": "ceder-11520",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 12,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Centers Trade",
+    "Centers Run",
+    "Tag the Line",
+    "Ends U-Turn Back",
+    "Touch a Quarter",
+    "Centers Trade",
+    "Centers Run",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Square Thru 4",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Ends U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

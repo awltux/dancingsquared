@@ -1,0 +1,20 @@
+{
+  "id": 4556,
+  "name": "ceder-4556",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Pass Thru",
+    "Boys Run",
+    "Scoot Back",
+    "Boys Run",
+    "Pass Thru",
+    "Bend the Line",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

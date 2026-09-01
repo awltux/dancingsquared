@@ -1,0 +1,17 @@
+{
+  "id": 6774,
+  "name": "ceder-6774",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Rollaway",
+    "Box the Gnat",
+    "1/2 Square Thru"
+  ],
+  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \" 1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 8756,
+  "name": "ceder-8756",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Centers In",
+    "Ends Cross Fold",
+    "Star Thru",
+    "Two Ladies Chain",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Two Ladies Chain\"",
+  "source": "ceder.net/choreodb"
+}

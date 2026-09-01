@@ -1,0 +1,21 @@
+{
+  "id": 5948,
+  "name": "ceder-5948",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Square Thru 4",
+    "Sides Half Sashay",
+    "All Square Thru 4",
+    "Tag the Line",
+    "Leaders Partner Trade",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \" Sides Half Sashay,\"; Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"Leaders Partner Trade,\"",
+  "source": "ceder.net/choreodb"
+}

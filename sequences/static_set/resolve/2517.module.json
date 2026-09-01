@@ -1,0 +1,19 @@
+{
+  "id": 2517,
+  "name": "ceder-2517",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Head Man And Corner Go Forward & Back",
+    "Box the Gnat",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Head Man And Corner Go Forward & Back,\"",
+  "source": "ceder.net/choreodb"
+}

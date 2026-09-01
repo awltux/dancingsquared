@@ -1,0 +1,23 @@
+{
+  "id": 10569,
+  "name": "ceder-10569",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Sweep a Quarter",
+    "Pass Thru",
+    "Partner Trade",
+    "Reverse Flutterwheel"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

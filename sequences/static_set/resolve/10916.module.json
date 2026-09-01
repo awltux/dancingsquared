@@ -1,0 +1,21 @@
+{
+  "id": 10916,
+  "name": "ceder-10916",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Everybody Rollaway",
+    "Heads Lead Right",
+    "Dosado to a Wave",
+    "Swing Thru",
+    "Scoot Back",
+    "Weave the Ring",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Everybody Rollaway,\"",
+  "source": "ceder.net/choreodb"
+}

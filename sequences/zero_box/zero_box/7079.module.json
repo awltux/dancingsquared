@@ -1,0 +1,22 @@
+{
+  "id": 7079,
+  "name": "ceder-7079",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Right and Left Thru",
+    "Dive Thru",
+    "Zoom",
+    "Centers Pass Thru",
+    "Right and Left Thru",
+    "Dive Thru",
+    "Zoom",
+    "Centers Pass Thru (Zero Box) Flip Flops the set"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Centers Pass Thru (Zero Box) Flip Flops the set\"",
+  "source": "ceder.net/choreodb"
+}

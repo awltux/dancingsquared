@@ -1,0 +1,22 @@
+{
+  "id": 2824,
+  "name": "ceder-2824",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Right and Left Thru",
+    "Half Sashay",
+    "Pass Thru",
+    "Trade By",
+    "Swing Thru",
+    "Recycle",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

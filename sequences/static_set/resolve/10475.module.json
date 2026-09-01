@@ -1,0 +1,23 @@
+{
+  "id": 10475,
+  "name": "ceder-10475",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Flutterwheel",
+    "Zoom",
+    "Centers Right & Left Thru",
+    "Centers Square Thru 3",
+    "All Pass Thru",
+    "Trade By",
+    "Left Allemande",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Centers Right & Left Thru,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"All Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

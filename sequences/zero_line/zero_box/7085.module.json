@@ -1,0 +1,19 @@
+{
+  "id": 7085,
+  "name": "ceder-7085",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Right & Left Thru",
+    "2 Ladies Chain",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Centers Right & Left Thru\"; Untranslatable: \"2 Ladies Chain\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

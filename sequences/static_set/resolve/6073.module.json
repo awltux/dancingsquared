@@ -1,0 +1,28 @@
+{
+  "id": 6073,
+  "name": "ceder-6073",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Pass Thru",
+    "Step Forward & U-Turn Back",
+    "Sides Lead Right",
+    "Dosado to a Wave",
+    "Swing Thru",
+    "Boys Run",
+    "Forward and Back",
+    "Lead Right",
+    "Trade By",
+    "Swing Thru",
+    "Girls U-Turn Back",
+    "Wheel and Deal",
+    "Veer Right",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \" Step Forward & U-Turn Back,\"; Untranslatable: \"Sides Lead Right,\"; Untranslatable: \"Girls U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

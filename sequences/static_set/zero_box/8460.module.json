@@ -1,0 +1,17 @@
+{
+  "id": 8460,
+  "name": "ceder-8460",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Pass the Ocean",
+    "Extend"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 11308,
+  "name": "ceder-11308",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Promenade 1/2 Way & Lead Right",
+    "Swing Thru",
+    "Boys Run",
+    "Tag the Line",
+    "Couples Circulate",
+    "Tag the Line",
+    "Pass Thru",
+    "Tag the Line",
+    "Ferris Wheel, Centers Sweep 1/4 & Backaway",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Promenade 1/2 Way & Lead Right,\"; Untranslatable: \"Ferris Wheel, Centers Sweep 1/4 & Backaway,\"",
+  "source": "ceder.net/choreodb"
+}

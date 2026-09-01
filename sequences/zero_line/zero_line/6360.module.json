@@ -1,0 +1,19 @@
+{
+  "id": 6360,
+  "name": "ceder-6360",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Pass the Ocean",
+    "Circulate",
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Chain Down the Line"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 10586,
+  "name": "ceder-10586",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Right and Left Thru",
+    "Square Thru 4",
+    "Trade By",
+    "Star Thru",
+    "Right and Left Thru",
+    "Square Thru 4",
+    "Trade By",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 10802,
+  "name": "ceder-10802",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Same 4 Pass The Ocean",
+    "Extend",
+    "Swing Thru",
+    "Ends Circulate",
+    "All Swing Thru (again)",
+    "Leaders Fold",
+    "Double Pass Thru",
+    "Leaders U-Turn Back",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" Same 4 Pass The Ocean,\"; Untranslatable: \"All Swing Thru (again),\"; Untranslatable: \"Leaders Fold,\"; Untranslatable: \"Leaders U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

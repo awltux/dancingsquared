@@ -1,0 +1,24 @@
+{
+  "id": 10992,
+  "name": "ceder-10992",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 4,
+  "steps": [
+    "Touch a Quarter",
+    "Circulate",
+    "Center 6 Circulate 1 & 1/2",
+    "4 Girls Box Circulate 1 & 1/2",
+    "Very Center Girls Hinge",
+    "Line of 8, Bend the Line",
+    "Star Thru",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Center 6 Circulate 1 & 1/2\"; Untranslatable: \"4 Girls Box Circulate 1 & 1/2\"; Untranslatable: \"Very Center Girls Hinge\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

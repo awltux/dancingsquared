@@ -1,0 +1,31 @@
+{
+  "id": 11402,
+  "name": "ceder-11402",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 17,
+  "mappedCount": 8,
+  "steps": [
+    "(Lesson 11-15)",
+    "Heads Star Thru",
+    "Same 4 Left Square Thru 3",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Hinge",
+    "Center Couples Trade",
+    "Center 4 Wheel Around",
+    "(We have Tidal One Faced Lines!)",
+    "Each Line Bend The Line",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Hinge",
+    "Center Couples Trade",
+    "Center 4 Wheel Around",
+    "Each Line Bend The Line",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"(Lesson 11-15),\"; Untranslatable: \"Same 4 Left Square Thru 3,\"; Untranslatable: \"Center Couples Trade,\"; Untranslatable: \"Center 4 Wheel Around,\"; Untranslatable: \"(We have Tidal One Faced Lines!),\"; Untranslatable: \"Each Line Bend The Line,\"; Untranslatable: \"Center Couples Trade,\"; Untranslatable: \"Center 4 Wheel Around,\"; Untranslatable: \"Each Line Bend The Line,\"",
+  "source": "ceder.net/choreodb"
+}

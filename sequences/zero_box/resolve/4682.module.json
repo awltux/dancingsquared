@@ -1,0 +1,24 @@
+{
+  "id": 4682,
+  "name": "ceder-4682",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Swing Thru Double",
+    "Split Circulate",
+    "Centers Trade",
+    "Split Circulate",
+    "Centers Trade",
+    "Swing Thru",
+    "Split Circulate",
+    "Face Right",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Swing Thru Double\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,25 @@
+{
+  "id": 10732,
+  "name": "ceder-10732",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Boys Run",
+    "Swing Thru Double",
+    "Boys Run",
+    "Pass Thru",
+    "Girls Run",
+    "Left Swing Thru Double",
+    "Girls Run",
+    "Slide Thru",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Swing Thru Double\"; Untranslatable: \"Left Swing Thru Double\"",
+  "source": "ceder.net/choreodb"
+}

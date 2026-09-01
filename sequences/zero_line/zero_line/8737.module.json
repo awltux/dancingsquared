@@ -1,0 +1,20 @@
+{
+  "id": 8737,
+  "name": "ceder-8737",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Star Thru",
+    "Square Thru 4",
+    "Trade By",
+    "Square Thru 4",
+    "Trade By",
+    "Flutterwheel",
+    "Sweep a Quarter"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,18 @@
+{
+  "id": 7032,
+  "name": "ceder-7032",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Swing Thru",
+    "Ladies Trade",
+    "Box the Gnat",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Ladies Trade\"",
+  "source": "ceder.net/choreodb"
+}

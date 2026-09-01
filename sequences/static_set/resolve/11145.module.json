@@ -1,0 +1,20 @@
+{
+  "id": 11145,
+  "name": "ceder-11145",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 1,
+  "steps": [
+    "All Four Ladies Chain Across",
+    "Heads Pass Thru, Step Forward & U-Turn Back",
+    "Sides Pass Thru, Step Forward & U-Turn Back",
+    "All Join Hands, Circle Left",
+    "Rollaway, R.L.G.",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"All Four Ladies Chain Across,\"; Untranslatable: \"Heads Pass Thru, Step Forward & U-Turn Back,\"; Untranslatable: \"Sides Pass Thru, Step Forward & U-Turn Back,\"; Untranslatable: \"All Join Hands, Circle Left,\"; Untranslatable: \"Rollaway, R.L.G.,\"",
+  "source": "ceder.net/choreodb"
+}

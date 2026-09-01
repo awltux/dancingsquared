@@ -1,0 +1,21 @@
+{
+  "id": 10294,
+  "name": "ceder-10294",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Star Thru",
+    "Zoom",
+    "Centers Swing Thru Twice",
+    "Extend",
+    "Centers Swing Thru Twice",
+    "Same 4 Recycle",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru Twice,\"; Untranslatable: \"Centers Swing Thru Twice,\"; Untranslatable: \"Same 4 Recycle,\"",
+  "source": "ceder.net/choreodb"
+}

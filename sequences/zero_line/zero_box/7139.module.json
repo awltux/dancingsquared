@@ -1,0 +1,17 @@
+{
+  "id": 7139,
+  "name": "ceder-7139",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 1,
+  "steps": [
+    "Touch a Quarter",
+    "Single File Circulate",
+    "Men Run (Zero Box) This is the shortest conversion module I know."
+  ],
+  "note": "Untranslatable: \"Single File Circulate\"; Untranslatable: \"Men Run (Zero Box) This is the shortest conversion module I know.\"",
+  "source": "ceder.net/choreodb"
+}

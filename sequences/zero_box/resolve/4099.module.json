@@ -1,0 +1,25 @@
+{
+  "id": 4099,
+  "name": "ceder-4099",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Tag the Line",
+    "Square Thru 3",
+    "Tag the Line",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Leaders U-Turn Back",
+    "Box the Gnat",
+    "Change Hands",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back\"; Untranslatable: \"Change Hands\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 8995,
+  "name": "ceder-8995",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "Face Your Partner",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Face Your Partner\"",
+  "source": "ceder.net/choreodb"
+}

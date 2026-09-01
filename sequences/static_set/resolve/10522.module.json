@@ -1,0 +1,21 @@
+{
+  "id": 10522,
+  "name": "ceder-10522",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Lead Right",
+    "All Veer Left",
+    "Chain Down the Line",
+    "Flutterwheel",
+    "Slide Thru",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"All Veer Left,\"",
+  "source": "ceder.net/choreodb"
+}

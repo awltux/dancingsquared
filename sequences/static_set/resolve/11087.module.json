@@ -1,0 +1,19 @@
+{
+  "id": 11087,
+  "name": "ceder-11087",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Allemande Left, Alamo Style, Balance",
+    "Alamo Swing Thru",
+    "Double Swing Thru",
+    "Left Swing Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Allemande Left, Alamo Style, Balance,\"; Untranslatable: \"Double Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

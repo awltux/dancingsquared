@@ -1,0 +1,19 @@
+{
+  "id": 7098,
+  "name": "ceder-7098",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "First Couple Left",
+    "Next Couple Right"
+  ],
+  "note": "Untranslatable: \"First Couple Left\"; Untranslatable: \"Next Couple Right\"",
+  "source": "ceder.net/choreodb"
+}

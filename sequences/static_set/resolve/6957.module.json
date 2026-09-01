@@ -1,0 +1,25 @@
+{
+  "id": 6957,
+  "name": "ceder-6957",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 1,
+  "steps": [
+    "Allemande Left",
+    "Ladies Star Right & Boys Promenade",
+    "Skip That Girl Allemande The Next (R-H lady)",
+    "Boys Star Right & Ladies Promenade",
+    "Skip That Girl Allemande The Next (corner)",
+    "Ladies Star Right & Boys Promenade",
+    "Skip That Girl Allemande The Next (R-H lady)",
+    "Boys Star Right & Ladies Promenade",
+    "Skip That Girl And Guess Who (corner)",
+    "Original Corner Dosado",
+    "Onto The Next Right & Left Grand"
+  ],
+  "note": "Untranslatable: \"Ladies Star Right & Boys Promenade,\"; Untranslatable: \"Skip That Girl Allemande The Next (R-H lady),\"; Untranslatable: \"Boys Star Right & Ladies Promenade,\"; Untranslatable: \"Skip That Girl Allemande The Next (corner),\"; Untranslatable: \"Ladies Star Right & Boys Promenade,\"; Untranslatable: \"Skip That Girl Allemande The Next (R-H lady),\"; Untranslatable: \"Boys Star Right & Ladies Promenade,\"; Untranslatable: \"Skip That Girl And Guess Who (corner),\"; Untranslatable: \"Original Corner Dosado,\"; Untranslatable: \"Onto The Next Right & Left Grand\"",
+  "source": "ceder.net/choreodb"
+}

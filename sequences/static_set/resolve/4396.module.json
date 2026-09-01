@@ -1,0 +1,21 @@
+{
+  "id": 4396,
+  "name": "ceder-4396",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Square Thru 4",
+    "Sides Half Sashay",
+    "Slide Thru",
+    "Ends Pass Thru",
+    "Tag the Line",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Sides Half Sashay,\"; Untranslatable: \"Ends Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

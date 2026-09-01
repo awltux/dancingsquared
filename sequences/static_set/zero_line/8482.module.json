@@ -1,0 +1,15 @@
+{
+  "id": 8482,
+  "name": "ceder-8482",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 2,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Lead Right",
+    "Circle Left 3/4"
+  ],
+  "source": "ceder.net/choreodb"
+}

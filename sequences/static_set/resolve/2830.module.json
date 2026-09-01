@@ -1,0 +1,23 @@
+{
+  "id": 2830,
+  "name": "ceder-2830",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Square Thru, Sides Half Sashay",
+    "Swing Thru",
+    "Centers Run",
+    "Ferris Wheel",
+    "Double Pass Thru",
+    "Centers In",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru, Sides Half Sashay,\"",
+  "source": "ceder.net/choreodb"
+}

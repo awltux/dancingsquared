@@ -1,0 +1,18 @@
+{
+  "id": 4111,
+  "name": "ceder-4111",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Centers Square Thru 4",
+    "Ends Touch 1/4",
+    "End Girl Run",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 4\"; Untranslatable: \"Ends Touch 1/4\"; Untranslatable: \"End Girl Run\"",
+  "source": "ceder.net/choreodb"
+}

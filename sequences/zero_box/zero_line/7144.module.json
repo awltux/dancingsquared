@@ -1,0 +1,21 @@
+{
+  "id": 7144,
+  "name": "ceder-7144",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Ladies Chain",
+    "Touch a Quarter",
+    "Swing Thru",
+    "Centers Circulate",
+    "Men Run",
+    "Pass Thru",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Men Run\"",
+  "source": "ceder.net/choreodb"
+}

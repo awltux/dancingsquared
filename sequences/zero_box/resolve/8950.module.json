@@ -1,0 +1,19 @@
+{
+  "id": 8950,
+  "name": "ceder-8950",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Swing Thru",
+    "Ladies Cross Fold",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Ladies Cross Fold\"",
+  "source": "ceder.net/choreodb"
+}

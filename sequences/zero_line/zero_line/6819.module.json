@@ -1,0 +1,17 @@
+{
+  "id": 6819,
+  "name": "ceder-6819",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Pass Thru",
+    "Courtesy Turn",
+    "Circle Half (Zero Line) Cal15 CDP (Facing Couple Zero)"
+  ],
+  "note": "Untranslatable: \"Circle Half (Zero Line) Cal15 CDP (Facing Couple Zero)\"",
+  "source": "ceder.net/choreodb"
+}

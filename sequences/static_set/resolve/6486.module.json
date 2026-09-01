@@ -1,0 +1,23 @@
+{
+  "id": 6486,
+  "name": "ceder-6486",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 4,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "All 1/2 Square Thru",
+    "Ends Fold",
+    "Square Thru 4",
+    "Ends Cross Fold",
+    "Pass Thru",
+    "Centers Box The Gnat, Others Trade",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All 1/2 Square Thru,\"; Untranslatable: \"Centers Box The Gnat, Others Trade,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

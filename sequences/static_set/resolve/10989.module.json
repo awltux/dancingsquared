@@ -1,0 +1,17 @@
+{
+  "id": 10989,
+  "name": "ceder-10989",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Flutter Wheel",
+    "Same 4 Lead Right",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel,\"; Untranslatable: \" Same 4 Lead Right,\"",
+  "source": "ceder.net/choreodb"
+}

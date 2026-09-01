@@ -1,0 +1,24 @@
+{
+  "id": 2882,
+  "name": "ceder-2882",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 9,
+  "steps": [
+    "Swing Thru",
+    "Hinge",
+    "Circulate",
+    "Hinge",
+    "Boys Trade",
+    "Boys Run",
+    "Half Tag",
+    "Circulate",
+    "Boys Run",
+    "Swing Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

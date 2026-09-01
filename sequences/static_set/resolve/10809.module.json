@@ -1,0 +1,19 @@
+{
+  "id": 10809,
+  "name": "ceder-10809",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Zoom",
+    "Leaders Trade",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Leaders Trade,\"",
+  "source": "ceder.net/choreodb"
+}

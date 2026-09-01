@@ -1,0 +1,22 @@
+{
+  "id": 5875,
+  "name": "ceder-5875",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Trade",
+    "Swing Thru",
+    "Girls Run",
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "Left Square Thru 3",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Left Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

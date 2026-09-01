@@ -1,0 +1,23 @@
+{
+  "id": 2558,
+  "name": "ceder-2558",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Star Thru",
+    "Pass Thru",
+    "Centers In",
+    "Circulate",
+    "Cast Off Three Quarters",
+    "Circulate",
+    "Centers Run",
+    "Star Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

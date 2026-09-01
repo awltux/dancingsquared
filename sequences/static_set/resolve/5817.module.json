@@ -1,0 +1,25 @@
+{
+  "id": 5817,
+  "name": "ceder-5817",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Rollaway & Square Thru 4",
+    "Swing Thru",
+    "Girls Run",
+    "Square Thru 3",
+    "Boys Run",
+    "Centers Trade",
+    "Left Swing Thru",
+    "Girls Run",
+    "Flutterwheel",
+    "Reverse Flutterwheel",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Rollaway & Square Thru 4,\"",
+  "source": "ceder.net/choreodb"
+}

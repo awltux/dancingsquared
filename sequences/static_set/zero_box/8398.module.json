@@ -1,0 +1,17 @@
+{
+  "id": 8398,
+  "name": "ceder-8398",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Head Ladies Chain",
+    "Same 4 Circle Left 3/4",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \"Same 4 Circle Left 3/4,\"",
+  "source": "ceder.net/choreodb"
+}

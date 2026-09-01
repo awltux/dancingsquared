@@ -1,0 +1,22 @@
+{
+  "id": 10233,
+  "name": "ceder-10233",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Head Boys Take Your Corner Forward And Back",
+    "Dosado",
+    "Square Thru 4",
+    "Split The Outsides Around 1 To A Line (ZL In Sequence)",
+    "Touch a Quarter",
+    "Circulate",
+    "Girls Run",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Head Boys Take Your Corner Forward And Back,\"; Untranslatable: \"Split The Outsides Around 1 To A Line (ZL In Sequence),\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,27 @@
+{
+  "id": 2923,
+  "name": "ceder-2923",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 11,
+  "steps": [
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Sweep a Quarter",
+    "Veer Left",
+    "Couples Circulate",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "Pass Thru",
+    "Trade By",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

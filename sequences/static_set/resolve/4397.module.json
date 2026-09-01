@@ -1,0 +1,21 @@
+{
+  "id": 4397,
+  "name": "ceder-4397",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Square Thru 4",
+    "Sides Half Sashay",
+    "Slide Thru",
+    "Centers Cross Run",
+    "Star Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Sides Half Sashay,\"",
+  "source": "ceder.net/choreodb"
+}

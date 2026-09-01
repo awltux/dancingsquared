@@ -1,0 +1,31 @@
+{
+  "id": 11372,
+  "name": "ceder-11372",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 17,
+  "mappedCount": 11,
+  "steps": [
+    "(Lesson 12-17 - SAV)",
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Scoot Back",
+    "Split Circulate",
+    "Scoot Back",
+    "Hinge",
+    "Boys Trade",
+    "Boys Run",
+    "Bend the Line",
+    "Left Touch 1/4",
+    "Circulate",
+    "Center Six Cast Off 3/4",
+    "Outsides Bend The Line",
+    "Centers Back Away",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 12-17 - SAV),\"; Untranslatable: \"Left Touch 1/4,\"; Untranslatable: \"Center Six Cast Off 3/4,\"; Untranslatable: \"Outsides Bend The Line,\"; Untranslatable: \"Centers Back Away,\"",
+  "source": "ceder.net/choreodb"
+}

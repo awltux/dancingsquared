@@ -1,0 +1,22 @@
+{
+  "id": 2956,
+  "name": "ceder-2956",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 9,
+  "mappedCount": 9,
+  "steps": [
+    "Touch a Quarter",
+    "Scoot Back",
+    "Centers Trade",
+    "Swing Thru",
+    "Scoot Back",
+    "Girls Run",
+    "Box the Gnat",
+    "Square Thru 3",
+    "Allemande Left"
+  ],
+  "source": "ceder.net/choreodb"
+}

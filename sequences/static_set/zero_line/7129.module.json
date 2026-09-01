@@ -1,0 +1,23 @@
+{
+  "id": 7129,
+  "name": "ceder-7129",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Head Ladies Chain",
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Ladies Square Thru 3/4",
+    "Star Thru",
+    "Couples Circulate",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Ladies Square Thru 3/4,\"",
+  "source": "ceder.net/choreodb"
+}

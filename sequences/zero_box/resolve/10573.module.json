@@ -1,0 +1,26 @@
+{
+  "id": 10573,
+  "name": "ceder-10573",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 9,
+  "steps": [
+    "Swing Thru",
+    "Girls Circulate",
+    "Boys Trade",
+    "Swing Thru",
+    "Boys Circulate",
+    "Girls Trade",
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line",
+    "Reverse Flutterwheel",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

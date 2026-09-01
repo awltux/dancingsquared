@@ -1,0 +1,16 @@
+{
+  "id": 6787,
+  "name": "ceder-6787",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 2,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Lead Right",
+    "Circle Four 3/4"
+  ],
+  "note": "Untranslatable: \"Circle Four 3/4\"",
+  "source": "ceder.net/choreodb"
+}

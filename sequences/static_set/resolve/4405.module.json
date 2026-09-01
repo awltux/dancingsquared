@@ -1,0 +1,22 @@
+{
+  "id": 4405,
+  "name": "ceder-4405",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Lead Left",
+    "Veer Right",
+    "Couples Circulate",
+    "Leaders Wheel Around",
+    "Slide Thru",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Leaders Wheel Around,\"",
+  "source": "ceder.net/choreodb"
+}

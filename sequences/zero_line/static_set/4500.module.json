@@ -1,0 +1,23 @@
+{
+  "id": 4500,
+  "name": "ceder-4500",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Slide Thru",
+    "Touch a Quarter",
+    "Scoot Back 1 & 1/2",
+    "Ferris Wheel",
+    "Centers Square Thru 3",
+    "Pass Thru",
+    "Trade By",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Scoot Back 1 & 1/2\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

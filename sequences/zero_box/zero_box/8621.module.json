@@ -1,0 +1,18 @@
+{
+  "id": 8621,
+  "name": "ceder-8621",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Veer Left",
+    "Ferris Wheel",
+    "Zoom",
+    "Centers Pass Thru (Zero Box) This flip flops the set."
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru (Zero Box) This flip flops the set.\"",
+  "source": "ceder.net/choreodb"
+}

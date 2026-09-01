@@ -1,0 +1,22 @@
+{
+  "id": 6154,
+  "name": "ceder-6154",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "Swing Thru",
+    "Hinge",
+    "Extend",
+    "Boys Face Right",
+    "Girls Swing Thru",
+    "Boys Circulate",
+    "Girls Cast Off 3/4",
+    "All Wheel & Deal"
+  ],
+  "note": "Untranslatable: \"Boys Face Right\"; Untranslatable: \"Girls Swing Thru\"; Untranslatable: \"Boys Circulate\"; Untranslatable: \"Girls Cast Off 3/4\"; Untranslatable: \"All Wheel & Deal\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 2126,
+  "name": "ceder-2126",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Pass the Ocean",
+    "Girls Trade",
+    "Girls Run",
+    "Boys Trade",
+    "Bend the Line",
+    "Pass Thru",
+    "Ends Fold",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

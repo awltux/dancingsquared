@@ -1,0 +1,18 @@
+{
+  "id": 6801,
+  "name": "ceder-6801",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Lead Couple Trade",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Lead Couple Trade,\"",
+  "source": "ceder.net/choreodb"
+}

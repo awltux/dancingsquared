@@ -1,0 +1,25 @@
+{
+  "id": 6546,
+  "name": "ceder-6546",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Girls Circulate, Boys Trade",
+    "Girls Run",
+    "Girls Trade",
+    "Ferris Wheel",
+    "Half Sashay",
+    "Centers Pass Thru",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Girls Circulate, Boys Trade,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

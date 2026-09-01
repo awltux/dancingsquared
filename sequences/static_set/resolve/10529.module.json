@@ -1,0 +1,23 @@
+{
+  "id": 10529,
+  "name": "ceder-10529",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 10,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Centers Circulate",
+    "Spin the Top",
+    "Right and Left Thru",
+    "Pass the Ocean",
+    "Centers Circulate",
+    "Ends Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "source": "ceder.net/choreodb"
+}

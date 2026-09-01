@@ -1,0 +1,16 @@
+{
+  "id": 6785,
+  "name": "ceder-6785",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 2,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Rollaway & Pass Thru",
+    "Both Turn Right Single File Around 2 To A Line"
+  ],
+  "note": "Untranslatable: \"Heads Rollaway & Pass Thru,\"; Untranslatable: \"Both Turn Right Single File Around 2 To A Line\"",
+  "source": "ceder.net/choreodb"
+}

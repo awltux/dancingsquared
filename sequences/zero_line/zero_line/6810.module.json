@@ -1,0 +1,17 @@
+{
+  "id": 6810,
+  "name": "ceder-6810",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "Bend The Line (Zero Line) TZ (Technical Zero) I.e. a 1P2P line is converted to a 4P1P line"
+  ],
+  "note": "Untranslatable: \"Bend The Line (Zero Line) TZ (Technical Zero) I.e. a 1P2P line is converted to a 4P1P line\"",
+  "source": "ceder.net/choreodb"
+}

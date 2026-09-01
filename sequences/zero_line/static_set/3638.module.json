@@ -1,0 +1,19 @@
+{
+  "id": 3638,
+  "name": "ceder-3638",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Outsides U-Turn Back",
+    "Single Circle to a Wave",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Outsides U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

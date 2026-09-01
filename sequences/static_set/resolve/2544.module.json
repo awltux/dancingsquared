@@ -1,0 +1,22 @@
+{
+  "id": 2544,
+  "name": "ceder-2544",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Leaders Trade",
+    "Centers In",
+    "Centers Pass Thru",
+    "All Tag The Line",
+    "Leaders Trade",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Leaders Trade,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"All Tag The Line,\"; Untranslatable: \"Leaders Trade,\"",
+  "source": "ceder.net/choreodb"
+}

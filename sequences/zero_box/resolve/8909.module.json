@@ -1,0 +1,21 @@
+{
+  "id": 8909,
+  "name": "ceder-8909",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Swing Thru",
+    "Ladies Circulate",
+    "Men Trade",
+    "Box the Gnat",
+    "Right and Left Thru",
+    "Square Thru 4",
+    "Left Allemande TdBy Formation"
+  ],
+  "note": "Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Left Allemande TdBy Formation\"",
+  "source": "ceder.net/choreodb"
+}

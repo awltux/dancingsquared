@@ -1,0 +1,23 @@
+{
+  "id": 5874,
+  "name": "ceder-5874",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Trade",
+    "Swing Thru",
+    "Split Circulate",
+    "Hinge",
+    "Girls Trade",
+    "Boys Run",
+    "Boys Circulate",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

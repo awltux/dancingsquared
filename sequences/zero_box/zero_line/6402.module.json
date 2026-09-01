@@ -1,0 +1,18 @@
+{
+  "id": 6402,
+  "name": "ceder-6402",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Ends Circulate",
+    "Centers Trade",
+    "Centers Run",
+    "Bend the Line"
+  ],
+  "source": "ceder.net/choreodb"
+}

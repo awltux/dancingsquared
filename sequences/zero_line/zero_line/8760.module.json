@@ -1,0 +1,21 @@
+{
+  "id": 8760,
+  "name": "ceder-8760",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Spin the Top",
+    "Men Run",
+    "Bend the Line",
+    "Star Thru (Zero Line) This rotates the set 90°."
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Men Run\"; Untranslatable: \"Star Thru (Zero Line) This rotates the set 90°.\"",
+  "source": "ceder.net/choreodb"
+}

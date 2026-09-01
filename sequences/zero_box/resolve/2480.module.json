@@ -1,0 +1,25 @@
+{
+  "id": 2480,
+  "name": "ceder-2480",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 11,
+  "steps": [
+    "Pass Thru",
+    "Trade By",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Pass the Ocean",
+    "Circulate",
+    "Girls Run",
+    "Bend the Line",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

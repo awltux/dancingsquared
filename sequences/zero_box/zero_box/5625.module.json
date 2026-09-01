@@ -1,0 +1,20 @@
+{
+  "id": 5625,
+  "name": "ceder-5625",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 7,
+  "mappedCount": 7,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Tag the Line",
+    "Pass Thru",
+    "Tag the Line",
+    "Wheel and Deal",
+    "Right and Left Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

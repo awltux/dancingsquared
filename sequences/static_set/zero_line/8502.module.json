@@ -1,0 +1,16 @@
+{
+  "id": 8502,
+  "name": "ceder-8502",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Allemande Left",
+    "All 4 Couples Promenade",
+    "Heads Wheel Around"
+  ],
+  "source": "ceder.net/choreodb"
+}

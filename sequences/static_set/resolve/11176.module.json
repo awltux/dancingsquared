@@ -1,0 +1,28 @@
+{
+  "id": 11176,
+  "name": "ceder-11176",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 10,
+  "steps": [
+    "(Lesson 6-10)",
+    "Heads Lead Right",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Veer Left",
+    "Boys Circulate, Girls Trade",
+    "Bend the Line",
+    "Reverse Flutterwheel",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Bend The Line & Ends Pass Thru",
+    "Girls Trade",
+    "Centers Pass Thru",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"(Lesson 6-10),\"; Untranslatable: \"Boys Circulate, Girls Trade,\"; Untranslatable: \"Bend The Line & Ends Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

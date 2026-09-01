@@ -1,0 +1,23 @@
+{
+  "id": 5520,
+  "name": "ceder-5520",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Box Circulate",
+    "All 8 Circulate",
+    "Trade",
+    "All 8 Circulate",
+    "Boys Run",
+    "Centers Pass Thru",
+    "Reverse Flutterwheel",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,26 @@
+{
+  "id": 2999,
+  "name": "ceder-2999",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 12,
+  "steps": [
+    "Touch a Quarter",
+    "Scoot Back",
+    "Hinge",
+    "Boys Run",
+    "Boys Trade",
+    "Couples Circulate",
+    "Bend the Line",
+    "Touch a Quarter",
+    "Circulate",
+    "Hinge",
+    "Boys Run",
+    "Couples Hinge",
+    "ALLEMANDE_LEFT"
+  ],
+  "source": "ceder.net/choreodb"
+}

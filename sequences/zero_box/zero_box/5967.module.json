@@ -1,0 +1,19 @@
+{
+  "id": 5967,
+  "name": "ceder-5967",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Ends Trade",
+    "All Star Thru",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"All Star Thru\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

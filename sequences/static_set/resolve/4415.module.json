@@ -1,0 +1,23 @@
+{
+  "id": 4415,
+  "name": "ceder-4415",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Swing Thru",
+    "Sides Half Sashay",
+    "Extend",
+    "Spin the Top",
+    "Hinge",
+    "Circulate",
+    "Boys Run",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Sides Half Sashay,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 6401,
+  "name": "ceder-6401",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Boys Circulate",
+    "Wheel and Deal",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

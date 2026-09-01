@@ -1,0 +1,17 @@
+{
+  "id": 8802,
+  "name": "ceder-8802",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Head Ladies Chain",
+    "Sides Lead Right",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Sides Lead Right,\"",
+  "source": "ceder.net/choreodb"
+}

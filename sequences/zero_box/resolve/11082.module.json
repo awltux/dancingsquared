@@ -1,0 +1,28 @@
+{
+  "id": 11082,
+  "name": "ceder-11082",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 15,
+  "mappedCount": 14,
+  "steps": [
+    "Slide Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Touch a Quarter",
+    "Centers Trade",
+    "Centers Run",
+    "Bend the Line",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Touch a Quarter",
+    "Centers Cross Run",
+    "Left Allemande",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

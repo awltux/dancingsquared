@@ -1,0 +1,25 @@
+{
+  "id": 10901,
+  "name": "ceder-10901",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Star Thru",
+    "Pass Thru",
+    "Star Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Box The Gnat",
+    "Make A R-H Star, One Full Turn To Corner",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \"Make A R-H Star, One Full Turn To Corner,\"",
+  "source": "ceder.net/choreodb"
+}

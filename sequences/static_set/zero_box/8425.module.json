@@ -1,0 +1,18 @@
+{
+  "id": 8425,
+  "name": "ceder-8425",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Flutter Wheel, Sweep 1/4",
+    "Double Pass Thru",
+    "Leaders Partner Trade"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel, Sweep 1/4,\"; Untranslatable: \"Leaders Partner Trade\"",
+  "source": "ceder.net/choreodb"
+}

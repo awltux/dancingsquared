@@ -1,0 +1,20 @@
+{
+  "id": 11154,
+  "name": "ceder-11154",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Square Thru 3 Hands",
+    "Heads Wheel Around, And Back Away (while the)",
+    "Sides Square Thru 3 Hands And California Twirl",
+    "Allemande Left",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru 3 Hands,\"; Untranslatable: \"Heads Wheel Around, And Back Away (while the),\"; Untranslatable: \"Sides Square Thru 3 Hands And California Twirl,\"",
+  "source": "ceder.net/choreodb"
+}

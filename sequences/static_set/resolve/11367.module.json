@@ -1,0 +1,28 @@
+{
+  "id": 11367,
+  "name": "ceder-11367",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 11,
+  "steps": [
+    "(Lesson 12-12)",
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Half Tag",
+    "Scoot Back",
+    "Hinge",
+    "Girls Trade",
+    "Swing Thru Double",
+    "Recycle",
+    "Centers Face In",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 12-12),\"; Untranslatable: \"Swing Thru Double,\"; Untranslatable: \"Centers Face In,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,27 @@
+{
+  "id": 6147,
+  "name": "ceder-6147",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 10,
+  "steps": [
+    "Swing Thru",
+    "Boys Trade",
+    "Spin the Top",
+    "Step Thru",
+    "Centers U-Turn Back",
+    "Ends Fold",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers U-Turn Back\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

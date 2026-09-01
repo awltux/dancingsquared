@@ -1,0 +1,21 @@
+{
+  "id": 2718,
+  "name": "ceder-2718",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 8,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Cast Off Three Quarters",
+    "Split Circulate",
+    "Girls Trade",
+    "Box the Gnat",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

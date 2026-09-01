@@ -1,0 +1,20 @@
+{
+  "id": 6911,
+  "name": "ceder-6911",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Right & Left Thru & Back Away",
+    "Four Ladies Chain",
+    "Sides Pass Thru",
+    "Separate Around 1 To A Line",
+    "Center Four Rollaway",
+    "All Star Thru"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru & Back Away,\"; Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Center Four Rollaway,\"; Untranslatable: \"All Star Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 8893,
+  "name": "ceder-8893",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Step to a Wave",
+    "All 8 Circulate",
+    "Hinge",
+    "All Eight Circulate",
+    "Men Run",
+    "Pass Thru",
+    "Left Allemande Lines of Four facing out."
+  ],
+  "note": "Untranslatable: \"All Eight Circulate\"; Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande Lines of Four facing out.\"",
+  "source": "ceder.net/choreodb"
+}

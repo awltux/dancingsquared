@@ -1,0 +1,19 @@
+{
+  "id": 2650,
+  "name": "ceder-2650",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Allemande Left, Alamo Style, Balance",
+    "Heads Scoot Back",
+    "Sides Scoot Back",
+    "Boys Run",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Allemande Left, Alamo Style, Balance,\"; Untranslatable: \"Heads Scoot Back,\"; Untranslatable: \"Sides Scoot Back,\"",
+  "source": "ceder.net/choreodb"
+}

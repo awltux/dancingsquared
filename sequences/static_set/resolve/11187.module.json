@@ -1,0 +1,26 @@
+{
+  "id": 11187,
+  "name": "ceder-11187",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 11,
+  "steps": [
+    "(Lesson 6-07)",
+    "Heads Lead Right",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Chain Down the Line",
+    "Flutterwheel",
+    "Reverse Flutterwheel",
+    "Veer Right",
+    "Boys Trade",
+    "Couples Trade",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 6-07),\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 2463,
+  "name": "ceder-2463",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Pass the Ocean",
+    "Boys Circulate",
+    "All 8 Circulate",
+    "Girls Trade",
+    "Recycle"
+  ],
+  "note": "Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

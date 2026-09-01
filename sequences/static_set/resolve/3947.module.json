@@ -1,0 +1,20 @@
+{
+  "id": 3947,
+  "name": "ceder-3947",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 2 To A Line",
+    "Pass the Ocean",
+    "Swing Thru",
+    "Recycle",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 2 To A Line,\"",
+  "source": "ceder.net/choreodb"
+}

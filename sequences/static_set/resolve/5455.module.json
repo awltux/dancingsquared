@@ -1,0 +1,25 @@
+{
+  "id": 5455,
+  "name": "ceder-5455",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Touch 1/4",
+    "Girls Pass Thru",
+    "Centers Square Thru 3, Others Trade",
+    "Centers In",
+    "All 8 Circulate",
+    "End Boy Run",
+    "Centers Trade",
+    "All Swing Thru",
+    "Split Circulate",
+    "Boys Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Touch 1/4,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Centers Square Thru 3, Others Trade,\"; Untranslatable: \"End Boy Run,\"; Untranslatable: \"All Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

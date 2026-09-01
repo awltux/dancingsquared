@@ -1,0 +1,18 @@
+{
+  "id": 8890,
+  "name": "ceder-8890",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Split Two Separate Around 1 To Line",
+    "Forward and Back",
+    "Centers Face In",
+    "All Right & Left Grand"
+  ],
+  "note": "Untranslatable: \"Split Two Separate Around 1 To Line\"; Untranslatable: \"Centers Face In\"; Untranslatable: \"All Right & Left Grand\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 11226,
+  "name": "ceder-11226",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "",
+    "Heads Make A Right-Hand Star",
+    "With The Sides Make A Left-Hand Star",
+    "Heads Back To The Middle - With A Right-Hand Star To The Corner",
+    "Allemande Left",
+    "Right and Left Grand",
+    "Swing",
+    "All 4 Couples Promenade"
+  ],
+  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Make A Right-Hand Star,\"; Untranslatable: \"With The Sides Make A Left-Hand Star,\"; Untranslatable: \"Heads Back To The Middle - With A Right-Hand Star To The Corner,\"",
+  "source": "ceder.net/choreodb"
+}

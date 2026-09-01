@@ -1,0 +1,21 @@
+{
+  "id": 7061,
+  "name": "ceder-7061",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Men Run",
+    "Swing Thru",
+    "Ends Circulate",
+    "Centers Circulate",
+    "Ends Trade",
+    "Men Run"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Men Run\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,17 @@
+{
+  "id": 2618,
+  "name": "ceder-2618",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Recycle",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

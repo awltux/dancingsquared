@@ -1,0 +1,22 @@
+{
+  "id": 1801,
+  "name": "ceder-1801",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 9,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Split Circulate",
+    "Swing Thru",
+    "Boys Run",
+    "Pass the Ocean",
+    "Swing Thru",
+    "All 8 Circulate",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

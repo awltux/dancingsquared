@@ -1,0 +1,27 @@
+{
+  "id": 4074,
+  "name": "ceder-4074",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 12,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Face In",
+    "Pass the Ocean",
+    "Swing Thru",
+    "Girls Run",
+    "Tag the Line",
+    "Face Out",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Leaders U-Turn Back",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

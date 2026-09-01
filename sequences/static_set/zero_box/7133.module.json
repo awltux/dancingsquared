@@ -1,0 +1,22 @@
+{
+  "id": 7133,
+  "name": "ceder-7133",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Square Thru 3/4",
+    "Separate Around 1 To A Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Ladies Square Thru 3/4",
+    "Star Thru",
+    "Wheel and Deal",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru 3/4,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Ladies Square Thru 3/4,\"",
+  "source": "ceder.net/choreodb"
+}

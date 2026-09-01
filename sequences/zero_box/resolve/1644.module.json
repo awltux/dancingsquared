@@ -1,0 +1,22 @@
+{
+  "id": 1644,
+  "name": "ceder-1644",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "1/2 Square Thru",
+    "Tag the Line",
+    "Face Right",
+    "Couples Circulate",
+    "Ferris Wheel",
+    "Centers Swing Thru",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers Swing Thru\"",
+  "source": "ceder.net/choreodb"
+}

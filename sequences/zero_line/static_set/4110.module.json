@@ -1,0 +1,21 @@
+{
+  "id": 4110,
+  "name": "ceder-4110",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 8,
+  "mappedCount": 8,
+  "steps": [
+    "Right and Left Thru",
+    "Pass the Ocean",
+    "All 8 Circulate",
+    "Girls Run",
+    "Bend the Line",
+    "Square Thru 4",
+    "Trade By",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

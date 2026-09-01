@@ -1,0 +1,19 @@
+{
+  "id": 9025,
+  "name": "ceder-9025",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Touch a Quarter",
+    "Single File Circulate",
+    "Ladies Run",
+    "Everybody U-Turn Back",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Single File Circulate\"; Untranslatable: \"Ladies Run\"; Untranslatable: \"Everybody U-Turn Back\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

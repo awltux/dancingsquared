@@ -1,0 +1,19 @@
+{
+  "id": 1729,
+  "name": "ceder-1729",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Swing Thru",
+    "Spin the Top",
+    "Recycle",
+    "Reverse Flutterwheel",
+    "Square Thru 3",
+    "Allemande Left"
+  ],
+  "source": "ceder.net/choreodb"
+}

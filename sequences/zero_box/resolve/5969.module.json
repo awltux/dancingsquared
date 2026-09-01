@@ -1,0 +1,24 @@
+{
+  "id": 5969,
+  "name": "ceder-5969",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Centers Split The Outsides Around 1 To A Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Swing Thru",
+    "Scoot Back",
+    "Boys Cross Run",
+    "Chain Down the Line",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Split The Outsides Around 1 To A Line\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Boys Cross Run\"",
+  "source": "ceder.net/choreodb"
+}

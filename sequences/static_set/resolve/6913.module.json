@@ -1,0 +1,21 @@
+{
+  "id": 6913,
+  "name": "ceder-6913",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 1,
+  "steps": [
+    "Head Men Dosado",
+    "Side Men Dosado",
+    "Head Ladies Dosado",
+    "Side Ladies Dosado",
+    "Dosado Corner",
+    "Dosado Partner",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Head Men Dosado,\"; Untranslatable: \"Side Men Dosado,\"; Untranslatable: \"Head Ladies Dosado,\"; Untranslatable: \"Side Ladies Dosado,\"; Untranslatable: \"Dosado Corner,\"; Untranslatable: \"Dosado Partner,\"",
+  "source": "ceder.net/choreodb"
+}

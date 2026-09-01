@@ -1,0 +1,22 @@
+{
+  "id": 9038,
+  "name": "ceder-9038",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Centers In",
+    "Ends Cross Fold",
+    "First Couple Right",
+    "Next Couple Right",
+    "Wrong Way Promenade Home"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"First Couple Right\"; Untranslatable: \"Next Couple Right\"; Untranslatable: \"Wrong Way Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

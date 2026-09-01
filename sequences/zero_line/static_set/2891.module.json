@@ -1,0 +1,19 @@
+{
+  "id": 2891,
+  "name": "ceder-2891",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "1/2 Square Thru",
+    "Centers Square Thru 3",
+    "Ends Trade",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

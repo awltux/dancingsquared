@@ -1,0 +1,19 @@
+{
+  "id": 8498,
+  "name": "ceder-8498",
+  "level": "unknown",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Rollaway",
+    "Circle Left",
+    "4 Men Square Thru",
+    "Dosado To An Ocean Wave",
+    "Men Run"
+  ],
+  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"4 Men Square Thru,\"; Untranslatable: \"Dosado To An Ocean Wave,\"; Untranslatable: \"Men Run\"",
+  "source": "ceder.net/choreodb"
+}

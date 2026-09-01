@@ -1,0 +1,26 @@
+{
+  "id": 2161,
+  "name": "ceder-2161",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Lead Right",
+    "Veer Left",
+    "Couples Circulate",
+    "Tag the Line",
+    "Ferris Wheel",
+    "Centers Left Swing Thru",
+    "Extend",
+    "Left Swing Thru",
+    "Boys Run",
+    "Flutterwheel",
+    "1/2 Square Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Left Swing Thru,\"; Untranslatable: \"1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

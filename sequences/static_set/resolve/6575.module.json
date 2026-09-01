@@ -1,0 +1,22 @@
+{
+  "id": 6575,
+  "name": "ceder-6575",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Scoot Back",
+    "Girls Run",
+    "Reverse Flutterwheel",
+    "Flutterwheel",
+    "Sweep a Quarter",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

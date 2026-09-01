@@ -1,0 +1,21 @@
+{
+  "id": 6735,
+  "name": "ceder-6735",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "3/4 Tag the Line",
+    "Ends U-Turn Back",
+    "Extend",
+    "Girls Circulate",
+    "Boys Trade",
+    "Recycle"
+  ],
+  "note": "Untranslatable: \"Ends U-Turn Back\"; Untranslatable: \"Girls Circulate\"",
+  "source": "ceder.net/choreodb"
+}

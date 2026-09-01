@@ -1,0 +1,19 @@
+{
+  "id": 6347,
+  "name": "ceder-6347",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Touch a Quarter",
+    "Hinge",
+    "Box the Gnat",
+    "Change Hands",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Change Hands\"",
+  "source": "ceder.net/choreodb"
+}

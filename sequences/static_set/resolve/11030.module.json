@@ -1,0 +1,21 @@
+{
+  "id": 11030,
+  "name": "ceder-11030",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Promenade 1/2",
+    "Sides 1/2 Square Thru",
+    "All 1/2 Square Thru",
+    "Tag the Line",
+    "Touch a Quarter",
+    "Boys Run",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Sides 1/2 Square Thru,\"; Untranslatable: \"All 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

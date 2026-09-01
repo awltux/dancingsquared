@@ -1,0 +1,23 @@
+{
+  "id": 2251,
+  "name": "ceder-2251",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Star Thru",
+    "Pass Thru",
+    "Tag the Line",
+    "Face In",
+    "Swing Thru",
+    "Girls Trade",
+    "Cast Right 3/4",
+    "Boys Run",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Cast Right 3/4\"",
+  "source": "ceder.net/choreodb"
+}

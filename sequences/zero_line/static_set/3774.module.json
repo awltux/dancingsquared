@@ -1,0 +1,26 @@
+{
+  "id": 3774,
+  "name": "ceder-3774",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Boys Run",
+    "Tag the Line",
+    "Face In",
+    "Touch a Quarter",
+    "Circulate",
+    "Boys Run",
+    "Centers Pass Thru",
+    "Swing Thru",
+    "All 8 Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

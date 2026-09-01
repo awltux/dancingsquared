@@ -1,0 +1,18 @@
+{
+  "id": 8861,
+  "name": "ceder-8861",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Everybody Half Sashay",
+    "Heads 1/2 Square Thru",
+    "Swing Thru",
+    "Recycle"
+  ],
+  "note": "Untranslatable: \"Everybody Half Sashay,\"; Untranslatable: \"Heads 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

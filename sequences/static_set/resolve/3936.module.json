@@ -1,0 +1,23 @@
+{
+  "id": 3936,
+  "name": "ceder-3936",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Left Square Thru 4",
+    "Sides Half Sashay",
+    "Left Swing Thru",
+    "Split Circulate",
+    "Boys Trade",
+    "Pass the Ocean",
+    "Swing Thru",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \" Sides Half Sashay,\"",
+  "source": "ceder.net/choreodb"
+}

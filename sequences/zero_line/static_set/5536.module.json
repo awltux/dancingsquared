@@ -1,0 +1,19 @@
+{
+  "id": 5536,
+  "name": "ceder-5536",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Leaders U-Turn Back",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

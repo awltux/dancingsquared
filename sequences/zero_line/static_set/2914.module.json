@@ -1,0 +1,21 @@
+{
+  "id": 2914,
+  "name": "ceder-2914",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

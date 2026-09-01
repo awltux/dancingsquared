@@ -1,0 +1,25 @@
+{
+  "id": 3660,
+  "name": "ceder-3660",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "Star Thru",
+    "Pass Thru",
+    "Centers Square Thru 3",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Pass Thru",
+    "Trade By",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

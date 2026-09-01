@@ -1,0 +1,22 @@
+{
+  "id": 8754,
+  "name": "ceder-8754",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Hinge",
+    "Single File Circulate",
+    "Trade",
+    "Single File Circulate",
+    "Hinge",
+    "Men Run",
+    "Wheel and Deal"
+  ],
+  "note": "Untranslatable: \"Single File Circulate\"; Untranslatable: \"Single File Circulate\"; Untranslatable: \"Men Run\"",
+  "source": "ceder.net/choreodb"
+}

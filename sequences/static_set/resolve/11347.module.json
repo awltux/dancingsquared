@@ -1,0 +1,25 @@
+{
+  "id": 11347,
+  "name": "ceder-11347",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 7,
+  "steps": [
+    "(Lesson 10-7)",
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Put Centers In, Cast 3/4",
+    "Star Thru",
+    "Double Pass Thru",
+    "Centers In",
+    "Star Thru",
+    "Centers Slide Thru, Pass Thru",
+    "Step Forward & Partner Trade",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 10-7),\"; Untranslatable: \"Put Centers In, Cast 3/4,\"; Untranslatable: \"Centers Slide Thru, Pass Thru,\"; Untranslatable: \" Step Forward & Partner Trade,\"",
+  "source": "ceder.net/choreodb"
+}

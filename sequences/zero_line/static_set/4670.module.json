@@ -1,0 +1,24 @@
+{
+  "id": 4670,
+  "name": "ceder-4670",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 9,
+  "steps": [
+    "Pass Thru",
+    "Half Tag",
+    "Swing Thru",
+    "Girls Trade",
+    "Forward and Back",
+    "Touch a Quarter",
+    "Circulate",
+    "Face In",
+    "Right and Left Thru",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

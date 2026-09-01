@@ -1,0 +1,24 @@
+{
+  "id": 5868,
+  "name": "ceder-5868",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Dosado to a Wave",
+    "Split Circulate",
+    "Hinge",
+    "Centers Trade",
+    "Split Circulate",
+    "Girls Swing Thru",
+    "Girls Single Hinge",
+    "All Tag The Line, Face Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Girls Swing Thru,\"; Untranslatable: \"Girls Single Hinge,\"; Untranslatable: \"All Tag The Line, Face Left,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 10795,
+  "name": "ceder-10795",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Girls Fold",
+    "Double Pass Thru",
+    "Face Right",
+    "Chain Down the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Flutter Wheel & Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Flutter Wheel & Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

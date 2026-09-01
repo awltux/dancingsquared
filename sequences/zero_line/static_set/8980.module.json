@@ -1,0 +1,21 @@
+{
+  "id": 8980,
+  "name": "ceder-8980",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Single Circle to a Wave",
+    "Men Trade",
+    "Ladies Trade",
+    "Men Run",
+    "Bend the Line",
+    "Pass Thru",
+    "Left Allemande Lines of Four facing out."
+  ],
+  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande Lines of Four facing out.\"",
+  "source": "ceder.net/choreodb"
+}

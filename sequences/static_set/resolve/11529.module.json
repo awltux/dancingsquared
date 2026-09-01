@@ -1,0 +1,23 @@
+{
+  "id": 11529,
+  "name": "ceder-11529",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Lead Right",
+    "Circle Four 3/4",
+    "Dosado, Step To A Wave",
+    "Girls Trade",
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Circle Four 3/4,\"; Untranslatable: \"Dosado, Step To A Wave,\"",
+  "source": "ceder.net/choreodb"
+}

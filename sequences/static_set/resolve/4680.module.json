@@ -1,0 +1,17 @@
+{
+  "id": 4680,
+  "name": "ceder-4680",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 1,
+  "steps": [
+    "Boys Run Right (check Alamo Ring)",
+    "Left Swing Thru 1 & 1/2",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Boys Run Right (check Alamo Ring),\"; Untranslatable: \"Left Swing Thru 1 & 1/2,\"",
+  "source": "ceder.net/choreodb"
+}

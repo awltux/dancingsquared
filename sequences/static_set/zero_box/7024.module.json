@@ -1,0 +1,22 @@
+{
+  "id": 7024,
+  "name": "ceder-7024",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Girls Run",
+    "Boys Cross Run",
+    "Ferris Wheel",
+    "Zoom",
+    "Double Pass Thru",
+    "Leaders Trade"
+  ],
+  "note": "Untranslatable: \"Boys Cross Run,\"; Untranslatable: \"Leaders Trade\"",
+  "source": "ceder.net/choreodb"
+}

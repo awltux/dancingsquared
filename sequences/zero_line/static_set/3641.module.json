@@ -1,0 +1,19 @@
+{
+  "id": 3641,
+  "name": "ceder-3641",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Pass Thru",
+    "Half Tag",
+    "Swing Thru",
+    "Swing Thru",
+    "Split Circulate",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

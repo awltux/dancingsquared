@@ -1,0 +1,28 @@
+{
+  "id": 11533,
+  "name": "ceder-11533",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 12,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Flutter Wheel & Pass The Ocean",
+    "Extend",
+    "Girls Run",
+    "Couples Circulate",
+    "Couples Hinge",
+    "Half Tag",
+    "Boys Run",
+    "Pass Thru, Trade By",
+    "Pass the Ocean",
+    "Girls Trade",
+    "Girls Run",
+    "Bend the Line",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel & Pass The Ocean,\"; Untranslatable: \"Pass Thru, Trade By,\"",
+  "source": "ceder.net/choreodb"
+}

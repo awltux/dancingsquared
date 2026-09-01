@@ -1,0 +1,22 @@
+{
+  "id": 10556,
+  "name": "ceder-10556",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Everybody Half Sashay",
+    "Heads (Men lead) Flutter Wheel",
+    "Heads Square Thru 4",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Girls Run",
+    "Reverse Flutterwheel",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Everybody Half Sashay,\"; Untranslatable: \"Heads (Men lead) Flutter Wheel,\"",
+  "source": "ceder.net/choreodb"
+}

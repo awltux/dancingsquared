@@ -1,0 +1,26 @@
+{
+  "id": 11235,
+  "name": "ceder-11235",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Square Thru",
+    "Slide Thru",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Swing Thru",
+    "Boys Trade",
+    "Boys Run",
+    "Couples Hinge",
+    "Chain Down the Line",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

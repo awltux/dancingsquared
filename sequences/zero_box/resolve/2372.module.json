@@ -1,0 +1,23 @@
+{
+  "id": 2372,
+  "name": "ceder-2372",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Step to a Wave",
+    "Ends Circulate",
+    "Centers Trade",
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Ends Circulate",
+    "Centers Trade",
+    "Wheel and Deal",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

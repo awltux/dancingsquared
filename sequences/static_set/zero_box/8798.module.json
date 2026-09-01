@@ -1,0 +1,16 @@
+{
+  "id": 8798,
+  "name": "ceder-8798",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 2,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Promenade 1/2",
+    "Sides 1/2 Square Thru"
+  ],
+  "note": "Untranslatable: \"Sides 1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

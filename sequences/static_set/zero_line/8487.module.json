@@ -1,0 +1,19 @@
+{
+  "id": 8487,
+  "name": "ceder-8487",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Circle Left 3/4",
+    "Pass Thru",
+    "All Veer Left",
+    "Couples Circulate",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Heads Circle Left 3/4,\"; Untranslatable: \"All Veer Left,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 3844,
+  "name": "ceder-3844",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 9,
+  "mappedCount": 9,
+  "steps": [
+    "Touch a Quarter",
+    "Girls Fold",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Pass the Ocean",
+    "Girls Run",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 8676,
+  "name": "ceder-8676",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Single Circle to a Wave",
+    "Men Trade",
+    "Men Run",
+    "Ferris Wheel",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Men Run\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

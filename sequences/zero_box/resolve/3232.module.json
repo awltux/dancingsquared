@@ -1,0 +1,22 @@
+{
+  "id": 3232,
+  "name": "ceder-3232",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 9,
+  "mappedCount": 9,
+  "steps": [
+    "Touch a Quarter",
+    "Girls Run",
+    "Star Thru",
+    "Trade By",
+    "Touch a Quarter",
+    "Girls Run",
+    "Star Thru",
+    "Trade By",
+    "Allemande Left"
+  ],
+  "source": "ceder.net/choreodb"
+}

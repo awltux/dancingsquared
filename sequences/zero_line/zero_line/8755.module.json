@@ -1,0 +1,19 @@
+{
+  "id": 8755,
+  "name": "ceder-8755",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "1/2 Square Thru",
+    "Centers Square Thru 3/4",
+    "Centers In",
+    "Ends Cross Fold",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers Square Thru 3/4\"",
+  "source": "ceder.net/choreodb"
+}

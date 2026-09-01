@@ -1,0 +1,20 @@
+{
+  "id": 1734,
+  "name": "ceder-1734",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Trade",
+    "Swing Thru",
+    "Scoot Back",
+    "Boys Run",
+    "Star Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

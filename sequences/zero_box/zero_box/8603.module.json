@@ -1,0 +1,19 @@
+{
+  "id": 8603,
+  "name": "ceder-8603",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Veer Left",
+    "Couples Circulate",
+    "Couples Trade",
+    "Couples Circulate",
+    "Chain Down the Line",
+    "Star Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,25 @@
+{
+  "id": 11032,
+  "name": "ceder-11032",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "All Pass Thru",
+    "Tag the Line",
+    "Touch a Quarter",
+    "Girls Run",
+    "Double Pass Thru",
+    "U-Turn Back",
+    "Zoom",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

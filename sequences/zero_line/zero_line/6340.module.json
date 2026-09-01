@@ -1,0 +1,17 @@
+{
+  "id": 6340,
+  "name": "ceder-6340",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Girls Trade",
+    "Wheel and Deal",
+    "Slide Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

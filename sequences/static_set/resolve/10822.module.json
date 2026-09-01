@@ -1,0 +1,23 @@
+{
+  "id": 10822,
+  "name": "ceder-10822",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Square Thru 4",
+    "Sides Half Sashay",
+    "All Square Thru 4",
+    "Bend the Line",
+    "Square Thru 4",
+    "Centers Pass Thru",
+    "Centers In",
+    "1/2 Square Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \" Sides Half Sashay,\"; Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

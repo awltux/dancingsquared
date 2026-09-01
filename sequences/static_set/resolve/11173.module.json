@@ -1,0 +1,24 @@
+{
+  "id": 11173,
+  "name": "ceder-11173",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "(Lesson 5-09)",
+    "Heads Lead Right",
+    "Veer Left",
+    "Girls Trade",
+    "Couples Circulate",
+    "Boys Circulate",
+    "Girls Circulate",
+    "Boys Trade",
+    "Couples Circulate",
+    "Wrong Way Promenade Home"
+  ],
+  "note": "Untranslatable: \"(Lesson 5-09),\"; Untranslatable: \"Boys Circulate,\"; Untranslatable: \"Girls Circulate,\"; Untranslatable: \"Wrong Way Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

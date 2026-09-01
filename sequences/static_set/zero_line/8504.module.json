@@ -1,0 +1,19 @@
+{
+  "id": 8504,
+  "name": "ceder-8504",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Veer Left",
+    "Couples Trade",
+    "Bend the Line",
+    "Pass Thru",
+    "Circle Right 3/4"
+  ],
+  "note": "Untranslatable: \"Heads Veer Left,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,23 @@
+{
+  "id": 2242,
+  "name": "ceder-2242",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Step to a Wave",
+    "Girls Trade",
+    "Girls Run",
+    "Couples Circulate",
+    "Girls Cross Run",
+    "Girls Trade",
+    "Ferris Wheel",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Girls Cross Run\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

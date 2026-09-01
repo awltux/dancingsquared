@@ -1,0 +1,25 @@
+{
+  "id": 2034,
+  "name": "ceder-2034",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Centers Trade",
+    "Swing Thru",
+    "Spin the Top",
+    "Hinge",
+    "Boys Run",
+    "Centers Pass Thru",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

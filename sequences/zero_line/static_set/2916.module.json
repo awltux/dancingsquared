@@ -1,0 +1,19 @@
+{
+  "id": 2916,
+  "name": "ceder-2916",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Box the Gnat",
+    "Centers Right & Left Thru",
+    "Each Side Square Thru 4",
+    "Trade By",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Right & Left Thru\"; Untranslatable: \"Each Side Square Thru 4\"",
+  "source": "ceder.net/choreodb"
+}

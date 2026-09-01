@@ -1,0 +1,26 @@
+{
+  "id": 10866,
+  "name": "ceder-10866",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Promenade 1/2",
+    "Box the Gnat",
+    "Same 4 Pass Thru",
+    "Separate Around 1 To A Line",
+    "All Pass The Ocean",
+    "Circulate",
+    "Swing Thru",
+    "Girls Circulate, Boys Trade",
+    "Girls Run",
+    "Girls Trade",
+    "Girls Cross Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Same 4 Pass Thru,\"; Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"All Pass The Ocean,\"; Untranslatable: \"Girls Circulate, Boys Trade,\"; Untranslatable: \"Girls Cross Run,\"",
+  "source": "ceder.net/choreodb"
+}

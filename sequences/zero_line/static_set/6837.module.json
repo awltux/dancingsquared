@@ -1,0 +1,19 @@
+{
+  "id": 6837,
+  "name": "ceder-6837",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "U Turn Back",
+    "Pass Thru",
+    "Face Your Partner",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"U Turn Back\"; Untranslatable: \"Face Your Partner\"",
+  "source": "ceder.net/choreodb"
+}

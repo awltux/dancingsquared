@@ -1,0 +1,19 @@
+{
+  "id": 11021,
+  "name": "ceder-11021",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Head Square Thru",
+    "Swing Thru",
+    "Boys Trade",
+    "Everyone U-Turn Back",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Head Square Thru,\"; Untranslatable: \"Everyone U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

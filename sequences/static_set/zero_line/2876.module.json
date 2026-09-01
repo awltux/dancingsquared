@@ -1,0 +1,18 @@
+{
+  "id": 2876,
+  "name": "ceder-2876",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Four Ladies Chain 3/4",
+    "Head Position 1/2 Square Thru",
+    "All 1/2 Square Thru",
+    "Partner Trade"
+  ],
+  "note": "Untranslatable: \"Head Position 1/2 Square Thru,\"; Untranslatable: \"All 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

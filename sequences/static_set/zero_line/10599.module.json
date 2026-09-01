@@ -1,0 +1,19 @@
+{
+  "id": 10599,
+  "name": "ceder-10599",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Square Thru 4",
+    "Swing Thru",
+    "Girls Circulate, Boys Trade",
+    "Boys Run",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Girls Circulate, Boys Trade,\"",
+  "source": "ceder.net/choreodb"
+}

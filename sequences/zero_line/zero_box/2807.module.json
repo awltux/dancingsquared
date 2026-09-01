@@ -1,0 +1,17 @@
+{
+  "id": 2807,
+  "name": "ceder-2807",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 1,
+  "steps": [
+    "Left Touch 1/4",
+    "Circulate",
+    "Girls Run"
+  ],
+  "note": "Untranslatable: \"Left Touch 1/4\"",
+  "source": "ceder.net/choreodb"
+}

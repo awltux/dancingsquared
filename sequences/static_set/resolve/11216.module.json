@@ -1,0 +1,25 @@
+{
+  "id": 11216,
+  "name": "ceder-11216",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 7,
+  "steps": [
+    "",
+    "Head Ladies Chain",
+    "Heads Promenade Halfway",
+    "Side Ladies Chain",
+    "Sides Promenade Halfway",
+    "Four Ladies Chain",
+    "Forward and Back",
+    "Allemande Left",
+    "Right and Left Grand",
+    "Swing Partner",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Sides Promenade Halfway,\"; Untranslatable: \"Swing Partner,\"",
+  "source": "ceder.net/choreodb"
+}

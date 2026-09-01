@@ -1,0 +1,22 @@
+{
+  "id": 1652,
+  "name": "ceder-1652",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 9,
+  "mappedCount": 9,
+  "steps": [
+    "Pass Thru",
+    "Boys Run",
+    "Scoot Back",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Touch a Quarter",
+    "Girls Run",
+    "Reverse Flutterwheel",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

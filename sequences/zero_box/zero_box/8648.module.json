@@ -1,0 +1,21 @@
+{
+  "id": 8648,
+  "name": "ceder-8648",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Veer Left",
+    "Couples Circulate Twice",
+    "Half Tag",
+    "Box Circulate",
+    "Men Run",
+    "Reverse Flutterwheel",
+    "Slide Thru (Zero Box) This flip flops the set."
+  ],
+  "note": "Untranslatable: \"Couples Circulate Twice\"; Untranslatable: \"Men Run\"; Untranslatable: \"Slide Thru (Zero Box) This flip flops the set.\"",
+  "source": "ceder.net/choreodb"
+}

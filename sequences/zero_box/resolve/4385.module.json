@@ -1,0 +1,25 @@
+{
+  "id": 4385,
+  "name": "ceder-4385",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Boys Circulate",
+    "Swing Thru",
+    "Girls Circulate",
+    "Recycle",
+    "Sweep a Quarter",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Only Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Boys Circulate\"; Untranslatable: \"Girls Circulate\"; Untranslatable: \"Girls Only Zoom\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

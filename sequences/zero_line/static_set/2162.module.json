@@ -1,0 +1,21 @@
+{
+  "id": 2162,
+  "name": "ceder-2162",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Pass the Ocean",
+    "Boys Run",
+    "Boys Trade",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "All Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"All Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

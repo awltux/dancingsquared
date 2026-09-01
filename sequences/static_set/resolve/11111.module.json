@@ -1,0 +1,18 @@
+{
+  "id": 11111,
+  "name": "ceder-11111",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Promenade 1/2",
+    "Sides Circle Up Four Halfway Round And Back Away",
+    "Boys Star Left Inside Full Around",
+    "Star Promenade Home"
+  ],
+  "note": "Untranslatable: \"Sides Circle Up Four Halfway Round And Back Away,\"; Untranslatable: \"Boys Star Left Inside Full Around,\"; Untranslatable: \"Star Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

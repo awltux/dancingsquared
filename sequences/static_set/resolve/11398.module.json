@@ -1,0 +1,30 @@
+{
+  "id": 11398,
+  "name": "ceder-11398",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 16,
+  "mappedCount": 12,
+  "steps": [
+    "(Lesson 11-11)",
+    "Heads Touch 1/4",
+    "Head Boys Run",
+    "Touch a Quarter",
+    "Centers Trade",
+    "Boys Trade",
+    "Girls Trade",
+    "Centers Trade",
+    "Partner Trade",
+    "Centers Trade",
+    "Boys Trade",
+    "Girls Trade",
+    "Centers Trade",
+    "Boys Run",
+    "Reverse Flutter, Sweep 1/4",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"(Lesson 11-11),\"; Untranslatable: \"Heads Touch 1/4,\"; Untranslatable: \"Head Boys Run,\"; Untranslatable: \"Reverse Flutter, Sweep 1/4,\"",
+  "source": "ceder.net/choreodb"
+}

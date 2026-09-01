@@ -1,0 +1,19 @@
+{
+  "id": 7604,
+  "name": "ceder-7604",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Box The Gnat",
+    "Slide Thru",
+    "Swing Thru",
+    "Spin the Top",
+    "Slide Thru"
+  ],
+  "note": "Untranslatable: \"Heads Box The Gnat,\"",
+  "source": "ceder.net/choreodb"
+}

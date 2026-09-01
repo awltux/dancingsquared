@@ -1,0 +1,23 @@
+{
+  "id": 5873,
+  "name": "ceder-5873",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Trade",
+    "Swing Thru",
+    "Spin the Top",
+    "Hinge",
+    "Girls Run",
+    "Centers Reverse Flutter Wheel (Girls go)",
+    "Centers Partner Trade",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Reverse Flutter Wheel (Girls go)\"; Untranslatable: \"Centers Partner Trade\"",
+  "source": "ceder.net/choreodb"
+}

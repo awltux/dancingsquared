@@ -1,0 +1,18 @@
+{
+  "id": 6853,
+  "name": "ceder-6853",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Right and Left Thru",
+    "Dive Thru",
+    "Centers Square Thru 3/4",
+    "Left Allemande After the Square Thru 3/4 the Formation = 8ChT (0) and ZB."
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3/4\"; Untranslatable: \"Left Allemande After the Square Thru 3/4 the Formation = 8ChT (0) and ZB.\"",
+  "source": "ceder.net/choreodb"
+}

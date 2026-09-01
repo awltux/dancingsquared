@@ -1,0 +1,23 @@
+{
+  "id": 4102,
+  "name": "ceder-4102",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Lead Couple Trade",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Ferris Wheel",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Lead Couple Trade,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

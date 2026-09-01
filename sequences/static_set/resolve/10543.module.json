@@ -1,0 +1,25 @@
+{
+  "id": 10543,
+  "name": "ceder-10543",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 9,
+  "steps": [
+    "Head Ladies Chain",
+    "Heads Star Thru",
+    "Pass Thru",
+    "Right and Left Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Dosado to a Wave",
+    "Swing Thru",
+    "Box the Gnat",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

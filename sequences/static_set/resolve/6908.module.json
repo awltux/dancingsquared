@@ -1,0 +1,26 @@
+{
+  "id": 6908,
+  "name": "ceder-6908",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Forward and Back",
+    "Pass Thru",
+    "Separate Around Two To A Line",
+    "Forward and Back",
+    "Center Four Pass Thru",
+    "Split Two Around One To A Line",
+    "Forward and Back",
+    "Center Four Pass Thru",
+    "Split Two Around One To A Line",
+    "Forward and Back",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Separate Around Two To A Line,\"; Untranslatable: \"Center Four Pass Thru,\"; Untranslatable: \"Split Two Around One To A Line,\"; Untranslatable: \"Center Four Pass Thru,\"; Untranslatable: \"Split Two Around One To A Line,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

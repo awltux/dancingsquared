@@ -1,0 +1,25 @@
+{
+  "id": 10796,
+  "name": "ceder-10796",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Square Thru 4",
+    "Touch a Quarter",
+    "Girls Fold",
+    "Double Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Touch a Quarter",
+    "Centers Trade",
+    "All Circulate 1 & 1/2",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"All Circulate 1 & 1/2,\"",
+  "source": "ceder.net/choreodb"
+}

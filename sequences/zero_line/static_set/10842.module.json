@@ -1,0 +1,19 @@
+{
+  "id": 10842,
+  "name": "ceder-10842",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Right and Left Thru",
+    "Left Touch 1/4",
+    "Circulate",
+    "Zoom",
+    "R.L.G fractional zoom"
+  ],
+  "note": "Untranslatable: \"Left Touch 1/4\"; Untranslatable: \"R.L.G fractional zoom\"",
+  "source": "ceder.net/choreodb"
+}

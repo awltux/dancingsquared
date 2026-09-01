@@ -1,0 +1,19 @@
+{
+  "id": 9313,
+  "name": "ceder-9313",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Centers In",
+    "Ends Pass Thru",
+    "Bend the Line",
+    "Centers Square Thru 2",
+    "Ends Star Thru"
+  ],
+  "note": "Untranslatable: \"Ends Pass Thru\"; Untranslatable: \"Centers Square Thru 2\"; Untranslatable: \"Ends Star Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,17 @@
+{
+  "id": 3727,
+  "name": "ceder-3727",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 0,
+  "steps": [
+    "Centers (only) Box The Gnat",
+    "(Same 4) Square Thru Five",
+    "All Allemande Left"
+  ],
+  "note": "Untranslatable: \"Centers (only) Box The Gnat\"; Untranslatable: \"(Same 4) Square Thru Five\"; Untranslatable: \"All Allemande Left\"",
+  "source": "ceder.net/choreodb"
+}

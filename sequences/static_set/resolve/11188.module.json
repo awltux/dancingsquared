@@ -1,0 +1,27 @@
+{
+  "id": 11188,
+  "name": "ceder-11188",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 11,
+  "steps": [
+    "(Lesson 6-08)",
+    "Heads Lead Right",
+    "Right and Left Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Bend the Line",
+    "Reverse Flutterwheel",
+    "Half Sashay",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 6-08),\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

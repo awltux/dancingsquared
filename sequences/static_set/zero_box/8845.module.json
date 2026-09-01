@@ -1,0 +1,19 @@
+{
+  "id": 8845,
+  "name": "ceder-8845",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Star Thru",
+    "Boys Only Zoom",
+    "Double Pass Thru",
+    "First Couple Go Left, Next Couple Go Right",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Boys Only Zoom,\"",
+  "source": "ceder.net/choreodb"
+}

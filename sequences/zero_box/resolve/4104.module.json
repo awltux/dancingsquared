@@ -1,0 +1,20 @@
+{
+  "id": 4104,
+  "name": "ceder-4104",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 7,
+  "mappedCount": 7,
+  "steps": [
+    "Star Thru",
+    "Pass Thru",
+    "Tag the Line",
+    "Face Out",
+    "Ends Fold",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

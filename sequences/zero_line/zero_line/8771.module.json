@@ -1,0 +1,17 @@
+{
+  "id": 8771,
+  "name": "ceder-8771",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Veer Left",
+    "Couples Hinge",
+    "Tag the Line",
+    "Bend the Line"
+  ],
+  "source": "ceder.net/choreodb"
+}

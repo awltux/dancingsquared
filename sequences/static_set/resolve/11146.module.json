@@ -1,0 +1,19 @@
+{
+  "id": 11146,
+  "name": "ceder-11146",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "All Circle Left",
+    "Circle Right",
+    "All 4 Couples Promenade",
+    "Girls Backtrack",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"All Circle Left,\"",
+  "source": "ceder.net/choreodb"
+}

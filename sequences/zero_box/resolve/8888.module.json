@@ -1,0 +1,18 @@
+{
+  "id": 8888,
+  "name": "ceder-8888",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Half Sashay",
+    "Pass Thru",
+    "Swing",
+    "All 4 Couples Promenade"
+  ],
+  "source": "ceder.net/choreodb"
+}

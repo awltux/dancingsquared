@@ -1,0 +1,19 @@
+{
+  "id": 2904,
+  "name": "ceder-2904",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Lead Right",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Leaders California Twirl"
+  ],
+  "note": "Untranslatable: \"Leaders California Twirl\"",
+  "source": "ceder.net/choreodb"
+}

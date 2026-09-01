@@ -1,0 +1,26 @@
+{
+  "id": 6736,
+  "name": "ceder-6736",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Lead Right",
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Dosado 1 & 1/2",
+    "Veer Right",
+    "Couples Circulate 1 & 1/2",
+    "Bend the Line",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Centers Dosado 1 & 1/2,\"; Untranslatable: \"Couples Circulate 1 & 1/2,\"",
+  "source": "ceder.net/choreodb"
+}

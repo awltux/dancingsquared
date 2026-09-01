@@ -1,0 +1,18 @@
+{
+  "id": 7601,
+  "name": "ceder-7601",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Lead Right",
+    "Couple 1 Arch, Couple 2 Dive Thru",
+    "Couple 4 Wheel Around",
+    "First Go Left, Second Go Left, Third Go Left, Promenade"
+  ],
+  "note": "Untranslatable: \"Couple 1 Arch, Couple 2 Dive Thru,\"; Untranslatable: \"Couple 4 Wheel Around,\"; Untranslatable: \"First Go Left, Second Go Left, Third Go Left, Promenade\"",
+  "source": "ceder.net/choreodb"
+}

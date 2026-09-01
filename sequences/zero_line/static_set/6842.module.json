@@ -1,0 +1,17 @@
+{
+  "id": 6842,
+  "name": "ceder-6842",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Square Thru 4",
+    "Everybody U Turn Back",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Everybody U Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

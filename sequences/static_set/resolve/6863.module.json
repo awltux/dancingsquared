@@ -1,0 +1,20 @@
+{
+  "id": 6863,
+  "name": "ceder-6863",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 Come Into The Middle",
+    "Pass Thru",
+    "Split The Outsides Around 1 Come Into The Middle",
+    "Right and Left Thru",
+    "Everybody Swing Partner & Promenade Home"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 Come Into The Middle,\"; Untranslatable: \"Split The Outsides Around 1 Come Into The Middle,\"; Untranslatable: \"Everybody Swing Partner & Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,27 @@
+{
+  "id": 6057,
+  "name": "ceder-6057",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 11,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Right & Left Thru, Half Sashay",
+    "Zoom",
+    "Boys Swing Thru",
+    "Extend",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Pass Thru",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Girls Right & Left Thru, Half Sashay,\"; Untranslatable: \"Boys Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

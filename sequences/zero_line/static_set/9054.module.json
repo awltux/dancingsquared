@@ -1,0 +1,21 @@
+{
+  "id": 9054,
+  "name": "ceder-9054",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "Half Tag",
+    "End Circulate",
+    "Men Run",
+    "Slide Thru",
+    "Left Allemande After the Slide Thrum this is a ZL-ZB Conversion Module."
+  ],
+  "note": "Untranslatable: \"End Circulate\"; Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande After the Slide Thrum this is a ZL-ZB Conversion Module.\"",
+  "source": "ceder.net/choreodb"
+}

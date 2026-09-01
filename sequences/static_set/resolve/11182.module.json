@@ -1,0 +1,29 @@
+{
+  "id": 11182,
+  "name": "ceder-11182",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 15,
+  "mappedCount": 9,
+  "steps": [
+    "(Lesson 6-03)",
+    "Heads Pass Thru",
+    "Same 4 Wheel Around",
+    "Heads Flutter Wheel, Sweep 1/4",
+    "Centers Pass Thru",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Chain Down the Line",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Square Thru 3",
+    "Allemande Left",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 6-03),\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Same 4 Wheel Around,\"; Untranslatable: \"Heads Flutter Wheel, Sweep 1/4,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

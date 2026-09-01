@@ -1,0 +1,24 @@
+{
+  "id": 3546,
+  "name": "ceder-3546",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Half Tag",
+    "Swing Thru",
+    "Swing Thru",
+    "Boys Run",
+    "Pass Thru",
+    "Tag the Line",
+    "Leaders U-Turn Back",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

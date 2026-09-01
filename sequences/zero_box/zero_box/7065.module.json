@@ -1,0 +1,22 @@
+{
+  "id": 7065,
+  "name": "ceder-7065",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Men Run",
+    "Couples Circulate",
+    "Ladies Trade",
+    "Bend the Line",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

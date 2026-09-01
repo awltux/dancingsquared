@@ -1,0 +1,18 @@
+{
+  "id": 8590,
+  "name": "ceder-8590",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 0,
+  "steps": [
+    "Split The Outside Two",
+    "Separate Around One Into The Middle",
+    "Centers Swing The Opposite",
+    "Face The Outside Two"
+  ],
+  "note": "Untranslatable: \"Split The Outside Two\"; Untranslatable: \"Separate Around One Into The Middle\"; Untranslatable: \"Centers Swing The Opposite\"; Untranslatable: \"Face The Outside Two\"",
+  "source": "ceder.net/choreodb"
+}

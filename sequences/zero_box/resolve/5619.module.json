@@ -1,0 +1,20 @@
+{
+  "id": 5619,
+  "name": "ceder-5619",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Square Thru 4",
+    "Ends Fold",
+    "Square Thru 4",
+    "Tag the Line",
+    "Face In",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

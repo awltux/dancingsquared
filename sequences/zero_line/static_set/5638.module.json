@@ -1,0 +1,22 @@
+{
+  "id": 5638,
+  "name": "ceder-5638",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 9,
+  "mappedCount": 9,
+  "steps": [
+    "Square Thru 3",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Face Right",
+    "Wheel and Deal",
+    "Star Thru",
+    "California Twirl",
+    "Boys Trade",
+    "ALLEMANDE_LEFT"
+  ],
+  "source": "ceder.net/choreodb"
+}

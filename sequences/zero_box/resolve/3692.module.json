@@ -1,0 +1,17 @@
+{
+  "id": 3692,
+  "name": "ceder-3692",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Step to a Wave",
+    "Scoot Back",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

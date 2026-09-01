@@ -1,0 +1,22 @@
+{
+  "id": 2594,
+  "name": "ceder-2594",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 9,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Lead Right",
+    "Veer Left",
+    "Couples Circulate",
+    "Bend the Line",
+    "Boys Walk, Girls Dodge",
+    "Hinge",
+    "Girls Trade",
+    "Boys Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "source": "ceder.net/choreodb"
+}

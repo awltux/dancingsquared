@@ -1,0 +1,17 @@
+{
+  "id": 1638,
+  "name": "ceder-1638",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "Ends Fold",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

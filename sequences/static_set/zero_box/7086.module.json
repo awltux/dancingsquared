@@ -1,0 +1,19 @@
+{
+  "id": 7086,
+  "name": "ceder-7086",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Star Thru",
+    "Zoom",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

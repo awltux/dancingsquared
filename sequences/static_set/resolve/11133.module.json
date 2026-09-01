@@ -1,0 +1,25 @@
+{
+  "id": 11133,
+  "name": "ceder-11133",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Promenade 3/4",
+    "Sides Pass Thru",
+    "Star Thru",
+    "(In your own group of 4...)",
+    "Ladies Chain Across",
+    "Circle Left",
+    "Left Allemande",
+    "Right and Left Grand",
+    "Dosado",
+    "Swing Your Partner",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \"(In your own group of 4...),\"; Untranslatable: \"Ladies Chain Across,\"",
+  "source": "ceder.net/choreodb"
+}

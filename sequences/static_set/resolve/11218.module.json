@@ -1,0 +1,22 @@
+{
+  "id": 11218,
+  "name": "ceder-11218",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 2,
+  "steps": [
+    "",
+    "Heads Promenade Halfway",
+    "Heads Pass Thru",
+    "Heads Wheel Around",
+    "Heads Back Away While The Sides Promenade Halfway",
+    "Sides Pass Thru",
+    "Sides Wheel Around",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Heads Back Away While The Sides Promenade Halfway,\"; Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \"Sides Wheel Around,\"",
+  "source": "ceder.net/choreodb"
+}

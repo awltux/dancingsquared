@@ -1,0 +1,22 @@
+{
+  "id": 5527,
+  "name": "ceder-5527",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Single Circle to a Wave",
+    "Boys Run",
+    "On Each Side: Wheel & Deal",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"On Each Side: Wheel & Deal,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

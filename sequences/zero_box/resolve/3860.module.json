@@ -1,0 +1,21 @@
+{
+  "id": 3860,
+  "name": "ceder-3860",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 2,
+  "steps": [
+    "Centers In",
+    "Centers Run",
+    "Centers Right & Left Thru",
+    "Ends Box The Gnat",
+    "Centers Star Thru",
+    "All Pass Thru",
+    "L.A Fun with \"Centers\""
+  ],
+  "note": "Untranslatable: \"Centers Right & Left Thru\"; Untranslatable: \"Ends Box The Gnat\"; Untranslatable: \"Centers Star Thru\"; Untranslatable: \"All Pass Thru\"; Untranslatable: \"L.A Fun with \"Centers\"\"",
+  "source": "ceder.net/choreodb"
+}

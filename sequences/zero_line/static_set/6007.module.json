@@ -1,0 +1,25 @@
+{
+  "id": 6007,
+  "name": "ceder-6007",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 12,
+  "mappedCount": 12,
+  "steps": [
+    "Pass the Ocean",
+    "Recycle",
+    "Veer Left",
+    "Couples Circulate",
+    "Tag the Line",
+    "Face In",
+    "Pass the Ocean",
+    "Boys Run",
+    "Right and Left Thru",
+    "Half Sashay",
+    "Pass the Ocean",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

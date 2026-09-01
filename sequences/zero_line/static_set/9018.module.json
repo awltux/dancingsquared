@@ -1,0 +1,20 @@
+{
+  "id": 9018,
+  "name": "ceder-9018",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "First Couple Left",
+    "Next Couple Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"First Couple Left\"; Untranslatable: \"Next Couple Left\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,23 @@
+{
+  "id": 4477,
+  "name": "ceder-4477",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Head Pass The Ocean",
+    "Extend",
+    "All 8 Circulate",
+    "Swing Thru",
+    "Girls Run",
+    "Girls Trade",
+    "Cast Off Three Quarters",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Head Pass The Ocean,\"",
+  "source": "ceder.net/choreodb"
+}

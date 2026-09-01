@@ -1,0 +1,25 @@
+{
+  "id": 11163,
+  "name": "ceder-11163",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 5,
+  "steps": [
+    "(Lesson 5-11)",
+    "Heads Square Thru 2",
+    "Slide Thru",
+    "Ends Pass Thru",
+    "Boys Trade",
+    "Centers Pass Thru",
+    "Bend the Line",
+    "Ends Pass Thru",
+    "Girls Trade",
+    "Centers Pass Thru",
+    "Allemande Left, Promenade Home"
+  ],
+  "note": "Untranslatable: \"(Lesson 5-11),\"; Untranslatable: \"Ends Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Ends Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Allemande Left, Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,29 @@
+{
+  "id": 11185,
+  "name": "ceder-11185",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 15,
+  "mappedCount": 7,
+  "steps": [
+    "(Lesson 6-05)",
+    "Heads Right & Left Thru",
+    "Heads Flutter Wheel, Sweep 1/4",
+    "Centers Veer Left",
+    "Centers Veer Right",
+    "All Veer Right",
+    "Boys Trade",
+    "Bend the Line",
+    "Flutterwheel",
+    "Right and Left Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Left Allemande",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 6-05),\"; Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Heads Flutter Wheel, Sweep 1/4,\"; Untranslatable: \"Centers Veer Left,\"; Untranslatable: \"Centers Veer Right,\"; Untranslatable: \"All Veer Right,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

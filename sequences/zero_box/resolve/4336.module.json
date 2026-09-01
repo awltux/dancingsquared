@@ -1,0 +1,22 @@
+{
+  "id": 4336,
+  "name": "ceder-4336",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Square Thru 3",
+    "Centers Left Swing Thru",
+    "Outsides U-Turn Back",
+    "Extend",
+    "Chain Down the Line",
+    "Half Sashay",
+    "Star Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Left Swing Thru\"; Untranslatable: \"Outsides U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

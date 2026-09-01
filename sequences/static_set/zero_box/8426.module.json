@@ -1,0 +1,18 @@
+{
+  "id": 8426,
+  "name": "ceder-8426",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Square Thru",
+    "Pass Thru",
+    "Trade By"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

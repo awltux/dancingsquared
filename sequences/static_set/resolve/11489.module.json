@@ -1,0 +1,19 @@
+{
+  "id": 11489,
+  "name": "ceder-11489",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Square Thru 4",
+    "Swing Thru",
+    "Boy Run Right",
+    "Wheel and Deal",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Boy Run Right,\"",
+  "source": "ceder.net/choreodb"
+}

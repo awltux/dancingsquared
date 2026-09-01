@@ -1,0 +1,23 @@
+{
+  "id": 4720,
+  "name": "ceder-4720",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Lead Left",
+    "Square Thru 4",
+    "Bend the Line",
+    "Box the Gnat",
+    "Square Thru 3",
+    "Wheel and Deal",
+    "Centers Sweep 1/4 & Backaway",
+    "Others Lead Right",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \" Centers Sweep 1/4 & Backaway,\"; Untranslatable: \"Others Lead Right,\"",
+  "source": "ceder.net/choreodb"
+}

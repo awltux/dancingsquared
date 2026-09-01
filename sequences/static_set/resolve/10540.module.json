@@ -1,0 +1,23 @@
+{
+  "id": 10540,
+  "name": "ceder-10540",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Slide Thru & Partner Trade",
+    "All Slide Thru & Partner Trade",
+    "Bend the Line",
+    "Slide Thru",
+    "Partner Trade",
+    "Trade By",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Slide Thru & Partner Trade,\"; Untranslatable: \"All Slide Thru & Partner Trade,\"",
+  "source": "ceder.net/choreodb"
+}

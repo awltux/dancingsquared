@@ -1,0 +1,21 @@
+{
+  "id": 10946,
+  "name": "ceder-10946",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Ladies Chain",
+    "Star Thru",
+    "Right and Left Thru",
+    "Center Boy U-Turn Back",
+    "Shake R-H With Each Other & Pull By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Center Boy U-Turn Back\"; Untranslatable: \"Shake R-H With Each Other & Pull By\"",
+  "source": "ceder.net/choreodb"
+}

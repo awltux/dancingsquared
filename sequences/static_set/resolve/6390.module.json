@@ -1,0 +1,27 @@
+{
+  "id": 6390,
+  "name": "ceder-6390",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Promenade 1/2",
+    "Come Down The Middle",
+    "Square Thru 4",
+    "Pass Thru",
+    "Trade By",
+    "Star Thru",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Right And Left Thru",
+    "Pass Thru",
+    "Ladies Chain",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \" Come Down The Middle,\"; Untranslatable: \"Centers Right And Left Thru,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

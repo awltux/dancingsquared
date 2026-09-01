@@ -1,0 +1,17 @@
+{
+  "id": 11092,
+  "name": "ceder-11092",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 0,
+  "steps": [
+    "Everyone California Twirl",
+    "Boys Run Right",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Everyone California Twirl,\"; Untranslatable: \"Boys Run Right,\"",
+  "source": "ceder.net/choreodb"
+}

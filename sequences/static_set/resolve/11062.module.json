@@ -1,0 +1,23 @@
+{
+  "id": 11062,
+  "name": "ceder-11062",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "(Lesson 8-03)",
+    "Heads Lead Right",
+    "Veer Left",
+    "Girls Trade",
+    "Girls Run",
+    "Girls Circulate",
+    "Boys Trade",
+    "Allemande Left",
+    "R.L.G., Promenade Home"
+  ],
+  "note": "Untranslatable: \"(Lesson 8-03),\"; Untranslatable: \"Girls Circulate,\"; Untranslatable: \"R.L.G., Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

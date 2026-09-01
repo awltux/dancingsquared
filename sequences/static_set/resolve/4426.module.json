@@ -1,0 +1,25 @@
+{
+  "id": 4426,
+  "name": "ceder-4426",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Square Thru 2",
+    "Square Thru 2",
+    "Girls Run Left",
+    "Hinge",
+    "Chain Down the Line",
+    "Pass Thru",
+    "Boys Run Right",
+    "Hinge",
+    "Girls Circulate, Boys Trade",
+    "All 8 Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Run Left,\"; Untranslatable: \"Boys Run Right,\"; Untranslatable: \"Girls Circulate, Boys Trade,\"",
+  "source": "ceder.net/choreodb"
+}

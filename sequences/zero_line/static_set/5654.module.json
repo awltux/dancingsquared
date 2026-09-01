@@ -1,0 +1,21 @@
+{
+  "id": 5654,
+  "name": "ceder-5654",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Rollaway Half Sashay",
+    "Left Square Thru",
+    "But On The Fourth Hand",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Rollaway Half Sashay\"; Untranslatable: \"Left Square Thru\"; Untranslatable: \"But On The Fourth Hand\"",
+  "source": "ceder.net/choreodb"
+}

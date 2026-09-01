@@ -1,0 +1,22 @@
+{
+  "id": 6066,
+  "name": "ceder-6066",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Pass Thru",
+    "Trade By",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Girls Run",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,23 @@
+{
+  "id": 11174,
+  "name": "ceder-11174",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "(Lesson 6-01)",
+    "Heads Lead Right",
+    "Veer Left",
+    "Chain Down the Line",
+    "Flutterwheel",
+    "Reverse Flutterwheel",
+    "Half Sashay",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 6-01),\"",
+  "source": "ceder.net/choreodb"
+}

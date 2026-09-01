@@ -1,0 +1,22 @@
+{
+  "id": 3933,
+  "name": "ceder-3933",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 9,
+  "mappedCount": 9,
+  "steps": [
+    "Head Ladies Chain",
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Split Circulate",
+    "Centers Trade",
+    "Swing Thru",
+    "Split Circulate",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

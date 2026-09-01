@@ -1,0 +1,18 @@
+{
+  "id": 6095,
+  "name": "ceder-6095",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Split The Outsides",
+    "Around One to a Line",
+    "Box the Gnat",
+    "Slide Thru"
+  ],
+  "note": "Untranslatable: \"Split The Outsides\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,25 @@
+{
+  "id": 2955,
+  "name": "ceder-2955",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 9,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Tag the Line",
+    "Face In",
+    "Pass Thru",
+    "Girls Fold",
+    "Star Thru",
+    "Ferris Wheel",
+    "Zoom",
+    "Centers Square Thru 3/4",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3/4\"",
+  "source": "ceder.net/choreodb"
+}

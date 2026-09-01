@@ -1,0 +1,23 @@
+{
+  "id": 10560,
+  "name": "ceder-10560",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 4,
+  "steps": [
+    "Four Ladies Chain",
+    "Four Ladies Chain 3/4",
+    "Head Position Rollaway",
+    "Same 4 Square Thru 4",
+    "All Pass Thru",
+    "Centers Pass Thru",
+    "Centers In",
+    "Star Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Head Position Rollaway,\"; Untranslatable: \"Same 4 Square Thru 4,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

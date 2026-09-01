@@ -1,0 +1,23 @@
+{
+  "id": 11040,
+  "name": "ceder-11040",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Half Sashay",
+    "All Circle Left",
+    "Circle Left",
+    "Men Face Each Other",
+    "Grand Square",
+    "Men Square Thru",
+    "Dosado to a Wave",
+    "Men Run",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"All Circle Left,\"; Untranslatable: \"Men Face Each Other,\"; Untranslatable: \"Men Square Thru,\"; Untranslatable: \"Men Run,\"",
+  "source": "ceder.net/choreodb"
+}

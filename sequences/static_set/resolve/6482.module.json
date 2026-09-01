@@ -1,0 +1,21 @@
+{
+  "id": 6482,
+  "name": "ceder-6482",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Square Thru 3",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

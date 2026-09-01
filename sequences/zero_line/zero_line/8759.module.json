@@ -1,0 +1,20 @@
+{
+  "id": 8759,
+  "name": "ceder-8759",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 4,
+  "steps": [
+    "Touch a Quarter",
+    "Single File Circulate 2 Places",
+    "Cast Off Three Quarters",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Bend The Line (Zero Line) This rotates the set 90°."
+  ],
+  "note": "Untranslatable: \"Single File Circulate 2 Places\"; Untranslatable: \"Bend The Line (Zero Line) This rotates the set 90°.\"",
+  "source": "ceder.net/choreodb"
+}

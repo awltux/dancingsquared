@@ -1,0 +1,21 @@
+{
+  "id": 10852,
+  "name": "ceder-10852",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Couples #1 And #2 Right And Left Thru",
+    "Head Position Right And Left Thru & Backaway",
+    "Side Position Lead Right",
+    "Square Thru 4",
+    "Centers Separate, Meet Partner & Star Thru (Lead Right Box)",
+    "Swing Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Couples #1 And #2 Right And Left Thru,\"; Untranslatable: \"Head Position Right And Left Thru & Backaway,\"; Untranslatable: \"Side Position Lead Right,\"; Untranslatable: \"Centers Separate, Meet Partner & Star Thru (Lead Right Box),\"",
+  "source": "ceder.net/choreodb"
+}

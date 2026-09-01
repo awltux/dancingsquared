@@ -1,0 +1,23 @@
+{
+  "id": 3807,
+  "name": "ceder-3807",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Sweep 1/4 & Pass The Ocean",
+    "Extend",
+    "Hinge",
+    "Girls U-Turn Back",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \" Girls Sweep 1/4 & Pass The Ocean,\"; Untranslatable: \"Girls U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

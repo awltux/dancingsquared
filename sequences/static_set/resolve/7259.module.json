@@ -1,0 +1,24 @@
+{
+  "id": 7259,
+  "name": "ceder-7259",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Square Thru 4",
+    "Touch a Quarter",
+    "Centers Trade",
+    "All 8 Circulate",
+    "Swing Thru",
+    "Split Circulate",
+    "Girls Trade",
+    "Star Thru",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

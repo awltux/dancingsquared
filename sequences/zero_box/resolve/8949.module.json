@@ -1,0 +1,17 @@
+{
+  "id": 8949,
+  "name": "ceder-8949",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Box the Gnat",
+    "Slide Thru",
+    "Left Allemande Lines of Four facing out."
+  ],
+  "note": "Untranslatable: \"Left Allemande Lines of Four facing out.\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,25 @@
+{
+  "id": 10563,
+  "name": "ceder-10563",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Hinge",
+    "Scoot Back",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Veer Right",
+    "Ferris Wheel",
+    "Centers Square Thru 3",
+    "Left Swing Thru Double",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"Left Swing Thru Double,\"",
+  "source": "ceder.net/choreodb"
+}

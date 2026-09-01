@@ -1,0 +1,21 @@
+{
+  "id": 11224,
+  "name": "ceder-11224",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 2,
+  "steps": [
+    "",
+    "All Join Hands, Circle Left",
+    "Circle Right",
+    "Drop Hands Promenade Single File",
+    "Girls Turn Around",
+    "Swing",
+    "All 4 Couples Promenade"
+  ],
+  "note": "Untranslatable: \",\"; Untranslatable: \"All Join Hands, Circle Left,\"; Untranslatable: \"Drop Hands Promenade Single File,\"; Untranslatable: \"Girls Turn Around,\"",
+  "source": "ceder.net/choreodb"
+}

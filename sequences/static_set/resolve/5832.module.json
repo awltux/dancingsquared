@@ -1,0 +1,25 @@
+{
+  "id": 5832,
+  "name": "ceder-5832",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Square Thru 4",
+    "Split The Outsides, Around One To A Line",
+    "Pass Thru",
+    "U-Turn Back",
+    "Right and Left Thru",
+    "Rollaway",
+    "Star Thru, California Twirl",
+    "Right and Left Thru",
+    "Dive Thru",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Split The Outsides, Around One To A Line,\"; Untranslatable: \"Star Thru, California Twirl,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

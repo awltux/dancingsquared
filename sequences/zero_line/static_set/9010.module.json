@@ -1,0 +1,19 @@
+{
+  "id": 9010,
+  "name": "ceder-9010",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Men Run",
+    "Veer Right",
+    "Left Allemande TdBy Formation"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande TdBy Formation\"",
+  "source": "ceder.net/choreodb"
+}

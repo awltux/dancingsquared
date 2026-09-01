@@ -1,0 +1,19 @@
+{
+  "id": 8714,
+  "name": "ceder-8714",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Veer Left",
+    "Chain Down the Line",
+    "Veer Left",
+    "Chain Down the Line",
+    "Each Side Circle Left 1/2"
+  ],
+  "note": "Untranslatable: \"Each Side Circle Left 1/2\"",
+  "source": "ceder.net/choreodb"
+}

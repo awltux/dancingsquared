@@ -1,0 +1,18 @@
+{
+  "id": 7580,
+  "name": "ceder-7580",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Pass Thru & Step Ahead",
+    "Sides Pass Thru & Step Ahead",
+    "All Wheel Around And 1/4 More",
+    "Wrong Way Promenade Home"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru & Step Ahead,\"; Untranslatable: \"Sides Pass Thru & Step Ahead,\"; Untranslatable: \"All Wheel Around And 1/4 More,\"; Untranslatable: \"Wrong Way Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

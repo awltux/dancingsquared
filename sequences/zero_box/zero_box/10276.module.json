@@ -1,0 +1,16 @@
+{
+  "id": 10276,
+  "name": "ceder-10276",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 3,
+  "mappedCount": 3,
+  "steps": [
+    "Boys Walk, Girls Dodge",
+    "Boys Run",
+    "Flutterwheel"
+  ],
+  "source": "ceder.net/choreodb"
+}

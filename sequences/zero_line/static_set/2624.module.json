@@ -1,0 +1,21 @@
+{
+  "id": 2624,
+  "name": "ceder-2624",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "Dosado to a Wave",
+    "Girls Run",
+    "Wheel and Deal",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

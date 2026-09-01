@@ -1,0 +1,19 @@
+{
+  "id": 8889,
+  "name": "ceder-8889",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Split Two",
+    "Around One to a Line",
+    "All Box The Gnat",
+    "Pull By",
+    "Allemande Left Lines of four facing out."
+  ],
+  "note": "Untranslatable: \"All Box The Gnat\"; Untranslatable: \"Pull By\"; Untranslatable: \"Allemande Left Lines of four facing out.\"",
+  "source": "ceder.net/choreodb"
+}

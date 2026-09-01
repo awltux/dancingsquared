@@ -1,0 +1,21 @@
+{
+  "id": 6916,
+  "name": "ceder-6916",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Dosado (your Opposite)",
+    "Heads Promenade 1/2",
+    "Sides Dosado (your Opposite)",
+    "Sides Promenade 1/2",
+    "All Circle Left 1/2",
+    "Dosado Corner",
+    "All 4 Couples Promenade"
+  ],
+  "note": "Untranslatable: \"Heads Dosado (your Opposite),\"; Untranslatable: \"Sides Dosado (your Opposite),\"; Untranslatable: \"All Circle Left 1/2,\"; Untranslatable: \"Dosado Corner,\"",
+  "source": "ceder.net/choreodb"
+}

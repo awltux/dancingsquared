@@ -1,0 +1,20 @@
+{
+  "id": 6553,
+  "name": "ceder-6553",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "4 Ladies Chain",
+    "All Half Sashay",
+    "Heads Forward and Back",
+    "Heads Square Thru 4",
+    "Box the Gnat",
+    "Change Hands, L.A"
+  ],
+  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"All Half Sashay,\"; Untranslatable: \"Change Hands, L.A\"",
+  "source": "ceder.net/choreodb"
+}

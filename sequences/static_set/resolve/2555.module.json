@@ -1,0 +1,25 @@
+{
+  "id": 2555,
+  "name": "ceder-2555",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Star Thru",
+    "Pass Thru",
+    "Centers In",
+    "All 8 Circulate",
+    "Ends Pass Thru",
+    "Wheel and Deal",
+    "Centers Square Thru 3",
+    "Star Thru",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Ends Pass Thru,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

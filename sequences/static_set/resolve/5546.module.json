@@ -1,0 +1,24 @@
+{
+  "id": 5546,
+  "name": "ceder-5546",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Leaders U-Turn Back",
+    "Dosado",
+    "Swing Thru",
+    "Boys Run",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

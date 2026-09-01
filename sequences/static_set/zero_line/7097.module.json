@@ -1,0 +1,18 @@
+{
+  "id": 7097,
+  "name": "ceder-7097",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Head Ladies Chain",
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "First Couple Left, Next Couple Right"
+  ],
+  "note": "Untranslatable: \"First Couple Left, Next Couple Right\"",
+  "source": "ceder.net/choreodb"
+}

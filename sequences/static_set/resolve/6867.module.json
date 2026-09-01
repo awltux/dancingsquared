@@ -1,0 +1,22 @@
+{
+  "id": 6867,
+  "name": "ceder-6867",
+  "level": "unknown",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 0,
+  "steps": [
+    "Couples 1 & 2 Right & Left Thru",
+    "Other Ladies Chain",
+    "New Couples 1 & 3 Right & Left Thru",
+    "Other Ladies Chain",
+    "New Couples 1 & 4 Right & Left Thru",
+    "Other Ladies Chain",
+    "Sides Face Grand Square 8 Steps",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Couples 1 & 2 Right & Left Thru,\"; Untranslatable: \" Other Ladies Chain,\"; Untranslatable: \"New Couples 1 & 3 Right & Left Thru,\"; Untranslatable: \" Other Ladies Chain,\"; Untranslatable: \"New Couples 1 & 4 Right & Left Thru,\"; Untranslatable: \" Other Ladies Chain,\"; Untranslatable: \"Sides Face Grand Square 8 Steps,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

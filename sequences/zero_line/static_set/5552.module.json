@@ -1,0 +1,23 @@
+{
+  "id": 5552,
+  "name": "ceder-5552",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Half Tag",
+    "Swing Thru",
+    "Centers Run",
+    "Ferris Wheel",
+    "Zoom",
+    "Double Pass Thru",
+    "Leaders U-Turn Back",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

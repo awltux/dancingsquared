@@ -1,0 +1,23 @@
+{
+  "id": 2721,
+  "name": "ceder-2721",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 10,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Lead Right",
+    "Swing Thru",
+    "Split Circulate",
+    "Scoot Back",
+    "Centers Trade",
+    "Girls Run",
+    "Star Thru",
+    "Trade By",
+    "Swing Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

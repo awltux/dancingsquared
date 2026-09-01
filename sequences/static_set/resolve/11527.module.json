@@ -1,0 +1,24 @@
+{
+  "id": 11527,
+  "name": "ceder-11527",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Lead Right",
+    "All Touch 1/4",
+    "Scoot Back",
+    "Boys Fold",
+    "Double Pass Thru",
+    "Face In",
+    "Pass Thru",
+    "Boys Cross Fold",
+    "Star Thru",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"All Touch 1/4,\"; Untranslatable: \"Boys Cross Fold,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 6399,
+  "name": "ceder-6399",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Allemande Left To Alamo Style",
+    "Balance",
+    "Girls Run Right",
+    "Circle Left",
+    "Ladies In, Men Sashay",
+    "Allemande Left",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Allemande Left To Alamo Style,\"; Untranslatable: \"Girls Run Right,\"",
+  "source": "ceder.net/choreodb"
+}

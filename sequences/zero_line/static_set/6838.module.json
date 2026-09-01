@@ -1,0 +1,22 @@
+{
+  "id": 6838,
+  "name": "ceder-6838",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 2,
+  "steps": [
+    "Pass Thru",
+    "U Turn Back",
+    "Pass Thru",
+    "All Turn Left",
+    "All 4 Couples Promenade",
+    "Men U Turn Back",
+    "Left Allemande Cal15 CDP After the Both Turn Left Single File the set is resolved. If the Men Turn Back they face their corner. If the Ladies U Turn Back instead of the men",
+    "you face your Partner."
+  ],
+  "note": "Untranslatable: \"U Turn Back\"; Untranslatable: \"All Turn Left\"; Untranslatable: \"Men U Turn Back\"; Untranslatable: \"Left Allemande Cal15 CDP After the Both Turn Left Single File the set is resolved. If the Men Turn Back they face their corner. If the Ladies U Turn Back instead of the men\"; Untranslatable: \"you face your Partner.\"",
+  "source": "ceder.net/choreodb"
+}

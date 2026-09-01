@@ -1,0 +1,25 @@
+{
+  "id": 10967,
+  "name": "ceder-10967",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Square Thru",
+    "Swing Thru",
+    "Girls Cross Fold",
+    "Star Thru, California Twirl",
+    "Pass the Ocean",
+    "Boys Cross Fold",
+    "Star Thru",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"Girls Cross Fold,\"; Untranslatable: \"Star Thru, California Twirl,\"; Untranslatable: \"Boys Cross Fold,\"",
+  "source": "ceder.net/choreodb"
+}

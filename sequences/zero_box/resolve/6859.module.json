@@ -1,0 +1,18 @@
+{
+  "id": 6859,
+  "name": "ceder-6859",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Split The Outside 2",
+    "Around 1 To A Line",
+    "Everybody Square Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Split The Outside 2\"; Untranslatable: \"Around 1 To A Line\"; Untranslatable: \"Everybody Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

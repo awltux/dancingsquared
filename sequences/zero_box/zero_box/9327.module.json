@@ -1,0 +1,20 @@
+{
+  "id": 9327,
+  "name": "ceder-9327",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Touch a Quarter",
+    "Girls Run",
+    "Pass Thru",
+    "Couples Hinge",
+    "Girls Cross Run",
+    "Cast Off Three Quarters"
+  ],
+  "note": "Untranslatable: \"Girls Cross Run\"",
+  "source": "ceder.net/choreodb"
+}

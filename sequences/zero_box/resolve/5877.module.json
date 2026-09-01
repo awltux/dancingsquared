@@ -1,0 +1,22 @@
+{
+  "id": 5877,
+  "name": "ceder-5877",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Touch a Quarter",
+    "Split Circulate",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "Pass Thru",
+    "Trade By",
+    "Flutterwheel",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

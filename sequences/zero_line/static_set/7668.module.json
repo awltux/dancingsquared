@@ -1,0 +1,24 @@
+{
+  "id": 7668,
+  "name": "ceder-7668",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Veer Left",
+    "Center 4",
+    "Couples Trade",
+    "All Couples Trade",
+    "Center 4",
+    "Wheel and Deal",
+    "Everybody Wheel & Deal",
+    "All 4 Couples Promenade",
+    "the centers are to work with the outside couples who are facing the same direction. Right hand couple in front to a two-faced line and promenade home."
+  ],
+  "note": "Untranslatable: \"Center 4\"; Untranslatable: \"All Couples Trade\"; Untranslatable: \"Center 4\"; Untranslatable: \"Everybody Wheel & Deal\"; Untranslatable: \"the centers are to work with the outside couples who are facing the same direction. Right hand couple in front to a two-faced line and promenade home.\"",
+  "source": "ceder.net/choreodb"
+}

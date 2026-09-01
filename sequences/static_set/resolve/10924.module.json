@@ -1,0 +1,27 @@
+{
+  "id": 10924,
+  "name": "ceder-10924",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Half Sashay & Star Thru",
+    "All Swing Thru",
+    "Cast Off Three Quarters",
+    "Centers Trade",
+    "All 8 Circulate",
+    "Swing Thru",
+    "Boys Run",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Pass Thru",
+    "Ends Fold",
+    "All Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Half Sashay & Star Thru,\"; Untranslatable: \"All Swing Thru,\"; Untranslatable: \"All Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

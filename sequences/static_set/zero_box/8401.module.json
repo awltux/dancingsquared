@@ -1,0 +1,18 @@
+{
+  "id": 8401,
+  "name": "ceder-8401",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Circle 1/2",
+    "Veer Left",
+    "Chain Down the Line",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Circle 1/2,\"",
+  "source": "ceder.net/choreodb"
+}

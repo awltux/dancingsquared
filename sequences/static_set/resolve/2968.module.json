@@ -1,0 +1,23 @@
+{
+  "id": 2968,
+  "name": "ceder-2968",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Left Square Thru 4",
+    "Left Swing Thru",
+    "Girls Run",
+    "Couples Circulate",
+    "Bend the Line",
+    "Pass the Ocean",
+    "Circulate",
+    "Swing Thru",
+    "Circulate",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

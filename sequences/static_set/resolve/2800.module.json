@@ -1,0 +1,20 @@
+{
+  "id": 2800,
+  "name": "ceder-2800",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "All Right & Left Thru (mixed sex)",
+    "Square Thru 4",
+    "Centers Box The Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Right & Left Thru (mixed sex),\"; Untranslatable: \"Centers Box The Gnat,\"",
+  "source": "ceder.net/choreodb"
+}

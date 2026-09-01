@@ -1,0 +1,19 @@
+{
+  "id": 1803,
+  "name": "ceder-1803",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Split Circulate",
+    "Split Circulate",
+    "All 8 Circulate",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

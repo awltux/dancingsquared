@@ -1,0 +1,19 @@
+{
+  "id": 9044,
+  "name": "ceder-9044",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Pass the Ocean",
+    "Recycle",
+    "Veer Left",
+    "Men Fold",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Men Fold\"",
+  "source": "ceder.net/choreodb"
+}

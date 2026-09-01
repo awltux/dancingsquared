@@ -1,0 +1,21 @@
+{
+  "id": 10734,
+  "name": "ceder-10734",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Square Thru 4",
+    "Centers In",
+    "Ends Run",
+    "Pass Thru",
+    "Bend the Line",
+    "Slide Thru",
+    "L.A. (1/2 promenade home)"
+  ],
+  "note": "Untranslatable: \"L.A. (1/2 promenade home)\"",
+  "source": "ceder.net/choreodb"
+}

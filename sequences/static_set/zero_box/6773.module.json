@@ -1,0 +1,17 @@
+{
+  "id": 6773,
+  "name": "ceder-6773",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Square Thru 3/4",
+    "Separate Around One",
+    "Come Into The Middle & Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru 3/4,\"; Untranslatable: \"Separate Around One,\"; Untranslatable: \" Come Into The Middle & Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

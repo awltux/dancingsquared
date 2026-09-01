@@ -1,0 +1,27 @@
+{
+  "id": 3547,
+  "name": "ceder-3547",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 13,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Trade",
+    "Centers Run",
+    "Couples Circulate",
+    "Half Tag",
+    "Swing Thru",
+    "Boys Run",
+    "Half Tag",
+    "Scoot Back",
+    "Boys Run",
+    "Star Thru",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

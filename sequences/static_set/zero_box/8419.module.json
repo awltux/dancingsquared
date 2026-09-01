@@ -1,0 +1,19 @@
+{
+  "id": 8419,
+  "name": "ceder-8419",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Right & Left Thru",
+    "Star Thru",
+    "Double Pass Thru",
+    "Leaders Partner Trade"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Leaders Partner Trade\"",
+  "source": "ceder.net/choreodb"
+}

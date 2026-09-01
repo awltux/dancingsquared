@@ -1,0 +1,21 @@
+{
+  "id": 6925,
+  "name": "ceder-6925",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Forward and Back",
+    "Heads Circle 4 To The Left (8 steps)",
+    "Heads Circle 4 To The Right (8 steps)",
+    "Heads Star Left (8 steps)",
+    "Star Right (8 Steps)",
+    "Turn Corner By The Left",
+    "All 4 Couples Promenade"
+  ],
+  "note": "Untranslatable: \"Heads Circle 4 To The Left (8 steps),\"; Untranslatable: \"Heads Circle 4 To The Right (8 steps),\"; Untranslatable: \"Heads Star Left (8 steps),\"; Untranslatable: \"Star Right (8 Steps),\"; Untranslatable: \"Turn Corner By The Left,\"",
+  "source": "ceder.net/choreodb"
+}

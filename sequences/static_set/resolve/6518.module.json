@@ -1,0 +1,22 @@
+{
+  "id": 6518,
+  "name": "ceder-6518",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Right & Left Thru, Half Sashay",
+    "Pass Thru",
+    "Separate Around 1 To A Line",
+    "Right and Left Thru",
+    "Centers Half Sashay",
+    "All Square Thru 3",
+    "3/4 Tag the Line",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru, Half Sashay,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Half Sashay,\"; Untranslatable: \"All Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

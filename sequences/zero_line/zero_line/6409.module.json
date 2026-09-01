@@ -1,0 +1,21 @@
+{
+  "id": 6409,
+  "name": "ceder-6409",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 8,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Ends Trade",
+    "Centers Trade",
+    "Pass Thru",
+    "Boys Trade",
+    "Centers Trade",
+    "Ends Trade",
+    "Boys Trade"
+  ],
+  "source": "ceder.net/choreodb"
+}

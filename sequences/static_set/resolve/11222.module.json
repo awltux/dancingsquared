@@ -1,0 +1,28 @@
+{
+  "id": 11222,
+  "name": "ceder-11222",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 4,
+  "steps": [
+    "",
+    "Heads Dosado",
+    "Heads Pass Thru, Wheel Around",
+    "Heads Star Right Halfway To Corner",
+    "Allemande Left",
+    "Dosado",
+    "Static Square",
+    "Sides To The Center",
+    "Sides Dosado",
+    "Sides Pass Thru, Wheel Around",
+    "Sides Star Right Halfway To Corner",
+    "Allemande Left",
+    "Right and Left Grand",
+    "Swing And Promenade Home"
+  ],
+  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Dosado,\"; Untranslatable: \"Heads Pass Thru, Wheel Around,\"; Untranslatable: \"Heads Star Right Halfway To Corner,\"; Untranslatable: \"Sides To The Center,\"; Untranslatable: \"Sides Dosado,\"; Untranslatable: \"Sides Pass Thru, Wheel Around,\"; Untranslatable: \"Sides Star Right Halfway To Corner,\"; Untranslatable: \"Swing And Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

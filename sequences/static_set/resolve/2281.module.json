@@ -1,0 +1,21 @@
+{
+  "id": 2281,
+  "name": "ceder-2281",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Square Thru 4",
+    "Left Touch 1/4",
+    "All 8 Circulate",
+    "Girls Run",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \" Left Touch 1/4,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,28 @@
+{
+  "id": 11071,
+  "name": "ceder-11071",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 11,
+  "steps": [
+    "(Lesson 8-12).",
+    "Heads Square Thru 4",
+    "Swing Thru",
+    "Girls Circulate",
+    "Boys Run",
+    "Bend the Line",
+    "Reverse Flutterwheel",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "First Couple Go Right Next Go Left",
+    "Pass Thru",
+    "Wheel and Deal",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 8-12).,\"; Untranslatable: \"Girls Circulate,\"; Untranslatable: \"First Couple Go Right Next Go Left,\"",
+  "source": "ceder.net/choreodb"
+}

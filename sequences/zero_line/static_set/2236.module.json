@@ -1,0 +1,20 @@
+{
+  "id": 2236,
+  "name": "ceder-2236",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Square Thru 3",
+    "Courtesy Turn",
+    "Flutterwheel",
+    "Sweep a Quarter",
+    "Right and Left Thru",
+    "Rollaway",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

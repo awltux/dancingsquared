@@ -1,0 +1,19 @@
+{
+  "id": 8742,
+  "name": "ceder-8742",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Star Thru",
+    "Veer Left",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

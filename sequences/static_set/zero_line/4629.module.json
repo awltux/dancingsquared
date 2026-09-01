@@ -1,0 +1,18 @@
+{
+  "id": 4629,
+  "name": "ceder-4629",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 0,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Swing Thru Double",
+    "Girls Circulate",
+    "All Slide Thru"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Swing Thru Double,\"; Untranslatable: \"Girls Circulate,\"; Untranslatable: \"All Slide Thru\"",
+  "source": "ceder.net/choreodb"
+}

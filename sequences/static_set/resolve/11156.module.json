@@ -1,0 +1,24 @@
+{
+  "id": 11156,
+  "name": "ceder-11156",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Square Thru 4 Hands",
+    "With Sides Make A Right-Hand Star",
+    "Heads Star Left In The Center (To The Corner)",
+    "Slide Thru",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Square Thru 3 Hands",
+    "Allemande Left",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru 4 Hands,\"; Untranslatable: \"With Sides Make A Right-Hand Star,\"; Untranslatable: \"Heads Star Left In The Center (To The Corner),\"; Untranslatable: \"Centers Square Thru 3 Hands,\"",
+  "source": "ceder.net/choreodb"
+}

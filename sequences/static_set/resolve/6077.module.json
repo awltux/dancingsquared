@@ -1,0 +1,25 @@
+{
+  "id": 6077,
+  "name": "ceder-6077",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Square Thru 4",
+    "Trade By",
+    "Dosado",
+    "Double Swing Thru",
+    "Double Spin The Top",
+    "Swing Thru",
+    "Girls Trade",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Double Swing Thru,\"; Untranslatable: \"Double Spin The Top,\"",
+  "source": "ceder.net/choreodb"
+}

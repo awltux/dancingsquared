@@ -1,0 +1,24 @@
+{
+  "id": 2051,
+  "name": "ceder-2051",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Right and Left Thru",
+    "Half Sashay",
+    "Centers Right & Left Thru",
+    "All Pass Thru",
+    "Tag the Line",
+    "Face In",
+    "Pass the Ocean",
+    "Circulate",
+    "Split Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Right & Left Thru\"; Untranslatable: \"All Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

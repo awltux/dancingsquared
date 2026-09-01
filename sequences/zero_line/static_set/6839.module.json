@@ -1,0 +1,19 @@
+{
+  "id": 6839,
+  "name": "ceder-6839",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "Face Your Partner",
+    "Pass Thru",
+    "Allemande Left Cal15 CDP After the second Pass Thru the formation = TdBy (0)"
+  ],
+  "note": "Untranslatable: \"Face Your Partner\"; Untranslatable: \"Allemande Left Cal15 CDP After the second Pass Thru the formation = TdBy (0)\"",
+  "source": "ceder.net/choreodb"
+}

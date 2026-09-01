@@ -1,0 +1,17 @@
+{
+  "id": 6769,
+  "name": "ceder-6769",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Head Ladies Chain",
+    "Sides Promenade 3/4",
+    "Heads Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

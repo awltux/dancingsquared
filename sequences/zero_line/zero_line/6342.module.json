@@ -1,0 +1,19 @@
+{
+  "id": 6342,
+  "name": "ceder-6342",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Girls Trade",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "Slide Thru"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

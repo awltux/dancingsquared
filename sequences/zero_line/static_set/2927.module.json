@@ -1,0 +1,26 @@
+{
+  "id": 2927,
+  "name": "ceder-2927",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 7,
+  "steps": [
+    "Touch a Quarter",
+    "Circulate",
+    "Boys U-Turn Back",
+    "Square Thru 4",
+    "Bend the Line",
+    "Touch a Quarter",
+    "Circulate",
+    "Girls U-Turn Back",
+    "Square Thru 3",
+    "Trade By",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Boys U-Turn Back\"; Untranslatable: \"Girls U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

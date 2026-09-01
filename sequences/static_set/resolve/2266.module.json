@@ -1,0 +1,20 @@
+{
+  "id": 2266,
+  "name": "ceder-2266",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Left Square Thru 4",
+    "Left Swing Thru",
+    "Girls Run",
+    "Ferris Wheel",
+    "Centers Slide Thru & Backaway",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Centers Slide Thru & Backaway,\"",
+  "source": "ceder.net/choreodb"
+}

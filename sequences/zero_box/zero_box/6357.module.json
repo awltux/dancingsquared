@@ -1,0 +1,17 @@
+{
+  "id": 6357,
+  "name": "ceder-6357",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Touch a Quarter",
+    "Split Circulate",
+    "Hinge",
+    "Recycle"
+  ],
+  "source": "ceder.net/choreodb"
+}

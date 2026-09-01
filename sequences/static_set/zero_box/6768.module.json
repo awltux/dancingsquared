@@ -1,0 +1,18 @@
+{
+  "id": 6768,
+  "name": "ceder-6768",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Promenade 1/2",
+    "Same 4 Pass Thru",
+    "Separate Around 1",
+    "Come Into The Middle & Pass Thru"
+  ],
+  "note": "Untranslatable: \"Same 4 Pass Thru,\"; Untranslatable: \"Separate Around 1,\"; Untranslatable: \" Come Into The Middle & Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

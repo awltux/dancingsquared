@@ -1,0 +1,25 @@
+{
+  "id": 2714,
+  "name": "ceder-2714",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Sweep 1/4",
+    "Centers 1/2 Square Thru",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Hinge",
+    "Boys Circulate",
+    "Girls Trade",
+    "Boys Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Centers Sweep 1/4\"; Untranslatable: \"Centers 1/2 Square Thru\"; Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

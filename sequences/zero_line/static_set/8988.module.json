@@ -1,0 +1,16 @@
+{
+  "id": 8988,
+  "name": "ceder-8988",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 2,
+  "mappedCount": 1,
+  "steps": [
+    "Face Partner",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Face Partner\"",
+  "source": "ceder.net/choreodb"
+}

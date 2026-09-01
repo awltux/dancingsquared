@@ -1,0 +1,32 @@
+{
+  "id": 11373,
+  "name": "ceder-11373",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 18,
+  "mappedCount": 13,
+  "steps": [
+    "(Lesson 12-18 - SAV)",
+    "Heads Separate And Star Thru",
+    "Centers Right & Left Thru",
+    "All Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Centers Pass Thru",
+    "Hinge",
+    "Ends Cross Fold",
+    "Centers Swing Thru",
+    "Extend",
+    "Centers Trade",
+    "Hinge",
+    "Scoot Back",
+    "Balance",
+    "All 8 Circulate",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 12-18 - SAV),\"; Untranslatable: \"Centers Right & Left Thru,\"; Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Centers Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

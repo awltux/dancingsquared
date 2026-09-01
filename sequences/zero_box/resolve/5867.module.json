@@ -1,0 +1,21 @@
+{
+  "id": 5867,
+  "name": "ceder-5867",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Pass the Ocean",
+    "Hinge",
+    "Circulate",
+    "Boys Run",
+    "Left Allemande",
+    "Pass By One",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Pass By One\"",
+  "source": "ceder.net/choreodb"
+}

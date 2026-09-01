@@ -1,0 +1,17 @@
+{
+  "id": 8675,
+  "name": "ceder-8675",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Pass Thru",
+    "U-Turn Back",
+    "Single Circle 1/2 (Zero Box) Ends in an Ocean Wave."
+  ],
+  "note": "Untranslatable: \"Single Circle 1/2 (Zero Box) Ends in an Ocean Wave.\"",
+  "source": "ceder.net/choreodb"
+}

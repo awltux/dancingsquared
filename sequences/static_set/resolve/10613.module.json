@@ -1,0 +1,24 @@
+{
+  "id": 10613,
+  "name": "ceder-10613",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Square Thru 4",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Ladies Trade",
+    "Tag the Line",
+    "Bend the Line",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Ladies Trade,\"",
+  "source": "ceder.net/choreodb"
+}

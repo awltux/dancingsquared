@@ -1,0 +1,19 @@
+{
+  "id": 11239,
+  "name": "ceder-11239",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Touch a Quarter",
+    "Circulate",
+    "Zoom",
+    "Girls Run",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

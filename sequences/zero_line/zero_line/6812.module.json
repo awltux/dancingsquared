@@ -1,0 +1,16 @@
+{
+  "id": 6812,
+  "name": "ceder-6812",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 2,
+  "mappedCount": 1,
+  "steps": [
+    "Square Thru 4",
+    "Courtesy Turn (Zero Line) FCZ (Facing Couple Zero) I.e. will work with any facing BG couples."
+  ],
+  "note": "Untranslatable: \"Courtesy Turn (Zero Line) FCZ (Facing Couple Zero) I.e. will work with any facing BG couples.\"",
+  "source": "ceder.net/choreodb"
+}

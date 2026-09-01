@@ -1,0 +1,19 @@
+{
+  "id": 6724,
+  "name": "ceder-6724",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Veer Left",
+    "Heads Cast Off 3/4",
+    "Heads Wheel Around",
+    "Veer Left",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Heads Veer Left,\"; Untranslatable: \"Heads Cast Off 3/4,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,18 @@
+{
+  "id": 8920,
+  "name": "ceder-8920",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Dive Thru",
+    "Double Pass Thru",
+    "Leaders Partner Trade",
+    "Left Allemande This is also a ZB-ZN that flip flops the set."
+  ],
+  "note": "Untranslatable: \"Leaders Partner Trade\"; Untranslatable: \"Left Allemande This is also a ZB-ZN that flip flops the set.\"",
+  "source": "ceder.net/choreodb"
+}

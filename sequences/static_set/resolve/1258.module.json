@@ -1,0 +1,20 @@
+{
+  "id": 1258,
+  "name": "ceder-1258",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Star Thru, California Twirl",
+    "All Flutter Wheel",
+    "Box the Gnat",
+    "U-Turn Back",
+    "Centers Flutter Wheel",
+    "Everybody Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads Star Thru, California Twirl,\"; Untranslatable: \"All Flutter Wheel,\"; Untranslatable: \"Centers Flutter Wheel,\"; Untranslatable: \"Everybody Allemande Left\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,17 @@
+{
+  "id": 6827,
+  "name": "ceder-6827",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Star Thru",
+    "Right and Left Thru",
+    "Star Thru (Zero Box) FCZ (Facing Couple Zero)"
+  ],
+  "note": "Untranslatable: \"Star Thru (Zero Box) FCZ (Facing Couple Zero)\"",
+  "source": "ceder.net/choreodb"
+}

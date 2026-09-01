@@ -1,0 +1,20 @@
+{
+  "id": 10169,
+  "name": "ceder-10169",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Hinge",
+    "Girls Cross Run",
+    "Recycle"
+  ],
+  "note": "Untranslatable: \"Girls Cross Run,\"",
+  "source": "ceder.net/choreodb"
+}

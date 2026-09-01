@@ -1,0 +1,17 @@
+{
+  "id": 8435,
+  "name": "ceder-8435",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Step to a Wave",
+    "Hinge",
+    "Those Men Run"
+  ],
+  "note": "Untranslatable: \" Those Men Run\"",
+  "source": "ceder.net/choreodb"
+}

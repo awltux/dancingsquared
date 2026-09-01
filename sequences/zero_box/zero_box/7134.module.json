@@ -1,0 +1,18 @@
+{
+  "id": 7134,
+  "name": "ceder-7134",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "*** not validated *** (Zero Box) Swing Thru",
+    "Men Cross Run",
+    "Left Swing Thru",
+    "Men Cross Run (Zero Box) Ends in an Ocean Wave"
+  ],
+  "note": "Untranslatable: \"*** not validated *** (Zero Box) Swing Thru\"; Untranslatable: \"Men Cross Run\"; Untranslatable: \"Men Cross Run (Zero Box) Ends in an Ocean Wave\"",
+  "source": "ceder.net/choreodb"
+}

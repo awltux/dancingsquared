@@ -1,0 +1,27 @@
+{
+  "id": 2360,
+  "name": "ceder-2360",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 11,
+  "steps": [
+    "Pass the Ocean",
+    "Circulate",
+    "Swing Thru",
+    "Split Circulate",
+    "Hinge",
+    "Centers Trade",
+    "Boys Run",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Zoom",
+    "Centers Left Square Thru 3",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Left Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 4388,
+  "name": "ceder-4388",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Touch a Quarter",
+    "Extend",
+    "Boys Swing Thru",
+    "Girls Trade",
+    "Extend",
+    "Boys Run",
+    "Square Thru 4",
+    "Trade By",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Boys Swing Thru\"",
+  "source": "ceder.net/choreodb"
+}

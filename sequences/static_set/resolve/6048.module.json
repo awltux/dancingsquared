@@ -1,0 +1,25 @@
+{
+  "id": 6048,
+  "name": "ceder-6048",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 11,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Boys Run",
+    "Half Tag",
+    "Scoot Back",
+    "Boys Run",
+    "Right and Left Thru",
+    "Half Sashay",
+    "Star Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

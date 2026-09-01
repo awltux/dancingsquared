@@ -1,0 +1,24 @@
+{
+  "id": 6122,
+  "name": "ceder-6122",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Girls U-Turn Back",
+    "Ferris Wheel",
+    "Centers Veer Right",
+    "Centers Veer Left",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Girls U-Turn Back,\"; Untranslatable: \"Centers Veer Right,\"; Untranslatable: \"Centers Veer Left,\"",
+  "source": "ceder.net/choreodb"
+}

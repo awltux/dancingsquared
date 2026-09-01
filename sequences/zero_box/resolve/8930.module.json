@@ -1,0 +1,19 @@
+{
+  "id": 8930,
+  "name": "ceder-8930",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Swing Thru",
+    "Men Run",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

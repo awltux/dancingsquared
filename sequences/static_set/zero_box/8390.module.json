@@ -1,0 +1,15 @@
+{
+  "id": 8390,
+  "name": "ceder-8390",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 1,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Swing The Opposite And Face The Outsides"
+  ],
+  "note": "Untranslatable: \"Heads Swing The Opposite And Face The Outsides\"",
+  "source": "ceder.net/choreodb"
+}

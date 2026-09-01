@@ -1,0 +1,19 @@
+{
+  "id": 7075,
+  "name": "ceder-7075",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Rollaway",
+    "All Circle Left",
+    "4 Men Square Thru",
+    "Step to a Wave",
+    "Men Run"
+  ],
+  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"All Circle Left,\"; Untranslatable: \"4 Men Square Thru,\"; Untranslatable: \"Men Run\"",
+  "source": "ceder.net/choreodb"
+}

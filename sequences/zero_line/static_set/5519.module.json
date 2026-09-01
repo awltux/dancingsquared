@@ -1,0 +1,20 @@
+{
+  "id": 5519,
+  "name": "ceder-5519",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Pass the Ocean",
+    "Hinge",
+    "Girls Trade",
+    "Pass the Ocean",
+    "Hinge",
+    "Girls Trade",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

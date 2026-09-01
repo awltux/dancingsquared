@@ -1,0 +1,22 @@
+{
+  "id": 10186,
+  "name": "ceder-10186",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Centers Box Circulate Twice",
+    "Swing Thru",
+    "Centers Box Circulate Twice",
+    "Girls Run",
+    "Bend the Line",
+    "1/2 Square Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Box Circulate Twice\"; Untranslatable: \"Centers Box Circulate Twice\"; Untranslatable: \"1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 2654,
+  "name": "ceder-2654",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Lead Right",
+    "Swing Thru Double",
+    "Centers Run",
+    "Bend the Line",
+    "Reverse Flutterwheel",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Swing Thru Double,\"",
+  "source": "ceder.net/choreodb"
+}

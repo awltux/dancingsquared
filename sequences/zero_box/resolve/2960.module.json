@@ -1,0 +1,26 @@
+{
+  "id": 2960,
+  "name": "ceder-2960",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 8,
+  "steps": [
+    "Touch a Quarter",
+    "Scoot Back",
+    "Centers Trade",
+    "Swing Thru",
+    "Scoot Back",
+    "Centers Trade",
+    "Spin the Top",
+    "Hinge",
+    "Circulate",
+    "Center Boys Run",
+    "Ends Face",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Center Boys Run\"; Untranslatable: \"Ends Face\"",
+  "source": "ceder.net/choreodb"
+}

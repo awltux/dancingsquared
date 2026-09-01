@@ -1,0 +1,28 @@
+{
+  "id": 2653,
+  "name": "ceder-2653",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Star Thru",
+    "Zoom",
+    "Double Pass Thru",
+    "Partner Trade",
+    "Centers Pass Thru",
+    "Dosado to a Wave",
+    "All Eight Circulate",
+    "Girls Run",
+    "Bend the Line",
+    "Star Thru",
+    "California Twirl",
+    "Dive Thru",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"All Eight Circulate,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

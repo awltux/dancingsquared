@@ -1,0 +1,23 @@
+{
+  "id": 10148,
+  "name": "ceder-10148",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 3,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads 1/2 Square Thru",
+    "All 1/2 Square Thru",
+    "Ends Fold",
+    "1/2 Square Thru",
+    "Ends Fold",
+    "1/2 Square Thru",
+    "Centers Fold",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All 1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"Centers Fold,\"",
+  "source": "ceder.net/choreodb"
+}

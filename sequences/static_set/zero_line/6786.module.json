@@ -1,0 +1,21 @@
+{
+  "id": 6786,
+  "name": "ceder-6786",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Right & Left Thru, Backaway",
+    "Sides Lead Right",
+    "Right and Left Thru",
+    "All Star Thru",
+    "2 Ladies Chain",
+    "Pass Thru",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru, Backaway,\"; Untranslatable: \"Sides Lead Right,\"; Untranslatable: \"All Star Thru,\"; Untranslatable: \"2 Ladies Chain,\"",
+  "source": "ceder.net/choreodb"
+}

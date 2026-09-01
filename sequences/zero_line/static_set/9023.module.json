@@ -1,0 +1,18 @@
+{
+  "id": 9023,
+  "name": "ceder-9023",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Flutterwheel",
+    "Sweep a Quarter",
+    "Pass Thru",
+    "Left Allemande tdBy Formation"
+  ],
+  "note": "Untranslatable: \"Left Allemande tdBy Formation\"",
+  "source": "ceder.net/choreodb"
+}

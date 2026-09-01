@@ -1,0 +1,22 @@
+{
+  "id": 11517,
+  "name": "ceder-11517",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Flutter Wheel, Sweep 1/4",
+    "All Double Pass Thru",
+    "Girls Run Left",
+    "Circulate",
+    "Girls Run Left",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel, Sweep 1/4,\"; Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Girls Run Left,\"; Untranslatable: \"Girls Run Left,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

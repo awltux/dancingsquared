@@ -1,0 +1,19 @@
+{
+  "id": 2791,
+  "name": "ceder-2791",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Face In",
+    "Right and Left Thru",
+    "Star Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

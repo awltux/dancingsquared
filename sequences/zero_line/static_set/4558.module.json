@@ -1,0 +1,20 @@
+{
+  "id": 4558,
+  "name": "ceder-4558",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Pass the Ocean",
+    "Boys Run",
+    "Boys Trade",
+    "Boys Run",
+    "Recycle",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

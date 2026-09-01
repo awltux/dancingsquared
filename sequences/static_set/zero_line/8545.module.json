@@ -1,0 +1,20 @@
+{
+  "id": 8545,
+  "name": "ceder-8545",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Lead Right",
+    "Right and Left Thru",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Men Run",
+    "Reverse Flutterwheel"
+  ],
+  "note": "Untranslatable: \"Men Run,\"",
+  "source": "ceder.net/choreodb"
+}

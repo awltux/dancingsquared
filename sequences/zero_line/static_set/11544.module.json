@@ -1,0 +1,19 @@
+{
+  "id": 11544,
+  "name": "ceder-11544",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Right and Left Thru",
+    "1/2 Sashay",
+    "Left Touch 1/4",
+    "1/2 Zoom",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"1/2 Sashay\"; Untranslatable: \"Left Touch 1/4\"; Untranslatable: \"1/2 Zoom\"",
+  "source": "ceder.net/choreodb"
+}

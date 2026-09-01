@@ -1,0 +1,22 @@
+{
+  "id": 7069,
+  "name": "ceder-7069",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Box the Gnat",
+    "Pass Thru",
+    "Ladies Run",
+    "Swing Thru",
+    "Centers Circulate",
+    "Ends Circulate",
+    "Centers Trade",
+    "Men Run (Zero Line) Technical Zero (TZ)"
+  ],
+  "note": "Untranslatable: \"Ladies Run\"; Untranslatable: \"Men Run (Zero Line) Technical Zero (TZ)\"",
+  "source": "ceder.net/choreodb"
+}

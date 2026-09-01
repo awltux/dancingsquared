@@ -1,0 +1,21 @@
+{
+  "id": 10201,
+  "name": "ceder-10201",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "1/2 Square Thru",
+    "Centers Swing Thru",
+    "Trade By",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers Swing Thru\"",
+  "source": "ceder.net/choreodb"
+}

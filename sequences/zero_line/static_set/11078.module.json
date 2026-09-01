@@ -1,0 +1,26 @@
+{
+  "id": 11078,
+  "name": "ceder-11078",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 13,
+  "mappedCount": 13,
+  "steps": [
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Swing Thru",
+    "Split Circulate",
+    "Boys Run",
+    "Square Thru 3",
+    "Ends Cross Fold",
+    "Swing Thru",
+    "Split Circulate",
+    "Boys Fold",
+    "Double Pass Thru",
+    "Face Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "source": "ceder.net/choreodb"
+}

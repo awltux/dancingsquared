@@ -1,0 +1,27 @@
+{
+  "id": 11179,
+  "name": "ceder-11179",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 7,
+  "steps": [
+    "(Lesson 6-13)",
+    "Heads Slide Thru Then Right & Left Thru",
+    "Centers Veer Left Then Veer Right",
+    "All Veer Right",
+    "Boys Trade",
+    "Wheel Around",
+    "Girls Trade",
+    "Bend the Line",
+    "Reverse Flutterwheel",
+    "Half Sashay",
+    "Ends Face In",
+    "Heads Back Away",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 6-13),\"; Untranslatable: \"Heads Slide Thru Then Right & Left Thru,\"; Untranslatable: \"Centers Veer Left Then Veer Right,\"; Untranslatable: \"All Veer Right,\"; Untranslatable: \"Ends Face In,\"; Untranslatable: \"Heads Back Away,\"",
+  "source": "ceder.net/choreodb"
+}

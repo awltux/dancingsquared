@@ -1,0 +1,25 @@
+{
+  "id": 4550,
+  "name": "ceder-4550",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Square Thru 4",
+    "Sides Half Sashay",
+    "Dosado",
+    "Step to a Wave",
+    "Split Circulate",
+    "Girls Circulate, Boys Trade",
+    "Boys Run",
+    "Half Tag",
+    "Scoot Back",
+    "Boys Run",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \" Sides Half Sashay,\"; Untranslatable: \"Girls Circulate, Boys Trade,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 2892,
+  "name": "ceder-2892",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 4,
+  "steps": [
+    "1/2 Square Thru",
+    "Centers Swing Thru",
+    "Others U-Turn Back",
+    "Extend",
+    "Swing Thru",
+    "Recycle",
+    "Sweep a Quarter",
+    "1/2 Square Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Others U-Turn Back\"; Untranslatable: \"1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

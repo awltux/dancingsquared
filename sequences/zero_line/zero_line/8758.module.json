@@ -1,0 +1,17 @@
+{
+  "id": 8758,
+  "name": "ceder-8758",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Cast Off Three Quarters",
+    "Pass Thru",
+    "Cast Off Three Quarters"
+  ],
+  "source": "ceder.net/choreodb"
+}

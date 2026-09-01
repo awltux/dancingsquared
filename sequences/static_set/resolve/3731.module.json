@@ -1,0 +1,24 @@
+{
+  "id": 3731,
+  "name": "ceder-3731",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Star Thru",
+    "Pass Thru",
+    "Star Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

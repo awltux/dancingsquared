@@ -1,0 +1,22 @@
+{
+  "id": 2238,
+  "name": "ceder-2238",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Step to a Wave",
+    "Recycle",
+    "Pass the Ocean",
+    "Recycle",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

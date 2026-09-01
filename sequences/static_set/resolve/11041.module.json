@@ -1,0 +1,22 @@
+{
+  "id": 11041,
+  "name": "ceder-11041",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Half Sashay",
+    "All Circle Left",
+    "Circle Left",
+    "Ladies Face Each Other",
+    "Grand Square",
+    "Ladies Square Thru",
+    "Swing",
+    "All 4 Couples Promenade"
+  ],
+  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"All Circle Left,\"; Untranslatable: \"Ladies Face Each Other,\"; Untranslatable: \"Ladies Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

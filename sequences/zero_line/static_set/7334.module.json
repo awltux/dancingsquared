@@ -1,0 +1,29 @@
+{
+  "id": 7334,
+  "name": "ceder-7334",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 16,
+  "mappedCount": 15,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Pass Thru",
+    "Tag the Line",
+    "Chain Down the Line",
+    "Star Thru",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,31 @@
+{
+  "id": 11106,
+  "name": "ceder-11106",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 17,
+  "mappedCount": 14,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "First Couple Go Left, Next Couple Go Right",
+    "All Pass Thru",
+    "Girls Run",
+    "Hinge",
+    "Boys Circulate, Girls Trade",
+    "Left Swing Thru",
+    "Girls Run",
+    "Chain Down the Line",
+    "Pass Thru",
+    "Bend the Line",
+    "Pass Thru",
+    "Boys Run",
+    "Hinge",
+    "Girls U-Turn Back",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Boys Circulate, Girls Trade,\"; Untranslatable: \"Girls U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

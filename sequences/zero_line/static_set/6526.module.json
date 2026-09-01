@@ -1,0 +1,26 @@
+{
+  "id": 6526,
+  "name": "ceder-6526",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Half Sashay",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Centers Half Sashay",
+    "Ends Box The Gnat",
+    "All Pass The Ocean",
+    "Girls Trade",
+    "Boys Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Ends Box The Gnat\"; Untranslatable: \"All Pass The Ocean\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,23 @@
+{
+  "id": 10526,
+  "name": "ceder-10526",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Square Thru 4",
+    "Swing Thru",
+    "Ends Circulate",
+    "Swing Thru",
+    "Ends Circulate",
+    "Swing Thru",
+    "Boys Run",
+    "Chain Down the Line",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

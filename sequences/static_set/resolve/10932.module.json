@@ -1,0 +1,25 @@
+{
+  "id": 10932,
+  "name": "ceder-10932",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Lead Right",
+    "All Right & Left Thru",
+    "Slide Thru",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Box The Gnat",
+    "Everybody Zoom",
+    "New Centers Box The Gnat",
+    "Everybody Zoom",
+    "New Centers Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \"Everybody Zoom,\"; Untranslatable: \"New Centers Box The Gnat,\"; Untranslatable: \"Everybody Zoom,\"; Untranslatable: \"New Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

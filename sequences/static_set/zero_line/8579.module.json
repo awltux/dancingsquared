@@ -1,0 +1,20 @@
+{
+  "id": 8579,
+  "name": "ceder-8579",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Single Circle to a Wave",
+    "Men Circulate",
+    "Men Run",
+    "Bend the Line",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Men Circulate,\"; Untranslatable: \"Men Run,\"",
+  "source": "ceder.net/choreodb"
+}

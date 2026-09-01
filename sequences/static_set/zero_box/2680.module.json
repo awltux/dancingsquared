@@ -1,0 +1,17 @@
+{
+  "id": 2680,
+  "name": "ceder-2680",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Pass Thru",
+    "U-Turn Back",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 10516,
+  "name": "ceder-10516",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "All 1/2 Square Thru",
+    "Ends Fold",
+    "Square Thru 4",
+    "Ends Fold",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

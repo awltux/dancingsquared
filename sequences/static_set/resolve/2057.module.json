@@ -1,0 +1,26 @@
+{
+  "id": 2057,
+  "name": "ceder-2057",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Square Thru 3",
+    "Separate Around 1 To A Line",
+    "Centers Right & Left Thru",
+    "Ends Left Touch 1/4",
+    "Centers Pass The Ocean",
+    "Center 6 Circulate",
+    "Girls Run",
+    "Center Line Wheel & Deal",
+    "Zoom",
+    "Centers Swing Thru",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Right & Left Thru,\"; Untranslatable: \"Ends Left Touch 1/4,\"; Untranslatable: \"Centers Pass The Ocean,\"; Untranslatable: \"Center 6 Circulate,\"; Untranslatable: \"Center Line Wheel & Deal,\"; Untranslatable: \"Centers Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

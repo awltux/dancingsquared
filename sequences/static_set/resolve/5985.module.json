@@ -1,0 +1,21 @@
+{
+  "id": 5985,
+  "name": "ceder-5985",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Veer Left",
+    "Chain Down the Line",
+    "Pass Thru",
+    "Tag the Line",
+    "Centers Slide Thru & Box The Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Centers Slide Thru & Box The Gnat,\"",
+  "source": "ceder.net/choreodb"
+}

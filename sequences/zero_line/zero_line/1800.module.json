@@ -1,0 +1,19 @@
+{
+  "id": 1800,
+  "name": "ceder-1800",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Pass the Ocean",
+    "Split Circulate",
+    "Swing Thru",
+    "Boys Run",
+    "Reverse Flutter"
+  ],
+  "note": "Untranslatable: \"Reverse Flutter\"",
+  "source": "ceder.net/choreodb"
+}

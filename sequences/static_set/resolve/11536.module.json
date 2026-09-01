@@ -1,0 +1,28 @@
+{
+  "id": 11536,
+  "name": "ceder-11536",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 6,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Square Thru 4",
+    "Dosado",
+    "Swing Thru",
+    "Boys Run",
+    "Boys Circulate",
+    "All Ferris Wheel",
+    "Boys Zoom",
+    "Centers Right & Left Thru & Veer Left",
+    "All 4 Girls Pass Thru",
+    "Center Wave Swing Thru",
+    "All 4 Boys Pass Thru",
+    "Centers Wheel & Deal",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Boys Circulate,\"; Untranslatable: \"All Ferris Wheel,\"; Untranslatable: \"Boys Zoom,\"; Untranslatable: \"Centers Right & Left Thru & Veer Left,\"; Untranslatable: \"All 4 Girls Pass Thru,\"; Untranslatable: \"Center Wave Swing Thru,\"; Untranslatable: \"All 4 Boys Pass Thru,\"; Untranslatable: \"Centers Wheel & Deal,\"",
+  "source": "ceder.net/choreodb"
+}

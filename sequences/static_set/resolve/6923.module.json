@@ -1,0 +1,23 @@
+{
+  "id": 6923,
+  "name": "ceder-6923",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Pass Thru",
+    "Heads Promenade Back Home",
+    "Sides Pass Thru",
+    "Sides Promenade Back Home",
+    "Turn Corner By The Left",
+    "Dosado Partner",
+    "Grand Right & Left",
+    "Dosado Partner",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Heads Promenade Back Home,\"; Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \"Sides Promenade Back Home,\"; Untranslatable: \"Turn Corner By The Left,\"; Untranslatable: \"Dosado Partner,\"; Untranslatable: \"Grand Right & Left,\"; Untranslatable: \"Dosado Partner,\"",
+  "source": "ceder.net/choreodb"
+}

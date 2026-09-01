@@ -1,0 +1,20 @@
+{
+  "id": 9361,
+  "name": "ceder-9361",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Half Sashay",
+    "Centers Half Sashay",
+    "Pass Thru",
+    "Half Tag",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Half Sashay\"",
+  "source": "ceder.net/choreodb"
+}

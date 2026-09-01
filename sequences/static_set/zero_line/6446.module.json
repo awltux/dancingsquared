@@ -1,0 +1,20 @@
+{
+  "id": 6446,
+  "name": "ceder-6446",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Those Ladies Trade",
+    "Extend",
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \" Those Ladies Trade,\"",
+  "source": "ceder.net/choreodb"
+}

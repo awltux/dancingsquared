@@ -1,0 +1,27 @@
+{
+  "id": 10944,
+  "name": "ceder-10944",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 12,
+  "steps": [
+    "Heads Square Thru 4",
+    "Swing Thru",
+    "Boys Run",
+    "Tag the Line",
+    "Couples Circulate",
+    "Boys Cross Run",
+    "Bend the Line",
+    "Pass Thru",
+    "Boys Trade",
+    "Swing Thru",
+    "Split Circulate",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Boys Cross Run,\"",
+  "source": "ceder.net/choreodb"
+}

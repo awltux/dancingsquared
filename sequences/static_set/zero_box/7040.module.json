@@ -1,0 +1,18 @@
+{
+  "id": 7040,
+  "name": "ceder-7040",
+  "level": "unknown",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "4 Ladies Chain",
+    "All Rollaway",
+    "Heads Square Thru",
+    "Box the Gnat"
+  ],
+  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"All Rollaway,\"; Untranslatable: \"Heads Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

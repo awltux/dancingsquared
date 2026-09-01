@@ -1,0 +1,24 @@
+{
+  "id": 2887,
+  "name": "ceder-2887",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "1/2 Square Thru",
+    "Trade By",
+    "1/2 Square Thru",
+    "Boys Run",
+    "Centers Trade",
+    "Swing Thru",
+    "Girls Run",
+    "1/2 Square Thru",
+    "Trade By",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 2958,
+  "name": "ceder-2958",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "Touch a Quarter",
+    "Scoot Back",
+    "Centers Trade",
+    "Swing Thru",
+    "Scoot Back",
+    "Hinge",
+    "Boys Trade",
+    "Spin the Top",
+    "Right and Left Thru",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,26 @@
+{
+  "id": 5530,
+  "name": "ceder-5530",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Rollaway",
+    "Sides Pass Thru",
+    "Separate Around 1 To A Line",
+    "Touch a Quarter",
+    "All 8 Circulate",
+    "Centers Box Circulate",
+    "All 8 Circulate",
+    "Boys Trade",
+    "All 8 Circulate",
+    "Boys Run",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Box Circulate,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

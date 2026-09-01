@@ -1,0 +1,19 @@
+{
+  "id": 8636,
+  "name": "ceder-8636",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Ends Fold",
+    "Zoom",
+    "Centers U-Turn Back"
+  ],
+  "note": "Untranslatable: \"Centers U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

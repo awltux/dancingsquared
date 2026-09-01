@@ -1,0 +1,27 @@
+{
+  "id": 11230,
+  "name": "ceder-11230",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 1,
+  "steps": [
+    "",
+    "Heads Circle Up Four Halfway Round",
+    "Heads Back Away",
+    "Sides Circle Up Four Halfway Round",
+    "Sides Back Away",
+    "Heads Reverse Circle Up Four 3/4 Round",
+    "Heads Pass Thru (Meet The Sides And) Dosado",
+    "All Circle Up Four 3/4 Round",
+    "Lines Forward & Back, Dosado",
+    "Pass Thru, Wheel Around",
+    "Forward and Back",
+    "Pass Thru, Wheel Around",
+    "All Join Hands, Circle Home"
+  ],
+  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Circle Up Four Halfway Round,\"; Untranslatable: \"Heads Back Away,\"; Untranslatable: \"Sides Circle Up Four Halfway Round,\"; Untranslatable: \"Sides Back Away,\"; Untranslatable: \"Heads Reverse Circle Up Four 3/4 Round,\"; Untranslatable: \"Heads Pass Thru (Meet The Sides And) Dosado,\"; Untranslatable: \"All Circle Up Four 3/4 Round,\"; Untranslatable: \"Lines Forward & Back, Dosado,\"; Untranslatable: \"Pass Thru, Wheel Around,\"; Untranslatable: \"Pass Thru, Wheel Around,\"; Untranslatable: \"All Join Hands, Circle Home\"",
+  "source": "ceder.net/choreodb"
+}

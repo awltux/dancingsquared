@@ -1,0 +1,18 @@
+{
+  "id": 11582,
+  "name": "ceder-11582",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Separate",
+    "Slide Thru",
+    "Double Pass Thru",
+    "Leaders Trade"
+  ],
+  "note": "Untranslatable: \"Leaders Trade\"",
+  "source": "ceder.net/choreodb"
+}

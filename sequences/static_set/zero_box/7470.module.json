@@ -1,0 +1,22 @@
+{
+  "id": 7470,
+  "name": "ceder-7470",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Pass Thru",
+    "Step Ahead Both Go Right Around 1 To A Line",
+    "All Right & Left Thru",
+    "Half Sashay",
+    "Touch a Quarter",
+    "Circulate",
+    "Split Circulate",
+    "Boys Run"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Step Ahead Both Go Right Around 1 To A Line,\"; Untranslatable: \"All Right & Left Thru,\"",
+  "source": "ceder.net/choreodb"
+}

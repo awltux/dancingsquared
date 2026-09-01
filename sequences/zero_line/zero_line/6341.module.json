@@ -1,0 +1,18 @@
+{
+  "id": 6341,
+  "name": "ceder-6341",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Couples Circulate",
+    "Bend the Line"
+  ],
+  "source": "ceder.net/choreodb"
+}

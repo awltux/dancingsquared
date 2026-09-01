@@ -1,0 +1,17 @@
+{
+  "id": 8616,
+  "name": "ceder-8616",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Trade By",
+    "Pass Thru",
+    "Trade By"
+  ],
+  "source": "ceder.net/choreodb"
+}

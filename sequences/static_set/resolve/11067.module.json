@@ -1,0 +1,32 @@
+{
+  "id": 11067,
+  "name": "ceder-11067",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 18,
+  "mappedCount": 15,
+  "steps": [
+    "(Lesson 8-08.)",
+    "Heads Separate",
+    "All Star Thru",
+    "Centers Square Thru 2",
+    "Swing Thru",
+    "Boys Trade",
+    "Boys Run",
+    "Bend the Line",
+    "Pass Thru",
+    "Bend the Line",
+    "Slide Thru",
+    "Swing Thru",
+    "Boys Trade",
+    "Boys Run",
+    "Bend the Line",
+    "Slide Thru",
+    "Allemande Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 8-08.),\"; Untranslatable: \"All Star Thru,\"; Untranslatable: \"Centers Square Thru 2,\"",
+  "source": "ceder.net/choreodb"
+}

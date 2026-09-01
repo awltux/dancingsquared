@@ -1,0 +1,18 @@
+{
+  "id": 6723,
+  "name": "ceder-6723",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Promenade 3/4",
+    "Sides Square Thru 3",
+    "Veer Right",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Sides Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,17 @@
+{
+  "id": 7035,
+  "name": "ceder-7035",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Lead Right",
+    "Veer Left",
+    "Bend the Line",
+    "Right and Left Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

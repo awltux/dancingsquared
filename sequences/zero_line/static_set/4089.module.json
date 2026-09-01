@@ -1,0 +1,21 @@
+{
+  "id": 4089,
+  "name": "ceder-4089",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Leaders Trade",
+    "Square Thru 4",
+    "Tag the Line",
+    "Leaders Trade",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Leaders Trade\"; Untranslatable: \"Leaders Trade\"",
+  "source": "ceder.net/choreodb"
+}

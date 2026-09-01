@@ -1,0 +1,20 @@
+{
+  "id": 6157,
+  "name": "ceder-6157",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "Centers Trade",
+    "Cast Off Three Quarters",
+    "Ends Pass Thru",
+    "Partner Trade"
+  ],
+  "note": "Untranslatable: \"Ends Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

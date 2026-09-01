@@ -1,0 +1,25 @@
+{
+  "id": 10977,
+  "name": "ceder-10977",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Promenade 1/2",
+    "Come Down The Middle & Square Thru 4",
+    "Right and Left Thru",
+    "Veer Left",
+    "Ladies Trade",
+    "Bend the Line",
+    "Pass Thru",
+    "U-Turn Back",
+    "Star Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \" Come Down The Middle & Square Thru 4,\"; Untranslatable: \"Ladies Trade,\"",
+  "source": "ceder.net/choreodb"
+}

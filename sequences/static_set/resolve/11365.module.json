@@ -1,0 +1,28 @@
+{
+  "id": 11365,
+  "name": "ceder-11365",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 11,
+  "steps": [
+    "(Lesson 12-10)",
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Hinge",
+    "Girls Cross Run",
+    "Boys Trade",
+    "Recycle",
+    "Veer Right",
+    "Ferris Wheel",
+    "Half Sashay",
+    "Centers Pass Thru",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 12-10),\"; Untranslatable: \"Girls Cross Run,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

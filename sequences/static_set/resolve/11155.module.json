@@ -1,0 +1,22 @@
+{
+  "id": 11155,
+  "name": "ceder-11155",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Slide Thru And Square Thru 3 Hands",
+    "(Heads Make A Left-Hand Star with the Sides, turn it One Full Turn)",
+    "Pass Thru, Outsides California Twirl",
+    "Centers Pass Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Left Allemande",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Slide Thru And Square Thru 3 Hands,\"; Untranslatable: \"(Heads Make A Left-Hand Star with the Sides, turn it One Full Turn),\"; Untranslatable: \"Pass Thru, Outsides California Twirl,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

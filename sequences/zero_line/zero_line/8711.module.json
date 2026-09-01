@@ -1,0 +1,21 @@
+{
+  "id": 8711,
+  "name": "ceder-8711",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 2,
+  "steps": [
+    "*** not validated *** (Zero Line) (assumes Heads are on left-side of each line)",
+    "Circle Left 3/4",
+    "Star Right",
+    "Heads (Sides) Star Left 1/2 In The Center",
+    "To The Outside Pair Star Right",
+    "Heads (Sides) Star Left 1/2 In The Middle",
+    "Circle Left 3/4"
+  ],
+  "note": "Untranslatable: \"*** not validated *** (Zero Line) (assumes Heads are on left-side of each line)\"; Untranslatable: \"Star Right\"; Untranslatable: \"Heads (Sides) Star Left 1/2 In The Center\"; Untranslatable: \"To The Outside Pair Star Right\"; Untranslatable: \"Heads (Sides) Star Left 1/2 In The Middle\"",
+  "source": "ceder.net/choreodb"
+}

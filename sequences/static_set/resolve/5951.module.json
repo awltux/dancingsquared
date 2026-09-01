@@ -1,0 +1,19 @@
+{
+  "id": 5951,
+  "name": "ceder-5951",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Right and Left Thru",
+    "Dive Thru",
+    "Centers Square Thru 5",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Centers Square Thru 5,\"",
+  "source": "ceder.net/choreodb"
+}

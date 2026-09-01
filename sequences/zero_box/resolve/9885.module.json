@@ -1,0 +1,26 @@
+{
+  "id": 9885,
+  "name": "ceder-9885",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 11,
+  "steps": [
+    "Swing Thru",
+    "Spin the Top",
+    "Right and Left Thru",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Boys Run",
+    "Swing Thru",
+    "Recycle",
+    "Veer Left",
+    "Wheel and Deal",
+    "Left Square Thru 3",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Left Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

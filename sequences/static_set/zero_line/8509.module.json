@@ -1,0 +1,19 @@
+{
+  "id": 8509,
+  "name": "ceder-8509",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Lead Right",
+    "Veer Left",
+    "Wheel and Deal",
+    "Star Thru",
+    "Two Ladies Chain"
+  ],
+  "note": "Untranslatable: \"Two Ladies Chain\"",
+  "source": "ceder.net/choreodb"
+}

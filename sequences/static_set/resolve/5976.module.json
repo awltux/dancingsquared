@@ -1,0 +1,25 @@
+{
+  "id": 5976,
+  "name": "ceder-5976",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Swing Thru",
+    "Boys Run",
+    "Chain Down the Line",
+    "Pass Thru",
+    "Swing Thru",
+    "Boys Run",
+    "Ferris Wheel",
+    "Centers Veer Left",
+    "Chain Down the Line",
+    "Backaway",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Swing Thru,\"; Untranslatable: \"Centers Veer Left,\"; Untranslatable: \" Backaway,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,25 @@
+{
+  "id": 2838,
+  "name": "ceder-2838",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Star Right",
+    "Back By The Left,",
+    "Pick Up Corner",
+    "Star Promenade",
+    "(optional: Inside Out, Outside In, Turn 1 & 1/2 Star Again)",
+    "(optional: Inside Out, Outside In, Turn 1 & 1/2 Star Again)",
+    "Back Out Make A Ring, Circle Left (same sex together)",
+    "Swing The Girl Nearest You",
+    "Join Hands, Make A Ring, Circle Left",
+    "Rollaway",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads Star Right,\"; Untranslatable: \" Back By The Left,,\"; Untranslatable: \" Pick Up Corner,\"; Untranslatable: \"(optional: Inside Out, Outside In, Turn 1 & 1/2 Star Again),\"; Untranslatable: \"(optional: Inside Out, Outside In, Turn 1 & 1/2 Star Again),\"; Untranslatable: \"Back Out Make A Ring, Circle Left (same sex together),\"; Untranslatable: \"Swing The Girl Nearest You,\"; Untranslatable: \"Join Hands, Make A Ring, Circle Left,\"",
+  "source": "ceder.net/choreodb"
+}

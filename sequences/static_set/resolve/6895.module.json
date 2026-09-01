@@ -1,0 +1,24 @@
+{
+  "id": 6895,
+  "name": "ceder-6895",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around One To A Line",
+    "Forward and Back",
+    "Ends Roll Back Around Two",
+    "Down The Middle And Pass Thru",
+    "Separate Around One To A Line",
+    "Forward and Back",
+    "Ends Roll Back Around Two To A Line",
+    "Forward and Back",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around One To A Line,\"; Untranslatable: \"Ends Roll Back Around Two,\"; Untranslatable: \"Down The Middle And Pass Thru,\"; Untranslatable: \"Separate Around One To A Line,\"; Untranslatable: \"Ends Roll Back Around Two To A Line,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

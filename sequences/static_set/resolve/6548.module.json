@@ -1,0 +1,23 @@
+{
+  "id": 6548,
+  "name": "ceder-6548",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Centers In",
+    "Centers Half Sashay",
+    "All Right & Left Thru",
+    "Centers Half Sashay",
+    "All Star Thru",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Half Sashay,\"; Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"Centers Half Sashay,\"; Untranslatable: \"All Star Thru,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

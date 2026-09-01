@@ -1,0 +1,21 @@
+{
+  "id": 10742,
+  "name": "ceder-10742",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Boys Run Right",
+    "Centers Circulate",
+    "All Swing Thru",
+    "Centers Circulate",
+    "All Swing Thru",
+    "Boys Run Right"
+  ],
+  "note": "Untranslatable: \"Boys Run Right\"; Untranslatable: \"All Swing Thru\"; Untranslatable: \"All Swing Thru\"; Untranslatable: \"Boys Run Right\"",
+  "source": "ceder.net/choreodb"
+}

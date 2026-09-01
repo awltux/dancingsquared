@@ -1,0 +1,25 @@
+{
+  "id": 6541,
+  "name": "ceder-6541",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Star Thru",
+    "Girls Only Zoom",
+    "Double Pass Thru",
+    "Centers In",
+    "Square Thru 3",
+    "Bend the Line",
+    "Forward and Back",
+    "Right and Left Thru",
+    "Half Sashay 1 & 1/2",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Girls Only Zoom,\"; Untranslatable: \"Half Sashay 1 & 1/2,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

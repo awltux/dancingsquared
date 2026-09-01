@@ -1,0 +1,20 @@
+{
+  "id": 9017,
+  "name": "ceder-9017",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Two Ladies Chain",
+    "Pass Thru",
+    "Wheel and Deal",
+    "All Rollaway",
+    "Centers Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Two Ladies Chain\"; Untranslatable: \"All Rollaway\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

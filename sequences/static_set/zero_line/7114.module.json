@@ -1,0 +1,18 @@
+{
+  "id": 7114,
+  "name": "ceder-7114",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Box Circulate",
+    "Men Run"
+  ],
+  "note": "Untranslatable: \"Men Run\"",
+  "source": "ceder.net/choreodb"
+}

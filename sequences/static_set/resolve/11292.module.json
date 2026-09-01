@@ -1,0 +1,24 @@
+{
+  "id": 11292,
+  "name": "ceder-11292",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Right & Left Thru",
+    "Head Square Thru",
+    "All Square Thru",
+    "Bend the Line",
+    "Pass Thru",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Head Square Thru,\"; Untranslatable: \"All Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

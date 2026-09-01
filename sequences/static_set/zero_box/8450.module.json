@@ -1,0 +1,18 @@
+{
+  "id": 8450,
+  "name": "ceder-8450",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Ladies Trade",
+    "Recycle",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \" Ladies Trade,\"",
+  "source": "ceder.net/choreodb"
+}

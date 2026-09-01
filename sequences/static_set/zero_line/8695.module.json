@@ -1,0 +1,18 @@
+{
+  "id": 8695,
+  "name": "ceder-8695",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Lead Right",
+    "Swing Thru",
+    "Spin the Top",
+    "Right and Left Thru",
+    "Flutterwheel"
+  ],
+  "source": "ceder.net/choreodb"
+}

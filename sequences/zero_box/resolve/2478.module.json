@@ -1,0 +1,24 @@
+{
+  "id": 2478,
+  "name": "ceder-2478",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Touch a Quarter",
+    "Scoot Back",
+    "Boys Fold",
+    "Girls Pass Thru",
+    "Touch a Quarter",
+    "Boys Trade",
+    "Boys Run",
+    "Bend the Line",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Girls Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

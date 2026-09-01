@@ -1,0 +1,19 @@
+{
+  "id": 7103,
+  "name": "ceder-7103",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Swing Thru",
+    "All 8 Circulate",
+    "Men Run",
+    "Wheel and Deal",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

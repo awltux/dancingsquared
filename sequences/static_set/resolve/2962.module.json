@@ -1,0 +1,23 @@
+{
+  "id": 2962,
+  "name": "ceder-2962",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Left Square Thru 4",
+    "Left Touch 1/4",
+    "Scoot Back",
+    "Centers Trade",
+    "Left Swing Thru",
+    "Scoot Back",
+    "Boys Run",
+    "1/2 Square Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Left Touch 1/4,\"; Untranslatable: \"1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

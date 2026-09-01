@@ -1,0 +1,24 @@
+{
+  "id": 2434,
+  "name": "ceder-2434",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Touch a Quarter",
+    "Girls Run",
+    "Reverse Flutterwheel",
+    "Left Touch 1/4",
+    "Circulate",
+    "Boys Run",
+    "Single Circle to a Wave",
+    "Left Swing Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Left Touch 1/4,\"",
+  "source": "ceder.net/choreodb"
+}

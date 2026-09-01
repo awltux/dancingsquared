@@ -1,0 +1,18 @@
+{
+  "id": 8645,
+  "name": "ceder-8645",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Right and Left Thru",
+    "Square Thru 4",
+    "Tag the Line",
+    "Leaders U-Turn Back (Zero Box) This flip flops the set."
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back (Zero Box) This flip flops the set.\"",
+  "source": "ceder.net/choreodb"
+}

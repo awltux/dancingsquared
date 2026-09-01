@@ -1,0 +1,24 @@
+{
+  "id": 4510,
+  "name": "ceder-4510",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Left Square Thru 4",
+    "Left Touch 1/4",
+    "Split Circulate",
+    "Girls Trade",
+    "Pass Thru",
+    "Boys Trade",
+    "Split Circulate",
+    "Boys Run",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Left Touch 1/4,\"",
+  "source": "ceder.net/choreodb"
+}

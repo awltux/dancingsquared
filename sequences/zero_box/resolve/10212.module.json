@@ -1,0 +1,23 @@
+{
+  "id": 10212,
+  "name": "ceder-10212",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Slide Thru",
+    "Pass the Ocean",
+    "Girls Run Right",
+    "Half Tag",
+    "Boys Run Right",
+    "Pass the Ocean",
+    "Swing Thru",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Run Right\"; Untranslatable: \"Boys Run Right\"",
+  "source": "ceder.net/choreodb"
+}

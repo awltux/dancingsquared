@@ -1,0 +1,17 @@
+{
+  "id": 6407,
+  "name": "ceder-6407",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Pass the Ocean",
+    "Centers Trade",
+    "Swing Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

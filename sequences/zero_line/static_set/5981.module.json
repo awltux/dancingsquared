@@ -1,0 +1,19 @@
+{
+  "id": 5981,
+  "name": "ceder-5981",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Half Sashay",
+    "Single Circle 3/4 to a Wave",
+    "Circulate",
+    "Boys Run",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

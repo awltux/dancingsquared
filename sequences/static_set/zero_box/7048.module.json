@@ -1,0 +1,19 @@
+{
+  "id": 7048,
+  "name": "ceder-7048",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Swing Thru",
+    "Ladies Trade",
+    "Men Run",
+    "Bend the Line",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Swing Thru,\"; Untranslatable: \" Ladies Trade,\"; Untranslatable: \" Men Run,\"",
+  "source": "ceder.net/choreodb"
+}

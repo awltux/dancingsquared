@@ -1,0 +1,24 @@
+{
+  "id": 3941,
+  "name": "ceder-3941",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Extend",
+    "Girls Swing Thru Double",
+    "Boys Trade",
+    "Extend",
+    "Split Circulate",
+    "Hinge",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Swing Thru Double,\"",
+  "source": "ceder.net/choreodb"
+}

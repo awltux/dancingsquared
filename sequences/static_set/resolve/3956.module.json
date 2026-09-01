@@ -1,0 +1,26 @@
+{
+  "id": 3956,
+  "name": "ceder-3956",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Square Thru 3",
+    "Separate Around 1 To A Line",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Circulate",
+    "Split Circulate",
+    "Circulate",
+    "Girls Run",
+    "Double Pass Thru",
+    "Leaders Trade",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Leaders Trade,\"",
+  "source": "ceder.net/choreodb"
+}

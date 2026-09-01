@@ -1,0 +1,18 @@
+{
+  "id": 6808,
+  "name": "ceder-6808",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Right and Left Thru",
+    "2 Ladies Chain",
+    "Right and Left Thru",
+    "2 Ladies Chain (Zero Line) Cal15 CDP FCZ"
+  ],
+  "note": "Untranslatable: \"2 Ladies Chain\"; Untranslatable: \"2 Ladies Chain (Zero Line) Cal15 CDP FCZ\"",
+  "source": "ceder.net/choreodb"
+}

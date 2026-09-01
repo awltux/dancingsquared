@@ -1,0 +1,23 @@
+{
+  "id": 10528,
+  "name": "ceder-10528",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Square Thru 4",
+    "Dosado",
+    "Square Thru 4",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Square Thru 4",
+    "Centers Square Thru 3",
+    "Others Partner Trade",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \" Others Partner Trade,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 4427,
+  "name": "ceder-4427",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Swing Thru",
+    "Extend",
+    "Centers Swing Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

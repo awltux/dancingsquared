@@ -1,0 +1,26 @@
+{
+  "id": 10552,
+  "name": "ceder-10552",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Everybody Half Sashay",
+    "Heads Star Thru",
+    "Swing Thru",
+    "Ends Circulate",
+    "Spin the Top",
+    "Pass Thru",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Square Thru 3",
+    "Star Thru",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Everybody Half Sashay,\"; Untranslatable: \"Girls Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

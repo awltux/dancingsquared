@@ -1,0 +1,18 @@
+{
+  "id": 4621,
+  "name": "ceder-4621",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Half Sashay",
+    "Heads Lead Right",
+    "Swing Thru",
+    "Girls U-Turn Back"
+  ],
+  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"Girls U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

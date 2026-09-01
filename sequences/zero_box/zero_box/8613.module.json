@@ -1,0 +1,20 @@
+{
+  "id": 8613,
+  "name": "ceder-8613",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 4,
+  "steps": [
+    "Dive Thru",
+    "Zoom",
+    "Centers Pass Thru",
+    "Dive Thru",
+    "Zoom",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

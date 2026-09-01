@@ -1,0 +1,19 @@
+{
+  "id": 10189,
+  "name": "ceder-10189",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Square Thru 4",
+    "Right and Left Thru",
+    "Ferris Wheel, Centers Veer Left",
+    "Centers Chain Down The Line",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Ferris Wheel, Centers Veer Left,\"; Untranslatable: \"Centers Chain Down The Line,\"",
+  "source": "ceder.net/choreodb"
+}

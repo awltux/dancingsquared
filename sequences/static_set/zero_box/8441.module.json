@@ -1,0 +1,17 @@
+{
+  "id": 8441,
+  "name": "ceder-8441",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Swing Thru",
+    "Spin the Top",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

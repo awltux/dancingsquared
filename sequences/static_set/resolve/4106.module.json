@@ -1,0 +1,24 @@
+{
+  "id": 4106,
+  "name": "ceder-4106",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Rollaway",
+    "Heads Square Thru",
+    "Swing Thru",
+    "Spin the Top",
+    "Hinge",
+    "Circulate",
+    "Circulate",
+    "Boys Run",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

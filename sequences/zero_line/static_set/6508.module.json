@@ -1,0 +1,25 @@
+{
+  "id": 6508,
+  "name": "ceder-6508",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 7,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Half Sashay",
+    "Zoom",
+    "New Centers Swing Thru",
+    "Extend",
+    "Spin the Top",
+    "Step Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"New Centers Swing Thru\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

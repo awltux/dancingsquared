@@ -1,0 +1,19 @@
+{
+  "id": 5864,
+  "name": "ceder-5864",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Rollaway",
+    "Spin the Top",
+    "Recycle",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"",
+  "source": "ceder.net/choreodb"
+}

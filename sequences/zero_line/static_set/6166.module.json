@@ -1,0 +1,19 @@
+{
+  "id": 6166,
+  "name": "ceder-6166",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Square Thru 3",
+    "Half Tag",
+    "Split Circulate",
+    "Girls Trade",
+    "Swing Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

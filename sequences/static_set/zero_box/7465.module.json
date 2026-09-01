@@ -1,0 +1,18 @@
+{
+  "id": 7465,
+  "name": "ceder-7465",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Square Thru 4",
+    "All Box The Gnat",
+    "Square Thru 4",
+    "Ends Fold"
+  ],
+  "note": "Untranslatable: \"All Box The Gnat,\"",
+  "source": "ceder.net/choreodb"
+}

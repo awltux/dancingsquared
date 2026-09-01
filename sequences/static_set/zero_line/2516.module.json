@@ -1,0 +1,19 @@
+{
+  "id": 2516,
+  "name": "ceder-2516",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Four Ladies Chain 3/4",
+    "Head Position Pass Thru",
+    "Separate Around 1 To A Line",
+    "Centers Box The Gnat",
+    "All Right & Left Thru"
+  ],
+  "note": "Untranslatable: \"Head Position Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \"All Right & Left Thru\"",
+  "source": "ceder.net/choreodb"
+}

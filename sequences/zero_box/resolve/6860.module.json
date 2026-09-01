@@ -1,0 +1,21 @@
+{
+  "id": 6860,
+  "name": "ceder-6860",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 2,
+  "steps": [
+    "Right and Left Thru",
+    "Star Thru",
+    "Ends Box The Gnat",
+    "Everybody Square Thru",
+    "Center 4 Square Thru 3/4",
+    "Outsides U Turn Back",
+    "Left Allemande Unusual Getout"
+  ],
+  "note": "Untranslatable: \"Ends Box The Gnat\"; Untranslatable: \"Everybody Square Thru\"; Untranslatable: \"Center 4 Square Thru 3/4\"; Untranslatable: \"Outsides U Turn Back\"; Untranslatable: \"Left Allemande Unusual Getout\"",
+  "source": "ceder.net/choreodb"
+}

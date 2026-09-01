@@ -1,0 +1,22 @@
+{
+  "id": 2265,
+  "name": "ceder-2265",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Right and Left Thru",
+    "Tag the Line",
+    "Face Left",
+    "Ferris Wheel",
+    "Zoom",
+    "Centers Pass Thru",
+    "Swing Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

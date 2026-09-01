@@ -1,0 +1,21 @@
+{
+  "id": 5523,
+  "name": "ceder-5523",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 8,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Star Thru",
+    "Pass Thru",
+    "Star Thru",
+    "Pass the Ocean",
+    "Swing Thru",
+    "Boys Trade",
+    "All 8 Circulate",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

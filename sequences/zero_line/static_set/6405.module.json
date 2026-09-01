@@ -1,0 +1,19 @@
+{
+  "id": 6405,
+  "name": "ceder-6405",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Touch a Quarter",
+    "All 8 Circulate",
+    "Girls Run",
+    "All U Turn Back",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"All U Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

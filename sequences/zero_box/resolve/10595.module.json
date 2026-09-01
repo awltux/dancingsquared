@@ -1,0 +1,26 @@
+{
+  "id": 10595,
+  "name": "ceder-10595",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 11,
+  "steps": [
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Boys Run",
+    "Boys Trade",
+    "Boys Run",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Pass the Ocean",
+    "Circulate",
+    "Girls Run",
+    "Girls Fold",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

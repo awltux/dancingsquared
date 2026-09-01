@@ -1,0 +1,24 @@
+{
+  "id": 5862,
+  "name": "ceder-5862",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 5,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Flutter Wheel, Backaway",
+    "Sides Flutter Wheel & Pass Thru",
+    "Both Go Right, Single File",
+    "Girl Around 2, Boy Around 1 To A Line",
+    "Forward and Back",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Right-Hand Star One Full Turn (to face Outsides)",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel, Backaway,\"; Untranslatable: \"Sides Flutter Wheel & Pass Thru,\"; Untranslatable: \"Both Go Right, Single File,\"; Untranslatable: \" Girl Around 2, Boy Around 1 To A Line,\"; Untranslatable: \"Centers Right-Hand Star One Full Turn (to face Outsides),\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 8543,
+  "name": "ceder-8543",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Four Ladies Chain 3/4",
+    "Head Position 1/2 Square Thru",
+    "Split Two Separate Around 1 To A Line",
+    "Tag the Line",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Head Position 1/2 Square Thru,\"; Untranslatable: \"Split Two Separate Around 1 To A Line,\"",
+  "source": "ceder.net/choreodb"
+}

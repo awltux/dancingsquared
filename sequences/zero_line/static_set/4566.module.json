@@ -1,0 +1,22 @@
+{
+  "id": 4566,
+  "name": "ceder-4566",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Square Thru 3",
+    "Ends Cross Fold",
+    "Pass the Ocean",
+    "Cast Off Three Quarters",
+    "Girls Run",
+    "Double Pass Thru",
+    "Leaders Trade",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Leaders Trade\"",
+  "source": "ceder.net/choreodb"
+}

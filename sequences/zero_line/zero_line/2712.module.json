@@ -1,0 +1,22 @@
+{
+  "id": 2712,
+  "name": "ceder-2712",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Half Sashay",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Dosado to a Wave",
+    "Swing Thru",
+    "Boys Run"
+  ],
+  "note": "Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

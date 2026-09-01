@@ -1,0 +1,17 @@
+{
+  "id": 9315,
+  "name": "ceder-9315",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Centers In",
+    "Centers Run",
+    "Touch a Quarter",
+    "Boys Run"
+  ],
+  "source": "ceder.net/choreodb"
+}

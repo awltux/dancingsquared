@@ -1,0 +1,28 @@
+{
+  "id": 2837,
+  "name": "ceder-2837",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 11,
+  "steps": [
+    "Heads Half Sashay",
+    "Forward and Back",
+    "Box the Gnat",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Separate Around One, Come Into The Middle",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Split Two Around One To A Line Of 4",
+    "Forward and Back",
+    "Box the Gnat",
+    "Right and Left Thru",
+    "Half Sashay",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"Separate Around One, Come Into The Middle,\"; Untranslatable: \"Split Two Around One To A Line Of 4,\"",
+  "source": "ceder.net/choreodb"
+}

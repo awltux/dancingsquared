@@ -1,0 +1,17 @@
+{
+  "id": 2378,
+  "name": "ceder-2378",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Rollaway",
+    "Slide Thru"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 6888,
+  "name": "ceder-6888",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Bend the Line",
+    "Star Thru",
+    "Right and Left Thru",
+    "Rollaway",
+    "Everyone Turn Around",
+    "Allemande Left After everybody turns around the formation = Tdby (0)"
+  ],
+  "note": "Untranslatable: \"Everyone Turn Around\"; Untranslatable: \"Allemande Left After everybody turns around the formation = Tdby (0)\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,18 @@
+{
+  "id": 2464,
+  "name": "ceder-2464",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Star Thru",
+    "Zoom",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

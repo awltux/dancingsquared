@@ -1,0 +1,23 @@
+{
+  "id": 3810,
+  "name": "ceder-3810",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Boys Zoom",
+    "Girls Trade",
+    "Ferris Wheel",
+    "Zoom",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Boys Zoom\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

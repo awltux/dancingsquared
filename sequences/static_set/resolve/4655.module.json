@@ -1,0 +1,21 @@
+{
+  "id": 4655,
+  "name": "ceder-4655",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Allemande Left",
+    "Box the Gnat",
+    "Wrong Way Grand",
+    "Box the Gnat",
+    "Men Star Left One Time",
+    "Dosado",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Men Star Left One Time,\"",
+  "source": "ceder.net/choreodb"
+}

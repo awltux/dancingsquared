@@ -1,0 +1,20 @@
+{
+  "id": 9057,
+  "name": "ceder-9057",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Right and Left Thru",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Scoot Back Again",
+    "Men Run",
+    "Left Allemande TdBy Formation"
+  ],
+  "note": "Untranslatable: \"Scoot Back Again\"; Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande TdBy Formation\"",
+  "source": "ceder.net/choreodb"
+}

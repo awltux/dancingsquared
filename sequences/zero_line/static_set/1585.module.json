@@ -1,0 +1,24 @@
+{
+  "id": 1585,
+  "name": "ceder-1585",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Face In",
+    "Pass the Ocean",
+    "Boys Circulate Double",
+    "Swing Thru",
+    "Girls Circulate Double",
+    "Recycle",
+    "Box the Gnat",
+    "R.L.G Half-sashayed Pass the Ocean"
+  ],
+  "note": "Untranslatable: \"Boys Circulate Double\"; Untranslatable: \"Girls Circulate Double\"; Untranslatable: \"R.L.G Half-sashayed Pass the Ocean\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 10978,
+  "name": "ceder-10978",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 5,
+  "steps": [
+    "Allemande Left, Alamo Style, Balance",
+    "Heads Trade",
+    "Boys Trade",
+    "Girls Trade",
+    "Heads Trade",
+    "Sides Trade",
+    "Boys Trade",
+    "Girls Trade",
+    "Sides Trade",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Allemande Left, Alamo Style, Balance,\"; Untranslatable: \"Heads Trade,\"; Untranslatable: \"Heads Trade,\"; Untranslatable: \"Sides Trade,\"; Untranslatable: \"Sides Trade,\"",
+  "source": "ceder.net/choreodb"
+}

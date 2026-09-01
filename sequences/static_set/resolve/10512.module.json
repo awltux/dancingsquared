@@ -1,0 +1,25 @@
+{
+  "id": 10512,
+  "name": "ceder-10512",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Pass the Ocean",
+    "Extend",
+    "Ladies Trade",
+    "Swing Thru",
+    "Ladies Circulate",
+    "Swing Thru",
+    "Ladies Run",
+    "Ferris Wheel, Centers Sweep 1/4",
+    "Centers Lead Right",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Ladies Trade,\"; Untranslatable: \"Ladies Circulate,\"; Untranslatable: \"Ladies Run,\"; Untranslatable: \"Ferris Wheel, Centers Sweep 1/4,\"; Untranslatable: \"Centers Lead Right,\"",
+  "source": "ceder.net/choreodb"
+}

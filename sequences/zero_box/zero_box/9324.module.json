@@ -1,0 +1,20 @@
+{
+  "id": 9324,
+  "name": "ceder-9324",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Square Thru 2",
+    "Tag the Line",
+    "Face Out",
+    "Couples Hinge",
+    "Girls Trade",
+    "Wheel and Deal",
+    "Sweep a Quarter"
+  ],
+  "source": "ceder.net/choreodb"
+}

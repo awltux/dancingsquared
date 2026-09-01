@@ -1,0 +1,20 @@
+{
+  "id": 9014,
+  "name": "ceder-9014",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 4,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Men Run",
+    "Ladies Trade",
+    "California Twirl",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Ladies Trade\"",
+  "source": "ceder.net/choreodb"
+}

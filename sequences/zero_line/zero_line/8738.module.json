@@ -1,0 +1,21 @@
+{
+  "id": 8738,
+  "name": "ceder-8738",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Touch a Quarter",
+    "Single File Circulate",
+    "All Trade",
+    "Single File Circulate",
+    "Men Run",
+    "Star Thru",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Single File Circulate\"; Untranslatable: \"All Trade\"; Untranslatable: \"Single File Circulate\"; Untranslatable: \"Men Run\"",
+  "source": "ceder.net/choreodb"
+}

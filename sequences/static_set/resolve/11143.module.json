@@ -1,0 +1,22 @@
+{
+  "id": 11143,
+  "name": "ceder-11143",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Pass Thru & Wheel Around",
+    "Heads Half Sashay & Slide Thru",
+    "Dosado, Star Thru",
+    "Pass Thru, Wheel Around",
+    "Half Sashay, Star Thru",
+    "U-Turn Back",
+    "Pass Thru",
+    "R.L.G., Promenade Home"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru & Wheel Around,\"; Untranslatable: \"Heads Half Sashay & Slide Thru,\"; Untranslatable: \"Dosado, Star Thru,\"; Untranslatable: \"Pass Thru, Wheel Around,\"; Untranslatable: \"Half Sashay, Star Thru,\"; Untranslatable: \"R.L.G., Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

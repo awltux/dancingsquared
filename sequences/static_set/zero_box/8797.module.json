@@ -1,0 +1,20 @@
+{
+  "id": 8797,
+  "name": "ceder-8797",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Centers In",
+    "Star Thru",
+    "Zoom",
+    "Centers Square Thru 3"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

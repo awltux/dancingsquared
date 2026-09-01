@@ -1,0 +1,22 @@
+{
+  "id": 8921,
+  "name": "ceder-8921",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Circle Four 3/4",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Flutter Wheel",
+    "Double Pass Thru",
+    "First Couple Left",
+    "Next Couple Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Circle Four 3/4\"; Untranslatable: \"Centers Flutter Wheel\"; Untranslatable: \"First Couple Left\"; Untranslatable: \"Next Couple Left\"",
+  "source": "ceder.net/choreodb"
+}

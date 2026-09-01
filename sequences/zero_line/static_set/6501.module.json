@@ -1,0 +1,20 @@
+{
+  "id": 6501,
+  "name": "ceder-6501",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Square Thru 3",
+    "Half Sashay",
+    "Centers Half Sashay",
+    "Ends Cross Fold",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Half Sashay\"",
+  "source": "ceder.net/choreodb"
+}

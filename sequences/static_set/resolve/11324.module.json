@@ -1,0 +1,27 @@
+{
+  "id": 11324,
+  "name": "ceder-11324",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Spin the Top",
+    "Slide Thru",
+    "All Right & Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Zoom",
+    "Centers Spin The Top",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"Centers Spin The Top,\"",
+  "source": "ceder.net/choreodb"
+}

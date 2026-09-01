@@ -1,0 +1,19 @@
+{
+  "id": 6865,
+  "name": "ceder-6865",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Head Ladies Chain Right",
+    "4 Ladies Chain Across",
+    "New Head Ladies Chain Right",
+    "4 Ladies Chain Across",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"4 Ladies Chain Across,\"; Untranslatable: \"New Head Ladies Chain Right,\"; Untranslatable: \"4 Ladies Chain Across,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

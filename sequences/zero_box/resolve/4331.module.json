@@ -1,0 +1,23 @@
+{
+  "id": 4331,
+  "name": "ceder-4331",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Tag the Line",
+    "Face Left",
+    "Couples Circulate",
+    "Ferris Wheel",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

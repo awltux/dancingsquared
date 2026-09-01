@@ -1,0 +1,22 @@
+{
+  "id": 9026,
+  "name": "ceder-9026",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Pass the Ocean",
+    "Split Circulate",
+    "Centers Box Circulate",
+    "All Men Run",
+    "Star Thru",
+    "Right and Left Thru",
+    "Left Allemande After the Right & Left Thru",
+    "this is a ZL-ZB Conversion Module."
+  ],
+  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"All Men Run\"; Untranslatable: \"Left Allemande After the Right & Left Thru\"; Untranslatable: \"this is a ZL-ZB Conversion Module.\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 4054,
+  "name": "ceder-4054",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Pass the Ocean",
+    "Girls Circulate",
+    "Swing Thru",
+    "Boys Circulate",
+    "Swing Thru",
+    "All 8 Circulate",
+    "Boys Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

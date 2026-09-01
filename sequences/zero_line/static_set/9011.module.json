@@ -1,0 +1,17 @@
+{
+  "id": 9011,
+  "name": "ceder-9011",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "U-Turn Back",
+    "Pass the Ocean",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 8415,
+  "name": "ceder-8415",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Swing Thru",
+    "Ladies U-Turn Back",
+    "Ladies Trade",
+    "Bend the Line",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Swing Thru,\"; Untranslatable: \" Ladies U-Turn Back,\"; Untranslatable: \" Ladies Trade,\"",
+  "source": "ceder.net/choreodb"
+}

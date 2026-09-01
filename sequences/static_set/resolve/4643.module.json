@@ -1,0 +1,29 @@
+{
+  "id": 4643,
+  "name": "ceder-4643",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 16,
+  "mappedCount": 14,
+  "steps": [
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "Veer Right",
+    "Couples Circulate",
+    "Bend the Line",
+    "Pass the Ocean",
+    "All 8 Circulate",
+    "Recycle",
+    "Pass Thru",
+    "Trade By",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

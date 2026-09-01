@@ -1,0 +1,24 @@
+{
+  "id": 2894,
+  "name": "ceder-2894",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Swing Thru",
+    "Center 4 Swing Thru",
+    "All Step Thru",
+    "Wheel and Deal",
+    "Zoom",
+    "Girls Square Thru 3/4",
+    "Star Thru",
+    "Couples Circulate",
+    "Wheel and Deal",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Center 4 Swing Thru\"; Untranslatable: \"All Step Thru\"; Untranslatable: \"Girls Square Thru 3/4\"",
+  "source": "ceder.net/choreodb"
+}

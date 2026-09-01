@@ -1,0 +1,21 @@
+{
+  "id": 2513,
+  "name": "ceder-2513",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Ends Fold",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 11388,
+  "name": "ceder-11388",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "(Lesson 11-1)",
+    "Heads Square Thru 4",
+    "Touch a Quarter",
+    "Girls Run",
+    "Box the Gnat",
+    "Right and Left Thru",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Square Thru 3",
+    "Allemande Left, R.L.G., Promenade Home"
+  ],
+  "note": "Untranslatable: \"(Lesson 11-1),\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"Allemande Left, R.L.G., Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 7197,
+  "name": "ceder-7197",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line (BB/GG)",
+    "Forward and Back",
+    "Pass the Ocean",
+    "Swing Thru",
+    "Girls U Turn Back",
+    "End Ladies Chain (Diagonal)",
+    "Star Thru",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line (BB/GG),\"; Untranslatable: \"Girls U Turn Back,\"; Untranslatable: \"End Ladies Chain (Diagonal),\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

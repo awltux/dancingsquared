@@ -1,0 +1,18 @@
+{
+  "id": 8424,
+  "name": "ceder-8424",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Square Thru 3/4",
+    "Courtesy Turn",
+    "Flutterwheel",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru 3/4,\"",
+  "source": "ceder.net/choreodb"
+}

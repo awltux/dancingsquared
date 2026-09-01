@@ -1,0 +1,20 @@
+{
+  "id": 10301,
+  "name": "ceder-10301",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Square Thru 3",
+    "Separate Around 1 To A Line",
+    "All Pass Thru",
+    "Tag the Line",
+    "Ends Trade",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

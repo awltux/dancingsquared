@@ -1,0 +1,21 @@
+{
+  "id": 2167,
+  "name": "ceder-2167",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Lead Left",
+    "Veer Right",
+    "Ferris Wheel",
+    "Centers Veer Right",
+    "Centers Bend The Line & Flutter Wheel",
+    "Centers Lead Right",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Veer Right,\"; Untranslatable: \"Centers Bend The Line & Flutter Wheel,\"; Untranslatable: \"Centers Lead Right,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 8874,
+  "name": "ceder-8874",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Star Thru",
+    "Boys Zoom",
+    "Double Pass Thru",
+    "Girls Zoom",
+    "Leaders Trade",
+    "Allemande Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Boys Zoom,\"; Untranslatable: \"Girls Zoom,\"; Untranslatable: \"Leaders Trade,\"",
+  "source": "ceder.net/choreodb"
+}

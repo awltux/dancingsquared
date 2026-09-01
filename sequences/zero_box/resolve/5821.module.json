@@ -1,0 +1,21 @@
+{
+  "id": 5821,
+  "name": "ceder-5821",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Dosado to a Wave",
+    "Centers Box Circulate",
+    "Split Circulate",
+    "Centers Box Circulate",
+    "Boys Run",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"Centers Box Circulate\"",
+  "source": "ceder.net/choreodb"
+}

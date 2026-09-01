@@ -1,0 +1,20 @@
+{
+  "id": 8942,
+  "name": "ceder-8942",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Right and Left Thru",
+    "Pass the Ocean",
+    "Hinge",
+    "Single File Circulate Two Places",
+    "All Four Ladies U-Turn Back",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Single File Circulate Two Places\"; Untranslatable: \"All Four Ladies U-Turn Back\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

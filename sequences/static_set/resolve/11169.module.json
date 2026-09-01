@@ -1,0 +1,31 @@
+{
+  "id": 11169,
+  "name": "ceder-11169",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 17,
+  "mappedCount": 11,
+  "steps": [
+    "(Lesson 5-05)",
+    "Heads Square Thru 2",
+    "Dosado",
+    "Veer Left",
+    "Veer Right",
+    "Centers Veer Right",
+    "Outside 4 California Twirl",
+    "Centers Veer Left",
+    "All Veer Left",
+    "Couples Circulate",
+    "Girls Trade",
+    "Bend the Line",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Allemande Left",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"(Lesson 5-05),\"; Untranslatable: \"Centers Veer Right,\"; Untranslatable: \"Outside 4 California Twirl,\"; Untranslatable: \"Centers Veer Left,\"; Untranslatable: \"All Veer Left,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

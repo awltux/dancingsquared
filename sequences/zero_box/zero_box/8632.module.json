@@ -1,0 +1,19 @@
+{
+  "id": 8632,
+  "name": "ceder-8632",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Centers In",
+    "Ends Run",
+    "California Twirl",
+    "Bend the Line",
+    "Star Thru",
+    "Right and Left Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

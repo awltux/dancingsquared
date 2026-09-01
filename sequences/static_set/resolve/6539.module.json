@@ -1,0 +1,21 @@
+{
+  "id": 6539,
+  "name": "ceder-6539",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Half Sashay",
+    "Pass Thru",
+    "Separate Around 1 To A Line",
+    "Right and Left Thru",
+    "Square Thru 4",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"Separate Around 1 To A Line,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 1474,
+  "name": "ceder-1474",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Swing Thru",
+    "Boys Run",
+    "Half Tag",
+    "1/2 Trade",
+    "1/2 Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"1/2 Trade\"; Untranslatable: \"1/2 Circulate\"",
+  "source": "ceder.net/choreodb"
+}

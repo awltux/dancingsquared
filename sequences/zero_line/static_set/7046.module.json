@@ -1,0 +1,18 @@
+{
+  "id": 7046,
+  "name": "ceder-7046",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Star Thru",
+    "Swing Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

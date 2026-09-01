@@ -1,0 +1,21 @@
+{
+  "id": 9318,
+  "name": "ceder-9318",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Ends Half Sashay",
+    "Centers Split Two",
+    "Separate Around 1 To A Line",
+    "Pass Thru",
+    "Half Tag",
+    "Swing Thru",
+    "Recycle"
+  ],
+  "note": "Untranslatable: \"Ends Half Sashay\"; Untranslatable: \"Centers Split Two\"; Untranslatable: \"Separate Around 1 To A Line\"",
+  "source": "ceder.net/choreodb"
+}

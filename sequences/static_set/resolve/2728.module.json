@@ -1,0 +1,24 @@
+{
+  "id": 2728,
+  "name": "ceder-2728",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Square Thru 4",
+    "Sides Rollaway",
+    "Swing Thru",
+    "Split Circulate",
+    "Girls Fold",
+    "Boys Swing Thru",
+    "Extend",
+    "Split Circulate",
+    "Hinge",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \" Sides Rollaway,\"; Untranslatable: \"Boys Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

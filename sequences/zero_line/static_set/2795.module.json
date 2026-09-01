@@ -1,0 +1,25 @@
+{
+  "id": 2795,
+  "name": "ceder-2795",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Touch a Quarter",
+    "Circulate",
+    "Girls Run",
+    "Centers Square Thru 3/4",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Pass Thru",
+    "Tag the Line",
+    "Leaders Trade",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3/4\"; Untranslatable: \"Leaders Trade\"",
+  "source": "ceder.net/choreodb"
+}

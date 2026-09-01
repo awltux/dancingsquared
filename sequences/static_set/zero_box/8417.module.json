@@ -1,0 +1,16 @@
+{
+  "id": 8417,
+  "name": "ceder-8417",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 3,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Right and Left Thru",
+    "Pass Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

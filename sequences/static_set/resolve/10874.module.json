@@ -1,0 +1,26 @@
+{
+  "id": 10874,
+  "name": "ceder-10874",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Lead Right",
+    "Square Thru 4",
+    "Girls U-Turn Back",
+    "All Scoot Back (Girls go)",
+    "Swing Thru",
+    "Swing Thru",
+    "Scoot Back",
+    "Split Circulate",
+    "Boys Fold",
+    "Double Pass Thru",
+    "Face Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Girls U-Turn Back,\"; Untranslatable: \"All Scoot Back (Girls go),\"",
+  "source": "ceder.net/choreodb"
+}

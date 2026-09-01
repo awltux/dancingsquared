@@ -1,0 +1,20 @@
+{
+  "id": 1707,
+  "name": "ceder-1707",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 7,
+  "mappedCount": 7,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Tag the Line",
+    "Face Right",
+    "Wheel and Deal",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,25 @@
+{
+  "id": 2917,
+  "name": "ceder-2917",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Star Thru",
+    "Centers California Twirl",
+    "Double Pass Thru",
+    "First Right",
+    "Next Left",
+    "Forward and Back",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers California Twirl",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers California Twirl\"; Untranslatable: \"First Right\"; Untranslatable: \"Next Left\"; Untranslatable: \"Centers California Twirl\"",
+  "source": "ceder.net/choreodb"
+}

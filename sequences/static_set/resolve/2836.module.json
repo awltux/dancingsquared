@@ -1,0 +1,24 @@
+{
+  "id": 2836,
+  "name": "ceder-2836",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Half Sashay",
+    "Pass Thru",
+    "Separate Around Two To A Line Of 4",
+    "Forward and Back",
+    "Men (Together) Half Sashay",
+    "Girls (Together) Half Sashay",
+    "Centers Only Half Sashay",
+    "Everybody Half Sashay",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Separate Around Two To A Line Of 4,\"; Untranslatable: \"Men (Together) Half Sashay,\"; Untranslatable: \"Girls (Together) Half Sashay,\"; Untranslatable: \"Centers Only Half Sashay,\"; Untranslatable: \"Everybody Half Sashay,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 2622,
+  "name": "ceder-2622",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Touch a Quarter",
+    "Split Circulate",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Star Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

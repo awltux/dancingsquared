@@ -1,0 +1,22 @@
+{
+  "id": 11130,
+  "name": "ceder-11130",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Four Ladies Chain",
+    "Join Hands Circle Left",
+    "Ladies In, Men Sashay",
+    "Ladies In, Men Sashay",
+    "Allemande Left",
+    "Right and Left Grand",
+    "Swing Your Partner",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Join Hands Circle Left,\"",
+  "source": "ceder.net/choreodb"
+}

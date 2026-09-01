@@ -1,0 +1,27 @@
+{
+  "id": 6980,
+  "name": "ceder-6980",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 7,
+  "steps": [
+    "Four Ladies Chain 3/4",
+    "Side Position Right & Left Thru, Rollaway & Backaway",
+    "Head Position Square Thru",
+    "All Square Thru",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Men Square Thru 3/4",
+    "All Left Square Thru",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Side Position Right & Left Thru, Rollaway & Backaway,\"; Untranslatable: \"Head Position Square Thru,\"; Untranslatable: \"All Square Thru,\"; Untranslatable: \"Men Square Thru 3/4,\"; Untranslatable: \"All Left Square Thru,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

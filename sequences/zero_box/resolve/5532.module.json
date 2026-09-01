@@ -1,0 +1,22 @@
+{
+  "id": 5532,
+  "name": "ceder-5532",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Right and Left Thru",
+    "Pass the Ocean",
+    "Hinge",
+    "Circulate",
+    "Boys Run",
+    "Pass the Ocean",
+    "Girls Trade",
+    "Spin the Top",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

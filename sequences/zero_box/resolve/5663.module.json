@@ -1,0 +1,19 @@
+{
+  "id": 5663,
+  "name": "ceder-5663",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Slide Thru",
+    "Pass the Ocean",
+    "Ladies Trade",
+    "Recycle",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Ladies Trade\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 1654,
+  "name": "ceder-1654",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Pass the Ocean",
+    "Hinge",
+    "Girls Run",
+    "Reverse Flutterwheel",
+    "Centers Pass The Ocean",
+    "Centers Swing Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Pass The Ocean\"; Untranslatable: \"Centers Swing Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,17 @@
+{
+  "id": 4622,
+  "name": "ceder-4622",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Recycle",
+    "Double Pass Thru",
+    "First Couple Go Right, Next Couple Go Left"
+  ],
+  "source": "ceder.net/choreodb"
+}

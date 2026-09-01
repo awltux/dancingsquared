@@ -1,0 +1,19 @@
+{
+  "id": 7127,
+  "name": "ceder-7127",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Swing Thru",
+    "Men Trade",
+    "Swing Thru",
+    "Ladies Cross Run",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Cross Run\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,26 @@
+{
+  "id": 10864,
+  "name": "ceder-10864",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Square Thru 4",
+    "Right and Left Thru",
+    "Leaders U-Turn Back",
+    "Boys Pass Thru & Boys Fold",
+    "Girls Square Thru 3",
+    "All Star Thru",
+    "Boys Trade",
+    "Couples Circulate",
+    "Bend the Line",
+    "Slide Thru",
+    "Left Allemande",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back,\"; Untranslatable: \"Boys Pass Thru & Boys Fold,\"; Untranslatable: \"Girls Square Thru 3,\"; Untranslatable: \"All Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

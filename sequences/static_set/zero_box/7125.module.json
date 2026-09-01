@@ -1,0 +1,22 @@
+{
+  "id": 7125,
+  "name": "ceder-7125",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Sides Rollaway",
+    "Heads 1/2 Square Thru",
+    "Swing Thru",
+    "Men Run",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Zoom",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Sides Rollaway,\"; Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Men Run,\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

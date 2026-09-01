@@ -1,0 +1,20 @@
+{
+  "id": 8717,
+  "name": "ceder-8717",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Star Thru",
+    "Pass Thru",
+    "Centers Pass Thru",
+    "All Courtesy Turn",
+    "Centers Pass Thru",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"All Courtesy Turn\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

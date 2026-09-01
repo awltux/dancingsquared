@@ -1,0 +1,21 @@
+{
+  "id": 6547,
+  "name": "ceder-6547",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Centers In",
+    "Centers Half Sashay",
+    "All 1/2 Square Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Half Sashay,\"; Untranslatable: \"All 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

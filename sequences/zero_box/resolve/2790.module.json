@@ -1,0 +1,20 @@
+{
+  "id": 2790,
+  "name": "ceder-2790",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Slide Thru",
+    "Box the Gnat",
+    "Right and Left Thru",
+    "Touch a Quarter",
+    "Circulate",
+    "Girls Run",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

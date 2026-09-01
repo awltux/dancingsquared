@@ -1,0 +1,25 @@
+{
+  "id": 10979,
+  "name": "ceder-10979",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Four Ladies Chain",
+    "Sides Half Sashay",
+    "Heads 1/2 Square Thru",
+    "Dosado to a Wave",
+    "Scoot Back",
+    "Centers Trade",
+    "Boys Trade",
+    "All Star Thru",
+    "U-Turn Back",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Sides Half Sashay,\"; Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

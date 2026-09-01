@@ -1,0 +1,20 @@
+{
+  "id": 7119,
+  "name": "ceder-7119",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 4,
+  "steps": [
+    "Touch a Quarter",
+    "Split Circulate",
+    "Men Run",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

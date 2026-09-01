@@ -1,0 +1,22 @@
+{
+  "id": 2432,
+  "name": "ceder-2432",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Lead Right",
+    "Centers In",
+    "Ends Run",
+    "Touch a Quarter",
+    "Circulate",
+    "Boys Run",
+    "Swing Thru",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

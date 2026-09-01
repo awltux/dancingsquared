@@ -1,0 +1,21 @@
+{
+  "id": 8743,
+  "name": "ceder-8743",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Men Run",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "Star Thru",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

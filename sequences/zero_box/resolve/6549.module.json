@@ -1,0 +1,19 @@
+{
+  "id": 6549,
+  "name": "ceder-6549",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Star Thru",
+    "Right and Left Thru",
+    "Half Sashay",
+    "1/2 Square Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

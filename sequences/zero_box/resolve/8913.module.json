@@ -1,0 +1,19 @@
+{
+  "id": 8913,
+  "name": "ceder-8913",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Swing Thru",
+    "Men Trade",
+    "Ladies Circulate",
+    "Men Run",
+    "Wrong Way Promenade Home"
+  ],
+  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Men Run\"; Untranslatable: \"Wrong Way Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

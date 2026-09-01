@@ -1,0 +1,19 @@
+{
+  "id": 5608,
+  "name": "ceder-5608",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Head Ladies Chain",
+    "Sides 1/2 Square Thru",
+    "Swing Thru",
+    "All 8 Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Sides 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

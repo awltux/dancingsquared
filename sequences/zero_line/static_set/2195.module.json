@@ -1,0 +1,23 @@
+{
+  "id": 2195,
+  "name": "ceder-2195",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 10,
+  "mappedCount": 10,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Split Circulate",
+    "Swing Thru",
+    "Split Circulate",
+    "Boys Run",
+    "Pass the Ocean",
+    "Girls Trade",
+    "Boys Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "source": "ceder.net/choreodb"
+}

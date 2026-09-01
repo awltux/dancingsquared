@@ -1,0 +1,26 @@
+{
+  "id": 5614,
+  "name": "ceder-5614",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Square Thru 4",
+    "Centers In",
+    "Ends Fold",
+    "Centers Square Thru 3",
+    "Dosado to a Wave",
+    "Centers Trade",
+    "Boys Run",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Leaders Trade",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"Leaders Trade,\"",
+  "source": "ceder.net/choreodb"
+}

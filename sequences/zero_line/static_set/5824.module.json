@@ -1,0 +1,24 @@
+{
+  "id": 5824,
+  "name": "ceder-5824",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Right and Left Thru",
+    "Touch a Quarter",
+    "Centers Box Circulate",
+    "All Split Circulate",
+    "All 8 Circulate",
+    "Boys Run",
+    "Girls Only Zoom",
+    "Centers Pass Thru",
+    "Swing Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"All Split Circulate\"; Untranslatable: \"Girls Only Zoom\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

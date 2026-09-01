@@ -1,0 +1,20 @@
+{
+  "id": 6510,
+  "name": "ceder-6510",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Sweep 1/4 & Half Sashay",
+    "Centers Star Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Sweep 1/4 & Half Sashay\"; Untranslatable: \"Centers Star Thru\"",
+  "source": "ceder.net/choreodb"
+}

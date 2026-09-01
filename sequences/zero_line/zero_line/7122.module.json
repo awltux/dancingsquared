@@ -1,0 +1,19 @@
+{
+  "id": 7122,
+  "name": "ceder-7122",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Men Run",
+    "Split Circulate",
+    "Men Run",
+    "Reverse Flutterwheel"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Men Run\"",
+  "source": "ceder.net/choreodb"
+}

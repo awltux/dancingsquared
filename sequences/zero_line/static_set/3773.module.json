@@ -1,0 +1,23 @@
+{
+  "id": 3773,
+  "name": "ceder-3773",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Pass Thru",
+    "Girls Run",
+    "Centers Trade",
+    "Left Swing Thru",
+    "Boys Run",
+    "Box the Gnat",
+    "Change Hands",
+    "Left Square Thru 2",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Change Hands\"; Untranslatable: \"Left Square Thru 2\"",
+  "source": "ceder.net/choreodb"
+}

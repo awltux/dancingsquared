@@ -1,0 +1,22 @@
+{
+  "id": 10292,
+  "name": "ceder-10292",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Star Thru",
+    "Ladies Zoom",
+    "Double Pass Thru",
+    "Centers In",
+    "Centers Square Thru 4, Ends Star Thru",
+    "Swing Thru",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Ladies Zoom,\"; Untranslatable: \"Centers Square Thru 4, Ends Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

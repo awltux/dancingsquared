@@ -1,0 +1,19 @@
+{
+  "id": 8721,
+  "name": "ceder-8721",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Star Thru",
+    "Step to a Wave",
+    "All Eight Circulate Twice",
+    "Right and Left Thru",
+    "Star Thru (Zero Line) This rotates the square 180°."
+  ],
+  "note": "Untranslatable: \"All Eight Circulate Twice\"; Untranslatable: \"Star Thru (Zero Line) This rotates the square 180°.\"",
+  "source": "ceder.net/choreodb"
+}

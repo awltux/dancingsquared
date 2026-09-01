@@ -1,0 +1,18 @@
+{
+  "id": 2879,
+  "name": "ceder-2879",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Four Ladies Chain",
+    "Allemande Left in the Alamo Style",
+    "Balance",
+    "Alamo Swing Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

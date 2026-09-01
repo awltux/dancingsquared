@@ -1,0 +1,22 @@
+{
+  "id": 3818,
+  "name": "ceder-3818",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Boys Run",
+    "Girls Trade",
+    "Pass Thru",
+    "Girls Run",
+    "Boys Trade",
+    "Star Thru",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

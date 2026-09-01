@@ -1,0 +1,21 @@
+{
+  "id": 11212,
+  "name": "ceder-11212",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "",
+    "Head Ladies Chain",
+    "Sides Promenade 3/4",
+    "Heads Pass Thru",
+    "Allemande Left",
+    "Right and Left Grand",
+    "Swing And Promenade"
+  ],
+  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Swing And Promenade\"",
+  "source": "ceder.net/choreodb"
+}

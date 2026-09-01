@@ -1,0 +1,26 @@
+{
+  "id": 10905,
+  "name": "ceder-10905",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Lead Right",
+    "All Right & Left Thru",
+    "Veer Left",
+    "Boys Circulate, Girls Scoot Back",
+    "Couples Circulate",
+    "Tag the Line",
+    "Girls Circulate, Boys Scoot Back",
+    "Bend the Line",
+    "Centers Right & Left Thru",
+    "All Star Thru",
+    "U-Turn Back",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"Boys Circulate, Girls Scoot Back,\"; Untranslatable: \"Girls Circulate, Boys Scoot Back,\"; Untranslatable: \"Centers Right & Left Thru,\"; Untranslatable: \"All Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

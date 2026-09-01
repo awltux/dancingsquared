@@ -1,0 +1,30 @@
+{
+  "id": 11279,
+  "name": "ceder-11279",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 16,
+  "mappedCount": 12,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Bend the Line",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Swing Thru",
+    "Scoot Back",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"",
+  "source": "ceder.net/choreodb"
+}

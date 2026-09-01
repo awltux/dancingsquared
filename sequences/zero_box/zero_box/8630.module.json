@@ -1,0 +1,18 @@
+{
+  "id": 8630,
+  "name": "ceder-8630",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Hinge",
+    "Swing Thru",
+    "Box Circulate",
+    "Right and Left Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

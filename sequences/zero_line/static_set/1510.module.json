@@ -1,0 +1,21 @@
+{
+  "id": 1510,
+  "name": "ceder-1510",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Face In",
+    "Pass Thru",
+    "Tag the Line",
+    "Outsides U-Turn Back",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Outsides U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

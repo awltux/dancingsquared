@@ -1,0 +1,23 @@
+{
+  "id": 5678,
+  "name": "ceder-5678",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Half Sashay",
+    "Heads Square Thru 4",
+    "All Square Thru 4",
+    "All Partner Trade",
+    "Left Square Thru 4",
+    "Centers Pass Thru",
+    "The Others U Turn Back",
+    "All Left Square Thru But On The Third Hand",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"All Partner Trade,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"The Others U Turn Back,\"; Untranslatable: \"All Left Square Thru But On The Third Hand,\"",
+  "source": "ceder.net/choreodb"
+}

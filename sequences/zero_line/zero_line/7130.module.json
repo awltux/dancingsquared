@@ -1,0 +1,21 @@
+{
+  "id": 7130,
+  "name": "ceder-7130",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Pass the Ocean",
+    "Split Circulate",
+    "Centers Run",
+    "Bend the Line",
+    "Star Thru",
+    "Centers Pass Thru",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

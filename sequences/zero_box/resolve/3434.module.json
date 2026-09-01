@@ -1,0 +1,23 @@
+{
+  "id": 3434,
+  "name": "ceder-3434",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Square Thru 2",
+    "Ends Fold Square Thru 3",
+    "Trade By",
+    "Dosado",
+    "Swing Thru",
+    "Ends Circulate",
+    "Centers Trade",
+    "Boys Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Ends Fold Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

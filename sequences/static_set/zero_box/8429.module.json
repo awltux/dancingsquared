@@ -1,0 +1,19 @@
+{
+  "id": 8429,
+  "name": "ceder-8429",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Head Ladies Chain",
+    "Same 4 Touch 1/4",
+    "Box Circulate",
+    "Men Run",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \" Same 4 Touch 1/4,\"; Untranslatable: \" Men Run,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,26 @@
+{
+  "id": 4072,
+  "name": "ceder-4072",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Face In",
+    "Square Thru 4",
+    "Centers Swing Thru",
+    "Others U-Turn Back",
+    "Extend",
+    "Swing Thru Double",
+    "Recycle",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Others U-Turn Back\"; Untranslatable: \"Swing Thru Double\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 1733,
+  "name": "ceder-1733",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "1/2 Square Thru",
+    "Ends Cross Fold",
+    "Square Thru 3",
+    "Trade By",
+    "Square Thru 4",
+    "Centers Cross Fold",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers Cross Fold\"",
+  "source": "ceder.net/choreodb"
+}

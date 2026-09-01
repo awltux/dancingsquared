@@ -1,0 +1,21 @@
+{
+  "id": 11127,
+  "name": "ceder-11127",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Pass Thru & Wheel Around",
+    "Heads Star Right Halfway",
+    "Heads Backaway (At Home)",
+    "Sides Pass Thru & Wheel Around",
+    "Sides Star Right Halfway",
+    "Sides Backaway",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru & Wheel Around,\"; Untranslatable: \"Heads Star Right Halfway,\"; Untranslatable: \"Heads Backaway (At Home),\"; Untranslatable: \"Sides Pass Thru & Wheel Around,\"; Untranslatable: \"Sides Star Right Halfway,\"; Untranslatable: \"Sides Backaway,\"",
+  "source": "ceder.net/choreodb"
+}

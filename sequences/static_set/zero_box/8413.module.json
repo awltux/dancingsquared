@@ -1,0 +1,17 @@
+{
+  "id": 8413,
+  "name": "ceder-8413",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Partner Trade",
+    "Separate Around One",
+    "Come Into The Middle & Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Partner Trade,\"; Untranslatable: \"Separate Around One,\"; Untranslatable: \" Come Into The Middle & Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

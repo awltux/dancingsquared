@@ -1,0 +1,15 @@
+{
+  "id": 8405,
+  "name": "ceder-8405",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 2,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Star Thru",
+    "California Twirl"
+  ],
+  "source": "ceder.net/choreodb"
+}

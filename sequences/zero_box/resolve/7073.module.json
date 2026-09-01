@@ -1,0 +1,21 @@
+{
+  "id": 7073,
+  "name": "ceder-7073",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Swing Thru",
+    "Ladies Circulate",
+    "Men Trade",
+    "Turn Half By The Right",
+    "Right and Left Thru",
+    "Square Thru 4",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Turn Half By The Right\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

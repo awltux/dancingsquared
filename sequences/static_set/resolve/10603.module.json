@@ -1,0 +1,21 @@
+{
+  "id": 10603,
+  "name": "ceder-10603",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 Come Into The Middle",
+    "Centers Pass Thru",
+    "Split The Outsides Around 1 Come Into The Middle",
+    "Centers Right & Left Thru & Backaway",
+    "Static Square",
+    "(repeat with Sides)"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \" Separate Around 1 Come Into The Middle,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \" Split The Outsides Around 1 Come Into The Middle,\"; Untranslatable: \"Centers Right & Left Thru & Backaway,\"; Untranslatable: \"(repeat with Sides)\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,20 @@
+{
+  "id": 3730,
+  "name": "ceder-3730",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Wheel and Deal",
+    "Dive Thru",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

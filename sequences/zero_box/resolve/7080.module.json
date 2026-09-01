@@ -1,0 +1,21 @@
+{
+  "id": 7080,
+  "name": "ceder-7080",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "*** not validated *** (Zero Box) Star Thru",
+    "Right and Left Thru",
+    "Rollaway",
+    "Star Thru",
+    "Centers Make An Arch",
+    "Back Over The Outsides",
+    "Left Allemande After the center dancers back the arch over the outside dancers the FASR is a Zero Box. You can also have the center dancers face out and Cloverleaf. Either way the Left Allemande is unexpected."
+  ],
+  "note": "Untranslatable: \"*** not validated *** (Zero Box) Star Thru\"; Untranslatable: \"Centers Make An Arch\"; Untranslatable: \"Back Over The Outsides\"; Untranslatable: \"Left Allemande After the center dancers back the arch over the outside dancers the FASR is a Zero Box. You can also have the center dancers face out and Cloverleaf. Either way the Left Allemande is unexpected.\"",
+  "source": "ceder.net/choreodb"
+}

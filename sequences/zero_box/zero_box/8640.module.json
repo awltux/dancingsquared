@@ -1,0 +1,21 @@
+{
+  "id": 8640,
+  "name": "ceder-8640",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Ends Fold",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Star Thru (Zero Box) This is a Technical Zero."
+  ],
+  "note": "Untranslatable: \"Star Thru (Zero Box) This is a Technical Zero.\"",
+  "source": "ceder.net/choreodb"
+}

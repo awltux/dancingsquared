@@ -1,0 +1,29 @@
+{
+  "id": 2245,
+  "name": "ceder-2245",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 15,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Pass The Ocean",
+    "Girls Swing Thru",
+    "Girls Step Thru, Step Ahead & U-Turn Back",
+    "Boys Move In & Pass The Ocean",
+    "Boys Swing Thru",
+    "Boys Step Thru",
+    "All Dosado, Step To A Wave",
+    "Boys Run",
+    "Right and Left Thru",
+    "Star Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Girls Pass The Ocean,\"; Untranslatable: \"Girls Swing Thru,\"; Untranslatable: \"Girls Step Thru, Step Ahead & U-Turn Back,\"; Untranslatable: \"Boys Move In & Pass The Ocean,\"; Untranslatable: \"Boys Swing Thru,\"; Untranslatable: \"Boys Step Thru,\"; Untranslatable: \"All Dosado, Step To A Wave,\"",
+  "source": "ceder.net/choreodb"
+}

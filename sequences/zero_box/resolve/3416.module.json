@@ -1,0 +1,21 @@
+{
+  "id": 3416,
+  "name": "ceder-3416",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Swing Thru",
+    "Girls Run",
+    "Girls Trade",
+    "Couples Circulate",
+    "Bend the Line",
+    "Pass Thru",
+    "Ends Fold",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

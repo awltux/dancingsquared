@@ -1,0 +1,18 @@
+{
+  "id": 8946,
+  "name": "ceder-8946",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Swing Thru",
+    "Spin the Top",
+    "Pass Thru",
+    "Allemande Left Lines of Four facinng out. This Getout also works from Zero Lines. (TdBy formation)"
+  ],
+  "note": "Untranslatable: \"Allemande Left Lines of Four facinng out. This Getout also works from Zero Lines. (TdBy formation)\"",
+  "source": "ceder.net/choreodb"
+}

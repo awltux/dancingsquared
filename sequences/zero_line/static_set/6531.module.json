@@ -1,0 +1,19 @@
+{
+  "id": 6531,
+  "name": "ceder-6531",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Partner Trade",
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "Half Sashay",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

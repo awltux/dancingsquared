@@ -1,0 +1,21 @@
+{
+  "id": 10187,
+  "name": "ceder-10187",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Chain Down the Line",
+    "1/2 Square Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

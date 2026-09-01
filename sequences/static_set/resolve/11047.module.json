@@ -1,0 +1,31 @@
+{
+  "id": 11047,
+  "name": "ceder-11047",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 17,
+  "mappedCount": 12,
+  "steps": [
+    "(Lesson 9-10)",
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Boys Zoom",
+    "Double Pass Thru",
+    "First Couple Go Right Next Go Left",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Zoom",
+    "Centers Square Thru 3",
+    "Allemande Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 9-10),\"; Untranslatable: \"Boys Zoom,\"; Untranslatable: \"First Couple Go Right Next Go Left,\"; Untranslatable: \"Girls Zoom,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

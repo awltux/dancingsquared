@@ -1,0 +1,22 @@
+{
+  "id": 4567,
+  "name": "ceder-4567",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Leaders California Twirl",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Leaders California Twirl\"",
+  "source": "ceder.net/choreodb"
+}

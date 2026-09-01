@@ -1,0 +1,24 @@
+{
+  "id": 7143,
+  "name": "ceder-7143",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Swing Thru",
+    "Ladies Circulate",
+    "Split Circulate",
+    "Centers Run",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Swing",
+    "All 4 Couples Promenade"
+  ],
+  "note": "Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

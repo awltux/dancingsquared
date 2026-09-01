@@ -1,0 +1,24 @@
+{
+  "id": 6490,
+  "name": "ceder-6490",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Square Thru 3",
+    "Separate Around 1 To A Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "First Couple Go Left, Next Go Right",
+    "Star Thru",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"First Couple Go Left, Next Go Right,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,27 @@
+{
+  "id": 11165,
+  "name": "ceder-11165",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 11,
+  "steps": [
+    "(Lesson 5-13)",
+    "Heads Lead Right",
+    "Veer Left",
+    "Boys Circulate, Girls Trade",
+    "Couples Circulate",
+    "Half Sashay",
+    "Partner Trade",
+    "Girls Trade",
+    "Bend the Line",
+    "Half Sashay",
+    "Slide Thru",
+    "Allemande Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 5-13),\"; Untranslatable: \"Boys Circulate, Girls Trade,\"",
+  "source": "ceder.net/choreodb"
+}

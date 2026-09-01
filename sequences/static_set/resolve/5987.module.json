@@ -1,0 +1,21 @@
+{
+  "id": 5987,
+  "name": "ceder-5987",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Lead Right",
+    "Veer Left",
+    "Chain Down the Line",
+    "Pass Thru",
+    "3/4 Tag the Line",
+    "Centers Swing Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

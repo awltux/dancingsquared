@@ -1,0 +1,25 @@
+{
+  "id": 11104,
+  "name": "ceder-11104",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Head Ladies Chain",
+    "Sides Half Sashay",
+    "Heads 1/2 Square Thru",
+    "All Swing Thru",
+    "Boys Run",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "First Couple Go Right, Next Go Left",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Sides Half Sashay,\"; Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All Swing Thru,\"; Untranslatable: \"First Couple Go Right, Next Go Left,\"",
+  "source": "ceder.net/choreodb"
+}

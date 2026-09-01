@@ -1,0 +1,16 @@
+{
+  "id": 4623,
+  "name": "ceder-4623",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 2,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Rollaway, Pass Thru",
+    "Both Turn Right Around 2 To Lines Of 4"
+  ],
+  "note": "Untranslatable: \"Heads Rollaway, Pass Thru,\"; Untranslatable: \"Both Turn Right Around 2 To Lines Of 4\"",
+  "source": "ceder.net/choreodb"
+}

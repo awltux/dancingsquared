@@ -1,0 +1,25 @@
+{
+  "id": 5831,
+  "name": "ceder-5831",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Star By The Right",
+    "Reverse, Star By The Left",
+    "Pick Up Corner For Star Promenade",
+    "Back Out & Circle Left",
+    "Four Girls Forward & Back",
+    "Girls Square Thru 4",
+    "Touch a Quarter",
+    "Boys Trade",
+    "Spin the Top",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Star By The Right,\"; Untranslatable: \" Reverse, Star By The Left,\"; Untranslatable: \" Pick Up Corner For Star Promenade,\"; Untranslatable: \"Back Out & Circle Left,\"; Untranslatable: \"Four Girls Forward & Back,\"; Untranslatable: \"Girls Square Thru 4,\"",
+  "source": "ceder.net/choreodb"
+}

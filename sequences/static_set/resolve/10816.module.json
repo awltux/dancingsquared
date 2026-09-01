@@ -1,0 +1,28 @@
+{
+  "id": 10816,
+  "name": "ceder-10816",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Girls Run",
+    "Boys Face Right, Girls Face Left",
+    "Couples Circulate",
+    "Ferris Wheel",
+    "Boys Square Thru 4",
+    "Separate Around 1 To A Line",
+    "All Pass Thru",
+    "Tag the Line",
+    "Ferris Wheel",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Boys Face Right, Girls Face Left,\"; Untranslatable: \"Boys Square Thru 4,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

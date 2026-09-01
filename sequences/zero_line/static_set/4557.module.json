@@ -1,0 +1,23 @@
+{
+  "id": 4557,
+  "name": "ceder-4557",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Right and Left Thru",
+    "Rollaway",
+    "Pass Thru",
+    "Girls Run",
+    "Scoot Back",
+    "Girls Run",
+    "Star Thru",
+    "California Twirl",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

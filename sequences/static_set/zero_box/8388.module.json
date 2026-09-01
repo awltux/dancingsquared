@@ -1,0 +1,16 @@
+{
+  "id": 8388,
+  "name": "ceder-8388",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 2,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Forward and Back",
+    "Move In & Face Your Corner"
+  ],
+  "note": "Untranslatable: \" Move In & Face Your Corner\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,26 @@
+{
+  "id": 11358,
+  "name": "ceder-11358",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 9,
+  "steps": [
+    "(Lesson 12-03)",
+    "Heads Pass the Ocean",
+    "Same 4 Recycle",
+    "Centers Pass Thru",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Boys Run",
+    "Pass the Ocean",
+    "Recycle",
+    "Box the Gnat",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 12-03),\"; Untranslatable: \"Same 4 Recycle,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

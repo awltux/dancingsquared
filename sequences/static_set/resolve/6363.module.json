@@ -1,0 +1,23 @@
+{
+  "id": 6363,
+  "name": "ceder-6363",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Square Thru 4",
+    "Single Circle To An Ocean Wave",
+    "Boys Trade",
+    "Boys Run",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Single Circle To An Ocean Wave,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

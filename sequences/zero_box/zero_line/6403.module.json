@@ -1,0 +1,20 @@
+{
+  "id": 6403,
+  "name": "ceder-6403",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Circle 1/2",
+    "Veer Left",
+    "Ends Circulate",
+    "Centers Trade",
+    "Bend the Line",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Circle 1/2\"",
+  "source": "ceder.net/choreodb"
+}

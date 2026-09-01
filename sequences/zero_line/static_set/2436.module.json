@@ -1,0 +1,21 @@
+{
+  "id": 2436,
+  "name": "ceder-2436",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 8,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Boys Run",
+    "Scoot Back",
+    "Centers Trade",
+    "Centers Run",
+    "Half Tag",
+    "Scoot Back",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

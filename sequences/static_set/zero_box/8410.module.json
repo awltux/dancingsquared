@@ -1,0 +1,19 @@
+{
+  "id": 8410,
+  "name": "ceder-8410",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Head Ladies Chain",
+    "Same 4 Lead Right",
+    "Right and Left Thru",
+    "Dive Thru",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Same 4 Lead Right,\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,25 @@
+{
+  "id": 5448,
+  "name": "ceder-5448",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Star Thru",
+    "U-Turn Back",
+    "Centers In",
+    "Centers Square Thru 3",
+    "All Tag The Line",
+    "Outsides U-Turn Back",
+    "Centers In",
+    "Centers Square Thru 3",
+    "All Tag The Line",
+    "Outsides Trade",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"All Tag The Line,\"; Untranslatable: \"Outsides U-Turn Back,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"All Tag The Line,\"; Untranslatable: \"Outsides Trade,\"",
+  "source": "ceder.net/choreodb"
+}

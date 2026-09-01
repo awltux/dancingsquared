@@ -1,0 +1,17 @@
+{
+  "id": 8994,
+  "name": "ceder-8994",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Veer Left",
+    "Chain Down the Line",
+    "Square Thru 4",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

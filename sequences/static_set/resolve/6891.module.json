@@ -1,0 +1,29 @@
+{
+  "id": 6891,
+  "name": "ceder-6891",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 15,
+  "mappedCount": 7,
+  "steps": [
+    "Head Ladies Chain",
+    "Sides Right & Left Thru",
+    "Heads Promenade 3/4",
+    "Sides Star Thru",
+    "Pass Thru",
+    "All 4 Couples Promenade",
+    "Others Star Thru",
+    "Pass Thru",
+    "All 4 Couples Promenade",
+    "Others Star Thru",
+    "Pass Thru",
+    "All 4 Couples Promenade",
+    "Others Star Thru",
+    "Pass Thru",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Sides Right & Left Thru,\"; Untranslatable: \"Sides Star Thru,\"; Untranslatable: \"Others Star Thru,\"; Untranslatable: \"Others Star Thru,\"; Untranslatable: \"Others Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

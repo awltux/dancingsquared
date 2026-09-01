@@ -1,0 +1,24 @@
+{
+  "id": 10895,
+  "name": "ceder-10895",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Swing Thru",
+    "Others Separate & Step To A (tidal) Wave",
+    "Swing Thru",
+    "Spin the Top",
+    "Right and Left Thru",
+    "Dive Thru",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Others Separate & Step To A (tidal) Wave\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,20 @@
+{
+  "id": 11157,
+  "name": "ceder-11157",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Square Thru 4 Hands",
+    "Dosado",
+    "Slide Thru",
+    "Square Thru 4",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru 4 Hands,\"",
+  "source": "ceder.net/choreodb"
+}

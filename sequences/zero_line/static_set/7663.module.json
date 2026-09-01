@@ -1,0 +1,21 @@
+{
+  "id": 7663,
+  "name": "ceder-7663",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru Double",
+    "Girls Run",
+    "Bend the Line",
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "R.L.G Uses 1/2 sashayed Reverse Flutter"
+  ],
+  "note": "Untranslatable: \"Swing Thru Double\"; Untranslatable: \"R.L.G Uses 1/2 sashayed Reverse Flutter\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,28 @@
+{
+  "id": 11054,
+  "name": "ceder-11054",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 11,
+  "steps": [
+    "(Lesson 9-03)",
+    "Heads Separate And Star Thru",
+    "Zoom",
+    "Zoom",
+    "Double Pass Thru",
+    "First Couple Go Left Next Go Right",
+    "Forward and Back",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Allemande Left",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 9-03),\"; Untranslatable: \"First Couple Go Left Next Go Right,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

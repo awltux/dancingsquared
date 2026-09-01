@@ -1,0 +1,17 @@
+{
+  "id": 8999,
+  "name": "ceder-8999",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Star Thru",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

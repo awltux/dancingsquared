@@ -1,0 +1,22 @@
+{
+  "id": 2950,
+  "name": "ceder-2950",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Step To A Wave & Recycle",
+    "Centers Pass Thru",
+    "Swing Thru",
+    "Boys Trade",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Step To A Wave & Recycle\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

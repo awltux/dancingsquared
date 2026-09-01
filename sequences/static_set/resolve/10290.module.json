@@ -1,0 +1,23 @@
+{
+  "id": 10290,
+  "name": "ceder-10290",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Flutter Wheel",
+    "Same 4 Star Thru",
+    "Ladies Zoom",
+    "Centers Square Thru 3",
+    "Left Swing Thru",
+    "Circulate",
+    "Left Swing Thru",
+    "Extend",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel,\"; Untranslatable: \" Same 4 Star Thru,\"; Untranslatable: \"Ladies Zoom,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

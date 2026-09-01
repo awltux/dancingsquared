@@ -1,0 +1,20 @@
+{
+  "id": 8713,
+  "name": "ceder-8713",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 2,
+  "steps": [
+    "Each Side Circle Left 3/4",
+    "Pass Thru",
+    "Centers Pass Thru",
+    "All Courtesy Turn",
+    "Centers Pass Thru",
+    "Circle Left 3/4"
+  ],
+  "note": "Untranslatable: \"Each Side Circle Left 3/4\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"All Courtesy Turn\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

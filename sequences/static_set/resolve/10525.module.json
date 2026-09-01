@@ -1,0 +1,23 @@
+{
+  "id": 10525,
+  "name": "ceder-10525",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Boys Fold",
+    "Double Pass Thru",
+    "Girls Trade",
+    "Touch a Quarter",
+    "Girls Cross Run",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Girls Cross Run,\"",
+  "source": "ceder.net/choreodb"
+}

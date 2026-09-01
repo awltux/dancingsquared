@@ -1,0 +1,28 @@
+{
+  "id": 10863,
+  "name": "ceder-10863",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 9,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Right & Left Thru & Backaway",
+    "Sides Pass Thru",
+    "Separate Around 1 To A Line",
+    "All Pass Thru & Cast Off 3/4",
+    "Pass Thru",
+    "Cast Off Three Quarters",
+    "Pass Thru",
+    "Tag the Line",
+    "Pass Thru",
+    "Tag the Line",
+    "Ends Cross Fold",
+    "All Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru & Backaway,\"; Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru & Cast Off 3/4,\"; Untranslatable: \"All Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

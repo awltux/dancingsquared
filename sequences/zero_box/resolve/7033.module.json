@@ -1,0 +1,21 @@
+{
+  "id": 7033,
+  "name": "ceder-7033",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Touch a Quarter",
+    "Ladies Trade",
+    "Pass Thru",
+    "Bend the Line",
+    "Ladies Chain",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Ladies Trade\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,23 @@
+{
+  "id": 10191,
+  "name": "ceder-10191",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Chain Down the Line",
+    "Pass Thru",
+    "Tag the Line",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "1/2 Square Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"",
+  "source": "ceder.net/choreodb"
+}

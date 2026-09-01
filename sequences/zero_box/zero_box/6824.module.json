@@ -1,0 +1,17 @@
+{
+  "id": 6824,
+  "name": "ceder-6824",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 1,
+  "steps": [
+    "Circle 1/2",
+    "Dive Thru",
+    "Centers Circle 1/2 & Pass Thru"
+  ],
+  "note": "Untranslatable: \"Circle 1/2\"; Untranslatable: \"Centers Circle 1/2 & Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

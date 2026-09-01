@@ -1,0 +1,18 @@
+{
+  "id": 6793,
+  "name": "ceder-6793",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Promenade 3/4",
+    "Sides Pass Thru",
+    "Circle Four 3/4",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \"Circle Four 3/4,\"",
+  "source": "ceder.net/choreodb"
+}

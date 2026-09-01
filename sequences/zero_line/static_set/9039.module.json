@@ -1,0 +1,21 @@
+{
+  "id": 9039,
+  "name": "ceder-9039",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Circle Left",
+    "Ladies Center & Men Sashay",
+    "Left Allemande This module ends in a Zero Square on the move"
+  ],
+  "note": "Untranslatable: \"Ladies Center & Men Sashay\"; Untranslatable: \"Left Allemande This module ends in a Zero Square on the move\"",
+  "source": "ceder.net/choreodb"
+}

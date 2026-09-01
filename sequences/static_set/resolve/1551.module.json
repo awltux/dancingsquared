@@ -1,0 +1,18 @@
+{
+  "id": 1551,
+  "name": "ceder-1551",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Lead Right",
+    "Slide Thru",
+    "Pass the Ocean",
+    "Left Swing Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

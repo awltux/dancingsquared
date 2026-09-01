@@ -1,0 +1,17 @@
+{
+  "id": 8896,
+  "name": "ceder-8896",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Star Thru",
+    "California Twirl",
+    "Left Allemande Lines of Four facing out."
+  ],
+  "note": "Untranslatable: \"Left Allemande Lines of Four facing out.\"",
+  "source": "ceder.net/choreodb"
+}

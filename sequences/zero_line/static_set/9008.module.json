@@ -1,0 +1,19 @@
+{
+  "id": 9008,
+  "name": "ceder-9008",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Each Four Circle Left 1/2",
+    "Dosado",
+    "Right and Left Thru",
+    "Partner Trade",
+    "All 4 Couples Promenade"
+  ],
+  "note": "Untranslatable: \"Each Four Circle Left 1/2\"",
+  "source": "ceder.net/choreodb"
+}

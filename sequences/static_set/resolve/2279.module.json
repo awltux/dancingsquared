@@ -1,0 +1,25 @@
+{
+  "id": 2279,
+  "name": "ceder-2279",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 4,
+  "steps": [
+    "All 4 Ladies Chain",
+    "Heads Right & Left Thru",
+    "Pass the Ocean",
+    "Boys Only Extend",
+    "All Recycle",
+    "Centers Reverse Wheel Around",
+    "Slide Thru",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"All 4 Ladies Chain,\"; Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Boys Only Extend,\"; Untranslatable: \"All Recycle,\"; Untranslatable: \"Centers Reverse Wheel Around,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

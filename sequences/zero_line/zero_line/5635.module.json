@@ -1,0 +1,18 @@
+{
+  "id": 5635,
+  "name": "ceder-5635",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Face In",
+    "Box the Gnat",
+    "Right and Left Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

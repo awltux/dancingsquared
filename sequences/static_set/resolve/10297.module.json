@@ -1,0 +1,23 @@
+{
+  "id": 10297,
+  "name": "ceder-10297",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Girls Trade",
+    "Swing Thru",
+    "Boys Trade",
+    "Spin the Top",
+    "Right and Left Thru",
+    "Square Thru 4",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

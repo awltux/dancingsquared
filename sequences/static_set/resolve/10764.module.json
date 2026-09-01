@@ -1,0 +1,23 @@
+{
+  "id": 10764,
+  "name": "ceder-10764",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Promenade 3/4",
+    "Sides Swing Thru 2 Times",
+    "Extend",
+    "Swing Thru 2 Times",
+    "Circulate",
+    "Recycle",
+    "Square Thru 3",
+    "Left Allemande",
+    "(then) R.L.G"
+  ],
+  "note": "Untranslatable: \" Sides Swing Thru 2 Times,\"; Untranslatable: \"Swing Thru 2 Times,\"; Untranslatable: \"(then) R.L.G\"",
+  "source": "ceder.net/choreodb"
+}

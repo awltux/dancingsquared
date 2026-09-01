@@ -1,0 +1,22 @@
+{
+  "id": 10539,
+  "name": "ceder-10539",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Slide Thru",
+    "Double Pass Thru",
+    "Partner Trade",
+    "Centers Slide Thru & Pass Thru",
+    "Separate Around 1 To A Line",
+    "All Slide Thru",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Slide Thru,\"; Untranslatable: \"Centers Slide Thru & Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Slide Thru,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

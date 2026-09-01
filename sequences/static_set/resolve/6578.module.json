@@ -1,0 +1,26 @@
+{
+  "id": 6578,
+  "name": "ceder-6578",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 6,
+  "steps": [
+    "All 4 Ladies Chain",
+    "Head Ladies Chain",
+    "Rollaway",
+    "Lines Of Three Forward & Back",
+    "Lonesome Boy Down The Middle",
+    "Do A Dosado, Same Two Pass Thru",
+    "Face The Girl On The Right And Star Thru",
+    "The Others Bend The Line",
+    "Pass Thru",
+    "Tag the Line",
+    "Boys Trade",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"All 4 Ladies Chain,\"; Untranslatable: \"Lines Of Three Forward & Back,\"; Untranslatable: \"Lonesome Boy Down The Middle,\"; Untranslatable: \"Do A Dosado, Same Two Pass Thru,\"; Untranslatable: \"Face The Girl On The Right And Star Thru,\"; Untranslatable: \"The Others Bend The Line,\"",
+  "source": "ceder.net/choreodb"
+}

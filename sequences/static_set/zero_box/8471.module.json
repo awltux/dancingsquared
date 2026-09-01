@@ -1,0 +1,19 @@
+{
+  "id": 8471,
+  "name": "ceder-8471",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Slide Thru",
+    "Single Circle to a Wave",
+    "Men Trade",
+    "Men Run",
+    "Veer Right"
+  ],
+  "note": "Untranslatable: \"Heads Slide Thru,\"; Untranslatable: \" Men Trade,\"; Untranslatable: \" Men Run,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,17 @@
+{
+  "id": 7408,
+  "name": "ceder-7408",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Lead Right",
+    "Veer Left",
+    "Chain Down the Line",
+    "Flutterwheel"
+  ],
+  "source": "ceder.net/choreodb"
+}

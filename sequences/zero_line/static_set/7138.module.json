@@ -1,0 +1,22 @@
+{
+  "id": 7138,
+  "name": "ceder-7138",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Bend the Line",
+    "Touch a Quarter",
+    "Single File Circulate 2 Places",
+    "Ladies Run",
+    "Box the Gnat",
+    "Square Thru 4",
+    "Left Allemande After the Square Thru 3/4 Formation = TdBy (0)"
+  ],
+  "note": "Untranslatable: \"Single File Circulate 2 Places\"; Untranslatable: \"Ladies Run\"; Untranslatable: \"Left Allemande After the Square Thru 3/4 Formation = TdBy (0)\"",
+  "source": "ceder.net/choreodb"
+}

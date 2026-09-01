@@ -1,0 +1,33 @@
+{
+  "id": 11404,
+  "name": "ceder-11404",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 19,
+  "mappedCount": 17,
+  "steps": [
+    "(Lesson 11-17)",
+    "Heads Lead Right",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Half Tag",
+    "Hinge",
+    "Boys Trade",
+    "Swing Thru",
+    "Girls Run",
+    "Couples Circulate",
+    "Half Tag",
+    "Boys Run",
+    "Pass the Ocean",
+    "Boys Circulate",
+    "Girls Trade",
+    "Swing Thru",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"(Lesson 11-17),\"; Untranslatable: \"Boys Circulate,\"",
+  "source": "ceder.net/choreodb"
+}

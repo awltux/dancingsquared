@@ -1,0 +1,18 @@
+{
+  "id": 9000,
+  "name": "ceder-9000",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "U-Turn Back",
+    "Star Thru",
+    "Left Allemande TdBy Formation"
+  ],
+  "note": "Untranslatable: \"Left Allemande TdBy Formation\"",
+  "source": "ceder.net/choreodb"
+}

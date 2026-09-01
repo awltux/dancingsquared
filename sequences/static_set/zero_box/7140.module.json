@@ -1,0 +1,18 @@
+{
+  "id": 7140,
+  "name": "ceder-7140",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Touch a Quarter",
+    "Box Circulate 2 Places",
+    "Men Run"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" Box Circulate 2 Places,\"; Untranslatable: \" Men Run\"",
+  "source": "ceder.net/choreodb"
+}

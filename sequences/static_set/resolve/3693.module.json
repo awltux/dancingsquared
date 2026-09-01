@@ -1,0 +1,24 @@
+{
+  "id": 3693,
+  "name": "ceder-3693",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Extend",
+    "Centers Swing Thru, Others Trade",
+    "Extend",
+    "Centers Swing Thru, Others Trade",
+    "Extend",
+    "Recycle",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru, Others Trade,\"; Untranslatable: \"Centers Swing Thru, Others Trade,\"",
+  "source": "ceder.net/choreodb"
+}

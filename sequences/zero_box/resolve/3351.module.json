@@ -1,0 +1,19 @@
+{
+  "id": 3351,
+  "name": "ceder-3351",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Star Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Half Sashay",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

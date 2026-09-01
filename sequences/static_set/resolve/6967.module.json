@@ -1,0 +1,20 @@
+{
+  "id": 6967,
+  "name": "ceder-6967",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Square Thru 4",
+    "Both Turn Right Single File Lady Around Two, Gent Around 1 To A Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Both Turn Right Single File Lady Around Two, Gent Around 1 To A Line,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

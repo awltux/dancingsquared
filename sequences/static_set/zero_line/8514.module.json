@@ -1,0 +1,18 @@
+{
+  "id": 8514,
+  "name": "ceder-8514",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Flutter Wheel",
+    "Same 4 Star Thru",
+    "Double Pass Thru",
+    "First Couple Right, Next Couple Left"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel,\"; Untranslatable: \" Same 4 Star Thru,\"; Untranslatable: \"First Couple Right, Next Couple Left\"",
+  "source": "ceder.net/choreodb"
+}

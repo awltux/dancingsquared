@@ -1,0 +1,18 @@
+{
+  "id": 1478,
+  "name": "ceder-1478",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Girls Cross Fold",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Cross Fold\"",
+  "source": "ceder.net/choreodb"
+}

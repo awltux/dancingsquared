@@ -1,0 +1,23 @@
+{
+  "id": 10593,
+  "name": "ceder-10593",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Zoom",
+    "Centers Dosado 1 & 1/2",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Dosado 1 & 1/2\"",
+  "source": "ceder.net/choreodb"
+}

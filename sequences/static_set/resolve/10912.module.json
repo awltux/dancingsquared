@@ -1,0 +1,21 @@
+{
+  "id": 10912,
+  "name": "ceder-10912",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Lead Right",
+    "Circle Four 3/4",
+    "Right and Left Thru",
+    "End Ladies Diagonal Chain",
+    "Two Ladies Chain",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Circle Four 3/4,\"; Untranslatable: \"End Ladies Diagonal Chain,\"; Untranslatable: \"Two Ladies Chain,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 8981,
+  "name": "ceder-8981",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "Swing Thru",
+    "Men Run",
+    "3/4 Tag the Line",
+    "Ladies Trade",
+    "Men Swing Thru",
+    "Extend",
+    "Men Run",
+    "Left Allemande After the Men Run this is a ZB-ZB Conversion Module."
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Swing Thru\"; Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande After the Men Run this is a ZB-ZB Conversion Module.\"",
+  "source": "ceder.net/choreodb"
+}

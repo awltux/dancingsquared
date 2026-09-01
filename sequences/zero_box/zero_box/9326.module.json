@@ -1,0 +1,18 @@
+{
+  "id": 9326,
+  "name": "ceder-9326",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Square Thru 2",
+    "Couples Hinge",
+    "Bend the Line",
+    "Reverse Flutter"
+  ],
+  "note": "Untranslatable: \"Reverse Flutter\"",
+  "source": "ceder.net/choreodb"
+}

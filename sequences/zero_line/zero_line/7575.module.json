@@ -1,0 +1,23 @@
+{
+  "id": 7575,
+  "name": "ceder-7575",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Right and Left Thru",
+    "Pass the Ocean",
+    "Those Facing Out-Fold",
+    "Double Pass Thru And Face Right",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "Swing Thru",
+    "Centers Run",
+    "Tag the Line"
+  ],
+  "note": "Untranslatable: \"Those Facing Out-Fold\"; Untranslatable: \"Double Pass Thru And Face Right\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

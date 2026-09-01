@@ -1,0 +1,21 @@
+{
+  "id": 11152,
+  "name": "ceder-11152",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Square Thru 4",
+    "Everybody Square Thru 4",
+    "(We've got lines facing out)",
+    "Dance Out & Back",
+    "Bend the Line",
+    "Square Thru 4",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Everybody Square Thru 4,\"; Untranslatable: \"(We've got lines facing out),\"; Untranslatable: \"Dance Out & Back,\"",
+  "source": "ceder.net/choreodb"
+}

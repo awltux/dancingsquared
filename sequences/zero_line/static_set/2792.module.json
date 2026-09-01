@@ -1,0 +1,21 @@
+{
+  "id": 2792,
+  "name": "ceder-2792",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Touch a Quarter",
+    "Girls Run",
+    "Right and Left Thru",
+    "Star Thru",
+    "California Twirl",
+    "Slide Thru",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

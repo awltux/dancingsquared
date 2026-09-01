@@ -1,0 +1,18 @@
+{
+  "id": 2515,
+  "name": "ceder-2515",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Square Thru 3",
+    "Trade By",
+    "Square Thru 3",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

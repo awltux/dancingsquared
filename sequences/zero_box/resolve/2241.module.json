@@ -1,0 +1,21 @@
+{
+  "id": 2241,
+  "name": "ceder-2241",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Dosado",
+    "Step to a Wave",
+    "Boys Cross Run",
+    "Boys Circulate",
+    "Boys Cross Run",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Boys Cross Run\"; Untranslatable: \"Boys Circulate\"; Untranslatable: \"Boys Cross Run\"",
+  "source": "ceder.net/choreodb"
+}

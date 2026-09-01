@@ -1,0 +1,25 @@
+{
+  "id": 11064,
+  "name": "ceder-11064",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "(Lesson 8-05.)",
+    "Heads Square Thru 4",
+    "Step to a Wave",
+    "Girls Trade",
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Bend the Line",
+    "Slide Thru",
+    "Allemande Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 8-05.),\"",
+  "source": "ceder.net/choreodb"
+}

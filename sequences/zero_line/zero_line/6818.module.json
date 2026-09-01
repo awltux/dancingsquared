@@ -1,0 +1,21 @@
+{
+  "id": 6818,
+  "name": "ceder-6818",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "2 Ladies Chain",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Right and Left Thru",
+    "2 Ladies Chain",
+    "Star Thru (Zero Line) TZ (Technical Zero) I.e. a 1P2P line will become a 4P1P line."
+  ],
+  "note": "Untranslatable: \"2 Ladies Chain\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"2 Ladies Chain\"; Untranslatable: \"Star Thru (Zero Line) TZ (Technical Zero) I.e. a 1P2P line will become a 4P1P line.\"",
+  "source": "ceder.net/choreodb"
+}

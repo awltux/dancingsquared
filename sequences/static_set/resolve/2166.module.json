@@ -1,0 +1,25 @@
+{
+  "id": 2166,
+  "name": "ceder-2166",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Lead Right",
+    "Veer Left",
+    "Ferris Wheel",
+    "Centers Veer Left",
+    "Centers Veer Right",
+    "All Veer Right",
+    "Ferris Wheel",
+    "Centers Veer Right",
+    "Centers Veer Left",
+    "Swing Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Veer Left,\"; Untranslatable: \" Centers Veer Right,\"; Untranslatable: \"All Veer Right,\"; Untranslatable: \"Centers Veer Right,\"; Untranslatable: \" Centers Veer Left,\"",
+  "source": "ceder.net/choreodb"
+}

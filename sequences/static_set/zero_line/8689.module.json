@@ -1,0 +1,19 @@
+{
+  "id": 8689,
+  "name": "ceder-8689",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Head Ladies Chain",
+    "Heads 1/2 Square Thru",
+    "All 1/2 Square Thru",
+    "Partner Trade",
+    "Reverse Flutterwheel"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

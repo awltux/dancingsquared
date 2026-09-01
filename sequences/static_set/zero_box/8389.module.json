@@ -1,0 +1,16 @@
+{
+  "id": 8389,
+  "name": "ceder-8389",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 2,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Dosado",
+    "Move In & Face Your Corner"
+  ],
+  "note": "Untranslatable: \"Heads Dosado,\"; Untranslatable: \"Move In & Face Your Corner\"",
+  "source": "ceder.net/choreodb"
+}

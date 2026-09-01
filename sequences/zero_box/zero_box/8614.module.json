@@ -1,0 +1,21 @@
+{
+  "id": 8614,
+  "name": "ceder-8614",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Dive Thru",
+    "Centers Flutter Wheel",
+    "Pass Thru",
+    "Dive Thru",
+    "Centers Reverse Flutter Wheel",
+    "Pass Thru (Zero Box) This is a Technical Zero."
+  ],
+  "note": "Untranslatable: \"Centers Flutter Wheel\"; Untranslatable: \"Centers Reverse Flutter Wheel\"; Untranslatable: \"Pass Thru (Zero Box) This is a Technical Zero.\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 7074,
+  "name": "ceder-7074",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Touch a Quarter",
+    "Ends Circulate",
+    "Swing Thru",
+    "Men Run",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Pass Thru",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Men Run\"",
+  "source": "ceder.net/choreodb"
+}

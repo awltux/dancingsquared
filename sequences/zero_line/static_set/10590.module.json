@@ -1,0 +1,26 @@
+{
+  "id": 10590,
+  "name": "ceder-10590",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Square Thru 3",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Face In",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Face In",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Only Allemande Left",
+    "All R.L.G"
+  ],
+  "note": "Untranslatable: \"Centers Only Allemande Left\"; Untranslatable: \"All R.L.G\"",
+  "source": "ceder.net/choreodb"
+}

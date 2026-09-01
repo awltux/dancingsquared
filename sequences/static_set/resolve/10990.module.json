@@ -1,0 +1,24 @@
+{
+  "id": 10990,
+  "name": "ceder-10990",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Swing Thru",
+    "Step Thru",
+    "Separate Around 1 To A Line",
+    "All Pass Thru",
+    "Wheel and Deal",
+    "Centers Half Sashay & Swing Thru",
+    "Extend",
+    "Swing Thru",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Swing Thru,\"; Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Half Sashay & Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

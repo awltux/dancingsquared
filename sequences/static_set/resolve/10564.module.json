@@ -1,0 +1,25 @@
+{
+  "id": 10564,
+  "name": "ceder-10564",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 7,
+  "steps": [
+    "Four Ladies Chain 3/4",
+    "Head Position Square Thru 4",
+    "Swing Thru",
+    "Spin the Top",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Flutter Wheel",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Head Position Square Thru 4,\"; Untranslatable: \" Centers Flutter Wheel,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

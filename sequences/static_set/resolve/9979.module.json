@@ -1,0 +1,20 @@
+{
+  "id": 9979,
+  "name": "ceder-9979",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Touch 1/4",
+    "Girls Pass Thru",
+    "Centers Swing Thru",
+    "Other Girl Run",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Touch 1/4,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Centers Swing Thru,\"; Untranslatable: \" Other Girl Run,\"",
+  "source": "ceder.net/choreodb"
+}

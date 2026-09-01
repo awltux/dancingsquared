@@ -1,0 +1,17 @@
+{
+  "id": 2330,
+  "name": "ceder-2330",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Square Thru 4",
+    "Pass the Ocean",
+    "Recycle",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

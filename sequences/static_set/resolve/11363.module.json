@@ -1,0 +1,26 @@
+{
+  "id": 11363,
+  "name": "ceder-11363",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 9,
+  "steps": [
+    "(Lesson 12-08)",
+    "Heads Square Thru 2",
+    "Swing Thru",
+    "Hinge",
+    "Scoot Back",
+    "Split Circulate",
+    "Boys Run",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Centers Split 2 Go Around 1 To A Line",
+    "Ends Slide Thru",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 12-08),\"; Untranslatable: \"Centers Split 2 Go Around 1 To A Line,\"; Untranslatable: \"Ends Slide Thru,\"",
+  "source": "ceder.net/choreodb"
+}

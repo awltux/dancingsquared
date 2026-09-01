@@ -1,0 +1,17 @@
+{
+  "id": 6035,
+  "name": "ceder-6035",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Flutter Wheel",
+    "Sweep a Quarter",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel,\"",
+  "source": "ceder.net/choreodb"
+}

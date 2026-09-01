@@ -1,0 +1,30 @@
+{
+  "id": 11289,
+  "name": "ceder-11289",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 16,
+  "mappedCount": 14,
+  "steps": [
+    "Heads Star Thru",
+    "U-Turn Back",
+    "Step to a Wave",
+    "Swing Thru",
+    "Girls Trade",
+    "All Slide Thru",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Hinge",
+    "Scoot Back",
+    "Boys Trade",
+    "Boys Run",
+    "Bend the Line",
+    "Reverse Flutterwheel",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"All Slide Thru,\"",
+  "source": "ceder.net/choreodb"
+}

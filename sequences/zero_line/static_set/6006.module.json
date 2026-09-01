@@ -1,0 +1,26 @@
+{
+  "id": 6006,
+  "name": "ceder-6006",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Zoom",
+    "New Leaders Trade",
+    "Pass the Ocean",
+    "Recycle",
+    "Sweep a Quarter",
+    "Veer Left",
+    "Couples Circulate",
+    "Boys Run",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"New Leaders Trade\"",
+  "source": "ceder.net/choreodb"
+}

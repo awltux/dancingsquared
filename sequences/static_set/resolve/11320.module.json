@@ -1,0 +1,30 @@
+{
+  "id": 11320,
+  "name": "ceder-11320",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 16,
+  "mappedCount": 13,
+  "steps": [
+    "Couples #1 And #2 Half Sashay",
+    "Heads Forward and Back",
+    "Heads Swing Thru",
+    "Spin the Top",
+    "Extend",
+    "Ends Circulate",
+    "Swing Thru",
+    "Split Circulate",
+    "Swing Thru",
+    "All 8 Circulate",
+    "Boys Run",
+    "Couples Trade",
+    "Bend the Line",
+    "Slide Thru",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Couples #1 And #2 Half Sashay,\"; Untranslatable: \"Heads Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,20 @@
+{
+  "id": 6783,
+  "name": "ceder-6783",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 1,
+  "steps": [
+    "4 Ladies Chain 3/4",
+    "Head Position Pass Thru",
+    "Separate Around 1 To A Line",
+    "Forward and Back",
+    "Centers Right Arm Turn 1/2",
+    "Everybody Right & Left Thru"
+  ],
+  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"Head Position Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Right Arm Turn 1/2,\"; Untranslatable: \"Everybody Right & Left Thru\"",
+  "source": "ceder.net/choreodb"
+}

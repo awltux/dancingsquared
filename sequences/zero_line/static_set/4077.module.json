@@ -1,0 +1,18 @@
+{
+  "id": 4077,
+  "name": "ceder-4077",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Face Out",
+    "Ends Fold",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 3639,
+  "name": "ceder-3639",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Zoom",
+    "Centers Single Circle To A Wave",
+    "Extend",
+    "Swing Thru",
+    "Hinge",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Single Circle To A Wave\"",
+  "source": "ceder.net/choreodb"
+}

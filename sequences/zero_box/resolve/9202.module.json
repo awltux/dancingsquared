@@ -1,0 +1,22 @@
+{
+  "id": 9202,
+  "name": "ceder-9202",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Veer Left",
+    "Ferris Wheel",
+    "Centers Reverse Flutter Wheel",
+    "Zoom",
+    "Centers Reverse Flutter Wheel",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Reverse Flutter Wheel\"; Untranslatable: \"Centers Reverse Flutter Wheel\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,23 @@
+{
+  "id": 7041,
+  "name": "ceder-7041",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Pass the Ocean",
+    "Ladies Trade",
+    "Pass Thru",
+    "Bend the Line",
+    "Pass the Ocean",
+    "Men Trade",
+    "Right and Left Thru",
+    "Dive Thru",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

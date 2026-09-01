@@ -1,0 +1,26 @@
+{
+  "id": 11322,
+  "name": "ceder-11322",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Boys Circulate, Girls Trade",
+    "Swing Thru",
+    "Girls Circulate, Boys Trade",
+    "All Single Hinge",
+    "Split Circulate",
+    "Girls Run",
+    "Touch a Quarter",
+    "Boys U-Turn Back",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Boys Circulate, Girls Trade,\"; Untranslatable: \"Girls Circulate, Boys Trade,\"; Untranslatable: \"All Single Hinge,\"; Untranslatable: \"Boys U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,26 @@
+{
+  "id": 11242,
+  "name": "ceder-11242",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Zoom",
+    "Zoom",
+    "Face Out",
+    "Wheel and Deal",
+    "Boys Pass Thru",
+    "All Square Thru 4",
+    "Wheel and Deal",
+    "Zoom",
+    "Centers Box The Gnat & Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"Centers Box The Gnat & Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

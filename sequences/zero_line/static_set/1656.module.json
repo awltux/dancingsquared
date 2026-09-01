@@ -1,0 +1,19 @@
+{
+  "id": 1656,
+  "name": "ceder-1656",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Ends Fold",
+    "Square Thru 4",
+    "Ends Fold",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

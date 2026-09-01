@@ -1,0 +1,26 @@
+{
+  "id": 10588,
+  "name": "ceder-10588",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 6,
+  "steps": [
+    "Star Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Split The Outsides",
+    "Around 1 Come Into The Middle",
+    "Centers Star Thru & Pass Thru",
+    "All Star Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Star Thru",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Split The Outsides\"; Untranslatable: \"Around 1 Come Into The Middle\"; Untranslatable: \"Centers Star Thru & Pass Thru\"; Untranslatable: \"All Star Thru\"",
+  "source": "ceder.net/choreodb"
+}

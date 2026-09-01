@@ -1,0 +1,29 @@
+{
+  "id": 11170,
+  "name": "ceder-11170",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 15,
+  "mappedCount": 10,
+  "steps": [
+    "(Lesson 5-06)",
+    "Heads Lead Right",
+    "Veer Left",
+    "Couples Circulate",
+    "Girls Circulate",
+    "Veer Right",
+    "Centers Pass Thru",
+    "Ends California Twirl",
+    "(Left Shoulder Dosado)",
+    "Veer Right",
+    "Couples Trade",
+    "Bend the Line",
+    "Slide Thru",
+    "Allemande Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 5-06),\"; Untranslatable: \"Girls Circulate,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Ends California Twirl,\"; Untranslatable: \"(Left Shoulder Dosado),\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 6534,
+  "name": "ceder-6534",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Half Sashay",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Square Thru 3",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 6844,
+  "name": "ceder-6844",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Rollaway",
+    "Pass Thru",
+    "Face Your Partner",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Face Your Partner\"",
+  "source": "ceder.net/choreodb"
+}

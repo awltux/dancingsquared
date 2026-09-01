@@ -1,0 +1,24 @@
+{
+  "id": 2915,
+  "name": "ceder-2915",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 9,
+  "steps": [
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Pass the Ocean",
+    "Circulate",
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Bend the Line",
+    "Star Thru",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

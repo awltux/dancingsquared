@@ -1,0 +1,18 @@
+{
+  "id": 8631,
+  "name": "ceder-8631",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Veer Left",
+    "Couples Trade",
+    "Ferris Wheel",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

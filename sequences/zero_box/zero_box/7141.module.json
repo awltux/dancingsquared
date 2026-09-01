@@ -1,0 +1,19 @@
+{
+  "id": 7141,
+  "name": "ceder-7141",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Cross Run",
+    "Split Circulate",
+    "Men Cross Run",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Men Cross Run\"",
+  "source": "ceder.net/choreodb"
+}

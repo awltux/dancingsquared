@@ -1,0 +1,23 @@
+{
+  "id": 1802,
+  "name": "ceder-1802",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Split Circulate",
+    "Swing Thru",
+    "Boys Run",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

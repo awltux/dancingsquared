@@ -1,0 +1,18 @@
+{
+  "id": 8926,
+  "name": "ceder-8926",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "Pass Thru",
+    "Left Allemande Lines of Four facing out."
+  ],
+  "note": "Untranslatable: \"Left Allemande Lines of Four facing out.\"",
+  "source": "ceder.net/choreodb"
+}

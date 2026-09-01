@@ -1,0 +1,21 @@
+{
+  "id": 6527,
+  "name": "ceder-6527",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Half Sashay",
+    "Centers Pass Thru",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

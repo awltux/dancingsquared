@@ -1,0 +1,26 @@
+{
+  "id": 4662,
+  "name": "ceder-4662",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Pass the Ocean",
+    "Boys Circulate",
+    "Girls Trade",
+    "Recycle",
+    "Veer Left",
+    "Couples Circulate",
+    "Boys Run",
+    "Boys Trade",
+    "Boys Run",
+    "Bend the Line",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

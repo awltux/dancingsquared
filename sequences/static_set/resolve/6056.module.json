@@ -1,0 +1,21 @@
+{
+  "id": 6056,
+  "name": "ceder-6056",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Box The Gnat",
+    "Square Thru 3",
+    "All Step Forward",
+    "Sides Star Thru & Pass Thru",
+    "Centers In",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Box The Gnat,\"; Untranslatable: \"All Step Forward,\"; Untranslatable: \"Sides Star Thru & Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

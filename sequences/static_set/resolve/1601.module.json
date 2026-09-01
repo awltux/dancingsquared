@@ -1,0 +1,22 @@
+{
+  "id": 1601,
+  "name": "ceder-1601",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Promenade 1/2",
+    "Sides Right And Left Thru & Rollaway",
+    "Heads Right And Left Thru",
+    "Heads Ladies Chain",
+    "Heads Ladies Chain 3/4 (Side boy courtesy turn)",
+    "Lines Of 3 Slide Thru",
+    "Bow To Your Corner (or allemande left)",
+    "(Home)"
+  ],
+  "note": "Untranslatable: \"Sides Right And Left Thru & Rollaway,\"; Untranslatable: \"Heads Right And Left Thru,\"; Untranslatable: \"Heads Ladies Chain,\"; Untranslatable: \"Heads Ladies Chain 3/4 (Side boy courtesy turn),\"; Untranslatable: \"Lines Of 3 Slide Thru,\"; Untranslatable: \"Bow To Your Corner (or allemande left),\"; Untranslatable: \"(Home)\"",
+  "source": "ceder.net/choreodb"
+}

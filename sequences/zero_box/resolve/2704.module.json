@@ -1,0 +1,27 @@
+{
+  "id": 2704,
+  "name": "ceder-2704",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 7,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Girls Trade",
+    "Ferris Wheel",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Centers Square Thru 4",
+    "Ends Star Thru",
+    "All Pass Thru",
+    "Centers Left Touch 1/4",
+    "Centers Box Circulate",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 4\"; Untranslatable: \"Ends Star Thru\"; Untranslatable: \"All Pass Thru\"; Untranslatable: \"Centers Left Touch 1/4\"; Untranslatable: \"Centers Box Circulate\"",
+  "source": "ceder.net/choreodb"
+}

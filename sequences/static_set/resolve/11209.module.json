@@ -1,0 +1,23 @@
+{
+  "id": 11209,
+  "name": "ceder-11209",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Box The Gnat, Sides Face",
+    "Everybody Pass Thru & Cast Off 3/4",
+    "Pass Thru",
+    "Tag the Line",
+    "Centers In",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "All Box The Gnat, Change Hands",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Box The Gnat, Sides Face,\"; Untranslatable: \"Everybody Pass Thru & Cast Off 3/4,\"; Untranslatable: \"All Box The Gnat, Change Hands,\"",
+  "source": "ceder.net/choreodb"
+}

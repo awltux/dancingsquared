@@ -1,0 +1,26 @@
+{
+  "id": 6125,
+  "name": "ceder-6125",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Square Thru 4",
+    "Sides Half Sashay",
+    "Dosado",
+    "Swing Thru",
+    "Spin the Top",
+    "Step Thru",
+    "Half Tag",
+    "Swing Thru",
+    "Recycle",
+    "Square Thru 3",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \" Sides Half Sashay,\"",
+  "source": "ceder.net/choreodb"
+}

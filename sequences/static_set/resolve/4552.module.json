@@ -1,0 +1,24 @@
+{
+  "id": 4552,
+  "name": "ceder-4552",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Half Sashay & Pass Thru",
+    "Separate Around 1 To A Line",
+    "Star Thru",
+    "Dive Thru",
+    "Centers Pass Thru",
+    "Star Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Star Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Half Sashay & Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

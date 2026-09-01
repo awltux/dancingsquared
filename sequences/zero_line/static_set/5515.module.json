@@ -1,0 +1,21 @@
+{
+  "id": 5515,
+  "name": "ceder-5515",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "3/4 Tag the Line",
+    "Centers Swing Thru",
+    "Others Trade",
+    "Centers Recycle & Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Others Trade\"; Untranslatable: \"Centers Recycle & Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

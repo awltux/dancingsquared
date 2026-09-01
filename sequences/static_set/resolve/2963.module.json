@@ -1,0 +1,20 @@
+{
+  "id": 2963,
+  "name": "ceder-2963",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Left Square Thru 2",
+    "Left Swing Thru",
+    "Girls Run",
+    "Ferris Wheel",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Left Square Thru 2,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

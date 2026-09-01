@@ -1,0 +1,20 @@
+{
+  "id": 9007,
+  "name": "ceder-9007",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Star Thru",
+    "Centers Split The Outsides Separate Around 1 To A Line Of Four",
+    "Men Trade",
+    "Ladies Trade",
+    "Partner Trade",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Split The Outsides Separate Around 1 To A Line Of Four\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Trade\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 9037,
+  "name": "ceder-9037",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Pass the Ocean",
+    "Ladies Circulate",
+    "Hinge",
+    "Ends Trade",
+    "Centers Run",
+    "Ferris Wheel",
+    "Ladies Square Thru 3/4",
+    "Star Thru",
+    "Boys Circulate",
+    "All 4 Couples Promenade"
+  ],
+  "note": "Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Ladies Square Thru 3/4\"; Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

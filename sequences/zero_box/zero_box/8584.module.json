@@ -1,0 +1,18 @@
+{
+  "id": 8584,
+  "name": "ceder-8584",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Dosado",
+    "Circle Four Half Way",
+    "Dosado",
+    "Circle Four Half Way"
+  ],
+  "note": "Untranslatable: \"Circle Four Half Way\"; Untranslatable: \"Circle Four Half Way\"",
+  "source": "ceder.net/choreodb"
+}

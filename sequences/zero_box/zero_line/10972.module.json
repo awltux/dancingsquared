@@ -1,0 +1,20 @@
+{
+  "id": 10972,
+  "name": "ceder-10972",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 7,
+  "mappedCount": 7,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Trade",
+    "Centers Run",
+    "Wheel and Deal",
+    "Star Thru",
+    "Centers Circulate",
+    "Bend the Line"
+  ],
+  "source": "ceder.net/choreodb"
+}

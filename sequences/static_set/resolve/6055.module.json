@@ -1,0 +1,23 @@
+{
+  "id": 6055,
+  "name": "ceder-6055",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Right & Left Thru & Backaway",
+    "Head Ladies Chain",
+    "Head Position Rollaway & Square Thru 4",
+    "Split Two Around One To A Line",
+    "Star Thru",
+    "Double Pass Thru",
+    "First Go Left, Second Go Right",
+    "Star Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru & Backaway,\"; Untranslatable: \"Head Position Rollaway & Square Thru 4,\"; Untranslatable: \"Split Two Around One To A Line,\"; Untranslatable: \"First Go Left, Second Go Right,\"",
+  "source": "ceder.net/choreodb"
+}

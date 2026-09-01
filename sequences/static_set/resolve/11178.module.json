@@ -1,0 +1,31 @@
+{
+  "id": 11178,
+  "name": "ceder-11178",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 17,
+  "mappedCount": 14,
+  "steps": [
+    "(Lesson 6-12)",
+    "Heads Lead Left",
+    "Veer Right",
+    "Wheel Around",
+    "Chain Down the Line",
+    "Pass Thru",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Reverse Flutter",
+    "Pass Thru",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Flutterwheel",
+    "Reverse Flutter",
+    "Half Sashay",
+    "Square Thru 4"
+  ],
+  "note": "Untranslatable: \"(Lesson 6-12),\"; Untranslatable: \"Reverse Flutter,\"; Untranslatable: \"Reverse Flutter,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 4100,
+  "name": "ceder-4100",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 8,
+  "mappedCount": 8,
+  "steps": [
+    "Swing Thru",
+    "Spin the Top",
+    "Hinge",
+    "All 8 Circulate",
+    "Hinge",
+    "Girls Trade",
+    "Recycle",
+    "Right and Left Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

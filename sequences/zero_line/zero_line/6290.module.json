@@ -1,0 +1,18 @@
+{
+  "id": 6290,
+  "name": "ceder-6290",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 0,
+  "steps": [
+    "*** not validated *** (Zero Line) Boys Walk & Girls Dodge",
+    "Girls Walk & Boys Dodge",
+    "Boys Backward Walk & Girls Dodge",
+    "Girls Backward Walk & Boys Dodge"
+  ],
+  "note": "Untranslatable: \"*** not validated *** (Zero Line) Boys Walk & Girls Dodge\"; Untranslatable: \"Girls Walk & Boys Dodge\"; Untranslatable: \"Boys Backward Walk & Girls Dodge\"; Untranslatable: \"Girls Backward Walk & Boys Dodge\"",
+  "source": "ceder.net/choreodb"
+}

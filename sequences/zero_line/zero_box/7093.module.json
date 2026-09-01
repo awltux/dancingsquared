@@ -1,0 +1,19 @@
+{
+  "id": 7093,
+  "name": "ceder-7093",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Swing Thru",
+    "Box the Gnat",
+    "Pass Thru"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru\"",
+  "source": "ceder.net/choreodb"
+}

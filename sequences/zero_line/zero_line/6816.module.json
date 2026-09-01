@@ -1,0 +1,19 @@
+{
+  "id": 6816,
+  "name": "ceder-6816",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Star Thru",
+    "Dive Thru",
+    "Centers Right & Left Thru",
+    "Centers Pass Thru",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Centers Right & Left Thru\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

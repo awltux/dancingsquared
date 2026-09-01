@@ -1,0 +1,21 @@
+{
+  "id": 11344,
+  "name": "ceder-11344",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "(Lesson 10-4)",
+    "Heads Square Thru 4",
+    "Swing Thru",
+    "Boys Run",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"(Lesson 10-4),\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

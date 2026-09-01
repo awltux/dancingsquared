@@ -1,0 +1,22 @@
+{
+  "id": 5551,
+  "name": "ceder-5551",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Flutter Wheel",
+    "Double Pass Thru",
+    "Zoom",
+    "Leaders Trade",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Flutter Wheel\"; Untranslatable: \"Leaders Trade\"",
+  "source": "ceder.net/choreodb"
+}

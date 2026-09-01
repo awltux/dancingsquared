@@ -1,0 +1,27 @@
+{
+  "id": 5944,
+  "name": "ceder-5944",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Swing Thru",
+    "Boys Pass Thru",
+    "Center Line Wheel & Deal",
+    "Other Boy Run",
+    "Double Pass Thru",
+    "Centers In",
+    "Centers Pass Thru",
+    "Centers Run",
+    "All Pass Thru",
+    "Wheel and Deal",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"Center Line Wheel & Deal,\"; Untranslatable: \" Other Boy Run,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

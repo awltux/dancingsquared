@@ -1,0 +1,27 @@
+{
+  "id": 6112,
+  "name": "ceder-6112",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Swing Thru",
+    "Girl U-Turn Back",
+    "Centers Veer Left",
+    "All Veer Left",
+    "Chain Down the Line",
+    "Touch a Quarter",
+    "Circulate",
+    "Boys Run",
+    "Pass Thru",
+    "Trade By",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \" Girl U-Turn Back,\"; Untranslatable: \"Centers Veer Left,\"; Untranslatable: \"All Veer Left,\"",
+  "source": "ceder.net/choreodb"
+}

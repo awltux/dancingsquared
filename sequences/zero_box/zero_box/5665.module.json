@@ -1,0 +1,19 @@
+{
+  "id": 5665,
+  "name": "ceder-5665",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Slide Thru",
+    "Pass Thru",
+    "Tag the Line",
+    "All The Way",
+    "Leaders Turn Back"
+  ],
+  "note": "Untranslatable: \"All The Way\"; Untranslatable: \"Leaders Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

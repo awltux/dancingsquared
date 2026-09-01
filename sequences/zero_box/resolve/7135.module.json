@@ -1,0 +1,20 @@
+{
+  "id": 7135,
+  "name": "ceder-7135",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Star Thru",
+    "Right and Left Thru",
+    "Touch a Quarter",
+    "Single File Circulate 2 Places",
+    "4 Ladies U Turn Back",
+    "Left Allemande After the 4 ladies UTurn Back the FASR is a Zero Box and a TZ"
+  ],
+  "note": "Untranslatable: \"Single File Circulate 2 Places\"; Untranslatable: \"4 Ladies U Turn Back\"; Untranslatable: \"Left Allemande After the 4 ladies UTurn Back the FASR is a Zero Box and a TZ\"",
+  "source": "ceder.net/choreodb"
+}

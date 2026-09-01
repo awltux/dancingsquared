@@ -1,0 +1,22 @@
+{
+  "id": 1731,
+  "name": "ceder-1731",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Centers Pass Thru",
+    "Tag the Line",
+    "Partner Trade",
+    "Double Pass Thru",
+    "Leaders Trade",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Leaders Trade\"",
+  "source": "ceder.net/choreodb"
+}

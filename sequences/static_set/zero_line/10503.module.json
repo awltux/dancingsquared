@@ -1,0 +1,19 @@
+{
+  "id": 10503,
+  "name": "ceder-10503",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Lead Right",
+    "Pass Thru",
+    "Partner Hinge",
+    "Girls Trade",
+    "Recycle",
+    "Reverse Flutterwheel"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,20 @@
+{
+  "id": 9016,
+  "name": "ceder-9016",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 2,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Circle Right 3/4",
+    "Centers Slide Thru & Pass Thru",
+    "Left Allemande After the Pass Thru",
+    "this is also a ZL-ZB Conversion Module"
+  ],
+  "note": "Untranslatable: \"Centers Circle Right 3/4\"; Untranslatable: \"Centers Slide Thru & Pass Thru\"; Untranslatable: \"Left Allemande After the Pass Thru\"; Untranslatable: \"this is also a ZL-ZB Conversion Module\"",
+  "source": "ceder.net/choreodb"
+}

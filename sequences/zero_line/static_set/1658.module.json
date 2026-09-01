@@ -1,0 +1,21 @@
+{
+  "id": 1658,
+  "name": "ceder-1658",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Centers Run",
+    "New Centers Trade",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"New Centers Trade\"",
+  "source": "ceder.net/choreodb"
+}

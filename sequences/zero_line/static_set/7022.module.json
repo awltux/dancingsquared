@@ -1,0 +1,17 @@
+{
+  "id": 7022,
+  "name": "ceder-7022",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Pass the Ocean",
+    "Square Thru 4",
+    "Left Allemande After Square Thru 3/4 Formation = TdBy (0)"
+  ],
+  "note": "Untranslatable: \"Left Allemande After Square Thru 3/4 Formation = TdBy (0)\"",
+  "source": "ceder.net/choreodb"
+}

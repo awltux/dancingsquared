@@ -1,0 +1,20 @@
+{
+  "id": 2600,
+  "name": "ceder-2600",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 7,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Lead Right",
+    "Veer Left",
+    "Bend the Line",
+    "Boys Walk, Girls Dodge",
+    "Hinge",
+    "Left Swing Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

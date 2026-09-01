@@ -1,0 +1,19 @@
+{
+  "id": 8917,
+  "name": "ceder-8917",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Pass the Ocean",
+    "Men Trade",
+    "Ladies Trade",
+    "Pass Thru",
+    "Left Allemande Lines of Four facing out."
+  ],
+  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Left Allemande Lines of Four facing out.\"",
+  "source": "ceder.net/choreodb"
+}

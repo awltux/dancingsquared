@@ -1,0 +1,27 @@
+{
+  "id": 7196,
+  "name": "ceder-7196",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 10,
+  "steps": [
+    "All Half Sashay",
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Balance",
+    "Right and Left Thru",
+    "Star Thru",
+    "Pass Thru",
+    "California Twirl",
+    "End Ladies (Diagonal) Chain",
+    "Star Thru",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"All Half Sashay,\"; Untranslatable: \"End Ladies (Diagonal) Chain,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

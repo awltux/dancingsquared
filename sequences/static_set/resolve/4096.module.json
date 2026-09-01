@@ -1,0 +1,20 @@
+{
+  "id": 4096,
+  "name": "ceder-4096",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 7,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Square Thru 4",
+    "Star Thru",
+    "Pass Thru",
+    "Tag the Line",
+    "Ends Fold",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

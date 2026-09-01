@@ -1,0 +1,23 @@
+{
+  "id": 11227,
+  "name": "ceder-11227",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 3,
+  "steps": [
+    "",
+    "All Four Ladies Chain 3/4",
+    "Join Hands And Circle Left",
+    "Left Arm Turn New Corner Full Around On To The Next Girl",
+    "Pass Thru",
+    "Swing And Promenade Home",
+    "Allemande Left With Corner",
+    "Weave the Ring",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \",\"; Untranslatable: \"All Four Ladies Chain 3/4,\"; Untranslatable: \"Join Hands And Circle Left,\"; Untranslatable: \"Left Arm Turn New Corner Full Around On To The Next Girl,\"; Untranslatable: \"Swing And Promenade Home,\"; Untranslatable: \"Allemande Left With Corner,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,18 @@
+{
+  "id": 7107,
+  "name": "ceder-7107",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Touch a Quarter",
+    "Single File Circulate (Any number of times)",
+    "Ladies Run",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Single File Circulate (Any number of times)\"; Untranslatable: \"Ladies Run\"",
+  "source": "ceder.net/choreodb"
+}

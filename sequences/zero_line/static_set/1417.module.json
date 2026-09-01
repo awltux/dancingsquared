@@ -1,0 +1,18 @@
+{
+  "id": 1417,
+  "name": "ceder-1417",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Girls Run",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

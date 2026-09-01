@@ -1,0 +1,23 @@
+{
+  "id": 11346,
+  "name": "ceder-11346",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 5,
+  "steps": [
+    "(Lesson 10-6)",
+    "Heads Promenade Halfway",
+    "Into The Middle And Pass The Ocean",
+    "Extend",
+    "Swing Thru",
+    "Boys Run",
+    "Ferris Wheel",
+    "Centers Star Thru And Back Away",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 10-6),\"; Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Into The Middle And Pass The Ocean,\"; Untranslatable: \"Centers Star Thru And Back Away,\"",
+  "source": "ceder.net/choreodb"
+}

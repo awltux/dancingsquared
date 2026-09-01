@@ -1,0 +1,20 @@
+{
+  "id": 5822,
+  "name": "ceder-5822",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,23 @@
+{
+  "id": 5533,
+  "name": "ceder-5533",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Touch a Quarter",
+    "Scoot Back",
+    "Boys Run",
+    "Touch a Quarter",
+    "Circulate",
+    "Hinge",
+    "Girls Trade",
+    "Spin the Top",
+    "Circulate",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

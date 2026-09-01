@@ -1,0 +1,27 @@
+{
+  "id": 3822,
+  "name": "ceder-3822",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 8,
+  "steps": [
+    "Touch a Quarter",
+    "Scoot Back",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "Veer Right",
+    "Girls Zoom",
+    "Ferris Wheel",
+    "Centers Swing Thru",
+    "Outsides Half Sashay",
+    "Extend",
+    "Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Zoom\"; Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Outsides Half Sashay\"",
+  "source": "ceder.net/choreodb"
+}

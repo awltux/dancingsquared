@@ -1,0 +1,21 @@
+{
+  "id": 8902,
+  "name": "ceder-8902",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Dive Thru",
+    "Zoom",
+    "Centers Pass Thru",
+    "Dive Thru",
+    "Zoom",
+    "Centers Pass Thru",
+    "Left Allemande This is a ZB-ZB module just before the Left Allemande."
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Left Allemande This is a ZB-ZB module just before the Left Allemande.\"",
+  "source": "ceder.net/choreodb"
+}

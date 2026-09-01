@@ -1,0 +1,18 @@
+{
+  "id": 2834,
+  "name": "ceder-2834",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line",
+    "Reverse Flutterwheel",
+    "Slide Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,22 @@
+{
+  "id": 6042,
+  "name": "ceder-6042",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Flutter Wheel, Sweep 1/4",
+    "Centers Pass Thru",
+    "Circle Half, Veer Left",
+    "Couples Circulate",
+    "Wheel and Deal",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel, Sweep 1/4,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Circle Half, Veer Left,\"",
+  "source": "ceder.net/choreodb"
+}

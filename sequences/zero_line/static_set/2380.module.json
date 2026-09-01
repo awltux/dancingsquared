@@ -1,0 +1,25 @@
+{
+  "id": 2380,
+  "name": "ceder-2380",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "Right and Left Thru",
+    "Rollaway",
+    "Slide Thru",
+    "Trade By",
+    "Pass Thru",
+    "Trade By",
+    "Star Thru",
+    "Pass Thru",
+    "U-Turn Back",
+    "Slide Thru",
+    "L.A workshops Slide Thru"
+  ],
+  "note": "Untranslatable: \"L.A workshops Slide Thru\"",
+  "source": "ceder.net/choreodb"
+}

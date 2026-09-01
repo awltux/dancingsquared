@@ -1,0 +1,24 @@
+{
+  "id": 3645,
+  "name": "ceder-3645",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "End Girl Run",
+    "Girls Trade",
+    "All Tag The Line",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Pass Thru",
+    "Half Tag",
+    "Cast Off Three Quarters",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"End Girl Run\"; Untranslatable: \"All Tag The Line\"",
+  "source": "ceder.net/choreodb"
+}

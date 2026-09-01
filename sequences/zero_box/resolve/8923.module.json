@@ -1,0 +1,18 @@
+{
+  "id": 8923,
+  "name": "ceder-8923",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Dive Thru",
+    "Zoom",
+    "Centers Square Thru 3/4",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 3/4\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

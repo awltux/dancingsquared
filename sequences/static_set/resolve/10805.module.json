@@ -1,0 +1,24 @@
+{
+  "id": 10805,
+  "name": "ceder-10805",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Half Sashay",
+    "%Same 4% Lead $Left$",
+    "Dosado",
+    "Swing Thru",
+    "Centers Run",
+    "Tag the Line",
+    "Bend the Line",
+    "Pass Thru",
+    "Tag the Line",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \" %Same 4% Lead $Left$,\"",
+  "source": "ceder.net/choreodb"
+}

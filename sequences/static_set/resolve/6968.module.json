@@ -1,0 +1,25 @@
+{
+  "id": 6968,
+  "name": "ceder-6968",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Head Ladies Chain",
+    "Head Men Face Your Corner & Box The Gnat",
+    "(Square your set like that)",
+    "Four Ladies Forward & Back",
+    "Ladies Square Thru 4",
+    "Split The Outside Two Around One To A Line Of Four",
+    "Forward and Back",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Head Men Face Your Corner & Box The Gnat,\"; Untranslatable: \"(Square your set like that),\"; Untranslatable: \"Four Ladies Forward & Back,\"; Untranslatable: \"Ladies Square Thru 4,\"; Untranslatable: \"Split The Outside Two Around One To A Line Of Four,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

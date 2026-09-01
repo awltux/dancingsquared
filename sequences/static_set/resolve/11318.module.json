@@ -1,0 +1,23 @@
+{
+  "id": 11318,
+  "name": "ceder-11318",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 4,
+  "steps": [
+    "Head Ladies Chain",
+    "Sides Pass Thru & Step Ahead",
+    "All Promenade",
+    "Heads Wheel Around",
+    "All Pass Thru",
+    "Wheel and Deal",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Sides Pass Thru & Step Ahead,\"; Untranslatable: \"All Promenade,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

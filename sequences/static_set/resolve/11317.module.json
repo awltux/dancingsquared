@@ -1,0 +1,31 @@
+{
+  "id": 11317,
+  "name": "ceder-11317",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 17,
+  "mappedCount": 15,
+  "steps": [
+    "Heads Square Thru 4",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Square Thru 4",
+    "Trade By",
+    "Spin the Top",
+    "Boys Run",
+    "Ladies Trade",
+    "Wheel and Deal",
+    "Reverse Flutterwheel",
+    "Star Thru",
+    "Dive Thru",
+    "Zoom",
+    "Centers Star Thru",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Ladies Trade,\"; Untranslatable: \"Centers Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

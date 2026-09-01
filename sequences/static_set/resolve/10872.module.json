@@ -1,0 +1,25 @@
+{
+  "id": 10872,
+  "name": "ceder-10872",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Star Thru",
+    "All Double Pass Thru",
+    "Face In",
+    "Pass Thru",
+    "Girls Bend The Line Twice",
+    "All Couples Circulate",
+    "Couples Circulate",
+    "Boys Bend The Line Twice",
+    "Centers Star Thru",
+    "Same 4 U-Turn Back",
+    "All R.L.G"
+  ],
+  "note": "Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Girls Bend The Line Twice,\"; Untranslatable: \"All Couples Circulate,\"; Untranslatable: \"Boys Bend The Line Twice,\"; Untranslatable: \"Centers Star Thru,\"; Untranslatable: \"Same 4 U-Turn Back,\"; Untranslatable: \"All R.L.G\"",
+  "source": "ceder.net/choreodb"
+}

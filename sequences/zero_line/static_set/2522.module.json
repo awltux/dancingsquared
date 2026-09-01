@@ -1,0 +1,24 @@
+{
+  "id": 2522,
+  "name": "ceder-2522",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Slide Thru",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Boys Fold",
+    "Double Pass Thru",
+    "Girls U-Turn Back",
+    "Star Thru",
+    "Couples Circulate",
+    "Boys Fold",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

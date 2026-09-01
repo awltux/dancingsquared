@@ -1,0 +1,24 @@
+{
+  "id": 6138,
+  "name": "ceder-6138",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Pass Thru",
+    "Centers Trade",
+    "Cast Off Three Quarters",
+    "Centers Trade",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Flutter Wheel",
+    "Zoom",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Flutter Wheel\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

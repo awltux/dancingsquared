@@ -1,0 +1,18 @@
+{
+  "id": 11085,
+  "name": "ceder-11085",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Face, Sides Move In",
+    "Everyone Star Thru",
+    "California Twirl",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Face, Sides Move In,\"; Untranslatable: \"Everyone Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

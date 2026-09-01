@@ -1,0 +1,21 @@
+{
+  "id": 10576,
+  "name": "ceder-10576",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Four Ladies Chain 3/4",
+    "Head Position Square Thru 4",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Trade By",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Head Position Square Thru 4,\"",
+  "source": "ceder.net/choreodb"
+}

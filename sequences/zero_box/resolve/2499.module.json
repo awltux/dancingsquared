@@ -1,0 +1,18 @@
+{
+  "id": 2499,
+  "name": "ceder-2499",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Touch a Quarter",
+    "Split Circulate",
+    "Girls Run",
+    "Square Thru 2",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

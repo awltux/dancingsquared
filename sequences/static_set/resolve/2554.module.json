@@ -1,0 +1,21 @@
+{
+  "id": 2554,
+  "name": "ceder-2554",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Star Thru",
+    "Pass Thru",
+    "Centers In",
+    "All 8 Circulate",
+    "Centers Run",
+    "1/2 Square Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

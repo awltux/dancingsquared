@@ -1,0 +1,18 @@
+{
+  "id": 7099,
+  "name": "ceder-7099",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 1,
+  "steps": [
+    "Touch a Quarter",
+    "Single File Circulate (Any number of times)",
+    "Men Run",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Single File Circulate (Any number of times)\"; Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

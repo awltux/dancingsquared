@@ -1,0 +1,21 @@
+{
+  "id": 7068,
+  "name": "ceder-7068",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Rollaway",
+    "All Circle Left",
+    "4 Ladies Square Thru",
+    "Step to a Wave",
+    "Ladies Run",
+    "Turn Half By The Right",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"All Circle Left,\"; Untranslatable: \"4 Ladies Square Thru,\"; Untranslatable: \"Ladies Run,\"; Untranslatable: \"Turn Half By The Right,\"",
+  "source": "ceder.net/choreodb"
+}

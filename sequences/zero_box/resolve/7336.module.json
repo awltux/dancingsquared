@@ -1,0 +1,23 @@
+{
+  "id": 7336,
+  "name": "ceder-7336",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 7,
+  "steps": [
+    "Swing Thru",
+    "Boys Circulate",
+    "Boys Run",
+    "Wheel and Deal",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Trade By",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Boys Circulate\"",
+  "source": "ceder.net/choreodb"
+}

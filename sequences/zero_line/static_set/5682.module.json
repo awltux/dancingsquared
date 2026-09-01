@@ -1,0 +1,21 @@
+{
+  "id": 5682,
+  "name": "ceder-5682",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Two Ladies Chain Across",
+    "Square Thru 4",
+    "But On The Third Hand Spin The Top",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Two Ladies Chain Across\"; Untranslatable: \"But On The Third Hand Spin The Top\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,25 @@
+{
+  "id": 2701,
+  "name": "ceder-2701",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Girls Cross Run",
+    "Boys Trade",
+    "Boys Cross Run",
+    "Bend the Line",
+    "Star Thru",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Girls Cross Run\"; Untranslatable: \"Boys Cross Run\"",
+  "source": "ceder.net/choreodb"
+}

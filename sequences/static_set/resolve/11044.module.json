@@ -1,0 +1,23 @@
+{
+  "id": 11044,
+  "name": "ceder-11044",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Square Thru 4",
+    "Centers In",
+    "Centers Pass Thru, Ends Fold",
+    "All Square Thru 4",
+    "Ends Cross Fold",
+    "All Double Pass Thru",
+    "Ends U-Turn Back",
+    "All Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru, Ends Fold,\"; Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Ends U-Turn Back,\"; Untranslatable: \"All Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 4644,
+  "name": "ceder-4644",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Split Circulate",
+    "Centers Trade",
+    "Split Circulate",
+    "Centers Trade",
+    "All Scoot Back",
+    "Hinge",
+    "Boys Run",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"All Scoot Back,\"",
+  "source": "ceder.net/choreodb"
+}

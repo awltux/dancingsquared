@@ -1,0 +1,17 @@
+{
+  "id": 8602,
+  "name": "ceder-8602",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 1,
+  "steps": [
+    "Box the Gnat",
+    "Centers Box The Gnat & Pass Thru",
+    "Outsides U-Turn Back"
+  ],
+  "note": "Untranslatable: \"Centers Box The Gnat & Pass Thru\"; Untranslatable: \"Outsides U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

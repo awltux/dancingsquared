@@ -1,0 +1,22 @@
+{
+  "id": 2969,
+  "name": "ceder-2969",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Left Square Thru 3",
+    "Separate Around 1 To A Line",
+    "Left Touch 1/4",
+    "Boys Run",
+    "Double Pass Thru",
+    "Leaders Trade",
+    "Left Square Thru 3",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Left Square Thru 3,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Left Touch 1/4,\"; Untranslatable: \"Leaders Trade,\"; Untranslatable: \"Left Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

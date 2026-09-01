@@ -1,0 +1,21 @@
+{
+  "id": 978,
+  "name": "ceder-978",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Ferris Wheel",
+    "Centers Veer Left",
+    "Centers Tag The Line Left",
+    "Boys (Only) Pass Thru",
+    "Allemande Left Vic says: the Allemande Left is strange."
+  ],
+  "note": "Untranslatable: \"Centers Veer Left\"; Untranslatable: \"Centers Tag The Line Left\"; Untranslatable: \"Boys (Only) Pass Thru\"; Untranslatable: \"Allemande Left Vic says: the Allemande Left is strange.\"",
+  "source": "ceder.net/choreodb"
+}

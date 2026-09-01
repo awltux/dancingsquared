@@ -1,0 +1,22 @@
+{
+  "id": 11150,
+  "name": "ceder-11150",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Pass Thru & Wheel Around",
+    "Heads Half Sashay & Slide Thru",
+    "Dosado, Pass Thru",
+    "California Twirl",
+    "Dive Thru",
+    "Centers Star Thru",
+    "Same 4 Pass Thru And California Twirl",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru & Wheel Around,\"; Untranslatable: \"Heads Half Sashay & Slide Thru,\"; Untranslatable: \"Dosado, Pass Thru,\"; Untranslatable: \"Centers Star Thru,\"; Untranslatable: \"Same 4 Pass Thru And California Twirl,\"",
+  "source": "ceder.net/choreodb"
+}

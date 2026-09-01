@@ -1,0 +1,30 @@
+{
+  "id": 11361,
+  "name": "ceder-11361",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 16,
+  "mappedCount": 14,
+  "steps": [
+    "(Lesson 12-06)",
+    "Heads Lead Right",
+    "Right and Left Thru",
+    "Half Sashay",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Hinge",
+    "Scoot Back",
+    "Ends Circulate",
+    "Centers Trade",
+    "Scoot Back",
+    "Swing Thru",
+    "Recycle",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"(Lesson 12-06),\"",
+  "source": "ceder.net/choreodb"
+}

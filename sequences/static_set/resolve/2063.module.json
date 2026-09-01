@@ -1,0 +1,25 @@
+{
+  "id": 2063,
+  "name": "ceder-2063",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 3,
+  "steps": [
+    "Head Boy, Take Your Corner Forward And Back",
+    "Same Four Pass Thru, Step Forward, And U Turn Back",
+    "All Circle Left, Once Around (boys are at side position)",
+    "Boys Pass Thru, Step Forward & U Turn Back",
+    "Girls Pass Thru, Step Forward, And Face The Girl Beside You",
+    "All Grand Square",
+    "Boys Square Thru 4",
+    "Swing This Girl",
+    "Circle Left",
+    "Swing Your Corner",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Head Boy, Take Your Corner Forward And Back,\"; Untranslatable: \" Same Four Pass Thru, Step Forward, And U Turn Back,\"; Untranslatable: \"All Circle Left, Once Around (boys are at side position),\"; Untranslatable: \"Boys Pass Thru, Step Forward & U Turn Back,\"; Untranslatable: \"Girls Pass Thru, Step Forward, And Face The Girl Beside You,\"; Untranslatable: \"All Grand Square,\"; Untranslatable: \"Boys Square Thru 4,\"; Untranslatable: \"Swing This Girl,\"",
+  "source": "ceder.net/choreodb"
+}

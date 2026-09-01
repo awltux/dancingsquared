@@ -1,0 +1,23 @@
+{
+  "id": 10817,
+  "name": "ceder-10817",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Lead Right",
+    "Circle 3/4",
+    "Pass Thru",
+    "Tag the Line",
+    "Couples Circulate",
+    "Bend the Line",
+    "Pass Thru",
+    "Tag the Line",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Circle 3/4,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 7258,
+  "name": "ceder-7258",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 8,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Square Thru 4",
+    "Step to a Wave",
+    "Ends Circulate",
+    "Split Circulate",
+    "All 8 Circulate",
+    "Split Circulate",
+    "Scoot Back",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

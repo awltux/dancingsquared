@@ -1,0 +1,18 @@
+{
+  "id": 5319,
+  "name": "ceder-5319",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 0,
+  "steps": [
+    "Split Two Around One To A Line",
+    "Ends Box The Gnat And (around the outside) Square Thru 5",
+    "Centers Slide Thru And Square Thru 3",
+    "Left Allemande You must use some timing for the centers to arrive for a left allemande"
+  ],
+  "note": "Untranslatable: \"Split Two Around One To A Line\"; Untranslatable: \"Ends Box The Gnat And (around the outside) Square Thru 5\"; Untranslatable: \"Centers Slide Thru And Square Thru 3\"; Untranslatable: \"Left Allemande You must use some timing for the centers to arrive for a left allemande\"",
+  "source": "ceder.net/choreodb"
+}

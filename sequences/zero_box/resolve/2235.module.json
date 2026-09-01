@@ -1,0 +1,21 @@
+{
+  "id": 2235,
+  "name": "ceder-2235",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Swing Thru",
+    "Cast Off Three Quarters",
+    "Split Circulate",
+    "Centers Trade",
+    "Split Circulate",
+    "Boys Run",
+    "Wheel and Deal",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

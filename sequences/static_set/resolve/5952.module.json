@@ -1,0 +1,20 @@
+{
+  "id": 5952,
+  "name": "ceder-5952",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Square Thru 3",
+    "Separate Around 1 To A Line",
+    "Star Thru",
+    "Double Pass Thru",
+    "Leaders California Twirl",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Leaders California Twirl,\"",
+  "source": "ceder.net/choreodb"
+}

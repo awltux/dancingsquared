@@ -1,0 +1,21 @@
+{
+  "id": 7052,
+  "name": "ceder-7052",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Head Ladies Chain",
+    "Heads Square Thru",
+    "Swing Thru",
+    "Ends Trade",
+    "Centers Trade",
+    "Centers Run",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

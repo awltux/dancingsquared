@@ -1,0 +1,22 @@
+{
+  "id": 1259,
+  "name": "ceder-1259",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Square Thru 4",
+    "Dosado to a Wave",
+    "Men Run, Men Trade",
+    "Men Run, Men Circulate",
+    "Men Run, Men Trade",
+    "Men Run, Men Circulate",
+    "Men Run, Men Fold",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Men Run, Men Trade,\"; Untranslatable: \"Men Run, Men Circulate,\"; Untranslatable: \"Men Run, Men Trade,\"; Untranslatable: \"Men Run, Men Circulate,\"; Untranslatable: \"Men Run, Men Fold,\"",
+  "source": "ceder.net/choreodb"
+}

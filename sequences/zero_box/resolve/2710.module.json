@@ -1,0 +1,24 @@
+{
+  "id": 2710,
+  "name": "ceder-2710",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "Touch a Quarter",
+    "Centers Trade",
+    "Centers Run",
+    "Couples Circulate",
+    "Half Tag",
+    "Swing Thru",
+    "Spin the Top",
+    "Slide Thru",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

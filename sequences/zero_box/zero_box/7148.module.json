@@ -1,0 +1,20 @@
+{
+  "id": 7148,
+  "name": "ceder-7148",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 1,
+  "steps": [
+    "*** not validated *** (Zero Box) Swing Thru",
+    "Boys Cross Run",
+    "Ladies Trade",
+    "Left Swing Thru",
+    "Boys Cross Run",
+    "Girls Trade (Zero Box) ZB Ocean Wave"
+  ],
+  "note": "Untranslatable: \"*** not validated *** (Zero Box) Swing Thru\"; Untranslatable: \"Boys Cross Run\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Boys Cross Run\"; Untranslatable: \"Girls Trade (Zero Box) ZB Ocean Wave\"",
+  "source": "ceder.net/choreodb"
+}

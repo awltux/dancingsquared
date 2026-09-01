@@ -1,0 +1,19 @@
+{
+  "id": 2244,
+  "name": "ceder-2244",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Square Thru 4",
+    "All Square Thru 4",
+    "Partner Trade",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"All Square Thru 4,\"",
+  "source": "ceder.net/choreodb"
+}

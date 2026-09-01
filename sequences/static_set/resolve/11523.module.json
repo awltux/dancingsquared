@@ -1,0 +1,28 @@
+{
+  "id": 11523,
+  "name": "ceder-11523",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "End Boy Run",
+    "Centers Trade",
+    "All The Boys Run",
+    "Centers Cast Off 3/4",
+    "Same 4 Chain Down The Line",
+    "All Pass Thru",
+    "Tag the Line",
+    "Leaders Trade",
+    "All Box The Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"End Boy Run,\"; Untranslatable: \"All The Boys Run,\"; Untranslatable: \"Centers Cast Off 3/4,\"; Untranslatable: \"Same 4 Chain Down The Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Leaders Trade,\"; Untranslatable: \"All Box The Gnat,\"",
+  "source": "ceder.net/choreodb"
+}

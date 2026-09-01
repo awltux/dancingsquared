@@ -1,0 +1,26 @@
+{
+  "id": 3032,
+  "name": "ceder-3032",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Single Circle To A Wave",
+    "All Scoot Back",
+    "Girls Swing Thru",
+    "Boys Trade",
+    "Extend",
+    "Split Circulate",
+    "Hinge",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Girls Single Circle To A Wave,\"; Untranslatable: \"All Scoot Back,\"; Untranslatable: \"Girls Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

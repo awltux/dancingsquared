@@ -1,0 +1,18 @@
+{
+  "id": 4626,
+  "name": "ceder-4626",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Swing Thru & Slide Thru",
+    "All Swing Thru",
+    "Boys Run",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Heads Swing Thru & Slide Thru,\"; Untranslatable: \"All Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

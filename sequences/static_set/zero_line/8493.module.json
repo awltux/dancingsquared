@@ -1,0 +1,18 @@
+{
+  "id": 8493,
+  "name": "ceder-8493",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Four Ladies Chain 3/4",
+    "Head Position 1/2 Square Thru",
+    "1/2 Square Thru (with the outside two)",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Head Position 1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru (with the outside two),\"",
+  "source": "ceder.net/choreodb"
+}

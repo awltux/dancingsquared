@@ -1,0 +1,25 @@
+{
+  "id": 11017,
+  "name": "ceder-11017",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Same 4 Pass Thru",
+    "Separate Around 1 Come Into The Middle & Pass Thru",
+    "All Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Chain Down the Line",
+    "Star Thru",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" Same 4 Pass Thru,\"; Untranslatable: \"Separate Around 1 Come Into The Middle & Pass Thru,\"; Untranslatable: \"All Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

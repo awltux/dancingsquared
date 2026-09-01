@@ -1,0 +1,25 @@
+{
+  "id": 5609,
+  "name": "ceder-5609",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Flutter Wheel",
+    "Sides Half Sashay",
+    "Heads 1/2 Square Thru",
+    "Boys Pass Thru",
+    "All Cast Off 3/4",
+    "Boys Trade",
+    "Wheel and Deal",
+    "Ferris Wheel",
+    "Centers Left Swing Thru",
+    "Extend",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel,\"; Untranslatable: \"Sides Half Sashay,\"; Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"All Cast Off 3/4,\"; Untranslatable: \"Centers Left Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 11134,
+  "name": "ceder-11134",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Rollaway",
+    "Same 4 Star Thru",
+    "Pass Thru",
+    "Wheel Around",
+    "Half Sashay Twice (she goes, he goes)",
+    "Pass Thru",
+    "Swing And Promenade"
+  ],
+  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"Same 4 Star Thru,\"; Untranslatable: \"Half Sashay Twice (she goes, he goes),\"; Untranslatable: \"Swing And Promenade\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,26 @@
+{
+  "id": 2628,
+  "name": "ceder-2628",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 11,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Boys Trade",
+    "Hinge",
+    "Centers Trade",
+    "Swing Thru",
+    "Scoot Back",
+    "Girls Run",
+    "Touch a Quarter",
+    "Boys Run",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

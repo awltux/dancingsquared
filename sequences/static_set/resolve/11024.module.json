@@ -1,0 +1,25 @@
+{
+  "id": 11024,
+  "name": "ceder-11024",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Square Thru 4",
+    "All Square Thru 4",
+    "Wheel and Deal",
+    "Centers Half Sashay",
+    "Double Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Box the Gnat",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"Centers Half Sashay,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

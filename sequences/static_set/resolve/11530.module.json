@@ -1,0 +1,23 @@
+{
+  "id": 11530,
+  "name": "ceder-11530",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Square Thru 4",
+    "Slide Thru",
+    "Pass Thru",
+    "Ends Trade",
+    "All Cast Off 3/4",
+    "Centers Pass Thru",
+    "Ends Fold",
+    "Everybody Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"All Cast Off 3/4,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Everybody Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

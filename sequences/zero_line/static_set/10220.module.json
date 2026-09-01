@@ -1,0 +1,25 @@
+{
+  "id": 10220,
+  "name": "ceder-10220",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Wheel and Deal",
+    "Face Right",
+    "Circulate",
+    "Ferris Wheel",
+    "Centers Swing Thru",
+    "Scoot Back",
+    "Trade By",
+    "Centers Circulate",
+    "All Face Right",
+    "Swing Thru",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"All Face Right\"",
+  "source": "ceder.net/choreodb"
+}

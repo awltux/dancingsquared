@@ -1,0 +1,21 @@
+{
+  "id": 979,
+  "name": "ceder-979",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Right and Left Thru",
+    "Veer Left",
+    "Ferris Wheel",
+    "Centers Right And Left Thru & Rollaway",
+    "Zoom",
+    "Zoom",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Right And Left Thru & Rollaway\"",
+  "source": "ceder.net/choreodb"
+}

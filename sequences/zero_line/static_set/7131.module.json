@@ -1,0 +1,22 @@
+{
+  "id": 7131,
+  "name": "ceder-7131",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Swing Thru",
+    "Ladies Trade",
+    "Men Trade",
+    "Same Sex Trade",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Same Sex Trade\"",
+  "source": "ceder.net/choreodb"
+}

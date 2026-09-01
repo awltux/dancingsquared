@@ -1,0 +1,19 @@
+{
+  "id": 8637,
+  "name": "ceder-8637",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Swing Thru",
+    "Spin the Top",
+    "Pass Thru",
+    "Bend the Line",
+    "Star Thru",
+    "Right and Left Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

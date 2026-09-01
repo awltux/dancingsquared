@@ -1,0 +1,25 @@
+{
+  "id": 2545,
+  "name": "ceder-2545",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Pass Thru",
+    "Centers In",
+    "Boys Fold",
+    "Girls Square Thru 3",
+    "Star Thru",
+    "Boys Circulate",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Girls Square Thru 3,\"; Untranslatable: \"Boys Circulate,\"",
+  "source": "ceder.net/choreodb"
+}

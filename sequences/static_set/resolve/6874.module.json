@@ -1,0 +1,21 @@
+{
+  "id": 6874,
+  "name": "ceder-6874",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Join Hands And Circle Left",
+    "Rollaway",
+    "Circle Left",
+    "Rollaway",
+    "Circle Left",
+    "4 Ladies Chain Across",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Join Hands And Circle Left,\"; Untranslatable: \"4 Ladies Chain Across,\"",
+  "source": "ceder.net/choreodb"
+}

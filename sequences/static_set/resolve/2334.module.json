@@ -1,0 +1,20 @@
+{
+  "id": 2334,
+  "name": "ceder-2334",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Square Thru 4",
+    "Swing Thru",
+    "Recycle",
+    "Star Thru",
+    "California Twirl",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

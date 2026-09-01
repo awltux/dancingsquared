@@ -1,0 +1,28 @@
+{
+  "id": 10903,
+  "name": "ceder-10903",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Right & Left Thru & Rollaway",
+    "Pass Thru",
+    "Separate Around 1 To A Line",
+    "All Touch 1/4",
+    "Circulate",
+    "Boys Run",
+    "Swing Thru",
+    "Spin the Top",
+    "Recycle",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Square Thru 3",
+    "All Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru & Rollaway,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Touch 1/4,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"All Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

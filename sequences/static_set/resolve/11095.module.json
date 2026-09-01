@@ -1,0 +1,26 @@
+{
+  "id": 11095,
+  "name": "ceder-11095",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 6,
+  "steps": [
+    "Head Ladies Chain",
+    "Heads 1/2 Sashay",
+    "Heads Square Thru 4",
+    "Split The Outsides Around 1 To A Line",
+    "All Pass Thru",
+    "Girls Trade, Boys U-Turn Back",
+    "All Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Boys U-Turn Back",
+    "Star Thru",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Sashay,\"; Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Girls Trade, Boys U-Turn Back,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Boys U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 8752,
+  "name": "ceder-8752",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Veer Left",
+    "Couples Hinge",
+    "Couples Circulate",
+    "Couples Trade",
+    "Couples Circulate",
+    "Bend The Line (Zero Line) This is a Technical Zero. If it starts in a 1P2P line",
+    "it moves from a 1P2P line to a 4P1P line"
+  ],
+  "note": "Untranslatable: \"Bend The Line (Zero Line) This is a Technical Zero. If it starts in a 1P2P line\"; Untranslatable: \"it moves from a 1P2P line to a 4P1P line\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,26 @@
+{
+  "id": 10302,
+  "name": "ceder-10302",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Boys Circulate Twice",
+    "Swing Thru",
+    "Girls Circulate Twice",
+    "Recycle",
+    "Pass Thru",
+    "Ends Circulate",
+    "All Bend The Line",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Boys Circulate Twice,\"; Untranslatable: \"Girls Circulate Twice,\"; Untranslatable: \"All Bend The Line,\"",
+  "source": "ceder.net/choreodb"
+}

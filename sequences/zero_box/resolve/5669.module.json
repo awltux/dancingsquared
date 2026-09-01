@@ -1,0 +1,20 @@
+{
+  "id": 5669,
+  "name": "ceder-5669",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Slide Thru",
+    "Pass the Ocean",
+    "Ladies Run Right",
+    "Bend the Line",
+    "Square Thru 2",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Ladies Run Right\"",
+  "source": "ceder.net/choreodb"
+}

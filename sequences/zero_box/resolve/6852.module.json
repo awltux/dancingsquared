@@ -1,0 +1,18 @@
+{
+  "id": 6852,
+  "name": "ceder-6852",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "1/2 Square Thru",
+    "California Twirl",
+    "Pass Thru",
+    "Left Allemande After the Pass Thru the Formation = LFO (0)"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Left Allemande After the Pass Thru the Formation = LFO (0)\"",
+  "source": "ceder.net/choreodb"
+}

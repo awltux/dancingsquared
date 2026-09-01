@@ -1,0 +1,24 @@
+{
+  "id": 1618,
+  "name": "ceder-1618",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Right and Left Thru",
+    "Single Circle to a Wave",
+    "Boys Trade",
+    "Boys Run",
+    "Girls Trade",
+    "Wheel and Deal",
+    "Single Circle to a Wave",
+    "Girls Circulate",
+    "Boys Trade",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Circulate\"",
+  "source": "ceder.net/choreodb"
+}

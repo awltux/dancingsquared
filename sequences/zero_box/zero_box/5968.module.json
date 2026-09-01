@@ -1,0 +1,18 @@
+{
+  "id": 5968,
+  "name": "ceder-5968",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Single Circle 3/4 to a Wave",
+    "Centers Trade",
+    "Swing Thru",
+    "Boys Run",
+    "Slide Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

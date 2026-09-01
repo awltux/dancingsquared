@@ -1,0 +1,26 @@
+{
+  "id": 3778,
+  "name": "ceder-3778",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Star Thru",
+    "Pass Thru",
+    "Boys Run",
+    "Ends Circulate",
+    "Centers Trade",
+    "Boys Run",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Leaders Partner Trade",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Leaders Partner Trade\"",
+  "source": "ceder.net/choreodb"
+}

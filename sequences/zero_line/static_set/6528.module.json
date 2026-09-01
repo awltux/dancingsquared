@@ -1,0 +1,22 @@
+{
+  "id": 6528,
+  "name": "ceder-6528",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Half Sashay 1 & 1/2",
+    "4 Boys Swing Thru",
+    "Extend",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Half Sashay 1 & 1/2\"; Untranslatable: \"4 Boys Swing Thru\"",
+  "source": "ceder.net/choreodb"
+}

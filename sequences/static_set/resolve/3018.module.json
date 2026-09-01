@@ -1,0 +1,24 @@
+{
+  "id": 3018,
+  "name": "ceder-3018",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Scoot Back",
+    "Centers Swing Thru",
+    "Outsides Trade",
+    "Extend",
+    "Centers Trade",
+    "Boys Run",
+    "Pass the Ocean",
+    "Scoot Back",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru,\"; Untranslatable: \"Outsides Trade,\"",
+  "source": "ceder.net/choreodb"
+}

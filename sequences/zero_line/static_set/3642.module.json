@@ -1,0 +1,25 @@
+{
+  "id": 3642,
+  "name": "ceder-3642",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "Pass Thru",
+    "Half Tag",
+    "Swing Thru",
+    "Scoot Back",
+    "Hinge",
+    "Girls Trade",
+    "Girls Run",
+    "Tag the Line",
+    "Boys U-Turn Back",
+    "Star Thru",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Boys U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

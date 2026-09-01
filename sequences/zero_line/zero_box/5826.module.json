@@ -1,0 +1,19 @@
+{
+  "id": 5826,
+  "name": "ceder-5826",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Ends Circulate",
+    "Boys Run",
+    "Wheel and Deal",
+    "Right and Left Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,26 @@
+{
+  "id": 10681,
+  "name": "ceder-10681",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "Tag the Line",
+    "Centers In",
+    "Pass Thru",
+    "Bend the Line",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Left Allemande",
+    "R.L.G. (ends at home)"
+  ],
+  "note": "Untranslatable: \"R.L.G. (ends at home)\"",
+  "source": "ceder.net/choreodb"
+}

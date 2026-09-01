@@ -1,0 +1,27 @@
+{
+  "id": 5957,
+  "name": "ceder-5957",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 8,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Centers Trade",
+    "All 8 Circulate",
+    "Swing Thru",
+    "Scoot Back",
+    "Boys Run",
+    "Ends Star Thru",
+    "Centers Box The Gnat",
+    "Change Hands",
+    "Left Square Thru 2",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Ends Star Thru,\"; Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \" Change Hands,\"; Untranslatable: \" Left Square Thru 2,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,28 @@
+{
+  "id": 4079,
+  "name": "ceder-4079",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 13,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Pass Thru",
+    "Tag the Line",
+    "Face Right",
+    "Ferris Wheel",
+    "Boys Swing Thru",
+    "Extend",
+    "Boys Trade",
+    "Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Boys Swing Thru\"",
+  "source": "ceder.net/choreodb"
+}

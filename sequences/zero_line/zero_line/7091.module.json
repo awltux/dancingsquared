@@ -1,0 +1,21 @@
+{
+  "id": 7091,
+  "name": "ceder-7091",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "1/2 Square Thru",
+    "Trade By",
+    "Veer Left",
+    "Couples Circulate",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 11256,
+  "name": "ceder-11256",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Right & Left Thru",
+    "Slide Thru",
+    "Pass Thru",
+    "Star Thru",
+    "Slide Thru Twice",
+    "Pass Thru",
+    "Bend the Line",
+    "Dosado",
+    "Slide Thru 3 Times",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Slide Thru Twice,\"; Untranslatable: \"Slide Thru 3 Times,\"",
+  "source": "ceder.net/choreodb"
+}

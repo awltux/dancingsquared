@@ -1,0 +1,24 @@
+{
+  "id": 10300,
+  "name": "ceder-10300",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 6,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Touch a Quarter",
+    "Extend",
+    "Boys Swing Thru, Girls Trade",
+    "Extend",
+    "Girls Swing Thru, Boys Trade",
+    "Extend",
+    "Girls Run",
+    "1/2 Square Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Boys Swing Thru, Girls Trade,\"; Untranslatable: \"Girls Swing Thru, Boys Trade,\"; Untranslatable: \"1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

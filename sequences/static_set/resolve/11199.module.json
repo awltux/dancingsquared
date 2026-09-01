@@ -1,0 +1,21 @@
+{
+  "id": 11199,
+  "name": "ceder-11199",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 2,
+  "steps": [
+    "(Lesson 7-04)",
+    "Heads Star Thru",
+    "Same 4 Pass Thru",
+    "Centers Split 2, Around 1 Come Down The Middle",
+    "Center 4 Star Thru",
+    "Center 4 Pass Thru",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"(Lesson 7-04),\"; Untranslatable: \"Same 4 Pass Thru,\"; Untranslatable: \"Centers Split 2, Around 1 Come Down The Middle,\"; Untranslatable: \"Center 4 Star Thru,\"; Untranslatable: \"Center 4 Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

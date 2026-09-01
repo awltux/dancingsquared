@@ -1,0 +1,23 @@
+{
+  "id": 10819,
+  "name": "ceder-10819",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Square Thru 3",
+    "Separate Around 1 To A Line",
+    "All Pass Thru",
+    "Ends Cross Fold",
+    "Right and Left Thru",
+    "Centers In",
+    "Ends Cross Fold",
+    "Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \" Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 4501,
+  "name": "ceder-4501",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Pass the Ocean",
+    "Circulate",
+    "Hinge",
+    "Scoot Back 1 & 1/2",
+    "Couples Circulate",
+    "Bend the Line",
+    "Reverse Flutterwheel",
+    "Sweep a Quarter",
+    "Veer Right",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Scoot Back 1 & 1/2\"",
+  "source": "ceder.net/choreodb"
+}

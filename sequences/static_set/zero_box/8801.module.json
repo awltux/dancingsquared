@@ -1,0 +1,16 @@
+{
+  "id": 8801,
+  "name": "ceder-8801",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 2,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Flutter Wheel, Sweep 1/4",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel, Sweep 1/4,\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

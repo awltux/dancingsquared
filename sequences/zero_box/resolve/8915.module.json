@@ -1,0 +1,18 @@
+{
+  "id": 8915,
+  "name": "ceder-8915",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 0,
+  "steps": [
+    "Men Run",
+    "Single File Circulate Two Places",
+    "Men Run",
+    "Left Allemande This is also a Technical Zero that rotates the set 180°."
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Single File Circulate Two Places\"; Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande This is also a Technical Zero that rotates the set 180°.\"",
+  "source": "ceder.net/choreodb"
+}

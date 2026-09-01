@@ -1,0 +1,20 @@
+{
+  "id": 4404,
+  "name": "ceder-4404",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Right and Left Thru",
+    "Couples Circulate",
+    "Leaders Wheel Around",
+    "Pass the Ocean",
+    "Scoot Back",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Leaders Wheel Around\"",
+  "source": "ceder.net/choreodb"
+}

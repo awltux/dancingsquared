@@ -1,0 +1,20 @@
+{
+  "id": 9051,
+  "name": "ceder-9051",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Touch a Quarter",
+    "Men Run",
+    "Pass Thru",
+    "Left Allemande Tdby Formation"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande Tdby Formation\"",
+  "source": "ceder.net/choreodb"
+}

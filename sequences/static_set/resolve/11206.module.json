@@ -1,0 +1,27 @@
+{
+  "id": 11206,
+  "name": "ceder-11206",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Right & Left Thru & Pass Thru",
+    "Separate Around 2 To A Line",
+    "All Pass Thru",
+    "Wheel and Deal",
+    "Centers Box The Gnat & Square Thru 3",
+    "All Pass Thru",
+    "Centers Box The Gnat & Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Swing Thru",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru & Pass Thru,\"; Untranslatable: \"Separate Around 2 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Box The Gnat & Square Thru 3,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Box The Gnat & Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

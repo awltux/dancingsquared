@@ -1,0 +1,19 @@
+{
+  "id": 10530,
+  "name": "ceder-10530",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Centers Trade",
+    "Swing Thru",
+    "All 8 Circulate",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,16 @@
+{
+  "id": 8998,
+  "name": "ceder-8998",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 3,
+  "mappedCount": 3,
+  "steps": [
+    "Star Thru",
+    "Half Sashay",
+    "Right and Left Grand"
+  ],
+  "source": "ceder.net/choreodb"
+}

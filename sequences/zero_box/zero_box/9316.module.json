@@ -1,0 +1,17 @@
+{
+  "id": 9316,
+  "name": "ceder-9316",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Centers In",
+    "Centers Run",
+    "Box the Gnat",
+    "Slide Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,18 @@
+{
+  "id": 7132,
+  "name": "ceder-7132",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 0,
+  "steps": [
+    "4 Ladies Chain 3/4",
+    "4 Ladies Chain Across",
+    "Side Position Face & Grand Square 6 Steps",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"4 Ladies Chain Across,\"; Untranslatable: \"Side Position Face & Grand Square 6 Steps,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

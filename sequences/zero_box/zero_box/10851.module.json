@@ -1,0 +1,19 @@
+{
+  "id": 10851,
+  "name": "ceder-10851",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Swing Thru",
+    "Recycle",
+    "Touch a Quarter",
+    "Boys Run",
+    "Slide Thru (Zero Box) Girls are 'leading in the recycle"
+  ],
+  "note": "Untranslatable: \"Slide Thru (Zero Box) Girls are 'leading in the recycle\"",
+  "source": "ceder.net/choreodb"
+}

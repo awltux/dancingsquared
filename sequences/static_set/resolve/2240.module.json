@@ -1,0 +1,20 @@
+{
+  "id": 2240,
+  "name": "ceder-2240",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 3,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Dosado, Step To A Wave",
+    "Scoot Back",
+    "Girls Circulate, Boys Trade",
+    "Recycle",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Dosado, Step To A Wave,\"; Untranslatable: \"Girls Circulate, Boys Trade,\"",
+  "source": "ceder.net/choreodb"
+}

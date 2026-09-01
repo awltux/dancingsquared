@@ -1,0 +1,22 @@
+{
+  "id": 8970,
+  "name": "ceder-8970",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Swing Thru",
+    "Extend",
+    "Centers Swing Thru",
+    "Extend",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Star Thru",
+    "Left Allemande Trade By Formation"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Left Allemande Trade By Formation\"",
+  "source": "ceder.net/choreodb"
+}

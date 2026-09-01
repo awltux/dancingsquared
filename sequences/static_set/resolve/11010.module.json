@@ -1,0 +1,22 @@
+{
+  "id": 11010,
+  "name": "ceder-11010",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "Four Ladies Chain",
+    "Sides Square Thru 3",
+    "All Step Forward",
+    "Heads Square Thru 4",
+    "Centers In",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Sides Square Thru 3,\"; Untranslatable: \"All Step Forward,\"",
+  "source": "ceder.net/choreodb"
+}

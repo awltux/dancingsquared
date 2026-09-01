@@ -1,0 +1,16 @@
+{
+  "id": 8800,
+  "name": "ceder-8800",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 2,
+  "mappedCount": 0,
+  "steps": [
+    "Heads Right & Left Thru & Backaway",
+    "Sides Square Thru 2"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru & Backaway,\"; Untranslatable: \"Sides Square Thru 2\"",
+  "source": "ceder.net/choreodb"
+}

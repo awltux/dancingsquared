@@ -1,0 +1,19 @@
+{
+  "id": 6800,
+  "name": "ceder-6800",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Star Thru",
+    "Zoom",
+    "Centers Right & Left Thru",
+    "Zoom",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Centers Right & Left Thru,\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

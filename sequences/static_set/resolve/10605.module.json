@@ -1,0 +1,22 @@
+{
+  "id": 10605,
+  "name": "ceder-10605",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Pass Thru",
+    "Tag the Line",
+    "First Couple Go Right, Next Couple Go Left",
+    "Right and Left Thru",
+    "Circle Four 3/4",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"Circle Four 3/4,\"",
+  "source": "ceder.net/choreodb"
+}

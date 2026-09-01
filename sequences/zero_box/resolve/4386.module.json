@@ -1,0 +1,24 @@
+{
+  "id": 4386,
+  "name": "ceder-4386",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Swing Thru",
+    "Split Circulate",
+    "Hinge",
+    "Centers Trade",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Pass Thru",
+    "Tag the Line",
+    "Leaders U-Turn Back",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

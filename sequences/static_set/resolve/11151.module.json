@@ -1,0 +1,22 @@
+{
+  "id": 11151,
+  "name": "ceder-11151",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Promenade Halfway",
+    "Same 4 Square Thru 2 Hands",
+    "Everyone Square Thru 2 Hands",
+    "Dance Out & Back",
+    "Bend the Line",
+    "Slide Thru",
+    "Allemande Left",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Same 4 Square Thru 2 Hands,\"; Untranslatable: \"Everyone Square Thru 2 Hands,\"; Untranslatable: \"Dance Out & Back,\"",
+  "source": "ceder.net/choreodb"
+}

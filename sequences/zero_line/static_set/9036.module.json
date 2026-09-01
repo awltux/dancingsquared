@@ -1,0 +1,17 @@
+{
+  "id": 9036,
+  "name": "ceder-9036",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 4,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Veer Right",
+    "Couples Hinge",
+    "ALLEMANDE_LEFT"
+  ],
+  "source": "ceder.net/choreodb"
+}

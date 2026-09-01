@@ -1,0 +1,24 @@
+{
+  "id": 11393,
+  "name": "ceder-11393",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "(Lesson 11-6)",
+    "Heads Flutter Wheel",
+    "Heads Square Thru 2",
+    "Swing Thru",
+    "Box the Gnat",
+    "Slide Thru",
+    "Star Thru",
+    "Pass Thru",
+    "Allemande Left",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 11-6),\"; Untranslatable: \"Heads Flutter Wheel,\"",
+  "source": "ceder.net/choreodb"
+}

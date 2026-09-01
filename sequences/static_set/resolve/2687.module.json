@@ -1,0 +1,25 @@
+{
+  "id": 2687,
+  "name": "ceder-2687",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Right & Left Thru",
+    "1/2 Square Thru",
+    "All Right & Left Thru",
+    "1/2 Square Thru",
+    "Ends Fold",
+    "1/2 Square Thru",
+    "Ends Fold",
+    "1/2 Square Thru",
+    "Ends Fold",
+    "Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" 1/2 Square Thru,\"; Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

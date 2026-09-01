@@ -1,0 +1,24 @@
+{
+  "id": 10892,
+  "name": "ceder-10892",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Pass Thru",
+    "Separate Around 1 To A Line",
+    "Centers Square Thru 4",
+    "Others Star Thru",
+    "Dosado to a Wave",
+    "Circulate",
+    "Swing Thru",
+    "Spin the Top",
+    "Slide Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Square Thru 4,\"; Untranslatable: \" Others Star Thru,\"",
+  "source": "ceder.net/choreodb"
+}

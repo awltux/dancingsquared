@@ -1,0 +1,18 @@
+{
+  "id": 8757,
+  "name": "ceder-8757",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Cast Off Three Quarters",
+    "Pass Thru",
+    "Bend The Line (Zero Line) This rotates the set 180°."
+  ],
+  "note": "Untranslatable: \"Bend The Line (Zero Line) This rotates the set 180°.\"",
+  "source": "ceder.net/choreodb"
+}

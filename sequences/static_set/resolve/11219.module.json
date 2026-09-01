@@ -1,0 +1,26 @@
+{
+  "id": 11219,
+  "name": "ceder-11219",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 2,
+  "steps": [
+    "",
+    "Heads Pass Thru & Wheel Around",
+    "Heads Back Away",
+    "Sides Pass Thru & Wheel Around",
+    "Sides Back Away",
+    "All Join Hands & Circle Left",
+    "Allemande Left",
+    "(Back To The Partner)",
+    "Pass Thru",
+    "Right Arm Turn The Next",
+    "(Back To The Partner)",
+    "Wrong Way Promenade Home"
+  ],
+  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Pass Thru & Wheel Around,\"; Untranslatable: \"Heads Back Away,\"; Untranslatable: \"Sides Pass Thru & Wheel Around,\"; Untranslatable: \"Sides Back Away,\"; Untranslatable: \"All Join Hands & Circle Left,\"; Untranslatable: \"(Back To The Partner),\"; Untranslatable: \"Right Arm Turn The Next,\"; Untranslatable: \"(Back To The Partner),\"; Untranslatable: \"Wrong Way Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

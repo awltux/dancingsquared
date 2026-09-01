@@ -1,0 +1,19 @@
+{
+  "id": 6813,
+  "name": "ceder-6813",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Box the Gnat",
+    "Pass Thru",
+    "Bend the Line",
+    "Box the Gnat",
+    "Pass Thru",
+    "Bend the Line"
+  ],
+  "source": "ceder.net/choreodb"
+}

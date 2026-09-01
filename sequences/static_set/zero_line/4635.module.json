@@ -1,0 +1,19 @@
+{
+  "id": 4635,
+  "name": "ceder-4635",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Lead Right",
+    "Square Thru 4",
+    "On 3rd Hand Swing Thru",
+    "Spin the Top",
+    "Recycle"
+  ],
+  "note": "Untranslatable: \" On 3rd Hand Swing Thru,\"",
+  "source": "ceder.net/choreodb"
+}

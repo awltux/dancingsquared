@@ -1,0 +1,16 @@
+{
+  "id": 2796,
+  "name": "ceder-2796",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Touch a Quarter",
+    "Circulate",
+    "Boys Run"
+  ],
+  "source": "ceder.net/choreodb"
+}

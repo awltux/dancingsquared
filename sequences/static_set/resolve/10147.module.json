@@ -1,0 +1,25 @@
+{
+  "id": 10147,
+  "name": "ceder-10147",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line",
+    "Pass Thru",
+    "Ends Cross Fold",
+    "Left Swing Thru",
+    "Tag the Line",
+    "Partner Trade, Ends Face",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Partner Trade, Ends Face,\"",
+  "source": "ceder.net/choreodb"
+}

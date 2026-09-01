@@ -1,0 +1,21 @@
+{
+  "id": 7146,
+  "name": "ceder-7146",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Outsides Half Sashay",
+    "Swing Thru",
+    "Boys Run",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Leaders Trade"
+  ],
+  "note": "Untranslatable: \"Outsides Half Sashay\"; Untranslatable: \"Leaders Trade\"",
+  "source": "ceder.net/choreodb"
+}

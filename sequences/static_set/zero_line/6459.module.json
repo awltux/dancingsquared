@@ -1,0 +1,20 @@
+{
+  "id": 6459,
+  "name": "ceder-6459",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 7,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Recycle",
+    "Pass Thru",
+    "Single Circle to a Wave",
+    "Centers Trade",
+    "Spin the Top",
+    "Recycle"
+  ],
+  "source": "ceder.net/choreodb"
+}

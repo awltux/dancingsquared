@@ -1,0 +1,25 @@
+{
+  "id": 11537,
+  "name": "ceder-11537",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Lead Left",
+    "All Left Touch 1/4",
+    "Boys Run",
+    "Touch a Quarter",
+    "Circulate",
+    "Trade",
+    "Face In",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"All Left Touch 1/4,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

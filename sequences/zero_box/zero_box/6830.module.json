@@ -1,0 +1,19 @@
+{
+  "id": 6830,
+  "name": "ceder-6830",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Star Thru",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Bend the Line",
+    "Star Thru",
+    "Right and Left Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

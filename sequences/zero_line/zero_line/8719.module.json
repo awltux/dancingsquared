@@ -1,0 +1,22 @@
+{
+  "id": 8719,
+  "name": "ceder-8719",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 7,
+  "steps": [
+    "Pass Thru",
+    "Wheel Around",
+    "Pass Thru",
+    "Bend the Line",
+    "Pass Thru",
+    "Wheel Around",
+    "Pass Thru",
+    "Bend The Line (Zero Line) This is a 1/2 Fractional Zeeo. The string is repeated after the first four basics."
+  ],
+  "note": "Untranslatable: \"Bend The Line (Zero Line) This is a 1/2 Fractional Zeeo. The string is repeated after the first four basics.\"",
+  "source": "ceder.net/choreodb"
+}

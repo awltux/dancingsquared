@@ -1,0 +1,29 @@
+{
+  "id": 11100,
+  "name": "ceder-11100",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 15,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Half Sashay",
+    "All Join Hands, Circle Left",
+    "Boys Forward & Back",
+    "Boys Square Thru",
+    "Split The Outsides Around 1 To A Line",
+    "All Pass Thru",
+    "Bend the Line",
+    "Join Hands, Circle Left",
+    "Girls Forward & Back",
+    "Girls Square Thru 4",
+    "Split The Outsides Around 1 To A Line",
+    "All Pass Thru",
+    "Boys Fold",
+    "Star Thru",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"All Join Hands, Circle Left,\"; Untranslatable: \"Boys Forward & Back,\"; Untranslatable: \"Boys Square Thru,\"; Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Join Hands, Circle Left,\"; Untranslatable: \"Girls Forward & Back,\"; Untranslatable: \"Girls Square Thru 4,\"; Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

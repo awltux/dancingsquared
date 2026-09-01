@@ -1,0 +1,22 @@
+{
+  "id": 11070,
+  "name": "ceder-11070",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 5,
+  "steps": [
+    "(Lesson 8-11).",
+    "Heads Lead Right, Veer Left",
+    "Couples Circulate",
+    "Girls Run",
+    "Boys Cross Run, Girls Trade",
+    "Partner Trade",
+    "Right and Left Grand",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 8-11).,\"; Untranslatable: \" Heads Lead Right, Veer Left,\"; Untranslatable: \"Boys Cross Run, Girls Trade,\"",
+  "source": "ceder.net/choreodb"
+}

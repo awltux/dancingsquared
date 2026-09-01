@@ -1,0 +1,19 @@
+{
+  "id": 6770,
+  "name": "ceder-6770",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "4 Ladies Chain",
+    "Sides Pass Thru",
+    "Separate Around 1",
+    "Come Into The Middle & Pass Thru",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \"Separate Around 1,\"; Untranslatable: \" Come Into The Middle & Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

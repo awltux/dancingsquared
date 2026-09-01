@@ -1,0 +1,19 @@
+{
+  "id": 4632,
+  "name": "ceder-4632",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Swing Thru",
+    "Extend",
+    "Swing Thru",
+    "Girls U-Turn Back"
+  ],
+  "note": "Untranslatable: \"Girls U-Turn Back\"",
+  "source": "ceder.net/choreodb"
+}

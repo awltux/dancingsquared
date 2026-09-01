@@ -1,0 +1,27 @@
+{
+  "id": 11057,
+  "name": "ceder-11057",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 10,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Extend",
+    "Cast Off Three Quarters",
+    "Centers Trade",
+    "All Swing Thru",
+    "Cast Off Three Quarters",
+    "Centers Trade",
+    "All 8 Circulate",
+    "Centers Run",
+    "Ferris Wheel",
+    "Zoom",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"All Swing Thru,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

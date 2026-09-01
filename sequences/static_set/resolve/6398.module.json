@@ -1,0 +1,19 @@
+{
+  "id": 6398,
+  "name": "ceder-6398",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Allemand Left To Alamo Style",
+    "Balance",
+    "Alamo Swing Thru",
+    "Alamo Swing Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Allemand Left To Alamo Style,\"",
+  "source": "ceder.net/choreodb"
+}

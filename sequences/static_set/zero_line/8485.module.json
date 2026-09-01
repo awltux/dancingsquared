@@ -1,0 +1,19 @@
+{
+  "id": 8485,
+  "name": "ceder-8485",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Lead Right",
+    "Veer Left",
+    "Chain Down the Line",
+    "Two Ladies Chain",
+    "Same Four Circle 1/2"
+  ],
+  "note": "Untranslatable: \"Two Ladies Chain,\"; Untranslatable: \"Same Four Circle 1/2\"",
+  "source": "ceder.net/choreodb"
+}

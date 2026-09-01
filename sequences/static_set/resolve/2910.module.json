@@ -1,0 +1,21 @@
+{
+  "id": 2910,
+  "name": "ceder-2910",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Sides Face",
+    "Six Steps Grand Square",
+    "Forward and Back",
+    "Pass Thru",
+    "Bend the Line",
+    "Slide Thru",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Sides Face,\"; Untranslatable: \"Six Steps Grand Square,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 10567,
+  "name": "ceder-10567",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Lead Right",
+    "Swing Thru",
+    "Boys Trade",
+    "Hinge",
+    "Boys Run",
+    "Pass Thru",
+    "Girls Trade",
+    "Cast Off Three Quarters",
+    "Girls Circulate Twice",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Circulate Twice,\"",
+  "source": "ceder.net/choreodb"
+}

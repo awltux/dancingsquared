@@ -1,0 +1,25 @@
+{
+  "id": 11290,
+  "name": "ceder-11290",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Star Thru",
+    "U-Turn Back",
+    "All Pass Thru, Trade By",
+    "Dosado to a Wave",
+    "Swing Thru",
+    "Boys Run",
+    "Reverse Flutterwheel",
+    "Pass Thru, Trade By",
+    "Swing Thru",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"All Pass Thru, Trade By,\"; Untranslatable: \"Pass Thru, Trade By,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,24 @@
+{
+  "id": 2479,
+  "name": "ceder-2479",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Couples Hinge",
+    "Very Center Boys Trade",
+    "Wheel and Deal",
+    "Square Thru 4",
+    "Centers Square Thru 3",
+    "Ends Trade",
+    "Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Very Center Boys Trade\"; Untranslatable: \"Centers Square Thru 3\"",
+  "source": "ceder.net/choreodb"
+}

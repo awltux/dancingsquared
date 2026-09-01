@@ -1,0 +1,27 @@
+{
+  "id": 6123,
+  "name": "ceder-6123",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 9,
+  "steps": [
+    "Four Ladies Chain",
+    "Heads Flutter Wheel",
+    "Veer Left",
+    "Veer Right",
+    "Separate Around 1 To Lines",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Veer Right",
+    "Girls Veer Left",
+    "Star Thru",
+    "Wheel and Deal",
+    "Veer Right",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel,\"; Untranslatable: \"Separate Around 1 To Lines,\"; Untranslatable: \" Girls Veer Right,\"; Untranslatable: \"Girls Veer Left,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,21 @@
+{
+  "id": 6889,
+  "name": "ceder-6889",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 1,
+  "steps": [
+    "Allemande Left & The Ladies Star",
+    "Men Promenade",
+    "Allemande Left & The Men Star",
+    "Ladies Promenade",
+    "Allemande Left",
+    "Grand Right & Left",
+    "(Meet Your Partner And) Promenade Home"
+  ],
+  "note": "Untranslatable: \"Allemande Left & The Ladies Star,\"; Untranslatable: \"Men Promenade,\"; Untranslatable: \"Allemande Left & The Men Star,\"; Untranslatable: \"Ladies Promenade,\"; Untranslatable: \"Grand Right & Left,\"; Untranslatable: \"(Meet Your Partner And) Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

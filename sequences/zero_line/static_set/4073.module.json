@@ -1,0 +1,23 @@
+{
+  "id": 4073,
+  "name": "ceder-4073",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Face In",
+    "Pass the Ocean",
+    "Swing Thru",
+    "Extend",
+    "Centers Recycle",
+    "All Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Recycle\"; Untranslatable: \"All Trade By\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,20 @@
+{
+  "id": 11131,
+  "name": "ceder-11131",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 1,
+  "steps": [
+    "Heads Pass Thru And Wheel Around",
+    "Heads Half Sashay",
+    "Center 4 Star Thru",
+    "Make A Right-Hand Star, Turn It Halfway",
+    "Left-Hand Star Turn It Halfway",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads Pass Thru And Wheel Around,\"; Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"Center 4 Star Thru,\"; Untranslatable: \"Make A Right-Hand Star, Turn It Halfway,\"; Untranslatable: \"Left-Hand Star Turn It Halfway,\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,20 @@
+{
+  "id": 7128,
+  "name": "ceder-7128",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 2,
+  "steps": [
+    "Step To A Ocean Wave",
+    "Ladies Cross Run",
+    "Ladies Circulate",
+    "Men Cross Run",
+    "Right and Left Thru",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Step To A Ocean Wave\"; Untranslatable: \"Ladies Cross Run\"; Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Men Cross Run\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,27 @@
+{
+  "id": 11366,
+  "name": "ceder-11366",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 13,
+  "mappedCount": 9,
+  "steps": [
+    "(Lesson 12-11)",
+    "Heads Lead Left",
+    "Veer Right",
+    "Boys Trade",
+    "Cast Off Three Quarters",
+    "Reverse Flutterwheel",
+    "Do 1/2 Of A Half Sashay",
+    "Girls Pass Thru",
+    "Left Touch 1/4",
+    "Boys Trade",
+    "Recycle",
+    "Veer Right",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"(Lesson 12-11),\"; Untranslatable: \"Do 1/2 Of A Half Sashay,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Left Touch 1/4,\"",
+  "source": "ceder.net/choreodb"
+}

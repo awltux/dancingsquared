@@ -1,0 +1,19 @@
+{
+  "id": 7232,
+  "name": "ceder-7232",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 4,
+  "steps": [
+    "Right and Left Thru",
+    "Pass Thru",
+    "Partner Trade",
+    "Face Your Partner",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Face Your Partner\"",
+  "source": "ceder.net/choreodb"
+}

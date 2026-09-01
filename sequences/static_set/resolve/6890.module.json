@@ -1,0 +1,19 @@
+{
+  "id": 6890,
+  "name": "ceder-6890",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 0,
+  "steps": [
+    "Allemande Left & Heads Star Right",
+    "Sides Walk Around, But Not Too Far",
+    "Allemande Left & Sides Star Right",
+    "Heads Walk Around But Not Too Far",
+    "Allemande Left & Right & Left Grand"
+  ],
+  "note": "Untranslatable: \"Allemande Left & Heads Star Right,\"; Untranslatable: \"Sides Walk Around, But Not Too Far,\"; Untranslatable: \"Allemande Left & Sides Star Right,\"; Untranslatable: \"Heads Walk Around But Not Too Far,\"; Untranslatable: \"Allemande Left & Right & Left Grand\"",
+  "source": "ceder.net/choreodb"
+}

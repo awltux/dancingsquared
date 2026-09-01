@@ -1,0 +1,21 @@
+{
+  "id": 6337,
+  "name": "ceder-6337",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 6,
+  "steps": [
+    "Pass Thru",
+    "Centers Fold",
+    "Slide Thru",
+    "Pass Thru",
+    "Ends Fold",
+    "Slide Thru",
+    "Partner Trade"
+  ],
+  "note": "Untranslatable: \"Centers Fold\"",
+  "source": "ceder.net/choreodb"
+}

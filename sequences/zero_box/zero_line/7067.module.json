@@ -1,0 +1,21 @@
+{
+  "id": 7067,
+  "name": "ceder-7067",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 4,
+  "steps": [
+    "Swing Thru",
+    "All 8 Circulate",
+    "Ladies Circulate",
+    "Men Trade",
+    "Men Run",
+    "Couples Circulate",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Men Run\"",
+  "source": "ceder.net/choreodb"
+}

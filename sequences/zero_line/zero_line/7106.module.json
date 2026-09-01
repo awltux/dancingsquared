@@ -1,0 +1,19 @@
+{
+  "id": 7106,
+  "name": "ceder-7106",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Pass Thru",
+    "Men Run",
+    "Swing Thru",
+    "Swing Thru",
+    "Men Run"
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Men Run\"",
+  "source": "ceder.net/choreodb"
+}

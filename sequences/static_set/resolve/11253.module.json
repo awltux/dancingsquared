@@ -1,0 +1,25 @@
+{
+  "id": 11253,
+  "name": "ceder-11253",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 6,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Dosado to a Wave",
+    "Girls Run, Boys Trade",
+    "Boys Run, Girls Trade",
+    "Left Swing Thru",
+    "Boys Run, Girls Trade",
+    "Couples Circulate",
+    "Bend the Line",
+    "Star Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Girls Run, Boys Trade,\"; Untranslatable: \"Boys Run, Girls Trade,\"; Untranslatable: \"Boys Run, Girls Trade,\"",
+  "source": "ceder.net/choreodb"
+}

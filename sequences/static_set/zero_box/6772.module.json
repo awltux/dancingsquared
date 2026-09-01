@@ -1,0 +1,17 @@
+{
+  "id": 6772,
+  "name": "ceder-6772",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 1,
+  "steps": [
+    "4 Ladies Chain",
+    "Heads 1/2 Square Thru",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"Heads 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

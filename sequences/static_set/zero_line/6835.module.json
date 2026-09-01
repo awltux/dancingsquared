@@ -1,0 +1,22 @@
+{
+  "id": 6835,
+  "name": "ceder-6835",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Right & Left Thru, Backaway",
+    "Side Ladies Chain",
+    "Side Ladies Chain",
+    "Lines Of Three Forward & Back",
+    "Lonesome Men Turn Half Right",
+    "Pass Thru",
+    "Both Turn Right",
+    "Around 3 To A Line"
+  ],
+  "note": "Untranslatable: \"Heads Right & Left Thru, Backaway,\"; Untranslatable: \"Lines Of Three Forward & Back,\"; Untranslatable: \"Lonesome Men Turn Half Right,\"; Untranslatable: \"Both Turn Right,\"; Untranslatable: \"Around 3 To A Line\"",
+  "source": "ceder.net/choreodb"
+}

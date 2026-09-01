@@ -1,0 +1,20 @@
+{
+  "id": 3820,
+  "name": "ceder-3820",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Square Thru 3",
+    "Ends Trade",
+    "Hinge",
+    "Ends Fold",
+    "Centers Pass Thru",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

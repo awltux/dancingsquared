@@ -1,0 +1,22 @@
+{
+  "id": 4660,
+  "name": "ceder-4660",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": true,
+  "stepCount": 9,
+  "mappedCount": 9,
+  "steps": [
+    "Right and Left Thru",
+    "Rollaway",
+    "Pass Thru",
+    "Boys Trade",
+    "Girls Trade",
+    "Forward and Back",
+    "Star Thru",
+    "Pass Thru",
+    "Allemande Left"
+  ],
+  "source": "ceder.net/choreodb"
+}

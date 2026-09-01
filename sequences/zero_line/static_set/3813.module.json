@@ -1,0 +1,26 @@
+{
+  "id": 3813,
+  "name": "ceder-3813",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 8,
+  "steps": [
+    "Right and Left Thru",
+    "Pass the Ocean",
+    "Swing Thru",
+    "Girls Circulate",
+    "Boys Trade",
+    "Girls Run",
+    "Boys Zoom",
+    "Girls Trade",
+    "Ferris Wheel",
+    "Centers Sweep 1/4",
+    "Centers Square Thru 4",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Boys Zoom\"; Untranslatable: \"Centers Sweep 1/4\"; Untranslatable: \"Centers Square Thru 4\"",
+  "source": "ceder.net/choreodb"
+}

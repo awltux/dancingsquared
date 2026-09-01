@@ -1,0 +1,21 @@
+{
+  "id": 8649,
+  "name": "ceder-8649",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Veer Left",
+    "Couples Circulate",
+    "Half Tag",
+    "Centers Circulate",
+    "Split Circulate",
+    "Men Run",
+    "Circle Left 3/4 (Zero Box) This flip flops the set."
+  ],
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Circle Left 3/4 (Zero Box) This flip flops the set.\"",
+  "source": "ceder.net/choreodb"
+}

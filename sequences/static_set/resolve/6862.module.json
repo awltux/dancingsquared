@@ -1,0 +1,21 @@
+{
+  "id": 6862,
+  "name": "ceder-6862",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Circle 1/2 & Pass Thru",
+    "Separate Around 1 Come Into The Middle",
+    "Circle 1/2 & Pass Thru",
+    "Split The Outsides Around 1 Come Into The Middle",
+    "Pass Thru",
+    "Swing Partner",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Heads Circle 1/2 & Pass Thru,\"; Untranslatable: \"Separate Around 1 Come Into The Middle,\"; Untranslatable: \" Circle 1/2 & Pass Thru,\"; Untranslatable: \"Split The Outsides Around 1 Come Into The Middle,\"; Untranslatable: \"Swing Partner,\"",
+  "source": "ceder.net/choreodb"
+}

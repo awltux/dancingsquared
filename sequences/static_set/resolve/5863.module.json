@@ -1,0 +1,24 @@
+{
+  "id": 5863,
+  "name": "ceder-5863",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Heads Star Thru",
+    "Double Pass Thru",
+    "Leaders U-Turn Back",
+    "Swing Thru",
+    "Centers Trade",
+    "Centers Run",
+    "Ferris Wheel, Centers Sweep 1/4",
+    "Centers 1/2 Square Thru",
+    "Touch a Quarter",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Leaders U-Turn Back,\"; Untranslatable: \"Ferris Wheel, Centers Sweep 1/4,\"; Untranslatable: \"Centers 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

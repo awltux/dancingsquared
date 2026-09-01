@@ -1,0 +1,18 @@
+{
+  "id": 1382,
+  "name": "ceder-1382",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Heads Lead Right, Veer Left",
+    "Chain Down the Line",
+    "Spin the Top",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Lead Right, Veer Left,\"",
+  "source": "ceder.net/choreodb"
+}

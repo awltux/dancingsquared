@@ -1,0 +1,24 @@
+{
+  "id": 6992,
+  "name": "ceder-6992",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 2,
+  "steps": [
+    "Sides Wrong Way Promenade Half Way",
+    "Heads Wrong Way Promenade Half Way",
+    "Heads Left Square Thru",
+    "All Left Square Thru",
+    "Left (shoulder) Partner Trade",
+    "Slide Thru",
+    "Left (shoulder) Pass Thru",
+    "U Turn Back",
+    "Left Square Thru Three",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Sides Wrong Way Promenade Half Way,\"; Untranslatable: \"Heads Wrong Way Promenade Half Way,\"; Untranslatable: \"Heads Left Square Thru,\"; Untranslatable: \"All Left Square Thru,\"; Untranslatable: \"Left (shoulder) Partner Trade,\"; Untranslatable: \"Left (shoulder) Pass Thru,\"; Untranslatable: \"U Turn Back,\"; Untranslatable: \"Left Square Thru Three,\"",
+  "source": "ceder.net/choreodb"
+}

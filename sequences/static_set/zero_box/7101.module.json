@@ -1,0 +1,19 @@
+{
+  "id": 7101,
+  "name": "ceder-7101",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "4 Ladies Chain",
+    "Heads Right & Left Thru",
+    "Star Thru",
+    "Double Pass Thru",
+    "Leaders California Twirl"
+  ],
+  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Leaders California Twirl\"",
+  "source": "ceder.net/choreodb"
+}

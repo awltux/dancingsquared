@@ -1,0 +1,28 @@
+{
+  "id": 6079,
+  "name": "ceder-6079",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 5,
+  "steps": [
+    "Head Ladies Chain",
+    "Rollaway",
+    "Lines Of 3 Forward & Back",
+    "Lines Of 3 Pass Thru",
+    "Girls Trade",
+    "Head Man (Single) Promenade 3/4",
+    "Waves Of 3 Right Swing Thru",
+    "Waves Of 3 Right Swing Thru (again)",
+    "Everybody Star Thru",
+    "California Twirl",
+    "Centers Wheel & Deal",
+    "Zoom",
+    "New Centers Pass Thru",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Lines Of 3 Forward & Back,\"; Untranslatable: \"Lines Of 3 Pass Thru,\"; Untranslatable: \"Head Man (Single) Promenade 3/4,\"; Untranslatable: \"Waves Of 3 Right Swing Thru,\"; Untranslatable: \"Waves Of 3 Right Swing Thru (again),\"; Untranslatable: \"Everybody Star Thru,\"; Untranslatable: \"Centers Wheel & Deal,\"; Untranslatable: \"New Centers Pass Thru,\"",
+  "source": "ceder.net/choreodb"
+}

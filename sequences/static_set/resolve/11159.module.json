@@ -1,0 +1,18 @@
+{
+  "id": 11159,
+  "name": "ceder-11159",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Sides Face, Grand Square",
+    "Heads Face, Grand Square",
+    "Sides Face, Heads Face",
+    "R.L.G., Promenade Home"
+  ],
+  "note": "Untranslatable: \"Sides Face, Heads Face,\"; Untranslatable: \"R.L.G., Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

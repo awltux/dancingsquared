@@ -1,0 +1,16 @@
+{
+  "id": 6815,
+  "name": "ceder-6815",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 3,
+  "mappedCount": 3,
+  "steps": [
+    "Rollaway",
+    "Box the Gnat",
+    "Right and Left Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

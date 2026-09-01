@@ -1,0 +1,22 @@
+{
+  "id": 1645,
+  "name": "ceder-1645",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 6,
+  "steps": [
+    "Swing Thru",
+    "Boys Trade",
+    "Boys Run",
+    "Ferris Wheel",
+    "Centers Swing Thru",
+    "Outsides Half Sashay",
+    "Extend",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Outsides Half Sashay\"",
+  "source": "ceder.net/choreodb"
+}

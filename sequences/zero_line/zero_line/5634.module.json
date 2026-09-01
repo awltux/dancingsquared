@@ -1,0 +1,18 @@
+{
+  "id": 5634,
+  "name": "ceder-5634",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 5,
+  "mappedCount": 5,
+  "steps": [
+    "Pass Thru",
+    "Tag the Line",
+    "Star Thru",
+    "California Twirl",
+    "Slide Thru"
+  ],
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,19 @@
+{
+  "id": 2466,
+  "name": "ceder-2466",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 3,
+  "steps": [
+    "Four Ladies Chain 3/4",
+    "Rollaway",
+    "Head Position Square Thru",
+    "Split The Outside Two",
+    "Around One to a Line"
+  ],
+  "note": "Untranslatable: \"Head Position Square Thru,\"; Untranslatable: \"Split The Outside Two,\"",
+  "source": "ceder.net/choreodb"
+}

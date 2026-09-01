@@ -1,0 +1,22 @@
+{
+  "id": 10185,
+  "name": "ceder-10185",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 8,
+  "mappedCount": 4,
+  "steps": [
+    "Swing Thru",
+    "Centers Box Circulate",
+    "Swing Thru",
+    "Centers Box Circulate",
+    "Recycle",
+    "Sweep a Quarter",
+    "Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"Centers Box Circulate\"",
+  "source": "ceder.net/choreodb"
+}

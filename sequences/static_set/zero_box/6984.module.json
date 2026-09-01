@@ -1,0 +1,17 @@
+{
+  "id": 6984,
+  "name": "ceder-6984",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Veer Left",
+    "Half Tag",
+    "Boys Run"
+  ],
+  "note": "Untranslatable: \"Heads Veer Left,\"",
+  "source": "ceder.net/choreodb"
+}

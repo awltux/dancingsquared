@@ -1,0 +1,19 @@
+{
+  "id": 7078,
+  "name": "ceder-7078",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Heads Flutter Wheel",
+    "Star Thru",
+    "Zoom",
+    "Centers Flutter Wheel",
+    "Centers Pass Thru"
+  ],
+  "note": "Untranslatable: \"Heads Flutter Wheel,\"; Untranslatable: \"Centers Flutter Wheel,\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

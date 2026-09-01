@@ -1,0 +1,21 @@
+{
+  "id": 8438,
+  "name": "ceder-8438",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Star Thru",
+    "Zoom",
+    "Double Pass Thru",
+    "Centers In",
+    "Cast Off Three Quarters",
+    "Centers Square Thru 4",
+    "Ends Star Thru"
+  ],
+  "note": "Untranslatable: \"Centers Square Thru 4,\"; Untranslatable: \"Ends Star Thru\"",
+  "source": "ceder.net/choreodb"
+}

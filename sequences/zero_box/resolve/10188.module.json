@@ -1,0 +1,25 @@
+{
+  "id": 10188,
+  "name": "ceder-10188",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 8,
+  "steps": [
+    "Swing Thru",
+    "Boys Run",
+    "Chain Down the Line",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Sweep 1/4",
+    "Centers 1/2 Square Thru",
+    "All Pass Thru",
+    "Trade By",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Centers Sweep 1/4\"; Untranslatable: \"Centers 1/2 Square Thru\"; Untranslatable: \"All Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,20 @@
+{
+  "id": 5814,
+  "name": "ceder-5814",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 4,
+  "steps": [
+    "Heads Touch 1/4",
+    "Box Circulate",
+    "Girls Run",
+    "All Touch 1/4",
+    "Split Circulate",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Heads Touch 1/4,\"; Untranslatable: \"All Touch 1/4,\"",
+  "source": "ceder.net/choreodb"
+}

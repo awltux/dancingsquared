@@ -1,0 +1,26 @@
+{
+  "id": 5628,
+  "name": "ceder-5628",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 10,
+  "steps": [
+    "Pass the Ocean",
+    "Swing Thru",
+    "Boys Run",
+    "Couples Circulate",
+    "Wheel and Deal",
+    "Star Thru",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Zoom",
+    "Centers Pass Thru",
+    "Box the Gnat",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Girls Zoom\"; Untranslatable: \"Centers Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

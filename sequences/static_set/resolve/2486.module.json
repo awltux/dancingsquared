@@ -1,0 +1,25 @@
+{
+  "id": 2486,
+  "name": "ceder-2486",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 9,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Circulate",
+    "Chain Down the Line",
+    "Star Thru",
+    "Pass Thru",
+    "Trade By",
+    "Square Thru 4",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

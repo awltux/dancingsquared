@@ -1,0 +1,21 @@
+{
+  "id": 6145,
+  "name": "ceder-6145",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 2,
+  "steps": [
+    "Four Ladies Chain 3/4",
+    "Heads Promenade Half-Way",
+    "Sides Half Sashay",
+    "Heads Pass Thru",
+    "Everybody Join Hands",
+    "Circle One Way Or The Other",
+    "Allemande Left"
+  ],
+  "note": "Untranslatable: \"Heads Promenade Half-Way,\"; Untranslatable: \"Sides Half Sashay,\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Everybody Join Hands,\"; Untranslatable: \" Circle One Way Or The Other,\"",
+  "source": "ceder.net/choreodb"
+}

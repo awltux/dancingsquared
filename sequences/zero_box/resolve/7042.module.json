@@ -1,0 +1,21 @@
+{
+  "id": 7042,
+  "name": "ceder-7042",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "Veer Left",
+    "Men Trade",
+    "Ladies Trade",
+    "Men Trade",
+    "Bend the Line",
+    "Square Thru 4",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

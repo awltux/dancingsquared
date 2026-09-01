@@ -1,0 +1,20 @@
+{
+  "id": 7058,
+  "name": "ceder-7058",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 6,
+  "mappedCount": 5,
+  "steps": [
+    "Swing Thru",
+    "Ends Circulate",
+    "Swing Thru",
+    "Right and Left Thru",
+    "Pass Thru",
+    "Left Allemande After the Pass Thru formation = TdBy (0)"
+  ],
+  "note": "Untranslatable: \"Left Allemande After the Pass Thru formation = TdBy (0)\"",
+  "source": "ceder.net/choreodb"
+}

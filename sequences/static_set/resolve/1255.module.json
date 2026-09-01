@@ -1,0 +1,26 @@
+{
+  "id": 1255,
+  "name": "ceder-1255",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 12,
+  "mappedCount": 11,
+  "steps": [
+    "Heads Star Thru",
+    "Slide Thru",
+    "Star Thru",
+    "Pass Thru",
+    "Swing Thru",
+    "Boys Run",
+    "Wheel and Deal",
+    "Pass Thru",
+    "Trade By",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

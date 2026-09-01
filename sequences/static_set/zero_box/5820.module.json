@@ -1,0 +1,17 @@
+{
+  "id": 5820,
+  "name": "ceder-5820",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Heads 1/2 Square Thru",
+    "Square Thru 3",
+    "Trade By"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

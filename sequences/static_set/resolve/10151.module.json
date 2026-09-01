@@ -1,0 +1,24 @@
+{
+  "id": 10151,
+  "name": "ceder-10151",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Lead Right",
+    "Touch a Quarter",
+    "Scoot Back",
+    "Boys Fold",
+    "Double Pass Thru",
+    "Centers In",
+    "Pass Thru",
+    "Centers Cross Fold",
+    "Star Thru",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \"Centers Cross Fold,\"",
+  "source": "ceder.net/choreodb"
+}

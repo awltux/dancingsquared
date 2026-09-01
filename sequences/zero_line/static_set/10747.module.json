@@ -1,0 +1,25 @@
+{
+  "id": 10747,
+  "name": "ceder-10747",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 4,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Girls Only Zoom",
+    "Centers Dosado To A Wave",
+    "Centers Spin The Top",
+    "Same 4 Pass Thru",
+    "Separate Around 1 To A Line",
+    "All Dosado To A Wave",
+    "Spin the Top",
+    "Extend",
+    "R.L.G Spin The Top"
+  ],
+  "note": "Untranslatable: \"Girls Only Zoom\"; Untranslatable: \"Centers Dosado To A Wave\"; Untranslatable: \"Centers Spin The Top\"; Untranslatable: \"Same 4 Pass Thru\"; Untranslatable: \"Separate Around 1 To A Line\"; Untranslatable: \"All Dosado To A Wave\"; Untranslatable: \"R.L.G Spin The Top\"",
+  "source": "ceder.net/choreodb"
+}

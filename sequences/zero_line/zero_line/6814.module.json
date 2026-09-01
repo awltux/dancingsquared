@@ -1,0 +1,17 @@
+{
+  "id": 6814,
+  "name": "ceder-6814",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Pass Thru",
+    "Everybody Wheel Around",
+    "Right and Left Thru"
+  ],
+  "note": "Untranslatable: \"Everybody Wheel Around\"",
+  "source": "ceder.net/choreodb"
+}

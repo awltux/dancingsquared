@@ -1,0 +1,18 @@
+{
+  "id": 8612,
+  "name": "ceder-8612",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "Dive Thru",
+    "Zoom",
+    "Centers Right & Left Thru",
+    "Same 4 Pass Thru"
+  ],
+  "note": "Untranslatable: \"Centers Right & Left Thru\"; Untranslatable: \"Same 4 Pass Thru\"",
+  "source": "ceder.net/choreodb"
+}

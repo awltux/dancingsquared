@@ -1,0 +1,18 @@
+{
+  "id": 8691,
+  "name": "ceder-8691",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 3,
+  "steps": [
+    "Head Ladies Chain",
+    "Heads 1/2 Square Thru",
+    "Slide Thru",
+    "Flutterwheel"
+  ],
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"",
+  "source": "ceder.net/choreodb"
+}

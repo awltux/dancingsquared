@@ -1,0 +1,18 @@
+{
+  "id": 6555,
+  "name": "ceder-6555",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 4,
+  "mappedCount": 2,
+  "steps": [
+    "4 Ladies Chain 3/4",
+    "Head Position Pass The Ocean",
+    "Extend",
+    "Recycle"
+  ],
+  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"Head Position Pass The Ocean,\"",
+  "source": "ceder.net/choreodb"
+}

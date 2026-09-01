@@ -1,0 +1,19 @@
+{
+  "id": 7029,
+  "name": "ceder-7029",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 2,
+  "steps": [
+    "Pass the Ocean",
+    "Ladies Trade",
+    "Men Trade",
+    "Pass Thru",
+    "Left Allemande After the Pass Thru Formation = TdBy (0)"
+  ],
+  "note": "Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Left Allemande After the Pass Thru Formation = TdBy (0)\"",
+  "source": "ceder.net/choreodb"
+}

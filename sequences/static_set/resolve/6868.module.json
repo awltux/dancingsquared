@@ -1,0 +1,23 @@
+{
+  "id": 6868,
+  "name": "ceder-6868",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 3,
+  "steps": [
+    "Allemande Left",
+    "All (Couple) Promenade",
+    "Put The Ladies In Front, All Single File Promenade",
+    "Ladies U Turn Back",
+    "Dosado",
+    "4 Men Star Left One Time",
+    "Box the Gnat",
+    "Pull By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"All (Couple) Promenade,\"; Untranslatable: \"Put The Ladies In Front, All Single File Promenade,\"; Untranslatable: \"Ladies U Turn Back,\"; Untranslatable: \"4 Men Star Left One Time,\"; Untranslatable: \"Pull By,\"; Untranslatable: \"Left Allemande\"",
+  "source": "ceder.net/choreodb"
+}

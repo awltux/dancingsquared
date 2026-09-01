@@ -1,0 +1,24 @@
+{
+  "id": 6974,
+  "name": "ceder-6974",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Zero Line",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Square Thru 3/4",
+    "Both Turn Right Single File",
+    "Lady Around 2, Gent Around 1",
+    "Lines Forward & Back",
+    "Pass Thru",
+    "Wheel and Deal",
+    "Double Pass Thru",
+    "Outside 4 U-Turn Back",
+    "Star Thru",
+    "Bend the Line"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru 3/4,\"; Untranslatable: \"Both Turn Right Single File,\"; Untranslatable: \" Lady Around 2, Gent Around 1,\"; Untranslatable: \"Lines Forward & Back,\"; Untranslatable: \"Outside 4 U-Turn Back,\"",
+  "source": "ceder.net/choreodb"
+}

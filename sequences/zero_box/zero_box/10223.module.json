@@ -1,0 +1,25 @@
+{
+  "id": 10223,
+  "name": "ceder-10223",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 11,
+  "mappedCount": 5,
+  "steps": [
+    "Put Centers In",
+    "Cast Off Three Quarters",
+    "Ends Run",
+    "New Ends Box The Gnat",
+    "Ends Around The Outside Square Thru 3",
+    "Ends Run",
+    "New Ends Box The Gnat",
+    "Ends Around The Outside Square Thru 3",
+    "Ends Run",
+    "All Right And Left Thru",
+    "Star Thru"
+  ],
+  "note": "Untranslatable: \"Put Centers In\"; Untranslatable: \"New Ends Box The Gnat\"; Untranslatable: \"Ends Around The Outside Square Thru 3\"; Untranslatable: \"New Ends Box The Gnat\"; Untranslatable: \"Ends Around The Outside Square Thru 3\"; Untranslatable: \"All Right And Left Thru\"",
+  "source": "ceder.net/choreodb"
+}

@@ -1,0 +1,23 @@
+{
+  "id": 10515,
+  "name": "ceder-10515",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 9,
+  "steps": [
+    "Heads Square Thru 4",
+    "Square Thru 3",
+    "Trade By",
+    "Square Thru 2",
+    "Ends Fold",
+    "Square Thru 4",
+    "Ends Fold",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "source": "ceder.net/choreodb"
+}

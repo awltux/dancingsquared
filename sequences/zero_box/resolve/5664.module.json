@@ -1,0 +1,17 @@
+{
+  "id": 5664,
+  "name": "ceder-5664",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 3,
+  "mappedCount": 2,
+  "steps": [
+    "Slide Thru",
+    "Square Thru 4",
+    "Do An Allemande Left"
+  ],
+  "note": "Untranslatable: \"Do An Allemande Left\"",
+  "source": "ceder.net/choreodb"
+}

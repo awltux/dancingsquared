@@ -1,0 +1,19 @@
+{
+  "id": 2626,
+  "name": "ceder-2626",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Zero Line",
+  "success": true,
+  "stepCount": 6,
+  "mappedCount": 6,
+  "steps": [
+    "Pass the Ocean",
+    "Hinge",
+    "Centers Trade",
+    "Swing Thru",
+    "Scoot Back",
+    "Boys Run"
+  ],
+  "source": "ceder.net/choreodb"
+}

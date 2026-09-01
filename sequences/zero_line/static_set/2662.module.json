@@ -1,0 +1,28 @@
+{
+  "id": 2662,
+  "name": "ceder-2662",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 10,
+  "steps": [
+    "Pass Thru",
+    "3/4 Tag the Line",
+    "Centers Recycle",
+    "Others U-Turn Back",
+    "Centers Square Thru 3/4",
+    "Single Circle to a Wave",
+    "Boys Trade",
+    "Boys Run",
+    "Couples Circulate",
+    "Bend the Line",
+    "Star Thru",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Recycle\"; Untranslatable: \"Others U-Turn Back\"; Untranslatable: \"Centers Square Thru 3/4\"",
+  "source": "ceder.net/choreodb"
+}

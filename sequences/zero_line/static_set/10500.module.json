@@ -1,0 +1,24 @@
+{
+  "id": 10500,
+  "name": "ceder-10500",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 8,
+  "steps": [
+    "Pass Thru",
+    "Partner Hinge",
+    "Girls Trade",
+    "Girls Run",
+    "Men Trade",
+    "Bend the Line",
+    "Circle 4 Halfway",
+    "Pass Thru",
+    "Partner Hinge",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Circle 4 Halfway\"",
+  "source": "ceder.net/choreodb"
+}

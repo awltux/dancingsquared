@@ -1,0 +1,33 @@
+{
+  "id": 11401,
+  "name": "ceder-11401",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 19,
+  "mappedCount": 13,
+  "steps": [
+    "(Lesson 11-14)",
+    "Heads Square Thru 4",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Hinge",
+    "Center Couples Trade",
+    "Couples Hinge",
+    "Ferris Wheel",
+    "Centers Pass Thru",
+    "Right and Left Thru",
+    "Veer Left",
+    "Couples Hinge",
+    "Center Couples Trade",
+    "Couples Hinge",
+    "Ferris Wheel",
+    "Centers Veer Left, Centers Veer Right",
+    "Left Box The Gnat",
+    "Left Pull By",
+    "Right and Left Grand"
+  ],
+  "note": "Untranslatable: \"(Lesson 11-14),\"; Untranslatable: \"Center Couples Trade,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Center Couples Trade,\"; Untranslatable: \"Centers Veer Left, Centers Veer Right,\"; Untranslatable: \"Left Box The Gnat,\"",
+  "source": "ceder.net/choreodb"
+}

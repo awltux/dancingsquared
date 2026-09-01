@@ -1,0 +1,23 @@
+{
+  "id": 11293,
+  "name": "ceder-11293",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 9,
+  "mappedCount": 6,
+  "steps": [
+    "Heads Pass the Ocean",
+    "Those Girls Trade",
+    "Extend",
+    "Girls Trade",
+    "All 8 Circulate",
+    "Swing Thru 1 & 1/2",
+    "Girls Run",
+    "Wheel and Deal",
+    "R.L.G. On 3rd Hand Promenade Home"
+  ],
+  "note": "Untranslatable: \"Those Girls Trade,\"; Untranslatable: \"Swing Thru 1 & 1/2,\"; Untranslatable: \"R.L.G. On 3rd Hand Promenade Home\"",
+  "source": "ceder.net/choreodb"
+}

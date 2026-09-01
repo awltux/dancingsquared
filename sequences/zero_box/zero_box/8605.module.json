@@ -1,0 +1,21 @@
+{
+  "id": 8605,
+  "name": "ceder-8605",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Zero Box",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "*** not validated *** (Zero Box) Dive Thru",
+    "Centers Pass Thru",
+    "Swing Thru",
+    "Ladies Trade",
+    "All 8 Circulate",
+    "Swing Thru",
+    "Men Trade (Zero Box) This flip Flops the set."
+  ],
+  "note": "Untranslatable: \"*** not validated *** (Zero Box) Dive Thru\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade (Zero Box) This flip Flops the set.\"",
+  "source": "ceder.net/choreodb"
+}

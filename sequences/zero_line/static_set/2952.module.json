@@ -1,0 +1,24 @@
+{
+  "id": 2952,
+  "name": "ceder-2952",
+  "level": "Mainstream",
+  "startFormation": "Zero Line",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 10,
+  "mappedCount": 7,
+  "steps": [
+    "Pass Thru",
+    "Wheel and Deal",
+    "Centers Spin The Top & Slide Thru",
+    "All Dosado",
+    "Step to a Wave",
+    "Girls Trade",
+    "Recycle",
+    "Pass Thru",
+    "Trade By",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Centers Spin The Top & Slide Thru\"; Untranslatable: \"All Dosado\"",
+  "source": "ceder.net/choreodb"
+}

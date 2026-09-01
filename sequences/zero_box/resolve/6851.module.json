@@ -1,0 +1,19 @@
+{
+  "id": 6851,
+  "name": "ceder-6851",
+  "level": "Mainstream",
+  "startFormation": "Zero Box",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 5,
+  "mappedCount": 1,
+  "steps": [
+    "Split The Outside 2",
+    "Around 1 To A Line",
+    "Everybody Box The Gnat",
+    "Pass Thru",
+    "Left Allemande After the Pass Thru the Formation = LFO (0)"
+  ],
+  "note": "Untranslatable: \"Split The Outside 2\"; Untranslatable: \"Around 1 To A Line\"; Untranslatable: \"Everybody Box The Gnat\"; Untranslatable: \"Left Allemande After the Pass Thru the Formation = LFO (0)\"",
+  "source": "ceder.net/choreodb"
+}

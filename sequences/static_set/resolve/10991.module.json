@@ -1,0 +1,28 @@
+{
+  "id": 10991,
+  "name": "ceder-10991",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 14,
+  "mappedCount": 5,
+  "steps": [
+    "Heads Square Thru",
+    "Swing Thru",
+    "Boys Run",
+    "Bend the Line",
+    "Right and Left Thru",
+    "Touch a Quarter",
+    "Circulate",
+    "Very Center Boys Trade & Slide Apart",
+    "Girls Cast Off 3/4",
+    "Very Center Girls Cast Off 3/4",
+    "Center Wave Recycle",
+    "Others Bend The Line",
+    "Centers Square Thru 3",
+    "Left Allemande"
+  ],
+  "note": "Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"Very Center Boys Trade & Slide Apart,\"; Untranslatable: \"Girls Cast Off 3/4,\"; Untranslatable: \"Very Center Girls Cast Off 3/4,\"; Untranslatable: \"Center Wave Recycle,\"; Untranslatable: \" Others Bend The Line,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "source": "ceder.net/choreodb"
+}

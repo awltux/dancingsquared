@@ -1,0 +1,21 @@
+{
+  "id": 11225,
+  "name": "ceder-11225",
+  "level": "Mainstream",
+  "startFormation": "Static Square",
+  "endFormation": "Static Square",
+  "success": false,
+  "stepCount": 7,
+  "mappedCount": 3,
+  "steps": [
+    "",
+    "Heads Make A Right-Hand Star One Time To Your Corner",
+    "Allemande Left",
+    "Dosado",
+    "Boys Star Left",
+    "(Get Home And) Swing Partner",
+    "ALLEMANDE_LEFT"
+  ],
+  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Make A Right-Hand Star One Time To Your Corner,\"; Untranslatable: \"Boys Star Left,\"; Untranslatable: \"(Get Home And) Swing Partner,\"",
+  "source": "ceder.net/choreodb"
+}

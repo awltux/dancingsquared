@@ -484,10 +484,11 @@ export class TipGenerator {
       const usedHere = new Set<string>();
       const usedFamilies = new Set<string>();
       let guard = 0;
+      let bodyReason = '';
       while (tip.length < maxLen && guard++ < 300) {
         const snapshot = seq.startBoard();
         const candidates = applicableFrom(seq, snapshot, available);
-        if (!candidates.length) break;
+        if (!candidates.length) { bodyReason = 'no candidates from board'; break; }
         const withCont = candidates.filter((name) => {
           const probe = seq.applyToBoard(snapshot, name);
           return probe.legal && hasApplicable(seq, probe.board, available);
@@ -549,13 +550,21 @@ export class TipGenerator {
         };
         const pick = weightedPick(pool, combinedProb, rand);
         const step = seq.apply(pick);
-        if (!step.legal) break;
+        if (!step.legal) { bodyReason = `picked '${pick}' not legal`; break; }
         tip.push(pick);
         usedHere.add(pick);
         if (hasFamily) usedFamilies.add(family(pick));
       }
       const getout = seq.getout({ target: 'Static Square', maxCalls: getoutMax, budget: getoutBudget });
-      if (getout && getout.length) {
+      const gotGetout = !!getout && getout.length > 0;
+      const full = gotGetout ? [...tip, ...getout] : tip;
+      console.log(
+        `[tip:attempt ${t + 1}/${attempts}] body=[${tip.join(' > ')}]` +
+        (bodyReason ? ` bodyStop=(${bodyReason})` : '') +
+        ` getout=${gotGetout ? getout.join(' > ') : 'NONE'} full=[${full.join(' > ')}]` +
+        ` accepted=${gotGetout && full.length >= minLen} (minLen=${minLen})`,
+      );
+      if (gotGetout) {
         tip.push(...getout);
         if (tip.length >= minLen) {
           tips.push(tip);
@@ -565,6 +574,7 @@ export class TipGenerator {
       }
       await onProgress(t + 1, made, count);
     }
+    console.log(`[tip] done: ${made}/${count} tips from ${attempts} attempts`);
     return tips;
   }
 

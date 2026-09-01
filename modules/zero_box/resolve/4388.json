@@ -6,11 +6,14 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Touch a Quarter",
     "Extend",
-    "Boys Swing Thru",
+    {
+      "selection": "Boys",
+      "call": "Swing Thru"
+    },
     "Girls Trade",
     "Extend",
     "Boys Run",
@@ -19,6 +22,5 @@
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Boys Swing Thru\"",
   "source": "ceder.net/choreodb"
 }

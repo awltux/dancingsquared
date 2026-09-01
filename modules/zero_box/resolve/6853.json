@@ -6,13 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Right and Left Thru",
     "Dive Thru",
-    "Centers Square Thru 3/4",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
     "Left Allemande After the Square Thru 3/4 the Formation = 8ChT (0) and ZB."
   ],
-  "note": "Untranslatable: \"Centers Square Thru 3/4\"; Untranslatable: \"Left Allemande After the Square Thru 3/4 the Formation = 8ChT (0) and ZB.\"",
+  "note": "Untranslatable: \"Left Allemande After the Square Thru 3/4 the Formation = 8ChT (0) and ZB.\"",
   "source": "ceder.net/choreodb"
 }

@@ -11,7 +11,10 @@
     "(Lesson 5-13)",
     "Heads Lead Right",
     "Veer Left",
-    "Boys Circulate, Girls Trade",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Couples Circulate",
     "Half Sashay",
     "Partner Trade",
@@ -22,6 +25,6 @@
     "Allemande Left",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 5-13),\"; Untranslatable: \"Boys Circulate, Girls Trade,\"",
+  "note": "Untranslatable: \"(Lesson 5-13),\"",
   "source": "ceder.net/choreodb"
 }

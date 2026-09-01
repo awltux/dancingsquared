@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "4 Ladies Chain",
     "Heads Promenade 1/2",
@@ -15,9 +15,12 @@
     "Square Thru 2",
     "Tag the Line",
     "Square Thru 2",
-    "Centers Square Thru 2",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 2"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \" Come Down The Middle,\"; Untranslatable: \"Centers Square Thru 2,\"",
+  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \" Come Down The Middle,\"",
   "source": "ceder.net/choreodb"
 }

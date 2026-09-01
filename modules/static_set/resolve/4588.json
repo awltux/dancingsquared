@@ -6,10 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
-    "Heads Flutter Wheel & Backaway",
-    "Sides Square Thru 3",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
+    {
+      "selection": "Sides",
+      "call": "Square Thru 3"
+    },
     "Separate Around 1 To A Line",
     "Square Thru 4",
     "Trade By",
@@ -17,6 +23,6 @@
     "Split Circulate",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel & Backaway,\"; Untranslatable: \"Sides Square Thru 3,\"; Untranslatable: \"Separate Around 1 To A Line,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

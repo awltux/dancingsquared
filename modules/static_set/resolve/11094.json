@@ -4,15 +4,17 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Head Ladies Chain",
-    "Sides Right & Left Thru, Backaway",
+    {
+      "selection": "Sides",
+      "call": "Right and Left Thru"
+    },
     "Heads Lead Right",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Sides Right & Left Thru, Backaway,\"",
   "source": "ceder.net/choreodb"
 }

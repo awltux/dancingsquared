@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Box the Gnat",
-    "Centers Right & Left Thru",
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
     "Each Side Square Thru 4",
     "Trade By",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Right & Left Thru\"; Untranslatable: \"Each Side Square Thru 4\"",
+  "note": "Untranslatable: \"Each Side Square Thru 4\"",
   "source": "ceder.net/choreodb"
 }

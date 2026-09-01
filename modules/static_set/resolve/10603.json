@@ -6,16 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 0,
+  "mappedCount": 3,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 Come Into The Middle",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Split The Outsides Around 1 Come Into The Middle",
-    "Centers Right & Left Thru & Backaway",
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
     "Static Square",
     "(repeat with Sides)"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \" Separate Around 1 Come Into The Middle,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \" Split The Outsides Around 1 Come Into The Middle,\"; Untranslatable: \"Centers Right & Left Thru & Backaway,\"; Untranslatable: \"(repeat with Sides)\"",
+  "note": "Untranslatable: \" Separate Around 1 Come Into The Middle,\"; Untranslatable: \" Split The Outsides Around 1 Come Into The Middle,\"; Untranslatable: \"(repeat with Sides)\"",
   "source": "ceder.net/choreodb"
 }

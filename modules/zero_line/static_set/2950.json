@@ -4,19 +4,24 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 8,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Step To A Wave & Recycle",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Step to a Wave"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Swing Thru",
     "Boys Trade",
     "Extend",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Step To A Wave & Recycle\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,19 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 5,
+  "mappedCount": 8,
   "steps": [
     "Heads Pass the Ocean",
     "Scoot Back",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Outsides Trade",
-    "Centers Recycle",
-    "All Double Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Recycle"
+    },
+    {
+      "selection": "All",
+      "call": "Double Pass Thru"
+    },
     "Centers In",
     "Square Thru 2",
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru,\"; Untranslatable: \"Outsides Trade,\"; Untranslatable: \"Centers Recycle,\"; Untranslatable: \"All Double Pass Thru,\"",
+  "note": "Untranslatable: \"Outsides Trade,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,13 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Two Ladies Chain Across",
-    "Same 4 Circle Left 3/4",
+    {
+      "selection": "Same 4",
+      "call": "Circle Left 3/4"
+    },
     "Pass Thru",
     "Left Allemande TdBy Formation"
   ],
-  "note": "Untranslatable: \"Two Ladies Chain Across\"; Untranslatable: \"Same 4 Circle Left 3/4\"; Untranslatable: \"Left Allemande TdBy Formation\"",
+  "note": "Untranslatable: \"Two Ladies Chain Across\"; Untranslatable: \"Left Allemande TdBy Formation\"",
   "source": "ceder.net/choreodb"
 }

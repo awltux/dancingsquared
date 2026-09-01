@@ -4,15 +4,20 @@
   "level": "Mainstream",
   "startFormation": "Zero Box",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
     "Dive Thru",
     "Zoom",
-    "Centers Right & Left Thru",
-    "Same 4 Pass Thru"
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Pass Thru"
+    }
   ],
-  "note": "Untranslatable: \"Centers Right & Left Thru\"; Untranslatable: \"Same 4 Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

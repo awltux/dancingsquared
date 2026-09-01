@@ -10,11 +10,14 @@
   "steps": [
     "*** not validated *** (Zero Line) Right & Left Thru",
     "Pass the Ocean",
-    "Men Circulate",
+    {
+      "selection": "Men",
+      "call": "Circulate"
+    },
     "Swing Thru",
     "Men Cross Run",
     "(Full Turn) Left Allemande The Allemande Left in this sequence is a full 360 degree turn"
   ],
-  "note": "Untranslatable: \"*** not validated *** (Zero Line) Right & Left Thru\"; Untranslatable: \"Men Circulate\"; Untranslatable: \"Men Cross Run\"; Untranslatable: \"(Full Turn) Left Allemande The Allemande Left in this sequence is a full 360 degree turn\"",
+  "note": "Untranslatable: \"*** not validated *** (Zero Line) Right & Left Thru\"; Untranslatable: \"Men Cross Run\"; Untranslatable: \"(Full Turn) Left Allemande The Allemande Left in this sequence is a full 360 degree turn\"",
   "source": "ceder.net/choreodb"
 }

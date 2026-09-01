@@ -6,10 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
-    "Heads Flutter Wheel, Sweep 1/4",
-    "Centers Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Circle Half, Veer Left",
     "Couples Circulate",
     "Wheel and Deal",
@@ -17,6 +23,6 @@
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel, Sweep 1/4,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Circle Half, Veer Left,\"",
+  "note": "Untranslatable: \"Circle Half, Veer Left,\"",
   "source": "ceder.net/choreodb"
 }

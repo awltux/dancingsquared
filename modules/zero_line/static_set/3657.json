@@ -6,18 +6,27 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 5,
+  "mappedCount": 8,
   "steps": [
     "Pass Thru",
     "Ends Run",
     "New Ends Cross Fold",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Extend",
     "Swing Thru",
-    "Boys U-Turn Back",
-    "All Square Thru 4",
+    {
+      "selection": "Boys",
+      "call": "U-Turn Back"
+    },
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"New Ends Cross Fold\"; Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Boys U-Turn Back\"; Untranslatable: \"All Square Thru 4\"",
+  "note": "Untranslatable: \"New Ends Cross Fold\"",
   "source": "ceder.net/choreodb"
 }

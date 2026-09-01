@@ -6,22 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 9,
+  "mappedCount": 10,
   "steps": [
     "(Lesson 8-09).",
     "Heads Square Thru 4",
     "Dosado to a Wave",
     "Girls Trade",
     "Partner Trade",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Boys Run",
     "Bend the Line",
     "Reverse Flutterwheel",
     "Pass Thru, Wheel & Deal",
-    "Centers Flutter Wheel & Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Flutterwheel"
+    },
     "Allemande Left",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 8-09).,\"; Untranslatable: \"Boys Circulate,\"; Untranslatable: \"Pass Thru, Wheel & Deal,\"; Untranslatable: \"Centers Flutter Wheel & Pass Thru,\"",
+  "note": "Untranslatable: \"(Lesson 8-09).,\"; Untranslatable: \"Pass Thru, Wheel & Deal,\"",
   "source": "ceder.net/choreodb"
 }

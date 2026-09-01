@@ -12,9 +12,11 @@
     "Slide Thru",
     "Flutterwheel",
     "Spin the Top",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Girls Circulate,\"",
   "source": "ceder.net/choreodb"
 }

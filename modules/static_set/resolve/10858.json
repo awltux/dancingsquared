@@ -6,20 +6,35 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 3,
+  "mappedCount": 8,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
     "Pass Thru",
-    "Boys U-Turn Back",
-    "All Couples Circulate",
-    "Boys U-Turn Back",
-    "All Square Thru 4",
+    {
+      "selection": "Boys",
+      "call": "U-Turn Back"
+    },
+    {
+      "selection": "All",
+      "call": "Couples Circulate"
+    },
+    {
+      "selection": "Boys",
+      "call": "U-Turn Back"
+    },
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Centers Swing Thru, Others Partner Trade",
     "Extend",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"Boys U-Turn Back,\"; Untranslatable: \"All Couples Circulate,\"; Untranslatable: \"Boys U-Turn Back,\"; Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"Centers Swing Thru, Others Partner Trade,\"",
+  "note": "Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"Centers Swing Thru, Others Partner Trade,\"",
   "source": "ceder.net/choreodb"
 }

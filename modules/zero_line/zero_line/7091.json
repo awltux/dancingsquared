@@ -6,16 +6,19 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "1/2 Square Thru",
     "Trade By",
     "Veer Left",
     "Couples Circulate",
     "Ferris Wheel",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Star Thru"
   ],
-  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"1/2 Square Thru\"",
   "source": "ceder.net/choreodb"
 }

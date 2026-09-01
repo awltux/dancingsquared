@@ -14,8 +14,11 @@
     "Dosado Partner",
     "4 Men Promenade Inside Single File",
     "Dosado Partner",
-    "All Promenade Home"
+    {
+      "selection": "All",
+      "call": "All 4 Couples Promenade"
+    }
   ],
-  "note": "Untranslatable: \"Turn Corner By The Left,\"; Untranslatable: \"Dosado Partner,\"; Untranslatable: \"4 Ladies Promenade Inside Single File,\"; Untranslatable: \"Dosado Partner,\"; Untranslatable: \"4 Men Promenade Inside Single File,\"; Untranslatable: \"Dosado Partner,\"; Untranslatable: \"All Promenade Home\"",
+  "note": "Untranslatable: \"Turn Corner By The Left,\"; Untranslatable: \"Dosado Partner,\"; Untranslatable: \"4 Ladies Promenade Inside Single File,\"; Untranslatable: \"Dosado Partner,\"; Untranslatable: \"4 Men Promenade Inside Single File,\"; Untranslatable: \"Dosado Partner,\"",
   "source": "ceder.net/choreodb"
 }

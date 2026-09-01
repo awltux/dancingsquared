@@ -6,13 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Heads Face, Sides Move In",
-    "Everyone Star Thru",
+    {
+      "selection": "Everyone",
+      "call": "Star Thru"
+    },
     "California Twirl",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Face, Sides Move In,\"; Untranslatable: \"Everyone Star Thru,\"",
+  "note": "Untranslatable: \"Heads Face, Sides Move In,\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,16 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Heads Pass the Ocean",
     "Swing Thru",
     "Extend",
     "Swing Thru",
-    "Girls U-Turn Back"
+    {
+      "selection": "Girls",
+      "call": "U-Turn Back"
+    }
   ],
-  "note": "Untranslatable: \"Girls U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

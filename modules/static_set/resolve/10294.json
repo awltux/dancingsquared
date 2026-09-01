@@ -6,16 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Heads Star Thru",
     "Zoom",
     "Centers Swing Thru Twice",
     "Extend",
     "Centers Swing Thru Twice",
-    "Same 4 Recycle",
+    {
+      "selection": "Same 4",
+      "call": "Recycle"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru Twice,\"; Untranslatable: \"Centers Swing Thru Twice,\"; Untranslatable: \"Same 4 Recycle,\"",
+  "note": "Untranslatable: \"Centers Swing Thru Twice,\"; Untranslatable: \"Centers Swing Thru Twice,\"",
   "source": "ceder.net/choreodb"
 }

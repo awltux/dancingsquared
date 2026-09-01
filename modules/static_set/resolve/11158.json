@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Heads Star Thru, Pass Thru",
     "Star Thru",
@@ -15,10 +15,13 @@
     "Bend the Line",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande",
     "R.L.G. (ends at Home)"
   ],
-  "note": "Untranslatable: \"Heads Star Thru, Pass Thru,\"; Untranslatable: \"Dance Out & Back,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"R.L.G. (ends at Home)\"",
+  "note": "Untranslatable: \"Heads Star Thru, Pass Thru,\"; Untranslatable: \"Dance Out & Back,\"; Untranslatable: \"R.L.G. (ends at Home)\"",
   "source": "ceder.net/choreodb"
 }

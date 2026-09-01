@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
     "Pass Thru",
     "Wheel and Deal",
@@ -16,9 +19,12 @@
     "First Go Left, Next Go Right",
     "Star Thru",
     "Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"First Go Left, Next Go Right,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"First Go Left, Next Go Right,\"",
   "source": "ceder.net/choreodb"
 }

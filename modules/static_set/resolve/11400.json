@@ -6,19 +6,34 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 4,
+  "mappedCount": 9,
   "steps": [
     "(Lesson 11-13)",
-    "Heads Right & Left Thru And Back Away",
-    "Sides Box The Gnat",
-    "Sides Square Thru 4",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Sides",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "Sides",
+      "call": "Square Thru 4"
+    },
     "Centers In",
     "Cast Off Three Quarters",
-    "Centers Wheel Around (girls wheel boys)",
-    "Everyone Wheel Around (boys wheel girls)",
+    {
+      "selection": "Centers",
+      "call": "Wheel Around"
+    },
+    {
+      "selection": "Everyone",
+      "call": "Wheel Around"
+    },
     "Half Sashay",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"(Lesson 11-13),\"; Untranslatable: \"Heads Right & Left Thru And Back Away,\"; Untranslatable: \"Sides Box The Gnat,\"; Untranslatable: \"Sides Square Thru 4,\"; Untranslatable: \"Centers Wheel Around (girls wheel boys),\"; Untranslatable: \"Everyone Wheel Around (boys wheel girls),\"",
+  "note": "Untranslatable: \"(Lesson 11-13),\"",
   "source": "ceder.net/choreodb"
 }

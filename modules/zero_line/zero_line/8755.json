@@ -6,14 +6,17 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "1/2 Square Thru",
-    "Centers Square Thru 3/4",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
     "Centers In",
     "Ends Cross Fold",
     "Star Thru"
   ],
-  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers Square Thru 3/4\"",
+  "note": "Untranslatable: \"1/2 Square Thru\"",
   "source": "ceder.net/choreodb"
 }

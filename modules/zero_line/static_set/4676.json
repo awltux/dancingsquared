@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 11,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "Pass Thru",
     "Tag the Line",
@@ -15,11 +15,13 @@
     "Tag the Line",
     "Face Out",
     "Wheel and Deal",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Swing Thru",
     "Boys Run",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

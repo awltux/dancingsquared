@@ -6,22 +6,34 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 2,
+  "mappedCount": 6,
   "steps": [
     "Four Ladies Chain",
     "Couple #1 Position Half Sashay",
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
-    "All Star Thru",
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
     "Those Who Can Right & Left Thru & Pass Thru (1)",
     "Those Who Can Right & Left Thru & Pass Thru (2)",
     "Those Who Can Right & Left Thru & Pass Thru (3)",
-    "Everybody Face In",
+    {
+      "selection": "Everybody",
+      "call": "Face In"
+    },
     "Star Thru",
     "Those Who Can Right & Left Thru & Dive Thru",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Couple #1 Position Half Sashay,\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"All Star Thru,\"; Untranslatable: \"Those Who Can Right & Left Thru & Pass Thru (1),\"; Untranslatable: \"Those Who Can Right & Left Thru & Pass Thru (2),\"; Untranslatable: \"Those Who Can Right & Left Thru & Pass Thru (3),\"; Untranslatable: \"Everybody Face In,\"; Untranslatable: \"Those Who Can Right & Left Thru & Dive Thru,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"Couple #1 Position Half Sashay,\"; Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"Those Who Can Right & Left Thru & Pass Thru (1),\"; Untranslatable: \"Those Who Can Right & Left Thru & Pass Thru (2),\"; Untranslatable: \"Those Who Can Right & Left Thru & Pass Thru (3),\"; Untranslatable: \"Those Who Can Right & Left Thru & Dive Thru,\"",
   "source": "ceder.net/choreodb"
 }

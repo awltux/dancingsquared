@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 15,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
     "(Lesson 5-08)",
     "Heads Lead Right",
@@ -16,7 +16,10 @@
     "Bend the Line",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Star Thru",
     "Two Ladies Chain",
     "Half Sashay Twice (she goes, he goes)",
@@ -24,6 +27,6 @@
     "Rollaway",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"(Lesson 5-08),\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Two Ladies Chain,\"; Untranslatable: \"Half Sashay Twice (she goes, he goes),\"",
+  "note": "Untranslatable: \"(Lesson 5-08),\"; Untranslatable: \"Two Ladies Chain,\"; Untranslatable: \"Half Sashay Twice (she goes, he goes),\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,12 +6,15 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 3,
-  "mappedCount": 0,
+  "mappedCount": 1,
   "steps": [
     "Head Man & Corner Girl Forward & Back",
-    "Same 4 Square Thru",
+    {
+      "selection": "Same 4",
+      "call": "Square Thru 4"
+    },
     "Split Two Separate Around 1 To A Line Of Four"
   ],
-  "note": "Untranslatable: \"Head Man & Corner Girl Forward & Back,\"; Untranslatable: \"Same 4 Square Thru,\"; Untranslatable: \"Split Two Separate Around 1 To A Line Of Four\"",
+  "note": "Untranslatable: \"Head Man & Corner Girl Forward & Back,\"; Untranslatable: \"Split Two Separate Around 1 To A Line Of Four\"",
   "source": "ceder.net/choreodb"
 }

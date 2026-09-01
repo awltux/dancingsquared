@@ -10,7 +10,10 @@
   "steps": [
     "Pass the Ocean",
     "Swing Thru",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Trade",
     "Boys Run",
     "Tag the Line",
@@ -23,6 +26,5 @@
     "Pass the Ocean",
     "Recycle"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"",
   "source": "ceder.net/choreodb"
 }

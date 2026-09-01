@@ -6,17 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 3,
+  "mappedCount": 7,
   "steps": [
     "Heads Star Thru",
     "Double Pass Thru",
-    "Leaders Trade",
+    {
+      "selection": "Leaders",
+      "call": "Trade"
+    },
     "Centers In",
-    "Centers Pass Thru",
-    "All Tag The Line",
-    "Leaders Trade",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Tag the Line"
+    },
+    {
+      "selection": "Leaders",
+      "call": "Trade"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Leaders Trade,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"All Tag The Line,\"; Untranslatable: \"Leaders Trade,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,14 +6,23 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 1,
+  "mappedCount": 4,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Same Four Rollaway & Pass Thru",
     "Separate Around One To A Line",
     "Forward Eight & Back",
-    "Centers Box The Gnat",
-    "Same Four Right & Left Thru",
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "Same Four",
+      "call": "Right and Left Thru"
+    },
     "Split The Outside Two",
     "Separate Around One To A Line",
     "Forward Eight & Back",
@@ -21,6 +30,6 @@
     "Centers Star Thru & Pass Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Same Four Rollaway & Pass Thru,\"; Untranslatable: \"Separate Around One To A Line,\"; Untranslatable: \"Forward Eight & Back,\"; Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \"Same Four Right & Left Thru,\"; Untranslatable: \"Split The Outside Two,\"; Untranslatable: \"Separate Around One To A Line,\"; Untranslatable: \"Forward Eight & Back,\"; Untranslatable: \"Centers Star Thru & Pass Thru,\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Same Four Rollaway & Pass Thru,\"; Untranslatable: \"Separate Around One To A Line,\"; Untranslatable: \"Forward Eight & Back,\"; Untranslatable: \"Split The Outside Two,\"; Untranslatable: \"Separate Around One To A Line,\"; Untranslatable: \"Forward Eight & Back,\"; Untranslatable: \"Centers Star Thru & Pass Thru,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

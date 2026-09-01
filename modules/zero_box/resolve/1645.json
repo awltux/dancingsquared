@@ -6,17 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Swing Thru",
     "Boys Trade",
     "Boys Run",
     "Ferris Wheel",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Outsides Half Sashay",
     "Extend",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Outsides Half Sashay\"",
+  "note": "Untranslatable: \"Outsides Half Sashay\"",
   "source": "ceder.net/choreodb"
 }

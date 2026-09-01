@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
-    "Heads Right & Left Thru With A Full Turn Around (you're facing out)",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Separate Around One Come Into The Middle",
     "Right and Left Thru",
     "Right and Left Thru",
@@ -19,6 +22,6 @@
     "Right and Left Thru",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru With A Full Turn Around (you're facing out),\"; Untranslatable: \"Separate Around One Come Into The Middle,\"; Untranslatable: \"Inside Four Face Your Partner,\"; Untranslatable: \"Separate Around One Come Into The Middle,\"",
+  "note": "Untranslatable: \"Separate Around One Come Into The Middle,\"; Untranslatable: \"Inside Four Face Your Partner,\"; Untranslatable: \"Separate Around One Come Into The Middle,\"",
   "source": "ceder.net/choreodb"
 }

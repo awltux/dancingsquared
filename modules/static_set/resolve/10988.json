@@ -6,15 +6,24 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
     "Four Ladies Chain 3/4",
-    "Side Position Half Sashay",
-    "Head Position Right & Left Thru",
+    {
+      "selection": "Side Position",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "Head Position",
+      "call": "Right and Left Thru"
+    },
     "Pass Thru",
     "Separate Around One Come Into The Middle",
-    "Everyone L.A"
+    {
+      "selection": "Everyone",
+      "call": "Left Allemande"
+    }
   ],
-  "note": "Untranslatable: \"Side Position Half Sashay,\"; Untranslatable: \"Head Position Right & Left Thru,\"; Untranslatable: \" Separate Around One Come Into The Middle,\"; Untranslatable: \"Everyone L.A\"",
+  "note": "Untranslatable: \" Separate Around One Come Into The Middle,\"",
   "source": "ceder.net/choreodb"
 }

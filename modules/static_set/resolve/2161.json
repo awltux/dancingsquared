@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "Heads Lead Right",
     "Veer Left",
     "Couples Circulate",
     "Tag the Line",
     "Ferris Wheel",
-    "Centers Left Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Left Swing Thru"
+    },
     "Extend",
     "Left Swing Thru",
     "Boys Run",
@@ -21,6 +24,6 @@
     "1/2 Square Thru",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Left Swing Thru,\"; Untranslatable: \"1/2 Square Thru,\"",
+  "note": "Untranslatable: \"1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,16 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Heads Lead Left",
     "Veer Right",
     "Ferris Wheel",
-    "Centers Veer Right",
+    {
+      "selection": "Centers",
+      "call": "Veer Right"
+    },
     "Centers Bend The Line & Flutter Wheel",
-    "Centers Lead Right",
+    {
+      "selection": "Centers",
+      "call": "Lead Right"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Veer Right,\"; Untranslatable: \"Centers Bend The Line & Flutter Wheel,\"; Untranslatable: \"Centers Lead Right,\"",
+  "note": "Untranslatable: \"Centers Bend The Line & Flutter Wheel,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 10,
+  "mappedCount": 12,
   "steps": [
     "Heads Half Sashay & Star Thru",
-    "All Swing Thru",
+    {
+      "selection": "All",
+      "call": "Swing Thru"
+    },
     "Cast Off Three Quarters",
     "Centers Trade",
     "All 8 Circulate",
@@ -19,9 +22,12 @@
     "Flutterwheel",
     "Pass Thru",
     "Ends Fold",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay & Star Thru,\"; Untranslatable: \"All Swing Thru,\"; Untranslatable: \"All Pass Thru,\"",
+  "note": "Untranslatable: \"Heads Half Sashay & Star Thru,\"",
   "source": "ceder.net/choreodb"
 }

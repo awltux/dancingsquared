@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Heads Square Thru 4",
     "Right and Left Thru",
     "Ferris Wheel, Centers Veer Left",
-    "Centers Chain Down The Line",
+    {
+      "selection": "Centers",
+      "call": "Chain Down the Line"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Ferris Wheel, Centers Veer Left,\"; Untranslatable: \"Centers Chain Down The Line,\"",
+  "note": "Untranslatable: \"Ferris Wheel, Centers Veer Left,\"",
   "source": "ceder.net/choreodb"
 }

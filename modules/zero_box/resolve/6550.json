@@ -6,19 +6,24 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Swing Thru",
     "Girls Run",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Ferris Wheel",
     "Half Sashay",
     "Double Pass Thru",
     "Centers In",
     "Cast Off Three Quarters",
-    "Centers Star Thru",
+    {
+      "selection": "Centers",
+      "call": "Star Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Centers Star Thru\"",
   "source": "ceder.net/choreodb"
 }

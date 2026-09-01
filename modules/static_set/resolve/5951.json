@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Heads 1/2 Square Thru",
     "Right and Left Thru",
     "Dive Thru",
-    "Centers Square Thru 5",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Centers Square Thru 5,\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

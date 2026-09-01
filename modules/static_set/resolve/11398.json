@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 16,
-  "mappedCount": 12,
+  "mappedCount": 13,
   "steps": [
     "(Lesson 11-11)",
-    "Heads Touch 1/4",
+    {
+      "selection": "Heads",
+      "call": "Touch a Quarter"
+    },
     "Head Boys Run",
     "Touch a Quarter",
     "Centers Trade",
@@ -25,6 +28,6 @@
     "Reverse Flutter, Sweep 1/4",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"(Lesson 11-11),\"; Untranslatable: \"Heads Touch 1/4,\"; Untranslatable: \"Head Boys Run,\"; Untranslatable: \"Reverse Flutter, Sweep 1/4,\"",
+  "note": "Untranslatable: \"(Lesson 11-11),\"; Untranslatable: \"Head Boys Run,\"; Untranslatable: \"Reverse Flutter, Sweep 1/4,\"",
   "source": "ceder.net/choreodb"
 }

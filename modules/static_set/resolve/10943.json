@@ -6,19 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 2,
+  "mappedCount": 5,
   "steps": [
-    "Heads Right & Left Thru, Backaway",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "All Join Hands, Circle Left",
     "Head Man And Corner Girl Forward & Back",
-    "Same 4 Star Thru",
+    {
+      "selection": "Same 4",
+      "call": "Star Thru"
+    },
     "Split The Outsides Around 1 To A Line",
     "New Centers Box The Gnat & Pull By",
     "Centers Run",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Centers Cross Fold",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru, Backaway,\"; Untranslatable: \"All Join Hands, Circle Left,\"; Untranslatable: \"Head Man And Corner Girl Forward & Back,\"; Untranslatable: \"Same 4 Star Thru,\"; Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"New Centers Box The Gnat & Pull By,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Cross Fold,\"",
+  "note": "Untranslatable: \"All Join Hands, Circle Left,\"; Untranslatable: \"Head Man And Corner Girl Forward & Back,\"; Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"New Centers Box The Gnat & Pull By,\"; Untranslatable: \"Centers Cross Fold,\"",
   "source": "ceder.net/choreodb"
 }

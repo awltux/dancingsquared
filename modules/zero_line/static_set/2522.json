@@ -4,21 +4,23 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 10,
-  "mappedCount": 9,
+  "mappedCount": 10,
   "steps": [
     "Slide Thru",
     "Touch a Quarter",
     "Scoot Back",
     "Boys Fold",
     "Double Pass Thru",
-    "Girls U-Turn Back",
+    {
+      "selection": "Girls",
+      "call": "U-Turn Back"
+    },
     "Star Thru",
     "Couples Circulate",
     "Boys Fold",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Girls U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

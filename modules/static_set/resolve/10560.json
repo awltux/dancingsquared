@@ -6,18 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 4,
+  "mappedCount": 8,
   "steps": [
     "Four Ladies Chain",
     "Four Ladies Chain 3/4",
-    "Head Position Rollaway",
-    "Same 4 Square Thru 4",
-    "All Pass Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Head Position",
+      "call": "Rollaway"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Centers In",
     "Star Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Head Position Rollaway,\"; Untranslatable: \"Same 4 Square Thru 4,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

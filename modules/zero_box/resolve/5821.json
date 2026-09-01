@@ -6,16 +6,21 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Dosado to a Wave",
-    "Centers Box Circulate",
+    {
+      "selection": "Centers",
+      "call": "Box Circulate"
+    },
     "Split Circulate",
-    "Centers Box Circulate",
+    {
+      "selection": "Centers",
+      "call": "Box Circulate"
+    },
     "Boys Run",
     "Slide Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"Centers Box Circulate\"",
   "source": "ceder.net/choreodb"
 }

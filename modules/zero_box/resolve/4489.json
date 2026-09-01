@@ -6,16 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Touch a Quarter",
     "Centers Trade",
     "Swing Thru",
     "Scoot Back 1 & 1/2",
     "Ferris Wheel",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Scoot Back 1 & 1/2\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"Scoot Back 1 & 1/2\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,16 +6,19 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Pass the Ocean",
     "Swing Thru",
     "Men Run",
     "Ferris Wheel",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Star Thru",
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"Men Run\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,26 +6,37 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 17,
-  "mappedCount": 12,
+  "mappedCount": 14,
   "steps": [
     "Pass the Ocean",
     "Swing Thru",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Trade",
     "Boys Run",
     "Tag the Line",
-    "Girls U-Turn Back",
+    {
+      "selection": "Girls",
+      "call": "U-Turn Back"
+    },
     "Touch a Quarter",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Girls Trade",
     "Recycle",
     "Veer Left",
     "Ferris Wheel",
     "Double Pass Thru",
-    "Leaders Partner Trade",
+    {
+      "selection": "Leaders",
+      "call": "Partner Trade"
+    },
     "Pass Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Girls U-Turn Back\"; Untranslatable: \"Boys Circulate\"; Untranslatable: \"Leaders Partner Trade\"",
   "source": "ceder.net/choreodb"
 }

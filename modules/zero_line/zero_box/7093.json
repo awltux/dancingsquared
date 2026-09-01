@@ -4,16 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Box the Gnat",
     "Pass Thru"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru\"",
   "source": "ceder.net/choreodb"
 }

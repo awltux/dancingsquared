@@ -6,21 +6,33 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 6,
+  "mappedCount": 10,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
     "Pass Thru",
     "Wheel and Deal",
-    "Girls Veer Right",
-    "Girls Wheel & Deal",
+    {
+      "selection": "Girls",
+      "call": "Veer Right"
+    },
+    {
+      "selection": "Girls",
+      "call": "Wheel and Deal"
+    },
     "Zoom",
-    "Boys Swing Thru",
+    {
+      "selection": "Boys",
+      "call": "Swing Thru"
+    },
     "Extend",
     "Swing Thru Double",
     "Girls Trade",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \" Girls Veer Right,\"; Untranslatable: \"Girls Wheel & Deal,\"; Untranslatable: \"Boys Swing Thru,\"; Untranslatable: \"Swing Thru Double,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Swing Thru Double,\"",
   "source": "ceder.net/choreodb"
 }

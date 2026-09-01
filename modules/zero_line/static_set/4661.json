@@ -4,16 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Pass Thru",
     "Tag the Line",
-    "Leaders U-Turn Back",
+    {
+      "selection": "Leaders",
+      "call": "U-Turn Back"
+    },
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Leaders U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

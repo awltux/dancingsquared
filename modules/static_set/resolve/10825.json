@@ -6,21 +6,33 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 4,
+  "mappedCount": 7,
   "steps": [
     "4 Ladies Chain 3/4",
-    "Head Position Promenade 1/4",
-    "Centers Pass Thru",
+    {
+      "selection": "Head Position",
+      "call": "All 4 Couples Promenade"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "All Dosado, Step To A Wave",
-    "Centers Cast Off 3/4",
+    {
+      "selection": "Centers",
+      "call": "Cast Off Three Quarters"
+    },
     "Others Face In",
     "Extend",
     "Cast Off Three Quarters",
     "Centers Circulate",
-    "All Left Swing Thru",
+    {
+      "selection": "All",
+      "call": "Left Swing Thru"
+    },
     "Centers Circulate",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"Head Position Promenade 1/4,\"; Untranslatable: \" Centers Pass Thru,\"; Untranslatable: \"All Dosado, Step To A Wave,\"; Untranslatable: \"Centers Cast Off 3/4,\"; Untranslatable: \" Others Face In,\"; Untranslatable: \"All Left Swing Thru,\"",
+  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"All Dosado, Step To A Wave,\"; Untranslatable: \" Others Face In,\"",
   "source": "ceder.net/choreodb"
 }

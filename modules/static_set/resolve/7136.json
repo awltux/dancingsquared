@@ -6,13 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "4 Ladies Chain",
-    "All Half Sashay (stay that way)",
+    {
+      "selection": "All",
+      "call": "Half Sashay"
+    },
     "Sides Face Grand Square 6 Steps",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"All Half Sashay (stay that way),\"; Untranslatable: \"Sides Face Grand Square 6 Steps,\"",
+  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"Sides Face Grand Square 6 Steps,\"",
   "source": "ceder.net/choreodb"
 }

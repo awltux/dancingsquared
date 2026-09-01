@@ -4,20 +4,25 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 9,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "Heads Lead Right",
     "Veer Left",
     "Veer Right",
-    "Centers Veer Right",
-    "Centers Veer Left",
+    {
+      "selection": "Centers",
+      "call": "Veer Right"
+    },
+    {
+      "selection": "Centers",
+      "call": "Veer Left"
+    },
     "First Couple Go Right, Next Couple Go Left",
     "Slide Thru",
     "Pass Thru",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Centers Veer Right,\"; Untranslatable: \"Centers Veer Left,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,13 +6,16 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "4 Ladies Chain 3/4",
-    "Head Position Pass The Ocean",
+    {
+      "selection": "Head Position",
+      "call": "Pass the Ocean"
+    },
     "Extend",
     "Recycle"
   ],
-  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"Head Position Pass The Ocean,\"",
+  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"",
   "source": "ceder.net/choreodb"
 }

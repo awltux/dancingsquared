@@ -4,18 +4,26 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 7,
   "steps": [
     "Heads Star Thru",
-    "Boys Zoom",
+    {
+      "selection": "Boys",
+      "call": "Zoom"
+    },
     "Double Pass Thru",
-    "Girls Zoom",
-    "Leaders Trade",
+    {
+      "selection": "Girls",
+      "call": "Zoom"
+    },
+    {
+      "selection": "Leaders",
+      "call": "Trade"
+    },
     "Allemande Left",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Boys Zoom,\"; Untranslatable: \"Girls Zoom,\"; Untranslatable: \"Leaders Trade,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,17 +6,23 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
     "Swing Thru",
     "Men Run",
     "Couples Circulate",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Bend the Line",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru"
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    }
   ],
-  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"Men Run\"",
   "source": "ceder.net/choreodb"
 }

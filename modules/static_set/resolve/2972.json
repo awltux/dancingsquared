@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Heads 1/2 Square Thru",
-    "All Box The Gnat",
+    {
+      "selection": "All",
+      "call": "Box the Gnat"
+    },
     "Square Thru 4",
     "Tag the Line",
     "Left Touch 1/4",
@@ -18,6 +21,6 @@
     "Single Circle to a Wave",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All Box The Gnat,\"; Untranslatable: \"Left Touch 1/4,\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Left Touch 1/4,\"",
   "source": "ceder.net/choreodb"
 }

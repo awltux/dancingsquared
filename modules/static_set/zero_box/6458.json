@@ -6,7 +6,7 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Heads Star Thru",
     "Double Pass Thru",
@@ -14,8 +14,11 @@
     "Cast Off Three Quarters",
     "Star Thru",
     "Double Pass Thru",
-    "Leaders Partner Trade"
+    {
+      "selection": "Leaders",
+      "call": "Partner Trade"
+    }
   ],
-  "note": "Untranslatable: \"Put Centers In,\"; Untranslatable: \"Leaders Partner Trade\"",
+  "note": "Untranslatable: \"Put Centers In,\"",
   "source": "ceder.net/choreodb"
 }

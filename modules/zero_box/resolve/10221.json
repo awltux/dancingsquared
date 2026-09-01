@@ -6,18 +6,32 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Star Thru",
     "Pass the Ocean",
-    "Boys Circulate Twice",
-    "Ladies Trade",
-    "Ladies Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Circulate"
+    },
     "Swing Thru",
-    "Girls Circulate 1 & 1/2",
-    "Boys Circulate 2 & 1/2",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Boys Circulate Twice\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Girls Circulate 1 & 1/2\"; Untranslatable: \"Boys Circulate 2 & 1/2\"",
   "source": "ceder.net/choreodb"
 }

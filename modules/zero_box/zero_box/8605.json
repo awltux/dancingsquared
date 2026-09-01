@@ -6,16 +6,22 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "*** not validated *** (Zero Box) Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Swing Thru",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "All 8 Circulate",
     "Swing Thru",
     "Men Trade (Zero Box) This flip Flops the set."
   ],
-  "note": "Untranslatable: \"*** not validated *** (Zero Box) Dive Thru\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade (Zero Box) This flip Flops the set.\"",
+  "note": "Untranslatable: \"*** not validated *** (Zero Box) Dive Thru\"; Untranslatable: \"Men Trade (Zero Box) This flip Flops the set.\"",
   "source": "ceder.net/choreodb"
 }

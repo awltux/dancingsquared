@@ -4,18 +4,20 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Pass Thru",
     "Boys Run",
     "Girls Fold",
     "Double Pass Thru",
-    "Boys U-Turn Back",
+    {
+      "selection": "Boys",
+      "call": "U-Turn Back"
+    },
     "Star Thru",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Boys U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

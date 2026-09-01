@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Swing Thru",
     "Boys Run",
@@ -16,9 +16,11 @@
     "Boys Run",
     "Pass Thru",
     "Tag the Line",
-    "Leaders U-Turn Back",
+    {
+      "selection": "Leaders",
+      "call": "U-Turn Back"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Leaders U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

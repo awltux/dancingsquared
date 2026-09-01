@@ -4,16 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Heads Star Thru",
     "Double Pass Thru",
     "Zoom",
-    "Leaders Trade",
+    {
+      "selection": "Leaders",
+      "call": "Trade"
+    },
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Leaders Trade,\"",
   "source": "ceder.net/choreodb"
 }

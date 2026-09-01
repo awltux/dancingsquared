@@ -11,7 +11,7 @@
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { setParser } from 'dancing-squared-engine';
+import { setParser, splitSelection } from 'dancing-squared-engine';
 import { DOMParser } from '@xmldom/xmldom';
 setParser(DOMParser);
 
@@ -205,14 +205,23 @@ function translateFile(file) {
     }
     for (const tok of tokenize(s)) {
       const title = mapOne(tok);
-      if (title) steps.push(title);
-      else { steps.push(tok.replace(/,$/, '').trim()); notes.push('Untranslatable: "' + s + '"'); }
+      if (title) steps.push(title); // authored catalog title takes precedence
+      else {
+        // Not a registered title: try to split off a dancer selection prefix so
+        // the engine can apply the base call to a subset (flexible fallback).
+        const tok0 = tok.replace(/,$/, '').trim();
+        const { selection, call } = splitSelection(tok0);
+        const baseTitle = selection ? mapOne(call) : null;
+        if (selection && baseTitle) steps.push({ selection, call: baseTitle });
+        else { steps.push(tok.replace(/,$/, '').trim()); notes.push('Untranslatable: "' + s + '"'); }
+      }
     }
   }
 
-  const allKnown = steps.length > 0 && steps.every((s) => TITLE_NORM.has(normKey(s)) || s === 'ALLEMANDE_LEFT');
+  const callTitles = steps.map((st) => (typeof st === 'string' ? st : st.call));
+  const allKnown = steps.length > 0 && callTitles.every((s) => TITLE_NORM.has(normKey(s)) || s === 'ALLEMANDE_LEFT');
   const success = allKnown && steps.length > 0;
-  const mappedCount = steps.filter((s) => TITLE_NORM.has(normKey(s)) || s === 'ALLEMANDE_LEFT').length;
+  const mappedCount = callTitles.filter((s) => TITLE_NORM.has(normKey(s)) || s === 'ALLEMANDE_LEFT').length;
   if (!success) failed++;
 
   const out = {

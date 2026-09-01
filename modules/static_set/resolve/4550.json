@@ -6,20 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Heads Square Thru 4",
-    "Sides Half Sashay",
+    {
+      "selection": "Sides",
+      "call": "Half Sashay"
+    },
     "Dosado",
     "Step to a Wave",
     "Split Circulate",
-    "Girls Circulate, Boys Trade",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Run",
     "Half Tag",
     "Scoot Back",
     "Boys Run",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \" Sides Half Sashay,\"; Untranslatable: \"Girls Circulate, Boys Trade,\"",
   "source": "ceder.net/choreodb"
 }

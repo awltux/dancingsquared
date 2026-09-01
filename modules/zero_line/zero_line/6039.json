@@ -4,17 +4,19 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 6,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Pass Thru",
     "Ends Fold",
-    "Centers U-Turn Back",
+    {
+      "selection": "Centers",
+      "call": "U-Turn Back"
+    },
     "Double Pass Thru",
     "Centers In",
     "Cast Off Three Quarters"
   ],
-  "note": "Untranslatable: \"Centers U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
-    "Heads Box The Gnat",
+    {
+      "selection": "Heads",
+      "call": "Box the Gnat"
+    },
     "Square Thru 3",
     "All Step Forward",
     "Sides Star Thru & Pass Thru",
@@ -16,6 +19,6 @@
     "Square Thru 4",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Box The Gnat,\"; Untranslatable: \"All Step Forward,\"; Untranslatable: \"Sides Star Thru & Pass Thru,\"",
+  "note": "Untranslatable: \"All Step Forward,\"; Untranslatable: \"Sides Star Thru & Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

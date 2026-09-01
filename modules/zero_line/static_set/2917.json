@@ -6,20 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Star Thru",
-    "Centers California Twirl",
+    {
+      "selection": "Centers",
+      "call": "California Twirl"
+    },
     "Double Pass Thru",
     "First Right",
     "Next Left",
     "Forward and Back",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers California Twirl",
+    {
+      "selection": "Centers",
+      "call": "California Twirl"
+    },
     "Pass Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers California Twirl\"; Untranslatable: \"First Right\"; Untranslatable: \"Next Left\"; Untranslatable: \"Centers California Twirl\"",
+  "note": "Untranslatable: \"First Right\"; Untranslatable: \"Next Left\"",
   "source": "ceder.net/choreodb"
 }

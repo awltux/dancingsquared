@@ -6,12 +6,15 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 3,
-  "mappedCount": 0,
+  "mappedCount": 1,
   "steps": [
-    "Heads Partner Trade",
+    {
+      "selection": "Heads",
+      "call": "Partner Trade"
+    },
     "Separate Around One",
     "Come Into The Middle & Pass Thru"
   ],
-  "note": "Untranslatable: \"Heads Partner Trade,\"; Untranslatable: \"Separate Around One,\"; Untranslatable: \" Come Into The Middle & Pass Thru\"",
+  "note": "Untranslatable: \"Separate Around One,\"; Untranslatable: \" Come Into The Middle & Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

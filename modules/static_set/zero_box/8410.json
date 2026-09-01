@@ -4,16 +4,21 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Head Ladies Chain",
-    "Same 4 Lead Right",
+    {
+      "selection": "Same 4",
+      "call": "Lead Right"
+    },
     "Right and Left Thru",
     "Dive Thru",
-    "Centers Pass Thru"
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    }
   ],
-  "note": "Untranslatable: \"Same 4 Lead Right,\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

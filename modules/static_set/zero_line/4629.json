@@ -6,13 +6,19 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 0,
+  "mappedCount": 1,
   "steps": [
     "Heads 1/2 Square Thru",
     "Swing Thru Double",
-    "Girls Circulate",
-    "All Slide Thru"
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
+    {
+      "selection": "All",
+      "call": "Slide Thru"
+    }
   ],
-  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Swing Thru Double,\"; Untranslatable: \"Girls Circulate,\"; Untranslatable: \"All Slide Thru\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Swing Thru Double,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,14 +6,17 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Head Ladies Chain",
-    "Same 4 Touch 1/4",
+    {
+      "selection": "Same 4",
+      "call": "Touch a Quarter"
+    },
     "Box Circulate",
     "Men Run",
     "Pass Thru"
   ],
-  "note": "Untranslatable: \" Same 4 Touch 1/4,\"; Untranslatable: \" Men Run,\"",
+  "note": "Untranslatable: \" Men Run,\"",
   "source": "ceder.net/choreodb"
 }

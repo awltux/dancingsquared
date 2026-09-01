@@ -6,16 +6,19 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Spin the Top",
     "Men Run",
     "Bend the Line",
     "Star Thru (Zero Line) This rotates the set 90°."
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Men Run\"; Untranslatable: \"Star Thru (Zero Line) This rotates the set 90°.\"",
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Star Thru (Zero Line) This rotates the set 90°.\"",
   "source": "ceder.net/choreodb"
 }

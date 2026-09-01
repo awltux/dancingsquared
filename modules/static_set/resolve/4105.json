@@ -6,10 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
-    "Heads Rollaway",
-    "Heads Square Thru",
+    {
+      "selection": "Heads",
+      "call": "Rollaway"
+    },
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Swing Thru",
     "Scoot Back",
     "Boys Run",
@@ -17,6 +23,5 @@
     "Recycle",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"Heads Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

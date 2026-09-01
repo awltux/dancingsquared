@@ -6,12 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "Right and Left Thru",
     "Half Sashay",
-    "Centers Right & Left Thru",
-    "All Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Tag the Line",
     "Face In",
     "Pass the Ocean",
@@ -19,6 +25,5 @@
     "Split Circulate",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Right & Left Thru\"; Untranslatable: \"All Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,15 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Heads Pass Thru And Wheel Around",
-    "Heads Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Half Sashay"
+    },
     "Center 4 Star Thru",
     "Make A Right-Hand Star, Turn It Halfway",
     "Left-Hand Star Turn It Halfway",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru And Wheel Around,\"; Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"Center 4 Star Thru,\"; Untranslatable: \"Make A Right-Hand Star, Turn It Halfway,\"; Untranslatable: \"Left-Hand Star Turn It Halfway,\"",
+  "note": "Untranslatable: \"Heads Pass Thru And Wheel Around,\"; Untranslatable: \"Center 4 Star Thru,\"; Untranslatable: \"Make A Right-Hand Star, Turn It Halfway,\"; Untranslatable: \"Left-Hand Star Turn It Halfway,\"",
   "source": "ceder.net/choreodb"
 }

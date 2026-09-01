@@ -6,16 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 16,
-  "mappedCount": 10,
+  "mappedCount": 12,
   "steps": [
     "(Lesson 10-8)",
     "Heads Pass Thru, Separate Around 1 to a Line",
     "Pass Thru, Wheel & Deal",
-    "Girls Pass Thru",
+    {
+      "selection": "Girls",
+      "call": "Pass Thru"
+    },
     "Star Thru",
     "Boys Trade",
     "Ferris Wheel",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Pass Thru",
     "Trade By",
     "Star Thru",
@@ -25,6 +31,6 @@
     "Centers In",
     "Slide Thru, Centers Slide Thru And Back Away, Home"
   ],
-  "note": "Untranslatable: \"(Lesson 10-8),\"; Untranslatable: \"Pass Thru, Wheel & Deal,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Pass Thru, Wheel & Deal,\"; Untranslatable: \"Slide Thru, Centers Slide Thru And Back Away, Home\"",
+  "note": "Untranslatable: \"(Lesson 10-8),\"; Untranslatable: \"Pass Thru, Wheel & Deal,\"; Untranslatable: \"Pass Thru, Wheel & Deal,\"; Untranslatable: \"Slide Thru, Centers Slide Thru And Back Away, Home\"",
   "source": "ceder.net/choreodb"
 }

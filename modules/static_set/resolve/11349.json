@@ -6,20 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "(Lesson 10-9)",
     "Heads Lead Left, Veer Right",
     "Ferris Wheel",
-    "Centers Flutter Wheel",
+    {
+      "selection": "Centers",
+      "call": "Flutterwheel"
+    },
     "Double Pass Thru",
     "Centers In",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Centers Run",
     "Star Thru",
     "Trade By",
     "L.A., R.L.G., Promenade Home"
   ],
-  "note": "Untranslatable: \"(Lesson 10-9),\"; Untranslatable: \"Heads Lead Left, Veer Right,\"; Untranslatable: \"Centers Flutter Wheel,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"L.A., R.L.G., Promenade Home\"",
+  "note": "Untranslatable: \"(Lesson 10-9),\"; Untranslatable: \"Heads Lead Left, Veer Right,\"; Untranslatable: \"L.A., R.L.G., Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

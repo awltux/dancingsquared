@@ -6,12 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 18,
-  "mappedCount": 15,
+  "mappedCount": 17,
   "steps": [
     "(Lesson 8-08.)",
     "Heads Separate",
-    "All Star Thru",
-    "Centers Square Thru 2",
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Square Thru 2"
+    },
     "Swing Thru",
     "Boys Trade",
     "Boys Run",
@@ -27,6 +33,6 @@
     "Allemande Left",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 8-08.),\"; Untranslatable: \"All Star Thru,\"; Untranslatable: \"Centers Square Thru 2,\"",
+  "note": "Untranslatable: \"(Lesson 8-08.),\"",
   "source": "ceder.net/choreodb"
 }

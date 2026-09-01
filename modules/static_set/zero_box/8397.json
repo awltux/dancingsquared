@@ -6,12 +6,15 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 3,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Pass Thru",
     "Separate Around 1 Into The Middle Pass Thru"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Separate Around 1 Into The Middle Pass Thru\"",
+  "note": "Untranslatable: \"Separate Around 1 Into The Middle Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

@@ -22,12 +22,15 @@
     "Half Tag",
     "Boys Run",
     "Pass the Ocean",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Girls Trade",
     "Swing Thru",
     "Extend",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"(Lesson 11-17),\"; Untranslatable: \"Boys Circulate,\"",
+  "note": "Untranslatable: \"(Lesson 11-17),\"",
   "source": "ceder.net/choreodb"
 }

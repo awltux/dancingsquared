@@ -4,18 +4,23 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
     "Pass the Ocean",
     "Hinge",
     "Girls Run",
     "Reverse Flutterwheel",
-    "Centers Pass The Ocean",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass the Ocean"
+    },
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Pass The Ocean\"; Untranslatable: \"Centers Swing Thru\"",
   "source": "ceder.net/choreodb"
 }

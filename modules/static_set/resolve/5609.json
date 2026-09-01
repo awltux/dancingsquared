@@ -6,20 +6,35 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 4,
+  "mappedCount": 9,
   "steps": [
-    "Heads Flutter Wheel",
-    "Sides Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
+    {
+      "selection": "Sides",
+      "call": "Half Sashay"
+    },
     "Heads 1/2 Square Thru",
-    "Boys Pass Thru",
-    "All Cast Off 3/4",
+    {
+      "selection": "Boys",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Cast Off Three Quarters"
+    },
     "Boys Trade",
     "Wheel and Deal",
     "Ferris Wheel",
-    "Centers Left Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Left Swing Thru"
+    },
     "Extend",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel,\"; Untranslatable: \"Sides Half Sashay,\"; Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"All Cast Off 3/4,\"; Untranslatable: \"Centers Left Swing Thru,\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Square Thru 4",
     "Both Turn Right Single File",
     "Ladies Around 2, Men Around 1 To A Line",
@@ -16,6 +19,6 @@
     "Wheel and Deal",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Both Turn Right Single File,\"; Untranslatable: \" Ladies Around 2, Men Around 1 To A Line,\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Both Turn Right Single File,\"; Untranslatable: \" Ladies Around 2, Men Around 1 To A Line,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

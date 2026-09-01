@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
     "Square Thru 4",
     "Trade By",
@@ -20,6 +23,6 @@
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Double Swing Thru,\"; Untranslatable: \"Double Spin The Top,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Double Swing Thru,\"; Untranslatable: \"Double Spin The Top,\"",
   "source": "ceder.net/choreodb"
 }

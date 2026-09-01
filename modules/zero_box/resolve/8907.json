@@ -10,10 +10,12 @@
   "steps": [
     "Step to a Wave",
     "All 8 Circulate",
-    "Men Circulate",
+    {
+      "selection": "Men",
+      "call": "Circulate"
+    },
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Men Circulate\"",
   "source": "ceder.net/choreodb"
 }

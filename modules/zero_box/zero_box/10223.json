@@ -6,7 +6,7 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Put Centers In",
     "Cast Off Three Quarters",
@@ -17,9 +17,12 @@
     "New Ends Box The Gnat",
     "Ends Around The Outside Square Thru 3",
     "Ends Run",
-    "All Right And Left Thru",
+    {
+      "selection": "All",
+      "call": "Right and Left Thru"
+    },
     "Star Thru"
   ],
-  "note": "Untranslatable: \"Put Centers In\"; Untranslatable: \"New Ends Box The Gnat\"; Untranslatable: \"Ends Around The Outside Square Thru 3\"; Untranslatable: \"New Ends Box The Gnat\"; Untranslatable: \"Ends Around The Outside Square Thru 3\"; Untranslatable: \"All Right And Left Thru\"",
+  "note": "Untranslatable: \"Put Centers In\"; Untranslatable: \"New Ends Box The Gnat\"; Untranslatable: \"Ends Around The Outside Square Thru 3\"; Untranslatable: \"New Ends Box The Gnat\"; Untranslatable: \"Ends Around The Outside Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

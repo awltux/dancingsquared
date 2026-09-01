@@ -4,18 +4,20 @@
   "level": "Mainstream",
   "startFormation": "Zero Box",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Swing Thru",
     "Boys Run",
     "3/4 Tag the Line",
-    "Boys Swing Thru",
+    {
+      "selection": "Boys",
+      "call": "Swing Thru"
+    },
     "Girls Trade",
     "Extend",
     "Boys Run"
   ],
-  "note": "Untranslatable: \"Boys Swing Thru\"",
   "source": "ceder.net/choreodb"
 }

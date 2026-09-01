@@ -6,13 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 5,
+  "mappedCount": 8,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Wheel and Deal",
-    "Girls Pass Thru",
+    {
+      "selection": "Girls",
+      "call": "Pass Thru"
+    },
     "Make A Rh Star, Once Around",
     "Girls Star Left In The Center One Time, Back To The Boys",
     "Touch a Quarter",
@@ -21,6 +30,6 @@
     "Recycle",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Make A Rh Star, Once Around,\"; Untranslatable: \"Girls Star Left In The Center One Time, Back To The Boys,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Make A Rh Star, Once Around,\"; Untranslatable: \"Girls Star Left In The Center One Time, Back To The Boys,\"",
   "source": "ceder.net/choreodb"
 }

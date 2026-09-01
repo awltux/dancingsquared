@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Heads Pass Thru, Step Ahead & U-Turn Back",
     "Sides Pass Thru, Step Ahead & Face Your Partner",
-    "Everybody Grand Square",
+    {
+      "selection": "Everybody",
+      "call": "Grand Square"
+    },
     "Swing (original) Partner",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru, Step Ahead & U-Turn Back,\"; Untranslatable: \"Sides Pass Thru, Step Ahead & Face Your Partner,\"; Untranslatable: \"Everybody Grand Square,\"; Untranslatable: \"Swing (original) Partner,\"",
+  "note": "Untranslatable: \"Heads Pass Thru, Step Ahead & U-Turn Back,\"; Untranslatable: \"Sides Pass Thru, Step Ahead & Face Your Partner,\"; Untranslatable: \"Swing (original) Partner,\"",
   "source": "ceder.net/choreodb"
 }

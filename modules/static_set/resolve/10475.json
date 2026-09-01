@@ -6,18 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 4,
+  "mappedCount": 8,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Flutterwheel",
     "Zoom",
-    "Centers Right & Left Thru",
-    "Centers Square Thru 3",
-    "All Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Trade By",
     "Left Allemande",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Centers Right & Left Thru,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"All Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,20 +4,25 @@
   "level": "Mainstream",
   "startFormation": "Zero Box",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 9,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "Swing Thru",
     "Boys Run",
     "Tag the Line",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Extend",
-    "Centers Recycle",
+    {
+      "selection": "Centers",
+      "call": "Recycle"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Centers Recycle\"",
   "source": "ceder.net/choreodb"
 }

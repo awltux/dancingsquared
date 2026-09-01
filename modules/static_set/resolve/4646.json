@@ -6,16 +6,31 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 1,
+  "mappedCount": 6,
   "steps": [
-    "Heads Square Thru",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "On 3rd Hand Touch 1/4",
-    "Girls Pass Thru",
-    "Centers Swing Thru",
-    "Boys Pass Thru",
-    "Centers Wheel & Deal",
+    {
+      "selection": "Girls",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
+    {
+      "selection": "Boys",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Wheel and Deal"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Square Thru,\"; Untranslatable: \" On 3rd Hand Touch 1/4,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Centers Swing Thru,\"; Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"Centers Wheel & Deal,\"",
+  "note": "Untranslatable: \" On 3rd Hand Touch 1/4,\"",
   "source": "ceder.net/choreodb"
 }

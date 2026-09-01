@@ -6,23 +6,38 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 6,
+  "mappedCount": 10,
   "steps": [
     "Four Ladies Chain",
     "Heads Square Thru 4",
     "Dosado",
     "Swing Thru",
     "Boys Run",
-    "Boys Circulate",
-    "All Ferris Wheel",
-    "Boys Zoom",
-    "Centers Right & Left Thru & Veer Left",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
+    {
+      "selection": "All",
+      "call": "Ferris Wheel"
+    },
+    {
+      "selection": "Boys",
+      "call": "Zoom"
+    },
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
     "All 4 Girls Pass Thru",
     "Center Wave Swing Thru",
     "All 4 Boys Pass Thru",
-    "Centers Wheel & Deal",
+    {
+      "selection": "Centers",
+      "call": "Wheel and Deal"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Boys Circulate,\"; Untranslatable: \"All Ferris Wheel,\"; Untranslatable: \"Boys Zoom,\"; Untranslatable: \"Centers Right & Left Thru & Veer Left,\"; Untranslatable: \"All 4 Girls Pass Thru,\"; Untranslatable: \"Center Wave Swing Thru,\"; Untranslatable: \"All 4 Boys Pass Thru,\"; Untranslatable: \"Centers Wheel & Deal,\"",
+  "note": "Untranslatable: \"All 4 Girls Pass Thru,\"; Untranslatable: \"Center Wave Swing Thru,\"; Untranslatable: \"All 4 Boys Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

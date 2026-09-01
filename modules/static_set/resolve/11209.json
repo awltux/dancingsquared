@@ -6,18 +6,24 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
-    "Heads Box The Gnat, Sides Face",
+    {
+      "selection": "Heads",
+      "call": "Box the Gnat"
+    },
     "Everybody Pass Thru & Cast Off 3/4",
     "Pass Thru",
     "Tag the Line",
     "Centers In",
     "Pass Thru",
     "Ends Cross Fold",
-    "All Box The Gnat, Change Hands",
+    {
+      "selection": "All",
+      "call": "Box the Gnat"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Box The Gnat, Sides Face,\"; Untranslatable: \"Everybody Pass Thru & Cast Off 3/4,\"; Untranslatable: \"All Box The Gnat, Change Hands,\"",
+  "note": "Untranslatable: \"Everybody Pass Thru & Cast Off 3/4,\"",
   "source": "ceder.net/choreodb"
 }

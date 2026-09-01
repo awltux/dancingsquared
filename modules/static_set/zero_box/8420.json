@@ -6,15 +6,21 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Head Ladies Chain Right",
-    "Head Position Right & Left Thru",
-    "Same 4 Star Thru",
+    {
+      "selection": "Head Position",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Star Thru"
+    },
     "Double Pass Thru",
     "First Couple Left, Next Couple Right",
     "Star Thru"
   ],
-  "note": "Untranslatable: \"Head Position Right & Left Thru,\"; Untranslatable: \"Same 4 Star Thru,\"; Untranslatable: \"First Couple Left, Next Couple Right,\"",
+  "note": "Untranslatable: \"First Couple Left, Next Couple Right,\"",
   "source": "ceder.net/choreodb"
 }

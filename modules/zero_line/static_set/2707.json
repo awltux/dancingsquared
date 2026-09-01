@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 9,
+  "mappedCount": 10,
   "steps": [
     "Pass Thru",
     "Tag the Line",
@@ -15,13 +15,16 @@
     "Swing Thru",
     "Girls Run",
     "Square Thru 4",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Outsides U-Turn Back",
     "Extend",
     "Girls Trade",
     "Girls Cross Run",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Outsides U-Turn Back\"; Untranslatable: \"Girls Cross Run\"",
+  "note": "Untranslatable: \"Outsides U-Turn Back\"; Untranslatable: \"Girls Cross Run\"",
   "source": "ceder.net/choreodb"
 }

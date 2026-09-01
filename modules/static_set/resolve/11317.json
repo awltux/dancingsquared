@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 17,
-  "mappedCount": 15,
+  "mappedCount": 17,
   "steps": [
     "Heads Square Thru 4",
     "Touch a Quarter",
@@ -17,15 +17,20 @@
     "Trade By",
     "Spin the Top",
     "Boys Run",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Wheel and Deal",
     "Reverse Flutterwheel",
     "Star Thru",
     "Dive Thru",
     "Zoom",
-    "Centers Star Thru",
+    {
+      "selection": "Centers",
+      "call": "Star Thru"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Ladies Trade,\"; Untranslatable: \"Centers Star Thru,\"",
   "source": "ceder.net/choreodb"
 }

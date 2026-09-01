@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 8,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Square Thru 3",
     "Ends Cross Fold",
@@ -14,9 +14,11 @@
     "Cast Off Three Quarters",
     "Girls Run",
     "Double Pass Thru",
-    "Leaders Trade",
+    {
+      "selection": "Leaders",
+      "call": "Trade"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Leaders Trade\"",
   "source": "ceder.net/choreodb"
 }

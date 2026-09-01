@@ -6,23 +6,35 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 7,
+  "mappedCount": 11,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
     "Pass Thru",
     "Tag the Line",
     "Couples Circulate",
     "Couples Circulate",
-    "Girls Partner Trade",
-    "Centers Square Thru",
-    "Ends Star Thru",
+    {
+      "selection": "Girls",
+      "call": "Partner Trade"
+    },
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Ends",
+      "call": "Star Thru"
+    },
     "All Dosado, Step To A Wave",
     "Recycle",
     "Pass Thru",
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Girls Partner Trade,\"; Untranslatable: \"Centers Square Thru,\"; Untranslatable: \"Ends Star Thru,\"; Untranslatable: \"All Dosado, Step To A Wave,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Dosado, Step To A Wave,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,16 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
     "Heads Promenade 1/2",
     "Sides Pass Thru & U Turn Back",
     "Circle 8 (8 steps)",
-    "Men Forward & Back",
-    "Ladies Dosado",
+    {
+      "selection": "Men",
+      "call": "Forward and Back"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Dosado"
+    },
     "Swing The Nearest Man",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Sides Pass Thru & U Turn Back,\"; Untranslatable: \"Circle 8 (8 steps),\"; Untranslatable: \"Men Forward & Back,\"; Untranslatable: \"Ladies Dosado,\"; Untranslatable: \"Swing The Nearest Man,\"",
+  "note": "Untranslatable: \"Sides Pass Thru & U Turn Back,\"; Untranslatable: \"Circle 8 (8 steps),\"; Untranslatable: \"Swing The Nearest Man,\"",
   "source": "ceder.net/choreodb"
 }

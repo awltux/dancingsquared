@@ -6,21 +6,30 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 6,
+  "mappedCount": 9,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Tag the Line",
     "Ends Trade",
     "Centers In",
     "Ends Cross Fold",
-    "All Double Pass Thru",
+    {
+      "selection": "All",
+      "call": "Double Pass Thru"
+    },
     "Centers In",
     "Pass Thru",
     "Centers Cross Fold",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Centers Cross Fold,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Cross Fold,\"",
   "source": "ceder.net/choreodb"
 }

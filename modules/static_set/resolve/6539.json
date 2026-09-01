@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
-    "Heads Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Half Sashay"
+    },
     "Pass Thru",
     "Separate Around 1 To A Line",
     "Right and Left Thru",
@@ -16,6 +19,6 @@
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"Separate Around 1 To A Line,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

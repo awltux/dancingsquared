@@ -6,16 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
     "Four Ladies Chain 3/4",
-    "Heads Promenade Half-Way",
-    "Sides Half Sashay",
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "All 4 Couples Promenade"
+    },
+    {
+      "selection": "Sides",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Everybody Join Hands",
     "Circle One Way Or The Other",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads Promenade Half-Way,\"; Untranslatable: \"Sides Half Sashay,\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Everybody Join Hands,\"; Untranslatable: \" Circle One Way Or The Other,\"",
+  "note": "Untranslatable: \"Everybody Join Hands,\"; Untranslatable: \" Circle One Way Or The Other,\"",
   "source": "ceder.net/choreodb"
 }

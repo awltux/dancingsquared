@@ -16,13 +16,16 @@
     "Couples Circulate",
     "Boys Cross Run",
     "Couples Circulate",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Girls Run",
     "Boys Trade",
     "Left Swing Thru",
     "Girls Run",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 8-16 SAV).,\"; Untranslatable: \"Boys Cross Run,\"; Untranslatable: \"Girls Circulate,\"",
+  "note": "Untranslatable: \"(Lesson 8-16 SAV).,\"; Untranslatable: \"Boys Cross Run,\"",
   "source": "ceder.net/choreodb"
 }

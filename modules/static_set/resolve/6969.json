@@ -6,20 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 1,
+  "mappedCount": 4,
   "steps": [
-    "Heads Square Thru",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Star Right With The Outside Two",
     "Heads Center With A Left Hand Star",
     "Take Your Corner With An Arm Around Star Promenade",
     "Inside Out A Full Turn & Then Circle Left",
-    "Four Ladies Forward & Back",
+    {
+      "selection": "Four Ladies",
+      "call": "Forward and Back"
+    },
     "Pass Thru Separate Around One To A Line Of Four",
     "Forward and Back",
     "Pass Thru Wheel And Deal",
     "Outsides Face Your Partner",
-    "Everybody Right & Left Grand"
+    {
+      "selection": "Everybody",
+      "call": "Right and Left Grand"
+    }
   ],
-  "note": "Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"Star Right With The Outside Two,\"; Untranslatable: \"Heads Center With A Left Hand Star,\"; Untranslatable: \"Take Your Corner With An Arm Around Star Promenade,\"; Untranslatable: \"Inside Out A Full Turn & Then Circle Left,\"; Untranslatable: \"Four Ladies Forward & Back,\"; Untranslatable: \"Pass Thru Separate Around One To A Line Of Four,\"; Untranslatable: \"Pass Thru Wheel And Deal,\"; Untranslatable: \"Outsides Face Your Partner,\"; Untranslatable: \"Everybody Right & Left Grand\"",
+  "note": "Untranslatable: \"Star Right With The Outside Two,\"; Untranslatable: \"Heads Center With A Left Hand Star,\"; Untranslatable: \"Take Your Corner With An Arm Around Star Promenade,\"; Untranslatable: \"Inside Out A Full Turn & Then Circle Left,\"; Untranslatable: \"Pass Thru Separate Around One To A Line Of Four,\"; Untranslatable: \"Pass Thru Wheel And Deal,\"; Untranslatable: \"Outsides Face Your Partner,\"",
   "source": "ceder.net/choreodb"
 }

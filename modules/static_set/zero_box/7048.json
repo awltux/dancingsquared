@@ -6,14 +6,20 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
-    "Heads Swing Thru",
-    "Ladies Trade",
+    {
+      "selection": "Heads",
+      "call": "Swing Thru"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Men Run",
     "Bend the Line",
     "Pass Thru"
   ],
-  "note": "Untranslatable: \"Heads Swing Thru,\"; Untranslatable: \" Ladies Trade,\"; Untranslatable: \" Men Run,\"",
+  "note": "Untranslatable: \" Men Run,\"",
   "source": "ceder.net/choreodb"
 }

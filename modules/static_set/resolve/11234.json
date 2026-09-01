@@ -6,24 +6,42 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 15,
-  "mappedCount": 7,
+  "mappedCount": 13,
   "steps": [
-    "Heads Box The Gnat & Backaway",
+    {
+      "selection": "Heads",
+      "call": "Box the Gnat"
+    },
     "All Join Hands & Circle Left",
     "4 Girls Forward & Back",
-    "Girls Square Thru 4",
+    {
+      "selection": "Girls",
+      "call": "Square Thru 4"
+    },
     "Centers In",
     "All 8 Circulate",
     "Cast Off Three Quarters",
     "Boys Run",
-    "Boys Square Thru 3",
-    "All Cast Off 3/4",
+    {
+      "selection": "Boys",
+      "call": "Square Thru 3"
+    },
+    {
+      "selection": "All",
+      "call": "Cast Off Three Quarters"
+    },
     "All 8 Circulate",
     "Boys Fold",
-    "Girls Pass Thru",
-    "All Star Thru",
+    {
+      "selection": "Girls",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Box The Gnat & Backaway,\"; Untranslatable: \"All Join Hands & Circle Left,\"; Untranslatable: \"4 Girls Forward & Back,\"; Untranslatable: \"Girls Square Thru 4,\"; Untranslatable: \"Boys Square Thru 3,\"; Untranslatable: \"All Cast Off 3/4,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"All Star Thru,\"",
+  "note": "Untranslatable: \"All Join Hands & Circle Left,\"; Untranslatable: \"4 Girls Forward & Back,\"",
   "source": "ceder.net/choreodb"
 }

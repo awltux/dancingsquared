@@ -6,16 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 2,
+  "mappedCount": 5,
   "steps": [
-    "Heads Dosado (your Opposite)",
+    {
+      "selection": "Heads",
+      "call": "Dosado"
+    },
     "Heads Promenade 1/2",
-    "Sides Dosado (your Opposite)",
+    {
+      "selection": "Sides",
+      "call": "Dosado"
+    },
     "Sides Promenade 1/2",
-    "All Circle Left 1/2",
+    {
+      "selection": "All",
+      "call": "Circle Left 1/2"
+    },
     "Dosado Corner",
     "All 4 Couples Promenade"
   ],
-  "note": "Untranslatable: \"Heads Dosado (your Opposite),\"; Untranslatable: \"Sides Dosado (your Opposite),\"; Untranslatable: \"All Circle Left 1/2,\"; Untranslatable: \"Dosado Corner,\"",
+  "note": "Untranslatable: \"Dosado Corner,\"",
   "source": "ceder.net/choreodb"
 }

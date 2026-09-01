@@ -6,16 +6,19 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Touch a Quarter",
     "Swing Thru",
     "Centers Run",
     "Tag the Line",
     "Centers Only Box The Gnat",
-    "All Square Thru",
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Trade By"
   ],
-  "note": "Untranslatable: \"Centers Only Box The Gnat\"; Untranslatable: \"All Square Thru\"",
+  "note": "Untranslatable: \"Centers Only Box The Gnat\"",
   "source": "ceder.net/choreodb"
 }

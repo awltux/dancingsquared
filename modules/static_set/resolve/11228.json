@@ -6,19 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "",
     "Heads Single File Promenade Halfway And Face In",
     "Head Ladies Chain",
     "Sides Single File Promenade Halfway, And Face In",
     "Side Ladies Chain",
-    "All Four Ladies Chain Across",
+    {
+      "selection": "All",
+      "call": "Four Ladies Chain"
+    },
     "Join Hands, Circle Left Halfway",
     "Allemande Left",
     "Grand Right & Left",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Single File Promenade Halfway And Face In,\"; Untranslatable: \"Sides Single File Promenade Halfway, And Face In,\"; Untranslatable: \"All Four Ladies Chain Across,\"; Untranslatable: \"Join Hands, Circle Left Halfway,\"; Untranslatable: \"Grand Right & Left,\"",
+  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Single File Promenade Halfway And Face In,\"; Untranslatable: \"Sides Single File Promenade Halfway, And Face In,\"; Untranslatable: \"Join Hands, Circle Left Halfway,\"; Untranslatable: \"Grand Right & Left,\"",
   "source": "ceder.net/choreodb"
 }

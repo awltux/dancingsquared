@@ -11,9 +11,12 @@
     "1/2 Square Thru",
     "Trade By",
     "Step to a Wave",
-    "Men Circulate",
+    {
+      "selection": "Men",
+      "call": "Circulate"
+    },
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Men Circulate\"",
+  "note": "Untranslatable: \"1/2 Square Thru\"",
   "source": "ceder.net/choreodb"
 }

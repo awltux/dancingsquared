@@ -6,21 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 8,
+  "mappedCount": 11,
   "steps": [
     "Pass Thru",
     "Tag the Line",
     "Face In",
-    "Centers Square Thru",
-    "Ends Star Thru",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Ends",
+      "call": "Star Thru"
+    },
     "Centers In",
     "Cast Off Three Quarters",
     "Star Thru",
     "Double Pass Thru",
-    "Leaders Trade",
+    {
+      "selection": "Leaders",
+      "call": "Trade"
+    },
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Square Thru\"; Untranslatable: \"Ends Star Thru\"; Untranslatable: \"Leaders Trade\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
-    "Partner Dosado",
+    {
+      "selection": "Partner",
+      "call": "Dosado"
+    },
     "Allemande Left With The Corner",
     "Heads Promenade 1/2",
     "Sides Promenade 1/2",
@@ -16,6 +19,6 @@
     "Allemande Left With Corner",
     "All 4 Couples Promenade"
   ],
-  "note": "Untranslatable: \"Partner Dosado,\"; Untranslatable: \"Allemande Left With The Corner,\"; Untranslatable: \"Circle Left Back To Home,\"; Untranslatable: \"Allemande Left With Corner,\"",
+  "note": "Untranslatable: \"Allemande Left With The Corner,\"; Untranslatable: \"Circle Left Back To Home,\"; Untranslatable: \"Allemande Left With Corner,\"",
   "source": "ceder.net/choreodb"
 }

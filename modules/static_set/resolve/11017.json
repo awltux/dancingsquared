@@ -6,12 +6,21 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 6,
+  "mappedCount": 9,
   "steps": [
-    "Heads Right & Left Thru",
-    "Same 4 Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 Come Into The Middle & Pass Thru",
-    "All Swing Thru",
+    {
+      "selection": "All",
+      "call": "Swing Thru"
+    },
     "Boys Run",
     "Couples Circulate",
     "Chain Down the Line",
@@ -20,6 +29,6 @@
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" Same 4 Pass Thru,\"; Untranslatable: \"Separate Around 1 Come Into The Middle & Pass Thru,\"; Untranslatable: \"All Swing Thru,\"",
+  "note": "Untranslatable: \"Separate Around 1 Come Into The Middle & Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

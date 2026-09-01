@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "1/2 Square Thru",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Others U-Turn Back",
     "Extend",
     "Swing Thru",
@@ -19,6 +22,6 @@
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Others U-Turn Back\"; Untranslatable: \"1/2 Square Thru\"",
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Others U-Turn Back\"; Untranslatable: \"1/2 Square Thru\"",
   "source": "ceder.net/choreodb"
 }

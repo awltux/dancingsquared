@@ -6,16 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Dive Thru",
     "Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Dive Thru",
     "Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande This is a ZB-ZB module just before the Left Allemande."
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Left Allemande This is a ZB-ZB module just before the Left Allemande.\"",
+  "note": "Untranslatable: \"Left Allemande This is a ZB-ZB module just before the Left Allemande.\"",
   "source": "ceder.net/choreodb"
 }

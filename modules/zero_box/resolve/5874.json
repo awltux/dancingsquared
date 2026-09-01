@@ -15,9 +15,11 @@
     "Hinge",
     "Girls Trade",
     "Boys Run",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Boys Circulate\"",
   "source": "ceder.net/choreodb"
 }

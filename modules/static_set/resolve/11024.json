@@ -6,20 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 7,
+  "mappedCount": 10,
   "steps": [
     "Heads Square Thru 4",
-    "All Square Thru 4",
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Wheel and Deal",
-    "Centers Half Sashay",
+    {
+      "selection": "Centers",
+      "call": "Half Sashay"
+    },
     "Double Pass Thru",
     "Centers In",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Box the Gnat",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"Centers Half Sashay,\"; Untranslatable: \"Centers Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

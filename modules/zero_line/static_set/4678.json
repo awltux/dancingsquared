@@ -6,21 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 8,
+  "mappedCount": 11,
   "steps": [
     "Pass Thru",
     "Tag the Line",
     "Face Left",
     "Ferris Wheel",
-    "Centers Dosado",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Dosado"
+    },
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Extend",
     "Swing Thru",
     "Boys Run",
     "Ferris Wheel",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Dosado\"; Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Centers Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

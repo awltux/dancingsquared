@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "Square Thru 3",
     "Wheel and Deal",
@@ -19,8 +19,11 @@
     "Pass Thru",
     "Wheel and Deal",
     "Centers Only Allemande Left",
-    "All R.L.G"
+    {
+      "selection": "All",
+      "call": "Right and Left Grand"
+    }
   ],
-  "note": "Untranslatable: \"Centers Only Allemande Left\"; Untranslatable: \"All R.L.G\"",
+  "note": "Untranslatable: \"Centers Only Allemande Left\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Heads Square Thru 4",
     "Swing Thru",
@@ -14,9 +14,12 @@
     "Girls Run",
     "Couples Circulate",
     "Ferris Wheel, Centers Sweep 1/4",
-    "Centers Square Thru 4",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Ferris Wheel, Centers Sweep 1/4,\"; Untranslatable: \"Centers Square Thru 4,\"",
+  "note": "Untranslatable: \"Ferris Wheel, Centers Sweep 1/4,\"",
   "source": "ceder.net/choreodb"
 }

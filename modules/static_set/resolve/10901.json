@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Heads Star Thru",
     "Pass Thru",
@@ -16,10 +16,13 @@
     "Right and Left Thru",
     "Star Thru",
     "Dive Thru",
-    "Centers Box The Gnat",
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
     "Make A R-H Star, One Full Turn To Corner",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \"Make A R-H Star, One Full Turn To Corner,\"",
+  "note": "Untranslatable: \"Make A R-H Star, One Full Turn To Corner,\"",
   "source": "ceder.net/choreodb"
 }

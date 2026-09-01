@@ -4,11 +4,14 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 12,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
-    "Heads Square Thru",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Swing Thru",
     "Swing Thru",
     "Split Circulate",
@@ -21,6 +24,5 @@
     "Pass Thru",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

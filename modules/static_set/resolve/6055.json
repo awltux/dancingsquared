@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
-    "Heads Right & Left Thru & Backaway",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Head Ladies Chain",
     "Head Position Rollaway & Square Thru 4",
     "Split Two Around One To A Line",
@@ -18,6 +21,6 @@
     "Star Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru & Backaway,\"; Untranslatable: \"Head Position Rollaway & Square Thru 4,\"; Untranslatable: \"Split Two Around One To A Line,\"; Untranslatable: \"First Go Left, Second Go Right,\"",
+  "note": "Untranslatable: \"Head Position Rollaway & Square Thru 4,\"; Untranslatable: \"Split Two Around One To A Line,\"; Untranslatable: \"First Go Left, Second Go Right,\"",
   "source": "ceder.net/choreodb"
 }

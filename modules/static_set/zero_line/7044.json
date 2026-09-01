@@ -6,15 +6,18 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Flutterwheel",
     "1/2 Square Thru",
     "Swing Thru",
     "Men Run",
     "Bend the Line"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" 1/2 Square Thru,\"; Untranslatable: \"Men Run,\"",
+  "note": "Untranslatable: \" 1/2 Square Thru,\"; Untranslatable: \"Men Run,\"",
   "source": "ceder.net/choreodb"
 }

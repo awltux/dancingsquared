@@ -11,9 +11,12 @@
     "1/2 Square Thru",
     "Trade By",
     "Dosado to a Wave",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Boys Circulate\"",
+  "note": "Untranslatable: \"1/2 Square Thru\"",
   "source": "ceder.net/choreodb"
 }

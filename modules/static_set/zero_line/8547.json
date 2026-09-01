@@ -6,15 +6,18 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Head Ladies Chain",
     "Same 4 1/2 Square Thru",
     "Step to a Wave",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Recycle",
     "Sweep a Quarter"
   ],
-  "note": "Untranslatable: \"Same 4 1/2 Square Thru,\"; Untranslatable: \"Ladies Trade,\"",
+  "note": "Untranslatable: \"Same 4 1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

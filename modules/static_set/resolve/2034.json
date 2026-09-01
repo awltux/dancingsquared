@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 11,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "Heads Lead Right",
     "Touch a Quarter",
@@ -16,10 +16,12 @@
     "Spin the Top",
     "Hinge",
     "Boys Run",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

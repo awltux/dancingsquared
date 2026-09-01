@@ -6,13 +6,19 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
-    "Heads Flutter Wheel",
-    "Same 4 Star Thru",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Star Thru"
+    },
     "Double Pass Thru",
     "First Couple Right, Next Couple Left"
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel,\"; Untranslatable: \" Same 4 Star Thru,\"; Untranslatable: \"First Couple Right, Next Couple Left\"",
+  "note": "Untranslatable: \"First Couple Right, Next Couple Left\"",
   "source": "ceder.net/choreodb"
 }

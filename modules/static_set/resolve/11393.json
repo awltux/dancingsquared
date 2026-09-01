@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "(Lesson 11-6)",
-    "Heads Flutter Wheel",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
     "Heads Square Thru 2",
     "Swing Thru",
     "Box the Gnat",
@@ -19,6 +22,6 @@
     "Allemande Left",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 11-6),\"; Untranslatable: \"Heads Flutter Wheel,\"",
+  "note": "Untranslatable: \"(Lesson 11-6),\"",
   "source": "ceder.net/choreodb"
 }

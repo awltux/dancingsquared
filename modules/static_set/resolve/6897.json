@@ -6,16 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Four Ladies Chain",
     "Head Ladies Chain",
-    "All Circle Left",
+    {
+      "selection": "All",
+      "call": "Circle Left"
+    },
     "Those Who Can Right & Left Thru (and backaway)",
     "Others Star Thru",
     "Pass Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"All Circle Left,\"; Untranslatable: \"Those Who Can Right & Left Thru (and backaway),\"; Untranslatable: \"Others Star Thru,\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Those Who Can Right & Left Thru (and backaway),\"; Untranslatable: \"Others Star Thru,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

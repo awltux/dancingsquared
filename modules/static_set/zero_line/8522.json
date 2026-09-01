@@ -4,16 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Heads Lead Right",
     "Veer Left",
     "Ferris Wheel",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Circle Left 3/4"
   ],
-  "note": "Untranslatable: \"Centers Square Thru 3,\"",
   "source": "ceder.net/choreodb"
 }

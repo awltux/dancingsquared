@@ -6,12 +6,15 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 3,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Same Four Star Left Once And A Half To The Corner",
     "Dosado"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Same Four Star Left Once And A Half To The Corner,\"",
+  "note": "Untranslatable: \"Same Four Star Left Once And A Half To The Corner,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,12 +6,15 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Pass Thru",
     "End Girl Run",
     "Girls Trade",
-    "All Tag The Line",
+    {
+      "selection": "All",
+      "call": "Tag the Line"
+    },
     "Centers In",
     "Cast Off Three Quarters",
     "Pass Thru",
@@ -19,6 +22,6 @@
     "Cast Off Three Quarters",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"End Girl Run\"; Untranslatable: \"All Tag The Line\"",
+  "note": "Untranslatable: \"End Girl Run\"",
   "source": "ceder.net/choreodb"
 }

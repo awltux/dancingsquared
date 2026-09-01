@@ -6,14 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Heads Square Thru 4",
-    "All Square Thru 4",
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Partner Trade",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"All Square Thru 4,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,16 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Sides Face",
     "Six Steps Grand Square",
     "Forward and Back",
     "Star Thru",
     "Dive Thru",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Sides Face,\"; Untranslatable: \"Six Steps Grand Square,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"Sides Face,\"; Untranslatable: \"Six Steps Grand Square,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,27 +6,51 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 18,
-  "mappedCount": 7,
+  "mappedCount": 15,
   "steps": [
     "(Lesson 5-07)",
-    "Heads Slide Thru",
-    "Centers Dosado",
-    "Centers Veer Left & Veer Right",
-    "All Veer Right",
+    {
+      "selection": "Heads",
+      "call": "Slide Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Dosado"
+    },
+    {
+      "selection": "Centers",
+      "call": "Veer Left"
+    },
+    {
+      "selection": "All",
+      "call": "Veer Right"
+    },
     "Couples Trade",
     "Bend the Line",
     "Two Ladies Chain",
     "Pass Thru",
     "Bend the Line",
-    "Ends Pass Thru",
+    {
+      "selection": "Ends",
+      "call": "Pass Thru"
+    },
     "Boys Trade",
     "Girls Trade",
     "Center 4 Pass Thru",
-    "All California Twirl",
-    "Ends (original heads) Slide Thru",
-    "Centers (original sides) Half Sashay (and back away)",
+    {
+      "selection": "All",
+      "call": "California Twirl"
+    },
+    {
+      "selection": "Ends",
+      "call": "Slide Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Half Sashay"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 5-07),\"; Untranslatable: \"Heads Slide Thru,\"; Untranslatable: \"Centers Dosado,\"; Untranslatable: \"Centers Veer Left & Veer Right,\"; Untranslatable: \"All Veer Right,\"; Untranslatable: \"Two Ladies Chain,\"; Untranslatable: \"Ends Pass Thru,\"; Untranslatable: \"Center 4 Pass Thru,\"; Untranslatable: \"All California Twirl,\"; Untranslatable: \"Ends (original heads) Slide Thru,\"; Untranslatable: \"Centers (original sides) Half Sashay (and back away),\"",
+  "note": "Untranslatable: \"(Lesson 5-07),\"; Untranslatable: \"Two Ladies Chain,\"; Untranslatable: \"Center 4 Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

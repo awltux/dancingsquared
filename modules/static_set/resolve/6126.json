@@ -9,12 +9,15 @@
   "mappedCount": 4,
   "steps": [
     "Four Ladies Chain 3/4",
-    "Head Position Promenade 3/4",
+    {
+      "selection": "Head Position",
+      "call": "All 4 Couples Promenade"
+    },
     "Others Square Thru 3/4",
     "Circle Left 3/4",
     "Square Thru 3",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Head Position Promenade 3/4,\"; Untranslatable: \"Others Square Thru 3/4,\"",
+  "note": "Untranslatable: \"Others Square Thru 3/4,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Heads Lead Right",
-    "All Touch 1/4",
+    {
+      "selection": "All",
+      "call": "Touch a Quarter"
+    },
     "Scoot Back",
     "Boys Fold",
     "Double Pass Thru",
@@ -19,6 +22,6 @@
     "Star Thru",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"All Touch 1/4,\"; Untranslatable: \"Boys Cross Fold,\"",
+  "note": "Untranslatable: \"Boys Cross Fold,\"",
   "source": "ceder.net/choreodb"
 }

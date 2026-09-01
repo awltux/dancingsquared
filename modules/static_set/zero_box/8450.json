@@ -4,15 +4,17 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Heads Pass the Ocean",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Recycle",
     "Pass Thru"
   ],
-  "note": "Untranslatable: \" Ladies Trade,\"",
   "source": "ceder.net/choreodb"
 }

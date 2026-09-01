@@ -6,12 +6,15 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
     "Centers Spin The Top & Slide Thru",
-    "All Dosado",
+    {
+      "selection": "All",
+      "call": "Dosado"
+    },
     "Step to a Wave",
     "Girls Trade",
     "Recycle",
@@ -19,6 +22,6 @@
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Spin The Top & Slide Thru\"; Untranslatable: \"All Dosado\"",
+  "note": "Untranslatable: \"Centers Spin The Top & Slide Thru\"",
   "source": "ceder.net/choreodb"
 }

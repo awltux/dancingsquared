@@ -6,21 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Heads Pass the Ocean",
     "Extend",
     "Swing Thru",
-    "Boys Circulate Twice",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Swing Thru",
-    "Girls Circulate Twice",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Recycle",
     "Pass Thru",
     "Ends Circulate",
-    "All Bend The Line",
+    {
+      "selection": "All",
+      "call": "Bend the Line"
+    },
     "Slide Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Boys Circulate Twice,\"; Untranslatable: \"Girls Circulate Twice,\"; Untranslatable: \"All Bend The Line,\"",
   "source": "ceder.net/choreodb"
 }

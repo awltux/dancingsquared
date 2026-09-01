@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "Heads Promenade 1/2",
     "Come Down The Middle",
@@ -17,11 +17,14 @@
     "Right and Left Thru",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Right And Left Thru",
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
     "Pass Thru",
     "Ladies Chain",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \" Come Down The Middle,\"; Untranslatable: \"Centers Right And Left Thru,\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \" Come Down The Middle,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

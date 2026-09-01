@@ -6,17 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Lead Left",
     "Veer Right",
     "Couples Circulate",
-    "Leaders Wheel Around",
+    {
+      "selection": "Leaders",
+      "call": "Wheel Around"
+    },
     "Slide Thru",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Leaders Wheel Around,\"",
   "source": "ceder.net/choreodb"
 }

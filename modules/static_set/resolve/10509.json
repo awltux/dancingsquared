@@ -6,18 +6,24 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
     "Heads Promenade 1/2",
     "Pass the Ocean",
     "Extend",
     "Girls Run",
     "1/4 Tag The Line",
-    "Boys Swing Thru",
-    "Very Centers Boys Trade",
+    {
+      "selection": "Boys",
+      "call": "Swing Thru"
+    },
+    {
+      "selection": "Very Centers",
+      "call": "Boys Trade"
+    },
     "Extend",
     "Swing And Promenade"
   ],
-  "note": "Untranslatable: \"1/4 Tag The Line,\"; Untranslatable: \"Boys Swing Thru,\"; Untranslatable: \"Very Centers Boys Trade,\"; Untranslatable: \"Swing And Promenade\"",
+  "note": "Untranslatable: \"1/4 Tag The Line,\"; Untranslatable: \"Swing And Promenade\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,14 +4,16 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 3,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Pass Thru",
-    "Everybody Wheel Around",
+    {
+      "selection": "Everybody",
+      "call": "Wheel Around"
+    },
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"Everybody Wheel Around\"",
   "source": "ceder.net/choreodb"
 }

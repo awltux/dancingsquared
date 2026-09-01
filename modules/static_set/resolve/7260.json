@@ -10,12 +10,18 @@
   "steps": [
     "Allemande Left in the Alamo Style",
     "Balance",
-    "Heads Circulate",
-    "Sides Circulate",
+    {
+      "selection": "Heads",
+      "call": "Circulate"
+    },
+    {
+      "selection": "Sides",
+      "call": "Circulate"
+    },
     "Boys Run",
     "All 8 Reverse Flutter Wheel",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Circulate,\"; Untranslatable: \"Sides Circulate,\"; Untranslatable: \"All 8 Reverse Flutter Wheel,\"",
+  "note": "Untranslatable: \"All 8 Reverse Flutter Wheel,\"",
   "source": "ceder.net/choreodb"
 }

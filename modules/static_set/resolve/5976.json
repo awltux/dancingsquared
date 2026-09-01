@@ -6,20 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
-    "Heads Swing Thru",
+    {
+      "selection": "Heads",
+      "call": "Swing Thru"
+    },
     "Boys Run",
     "Chain Down the Line",
     "Pass Thru",
     "Swing Thru",
     "Boys Run",
     "Ferris Wheel",
-    "Centers Veer Left",
+    {
+      "selection": "Centers",
+      "call": "Veer Left"
+    },
     "Chain Down the Line",
     "Backaway",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Swing Thru,\"; Untranslatable: \"Centers Veer Left,\"; Untranslatable: \" Backaway,\"",
+  "note": "Untranslatable: \" Backaway,\"",
   "source": "ceder.net/choreodb"
 }

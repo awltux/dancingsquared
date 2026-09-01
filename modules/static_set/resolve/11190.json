@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 10,
+  "mappedCount": 12,
   "steps": [
     "(Lesson 7-09)",
     "Heads Separate And Star Thru",
@@ -16,13 +16,19 @@
     "Flutterwheel",
     "Dive Thru",
     "Double Pass Thru",
-    "Leaders California Twirl",
+    {
+      "selection": "Leaders",
+      "call": "California Twirl"
+    },
     "Slide Thru",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Wheel Around",
+    {
+      "selection": "Centers",
+      "call": "Wheel Around"
+    },
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"(Lesson 7-09),\"; Untranslatable: \"First Couple Go Left Next Go Right,\"; Untranslatable: \"Leaders California Twirl,\"; Untranslatable: \"Centers Wheel Around,\"",
+  "note": "Untranslatable: \"(Lesson 7-09),\"; Untranslatable: \"First Couple Go Left Next Go Right,\"",
   "source": "ceder.net/choreodb"
 }

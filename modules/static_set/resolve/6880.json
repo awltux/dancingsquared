@@ -6,15 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 0,
+  "mappedCount": 1,
   "steps": [
-    "Heads Circle Right",
+    {
+      "selection": "Heads",
+      "call": "Circle Right"
+    },
     "Star Right To The Corner",
     "Star Left With The Outside 2",
     "Heads Star Right In The Middle",
     "Back To The Corner",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Circle Right,\"; Untranslatable: \"Star Right To The Corner,\"; Untranslatable: \"Star Left With The Outside 2,\"; Untranslatable: \"Heads Star Right In The Middle,\"; Untranslatable: \"Back To The Corner,\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Star Right To The Corner,\"; Untranslatable: \"Star Left With The Outside 2,\"; Untranslatable: \"Heads Star Right In The Middle,\"; Untranslatable: \"Back To The Corner,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

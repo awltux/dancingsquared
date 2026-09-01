@@ -8,7 +8,7 @@ import { buildCall, parseCallXml, parseFormations, parseMoves } from '../convert
 import { matchFormations, type Matchable } from './match.js';
 import { assignHomeIdentity, normAngle } from './identity.js';
 import { canonicalName } from './constants.js';
-import type { Module } from './types.js';
+import type { CallStep, Module } from './types.js';
 import type { CallBundle } from '../types.js';
 
 // Calls that are conceptually sequences of multiple smaller calls (e.g. Running
@@ -25,7 +25,7 @@ const NON_COMPOSITIONAL_CALLS: string[] = [];
 
 export class CallLibrary {
   private readonly variants: Map<string, CallBundle[]> = new Map();
-  private readonly modules: Map<string, string[]> = new Map(); // module name -> call names
+  private readonly modules: Map<string, (string | CallStep)[]> = new Map(); // module name -> call steps
   private readonly namedFormations: { name: string; dancers: Matchable[] }[] = [];
   private readonly uniqueFormations: { name: string; dancers: Matchable[] }[] = [];
 
@@ -65,8 +65,12 @@ export class CallLibrary {
     this.variants.set(canonicalName(name), this.loadVariants(xml));
   }
 
-  registerModule(name: string, calls: string[]): void {
-    this.modules.set(canonicalName(name), calls.map((c) => canonicalName(c)));
+  registerModule(name: string, calls: (string | CallStep)[]): void {
+    const norm = (c: string | CallStep): string | CallStep => {
+      if (typeof c === 'string') return canonicalName(c);
+      return { ...(c.selection ? { selection: c.selection } : {}), call: canonicalName(c.call) };
+    };
+    this.modules.set(canonicalName(name), calls.map(norm));
   }
 
   listModules(): string[] {
@@ -110,7 +114,7 @@ export class CallLibrary {
     return this.modules.has(canonicalName(name));
   }
 
-  getModule(name: string): string[] | undefined {
+  getModule(name: string): (string | CallStep)[] | undefined {
     return this.modules.get(canonicalName(name));
   }
 
@@ -122,17 +126,20 @@ export class CallLibrary {
     return this.uniqueFormations;
   }
 
-  /** Flatten a sequence, expanding user-defined modules (cycle-guarded). */
-  flatten(sequence: string[]): string[] {
-    const out: string[] = [];
-    const expand = (names: string[], stack: string[]): void => {
-      for (const n of names) {
-        const canonical = canonicalName(n);
+  /** Flatten a sequence, expanding user-defined modules (cycle-guarded). Returns
+   * the flattened call steps, preserving any dancer selection. */
+  flatten(sequence: (string | CallStep)[]): (string | CallStep)[] {
+    const out: (string | CallStep)[] = [];
+    const expand = (names: (string | CallStep)[], stack: string[]): void => {
+      for (const raw of names) {
+        const name = typeof raw === 'string' ? canonicalName(raw) : raw.call;
+        const canonical = canonicalName(name);
+        const step: CallStep = typeof raw === 'string' ? { call: canonical } : { ...(raw.selection ? { selection: raw.selection } : {}), call: canonical };
         if (this.modules.has(canonical)) {
           if (stack.includes(canonical)) continue; // cycle guard
           expand(this.modules.get(canonical)!, [...stack, canonical]);
         } else {
-          out.push(canonical);
+          out.push(step);
         }
       }
     };

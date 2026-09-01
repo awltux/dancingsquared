@@ -4,16 +4,21 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Four Ladies Chain",
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Star Thru",
     "Double Pass Thru",
-    "Leaders Partner Trade"
+    {
+      "selection": "Leaders",
+      "call": "Partner Trade"
+    }
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Leaders Partner Trade\"",
   "source": "ceder.net/choreodb"
 }

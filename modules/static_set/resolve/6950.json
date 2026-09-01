@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
-    "Heads Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Half Sashay"
+    },
     "Forward and Back",
     "Right Hand Star",
     "It's A Left Hand Star With The Couple You Met (Couple #1 with couple #2 and Couple #3 with couple #4)",
@@ -18,6 +21,6 @@
     "Every Swing",
     "All 4 Couples Promenade"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"It's A Left Hand Star With The Couple You Met (Couple #1 with couple #2 and Couple #3 with couple #4),\"; Untranslatable: \"Heads To The Center Two Ladies Chain (men will Courtesy Turn them in front of the side couples),\"; Untranslatable: \"Pass Thru And On You Roam,\"; Untranslatable: \"Split The Outsides Around One And Go Back Home,\"; Untranslatable: \"Every Swing,\"",
+  "note": "Untranslatable: \"It's A Left Hand Star With The Couple You Met (Couple #1 with couple #2 and Couple #3 with couple #4),\"; Untranslatable: \"Heads To The Center Two Ladies Chain (men will Courtesy Turn them in front of the side couples),\"; Untranslatable: \"Pass Thru And On You Roam,\"; Untranslatable: \"Split The Outsides Around One And Go Back Home,\"; Untranslatable: \"Every Swing,\"",
   "source": "ceder.net/choreodb"
 }

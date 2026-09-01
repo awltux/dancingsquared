@@ -6,19 +6,24 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "Heads Star Thru",
     "Pass Thru",
-    "All Star Thru",
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
     "Pass Thru",
     "Bend the Line",
     "Right and Left Thru",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"All Star Thru,\"; Untranslatable: \"Centers Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

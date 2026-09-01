@@ -6,16 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Heads Square Thru 4",
-    "All Square Thru 4",
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Bend The Line, Square Thru 4",
     "Trade By",
     "Bend The Line, Square Thru 4",
     "Trade By",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"Bend The Line, Square Thru 4,\"; Untranslatable: \"Bend The Line, Square Thru 4,\"",
+  "note": "Untranslatable: \"Bend The Line, Square Thru 4,\"; Untranslatable: \"Bend The Line, Square Thru 4,\"",
   "source": "ceder.net/choreodb"
 }

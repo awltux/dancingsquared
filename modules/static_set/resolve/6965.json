@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
-    "Heads Right & Left Thru With A Full Turn And 1/4 More",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Men Hook Left Elbows And Turn The Vane Once Around A 1/4 More",
     "Bend the Line",
     "Zoom",
@@ -20,6 +23,6 @@
     "Centers 4 Circle Left Once Around And 1/4 More (ZS)",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru With A Full Turn And 1/4 More,\"; Untranslatable: \"Men Hook Left Elbows And Turn The Vane Once Around A 1/4 More,\"; Untranslatable: \"Center 4 Circle Left Once Around A 1/4 More,\"; Untranslatable: \"Men Hook Left Elbows And Turn The Vane Once Around And A 1/4 More,\"; Untranslatable: \"Centers 4 Circle Left Once Around And 1/4 More (ZS),\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Men Hook Left Elbows And Turn The Vane Once Around A 1/4 More,\"; Untranslatable: \"Center 4 Circle Left Once Around A 1/4 More,\"; Untranslatable: \"Men Hook Left Elbows And Turn The Vane Once Around And A 1/4 More,\"; Untranslatable: \"Centers 4 Circle Left Once Around And 1/4 More (ZS),\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

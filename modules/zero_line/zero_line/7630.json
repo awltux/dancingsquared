@@ -6,19 +6,25 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Others Separate",
     "All Go Right & Left Thru",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Others Separate",
     "All Go Right & Left Thru (Zero Line) https://www.ceder.net/choreodb/?FindSeqType=100&FindLevel=20&Style=print 01-September-2026 02:13:02 Copyright &#169; 2026 Vic Ceder . All Rights Reserved. full URL"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Others Separate\"; Untranslatable: \"All Go Right & Left Thru\"; Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Others Separate\"; Untranslatable: \"All Go Right & Left Thru (Zero Line) https://www.ceder.net/choreodb/?FindSeqType=100&FindLevel=20&Style=print 01-September-2026 02:13:02 Copyright &#169; 2026 Vic Ceder . All Rights Reserved. full URL\"",
+  "note": "Untranslatable: \"Others Separate\"; Untranslatable: \"All Go Right & Left Thru\"; Untranslatable: \"Others Separate\"; Untranslatable: \"All Go Right & Left Thru (Zero Line) https://www.ceder.net/choreodb/?FindSeqType=100&FindLevel=20&Style=print 01-September-2026 02:13:02 Copyright &#169; 2026 Vic Ceder . All Rights Reserved. full URL\"",
   "source": "ceder.net/choreodb"
 }

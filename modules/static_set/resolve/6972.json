@@ -6,24 +6,36 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 15,
-  "mappedCount": 3,
+  "mappedCount": 7,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Both Turn Right Single File",
     "Lady Around Two, Gent Around One To A Line",
     "Line Of Four Forward & Back",
     "Diagonally Those Who Can Right & Left Thru",
-    "Same Four Rollaway",
+    {
+      "selection": "Same Four",
+      "call": "Rollaway"
+    },
     "Lines Forward & Back",
     "Pass Thru",
     "U-Turn Back",
     "Star Thru Circle Four Half Way",
     "Dive Thru",
-    "Centers Right & Left Thru",
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
     "Those Ladies Chain",
-    "Centers Pass Thru (ZB)",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Both Turn Right Single File,\"; Untranslatable: \" Lady Around Two, Gent Around One To A Line,\"; Untranslatable: \"Line Of Four Forward & Back,\"; Untranslatable: \"Diagonally Those Who Can Right & Left Thru,\"; Untranslatable: \"Same Four Rollaway,\"; Untranslatable: \"Lines Forward & Back,\"; Untranslatable: \"Star Thru Circle Four Half Way,\"; Untranslatable: \"Centers Right & Left Thru,\"; Untranslatable: \" Those Ladies Chain,\"; Untranslatable: \"Centers Pass Thru (ZB),\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Both Turn Right Single File,\"; Untranslatable: \" Lady Around Two, Gent Around One To A Line,\"; Untranslatable: \"Line Of Four Forward & Back,\"; Untranslatable: \"Diagonally Those Who Can Right & Left Thru,\"; Untranslatable: \"Lines Forward & Back,\"; Untranslatable: \"Star Thru Circle Four Half Way,\"; Untranslatable: \" Those Ladies Chain,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

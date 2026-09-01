@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 16,
-  "mappedCount": 14,
+  "mappedCount": 15,
   "steps": [
     "(Lesson 12-04)",
     "Heads Pass the Ocean",
@@ -22,9 +22,12 @@
     "Girls Trade",
     "Recycle",
     "Dive Thru",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"(Lesson 12-04),\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"(Lesson 12-04),\"",
   "source": "ceder.net/choreodb"
 }

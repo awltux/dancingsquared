@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
-    "Heads Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Half Sashay"
+    },
     "Forward and Back",
     "Box the Gnat",
     "Right and Left Thru",
@@ -23,6 +26,6 @@
     "Half Sashay",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"Separate Around One, Come Into The Middle,\"; Untranslatable: \"Split Two Around One To A Line Of 4,\"",
+  "note": "Untranslatable: \"Separate Around One, Come Into The Middle,\"; Untranslatable: \"Split Two Around One To A Line Of 4,\"",
   "source": "ceder.net/choreodb"
 }

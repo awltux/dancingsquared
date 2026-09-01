@@ -6,16 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 1,
+  "mappedCount": 4,
   "steps": [
     "Four Ladies Chain 3/4",
-    "Head Position Square Thru 3",
+    {
+      "selection": "Head Position",
+      "call": "Square Thru 3"
+    },
     "Separate Around 1 To A Line",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Boys Cross Fold",
-    "All Star Thru",
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
     "Step Forward & Promenade Home"
   ],
-  "note": "Untranslatable: \"Head Position Square Thru 3,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Boys Cross Fold,\"; Untranslatable: \"All Star Thru,\"; Untranslatable: \"Step Forward & Promenade Home\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Boys Cross Fold,\"; Untranslatable: \"Step Forward & Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

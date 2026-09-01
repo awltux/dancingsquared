@@ -4,21 +4,29 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 10,
   "steps": [
     "Heads Star Thru",
-    "Boys Zoom",
-    "Centers Swing Thru",
+    {
+      "selection": "Boys",
+      "call": "Zoom"
+    },
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Extend",
     "Swing Thru",
     "Spin the Top",
     "Hinge",
     "Girls Run",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Boys Zoom,\"; Untranslatable: \"Centers Swing Thru,\"; Untranslatable: \"Centers Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

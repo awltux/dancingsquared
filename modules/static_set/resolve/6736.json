@@ -17,10 +17,13 @@
     "Wheel and Deal",
     "Centers Dosado 1 & 1/2",
     "Veer Right",
-    "Couples Circulate 1 & 1/2",
+    {
+      "selection": "Couples",
+      "call": "Circulate"
+    },
     "Bend the Line",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Centers Dosado 1 & 1/2,\"; Untranslatable: \"Couples Circulate 1 & 1/2,\"",
+  "note": "Untranslatable: \"Centers Dosado 1 & 1/2,\"",
   "source": "ceder.net/choreodb"
 }

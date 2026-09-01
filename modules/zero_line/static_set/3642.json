@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 11,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "Pass Thru",
     "Half Tag",
@@ -16,10 +16,12 @@
     "Girls Trade",
     "Girls Run",
     "Tag the Line",
-    "Boys U-Turn Back",
+    {
+      "selection": "Boys",
+      "call": "U-Turn Back"
+    },
     "Star Thru",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Boys U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

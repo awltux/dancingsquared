@@ -6,18 +6,21 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Right and Left Thru",
     "Pass the Ocean",
     "Those Facing Out-Fold",
     "Double Pass Thru And Face Right",
     "Ferris Wheel",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Swing Thru",
     "Centers Run",
     "Tag the Line"
   ],
-  "note": "Untranslatable: \"Those Facing Out-Fold\"; Untranslatable: \"Double Pass Thru And Face Right\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"Those Facing Out-Fold\"; Untranslatable: \"Double Pass Thru And Face Right\"",
   "source": "ceder.net/choreodb"
 }

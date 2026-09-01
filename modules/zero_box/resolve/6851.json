@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Split The Outside 2",
     "Around 1 To A Line",
-    "Everybody Box The Gnat",
+    {
+      "selection": "Everybody",
+      "call": "Box the Gnat"
+    },
     "Pass Thru",
     "Left Allemande After the Pass Thru the Formation = LFO (0)"
   ],
-  "note": "Untranslatable: \"Split The Outside 2\"; Untranslatable: \"Around 1 To A Line\"; Untranslatable: \"Everybody Box The Gnat\"; Untranslatable: \"Left Allemande After the Pass Thru the Formation = LFO (0)\"",
+  "note": "Untranslatable: \"Split The Outside 2\"; Untranslatable: \"Around 1 To A Line\"; Untranslatable: \"Left Allemande After the Pass Thru the Formation = LFO (0)\"",
   "source": "ceder.net/choreodb"
 }

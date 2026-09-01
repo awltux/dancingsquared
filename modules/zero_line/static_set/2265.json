@@ -4,19 +4,21 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 8,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Right and Left Thru",
     "Tag the Line",
     "Face Left",
     "Ferris Wheel",
     "Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Swing Thru",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

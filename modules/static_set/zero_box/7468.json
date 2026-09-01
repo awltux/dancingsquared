@@ -4,15 +4,17 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Four Ladies Chain",
-    "Everybody Half Sashay",
+    {
+      "selection": "Everybody",
+      "call": "Half Sashay"
+    },
     "Heads Square Thru 4",
     "Box the Gnat"
   ],
-  "note": "Untranslatable: \"Everybody Half Sashay,\"",
   "source": "ceder.net/choreodb"
 }

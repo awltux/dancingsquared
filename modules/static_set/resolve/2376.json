@@ -6,10 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 3,
+  "mappedCount": 6,
   "steps": [
-    "Heads Square Thru",
-    "Sides Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Sides",
+      "call": "Half Sashay"
+    },
     "Dosado to a Wave",
     "Swing Thru",
     "Spin the Top",
@@ -17,9 +23,12 @@
     "Center 4 Do A Couples Hinge",
     "Then Wheel & Deal",
     "Outsides Bend The Line",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"Sides Half Sashay,\"; Untranslatable: \"Boys Run Right,\"; Untranslatable: \"Center 4 Do A Couples Hinge,\"; Untranslatable: \" Then Wheel & Deal,\"; Untranslatable: \"Outsides Bend The Line,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"Boys Run Right,\"; Untranslatable: \"Center 4 Do A Couples Hinge,\"; Untranslatable: \" Then Wheel & Deal,\"; Untranslatable: \"Outsides Bend The Line,\"",
   "source": "ceder.net/choreodb"
 }

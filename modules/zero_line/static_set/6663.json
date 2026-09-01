@@ -6,18 +6,30 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 3,
+  "mappedCount": 7,
   "steps": [
-    "Boys Step To A Wave And Swing Thru",
+    {
+      "selection": "Boys",
+      "call": "Step to a Wave"
+    },
     "Step Back",
-    "All Half Sashay",
-    "Girls Step To A Wave And Swing Thru",
+    {
+      "selection": "All",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "Girls",
+      "call": "Step to a Wave"
+    },
     "Step Back",
-    "All Star Thru",
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
     "Partner Trade",
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Boys Step To A Wave And Swing Thru\"; Untranslatable: \"Step Back\"; Untranslatable: \"All Half Sashay\"; Untranslatable: \"Girls Step To A Wave And Swing Thru\"; Untranslatable: \"Step Back\"; Untranslatable: \"All Star Thru\"",
+  "note": "Untranslatable: \"Step Back\"; Untranslatable: \"Step Back\"",
   "source": "ceder.net/choreodb"
 }

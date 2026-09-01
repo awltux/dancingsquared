@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 9,
+  "mappedCount": 11,
   "steps": [
     "Heads Pass the Ocean",
     "Extend",
@@ -16,11 +16,16 @@
     "Bend the Line",
     "Pass Thru",
     "Tag the Line",
-    "Ends U-Turn Back",
-    "All Pass Thru",
+    {
+      "selection": "Ends",
+      "call": "U-Turn Back"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Ends U-Turn Back,\"; Untranslatable: \"All Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

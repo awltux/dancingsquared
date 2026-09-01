@@ -6,11 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
     "4 Ladies Chain 3/4",
-    "Head Position Half Sashay",
-    "Side Position Square Thru 4",
+    {
+      "selection": "Head Position",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "Side Position",
+      "call": "Square Thru 4"
+    },
     "Swing Thru",
     "Boys Run",
     "Reverse Flutterwheel",
@@ -18,6 +24,6 @@
     "Star Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"Head Position Half Sashay,\"; Untranslatable: \"Side Position Square Thru 4,\"",
+  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"",
   "source": "ceder.net/choreodb"
 }

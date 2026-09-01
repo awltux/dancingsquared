@@ -4,14 +4,19 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 3,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
     "Heads Promenade 1/2",
-    "Sides Right & Left Thru",
-    "Sides Touch 1/4 & Those Boys Run"
+    {
+      "selection": "Sides",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Sides",
+      "call": "Touch a Quarter"
+    }
   ],
-  "note": "Untranslatable: \"Sides Right & Left Thru,\"; Untranslatable: \"Sides Touch 1/4 & Those Boys Run\"",
   "source": "ceder.net/choreodb"
 }

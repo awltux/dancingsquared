@@ -6,20 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Centers In",
     "Cast Off Three Quarters",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Cast Off Three Quarters",
     "Star Thru",
     "Double Pass Thru",
     "Centers In",
     "Cast Off Three Quarters",
     "Star Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

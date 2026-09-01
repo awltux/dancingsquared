@@ -6,12 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Head Ladies Chain",
-    "Sides Half Sashay",
+    {
+      "selection": "Sides",
+      "call": "Half Sashay"
+    },
     "Heads 1/2 Square Thru",
-    "All Swing Thru",
+    {
+      "selection": "All",
+      "call": "Swing Thru"
+    },
     "Boys Run",
     "Right and Left Thru",
     "Pass Thru",
@@ -20,6 +26,6 @@
     "First Couple Go Right, Next Go Left",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Sides Half Sashay,\"; Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All Swing Thru,\"; Untranslatable: \"First Couple Go Right, Next Go Left,\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"First Couple Go Right, Next Go Left,\"",
   "source": "ceder.net/choreodb"
 }

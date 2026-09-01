@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
     "Pass Thru",
     "Ends Fold",
@@ -19,6 +22,6 @@
     "Trade By",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \" Separate Around 1 To A Line,\"",
+  "note": "Untranslatable: \" Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

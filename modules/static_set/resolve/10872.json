@@ -6,20 +6,35 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 4,
+  "mappedCount": 9,
   "steps": [
     "Heads Star Thru",
-    "All Double Pass Thru",
+    {
+      "selection": "All",
+      "call": "Double Pass Thru"
+    },
     "Face In",
     "Pass Thru",
     "Girls Bend The Line Twice",
-    "All Couples Circulate",
+    {
+      "selection": "All",
+      "call": "Couples Circulate"
+    },
     "Couples Circulate",
     "Boys Bend The Line Twice",
-    "Centers Star Thru",
-    "Same 4 U-Turn Back",
-    "All R.L.G"
+    {
+      "selection": "Centers",
+      "call": "Star Thru"
+    },
+    {
+      "selection": "Same 4",
+      "call": "U-Turn Back"
+    },
+    {
+      "selection": "All",
+      "call": "Right and Left Grand"
+    }
   ],
-  "note": "Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Girls Bend The Line Twice,\"; Untranslatable: \"All Couples Circulate,\"; Untranslatable: \"Boys Bend The Line Twice,\"; Untranslatable: \"Centers Star Thru,\"; Untranslatable: \"Same 4 U-Turn Back,\"; Untranslatable: \"All R.L.G\"",
+  "note": "Untranslatable: \"Girls Bend The Line Twice,\"; Untranslatable: \"Boys Bend The Line Twice,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,19 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
     "Heads Square Thru 4",
     "Centers In",
     "End Lady Run",
-    "Ladies Pass Thru",
+    {
+      "selection": "Ladies",
+      "call": "Pass Thru"
+    },
     "Ladies Run",
-    "All Tag The Line, Face Right",
+    {
+      "selection": "All",
+      "call": "Tag the Line"
+    },
     "Couples Circulate",
     "Chain Down the Line",
     "Slide Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"End Lady Run,\"; Untranslatable: \"Ladies Pass Thru,\"; Untranslatable: \"Ladies Run,\"; Untranslatable: \"All Tag The Line, Face Right,\"",
+  "note": "Untranslatable: \"End Lady Run,\"; Untranslatable: \"Ladies Run,\"",
   "source": "ceder.net/choreodb"
 }

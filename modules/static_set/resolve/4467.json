@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 9,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "Heads Lead Right",
     "Swing Thru",
@@ -14,10 +14,15 @@
     "Scoot Back",
     "Centers Trade",
     "Girls Run",
-    "Centers Reverse Flutter Wheel",
-    "All Square Thru 4",
+    {
+      "selection": "Centers",
+      "call": "Reverse Flutterwheel"
+    },
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Reverse Flutter Wheel,\"; Untranslatable: \"All Square Thru 4,\"",
   "source": "ceder.net/choreodb"
 }

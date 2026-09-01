@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 12,
+  "mappedCount": 13,
   "steps": [
     "Four Ladies Chain",
-    "Heads Flutter Wheel & Pass The Ocean",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
     "Extend",
     "Girls Run",
     "Couples Circulate",
@@ -23,6 +26,6 @@
     "Bend the Line",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel & Pass The Ocean,\"; Untranslatable: \"Pass Thru, Trade By,\"",
+  "note": "Untranslatable: \"Pass Thru, Trade By,\"",
   "source": "ceder.net/choreodb"
 }

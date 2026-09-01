@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Heads Promenade 3/4",
-    "Sides Square Thru 3",
+    {
+      "selection": "Sides",
+      "call": "Square Thru 3"
+    },
     "Dosado",
     "Star Thru",
     "Pass Thru, Wheel Around",
@@ -20,6 +23,6 @@
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Sides Square Thru 3,\"; Untranslatable: \"Pass Thru, Wheel Around,\"; Untranslatable: \"Two Ladies Chain,\"",
+  "note": "Untranslatable: \"Pass Thru, Wheel Around,\"; Untranslatable: \"Two Ladies Chain,\"",
   "source": "ceder.net/choreodb"
 }

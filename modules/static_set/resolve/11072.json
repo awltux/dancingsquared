@@ -13,7 +13,10 @@
     "Girls Trade, Girls Run",
     "Boys Trade",
     "Partner Trade",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Girls Trade",
     "Girls Run",
     "Couples Circulate",
@@ -23,6 +26,6 @@
     "Allemande Left",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 8-13).,\"; Untranslatable: \"Heads Lead Right, Veer Left,\"; Untranslatable: \"Girls Trade, Girls Run,\"; Untranslatable: \"Boys Circulate,\"",
+  "note": "Untranslatable: \"(Lesson 8-13).,\"; Untranslatable: \"Heads Lead Right, Veer Left,\"; Untranslatable: \"Girls Trade, Girls Run,\"",
   "source": "ceder.net/choreodb"
 }

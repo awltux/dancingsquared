@@ -10,10 +10,12 @@
   "steps": [
     "Heads Left Square Thru 4",
     "Left Swing Thru",
-    "Boys Circulate, Girls Trade",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Girls Run",
     "Bend the Line"
   ],
-  "note": "Untranslatable: \"Boys Circulate, Girls Trade,\"",
   "source": "ceder.net/choreodb"
 }

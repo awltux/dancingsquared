@@ -6,12 +6,15 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 3,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Dive Thru",
-    "All Double Pass Thru",
+    {
+      "selection": "All",
+      "call": "Double Pass Thru"
+    },
     "Leaders California Twirl (Zero Box) This flip flops the set."
   ],
-  "note": "Untranslatable: \"All Double Pass Thru\"; Untranslatable: \"Leaders California Twirl (Zero Box) This flip flops the set.\"",
+  "note": "Untranslatable: \"Leaders California Twirl (Zero Box) This flip flops the set.\"",
   "source": "ceder.net/choreodb"
 }

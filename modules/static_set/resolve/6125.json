@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "Heads Square Thru 4",
-    "Sides Half Sashay",
+    {
+      "selection": "Sides",
+      "call": "Half Sashay"
+    },
     "Dosado",
     "Swing Thru",
     "Spin the Top",
@@ -21,6 +24,5 @@
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \" Sides Half Sashay,\"",
   "source": "ceder.net/choreodb"
 }

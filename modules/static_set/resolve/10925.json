@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Heads Half Sashay & Star Thru",
-    "All Touch 1/4",
+    {
+      "selection": "All",
+      "call": "Touch a Quarter"
+    },
     "Split Circulate",
     "Boys Fold",
     "Double Pass Thru",
@@ -19,6 +22,6 @@
     "Flutterwheel",
     "Square Thru 4"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay & Star Thru,\"; Untranslatable: \"All Touch 1/4,\"",
+  "note": "Untranslatable: \"Heads Half Sashay & Star Thru,\"",
   "source": "ceder.net/choreodb"
 }

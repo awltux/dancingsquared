@@ -6,16 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 2,
+  "mappedCount": 6,
   "steps": [
     "Centers In",
     "Centers Run",
-    "Centers Right & Left Thru",
-    "Ends Box The Gnat",
-    "Centers Star Thru",
-    "All Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Ends",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "Centers",
+      "call": "Star Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "L.A Fun with \"Centers\""
   ],
-  "note": "Untranslatable: \"Centers Right & Left Thru\"; Untranslatable: \"Ends Box The Gnat\"; Untranslatable: \"Centers Star Thru\"; Untranslatable: \"All Pass Thru\"; Untranslatable: \"L.A Fun with \"Centers\"\"",
+  "note": "Untranslatable: \"L.A Fun with \"Centers\"\"",
   "source": "ceder.net/choreodb"
 }

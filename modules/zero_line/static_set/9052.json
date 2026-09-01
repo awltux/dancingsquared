@@ -6,16 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Right and Left Thru",
     "Pass the Ocean",
     "Swing Thru",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Men Run",
     "Tag the Line",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Run\"",
+  "note": "Untranslatable: \"Men Run\"",
   "source": "ceder.net/choreodb"
 }

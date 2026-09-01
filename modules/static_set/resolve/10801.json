@@ -6,21 +6,27 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Heads Pass the Ocean",
     "Extend",
     "Swing Thru",
     "Leaders Fold",
     "Double Pass Thru",
-    "Leaders U-Turn Back",
+    {
+      "selection": "Leaders",
+      "call": "U-Turn Back"
+    },
     "Right and Left Thru",
     "Square Thru 4",
     "Ends Cross Fold",
     "Square Thru 3",
-    "Centers Left Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Left Swing Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Leaders Fold,\"; Untranslatable: \"Leaders U-Turn Back,\"; Untranslatable: \"Centers Left Swing Thru,\"",
+  "note": "Untranslatable: \"Leaders Fold,\"",
   "source": "ceder.net/choreodb"
 }

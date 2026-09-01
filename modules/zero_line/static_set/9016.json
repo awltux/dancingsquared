@@ -6,15 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Circle Right 3/4",
+    {
+      "selection": "Centers",
+      "call": "Circle Right 3/4"
+    },
     "Centers Slide Thru & Pass Thru",
     "Left Allemande After the Pass Thru",
     "this is also a ZL-ZB Conversion Module"
   ],
-  "note": "Untranslatable: \"Centers Circle Right 3/4\"; Untranslatable: \"Centers Slide Thru & Pass Thru\"; Untranslatable: \"Left Allemande After the Pass Thru\"; Untranslatable: \"this is also a ZL-ZB Conversion Module\"",
+  "note": "Untranslatable: \"Centers Slide Thru & Pass Thru\"; Untranslatable: \"Left Allemande After the Pass Thru\"; Untranslatable: \"this is also a ZL-ZB Conversion Module\"",
   "source": "ceder.net/choreodb"
 }

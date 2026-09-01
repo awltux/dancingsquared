@@ -4,20 +4,25 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 9,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "Four Ladies Chain",
     "Four Ladies Chain 3/4",
-    "Head Position Rollaway",
-    "Same 4 Square Thru 4",
+    {
+      "selection": "Head Position",
+      "call": "Rollaway"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Square Thru 4"
+    },
     "Dosado",
     "Swing Thru",
     "Cast Off Three Quarters",
     "Left Swing Thru",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Head Position Rollaway,\"; Untranslatable: \"Same 4 Square Thru 4,\"",
   "source": "ceder.net/choreodb"
 }

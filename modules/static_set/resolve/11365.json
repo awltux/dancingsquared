@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
     "(Lesson 12-10)",
     "Heads Lead Right",
@@ -19,10 +19,13 @@
     "Veer Right",
     "Ferris Wheel",
     "Half Sashay",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 12-10),\"; Untranslatable: \"Girls Cross Run,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"(Lesson 12-10),\"; Untranslatable: \"Girls Cross Run,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,12 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "",
-    "All Four Ladies Chain Across",
+    {
+      "selection": "All",
+      "call": "Four Ladies Chain"
+    },
     "Heads Reverse Circle Up Four 3/4 Round",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Dosado",
     "All Circle Up Four 3/4 Round",
     "Dosado",
@@ -21,6 +27,6 @@
     "Swing",
     "All 4 Couples Promenade"
   ],
-  "note": "Untranslatable: \",\"; Untranslatable: \"All Four Ladies Chain Across,\"; Untranslatable: \"Heads Reverse Circle Up Four 3/4 Round,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"All Circle Up Four 3/4 Round,\"; Untranslatable: \"All Join Hands Circle Left,\"; Untranslatable: \"Face Your Current Partner, Right Arm Turn,\"",
+  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Reverse Circle Up Four 3/4 Round,\"; Untranslatable: \"All Circle Up Four 3/4 Round,\"; Untranslatable: \"All Join Hands Circle Left,\"; Untranslatable: \"Face Your Current Partner, Right Arm Turn,\"",
   "source": "ceder.net/choreodb"
 }

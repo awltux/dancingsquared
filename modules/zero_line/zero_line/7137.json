@@ -6,14 +6,17 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Pass the Ocean",
-    "Men Trade",
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
     "Split Circulate",
     "Centers Trade",
     "Men Run"
   ],
-  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Men Run\"",
+  "note": "Untranslatable: \"Men Run\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,18 +6,24 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Head Ladies Chain",
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
     "Pass Thru",
     "Wheel and Deal",
-    "Ladies Square Thru 3/4",
+    {
+      "selection": "Ladies",
+      "call": "Square Thru 4"
+    },
     "Star Thru",
     "Couples Circulate",
     "Bend the Line"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Ladies Square Thru 3/4,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

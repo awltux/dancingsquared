@@ -6,20 +6,32 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 5,
+  "mappedCount": 9,
   "steps": [
     "(Lesson 5-11)",
     "Heads Square Thru 2",
     "Slide Thru",
-    "Ends Pass Thru",
+    {
+      "selection": "Ends",
+      "call": "Pass Thru"
+    },
     "Boys Trade",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Bend the Line",
-    "Ends Pass Thru",
+    {
+      "selection": "Ends",
+      "call": "Pass Thru"
+    },
     "Girls Trade",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Allemande Left, Promenade Home"
   ],
-  "note": "Untranslatable: \"(Lesson 5-11),\"; Untranslatable: \"Ends Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Ends Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Allemande Left, Promenade Home\"",
+  "note": "Untranslatable: \"(Lesson 5-11),\"; Untranslatable: \"Allemande Left, Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

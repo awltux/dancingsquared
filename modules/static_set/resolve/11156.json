@@ -6,19 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
-    "Heads Square Thru 4 Hands",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "With Sides Make A Right-Hand Star",
     "Heads Star Left In The Center (To The Corner)",
     "Slide Thru",
     "Star Thru",
     "Dive Thru",
-    "Centers Square Thru 3 Hands",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
     "Allemande Left",
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Square Thru 4 Hands,\"; Untranslatable: \"With Sides Make A Right-Hand Star,\"; Untranslatable: \"Heads Star Left In The Center (To The Corner),\"; Untranslatable: \"Centers Square Thru 3 Hands,\"",
+  "note": "Untranslatable: \"With Sides Make A Right-Hand Star,\"; Untranslatable: \"Heads Star Left In The Center (To The Corner),\"",
   "source": "ceder.net/choreodb"
 }

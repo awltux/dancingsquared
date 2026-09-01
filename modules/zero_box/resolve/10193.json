@@ -6,16 +6,21 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Swing Thru",
     "Swing Thru",
     "Girls Run",
     "Ferris Wheel",
-    "Centers Sweep 1/4",
-    "Centers Square Thru 4",
+    {
+      "selection": "Centers",
+      "call": "Sweep a Quarter"
+    },
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Sweep 1/4\"; Untranslatable: \"Centers Square Thru 4\"",
   "source": "ceder.net/choreodb"
 }

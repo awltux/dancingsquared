@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Heads Lead Left",
     "All Left Touch 1/4",
@@ -17,9 +17,12 @@
     "Face In",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"All Left Touch 1/4,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"All Left Touch 1/4,\"",
   "source": "ceder.net/choreodb"
 }

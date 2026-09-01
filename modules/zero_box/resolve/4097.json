@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Swing Thru",
     "Boys Run",
@@ -16,9 +16,12 @@
     "Zoom",
     "Centers Swing Thru & Recycle",
     "Zoom",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru & Recycle\"; Untranslatable: \"Centers Square Thru 3\"",
+  "note": "Untranslatable: \"Centers Swing Thru & Recycle\"",
   "source": "ceder.net/choreodb"
 }

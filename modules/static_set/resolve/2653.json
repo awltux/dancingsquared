@@ -6,13 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 10,
+  "mappedCount": 12,
   "steps": [
     "Heads Star Thru",
     "Zoom",
     "Double Pass Thru",
     "Partner Trade",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Dosado to a Wave",
     "All Eight Circulate",
     "Girls Run",
@@ -20,9 +23,12 @@
     "Star Thru",
     "California Twirl",
     "Dive Thru",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"All Eight Circulate,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"All Eight Circulate,\"",
   "source": "ceder.net/choreodb"
 }

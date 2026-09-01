@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 12,
+  "mappedCount": 13,
   "steps": [
     "Heads Pass the Ocean",
     "Extend",
     "Centers Trade",
     "Centers Run",
     "Tag the Line",
-    "Ends U-Turn Back",
+    {
+      "selection": "Ends",
+      "call": "U-Turn Back"
+    },
     "Touch a Quarter",
     "Centers Trade",
     "Centers Run",
@@ -23,6 +26,5 @@
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Ends U-Turn Back,\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,15 +4,17 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Heads Star Thru",
     "Zoom",
     "Double Pass Thru",
-    "Leaders Trade"
+    {
+      "selection": "Leaders",
+      "call": "Trade"
+    }
   ],
-  "note": "Untranslatable: \"Leaders Trade\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,18 +6,24 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Swing Thru",
     "Scoot Back 1 & 1/2 (mixed sex)",
     "Couples Circulate",
     "Ferris Wheel",
-    "Girls Square Thru 3",
+    {
+      "selection": "Girls",
+      "call": "Square Thru 3"
+    },
     "Star Thru",
     "Boys Trade",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Scoot Back 1 & 1/2 (mixed sex)\"; Untranslatable: \"Girls Square Thru 3\"; Untranslatable: \"Boys Circulate\"",
+  "note": "Untranslatable: \"Scoot Back 1 & 1/2 (mixed sex)\"",
   "source": "ceder.net/choreodb"
 }

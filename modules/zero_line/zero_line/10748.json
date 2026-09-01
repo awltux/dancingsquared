@@ -6,18 +6,21 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Right and Left Thru",
     "Pass Thru",
     "%Boys% Run Right",
-    "All Scoot Back",
+    {
+      "selection": "All",
+      "call": "Scoot Back"
+    },
     "Scoot Back",
     "%Girls% Run Right",
     "Pass Thru",
     "Tag the Line",
     "Face In"
   ],
-  "note": "Untranslatable: \"%Boys% Run Right\"; Untranslatable: \"All Scoot Back\"; Untranslatable: \"%Girls% Run Right\"",
+  "note": "Untranslatable: \"%Boys% Run Right\"; Untranslatable: \"%Girls% Run Right\"",
   "source": "ceder.net/choreodb"
 }

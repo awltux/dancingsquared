@@ -4,18 +4,23 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
     "Pass Thru",
     "Tag the Line",
-    "Leaders Trade",
+    {
+      "selection": "Leaders",
+      "call": "Trade"
+    },
     "Square Thru 4",
     "Tag the Line",
-    "Leaders Trade",
+    {
+      "selection": "Leaders",
+      "call": "Trade"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Leaders Trade\"; Untranslatable: \"Leaders Trade\"",
   "source": "ceder.net/choreodb"
 }

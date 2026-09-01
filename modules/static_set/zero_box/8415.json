@@ -4,16 +4,24 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 5,
   "steps": [
-    "Heads Swing Thru",
-    "Ladies U-Turn Back",
-    "Ladies Trade",
+    {
+      "selection": "Heads",
+      "call": "Swing Thru"
+    },
+    {
+      "selection": "Ladies",
+      "call": "U-Turn Back"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Bend the Line",
     "Pass Thru"
   ],
-  "note": "Untranslatable: \"Heads Swing Thru,\"; Untranslatable: \" Ladies U-Turn Back,\"; Untranslatable: \" Ladies Trade,\"",
   "source": "ceder.net/choreodb"
 }

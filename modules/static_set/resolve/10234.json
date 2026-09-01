@@ -6,14 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
     "Heads Star Thru, Ends Face In",
-    "Centers Pass The Ocean",
-    "All Pass The Ocean",
+    {
+      "selection": "Centers",
+      "call": "Pass the Ocean"
+    },
+    {
+      "selection": "All",
+      "call": "Pass the Ocean"
+    },
     "Circulate",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Star Thru, Ends Face In,\"; Untranslatable: \"Centers Pass The Ocean,\"; Untranslatable: \"All Pass The Ocean,\"",
+  "note": "Untranslatable: \"Heads Star Thru, Ends Face In,\"",
   "source": "ceder.net/choreodb"
 }

@@ -9,10 +9,16 @@
   "mappedCount": 9,
   "steps": [
     "Swing Thru",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Trade",
     "Swing Thru",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Girls Trade",
     "Swing Thru",
     "Boys Run",
@@ -21,6 +27,5 @@
     "Slide Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Boys Circulate\"",
   "source": "ceder.net/choreodb"
 }

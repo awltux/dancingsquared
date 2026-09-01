@@ -6,19 +6,27 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Sweep 1/4",
-    "Centers Pass The Ocean",
+    {
+      "selection": "Centers",
+      "call": "Sweep a Quarter"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass the Ocean"
+    },
     "Extend",
     "Swing Thru",
     "Boys Run",
     "Ferris Wheel",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Sweep 1/4\"; Untranslatable: \"Centers Pass The Ocean\"; Untranslatable: \"Centers Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,15 +6,18 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 0,
+  "mappedCount": 1,
   "steps": [
     "Split The Outside Two",
     "Separate Around One",
     "Come Into The Middle & Pass Thru",
     "Separate Around One",
     "Come Into The Middle & Circle Half",
-    "Centers Pass Thru"
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    }
   ],
-  "note": "Untranslatable: \"Split The Outside Two\"; Untranslatable: \"Separate Around One\"; Untranslatable: \"Come Into The Middle & Pass Thru\"; Untranslatable: \"Separate Around One\"; Untranslatable: \"Come Into The Middle & Circle Half\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"Split The Outside Two\"; Untranslatable: \"Separate Around One\"; Untranslatable: \"Come Into The Middle & Pass Thru\"; Untranslatable: \"Separate Around One\"; Untranslatable: \"Come Into The Middle & Circle Half\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,16 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
-    "Everybody Half Sashay",
+    {
+      "selection": "Everybody",
+      "call": "Half Sashay"
+    },
     "Heads 1/2 Square Thru",
-    "All Square Thru 4",
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Bend the Line",
     "Box the Gnat",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Everybody Half Sashay,\"; Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All Square Thru 4,\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

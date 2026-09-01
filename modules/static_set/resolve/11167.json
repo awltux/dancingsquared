@@ -6,11 +6,14 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 16,
-  "mappedCount": 11,
+  "mappedCount": 13,
   "steps": [
     "(Lesson 5-03)",
     "Heads Lead Left",
-    "All Veer Right",
+    {
+      "selection": "All",
+      "call": "Veer Right"
+    },
     "Wheel Around",
     "Girls Trade",
     "Couples Circulate",
@@ -20,11 +23,14 @@
     "Two Ladies Chain",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Square Thru 3",
     "Left Allemande",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 5-03),\"; Untranslatable: \"All Veer Right,\"; Untranslatable: \"Two Ladies Chain,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"(Lesson 5-03),\"; Untranslatable: \"Two Ladies Chain,\"",
   "source": "ceder.net/choreodb"
 }

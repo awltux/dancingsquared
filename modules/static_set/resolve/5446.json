@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 12,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
     "Heads Spin the Top",
     "Extend",
@@ -14,13 +14,15 @@
     "Girls Run",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Spin The Top",
+    {
+      "selection": "Centers",
+      "call": "Spin the Top"
+    },
     "Extend",
     "Swing Thru",
     "Hinge",
     "Boys Run",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Centers Spin The Top,\"",
   "source": "ceder.net/choreodb"
 }

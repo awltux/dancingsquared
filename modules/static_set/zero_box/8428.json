@@ -6,11 +6,14 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 2,
-  "mappedCount": 0,
+  "mappedCount": 1,
   "steps": [
-    "Heads Touch 1/4",
+    {
+      "selection": "Heads",
+      "call": "Touch a Quarter"
+    },
     "Those Men Run"
   ],
-  "note": "Untranslatable: \"Heads Touch 1/4,\"; Untranslatable: \"Those Men Run\"",
+  "note": "Untranslatable: \"Those Men Run\"",
   "source": "ceder.net/choreodb"
 }

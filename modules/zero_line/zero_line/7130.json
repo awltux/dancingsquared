@@ -4,18 +4,20 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Pass the Ocean",
     "Split Circulate",
     "Centers Run",
     "Bend the Line",
     "Star Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Star Thru"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

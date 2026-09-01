@@ -12,10 +12,12 @@
     "Boys Run",
     "Couples Circulate",
     "Partner Trade",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Trade",
     "Bend the Line"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"",
   "source": "ceder.net/choreodb"
 }

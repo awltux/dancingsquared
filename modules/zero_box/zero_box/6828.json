@@ -4,16 +4,27 @@
   "level": "Mainstream",
   "startFormation": "Zero Box",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 1,
+  "mappedCount": 5,
   "steps": [
     "Star Thru",
-    "Centers Box The Gnat",
-    "Same Four Square Thru",
-    "Ends Star Thru",
-    "Everyone Right & Left Thru"
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "Same Four",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Ends",
+      "call": "Star Thru"
+    },
+    {
+      "selection": "Everyone",
+      "call": "Right and Left Thru"
+    }
   ],
-  "note": "Untranslatable: \"Centers Box The Gnat\"; Untranslatable: \"Same Four Square Thru\"; Untranslatable: \"Ends Star Thru\"; Untranslatable: \"Everyone Right & Left Thru\"",
   "source": "ceder.net/choreodb"
 }

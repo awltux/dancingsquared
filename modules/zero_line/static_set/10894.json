@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 16,
-  "mappedCount": 13,
+  "mappedCount": 14,
   "steps": [
     "Right and Left Thru",
     "Pass the Ocean",
@@ -15,16 +15,21 @@
     "Boys Trade",
     "Boys Run",
     "Couples Circulate",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Run",
     "Boys Trade",
     "Boys Run",
     "Chain Down the Line",
     "Square Thru 3",
     "Wheel and Deal",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Centers Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

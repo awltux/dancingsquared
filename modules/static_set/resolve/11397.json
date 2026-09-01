@@ -6,15 +6,21 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 16,
-  "mappedCount": 10,
+  "mappedCount": 12,
   "steps": [
     "(Lesson 11-10)",
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
     "Pass Thru",
     "Tag the Line",
     "Ferris Wheel",
-    "Girls Pass Thru",
+    {
+      "selection": "Girls",
+      "call": "Pass Thru"
+    },
     "Boys Courtesy Turn The Girls",
     "Touch a Quarter",
     "Circulate",
@@ -25,6 +31,6 @@
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 11-10),\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Boys Courtesy Turn The Girls,\"",
+  "note": "Untranslatable: \"(Lesson 11-10),\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Boys Courtesy Turn The Girls,\"",
   "source": "ceder.net/choreodb"
 }

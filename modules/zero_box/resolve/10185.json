@@ -6,17 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Swing Thru",
-    "Centers Box Circulate",
+    {
+      "selection": "Centers",
+      "call": "Box Circulate"
+    },
     "Swing Thru",
-    "Centers Box Circulate",
+    {
+      "selection": "Centers",
+      "call": "Box Circulate"
+    },
     "Recycle",
     "Sweep a Quarter",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"Centers Box Circulate\"",
   "source": "ceder.net/choreodb"
 }

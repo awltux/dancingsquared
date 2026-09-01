@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
-    "Heads Square Thru",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Slide Thru",
     "Right and Left Thru",
     "Pass Thru",
@@ -21,6 +24,5 @@
     "Slide Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

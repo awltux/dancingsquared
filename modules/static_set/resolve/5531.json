@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 3,
+  "mappedCount": 6,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
     "Touch a Quarter",
     "Circulate",
@@ -16,10 +19,16 @@
     "Circulate",
     "Boys Run",
     "Girls Only Zoom",
-    "All Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "All",
+      "call": "Zoom"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Girls Only Zoom,\"; Untranslatable: \"All Zoom,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Girls Only Zoom,\"",
   "source": "ceder.net/choreodb"
 }

@@ -9,13 +9,16 @@
   "mappedCount": 2,
   "steps": [
     "",
-    "Heads Promenade Halfway",
+    {
+      "selection": "Heads",
+      "call": "All 4 Couples Promenade"
+    },
     "Sides Pass Thru And Wheel Around",
     "Sides Back Away",
     "Heads Star Right To Your Corner",
     "Allemande Left",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Sides Pass Thru And Wheel Around,\"; Untranslatable: \"Sides Back Away,\"; Untranslatable: \"Heads Star Right To Your Corner,\"",
+  "note": "Untranslatable: \",\"; Untranslatable: \"Sides Pass Thru And Wheel Around,\"; Untranslatable: \"Sides Back Away,\"; Untranslatable: \"Heads Star Right To Your Corner,\"",
   "source": "ceder.net/choreodb"
 }

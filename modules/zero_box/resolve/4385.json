@@ -6,20 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Swing Thru",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Swing Thru",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Recycle",
     "Sweep a Quarter",
     "Pass Thru",
     "Wheel and Deal",
     "Girls Only Zoom",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Boys Circulate\"; Untranslatable: \"Girls Circulate\"; Untranslatable: \"Girls Only Zoom\"; Untranslatable: \"Centers Square Thru 3\"",
+  "note": "Untranslatable: \"Girls Only Zoom\"",
   "source": "ceder.net/choreodb"
 }

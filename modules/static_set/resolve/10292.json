@@ -4,19 +4,24 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 8,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Heads Star Thru",
-    "Ladies Zoom",
+    {
+      "selection": "Ladies",
+      "call": "Zoom"
+    },
     "Double Pass Thru",
     "Centers In",
-    "Centers Square Thru 4, Ends Star Thru",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
     "Swing Thru",
     "Extend",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Ladies Zoom,\"; Untranslatable: \"Centers Square Thru 4, Ends Star Thru,\"",
   "source": "ceder.net/choreodb"
 }

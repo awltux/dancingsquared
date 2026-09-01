@@ -6,22 +6,39 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 6,
+  "mappedCount": 12,
   "steps": [
     "Heads Star Thru",
     "Double Pass Thru",
     "Centers In",
-    "Ends Pass Thru",
+    {
+      "selection": "Ends",
+      "call": "Pass Thru"
+    },
     "Ends Fold",
-    "Centers Box The Gnat",
-    "All Double Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "All",
+      "call": "Double Pass Thru"
+    },
     "Centers In",
-    "Ends Pass Thru",
+    {
+      "selection": "Ends",
+      "call": "Pass Thru"
+    },
     "Ends Fold",
-    "Centers Box The Gnat",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Ends Pass Thru,\"; Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Ends Pass Thru,\"; Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \"Centers Square Thru 3,\"",
   "source": "ceder.net/choreodb"
 }

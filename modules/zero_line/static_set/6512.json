@@ -6,17 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 3,
+  "mappedCount": 7,
   "steps": [
     "Right and Left Thru",
-    "Centers Half Sashay",
-    "Ends Star Thru",
-    "Centers Square Thru 4",
-    "All Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "Ends",
+      "call": "Star Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Trade By",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Ends Star Thru\"; Untranslatable: \"Centers Square Thru 4\"; Untranslatable: \"All Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

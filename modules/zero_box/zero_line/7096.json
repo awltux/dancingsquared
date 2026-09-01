@@ -6,16 +6,19 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Star Thru",
     "Pass Thru",
     "Wheel and Deal",
     "Center Ladies Chain",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Right and Left Thru",
     "Star Thru"
   ],
-  "note": "Untranslatable: \"Center Ladies Chain\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"Center Ladies Chain\"",
   "source": "ceder.net/choreodb"
 }

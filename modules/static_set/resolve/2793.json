@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Heads Star Thru",
     "Double Pass Thru",
@@ -14,9 +14,11 @@
     "Right and Left Thru",
     "Touch a Quarter",
     "Boys Run",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Square Thru 3,\"",
   "source": "ceder.net/choreodb"
 }

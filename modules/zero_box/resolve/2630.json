@@ -6,22 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Touch a Quarter",
     "Scoot Back",
     "Boys Fold",
-    "Girls Single Circle To A Wave",
+    {
+      "selection": "Girls",
+      "call": "Single Circle to a Wave"
+    },
     "Very Center Girls Trade",
     "Extend",
     "Girls Fold",
-    "Boys Single Circle To A Wave",
+    {
+      "selection": "Boys",
+      "call": "Single Circle to a Wave"
+    },
     "Very Center Boys Trade",
     "Extend",
     "Boys Run",
     "Slide Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Single Circle To A Wave\"; Untranslatable: \"Very Center Girls Trade\"; Untranslatable: \"Boys Single Circle To A Wave\"; Untranslatable: \"Very Center Boys Trade\"",
+  "note": "Untranslatable: \"Very Center Girls Trade\"; Untranslatable: \"Very Center Boys Trade\"",
   "source": "ceder.net/choreodb"
 }

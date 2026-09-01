@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 5,
+  "mappedCount": 8,
   "steps": [
     "Heads Left Touch 1/4",
-    "Boys Pass Thru",
+    {
+      "selection": "Boys",
+      "call": "Pass Thru"
+    },
     "Centers Left Square Thru 3",
     "Outside Boys Run (Left)",
     "All Left Touch 1/4",
@@ -17,10 +20,16 @@
     "Boys Run",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Pass Thru",
-    "All Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Left Touch 1/4,\"; Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"Centers Left Square Thru 3,\"; Untranslatable: \"Outside Boys Run (Left),\"; Untranslatable: \"All Left Touch 1/4,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"All Pass Thru,\"",
+  "note": "Untranslatable: \"Heads Left Touch 1/4,\"; Untranslatable: \"Centers Left Square Thru 3,\"; Untranslatable: \"Outside Boys Run (Left),\"; Untranslatable: \"All Left Touch 1/4,\"",
   "source": "ceder.net/choreodb"
 }

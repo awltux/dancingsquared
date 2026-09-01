@@ -4,15 +4,17 @@
   "level": "Mainstream",
   "startFormation": "Zero Box",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Swing Thru",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Box the Gnat",
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"Ladies Trade\"",
   "source": "ceder.net/choreodb"
 }

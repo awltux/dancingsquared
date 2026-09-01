@@ -6,14 +6,20 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
     "Head Ladies Chain",
-    "Heads Touch 1/4",
+    {
+      "selection": "Heads",
+      "call": "Touch a Quarter"
+    },
     "Same Ladies U Turn Back",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Circle Four 3/4"
   ],
-  "note": "Untranslatable: \"Heads Touch 1/4,\"; Untranslatable: \"Same Ladies U Turn Back,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Circle Four 3/4\"",
+  "note": "Untranslatable: \"Same Ladies U Turn Back,\"; Untranslatable: \"Circle Four 3/4\"",
   "source": "ceder.net/choreodb"
 }

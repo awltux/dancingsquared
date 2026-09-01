@@ -6,11 +6,14 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 16,
-  "mappedCount": 13,
+  "mappedCount": 14,
   "steps": [
     "Couples #1 And #2 Half Sashay",
     "Heads Forward and Back",
-    "Heads Swing Thru",
+    {
+      "selection": "Heads",
+      "call": "Swing Thru"
+    },
     "Spin the Top",
     "Extend",
     "Ends Circulate",
@@ -25,6 +28,6 @@
     "Pass Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Couples #1 And #2 Half Sashay,\"; Untranslatable: \"Heads Swing Thru,\"",
+  "note": "Untranslatable: \"Couples #1 And #2 Half Sashay,\"",
   "source": "ceder.net/choreodb"
 }

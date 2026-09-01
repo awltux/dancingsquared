@@ -6,13 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Touch a Quarter",
     "Circulate",
-    "Centers Box Circulate",
+    {
+      "selection": "Centers",
+      "call": "Box Circulate"
+    },
     "All The Boys Run Right",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Pass the Ocean",
     "Girls Trade",
     "Recycle",
@@ -20,6 +26,6 @@
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"All The Boys Run Right\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"All The Boys Run Right\"",
   "source": "ceder.net/choreodb"
 }

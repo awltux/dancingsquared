@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 9,
+  "mappedCount": 10,
   "steps": [
     "Heads Lead Right",
     "Pass the Ocean",
@@ -17,10 +17,12 @@
     "Circulate",
     "Hinge",
     "Split Circulate",
-    "Boys U-Turn Back",
+    {
+      "selection": "Boys",
+      "call": "U-Turn Back"
+    },
     "Square Thru 4",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Boys U-Turn Back,\"",
   "source": "ceder.net/choreodb"
 }

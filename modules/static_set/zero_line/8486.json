@@ -4,14 +4,19 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 3,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
-    "Heads Veer Left & Bend The Line",
+    {
+      "selection": "Heads",
+      "call": "Veer Left"
+    },
     "Pass Thru",
-    "All Veer Right & Bend The Line"
+    {
+      "selection": "All",
+      "call": "Veer Right"
+    }
   ],
-  "note": "Untranslatable: \"Heads Veer Left & Bend The Line,\"; Untranslatable: \"All Veer Right & Bend The Line\"",
   "source": "ceder.net/choreodb"
 }

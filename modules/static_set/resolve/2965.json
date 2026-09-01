@@ -6,19 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Heads Left Square Thru 2",
     "Left Touch 1/4",
     "Centers Trade",
     "Centers Run",
     "Ferris Wheel",
-    "Girls Square Thru 3",
+    {
+      "selection": "Girls",
+      "call": "Square Thru 3"
+    },
     "Star Thru",
     "Boys Trade",
     "Wheel and Deal",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Left Square Thru 2,\"; Untranslatable: \"Left Touch 1/4,\"; Untranslatable: \"Girls Square Thru 3,\"",
+  "note": "Untranslatable: \"Heads Left Square Thru 2,\"; Untranslatable: \"Left Touch 1/4,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,24 +6,36 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 15,
-  "mappedCount": 2,
+  "mappedCount": 6,
   "steps": [
     "Heads Circle 4 Halfway",
     "Heads Back Away",
     "Sides Circle 4 Halfway",
     "Sides Back Away",
     "Head Positions Star Thru",
-    "Same 4 California Twirl",
+    {
+      "selection": "Same 4",
+      "call": "California Twirl"
+    },
     "Star Thru",
-    "Ends Pass Thru",
+    {
+      "selection": "Ends",
+      "call": "Pass Thru"
+    },
     "(We have boys and girls together)",
     "Partner Trade",
-    "Ends U-Turn Back",
-    "Centers Star Thru",
+    {
+      "selection": "Ends",
+      "call": "U-Turn Back"
+    },
+    {
+      "selection": "Centers",
+      "call": "Star Thru"
+    },
     "Outsides Face In",
     "(Is this your corner?)",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Circle 4 Halfway,\"; Untranslatable: \"Heads Back Away,\"; Untranslatable: \"Sides Circle 4 Halfway,\"; Untranslatable: \"Sides Back Away,\"; Untranslatable: \"Head Positions Star Thru,\"; Untranslatable: \"Same 4 California Twirl,\"; Untranslatable: \"Ends Pass Thru,\"; Untranslatable: \"(We have boys and girls together),\"; Untranslatable: \"Ends U-Turn Back,\"; Untranslatable: \"Centers Star Thru,\"; Untranslatable: \"Outsides Face In,\"; Untranslatable: \"(Is this your corner?),\"",
+  "note": "Untranslatable: \"Heads Circle 4 Halfway,\"; Untranslatable: \"Heads Back Away,\"; Untranslatable: \"Sides Circle 4 Halfway,\"; Untranslatable: \"Sides Back Away,\"; Untranslatable: \"Head Positions Star Thru,\"; Untranslatable: \"(We have boys and girls together),\"; Untranslatable: \"Outsides Face In,\"; Untranslatable: \"(Is this your corner?),\"",
   "source": "ceder.net/choreodb"
 }

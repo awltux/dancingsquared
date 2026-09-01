@@ -6,12 +6,17 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 3,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Head Ladies Chain",
-    "Same 4 Promenade 1/2",
-    "Same 4 Lead Right"
+    {
+      "selection": "Same 4",
+      "call": "All 4 Couples Promenade"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Lead Right"
+    }
   ],
-  "note": "Untranslatable: \"Same 4 Promenade 1/2,\"; Untranslatable: \"Same 4 Lead Right\"",
   "source": "ceder.net/choreodb"
 }

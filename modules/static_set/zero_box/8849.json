@@ -6,14 +6,17 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Heads 1/2 Square Thru",
     "Right and Left Thru",
     "Veer Left",
     "Ferris Wheel, Centers Sweep 1/4",
-    "Centers Lead Right"
+    {
+      "selection": "Centers",
+      "call": "Lead Right"
+    }
   ],
-  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Ferris Wheel, Centers Sweep 1/4,\"; Untranslatable: \"Centers Lead Right\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Ferris Wheel, Centers Sweep 1/4,\"",
   "source": "ceder.net/choreodb"
 }

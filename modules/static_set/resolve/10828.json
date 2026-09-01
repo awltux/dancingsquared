@@ -6,17 +6,23 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Heads Square Thru 4",
     "Centers In",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "(Centers In) Cast Off 3/4",
     "Star Thru",
     "Zoom",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"(Centers In) Cast Off 3/4,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"(Centers In) Cast Off 3/4,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,19 +6,37 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 3,
+  "mappedCount": 8,
   "steps": [
     "Right and Left Thru",
     "Veer Left",
     "Girls Cross Run",
     "Ferris Wheel",
-    "Centers Veer Left",
-    "Boys Pass Thru",
-    "Centers Swing Thru",
-    "Girls Pass Thru",
-    "Centers Wheel & Deal",
-    "All L.A"
+    {
+      "selection": "Centers",
+      "call": "Veer Left"
+    },
+    {
+      "selection": "Boys",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
+    {
+      "selection": "Girls",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Wheel and Deal"
+    },
+    {
+      "selection": "All",
+      "call": "Left Allemande"
+    }
   ],
-  "note": "Untranslatable: \"Girls Cross Run\"; Untranslatable: \"Centers Veer Left\"; Untranslatable: \"Boys Pass Thru\"; Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Girls Pass Thru\"; Untranslatable: \"Centers Wheel & Deal\"; Untranslatable: \"All L.A\"",
+  "note": "Untranslatable: \"Girls Cross Run\"",
   "source": "ceder.net/choreodb"
 }

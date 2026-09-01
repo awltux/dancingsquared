@@ -6,13 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Four Ladies Chain",
-    "All Rollaway",
+    {
+      "selection": "All",
+      "call": "Rollaway"
+    },
     "Sides Face Grand Square, 10 Steps",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"All Rollaway,\"; Untranslatable: \"Sides Face Grand Square, 10 Steps,\"",
+  "note": "Untranslatable: \"Sides Face Grand Square, 10 Steps,\"",
   "source": "ceder.net/choreodb"
 }

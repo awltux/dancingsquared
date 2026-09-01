@@ -4,18 +4,20 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Heads Lead Right",
     "Veer Left",
     "Chain Down the Line",
     "Pass Thru",
     "3/4 Tag the Line",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru,\"",
   "source": "ceder.net/choreodb"
 }

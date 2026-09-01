@@ -12,7 +12,7 @@ import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
 import { normAngle } from './identity.js';
 import { makeSquaredSet } from './board.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
-import type { Board, SeqDancer, VariantMatch } from './types.js';
+import type { Board, CallStep, SeqDancer, VariantMatch } from './types.js';
 import type { CallBundle } from '../types.js';
 
 const rot = (a: number, v: { x: number; y: number }) => ({
@@ -29,8 +29,9 @@ export class SequenceAnalyzer {
   ) {}
 
   /** Beats of the variant of `name` that matches `board` (0 if none). */
-  stepBeats(board: Board, name: string): number {
-    const v = this.matchingVariantInfo(board, name);
+  stepBeats(board: Board, name: string | CallStep): number {
+    const n = typeof name === 'string' ? name : name.call;
+    const v = this.matchingVariantInfo(board, n);
     return v ? v.beats : 0;
   }
 
@@ -61,11 +62,11 @@ export class SequenceAnalyzer {
   }
 
   /** Total beats to play a flat sequence starting from home. */
-  sequenceBeats(flat: string[]): number {
+  sequenceBeats(flat: (string | CallStep)[]): number {
     let board = makeSquaredSet();
     let total = 0;
     for (const name of flat) {
-      total += this.stepBeats(board, name);
+      total += this.stepBeats(board, typeof name === 'string' ? name : name.call);
       const r = this.applicator.applyToBoard(board, name);
       if (r.legal) board = r.board;
     }
@@ -166,7 +167,7 @@ export class SequenceAnalyzer {
   }
 
   /** Validate that a flat call sequence sums to a 64-beat singing-call segment. */
-  validateSegment(flat: string[]): { totalBeats: number; phrases: number; complete64: boolean; remainder: number } {
+  validateSegment(flat: (string | CallStep)[]): { totalBeats: number; phrases: number; complete64: boolean; remainder: number } {
     const totalBeats = this.sequenceBeats(flat);
     const phrases = this.phrasesForBeats(totalBeats);
     const remainder = totalBeats % 64;
@@ -175,7 +176,7 @@ export class SequenceAnalyzer {
 
   /** Whether a flat call sequence is a "zero": it starts and ends at home
    * (in-sequence squared set). */
-  isZero(flat: string[]): boolean {
+  isZero(flat: (string | CallStep)[]): boolean {
     let board = makeSquaredSet();
     for (const name of flat) {
       const r = this.applicator.applyToBoard(board, name);
@@ -190,9 +191,9 @@ export class SequenceAnalyzer {
   buildTip(figures: string[][]): { calls: string[]; legal: boolean; totalBeats: number; phrases: number; complete64: boolean; reason?: string } {
     const flat = this.library.flatten(figures.flat());
     if (!this.isZero(flat)) {
-      return { calls: flat, legal: false, totalBeats: 0, phrases: 0, complete64: false, reason: 'tip is not a zero (does not return home in-sequence)' };
+      return { calls: flat.map((c) => (typeof c === 'string' ? c : c.call)), legal: false, totalBeats: 0, phrases: 0, complete64: false, reason: 'tip is not a zero (does not return home in-sequence)' };
     }
     const seg = this.validateSegment(flat);
-    return { calls: flat, legal: true, totalBeats: seg.totalBeats, phrases: seg.phrases, complete64: seg.complete64 };
+    return { calls: flat.map((c) => (typeof c === 'string' ? c : c.call)), legal: true, totalBeats: seg.totalBeats, phrases: seg.phrases, complete64: seg.complete64 };
   }
 }

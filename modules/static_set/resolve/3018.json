@@ -6,11 +6,14 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Heads Pass the Ocean",
     "Scoot Back",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Outsides Trade",
     "Extend",
     "Centers Trade",
@@ -19,6 +22,6 @@
     "Scoot Back",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru,\"; Untranslatable: \"Outsides Trade,\"",
+  "note": "Untranslatable: \"Outsides Trade,\"",
   "source": "ceder.net/choreodb"
 }

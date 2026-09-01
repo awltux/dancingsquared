@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Heads 1/2 Square Thru",
     "Touch a Quarter",
@@ -16,12 +16,18 @@
     "Swing Thru",
     "Scoot Back",
     "Boys Run",
-    "Ends Star Thru",
-    "Centers Box The Gnat",
+    {
+      "selection": "Ends",
+      "call": "Star Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
     "Change Hands",
     "Left Square Thru 2",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Ends Star Thru,\"; Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \" Change Hands,\"; Untranslatable: \" Left Square Thru 2,\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \" Change Hands,\"; Untranslatable: \" Left Square Thru 2,\"",
   "source": "ceder.net/choreodb"
 }

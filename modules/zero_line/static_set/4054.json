@@ -9,14 +9,19 @@
   "mappedCount": 6,
   "steps": [
     "Pass the Ocean",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Swing Thru",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Swing Thru",
     "All 8 Circulate",
     "Boys Run",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Boys Circulate\"",
   "source": "ceder.net/choreodb"
 }

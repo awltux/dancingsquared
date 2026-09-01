@@ -6,17 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 4,
+  "mappedCount": 7,
   "steps": [
-    "Heads Right & Left Thru, Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Pass Thru",
     "Separate Around 1 To A Line",
     "Right and Left Thru",
-    "Centers Half Sashay",
-    "All Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "All",
+      "call": "Square Thru 3"
+    },
     "3/4 Tag the Line",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru, Half Sashay,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Half Sashay,\"; Untranslatable: \"All Square Thru 3,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

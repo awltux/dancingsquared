@@ -4,17 +4,25 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 6,
-  "mappedCount": 3,
+  "mappedCount": 6,
   "steps": [
     "Star Thru",
     "Pass Thru",
-    "Centers Pass Thru",
-    "All Courtesy Turn",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Courtesy Turn"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Star Thru"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"All Courtesy Turn\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

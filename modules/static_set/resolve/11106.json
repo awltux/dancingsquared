@@ -6,15 +6,21 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 17,
-  "mappedCount": 14,
+  "mappedCount": 16,
   "steps": [
     "Heads Star Thru",
     "Double Pass Thru",
     "First Couple Go Left, Next Couple Go Right",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Girls Run",
     "Hinge",
-    "Boys Circulate, Girls Trade",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Left Swing Thru",
     "Girls Run",
     "Chain Down the Line",
@@ -23,9 +29,11 @@
     "Pass Thru",
     "Boys Run",
     "Hinge",
-    "Girls U-Turn Back",
+    {
+      "selection": "Girls",
+      "call": "U-Turn Back"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Boys Circulate, Girls Trade,\"; Untranslatable: \"Girls U-Turn Back,\"",
   "source": "ceder.net/choreodb"
 }

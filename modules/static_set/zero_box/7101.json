@@ -6,14 +6,20 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
     "4 Ladies Chain",
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Star Thru",
     "Double Pass Thru",
-    "Leaders California Twirl"
+    {
+      "selection": "Leaders",
+      "call": "California Twirl"
+    }
   ],
-  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Leaders California Twirl\"",
+  "note": "Untranslatable: \"4 Ladies Chain,\"",
   "source": "ceder.net/choreodb"
 }

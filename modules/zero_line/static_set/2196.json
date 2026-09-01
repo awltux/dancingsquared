@@ -10,7 +10,10 @@
   "steps": [
     "Pass the Ocean",
     "Swing Thru",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Trade",
     "Split Circulate",
     "Centers Trade",
@@ -19,6 +22,5 @@
     "Star Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"",
   "source": "ceder.net/choreodb"
 }

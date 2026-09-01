@@ -6,19 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "(Lesson 12-05)",
-    "Heads Square Thru",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Touch a Quarter",
     "Scoot Back",
     "Boys Fold",
-    "Girls Right Pull By",
+    {
+      "selection": "Girls",
+      "call": "Right Pull By"
+    },
     "Boys Courtesy Turn The Girls",
     "Flutterwheel",
     "Slide Thru",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"(Lesson 12-05),\"; Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"Girls Right Pull By,\"; Untranslatable: \"Boys Courtesy Turn The Girls,\"",
+  "note": "Untranslatable: \"(Lesson 12-05),\"; Untranslatable: \"Boys Courtesy Turn The Girls,\"",
   "source": "ceder.net/choreodb"
 }

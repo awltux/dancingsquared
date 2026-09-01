@@ -6,15 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Head Ladies Chain Right",
     "New Side Ladies Chain Left",
     "New Head Ladies Chain Left",
     "New Side Ladies Chain Right",
-    "Everyone Swing Your Partner",
+    {
+      "selection": "Everyone",
+      "call": "Swing Your Partner"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"New Side Ladies Chain Left,\"; Untranslatable: \"New Head Ladies Chain Left,\"; Untranslatable: \"New Side Ladies Chain Right,\"; Untranslatable: \"Everyone Swing Your Partner,\"",
+  "note": "Untranslatable: \"New Side Ladies Chain Left,\"; Untranslatable: \"New Head Ladies Chain Left,\"; Untranslatable: \"New Side Ladies Chain Right,\"",
   "source": "ceder.net/choreodb"
 }

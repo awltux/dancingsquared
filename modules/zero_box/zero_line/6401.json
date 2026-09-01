@@ -10,10 +10,12 @@
   "steps": [
     "Swing Thru",
     "Boys Run",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Wheel and Deal",
     "Star Thru"
   ],
-  "note": "Untranslatable: \"Boys Circulate\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 10,
-  "mappedCount": 9,
+  "mappedCount": 10,
   "steps": [
     "Pass Thru",
     "Boys Run",
@@ -16,9 +16,11 @@
     "Girls Run",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Wheel Around",
+    {
+      "selection": "Centers",
+      "call": "Wheel Around"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Wheel Around\"",
   "source": "ceder.net/choreodb"
 }

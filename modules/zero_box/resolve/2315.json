@@ -12,9 +12,11 @@
     "Right and Left Thru",
     "Rollaway",
     "Pass the Ocean",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"",
   "source": "ceder.net/choreodb"
 }

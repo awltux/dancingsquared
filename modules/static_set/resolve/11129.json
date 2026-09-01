@@ -8,11 +8,14 @@
   "stepCount": 4,
   "mappedCount": 1,
   "steps": [
-    "Heads Promenade Halfway",
+    {
+      "selection": "Heads",
+      "call": "All 4 Couples Promenade"
+    },
     "Heads Star Thru, Pass Thru",
     "Allemande Left",
     "Swing And Promenade Home"
   ],
-  "note": "Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Heads Star Thru, Pass Thru,\"; Untranslatable: \"Swing And Promenade Home\"",
+  "note": "Untranslatable: \"Heads Star Thru, Pass Thru,\"; Untranslatable: \"Swing And Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

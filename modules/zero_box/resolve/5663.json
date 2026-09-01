@@ -4,16 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Zero Box",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Slide Thru",
     "Pass the Ocean",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Recycle",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Ladies Trade\"",
   "source": "ceder.net/choreodb"
 }

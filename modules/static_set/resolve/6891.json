@@ -6,12 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 15,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "Head Ladies Chain",
-    "Sides Right & Left Thru",
+    {
+      "selection": "Sides",
+      "call": "Right and Left Thru"
+    },
     "Heads Promenade 3/4",
-    "Sides Star Thru",
+    {
+      "selection": "Sides",
+      "call": "Star Thru"
+    },
     "Pass Thru",
     "All 4 Couples Promenade",
     "Others Star Thru",
@@ -24,6 +30,6 @@
     "Pass Thru",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Sides Right & Left Thru,\"; Untranslatable: \"Sides Star Thru,\"; Untranslatable: \"Others Star Thru,\"; Untranslatable: \"Others Star Thru,\"; Untranslatable: \"Others Star Thru,\"",
+  "note": "Untranslatable: \"Others Star Thru,\"; Untranslatable: \"Others Star Thru,\"; Untranslatable: \"Others Star Thru,\"",
   "source": "ceder.net/choreodb"
 }

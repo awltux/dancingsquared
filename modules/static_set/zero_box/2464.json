@@ -4,15 +4,17 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Four Ladies Chain",
     "Heads Star Thru",
     "Zoom",
-    "Centers Pass Thru"
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    }
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "(Lesson 11-16)",
-    "Heads Reverse Flutter Wheel & Lead Left",
+    {
+      "selection": "Heads",
+      "call": "Reverse Flutterwheel"
+    },
     "Left Swing Thru",
     "Left Hinge",
     "Girls Run",
@@ -23,6 +26,6 @@
     "Slide Thru",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 11-16),\"; Untranslatable: \"Heads Reverse Flutter Wheel & Lead Left,\"; Untranslatable: \"Left Hinge,\"",
+  "note": "Untranslatable: \"(Lesson 11-16),\"; Untranslatable: \"Left Hinge,\"",
   "source": "ceder.net/choreodb"
 }

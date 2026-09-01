@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 10,
-  "mappedCount": 9,
+  "mappedCount": 10,
   "steps": [
     "Heads Lead Right",
     "Veer Left",
@@ -15,10 +15,12 @@
     "Reverse Flutterwheel",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

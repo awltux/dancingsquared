@@ -6,16 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Heads Square Thru 3",
     "Separate Around 1 To A Line",
-    "All Square Thru 4",
-    "Centers Square Thru 3",
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Centers In",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

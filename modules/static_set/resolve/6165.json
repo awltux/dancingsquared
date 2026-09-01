@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Head Man & Corner Forward & Back",
     "Star Right Once Around",
@@ -18,9 +18,12 @@
     "Forward and Back",
     "Star Thru",
     "Just The Girls Zoom",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Head Man & Corner Forward & Back,\"; Untranslatable: \"Star Right Once Around,\"; Untranslatable: \"Back By The Left, Pick Up Partner, Star Promenade,\"; Untranslatable: \"Outsides Roll Back One (same sex together),\"; Untranslatable: \"Outside Girl Roll Back One To Line Of 6,\"; Untranslatable: \"Lonesome Girl Roll Back One To Line Of 8,\"; Untranslatable: \"Back Out, Form Two Lines,\"; Untranslatable: \"Just The Girls Zoom,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"Head Man & Corner Forward & Back,\"; Untranslatable: \"Star Right Once Around,\"; Untranslatable: \"Back By The Left, Pick Up Partner, Star Promenade,\"; Untranslatable: \"Outsides Roll Back One (same sex together),\"; Untranslatable: \"Outside Girl Roll Back One To Line Of 6,\"; Untranslatable: \"Lonesome Girl Roll Back One To Line Of 8,\"; Untranslatable: \"Back Out, Form Two Lines,\"; Untranslatable: \"Just The Girls Zoom,\"",
   "source": "ceder.net/choreodb"
 }

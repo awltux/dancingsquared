@@ -6,18 +6,30 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 3,
+  "mappedCount": 7,
   "steps": [
     "Four Ladies Chain",
-    "Everybody Half Sashay",
+    {
+      "selection": "Everybody",
+      "call": "Half Sashay"
+    },
     "Heads Square Thru 4",
     "Split The Outsides Around 1 To A Line",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Wheel and Deal",
-    "Girls (only) Zoom",
-    "Centers Square Thru 3",
+    {
+      "selection": "Girls",
+      "call": "Zoom"
+    },
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "L.A. (1/4 promenade home)"
   ],
-  "note": "Untranslatable: \"Everybody Half Sashay,\"; Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Girls (only) Zoom,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"L.A. (1/4 promenade home)\"",
+  "note": "Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"L.A. (1/4 promenade home)\"",
   "source": "ceder.net/choreodb"
 }

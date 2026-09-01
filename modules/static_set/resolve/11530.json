@@ -4,20 +4,28 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 9,
-  "mappedCount": 6,
+  "mappedCount": 9,
   "steps": [
     "Heads Square Thru 4",
     "Slide Thru",
     "Pass Thru",
     "Ends Trade",
-    "All Cast Off 3/4",
-    "Centers Pass Thru",
+    {
+      "selection": "All",
+      "call": "Cast Off Three Quarters"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Ends Fold",
-    "Everybody Pass Thru",
+    {
+      "selection": "Everybody",
+      "call": "Pass Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"All Cast Off 3/4,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Everybody Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

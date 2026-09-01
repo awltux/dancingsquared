@@ -4,21 +4,29 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 10,
   "steps": [
     "Heads Square Thru 4",
     "Swing Thru",
     "Boys Run",
     "Couples Hinge",
     "Tag the Line",
-    "Centers Double Pass Thru",
-    "All Face Right",
+    {
+      "selection": "Centers",
+      "call": "Double Pass Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Face Right"
+    },
     "Wheel and Deal",
-    "All Trade",
+    {
+      "selection": "All",
+      "call": "Trade"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Double Pass Thru,\"; Untranslatable: \"All Face Right,\"; Untranslatable: \"All Trade,\"",
   "source": "ceder.net/choreodb"
 }

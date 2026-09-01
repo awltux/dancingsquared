@@ -6,24 +6,42 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 15,
-  "mappedCount": 6,
+  "mappedCount": 12,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Pass Thru",
     "Separate Around 1 To A Line",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Tag the Line",
     "Couples Circulate",
     "Boys Bend The Line Twice",
-    "All Star Thru",
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
     "U-Turn Back",
     "Girls Only Zoom",
-    "All Double Pass Thru",
+    {
+      "selection": "All",
+      "call": "Double Pass Thru"
+    },
     "Partner Trade",
-    "Centers Pass Thru",
-    "All Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Boys Bend The Line Twice,\"; Untranslatable: \"All Star Thru,\"; Untranslatable: \"Girls Only Zoom,\"; Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"All Pass Thru,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Boys Bend The Line Twice,\"; Untranslatable: \"Girls Only Zoom,\"",
   "source": "ceder.net/choreodb"
 }

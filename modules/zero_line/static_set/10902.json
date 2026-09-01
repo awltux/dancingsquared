@@ -6,21 +6,27 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "Pass Thru",
     "Bend the Line",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Square Thru 4",
     "Partner Trade",
     "1/2 Square Thru",
     "Centers 1/2 Square Thru",
-    "All U-Turn Back",
+    {
+      "selection": "All",
+      "call": "U-Turn Back"
+    },
     "Find Your Partner",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers 1/2 Square Thru\"; Untranslatable: \"All U-Turn Back\"; Untranslatable: \"Find Your Partner\"",
+  "note": "Untranslatable: \"1/2 Square Thru\"; Untranslatable: \"Centers 1/2 Square Thru\"; Untranslatable: \"Find Your Partner\"",
   "source": "ceder.net/choreodb"
 }

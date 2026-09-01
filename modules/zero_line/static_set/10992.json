@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Touch a Quarter",
     "Circulate",
@@ -16,9 +16,12 @@
     "Line of 8, Bend the Line",
     "Star Thru",
     "Zoom",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Center 6 Circulate 1 & 1/2\"; Untranslatable: \"4 Girls Box Circulate 1 & 1/2\"; Untranslatable: \"Very Center Girls Hinge\"; Untranslatable: \"Centers Square Thru 3\"",
+  "note": "Untranslatable: \"Center 6 Circulate 1 & 1/2\"; Untranslatable: \"4 Girls Box Circulate 1 & 1/2\"; Untranslatable: \"Very Center Girls Hinge\"",
   "source": "ceder.net/choreodb"
 }

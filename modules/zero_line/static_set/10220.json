@@ -6,20 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Wheel and Deal",
     "Face Right",
     "Circulate",
     "Ferris Wheel",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Scoot Back",
     "Trade By",
     "Centers Circulate",
-    "All Face Right",
+    {
+      "selection": "All",
+      "call": "Face Right"
+    },
     "Swing Thru",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"All Face Right\"",
   "source": "ceder.net/choreodb"
 }

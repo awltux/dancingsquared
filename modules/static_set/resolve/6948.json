@@ -6,18 +6,24 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
-    "All Four Ladies Chain",
+    {
+      "selection": "All",
+      "call": "Four Ladies Chain"
+    },
     "Head Two Ladies Chain",
     "Heads Promenade 3/4",
-    "Sides Right & Left Thru With A Full Turn Around",
+    {
+      "selection": "Sides",
+      "call": "Right and Left Thru"
+    },
     "Allemande Left With The Corner",
     "Go Home And Swing Your Own",
     "Four Boys Star Left In The Middle",
     "Dosado At Home",
     "Then Promenade The Square"
   ],
-  "note": "Untranslatable: \"All Four Ladies Chain,\"; Untranslatable: \"Head Two Ladies Chain,\"; Untranslatable: \"Sides Right & Left Thru With A Full Turn Around,\"; Untranslatable: \"Allemande Left With The Corner,\"; Untranslatable: \"Go Home And Swing Your Own,\"; Untranslatable: \"Four Boys Star Left In The Middle,\"; Untranslatable: \"Dosado At Home,\"; Untranslatable: \"Then Promenade The Square\"",
+  "note": "Untranslatable: \"Head Two Ladies Chain,\"; Untranslatable: \"Allemande Left With The Corner,\"; Untranslatable: \"Go Home And Swing Your Own,\"; Untranslatable: \"Four Boys Star Left In The Middle,\"; Untranslatable: \"Dosado At Home,\"; Untranslatable: \"Then Promenade The Square\"",
   "source": "ceder.net/choreodb"
 }

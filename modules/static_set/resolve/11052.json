@@ -6,11 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 15,
-  "mappedCount": 8,
+  "mappedCount": 12,
   "steps": [
     "(Lesson 9-05)",
-    "Heads Slide Thru",
-    "Same 4 Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Slide Thru"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Right and Left Thru"
+    },
     "Zoom",
     "Double Pass Thru",
     "First Couple Go Right Next Go Left",
@@ -18,12 +24,18 @@
     "Pass Thru",
     "Wheel and Deal",
     "Zoom",
-    "Centers Right & Left Thru",
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
     "Zoom",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Allemande Left",
     "R.L.G. (ends at Home)"
   ],
-  "note": "Untranslatable: \"(Lesson 9-05),\"; Untranslatable: \"Heads Slide Thru,\"; Untranslatable: \"Same 4 Right & Left Thru,\"; Untranslatable: \"First Couple Go Right Next Go Left,\"; Untranslatable: \"Centers Right & Left Thru,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"R.L.G. (ends at Home)\"",
+  "note": "Untranslatable: \"(Lesson 9-05),\"; Untranslatable: \"First Couple Go Right Next Go Left,\"; Untranslatable: \"R.L.G. (ends at Home)\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,11 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Heads Pass Thru And Wheel Around",
-    "Heads Square Thru 2 Hands",
-    "Everybody Square Thru 4 Hands",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Everybody",
+      "call": "Square Thru 4"
+    },
     "(Lines facing Out) Dance Out & Back",
     "Bend the Line",
     "Pass Thru",
@@ -19,6 +25,6 @@
     "Allemande Left",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru And Wheel Around,\"; Untranslatable: \"Heads Square Thru 2 Hands,\"; Untranslatable: \"Everybody Square Thru 4 Hands,\"; Untranslatable: \"(Lines facing Out) Dance Out & Back,\"",
+  "note": "Untranslatable: \"Heads Pass Thru And Wheel Around,\"; Untranslatable: \"(Lines facing Out) Dance Out & Back,\"",
   "source": "ceder.net/choreodb"
 }

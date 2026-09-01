@@ -6,19 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 9,
   "steps": [
     "Right and Left Thru",
     "Touch a Quarter",
-    "Centers Box Circulate",
-    "All Split Circulate",
+    {
+      "selection": "Centers",
+      "call": "Box Circulate"
+    },
+    {
+      "selection": "All",
+      "call": "Split Circulate"
+    },
     "All 8 Circulate",
     "Boys Run",
     "Girls Only Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Swing Thru",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"All Split Circulate\"; Untranslatable: \"Girls Only Zoom\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"Girls Only Zoom\"",
   "source": "ceder.net/choreodb"
 }

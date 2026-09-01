@@ -6,11 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Heads Circle 3/4",
-    "All Double Pass Thru",
-    "Leaders U-Turn Back",
+    {
+      "selection": "All",
+      "call": "Double Pass Thru"
+    },
+    {
+      "selection": "Leaders",
+      "call": "U-Turn Back"
+    },
     "Swing Thru",
     "Boys Run",
     "Forward and Back",
@@ -22,6 +28,6 @@
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Circle 3/4,\"; Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Leaders U-Turn Back,\"",
+  "note": "Untranslatable: \"Heads Circle 3/4,\"",
   "source": "ceder.net/choreodb"
 }

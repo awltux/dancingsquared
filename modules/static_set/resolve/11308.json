@@ -8,7 +8,10 @@
   "stepCount": 10,
   "mappedCount": 8,
   "steps": [
-    "Heads Promenade 1/2 Way & Lead Right",
+    {
+      "selection": "Heads",
+      "call": "All 4 Couples Promenade"
+    },
     "Swing Thru",
     "Boys Run",
     "Tag the Line",
@@ -19,6 +22,6 @@
     "Ferris Wheel, Centers Sweep 1/4 & Backaway",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Promenade 1/2 Way & Lead Right,\"; Untranslatable: \"Ferris Wheel, Centers Sweep 1/4 & Backaway,\"",
+  "note": "Untranslatable: \"Ferris Wheel, Centers Sweep 1/4 & Backaway,\"",
   "source": "ceder.net/choreodb"
 }

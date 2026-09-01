@@ -6,11 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "1/2 Square Thru",
-    "All Right & Left Thru",
+    {
+      "selection": "All",
+      "call": "Right and Left Thru"
+    },
     "1/2 Square Thru",
     "Ends Fold",
     "1/2 Square Thru",
@@ -20,6 +26,6 @@
     "Pass Thru",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" 1/2 Square Thru,\"; Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"",
+  "note": "Untranslatable: \" 1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

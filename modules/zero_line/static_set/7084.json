@@ -6,15 +6,21 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Flutterwheel",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Pass Thru",
-    "All Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Left Allemande After the Pass Thru the Outside 2 the formation = TdBy (0)"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"All Pass Thru\"; Untranslatable: \"Left Allemande After the Pass Thru the Outside 2 the formation = TdBy (0)\"",
+  "note": "Untranslatable: \"Left Allemande After the Pass Thru the Outside 2 the formation = TdBy (0)\"",
   "source": "ceder.net/choreodb"
 }

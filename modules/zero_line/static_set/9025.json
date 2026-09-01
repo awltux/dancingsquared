@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Touch a Quarter",
     "Single File Circulate",
     "Ladies Run",
-    "Everybody U-Turn Back",
+    {
+      "selection": "Everybody",
+      "call": "U-Turn Back"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Single File Circulate\"; Untranslatable: \"Ladies Run\"; Untranslatable: \"Everybody U-Turn Back\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Single File Circulate\"; Untranslatable: \"Ladies Run\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

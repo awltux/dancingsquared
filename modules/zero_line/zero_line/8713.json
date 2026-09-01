@@ -6,15 +6,24 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 2,
+  "mappedCount": 5,
   "steps": [
     "Each Side Circle Left 3/4",
     "Pass Thru",
-    "Centers Pass Thru",
-    "All Courtesy Turn",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Courtesy Turn"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Circle Left 3/4"
   ],
-  "note": "Untranslatable: \"Each Side Circle Left 3/4\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"All Courtesy Turn\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"Each Side Circle Left 3/4\"",
   "source": "ceder.net/choreodb"
 }

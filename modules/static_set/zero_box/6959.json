@@ -6,16 +6,25 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 0,
+  "mappedCount": 3,
   "steps": [
-    "Heads Right & Left Thru",
-    "Couple #4 Swing Your Partner",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Couple #4",
+      "call": "Swing Your Partner"
+    },
     "The Others Half Sashay",
-    "Couple #2 Forward And Back",
+    {
+      "selection": "Couple #2",
+      "call": "Forward and Back"
+    },
     "Split Couple #4 And Separate Around 3 To A Line",
     "Lines Of 3 Forward & Back",
     "Same 6 Star Thru"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Couple #4 Swing Your Partner,\"; Untranslatable: \" The Others Half Sashay,\"; Untranslatable: \"Couple #2 Forward And Back,\"; Untranslatable: \" Split Couple #4 And Separate Around 3 To A Line,\"; Untranslatable: \"Lines Of 3 Forward & Back,\"; Untranslatable: \"Same 6 Star Thru\"",
+  "note": "Untranslatable: \" The Others Half Sashay,\"; Untranslatable: \" Split Couple #4 And Separate Around 3 To A Line,\"; Untranslatable: \"Lines Of 3 Forward & Back,\"; Untranslatable: \"Same 6 Star Thru\"",
   "source": "ceder.net/choreodb"
 }

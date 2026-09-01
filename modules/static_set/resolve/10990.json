@@ -6,12 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
-    "Heads Swing Thru",
+    {
+      "selection": "Heads",
+      "call": "Swing Thru"
+    },
     "Step Thru",
     "Separate Around 1 To A Line",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Wheel and Deal",
     "Centers Half Sashay & Swing Thru",
     "Extend",
@@ -19,6 +25,6 @@
     "Extend",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Swing Thru,\"; Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Half Sashay & Swing Thru,\"",
+  "note": "Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"Centers Half Sashay & Swing Thru,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,12 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "4 Ladies Chain",
-    "Heads Flutter Wheel & Star Thru",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
     "Boys Only Zoom",
-    "All Double Pass Thru",
+    {
+      "selection": "All",
+      "call": "Double Pass Thru"
+    },
     "Centers In",
     "Square Thru 3",
     "Tag the Line",
@@ -19,6 +25,6 @@
     "Ends Cross Fold",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"Heads Flutter Wheel & Star Thru,\"; Untranslatable: \"Boys Only Zoom,\"; Untranslatable: \"All Double Pass Thru,\"",
+  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"Boys Only Zoom,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,16 +6,22 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Pass Thru",
     "Boys Run Right",
     "Centers Circulate",
-    "All Swing Thru",
+    {
+      "selection": "All",
+      "call": "Swing Thru"
+    },
     "Centers Circulate",
-    "All Swing Thru",
+    {
+      "selection": "All",
+      "call": "Swing Thru"
+    },
     "Boys Run Right"
   ],
-  "note": "Untranslatable: \"Boys Run Right\"; Untranslatable: \"All Swing Thru\"; Untranslatable: \"All Swing Thru\"; Untranslatable: \"Boys Run Right\"",
+  "note": "Untranslatable: \"Boys Run Right\"; Untranslatable: \"Boys Run Right\"",
   "source": "ceder.net/choreodb"
 }

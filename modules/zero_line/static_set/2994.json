@@ -4,18 +4,23 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
     "Pass Thru",
     "Tag the Line",
     "Face Right",
-    "Centers Scoot Back",
-    "All 1/2 Tag",
+    {
+      "selection": "Centers",
+      "call": "Scoot Back"
+    },
+    {
+      "selection": "All",
+      "call": "Half Tag"
+    },
     "Scoot Back",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Scoot Back\"; Untranslatable: \"All 1/2 Tag\"",
   "source": "ceder.net/choreodb"
 }

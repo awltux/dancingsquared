@@ -6,16 +6,22 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
-    "Ends Half Sashay",
-    "Centers Split Two",
+    {
+      "selection": "Ends",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "Centers",
+      "call": "Split Two"
+    },
     "Separate Around 1 To A Line",
     "Pass Thru",
     "Half Tag",
     "Swing Thru",
     "Recycle"
   ],
-  "note": "Untranslatable: \"Ends Half Sashay\"; Untranslatable: \"Centers Split Two\"; Untranslatable: \"Separate Around 1 To A Line\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line\"",
   "source": "ceder.net/choreodb"
 }

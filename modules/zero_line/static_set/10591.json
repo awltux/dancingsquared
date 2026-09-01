@@ -4,21 +4,26 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Star Thru",
     "Pass Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Centers In",
     "Cast Off Three Quarters",
     "Star Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Right and Left Thru",
     "Half Sashay",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

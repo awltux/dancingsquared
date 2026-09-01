@@ -4,14 +4,16 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 3,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Head Ladies Chain",
     "Sides Promenade 3/4",
-    "Heads Pass Thru"
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    }
   ],
-  "note": "Untranslatable: \"Heads Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,18 +6,27 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 1,
+  "mappedCount": 4,
   "steps": [
     "(Lesson 7-12)",
     "Heads Separate",
     "(I didn't say \"around 1\", so the heads will just veer outwards and meet face to face behind the sides.)",
-    "All Star Thru",
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
     "Original Heads Separate (again)",
-    "All Star Thru",
-    "Centers Left Square Thru 4",
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Left Square Thru 4"
+    },
     "(In case you wondered why a left square thru 4, that's to keep your hands alternating, because the next call is)",
     "Allemande Left, R.L.G"
   ],
-  "note": "Untranslatable: \"(Lesson 7-12),\"; Untranslatable: \"(I didn't say \"around 1\", so the heads will just veer outwards and meet face to face behind the sides.),\"; Untranslatable: \"All Star Thru,\"; Untranslatable: \"Original Heads Separate (again),\"; Untranslatable: \"All Star Thru,\"; Untranslatable: \"Centers Left Square Thru 4,\"; Untranslatable: \"(In case you wondered why a left square thru 4, that's to keep your hands alternating, because the next call is),\"; Untranslatable: \"Allemande Left, R.L.G\"",
+  "note": "Untranslatable: \"(Lesson 7-12),\"; Untranslatable: \"(I didn't say \"around 1\", so the heads will just veer outwards and meet face to face behind the sides.),\"; Untranslatable: \"Original Heads Separate (again),\"; Untranslatable: \"(In case you wondered why a left square thru 4, that's to keep your hands alternating, because the next call is),\"; Untranslatable: \"Allemande Left, R.L.G\"",
   "source": "ceder.net/choreodb"
 }

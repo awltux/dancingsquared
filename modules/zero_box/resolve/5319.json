@@ -6,13 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 0,
+  "mappedCount": 1,
   "steps": [
     "Split Two Around One To A Line",
-    "Ends Box The Gnat And (around the outside) Square Thru 5",
+    {
+      "selection": "Ends",
+      "call": "Box the Gnat"
+    },
     "Centers Slide Thru And Square Thru 3",
     "Left Allemande You must use some timing for the centers to arrive for a left allemande"
   ],
-  "note": "Untranslatable: \"Split Two Around One To A Line\"; Untranslatable: \"Ends Box The Gnat And (around the outside) Square Thru 5\"; Untranslatable: \"Centers Slide Thru And Square Thru 3\"; Untranslatable: \"Left Allemande You must use some timing for the centers to arrive for a left allemande\"",
+  "note": "Untranslatable: \"Split Two Around One To A Line\"; Untranslatable: \"Centers Slide Thru And Square Thru 3\"; Untranslatable: \"Left Allemande You must use some timing for the centers to arrive for a left allemande\"",
   "source": "ceder.net/choreodb"
 }

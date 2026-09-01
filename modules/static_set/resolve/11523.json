@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 7,
+  "mappedCount": 12,
   "steps": [
     "Heads Star Thru",
     "Double Pass Thru",
@@ -15,14 +15,29 @@
     "End Boy Run",
     "Centers Trade",
     "All The Boys Run",
-    "Centers Cast Off 3/4",
-    "Same 4 Chain Down The Line",
-    "All Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Cast Off Three Quarters"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Chain Down the Line"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Tag the Line",
-    "Leaders Trade",
-    "All Box The Gnat",
+    {
+      "selection": "Leaders",
+      "call": "Trade"
+    },
+    {
+      "selection": "All",
+      "call": "Box the Gnat"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"End Boy Run,\"; Untranslatable: \"All The Boys Run,\"; Untranslatable: \"Centers Cast Off 3/4,\"; Untranslatable: \"Same 4 Chain Down The Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Leaders Trade,\"; Untranslatable: \"All Box The Gnat,\"",
+  "note": "Untranslatable: \"End Boy Run,\"; Untranslatable: \"All The Boys Run,\"",
   "source": "ceder.net/choreodb"
 }

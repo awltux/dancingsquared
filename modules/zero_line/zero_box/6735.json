@@ -6,16 +6,21 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Pass Thru",
     "3/4 Tag the Line",
-    "Ends U-Turn Back",
+    {
+      "selection": "Ends",
+      "call": "U-Turn Back"
+    },
     "Extend",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Trade",
     "Recycle"
   ],
-  "note": "Untranslatable: \"Ends U-Turn Back\"; Untranslatable: \"Girls Circulate\"",
   "source": "ceder.net/choreodb"
 }

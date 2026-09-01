@@ -6,20 +6,32 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 4,
+  "mappedCount": 8,
   "steps": [
-    "Sides Right & Left Thru",
+    {
+      "selection": "Sides",
+      "call": "Right and Left Thru"
+    },
     "Side Ladies Chain",
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Head Ladies Chain",
-    "Heads Rollaway",
+    {
+      "selection": "Heads",
+      "call": "Rollaway"
+    },
     "Heads Forward and Back",
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around One To A Line",
     "Forward and Back",
     "Forward & Give The Opposite A Right & Step By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Sides Right & Left Thru,\"; Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around One To A Line,\"; Untranslatable: \"Forward & Give The Opposite A Right & Step By,\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Separate Around One To A Line,\"; Untranslatable: \"Forward & Give The Opposite A Right & Step By,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

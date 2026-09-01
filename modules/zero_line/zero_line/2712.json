@@ -4,19 +4,24 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 8,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Half Sashay",
+    {
+      "selection": "Centers",
+      "call": "Half Sashay"
+    },
     "Zoom",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Dosado to a Wave",
     "Swing Thru",
     "Boys Run"
   ],
-  "note": "Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Centers Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

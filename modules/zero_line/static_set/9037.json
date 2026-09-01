@@ -6,19 +6,27 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Pass the Ocean",
-    "Ladies Circulate",
+    {
+      "selection": "Ladies",
+      "call": "Circulate"
+    },
     "Hinge",
     "Ends Trade",
     "Centers Run",
     "Ferris Wheel",
-    "Ladies Square Thru 3/4",
+    {
+      "selection": "Ladies",
+      "call": "Square Thru 4"
+    },
     "Star Thru",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "All 4 Couples Promenade"
   ],
-  "note": "Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Ladies Square Thru 3/4\"; Untranslatable: \"Boys Circulate\"",
   "source": "ceder.net/choreodb"
 }

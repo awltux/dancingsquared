@@ -6,15 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Pass the Ocean",
     "Very Ends Trade (with each other)",
     "All The Ladies Trade",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Bend the Line",
     "Left Allemande After the Bend the Line this is also a ZB-ZL Conversion Module."
   ],
-  "note": "Untranslatable: \"Very Ends Trade (with each other)\"; Untranslatable: \"All The Ladies Trade\"; Untranslatable: \"All Pass Thru\"; Untranslatable: \"Left Allemande After the Bend the Line this is also a ZB-ZL Conversion Module.\"",
+  "note": "Untranslatable: \"Very Ends Trade (with each other)\"; Untranslatable: \"All The Ladies Trade\"; Untranslatable: \"Left Allemande After the Bend the Line this is also a ZB-ZL Conversion Module.\"",
   "source": "ceder.net/choreodb"
 }

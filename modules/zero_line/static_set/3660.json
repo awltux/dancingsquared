@@ -4,13 +4,16 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 11,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "Star Thru",
     "Pass Thru",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Centers In",
     "Cast Off Three Quarters",
     "Pass Thru",
@@ -20,6 +23,5 @@
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

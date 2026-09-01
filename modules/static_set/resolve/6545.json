@@ -6,13 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 15,
-  "mappedCount": 8,
+  "mappedCount": 12,
   "steps": [
-    "Everybody Half Sashay",
-    "Heads Pass Thru",
+    {
+      "selection": "Everybody",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
-    "Everybody Pass Thru",
-    "Boys Partner Trade",
+    {
+      "selection": "Everybody",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Boys",
+      "call": "Partner Trade"
+    },
     "Couples Circulate",
     "Ferris Wheel",
     "Girls Swing Thru Double",
@@ -24,6 +36,6 @@
     "Square Thru 4",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Everybody Half Sashay,\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Everybody Pass Thru,\"; Untranslatable: \"Boys Partner Trade,\"; Untranslatable: \"Girls Swing Thru Double,\"; Untranslatable: \"Boy Run,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Girls Swing Thru Double,\"; Untranslatable: \"Boy Run,\"",
   "source": "ceder.net/choreodb"
 }

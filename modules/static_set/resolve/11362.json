@@ -11,7 +11,10 @@
     "(Lesson 12-07)",
     "Heads Separate Around 1 To A Line",
     "Pass the Ocean",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Girls Trade",
     "Swing Thru",
     "Hinge",
@@ -22,6 +25,6 @@
     "Boys Cross Fold",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"(Lesson 12-07),\"; Untranslatable: \"Heads Separate Around 1 To A Line,\"; Untranslatable: \"Boys Circulate,\"; Untranslatable: \"Boys Cross Fold,\"",
+  "note": "Untranslatable: \"(Lesson 12-07),\"; Untranslatable: \"Heads Separate Around 1 To A Line,\"; Untranslatable: \"Boys Cross Fold,\"",
   "source": "ceder.net/choreodb"
 }

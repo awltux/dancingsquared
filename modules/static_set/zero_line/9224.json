@@ -6,16 +6,24 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Heads Star Thru",
     "Pass Thru",
-    "All Right & Left Thru",
+    {
+      "selection": "All",
+      "call": "Right and Left Thru"
+    },
     "Veer Left",
-    "Boys Circulate",
-    "Ladies Trade",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Bend the Line"
   ],
-  "note": "Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"Boys Circulate,\"; Untranslatable: \"Ladies Trade,\"",
   "source": "ceder.net/choreodb"
 }

@@ -11,10 +11,13 @@
     "Heads 1/2 Square Thru",
     "Dosado, Step To A Wave",
     "Scoot Back",
-    "Girls Circulate, Boys Trade",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Recycle",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Dosado, Step To A Wave,\"; Untranslatable: \"Girls Circulate, Boys Trade,\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Dosado, Step To A Wave,\"",
   "source": "ceder.net/choreodb"
 }

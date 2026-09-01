@@ -15,10 +15,12 @@
     "Girls Trade",
     "Wheel and Deal",
     "Single Circle to a Wave",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Trade",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"",
   "source": "ceder.net/choreodb"
 }

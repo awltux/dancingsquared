@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "Pass Thru",
     "Centers Trade",
@@ -14,11 +14,16 @@
     "Centers Trade",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Flutter Wheel",
+    {
+      "selection": "Centers",
+      "call": "Flutterwheel"
+    },
     "Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Flutter Wheel\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

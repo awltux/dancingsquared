@@ -6,14 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Swing Thru",
-    "Men Trade",
-    "Ladies Circulate",
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Circulate"
+    },
     "Men Run",
     "Wrong Way Promenade Home"
   ],
-  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Men Run\"; Untranslatable: \"Wrong Way Promenade Home\"",
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Wrong Way Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

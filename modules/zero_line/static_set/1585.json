@@ -12,13 +12,19 @@
     "Tag the Line",
     "Face In",
     "Pass the Ocean",
-    "Boys Circulate Double",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Swing Thru",
-    "Girls Circulate Double",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Recycle",
     "Box the Gnat",
     "R.L.G Half-sashayed Pass the Ocean"
   ],
-  "note": "Untranslatable: \"Boys Circulate Double\"; Untranslatable: \"Girls Circulate Double\"; Untranslatable: \"R.L.G Half-sashayed Pass the Ocean\"",
+  "note": "Untranslatable: \"R.L.G Half-sashayed Pass the Ocean\"",
   "source": "ceder.net/choreodb"
 }

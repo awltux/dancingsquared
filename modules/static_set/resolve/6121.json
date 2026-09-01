@@ -6,19 +6,24 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "Heads Pass the Ocean",
     "Swing Thru",
     "Boys Run",
     "Veer Right",
-    "All Veer Right",
+    {
+      "selection": "All",
+      "call": "Veer Right"
+    },
     "Ferris Wheel",
-    "Centers Veer Right",
+    {
+      "selection": "Centers",
+      "call": "Veer Right"
+    },
     "Veer Left",
     "Right and Left Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"All Veer Right,\"; Untranslatable: \"Centers Veer Right,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "Right and Left Thru",
     "Veer Left",
     "Couples Circulate",
     "Couples Hinge",
     "Very Center Boys Trade",
-    "All Boys Run",
+    {
+      "selection": "All",
+      "call": "Boys Run"
+    },
     "Boys Trade",
     "Hinge",
     "All 8 Circulate",
@@ -21,6 +24,6 @@
     "Pass Thru",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Very Center Boys Trade\"; Untranslatable: \"All Boys Run\"",
+  "note": "Untranslatable: \"Very Center Boys Trade\"",
   "source": "ceder.net/choreodb"
 }

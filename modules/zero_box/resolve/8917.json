@@ -6,14 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
     "Pass the Ocean",
-    "Men Trade",
-    "Ladies Trade",
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Pass Thru",
     "Left Allemande Lines of Four facing out."
   ],
-  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Left Allemande Lines of Four facing out.\"",
+  "note": "Untranslatable: \"Left Allemande Lines of Four facing out.\"",
   "source": "ceder.net/choreodb"
 }

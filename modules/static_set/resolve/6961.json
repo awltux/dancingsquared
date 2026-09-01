@@ -6,22 +6,37 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 4,
+  "mappedCount": 9,
   "steps": [
-    "Heads Right & Left Thru, Full Turn Around (to face out)",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Separate Around One Come Into The Middle",
     "Right and Left Thru",
-    "Everybody Right & Left Thru",
+    {
+      "selection": "Everybody",
+      "call": "Right and Left Thru"
+    },
     "Dive Thru",
     "Centers Star Thru And Backaway (ZS)",
-    "Sides Right & Left Thru, Full Turn Around (to face out)",
+    {
+      "selection": "Sides",
+      "call": "Right and Left Thru"
+    },
     "Separate Around One Into The Middle",
     "Right and Left Thru",
-    "Everybody Right & Left Thru",
+    {
+      "selection": "Everybody",
+      "call": "Right and Left Thru"
+    },
     "Dive Thru",
-    "Centers Pass Thru (ZB)",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru, Full Turn Around (to face out),\"; Untranslatable: \"Separate Around One Come Into The Middle,\"; Untranslatable: \"Everybody Right & Left Thru,\"; Untranslatable: \"Centers Star Thru And Backaway (ZS),\"; Untranslatable: \"Sides Right & Left Thru, Full Turn Around (to face out),\"; Untranslatable: \"Separate Around One Into The Middle,\"; Untranslatable: \"Everybody Right & Left Thru,\"; Untranslatable: \"Centers Pass Thru (ZB),\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Separate Around One Come Into The Middle,\"; Untranslatable: \"Centers Star Thru And Backaway (ZS),\"; Untranslatable: \"Separate Around One Into The Middle,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

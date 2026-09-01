@@ -6,14 +6,17 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Left Swing Thru",
     "Ladies Cross Run",
     "Swing Thru",
-    "Men Trade",
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"Ladies Cross Run\"; Untranslatable: \"Men Trade\"",
+  "note": "Untranslatable: \"Ladies Cross Run\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,11 +4,14 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
-    "Everybody Rollaway",
+    {
+      "selection": "Everybody",
+      "call": "Rollaway"
+    },
     "Heads Lead Right",
     "Dosado to a Wave",
     "Swing Thru",
@@ -16,6 +19,5 @@
     "Weave the Ring",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Everybody Rollaway,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,19 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Heads Half Sashay & Pass Thru",
     "Separate Around 1 To A Line",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Star Thru",
     "Pass Thru",
     "Bend the Line",
     "Star Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay & Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"Heads Half Sashay & Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

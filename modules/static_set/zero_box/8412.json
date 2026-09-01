@@ -4,14 +4,16 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 3,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
-    "Heads Box The Gnat",
+    {
+      "selection": "Heads",
+      "call": "Box the Gnat"
+    },
     "Dosado",
     "Star Thru"
   ],
-  "note": "Untranslatable: \"Heads Box The Gnat,\"",
   "source": "ceder.net/choreodb"
 }

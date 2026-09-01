@@ -6,7 +6,7 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Heads 1/2 Square Thru",
     "Touch a Quarter",
@@ -14,8 +14,11 @@
     "Boys Run",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Wheel Around"
+    {
+      "selection": "Centers",
+      "call": "Wheel Around"
+    }
   ],
-  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Centers Wheel Around\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

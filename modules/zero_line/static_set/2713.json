@@ -6,20 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 7,
+  "mappedCount": 10,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Half Sashay",
+    {
+      "selection": "Centers",
+      "call": "Half Sashay"
+    },
     "Zoom",
-    "Centers Dosado To A Wave",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Dosado to a Wave"
+    },
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Extend",
     "Spin the Top",
     "Recycle",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Centers Dosado To A Wave\"; Untranslatable: \"Centers Swing Thru\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,12 +6,15 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 3,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
-    "Heads Rollaway",
+    {
+      "selection": "Heads",
+      "call": "Rollaway"
+    },
     "Box the Gnat",
     "1/2 Square Thru"
   ],
-  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \" 1/2 Square Thru\"",
+  "note": "Untranslatable: \" 1/2 Square Thru\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,12 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Four Ladies Chain",
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Head Square Thru",
-    "All Square Thru",
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Bend the Line",
     "Pass Thru",
     "Bend the Line",
@@ -19,6 +25,6 @@
     "Pass Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Head Square Thru,\"; Untranslatable: \"All Square Thru,\"",
+  "note": "Untranslatable: \"Head Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

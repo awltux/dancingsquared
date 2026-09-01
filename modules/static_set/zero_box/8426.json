@@ -4,15 +4,17 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Four Ladies Chain",
-    "Heads Square Thru",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Pass Thru",
     "Trade By"
   ],
-  "note": "Untranslatable: \"Heads Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

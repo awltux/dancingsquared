@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 12,
+  "mappedCount": 13,
   "steps": [
     "Heads Square Thru 4",
     "Touch a Quarter",
@@ -20,9 +20,11 @@
     "Swing Thru",
     "Swing Thru",
     "Girls Trade",
-    "All Star Thru",
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"All Star Thru,\"",
   "source": "ceder.net/choreodb"
 }

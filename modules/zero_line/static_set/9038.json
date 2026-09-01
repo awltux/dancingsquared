@@ -6,17 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Centers In",
     "Ends Cross Fold",
     "First Couple Right",
     "Next Couple Right",
     "Wrong Way Promenade Home"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"First Couple Right\"; Untranslatable: \"Next Couple Right\"; Untranslatable: \"Wrong Way Promenade Home\"",
+  "note": "Untranslatable: \"First Couple Right\"; Untranslatable: \"Next Couple Right\"; Untranslatable: \"Wrong Way Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

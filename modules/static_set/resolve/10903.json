@@ -6,12 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 7,
+  "mappedCount": 11,
   "steps": [
-    "Heads Right & Left Thru & Rollaway",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Pass Thru",
     "Separate Around 1 To A Line",
-    "All Touch 1/4",
+    {
+      "selection": "All",
+      "call": "Touch a Quarter"
+    },
     "Circulate",
     "Boys Run",
     "Swing Thru",
@@ -19,10 +25,16 @@
     "Recycle",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Square Thru 3",
-    "All Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru & Rollaway,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Touch 1/4,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"All Pass Thru,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

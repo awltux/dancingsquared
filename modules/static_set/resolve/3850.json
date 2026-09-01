@@ -4,20 +4,22 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 9,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Heads Pass the Ocean",
     "Extend",
     "Hinge",
     "Girls Fold",
-    "Boys Swing Thru",
+    {
+      "selection": "Boys",
+      "call": "Swing Thru"
+    },
     "Extend",
     "Split Circulate",
     "Hinge",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Boys Swing Thru,\"",
   "source": "ceder.net/choreodb"
 }

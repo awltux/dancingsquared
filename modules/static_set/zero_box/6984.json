@@ -4,14 +4,16 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 3,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
-    "Heads Veer Left",
+    {
+      "selection": "Heads",
+      "call": "Veer Left"
+    },
     "Half Tag",
     "Boys Run"
   ],
-  "note": "Untranslatable: \"Heads Veer Left,\"",
   "source": "ceder.net/choreodb"
 }

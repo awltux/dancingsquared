@@ -6,11 +6,14 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "(Lesson 7-07)",
     "Heads Star Thru",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Centers Split Two, Separate Around 1 To A Line",
     "Star Thru",
     "California Twirl",
@@ -19,9 +22,12 @@
     "Couples Trade",
     "Wheel and Deal",
     "Dive Thru",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Allemande Left, Promenade Home"
   ],
-  "note": "Untranslatable: \"(Lesson 7-07),\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"Centers Split Two, Separate Around 1 To A Line,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"Allemande Left, Promenade Home\"",
+  "note": "Untranslatable: \"(Lesson 7-07),\"; Untranslatable: \"Centers Split Two, Separate Around 1 To A Line,\"; Untranslatable: \"Allemande Left, Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

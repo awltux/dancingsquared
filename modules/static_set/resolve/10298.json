@@ -6,19 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 5,
+  "mappedCount": 8,
   "steps": [
     "Heads 1/2 Square Thru",
     "All 1/2 Square Thru",
     "Ends Run",
-    "Centers Square Thru 4, Ends Face In",
-    "Everybody Pass Thru",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Everybody",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Centers In",
     "Pass Thru",
     "3/4 Tag the Line",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All 1/2 Square Thru,\"; Untranslatable: \"Centers Square Thru 4, Ends Face In,\"; Untranslatable: \"Everybody Pass Thru,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All 1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

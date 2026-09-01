@@ -4,16 +4,24 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 5,
   "steps": [
-    "Heads Flutter Wheel",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
     "Star Thru",
     "Zoom",
-    "Centers Flutter Wheel",
-    "Centers Pass Thru"
+    {
+      "selection": "Centers",
+      "call": "Flutterwheel"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    }
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel,\"; Untranslatable: \"Centers Flutter Wheel,\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

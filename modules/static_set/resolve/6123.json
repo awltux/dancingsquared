@@ -6,22 +6,31 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 9,
+  "mappedCount": 12,
   "steps": [
     "Four Ladies Chain",
-    "Heads Flutter Wheel",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
     "Veer Left",
     "Veer Right",
     "Separate Around 1 To Lines",
     "Pass Thru",
     "Wheel and Deal",
-    "Girls Veer Right",
-    "Girls Veer Left",
+    {
+      "selection": "Girls",
+      "call": "Veer Right"
+    },
+    {
+      "selection": "Girls",
+      "call": "Veer Left"
+    },
     "Star Thru",
     "Wheel and Deal",
     "Veer Right",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel,\"; Untranslatable: \"Separate Around 1 To Lines,\"; Untranslatable: \" Girls Veer Right,\"; Untranslatable: \"Girls Veer Left,\"",
+  "note": "Untranslatable: \"Separate Around 1 To Lines,\"",
   "source": "ceder.net/choreodb"
 }

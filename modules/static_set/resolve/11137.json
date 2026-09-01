@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 15,
-  "mappedCount": 11,
+  "mappedCount": 13,
   "steps": [
     "Heads Star Thru And California Twirl",
     "Star Thru",
@@ -14,16 +14,22 @@
     "Bend the Line",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Star Thru",
     "Pass Thru",
     "Bend the Line",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Allemande Left",
     "R.L.G., Promenade Home"
   ],
-  "note": "Untranslatable: \"Heads Star Thru And California Twirl,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"R.L.G., Promenade Home\"",
+  "note": "Untranslatable: \"Heads Star Thru And California Twirl,\"; Untranslatable: \"R.L.G., Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

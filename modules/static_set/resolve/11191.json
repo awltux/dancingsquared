@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 16,
-  "mappedCount": 10,
+  "mappedCount": 12,
   "steps": [
     "(Lesson 7-10)",
     "Heads Square Thru 3",
@@ -17,14 +17,20 @@
     "Flutterwheel",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Slide Thru",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Slide Thru",
+    {
+      "selection": "Centers",
+      "call": "Slide Thru"
+    },
     "Sides Back Away",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 7-10),\"; Untranslatable: \"Separate Around 1 Into The Middle,\"; Untranslatable: \"First Couple Go Left Next Go Right,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"Centers Slide Thru,\"; Untranslatable: \"Sides Back Away,\"",
+  "note": "Untranslatable: \"(Lesson 7-10),\"; Untranslatable: \"Separate Around 1 Into The Middle,\"; Untranslatable: \"First Couple Go Left Next Go Right,\"; Untranslatable: \"Sides Back Away,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,16 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 6,
   "steps": [
     "Veer Left",
-    "Men Trade",
-    "Ladies Trade",
-    "Men Trade",
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
     "Bend the Line",
     "Square Thru 4",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

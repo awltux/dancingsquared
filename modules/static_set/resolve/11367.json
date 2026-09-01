@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
     "(Lesson 12-12)",
     "Heads Pass the Ocean",
@@ -20,9 +20,12 @@
     "Girls Trade",
     "Swing Thru Double",
     "Recycle",
-    "Centers Face In",
+    {
+      "selection": "Centers",
+      "call": "Face In"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 12-12),\"; Untranslatable: \"Swing Thru Double,\"; Untranslatable: \"Centers Face In,\"",
+  "note": "Untranslatable: \"(Lesson 12-12),\"; Untranslatable: \"Swing Thru Double,\"",
   "source": "ceder.net/choreodb"
 }

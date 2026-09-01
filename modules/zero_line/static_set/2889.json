@@ -4,18 +4,32 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 2,
+  "mappedCount": 7,
   "steps": [
-    "Centers Square Thru 4",
-    "Ends Slide Thru",
-    "All Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Ends",
+      "call": "Slide Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Swing Thru"
+    },
     "Girls Trade",
-    "Centers Square Thru 4",
-    "Ends Touch 1/4 & That Girl Run",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Ends",
+      "call": "Touch a Quarter"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Square Thru 4\"; Untranslatable: \"Ends Slide Thru\"; Untranslatable: \"All Swing Thru\"; Untranslatable: \"Centers Square Thru 4\"; Untranslatable: \"Ends Touch 1/4 & That Girl Run\"",
   "source": "ceder.net/choreodb"
 }

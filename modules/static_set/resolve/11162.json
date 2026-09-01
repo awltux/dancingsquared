@@ -6,21 +6,39 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "(Lesson 5-10)",
     "Heads Lead Left",
     "Veer Right",
     "Couples Circulate",
-    "Boys Circulate",
-    "Girls Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Couples Trade",
-    "Girls Circulate",
-    "Boys Circulate",
-    "Couples Circulate One & A Half",
-    "All Bend The Line",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
+    {
+      "selection": "Couples",
+      "call": "Circulate"
+    },
+    {
+      "selection": "All",
+      "call": "Bend the Line"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 5-10),\"; Untranslatable: \"Boys Circulate,\"; Untranslatable: \"Girls Circulate,\"; Untranslatable: \"Girls Circulate,\"; Untranslatable: \"Boys Circulate,\"; Untranslatable: \"Couples Circulate One & A Half,\"; Untranslatable: \"All Bend The Line,\"",
+  "note": "Untranslatable: \"(Lesson 5-10),\"",
   "source": "ceder.net/choreodb"
 }

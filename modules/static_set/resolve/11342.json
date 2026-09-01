@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "(Lesson 10-2)",
     "Heads Star Thru",
@@ -17,9 +17,12 @@
     "First Couple Go Left Next Go Right",
     "Pass Thru, Wheel & Deal",
     "Zoom",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "L.A., R.L.G"
   ],
-  "note": "Untranslatable: \"(Lesson 10-2),\"; Untranslatable: \"First Couple Go Left Next Go Right,\"; Untranslatable: \"Pass Thru, Wheel & Deal,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"L.A., R.L.G\"",
+  "note": "Untranslatable: \"(Lesson 10-2),\"; Untranslatable: \"First Couple Go Left Next Go Right,\"; Untranslatable: \"Pass Thru, Wheel & Deal,\"; Untranslatable: \"L.A., R.L.G\"",
   "source": "ceder.net/choreodb"
 }

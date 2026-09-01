@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 19,
-  "mappedCount": 16,
+  "mappedCount": 17,
   "steps": [
     "(Lesson 12-02)",
-    "Heads Square Thru",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Touch a Quarter",
     "Scoot Back",
     "Hinge",
@@ -28,6 +31,6 @@
     "Slide Thru",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 12-02),\"; Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"R.L.G. On The 3rd Hand Box The Gnat,\"",
+  "note": "Untranslatable: \"(Lesson 12-02),\"; Untranslatable: \"R.L.G. On The 3rd Hand Box The Gnat,\"",
   "source": "ceder.net/choreodb"
 }

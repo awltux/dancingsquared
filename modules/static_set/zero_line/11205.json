@@ -4,16 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
-    "Heads Reverse Flutter Wheel & Pass The Ocean",
+    {
+      "selection": "Heads",
+      "call": "Reverse Flutterwheel"
+    },
     "Extend",
     "Split Circulate",
     "Swing Thru",
     "Boys Run"
   ],
-  "note": "Untranslatable: \"Heads Reverse Flutter Wheel & Pass The Ocean,\"",
   "source": "ceder.net/choreodb"
 }

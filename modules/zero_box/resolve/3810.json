@@ -6,18 +6,23 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Right and Left Thru",
     "Veer Left",
     "Couples Circulate",
-    "Boys Zoom",
+    {
+      "selection": "Boys",
+      "call": "Zoom"
+    },
     "Girls Trade",
     "Ferris Wheel",
     "Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Boys Zoom\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

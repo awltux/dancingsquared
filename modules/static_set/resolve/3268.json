@@ -4,17 +4,19 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 6,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Heads Square Thru 4",
-    "All Box The Gnat",
+    {
+      "selection": "All",
+      "call": "Box the Gnat"
+    },
     "Square Thru 4",
     "Bend the Line",
     "Square Thru 4",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"All Box The Gnat,\"",
   "source": "ceder.net/choreodb"
 }

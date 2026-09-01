@@ -6,11 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
-    "Heads Rollaway",
+    {
+      "selection": "Heads",
+      "call": "Rollaway"
+    },
     "All Join Hands, Circle Left",
-    "Boys Square Thru 4",
+    {
+      "selection": "Boys",
+      "call": "Square Thru 4"
+    },
     "Dosado to a Wave",
     "Circulate",
     "Scoot Back",
@@ -19,6 +25,6 @@
     "Boys Run",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"All Join Hands, Circle Left,\"; Untranslatable: \"Boys Square Thru 4,\"",
+  "note": "Untranslatable: \"All Join Hands, Circle Left,\"",
   "source": "ceder.net/choreodb"
 }

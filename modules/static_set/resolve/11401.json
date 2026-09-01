@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 19,
-  "mappedCount": 13,
+  "mappedCount": 15,
   "steps": [
     "(Lesson 11-14)",
     "Heads Square Thru 4",
@@ -16,18 +16,24 @@
     "Center Couples Trade",
     "Couples Hinge",
     "Ferris Wheel",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Right and Left Thru",
     "Veer Left",
     "Couples Hinge",
     "Center Couples Trade",
     "Couples Hinge",
     "Ferris Wheel",
-    "Centers Veer Left, Centers Veer Right",
+    {
+      "selection": "Centers",
+      "call": "Veer Left"
+    },
     "Left Box The Gnat",
     "Left Pull By",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"(Lesson 11-14),\"; Untranslatable: \"Center Couples Trade,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Center Couples Trade,\"; Untranslatable: \"Centers Veer Left, Centers Veer Right,\"; Untranslatable: \"Left Box The Gnat,\"",
+  "note": "Untranslatable: \"(Lesson 11-14),\"; Untranslatable: \"Center Couples Trade,\"; Untranslatable: \"Center Couples Trade,\"; Untranslatable: \"Left Box The Gnat,\"",
   "source": "ceder.net/choreodb"
 }

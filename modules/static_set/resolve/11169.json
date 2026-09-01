@@ -6,26 +6,38 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 17,
-  "mappedCount": 11,
+  "mappedCount": 15,
   "steps": [
     "(Lesson 5-05)",
     "Heads Square Thru 2",
     "Dosado",
     "Veer Left",
     "Veer Right",
-    "Centers Veer Right",
+    {
+      "selection": "Centers",
+      "call": "Veer Right"
+    },
     "Outside 4 California Twirl",
-    "Centers Veer Left",
-    "All Veer Left",
+    {
+      "selection": "Centers",
+      "call": "Veer Left"
+    },
+    {
+      "selection": "All",
+      "call": "Veer Left"
+    },
     "Couples Circulate",
     "Girls Trade",
     "Bend the Line",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Allemande Left",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"(Lesson 5-05),\"; Untranslatable: \"Centers Veer Right,\"; Untranslatable: \"Outside 4 California Twirl,\"; Untranslatable: \"Centers Veer Left,\"; Untranslatable: \"All Veer Left,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"(Lesson 5-05),\"; Untranslatable: \"Outside 4 California Twirl,\"",
   "source": "ceder.net/choreodb"
 }

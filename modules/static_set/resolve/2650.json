@@ -6,14 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
     "Allemande Left, Alamo Style, Balance",
-    "Heads Scoot Back",
-    "Sides Scoot Back",
+    {
+      "selection": "Heads",
+      "call": "Scoot Back"
+    },
+    {
+      "selection": "Sides",
+      "call": "Scoot Back"
+    },
     "Boys Run",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Allemande Left, Alamo Style, Balance,\"; Untranslatable: \"Heads Scoot Back,\"; Untranslatable: \"Sides Scoot Back,\"",
+  "note": "Untranslatable: \"Allemande Left, Alamo Style, Balance,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,16 +6,22 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Right and Left Thru",
     "Dive Thru",
-    "Centers Flutter Wheel",
+    {
+      "selection": "Centers",
+      "call": "Flutterwheel"
+    },
     "Pass Thru",
     "Dive Thru",
-    "Centers Reverse Flutter Wheel",
+    {
+      "selection": "Centers",
+      "call": "Reverse Flutterwheel"
+    },
     "Pass Thru (Zero Box) This is a Technical Zero."
   ],
-  "note": "Untranslatable: \"Centers Flutter Wheel\"; Untranslatable: \"Centers Reverse Flutter Wheel\"; Untranslatable: \"Pass Thru (Zero Box) This is a Technical Zero.\"",
+  "note": "Untranslatable: \"Pass Thru (Zero Box) This is a Technical Zero.\"",
   "source": "ceder.net/choreodb"
 }

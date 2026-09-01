@@ -6,14 +6,23 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 1,
+  "mappedCount": 4,
   "steps": [
     "Four Ladies Chain 3/4",
-    "Head Position Pass Thru",
+    {
+      "selection": "Head Position",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
-    "Centers Box The Gnat",
-    "All Right & Left Thru"
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "All",
+      "call": "Right and Left Thru"
+    }
   ],
-  "note": "Untranslatable: \"Head Position Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \"All Right & Left Thru\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

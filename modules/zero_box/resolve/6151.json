@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Touch a Quarter",
     "Scoot Back",
@@ -15,11 +15,14 @@
     "First Couple Go Left",
     "Next Couple Go Right",
     "Star Thru",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Pass Thru",
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"First Couple Go Left\"; Untranslatable: \"Next Couple Go Right\"; Untranslatable: \"Centers Square Thru 3\"",
+  "note": "Untranslatable: \"First Couple Go Left\"; Untranslatable: \"Next Couple Go Right\"",
   "source": "ceder.net/choreodb"
 }

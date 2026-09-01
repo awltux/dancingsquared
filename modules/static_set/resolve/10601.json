@@ -6,19 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Ladies Chain",
     "1/2 Square Thru",
     "Swing Thru",
-    "Ladies U-Turn Back",
+    {
+      "selection": "Ladies",
+      "call": "U-Turn Back"
+    },
     "Couples Circulate",
     "Bend the Line",
     "Star Thru",
     "Pass Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" 1/2 Square Thru,\"; Untranslatable: \"Ladies U-Turn Back,\"",
+  "note": "Untranslatable: \" 1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

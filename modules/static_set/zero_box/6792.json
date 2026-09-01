@@ -6,14 +6,20 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
     "4 Ladies Chain 3/4",
-    "Head Position Circle Left 3/4",
-    "Centers Pass Thru",
+    {
+      "selection": "Head Position",
+      "call": "Circle Left 3/4"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Star Thru",
     "Each Side Circle Left 3/4"
   ],
-  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"Head Position Circle Left 3/4,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Each Side Circle Left 3/4\"",
+  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"Each Side Circle Left 3/4\"",
   "source": "ceder.net/choreodb"
 }

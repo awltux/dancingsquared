@@ -6,12 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 3,
-  "mappedCount": 0,
+  "mappedCount": 2,
   "steps": [
-    "Heads Flutter Wheel",
-    "Same 4 Lead Right",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Lead Right"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel,\"; Untranslatable: \" Same 4 Lead Right,\"",
   "source": "ceder.net/choreodb"
 }

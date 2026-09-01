@@ -6,15 +6,27 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 1,
+  "mappedCount": 5,
   "steps": [
     "Heads Star Thru, All Zoom",
-    "Centers Right & Left Thru, All Zoom",
-    "Centers Right & Left Thru, All Zoom",
-    "Centers Right & Left Thru, All Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads Star Thru, All Zoom,\"; Untranslatable: \"Centers Right & Left Thru, All Zoom,\"; Untranslatable: \"Centers Right & Left Thru, All Zoom,\"; Untranslatable: \"Centers Right & Left Thru, All Zoom,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"Heads Star Thru, All Zoom,\"",
   "source": "ceder.net/choreodb"
 }

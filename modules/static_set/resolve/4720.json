@@ -14,10 +14,13 @@
     "Box the Gnat",
     "Square Thru 3",
     "Wheel and Deal",
-    "Centers Sweep 1/4 & Backaway",
+    {
+      "selection": "Centers",
+      "call": "Sweep a Quarter"
+    },
     "Others Lead Right",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \" Centers Sweep 1/4 & Backaway,\"; Untranslatable: \"Others Lead Right,\"",
+  "note": "Untranslatable: \"Others Lead Right,\"",
   "source": "ceder.net/choreodb"
 }

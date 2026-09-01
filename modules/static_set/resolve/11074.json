@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 12,
+  "mappedCount": 13,
   "steps": [
     "(Lesson 8-15 SAV).",
     "Heads Lead Right",
@@ -16,13 +16,16 @@
     "Bend the Line",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Veer Right & Veer Left",
+    {
+      "selection": "Centers",
+      "call": "Veer Right"
+    },
     "Step to a Wave",
     "Swing Thru",
     "Boys Run",
     "Partner Trade",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 8-15 SAV).,\"; Untranslatable: \"Centers Veer Right & Veer Left,\"",
+  "note": "Untranslatable: \"(Lesson 8-15 SAV).,\"",
   "source": "ceder.net/choreodb"
 }

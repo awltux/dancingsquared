@@ -6,14 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 0,
+  "mappedCount": 2,
   "steps": [
     "Just The Centers Box The Gnat",
-    "Same Four Square Thru",
+    {
+      "selection": "Same Four",
+      "call": "Square Thru 4"
+    },
     "Just The Ends Star Thru",
-    "Everyone Square Thru 3/4",
+    {
+      "selection": "Everyone",
+      "call": "Square Thru 4"
+    },
     "Left Allemande After the Square Thru 3/4 the Formation TdBy (0)"
   ],
-  "note": "Untranslatable: \"Just The Centers Box The Gnat\"; Untranslatable: \"Same Four Square Thru\"; Untranslatable: \"Just The Ends Star Thru\"; Untranslatable: \"Everyone Square Thru 3/4\"; Untranslatable: \"Left Allemande After the Square Thru 3/4 the Formation TdBy (0)\"",
+  "note": "Untranslatable: \"Just The Centers Box The Gnat\"; Untranslatable: \"Just The Ends Star Thru\"; Untranslatable: \"Left Allemande After the Square Thru 3/4 the Formation TdBy (0)\"",
   "source": "ceder.net/choreodb"
 }

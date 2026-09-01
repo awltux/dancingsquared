@@ -6,16 +6,22 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Same Ladies Chain & Rollaway",
     "Circle Eight",
-    "Four Men Forward & Back",
+    {
+      "selection": "Four Men",
+      "call": "Forward and Back"
+    },
     "Square Thru 4",
     "Both Turn Right Single File",
     "First Around Two, Next Around 1 To A Line"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" Same Ladies Chain & Rollaway,\"; Untranslatable: \"Circle Eight,\"; Untranslatable: \"Four Men Forward & Back,\"; Untranslatable: \"Both Turn Right Single File,\"; Untranslatable: \" First Around Two, Next Around 1 To A Line\"",
+  "note": "Untranslatable: \" Same Ladies Chain & Rollaway,\"; Untranslatable: \"Circle Eight,\"; Untranslatable: \"Both Turn Right Single File,\"; Untranslatable: \" First Around Two, Next Around 1 To A Line\"",
   "source": "ceder.net/choreodb"
 }

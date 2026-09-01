@@ -6,13 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Dive Thru",
     "Zoom",
-    "Centers Square Thru 3/4",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Square Thru 3/4\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

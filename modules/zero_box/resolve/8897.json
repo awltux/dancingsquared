@@ -6,16 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 6,
   "steps": [
     "Right and Left Thru",
     "Slide Thru",
-    "Ends Box The Gnat",
-    "Everybody Square Thru",
-    "Centers Square Thru 3/4",
+    {
+      "selection": "Ends",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "Everybody",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
     "Outsides U-Turn Back (ZB)",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Ends Box The Gnat\"; Untranslatable: \"Everybody Square Thru\"; Untranslatable: \"Centers Square Thru 3/4\"; Untranslatable: \"Outsides U-Turn Back (ZB)\"",
+  "note": "Untranslatable: \"Outsides U-Turn Back (ZB)\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,15 +6,23 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 2,
+  "mappedCount": 5,
   "steps": [
     "Right and Left Thru",
     "Half Sashay",
-    "Centers Square Thru 4",
-    "Ends Touch 1/4 & That Boy Run Right",
-    "All Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Ends",
+      "call": "Touch a Quarter"
+    },
+    {
+      "selection": "All",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Square Thru 4\"; Untranslatable: \"Ends Touch 1/4 & That Boy Run Right\"; Untranslatable: \"All Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

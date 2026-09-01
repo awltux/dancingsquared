@@ -4,15 +4,17 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
-    "Heads Square Thru 3/4",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Courtesy Turn",
     "Flutterwheel",
     "Pass Thru"
   ],
-  "note": "Untranslatable: \"Heads Square Thru 3/4,\"",
   "source": "ceder.net/choreodb"
 }

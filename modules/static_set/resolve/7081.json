@@ -6,18 +6,27 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 1,
+  "mappedCount": 4,
   "steps": [
-    "Heads Flutter Wheel & Backaway",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
     "Head Ladies Chain",
     "Lines Of Three Pass Thru",
-    "Ladies U-Turn Back",
+    {
+      "selection": "Ladies",
+      "call": "U-Turn Back"
+    },
     "Waves Of 3 Swing Thru",
     "Center Ladies U-Turn Back",
-    "All Circle Left",
+    {
+      "selection": "All",
+      "call": "Circle Left"
+    },
     "4 Men Left Square Thru 4",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel & Backaway,\"; Untranslatable: \"Lines Of Three Pass Thru,\"; Untranslatable: \"Ladies U-Turn Back,\"; Untranslatable: \"Waves Of 3 Swing Thru,\"; Untranslatable: \"Center Ladies U-Turn Back,\"; Untranslatable: \"All Circle Left,\"; Untranslatable: \"4 Men Left Square Thru 4,\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Lines Of Three Pass Thru,\"; Untranslatable: \"Waves Of 3 Swing Thru,\"; Untranslatable: \"Center Ladies U-Turn Back,\"; Untranslatable: \"4 Men Left Square Thru 4,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

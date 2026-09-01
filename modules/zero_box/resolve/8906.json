@@ -6,15 +6,23 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Step to a Wave",
-    "Ladies Trade",
-    "Ladies Circulate",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Circulate"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Ladies Trade\"; Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Ladies Trade\"",
   "source": "ceder.net/choreodb"
 }

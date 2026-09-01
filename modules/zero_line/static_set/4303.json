@@ -10,13 +10,16 @@
   "steps": [
     "Spin the Top",
     "Scoot Back",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Swing Thru",
     "Boys Run",
     "Bend the Line",
     "Square Thru 4",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,18 +6,23 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Pass the Ocean",
     "Swing Thru",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Run",
     "Chain Down the Line",
     "Pass Thru",
     "Tag the Line",
-    "Ends U-Turn Back",
+    {
+      "selection": "Ends",
+      "call": "U-Turn Back"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"; Untranslatable: \"Ends U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

@@ -10,12 +10,14 @@
   "steps": [
     "Swing Thru",
     "Scoot Back",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Girls Trade",
     "Box the Gnat",
     "Square Thru 4",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Boys Circulate\"",
   "source": "ceder.net/choreodb"
 }

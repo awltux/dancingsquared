@@ -6,15 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
-    "Heads Square Thru",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Swing Thru",
     "Boys Run",
-    "Boys U-Turn Back",
+    {
+      "selection": "Boys",
+      "call": "U-Turn Back"
+    },
     "Left Swing Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"Boys U-Turn Back,\"",
   "source": "ceder.net/choreodb"
 }

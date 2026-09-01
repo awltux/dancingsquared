@@ -6,17 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
-    "Heads Flutter Wheel, Sweep 1/4",
-    "Centers Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Dosado to a Wave",
     "Girls Trade, Girls Run",
-    "Girls Circulate, Girls Run",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Girls Trade, Girls Run",
-    "Girls Circulate, Girls Fold",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel, Sweep 1/4,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Girls Trade, Girls Run,\"; Untranslatable: \"Girls Circulate, Girls Run,\"; Untranslatable: \"Girls Trade, Girls Run,\"; Untranslatable: \"Girls Circulate, Girls Fold,\"",
+  "note": "Untranslatable: \"Girls Trade, Girls Run,\"; Untranslatable: \"Girls Trade, Girls Run,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,14 +6,17 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Pass Thru",
     "Outsides Courtesy Turn",
     "Centers Circle 1/2",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "All Pass Thru & Courtesy Turn (The One Beside You)"
   ],
-  "note": "Untranslatable: \"Outsides Courtesy Turn\"; Untranslatable: \"Centers Circle 1/2\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"All Pass Thru & Courtesy Turn (The One Beside You)\"",
+  "note": "Untranslatable: \"Outsides Courtesy Turn\"; Untranslatable: \"Centers Circle 1/2\"; Untranslatable: \"All Pass Thru & Courtesy Turn (The One Beside You)\"",
   "source": "ceder.net/choreodb"
 }

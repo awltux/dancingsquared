@@ -6,13 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Heads Promenade 1/2",
     "Come Down The Middle & Square Thru 4",
     "Right and Left Thru",
     "Veer Left",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Bend the Line",
     "Pass Thru",
     "U-Turn Back",
@@ -20,6 +23,6 @@
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \" Come Down The Middle & Square Thru 4,\"; Untranslatable: \"Ladies Trade,\"",
+  "note": "Untranslatable: \" Come Down The Middle & Square Thru 4,\"",
   "source": "ceder.net/choreodb"
 }

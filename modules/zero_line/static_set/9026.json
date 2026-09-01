@@ -6,17 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Pass the Ocean",
     "Split Circulate",
-    "Centers Box Circulate",
+    {
+      "selection": "Centers",
+      "call": "Box Circulate"
+    },
     "All Men Run",
     "Star Thru",
     "Right and Left Thru",
     "Left Allemande After the Right & Left Thru",
     "this is a ZL-ZB Conversion Module."
   ],
-  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"All Men Run\"; Untranslatable: \"Left Allemande After the Right & Left Thru\"; Untranslatable: \"this is a ZL-ZB Conversion Module.\"",
+  "note": "Untranslatable: \"All Men Run\"; Untranslatable: \"Left Allemande After the Right & Left Thru\"; Untranslatable: \"this is a ZL-ZB Conversion Module.\"",
   "source": "ceder.net/choreodb"
 }

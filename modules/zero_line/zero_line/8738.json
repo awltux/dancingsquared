@@ -6,16 +6,19 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Touch a Quarter",
     "Single File Circulate",
-    "All Trade",
+    {
+      "selection": "All",
+      "call": "Trade"
+    },
     "Single File Circulate",
     "Men Run",
     "Star Thru",
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"Single File Circulate\"; Untranslatable: \"All Trade\"; Untranslatable: \"Single File Circulate\"; Untranslatable: \"Men Run\"",
+  "note": "Untranslatable: \"Single File Circulate\"; Untranslatable: \"Single File Circulate\"; Untranslatable: \"Men Run\"",
   "source": "ceder.net/choreodb"
 }

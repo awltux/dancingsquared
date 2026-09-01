@@ -6,20 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Heads Lead Right",
-    "All Right & Left Thru",
+    {
+      "selection": "All",
+      "call": "Right and Left Thru"
+    },
     "Veer Left",
     "Half Tag",
     "Hinge",
     "Girls Run",
-    "Couples Circulate Two Times",
+    {
+      "selection": "Couples",
+      "call": "Circulate"
+    },
     "Half Tag",
     "Hinge",
-    "Girls U-Turn Back",
+    {
+      "selection": "Girls",
+      "call": "U-Turn Back"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"Couples Circulate Two Times,\"; Untranslatable: \"Girls U-Turn Back,\"",
   "source": "ceder.net/choreodb"
 }

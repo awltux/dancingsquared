@@ -6,18 +6,24 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
     "Heads Promenade 1/2",
     "Sides Right And Left Thru & Rollaway & Backaway",
-    "Heads Right And Left Thru",
-    "Heads Ladies Chain",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Heads",
+      "call": "Ladies Chain"
+    },
     "Heads Ladies Chain 3/4 (Side boy courtesy turn)",
     "Lines Of 3: Boys Touch 1/4",
     "Girls Left Touch 1/4",
     "Bow To Your Corner (or allemande left)",
     "(Home)"
   ],
-  "note": "Untranslatable: \"Sides Right And Left Thru & Rollaway & Backaway,\"; Untranslatable: \"Heads Right And Left Thru,\"; Untranslatable: \"Heads Ladies Chain,\"; Untranslatable: \"Heads Ladies Chain 3/4 (Side boy courtesy turn),\"; Untranslatable: \"Lines Of 3: Boys Touch 1/4,\"; Untranslatable: \"Girls Left Touch 1/4,\"; Untranslatable: \"Bow To Your Corner (or allemande left),\"; Untranslatable: \"(Home)\"",
+  "note": "Untranslatable: \"Sides Right And Left Thru & Rollaway & Backaway,\"; Untranslatable: \"Heads Ladies Chain 3/4 (Side boy courtesy turn),\"; Untranslatable: \"Lines Of 3: Boys Touch 1/4,\"; Untranslatable: \"Girls Left Touch 1/4,\"; Untranslatable: \"Bow To Your Corner (or allemande left),\"; Untranslatable: \"(Home)\"",
   "source": "ceder.net/choreodb"
 }

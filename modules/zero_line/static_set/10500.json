@@ -6,19 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Pass Thru",
     "Partner Hinge",
     "Girls Trade",
     "Girls Run",
-    "Men Trade",
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
     "Bend the Line",
     "Circle 4 Halfway",
     "Pass Thru",
     "Partner Hinge",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Circle 4 Halfway\"",
+  "note": "Untranslatable: \"Circle 4 Halfway\"",
   "source": "ceder.net/choreodb"
 }

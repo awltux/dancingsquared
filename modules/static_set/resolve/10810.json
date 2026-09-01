@@ -6,23 +6,35 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 9,
+  "mappedCount": 13,
   "steps": [
     "Heads Square Thru 4",
     "Right and Left Thru",
     "Veer Left",
     "Ferris Wheel",
-    "Boys (only) Zoom",
+    {
+      "selection": "Boys",
+      "call": "Zoom"
+    },
     "Centers Swing Thru Double",
     "Extend",
     "Centers Trade",
     "Centers Run",
     "Ferris Wheel",
-    "Girls (only) Zoom",
-    "Centers Pass Thru",
-    "Everybody Pass Thru",
+    {
+      "selection": "Girls",
+      "call": "Zoom"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Everybody",
+      "call": "Pass Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Boys (only) Zoom,\"; Untranslatable: \"Centers Swing Thru Double,\"; Untranslatable: \"Girls (only) Zoom,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Everybody Pass Thru,\"",
+  "note": "Untranslatable: \"Centers Swing Thru Double,\"",
   "source": "ceder.net/choreodb"
 }

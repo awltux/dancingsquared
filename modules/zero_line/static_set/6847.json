@@ -4,14 +4,22 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 3,
-  "mappedCount": 0,
+  "mappedCount": 3,
   "steps": [
-    "Centers Square Thru 4",
-    "Ends Allemande Left",
-    "Everybody Right & Left Grand"
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Ends",
+      "call": "Allemande Left"
+    },
+    {
+      "selection": "Everybody",
+      "call": "Right and Left Grand"
+    }
   ],
-  "note": "Untranslatable: \"Centers Square Thru 4\"; Untranslatable: \"Ends Allemande Left\"; Untranslatable: \"Everybody Right & Left Grand\"",
   "source": "ceder.net/choreodb"
 }

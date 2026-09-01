@@ -6,12 +6,15 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 3,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
-    "Heads Circle Left 3/4",
+    {
+      "selection": "Heads",
+      "call": "Circle Left 3/4"
+    },
     "Double Pass Thru",
     "First Couple Right, Next Couple Left"
   ],
-  "note": "Untranslatable: \"Heads Circle Left 3/4,\"; Untranslatable: \"First Couple Right, Next Couple Left\"",
+  "note": "Untranslatable: \"First Couple Right, Next Couple Left\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,7 +6,7 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Outsides Half Sashay",
     "Swing Thru",
@@ -14,8 +14,11 @@
     "Pass Thru",
     "Wheel and Deal",
     "Double Pass Thru",
-    "Leaders Trade"
+    {
+      "selection": "Leaders",
+      "call": "Trade"
+    }
   ],
-  "note": "Untranslatable: \"Outsides Half Sashay\"; Untranslatable: \"Leaders Trade\"",
+  "note": "Untranslatable: \"Outsides Half Sashay\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Four Ladies Chain",
-    "Heads Square Thru, Sides Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Swing Thru",
     "Centers Run",
     "Ferris Wheel",
@@ -18,6 +21,5 @@
     "Slide Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Square Thru, Sides Half Sashay,\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,17 +4,19 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 6,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Right and Left Thru",
     "Pass Thru",
     "Centers Trade",
     "Cast Off Three Quarters",
-    "Ends Pass Thru",
+    {
+      "selection": "Ends",
+      "call": "Pass Thru"
+    },
     "Partner Trade"
   ],
-  "note": "Untranslatable: \"Ends Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

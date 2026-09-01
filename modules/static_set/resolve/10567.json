@@ -16,9 +16,11 @@
     "Pass Thru",
     "Girls Trade",
     "Cast Off Three Quarters",
-    "Girls Circulate Twice",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Girls Circulate Twice,\"",
   "source": "ceder.net/choreodb"
 }

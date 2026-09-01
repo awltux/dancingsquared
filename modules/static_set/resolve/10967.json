@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
-    "Heads Square Thru",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Swing Thru",
     "Girls Cross Fold",
     "Star Thru, California Twirl",
@@ -20,6 +23,6 @@
     "Slide Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"Girls Cross Fold,\"; Untranslatable: \"Star Thru, California Twirl,\"; Untranslatable: \"Boys Cross Fold,\"",
+  "note": "Untranslatable: \"Girls Cross Fold,\"; Untranslatable: \"Star Thru, California Twirl,\"; Untranslatable: \"Boys Cross Fold,\"",
   "source": "ceder.net/choreodb"
 }

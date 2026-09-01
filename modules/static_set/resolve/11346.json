@@ -9,7 +9,10 @@
   "mappedCount": 5,
   "steps": [
     "(Lesson 10-6)",
-    "Heads Promenade Halfway",
+    {
+      "selection": "Heads",
+      "call": "All 4 Couples Promenade"
+    },
     "Into The Middle And Pass The Ocean",
     "Extend",
     "Swing Thru",
@@ -18,6 +21,6 @@
     "Centers Star Thru And Back Away",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 10-6),\"; Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Into The Middle And Pass The Ocean,\"; Untranslatable: \"Centers Star Thru And Back Away,\"",
+  "note": "Untranslatable: \"(Lesson 10-6),\"; Untranslatable: \"Into The Middle And Pass The Ocean,\"; Untranslatable: \"Centers Star Thru And Back Away,\"",
   "source": "ceder.net/choreodb"
 }

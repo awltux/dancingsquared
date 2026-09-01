@@ -6,13 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 18,
-  "mappedCount": 12,
+  "mappedCount": 15,
   "steps": [
     "(Lesson 8-07)",
-    "Heads Right & Left Thru",
-    "Same 4 Flutter Wheel",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Flutterwheel"
+    },
     "Heads Star Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Dosado to a Wave",
     "Swing Thru",
     "Boys Trade",
@@ -21,12 +30,15 @@
     "Chain Down the Line",
     "Slide Thru",
     "Swing Thru",
-    "Girls Circulate, Boys Trade",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Run",
     "Bend the Line",
     "Square Thru 4",
     "R.L.G., Promenade Home"
   ],
-  "note": "Untranslatable: \"(Lesson 8-07),\"; Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Same 4 Flutter Wheel,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Girls Circulate, Boys Trade,\"; Untranslatable: \"R.L.G., Promenade Home\"",
+  "note": "Untranslatable: \"(Lesson 8-07),\"; Untranslatable: \"R.L.G., Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

@@ -9,11 +9,13 @@
   "mappedCount": 4,
   "steps": [
     "Swing Thru",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Spin the Top",
     "Recycle",
     "Reverse Flutterwheel"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"",
   "source": "ceder.net/choreodb"
 }

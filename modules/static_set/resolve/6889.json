@@ -9,13 +9,19 @@
   "mappedCount": 1,
   "steps": [
     "Allemande Left & The Ladies Star",
-    "Men Promenade",
+    {
+      "selection": "Men",
+      "call": "All 4 Couples Promenade"
+    },
     "Allemande Left & The Men Star",
-    "Ladies Promenade",
+    {
+      "selection": "Ladies",
+      "call": "All 4 Couples Promenade"
+    },
     "Allemande Left",
     "Grand Right & Left",
     "(Meet Your Partner And) Promenade Home"
   ],
-  "note": "Untranslatable: \"Allemande Left & The Ladies Star,\"; Untranslatable: \"Men Promenade,\"; Untranslatable: \"Allemande Left & The Men Star,\"; Untranslatable: \"Ladies Promenade,\"; Untranslatable: \"Grand Right & Left,\"; Untranslatable: \"(Meet Your Partner And) Promenade Home\"",
+  "note": "Untranslatable: \"Allemande Left & The Ladies Star,\"; Untranslatable: \"Allemande Left & The Men Star,\"; Untranslatable: \"Grand Right & Left,\"; Untranslatable: \"(Meet Your Partner And) Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

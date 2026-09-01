@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Four Ladies Chain",
     "Circle Left",
@@ -15,10 +15,13 @@
     "Heads Wheel Around",
     "1/2 Square Thru",
     "Centers 1/2 Square Thru",
-    "All U-Turn Back",
+    {
+      "selection": "All",
+      "call": "U-Turn Back"
+    },
     "Circle Left",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"Centers 1/2 Square Thru,\"; Untranslatable: \"All U-Turn Back,\"",
+  "note": "Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"Centers 1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

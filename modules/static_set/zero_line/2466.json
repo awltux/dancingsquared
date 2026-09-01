@@ -6,14 +6,17 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Four Ladies Chain 3/4",
     "Rollaway",
-    "Head Position Square Thru",
+    {
+      "selection": "Head Position",
+      "call": "Square Thru 4"
+    },
     "Split The Outside Two",
     "Around One to a Line"
   ],
-  "note": "Untranslatable: \"Head Position Square Thru,\"; Untranslatable: \"Split The Outside Two,\"",
+  "note": "Untranslatable: \"Split The Outside Two,\"",
   "source": "ceder.net/choreodb"
 }

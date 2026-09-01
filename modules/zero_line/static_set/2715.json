@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 9,
+  "mappedCount": 10,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
@@ -15,12 +15,15 @@
     "Cast Off Three Quarters",
     "Forward and Back",
     "Centers Swing Thru & Single Hinge",
-    "Ends Touch 1/4",
+    {
+      "selection": "Ends",
+      "call": "Touch a Quarter"
+    },
     "All 8 Circulate",
     "Boys Run",
     "Square Thru 4",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru & Single Hinge\"; Untranslatable: \"Ends Touch 1/4\"",
+  "note": "Untranslatable: \"Centers Swing Thru & Single Hinge\"",
   "source": "ceder.net/choreodb"
 }

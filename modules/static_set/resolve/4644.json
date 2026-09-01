@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 10,
-  "mappedCount": 9,
+  "mappedCount": 10,
   "steps": [
     "Heads Lead Right",
     "Touch a Quarter",
@@ -14,11 +14,13 @@
     "Centers Trade",
     "Split Circulate",
     "Centers Trade",
-    "All Scoot Back",
+    {
+      "selection": "All",
+      "call": "Scoot Back"
+    },
     "Hinge",
     "Boys Run",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"All Scoot Back,\"",
   "source": "ceder.net/choreodb"
 }

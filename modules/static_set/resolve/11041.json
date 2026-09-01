@@ -6,17 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 3,
+  "mappedCount": 6,
   "steps": [
-    "Heads Half Sashay",
-    "All Circle Left",
+    {
+      "selection": "Heads",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "All",
+      "call": "Circle Left"
+    },
     "Circle Left",
     "Ladies Face Each Other",
     "Grand Square",
-    "Ladies Square Thru",
+    {
+      "selection": "Ladies",
+      "call": "Square Thru 4"
+    },
     "Swing",
     "All 4 Couples Promenade"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"All Circle Left,\"; Untranslatable: \"Ladies Face Each Other,\"; Untranslatable: \"Ladies Square Thru,\"",
+  "note": "Untranslatable: \"Ladies Face Each Other,\"",
   "source": "ceder.net/choreodb"
 }

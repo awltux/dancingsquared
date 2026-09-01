@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Split Two",
     "Around One to a Line",
-    "All Box The Gnat",
+    {
+      "selection": "All",
+      "call": "Box the Gnat"
+    },
     "Pull By",
     "Allemande Left Lines of four facing out."
   ],
-  "note": "Untranslatable: \"All Box The Gnat\"; Untranslatable: \"Pull By\"; Untranslatable: \"Allemande Left Lines of four facing out.\"",
+  "note": "Untranslatable: \"Pull By\"; Untranslatable: \"Allemande Left Lines of four facing out.\"",
   "source": "ceder.net/choreodb"
 }

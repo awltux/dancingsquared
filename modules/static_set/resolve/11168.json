@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 16,
-  "mappedCount": 11,
+  "mappedCount": 13,
   "steps": [
     "(Lesson 5-04)",
     "Heads Lead Left",
@@ -20,11 +20,17 @@
     "Two Ladies Chain",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru",
-    "All Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Left Allemande",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"(Lesson 5-04),\"; Untranslatable: \"Two Ladies Chain,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"All Pass Thru,\"",
+  "note": "Untranslatable: \"(Lesson 5-04),\"; Untranslatable: \"Two Ladies Chain,\"",
   "source": "ceder.net/choreodb"
 }

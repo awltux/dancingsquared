@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "(Lesson 9-06)",
-    "Heads Reverse Flutter Wheel",
+    {
+      "selection": "Heads",
+      "call": "Reverse Flutterwheel"
+    },
     "Heads Lead Left",
     "Veer Right",
     "Couples Circulate",
@@ -22,6 +25,6 @@
     "Centers Star Thru & Backaway",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 9-06),\"; Untranslatable: \"Heads Reverse Flutter Wheel,\"; Untranslatable: \"Centers Star Thru & Backaway,\"",
+  "note": "Untranslatable: \"(Lesson 9-06),\"; Untranslatable: \"Centers Star Thru & Backaway,\"",
   "source": "ceder.net/choreodb"
 }

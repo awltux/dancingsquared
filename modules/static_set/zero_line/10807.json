@@ -4,17 +4,22 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 6,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Heads Promenade 3/4",
-    "Sides Right & Left Thru & Pass Thru",
-    "All Dosado To A Wave",
+    {
+      "selection": "Sides",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Dosado to a Wave"
+    },
     "Swing Thru",
     "Boys Run",
     "Bend the Line"
   ],
-  "note": "Untranslatable: \" Sides Right & Left Thru & Pass Thru,\"; Untranslatable: \"All Dosado To A Wave,\"",
   "source": "ceder.net/choreodb"
 }

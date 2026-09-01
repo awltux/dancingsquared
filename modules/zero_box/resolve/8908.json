@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Swing Thru",
-    "Men Trade",
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
     "Box the Gnat",
     "Change Hands",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Change Hands\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Change Hands\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

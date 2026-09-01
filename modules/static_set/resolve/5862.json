@@ -6,11 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
     "Four Ladies Chain",
-    "Heads Flutter Wheel, Backaway",
-    "Sides Flutter Wheel & Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
+    {
+      "selection": "Sides",
+      "call": "Flutterwheel"
+    },
     "Both Go Right, Single File",
     "Girl Around 2, Boy Around 1 To A Line",
     "Forward and Back",
@@ -19,6 +25,6 @@
     "Centers Right-Hand Star One Full Turn (to face Outsides)",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel, Backaway,\"; Untranslatable: \"Sides Flutter Wheel & Pass Thru,\"; Untranslatable: \"Both Go Right, Single File,\"; Untranslatable: \" Girl Around 2, Boy Around 1 To A Line,\"; Untranslatable: \"Centers Right-Hand Star One Full Turn (to face Outsides),\"",
+  "note": "Untranslatable: \"Both Go Right, Single File,\"; Untranslatable: \" Girl Around 2, Boy Around 1 To A Line,\"; Untranslatable: \"Centers Right-Hand Star One Full Turn (to face Outsides),\"",
   "source": "ceder.net/choreodb"
 }

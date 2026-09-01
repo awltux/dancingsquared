@@ -6,15 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Heads Square Thru 3",
     "Separate Around 1 To A Line",
     "Star Thru",
     "Double Pass Thru",
-    "Leaders California Twirl",
+    {
+      "selection": "Leaders",
+      "call": "California Twirl"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Leaders California Twirl,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

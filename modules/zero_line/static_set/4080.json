@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
@@ -15,14 +15,20 @@
     "Cast Off Three Quarters",
     "Pass Thru",
     "Wheel and Deal",
-    "Girls Sweep 1/4 & Backaway",
+    {
+      "selection": "Girls",
+      "call": "Sweep a Quarter"
+    },
     "Boys Pass The Ocean & Swing Thru",
     "Extend",
     "Cast Off Three Quarters",
     "Boys Trade",
-    "Girls U-Turn Back",
+    {
+      "selection": "Girls",
+      "call": "U-Turn Back"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Girls Sweep 1/4 & Backaway\"; Untranslatable: \"Boys Pass The Ocean & Swing Thru\"; Untranslatable: \"Girls U-Turn Back\"",
+  "note": "Untranslatable: \"Boys Pass The Ocean & Swing Thru\"",
   "source": "ceder.net/choreodb"
 }

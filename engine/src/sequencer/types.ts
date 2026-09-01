@@ -52,10 +52,20 @@ export interface Fasr {
   relationship: Record<number, FasrRelations>;
 }
 
-/** A user-defined module: a named sequence of calls used as a fix/getout. */
+/** A single call step in a sequence/module, optionally with a dancer selection.
+ * When `selection` is present it names which dancers act (e.g. "Centers", "Heads",
+ * "Boys", "All"); the base `call` then applies to that subset. Absent selection
+ * means the call applies to the whole board. */
+export interface CallStep {
+  selection?: string;
+  call: string;
+}
+
+/** A user-defined module: a named sequence of calls used as a fix/getout. Each
+ * call may carry an optional dancer selection. */
 export interface Module {
   name: string;
-  calls: string[];
+  calls: (string | CallStep)[];
   level?: string;
   tags?: string[];
   notes?: string;

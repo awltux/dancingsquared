@@ -4,16 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
-    "Heads Reverse Flutter Wheel, Sweep 1/4",
+    {
+      "selection": "Heads",
+      "call": "Reverse Flutterwheel"
+    },
     "Flutterwheel",
     "Pass Thru",
     "Flutterwheel",
     "Reverse Flutterwheel"
   ],
-  "note": "Untranslatable: \"Heads Reverse Flutter Wheel, Sweep 1/4,\"",
   "source": "ceder.net/choreodb"
 }

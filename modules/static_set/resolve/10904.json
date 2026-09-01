@@ -6,17 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Heads Lead Right",
-    "All Right & Left Thru",
+    {
+      "selection": "All",
+      "call": "Right and Left Thru"
+    },
     "Veer Left",
-    "Boys Circulate, Girls Scoot Back",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Couples Circulate",
     "Tag the Line",
-    "Girls Circulate, Boys Scoot Back",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"Boys Circulate, Girls Scoot Back,\"; Untranslatable: \"Girls Circulate, Boys Scoot Back,\"",
   "source": "ceder.net/choreodb"
 }

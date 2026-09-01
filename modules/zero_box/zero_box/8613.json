@@ -4,17 +4,22 @@
   "level": "Mainstream",
   "startFormation": "Zero Box",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 6,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Dive Thru",
     "Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Dive Thru",
     "Zoom",
-    "Centers Pass Thru"
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    }
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

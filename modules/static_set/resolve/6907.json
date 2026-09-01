@@ -6,19 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 4,
+  "mappedCount": 7,
   "steps": [
     "Head Ladies Chain",
-    "Same 4 Right & Left Thru",
+    {
+      "selection": "Same 4",
+      "call": "Right and Left Thru"
+    },
     "Same Ladies Face The Corner Turn Half By The Right",
     "Static Square",
-    "Four Men Pass Thru",
+    {
+      "selection": "Four Men",
+      "call": "Pass Thru"
+    },
     "U-Turn Back",
-    "Four Ladies Pass Thru",
+    {
+      "selection": "Four Ladies",
+      "call": "Pass Thru"
+    },
     "U-Turn Back",
     "Ladies Lead Left & Face The Men",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Same 4 Right & Left Thru,\"; Untranslatable: \"Same Ladies Face The Corner Turn Half By The Right,\"; Untranslatable: \"Four Men Pass Thru,\"; Untranslatable: \"Four Ladies Pass Thru,\"; Untranslatable: \"Ladies Lead Left & Face The Men,\"",
+  "note": "Untranslatable: \"Same Ladies Face The Corner Turn Half By The Right,\"; Untranslatable: \"Ladies Lead Left & Face The Men,\"",
   "source": "ceder.net/choreodb"
 }

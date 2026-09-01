@@ -4,16 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Four Ladies Chain",
     "Four Ladies Chain 3/4",
-    "Head Position Square Thru 4",
+    {
+      "selection": "Head Position",
+      "call": "Square Thru 4"
+    },
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Head Position Square Thru 4,\"",
   "source": "ceder.net/choreodb"
 }

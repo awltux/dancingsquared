@@ -6,17 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Heads Pass Thru & Wheel Around",
     "Heads Half Sashay & Slide Thru",
     "Dosado, Pass Thru",
     "California Twirl",
     "Dive Thru",
-    "Centers Star Thru",
+    {
+      "selection": "Centers",
+      "call": "Star Thru"
+    },
     "Same 4 Pass Thru And California Twirl",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru & Wheel Around,\"; Untranslatable: \"Heads Half Sashay & Slide Thru,\"; Untranslatable: \"Dosado, Pass Thru,\"; Untranslatable: \"Centers Star Thru,\"; Untranslatable: \"Same 4 Pass Thru And California Twirl,\"",
+  "note": "Untranslatable: \"Heads Pass Thru & Wheel Around,\"; Untranslatable: \"Heads Half Sashay & Slide Thru,\"; Untranslatable: \"Dosado, Pass Thru,\"; Untranslatable: \"Same 4 Pass Thru And California Twirl,\"",
   "source": "ceder.net/choreodb"
 }

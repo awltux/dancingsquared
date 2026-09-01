@@ -10,11 +10,14 @@
   "steps": [
     "Heads 1/2 Square Thru",
     "Single Circle to a Wave",
-    "Men Circulate",
+    {
+      "selection": "Men",
+      "call": "Circulate"
+    },
     "Men Run",
     "Bend the Line",
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Men Circulate,\"; Untranslatable: \"Men Run,\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"Men Run,\"",
   "source": "ceder.net/choreodb"
 }

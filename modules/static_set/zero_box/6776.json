@@ -4,14 +4,16 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 3,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Rollaway",
     "Star Thru"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"",
   "source": "ceder.net/choreodb"
 }

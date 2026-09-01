@@ -10,9 +10,15 @@
   "steps": [
     "",
     "Head Ladies Chain",
-    "Heads Promenade Halfway",
+    {
+      "selection": "Heads",
+      "call": "All 4 Couples Promenade"
+    },
     "Side Ladies Chain",
-    "Sides Promenade Halfway",
+    {
+      "selection": "Sides",
+      "call": "All 4 Couples Promenade"
+    },
     "Four Ladies Chain",
     "Forward and Back",
     "Allemande Left",
@@ -20,6 +26,6 @@
     "Swing Partner",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Sides Promenade Halfway,\"; Untranslatable: \"Swing Partner,\"",
+  "note": "Untranslatable: \",\"; Untranslatable: \"Swing Partner,\"",
   "source": "ceder.net/choreodb"
 }

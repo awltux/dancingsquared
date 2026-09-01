@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 15,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "*** not validated *** (Zero Line) Pass Thru",
     "Bend the Line",
@@ -17,13 +17,16 @@
     "Bend The Line And Wheel Around (You're facing Out)",
     "Just The Girls Trade (same line",
     "Right Hand to a New Boy)",
-    "Everybody Trade",
+    {
+      "selection": "Everybody",
+      "call": "Trade"
+    },
     "Face Your Partner",
     "Right and Left Grand",
     "use Heads or Sides as appropriate. Dancers need to be aware of whether they are head or side couples). REVERSE wheel around likely should be workshopped before calling this get-out. The \"reverse wheel around\" goes with the flow of the bend the line",
     "and boys will connect in the center of the new two-faced line. If you're calling PLUS",
     "Just Girls TRADE can become Just Girls do your part Trade the Wave. Everybody Trade & Face your Partner obviously becomes Trade & Roll"
   ],
-  "note": "Untranslatable: \"*** not validated *** (Zero Line) Pass Thru\"; Untranslatable: \"And The Couple On The Left\"; Untranslatable: \"Bend The Line And Wheel Around (You're facing Out)\"; Untranslatable: \"Just The Girls Trade (same line\"; Untranslatable: \"Right Hand to a New Boy)\"; Untranslatable: \"Everybody Trade\"; Untranslatable: \"Face Your Partner\"; Untranslatable: \"use Heads or Sides as appropriate. Dancers need to be aware of whether they are head or side couples). REVERSE wheel around likely should be workshopped before calling this get-out. The \"reverse wheel around\" goes with the flow of the bend the line\"; Untranslatable: \"and boys will connect in the center of the new two-faced line. If you're calling PLUS\"; Untranslatable: \"Just Girls TRADE can become Just Girls do your part Trade the Wave. Everybody Trade & Face your Partner obviously becomes Trade & Roll\"",
+  "note": "Untranslatable: \"*** not validated *** (Zero Line) Pass Thru\"; Untranslatable: \"And The Couple On The Left\"; Untranslatable: \"Bend The Line And Wheel Around (You're facing Out)\"; Untranslatable: \"Just The Girls Trade (same line\"; Untranslatable: \"Right Hand to a New Boy)\"; Untranslatable: \"Face Your Partner\"; Untranslatable: \"use Heads or Sides as appropriate. Dancers need to be aware of whether they are head or side couples). REVERSE wheel around likely should be workshopped before calling this get-out. The \"reverse wheel around\" goes with the flow of the bend the line\"; Untranslatable: \"and boys will connect in the center of the new two-faced line. If you're calling PLUS\"; Untranslatable: \"Just Girls TRADE can become Just Girls do your part Trade the Wave. Everybody Trade & Face your Partner obviously becomes Trade & Roll\"",
   "source": "ceder.net/choreodb"
 }

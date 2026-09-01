@@ -6,17 +6,19 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Star Thru",
     "Dive Thru",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Swing Thru",
     "Extend",
     "Recycle",
     "Sweep a Quarter",
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru\"",
   "source": "ceder.net/choreodb"
 }

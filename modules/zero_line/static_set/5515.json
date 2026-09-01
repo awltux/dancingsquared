@@ -6,16 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Right and Left Thru",
     "Pass Thru",
     "3/4 Tag the Line",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Others Trade",
-    "Centers Recycle & Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Recycle"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Others Trade\"; Untranslatable: \"Centers Recycle & Pass Thru\"",
+  "note": "Untranslatable: \"Others Trade\"",
   "source": "ceder.net/choreodb"
 }

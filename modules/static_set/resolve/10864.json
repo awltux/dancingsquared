@@ -6,14 +6,23 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 7,
+  "mappedCount": 10,
   "steps": [
     "Heads Square Thru 4",
     "Right and Left Thru",
-    "Leaders U-Turn Back",
+    {
+      "selection": "Leaders",
+      "call": "U-Turn Back"
+    },
     "Boys Pass Thru & Boys Fold",
-    "Girls Square Thru 3",
-    "All Star Thru",
+    {
+      "selection": "Girls",
+      "call": "Square Thru 3"
+    },
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
     "Boys Trade",
     "Couples Circulate",
     "Bend the Line",
@@ -21,6 +30,6 @@
     "Left Allemande",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Leaders U-Turn Back,\"; Untranslatable: \"Boys Pass Thru & Boys Fold,\"; Untranslatable: \"Girls Square Thru 3,\"; Untranslatable: \"All Star Thru,\"",
+  "note": "Untranslatable: \"Boys Pass Thru & Boys Fold,\"",
   "source": "ceder.net/choreodb"
 }

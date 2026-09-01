@@ -6,17 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 4,
+  "mappedCount": 7,
   "steps": [
     "Right and Left Thru",
     "Veer Left",
     "Ferris Wheel",
-    "Centers Reverse Flutter Wheel",
+    {
+      "selection": "Centers",
+      "call": "Reverse Flutterwheel"
+    },
     "Zoom",
-    "Centers Reverse Flutter Wheel",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Reverse Flutterwheel"
+    },
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Reverse Flutter Wheel\"; Untranslatable: \"Centers Reverse Flutter Wheel\"; Untranslatable: \"Centers Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

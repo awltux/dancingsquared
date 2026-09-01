@@ -4,6 +4,7 @@
 
 import { CallApplicator } from './applicator.js';
 import type { Board, SeqDancer } from './types.js';
+import { normalizeSelection, selectionGroup } from './selection.js';
 
 export class Grouping {
   constructor(private readonly applicator: CallApplicator) {}
@@ -20,8 +21,9 @@ export class Grouping {
     switch (group) {
       case 'heads': return couples([1, 3]);
       case 'sides': return couples([2, 4]);
-      case 'boys': return [sortIds(ds.filter((d) => d.gender === 'boy'))];
-      case 'girls': return [sortIds(ds.filter((d) => d.gender === 'girl'))];
+      case 'boys': case 'men': return [sortIds(ds.filter((d) => d.gender === 'boy'))];
+      case 'girls': case 'women': case 'ladies': return [sortIds(ds.filter((d) => d.gender === 'girl'))];
+      case 'all': case 'everybody': case 'everyone': return [sortIds(ds)];
       case 'couples': return couples([1, 2, 3, 4]);
       case 'centers': case 'ends': {
         const sides = this.splitLine(board);
@@ -34,6 +36,76 @@ export class Grouping {
       case 'leaders': case 'trailers': return this.leadersTrailers(ds, group);
       default: return null;
     }
+  }
+
+  /** Resolve a dancer-selection string to the set of acting dancer ids on a board.
+   * Supports the simple groups via subsetOf plus the parametric selectors
+   * (specific couples, "same 4", head/side position, N boys/girls with a partner
+   * on a given side). Returns null when unrecognized or unresolvable. */
+  resolveSelection(board: Board, selection: string): number[] | null {
+    const ds = board.dancers.filter((d) => !d.isGhost);
+    const sortIds = (arr: SeqDancer[]): number[] => arr.map((d) => d.id).sort((a, b) => a - b);
+    const n = normalizeSelection(selection);
+    const group = selectionGroup(n);
+
+    if (group && group !== 'same4' && group !== 'headposition' && group !== 'sideposition' &&
+        group !== 'verycenters' && group !== 'outside6' && group !== 'boys-girl-right' &&
+        group !== 'gender-count') {
+      const subs = this.subsetOf(board, group);
+      if (!subs) return null;
+      return [...new Set(subs.flat())].sort((a, b) => a - b);
+    }
+
+    if (group === 'all') return sortIds(ds);
+    if (group === 'same4') return sortIds(ds); // best-effort: same-4 defaults to all (position-dependent)
+    if (group === 'headposition') {
+      // Heads' home couples (1,3) — the head position dancers.
+      const subs = this.subsetOf(board, 'heads');
+      return subs ? [...new Set(subs.flat())].sort((a, b) => a - b) : null;
+    }
+    if (group === 'sideposition') {
+      const subs = this.subsetOf(board, 'sides');
+      return subs ? [...new Set(subs.flat())].sort((a, b) => a - b) : null;
+    }
+    if (group === 'verycenters') {
+      const centers = this.subsetOf(board, 'centers');
+      return centers ? [...new Set(centers.flat())].sort((a, b) => a - b) : null;
+    }
+    if (group === 'outside6') {
+      // All except the very centers.
+      const centers = this.subsetOf(board, 'centers');
+      const centerIds = centers ? new Set(centers.flat()) : new Set<number>();
+      return ds.filter((d) => !centerIds.has(d.id)).map((d) => d.id).sort((a, b) => a - b);
+    }
+
+    // Couple #N (specific couple(s)).
+    const coupleMatch = /^couple #(\d+)$/.exec(n) || /^those in couple #(\d+) spot$/.exec(n);
+    if (coupleMatch) {
+      const c = +coupleMatch[1];
+      return sortIds(ds.filter((d) => d.couple === c));
+    }
+    const couplePair = /^couple #(\d+) and #(\d+)$/.exec(n);
+    if (couplePair) {
+      const a = +couplePair[1], b = +couplePair[2];
+      return sortIds(ds.filter((d) => d.couple === a || d.couple === b));
+    }
+
+    // N boys/girls have partner on a side — approximate by gender + position.
+    const sideMatch = /^(one|two|three|four) (boy|girl)s? have (girl|boy) on (right|left)$/.exec(n);
+    if (sideMatch) {
+      const gender = sideMatch[2] === 'boy' ? 'boy' : 'girl';
+      return sortIds(ds.filter((d) => d.gender === gender));
+    }
+    const countMatch = /^(one|two|three|four) (boys|girls|men|women|ladies)$/.exec(n);
+    if (countMatch) {
+      const kind = countMatch[2];
+      const gender = kind === 'boys' || kind === 'men' ? 'boy' : 'girl';
+      return sortIds(ds.filter((d) => d.gender === gender));
+    }
+    const ladiesChain = /^(\d+) ladies chain$/.exec(n);
+    if (ladiesChain) return sortIds(ds.filter((d) => d.gender === 'girl'));
+
+    return null;
   }
 
   /** Positional role within each couple: the dancer on the LEFT relative to the
@@ -97,8 +169,7 @@ export class Grouping {
 
   /** Parallel-action: apply a call to each disjoint subset of a named group
    * concurrently (by checking each subset in isolation). */
-  parallelApplicable(board: Board, group: string, callName: string): { subsets: number[][] | null; legalOnAll: boolean; illegalSubsets: number[][] } {
-    const subsets = this.subsetOf(board, group);
+  parallelApplicable(board: Board, group: string, callName: string): { subsets: number[][] | null; legalOnAll: boolean; illegalSubsets: number[][] } {    const subsets = this.subsetOf(board, group);
     if (!subsets) return { subsets: null, legalOnAll: false, illegalSubsets: [] };
     const illegalSubsets: number[][] = [];
     for (const sub of subsets) {

@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 25,
-  "mappedCount": 19,
+  "mappedCount": 21,
   "steps": [
     "(Lesson 11-12)",
-    "Heads Box The Gnat",
+    {
+      "selection": "Heads",
+      "call": "Box the Gnat"
+    },
     "Heads Slide Thru Swing Thru",
     "Boys Trade",
     "Hinge",
@@ -20,7 +23,10 @@
     "Right and Left Thru",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Veer Right, Centers Veer Left",
+    {
+      "selection": "Centers",
+      "call": "Veer Right"
+    },
     "Swing Thru",
     "Hinge",
     "Boys Run",
@@ -34,6 +40,6 @@
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 11-12),\"; Untranslatable: \"Heads Box The Gnat,\"; Untranslatable: \"Heads Slide Thru Swing Thru,\"; Untranslatable: \"Reverse Flutter,\"; Untranslatable: \"Centers Veer Right, Centers Veer Left,\"; Untranslatable: \"Reverse Flutter,\"",
+  "note": "Untranslatable: \"(Lesson 11-12),\"; Untranslatable: \"Heads Slide Thru Swing Thru,\"; Untranslatable: \"Reverse Flutter,\"; Untranslatable: \"Reverse Flutter,\"",
   "source": "ceder.net/choreodb"
 }

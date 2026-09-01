@@ -4,18 +4,23 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
     "Heads Square Thru 4",
-    "Sides Half Sashay",
+    {
+      "selection": "Sides",
+      "call": "Half Sashay"
+    },
     "Slide Thru",
-    "Ends Pass Thru",
+    {
+      "selection": "Ends",
+      "call": "Pass Thru"
+    },
     "Tag the Line",
     "Square Thru 4",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Sides Half Sashay,\"; Untranslatable: \"Ends Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

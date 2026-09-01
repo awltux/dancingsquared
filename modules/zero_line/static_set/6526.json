@@ -4,23 +4,34 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 12,
-  "mappedCount": 8,
+  "mappedCount": 12,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Half Sashay",
+    {
+      "selection": "Centers",
+      "call": "Half Sashay"
+    },
     "Double Pass Thru",
     "Centers In",
     "Cast Off Three Quarters",
-    "Centers Half Sashay",
-    "Ends Box The Gnat",
-    "All Pass The Ocean",
+    {
+      "selection": "Centers",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "Ends",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "All",
+      "call": "Pass the Ocean"
+    },
     "Girls Trade",
     "Boys Run",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Ends Box The Gnat\"; Untranslatable: \"All Pass The Ocean\"",
   "source": "ceder.net/choreodb"
 }

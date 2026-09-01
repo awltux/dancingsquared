@@ -6,13 +6,16 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
-    "Heads Circle Left 3/4",
+    {
+      "selection": "Heads",
+      "call": "Circle Left 3/4"
+    },
     "Double Pass Thru",
     "Lead Couple California Twirl",
     "Circle Left 1/4"
   ],
-  "note": "Untranslatable: \"Heads Circle Left 3/4,\"; Untranslatable: \"Lead Couple California Twirl,\"",
+  "note": "Untranslatable: \"Lead Couple California Twirl,\"",
   "source": "ceder.net/choreodb"
 }

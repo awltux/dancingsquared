@@ -4,18 +4,23 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Half Sashay",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Touch a Quarter",
     "Split Circulate",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Half Sashay\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

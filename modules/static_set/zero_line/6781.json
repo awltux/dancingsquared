@@ -6,17 +6,23 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 0,
+  "mappedCount": 2,
   "steps": [
     "4 Ladies Chain 3/4",
-    "Head Position Pass Thru",
+    {
+      "selection": "Head Position",
+      "call": "Pass Thru"
+    },
     "Separate Around 1",
     "Come Into The Middle & Pass Thru",
     "Split The Outside Two",
     "Around 1 To A Line",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "U Turn Back"
   ],
-  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"Head Position Pass Thru,\"; Untranslatable: \"Separate Around 1,\"; Untranslatable: \" Come Into The Middle & Pass Thru,\"; Untranslatable: \"Split The Outside Two,\"; Untranslatable: \" Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"U Turn Back\"",
+  "note": "Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"Separate Around 1,\"; Untranslatable: \" Come Into The Middle & Pass Thru,\"; Untranslatable: \"Split The Outside Two,\"; Untranslatable: \" Around 1 To A Line,\"; Untranslatable: \"U Turn Back\"",
   "source": "ceder.net/choreodb"
 }

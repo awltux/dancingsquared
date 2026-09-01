@@ -4,17 +4,19 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 6,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
-    "Heads Swing Thru",
+    {
+      "selection": "Heads",
+      "call": "Swing Thru"
+    },
     "Spin the Top",
     "Extend",
     "Swing Thru",
     "Spin the Top",
     "Slide Thru"
   ],
-  "note": "Untranslatable: \"Heads Swing Thru,\"",
   "source": "ceder.net/choreodb"
 }

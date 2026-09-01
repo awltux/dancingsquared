@@ -6,14 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Star Thru",
     "Pass Thru",
     "Tag the Line",
-    "Leaders U-Turn Back",
+    {
+      "selection": "Leaders",
+      "call": "U-Turn Back"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Leaders U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

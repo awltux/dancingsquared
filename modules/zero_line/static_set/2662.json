@@ -6,13 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 10,
+  "mappedCount": 12,
   "steps": [
     "Pass Thru",
     "3/4 Tag the Line",
-    "Centers Recycle",
+    {
+      "selection": "Centers",
+      "call": "Recycle"
+    },
     "Others U-Turn Back",
-    "Centers Square Thru 3/4",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
     "Single Circle to a Wave",
     "Boys Trade",
     "Boys Run",
@@ -23,6 +29,6 @@
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Recycle\"; Untranslatable: \"Others U-Turn Back\"; Untranslatable: \"Centers Square Thru 3/4\"",
+  "note": "Untranslatable: \"Others U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

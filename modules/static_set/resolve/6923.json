@@ -6,18 +6,30 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
-    "Heads Pass Thru",
-    "Heads Promenade Back Home",
-    "Sides Pass Thru",
-    "Sides Promenade Back Home",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Heads",
+      "call": "All 4 Couples Promenade"
+    },
+    {
+      "selection": "Sides",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Sides",
+      "call": "All 4 Couples Promenade"
+    },
     "Turn Corner By The Left",
     "Dosado Partner",
     "Grand Right & Left",
     "Dosado Partner",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Heads Promenade Back Home,\"; Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \"Sides Promenade Back Home,\"; Untranslatable: \"Turn Corner By The Left,\"; Untranslatable: \"Dosado Partner,\"; Untranslatable: \"Grand Right & Left,\"; Untranslatable: \"Dosado Partner,\"",
+  "note": "Untranslatable: \"Turn Corner By The Left,\"; Untranslatable: \"Dosado Partner,\"; Untranslatable: \"Grand Right & Left,\"; Untranslatable: \"Dosado Partner,\"",
   "source": "ceder.net/choreodb"
 }

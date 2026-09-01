@@ -6,13 +6,19 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
     "4 Ladies Chain",
-    "All Rollaway",
-    "Heads Square Thru",
+    {
+      "selection": "All",
+      "call": "Rollaway"
+    },
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Box the Gnat"
   ],
-  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"All Rollaway,\"; Untranslatable: \"Heads Square Thru,\"",
+  "note": "Untranslatable: \"4 Ladies Chain,\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,15 +4,20 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Flutter Wheel",
-    "Centers Pass Thru"
+    {
+      "selection": "Centers",
+      "call": "Flutterwheel"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    }
   ],
-  "note": "Untranslatable: \"Centers Flutter Wheel\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

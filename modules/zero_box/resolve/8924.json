@@ -6,19 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Two Ladies Chain",
     "Star Thru",
     "Pass Thru",
     "Wheel and Deal",
     "Zoom",
-    "Centers Flutter Wheel",
+    {
+      "selection": "Centers",
+      "call": "Flutterwheel"
+    },
     "Double Pass Thru",
     "First Couple Left",
     "Next Couple Left",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Two Ladies Chain\"; Untranslatable: \"Centers Flutter Wheel\"; Untranslatable: \"First Couple Left\"; Untranslatable: \"Next Couple Left\"",
+  "note": "Untranslatable: \"Two Ladies Chain\"; Untranslatable: \"First Couple Left\"; Untranslatable: \"Next Couple Left\"",
   "source": "ceder.net/choreodb"
 }

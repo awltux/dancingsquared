@@ -6,20 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Head Men & Corner Forward & Back",
     "Star Thru",
     "Split The Outside Two Around One To A Line",
     "Pass Thru",
     "Wheel and Deal",
-    "Boys Pass Thru",
+    {
+      "selection": "Boys",
+      "call": "Pass Thru"
+    },
     "Star Thru",
     "Ferris Wheel",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Head Men & Corner Forward & Back,\"; Untranslatable: \"Split The Outside Two Around One To A Line,\"; Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"Head Men & Corner Forward & Back,\"; Untranslatable: \"Split The Outside Two Around One To A Line,\"",
   "source": "ceder.net/choreodb"
 }

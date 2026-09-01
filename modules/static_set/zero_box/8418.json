@@ -4,16 +4,21 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
-    "Heads Veer Left",
-    "Ladies Trade",
+    {
+      "selection": "Heads",
+      "call": "Veer Left"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Wheel and Deal",
     "Circle Left 1/4",
     "Pass Thru"
   ],
-  "note": "Untranslatable: \"Heads Veer Left,\"; Untranslatable: \" Ladies Trade,\"",
   "source": "ceder.net/choreodb"
 }

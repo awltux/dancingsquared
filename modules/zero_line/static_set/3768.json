@@ -15,11 +15,13 @@
     "Boys Trade",
     "Star Thru",
     "Boys Trade",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Bend the Line",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Boys Circulate\"",
   "source": "ceder.net/choreodb"
 }

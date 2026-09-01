@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 12,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
@@ -15,12 +15,14 @@
     "Cast Off Three Quarters",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Touch a Quarter",
     "Scoot Back",
     "Split Circulate",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,19 +4,21 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 8,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
     "Zoom",
-    "Centers Single Circle To A Wave",
+    {
+      "selection": "Centers",
+      "call": "Single Circle to a Wave"
+    },
     "Extend",
     "Swing Thru",
     "Hinge",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Single Circle To A Wave\"",
   "source": "ceder.net/choreodb"
 }

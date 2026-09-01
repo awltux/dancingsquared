@@ -9,12 +9,15 @@
   "mappedCount": 4,
   "steps": [
     "Swing Thru",
-    "Ladies Circulate",
+    {
+      "selection": "Ladies",
+      "call": "Circulate"
+    },
     "Men Run",
     "Wheel and Deal",
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Men Run\"",
+  "note": "Untranslatable: \"Men Run\"",
   "source": "ceder.net/choreodb"
 }

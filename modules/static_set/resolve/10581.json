@@ -11,15 +11,20 @@
     "Heads Square Thru 4",
     "Right and Left Thru",
     "Swing Thru",
-    "Girls Circulate, Boys Trade",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Swing Thru",
-    "Boys Circulate, Girls Trade",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Swing Thru",
     "Boys Run",
     "Chain Down the Line",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Circulate, Boys Trade,\"; Untranslatable: \"Boys Circulate, Girls Trade,\"",
   "source": "ceder.net/choreodb"
 }

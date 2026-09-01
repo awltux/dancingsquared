@@ -6,17 +6,23 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Pass Thru",
     "Tag the Line",
     "Face In",
-    "Centers Right & Left Thru",
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
     "Ends Pass Thru & Fold",
     "Centers Left Square Thru 3",
-    "All Square Thru 3",
+    {
+      "selection": "All",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Right & Left Thru\"; Untranslatable: \"Ends Pass Thru & Fold\"; Untranslatable: \"Centers Left Square Thru 3\"; Untranslatable: \"All Square Thru 3\"",
+  "note": "Untranslatable: \"Ends Pass Thru & Fold\"; Untranslatable: \"Centers Left Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

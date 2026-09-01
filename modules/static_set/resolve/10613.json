@@ -4,21 +4,23 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 10,
-  "mappedCount": 9,
+  "mappedCount": 10,
   "steps": [
     "Four Ladies Chain",
     "Heads Square Thru 4",
     "Right and Left Thru",
     "Veer Left",
     "Couples Circulate",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Tag the Line",
     "Bend the Line",
     "Square Thru 4",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Ladies Trade,\"",
   "source": "ceder.net/choreodb"
 }

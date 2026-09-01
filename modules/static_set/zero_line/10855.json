@@ -6,15 +6,21 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
-    "Heads Promenade 1/2 Way",
+    {
+      "selection": "Heads",
+      "call": "All 4 Couples Promenade"
+    },
     "Come Down The Middle, Right & Left Thru",
     "Rollaway",
-    "Everybody Circle Left",
+    {
+      "selection": "Everybody",
+      "call": "Circle Left"
+    },
     "Four Men Pass Thru & Turn Right Single File",
     "First Man Around Two, Next Man Around One To A Line"
   ],
-  "note": "Untranslatable: \"Heads Promenade 1/2 Way,\"; Untranslatable: \" Come Down The Middle, Right & Left Thru,\"; Untranslatable: \"Everybody Circle Left,\"; Untranslatable: \"Four Men Pass Thru & Turn Right Single File,\"; Untranslatable: \" First Man Around Two, Next Man Around One To A Line\"",
+  "note": "Untranslatable: \" Come Down The Middle, Right & Left Thru,\"; Untranslatable: \"Four Men Pass Thru & Turn Right Single File,\"; Untranslatable: \" First Man Around Two, Next Man Around One To A Line\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,15 +6,24 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 2,
+  "mappedCount": 5,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
-    "Centers Box The Gnat",
-    "Everybody Square Thru",
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "Everybody",
+      "call": "Square Thru 4"
+    },
     "Trade By",
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \"Everybody Square Thru,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

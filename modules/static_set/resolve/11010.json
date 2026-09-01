@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Four Ladies Chain",
-    "Sides Square Thru 3",
+    {
+      "selection": "Sides",
+      "call": "Square Thru 3"
+    },
     "All Step Forward",
     "Heads Square Thru 4",
     "Centers In",
@@ -17,6 +20,6 @@
     "Ends Cross Fold",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Sides Square Thru 3,\"; Untranslatable: \"All Step Forward,\"",
+  "note": "Untranslatable: \"All Step Forward,\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,16 +4,21 @@
   "level": "Mainstream",
   "startFormation": "Zero Box",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Centers In",
     "Cast Off Three Quarters",
     "Ends Trade",
-    "All Star Thru",
-    "Centers Pass Thru"
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    }
   ],
-  "note": "Untranslatable: \"All Star Thru\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

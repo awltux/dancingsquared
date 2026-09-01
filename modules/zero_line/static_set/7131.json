@@ -6,17 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 4,
+  "mappedCount": 7,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Swing Thru",
-    "Ladies Trade",
-    "Men Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
     "Same Sex Trade",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Same Sex Trade\"",
+  "note": "Untranslatable: \"Same Sex Trade\"",
   "source": "ceder.net/choreodb"
 }

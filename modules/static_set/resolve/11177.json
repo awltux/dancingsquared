@@ -6,11 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "(Lesson 6-11)",
-    "Heads Promenade Halfway",
-    "Sides Lead Right",
+    {
+      "selection": "Heads",
+      "call": "All 4 Couples Promenade"
+    },
+    {
+      "selection": "Sides",
+      "call": "Lead Right"
+    },
     "Star Thru",
     "Pass Thru",
     "Wheel Around",
@@ -18,11 +24,14 @@
     "Star Thru",
     "Dive Thru",
     "Centers Left Square Thru 3",
-    "Everyone Square Thru 3",
+    {
+      "selection": "Everyone",
+      "call": "Square Thru 3"
+    },
     "Left Allemande",
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 6-11),\"; Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Sides Lead Right,\"; Untranslatable: \"Two Ladies Chain,\"; Untranslatable: \"Centers Left Square Thru 3,\"; Untranslatable: \"Everyone Square Thru 3,\"",
+  "note": "Untranslatable: \"(Lesson 6-11),\"; Untranslatable: \"Two Ladies Chain,\"; Untranslatable: \"Centers Left Square Thru 3,\"",
   "source": "ceder.net/choreodb"
 }

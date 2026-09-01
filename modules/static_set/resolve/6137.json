@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 9,
+  "mappedCount": 10,
   "steps": [
     "Heads Pass the Ocean",
     "Extend",
@@ -15,12 +15,15 @@
     "Wheel and Deal",
     "Right and Left Thru",
     "Half Sashay 1 & 1/2",
-    "Boys Swing Thru",
+    {
+      "selection": "Boys",
+      "call": "Swing Thru"
+    },
     "Extend",
     "Boys Run",
     "Reverse Flutterwheel",
     "(keep her) Promenade Home"
   ],
-  "note": "Untranslatable: \"Half Sashay 1 & 1/2,\"; Untranslatable: \"Boys Swing Thru,\"; Untranslatable: \" (keep her) Promenade Home\"",
+  "note": "Untranslatable: \"Half Sashay 1 & 1/2,\"; Untranslatable: \" (keep her) Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

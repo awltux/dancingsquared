@@ -4,14 +4,20 @@
   "level": "Mainstream",
   "startFormation": "Zero Box",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Centers In",
     "Boys Trade",
-    "All Cast Off 3/4",
-    "Centers Right & Left Thru",
+    {
+      "selection": "All",
+      "call": "Cast Off Three Quarters"
+    },
+    {
+      "selection": "Centers",
+      "call": "Right and Left Thru"
+    },
     "Flutterwheel",
     "Ends Run",
     "Right and Left Thru",
@@ -19,6 +25,5 @@
     "Girls Run",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"All Cast Off 3/4\"; Untranslatable: \"Centers Right & Left Thru\"",
   "source": "ceder.net/choreodb"
 }

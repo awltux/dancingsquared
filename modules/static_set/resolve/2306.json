@@ -6,18 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Heads Pass the Ocean",
     "Extend",
     "Swing Thru",
     "Boys Run",
     "Ferris Wheel",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Square Thru 3",
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

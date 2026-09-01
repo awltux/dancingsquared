@@ -6,11 +6,14 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 18,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
     "(Lesson 12-20 - SAV)",
     "Heads Lead Left",
-    "All Veer Right",
+    {
+      "selection": "All",
+      "call": "Veer Right"
+    },
     "Bend the Line",
     "Touch a Quarter",
     "Split Circulate",
@@ -27,6 +30,6 @@
     "Original Sides Bend The Line",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 12-20 - SAV),\"; Untranslatable: \"All Veer Right,\"; Untranslatable: \"Reverse Flutter,\"; Untranslatable: \"Original Heads Back Up (Center Wave Back Out),\"; Untranslatable: \"Original Sides Bend The Line,\"",
+  "note": "Untranslatable: \"(Lesson 12-20 - SAV),\"; Untranslatable: \"Reverse Flutter,\"; Untranslatable: \"Original Heads Back Up (Center Wave Back Out),\"; Untranslatable: \"Original Sides Bend The Line,\"",
   "source": "ceder.net/choreodb"
 }

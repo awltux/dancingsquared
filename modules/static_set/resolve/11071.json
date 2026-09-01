@@ -11,7 +11,10 @@
     "(Lesson 8-12).",
     "Heads Square Thru 4",
     "Swing Thru",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Run",
     "Bend the Line",
     "Reverse Flutterwheel",
@@ -23,6 +26,6 @@
     "Wheel and Deal",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 8-12).,\"; Untranslatable: \"Girls Circulate,\"; Untranslatable: \"First Couple Go Right Next Go Left,\"",
+  "note": "Untranslatable: \"(Lesson 8-12).,\"; Untranslatable: \"First Couple Go Right Next Go Left,\"",
   "source": "ceder.net/choreodb"
 }

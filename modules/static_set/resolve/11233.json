@@ -6,14 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 1,
+  "mappedCount": 4,
   "steps": [
-    "Heads Box The Gnat & Square Thru 4",
-    "All Slide Thru (same sex)",
+    {
+      "selection": "Heads",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "All",
+      "call": "Slide Thru"
+    },
     "Ends Cross Fold",
-    "Centers Box The Gnat & Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Box The Gnat & Square Thru 4,\"; Untranslatable: \"All Slide Thru (same sex),\"; Untranslatable: \"Centers Box The Gnat & Square Thru 3,\"",
   "source": "ceder.net/choreodb"
 }

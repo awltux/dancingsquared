@@ -4,20 +4,28 @@
   "level": "Mainstream",
   "startFormation": "Zero Box",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 9,
-  "mappedCount": 6,
+  "mappedCount": 9,
   "steps": [
     "Square Thru 4",
     "Ends Cross Fold",
     "Square Thru 4",
     "Partner Trade",
-    "Centers Square Thru 3",
-    "Ends Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
+    {
+      "selection": "Ends",
+      "call": "Pass Thru"
+    },
     "Ends Cross Fold",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Square Thru 3\"; Untranslatable: \"Ends Pass Thru\"; Untranslatable: \"All Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

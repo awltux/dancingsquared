@@ -6,13 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Split The Outside 2",
     "Around 1 To A Line",
-    "Everybody Square Thru",
+    {
+      "selection": "Everybody",
+      "call": "Square Thru 4"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Split The Outside 2\"; Untranslatable: \"Around 1 To A Line\"; Untranslatable: \"Everybody Square Thru\"",
+  "note": "Untranslatable: \"Split The Outside 2\"; Untranslatable: \"Around 1 To A Line\"",
   "source": "ceder.net/choreodb"
 }

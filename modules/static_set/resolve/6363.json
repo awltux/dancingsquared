@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Heads Square Thru 4",
     "Single Circle To An Ocean Wave",
@@ -15,9 +15,12 @@
     "Bend the Line",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Single Circle To An Ocean Wave,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"Single Circle To An Ocean Wave,\"",
   "source": "ceder.net/choreodb"
 }

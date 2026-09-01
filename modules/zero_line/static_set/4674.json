@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "Pass Thru",
     "Half Tag",
@@ -17,10 +17,12 @@
     "Face In",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Pass Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

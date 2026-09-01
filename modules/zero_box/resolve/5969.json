@@ -6,12 +6,15 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Centers Split The Outsides Around 1 To A Line",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Swing Thru",
     "Scoot Back",
     "Boys Cross Run",
@@ -19,6 +22,6 @@
     "Slide Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Split The Outsides Around 1 To A Line\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Boys Cross Run\"",
+  "note": "Untranslatable: \"Centers Split The Outsides Around 1 To A Line\"; Untranslatable: \"Boys Cross Run\"",
   "source": "ceder.net/choreodb"
 }

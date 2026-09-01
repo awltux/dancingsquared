@@ -10,11 +10,14 @@
   "steps": [
     "Step To A Ocean Wave",
     "Ladies Cross Run",
-    "Ladies Circulate",
+    {
+      "selection": "Ladies",
+      "call": "Circulate"
+    },
     "Men Cross Run",
     "Right and Left Thru",
     "Star Thru"
   ],
-  "note": "Untranslatable: \"Step To A Ocean Wave\"; Untranslatable: \"Ladies Cross Run\"; Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Men Cross Run\"",
+  "note": "Untranslatable: \"Step To A Ocean Wave\"; Untranslatable: \"Ladies Cross Run\"; Untranslatable: \"Men Cross Run\"",
   "source": "ceder.net/choreodb"
 }

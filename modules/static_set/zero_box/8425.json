@@ -4,15 +4,20 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
     "Four Ladies Chain",
-    "Heads Flutter Wheel, Sweep 1/4",
+    {
+      "selection": "Heads",
+      "call": "Flutterwheel"
+    },
     "Double Pass Thru",
-    "Leaders Partner Trade"
+    {
+      "selection": "Leaders",
+      "call": "Partner Trade"
+    }
   ],
-  "note": "Untranslatable: \"Heads Flutter Wheel, Sweep 1/4,\"; Untranslatable: \"Leaders Partner Trade\"",
   "source": "ceder.net/choreodb"
 }

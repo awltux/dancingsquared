@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 15,
-  "mappedCount": 14,
+  "mappedCount": 15,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
@@ -21,9 +21,11 @@
     "Pass Thru",
     "Wheel and Deal",
     "Double Pass Thru",
-    "Ends U-Turn Back",
+    {
+      "selection": "Ends",
+      "call": "U-Turn Back"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Ends U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

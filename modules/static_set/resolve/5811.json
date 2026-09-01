@@ -6,20 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "4 Ladies Chain",
     "4 Ladies Chain 3/4",
     "#1 Position Face Your Corner (original partner)",
     "And Box The Gnat",
     "Static Square",
-    "Head Position Square Thru 4",
-    "Everybody Slide Thru (everybody facing the stage)",
+    {
+      "selection": "Head Position",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Everybody",
+      "call": "Slide Thru"
+    },
     "(thank the dancers)",
     "Bend the Line",
     "Left Square Thru 4",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"#1 Position Face Your Corner (original partner),\"; Untranslatable: \" And Box The Gnat,\"; Untranslatable: \"Head Position Square Thru 4,\"; Untranslatable: \"Everybody Slide Thru (everybody facing the stage),\"; Untranslatable: \"(thank the dancers),\"",
+  "note": "Untranslatable: \"4 Ladies Chain,\"; Untranslatable: \"4 Ladies Chain 3/4,\"; Untranslatable: \"#1 Position Face Your Corner (original partner),\"; Untranslatable: \" And Box The Gnat,\"; Untranslatable: \"(thank the dancers),\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
     "(Lesson 9-03)",
     "Heads Separate And Star Thru",
@@ -18,11 +18,14 @@
     "Pass Thru",
     "Wheel and Deal",
     "Zoom",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Allemande Left",
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 9-03),\"; Untranslatable: \"First Couple Go Left Next Go Right,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"(Lesson 9-03),\"; Untranslatable: \"First Couple Go Left Next Go Right,\"",
   "source": "ceder.net/choreodb"
 }

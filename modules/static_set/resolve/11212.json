@@ -6,16 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "",
     "Head Ladies Chain",
     "Sides Promenade 3/4",
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Allemande Left",
     "Right and Left Grand",
     "Swing And Promenade"
   ],
-  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Swing And Promenade\"",
+  "note": "Untranslatable: \",\"; Untranslatable: \"Swing And Promenade\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,11 +6,14 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 2,
-  "mappedCount": 0,
+  "mappedCount": 1,
   "steps": [
-    "Heads Dosado",
+    {
+      "selection": "Heads",
+      "call": "Dosado"
+    },
     "Move In & Face Your Corner"
   ],
-  "note": "Untranslatable: \"Heads Dosado,\"; Untranslatable: \"Move In & Face Your Corner\"",
+  "note": "Untranslatable: \"Move In & Face Your Corner\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 0,
+  "mappedCount": 1,
   "steps": [
     "Center Four Only Box The Gnat",
-    "Same 4 Square Thru 5 Hands",
+    {
+      "selection": "Same 4",
+      "call": "Square Thru 4"
+    },
     "Everybody Left Allemande The center four dancers",
     "in each line of four",
     "will be facing out with the corner lady on the man's right hand side. Dancers on the ends of the line will be facing their corner. Ending formation = FL (1/2)"
   ],
-  "note": "Untranslatable: \"Center Four Only Box The Gnat\"; Untranslatable: \"Same 4 Square Thru 5 Hands\"; Untranslatable: \"Everybody Left Allemande The center four dancers\"; Untranslatable: \"in each line of four\"; Untranslatable: \"will be facing out with the corner lady on the man's right hand side. Dancers on the ends of the line will be facing their corner. Ending formation = FL (1/2)\"",
+  "note": "Untranslatable: \"Center Four Only Box The Gnat\"; Untranslatable: \"Everybody Left Allemande The center four dancers\"; Untranslatable: \"in each line of four\"; Untranslatable: \"will be facing out with the corner lady on the man's right hand side. Dancers on the ends of the line will be facing their corner. Ending formation = FL (1/2)\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,15 +6,21 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Two Ladies Chain",
     "Pass Thru",
     "Wheel and Deal",
-    "All Rollaway",
-    "Centers Pass Thru",
+    {
+      "selection": "All",
+      "call": "Rollaway"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Two Ladies Chain\"; Untranslatable: \"All Rollaway\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"Two Ladies Chain\"",
   "source": "ceder.net/choreodb"
 }

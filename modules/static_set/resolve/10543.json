@@ -6,20 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 9,
+  "mappedCount": 10,
   "steps": [
     "Head Ladies Chain",
     "Heads Star Thru",
     "Pass Thru",
     "Right and Left Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Dosado to a Wave",
     "Swing Thru",
     "Box the Gnat",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

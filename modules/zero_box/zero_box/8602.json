@@ -6,12 +6,15 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 3,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Box the Gnat",
-    "Centers Box The Gnat & Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
     "Outsides U-Turn Back"
   ],
-  "note": "Untranslatable: \"Centers Box The Gnat & Pass Thru\"; Untranslatable: \"Outsides U-Turn Back\"",
+  "note": "Untranslatable: \"Outsides U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

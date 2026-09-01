@@ -4,14 +4,20 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 12,
-  "mappedCount": 10,
+  "mappedCount": 12,
   "steps": [
     "Heads Lead Right",
     "Square Thru 4",
-    "Girls U-Turn Back",
-    "All Scoot Back (Girls go)",
+    {
+      "selection": "Girls",
+      "call": "U-Turn Back"
+    },
+    {
+      "selection": "All",
+      "call": "Scoot Back"
+    },
     "Swing Thru",
     "Swing Thru",
     "Scoot Back",
@@ -21,6 +27,5 @@
     "Face Left",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Girls U-Turn Back,\"; Untranslatable: \"All Scoot Back (Girls go),\"",
   "source": "ceder.net/choreodb"
 }

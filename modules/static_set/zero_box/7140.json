@@ -6,13 +6,16 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Touch a Quarter",
     "Box Circulate 2 Places",
     "Men Run"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" Box Circulate 2 Places,\"; Untranslatable: \" Men Run\"",
+  "note": "Untranslatable: \" Box Circulate 2 Places,\"; Untranslatable: \" Men Run\"",
   "source": "ceder.net/choreodb"
 }

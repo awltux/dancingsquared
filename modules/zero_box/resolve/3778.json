@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "Star Thru",
     "Pass Thru",
@@ -17,10 +17,12 @@
     "Pass Thru",
     "Wheel and Deal",
     "Double Pass Thru",
-    "Leaders Partner Trade",
+    {
+      "selection": "Leaders",
+      "call": "Partner Trade"
+    },
     "Pass Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Leaders Partner Trade\"",
   "source": "ceder.net/choreodb"
 }

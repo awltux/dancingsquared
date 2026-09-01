@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 18,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
     "(Lesson 8-14 SAV)",
     "Heads Square Thru 4",
@@ -23,10 +23,13 @@
     "Chain Down the Line",
     "Pass Thru",
     "(ORIGINAL TEXT: U-Turn Back 1-1/2)",
-    "Centers Face In, Ends Face Out",
+    {
+      "selection": "Centers",
+      "call": "Face In"
+    },
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 8-14 SAV),\"; Untranslatable: \"Dosado To An Ocean Wave,\"; Untranslatable: \"Partner Trade, Centers (Left-Hand )Trade,\"; Untranslatable: \"Dosado To An Ocean Wave,\"; Untranslatable: \"Partner Trade, Centers (Left-Hand)Trade,\"; Untranslatable: \"(ORIGINAL TEXT: U-Turn Back 1-1/2),\"; Untranslatable: \"Centers Face In, Ends Face Out,\"",
+  "note": "Untranslatable: \"(Lesson 8-14 SAV),\"; Untranslatable: \"Dosado To An Ocean Wave,\"; Untranslatable: \"Partner Trade, Centers (Left-Hand )Trade,\"; Untranslatable: \"Dosado To An Ocean Wave,\"; Untranslatable: \"Partner Trade, Centers (Left-Hand)Trade,\"; Untranslatable: \"(ORIGINAL TEXT: U-Turn Back 1-1/2),\"",
   "source": "ceder.net/choreodb"
 }

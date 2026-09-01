@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 13,
-  "mappedCount": 12,
+  "mappedCount": 13,
   "steps": [
     "Heads Lead Right",
     "Centers In",
@@ -19,9 +19,11 @@
     "Centers Run",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Wheel Around",
+    {
+      "selection": "Centers",
+      "call": "Wheel Around"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Wheel Around,\"",
   "source": "ceder.net/choreodb"
 }

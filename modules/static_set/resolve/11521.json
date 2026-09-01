@@ -6,21 +6,30 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 5,
+  "mappedCount": 8,
   "steps": [
     "Heads Half Sashay & Touch 1/4",
     "Those Facing Pass Thru",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Centers In",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Out-Facing End Run Right",
-    "All Scoot Back",
+    {
+      "selection": "All",
+      "call": "Scoot Back"
+    },
     "Boys Run",
     "Right and Left Thru",
     "Square Thru 4",
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay & Touch 1/4,\"; Untranslatable: \"Those Facing Pass Thru,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Out-Facing End Run Right,\"; Untranslatable: \"All Scoot Back,\"",
+  "note": "Untranslatable: \"Heads Half Sashay & Touch 1/4,\"; Untranslatable: \"Those Facing Pass Thru,\"; Untranslatable: \"Out-Facing End Run Right,\"",
   "source": "ceder.net/choreodb"
 }

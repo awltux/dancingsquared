@@ -4,19 +4,21 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 8,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
     "Double Pass Thru",
-    "Leaders California Twirl",
+    {
+      "selection": "Leaders",
+      "call": "California Twirl"
+    },
     "Right and Left Thru",
     "Veer Left",
     "Couples Circulate",
     "Bend the Line"
   ],
-  "note": "Untranslatable: \"Leaders California Twirl\"",
   "source": "ceder.net/choreodb"
 }

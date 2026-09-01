@@ -6,21 +6,30 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Heads Promenade 1/2",
     "Box the Gnat",
-    "Same 4 Pass Thru",
+    {
+      "selection": "Same 4",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
-    "All Pass The Ocean",
+    {
+      "selection": "All",
+      "call": "Pass the Ocean"
+    },
     "Circulate",
     "Swing Thru",
-    "Girls Circulate, Boys Trade",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Girls Run",
     "Girls Trade",
     "Girls Cross Run",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Same 4 Pass Thru,\"; Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"All Pass The Ocean,\"; Untranslatable: \"Girls Circulate, Boys Trade,\"; Untranslatable: \"Girls Cross Run,\"",
+  "note": "Untranslatable: \" Separate Around 1 To A Line,\"; Untranslatable: \"Girls Cross Run,\"",
   "source": "ceder.net/choreodb"
 }

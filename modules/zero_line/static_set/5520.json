@@ -6,18 +6,23 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Touch a Quarter",
-    "Centers Box Circulate",
+    {
+      "selection": "Centers",
+      "call": "Box Circulate"
+    },
     "All 8 Circulate",
     "Trade",
     "All 8 Circulate",
     "Boys Run",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Reverse Flutterwheel",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Box Circulate\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

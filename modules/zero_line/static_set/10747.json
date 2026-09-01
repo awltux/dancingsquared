@@ -6,20 +6,32 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 4,
+  "mappedCount": 8,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
     "Girls Only Zoom",
-    "Centers Dosado To A Wave",
-    "Centers Spin The Top",
-    "Same 4 Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Dosado to a Wave"
+    },
+    {
+      "selection": "Centers",
+      "call": "Spin the Top"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
-    "All Dosado To A Wave",
+    {
+      "selection": "All",
+      "call": "Dosado to a Wave"
+    },
     "Spin the Top",
     "Extend",
     "R.L.G Spin The Top"
   ],
-  "note": "Untranslatable: \"Girls Only Zoom\"; Untranslatable: \"Centers Dosado To A Wave\"; Untranslatable: \"Centers Spin The Top\"; Untranslatable: \"Same 4 Pass Thru\"; Untranslatable: \"Separate Around 1 To A Line\"; Untranslatable: \"All Dosado To A Wave\"; Untranslatable: \"R.L.G Spin The Top\"",
+  "note": "Untranslatable: \"Girls Only Zoom\"; Untranslatable: \"Separate Around 1 To A Line\"; Untranslatable: \"R.L.G Spin The Top\"",
   "source": "ceder.net/choreodb"
 }

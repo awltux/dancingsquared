@@ -4,15 +4,17 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
-    "Heads Veer Left",
+    {
+      "selection": "Heads",
+      "call": "Veer Left"
+    },
     "Couples Hinge",
     "Veer Right",
     "Circle Right 1/4"
   ],
-  "note": "Untranslatable: \"Heads Veer Left,\"",
   "source": "ceder.net/choreodb"
 }

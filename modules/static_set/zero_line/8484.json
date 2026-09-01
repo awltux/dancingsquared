@@ -4,14 +4,22 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 3,
-  "mappedCount": 0,
+  "mappedCount": 3,
   "steps": [
-    "Heads Circle Left 3/4",
-    "Same 4 Veer Left (then) Veer Right",
-    "All Circle Right 3/4"
+    {
+      "selection": "Heads",
+      "call": "Circle Left 3/4"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Veer Left"
+    },
+    {
+      "selection": "All",
+      "call": "Circle Right 3/4"
+    }
   ],
-  "note": "Untranslatable: \"Heads Circle Left 3/4,\"; Untranslatable: \"Same 4 Veer Left (then) Veer Right,\"; Untranslatable: \"All Circle Right 3/4\"",
   "source": "ceder.net/choreodb"
 }

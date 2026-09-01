@@ -6,20 +6,34 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 5,
+  "mappedCount": 10,
   "steps": [
     "Heads Pass the Ocean",
     "Swing Thru",
-    "Sides Rollaway",
-    "All Scoot Back",
-    "Centers Recycle",
-    "All Trade By",
+    {
+      "selection": "Sides",
+      "call": "Rollaway"
+    },
+    {
+      "selection": "All",
+      "call": "Scoot Back"
+    },
+    {
+      "selection": "Centers",
+      "call": "Recycle"
+    },
+    {
+      "selection": "All",
+      "call": "Trade By"
+    },
     "Swing Thru",
     "Boys Run",
     "Ferris Wheel",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Sides Rollaway,\"; Untranslatable: \"All Scoot Back,\"; Untranslatable: \"Centers Recycle,\"; Untranslatable: \"All Trade By,\"; Untranslatable: \"Centers Square Thru 3,\"",
   "source": "ceder.net/choreodb"
 }

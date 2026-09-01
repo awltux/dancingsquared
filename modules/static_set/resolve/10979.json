@@ -6,20 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Four Ladies Chain",
-    "Sides Half Sashay",
+    {
+      "selection": "Sides",
+      "call": "Half Sashay"
+    },
     "Heads 1/2 Square Thru",
     "Dosado to a Wave",
     "Scoot Back",
     "Centers Trade",
     "Boys Trade",
-    "All Star Thru",
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
     "U-Turn Back",
     "Pass Thru",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Sides Half Sashay,\"; Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All Star Thru,\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,20 +6,32 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 4,
+  "mappedCount": 8,
   "steps": [
     "Heads Star Thru",
     "U-Turn Back",
     "Centers In",
-    "Centers Square Thru 3",
-    "All Tag The Line",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
+    {
+      "selection": "All",
+      "call": "Tag the Line"
+    },
     "Outsides U-Turn Back",
     "Centers In",
-    "Centers Square Thru 3",
-    "All Tag The Line",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
+    {
+      "selection": "All",
+      "call": "Tag the Line"
+    },
     "Outsides Trade",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"All Tag The Line,\"; Untranslatable: \"Outsides U-Turn Back,\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"All Tag The Line,\"; Untranslatable: \"Outsides Trade,\"",
+  "note": "Untranslatable: \"Outsides U-Turn Back,\"; Untranslatable: \"Outsides Trade,\"",
   "source": "ceder.net/choreodb"
 }

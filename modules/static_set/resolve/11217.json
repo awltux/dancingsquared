@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
-    "Heads Dosado",
+    {
+      "selection": "Heads",
+      "call": "Dosado"
+    },
     "Heads Pass Thru And Wheel Around",
     "Heads Back Away While The Sides Dosado",
     "Sides Pass Thru And Wheel Around",
@@ -17,6 +20,6 @@
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Dosado,\"; Untranslatable: \"Heads Pass Thru And Wheel Around,\"; Untranslatable: \"Heads Back Away While The Sides Dosado,\"; Untranslatable: \"Sides Pass Thru And Wheel Around,\"; Untranslatable: \"Sides Face Your Corner,\"",
+  "note": "Untranslatable: \"Heads Pass Thru And Wheel Around,\"; Untranslatable: \"Heads Back Away While The Sides Dosado,\"; Untranslatable: \"Sides Pass Thru And Wheel Around,\"; Untranslatable: \"Sides Face Your Corner,\"",
   "source": "ceder.net/choreodb"
 }

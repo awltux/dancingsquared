@@ -6,10 +6,13 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "(Lesson 5-01)",
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Same 4 Wheel Around And Lead Left",
     "Veer Right",
     "Couples Circulate",
@@ -19,6 +22,6 @@
     "Allemande Left",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 5-01),\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Same 4 Wheel Around And Lead Left,\"",
+  "note": "Untranslatable: \"(Lesson 5-01),\"; Untranslatable: \"Same 4 Wheel Around And Lead Left,\"",
   "source": "ceder.net/choreodb"
 }

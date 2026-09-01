@@ -6,19 +6,27 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 9,
   "steps": [
     "Pass Thru",
     "Ends Trade",
-    "Centers U-Turn Back",
+    {
+      "selection": "Centers",
+      "call": "U-Turn Back"
+    },
     "Pass Thru",
     "Ends Trade",
-    "Centers Partner Trade",
+    {
+      "selection": "Centers",
+      "call": "Partner Trade"
+    },
     "Star Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Square Thru 4",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers U-Turn Back\"; Untranslatable: \"Centers Partner Trade\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

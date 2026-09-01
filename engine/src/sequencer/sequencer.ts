@@ -23,7 +23,7 @@ import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, canonicalName } from './constants.js';
 import type { Matchable } from './match.js';
-import type { Board, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep, VariantMatch } from './types.js';
+import type { Board, CallStep, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep, VariantMatch } from './types.js';
 import type { CallBundle } from '../types.js';
 
 export { assignHomeIdentity } from './identity.js';
@@ -46,10 +46,11 @@ export class Sequencer {
     this.library = new CallLibrary(movesXml, formationsXml);
     this.matcher = new FormationMatcher(this.library, this.config);
     this.applicator = new CallApplicator(this.library, this.matcher, this.config);
+    this.grouping = new Grouping(this.applicator);
+    this.applicator.setSelectionResolver((board, selection) => this.grouping.resolveSelection(board, selection));
     this.legality = new LegalityChecker(this.library, this.matcher, this.applicator, this.config);
     this.analyzer = new SequenceAnalyzer(this.library, this.matcher, this.applicator, this.config);
     this.solver = new HomeSolver(this.library, this.matcher, this.applicator, this.legality, this.config);
-    this.grouping = new Grouping(this.applicator);
     this.fsmStore = new FsmStore(this.applicator, this.matcher, this.solver);
     this.board = makeSquaredSet();
     for (const c of calls) {
@@ -67,7 +68,7 @@ export class Sequencer {
     this.library.register(name, xml);
   }
 
-  registerModule(name: string, calls: string[]): void {
+  registerModule(name: string, calls: (string | CallStep)[]): void {
     this.library.registerModule(name, calls);
   }
 
@@ -83,7 +84,7 @@ export class Sequencer {
     return this.library.getModules();
   }
 
-  flatten(sequence: string[]): string[] {
+  flatten(sequence: (string | CallStep)[]): (string | CallStep)[] {
     return this.library.flatten(sequence);
   }
 
@@ -137,8 +138,20 @@ export class Sequencer {
     return { call: callName, legal: res.legal, reason: res.reason, board: res.board, formation: this.recognize(res.board) };
   }
 
-  applyToBoard(board: Board, callName: string): { board: Board; legal: boolean; reason?: string } {
-    return this.applicator.applyToBoard(board, callName);
+  /** Apply a call step (string or {selection, call}) to the current board. */
+  applyStep(step: string | CallStep): SeqStep {
+    const res = this.applicator.applyStep(this.board, step);
+    this.board = res.board;
+    this.matcher.clearCaches();
+    this.solver.clearCaches();
+    const label = typeof step === 'string' ? step : step.call;
+    return { call: label, legal: res.legal, reason: res.reason, board: res.board, formation: this.recognize(res.board) };
+  }
+
+  applyToBoard(board: Board, callName: string | CallStep): { board: Board; legal: boolean; reason?: string } {
+    return typeof callName === 'string'
+      ? this.applicator.applyToBoard(board, callName)
+      : this.applicator.applyStep(board, callName);
   }
 
   /** Canonical start positions (as matchables) of each of a call's variants, in
@@ -453,7 +466,7 @@ export class Sequencer {
   moduleCollapsible(module: string, startFormation: string): boolean {
     const calls = this.library.getModule(module);
     if (!calls || calls.length === 0) return false;
-    if (calls.some((c) => this.library.isNonCompositional(c))) return false;
+    if (calls.some((c) => this.library.isNonCompositional(typeof c === 'string' ? c : c.call))) return false;
     return this.syntheticBoard(startFormation) !== null;
   }
 

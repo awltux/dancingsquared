@@ -6,17 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 2,
+  "mappedCount": 5,
   "steps": [
     "",
-    "Heads Promenade Halfway",
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "All 4 Couples Promenade"
+    },
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Heads Wheel Around",
     "Heads Back Away While The Sides Promenade Halfway",
-    "Sides Pass Thru",
-    "Sides Wheel Around",
+    {
+      "selection": "Sides",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Sides",
+      "call": "Wheel Around"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Heads Back Away While The Sides Promenade Halfway,\"; Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \"Sides Wheel Around,\"",
+  "note": "Untranslatable: \",\"; Untranslatable: \"Heads Back Away While The Sides Promenade Halfway,\"",
   "source": "ceder.net/choreodb"
 }

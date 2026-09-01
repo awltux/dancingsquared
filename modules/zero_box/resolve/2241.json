@@ -11,11 +11,14 @@
     "Dosado",
     "Step to a Wave",
     "Boys Cross Run",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Boys Cross Run",
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Boys Cross Run\"; Untranslatable: \"Boys Circulate\"; Untranslatable: \"Boys Cross Run\"",
+  "note": "Untranslatable: \"Boys Cross Run\"; Untranslatable: \"Boys Cross Run\"",
   "source": "ceder.net/choreodb"
 }

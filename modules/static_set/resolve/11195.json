@@ -6,23 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 14,
-  "mappedCount": 5,
+  "mappedCount": 7,
   "steps": [
     "(Lesson 7-14)",
     "(Note; this is a little bit out there, but...bear with me)",
     "Heads Lead Right",
     "Right and Left Thru",
     "1/2 Half Sashay (puts Girls In Front Of The Boys)",
-    "Girls Pass Thru",
+    {
+      "selection": "Girls",
+      "call": "Pass Thru"
+    },
     "Star Thru",
     "Boys Trade",
     "Center Couples Trade",
     "Wheel and Deal",
     "Pass Thru, Wheel & Deal",
     "Center 4 Flutter Wheel",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"(Lesson 7-14),\"; Untranslatable: \"(Note; this is a little bit out there, but...bear with me),\"; Untranslatable: \"1/2 Half Sashay (puts Girls In Front Of The Boys),\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Center Couples Trade,\"; Untranslatable: \"Pass Thru, Wheel & Deal,\"; Untranslatable: \"Center 4 Flutter Wheel,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"(Lesson 7-14),\"; Untranslatable: \"(Note; this is a little bit out there, but...bear with me),\"; Untranslatable: \"1/2 Half Sashay (puts Girls In Front Of The Boys),\"; Untranslatable: \"Center Couples Trade,\"; Untranslatable: \"Pass Thru, Wheel & Deal,\"; Untranslatable: \"Center 4 Flutter Wheel,\"",
   "source": "ceder.net/choreodb"
 }

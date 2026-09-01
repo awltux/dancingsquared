@@ -6,17 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 4,
+  "mappedCount": 7,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Lead Left",
-    "All Right & Left Thru",
+    {
+      "selection": "All",
+      "call": "Right and Left Thru"
+    },
     "Lead Left",
     "Wheel and Deal",
-    "Centers Lead Left",
+    {
+      "selection": "Centers",
+      "call": "Lead Left"
+    },
     "Centers Step Forward & Partner Trade",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"All Right & Left Thru,\"; Untranslatable: \"Centers Lead Left,\"; Untranslatable: \"Centers Step Forward & Partner Trade,\"",
+  "note": "Untranslatable: \"Centers Step Forward & Partner Trade,\"",
   "source": "ceder.net/choreodb"
 }

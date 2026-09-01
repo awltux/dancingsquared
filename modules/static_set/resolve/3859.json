@@ -4,23 +4,34 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 12,
-  "mappedCount": 8,
+  "mappedCount": 12,
   "steps": [
     "Heads Lead Right",
     "Right and Left Thru",
     "Veer Left",
     "Centers Trade",
     "Ferris Wheel",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Centers In",
     "Centers Run",
-    "Centers Star Thru",
-    "Centers Box The Gnat",
-    "All Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Star Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Centers Star Thru,\"; Untranslatable: \"Centers Box The Gnat,\"; Untranslatable: \"All Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

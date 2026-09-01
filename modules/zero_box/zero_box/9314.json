@@ -6,14 +6,20 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
     "Centers In",
-    "Ends Pass Thru",
+    {
+      "selection": "Ends",
+      "call": "Pass Thru"
+    },
     "Bend The Line Double",
     "Star Thru",
-    "Leaders California Twirl"
+    {
+      "selection": "Leaders",
+      "call": "California Twirl"
+    }
   ],
-  "note": "Untranslatable: \"Ends Pass Thru\"; Untranslatable: \"Bend The Line Double\"; Untranslatable: \"Leaders California Twirl\"",
+  "note": "Untranslatable: \"Bend The Line Double\"",
   "source": "ceder.net/choreodb"
 }

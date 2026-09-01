@@ -6,20 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "Heads Star Thru",
     "Double Pass Thru",
-    "Ends U-Turn Back",
+    {
+      "selection": "Ends",
+      "call": "U-Turn Back"
+    },
     "Square Thru 4",
     "Ends Cross Fold",
     "Touch a Quarter",
     "Scoot Back",
     "Girls Run",
     "Ends Pass Thru & Ends Fold",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Ends U-Turn Back,\"; Untranslatable: \"Ends Pass Thru & Ends Fold,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"Ends Pass Thru & Ends Fold,\"",
   "source": "ceder.net/choreodb"
 }

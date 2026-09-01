@@ -6,13 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
-    "Centers Square Thru 4",
-    "Ends Touch 1/4",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Ends",
+      "call": "Touch a Quarter"
+    },
     "End Girl Run",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Square Thru 4\"; Untranslatable: \"Ends Touch 1/4\"; Untranslatable: \"End Girl Run\"",
+  "note": "Untranslatable: \"End Girl Run\"",
   "source": "ceder.net/choreodb"
 }

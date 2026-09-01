@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
-    "All Half Sashay",
+    {
+      "selection": "All",
+      "call": "Half Sashay"
+    },
     "Heads Pass the Ocean",
     "Extend",
     "Swing Thru",
@@ -22,6 +25,6 @@
     "Pass Thru",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"All Half Sashay,\"; Untranslatable: \"End Ladies (Diagonal) Chain,\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"End Ladies (Diagonal) Chain,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

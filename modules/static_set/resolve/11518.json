@@ -6,17 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 1,
+  "mappedCount": 4,
   "steps": [
-    "Heads Reverse Flutter Wheel, Sweep 1/4",
-    "All Double Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Reverse Flutterwheel"
+    },
+    {
+      "selection": "All",
+      "call": "Double Pass Thru"
+    },
     "Boys Run Right",
     "Circulate",
     "Boys Run Right",
     "Zoom",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Reverse Flutter Wheel, Sweep 1/4,\"; Untranslatable: \"All Double Pass Thru,\"; Untranslatable: \"Boys Run Right,\"; Untranslatable: \"Boys Run Right,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"Boys Run Right,\"; Untranslatable: \"Boys Run Right,\"",
   "source": "ceder.net/choreodb"
 }

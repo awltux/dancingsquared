@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 21,
-  "mappedCount": 17,
+  "mappedCount": 20,
   "steps": [
     "(Lesson 9-12 SAV)",
     "Heads Lead Right",
@@ -16,20 +16,29 @@
     "Boys Trade",
     "Chain Down the Line",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Pass the Ocean",
     "Swing Thru",
     "Boys Run",
     "Boys Trade",
     "Chain Down the Line",
     "Flutterwheel",
-    "Centers Reverse Wheel Around",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Reverse Wheel Around"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Square Thru 3",
     "Allemande Left",
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 9-12 SAV),\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Centers Reverse Wheel Around,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"(Lesson 9-12 SAV),\"",
   "source": "ceder.net/choreodb"
 }

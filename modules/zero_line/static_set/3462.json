@@ -6,19 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Right and Left Thru",
     "Flutterwheel",
     "Reverse Flutterwheel",
     "Half Sashay",
-    "Centers Flutter Wheel",
+    {
+      "selection": "Centers",
+      "call": "Flutterwheel"
+    },
     "Sweep a Quarter",
     "Others Touch 1/4 & That Boy Run",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Flutter Wheel\"; Untranslatable: \"Others Touch 1/4 & That Boy Run\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"Others Touch 1/4 & That Boy Run\"",
   "source": "ceder.net/choreodb"
 }

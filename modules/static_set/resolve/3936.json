@@ -4,12 +4,15 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 9,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Heads Left Square Thru 4",
-    "Sides Half Sashay",
+    {
+      "selection": "Sides",
+      "call": "Half Sashay"
+    },
     "Left Swing Thru",
     "Split Circulate",
     "Boys Trade",
@@ -18,6 +21,5 @@
     "Extend",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \" Sides Half Sashay,\"",
   "source": "ceder.net/choreodb"
 }

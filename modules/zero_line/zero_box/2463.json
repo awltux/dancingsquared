@@ -9,11 +9,13 @@
   "mappedCount": 4,
   "steps": [
     "Pass the Ocean",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "All 8 Circulate",
     "Girls Trade",
     "Recycle"
   ],
-  "note": "Untranslatable: \"Boys Circulate\"",
   "source": "ceder.net/choreodb"
 }

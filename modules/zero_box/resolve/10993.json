@@ -6,18 +6,21 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 1,
+  "mappedCount": 2,
   "steps": [
     "Swing Thru",
     "1/2 Circulate",
     "Center Wave Spin The Top",
-    "Everybody Single Hinge",
+    {
+      "selection": "Everybody",
+      "call": "Hinge"
+    },
     "1/2 Circulate",
     "Center 6 Single Hinge",
     "Center Girl Run Left",
     "Each Side Bend The Line",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"1/2 Circulate\"; Untranslatable: \"Center Wave Spin The Top\"; Untranslatable: \"Everybody Single Hinge\"; Untranslatable: \"1/2 Circulate\"; Untranslatable: \"Center 6 Single Hinge\"; Untranslatable: \"Center Girl Run Left\"; Untranslatable: \"Each Side Bend The Line\"",
+  "note": "Untranslatable: \"1/2 Circulate\"; Untranslatable: \"Center Wave Spin The Top\"; Untranslatable: \"1/2 Circulate\"; Untranslatable: \"Center 6 Single Hinge\"; Untranslatable: \"Center Girl Run Left\"; Untranslatable: \"Each Side Bend The Line\"",
   "source": "ceder.net/choreodb"
 }

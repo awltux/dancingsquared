@@ -6,20 +6,32 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 4,
+  "mappedCount": 8,
   "steps": [
     "All 4 Ladies Chain",
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Pass the Ocean",
     "Boys Only Extend",
-    "All Recycle",
-    "Centers Reverse Wheel Around",
+    {
+      "selection": "All",
+      "call": "Recycle"
+    },
+    {
+      "selection": "Centers",
+      "call": "Reverse Wheel Around"
+    },
     "Slide Thru",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"All 4 Ladies Chain,\"; Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Boys Only Extend,\"; Untranslatable: \"All Recycle,\"; Untranslatable: \"Centers Reverse Wheel Around,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"All 4 Ladies Chain,\"; Untranslatable: \"Boys Only Extend,\"",
   "source": "ceder.net/choreodb"
 }

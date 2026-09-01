@@ -6,9 +6,12 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
-    "Heads Square Thru 3/4",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Both Turn Right Single File",
     "Lady Around 2, Gent Around 1",
     "Lines Forward & Back",
@@ -19,6 +22,6 @@
     "Star Thru",
     "Bend the Line"
   ],
-  "note": "Untranslatable: \"Heads Square Thru 3/4,\"; Untranslatable: \"Both Turn Right Single File,\"; Untranslatable: \" Lady Around 2, Gent Around 1,\"; Untranslatable: \"Lines Forward & Back,\"; Untranslatable: \"Outside 4 U-Turn Back,\"",
+  "note": "Untranslatable: \"Both Turn Right Single File,\"; Untranslatable: \" Lady Around 2, Gent Around 1,\"; Untranslatable: \"Lines Forward & Back,\"; Untranslatable: \"Outside 4 U-Turn Back,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,12 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Flutterwheel",
     "Backaway",
-    "Sides Right & Left Thru",
+    {
+      "selection": "Sides",
+      "call": "Right and Left Thru"
+    },
     "Flutterwheel",
     "Backaway",
     "All Join Hands, Circle Left",
@@ -21,6 +27,6 @@
     "(Circle Left)",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" Backaway,\"; Untranslatable: \"Sides Right & Left Thru,\"; Untranslatable: \" Backaway,\"; Untranslatable: \"All Join Hands, Circle Left,\"; Untranslatable: \"Ladies Center, Men Sashay,\"; Untranslatable: \"(Circle Left),\"; Untranslatable: \"Ladies Center, Men Sashay,\"; Untranslatable: \"(Circle Left),\"",
+  "note": "Untranslatable: \" Backaway,\"; Untranslatable: \" Backaway,\"; Untranslatable: \"All Join Hands, Circle Left,\"; Untranslatable: \"Ladies Center, Men Sashay,\"; Untranslatable: \"(Circle Left),\"; Untranslatable: \"Ladies Center, Men Sashay,\"; Untranslatable: \"(Circle Left),\"",
   "source": "ceder.net/choreodb"
 }

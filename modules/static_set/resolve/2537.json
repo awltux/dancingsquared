@@ -4,23 +4,40 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 12,
-  "mappedCount": 6,
+  "mappedCount": 12,
   "steps": [
     "Four Ladies Chain 3/4",
-    "Head Position Pass The Ocean",
+    {
+      "selection": "Head Position",
+      "call": "Pass the Ocean"
+    },
     "Extend",
     "Boys Run",
     "Couples Circulate",
     "Ferris Wheel",
-    "Centers Veer Right",
-    "Boys Pass Thru",
-    "Centers Left Swing Thru",
-    "Girls Pass Thru",
-    "Centers Wheel & Deal",
+    {
+      "selection": "Centers",
+      "call": "Veer Right"
+    },
+    {
+      "selection": "Boys",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Left Swing Thru"
+    },
+    {
+      "selection": "Girls",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "Centers",
+      "call": "Wheel and Deal"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Head Position Pass The Ocean,\"; Untranslatable: \"Centers Veer Right,\"; Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"Centers Left Swing Thru,\"; Untranslatable: \"Girls Pass Thru,\"; Untranslatable: \"Centers Wheel & Deal,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,17 +6,23 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Swing Thru",
     "Men Run",
     "3/4 Tag the Line",
-    "Ladies Trade",
-    "Men Swing Thru",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
+    {
+      "selection": "Men",
+      "call": "Swing Thru"
+    },
     "Extend",
     "Men Run",
     "Left Allemande After the Men Run this is a ZB-ZB Conversion Module."
   ],
-  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Swing Thru\"; Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande After the Men Run this is a ZB-ZB Conversion Module.\"",
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande After the Men Run this is a ZB-ZB Conversion Module.\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 20,
-  "mappedCount": 15,
+  "mappedCount": 16,
   "steps": [
     "Heads Lead Right",
     "Veer Left",
@@ -18,7 +18,10 @@
     "Forward and Back",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Wheel Around",
+    {
+      "selection": "Centers",
+      "call": "Wheel Around"
+    },
     "Right and Left Thru",
     "Veer Left",
     "Circulate",
@@ -29,6 +32,6 @@
     "Allemande Left",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Wheel And Deal & 1/4 More,\"; Untranslatable: \"Centers Wheel Around,\"; Untranslatable: \"Wheel And Deal & 1/4 More,\"",
+  "note": "Untranslatable: \"Wheel And Deal & 1/4 More,\"; Untranslatable: \"Wheel And Deal & 1/4 More,\"",
   "source": "ceder.net/choreodb"
 }

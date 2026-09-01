@@ -4,17 +4,19 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 6,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Heads Star Thru",
     "Double Pass Thru",
     "Centers In",
     "Star Thru",
     "Zoom",
-    "Centers Square Thru 3"
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    }
   ],
-  "note": "Untranslatable: \"Centers Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

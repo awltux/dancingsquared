@@ -6,16 +6,25 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 6,
   "steps": [
-    "Heads Right & Left Thru, Backaway",
-    "Sides Lead Right",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Sides",
+      "call": "Lead Right"
+    },
     "Right and Left Thru",
-    "All Star Thru",
+    {
+      "selection": "All",
+      "call": "Star Thru"
+    },
     "2 Ladies Chain",
     "Pass Thru",
     "Bend the Line"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru, Backaway,\"; Untranslatable: \"Sides Lead Right,\"; Untranslatable: \"All Star Thru,\"; Untranslatable: \"2 Ladies Chain,\"",
+  "note": "Untranslatable: \"2 Ladies Chain,\"",
   "source": "ceder.net/choreodb"
 }

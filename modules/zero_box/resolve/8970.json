@@ -6,17 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Swing Thru",
     "Extend",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Extend",
     "Centers In",
     "Cast Off Three Quarters",
     "Star Thru",
     "Left Allemande Trade By Formation"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru\"; Untranslatable: \"Left Allemande Trade By Formation\"",
+  "note": "Untranslatable: \"Left Allemande Trade By Formation\"",
   "source": "ceder.net/choreodb"
 }

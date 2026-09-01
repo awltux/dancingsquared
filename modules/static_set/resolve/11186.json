@@ -6,11 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 7,
+  "mappedCount": 9,
   "steps": [
     "(Lesson 6-06)",
-    "Heads Right & Left Thru",
-    "Heads Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Heads",
+      "call": "Half Sashay"
+    },
     "Heads Star Thru",
     "Slide Thru",
     "Pass Thru",
@@ -20,6 +26,6 @@
     "Left Allemande",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"(Lesson 6-06),\"; Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Heads Half Sashay,\"",
+  "note": "Untranslatable: \"(Lesson 6-06),\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,19 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Heads Star Thru",
     "Double Pass Thru",
     "Centers In",
     "Pass Thru",
     "Wheel and Deal",
-    "Girls Square Thru 3",
+    {
+      "selection": "Girls",
+      "call": "Square Thru 3"
+    },
     "Boys Courtesy Turn The Girls",
     "Flutterwheel",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Square Thru 3,\"; Untranslatable: \"Boys Courtesy Turn The Girls,\"",
+  "note": "Untranslatable: \"Boys Courtesy Turn The Girls,\"",
   "source": "ceder.net/choreodb"
 }

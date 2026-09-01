@@ -6,19 +6,31 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 4,
+  "mappedCount": 8,
   "steps": [
-    "Heads Right & Left Thru",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
     "Half Sashay",
     "Pass Thru",
     "Separate Around Two To A Line Of 4",
     "Forward and Back",
-    "Men (Together) Half Sashay",
-    "Girls (Together) Half Sashay",
+    {
+      "selection": "Men",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "Girls",
+      "call": "Half Sashay"
+    },
     "Centers Only Half Sashay",
-    "Everybody Half Sashay",
+    {
+      "selection": "Everybody",
+      "call": "Half Sashay"
+    },
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \"Separate Around Two To A Line Of 4,\"; Untranslatable: \"Men (Together) Half Sashay,\"; Untranslatable: \"Girls (Together) Half Sashay,\"; Untranslatable: \"Centers Only Half Sashay,\"; Untranslatable: \"Everybody Half Sashay,\"",
+  "note": "Untranslatable: \"Separate Around Two To A Line Of 4,\"; Untranslatable: \"Centers Only Half Sashay,\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,9 +4,9 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 12,
-  "mappedCount": 10,
+  "mappedCount": 12,
   "steps": [
     "Pass the Ocean",
     "Swing Thru",
@@ -16,11 +16,16 @@
     "Star Thru",
     "Pass Thru",
     "Wheel and Deal",
-    "Girls Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "Girls",
+      "call": "Zoom"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Girls Zoom\"; Untranslatable: \"Centers Pass Thru\"",
   "source": "ceder.net/choreodb"
 }

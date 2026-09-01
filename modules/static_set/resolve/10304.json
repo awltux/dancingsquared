@@ -6,15 +6,21 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Ladies Chain 3/4",
     "Rollaway",
-    "Head Position Left Spin The Top",
+    {
+      "selection": "Head Position",
+      "call": "Left Spin the Top"
+    },
     "Scoot Back",
-    "Centers Left Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Left Swing Thru"
+    },
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Ladies Chain 3/4,\"; Untranslatable: \"Head Position Left Spin The Top,\"; Untranslatable: \"Centers Left Swing Thru,\"",
+  "note": "Untranslatable: \"Ladies Chain 3/4,\"",
   "source": "ceder.net/choreodb"
 }

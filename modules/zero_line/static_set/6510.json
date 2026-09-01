@@ -6,15 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Right and Left Thru",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Sweep 1/4 & Half Sashay",
-    "Centers Star Thru",
+    {
+      "selection": "Centers",
+      "call": "Sweep a Quarter"
+    },
+    {
+      "selection": "Centers",
+      "call": "Star Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Sweep 1/4 & Half Sashay\"; Untranslatable: \"Centers Star Thru\"",
   "source": "ceder.net/choreodb"
 }

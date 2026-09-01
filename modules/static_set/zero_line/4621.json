@@ -4,15 +4,20 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 4,
-  "mappedCount": 2,
+  "mappedCount": 4,
   "steps": [
-    "Heads Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Half Sashay"
+    },
     "Heads Lead Right",
     "Swing Thru",
-    "Girls U-Turn Back"
+    {
+      "selection": "Girls",
+      "call": "U-Turn Back"
+    }
   ],
-  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"Girls U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

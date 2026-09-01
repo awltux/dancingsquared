@@ -6,14 +6,17 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 5,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "(Lesson 7-05)",
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Heads Separate Go Around 1 Into The Middle",
     "Heads Square Thru 3",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"(Lesson 7-05),\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Heads Separate Go Around 1 Into The Middle,\"",
+  "note": "Untranslatable: \"(Lesson 7-05),\"; Untranslatable: \"Heads Separate Go Around 1 Into The Middle,\"",
   "source": "ceder.net/choreodb"
 }

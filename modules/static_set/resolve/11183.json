@@ -6,20 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 7,
+  "mappedCount": 10,
   "steps": [
     "(Lesson 6-04)",
-    "Heads Square Thru",
+    {
+      "selection": "Heads",
+      "call": "Square Thru 4"
+    },
     "Right and Left Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Slide Thru",
     "Right and Left Thru",
     "Flutterwheel",
     "Dive Thru",
-    "Centers Star Thru",
+    {
+      "selection": "Centers",
+      "call": "Star Thru"
+    },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 6-04),\"; Untranslatable: \"Heads Square Thru,\"; Untranslatable: \"Centers Pass Thru,\"; Untranslatable: \"Centers Star Thru,\"",
+  "note": "Untranslatable: \"(Lesson 6-04),\"",
   "source": "ceder.net/choreodb"
 }

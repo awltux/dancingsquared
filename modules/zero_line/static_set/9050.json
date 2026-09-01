@@ -6,17 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Slide Thru",
     "Swing Thru",
-    "Men Trade",
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
     "Men Run",
     "Tag the Line",
     "Ladies Go Left",
     "Men Go Right",
     "Left Allemande : Unusual Allemande Left."
   ],
-  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Men Run\"; Untranslatable: \"Ladies Go Left\"; Untranslatable: \"Men Go Right\"; Untranslatable: \"Left Allemande : Unusual Allemande Left.\"",
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Ladies Go Left\"; Untranslatable: \"Men Go Right\"; Untranslatable: \"Left Allemande : Unusual Allemande Left.\"",
   "source": "ceder.net/choreodb"
 }

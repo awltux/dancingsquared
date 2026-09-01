@@ -6,18 +6,24 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Heads 1/2 Square Thru",
-    "All Swing Thru",
+    {
+      "selection": "All",
+      "call": "Swing Thru"
+    },
     "Girls Run",
     "Girls Trade",
     "Couples Circulate",
     "Bend the Line",
     "1/2 Square Thru",
     "Centers 1/2 Square Thru",
-    "Everybody R.L.G"
+    {
+      "selection": "Everybody",
+      "call": "Right and Left Grand"
+    }
   ],
-  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"All Swing Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"Centers 1/2 Square Thru,\"; Untranslatable: \"Everybody R.L.G\"",
+  "note": "Untranslatable: \"Heads 1/2 Square Thru,\"; Untranslatable: \"1/2 Square Thru,\"; Untranslatable: \"Centers 1/2 Square Thru,\"",
   "source": "ceder.net/choreodb"
 }

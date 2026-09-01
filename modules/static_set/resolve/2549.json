@@ -6,16 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Heads Lead Right",
     "Centers In",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Half Tag",
     "Circulate",
     "Left Swing Thru",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru,\"",
   "source": "ceder.net/choreodb"
 }

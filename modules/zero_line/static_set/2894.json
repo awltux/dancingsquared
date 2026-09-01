@@ -6,19 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 8,
   "steps": [
     "Swing Thru",
     "Center 4 Swing Thru",
-    "All Step Thru",
+    {
+      "selection": "All",
+      "call": "Step Thru"
+    },
     "Wheel and Deal",
     "Zoom",
-    "Girls Square Thru 3/4",
+    {
+      "selection": "Girls",
+      "call": "Square Thru 4"
+    },
     "Star Thru",
     "Couples Circulate",
     "Wheel and Deal",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Center 4 Swing Thru\"; Untranslatable: \"All Step Thru\"; Untranslatable: \"Girls Square Thru 3/4\"",
+  "note": "Untranslatable: \"Center 4 Swing Thru\"",
   "source": "ceder.net/choreodb"
 }

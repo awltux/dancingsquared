@@ -6,15 +6,21 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 6,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
     "Head Ladies Chain",
     "Circle Eight",
-    "Ladies Forward & Back",
-    "Same 4 Square Thru 5 Hands (= Pass Thru)",
+    {
+      "selection": "Ladies",
+      "call": "Forward and Back"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Square Thru 4"
+    },
     "Both Turn Left Promenade Single File",
     "First Around Two, Next Around One To A Line"
   ],
-  "note": "Untranslatable: \"Circle Eight,\"; Untranslatable: \"Ladies Forward & Back,\"; Untranslatable: \" Same 4 Square Thru 5 Hands (= Pass Thru),\"; Untranslatable: \"Both Turn Left Promenade Single File,\"; Untranslatable: \" First Around Two, Next Around One To A Line\"",
+  "note": "Untranslatable: \"Circle Eight,\"; Untranslatable: \"Both Turn Left Promenade Single File,\"; Untranslatable: \" First Around Two, Next Around One To A Line\"",
   "source": "ceder.net/choreodb"
 }

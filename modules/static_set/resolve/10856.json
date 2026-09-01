@@ -6,12 +6,15 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Heads Forward and Back",
     "Right-Hand Star Once Around",
     "Men Back Out, Two Ladies Chain",
-    "Sides Forward & Back",
+    {
+      "selection": "Sides",
+      "call": "Forward and Back"
+    },
     "Right-Hand Star Once Around",
     ", Two Ladies Chain",
     "All Join Hands Circle Left",
@@ -19,6 +22,6 @@
     "Ladies Center Men Sashay",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \" Right-Hand Star Once Around,\"; Untranslatable: \" Men Back Out, Two Ladies Chain,\"; Untranslatable: \"Sides Forward & Back,\"; Untranslatable: \" Right-Hand Star Once Around,\"; Untranslatable: \" , Two Ladies Chain,\"; Untranslatable: \"All Join Hands Circle Left,\"; Untranslatable: \"Ladies Center Men Sashay,\"; Untranslatable: \"Ladies Center Men Sashay,\"",
+  "note": "Untranslatable: \" Right-Hand Star Once Around,\"; Untranslatable: \" Men Back Out, Two Ladies Chain,\"; Untranslatable: \" Right-Hand Star Once Around,\"; Untranslatable: \" , Two Ladies Chain,\"; Untranslatable: \"All Join Hands Circle Left,\"; Untranslatable: \"Ladies Center Men Sashay,\"; Untranslatable: \"Ladies Center Men Sashay,\"",
   "source": "ceder.net/choreodb"
 }

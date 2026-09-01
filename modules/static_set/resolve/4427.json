@@ -4,16 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Heads Pass the Ocean",
     "Swing Thru",
     "Extend",
-    "Centers Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Swing Thru"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Centers Swing Thru,\"",
   "source": "ceder.net/choreodb"
 }

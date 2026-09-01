@@ -6,16 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Swing Thru",
-    "Ladies Circulate",
-    "Men Trade",
+    {
+      "selection": "Ladies",
+      "call": "Circulate"
+    },
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
     "Box the Gnat",
     "Right and Left Thru",
     "Square Thru 4",
     "Left Allemande TdBy Formation"
   ],
-  "note": "Untranslatable: \"Ladies Circulate\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Left Allemande TdBy Formation\"",
+  "note": "Untranslatable: \"Left Allemande TdBy Formation\"",
   "source": "ceder.net/choreodb"
 }

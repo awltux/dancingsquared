@@ -12,7 +12,8 @@ import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
 import { normAngle } from './identity.js';
 import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
-import type { Board, SeqDancer, VariantMatch } from './types.js';
+import { splitSelection } from './selection.js';
+import type { Board, CallStep, SeqDancer, VariantMatch } from './types.js';
 import type { CallBundle, Pose } from '../types.js';
 
 const rot = (a: number, v: { x: number; y: number }) => ({
@@ -34,21 +35,29 @@ export class CallApplicator {
     private readonly library: CallLibrary,
     private readonly matcher: FormationMatcher,
     private readonly config: SequencerConfig,
+    private resolveSelection: (board: Board, selection: string) => number[] | null = () => null,
   ) {}
+
+  /** Set the selection resolver (the Grouping's resolveSelection). Called after
+   * construction to break the applicator<->grouping cycle. */
+  setSelectionResolver(fn: (board: Board, selection: string) => number[] | null): void {
+    this.resolveSelection = fn;
+  }
 
   /** Apply a call (or module) to a COPY of the given board (does not mutate).
    * The interactive apply re-bases the board onto the call's canonical start so
-   * margin-based drift doesn't accumulate on the live sequence. */
-  applyToBoard(board: Board, callName: string): ApplyResult {
-    return this.applyToBoardInner(board, callName, [], true);
+   * margin-based drift doesn't accumulate on the live sequence. Accepts a call
+   * title or a CallStep carrying an optional dancer selection. */
+  applyToBoard(board: Board, callName: string | CallStep): ApplyResult {
+    return this.applyStepInner(board, callName, [], true);
   }
 
-  /** Apply a call using PURE relative motion Ã¢â‚¬â€ no drift re-base. Used by the
+  /** Apply a call using PURE relative motion — no drift re-base. Used by the
    * search operations (legalCalls, getout, fixIt) where re-basing would pin
    * dancers to their current (possibly permuted) positions and destroy the
    * identity information those searches need to un-permute home. */
-  applySearch(board: Board, callName: string): ApplyResult {
-    return this.applyToBoardInner(board, callName, [], false);
+  applySearch(board: Board, callName: string | CallStep): ApplyResult {
+    return this.applyStepInner(board, callName, [], false);
   }
 
   private applyToBoardInner(
@@ -65,13 +74,23 @@ export class CallApplicator {
       const nextStack = [...stack, callName];
       let cur = board;
       for (const sub of this.library.getModule(callName)!) {
-        const r = this.applyToBoardInner(cur, sub, nextStack, rebase, allowParallel);
+        const r = this.applyStepInner(cur, sub, nextStack, rebase, allowParallel);
         if (!r.legal) {
-          return { board: cloneBoard(board), legal: false, reason: `Module ${callName}: "${sub}" not legal here` };
+          const label = typeof sub === 'string' ? sub : sub.call;
+          return { board: cloneBoard(board), legal: false, reason: `Module ${callName}: "${label}" not legal here` };
         }
         cur = r.board;
       }
       return { board: cur, legal: true };
+    }
+
+    // A call name may carry a dancer-selection prefix, e.g. "Centers Pass Thru"
+    // or "Same 4 Star Thru". Only route to the subset path when the full name is
+    // NOT itself a registered call (e.g. "Heads Pass Thru" IS a catalog title and
+    // must keep its whole-board behaviour).
+    const sel = splitSelection(callName);
+    if (sel.selection && !this.library.hasCall(callName) && !this.library.hasModule(callName)) {
+      return this.applySelected(board, sel.selection, sel.call, rebase);
     }
 
     const matchTol = rebase ? DEFAULT_MATCH_MAX + this.config.matchMargin : SEARCH_MATCH_MAX + this.config.matchMargin;
@@ -96,6 +115,23 @@ export class CallApplicator {
       return chosen;
     }
     return this.applyWholeBoard(board, callName, match, rebase);
+  }
+
+  /** Apply a single call step (string or {selection, call}) to a copy of `board`. */
+  applyStep(board: Board, step: string | CallStep): ApplyResult {
+    return this.applyStepInner(board, step, [], true);
+  }
+
+  private applyStepInner(
+    board: Board,
+    step: string | CallStep,
+    stack: string[],
+    rebase: boolean,
+    allowParallel = true,
+  ): ApplyResult {
+    if (typeof step === 'string') return this.applyToBoardInner(board, step, stack, rebase, allowParallel);
+    if (step.selection) return this.applySelected(board, step.selection, step.call, rebase);
+    return this.applyToBoardInner(board, step.call, stack, rebase, allowParallel);
   }
 
   private applyWholeBoard(board: Board, callName: string, match: VariantMatch, rebase: boolean): ApplyResult {
@@ -127,6 +163,41 @@ export class CallApplicator {
     // relative motion so a getout can still un-permute dancers back home.
     return { board: rebase ? this.matcher.snapBoard({ dancers: newDancers }) : { dancers: newDancers }, legal: true };
   }
+
+  /** Apply a call to ONLY the selected dancers of a board, leaving everyone else
+   * in place. The selected dancers are gathered into a subset board, the base call
+   * is applied to that subset, and the moved dancers are merged back into the full
+   * board by identity. Returns legal=false if the subset can't be resolved or the
+   * base call isn't applicable to the subset. */
+  applySelected(board: Board, selection: string, callName: string, rebase: boolean): ApplyResult {
+    const ds = board.dancers.filter((d) => !d.isGhost);
+    const byId = new Map(board.dancers.map((d) => [d.id, d]));
+    const ids = this.resolveSelection(board, selection);
+    if (!ids || ids.length === 0) {
+      return { board: cloneBoard(board), legal: false, reason: `Unresolvable selection: ${selection}` };
+    }
+    const selected = ids.map((id) => byId.get(id)).filter((d): d is SeqDancer => !!d);
+    // Center the subset about its own origin so the call's canonical setup applies.
+    let cx = 0, cy = 0;
+    for (const d of selected) { cx += d.x; cy += d.y; }
+    cx /= selected.length; cy /= selected.length;
+    const subBoard: Board = { dancers: selected.map((d) => ({ ...d, x: d.x - cx, y: d.y - cy })) };
+    const r = this.applyToBoardInner(subBoard, callName, [], rebase, false);
+    if (!r.legal) {
+      return { board: cloneBoard(board), legal: false, reason: `"${callName}" not legal for selected dancers` };
+    }
+    // Merge moved subset dancers back by id; non-selected dancers unchanged.
+    const moved = new Map(r.board.dancers.map((d) => [d.id, d]));
+    const merged = board.dancers.map((d) => {
+      if (d.isGhost) return d;
+      const m = moved.get(d.id);
+      if (!m) return d;
+      // Re-apply the centering offset we removed.
+      return { ...m, x: m.x + cx, y: m.y + cy };
+    });
+    return { board: { dancers: merged }, legal: true };
+  }
+
 
   private selectInterpretation(
     whole: { kind: 'whole'; error: number; run: () => ApplyResult },

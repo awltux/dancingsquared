@@ -6,16 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 1,
+  "mappedCount": 3,
   "steps": [
     "Head Men Dosado",
     "Side Men Dosado",
-    "Head Ladies Dosado",
-    "Side Ladies Dosado",
+    {
+      "selection": "Head Ladies",
+      "call": "Dosado"
+    },
+    {
+      "selection": "Side Ladies",
+      "call": "Dosado"
+    },
     "Dosado Corner",
     "Dosado Partner",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Head Men Dosado,\"; Untranslatable: \"Side Men Dosado,\"; Untranslatable: \"Head Ladies Dosado,\"; Untranslatable: \"Side Ladies Dosado,\"; Untranslatable: \"Dosado Corner,\"; Untranslatable: \"Dosado Partner,\"",
+  "note": "Untranslatable: \"Head Men Dosado,\"; Untranslatable: \"Side Men Dosado,\"; Untranslatable: \"Dosado Corner,\"; Untranslatable: \"Dosado Partner,\"",
   "source": "ceder.net/choreodb"
 }

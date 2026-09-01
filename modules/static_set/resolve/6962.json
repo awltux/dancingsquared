@@ -6,11 +6,14 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Heads Half Sashay & Pass Thru",
     "Separate Around Two To A Line",
-    "All Circle Left",
+    {
+      "selection": "All",
+      "call": "Circle Left"
+    },
     "Those Who Can Right & Left Thru",
     "Others Rollaway, Pass Thru & Separate Around One To A Line",
     "Circle Left",
@@ -21,6 +24,6 @@
     "Others Star Thru (ZB)",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay & Pass Thru,\"; Untranslatable: \"Separate Around Two To A Line,\"; Untranslatable: \"All Circle Left,\"; Untranslatable: \"Those Who Can Right & Left Thru,\"; Untranslatable: \"Others Rollaway, Pass Thru & Separate Around One To A Line,\"; Untranslatable: \"Those Who Can Right & Left Thru,\"; Untranslatable: \"Others Rollaway, Pass Thru & Separate Around One To A Line,\"; Untranslatable: \"Those Who Can Right & Left Thru,\"; Untranslatable: \"Others Star Thru (ZB),\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"Heads Half Sashay & Pass Thru,\"; Untranslatable: \"Separate Around Two To A Line,\"; Untranslatable: \"Those Who Can Right & Left Thru,\"; Untranslatable: \"Others Rollaway, Pass Thru & Separate Around One To A Line,\"; Untranslatable: \"Those Who Can Right & Left Thru,\"; Untranslatable: \"Others Rollaway, Pass Thru & Separate Around One To A Line,\"; Untranslatable: \"Those Who Can Right & Left Thru,\"; Untranslatable: \"Others Star Thru (ZB),\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

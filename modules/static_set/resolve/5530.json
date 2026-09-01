@@ -6,21 +6,33 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 6,
+  "mappedCount": 10,
   "steps": [
-    "Heads Rollaway",
-    "Sides Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Rollaway"
+    },
+    {
+      "selection": "Sides",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
     "Touch a Quarter",
     "All 8 Circulate",
-    "Centers Box Circulate",
+    {
+      "selection": "Centers",
+      "call": "Box Circulate"
+    },
     "All 8 Circulate",
     "Boys Trade",
     "All 8 Circulate",
     "Boys Run",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Centers Box Circulate,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

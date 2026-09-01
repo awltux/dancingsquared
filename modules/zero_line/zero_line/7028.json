@@ -4,17 +4,28 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 6,
-  "mappedCount": 2,
+  "mappedCount": 6,
   "steps": [
     "Pass Thru",
-    "Ladies Trade",
-    "Men Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
     "Pass Thru",
-    "Men Trade",
-    "Ladies Trade"
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    }
   ],
-  "note": "Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Trade\"",
   "source": "ceder.net/choreodb"
 }

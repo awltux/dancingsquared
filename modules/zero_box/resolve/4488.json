@@ -12,10 +12,13 @@
     "Hinge",
     "Scoot Back 1 & 1/2",
     "Ferris Wheel",
-    "Centers Sweep 1/4",
+    {
+      "selection": "Centers",
+      "call": "Sweep a Quarter"
+    },
     "Centers 1/2 Square Thru",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Scoot Back 1 & 1/2\"; Untranslatable: \"Centers Sweep 1/4\"; Untranslatable: \"Centers 1/2 Square Thru\"",
+  "note": "Untranslatable: \"Scoot Back 1 & 1/2\"; Untranslatable: \"Centers 1/2 Square Thru\"",
   "source": "ceder.net/choreodb"
 }

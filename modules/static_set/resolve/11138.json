@@ -6,20 +6,29 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 6,
+  "mappedCount": 9,
   "steps": [
-    "Heads Rollaway",
-    "Same 4 Star Thru",
+    {
+      "selection": "Heads",
+      "call": "Rollaway"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Star Thru"
+    },
     "Pass Thru, U-Turn Back",
     "Star Thru, Dance Out & Back",
     "Bend the Line",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Allemande Left",
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"Same 4 Star Thru,\"; Untranslatable: \"Pass Thru, U-Turn Back,\"; Untranslatable: \"Star Thru, Dance Out & Back,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"Pass Thru, U-Turn Back,\"; Untranslatable: \"Star Thru, Dance Out & Back,\"",
   "source": "ceder.net/choreodb"
 }

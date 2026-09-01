@@ -6,7 +6,7 @@
   "endFormation": "Zero Box",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Outsides Half Sashay",
     "Swing Thru",
@@ -14,8 +14,11 @@
     "Reverse Flutterwheel",
     "Star Thru",
     "Dive Thru",
-    "Centers Pass Thru"
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    }
   ],
-  "note": "Untranslatable: \"Outsides Half Sashay\"; Untranslatable: \"Centers Pass Thru\"",
+  "note": "Untranslatable: \"Outsides Half Sashay\"",
   "source": "ceder.net/choreodb"
 }

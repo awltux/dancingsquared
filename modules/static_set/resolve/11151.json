@@ -6,17 +6,26 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
-    "Heads Promenade Halfway",
-    "Same 4 Square Thru 2 Hands",
-    "Everyone Square Thru 2 Hands",
+    {
+      "selection": "Heads",
+      "call": "All 4 Couples Promenade"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "Everyone",
+      "call": "Square Thru 4"
+    },
     "Dance Out & Back",
     "Bend the Line",
     "Slide Thru",
     "Allemande Left",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Promenade Halfway,\"; Untranslatable: \"Same 4 Square Thru 2 Hands,\"; Untranslatable: \"Everyone Square Thru 2 Hands,\"; Untranslatable: \"Dance Out & Back,\"",
+  "note": "Untranslatable: \"Dance Out & Back,\"",
   "source": "ceder.net/choreodb"
 }

@@ -13,12 +13,18 @@
     "Veer Left",
     "Girls Trade",
     "Couples Circulate",
-    "Boys Circulate",
-    "Girls Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Trade",
     "Couples Circulate",
     "Wrong Way Promenade Home"
   ],
-  "note": "Untranslatable: \"(Lesson 5-09),\"; Untranslatable: \"Boys Circulate,\"; Untranslatable: \"Girls Circulate,\"; Untranslatable: \"Wrong Way Promenade Home\"",
+  "note": "Untranslatable: \"(Lesson 5-09),\"; Untranslatable: \"Wrong Way Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

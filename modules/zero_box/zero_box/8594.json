@@ -9,10 +9,13 @@
   "mappedCount": 2,
   "steps": [
     "Veer Left",
-    "Couples Circulate Twice",
+    {
+      "selection": "Couples",
+      "call": "Circulate"
+    },
     "Bend the Line",
     "Each Four Circle Left 3/4 (Zero Box) This flip flops the set."
   ],
-  "note": "Untranslatable: \"Couples Circulate Twice\"; Untranslatable: \"Each Four Circle Left 3/4 (Zero Box) This flip flops the set.\"",
+  "note": "Untranslatable: \"Each Four Circle Left 3/4 (Zero Box) This flip flops the set.\"",
   "source": "ceder.net/choreodb"
 }

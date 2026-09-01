@@ -6,19 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Pass the Ocean",
     "Spin the Top",
     "Center 4 Recycle",
-    "Same 4 Square Thru",
+    {
+      "selection": "Same 4",
+      "call": "Square Thru 4"
+    },
     "Outside Boy Run Right",
     "Outsides Bend The Line",
-    "All Right & Left Thru",
+    {
+      "selection": "All",
+      "call": "Right and Left Thru"
+    },
     "Pass Thru",
     "Trade By",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Center 4 Recycle\"; Untranslatable: \"Same 4 Square Thru\"; Untranslatable: \"Outside Boy Run Right\"; Untranslatable: \"Outsides Bend The Line\"; Untranslatable: \"All Right & Left Thru\"",
+  "note": "Untranslatable: \"Center 4 Recycle\"; Untranslatable: \"Outside Boy Run Right\"; Untranslatable: \"Outsides Bend The Line\"",
   "source": "ceder.net/choreodb"
 }

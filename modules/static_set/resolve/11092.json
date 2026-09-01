@@ -6,12 +6,15 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 3,
-  "mappedCount": 0,
+  "mappedCount": 1,
   "steps": [
-    "Everyone California Twirl",
+    {
+      "selection": "Everyone",
+      "call": "California Twirl"
+    },
     "Boys Run Right",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Everyone California Twirl,\"; Untranslatable: \"Boys Run Right,\"",
+  "note": "Untranslatable: \"Boys Run Right,\"",
   "source": "ceder.net/choreodb"
 }

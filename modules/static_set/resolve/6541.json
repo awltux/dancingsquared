@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "Heads Star Thru",
     "Girls Only Zoom",
@@ -17,9 +17,12 @@
     "Forward and Back",
     "Right and Left Thru",
     "Half Sashay 1 & 1/2",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Only Zoom,\"; Untranslatable: \"Half Sashay 1 & 1/2,\"; Untranslatable: \"Centers Square Thru 3,\"",
+  "note": "Untranslatable: \"Girls Only Zoom,\"; Untranslatable: \"Half Sashay 1 & 1/2,\"",
   "source": "ceder.net/choreodb"
 }

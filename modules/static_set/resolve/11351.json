@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 10,
+  "mappedCount": 11,
   "steps": [
     "(Lesson 10-11)",
     "Heads Square Thru 2",
@@ -15,13 +15,16 @@
     "Right and Left Thru",
     "Veer Left",
     "Girls Trade",
-    "All Partner Trade",
+    {
+      "selection": "All",
+      "call": "Partner Trade"
+    },
     "Boys Trade",
     "Ferris Wheel",
     "Zoom",
     "Centers Star Thru And Back Away",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 10-11),\"; Untranslatable: \"All Partner Trade,\"; Untranslatable: \"Centers Star Thru And Back Away,\"",
+  "note": "Untranslatable: \"(Lesson 10-11),\"; Untranslatable: \"Centers Star Thru And Back Away,\"",
   "source": "ceder.net/choreodb"
 }

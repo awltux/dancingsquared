@@ -6,17 +6,20 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Circle Left",
     "Circle Right",
     "Single File Promenade",
-    "Girls U-Turn Back",
+    {
+      "selection": "Girls",
+      "call": "U-Turn Back"
+    },
     "Box the Gnat",
     "Pull By",
     "Allemande Left",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Girls U-Turn Back,\"; Untranslatable: \"Pull By,\"",
+  "note": "Untranslatable: \"Pull By,\"",
   "source": "ceder.net/choreodb"
 }

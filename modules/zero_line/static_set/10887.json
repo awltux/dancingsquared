@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 11,
+  "mappedCount": 12,
   "steps": [
     "Pass Thru",
     "Tag the Line",
@@ -18,10 +18,12 @@
     "Bend the Line",
     "Pass Thru",
     "Wheel and Deal",
-    "Centers Left Swing Thru",
+    {
+      "selection": "Centers",
+      "call": "Left Swing Thru"
+    },
     "Extend",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Centers Left Swing Thru\"",
   "source": "ceder.net/choreodb"
 }

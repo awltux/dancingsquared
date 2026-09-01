@@ -11,12 +11,14 @@
     "Right and Left Thru",
     "Dosado to a Wave",
     "Spin the Top",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Trade",
     "Boys Run",
     "Bend the Line",
     "Slide Thru"
   ],
-  "note": "Untranslatable: \"Girls Circulate\"",
   "source": "ceder.net/choreodb"
 }

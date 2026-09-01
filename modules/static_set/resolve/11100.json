@@ -6,24 +6,45 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 15,
-  "mappedCount": 4,
+  "mappedCount": 11,
   "steps": [
-    "Heads Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Half Sashay"
+    },
     "All Join Hands, Circle Left",
-    "Boys Forward & Back",
-    "Boys Square Thru",
+    {
+      "selection": "Boys",
+      "call": "Forward and Back"
+    },
+    {
+      "selection": "Boys",
+      "call": "Square Thru 4"
+    },
     "Split The Outsides Around 1 To A Line",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Bend the Line",
     "Join Hands, Circle Left",
-    "Girls Forward & Back",
-    "Girls Square Thru 4",
+    {
+      "selection": "Girls",
+      "call": "Forward and Back"
+    },
+    {
+      "selection": "Girls",
+      "call": "Square Thru 4"
+    },
     "Split The Outsides Around 1 To A Line",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Boys Fold",
     "Star Thru",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"All Join Hands, Circle Left,\"; Untranslatable: \"Boys Forward & Back,\"; Untranslatable: \"Boys Square Thru,\"; Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Join Hands, Circle Left,\"; Untranslatable: \"Girls Forward & Back,\"; Untranslatable: \"Girls Square Thru 4,\"; Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"",
+  "note": "Untranslatable: \"All Join Hands, Circle Left,\"; Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"Join Hands, Circle Left,\"; Untranslatable: \"Split The Outsides Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

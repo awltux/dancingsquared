@@ -6,11 +6,14 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Heads Square Thru 4",
     "Split The Outsides Around 1 To A Line",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Ends Fold",
     "Star Thru",
     "Pass Thru",
@@ -19,6 +22,6 @@
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"All Pass Thru,\"; Untranslatable: \"Centers Fold,\"",
+  "note": "Untranslatable: \"Split The Outsides Around 1 To A Line,\"; Untranslatable: \"Centers Fold,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 19,
-  "mappedCount": 8,
+  "mappedCount": 12,
   "steps": [
     "Heads Pass the Ocean",
     "Head Boys Extend",
@@ -16,11 +16,23 @@
     "<Hook On To The End Make Line (GBBG))",
     "Pass Thru",
     "Wheel and Deal",
-    "centers Right And Left Thru",
-    "same 4 Pass Thru",
-    "all Touch 1/4",
+    {
+      "selection": "centers",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "same 4",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "all",
+      "call": "Touch a Quarter"
+    },
     "Split Circulate",
-    "Ladies Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Recycle",
     "Slide Thru",
     "Pass the Ocean",
@@ -28,6 +40,6 @@
     "Swing",
     "All 4 Couples Promenade"
   ],
-  "note": "Untranslatable: \"Head Boys Extend,\"; Untranslatable: \"Same Boy Run Right,\"; Untranslatable: \"Center Girls Face In, Pass Thru,\"; Untranslatable: \" And To Your Right Single File Promenade Around 3 to a line,\"; Untranslatable: \"<Hook On To The End Make Line (GBBG)),\"; Untranslatable: \"centers Right And Left Thru,\"; Untranslatable: \"same 4 Pass Thru,\"; Untranslatable: \"all Touch 1/4,\"; Untranslatable: \"Ladies Trade,\"",
+  "note": "Untranslatable: \"Head Boys Extend,\"; Untranslatable: \"Same Boy Run Right,\"; Untranslatable: \"Center Girls Face In, Pass Thru,\"; Untranslatable: \" And To Your Right Single File Promenade Around 3 to a line,\"; Untranslatable: \"<Hook On To The End Make Line (GBBG)),\"",
   "source": "ceder.net/choreodb"
 }

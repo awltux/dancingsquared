@@ -6,13 +6,16 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Heads Promenade 3/4",
-    "Sides Pass Thru",
+    {
+      "selection": "Sides",
+      "call": "Pass Thru"
+    },
     "Circle Four 3/4",
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"Sides Pass Thru,\"; Untranslatable: \"Circle Four 3/4,\"",
+  "note": "Untranslatable: \"Circle Four 3/4,\"",
   "source": "ceder.net/choreodb"
 }

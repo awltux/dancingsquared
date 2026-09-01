@@ -4,16 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Line",
-  "success": false,
+  "success": true,
   "stepCount": 5,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Heads Lead Right",
     "Right and Left Thru",
     "Veer Left",
     "Couples Circulate",
-    "Leaders California Twirl"
+    {
+      "selection": "Leaders",
+      "call": "California Twirl"
+    }
   ],
-  "note": "Untranslatable: \"Leaders California Twirl\"",
   "source": "ceder.net/choreodb"
 }

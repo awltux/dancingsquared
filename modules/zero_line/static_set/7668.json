@@ -6,19 +6,25 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 4,
+  "mappedCount": 6,
   "steps": [
     "Right and Left Thru",
     "Veer Left",
     "Center 4",
     "Couples Trade",
-    "All Couples Trade",
+    {
+      "selection": "All",
+      "call": "Couples Trade"
+    },
     "Center 4",
     "Wheel and Deal",
-    "Everybody Wheel & Deal",
+    {
+      "selection": "Everybody",
+      "call": "Wheel and Deal"
+    },
     "All 4 Couples Promenade",
     "the centers are to work with the outside couples who are facing the same direction. Right hand couple in front to a two-faced line and promenade home."
   ],
-  "note": "Untranslatable: \"Center 4\"; Untranslatable: \"All Couples Trade\"; Untranslatable: \"Center 4\"; Untranslatable: \"Everybody Wheel & Deal\"; Untranslatable: \"the centers are to work with the outside couples who are facing the same direction. Right hand couple in front to a two-faced line and promenade home.\"",
+  "note": "Untranslatable: \"Center 4\"; Untranslatable: \"Center 4\"; Untranslatable: \"the centers are to work with the outside couples who are facing the same direction. Right hand couple in front to a two-faced line and promenade home.\"",
   "source": "ceder.net/choreodb"
 }

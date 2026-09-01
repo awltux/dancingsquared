@@ -6,16 +6,24 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 6,
   "steps": [
     "Four Ladies Chain 3/4",
-    "Head Position Half Sashay",
-    "Same 4 Star Thru",
-    "Everybody Dosado",
+    {
+      "selection": "Head Position",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Star Thru"
+    },
+    {
+      "selection": "Everybody",
+      "call": "Dosado"
+    },
     "Square Thru 3",
     "Left Allemande",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Head Position Half Sashay,\"; Untranslatable: \"Same 4 Star Thru,\"; Untranslatable: \"Everybody Dosado,\"",
   "source": "ceder.net/choreodb"
 }

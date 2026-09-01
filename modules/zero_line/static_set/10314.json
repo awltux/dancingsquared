@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 3,
+  "mappedCount": 4,
   "steps": [
     "Touch a Quarter",
     "Circulate",
@@ -15,10 +15,13 @@
     "Girls Trade",
     "Center Boys Trade",
     "Girls Slide Apart",
-    "Boys Extend",
+    {
+      "selection": "Boys",
+      "call": "Extend"
+    },
     "Girls U Turn Back",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Lonesome Boys Face In\"; Untranslatable: \"Center Boys U-Turn Back\"; Untranslatable: \"Center Boys Trade\"; Untranslatable: \"Girls Slide Apart\"; Untranslatable: \"Boys Extend\"; Untranslatable: \"Girls U Turn Back\"",
+  "note": "Untranslatable: \"Lonesome Boys Face In\"; Untranslatable: \"Center Boys U-Turn Back\"; Untranslatable: \"Center Boys Trade\"; Untranslatable: \"Girls Slide Apart\"; Untranslatable: \"Girls U Turn Back\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,12 +6,18 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 9,
+  "mappedCount": 11,
   "steps": [
     "(Lesson 12-03)",
     "Heads Pass the Ocean",
-    "Same 4 Recycle",
-    "Centers Pass Thru",
+    {
+      "selection": "Same 4",
+      "call": "Recycle"
+    },
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Touch a Quarter",
     "Scoot Back",
     "Boys Run",
@@ -21,6 +27,6 @@
     "Right and Left Grand",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"(Lesson 12-03),\"; Untranslatable: \"Same 4 Recycle,\"; Untranslatable: \"Centers Pass Thru,\"",
+  "note": "Untranslatable: \"(Lesson 12-03),\"",
   "source": "ceder.net/choreodb"
 }

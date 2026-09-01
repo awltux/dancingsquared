@@ -6,22 +6,31 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 8,
+  "mappedCount": 11,
   "steps": [
     "Heads Pass the Ocean",
     "Extend",
     "Swing Thru",
     "Split Circulate",
     "Spin the Top",
-    "Boys Spin The Top",
-    "Girls Single Hinge",
-    "Boys Swing Thru",
+    {
+      "selection": "Boys",
+      "call": "Spin the Top"
+    },
+    {
+      "selection": "Girls",
+      "call": "Hinge"
+    },
+    {
+      "selection": "Boys",
+      "call": "Swing Thru"
+    },
     "Out-Facing Girls Run Right",
     "Extend",
     "Boys Run",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Boys Spin The Top,\"; Untranslatable: \"Girls Single Hinge,\"; Untranslatable: \"Boys Swing Thru,\"; Untranslatable: \"Out-Facing Girls Run Right,\"",
+  "note": "Untranslatable: \"Out-Facing Girls Run Right,\"",
   "source": "ceder.net/choreodb"
 }

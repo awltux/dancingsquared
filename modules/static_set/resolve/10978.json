@@ -6,19 +6,31 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 5,
+  "mappedCount": 9,
   "steps": [
     "Allemande Left, Alamo Style, Balance",
-    "Heads Trade",
+    {
+      "selection": "Heads",
+      "call": "Trade"
+    },
     "Boys Trade",
     "Girls Trade",
-    "Heads Trade",
-    "Sides Trade",
+    {
+      "selection": "Heads",
+      "call": "Trade"
+    },
+    {
+      "selection": "Sides",
+      "call": "Trade"
+    },
     "Boys Trade",
     "Girls Trade",
-    "Sides Trade",
+    {
+      "selection": "Sides",
+      "call": "Trade"
+    },
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Allemande Left, Alamo Style, Balance,\"; Untranslatable: \"Heads Trade,\"; Untranslatable: \"Heads Trade,\"; Untranslatable: \"Sides Trade,\"; Untranslatable: \"Sides Trade,\"",
+  "note": "Untranslatable: \"Allemande Left, Alamo Style, Balance,\"",
   "source": "ceder.net/choreodb"
 }

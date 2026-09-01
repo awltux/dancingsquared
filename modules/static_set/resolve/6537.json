@@ -6,13 +6,16 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 0,
+  "mappedCount": 1,
   "steps": [
     "Heads Half Sashay & Square Thru 3",
     "Separate Around 1 To A Line",
-    "All Square Thru 3",
+    {
+      "selection": "All",
+      "call": "Square Thru 3"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay & Square Thru 3,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"All Square Thru 3,\"",
+  "note": "Untranslatable: \"Heads Half Sashay & Square Thru 3,\"; Untranslatable: \"Separate Around 1 To A Line,\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,26 +6,38 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 17,
-  "mappedCount": 1,
+  "mappedCount": 5,
   "steps": [
     "Four Ladies Chain",
     "#3 Position Half Sashay",
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 2 To A Line",
     "Those That Can Right & Left Thru & Rollaway",
     "Lines Forward And Back",
     "Those That Can Right & Left Thru & Rollaway",
-    "Ends Star Thru",
+    {
+      "selection": "Ends",
+      "call": "Star Thru"
+    },
     "Separate Around One To A Line",
     "Lines Forward & Back",
-    "Everyone Star Thru",
+    {
+      "selection": "Everyone",
+      "call": "Star Thru"
+    },
     "Those That Can Right & Left Thru And Pass Thru",
     "Those That Can Right & Left Thru And Pass Thru",
     "Outsides California Twirl",
     "Those That Can Right & Left Thru & Dive Thru",
-    "Centers Pass Thru (ZB)",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"#3 Position Half Sashay,\"; Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 2 To A Line,\"; Untranslatable: \"Those That Can Right & Left Thru & Rollaway,\"; Untranslatable: \"Lines Forward And Back,\"; Untranslatable: \"Those That Can Right & Left Thru & Rollaway,\"; Untranslatable: \"Ends Star Thru,\"; Untranslatable: \"Separate Around One To A Line,\"; Untranslatable: \"Lines Forward & Back,\"; Untranslatable: \"Everyone Star Thru,\"; Untranslatable: \"Those That Can Right & Left Thru And Pass Thru,\"; Untranslatable: \"Those That Can Right & Left Thru And Pass Thru,\"; Untranslatable: \"Outsides California Twirl,\"; Untranslatable: \"Those That Can Right & Left Thru & Dive Thru,\"; Untranslatable: \"Centers Pass Thru (ZB),\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"#3 Position Half Sashay,\"; Untranslatable: \"Separate Around 2 To A Line,\"; Untranslatable: \"Those That Can Right & Left Thru & Rollaway,\"; Untranslatable: \"Lines Forward And Back,\"; Untranslatable: \"Those That Can Right & Left Thru & Rollaway,\"; Untranslatable: \"Separate Around One To A Line,\"; Untranslatable: \"Lines Forward & Back,\"; Untranslatable: \"Those That Can Right & Left Thru And Pass Thru,\"; Untranslatable: \"Those That Can Right & Left Thru And Pass Thru,\"; Untranslatable: \"Outsides California Twirl,\"; Untranslatable: \"Those That Can Right & Left Thru & Dive Thru,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

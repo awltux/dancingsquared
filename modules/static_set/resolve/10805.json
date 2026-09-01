@@ -6,9 +6,12 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
-    "Heads Half Sashay",
+    {
+      "selection": "Heads",
+      "call": "Half Sashay"
+    },
     "%Same 4% Lead $Left$",
     "Dosado",
     "Swing Thru",
@@ -19,6 +22,6 @@
     "Tag the Line",
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \" %Same 4% Lead $Left$,\"",
+  "note": "Untranslatable: \" %Same 4% Lead $Left$,\"",
   "source": "ceder.net/choreodb"
 }

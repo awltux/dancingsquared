@@ -14,11 +14,14 @@
     "Hinge",
     "Boys Cross Run",
     "Swing Thru",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Trade",
     "All 8 Circulate",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Girls Walk\"; Untranslatable: \"Boys Dodge\"; Untranslatable: \"Boys Cross Run\"; Untranslatable: \"Girls Circulate\"",
+  "note": "Untranslatable: \"Girls Walk\"; Untranslatable: \"Boys Dodge\"; Untranslatable: \"Boys Cross Run\"",
   "source": "ceder.net/choreodb"
 }

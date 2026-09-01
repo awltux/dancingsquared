@@ -4,17 +4,19 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 6,
-  "mappedCount": 5,
+  "mappedCount": 6,
   "steps": [
     "Right and Left Thru",
     "Couples Circulate",
-    "Leaders Wheel Around",
+    {
+      "selection": "Leaders",
+      "call": "Wheel Around"
+    },
     "Pass the Ocean",
     "Scoot Back",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Leaders Wheel Around\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,22 +6,34 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 7,
+  "mappedCount": 11,
   "steps": [
     "Four Ladies Chain 3/4",
-    "Side Position Right & Left Thru, Rollaway & Backaway",
-    "Head Position Square Thru",
-    "All Square Thru",
+    {
+      "selection": "Side Position",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Head Position",
+      "call": "Square Thru 4"
+    },
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Bend the Line",
     "Pass Thru",
     "Wheel and Deal",
-    "Men Square Thru 3/4",
+    {
+      "selection": "Men",
+      "call": "Square Thru 4"
+    },
     "All Left Square Thru",
     "Bend the Line",
     "Pass Thru",
     "Wheel and Deal",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Side Position Right & Left Thru, Rollaway & Backaway,\"; Untranslatable: \"Head Position Square Thru,\"; Untranslatable: \"All Square Thru,\"; Untranslatable: \"Men Square Thru 3/4,\"; Untranslatable: \"All Left Square Thru,\"; Untranslatable: \"Left Allemande\"",
+  "note": "Untranslatable: \"All Left Square Thru,\"; Untranslatable: \"Left Allemande\"",
   "source": "ceder.net/choreodb"
 }

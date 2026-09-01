@@ -6,13 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 13,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Heads Pass the Ocean",
     "Swing Thru",
     "Girl U-Turn Back",
-    "Centers Veer Left",
-    "All Veer Left",
+    {
+      "selection": "Centers",
+      "call": "Veer Left"
+    },
+    {
+      "selection": "All",
+      "call": "Veer Left"
+    },
     "Chain Down the Line",
     "Touch a Quarter",
     "Circulate",
@@ -22,6 +28,6 @@
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \" Girl U-Turn Back,\"; Untranslatable: \"Centers Veer Left,\"; Untranslatable: \"All Veer Left,\"",
+  "note": "Untranslatable: \" Girl U-Turn Back,\"",
   "source": "ceder.net/choreodb"
 }

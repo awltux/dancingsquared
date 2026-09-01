@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 7,
+  "mappedCount": 8,
   "steps": [
     "(Lesson 11-1)",
     "Heads Square Thru 4",
@@ -16,9 +16,12 @@
     "Right and Left Thru",
     "Star Thru",
     "Dive Thru",
-    "Centers Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 3"
+    },
     "Allemande Left, R.L.G., Promenade Home"
   ],
-  "note": "Untranslatable: \"(Lesson 11-1),\"; Untranslatable: \"Centers Square Thru 3,\"; Untranslatable: \"Allemande Left, R.L.G., Promenade Home\"",
+  "note": "Untranslatable: \"(Lesson 11-1),\"; Untranslatable: \"Allemande Left, R.L.G., Promenade Home\"",
   "source": "ceder.net/choreodb"
 }

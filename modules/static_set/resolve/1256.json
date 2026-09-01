@@ -6,20 +6,28 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Four Ladies Chain 3/4",
-    "Head Position Square Thru 4",
+    {
+      "selection": "Head Position",
+      "call": "Square Thru 4"
+    },
     "Swing Thru",
     "Boys Run",
     "Couples Circulate",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Couples Circulate",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Wheel and Deal",
     "Pass Thru",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Head Position Square Thru 4,\"; Untranslatable: \"Boys Circulate,\"; Untranslatable: \"Boys Circulate,\"",
   "source": "ceder.net/choreodb"
 }

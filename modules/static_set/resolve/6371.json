@@ -4,11 +4,14 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 16,
-  "mappedCount": 15,
+  "mappedCount": 16,
   "steps": [
-    "Heads Slide Thru",
+    {
+      "selection": "Heads",
+      "call": "Slide Thru"
+    },
     "Pass Thru",
     "Swing Thru",
     "Boys Run",
@@ -25,6 +28,5 @@
     "Trade By",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Heads Slide Thru,\"",
   "source": "ceder.net/choreodb"
 }

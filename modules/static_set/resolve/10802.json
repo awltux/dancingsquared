@@ -6,19 +6,31 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 5,
+  "mappedCount": 9,
   "steps": [
-    "Heads Right & Left Thru",
-    "Same 4 Pass The Ocean",
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Pass the Ocean"
+    },
     "Extend",
     "Swing Thru",
     "Ends Circulate",
-    "All Swing Thru (again)",
+    {
+      "selection": "All",
+      "call": "Swing Thru"
+    },
     "Leaders Fold",
     "Double Pass Thru",
-    "Leaders U-Turn Back",
+    {
+      "selection": "Leaders",
+      "call": "U-Turn Back"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru,\"; Untranslatable: \" Same 4 Pass The Ocean,\"; Untranslatable: \"All Swing Thru (again),\"; Untranslatable: \"Leaders Fold,\"; Untranslatable: \"Leaders U-Turn Back,\"",
+  "note": "Untranslatable: \"Leaders Fold,\"",
   "source": "ceder.net/choreodb"
 }

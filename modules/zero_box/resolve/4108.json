@@ -9,7 +9,10 @@
   "mappedCount": 4,
   "steps": [
     "Swing Thru",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Spin the Top",
     "Hinge",
     "Circulate",
@@ -17,6 +20,6 @@
     "Slide Thru Double",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Boys Circulate\"; Untranslatable: \"Slide Thru Double\"",
+  "note": "Untranslatable: \"Slide Thru Double\"",
   "source": "ceder.net/choreodb"
 }

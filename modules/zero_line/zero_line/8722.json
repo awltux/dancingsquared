@@ -6,19 +6,31 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 4,
+  "mappedCount": 8,
   "steps": [
     "Star Thru",
     "Step to a Wave",
     "All Eight Circulate",
-    "Ladies Trade",
-    "Men Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
     "All Eight Circulate",
-    "Ladies Trade",
-    "Men Trade",
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
     "Right and Left Thru",
     "Star Thru"
   ],
-  "note": "Untranslatable: \"All Eight Circulate\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade\"; Untranslatable: \"All Eight Circulate\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Trade\"",
+  "note": "Untranslatable: \"All Eight Circulate\"; Untranslatable: \"All Eight Circulate\"",
   "source": "ceder.net/choreodb"
 }

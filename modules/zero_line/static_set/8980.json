@@ -6,16 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
     "Single Circle to a Wave",
-    "Men Trade",
-    "Ladies Trade",
+    {
+      "selection": "Men",
+      "call": "Trade"
+    },
+    {
+      "selection": "Ladies",
+      "call": "Trade"
+    },
     "Men Run",
     "Bend the Line",
     "Pass Thru",
     "Left Allemande Lines of Four facing out."
   ],
-  "note": "Untranslatable: \"Men Trade\"; Untranslatable: \"Ladies Trade\"; Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande Lines of Four facing out.\"",
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Left Allemande Lines of Four facing out.\"",
   "source": "ceder.net/choreodb"
 }

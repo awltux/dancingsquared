@@ -6,20 +6,32 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 11,
-  "mappedCount": 6,
+  "mappedCount": 10,
   "steps": [
     "Right and Left Thru",
     "Half Sashay 1 & 1/2",
-    "Boys Dosado",
-    "Boys Swing Thru",
+    {
+      "selection": "Boys",
+      "call": "Dosado"
+    },
+    {
+      "selection": "Boys",
+      "call": "Swing Thru"
+    },
     "Extend",
     "Swing Thru",
     "Swing Thru",
     "Split Circulate",
-    "Boys U-Turn Back",
-    "All Square Thru 4",
+    {
+      "selection": "Boys",
+      "call": "U-Turn Back"
+    },
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Half Sashay 1 & 1/2\"; Untranslatable: \"Boys Dosado\"; Untranslatable: \"Boys Swing Thru\"; Untranslatable: \"Boys U-Turn Back\"; Untranslatable: \"All Square Thru 4\"",
+  "note": "Untranslatable: \"Half Sashay 1 & 1/2\"",
   "source": "ceder.net/choreodb"
 }

@@ -6,19 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 9,
   "steps": [
     "Swing Thru",
     "Ends Circulate",
     "Split Circulate",
     "Centers Trade",
     "Girls Trade",
-    "All Pass Thru",
+    {
+      "selection": "All",
+      "call": "Pass Thru"
+    },
     "Wheel and Deal",
     "Centers Left Square Thru 3",
     "Box the Gnat",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"All Pass Thru\"; Untranslatable: \"Centers Left Square Thru 3\"",
+  "note": "Untranslatable: \"Centers Left Square Thru 3\"",
   "source": "ceder.net/choreodb"
 }

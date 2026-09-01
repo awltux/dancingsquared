@@ -6,7 +6,7 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 12,
-  "mappedCount": 8,
+  "mappedCount": 11,
   "steps": [
     "Heads Star Thru",
     "Double Pass Thru",
@@ -14,13 +14,21 @@
     "Zoom",
     "Face Out",
     "Wheel and Deal",
-    "Boys Pass Thru",
-    "All Square Thru 4",
+    {
+      "selection": "Boys",
+      "call": "Pass Thru"
+    },
+    {
+      "selection": "All",
+      "call": "Square Thru 4"
+    },
     "Wheel and Deal",
     "Zoom",
-    "Centers Box The Gnat & Square Thru 3",
+    {
+      "selection": "Centers",
+      "call": "Box the Gnat"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Boys Pass Thru,\"; Untranslatable: \"All Square Thru 4,\"; Untranslatable: \"Centers Box The Gnat & Square Thru 3,\"",
   "source": "ceder.net/choreodb"
 }

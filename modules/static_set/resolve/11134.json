@@ -6,16 +6,22 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 3,
+  "mappedCount": 5,
   "steps": [
-    "Heads Rollaway",
-    "Same 4 Star Thru",
+    {
+      "selection": "Heads",
+      "call": "Rollaway"
+    },
+    {
+      "selection": "Same 4",
+      "call": "Star Thru"
+    },
     "Pass Thru",
     "Wheel Around",
     "Half Sashay Twice (she goes, he goes)",
     "Pass Thru",
     "Swing And Promenade"
   ],
-  "note": "Untranslatable: \"Heads Rollaway,\"; Untranslatable: \"Same 4 Star Thru,\"; Untranslatable: \"Half Sashay Twice (she goes, he goes),\"; Untranslatable: \"Swing And Promenade\"",
+  "note": "Untranslatable: \"Half Sashay Twice (she goes, he goes),\"; Untranslatable: \"Swing And Promenade\"",
   "source": "ceder.net/choreodb"
 }

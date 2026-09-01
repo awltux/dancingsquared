@@ -6,13 +6,16 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 4,
-  "mappedCount": 2,
+  "mappedCount": 3,
   "steps": [
     "Heads Swing Thru & Slide Thru",
-    "All Swing Thru",
+    {
+      "selection": "All",
+      "call": "Swing Thru"
+    },
     "Boys Run",
     "Bend the Line"
   ],
-  "note": "Untranslatable: \"Heads Swing Thru & Slide Thru,\"; Untranslatable: \"All Swing Thru,\"",
+  "note": "Untranslatable: \"Heads Swing Thru & Slide Thru,\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,13 +4,18 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Zero Box",
-  "success": false,
+  "success": true,
   "stepCount": 2,
-  "mappedCount": 0,
+  "mappedCount": 2,
   "steps": [
-    "Heads Right & Left Thru & Backaway",
-    "Sides Square Thru 2"
+    {
+      "selection": "Heads",
+      "call": "Right and Left Thru"
+    },
+    {
+      "selection": "Sides",
+      "call": "Square Thru 2"
+    }
   ],
-  "note": "Untranslatable: \"Heads Right & Left Thru & Backaway,\"; Untranslatable: \"Sides Square Thru 2\"",
   "source": "ceder.net/choreodb"
 }

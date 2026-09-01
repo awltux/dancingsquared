@@ -6,16 +6,22 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 0,
+  "mappedCount": 2,
   "steps": [
     "Each Side Circle Left 3/4",
     "Centers Split The Outsides Around 1 Come Into The Middle",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 Come Into The Middle",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Circle Left 3/4 (Zero Line) This is a Technical Zero. If it starts in a 1P2P line",
     "it moves from a 1P2P line to a 4P1P line"
   ],
-  "note": "Untranslatable: \"Each Side Circle Left 3/4\"; Untranslatable: \"Centers Split The Outsides Around 1 Come Into The Middle\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Separate Around 1 Come Into The Middle\"; Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Circle Left 3/4 (Zero Line) This is a Technical Zero. If it starts in a 1P2P line\"; Untranslatable: \"it moves from a 1P2P line to a 4P1P line\"",
+  "note": "Untranslatable: \"Each Side Circle Left 3/4\"; Untranslatable: \"Centers Split The Outsides Around 1 Come Into The Middle\"; Untranslatable: \"Separate Around 1 Come Into The Middle\"; Untranslatable: \"Circle Left 3/4 (Zero Line) This is a Technical Zero. If it starts in a 1P2P line\"; Untranslatable: \"it moves from a 1P2P line to a 4P1P line\"",
   "source": "ceder.net/choreodb"
 }

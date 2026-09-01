@@ -12,13 +12,18 @@
     "Swing Thru",
     "Extend",
     "Swing Thru",
-    "Girls Circulate",
+    {
+      "selection": "Girls",
+      "call": "Circulate"
+    },
     "Boys Run",
-    "Boys Circulate",
+    {
+      "selection": "Boys",
+      "call": "Circulate"
+    },
     "Chain Down the Line",
     "Square Thru 3",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Girls Circulate,\"; Untranslatable: \"Boys Circulate,\"",
   "source": "ceder.net/choreodb"
 }

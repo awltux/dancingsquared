@@ -4,21 +4,26 @@
   "level": "Mainstream",
   "startFormation": "Static Square",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 10,
-  "mappedCount": 8,
+  "mappedCount": 10,
   "steps": [
     "Heads Square Thru 4",
-    "Sides Rollaway",
+    {
+      "selection": "Sides",
+      "call": "Rollaway"
+    },
     "Swing Thru",
     "Split Circulate",
     "Girls Fold",
-    "Boys Swing Thru",
+    {
+      "selection": "Boys",
+      "call": "Swing Thru"
+    },
     "Extend",
     "Split Circulate",
     "Hinge",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \" Sides Rollaway,\"; Untranslatable: \"Boys Swing Thru,\"",
   "source": "ceder.net/choreodb"
 }

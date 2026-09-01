@@ -6,17 +6,20 @@
   "endFormation": "Zero Line",
   "success": false,
   "stepCount": 8,
-  "mappedCount": 6,
+  "mappedCount": 7,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
     "Zoom",
-    "Centers Pass Thru",
+    {
+      "selection": "Centers",
+      "call": "Pass Thru"
+    },
     "Touch a Quarter",
     "Box Circulate",
     "Men Run",
     "Right and Left Thru"
   ],
-  "note": "Untranslatable: \"Centers Pass Thru\"; Untranslatable: \"Men Run\"",
+  "note": "Untranslatable: \"Men Run\"",
   "source": "ceder.net/choreodb"
 }

@@ -4,22 +4,27 @@
   "level": "Mainstream",
   "startFormation": "Zero Line",
   "endFormation": "Static Square",
-  "success": false,
+  "success": true,
   "stepCount": 11,
-  "mappedCount": 9,
+  "mappedCount": 11,
   "steps": [
     "Pass Thru",
     "Wheel and Deal",
     "Double Pass Thru",
     "Zoom",
-    "Leaders U-Turn Back",
+    {
+      "selection": "Leaders",
+      "call": "U-Turn Back"
+    },
     "Square Thru 4",
     "Tag the Line",
-    "Leaders U-Turn Back",
+    {
+      "selection": "Leaders",
+      "call": "U-Turn Back"
+    },
     "Touch a Quarter",
     "Split Circulate",
     "Right and Left Grand"
   ],
-  "note": "Untranslatable: \"Leaders U-Turn Back\"; Untranslatable: \"Leaders U-Turn Back\"",
   "source": "ceder.net/choreodb"
 }

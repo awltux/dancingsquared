@@ -6,18 +6,27 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 9,
-  "mappedCount": 3,
+  "mappedCount": 6,
   "steps": [
-    "Heads Half Sashay",
-    "All Circle Left",
+    {
+      "selection": "Heads",
+      "call": "Half Sashay"
+    },
+    {
+      "selection": "All",
+      "call": "Circle Left"
+    },
     "Circle Left",
     "Men Face Each Other",
     "Grand Square",
-    "Men Square Thru",
+    {
+      "selection": "Men",
+      "call": "Square Thru 4"
+    },
     "Dosado to a Wave",
     "Men Run",
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Half Sashay,\"; Untranslatable: \"All Circle Left,\"; Untranslatable: \"Men Face Each Other,\"; Untranslatable: \"Men Square Thru,\"; Untranslatable: \"Men Run,\"",
+  "note": "Untranslatable: \"Men Face Each Other,\"; Untranslatable: \"Men Run,\"",
   "source": "ceder.net/choreodb"
 }

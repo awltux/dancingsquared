@@ -6,16 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 7,
-  "mappedCount": 4,
+  "mappedCount": 5,
   "steps": [
     "Heads Square Thru 4",
-    "Everybody Square Thru 4",
+    {
+      "selection": "Everybody",
+      "call": "Square Thru 4"
+    },
     "(We've got lines facing out)",
     "Dance Out & Back",
     "Bend the Line",
     "Square Thru 4",
     "Allemande Left"
   ],
-  "note": "Untranslatable: \"Everybody Square Thru 4,\"; Untranslatable: \"(We've got lines facing out),\"; Untranslatable: \"Dance Out & Back,\"",
+  "note": "Untranslatable: \"(We've got lines facing out),\"; Untranslatable: \"Dance Out & Back,\"",
   "source": "ceder.net/choreodb"
 }

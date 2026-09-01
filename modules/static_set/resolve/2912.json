@@ -6,13 +6,19 @@
   "endFormation": "Static Square",
   "success": false,
   "stepCount": 16,
-  "mappedCount": 10,
+  "mappedCount": 13,
   "steps": [
-    "Heads Pass Thru",
+    {
+      "selection": "Heads",
+      "call": "Pass Thru"
+    },
     "Separate Around 1 To A Line",
     "Pass Thru",
     "Wheel and Deal",
-    "Girls Square Thru 3/4",
+    {
+      "selection": "Girls",
+      "call": "Square Thru 4"
+    },
     "Star Thru",
     "Boys Trade",
     "Couples Circulate",
@@ -22,9 +28,12 @@
     "Boys Trade",
     "Boys Run",
     "Ferris Wheel",
-    "Centers Square Thru 3/4",
+    {
+      "selection": "Centers",
+      "call": "Square Thru 4"
+    },
     "Left Allemande"
   ],
-  "note": "Untranslatable: \"Heads Pass Thru,\"; Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Girls Square Thru 3/4,\"; Untranslatable: \"Girls Cross Run,\"; Untranslatable: \"Centers Square Thru 3/4,\"",
+  "note": "Untranslatable: \"Separate Around 1 To A Line,\"; Untranslatable: \"Girls Cross Run,\"",
   "source": "ceder.net/choreodb"
 }

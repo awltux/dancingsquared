@@ -9,13 +9,16 @@
   "mappedCount": 4,
   "steps": [
     "Veer Left",
-    "Couples Circulate Twice",
+    {
+      "selection": "Couples",
+      "call": "Circulate"
+    },
     "Half Tag",
     "Box Circulate",
     "Men Run",
     "Reverse Flutterwheel",
     "Slide Thru (Zero Box) This flip flops the set."
   ],
-  "note": "Untranslatable: \"Couples Circulate Twice\"; Untranslatable: \"Men Run\"; Untranslatable: \"Slide Thru (Zero Box) This flip flops the set.\"",
+  "note": "Untranslatable: \"Men Run\"; Untranslatable: \"Slide Thru (Zero Box) This flip flops the set.\"",
   "source": "ceder.net/choreodb"
 }

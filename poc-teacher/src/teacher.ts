@@ -486,6 +486,27 @@ export class TipGenerator {
     const usedAny = new Set<string>();
     const attempts = count * 8;
     let made = 0;
+
+    // Build the SESSION Getout FSM once, from the taught calls (the sequencer
+    // only has the taught calls registered, so its transition table is the
+    // session graph). Reverse-reachability from the home state gives the set of
+    // formations from which the squared set is reachable. Keeping the body in
+    // this set removes nearly all dead ends; a state is accepted only when its
+    // named formation can reach home via taught calls.
+    const fsm = seq.transitionTable();
+    const canGetout = new Set<string>(['Static Square']);
+    const stack = ['Static Square'];
+    while (stack.length) {
+      const cur = stack.pop()!;
+      for (const s of fsm.states()) {
+        if (canGetout.has(s)) continue;
+        if (fsm.edgesFor(s).some((e) => e.endFormation === cur)) {
+          canGetout.add(s);
+          stack.push(s);
+        }
+      }
+    }
+
     for (let t = 0; t < attempts && made < count; t++) {
       seq.reset();
       const tip: string[] = [];
@@ -512,6 +533,15 @@ export class TipGenerator {
           });
           if (setup.length) pool = [...new Set([...pool, ...setup])];
         }
+        // Keep the body inside the session's can-reach-home set (the Getout FSM):
+        // only extend with a call whose result ends in a formation from which the
+        // squared set is reachable via the taught calls. Restrict BEFORE the
+        // probabilistic filters so they can only ever choose among closeable calls.
+        pool = pool.filter((n) => {
+          const r = seq.applyToBoard(snapshot, n);
+          return r.legal && canGetout.has(seq.recognize(r.board)?.name ?? '');
+        });
+        if (!pool.length) { bodyReason = 'no call keeps a getout alive'; break; }
         if (rand() < config.priorityProb) {
           const prio = pool.filter((n) => (priority.get(n) ?? 0) > 0);
           if (prio.length) pool = prio;

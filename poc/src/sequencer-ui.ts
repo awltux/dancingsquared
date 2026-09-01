@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { Sequencer, computeHandholds, sampleTrail } from 'dancing-squared-engine';
 import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
+import { validCederModules } from './ceder-modules';
 import { DancerView, buildHandConnectors } from './scene';
 import type { Stage, WalkCycle } from './scene';
 
@@ -70,6 +71,7 @@ export class SequencerController implements SequencerUI {
     this.loadModules();
     this.refreshModulesList();
     this.restoreModules();
+    this.registerCederModules();
 
     for (const lv of availableLevels()) this.levelSelect.add(new Option(lv.toUpperCase(), lv));
     this.levelSelect.value = 'ms';
@@ -86,6 +88,10 @@ export class SequencerController implements SequencerUI {
     } catch {
       this.modules = [];
     }
+  }
+  /** Register the ceder-translated corpus modules that are fully replayable. */
+  private registerCederModules() {
+    for (const m of validCederModules()) this.seq.registerModule(m.name, m.steps);
   }
   private persistModules() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(this.modules));
@@ -107,6 +113,7 @@ export class SequencerController implements SequencerUI {
   private rebuildSeq() {
     this.seq = new Sequencer(movesXmlText, formationsXmlText, sequencerCallsUpTo(this.levelSelect.value));
     for (const m of this.modules) this.seq.registerModule(m.name, m.calls);
+    this.registerCederModules();
     this.history.length = 0;
     this.playing = false;
     this.playhead = 0;

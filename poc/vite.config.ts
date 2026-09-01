@@ -30,6 +30,11 @@ export default defineConfig({
   server: {
     port: 5173,
     open: false,
+    // The translated ceder modules live in the repo-root `modules/` dir (outside
+    // this app's root); allow serving and importing them via import.meta.glob.
+    fs: {
+      allow: ['..'],
+    },
   },
   build: {
     outDir: 'dist',

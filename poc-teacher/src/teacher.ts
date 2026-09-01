@@ -388,9 +388,9 @@ export interface TipGenOpts {
   minLen?: number;
   maxLen?: number;
   count?: number;
-  /** Max getout calls used to bring the tip back to the squared set (default 5). */
+  /** Max getout calls used to bring the tip back to the squared set (default 6). */
   getoutMax?: number;
-  /** Search budget (nodes) for the closing getout search (default 200). */
+  /** Search budget (nodes) for the closing getout search (default 400). */
   getoutBudget?: number;
   config?: TipConfig;
   current?: Set<string>;
@@ -413,19 +413,27 @@ function weightedPick(pool: string[], prob: (title: string) => number, rand: () 
   return pool[pool.length - 1];
 }
 
-// Applicable titles from `available` at the given board.
+// Applicable titles from `available` at the given board, restricted to calls that
+// both (a) apply legally AND (b) END in a recognised formation. Requiring a
+// recognised end keeps the sequence in the space the getout search can close back
+// to home; otherwise the body can wander into unrecognised arrangements (e.g.
+// after Allemande Left the set is at corners) from which getout can never resolve.
 function applicableFrom(seq: Sequencer, board: import('dancing-squared-engine').Board, available: Set<string>): string[] {
   const out: string[] = [];
   for (const name of available) {
-    if (seq.applyToBoard(board, name).legal) out.push(name);
+    const res = seq.applyToBoard(board, name);
+    if (res.legal && seq.recognize(res.board) !== null) out.push(name);
   }
   return out;
 }
 
-// Cheap "is ANY available call legal from this board".
+// Cheap "is ANY available call legal from this board and lands in a recognised
+// formation" — mirrors the strictness of applicableFrom so the continuation
+// check doesn't re-admit dead-end calls that only loop (e.g. Allemande Left).
 function hasApplicable(seq: Sequencer, board: import('dancing-squared-engine').Board, available: Set<string>): boolean {
   for (const name of available) {
-    if (seq.applyToBoard(board, name).legal) return true;
+    const res = seq.applyToBoard(board, name);
+    if (res.legal && seq.recognize(res.board) !== null) return true;
   }
   return false;
 }
@@ -453,8 +461,8 @@ export class TipGenerator {
     const minLen = opts.minLen ?? 4;
     const maxLen = opts.maxLen ?? 8;
     const count = opts.count ?? 3;
-    const getoutMax = opts.getoutMax ?? 5;
-    const getoutBudget = opts.getoutBudget ?? 200;
+    const getoutMax = opts.getoutMax ?? 6;
+    const getoutBudget = opts.getoutBudget ?? 400;
     const config = { ...DEFAULT_TIP_CONFIG, ...(opts.config ?? {}) };
     const rand = opts.rand ?? Math.random;
     const callProb = opts.callProb ?? (() => 1);

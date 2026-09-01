@@ -413,6 +413,29 @@ function weightedPick(pool: string[], prob: (title: string) => number, rand: () 
   return pool[pool.length - 1];
 }
 
+// Family-level selection: first choose a FAMILY by its size-neutral aggregate
+// importance (the mean of its members' call probabilities), then choose a call
+// within that family by the per-call weight. This makes the generator's
+// probability meaningful at the family level and removes the emergent bias
+// whereby families with more calls in the pool dominate a plain call-level pick.
+function pickByFamily(
+  pool: string[],
+  combinedProb: (title: string) => number,
+  family: (title: string) => string,
+  callProb: (title: string) => number,
+  rand: () => number,
+): string {
+  const fams = [...new Set(pool.map(family))];
+  if (fams.length <= 1) return weightedPick(pool, combinedProb, rand);
+  const famWeight = (f: string) => {
+    const members = pool.filter((n) => family(n) === f);
+    if (!members.length) return 0;
+    return members.reduce((s, n) => s + Math.max(0, callProb(n)), 0) / members.length;
+  };
+  const chosen = weightedPick(fams, famWeight, rand);
+  return weightedPick(pool.filter((n) => family(n) === chosen), combinedProb, rand);
+}
+
 // Applicable titles from `available` at the given board, restricted to calls that
 // both (a) apply legally AND (b) END in a recognised formation. Requiring a
 // recognised end keeps the sequence in the space the getout search can close back
@@ -586,7 +609,9 @@ export class TipGenerator {
           if (cl > -Infinity) s += cl * 0.005;
           return s;
         };
-        const pick = weightedPick(pool, combinedProb, rand);
+        const pick = hasFamily
+          ? pickByFamily(pool, combinedProb, family, callProb, rand)
+          : weightedPick(pool, combinedProb, rand);
         const step = seq.apply(pick);
         if (!step.legal) { bodyReason = `picked '${pick}' not legal`; break; }
         tip.push(pick);

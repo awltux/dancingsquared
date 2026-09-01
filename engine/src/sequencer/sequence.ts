@@ -74,18 +74,19 @@ export class SequenceAnalyzer {
   }
 
   /** Evaluate the board at a global beat of a flat sequence, starting from home. */
-  evaluateSequence(flat: string[], beat: number): { board: Board; beats: number } {
+  evaluateSequence(flat: (string | CallStep)[], beat: number): { board: Board; beats: number } {
     let board = makeSquaredSet();
     let acc = 0;
-    for (const name of flat) {
-      const info = this.matchingVariantInfo(board, name);
+    for (const raw of flat) {
+      const callName = typeof raw === 'string' ? raw : raw.call;
+      const info = this.matchingVariantInfo(board, callName);
       if (!info) break;
       const beats = info.beats;
       if (beat < acc + beats) {
-        const evBoard = this.evaluateCallAt(board, name, info, beat - acc);
+        const evBoard = this.evaluateCallAt(board, callName, info, beat - acc);
         return { board: evBoard, beats: 0 };
       }
-      const r = this.applicator.applyToBoard(board, name);
+      const r = this.applicator.applyToBoard(board, raw);
       if (r.legal) board = r.board;
       acc += beats;
     }
@@ -121,19 +122,20 @@ export class SequenceAnalyzer {
 
   /** Which call in `flat` is playing at global `beat`, with its matched variant
    * and the board->variant mapping. Returns null past the end of the sequence. */
-  sequenceInfo(flat: string[], beat: number): { name: string; variant: CallBundle; mapping: number[] } | null {
+  sequenceInfo(flat: (string | CallStep)[], beat: number): { name: string; variant: CallBundle; mapping: number[] } | null {
     let board = makeSquaredSet();
     let acc = 0;
-    for (const name of flat) {
-      const info = this.matchingVariantInfo(board, name);
+    for (const raw of flat) {
+      const callName = typeof raw === 'string' ? raw : raw.call;
+      const info = this.matchingVariantInfo(board, callName);
       if (!info) return null;
       const beats = info.beats;
       if (beat < acc + beats) {
-        const whole = this.matcher.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
-        if (whole) return { name, variant: whole.variant, mapping: whole.mapping };
+        const whole = this.matcher.findMatchingVariant(board, callName, DEFAULT_MATCH_MAX + this.config.matchMargin);
+        if (whole) return { name: callName, variant: whole.variant, mapping: whole.mapping };
         return null;
       }
-      const r = this.applicator.applyToBoard(board, name);
+      const r = this.applicator.applyToBoard(board, raw);
       if (r.legal) board = r.board;
       acc += beats;
     }

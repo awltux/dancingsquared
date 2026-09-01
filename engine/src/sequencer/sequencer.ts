@@ -500,15 +500,15 @@ export class Sequencer {
     return this.analyzer.stepBeats(board, name);
   }
 
-  sequenceBeats(flat: string[]): number {
+  sequenceBeats(flat: (string | CallStep)[]): number {
     return this.analyzer.sequenceBeats(flat);
   }
 
-  evaluateSequence(flat: string[], beat: number): { board: Board; beats: number } {
+  evaluateSequence(flat: (string | CallStep)[], beat: number): { board: Board; beats: number } {
     return this.analyzer.evaluateSequence(flat, beat);
   }
 
-  sequenceInfo(flat: string[], beat: number): { name: string; variant: CallBundle; mapping: number[] } | null {
+  sequenceInfo(flat: (string | CallStep)[], beat: number): { name: string; variant: CallBundle; mapping: number[] } | null {
     return this.analyzer.sequenceInfo(flat, beat);
   }
 
@@ -516,7 +516,7 @@ export class Sequencer {
     return this.analyzer.phrasesForBeats(beats);
   }
 
-  validateSegment(flat: string[]): { totalBeats: number; phrases: number; complete64: boolean; remainder: number } {
+  validateSegment(flat: (string | CallStep)[]): { totalBeats: number; phrases: number; complete64: boolean; remainder: number } {
     return this.analyzer.validateSegment(flat);
   }
 

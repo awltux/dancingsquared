@@ -132,14 +132,19 @@ export class CallLibrary {
     const out: (string | CallStep)[] = [];
     const expand = (names: (string | CallStep)[], stack: string[]): void => {
       for (const raw of names) {
-        const name = typeof raw === 'string' ? canonicalName(raw) : raw.call;
+        const hasSelection = typeof raw !== 'string' && !!raw.selection;
+        const name = typeof raw === 'string' ? raw : raw.call;
         const canonical = canonicalName(name);
-        const step: CallStep = typeof raw === 'string' ? { call: canonical } : { ...(raw.selection ? { selection: raw.selection } : {}), call: canonical };
         if (this.modules.has(canonical)) {
           if (stack.includes(canonical)) continue; // cycle guard
           expand(this.modules.get(canonical)!, [...stack, canonical]);
+        } else if (hasSelection) {
+          // Only wrap a step in a CallStep object when it carries a dancer
+          // selection; a plain call stays a plain string so downstream
+          // consumers (poc history, module serialization) see call names.
+          out.push({ selection: raw.selection, call: canonical });
         } else {
-          out.push(step);
+          out.push(canonical);
         }
       }
     };

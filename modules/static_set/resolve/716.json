@@ -8,13 +8,25 @@
   "stepCount": 11,
   "mappedCount": 5,
   "steps": [
-    "4 Girls Chain 3/4",
-    "Those In Couple #1 Spot Face Corner And Box The Gnat",
+    "Four Ladies Chain 3/4",
+    {
+      "selection": "Those In Couple #1 Spot", 
+      "call": "Face Corner And Box The Gnat"
+    },
     "Static Square",
-    "Heads Position Rollaway",
-    "Head Position Pass Thru, Separate Around 2 To A Line",
+    {
+      "selection": "Heads Position",
+      "call": "Rollaway"
+    },
+    {
+      "selection": "Heads Position",
+      "call": "Pass Thru, Separate Around 2 To A Line"
+    },
     "Circle Left",
-    "One Boy Has Girl On Right, Rollaway",
+    {
+      "selection": "One Boy Has Girl On Right,",
+      "call": "Rollaway"
+    },
     {
       "selection": "Two Boys Have Girl On Right,",
       "call": "Rollaway"
@@ -24,11 +36,11 @@
       "call": "Rollaway"
     },
     {
-      "selection": "Four Boys...",
+      "selection": "Four Boys",
       "call": "Allemande Left"
     },
     "ALLEMANDE_LEFT"
   ],
-  "note": "Untranslatable: \"4 Girls Chain 3/4,\"; Untranslatable: \"Those In Couple #1 Spot Face Corner And Box The Gnat,\"; Untranslatable: \"Heads Position Rollaway,\"; Untranslatable: \"Head Position Pass Thru, Separate Around 2 To A Line,\"; Untranslatable: \"One Boy Has Girl On Right, Rollaway,\"",
+  "note": "Untranslatable: \"Those In Couple #1 Spot Face Corner And Box The Gnat,\"; Untranslatable: \"Heads Position Rollaway,\"; Untranslatable: \"Head Position Pass Thru, Separate Around 2 To A Line,\"; Untranslatable: \"One Boy Has Girl On Right, Rollaway,\"",
   "source": "ceder.net/choreodb"
 }

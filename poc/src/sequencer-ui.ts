@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 
 import { Sequencer, computeHandholds, sampleTrail } from 'dancing-squared-engine';
-import type { Board, Module, Pose } from 'dancing-squared-engine';
+import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { DancerView, buildHandConnectors } from './scene';
 import type { Stage, WalkCycle } from './scene';
@@ -52,13 +52,13 @@ export class SequencerController implements SequencerUI {
   private seq: Sequencer;
   private views: DancerView[] = [];
   private connectors: ReturnType<typeof buildHandConnectors>;
-  private history: string[] = [];
+  private history: (string | CallStep)[] = [];
   private modules: Module[] = [];
   private active = false;
   private playing = false;
   private playhead = 0;
   private totalBeats = 0;
-  private flat: string[] = [];
+  private flat: (string | CallStep)[] = [];
   private lastFrame = performance.now();
   private lastTraceKey = '';
   private lastReadout = '';
@@ -95,7 +95,7 @@ export class SequencerController implements SequencerUI {
   }
   private refreshModulesList() {
     this.modulesEl.innerHTML = this.modules.length
-      ? this.modules.map((m) => `<b>${m.name}:</b> ${m.calls.join(' · ')}`).join('<br>')
+      ? this.modules.map((m) => `<b>${m.name}:</b> ${m.calls.map(stepLabel).join(' · ')}`).join('<br>')
       : '<i>(no modules saved yet)</i>';
   }
 
@@ -337,7 +337,7 @@ export class SequencerController implements SequencerUI {
       `Formation: <b>${fasr.formation ?? '?'}</b> · ${fasr.arrangement}<br>` +
       `Sequence: <b>${fasr.sequence}</b>${rel}`;
     const listText = this.history.length
-      ? this.history.map((c, i) => `<span class="seq-call" data-idx="${i}">${i + 1}. ${c}</span>`).join('<br>')
+      ? this.history.map((c, i) => `<span class="seq-call" data-idx="${i}">${i + 1}. ${stepLabel(c)}</span>`).join('<br>')
       : '<i>(no calls yet)</i>';
     const key = fasrText + '\u0000' + listText;
     if (key === this.lastReadout) return;
@@ -366,7 +366,7 @@ export class SequencerController implements SequencerUI {
     if (this.history.length === 0) return;
     this.history.pop();
     this.seq.reset();
-    for (const name of this.history) this.seq.apply(name);
+    for (const name of this.history) this.seq.applyStep(name);
     this.statusEl.textContent = '';
     this.render();
     this.refreshCallSelect();
@@ -379,7 +379,7 @@ export class SequencerController implements SequencerUI {
     this.playBtn.textContent = '▶ Play';
     this.history.length = idx;
     this.seq.reset();
-    for (const name of this.history) this.seq.apply(name);
+    for (const name of this.history) this.seq.applyStep(name);
     this.statusEl.textContent = '';
     this.lastTraceKey = '';
     this.render();
@@ -497,6 +497,11 @@ export class SequencerController implements SequencerUI {
 
 function el<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
+}
+
+/** A step's human-readable call name (a CallStep's `.call`; otherwise the string). */
+function stepLabel(step: string | CallStep): string {
+  return typeof step === 'string' ? step : step.call;
 }
 
 /** Backwards-compatible factory (used by main.ts). */

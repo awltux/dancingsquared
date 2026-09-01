@@ -8,7 +8,7 @@
 // compatibility (used by main.ts, view.ts and the verify script); each
 // delegates to the class.
 
-import { Sequencer } from 'dancing-squared-engine';
+import { Sequencer, splitSelection } from 'dancing-squared-engine';
 
 // ---------------------------------------------------------------- model types
 
@@ -505,6 +505,13 @@ export class TipGenerator {
       }
       topCalls = entries.filter((x) => x.p >= maxP - 0.05).map((x) => x.n);
     }
+    // Subset calls in the taught set (calls that act on a selection of dancers).
+    // Used to reward reaching a formation where one of them becomes applicable.
+    const subsetCalls = [...available].filter((n) => {
+      const sel = splitSelection(n).selection;
+      return !!sel && !['all', 'everybody', 'everyone'].includes(sel.toLowerCase());
+    });
+    const subsetCallsSet = new Set(subsetCalls);
     const tips: string[][] = [];
     const usedAny = new Set<string>();
     const attempts = count * 8;
@@ -556,15 +563,6 @@ export class TipGenerator {
           });
           if (setup.length) pool = [...new Set([...pool, ...setup])];
         }
-        // Keep the body inside the session's can-reach-home set (the Getout FSM):
-        // only extend with a call whose result ends in a formation from which the
-        // squared set is reachable via the taught calls. Restrict BEFORE the
-        // probabilistic filters so they can only ever choose among closeable calls.
-        pool = pool.filter((n) => {
-          const r = seq.applyToBoard(snapshot, n);
-          return r.legal && canGetout.has(seq.recognize(r.board)?.name ?? '');
-        });
-        if (!pool.length) { bodyReason = 'no call keeps a getout alive'; break; }
         if (rand() < config.priorityProb) {
           const prio = pool.filter((n) => (priority.get(n) ?? 0) > 0);
           if (prio.length) pool = prio;
@@ -582,18 +580,37 @@ export class TipGenerator {
           const freshFam = pool.filter((n) => !usedFamilies.has(family(n)));
           if (freshFam.length) pool = freshFam;
         }
+        // Do NOT hard-exclude calls outside the can-reach-home set: doing so
+        // collapses the body to only Static-Square-returning calls (the FSM's
+        // reverse-reachability is built with legalCalls/rebase and is too sparse
+        // to reflect real getouts). Instead prefer closeable calls softly and let
+        // the closing getout do the exact close at the end.
         const closeWeight = new Map<string, number>();
         const setupBonus = new Map<string, number>();
+        const subsetBonus = new Map<string, number>();
+        const closeBonus = new Map<string, number>();
         const needsSetup = topCalls.length > 0 && !pool.some((n) => topCalls.includes(n));
         for (const n of pool) {
           const r = seq.applyToBoard(snapshot, n);
-          closeWeight.set(n, r.legal ? seq.closenessToHome(r.board) : -Infinity);
-          if (needsSetup && r.legal) {
+          if (!r.legal) continue;
+          const fm = seq.recognize(r.board)?.name ?? '';
+          closeWeight.set(n, seq.closenessToHome(r.board));
+          closeBonus.set(n, canGetout.has(fm) ? 2 : 0);
+          if (needsSetup) {
             for (const hp of topCalls) {
               if (seq.applyToBoard(r.board, hp).legal) {
                 setupBonus.set(n, 1);
                 break;
               }
+            }
+          }
+          // Subset-setup objective: reward calls that lead to a board where a
+          // subset call in the taught set becomes applicable (legal + recognised).
+          for (const sc of subsetCalls) {
+            const sr = seq.applyToBoard(r.board, sc);
+            if (sr.legal && seq.recognize(sr.board) !== null) {
+              subsetBonus.set(n, 1);
+              break;
             }
           }
         }
@@ -605,6 +622,9 @@ export class TipGenerator {
           if (!usedAny.has(n)) s += 0.4;
           if ((priority.get(n) ?? 0) > 0) s += 0.3;
           if (setupBonus.get(n)) s += 3;
+          if (closeBonus.get(n)) s += 2;        // result is a can-reach-home formation
+          if (subsetBonus.get(n)) s += 6;       // result sets up a subset call
+          if (subsetCallsSet.has(n)) s += 5;    // this very call is a subset call
           const cl = closeWeight.get(n) ?? 0;
           if (cl > -Infinity) s += cl * 0.005;
           return s;

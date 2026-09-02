@@ -426,7 +426,11 @@ export class Sequencer {
         const res = this.applicator.applyToBoard(board, call);
         return {
           call,
-          endFormation: res.legal ? this.matcher.knownFormation(res.board) : null,
+          // Use the curated `recognize` name (the same label the sequencer
+          // displays) so the FSM table's end-formation edges agree with the
+          // sequencer, rather than `knownFormation` which can pick an obscure
+          // whole-catalog formation (e.g. T-Bone LDDR) the sequencer never shows.
+          endFormation: res.legal ? this.matcher.recognize(res.board).name : null,
           orientationDelta: 0,
         };
       });

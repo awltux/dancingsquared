@@ -48,6 +48,11 @@ export class Sequencer {
    * the same per-dancer transform regardless of formation, so they are applied
    * directly from the geometry rather than matched to a catalog <tam>. */
   private readonly codedMoves = new Map<string, (board: Board) => Board>();
+  /** Canonical display names of the registered coded body-relative calls, in the
+   * order registered. These are always legal (a pivot applies from any board) and
+   * are surfaced by legalNext() but NOT by legalCalls(), which feeds the FSM table
+   * (coded pivots are not formation transitions). */
+  private readonly codedMoveNames: string[] = [];
 
   constructor(movesXml: string, formationsXml: string, calls: { name: string; xml: string }[] = []) {
     this.library = new CallLibrary(movesXml, formationsXml);
@@ -69,7 +74,10 @@ export class Sequencer {
     }
     // Register the body-relative coded calls (pure pivots / re-facing).
     const add = (names: string[], fn: (b: Board) => Board) => {
-      for (const n of names) this.codedMoves.set(n.toLowerCase(), fn);
+      for (const n of names) {
+        this.codedMoves.set(n.toLowerCase(), fn);
+        this.codedMoveNames.push(n);
+      }
     };
     add(['Face Right', 'Turn Right', 'Right Face'], (b) => applyMoveToBoard(b, FaceRight));
     add(['Face Left', 'Turn Left', 'Left Face'], (b) => applyMoveToBoard(b, FaceLeft));
@@ -266,7 +274,8 @@ export class Sequencer {
   }
 
   legalNext(): string[] {
-    return this.legality.legalCalls(this.board);
+    const base = this.legality.legalCalls(this.board);
+    return base.concat(this.codedMoveNames.filter((n) => !base.includes(n)));
   }
 
   /** The acting-group selector strings that resolve to a proper (non-empty,

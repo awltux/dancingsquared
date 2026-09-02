@@ -70,13 +70,13 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const FILL: Record<string, string> = { home: '#0a7d33', ok: '#3a9a5f', nohome: '#e8950c', dead: '#d63a3a' };
   const nodeSvg = states.map((s, i) => {
     const st = status(i); const p = pos[i]; const r = st === 'home' ? 20 : 13;
-    return `<g class="node" data-status="${st}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})"><title>${esc(label(s))}${st === 'dead' ? ' — DEAD END (no call)' : st === 'nohome' ? ' — no route home' : ''}</title><circle r="${r}" fill="${FILL[st]}" stroke="#00000022"/><text y="${r + 17}" text-anchor="middle" font-size="10">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text></g>`;
+    return `<g class="node" data-status="${st}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})"><title>${esc(label(s))}${st === 'dead' ? ' — DEAD END (no call)' : st === 'nohome' ? ' — no route home' : ''}</title><circle class="nd" data-r="${r}" r="${r}" fill="${FILL[st]}" stroke="#00000022"/><text class="ndt" data-r="${r}" y="${r + 17}" text-anchor="middle" font-size="10">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text></g>`;
   }).join('');
   const eg = new Map<string, string[]>();
   for (const e of edges) { const k = `${e.from}|${e.to}`; (eg.get(k) ?? eg.set(k, []).get(k)!).push(e.call); }
   const edgeSvg = [...eg.entries()].map(([k, calls]) => {
     const [a, b] = k.split('|').map(Number);
-    return `<line class="edge" x1="${pos[a].x}" y1="${pos[a].y}" x2="${pos[b].x}" y2="${pos[b].y}" stroke-width="1.2" data-calls="${esc(calls.join(' ; '))}"><title>${esc(calls.join(' ; '))}</title></line>`;
+    return `<line class="edge" x1="${pos[a].x}" y1="${pos[a].y}" x2="${pos[b].x}" y2="${pos[b].y}" stroke-width="1.4" vector-effect="non-scaling-stroke" data-calls="${esc(calls.join(' ; '))}"><title>${esc(calls.join(' ; '))}</title></line>`;
   }).join('');
 
   const deadList = states.filter((_, i) => status(i) === 'dead').map(label);
@@ -100,8 +100,12 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   function paint(){const q=f.value.trim().toLowerCase();edges.forEach(e=>{e.style.opacity=e.dataset.calls.toLowerCase().includes(q)?'1':'0.04';});}
   f.addEventListener('input',paint);
   const svg=document.querySelector('svg'),st=document.getElementById('stage');let dragging=false,sx=0,sy=0,vb=svg.viewBox.baseVal;
+  // Keep node icons/labels a constant SCREEN size as the viewBox zooms: the
+  // viewBox scale factor is vb.width/2000, so counter-scale node geometry by it.
+  const rescale=()=>{const k=vb.width/2000;document.querySelectorAll('.nd').forEach(c=>c.setAttribute('r',(parseFloat(c.dataset.r)*k).toFixed(2)));document.querySelectorAll('.ndt').forEach(t=>{const r=parseFloat(t.dataset.r);t.setAttribute('y',(r*k+17*k).toFixed(2));t.style.fontSize=(10*k)+'px';});};
   st.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;});window.addEventListener('pointerup',()=>dragging=false);
-  st.addEventListener('pointermove',e=>{if(!dragging)return;const kk=vb.width/2000;vb.x-=e.clientX-sx;vb.y-=e.clientY-sy;sx=e.clientX;sy=e.clientY;});
-  st.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();const rect=svg.getBoundingClientRect();if(rect.width<=0)return;const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);},{passive:false});
+  st.addEventListener('pointermove',e=>{if(!dragging)return;vb.x-=e.clientX-sx;vb.y-=e.clientY-sy;sx=e.clientX;sy=e.clientY;});
+  st.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();const rect=svg.getBoundingClientRect();if(rect.width<=0)return;const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);rescale();},{passive:false});
+  rescale();
   </script></body></html>`;
 }

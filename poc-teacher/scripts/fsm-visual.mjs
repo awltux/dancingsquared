@@ -127,8 +127,8 @@ const nodeSvg = states.map((s, i) => {
   const p = pos[i];
   return `<g class="node" data-status="${st}" data-i="${i}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">
     <title>${esc(label(s))}${st === 'dead' ? ' — DEAD END (no call)' : st === 'nohome' ? ' — no route home' : ''}</title>
-    <circle r="${st === 'home' ? 20 : 13}" fill="${FILL[st]}" stroke="${STROKE[st]}" stroke-width="1.5"/>
-    <text y="${30}" text-anchor="middle" font-size="10" fill="#222">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text>
+    <circle class="nd" data-r="${st === 'home' ? 20 : 13}" r="${st === 'home' ? 20 : 13}" fill="${FILL[st]}" stroke="${STROKE[st]}" stroke-width="1.5"/>
+    <text class="ndt" data-r="${st === 'home' ? 20 : 13}" y="${(st === 'home' ? 20 : 13) + 17}" text-anchor="middle" font-size="10" fill="#222">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text>
   </g>`;
 }).join('');
 
@@ -148,7 +148,7 @@ for (const [key, famMap] of edgeGroups) {
     const dx = x2 - x1, dy = y2 - y1, d = Math.hypot(dx, dy) || 1;
     const r = f === '(other)' ? 1.5 : 1.2;
     edgeSvg.push(`<line class="edge" data-fam="${esc(f)}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"
-      stroke-width="${r}" data-calls="${esc(calls.join(' ; '))}"><title>${esc(f)}: ${esc(calls.join(' ; '))}</title></line>`);
+      stroke-width="${r}" vector-effect="non-scaling-stroke" data-calls="${esc(calls.join(' ; '))}"><title>${esc(f)}: ${esc(calls.join(' ; '))}</title></line>`);
   }
 }
 
@@ -208,12 +208,14 @@ function paint(){
 filter.addEventListener('input',paint);
 document.querySelectorAll('[data-fam]').forEach(t=>{if(t.closest('#fams'))t.addEventListener('click',()=>{const f=t.dataset.fam;if(activeFam.has(f))activeFam.delete(f);else activeFam=new Set([f]);document.querySelectorAll('#fams .calltab').forEach(x=>x.classList.toggle('on',activeFam.has(x.dataset.fam)));paint();});});
 document.querySelectorAll('[data-call]').forEach(t=>t.addEventListener('click',()=>{const c=t.dataset.call;if(activeCall.has(c))activeCall.delete(c);else activeCall=new Set([c]);document.querySelectorAll('#calls .calltab').forEach(x=>x.classList.toggle('on',activeCall.has(x.dataset.call)));paint();}));
-// simple pan/zoom
+// simple pan/zoom; nodes keep a constant SCREEN size via counter-scaling
 let dragging=false,sx=0,sy=0,vb=svg.viewBox.baseVal;
+const rescale=()=>{const k=vb.width/2000;document.querySelectorAll('.nd').forEach(c=>c.setAttribute('r',(parseFloat(c.dataset.r)*k).toFixed(2)));document.querySelectorAll('.ndt').forEach(t=>{const r=parseFloat(t.dataset.r);t.setAttribute('y',(r*k+17*k).toFixed(2));t.style.fontSize=(10*k)+'px';});};
 svg.parentElement.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;});
 window.addEventListener('pointerup',()=>dragging=false);
-svg.parentElement.addEventListener('pointermove',e=>{if(!dragging)return;const k=vb.width/2000;vb.x-=(e.clientX-sx);vb.y-=(e.clientY-sy);sx=e.clientX;sy=e.clientY;});
-svg.parentElement.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();const rect=svg.getBoundingClientRect();if(rect.width<=0)return;const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);},{passive:false});
+svg.parentElement.addEventListener('pointermove',e=>{if(!dragging)return;vb.x-=(e.clientX-sx);vb.y-=(e.clientY-sy);sx=e.clientX;sy=e.clientY;});
+svg.parentElement.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();const rect=svg.getBoundingClientRect();if(rect.width<=0)return;const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);rescale();},{passive:false});
+rescale();
 </script></body></html>`;
 
 const outFile = process.argv[2] || path.join(root, 'poc-teacher', 'fsm-visual.html');

@@ -73,10 +73,14 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
     return `<g class="node" data-status="${st}" data-i="${i}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})"><title>${esc(label(s))}${st === 'dead' ? ' — DEAD END (no call)' : st === 'nohome' ? ' — no route home' : ''}</title><circle class="nhit" r="${r + 7}" fill="transparent" pointer-events="all"/><circle class="nd" data-r="${r}" r="${r}" fill="${FILL[st]}" stroke="#00000022" stroke-width="1.2" vector-effect="non-scaling-stroke"/><text class="ndt" pointer-events="none" data-r="${r}" y="${r + 20}" text-anchor="middle" font-size="16">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text></g>`;
   }).join('');
   const eg = new Map<string, string[]>();
-  for (const e of edges) { const k = `${e.from}|${e.to}`; (eg.get(k) ?? eg.set(k, []).get(k)!).push(e.call); }
-  const edgeSvg = [...eg.entries()].map(([k, calls]) => {
-    const [a, b] = k.split('|').map(Number);
-    return `<line class="edge" data-a="${a}" data-b="${b}" x1="${pos[a].x}" y1="${pos[a].y}" x2="${pos[b].x}" y2="${pos[b].y}" stroke-width="1.4" vector-effect="non-scaling-stroke" data-calls="${esc(calls.join(' ; '))}"><title>${esc(calls.join(' ; '))}</title></line>`;
+  for (const e of edges) { const key = `${e.from}|${e.to}`; (eg.get(key) ?? eg.set(key, []).get(key)!).push(e.call); }
+  const edgeSvg = [...eg.entries()].map(([key, calls]) => {
+    const [a, b] = key.split('|').map(Number);
+    const rev = a !== b ? eg.get(`${b}|${a}`) : undefined;
+    const fwd = `${label(states[a])} → ${label(states[b])}: ${calls.join(' ; ')}`;
+    const back = rev ? `${label(states[b])} → ${label(states[a])}: ${rev.join(' ; ')}` : null;
+    const all = rev ? [...calls, ...rev] : calls;
+    return `<line class="edge" data-a="${a}" data-b="${b}" x1="${pos[a].x}" y1="${pos[a].y}" x2="${pos[b].x}" y2="${pos[b].y}" stroke-width="1.4" vector-effect="non-scaling-stroke" data-calls="${esc(all.join(' ; '))}"><title>${esc(back ? fwd + '\n' + back : fwd)}</title></line>`;
   }).join('');
 
   const deadList = states.filter((_, i) => status(i) === 'dead').map(label);

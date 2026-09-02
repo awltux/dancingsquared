@@ -83,9 +83,10 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const nohomeList = states.filter((_, i) => status(i) === 'nohome').map(label);
 
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — ${n} states</title><style>
-  body{font-family:system-ui,Segoe UI,sans-serif;margin:0;display:flex;height:100vh}
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none;margin:0}
+  body{font-family:system-ui,Segoe UI,sans-serif;display:flex}
   #side{width:300px;padding:12px;overflow:auto;background:#f6f7f9;border-right:1px solid #ddd;font-size:13px}
-  #stage{flex:1;overflow:hidden}svg{width:100%;height:100%}.edge{stroke:#cfd6dd;fill:none}
+  #stage{flex:1;overflow:hidden}svg{width:100%;height:100%;display:block}.edge{stroke:#cfd6dd;fill:none}
   #filter{width:96%;padding:4px}details{margin:3px 0}summary{cursor:pointer;font-weight:600}
   .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
   </style></head><body><div id="side"><h2>${esc(title)} — ${n} states, ${edges.length} edges</h2>
@@ -101,6 +102,6 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const svg=document.querySelector('svg'),st=document.getElementById('stage');let dragging=false,sx=0,sy=0,vb=svg.viewBox.baseVal;
   st.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;});window.addEventListener('pointerup',()=>dragging=false);
   st.addEventListener('pointermove',e=>{if(!dragging)return;const kk=vb.width/2000;vb.x-=e.clientX-sx;vb.y-=e.clientY-sy;sx=e.clientX;sy=e.clientY;});
-  st.addEventListener('wheel',e=>{e.preventDefault();const rect=svg.getBoundingClientRect();const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);},{passive:false});
+  st.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();const rect=svg.getBoundingClientRect();if(rect.width<=0)return;const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);},{passive:false});
   </script></body></html>`;
 }

@@ -159,11 +159,12 @@ const nohomeList = states.filter((_, i) => nohome[i] && !dead[i]).map(label);
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><title>FSM visual — ${n} states</title>
 <style>
-  body{font-family:system-ui,Segoe UI,Roboto,sans-serif;margin:0;display:flex;height:100vh}
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none;margin:0}
+  body{font-family:system-ui,Segoe UI,Roboto,sans-serif;display:flex}
   #side{width:320px;padding:12px;overflow:auto;background:#f6f7f9;border-right:1px solid #ddd;font-size:13px}
   #side h2{font-size:16px;margin:6px 0}
   #stage{flex:1;overflow:hidden;background:#fff;position:relative}
-  svg{width:100%;height:100%}
+  svg{width:100%;height:100%;display:block}
   .edge{stroke:#cfd6dd;fill:none}
   .node{cursor:pointer}
   .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle}
@@ -212,7 +213,7 @@ let dragging=false,sx=0,sy=0,vb=svg.viewBox.baseVal;
 svg.parentElement.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;});
 window.addEventListener('pointerup',()=>dragging=false);
 svg.parentElement.addEventListener('pointermove',e=>{if(!dragging)return;const k=vb.width/2000;vb.x-=(e.clientX-sx);vb.y-=(e.clientY-sy);sx=e.clientX;sy=e.clientY;});
-svg.parentElement.addEventListener('wheel',e=>{e.preventDefault();const rect=svg.getBoundingClientRect();const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);},{passive:false});
+svg.parentElement.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();const rect=svg.getBoundingClientRect();if(rect.width<=0)return;const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);},{passive:false});
 </script></body></html>`;
 
 const outFile = process.argv[2] || path.join(root, 'poc-teacher', 'fsm-visual.html');

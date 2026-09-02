@@ -128,7 +128,7 @@ const nodeSvg = states.map((s, i) => {
   return `<g class="node" data-status="${st}" data-i="${i}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">
     <title>${esc(label(s))}${st === 'dead' ? ' — DEAD END (no call)' : st === 'nohome' ? ' — no route home' : ''}</title>
     <circle class="nd" data-r="${st === 'home' ? 20 : 13}" r="${st === 'home' ? 20 : 13}" fill="${FILL[st]}" stroke="${STROKE[st]}" stroke-width="1.5"/>
-    <text class="ndt" data-r="${st === 'home' ? 20 : 13}" y="${(st === 'home' ? 20 : 13) + 17}" text-anchor="middle" font-size="10" fill="#222">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text>
+    <text class="ndt" data-r="${st === 'home' ? 20 : 13}" y="${(st === 'home' ? 20 : 13) + 20}" text-anchor="middle" font-size="16" fill="#222">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text>
   </g>`;
 }).join('');
 
@@ -211,7 +211,7 @@ document.querySelectorAll('[data-fam]').forEach(t=>{if(t.closest('#fams'))t.addE
 document.querySelectorAll('[data-call]').forEach(t=>t.addEventListener('click',()=>{const c=t.dataset.call;if(activeCall.has(c))activeCall.delete(c);else activeCall=new Set([c]);document.querySelectorAll('#calls .calltab').forEach(x=>x.classList.toggle('on',activeCall.has(x.dataset.call)));paint();}));
 // simple pan/zoom; nodes keep a constant SCREEN size via counter-scaling
 let dragging=false,sx=0,sy=0,vb=svg.viewBox.baseVal;
-const rescale=()=>{const k=vb.width/2000;document.querySelectorAll('.nd').forEach(c=>c.setAttribute('r',(parseFloat(c.dataset.r)*k).toFixed(2)));document.querySelectorAll('.ndt').forEach(t=>{const r=parseFloat(t.dataset.r);t.setAttribute('y',(r*k+17*k).toFixed(2));t.style.fontSize=(10*k)+'px';});};
+const rescale=()=>{const k=vb.width/2000;document.querySelectorAll('.nd').forEach(c=>c.setAttribute('r',(parseFloat(c.dataset.r)*k).toFixed(2)));document.querySelectorAll('.ndt').forEach(t=>{const r=parseFloat(t.dataset.r);t.setAttribute('y',((r+20)*k).toFixed(2));t.style.fontSize=(16*k)+'px';});};
 svg.parentElement.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;});
 window.addEventListener('pointerup',()=>dragging=false);
 svg.parentElement.addEventListener('pointermove',e=>{if(!dragging)return;const r=svg.getBoundingClientRect();vb.x-=(e.clientX-sx)*(vb.width/r.width);vb.y-=(e.clientY-sy)*(vb.height/r.height);sx=e.clientX;sy=e.clientY;});

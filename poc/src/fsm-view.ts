@@ -70,7 +70,7 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const FILL: Record<string, string> = { home: '#0a7d33', ok: '#3a9a5f', nohome: '#e8950c', dead: '#d63a3a' };
   const nodeSvg = states.map((s, i) => {
     const st = status(i); const p = pos[i]; const r = st === 'home' ? 20 : 13;
-    return `<g class="node" data-status="${st}" data-i="${i}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})"><title>${esc(label(s))}${st === 'dead' ? ' — DEAD END (no call)' : st === 'nohome' ? ' — no route home' : ''}</title><circle class="nd" data-r="${r}" r="${r}" fill="${FILL[st]}" stroke="#00000022" stroke-width="1.2" vector-effect="non-scaling-stroke"/><text class="ndt" data-r="${r}" y="${r + 20}" text-anchor="middle" font-size="16">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text></g>`;
+    return `<g class="node" data-status="${st}" data-i="${i}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})"><title>${esc(label(s))}${st === 'dead' ? ' — DEAD END (no call)' : st === 'nohome' ? ' — no route home' : ''}</title><circle class="nhit" r="${r + 7}" fill="transparent" pointer-events="all"/><circle class="nd" data-r="${r}" r="${r}" fill="${FILL[st]}" stroke="#00000022" stroke-width="1.2" vector-effect="non-scaling-stroke"/><text class="ndt" pointer-events="none" data-r="${r}" y="${r + 20}" text-anchor="middle" font-size="16">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text></g>`;
   }).join('');
   const eg = new Map<string, string[]>();
   for (const e of edges) { const k = `${e.from}|${e.to}`; (eg.get(k) ?? eg.set(k, []).get(k)!).push(e.call); }

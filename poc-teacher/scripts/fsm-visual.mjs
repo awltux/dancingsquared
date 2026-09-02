@@ -215,7 +215,7 @@ const rescale=()=>{const k=vb.width/2000;document.querySelectorAll('.nd').forEac
 svg.parentElement.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;});
 window.addEventListener('pointerup',()=>dragging=false);
 svg.parentElement.addEventListener('pointermove',e=>{if(!dragging)return;const r=svg.getBoundingClientRect();vb.x-=(e.clientX-sx)*(vb.width/r.width);vb.y-=(e.clientY-sy)*(vb.height/r.height);sx=e.clientX;sy=e.clientY;});
-svg.parentElement.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();const rect=svg.getBoundingClientRect();if(rect.width<=0)return;const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);rescale();},{passive:false});
+svg.parentElement.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();const rect=svg.getBoundingClientRect();if(rect.width<=0||rect.height<=0)return;const px=e.clientX-rect.left,py=e.clientY-rect.top;const sx=vb.width/rect.width,sy=vb.height/rect.height;const vx=vb.x+px*sx,vy=vb.y+py*sy;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);rescale();},{passive:false});
 rescale();
 // Reset pan/zoom to the full-graph framing (button + R key).
 const resetView=()=>{vb.x=0;vb.y=0;vb.width=2000;vb.height=2000;rescale();};

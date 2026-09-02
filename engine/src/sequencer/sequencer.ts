@@ -183,6 +183,30 @@ export class Sequencer {
     return this.library.allVariantSetups();
   }
 
+  // ---- formation selection (debug / board seeding) ----
+
+  /** The named formations selectable as a starting board (deduped by geometry). */
+  listFormations(): string[] {
+    return this.library.getUniqueFormations().map((f) => f.name).sort((a, b) => a.localeCompare(b));
+  }
+
+  /** Build a synthetic board sitting in the named formation `name`, with home
+   * identity stamped when the geometry is home-like. Returns null if unknown. */
+  boardForFormation(name: string): Board | null {
+    return this.syntheticBoard(name);
+  }
+
+  /** Set the current board to a synthetic board in `name`. Returns false if the
+   * formation is unknown (board left unchanged). */
+  setFormation(name: string): boolean {
+    const b = this.syntheticBoard(name);
+    if (!b) return false;
+    this.board = b;
+    this.matcher.clearCaches();
+    this.solver.clearCaches();
+    return true;
+  }
+
   // ---- matcher introspection (passthroughs) ----
 
   findMatchingVariant(board: Board, callName: string, maxError: number): VariantMatch | null {
@@ -210,6 +234,22 @@ export class Sequencer {
   legalNext(): string[] {
     return this.legality.legalCalls(this.board);
   }
+
+  /** The acting-group selector strings that resolve to a proper (non-empty,
+   * not-everyone) subset on `board`. */
+  subsetGroups(board: Board): string[] {
+    const names = [
+      'Heads', 'Sides', 'Boys', 'Girls', 'Men', 'Women', 'Ladies', 'Centers',
+      'Ends', 'Couples', 'Leaders', 'Trailers', 'Beaus', 'Belles',
+      'Couple #1', 'Couple #2', 'Couple #3', 'Couple #4',
+    ];
+    const n = board.dancers.filter((d) => !d.isGhost).length;
+    return names.filter((s) => {
+      const ids = this.grouping.resolveSelection(board, s);
+      return !!ids && ids.length > 0 && ids.length < n;
+    });
+  }
+
 
   parallelLegalCalls(board: Board): { name: string; board: Board }[] {
     return this.legality.parallelLegalCalls(board);

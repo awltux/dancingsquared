@@ -5,7 +5,7 @@
 
 import * as THREE from 'three';
 
-import { Sequencer, computeHandholds, sampleTrail } from 'dancing-squared-engine';
+import { Sequencer, computeHandholds, sampleTrail, splitSelection } from 'dancing-squared-engine';
 import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
@@ -48,6 +48,10 @@ export class SequencerController implements SequencerUI {
   private beatInput = el<HTMLInputElement>('seqBeatInput');
   private copyPosBtn = el<HTMLButtonElement>('seqCopyPos');
   private beatEl = el<HTMLSpanElement>('seqBeat');
+  private formationSelect = el<HTMLSelectElement>('seqFormation');
+  private setFormationBtn = el<HTMLButtonElement>('seqSetFormation');
+  private subsetInfoEl = el<HTMLDivElement>('seqSubsetInfo');
+  private formationNames: string[] = [];
 
   // State.
   private seq: Sequencer;
@@ -78,8 +82,58 @@ export class SequencerController implements SequencerUI {
     this.seq.setMatchMargin(parseFloat(this.marginInput.value) || 0);
 
     this.wireEvents();
+    this.populateFormations();
     this.refreshCallSelect();
+    this.renderSubsetInfo();
     this.requestFrame();
+  }
+
+  /** Fill the formation dropdown with every named formation the sequencer knows. */
+  private populateFormations() {
+    const prev = this.formationSelect.value;
+    this.formationSelect.innerHTML = '';
+    this.formationSelect.add(new Option('— current board —', ''));
+    this.formationNames = this.seq.listFormations();
+    for (const f of this.formationNames) this.formationSelect.add(new Option(f, f));
+    if (prev && this.formationNames.includes(prev)) this.formationSelect.value = prev;
+    else this.formationSelect.value = '';
+  }
+
+  /** Jump the board into the chosen formation and clear the current sequence. */
+  private setBoardFormation() {
+    const name = this.formationSelect.value;
+    if (!name) return;
+    if (!this.seq.setFormation(name)) {
+      this.statusEl.textContent = `✗ unknown formation "${name}"`;
+      return;
+    }
+    this.history.length = 0;
+    this.playing = false;
+    this.playhead = 0;
+    this.totalBeats = 0;
+    this.flat = [];
+    this.playBtn.textContent = '▶ Play';
+    this.lastTraceKey = '';
+    this.statusEl.textContent = `board set to ${this.seq.recognize(this.seq.board)?.name ?? name}`;
+    this.updateFormationSelect();
+    this.render();
+    this.refreshCallSelect();
+    this.renderSubsetInfo();
+    this.syncAnimation();
+  }
+
+  /** Keep the formation dropdown reflecting the board's current recognised state. */
+  private updateFormationSelect() {
+    const name = this.seq.recognize(this.seq.board)?.name;
+    this.formationSelect.value = name && this.formationNames.includes(name) ? name : '';
+  }
+
+  /** Show which dancer subsets resolve on the current board. */
+  private renderSubsetInfo() {
+    const groups = this.seq.subsetGroups(this.seq.board);
+    this.subsetInfoEl.innerHTML = groups.length
+      ? `Subsets present: <b>${groups.join(' · ')}</b> — their calls are grouped under each selector below.`
+      : 'No dancer subsets resolve on this board (whole-board calls only).';
   }
 
   private loadModules() {
@@ -128,17 +182,32 @@ export class SequencerController implements SequencerUI {
     this.lastTraceKey = '';
     this.seq.setMatchMargin(parseFloat(this.marginInput.value) || 0);
     this.statusEl.textContent = `level ${this.levelSelect.value.toUpperCase()} loaded`;
+    this.populateFormations();
     this.syncAnimation();
     this.refreshCallSelect();
     this.render();
   }
 
-  /** The call picker shows ONLY calls (and modules) legal from the current board. */
+  /** The call picker shows ONLY calls (and modules) legal from the current board.
+   * Calls that act on a dancer subset are grouped under their selector so they
+   * are visually distinct from whole-board calls. */
   private refreshCallSelect() {
     const prev = this.callSelect.value;
     const legal = this.seq.legalNext().sort((a, b) => a.localeCompare(b));
     const modules = legal.filter((n) => this.seq.isModule(n));
     const calls = legal.filter((n) => !this.seq.isModule(n));
+    const whole: string[] = [];
+    const bySel = new Map<string, string[]>();
+    for (const n of calls) {
+      const s = splitSelection(n).selection;
+      if (s && !['all', 'everybody', 'everyone', 'all 8', 'all 4 couples'].includes(s.toLowerCase())) {
+        const arr = bySel.get(s) ?? [];
+        arr.push(n);
+        bySel.set(s, arr);
+      } else {
+        whole.push(n);
+      }
+    }
     this.callSelect.innerHTML = '';
     this.callSelect.add(new Option('— valid next call —', ''));
     const group = (label: string, names: string[]) => {
@@ -148,9 +217,12 @@ export class SequencerController implements SequencerUI {
       for (const n of names) og.appendChild(new Option(n, n));
       this.callSelect.appendChild(og);
     };
-    group('Calls', calls);
+    group('Whole-set calls', whole);
+    for (const sel of [...bySel.keys()].sort()) group(`Subset: ${sel}`, bySel.get(sel)!);
     group('Modules', modules);
     if (prev && legal.includes(prev)) this.callSelect.value = prev;
+    this.updateFormationSelect();
+    this.renderSubsetInfo();
   }
 
   private saveModule() {
@@ -472,6 +544,7 @@ export class SequencerController implements SequencerUI {
     this.getinBtn.addEventListener('click', () => this.showGetin());
     this.fixBtn.addEventListener('click', () => this.showFixIt());
     this.saveModuleBtn.addEventListener('click', () => this.saveModule());
+    this.setFormationBtn.addEventListener('click', () => this.setBoardFormation());
     this.levelSelect.addEventListener('change', () => this.rebuildSeq());
     this.marginInput.addEventListener('input', () => this.applyMargin());
     this.playBtn.addEventListener('click', () => this.togglePlay());

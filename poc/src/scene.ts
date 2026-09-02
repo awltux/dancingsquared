@@ -8,9 +8,14 @@ import type { DancerSpec, Pose } from 'dancing-squared-engine';
 
 export interface Stage {
   scene: THREE.Scene;
-  camera: THREE.PerspectiveCamera;
+  camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
+  /** Fixed top-down orthographic camera used in the 2D (flat) view. */
+  camera2d: THREE.OrthographicCamera;
   renderer: THREE.WebGLRenderer;
   controls: OrbitControls;
+  /** Switch the active camera between the 3D orbit camera and the fixed top-down
+   * 2D camera (disables orbit rotation in 2D). */
+  setView2D(on: boolean): void;
   resize(): void;
 }
 
@@ -34,6 +39,12 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   controls.target.set(0, 0, 0);
   controls.enableDamping = true;
   controls.update();
+
+  // Fixed top-down orthographic camera for the flat 2D view (north up = -z).
+  const camera2d = new THREE.OrthographicCamera(-11, 11, 11, -11, 0.1, 200);
+  camera2d.position.set(0, 40, 0);
+  camera2d.up.set(0, 0, -1);
+  camera2d.lookAt(0, 0, 0);
 
   scene.add(new THREE.AmbientLight(0xffffff, 0.9));
   const key = new THREE.DirectionalLight(0xffffff, 1.6);
@@ -70,9 +81,30 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    if (camera2d) {
+      const half = 11;
+      const aspect = Math.max(0.1, w / h);
+      camera2d.left = -half * aspect;
+      camera2d.right = half * aspect;
+      camera2d.top = half;
+      camera2d.bottom = -half;
+      camera2d.updateProjectionMatrix();
+    }
   };
 
-  return { scene, camera, renderer, controls, resize };
+  const out: Stage = {
+    scene,
+    camera,
+    camera2d,
+    renderer,
+    controls,
+    resize,
+    setView2D: (on: boolean) => {
+      out.camera = on ? camera2d : camera;
+      controls.enabled = !on;
+    },
+  };
+  return out;
 }
 
 // ------------------------------------------------------------------ avatar
@@ -83,6 +115,56 @@ const PHANTOM_COLOR = 0x9aa6b2;
 
 export const coupleColor = (couple: number): number =>
   couple > 0 ? COUPLE_COLORS[(couple - 1) % COUPLE_COLORS.length] : PHANTOM_COLOR;
+
+/** Build a flat top-down dancer marker: a SQUARE for a boy, a CIRCLE for a girl,
+ * in the couple colour, with a small white semicircle "nose" on the forward side.
+ * Lies on the floor (xz); local +x is forward, so set group.rotation.y = heading. */
+export function buildFlatMarker(
+  gender: string,
+  couple: number,
+  r = 0.75,
+): THREE.Group {
+  const g = new THREE.Group();
+  const color = coupleColor(couple);
+  const baseMat = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide });
+  const shape = new THREE.Shape();
+  if (gender === 'girl') {
+    shape.absarc(0, 0, r, 0, Math.PI * 2, false);
+  } else {
+    const h = r * 0.85;
+    shape.moveTo(-h, -h);
+    shape.lineTo(h, -h);
+    shape.lineTo(h, h);
+    shape.lineTo(-h, h);
+    shape.closePath();
+  }
+  const base = new THREE.Mesh(new THREE.ShapeGeometry(shape), baseMat);
+  base.rotation.x = -Math.PI / 2; // lay flat on the floor
+  base.position.y = 0.01;
+  g.add(base);
+  // Facing nose: filled semicircle, dome toward local +x (forward).
+  const nr = r * 0.42;
+  const nose = new THREE.Shape();
+  nose.absarc(0, 0, nr, -Math.PI / 2, Math.PI / 2, false);
+  nose.lineTo(0, 0);
+  nose.closePath();
+  const noseMesh = new THREE.Mesh(
+    new THREE.ShapeGeometry(nose),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }),
+  );
+  noseMesh.rotation.x = -Math.PI / 2;
+  noseMesh.position.y = 0.02;
+  g.add(noseMesh);
+  // Outline so markers read against the floor.
+  const outline = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.ShapeGeometry(shape)),
+    new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 }),
+  );
+  outline.rotation.x = -Math.PI / 2;
+  outline.position.y = 0.03;
+  g.add(outline);
+  return g;
+}
 
 // A lowercase role letter appended to the couple number so a dancer's couple
 // reads as e.g. "1h" (head) or "2s" (side). Heads are couples 1 & 3, sides are

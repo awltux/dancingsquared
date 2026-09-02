@@ -9,7 +9,7 @@ import { Sequencer, computeHandholds, sampleTrail, splitSelection } from 'dancin
 import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
-import { DancerView, buildHandConnectors } from './scene';
+import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import type { Stage, WalkCycle } from './scene';
 
 export interface SequencerUI {
@@ -51,12 +51,15 @@ export class SequencerController implements SequencerUI {
   private formationSelect = el<HTMLSelectElement>('seqFormation');
   private setFormationBtn = el<HTMLButtonElement>('seqSetFormation');
   private boardRotInput = el<HTMLInputElement>('seqBoardRot');
+  private view2dEl = el<HTMLSelectElement>('seqView2d');
   private subsetInfoEl = el<HTMLDivElement>('seqSubsetInfo');
   private formationNames: string[] = [];
 
   // State.
   private seq: Sequencer;
   private views: DancerView[] = [];
+  /** Flat 2D markers, one per dancer, shown when View = 2D. */
+  private markers: THREE.Group[] = [];
   private connectors: ReturnType<typeof buildHandConnectors>;
   private history: (string | CallStep)[] = [];
   private modules: Module[] = [];
@@ -64,6 +67,8 @@ export class SequencerController implements SequencerUI {
   /** Display-only rotation (radians) applied about the set centre so the whole
    * board can be aligned against the reference grid (e.g. 45°). */
   private boardRot = 0;
+  /** True = draw 2D markers on the overlay canvas instead of 3D avatars. */
+  private use2d = false;
   private playing = false;
   private playhead = 0;
   private totalBeats = 0;
@@ -262,12 +267,18 @@ export class SequencerController implements SequencerUI {
       this.stage.scene.remove(v.group);
       this.stage.scene.remove(v.trail);
     }
+    for (const m of this.markers) this.stage.scene.remove(m);
     this.views = this.seq.board.dancers.map((d) => new DancerView({ gender: d.gender, x: 0, y: 0, angleDeg: 0, path: [] }, d.couple));
+    this.markers = this.seq.board.dancers.map((d) => buildFlatMarker(d.gender, d.couple));
     for (const v of this.views) {
-      v.group.visible = this.active;
+      v.group.visible = this.active && !this.use2d;
       this.stage.scene.add(v.group);
       this.stage.scene.add(v.trail);
-      v.trail.visible = this.active;
+      v.trail.visible = this.active && !this.use2d;
+    }
+    for (const m of this.markers) {
+      m.visible = this.active && this.use2d;
+      this.stage.scene.add(m);
     }
     this.lastTraceKey = '';
   }
@@ -302,8 +313,29 @@ export class SequencerController implements SequencerUI {
     }
     this.views.forEach((v, i) => v.update(poses[i], targets[i], walk));
     this.connectors.set(lines, poses);
-    this.connectors.group.visible = this.active;
-    for (const v of this.views) v.group.visible = this.active;
+    this.applyView(poses);
+  }
+
+  /** Enforce the current 3D/2D view: switch the camera, toggle avatar vs flat
+   * markers, and position markers at the (display-rotated) poses. */
+  private applyView(poses?: Pose[]) {
+    const show2d = this.active && this.use2d;
+    this.stage.setView2D(show2d);
+    this.connectors.group.visible = this.active && !this.use2d;
+    for (let i = 0; i < this.views.length; i++) {
+      const v = this.views[i];
+      v.group.visible = this.active && !this.use2d;
+      v.trail.visible = this.active && !this.use2d;
+      const m = this.markers[i];
+      if (m) {
+        m.visible = show2d;
+        if (show2d && poses && poses[i]) {
+          const p = poses[i];
+          m.position.set(p.x, 0, -p.y);
+          m.rotation.y = p.heading;
+        }
+      }
+    }
   }
 
   render() {
@@ -580,6 +612,16 @@ export class SequencerController implements SequencerUI {
     this.saveModuleBtn.addEventListener('click', () => this.saveModule());
     this.setFormationBtn.addEventListener('click', () => this.setBoardFormation());
     this.boardRotInput.addEventListener('change', () => this.applyBoardRot());
+    this.view2dEl.addEventListener('change', () => {
+      this.use2d = this.view2dEl.value === '2d';
+      this.lastTraceKey = '';
+      if (this.active) {
+        this.render();
+        this.updateCurrentTrace();
+      } else {
+        this.stage.setView2D(false);
+      }
+    });
     this.levelSelect.addEventListener('change', () => this.rebuildSeq());
     this.marginInput.addEventListener('input', () => this.applyMargin());
     this.playBtn.addEventListener('click', () => this.togglePlay());
@@ -596,10 +638,14 @@ export class SequencerController implements SequencerUI {
     this.active = a;
     this.playing = false;
     this.playBtn.textContent = '▶ Play';
-    this.connectors.group.visible = this.active;
-    for (const v of this.views) {
-      v.group.visible = this.active;
-      v.trail.visible = this.active;
+    // Keep the camera/view consistent with the current mode.
+    this.stage.setView2D(a && this.use2d);
+    this.connectors.group.visible = this.active && !this.use2d;
+    for (let i = 0; i < this.views.length; i++) {
+      const v = this.views[i];
+      v.group.visible = this.active && !this.use2d;
+      v.trail.visible = this.active && !this.use2d;
+      if (this.markers[i]) this.markers[i].visible = this.active && this.use2d;
     }
     if (this.active) {
       if (this.views.length !== this.seq.board.dancers.length) this.rebuildViews();

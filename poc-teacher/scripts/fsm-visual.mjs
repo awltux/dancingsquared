@@ -212,7 +212,7 @@ let dragging=false,sx=0,sy=0,vb=svg.viewBox.baseVal;
 svg.parentElement.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;});
 window.addEventListener('pointerup',()=>dragging=false);
 svg.parentElement.addEventListener('pointermove',e=>{if(!dragging)return;const k=vb.width/2000;vb.x-=(e.clientX-sx);vb.y-=(e.clientY-sy);sx=e.clientX;sy=e.clientY;});
-svg.parentElement.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?0.9:1.1;vb.width*=f;vb.height*=f;},{passive:false});
+svg.parentElement.addEventListener('wheel',e=>{e.preventDefault();const rect=svg.getBoundingClientRect();const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);},{passive:false});
 </script></body></html>`;
 
 const outFile = process.argv[2] || path.join(root, 'poc-teacher', 'fsm-visual.html');

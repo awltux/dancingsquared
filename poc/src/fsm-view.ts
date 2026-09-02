@@ -101,6 +101,6 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const svg=document.querySelector('svg'),st=document.getElementById('stage');let dragging=false,sx=0,sy=0,vb=svg.viewBox.baseVal;
   st.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;});window.addEventListener('pointerup',()=>dragging=false);
   st.addEventListener('pointermove',e=>{if(!dragging)return;const kk=vb.width/2000;vb.x-=e.clientX-sx;vb.y-=e.clientY-sy;sx=e.clientX;sy=e.clientY;});
-  st.addEventListener('wheel',e=>{e.preventDefault();const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;},{passive:false});
+  st.addEventListener('wheel',e=>{e.preventDefault();const rect=svg.getBoundingClientRect();const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);},{passive:false});
   </script></body></html>`;
 }

@@ -85,6 +85,7 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
     name: label(s),
     status: status(i),
     calls: edges.filter((e) => e.from === i).map((e) => ({ call: e.call, to: label(states[e.to]) })),
+    incoming: edges.filter((e) => e.to === i).map((e) => ({ call: e.call, from: label(states[e.from]) })),
   }));
 
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — ${n} states</title><style>
@@ -131,7 +132,7 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const disp=document.getElementById('nodedisp');
   const STC={home:'#0a7d33',ok:'#3a9a5f',nohome:'#e8950c',dead:'#d63a3a'};
   const stText={home:'home (squared set)',ok:'route home',nohome:'no route home',dead:'DEAD END — no call from here'};
-  const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);if(nd.calls.length){const h=document.createElement('div');h.textContent='Calls from here ('+nd.calls.length+'):';disp.appendChild(h);const ul=document.createElement('ul');nd.calls.forEach(c=>{const li=document.createElement('li');li.textContent=c.call+' → '+c.to;ul.appendChild(li);});disp.appendChild(ul);}else{const d=document.createElement('div');d.textContent='No calls leave this formation.';disp.appendChild(d);}};
+  const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);const sec=(h,items,arrow)=>{const hd=document.createElement('div');hd.textContent=h;hd.style.fontWeight='600';hd.style.marginTop='4px';disp.appendChild(hd);if(!items.length){const em=document.createElement('div');em.style.color='#888';em.textContent='(none)';disp.appendChild(em);return;}const ul=document.createElement('ul');items.forEach(c=>{const li=document.createElement('li');li.textContent=arrow?c.from+' '+c.call: c.call+' → '+c.to;ul.appendChild(li);});disp.appendChild(ul);};sec('Calls from here ('+nd.calls.length+'):',nd.calls,false);sec('Calls that lead here ('+nd.incoming.length+'):',nd.incoming,true);};
   document.querySelectorAll('.node').forEach(nd=>nd.addEventListener('click',()=>showNode(parseInt(nd.dataset.i,10))));
   // ---- live force simulation: drag a node and the layout reflows/spreads ----
   (function(){

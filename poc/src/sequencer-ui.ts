@@ -50,6 +50,7 @@ export class SequencerController implements SequencerUI {
   private beatEl = el<HTMLSpanElement>('seqBeat');
   private formationSelect = el<HTMLSelectElement>('seqFormation');
   private setFormationBtn = el<HTMLButtonElement>('seqSetFormation');
+  private boardRotInput = el<HTMLInputElement>('seqBoardRot');
   private subsetInfoEl = el<HTMLDivElement>('seqSubsetInfo');
   private formationNames: string[] = [];
 
@@ -60,6 +61,9 @@ export class SequencerController implements SequencerUI {
   private history: (string | CallStep)[] = [];
   private modules: Module[] = [];
   private active = false;
+  /** Display-only rotation (radians) applied about the set centre so the whole
+   * board can be aligned against the reference grid (e.g. 45°). */
+  private boardRot = 0;
   private playing = false;
   private playhead = 0;
   private totalBeats = 0;
@@ -120,6 +124,15 @@ export class SequencerController implements SequencerUI {
     this.refreshCallSelect();
     this.renderSubsetInfo();
     this.syncAnimation();
+  }
+
+  /** Apply the board-rotation override (degrees) from the control and redraw. */
+  private applyBoardRot() {
+    const deg = parseFloat(this.boardRotInput.value);
+    this.boardRot = (isFinite(deg) ? deg : 0) * (Math.PI / 180);
+    this.lastTraceKey = '';
+    this.render();
+    this.updateCurrentTrace();
   }
 
   /** Keep the formation dropdown reflecting the board's current recognised state. */
@@ -262,7 +275,17 @@ export class SequencerController implements SequencerUI {
   private renderBoard(board: Board, walk?: WalkCycle) {
     if (this.views.length !== board.dancers.length) this.rebuildViews();
 
-    const poses: Pose[] = board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, hands: 'both' }));
+    const poses: Pose[] = board.dancers.map((d) => {
+      if (this.boardRot === 0) return { x: d.x, y: d.y, heading: d.heading, hands: 'both' };
+      const c = Math.cos(this.boardRot);
+      const s = Math.sin(this.boardRot);
+      return {
+        x: d.x * c - d.y * s,
+        y: d.x * s + d.y * c,
+        heading: d.heading + this.boardRot,
+        hands: 'both',
+      };
+    });
     const holds = computeHandholds(poses, 'static');
 
     const targets: { left?: THREE.Vector3; right?: THREE.Vector3 }[] = poses.map(() => ({}));
@@ -320,7 +343,18 @@ export class SequencerController implements SequencerUI {
     this.lastTraceKey = key;
     if (info) {
       this.views.forEach((v, i) => {
-        v.setTrail(sampleTrail(info.variant.dancers[info.mapping[i]], 80));
+        const pts = sampleTrail(info.variant.dancers[info.mapping[i]], 80);
+        if (this.boardRot !== 0) {
+          const c = Math.cos(this.boardRot);
+          const s = Math.sin(this.boardRot);
+          for (const p of pts) {
+            const x = p.x;
+            const y = p.y;
+            p.x = x * c - y * s;
+            p.y = x * s + y * c;
+          }
+        }
+        v.setTrail(pts);
         v.trail.visible = this.active;
       });
     } else {
@@ -545,6 +579,7 @@ export class SequencerController implements SequencerUI {
     this.fixBtn.addEventListener('click', () => this.showFixIt());
     this.saveModuleBtn.addEventListener('click', () => this.saveModule());
     this.setFormationBtn.addEventListener('click', () => this.setBoardFormation());
+    this.boardRotInput.addEventListener('change', () => this.applyBoardRot());
     this.levelSelect.addEventListener('change', () => this.rebuildSeq());
     this.marginInput.addEventListener('input', () => this.applyMargin());
     this.playBtn.addEventListener('click', () => this.togglePlay());

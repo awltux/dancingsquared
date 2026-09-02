@@ -43,11 +43,18 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   rim.position.set(-6, 4, -5);
   scene.add(rim);
 
-  // Floor grid.
-  const grid = new THREE.GridHelper(20, 20, 0x2a3542, 0x182029);
+  // Floor grid — a clear reference so dancer positions are readable. Dancers are
+  // placed at integer dance-grid coords (±1, ±2, ±3…), so 1-unit cells over ±10
+  // lets you read where each dancer stands; the centre lines are brighter.
+  const grid = new THREE.GridHelper(20, 20, 0x2f9e77, 0x3a4a5c);
   (grid.material as THREE.Material).transparent = true;
-  (grid.material as THREE.Material).opacity = 0.6;
+  (grid.material as THREE.Material).opacity = 0.95;
   scene.add(grid);
+  // A coarser overlay every 2 units (matching the usual 2-unit dancer spacing).
+  const coarse = new THREE.GridHelper(20, 10, 0x8fd6b5, 0x5b6b7d);
+  (coarse.material as THREE.Material).transparent = true;
+  (coarse.material as THREE.Material).opacity = 0.35;
+  scene.add(coarse);
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(20, 20),
     new THREE.MeshStandardMaterial({ color: 0x0e141b, roughness: 1 }),

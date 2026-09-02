@@ -76,7 +76,7 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   for (const e of edges) { const k = `${e.from}|${e.to}`; (eg.get(k) ?? eg.set(k, []).get(k)!).push(e.call); }
   const edgeSvg = [...eg.entries()].map(([k, calls]) => {
     const [a, b] = k.split('|').map(Number);
-    return `<line class="edge" x1="${pos[a].x}" y1="${pos[a].y}" x2="${pos[b].x}" y2="${pos[b].y}" stroke-width="1.4" vector-effect="non-scaling-stroke" data-calls="${esc(calls.join(' ; '))}"><title>${esc(calls.join(' ; '))}</title></line>`;
+    return `<line class="edge" data-a="${a}" data-b="${b}" x1="${pos[a].x}" y1="${pos[a].y}" x2="${pos[b].x}" y2="${pos[b].y}" stroke-width="1.4" vector-effect="non-scaling-stroke" data-calls="${esc(calls.join(' ; '))}"><title>${esc(calls.join(' ; '))}</title></line>`;
   }).join('');
 
   const deadList = states.filter((_, i) => status(i) === 'dead').map(label);
@@ -109,6 +109,7 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   <details><summary>No route home (${nohomeList.length})</summary><div style="color:#b97608">${nohomeList.map(esc).join('<br>') || 'none'}</div></details>
   </div><div id="stage"><svg viewBox="0 0 2000 2000">${edgeSvg}${nodeSvg}</svg></div>
   <script type="application/json" id="nodedata">${JSON.stringify(nodeList)}</script>
+  <script type="application/json" id="topo">${JSON.stringify(pos.map((p) => [Math.round(p.x), Math.round(p.y)]))}</script>
   <script>
   const edges=[...document.querySelectorAll('.edge')];const f=document.getElementById('filter');
   function paint(){const q=f.value.trim().toLowerCase();edges.forEach(e=>{e.style.opacity=e.dataset.calls.toLowerCase().includes(q)?'1':'0.04';});}
@@ -132,5 +133,32 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const stText={home:'home (squared set)',ok:'route home',nohome:'no route home',dead:'DEAD END — no call from here'};
   const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);if(nd.calls.length){const h=document.createElement('div');h.textContent='Calls from here ('+nd.calls.length+'):';disp.appendChild(h);const ul=document.createElement('ul');nd.calls.forEach(c=>{const li=document.createElement('li');li.textContent=c.call+' → '+c.to;ul.appendChild(li);});disp.appendChild(ul);}else{const d=document.createElement('div');d.textContent='No calls leave this formation.';disp.appendChild(d);}};
   document.querySelectorAll('.node').forEach(nd=>nd.addEventListener('click',()=>showNode(parseInt(nd.dataset.i,10))));
+  // ---- live force simulation: drag a node and the layout reflows/spreads ----
+  (function(){
+    const P=JSON.parse(document.getElementById('topo').textContent);
+    const n=P.length;
+    const X=P.map(p=>p[0]),Y=P.map(p=>p[1]);
+    const nodes=[...document.querySelectorAll('.node')], lines=document.querySelectorAll('.edge');
+    const nb=Array.from({length:n},()=>[]);
+    lines.forEach(L=>{const a=+L.dataset.a,b=+L.dataset.b;nb[a].push(b);nb[b].push(a);});
+    const K=130,CX=1000,CY=1000;
+    const force=Array.from({length:n},()=>[0,0]);
+    const apply=()=>{for(let i=0;i<n;i++){const g=nodes[i];if(g)g.setAttribute('transform','translate('+X[i].toFixed(1)+','+Y[i].toFixed(1)+')');}lines.forEach(L=>{const a=+L.dataset.a,b=+L.dataset.b;L.setAttribute('x1',X[a]);L.setAttribute('y1',Y[a]);L.setAttribute('x2',X[b]);L.setAttribute('y2',Y[b]);});};
+    let temp=0,pinned=-1,running=false;
+    function step(){
+      for(let i=0;i<n;i++)force[i][0]=force[i][1]=0;
+      for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){let dx=X[i]-X[j],dy=Y[i]-Y[j];const d=Math.hypot(dx,dy)||1e-3;const f=(K*K)/d;const ux=dx/d,uy=dy/d;force[i][0]+=f*ux;force[i][1]+=f*uy;force[j][0]-=f*ux;force[j][1]-=f*uy;}
+      for(let a=0;a<n;a++)for(const b of nb[a]){if(b<=a)continue;let dx=X[b]-X[a],dy=Y[b]-Y[a];const d=Math.hypot(dx,dy)||1e-3;const f=d*d/K;const ux=dx/d,uy=dy/d;force[a][0]+=f*ux;force[a][1]+=f*uy;force[b][0]-=f*ux;force[b][1]-=f*uy;}
+      for(let i=0;i<n;i++){force[i][0]+=(CX-X[i])*0.02;force[i][1]+=(CY-Y[i])*0.02;}
+      for(let i=0;i<n;i++){if(i===pinned)continue;const d=Math.hypot(force[i][0],force[i][1])||1;const mag=Math.min(d,temp);X[i]+=force[i][0]/d*mag;Y[i]+=force[i][1]/d*mag;}
+      apply();temp*=0.95;if(pinned>=0&&temp<6)temp=6;
+      if(temp>0.3||pinned>=0){requestAnimationFrame(step);}else{running=false;}
+    }
+    const toWorld=e=>{const r=svg.getBoundingClientRect();return [vb.x+(e.clientX-r.left)*(vb.width/r.width),vb.y+(e.clientY-r.top)*(vb.height/r.height)];};
+    nodes.forEach((g,i)=>{g.style.cursor='grab';g.addEventListener('pointerdown',e=>{e.stopPropagation();pinned=i;const p=toWorld(e);X[i]=p[0];Y[i]=p[1];apply();temp=Math.max(temp,22);if(!running){running=true;requestAnimationFrame(step);}});});
+    window.addEventListener('pointermove',e=>{if(pinned<0)return;const p=toWorld(e);X[pinned]=p[0];Y[pinned]=p[1];apply();});
+    window.addEventListener('pointerup',()=>{pinned=-1;});
+    apply();
+  })();
   </script></body></html>`;
 }

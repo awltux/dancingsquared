@@ -70,7 +70,7 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const FILL: Record<string, string> = { home: '#0a7d33', ok: '#3a9a5f', nohome: '#e8950c', dead: '#d63a3a' };
   const nodeSvg = states.map((s, i) => {
     const st = status(i); const p = pos[i]; const r = st === 'home' ? 20 : 13;
-    return `<g class="node" data-status="${st}" data-i="${i}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})"><title>${esc(label(s))}${st === 'dead' ? ' — DEAD END (no call)' : st === 'nohome' ? ' — no route home' : ''}</title><circle class="nd" data-r="${r}" r="${r}" fill="${FILL[st]}" stroke="#00000022"/><text class="ndt" data-r="${r}" y="${r + 20}" text-anchor="middle" font-size="16">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text></g>`;
+    return `<g class="node" data-status="${st}" data-i="${i}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})"><title>${esc(label(s))}${st === 'dead' ? ' — DEAD END (no call)' : st === 'nohome' ? ' — no route home' : ''}</title><circle class="nd" data-r="${r}" r="${r}" fill="${FILL[st]}" stroke="#00000022" stroke-width="1.2" vector-effect="non-scaling-stroke"/><text class="ndt" data-r="${r}" y="${r + 20}" text-anchor="middle" font-size="16">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text></g>`;
   }).join('');
   const eg = new Map<string, string[]>();
   for (const e of edges) { const k = `${e.from}|${e.to}`; (eg.get(k) ?? eg.set(k, []).get(k)!).push(e.call); }
@@ -113,13 +113,17 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   <script type="application/json" id="topo">${JSON.stringify(pos.map((p) => [Math.round(p.x), Math.round(p.y)]))}</script>
   <script>
   const edges=[...document.querySelectorAll('.edge')];const f=document.getElementById('filter');
-  function paint(){const q=f.value.trim().toLowerCase();edges.forEach(e=>{e.style.opacity=e.dataset.calls.toLowerCase().includes(q)?'1':'0.04';});}
+  const ECOL={out:'#2e9e4f',in:'#e68a00',both:'#9b5cf6'};
+  let sel=-1;
+  // Highlight a selected node's incident edges (incoming vs outgoing coloured);
+  // otherwise respect the call filter.
+  function paint(){const q=f.value.trim().toLowerCase();edges.forEach(e=>{const a=+e.dataset.a,b=+e.dataset.b;const on=sel>=0&&(a===sel||b===sel);if(on){e.style.opacity=1;e.setAttribute('stroke',ECOL[a===sel&&b===sel?'both':a===sel?'out':'in']);}else{e.setAttribute('stroke','#cfd6dd');e.style.opacity=q&&!e.dataset.calls.toLowerCase().includes(q)?'0.04':'1';}});}
   f.addEventListener('input',paint);
   const svg=document.querySelector('svg'),st=document.getElementById('stage');let dragging=false,sx=0,sy=0,vb=svg.viewBox.baseVal;
   // Keep node icons/labels a constant SCREEN size as the viewBox zooms: the
   // viewBox scale factor is vb.width/2000, so counter-scale node geometry by it.
   const rescale=()=>{const k=vb.width/2000;document.querySelectorAll('.nd').forEach(c=>c.setAttribute('r',(parseFloat(c.dataset.r)*k).toFixed(2)));document.querySelectorAll('.ndt').forEach(t=>{const r=parseFloat(t.dataset.r);t.setAttribute('y',(r*k+17*k).toFixed(2));t.style.fontSize=(16*k)+'px';});};
-  st.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;});window.addEventListener('pointerup',()=>dragging=false);
+  st.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;if(sel>=0){sel=-1;markSel();paint();disp.textContent='Click a node to see its calls.';}});window.addEventListener('pointerup',()=>dragging=false);
   st.addEventListener('pointermove',e=>{if(!dragging)return;const r=svg.getBoundingClientRect();vb.x-=(e.clientX-sx)*(vb.width/r.width);vb.y-=(e.clientY-sy)*(vb.height/r.height);sx=e.clientX;sy=e.clientY;});
   st.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();const rect=svg.getBoundingClientRect();if(rect.width<=0||rect.height<=0)return;const px=e.clientX-rect.left,py=e.clientY-rect.top;const sx=vb.width/rect.width,sy=vb.height/rect.height;const vx=vb.x+px*sx,vy=vb.y+py*sy;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);rescale();},{passive:false});
   // Reset pan/zoom back to the full-graph framing (also bound to the R key).
@@ -133,7 +137,9 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const STC={home:'#0a7d33',ok:'#3a9a5f',nohome:'#e8950c',dead:'#d63a3a'};
   const stText={home:'home (squared set)',ok:'route home',nohome:'no route home',dead:'DEAD END — no call from here'};
   const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);const sec=(h,items,arrow)=>{const hd=document.createElement('div');hd.textContent=h;hd.style.fontWeight='600';hd.style.marginTop='4px';disp.appendChild(hd);if(!items.length){const em=document.createElement('div');em.style.color='#888';em.textContent='(none)';disp.appendChild(em);return;}const ul=document.createElement('ul');items.forEach(c=>{const li=document.createElement('li');li.textContent=arrow?c.from+' → '+c.call: c.call+' → '+c.to;ul.appendChild(li);});disp.appendChild(ul);};sec('Calls from here ('+nd.calls.length+'):',nd.calls,false);sec('Calls that lead here ('+nd.incoming.length+'):',nd.incoming,true);};
-  document.querySelectorAll('.node').forEach(nd=>nd.addEventListener('click',()=>showNode(parseInt(nd.dataset.i,10))));
+  function markSel(){document.querySelectorAll('.node').forEach(nd=>{const c=nd.querySelector('.nd');const on=sel>=0&&(+nd.dataset.i===sel);c.setAttribute('stroke',on?'#111':'#00000022');c.setAttribute('stroke-width',on?'3':'1.2');});}
+  function select(i){sel=sel===i?-1:i;markSel();paint();if(sel>=0)showNode(sel);else disp.textContent='Click a node to see its calls.';}
+  document.querySelectorAll('.node').forEach(nd=>nd.addEventListener('click',()=>select(parseInt(nd.dataset.i,10))));
   // ---- live force simulation: drag a node and the layout reflows/spreads ----
   (function(){
     const P=JSON.parse(document.getElementById('topo').textContent);

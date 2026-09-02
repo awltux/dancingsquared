@@ -17,6 +17,7 @@ export * from './types.js';
 export * from './core.js';
 export * from './handholds.js';
 export * from './matrix.js';
+export * from './moves.js';
 
 export { Engine } from './engine.js';
 export type { HoldMode, HoldEdge, Hand } from './handholds.js';

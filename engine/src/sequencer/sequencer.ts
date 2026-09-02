@@ -19,6 +19,7 @@ import { makeSquaredSet, cloneBoard } from './board.js';
 import { HOME_DANCERS } from './identity.js';
 import { matchFormations } from './match.js';
 import { mul5, dancerMatrix, type Mat5 } from '../matrix.js';
+import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, canonicalName } from './constants.js';
@@ -42,6 +43,12 @@ export class Sequencer {
   private readonly fsmStore: FsmStore;
   private fsmTable: FsmTable | null = null;
 
+  /** Body-relative "coded" calls (name -> whole-board pivot/refacing transform).
+   * These are not XML data calls — like Face Left/Right in Taminations they are
+   * the same per-dancer transform regardless of formation, so they are applied
+   * directly from the geometry rather than matched to a catalog <tam>. */
+  private readonly codedMoves = new Map<string, (board: Board) => Board>();
+
   constructor(movesXml: string, formationsXml: string, calls: { name: string; xml: string }[] = []) {
     this.library = new CallLibrary(movesXml, formationsXml);
     this.matcher = new FormationMatcher(this.library, this.config);
@@ -60,6 +67,23 @@ export class Sequencer {
         // Skip a call whose data fails to build; it just won't be applicable.
       }
     }
+    // Register the body-relative coded calls (pure pivots / re-facing).
+    const add = (names: string[], fn: (b: Board) => Board) => {
+      for (const n of names) this.codedMoves.set(n.toLowerCase(), fn);
+    };
+    add(['Face Right', 'Turn Right', 'Right Face'], (b) => applyMoveToBoard(b, FaceRight));
+    add(['Face Left', 'Turn Left', 'Left Face'], (b) => applyMoveToBoard(b, FaceLeft));
+    add(['Face Half', 'U-Turn Back', 'Face Back'], (b) => applyMoveToBoard(b, FaceHalf));
+    add(['Face In', 'Turn In'], (b) => applyFaceInOutToBoard(b, true));
+    add(['Face Out', 'Turn Out'], (b) => applyFaceInOutToBoard(b, false));
+  }
+
+  /** If `name` is one of the registered body-relative coded calls, return its
+   * transformed board (positions/headings of every dancer pivoted/refaced).
+   * Returns null when `name` is not a coded move. */
+  private tryCodedMove(board: Board, name: string): Board | null {
+    const fn = this.codedMoves.get(name.trim().toLowerCase());
+    return fn ? fn(board) : null;
   }
 
   // ---- registration & modules ----
@@ -131,7 +155,10 @@ export class Sequencer {
   }
 
   apply(callName: string): SeqStep {
-    const res = this.applicator.applyToBoard(this.board, callName);
+    const coded = this.tryCodedMove(this.board, callName);
+    const res = coded
+      ? { board: coded, legal: true as const }
+      : this.applicator.applyToBoard(this.board, callName);
     this.board = res.board;
     this.matcher.clearCaches();
     this.solver.clearCaches();
@@ -140,7 +167,10 @@ export class Sequencer {
 
   /** Apply a call step (string or {selection, call}) to the current board. */
   applyStep(step: string | CallStep): SeqStep {
-    const res = this.applicator.applyStep(this.board, step);
+    const coded = typeof step === 'string' ? this.tryCodedMove(this.board, step) : null;
+    const res = coded
+      ? { board: coded, legal: true as const }
+      : this.applicator.applyStep(this.board, step);
     this.board = res.board;
     this.matcher.clearCaches();
     this.solver.clearCaches();
@@ -149,6 +179,10 @@ export class Sequencer {
   }
 
   applyToBoard(board: Board, callName: string | CallStep): { board: Board; legal: boolean; reason?: string } {
+    if (typeof callName === 'string') {
+      const coded = this.tryCodedMove(board, callName);
+      if (coded) return { board: coded, legal: true };
+    }
     return typeof callName === 'string'
       ? this.applicator.applyToBoard(board, callName)
       : this.applicator.applyStep(board, callName);

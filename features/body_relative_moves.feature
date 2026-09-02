@@ -70,12 +70,37 @@ Feature: Body-Relative Codified Moves
     Then applying that matrix to the start state must yield exactly the move's end state
     And the end state must equal the canonical end positions and headings
 
+  @bind:applyToBoard @bind:FaceRight
+  Scenario: The Sequencer applies Face Right as a coded call from any formation
+    Given a current board in any formation and no catalog <tam> named "Face Right"
+    When the Sequencer applies "Face Right"
+    Then it must be legal without needing a matching XML formation
+    And every dancer must pivot 90° to its own right with its position unchanged
+    # These are NOT XML-data calls: they are the same per-dancer pivot whatever the
+    # formation, so the Sequencer applies the moves.ts transform directly.
+
+  @bind:apply @bind:FaceLeft @bind:FaceRight
+  Scenario: Face Left then Face Right restores the original facing
+    Given a board whose dancers face some direction
+    When Face Left is applied and then Face Right is applied
+    Then every dancer must be back at its original heading and position
+    # Coded face calls compose: applying the opposite pivot twice is the identity.
+
+  @bind:applyToBoard
+  Scenario: A name that is neither a catalog call nor a coded move is not legal
+    Given a call name that is not in the catalog and not a registered coded move
+    When it is applied
+    Then the Sequencer must report it as not legal
+
   # -----------------------------------------------------------------------------
   # Notational / engine notes
   # -----------------------------------------------------------------------------
   # Face Left/Right are 90° pivots (dx = dy = 0): Face Right = -90° heading, Face Left = +90°,
   # Face Half = 180°, Face 1/8 = ±45°, Face 3/8 = ±135° in the engine's CCW-positive convention.
   # faceInOutStates computes the shortest turn toward/away the set centroid per dancer.
+  # The Sequencer registers coded body-relative calls (Face/Turn Left/Right/In/Out/Half) that are
+  # applied directly from geometry and are legal from any formation; they are not FSM/catalog edges
+  # unless the pivoted geometry happens to be an existing formation state.
   # The rest of the taminations move catalog (fold/run/dodge/hinge/...) can be added as new
   # Move entries carrying their net local displacement + turn; a move is pure-body-relative only
   # when its direction is fixed in the dancer's local frame (callers orient it first otherwise).

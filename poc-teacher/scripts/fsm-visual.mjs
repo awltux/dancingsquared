@@ -181,6 +181,7 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><title>FSM visual
      <span class="dot" style="background:#e8950c"></span>outgoing call but no named route home (${nohomeList.length})<br>
      <span class="dot" style="background:#d63a3a"></span>DEAD END — no call from here (${deadList.length})</p>
   <h2>Highlight a call</h2>
+  <button id="rst" style="width:100%;margin:4px 0 8px;padding:5px;cursor:pointer">⟲ Reset view</button>
   <input id="filter" placeholder="type a call to highlight its edges…">
   <h2>Families (click to isolate)</h2>
   <div id="fams">${fams.map((f) => `<span class="calltab" data-fam="${esc(f)}">${esc(f)}</span>`).join('')}</div>
@@ -216,6 +217,10 @@ window.addEventListener('pointerup',()=>dragging=false);
 svg.parentElement.addEventListener('pointermove',e=>{if(!dragging)return;vb.x-=(e.clientX-sx);vb.y-=(e.clientY-sy);sx=e.clientX;sy=e.clientY;});
 svg.parentElement.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();const rect=svg.getBoundingClientRect();if(rect.width<=0)return;const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);rescale();},{passive:false});
 rescale();
+// Reset pan/zoom to the full-graph framing (button + R key).
+const resetView=()=>{vb.x=0;vb.y=0;vb.width=2000;vb.height=2000;rescale();};
+document.getElementById('rst').addEventListener('click',resetView);
+addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R')&&document.activeElement!==filter){e.preventDefault();resetView();}});
 </script></body></html>`;
 
 const outFile = process.argv[2] || path.join(root, 'poc-teacher', 'fsm-visual.html');

@@ -88,9 +88,11 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   #side{width:300px;padding:12px;overflow:auto;background:#f6f7f9;border-right:1px solid #ddd;font-size:13px}
   #stage{flex:1;overflow:hidden}svg{width:100%;height:100%;display:block}.edge{stroke:#cfd6dd;fill:none}
   #filter{width:96%;padding:4px}details{margin:3px 0}summary{cursor:pointer;font-weight:600}
+  #rst{width:100%;margin:8px 0;padding:6px;cursor:pointer;background:#fff;border:1px solid #bbb;border-radius:6px;font-size:13px}
   .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
   </style></head><body><div id="side"><h2>${esc(title)} — ${n} states, ${edges.length} edges</h2>
   <p><span class="dot" style="background:#0a7d33"></span>home<br><span class="dot" style="background:#3a9a5f"></span>route home<br><span class="dot" style="background:#e8950c"></span>no route home (approx) (${nohomeList.length})<br><span class="dot" style="background:#d63a3a"></span>dead-end (${deadList.length})</p>
+  <button id="rst" title="Reset pan/zoom to show the whole graph">⟲ Reset view</button>
   <input id="filter" placeholder="highlight edges by call…">
   <details><summary>Dead-end formations (${deadList.length})</summary><div style="color:#a52828">${deadList.map(esc).join('<br>') || 'none'}</div></details>
   <details><summary>No route home (${nohomeList.length})</summary><div style="color:#b97608">${nohomeList.map(esc).join('<br>') || 'none'}</div></details>
@@ -106,6 +108,10 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   st.addEventListener('pointerdown',e=>{dragging=true;sx=e.clientX;sy=e.clientY;});window.addEventListener('pointerup',()=>dragging=false);
   st.addEventListener('pointermove',e=>{if(!dragging)return;vb.x-=e.clientX-sx;vb.y-=e.clientY-sy;sx=e.clientX;sy=e.clientY;});
   st.addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();const rect=svg.getBoundingClientRect();if(rect.width<=0)return;const px=e.clientX-rect.left,py=e.clientY-rect.top;const s=vb.width/rect.width;const vx=vb.x+px*s,vy=vb.y+py*s;const z=e.deltaY<0?0.9:1.1;vb.width*=z;vb.height*=z;vb.x=vx-px*(vb.width/rect.width);vb.y=vy-py*(vb.height/rect.height);rescale();},{passive:false});
+  // Reset pan/zoom back to the full-graph framing (also bound to the R key).
+  const resetView=()=>{vb.x=0;vb.y=0;vb.width=2000;vb.height=2000;rescale();};
+  document.getElementById('rst').addEventListener('click',resetView);
+  addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R')&&document.activeElement!==f){e.preventDefault();resetView();}});
   rescale();
   </script></body></html>`;
 }

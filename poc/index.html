@@ -24,6 +24,7 @@
             <option value="browse">Browse calls</option>
             <option value="sequence">Sequencer</option>
             <option value="editor">Call editor</option>
+            <option value="fsm">FSM view</option>
           </select>
         </div>
         <div id="browseControls">
@@ -94,7 +95,6 @@
             <button id="seqGetin" title="Search from home into the current formation (getin)">Getin</button>
             <button id="seqFixIt">Fix it</button>
             <button id="seqCopyPos" title="Copy all dancers' positions to the clipboard (for debug reports)">Copy positions</button>
-            <button id="seqFsm" title="Open an FSM visual of the current level (dead-ends + call usage)">FSM view</button>
             <span id="seqStatus" class="part"></span>
           </div>
           <div id="seqMatrixInfo" class="small"></div>
@@ -171,13 +171,9 @@
         </div>
       </div>
     </div>
-    <div id="seqFsmOverlay" hidden>
-      <div class="overlay-toolbar">
-        <button id="seqFsmRefresh" title="Regenerate the FSM visual">Refresh</button>
-        <span id="seqFsmTitle" class="part"></span>
-        <button id="seqFsmClose">Close</button>
-      </div>
-      <iframe id="seqFsmFrame" title="FSM visual"></iframe>
+    <div id="fsmPanel" hidden>
+      <div class="fsm-toolbar"><span id="fsmTitle" class="part"></span></div>
+      <iframe id="fsmFrame" title="FSM visual"></iframe>
     </div>
     <footer id="buildFooter" class="build-footer"></footer>
     <script type="module" src="/src/main.ts"></script>

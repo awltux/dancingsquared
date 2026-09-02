@@ -8,6 +8,13 @@ import { Player } from './player';
 import { CallBrowser } from './browser';
 import { initSequencer } from './sequencer-ui';
 import { initEditor } from './editor-ui';
+import { renderFsmHtml } from './fsm-view';
+
+// Precomputed FSM table asset(s) written by `node poc/scripts/build-fsm-asset.mjs`.
+const fsmAssets = import.meta.glob<{
+  level?: string;
+  table: { states: string[]; edges: Record<string, { call: string; endFormation: string | null }[]> };
+}>('./assets/fsm-*.json', { eager: true, import: 'default' });
 
 // ---------------------------------------------------------------- loading bar
 
@@ -118,18 +125,40 @@ mirrorCheck.addEventListener('change', () => browser.onMirrorChange());
 
 // ---------------------------------------------------------------- mode switch
 
+const fsmPanel = el<HTMLDivElement>('fsmPanel');
+const fsmFrame = el<HTMLIFrameElement>('fsmFrame');
+const fsmTitle = el<HTMLSpanElement>('fsmTitle');
+let fsmActive = false;
+
+function showFsm() {
+  fsmActive = true;
+  fsmPanel.hidden = false;
+  const blob = Object.values(fsmAssets)[0];
+  if (blob && blob.table) {
+    fsmFrame.srcdoc = renderFsmHtml({ states: blob.table.states, edges: blob.table.edges }, `FSM · ${blob.level ?? 'ms'}`);
+    fsmTitle.textContent = `FSM (${blob.table.states?.length ?? 0} states, precomputed)`;
+  } else {
+    fsmTitle.textContent = 'No precomputed FSM asset — run poc/scripts/build-fsm-asset.mjs';
+    fsmFrame.srcdoc = '<p>No FSM asset found.</p>';
+  }
+}
+
 function applyMode() {
   const mode = modeSelect.value;
   const browse = mode === 'browse';
   const seq = mode === 'sequence';
   const ed = mode === 'editor';
+  const fsm = mode === 'fsm';
   browseControls.hidden = !browse;
   seqPanel.hidden = !seq;
   editorPanel.hidden = !ed;
-  const showDancers = browse || ed;
+  fsmPanel.hidden = !fsm;
+  fsmActive = fsm;
+  const showDancers = (browse || ed) && !fsm;
   browser.setVisible(showDancers);
-  seqUi.setActive(seq);
-  editorUi.setActive(ed);
+  seqUi.setActive(seq && !fsm);
+  editorUi.setActive(ed && !fsm);
+  if (fsm) showFsm();
 }
 modeSelect.addEventListener('change', applyMode);
 applyMode();
@@ -142,8 +171,10 @@ function tick(now: number) {
   const beat = player.advance(dt);
   if (player.call) browser.render(beat, player.call);
 
-  stage.controls.update();
-  stage.renderer.render(stage.scene, stage.camera);
+  if (!fsmActive) {
+    stage.controls.update();
+    stage.renderer.render(stage.scene, stage.camera);
+  }
   requestAnimationFrame(tick);
 }
 

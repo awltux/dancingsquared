@@ -86,17 +86,13 @@ html, body {
 }
 .loading-label { margin-top: 12px; font-size: 12px; color: var(--dim); }
 
-/* FSM visual overlay */
-#seqFsmOverlay {
-  position: fixed; inset: 0; z-index: 200; background: #0b0f14;
-  display: flex; flex-direction: column; padding: 8px;
+/* FSM view mode: full-area panel covering the 3D stage (kept below #hud so the
+   mode selector stays usable), hiding the dancer view while it is shown. */
+#fsmPanel {
+  position: fixed; inset: 0; z-index: 5; background: #0f141b;
+  display: flex; flex-direction: column;
 }
-#seqFsmOverlay[hidden] { display: none; }
-.overlay-toolbar { display: flex; align-items: center; gap: 10px; padding: 4px 6px; color: var(--text); }
-.overlay-toolbar button {
-  background: #131a22; color: var(--text); border: 1px solid #2a3542;
-  border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 13px;
-}
-.overlay-toolbar button:hover { border-color: var(--accent); }
-.overlay-toolbar .part { color: var(--dim); font-size: 12px; flex: 1; }
-#seqFsmFrame { flex: 1; border: 1px solid #2a3542; border-radius: 8px; background: #fff; border: none; }
+#fsmPanel[hidden] { display: none; }
+.fsm-toolbar { display: flex; align-items: center; gap: 10px; padding: 6px 10px; }
+.fsm-toolbar .part { color: var(--dim); font-size: 13px; }
+#fsmFrame { flex: 1; border: 0; background: #fff; }

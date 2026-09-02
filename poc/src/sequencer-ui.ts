@@ -9,6 +9,7 @@ import { Sequencer, computeHandholds, sampleTrail, splitSelection } from 'dancin
 import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
+import { fsmToHtml } from './fsm-view';
 import { DancerView, buildHandConnectors } from './scene';
 import type { Stage, WalkCycle } from './scene';
 
@@ -51,6 +52,12 @@ export class SequencerController implements SequencerUI {
   private formationSelect = el<HTMLSelectElement>('seqFormation');
   private setFormationBtn = el<HTMLButtonElement>('seqSetFormation');
   private subsetInfoEl = el<HTMLDivElement>('seqSubsetInfo');
+  private fsmBtn = el<HTMLButtonElement>('seqFsm');
+  private fsmOverlay = el<HTMLDivElement>('seqFsmOverlay');
+  private fsmFrame = el<HTMLIFrameElement>('seqFsmFrame');
+  private fsmCloseBtn = el<HTMLButtonElement>('seqFsmClose');
+  private fsmRefreshBtn = el<HTMLButtonElement>('seqFsmRefresh');
+  private fsmTitle = el<HTMLSpanElement>('seqFsmTitle');
   private formationNames: string[] = [];
 
   // State.
@@ -134,6 +141,29 @@ export class SequencerController implements SequencerUI {
     this.subsetInfoEl.innerHTML = groups.length
       ? `Subsets present: <b>${groups.join(' · ')}</b> — their calls are grouped under each selector below.`
       : 'No dancer subsets resolve on this board (whole-board calls only).';
+  }
+
+  /** Open the FSM visual overlay for the current level. */
+  private showFsm() {
+    this.fsmOverlay.hidden = false;
+    this.fsmTitle.textContent = 'building FSM transition table…';
+    // Let the overlay paint before the (potentially slow) FSM build.
+    requestAnimationFrame(() => {
+      try {
+        const t0 = performance.now();
+        const html = fsmToHtml(this.seq);
+        this.fsmFrame.srcdoc = html;
+        const n = this.seq.transitionTable().stateCount();
+        this.fsmTitle.textContent = `FSM · ${n} states · built in ${(performance.now() - t0).toFixed(0)}ms`;
+      } catch (err) {
+        this.fsmTitle.textContent = `FSM build failed: ${err instanceof Error ? err.message : String(err)}`;
+      }
+    });
+  }
+
+  private closeFsm() {
+    this.fsmOverlay.hidden = true;
+    this.fsmFrame.srcdoc = '';
   }
 
   private loadModules() {
@@ -546,6 +576,9 @@ export class SequencerController implements SequencerUI {
     this.saveModuleBtn.addEventListener('click', () => this.saveModule());
     this.setFormationBtn.addEventListener('click', () => this.setBoardFormation());
     this.levelSelect.addEventListener('change', () => this.rebuildSeq());
+    this.fsmBtn.addEventListener('click', () => this.showFsm());
+    this.fsmCloseBtn.addEventListener('click', () => this.closeFsm());
+    this.fsmRefreshBtn.addEventListener('click', () => this.showFsm());
     this.marginInput.addEventListener('input', () => this.applyMargin());
     this.playBtn.addEventListener('click', () => this.togglePlay());
     this.scrub.addEventListener('input', () => this.onScrub());

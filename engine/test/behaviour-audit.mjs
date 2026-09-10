@@ -623,6 +623,42 @@ console.log('\n== A zero must restore facings, not just positions (feature: zero
   check(seq.buildTip([['Face Right']]).legal === false, 'buildTip rejects a pivot-only tip');
 }
 
+console.log('\n== recognise and isAt agree (feature: formation_states) ==');
+{
+  // Every board that gets a curated label must also BE that formation: isAt(x)
+  // can never contradict the label shown for the same board.
+  let checked = 0, contradictions = 0;
+  const bad = [];
+  for (const name of seq.listFormations()) {
+    const b = seq.boardForFormation(name);
+    if (!b) continue;
+    checked++;
+    const rec = seq.recognize(b).name;
+    if (!rec) continue;
+    if (!seq.isAt(rec, b)) { contradictions++; if (bad.length < 5) bad.push(`${name} -> ${rec}`); }
+  }
+  check(contradictions === 0, 'no board reports a formation that isAt() rejects',
+    `${checked} named boards; contradictions=${contradictions}${bad.length ? ' ' + bad.join('; ') : ''}`);
+
+  // A board that is really a NON-curated formation must not be given a confident
+  // curated label just because one is nearest.
+  const tb = seq.boardForFormation('T-Bone LDDR');
+  if (tb) {
+    check(seq.recognize(tb).name === null, 'an exact T-Bone reports no curated formation', String(seq.recognize(tb).name));
+    check(seq.isAt('T-Bone LDDR', tb) === true, 'that board IS at T-Bone LDDR');
+    check(seq.isAt('Double Pass Thru', tb) === false, 'that board is NOT at Double Pass Thru (3.14 away)');
+    check(seq.isAt('Eight Chain Thru', tb) === false, 'that board is NOT at Eight Chain Thru (3.14 away)');
+  }
+
+  // Genuine curated formations are unaffected.
+  seq.reset();
+  check(seq.isAt('Static Square'), 'the home board is still at Static Square');
+  check(seq.isAt('Squared Set'), 'the "Squared Set" synonym still resolves');
+  const ect = seq.boardForFormation('Eight Chain Thru');
+  check(ect && seq.recognize(ect).name === 'Eight Chain Thru' && seq.isAt('Eight Chain Thru', ect),
+    'an exact Eight Chain Thru still recognises and isAt() confirms');
+}
+
 console.log('\n=================');
 console.log(`PASS: ${pass}   NOT-IMPLEMENTED: ${ni}   FAIL: ${fail}`);
 if (fail > 0) { console.log(`${fail} FAIL check(s) - investigate`); process.exitCode = 1; }

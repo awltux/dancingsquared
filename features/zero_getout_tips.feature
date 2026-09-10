@@ -36,6 +36,16 @@ Feature: Zeros, Getouts and Tips
     And it must not return a path whose first call is rejected when actually applied from the current state
     # Engine: solver.getout(board) returns a verified legal path to the target.
 
+  @bind:getin @bind:matchesNamed @bind:recognize
+  Scenario: A search must not accept a target it has not actually reached
+    Given the engine searches for a forward sequence into a target formation
+    When a candidate path ends in a DIFFERENT formation, however apparently close
+    Then it must not count as having reached the target, and the search must continue
+    # Engine: solver.reachesTarget asks matcher.matchesNamed, which used to match at
+    #          matchFormations' loose 6.0 default. getin("Eight Chain Thru") therefore returned a
+    #          path ending in a T-Bone (3.14 from the target) and reported success. With the tight
+    #          threshold it keeps searching and reaches a genuine Eight Chain Thru (error 0.0000).
+
   @bind:getin
   Scenario: Computing a getin from home into a formation
     Given the engine is at the home state

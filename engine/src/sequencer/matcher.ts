@@ -10,6 +10,10 @@ import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, KNOWN_FORMATION_MAX, STANDARD_FORMATIONS, canonicalName } from './constants.js';
 import type { Board, RecognizedFormation, VariantMatch } from './types.js';
 
+/** Two formation matches within this of each other are treated as tied when
+ * deciding whether a board IS a given formation (they are the same geometry). */
+const MATCH_TIE_EPS = 1e-9;
+
 export class FormationMatcher {
   // Caches the best call-variant match for a (board geometry + call) pair. Boards
   // are immutable (always cloned before mutation), so a given signature + call
@@ -66,12 +70,35 @@ export class FormationMatcher {
     return best;
   }
 
-  /** Whether a board matches the named formation (by tolerant matching). */
+  /** Whether the board IS the named formation — not merely closest to it.
+   *
+   * Formations inside the curated recognition set are answered consistently with
+   * `recognize`, so `isAt(x)` can never contradict the label on screen: the match
+   * must be within the same tight tolerance the sequencer uses to accept a call's
+   * setup as matching a board (DEFAULT_MATCH_MAX), and it must be (tied-)best
+   * among the curated formations. Otherwise a board that is really a T-Bone is
+   * also "at" an Eight Chain Thru 3.14 away — which additionally let the solver
+   * accept a getout/getin that had not reached its target.
+   *
+   * Formations OUTSIDE the curated set (T-Bones, mixed columns, …) are not
+   * something `recognize` will ever label, so they are answered geometrically:
+   * the tight match above is the whole test.
+   */
   matchesNamed(board: Board, name: string): boolean {
     const canonical = canonicalName(name);
     const f = this.library.getNamedFormations().find((x) => x.name === canonical);
     if (!f || f.dancers.length !== board.dancers.length) return false;
-    return matchFormations(this.matchables(board), f.dancers) !== null;
+    const src = this.matchables(board);
+    // Match with the PERMISSIVE tolerance, then gate the resulting error against
+    // the tight one below. Passing the tight tolerance straight in would also
+    // tighten matchFormations' distance-signature quick reject (sigTol scales with
+    // maxError), which can reject a board whose error would have been tiny.
+    const m = matchFormations(src, f.dancers);
+    if (!m || m.error > DEFAULT_MATCH_MAX + this.config.matchMargin) return false;
+    if (!STANDARD_FORMATIONS.includes(canonical)) return true;
+    const rec = this.recognize(board);
+    if (rec.name === null) return false;
+    return m.error <= rec.error + MATCH_TIE_EPS;
   }
 
   /** The name of any formation in the FULL catalog that `board` matches, else
@@ -126,7 +153,13 @@ export class FormationMatcher {
     return board.dancers.map((d) => `${d.x.toFixed(5)},${d.y.toFixed(5)},${d.heading.toFixed(5)}`).join(';');
   }
 
-  /** Recognize the board against the curated standard formations. */
+  /** Recognize the board against the curated standard formations.
+   *
+   * A label is only reported when the board genuinely IS that formation: a board
+   * that merely happens to be CLOSEST to a curated name — e.g. a T-Bone 3.14 away
+   * from Double Pass Thru — reports no formation rather than a confident wrong
+   * one. `matchesNamed` applies the same threshold, so `isAt(x)` cannot contradict
+   * the label reported here. */
   recognize(board: Board): RecognizedFormation {
     const src = this.matchables(board);
     const symmetric = isSymmetric(board);
@@ -136,7 +169,9 @@ export class FormationMatcher {
       const m = matchFormations(src, f.dancers);
       if (m && m.error < best.error) best = { name: f.name, error: m.error, symmetric };
     }
-    if (best.name === null) best.error = 0;
+    if (best.name === null || best.error > DEFAULT_MATCH_MAX + this.config.matchMargin) {
+      return { name: null, error: 0, symmetric };
+    }
     return best;
   }
 

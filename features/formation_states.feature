@@ -203,3 +203,29 @@ Feature: Formation States and FSM Structure
     # Engine: constants.ts FORMATION_SYNONYMS maps aliases to a canonical name; canonicalName is
     #          applied in the solver (getout/getin/fixIt targets) and matcher.matchesNamed, so
     #          passing either "Squared Set" or "Static Square" gives consistent results.
+
+  @bind:recognize @bind:matchesNamed
+  Scenario: A recognised label is always a formation the board actually is
+    Given a board sits in some formation
+    When the engine recognises it and reports a formation name
+    Then the board must also answer "yes" to a direct query for that same formation
+    And the two answers must never contradict each other
+    # Engine: recognize() gates its label at DEFAULT_MATCH_MAX - the same tight tolerance the
+    #          sequencer uses to accept a call's setup as matching a board - and matchesNamed()
+    #          requires that same tight error AND that the formation be (tied-)best among the
+    #          curated set. They used to disagree: a board 3.14 from Eight Chain Thru reported
+    #          "Double Pass Thru" from recognize() while isAt() claimed Eight Chain Thru, because
+    #          matchesNamed matched at matchFormations' loose 6.0 default.
+
+  @bind:recognize @bind:matchesNamed @bind:knownFormation
+  Scenario: A board in a non-curated formation reports no curated label
+    Given a board sits in a real formation that is outside the curated recognition set, such as a T-Bone
+    When the engine recognises it
+    Then it must report no formation rather than the nearest curated name that merely happens to be closest
+    But a direct query for that non-curated formation must still answer yes
+    # Engine: on an exact T-Bone LDDR board the best curated match is 3.14 (pi) away, so recognize()
+    #          returns null while isAt("T-Bone LDDR") stays true (names outside the curated set are
+    #          answered geometrically). Across the catalog this cuts 39 of 733 end-board labels and
+    #          every one was a WRONG curated name - e.g. a board that is exactly "3 and 1 lines #2"
+    #          was labelled "Normal Lines" 3.14 away. Nothing genuine is lost: the error
+    #          distribution is bimodal (exact, or no curated match at all).

@@ -281,16 +281,17 @@ const seq4 = new Sequencer(movesXml, formationsXml, [
   { name: 'Zoom', xml: ms('zoom') },
   { name: 'Rollaway', xml: ms('sashay') },
 ]);
-// A canonical Double Pass Thru board (8 dancers, two facing columns).
+// A canonical Double Pass Thru board (8 dancers, two facing columns). Headings
+// are RADIANS: the right-hand columns face back the way they came (Math.PI).
 seq4.board = { dancers: [
   { id: 1, couple: 1, gender: 'boy', x: -3, y: 1, heading: 0 },
   { id: 2, couple: 1, gender: 'girl', x: -3, y: -1, heading: 0 },
   { id: 3, couple: 2, gender: 'boy', x: -1, y: 1, heading: 0 },
   { id: 4, couple: 2, gender: 'girl', x: -1, y: -1, heading: 0 },
-  { id: 5, couple: 3, gender: 'boy', x: 3, y: -1, heading: 180 },
-  { id: 6, couple: 3, gender: 'girl', x: 3, y: 1, heading: 180 },
-  { id: 7, couple: 4, gender: 'boy', x: 1, y: -1, heading: 180 },
-  { id: 8, couple: 4, gender: 'girl', x: 1, y: 1, heading: 180 },
+  { id: 5, couple: 3, gender: 'boy', x: 3, y: -1, heading: Math.PI },
+  { id: 6, couple: 3, gender: 'girl', x: 3, y: 1, heading: Math.PI },
+  { id: 7, couple: 4, gender: 'boy', x: 1, y: -1, heading: Math.PI },
+  { id: 8, couple: 4, gender: 'girl', x: 1, y: 1, heading: Math.PI },
 ]};
 check(seq4.recognize(seq4.board).name === 'Double Pass Thru', `board is Double Pass Thru`);
 const listed = seq4.legalNext();
@@ -317,10 +318,10 @@ seq5.board = { dancers: [
   { id: 2, couple: 1, gender: 'girl', x: -3, y: -1, heading: 0 },
   { id: 3, couple: 2, gender: 'boy', x: -1, y: 1, heading: 0 },
   { id: 4, couple: 2, gender: 'girl', x: -1, y: -1, heading: 0 },
-  { id: 5, couple: 3, gender: 'boy', x: 3, y: -1, heading: 180 },
-  { id: 6, couple: 3, gender: 'girl', x: 3, y: 1, heading: 180 },
-  { id: 7, couple: 4, gender: 'boy', x: 1, y: -1, heading: 180 },
-  { id: 8, couple: 4, gender: 'girl', x: 1, y: 1, heading: 180 },
+  { id: 5, couple: 3, gender: 'boy', x: 3, y: -1, heading: Math.PI },
+  { id: 6, couple: 3, gender: 'girl', x: 3, y: 1, heading: Math.PI },
+  { id: 7, couple: 4, gender: 'boy', x: 1, y: -1, heading: Math.PI },
+  { id: 8, couple: 4, gender: 'girl', x: 1, y: 1, heading: Math.PI },
 ]};
 const dpt5 = seq5.board;
 check(seq5.recognize(dpt5).name === 'Double Pass Thru', `board is Double Pass Thru`);

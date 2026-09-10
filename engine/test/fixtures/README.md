@@ -88,16 +88,26 @@ arrangement plus one partner paired.
    non-empty line lists, and a line count high enough to prove the corpus is not
    truncated. A silently-partial corpus would be worse than none.
 2. **Call-name coverage** decodes each published line with a *conservative*
-   abbreviation table and reports which call names the engine's catalogue does not
-   register. The table is **ours, not All8's** — All8's own notation reference
-   (`help.cgi`) returns HTTP 500 — so tokens we cannot read with confidence are
-   counted as undecoded rather than guessed, and group-scoped readings
-   (`B-Run` → "Boys Run") are reported separately instead of being compared,
-   because a composed name is our reading rather than a name All8 prints.
-3. **Alignment coverage is reported, not gated** — All8 indexes get-outs by
-   alignment, so a real conformance run needs a board in that alignment. The engine
-   has no mapping from All8 alignment ids to a board, so today this reports the
-   corpus rather than exercising it.
+   abbreviation table (`test/lib/getout-decode.mjs`, shared with the behavioural
+   runner) and reports which call names the engine does not implement. The table is
+   **ours, not All8's** — All8's own notation reference (`help.cgi`) returns HTTP 500
+   — so tokens we cannot read with confidence are counted as undecoded rather than
+   guessed, and group-scoped readings (`B-Run` → "Boys Run") are reported separately
+   instead of being compared, because a composed name is our reading rather than a
+   name All8 prints. Names the engine implements under a different title
+   (`Touch 1/4` → `Touch a Quarter`) are reported as *named differently*, not as
+   gaps; the bridge is `test/lib/engine-calls.mjs`.
+
+`engine/test/getout-behaviour.mjs` **runs** the corpus: a start board from each
+alignment's diagram, the published line decoded and applied call by call, stopping at
+the first call that does not apply and recording which call and why, attributed to the
+owning side (our decoder / the engine's catalogue / the engine's matching / subset
+selection). Results and the blocker ranking are in `square-dancing.md` §9.1 step 4.
+
+Beware two traps when measuring this corpus, both of which inflate the engine's
+apparent failure rate: register calls by **title** (not file basename, or `Pass Thru`
+is unregistered), and remember `assets/src/calls.xml` is an *index* — a title in it
+with no `<tam>` anywhere is a call the engine knows and cannot perform.
 
 ## What it already tells us
 

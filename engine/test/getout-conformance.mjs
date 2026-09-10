@@ -25,6 +25,7 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { catalogueTitles, indexedTitles, engineNameFor } from './lib/engine-calls.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
@@ -69,122 +70,20 @@ if (fixture.failures?.length) {
 // ------------------------------------------------------- the engine catalogue
 
 const assets = path.join(root, 'poc/src/assets');
-const levels = ['discovered', 'b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
-const catalogue = new Set();
-for (const lv of levels) {
-  const dir = path.join(assets, lv);
-  if (!existsSync(dir)) continue;
-  for (const f of readdirSync(dir).filter((x) => x.endsWith('.xml'))) {
-    const xml = readFileSync(path.join(dir, f), 'utf8');
-    for (const m of xml.matchAll(/<tam\b[^>]*\btitle="([^"]*)"/g)) catalogue.add(m[1]);
-  }
-}
-console.log(`\n== Engine catalogue ==\n  ${catalogue.size} call titles across ${levels.length} level folders`);
+// The catalogue must include assets/src/calls.xml (the resolve and concept calls)
+// and must be read by TITLE - see lib/engine-calls.mjs for why both matter.
+// The implemented catalogue is the `<tam>` titles. `indexedTitles` is the engine's
+// own index (assets/src/calls.xml), which lists names that have no implementation -
+// so an absent name can be told apart from a name the engine knows and cannot do.
+const catalogue = catalogueTitles(assets);
+const indexed = indexedTitles(assets);
+console.log(`\n== Engine catalogue ==\n  ${catalogue.size} implemented call titles (<tam>), ${indexed.size} titles in the engine's own index`);
 
 // --------------------------------------------------------- decoding the lines
 //
-// Conservative on purpose: a token is only decoded when its expansion is
-// unambiguous to us. Everything else counts as UNDECODED so the report never
-// quietly invents a call name. Prefixes A-/B-/G-/C-/E- are All/Boys/Girls/Centers/
-// Ends, which is how All8 writes group-scoped calls (e.g. B-Run = Boys Run).
-const TOKENS = {
-  AL: 'Allemande Left',
-  RLG: 'Right and Left Grand',
-  WWGrd: 'Wrong Way Grand',
-  Prom: 'Promenade',
-  PromH: 'Promenade Home',
-  PasTh: 'Pass Thru',
-  SldTh: 'Slide Thru',
-  BxGnt: 'Box the Gnat',
-  RLT: 'Right and Left Thru',
-  RollA: 'Rollaway',
-  StrTh: 'Star Thru',
-  CirL: 'Circle Left',
-  CirR: 'Circle Right',
-  JoinH: 'Join Hands',
-  UTurn: 'U-Turn Back',
-  'T1/4': 'Touch 1/4',
-  A8Cir: 'All 8 Circulate',
-  SwThr: 'Swing Thru',
-  TrdBy: 'Trade By',
-  TrdWv: 'Trade the Wave',
-  Trd: 'Trade',
-  DixiS: 'Dixie Style to a Wave',
-  DixiG: 'Dixie Grand',
-  SpTop: 'Spin the Top',
-  FanTp: 'Fan the Top',
-  Ext: 'Extend',
-  Scoot: 'Scoot Back',
-  DoSaD: 'Do Sa Do',
-  DoPaso: 'Do Paso',
-  TrnTh: 'Turn Thru',
-  'R.PBy': 'Right Pull By',
-  StepW: 'Step to a Wave',
-  'Ca3/4': 'Cast Off 3/4',
-  CtrIn: 'Centers In',
-  PsOcn: 'Pass the Ocean',
-  CalTw: 'California Twirl',
-  ChasR: 'Chase Right',
-  FwdBk: 'Forward and Back',
-  LoadB: 'Load the Boat',
-  'Col.C': 'Column Circulate',
-  PeelO: 'Peel Off',
-  SpltC: 'Split Circulate',
-  '1/2.C': '1/2 Circulate',
-  LHing: 'Left Hinge',
-  Run: 'Run',
-  Fold: 'Fold',
-  BendL: 'Bend the Line',
-  LSwTh: 'Left Swing Thru',
-  Recyc: 'Recycle',
-  Swing: 'Swing',
-  DPT: 'Double Pass Thru',
-  VeerR: 'Veer Right',
-  VeerL: 'Veer Left',
-  XFold: 'Cross Fold',
-  Zoom: 'Zoom',
-  Tag: 'Tag the Line',
-  DoPaS: 'Do Paso',
-  WhlDl: 'Wheel and Deal',
-  RvFlt: 'Reverse Flutterwheel',
-  Cir: 'Circulate',
-};
-// N-hand counts: All8's digit counts HANDS (e.g. --SqTh1 = Square Thru with one
-// hand), which is not the standard call suffix, so only the counts that ARE real
-// call names (2, 3, 4) are expanded. `--SqTh1`/`--SqTh5`/`--8Chn*` are therefore
-// left undecoded rather than expanded into names the catalogue cannot have.
-for (let n = 2; n <= 4; n++) TOKENS[`SqTh${n}`] = `Square Thru ${n}`;
-for (let n = 3; n <= 4; n++) TOKENS[`SqT@${n}`] = `Square Thru ${n}`;
-for (let n = 3; n <= 4; n++) TOKENS[`LSqT${n}`] = `Left Square Thru ${n}`;
-const GROUP = { A: 'All', B: 'Boys', G: 'Girls', C: 'Centers', E: 'Ends' };
-
-/** Split a published line into its tokens, preserving nothing else. All8 separates
- * calls with wide gaps, but an aside can collapse that to a single space
- * (`--CtrIn  B-Fold "behind your girl" --Prom`), so asides are removed first. */
-function tokenize(line) {
-  return line
-    .replace(/\([^)]*\)/g, '  ')           // drop parenthetical asides
-    .replace(/"[^"]*"/g, '  ')             // drop quoted asides
-    .split(/\s{2,}|\s+-\s+/)               // All8 separates calls with wide gaps
-    .map((t) => t.trim())
-    .filter(Boolean)
-    .map((t) => t.replace(/^[-\s!|]+/, '').replace(/[,.;:]+$/, '').trim())
-    .filter(Boolean);
-}
-
-/** Decode a token to a call name, or null when we cannot read it. A group prefix
- * (A-/B-/G-/C-/E-) is decoded but flagged `scoped`, because the composed name
- * ("Boys Run") is a reading of All8's shorthand rather than a name All8 prints. */
-function decodeToken(token) {
-  const t = token.replace(/^[-\s!|]+/, '').trim();
-  const g = /^([ABGCE])-(.+)$/.exec(t);
-  if (g) {
-    const base = TOKENS[g[2]];
-    return base ? { name: `${GROUP[g[1]]} ${base}`, scoped: true } : null;
-  }
-  const base = TOKENS[t];
-  return base ? { name: base, scoped: false } : null;
-}
+// The abbreviation table and tokenizer live in lib/getout-decode.mjs so this script
+// and getout-behaviour.mjs decode the corpus identically.
+import { TOKENS, GROUP, tokenize, decodeToken } from './lib/getout-decode.mjs';
 
 let lines = 0, decoded = 0;
 const unknownTokens = new Map();
@@ -221,13 +120,26 @@ console.log(`  tokens we cannot read yet: ${topUnknown.map(([t, n]) => `${t}(${n
 // ------------------------------------------- call-name coverage vs the catalogue
 
 console.log('\n== Call-name coverage: published get-outs vs the engine catalogue ==');
+// A name All8 uses and the engine uses differently is NOT a missing call, so the
+// All8 -> engine bridge is applied before comparing; whatever is still absent is a
+// real gap. Bridged names are listed too, since the bridge currently lives in the
+// test harness rather than in the engine's (empty) CALL_SYNONYMS.
+const bridged = [...plainRefs.entries()].filter(([name]) => engineNameFor(name) !== name);
 const missing = [...plainRefs.entries()]
-  .filter(([name]) => !catalogue.has(name))
+  .map(([name, n]) => [engineNameFor(name), n, name] )
+  .filter(([engineName]) => !catalogue.has(engineName))
   .sort((a, b) => b[1] - a[1]);
 console.log(`  WHOLE-SET names (decoded without a group prefix, so the comparison is fair):`);
 console.log(`    ${plainRefs.size} distinct, ${plainRefs.size - missing.length} registered, ${missing.length} ABSENT`);
-for (const [name, n] of missing.slice(0, 18)) console.log(`      ${String(n).padStart(3)}x  ${name}`);
+for (const [name, n, published] of missing.slice(0, 18)) {
+  const known = indexed.has(name) ? 'indexed by the engine but NOT implemented' : 'not in the engine at all';
+  console.log(`      ${String(n).padStart(3)}x  ${name}${published === name ? '' : `  (All8 writes "${published}")`}  - ${known}`);
+}
 if (missing.length > 18) console.log(`      ... and ${missing.length - 18} more`);
+if (bridged.length) {
+  console.log(`  NAMED DIFFERENTLY (present, not gaps - the bridge lives in lib/engine-calls.mjs for now):`);
+  for (const [name, n] of bridged) console.log(`      ${String(n).padStart(3)}x  "${name}" -> "${engineNameFor(name)}"`);
+}
 console.log(`  GROUP-SCOPED readings (reported for information, NOT compared): ${scopedRefs.size} distinct`);
 console.log(`    e.g. ${[...scopedRefs.keys()].slice(0, 8).join(', ')}`);
 // Reported, not gated: an absent name is either a catalogue gap or a wrong

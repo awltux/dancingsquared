@@ -539,20 +539,106 @@ is what turns a corpus id into a board.
 Remaining step: **4** re-run the corpus as a behavioural report naming, per get-out, the call
 it stopped at and why — now possible for 26 of the 28 alignments.
 
+**Step 4 is DONE — the corpus is now run, not just read.** `engine/test/getout-behaviour.mjs`
+takes the board All8's own diagram describes for each alignment, decodes the published line
+with the shared abbreviation table, applies the calls in order, and stops at the first that
+does not apply — recording **which call** and **why**, with the reason attributed to whoever
+owns it. It is a diagnostic, not a gate: the only structural failures are a start board that
+cannot be built or a contradiction inside our own model.
+
+*Headline, over the 412 published lines that have a start board (get-out and Plus alike):*
+
+| outcome | lines | |
+|---|---|---|
+| reached the finish and applied it | 41 (10%) | **success** by the caller convention |
+| reached a state a finish resolves from | 2 | **success** |
+| completed the body but did not resolve | 1 | body ran; end state is not a finish state |
+| stopped only at the finish | 31 (8%) | body ran; the resolve call itself would not apply |
+| stopped part-way through the body | 82 (20%) | the real engine coverage gap |
+| stopped at a token we cannot decode | 202 (49%) | **our** gap in reading All8 |
+| page text, not a get-out line at all | 53 (13%) | not a conformance datum |
+
+*The blockers, in the order they are worth fixing — and the biggest one is ours:*
+
+1. **Our decoder, 202 lines / 97 distinct tokens.** This is not an engine deficiency at all,
+   and it masks everything behind it: until a line can be read, we cannot tell whether the
+   engine can dance it. Top targets: `Plus`(22), `&Roll`(21), `SHing`(10), `DivTh`(9),
+   `LT1/4`(7), `LA`(6), `PtTrd`(6), `SpChT`(5), `AcDcy`(5). Improving this table is the
+   single highest-leverage change available, and it must come first.
+2. **Subset selection, 28 lines.** `"Circulate" not legal for selected dancers`,
+   `"U-Turn Back" ...`, `"Pass Thru" ...` — these are All8's group-scoped calls
+   (`B-Cir`, `G-UTurn`). The call is implemented and the name decodes; the engine cannot
+   resolve *who* acts from that board. A distinct failure mode from the two below, with its
+   own owner.
+3. **The finish calls, 31 lines.** The get-out body runs all the way to the state it was
+   written to reach and then the resolve itself will not apply: `Promenade` (16),
+   `Right and Left Grand` (14), `Allemande Left` (2). The cheapest wins in the corpus, and
+   they land exactly on the caller-convention decision — the engine's own finishes are
+   stricter than "a state the standard finish resolves from". One concrete cause: the engine
+   implements only *qualified* promenades (`Heads Promenade 1/2`, `Star Promenade`, ...).
+   **Bare `Promenade` is listed in the engine's own index and has no implementation**, and it
+   is the most-used finisher in the corpus (26 lines).
+4. **Mid-body call coverage, 82 lines / 27 distinct calls** (`Box the Gnat` 7, `Boys Trade` 3,
+   `Scoot Back` 3, `Rollaway` 3, `Boys Fold` 3, `Ends Fold` 3, then a long tail). These need
+   the call to match from more formations, not merely to exist. 44 of the 82 fail at the
+   *first* call, from a start board that is All8's own and is recognised by the engine as the
+   right formation — so these are genuine matching gaps, not setup artefacts.
+
+*Three harness bugs this step had to fix first, all of which had been inflating the engine's
+apparent failure rate:*
+
+- **Calls were being registered by file basename**, so `Pass Thru` (file `pass_thru.xml`) was
+  unregistered and every get-out appeared to fail at its first call. Registering by title
+  fixes it; the shared loader now does this for every test that runs calls.
+- **`poc/src/assets/src/calls.xml` was never read.** It is not a set of implementations but an
+  *index* — `<call link="c3a/1_4_mix" title="1/4 Mix"/>` entries pointing at call files — so a
+  name in it without a `<tam>` anywhere is a call the engine knows and cannot do. That is how
+  the `Promenade` gap surfaced, and it is worth keeping the two notions apart.
+- **All8's names differ from the engine's for three calls** (`Touch 1/4` → `Touch a Quarter`,
+  `Cast Off 3/4` → `Cast Off Three Quarters`, `Do Sa Do` → `Dosado`), which were being counted
+  as catalogue gaps. The bridge now lives in `test/lib/engine-calls.mjs`; the engine's own
+  `CALL_SYNONYMS` map exists for exactly this and is empty (open item below).
+
+With those fixed, the catalogue question is nearly closed: of 48 distinct whole-set call
+names the corpus uses, **44 are implemented** and only 4 are absent — `Promenade` (indexed,
+unimplemented), `Promenade Home`, `1/2 Circulate`, `Join Hands`.
+
+*What step 4 changes about the plan.* Steps 1-4 were "make the corpus expressible". It now is,
+and the answer to "where is the engine incomplete" is measurable rather than anecdotal — but
+the measurement says the frontier is not where the earlier steps assumed. The engine's own
+remaining gap (82 mid-body + 31 finish + 28 selection = 141 lines) is smaller than the gap in
+our ability to READ the corpus (202 lines), so **decoder coverage is the next step**, followed
+by subset-selection resolution, which is both the second-largest blocker and the one most
+likely to be a single underlying defect.
+
 ### 9.2 Other open items
 
-1. **Phase 3 — Amendment policy for synthesised boards.** `FsmStore.amend` requires
-   a getout, and a getout is not found even from boards with full identity, so every
-   amendment from a formation that was not danced to is rejected with "no getout".
-   No UI wires this yet, so it is latent; the decision needed is whether to make the
-   getout gate advisory (recording `getoutVerified` on the amendment) or treat such
-   formations as unamendable. The caller-convention decision in §9.1 bears on this.
-2. **Phase 4 — Coverage and spec alignment.** Audit checks for the bounded
-   non-geometric matching exceptions (§8.2), a decision on the editor's
-   "no match within tolerance" wording, and an explicit runtime-join check.
-3. **Phase 5 — Hygiene.** `knownFormation` is the last loose-tolerance (6.0)
-   outlier, deliberately permissive for legality; review whether it should follow
-   the tight recognition threshold.
+1. **The decoder table is now the top blocker (§9.1 step 4).** 202 of 412 published lines stop
+   at a token our abbreviation table cannot read, and that masks the engine's real coverage.
+   Extending the table is mechanical but should stay conservative: a wrong expansion silently
+   turns an engine gap into a phantom call name.
+2. **Move the All8 → engine call-name bridge into the engine.** `CALL_SYNONYMS` is empty, so
+   `Touch 1/4`, `Cast Off 3/4` and `Do Sa Do` resolve only because the test harness maps them.
+   Anyone consuming published choreography needs that bridge in the engine, where
+   `canonicalName()` already applies it.
+3. **Bare `Promenade` is unimplemented** while being the corpus's most-used finisher (26
+   lines). Qualified forms exist; the plain call does not. It also needs deciding what a
+   Promenade *ends* as, which is what makes it a resolve under the caller convention.
+4. **Global corner fix (from step 2).** `analyzeFasr`'s `corner` returns the *opposite* girl
+   (0/4 agreement with the home ring). `FasrRelations.corner` feeds `fasrKey`, which backs
+   `isZero` and the solver's `Static Square` check, so it needs its own measured step.
+5. **Phase 3 — Amendment policy for synthesised boards.** `FsmStore.amend` requires a getout,
+   and a getout is not found even from boards with full identity, so every amendment from a
+   formation that was not danced to is rejected with "no getout". No UI wires this yet, so it
+   is latent; the decision needed is whether to make the getout gate advisory (recording
+   `getoutVerified` on the amendment) or treat such formations as unamendable. The
+   caller-convention decision in §9.1 bears on this.
+6. **Phase 4 — Coverage and spec alignment.** Audit checks for the bounded non-geometric
+   matching exceptions (§8.2), a decision on the editor's "no match within tolerance" wording,
+   and an explicit runtime-join check.
+7. **Phase 5 — Hygiene.** `knownFormation` is the last loose-tolerance (6.0) outlier,
+   deliberately permissive for legality; review whether it should follow the tight recognition
+   threshold.
 
 **Done.** **Phase 6 — Carry the declared gender onto synthesised boards.**
 `formations.xml` declares a `<dancer gender="…">` per slot and `parseFormations`

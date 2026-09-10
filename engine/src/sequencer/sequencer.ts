@@ -231,6 +231,26 @@ export class Sequencer {
     return this.library.getVariants(name);
   }
 
+  /** The variants the sequencer may match from a board — `getVariants` preferring the
+   * `sequencer`-eligible setups, with a documented last-resort fallback to the
+   * demonstration animations for a call that has no eligible setup at all. */
+  matchableVariants(name: string): CallBundle[] {
+    return this.library.matchableVariants(name);
+  }
+
+  /** Strictly the `sequencer`-eligible variants. Empty means the catalogue has NO
+   * sequencer setup for this call — the call is only animated, not callable, and the
+   * engine is currently reaching it through `matchableVariants`' fallback. Use this to
+   * report that gap (32 titles today) rather than to match with. */
+  sequencerVariants(name: string): CallBundle[] {
+    return this.library.sequencerVariants(name);
+  }
+
+  /** Whether a call has any sequencer-eligible setup. */
+  hasSequencerSetup(name: string): boolean {
+    return this.library.hasSequencerSetup(name);
+  }
+
   getUniqueFormations(): { name: string; dancers: Matchable[] }[] {
     return this.library.getUniqueFormations();
   }

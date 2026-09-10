@@ -82,8 +82,8 @@ export class SequenceAnalyzer {
     const m = this.matcher.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
     if (m) return { beats: Math.max(...m.variant.dancers.map((d) => dancerBeats(d))), variant: m.variant };
     const tol = SEARCH_MATCH_MAX + this.config.matchMargin;
-    const variants = this.library.getVariants(name);
-    if (variants) {
+    const variants = this.library.matchableVariants(name);
+    {
       const phys = board.dancers.filter((d) => !d.isGhost);
       const n = phys.length;
       for (const v of variants) {

@@ -328,6 +328,15 @@ export function synthesizeSetup(core: CallBundle, setup: NewSetup): CallBundle {
     leadin: core.leadin,
     leadout: core.leadout,
     totalBeats: core.leadin + beats + core.leadout,
+    // A synthesised setup is the SAME call with a different start set, so it inherits the
+    // core's sequencer flags. Leaving them off would be actively wrong now that
+    // `forSequencer` gates matching: a synthesised variant of a `sequencer="no"` call
+    // would default to eligible and re-open the demonstration hole the gate exists to
+    // close, and a synthesised variant of a `gender-specific` call would silently lose
+    // its gender gate.
+    sequencerMode: core.sequencerMode,
+    forSequencer: core.forSequencer,
+    genderSpecific: core.genderSpecific,
   };
 }
 
@@ -414,6 +423,10 @@ export function synthesizeSetupChain(coreA: CallBundle, coreB: CallBundle, spec:
     leadin: coreA.leadin,
     leadout: coreA.leadout,
     totalBeats: coreA.leadin + beats + coreA.leadout,
+    // Inherited from the FIRST core of the chain, for the same reason as synthesizeSetup.
+    sequencerMode: coreA.sequencerMode,
+    forSequencer: coreA.forSequencer,
+    genderSpecific: coreA.genderSpecific,
   };
 }
 

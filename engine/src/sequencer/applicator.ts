@@ -278,8 +278,10 @@ export class CallApplicator {
     rebase: boolean,
     matchTol: number,
   ): (ApplyResult & { error: number }) | null {
-    const variants = this.library.getVariants(callName);
-    if (!variants) return null;
+    // Every authored variant, `sequencer="no"` ones included — see
+    // CallLibrary.matchableVariants for the measurement that keeps this unfiltered.
+    const variants = this.library.matchableVariants(callName);
+    if (variants.length === 0) return null;
     const phys = board.dancers.filter((d) => !d.isGhost);
     const n = phys.length;
     const ghosts = board.dancers.filter((d) => d.isGhost);

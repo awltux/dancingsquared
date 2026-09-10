@@ -110,21 +110,34 @@ template `Boys Trade` moves the **girls**. Requirements it must satisfy are alre
 `prd.md` §9.5.1 (variant selection uses declared gender + the designated dancers' actual
 geometry, and moves only the dancers it names).
 
-**Corrected by measurement (`PLAN.md` §2).** That requirement is real, but it is the *second* half
-of the fix. `engine/src/convert.ts:273` reads only the exact string `'gender-specific'` from the
-`sequencer` attribute, so the three other values Taminations defines — `no`, `perimeter`, `exact`
-(`taminations-flutter/lib/animated_call.dart:157-168`) — are dropped and those `<tam>`s register as
-ordinary setups. The reference sequencer skips them outright
-(`taminations-flutter/lib/sequencer/calls/xml_call.dart:57-59`). Measured over all 556 asset files:
-**5948 authored `<tam>`, 271 of them `sequencer="no"` across 61 titles, and 32 titles with no
-eligible variant at all.** `Boys Trade` is 24 variants — 12 eligible in `b2/trade.xml`, all
-`gender-specific`, and 12 `sequencer="no"` in `ms/trade.xml` with **identical `from` strings**, so
-the formation name cannot tell them apart — and `matcher.ts:43-71` takes least error over all 24.
-Probed directly, the winner on the `Ocean Waves` template and on corpus `[W1p]` is a
-`sequencer="no"` demo at `error=0.000`, while on `Normal Lines` it is the eligible setup. `Boys
-Run`, `Girls Run`, `Trade`, `Boys Fold` and `Centers Cast Off Three Quarters` have no eligible
-variant anywhere, so their winner is always a demonstration animation — which is why `B-Run`
-appears in 5 of the 9 refusing promenade lines.
+**Corrected by measurement (`PLAN.md` §2 and Phase 1).** The `sequencer` attribute is real and the
+engine ignores three of its four values (`engine/src/convert.ts` read only `'gender-specific'`;
+Taminations defines `perimeter`/`exact`/`gender-specific`/`no` — `animated_call.dart:157-168` — and
+its sequencer skips `no` outright, `xml_call.dart:57-59`). **But filtering those variants out is
+NOT the fix, and this was measured both ways**: strict skip takes the published promenade get-outs
+that resolve from 12 of 30 to **8** (`promenade.mjs` §5 fails) and corpus success 53 → 52, and
+"prefer eligible" gives **11**. The engine now PARSES the flag faithfully
+(`sequencerMode`/`forSequencer`) and gates it, but matching is deliberately left unfiltered.
+
+The real mechanism, probed on the engine's own `Ocean Waves` template: every eligible
+`Boys Trade` wave variant is authored for boys in the **CENTRE**, while the template is **`BggB`**
+— boys at the **ENDS**, which is correct (arrangement 0). So the gender gate correctly rejects all
+of them, no eligible variant matches, and the **ungated `sequencer="no"` demo wins the tie by array
+order**, applying boys-in-centre motion to a boys-at-ends board. That is the recorded symptom, and
+it is why the demos are an *ungated fallback* rather than a bug to delete. On `Normal Lines` and
+`Two-Faced Lines` an eligible variant matches and wins, which is why the call is right from lines
+and wrong from two parallel waves.
+
+**The fix is a derived call.** The reference implements `Trade` and `Run` in CODE
+(`taminations-flutter/lib/sequencer/calls/ms/trade.dart`, `run.dart`) — which is why their `<tam>`s
+are not-for-sequencer. `trade.dart` is the specification: trade with the nearest dancer in the
+direction holding an **odd** number of dancers; run **around** intervening dancers with a scale and
+a right-shoulder pass (so a trade ACROSS intervening dancers is legal — what `Boys Trade` from a
+`BggB` wave is); otherwise a partner trade flip when running left in the same direction, else a run
+scaled by half the distance, with hand holds for the swing/slip cases. Both belong in
+`coded-moves.ts` under the `prd.md` §9.5.4 contract. Only after that does removing the
+demonstration tams become safe. See `PLAN.md` Phase 1.
+
 
 
 ### 4.2 Then: the decoder table (the largest single number)

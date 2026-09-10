@@ -5,7 +5,7 @@
 // In the browser DOMParser is global. In Node, call `setParser` with
 // @xmldom/xmldom's DOMParser (as the test does).
 
-import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Seg } from './types.js';
+import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Seg, SequencerMode } from './types.js';
 
 // ----------------------------------------------------------------- DOMParser
 
@@ -241,9 +241,19 @@ interface TamRaw {
   formationAttr: string | null;
   dancers: DancerBase[];
   paths: PathItem[][];
-  // sequencer="gender-specific" marks calls whose arrangement only works when
-  // the board's boy/girl placement matches the setup's gender slots.
-  genderSpecific?: boolean;
+  // The `<tam sequencer="…">` attribute, parsed verbatim into one of the four values
+  // Taminations defines. Reading only the `gender-specific` string (as this used to) loses
+  // `no`, which marks a demonstration animation the sequencer must not match — the
+  // reference implementation skips those outright (`xml_call.dart:57-59`).
+  sequencerMode: SequencerMode | null;
+}
+
+/** Parse the `sequencer` attribute, keeping every value Taminations defines. */
+function parseSequencerMode(raw: string | null): SequencerMode | null {
+  if (raw === 'perimeter' || raw === 'exact' || raw === 'gender-specific' || raw === 'no') return raw;
+  // An unrecognised value is reported as absent rather than guessed at, so a new
+  // attribute value in the assets surfaces as "no flag" instead of as a wrong flag.
+  return null;
 }
 
 function parseCallXmlImpl(xmlText: string): TamRaw[] {
@@ -270,7 +280,7 @@ function parseCallXmlImpl(xmlText: string): TamRaw[] {
       formationAttr: tam.getAttribute('formation'),
       dancers,
       paths,
-      genderSpecific: tam.getAttribute('sequencer') === 'gender-specific',
+      sequencerMode: parseSequencerMode(tam.getAttribute('sequencer')),
     });
   }
   return tams;
@@ -345,7 +355,9 @@ function buildCallImpl(
     leadin,
     leadout,
     totalBeats: leadin + beats + leadout,
-    genderSpecific: tam.genderSpecific,
+    sequencerMode: tam.sequencerMode,
+    forSequencer: tam.sequencerMode !== 'no',
+    genderSpecific: tam.sequencerMode === 'gender-specific',
   };
 }
 

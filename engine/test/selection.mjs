@@ -141,6 +141,92 @@ console.log('\n== Circulate from a wave: the variant that was missing ==');
   console.log('  The shipped line variants are "Lines Facing In/Out", not facing lines, so this remains a gap.');
 }
 
+console.log('\n== the `sequencer` attribute: parsed faithfully, and NOT yet acted on ==');
+// Taminations defines four values of `<tam sequencer="…">` (animated_call.dart:157-168) and
+// its own sequencer SKIPS the `no` case outright when it hunts for a setup
+// (sequencer/calls/xml_call.dart:57-59). The engine used to read only `gender-specific` — by
+// comparing the raw string — so `no` variants registered as ordinary setups.
+//
+// Filtering them was TRIED and MEASURED as a change for the worse, so matching is left
+// unfiltered and the finding is pinned here instead of acted on:
+//   - strict skip: the published promenade get-outs that resolve fall 12 -> 8
+//     (promenade.mjs §5 fails), and corpus success falls 53 -> 52;
+//   - prefer-the-eligible: still 12 -> 11.
+// The reason is that Taminations marks a call not-for-sequencer when it implements that call
+// in CODE (calls/ms/run.dart, fold.dart, cast_off_three_quarters.dart, turn_back.dart,
+// trade.dart, cross_run.dart). Dropping the tam without writing the derived call removes the
+// capability rather than correcting the motion. So this gate pins two things: that the flag
+// is now parsed and consistent, and exactly how big the derived-call gap is.
+{
+  const CALLS = ['Boys Trade', 'Girls Trade', 'Boys Run', 'Girls Run', 'Trade', 'Boys Fold',
+    'Ends Fold', 'Rollaway', 'Circulate', 'Split Circulate', 'Scoot Back', 'Recycle'];
+  const MODES = new Set(['perimeter', 'exact', 'gender-specific', 'no']);
+
+  // 1. The plumbing: every variant carries a consistent reading of the attribute.
+  let checked = 0, inconsistent = 0;
+  for (const name of CALLS) {
+    for (const v of seq.getVariants(name) ?? []) {
+      checked++;
+      const modeOk = v.sequencerMode === null || MODES.has(v.sequencerMode);
+      // `genderSpecific` and `forSequencer` are DERIVED from `sequencerMode`; a variant that
+      // disagrees with its own mode is the bug this refactor removed.
+      const derivedOk = v.forSequencer === (v.sequencerMode !== 'no')
+        && !!v.genderSpecific === (v.sequencerMode === 'gender-specific');
+      if (!modeOk || !derivedOk) inconsistent++;
+    }
+  }
+  if (checked === 0) fail('no variant carries a sequencerMode - the attribute is not parsed');
+  else if (inconsistent) fail(`${inconsistent} of ${checked} variants disagree with their own sequencerMode`);
+  else ok(`every variant of ${CALLS.length} calls carries a consistent sequencerMode (${checked} variants)`);
+
+  // 2. The tie that least-error matching cannot break, and why filtering cannot fix it.
+  //    `Boys Trade` carries 12 eligible setups in b2/trade.xml and 12 `sequencer="no"`
+  //    demos in ms/trade.xml under IDENTICAL `from` strings.
+  const bt = seq.getVariants('Boys Trade') ?? [];
+  const eligible = seq.sequencerVariants('Boys Trade');
+  const demos = bt.filter((v) => !v.forSequencer);
+  const fromsOf = (vs) => [...new Set(vs.map((v) => v.from))].sort().join(' | ');
+  if (bt.length === 0 || demos.length === 0) {
+    fail('Boys Trade no longer carries a sequencer="no" variant - this gate is stale');
+  } else if (fromsOf(eligible) !== fromsOf(demos)) {
+    console.log(`  note: the eligible and demo copies no longer cover the same \`from\` set,`);
+    console.log('        so the tie described here has changed shape - re-measure before relying on it.');
+    ok(`Boys Trade: ${eligible.length} eligible, ${demos.length} demo (different \`from\` coverage)`);
+  } else {
+    // Identical start geometry AND identical beats, so nothing in the setup can break the tie.
+    const sameStart = eligible.length === demos.length && eligible.every((e) => {
+      const d = demos.find((x) => x.from === e.from);
+      return d
+        && d.beats === e.beats
+        && d.dancers.map((x) => `${x.x.toFixed(2)},${x.y.toFixed(2)}`).sort().join(' ')
+          === e.dancers.map((x) => `${x.x.toFixed(2)},${x.y.toFixed(2)}`).sort().join(' ');
+    });
+    if (!sameStart) {
+      console.log('  note: the two copies differ in start geometry or beats, so they ARE distinguishable');
+      console.log('        on the setup - that is new information and changes the step-4d diagnosis.');
+      ok(`Boys Trade: ${eligible.length} eligible vs ${demos.length} demo, distinguishable`);
+    } else {
+      ok(`Boys Trade: ${eligible.length} eligible vs ${demos.length} demo over the SAME ${new Set(eligible.map((v) => v.from)).size} \`from\` strings`);
+      console.log('      and the copies are indistinguishable on the setup: identical start geometry AND identical beats.');
+      console.log('      Least-error matching therefore cannot prefer the eligible copy on geometry, which is');
+      console.log('      why "prefer eligible" is not a fix - it only re-orders an exact tie.');
+    }
+  }
+
+  // 3. The size of the derived-call gap on the families the CORPUS actually stops at,
+  //    REPORTED rather than failed. A call with no eligible setup is one Taminations
+  //    implements in code and we do not; the full asset-wide count is 32 titles.
+  const RAN = ['Boys Run', 'Girls Run', 'Centers Run', 'Ends Run', 'Trade', 'Boys Fold',
+    'Girls Fold', 'Centers Cast Off Three Quarters', 'Boys Turn Back', 'Girls Turn Back'];
+  const noSetup = RAN.filter((name) => seq.hasCall(name) && !seq.hasSequencerSetup(name));
+  ok(`the derived-call gap covers ${noSetup.length} of the ${RAN.length} corpus families probed here`);
+  console.log(`    ${noSetup.join(', ')}`);
+  console.log('  A call with no eligible setup is reached today through its DEMONSTRATION tams.');
+  console.log('  Writing the derived calls (Run, Fold, Cast Off 3/4, Turn Back, Cross Run) is what');
+  console.log('  makes those tams unnecessary - see PLAN.md Phase 4. Until then, filtering them out');
+  console.log('  only removes motion, which is why matching is left unfiltered.');
+}
+
 console.log('\n=================');
 console.log(failures === 0 ? 'SELECTION: all gates passed.' : `SELECTION: ${failures} gate(s) FAILED.`);
 if (failures) process.exitCode = 1;

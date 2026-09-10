@@ -50,6 +50,31 @@ export interface DancerSpec {
   mirror?: boolean;
 }
 
+/**
+ * The value of a `<tam sequencer="…">` attribute.
+ *
+ * Taminations defines exactly four values (`taminations-flutter/lib/animated_call.dart:157-168`,
+ * where `isPerimeter` / `isExact` / `isGenderSpecific` / `notForSequencer` are written back out
+ * as `'perimeter'` / `'exact'` / `'gender-specific'` / `'no'`), and its own sequencer SKIPS the
+ * `no` case outright when it looks for a setup to apply
+ * (`taminations-flutter/lib/sequencer/calls/xml_call.dart:57-59`):
+ *
+ *     for (var tam in lookupAnimatedCall(norm)) {
+ *       if (tam.notForSequencer) continue;
+ *
+ * The engine used to read only `gender-specific` — by comparing the raw attribute string — so
+ * `no`, `perimeter` and `exact` were silently dropped and those variants registered as ordinary
+ * setups. On the published asset tree that is 271 `no` variants across 61 titles, and **32 titles
+ * with no eligible variant at all**, concentrated in exactly the families the get-out corpus is
+ * stuck on (`Boys Run` 32/32, `Girls Run` 34/34, `Centers Run` 20/20, `Ends Run` 18/18, `Trade`
+ * 3/3, `Boys Fold` 2/2, `Centers Cast Off Three Quarters` 12/12, and 12 of `Boys Trade`'s 24).
+ *
+ * A `no` variant is a caller-school DEMONSTRATION of the call, not a setup the sequencer may
+ * apply: it stays registered — it is a legitimate animation, and the picker and the editor still
+ * list it — but it is not matchable from a board.
+ */
+export type SequencerMode = 'perimeter' | 'exact' | 'gender-specific' | 'no';
+
 export interface CallBundle {
   title: string;
   from: string;
@@ -61,8 +86,16 @@ export interface CallBundle {
   leadin: number;
   leadout: number;
   totalBeats: number; // leadin + beats + leadout
+  // The authored `sequencer` attribute, verbatim, or null when it is absent.
+  sequencerMode: SequencerMode | null;
+  // Whether the sequencer may MATCH this variant from a board. False only for
+  // `sequencerMode === 'no'`. Anything that hunts for a variant to apply must filter on
+  // this; anything that merely LISTS variants (the picker, `variantStarts`, the FSM
+  // state set) must not, or the demonstration animations would vanish from the UI.
+  forSequencer: boolean;
   // sequencer="gender-specific": the call only applies when the board's gender
-  // arrangement matches the setup's gender slots (e.g. "Boys Turn Back").
+  // arrangement matches the setup's gender slots (e.g. "Boys Turn Back"). Derived from
+  // `sequencerMode`, which is the single source of truth for the attribute.
   genderSpecific?: boolean;
 }
 

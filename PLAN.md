@@ -48,6 +48,16 @@ getout maxCalls<=3                L1p / B1c / L.F1p ~0.00 s        (all succeed)
 
 ## 2. The correction that reshapes step 4d
 
+> **REFUTED — see Phase 1.** The measurement below is real and the *facts* stand (the flag is
+> ignored, demos compete with setups, a demo wins the tie on the Ocean Waves template). But it is
+> **not the fix**: filtering the demos out makes the published promenade results WORSE (12 of 30
+> resolve → 8 strict / 11 preferring-eligible), because the demos are acting as an ungated
+> fallback. The real mechanism is that every eligible `Boys Trade` wave variant is authored for
+> boys-in-*centre* while the engine's wave template is `BggB` (boys at the *ends*), so the gender
+> gate correctly rejects all of them. The reference implements `Trade` and `Run` in **code**
+> (`calls/ms/trade.dart`, `run.dart`), which is why their tams are not-for-sequencer. Phase 1 has
+> the corrected mechanism and the fix.
+
 `HANDOVER.md` §4.1 frames the top engine gap as **variant selection** — "select the variant from
 the declared gender plus the designated dancers' actual geometry" (`prd.md` §9.5.1). That
 requirement is real. But measured, the dominant cause sits **upstream of selection**: the engine
@@ -126,58 +136,95 @@ produced each.
 
 ---
 
-## Phase 1 — `sequencer` attribute and variant selection (step 4d)
+## Phase 1 — `sequencer` attribute and the `Trade`/`Run` mechanism (step 4d)
 
-**Goal:** a call is applied from a *sequencer-eligible* setup chosen by gender and the designated
-dancers' real geometry — never from a demonstration animation.
+**Status: the plumbing landed; the §2 hypothesis was REFUTED by measurement; the exact mechanism
+is now pinned. Read the "Refuted" note below before acting on §2.**
 
-### Steps
+### What was implemented
 
-1. **Carry the flag.** Parse all four values in `convert.ts` alongside the existing
-   `genderSpecific`, and store them on `TamRaw` / `CallBundle` (`engine/src/types.ts`). Keep
-   `genderSpecific` as it is so nothing else moves.
-2. **Probe, do not assume.** Reproduce the table in §2 as an `.mjs` probe *before* changing
-   matching, and re-run after each step. The tell is `genderSpecific` on the matched variant
-   (`b2/` setups are all gender-specific; `ms/` demos are not).
-3. **Filter eligibility** in `findMatchingVariant` (`matcher.ts:58`), mirroring
-   `xml_call.dart:57-59`. Do **not** delete the variants from the catalogue: they are legitimate
-   animations, and `legalNext` / `recognize` behaviour must not shift beyond the search.
-4. **Measure the fallout.** Expect ~32 titles to move from "wrong motion" to "no setup". Decide
-   per family and record the decision:
-   - `Run` (`Boys`/`Girls`/`Centers`/`Ends`), `Fold`, `Centers Cast Off 3/4`, `Turn Back` —
-     Taminations implements these as **derived** calls. The engine already has a derived-call
-     registry (`coded-moves.ts`) with a documented contract (`prd.md` §9.5.4); that is the
-     natural home.
-   - A family with no derived implementation must **refuse with a reason**, never fall back to a
-     demonstration animation.
-5. **Then apply §9.5.1** over the eligible set: prefer the variant whose setup matches the board's
-   **declared gender + actual geometry**, and require that it moves **only the dancers the call
-   names**. A variant that moves an un-named dancer is wrong even when its end board is legal —
-   that is what makes the `[L1p]` + `Boys U-Turn Back` case (eligible winner, wrong motion) a
-   *selection* failure rather than an asset failure.
-6. **Break ties deterministically** in `matcher.ts:65` so array order never decides.
+1. **The flag is carried faithfully.** `convert.ts` now parses all four values of the `sequencer`
+   attribute that Taminations defines, into `sequencerMode` on `TamRaw` and `CallBundle`, with
+   `forSequencer` and `genderSpecific` **derived** from it (one source of truth). The editor's
+   `synthesizeSetup` / `synthesizeSetupChain` inherit the core's flags, so a synthesised variant of
+   a `no` call cannot default to eligible and re-open the hole.
+2. **Two queries, not one policy.** `CallLibrary.matchableVariants` (what matching uses),
+   `sequencerVariants` (strictly eligible) and `hasSequencerSetup`, mirrored on the `Sequencer`
+   facade, so "this call has no sequencer setup at all" is distinguishable from "the board does
+   not match any of its setups". `selection.mjs` gates the plumbing invariant — every variant's
+   `forSequencer` / `genderSpecific` agrees with its own `sequencerMode`.
+3. **Matching is deliberately left UNFILTERED.** See below.
 
-**Follow the step-4b precedent** (`git show e571092`): 51 lines adding authored wave variants at
-the engine's template spacing, plus a `selection.mjs` gate asserting the two calls produce
-**identical** boards. Where a fix here is an authored setup, do it that way, keeping attribution.
+### Refuted: "filter the `sequencer="no"` variants" is not the fix
 
-### Gates and measurement
+§2 proposed that the engine registering `sequencer="no"` demonstration animations is why the wrong
+variant is applied. That is a true *fact* and a false *fix*. Measured both ways, with
+`promenade.mjs` §5 as the gate:
 
-- A new gate in `engine/test/selection.mjs` (the model: equivalence assertions, not prose).
-- `node engine/test/promenade.mjs` §5 — the acceptance criterion is the **6 broken-body refusals**
-  becoming "partners together, promenade home", and the 9-refusal list shrinking.
-- `node engine/test/getout-behaviour.mjs` — `ENGINE GAPS` top entries (`Boys Trade` 4x) should
-  move; **watch `CATALOGUE GAPS` for new arrivals**, since a new "unknown call" there is the tell
-  that eligibility filtering removed a setup without a derived replacement.
-- `getout-convention.mjs` must stay at 27/28 with `[P4p]` the only negative.
+| policy | published promenade get-outs that resolve | corpus success |
+|---|---|---|
+| unfiltered (shipped) | **12 of 30** | 53 |
+| strict skip of every `no` variant | **8** — gate FAILS | 52 |
+| prefer eligible, fall back where a call has none | **11** — gate FAILS | 53 |
 
-**Done when:** the probe shows the winner is a `gender-specific` setup on the wave and
-two-faced-line boards; the promenade refusal list is materially shorter; `behaviour-audit`
-unchanged; the Run/Fold/Cast-Off decision is written into `square-dancing.md` §9.2 and
-`prd.md` §9.5.4.
+The strict skip loses the `B-Run` bodies. And "prefer eligible" fails too, which is the interesting
+part: the two copies of `Boys Trade` are **indistinguishable on the setup** — for all 12 of its
+`from` strings the `b2/` eligible copy and the `ms/` demo copy have identical start geometry *and*
+identical beat counts — so least-error matching cannot prefer one on geometry, and preferring it
+by rule only re-orders an exact tie.
 
-**Risk:** the highest of any phase, because step 3 changes what every search node considers. Keep
-steps 1–3 in one commit and step 5 in another, so a regression is attributable.
+### The real mechanism (measured)
+
+`Boys Trade` on the engine's own `Ocean Waves` template:
+
+```
+[10] ELIGIBLE genderSpecific=true  from="Waves, Boys in Center"  REJECTED BY GENDER GATE (geometry matches at 0.0000)
+[11] ELIGIBLE genderSpecific=true  from="Waves, Boys Facing Out" REJECTED BY GENDER GATE (geometry matches at 0.0000)
+[22] demo     genderSpecific=false from="Waves, Boys in Center"  err=0.0000  <-- WINNER
+[23] demo     genderSpecific=false from="Waves, Boys Facing Out" err=0.0000
+```
+
+The engine's wave template is **`BggB`** — boys at the ENDS (correct: All8's arrangement 0 for a
+wave, and `alignment.mjs` requires the engine templates to read as arrangement 0). Every eligible
+`Boys Trade` wave variant is authored for boys **in the CENTRE**. So the gender gate *correctly*
+rejects all of them, no eligible variant matches, and the **ungated demonstration wins the tie** by
+array order — applying motion authored for boys-in-centre to a boys-at-ends board. That is the
+recorded symptom ("from the `Ocean Waves` template `Boys Trade` moves the girls"), and it is why
+removing the demos costs capability instead of correcting motion: they are acting as an *ungated
+fallback*. On `Normal Lines` and `Two-Faced Lines` an eligible variant matches and wins, which is
+why the call is right from lines and wrong from two parallel waves.
+
+### The fix the reference actually uses: make `Trade` and `Run` DERIVED calls
+
+`taminations-flutter/lib/sequencer/calls/ms/trade.dart` and `run.dart` implement both calls in
+**code**, which is why their `<tam>`s are marked not-for-sequencer. `trade.dart` is the
+specification:
+
+- the trading dancer trades with the **nearest dancer in the direction containing an odd number of
+  dancers** (`rightcount % 2 == 1 && leftcount % 2 == 0`, or the mirror);
+- if there are **intervening dancers**, they are run around — the path scales to make room and
+  passes right shoulders (`ctx.inBetween(...).isNotEmpty()` → `scaleX = 2.0`). So a trade *across*
+  intervening dancers is legal, which is the case that `Boys Trade` from a `BggB` wave is;
+- with no intervening dancers it is a Partner Trade (flip) when running left in the same
+  direction, otherwise a run scaled by half the distance, with hand holds for the swing/slip cases
+  (`!samedir && dist < 2.1`).
+
+`run.dart` is the same shape: the runner runs around the dancer(s) on the side that has walkers,
+preferring the **partner** when both sides are open, and each walker dodges into the runner's spot.
+
+**Next step (this replaces the old Phase 1 step 5).** Implement `Trade` (`Boys`/`Girls`/`Centers`/
+`Ends Trade`, and bare `Trade`) and `Run` as geometry-derived calls in `coded-moves.ts`, under the
+`prd.md` §9.5.4 contract (a precondition over the board, a refusal with a reason, one definition
+shared by apply/replay/search). Then, and only then, the `sequencer="no"` filter becomes safe,
+because the capability no longer depends on the demonstration tams. Until that lands, matching
+stays unfiltered and the honesty is recorded rather than enforced.
+
+**Gates:** `selection.mjs` (plumbing invariant), `promenade.mjs` §5 (12 of 30 must not regress),
+`getout-behaviour.mjs` (53 success must not regress), `getout-convention.mjs` (27/28 with `[P4p]`
+the only negative).
+
+**Risk:** unchanged — this is still the phase that changes what every search node considers. Land
+the derived calls and the filter as separate commits.
 
 ---
 

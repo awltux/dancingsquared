@@ -109,8 +109,69 @@ export class CallLibrary {
     return this.variants.keys();
   }
 
+  /** Every authored variant of a call — the DEMONSTRATIONS included. This is the
+   * listing surface (the call picker, `variantStarts`, the editor's setup list), so it
+   * must not drop `sequencer="no"` variants or they would vanish from the UI. */
   getVariants(name: string): CallBundle[] | undefined {
     return this.variants.get(canonicalName(name));
+  }
+
+  /** The variants the sequencer may MATCH from a board.
+   *
+   * NOTE — this deliberately returns EVERY authored variant, `sequencer="no"` ones
+   * included. Filtering them out was tried and MEASURED as a change for the worse, so the
+   * question is left open rather than settled by preference. See `sequencerVariants` and
+   * `hasSequencerSetup` below for the reporting queries, and the measurement in
+   * `square-dancing.md` §9.1 step 4d.
+   *
+   * Why it looked like the right filter: Taminations defines four values of the `sequencer`
+   * attribute (`perimeter`, `exact`, `gender-specific`, `no` — `animated_call.dart:157-168`)
+   * and its own sequencer skips the `no` case outright when it looks for a setup
+   * (`lib/sequencer/calls/xml_call.dart:57-59`). The engine read only `gender-specific`, so
+   * `no` variants registered as ordinary setups. On the published assets that is 271 `no`
+   * variants across 61 titles, 32 of them with no eligible variant at all, concentrated in
+   * the families the get-out corpus is stuck on. `Boys Trade` carries 24 variants — 12
+   * eligible in `b2/trade.xml`, all `gender-specific`, and 12 `sequencer="no"` in
+   * `ms/trade.xml` — with IDENTICAL `from` strings, and least-error matching picked a demo
+   * at `error=0.000` on the Ocean Waves template and on the corpus's `[W1p]` board.
+   *
+   * Why it is NOT the fix, measured both ways:
+   *
+   *   - STRICT (skip every `sequencer="no"` variant): the published promenade get-outs that
+   *     resolve fall 12 -> 8 (`promenade.mjs` §5 fails), and corpus success falls 53 -> 52.
+   *     The losses are the `B-Run` bodies, because Taminations marks `Run` not-for-sequencer
+   *     precisely BECAUSE it implements Run in code (`calls/ms/run.dart`) — so removing the
+   *     tams without writing the derived call removes the capability, it does not correct
+   *     the motion.
+   *   - NARROW (prefer eligible, fall back where a call has none): still 12 -> 11 resolves.
+   *     And the two copies are NOT distinguishable by geometry or timing — for all 12 of
+   *     `Boys Trade`'s `from` strings the eligible and the demo copy have identical start
+   *     geometry AND identical beat counts — so the tie is real and least-error cannot
+   *     break it on the setup alone.
+   *
+   * So neither variant of the filter is a strict improvement, and `promenade.mjs` §5 is the
+   * gate that says so. The next move is the one the reference took: implement the calls
+   * Taminations implements in code (Run, Fold, Cast Off 3/4, Turn Back, Cross Run), which is
+   * what makes the demonstration tams unnecessary in the first place — see `PLAN.md`
+   * Phase 4. */
+  matchableVariants(name: string): CallBundle[] {
+    return this.variants.get(canonicalName(name)) ?? [];
+  }
+
+  /** Strictly the `sequencer`-eligible variants — empty for a call whose only authored
+   * setups are demonstration animations, which is a real catalogue gap rather than a
+   * matching failure: Taminations calls such a call from CODE instead of from a `<tam>`
+   * (`calls/ms/run.dart`, `fold.dart`, `cast_off_three_quarters.dart`, `turn_back.dart`,
+   * `trade.dart`, `cross_run.dart`), which is exactly why their tams are marked
+   * not-for-sequencer. This query exists so that gap can be REPORTED (and counted in a
+   * gate) without changing what matching does until the derived calls land. */
+  sequencerVariants(name: string): CallBundle[] {
+    return (this.variants.get(canonicalName(name)) ?? []).filter((v) => v.forSequencer);
+  }
+
+  /** Whether a call has any sequencer-eligible setup. */
+  hasSequencerSetup(name: string): boolean {
+    return this.sequencerVariants(name).length > 0;
   }
 
   moduleNames(): IterableIterator<string> {

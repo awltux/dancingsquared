@@ -41,8 +41,10 @@ export class FormationMatcher {
 
   /** Which of a call's variants matches the given board, within `maxError`. */
   findMatchingVariant(board: Board, callName: string, maxError: number): VariantMatch | null {
-    const variants = this.library.getVariants(callName);
-    if (!variants) return null;
+    // Every authored variant, `sequencer="no"` ones included: filtering them was measured
+    // as a change for the worse and is recorded, not applied (CallLibrary.matchableVariants).
+    const variants = this.library.matchableVariants(callName);
+    if (variants.length === 0) return null;
     // Key on the call's position/heading signature. When the call is gender-
     // specific the result depends on the board's GENDER arrangement too; home
     // couple is always included because identity-aware matching (keeps

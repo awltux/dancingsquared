@@ -897,15 +897,60 @@ and upstream of 6 of the 9 promenade finishes that still refuse.
    `sequencer="no"` across 61 titles, and **32 titles with no eligible variant at all**. So
    `matcher.ts:43-71` picks least error over a superset that includes caller-school demonstration
    animations. `Boys Trade` is 24 variants — 12 eligible in `b2/trade.xml` (all
-   `gender-specific`) and 12 `sequencer="no"` in `ms/trade.xml`, with IDENTICAL `from` strings, so
-   the formation name cannot tell them apart. Probed directly: the winner on the `Ocean Waves`
-   template and on corpus `[W1p]` is a `sequencer="no"` demo at `error=0.000`, while on
-   `Normal Lines` it is the eligible setup. The `Run` family (`Boys`/`Girls`/`Centers`/`Ends`),
+   `gender-specific`) and 12 `sequencer="no"` in `ms/trade.xml`. Probed directly: the winner on the
+   `Ocean Waves` template and on corpus `[W1p]` is a `sequencer="no"` demo at `error=0.000`, while
+   on `Normal Lines` it is the eligible setup. The `Run` family (`Boys`/`Girls`/`Centers`/`Ends`),
    `Trade`, `Boys Fold`, `Girls Fold` and `Centers Cast Off Three Quarters` have NO eligible
    variant anywhere, so their winner is always a demonstration animation — which is why `B-Run`
    appears in 5 of the 9 refusing promenade lines and leaves partners 4–6 apart. The `prd.md`
    §9.5.1 selection rule is therefore the SECOND half of the fix, applied over the eligible set.
    See `PLAN.md` §2 and Phase 1.
+
+   **MEASURED (step 4d, the flag is now parsed but matching is deliberately NOT filtered).** The
+   attribute is now carried faithfully (`sequencerMode` / `forSequencer`, with `genderSpecific`
+   derived from it — `convert.ts:parseSequencerMode`) and gated in `selection.mjs`. Filtering the
+   `no` variants was tried BOTH ways and is a change for the WORSE, which is why matching is left
+   unfiltered:
+
+   | policy | published promenade get-outs that resolve | corpus success |
+   |---|---|---|
+   | unfiltered (shipped) | **12 of 30** | 53 |
+   | strict skip of every `no` variant | **8** — `promenade.mjs` §5 FAILS | 52 |
+   | prefer eligible, fall back where a call has none | **11** — `promenade.mjs` §5 FAILS | 53 |
+
+   The two copies of `Boys Trade` are **indistinguishable on the setup**: for all 12 of its `from`
+   strings the eligible `b2/` copy and the demo `ms/` copy have identical start geometry AND
+   identical beat counts, so least-error matching cannot prefer one on geometry. The real
+   mechanism, probed on the engine's own `Ocean Waves` template:
+
+   ```
+   [10] ELIGIBLE genderSpecific=true  from="Waves, Boys in Center"  REJECTED BY GENDER GATE (geometry matches at 0.0000)
+   [11] ELIGIBLE genderSpecific=true  from="Waves, Boys Facing Out" REJECTED BY GENDER GATE (geometry matches at 0.0000)
+   [22] demo     genderSpecific=false from="Waves, Boys in Center"  err=0.0000  <-- WINNER
+   [23] demo     genderSpecific=false from="Waves, Boys Facing Out" err=0.0000
+   ```
+
+   The engine's wave template is **`BggB`** — boys at the ENDS, which is correct (All8's
+   arrangement 0 for a wave, and `alignment.mjs` requires the templates to read as arrangement 0).
+   Every eligible `Boys Trade` wave variant is authored for boys in the **CENTRE**, so the gender
+   gate correctly rejects all of them; no eligible variant matches, and the **ungated demo wins the
+   tie by array order**, applying boys-in-centre motion to a boys-at-ends board. That is the
+   recorded symptom. On `Normal Lines` and `Two-Faced Lines` an eligible variant matches and wins —
+   which is why the call is right from lines and wrong from two parallel waves.
+
+   **THE FIX (next step, and it is not a filter).** The reference implements `Trade` and `Run` in
+   CODE — `taminations-flutter/lib/sequencer/calls/ms/trade.dart` and `run.dart` — which is exactly
+   why their `<tam>`s are marked not-for-sequencer. `trade.dart` is the specification: the trading
+   dancer trades with the **nearest dancer in the direction containing an odd number of dancers**;
+   when there are **intervening dancers** it runs around them, scaling to make room and passing
+   right shoulders (so a trade ACROSS intervening dancers is legal — which is what `Boys Trade`
+   from a `BggB` wave is); with no intervening dancers it is a partner trade (flip) when running
+   left in the same direction, else a run scaled by half the distance, with hand holds for the
+   swing/slip cases (`!samedir && dist < 2.1`). `run.dart` is the same shape: run around the side
+   that has walkers, preferring the **partner** when both sides are open, each walker dodging into
+   the runner's spot. Both belong in `coded-moves.ts` under the `prd.md` §9.5.4 contract. Only
+   after that does removing the demonstration tams become safe, because the capability no longer
+   depends on them. See `PLAN.md` Phase 1.
 8. **The isolated selection reading can be unsound (§9.1 step 4a).** It centres the subset and
    matches with normal rotation tolerance, so an arbitrary pair can satisfy a two-dancer setup;
    `Centers Pass Thru` from Facing Lines currently resolves two dancers (one an end) rather than

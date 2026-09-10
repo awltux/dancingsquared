@@ -17,7 +17,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, canonicalName, FORMATION_SYNONYMS, matchFormations } from '../dist/index.js';
+import {
+  setParser, Sequencer, canonicalName, FORMATION_SYNONYMS, matchFormations,
+  // index-independence (feature: index_independence)
+  deriveFormationMapping, alignFormationToCore, synthesizeSetup, correctEndTo,
+  loadCallFromXml, poseFor, endPoses,
+} from '../dist/index.js';
 
 setParser(DOMParser);
 
@@ -390,6 +395,112 @@ console.log('\n== One variant per authored setup (feature: formation_states) =='
   check(full.legal === true, 'with ALL setups, Wheel and Deal applies from Two-Faced Lines');
   check(dropped.legal === false, 'with only the "Lines Facing Out" setup, it becomes spurious-illegal from Two-Faced Lines',
     dropped.reason ?? 'legal(?)');
+}
+
+console.log('\n== Index independence: matching ignores array order (feature: index_independence) ==');
+{
+  // Angle difference normalised to (-pi, pi].
+  const angDiff = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+  seq.reset();
+  const home = seq.startBoard();
+  const call = [...seq.legalCalls(home)][0];
+  const base = seq.applyToBoard(home, call);
+  check(base.legal === true, `baseline: "${call}" applies from home`);
+
+  // Same geometry, same identities, different BOARD ARRAY ORDER.
+  const perm = [4, 7, 1, 6, 0, 3, 5, 2];
+  const scrambled = { dancers: perm.map((i) => ({ ...home.dancers[i] })) };
+  const res = seq.applyToBoard(scrambled, call);
+  check(res.legal === true, `"${call}" still applies with the board array permuted`, res.reason ?? '');
+  if (base.legal && res.legal) {
+    const byId = new Map(res.board.dancers.map((d) => [d.id, d]));
+    let worst = 0;
+    for (const d of base.board.dancers) {
+      const o = byId.get(d.id);
+      if (!o) { worst = Infinity; break; }
+      worst = Math.max(worst, Math.hypot(d.x - o.x, d.y - o.y), angDiff(d.heading, o.heading));
+    }
+    check(worst < 1e-9, 'each dancer identity reaches the same end pose regardless of array order', `maxDiff=${worst}`);
+  }
+}
+
+console.log('\n== Index independence: editor joins ignore array order ==');
+{
+  const core = loadCallFromXml(read('poc/src/assets/ms/circle.xml'), movesXml, formationsXml, 0, true);
+  const coreStart = core.dancers.map((d) => poseFor(d, 0));
+  const coreEnd = core.dancers.map((d) => poseFor(d, core.beats));
+  const start = coreStart.map((p) => ({ x: p.x + 2, y: p.y, heading: p.heading }));
+  const end = coreEnd.map((p) => ({ x: p.x - 1, y: p.y, heading: p.heading }));
+  const perm = [7, 2, 5, 0, 6, 3, 1, 4];
+  const scramble = (arr) => perm.map((i) => arr[i]);
+
+  const a = synthesizeSetup(core, { name: 'x', start, end, padBeats: 2 });
+  const b = synthesizeSetup(core, { name: 'x', start: scramble(start), end: scramble(end), padBeats: 2 });
+  let worst = 0;
+  for (let i = 0; i < core.dancers.length; i++) {
+    for (const t of [0, 1, 2, 3, 4]) {
+      const pa = poseFor(a.dancers[i], t);
+      const pb = poseFor(b.dancers[i], t);
+      worst = Math.max(worst, Math.hypot(pa.x - pb.x, pa.y - pb.y));
+    }
+  }
+  check(worst < 1e-9, 'synthesizeSetup ignores the array order of its start/end sets', `maxDiff=${worst}`);
+
+  const target = coreStart.map((p) => ({ x: p.x, y: p.y, heading: p.heading }));
+  const fa = endPoses(correctEndTo(core, target));
+  const fb = endPoses(correctEndTo(core, scramble(target)));
+  let worst2 = 0;
+  for (let i = 0; i < fa.length; i++) worst2 = Math.max(worst2, Math.hypot(fa[i].x - fb[i].x, fa[i].y - fb[i].y));
+  check(worst2 < 1e-9, 'correctEndTo ignores the array order of its target set', `maxDiff=${worst2}`);
+
+  // Alignment is geometric across the 45-degree steps (not index-matched).
+  const r = Math.PI / 4, c = Math.cos(r), s = Math.sin(r);
+  const rot45 = coreStart.map((p) => ({ x: p.x * c - p.y * s, y: p.x * s + p.y * c, heading: p.heading + r }));
+  const map45 = deriveFormationMapping(coreStart, rot45);
+  check(map45.every((v, i) => v === i), 'deriveFormationMapping recovers identity at a 45-degree offset', JSON.stringify(map45));
+  const aligned45 = alignFormationToCore(coreStart, rot45);
+  check(aligned45.every((f, i) => Math.hypot(f.x - rot45[i].x, f.y - rot45[i].y) < 1e-9),
+    'alignFormationToCore keeps each dancer on its own identity at a 45-degree offset');
+
+  // Fail loudly rather than pairing by index.
+  let threw = false;
+  try { deriveFormationMapping(coreStart, rot45.slice(0, 4)); } catch { threw = true; }
+  check(threw, 'deriveFormationMapping throws on a length mismatch instead of pairing by index');
+}
+
+console.log('\n== Index independence: index-derived placeholder is not identity ==');
+{
+  const tfl = seq.boardForFormation('Two-Faced Lines');
+  check(tfl !== null, 'Two-Faced Lines synthesises a board');
+  check(tfl !== null && !tfl.dancers.some((d) => d.couple > 0),
+    'a non-home-like board carries no real couple (UNKNOWN_COUPLE, not an index)',
+    tfl && `couples=${JSON.stringify([...new Set(tfl.dancers.map((d) => d.couple))])}`);
+  check(tfl !== null && new Set(tfl.dancers.map((d) => d.id)).size === 8, 'placeholder dancers still have distinct ids');
+
+  seq.board = tfl;
+  const geoGroups = seq.subsetGroups(tfl);
+  check(!['Heads', 'Sides', 'Boys', 'Girls', 'Couples', 'Beaus', 'Belles'].some((g) => geoGroups.includes(g)),
+    'couple/gender-based selections do NOT resolve on a geometry-only board', JSON.stringify(geoGroups));
+
+  const homeSq = seq.boardForFormation('Static Square');
+  seq.board = homeSq;
+  const homeGroups = seq.subsetGroups(homeSq);
+  check(['Heads', 'Sides', 'Boys', 'Girls'].every((g) => homeGroups.includes(g)),
+    'the same selections DO resolve on a home-like board', JSON.stringify(homeGroups));
+
+  // Matching must not depend on the placeholder: flattening identity to unknown
+  // must leave the result of a call applied to that board unchanged.
+  const seqWd = new Sequencer(movesXml, formationsXml, [
+    { name: 'Wheel and Deal', xml: read('poc/src/assets/b2/wheel_and_deal.xml') },
+  ]);
+  seqWd.setFormation('Two-Faced Lines');
+  const asIs = seqWd.applyToBoard(seqWd.board, 'Wheel and Deal');
+  const flattened = { dancers: seqWd.board.dancers.map((d) => ({ ...d, couple: 0, gender: 'phantom' })) };
+  const asUnknown = seqWd.applyToBoard(flattened, 'Wheel and Deal');
+  const sameEnd = asIs.legal === asUnknown.legal
+    && (!asIs.legal || seqWd.recognize(asIs.board).name === seqWd.recognize(asUnknown.board).name);
+  check(sameEnd, 'matching a synthesised board does not depend on its placeholder identity',
+    `asIs=${asIs.legal ? seqWd.recognize(asIs.board).name : 'illegal'} asUnknown=${asUnknown.legal ? seqWd.recognize(asUnknown.board).name : 'illegal'}`);
 }
 
 console.log('\n=================');

@@ -21,7 +21,7 @@ import { HOME_DANCERS } from './identity.js';
 import { matchFormations } from './match.js';
 import { mul5, dancerMatrix, type Mat5 } from '../matrix.js';
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
-import { CODED_MOVE_NAMES, findCodedMove } from './coded-moves.js';
+import { CODED_MOVE_NAMES, codedMoveApplies, findCodedMove, type CodedMove } from './coded-moves.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
@@ -67,12 +67,18 @@ export class Sequencer {
     // shared registry, so the analyzer replays and animates them identically.
   }
 
-  /** If `name` is one of the registered body-relative coded calls, return its
-   * transformed board (positions/headings of every dancer pivoted/refaced).
-   * Returns null when `name` is not a coded move. */
-  private tryCodedMove(board: Board, name: string): Board | null {
+  /** If `name` is one of the registered geometry-derived calls (the body-relative
+   * coded pivots, or a whole-set resolve such as Promenade), return its result:
+   * the transformed board when it applies, or the board unchanged plus the reason
+   * when it carries a precondition that this board does not meet. Returns null
+   * when `name` is not a coded move at all, so the catalogue can handle it. */
+  private tryCodedMove(board: Board, name: string): { board: Board; legal: boolean; reason?: string } | null {
+    const runWholeSet = (move: CodedMove): { board: Board; legal: boolean; reason?: string } => {
+      const problem = move.precondition?.(board) ?? null;
+      return problem ? { board, legal: false, reason: problem } : { board: move.apply(board), legal: true };
+    };
     const move = findCodedMove(name);
-    if (move) return move.apply(board);
+    if (move) return runWholeSet(move);
     // A coded move with a dancer selection, e.g. "Girls U-Turn Back": the selected
     // dancers pivot and everyone else stays put. This has to be handled HERE rather
     // than in the applicator's selection path, because coded moves are per-dancer
@@ -85,12 +91,24 @@ export class Sequencer {
     if (!sel.selection) return null;
     const base = findCodedMove(sel.call);
     if (!base) return null;
+    if (base.precondition) {
+      // A whole-set resolve has no half-set reading, so a genuine subset is left to
+      // the applicator to refuse - EXCEPT that "All <resolve>" is just the resolve:
+      // All8 writes `A-Prom`, and "all" is the whole set already, so the group prefix
+      // adds nothing and the call must not fail on account of it.
+      const everyone = board.dancers.filter((d) => !d.isGhost).map((d) => d.id);
+      const ids = this.grouping.resolveSelection(board, sel.selection);
+      return ids && ids.length === everyone.length ? runWholeSet(base) : null;
+    }
     const ids = this.grouping.resolveSelection(board, sel.selection);
     if (!ids || ids.length === 0) return null;
     const byId = new Map(base.apply(board).dancers.map((d) => [d.id, d]));
     const picked = new Set(ids);
     return {
-      dancers: board.dancers.map((d) => (d.isGhost || !picked.has(d.id) ? d : byId.get(d.id) ?? d)),
+      legal: true,
+      board: {
+        dancers: board.dancers.map((d) => (d.isGhost || !picked.has(d.id) ? d : byId.get(d.id) ?? d)),
+      },
     };
   }
 
@@ -172,10 +190,7 @@ export class Sequencer {
   }
 
   apply(callName: string): SeqStep {
-    const coded = this.tryCodedMove(this.board, callName);
-    const res = coded
-      ? { board: coded, legal: true as const }
-      : this.applicator.applyToBoard(this.board, callName);
+    const res = this.tryCodedMove(this.board, callName) ?? this.applicator.applyToBoard(this.board, callName);
     this.board = res.board;
     this.matcher.clearCaches();
     this.solver.clearCaches();
@@ -185,9 +200,7 @@ export class Sequencer {
   /** Apply a call step (string or {selection, call}) to the current board. */
   applyStep(step: string | CallStep): SeqStep {
     const coded = typeof step === 'string' ? this.tryCodedMove(this.board, step) : null;
-    const res = coded
-      ? { board: coded, legal: true as const }
-      : this.applicator.applyStep(this.board, step);
+    const res = coded ?? this.applicator.applyStep(this.board, step);
     this.board = res.board;
     this.matcher.clearCaches();
     this.solver.clearCaches();
@@ -196,10 +209,8 @@ export class Sequencer {
   }
 
   applyToBoard(board: Board, callName: string | CallStep): { board: Board; legal: boolean; reason?: string } {
-    if (typeof callName === 'string') {
-      const coded = this.tryCodedMove(board, callName);
-      if (coded) return { board: coded, legal: true };
-    }
+    const coded = typeof callName === 'string' ? this.tryCodedMove(board, callName) : null;
+    if (coded) return coded;
     return typeof callName === 'string'
       ? this.applicator.applyToBoard(board, callName)
       : this.applicator.applyStep(board, callName);
@@ -284,7 +295,14 @@ export class Sequencer {
 
   legalNext(): string[] {
     const base = this.legality.legalCalls(this.board);
-    return base.concat(CODED_MOVE_NAMES.filter((n) => !base.includes(n)));
+    // A coded move is listed only when it actually applies: the pivots always do,
+    // but a whole-set resolve such as Promenade has preconditions.
+    const derived = CODED_MOVE_NAMES.filter((n) => {
+      if (base.includes(n)) return false;
+      const move = findCodedMove(n);
+      return !move || codedMoveApplies(move, this.board);
+    });
+    return base.concat(derived);
   }
 
   /** The acting-group selector strings that resolve to a proper (non-empty,

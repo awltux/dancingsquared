@@ -11,8 +11,15 @@
 // A coded move occupies CODED_MOVE_BEATS on the timeline and animates as a smooth
 // rotation from each dancer's current facing to the new one (positions do not
 // change: these are pivots and re-facings).
+//
+// A GEOMETRY-DERIVED call may also carry a PRECONDITION (`applies`): `Promenade`
+// is legal only from a set the dancers can wheel home from, and it is not a pivot
+// (it moves everybody). It is registered here because it needs exactly what this
+// registry provides — one definition shared by the Sequencer and the analyser, with
+// a beat count — and its rule lives in promenade.ts.
 
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
+import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS } from './promenade.js';
 import type { Board } from './types.js';
 
 /** Timeline length of a coded pivot, in beats. */
@@ -25,27 +32,34 @@ export interface CodedMove {
   aliases: string[];
   /** Timeline length of the pivot, in beats. */
   beats: number;
-  /** Whole-board transform at completion. */
+  /** Whether the move applies to this board. Absent means always: a pure pivot
+   * applies from any board, whereas a whole-set resolve has preconditions. Returns
+   * null when it applies, otherwise the reason it does not. */
+  precondition?: (board: Board) => string | null;
+  /** Whole-board transform at completion. Only called when it applies. */
   apply(board: Board): Board;
 }
 
-const DEFS: { aliases: string[]; fn: (b: Board) => Board; beats?: number }[] = [
+const DEFS: { aliases: string[]; fn: (b: Board) => Board; beats?: number; precondition?: (b: Board) => string | null }[] = [
   { aliases: ['Face Right', 'Turn Right', 'Right Face'], fn: (b) => applyMoveToBoard(b, FaceRight) },
   { aliases: ['Face Left', 'Turn Left', 'Left Face'], fn: (b) => applyMoveToBoard(b, FaceLeft) },
   { aliases: ['Face Half', 'U-Turn Back', 'Face Back'], fn: (b) => applyMoveToBoard(b, FaceHalf) },
   { aliases: ['Face In', 'Turn In'], fn: (b) => applyFaceInOutToBoard(b, true) },
   { aliases: ['Face Out', 'Turn Out'], fn: (b) => applyFaceInOutToBoard(b, false) },
+  // Promenade: the standard finish. Unlike the pivots above it is NOT always
+  // legal, so it carries its precondition and reports the reason it fails.
+  { aliases: PROMENADE_ALIASES, beats: PROMENADE_BEATS, precondition: promenadeProblem, fn: (b) => promenadeHome(b).board },
 ];
 
 export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   name: d.aliases[0],
   aliases: d.aliases,
   beats: d.beats ?? CODED_MOVE_BEATS,
+  ...(d.precondition ? { precondition: d.precondition } : {}),
   apply: d.fn,
 }));
 
-/** Canonical display names of the coded moves, in registration order. A coded
- * move is always legal (a pivot applies from any board). */
+/** Canonical display names of the coded moves, in registration order. */
 export const CODED_MOVE_NAMES: string[] = CODED_MOVES.map((m) => m.name);
 
 const byAlias = new Map<string, CodedMove>();
@@ -58,3 +72,9 @@ for (const m of CODED_MOVES) {
 export function findCodedMove(name: string): CodedMove | undefined {
   return byAlias.get(name.trim().toLowerCase());
 }
+
+/** Whether a coded move applies to `board` (always true for a pure pivot). */
+export function codedMoveApplies(move: CodedMove, board: Board): boolean {
+  return move.precondition ? move.precondition(board) === null : true;
+}
+

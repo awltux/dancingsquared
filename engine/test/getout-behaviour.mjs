@@ -38,16 +38,15 @@ import { DOMParser } from '@xmldom/xmldom';
 import {
   setParser,
   Sequencer,
-  parseAlignmentId,
-  boardFromDiagram,
   arrangementFor,
   sequenceFor,
   relationshipStateOf,
-  FORMATIONS_FOR_LETTER,
+  findCodedMove,
+  splitSelection,
 } from '../dist/index.js';
 import { decodeLine } from './lib/getout-decode.mjs';
 import { callsByTitle, engineNameFor } from './lib/engine-calls.mjs';
-
+import { startBoardFor } from './lib/all8-boards.mjs';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -80,6 +79,22 @@ function reasonKind(reason) {
   return 'other';
 }
 
+/**
+ * A geometry-derived call (a coded pivot, or a whole-set resolve such as Promenade)
+ * that carries a precondition fails with a sentence of its own rather than one of the
+ * applicator's messages, so it needs its own category: it is neither a catalogue gap
+ * nor a matching gap. The reason is the engine's own explanation of what about the
+ * board makes the call impossible, and on the corpus it is the most informative
+ * message in the report.
+ */
+function isResolvePrecondition(callName) {
+  // The name may be group-scoped ("All Promenade", which All8 writes as `A-Prom` and
+  // which is just the resolve), so the base name is what carries the precondition.
+  const base = splitSelection(callName).call;
+  const move = findCodedMove(base);
+  return !!(move && move.precondition);
+}
+
 /** Calls that finish a square. A get-out's whole point is reaching one of these. */
 const RESOLVES = ['Allemande Left', 'Right and Left Grand', 'Promenade'];
 const isResolve = (name) => RESOLVES.includes(name);
@@ -98,15 +113,13 @@ const isProseToken = (token) => /\s/.test(token) || PROSE.test(token);
 console.log('== 1. a start board for every alignment ==');
 const setups = [];
 for (const a of corpus.alignments) {
-  const spec = parseAlignmentId(a.id);
-  if (!spec) { console.log(`  skip  ${a.id}: not an FASR id (family ${a.family})`); continue; }
-  const templateNames = FORMATIONS_FOR_LETTER[spec.letter] ?? [];
-  let template = null;
-  for (const n of templateNames) { const b = seq.boardForFormation(n); if (b) { template = b; break; } }
-  if (!template) { fail(`${a.id}: no engine template for [${spec.letter}]`); continue; }
-  const built = boardFromDiagram(template, spec.letter, spec.arrangement, a.diagram);
-  if (!built.board) { fail(`${a.id}: cannot build a start board (${built.reason})`); continue; }
-  const board = built.board;
+  const start = startBoardFor(seq, a);
+  if (!start.board) {
+    if (!start.spec) console.log(`  skip  ${a.id}: not an FASR id (family ${a.family})`);
+    else fail(`${a.id}: cannot build a start board (${start.reason})`);
+    continue;
+  }
+  const { spec, board } = start;
   setups.push({
     alignment: a,
     spec,
@@ -155,7 +168,9 @@ function runLine(startBoard, line) {
         index: i,
         depth: i + 1,
         reason: r.reason,
-        kind: isFinish ? 'FINISH only - body completed' : reasonKind(r.reason),
+        kind: isFinish ? 'FINISH only - body completed'
+          : isResolvePrecondition(call.engine) ? 'resolve cannot apply from here'
+            : reasonKind(r.reason),
         calls: calls.length,
       };
     }

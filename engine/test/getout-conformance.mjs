@@ -25,7 +25,12 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { catalogueTitles, indexedTitles, engineNameFor } from './lib/engine-calls.mjs';
+import { DOMParser } from '@xmldom/xmldom';
+import { setParser, Sequencer } from '../dist/index.js';
+import { catalogueTitles, implementedTitles, indexedTitles, engineNameFor, callsByTitle } from './lib/engine-calls.mjs';
+import { startBoardFor } from './lib/all8-boards.mjs';
+
+setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
@@ -72,12 +77,26 @@ if (fixture.failures?.length) {
 const assets = path.join(root, 'poc/src/assets');
 // The catalogue must include assets/src/calls.xml (the resolve and concept calls)
 // and must be read by TITLE - see lib/engine-calls.mjs for why both matter.
-// The implemented catalogue is the `<tam>` titles. `indexedTitles` is the engine's
-// own index (assets/src/calls.xml), which lists names that have no implementation -
-// so an absent name can be told apart from a name the engine knows and cannot do.
+// The IMPLEMENTED catalogue is the `<tam>` titles PLUS the geometry-derived calls the
+// engine computes from the board (the coded pivots and `Promenade`) - comparing
+// coverage against the `<tam>` titles alone reports an implemented call as missing.
+// `indexedTitles` is the engine's own index (assets/src/calls.xml), which lists names
+// that have no implementation - so an absent name can be told apart from a name the
+// engine knows and cannot do.
 const catalogue = catalogueTitles(assets);
+const implemented = implementedTitles(assets);
 const indexed = indexedTitles(assets);
-console.log(`\n== Engine catalogue ==\n  ${catalogue.size} implemented call titles (<tam>), ${indexed.size} titles in the engine's own index`);
+console.log(`\n== Engine catalogue ==\n  ${catalogue.size} implemented call titles (<tam>), `
+  + `${implemented.size} performable names (adding the ${implemented.size - catalogue.size} geometry-derived ones), `
+  + `${indexed.size} titles in the engine's own index`);
+
+// The Sequencer, only so that alignment coverage below can MEASURE how many alignments
+// can actually be set up rather than assert it.
+const seq = new Sequencer(
+  readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
+  readFileSync(path.join(assets, 'formations.xml'), 'utf8'),
+  callsByTitle(assets),
+);
 
 // --------------------------------------------------------- decoding the lines
 //
@@ -127,7 +146,7 @@ console.log('\n== Call-name coverage: published get-outs vs the engine catalogue
 const bridged = [...plainRefs.entries()].filter(([name]) => engineNameFor(name) !== name);
 const missing = [...plainRefs.entries()]
   .map(([name, n]) => [engineNameFor(name), n, name] )
-  .filter(([engineName]) => !catalogue.has(engineName))
+  .filter(([engineName]) => !implemented.has(engineName))
   .sort((a, b) => b[1] - a[1]);
 console.log(`  WHOLE-SET names (decoded without a group prefix, so the comparison is fair):`);
 console.log(`    ${plainRefs.size} distinct, ${plainRefs.size - missing.length} registered, ${missing.length} ABSENT`);
@@ -150,9 +169,17 @@ console.log('\n== Alignment coverage (can we even set up the board?) ==');
 const families = new Map();
 for (const a of fixture.alignments ?? []) families.set(a.family, (families.get(a.family) ?? 0) + 1);
 for (const [fam, n] of [...families.entries()].sort()) console.log(`  ${String(n).padStart(2)} alignments  ${fam}`);
-console.log('  0 of them are executable today: the engine has no mapping from All8\'s FASR');
-console.log('  alignment ids to a board, and cannot construct a board in those alignments.');
-console.log('  Until that mapping exists this fixture measures vocabulary, not get-out behaviour.');
+// This used to print "0 of them are executable today" and say the fixture measured
+// vocabulary rather than behaviour. That stopped being true at step 3, which gave the
+// engine a board for every alignment it can parse All8's diagram for; the corpus is now
+// RUN by test/getout-behaviour.mjs. Measured here rather than asserted, so the claim
+// cannot go stale again in silence.
+if (!seq) check(false, 'the harness has no Sequencer to build start boards with');
+const buildable = (fixture.alignments ?? []).filter((a) => startBoardFor(seq, a).board);
+check(buildable.length >= 25, 'most alignments have a start board built from All8\'s own diagram',
+  `${buildable.length} of ${(fixture.alignments ?? []).length}`);
+console.log("  All8's own diagram (test/lib/all8-boards.mjs), so the corpus is runnable and the");
+console.log('  behaviour report (test/getout-behaviour.mjs) is the measurement that matters here.');
 
 console.log('\n=================');
 if (failures === 0) console.log('GETOUT CONFORMANCE: fixture OK');

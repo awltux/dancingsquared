@@ -8,11 +8,14 @@
 //
 //  2. `poc/src/assets/src/calls.xml` is an INDEX, not a set of implementations: it is
 //     a list of `<call link="c3a/1_4_mix" title="1/4 Mix"/>` entries pointing at call
-//     files. A title in it with no `<tam>` anywhere is a call the engine NAME knows
-//     and cannot perform - which is exactly how `Promenade` turns out to be missing
-//     (promenade.xml implements only the qualified forms: Heads Promenade 1/2, Star
-//     Promenade, Full, ...). So the implemented catalogue is the `<tam>` titles, and
-//     the index is a separate, useful signal.
+//     files. A title in it with no implementation anywhere is a call the engine NAME
+//     knows and cannot perform - `Cross Fold` and `1/2 Circulate` are the ones left.
+//     So the implemented catalogue is a separate, useful signal from the index, and
+//     it is NOT just the `<tam>` titles: the engine also performs the GEOMETRY-DERIVED
+//     calls it computes from the board rather than from a setup (the coded pivots
+//     `Face Left`/`Face Right`/`U-Turn Back`/`Face In`/`Face Out`, and the whole-set
+//     resolve `Promenade`). `catalogueTitles` below is the `<tam>` half only;
+//     `implementedTitles` is the union, which is what a coverage comparison wants.
 //
 //  3. A call the engine implements under a different name is not a missing call.
 //     All8 writes `Touch 1/4` and `Cast Off 3/4`; the engine implements them as
@@ -21,6 +24,8 @@
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
+
+import { CODED_MOVES } from '../../dist/index.js';
 
 export const ASSET_LEVELS = ['discovered', 'b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 
@@ -60,6 +65,14 @@ export function indexedTitles(assets) {
     const xml = readFileSync(file, 'utf8');
     for (const m of xml.matchAll(/<call\b[^>]*\btitle="([^"]*)"/g)) titles.add(m[1]);
   }
+  return titles;
+}
+
+/** Every name the engine can actually PERFORM: the `<tam>` titles plus every alias
+ * of the geometry-derived calls it computes from the board instead of a setup. */
+export function implementedTitles(assets) {
+  const titles = catalogueTitles(assets);
+  for (const move of CODED_MOVES) for (const alias of move.aliases) titles.add(alias);
   return titles;
 }
 

@@ -18,7 +18,7 @@ import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
 import { normAngle } from './identity.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
-import { findCodedMove, type CodedMove } from './coded-moves.js';
+import { findCodedMove, codedMoveApplies, type CodedMove } from './coded-moves.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, CallStep, SeqDancer, VariantMatch } from './types.js';
 import type { CallBundle } from '../types.js';
@@ -115,6 +115,7 @@ export class SequenceAnalyzer {
       total += this.stepBeats(board, label);
       const coded = findCodedMove(label);
       if (coded) {
+        if (!codedMoveApplies(coded, board)) break;
         board = coded.apply(board);
         continue;
       }
@@ -131,9 +132,11 @@ export class SequenceAnalyzer {
     let acc = 0;
     for (const raw of flat) {
       const callName = typeof raw === 'string' ? raw : raw.call;
-      // Coded body-relative moves animate as a smooth pivot from the live board.
+      // Coded body-relative moves animate as a smooth pivot from the live board; a
+      // whole-set resolve such as Promenade blends straight to the home squared set.
       const coded = findCodedMove(callName);
       if (coded) {
+        if (!codedMoveApplies(coded, board)) break;
         if (beat < acc + coded.beats) return { board: this.evaluateCodedAt(board, coded, beat - acc), beats: 0 };
         board = coded.apply(board);
         acc += coded.beats;
@@ -202,8 +205,9 @@ export class SequenceAnalyzer {
       const callName = typeof raw === 'string' ? raw : raw.call;
       const coded = findCodedMove(callName);
       if (coded) {
-        // A coded pivot has no authored path, so there is no trail to trace while
+        // A coded move has no authored path, so there is no trail to trace while
         // it plays; the replay still continues past it.
+        if (!codedMoveApplies(coded, board)) return null;
         if (beat < acc + coded.beats) return null;
         board = coded.apply(board);
         acc += coded.beats;
@@ -278,6 +282,9 @@ export class SequenceAnalyzer {
       const label = typeof name === 'string' ? name : name.call;
       const coded = findCodedMove(label);
       if (coded) {
+        // A resolve that does not apply here is not a zero - reporting one would be
+        // a false positive, so the replay fails loudly instead.
+        if (!codedMoveApplies(coded, board)) return false;
         board = coded.apply(board);
         continue;
       }

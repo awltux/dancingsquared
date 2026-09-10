@@ -681,6 +681,90 @@ runs to a full success (42 + 2 by the caller convention). `behaviour-audit` is u
   *split* call should keep each half in place. That is the shipped asset's behaviour, not
   something the new tams introduce, and if it needs correcting both calls need it together.
 
+**Step 4c is DONE — `Promenade`, the standard finish, is no longer a call the engine knows
+and cannot perform.** `assets/src/calls.xml` has always indexed it; `ms/promenade.xml`
+implements only the *qualified* forms (`Heads Promenade 1/2`, `Sides Promenade Full`,
+`Star Promenade`, …). So every published get-out that ends `--Prom` ran its whole body and
+then stopped at its own finish with "Unknown call" — the single largest group of
+cheap failures left after step 4b.
+
+It cannot be a catalog `<tam>`: it is not a fixed path. How far each dancer travels depends
+on where the set happened to start, and it is legal from facing lines, waves, two-faced
+lines and rotated squared sets alike. It is now a **geometry-derived call**
+(`engine/src/sequencer/promenade.ts`), registered in the coded-move table with a
+**precondition** so that the Sequencer and the sequence analyser share one definition of it —
+the same mechanism the body-relative pivots use, extended with the ability to refuse and say
+why.
+
+The rule is Taminations' own (`lib/sequencer/calls/common/promenade_home.dart`), which is the
+reference implementation for this engine:
+
+1. take each couple's centre **by identity** (home couple number — not by who is standing
+   next to whom);
+2. snap that centre to the nearest of the four axis points by quadrant — this is what "the
+   set is spread around the ring" means;
+3. require one couple per side of the square, and require couples **1 → 2 → 3 → 4
+   counter-clockwise** — the direction a promenade travels. That is the "in sequence" test:
+   if the couples are permuted round the ring, no single wheeling of the set brings everybody
+   home and the caller must fix the sequence first;
+4. the result is the **literal home squared set** — every dancer back on its own spot and
+   facing, verified by identity rather than by "the formation looks right".
+
+Facings are deliberately **not** part of the test: forming up into promenade position is part
+of the call, which is why All8 promenades out of a two-faced line (`[L.F1p]`'s only get-out is
+`--PromH`, with no body at all) and out of facing lines.
+
+*One place this is stricter than Taminations, deliberately:* the partners must be standing as
+a couple (separation 2, band ±1). Taminations takes a couple's centre wherever the two dancers
+are, so a board with the partners flung apart still "promenades home" on paper — which here
+would launder a broken body into a false success. Measured: every healthy pre-`Prom` state in
+the corpus has its partners **exactly 2.00** apart, while the states our own broken bodies
+produce measure **0.00, 4.00 and 6.00** (0.00 being two dancers on the same spot).
+
+Measured on the corpus (412 published lines, caller convention):
+
+| | before step 4c | after |
+|---|---|---|
+| reached the finish and applied it | 42 | **53** |
+| reached a state a finish resolves from | 2 | **4** |
+| stopped only at the finish | 40 | **29** |
+| stopped part-way through the body | 72 | **71** |
+| catalogue gaps (calls All8 names, engine cannot perform) | 4 names | **`Join Hands` only** |
+
+Of the 30 published lines that end in a promenade finish, 21 have a body the engine can play;
+**12 of those now promenade home**. The 9 that do not are the finding, and they split in two:
+
+- **6 are bodies that reach a state no promenade can finish from, because the body itself is
+  wrong.** `--SwThr B-Run B-Trd --Prom` leaves the partners 4 apart; `--PsOcn B-Run B-Trd
+  --Prom` and `B-UTurn B-Trd --Prom` leave them 6 apart. The cause is visible in the stop
+  table: the corpus's own `B-Trd`/`G-Trd`/`B-Run` steps move dancers 4 units the wrong way.
+- **3 are the `[B]` box, and they disagree with All8.** In our reading of All8's *own*
+  diagrams, the `[B]` box puts the couples in the **mirrored** ring order (3,2,1,4
+  counter-clockwise where home is 1,2,3,4), so no rotation of that board reaches the home
+  square; `[B4c]` after `G-UTurn` has all four couples collinear, so there is no ring at all.
+  All8's pages nevertheless list `--Prom` for `[B2r]`, `[B2p]` and that `[B4c]` line. Either
+  our reading of the box is wrong in a way the FASR classification cannot see, or All8's
+  `--Prom` there means something a promenade cannot do while preserving identity. Recorded as
+  an open item rather than papered over with a looser rule.
+
+**A new, specific bug found while measuring this (the next target).** `Boys Trade` /
+`Girls Trade` / `Run` **select the wrong variant** from waves and two-faced lines. The asset
+declares seven `Boys Trade` variants qualified by formation (`Right-Hand Wave, Boys Center`,
+`…Boys End`, `Right-Hand Two-Faced Line`, …), so this is variant selection, not a missing
+call. From `L1p` after `Boys U-Turn Back` the boys move 4 units **away** from the dancer they
+should swap with and flip 180° (`2b (2,1) → (2,5)`, `1b (2,-3) → (2,-7)`, where the swap is
+`(2,-3)` / `(2,1)`); from the `Ocean Waves` template `Boys Trade` moves the **girls**. It is
+now the engine's top corpus gap (`4x Boys Trade`) and it is directly upstream of 6 of the 9
+promenade refusals above, which is why it is worth doing before touching the remaining
+finish calls.
+
+*Two limitations recorded rather than fixed:* the precomputed FSM table and
+`Sequencer.legalCalls` enumerate the *catalog*, so `Promenade` appears in `legalNext()` (when
+it applies) but not in the FSM table — the table builder works from the applicator and would
+need a rule for geometry-derived edges. And `Promenade`'s 8 beats are a fixed simplification:
+a set already at home promenades no distance at all, one 270° round promenades three quarters
+of the way.
+
 ### 9.2 Other open items
 
 1. **The decoder table is now the top blocker (§9.1 step 4).** 202 of 412 published lines stop
@@ -691,9 +775,10 @@ runs to a full success (42 + 2 by the caller convention). `behaviour-audit` is u
    `Touch 1/4`, `Cast Off 3/4` and `Do Sa Do` resolve only because the test harness maps them.
    Anyone consuming published choreography needs that bridge in the engine, where
    `canonicalName()` already applies it.
-3. **Bare `Promenade` is unimplemented** while being the corpus's most-used finisher (26
-   lines). Qualified forms exist; the plain call does not. It also needs deciding what a
-   Promenade *ends* as, which is what makes it a resolve under the caller convention.
+3. **Bare `Promenade` is DONE (step 4c).** Remaining from it: the `[B]` box promenade
+   disagreement with All8 (3 lines), the fixed 8-beat timing, and the fact that a
+   geometry-derived call is not yet expressible in the precomputed FSM table.
+   **`Cross Fold`** is still indexed with no implementation.
 4. **Global corner fix (from step 2).** `analyzeFasr`'s `corner` returns the *opposite* girl
    (0/4 agreement with the home ring). `FasrRelations.corner` feeds `fasrKey`, which backs
    `isZero` and the solver's `Static Square` check, so it needs its own measured step.
@@ -704,9 +789,12 @@ runs to a full success (42 + 2 by the caller convention). `behaviour-audit` is u
    new `Circulate` wave tams that reuse its paths — moves half the dancers 4 units between the
    two parallel waves. A split call should keep each half in place, so the paths are suspect.
    Needs an independent read of the wave circulate before changing both calls together.
-7. **`Cross Fold` and `Promenade` are indexed but not implemented** — `Promenade` is the
-   corpus's most-used finisher (26 lines) and `Cross Fold` appears twice. `1/2 Circulate` and
-   `Join Hands` are absent entirely.
+7. **`Trade`/`Run` variant selection is wrong from waves and two-faced lines (§9.1 step 4c).**
+   `Boys Trade` from a wave picks the wrong gender/formation variant, moving dancers 4 units
+   away from the dancer they should swap with and flipping their facings; it is the corpus's
+   top engine gap (`4x`) and upstream of 6 of the 9 refused promenade finishes. `Cross Fold`
+   is still indexed with no implementation, and `1/2 Circulate` and `Join Hands` are absent
+   entirely.
 8. **The isolated selection reading can be unsound (§9.1 step 4a).** It centres the subset and
    matches with normal rotation tolerance, so an arbitrary pair can satisfy a two-dancer setup;
    `Centers Pass Thru` from Facing Lines currently resolves two dancers (one an end) rather than

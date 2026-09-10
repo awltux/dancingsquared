@@ -71,6 +71,18 @@ export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS } from './sequencer/co
 export { normalisedState, orientationDeltaSteps, ORIENTATION_STEP, ORIENTATION_STEPS } from './sequencer/fsm.js';
 export { FsmTable, FSM_TABLE_SCHEMA_VERSION, type FsmTableEdge, type FsmTableData } from './sequencer/fsm-table.js';
 export { normalizeSelection, selectionGroup, splitSelection } from './sequencer/selection.js';
+export { findCodedMove, codedMoveApplies, CODED_MOVES, CODED_MOVE_NAMES, CODED_MOVE_BEATS } from './sequencer/coded-moves.js';
+export type { CodedMove } from './sequencer/coded-moves.js';
+export {
+  promenadeHome,
+  promenadeApplies,
+  promenadeProblem,
+  promenadeAnchor,
+  PROMENADE_ALIASES,
+  PROMENADE_BEATS,
+  PROMENADE_COUPLE_MAX,
+} from './sequencer/promenade.js';
+export type { PromenadeResult } from './sequencer/promenade.js';
 export type { CallStep } from './sequencer/types.js';
 
 // Call editor: synthesize missing setups by padding core moves.

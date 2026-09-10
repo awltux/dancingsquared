@@ -668,6 +668,79 @@ The plan's original list, kept with what happened to each item:
 
 ---
 
+## Phase 4d — DONE: `Roll`, and an inverted label nothing was reading
+
+**The `Roll` modifier is implemented** — 30 published lines, the single largest token in the corpus.
+
+### What `Roll` is, from the reference
+
+`taminations-flutter/lib/sequencer/calls/plus/roll.dart` is 50 lines and completely explicit:
+
+```dart
+final roll = ctx.roll(d);
+final move = {Rolling.LEFT: QuarterLeft, Rolling.RIGHT: QuarterRight, Rolling.NONE: Stand}[roll]!;
+```
+
+Its help text says why: *"The sequencer calculates Roll based on the turning motion at the end of
+the previous call"*, and `performCall` refuses when it does not follow another call — without a
+previous turn there is no direction to continue. So: **each dancer turns a quarter in the direction
+they were already turning, and a dancer who was not turning does not move at all.**
+
+### The bug found on the way: the label was inverted
+
+`Roll` needs the remembered direction, and the engine already had it — `SeqDancer.lastTurnDir`,
+written by the applicator and exposed as `Sequencer.lastTurnDirections`. Two things were wrong:
+
+1. **The sign was backwards.** `moves.ts` documents its own `Move.turn` as *"net heading change in
+   radians (+ = left / CCW)"*, and `FaceLeft` is `mv('Face Left', 0, 0, +PI/2)`. The recorder wrote
+   `delta > 0 ? 'right' : 'left'` — exactly inverted. Nothing consumed the metadata, so no gate
+   caught it; this is the first consumer, and it would have rolled every dancer the wrong way. The
+   convention is now **asserted against the delta a caller can read off the board**, not trusted.
+2. **The coded-pivot path recorded nothing at all.** `Face Left` and `U-Turn Back` go through
+   `applyMoveToBoard`, not the catalog path, so after a pivot the metadata was unset and `Roll` had
+   nothing to read. Recording now happens there too.
+
+### The 180° case, which is not a corner case
+
+A net 180° turn gives the same delta for left and right, so the direction cannot be read from it —
+and that is exactly what `Partner Trade` does, while the corpus's "and Roll" lines are literally
+`... --PtTrd --&Roll`. Falling back to "no direction" left `Roll` **refusing on 6 published lines**,
+which the behaviour report showed as `6x Roll` in its stopping-call list.
+
+The reference resolves it from the path's **halfway tangent** (`bezier.dart rolling()`: *"If it's 180
+then use angle at halfway point"*). The engine can do the same, because it already computes a pose
+at any time along a path: the heading change over the **first half** gives the sign. That is now
+what happens, and `Roll` **no longer appears among the stopping calls at all**. A coded pivot is the
+one case that genuinely has nothing to read — it carries a net `turn` and no path — so `U-Turn Back`
+records no direction, and the audit asserts that distinction rather than the blanket claim it made
+before.
+
+### Measured
+
+| | before | after |
+|---|---|---|
+| corpus: stopped at an undecodable token | 170 | **146** |
+| corpus: stopped part-way through the body | 90 | 101 |
+| corpus: `Roll` among the stopping calls | — | **0** (6 refusals after the first cut, 0 now) |
+| table names admissible | 77 | **78** |
+| behaviour-audit assertions | 137 | **143** |
+
+`&Roll` now decodes because `Roll` is a *performable* derived call, and the membership gate added in
+Phase 2 is what proves it: `all 78 table names are implemented or declared gaps`. Before this,
+`Roll` was absent from the catalogue entirely — no `<tam>`, not even in the call index — so the
+token could not be admitted without creating a phantom name.
+
+Successes are unchanged at 75: the 24 newly-readable lines run further and then stop at genuine
+engine gaps, which is the same effect Phase 2 had and the point of making them readable at all.
+
+### Still open from this family
+
+`Expl&` (5) — "Explode and \<call\>" needs **composition with the following token**, and
+`Explode and Load the Boat` is not a title; and `Single Hinge` (11), where `Single Hinge` and
+`Split Hinge` are both absent from the catalogue.
+
+---
+
 ## Phase 5 — Latent correctness
 
 Each needs its own measured step, ordered by blast radius:

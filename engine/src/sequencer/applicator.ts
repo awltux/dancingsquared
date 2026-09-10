@@ -154,9 +154,32 @@ export class CallApplicator {
       const by = d.y + (base.y - d.y) * f;
       const bh = normAngle(d.heading + (base.heading - d.heading) * f);
       const disp = rot(bh, localDisp);
-      // Record which direction this dancer last turned (net heading delta), for
-      // non-compositional calls that depend on the remembered turn direction.
-      const turnDir = Math.abs(delta) < 1e-6 ? d.lastTurnDir : delta > 0 ? 'right' : 'left';
+      // Record which direction this dancer last turned, for calls that depend on the remembered
+      // direction ("and Roll" is the reason this exists).
+      //
+      // THE SIGN WAS INVERTED. `Move.turn` is documented in the engine's own vocabulary as
+      // "net heading change in radians (+ = left / CCW)" (`moves.ts:32`), and `FaceLeft` is
+      // `mv('Face Left', 0, 0, +PI/2)` - so a POSITIVE net delta is a LEFT turn. This used to
+      // write `delta > 0 ? 'right' : 'left'`, i.e. exactly backwards, so every consumer of the
+      // metadata would have rolled the wrong way. Nothing consumed it yet, which is why no gate
+      // caught it; the invariant is now asserted instead of assumed.
+      //
+      // A NET TURN OF ~180 DEGREES has no direction from the delta alone - left and right give the
+      // same number - and that is not a corner case: it is what `Partner Trade` does, and the
+      // corpus's "and Roll" lines are exactly `... --PtTrd --&Roll`. The reference resolves it from
+      // the path's HALFWAY tangent (`bezier.dart rolling()`: "If it's 180 then use angle at halfway
+      // point"). We can do the same, because the engine already computes a pose at any time along
+      // the path: take the heading change over the FIRST half and read its sign. Falling back to
+      // "no direction" instead would leave `Roll` refusing on every one of those lines - measured,
+      // 6 of them - which is what this replaced.
+      const TURN_EPS = 1e-6;
+      let turnDir = d.lastTurnDir;
+      const isHalfTurn = Math.abs(Math.abs(delta) - Math.PI) <= 1e-3;
+      const dirFrom = isHalfTurn
+        ? normAngle(poseFor(t, dancerBeats(t) / 2).heading - start.heading)
+        : delta;
+      if (dirFrom > TURN_EPS) turnDir = 'left';
+      else if (dirFrom < -TURN_EPS) turnDir = 'right';
       return { ...d, x: bx + disp.x, y: by + disp.y, heading: normAngle(bh + delta), lastTurnDir: turnDir };
     });
     // Snap only the INTERACTIVE path (rebase): the search path must preserve pure

@@ -117,12 +117,21 @@ export interface MoveDancer {
   x: number;
   y: number;
   heading: number;
+  /** Direction this dancer last turned, for calls that depend on it ("and Roll"). Optional
+   * because a bare MoveDancer need not carry sequencer metadata. */
+  lastTurnDir?: 'left' | 'right';
 }
 
 /**
  * Apply `move` to the dancers whose ids are in `ids` (or all if `ids` is null),
  * returning a NEW board with those dancers' end states. Non-selected dancers are
  * left untouched. `board.dancers` entries must carry id/x/y/heading at least.
+ *
+ * The remembered turn direction is recorded here too. The CATALOG path records it
+ * (`applicator.ts`), but a coded pivot goes straight through this function, so `Face Left` and
+ * `U-Turn Back` used to leave the metadata UNSET - measured, and a call that depends on it
+ * therefore had nothing to read after a pivot. `turn` is documented as "+ = left / CCW", and a
+ * 180-degree move has no direction from the delta alone, so the previous value is kept there.
  */
 export function applyMoveToBoard<B extends { dancers: MoveDancer[] }>(
   board: B,
@@ -133,7 +142,12 @@ export function applyMoveToBoard<B extends { dancers: MoveDancer[] }>(
   const dancers = board.dancers.map((d) => {
     if (want && !want.has(d.id)) return d;
     const e = applyMoveToState(d, move);
-    return { ...d, x: e.x, y: e.y, heading: e.heading };
+    let turnDir = d.lastTurnDir;
+    if (Math.abs(Math.abs(move.turn) - PI) > 1e-3) {
+      if (move.turn > 1e-6) turnDir = 'left';
+      else if (move.turn < -1e-6) turnDir = 'right';
+    }
+    return { ...d, x: e.x, y: e.y, heading: e.heading, lastTurnDir: turnDir };
   });
   return { ...board, dancers };
 }

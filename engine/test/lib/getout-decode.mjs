@@ -117,6 +117,13 @@ export const TOKENS = {
   FlipD: 'Flip the Diamond',
   WhlAr: 'Wheel Around',
   A8SpTop: 'All 8 Spin the Top',
+  // `&` is All8's "and" (the reference normalizer does `.replaceAll('&','and')`), so `&Roll` is
+  // the "and Roll" MODIFIER on the preceding call. It is decodable now because the engine finally
+  // HAS `Roll`: it is a geometry-derived call (coded-moves.ts) that turns each dancer a quarter in
+  // the direction they were already turning. Before that, `Roll` was absent from the catalogue
+  // entirely - no tam, not even in the call index - so this entry would have been a phantom name
+  // and the membership gate below would have rejected it.
+  '&Roll': 'Roll',
 };
 
 /**
@@ -147,13 +154,14 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
  * not "helpfully" add them, and so the ranking below can be read for what it is: most of the
  * remaining decoder gap is not a shorthand problem but a missing IMPLEMENTATION.
  *
- *   &Roll (41, the single largest token) - `Roll` is not a call in this engine at all
- *       (`tam`/index/implemented all absent). All8 writes it as a modifier on the preceding
- *       call, and Taminations implements `Roll` in code (calls/plus/roll.dart). Needs a
- *       MODIFIER, not a table entry.
+ *   &Roll (41, the single largest token) - RESOLVED. `Roll` was absent from the catalogue
+ *       entirely (tam, index and implemented all absent), and All8 writes it as a MODIFIER on the
+ *       preceding call: "The sequencer calculates Roll based on the turning motion at the end of
+ *       the previous call". It is now a geometry-derived call (coded-moves.ts) built on the
+ *       remembered turn direction the engine already recorded, so the token decodes.
  *   Expl& (6)  - "Explode and <next call>", e.g. `--Expl& --LoadB` = Explode and Load the Boat.
- *       Same shape: a modifier taking the following token, and `Explode and Load the Boat` is
- *       not a title. Composition, not vocabulary.
+ *       Still needs COMPOSITION of a modifier with the FOLLOWING token, and
+ *       `Explode and Load the Boat` is not a title. Composition, not vocabulary.
  *   SHing (13) - "Single Hinge" is NOT implemented (`Split Hinge` neither); only bare `Hinge`
  *       is. Decoding it would book a real engine gap as a phantom name.
  *   1/2Tg      - "1/2 Tag" is NOT implemented; only `Tag the Line` is.

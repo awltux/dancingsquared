@@ -18,7 +18,7 @@
 // registry provides — one definition shared by the Sequencer and the analyser, with
 // a beat count — and its rule lives in promenade.ts.
 
-import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
+import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf, normAngle } from '../moves.js';
 import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS } from './promenade.js';
 import { runRule, tradeRule } from './trade-run.js';
 import type { Board } from './types.js';
@@ -29,6 +29,59 @@ export const CODED_MOVE_BEATS = 1;
 /** Timeline length of the derived Run / Trade, in beats — the value the authored `Run` and
  * `Trade` tams carry, so the timeline does not shift when the derived call replaces them. */
 export const RUN_TRADE_BEATS = 4;
+
+/** Timeline length of `Roll`, in beats — the reference's `QuarterLeft`/`QuarterRight` carry
+ * `beats: 1.5` (`moves.dart:56-58`), and `Roll` is exactly that move chosen per dancer. */
+export const ROLL_BEATS = 1.5;
+
+/**
+ * `Roll`: each dancer turns a quarter in the direction they were ALREADY turning, and a dancer
+ * who was not turning does not move at all.
+ *
+ * This is the reference's rule verbatim (`taminations-flutter/lib/sequencer/calls/plus/roll.dart`):
+ *
+ *     final roll = ctx.roll(d);
+ *     final move = {Rolling.LEFT: QuarterLeft, Rolling.RIGHT: QuarterRight, Rolling.NONE: Stand}[roll]!;
+ *
+ * which is also why the call's own help text says "The sequencer calculates Roll based on the
+ * turning motion at the end of the previous call", and why `performCall` refuses when it does not
+ * follow another call: without a previous turn there is no direction to continue.
+ *
+ * OUR SOURCE FOR THE DIRECTION is `SeqDancer.lastTurnDir`, the remembered turn direction the
+ * engine records as it applies a call. Two honest limitations, both recorded rather than hidden:
+ *
+ *  - the reference reads the tangent at the END of the previous call's path (`bezier.dart`
+ *    `rolling()`, which special-cases a 180-degree turn to the halfway tangent). We record the
+ *    NET heading delta, which is a coarser quantity: for a call where dancers curve one way and
+ *    finish facing another, the two can disagree. A net 180 degrees is the same number for left
+ *    and right, so that case keeps the previous direction instead of inventing one;
+ *  - `lastTurnDir` is only meaningful for the most recent turning call, which is the same
+ *    scope the reference gives `ctx.roll`.
+ *
+ * It REFUSES when no dancer has a remembered direction, which is the reference's own refusal
+ * ("and Roll" must follow another call) expressed over the board rather than over a call stack.
+ */
+function rollRule(board: Board): Board {
+  return {
+    dancers: board.dancers.map((d) => {
+      if (d.isGhost || !d.lastTurnDir) return d;
+      // A quarter turn in the remembered direction, with the position unchanged. `turn` is
+      // "+ = left / CCW" (moves.ts), so left adds and right subtracts.
+      const turn = d.lastTurnDir === 'left' ? Math.PI / 2 : -Math.PI / 2;
+      return { ...d, heading: normAngle(d.heading + turn) };
+    }),
+  };
+}
+
+/** Why `Roll` cannot apply: nothing remembers a direction, so there is nothing to continue. */
+function rollProblem(board: Board): string | null {
+  const physical = board.dancers.filter((d) => !d.isGhost);
+  if (physical.length === 0) return 'Roll needs dancers to roll';
+  if (!physical.some((d) => d.lastTurnDir)) {
+    return 'Roll continues the direction the dancers were already turning, and nothing has turned them yet';
+  }
+  return null;
+}
 
 export interface CodedMove {
   /** Canonical display name (the first alias). */
@@ -87,6 +140,17 @@ const DEFS: {
     beats: RUN_TRADE_BEATS,
     precondition: () => 'Trade names a group to trade ("Boys Trade", "Centers Trade"); it has no whole-set reading',
     applyToSelection: tradeRule,
+  },
+  // Roll: derived because the engine has NO `Roll` of any kind - no title, no tam, not even in the
+  // call index - while All8 writes it as a modifier on the preceding call (`--SqTh3 --PtTrd --&Roll`,
+  // 30 published lines, the single largest token in the corpus). The reference implements it in
+  // code for the same reason. It is registered under the bare name because All8's `&Roll` composes
+  // with whatever came before rather than naming a group.
+  {
+    aliases: ['Roll'],
+    beats: ROLL_BEATS,
+    precondition: rollProblem,
+    fn: rollRule,
   },
 ];
 

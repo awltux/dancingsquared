@@ -105,6 +105,75 @@ console.log('\n== Per-dancer direction / non-compositional metadata ==');
   const dirs = seq.lastTurnDirections();
   const n = Object.keys(dirs).length;
   check(n >= 1, '"direction last turned" metadata recorded after a rotating call', `${rotating}: n=${n}`);
+
+  // ---- THE CONVENTION, asserted rather than assumed --------------------------------
+  // `Move.turn` is documented in the engine's own vocabulary as "net heading change in radians
+  // (+ = left / CCW)" (moves.ts) and `FaceLeft` is `mv('Face Left', 0, 0, +PI/2)`. The recorder
+  // used to write `delta > 0 ? 'right' : 'left'`, i.e. exactly BACKWARDS, and nothing consumed
+  // the metadata so no gate caught it. These two checks pin the sign against the delta a caller
+  // can read off the board, so the label is verified against the geometry rather than trusted.
+  const faceCheck = (call, want) => {
+    seq.reset();
+    const before = new Map(seq.board.dancers.map((d) => [d.id, d]));
+    const r = seq.applyToBoard(seq.board, call);
+    if (!r.legal) { check(false, `${call} is not legal from home`, r.reason); return; }
+    const dirs2 = seq.lastTurnDirections(r.board);
+    const one = r.board.dancers.find((d) => !d.isGhost);
+    const o = before.get(one.id);
+    const delta = ((one.heading - o.heading + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
+    const got = dirs2[one.id];
+    const expect = delta > 0 ? 'left' : 'right';
+    check(got === want && want === expect,
+      `"${call}" turns ${delta > 0 ? 'left' : 'right'} (delta ${(delta * 180 / Math.PI).toFixed(0)}deg) and records "${got}"`,
+      `want ${want}`);
+  };
+  faceCheck('Face Left', 'left');
+  faceCheck('Face Right', 'right');
+
+  // A 180-degree turn cannot be read from the delta alone - left and right give the same number.
+  // The CATALOG path resolves it the way the reference does, from the path's halfway pose (see
+  // applicator.ts); a CODED PIVOT has only a net `turn` and no path, so `U-Turn Back` genuinely
+  // has no direction to record. That distinction is what this asserts, rather than the blanket
+  // "a 180 records nothing" it used to say.
+  seq.reset();
+  const r180 = seq.applyToBoard(seq.board, 'U-Turn Back');
+  if (!r180.legal) check(false, 'U-Turn Back is not legal from home', r180.reason);
+  else {
+    const dirs180 = seq.lastTurnDirections(r180.board);
+    check(Object.keys(dirs180).length === 0,
+      'a coded pivot\u2019s 180-degree turn records no direction (net `turn` only, no path to read)',
+      `recorded=${Object.keys(dirs180).length}`);
+  }
+
+  // ---- Roll, the call that uses all of the above ------------------------------------
+  // The reference's rule (calls/plus/roll.dart): each dancer turns a quarter in the direction they
+  // were already turning, and a dancer who was not turning does not move.
+  seq.reset();
+  const rollAlone = seq.applyToBoard(seq.board, 'Roll');
+  check(!rollAlone.legal,
+    'Roll refuses when nothing has turned the dancers yet',
+    rollAlone.reason ?? '(it applied)');
+
+  seq.reset();
+  seq.apply('Face Left');
+  const beforeRoll = seq.board.dancers.map((d) => ({ ...d }));
+  const rolled = seq.applyToBoard(seq.board, 'Roll');
+  if (!rolled.legal) check(false, 'Roll did not apply after Face Left', rolled.reason);
+  else {
+    const angDelta = (i) => {
+      const was = beforeRoll[i];
+      const now = rolled.board.dancers[i];
+      return ((now.heading - was.heading + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
+    };
+    const deltas = rolled.board.dancers.map((_, i) => angDelta(i));
+    const turned = deltas.filter((d) => Math.abs(d) > 1e-6).length;
+    const allLeft = deltas.filter((d) => Math.abs(d) > 1e-6).every((d) => d > 0);
+    const moved = rolled.board.dancers.filter((d, i) => Math.hypot(d.x - beforeRoll[i].x, d.y - beforeRoll[i].y) > 1e-6);
+    check(turned === rolled.board.dancers.length && allLeft,
+      'after Face Left, Roll turns every dancer a quarter the SAME way (left)',
+      `${turned} of ${rolled.board.dancers.length} turned`);
+    check(moved.length === 0, 'Roll turns in place and moves nobody', `moved=${moved.length}`);
+  }
 }
 
 console.log('\n== Normalised-state model (spec: all rotations collapse) ==');

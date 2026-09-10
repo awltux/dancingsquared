@@ -1,0 +1,23 @@
+{
+  "note": "All8 formation-family -> engine formation template. DERIVED by engine/test/all8-formation-map.mjs from the alignment diagrams in all8-getouts.json, then recorded here so a template rename or geometry change fails loudly.",
+  "source": "https://www.all8.com/sd/calling/getoutd.htm (diagrams), https://www.all8.com/sd/calling/fasr.htm (formation letters)",
+  "method": "Metric-free shape signature: each dancer's (column rank, row rank, facing) as a SET, compared under all 8 symmetries of the rectangle. The All8 text diagrams carry no distances, so topology and facing are all that can be compared.",
+  "caveat": "Because the metric is discarded, a 'Compact' template with different spacing is indistinguishable from its standard form and matches too - hence several families list a Compact variant alongside the standard one. Deciding between them needs the lattice spacing, which the diagrams do not give.",
+  "families": {
+    "Box / 8-Chain": { "engine": ["Eight Chain Thru"], "orientation": "rotated/mirrored" },
+    "DPT": { "engine": ["Double Pass Thru"], "orientation": "rotated/mirrored" },
+    "Facing Lines": { "engine": ["Normal Lines", "Normal Lines Compact"], "orientation": "identical" },
+    "R-H Waves": { "engine": ["Ocean Waves", "Ocean Waves RH BGGB Compact"], "orientation": "identical" },
+    "R-H 2-Face Lines": { "engine": ["Two-Faced Lines", "Two-Faced Lines RH Compact"], "orientation": "identical" },
+    "L-H 2-Face Lines": { "engine": ["Two-Faced Lines", "Two-Faced Lines RH Compact"], "orientation": "rotated/mirrored" }
+  },
+  "observations": [
+    "Box/8-Chain is the engine's 'Eight Chain Thru' - the shape used in the earlier [B1p] cross-check was the right one, so that failure was NOT a formation-template problem. It lies in the calls and the target.",
+    "L-H 2-Face Lines matches the engine's 'Two-Faced Lines' only MIRRORED, while R-H 2-Face Lines matches it identically: the engine's template is the right-handed one, and the left-handed variant is its reflection.",
+    "'Two-Faced Lines LH' does not appear separately: getUniqueFormations dedupes congruent shapes INCLUDING reflection, so mirrored pairs collapse to one entry. recognize() still names both, since it uses the undeduped named formations.",
+    "Dixie Grand (family 'Special') is unmapped: its page covers six alignments and publishes no single text diagram."
+  ],
+  "unmapped": [
+    { "id": "Dixie Grand", "family": "Special", "reason": "no published text diagram (the page covers six alignments inline)" }
+  ]
+}

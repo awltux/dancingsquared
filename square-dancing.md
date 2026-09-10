@@ -294,11 +294,75 @@ Two rules, both enforced by `features/index_independence.feature`:
 
 Remaining planned work, in the order agreed:
 
+### 9.1 Get-out conformance (the active workstream)
+
+The engine is measured against an **independent oracle**: Rich Reel's published
+get-outs at all8.com, one page per FASR alignment (see
+`engine/test/fixtures/README.md`). 29 alignments, 265 get-out lines, stored
+verbatim. Taking that corpus as correct means every mismatch is an engine
+deficiency, so the work is to make mismatches *expressible and diagnosable* rather
+than to chase individual calls.
+
+**DECIDED — what counts as a get-out: the caller convention.** A get-out succeeds
+when it reaches a state from which the standard finish resolves (All8's lists
+typically end at `--AL`, `--RLG` or `--Prom`), **not** when the set sits literally
+on the home board. The engine's current `reachesTarget('Static Square')` demands the
+literal home alignment (geometry *plus* the home FASR key) and is therefore stricter
+than the thing being modelled.
+
+Structural gaps this workstream has to close:
+
+1. **Aligned identity.** `recognize` gives the formation; the arrangement is
+   unnamed; `sequence` is 2-state (boys only) where Callerlab/All8 define 4; and
+   `relationship` records 2 fields (`partner`, `corner`) where All8 defines 4
+   (`p`, `c`, `o`, `r`), so `o` and `r` collapse. A board therefore cannot be said
+   to BE an alignment.
+2. **The FSM state drops the alignment.** It keys on the normalised formation only,
+   so up to 96 alignments per formation become one state (§8 note: 6 arrangements ×
+   4 sequences × 4 relationships).
+3. **Alignment → board construction.** Needed to run any published get-out.
+
+**Step 1 is DONE — the formation templates reconcile.** `engine/test/all8-formation-map.mjs`
+compares each All8 family's diagram (topology + facing, metric-free, under all 8
+symmetries of the rectangle) against the engine's templates; the map is recorded in
+`fixtures/all8-formation-map.json` and checked on every `npm run verify`:
+
+| All8 family | engine formation | orientation |
+|---|---|---|
+| Box / 8-Chain `[B]` | `Eight Chain Thru` | rotated/mirrored |
+| DPT `[P]` | `Double Pass Thru` | rotated/mirrored |
+| Facing Lines `[L]` | `Normal Lines` (+ `Compact`) | identical |
+| R-H Waves `[W]` | `Ocean Waves` (+ `Compact`) | identical |
+| R-H 2-Face Lines `[F]` | `Two-Faced Lines` (+ `Compact`) | identical |
+| L-H 2-Face Lines `[L.F]` | `Two-Faced Lines` — **mirrored only** | rotated/mirrored |
+
+Consequences worth carrying forward:
+
+- **The earlier `[B1p]` cross-check used the correct shape.** Box/8-Chain *is* the
+  engine's `Eight Chain Thru`, so that failure was never a template problem — it lies
+  in the calls and the target.
+- **The engine's `Two-Faced Lines` template is right-handed**: the L-H family matches
+  it only under reflection, and `Two-Faced Lines LH` does not appear separately
+  because `getUniqueFormations` dedupes congruent shapes *including* reflection.
+- **`Compact` variants are indistinguishable** in this comparison because the
+  diagrams carry no distances; telling them apart needs the metric.
+- **Dixie Grand (family "Special") is unmapped** — its page publishes no single
+  diagram (it covers six alignments inline).
+
+Remaining steps: **2** complete the FASR classifier (arrangement 6, sequence 4,
+relationship 4); **3** generate a board per alignment by enumerating identity
+assignments over the formation's spots (4!×4! = 576, classified and matched against
+the requested All8 id) — tractable with no new data; **4** re-run the fixture as a
+behavioural report giving, per get-out, the call it stopped at and why.
+
+### 9.2 Other open items
+
 1. **Phase 3 — Amendment policy for synthesised boards.** `FsmStore.amend` requires
-   a getout, which a geometry-only board cannot provide, so every amendment from a
-   formation that was not danced to is rejected with "no getout". No UI wires this
-   yet, so it is latent; the decision needed is whether to skip the gate (recording
-   why) or treat such formations as unamendable.
+   a getout, and a getout is not found even from boards with full identity, so every
+   amendment from a formation that was not danced to is rejected with "no getout".
+   No UI wires this yet, so it is latent; the decision needed is whether to make the
+   getout gate advisory (recording `getoutVerified` on the amendment) or treat such
+   formations as unamendable. The caller-convention decision in §9.1 bears on this.
 2. **Phase 4 — Coverage and spec alignment.** Audit checks for the bounded
    non-geometric matching exceptions (§8.2), a decision on the editor's
    "no match within tolerance" wording, and an explicit runtime-join check.

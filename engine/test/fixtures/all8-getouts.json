@@ -1,7 +1,7 @@
 {
   "source": "https://www.all8.com/sd/calling/getoutd.htm",
   "notationReference": "https://www.all8.com/sd/calling/fasr.htm",
-  "note": "Verbatim get-out listings from Rich Reel's all8.com caller reference. Get-out lines are copied exactly as published (abbreviated call names, leading marker characters and indentation preserved). Decoding of the abbreviations is NOT done here.",
+  "note": "Verbatim get-out listings from Rich Reel's all8.com caller reference. Get-out lines are copied exactly as published (abbreviated call names, leading marker characters and indentation preserved). Decoding of the abbreviations is NOT done here. Diagrams for F1p/F2p/L.F1p/L.F2p come from the index page getoutd.htm, which publishes them although the per-alignment pages do not.",
   "fetched": "2026-09-10",
   "alignments": [
     {
@@ -917,7 +917,7 @@
       "family": "R-H 2-Face Lines",
       "title": "R-H 2 Face Lines In Seq",
       "pageHeading": "Get-outs from [F1p] R-H 2 Face Lines In Sequence",
-      "diagram": "",
+      "diagram": "3> 2>\n3> 2>\n<4 <1\n<4 <1",
       "description": "Normal 2-Face Lines In Sequence",
       "getoutLines": [
         "B-Fold   --RLG",
@@ -941,7 +941,8 @@
         "   --1/2Tg  --SHing  C-Trd   [5W2p] sash out seq",
         "                              B-Run   [F2p] out seq",
         "   G-Trd    --RollA  B-Trd    --BendL [5L2p] out seq"
-      ]
+      ],
+      "diagramSource": "https://www.all8.com/sd/calling/getoutd.htm (the per-alignment page publishes no text diagram)"
     },
     {
       "id": "F2p",
@@ -949,7 +950,7 @@
       "family": "R-H 2-Face Lines",
       "title": "R-H 2 Face Lines Out Of Seq",
       "pageHeading": "Get-outs from [F2p] R-H 2 Face Lines Out Of Sequence",
-      "diagram": "",
+      "diagram": "4> 1>\n4> 1>\n<3 <2\n<3 <2",
       "description": "Normal 2-Face Lines Out of Sequence",
       "getoutLines": [
         "--TagL   --Prom",
@@ -978,7 +979,8 @@
         "            --SHing  C-Trd   [5W1p] sash in seq",
         "                              B-Run   [F1p] in seq",
         "   --BendL  --BW.GD  --SHing  C-Trd   [W1p] in seq"
-      ]
+      ],
+      "diagramSource": "https://www.all8.com/sd/calling/getoutd.htm (the per-alignment page publishes no text diagram)"
     },
     {
       "id": "L.F1p",
@@ -986,7 +988,7 @@
       "family": "L-H 2-Face Lines",
       "title": "Normal L-H 2 Face Lines In Sequence",
       "pageHeading": "Get-outs from [L.F1p] Normal L-H 2 Face Lines In Sequence",
-      "diagram": "",
+      "diagram": "<3 <2\n<3 <2\n4> 1>\n4> 1>",
       "description": "Normal L-H 2-Face Lines In Sequence",
       "getoutLines": [
         "--PromH",
@@ -1002,7 +1004,8 @@
       "conversionLines": [
         "--BendL [L1p] in seq",
         "   --Feris  C-WhlAr [B4c] in seq"
-      ]
+      ],
+      "diagramSource": "https://www.all8.com/sd/calling/getoutd.htm (the per-alignment page publishes no text diagram)"
     },
     {
       "id": "L.F2p",
@@ -1010,7 +1013,7 @@
       "family": "L-H 2-Face Lines",
       "title": "Normal L-H 2 Face Lines Out Of Sequence",
       "pageHeading": "Get-outs from [L.F1p] Normal L-H 2 Face Lines Out Of Sequence",
-      "diagram": "",
+      "diagram": "<4 <1\n<4 <1\n3> 2>\n3> 2>",
       "description": "Normal L-H 2-Face Lines Out of Sequence",
       "getoutLines": [
         "--Cpl.T  --PromH",
@@ -1031,7 +1034,8 @@
         "   B-Trd    --WhlDl [B1p] facing partner, in seq",
         "   --Feris [P4p] \"O\"",
         "   --Prom   --DontS Get-outs from Promenade out of sequence"
-      ]
+      ],
+      "diagramSource": "https://www.all8.com/sd/calling/getoutd.htm (the per-alignment page publishes no text diagram)"
     },
     {
       "id": "Dixie Grand",

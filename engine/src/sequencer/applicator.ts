@@ -221,6 +221,22 @@ export class CallApplicator {
     if (whole.legal) {
       const moved = new Map(whole.board.dancers.map((d) => [d.id, d]));
       const picked = new Set(ids);
+      // KNOWN DEFECT, PINNED IN `selection.mjs` RATHER THAN PATCHED HERE. This reading keeps the
+      // non-selected dancers where they stand while the selected ones take their poses from the
+      // whole-formation motion, so when the call also relocates the NON-selected dancers onto the
+      // movers' destinations the merged board has two dancers on ONE spot. Measured: from the
+      // engine's two-parallel-wave template `Girls Circulate` gives `i1&i2@-2.00,3.00` and
+      // `i5&i6@2.00,-3.00` - 6 distinct spots for 8 dancers - and leaves the board "not a
+      // formation".
+      //
+      // Refusing here was tried and MEASURED as a wash with a wider blast radius than it looked:
+      // corpus successes unchanged at 75, but five lines moved from "stopped only at the finish"
+      // to an earlier body stop and the ENGINE GAPS list grew from 25 to 31 names - including
+      // calls like `Star Thru` that this path is used for by EVERY group-scoped call, so the extra
+      // names cannot be distinguished from refusals this check introduced itself. Trading a
+      // corrupt board for phantom gap attributions is the trade the decoder phase spent a whole
+      // commit undoing, so the check is not shipped on that evidence. The real fix is upstream:
+      // the wave circulate tam moves half the dancers ACROSS to the other wave (see below).
       return {
         board: { dancers: board.dancers.map((d) => (d.isGhost || !picked.has(d.id) ? d : moved.get(d.id) ?? d)) },
         legal: true,
@@ -228,7 +244,6 @@ export class CallApplicator {
     }
     return { board: cloneBoard(board), legal: false, reason: `"${callName}" not legal for selected dancers` };
   }
-
 
   private selectInterpretation(
     whole: { kind: 'whole'; error: number; run: () => ApplyResult },

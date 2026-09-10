@@ -19,6 +19,99 @@ export interface Stage {
   resize(): void;
 }
 
+/** A flat always-facing-camera text label (Sprite) so axis/angle names stay
+ * readable in both the 3D orbit and 2D top-down views. */
+function makeTextSprite(text: string, color: string, height = 1.15): THREE.Sprite {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d')!;
+  const fontPx = 130;
+  const font = `800 ${fontPx}px system-ui, "Segoe UI", sans-serif`;
+  ctx.font = font;
+  const pad = 46;
+  const w = Math.ceil(ctx.measureText(text).width + pad * 2);
+  const h = Math.ceil(fontPx * 1.15 + pad);
+  canvas.width = w;
+  canvas.height = h;
+  ctx.font = font;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // Dark halo so the text reads over the grid/floor.
+  ctx.lineWidth = 22;
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(5, 10, 15, 0.85)';
+  ctx.strokeText(text, w / 2, h / 2);
+  ctx.fillStyle = color;
+  ctx.fillText(text, w / 2, h / 2);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  const sprite = new THREE.Sprite(
+    new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }),
+  );
+  const aspect = w / h;
+  sprite.scale.set(height * aspect, height, 1);
+  return sprite;
+}
+
+/** A small arrowhead cone lying flat on the floor, tip pointing along `dir` (a
+ * unit 3D vector in the xz floor plane, y = 0). */
+function makeArrowHead(dir: THREE.Vector3, color: number, size = 0.55): THREE.Mesh {
+  const cone = new THREE.Mesh(
+    new THREE.ConeGeometry(0.17, size, 12),
+    new THREE.MeshBasicMaterial({ color }),
+  );
+  cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+  return cone;
+}
+
+/** The main X (east–west) and Y (north–south) reference axes with arrowheads and
+ * angle labels at 90° increments. Heading 0° faces +x (east), 90° faces +y
+ * (north, which maps to 3D −z), so the labels give the compass a dancer heading
+ * is measured against. Returns a group already positioned at the floor level. */
+function buildFloorAxes(): THREE.Group {
+  const g = new THREE.Group();
+  const Y0 = 0.02; // sit just above the grid/floor
+  const inner = 0.9; // start radius (keep clear of the origin clutter)
+  const outer = 8.9; // arrow tip radius
+  const labelR = 10.3; // label placement radius (beyond the arrow tips)
+  const X_COL = 0xffce6a; // X axis (0°/180°) — warm
+  const Y_COL = 0x6fd0ff; // Y axis (90°/270°) — cool
+
+  // heading (deg) -> unit 3D floor direction (x, 0, -sin(heading))
+  const dirFor = (deg: number) => new THREE.Vector3(Math.cos(deg * Math.PI / 180), 0, -Math.sin(deg * Math.PI / 180));
+
+  const addAxisRay = (deg: number, outward: THREE.Vector3, color: number, labelText: string) => {
+    const a = outward.clone().multiplyScalar(inner).setY(Y0);
+    const b = outward.clone().multiplyScalar(outer).setY(Y0);
+    const geo = new THREE.BufferGeometry().setFromPoints([a, b]);
+    const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.9 }));
+    g.add(line);
+    const head = makeArrowHead(outward, color);
+    head.position.copy(b);
+    g.add(head);
+    const lab = makeTextSprite(labelText, color === X_COL ? '#ffe2a8' : '#bfe6ff');
+    lab.position.copy(outward.clone().multiplyScalar(labelR).setY(Y0));
+    g.add(lab);
+  };
+
+  // X axis: east = 0°, west = 180°.
+  addAxisRay(0, new THREE.Vector3(1, 0, 0), X_COL, 'X  0°');
+  addAxisRay(180, new THREE.Vector3(-1, 0, 0), X_COL, 'X  180°');
+  // Y axis (board +y = north = 3D −z): 90°, and 270° south.
+  addAxisRay(90, new THREE.Vector3(0, 0, -1), Y_COL, 'Y  90°');
+  addAxisRay(270, new THREE.Vector3(0, 0, 1), Y_COL, 'Y  270°');
+
+  // Central origin dot so the crossing point reads clearly.
+  const dot = new THREE.Mesh(
+    new THREE.CircleGeometry(0.12, 24),
+    new THREE.MeshBasicMaterial({ color: 0xdde6ee }),
+  );
+  dot.rotation.x = -Math.PI / 2;
+  dot.position.y = Y0;
+  g.add(dot);
+  return g;
+}
+
 export function createStage(canvas: HTMLCanvasElement): Stage {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0b0f14);
@@ -74,6 +167,11 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   floor.position.y = -0.001;
   floor.receiveShadow = true;
   scene.add(floor);
+
+  // Main X (east–west) and Y (north–south) axes with 90°-increment angle labels.
+  // Heading 0° faces +x (east), 90° faces +y (north, 3D -z), so the labels mark
+  // the compass a dancer heading is measured against.
+  scene.add(buildFloorAxes());
 
   const resize = () => {
     const w = canvas.clientWidth;

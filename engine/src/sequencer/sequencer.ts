@@ -20,6 +20,7 @@ import { HOME_DANCERS } from './identity.js';
 import { matchFormations } from './match.js';
 import { mul5, dancerMatrix, type Mat5 } from '../matrix.js';
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
+import { CODED_MOVE_NAMES, findCodedMove } from './coded-moves.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
@@ -43,17 +44,6 @@ export class Sequencer {
   private readonly fsmStore: FsmStore;
   private fsmTable: FsmTable | null = null;
 
-  /** Body-relative "coded" calls (name -> whole-board pivot/refacing transform).
-   * These are not XML data calls — like Face Left/Right in Taminations they are
-   * the same per-dancer transform regardless of formation, so they are applied
-   * directly from the geometry rather than matched to a catalog <tam>. */
-  private readonly codedMoves = new Map<string, (board: Board) => Board>();
-  /** Canonical display names of the registered coded body-relative calls, in the
-   * order registered. These are always legal (a pivot applies from any board) and
-   * are surfaced by legalNext() but NOT by legalCalls(), which feeds the FSM table
-   * (coded pivots are not formation transitions). */
-  private readonly codedMoveNames: string[] = [];
-
   constructor(movesXml: string, formationsXml: string, calls: { name: string; xml: string }[] = []) {
     this.library = new CallLibrary(movesXml, formationsXml);
     this.matcher = new FormationMatcher(this.library, this.config);
@@ -72,26 +62,16 @@ export class Sequencer {
         // Skip a call whose data fails to build; it just won't be applicable.
       }
     }
-    // Register the body-relative coded calls (pure pivots / re-facing).
-    const add = (names: string[], fn: (b: Board) => Board) => {
-      for (const n of names) {
-        this.codedMoves.set(n.toLowerCase(), fn);
-        this.codedMoveNames.push(n);
-      }
-    };
-    add(['Face Right', 'Turn Right', 'Right Face'], (b) => applyMoveToBoard(b, FaceRight));
-    add(['Face Left', 'Turn Left', 'Left Face'], (b) => applyMoveToBoard(b, FaceLeft));
-    add(['Face Half', 'U-Turn Back', 'Face Back'], (b) => applyMoveToBoard(b, FaceHalf));
-    add(['Face In', 'Turn In'], (b) => applyFaceInOutToBoard(b, true));
-    add(['Face Out', 'Turn Out'], (b) => applyFaceInOutToBoard(b, false));
+    // The body-relative coded calls (pure pivots / re-facings) come from the
+    // shared registry, so the analyzer replays and animates them identically.
   }
 
   /** If `name` is one of the registered body-relative coded calls, return its
    * transformed board (positions/headings of every dancer pivoted/refaced).
    * Returns null when `name` is not a coded move. */
   private tryCodedMove(board: Board, name: string): Board | null {
-    const fn = this.codedMoves.get(name.trim().toLowerCase());
-    return fn ? fn(board) : null;
+    const move = findCodedMove(name);
+    return move ? move.apply(board) : null;
   }
 
   // ---- registration & modules ----
@@ -284,7 +264,7 @@ export class Sequencer {
 
   legalNext(): string[] {
     const base = this.legality.legalCalls(this.board);
-    return base.concat(this.codedMoveNames.filter((n) => !base.includes(n)));
+    return base.concat(CODED_MOVE_NAMES.filter((n) => !base.includes(n)));
   }
 
   /** The acting-group selector strings that resolve to a proper (non-empty,

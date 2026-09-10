@@ -58,13 +58,26 @@ Feature: Sequence Replay Model and Board Seeding
     #          discontinuity on the final beat.
 
   @bind:evaluateSequence @bind:sequenceBeats @bind:applyToBoard @bind:stepBeats
-  Scenario: Coded body-relative moves are not replayed by the analyzer
+  Scenario: Coded body-relative moves replay and animate
     Given a sequence contains a coded body-relative call such as "Face Right"
     When the analyzer computes the sequence's beats or evaluates a frame
-    Then the coded call must currently contribute zero beats and leave the board unchanged
-    # KNOWN GAP: coded moves (Face/Turn/In/Out) are registered and applied by the Sequencer
-    #          facade only; the analyzer applies calls through the raw CallApplicator, which does
-    #          not know them. A sequence containing one therefore has no beats for it and does not
-    #          animate it, even though legalNext() offers it and the live apply works. Closing it
-    #          needs a shared coded-move registry plus a decision on their beat count and whether
-    #          they animate as a rotation or snap at the end.
+    Then the coded call must contribute exactly 1 beat
+    And a frame inside it must show a smooth rotation from the current facing to the new one
+    And the dancer must not leave its spot, because a coded move is a pivot in place
+    And the replayed end must equal the board the live apply produces
+    And opposite pivots must cancel so the sequence continues from the restored facing
+    # Engine: coded-moves.ts is the single registry of the coded calls (name + aliases +
+    #          CODED_MOVE_BEATS + the whole-board transform); the Sequencer applies them to the
+    #          live board and SequenceAnalyzer replays/animate them through evaluateCodedAt,
+    #          interpolating each dancer's heading by the fraction of the beat (positions lerp to
+    #          the same spot). legalNext() still surfaces them, and legalCalls()/the FSM still
+    #          exclude them, so coded pivots never become FSM edges.
+
+  @bind:sequenceInfo @bind:evaluateSequence
+  Scenario: A coded move has no trail to trace
+    Given the playhead is inside a coded body-relative move
+    When the UI asks for the call's variant and board mapping to draw a trail
+    Then it must report no trail for that move
+    But the replay must continue past it, so a later call still has one
+    # Engine: sequenceInfo returns null while a coded move plays (there is no authored path to
+    #          sample), and skips past it otherwise.

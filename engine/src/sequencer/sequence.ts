@@ -18,6 +18,7 @@ import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
 import { normAngle } from './identity.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
+import { findCodedMove, type CodedMove } from './coded-moves.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, CallStep, SeqDancer, VariantMatch } from './types.js';
 import type { CallBundle } from '../types.js';
@@ -35,11 +36,35 @@ export class SequenceAnalyzer {
     private readonly config: SequencerConfig,
   ) {}
 
-  /** Beats of the variant of `name` that matches `board` (0 if none). */
+  /** Beats of the variant of `name` that matches `board` (0 if none). A coded
+   * body-relative move always takes CODED_MOVE_BEATS. */
   stepBeats(board: Board, name: string | CallStep): number {
     const n = typeof name === 'string' ? name : name.call;
+    const coded = findCodedMove(n);
+    if (coded) return coded.beats;
     const v = this.matchingVariantInfo(board, n);
     return v ? v.beats : 0;
+  }
+
+  /** The board part-way through a coded move: positions are unchanged (these are
+   * pivots/re-facings) and each dancer's heading rotates smoothly from its current
+   * facing to the move's end facing, so the pivot animates rather than snapping. */
+  private evaluateCodedAt(board: Board, move: CodedMove, localBeat: number): Board {
+    const t = Math.max(0, Math.min(1, move.beats > 0 ? localBeat / move.beats : 1));
+    const end = move.apply(board);
+    const endById = new Map(end.dancers.map((d) => [d.id, d]));
+    return {
+      dancers: board.dancers.map((d) => {
+        const e = endById.get(d.id);
+        if (!e) return d;
+        return {
+          ...d,
+          x: d.x + (e.x - d.x) * t,
+          y: d.y + (e.y - d.y) * t,
+          heading: normAngle(d.heading + normAngle(e.heading - d.heading) * t),
+        };
+      }),
+    };
   }
 
   /** Find the call variant that applies to `board` (WHOLE-BOARD first, else the
@@ -81,7 +106,13 @@ export class SequenceAnalyzer {
     let board = this.replayStart(startBoard);
     let total = 0;
     for (const name of flat) {
-      total += this.stepBeats(board, typeof name === 'string' ? name : name.call);
+      const label = typeof name === 'string' ? name : name.call;
+      total += this.stepBeats(board, label);
+      const coded = findCodedMove(label);
+      if (coded) {
+        board = coded.apply(board);
+        continue;
+      }
       const r = this.applicator.applyToBoard(board, name);
       if (r.legal) board = r.board;
     }
@@ -95,6 +126,14 @@ export class SequenceAnalyzer {
     let acc = 0;
     for (const raw of flat) {
       const callName = typeof raw === 'string' ? raw : raw.call;
+      // Coded body-relative moves animate as a smooth pivot from the live board.
+      const coded = findCodedMove(callName);
+      if (coded) {
+        if (beat < acc + coded.beats) return { board: this.evaluateCodedAt(board, coded, beat - acc), beats: 0 };
+        board = coded.apply(board);
+        acc += coded.beats;
+        continue;
+      }
       const info = this.matchingVariantInfo(board, callName);
       if (!info) break;
       const beats = info.beats;
@@ -144,6 +183,15 @@ export class SequenceAnalyzer {
     let acc = 0;
     for (const raw of flat) {
       const callName = typeof raw === 'string' ? raw : raw.call;
+      const coded = findCodedMove(callName);
+      if (coded) {
+        // A coded pivot has no authored path, so there is no trail to trace while
+        // it plays; the replay still continues past it.
+        if (beat < acc + coded.beats) return null;
+        board = coded.apply(board);
+        acc += coded.beats;
+        continue;
+      }
       const info = this.matchingVariantInfo(board, callName);
       if (!info) return null;
       const beats = info.beats;
@@ -198,6 +246,12 @@ export class SequenceAnalyzer {
   isZero(flat: (string | CallStep)[]): boolean {
     let board = makeSquaredSet();
     for (const name of flat) {
+      const label = typeof name === 'string' ? name : name.call;
+      const coded = findCodedMove(label);
+      if (coded) {
+        board = coded.apply(board);
+        continue;
+      }
       const r = this.applicator.applyToBoard(board, name);
       if (!r.legal) return false;
       board = r.board;

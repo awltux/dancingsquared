@@ -14,6 +14,21 @@ Feature: Zeros, Getouts and Tips
     Then the sequence is a "zero" if and only if it ends at the home state with the original home identity and sequence restored
     # Engine: SequenceAnalyzer.isZero(flat) checks the walk returns home in-sequence.
 
+  @bind:isZero @bind:analyzeFasr @bind:stepBeats
+  Scenario: A zero must also restore the dancers' facings
+    Given a sequence turns every dancer in place without moving anyone, such as a pivot
+    When the engine asks whether the sequence is a zero
+    Then it must NOT report a zero, because the set no longer faces the way it started
+    # KNOWN GAP (pre-existing): fasrKey compares only the sequence parity and the
+    #          partner/corner relationships, both of which are derived from POSITIONS - facings are
+    #          ignored. A pure in-place pivot therefore keeps the same key and reports as a zero.
+    #          This already affects catalogue calls (measured: "Allemande Left" and "Circle Left"
+    #          from home both report isZero === true) and, now that coded moves replay, coded
+    #          pivots too (isZero(["Face Right"]) === true, and isZero(["Face Half"]) likewise).
+    #          Closing it means requiring a zero NET ORIENTATION as well - e.g. also requiring
+    #          fsmOrientationDelta(start, end) === 0, which the engine can already compute - and
+    #          then re-checking that genuine zeros (Circle Left, Face Half twice) still pass.
+
   @bind:getout @bind:applyToBoard
   Scenario: Computing a getout back to home
     Given the set is in some non-home state

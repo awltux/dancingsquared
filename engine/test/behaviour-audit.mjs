@@ -357,7 +357,58 @@ console.log('\n== Sequence replay: home by default, or an explicit start board (
   }
 }
 
-console.log('\n== Orientation quantisation & orientation-preserving snap (feature: formation_states) ==');
+console.log('\n== Coded body-relative moves replay and animate (feature: sequence_replay) ==');
+{
+  seq.reset();
+  const home = seq.startBoard();
+  const NAMES = ['Face Right', 'Turn Right', 'Right Face', 'Face Left', 'Turn Left', 'Left Face',
+    'Face Half', 'U-Turn Back', 'Face Back', 'Face In', 'Turn In', 'Face Out', 'Turn Out'];
+
+  // Every alias occupies exactly one beat.
+  const beatList = NAMES.map((n) => `${n}=${seq.stepBeats(home, n)}`);
+  check(NAMES.every((n) => seq.stepBeats(home, n) === 1), 'every coded move occupies exactly 1 beat', beatList.join(' '));
+  const one = seq.flatten(['Face Right']);
+  check(seq.sequenceBeats(one) === 1, 'a coded move contributes 1 beat to a sequence', String(seq.sequenceBeats(one)));
+  check(seq.sequenceBeats(seq.flatten(['Face Right', 'Face Left'])) === 2, 'two coded moves contribute 2 beats');
+
+  // Replaying a coded move matches the live apply, frame for frame at the end.
+  // Headings are compared modulo 2pi: authored headings are not normalised while
+  // pivots return angles wrapped to (-pi, pi].
+  const angSame = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b))) < 1e-9;
+  seq.setBoard(home);
+  seq.apply('Face Right');
+  const live = seq.board;
+  const replayedEnd = seq.evaluateSequence(one, 1, home).board;
+  const same = live.dancers.every((d, i) =>
+    Math.hypot(d.x - replayedEnd.dancers[i].x, d.y - replayedEnd.dancers[i].y) < 1e-9
+    && angSame(d.heading, replayedEnd.dancers[i].heading));
+  check(same, 'the replayed end of a coded move equals the live board exactly');
+
+  // It ANIMATES: the mid-beat heading lies strictly between start and end, and
+  // the dancer does not leave its spot (a pivot is in place).
+  const startH = home.dancers[0].heading;
+  const endH = live.dancers[0].heading;
+  const mid = seq.evaluateSequence(one, 0.5, home).board.dancers[0];
+  const between = Math.abs(mid.heading - startH) > 1e-6 && Math.abs(mid.heading - endH) > 1e-6;
+  check(between, 'a coded move animates smoothly (mid-beat heading is between start and end)',
+    `${(startH * 180 / Math.PI).toFixed(0)} -> ${(mid.heading * 180 / Math.PI).toFixed(0)} -> ${(endH * 180 / Math.PI).toFixed(0)}`);
+  check(Math.hypot(mid.x - home.dancers[0].x, mid.y - home.dancers[0].y) < 1e-9,
+    'a coded move is in place (positions do not change)');
+
+  // It composes with real calls: opposite pivots cancel, and the following call
+  // then replays normally.
+  const cancelled = seq.evaluateSequence(seq.flatten(['Face Right', 'Face Left']), 2, home).board;
+  check(cancelled.dancers.every((d, i) => angSame(d.heading, home.dancers[i].heading)),
+    'opposite coded pivots cancel exactly');
+  const realCall = [...seq.legalCalls(home)][0];
+  const realBeats = seq.stepBeats(home, realCall);
+  const mixed = seq.sequenceBeats(seq.flatten(['Face Right', 'Face Left', realCall]), home);
+  check(mixed === 2 + realBeats, 'a coded pair composes with a following call',
+    `2 + ${realCall}(${realBeats}) = ${mixed}`);
+  check(seq.legalNext().includes('Face Right'), 'coded moves are still offered by legalNext()');
+}
+
+
 {
   seq.reset();
   const ok = seq.setFormation('Eight Chain Thru');

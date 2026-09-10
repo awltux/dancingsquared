@@ -500,10 +500,14 @@ export class DancerView {
   private static readonly SPEED_THRESH = 0.05; // units/sec -> treat as moving
   private static readonly EASE = 0.25; // stride smoothing toward the target
 
-  constructor(spec: DancerSpec, couple = 0) {
-    const phantom = spec.gender === 'phantom';
+  /** `couple` is a DISPLAY colour index (1..4) - callers may pass a display-only
+   * value for a dancer whose real home couple is unknown. `ghost` marks a
+   * non-physical reference dancer: it is the ONLY thing that makes an avatar
+   * translucent, so a real dancer whose identity is merely unknown is not drawn
+   * as a phantom. */
+  constructor(spec: DancerSpec, couple = 0, ghost = false) {
     const color = coupleColor(couple);
-    const parts = buildAvatar(color, phantom, spec.gender);
+    const parts = buildAvatar(color, ghost, spec.gender);
     this.group = parts.group;
     this.parts = parts;
     // Double the avatar size (geometry is authored in ~1.6-unit tall units).

@@ -11,8 +11,18 @@ export class Grouping {
   constructor(private readonly applicator: CallApplicator) {}
 
   /** Partition the physical dancers of a board into disjoint subsets by a named
-   * grouping rule. Returns null when the grouping cannot be applied cleanly. */
+   * grouping rule. Returns null when the grouping cannot be applied cleanly —
+   * including when it resolves to no dancers at all (e.g. "Boys" on a board whose
+   * real genders are unknown), so callers get one consistent "cannot apply"
+   * signal instead of a mix of null, [] and [[]]. */
   subsetOf(board: Board, group: string): number[][] | null {
+    const result = this.subsetOfRaw(board, group);
+    if (result === null) return null;
+    const nonEmpty = result.filter((g) => g.length > 0);
+    return nonEmpty.length ? nonEmpty : null;
+  }
+
+  private subsetOfRaw(board: Board, group: string): number[][] | null {
     const ds = board.dancers.filter((d) => !d.isGhost);
     const byId = new Map(ds.map((d) => [d.id, d]));
     const sortIds = (arr: SeqDancer[]): number[] => arr.map((d) => d.id).sort((a, b) => a - b);

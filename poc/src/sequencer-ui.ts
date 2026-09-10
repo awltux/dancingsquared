@@ -268,8 +268,17 @@ export class SequencerController implements SequencerUI {
       this.stage.scene.remove(v.trail);
     }
     for (const m of this.markers) this.stage.scene.remove(m);
-    this.views = this.seq.board.dancers.map((d) => new DancerView({ gender: d.gender, x: 0, y: 0, angleDeg: 0, path: [] }, d.couple));
-    this.markers = this.seq.board.dancers.map((d) => buildFlatMarker(d.gender, d.couple));
+    // DISPLAY-ONLY couple colour. A synthesised (Set) formation has no real home
+    // identity: the engine deliberately reports UNKNOWN_COUPLE (0) for it so that
+    // matching and grouping cannot read a placeholder. For DRAWING only, fall
+    // back to a stable colour derived from the board order so dancers stay
+    // visually distinguishable - this value never reaches the engine board.
+    const displayCouple = (d: { couple: number }, i: number): number =>
+      d.couple > 0 ? d.couple : (Math.floor(i / 2) % 4) + 1;
+    this.views = this.seq.board.dancers.map((d, i) =>
+      new DancerView({ gender: d.gender, x: 0, y: 0, angleDeg: 0, path: [] }, displayCouple(d, i), !!d.isGhost),
+    );
+    this.markers = this.seq.board.dancers.map((d, i) => buildFlatMarker(d.gender, displayCouple(d, i)));
     for (const v of this.views) {
       v.group.visible = this.active && !this.use2d;
       this.stage.scene.add(v.group);

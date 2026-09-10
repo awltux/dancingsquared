@@ -165,12 +165,29 @@ export class CallApplicator {
   }
 
   /** Apply a call to ONLY the selected dancers of a board, leaving everyone else
-   * in place. The selected dancers are gathered into a subset board, the base call
-   * is applied to that subset, and the moved dancers are merged back into the full
-   * board by identity. Returns legal=false if the subset can't be resolved or the
-   * base call isn't applicable to the subset. */
+   * in place.
+   *
+   * Two readings are possible and the engine tries them in this order:
+   *
+   *  1. ISOLATED - gather the selected dancers, centre them, and match the call
+   *     against them as a formation of their own. This is right when the selection
+   *     really does stand as its own setup.
+   *
+   *  2. ALONG THE WHOLE PATTERN - apply the call to the whole board and keep only
+   *     the selected dancers' new poses. This is right when the call is defined by
+   *     the formation the dancers are standing IN, which is the normal case for
+   *     group-scoped calls: "Girls Circulate" in a wave means the girls walk the
+   *     wave's circulate path, not that four girls form a separate wave. The
+   *     isolated reading cannot see that, because the girls of an ocean wave are a
+   *     2x2 block that is not any Circulate variant at all.
+   *
+   * The fallback is strictly additive - the isolated reading is still tried first,
+   * so nothing that already worked changes - and it is skipped when the whole-board
+   * reading would itself be illegal (e.g. "Centers Pass Thru" from a squared set,
+   * where nobody is facing anyone).
+   *
+   * Returns legal=false if neither reading works. */
   applySelected(board: Board, selection: string, callName: string, rebase: boolean): ApplyResult {
-    const ds = board.dancers.filter((d) => !d.isGhost);
     const byId = new Map(board.dancers.map((d) => [d.id, d]));
     const ids = this.resolveSelection(board, selection);
     if (!ids || ids.length === 0) {
@@ -183,19 +200,33 @@ export class CallApplicator {
     cx /= selected.length; cy /= selected.length;
     const subBoard: Board = { dancers: selected.map((d) => ({ ...d, x: d.x - cx, y: d.y - cy })) };
     const r = this.applyToBoardInner(subBoard, callName, [], rebase, false);
-    if (!r.legal) {
-      return { board: cloneBoard(board), legal: false, reason: `"${callName}" not legal for selected dancers` };
+    if (r.legal) {
+      // Merge moved subset dancers back by id; non-selected dancers unchanged.
+      const moved = new Map(r.board.dancers.map((d) => [d.id, d]));
+      const merged = board.dancers.map((d) => {
+        if (d.isGhost) return d;
+        const m = moved.get(d.id);
+        if (!m) return d;
+        // Re-apply the centering offset we removed.
+        return { ...m, x: m.x + cx, y: m.y + cy };
+      });
+      return { board: { dancers: merged }, legal: true };
     }
-    // Merge moved subset dancers back by id; non-selected dancers unchanged.
-    const moved = new Map(r.board.dancers.map((d) => [d.id, d]));
-    const merged = board.dancers.map((d) => {
-      if (d.isGhost) return d;
-      const m = moved.get(d.id);
-      if (!m) return d;
-      // Re-apply the centering offset we removed.
-      return { ...m, x: m.x + cx, y: m.y + cy };
-    });
-    return { board: { dancers: merged }, legal: true };
+    // Fallback: the call as the WHOLE formation performs it, with only the
+    // selected dancers actually moving. The parallel path is allowed here because
+    // for many of these calls it is the only one that matches - an Eight Chain box
+    // is not a "U-Turn Back" setup as a whole, but it is two facing couples, which
+    // is. parallelApply disables parallel recursion internally, so this terminates.
+    const whole = this.applyToBoardInner(board, callName, [], rebase, true);
+    if (whole.legal) {
+      const moved = new Map(whole.board.dancers.map((d) => [d.id, d]));
+      const picked = new Set(ids);
+      return {
+        board: { dancers: board.dancers.map((d) => (d.isGhost || !picked.has(d.id) ? d : moved.get(d.id) ?? d)) },
+        legal: true,
+      };
+    }
+    return { board: cloneBoard(board), legal: false, reason: `"${callName}" not legal for selected dancers` };
   }
 
 

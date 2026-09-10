@@ -12,6 +12,7 @@ import { LegalityChecker } from './legality.js';
 import { SequenceAnalyzer } from './sequence.js';
 import { HomeSolver } from './solver.js';
 import { Grouping } from './grouping.js';
+import { splitSelection } from './selection.js';
 import { FsmStore, type FsmAmendment } from './fsm-store.js';
 import { type FsmExport } from './fsm-export.js';
 import { FsmTable, type FsmTableEdge, type FsmTableData, FSM_TABLE_SCHEMA_VERSION } from './fsm-table.js';
@@ -71,7 +72,26 @@ export class Sequencer {
    * Returns null when `name` is not a coded move. */
   private tryCodedMove(board: Board, name: string): Board | null {
     const move = findCodedMove(name);
-    return move ? move.apply(board) : null;
+    if (move) return move.apply(board);
+    // A coded move with a dancer selection, e.g. "Girls U-Turn Back": the selected
+    // dancers pivot and everyone else stays put. This has to be handled HERE rather
+    // than in the applicator's selection path, because coded moves are per-dancer
+    // transforms applied straight from geometry - the applicator matches catalog
+    // setups, and the coded table lives in this class. Left to the applicator it
+    // fails with "not legal for selected dancers" even though the pivot is trivially
+    // well defined for any subset, which is how every "Girls U-Turn Back" line in the
+    // published get-out corpus was stopping.
+    const sel = splitSelection(name);
+    if (!sel.selection) return null;
+    const base = findCodedMove(sel.call);
+    if (!base) return null;
+    const ids = this.grouping.resolveSelection(board, sel.selection);
+    if (!ids || ids.length === 0) return null;
+    const byId = new Map(base.apply(board).dancers.map((d) => [d.id, d]));
+    const picked = new Set(ids);
+    return {
+      dancers: board.dancers.map((d) => (d.isGhost || !picked.has(d.id) ? d : byId.get(d.id) ?? d)),
+    };
   }
 
   // ---- registration & modules ----

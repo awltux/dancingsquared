@@ -611,6 +611,52 @@ our ability to READ the corpus (202 lines), so **decoder coverage is the next st
 by subset-selection resolution, which is both the second-largest blocker and the one most
 likely to be a single underlying defect.
 
+**Step 4a is DONE — subset selection, and it was two different bugs wearing one message.**
+All 28 selection failures read `"X" not legal for selected dancers`, which hid two unrelated
+causes:
+
+1. **Coded moves were never selection-aware.** `U-Turn Back` is a coded move — a per-dancer
+   pivot applied straight from geometry, not a catalog setup — and `Girls U-Turn Back` was
+   being routed to the applicator's selection path, which matches catalog setups against the
+   isolated subset. A pivot is trivially well defined for any subset, so this failed for no
+   reason. Fixed in `Sequencer.tryCodedMove`, which owns the coded table and now handles a
+   selection prefix itself.
+2. **Group-scoped catalog calls were only ever tried as an ISOLATED subset** — gather the
+   selected dancers, centre them, and match the call against them as a formation of their own.
+   But "Girls Circulate" in a wave means the girls walk the **wave's** circulate path, and the
+   girls of an ocean wave are a 2×2 block that is not any Circulate variant at all. Fixed by
+   adding a fallback in `CallApplicator.applySelected`: when the isolated reading fails, apply
+   the call as the **whole formation** performs it and keep only the selected dancers' new
+   poses. The fallback is strictly additive (the isolated reading is still tried first, so
+   nothing that worked changes) and the parallel path is allowed inside it, because for
+   several of these calls — `U-Turn Back` from an Eight Chain box — parallel is the only
+   reading that matches.
+
+Measured on the corpus: selection failures 28 → 22, mid-body stops 82 → 76, and finish-only
+stops 31 → 37 — i.e. six published get-outs now reach the state their finish needs instead of
+stopping in the body. `behaviour-audit` is unchanged at 137 / 0 / 0, and `engine/test/selection.mjs`
+gates the new behaviour: a selection on a coded move pivots exactly the selected dancers in
+place, leaves everyone else untouched, and preserves the board array order.
+
+*Three findings this fix produced, none of them selection bugs:*
+
+- **`Circulate` does not match the engine's own wave and line templates.** The single-wave
+  Circulate variant is authored with the two waves **2 apart** (`x = -1,1`) while the engine's
+  `Ocean Waves`, `Normal Lines` and `Two-Faced Lines` templates put them **4 apart**
+  (`x = -2,2`). So `Circulate` is illegal from those formations, while `Split Circulate` and
+  `All 8 Circulate` — whose variants do match — are legal. This is the remaining cause of every
+  "Girls Circulate" stop, and it is **asset data, not code**: it needs a Circulate variant at
+  the template's spacing. It also means the whole-board `Circulate` gap was there all along,
+  masked by the selection message.
+- **`Cross Fold` and `Promenade` are listed in the engine's own index with no implementation**
+  (`Cross Fold` is used twice by the corpus). Same class as the bare-Promenade gap above.
+- **The isolated reading can be unsound.** Centring a subset and matching it with the usual
+  rotation tolerance means an arbitrary pair of dancers can satisfy a two-dancer setup: with
+  `Centers Pass Thru` from Facing Lines the engine resolves just **two** dancers (one of them
+  an end, at the opposite corner of the set) and then passes them through. The 4-centre
+  grouping is not being applied, and the centring hides it. Recorded as an open item; the new
+  fallback does not touch this path.
+
 ### 9.2 Other open items
 
 1. **The decoder table is now the top blocker (§9.1 step 4).** 202 of 412 published lines stop
@@ -627,7 +673,19 @@ likely to be a single underlying defect.
 4. **Global corner fix (from step 2).** `analyzeFasr`'s `corner` returns the *opposite* girl
    (0/4 agreement with the home ring). `FasrRelations.corner` feeds `fasrKey`, which backs
    `isZero` and the solver's `Static Square` check, so it needs its own measured step.
-5. **Phase 3 — Amendment policy for synthesised boards.** `FsmStore.amend` requires a getout,
+5. **`Circulate` has no variant at the engine's own wave spacing.** Its single-wave variant
+   sits at `x = -1,1` while `Ocean Waves` / `Normal Lines` / `Two-Faced Lines` use `x = -2,2`,
+   so `Circulate` is illegal from all three. `Split Circulate` and `All 8 Circulate` work.
+   Asset data, and the cause of every remaining "Girls Circulate" stop in the corpus.
+6. **`Cross Fold` and `Promenade` are indexed but not implemented** — `Promenade` is the
+   corpus's most-used finisher (26 lines) and `Cross Fold` appears twice. `1/2 Circulate` and
+   `Join Hands` are absent entirely.
+7. **The isolated selection reading can be unsound (§9.1 step 4a).** It centres the subset and
+   matches with normal rotation tolerance, so an arbitrary pair can satisfy a two-dancer setup;
+   `Centers Pass Thru` from Facing Lines currently resolves two dancers (one an end) rather than
+   the 4 centres. Worth fixing by resolving the group first and constraining the match, rather
+   than by centring.
+8. **Phase 3 — Amendment policy for synthesised boards.** `FsmStore.amend` requires a getout,
    and a getout is not found even from boards with full identity, so every amendment from a
    formation that was not danced to is rejected with "no getout". No UI wires this yet, so it
    is latent; the decision needed is whether to make the getout gate advisory (recording

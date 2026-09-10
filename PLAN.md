@@ -1,0 +1,333 @@
+# Plan
+
+What to implement next, in phases, with the evidence for each. This supersedes the "if you have
+one afternoon" ranking in `HANDOVER.md` §7 in one respect only: **step 4d starts by honouring the
+`sequencer` attribute**, because that is the measured cause of the Trade/Run failures and it is
+cheaper than the selection rule the handover proposes first.
+
+**Read in this order:** `HANDOVER.md` → this file → `square-dancing.md` §9.1 (the chronological
+workstream log) → `square-dancing.md` §9.2 (the consolidated open items).
+
+Working rules are unchanged from `HANDOVER.md` §3: measure, do not reason; correct the docs when
+the code disproves them; commit per phase; write probes as `.mjs` files, never `node -e`; run
+`npm run verify --prefix engine` **in the background** (several minutes, exceeds the foreground
+cap); delete any `*-verify.txt` log before committing; fixtures stay verbatim with attribution to
+Rich Reel / all8.com retained.
+
+---
+
+## 1. The baseline this plan was built on
+
+`npm run verify --prefix engine` — **all 19 gates, exit 0**. The corpus scoreboard reproduces
+exactly:
+
+| | lines | share | owner |
+|---|---|---|---|
+| reached the finish and applied it | 53 | 13% | success by the caller convention |
+| reached a state a finish resolves from | 4 | 1% | success |
+| completed the body but did not resolve | 0 | 0% | — |
+| stopped only at the finish | 29 | 7% | the finish calls |
+| stopped part-way through the body | 71 | 17% | the real coverage gap |
+| stopped at a token we cannot decode | 202 | 49% | **our decoder** |
+| page text, not a get-out line | 53 | 13% | not a conformance datum |
+
+`getout-conformance.mjs` separately reports **265 get-out lines, 134 decoded (51%), 130 stopped at
+an unread token** — a different denominator from the 412 that `HANDOVER.md` §4.2 quotes.
+
+Solver baseline (reproduced on demand, `Sequencer` construction ~51 s excluded):
+
+```
+legalCalls(board)                 L1p 1.47 s (286 legal)   B1c 1.29 s (198)   L.F1p 1.00 s (24)
+fixIt depth=0                     L.F1p 4.04 s   B1c 4.38 s   L1p 5.58 s        (578 calls)
+fixIt depth=1                     L.F1p 48.19 s                                    (46 calls)
+getout maxCalls<=3                L1p / B1c / L.F1p ~0.00 s        (all succeed)
+[P4p] getout maxCalls=3 budget=400  134.60 s -> null            <-- the number to beat
+```
+
+---
+
+## 2. The correction that reshapes step 4d
+
+`HANDOVER.md` §4.1 frames the top engine gap as **variant selection** — "select the variant from
+the declared gender plus the designated dancers' actual geometry" (`prd.md` §9.5.1). That
+requirement is real. But measured, the dominant cause sits **upstream of selection**: the engine
+registers variants the reference implementation refuses, and then picks among a superset.
+
+**Evidence.**
+
+- `taminations-flutter/lib/sequencer/calls/xml_call.dart:57-59` — the reference sequencer skips
+  them outright:
+  ```dart
+  for (var tam in lookupAnimatedCall(norm)) {
+    if (tam.notForSequencer) continue;
+  ```
+- `taminations-flutter/lib/animated_call.dart:157-168` shows `sequencer` has **four** values:
+  `perimeter` | `exact` | `gender-specific` | `no`.
+- `engine/src/convert.ts:273` reads **only** the exact string `'gender-specific'`. `no`,
+  `perimeter` and `exact` are silently dropped, so those `<tam>`s register as ordinary setups.
+- Counted over all 556 asset files under `poc/src/assets` (excluding the `src/` index):
+  **5948 authored `<tam>`, of which 271 are `sequencer="no"` across 61 titles — and 32 titles have
+  no eligible variant at all.** Also 285 `gender-specific`, 17 `perimeter`, 1 `exact`.
+- `Boys Trade` = **24 variants**: 12 eligible in `b2/trade.xml` (every one
+  `sequencer="gender-specific"`), 12 `sequencer="no"` in `ms/trade.xml`. They carry **identical
+  `from` strings**, so the formation name cannot tell them apart. `matcher.ts:43-71` takes least
+  error over all 24, first-wins on ties, with no eligibility filter.
+- Direct probe of what the engine actually selects, all at `error=0.000` (perfect geometric
+  matches):
+
+  | board | `Boys Trade` winner |
+  |---|---|
+  | `Normal Lines` template | eligible (`gender-specific`) |
+  | **`Ocean Waves` template** | **`sequencer="no"` demo** |
+  | **corpus `[W1p]`** | **`sequencer="no"` demo** |
+  | **corpus `[F1p]` + `Boys U-Turn Back`** | **`sequencer="no"` demo** |
+  | corpus `[L1p]` + `Boys U-Turn Back` | eligible (`from="Waves, Boys Facing Out"`) |
+
+  The Ocean Waves row **is** the handover's own symptom ("from the `Ocean Waves` template `Boys
+  Trade` moves the girls"). The same call selects different *classes* of variant depending on the
+  board.
+- `Boys Run` / `Girls Run` / `Centers Run` / `Ends Run` (32/34/20/18), `Trade` (3/3),
+  `Boys Fold`, `Girls Fold`, `Centers Cast Off Three Quarters` (12/12) have **no eligible variant
+  anywhere** — their winner is always a demonstration animation. `B-Run` appears in **5 of the 9**
+  refusing promenade lines, which is why those bodies leave partners 4–6 units apart.
+
+**Consequence.** Step 4d is two halves, in this order: *filter to the eligible set first* (which
+shrinks `Boys Trade` from 24 candidates to 12, and turns Run/Fold/Cast-Off/Turn-Back from
+"silently wrong motion" into "no setup"), *then* apply the §9.5.1 selection rule over what
+remains. Neither half alone fixes the corpus.
+
+---
+
+## Phase 0 — Lock the baseline, correct the record
+
+Small, and it makes every later phase measurable.
+
+- Commit the measured baseline for the two slow harnesses and the solver numbers, so "before" is
+  on the record rather than in a transcript.
+- Correct five doc inaccuracies found while building this plan — house style is to record
+  corrections, not smooth them away:
+  1. `HANDOVER.md` §4.2 cites `node engine/test/getout-conformance.mjs` as the refresh command for
+     the **202/412/97** numbers, but those come from `getout-behaviour.mjs`; conformance reports
+     265/130. Neither harness prints the full 97 (top 14 and top 18 respectively).
+  2. `HANDOVER.md` §4.3 and §6 trap 2 cite `assets/src/calls.xml`; the real path is
+     `poc/src/assets/src/calls.xml` (there is no top-level `assets/`).
+  3. `HANDOVER.md` §4.4 and `square-dancing.md` §9.1 say `fixIt` beyond depth 0 "never finishes" —
+     measured, `fixIt depth=1` finishes in **48.2 s**. Stale.
+  4. `square-dancing.md` §9.1's blocker list (`Plus`(22), `&Roll`(21), …) is an **all-occurrence**
+     count that includes prose; the harness counts **first-failure** and excludes prose. The two
+     lists are not comparable, and which one `Plus` belongs to must be settled before anyone
+     expands it.
+  5. `[P4p]` at `getout({maxCalls:3, budget:400})` = **134.6 s → null**, pinned as the reproducible
+     failing-search number.
+
+**Gates:** `npm run verify` green on the docs commit.
+**Done when:** the corrected numbers are in `square-dancing.md` §9.x with the command that
+produced each.
+
+---
+
+## Phase 1 — `sequencer` attribute and variant selection (step 4d)
+
+**Goal:** a call is applied from a *sequencer-eligible* setup chosen by gender and the designated
+dancers' real geometry — never from a demonstration animation.
+
+### Steps
+
+1. **Carry the flag.** Parse all four values in `convert.ts` alongside the existing
+   `genderSpecific`, and store them on `TamRaw` / `CallBundle` (`engine/src/types.ts`). Keep
+   `genderSpecific` as it is so nothing else moves.
+2. **Probe, do not assume.** Reproduce the table in §2 as an `.mjs` probe *before* changing
+   matching, and re-run after each step. The tell is `genderSpecific` on the matched variant
+   (`b2/` setups are all gender-specific; `ms/` demos are not).
+3. **Filter eligibility** in `findMatchingVariant` (`matcher.ts:58`), mirroring
+   `xml_call.dart:57-59`. Do **not** delete the variants from the catalogue: they are legitimate
+   animations, and `legalNext` / `recognize` behaviour must not shift beyond the search.
+4. **Measure the fallout.** Expect ~32 titles to move from "wrong motion" to "no setup". Decide
+   per family and record the decision:
+   - `Run` (`Boys`/`Girls`/`Centers`/`Ends`), `Fold`, `Centers Cast Off 3/4`, `Turn Back` —
+     Taminations implements these as **derived** calls. The engine already has a derived-call
+     registry (`coded-moves.ts`) with a documented contract (`prd.md` §9.5.4); that is the
+     natural home.
+   - A family with no derived implementation must **refuse with a reason**, never fall back to a
+     demonstration animation.
+5. **Then apply §9.5.1** over the eligible set: prefer the variant whose setup matches the board's
+   **declared gender + actual geometry**, and require that it moves **only the dancers the call
+   names**. A variant that moves an un-named dancer is wrong even when its end board is legal —
+   that is what makes the `[L1p]` + `Boys U-Turn Back` case (eligible winner, wrong motion) a
+   *selection* failure rather than an asset failure.
+6. **Break ties deterministically** in `matcher.ts:65` so array order never decides.
+
+**Follow the step-4b precedent** (`git show e571092`): 51 lines adding authored wave variants at
+the engine's template spacing, plus a `selection.mjs` gate asserting the two calls produce
+**identical** boards. Where a fix here is an authored setup, do it that way, keeping attribution.
+
+### Gates and measurement
+
+- A new gate in `engine/test/selection.mjs` (the model: equivalence assertions, not prose).
+- `node engine/test/promenade.mjs` §5 — the acceptance criterion is the **6 broken-body refusals**
+  becoming "partners together, promenade home", and the 9-refusal list shrinking.
+- `node engine/test/getout-behaviour.mjs` — `ENGINE GAPS` top entries (`Boys Trade` 4x) should
+  move; **watch `CATALOGUE GAPS` for new arrivals**, since a new "unknown call" there is the tell
+  that eligibility filtering removed a setup without a derived replacement.
+- `getout-convention.mjs` must stay at 27/28 with `[P4p]` the only negative.
+
+**Done when:** the probe shows the winner is a `gender-specific` setup on the wave and
+two-faced-line boards; the promenade refusal list is materially shorter; `behaviour-audit`
+unchanged; the Run/Fold/Cast-Off decision is written into `square-dancing.md` §9.2 and
+`prd.md` §9.5.4.
+
+**Risk:** the highest of any phase, because step 3 changes what every search node considers. Keep
+steps 1–3 in one commit and step 5 in another, so a regression is attributable.
+
+---
+
+## Phase 2 — The decoder table and the tokenizer bug
+
+**Goal:** move the 202 undecoded lines into a real measurement of the engine, without ever
+inventing a call name.
+
+### Steps
+
+1. **Fix the tokenizer first** (`getout-decode.mjs:87-99, 104-106`). It is a bug, not a vocabulary
+   gap, and it currently wastes about a dozen of the 97 slots on non-notation: a **trailing `-` is
+   never stripped** although All8 uses `-` as a joiner (`C-RStar-`, `DoSaD-`, `Clovr-`, `Sweep-`),
+   the group prefixes **`H-` and `O-`** are unrecognised, and quote-blanking glues
+   `C-"reverse"-WhlAr` into a bare `C-`.
+2. **Add the gate that does not exist.** A wrong expansion today is *silent*: the line flips from
+   "our gap" to `unknown call`, is attributed to **the engine** in `CATALOGUE GAPS`, and
+   `getout-conformance.mjs:166` is a literal `check(true, …)`. Replace it with a real check — every
+   decoded expansion must be an exact member of `implementedTitles()` — so a phantom can never be
+   booked as a catalogue gap again. Highest-value item in the phase.
+3. **Expand conservatively**, in descending corpus count, using that rule only. `catalogueTitles()`
+   is the right oracle; `indexedTitles()` is not (the index is not a superset, and
+   `tam=no, impl=no, index=YES` is a registration artefact, e.g. `Sweep a Quarter`).
+   `RStar → "Right Star"` is a pure phantom — `Right Star` is not a title anywhere.
+4. **Report the full ranking, not a slice.** Add an all-occurrence count alongside the
+   first-failure count, since they disagree materially (`&Roll` 21 vs 41, `LA` 6 vs 14) and tokens
+   hidden behind an earlier unknown are currently invisible.
+
+**Gates:** `getout-conformance.mjs`, `getout-behaviour.mjs`, `promenade.mjs` (it consumes
+`decodeLine`), then the full `verify`. Diff the **full** before/after token rankings, not the
+top-14/18 slice — that is the only way a mis-expansion shows up today.
+
+**Done when:** the new membership gate passes, the tokenizer leaves no `C-` / `<pause>` / `ALIAS` /
+trailing-dash artefacts, and the corpus split moves out of "our gap" into genuine engine findings.
+
+---
+
+## Phase 3 — The search index
+
+**Goal:** `getout()` stops being fast on success and slow on failure.
+
+**Mechanism.** `searchCandidates` (`solver.ts:116-139`) calls `searchLegalCalls`
+(`legality.ts:49-79`, C = 2211 titles) once, then for **every distinct end board** calls
+`equivalentCalls` (`solver.ts:102`), which loops the catalogue **again**. With L = 24–286 distinct
+end boards that is L × C ≈ 53 000–634 000 applies per node — **~99% of the node bill**, and
+quadratic because L is a large fraction of C. `budget` is not the driver; the size of the reachable
+state space is (a synthetic scattered board exhausts `seen` in 0.07 s at the same budget).
+
+### Steps
+
+1. **Instrument first**: log `|bySig|` (L), `|callNames()|` (C) and node count per node. Timing
+   alone cannot distinguish halving L from removing the C factor.
+2. **Index calls by start formation.** The minimal change point is `library.allVariantSetups()`
+   (`library.ts:189-197`), already the flat list of variant setups and **deliberately lossy — it
+   drops the back-pointer to the call name**. Make it `{ name, setup }[]` and the index exists.
+   Query it with the formation key that already exists (`knownFormation` / `recognize`, memoised
+   per pose at `matcher.ts:152-154`).
+3. **Do not build it as an FSM table.** `FsmTable` is already a `state → calls` adjacency and the
+   right *query* shape, but building it is itself O(states × catalogue) (`sequencer.ts:491` calls
+   `legalCalls` per state; `addState` linear-scans with `matchFormations`) — that is what killed
+   the 20-minute `transitionTable` build. Index lazily, from the variant list.
+4. **Add the regression point the harness deliberately lacks.** `getout-convention.mjs` contains no
+   large-reachable-state invocation (its own comment at `:132-135` says so). Add the `[P4p]` shape
+   behind an **env flag**, not in `npm run verify` — it costs ~2 min today.
+5. Re-measure the `transitionTable` build; the doc claim about it is unverified on this checkout.
+
+**Done when:** `[P4p]` failing getout is bounded in seconds with the same `null` answer, and
+`fixIt depth=1` is usable.
+
+---
+
+## Phase 4 — Remaining call gaps and the refused finishes
+
+By corpus count, after Phase 1 has removed the variants that should not apply, so the ranking is
+honest:
+
+- `Box the Gnat` (7), `Scoot Back` / `Recycle` / `Rollaway` / `Boys Fold` / `Ends Fold` (3 each) —
+  **exists, will not match the board it is reached from** (29 distinct names in this class).
+  `Boys Fold` / `Girls Fold` are 2/2 `sequencer="no"`, so Phase 1 reclassifies them: revisit
+  before authoring.
+- `Cross Fold` (2) — indexed (`poc/src/assets/src/calls.xml:171`) with **no implementation**
+  (`link="ms/fold"`); `1/2 Circulate` and `Join Hands` are absent from the catalogue entirely.
+- `Right and Left Grand` (16) / `Allemande Left` (4) — **finish-only stops**: legal-looking states
+  the finish refuses. Per `prd.md` §9.5.4 this is the resolve's precondition, and the answer is a
+  measured floor (like the ±1 couple band), never a looser rule that launders a broken body into a
+  false success.
+
+---
+
+## Phase 5 — Latent correctness
+
+Each needs its own measured step, ordered by blast radius:
+
+1. **`analyzeFasr`'s `corner` returns the opposite girl** — 0/4 agreement with the home ring, with
+   the mechanism identified (a fixed +45° angular offset lands on the girl on his right, then falls
+   through to the opposite girl once the partner is excluded). It feeds `fasrKey` → `isZero` → the
+   solver's `Static Square` check.
+2. **The isolated selection reading can be unsound** — `Centers Pass Thru` from Facing Lines
+   resolves 2 dancers (one an end) instead of the 4 centres. Fix by resolving the group **first**
+   and constraining the match, not by centring.
+3. **The wave `Circulate` paths may be wrong** — half the dancers move 4 units *between* the
+   parallel waves. Needs an independent read **before** changing `Split Circulate` and `Circulate`
+   together.
+4. **`Circulate` from facing lines** — the shipped line variants are `Lines Facing In` / `Out`, not
+   `Normal Lines`.
+5. **`boardSig` ignores facing** (confirmed: `board.ts:26` copies `heading`; line 29 never reads
+   it). Positions-only is *load-bearing* — it is why pivots prune cleanly. Review, do not casually
+   "fix".
+6. **The `[B]` box promenade disagreement** (3 lines) — pinned by `getout-convention.mjs` §3b. Keep
+   it pinned.
+7. **`Promenade`'s fixed 8 beats** and the fact that **geometry-derived calls are not FSM edges** —
+   both recorded, with a worked-out shape in `features/resolve_calls.feature`.
+
+---
+
+## Phase 6 — The All8 → engine name bridge
+
+`CALL_SYNONYMS` is **empty** (`constants.ts:85`) — verified. The bridge is 3 entries living in a
+*test harness* (`engine/test/lib/engine-calls.mjs:112-116`), so only tests resolve `Touch 1/4`,
+`Cast Off 3/4`, `Do Sa Do`. Anyone consuming published choreography needs it in the engine, where
+`canonicalName()` already applies it. Small, independent, and it reduces how much of Phase 2's
+accounting is harness-side.
+
+---
+
+## Phase 7 — Legacy phases, docs and harness gaps
+
+- **Phase 3 (amendment policy):** `FsmStore.amend` (`fsm-store.ts:49`) requires a getout; the claim
+  that step 5 reduced rejections is **unmeasured**. Measure it, then decide: an advisory gate
+  recording `getoutVerified`, or unamendable. No UI wires this yet.
+- **Phase 4:** audit checks for the bounded non-geometric matching exceptions (§8.2); the editor's
+  "no match within tolerance" wording; an explicit runtime-join check.
+- **Phase 5:** `knownFormation` is the last loose-tolerance (6.0) outlier.
+- **Feature specs are the biggest documentation gap.** Nothing covers the All8 alignment/corpus
+  work steps 1–3 (`boardFromDiagram`, `arrangementFor`, `sequenceFor`, `relationshipStateOf`),
+  nothing covers the solver/getout search, nothing covers the call editor.
+  `features/resolve_calls.feature` is the model — `@bind:`-tagged, with the engine behaviour in
+  comments, so `bind-audit` catches rot. Add one per phase as that phase lands.
+- **`transitionTable` / `map-tips.mjs`:** keep `poc-matrix/` out of `verify`; run `map-tips.mjs`
+  whenever the FSM is touched.
+
+---
+
+## Recommended order
+
+Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1
+starts by honouring the `sequencer` attribute**, because that is the measured cause and the
+cheapest high-yield change in the repo — a flag `convert.ts` already parses past, on 271 variants
+concentrated in exactly the families the corpus is stuck on.
+
+Phase 1 is the riskiest (it changes what every search node sees), which is why it wants two commits
+and the Phase 0 baseline behind it. Phases 2 and 6 are mechanical and independent; Phase 3 is
+independent of both.

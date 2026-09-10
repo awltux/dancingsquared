@@ -72,12 +72,33 @@ $$\text{Call} = \text{Entry Padding} + \text{Core Movement} + \text{Exit Padding
 - **Function:** Smooths kinetic flow and standardizes the output state.
 - **Action:** Applies directional corrections (e.g., turning $90^\circ$ left or right) so that the ending formation maps cleanly into the domain expected by the subsequent call, cleaning up any temporary ghost references.
 
+### 3.4 Calls Without an Authored Path
+
+The three phases above describe a call authored as a path. A call may instead be
+**geometry-derived** — computed from the board, with no `<tam>` and no Bézier path. Two
+kinds, with different mechanics:
+
+- **Pivot / re-facing** (per-dancer transform): the same transform on every board, so it
+  always applies, occupies a fixed declared beat cost on the timeline, and has no entry or
+  exit padding — the dancer keeps its spot and only the facing changes.
+- **Resolve** (whole-set): the end state is defined by **identity** — every dancer on its
+  own home spot and facing — not by a stored path, which is why it cannot be authored as a
+  `<tam>` and why its duration depends on the board (§4). A resolve carries a
+  **precondition** over the board (identity plus geometry) and **refuses** — returning the
+  board unchanged and a reason — when the board does not meet it, rather than producing a
+  state. `Promenade` / `Promenade Home` is the standard finish of this kind.
+
+A geometry-derived call is defined **once**, in a registry that both the sequencer (apply)
+and the analyser (replay and animation) read, so the same call cannot be legal in one and
+illegal in the other, and its refusal is a reported result rather than a silent `false`.
+
 ---
 
 ## 4. Timing and Musical Phrasing
 
 - **Metric Unit:** Square dancing operates strictly on musical beats. Standard hoedown and singing call tempo is $128\text{ BPM}$.
-- **Beat-Weights:** Every call has a fixed integer beat cost (e.g., Pass Thru = 4 beats, Grand Square = 32 beats, Left Allemande = 8 beats).
+- **Beat-Weights:** Every call has a fixed integer beat cost (e.g., Pass Thru = 4 beats, Grand Square = 32 beats, Left Allemande = 8 beats). A geometry-derived call (§3.4) declares its cost in the registry instead of deriving it from a path, and that one declared value serves the timeline, the analyser and the legality surfaces alike.
+- **Board-Dependent Duration:** Where a call's true duration depends on the board, the declared cost is an **approximation that must be stated as one** — a promenade's length is the distance the set has to travel, so its fixed cost is a simplification, not a measurement.
 - **Singing Call Macro-Structure:** A standard segment consists of exactly 64 beats (subdivided into four 16-beat phrases). A valid sequence must sum to $64\text{ beats}$ (or account for continuous terminal actions like a Promenade).
 
 ---
@@ -220,6 +241,8 @@ These are unrelated. A formation is *always* completed by its rotational mirror,
 - **Getin:** a *special kind of module* whose purpose is to **take the dancers from home to a common formation** — the mirror-image companion of a getout. A getin always starts at home and ends at some non-home formation.
 
 Every getout and every getin is a module, but not every module is a getout or a getin: the distinction is purely the constraint each places on home.
+
+**What a getout's "home" is judged by — the caller convention (§9.1).** A get-out succeeds when it reaches a state from which the **standard finish** resolves — `Allemande Left`, `Right and Left Grand` or `Promenade` — not when the set sits literally on the home board. Both readings end at the same place once that finish is played; they differ only in how far the engine's own search has to carry the set. The engine's `getout()` search currently requires the literal home board, which is recorded as an open item.
 
 **Getouts and getins are directional and not interchangeable.** A getout is a forward call sequence that *leads* the set home; a getin is a forward call sequence that *leads* the set out of home into a formation. They are **not** simply reverses of one another — you cannot obtain a getin by running a getout backwards (or vice versa), because calls do not run in reverse. A call's inverse is a geometric neighbour, not a callable forward sequence. This is what makes getins and getouts genuinely distinct families of modules rather than two views of the same data.
 

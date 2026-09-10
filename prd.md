@@ -169,6 +169,14 @@ Inactive dancers still get slight idle motion (subtle bounce/sway) so the set fe
 - Call timeline modeled as explicit **phases**: `lead-in`, `parts`, `fractions`, `lead-out`.
 - Singing-call macro-structure (64 beats / four 16-beat phrases) is ordinary data for the validator, not special-cased in the engine.
 - Beat clock: `beat = elapsedMs / msPerBeat`; `requestAnimationFrame` playhead with play/pause/seek/step-part/loop (mirrors `BeatNotifier` semantics).
+- **Declared beat cost.** Every call reports a beat cost. A geometry-derived call (§9.5.4)
+  declares it explicitly instead of deriving it from a path, and the declared value is the
+  one the timeline, the analyser and the legality listing all use — the cost is not
+  computed twice.
+- **Board-dependent duration is declared as an approximation.** Where a call's true
+  duration depends on the board (how far a set promenades is how far it has to travel), the
+  engine declares one approximate cost and states it as an approximation; it must not be
+  presented as measured.
 
 ---
 
@@ -204,6 +212,12 @@ interface Module {
 - **Legality** of a module at a given formation = every contained call is legal
   in turn (data-driven). A module is only "available"/listed if it is legal from
   the current board.
+- **A getout ends at the standard finish, not necessarily on the literal home board.**
+  A get-out succeeds when it reaches a state from which the standard finish resolves —
+  `Allemande Left`, `Right and Left Grand` or `Promenade` — which is the caller
+  convention decided in `square-dancing.md` §9.1. The engine's own `getout()` search
+  still requires the literal home board and cannot use geometry-derived calls; that
+  divergence is an open decision (§14).
 - Modules live in a **user library** (persisted and editable) separate from the
   built-in catalog. Built-in calls and modules share the same picker, `legalNext`,
   `getout`, and `fixIt` surfaces — modules are tagged as **user-defined**.
@@ -255,6 +269,22 @@ must be explicit. The reference implementation is `matchFormations` /
   candidate slot whose gender is compatible (`phantom` is a wildcard). Gender-
   specific calls must NOT match a board whose boy/girl arrangement differs, even
   if the geometry is identical. Non-gender-specific calls ignore gender.
+- **Variant selection for gender- or position-qualified calls.** When a call is authored
+  in several variants distinguished by gender or by position in the formation (e.g.
+  `Boys Trade` with the boys as Centers vs as Ends), the engine selects the variant from
+  the **declared gender** plus the **designated dancers' actual geometry**, and it moves
+  **only the dancers the call names**. A variant that moves a dancer the call does not
+  name is wrong even when its end board is a legal formation. (Currently violated for
+  `Trade`/`Run` from waves and two-faced lines — see `square-dancing.md` §9.2.)
+- **Identity is input, never output.** Matching carries each dancer's declared home couple
+  and gender; neither may be inferred from position or index (`square-dancing.md` §8.2).
+  A rule that needs identity refuses when it is unknown rather than inventing a grouping.
+- **Name resolution is engine data.** A published name that differs from the catalogue
+  title (`Touch 1/4` → `Touch a Quarter`, `Do Sa Do` → `Dosado`) must resolve inside the
+  engine's canonical-name path, not in a test harness, and a call may legitimately carry
+  several authored aliases resolved through one registry. (Currently the bridge lives in
+  `engine/test/lib/engine-calls.mjs` and `CALL_SYNONYMS` is empty — see
+  `square-dancing.md` §9.2.)
 
 ### 9.5.2 Restrictions
 
@@ -288,6 +318,48 @@ must be explicit. The reference implementation is `matchFormations` /
   and completed to an 8-dancer formation is **not** the same as a 4-dancer subset
   the dancers actually occupy. Matching treats the full, centered formation as the
   unit; a genuine subset match requires the board to actually contain that group.
+
+### 9.5.4 Geometry-derived calls
+
+Not every call is a setup. A call may be **geometry-derived** — computed from the board
+rather than matched against an authored `<tam>`. This is not a catalog edge case; it is a
+third kind of call, with its own contract. Two flavours exist:
+
+- **Pivot / re-facing** (`Face Left`, `Face Right`, `U-Turn Back`, `Face In`, `Face Out`) —
+  a per-dancer transform, well defined on any board, so it never refuses.
+- **Resolve** (`Promenade` / `Promenade Home`) — a whole-set call, legal only from some
+  boards, which carries a **precondition over the board** (identity plus geometry) and
+  REFUSES instead of returning a board. The reference implementations are
+  `engine/src/sequencer/coded-moves.ts` (the registry) and
+  `engine/src/sequencer/promenade.ts` (the resolve's rule).
+
+**Contract**
+
+- **One definition, every consumer.** Apply, replay and animation all read the same
+  registry entry: the legality, the end board and the beat cost may not be re-derived per
+  consumer. A resolve that does not apply leaves the replayed board where it is — it must
+  not teleport the set home.
+- **A refusal is a result, not a false.** A refusal returns the board unchanged plus a
+  human-readable **reason**, in the same `{ legal, reason }` shape as a catalog legality
+  failure, so a caller (or the call picker) can show why. A reason-less refusal is a defect.
+- **A resolve ends at home by identity, not by shape.** The result is the literal squared
+  set — every dancer on its own home spot **and facing**, compared per dancer by identity
+  rather than by recognizing the end formation. Facings may be left out of the
+  *precondition* where forming up is part of the call; they may not be left out of the
+  *result*.
+- **Grouping is by identity.** A rule that groups dancers (a couple, a ring) groups them by
+  declared home couple/gender, never by who is standing next to whom or by index, and
+  refuses when identity is unknown rather than guessing a grouping.
+- **Permissiveness has a floor.** A rule may be relaxed — facings ignored, geometry snapped
+  rather than matched exactly — but it must never accept a state the model says cannot
+  occur. A resolve must not succeed from a board whose partners are not standing as a
+  couple: the standard couple separation is 2, so the accepted band is ±1, because every
+  healthy state in the published corpus measures exactly 2 apart while the states a broken
+  body produces measure 0, 4 or 6. Without that floor a wrong body is laundered into a
+  false success.
+- **Aliases belong to the call.** A geometry-derived call resolves every name it is
+  registered under (`Promenade` and `Promenade Home` are one call), so a published finish
+  is not a catalogue gap.
 
 ---
 
@@ -330,6 +402,16 @@ function onFrame(ms: number) {
   - Gender-specific calls reject a same-geometry board with a different boy/girl arrangement; gender-agnostic calls still match.
   - A getout/fixIt search never returns a path whose first (or any) call fails the interactive apply.
   - Uneven-remainder boards (not evenly divisible into equal subsets) are rejected, never force-partitioned.
+  - A geometry-derived call (§9.5.4) agrees across apply, replay and animation: same
+    legality, same end board, same beat cost; a resolve that does not apply leaves the
+    replayed board unchanged.
+  - A resolve is a resolve only when **every** dancer returns to its own home spot and
+    facing, compared per dancer by identity — never by recognizing the end formation.
+  - Every refusal carries a reason; a legality check that comes back false with no reason
+    fails the gate.
+  - Legality never accepts a boundary state the model says cannot occur — partners who are
+    not standing as a couple, or two dancers on the same spot.
+  - A gender- or position-qualified call moves only the dancers it names.
 - **Golden 3D stills:** fixed-camera renders at key beats for visual regression.
 
 ---
@@ -351,6 +433,16 @@ function onFrame(ms: number) {
 - **3D engine:** **Three.js** (recommended) vs Babylon.js.
 - **Authoring format going forward:** keep XML as canonical, or migrate the bundle to hand-authored JSON.
 - **Scope of sequencer/FASR:** confirm deferral to v2.
+- **Does the engine's own `getout()` search adopt the caller convention?** The convention —
+  a get-out succeeds when it reaches a state from which the standard finish resolves — is
+  settled as the acceptance criterion for published get-outs (`square-dancing.md` §9.1),
+  but the search still requires the literal home board, and the precomputed FSM table and
+  `legalCalls` enumerate the catalog, so it cannot use a geometry-derived resolve such as
+  `Promenade` at all. Adopting it inside the search finds get-outs the corpus says exist,
+  at the cost of returning paths that end one standard finish short of home, which every
+  consumer must then be able to play; keeping the literal target keeps a returned path
+  self-contained but under-reports and leaves amendments from synthesised boards
+  impossible (`square-dancing.md` §9.2).
 - **Target platform/consumers** of the downstream game/tutor to finalize API surface.
 
 ## 15. Teachers Session Tracker

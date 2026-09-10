@@ -104,8 +104,10 @@ export function callsByTitle(assets) {
  * lives here, at the boundary where a published corpus meets the engine; moving it
  * into the engine is an open item in the docs.
  *
- * Deliberately NOT aliased: `Promenade Home` and bare `Promenade`. Mapping one to
- * the other would hide a real gap - the engine implements only qualified promenades.
+ * Deliberately NOT bridged: `Promenade Home` and bare `Promenade`. They are not two
+ * names for a call the engine spells differently - they are ONE call, and the engine
+ * resolves both aliases itself (src/sequencer/promenade.ts). Bridging them here would
+ * hide that.
  */
 export const ALL8_TO_ENGINE = {
   'Touch 1/4': 'Touch a Quarter',

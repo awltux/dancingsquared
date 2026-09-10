@@ -1,0 +1,1070 @@
+{
+  "source": "https://www.all8.com/sd/calling/getoutd.htm",
+  "notationReference": "https://www.all8.com/sd/calling/fasr.htm",
+  "note": "Verbatim get-out listings from Rich Reel's all8.com caller reference. Get-out lines are copied exactly as published (abbreviated call names, leading marker characters and indentation preserved). Decoding of the abbreviations is NOT done here.",
+  "fetched": "2026-09-10",
+  "alignments": [
+    {
+      "id": "B1c",
+      "url": "https://www.all8.com/sd/calling/go_b1c.htm",
+      "family": "Box / 8-Chain",
+      "title": "ZERO BOX [ZB], All Facing Corner",
+      "pageHeading": "Get-outs from BOX [B1c]",
+      "diagram": "v3 v3\n^4 ^2\nv4 v2\n^1 ^1",
+      "description": "Everyone Facing Their Corner",
+      "getoutLines": [
+        "--AL",
+        "   --LTrnT  --RLG",
+        "   --LSqT4  --AL",
+        "   --SldTh  --SqTh3  --AL",
+        "            --SqT@4  --AL   (\"...but on the 4th arm...\")",
+        "            --BxGnt  --SqTh2  --RLG",
+        "            --PasTh  --TagI   --SqTh4  --RLG",
+        "                     --Tag    --Clovr- \"look for your partner\" --RLG",
+        "   --StrTh  --RvFlt  --DixiS  --AL",
+        "   --SpChT  G-Cir2   --RLG      (perhaps call MakWv first)",
+        "   --BxGnt  --PasTh  --RLG",
+        " !          --PsTTC  C-SqTh3 \"ready with L-H\"--LSqT3  --RLG",
+        " ! --RLT    --GW.BD  --Wk&Dg  --RLG   (similar to Cross Trail Thru)",
+        " !          --BxGnt  --SqTh3  --DoPas",
+        "   --SwThr  G-Cir,   B-Trd    --RLG",
+        "            B-Trd,   G-UTurn, B-Cir    A-Prom   (call quickly)",
+        "            B-Trd    --1/2.C  --RLG",
+        "            --Scoot (--A8Cir) B-XFold  --AL",
+        "            B-Run   (--Cpl.C) B-XFold \"sneaky\"-YelRk  G-UTurn  --AL",
+        "   --T1/4   --A8Cir  C-Cir    --SpltC  --RLG",
+        "   C-Sp2A1  --SqTh4  --RLG",
+        "   --8Chn3-\"and 1/2\"(VCUTurn) --Prom  (gimmick)",
+        "   --PasTh  C-Zoom,  E-BakUp  --AL    (gimmick)",
+        "            --TrdBy \"with THIS corner\" --ALIAS  --SwThr  --RLG",
+        "                     --DivTh  --SqTh1  --AL    (fun to call quicly)",
+        "   --StrTh  --JoinH  --CirL   4LRollA  --AL    (or other ring figure)",
+        "                              --LyIMS  --ALIAS  --SwThr  --RLG",
+        "   --Swing \"let her out\" --AL --PasTh  --RLG",
+        "                              --R.PBy  --DoPaS..."
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --DivTh  --DixiG  --AL",
+        "   --PsTTC  --DixiG  --AL",
+        "   --PasTh  --DixiG  --AL   (everybody starts the DixiG)",
+        "   --DixiG  --DoPaS (RolPr) (everybody starts the DixiG)",
+        "   --T1/4   --FYNbr  --AL",
+        "   --SldTh  --&Roll  --PasTh  --RLG",
+        "            --SqTh4  --DixiG  --AL (pump hands! - everybody starts DixiG)",
+        "            --PasTh  --BendL  --SqTh2  --DixiG (everybody starts DixiG)",
+        "            --PsOcn  --TrdWv  --AL",
+        "                     --Expl&  --LoadB  --AL",
+        "            --RLT    --LoadB  --AL",
+        "                     --T1/4   --Col.C  --PeelO  --PromH",
+        "                     --DixiS  B-Trd    --AL",
+        "                     --FwdBk  --LT1/4  --Col.C  G-PeelO  --RLG",
+        "   --SCirW  --Ext    --RLG",
+        "            --PasTh  --RLG    \"Single Circle Pass Thru RLG\"",
+        "            --AcDcy  B-Twice  --RLG",
+        "            --1/2of-  -A8Cir  --RLG",
+        "   --SwThr  --AcDcy  --RLG",
+        "            C-Trd    --Ext    --RLG",
+        "            --Twice  --TrdWv  --AL",
+        "            --SpTop  --Expl&  --AL",
+        "                     --GrSwT  --Expl&  --RLG",
+        " !          --TrdWv  --SwThr  --AL",
+        "   --ReDcy  --&Sprd  --AL        (perhaps call MakWv first)",
+        "            --SHing  --FYNbr  --AL",
+        "                     --Expl&  --PsOcn  --TrdWv  --AL",
+        "   --SqTh3  --PtTrd  --&Roll  C-Roll   --RLG  (if R-H free)",
+        "   --LSqT3  --PtTrd  --&Roll  C-Roll   --RLG  (if L-H free)",
+        "   --PasTh  --TrdBy  --SldTh  --PsOcn  --TrdWv  --A8Cir  --AL",
+        " !                   --SCirW  --A8Cir  --1-1/2  --RLG",
+        " ! --LReDcy --AL",
+        " ! --LSpChG --AL"
+      ],
+      "conversionLines": [
+        "--DoSaD  (still [B1c] - neutralizes hand use)",
+        "   --YelRk  (gimmick - still [B1c] - neutralizes hand use)",
+        "   --DivTh  --DPT    LrTrd     (still [B1c] - neutralizes hand use)",
+        "   --SldTh  --PasTh  --BendL  --SldTh (still [B1c] - neutralizes hand use)",
+        "   --PasTh  C-SqTh4  E-Clovr   (still [B1c] - R-H free)",
+        "   --SwThr  G-Cir,   B-Trd   [5W1p] sash, in seq",
+        "                              B-Run   [F1p] in seq",
+        "                                       --BendL [L1p] in seq",
+        "                              --SHing  B-Run   [L1p] in seq",
+        "  (--MakWv) --SpChT  G-Cir2   B-Run   [F1p] in seq",
+        "                                       --BendL [L1p] in seq",
+        "  Plus - - - - - - - -",
+        "   --SwThr  --AcDcy [5W1p] sash, in seq",
+        "                     B-Run  [F1p] in seq"
+      ]
+    },
+    {
+      "id": "B2r",
+      "url": "https://www.all8.com/sd/calling/go_b2r.htm",
+      "family": "Box / 8-Chain",
+      "title": "ACROSS THE STREET BOX [XB]",
+      "pageHeading": "Get-outs from [B2r]",
+      "diagram": "v3 v3\n^2 ^4\nv2 v4\n^1 ^1",
+      "description": "Noone Facing Their Corner",
+      "getoutLines": [
+        "--SqTh3  --TrdBy  --AL   (if R-H free)",
+        "   --LSqT3  --TrdBy  --AL   (if L-H free)",
+        "   --DivTh  --Zoom   C-PasTh  --AL",
+        "   --DivTh  C-PasTh  --RLT    --AL",
+        "   --PasTh  --TrdBy  --RLT    --AL",
+        "   --RLT    --PasTh  --TrdBy  --AL  (if R-H free)",
+        "            --DivTh  C-SqTh1  --AL",
+        "   --SldTh  --PsOcn  --SpChT  --RLG",
+        "                              G-UTurn  --Prom",
+        "                              G-Cir2   --A8Cir  --RLG",
+        "   --DivTh  --DPT    --CtrIn  --Ca3/4  C-StrTh  A-BxGnt  --RLG  (T-bone)",
+        "                                                A-PasTh  --AL",
+        "   --SwThr  G-Cir    --Recyc  --RLG  (sashayed Recyc, lots of setup flow)",
+        "   --LSwTh  B-Cir    --Recyc  --RLG  (L-H Recyc, lots of setup flow)"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --PasTh  --TrdBy  --LSqT@3  --AL",
+        "   --DivTh  C-SqT@3-  -DixiG   --AL",
+        "   --LSwTh  --AcDcy  --TrdWv   --RLG  (if L-H free)"
+      ],
+      "conversionLines": [
+        "--SqTh3  --TrdBy [B1c] \"AL\"   (if R-H was free)",
+        "   --LSqT3  --TrdBy [B1c] \"AL\"   (if L-H was free)",
+        "   --PasTh  --TrdBy  --RLT   [B1c] \"AL\"",
+        "   --RLT    --PasTh  --TrdBy [B1c] \"AL\"  (if R-H was free)",
+        "   --DivTh  --Zoom  [P1p] \"1\"  (try again)",
+        "            --DPT    --Clovr [P2p] \"3\"  (try again)",
+        "   --8Chn2  --RLT   [B1c] \"AL\"   (if R-H was free)",
+        "   --SldTh  --StrTh  --8Chn2 [B1c] \"AL\"",
+        "            --PsOcn  B-Cir   [W1p] \"in seq\"",
+        "                     G-Cir   [W1p] \"in seq\"",
+        "            --RLT    --T1/4   --Col.C  B-Run [B1p] facing ptr, in seq"
+      ]
+    },
+    {
+      "id": "B4c",
+      "url": "https://www.all8.com/sd/calling/go_b4c.htm",
+      "family": "Box / 8-Chain",
+      "title": "LEAD RIGHT BOX [LRB], All With Partner In Order*",
+      "pageHeading": "Get-outs from [B4c]",
+      "diagram": "v3 v3\n^2 ^2\nv4 v4\n^1 ^1",
+      "description": "\"LEAD RIGHT BOX\"",
+      "getoutLines": [
+        "--SwThr  --RLG",
+        "            --TrnTh  --AL",
+        "            G-UTurn  --Prom",
+        " !          --1-1/2  --PasTh  --AL",
+        "   --SwThr  B-Run    --BendL  --RLG  (call quickly! - facing line RLG)",
+        "   --DivTh  --DPT    --1L.2L  A-Prom  (gimmick)",
+        "   --VeerR  --Prom   (if no flow, pause before VeerR, say \"Ready?!\")",
+        "   --StepW  --Recyc  --PasTh  --AL",
+        "                     --8Chn5  --AL",
+        " ! --PsOcn  --SpTop  --RLG",
+        "   --SldTh  --PsOcn  --LSwTh  --RLG",
+        " !          --BxGnt (--StepW) --FanTp  --RLG",
+        "   --T1/4   --Wk&Dg  B-Fold   --StrTh  --Prom",
+        "            --Scoot  --Wk&Dg \"Face Ptr\"--RLG",
+        " !                            --1/2of-  -UTurn  --RLG",
+        "            --SpltC  --Ca3/4  --RLG",
+        "                     H-Trd    B-Run    --Prom \"this way\"  (may be WW.Pr)",
+        " ! --LSwTh  G-Trd    --Recyc  --RLG   (nice after C-SqTh3 - expecting LA)",
+        " ! --SldTh  --BxGnt \"get a wave\" --FanTp  --RLG"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --SCirW  B-Trd    --RLG",
+        "            B-XFold  --RLG",
+        "   --LSwTh  --TrdWv  --RLG   (nice after C-SqTh3 - expecting LA)",
+        "   --T1/4   --Wk&Dg  --PtTrd  --&Roll  --RLG",
+        "   --SldTh  --T1/4   --Coord  --WhlDl  --AL",
+        "   --SwThr  E-Roll-  <brief pause> -Twice  --Prom   (call quickly)",
+        " ! --T1/4   --SpltC  --FYNbr  --&Sprd  --RLG",
+        " ! --LT1/4  C-Trd    --SpltC  --Ext    --LA",
+        " ! --PsOcn  --Recyc  --&Roll  --SF.Pr"
+      ],
+      "conversionLines": [
+        "--PasTh  --TrdBy  (still [B4c] - use to neutralize hand use",
+        "                      or to reposition key couples for sight)",
+        "   --StrTh [L4r] \"s-in\"",
+        "   --RLT    --VeerL [F1p] \"in seq\"",
+        "   --SwThr [5W1p] \"in seq\"",
+        "            B-Run   [F1p] \"in seq\"",
+        "                     --BendL [L1p] \"in seq\"",
+        "            --SHing  B-Run   [L1p] \"in seq\"",
+        "   --T1/4   --Wk&Dg  --PtTrd [L1p] \"in seq\"",
+        "            --SpltC  B-Run   [L1p] \"in seq\"",
+        "   --PsOcn  --Recyc [L1p] \"in seq\"",
+        "   --SldTh  --PasTh  --WhlDl  C-PasTh [B1p]facing ptr, \"in seq\"",
+        "   --StrTh  --RvFlt [L2p] \"out seq\"",
+        "                     --RollA [5L2p] sash \"out seq\"",
+        "   --LSwTh  G-RunL  [L.F2p] \"out seq\""
+      ]
+    },
+    {
+      "id": "B3r",
+      "url": "https://www.all8.com/sd/calling/go_b3r.htm",
+      "family": "Box / 8-Chain",
+      "title": "LEAD LEFT BOX [LLB], All With Partner Out Of Order*",
+      "pageHeading": "Get-outs from [B3r]",
+      "diagram": "v3 v3\n^4 ^4\nv2 v2\n^1 ^1",
+      "description": "\"LEAD LEFT BOX\"",
+      "getoutLines": [
+        "--SwThr  --SpTop  --SpTop  --RLG",
+        "            --SwThr  B-Run    B-Trd    --Prom",
+        "   --SldTh  --PsOcn  B-Run    B-Trd    --Prom",
+        "   --DoSaD  --ToWav  --LSwTh  --RLG",
+        "                              G-UTurn  A-Prom",
+        "   --LSwTh  G-RunL   --Prom  (nice after C-SqTh3 - expecting LA)",
+        "            --DoPaS (--RolPr)",
+        "   --RLT    --\"Circle up 4 ... Circle to a circle\" ... --CirL   --AL"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --SwThr  --SpTop  --Recyc  --&Roll  --SF.Pr",
+        " ! --LT1/4  C-Trd    --SpltC  --TrdWv  --Ext    --LA",
+        " ! --T1/4  Wk&Dg  A-Trd-&Roll \"new ptr\" A-Trd-&Roll  A-Trd-&Roll  --RLG"
+      ],
+      "conversionLines": [
+        "--PasTh  --TrdBy  (still [B3r] - use to neutralize hand use",
+        "                      or to reposition key couples for sight)",
+        "   --RLT   [B4c] \"s-in\"",
+        "            --VeerL [F2p] \"out seq\"",
+        "   --SwThr [5W2p] sash \"out seq\"",
+        "   --StepW  --LSwTh [5W1p] sash \"in seq\"",
+        "   --StrTh [L3c] \"s-out\"",
+        "            --RvFlt [L1p] \"in seq\"",
+        "   --VeerL [Fip] \"in seq\"",
+        "   --T1/4   --Wk&Dg  --PtTrd [L2p] \"out seq\"",
+        "            --SpltC  B-Run   [L2p] \"out seq\"",
+        "            C-Trd    --SpltC [W1p] \"in seq\"",
+        "   --SldTh [L3c] \"s-out\"",
+        "            --PasTh  --WhlDl  C-PasTh [B2p] facing ptr, \"out seq\"",
+        "  Plus - - - - - - - -",
+        "   --SqT@3  --SwThr [5W1p] sash \"in seq\"",
+        "   --LSwTh  --TrdWv [5W1p] sash \"in seq\""
+      ]
+    },
+    {
+      "id": "B1p",
+      "url": "https://www.all8.com/sd/calling/go_b1p.htm",
+      "family": "Box / 8-Chain",
+      "title": "Facing Partner In Sequence Box",
+      "pageHeading": "Get-outs from BOX [B1p]",
+      "diagram": "v2 v1\n^2 ^1\nv3 v4\n^3 ^4",
+      "description": "Everyone Facing Their Partner In Sequence",
+      "getoutLines": [
+        "--PasTh  --AL",
+        "            --UTurn  --RLG",
+        "   --BxGnt  --RLG",
+        "   --RLT    --RollA  --RLG",
+        "   --Sw&Pr",
+        "   --WWGrd (\"meet your partner\" --R.PBy  --AL)",
+        "   --R.PBy  --AL",
+        "   --8Chn5  --AL",
+        "   --8Chn1  --AL",
+        "   --SqTh1  --AL",
+        "   --SqTh5  --AL",
+        "   --CtrIn  B-Fold \"behind your girl\" --Prom",
+        "   --RLT    E-RollA  --DivTh  C-AL     A-RLT    --RollA  --RLG",
+        "   --PasTh  C-SqTh3  --CtrIn  --Ca3/4  C-StrTh  --AL    (T-bone)",
+        " ! --PasTh  --TrdBy  --TrnTh  --TrdBy  --RLG",
+        "   --AL \"your partner! Hang on...\" --RolPr   (gimmick - not legal)"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --SCirW (--RearB) --RLG",
+        "   --SldTh  --&Roll  --RLG",
+        "   --T1/4   --&Roll  --RLG  (if R-H was free)",
+        "   --LT1/4  --&Roll  --RLG  (if L-H was free)",
+        "   --8Chn2  --DixiG  --AL",
+        " ! A8SpTop  --RLG   (gimmick - legal?)"
+      ],
+      "conversionLines": [
+        "--SldTh  [L1p] in seq",
+        "  (--StepW) [W1p] in seq"
+      ]
+    },
+    {
+      "id": "B2p",
+      "url": "https://www.all8.com/sd/calling/go_b2p.htm",
+      "family": "Box / 8-Chain",
+      "title": "Facing Partner Out Of Sequence Box",
+      "pageHeading": "Get-outs from BOX [B2p]",
+      "diagram": "v1 v2\n^1 ^2\nv4 v3\n^4 ^3",
+      "description": "Everyone Facing Their Partner Out of Sequence",
+      "getoutLines": [
+        "--SqTh3  --AL",
+        "   --8Chn4  --SqTh3  --AL",
+        " ! --T1/4   C-Trd    --Recyc  --Swing!",
+        "                              --StrTh  --CalTw  --Prom"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --BxGnt  --SqT@3  --RLG",
+        "   --RLT    --RollA  --SqT@3  --RLG",
+        "   --SqT@3  --BxGnt  --RLG",
+        "            --T1/4   --&Roll  --RLG",
+        "            --SldTh  --&Roll  --RLG",
+        "   --SwThr  B-Run    G-Hing   --FlipD  --RLG",
+        "   --PsOcn  G-Trd    --Recyc  --&Roll  --SF.Pr",
+        "   --LSwTh  --A8Cir  --LSwTh  --LHing  --&Roll  --RLG  (fun hand change)",
+        "                              --Ext    --LA"
+      ],
+      "conversionLines": [
+        "--SldTh  [L2p] out seq",
+        "  (--StepW) [W2p] out seq",
+        "   --RLT    [B1p] facing, in seq",
+        "             --SldTh [L1p] in seq"
+      ]
+    },
+    {
+      "id": "L1p",
+      "url": "https://www.all8.com/sd/calling/go_l1p.htm",
+      "family": "Facing Lines",
+      "title": "Facing Lines In Sequence [ZL]",
+      "pageHeading": "Get-outs from Facing Lines [L1p] In Sequence",
+      "diagram": "3> <2\n3> <2\n4> <1\n4> <1",
+      "description": "Everyone Paired With Their Partner In Sequence",
+      "getoutLines": [
+        "--RLG  (gimmick - use with discretion) for beginners say \"find partner\"",
+        "   --AL   (gimmick)    for beginners say \"look for your corner\"",
+        "   --JoinH  --CirL   --AL",
+        "   --SldTh  --SqTh3  --AL",
+        "   --T1/4  (--Col.C any number of times)  B-RunR  --AL",
+        "                                          G-RunR  --RLG",
+        "   --LSqT4  --AL",
+        "   --BxGnt  --SldTh  --AL",
+        "   --RLT    --DixiS  B-TrdR   B-UTurn  --Prom",
+        " !                            A-1/2.C  --LA",
+        "                     G-Cir,   B-Trd    --AL",
+        " !                            C-Scoot  --AL",
+        " !                   --SwThr  G-RunL   --Prom",
+        " !                   C-\"Sashay nose to nose\"  --Prom  (gimmick)",
+        "                     B-UTurn  B-Trd    --Prom   (fun overflow)",
+        "   --PsOcn  --A8Cir  G-Trd    --SwThr  --A8Cir  --RLG",
+        "            --SpltC  --Twice  --RLG",
+        " !          --FanTp  --SpTop  --RLG",
+        "   --PasTh  G-Fold   --SwThr  C-Run    --1/2Tg  --RLG",
+        "                     A-PasTh  --TrdBy  --T1/4   --A8Cir  --RLG",
+        "   \"up to the middle take 3 steps back\" E-Fold  --RLG"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --SldTh  --BxGnt  --SqT@3  --RLG",
+        "   --GrSwT  --SHing  B-Run    --AL         (GrSwT = SCirW C6TrdL)",
+        "                     --&Roll  --SldTh  --AL",
+        "   --PsOcn  --SwThr  B-Run    G-Hing   --FlipD  --RLG",
+        "   --RLT    --DixiS  --AcDcy  --AL",
+        "                     B-Trd    --Ext    --LA",
+        "                              --LHing  --&Roll  --RLG (fun hand change)",
+        "   --FwdBk  --CalTw  --&Roll  --PasTh  --AL     Swing! (to unwind girls)",
+        "   --PasTh  --ChasR  --Trd    --&Roll  --RLG",
+        "            --LChas  --LHing  B-RolPr"
+      ],
+      "conversionLines": [
+        "--RLT   [L2p] out seq",
+        "            --RollA [5L2p] out of seq",
+        "            --DixiS  B-TrdR   G-RunL [F1p] in seq",
+        "   --PsOcn [W2p] out seq",
+        "            B-Run   [L.F2p] out of seq",
+        "   --BxGnt [5L2p] out seq",
+        "            --PsOcn [5W1p] sash in seq",
+        " ! --FanTp  --SwThr [5W1p] in seq",
+        "  Plus - - - - - - - -",
+        "   --PasTh  --Tag    --PeelO [L1p]  (neutralizes hand use)"
+      ]
+    },
+    {
+      "id": "L2p",
+      "url": "https://www.all8.com/sd/calling/go_l2p.htm",
+      "family": "Facing Lines",
+      "title": "Facing Lines Out Of Sequence",
+      "pageHeading": "Get-outs from Facing Lines [L2p] Out Of Sequence",
+      "diagram": "4> <1\n4> <1\n3> <2\n3> <2",
+      "description": "Everyone Paired With Their Partner Out of Sequence",
+      "getoutLines": [
+        "--SldTh  --PasTh  --AL",
+        "            --BxGnt  --RLG",
+        "   --PsOcn  B-Run    --Prom",
+        "            --Scoot  --RLG",
+        "            --Swing \"...her and\" --Prom  --Dave Wilson",
+        "            G-Trd    G-Run    --WhlDl  --RLG",
+        "   --PasTh  \"to your left\" --Prom",
+        "            E-Fold   --RLG",
+        "                     --SldTh  E-Fold   --RLG    (others Fold 2nd time)",
+        "            --BendL  --AL",
+        "            --BendL- --1.5    --JoinH  --CirL   --AL",
+        "            \"Cast Off almost 3/4\" --AL",
+        "            --Tag_I  --StrTh  --AL",
+        "                     --LT1/4 (--Col.C) --SF.Pr  (\"Prom, go Single File...\")",
+        "            B-Run    --SHing  --RLG",
+        "            --UTurn  --JoinH  --CirL   --LyIMS  --CirL   --AL",
+        "            \"original\"-H-Trd  A-Prom  (may be WWPrm)",
+        "            {beau couple: H/S}-WhlAr  A-Prom",
+        "            A-1/2of-  -WhlAr  --Prom",
+        "   --RLT    --DixiS  B-Trd    --LSwTh  --Recyc  --RLG",
+        "                              B-XFold  --RLG",
+        "   --T1/4   G-Run    --PsTTC  C-SqTh3  --DoPaS ...",
+        "   {beau couple: H/S}-\"arch\", O-DivTh  --PromH  (gimmick)",
+        "      (After H/S-WhlAr, 'beau couple' is same couple that did the WhlAr)"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --PasTh  --PtTrd  --&Roll  --RLG",
+        "   --LoadB  --PasTh  --AL",
+        "            --BxGnt  --RLG",
+        "            --SCirW (--RearB) --RLG",
+        "   --PsOcn  --SHing  --&Roll  --RLG",
+        " !          --Expl&  --Roll   --RLG",
+        " !          --&Sprd  --Ext    --LA",
+        "   --BxGnt  --LSqT@4 --RLG",
+        "   --SldTh  --Twice  --&Roll  --RLG",
+        "   --RLT    --DixiS  --SwThr  --TrdWv  --RLG"
+      ],
+      "conversionLines": [
+        "--RLT   [L1p] in seq",
+        "   --PasTh  --BendL [L1p] in seq",
+        "                     --BendL [L1p] in seq",
+        "   --PsOcn [W1p] in seq",
+        "            B-Run   [L.F1p] in seq",
+        "   --SldTh [B1p] facing partner in seq",
+        "   --PasTh  --TagI  [5L2p] out seq",
+        "   --TrnTh  --BendL [5L2p] out seq",
+        "   --TagI  [L1p] in seq",
+        "  Plus - - - - - - - -",
+        "   --LoadB [B1p] facing partner in seq",
+        "   --PasTh  --Tag    --Trd    --&Roll [L1p] in seq"
+      ]
+    },
+    {
+      "id": "L4r",
+      "url": "https://www.all8.com/sd/calling/go_l4r.htm",
+      "family": "Facing Lines",
+      "title": "Facing Lines All Facing Partner Special Out-Sequence*",
+      "pageHeading": "Get-outs from Facing Lines [L4r]",
+      "diagram": "1> <1\n2> <2\n4> <4\n3> <3",
+      "description": "Everyone Facing Their Partner",
+      "getoutLines": [
+        "--PasTh  --WhlDl  C-PasTh  --BxGnt  --RLG",
+        "   --RLT    --DixiS  G-Cir, \"B smile\"  --AL",
+        "   --PsOcn  G-Trd    B-Run    --Prom",
+        " ! --FanTp  B-Run    --Prom",
+        " !          --Scoot  --RLG"
+      ],
+      "plusLines": [],
+      "conversionLines": [
+        "--SldTh [B3r] \"s-out\"  (changes order)",
+        "   --2LChn [L2p] \"out seq\"  (changes order)",
+        "   --RvFlt [L2p] \"out seq\"  (changes order)",
+        "   --FltWh [L1p] \"in seq\"",
+        "   --RLT    --2LChn [L1p] \"in seq\"",
+        "            --FltWh [L2p] \"out seq\"  (changes order)",
+        "   --PsOcn  --Recyc [B2p] facing ptr, \"out seq\"",
+        "   --PasTh  --WhlDl  C-PasTh [B1p] facing ptr, \"in seq\""
+      ]
+    },
+    {
+      "id": "L3c",
+      "url": "https://www.all8.com/sd/calling/go_l3c.htm",
+      "family": "Facing Lines",
+      "title": "Facing Lines All Facing Partner Special In-Sequence*",
+      "pageHeading": "Get-outs from Facing Lines [L3c]",
+      "diagram": "2> <2\n1> <1\n3> <3\n4> <4",
+      "description": "Everyone Facing Their Partner",
+      "getoutLines": [
+        "--PsOcn  B-Run    B-Trd    --Prom",
+        " ! --RLT    --DixiS  --SwThr  --ChDTL  \"keep her and\" --Prom"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --PsOcn  --Ext    C-SwThr, E-Trd-    -&Roll  --RLG (call quickly!)"
+      ],
+      "conversionLines": [
+        "--SldTh [B4c] \"s-in\"  (changes order)",
+        "   --2LChn [L1p] \"in seq\"  (changes order)",
+        "   --RvFlt [L1p] \"in seq\"  (changes order)",
+        "   --FltWh [L2p] \"out seq\"",
+        "   --RLT    --2LChn [L2p] \"out seq\"",
+        "            --FltWh [L1p] \"in seq\"  (changes order)",
+        "   --PsOcn  --Recyc [B1p] facing ptr, \"in seq\""
+      ]
+    },
+    {
+      "id": "5L1p",
+      "url": "https://www.all8.com/sd/calling/go5l1p.htm",
+      "family": "Facing Lines",
+      "title": "Sashayed Facing Lines In Sequence",
+      "pageHeading": "Get-outs from Sashayed Facing Lines [5L1p]",
+      "diagram": "3> <2\n3> <2\n4> <1\n4> <1",
+      "description": "Sashayed Lines\nEveryone Paired With Their Partner In Sequence",
+      "getoutLines": [],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --FwdBk  --PtTrd  --&Roll  --RLG"
+      ],
+      "conversionLines": [
+        "--BxGnt  --RLT   [L1p] in seq",
+        "   --T1/4   B-Run   [B1p] facing ptr, in seq",
+        "                     --SldTh [L1p] in seq",
+        "   --PasTh  --BendL [5L2p] with ptr, out seq",
+        "            E-Fold  [B1p] facing ptr, in seq",
+        "   --PsOcn [5L2p] out seq",
+        "  Plus - - - - - - - -",
+        "   --PasTh  --PtTrd  --&Roll [B1p] facing ptr, in seq"
+      ]
+    },
+    {
+      "id": "5L2p",
+      "url": "https://www.all8.com/sd/calling/go5l2p.htm",
+      "family": "Facing Lines",
+      "title": "Sashayed Facing Lines Out Of Sequence",
+      "pageHeading": "Get-outs from Sashayed Facing Lines [5L2p]",
+      "diagram": "4> <1\n4> <1\n3> <2\n3> <2",
+      "description": "Sashayed Lines\nEveryone Paired With Their Partner Out of Sequence",
+      "getoutLines": [
+        "--PsOcn  --RLG",
+        "   --StrTh  --AL",
+        "   --LT1/4 (--Col.C) (\"Single File Circulate\") --SF.Pr"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --LT1/4  G-PeelO  --RLG",
+        "   --PasTh  --PtTrd  --&Roll  --SldTh  --&Roll  --RLG  (balanced flow)",
+        " ! --LoadB  --RLG"
+      ],
+      "conversionLines": [
+        "--BxGnt [L1p] in seq",
+        "   --PsOcn [5W1p] sash, in seq",
+        "   --T1/4   B-Run   [B2p] facing ptr, out seq",
+        "                     --SldTh [L2p] out seq",
+        "  Plus - - - - - - - -",
+        "   --PasTh  --PtTrd  --&Roll [B1p] facing ptr, in seq"
+      ]
+    },
+    {
+      "id": "P1c",
+      "url": "https://www.all8.com/sd/calling/go_p1c.htm",
+      "family": "DPT",
+      "title": "DPT Formation, Outsides Paired, All In Sequence",
+      "pageHeading": "Get-outs from DPT Formation [P1c]",
+      "diagram": "3v v3\n4v v2\n4^ ^2\n1^ ^1",
+      "description": "Outsides Paired -- All Once Removed Facing Corners\ncaller thinks: \"1\" or C-PasTh to the corner",
+      "getoutLines": [
+        "C-PasTh  --AL",
+        "   C-SqTh5  --AL",
+        "   C-SqTh1  --AL",
+        "   --DPT    --FLNR   --RLT    --DixiS  --AL   (\"Dixie Style to an AL\")",
+        "   C-T1/4 \"4 hands to the center\"-RStar \"to corner\" --AL (also works [P2r])",
+        "   C-BxGnt \"you 4\"-RStar \"to corner\" --AL (also works [P2r]) (similar to above)"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --DPT    --DixiG  --AL",
+        "            --Clovr  --DixiG  --AL",
+        " ! C-SwThr  --Ext    --LSwTh  --&Roll  --RLT    --RollA  --RLG"
+      ],
+      "conversionLines": [
+        "C-PasTh [B1c] \"AL\"",
+        "   C-RLT   [P2r] \"3\""
+      ]
+    },
+    {
+      "id": "P2r",
+      "url": "https://www.all8.com/sd/calling/go_p2r.htm",
+      "family": "DPT",
+      "title": "DPT Formation, Outsides Paired, All Out Of Sequence",
+      "pageHeading": "Get-outs from DPT Formation [P2r]",
+      "diagram": "3v v3\n2v v4\n2^ ^4\n1^ ^1",
+      "description": "Outsides Paired -- All Corners Behind Centers\ncaller thinks: \"3\" or C-SqTh3 to the corner",
+      "getoutLines": [
+        "C-SqTh3  --AL",
+        "   --DPT    LrTrd    --RLT    --AL",
+        "                     --SldTh  --Twice  --AL",
+        "            --CtrIn  C-XFold  --AL",
+        "   C-T1/4-   -BxCir- --Twice  --AL",
+        "   C-SwThr  --Ext    --SwThr  \"face your partner\" --RLG",
+        "                              --SHing  G-UTurn  --Prom",
+        "  (C-\"arch\")C-CalTw  <pause>  --AL",
+        "   C-WhlAr  --AL    (if after WhlDl)  (Overflow)",
+        " ! C-\"reverse\"-WhlAr --AL    (if after Feris)",
+        " ! C-\"RIGHT\"-WhlAr   --AL    (if after Feris)  (Gimmick)",
+        " ! C-LSwTh- --Twice  --Ext    --LA",
+        "   C-T1/4 \"4 hands to the center\"-RStar \"to corner\" --AL (works from [P1c])",
+        "   C-BxGnt \"you 4\"-RStar \"to corner\" --AL (works from [P1c]) (similar to above)"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --Zoom   --DixiG",
+        "   C-PsOcn-  -ExpWv  --AL",
+        " ! C-StepW-  -TrdWv  --Ext    --LA",
+        "   C-SwThr  --Ext    --SwThr  --&Roll  C-AL     --RLG",
+        " !          C-TrdWv  C-LSwTh  --Ext    --LA",
+        " !          --Twice  --&Sprd  --Ext    --LA",
+        "   --&Sprd  --SqTh3  --3/4Tg  --RLG"
+      ],
+      "conversionLines": [
+        "C-PasTh [B2r] \"Oops\"",
+        "   C-RLT   [P1c] \"1\"",
+        "            C-PasTh [B1c] \"AL\""
+      ]
+    },
+    {
+      "id": "P4p",
+      "url": "https://www.all8.com/sd/calling/go_p4p.htm",
+      "family": "DPT",
+      "title": "DPT Formation, All Paired \"In Order\"",
+      "pageHeading": "Get-outs from DPT Formation [P4p]",
+      "diagram": "3v v3\n4v v4\n2^ ^2\n1^ ^1",
+      "description": "All With Partners In Order *\n\"s-in\"",
+      "getoutLines": [
+        "C-PasTh  --SwThr (--RearB) --RLG",
+        "                     --TrnTh  --AL",
+        "   --DPT    --1L.2L  --Prom",
+        "   C-RStar- \"...to your corner\" --AL  (works from [P3p] also)",
+        "   C-SwThr-  -TrnTh  --AL",
+        "   C-SwThr, O-Face   --RLG",
+        "   C-PsOcn-  -SHing-  -Wk&Dg  --AL"
+      ],
+      "plusLines": [],
+      "conversionLines": [
+        "C-PasTh [B4c] \"s-in\"",
+        "   C-RLT   [P4p] \"s-in\""
+      ]
+    },
+    {
+      "id": "P3p",
+      "url": "https://www.all8.com/sd/calling/go_p3p.htm",
+      "family": "DPT",
+      "title": "DPT Formation, All Paired \"Out of Order\"",
+      "pageHeading": "Get-outs from DPT Formation [P3p]",
+      "diagram": "3v v3\n2v v2\n4^ ^4\n1^ ^1",
+      "description": "All With Partners Out of Order *\n\"s-out\"",
+      "getoutLines": [
+        "--Zoom   C-PasTh  --SwThr  --RLG",
+        "            C-VeerR  A-Prom  (call VeerR early with emphasis)",
+        "   C-VeerL-  -CalTw  A-Prom  (CalTw = PtTrd = WhlAr)",
+        "   C-SqTh3  --VeerR  A-Prom  (call VeerR early with emphasis)",
+        "   C-LSqT3  --SwThr  --RLG",
+        "                     --TrnTh  --AL",
+        "   C-PasTh  --StepW  --LSwTh  --RLG",
+        "   C-LTrnT  --SwThr  --SHing  --RLG",
+        "   C-AL     --SwThr  \"face partner\"--RLG  (note similarities with above)",
+        "   C-RStar- <pause 1/2 turn> \"...to your corner\"  --AL (works from [P4p])"
+      ],
+      "plusLines": [],
+      "conversionLines": [
+        "--Zoom  [P4p] \"s-in\"",
+        "   C-RLT   [P4p] \"s-in\"",
+        "            C-PasTh [B4c] \"s-in\"",
+        "   C-PasTh [B3r] \"s-out\""
+      ]
+    },
+    {
+      "id": "W1p",
+      "url": "https://www.all8.com/sd/calling/go_w1p.htm",
+      "family": "R-H Waves",
+      "title": "Normal R-H Waves In Sequence",
+      "pageHeading": "Get-outs from Normal R-H Waves [W1p] In Sequence",
+      "diagram": "3> 2>\n<3 <2\n4> 1>\n<4 <1",
+      "description": "Everyone Paired With Their Partner\nIn Sequence",
+      "getoutLines": [
+        "B-Run    --Prom",
+        "   --Scoot  --RLG",
+        "   --SwThr  B-Trd    --RLG",
+        "                     G-UTurn  --Prom   (call quickly)",
+        "   --SpChT  G-Cir    --RLG",
+        "   A-Fold   --RLG",
+        "   G-Run    A-UTurn  --Prom",
+        "   G-Cir    B-Run    B-Cir    --Prom",
+        "   B-Cir    --Recyc  --SwThr  G-Cir    --RLG",
+        "   G-Trd    --SwThr  --SpTop  --SpTop  --RLG",
+        "   --SHing  --Twice  --A8Cir  --Twice  --RLG",
+        "   --A8Cir  --SpChT  G-UTurn- G-Cir    --Prom",
+        "   B-Fold  (sneaky StakW) --SF.Pr",
+        "   --Swing \"...your partner and\" --Prom",
+        " ! --SwThr  --Recyc  --Sweep- \"2 quarters\" --RLG  -Mike Jacobs 6/99"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --SHing  --&Roll  --RLG",
+        "   --SpChX  --Recyc  --AL",
+        "   --A8Cir  --DixiG  --AL",
+        " ! --Expl&  --Roll   \"to face your partner\" --RLG",
+        " ! --SldTh  --&Roll  --RLG",
+        " ! A8SpTop  --RLG"
+      ],
+      "conversionLines": [
+        "--Scoot [5W1p] in seq",
+        "   --Recyc [B4c] \"LeadR box\"",
+        "            --SwThr [5W1p] in seq",
+        "   --Recyc  --Sweep [L2p] out seq",
+        "   --SwThr  B-Trd   [5W1p] in seq",
+        "            B-Run    ChDTL   [L2p] out seq",
+        "   G-Trd    --Recyc  --SldTh [L2p] out seq",
+        "  Plus - - - - - - - -",
+        "   --Expl& [L1p] in seq",
+        "   --LnCyc [L2p] out seq",
+        "   --ExpWv  --BendL [L2p] out seq"
+      ]
+    },
+    {
+      "id": "W2p",
+      "url": "https://www.all8.com/sd/calling/go_w2p.htm",
+      "family": "R-H Waves",
+      "title": "Normal R-H Waves Out Of Sequence",
+      "pageHeading": "Get-outs from Normal R-H Waves [W2p] Out of Sequence",
+      "diagram": "4> 1>\n<4 <1\n3> 2>\n<3 <2",
+      "description": "Everyone Paired With Their Partner\nOut of Sequence",
+      "getoutLines": [
+        "G-Trd    --SwThr  --RLG",
+        "            B-Run    B-Trd   --Prom",
+        "   --SHing  C-Trd    C-RunR  --1/2Tg  --RLG",
+        "                             --Cpl.C  --Feris  G-SqTh3  --StrTh  \"couples...\"-Prom",
+        "   B-Run    --Cpl.T  --Prom",
+        "   --SpltC  --Twice  --RLG",
+        " ! --SwThr  --Recyc  --RLG"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --ExpWv  E-Fold   --RLG",
+        "            --PtTrd  --&Roll --RLG",
+        "   --LnCyc  --&Roll  --SF.Pr",
+        "                     G-UTurn --RLG",
+        " !          G-PeelO  --RLG   (fun overflow to the R for G)",
+        "   --TrdWv  B-Cir    --AL",
+        "            G-Cir    --AL",
+        " !          --Ext    --LA",
+        " !          --.5Cir  --LA",
+        " !          --SlipC  --LA"
+      ],
+      "conversionLines": [
+        "--Scoot [5W2p] out seq",
+        "   --Recyc  --Sweep [L1p] in seq",
+        "            --VeerL [F1p] in seq",
+        "   --SwThr  --A8Cir  --SwThr [W1p] in seq",
+        "            B-Run    ChDTL   [L1p] in seq",
+        "                     G-Trd   [F1p] in seq",
+        "                              --BendL [L1p] in seq",
+        "   G-Trd    --Recyc  --SldTh [L1p] in seq",
+        "  Plus - - - - - - - -",
+        "   --LnCyc [L1p] in seq",
+        "   --ExpWv  --BendL [L1p] in seq",
+        "   --Expl& [L2p] out seq",
+        "            --PsOcn [W1p] in seq"
+      ]
+    },
+    {
+      "id": "5W1p",
+      "url": "https://www.all8.com/sd/calling/go5w1p.htm",
+      "family": "R-H Waves",
+      "title": "Sashayed R-H Waves In Sequence",
+      "pageHeading": "Get-outs from Sashayed R-H Waves [5W1p] In Sequence",
+      "diagram": "3> 2>\n<3 <2\n4> 1>\n<4 <1",
+      "description": "Sashayed Waves\nEveryone Paired With Their Partner\nIn Sequence\n\"RLG WAVES\"\ncaller thinks: \"RLG\"",
+      "getoutLines": [
+        "(--RearB) --RLG",
+        "   --TrnTh  --AL",
+        "   B-Run    B-Fold   --RLG",
+        "            --BendL  --Prom  (unexpected nice flow)",
+        "            --1-1/2  --RLG   (gimmick)",
+        "   G-UTurn  --Prom",
+        "   --Swing  \"...your parnter!\"  --Prom  (gimmick - expecting SwThr)",
+        " ! --DoSaD-\"the one beside you\" --RLG"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --SHing  --&Roll  --SldTh    --&Roll  --RLG",
+        "                     --WWGrd    --R.PBy  --AL",
+        " ! --Ca3/4  --&Roll  --RLG",
+        " ! --ReDcy  --RLG",
+        " ! --SpChG  --RLG"
+      ],
+      "conversionLines": [
+        "B-Run   [F1p] in seq",
+        "            --BendL [L1p] in seq",
+        "   --SHing  B-Run   [L1p] in seq",
+        "  Plus - - - - - - - -",
+        "   --SHing  --&Roll [B1p] facing partner in seq"
+      ]
+    },
+    {
+      "id": "5W2p",
+      "url": "https://www.all8.com/sd/calling/go5w2p.htm",
+      "family": "R-H Waves",
+      "title": "Sashayed R-H Waves Out of Sequence",
+      "pageHeading": "Get-outs from Sashayed R-H Waves [5W2p] Out of Sequence",
+      "diagram": "4> 1>\n<4 <1\n3> 2>\n<3 <2",
+      "description": "Sashayed Waves\nEveryone Paired With Their Partner\nOut of Sequence\n\"RLG WAVES OUT OF SEQUENCE\"\ncaller thinks: \"rats!\"",
+      "getoutLines": [
+        "B-Trd,   G-Trd    --RLG",
+        "   --SpTop  --SpTop  --RLG",
+        "   --SwThr  --Recyc  --PasTh  --AL",
+        " ! C-Trd    --Recyc  --RLG",
+        " ! B-Trd    G-Run    G-XRun   --Prom"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   B-Trd    B-Run    G-SHing  --FlipD  --RLG",
+        "   --SpTop  --Recyc  --&Roll  --SF.Pr",
+        "                              G-PeelO  --RLG",
+        " ! --SpltC  --SHing  --LSwTh  --&Roll  --RLG",
+        " ! --SwThr  --&Sprd  --AcDcy  --AL",
+        " ! --SpTop  B-Fold   --PeelT  --RLG",
+        " ! --TrdWv  --Ca3/4  --&Roll  --RLG",
+        " ! --TrdWv  --SpChT  G-Cir2   --AL",
+        " !!G-Run    --Feris  --&Roll  --Feris  --&Roll  --Prom   --Vic Ceder"
+      ],
+      "conversionLines": [
+        "B-Run   [F2p] out seq",
+        "            --BendL [L2p] out seq",
+        "   --SHing  B-Run   [L2p] out seq",
+        "   --SpTop  --SpTop [5W1p] sash in seq",
+        "   --SwThr  --SwThr [5W1p] sash in seq",
+        "            --A8Cir  --SwThr [5W1p] sash in seq",
+        "            --Recyc [B1p] facing partner in seq",
+        "   --LSwTh  --LSwTh [5W1p] sash in seq",
+        "  Plus - - - - - - - -",
+        "   --SHing  --&Roll [B2p] facing partner out seq",
+        " ! --Expl&  --PsOcn [5W1p] sash in seq",
+        " !          --&Roll [B2p] facing partner out seq"
+      ]
+    },
+    {
+      "id": "1W1p",
+      "url": "https://www.all8.com/sd/calling/go1w1p.htm",
+      "family": "R-H Waves",
+      "title": "#1 R-H Waves In Sequence",
+      "pageHeading": "Get-outs from #1 R-H Waves [1W1p] In Sequence",
+      "diagram": "3> 2>\n<3 <2\n4> 1>\n<4 <1",
+      "description": "#1 Waves - Boys Facing In\nEveryone Paired With Their Partner\nIn Sequence",
+      "getoutLines": [
+        "\"face your partner\"  --RLG",
+        "   --FaceR  --RLG",
+        "   --SHing  G-UTurn  --Prom",
+        "  (--RearB) --SldTh  --Prom"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --FYNbr  B-Cir    --AL",
+        "            --Ext    --LA",
+        "            --LHing  --&Roll  --RLG    (fun hand change)"
+      ],
+      "conversionLines": [
+        "G-RunR  [5L1p] sash in seq",
+        "   --SHing [5W1p] sash in seq",
+        "  Plus - - - - - - - -",
+        "   --FYNbr  --&Sprd [W1p] in seq",
+        "   A-Trd    --&Roll [B1p] facing partner in seq"
+      ]
+    },
+    {
+      "id": "1W2p",
+      "url": "https://www.all8.com/sd/calling/go1w2p.htm",
+      "family": "R-H Waves",
+      "title": "#1 R-H Waves Out of Sequence",
+      "pageHeading": "Get-outs from #1 R-H Waves [1W2p] Out of Sequence",
+      "diagram": "4> 1>\n<4 <1\n3> 2>\n<3 <2",
+      "description": "#1 Waves - Boys Facing In\nEveryone Paired With Their Partner\nOut of Sequence",
+      "getoutLines": [
+        "G-RunR  [5L2p] sash out seq"
+      ],
+      "plusLines": [],
+      "conversionLines": [
+        "Plus - - - - - - - -"
+      ]
+    },
+    {
+      "id": "2W1p",
+      "url": "https://www.all8.com/sd/calling/go2w1p.htm",
+      "family": "R-H Waves",
+      "title": "#2 R-H Waves In Sequence",
+      "pageHeading": "Get-outs from #2 R-H Waves [2W1p] In Sequence",
+      "diagram": "3> 2>\n<3 <2\n4> 1>\n<4 <1",
+      "description": "#2 Waves - Boys Facing Out\nEveryone Paired With Their Partner\nIn Sequence",
+      "getoutLines": [
+        "B-Fold   --StrTh  --Prom"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   A-TrdR   --&Roll  --RLG",
+        "   --FYNbr  --1/2of-  -Sprd   --RLG",
+        " !          --Ca3/4  --&Roll  --RLG   (fun hand change)"
+      ],
+      "conversionLines": [
+        "B-Run   [L1p] in seq",
+        "   --SHing [W1p] in seq",
+        "  Plus - - - - - - - -"
+      ]
+    },
+    {
+      "id": "2W2p",
+      "url": "https://www.all8.com/sd/calling/go2w2p.htm",
+      "family": "R-H Waves",
+      "title": "#2 R-H Waves Out of Sequence",
+      "pageHeading": "Get-outs from #2 R-H Waves [2W2p] Out of Sequence",
+      "diagram": "4> 1>\n<4 <1\n3> 2>\n<3 <2",
+      "description": "#2 Waves - Boys Facing Out\nEveryone Paired With Their Partner\nOut of Sequence",
+      "getoutLines": [],
+      "plusLines": [],
+      "conversionLines": [
+        "B-Run   [L2p] out seq",
+        "   --SHing [W2p] out seq",
+        "  Plus - - - - - - - -"
+      ]
+    },
+    {
+      "id": "F1p",
+      "url": "https://www.all8.com/sd/calling/go_f1p.htm",
+      "family": "R-H 2-Face Lines",
+      "title": "R-H 2 Face Lines In Seq",
+      "pageHeading": "Get-outs from [F1p] R-H 2 Face Lines In Sequence",
+      "diagram": "",
+      "description": "Normal 2-Face Lines In Sequence",
+      "getoutLines": [
+        "B-Fold   --RLG",
+        "   --BendL  --RvFlt  --Sweep  --PasTh  --AL     --Swing!",
+        "                              --VeerR  B-Trd    --Prom",
+        "   --CalTw  --Prom",
+        "   B-RunR   G-UTurn  --Prom",
+        "   G-RunL   B-UTurn  --Prom",
+        "   --WhlAr  --Prom",
+        "  Look for \"at home\" get-out: --Cpl.C  --N-1/2  --BendL",
+        "         where N is 0, 1, 2, or 3"
+      ],
+      "plusLines": [],
+      "conversionLines": [
+        "--BendL [L1p] in seq",
+        "            --RvFlt  --SldTh [B4c] with ptr in seq",
+        "   --Feris [P4p] all with partner \"in seq\"",
+        "   --WhlDl  --Sweep [L2p] out seq",
+        "            --VeerL [F2p] out seq",
+        "   B-Run   [5W1p] in seq",
+        "   --1/2Tg  --SHing  C-Trd   [5W2p] sash out seq",
+        "                              B-Run   [F2p] out seq",
+        "   G-Trd    --RollA  B-Trd    --BendL [5L2p] out seq"
+      ]
+    },
+    {
+      "id": "F2p",
+      "url": "https://www.all8.com/sd/calling/go_f2p.htm",
+      "family": "R-H 2-Face Lines",
+      "title": "R-H 2 Face Lines Out Of Seq",
+      "pageHeading": "Get-outs from [F2p] R-H 2 Face Lines Out Of Sequence",
+      "diagram": "",
+      "description": "Normal 2-Face Lines Out of Sequence",
+      "getoutLines": [
+        "--TagL   --Prom",
+        "   --Tag    G-FaceR  B-FaceL  --RLG",
+        "   G-Trd    --WhlDl  --8Chn1  --AL",
+        "            --TagR   --WhlDl  --RLG",
+        " ! --1/2Tg  --SwThr  --SpltC  --RLG"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --WhlDl  --Sweep  --&Roll (--Col.C) --SF.Pr",
+        "   --1/2Tg  --SHing  --AcDcy  --A8Cir  --1-1/2  --RLG",
+        "  Look for \"at home\" get-out: --Cpl.C  --N  --Feris  C-Sweep",
+        "         where N is 0, 1, 2, or 3"
+      ],
+      "conversionLines": [
+        "--BendL [L2p] out seq",
+        "   --WhlDl  --VeerL [F1p] in seq",
+        "            --Sweep [L1p] in seq",
+        "   --ChDTL  --SldTh [B4c] with ptr in seq",
+        "            --PasTh  --WhlDl  C-PasTh [B1p] facing ptr, in seq",
+        "   --Feris [P3p] all with partner \"out seq\"",
+        "   B-Run   [5W2p] out seq",
+        "   G-Trd    --WhlDl [B1p] facing in seq",
+        "   --1/2Tg  --SpltC  B-Run   [L1p] in seq",
+        "            --SHing  C-Trd   [5W1p] sash in seq",
+        "                              B-Run   [F1p] in seq",
+        "   --BendL  --BW.GD  --SHing  C-Trd   [W1p] in seq"
+      ]
+    },
+    {
+      "id": "L.F1p",
+      "url": "https://www.all8.com/sd/calling/go_lhf1p.htm",
+      "family": "L-H 2-Face Lines",
+      "title": "Normal L-H 2 Face Lines In Sequence",
+      "pageHeading": "Get-outs from [L.F1p] Normal L-H 2 Face Lines In Sequence",
+      "diagram": "",
+      "description": "Normal L-H 2-Face Lines In Sequence",
+      "getoutLines": [
+        "--PromH",
+        "   G-Fold   --RLG",
+        "   --1/2of-  -RollA  --RLG"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        " ! --XFire  B-RunL   --RLG",
+        "  Look for \"at home\" get-out: --Cpl.C  --N-1/2  --BendL",
+        "         where N is 0, 1, 2, or 3"
+      ],
+      "conversionLines": [
+        "--BendL [L1p] in seq",
+        "   --Feris  C-WhlAr [B4c] in seq"
+      ]
+    },
+    {
+      "id": "L.F2p",
+      "url": "https://www.all8.com/sd/calling/go_lhf2p.htm",
+      "family": "L-H 2-Face Lines",
+      "title": "Normal L-H 2 Face Lines Out Of Sequence",
+      "pageHeading": "Get-outs from [L.F1p] Normal L-H 2 Face Lines Out Of Sequence",
+      "diagram": "",
+      "description": "Normal L-H 2-Face Lines Out of Sequence",
+      "getoutLines": [
+        "--Cpl.T  --PromH",
+        "   --BendL  --RollA  --PsOcn  --RLG",
+        "   B-Trd    --BendL  --DixiS  B-UTurn  --PromH",
+        " ! --Zoom   --PromH   (gimmick)",
+        " ! B-XRun   G-XRun   --PromH   (C-XRun both times)",
+        "!! G-XRun   B-XRun   --PromH   (E-XRun both times)"
+      ],
+      "plusLines": [
+        "Plus - - - - - - - -",
+        "   --BendL  --DixiS  --AcDcy  --AL",
+        "  Look for \"at home\" get-out: --Cpl.C  --N  --Feris  C-Sweep",
+        "         where N is 0, 1, 2, or 3"
+      ],
+      "conversionLines": [
+        "--BendL [L2p] out seq",
+        "   B-Trd    --WhlDl [B1p] facing partner, in seq",
+        "   --Feris [P4p] \"O\"",
+        "   --Prom   --DontS Get-outs from Promenade out of sequence"
+      ]
+    },
+    {
+      "id": "Dixie Grand",
+      "url": "https://www.all8.com/sd/calling/go_dg.htm",
+      "family": "Special",
+      "title": "Dixie Grand Get-outs",
+      "pageHeading": "Dixie Grand Get-outs",
+      "diagram": "",
+      "description": "Dixie Grand Get-outs",
+      "getoutLines": [
+        "[B1c]   \"ZERO BOX\"   Everyone facing their corner",
+        "   --DivTh  --DixiG  --AL",
+        "   --PsTTC  --DixiG  --AL",
+        "   --PasTh  --DixiG  --AL   (everybody starts the DixiG)",
+        "   --DixiG  --DoPaS (RolPr) (everybody starts the DixiG)",
+        "   --SldTh  --SqTh4  --DixiG  --AL     (everybody starts the DixiG)",
+        "            --PasTh  --BendL  --SqTh2  --DixiG  (everybody starts DixiG)",
+        "[B2r]   \"ACROSS THE STREET BOX\"   Noone facing their corner",
+        "   --DivTh  C-RLT    --DixiG   --AL",
+        "            C-SqT@3  --DixiG   --AL",
+        "[B1p]   \"Facing In Seq BOX\" - All Facing Partner In Sequence",
+        "   --8Chn2  --DixiG  --AL   (everybody starts the DixiG)",
+        "[P1c]   Outsides Paired, C-PasTh to their corner",
+        "   --DPT    --DixiG  --AL",
+        "            --Clovr  --DixiG  --AL",
+        "[P2r]   Outsides Paired, C-SqTh3 to their corner",
+        "   --Zoom   --DixiG",
+        "[W1p]   Normal Waves In Sequence",
+        "   --A8Cir  --DixiG  --AL    (everybody starts the DixiG)"
+      ],
+      "plusLines": [],
+      "conversionLines": []
+    }
+  ],
+  "failures": []
+}

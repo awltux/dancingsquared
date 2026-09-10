@@ -4,7 +4,7 @@
 
 A **standalone square dance engine library** that can be consumed as the internal engine for a square dance game/tutor (a separate project). It must be **data-efficient**, **easy to use**, and produce **animated 3D avatars** for the dancers, not just 2D markers.
 
-The behavioral/mechanical definitions come from [`square-dance.md`](square-dance.md). The call, move, and formation data are **extracted from the `taminations-flutter` directory** (which is reference-only — we do **not** port its code, we ingest its **data**).
+The behavioral/mechanical definitions come from [`square-dancing.md`](square-dancing.md). The call, move, and formation data are **extracted from the `taminations-flutter` directory** (which is reference-only — we do **not** port its code, we ingest its **data**).
 
 ---
 
@@ -30,7 +30,7 @@ The behavioral/mechanical definitions come from [`square-dance.md`](square-dance
 ## 3. Source Data
 
 ### 3.1 Behavioral spec
-[`square-dance.md`](square-dance.md) defines the computational model: 8-dancer grid, ghost dancers, FASR layers, call mechanics (entry/core/exit padding), timing, and collision rules. This is the **semantic contract** the engine must honor.
+[`square-dancing.md`](square-dancing.md) defines the computational model: 8-dancer grid, ghost dancers, FASR layers, call mechanics (entry/core/exit padding), timing, and collision rules. This is the **semantic contract** the engine must honor.
 
 ### 3.2 Extracted data (from `taminations-flutter/assets`)
 All of the following already exist as **declarative XML** and are the sole source of truth (no Dart code is ported):
@@ -151,21 +151,21 @@ For each dancer at beat `t`, `AvatarPose` = `Pose` plus:
 ### 7.3 Avatar representation
 - **Avatars:** simple humanoid rigs (capsule/teardrop torso, limbs as segmented capsules). Boy/girl/phantom distinct. **Instanced** for performance (many dancers on screen).
 - **Labels:** name/number/couple sprites overhead.
-- **Phantom dancers:** styled ghostly/translucent (do not collide — see `square-dance.md` ghost rules).
+- **Phantom dancers:** styled ghostly/translucent (do not collide — see `square-dancing.md` ghost rules).
 - **Hand-hold indicators:** visible connectors or grip rings during held segments (teaching aid).
 
 ### 7.4 Lead-in / lead-out "square breathing"
 Inactive dancers still get slight idle motion (subtle bounce/sway) so the set feels alive between calls. Data flag mirrors taminations' `isJustBreathing`.
 
 ### 7.5 Collision & clipping guardrails
-- No two physical dancers occupy the same `(x, y)` (from `square-dance.md` §5); ghost dancers bypass occupancy.
+- No two physical dancers occupy the same `(x, y)` (from `square-dancing.md` §5); ghost dancers bypass occupancy.
 - Arm/torso IK results are validated so limbs don't interpenetrate the partner or floor.
 
 ---
 
 ## 8. Timeline, Timing & Phrasing
 
-- **Metric unit:** musical beats; default tempo 128 BPM (per `square-dance.md` §4).
+- **Metric unit:** musical beats; default tempo 128 BPM (per `square-dancing.md` §4).
 - Call timeline modeled as explicit **phases**: `lead-in`, `parts`, `fractions`, `lead-out`.
 - Singing-call macro-structure (64 beats / four 16-beat phrases) is ordinary data for the validator, not special-cased in the engine.
 - Beat clock: `beat = elapsedMs / msPerBeat`; `requestAnimationFrame` playhead with play/pause/seek/step-part/loop (mirrors `BeatNotifier` semantics).

@@ -315,7 +315,9 @@ Two rules, both enforced by `features/index_independence.feature`:
 
 ## 9. Open Items
 
-Remaining planned work, in the order agreed:
+Remaining planned work, in the order agreed. `HANDOVER.md` at the repo root is the consolidated
+version of this section: what is done (with the numbers and the command to reproduce them), what
+remains, the decisions already made, and the traps that have already bitten.
 
 ### 9.1 Get-out conformance (the active workstream)
 
@@ -900,10 +902,10 @@ and upstream of 6 of the 9 promenade finishes that still refuse.
     `Sequencer.legalCalls` enumerate the catalog, so `Promenade` appears in `legalNext()` (when
     it applies) and is now a search edge, but not in the table. The table builder would need a
     rule for a call that is legal from a *precondition* rather than from a setup.
-6. **Phase 4 — Coverage and spec alignment.** Audit checks for the bounded non-geometric
-   matching exceptions (§8.2), a decision on the editor's "no match within tolerance" wording,
-   and an explicit runtime-join check.
-7. **Phase 5 — Hygiene.** `knownFormation` is the last loose-tolerance (6.0) outlier,
+13. **Phase 4 — Coverage and spec alignment.** Audit checks for the bounded non-geometric
+    matching exceptions (§8.2), a decision on the editor's "no match within tolerance" wording,
+    and an explicit runtime-join check.
+14. **Phase 5 — Hygiene.** `knownFormation` is the last loose-tolerance (6.0) outlier,
    deliberately permissive for legality; review whether it should follow the tight recognition
    threshold.
 

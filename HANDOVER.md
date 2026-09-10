@@ -195,10 +195,23 @@ whole-set names registered **46/48 → 54/56**, corpus success **59 → 66**, un
 **202 → 170**. Mid-body stops rose 68 → 94 — which is the phase working, not a regression: those
 lines are now readable, and they are genuine engine gaps instead of hiding behind an unread token.
 
-**What is left of the decoder gap is not notation.** The four largest remaining tokens are
-`&Roll` (30) — needs the **Roll modifier**, `SHing` (11) — needs `Single Hinge` implemented,
-`LA` (9) — ambiguous on purpose, and `Expl&` (5) — needs **"Explode and \<call\>" composition**.
-The table records each with its reason so nobody re-adds them as vocabulary.
+**What is left of the decoder gap is not notation.** The four largest remaining tokens were
+`&Roll` (30) — the **Roll modifier**, `SHing` (11) — `Single Hinge` not being implemented,
+`LA` (9) — ambiguous on purpose, and `Expl&` (5) — "Explode and \<call\>" composition. The table
+records each with its reason so nobody re-adds them as vocabulary.
+
+**`&Roll` IS DONE (Phase 4d).** `Roll` was absent from the catalogue entirely — no `<tam>`, not even
+in the call index — and is now a **geometry-derived call** (`coded-moves.ts`): each dancer turns a
+quarter in the direction they were already turning, which is the reference's rule verbatim
+(`calls/plus/roll.dart`, 50 lines). Implemented it turned up a latent bug worth knowing about:
+`SeqDancer.lastTurnDir` was **labelled backwards** (`moves.ts` documents `turn` as "+ = left / CCW",
+the recorder wrote `delta > 0 ? 'right' : 'left'`), and the coded-pivot path recorded **nothing at
+all**. Nothing consumed the metadata, so no gate caught either; `Roll` is its first consumer.
+Measured: corpus lines stopped at an undecodable token **170 → 146**, `Roll` **no longer appears
+among the stopping calls**, and behaviour-audit grew 137 → 143 assertions. The 180° case is handled
+the way the reference handles it — from the path's halfway pose — because that is what `Partner
+Trade` does and the corpus's "and Roll" lines are literally `--PtTrd --&Roll`.
+
 
 ### 4.3 Then: the remaining call gaps, by corpus count
 

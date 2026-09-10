@@ -30,6 +30,26 @@ export * from './sequencer/types.js';
 export { matchFormations, matchFormationsAll } from './sequencer/match.js';
 export type { FormationMatch, Matchable } from './sequencer/match.js';
 export { analyzeFasr } from './sequencer/fasr.js';
+export {
+  alignmentOf,
+  arrangementFor,
+  sequenceFor,
+  relationshipCode,
+  letterForFormation,
+  ARRANGEMENT_TABLES,
+  ARRANGEMENT_NUMBER_ORDER,
+  FORMATION_LETTER,
+  HOME_RING_ORDER,
+  REFERENCE_PAIR_RULES,
+} from './sequencer/alignment.js';
+export type {
+  Alignment,
+  ArrangementResult,
+  SequenceResult,
+  ArrangementNumber,
+  SequenceCode,
+  RelationshipCode,
+} from './sequencer/alignment.js';
 export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS } from './sequencer/constants.js';
 export { normalisedState, orientationDeltaSteps, ORIENTATION_STEP, ORIENTATION_STEPS } from './sequencer/fsm.js';
 export { FsmTable, FSM_TABLE_SCHEMA_VERSION, type FsmTableEdge, type FsmTableData } from './sequencer/fsm-table.js';

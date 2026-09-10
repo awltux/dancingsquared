@@ -312,11 +312,10 @@ than the thing being modelled.
 
 Structural gaps this workstream has to close:
 
-1. **Aligned identity.** `recognize` gives the formation; the arrangement is
-   unnamed; `sequence` is 2-state (boys only) where Callerlab/All8 define 4; and
-   `relationship` records 2 fields (`partner`, `corner`) where All8 defines 4
-   (`p`, `c`, `o`, `r`), so `o` and `r` collapse. A board therefore cannot be said
-   to BE an alignment.
+1. **Aligned identity.** `recognize` gives the formation and, since step 2,
+   `alignmentOf` gives arrangement (6), sequence (4) and relationship (4) — but the
+   last two need a board that carries identity, which the formation templates do not.
+   A board can now be said to BE an alignment; nothing yet *constructs* one (step 3).
 2. **The FSM state drops the alignment.** It keys on the normalised formation only,
    so up to 96 alignments per formation become one state (§8 note: 6 arrangements ×
    4 sequences × 4 relationships).
@@ -354,6 +353,92 @@ relationship 4); **3** generate a board per alignment by enumerating identity
 assignments over the formation's spots (4!×4! = 576, classified and matched against
 the requested All8 id) — tractable with no new data; **4** re-run the fixture as a
 behavioural report giving, per get-out, the call it stopped at and why.
+
+**Step 2 is DONE — the alignment classifier exists.** `engine/src/sequencer/alignment.ts`
+names the other three FASR dimensions of a board, and `engine/test/alignment.mjs`
+checks it on every `npm run verify`. Gap 1 below is now closed for arrangement, and
+expressible (though not derivable) for sequence and relationship.
+
+*Arrangement (6 states).* There is **no universal rule**, which is the trap. All8's
+generic 6-pattern list (`BGGB`→0, …) is stated for a wave and is correct only there:
+arrangement 0 of a wave *is* `BggB`, but arrangement 0 of Facing Lines is `gBgB`,
+which the same list would call 1. So the module carries All8's **per-formation**
+tables and matches the board against the table for the formation it is in.
+Two things make this trustworthy:
+
+- The tables are not trusted to transcription. `fixtures/all8-arrangements.json` is a
+  machine parse of all 36 formations on `arrngdia.htm`; the hand-written tables in the
+  module must equal it cell for cell (96 gender cells), or verify fails.
+- The engine's own six templates independently agree: every one reads as arrangement 0.
+  They are *not* stored in All8's drawing orientation (they are 90° clockwise from it),
+  so this exercises the symmetry search rather than a lucky identity transform.
+
+Readings are **rotation-only, never reflection**. Mirroring is not something dancers can
+do, All8 publishes separate mirrored tables for left-hand formations (`[L.W]` beside
+`[W]`, `[L.F]` beside `[F]`), and in `[B]`/`[P]`/`[L]` the left-right mirror of
+arrangement 0 is *exactly* arrangement 5's gender pattern — so accepting a reflection
+would silently relabel a 0 board as 5. A board that matches only under reflection is
+refused, with the reflection-only reading reported as the diagnosis. The mirror maps are
+themselves checked as data (all involutions): `[B]`/`[P]` `0↔5 1↔2 3↔4`, `[L]` `0↔5 1↔2`
+with 3 and 4 fixed, and `[W]`/`[F]`/`[L.F]` refuse every mirrored board because their
+facing layouts are not mirror-invariant — for those three the facings alone pin down the
+handedness.
+
+*Sequence (4 states).* All8's rule: walk the formation in promenade direction
+(anti-clockwise) **starting at the #1 boy**; `1,2,3,4` is in sequence, `1,4,3,2` is out,
+and **any other order is asymmetric**, not a fifth state — so the classifier reports
+`null` with the offending cycle rather than rounding it to in/out. The same reading is
+taken for the girls; the two states combine into codes 1–4. `HOME_RING_ORDER` is derived
+from `HOME_DANCERS` rather than assumed, and the home squared set measures as sequence 1
+with boys and girls both `1234`, which is what All8 says it is.
+
+*Relationship (4 states).* The four letters are the four girls in cyclic order around the
+boy, so the letter is an offset in the home ring: `+0 p` partner, `+1 r` right-hand girl
+(the next couple round = on his right), `+2 o` opposite girl, `+3 c` corner (the previous
+couple = on his left). This is checked against All8's own worked example — in a circle
+formed from a squared set "each boy has his partner girl to his right", which the home
+geometry reproduces — and the corner/right split is what follows from it: the #1 boy
+stands south facing the centre, his partner (couple 1) is on his right, couple 2 further
+right, and the girl on his left is couple 4, the couple he came from in the ring.
+
+Two limits are deliberate, and the classifier says so rather than guessing:
+
+- **Templates carry no identity.** The six engine templates have `couple 0` throughout, so
+  sequence and relationship cannot be read from them at all; only identity-bearing boards
+  (home, or anything replayed from it) can be classified. `alignmentOf` reports the reason.
+- **The reference pair is a convention, not a derivation.** Callerlab agreed one for
+  `[0L]` (the left-hand couple), `[0B]` (outside boy and the girl he faces), `[0F]` (the
+  trailing couple) and `[0W]` (the in-facing end boy and adjacent girl) — those four, in
+  standard arrangement, and All8 notes the choice is "somewhat arbitrary" and "makes a
+  definite difference". So `alignmentOf` computes a relationship only when a reference
+  pair is supplied; `REFERENCE_PAIR_RULES` records the four agreed rules.
+
+*New data captured:* `fixtures/all8-16-states.json` — All8's own complete 16-state table
+for `[B] [P] [L] [F] [W]`, each with a resolve hint (e.g. `[0B1c]` → "AL"). All five
+tables contain exactly 16 distinct states = 4 sequences × 4 relationships at standard
+arrangement, which is an independent confirmation of the 4×4 model this whole workstream
+rests on.
+
+Two findings, deliberately **not** fixed in this step:
+
+1. **`analyzeFasr`'s `corner` is wrong** — it agrees with Callerlab's corner 0 times out
+   of 4 on the home square, returning the *opposite* girl. It uses a fixed +45° angular
+   offset, which in a squared set lands on the next ring position (the girl on his right)
+   and, once the partner is excluded, falls through to the girl 2 away. The fix is small
+   but the blast radius is not: `FasrRelations.corner` feeds `fasrKey`, which backs
+   `isZero` and the solver's `Static Square` check, so it needs its own measured step
+   rather than a drive-by edit.
+2. **The corner/right naming is reason-verified, not test-verified.** All8 publishes both
+   halves of a cross-check — `[0B1c]` carries the resolve hint "AL", and the get-out
+   fixture gives `[0B1p]` the get-out `Pass Thru > Allemande Left` — so Pass Thru from a
+   `[B1p]` board must land on `c`, not `r`. Reproducing it needs a constructed board in a
+   named alignment, i.e. step 3, so the confirmation belongs there.
+
+Remaining steps: **3** generate a board per alignment by enumerating identity assignments
+over the formation's spots (4!×4! = 576, classified and matched against the requested All8
+id) — tractable with no new data, and it is what turns step 2's classifier from a reader
+into a constructor; **4** re-run the fixture as a behavioural report giving, per get-out,
+the call it stopped at and why.
 
 ### 9.2 Other open items
 

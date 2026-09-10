@@ -1,0 +1,684 @@
+{
+ "note": "All8's per-formation table of the 16 possible FASR states with standard (0) arrangement: 4 sequences X 4 relationships. Authoritative label list for the alignment dimension of the get-out workstream.",
+ "source": {
+  "B": "https://www.all8.com/sd/calling/16com_b.htm",
+  "P": "https://www.all8.com/sd/calling/16com_p.htm",
+  "L": "https://www.all8.com/sd/calling/16com_l.htm",
+  "F": "https://www.all8.com/sd/calling/16com_f.htm",
+  "W": "https://www.all8.com/sd/calling/16com_w.htm"
+ },
+ "method": "Visible FASR labels [<arrangement><formation><sequence><relationship>] scraped from each page's state grid; the trailing text on each label's line is All8's own resolve hint (often the name of a get-out known to work from that state). A missing arrangement digit means arrangement 0, per All8's own notation rule.",
+ "structuralClaim": "Each page states: 'Columns differ by sequence: FASR 1,2,3,4' and 'Rows differ by relationship: FASR p,o,c,r' - i.e. the grid is sequence x relationship, exactly the 4x4 model. The cells are laid out with nested tables, so the order scraped here need not be the visual order; the SET is what matters, and it is complete.",
+ "formations": {
+  "B": {
+   "url": "https://www.all8.com/sd/calling/16com_b.htm",
+   "stateCount": 16,
+   "states": [
+    {
+     "id": "0B1p",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "p",
+     "hint": "All In"
+    },
+    {
+     "id": "0B2p",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "p",
+     "hint": "All Out"
+    },
+    {
+     "id": "0B3r",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "r",
+     "hint": "LeadL"
+    },
+    {
+     "id": "0B4c",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "c",
+     "hint": "LeadR"
+    },
+    {
+     "id": "0B1o",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "o",
+     "hint": "DixiG"
+    },
+    {
+     "id": "0B2o",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0B3c",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0B4r",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0B1c",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "c",
+     "hint": "AL"
+    },
+    {
+     "id": "0B2r",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "r",
+     "hint": "X Street"
+    },
+    {
+     "id": "0B3o",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0B4o",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "o",
+     "hint": "IYWT"
+    },
+    {
+     "id": "0B1r",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0B2c",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0B3p",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "p",
+     "hint": "IYWT"
+    },
+    {
+     "id": "0B4p",
+     "formation": "B",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "p",
+     "hint": ""
+    }
+   ]
+  },
+  "P": {
+   "url": "https://www.all8.com/sd/calling/16com_p.htm",
+   "stateCount": 16,
+   "states": [
+    {
+     "id": "0P1p",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "p",
+     "hint": "All In"
+    },
+    {
+     "id": "0P2p",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "p",
+     "hint": "All Out"
+    },
+    {
+     "id": "0P3r",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "r",
+     "hint": "LeadL"
+    },
+    {
+     "id": "0P4c",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "c",
+     "hint": "LeadR"
+    },
+    {
+     "id": "0P1o",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0P2o",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0P3c",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0P4r",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0P1c",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "c",
+     "hint": "PasTh"
+    },
+    {
+     "id": "0P2r",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "r",
+     "hint": "SqTh3"
+    },
+    {
+     "id": "0P3o",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0P4o",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "o",
+     "hint": "IYWT"
+    },
+    {
+     "id": "0P1r",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "r",
+     "hint": "DixiG"
+    },
+    {
+     "id": "0P2c",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0P3p",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "p",
+     "hint": "IYWT"
+    },
+    {
+     "id": "0P4p",
+     "formation": "P",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "p",
+     "hint": ""
+    }
+   ]
+  },
+  "L": {
+   "url": "https://www.all8.com/sd/calling/16com_l.htm",
+   "stateCount": 16,
+   "states": [
+    {
+     "id": "0L1p",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "p",
+     "hint": ""
+    },
+    {
+     "id": "0L2p",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "p",
+     "hint": ""
+    },
+    {
+     "id": "0L3c",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0L4r",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0L1o",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0L2o",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0L3r",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0L4c",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0L1c",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0L2r",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0L3p",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "p",
+     "hint": ""
+    },
+    {
+     "id": "0L4p",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "p",
+     "hint": ""
+    },
+    {
+     "id": "0L1r",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0L2c",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0L3o",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0L4o",
+     "formation": "L",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "o",
+     "hint": ""
+    }
+   ]
+  },
+  "F": {
+   "url": "https://www.all8.com/sd/calling/16com_f.htm",
+   "stateCount": 16,
+   "states": [
+    {
+     "id": "0F1p",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "p",
+     "hint": "In Seq"
+    },
+    {
+     "id": "0F2p",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "p",
+     "hint": "Out Seq"
+    },
+    {
+     "id": "0F3c",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0F4r",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0F1o",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0F2o",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0F3r",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0F4c",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0F1c",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0F2r",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0F3p",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "p",
+     "hint": ""
+    },
+    {
+     "id": "0F4p",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "p",
+     "hint": ""
+    },
+    {
+     "id": "0F1r",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0F2c",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0F3o",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0F4o",
+     "formation": "F",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "o",
+     "hint": ""
+    }
+   ]
+  },
+  "W": {
+   "url": "https://www.all8.com/sd/calling/16com_w.htm",
+   "stateCount": 16,
+   "states": [
+    {
+     "id": "0W1p",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "p",
+     "hint": "In Seq"
+    },
+    {
+     "id": "0W2p",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "p",
+     "hint": "Out Seq"
+    },
+    {
+     "id": "0W3r",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0W4c",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0W1o",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "o",
+     "hint": "DixiG"
+    },
+    {
+     "id": "0W2o",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0W3c",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0W4r",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0W1c",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0W2r",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0W3o",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0W4o",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "o",
+     "hint": ""
+    },
+    {
+     "id": "0W1r",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 1,
+     "relationship": "r",
+     "hint": ""
+    },
+    {
+     "id": "0W2c",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 2,
+     "relationship": "c",
+     "hint": ""
+    },
+    {
+     "id": "0W3p",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 3,
+     "relationship": "p",
+     "hint": ""
+    },
+    {
+     "id": "0W4p",
+     "formation": "W",
+     "arrangement": "0",
+     "sequence": 4,
+     "relationship": "p",
+     "hint": ""
+    }
+   ]
+  }
+ }
+}

@@ -102,7 +102,7 @@ const seq = new Sequencer(
 //
 // The abbreviation table and tokenizer live in lib/getout-decode.mjs so this script
 // and getout-behaviour.mjs decode the corpus identically.
-import { TOKENS, GROUP, tokenize, decodeToken } from './lib/getout-decode.mjs';
+import { TOKENS, GROUP, tokenize, decodeToken, KNOWN_CATALOGUE_GAPS, decodeStats, formatRanking } from './lib/getout-decode.mjs';
 
 let lines = 0, decoded = 0;
 const unknownTokens = new Map();
@@ -133,8 +133,63 @@ console.log('\n== Decoding coverage (our abbreviation table, not All8\'s) ==');
 console.log(`  ${lines} published get-out lines`);
 console.log(`  ${decoded} decoded (${(100 * decoded / Math.max(1, lines)).toFixed(0)}%), ${
   [...unknownTokens.values()].reduce((a, b) => a + b, 0)} lines stopped at an unread token`);
-const topUnknown = [...unknownTokens.entries()].sort((a, b) => b[1] - a[1]).slice(0, 14);
-console.log(`  tokens we cannot read yet: ${topUnknown.map(([t, n]) => `${t}(${n})`).join(' ')}`);
+const topUnknown = [...unknownTokens.entries()].sort((a, b) => b[1] - a[1]);
+console.log(`  tokens we cannot read yet (ALL ${topUnknown.length}, most frequent first):`);
+console.log(`    ${formatRanking(unknownTokens, 40)}`);
+if (topUnknown.length > 40) console.log(`    ... and ${topUnknown.length - 40} more, once each`);
+
+// ---------------------------------------------------------------------------------------
+// THE GATE: every abbreviation must expand to a call the engine can actually perform.
+//
+// This replaces a `check(true, ...)`, which is to say it replaces nothing at all. A wrong
+// expansion does not crash and does not fail a gate: it moves a line from "our decoder gap"
+// into "the engine has no such call", so the harness previously ACCUSED THE ENGINE of a gap
+// that was really our misreading, and nothing could tell the two apart.
+//
+// The rule cannot be "is it implemented", because the corpus legitimately names calls the
+// engine lacks (`Join Hands`, `1/2 Circulate`). So the rule is: implemented, OR explicitly
+// declared in KNOWN_CATALOGUE_GAPS. That makes each gap a DELIBERATE, reviewable statement
+// instead of an accident, and it makes a mis-expansion fail loudly here.
+// ---------------------------------------------------------------------------------------
+console.log('\n== Every abbreviation expands to a call the engine has, or a DECLARED gap ==');
+{
+  const declared = new Set(Object.values(TOKENS));
+  const undeclared = [...declared].filter((n) => !implemented.has(engineNameFor(n)) && !KNOWN_CATALOGUE_GAPS.has(n));
+  const declaredButStale = [...KNOWN_CATALOGUE_GAPS].filter((n) => implemented.has(engineNameFor(n)));
+  const gapButNotUsed = [...KNOWN_CATALOGUE_GAPS].filter((n) => !declared.has(n));
+
+  if (undeclared.length > 0) {
+    check(false, `abbreviation(s) expand to a call the engine does NOT implement: ${undeclared.join(', ')}`,
+      'either the expansion is wrong (a phantom name) or the gap must be declared in KNOWN_CATALOGUE_GAPS');
+  } else {
+    check(true, `all ${declared.size} table names are implemented or declared gaps`);
+  }
+  if (declaredButStale.length > 0) {
+    check(false, `declared as a catalogue gap but the engine DOES implement it now: ${declaredButStale.join(', ')}`,
+      'remove it from KNOWN_CATALOGUE_GAPS so the gap count stays honest');
+  }
+  if (gapButNotUsed.length > 0) {
+    check(true, `declared gaps no longer referenced by any table entry (harmless, still real): ${gapButNotUsed.join(', ')}`);
+  }
+  console.log(`  declared catalogue gaps: ${[...KNOWN_CATALOGUE_GAPS].join(', ')}`);
+}
+
+// Both rankings over BOTH lists, so a work queue is not built from a slice of one of them.
+// The two disagree materially: `&Roll` is 21 first-failure but 41 all-occurrence, because a
+// token sitting behind an earlier unknown is invisible to the first-failure count.
+console.log('\n== Both token rankings (first-failure vs all-occurrence) ==');
+{
+  const all = [];
+  for (const a of fixture.alignments ?? []) {
+    for (const key of ['getoutLines', 'plusLines']) for (const l of a[key] ?? []) all.push(l);
+  }
+  const s = decodeStats(all);
+  console.log(`  over get-out AND Plus lines: ${s.total} lines, ${s.decoded} fully decoded, ${s.undecoded} stopped`);
+  console.log(`  FIRST-FAILURE (lines a fix would unblock), ${s.firstFail.size} distinct:`);
+  console.log(`    ${formatRanking(s.firstFail, 20)}`);
+  console.log(`  ALL-OCCURRENCE (true vocabulary size), ${s.allOcc.size} distinct:`);
+  console.log(`    ${formatRanking(s.allOcc, 20)}`);
+}
 
 // ------------------------------------------- call-name coverage vs the catalogue
 

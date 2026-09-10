@@ -174,7 +174,31 @@ belongs to has to be settled before it is treated as a work queue:
   (`getout-behaviour.mjs:102-109`).
 
 `&Roll` reads 21 in both only by coincidence of where it lands in a line; `LA` reads 14 vs 6.
-Recorded rather than reconciled — `PLAN.md` Phase 2 settles it by reporting both.
+Recorded rather than reconciled — **Phase 2 settled it by reporting BOTH**, and the decoder table
+is now DONE:
+
+- The tokenizer had **four** bugs, not the two predicted, all found by measurement: a **trailing
+  joiner dash** was never stripped (24 occurrences, 18 distinct tokens, several of them tokens the
+  table already knew); `{...}` braced asides were not removed; `[...]` alignment markers were not
+  removed; and a gap that had collapsed to a single space before a `--` call marker was not split.
+- `getout-conformance.mjs:166`'s `check(true, …)` is now a real gate — **implemented OR declared in
+  `KNOWN_CATALOGUE_GAPS`** — so a mis-expansion fails loudly instead of being reported as an engine
+  deficiency, and a declared gap that later gets implemented also fails, so the count cannot go
+  stale. All 77 table names are admissible.
+- Every addition was checked against `implementedTitles()` first. That caught `Sweep` → "Sweep a
+  Quarter" (indexed, **no `<tam>` anywhere**), `SHing` → "Single Hinge" (not implemented),
+  `&Roll` → `Roll` (not a call at all; it is a MODIFIER), and confirmed `H` = Heads from the
+  fixture's own `{beau couple: H/S}`.
+
+MEASURED: get-out lines decoded **134 → 160** of 265, stopped at an unread token **130 → 104**,
+whole-set names registered **46/48 → 54/56**, corpus success **59 → 66**, undecodable stops
+**202 → 170**. Mid-body stops rose 68 → 94 — which is the phase working, not a regression: those
+lines are now readable, and they are genuine engine gaps instead of hiding behind an unread token.
+
+**What is left of the decoder gap is not notation.** The four largest remaining tokens are
+`&Roll` (30) — needs the **Roll modifier**, `SHing` (11) — needs `Single Hinge` implemented,
+`LA` (9) — ambiguous on purpose, and `Expl&` (5) — needs **"Explode and \<call\>" composition**.
+The table records each with its reason so nobody re-adds them as vocabulary.
 
 ### 4.3 Then: the remaining call gaps, by corpus count
 

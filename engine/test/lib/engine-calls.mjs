@@ -113,6 +113,11 @@ export const ALL8_TO_ENGINE = {
   'Touch 1/4': 'Touch a Quarter',
   'Cast Off 3/4': 'Cast Off Three Quarters',
   'Do Sa Do': 'Dosado',
+  // All8 writes the left-hand reading with the same 1/4 shorthand, so the same bridge
+  // applies. Without it `LT1/4` would have to be written straight into the abbreviation
+  // table under the ENGINE's spelling, which would put a second naming convention inside a
+  // table whose whole job is to record what ALL8 wrote.
+  'Left Touch 1/4': 'Left Touch a Quarter',
 };
 
 /** The engine's title for a name decoded from All8's notation. */

@@ -345,37 +345,121 @@ the rest of `ENGINE GAPS` are Phase 4.
 
 ---
 
-## Phase 2 — The decoder table and the tokenizer bug
+## Phase 2 — DONE: the decoder table and the tokenizer
+
+**Implemented, gated and measured.**
+
+### The tokenizer bugs (four, each measured, none guessed)
+
+`getout-decode.mjs`. The plan predicted two; measurement found four:
+
+1. **A trailing joiner dash was never stripped.** All8 uses `-` as a *joiner* as well as a
+   leading call marker, so a dash trails a token. **24 occurrences across 18 distinct tokens**,
+   and several were tokens the table already knew: `C-SqT@3-`, `C-StepW-`, `C-SwThr-`, `C-T1/4-`,
+   `C-VeerL-`, `C-PsOcn-`, `E-Trd-`, `DoSaD-`, `Clovr-`. Stripping only *leading* punctuation
+   lost every one of those lines to a readable token.
+2. **`{...}` is a third aside form.** The corpus writes conditional notes in braces —
+   `{beau couple: H/S}-WhlAr` — which the `()` and `""` passes left in place, gluing the aside
+   onto the following call.
+3. **`[...]` alignment markers.** `[B1c]`, `[L1p]` and friends are commentary, six lines' worth.
+4. **A collapsed gap before a call marker.** All8 separates calls with wide gaps, but wherever an
+   aside was removed from between two calls the gap collapses to a single space, so `AL --PasTh`
+   arrived as ONE token — the same glue that produced the bare `C-` leftover. A `--` always
+   starts a new call, so the tokenizer now splits before one.
+
+### The membership gate that did not exist
+
+`getout-conformance.mjs:166` used to be a literal `check(true, …)`. A wrong expansion does not
+crash and does not fail a gate: it moves a line from "our decoder gap" into "the engine has no
+such call", so the harness **accused the engine** of a gap that was really our misreading, and
+nothing could tell the two apart.
+
+The rule cannot be "is it implemented", because the corpus legitimately names calls the engine
+lacks. So it is now: **implemented, OR explicitly declared in `KNOWN_CATALOGUE_GAPS`** — which
+makes each gap a deliberate, reviewable statement, and makes a mis-expansion fail loudly. The gate
+also fails if a declared gap has since been *implemented*, so the gap count cannot quietly go
+stale. Table names: **77, all admissible.**
+
+The declared gaps, measured (59 of the table's 64 distinct names were implemented before Phase 2):
+`Join Hands`, `1/2 Circulate` (absent entirely), `Left Hinge` (absent; only bare `Hinge` exists),
+`Fold`, `Cross Fold` (in the index, no `<tam>` anywhere).
+
+### Both rankings, not a slice
+
+`decodeStats` reports **first-failure** (lines a fix would unblock) and **all-occurrence** (true
+vocabulary size). They disagree materially — `&Roll` is 21 vs 41 — so a work queue built from one
+is not the queue built from the other. Previously the harness printed the top 14 and the top 18 and
+the two were quoted interchangeably.
+
+### What the measurement rejected, and why it matters
+
+Every addition was checked against `implementedTitles()` *before* being added. That procedure
+caught four traps intuition would have missed:
+
+- **`Sweep`** → "Sweep a Quarter" is in the engine's call **index with no `<tam>` anywhere**. An
+  indexed title is not a call.
+- **`SHing` (11, the second-largest remaining token)** → "Single Hinge" is *not implemented*
+  (`Split Hinge` neither). Decoding it would have booked a real engine gap as a phantom name.
+- **`&Roll` (30, the largest remaining token)** → `Roll` is not a call in this engine at all
+  (`tam`, index and implemented all absent). All8 writes it as a **modifier on the preceding
+  call**, and the reference implements it in code. It needs composition support, not a table
+  entry — as does `Expl&` ("Explode and <next call>").
+- **`H-Trd`** → "Heads Trade" is not a *title*, but it does resolve, because the engine reads a
+  group prefix compositionally and reaches the derived `Trade`. That is why `H` was added to
+  `GROUP`: the fixture states `H` = Heads in All8's own characters via `{beau couple: H/S}`.
+
+`LA` is left undecoded on purpose: `Ladies Chain` is implemented and `Left Allemande` is not, so
+the membership rule alone would have passed a reading the abbreviation does not settle — the rule
+is necessary, not sufficient, and ambiguity still wins.
+
+### Measured
+
+| | before Phase 2 | after |
+|---|---|---|
+| get-out lines decoded (of 265) | 134 (51%) | **160 (60%)** |
+| get-out lines stopped at an unread token | 130 | **104** |
+| whole-set names registered | 46/48 | **54/56** |
+| corpus: reached the finish and applied it | 59 | **66** |
+| corpus: stopped at an undecodable token | 202 | **170** |
+| corpus: page text | 53 | **46** |
+| corpus: stopped part-way through the body | 68 | **94** |
+
+**The mid-body count going UP is the intended outcome**, not a regression: 32 lines moved out of
+"our gap" and into genuine engine findings, which is exactly what this phase exists to achieve —
+until a line can be read, there is no way to tell whether the engine can dance it. The four
+largest remaining tokens (`&Roll` 30, `SHing` 11, `LA` 9, `Expl&` 5) are now all *declared*
+missing implementations or modifiers, not unreadable notation.
+
+---
 
 **Goal:** move the 202 undecoded lines into a real measurement of the engine, without ever
 inventing a call name.
 
 ### Steps
 
-1. **Fix the tokenizer first** (`getout-decode.mjs:87-99, 104-106`). It is a bug, not a vocabulary
-   gap, and it currently wastes about a dozen of the 97 slots on non-notation: a **trailing `-` is
-   never stripped** although All8 uses `-` as a joiner (`C-RStar-`, `DoSaD-`, `Clovr-`, `Sweep-`),
-   the group prefixes **`H-` and `O-`** are unrecognised, and quote-blanking glues
-   `C-"reverse"-WhlAr` into a bare `C-`.
-2. **Add the gate that does not exist.** A wrong expansion today is *silent*: the line flips from
-   "our gap" to `unknown call`, is attributed to **the engine** in `CATALOGUE GAPS`, and
-   `getout-conformance.mjs:166` is a literal `check(true, …)`. Replace it with a real check — every
-   decoded expansion must be an exact member of `implementedTitles()` — so a phantom can never be
-   booked as a catalogue gap again. Highest-value item in the phase.
-3. **Expand conservatively**, in descending corpus count, using that rule only. `catalogueTitles()`
-   is the right oracle; `indexedTitles()` is not (the index is not a superset, and
-   `tam=no, impl=no, index=YES` is a registration artefact, e.g. `Sweep a Quarter`).
-   `RStar → "Right Star"` is a pure phantom — `Right Star` is not a title anywhere.
-4. **Report the full ranking, not a slice.** Add an all-occurrence count alongside the
-   first-failure count, since they disagree materially (`&Roll` 21 vs 41, `LA` 6 vs 14) and tokens
-   hidden behind an earlier unknown are currently invisible.
+The plan's original four steps, kept here with what actually happened to each, because two were
+overtaken by measurement:
 
-**Gates:** `getout-conformance.mjs`, `getout-behaviour.mjs`, `promenade.mjs` (it consumes
-`decodeLine`), then the full `verify`. Diff the **full** before/after token rankings, not the
-top-14/18 slice — that is the only way a mis-expansion shows up today.
+1. ~~Fix the tokenizer.~~ **Done — and it was FOUR bugs, not two.** The `O-` prefix predicted here
+   turned out to occur once (`O-DivTh`) and is still left undecoded; what measurement found
+   instead was the trailing joiner dash, `{...}` braced asides, `[...]` alignment markers, and a
+   collapsed gap before a `--` call marker. See above.
+2. ~~Add the gate that does not exist.~~ **Done, in a stronger form than proposed.** "Every decoded
+   expansion must be an implemented title" cannot be the rule as stated, because the corpus
+   legitimately names calls the engine lacks; it is now "implemented OR declared in
+   `KNOWN_CATALOGUE_GAPS`", which keeps genuine gaps honest *and* fails on a mis-expansion.
+3. **Expand conservatively** — done, and the procedure (check `implementedTitles()` first) is now
+   written into the file header rather than left as a habit. `catalogueTitles()` is the oracle;
+   `indexedTitles()` is not. Confirmed in practice: `Sweep a Quarter` is indexed and not
+   implemented, and `RStar` is a pure phantom.
+4. **Report the full ranking, not a slice** — done: `decodeStats` reports both rankings, and the
+   harnesses now print all of them rather than the top 14/18.
 
-**Done when:** the new membership gate passes, the tokenizer leaves no `C-` / `<pause>` / `ALIAS` /
-trailing-dash artefacts, and the corpus split moves out of "our gap" into genuine engine findings.
+**Residual, and deliberately so:** four tokens account for most of what is left, and none is an
+unreadable-notation problem — `&Roll` (30) needs the **Roll modifier**, `Expl&` (5) needs
+**"Explode and <call>" composition**, `SHing` (11) needs `Single Hinge` implemented, and `LA` (9)
+is left ambiguous on purpose. Those are Phase 4 work, and the table records each with its reason
+so nobody re-adds them as vocabulary.
 
 ---
 

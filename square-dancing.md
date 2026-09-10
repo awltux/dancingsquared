@@ -863,6 +863,41 @@ and upstream of 6 of the 9 promenade finishes that still refuse.
    the related gap: a wrong expansion is currently undetectable, because
    `getout-conformance.mjs:166` is a literal `check(true, …)`, and a phantom name is mis-attributed
    to the ENGINE in `CATALOGUE GAPS`.
+
+   **DONE — Phase 2, with both corrections applied.** The tokenizer had FOUR bugs, measured rather
+   than assumed: a **trailing joiner dash** was never stripped (24 occurrences across 18 distinct
+   tokens, several of them tokens the table already knew — `C-SqT@3-`, `C-StepW-`, `C-SwThr-`,
+   `C-T1/4-`, `C-VeerL-`, `C-PsOcn-`, `E-Trd-`, `DoSaD-`, `Clovr-`), `{...}` **braced asides** were
+   not removed (`{beau couple: H/S}-WhlAr`), `[...]` **alignment markers** were not removed
+   (`[B1c]`), and a gap that had collapsed to a single space before a `--` call marker was not
+   split, so `AL --PasTh` arrived as one token — the same glue that produced the bare `C-`.
+
+   `decodeStats` now reports BOTH rankings (first-failure and all-occurrence), and both harnesses
+   print all of them instead of the top 14/18.
+
+   The `check(true, …)` is now a real gate, and in a stronger form than "must be implemented": the
+   corpus legitimately names calls the engine lacks, so the rule is **implemented OR declared in
+   `KNOWN_CATALOGUE_GAPS`**, which makes each gap a deliberate reviewable statement AND fails loudly
+   on a mis-expansion. It also fails if a declared gap has since been implemented, so the count
+   cannot go stale. All **77** table names are admissible; the 5 declared gaps are `Join Hands`,
+   `1/2 Circulate`, `Left Hinge`, `Fold`, `Cross Fold`.
+
+   Every addition was checked against `implementedTitles()` first, which caught four traps
+   intuition would have missed: `Sweep` → "Sweep a Quarter" is **indexed with no `<tam>` anywhere**;
+   `SHing` (11) → "Single Hinge" is **not implemented** (`Split Hinge` neither), so decoding it
+   would have booked a real engine gap as a phantom; `&Roll` (30) → `Roll` is **not a call in this
+   engine at all** and needs a MODIFIER, not a table entry (as does `Expl&` = "Explode and <call>");
+   and `H-Trd` → "Heads Trade" is not a title but DOES resolve, because the engine reads a group
+   prefix compositionally and reaches the derived `Trade` — which is why `H` = Heads was added to
+   `GROUP`, a reading the fixture states itself in `{beau couple: H/S}`. `LA` is left undecoded on
+   purpose: the membership rule is necessary but not sufficient, and ambiguity wins.
+
+   MEASURED: get-out lines decoded **134 → 160** of 265, lines stopped at an unread token
+   **130 → 104**, whole-set names registered **46/48 → 54/56**, corpus success **59 → 66**,
+   undecodable stops **202 → 170**, page text **53 → 46**. Mid-body stops rose **68 → 94**, which
+   is the POINT of the phase rather than a regression: 32 lines moved out of "our gap" into genuine
+   engine findings, and until a line can be read there is no way to tell whether the engine can
+   dance it.
 2. **Move the All8 → engine call-name bridge into the engine.** `CALL_SYNONYMS` is empty, so
    `Touch 1/4`, `Cast Off 3/4` and `Do Sa Do` resolve only because the test harness maps them.
    Anyone consuming published choreography needs that bridge in the engine, where

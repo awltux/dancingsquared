@@ -39,8 +39,18 @@ export {
   ARRANGEMENT_TABLES,
   ARRANGEMENT_NUMBER_ORDER,
   FORMATION_LETTER,
+  FORMATIONS_FOR_LETTER,
   HOME_RING_ORDER,
   REFERENCE_PAIR_RULES,
+  parseAlignmentId,
+  adjacentPairs,
+  relationshipStateOf,
+  ADJACENT_PAIR,
+  REFERENCE_PAIR_SPOTS,
+  boardsForAlignment,
+  boardForAlignment,
+  boardFromDiagram,
+  readLayout,
 } from './sequencer/alignment.js';
 export type {
   Alignment,
@@ -49,6 +59,13 @@ export type {
   ArrangementNumber,
   SequenceCode,
   RelationshipCode,
+  AlignmentSpec,
+  ConstructionResult,
+  BoardLayout,
+  PairingResult,
+  AdjacentPairResult,
+  PartnerPair,
+  RelationshipState,
 } from './sequencer/alignment.js';
 export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS } from './sequencer/constants.js';
 export { normalisedState, orientationDeltaSteps, ORIENTATION_STEP, ORIENTATION_STEPS } from './sequencer/fsm.js';

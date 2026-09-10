@@ -312,14 +312,16 @@ than the thing being modelled.
 
 Structural gaps this workstream has to close:
 
-1. **Aligned identity.** `recognize` gives the formation and, since step 2,
-   `alignmentOf` gives arrangement (6), sequence (4) and relationship (4) — but the
-   last two need a board that carries identity, which the formation templates do not.
-   A board can now be said to BE an alignment; nothing yet *constructs* one (step 3).
+1. **Aligned identity.** `recognize` gives the formation and, since steps 2 and 3,
+   `alignmentOf` reads and `boardsForAlignment` builds arrangement (6), sequence (4)
+   and relationship (4) — but sequence and relationship need a board that carries
+   identity, which the formation templates do not, and relationship is carried by
+   identity *alone* (see step 3: the `c` and `r` boards are geometrically identical).
 2. **The FSM state drops the alignment.** It keys on the normalised formation only,
-   so up to 96 alignments per formation become one state (§8 note: 6 arrangements ×
-   4 sequences × 4 relationships).
-3. **Alignment → board construction.** Needed to run any published get-out.
+   so up to 96 alignments per formation become one state. Step 3 demonstrated the
+   consequence concretely: two boards in different relationships are indistinguishable
+   to any geometry-only matcher.
+3. **Alignment → board construction.** Done in step 3 for the 6 mapped formations.
 
 **Step 1 is DONE — the formation templates reconcile.** `engine/test/all8-formation-map.mjs`
 compares each All8 family's diagram (topology + facing, metric-free, under all 8
@@ -428,17 +430,114 @@ Two findings, deliberately **not** fixed in this step:
    but the blast radius is not: `FasrRelations.corner` feeds `fasrKey`, which backs
    `isZero` and the solver's `Static Square` check, so it needs its own measured step
    rather than a drive-by edit.
-2. **The corner/right naming is reason-verified, not test-verified.** All8 publishes both
-   halves of a cross-check — `[0B1c]` carries the resolve hint "AL", and the get-out
-   fixture gives `[0B1p]` the get-out `Pass Thru > Allemande Left` — so Pass Thru from a
-   `[B1p]` board must land on `c`, not `r`. Reproducing it needs a constructed board in a
-   named alignment, i.e. step 3, so the confirmation belongs there.
+2. **The corner/right naming is settled by the published diagrams, not by a call.**
+   Step 2's write-up proposed a cross-check — that `[0B1c]` carries the resolve hint
+   "AL" and the corpus gives `[B1p]` the get-out `Pass Thru > Allemande Left`, so a
+   pass thru must take a `p` board to `c`. **That reasoning was wrong**, and step 3
+   demonstrates why: a pass thru takes the box *out of the `[B]` formation*
+   altogether (each facing pair swaps places and ends back to back — a Trade By), so
+   there is no `[B]` state for it to land in. It also could not have worked in
+   principle: the `c` and `r` states are **geometrically identical** — same spots,
+   same facings, same genders — differing only in which couple number stands where,
+   so no geometry-only legality check can separate them.
+   The naming is instead confirmed the strong way: rebuilt from All8's own published
+   diagrams, **14/14 of the alignments in the formations Callerlab actually defines a
+   reference pair for reproduce their published arrangement, sequence *and*
+   relationship letter** — including all six discriminating non-`p` cases
+   (`B1c B2r B4c B3r L4r L3c`). Had the corner and right-hand letters been swapped,
+   those six would read `r c r c c r` instead.
 
 Remaining steps: **3** generate a board per alignment by enumerating identity assignments
 over the formation's spots (4!×4! = 576, classified and matched against the requested All8
 id) — tractable with no new data, and it is what turns step 2's classifier from a reader
 into a constructor; **4** re-run the fixture as a behavioural report giving, per get-out,
 the call it stopped at and why.
+
+**Step 3 is DONE — a board can be built in a named alignment, and the model is now
+validated against All8's own boards.** `engine/src/sequencer/alignment.ts` gained
+construction, and `engine/test/alignment-boards.mjs` gates it on every `npm run verify`.
+
+*The ground truth.* All8's get-out pages publish, per alignment, a diagram in which every
+spot carries a **facing and a couple number** — so the diagram *is* a complete board,
+written by the same author whose get-outs we measure against. `boardFromDiagram()` rebuilds
+it (taking the spots and facings from the engine's template so the result has a metric the
+engine can dance, and the identity layout from the diagram), and the central gate is:
+
+> rebuild each published diagram, then classify it back with step 2's classifier and check
+> it returns **that alignment's own four digits** — arrangement, sequence, relationship.
+
+Result: **26 of 28 alignments reproduce exactly**, including **14/14** in the four
+formations Callerlab actually defines a reference pair for, and all six discriminating
+non-`p` cases (`B1c B2r B4c B3r L4r L3c`). This single check validates the arrangement
+tables, the sequence rule, the relationship ring model, the corner/right-hand split, and
+the reference-pair convention at once, against a source that can disagree.
+
+*What construction adds.* `boardsForAlignment()` reads the alignment model backwards: the
+formation fixes the spots and facings (from the engine's template, with its real metric),
+the arrangement fixes the gender on each spot, and identity is the only free parameter —
+4! ways to place the boys × 4! for the girls = 576, each classified and kept only if it
+lands in the requested state. Every corpus alignment has boards (104 of them across the 26),
+and every one classifies back to the alignment it was built for.
+
+*The one thing that had to be learned rather than derived: which girl counts.* Relationship
+needs a notion of "the girl adjacent to the reference boy", and **proximity is the wrong
+tool** — measured, not assumed. In Facing Lines the two lines are 4 apart while the dancers
+beside you in your own line are 2 apart, so nearest-opposite-gender picks a line-neighbour
+instead of the couple; in the 8-Chain box a boy's facing partner and the dancer behind him
+are both exactly 1 away, so it is not even well defined. What works is the formation's own
+structure, readable straight off All8's tables: **the two spots of a column pair** — columns
+`{2k, 2k+1}` of a row, or rows `{2k, 2k+1}` of a column, depending on how that formation is
+drawn. `[B]` uses the column pair (its couples are the facing pairs); every other mapped
+formation uses the row pair. That is All8's "couple" in all four of its wordings.
+
+The reference pair itself was then **pinned against the corpus** rather than guessed. All8
+gives the rules in words ("the outside boy", "the left-hand couple", "the trailing couple",
+"the in-facing end"), but the words only resolve to a place once you know which end of the
+drawing is meant, so each formation's spot was solved for: the one that reproduces the
+*published* letter for **every** alignment. Two formations have alignments that can
+discriminate (the rest are all `p`, where any pair agrees), and in both the answer is
+unique:
+
+| formation | reference pair (table frame) | reproduces |
+|---|---|---|
+| `[B]` Box / 8-Chain | (row 2, col 0) + (row 3, col 0) | all 6: `B1c B2r B4c B3r B1p B2p` |
+| `[L]` Facing Lines | (row 0, col 2) + (row 0, col 3) | all 6: `L1p L2p L4r L3c 5L1p 5L2p` |
+
+Both spots are recorded, not just the one a boy stood on, because a call can move a dancer
+*within* his own pair — after a pass thru the reference couple's boy and girl have swapped
+spots.
+
+*`[P]` is a real, understood gap.* Beginning Double Pass Thru matches **no** fixed adjacent
+place: its own diagrams show `P1c` pairing the outer couples side by side and the inner ones
+as facing couples, because DPT genuinely mixes the two. That is precisely why All8 agrees a
+reference pair for `[0L] [0B] [0F] [0W]` and not for `[P]` — so `P1c` and `P2r` cannot be
+classified and are reported as a gap, not silently rounded. (`P3p`/`P4p` are unanimous and
+fine.) The same applies to `[W]` and `[F]`, where no published alignment discriminates, so
+nothing is recorded and only unanimous states are reported.
+
+*Two structural facts this step measured, both load-bearing for step 4:*
+
+- **Relationship is invisible to geometry.** `[0B1c]` and `[0B2r]` boards have *identical*
+  spots, facings and genders; only the couple numbers move. So the relationship letter can
+  never be recovered from a geometric recogniser, and a formation-keyed FSM state cannot
+  represent it — this is structural gap 2 below, now demonstrated rather than asserted.
+- **The relationship letters are only defined for arrangements whose adjacent pairs are one
+  boy and one girl.** Enumerating the space shows which: e.g. `[B]` yields all 16 states at
+  arrangements 0 and 1 but none at 3 and 4, where the adjacent spot holds a boy. That is
+  consistent with All8's own scope note that the convention is agreed "in 4 formations with
+  standard gender arrangement only".
+
+*Correction carried forward:* step 2's proposed pass-thru cross-check for the corner/right
+naming does not work and has been replaced by the diagram check above — see finding 2 under
+step 2.
+
+*New for step 4:* `ADJACENT_PAIR`, `REFERENCE_PAIR_SPOTS`, `readLayout`, `boardFromDiagram`,
+`boardsForAlignment`, `boardForAlignment`, `parseAlignmentId`, `adjacentPairs`,
+`relationshipStateOf`. `parseAlignmentId` reads `B1c` / `5L2p` / `L.F1p` into a spec, which
+is what turns a corpus id into a board.
+
+Remaining step: **4** re-run the corpus as a behavioural report naming, per get-out, the call
+it stopped at and why — now possible for 26 of the 28 alignments.
 
 ### 9.2 Other open items
 

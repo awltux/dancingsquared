@@ -95,19 +95,28 @@ export function rigidFit(src: { x: number; y: number }[], dst: { x: number; y: n
 /**
  * Align a catalog/pre/post formation to the core's start formation so its
  * dancers are placed in `core.dancers` order. Matching may require a whole-set
- * ROTATION ABOUT THE ORIGIN (0/90/180/270 degrees) plus a centering
+ * ROTATION ABOUT THE ORIGIN (any multiple of 45 degrees) plus a centering
  * translation, so each candidate rotation is tried and the best 1:1 mapping
  * (position + facing) is kept. Returns a FormDancer[] where result[i] is the
  * chosen formation's dancer mapped to core dancer i, keeping its ORIGINAL
  * coordinates/heading.
+ *
+ * INDEX INDEPENDENCE: the correspondence between the two lists is DERIVED from
+ * geometry and never assumed from array order. When the two lists hold different
+ * numbers of dancers, or the assignment cannot fill every slot, this throws
+ * instead of silently pairing dancers by array index.
  */
 export function alignFormationToCore(
   coreStart: { x: number; y: number }[],
   formation: FormDancer[],
 ): FormDancer[] {
-  const n = Math.min(coreStart.length, formation.length);
+  if (formation.length !== coreStart.length) {
+    throw new Error(
+      `alignFormationToCore: cannot align ${formation.length} dancers to a ${coreStart.length}-dancer core — refusing to pair them by array index`,
+    );
+  }
   const cCore = centroid(coreStart);
-  let bestMap: number[] = Array.from({ length: n }, (_, i) => i);
+  let bestMap: number[] | null = null;
   let bestErr = Infinity;
   for (const rot of ORIGIN_ROTS) {
     const cos = Math.cos(rot);
@@ -133,13 +142,16 @@ export function alignFormationToCore(
       bestMap = mapping;
     }
   }
+  if (!bestMap || bestMap.some((i) => i < 0)) {
+    throw new Error(
+      'alignFormationToCore: geometric alignment did not determine a 1:1 mapping — refusing to fall back to array index',
+    );
+  }
   const out = new Array<FormDancer>(coreStart.length);
   for (let j = 0; j < bestMap.length; j++) {
     const i = bestMap[j];
-    if (i >= 0) out[i] = { x: formation[j].x, y: formation[j].y, heading: formation[j].heading, gender: formation[j].gender };
+    out[i] = { x: formation[j].x, y: formation[j].y, heading: formation[j].heading, gender: formation[j].gender };
   }
-  // Fall back to index order for any unmapped slots.
-  for (let i = 0; i < out.length; i++) if (!out[i]) out[i] = formation[i] ?? { x: 0, y: 0, heading: 0 };
   return out;
 }
 
@@ -187,7 +199,12 @@ function greedyAssignEditor(
   return { mapping, error };
 }
 
-const ORIGIN_ROTS = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
+// Rotation granularity for editor alignment. Kept in step with the matcher
+// (match.ts ROTS): recognition accepts any multiple of 45 degrees, so alignment
+// must try the same steps or a 45-degree-offset formation cannot be aligned
+// geometrically at all. Rot 0 is tried first so equal-error (symmetric) cases
+// keep the unrotated alignment instead of spinning the set.
+const ORIGIN_ROTS = [0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI, (-3 * Math.PI) / 4, -Math.PI / 2, -Math.PI / 4];
 
 // ------------------------------------------------------------------ pad segments
 

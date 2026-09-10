@@ -219,6 +219,60 @@ shared by apply/replay/search). Then, and only then, the `sequencer="no"` filter
 because the capability no longer depends on the demonstration tams. Until that lands, matching
 stays unfiltered and the honesty is recorded rather than enforced.
 
+**The defect is now PINNED as a gate**, not left as prose — `selection.mjs`, section
+"Trade / Run from two parallel waves". It asserts today's wrong behaviour so the fix has to flip a
+red assertion rather than quietly change a number:
+
+```
+Boys Trade: 4 dancers moved (0 boys, 4 girls); result is Ocean Waves
+    KNOWN DEFECT PINNED: Boys Trade moves only the GIRLS (4 of 4) - wrong dancers
+Boys Run:   turns the wave into Two-Faced Lines
+    KNOWN DEFECT PINNED
+Boys Trade: 12 eligible variants, 12 demos, and 0 ELIGIBLE variants match this template
+Boys Run:   0 eligible variants in the whole family - every one is sequencer="no"
+```
+
+Two things that measurement settles, and that the derived implementation must honour:
+
+- **`Boys Trade` from the engine's `Ocean Waves` template moves the four GIRLS and no boys.** That
+  is the recorded symptom reproduced deterministically. The instantiation is worth spelling out:
+  the only tams matching the template are *ungated demos* authored for boys-in-centre, so the
+  dancers that move are the ones occupying the centre slots — the girls.
+- **`Boys Run` from the same template turns the wave into `Two-Faced Lines`.** A Run from a wave
+  must leave the wave a wave, with the genders swapped end↔centre; destroying the formation is the
+  demo's boys-in-centre motion applied to a boys-at-ends board.
+
+### Reference semantics to implement (transcribe, do not re-derive)
+
+Our `moves.xml` already carries the motion primitives the reference selects from — `Run Left`,
+`Run Right`, `Flip Left`, `Dodge Left`, `Dodge Right` — and our engine already resolves them. So
+this is a **selection and geometry** job, not a path-authoring one. Two facts about the reference's
+movement data that matter when reading its rule:
+
+- a `Movement` holds **two** Bezier curves: `btranslate` (the travel path, `cx1/cy1 → cx2/cy2 →
+  x2/y2`) and `brotate` (the facing curve, `cx3/0 → cx4/cy4 → x4/y4`). When `cx3` is absent,
+  `brotate = btranslate` (`math/movement.dart:52-92`); the `x4/y4` pair is a **direction**, not a
+  position, which is why `Dodge Left`'s `(8,1)` is "about 7° left of forward" rather than nine units
+  of travel.
+- in our own model a move is a net local displacement plus a turn (`moves.ts`, `Move {dx, dy,
+  turn}`), so only the **net** end state of each reference move is needed. `Run Left` is net
+  `(0, +2)` local with no turn; `Dodge Left` is net `(0, +2)` local with the facing curve ending
+  near-forward. Read `moves.xml` for the authority rather than these reconstructions.
+
+**OPEN, and do not guess at it: the FACING convention.** The net *translation* of every reference
+move is settled (a `Run` exchanges the runner's and the walker's positions — both scale by
+`dist/2`, and the walker's dodge is measured in the walker's own frame, which faces opposite, so
+the two are the same world direction). The net *facing* is not. For `Run Left`/`Run Right` the
+reference passes no `cx3`, so `brotate = btranslate`, and the endpoint-to-last-control tangent of
+`Run Right` is `(-1.333, 0)` — pointing 180° from the dancer's initial facing, which cannot be
+right for a call that preserves a wave. The resolution is in how a pose is actually computed from
+the rotation curve (`math/bezier.dart`, and the dancer pose path), not in the raw numbers. Settle
+it against a case with a known answer — `Boys Run` from a wave must leave the wave a wave with the
+genders swapped end↔centre, which is asserted in `selection.mjs` — and only then write the call.
+A wrong `turn` here would silently produce new wrong motion, which is the failure mode this repo
+treats as worse than a known gap.
+
+
 **Gates:** `selection.mjs` (plumbing invariant), `promenade.mjs` §5 (12 of 30 must not regress),
 `getout-behaviour.mjs` (53 success must not regress), `getout-convention.mjs` (27/28 with `[P4p]`
 the only negative).

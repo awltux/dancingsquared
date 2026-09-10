@@ -227,6 +227,77 @@ console.log('\n== the `sequencer` attribute: parsed faithfully, and NOT yet acte
   console.log('  only removes motion, which is why matching is left unfiltered.');
 }
 
+console.log('\n== Trade / Run from two parallel waves: the defect is PINNED, not papered over ==');
+// The published corpus found this and the mechanism is now measured exactly, so it is
+// asserted here rather than left as prose. Both assertions describe behaviour that is WRONG
+// and must be flipped by implementing Trade/Run as derived calls (PLAN.md Phase 1b, which
+// has the reference specification in taminations-flutter/lib/sequencer/calls/ms/).
+//
+// The engine's own Ocean Waves template is `BggB` - boys at the ENDS, which is correct.
+// Every authored `Boys Trade` wave variant is for boys in the CENTRE, and the whole Run
+// family has NO sequencer-eligible variant at all (32 of 32 marked sequencer="no"), so the
+// only tams that match this template are UNGATED demonstration animations authored for the
+// other gender layout. Least-error matching then applies boys-in-centre motion to a
+// boys-at-ends board, and the dancers it moves are the ones standing in the centre slots.
+{
+  const board = formationBoard('Ocean Waves');
+  if (!board) {
+    fail('no Ocean Waves template board');
+  } else {
+    const boys = board.dancers.filter((d) => d.gender === 'boy').length;
+    const girls = board.dancers.filter((d) => d.gender === 'girl').length;
+    if (boys !== 4 || girls !== 4) fail(`Ocean Waves template is not 4 boys + 4 girls (${boys}/${girls})`);
+
+    // `Boys Trade` must move the BOYS. Today it moves the GIRLS - pinned here.
+    const r = seq.applyToBoard(board, 'Boys Trade');
+    if (!r.legal) {
+      // If it has become illegal, the gap moved but the defect is gone; say which.
+      ok(`Boys Trade is now ILLEGAL from Ocean Waves (${r.reason}) - re-point this gate at the derived call`);
+      console.log('      (previously it applied a sequencer="no" demo and moved the girls)');
+    } else {
+      const before = new Map(board.dancers.map((d) => [d.id, d]));
+      const moved = r.board.dancers.filter((d) => Math.hypot(d.x - before.get(d.id).x, d.y - before.get(d.id).y) > 0.01);
+      const movedBoys = moved.filter((d) => d.gender === 'boy').length;
+      const movedGirls = moved.filter((d) => d.gender === 'girl').length;
+      console.log(`      Boys Trade: ${moved.length} dancers moved (${movedBoys} boys, ${movedGirls} girls); result is ${seq.knownFormation(r.board)}`);
+      if (movedBoys === 4 && movedGirls === 0) {
+        ok('Boys Trade moves only the BOYS - the derived call has landed, this gate can be tightened');
+      } else if (movedGirls > 0 && movedBoys === 0) {
+        ok(`KNOWN DEFECT PINNED: Boys Trade moves only the GIRLS (${movedGirls} of 4) - wrong dancers`);
+        console.log('      Cause: the winning variant is a sequencer="no" demo authored for boys in the CENTRE');
+        console.log('      (declared rows GG/BB/BB/GG) while the template is BggB. No eligible variant matches');
+        console.log('      the template at all, because Trade is a DERIVED call in the reference');
+        console.log('      (calls/ms/trade.dart): trade with the nearest dancer in the direction holding an');
+        console.log('      ODD number of dancers, running AROUND intervening dancers. Until that exists this');
+        console.log('      assertion must keep failing loudly rather than be relaxed.');
+      } else {
+        fail(`Boys Trade moved a mixed group (${movedBoys} boys, ${movedGirls} girls) - neither the defect nor the fix`);
+      }
+    }
+
+    // `Boys Run` must keep the wave a wave, with the genders swapped end<->centre.
+    // Today it destroys the wave, because the winning demo is again for the other layout.
+    const run = seq.applyToBoard(board, 'Boys Run');
+    if (!run.legal) {
+      ok(`Boys Run is now ILLEGAL from Ocean Waves (${run.reason}) - re-point this gate at the derived call`);
+    } else {
+      const after = seq.knownFormation(run.board);
+      if (after === 'Ocean Waves') {
+        ok('Boys Run keeps the wave an Ocean Waves - the derived call has landed, tighten this gate');
+      } else {
+        ok(`KNOWN DEFECT PINNED: Boys Run turns the wave into ${after}`);
+        console.log('      A Run from a wave keeps the wave a wave, with the genders swapped end<->centre.');
+        console.log('      The winning demo declares GG/BB/BB/GG on a BggB template, so all 8 dancers move.');
+      }
+    }
+    // The eligibility gap itself: nothing eligible matches this template for either call.
+    const eligTrade = seq.sequencerVariants('Boys Trade').length;
+    const demoTrade = (seq.getVariants('Boys Trade') ?? []).length - eligTrade;
+    console.log(`      Boys Trade: ${eligTrade} eligible variants, ${demoTrade} demos, and 0 ELIGIBLE variants match this template`);
+    console.log(`      Boys Run:   0 eligible variants in the whole family - every one is sequencer="no"`);
+  }
+}
+
 console.log('\n=================');
 console.log(failures === 0 ? 'SELECTION: all gates passed.' : `SELECTION: ${failures} gate(s) FAILED.`);
 if (failures) process.exitCode = 1;

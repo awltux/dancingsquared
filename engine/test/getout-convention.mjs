@@ -196,11 +196,10 @@ console.log('\n== 4. a non-home target is reached literally, with no finish appe
 
 console.log('\n== 5. fixIt uses the same goal ==');
 {
-  // depth 0 = "which calls lead to a goal" with no further lookahead. Deeper values
-  // re-enumerate the whole catalog per node AND per candidate (equivalents widening is
-  // quadratic in the catalog), which takes minutes - a pre-existing cost, recorded as
-  // an open item. What is pinned here is only that the goal fixIt tests is the same one
-  // the search uses: a call leading to a state the finish closes counts as a fix.
+  // depth 0 = "which calls lead to a goal" with no further lookahead. This used to take
+  // minutes at any depth because the equivalents widening re-scanned the catalogue once per
+  // distinct end board; it is now derivable from the candidate list in hand, so depth 1 is
+  // affordable and is asserted below rather than described as impossible.
   const start = boardFor('L.F1p');
   seq.setBoard(start);
   const fixes = seq.fixIt({ target: 'Static Square', depth: 0 });
@@ -210,6 +209,70 @@ console.log('\n== 5. fixIt uses the same goal ==');
   const fromHome = seq.fixIt({ target: 'Static Square', depth: 0 });
   if (!fromHome.length) fail('fixIt from home offers nothing');
   else ok(`from home: fixIt offers ${fromHome.length} call(s)`);
+  // A list of calls a caller may choose from must not repeat one. It did: `Promenade`
+  // appeared eleven times, because the equivalents loop visited it once per candidate that
+  // ends in the same formation. Duplicates are the same (name, end board) pair, so the list
+  // is now deduped on exactly that.
+  const dupes = [...new Set(fromHome.filter((n, i) => fromHome.indexOf(n) !== i))];
+  if (dupes.length) fail(`fixIt repeats a call: ${dupes.slice(0, 5).join(', ')}`);
+  else ok('fixIt lists each call at most once');
+  seq.setBoard(start);
+  const deep = seq.fixIt({ target: 'Static Square', depth: 1 });
+  if (!deep.length) fail('[L.F1p]: fixIt at depth 1 offers nothing');
+  else ok(`[L.F1p]: fixIt at depth 1 offers ${deep.length} call(s) (was minutes of catalogue re-scanning)`);
+}
+
+// ------------------------------------- 5b. the full alignment sweep, opt-in
+//
+// The section above samples five alignments, so a regression in the other twenty-three would
+// pass unnoticed - and the documented result for this workstream is "27 of the 28 alignments
+// that have a start board", which nothing asserted. This closes that gap, and pins the
+// failing-search cost.
+//
+// OFF BY DEFAULT because it is the one slow thing here: every getout() is seconds, and the
+// `[P4p]` negative deliberately spends a whole budget before answering null. Run it with
+//
+//     $env:GETOUT_SWEEP=1; node engine/test/getout-convention.mjs
+{
+  const SWEEP = !!process.env.GETOUT_SWEEP;
+  if (!SWEEP) {
+    console.log('\n== 5b. full alignment sweep: SKIPPED ==');
+    console.log('  set GETOUT_SWEEP=1 to run it (it is the slow part: one getout() per alignment)');
+  } else {
+    console.log('\n== 5b. every alignment with a start board, and the cost of a FAILED search ==');
+    const ids = corpus.alignments.map((a) => a.id);
+    let withBoard = 0, resolved = 0;
+    const unresolved = [];
+    for (const id of ids) {
+      const start = boardFor(id);
+      if (!start) continue;
+      withBoard++;
+      seq.setBoard(start);
+      const t = Date.now();
+      const path = seq.getout({ target: 'Static Square', maxCalls: 3, budget: 400 });
+      const ms = Date.now() - t;
+      if (path) {
+        resolved++;
+        if (!acceptPath(`[${id}] (sweep)`, start, path)) unresolved.push(id);
+      } else {
+        unresolved.push(`${id} (${ms} ms)`);
+      }
+    }
+    console.log(`  ${resolved} of ${withBoard} alignments have a getout within 3 calls`);
+    if (unresolved.length) console.log(`  no getout: ${unresolved.join(', ')}`);
+    // The negative is EXPECTED to be the slowest call in the suite; what is asserted is that
+    // it is bounded, not that it is fast. Before Phase 3 this one call took 95 s.
+    const p4 = boardFor('P4p');
+    if (p4) {
+      seq.setBoard(p4);
+      const t = Date.now();
+      const path = seq.getout({ target: 'Static Square', maxCalls: 3, budget: 400 });
+      const ms = Date.now() - t;
+      if (path) fail(`[P4p] now HAS a getout ([${path.join(' > ')}]) - re-measure the documented negative`);
+      else if (ms >= 40000) fail(`[P4p] failing getout took ${(ms / 1000).toFixed(1)} s, over the 40 s bound (it was 95 s before Phase 3)`);
+      else ok(`[P4p] failing getout answers null in ${(ms / 1000).toFixed(1)} s (the bound is 40 s; it was 95 s before Phase 3)`);
+    }
+  }
 }
 
 // --------------------------------------------- 6. no finish, no false success

@@ -22,7 +22,7 @@ import { FormationMatcher } from './matcher.js';
 import { CallApplicator } from './applicator.js';
 import { CallLibrary } from './library.js';
 import { LegalityChecker } from './legality.js';
-import { SequencerConfig } from './config.js';
+import { SequencerConfig, emptySearchStats, type SearchStats } from './config.js';
 import { KNOWN_FORMATION_MAX, STANDARD_FINISHES, canonicalName } from './constants.js';
 import { applyCodedMove } from './coded-moves.js';
 import { makeSquaredSet, cloneBoard, boardSig } from './board.js';
@@ -34,6 +34,8 @@ export class HomeSolver {
   private canGetoutMemo = new Map<string, boolean>();
   private finishCache = new Map<string, string[] | null>();
   private rigidGetoutCache: { name: string; M: Mat5; image: Matchable[]; seqDancers: SeqDancer[] }[] | null = null;
+  /** Search cost counters. Written only when config.collectStats is on. */
+  private stats: SearchStats = emptySearchStats();
 
   constructor(
     private readonly library: CallLibrary,
@@ -42,6 +44,23 @@ export class HomeSolver {
     private readonly legality: LegalityChecker,
     private readonly config: SequencerConfig,
   ) {}
+
+  /** What the last search cost. See SearchStats for why this exists at all. */
+  searchStats(): SearchStats {
+    return { ...this.stats, elapsedMs: this.stats.elapsedMs };
+  }
+
+  /** Zero the counters and start the clock. Called at the top of every public search so the
+   * numbers describe ONE search rather than a session. */
+  private beginStats(): number {
+    if (!this.config.collectStats) return 0;
+    this.stats = emptySearchStats();
+    return Date.now();
+  }
+
+  private endStats(started: number): void {
+    if (this.config.collectStats) this.stats.elapsedMs = Date.now() - started;
+  }
 
   clearCaches(): void {
     this.homeScoreCache.clear();
@@ -91,30 +110,37 @@ export class HomeSolver {
     return this.finishToHome(board);
   }
 
-  /** Calls that are equivalent to `call` from `board`: legal from the board and
-   * reach the same end formation. Each remains a separate edge. */
-  equivalentCalls(board: Board, call: string): { name: string; res: { board: Board; legal: boolean } }[] {
-    const baseRes = this.applicator.applySearch(board, call);
-    if (!baseRes.legal) return [];
-    const baseEnd = this.matcher.knownFormation(baseRes.board);
-    if (baseEnd === null) return [];
-    const out: { name: string; res: { board: Board; legal: boolean } }[] = [];
-    for (const name of this.library.callNames()) {
-      if (name === call) continue;
-      const res = this.applicator.applySearch(board, name);
-      if (!res.legal) continue;
-      if (this.matcher.knownFormation(res.board) === baseEnd) out.push({ name, res });
-    }
-    return out;
-  }
+  // REMOVED: the private `equivalentCalls(board, call)`. It answered "which calls legal from
+  // this board reach the same end formation as `call`" by scanning the WHOLE CATALOGUE, and
+  // `searchCandidates` called it once per distinct end board - the L x C term. The answer is
+  // derivable from the candidate list `searchCandidates` already has, so it lives there now.
+  // The public query is unchanged: `Sequencer.equivalentCalls`.
 
   /** Search candidates from `board`: the legal calls (and modules), each widened
    * with its equivalent calls when config.useEquivalents is on. Candidates are
    * deduped by end-board signature so two equivalents reaching the same board are
    * not searched twice, while still keeping the alternative call names available
-   * for the returned path. */
+   * for the returned path.
+   *
+   * THE COST, and why this is written the way it is. `searchLegalCalls` is ONE scan of the
+   * catalogue, which is the unavoidable C term. The equivalents used to be found by calling
+   * `equivalentCalls`, which scanned the WHOLE CATALOGUE AGAIN - once per distinct end board -
+   * making a node cost C + L x C. Measured on the published catalogue (C = 2211 titles) with
+   * L between 24 and 286, that second term was 53 000 to 634 000 applies per node: about 99% of
+   * the bill, and the reason a getout that does NOT exist took 134 seconds while one that does
+   * took seconds.
+   *
+   * The fix is that the answer was already in hand. A call's equivalents are precisely the other
+   * calls that are LEGAL from this board and reach the same end formation - and `base` is
+   * exactly the list of calls legal from this board, with their end boards. Grouping `base` by
+   * `knownFormation` therefore reproduces `equivalentCalls` from work already done, and the
+   * L x C term disappears rather than shrinking. */
   private searchCandidates(board: Board): { name: string; res: { board: Board; legal: boolean } }[] {
     const base = this.legality.searchLegalCalls(board);
+    if (this.config.collectStats) {
+      this.stats.candidateScans++;
+      this.stats.candidateCalls += base.length;
+    }
     if (!this.config.useEquivalents) return base;
     const bySig = new Map<string, { name: string; res: { board: Board; legal: boolean }; alternates: string[] }>();
     for (const c of base) {
@@ -123,16 +149,37 @@ export class HomeSolver {
       if (existing) { existing.alternates.push(c.name); continue; }
       bySig.set(sig, { name: c.name, res: c.res, alternates: [] });
     }
-    // For each end-board signature, also find equivalent calls reaching the same
-    // end FORMATION (not just same board) and record them as alternates.
+    if (this.config.collectStats) this.stats.distinctEndBoards += bySig.size;
+    // Group the candidates already in hand by end FORMATION: these are the equivalents.
+    const byEndFormation = new Map<string, { name: string; res: { board: Board; legal: boolean } }[]>();
+    for (const c of base) {
+      const f = this.matcher.knownFormation(c.res.board);
+      if (f === null) continue;
+      const bucket = byEndFormation.get(f);
+      if (bucket) bucket.push(c); else byEndFormation.set(f, [c]);
+    }
     const out: { name: string; res: { board: Board; legal: boolean } }[] = [];
-    for (const { name, res, alternates } of bySig.values()) {
+    // Dedupe by (name, end board). The equivalents loop below visits every candidate that ends
+    // in the same formation, so a call reachable from several of them - `Promenade` reaches home
+    // from all of them - was pushed once per visit, and `fixIt` returned it ELEVEN times. Two
+    // entries with the same name AND the same end board are the same edge; the same name
+    // reaching a DIFFERENT board is a genuinely different edge and is kept.
+    const emitted = new Set<string>();
+    const push = (name: string, res: { board: Board; legal: boolean }) => {
+      const key = `${name}|${boardSig(res.board)}`;
+      if (emitted.has(key)) return;
+      emitted.add(key);
       out.push({ name, res });
-      for (const alt of alternates) out.push({ name: alt, res });
-      if (this.config.useEquivalents) {
-        for (const eq of this.equivalentCalls(board, name)) {
-          out.push({ name: eq.name, res: eq.res });
-        }
+    };
+    for (const { name, res, alternates } of bySig.values()) {
+      push(name, res);
+      for (const alt of alternates) push(alt, res);
+      const end = this.matcher.knownFormation(res.board);
+      if (end === null) continue;
+      const named = new Set([name, ...alternates]);
+      for (const eq of byEndFormation.get(end) ?? []) {
+        if (named.has(eq.name)) continue;
+        push(eq.name, eq.res);
       }
     }
     return out;
@@ -152,6 +199,15 @@ export class HomeSolver {
    *     absent from the catalog.
    */
   getout(board: Board, opts: { target?: string; maxCalls?: number; budget?: number } = {}): string[] | null {
+    const started = this.beginStats();
+    try {
+      return this.getoutInner(board, opts);
+    } finally {
+      this.endStats(started);
+    }
+  }
+
+  private getoutInner(board: Board, opts: { target?: string; maxCalls?: number; budget?: number } = {}): string[] | null {
     const target = canonicalName(opts.target ?? 'Static Square');
     const maxCalls = opts.maxCalls ?? 5;
     const budget = opts.budget ?? 400;
@@ -328,6 +384,7 @@ export class HomeSolver {
       if (seen.has(sig)) continue;
       seen.add(sig);
       state.nodes++;
+      if (this.config.collectStats) this.stats.nodes = state.nodes;
       path.push(name);
       // The board is a goal either literally or because a standard finish closes it
       // from there (the caller convention); in the second case the finish is part of
@@ -412,12 +469,17 @@ export class HomeSolver {
 
   /** The legal calls from the current board that keep a getout alive. */
   fixIt(board: Board, opts: { target?: string; depth?: number } = {}): string[] {
-    const target = canonicalName(opts.target ?? 'Static Square');
-    const depth = opts.depth ?? 3;
-    this.canGetoutMemo.clear();
-    return this.searchCandidates(board)
-      .filter(({ name, res }) => res.legal && this.canGetoutFrom(res.board, target, depth))
-      .map(({ name }) => name);
+    const started = this.beginStats();
+    try {
+      const target = canonicalName(opts.target ?? 'Static Square');
+      const depth = opts.depth ?? 3;
+      this.canGetoutMemo.clear();
+      return this.searchCandidates(board)
+        .filter(({ name, res }) => res.legal && this.canGetoutFrom(res.board, target, depth))
+        .map(({ name }) => name);
+    } finally {
+      this.endStats(started);
+    }
   }
 
   /** Search for a sequence of legal calls that takes the set FROM home INTO the

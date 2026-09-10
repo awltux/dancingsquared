@@ -25,10 +25,55 @@ export class SequencerConfig {
    * equivalent to each candidate (same end formation), widening the search. */
   useEquivalents = true;
 
+  /** Whether to collect `SearchStats`. Off by default: the counters sit on the hottest
+   * path in the engine, and only a measurement wants them. */
+  collectStats = false;
+
   /** Whether the getout search uses a collapsed-module fast-path (a module that
    * is rigid and self-inverse from home returns home in one step). */
   useCollapsedModules = true;
 
   /** Injectable random source for the probabilistic selection (tests). */
   rand: () => number = Math.random;
+}
+
+/**
+ * What a search actually cost, in the terms that matter for its complexity.
+ *
+ * Exists because TIMING ALONE CANNOT TELL THE TWO COSTS APART. A getout node pays for one
+ * catalogue scan (`candidateScans`) plus, with equivalents on, one MORE catalogue scan per
+ * distinct end board it produced (`equivalentNameIterations`). Those are the C and the L x C
+ * terms; a change that halves L and a change that removes the C factor look identical in a
+ * stopwatch and completely different here. The numbers below are what identified the fix.
+ *
+ * Collected only when `collectStats` is on, since the counters sit on the hottest path in the
+ * engine.
+ */
+export interface SearchStats {
+  /** Nodes the DFS expanded. */
+  nodes: number;
+  /** `searchLegalCalls` calls - each is ONE scan of the whole catalogue. */
+  candidateScans: number;
+  /** `equivalentCalls` calls. Each re-scanned the whole catalogue, so this is the L in L x C. */
+  equivalentScans: number;
+  /** Catalogue names visited inside equivalents - the L x C term itself. */
+  equivalentNameIterations: number;
+  /** Calls that survived the tight prefilter, summed over nodes. */
+  candidateCalls: number;
+  /** Distinct end boards per node, summed over nodes. */
+  distinctEndBoards: number;
+  /** Wall-clock for the whole search. */
+  elapsedMs: number;
+}
+
+export function emptySearchStats(): SearchStats {
+  return {
+    nodes: 0,
+    candidateScans: 0,
+    equivalentScans: 0,
+    equivalentNameIterations: 0,
+    candidateCalls: 0,
+    distinctEndBoards: 0,
+    elapsedMs: 0,
+  };
 }

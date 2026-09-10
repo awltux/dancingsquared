@@ -463,37 +463,114 @@ so nobody re-adds them as vocabulary.
 
 ---
 
-## Phase 3 — The search index
+## Phase 3 — DONE: the quadratic term removed, and the failing search bounded
 
-**Goal:** `getout()` stops being fast on success and slow on failure.
+**The L × C term is gone**, and the phase found a real defect on the way.
 
-**Mechanism.** `searchCandidates` (`solver.ts:116-139`) calls `searchLegalCalls`
-(`legality.ts:49-79`, C = 2211 titles) once, then for **every distinct end board** calls
-`equivalentCalls` (`solver.ts:102`), which loops the catalogue **again**. With L = 24–286 distinct
-end boards that is L × C ≈ 53 000–634 000 applies per node — **~99% of the node bill**, and
-quadratic because L is a large fraction of C. `budget` is not the driver; the size of the reachable
-state space is (a synthetic scattered board exhausts `seen` in 0.07 s at the same budget).
+### Instrumentation first, as the plan required
 
-### Steps
+`SearchStats` (in `config.ts`, exported from the index) reports `nodes`, `candidateScans`,
+`candidateCalls`, `distinctEndBoards`, `equivalentScans` and `equivalentNameIterations`, collected
+only when `setCollectStats(true)`. The plan's reason was exact: **timing alone cannot tell the two
+complexity terms apart** — a change that halves L and a change that removes the C factor look
+identical in a stopwatch. Every number below came from those counters.
 
-1. **Instrument first**: log `|bySig|` (L), `|callNames()|` (C) and node count per node. Timing
-   alone cannot distinguish halving L from removing the C factor.
-2. **Index calls by start formation.** The minimal change point is `library.allVariantSetups()`
-   (`library.ts:189-197`), already the flat list of variant setups and **deliberately lossy — it
-   drops the back-pointer to the call name**. Make it `{ name, setup }[]` and the index exists.
-   Query it with the formation key that already exists (`knownFormation` / `recognize`, memoised
-   per pose at `matcher.ts:152-154`).
-3. **Do not build it as an FSM table.** `FsmTable` is already a `state → calls` adjacency and the
-   right *query* shape, but building it is itself O(states × catalogue) (`sequencer.ts:491` calls
-   `legalCalls` per state; `addState` linear-scans with `matchFormations`) — that is what killed
-   the 20-minute `transitionTable` build. Index lazily, from the variant list.
-4. **Add the regression point the harness deliberately lacks.** `getout-convention.mjs` contains no
-   large-reachable-state invocation (its own comment at `:132-135` says so). Add the `[P4p]` shape
-   behind an **env flag**, not in `npm run verify` — it costs ~2 min today.
-5. Re-measure the `transitionTable` build; the doc claim about it is unverified on this checkout.
+### The fix: the answer was already in hand
 
-**Done when:** `[P4p]` failing getout is bounded in seconds with the same `null` answer, and
-`fixIt depth=1` is usable.
+`searchCandidates` called `equivalentCalls`, which **scanned the whole catalogue again** — once per
+distinct end board. That is the L × C term: with C = 2211 titles and L between 24 and 286, 53 000
+to 634 000 applies per node.
+
+But a call's equivalents are precisely the other calls **legal from this board** that reach the
+same end formation — and `searchLegalCalls` has already computed exactly that list, with end
+boards. Grouping it by `knownFormation` reproduces `equivalentCalls` from work already done, so the
+term **disappears** rather than shrinking. The private `equivalentCalls` is deleted; the public
+query `Sequencer.equivalentCalls` is unchanged.
+
+### A defect found while measuring: `fixIt` returned duplicates
+
+`Promenade` appeared **eleven times** in `fixIt`'s output from home. The equivalents loop visited it
+once per candidate ending in the same formation, and each visit pushed a `(name, res)` pair that was
+byte-identical to the last. Pre-existing, not introduced here — but a list of calls a caller may
+choose from must not repeat one, so the candidate list is now deduped on `(name, end board)`, which
+keeps genuinely different edges (the same call reaching a *different* board) and drops exact
+repeats.
+
+### Measured, same machine, old source vs new (git stash, rebuild, re-run)
+
+| invocation | before | after |
+|---|---|---|
+| `[P4p]` getout `maxCalls=3 budget=400` (**fails**) | **95.0 s** | **11.5 s** |
+| `[P4p]` getout `maxCalls=2 budget=100` (fails) | 32.5 s | 3.9 s |
+| getout on `L1p` (succeeds) | 4.16 s | 1.87 s |
+| `fixIt depth=0` on `L.F1p` | 1.81 s | 0.78 s |
+| `fixIt depth=1` on `L.F1p` | 33.0 s | **3.6 s** |
+
+And the counters confirm the mechanism rather than merely the speed:
+`eqScans=0, eqIters=0` on every invocation.
+
+### An honest behaviour change
+
+`fixIt` from home now offers **18** calls, not 578. Two separate reasons, both measured:
+
+1. the duplicate bug above; and
+2. the old equivalents came from `applySearch` at the **loose** search tolerance with **no tight
+   prefilter**, so the list included force-fits — calls `searchLegalCalls` deliberately prunes,
+   in its own words, "so force-fits are pruned at search time rather than surfacing as a getout
+   that fails on apply".
+
+Verified rather than asserted: **0** of the new list's entries fall outside the tight legal list.
+The documented 578 was inflated by both effects and described in `square-dancing.md` as "not a
+shortlist"; 18 is one.
+
+### The regression gate the harness lacked
+
+`getout-convention.mjs` only sampled **five** alignments, so a regression in the other twenty-three
+would have passed unnoticed — and the workstream's headline claim, "27 of the 28 alignments that
+have a start board", was asserted nowhere. Section 5b now sweeps **every** alignment and pins the
+cost of the failing search, behind `GETOUT_SWEEP=1` so `npm run verify` stays fast:
+
+```
+27 of 28 alignments have a getout within 3 calls
+no getout: P4p (11523 ms)
+ok  [P4p] failing getout answers null in 11.5 s (the bound is 40 s; it was 95 s before Phase 3)
+```
+
+It also asserts `fixIt` lists each call at most once, and that depth 1 is affordable — the previous
+comment in that file described depth 1 as taking minutes.
+
+### What is left
+
+The counters now show the **C term is what remains**: `[P4p]` does 17 catalogue scans
+(`candidateScans=17`) for 447 nodes, and those scans are the 11.5 s. Removing them needs the
+start-formation index the plan describes — index the variants once (making
+`library.allVariantSetups()` carry the call name it currently drops) and pre-filter the per-name
+loop, whose cost is a `findMatchingVariant` — i.e. a mirror-aware map, a signature computation and a
+match — per one of 2211 titles, per node. That is the next win, and it is bounded work now that
+the quadratic term is gone.
+
+---
+
+### The plan's steps, against what happened
+
+1. ~~Instrument first.~~ **Done** — `SearchStats`, and the counters are what identified the fix
+   rather than merely confirming it.
+2. **Index calls by start formation.** *Not yet needed, and now clearly the remaining work.* The
+   L × C term turned out to be removable without any index, because the equivalents were derivable
+   from the candidate list. The counters now name what is left: `[P4p]` pays 17 catalogue scans for
+   447 nodes, and those scans are the 11.5 s. The proposed change point stands —
+   `library.allVariantSetups()` is still the flat list that **drops the call name**, and making it
+   `{ name, setup }[]` is still the minimal way to build the index.
+3. **Do not build it as an FSM table** — unchanged, and the reason is unchanged: building the table
+   is itself O(states × catalogue), which is what killed the 20-minute build.
+4. ~~Add the regression point the harness lacks.~~ **Done** — section 5b, behind `GETOUT_SWEEP=1`,
+   and it immediately earned its keep by confirming 27 of 28 across every alignment, a claim that
+   had been asserted nowhere.
+5. **Re-measure the `transitionTable` build** — still unverified, and still the worst case
+   remaining on the list. Recorded as open.
+
+**Done when `[P4p]` is bounded in seconds with the same `null` answer, and `fixIt depth=1` is
+usable** — met: 11.5 s and 3.6 s respectively, both from 95 s and 33 s.
 
 ---
 

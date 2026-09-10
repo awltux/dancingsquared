@@ -245,6 +245,41 @@ spends the whole budget for 134.6 s — so any before/after measurement must use
 reachable state space, and `getout-convention.mjs` deliberately contains none (its own comment at
 `:132-135` says why). `PLAN.md` Phase 3 adds one behind an env flag.
 
+**FIXED — Phase 3 removed the quadratic term and found a defect doing it.** `searchCandidates`
+called `equivalentCalls`, which re-scanned the whole catalogue **once per distinct end board**
+(the L × C term, 53 000–634 000 applies per node). A call's equivalents are exactly the other calls
+**legal from this board** reaching the same end formation — which `searchLegalCalls` has already
+computed — so the term now **disappears** rather than shrinking. `SearchStats` (exported; enable
+with `setCollectStats(true)`) reports both terms, because timing alone cannot tell them apart.
+
+Measured same-machine, old source vs new:
+
+```
+                                       before     after
+[P4p] getout budget=400 (FAILS)        95.0 s     11.5 s
+[P4p] getout budget=100 (FAILS)        32.5 s      3.9 s
+getout on L1p (succeeds)                4.16 s     1.87 s
+fixIt depth=1 on L.F1p                 33.0 s      3.6 s
+```
+
+Counters confirm the mechanism, not just the speed: `eqScans=0, eqIters=0` everywhere.
+
+Two secondary findings. `fixIt` returned **duplicate** calls (`Promenade` eleven times) — the
+equivalents loop pushed an identical `(name, end board)` pair once per visit; the list is now
+deduped on that pair. And `fixIt` from home now offers **18** calls rather than 578, because the old
+list came from `applySearch` at the loose tolerance with no tight prefilter, so it included
+force-fits that `searchLegalCalls` prunes by design. Verified: **0** entries of the new list fall
+outside the tight legal list.
+
+`getout-convention.mjs` §5b now sweeps **every** alignment behind `GETOUT_SWEEP=1` — the
+workstream's headline claim, "27 of the 28 alignments that have a start board", previously asserted
+nowhere — and pins the failing-search cost under 40 s. It reports **27 of 28**, with `[P4p]` at
+11.5 s.
+
+**What is left:** the counters now show the C term is the whole remaining cost (17 catalogue scans
+for 447 nodes), which is the start-formation index Phase 3 did not need but Phase 4+ will.
+
+
 
 ### 4.5 Latent correctness items
 

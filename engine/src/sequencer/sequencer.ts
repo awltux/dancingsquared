@@ -4,7 +4,7 @@
 // collaborator that owns that responsibility, so the heavy logic lives in small,
 // focused classes instead of one god-class.
 
-import { SequencerConfig } from './config.js';
+import { SequencerConfig, emptySearchStats, type SearchStats } from './config.js';
 import { CallLibrary } from './library.js';
 import { FormationMatcher } from './matcher.js';
 import { CallApplicator } from './applicator.js';
@@ -692,6 +692,18 @@ export class Sequencer {
 
   fixIt(opts: { target?: string; depth?: number } = {}): string[] {
     return this.solver.fixIt(this.board, opts);
+  }
+
+  /** What the LAST getout/getin/fixIt cost, in the terms that separate the two complexity
+   * terms. Only populated when `setCollectStats(true)`. See `SearchStats`. */
+  searchStats(): SearchStats {
+    return this.solver.searchStats();
+  }
+
+  /** Turn search-cost counting on (it is off by default: the counters are on the hottest path
+   * in the engine, and only a measurement wants them). */
+  setCollectStats(on: boolean): void {
+    this.config.collectStats = on;
   }
 
   matrixGetout(): string[] | null {

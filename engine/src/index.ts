@@ -119,3 +119,6 @@ export type { CallMeta } from './convert.js';
 // far: it marks a demonstration animation the sequencer must not match. `perimeter` and
 // `exact` are carried but not yet acted on — see the note on `SequencerMode`.
 export type { SequencerMode } from './types.js';
+// Search-cost counters: what a getout/getin/fixIt actually cost, in the terms that separate
+// the catalogue-scan term from the (previously quadratic) equivalents term.
+export type { SearchStats } from './sequencer/config.js';

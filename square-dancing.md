@@ -1047,6 +1047,49 @@ and upstream of 6 of the 9 promenade finishes that still refuse.
     The per-node cost is dominated by the equivalents widening: `searchCandidates` calls
     `equivalentCalls` once per DISTINCT end board, and each re-loops the catalogue
     (`solver.ts:129-136` → `:102`), i.e. L × C applies per node with L = 24–286 and C = 2211.
+
+    **SOLVED — Phase 3, which also found a defect while measuring.** The L × C term is GONE, and
+    it did not need an index: a call's equivalents are exactly the other calls **legal from this
+    board** reaching the same end formation, and `searchLegalCalls` has already computed that list
+    with its end boards, so grouping it by `knownFormation` reproduces `equivalentCalls` from work
+    already done. The private `equivalentCalls` is deleted; the public
+    `Sequencer.equivalentCalls` is unchanged.
+
+    New: `SearchStats` (exported; on with `setCollectStats(true)`) reports BOTH complexity terms —
+    `candidateScans` / `candidateCalls` for C, `equivalentScans` / `equivalentNameIterations` /
+    `distinctEndBoards` for L × C — because timing alone cannot tell "halved L" from "removed the C
+    factor". Measured old source vs new, same machine (`git stash`, rebuild, re-run):
+
+    | invocation | before | after |
+    |---|---|---|
+    | `[P4p]` getout `budget=400` (FAILS) | **95.0 s** | **11.5 s** |
+    | `[P4p]` getout `budget=100` (FAILS) | 32.5 s | 3.9 s |
+    | getout on `L1p` (succeeds) | 4.16 s | 1.87 s |
+    | `fixIt depth=0` on `L.F1p` | 1.81 s | 0.78 s |
+    | `fixIt depth=1` on `L.F1p` | 33.0 s | **3.6 s** |
+
+    `eqScans=0, eqIters=0` on every invocation — the mechanism, not just the speed.
+
+    **A real defect the measurement exposed:** `fixIt` returned DUPLICATES — `Promenade` eleven
+    times — because the equivalents loop pushed a byte-identical `(name, end board)` pair once per
+    candidate ending in the same formation. Pre-existing, not introduced by the change, but a list
+    a caller chooses from must not repeat one. The candidate list is now deduped on that pair, which
+    keeps genuinely different edges (the same call reaching a *different* board). Consequence, stated
+    honestly: `fixIt` from home now offers **18** calls, not 578. Two reasons — the duplicate bug,
+    and because the old list came from `applySearch` at the **loose** tolerance with **no tight
+    prefilter**, so it contained force-fits that `searchLegalCalls` prunes by design ("so force-fits
+    are pruned at search time rather than surfacing as a getout that fails on apply"). Verified: **0**
+    entries of the new list fall outside the tight legal list. The 578 was inflated by both effects
+    and was described here as "not a shortlist"; 18 is one.
+
+    `getout-convention.mjs` §5b now sweeps **every** alignment behind `GETOUT_SWEEP=1`, closing a
+    real gate gap: the workstream's headline claim — "27 of the 28 alignments that have a start
+    board" — was asserted NOWHERE, and the harness sampled only five. It reports **27 of 28**, with
+    `[P4p]` answering `null` in **11.5 s** against a 40 s bound.
+
+    **Remaining:** the C term is now the whole cost (17 catalogue scans for 447 nodes on `[P4p]`).
+    That is the start-formation index this step did not need — `library.allVariantSetups()` still
+    drops the call name it would need to carry.
 11. **`boardSig` ignores facing.** The BFS does not distinguish a board from its re-faced twin,
     which is what makes pivots prune cleanly, but it also means two genuinely different states
     share a dedup signature. Anything whose answer depends on facing must key on the full pose

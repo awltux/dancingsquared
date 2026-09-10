@@ -577,6 +577,57 @@
     </path>
   </tam>
 
+  <!-- Circulate from WAVES.
+       These were missing, and their absence was invisible until the engine was made to
+       dance All8's published get-outs: `Split Circulate`, `All 8 Circulate` and the
+       column/8-chain `Circulate` all had variants, so from a wave only plain Circulate
+       was illegal - and because group-scoped calls are named as "<group> Circulate",
+       every "Girls Circulate" / "Boys Circulate" in the corpus failed with a message
+       about SELECTION, not about the missing variant.
+
+       The paths are the same as `Split Circulate` from the same formation, which is
+       correct rather than a shortcut: with two parallel waves, "Circulate" means each
+       wave circulates within itself, and splitting a two-wave set in half gives exactly
+       those two waves - so from parallel waves the two calls coincide. They differ only
+       where there are more than two circulating groups, which is why the column/8-chain
+       tams above are separate. Like those wave tams this is authored as a half set: the
+       four paths below plus the engine's mirror of them make all eight dancers. -->
+  <tam title="Circulate"
+       from="Right-Hand Waves"
+       formation="Ocean Waves RH BGGB"
+       difficulty="1">
+    <path>
+      <move select="Forward 4" />
+    </path>
+    <path>
+      <move select="Run Right" beats="4" />
+    </path>
+    <path>
+      <move select="Forward 4" />
+    </path>
+    <path>
+      <move select="Run Right" beats="4" />
+    </path>
+  </tam>
+
+  <tam title="Circulate"
+       from="Left-Hand Waves"
+       formation="Ocean Waves LH BGGB"
+       difficulty="2">
+    <path>
+      <move select="Run Left" beats="4" />
+    </path>
+    <path>
+      <move select="Forward 4" />
+    </path>
+    <path>
+      <move select="Run Left" beats="4" />
+    </path>
+    <path>
+      <move select="Forward 4" />
+    </path>
+  </tam>
+
   <tam title="Split Circulate"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"

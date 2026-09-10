@@ -106,30 +106,39 @@ console.log('\n== the isolated reading is still preferred where the subset is it
   }
 }
 
-console.log('\n== the gap that remains, and its cause ==');
+console.log('\n== Circulate from a wave: the variant that was missing ==');
+// All8 indexes group circulates as "<group> Circulate", so every "Girls Circulate" in
+// the corpus needed the WHOLE-board Circulate to be legal from a wave - and no
+// Circulate variant matched the engine's own wave templates. Split Circulate, All 8
+// Circulate and the column/8-chain Circulate all had variants, so the missing one was
+// invisible until the corpus was run. Variants were added at the template's spacing
+// (x = -2, 2) in ms/circulate.xml, using the same four paths as Split Circulate from
+// the same formation - which is the same movement, because from two parallel waves
+// "Circulate" and "Split Circulate" both mean each wave circulates within itself.
 {
-  // "Girls Circulate" from a wave still fails, and the reason is NOT the selection
-  // logic: the whole-board Circulate does not match either, because the single-wave
-  // Circulate variant is authored with the two waves 2 apart while the engine's own
-  // Ocean Waves template puts them 4 apart. Split Circulate and All 8 Circulate,
-  // whose variants do match, are legal - so the defect is that one missing variant,
-  // not the selection path.
   const board = formationBoard('Ocean Waves');
-  const girls = seq.applyToBoard(board, 'Girls Circulate');
+  const circ = seq.applyToBoard(board, 'Circulate');
   const split = seq.applyToBoard(board, 'Split Circulate');
-  const all8 = seq.applyToBoard(board, 'All 8 Circulate');
-  console.log(`  "Girls Circulate" from Ocean Waves : ${girls.legal ? 'legal' : `illegal - ${girls.reason}`}`);
-  console.log(`  whole-board "Circulate"            : ${seq.applyToBoard(board, 'Circulate').legal ? 'legal' : 'illegal (no variant matches the wave spacing)'}`);
-  console.log(`  whole-board "Split Circulate"      : ${split.legal ? 'legal' : 'illegal'}`);
-  console.log(`  whole-board "All 8 Circulate"      : ${all8.legal ? 'legal' : 'illegal'}`);
-  const waveWidth = (vs) => [...new Set(vs.map((m) => m.x))].sort((a, b) => a - b).join(',');
-  console.log('  Circulate variant x-positions:');
-  for (const vs of seq.variantStarts('Circulate')) console.log(`      ${vs.length} dancers  x = ${waveWidth(vs)}`);
-  console.log('  The engine\'s own wave/line templates use x = -2,2 - so no single-wave Circulate');
-  console.log('  variant matches them, while the split and all-8 ones do. Fixing it means adding a');
-  console.log('  variant at that spacing (asset work), not a change to selection.');
-  if (girls.legal) ok('Girls Circulate now works from a wave (asset gap closed?)');
-  else console.log('  Reported as a gap: it needs the missing variant, not more selection logic.');
+  if (!circ.legal) {
+    fail(`"Circulate" is still illegal from Ocean Waves: ${circ.reason}`);
+  } else {
+    const spots = (b) => [...new Set(b.dancers.map((d) => `${d.x},${d.y}`))].sort().join(' ');
+    const same = spots(circ.board) === spots(board);
+    const identical = JSON.stringify(circ.board.dancers.map((d) => [d.id, d.x, d.y, face(d.heading)]).sort())
+      === JSON.stringify((split.legal ? split.board : circ.board).dancers.map((d) => [d.id, d.x, d.y, face(d.heading)]).sort());
+    if (!same) fail('Circulate from a wave did not leave the same spots occupied');
+    else if (!split.legal) fail('Split Circulate from the same wave is illegal - inconsistent');
+    else if (!identical) fail('Circulate and Split Circulate differ from two parallel waves, where they should coincide');
+    else ok('Circulate is legal from a wave, fills the same spots, and matches Split Circulate exactly');
+    console.log(`      (the dancers all move 2 or 4 units and the wave pattern is preserved; the result is still ${seq.knownFormation(circ.board)})`);
+    console.log('      NOTE: those paths also move half the dancers between the two parallel waves, which is what');
+    console.log('      the SHIPPED Split Circulate wave variant does - a split call should keep each half in');
+    console.log('      place. The new Circulate inherits that motion by construction; if the wave paths are');
+    console.log('      wrong, both calls need the same correction. Recorded as an open item.');
+  }
+  const lines = seq.applyToBoard(formationBoard('Normal Lines'), 'Circulate');
+  console.log(`  Circulate from FACING LINES is still ${lines.legal ? 'legal' : 'illegal'}.`);
+  console.log('  The shipped line variants are "Lines Facing In/Out", not facing lines, so this remains a gap.');
 }
 
 console.log('\n=================');

@@ -640,14 +640,8 @@ place, leaves everyone else untouched, and preserves the board array order.
 
 *Three findings this fix produced, none of them selection bugs:*
 
-- **`Circulate` does not match the engine's own wave and line templates.** The single-wave
-  Circulate variant is authored with the two waves **2 apart** (`x = -1,1`) while the engine's
-  `Ocean Waves`, `Normal Lines` and `Two-Faced Lines` templates put them **4 apart**
-  (`x = -2,2`). So `Circulate` is illegal from those formations, while `Split Circulate` and
-  `All 8 Circulate` — whose variants do match — are legal. This is the remaining cause of every
-  "Girls Circulate" stop, and it is **asset data, not code**: it needs a Circulate variant at
-  the template's spacing. It also means the whole-board `Circulate` gap was there all along,
-  masked by the selection message.
+- **`Circulate` had no variant matching the engine's own wave templates** — see step 4b below,
+  now fixed.
 - **`Cross Fold` and `Promenade` are listed in the engine's own index with no implementation**
   (`Cross Fold` is used twice by the corpus). Same class as the bare-Promenade gap above.
 - **The isolated reading can be unsound.** Centring a subset and matching it with the usual
@@ -656,6 +650,36 @@ place, leaves everyone else untouched, and preserves the board array order.
   an end, at the opposite corner of the set) and then passes them through. The 4-centre
   grouping is not being applied, and the centring hides it. Recorded as an open item; the new
   fallback does not touch this path.
+
+**Step 4b is DONE — the missing wave `Circulate`.** The single-wave `Circulate` variant was
+authored with the two waves **2 apart** (`x = -1,1`) while the engine's `Ocean Waves`,
+`Normal Lines` and `Two-Faced Lines` templates put them **4 apart** (`x = -2,2`), so `Circulate`
+was illegal from all three — while `Split Circulate` and `All 8 Circulate`, whose variants do
+match, were legal. Two new tams in `ms/circulate.xml` (`from="Right-Hand Waves"` /
+`"Left-Hand Waves"`, `formation="Ocean Waves RH|LH BGGB"`) fix it at the template's spacing.
+
+They reuse the **same four paths as `Split Circulate` from the same formation**, which is not a
+shortcut but the correct reading: from two parallel waves "Circulate" means each wave
+circulates within itself, and splitting a two-wave set in half gives exactly those two waves,
+so the two calls coincide. They differ only where there are more than two circulating groups,
+which is why the column/8-chain tams remain separate. This is verified rather than asserted:
+`engine/test/selection.mjs` requires the two calls to produce **identical** boards from
+`Ocean Waves`, and to leave the same spots occupied.
+
+Measured on the corpus: `Circulate` selection failures 9 → **1**, total selection failures 22
+→ 13, mid-body stops 76 → **72**, finish-only 37 → **40**, and one more published get-out now
+runs to a full success (42 + 2 by the caller convention). `behaviour-audit` is unchanged at
+137 / 0 / 0 and the precomputed FSM table is unaffected.
+
+*Two things this did NOT fix, both recorded:*
+
+- **`Circulate` from facing lines is still illegal.** The shipped line variants are
+  `Lines Facing In` / `Lines Facing Out` — not facing lines — so the `Normal Lines` template
+  has no `Circulate` any more than the wave templates did.
+- **The wave circulate paths may themselves be wrong.** The motion the new tams inherit from
+  `Split Circulate` moves half the dancers (4 units) between the two parallel waves, when a
+  *split* call should keep each half in place. That is the shipped asset's behaviour, not
+  something the new tams introduce, and if it needs correcting both calls need it together.
 
 ### 9.2 Other open items
 
@@ -673,19 +697,22 @@ place, leaves everyone else untouched, and preserves the board array order.
 4. **Global corner fix (from step 2).** `analyzeFasr`'s `corner` returns the *opposite* girl
    (0/4 agreement with the home ring). `FasrRelations.corner` feeds `fasrKey`, which backs
    `isZero` and the solver's `Static Square` check, so it needs its own measured step.
-5. **`Circulate` has no variant at the engine's own wave spacing.** Its single-wave variant
-   sits at `x = -1,1` while `Ocean Waves` / `Normal Lines` / `Two-Faced Lines` use `x = -2,2`,
-   so `Circulate` is illegal from all three. `Split Circulate` and `All 8 Circulate` work.
-   Asset data, and the cause of every remaining "Girls Circulate" stop in the corpus.
-6. **`Cross Fold` and `Promenade` are indexed but not implemented** — `Promenade` is the
+5. **`Circulate` from facing lines is still illegal.** The shipped line variants are
+   `Lines Facing In` / `Lines Facing Out`, not facing lines, so `Normal Lines` has no
+   `Circulate` — the same gap the wave templates had (fixed in step 4b for waves).
+6. **The wave circulate paths may be wrong.** The `Split Circulate` wave tam — and therefore the
+   new `Circulate` wave tams that reuse its paths — moves half the dancers 4 units between the
+   two parallel waves. A split call should keep each half in place, so the paths are suspect.
+   Needs an independent read of the wave circulate before changing both calls together.
+7. **`Cross Fold` and `Promenade` are indexed but not implemented** — `Promenade` is the
    corpus's most-used finisher (26 lines) and `Cross Fold` appears twice. `1/2 Circulate` and
    `Join Hands` are absent entirely.
-7. **The isolated selection reading can be unsound (§9.1 step 4a).** It centres the subset and
+8. **The isolated selection reading can be unsound (§9.1 step 4a).** It centres the subset and
    matches with normal rotation tolerance, so an arbitrary pair can satisfy a two-dancer setup;
    `Centers Pass Thru` from Facing Lines currently resolves two dancers (one an end) rather than
    the 4 centres. Worth fixing by resolving the group first and constraining the match, rather
    than by centring.
-8. **Phase 3 — Amendment policy for synthesised boards.** `FsmStore.amend` requires a getout,
+9. **Phase 3 — Amendment policy for synthesised boards.** `FsmStore.amend` requires a getout,
    and a getout is not found even from boards with full identity, so every amendment from a
    formation that was not danced to is rejected with "no getout". No UI wires this yet, so it
    is latent; the decision needed is whether to make the getout gate advisory (recording

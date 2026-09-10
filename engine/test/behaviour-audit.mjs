@@ -584,6 +584,45 @@ console.log('\n== Index independence: index-derived placeholder is not identity 
     `asIs=${asIs.legal ? seqWd.recognize(asIs.board).name : 'illegal'} asUnknown=${asUnknown.legal ? seqWd.recognize(asUnknown.board).name : 'illegal'}`);
 }
 
+console.log('\n== A zero must restore facings, not just positions (feature: zero_getout_tips) ==');
+{
+  seq.reset();
+  const Z = (a) => seq.isZero(seq.flatten(a));
+
+  // Coded pivots: a quarter/half turn is not a zero; a net full turn is.
+  check(Z(['Face Right']) === false, 'a coded quarter pivot is NOT a zero');
+  check(Z(['Face Half']) === false, 'a coded half pivot is NOT a zero');
+  check(Z(['Face Half', 'Face Half']) === true, 'two half pivots ARE a zero (net full turn)');
+  check(Z(['Face Right', 'Face Left']) === true, 'opposite pivots ARE a zero');
+
+  // Catalogue calls that genuinely turn in place must not be zeros either. Small
+  // heading drift is ignored (0.05 rad), so only a real facing change counts.
+  const home = seq.startBoard();
+  const posKey = (b) => b.dancers.map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)}`).join(';');
+  const turned = (b) => b.dancers.some((d, i) =>
+    Math.abs(Math.atan2(Math.sin(d.heading - home.dancers[i].heading), Math.cos(d.heading - home.dancers[i].heading))) > 0.05);
+  const pivots = [...seq.legalCalls(home)].filter((n) => {
+    const r = seq.applyToBoard(home, n);
+    return r.legal && posKey(r.board) === posKey(home) && turned(r.board);
+  });
+  check(pivots.length > 0, 'found catalogue calls that turn in place without moving anyone', `${pivots.length}`);
+  const wronglyZero = pivots.filter((n) => Z([n]));
+  check(wronglyZero.length === 0, 'no in-place turning call is reported as a zero',
+    wronglyZero.length ? JSON.stringify(wronglyZero.slice(0, 6)) : 'none');
+
+  // Genuine zeros must still pass, and buildTip must still accept them. This uses
+  // a TITLE-registered call: this file's own catalog registers by file basename,
+  // and a multi-call file such as circle.xml then carries a variant for every
+  // title in it, so "circle" applies a fractional circle rather than Circle Left.
+  const seqZ = new Sequencer(movesXml, formationsXml, [
+    { name: 'Circle Left', xml: read('poc/src/assets/ms/circle.xml') },
+  ]);
+  seqZ.setMatchMargin(0);
+  check(seqZ.isZero(['Circle Left']) === true, 'a genuine circling zero still passes ("Circle Left")');
+  check(seqZ.buildTip([['Circle Left'], ['Circle Left']]).legal === true, 'buildTip still accepts a genuine zero tip');
+  check(seq.buildTip([['Face Right']]).legal === false, 'buildTip rejects a pivot-only tip');
+}
+
 console.log('\n=================');
 console.log(`PASS: ${pass}   NOT-IMPLEMENTED: ${ni}   FAIL: ${fail}`);
 if (fail > 0) { console.log(`${fail} FAIL check(s) - investigate`); process.exitCode = 1; }

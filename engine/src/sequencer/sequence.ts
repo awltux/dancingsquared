@@ -28,6 +28,11 @@ const rot = (a: number, v: { x: number; y: number }) => ({
   y: v.x * Math.sin(a) + v.y * Math.cos(a),
 });
 
+/** Tolerance (radians) for "this dancer is facing the way it started". Headings
+ * are authored on 45-degree steps and snapped to formation slots, so this only
+ * absorbs floating-point drift (~0.06 degrees). */
+const FACING_EPS = 1e-3;
+
 export class SequenceAnalyzer {
   constructor(
     private readonly library: CallLibrary,
@@ -241,10 +246,17 @@ export class SequenceAnalyzer {
     return { totalBeats, phrases, complete64: remainder === 0, remainder };
   }
 
-  /** Whether a flat call sequence is a "zero": it starts and ends at home
-   * (in-sequence squared set). */
+  /** Whether a flat call sequence is a "zero": it returns the set to the home
+   * squared set — positions, relationships AND facings all restored.
+   *
+   * The facing check matters: fasrKey is derived from POSITIONS only (sequence
+   * parity plus partner/corner relationships), so on its own it reports a pure
+   * in-place pivot as a zero even though the set no longer faces the way it
+   * started. Every dancer must be back on its own facing, compared by identity.
+   */
   isZero(flat: (string | CallStep)[]): boolean {
-    let board = makeSquaredSet();
+    const home = makeSquaredSet();
+    let board = cloneBoard(home);
     for (const name of flat) {
       const label = typeof name === 'string' ? name : name.call;
       const coded = findCodedMove(label);
@@ -256,7 +268,21 @@ export class SequenceAnalyzer {
       if (!r.legal) return false;
       board = r.board;
     }
-    return fasrKey(board) === homeFasrKey();
+    if (fasrKey(board) !== homeFasrKey()) return false;
+    return this.sameFacing(home, board);
+  }
+
+  /** Whether every physical dancer on `board` faces the way it did on
+   * `reference`, compared by id and modulo a full turn. */
+  private sameFacing(reference: Board, board: Board): boolean {
+    const ref = new Map(reference.dancers.filter((d) => !d.isGhost).map((d) => [d.id, d]));
+    for (const d of board.dancers) {
+      if (d.isGhost) continue;
+      const r = ref.get(d.id);
+      if (!r) return false;
+      if (Math.abs(normAngle(d.heading - r.heading)) > FACING_EPS) return false;
+    }
+    return true;
   }
 
   /** Build a tip: a sequence of figures that is itself a zero and fits the 64-beat

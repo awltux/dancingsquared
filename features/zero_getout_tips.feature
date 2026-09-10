@@ -19,15 +19,14 @@ Feature: Zeros, Getouts and Tips
     Given a sequence turns every dancer in place without moving anyone, such as a pivot
     When the engine asks whether the sequence is a zero
     Then it must NOT report a zero, because the set no longer faces the way it started
-    # KNOWN GAP (pre-existing): fasrKey compares only the sequence parity and the
-    #          partner/corner relationships, both of which are derived from POSITIONS - facings are
-    #          ignored. A pure in-place pivot therefore keeps the same key and reports as a zero.
-    #          This already affects catalogue calls (measured: "Allemande Left" and "Circle Left"
-    #          from home both report isZero === true) and, now that coded moves replay, coded
-    #          pivots too (isZero(["Face Right"]) === true, and isZero(["Face Half"]) likewise).
-    #          Closing it means requiring a zero NET ORIENTATION as well - e.g. also requiring
-    #          fsmOrientationDelta(start, end) === 0, which the engine can already compute - and
-    #          then re-checking that genuine zeros (Circle Left, Face Half twice) still pass.
+    But a sequence whose net turn is a full circle must still be a zero
+    # Engine: the FASR key alone is derived from POSITIONS (sequence parity plus the
+    #          partner/corner relationships), so it reports a pure in-place pivot as a zero.
+    #          isZero therefore ALSO requires every dancer to be back on its own facing,
+    #          compared by identity and modulo a full turn (sameFacing, FACING_EPS 1e-3 rad so
+    #          only floating-point drift is absorbed). This corrected catalogue calls such as
+    #          "Allemande Left" (previously reported as a zero) while genuine zeros - a circle,
+    #          "Heads Forward and Back", two half-pivots, opposite pivots - still pass.
 
   @bind:getout @bind:applyToBoard
   Scenario: Computing a getout back to home

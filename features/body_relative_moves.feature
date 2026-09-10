@@ -101,6 +101,10 @@ Feature: Body-Relative Codified Moves
   # The Sequencer registers coded body-relative calls (Face/Turn Left/Right/In/Out/Half) that are
   # applied directly from geometry and are legal from any formation; they are not FSM/catalog edges
   # unless the pivoted geometry happens to be an existing formation state.
+  # The same registry also carries one geometry-derived WHOLE-SET RESOLVE, Promenade / Promenade
+  # Home. It is NOT body-relative: it is not a per-dancer local-frame transform, it declares a
+  # precondition over the whole board, it may refuse and say why, and it moves everybody - so it
+  # is legal from some boards and not others, unlike the pivots above (see resolve_calls.feature).
   # The rest of the taminations move catalog (fold/run/dodge/hinge/...) can be added as new
   # Move entries carrying their net local displacement + turn; a move is pure-body-relative only
   # when its direction is fixed in the dancer's local frame (callers orient it first otherwise).

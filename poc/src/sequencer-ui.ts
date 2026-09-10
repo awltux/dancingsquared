@@ -73,6 +73,10 @@ export class SequencerController implements SequencerUI {
   private playhead = 0;
   private totalBeats = 0;
   private flat: (string | CallStep)[] = [];
+  /** The board the current sequence replays from. Undefined means the home
+   * squared set; it is set to the board when a formation is jumped to with
+   * "Set", so playback, trails and copy agree with the live board. */
+  private startBoard: Board | undefined;
   private lastFrame = performance.now();
   private lastTraceKey = '';
   private lastReadout = '';
@@ -123,6 +127,8 @@ export class SequencerController implements SequencerUI {
     this.flat = [];
     this.playBtn.textContent = '▶ Play';
     this.lastTraceKey = '';
+    // The sequence now begins from this formation, not from home.
+    this.startBoard = this.seq.startBoard();
     this.statusEl.textContent = `board set to ${this.seq.recognize(this.seq.board)?.name ?? name}`;
     this.updateFormationSelect();
     this.render();
@@ -192,6 +198,8 @@ export class SequencerController implements SequencerUI {
     this.totalBeats = 0;
     this.flat = [];
     this.playBtn.textContent = '▶ Play';
+    // A fresh sequencer starts at home, so the sequence begins from home again.
+    this.startBoard = undefined;
     for (const v of this.views) {
       this.stage.scene.remove(v.group);
       this.stage.scene.remove(v.trail);
@@ -355,7 +363,7 @@ export class SequencerController implements SequencerUI {
 
   private syncAnimation() {
     this.flat = this.seq.flatten(this.history);
-    this.totalBeats = this.seq.sequenceBeats(this.flat);
+    this.totalBeats = this.seq.sequenceBeats(this.flat, this.startBoard);
     this.playhead = this.totalBeats;
     this.scrub.max = String(Math.max(1, this.totalBeats));
     this.scrub.value = String(this.playhead);
@@ -369,7 +377,7 @@ export class SequencerController implements SequencerUI {
 
   private renderPlayhead() {
     if (!this.active) return;
-    const res = this.seq.evaluateSequence(this.flat, this.playhead);
+    const res = this.seq.evaluateSequence(this.flat, this.playhead, this.startBoard);
     const walkPhase = ((this.playhead + 1000) % 2) / 2;
     this.renderBoard(res.board, { phase: walkPhase });
     if (res.beats > 0) this.render();
@@ -378,7 +386,7 @@ export class SequencerController implements SequencerUI {
 
   private updateCurrentTrace() {
     if (!this.active || this.views.length === 0) return;
-    const info = this.seq.sequenceInfo(this.flat, this.playhead);
+    const info = this.seq.sequenceInfo(this.flat, this.playhead, this.startBoard);
     const key = info && this.views.length === info.variant.dancers.length ? `${info.name}:${info.mapping.join(',')}` : '';
     if (key === this.lastTraceKey) return;
     this.lastTraceKey = key;
@@ -452,14 +460,10 @@ export class SequencerController implements SequencerUI {
   }
 
   private copyPositions() {
-    // Export the board the user actually sees. When the playhead is at the end
-    // of the sequence the on-screen board is exactly this.seq.board (e.g. a
-    // formation jumped to via "Set", or the final state after the calls applied).
-    // evaluateSequence() always REPLAYS history from the home squared set, so it
-    // would ignore a Set-formation board (empty history => home) — use the live
-    // board at rest, and only the interpolated pose when scrubbed mid-call.
-    const atEnd = this.playhead >= this.totalBeats;
-    const board = atEnd ? this.seq.board : this.seq.evaluateSequence(this.flat, this.playhead).board;
+    // Export the board at the current playhead, replayed from the sequence's own
+    // start board (home, or the formation jumped to with "Set"), so the exported
+    // coordinates match what is drawn.
+    const board = this.seq.evaluateSequence(this.flat, this.playhead, this.startBoard).board;
     const fasr = this.seq.fasr();
     const rel = fasr.relationship;
     const payload = {
@@ -523,10 +527,17 @@ export class SequencerController implements SequencerUI {
     this.syncAnimation();
   }
 
+  /** Re-establish the board the current sequence BEGAN from, so replaying the
+   * history reproduces the live sequence. Falls back to the home square. */
+  private rewindToStart() {
+    if (this.startBoard) this.seq.setBoard(this.startBoard);
+    else this.seq.reset();
+  }
+
   private undo() {
     if (this.history.length === 0) return;
     this.history.pop();
-    this.seq.reset();
+    this.rewindToStart();
     for (const name of this.history) this.seq.applyStep(name);
     this.statusEl.textContent = '';
     this.render();
@@ -539,7 +550,7 @@ export class SequencerController implements SequencerUI {
     this.playing = false;
     this.playBtn.textContent = '▶ Play';
     this.history.length = idx;
-    this.seq.reset();
+    this.rewindToStart();
     for (const name of this.history) this.seq.applyStep(name);
     this.statusEl.textContent = '';
     this.lastTraceKey = '';
@@ -550,6 +561,9 @@ export class SequencerController implements SequencerUI {
 
   private reset() {
     this.history.length = 0;
+    // Reset returns the set to the home square, so the sequence starts from home
+    // again (any formation jumped to with "Set" is forgotten).
+    this.startBoard = undefined;
     this.seq.reset();
     this.statusEl.textContent = '';
     this.render();

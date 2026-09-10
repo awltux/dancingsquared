@@ -1,7 +1,14 @@
 // SequenceAnalyzer: reads/animates a flat call sequence. Computes total beats,
 // evaluates the board at an arbitrary beat, and validates the 64-beat singing-call
-// segment / tip / zero structure. Pure over a board: it starts from the home set
-// and advances via the CallApplicator, so it holds no mutable state.
+// segment / tip / zero structure. Pure over a board: it advances via the
+// CallApplicator and holds no mutable state.
+//
+// The REPLAY evaluators (sequenceBeats / evaluateSequence / sequenceInfo) replay
+// a flat sequence from a START BOARD. That start board defaults to the home
+// squared set, but a caller may pass the board the sequence actually began from -
+// e.g. a board jumped to with setFormation - so playback and export agree with
+// what is on screen. The tip-structure helpers (isZero / buildTip /
+// validateSegment) are intrinsically home-anchored and never take one.
 
 import { dancerBeats, poseFor } from '../core.js';
 import { FormationMatcher, rebasedPose } from './matcher.js';
@@ -10,7 +17,7 @@ import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
 import { normAngle } from './identity.js';
-import { makeSquaredSet } from './board.js';
+import { makeSquaredSet, cloneBoard } from './board.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, CallStep, SeqDancer, VariantMatch } from './types.js';
 import type { CallBundle } from '../types.js';
@@ -61,9 +68,17 @@ export class SequenceAnalyzer {
     return null;
   }
 
-  /** Total beats to play a flat sequence starting from home. */
-  sequenceBeats(flat: (string | CallStep)[]): number {
-    let board = makeSquaredSet();
+  /** The board a REPLAY starts from: the caller's explicit start board when
+   * given, otherwise the home squared set. Always a copy, so replay cannot mutate
+   * the caller's board. */
+  private replayStart(startBoard?: Board): Board {
+    return startBoard ? cloneBoard(startBoard) : makeSquaredSet();
+  }
+
+  /** Total beats to play a flat sequence, starting from `startBoard` (default:
+   * the home squared set). */
+  sequenceBeats(flat: (string | CallStep)[], startBoard?: Board): number {
+    let board = this.replayStart(startBoard);
     let total = 0;
     for (const name of flat) {
       total += this.stepBeats(board, typeof name === 'string' ? name : name.call);
@@ -73,9 +88,10 @@ export class SequenceAnalyzer {
     return total;
   }
 
-  /** Evaluate the board at a global beat of a flat sequence, starting from home. */
-  evaluateSequence(flat: (string | CallStep)[], beat: number): { board: Board; beats: number } {
-    let board = makeSquaredSet();
+  /** Evaluate the board at a global beat of a flat sequence, starting from
+   * `startBoard` (default: the home squared set). */
+  evaluateSequence(flat: (string | CallStep)[], beat: number, startBoard?: Board): { board: Board; beats: number } {
+    let board = this.replayStart(startBoard);
     let acc = 0;
     for (const raw of flat) {
       const callName = typeof raw === 'string' ? raw : raw.call;
@@ -121,9 +137,10 @@ export class SequenceAnalyzer {
   }
 
   /** Which call in `flat` is playing at global `beat`, with its matched variant
-   * and the board->variant mapping. Returns null past the end of the sequence. */
-  sequenceInfo(flat: (string | CallStep)[], beat: number): { name: string; variant: CallBundle; mapping: number[] } | null {
-    let board = makeSquaredSet();
+   * and the board->variant mapping. Returns null past the end of the sequence.
+   * Replays from `startBoard` (default: the home squared set). */
+  sequenceInfo(flat: (string | CallStep)[], beat: number, startBoard?: Board): { name: string; variant: CallBundle; mapping: number[] } | null {
+    let board = this.replayStart(startBoard);
     let acc = 0;
     for (const raw of flat) {
       const callName = typeof raw === 'string' ? raw : raw.call;

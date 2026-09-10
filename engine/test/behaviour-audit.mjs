@@ -305,26 +305,56 @@ const rotBoard = (b, deg) => {
   return { dancers: b.dancers.map((d) => ({ ...d, x: d.x * c - d.y * s, y: d.x * s + d.y * c, heading: d.heading + r })) };
 };
 
-console.log('\n== Sequence replay model roots at home (feature: sequence_replay) ==');
+console.log('\n== Sequence replay: home by default, or an explicit start board (feature: sequence_replay) ==');
 {
   seq.reset();
-  const homeName = seq.recognize(seq.startBoard()).name;
+  const home = seq.startBoard();
+  const homeName = seq.recognize(home).name;
   const empty = seq.evaluateSequence([], 0).board;
   check(seq.recognize(empty).name === homeName, 'evaluateSequence([],0) returns the home square', seq.recognize(empty).name);
   check(seq.sequenceBeats([]) === 0, 'sequenceBeats([]) is 0 beats', String(seq.sequenceBeats([])));
 
-  // Jumping the board does NOT move the replay root: replay still starts from home.
+  // Jumping the board does NOT move the DEFAULT replay root: without an explicit
+  // start board, replay still starts from home (unchanged behaviour).
   const setOk = seq.setFormation('Two-Faced Lines');
   check(setOk === true, 'setFormation("Two-Faced Lines") succeeds');
   check(seq.recognize(seq.board).name === 'Two-Faced Lines', 'the LIVE board is Two-Faced Lines', seq.recognize(seq.board).name);
   const replayed = seq.evaluateSequence([], 0).board;
   check(seq.recognize(replayed).name === homeName,
-    'replay does NOT reproduce the set formation - it roots at home', seq.recognize(replayed).name);
-  check(seq.recognize(replayed).name !== seq.recognize(seq.board).name,
-    'live board and replayed board are different boards (the divergence behind bad Copy/Play)');
+    'without a start board, replay still roots at home', seq.recognize(replayed).name);
 
-  niReport('replay from an explicit (non-home) start board',
-    'evaluateSequence/sequenceBeats take only (flat, [beat]) and hard-code makeSquaredSet(); setFormation boards are not replayable');
+  // Passing the start board makes the replay reproduce the live board exactly.
+  const start = seq.startBoard();
+  const withStart = seq.evaluateSequence([], 0, start).board;
+  check(JSON.stringify(withStart) === JSON.stringify(start),
+    'with an explicit start board, an empty replay returns that board exactly',
+    seq.recognize(withStart).name);
+
+  // Take a call that is legal from this board but NOT from home: it must have 0
+  // beats by default, real beats from its start board, and its replayed END must
+  // equal the live board.
+  const homeLegal = new Set(seq.legalCalls(home));
+  const onlyFromHere = [...seq.legalCalls(seq.board)].find((n) => !homeLegal.has(n));
+  check(!!onlyFromHere, 'found a call legal from the set board but not from home', onlyFromHere ?? 'none');
+  if (onlyFromHere) {
+    const flat = seq.flatten([onlyFromHere]);
+    check(seq.sequenceBeats(flat) === 0, `"${onlyFromHere}" has 0 beats replayed from home`);
+    const beats = seq.sequenceBeats(flat, start);
+    check(beats > 0, `"${onlyFromHere}" HAS beats replayed from its start board`, String(beats));
+    seq.setBoard(start);
+    seq.apply(onlyFromHere);
+    const liveName = seq.recognize(seq.board).name;
+    const replayedEnd = seq.evaluateSequence(flat, beats, start).board;
+    check(seq.recognize(replayedEnd).name === liveName,
+      'the replayed end reaches the same formation as the live board', liveName);
+    check(JSON.stringify(replayedEnd) === JSON.stringify(seq.board),
+      'the replayed end board is identical to the live board (Play/Copy now agree)');
+
+    // The start board is a COPY: replay must not mutate the caller's board.
+    const before = JSON.stringify(start);
+    seq.evaluateSequence(flat, beats / 2, start);
+    check(JSON.stringify(start) === before, 'replay does not mutate the caller\'s start board');
+  }
 }
 
 console.log('\n== Orientation quantisation & orientation-preserving snap (feature: formation_states) ==');

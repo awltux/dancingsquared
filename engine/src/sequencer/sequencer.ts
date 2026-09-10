@@ -162,6 +162,15 @@ export class Sequencer {
     return cloneBoard(this.board);
   }
 
+  /** Set the current board explicitly (copied), clearing the match/solver caches
+   * like reset()/setFormation(). Used to re-establish a sequence's START board
+   * before replaying its history, e.g. after setFormation. */
+  setBoard(board: Board): void {
+    this.board = cloneBoard(board);
+    this.matcher.clearCaches();
+    this.solver.clearCaches();
+  }
+
   apply(callName: string): SeqStep {
     const coded = this.tryCodedMove(this.board, callName);
     const res = coded
@@ -593,16 +602,21 @@ export class Sequencer {
     return this.analyzer.stepBeats(board, name);
   }
 
-  sequenceBeats(flat: (string | CallStep)[]): number {
-    return this.analyzer.sequenceBeats(flat);
+  /** Total beats of a flat sequence replayed from `startBoard` (default: the
+   * home squared set). Pass the board the sequence actually started from - e.g.
+   * one jumped to with setFormation - so playback agrees with the live board. */
+  sequenceBeats(flat: (string | CallStep)[], startBoard?: Board): number {
+    return this.analyzer.sequenceBeats(flat, startBoard);
   }
 
-  evaluateSequence(flat: (string | CallStep)[], beat: number): { board: Board; beats: number } {
-    return this.analyzer.evaluateSequence(flat, beat);
+  /** The board at a global beat of a flat sequence replayed from `startBoard`
+   * (default: the home squared set). */
+  evaluateSequence(flat: (string | CallStep)[], beat: number, startBoard?: Board): { board: Board; beats: number } {
+    return this.analyzer.evaluateSequence(flat, beat, startBoard);
   }
 
-  sequenceInfo(flat: (string | CallStep)[], beat: number): { name: string; variant: CallBundle; mapping: number[] } | null {
-    return this.analyzer.sequenceInfo(flat, beat);
+  sequenceInfo(flat: (string | CallStep)[], beat: number, startBoard?: Board): { name: string; variant: CallBundle; mapping: number[] } | null {
+    return this.analyzer.sequenceInfo(flat, beat, startBoard);
   }
 
   phrasesForBeats(beats: number): number {

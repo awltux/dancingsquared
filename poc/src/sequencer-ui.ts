@@ -443,7 +443,14 @@ export class SequencerController implements SequencerUI {
   }
 
   private copyPositions() {
-    const board = this.seq.evaluateSequence(this.flat, this.playhead).board;
+    // Export the board the user actually sees. When the playhead is at the end
+    // of the sequence the on-screen board is exactly this.seq.board (e.g. a
+    // formation jumped to via "Set", or the final state after the calls applied).
+    // evaluateSequence() always REPLAYS history from the home squared set, so it
+    // would ignore a Set-formation board (empty history => home) — use the live
+    // board at rest, and only the interpolated pose when scrubbed mid-call.
+    const atEnd = this.playhead >= this.totalBeats;
+    const board = atEnd ? this.seq.board : this.seq.evaluateSequence(this.flat, this.playhead).board;
     const fasr = this.seq.fasr();
     const rel = fasr.relationship;
     const payload = {

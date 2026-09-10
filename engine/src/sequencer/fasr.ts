@@ -8,6 +8,7 @@
 
 import type { Board, Fasr } from './types.js';
 import { makeSquaredSet } from './board.js';
+import { isKnownCouple } from './constants.js';
 
 const angDiff = (a: number, b: number) => {
   let d = (a - b) % (2 * Math.PI);
@@ -22,7 +23,7 @@ export function analyzeFasr(board: Board, formationName: string | null): Fasr {
   // ---- Arrangement ----
   const boys = dancers.filter((d) => d.gender === 'boy').length;
   const girls = dancers.filter((d) => d.gender === 'girl').length;
-  const couples = new Set(dancers.map((d) => d.couple)).size;
+  const couples = new Set(dancers.filter((d) => isKnownCouple(d.couple)).map((d) => d.couple)).size;
   const arrangement = `${dancers.length} dancers (${boys} boys, ${girls} girls), ${couples} couple${couples === 1 ? '' : 's'}`;
 
   // ---- Relationship ----
@@ -31,7 +32,11 @@ export function analyzeFasr(board: Board, formationName: string | null): Fasr {
 
   const relationship: Fasr['relationship'] = {};
   for (const d of dancers) {
-    const partner = dancers.find((o) => o.couple === d.couple && o.id !== d.id) ?? null;
+    // A partner is a dancer in the same REAL home couple; UNKNOWN_COUPLE is not
+    // a couple, so a geometry-only board reports no partner relationship.
+    const partner = isKnownCouple(d.couple)
+      ? dancers.find((o) => o.couple === d.couple && o.id !== d.id) ?? null
+      : null;
     // Corner: for a squared set, a boy's corner is the girl in the next couple
     // counterclockwise (~+45deg); a girl's corner is the boy ~-45deg. Pick the
     // opposite-gender non-partner whose angle is closest to that offset.
@@ -56,7 +61,7 @@ export function analyzeFasr(board: Board, formationName: string | null): Fasr {
   let sequence: Fasr['sequence'] = 'unknown';
   const coupleAngles = new Map<number, number>();
   for (const d of dancers) {
-    if (d.gender === 'boy') coupleAngles.set(d.couple, angleOf(d));
+    if (d.gender === 'boy' && isKnownCouple(d.couple)) coupleAngles.set(d.couple, angleOf(d));
   }
   if (coupleAngles.size === 4) {
     const order = [...coupleAngles.entries()].sort((a, b) => a[1] - b[1]).map(([c]) => c);

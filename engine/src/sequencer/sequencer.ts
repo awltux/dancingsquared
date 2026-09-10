@@ -22,7 +22,7 @@ import { mul5, dancerMatrix, type Mat5 } from '../matrix.js';
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
-import { STANDARD_FORMATIONS, canonicalName } from './constants.js';
+import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
 import type { Matchable } from './match.js';
 import type { Board, CallStep, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep, VariantMatch } from './types.js';
 import type { CallBundle } from '../types.js';
@@ -521,7 +521,13 @@ export class Sequencer {
   }
 
   /** Build a synthetic board from arbitrary dancer geometry (named or embedded),
-   * stamping home identity when the geometry is an 8-dancer home-like square. */
+   * stamping home identity when the geometry is an 8-dancer home-like square.
+   *
+   * INDEX INDEPENDENCE: when the geometry is NOT home-like there is no real home
+   * identity to stamp, so each dancer keeps a distinct id (the sequence still
+   * tracks it) but is marked UNKNOWN_COUPLE / phantom. Deriving a couple from the
+   * array index here would leak an index into identity, and from there into the
+   * matching tie-break, the couple groupings and the couple-coherence check. */
   private boardFromMatchables(dancers: Matchable[]): Board {
     const home = HOME_DANCERS;
     const m = dancers.length === home.length
@@ -535,8 +541,8 @@ export class Sequencer {
         const id = m ? home[m.mapping[i]] : null;
         return {
           id: id ? id.id : i + 1,
-          couple: id ? id.couple : ((i >> 1) % 4) + 1,
-          gender: id ? id.gender : 'boy',
+          couple: id ? id.couple : UNKNOWN_COUPLE,
+          gender: id ? id.gender : 'phantom',
           x: d.x,
           y: d.y,
           heading: d.heading,

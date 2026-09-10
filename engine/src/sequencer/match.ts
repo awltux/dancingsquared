@@ -6,6 +6,8 @@
 // board dancers to the candidate dancers. This is the core of both "recognize
 // the current formation" and "apply this call's setup".
 
+import { isKnownCouple } from './constants.js';
+
 export interface Matchable {
   x: number;
   y: number;
@@ -16,6 +18,7 @@ export interface Matchable {
   // a slot of the SAME home couple. This is what keeps a "Heads X"/"Sides X"
   // call acting on the ORIGINAL head/side couples (home identity) instead of
   // whoever currently stands at the N/S position after the set has rotated.
+  // UNKNOWN_COUPLE (0) means "identity unknown" and never matches.
   couple?: number;
 }
 
@@ -128,10 +131,15 @@ function distanceSignature(ds: Matchable[]): number[] {
 }
 
 // How many source<->target pairs share the same home couple, counted only when
-// both dancers carry a couple. Used as a tie-break in matchEqualLength so a
-// rotationally-symmetric setup resolves to the alignment that keeps each dancer
-// on its home couple — which is what makes "Heads X"/"Sides X" act on the
-// ORIGINAL head/side couples rather than whoever currently stands at N/S.
+// both dancers carry a REAL couple (1..4). Used as a tie-break in
+// matchEqualLength so a rotationally-symmetric setup resolves to the alignment
+// that keeps each dancer on its home couple — which is what makes "Heads X"/
+// "Sides X" act on the ORIGINAL head/side couples rather than whoever currently
+// stands at N/S.
+//
+// INDEX INDEPENDENCE: UNKNOWN_COUPLE (0) is not a couple. A board synthesised
+// from geometry alone carries it, so those dancers contribute nothing here and
+// an index-derived placeholder can never decide a match.
 function identityScore(source: Matchable[], target: Matchable[], mapping: number[]): number {
   let s = 0;
   for (let i = 0; i < source.length; i++) {
@@ -139,7 +147,7 @@ function identityScore(source: Matchable[], target: Matchable[], mapping: number
     if (j < 0) continue;
     const a = source[i].couple;
     const b = target[j].couple;
-    if (a != null && b != null && a === b) s++;
+    if (isKnownCouple(a) && isKnownCouple(b) && a === b) s++;
   }
   return s;
 }

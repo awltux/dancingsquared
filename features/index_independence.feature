@@ -48,7 +48,7 @@ Feature: Index Independence in Matching
     #          call against the live board - so RUNTIME joining is already index-free. This is
     #          the behaviour the editor path below must also satisfy.
 
-  # ---- gaps: the editor's join path ------------------------------
+  # ---- the editor's join path ------------------------------------
 
   @bind:alignFormationToCore @bind:matchFormations
   Scenario: Editor alignment must use the same rotation granularity as matching
@@ -56,9 +56,9 @@ Feature: Index Independence in Matching
     When the call editor aligns a formation to a core's start formation
     Then it must try the same 45-degree rotation steps
     And it must not be limited to 90-degree rotations
-    # GAP: editor.ts alignFormationToCore tries ORIGIN_ROTS = [0, 90, 180, -90] only, whereas
-    #          match.ts ROTS tries 45-degree steps. A 45-degree-offset formation therefore
-    #          cannot be aligned geometrically by the editor at all.
+    # Engine: editor.ts ORIGIN_ROTS is kept in step with match.ts ROTS - the same eight
+    #          45-degree steps, rot 0 first so equal-error (symmetric) cases keep the
+    #          unrotated alignment instead of spinning the set.
 
   @bind:alignFormationToCore @bind:synthesizeSetup @bind:synthesizeSetupChain @bind:correctEndTo
   Scenario: Editor joins must not fall back to array index when geometry does not determine the mapping
@@ -66,13 +66,15 @@ Feature: Index Independence in Matching
     When the geometric alignment is ambiguous or finds no match within tolerance
     Then the join must fail loudly rather than silently pairing dancers by array index
     And any pairing that is kept must have been established by matching coordinates and rotation
-    # GAP: alignFormationToCore falls back to index order for every unmapped slot, and
-    #          synthesizeSetup / synthesizeSetupChain / correctEndTo then pair strictly by index
-    #          (setup.start[i], coreA.dancers[i], target[i]). Their published contracts require
-    #          the caller to have pre-aligned by index, so an unaligned or 45-degree-offset join
-    #          silently emits index-correlated output instead of reporting the failure.
+    # PARTLY RESOLVED: alignFormationToCore now THROWS on a length mismatch or an
+    #          assignment that leaves a slot unfilled, instead of placing unmapped slots in
+    #          array-index order.
+    # REMAINING GAP: synthesizeSetup / synthesizeSetupChain / correctEndTo still pair strictly
+    #          by index (setup.start[i], coreA.dancers[i], target[i]) and their contracts
+    #          require the caller to have pre-aligned the arrays, so a caller that passes
+    #          unaligned arrays still produces index-correlated output.
 
-  # ---- gap: index-derived placeholder identity -------------------
+  # ---- index-derived placeholder identity -------------------------
 
   @bind:boardForFormation @bind:matchFormations @bind:subsetOf
   Scenario: Index-derived placeholder identity must not be used as identity
@@ -81,12 +83,11 @@ Feature: Index Independence in Matching
     When the engine matches that board against a call, or resolves a couple-based subset on it
     Then the placeholder identity must be treated as unknown
     And it must not be used as a matching tie-break or as a real couple grouping
-    # GAP: sequencer.boardFromMatchables stamps `couple: ((i >> 1) % 4) + 1` and `gender: 'boy'`
-    #          from the BOARD ARRAY INDEX whenever the geometry is not home-like. Those
-    #          placeholders reach match.ts identityScore (a tie-break) and the grouping layer
-    #          (couple-coherent partitions, beau/belle roles), so an index-derived value can
-    #          decide a match or a subset. Initialising by index is permitted; letting that
-    #          placeholder then act as identity is not.
+    # Engine: boardFromMatchables stamps UNKNOWN_COUPLE (0) and 'phantom' - a distinct id is
+    #          still assigned, but no couple is derived from the array index. UNKNOWN_COUPLE is
+    #          not a couple anywhere: match.ts identityScore skips it, the couple groupings
+    #          (heads/sides/couples/beau-belle) do not resolve on such a board, the partition's
+    #          couple-coherence check ignores it, and FASR reports 0 couples / no partner.
 
   # ---- the bounded exceptions ------------------------------------
 

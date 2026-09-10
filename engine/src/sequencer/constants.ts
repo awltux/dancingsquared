@@ -15,6 +15,21 @@ export const SEARCH_MATCH_MAX = 6.0;
 // catalog formation. This gates sequencing continuity, not legality.
 export const KNOWN_FORMATION_MAX = 6.0;
 
+// Couple value meaning "identity unknown". Real home couples are 1..4. A board
+// synthesised from geometry alone (e.g. jumped to with setFormation, rather than
+// reached by dancing) has no real home identity, so its dancers carry this
+// sentinel instead of a couple derived from the array index.
+//
+// INDEX INDEPENDENCE: nothing may treat this as a couple. The matching identity
+// tie-break, the couple-based groupings (heads/sides/couples/beau-belle) and the
+// couple-coherence check in the parallel partition all skip it, so an
+// index-derived value can never decide a match or a subset.
+export const UNKNOWN_COUPLE = 0;
+
+/** Whether `c` is a real home couple (1..4) rather than UNKNOWN_COUPLE. */
+export const isKnownCouple = (c: number | null | undefined): c is number =>
+  typeof c === 'number' && c > 0;
+
 // Standard Mainstream formations used for RECOGNITION. Matching against a
 // curated list avoids mislabeling a setup as a congruent-but-unrelated named
 // formation (many 4-dancer setups become geometrically congruent once mirrored,

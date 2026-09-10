@@ -3,6 +3,7 @@
 // subset can dance a call.
 
 import { CallApplicator } from './applicator.js';
+import { isKnownCouple } from './constants.js';
 import type { Board, SeqDancer } from './types.js';
 import { normalizeSelection, selectionGroup } from './selection.js';
 
@@ -116,7 +117,9 @@ export class Grouping {
     ds: SeqDancer[],
     role: 'beaus' | 'belles',
   ): number[][] | null {
-    const coupleNos = [...new Set(ds.map((d) => d.couple))];
+    // Only REAL home couples define a beau/belle pair; UNKNOWN_COUPLE is not a
+    // couple, so a geometry-only board yields no positional role here.
+    const coupleNos = [...new Set(ds.map((d) => d.couple))].filter(isKnownCouple);
     const out: number[] = [];
     for (const c of coupleNos) {
       const pair = ds.filter((d) => d.couple === c);

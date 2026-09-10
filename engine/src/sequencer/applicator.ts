@@ -9,7 +9,7 @@ import { matchFormations, type Matchable } from './match.js';
 import { FormationMatcher, rebasedPose } from './matcher.js';
 import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
-import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
+import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX, isKnownCouple } from './constants.js';
 import { normAngle } from './identity.js';
 import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
 import { splitSelection } from './selection.js';
@@ -279,9 +279,14 @@ export class CallApplicator {
     const k = setup.length;    const n = dancers.length;
     if (n === 0 || n % k !== 0) return null;
     const coupleCount = new Map<number, number>();
-    for (const d of dancers) coupleCount.set(d.couple, (coupleCount.get(d.couple) ?? 0) + 1);
+    for (const d of dancers) {
+      if (isKnownCouple(d.couple)) coupleCount.set(d.couple, (coupleCount.get(d.couple) ?? 0) + 1);
+    }
+    // A real couple must never be split across subsets. UNKNOWN_COUPLE is not a
+    // couple, so it imposes no constraint rather than being treated as one
+    // (treating it as a couple would wrongly forbid or force partitions).
     const isCoupleCoherent = (group: SeqDancer[]): boolean => {
-      const couples = new Set(group.map((d) => d.couple));
+      const couples = new Set(group.map((d) => d.couple).filter(isKnownCouple));
       for (const c of couples) {
         const need = coupleCount.get(c) ?? 0;
         if (group.filter((d) => d.couple === c).length !== need) return false;

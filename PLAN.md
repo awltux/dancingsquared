@@ -282,6 +282,69 @@ the derived calls and the filter as separate commits.
 
 ---
 
+## Phase 1b — DONE: `Trade` and `Run` are derived calls
+
+**Implemented, gated and measured.** `engine/src/sequencer/trade-run.ts` holds both rules;
+`coded-moves.ts` registers them with a new selection-aware hook.
+
+### The rule, and why the facing question dissolved
+
+**Both calls are SWAPS of complete dancer state — position AND facing — and nobody else moves.**
+That is what the reference's own arithmetic amounts to: `run.dart` scales the runner's path and
+the walker's dodge by the *same* `dist/2`, measured in the two dancers' own frames, which face
+opposite — so the two displacements are the same world vector. `trade.dart` likewise scales the
+trader's run by `dist/2` and leaves the intervening dancers out of `actives` entirely.
+
+This retired the whole "facing convention" worry recorded in the previous revision of this file.
+Static reading of `math/bezier.dart` was inconclusive (the facing is the curve *tangent*, which at
+`RunRight`'s endpoint points 180° from the start, while `rolling()` re-reads it as −90°), but in the
+net model there is no turn to derive: a Run exchanges the pair's facings, and that is exactly what
+keeps a wave coherent. Verified empirically by feeding each authored variant its own declared
+formation and reading the end board, and corroborated independently by the corpus, where the
+shipped demo motion leaves partners 4–6 units apart in 6 published promenade get-outs.
+
+Two honest limits, both REFUSED with a reason rather than approximated, per `prd.md` §9.5.4:
+a Run around more than one dancer (`Run Around 2` — the reference's default is `runAround = 1`,
+which is what is implemented), and the reference's hand-holds for the swing/slip trade cases
+(`!samedir && dist < 2.1`), because a derived apply has no hand state to read.
+
+### Contract addition
+
+`CodedMove.applyToSelection?(board, selectedIds)` — for a call whose **non-designated dancers must
+also move**. The "apply the whole-board transform, then keep only the selected dancers" trick that
+serves the pivots cannot express it: it would discard the walker's motion and leave two dancers on
+one spot. `Sequencer.tryCodedMove` uses it when present, and the harness asserts that every dancer
+keeps a distinct spot through a Run precisely because that is the failure mode.
+
+Both names also **refuse the bare form** with a reason ("Trade names a group to trade…"), which is
+correct rather than a placeholder: `Trade` and `Run` name no subset on their own. That refusal also
+keeps them out of `legalNext` and out of the search's edge set, because `legality.searchLegalCalls`
+adds only precondition-carrying coded moves that actually apply.
+
+### Measured
+
+| | before | after |
+|---|---|---|
+| promenade get-outs that resolve (of 30) | 12 | **15** |
+| promenade refusals: partners not together ("broken body") | 6 | **3** |
+| corpus: reached the finish and applied it | 53 | **59** |
+| corpus: stopped part-way through the body | 71 | **68** |
+| corpus `ENGINE GAPS` distinct names | 29 | **25** |
+| `Boys Run` in `ENGINE GAPS` | top entry | **gone** |
+
+`selection.mjs` asserts the fixed behaviour: `Boys Trade` moves only the 4 boys (trading across the
+intervening girls, which is the reference's `inBetween` case) and leaves an Ocean Waves; `Boys Run`
+keeps the wave an Ocean Waves, swaps the layout `BB/GG/GG/BB → GG/BB/BB/GG`, and leaves every
+dancer on a distinct spot.
+
+**Still open from this family.** `Cross Run`, `Fold` / `Boys Fold` / `Girls Fold`,
+`Centers Cast Off Three Quarters`, `Turn Back` and the group-scoped `Heads/Sides Square Thru N`
+are in the same boat — 32 titles whose only authored setups are demonstrations — and each needs
+either a derived rule or an honest refusal. `Trade the Wave`, `Bend the Line`, `Box the Gnat` and
+the rest of `ENGINE GAPS` are Phase 4.
+
+---
+
 ## Phase 2 — The decoder table and the tokenizer bug
 
 **Goal:** move the 202 undecoded lines into a real measurement of the engine, without ever

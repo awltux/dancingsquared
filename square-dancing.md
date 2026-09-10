@@ -951,6 +951,37 @@ and upstream of 6 of the 9 promenade finishes that still refuse.
    the runner's spot. Both belong in `coded-moves.ts` under the `prd.md` §9.5.4 contract. Only
    after that does removing the demonstration tams become safe, because the capability no longer
    depends on them. See `PLAN.md` Phase 1.
+
+   **DONE — `Trade` and `Run` are now DERIVED calls.** Implemented in
+   `engine/src/sequencer/trade-run.ts`, registered in `coded-moves.ts`. THE RULE, and it is a
+   SWAP: both calls exchange the complete state — position AND facing — of the dancers they pair
+   up, and nobody else moves. That is what the reference's arithmetic amounts to, because
+   `run.dart` scales the runner's path and the walker's dodge by the *same* `dist/2` in the two
+   dancers' own frames (which face opposite, so the displacements are the same world vector), and
+   `trade.dart` leaves the intervening dancers out of `actives` entirely. The facing question this
+   document previously flagged as unresolved therefore dissolved: in the net model there is no
+   turn to derive, and exchanging the pair's facings is exactly what keeps a wave coherent. It was
+   settled empirically by feeding each authored variant its own declared formation and reading the
+   end board, and corroborated independently by the corpus, where the shipped demo motion leaves
+   partners 4–6 units apart in 6 published promenade get-outs.
+
+   The contract gained `CodedMove.applyToSelection(board, selectedIds)`: a move whose
+   **non-designated dancers must also move**. The pivots' "apply the whole-board transform, then
+   keep only the selected dancers" trick cannot express it — it would discard the walker's motion
+   and leave two dancers on one spot, which is now asserted against. Both names also REFUSE the
+   bare form with a reason, which is correct rather than a placeholder (neither has a whole-set
+   reading), and that refusal keeps them out of `legalNext` and out of the search's edge set.
+
+   MEASURED: promenade get-outs that resolve **12 → 15** of 30, broken-body refusals **6 → 3**,
+   corpus success **53 → 59**, mid-body stops **71 → 68**, `ENGINE GAPS` distinct names **29 → 25**,
+   and `Boys Run` — previously the list's top entry — is gone from it. `selection.mjs` asserts
+   `Boys Trade` moves only the 4 boys (trading across the intervening girls) and `Boys Run` keeps
+   the wave an Ocean Waves while swapping the layout `BB/GG/GG/BB → GG/BB/BB/GG`.
+
+   Recorded limits, both refused with a reason rather than approximated: a Run around more than one
+   dancer (`Run Around 2`; the reference's default is `runAround = 1`, which is what is
+   implemented), and the reference's hand-holds for the swing/slip trade cases, because a derived
+   apply has no hand state to read.
 8. **The isolated selection reading can be unsound (§9.1 step 4a).** It centres the subset and
    matches with normal rotation tolerance, so an arbitrary pair can satisfy a two-dancer setup;
    `Centers Pass Thru` from Facing Lines currently resolves two dancers (one an end) rather than

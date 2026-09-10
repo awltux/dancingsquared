@@ -72,7 +72,7 @@ export { applyCodedMove } from './sequencer/coded-moves.js';
 export { normalisedState, orientationDeltaSteps, ORIENTATION_STEP, ORIENTATION_STEPS } from './sequencer/fsm.js';
 export { FsmTable, FSM_TABLE_SCHEMA_VERSION, type FsmTableEdge, type FsmTableData } from './sequencer/fsm-table.js';
 export { normalizeSelection, selectionGroup, splitSelection } from './sequencer/selection.js';
-export { findCodedMove, codedMoveApplies, CODED_MOVES, CODED_MOVE_NAMES, CODED_MOVE_BEATS } from './sequencer/coded-moves.js';
+export { findCodedMove, codedMoveApplies, CODED_MOVES, CODED_MOVE_NAMES, CODED_MOVE_BEATS, RUN_TRADE_BEATS } from './sequencer/coded-moves.js';
 export type { CodedMove } from './sequencer/coded-moves.js';
 export {
   promenadeHome,

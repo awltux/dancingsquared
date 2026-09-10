@@ -87,17 +87,23 @@ export class Sequencer {
     if (!sel.selection) return null;
     const base = findCodedMove(sel.call);
     if (!base) return null;
+    const ids = this.grouping.resolveSelection(board, sel.selection);
+    if (!ids || ids.length === 0) return null;
+    // A move that moves NON-designated dancers as well (a Run's walker, a Trade's intervening
+    // dancers) has to compute the whole board itself — the whole-board-transform-then-filter
+    // trick below would discard the walker's motion and leave two dancers on one spot.
+    if (base.applyToSelection) {
+      const r = base.applyToSelection(board, ids);
+      return 'reason' in r ? { board, legal: false, reason: r.reason } : { board: r.board, legal: true };
+    }
     if (base.precondition) {
       // A whole-set resolve has no half-set reading, so a genuine subset is left to
       // the applicator to refuse - EXCEPT that "All <resolve>" is just the resolve:
       // All8 writes `A-Prom`, and "all" is the whole set already, so the group prefix
       // adds nothing and the call must not fail on account of it.
       const everyone = board.dancers.filter((d) => !d.isGhost).map((d) => d.id);
-      const ids = this.grouping.resolveSelection(board, sel.selection);
-      return ids && ids.length === everyone.length ? applyCodedMove(board, sel.call) : null;
+      return ids.length === everyone.length ? applyCodedMove(board, sel.call) : null;
     }
-    const ids = this.grouping.resolveSelection(board, sel.selection);
-    if (!ids || ids.length === 0) return null;
     const byId = new Map(base.apply(board).dancers.map((d) => [d.id, d]));
     const picked = new Set(ids);
     return {

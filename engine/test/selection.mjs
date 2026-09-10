@@ -28,7 +28,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, assignHomeIdentity } from '../dist/index.js';
+import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
@@ -227,74 +227,97 @@ console.log('\n== the `sequencer` attribute: parsed faithfully, and NOT yet acte
   console.log('  only removes motion, which is why matching is left unfiltered.');
 }
 
-console.log('\n== Trade / Run from two parallel waves: the defect is PINNED, not papered over ==');
-// The published corpus found this and the mechanism is now measured exactly, so it is
-// asserted here rather than left as prose. Both assertions describe behaviour that is WRONG
-// and must be flipped by implementing Trade/Run as derived calls (PLAN.md Phase 1b, which
-// has the reference specification in taminations-flutter/lib/sequencer/calls/ms/).
-//
-// The engine's own Ocean Waves template is `BggB` - boys at the ENDS, which is correct.
-// Every authored `Boys Trade` wave variant is for boys in the CENTRE, and the whole Run
-// family has NO sequencer-eligible variant at all (32 of 32 marked sequencer="no"), so the
-// only tams that match this template are UNGATED demonstration animations authored for the
-// other gender layout. Least-error matching then applies boys-in-centre motion to a
-// boys-at-ends board, and the dancers it moves are the ones standing in the centre slots.
+console.log('\n== Trade / Run from two parallel waves: the derived calls ==');
+// These two calls were the corpus's top engine gap and the cause of 6 of the 9 refused
+// promenade finishes, because the engine matched authored tams instead of deriving them.
+// Both are now REGISTERED AS DERIVED CALLS (trade-run.ts), and this section asserts the
+// behaviour that replaced the defect. The engine's own Ocean Waves template is `BggB` - boys
+// at the ENDS, which is correct - and every authored `Boys Trade` wave variant is for boys in
+// the CENTRE, so before the derived calls the only tams that matched were UNGATED demos and
+// `Boys Trade` moved the four GIRLS. The whole `Run` family has no eligible variant at all
+// (32 of 32 are sequencer="no"), because the reference implements Run in code.
 {
   const board = formationBoard('Ocean Waves');
   if (!board) {
-    fail('no Ocean Waves template board');
+    fail('no Ocean Waves template template board');
   } else {
     const boys = board.dancers.filter((d) => d.gender === 'boy').length;
     const girls = board.dancers.filter((d) => d.gender === 'girl').length;
     if (boys !== 4 || girls !== 4) fail(`Ocean Waves template is not 4 boys + 4 girls (${boys}/${girls})`);
 
-    // `Boys Trade` must move the BOYS. Today it moves the GIRLS - pinned here.
+    const layoutOf = (ds) => {
+      const rows = new Map();
+      for (const d of ds) { const k = d.y.toFixed(1); rows.set(k, [...(rows.get(k) ?? []), d].sort((a, b) => a.x - b.x)); }
+      return [...rows.entries()].sort((a, b) => Number(b[0]) - Number(a[0]))
+        .map(([, ds2]) => ds2.map((d) => d.gender.charAt(0).toUpperCase()).join('')).join('/');
+    };
+
+    // 1. Boys Trade moves the BOYS, and nobody else. It trades ACROSS the intervening girls,
+    //    which is the reference's `inBetween` case (calls/ms/trade.dart).
     const r = seq.applyToBoard(board, 'Boys Trade');
     if (!r.legal) {
-      // If it has become illegal, the gap moved but the defect is gone; say which.
-      ok(`Boys Trade is now ILLEGAL from Ocean Waves (${r.reason}) - re-point this gate at the derived call`);
-      console.log('      (previously it applied a sequencer="no" demo and moved the girls)');
+      fail(`Boys Trade is not legal from Ocean Waves: ${r.reason}`);
     } else {
       const before = new Map(board.dancers.map((d) => [d.id, d]));
       const moved = r.board.dancers.filter((d) => Math.hypot(d.x - before.get(d.id).x, d.y - before.get(d.id).y) > 0.01);
       const movedBoys = moved.filter((d) => d.gender === 'boy').length;
       const movedGirls = moved.filter((d) => d.gender === 'girl').length;
-      console.log(`      Boys Trade: ${moved.length} dancers moved (${movedBoys} boys, ${movedGirls} girls); result is ${seq.knownFormation(r.board)}`);
-      if (movedBoys === 4 && movedGirls === 0) {
-        ok('Boys Trade moves only the BOYS - the derived call has landed, this gate can be tightened');
-      } else if (movedGirls > 0 && movedBoys === 0) {
-        ok(`KNOWN DEFECT PINNED: Boys Trade moves only the GIRLS (${movedGirls} of 4) - wrong dancers`);
-        console.log('      Cause: the winning variant is a sequencer="no" demo authored for boys in the CENTRE');
-        console.log('      (declared rows GG/BB/BB/GG) while the template is BggB. No eligible variant matches');
-        console.log('      the template at all, because Trade is a DERIVED call in the reference');
-        console.log('      (calls/ms/trade.dart): trade with the nearest dancer in the direction holding an');
-        console.log('      ODD number of dancers, running AROUND intervening dancers. Until that exists this');
-        console.log('      assertion must keep failing loudly rather than be relaxed.');
+      if (movedBoys !== 4 || movedGirls !== 0) {
+        fail(`Boys Trade moved ${movedBoys} boys and ${movedGirls} girls; it must move only the 4 boys`);
       } else {
-        fail(`Boys Trade moved a mixed group (${movedBoys} boys, ${movedGirls} girls) - neither the defect nor the fix`);
+        ok('Boys Trade moves only the 4 BOYS, trading across the intervening girls');
       }
+      // The two boys in a wave exchange position AND facing, so the wave survives.
+      const after = seq.knownFormation(r.board);
+      if (after !== 'Ocean Waves') fail(`Boys Trade left ${after}, not Ocean Waves`);
+      else ok('Boys Trade leaves the formation an Ocean Waves');
+      // The intervening dancers must not have moved: that is what "trades ACROSS them" means.
+      const girlsMoved = movedGirls;
+      if (girlsMoved !== 0) fail('the intervening girls moved during a Trade; they must stay put');
     }
 
-    // `Boys Run` must keep the wave a wave, with the genders swapped end<->centre.
-    // Today it destroys the wave, because the winning demo is again for the other layout.
+    // 2. Boys Run: the runner and the dancer it runs around EXCHANGE position and facing, so
+    //    the wave keeps its shape and the genders swap end <-> centre.
+    const before = layoutOf(board.dancers);
     const run = seq.applyToBoard(board, 'Boys Run');
     if (!run.legal) {
-      ok(`Boys Run is now ILLEGAL from Ocean Waves (${run.reason}) - re-point this gate at the derived call`);
+      fail(`Boys Run is not legal from Ocean Waves: ${run.reason}`);
     } else {
-      const after = seq.knownFormation(run.board);
-      if (after === 'Ocean Waves') {
-        ok('Boys Run keeps the wave an Ocean Waves - the derived call has landed, tighten this gate');
+      const after = layoutOf(run.board.dancers);
+      if (seq.knownFormation(run.board) !== 'Ocean Waves') {
+        fail(`Boys Run left ${seq.knownFormation(run.board)}, not Ocean Waves`);
+      } else if (after === before) {
+        fail(`Boys Run did not change the layout (${before})`);
       } else {
-        ok(`KNOWN DEFECT PINNED: Boys Run turns the wave into ${after}`);
-        console.log('      A Run from a wave keeps the wave a wave, with the genders swapped end<->centre.');
-        console.log('      The winning demo declares GG/BB/BB/GG on a BggB template, so all 8 dancers move.');
+        ok(`Boys Run keeps the wave an Ocean Waves and swaps the layout ${before} -> ${after}`);
       }
+      // Every dancer must have a distinct spot: an exchange that half-moved would stack two
+      // dancers on one square, which is the failure a whole-board-transform-then-filter has.
+      const spots = new Set(run.board.dancers.map((d) => `${d.x.toFixed(2)},${d.y.toFixed(2)}`));
+      if (spots.size !== run.board.dancers.length) fail(`Boys Run left two dancers on the same spot (${spots.size} distinct of ${run.board.dancers.length})`);
+      else ok('every dancer keeps a distinct spot through a Run');
     }
-    // The eligibility gap itself: nothing eligible matches this template for either call.
-    const eligTrade = seq.sequencerVariants('Boys Trade').length;
-    const demoTrade = (seq.getVariants('Boys Trade') ?? []).length - eligTrade;
-    console.log(`      Boys Trade: ${eligTrade} eligible variants, ${demoTrade} demos, and 0 ELIGIBLE variants match this template`);
-    console.log(`      Boys Run:   0 eligible variants in the whole family - every one is sequencer="no"`);
+
+    // 3. Both calls REFUSE the bare name, because neither has a whole-set reading.
+    for (const bare of ['Run', 'Trade']) {
+      const b = seq.applyToBoard(board, bare);
+      if (b.legal) fail(`${bare} applied with no designation; it must refuse`);
+      else ok(`${bare} with no designation refuses: ${b.reason}`);
+    }
+
+    // 4. They are DERIVED, not catalog matches, and they carry the authored beat count so the
+    //    timeline does not shift when the derived call replaces the tams. Asserting that no
+    //    authored variant MATCHES would be wrong: the tams are still registered (they are
+    //    legitimate animations, and the picker lists them). What matters is PRECEDENCE, which
+    //    assertion 3 covers by requiring the bare names to refuse for the derived reason
+    //    rather than to apply a demo.
+    for (const name of ['Run', 'Trade']) {
+      const move = CODED_MOVES.find((m) => m.name === name);
+      if (!move) fail(`${name} is not registered as a geometry-derived call`);
+      else if (!move.applyToSelection) fail(`${name} is registered but has no selection-aware transform`);
+      else if (move.beats !== RUN_TRADE_BEATS) fail(`${name} is ${move.beats} beats, not the authored ${RUN_TRADE_BEATS}`);
+      else ok(`${name} is a derived call (${move.beats} beats) with a selection-aware transform`);
+    }
   }
 }
 

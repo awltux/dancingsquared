@@ -20,10 +20,15 @@
 
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
 import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS } from './promenade.js';
+import { runRule, tradeRule } from './trade-run.js';
 import type { Board } from './types.js';
 
 /** Timeline length of a coded pivot, in beats. */
 export const CODED_MOVE_BEATS = 1;
+
+/** Timeline length of the derived Run / Trade, in beats — the value the authored `Run` and
+ * `Trade` tams carry, so the timeline does not shift when the derived call replaces them. */
+export const RUN_TRADE_BEATS = 4;
 
 export interface CodedMove {
   /** Canonical display name (the first alias). */
@@ -38,9 +43,26 @@ export interface CodedMove {
   precondition?: (board: Board) => string | null;
   /** Whole-board transform at completion. Only called when it applies. */
   apply(board: Board): Board;
+  /** Transform for a DESIGNATED SUBSET, for a call whose non-designated dancers must also
+   * move. `Run` and `Trade` are the cases: a Run's walker steps into the vacated place, and a
+   * Trade's intervening dancers must be kept in place while the traders pass. The generic
+   * "apply the whole-board transform, then keep only the designated dancers' results" that
+   * `Sequencer.tryCodedMove` uses for the pivots cannot express either — it would throw away
+   * the walker's motion and leave two dancers on one spot.
+   *
+   * A move that defines this is still refused for the BARE name (a `precondition` that
+   * rejects it), because `Trade` and `Run` have no whole-set reading: they always name a
+   * subset ("Boys Trade", "Centers Run"). */
+  applyToSelection?(board: Board, selectedIds: number[]): { board: Board } | { reason: string };
 }
 
-const DEFS: { aliases: string[]; fn: (b: Board) => Board; beats?: number; precondition?: (b: Board) => string | null }[] = [
+const DEFS: {
+  aliases: string[];
+  fn?: (b: Board) => Board;
+  beats?: number;
+  precondition?: (b: Board) => string | null;
+  applyToSelection?: (b: Board, ids: number[]) => { board: Board } | { reason: string };
+}[] = [
   { aliases: ['Face Right', 'Turn Right', 'Right Face'], fn: (b) => applyMoveToBoard(b, FaceRight) },
   { aliases: ['Face Left', 'Turn Left', 'Left Face'], fn: (b) => applyMoveToBoard(b, FaceLeft) },
   { aliases: ['Face Half', 'U-Turn Back', 'Face Back'], fn: (b) => applyMoveToBoard(b, FaceHalf) },
@@ -49,6 +71,23 @@ const DEFS: { aliases: string[]; fn: (b: Board) => Board; beats?: number; precon
   // Promenade: the standard finish. Unlike the pivots above it is NOT always
   // legal, so it carries its precondition and reports the reason it fails.
   { aliases: PROMENADE_ALIASES, beats: PROMENADE_BEATS, precondition: promenadeProblem, fn: (b) => promenadeHome(b).board },
+  // Run and Trade: derived because Taminations implements them in code and marks every
+  // authored `Run` tam (32) and bare `Trade` not-for-sequencer — see trade-run.ts for the rule
+  // and for the measurement that settled the facing half of it. Both REFUSE without a
+  // designation, which is correct rather than a placeholder: "Trade" and "Run" on their own
+  // name no subset, so there is nothing to apply them to.
+  {
+    aliases: ['Run'],
+    beats: RUN_TRADE_BEATS,
+    precondition: () => 'Run names a group to run ("Boys Run", "Centers Run"); it has no whole-set reading',
+    applyToSelection: runRule,
+  },
+  {
+    aliases: ['Trade'],
+    beats: RUN_TRADE_BEATS,
+    precondition: () => 'Trade names a group to trade ("Boys Trade", "Centers Trade"); it has no whole-set reading',
+    applyToSelection: tradeRule,
+  },
 ];
 
 export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
@@ -56,8 +95,9 @@ export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   aliases: d.aliases,
   beats: d.beats ?? CODED_MOVE_BEATS,
   ...(d.precondition ? { precondition: d.precondition } : {}),
-  apply: d.fn,
-}));
+  ...(d.fn ? { apply: d.fn } : {}),
+  ...(d.applyToSelection ? { applyToSelection: d.applyToSelection } : {}),
+})) as CodedMove[];
 
 /** Canonical display names of the coded moves, in registration order. */
 export const CODED_MOVE_NAMES: string[] = CODED_MOVES.map((m) => m.name);

@@ -128,15 +128,25 @@ it is why the demos are an *ungated fallback* rather than a bug to delete. On `N
 `Two-Faced Lines` an eligible variant matches and wins, which is why the call is right from lines
 and wrong from two parallel waves.
 
-**The fix is a derived call.** The reference implements `Trade` and `Run` in CODE
+**The fix is a derived call, and it is DONE.** The reference implements `Trade` and `Run` in CODE
 (`taminations-flutter/lib/sequencer/calls/ms/trade.dart`, `run.dart`) — which is why their `<tam>`s
-are not-for-sequencer. `trade.dart` is the specification: trade with the nearest dancer in the
-direction holding an **odd** number of dancers; run **around** intervening dancers with a scale and
-a right-shoulder pass (so a trade ACROSS intervening dancers is legal — what `Boys Trade` from a
-`BggB` wave is); otherwise a partner trade flip when running left in the same direction, else a run
-scaled by half the distance, with hand holds for the swing/slip cases. Both belong in
-`coded-moves.ts` under the `prd.md` §9.5.4 contract. Only after that does removing the
-demonstration tams become safe. See `PLAN.md` Phase 1.
+are not-for-sequencer. Both are now derived in `engine/src/sequencer/trade-run.ts` and registered in
+`coded-moves.ts`, and the rule is a **SWAP**: each pair of dancers exchanges its complete state —
+position AND facing — and nobody else moves. `trade.dart` is the specification for the pairing: trade
+with the nearest dancer in the direction holding an **odd** number of them, running **around**
+intervening dancers and passing right shoulders (so a trade ACROSS intervening dancers is legal —
+what `Boys Trade` from a `BggB` wave is). `run.dart` is the same shape: run around the side that has
+walkers, preferring the **partner** when both sides are open.
+
+MEASURED: promenade get-outs that resolve **12 → 15** of 30, broken-body refusals **6 → 3**, corpus
+success **53 → 59**, and `Boys Run` — previously the top entry in `ENGINE GAPS` — is gone from that
+list. `selection.mjs` asserts the behaviour.
+
+**What is left from this family:** `Cross Run`, `Fold` / `Boys Fold` / `Girls Fold`,
+`Centers Cast Off Three Quarters`, `Turn Back` and the group-scoped `Heads/Sides Square Thru N` are
+in the same position — 32 titles whose only authored setups are demonstrations — and each needs
+either a derived rule or an honest refusal. See `PLAN.md` Phase 4.
+
 
 
 

@@ -270,7 +270,14 @@ export class CallApplicator {
         if (!r.legal) { ok = false; break; }
         merged.push(...r.board.dancers);
       }
-      if (ok) return { board: { dancers: [...merged, ...ghosts] }, legal: true, error };
+      if (ok) {
+        // Restore the board's OWN dancer order. The groups were concatenated in
+        // partition order, which permuted the array; callers pair dancers by array
+        // position (the renderer draws view[i] from poses[i]), so a permuted board
+        // made the dancers appear to swap places once a subset call completed.
+        const movedById = new Map(merged.map((d) => [d.id, d]));
+        return { board: { dancers: board.dancers.map((d) => movedById.get(d.id) ?? d) }, legal: true, error };
+      }
     }
     return null;
   }

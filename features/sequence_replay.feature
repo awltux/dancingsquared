@@ -46,16 +46,38 @@ Feature: Sequence Replay Model and Board Seeding
     #          restores home for a fresh sequence.
 
   @bind:evaluateSequence @bind:applyToBoard
-  Scenario: Replay output is per-frame interpolation, while the completed call is snapped
-    Given a call is playing and the playhead is inside that call
-    When a frame is produced for a beat strictly inside the call
-    Then the frame must be interpolated from the call's authored path without snapping
-    And only the completed call's final board must be clamped onto the recognised formation
-    # Engine: evaluateCallAt -> evaluateVariantAt interpolates poseFor directly, whereas the
-    #          completed step goes through applyToBoard, which end-snaps (rebase path). A frame
-    #          at the exact end of the sequence and the interpolation an epsilon before it are
-    #          produced by different code paths, so any disagreement between them shows up as a
-    #          discontinuity on the final beat.
+  Scenario: The last animated frame lands on the board the call actually produces
+    Given a call is playing and the playhead approaches the end of that call
+    When the frame just before the call completes is compared with the completed board
+    Then the two must agree, so nothing snaps on the final beat
+    # Engine: the frame an instant before the end and the completed board come from different
+    #          code paths (interpolation vs applyToBoard), so they must be made to converge.
+    #          Measured across the catalog this is now within 0.04 units / 0.6 degrees; before,
+    #          subset calls disagreed by up to 10.2 units and a full 180 degrees.
+
+  @bind:evaluateSequence @bind:applyToBoard @bind:parallelLegalCalls
+  Scenario: A subset call is animated from its start board to the board it produces
+    Given a call applies only to a SUBSET of the dancers, so it takes the parallel path
+    When a frame is produced inside that call
+    Then the frame must blend from the call's start board to the board the call actually produces
+    And it must NOT be re-derived from the authored path, which does not converge for these calls
+    # Engine: the parallel path partitions the board at its own tolerance and runs each group with
+    #          pure-relative motion, so re-deriving an authored interpolation produced frames that
+    #          did not converge (measured 4.0 units / 180 degrees even with the board order fixed).
+    #          evaluateCallAt therefore blends identifiers from the start board to the applied end.
+
+  @bind:applyToBoard @bind:parallelLegalCalls @bind:evaluateSequence
+  Scenario: Applying a call preserves the board's dancer array order
+    Given a board lists its dancers in some array order
+    When a call is applied to it, including a subset/parallel call
+    Then the returned board must list its dancers in that same order
+    # Engine: the parallel path concatenated its groups in partition order, which permuted the
+    #          board (e.g. 1,2,7,8,3,4,5,6). The renderer pairs its per-dancer views with the
+    #          board BY ARRAY POSITION, so a permuted board made dancers appear to swap places the
+    #          moment a subset call completed - the "flip" this work set out to fix. The board's
+    #          index is not meaningful, so anything pairing by position must be able to rely on
+    #          the order being stable.
+
 
   @bind:evaluateSequence @bind:sequenceBeats @bind:applyToBoard @bind:stepBeats
   Scenario: Coded body-relative moves replay and animate

@@ -659,6 +659,61 @@ console.log('\n== recognise and isAt agree (feature: formation_states) ==');
     'an exact Eight Chain Thru still recognises and isAt() confirms');
 }
 
+console.log('\n== The animation lands on the applied board (feature: sequence_replay) ==');
+{
+  // Dancers are compared BY ID: a board's array order is not meaningful, and
+  // comparing by index here would itself report a phantom "discontinuity".
+  const angDiff = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+
+  // 1. Every apply must leave the board's dancer ORDER alone, because the renderer
+  //    pairs its per-dancer views with the board by array position.
+  const orderOf = (b) => b.dancers.map((d) => d.id).join(',');
+  let applies = 0;
+  const reordered = [];
+  for (const name of seq.listFormations().slice(0, 30)) {
+    const b = seq.boardForFormation(name);
+    if (!b) continue;
+    for (const c of seq.legalCalls(b)) {
+      const r = seq.applyToBoard(b, c);
+      if (!r.legal) continue;
+      applies++;
+      if (orderOf(r.board) !== orderOf(b) && reordered.length < 5) reordered.push(`${name} + ${c}`);
+    }
+  }
+  check(reordered.length === 0, 'applying a call preserves the board\'s dancer array order',
+    `${applies} applies; offenders: ${reordered.join(' | ') || 'none'}`);
+
+  // 2. The frame an instant before a call completes must sit on the board the call
+  //    produces, so nothing snaps on the final beat.
+  let checked = 0, worstPos = 0, worstAng = 0, worstAt = '';
+  for (const name of seq.listFormations()) {
+    if (checked >= 400) break;
+    const start = seq.boardForFormation(name);
+    if (!start) continue;
+    for (const call of seq.legalCalls(start)) {
+      if (checked >= 400) break;
+      const flat = seq.flatten([call]);
+      const beats = seq.sequenceBeats(flat, start);
+      if (beats <= 0) continue;
+      const near = seq.evaluateSequence(flat, beats - 1e-6, start).board;
+      const end = seq.evaluateSequence(flat, beats, start).board;
+      const nearById = new Map(near.dancers.map((d) => [d.id, d]));
+      for (const e of end.dancers) {
+        const nn = nearById.get(e.id);
+        if (!nn) continue;
+        const dPos = Math.hypot(nn.x - e.x, nn.y - e.y);
+        const dAng = angDiff(nn.heading, e.heading);
+        if (dPos > worstPos) { worstPos = dPos; worstAt = `${name} + ${call}`; }
+        if (dAng > worstAng) worstAng = dAng;
+      }
+      checked++;
+    }
+  }
+  check(worstPos < 0.5 && worstAng < 0.1,
+    'the last animated frame lands on the applied board (no jump on the final beat)',
+    `${checked} calls; worst dPos=${worstPos.toFixed(4)} dAng=${(worstAng * 180 / Math.PI).toFixed(2)}deg at ${worstAt}`);
+}
+
 console.log('\n=================');
 console.log(`PASS: ${pass}   NOT-IMPLEMENTED: ${ni}   FAIL: ${fail}`);
 if (fail > 0) { console.log(`${fail} FAIL check(s) - investigate`); process.exitCode = 1; }

@@ -153,31 +153,43 @@ export class SequenceAnalyzer {
     return { board, beats: acc };
   }
 
-  /** Place the board at a local beat of a call, handling BOTH whole-board and
-   * parallel-subset calls. */
+  /** Place the board at a local beat of a call.
+   *
+   * A WHOLE-BOARD call follows its authored path, which converges on the board the
+   * call produces. A call that only applies via the subset/parallel path does not:
+   * the parallel path partitions the board at its own tolerance and runs each group
+   * with pure-relative motion, so re-deriving an authored-path interpolation here
+   * yielded frames that did not converge on the completed board — the dancers
+   * visibly jumped on the final beat (measured up to 10.2 units / 180 degrees).
+   * Those calls are therefore blended from the call's start board to the board the
+   * call actually produces, which converges exactly. */
   private evaluateCallAt(board: Board, name: string, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
     const whole = this.matcher.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
     if (whole) return this.evaluateVariantAt(board, whole, localBeat);
-    const tol = SEARCH_MATCH_MAX + this.config.matchMargin;
-    const phys = board.dancers.filter((d) => !d.isGhost);
-    const ghosts = board.dancers.filter((d) => d.isGhost);
-    const n = phys.length;
-    for (const v of this.library.getVariants(name) ?? []) {
-      const setup = v.dancers.map((d) => this.library.variantMatchable(d));
-      const k = setup.length;
-      if (k <= 1 || k >= n || n % k !== 0) continue;
-      const part = this.applicator.partition(setup, phys, tol);
-      if (!part) continue;
-      const merged: SeqDancer[] = [];
-      for (const group of part.groups) {
-        const subBoard: Board = { dancers: group.map((d) => ({ ...d })) };
-        const subWhole = this.matcher.findMatchingVariant(subBoard, name, tol);
-        if (!subWhole) { merged.push(...group); continue; }
-        merged.push(...this.evaluateVariantAt(subBoard, subWhole, localBeat).dancers);
-      }
-      return { dancers: [...merged, ...ghosts] };
-    }
-    return board;
+    return this.blendToAppliedEnd(board, name, info.beats, localBeat);
+  }
+
+  /** Interpolate a subset/parallel call from its start board to the board the call
+   * ACTUALLY produces, per dancer by identity: positions blend linearly and
+   * headings take the shortest turn. At the last beat this is exactly the applied
+   * board, so the animation always lands on the state the sequencer stores. */
+  private blendToAppliedEnd(board: Board, name: string, beats: number, localBeat: number): Board {
+    const res = this.applicator.applyToBoard(board, name);
+    if (!res.legal) return board;
+    const t = beats > 0 ? Math.max(0, Math.min(1, localBeat / beats)) : 1;
+    const endById = new Map(res.board.dancers.map((d) => [d.id, d]));
+    return {
+      dancers: board.dancers.map((d) => {
+        const e = endById.get(d.id);
+        if (!e) return d;
+        return {
+          ...d,
+          x: d.x + (e.x - d.x) * t,
+          y: d.y + (e.y - d.y) * t,
+          heading: normAngle(d.heading + normAngle(e.heading - d.heading) * t),
+        };
+      }),
+    };
   }
 
   /** Which call in `flat` is playing at global `beat`, with its matched variant
@@ -212,9 +224,14 @@ export class SequenceAnalyzer {
     return null;
   }
 
-  private evaluateVariantAt(board: Board, m: VariantMatch, localBeat: number): Board {
+  /** The board part-way through a call. `rebase` must match how the COMPLETED
+   * call is applied (applicator.applyWholeBoard): the whole-board path re-bases,
+   * the parallel-subset path is pure relative. Getting this wrong makes the
+   * animated frames fail to converge to the board the call actually produces, so
+   * the dancers jump on the final beat. */
+  private evaluateVariantAt(board: Board, m: VariantMatch, localBeat: number, rebase = true): Board {
     const { variant, mapping } = m;
-    const f = this.config.rebaseFactor;
+    const f = rebase ? this.config.rebaseFactor : 0;
     const newDancers = board.dancers.map((d, i) => {
       const t = variant.dancers[mapping[i]];
       const start = poseFor(t, 0);

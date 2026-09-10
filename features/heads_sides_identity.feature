@@ -83,3 +83,24 @@ Feature: Home Identity, Heads and Sides
     # RESOLVED interaction: head/side is an identity axis (home couple, fixed for the tip);
     # beau/belle and leader/trailer are positional axes (geometry, dynamic). They address the
     # same dancers through different, non-interchangeable rules.
+
+  @bind:boardForFormation @bind:assignHomeIdentity
+  Scenario: A formation board synthesised from geometry alone has no real home identity
+    Given a board is synthesised for a named formation rather than reached by dancing there
+    When the formation's geometry does not correspond to the home square
+    Then each dancer must still receive a distinct id, but the couple and gender must be placeholders rather than real home identity
+    And couple- or role-sensitive behaviour must not read meaning into those placeholder designations
+    # Engine: Sequencer.boardForFormation -> boardFromMatchables stamps id/couple/gender only
+    #   when the geometry matches HOME_DANCERS. "Static Square" therefore comes back with real
+    #   genders (4 boy + 4 girl, couples 1-4), while "Two-Faced Lines" / "Eight Chain Thru" come
+    #   back as eight placeholder 'boy' dancers with index-assigned couples. Partner/corner/lead
+    #   relationships and the displayed couple colours are consequently meaningless on such a
+    #   board, even though its geometry is correct.
+
+  @bind:boardForFormation @bind:recognize
+  Scenario: A synthesised formation board is still geometrically correct
+    Given a board is synthesised for a named formation
+    When the engine recognises it
+    Then it must recognise back to that same formation name
+    And the geometry must stand on its own even though the dancer identities are placeholders
+    # The geometry is trustworthy on a synthesised board; only the identity axis is not.

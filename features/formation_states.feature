@@ -115,6 +115,19 @@ Feature: Formation States and FSM Structure
     # Engine: findMatchingVariant picks the variant (variantStarts) whose setup matches the board,
     #          so the same name can yield different end formations from different start formations.
 
+  @bind:getVariants @bind:variantStarts @bind:applyToBoard
+  Scenario: A call exposes exactly one variant per authored setup
+    Given a call file carries several <tam> setups, such as one per start formation
+    When the engine registers that call
+    Then getVariants must return one variant per authored setup, and variantStarts must list each setup
+    And dropping a setup must make the call spuriously ILLEGAL from that setup's start formation
+    # Engine: CallLibrary.register parses every <tam> of the registration as a variant, and
+    #          findMatchingVariant then selects the one whose start matches the board. Registering
+    #          only a subset of the setups (e.g. only "Lines Facing Out" for Wheel and Deal) leaves
+    #          the call illegal from the other setups (e.g. Two-Faced Lines) even though the full
+    #          data would allow it. A loader that drops <tam> blocks therefore silently narrows the
+    #          call picker rather than failing loudly.
+
   @bind:formationState @bind:matchFormations
   Scenario: Distinguishing a wrong-way star from a normal star
     Given a formation is a star or thar whose dancers circulate in the direction opposite to the held hand
@@ -148,6 +161,31 @@ Feature: Formation States and FSM Structure
     And it must not be limited to 90-degree rotations when deciding the board is at that formation
     # Engine requirement: matchFormations must try 45-degree rotation steps (not just the 90-degree
     #          ROTS=[0,90,180,270] today), so a 45-degree-offset board still normalises to the same state.
+
+  @bind:matchFormations @bind:recognize @bind:snapBoard
+  Scenario: An orientation offset that is not a multiple of 45 degrees is not recognised
+    Given a board sits at a formation but is rotated by an angle that is not a multiple of 45 degrees
+    When the engine tries to recognise the formation state
+    Then it must NOT report that formation, because recognition works in 45-degree steps
+    And the board must be left unsnapped rather than being force-fitted onto a 45-degree slot
+    # Engine: the 45-degree step matching above is exact, not interpolating. An offset such as
+    #          22.5 degrees matches no rotation step, so recognize() returns null and snapBoard()
+    #          is a no-op (the best formation error exceeds snapMaxError). This is the boundary
+    #          that distinguishes "the engine cannot handle 45 degrees" (false) from "the engine
+    #          cannot handle angles between the 45-degree steps" (true).
+
+  @bind:snapBoard @bind:formationState @bind:recognize
+  Scenario: Snapping preserves the board's own orientation instead of re-aligning it to the compass
+    Given a board sits in a recognised formation but rotated away from the template's canonical compass orientation
+    When the result is clamped onto the recognised formation's slots
+    Then each dancer must move to the nearest slot expressed in the BOARD's own rotation, reflection, and centre
+    And the result must not be rotated back to the template's canonical (axis-aligned) orientation
+    # Engine: snapBoard maps each canonical slot through the match's rot/reflect/cSrc/cTgt
+    #          (rebasedPose), so a board is clamped onto its formation IN ITS OWN FRAME. A
+    #          45-degree-rotated Eight Chain Thru therefore snaps with zero displacement and
+    #          stays at 45 degrees. The end-formation overlay is orientation-preserving; it is
+    #          not a re-axing pass, and it is not the cause of an orientation "flip" at the end
+    #          of a call.
 
   @bind:matchFormations @bind:formationState @bind:getUniqueFormations
   Scenario: A topology may be required as the start formation of a call

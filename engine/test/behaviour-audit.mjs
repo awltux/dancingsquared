@@ -294,6 +294,104 @@ console.log('\n== Parallel / subset ==');
   check(Array.isArray(s2) && s2.length === 1 && s2[0].length === 4, 'subsetOf("boys") returns 4 dancers');
 }
 
+// Rotate a board about the origin (positions and headings) by `deg`.
+const rotBoard = (b, deg) => {
+  const r = (deg * Math.PI) / 180, c = Math.cos(r), s = Math.sin(r);
+  return { dancers: b.dancers.map((d) => ({ ...d, x: d.x * c - d.y * s, y: d.x * s + d.y * c, heading: d.heading + r })) };
+};
+
+console.log('\n== Sequence replay model roots at home (feature: sequence_replay) ==');
+{
+  seq.reset();
+  const homeName = seq.recognize(seq.startBoard()).name;
+  const empty = seq.evaluateSequence([], 0).board;
+  check(seq.recognize(empty).name === homeName, 'evaluateSequence([],0) returns the home square', seq.recognize(empty).name);
+  check(seq.sequenceBeats([]) === 0, 'sequenceBeats([]) is 0 beats', String(seq.sequenceBeats([])));
+
+  // Jumping the board does NOT move the replay root: replay still starts from home.
+  const setOk = seq.setFormation('Two-Faced Lines');
+  check(setOk === true, 'setFormation("Two-Faced Lines") succeeds');
+  check(seq.recognize(seq.board).name === 'Two-Faced Lines', 'the LIVE board is Two-Faced Lines', seq.recognize(seq.board).name);
+  const replayed = seq.evaluateSequence([], 0).board;
+  check(seq.recognize(replayed).name === homeName,
+    'replay does NOT reproduce the set formation - it roots at home', seq.recognize(replayed).name);
+  check(seq.recognize(replayed).name !== seq.recognize(seq.board).name,
+    'live board and replayed board are different boards (the divergence behind bad Copy/Play)');
+
+  niReport('replay from an explicit (non-home) start board',
+    'evaluateSequence/sequenceBeats take only (flat, [beat]) and hard-code makeSquaredSet(); setFormation boards are not replayable');
+}
+
+console.log('\n== Orientation quantisation & orientation-preserving snap (feature: formation_states) ==');
+{
+  seq.reset();
+  const ok = seq.setFormation('Eight Chain Thru');
+  check(ok === true, 'setFormation("Eight Chain Thru") succeeds');
+  const base = seq.board;
+
+  // The 45-degree steps match exactly; an in-between angle does not.
+  const off = rotBoard(base, 22.5);
+  check(seq.recognize(off).name === null, 'a 22.5-degree offset is NOT recognised (45-degree quantisation)', String(seq.recognize(off).name));
+  const r45 = rotBoard(base, 45);
+  check(seq.recognize(r45).name === 'Eight Chain Thru', 'a 45-degree offset IS recognised', String(seq.recognize(r45).name));
+  const st = seq.formationState(r45);
+  check(st !== null && Math.abs(Math.abs(st.rot * 180 / Math.PI) - 45) < 1e-6,
+    'formationState reports the 45-degree rotation', st ? String(Math.round(st.rot * 180 / Math.PI)) : 'none');
+
+  // Snapping clamps onto slots in the board's OWN frame: no re-axing.
+  const snapped = seq.snapBoard(r45);
+  const maxDisp = Math.max(...snapped.dancers.map((d, i) => Math.hypot(d.x - r45.dancers[i].x, d.y - r45.dancers[i].y)));
+  check(maxDisp < 1e-6, 'snapBoard leaves a 45-degree board at 45 degrees (no re-axing to the compass)', `maxDisp=${maxDisp.toFixed(6)}`);
+  check(seq.recognize(snapped).name === 'Eight Chain Thru', 'the snapped board still recognises as Eight Chain Thru');
+  // The unsnappable board is left untouched rather than force-fitted.
+  const offSnap = seq.snapBoard(off);
+  const offDisp = Math.max(...offSnap.dancers.map((d, i) => Math.hypot(d.x - off.dancers[i].x, d.y - off.dancers[i].y)));
+  check(offDisp < 1e-6, 'an unrecognised board is left unsnapped (no force-fit)', `maxDisp=${offDisp.toFixed(6)}`);
+}
+
+console.log('\n== Identity on geometry-only formation boards (feature: heads_sides_identity) ==');
+{
+  const gendersOf = (b) => (b ? [...new Set(b.dancers.map((d) => d.gender))].sort().join(',') : 'none');
+  const sq = seq.boardForFormation('Static Square');
+  check(sq !== null && gendersOf(sq).includes('girl'),
+    'a home-like formation board carries real genders (boy + girl)', gendersOf(sq));
+  check(sq !== null && new Set(sq.dancers.map((d) => d.couple)).size === 4,
+    'a home-like formation board carries real home couples 1-4');
+
+  const tfl = seq.boardForFormation('Two-Faced Lines');
+  check(tfl !== null && tfl.dancers.length === 8, 'Two-Faced Lines synthesises an 8-dancer board', tfl && `n=${tfl.dancers.length}`);
+  check(tfl !== null && !tfl.dancers.some((d) => d.gender === 'girl'),
+    'a NON-home-like board gets placeholder identity only (all boy, no real couples)', gendersOf(tfl));
+  check(tfl !== null && new Set(tfl.dancers.map((d) => d.id)).size === 8, 'placeholder identities are still distinct ids');
+  // Geometry is still trustworthy even though identity is not.
+  check(tfl !== null && seq.recognize(tfl).name === 'Two-Faced Lines',
+    'the synthesised board is still geometrically correct', tfl && seq.recognize(tfl).name);
+}
+
+console.log('\n== One variant per authored setup (feature: formation_states) ==');
+{
+  const wdXml = read('poc/src/assets/b2/wheel_and_deal.xml');
+  const blocks = wdXml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
+  const seqW = new Sequencer(movesXml, formationsXml, [{ name: 'Wheel and Deal', xml: wdXml }]);
+  check((seqW.getVariants('Wheel and Deal')?.length ?? 0) === blocks.length,
+    'getVariants returns one variant per authored <tam>',
+    `variants=${seqW.getVariants('Wheel and Deal')?.length} tams=${blocks.length}`);
+  check((seqW.variantStarts('Wheel and Deal')?.length ?? 0) === blocks.length,
+    'variantStarts lists every authored setup');
+
+  // Dropping a setup makes the call spuriously illegal from that setup's start formation.
+  const outOnly = blocks.find((b) => /from="Lines Facing Out"/.test(b));
+  check(!!outOnly, 'found the "Lines Facing Out" <tam> to drop');
+  const seqOne = new Sequencer(movesXml, formationsXml, [{ name: 'Wheel and Deal', xml: `<calls>\n${outOnly}\n</calls>` }]);
+  seqOne.setFormation('Two-Faced Lines');
+  const dropped = seqOne.applyToBoard(seqOne.board, 'Wheel and Deal');
+  seqW.setFormation('Two-Faced Lines');
+  const full = seqW.applyToBoard(seqW.board, 'Wheel and Deal');
+  check(full.legal === true, 'with ALL setups, Wheel and Deal applies from Two-Faced Lines');
+  check(dropped.legal === false, 'with only the "Lines Facing Out" setup, it becomes spurious-illegal from Two-Faced Lines',
+    dropped.reason ?? 'legal(?)');
+}
+
 console.log('\n=================');
 console.log(`PASS: ${pass}   NOT-IMPLEMENTED: ${ni}   FAIL: ${fail}`);
 if (fail > 0) { console.log(`${fail} FAIL check(s) - investigate`); process.exitCode = 1; }

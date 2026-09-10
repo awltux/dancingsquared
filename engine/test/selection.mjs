@@ -360,6 +360,81 @@ console.log('\n== a reflection must not decide a call when a direct reading is a
   }
 }
 
+console.log('\n== the wave circulate: the crossing is real, and the group reading collides ==');
+// The standing open item said the wave circulate "may be wrong" and asked for an independent read
+// before changing both calls together. The read is done, and it says the following, all MEASURED.
+//
+//  1. The tams ARE applied as authored. `Ocean Waves RH BGGB` is a FOUR-dancer formation (the left
+//     wave), so a tam's four paths bind 1:1 - not 2:1 as an eight-dancer formation would - and the
+//     engine mirrors the half set. Reproducing the per-dancer displacement confirms it, which
+//     REFUTES the guess that the tams were mis-declared against an 8-dancer formation.
+//  2. The crossing is REAL: `Split Circulate` moves FOUR of the eight dancers 4 units across to
+//     the other wave. That is right for `All 8 Circulate` (one loop through both waves) and wrong
+//     for a split reading, where each half must stay put.
+//  3. `Circulate` from a wave is authored BYTE-IDENTICALLY to `Split Circulate`, so it inherits
+//     the crossing. Step 4b's argument that the two "coincide from parallel waves" is therefore
+//     true of the assets but rests on the split motion being right.
+//  4. The reference's coded `circulate.dart` has NO ocean-wave branch: its help text lists only
+//     All 8 / Column / Couples / Box, and for 8 dancers in a wave it falls through to
+//     `throw CallError('Cannot figure out how to Circulate.')`. So bare `Circulate` from a wave is
+//     not a call the reference will compute at all - it is our reading, not an authored counterpart.
+//
+// This section pins 2 and the collision that follows from it, so that fixing the paths has to flip
+// an assertion rather than quietly change a number.
+{
+  const wave = formationBoard('Ocean Waves');
+  const before = new Map(wave.dancers.map((d) => [d.id, d]));
+
+  // 2. Which dancers cross between the waves, per call.
+  const crossers = (b) => b.dancers.filter((d) => Math.sign(before.get(d.id).x) !== Math.sign(d.x)).length;
+  for (const call of ['Split Circulate', 'All 8 Circulate']) {
+    const r = seq.applyToBoard(wave, call);
+    if (!r.legal) { fail(`${call} is not legal from Ocean Waves: ${r.reason}`); continue; }
+    const n = crossers(r.board);
+    if (n === 4) {
+      ok(`KNOWN DEFECT PINNED: ${call} moves ${n} of 8 dancers across to the other wave`);
+      if (call === 'Split Circulate') {
+        console.log('      A split call must keep each half in place, so this is the defect the');
+        console.log('      handover flagged; for All 8 Circulate the same crossing is correct, because');
+        console.log('      the two waves are one loop. Fixing one must not fix the other by accident.');
+      }
+    } else {
+      ok(`${call} crosses ${n} of 8 dancers - the paths have changed, re-measure the open item`);
+    }
+  }
+
+  // The group-scoped reading collides while the whole-board one does not: that is the consequence
+  // reachable in the corpus, and it is what turned a correct Ocean Waves into a `1/3/3/1` shape.
+  const stacked = (b) => {
+    const seen = new Map();
+    for (const d of b.dancers) {
+      const k = `${d.x.toFixed(2)},${d.y.toFixed(2)}`;
+      if (seen.has(k)) return `${seen.get(k)}&${d.id}@${k}`;
+      seen.set(k, d.id);
+    }
+    return null;
+  };
+  for (const call of ['Split Circulate', 'Girls Circulate', 'Boys Circulate']) {
+    const r = seq.applyToBoard(wave, call);
+    if (!r.legal) { ok(`${call} is refused (${r.reason})`); continue; }
+    const collision = stacked(r.board);
+    const spots = new Set(r.board.dancers.map((d) => `${d.x.toFixed(2)},${d.y.toFixed(2)}`)).size;
+    if (collision) {
+      if (call === 'Split Circulate') fail(`the WHOLE-board ${call} collides (${collision}); only the group reading should`);
+      else {
+        ok(`KNOWN DEFECT PINNED: ${call} leaves ${spots} distinct spots for 8 dancers (${collision})`);
+        console.log('      The group-scoped reading keeps the non-selected dancers where they stand while');
+        console.log('      the selected ones take their poses from the whole-formation motion, so when the');
+        console.log('      call also relocates the non-selected dancers the two sets land on one spot.');
+      }
+    } else if (spots === 8) {
+      ok(`${call} leaves 8 distinct spots - the group reading is fixed, tighten this gate`);
+    } else {
+      fail(`${call} left ${spots} distinct spots with no collision detected - inconsistent`);
+    }
+  }
+}
+
 console.log('\n=================');
 console.log(failures === 0 ? 'SELECTION: all gates passed.' : `SELECTION: ${failures} gate(s) FAILED.`);
 if (failures) process.exitCode = 1;

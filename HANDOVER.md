@@ -306,21 +306,39 @@ for 447 nodes), which is the start-formation index Phase 3 did not need but Phas
   parallel waves, where a *split* call should keep each half in place. Needs an independent read
   before changing both calls together.
 
-  **CONFIRMED — Phase 4 did the independent read.** The read is
-  `taminations-flutter/lib/sequencer/calls/ms/circulate.dart`, the reference's CODED
+  **CONFIRMED — Phase 4 did the independent read, and it came back with more than expected.** The
+  read is `taminations-flutter/lib/sequencer/calls/ms/circulate.dart`, the reference's CODED
   implementation, and it has **no ocean-wave branch at all**: its own help text says *"You can just
   enter Circulate for All 8 Circulate, Column Circulate, Couples Circulate, and, for 4 dancers,
   Box Circulate"*, and for 8 dancers in a wave `performCall` falls through to
   `throw CallError('Cannot figure out how to Circulate.')`. So from a wave, bare `Circulate` is not
-  something the reference will compute — which also means our bare-call reading in `ms/circulate.xml`
-  is a guess, not an authored counterpart. The shipped tam is `Forward 4` / `Run Right` pairs, and
-  `Forward 4` takes a dancer from `x=-2` to `x=+2`: **across to the other wave**, exactly what the
-  handover said a split call must not do. The consequence is reachable in the corpus: `Boys
-  Circulate` and `Girls Circulate` have **0** variants of their own (they are compositional, via
-  group + `Circulate`) so they inherit those paths, and `[B1c] --SwThr G-Cir B-Trd --RLG` takes a
-  correct Ocean Waves and produces a `1/3/3/1` shape that is not a formation. Fixing it means
-  writing the wave motion out per position, with `Split Circulate` and `Circulate` changing
-  together — which is why this item has waited, and still does.
+  something the reference will compute — it is **our reading**, not an authored counterpart.
+
+  What is now measured rather than suspected:
+
+  - **The tams ARE applied as authored**, which refutes the obvious alternative explanation.
+    `Ocean Waves RH BGGB` is a **four**-dancer formation (the left wave), so a tam's four paths bind
+    **1:1** — not 2:1 against an eight-dancer formation — and the engine mirrors the half set.
+    Reproducing the per-dancer displacement confirms it, so the tams are not mis-declared.
+  - **The crossing is real**: `Split Circulate` moves **4 of the 8** dancers 4 units across to the
+    other wave (`i1`, `i3`, `i5`, `i7`). That is **correct for `All 8 Circulate`** — the two waves
+    are one loop — and **wrong for a split reading**, where each half must stay put. A fix must
+    therefore change `Split Circulate` without breaking `All 8 Circulate`.
+  - **`Circulate` from a wave is byte-identical to `Split Circulate`** in the assets, so it inherits
+    the crossing. Step 4b's argument that the two "coincide from parallel waves" is true of the
+    assets, but it rests on the split motion being right — which it is not.
+  - **The group-scoped reading then collides**: `Girls Circulate` and `Boys Circulate` leave **6
+    distinct spots for 8 dancers** (`1&2@-2.00,3.00`), because the reading keeps the non-selected
+    dancers where they stand while the movers take poses from whole-formation motion. That is what
+    turns a correct Ocean Waves into the `1/3/3/1` shape seen on `[B1c]`.
+
+  Both are **pinned in `selection.mjs`** so a fix has to flip an assertion rather than quietly
+  change a number. A collision refusal in the applicator was tried and **reverted**: measured a wash
+  (corpus successes unchanged at 75) with a wider blast radius than it looked — `ENGINE GAPS` went
+  from 25 to 31 names, including calls like `Star Thru` that *every* group-scoped call routes
+  through, so the extra names cannot be told apart from refusals the check introduced itself. Trading
+  a corrupt board for phantom gap attributions is the trade the decoder phase spent a commit
+  undoing. The real fix is the tam motion, and it is still open.
 
 - **`Circulate` from facing lines is still illegal** (`Normal Lines` has no matching variant; the
   shipped line variants are `Lines Facing In`/`Out`). Same gap the wave templates had.

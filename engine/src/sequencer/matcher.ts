@@ -27,6 +27,11 @@ export class FormationMatcher {
   // how many callers probe it.
   private formationMatchCache = new Map<string, { f: { name: string; dancers: Matchable[] }; m: FormationMatch } | null>();
 
+  /** How close two match errors must be to count as a TIE when deciding between a variant that
+   * matches directly and one that needs a reflection. Exact equality is too brittle: an authored
+   * setup and its mirror can land a rounding step apart. */
+  private static readonly REFLECT_TIE_EPS = 1e-6;
+
   constructor(private readonly library: CallLibrary, private readonly config: SequencerConfig) {}
 
   clearCaches(): void {
@@ -64,7 +69,24 @@ export class FormationMatcher {
       // maps to a variant dancer). A SUBSET match (m.subset set) is handled by the
       // parallel-subset path, not a whole-board apply — so it is rejected here.
       if (!m || m.subset) continue;
-      if (best === null || m.error < best.error) {
+      // Least error wins; on an EQUAL error, a variant matching WITHOUT reflection wins over
+      // one that needs it. Reflection is real and stays available - `prd.md` §9.5 matches "up to
+      // translation, rotation and reflection" - but it must be the FALLBACK, never the tie
+      // winner, because a mirrored match applies mirrored motion and the two variants are not
+      // interchangeable.
+      //
+      // MEASURED, and this is not hypothetical. On a right-hand wave, `Left Swing Thru` matched a
+      // `from="Left-Hand Waves"` variant by REFLECTION at error 0.0000 AND a
+      // `from="Right-Hand Waves"` variant directly at error 0.0000. The tie went to array order,
+      // so the mirrored variant won, and its motion sent the wave's end dancers from y=±3 to
+      // y=±7 - the span of the set more than doubled, the board stopped being a formation at all,
+      // and the finish then refused with "no setup matches". Same reasoning as the recorded
+      // decision that "a mirrored candidate must never decide an arrangement": a reflection must
+      // not decide a call either when a direct reading is available at the same error.
+      const better = best === null
+        || m.error < best.error - FormationMatcher.REFLECT_TIE_EPS
+        || (Math.abs(m.error - best.error) <= FormationMatcher.REFLECT_TIE_EPS && best.reflect && !m.reflect);
+      if (better) {
         best = { variant: v, mapping: m.mapping, error: m.error, rot: m.rot, reflect: m.reflect, cSrc: m.cSrc, cTgt: m.cTgt };
       }
     }

@@ -574,21 +574,97 @@ usable** — met: 11.5 s and 3.6 s respectively, both from 95 s and 33 s.
 
 ---
 
-## Phase 4 — Remaining call gaps and the refused finishes
+## Phase 4 — IN PROGRESS: the finish stops were a symptom, and one cause is fixed
 
-By corpus count, after Phase 1 has removed the variants that should not apply, so the ranking is
-honest:
+**Target: the 32 finish-only stops.** They are labelled "the cheapest wins — the get-out reached
+the state it was written to reach and only the resolve call itself did not apply". Diagnosing them
+found that the label is wrong: **the get-out did not reach the state it was written to reach.**
 
-- `Box the Gnat` (7), `Scoot Back` / `Recycle` / `Rollaway` / `Boys Fold` / `Ends Fold` (3 each) —
-  **exists, will not match the board it is reached from** (29 distinct names in this class).
-  `Boys Fold` / `Girls Fold` are 2/2 `sequencer="no"`, so Phase 1 reclassifies them: revisit
-  before authoring.
+### The diagnosis
+
+All 25 `Right and Left Grand` / `Allemande Left` refusals share **one** reason — "No setup in this
+call matches the current formation" — and in every case the board they reached reports
+`formation: null`. Tracing the published lines one call at a time shows why, and the distortion
+starts in the BODY:
+
+```
+[B4c] "--SldTh --PsOcn --LSwTh --RLG"
+  START                 y:[-1,1]   x:[-3,3]   Eight Chain Thru
+  after Slide Thru      y:[-2,2]   x:[-3,3]   Normal Lines
+  after Pass the Ocean  y:[-3,3]   x:[-2,2]   Ocean Waves      <- correct
+  after Left Swing Thru y:[-7,7]   x:[-2,2]   null             <- THE WAVE'S SPAN MORE THAN DOUBLED
+  Right and Left Grand: REFUSED - No setup in this call matches the current formation.
+```
+
+**Cause 1, found and FIXED: a reflection was winning a tie.** On that right-hand wave,
+`Left Swing Thru` matched a `from="Left-Hand Waves"` variant **by reflection** at `error=0.0000`
+*and* a `from="Right-Hand Waves"` variant **directly** at `error=0.0000`. Both are eligible, both
+score identically, so **array order decided** — and the mirrored variant won. Its motion took the
+wave's end dancers from `y=±3` to `y=±7`.
+
+The fix is in `matcher.ts`: least error still wins, but on an EQUAL error a variant matching
+**without** reflection beats one that needs it. Reflection is real and stays available — `prd.md`
+§9.5 matches "up to translation, rotation and reflection" — but it must be the fallback, never the
+tie winner, because a mirrored match applies mirrored motion and the two variants are not
+interchangeable. This is the same reasoning as the recorded decision that *"a mirrored candidate
+must never decide an arrangement"*: a reflection must not decide a call either, when a direct
+reading is available at the same error.
+
+| | before | after |
+|---|---|---|
+| corpus: reached the finish and applied it | 66 | **75** |
+| corpus: stopped only at the finish | 32 | **26** |
+| corpus: stopped part-way through the body | 94 | **90** |
+| promenade get-outs that resolve | 15 | **16** |
+
+`selection.mjs` gates it: `Left Swing Thru` must match with `reflect=false`, must preserve the
+set's span (a swing thru cannot change it), and must leave an Ocean Waves an Ocean Waves.
+
+**Cause 2, CONFIRMED but not yet fixed: the wave `Circulate` paths.** This is the open item the
+original handover flagged — *"the wave circulate paths may be wrong … needs an independent read
+before changing both calls together"* — and the independent read is now done:
+
+- The shipped wave tam is `Forward 4` / `Run Right` pairs, and `Forward 4` sends a dancer from
+  `x=-2` to `x=+2`: **across to the other wave**, which is exactly what a *split* call must not do.
+- `taminations-flutter/lib/sequencer/calls/ms/circulate.dart` — the reference's coded
+  implementation — has **no ocean-wave branch at all**. Its own help text says *"You can just enter
+  Circulate for All 8 Circulate, Column Circulate, Couples Circulate, and, for 4 dancers, Box
+  Circulate"*: from a wave, bare `Circulate` is not a call the reference will compute, and
+  `performCall` falls through to `throw CallError('Cannot figure out how to Circulate.')`.
+- The consequence in our engine is that `Boys Circulate` / `Girls Circulate` are **compositional**
+  (`getVariants` returns **0** for them; they resolve as group + `Circulate`) and therefore inherit
+  the wrong whole-board paths. Measured on `[B1c] --SwThr G-Cir B-Trd --RLG`, `Girls Circulate`
+  takes a correct Ocean Waves (`|y|=3/1`) and produces a `1/3/3/1` shape that is not a formation.
+
+Fixing this needs the wave circulate motion written out per position — `Split Circulate` and
+`Circulate` share those paths, so both must change together, which is why the item has waited.
+
+### Still open from this family
+
+`Box the Gnat` (7), `Scoot Back` (4), `Bend the Line`, `Rollaway`, `Ends Fold` (3 each) — the
+"exists but will not match the board it was reached from" set, 25 distinct names; and the
+`Roll` modifier (`&Roll`, 30 lines), "Explode and \<call\>" (`Expl&`, 5) and `Single Hinge` (11)
+from Phase 2's decoder findings.
+
+---
+
+The plan's original list, kept with what happened to each item:
+
+- `Box the Gnat` (7), `Scoot Back` (4), `Recycle` / `Rollaway` / `Bend the Line` / `Ends Fold`
+  (3 each) — **exists, will not match the board it is reached from** (25 distinct names in this
+  class). Still open; this is the "the call needs to match from more formations" work.
 - `Cross Fold` (2) — indexed (`poc/src/assets/src/calls.xml:171`) with **no implementation**
   (`link="ms/fold"`); `1/2 Circulate` and `Join Hands` are absent from the catalogue entirely.
-- `Right and Left Grand` (16) / `Allemande Left` (4) — **finish-only stops**: legal-looking states
-  the finish refuses. Per `prd.md` §9.5.4 this is the resolve's precondition, and the answer is a
-  measured floor (like the ±1 couple band), never a looser rule that launders a broken body into a
-  false success.
+  Still open, and now enumerated rather than implied: the decoder's `KNOWN_CATALOGUE_GAPS` lists
+  them, and `getout-conformance.mjs` fails if that list goes stale.
+- `Right and Left Grand` (16) / `Allemande Left` (4) — **finish-only stops.** The plan's guess was
+  that this is the *resolve's precondition* being too strict. **That guess was wrong**: the
+  refusals are a symptom of a distorted BODY, diagnosed above, and one of the two causes is fixed.
+  Worth recording as a near-miss — "the finish refuses" described where the failure *appeared*, not
+  where it came from.
+- Plus three items Phase 2 added to the list by making them *readable*: the `Roll` modifier
+  (`&Roll`, 30 lines), "Explode and \<call\>" composition (`Expl&`, 5), and `Single Hinge` (11).
+  None is a decoder problem any more.
 
 ---
 

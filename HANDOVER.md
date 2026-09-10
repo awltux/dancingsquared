@@ -305,6 +305,23 @@ for 447 nodes), which is the start-formation index Phase 3 did not need but Phas
   `Circulate` wave tams that reuse its paths — moves half the dancers 4 units *between* the two
   parallel waves, where a *split* call should keep each half in place. Needs an independent read
   before changing both calls together.
+
+  **CONFIRMED — Phase 4 did the independent read.** The read is
+  `taminations-flutter/lib/sequencer/calls/ms/circulate.dart`, the reference's CODED
+  implementation, and it has **no ocean-wave branch at all**: its own help text says *"You can just
+  enter Circulate for All 8 Circulate, Column Circulate, Couples Circulate, and, for 4 dancers,
+  Box Circulate"*, and for 8 dancers in a wave `performCall` falls through to
+  `throw CallError('Cannot figure out how to Circulate.')`. So from a wave, bare `Circulate` is not
+  something the reference will compute — which also means our bare-call reading in `ms/circulate.xml`
+  is a guess, not an authored counterpart. The shipped tam is `Forward 4` / `Run Right` pairs, and
+  `Forward 4` takes a dancer from `x=-2` to `x=+2`: **across to the other wave**, exactly what the
+  handover said a split call must not do. The consequence is reachable in the corpus: `Boys
+  Circulate` and `Girls Circulate` have **0** variants of their own (they are compositional, via
+  group + `Circulate`) so they inherit those paths, and `[B1c] --SwThr G-Cir B-Trd --RLG` takes a
+  correct Ocean Waves and produces a `1/3/3/1` shape that is not a formation. Fixing it means
+  writing the wave motion out per position, with `Split Circulate` and `Circulate` changing
+  together — which is why this item has waited, and still does.
+
 - **`Circulate` from facing lines is still illegal** (`Normal Lines` has no matching variant; the
   shipped line variants are `Lines Facing In`/`Out`). Same gap the wave templates had.
 - **`Promenade`'s 8 beats are a fixed approximation** of a distance-dependent motion.

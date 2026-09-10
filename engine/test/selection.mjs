@@ -321,6 +321,45 @@ console.log('\n== Trade / Run from two parallel waves: the derived calls ==');
   }
 }
 
+console.log('\n== a reflection must not decide a call when a direct reading is available ==');
+// `prd.md` §9.5 matches "up to translation, rotation and reflection", so reflection is real and
+// stays available - but it must be the FALLBACK, not the tie winner. A mirrored match applies
+// mirrored motion, and the two variants are not interchangeable.
+//
+// MEASURED, and this is why the rule exists. On a right-hand wave, `Left Swing Thru` matched a
+// `from="Left-Hand Waves"` variant BY REFLECTION at error 0.0000 AND a `from="Right-Hand Waves"`
+// variant DIRECTLY at error 0.0000. The tie went to array order, so the mirrored variant won, and
+// its motion took the wave's end dancers from y=±3 to y=±7: the span of the set more than
+// doubled, the board stopped being a formation at all, and the finish then refused with "no setup
+// matches the current formation". It is the same reasoning as the recorded decision that "a
+// mirrored candidate must never decide an arrangement".
+{
+  const wave = formationBoard('Ocean Waves');
+  const before = wave.dancers.map((d) => d.y);
+  const spanBefore = Math.max(...before) - Math.min(...before);
+  const r = seq.applyToBoard(wave, 'Left Swing Thru');
+  if (!r.legal) {
+    fail(`Left Swing Thru is not legal from Ocean Waves: ${r.reason}`);
+  } else {
+    const m = seq.findMatchingVariant(wave, 'Left Swing Thru', 1.5);
+    if (m && m.reflect) {
+      fail(`Left Swing Thru still wins on a REFLECTED match (from="${m.variant.from}") though a direct one exists at the same error`);
+    } else {
+      ok(`Left Swing Thru matches directly: from="${m ? m.variant.from : '(none)'}" reflect=${m ? m.reflect : '-'}`);
+    }
+    const ys = r.board.dancers.map((d) => d.y);
+    const spanAfter = Math.max(...ys) - Math.min(...ys);
+    if (Math.abs(spanAfter - spanBefore) > 0.01) {
+      fail(`Left Swing Thru changed the set's span ${spanBefore.toFixed(1)} -> ${spanAfter.toFixed(1)}; a swing thru cannot`);
+    } else {
+      ok(`Left Swing Thru preserves the set's span (${spanBefore.toFixed(1)})`);
+    }
+    const after = seq.knownFormation(r.board);
+    if (after !== 'Ocean Waves') fail(`Left Swing Thru from a wave left ${after}, not a wave`);
+    else ok('Left Swing Thru leaves the formation an Ocean Waves');
+  }
+}
+
 console.log('\n=================');
 console.log(failures === 0 ? 'SELECTION: all gates passed.' : `SELECTION: ${failures} gate(s) FAILED.`);
 if (failures) process.exitCode = 1;

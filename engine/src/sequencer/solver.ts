@@ -2,6 +2,19 @@
 // a target formation (getin), or keep a getout alive (fixIt). Owns the
 // home-scoring and reachability caches and the matrix fast-path cache. It holds
 // no board state — callers pass the current board.
+//
+// THE CALLER CONVENTION (decided; see square-dancing.md §9.1 step 5 and prd.md §14):
+// a get-out succeeds by reaching a state from which a standard finish CLOSES the
+// square — `Allemande Left`, `Right and Left Grand` or `Promenade` — not by sitting
+// on the literal home board. That is how callers write get-outs, and how All8's
+// published ones end (`--AL` / `--RLG` / `--Prom`).
+//
+// This is implemented as a FINAL EDGE rather than as a looser goal: when a board is
+// one finish away from home, the search appends that finish to the path it returns.
+// A returned path therefore still ends on the literal home board, so every consumer
+// (the FSM amendment gate, the UI's "apply getout", the tests) keeps the contract it
+// already had — while the search gains the finishes, including the geometry-derived
+// `Promenade`, as edges it can actually use.
 
 import { fitRigidMatrix, identity5, mul5, type Mat5 } from '../matrix.js';
 import { matchFormations, type Matchable } from './match.js';
@@ -10,7 +23,8 @@ import { CallApplicator } from './applicator.js';
 import { CallLibrary } from './library.js';
 import { LegalityChecker } from './legality.js';
 import { SequencerConfig } from './config.js';
-import { KNOWN_FORMATION_MAX, canonicalName } from './constants.js';
+import { KNOWN_FORMATION_MAX, STANDARD_FINISHES, canonicalName } from './constants.js';
+import { applyCodedMove } from './coded-moves.js';
 import { makeSquaredSet, cloneBoard, boardSig } from './board.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, SeqDancer } from './types.js';
@@ -18,6 +32,7 @@ import type { Board, SeqDancer } from './types.js';
 export class HomeSolver {
   private homeScoreCache = new Map<string, number>();
   private canGetoutMemo = new Map<string, boolean>();
+  private finishCache = new Map<string, string[] | null>();
   private rigidGetoutCache: { name: string; M: Mat5; image: Matchable[]; seqDancers: SeqDancer[] }[] | null = null;
 
   constructor(
@@ -31,6 +46,49 @@ export class HomeSolver {
   clearCaches(): void {
     this.homeScoreCache.clear();
     this.canGetoutMemo.clear();
+    this.finishCache.clear();
+  }
+
+  /** Apply a call the way the SEQUENCER would: a geometry-derived call first (the
+   * registry the Sequencer also uses, so `Promenade` is playable here), otherwise
+   * the catalog through the interactive apply path. */
+  private applyInteractive(board: Board, name: string): { board: Board; legal: boolean; reason?: string } {
+    return applyCodedMove(board, name) ?? this.applicator.applyToBoard(board, name);
+  }
+
+  /**
+   * How `board` closes: `[]` when it is already the home squared set, `[finish]` when
+   * one standard finish closes it, or null when it is not a goal.
+   *
+   * That is the caller convention, applied at the goal test rather than only at the
+   * end of the returned path. Memoised by board signature: the DFS asks this for every
+   * candidate edge, and each answer costs up to one apply per finish.
+   */
+  private finishToHome(board: Board): string[] | null {
+    if (this.reachesTarget(board, 'Static Square')) return [];
+    // Keyed on the FULL pose including headings: whether a finish is legal depends on
+    // facing, and `boardSig` is positions only, so keying on it would let two boards
+    // that differ only by facing share an answer.
+    const sig = board.dancers
+      .map((d) => `${d.id},${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}`)
+      .join(';');
+    const cached = this.finishCache.get(sig);
+    if (cached !== undefined) return cached;
+    let result: string[] | null = null;
+    for (const finish of STANDARD_FINISHES) {
+      const r = this.applyInteractive(board, finish);
+      if (!r.legal) continue;
+      if (this.reachesTarget(r.board, 'Static Square')) { result = [finish]; break; }
+    }
+    this.finishCache.set(sig, result);
+    return result;
+  }
+  /** The calls that complete `board` to `target`, `[]` when it is already there, or
+   * null when it is not a goal. A non-home target has no finish: it is reached
+   * literally or not at all. */
+  private goalFinish(board: Board, target: string): string[] | null {
+    if (canonicalName(target) !== 'Static Square') return this.reachesTarget(board, target) ? [] : null;
+    return this.finishToHome(board);
   }
 
   /** Calls that are equivalent to `call` from `board`: legal from the board and
@@ -80,8 +138,19 @@ export class HomeSolver {
     return out;
   }
 
-  /** Search for a sequence of legal calls that ends in the target formation
-   * (default: a squared set). Returns the call path or null. */
+  /**
+   * Search for a sequence of legal calls that takes the set home. Returns the call
+   * path or null.
+   *
+   * Under the caller convention a sequence that reaches a state a standard finish
+   * closes COUNTS as a getout, and the finish is appended to the path, so:
+   *   * `maxCalls` bounds the length of the path RETURNED, finish included;
+   *   * a board that is a finish away from home yields `[...body, 'Allemande Left']`
+   *     (or `Right and Left Grand` / `Promenade`), which is exactly how a caller -
+   *     and All8's published get-outs - write it;
+   *   * `Promenade` is a usable final edge even though it is geometry-derived and
+   *     absent from the catalog.
+   */
   getout(board: Board, opts: { target?: string; maxCalls?: number; budget?: number } = {}): string[] | null {
     const target = canonicalName(opts.target ?? 'Static Square');
     const maxCalls = opts.maxCalls ?? 5;
@@ -103,17 +172,19 @@ export class HomeSolver {
 
     const seen = new Set<string>([boardSig(board)]);
     const state = { nodes: 0, budget };
-    return this.getoutPath(board, target, maxCalls, [], seen, state, (path) =>
+    return this.getoutPath(board, target, maxCalls, maxCalls, [], seen, state, (path) =>
       this.verifyInteractivePath(board, path, target),
     );
   }
 
   /** Replay a candidate getout path through the INTERACTIVE apply path to confirm
-   * every call is genuinely legal and the final board reaches `target`. */
+   * every call is genuinely legal and the final board reaches `target`. A path that
+   * closes with a standard finish is replayed through it too, so a claimed finish is
+   * verified rather than assumed. */
   private verifyInteractivePath(board: Board, path: string[], target: string): boolean {
     let b = cloneBoard(board);
     for (const name of path) {
-      const r = this.applicator.applyToBoard(b, name);
+      const r = this.applyInteractive(b, name);
       if (!r.legal) return false;
       b = r.board;
     }
@@ -128,7 +199,10 @@ export class HomeSolver {
     const seen = new Set<string>([boardSig(b)]);
     let curScore = -Infinity;
     for (let i = 0; i < maxCalls; i++) {
-      if (path.length > 0 && this.reachesTarget(b, target)) return path;
+      if (path.length > 0) {
+        const finish = this.goalFinish(b, target);
+        if (finish && path.length + finish.length <= maxCalls) return [...path, ...finish];
+      }
       let best: { name: string; res: { board: Board; legal: boolean } } | null = null;
       let bestScore = -Infinity;
       for (const c of this.searchCandidates(b)) {
@@ -146,7 +220,8 @@ export class HomeSolver {
       path.push(best.name);
       curScore = bestScore;
     }
-    return this.reachesTarget(b, target) ? path : null;
+    const finish = this.goalFinish(b, target);
+    return finish && path.length + finish.length <= maxCalls ? [...path, ...finish] : null;
   }
 
   // ----------------------------------------------------------------- matrix fast-path
@@ -232,11 +307,13 @@ export class HomeSolver {
     return this.rigidSingleCallGetout(board);
   }
 
-  /** Depth-first getout search. */
+  /** Depth-first getout search. `depth` is the remaining body depth; `maxCalls` is
+   * the length the RETURNED path may have, an appended finish included. */
   private getoutPath(
     board: Board,
     target: string,
     depth: number,
+    maxCalls: number,
     path: string[],
     seen: Set<string>,
     state: { nodes: number; budget: number },
@@ -252,10 +329,15 @@ export class HomeSolver {
       seen.add(sig);
       state.nodes++;
       path.push(name);
-      if (this.reachesTarget(res.board, target)) {
-        if (!validate || validate([...path])) return [...path];
+      // The board is a goal either literally or because a standard finish closes it
+      // from there (the caller convention); in the second case the finish is part of
+      // the path, so what is returned still ends on the home board.
+      const finish = this.goalFinish(res.board, target);
+      if (finish && path.length + finish.length <= maxCalls) {
+        const full = [...path, ...finish];
+        if (!validate || validate(full)) return full;
       }
-      const sub = this.getoutPath(res.board, target, depth - 1, path, seen, state, validate);
+      const sub = this.getoutPath(res.board, target, depth - 1, maxCalls, path, seen, state, validate);
       if (sub) return sub;
       path.pop();
     }
@@ -316,16 +398,13 @@ export class HomeSolver {
       .join(';')}`;
     const memo = this.canGetoutMemo.get(key);
     if (memo !== undefined) return memo;
-    let result = false;
-    if (!this.reachesTarget(board, target) && depth > 0) {
+    // A board is "already a getout" under the caller convention when a standard
+    // finish closes it, so fixIt offers the calls that keep that true.
+    let result = this.goalFinish(board, target) !== null;
+    if (!result && depth > 0) {
       for (const { name, res } of this.searchCandidates(board)) {
-        if (res.legal && this.canGetoutFrom(res.board, target, depth - 1)) {
-          result = true;
-          break;
-        }
+        if (res.legal && this.canGetoutFrom(res.board, target, depth - 1)) { result = true; break; }
       }
-    } else {
-      result = this.reachesTarget(board, target);
     }
     this.canGetoutMemo.set(key, result);
     return result;

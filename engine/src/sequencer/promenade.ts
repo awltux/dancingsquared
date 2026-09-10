@@ -64,7 +64,7 @@ export const PROMENADE_BEATS = 8;
 export const PROMENADE_COUPLE_MIN = 1.0;
 export const PROMENADE_COUPLE_MAX = 3.0;
 
-/** Tolerance for the snap/ring-order arithmetic, which is exact on axis points. */
+/** Tolerance for the ring-order arithmetic, which is exact on axis points. */
 const EPS = 1e-6;
 
 const AXIS: [number, number][] = [[0, 2], [-2, 0], [0, -2], [2, 0]];
@@ -121,6 +121,13 @@ export function promenadeHome(board: Board): PromenadeResult {
   if (couples.size !== 4) {
     return fail(`Promenade needs exactly four couples; this board has ${couples.size}`);
   }
+  // A couple number outside 1..4 is not one of the four home couples, so the set is
+  // not a square at all. This is refused rather than thrown on: the ring-order check
+  // below reads couples 1,2,3,4 by number, and `isKnownCouple` only guarantees > 0.
+  const strays = [...couples.keys()].filter((c) => c !== 1 && c !== 2 && c !== 3 && c !== 4);
+  if (strays.length) {
+    return fail(`Promenade needs the four home couples 1-4; this board has couple ${strays.join(', ')}`);
+  }
   for (const [couple, list] of couples) {
     if (list.length !== 2) return fail(`couple ${couple} does not have exactly two dancers`);
     if (list[0].gender === list[1].gender) return fail(`couple ${couple} is not a boy and a girl`);
@@ -140,10 +147,6 @@ export function promenadeHome(board: Board): PromenadeResult {
   }
   if (new Set([...anchors.values()].map(uniqKey)).size !== 4) {
     return fail('the four couples are not spread one per side of the square, so there is nothing to promenade around');
-  }
-  if (Math.abs(anchors.get(1)![0] + anchors.get(2)![0] + anchors.get(3)![0] + anchors.get(4)![0]) > EPS
-    || Math.abs(anchors.get(1)![1] + anchors.get(2)![1] + anchors.get(3)![1] + anchors.get(4)![1]) > EPS) {
-    return fail('the four couples do not occupy one side of the square each');
   }
 
   // 4. counter-clockwise ring order 1 -> 2 -> 3 -> 4: the "in sequence" test.

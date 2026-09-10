@@ -84,6 +84,16 @@ export const FORMATION_SYNONYMS: Record<string, string> = {
 // canonical registered call name. Extend as alternate spellings/names are found.
 export const CALL_SYNONYMS: Record<string, string> = {};
 
+// The calls a caller uses to CLOSE the square. Under the caller convention a
+// get-out succeeds by reaching a state one of these resolves from, which is exactly
+// how All8's published get-outs are written (their last token is `--AL`, `--RLG` or
+// `--Prom`). The search treats them as its final edges, and the corpus harness
+// measures "did this get-out reach a resolve?" with the same list, so the two
+// cannot drift apart.
+//
+// Order matters only for which finish a search returns first when several apply.
+export const STANDARD_FINISHES = ['Allemande Left', 'Right and Left Grand', 'Promenade'];
+
 /** Resolve a name to its canonical form (checking call and formation synonyms
  * in turn). Non-aliases pass through unchanged, so this is safe to apply to any
  * name. */

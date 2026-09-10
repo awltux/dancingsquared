@@ -8,6 +8,7 @@ import { FormationMatcher } from './matcher.js';
 import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
+import { CODED_MOVES, applyCodedMove } from './coded-moves.js';
 import type { Board } from './types.js';
 
 export class LegalityChecker {
@@ -58,6 +59,21 @@ export class LegalityChecker {
       if (!tightApply.legal || this.matcher.knownFormation(tightApply.board) === null) continue;
       const res = this.applicator.applySearch(board, mname);
       if (res.legal && this.matcher.knownFormation(res.board) !== null) out.push({ name: mname, res });
+    }
+    // Geometry-derived calls are callable, so the search must be able to use them —
+    // otherwise a get-out whose last call is `Promenade` is unreachable by search
+    // even though the Sequencer can play it.
+    //
+    // Only the ones that carry a PRECONDITION are added. A coded pivot (`Face Left`,
+    // `U-Turn Back`, ...) is legal from every board and moves nobody, so its result
+    // has the same position signature as the board it came from: the search's
+    // seen-set prunes it immediately, and it can never reach home. Adding it would be
+    // pure cost - the honest place for a pivot in a get-out is the caller's hands,
+    // not the search's edge set (see the open item on selecting pivots in search).
+    for (const move of CODED_MOVES) {
+      if (!move.precondition) continue;
+      const res = applyCodedMove(board, move.name);
+      if (res?.legal && this.matcher.knownFormation(res.board) !== null) out.push({ name: move.name, res });
     }
     return out;
   }

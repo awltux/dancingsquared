@@ -78,3 +78,19 @@ export function codedMoveApplies(move: CodedMove, board: Board): boolean {
   return move.precondition ? move.precondition(board) === null : true;
 }
 
+/**
+ * Apply the coded move named `name` to `board`: its result when it applies, the
+ * board unchanged plus the reason when it does not, and null when `name` is not a
+ * coded move at all (so the catalogue must handle it).
+ *
+ * The Sequencer (which layers dancer-selection handling on top) and the getout/fixIt
+ * search both go through this, so a call cannot be legal in one and unknown in the
+ * other - which is what makes a geometry-derived resolve usable as a search edge.
+ */
+export function applyCodedMove(board: Board, name: string): { board: Board; legal: boolean; reason?: string } | null {
+  const move = findCodedMove(name);
+  if (!move) return null;
+  const problem = move.precondition?.(board) ?? null;
+  return problem ? { board, legal: false, reason: problem } : { board: move.apply(board), legal: true };
+}
+

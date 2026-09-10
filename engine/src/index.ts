@@ -67,7 +67,8 @@ export type {
   PartnerPair,
   RelationshipState,
 } from './sequencer/alignment.js';
-export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS } from './sequencer/constants.js';
+export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS, STANDARD_FINISHES } from './sequencer/constants.js';
+export { applyCodedMove } from './sequencer/coded-moves.js';
 export { normalisedState, orientationDeltaSteps, ORIENTATION_STEP, ORIENTATION_STEPS } from './sequencer/fsm.js';
 export { FsmTable, FSM_TABLE_SCHEMA_VERSION, type FsmTableEdge, type FsmTableData } from './sequencer/fsm-table.js';
 export { normalizeSelection, selectionGroup, splitSelection } from './sequencer/selection.js';
@@ -80,6 +81,7 @@ export {
   promenadeAnchor,
   PROMENADE_ALIASES,
   PROMENADE_BEATS,
+  PROMENADE_COUPLE_MIN,
   PROMENADE_COUPLE_MAX,
 } from './sequencer/promenade.js';
 export type { PromenadeResult } from './sequencer/promenade.js';

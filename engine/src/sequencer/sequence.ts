@@ -112,13 +112,18 @@ export class SequenceAnalyzer {
     let total = 0;
     for (const name of flat) {
       const label = typeof name === 'string' ? name : name.call;
-      total += this.stepBeats(board, label);
       const coded = findCodedMove(label);
       if (coded) {
+        // The precondition is checked BEFORE the beats are charged: a call that does
+        // not apply is not part of the sequence at all, so it must not add its cost to
+        // a total that stops there. (It used to add them and then break, which made a
+        // refused resolve look like it had been danced.)
         if (!codedMoveApplies(coded, board)) break;
+        total += coded.beats;
         board = coded.apply(board);
         continue;
       }
+      total += this.stepBeats(board, label);
       const r = this.applicator.applyToBoard(board, name);
       if (r.legal) board = r.board;
     }

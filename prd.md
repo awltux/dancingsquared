@@ -433,16 +433,18 @@ function onFrame(ms: number) {
 - **3D engine:** **Three.js** (recommended) vs Babylon.js.
 - **Authoring format going forward:** keep XML as canonical, or migrate the bundle to hand-authored JSON.
 - **Scope of sequencer/FASR:** confirm deferral to v2.
-- **Does the engine's own `getout()` search adopt the caller convention?** The convention —
-  a get-out succeeds when it reaches a state from which the standard finish resolves — is
-  settled as the acceptance criterion for published get-outs (`square-dancing.md` §9.1),
-  but the search still requires the literal home board, and the precomputed FSM table and
-  `legalCalls` enumerate the catalog, so it cannot use a geometry-derived resolve such as
-  `Promenade` at all. Adopting it inside the search finds get-outs the corpus says exist,
-  at the cost of returning paths that end one standard finish short of home, which every
-  consumer must then be able to play; keeping the literal target keeps a returned path
-  self-contained but under-reports and leaves amendments from synthesised boards
-  impossible (`square-dancing.md` §9.2).
+- **Does the engine's own `getout()` search adopt the caller convention? — DECIDED: yes.**
+  Implemented (`square-dancing.md` §9.1 step 5, `engine/src/sequencer/solver.ts`). The finish
+  is the **final edge**, not a looser goal: when a board is one standard finish from home the
+  search appends that finish to the path, so a returned path still ends on the literal home
+  board, `maxCalls` bounds the length returned (finish included), a non-home target has no
+  finish, `fixIt` tests the same goal, and every consumer whose contract is "the path ends at
+  `Static Square`" is unaffected. Measured: get-outs exist from 27 of the 28 alignments that
+  have a start board and all 27 replay to the home board; the finishes thereby become edges the
+  search can use, including the geometry-derived `Promenade`. Two consequences recorded rather
+  than solved: a search that finds nothing is now the only slow case (quadratic candidate
+  enumeration — `square-dancing.md` §9.2 item 10), and the amendment gate keeps its old meaning
+  because paths still end home (§9.2 item 9).
 - **Target platform/consumers** of the downstream game/tutor to finalize API surface.
 
 ## 15. Teachers Session Tracker

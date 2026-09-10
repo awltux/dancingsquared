@@ -21,7 +21,7 @@ import { HOME_DANCERS } from './identity.js';
 import { matchFormations } from './match.js';
 import { mul5, dancerMatrix, type Mat5 } from '../matrix.js';
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
-import { CODED_MOVE_NAMES, codedMoveApplies, findCodedMove, type CodedMove } from './coded-moves.js';
+import { CODED_MOVE_NAMES, applyCodedMove, codedMoveApplies, findCodedMove } from './coded-moves.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
@@ -73,12 +73,8 @@ export class Sequencer {
    * when it carries a precondition that this board does not meet. Returns null
    * when `name` is not a coded move at all, so the catalogue can handle it. */
   private tryCodedMove(board: Board, name: string): { board: Board; legal: boolean; reason?: string } | null {
-    const runWholeSet = (move: CodedMove): { board: Board; legal: boolean; reason?: string } => {
-      const problem = move.precondition?.(board) ?? null;
-      return problem ? { board, legal: false, reason: problem } : { board: move.apply(board), legal: true };
-    };
-    const move = findCodedMove(name);
-    if (move) return runWholeSet(move);
+    const whole = applyCodedMove(board, name);
+    if (whole) return whole;
     // A coded move with a dancer selection, e.g. "Girls U-Turn Back": the selected
     // dancers pivot and everyone else stays put. This has to be handled HERE rather
     // than in the applicator's selection path, because coded moves are per-dancer
@@ -98,7 +94,7 @@ export class Sequencer {
       // adds nothing and the call must not fail on account of it.
       const everyone = board.dancers.filter((d) => !d.isGhost).map((d) => d.id);
       const ids = this.grouping.resolveSelection(board, sel.selection);
-      return ids && ids.length === everyone.length ? runWholeSet(base) : null;
+      return ids && ids.length === everyone.length ? applyCodedMove(board, sel.call) : null;
     }
     const ids = this.grouping.resolveSelection(board, sel.selection);
     if (!ids || ids.length === 0) return null;

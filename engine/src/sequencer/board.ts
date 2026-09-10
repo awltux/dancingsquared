@@ -15,7 +15,13 @@ export function cloneBoard(b: Board): Board {
 }
 
 // Rotation/translation/reflection-invariant signature for BFS dedup: the sorted
-// pairwise-distance multiset + each dancer's radius/heading-binned profile.
+// pairwise-distance multiset.
+//
+// POSITIONS ONLY, deliberately: two boards that differ only in where the dancers
+// FACE share a signature. That is what makes a pure pivot collapse to the state it
+// came from (which is why the search never needs the coded pivots as edges), and it
+// is why anything whose answer depends on facing - `finishToHome` in the solver,
+// the reachability memo - must key on the full pose instead of on this.
 export function boardSig(b: Board): string {
   const ds = b.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading }));
   const dists: number[] = [];

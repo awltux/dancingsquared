@@ -788,8 +788,63 @@ need a rule for geometry-derived edges. And `Promenade`'s 8 beats are a fixed si
 a set already at home promenades no distance at all, one 270° round promenades three quarters
 of the way.
 
-### 9.2 Other open items
+**Step 5 is DONE — the engine's own getout search adopts the caller convention.** DECIDED:
+`getout()` succeeds by reaching a state from which a standard finish CLOSES the square —
+`Allemande Left`, `Right and Left Grand`, `Promenade` (All8's `--AL` / `--RLG` / `--Prom`) —
+rather than by sitting on the literal home board. Until this step the search demanded
+`fasrKey === homeFasrKey`, which is *stricter* than the corpus it is measured against: a real
+get-out is written as a body plus a finish, and the search could neither end on a finish nor
+use one as an edge.
 
+It is implemented as a **finish as the final edge**, not as a looser goal:
+
+- when a board is one finish away from home, the search **appends that finish to the path it
+  returns**, so a returned path still ends on the literal home board. Every existing consumer
+  keeps the contract it already had — the FSM amendment gate, the UI's "apply getout", the
+  older tests that assert `isAt('Static Square')` — and `maxCalls` now bounds the length of the
+  path **returned**, finish included;
+- the standard finishes therefore become edges the search can use, including the
+  geometry-derived `Promenade`, which until now was not a search candidate at all because the
+  search enumerated the catalog only. `LegalityChecker.searchLegalCalls` now adds every coded
+  move that carries a **precondition** (the resolves). The pure pivots are deliberately left
+  out: a pivot is legal from any board and moves nobody, so its result has the same
+  position signature as the board it came from — the search's seen-set prunes it immediately
+  and it can never reach home. `boardSig` is positions-only, which is what makes that true;
+- a non-home target has no finish: it is reached literally or not at all;
+- `fixIt` tests the same goal, so "keeps a getout alive" now means "keeps the set one finish
+  from home".
+
+Measured (`engine/test/getout-convention.mjs`, budget 200, maxCalls 3): **27 of the 28
+alignments that have a start board now have a getout, and 27 of 27 replay through the
+Sequencer and land on the home board with every dancer on its own spot.** Every one of them
+closes with `Promenade` — 11 of the 28 start boards are promenadeable directly (`[Promenade]`
+in one call, e.g. the `[L.F1p]` board whose only published get-out is `--PromH`), and the rest
+reach promenade position through a one- or two-call body the search now finds (`Circle to a
+Line > Promenade`, `Circle Four Left 1/2 > Promenade`, `Flip Cross Reaction > Promenade`, …).
+`[P4p]` has no getout within three calls — an honest negative, and the only one.
+
+*Three things this step found, and did not fix:*
+
+- **The search is quadratic in the catalog, so a FAILED search costs minutes.** Each node
+  enumerates every registered call (~2200 titles) and, with equivalents on, widens each
+  candidate by scanning the catalog again. A successful getout is therefore ~3 s, but a
+  getout that does not exist took **54–102 s** on the corpus, and `fixIt` deeper than depth 0
+  never finished (the features audit killed a `transitionTable` build for the same reason).
+  This is pre-existing, not introduced here, but the convention makes it visible: the UI's
+  "Getout" button now succeeds quickly and fails slowly. Next in line after the `Trade` fix.
+- **The promenade rule admits the `[B1c]` zero box.** Our reading of All8's own diagram puts
+  that box's couples in counter-clockwise ring order, so `Promenade` closes it — while `[B2r]`,
+  `[B2p]` and `[B4c]` sit in the mirrored order and are refused (the open disagreement above).
+  All8 publishes `AL`-based get-outs for `[B1c]` and lists no `--Prom`, which is consistent with
+  but does not confirm a promenade from there. Pinned by the gate so it cannot drift unnoticed.
+- **`fixIt` at depth 0 already offers 578 calls from home** (every call whose result is one
+  finish from home). Informational, but it says the "keeps a getout alive" list is not a
+  shortlist until the emptiness of an intermediate state is a real filter.
+
+**Step 4d is next**: `Trade`/`Run` variant selection (see below) — the corpus's top engine gap
+and upstream of 6 of the 9 promenade finishes that still refuse.
+
+### 9.2 Other open items
 1. **The decoder table is now the top blocker (§9.1 step 4).** 202 of 412 published lines stop
    at a token our abbreviation table cannot read, and that masks the engine's real coverage.
    Extending the table is mechanical but should stay conservative: a wrong expansion silently
@@ -800,8 +855,9 @@ of the way.
    `canonicalName()` already applies it.
 3. **Bare `Promenade` is DONE (step 4c).** Remaining from it: the `[B]` box promenade
    disagreement with All8 (3 lines), the fixed 8-beat timing, and the fact that a
-   geometry-derived call is not yet expressible in the precomputed FSM table.
-   **`Cross Fold`** is still indexed with no implementation.
+   geometry-derived call is not in the precomputed FSM table (item 12).
+   **`Cross Fold`** is still indexed with no implementation; `1/2 Circulate` and `Join Hands`
+   are absent entirely.
 4. **Global corner fix (from step 2).** `analyzeFasr`'s `corner` returns the *opposite* girl
    (0/4 agreement with the home ring). `FasrRelations.corner` feeds `fasrKey`, which backs
    `isZero` and the solver's `Static Square` check, so it needs its own measured step.
@@ -824,11 +880,26 @@ of the way.
    the 4 centres. Worth fixing by resolving the group first and constraining the match, rather
    than by centring.
 9. **Phase 3 — Amendment policy for synthesised boards.** `FsmStore.amend` requires a getout,
-   and a getout is not found even from boards with full identity, so every amendment from a
-   formation that was not danced to is rejected with "no getout". No UI wires this yet, so it
-   is latent; the decision needed is whether to make the getout gate advisory (recording
-   `getoutVerified` on the amendment) or treat such formations as unamendable. The
-   caller-convention decision in §9.1 bears on this.
+   and a getout was not found even from boards with full identity, so every amendment from a
+   formation that was not danced to was rejected with "no getout". Step 5 widens what counts as
+   a getout (a state a finish closes), which should reduce those rejections — but that has NOT
+   been measured, and the gate now returns paths that still end home, so the requirement's
+   meaning is unchanged. The decision needed is still whether to make the getout gate advisory
+   (recording `getoutVerified` on the amendment) or treat such formations as unamendable.
+10. **The getout/getin search is quadratic in the catalog (step 5).** `searchCandidates`
+    enumerates every registered call per node and, with equivalents on, re-scans the catalog per
+    candidate. A successful getout costs ~3 s at budget 200; a getout that does not exist takes
+    54–102 s on the corpus; `fixIt` beyond depth 0 and the `transitionTable` build do not finish
+    at all. Needs an index (calls by start formation, or a cheap formation-only pre-filter)
+    before the UI's getout/fixIt surfaces are usable on a set with no getout.
+11. **`boardSig` ignores facing.** The BFS does not distinguish a board from its re-faced twin,
+    which is what makes pivots prune cleanly, but it also means two genuinely different states
+    share a dedup signature. Anything whose answer depends on facing must key on the full pose
+    (the solver's `finishToHome` does). Review whether the search should distinguish them.
+12. **Geometry-derived calls are still not FSM edges.** The precomputed table and
+    `Sequencer.legalCalls` enumerate the catalog, so `Promenade` appears in `legalNext()` (when
+    it applies) and is now a search edge, but not in the table. The table builder would need a
+    rule for a call that is legal from a *precondition* rather than from a setup.
 6. **Phase 4 — Coverage and spec alignment.** Audit checks for the bounded non-geometric
    matching exceptions (§8.2), a decision on the editor's "no match within tolerance" wording,
    and an explicit runtime-join check.

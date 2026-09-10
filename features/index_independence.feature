@@ -60,19 +60,20 @@ Feature: Index Independence in Matching
     #          45-degree steps, rot 0 first so equal-error (symmetric) cases keep the
     #          unrotated alignment instead of spinning the set.
 
-  @bind:alignFormationToCore @bind:synthesizeSetup @bind:synthesizeSetupChain @bind:correctEndTo
-  Scenario: Editor joins must not fall back to array index when geometry does not determine the mapping
+  @bind:deriveFormationMapping @bind:alignFormationToCore @bind:synthesizeSetup @bind:synthesizeSetupChain @bind:correctEndTo @bind:closureDiscrepancy
+  Scenario: Editor joins derive their pairing from geometry, never from array index
     Given the call editor joins two dancer lists, such as a setup to a core or one core to another core
     When the geometric alignment is ambiguous or finds no match within tolerance
     Then the join must fail loudly rather than silently pairing dancers by array index
     And any pairing that is kept must have been established by matching coordinates and rotation
-    # PARTLY RESOLVED: alignFormationToCore now THROWS on a length mismatch or an
-    #          assignment that leaves a slot unfilled, instead of placing unmapped slots in
-    #          array-index order.
-    # REMAINING GAP: synthesizeSetup / synthesizeSetupChain / correctEndTo still pair strictly
-    #          by index (setup.start[i], coreA.dancers[i], target[i]) and their contracts
-    #          require the caller to have pre-aligned the arrays, so a caller that passes
-    #          unaligned arrays still produces index-correlated output.
+    And presenting the same dancer sets in a different array order must not change the result
+    # Engine: deriveFormationMapping derives the correspondence by geometry (whole-set rotations
+    #          in 45-degree steps plus a centring translation, best 1:1 assignment by position +
+    #          facing) and THROWS on a length mismatch or an unfilled slot instead of placing
+    #          unmapped slots in array-index order. synthesizeSetup, synthesizeSetupChain and
+    #          correctEndTo treat their inputs as dancer SETS and re-order them through it -
+    #          a scrambled input array produces byte-identical paths - with each end matched
+    #          against the core's END poses and each start against its START poses.
 
   # ---- index-derived placeholder identity -------------------------
 

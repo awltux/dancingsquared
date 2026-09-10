@@ -93,30 +93,28 @@ export function rigidFit(src: { x: number; y: number }[], dst: { x: number; y: n
 }
 
 /**
- * Align a catalog/pre/post formation to the core's start formation so its
- * dancers are placed in `core.dancers` order. Matching may require a whole-set
- * ROTATION ABOUT THE ORIGIN (any multiple of 45 degrees) plus a centering
- * translation, so each candidate rotation is tried and the best 1:1 mapping
- * (position + facing) is kept. Returns a FormDancer[] where result[i] is the
- * chosen formation's dancer mapped to core dancer i, keeping its ORIGINAL
- * coordinates/heading.
+ * Derive the geometric correspondence between two equal-length dancer lists:
+ * `result[i]` is the index in `formation` of the dancer that belongs to slot i
+ * of `coreStart`. The correspondence is found by trying whole-set rotations about
+ * the origin (any multiple of 45 degrees) plus a centring translation, and
+ * keeping the best 1:1 assignment by position + facing.
  *
- * INDEX INDEPENDENCE: the correspondence between the two lists is DERIVED from
- * geometry and never assumed from array order. When the two lists hold different
- * numbers of dancers, or the assignment cannot fill every slot, this throws
- * instead of silently pairing dancers by array index.
+ * INDEX INDEPENDENCE: this is the ONLY way a pairing between the two lists is
+ * established — never array order. It throws when the lists hold different
+ * numbers of dancers, or when the assignment cannot fill every slot, rather than
+ * silently pairing dancers by array index.
  */
-export function alignFormationToCore(
+export function deriveFormationMapping(
   coreStart: { x: number; y: number }[],
   formation: FormDancer[],
-): FormDancer[] {
+): number[] {
   if (formation.length !== coreStart.length) {
     throw new Error(
-      `alignFormationToCore: cannot align ${formation.length} dancers to a ${coreStart.length}-dancer core — refusing to pair them by array index`,
+      `deriveFormationMapping: cannot align ${formation.length} dancers to a ${coreStart.length}-dancer core — refusing to pair them by array index`,
     );
   }
   const cCore = centroid(coreStart);
-  let bestMap: number[] | null = null;
+  let bestMap: number[] | null = null; // bestMap[j] = core slot for formation dancer j
   let bestErr = Infinity;
   for (const rot of ORIGIN_ROTS) {
     const cos = Math.cos(rot);
@@ -144,16 +142,49 @@ export function alignFormationToCore(
   }
   if (!bestMap || bestMap.some((i) => i < 0)) {
     throw new Error(
-      'alignFormationToCore: geometric alignment did not determine a 1:1 mapping — refusing to fall back to array index',
+      'deriveFormationMapping: geometric alignment did not determine a 1:1 mapping — refusing to fall back to array index',
     );
   }
-  const out = new Array<FormDancer>(coreStart.length);
-  for (let j = 0; j < bestMap.length; j++) {
-    const i = bestMap[j];
-    out[i] = { x: formation[j].x, y: formation[j].y, heading: formation[j].heading, gender: formation[j].gender };
+  // Invert (formation dancer j -> core slot i) into the requested direction.
+  const order = new Array<number>(coreStart.length).fill(-1);
+  for (let j = 0; j < bestMap.length; j++) order[bestMap[j]] = j;
+  if (order.some((j) => j < 0)) {
+    throw new Error(
+      'deriveFormationMapping: geometric alignment did not cover every slot — refusing to fall back to array index',
+    );
   }
-  return out;
+  return order;
 }
+
+/** Reorder `formation` into `coreStart` slot order using the GEOMETRIC mapping.
+ * For an array that is already in core order this is the identity, so it is safe
+ * to apply unconditionally at a join boundary. */
+function orderLikeCore(coreStart: { x: number; y: number }[], formation: FormDancer[]): FormDancer[] {
+  return deriveFormationMapping(coreStart, formation).map((j) => {
+    const f = formation[j];
+    return { x: f.x, y: f.y, heading: f.heading, gender: f.gender };
+  });
+}
+
+/**
+ * Align a catalog/pre/post formation to the core's start formation so its
+ * dancers are placed in `core.dancers` order. Matching may require a whole-set
+ * ROTATION ABOUT THE ORIGIN (any multiple of 45 degrees) plus a centering
+ * translation, so each candidate rotation is tried and the best 1:1 mapping
+ * (position + facing) is kept. Returns a FormDancer[] where result[i] is the
+ * chosen formation's dancer mapped to core dancer i, keeping its ORIGINAL
+ * coordinates/heading.
+ *
+ * INDEX INDEPENDENCE: the correspondence between the two lists is DERIVED from
+ * geometry (see deriveFormationMapping) and never assumed from array order.
+ */
+export function alignFormationToCore(
+  coreStart: { x: number; y: number }[],
+  formation: FormDancer[],
+): FormDancer[] {
+  return orderLikeCore(coreStart, formation);
+}
+
 
 function centroid(ds: { x: number; y: number }[]): { x: number; y: number } {
   let x = 0;
@@ -246,6 +277,11 @@ export function padSegment(from: { x: number; y: number; heading: number }, to: 
  * Mirrored (half-set) core dancers are supported: poseFor already yields their
  * actual full-set start/end positions, and re-basing them at those positions
  * with `mirror:false` reproduces the authored path exactly.
+ *
+ * INDEX INDEPENDENCE: `setup.start` / `setup.end` are treated as dancer SETS. The
+ * correspondence to the core is derived geometrically (orderLikeCore), so passing
+ * them already in core order is the identity and passing them in any other order
+ * is corrected rather than silently swapping dancers' start/end spots.
  */
 export function synthesizeSetup(core: CallBundle, setup: NewSetup): CallBundle {
   if (setup.start.length !== core.dancers.length || setup.end.length !== core.dancers.length) {
@@ -255,12 +291,19 @@ export function synthesizeSetup(core: CallBundle, setup: NewSetup): CallBundle {
   }
   const padBeats = setup.padBeats ?? 2;
   const coreBeats = core.beats;
+  const coreStartPoses = core.dancers.map((d) => poseFor(d, 0));
+  const coreEndPoses = core.dancers.map((d) => poseFor(d, core.beats));
+  // The new START is matched against the core's start (the pad-in leaves from it)
+  // and the new END against the core's end (the pad-out arrives from it), each by
+  // geometry rather than trusting array order.
+  const start = orderLikeCore(coreStartPoses, setup.start);
+  const end = orderLikeCore(coreEndPoses, setup.end);
 
   const newDancers: DancerSpec[] = core.dancers.map((d, i) => {
     const coreStart = poseFor(d, 0);
     const coreEnd = poseFor(d, coreBeats);
-    const s = setup.start[i];
-    const e = setup.end[i];
+    const s = start[i];
+    const e = end[i];
     const padIn = padSegment({ x: s.x, y: s.y, heading: s.heading }, { x: coreStart.x, y: coreStart.y, heading: coreStart.heading }, padBeats);
     const padOut = padSegment({ x: coreEnd.x, y: coreEnd.y, heading: coreEnd.heading }, { x: e.x, y: e.y, heading: e.heading }, padBeats);
     padOut.hands = d.path.length ? d.path[d.path.length - 1].hands : 'none';
@@ -290,9 +333,10 @@ export function synthesizeSetup(core: CallBundle, setup: NewSetup): CallBundle {
 
 export interface ChainSpec {
   name: string;
-  /** New start (e.g. a pre-call's end), aligned to `coreA` dancer order. */
+  /** New start (e.g. a pre-call's end). Treated as a dancer SET: the
+   * correspondence to `coreA` is derived geometrically, not from array order. */
   start: FormDancer[];
-  /** New end (e.g. a post-call's start), aligned to `coreB` dancer order. */
+  /** New end (e.g. a post-call's start). Same: a set, matched geometrically. */
   end: FormDancer[];
   /** Beats for the leading pad-in / trailing pad-out (default 1). */
   leadBeats?: number;
@@ -311,6 +355,12 @@ export interface ChainSpec {
  * END-anchored setup's core as the lead-out, matching the "reuse existing
  * lead-in/out moves" goal. Mirrored (half-set) dancers are re-based at their
  * full-set positions like synthesizeSetup.
+ *
+ * INDEX INDEPENDENCE: the two cores are JOINTLY aligned on a common reference
+ * (coreA's start formation) and the identity of a dancer is coreA's dancer index.
+ * Which coreB dancer that same person becomes is therefore DERIVED by geometry —
+ * it is NOT assumed to be coreB.dancers[i]. `spec.start`/`spec.end` are likewise
+ * matched geometrically rather than trusted in array order.
  */
 export function synthesizeSetupChain(coreA: CallBundle, coreB: CallBundle, spec: ChainSpec): CallBundle {
   const n = coreA.dancers.length;
@@ -322,13 +372,24 @@ export function synthesizeSetupChain(coreA: CallBundle, coreB: CallBundle, spec:
   const leadBeats = spec.leadBeats ?? 1;
   const connBeats = spec.connectorBeats ?? 2;
 
+  const aStarts = coreA.dancers.map((d) => poseFor(d, 0));
+  const bStarts = coreB.dancers.map((d) => poseFor(d, 0));
+  const bEnds = coreB.dancers.map((d) => poseFor(d, coreB.beats));
+  // coreA identity i -> the coreB dancer that is the same person, by geometry.
+  const bFor = deriveFormationMapping(aStarts, bStarts);
+  // The new start is matched against coreA's start; the new end against coreB's
+  // end (the pad-out arrives from it).
+  const start = orderLikeCore(aStarts, spec.start);
+  const end = orderLikeCore(bEnds, spec.end);
+
   const newDancers: DancerSpec[] = coreA.dancers.map((d, i) => {
+    const bi = bFor[i];
     const aStart = poseFor(coreA.dancers[i], 0);
     const aEnd = poseFor(coreA.dancers[i], coreA.beats);
-    const bStart = poseFor(coreB.dancers[i], 0);
-    const bEnd = poseFor(coreB.dancers[i], coreB.beats);
-    const s = spec.start[i];
-    const e = spec.end[i];
+    const bStart = poseFor(coreB.dancers[bi], 0);
+    const bEnd = poseFor(coreB.dancers[bi], coreB.beats);
+    const s = start[i];
+    const e = end[bi];
     const padIn = padSegment(s, aStart, leadBeats);
     const connector = padSegment(aEnd, bStart, connBeats);
     const padOut = padSegment(bEnd, e, leadBeats);
@@ -338,7 +399,7 @@ export function synthesizeSetupChain(coreA: CallBundle, coreB: CallBundle, spec:
       y: s.y,
       angleDeg: s.heading / DEG,
       mirror: false,
-      path: [padIn, ...coreA.dancers[i].path, connector, ...coreB.dancers[i].path, padOut],
+      path: [padIn, ...coreA.dancers[i].path, connector, ...coreB.dancers[bi].path, padOut],
     };
   });
 
@@ -368,27 +429,30 @@ export function endPoses(call: CallBundle): FormDancer[] {
 
 export interface ClosureDiscrepancy {
   actual: FormDancer[]; // the call's real end poses
-  target: FormDancer[]; // the intended end (index-aligned to dancer order)
+  target: FormDancer[]; // the intended end, re-ordered into the call's dancer order
   maxPosErr: number; // worst-case position delta to target
   maxHeadingErr: number; // worst-case heading delta to target (radians)
 }
 
 /**
- * Measure how far each dancer's end diverges from the intended target, where
- * `target[i]` corresponds to dancer i (identity-aligned). Build the target with
- * `alignTargetToStart` (or use the call's own start poses for a round-trip fix).
+ * Measure how far each dancer's end diverges from the intended target. `target`
+ * is treated as a dancer SET and re-ordered into the call's dancer order by
+ * geometry (via the call's start poses), so the correspondence is derived rather
+ * than assumed from array position. Build the target with `alignTargetToStart`
+ * (or use the call's own start poses for a round-trip fix).
  */
 export function closureDiscrepancy(call: CallBundle, target: FormDancer[]): ClosureDiscrepancy {
   const actual = endPoses(call);
+  const ordered = orderLikeCore(call.dancers.map((d) => poseFor(d, 0)), target);
   let maxPosErr = 0;
   let maxHeadingErr = 0;
-  for (let i = 0; i < actual.length && i < target.length; i++) {
-    const pe = Math.hypot(actual[i].x - target[i].x, actual[i].y - target[i].y);
-    const he = Math.abs(normAngleSafe(actual[i].heading - target[i].heading));
+  for (let i = 0; i < actual.length && i < ordered.length; i++) {
+    const pe = Math.hypot(actual[i].x - ordered[i].x, actual[i].y - ordered[i].y);
+    const he = Math.abs(normAngleSafe(actual[i].heading - ordered[i].heading));
     if (pe > maxPosErr) maxPosErr = pe;
     if (he > maxHeadingErr) maxHeadingErr = he;
   }
-  return { actual, target, maxPosErr, maxHeadingErr };
+  return { actual, target: ordered, maxPosErr, maxHeadingErr };
 }
 
 /**
@@ -408,13 +472,17 @@ export function alignTargetToStart(call: CallBundle, formation: FormDancer[]): F
 /**
  * Fix a call that doesn't close cleanly WITHOUT changing the beat count. It
  * retargets each dancer's LAST move segment so the dancer ends at the intended
- * `target[i]` (identity-aligned), adjusting that segment's geometry while
- * keeping its beats (and so the call's total beats) unchanged. This is
- * identical for mirrored and non-mirrored dancers (the mirror is an
- * involution), so half-set calls are handled too.
+ * end, adjusting that segment's geometry while keeping its beats (and so the
+ * call's total beats) unchanged. This is identical for mirrored and non-mirrored
+ * dancers (the mirror is an involution), so half-set calls are handled too.
+ *
+ * INDEX INDEPENDENCE: `target` is treated as a dancer SET and re-ordered into the
+ * call's dancer order by geometry (via the call's start poses), rather than being
+ * trusted in array order.
  */
 export function correctEndTo(call: CallBundle, target: FormDancer[]): CallBundle {
   const segBeats = (path: Seg[]): number => path.reduce((s, x) => s + x.beats, 0);
+  const ordered = orderLikeCore(call.dancers.map((d) => poseFor(d, 0)), target);
   const newDancers = call.dancers.map((d, i) => {
     const path = d.path;
     if (path.length === 0) return d;
@@ -422,7 +490,8 @@ export function correctEndTo(call: CallBundle, target: FormDancer[]): CallBundle
     const before = path.slice(0, -1);
     // Pose just before the last segment (mirror-aware via poseFor).
     const pre = poseFor({ ...d, path: before }, segBeats(before));
-    const seg = padSegment({ x: pre.x, y: pre.y, heading: pre.heading }, { x: target[i].x, y: target[i].y, heading: target[i].heading }, last.beats);
+    const t = ordered[i];
+    const seg = padSegment({ x: pre.x, y: pre.y, heading: pre.heading }, { x: t.x, y: t.y, heading: t.heading }, last.beats);
     seg.hands = last.hands;
     return { ...d, path: [...before, seg] };
   });

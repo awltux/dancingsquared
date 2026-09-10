@@ -40,6 +40,7 @@ export type { CallStep } from './sequencer/types.js';
 export {
   rigidFit,
   alignFormationToCore,
+  deriveFormationMapping,
   padSegment,
   synthesizeSetup,
   synthesizeSetupChain,

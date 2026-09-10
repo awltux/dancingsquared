@@ -446,10 +446,15 @@ console.log('\n== Identity on geometry-only formation boards (feature: heads_sid
 
   const tfl = seq.boardForFormation('Two-Faced Lines');
   check(tfl !== null && tfl.dancers.length === 8, 'Two-Faced Lines synthesises an 8-dancer board', tfl && `n=${tfl.dancers.length}`);
-  check(tfl !== null && !tfl.dancers.some((d) => d.gender === 'girl'),
-    'a NON-home-like board gets placeholder identity only (all boy, no real couples)', gendersOf(tfl));
-  check(tfl !== null && new Set(tfl.dancers.map((d) => d.id)).size === 8, 'placeholder identities are still distinct ids');
-  // Geometry is still trustworthy even though identity is not.
+  // GENDER is declared data (formations.xml states one per slot), so a synthesised
+  // board carries it; the COUPLE is not declared anywhere, so it stays unknown.
+  check(tfl !== null && tfl.dancers.filter((d) => d.gender === 'boy').length === 4
+    && tfl.dancers.filter((d) => d.gender === 'girl').length === 4,
+    'a NON-home-like board carries the formation\'s DECLARED genders (4 boy + 4 girl)', gendersOf(tfl));
+  check(tfl !== null && !tfl.dancers.some((d) => d.couple > 0),
+    'but no real home couple, which is not declared anywhere', tfl && `couples=${JSON.stringify([...new Set(tfl.dancers.map((d) => d.couple))])}`);
+  check(tfl !== null && new Set(tfl.dancers.map((d) => d.id)).size === 8, 'synthesised identities are still distinct ids');
+  // Geometry is still trustworthy.
   check(tfl !== null && seq.recognize(tfl).name === 'Two-Faced Lines',
     'the synthesised board is still geometrically correct', tfl && seq.recognize(tfl).name);
 }
@@ -560,14 +565,37 @@ console.log('\n== Index independence: index-derived placeholder is not identity 
 
   seq.board = tfl;
   const geoGroups = seq.subsetGroups(tfl);
-  check(!['Heads', 'Sides', 'Boys', 'Girls', 'Couples', 'Beaus', 'Belles'].some((g) => geoGroups.includes(g)),
-    'couple/gender-based selections do NOT resolve on a geometry-only board', JSON.stringify(geoGroups));
+  // GENDER is declared data, so gender-based selections DO resolve on a synthesised
+  // board. The COUPLE is not declared anywhere, so couple-based ones still do not,
+  // and nor do the positional roles that are defined per couple.
+  check(['Boys', 'Girls', 'Men', 'Women'].every((g) => geoGroups.includes(g)),
+    'gender-based selections resolve on a synthesised board (gender is declared data)', JSON.stringify(geoGroups));
+  check(!['Heads', 'Sides', 'Couples', 'Beaus', 'Belles'].some((g) => geoGroups.includes(g)),
+    'couple-based selections do NOT resolve (the couple is not declared anywhere)', JSON.stringify(geoGroups));
 
   const homeSq = seq.boardForFormation('Static Square');
   seq.board = homeSq;
   const homeGroups = seq.subsetGroups(homeSq);
   check(['Heads', 'Sides', 'Boys', 'Girls'].every((g) => homeGroups.includes(g)),
-    'the same selections DO resolve on a home-like board', JSON.stringify(homeGroups));
+    'the couple-based selections DO resolve on a home-like board', JSON.stringify(homeGroups));
+
+  // Gating is now real: a gender-specific call must be decided by the declared
+  // genders, and the fabricated all-boy placeholder must no longer reject calls that
+  // are plainly legal (Circle Left from a Circle board). A TITLE-registered call is
+  // used because this file's own catalog registers by file basename.
+  const seqC = new Sequencer(movesXml, formationsXml, [
+    { name: 'Circle Left', xml: read('poc/src/assets/ms/circle.xml') },
+  ]);
+  seqC.setMatchMargin(0);
+  const circle = seqC.boardForFormation('Circle');
+  if (circle) {
+    const asBoy = { dancers: circle.dancers.map((d) => ({ ...d, gender: 'boy' })) };
+    const real = seqC.applyToBoard(circle, 'Circle Left');
+    const faked = seqC.applyToBoard(asBoy, 'Circle Left');
+    check(real.legal === true && faked.legal === false,
+      'declared genders accept Circle Left from a Circle board (the fabricated all-boy rejected it)',
+      `declared=${real.legal} all-boy=${faked.legal}`);
+  }
 
   // Matching must not depend on the placeholder: flattening identity to unknown
   // must leave the result of a call applied to that board unchanged.

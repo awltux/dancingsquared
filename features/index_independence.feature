@@ -80,15 +80,18 @@ Feature: Index Independence in Matching
   @bind:boardForFormation @bind:matchFormations @bind:subsetOf
   Scenario: Index-derived placeholder identity must not be used as identity
     Given a board is synthesised for a formation whose geometry is not the home square
-    And its dancers therefore carry placeholder couples and genders
+    And its dancers therefore have no home couple
     When the engine matches that board against a call, or resolves a couple-based subset on it
-    Then the placeholder identity must be treated as unknown
+    Then the unknown couple must be treated as unknown
     And it must not be used as a matching tie-break or as a real couple grouping
-    # Engine: boardFromMatchables stamps UNKNOWN_COUPLE (0) and 'phantom' - a distinct id is
-    #          still assigned, but no couple is derived from the array index. UNKNOWN_COUPLE is
+    # Engine: boardFromMatchables leaves the couple as UNKNOWN_COUPLE (0) - it is declared
+    #          nowhere, so deriving it from the array index would leak an index into identity and
+    #          from there into the matching tie-break and the couple groupings. UNKNOWN_COUPLE is
     #          not a couple anywhere: match.ts identityScore skips it, the couple groupings
     #          (heads/sides/couples/beau-belle) do not resolve on such a board, the partition's
-    #          couple-coherence check ignores it, and FASR reports 0 couples / no partner.
+    #          couple-coherence check ignores it, and FASR reports no partner. GENDER is different:
+    #          it IS declared data (formations.xml / the tam), so it is carried and used, and
+    #          gender-based selections do resolve.
 
   # ---- the bounded exceptions ------------------------------------
 

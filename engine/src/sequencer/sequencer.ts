@@ -512,11 +512,16 @@ export class Sequencer {
   /** Build a synthetic board from arbitrary dancer geometry (named or embedded),
    * stamping home identity when the geometry is an 8-dancer home-like square.
    *
-   * INDEX INDEPENDENCE: when the geometry is NOT home-like there is no real home
-   * identity to stamp, so each dancer keeps a distinct id (the sequence still
-   * tracks it) but is marked UNKNOWN_COUPLE / phantom. Deriving a couple from the
-   * array index here would leak an index into identity, and from there into the
-   * matching tie-break, the couple groupings and the couple-coherence check. */
+   * IDENTITY IS DATA. Home identity (id/couple) comes from matching the geometry to
+   * the home square. GENDER comes from the formation's or setup's DECLARED gender
+   * when the geometry is not home-like -- it is real catalog data (formations.xml
+   * declares one per slot; a call's <tam> declares one per dancer), so it is used
+   * rather than invented. Only a dancer with neither is marked 'phantom' (unknown),
+   * which gates nothing.
+   *
+   * The couple is NOT declared anywhere, so away from home it stays UNKNOWN_COUPLE:
+   * deriving it from the array index would leak an index into identity, and from
+   * there into the matching tie-break, the couple groupings and couple-coherence. */
   private boardFromMatchables(dancers: Matchable[]): Board {
     const home = HOME_DANCERS;
     const m = dancers.length === home.length
@@ -531,7 +536,7 @@ export class Sequencer {
         return {
           id: id ? id.id : i + 1,
           couple: id ? id.couple : UNKNOWN_COUPLE,
-          gender: id ? id.gender : 'phantom',
+          gender: id ? id.gender : (d.gender ?? 'phantom'),
           x: d.x,
           y: d.y,
           heading: d.heading,

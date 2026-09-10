@@ -280,6 +280,15 @@ Two rules, both enforced by `features/index_independence.feature`:
   as identity: it is skipped by the matching tie-break, resolves no couple-based
   grouping, and imposes no couple-coherence constraint.
 
+- **Gender is declared; the couple is not.** A formation declares a gender per slot
+  and a `<tam>` declares one per dancer, so a **synthesised** board (one jumped to
+  rather than danced to) carries the *declared* gender and gender-specific calls are
+  gated correctly on it. The home couple is declared nowhere, so away from home it
+  stays `UNKNOWN_COUPLE`, and the couple-based groupings stay unresolved. (Before
+  this, a synthesised board invented a gender — first a hard-coded `boy`, which
+  wrongly rejected e.g. `Circle Left` from a `Circle` board, then `phantom`, which
+  gates nothing at all.)
+
 
 ## 9. Open Items
 
@@ -296,16 +305,17 @@ Remaining planned work, in the order agreed:
 3. **Phase 5 — Hygiene.** `knownFormation` is the last loose-tolerance (6.0)
    outlier, deliberately permissive for legality; review whether it should follow
    the tight recognition threshold.
-4. **Phase 6 — Carry the declared gender onto synthesised boards.**
-   `formations.xml` declares a `<dancer gender="…">` per slot and `parseFormations`
-   parses it, but `CallLibrary` discards it when building the named formations
-   (`library.ts`), which is why a synthesised board had to invent identity: first an
-   index-derived couple and a hard-coded `boy`, now an honest but gating-free
-   `phantom`. Carrying the declared gender through and stamping it on synthesised
-   boards restores gender gating for Set-formation boards **and** removes the false
-   rejections the fabricated `boy` caused (e.g. `Circle Left` was rejected from a
-   `Circle` board although it is plainly legal there). It is real data, so it
-   satisfies §8.2.
+
+**Done.** **Phase 6 — Carry the declared gender onto synthesised boards.**
+`formations.xml` declares a `<dancer gender="…">` per slot and `parseFormations`
+parsed it, but `CallLibrary` discarded it when building the named formations — which
+is why a synthesised board had to invent identity. The declared gender is now carried
+through (including onto the 180°-mirrored half) and stamped by `boardFromMatchables`,
+so gender gating works on Set-formation boards and the false rejection the fabricated
+`boy` caused is gone. Measured: all 129 synthesised formation boards now carry real
+4 boy + 4 girl genders; a `Circle` board accepts `Circle Left`, which the fake all-boy
+rejected; and gender-based selections resolve on a synthesised board while the
+couple-based ones still do not (`UNKNOWN_COUPLE`).
 
 
 

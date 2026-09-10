@@ -31,17 +31,24 @@ export class CallLibrary {
 
   constructor(private readonly movesXml: string, private readonly formationsXml: string) {
     const f = parseFormations(formationsXml);
+    // Carry the formation's DECLARED gender through. It is real data from the
+    // catalog (not derived from a position or an index), and it is what lets a
+    // synthesised board -- one jumped to with setFormation rather than danced to --
+    // gate gender-specific calls correctly. Without it a board had to invent a
+    // gender, first a hard-coded 'boy' (which wrongly rejected e.g. Circle Left from
+    // a Circle board) and then 'phantom' (which gates nothing at all).
     const base = [...f.entries()].map(([name, ds]) => ({
       name,
-      dancers: ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG })),
+      dancers: ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })),
     }));
     // Mirror 4-dancer (half-group) named formations to 8 so an 8-dancer board
-    // can be recognized against them (e.g. Squared Set, Normal Lines).
+    // can be recognized against them (e.g. Squared Set, Normal Lines). The mirror is
+    // the same authored dancers rotated 180 degrees, so it keeps their genders.
     for (const fm of base) {
       if (fm.dancers.length === 8) {
         this.namedFormations.push(fm);
       } else if (fm.dancers.length === 4) {
-        const mirror = fm.dancers.map((d) => ({ x: -d.x, y: -d.y, heading: normAngle(d.heading + Math.PI) }));
+        const mirror = fm.dancers.map((d) => ({ x: -d.x, y: -d.y, heading: normAngle(d.heading + Math.PI), gender: d.gender }));
         const merged = fm.dancers.concat(mirror);
         if (!merged.some((a) => merged.some((b) => a !== b && Math.hypot(a.x - b.x, a.y - b.y) < 0.01))) {
           this.namedFormations.push({ name: fm.name, dancers: merged });

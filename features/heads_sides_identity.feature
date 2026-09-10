@@ -85,25 +85,27 @@ Feature: Home Identity, Heads and Sides
     # same dancers through different, non-interchangeable rules.
 
   @bind:boardForFormation @bind:assignHomeIdentity
-  Scenario: A formation board synthesised from geometry alone has no real home identity
+  Scenario: A synthesised board carries declared gender but no home couple
     Given a board is synthesised for a named formation rather than reached by dancing there
     When the formation's geometry does not correspond to the home square
-    Then each dancer must still receive a distinct id, but the couple and gender must be placeholders rather than real home identity
-    And couple- or role-sensitive behaviour must not read meaning into those placeholder designations
-    # Engine: Sequencer.boardForFormation -> boardFromMatchables stamps id/couple/gender only
-    #   when the geometry matches HOME_DANCERS. "Static Square" therefore comes back with real
-    #   genders (4 boy + 4 girl, couples 1-4), while "Two-Faced Lines" / "Eight Chain Thru" come
-    #   back as eight placeholder 'boy' dancers with index-assigned couples. Partner/corner/lead
-    #   relationships and the displayed couple colours are consequently meaningless on such a
-    #   board, even though its geometry is correct.
+    Then each dancer must receive a distinct id
+    And its GENDER must be the formation's declared gender, because that is real catalog data
+    But its COUPLE must be unknown, because no home couple can be derived from geometry alone
+    And couple- or role-sensitive behaviour must not read meaning into the unknown couple
+    # Engine: boardFromMatchables stamps home id/couple from a geometry match against HOME_DANCERS,
+    #   and takes the gender from the matchable itself when that match fails. Gender is declared
+    #   per slot in formations.xml (and per dancer in a call's <tam>), so it is DATA; the couple is
+    #   declared nowhere, so away from home it stays UNKNOWN_COUPLE. Measured on a synthesised
+    #   Two-Faced Lines board: 4 boy + 4 girl with couples=[0], whereas a home-like board
+    #   ("Static Square") comes back with real genders AND couples 1-4.
 
   @bind:boardForFormation @bind:recognize
   Scenario: A synthesised formation board is still geometrically correct
     Given a board is synthesised for a named formation
     When the engine recognises it
     Then it must recognise back to that same formation name
-    And the geometry must stand on its own even though the dancer identities are placeholders
-    # The geometry is trustworthy on a synthesised board; only the identity axis is not.
+    And the geometry must stand on its own regardless of the dancer identities
+    # The geometry is trustworthy on a synthesised board; recognition ignores gender anyway.
 
   @bind:parseFormations @bind:buildCall
   Scenario: Full-set and half-set definitions have equal boys and girls
@@ -140,6 +142,5 @@ Feature: Home Identity, Heads and Sides
     #          definitions: a 4-dancer DEFINITION is a half-set that mirrors to 8 and must be
     #          2 and 2, whereas a 4-dancer BOARD is the boys (or centers) acting and may be all
     #          one gender. The audit asserts both all-boys and all-girls subset boards are
-    #          reported, not failed. A synthesised formation board currently carries all
-    #          'phantom' (no identity yet) and is likewise reported; Phase 6 will stamp the
-    #          formation's DECLARED gender and the check then applies to it too.
+    #          reported, not failed. Every synthesised formation board now carries real declared
+    #          genders, so this check applies to all of them (0 are "identity unknown" today).

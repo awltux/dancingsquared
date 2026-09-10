@@ -122,7 +122,7 @@ for (const name of seq.listFormations()) {
   if (t.real === 0) unknownIdentity++;
   else judge('board', `synthesised "${name}"`, b.dancers.map((d) => d.gender), boardRequiresBalance);
 }
-console.log(`  ${unknownIdentity} synthesised boards carry no identity yet (Phase 6 will stamp the declared gender)`);
+console.log(`  ${unknownIdentity} synthesised boards carry no identity yet (all genders unknown)`);
 
 // A subset board may legitimately be ALL ONE GENDER - that is what makes "all boys"
 // / "all girls" calls callable - so the boys-only and girls-only subsets of the set

@@ -233,3 +233,79 @@ A call is performed **simultaneously by every group of dancers to whom the call 
 This parallel-action principle is central to square dancing: the caller names one call, and it is executed by all relevant groups concurrently, so the whole set moves together.
 
 
+## 8. Data Invariants
+
+### 8.1 Gender Balance
+
+Every **full-set (8-dancer)** and **half-set (4-dancer)** definition — a formation in
+`formations.xml`, or a call setup in a `<tam>` — must contain the **same number of boys
+and girls**. A half-set is completed to the full set by rotating it 180° about the
+centre (§7.1), so a balanced half is what makes a balanced whole; an imbalance in
+either is a **data error** (a mistyped `gender` attribute), not a choreographic
+choice.
+
+**Subset and partial setups are exempt** (§7.2): they genuinely describe a smaller
+group, so they are legitimately unbalanced — and a subset can be **all one gender**,
+which is exactly what makes an "all boys" / "all girls" call callable. Measured
+examples in the current catalogue: "Beaus Only" (2 boys), "Belles Only" (2 girls),
+"Center 4 Dancers", "Step to a Wave from Facing Dancers" (1 dancer), "Columns of
+3"/"Columns of 6" (authored as 3 dancers), "Compact Wave of 6" (a formation authored
+as 3 dancers). All such cases have an odd dancer count (1, 3) or an explicitly
+gender-scoped `from=` label.
+
+Note the rule differs between a **definition** and a **board**:
+
+- A **definition** of 4 dancers is a half-set that mirrors to 8 (§7.1), so it must be
+  2 and 2. Failing to be balanced there is a data error.
+- A **board** of fewer than 8 dancers is a *subset board* — the boys acting, the
+  centers acting — and may legitimately be all one gender. Only a board holding the
+  whole set (8 dancers) must be balanced.
+
+This invariant is enforced as a **build error** by `engine/test/gender-audit.mjs`,
+which runs first in `npm run verify`: it fails on an unbalanced 8- or 4-dancer
+formation or setup, and reports the exempt subset cases for information. It also
+checks boards — a board holding real genders must be balanced; a board whose genders
+are all `phantom` is reported as "identity unknown" rather than failed (§8.2).
+
+### 8.2 Identity Is Real Data, Never Derived From Position
+
+Two rules, both enforced by `features/index_independence.feature`:
+
+- **Indexes are meaningless.** The board index, the call index and the formation
+  index carry no correspondence between them; matching derives the mapping from
+  coordinates and rotation alone.
+- **Identity comes from the data.** A dancer's home couple and gender are the
+  formation's or setup's *declared* values or they are unknown (`UNKNOWN_COUPLE` /
+  `phantom`) — never invented from an array position. Anything unknown must not act
+  as identity: it is skipped by the matching tie-break, resolves no couple-based
+  grouping, and imposes no couple-coherence constraint.
+
+
+## 9. Open Items
+
+Remaining planned work, in the order agreed:
+
+1. **Phase 3 — Amendment policy for synthesised boards.** `FsmStore.amend` requires
+   a getout, which a geometry-only board cannot provide, so every amendment from a
+   formation that was not danced to is rejected with "no getout". No UI wires this
+   yet, so it is latent; the decision needed is whether to skip the gate (recording
+   why) or treat such formations as unamendable.
+2. **Phase 4 — Coverage and spec alignment.** Audit checks for the bounded
+   non-geometric matching exceptions (§8.2), a decision on the editor's
+   "no match within tolerance" wording, and an explicit runtime-join check.
+3. **Phase 5 — Hygiene.** `knownFormation` is the last loose-tolerance (6.0)
+   outlier, deliberately permissive for legality; review whether it should follow
+   the tight recognition threshold.
+4. **Phase 6 — Carry the declared gender onto synthesised boards.**
+   `formations.xml` declares a `<dancer gender="…">` per slot and `parseFormations`
+   parses it, but `CallLibrary` discards it when building the named formations
+   (`library.ts`), which is why a synthesised board had to invent identity: first an
+   index-derived couple and a hard-coded `boy`, now an honest but gating-free
+   `phantom`. Carrying the declared gender through and stamping it on synthesised
+   boards restores gender gating for Set-formation boards **and** removes the false
+   rejections the fabricated `boy` caused (e.g. `Circle Left` was rejected from a
+   `Circle` board although it is plainly legal there). It is real data, so it
+   satisfies §8.2.
+
+
+

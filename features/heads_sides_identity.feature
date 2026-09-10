@@ -104,3 +104,42 @@ Feature: Home Identity, Heads and Sides
     Then it must recognise back to that same formation name
     And the geometry must stand on its own even though the dancer identities are placeholders
     # The geometry is trustworthy on a synthesised board; only the identity axis is not.
+
+  @bind:parseFormations @bind:buildCall
+  Scenario: Full-set and half-set definitions have equal boys and girls
+    Given a formation in formations.xml or a call setup in a tam
+    When it describes the whole set (8 dancers) or a half set (4 dancers)
+    Then it must contain the same number of boys as girls
+    And an imbalance must be reported as a DATA ERROR, failing the developer build
+    # Engine: engine/test/gender-audit.mjs runs first in npm run verify and fails on an
+    #          unbalanced 8- or 4-dancer definition. A half-set is completed to the full set by
+    #          rotating it 180 degrees (square-dancing.md 7.1), so a balanced half is what makes
+    #          a balanced whole; an imbalance in either is a mistyped gender attribute rather
+    #          than a choreographic choice. Measured: 273 formations and 802 call setups, 0
+    #          unbalanced among the 8- and 4-dancer definitions.
+
+  @bind:parseFormations @bind:buildCall
+  Scenario: Subset and partial setups are exempt from the balance rule
+    Given a setup describes a SUBSET of the set rather than the whole or a half
+    And a subset can legitimately be ALL ONE GENDER
+    When the gender audit runs
+    Then it must report the setup for information rather than failing the build
+    # Engine: square-dancing.md 7.2 - "Beaus Only" is two boys by definition, "Center 4 Dancers"
+    #          and "Columns of 3" are partial groups. A subset being all one gender is what makes
+    #          an "all boys" / "all girls" call callable, so it is never an error. In the
+    #          catalogue these have an odd dancer count (1, 3) or a gender-scoped from= label.
+
+  @bind:boardForFormation @bind:assignHomeIdentity @bind:matchFormations
+  Scenario: A board with real genders must be balanced, but a subset board need not be
+    Given a board carries real boy and girl identities
+    When the gender audit inspects it
+    Then a board holding the WHOLE set (8 dancers) must have equal boys and girls
+    But a board holding fewer dancers is a subset board and may be all one gender
+    And a board whose genders are all unknown is reported as unknown rather than failed
+    # Engine: the home square is 4 and 4. The audit uses a NARROWER rule for boards than for
+    #          definitions: a 4-dancer DEFINITION is a half-set that mirrors to 8 and must be
+    #          2 and 2, whereas a 4-dancer BOARD is the boys (or centers) acting and may be all
+    #          one gender. The audit asserts both all-boys and all-girls subset boards are
+    #          reported, not failed. A synthesised formation board currently carries all
+    #          'phantom' (no identity yet) and is likewise reported; Phase 6 will stamp the
+    #          formation's DECLARED gender and the check then applies to it too.

@@ -93,6 +93,11 @@ Working rules that have paid off repeatedly:
 
 ## 4. Remaining work
 
+**`PLAN.md` is the phased order**, and it carries one correction to §4.1 below that changes what
+step 4d means: the dominant cause of the `Trade`/`Run` failures is not variant *selection* but that
+the engine registers variants Taminations' own sequencer refuses (`sequencer="no"`). Read §4.1 here
+for the symptom, and `PLAN.md` §2 for the measurement.
+
 ### 4.1 Next step: `Trade` / `Run` variant selection (step 4d)
 
 The corpus's **top engine gap** (`Boys Trade` 4×, plus `Run`), and upstream of **6 of the 9
@@ -105,13 +110,48 @@ template `Boys Trade` moves the **girls**. Requirements it must satisfy are alre
 `prd.md` §9.5.1 (variant selection uses declared gender + the designated dancers' actual
 geometry, and moves only the dancers it names).
 
+**Corrected by measurement (`PLAN.md` §2).** That requirement is real, but it is the *second* half
+of the fix. `engine/src/convert.ts:273` reads only the exact string `'gender-specific'` from the
+`sequencer` attribute, so the three other values Taminations defines — `no`, `perimeter`, `exact`
+(`taminations-flutter/lib/animated_call.dart:157-168`) — are dropped and those `<tam>`s register as
+ordinary setups. The reference sequencer skips them outright
+(`taminations-flutter/lib/sequencer/calls/xml_call.dart:57-59`). Measured over all 556 asset files:
+**5948 authored `<tam>`, 271 of them `sequencer="no"` across 61 titles, and 32 titles with no
+eligible variant at all.** `Boys Trade` is 24 variants — 12 eligible in `b2/trade.xml`, all
+`gender-specific`, and 12 `sequencer="no"` in `ms/trade.xml` with **identical `from` strings**, so
+the formation name cannot tell them apart — and `matcher.ts:43-71` takes least error over all 24.
+Probed directly, the winner on the `Ocean Waves` template and on corpus `[W1p]` is a
+`sequencer="no"` demo at `error=0.000`, while on `Normal Lines` it is the eligible setup. `Boys
+Run`, `Girls Run`, `Trade`, `Boys Fold` and `Centers Cast Off Three Quarters` have no eligible
+variant anywhere, so their winner is always a demonstration animation — which is why `B-Run`
+appears in 5 of the 9 refusing promenade lines.
+
+
 ### 4.2 Then: the decoder table (the largest single number)
 
 202 of 412 lines stop at a token our abbreviation table (`engine/test/lib/getout-decode.mjs`)
 cannot read — 97 distinct tokens. This is *our* gap, not the engine's, and it is mechanical, but
 it must stay **conservative**: a wrong expansion silently turns an engine gap into a phantom call
 name. Top tokens on the get-out pages: `DivTh(9) SHing(5) SpChT(4) RStar(4) PsTTC(3) G-RunL(3)`.
-Refresh: `node engine/test/getout-conformance.mjs` prints the ranking.
+Refresh: `node engine/test/getout-behaviour.mjs`.
+
+**Two corrections to the numbers above.** The 202/412/97 count is the *behaviour* harness's, over
+`getoutLines` **and** `plusLines` for the alignments that have a start board. The command named
+here used to be `getout-conformance.mjs`, which measures something else: **265 get-out lines, 134
+decoded (51%), 130 stopped at an unread token** — a different denominator. Neither harness prints
+the full ranking (conformance prints the top 14, behaviour the top 18), and both count
+**first-failure only**, so a token appearing only *after* an earlier unknown is invisible.
+
+There are therefore **two rankings in this repo that are not comparable**, and which one a token
+belongs to has to be settled before it is treated as a work queue:
+
+- the **all-occurrence** count in `square-dancing.md` §9.1 (`Plus`(22), `&Roll`(21), …), which
+  includes prose tokens; and
+- the **first-failure** count the harness prints, which filters prose out
+  (`getout-behaviour.mjs:102-109`).
+
+`&Roll` reads 21 in both only by coincidence of where it lands in a line; `LA` reads 14 vs 6.
+Recorded rather than reconciled — `PLAN.md` Phase 2 settles it by reporting both.
 
 ### 4.3 Then: the remaining call gaps, by corpus count
 
@@ -120,7 +160,7 @@ Refresh: `node engine/test/getout-conformance.mjs` prints the ranking.
 | `Box the Gnat` | 7 | exists, will not match the board it is reached from |
 | `Scoot Back`, `Recycle`, `Rollaway`, `Boys Fold`, `Ends Fold` | 3 each | same |
 | `Right Pull By`, `Do Paso`, `Turn Thru`, `Bend the Line`, `Trade the Wave` | 2 each | same |
-| `Cross Fold` | 2 | **indexed in `assets/src/calls.xml` with no implementation** |
+| `Cross Fold` | 2 | **indexed in `poc/src/assets/src/calls.xml:171` with no implementation** |
 | `1/2 Circulate`, `Join Hands` | 1 + 1 | absent from the catalogue entirely |
 | `Right and Left Grand` / `Allemande Left` | 16 / 4 | finish-only stops: legal-looking states the finish refuses |
 
@@ -136,6 +176,28 @@ depth 0 and the `transitionTable` build never finish (the features audit killed 
 `transitionTable` build after 20 minutes). So in the UI, `Getout` succeeds quickly and fails
 slowly. Needs an index — calls by start formation, or a cheap formation-only pre-filter — before
 the getout/fixIt surfaces are usable on a set with no getout.
+
+**Re-measured, and one claim above is stale.** On this checkout, with the `Sequencer` construction
+(~51 s) excluded:
+
+```
+legalCalls(board)                     L1p 1.47 s (286 legal)  B1c 1.29 s (198)  L.F1p 1.00 s (24)
+fixIt depth=0                         4.0-5.6 s                (578 calls offered)
+fixIt depth=1                         48.19 s                  (46 calls)
+getout maxCalls<=3                    ~0.00 s                  (succeeds; rigid/greedy fast path)
+[P4p] getout maxCalls=3 budget=400    134.60 s -> null         <-- the number to beat
+synthetic scattered board, budget=20  1.44 s -> null
+synthetic scattered board, budget=400 0.07 s -> null
+```
+
+So **`fixIt` beyond depth 0 does finish** — depth 1 in 48 s. The claim that it "never finishes" is
+stale; only the `transitionTable` build is unverified, and it is still the worst case on the list.
+The other correction: **`budget` is not the driver, the size of the reachable state space is.** The
+scattered board exhausts its `seen` set in 0.07 s at budget 400, while `[P4p]` (a real alignment)
+spends the whole budget for 134.6 s — so any before/after measurement must use a board with a large
+reachable state space, and `getout-convention.mjs` deliberately contains none (its own comment at
+`:132-135` says why). `PLAN.md` Phase 3 adds one behind an env flag.
+
 
 ### 4.5 Latent correctness items
 
@@ -229,8 +291,9 @@ it. (Aliases that are the *same call* are already handled in the engine — `Pro
 
 1. **Register calls by title, not file basename** — or `Pass Thru` (in `pass_thru.xml`) never
    registers and every corpus line "fails at its first call".
-2. **`assets/src/calls.xml` is an index, not implementations.** A title there with no `<tam>`
-   anywhere is a call the engine *knows* and cannot perform (`Cross Fold`, `1/2 Circulate`).
+2. **`poc/src/assets/src/calls.xml` is an index, not implementations** (there is no top-level
+   `assets/`). A title there with no `<tam>` anywhere is a call the engine *knows* and cannot
+   perform (`Cross Fold`, `1/2 Circulate`).
 3. **`getUniqueFormations` dedupes congruent shapes including reflection**, so it cannot name e.g.
    `Two-Faced Lines LH`; `recognize` does distinguish it.
 4. **`Sequencer.getout()`/`fixIt()` search the Sequencer's own board** — `setBoard(board)` first,

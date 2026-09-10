@@ -851,6 +851,18 @@ and upstream of 6 of the 9 promenade finishes that still refuse.
    at a token our abbreviation table cannot read, and that masks the engine's real coverage.
    Extending the table is mechanical but should stay conservative: a wrong expansion silently
    turns an engine gap into a phantom call name.
+
+   **Two measurement corrections.** (a) Those 202/412/97 numbers are `getout-behaviour.mjs`'s, over
+   `getoutLines` and `plusLines` for the alignments that have a start board;
+   `getout-conformance.mjs` measures a different denominator (**265** get-out lines, 134 decoded,
+   130 stopped). (b) The ranking in §9.1 is an ALL-OCCURRENCE count over every line and includes
+   prose tokens, while both harnesses count FIRST-FAILURE only and filter prose out
+   (`getout-behaviour.mjs:102-109`) — so the two lists are not comparable as a work queue
+   (`&Roll` 21 vs 21, `LA` 14 vs 6), and a token appearing only after an earlier unknown is
+   invisible in the harness count. `PLAN.md` Phase 2 settles it by reporting both. It also records
+   the related gap: a wrong expansion is currently undetectable, because
+   `getout-conformance.mjs:166` is a literal `check(true, …)`, and a phantom name is mis-attributed
+   to the ENGINE in `CATALOGUE GAPS`.
 2. **Move the All8 → engine call-name bridge into the engine.** `CALL_SYNONYMS` is empty, so
    `Touch 1/4`, `Cast Off 3/4` and `Do Sa Do` resolve only because the test harness maps them.
    Anyone consuming published choreography needs that bridge in the engine, where
@@ -876,6 +888,24 @@ and upstream of 6 of the 9 promenade finishes that still refuse.
    top engine gap (`4x`) and upstream of 6 of the 9 refused promenade finishes. `Cross Fold`
    is still indexed with no implementation, and `1/2 Circulate` and `Join Hands` are absent
    entirely.
+
+   **CORRECTION — this is two problems, and the upstream one comes first.** The engine ignores
+   the `sequencer` attribute except for the single value `gender-specific`
+   (`convert.ts:273`), while Taminations defines four (`animated_call.dart:157-168`: `perimeter`,
+   `exact`, `gender-specific`, `no`) and its own sequencer skips the last outright
+   (`xml_call.dart:57-59`). Measured over all 556 asset files: 5948 authored `<tam>`, 271
+   `sequencer="no"` across 61 titles, and **32 titles with no eligible variant at all**. So
+   `matcher.ts:43-71` picks least error over a superset that includes caller-school demonstration
+   animations. `Boys Trade` is 24 variants — 12 eligible in `b2/trade.xml` (all
+   `gender-specific`) and 12 `sequencer="no"` in `ms/trade.xml`, with IDENTICAL `from` strings, so
+   the formation name cannot tell them apart. Probed directly: the winner on the `Ocean Waves`
+   template and on corpus `[W1p]` is a `sequencer="no"` demo at `error=0.000`, while on
+   `Normal Lines` it is the eligible setup. The `Run` family (`Boys`/`Girls`/`Centers`/`Ends`),
+   `Trade`, `Boys Fold`, `Girls Fold` and `Centers Cast Off Three Quarters` have NO eligible
+   variant anywhere, so their winner is always a demonstration animation — which is why `B-Run`
+   appears in 5 of the 9 refusing promenade lines and leaves partners 4–6 apart. The `prd.md`
+   §9.5.1 selection rule is therefore the SECOND half of the fix, applied over the eligible set.
+   See `PLAN.md` §2 and Phase 1.
 8. **The isolated selection reading can be unsound (§9.1 step 4a).** It centres the subset and
    matches with normal rotation tolerance, so an arbitrary pair can satisfy a two-dancer setup;
    `Centers Pass Thru` from Facing Lines currently resolves two dancers (one an end) rather than
@@ -894,6 +924,18 @@ and upstream of 6 of the 9 promenade finishes that still refuse.
     54–102 s on the corpus; `fixIt` beyond depth 0 and the `transitionTable` build do not finish
     at all. Needs an index (calls by start formation, or a cheap formation-only pre-filter)
     before the UI's getout/fixIt surfaces are usable on a set with no getout.
+
+    **CORRECTION (re-measured).** `fixIt` beyond depth 0 DOES finish: depth 1 in 48.19 s, offering
+    46 calls (depth 0 is 4.0–5.6 s and offers 578). Only the `transitionTable` build remains
+    unverified, and it is still the worst case here. The pinned negative is `[P4p]` at
+    `getout({maxCalls:3, budget:400})` = **134.60 s → null**. And the driver is NOT `budget` but the
+    size of the reachable state space: a synthetic scattered board exhausts its `seen` set in
+    0.07 s at budget 400 while `[P4p]` spends the whole budget for 134.6 s — so a before/after
+    measurement needs a large-state-space board, which `getout-convention.mjs` deliberately does
+    not contain (see its comment at `:132-135`; `PLAN.md` Phase 3 adds one behind an env flag).
+    The per-node cost is dominated by the equivalents widening: `searchCandidates` calls
+    `equivalentCalls` once per DISTINCT end board, and each re-loops the catalogue
+    (`solver.ts:129-136` → `:102`), i.e. L × C applies per node with L = 24–286 and C = 2211.
 11. **`boardSig` ignores facing.** The BFS does not distinguish a board from its re-faced twin,
     which is what makes pivots prune cleanly, but it also means two genuinely different states
     share a dedup signature. Anything whose answer depends on facing must key on the full pose

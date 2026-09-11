@@ -1397,11 +1397,15 @@ job it was built for: the declared-gap list cannot silently drift out of date.
   behaviour as a band — 0.50 must still be accepted, 0.75 must not — so a change to either the
   constant or the `/12` divisor fails. It also pins that translation, rotation and reflection keep a
   board "known", since a rigid motion failing to match would be a bug rather than a tolerance.
-- **Feature specs are the biggest documentation gap.** Nothing covers the All8 alignment/corpus
-  work steps 1–3 (`boardFromDiagram`, `arrangementFor`, `sequenceFor`, `relationshipStateOf`),
-  nothing covers the solver/getout search, nothing covers the call editor.
+- **Feature specs are the biggest documentation gap.** ~~Nothing covers the All8 alignment/corpus
+  work steps 1–3 (`boardFromDiagram`, `arrangementFor`, `sequenceFor`, `relationshipStateOf`)~~ —
+  **DONE**: `features/alignment_derivation.feature` covers the two independent routes to a board (the
+  diagram path and the FASR-code path, cross-checked against each other), the 576-assignment identity
+  enumeration, arrangement/sequence read off the live board rather than stored on it, and why a
+  relationship letter is WITHHELD rather than guessed. `features/all8_format.feature` covers the
+  import/export codec. Still uncovered: the solver/getout search, and the call editor.
   `features/resolve_calls.feature` is the model — `@bind:`-tagged, with the engine behaviour in
-  comments, so `bind-audit` catches rot. Add one per phase as that phase lands.
+  comments, so `bind-audit` catches rot (110 tags across 21 files, 0 missing). Add one per phase as that phase lands.
 - **`transitionTable` / `map-tips.mjs`:** keep `poc-matrix/` out of `verify`; run `map-tips.mjs`
   whenever the FSM is touched.
 

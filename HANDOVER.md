@@ -121,18 +121,27 @@ close with `Promenade`. `[P4p]` is the only negative.
 
 ```powershell
 npm run build --prefix engine                 # tsc
-npm run verify --prefix engine                # the whole gate suite: RUN IT IN THE BACKGROUND
-                                              # (it takes several minutes and exceeds the
-                                              #  foreground command cap)
+npm run verify:light --prefix engine          # the FAST subset (~55s): use this while iterating
+npm run verify --prefix engine                # the whole gate suite (~9 min): PRE-COMMIT. RUN IT IN
+                                              # THE BACKGROUND (it exceeds the foreground command cap)
 node engine/test/promenade.mjs                # or any single harness, from the repo root
 node engine/test/getout-behaviour.mjs         # the corpus measurement (a report, not a gate)
 ```
 
+**Two tiers, one list.** The full suite is ~9 minutes and very lopsided: measured here, eight
+corpus-scale harnesses are 91% of it (`alignment-boards` 128s, `behaviour-audit` 102s, `selection`
+60s, `getout-convention` 52s, `all8-format` 44s, `getout-behaviour` 44s, `getout-conformance` 39s,
+`promenade` 33s) while the other **eleven finish in ~55s together**. `verify:light` runs those
+eleven. Both tiers come from ONE list in `engine/test/verify-suite.mjs`, with the tier as a field on
+each entry and a `why` recording what is skipped — two separate lists is how a harness gets added to
+one and forgotten in the other, which this repo has been bitten by more than once. **`light` is a
+subset, not a weaker check**: the same harnesses with the same assertions, just fewer of them.
+
 The gates, and what each one pins: `gender-audit`, `verify` (engine smoke), `sequencer`,
 `mainstream`, `matrix`, `matrix-getout`, `editor`, `features`, `bind-audit` (every `@bind:` tag
-resolves), `behaviour-audit`, `selection`, `promenade`, `getout-convention`,
-`all8-formation-map`, `alignment`, `alignment-boards`, `getout-conformance`,
-`getout-behaviour` (report).
+resolves) — all of the above are in `light` — then `behaviour-audit`, `selection`, `promenade`,
+`getout-convention`, `all8-formation-map` (light), `alignment` (light), `alignment-boards`,
+`getout-conformance`, `getout-behaviour` (report).
 
 Working rules that have paid off repeatedly:
 

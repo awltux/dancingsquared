@@ -1452,9 +1452,17 @@ job it was built for: the declared-gap list cannot silently drift out of date.
   answer, the `getin`/`fixIt` bounds being different on purpose, and the two cheap non-search answers
   (`matrixGetout`, `closenessToHome`). It also documents the API shape that bites —
   `Sequencer.getout(opts)` searches its OWN board, which cost a round of invalid measurements here
-  (HANDOVER §6, trap 4). Still uncovered: the call editor.
+  (HANDOVER §6, trap 4). **`features/call_editor.feature` closes the gap**: the editor does not author
+  choreography, it RE-FRAMES an existing core (`[newStart] --padIn--> [coreStart] --core--> [coreEnd]
+  --padOut--> [newEnd]`), which is why the whole file rests on one property — the correspondence
+  between the new formation and the core is DERIVED from geometry, never assumed from array order —
+  and why `rigidFit` is rotation+translation with **no reflection** (a mirrored formation is the other
+  formation, so a reflected fit is geometrically close and choreographically wrong). Also covered:
+  closure measured as a dancer SET with position and heading reported separately, half-set correction
+  (the mirror is an involution), and XML export so a synthesized setup becomes an ordinary asset.
+  **Every area this item listed now has a spec.**
   `features/resolve_calls.feature` is the model — `@bind:`-tagged, with the engine behaviour in
-  comments, so `bind-audit` catches rot (113 unique tags across 22 files, 0 missing). Add one per phase as that phase lands.
+  comments, so `bind-audit` catches rot (119 unique tags across 23 files, 0 missing).
 - **`transitionTable` / `map-tips.mjs`:** keep `poc-matrix/` out of `verify`; run `map-tips.mjs`
   whenever the FSM is touched.
 

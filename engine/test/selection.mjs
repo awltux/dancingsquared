@@ -28,7 +28,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS } from '../dist/index.js';
+import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS, matchFormations } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 // Deep import, like bind-audit.mjs does for internal collaborators: boardSig is deliberately NOT
 // part of the package's public surface.
@@ -689,6 +689,62 @@ console.log('\n== FSM amendment policy: CORRECTION, and the API trap that fooled
   if (noFormation.ok) fail('an amendment from an unknown formation was accepted');
   else ok(`an amendment from an unknown formation is refused: ${noFormation.reason}`);
   seq.clearAmendments();
+}
+
+console.log('\n== the NON-GEOMETRIC inputs to matching are exactly two, and both bounded (§8.2) ==');
+// square-dancing.md §8.2: identity is REAL DATA, never derived from position, and "anything unknown
+// must not act as identity". The audit that follows from that is a BOUND: matching may consult
+// non-geometric information in exactly two ways, and neither may turn a worse geometric match into a
+// winner.
+//
+//   1. the GENDER gate, which is OPT-IN (requireGender) and binary;
+//   2. the identity TIE-BREAK, which may only choose between equally-good geometric matches.
+//
+// Measured, not assumed. The load-bearing assertion is the first: the match ERROR must be bit-for-bit
+// independent of `couple`. If identity could add cost, a board with plausible-looking couples would
+// beat a geometrically better one - which is precisely the "identity laundered out of position"
+// failure §8.2 forbids. The rest pin that gender GATES rather than SCORES, and that matching itself
+// stays geometric under the rotation and reflection it searches over.
+{
+  const line = [
+    { x: -3, y: 1, heading: 0, gender: 'boy', couple: 1 },
+    { x: -1, y: 1, heading: 0, gender: 'girl', couple: 1 },
+    { x: 1, y: 1, heading: 0, gender: 'boy', couple: 2 },
+    { x: 3, y: 1, heading: 0, gender: 'girl', couple: 2 },
+  ];
+  const couplesTo = (a, f) => a.map((d) => ({ ...d, couple: f(d) }));
+  const err = (m) => (m === null ? null : m.error);
+
+  const base = err(matchFormations(line, line, 6.0, false));
+  const zeroed = err(matchFormations(line, couplesTo(line, () => 0), 6.0, false));
+  const swapped = err(matchFormations(line, couplesTo(line, (d) => (d.couple === 1 ? 2 : 1)), 6.0, false));
+  if (base === null || zeroed === null || swapped === null) {
+    fail('the reference line does not match itself');
+  } else if (zeroed !== base || swapped !== base) {
+    fail(`COUPLE changes the match error (${base} vs unknown ${zeroed} vs swapped ${swapped}) - identity has become a geometric cost`);
+  } else {
+    ok(`the match error is independent of couple (${base.toFixed(4)} whether couples are declared, unknown or permuted)`);
+  }
+
+  // The gender gate must be opt-in, and must GATE rather than SCORE: admitting a match may not
+  // change its error, only whether it is admitted at all.
+  const gendersFlipped = line.map((d) => ({ ...d, gender: d.gender === 'boy' ? 'girl' : 'boy' }));
+  const offFlipped = err(matchFormations(line, gendersFlipped, 6.0, false));
+  const onFlipped = err(matchFormations(line, gendersFlipped, 6.0, true));
+  const onSame = err(matchFormations(line, line, 6.0, true));
+  if (offFlipped !== base) fail('with the gender gate OFF a gender-swapped target should still match geometrically');
+  else if (onFlipped !== null) fail('with the gender gate ON a fully gender-swapped target was admitted');
+  else if (onSame !== base) fail(`the gender gate changed the error (${base} -> ${onSame}) - it is scoring, not gating`);
+  else ok('the gender gate is opt-in and binary: off admits a gender-swapped target at the same error, on rejects it, and admitting costs nothing');
+
+  // ...and matching stays geometric under the symmetries it searches over.
+  const rot = line.map((d) => ({ x: -d.y, y: d.x, heading: d.heading + Math.PI / 2, gender: d.gender, couple: d.couple }));
+  const mir = line.map((d) => ({ x: -d.x, y: d.y, heading: -d.heading, gender: d.gender, couple: d.couple }));
+  const rotErr = err(matchFormations(line, rot, 6.0, false));
+  const mirErr = err(matchFormations(line, mir, 6.0, false));
+  if (rotErr === null || rotErr > 1e-9) fail(`a rotated copy does not match geometrically (error ${rotErr})`);
+  else if (mirErr === null || mirErr > 1e-9) fail(`a reflected copy does not match geometrically (error ${mirErr})`);
+  else ok('a rotated and a reflected copy both match at error ~0, so the search really is over rotation and reflection');
 }
 
 console.log('\n=================');

@@ -1407,8 +1407,17 @@ job it was built for: the declared-gap list cannot silently drift out of date.
 
   The original decision (an advisory gate recording `getoutVerified`, or unamendable) therefore still
   has no evidence behind it. Still true: no UI wires this yet.
-- **Phase 4:** audit checks for the bounded non-geometric matching exceptions (§8.2); the editor's
-  "no match within tolerance" wording; an explicit runtime-join check.
+- **Phase 4:** ~~audit checks for the bounded non-geometric matching exceptions (§8.2)~~ — **DONE**:
+  §8.2 requires that identity be real data and that anything unknown not act as identity, which makes
+  the audit a **bound**. Matching may consult non-geometric information in exactly two ways, and
+  `selection.mjs` now pins both: (1) the **gender gate** is opt-in and binary — off admits a fully
+  gender-swapped target at the same error, on rejects it, and admitting costs nothing, so it *gates*
+  rather than *scores*; (2) the **identity tie-break** may only choose between equally-good geometric
+  matches, pinned by the load-bearing assertion that the match **error is bit-for-bit independent of
+  `couple`** (declared, unknown or permuted). If identity could add cost, a board with plausible
+  couples would beat a geometrically better one, which is exactly the "identity laundered out of
+  position" failure §8.2 forbids. Also pinned: rotated and reflected copies both match at error ~0.
+  Still open: the editor's "no match within tolerance" wording; an explicit runtime-join check.
 - **Phase 5:** ~~`knownFormation` is the last loose-tolerance (6.0) outlier.~~ **DONE**: measured, and
   the constant is *misleading rather than loose*. `error` is a sum over all dancers, but
   `matchEqualLength`'s distance-signature pre-filter binds first, at `maxError / 12` — so the

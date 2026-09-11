@@ -1308,6 +1308,51 @@ The fast tier is now nearly four times faster than it was before this round whil
 more. The full tier should drop by a similar amount, since `behaviour-audit`, `alignment-boards`,
 `selection` and the other corpus-scale harnesses are all full-catalogue.
 
+#### round 36: reading the FIGURE page from All8's authoritative key
+
+`abbrlist.htm` was fetched and used directly rather than inferred from. The decoder table had been
+built from the GET-OUT corpus, and the figure page is a different vocabulary sample, so it was missing
+a whole layer of ordinary forms. The headline is Promenade fractions: All8 writes `Pr1/2` for
+"Promenade Half Way Around" and lets the DESIGNATOR say who, so `H-Pr1/2` expands through the group
+handler to `Heads Promenade 1/2` - which is the catalogue's own title (as are the Sides, 3/4 and Full
+forms). That one pattern was **36 of the 109 unread cells**.
+
+```
+fig_m unread cells    109 -> 20    (46 -> 13 distinct tokens)
+fig_m engine names    132 -> 157, of which the engine lacks 19
+get-out corpus        45 undecoded -> 41
+all8-format           17 checks passed / 1 failed -> 18 / 0
+```
+
+Also added, every one a literal entry in the key: `LrTrd`/`LrUTurn` (All8's `Lr` Leaders designator,
+which sits in the CALL positions so the group handler cannot reach it), `4LChn`/`4LCh3`, `CtsyT`,
+`LStar`/`StarL`/`StarR`, `ChgHn`, `FullT`, `SepA1`/`SepA2`, `Sp2A1`, `WalkA`, `YelRk`, `BW.GD`,
+`SFGrSqr`, `SlipC`, `ALTAT`, the `FaceL`/`FaceR`/`FaceO` facings beside the existing `FaceI`, and the
+whole `Tag` family (`TagR`/`TagL`, plus the `.`-spelled `Tag.I`/`Tag.R` the punctuation table says is
+the same token). Five source MISSPELLINGS in the published page (`LaedR`, `PsOan`, `ChDLT`, `Clov`,
+`SpnTp`, `UTrun`) are kept as explicit aliases, never by fuzzy matching, so they stay visible.
+
+**The corpus did not get better in the way the scoreboard's headline suggests**, and it is worth
+being precise: `45 -> 41` undecoded, but body stops went `131 -> 135`, because four lines that used to
+stop at an unreadable token now decode and stop later, on a call that will not apply. No line lost a
+success (reached-finish stays 130, reached-resolve stays 8). Progress that moves a failure later is
+still progress, but it is not the same thing as a line being danced.
+
+**Two gates caught mistakes this round, both correctly:**
+- `getout-conformance` refused 12 new expansions that the engine does not implement. Ten are real
+  gaps and are now declared; `Leaders Trade` and `Leaders U-Turn Back` are NOT - `leaders` is a real
+  selection in `grouping.ts`, so the applicator dances both today. The gate now asks "does the engine
+  have it" the way the APPLICATOR does (title, coded move, or selection prefix plus a resolving base),
+  exactly as the figures suite does. `Boys Cross Run` still fails that test, so nothing is let through.
+- `all8-format` refused to round-trip a figure containing `Tag.R`: it expands to "Face Right", and the
+  exporter could not spell that back. That is what `FaceR`/`FaceL` were missing all along.
+
+It also exposed a **duplicated `KNOWN_CATALOGUE_GAPS`**: the engine had a copy and the harness had a
+copy, and they had drifted to 30 names vs 16 sharing 13 - the engine's was stale (still declaring
+`Eight Chain 1..5` and `Run Left`/`Run Right`, all of which the engine implements now). There is one
+list again, in the engine, re-exported by `getout-decode.mjs`. 158 table names, 26 declared gaps, no
+stale entries.
+
 
 ### Phase 4g — a second authoring, and it lands cleanly
 

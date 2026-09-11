@@ -109,6 +109,67 @@ export const TOKENS: Record<string, string> = {
   'Ca3/4': 'Cast Off 3/4',
   CtrIn: 'Centers In',
   PsOcn: 'Pass the Ocean',
+  // ---------------------------------------------------------------------------------------------
+  // READ FROM THE AUTHORITATIVE KEY (abbrlist.htm, fetched in round 36). Everything below is a
+  // literal entry in All8's own call-name list, which is why the expansions are not guesses. They
+  // were missing because the decoder table was built from the GET-OUT corpus, and these forms
+  // simply do not occur there - they are figure-page vocabulary.
+  // ---------------------------------------------------------------------------------------------
+
+  // PROMENADE FRACTIONS. All8: `Pr1/2` = "Promenade Half Way Around", `Pr3/4` = "Promenade 3/4",
+  // `Pr4/4` = "Promenade All The Way Around". The designator supplies who, so `H-Pr1/2` expands
+  // through the group handler to "Heads Promenade 1/2" - which IS the catalogue's own title (as
+  // are the Sides, 3/4 and Full forms). This one pattern is 41 of the 109 unread fig_m cells.
+  'Pr1/2': 'Promenade 1/2',
+  'Pr3/4': 'Promenade 3/4',
+  'Pr4/4': 'Promenade Full',
+
+  // `Lr` is All8's Leaders/Lead Couple designator, and it sits in the CALL positions in these two
+  // (`LrTrd`, `LrUTurn`), so the group handler cannot reach them - it only knows whole-group
+  // designators. 6 occurrences of `LrTrd` makes it the second-biggest fig_m gap.
+  LrTrd: 'Leaders Trade',
+  LrUTurn: 'Leaders U-Turn Back',
+
+  // Hand-count chains. All8's key gives `4LChn` and `4LCh3`; the engine's title spells the number
+  // out ("Four Ladies Chain"), which is exactly the kind of All8-name/engine-name mismatch that
+  // must be BRIDGED here rather than counted as a gap.
+  '4LChn': 'Four Ladies Chain',
+  '4LCh3': 'Four Ladies Chain 3/4',
+
+  // Direct entries from the key. (`LeadR` already exists above, in the fourth pass.)
+  CtsyT: 'Courtesy Turn',
+  LStar: 'Left Hand Star',
+  StarL: 'Left Hand Star',
+  StarR: 'Right Hand Star',
+  ChgHn: 'Change Hands',
+  FullT: 'A Full Turn',
+  SepA1: 'Separate Around One',
+  SepA2: 'Separate Around Two',
+  Sp2A1: 'Split the Outside Couple',
+  WalkA: 'Walk Across',
+  YelRk: 'Yellow Rock',
+  'BW.GD': 'Boys Walk, Girls Dodge',
+  SFGrSqr: 'Sides Face, Grand Square',
+  SlipC: 'Slip the Clutch',
+  ALTAT: 'Allemande Left to an Allemande Thar',
+
+  // SOURCE MISSPELLINGS in fig_m.htm. Each of these appears once or twice on the page next to many
+  // correct spellings of the same token, so they are typos in the published data rather than a
+  // second abbreviation. Kept as explicit aliases (not by fuzzy matching) so they stay visible.
+  LaedR: 'Lead Right', // `H-LeadR` is spelled correctly twice; `H-LaedR` once
+  PsOan: 'Pass the Ocean', // for `PsOcn`
+  ChDLT: 'Chain Down the Line', // for `ChDTL`
+  Clov: 'Cloverleaf', // for `Clovr`
+  SpnTp: 'Spin the Top', // for `SpTop`
+  UTrun: 'U-Turn Back', // for `UTurn`; fig_m writes `B-UTrun` where the key says `UTurn`
+
+  // The remaining three FACINGS. `FaceI` was already here; the key lists `FaceL`/`FaceR`/`FaceO`
+  // beside it, and the engine implements all four as coded pivots. Missing them cost the
+  // get-out corpus `FaceR` and `G-FaceR`, and broke the FIGURES round trip, because a figure
+  // containing `Tag.R` expands to "Face Right" and the exporter could not spell it back.
+  FaceL: 'Face Left',
+  FaceR: 'Face Right',
+  FaceO: 'Face Out',
   CalTw: 'California Twirl',
   ChasR: 'Chase Right',
   FwdBk: 'Forward and Back',
@@ -288,6 +349,15 @@ export const MULTI_TOKENS: Record<string, string[]> = {
   'RolPr': ['Roll', 'Promenade'],
   // `Tag_I` is All8's same compound spelled with an underscore.
   'Tag_I': ['Tag the Line', 'Face In'],
+  // ...and fig_m.htm spells it with a PERIOD. All8's punctuation table says "." in a call name has
+  // no special meaning, so `Tag.I` is the same token as `TagI`; it just never appeared in the
+  // get-out lists, which is why the period form went unnoticed until the FIGURES were read.
+  'Tag.I': ['Tag the Line', 'Face In'],
+  'Tag.R': ['Tag the Line', 'Face Right'],
+  // The key gives the whole Tag family: `TagL`/`TagM`/`TagO`/`TagR` beside `TagI`. `TagR` and
+  // `TagL` were both showing up unread in the get-out corpus.
+  TagR: ['Tag the Line', 'Face Right'],
+  TagL: ['Tag the Line', 'Face Left'],
 };
 
 /** Tokens that MODIFY the preceding call instead of naming one.
@@ -336,11 +406,11 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   'Right-hand Star',
   'Sweep 1/4',
   '1/2 Tag',
-  'Eight Chain 1',
-  'Eight Chain 2',
-  'Eight Chain 3',
-  'Eight Chain 4',
-  'Eight Chain 5',
+  // `Eight Chain 1` .. `Eight Chain 5` USED TO BE HERE, and they were WRONG. The catalogue does
+  // implement them - it spells the number out (`Eight Chain One` .. `Eight Chain Seven`) while All8
+  // writes the digit - and the bridge is the digit-to-text loop in CALL_SYNONYMS. This copy of the
+  // list was a STALE DUPLICATE of the harness's, which had already dropped them; the two had drifted
+  // to 30 names vs 16 sharing 13. There is now one list (this one) and the harness re-exports it.
   'Ladies In And The Men Sashay',
   'Cross Run',
   'See Saw',
@@ -350,8 +420,35 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   // and 4, so the ONE-hand version is the odd one missing, and All8 uses it (`--SqTh1 --AL`).
   'Square Thru 1',
   'Circle 2',
-  'Run Left',
-  'Run Right',
+  // `Run Left` and `Run Right` USED TO BE HERE too, wrong for the same reason: the engine DOES
+  // perform them. They are the derived `Run` with the side constrained, registered in
+  // coded-moves.ts (runRule takes an optional direction), so the corpus's "Run Left is not legal
+  // for selected dancers" was a missing REGISTRATION rather than a missing call.
+  // Third pass: the FIGURE page's vocabulary (fig_m.htm), read against the authoritative key. All
+  // of these are declared because the engine genuinely has no such call - NOT because the reading
+  // is uncertain; every expansion in TOKENS above is a literal entry in All8's key.
+  //
+  // The three Promenade fractions are the interesting case: the BARE name is not a title, but the
+  // designator forms ARE (`Heads Promenade 1/2`, `Sides Promenade 3/4`, `Heads Promenade Full` are
+  // all real catalogue titles), so `H-Pr1/2` dances fine while this table entry - which exists only
+  // so the designator handler has something to prefix - is correctly called a gap.
+  'Promenade 1/2',
+  'Promenade 3/4',
+  'Promenade Full',
+  'Change Hands',
+  'A Full Turn',
+  'Separate Around One',
+  'Separate Around Two',
+  'Split the Outside Couple',
+  'Walk Across',
+  'Yellow Rock',
+  // These three were the ONLY entries in the harness's separate copy of this list that the engine's
+  // copy did not have. The two lists had drifted (30 names vs 16, sharing 13), so `getout-decode.mjs`
+  // now re-exports this one instead of defining its own - the same two-lists mistake the verify-suite
+  // header warns about, caught by a gate failing when the engine's list grew.
+  'Back Up',
+  'Square Thru 5',
+  'Trade Right',
 ]);
 
 /**

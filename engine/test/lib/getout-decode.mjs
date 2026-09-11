@@ -20,62 +20,14 @@ export { TOKENS, MULTI_TOKENS, REPEAT_TOKENS, SUFFIX_TOKENS, GROUP, tokenize, de
 /**
  * Names All8 uses that the catalogue genuinely does NOT implement.
  *
- * This list exists to make "this is a real catalogue gap" DIFFERENT from "we mis-expanded a
- * token", which are otherwise indistinguishable from the outside: before this, a mis-expansion
- * showed up as an absent name and was reported as an engine deficiency. Declaring each one is
- * what lets `getout-conformance.mjs` require every OTHER token to expand to a call the engine
- * actually has, and fail loudly if one does not.
- *
- * Measured (Phase 2): 59 of the table's 64 distinct names are implemented. These are the 5 that
- * are not, and they are genuine engine gaps, not decoding errors:
- *   Join Hands, 1/2 Circulate            - absent from the catalogue entirely
- *   Left Hinge                           - absent entirely (only bare `Hinge` exists)
- *   Fold, Cross Fold                     - in the index, with no <tam> anywhere
+ * RE-EXPORTED FROM THE ENGINE, NOT DEFINED HERE. This file used to carry its own copy, and the two
+ * copies DRIFTED: the engine's was left holding `Eight Chain 1`..`Eight Chain 5` and `Run Left`/
+ * `Run Right` (all of which the engine does implement now) and was missing `Back Up`, `Square Thru 5`
+ * and `Trade Right`. Two lists is how a table silently becomes two tables - the same mistake the
+ * verify-suite header warns about - so there is now ONE definition, in the engine, and this is the
+ * shim for it. `engine/test/catalogue.mjs` and `getout-conformance.mjs` both read it from here.
  */
-export const KNOWN_CATALOGUE_GAPS = new Set([
-  'Join Hands',
-  '1/2 Circulate',
-  'Left Hinge',
-  'Fold',
-  'Cross Fold',
-  // Confirmed by All8's own abbreviation list, so the READING is not in doubt - the engine simply
-  // does not implement the call. Declaring them here is what moves those corpus lines out of "our
-  // gap in reading All8" and into a correct engine-gap attribution. `Single Hinge` alone is 11
-  // lines, and the biggest single item left on the decoder ranking.
-  // `Single Hinge` and `Left Hand Hinge` are NOT here any more: Phase 6 bridged both to the
-  // engine's `Hinge` in CALL_SYNONYMS, which is where All8's own key puts them ("Hinge
-  // {designated} Hinge (prefer SHing if designating all)"; "LHing ... Hinge by the Left"). The
-  // gate's stale-gap check is what caught each of them in turn.
-  'Right-hand Star',
-  'Sweep 1/4',
-  '1/2 Tag',
-  // `Eight Chain 1` .. `Eight Chain 5` USED TO BE HERE, and they were WRONG - a misattribution of
-  // exactly the kind this list exists to expose. The catalogue does implement them; it titles them
-  // with the number SPELLED OUT (`Eight Chain One` .. `Eight Chain Seven`, the Plus programme's own
-  // naming), and All8 writes the digit form. The bridge is a digit-to-text conversion in
-  // CALL_SYNONYMS, and the gate's stale-gap check is what caught the five bogus declarations.
-  'Ladies In And The Men Sashay',
-  'Cross Run',
-  'See Saw',
-  // Second pass over All8's key. Each READING is authoritative (copied from the key, not inferred)
-  // and each was checked against `implementedTitles()`: the engine really has no such call. In
-  // particular `Square Thru 1` is a surprising gap - the catalogue ships Square Thru 1 1/2, 2, 3
-  // and 4, so the ONE-hand version is the odd one missing, and All8 uses it (`--SqTh1 --AL`).
-  'Square Thru 1',
-  'Circle 2',
-  // `Run Left` and `Run Right` USED TO BE HERE, and they were wrong for the same reason the Eight
-  // Chain entries were: the engine DOES perform them. They are the derived `Run` with the side
-  // constrained, now registered in coded-moves.ts (runRule takes an optional direction), so the
-  // corpus's "Run Left is not legal for selected dancers" was a missing registration rather than a
-  // missing call.
-  // Fourth pass, reported from All8's own pages. Each is a reading we are confident in and a call
-  // the catalogue does not implement, so declaring it is what moves the line out of "our reading
-  // gap" and into an honest engine-gap attribution.
-  'Back Up',        // `E-BakUp` = "Ends Back Up"
-  'Square Thru 5',  // `SqTh5`; the digit counts hands, and the catalogue stops at 4
-  'Trade Right',    // `B-TrdR` = "Boys Trade Right"
-]);
-
+export { KNOWN_CATALOGUE_GAPS } from "../../dist/sequencer/all8-notation.js";
 /**
  * Both token rankings over a set of published lines.
  *
@@ -114,7 +66,7 @@ export function decodeStats(lines) {
   return { total: lines.length, decoded, undecoded, firstFail, allOcc };
 }
 
-/** `token(count) token(count) …`, most frequent first, ties broken by token so a report is
+/** `token(count) token(count) â€¦`, most frequent first, ties broken by token so a report is
  * stable between runs. */
 export function formatRanking(counts, limit) {
   return [...counts.entries()]

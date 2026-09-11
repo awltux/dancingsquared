@@ -27,6 +27,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, Sequencer } from '../dist/index.js';
+import { splitSelection } from '../dist/sequencer/selection.js';
 import { catalogueTitles, implementedTitles, indexedTitles, engineNameFor, callsByTitle } from './lib/engine-calls.mjs';
 import { startBoardFor } from './lib/all8-boards.mjs';
 
@@ -149,9 +150,22 @@ if (topUnknown.length > 40) console.log(`    ... and ${topUnknown.length - 40} m
 // ---------------------------------------------------------------------------------------
 console.log('\n== Every abbreviation expands to a call the engine has, or a DECLARED gap ==');
 {
+  // "The engine has it" has to be asked the way the APPLICATOR asks it. A group-scoped datum like
+  // `Leaders Trade` is not a catalogue title - it is a selection prefix plus a base call, and
+  // `CallApplicator.applyToBoardInner` routes it through the selection path. `leaders` is a real
+  // selection in `grouping.ts`, so `Leaders Trade` dances today; calling it a gap because
+  // `implementedTitles()` does not list the string would be exactly the mis-attribution this
+  // section exists to prevent. The base call is still checked, so `Boys Cross Run` stays a gap
+  // (bare `Cross Run` is not implemented) and nothing is let through.
+  const implementedOrScoped = (name) => {
+    const n = engineNameFor(name);
+    if (implemented.has(n)) return true;
+    const s = splitSelection(n);
+    return !!s.selection && implemented.has(s.call);
+  };
   const declared = new Set([...Object.values(TOKENS), ...Object.values(MULTI_TOKENS).flat()]);
-  const undeclared = [...declared].filter((n) => !implemented.has(engineNameFor(n)) && !KNOWN_CATALOGUE_GAPS.has(n));
-  const declaredButStale = [...KNOWN_CATALOGUE_GAPS].filter((n) => implemented.has(engineNameFor(n)));
+  const undeclared = [...declared].filter((n) => !implementedOrScoped(n) && !KNOWN_CATALOGUE_GAPS.has(n));
+  const declaredButStale = [...KNOWN_CATALOGUE_GAPS].filter((n) => implementedOrScoped(n));
   const gapButNotUsed = [...KNOWN_CATALOGUE_GAPS].filter((n) => !declared.has(n));
 
   if (undeclared.length > 0) {

@@ -2259,6 +2259,124 @@ add and its *semantics* are the thing to check first, exactly as the note says.
 
 ---
 
+## Phase 9 — PROPOSED: what to do next, ranked by measurement
+
+Written after Phase 8 closed, and it **re-ranks the candidates by what they actually move**. Every
+number below was measured this round with throwaway `.mjs` probes (the plan's rule: `.mjs`, never
+`node -e`; probes deleted before the commit that records the finding).
+
+### The ranking, and the measurement that decides it
+
+| candidate | measured size | risk | measured payoff |
+|---|---|---|---|
+| **9a. The `Sw&Pr` tail — diagnose the bodies first** | **76 of 188 figures** stop only here | medium | potentially the whole target suite |
+| 9b. Finish the All8→engine name bridge | 18 figures change stop; 2 gaps removed | **low** | **0** more figures run end-to-end |
+| 9c. `Facing Couples` at separation 6 | 13 first-call failures | medium | 13 figures past call 0 |
+| 9d. Genuine missing calls (`Sweep 1/4`, `Join Hands`, …) | 5–6 corpus lines each | low | bounded |
+
+### 9a — the tail. Diagnose before writing anything (RECOMMENDED FIRST)
+
+Phase 8 recorded that **76 figures run their whole body and stop only at `--Sw&Pr` / `--Prom`**.
+The obvious reading — "the engine needs more `Swing` variants" — is now **half refuted**, and the
+measurement is worth having before anyone writes a variant:
+
+```
+Swing (the name All8's `Sw` decodes to) is legal from:   Ocean Waves only
+Swing Your Partner / Swing Your Corner are legal from:   Normal Lines only
+
+                                              Swing   SwingYourPartner  SwingYourCorner
+  Static Square                                no            no              no
+  Eight Chain Thru                             no            no              no
+  Trade By                                     no            no              no
+  Lines Facing Out                             no            no              no
+  Two-Faced Lines                              no            no              no
+  Ocean Waves                                 YES            no              no
+  Normal Lines                                 no           YES             YES
+  the ALLEMANDE-LEFT pose (where "Swing" is really called from)  no  no  no
+```
+
+So **the engine cannot perform any form of `Swing` from the two poses a caller actually says it
+from** — a squared set, and the allemande-left corner pose — and it can from `Normal Lines` only
+because that tiles into two `Facing Couples` boxes at separation 2. Two further facts sharpen it:
+
+- All8's `Sw` is the Mainstream call ("Swing (your partner or your corner, etc.)"), but the name
+  `Swing` in our registry is claimed by the **8-dancer wave/tidal/inverted-line** family from
+  `a2/slip.xml`, and the Mainstream call is registered as `Swing Your Partner` / `Swing Your
+  Corner` (calls register by `<tam title>`, and `ms/swing.xml` names its tams that way).
+- The last fact is the one that decides the **diagnosis over the fix**: the bodies are already
+  leaving **partners not standing as partners**. Figure 12's body has `Right and Left Thru` ending
+  with couple 1's partners **6 apart**, and the tail boards carry partners **4.47** apart — which is
+  exactly the reason the `Promenade` that follows refuses (the coded-move precondition is
+  "partners 2 apart"), and the same signature as 5 of the get-out corpus's own promenade refusals.
+  A board can be geometrically an `Eight Chain Thru` and still have the wrong dancers standing as
+  couples, because matching compares positions and only consults identity for the gender gate and
+  the tie-break.
+
+**First step, and it is a diagnosis rather than a fix:** a *couples-coherence survey* over both
+corpora — at every step of every figure and every get-out line, compare the dancers' carried
+`couple` labels against the pairing the matched formation implies, and report the FIRST call that
+breaks it. That converts "76 figures stop at the tail" into either *"N of them stop because call X
+pairs the wrong dancers"* (a Phase 4-class body fix, and it would move the get-out promenade
+refusals at the same time) or *"the bodies are coherent and the tail genuinely needs variants"*.
+Both answers are worth having, and the second is the one the current evidence no longer supports.
+
+**Gate:** whichever way it lands, `selection.mjs` gets the assertion, and the two corpora's
+scoreboards must move in the same direction for the body explanation to be the right one.
+
+### 9b — the bridge: cheap, certain, and measured to be worth nothing on the RUN metric
+
+Phase 6's own "Still open" says *"the rest of the bridge is unwritten … the same treatment should be
+applied to the index's alternative spellings."* Measured by normalising every one of the figures
+suite's **22 declared gaps** against `implementedTitles()`, **two are pure spelling differences, not
+gaps at all**:
+
+| All8 name | catalogue title | evidence |
+|---|---|---|
+| `1/2 Tag` (**13 figure stops** — the largest single item) | `Half Tag` | All8's key `1/2Tg  1/2 Tag`; `ms/fraction_tag.xml` ships `Half Tag`; and All8's own key reads `1/2` as "Half" elsewhere (`Pr1/2` = "Promenade Half Way Around") |
+| `Right-hand Star` (5) | `Right Hand Star` | All8's key `RStar  Right-hand Star  (also StarR)`; `ms/star.xml` ships `Right Hand Star`; identical but for the hyphen |
+
+Three more are *judgement-call equivalences* rather than spellings (`All 8 Circulate 1 1/2` →
+`Circulate 1 1/2`, which Phase 5c's already-gated dispatch supports **from a wave only**;
+`All Promenade 1/2` → `All 4 Couples Promenade 1/2`; `Split the Outside Couple` → `Centers Split the
+Outside Couple`), and the rest are genuine implementations.
+
+**And its measured payoff is zero for the figure that matters.** Simulating both certain bridges:
+**18 figures change their stopping point, and the count that runs end-to-end stays at 1.** Every one
+of the 18 simply advances to its next stop, which is the tail again (`Swing` 58 → 61, `Promenade`
+17 → 21). The bridge is still worth doing — it removes two false gaps and makes 18 stop-points
+honest, and the gate for it already exists (`getout-conformance` refuses a declared gap that has
+become implemented, which is how Phase 6 caught `Single Hinge`) — but it is a **cleanup**, not
+progress, and it should not be sold as more.
+
+The same simulation surfaced a new finding worth recording: `Centers Left Hand Star` becomes the
+stop for 5 figures once `Right-hand Star` resolves, and it is a **selection + implemented base**
+(`Centers` + `Left Hand Star`) that still will not apply — so it is an applicability failure, not a
+naming one, and it belongs to 9a's survey rather than to the bridge.
+
+### 9c — `Facing Couples` at separation 6
+
+Phase 8 recorded this in full: the 13 first-call failures are the **fourth** instance of
+`scaleX = separation / 2`, needing `separation 6 -> scaleX 3` with the formation written inline at
+`x = -3`. It is held back for one measurable reason — heads and sides are both facing-couple boxes,
+so the variant also lets the whole board tile and makes bare `Right and Left Thru` legal from a
+Static Square via `partition` — and that decision wants measuring first: **how many calls become
+legal from Static Square, and does either corpus improve?** If the answer is "few and yes", it is a
+clean win; if it is "many", it needs a policy.
+
+It also overlaps 9a: a `Swing Your Partner` from a squared-set box is the same missing separation.
+
+### 9d — the genuinely missing calls
+
+`Sweep 1/4` and its scoped forms (5 figure stops; the *piece* is authored inside
+`ms/sweep_a_quarter.xml`'s compounds — `Flutterwheel and Sweep a Quarter`, `Recycle and Sweep a
+Quarter` — so this is a variant to author, not a motion to invent), `Join Hands` (3 corpus lines),
+`Change Hands`, `Pass One`, `Yellow Rock`, `A Full Turn`, `Circle 2`, `1/2 Circulate`, and the
+`Fold` family. Plus one small **feature** rather than a call: `Outsiders` is not a selection the
+engine knows, which is the only thing blocking `Outsiders Square Thru 3` (All8's `O-` = "Others -or-
+Outsides").
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

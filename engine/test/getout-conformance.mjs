@@ -163,7 +163,12 @@ console.log('\n== Every abbreviation expands to a call the engine has, or a DECL
     const s = splitSelection(n);
     return !!s.selection && implemented.has(s.call);
   };
-  const declared = new Set([...Object.values(TOKENS), ...Object.values(MULTI_TOKENS).flat()]);
+  // The corpus's OWN decoded names are checked too, not only the table's values. A cross-token
+  // modifier (`1-1/2`, `1/2of`) COMPOSES a name that appears in no `TOKENS` entry, so checking only
+  // `Object.values(TOKENS)` let every composed reading (`1/2 U-Turn Back`, `Split Circulate 1 1/2`)
+  // through unchecked - the same "the gate does not cover this path" hole this section was written
+  // to close, one level up. `plainRefs` is exactly the whole-set names the corpus decoded.
+  const declared = new Set([...Object.values(TOKENS), ...Object.values(MULTI_TOKENS).flat(), ...plainRefs.keys()]);
   const undeclared = [...declared].filter((n) => !implementedOrScoped(n) && !KNOWN_CATALOGUE_GAPS.has(n));
   const declaredButStale = [...KNOWN_CATALOGUE_GAPS].filter((n) => implementedOrScoped(n));
   const gapButNotUsed = [...KNOWN_CATALOGUE_GAPS].filter((n) => !declared.has(n));

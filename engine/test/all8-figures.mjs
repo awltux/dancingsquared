@@ -32,6 +32,7 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { CODED_MOVES, Sequencer, setParser } from '../dist/index.js';
+import { KNOWN_CATALOGUE_GAPS } from '../dist/sequencer/all8-notation.js';
 import { splitSelection } from '../dist/sequencer/selection.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import {
@@ -53,7 +54,12 @@ const seq = new Sequencer(
 );
 
 const data = loadAll8Figures();
-const codedNames = new Set(CODED_MOVES.map((m) => m.name));
+// ALIASES, not just canonical names. A coded move is one registry entry with several authored
+// spellings, and the applicator resolves every one of them - `findCodedMove` keys on all of them -
+// so `Promenade Home` DANCES today. Listing only `m.name` reported it as a call the engine does not
+// have, which is the same "ask it the way the applicator asks" mistake round 36 fixed in
+// `getout-conformance.mjs`, in a third disguise.
+const codedNames = new Set(CODED_MOVES.flatMap((m) => m.aliases));
 
 let failures = 0;
 const fail = (msg) => { console.log(`  FAIL  ${msg}`); failures++; };
@@ -108,6 +114,18 @@ console.log('\n== 2. does the engine HAVE every call it read? (gated) ==');
   if (unknown.length) {
     fail(`${unknown.length} of them are calls the engine does not have`);
     console.log('        ' + unknown.sort().join('\n        '));
+    // The two gaps are DIFFERENT and the count alone cannot tell them apart. A name declared in
+    // `KNOWN_CATALOGUE_GAPS` is a deliberate, reviewable statement that All8 names a call the engine
+    // does not implement; anything else is an undeclared reading that wants a second look. This is
+    // reported rather than subtracted, because the suite is a FINISH LINE: a figure using a call the
+    // engine lacks is not recognised yet, whichever list the name is on.
+    const declared = unknown.filter((n) => KNOWN_CATALOGUE_GAPS.has(n) || (splitSelection(n).call && KNOWN_CATALOGUE_GAPS.has(splitSelection(n).call)));
+    if (declared.length) {
+      note(`${declared.length} of those are DECLARED engine gaps (KNOWN_CATALOGUE_GAPS), not mis-readings:`);
+      console.log('        ' + declared.sort().join(', '));
+    }
+    const undeclared = unknown.filter((n) => !declared.includes(n));
+    if (undeclared.length) note(`${undeclared.length} are NOT declared anywhere: ${undeclared.sort().join(', ')}`);
     if (unknown.includes('Ferris Wheel')) {
       console.log('        NOTE `Ferris Wheel` is NOT a missing call - it has nine <tam> definitions and');
       console.log('        fails to LOAD (sequencer.ts:59 swallows the error in a bare `catch`). See PLAN.md.');

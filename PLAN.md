@@ -2110,6 +2110,126 @@ job it was built for: the declared-gap list cannot silently drift out of date.
 
 ---
 
+## Phase 8 — DONE: the figure page's last tokens, and what "the last 7" actually were
+
+**The `State of the objective` snapshot was right that the last 7 figure-page tokens were "a
+different kind of problem" and wrong about what kind.** They were not a new mechanism waiting to be
+invented — five of the seven had a mechanism already in the file, and three of the seven turned out
+to be plain missing entries in All8's own key. All 7 are now resolved or documented, and the two
+that needed real work needed **composition**, not vocabulary.
+
+### What each one actually was
+
+Read against All8's own key rather than inferred (`abbrlist.htm`, fetched again this round):
+
+| token | what it is | how it resolves |
+|---|---|---|
+| `G-UTurn,B-Trd` (1 cell) | `,` = **"while"** — the key's punctuation table gives `B-Cir, G-Trd` as "B-Cir while G-Trd" | SPLIT on the comma in both readers; `Girls U-Turn Back` + `Boys Trade` |
+| `--1-1/2` (3 cells) | a SUFFIX on the preceding call — the key: *"do previous call once and a half — for SwThr say '3 hands'"* | `SUFFIX_TOKENS['1-1/2'] = ' 1 1/2'`, folded by `composeModifiers` |
+| `1/2of-` (4 corpus lines) | the mirror case, a PREFIX on the following call — the key: *"do one-half of the following call"* | `PREFIX_TOKENS`, same fold; `A-1/2of-` carries the `A-` designator on the modifier |
+| `/-SqTh4` (3 cells) | the designator is literally `/`, which appears in **no** designator list in the key | an UNMODELLED LEADING DESIGNATOR: occurs exactly twice in the whole archive, both on this one cell, so its scoping has no other context to be learned from. `normalizeToken` drops it and the call reads |
+| `1L.2L` (2), `FLNR` (1), `BxCir` (1) | key entries the table had simply never been given | `1L.2L`→`First Couple Go Left, Next Couple Go Left` and the rest — all four `First Couple Go ...` titles exist |
+
+`1L.2R`, `FLNR`, `BxCir` and the `1-1/2`/`1/2of` folds are all **literal entries in All8's own key**,
+so none is an inference. The evidence that the composed spelling of `1-1/2` is what All8 means came
+from the corpus itself: `--SpltC --1-1/2` reads as **`Split Circulate 1 1/2`**, which *is* a catalogue
+title. Where the composed call does not exist (`Partner Trade 1 1/2`, `1/2 U-Turn Back`) the gap is
+**declared** in `KNOWN_CATALOGUE_GAPS`, which is the point of having that list.
+
+### Still unread, and deliberately so — 4 cells, all malformed SOURCE
+
+`--1/2` (the key's only `1/2`-prefixed call is `1/2.C` = "1/2 (All 8) Circulate", and the key's own
+rule that "." carries no meaning means they are not the same token, so two readings fit equally and
+the ambiguity wins), `--Keep` (not in the key), `H-meet-T1/4` (prose "meet" inside a call column) and
+`S-` (an orphaned designator left when `S-"reverse!"` had its quoted aside blanked). None is a
+vocabulary gap and guessing any of them would be inventing.
+
+### A gate hole this closed: composed names were never checked
+
+`getout-conformance.mjs`'s membership gate compared `Object.values(TOKENS)` — the **table's** values.
+A composed name produced by a modifier appears in no `TOKENS` entry, so **every composed reading was
+unchecked**, one level up from the mis-expansion hole Phase 2 closed. The gate now checks the corpus's
+own decoded whole-set names as well, which immediately demanded the three new declarations above. It
+found exactly three, and nothing else on either corpus.
+
+### A second false positive, in the figures suite itself
+
+`all8-figures.mjs` built its coded-move set from `m.name` — the canonical name only — so it reported
+**`Promenade Home`** as a call the engine does not have, when `findCodedMove` resolves it and the
+applicator dances it. That is the same *"ask it the way the applicator asks"* mistake round 36 fixed
+in `getout-conformance.mjs`, in a third disguise; it now uses `m.aliases`. The suite also now SPLITS
+its unknown names into *declared engine gaps* and *undeclared findings*, which is report-only (the
+suite is still a finish line and still fails on both) — and it earned its keep on the first run by
+surfacing `Outsiders Square Thru 3` as the one name declared nowhere: `O-SqTh3` composes correctly and
+its base `Square Thru 3` is implemented, but `Outsiders` is not a selection the engine knows, so the
+composed call cannot be performed. Declared.
+
+### Measured, same machine, old source vs new (`git stash`, rebuild, re-run)
+
+| | before | after |
+|---|---|---|
+| fig_m unread cells | 11 across 7 tokens | **4 across 4** |
+| get-out corpus lines decoded (431 lines both archives' lists) | 345 | **357** |
+| get-out corpus lines stopped at an unread token | 36 | **27** |
+| GETOUT BEHAVIOUR: reached the finish and applied it (412 lines) | 131 | **133** |
+| GETOUT BEHAVIOUR: reached a state a finish resolves from | 8 | **9** |
+| GETOUT BEHAVIOUR: stopped part-way through the body | 136 | **145** |
+| GETOUT BEHAVIOUR: stopped at a token we cannot decode | 36 | **27** |
+| GETOUT BEHAVIOUR: page text | 44 | **41** |
+| table names admissible (conformance gate) | 158 | **169** |
+| declared catalogue gaps | 26 | **31** |
+
+The bucket that GREW is the intended one and the same effect Phases 2 and 4j had: lines that used to
+stop at *our inability to read All8* now run into the body and stop at a genuine engine gap. Twelve
+lines moved out of the decoder buckets, 3 of them all the way to a success.
+
+**The target suite is still red, and this workstream does not change that.** `verify:figures` now
+fails on **4 unread cells** (was 11) and on **22 call names**, and all 22 are declared engine gaps —
+that second gate cannot go green without implementing them, which is a different programme from the
+decoder. Stating it plainly because the previous snapshot implied the tokenizer work alone would turn
+the suite green: it would not have, and it has not.
+
+---
+
+## The next lead, measured: the `--Sw&Pr` TAIL (76 of 188 figures)
+
+Found while choosing this phase, and it is a much bigger lever than anything left in the decoder, so
+it is recorded with the numbers rather than left in a transcript. `all8-figures.mjs` stage 5 reports
+**1 of 188 figures run end-to-end**; asking *where* the other 187 stop splits them sharply:
+
+```
+stopping call        as the LAST call of the figure (the final `--Sw&Pr` / `--Prom`)
+   Swing          60            59
+   Promenade      17            17
+   1/2 Tag        13             0
+```
+
+**76 figures run their entire BODY and then fail only at the resolve tail.** That is the same shape
+Phase 4 found for the get-out corpus — *"the finish stops were a symptom"* — except here the bodies do
+complete, so the tail is the only thing failing.
+
+Two measured facts about the tail, each pointing at a different suspect:
+
+1. **All8's `Swing` does not resolve to the engine's Mainstream `Swing`.** `Sw&Pr` decodes to
+   `Swing`, and the engine's call named `Swing` is the **8-dancer wave/tidal/inverted-line** family
+   from `a2/slip.xml`, while the Mainstream call is registered as **`Swing Your Partner`** /
+   `Swing Your Corner` (`ms/swing.xml` names its tams that way, and calls register by `<tam title>`).
+   So the name `Swing` is currently claimed by a different call.
+2. **But renaming alone is not the fix**, and this is the part worth not rediscovering: on the boards
+   the tail is reached from — `Trade By`, `Eight Chain Thru`, `Lines Facing Out`, `Ocean Waves`, all
+   recognised formations — `Swing Your Partner` **also refuses** ("No setup in this call matches"),
+   because it is authored from `Facing Couples` only. So either the tail needs more `Swing Your
+   Partner` variants, or the bodies are not ending where All8's figures intend them to.
+
+Neither conclusion is established, and the second is the one to test first: the same walk shows
+`Right and Left Thru` leaving partners **6 apart** in figure 12's body, and `Star Thru` from the heads
+after a half promenade producing partners *back to back* — bodies the engine can name but whose
+couples are no longer standing as couples, which is exactly why the `Promenade` that follows refuses.
+That is a Phase 4-class diagnosis (a wrong motion upstream of the visible failure), and it needs its
+own round.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

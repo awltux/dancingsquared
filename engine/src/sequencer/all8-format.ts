@@ -29,7 +29,7 @@
 // the expected reading of one highlighted row in full, and resolving that table's empty cells
 // reproduces it verbatim (see test/all8-format.mjs, which gates exactly that).
 
-import { TOKENS, MULTI_TOKENS, GROUP, normalizeToken, decodeTokenAll } from './all8-notation.js';
+import { TOKENS, MULTI_TOKENS, GROUP, normalizeToken, decodeTokenAll, composeModifiers } from './all8-notation.js';
 
 /** All8's uniform cell pitch: 7 characters (2 designator + 5 call name) plus one separator. */
 export const ALL8_PITCH = 8;
@@ -129,10 +129,24 @@ function blankRowFlag(line: string): string {
   return line.replace(/^(\s*)[!?]\s+/, (m, sp: string) => sp + ' '.repeat(m.length - sp.length));
 }
 
-/** Decode one All8 call token to engine name(s). `names` is empty when unreadable. */
+/** Decode one All8 call token to engine name(s). `names` is empty when unreadable.
+ *
+ * A token can carry MORE THAN ONE call: All8's punctuation table gives `,` as "while", so
+ * `G-UTurn,B-Trd` is "Girls U-Turn Back WHILE Boys Trade" - two calls in one cell. This reader is
+ * per-token rather than per-line (the figure page's cells are whitespace-separated and a cell may
+ * overflow its column into a single space), so the comma split has to happen here as well as in
+ * `tokenize`. Returning both names is what makes the cell READ rather than count as our gap.
+ * Every part must resolve, or the whole token is unreadable - a half-read cell would import a
+ * figure that is missing a call. */
 export function decodeAll8Call(token: string): All8Call {
-  const all = decodeTokenAll(token);
-  return { token, names: all ? all.map((d) => d.name) : [] };
+  const parts = token.split(',').map((p) => p.trim()).filter(Boolean);
+  const names: string[] = [];
+  for (const part of parts) {
+    const all = decodeTokenAll(part);
+    if (!all) return { token, names: [] };
+    names.push(...all.map((d) => d.name));
+  }
+  return { token, names };
 }
 
 /** One `( ... )` group found on a figure line, classified by what All8 means by it. */
@@ -233,13 +247,21 @@ export function parseAll8Figures(text: string): { figures: All8Figure[]; skipped
     const tk = tokensWithColumns(scan);
     const first = tk[0];
     const optionalSpans = parens.filter((p) => p.kind === 'optional');
-    const calls = tk
-      .filter((t) => looksLikeAll8Call(t.tok))
-      .map((t) => {
-        const call = decodeAll8Call(t.tok);
-        if (optionalSpans.some((p) => t.col >= p.start && t.col < p.end)) call.optional = true;
-        return call;
-      });
+    // The page is read PER TOKEN rather than per line (its cells are whitespace separated and a cell
+    // that overflows its column is separated by a single space), so the cross-token modifiers
+    // (`1-1/2`, `1/2of`) have to be folded here as well as in `decodeLine`. `composeModifiers` is the
+    // one definition of what composes, so the two readers cannot disagree about it. A modifier it
+    // cannot apply keeps its empty `names` and is reported as unread, exactly as in `decodeLine`.
+    const cells = composeModifiers(
+      tk
+        .filter((t) => looksLikeAll8Call(t.tok))
+        .map((t) => {
+          const call = decodeAll8Call(t.tok);
+          if (optionalSpans.some((p) => t.col >= p.start && t.col < p.end)) call.optional = true;
+          return { col: t.col, token: call.token, names: call.names, call };
+        }),
+    );
+    const calls: All8Call[] = cells.map((c) => ({ ...c.call, names: c.names }));
     if (!first || !looksLikeAll8Call(first.tok) || calls.length === 0) {
       flush();
       skipped.push(line);
@@ -247,10 +269,11 @@ export function parseAll8Figures(text: string): { figures: All8Figure[]; skipped
     }
     const { setup } = splitSetup(line);
     // A get-out marker's position is "how many calls are to its left", so it survives the share
-    // resolution below as an index into the figure's own call list.
+    // resolution below as an index into the figure's own call list. Counted from the COMPOSED cells:
+    // a modifier cell is not a call, and counting it would point the link one call too far right.
     const links: All8GetoutLink[] = parens
       .filter((p) => p.kind === 'link')
-      .map((p) => ({ label: p.label, afterCall: tk.filter((t) => t.col < p.start && looksLikeAll8Call(t.tok)).length }));
+      .map((p) => ({ label: p.label, afterCall: cells.filter((c) => c.col < p.start).length }));
     pending.push({ indent: first.col, own: calls, links, setup, sourceLine: i, spoken: /"/.test(line) });
   });
   flush();

@@ -353,7 +353,25 @@ export const TOKENS: Record<string, string> = {
                           // Circle, and the corpus context fits it. No `Circle 2` title exists.
   RunL: 'Run Left',       // `G-RunL` = "Girls - Run Left"  } direction-specified runs: the engine
   RunR: 'Run Right',      // `B-RunR` = "Boys - Run Right"  } has no `Run Left`/`Run Right` title,
-};                        //                                  though `Girls Run` itself applies.
+                          //                                  though `Girls Run` itself applies.
+  // ---- fifth pass: key entries the GET-OUT corpus needed but that were never added ----
+  // Each of these is a literal entry in All8's own key (abbrlist.htm) that the table was missing
+  // outright - not a new mechanism and not an inference. They were found by ranking the corpus's
+  // remaining first-failure tokens and checking each against the key, which is the procedure the
+  // file header prescribes (check `implementedTitles()` first, then add the key's own reading).
+  BxCir: 'Box Circulate', // key: "{designated} Box Circulate". The corpus writes `-BxCir-`, whose
+                          // leading `-` is the "same Boy(s) / active" designator - dropped here
+                          // exactly as `-BRun` drops it, because the engine has no active-set
+                          // tracking. The CALL is not in doubt; only its scoping is approximated.
+  // `1L.2R` and friends are All8's older "First Couple Go ... Next Go ..." notation, and `FLNR` is
+  // his own note that it is an OLD SPELLING of `1L.2R`. Both spellings expand to catalogue TITLES
+  // (`b2/first_couple_go.xml` ships all four), so these are pure reading gains with no gap.
+  '1L.2R': 'First Couple Go Left, Next Couple Go Right',
+  '1L.2L': 'First Couple Go Left, Next Couple Go Left',
+  '1R.2L': 'First Couple Go Right, Next Couple Go Left',
+  '1R.2R': 'First Couple Go Right, Next Couple Go Right',
+  FLNR: 'First Couple Go Left, Next Couple Go Right', // "(old notation - see 1L.2R)"
+};
 
 /** Tokens All8's key expands to MORE THAN ONE call. `TagI` is published as "Tag The Line - Face
  * In", which is a compound of two calls rather than one call carrying a modifier - and BOTH
@@ -390,7 +408,77 @@ export const MULTI_TOKENS: Record<string, string[]> = {
  * then resolves through the engine's synonym table, which is what turns "Do Sa Do to a Wave" into
  * the catalogue's `Dosado to a Wave`. Appending to the raw name would leave a phantom: the catalogue
  * spells the title `Dosado`, not `Do Sa Do`, so the composed name needs the synonym bridge. */
-export const SUFFIX_TOKENS: Record<string, string> = { ToWav: ' to a Wave' };
+export const SUFFIX_TOKENS: Record<string, string> = { ToWav: ' to a Wave', '1-1/2': ' 1 1/2' };
+
+/**
+ * Tokens that MODIFY the FOLLOWING call instead of naming one - the mirror of the suffix above.
+ *
+ * All8's key: `1/2of-` = "do one-half of the following call". Like `1-1/2` this is COMPOSITION
+ * rather than vocabulary: the composed name is what All8's notation means, and whether the engine
+ * HAS such a call is a separate question that `KNOWN_CATALOGUE_GAPS` answers. The composed spelling
+ * is not invented either - it is the one All8's key already uses for the same shape, `1/2.C` =
+ * "1/2 (All 8) Circulate", which this table has spelled `1/2 Circulate` from the start.
+ *
+ * A designator can ride on the modifier itself (`A-1/2of-` = "All ... 1/2 of ..."), so
+ * `prefixModifier` returns the designator separately rather than dropping it.
+ */
+export const PREFIX_TOKENS: Record<string, string> = { '1/2of': '1/2 ' };
+
+/** The prefix a token applies to the FOLLOWING call, with the designator group that scoped it. */
+export function prefixModifier(token: string): { group?: string; prefix: string } | null {
+  const t = normalizeToken(token);
+  for (const [key, prefix] of Object.entries(PREFIX_TOKENS)) {
+    if (t === key) return { prefix };
+    const esc = key.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+    const m = new RegExp(`^([${Object.keys(GROUP).join('')}])-${esc}$`).exec(t);
+    if (m) return { group: GROUP[m[1]], prefix };
+  }
+  return null;
+}
+
+/** Whether a token is a cross-token MODIFIER: not notation we failed to read, but naming no call on
+ * its own. A modifier with nothing to modify is NOT a reading - which is what keeps a leading
+ * `--1-1/2` (two published corpus lines, `! --1-1/2 --PasTh --AL`) an honest unreadable token
+ * rather than a silent no-op. */
+export function isModifierToken(token: string): boolean {
+  return !!(SUFFIX_TOKENS[normalizeToken(token)] || prefixModifier(token));
+}
+
+/**
+ * Fold All8's cross-token modifiers over a decoded cell sequence.
+ *
+ * A suffix (`1-1/2`, "do previous call once and a half") rewrites the PREVIOUS cell's names and
+ * consumes the modifier cell; a prefix (`1/2of`) rewrites the NEXT cell's names and consumes
+ * itself. A modifier whose neighbour is missing or unreadable is left where it is, with no names,
+ * so the caller can report the token rather than silently dropping a call.
+ *
+ * This is the ONE definition of what composes, shared by `decodeLine` (the get-out corpus, which
+ * tokenizes a whole line) and `parseAll8Figures` (the figure page, whose cells are whitespace
+ * separated and may overflow their column, so it is read per token instead).
+ */
+export function composeModifiers<T extends { token: string; names: string[] }>(cells: T[]): T[] {
+  const out: T[] = [];
+  for (let i = 0; i < cells.length; i++) {
+    const cell = cells[i];
+    const suffix = SUFFIX_TOKENS[normalizeToken(cell.token)];
+    if (suffix) {
+      if (out.length === 0) { out.push(cell); continue; }
+      const prev = out[out.length - 1];
+      out[out.length - 1] = { ...prev, names: prev.names.map((n) => `${n}${suffix}`) };
+      continue;
+    }
+    const pre = prefixModifier(cell.token);
+    if (pre) {
+      const next = cells[i + 1];
+      if (!next || next.names.length === 0) { out.push(cell); continue; }
+      out.push({ ...next, names: next.names.map((n) => `${pre.group ? `${pre.group} ` : ''}${pre.prefix}${n}`) });
+      i++;
+      continue;
+    }
+    out.push(cell);
+  }
+  return out;
+}
 for (let n = 1; n <= 7; n++) TOKENS[`8Chn${n}`] = `Eight Chain ${n}`;
 // All8 abbreviates the `Eight Chain` family with a DIGIT; the catalogue titles them with the number
 // SPELLED OUT (see CALL_SYNONYMS). Both spellings are kept here - the decoder emits All8's literal
@@ -473,6 +561,28 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   'Square Thru 5',
   'Trade Right',
   'Pass One', // `Pass1`; All8's key "Pass One (Pass by 1, Pass 1 by, Skip 1)"
+  // ---- composed by the cross-token modifiers (`1-1/2`, `1/2of`) ----
+  // These names exist ONLY as readings of All8's notation: `1/2of-` is "do one-half of the following
+  // call", so the corpus's `1/2of- -UTurn` reads as "1/2 U-Turn Back". The READING is not in doubt
+  // (the key defines it); the engine simply has no such call. Declared for the same reason every
+  // other entry here is: it moves the line out of "our gap in reading All8" and into an honest
+  // engine-gap attribution. Note `Split Circulate 1 1/2` is deliberately NOT here - the catalogue
+  // ships that title, so the same `1-1/2` modifier is a pure reading gain there, which is the
+  // evidence that the composed spelling is right.
+  '1/2 Rollaway',        // `1/2of- -RollA`
+  '1/2 U-Turn Back',     // `1/2of- -UTurn`
+  'All 1/2 Wheel Around', // `A-1/2of- -WhlAr` - the `A-` designator rides on the modifier
+  // The same modifier on the FIGURE page. `--SpltC --1-1/2` reads as "Split Circulate 1 1/2", which
+  // IS a catalogue title - that one is a pure reading gain and is the evidence the composed spelling
+  // is right. These two are the same reading on calls the catalogue does not have.
+  'Partner Trade 1 1/2',   // `--PtTrd --1-1/2`
+  'All 8 Circulate 1 1/2', // `--A8Cir --1-1/2`
+  // Found by the figures suite's new "declared vs undeclared" split, which is what that split is
+  // for. `O-SqTh3` composes through the `O-` designator to "Outsiders Square Thru 3" (the reading
+  // the project owner supplied in round 38), and the BASE is implemented - but `Outsiders` is not a
+  // selection the engine knows, so the composed call cannot be performed. That makes it an engine
+  // gap rather than a mis-reading, and an UNDECLARED one until now.
+  'Outsiders Square Thru 3',
 ]);
 
 /**
@@ -523,19 +633,39 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
  *       `to-BxGnt` = Box the Gnat (1), `O-SqTh3` = Outsiders Square Thru 3 (1), and `-BRun` (2),
  *       which is All8's ACTIVE-dancer notation and maps to `Boys Run` only as an approximation.
  *
- *   `--1-1/2` (3) and `--1/2` (1) - MODIFIERS on a neighbour, not calls. The key gives
- *       `1-1/2` = "do previous call once and a half - for SwThr say '3 hands'" and
- *       `1/2of-` = "do one-half of the following call". Expressing either needs a call that is
- *       actually reachable (Swing Thru has no "3 hands" form here, and a half of Touch 1/4 is a
- *       Hinge, which is a DIFFERENT call rather than a scaled one). Composition, like `Expl&`.
- *   `/-SqTh4` (3) - the designator is literally `/`, which appears in NO designator list in the
- *       key (`--`, `-`, `?-`, `A-`, `B-`, `C-`, `E-`, `G-`, `H-`, `Lr`, `O-`, `S-`, `P-`, `VC`,
+ *   RESOLVED since (this is the "different kind of problem" this note used to end on, and each
+ *   one turned out to have a mechanism rather than needing a new table entry):
+ *
+ *   `--1-1/2` (3 cells) - a MODIFIER on the PRECEDING call, exactly as the key defines it ("do
+ *       previous call once and a half - for SwThr say '3 hands'"). It is now a `SUFFIX_TOKENS`
+ *       entry, so `--SpltC --1-1/2` reads as **Split Circulate 1 1/2** - and that IS a catalogue
+ *       title, which is the independent evidence that the composed spelling is what All8 means.
+ *       Where the composed call does not exist (`Partner Trade 1 1/2`) the gap is DECLARED rather
+ *       than hidden, which is the whole point of declaring gaps.
+ *   `1/2of-` (corpus, 4 lines) - the mirror case, a PREFIX on the FOLLOWING call ("do one-half of
+ *       the following call"), now `PREFIX_TOKENS`. The composed spelling follows the one the key
+ *       already uses for the same shape, `1/2.C` = "1/2 (All 8) Circulate", which this table has
+ *       spelled `1/2 Circulate` from the start.
+ *   `/-SqTh4` (3 cells) - the designator is literally `/`, which appears in NO designator list in
+ *       the key (`--`, `-`, `?-`, `A-`, `B-`, `C-`, `E-`, `G-`, `H-`, `Lr`, `O-`, `S-`, `P-`, `VC`,
  *       `VE`, `4L`, `4B`, `4G`, `C4`, `C6`, `CB`, `CG`, `HB`, `HG`, `IF`, `OF`, `OB`, `OG`, `O6`,
- *       `Tr`, `6-`, `A8`, `-B`, `-G`). A malformed datum: not guessed at.
+ *       `Tr`, `6-`, `A8`, `-B`, `-G`). RESOLVED as an UNMODELLED LEADING DESIGNATOR: it occurs
+ *       exactly twice in the whole archive, both times on this one cell, so its scoping cannot be
+ *       learned from any other context; `normalizeToken` drops it and the cell's call reads as
+ *       "Square Thru 4". That is a deliberate, recorded loss of scoping (the same trade `-BRun`
+ *       makes), not a reading of what `/` means - there is no evidence for what it means.
+ *   `G-UTurn,B-Trd` (1 cell) - a COMMA-join. The key's punctuation table gives `,` = "while", so
+ *       this is "Girls U-Turn Back while Boys Trade" - TWO calls. Both readers now split on the
+ *       comma; decoding it as one name was wrong.
+ *
+ *   STILL UNREAD, and deliberately not guessed at (4 cells, all malformed SOURCE data rather than
+ *   missing notation):
+ *   `--1/2` (1) - not in the key. The key's only call whose name starts `1/2` is `1/2.C` = "1/2
+ *       (All 8) Circulate", and the page's cell carries no `C`, and the key's own punctuation rule
+ *       ("." in a call name has no special meaning) means `1/2` and `1/2.C` are not the same token.
+ *       Two readings fit the line equally well (`1/2 Circulate` vs the `1/2of` prefix), so the
+ *       ambiguity wins and it stays unread.
  *   `--Keep` (1) - not in the key. Reads as prose in its line (`--Keep  --Prom`).
- *   `G-UTurn,B-Trd` (1) - a COMMA-join, confirmed as simultaneous. The key's punctuation table gives
- *       `,` = "while", so this is "Girls U-Turn Back while Boys Trade". Needs the tokenizer to
- *       SPLIT on the comma into two scoped calls; decoding it as one name would be wrong.
  *   `H-meet-T1/4` (1) - prose leaked into a call column ("meet"); the real content is Touch 1/4.
  *   `S-` (1) - an ORPHANED DESIGNATOR: the line is `S-"reverse!" H-SqTh3`, and blanking the
  *       quoted aside leaves the `S-` with no call to attach to. Not a call at all.
@@ -601,9 +731,20 @@ export function tokenize(line: string): string[] {
     i--;
   }
 
-  return raw
+  // `,` = "while": All8's punctuation table gives `B-Cir, G-Trd` as "B-Cir WHILE G-Trd", so a
+  // comma SEPARATES two calls rather than joining them into one. It has to be split here rather
+  // than stripped, or the two calls run together into one unreadable token - which is exactly what
+  // `G-UTurn,B-Trd` and `C-SwThr, E-Trd` were doing (7 tokens across the two published archives,
+  // including one where All8 wrote a space AFTER the comma, so a whitespace-only split cannot see
+  // the boundary). NOTE it is split on the RAW text, so a comma inside a table VALUE (the catalogue
+  // has titles like "Ladies In, Men Sashay") is untouched: those are decoded names, not tokens.
+  const split = raw.flatMap((t: string) => t.split(','));
+
+  return split
     // Leading marker/joiner punctuation AND a trailing joiner dash, plus sentence punctuation.
-    .map((t: string) => t.replace(/^[-\s!|]+/, '').replace(/[-\s!|,.;:]+$/, '').trim())
+    // `normalizeToken` is the single definition of this so the two cannot drift, which is the same
+    // "one source of truth" rule the designator regex above follows.
+    .map((t: string) => normalizeToken(t))
     .filter(Boolean)
     // All8's key defines the dash as a TIE-IN ("the active dancers keep working"), and `,` as
     // "while", so a leading comma on a token is punctuation rather than part of a name.
@@ -622,9 +763,17 @@ export const REPEAT_TOKENS = new Set(['Twice']);
 
 /** The punctuation contract for a single token, factored out because three callers need it:
  * `tokenize`, `decodeTokenAll`, and `decodeStats`. Strips leading marker/joiner punctuation and a
- * trailing joiner dash / sentence punctuation. */
+ * trailing joiner dash / sentence punctuation.
+ *
+ * `/` is in the leading set because it is an UNMODELLED DESIGNATOR rather than a call. Measured
+ * across both published archives it occurs exactly TWICE, both times as the same `/-SqTh4` cell,
+ * and `/` appears in NO designator list in All8's key - so its scoping cannot be learned from any
+ * other context. Dropping it reads the cell's call (`SqTh4` -> `Square Thru 4`) while losing the
+ * scoping, which is the same trade `-BRun` already makes for All8's active-dancer designators and
+ * is recorded here rather than hidden. Leaving `/` in would keep three figure cells unreadable on
+ * the strength of one character that no part of All8's documentation defines. */
 export function normalizeToken(token: string): string {
-  return token.replace(/^[-\s!|]+/, '').replace(/[-\s!|,.;:]+$/, '').trim();
+  return token.replace(/^[-\s!|/]+/, '').replace(/[-\s!|,.;:]+$/, '').trim();
 }
 
 /** Decode a token to a call name, or null when we cannot read it. A group prefix is
@@ -660,29 +809,38 @@ export function decodeToken(token: string): { name: string; scoped: boolean } | 
  * read, so a partial reading is never mistaken for a complete one. */
 export function decodeLine(line: string): { calls: { name: string; scoped: boolean }[]; undecoded?: string } {
   const tokens = tokenize(line);
-  const calls: { name: string; scoped: boolean }[] = [];
+  // Cells carry a names ARRAY because one token can be several calls (`TagI`, a comma join) and
+  // because the cross-token modifiers below rewrite a neighbour rather than naming a call.
+  const cells: { token: string; names: string[]; scoped: boolean[] }[] = [];
+  const flatten = (cs: typeof cells) => cs.flatMap((c) => c.names.map((name, i) => ({ name, scoped: c.scoped[i] })));
   for (const tk of tokens) {
     // `Twice` repeats what has already been read, so it is resolved HERE rather than in the token
     // table - and with nothing behind it there is nothing to repeat, which is a genuine unreadable
     // token rather than a silent no-op.
     if (REPEAT_TOKENS.has(normalizeToken(tk))) {
-      if (calls.length === 0) return { calls, undecoded: tk };
-      calls.push({ ...calls[calls.length - 1] });
+      if (cells.length === 0) return { calls: flatten(cells), undecoded: tk };
+      const prev = cells[cells.length - 1];
+      cells.push({ token: tk, names: [...prev.names], scoped: [...prev.scoped] });
       continue;
     }
-    // A suffix modifier rewrites the PREVIOUS call rather than adding one.
-    const suffix = SUFFIX_TOKENS[normalizeToken(tk)];
-    if (suffix) {
-      if (calls.length === 0) return { calls, undecoded: tk };
-      const prev = calls[calls.length - 1];
-      calls[calls.length - 1] = { ...prev, name: `${prev.name}${suffix}` };
+    // A cross-token modifier (`1-1/2`, `1/2of`) names no call of its own. It is admitted as an
+    // empty cell and applied by `composeModifiers` below; a modifier with nothing to modify keeps
+    // its empty names and is reported as unreadable.
+    if (isModifierToken(tk)) {
+      cells.push({ token: tk, names: [], scoped: [] });
       continue;
     }
     const all = decodeTokenAll(tk);
-    if (all === null) return { calls, undecoded: tk };
-    calls.push(...all);
+    if (all === null) return { calls: flatten(cells), undecoded: tk };
+    cells.push({ token: tk, names: all.map((d) => d.name), scoped: all.map((d) => d.scoped) });
   }
-  return { calls };
+  const composed = composeModifiers(cells);
+  // A modifier the fold could not apply (its neighbour is missing or unreadable) is a token we
+  // cannot read. `calls` is truncated to what came BEFORE it, so a partial reading is never handed
+  // back as a complete one - the same contract the early returns above keep.
+  const stuckAt = composed.findIndex((c) => c.names.length === 0);
+  if (stuckAt >= 0) return { calls: flatten(composed.slice(0, stuckAt)), undecoded: composed[stuckAt].token };
+  return { calls: flatten(composed) };
 }
 
 /**
@@ -699,6 +857,22 @@ export function decodeLine(line: string): { calls: { name: string; scoped: boole
  * They disagree materially (`&Roll` is 21 first-failure but 41 all-occurrence; `LA` is 6 vs 14),
  * so a work queue built from one of them is not the same queue as a queue built from the other.
  */
+/**
+ * Whether the token at `i` is READABLE in the context of its line.
+ *
+ * This is the same rule `decodeLine` applies, and it must be the same rule: `decodeStats` COUNTING a
+ * line as decoded while `decodeLine` refuses it (or the reverse) is how one ranking starts
+ * disagreeing with the other. A repeat needs something behind it; a cross-token modifier needs the
+ * neighbour it modifies; everything else is readable iff the table knows it.
+ */
+function tokenReadable(tokens: string[], i: number): boolean {
+  const t = normalizeToken(tokens[i]);
+  if (REPEAT_TOKENS.has(t)) return i > 0;
+  if (SUFFIX_TOKENS[t]) return i > 0;
+  if (prefixModifier(tokens[i])) return i + 1 < tokens.length && decodeToken(tokens[i + 1]) !== null;
+  return decodeToken(tokens[i]) !== null;
+}
+
 export function decodeStats(lines: string[]) {
   const firstFail = new Map();
   const allOcc = new Map();
@@ -708,11 +882,7 @@ export function decodeStats(lines: string[]) {
     const tokens = tokenize(line);
     let failed = false;
     tokens.forEach((tk, i) => {
-      // A repeat token is readable exactly when there is something behind it to repeat, which is
-      // the same rule `decodeLine` applies - and it must be applied here too, or a line whose only
-      // unknown is a leading `Twice` would be counted as decoded by one ranking and not the other.
-      const readable = REPEAT_TOKENS.has(normalizeToken(tk)) ? i > 0 : decodeToken(tk) !== null;
-      if (readable) return;
+      if (tokenReadable(tokens, i)) return;
       allOcc.set(tk, (allOcc.get(tk) ?? 0) + 1);
       if (!failed) { firstFail.set(tk, (firstFail.get(tk) ?? 0) + 1); failed = true; }
     });

@@ -51,17 +51,18 @@ second pass and `Twice`; **and All8 sequence import/export (§2.1)**.
 with `node engine/test/getout-behaviour.mjs` from the repo root):
 
 ```
-108  26%  reached the finish and applied it        - SUCCESS by the caller convention
+110  27%  reached the finish and applied it        - SUCCESS by the caller convention
   6   1%  reached a state a finish resolves from   - SUCCESS
   0       completed the body but did not resolve
- 53  13%  stopped only at the finish              - body ran, the resolve call refused
-145  35%  stopped part-way through the body       - the real coverage gap
- 56  14%  stopped at a token we cannot decode     - OUR gap in reading All8
+ 54  13%  stopped only at the finish              - body ran, the resolve call refused
+153  37%  stopped part-way through the body       - the real coverage gap
+ 45  11%  stopped at a token we cannot decode     - OUR gap in reading All8
  44  11%  page text, not a get-out line
 ```
 
-Decoder coverage of the 265 published get-out lines: **218 (82%)**, 46 stopped at an unread token,
-126 admissible table names. (Was 53/4/0/29/71/202/53 at the start of this workstream.)
+Decoder coverage of the 265 published get-out lines: **228 (86%)**, 36 stopped at an unread token,
+132 admissible table names. (Was 53/4/0/29/71/202/53 and 134 decoded at the start of this
+workstream.) What remains is a long tail: 32 distinct tokens, the largest only **2 occurrences**.
 
 ### 2.1 All8 sequence import/export
 
@@ -244,6 +245,12 @@ and the conformance gate now call it rather than looping over `decodeToken`). `S
 three calls, not two, and one line contains two `Twice`s. This also reclassified **6 lines out of
 "page text"**: a line the decoder could not read had been counted as prose rather than as a get-out
 it could not parse.
+
+**A third pass (from All8's pages) took it to 228 of 265 (86%)**, corpus success **87 → 110**,
+undecodable stops **82 → 45**, admissible table names **120 → 132**. It added two new token *shapes*
+as well as vocabulary: `RolPr`/`Tag_I` are compounds ("Roll then Promenade"), and `ToWav` is a
+**suffix modifier that rewrites the preceding call** ("DoSaD ToWav" is ONE call, "Do Sa Do to a
+Wave" — which needed a `CALL_SYNONYMS` entry, because the catalogue spells the title `Dosado`).
 
 **A second pass over the same key (Phase 5b) took it to 218 of 265 (82%)**, corpus success
 **87 → 108**, undecodable stops **82 → 56**, admissible table names **120 → 126**. Seven base tokens

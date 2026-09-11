@@ -13,9 +13,9 @@
 //
 // Run: used by test/getout-conformance.mjs, test/getout-behaviour.mjs, test/promenade.mjs.
 
-import { TOKENS, MULTI_TOKENS, REPEAT_TOKENS, GROUP, tokenize, decodeToken, decodeTokenAll, decodeLine, normalizeToken } from '../../dist/index.js';
+import { TOKENS, MULTI_TOKENS, REPEAT_TOKENS, SUFFIX_TOKENS, GROUP, tokenize, decodeToken, decodeTokenAll, decodeLine, normalizeToken } from '../../dist/index.js';
 
-export { TOKENS, MULTI_TOKENS, REPEAT_TOKENS, GROUP, tokenize, decodeToken, decodeTokenAll, decodeLine, normalizeToken };
+export { TOKENS, MULTI_TOKENS, REPEAT_TOKENS, SUFFIX_TOKENS, GROUP, tokenize, decodeToken, decodeTokenAll, decodeLine, normalizeToken };
 
 /**
  * Names All8 uses that the catalogue genuinely does NOT implement.
@@ -65,6 +65,12 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   'Circle 2',
   'Run Left',
   'Run Right',
+  // Fourth pass, reported from All8's own pages. Each is a reading we are confident in and a call
+  // the catalogue does not implement, so declaring it is what moves the line out of "our reading
+  // gap" and into an honest engine-gap attribution.
+  'Back Up',        // `E-BakUp` = "Ends Back Up"
+  'Square Thru 5',  // `SqTh5`; the digit counts hands, and the catalogue stops at 4
+  'Trade Right',    // `B-TrdR` = "Boys Trade Right"
 ]);
 
 /**
@@ -90,10 +96,12 @@ export function decodeStats(lines) {
     const tokens = tokenize(line);
     let failed = false;
     tokens.forEach((tk, i) => {
-      // A repeat token is readable exactly when there is something behind it to repeat, which is
-      // the same rule `decodeLine` applies - and it must be applied here too, or a line whose only
-      // unknown is a leading `Twice` would be counted as decoded by one ranking and not the other.
-      const readable = REPEAT_TOKENS.has(normalizeToken(tk)) ? i > 0 : decodeToken(tk) !== null;
+      // Repeat and suffix tokens are readable exactly when something precedes them - the same rule
+      // `decodeLine` applies - and it must be applied here too, or a line whose only unknown is a
+      // leading `Twice`/`ToWav` would be counted as decoded by one reader and not the other.
+      const t = normalizeToken(tk);
+      const lineScoped = REPEAT_TOKENS.has(t) || t in SUFFIX_TOKENS;
+      const readable = lineScoped ? i > 0 : decodeToken(tk) !== null;
       if (readable) return;
       allOcc.set(tk, (allOcc.get(tk) ?? 0) + 1);
       if (!failed) { firstFail.set(tk, (firstFail.get(tk) ?? 0) + 1); failed = true; }

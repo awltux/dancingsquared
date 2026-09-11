@@ -239,6 +239,20 @@ export const TOKENS: Record<string, string> = {
   LeadR: 'Lead Right',   // `H-LeadR` = Heads Lead Right, `--LeadR` = Lead Right
   '2LChn': 'Ladies Chain', // All8 writes the MS call "Ladies Chain" as "2 Ladies Chain"
   FaceI: 'Face In',      // `--FaceI`, `G-FaceI`; the other half of the `TagI` compound
+  // ---- fourth pass: the remaining gaps reported from All8's own pages ----
+  // `GW.BD` is ONE call, not two. "Girls Walk, Boys Dodge" DESCRIBES who does which half of
+  // `Walk and Dodge` (the leaders walk, the trailers dodge), so the whole-set reading is the same
+  // motion - and neither "Girls Walk" nor "Boys Dodge" is a call title, so splitting it into two
+  // names would invent vocabulary the catalogue does not have.
+  'GW.BD': 'Walk and Dodge',
+  BakUp: 'Back Up',      // `E-BakUp` = "Ends Back Up". No `Back Up` title - declared as a gap.
+  // `4LRollA` = "4 Ladies Roll Away"; All8 also writes the dashed form `4L-RollA`. The catalogue's
+  // `Rollaway` is the WHOLE-SET call (verified legal from Static Square, so it is all four couples
+  // rolling away), which is exactly what the compound describes. "Four Ladies Rollaway" is NOT a
+  // title, so mapping the parts separately would produce a phantom name.
+  '4LRollA': 'Rollaway',
+  SqTh5: 'Square Thru 5', // digit = HANDS; catalogue has 1 1/2, 2, 2 1/2, 3, 3 1/2, 4 but no 5.
+  TrdR: 'Trade Right',    // `B-TrdR` = "Boys Trade Right". No `Trade Right` title - a gap.
   // `C` is the one token with TWO readings in All8's key, disambiguated by the dash: `C` alone is
   // "Circulate", `C-` is the "Centers -" designator. `tokenize` now reattaches a stranded
   // designator before the dash is stripped, so by the time a token reaches this table a bare `C`
@@ -270,7 +284,20 @@ export const MULTI_TOKENS: Record<string, string[]> = {
   // sequence importer read the FIGURES, because the get-out corpus ends at `--RLG`/`--AL`/`--Prom`
   // almost exclusively and uses this form once.
   'Sw&Pr': ['Swing', 'Promenade'],
+  // `RolPr` = "Roll, then Promenade" - two calls, both implemented.
+  'RolPr': ['Roll', 'Promenade'],
+  // `Tag_I` is All8's same compound spelled with an underscore.
+  'Tag_I': ['Tag the Line', 'Face In'],
 };
+
+/** Tokens that MODIFY the preceding call instead of naming one.
+ *
+ * All8 documents `ToWav` as "To Wave (to Formation, not call)", so `DoSaD ToWav` is ONE call -
+ * "Do Sa Do to a Wave" - not two. The suffix is appended to the previous call's name and the result
+ * then resolves through the engine's synonym table, which is what turns "Do Sa Do to a Wave" into
+ * the catalogue's `Dosado to a Wave`. Appending to the raw name would leave a phantom: the catalogue
+ * spells the title `Dosado`, not `Do Sa Do`, so the composed name needs the synonym bridge. */
+export const SUFFIX_TOKENS: Record<string, string> = { ToWav: ' to a Wave' };
 for (let n = 1; n <= 5; n++) TOKENS[`8Chn${n}`] = `Eight Chain ${n}`;
 
 /**
@@ -487,6 +514,14 @@ export function decodeLine(line: string): { calls: { name: string; scoped: boole
     if (REPEAT_TOKENS.has(normalizeToken(tk))) {
       if (calls.length === 0) return { calls, undecoded: tk };
       calls.push({ ...calls[calls.length - 1] });
+      continue;
+    }
+    // A suffix modifier rewrites the PREVIOUS call rather than adding one.
+    const suffix = SUFFIX_TOKENS[normalizeToken(tk)];
+    if (suffix) {
+      if (calls.length === 0) return { calls, undecoded: tk };
+      const prev = calls[calls.length - 1];
+      calls[calls.length - 1] = { ...prev, name: `${prev.name}${suffix}` };
       continue;
     }
     const all = decodeTokenAll(tk);

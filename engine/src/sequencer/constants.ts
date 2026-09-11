@@ -97,6 +97,12 @@ export const CALL_SYNONYMS: Record<string, string> = {
   'Touch 1/4': 'Touch a Quarter',
   'Cast Off 3/4': 'Cast Off Three Quarters',
   'Do Sa Do': 'Dosado',
+  // All8 writes the composed call as `DoSaD ToWav` - literally "Do Sa Do to a Wave" - because `&`
+  // and `ToWav` are its own modifiers, while the catalogue titles the call `Dosado to a Wave`. So
+  // the composed SPOKEN name and the TITLE are differently named, exactly like `Do Sa Do` above,
+  // and the synonym is what lets our All8 decoder emit the spoken form (all8-notation.ts
+  // SUFFIX_TOKENS) without producing a phantom name.
+  'Do Sa Do to a Wave': 'Dosado to a Wave',
   'Left Touch 1/4': 'Left Touch a Quarter',
   // From All8's own abbreviation key, which lists these as the SAME call under two names:
   //   `Hinge  {designated} Hinge  (prefer SHing if designating all)`

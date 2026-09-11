@@ -36,6 +36,7 @@ export {
   TOKENS,
   MULTI_TOKENS,
   REPEAT_TOKENS,
+  SUFFIX_TOKENS,
   GROUP,
   tokenize,
   decodeToken,

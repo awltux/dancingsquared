@@ -38,29 +38,64 @@ not a port.
 
 ## 2. Licensing and provenance — read this before copying anything
 
-| File | Licence header |
+### 2.1 The measured licence situation
+
+| What | Header |
 |---|---|
-| `taminations-flutter/LICENSE` | **GNU GPL v3** |
+| `taminations-flutter/LICENSE` (674 lines) | **GNU GPL v3, 29 June 2007** |
 | `taminations-flutter/lib/**.dart` | mostly GPL v3 ("Copyright (C) 2026 Brad Christie") |
 | `taminations-flutter/util/xml_to_code.dart` | **AGPL-3.0** |
-| `taminations-flutter/assets/src/calls.dtd` | **AGPL-3.0** ("Copyright 2023 Brad Christie") |
-| `taminations-flutter/assets/src/calls.xml` | **AGPL-3.0** |
+| `taminations-flutter/util/code_to_xml.dart:36` | plain GPL-3 |
+| `taminations-flutter/assets/src/calls.dtd`, `tamination.dtd` | **AGPL-3.0** |
+| `taminations-flutter/assets/**/*.xml` | **498 of 498 mention "Affero"** |
 
-So the repo is **mixed GPL-3.0 / AGPL-3.0**: the bulk of `lib/` is GPL, while the generator and the
-source data under `assets/src/` are AGPL. Measured: of 910 Dart files, 312 carry an AGPL header.
+Two precisions that a casual look gets wrong:
 
-**This repo copies the animation XML verbatim.** `poc/src/assets/<level>/*.xml` is a byte-for-byte
-copy for the eight shared levels — measured file counts match exactly (ms 66/66, plus 50/50, a1 36/36,
-a2 26/26, c1 87/87, c2 79/79, c3a 84/84, c3b 66/66), and `moves.xml` is **byte-identical** to
-`assets/src/moves.xml` (same MD5). The XML we ship therefore carries upstream's licence, which is a
-**licensing consideration for this repo** — flagged here as a measured fact, not as legal advice.
+- **The `LICENSE` file is GPL-3, and it does not grant AGPL.** Its only three "Affero" mentions are
+  GPLv3's own **section 13** ("Use with the GNU Affero General Public License"), which is standard
+  GPLv3 boilerplate about *combining* the two licences, not an AGPL grant (`LICENSE:552-559`). So
+  "the repo is AGPL because the headers say so" is not a safe inference — and neither is "the repo is
+  GPL because the LICENSE says so". **The two disagree, per file.**
+- **The split is by file type, not by directory.** The AGPL headers are on the **XML data** — all 498
+  asset XML files, including `assets/src/tamination.dtd:7` — while the bulk of `lib/` is GPL.
 
-Two deliberate divergences from upstream data:
+### 2.2 What this repo actually ships
+
+`poc/src/assets/<level>/*.xml` is a byte-for-byte copy for the eight shared levels — measured file
+counts match exactly (ms 66/66, plus 50/50, a1 36/36, a2 26/26, c1 87/87, c2 79/79, c3a 84/84,
+c3b 66/66), and `moves.xml` is **byte-identical** to `assets/src/moves.xml` (same MD5).
+
+**The copied files carry the AGPL header with them** — verified directly in our own tree, e.g.
+`poc/src/assets/ms/pass_thru.xml:8-12`: *"Taminations is free software: you can redistribute it
+and/or modify it under the terms of the GNU Affero General Public License … either version 3 of the
+License, or (at your option) any later version."* So the animation XML we distribute is
+**AGPL-3.0-or-later**, which is a **licensing decision this repo is already making**, not a technical
+one. Recorded here as a measured fact, not legal advice — but it is the kind of thing worth an
+explicit decision rather than an accident.
+
+Separately, `assets/info/about.md:66-75` carries a **CALLERLAB** grant over the call *definition
+text*: royalty-free permission "to reprint, republish, and create derivative works … provided this
+notice appears", with "Information contained herein shall not be changed nor revised in any
+derivation or publication". That covers the 777 `.md` definitions — **not** the animation XML.
+
+Provenance: `git remote` → `github.com/bradchristie/taminations-flutter`, first commit 2020-11-07,
+Brad Christie. **No reference to the original (web/Flash/AIR) Taminations anywhere**: a recursive
+search of `*.md,*.dart,*.yaml,*.html` for `Flash|ActionScript|AIR|ported from|originated` returns 0
+matches, and there is no crawler/importer/migration script. The XML appears hand-maintained in-repo.
+(*Unverified:* `assets/src/tam87.png` is only an app icon; the "87" plausibly echoes a 1987 original,
+but nothing states it — do not assert it.)
+
+### 2.3 Deliberate divergences from upstream data
+
+Two deliberate divergences from upstream's data:
 
 - **`formations.xml` is MODIFIED.** 262 bytes differ from `assets/src/formations.xml`. Upstream's
   `Static Square` places dancers at `x="-3" y="1" angle="0"`; ours has `x="-1" y="-3" angle="90"` —
   a 90° rotation. Our own commit `d244996` ("Fix all Heads/Sides calls from Static Square/Squared
-  Set") is what changed it. **Do not "restore" it from upstream** without re-running the gates.
+  Set") is what changed it. **Do not "restore" it from upstream** without re-running the gates. Note
+  also that upstream's copy is itself a *generated mirror of an older Dart list* (§4, §9.6), so
+  "restoring" would also re-import 25 names upstream has since removed and lose none of the 34 it has
+  added — the drift runs both ways.
 - **We ADD levels upstream's `assets/` does not have**: `b1`, `b2`, `discovered`.
 
 ---
@@ -137,6 +172,13 @@ legacy as far as the Flutter app is concerned. **So:**
   rather than assuming we are right.
 - 156 = the 109 Dart names **+ 47 `Counter Rotate {Left|Right} X Y` paths**, which are the only XML
   names with no Dart constant. Every Dart constant's name matches an XML name exactly.
+
+**And FORMATIONS run the OTHER way — the XML is the generated mirror.** `lib/formation.dart` is the
+live source: a hard-coded list of **280** `Formation(...)` entries (`lib/formation.dart:36-1913`).
+`assets/src/formations.xml` (273 entries) is written *from* it by `util/code_to_xml.dart:66-77`, and
+`util/xml_to_code.dart:162-165` would regenerate a `lib/formations.dart` that **does not exist**
+(measured). So for formations, copying the XML copies the *stale* artefact. Measured drift between
+the two: **34 names are Dart-only, 25 are XML-only** (§9.6).
 
 **Consequence of the XML passing through a generator for calls:** a change we make to a call XML has
 an upstream counterpart only as a regenerated Dart file, and `notForSequencer: true` in the generated
@@ -503,7 +545,178 @@ teacher-facing formation picker.
 
 ---
 
-## 9. Things that would be wrong to assume
+## 9. Formations and dancer state
+
+### 9.1 The reference model
+
+Formations are a **hard-coded Dart list**, not XML and not computed: `Formation.formations`
+(`lib/formation.dart:36-1913`) holds **280** named `Formation(...)` entries, built at `:1941-1954`,
+indexed by name at `:1915`, with a regex fallback `_formationMap` at `:1917-1938`. `Formation.fromName`
+(`:1958-1978`) normalises the query through `normalizeCall` first, so `'Right-Hand Waves'` resolves to
+`Ocean Waves RH BGGB` (`:1918-1919`) while exact names win (`:1965-1970`).
+
+Three structural rules that surprise anyone coming from the XML:
+
+1. **A `Formation` declares ONE geometry orbit, not all the dancers.** `CallContext.fromFormation`
+   (`sequencer/call_context.dart:170-197`) replicates each declared dancer `geometryType` times, and for
+   square geometry that is **2** (`lib/geometry.dart:28,38-44`): 2 declared → 4 dancers, 4 → 8, 6 → 12.
+   So a two-dancer `Formation('Box RH')` is a four-dancer formation, and a four-dancer declaration is
+   the full eight.
+2. **Dancer numbers and couples are assigned BY INDEX, never authored.**
+   `numbers = ['1','5','2','6','3','7','4','8']` and `couples = ['1','3','1','3','2','4','2','4']`
+   (`call_context.dart:184-189`; same defaults at `animated_call.dart:99-102` and
+   `dance_model.dart:389-390`). The animation DTD gives a formation dancer only `gender, x, y, angle`
+   (`assets/src/tamination.dtd:98-102`). **Declaration order is therefore semantically load-bearing
+   upstream** — reordering the dancers changes which spots are couple 1 versus couple 3.
+3. **leader / trailer / beau / belle / center / end are DERIVED, not stored.** `CallContext.analyze`
+   (`call_context.dart:1638-1701`): `leader` iff the front count is even and the back count odd, and
+   `trailer` iff the reverse (`:1681-1684`); `beau`/`belle`/`partner` are the same parity trick on
+   left/right counts (`:1665-1680`); `center`/`verycenter`/`end` come from sorting by distance from the
+   centre (`:1711-1760`). The counts use `isInFrontOf`/`isInBackOf`, i.e. `angleToDancer ≈ 0/π` within
+   0.1 rad (`dancer.dart:388-395`). `analyze()` must be **re-run after every call** (`:820,827`);
+   `analyzeActives()` does the same for a subgroup but **copies `center`/`end` and not `verycenter`**
+   (`:1620-1636`).
+
+### 9.2 Two ways of asking "what formation is this?"
+
+1. **Hand-written predicates**: `isBox :1394`, `isInLine`/`isLines :1406-1408`, `isInWave`/`isWaves
+   :1366-1370,1410-1421`, `isLeftHandWave :1423`, `isColumns :1429`, `isTwoFacedLines :1435`,
+   `isSquare :1442` (spots |x|≈3, |y|≈1 within ±0.6), `isTidal :1450`, `isThar :1460`, `isTBone :1465`,
+   `isDiamond :1480`, `isAsym :1490`.
+2. **A general matcher**, `matchFormations` (`:640-734`): a DFS over dancer pairings with the
+   diagonal-opposite shortcut `mapping[i+1] = mapping[i] ^ 1` (`:671-672`), filtered by an 8-way angle
+   bin test (`dancerRelation :622-634`, `_testMapping :741-799`), then an SVD fit snapped to 90°
+   (`computeFormationOffsets :554-600`, `matrix.dart:115-117`). Tolerances `maxError 1.9`,
+   `delta 0.2`, `maxAngle 0.2` (`:649-651`).
+
+**The app never NAMES the current formation.** `matchFormationList` only *snaps* the board onto one of
+10 `standardFormations` (`:60-71`) or 7 `twoCoupleFormations` (`:73-81`), gated by `_snap` (`:954-963`);
+`repairFormation` only fixes Misshapen I/X-Beam (`:965-981`).
+
+### 9.3 Units and spacing — one number here is not what you would guess
+
+| | reference |
+|---|---|
+| Home square spots | (±1,±3) and (±3,±1) (`sequencer/calls/ms/square_the_set.dart:37-70`) |
+| Facing couples | partners 2 apart, couples 4 apart (`formation.dart:42-45`) |
+| Normal lines | x = −2, y = ±1, ±3 — line separation 4, in-line spacing 2 (`:406-411`) |
+| **Tidal line** | y = ±0.5, ±1.5, ±2.5, ±3.5 — **spacing 1, span 7** (`:1175-1180`) |
+| Handhold cutover | 2.0 square, 2.5 hexagon, 3.7 bigon (`handhold.dart:64-74`) |
+
+The tidal spacing is the trap: a tidal line is **not** two four-dancer lines 2 apart. Angles are
+degrees in XML and in `Dancer.fromData`, radians internally (`dancer.dart:274-288,462-464`).
+
+### 9.4 Gotchas
+
+- `handhold.dart:48-55` **mutates both dancers** (`rightGrip`/`leftGrip` are nulled) as a side effect
+  of constructing a hold.
+- **Reflection is implicit.** `snapTo90` snaps the SVD rotation entries to −1/0/1 (`matrix.dart:115-117`),
+  so a reflected fit is representable, but there is **no `reflect` flag** and no explicit reflection pass.
+- `isWaves` requires a neighbour within 2.0 (`:1412-1413`); `isInWave` requires *mutual* facing and
+  distance < 2.4 (`:1366-1370`).
+- **Names are inconsistent on purpose**: singular `Diamond RH` but plural `Diamonds RH Girl Points`;
+  `3 and 1 lines #1` … `#8`; `T-Bone DLDL`; and `Wave RH GBBG` / `Ocean Waves RH BGGB` embed gender
+  letters in the name — **the gender suffix is part of the name and cannot be stripped**
+  (`formation.dart:182-205, 772-877, 1189-1215, 1574-1601`).
+
+### 9.5 FASR does not exist here either
+
+Confirmed a second time, independently: no arrangement digit, sequence letter, relationship letter or
+get-out type anywhere in `lib/` or the assets. The nearest construct is `checkResolution`
+(`call_context.dart:543-549`), used for three grand calls only, which checks that each dancer's
+`numberCouple` offset against the XML mapping is a single constant mod 4, and sets a warning flag.
+**There is no arrangement table, no `0/1/2/3/4/5`, no `p/r/o/c`.**
+
+### 9.6 What this means for OUR engine — measured against `engine/dist`
+
+1. **Our `formations.xml` is the STALE MIRROR, so it is the wrong artefact to copy from.** The XML is
+   generated *from the Dart* (§4); the Dart is the live source. Measured drift: **34 names are
+   Dart-only, 25 are XML-only** — our vocabulary is therefore both missing live formations
+   (`Facing Dancers`, `Separated Columns`, `Wave of 6`, `H Zero`, `Outrigger`, `T-Bone URRU`, eight
+   `…Compact` variants) and carrying dead ones (`Ocean Waves`, `Tidal Wave`, `Columns`,
+   `Diamond RH Girl Points`, `Triple Boxes Close`).
+2. **We drop every non-8-dancer formation declaration.** `library.ts:40-57` mirrors only 4→8, so
+   `getNamedFormations()` returns **210 entries, all 8 dancers**; all **51 two-dancer** declarations
+   (plus 11 six-dancer and a 3-dancer) are discarded. Consequence: `setFormation('Diamond RH')` and
+   `setFormation('Box RH')` return **false**, so two names in our own `STANDARD_FORMATIONS`
+   (`constants.ts:63,69`) can never be produced by `recognize()`.
+3. **Three more `STANDARD_FORMATIONS` are never declared at all** by our XML: `Tidal Wave RH`,
+   `Separated Columns`, `Ocean Waves RH` (`constants.ts:37-73`).
+4. **Our couple ring is rotated 90° from the reference convention.** `HOME_DANCERS`
+   (`identity.ts:26-33`) puts couple 1 at (±1,−3) (south); the reference's `Static Square`
+   (`formation.dart:315-320`) puts it at (−3,±1) (west). The eight spots are the same set, so
+   *matching* is unaffected — but couple *labels*, and therefore our `relationshipCode` p/r/o/c mapping
+   and sequence order, sit on a different rotation than Taminations'.
+5. **The Static Square reordering in our XML is benign for us specifically.** It matters upstream
+   (index-based couple assignment, rule 2 above) but not here: our identity comes from geometry, and
+   the resulting board's couples are correct (`c1 @ (−1,−3),(1,−3)`; `c2 @ (3,−1),(3,1)`;
+   `c3 @ (1,3),(−1,3)`; `c4 @ (−3,1),(−3,−1)`). Only the array order differs.
+6. **Do not treat a tidal line as two four-dancer lines 2 apart** — the reference uses spacing 1.0 over
+   a span of 7.
+7. **Do not port the reference's index-based number/couple rule.** Upstream order is load-bearing and we
+   deliberately derive identity from geometry (`sequencer.ts:585-599`, `constants.ts:18-31`). Keep ours;
+   the index coupling is exactly what makes formation reordering a behavioural change upstream.
+8. **There is no upstream FASR to diff against.** Our `alignment.ts` arrangement tables and `fasr.ts`
+   have no counterpart; All8's pages remain the only authority for the letter/digit semantics.
+
+---
+
+## 10. Testing and tooling
+
+### 10.1 What the tests actually assert — and it is not motion
+
+`test/` holds exactly **two** files, both large: `sequencer_unit_test.dart` (87.6 KB) and
+`sequencer_test.dart` (76.2 KB).
+
+**Neither verifies that a call moves the dancers correctly.** In the unit test the helper is
+`void testOneSequence(String calls, String result)` and **`result` is dead** — it occurs only in its own
+declaration (`sequencer_unit_test.dart:29`). The 289 active cases run
+`interpretCall → performCall(tryDoYourPart:true) → adjustForSquaredSetConvention → checkCenters →
+animateToEnd → matchStandardFormation` (`:29-48`). But `checkCenters` *repairs* the formation
+(`call_context.dart:843`; `repairFormation :878`) and `matchStandardFormation` *snaps* to a standard one
+(`:954`) — the two steps that look like checks are corrections, and nothing asserts the result.
+
+The widget test is the same shape: 275 `TestSequence` rows, one assertion —
+`expect(model.errorString.trim(), test.result)` (`sequencer_test.dart:40`) — and **all 275 expected
+results are the empty string**. The production path does throw on real faults (collision
+`sequencer_model.dart:432-433`; unordered dancers `:436-437`) and sets `errorString` for
+unresolved / Do-Your-Part (`:439-442`). So these tests catch **crashes, collisions and unresolved
+dancers** — never final positions against an expected formation.
+
+**Reusable:** the 289 + 275 sequences are plain-text call lists, ideal inputs for our harnesses, and
+their only oracle is "no error / no collision", which is cheap to mirror. But copying them is a
+licensing question, not a technical one (§2).
+
+### 10.2 The committed generator is STALE and destructive
+
+`util/xml_to_code.dart` is the XML → Dart generator, but **as committed it cannot reproduce the
+committed output**:
+
+- It emits `import '../../formations.dart'` (`:263`), `Formations.<Name>` (`:174`, `:305`) and
+  `DancerModel.fromData` (`:150`). Measured: `lib/formations.dart` **does not exist** (removed in
+  `ac490d23` "Rework static formations, remove formations.dart"), and `DancerModel` / `class
+  Formations` occur **0 times** in `lib/`. The committed call files use `Dancer.fromData` and inline
+  `Formation('…')` instead.
+- Worse, `writeCalls()` **deletes `lib/calls` recursively before regenerating** (`:202`).
+
+So running it as committed would first wipe `lib/calls`, then emit code that does not compile. **Treat
+it as historical documentation of the pipeline, not as a working tool.**
+
+`util/code_to_xml.dart` is the *reverse/legacy* path (Dart → `web/xml/**`, `:38-46,84`), and `web/xml`
+plus `web/html` are gitignored. It is not the current pipeline.
+
+### 10.3 Version pins and conventions
+
+`pubspec.yaml:8` version `1.6.109+279`; `:11` `sdk: ">=3.10.0"`. Assets are declared at
+`pubspec.yaml:57-68` as `assets/{ms,plus,a1,a2,c1,c2,c3a,c3b,info,src}` — note **no `b1`/`b2`**, matching
+the finding that those directories do not exist upstream and `ssd/…` links are remapped into `ms`
+(`lib/tam_utils.dart:225-233`) — while our own tree *does* have `b1`/`b2` (§2.3). `analysis_options.yaml:4`
+still includes the deprecated `package:pedantic`. `Words.init()` is mandatory before any sequencer
+lookup (`sequencer_unit_test.dart:52`; `lib/sequencer/words.dart:44`).
+
+---
+
+## 11. Things that would be wrong to assume
 
 1. **That the sequencer parses XML at runtime.** It does not for calls (generated) *or* moves
    (hand-transcribed) — §4.
@@ -533,10 +746,18 @@ teacher-facing formation picker.
     not network fetches** (`lib/tam_utils.dart:236-238`).
 14. **That our `formations.xml` is upstream's.** It is not — we changed Static Square's orientation
     (§2).
+15. **That upstream's tests verify call motion.** They do not. The unit test's expected-result
+    parameter is dead code and all 275 widget-test expectations are the empty string; the suite
+    catches crashes, collisions and unresolved dancers only (§10.1).
+16. **That `util/xml_to_code.dart` regenerates `lib/calls`.** It is stale — it references
+    `formations.dart` / `Formations` / `DancerModel`, none of which exist — and it **deletes
+    `lib/calls` first**, so running it destroys the tree before failing to compile (§10.2).
+17. **That `formations.xml` is the source of truth for formations.** It is a generated, stale mirror of
+    `lib/formation.dart`, and the two have drifted by 34 vs 25 names in each direction (§4, §9.6).
 
 ---
 
-## 10. Transferable artifacts — the highest-value things to mine
+## 12. Transferable artifacts — the highest-value things to mine
 
 Ranked by how directly they help this repo:
 
@@ -560,10 +781,16 @@ Ranked by how directly they help this repo:
    hierarchical selector semantics, a good model for a teacher-app call picker.
 8. **`math/hands.dart` bitmask + `handhold.dart` scoring** (`handhold.dart:48-55`) — if we ever want
    grip-aware handhold rendering, the value-4 grip bit is the piece our string union dropped (§7.5).
+9. **878 plain-text call sequences** — 289 in `sequencer_unit_test.dart` and 275 in
+   `sequencer_test.dart` (plus the rest as worked examples) — ready-made engine inputs whose only
+   oracle upstream is "no error / no collision" (§10.1). Cheapest available source of real
+   multi-call sequences for our harnesses, subject to §2.
+10. **`lib/formation.dart`'s 280-entry formation list** — the live reference vocabulary, against the
+    273-entry XML mirror we actually ship, as a drift check for our own formation names (§9.6).
 
 ---
 
-## 11. Traps already encountered here
+## 13. Traps already encountered here
 
 - **`assets/src/formations.xml` and `poc/src/assets/formations.xml` are the same byte length and show
   no differing *lines* under a naive line-diff, yet they are not identical.** A check that only
@@ -579,3 +806,7 @@ Ranked by how directly they help this repo:
 - **`lib/` has no `lib/calls/` counterpart for moves.** Anyone looking for "the Dart equivalent of
   `moves.xml`" will find `lib/moves.dart` and reasonably assume it is generated from the XML. It is
   not (§4), and the two rosters (109 vs 156) differ.
+- **The generator direction is not the same for all three data files.** Calls: XML → Dart. Moves:
+  hand-transcribed in Dart (XML is legacy). Formations: **Dart → XML**, so the XML is the stale
+  artefact and copying it copies the drift. Assuming one direction for all three produces exactly the
+  wrong conclusion about which file to trust in each case (§4, §9.6).

@@ -877,6 +877,47 @@ export function boardForAlignment(template: Board, spec: AlignmentSpec): Board |
   return boardsForAlignment(template, spec).boards[0] ?? null;
 }
 
+/**
+ * Build the board an All8 `[FASR]` setup CODE names, with no diagram needed.
+ *
+ * This is what makes a published figure self-contained: All8 writes `[L1p]` on the line, and that
+ * code plus the engine's own formation template is enough to stand the dancers up. The diagram is
+ * only needed because All8 also DRAWS one; the code already fixes everything the diagram carries
+ * (formation letter, arrangement, sequence, relationship).
+ *
+ * `templateForLetter` supplies the engine formation for a letter, so this stays pure and does not
+ * reach into the Sequencer.
+ *
+ * MEASURED against All8's own 29 published alignments: this reproduces the diagram-derived board
+ * for **26**. The two it cannot are `[P]` (`P1c`, `P2r`, i.e. Beginning Double Pass Thru), and the
+ * refusal is CORRECT rather than a gap: for that formation the boys' relationships genuinely
+ * disagree, so no single relationship letter is justified
+ * (see `relationshipStateOf`'s reason). All8 still labels those pages with a letter, which is why a
+ * caller reading the page sees one and the engine will not invent it. The diagram is the only way to
+ * pin those two, so a caller importing them must set the board up by hand.
+ */
+export function boardForFasrCode(
+  code: string,
+  templateForLetter: (letter: string) => Board | null,
+): { board: Board | null; spec: AlignmentSpec | null; reason?: string } {
+  const spec = parseAlignmentId(code);
+  if (!spec) return { board: null, spec: null, reason: `"${code}" is not a FASR setup code` };
+  const template = templateForLetter(spec.letter);
+  if (!template) return { board: null, spec, reason: `no engine template for [${spec.letter}]` };
+  const board = boardForAlignment(template, spec);
+  if (!board) {
+    return {
+      board: null,
+      spec,
+      reason: `no board is in the state ${code}`
+        + (relationshipStateOf(template, spec.letter).code === null
+          ? ` - and for [${spec.letter}] no relationship letter is justified at all`
+          : ''),
+    };
+  }
+  return { board, spec };
+}
+
 const HEADING_BY_CHAR: Record<string, number> = { '>': 0, '^': QUARTER, '<': 2 * QUARTER, v: 3 * QUARTER };
 
 /** Project cells carrying (x, y, facing) onto their lattice, top row first. */

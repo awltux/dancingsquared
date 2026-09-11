@@ -5,7 +5,7 @@
 
 import * as THREE from 'three';
 
-import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures } from 'dancing-squared-engine';
+import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER } from 'dancing-squared-engine';
 import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
@@ -606,6 +606,29 @@ export class SequencerController implements SequencerUI {
     }
 
     this.reset();
+    // Apply the [FASR] setup code, so a published figure is danced from the board its page assumes.
+    // The code alone is enough - no diagram - because the FASR state fixes the formation, the
+    // arrangement and the relationships, and the engine's own template supplies the metric and
+    // facings (engine alignment.ts boardForFasrCode). Two of All8's 29 published alignments cannot
+    // be derived this way and FAIL LOUDLY rather than being silently ignored: [P] (Beginning Double
+    // Pass Thru), where no relationship letter is justified at all.
+    let setupNote = '';
+    if (fig.setup) {
+      const built = boardForFasrCode(fig.setup, (letter) => {
+        for (const name of FORMATIONS_FOR_LETTER[letter] ?? []) {
+          const b = this.seq.boardForFormation(name);
+          if (b) return b;
+        }
+        return null;
+      });
+      if (built.board) {
+        this.seq.setBoard(built.board);
+        this.startBoard = built.board;
+        setupNote = `setup [${fig.setup}] applied`;
+      } else {
+        setupNote = `setup [${fig.setup}] NOT applied — ${built.reason}`;
+      }
+    }
     const names = fig.calls.flatMap((c) => c.names);
     let applied = 0;
     let stopped = '';
@@ -620,7 +643,7 @@ export class SequencerController implements SequencerUI {
     }
     const parts = [`${applied}/${names.length} calls`];
     if (stopped) parts.unshift(`✗ stopped${stopped}`);
-    if (fig.setup) parts.push(`setup [${fig.setup}] not applied — Set the formation first`);
+    if (setupNote) parts.push(setupNote);
     if (figures.length > 1) parts.push(`${figures.length} figures in the text, loaded figure 1`);
     this.all8InfoEl.textContent = parts.join(' · ');
     this.render();

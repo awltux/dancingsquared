@@ -79,6 +79,7 @@ export {
   REFERENCE_PAIR_SPOTS,
   boardsForAlignment,
   boardForAlignment,
+  boardForFasrCode,
   boardFromDiagram,
   readLayout,
 } from './sequencer/alignment.js';

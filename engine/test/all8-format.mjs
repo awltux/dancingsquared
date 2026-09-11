@@ -25,7 +25,17 @@ import {
   formatAll8Call,
   looksLikeAll8Call,
   ALL8_PITCH,
+  parseAlignmentId,
+  boardFromDiagram,
+  boardForFasrCode,
+  FORMATIONS_FOR_LETTER,
+  Sequencer,
+  setParser,
 } from '../dist/index.js';
+import { DOMParser } from '@xmldom/xmldom';
+import { callsByTitle } from './lib/engine-calls.mjs';
+
+setParser(DOMParser);
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fixture = JSON.parse(readFileSync(path.join(root, 'test/fixtures/all8-figures.json'), 'utf8'));
@@ -164,6 +174,65 @@ console.log('\n== 4. the exporter must not invent vocabulary ==');
   for (const t of ['Get-outs', 'practice', 'anyone', 'for', '"Sneaky"', '(*)'])
     if (looksLikeAll8Call(t)) fail(`${t} is page text and should NOT look like an All8 call`);
   ok('the prose/call discriminator accepts every real token shape and rejects page words');
+}
+
+// ---------------------------------------------------------------------------------------------
+console.log('\n== 5. a [FASR] setup code derives the board All8\'s own diagram draws ==');
+// A published figure is self-contained only if `[L1p]` is enough to stand the dancers up. It is:
+// the FASR state fixes the formation letter, arrangement, sequence and relationship, and the
+// engine's own template supplies the metric and facings - no diagram needed. The oracle here is
+// All8's OWN diagram for the same alignment, so this compares the code path against the drawing
+// path rather than against itself.
+{
+  const assets = path.resolve(root, '../poc/src/assets');
+  const seq = new Sequencer(
+    readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
+    readFileSync(path.join(assets, 'formations.xml'), 'utf8'),
+    callsByTitle(assets),
+  );
+  const templateForLetter = (letter) => {
+    for (const name of FORMATIONS_FOR_LETTER[letter] ?? []) {
+      const b = seq.boardForFormation(name);
+      if (b) return b;
+    }
+    return null;
+  };
+  const getouts = JSON.parse(readFileSync(path.join(root, 'test/fixtures/all8-getouts.json'), 'utf8'));
+  // Identity-free geometry signature: WHICH home couple stands where is not what the FASR state
+  // pins, so the comparison is over the set of (gender, spot, facing).
+  const geo = (b) => b.dancers
+    .map((d) => `${d.gender}@${d.x.toFixed(2)},${d.y.toFixed(2)},${((d.heading * 180) / Math.PI).toFixed(0)}`)
+    .sort().join(' ');
+
+  let same = 0;
+  const refused = [];
+  const wrong = [];
+  let skipped = 0;
+  for (const a of getouts.alignments ?? []) {
+    const spec = parseAlignmentId(a.id);
+    const template = spec ? templateForLetter(spec.letter) : null;
+    if (!spec || !template) { skipped++; continue; }
+    const fromDiagram = boardFromDiagram(template, spec.letter, spec.arrangement, a.diagram);
+    if (!fromDiagram.board) { skipped++; continue; }
+    const built = boardForFasrCode(a.id, templateForLetter);
+    if (!built.board) { refused.push(`${a.id} (${built.reason})`); continue; }
+    if (geo(built.board) === geo(fromDiagram.board)) same++;
+    else wrong.push(a.id);
+  }
+
+  if (wrong.length > 0) fail(`${wrong.length} FASR code(s) derived a board that disagrees with All8's diagram: ${wrong.join(', ')}`);
+  else ok(`${same} of All8's published alignments derive the SAME board from the code as from its diagram`);
+
+  // The refusals must be the known, correct ones: [P] is Beginning Double Pass Thru, where the
+  // boys' relationships genuinely disagree so NO relationship letter is justified. All8 labels the
+  // page with one anyway. Pinning the exact set means a NEW refusal shows up as a failure rather
+  // than blending into a count.
+  const expectedRefusals = new Set(['P1c', 'P2r']);
+  const unexpected = refused.filter((r) => !expectedRefusals.has(r.slice(0, r.indexOf(' '))));
+  if (unexpected.length > 0) fail(`unexpected FASR refusal(s): ${unexpected.join('; ')}`);
+  else if (refused.length !== expectedRefusals.size) fail(`expected exactly ${expectedRefusals.size} refusals, got ${refused.length}: ${refused.join('; ')}`);
+  else ok(`the only refusals are the known [P] pair (${refused.length}) - Beginning Double Pass Thru, where no relationship letter is justified`);
+  if (skipped > 0) console.log(`  note  ${skipped} alignments skipped (no FASR id or no diagram to compare against)`);
 }
 
 // ---------------------------------------------------------------------------------------------

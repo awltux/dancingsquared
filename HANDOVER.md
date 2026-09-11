@@ -75,8 +75,11 @@ list exists to expose, and the gate's stale-gap check is what caught it.
 
 **The All8 codec is now reachable from the POC.** The sequencer panel has an **All8** row — a text
 box plus Import/Export — so a figure from an all8.com page can be pasted in and danced, and the
-current sequence can be rendered back into All8 notation. An `[FASR]` setup code is reported but not
-applied, because the engine still has no FASR-code → board derivation (PLAN.md Phase 7).
+current sequence can be rendered back into All8 notation. **A `[FASR]` setup code IS applied**
+(`boardForFasrCode` in `alignment.ts` derives the board from the code alone, no diagram needed,
+measured against All8's own 29 published alignments). The two it cannot derive are `[P]` — Beginning
+Double Pass Thru — where the boys' relationships genuinely disagree so no relationship letter is
+justified; that refusal is correct and pinned, and those two want the board set up by hand.
 
 ### 2.1 All8 sequence import/export
 

@@ -406,6 +406,22 @@ Rule that governs both, and which the implementation must not "simplify" away:
 - **`[square brackets]` in export output mark a call with no All8 abbreviation.** Inventing a token
   would produce something All8 never prints and nothing could read back.
 
+**A `[FASR]` setup code IS applied, and it needs no diagram.** All8 writes `[L1p]` on the line, and
+that code is enough to stand the dancers up: the FASR state fixes the formation letter, the
+arrangement, the sequence and the relationship, and the engine's own formation template supplies the
+metric and facings, so the diagram All8 *also* draws is redundant for dancing. The bridge is
+`boardForFasrCode(code, templateForLetter)` (`alignment.ts`), which walks
+`parseAlignmentId` → template → `boardForAlignment` (that last one enumerating every identity
+assignment and keeping those in the requested state).
+
+**Two of All8's 29 published alignments cannot be derived this way, and the refusal is correct rather
+than a gap.** Both are `[P]` — Beginning Double Pass Thru — where the boys' relationships genuinely
+disagree, so no single relationship letter is justified and the engine will not invent one; All8
+still labels those pages with a letter, which is why a caller sees one. `boardForFasrCode` reports
+that as its reason, and `test/all8-format.mjs` pins the exact refusal set so a *new* refusal shows up
+as a failure rather than blending into a count. Callers importing those two must set the board up by
+hand.
+
 ### 9.6.3 Export
 
 `formatAll8Figures(names)` emits All8 text and applies call sharing itself: a figure whose leading

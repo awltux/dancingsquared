@@ -135,6 +135,27 @@ const { figures, skipped } = parseAll8Figures(fixture.figuresText);
   console.log(`        ${[...undecoded.entries()].sort((a, b) => b[1] - a[1]).map(([t, n]) => `${t}(${n})`).join(' ') || '(none)'}`);
 }
 
+console.log('\n== 2b. the page\'s blank lines are LAYOUT, not sharing breaks ==');
+{
+  // A blank line used to end a sharing block. fig_m.htm uses blank lines to set off groups of
+  // figures, and a group does not always begin with a left-most line: at raw line 43 a section
+  // starts at indent 34, so the lines under it (`--DoSaD --SqTh3 --TrdBy` at 18, `--StepW G-Trd`
+  // at 26) were LESS indented than the block base. Their share count went negative and was clamped
+  // to zero, turning a shared continuation into a standalone figure beginning mid-call. Measured:
+  // 33 figures "began" with `Scoot Back`, and 46 of 188 failed at their first call.
+  const again = parseAll8Figures(fixture.figuresText);
+  if (again.shareClamps !== 0) {
+    fail(`${again.shareClamps} row(s) were less indented than their own sharing block, so the block was cut wrong`);
+  } else {
+    ok('no sharing block was cut so that a row falls outside its own base');
+  }
+  // ...and the symptom itself: a figure must not BEGIN with a call that is only ever reached
+  // mid-figure. `Scoot Back` is the one that showed up, 33 times.
+  const startsWithScoot = again.figures.filter((f) => f.calls[0]?.names.includes('Scoot Back')).length;
+  if (startsWithScoot) fail(`${startsWithScoot} figures begin with Scoot Back - a lost shared prefix`);
+  else ok('no figure begins with a mid-figure call (the Scoot Back symptom is gone)');
+}
+
 // ---------------------------------------------------------------------------------------------
 console.log('\n== 3. round trip: export -> import ==');
 {

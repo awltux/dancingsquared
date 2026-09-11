@@ -186,23 +186,33 @@ const blankSpan = (line: string, s: { start: number; end: number }) =>
  * Lines that are not figures - the page preamble, section notes - are returned in `skipped` rather
  * than silently dropped, so an import can report exactly what it ignored.
  */
-export function parseAll8Figures(text: string): { figures: All8Figure[]; skipped: string[] } {
+export function parseAll8Figures(text: string): { figures: All8Figure[]; skipped: string[]; shareClamps: number } {
   const rows: All8Figure[] = [];
   const skipped: string[] = [];
   let pending: (All8Row | null)[] = [];
+  /** How many rows were LESS indented than their block's base, i.e. whose share count came out
+   * negative and had to be clamped. Non-zero means the block's base is wrong - the bug that made
+   * a blank line look like a sharing break. Reported rather than hidden, and asserted to be 0. */
+  let shareClamps = 0;
 
   const flush = () => {
     if (!pending.length) return;
-    parseBlock(pending.filter((r): r is All8Row => r !== null), rows);
+    shareClamps += parseBlock(pending.filter((r): r is All8Row => r !== null), rows);
     pending = [];
   };
 
   text.split('\n').forEach((line, i) => {
     if (line.trim() === '') {
-      // A blank line ENDS a sharing block. That is not cosmetic: the share counts are read from
-      // indentation relative to the block's own left-most column, so a page-text line at column 0
-      // would otherwise become the base and shift every subsequent share count negative.
-      flush();
+      // A blank line is PAGE LAYOUT, not a sharing break, and treating it as one corrupted whole
+      // sections of fig_m.htm. The page uses blank lines to set off groups of figures, and a group
+      // does not always begin with a left-most line: at raw line 43 a section starts at indent 34,
+      // so the next lines - `--DoSaD --SqTh3 --TrdBy` at indent 18, `--StepW G-Trd ...` at 26 - are
+      // LESS indented than the block's own base. Their share count went NEGATIVE and was clamped to
+      // zero, which silently turned a shared continuation into a standalone figure that begins
+      // mid-call. 46 of the 188 figures then failed at their "first" call.
+      //
+      // Prose still breaks a block (below), which is what the old rationale was really protecting
+      // against: a page-text line at column 0 must not become the base. Blank lines are not text.
       return;
     }
     const marked = blankQuoted(blankRowFlag(line));
@@ -244,7 +254,7 @@ export function parseAll8Figures(text: string): { figures: All8Figure[]; skipped
     pending.push({ indent: first.col, own: calls, links, setup, sourceLine: i, spoken: /"/.test(line) });
   });
   flush();
-  return { figures: rows, skipped };
+  return { figures: rows, skipped, shareClamps };
 }
 
 /** Pull a leading `[FASR]` setup code off a line. Returns no setup when there is none. */
@@ -269,10 +279,15 @@ interface All8Row {
 
 /** Resolve one contiguous block: the share count of a row is its indent in CELLS, and its shared
  * prefix is the first N calls of the nearest row above that has at least N calls. */
-function parseBlock(block: All8Row[], out: All8Figure[]): void {
+function parseBlock(block: All8Row[], out: All8Figure[]): number {
   const base = Math.min(...block.map((r) => r.indent));
   const resolved: All8Call[][] = [];
+  let clamps = 0;
   for (const r of block) {
+    // Count a NEGATIVE offset before clamping it: a row less indented than its own block's base
+    // means the block was cut in the wrong place, and clamping hides it by turning a shared
+    // continuation into a standalone figure that begins mid-call.
+    if (r.indent < base) clamps++;
     let shared = Math.max(0, Math.round((r.indent - base) / ALL8_PITCH));
     let prefix: All8Call[] = [];
     if (shared > 0) {
@@ -290,6 +305,7 @@ function parseBlock(block: All8Row[], out: All8Figure[]): void {
     const links = r.links.map((l) => ({ ...l, afterCall: l.afterCall + shared }));
     out.push({ calls, setup: r.setup, shared, links, sourceLine: r.sourceLine, spoken: r.spoken });
   }
+  return clamps;
 }
 
 /**

@@ -1353,6 +1353,35 @@ copy, and they had drifted to 30 names vs 16 sharing 13 - the engine's was stale
 list again, in the engine, re-exported by `getout-decode.mjs`. 158 table names, 26 declared gaps, no
 stale entries.
 
+#### round 37: a blank line is LAYOUT, not a sharing break - 37 calls had been dropped
+
+Found by asking the figures suite a question it was not answering: **where** do the figures stop? 46
+of the 188 failed at their *first* call, and 33 of those "began" with `Scoot Back` - a call that
+cannot open a singing call. That is the signature of a lost shared prefix, not a vocabulary gap.
+
+The reader treated a blank line as ending a sharing block. `fig_m.htm` uses blank lines to set off
+groups of figures, and a group does not always start with a left-most line. At raw line 43 a section
+begins at indent 34, so the lines beneath it - `--DoSaD --SqTh3 --TrdBy` at indent 18, `--StepW G-Trd`
+at 26 - are **less indented than their own block's base**. Their share count went negative and was
+clamped to zero, which silently rewrote a *continuation* as a *standalone figure that begins
+mid-call*. The old code's rationale for breaking on blanks was to stop a column-0 page-text line
+becoming the base; prose lines already break a block on their own path, so that protection did not
+need the blank-line rule at all.
+
+```
+call cells recovered    1683 -> 1720   (37 calls were being LOST, not just mis-attributed)
+figures failing at call 0    46 -> 13
+`Scoot Back` first-call failures  33 -> 0
+```
+
+The parser now **counts** a row that falls outside its block's base (`shareClamps`) instead of
+clamping it in silence, and `all8-format.mjs` asserts it is zero. That is a directly causal gate: it
+would have fired on the old behaviour. Also asserted: no figure may begin with a mid-figure call.
+
+What remains failing at call 0 is a much more honest 13: `Heads Right and Left Thru` (6), `Heads Box
+the Gnat` (4), `All Promenade 1/2` (1) and a few one-offs - each a genuine applicability question from
+Static Square rather than a mis-read page.
+
 
 ### Phase 4g — a second authoring, and it lands cleanly
 

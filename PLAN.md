@@ -1413,6 +1413,38 @@ a comma-join that needs splitting on `,` = "while", an orphaned `S-` left by a b
 `--Keep` (not in the key), and `H-meet-T1/4` (prose in a call column).
 
 
+## State of the objective (recorded at round 39)
+
+The goal set for this workstream was: continue PLAN.md Phases 0-7, add All8-format sequence
+import/export, and test the importer against the real all8.com archives. Those concrete deliverables
+are done and gated:
+
+- **Phases 5e and 7** (the two the goal named as remaining) are DONE - see their sections above.
+- **All8 import/export is a shipped feature**, not a harness: `all8-format.ts` parses and formats the
+  2+5 designator/call notation, `[FASR]` setup headers, call sharing, get-out links and optional
+  cells; the POC's UI wires it up; `all8-format.mjs` holds 20 checks including a full round trip.
+- **The importer is tested against both published archives**: the get-out corpus (265 published
+  lines, `getout.htm`) and all 188 Mainstream singing-call figures (`fig_m.htm`), the latter through
+  `all8-figures.mjs` and its re-usable reader `test/lib/all8-figures.mjs`.
+
+**What is NOT finished, stated plainly so it is not lost:**
+
+1. **The fig_m target suite is RED, by design.** `npm run verify:figures` reports 11 unread cells
+   across 7 tokens and 21 call names the engine lacks, and 1 of 188 figures runs end to end from
+   Static Square. It is excluded from both verify tiers on purpose - the user's framing was that it
+   runs "once the engine has fixed existing edge cases", so it is a FINISH LINE, not a gate.
+2. **Phase 4e is still open.** Its two recorded items remain blocked for stated reasons (facing-
+   mismatch variants: nothing upstream pins facings; the unrecognised-board bucket: no criterion).
+   `Square Thru 1`/`5`/`6` needs `Explode` geometry first.
+3. **The last 7 figure-page tokens need a NEW MECHANISM, not more table entries.** Each is a
+   notation feature or malformed data and each is documented with All8's own definition in
+   `all8-notation.ts`: the `1-1/2` and `1/2of` neighbour modifiers (composition, like `Expl&`), a `/`
+   designator absent from every designator list in the key, a comma-join needing a split on `,` =
+   "while", an orphaned `S-` left by a blanked quoted aside, `--Keep`, and `H-meet-T1/4`.
+
+The decoder went from **109 unread figure-page cells across 46 tokens to 11 across 7**, and the
+get-out corpus's "stopped at a token we cannot decode" from 45 lines to 41.
+
 ### Phase 4g — a second authoring, and it lands cleanly
 
 `Right Pull By` is the same gap with an even cleaner scaling law. Its two authorings put the couples

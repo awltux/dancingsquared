@@ -21,15 +21,39 @@ Feature: The Get-out Search
     And a standard finish is one of Allemande Left, Right and Left Grand, or Promenade
 
   @bind:STANDARD_FINISHES @bind:canonicalName
-  Scenario: A finish closes the square, and the path ends with it
+  Scenario: A finish closes the square, but it is not the only way a path may end
     Given a board that is one standard finish away from home
     When a getout is asked for
-    Then the returned path must end with the finish that closes it
-    And the finish must be one of the declared standard finishes, matched through the same name canon the rest of the engine uses
+    Then the returned path may end with the finish that closes it
+    And that finish must be one of the declared standard finishes, matched through the same name canon the rest of the engine uses
+    But a path may ALSO end without one, when the search found an exact route home instead
     # Engine: constants.ts STANDARD_FINISHES = ['Allemande Left', 'Right and Left Grand', 'Promenade'];
     #          canonicalName resolves the spoken name to the catalogue's. The list is shared with the
     #          corpus harness that measures "did this get-out reach a resolve", so the search and the
-    #          measurement cannot drift apart - the plan records that as the reason they are one list.
+    #          measurement cannot drift apart.
+    #
+    #          MEASURED, and it corrected an earlier version of this scenario: across a bounded sample
+    #          of 15 accepted amendments, 11 ended at a standard finish but FOUR did not - two at
+    #          `Heads Promenade 1/2`, one at `All 8 Linear Cycle`, and one at a rigid single-call
+    #          getout (`All 4 Ladies make a right-hand star, turn it once around; boys Courtesy Turn
+    #          your girl`). So the real invariant is NOT "the last call is a finish" - it is that the
+    #          path, applied, takes the set home; the convention is what lets a FINISH serve as that
+    #          final step, and an exact route home needs no finish at all. Asserting the stronger
+    #          claim would have been wrong, and it is the kind of wrong that a spec is believed for.
+
+  @bind:getout
+  Scenario: A caller convention, and the refusal it still produces
+    Given a board from which no path home exists within the bound
+    When a getout is asked for
+    Then it must return null rather than a path that overshoots
+    And the cost of that refusal must be measured rather than assumed
+    # Engine: measured. In a bounded 34-pair sample of amendment candidates, the getout gate refused
+    #          TWO (~6%) that had already passed applicability and known-formation - so the gate is a
+    #          real but small constraint, not a free check and not a dominant one. Of the 15 that were
+    #          accepted, 11 (73%) were closed by the convention's finish, which is the measured reason
+    #          the convention matters here: without it those amendments would have had to find some
+    #          other exact route home. The sample is time-capped and small, and is reported as such -
+    #          an unbounded 392-pair sweep did not finish in ten minutes.
 
   @bind:getout
   Scenario: maxCalls bounds the path RETURNED, finish included

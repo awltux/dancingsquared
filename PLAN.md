@@ -1401,12 +1401,21 @@ job it was built for: the declared-gap list cannot silently drift out of date.
     rejected amendment carries a reason, and an unknown formation is refused by name.
     `selection.mjs` also **pins the API trap** — `Sequencer.getout` must keep taking only `opts` —
     because that mistake invalidated a whole round of measurements.
-  - **Why it is still unmeasured**: the correct measurement is expensive. 392 genuine getout searches
-    did not finish in 10 minutes, where the accidental home-board version took 2.4s. Measuring it
-    needs a bounded plan, not another ad-hoc sweep.
-
-  The original decision (an advisory gate recording `getoutVerified`, or unamendable) therefore still
-  has no evidence behind it. Still true: no UI wires this yet.
+  - **MEASURED, bounded (round 24)**: the convention is baked into `getout` with **no switch**, so an
+    exact before/after would mean reimplementing the pre-step-5 rule. What is measurable was measured,
+    time-capped at 100s and reporting the sample as an OUTPUT: of a **34-pair** sample (of 392
+    available) the getout gate refused **2 (~6%)** of the candidates that had already passed
+    applicability and known-formation — a real but SMALL constraint — and of the **15 accepted, 11
+    (73%) were closed by the convention's appended finish**, which is the measured reason the
+    convention matters for amendments. The cost is the search itself: ~3s per pair, which is why the
+    sample is small.
+  - **A claim of mine it corrected**: the getout spec had asserted "the path ends with the finish".
+    Measured, **4 of 15 did not** — two at `Heads Promenade 1/2`, one at `All 8 Linear Cycle`, one at
+    a rigid single-call getout. The real invariant is that the path, applied, takes the set home; the
+    convention is what lets a FINISH be that final step, and an exact route needs none.
+    `features/getout_search.feature` is corrected.
+  - The original DECISION (an advisory gate recording `getoutVerified`, or unamendable) still has no
+    evidence behind it — but it now has a cost estimate for the thing that would inform it.
 - **Phase 4:** ~~audit checks for the bounded non-geometric matching exceptions (§8.2)~~ — **DONE**:
   §8.2 requires that identity be real data and that anything unknown not act as identity, which makes
   the audit a **bound**. Matching may consult non-geometric information in exactly two ways, and

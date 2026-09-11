@@ -289,6 +289,17 @@ the derived calls and the filter as separate commits.
 
 ### The rule, and why the facing question dissolved
 
+> **CORRECTED IN PHASE 4H — READ THIS FIRST.** The paragraph below claims both calls swap position
+> *and* facing for both dancers. That is right for `Trade` and **WRONG for `Run`**: only the
+> **runner** turns 180°, and the dancer run around keeps its own facing, so a Run from a wave
+> produces a **two-faced line**. The reference's move curves settle it (`RunLeft`/`RunRight` carry
+> no rotation curve, so the facing follows the path tangent and reverses; `DodgeLeft`/`DodgeRight`
+> do carry one and end forward), and All8's `--SwThr B-Run --BendL` confirms it. The correction,
+> the measurement and what it cost are in **Phase 4h** below. The reasoning that led to the wrong
+> claim is kept here because the wrongness is instructive: positions came from the reference's
+> `dist/2` arithmetic and were right; facings were *inferred* from "what keeps a wave coherent" and
+> were not.
+
 **Both calls are SWAPS of complete dancer state — position AND facing — and nobody else moves.**
 That is what the reference's own arithmetic amounts to: `run.dart` scales the runner's path and
 the walker's dodge by the *same* `dist/2`, measured in the two dancers' own frames, which face
@@ -333,9 +344,11 @@ adds only precondition-carrying coded moves that actually apply.
 | `Boys Run` in `ENGINE GAPS` | top entry | **gone** |
 
 `selection.mjs` asserts the fixed behaviour: `Boys Trade` moves only the 4 boys (trading across the
-intervening girls, which is the reference's `inBetween` case) and leaves an Ocean Waves; `Boys Run`
-keeps the wave an Ocean Waves, swaps the layout `BB/GG/GG/BB → GG/BB/BB/GG`, and leaves every
-dancer on a distinct spot.
+intervening girls, which is the reference's `inBetween` case) and leaves an Ocean Waves; and `Boys
+Run` turns only the runner, so the wave becomes a **two-faced line** and every dancer keeps a
+distinct spot. *(Phase 1b asserted "keeps the wave an Ocean Waves" here; **Phase 4h** corrected it
+with the reference's move curves as evidence. The rest of this table is unaffected — it measures the
+`Trade` fix and the disappearance of `Boys Run` as a gap, not the facing rule.)*
 
 **Still open from this family.** `Cross Run`, `Fold` / `Boys Fold` / `Girls Fold`,
 `Centers Cast Off Three Quarters`, `Turn Back` and the group-scoped `Heads/Sides Square Thru N`

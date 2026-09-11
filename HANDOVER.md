@@ -131,8 +131,14 @@ and wrong from two parallel waves.
 **The fix is a derived call, and it is DONE.** The reference implements `Trade` and `Run` in CODE
 (`taminations-flutter/lib/sequencer/calls/ms/trade.dart`, `run.dart`) — which is why their `<tam>`s
 are not-for-sequencer. Both are now derived in `engine/src/sequencer/trade-run.ts` and registered in
-`coded-moves.ts`, and the rule is a **SWAP**: each pair of dancers exchanges its complete state —
-position AND facing — and nobody else moves. `trade.dart` is the specification for the pairing: trade
+`coded-moves.ts`, and the rule is a **SWAP of positions** — with a facing subtlety Phase 1b got wrong
+and **Phase 4h corrected**: only the **RUNNER** turns 180°, and the dancer run around keeps its own
+facing, so a `Run` from a wave produces a **two-faced line**. The reference's move curves settle it
+(`RunLeft`/`RunRight` carry no rotation curve, so the facing follows the path tangent and reverses;
+`DodgeLeft`/`DodgeRight` do carry one and end forward), and All8's `--SwThr B-Run --BendL` confirms
+it, because `Bend the Line` is legal from a two-faced line and not from a wave. `Trade` remains a
+full exchange: both traders end facing the way the other did. `trade.dart` is the specification for
+the pairing: trade
 with the nearest dancer in the direction holding an **odd** number of them, running **around**
 intervening dancers and passing right shoulders (so a trade ACROSS intervening dancers is legal —
 what `Boys Trade` from a `BggB` wave is). `run.dart` is the same shape: run around the side that has

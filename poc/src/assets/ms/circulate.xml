@@ -625,7 +625,32 @@
        those two waves - so from parallel waves the two calls coincide. They differ only
        where there are more than two circulating groups, which is why the column/8-chain
        tams above are separate. Like those wave tams this is authored as a half set: the
-       four paths below plus the engine's mirror of them make all eight dancers. -->
+       four paths below plus the engine's mirror of them make all eight dancers.
+
+       CORRECTION (Phase 5c) - THAT JUSTIFICATION WAS WRONG, and it is kept here only so the
+       next reader can see what it claimed. Two things are measurably false:
+
+        1. "each wave circulates within itself" is NOT what these paths do. Measured from
+           `Ocean Waves`, `Split Circulate` sends FOUR of the eight dancers straight across
+           the 4-unit gap into the OTHER wave (i1 (-2,3)->(2,3), i3 (-2,-1)->(2,-1),
+           i5 (2,-3)->(-2,-3), i7 (2,1)->(-2,1)). Nothing circulates within its own wave.
+
+        2. The two calls do NOT coincide. Jay King / Ray Vierra's definition (Handbook of
+           Modern Square Dancing, via ceder.net) is "two tracks of four that are side by
+           side rather than one track inside the other. Each dancer moves ahead in his or
+           her own box of four on own side of the wave" - so Split Circulate is two tracks
+           OF FOUR, while plain Circulate from waves is the single 8-dancer track.
+
+       What is fixed here is only #2's consequence for plain `Circulate`, using the SAME
+       authority Phase 5d used for facing lines: the reference DISPATCHES bare `Circulate`
+       by formation, and its `isLines()` test ("8 dancers in 2 general lines of 4 each",
+       `call_context.dart:1406`) is TRUE of a wave - so from waves `Circulate` IS
+       `All 8 Circulate`, and these tams now reuse that call's paths verbatim.
+
+       `Split Circulate` from waves is STILL WRONG and is NOT fixed here: it needs a
+       verified within-the-wave path set, and #1 shows the current one is not it. See
+       PLAN.md Phase 5c and `selection.mjs`, which pins the measured cross-wave motion so
+       the defect stays visible instead of being silently inherited. -->
   <tam title="Circulate"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
@@ -634,13 +659,13 @@
       <move select="Forward 4" />
     </path>
     <path>
-      <move select="Run Right" beats="4" />
+      <move select="Run Left" beats="4" />
     </path>
     <path>
       <move select="Forward 4" />
     </path>
     <path>
-      <move select="Run Right" beats="4" />
+      <move select="Run Right" scaleX="2" scaleY="3" beats="4" />
     </path>
   </tam>
 
@@ -649,13 +674,13 @@
        formation="Ocean Waves LH BGGB"
        difficulty="2">
     <path>
-      <move select="Run Left" beats="4" />
+      <move select="Run Left" scaleX="2" scaleY="3" beats="4" />
     </path>
     <path>
       <move select="Forward 4" />
     </path>
     <path>
-      <move select="Run Left" beats="4" />
+      <move select="Run Right" beats="4" />
     </path>
     <path>
       <move select="Forward 4" />

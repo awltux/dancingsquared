@@ -1176,6 +1176,65 @@ before leading punctuation was stripped.
 | corpus: stopped at an undecodable token | 82 | **56** |
 | corpus: stopped part-way through the body | 142 | 146 |
 
+### 5c — `Circulate` from a wave: FIXED; `Split Circulate` from a wave: PINNED AS WRONG
+
+The plan recorded *"the wave `Circulate` paths may be wrong — half the dancers move 4 units between
+the parallel waves. Needs an independent read **before** changing `Split Circulate` and `Circulate`
+together."* The independent read is done and it **refutes the file's own justification**.
+
+`ms/circulate.xml` claimed that the wave `Circulate` tams were byte-identical to `Split Circulate`
+"which is correct rather than a shortcut: with two parallel waves, 'Circulate' means each wave
+circulates within itself, and splitting a two-wave set in half gives exactly those two waves — so
+from parallel waves the two calls coincide." Measured from `Ocean Waves`:
+
+```
+Split Circulate (the shared paths)     Circulate == Split Circulate (byte-identical)
+  i1 (-2, 3)E -> ( 2, 3)E   4.00         the same board, dancer for dancer
+  i2 (-2, 1)W -> (-2, 3)E   2.00
+  i3 (-2,-1)E -> ( 2,-1)E   4.00       All 8 Circulate - what it should have matched
+  i4 (-2,-3)W -> (-2,-1)E   2.00         i1 (-2, 3)E -> ( 2, 3)E   4.00
+  i5 ( 2,-3)W -> (-2,-3)W   4.00         i2 (-2, 1)W -> (-2,-1)E   2.00
+  i6 ( 2,-1)E -> ( 2,-3)W   2.00         i4 (-2,-3)W -> (-2, 3)E   6.00
+  i7 ( 2, 1)W -> (-2, 1)W   4.00         i8 ( 2, 3)E -> ( 2,-3)W   6.00
+  i8 ( 2, 3)E -> ( 2, 1)W   2.00
+```
+
+**Two things are false about that claim, not one.** (1) The paths do not keep any wave to itself —
+**four** of the eight dancers cross the 4-unit gap. (2) The two calls do **not** coincide. Jay King /
+Ray Vierra (*Handbook of Modern Square Dancing*, via ceder.net): Split Circulate is *"two tracks of
+four that are side by side rather than one track inside the other. Each dancer moves ahead in his or
+her own box of four on own side of the wave"* — so Split is **two tracks of four**, while plain
+`Circulate` from a wave is the **single 8-dancer track**.
+
+**What is fixed** is only the second half's consequence for plain `Circulate`, using the authority
+Phase 5d already used for facing lines. The reference dispatches bare `Circulate` by formation, and
+its `isLines()` test — *"8 dancers in 2 general lines of 4 each"* — **is true of a wave**:
+
+```dart
+bool isInLine(Dancer d) => dancersToRight(d).length + dancersToLeft(d).length == 3;   // call_context.dart:1406
+bool isRightOf(Dancer d2) => this != d2 && d2.angleToDancer(this).isAround(pi*3/2);   // dancer.dart:392
+```
+
+`isRightOf`/`isLeftOf` are **facing-relative**, so for a wave dancer all three others lie to one side
+or the other and `isLines()` holds — meaning the reference sends a wave to `All 8 Circulate`. The wave
+`Circulate` tams now reuse that call's paths verbatim, and `selection.mjs` asserts the reference's
+rule (the two boards must be **the same**, not merely both legal).
+
+**This also corrected a claim in `selection.mjs` itself**: its own note said the reference "has NO
+ocean-wave branch … and falls through to `throw CallError('Cannot figure out how to Circulate.')`",
+concluding the wave reading was ours alone. It is the reference's reading, not ours.
+
+**`Split Circulate` from a wave is still wrong and is deliberately NOT fixed here.** It needs a
+verified within-the-wave path set and the current one is measurably not it; guessing would be worse
+than the defect. It is **pinned** instead — `selection.mjs` asserts the crossing is exactly 4, with
+the Jay King sentence quoted, so fixing it must flip an assertion rather than quietly change a
+number, and so nobody re-derives "the two calls coincide" from the stale comment (which is now
+corrected in place rather than deleted, so the next reader sees what it claimed).
+
+Measured: corpus **98 / 6 / 0 / 56 / 146 / 56 / 50 → 106 / 6 / 0 / 51 / 143 / 56 / 50**. Twelve get-out
+lines moved out of the finish-only and mid-body buckets into success — which is the expected
+signature of a motion fix that is actually right, and the opposite of what a cosmetic change does.
+
 Each needs its own measured step, ordered by blast radius:
 
 1. **`analyzeFasr`'s `corner` returns the opposite girl** — 0/4 agreement with the home ring, with
@@ -1186,8 +1245,10 @@ Each needs its own measured step, ordered by blast radius:
    the centres; `subsetOfRaw` picked one dancer from each line by bare index. Fixed by position
    predicate; `Centers Pass Thru` from Facing Lines now moves 4.
 3. **The wave `Circulate` paths may be wrong** — half the dancers move 4 units *between* the
-   parallel waves. Needs an independent read **before** changing `Split Circulate` and `Circulate`
-   together.
+   parallel waves. ~~Needs an independent read **before** changing `Split Circulate` and `Circulate`
+   together.~~ **DONE (5c)**: read done, and it refuted the file's own justification. `Circulate`
+   from a wave is now `All 8 Circulate` (the reference's `isLines()` dispatch); `Split Circulate`
+   from a wave is confirmed wrong and **pinned as a known defect** pending a verified path set.
 4. **`Circulate` from facing lines** — the shipped line variants are `Lines Facing In` / `Out`, not
    `Normal Lines`.
 5. **`boardSig` ignores facing** (confirmed: `board.ts:26` copies `heading`; line 29 never reads

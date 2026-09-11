@@ -106,35 +106,68 @@ console.log('\n== the isolated reading is still preferred where the subset is it
   }
 }
 
-console.log('\n== Circulate from a wave: the variant that was missing ==');
+console.log('\n== Circulate from a wave: the reference dispatches it to All 8 Circulate ==');
 // All8 indexes group circulates as "<group> Circulate", so every "Girls Circulate" in
 // the corpus needed the WHOLE-board Circulate to be legal from a wave - and no
 // Circulate variant matched the engine's own wave templates. Split Circulate, All 8
 // Circulate and the column/8-chain Circulate all had variants, so the missing one was
-// invisible until the corpus was run. Variants were added at the template's spacing
-// (x = -2, 2) in ms/circulate.xml, using the same four paths as Split Circulate from
-// the same formation - which is the same movement, because from two parallel waves
-// "Circulate" and "Split Circulate" both mean each wave circulates within itself.
+// invisible until the corpus was run.
+//
+// The variant was first authored BYTE-IDENTICALLY to `Split Circulate`, on the claim that "from two
+// parallel waves 'Circulate' and 'Split Circulate' both mean each wave circulates within itself".
+// Phase 5c MEASURED that claim false twice over, so this gate asserts the corrected reading:
+//
+//   1. Those paths do not keep any wave to itself: FOUR of the eight dancers cross the 4-unit gap
+//      into the other wave. So they are not "each wave circulates within itself" at all, and the
+//      old comment above them was describing a movement the file does not contain.
+//   2. The two calls do NOT coincide. Jay King / Ray Vierra (Handbook of Modern Square Dancing,
+//      via ceder.net): Split Circulate is "two tracks of four that are side by side rather than one
+//      track inside the other", each dancer moving "in his or her own box of four on own side of
+//      the wave". Plain Circulate from waves is the single 8-dancer track - which is exactly what
+//      the reference's own dispatch says, because its `isLines()` test ("8 dancers in 2 general
+//      lines of 4 each", call_context.dart:1406) is TRUE of a wave and `isLines()` maps to
+//      `All 8 Circulate`.
+//
+// The wave `Circulate` tams therefore now reuse `All 8 Circulate`'s paths verbatim - the same rule
+// Phase 5d applied to facing lines - and the gate asserts the reference's rule: from a wave the two
+// calls must produce the SAME board. "Both legal" would not be enough, and neither would "they
+// coincide", which is what the gate used to demand and is now known to be false.
 {
   const board = formationBoard('Ocean Waves');
+  const before = new Map(board.dancers.map((d) => [d.id, d]));
   const circ = seq.applyToBoard(board, 'Circulate');
-  const split = seq.applyToBoard(board, 'Split Circulate');
+  const all8 = seq.applyToBoard(board, 'All 8 Circulate');
+  const spotSet = (b) => [...new Set(b.dancers.map((d) => `${d.x},${d.y}`))].sort().join(' ');
+  const pose = (b) => JSON.stringify(b.dancers.map((d) => [d.id, d.x.toFixed(3), d.y.toFixed(3), face(d.heading)]).sort());
   if (!circ.legal) {
     fail(`"Circulate" is still illegal from Ocean Waves: ${circ.reason}`);
+  } else if (!all8.legal) {
+    fail('"All 8 Circulate" is illegal from Ocean Waves - inconsistent with the reference dispatch');
+  } else if (pose(circ.board) !== pose(all8.board)) {
+    fail('the reference dispatches bare Circulate from a wave to All 8 Circulate, but the two boards differ');
   } else {
-    const spots = (b) => [...new Set(b.dancers.map((d) => `${d.x},${d.y}`))].sort().join(' ');
-    const same = spots(circ.board) === spots(board);
-    const identical = JSON.stringify(circ.board.dancers.map((d) => [d.id, d.x, d.y, face(d.heading)]).sort())
-      === JSON.stringify((split.legal ? split.board : circ.board).dancers.map((d) => [d.id, d.x, d.y, face(d.heading)]).sort());
-    if (!same) fail('Circulate from a wave did not leave the same spots occupied');
-    else if (!split.legal) fail('Split Circulate from the same wave is illegal - inconsistent');
-    else if (!identical) fail('Circulate and Split Circulate differ from two parallel waves, where they should coincide');
-    else ok('Circulate is legal from a wave, fills the same spots, and matches Split Circulate exactly');
-    console.log(`      (the dancers all move 2 or 4 units and the wave pattern is preserved; the result is still ${seq.knownFormation(circ.board)})`);
-    console.log('      NOTE: those paths also move half the dancers between the two parallel waves, which is what');
-    console.log('      the SHIPPED Split Circulate wave variant does - a split call should keep each half in');
-    console.log('      place. The new Circulate inherits that motion by construction; if the wave paths are');
-    console.log('      wrong, both calls need the same correction. Recorded as an open item.');
+    ok('Circulate from a WAVE is legal and matches All 8 Circulate, as the reference dispatches');
+    if (spotSet(circ.board) !== spotSet(board)) fail('Circulate from a wave did not leave the same spots occupied');
+    else console.log(`      (the wave pattern is preserved; the result is still ${seq.knownFormation(circ.board)})`);
+  }
+  // PINNED DEFECT - NOT a claim that this is right. `Split Circulate` from a wave still moves half
+  // the dancers across to the other wave (point 1 above), and it is deliberately NOT fixed here:
+  // it needs a verified within-the-wave path set, and the current one is measurably not it.
+  // Pinning the exact count keeps the defect visible, catches a silent change to it, and stops the
+  // "the two calls coincide" claim being re-derived from the stale comment in ms/circulate.xml.
+  {
+    const split = seq.applyToBoard(board, 'Split Circulate');
+    if (!split.legal) {
+      fail(`"Split Circulate" is illegal from Ocean Waves: ${split.reason}`);
+    } else {
+      const crossing = split.board.dancers.filter((d) => Math.sign(before.get(d.id).x) !== Math.sign(d.x)).length;
+      if (crossing !== 4) {
+        fail(`Split Circulate from a wave used to cross exactly 4 dancers between the two waves; now ${crossing}. `
+          + 'That is the one number to check against Jay King\'s "own box of four on own side of the wave" before accepting it.');
+      } else {
+        ok('Split Circulate from a wave still crosses 4 dancers between the waves - KNOWN DEFECT, PINNED (PLAN.md Phase 5c)');
+      }
+    }
   }
   // Circulate from FACING LINES: FIXED (Phase 5d). This used to report "still illegal" and call it
   // a gap, because the shipped line variants were `Lines Facing In` / `Lines Facing Out` - the
@@ -405,16 +438,24 @@ console.log('\n== the wave circulate: the crossing is real, and the group readin
 //  2. The crossing is REAL: `Split Circulate` moves FOUR of the eight dancers 4 units across to
 //     the other wave. That is right for `All 8 Circulate` (one loop through both waves) and wrong
 //     for a split reading, where each half must stay put.
-//  3. `Circulate` from a wave is authored BYTE-IDENTICALLY to `Split Circulate`, so it inherits
-//     the crossing. Step 4b's argument that the two "coincide from parallel waves" is therefore
-//     true of the assets but rests on the split motion being right.
-//  4. The reference's coded `circulate.dart` has NO ocean-wave branch: its help text lists only
-//     All 8 / Column / Couples / Box, and for 8 dancers in a wave it falls through to
-//     `throw CallError('Cannot figure out how to Circulate.')`. So bare `Circulate` from a wave is
-//     not a call the reference will compute at all - it is our reading, not an authored counterpart.
+//  3. `Circulate` from a wave USED TO be authored BYTE-IDENTICALLY to `Split Circulate`, inheriting
+//     the crossing, and the standing argument that the two "coincide from parallel waves" was true
+//     of the assets only because both were the same wrong paths. FIXED in Phase 5c: the wave
+//     `Circulate` tams now reuse `All 8 Circulate`'s paths, so it crosses because All 8 crosses -
+//     which is correct - and no longer because a split call does.
+//  4. CORRECTED. This note used to say the reference's `circulate.dart` "has NO ocean-wave branch
+//     and for 8 dancers in a wave falls through to `throw CallError('Cannot figure out how to
+//     Circulate.')`", concluding that bare `Circulate` from a wave was ours alone. That is WRONG:
+//     the reference's `isLines()` test is `dancersToRight(d) + dancersToLeft(d) == 3` and
+//     `isRightOf`/`isLeftOf` are FACING-relative (`dancer.dart:392`: right of d is the direction at
+//     `d.angleFacing - pi/2`), so for a wave dancer all three others lie to one side or the other
+//     and `isLines()` IS true of a wave. Its `performCall` therefore dispatches a wave to
+//     `All 8 Circulate` - and its help text naming only All 8 / Column / Couples / Box is a
+//     statement of that same fact, not evidence of a gap. So the wave reading is the reference's,
+//     not our invention, and it is the authority the fix above follows.
 //
-// This section pins 2 and the collision that follows from it, so that fixing the paths has to flip
-// an assertion rather than quietly change a number.
+// This section still pins 2 and the collision that follows from it, so that fixing the split paths
+// has to flip an assertion rather than quietly change a number.
 {
   const wave = formationBoard('Ocean Waves');
   const before = new Map(wave.dancers.map((d) => [d.id, d]));

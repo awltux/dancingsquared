@@ -102,7 +102,7 @@ const seq = new Sequencer(
 //
 // The abbreviation table and tokenizer live in lib/getout-decode.mjs so this script
 // and getout-behaviour.mjs decode the corpus identically.
-import { TOKENS, MULTI_TOKENS, GROUP, tokenize, decodeToken, KNOWN_CATALOGUE_GAPS, decodeStats, formatRanking } from './lib/getout-decode.mjs';
+import { TOKENS, MULTI_TOKENS, GROUP, tokenize, decodeLine, KNOWN_CATALOGUE_GAPS, decodeStats, formatRanking } from './lib/getout-decode.mjs';
 
 let lines = 0, decoded = 0;
 const unknownTokens = new Map();
@@ -113,16 +113,12 @@ for (const a of fixture.alignments ?? []) {
     lines++;
     const tokens = tokenize(line);
     if (tokens.length === 0) continue;
-    const seen = [];
-    let ok = true;
-    for (const tk of tokens) {
-      const d = decodeToken(tk);
-      if (d === null) { ok = false; unknownTokens.set(tk, (unknownTokens.get(tk) ?? 0) + 1); break; }
-      seen.push(d);
-    }
-    if (!ok) continue;
+    // `decodeLine`, not `decodeToken`: only the line-level reader can resolve `Twice`, which
+    // repeats the previous call and therefore has no token-level answer.
+    const res = decodeLine(line);
+    if ('undecoded' in res) { unknownTokens.set(res.undecoded, (unknownTokens.get(res.undecoded) ?? 0) + 1); continue; }
     decoded++;
-    for (const d of seen) {
+    for (const d of res.calls) {
       const m = d.scoped ? scopedRefs : plainRefs;
       m.set(d.name, (m.get(d.name) ?? 0) + 1);
     }

@@ -201,8 +201,16 @@ whole-set names registered **46/48 → 54/56**, corpus success **59 → 66**, un
 **202 → 170**. Mid-body stops rose 68 → 94 — which is the phase working, not a regression: those
 lines are now readable, and they are genuine engine gaps instead of hiding behind an unread token.
 
-**A second pass over the same key (Phase 5b) took it to 213 of 265 (80%)**, corpus success
-**87 → 98**, undecodable stops **82 → 56**, admissible table names **120 → 126**. Seven base tokens
+**`Twice` is a rule, not vocabulary (82% now).** All8's key defines it as *"repeat the previous call
+again"*, so it cannot live in the token table — it is resolved in `decodeLine` against what has
+already been read, and that made `decodeLine` the single authority for reading a line (`decodeStats`
+and the conformance gate now call it rather than looping over `decodeToken`). `SpltC Twice RLG` is
+three calls, not two, and one line contains two `Twice`s. This also reclassified **6 lines out of
+"page text"**: a line the decoder could not read had been counted as prose rather than as a get-out
+it could not parse.
+
+**A second pass over the same key (Phase 5b) took it to 218 of 265 (82%)**, corpus success
+**87 → 108**, undecodable stops **82 → 56**, admissible table names **120 → 126**. Seven base tokens
 the key gives and the table lacked (`Hing`, `Roll`, `DoPas`, `SqTh1`, `Cir2`, `RunL`, `RunR` —
 four of them DECLARED engine gaps, since the calls really are missing), plus `TagI`, which All8
 publishes as the compound "Tag The Line - Face In" and which `MULTI_TOKENS` now expands to two calls

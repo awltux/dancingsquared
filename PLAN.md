@@ -1167,14 +1167,23 @@ and **Centers Promenade** (4 lines, all previously mis-read as unreadable), and 
 added as Circulate safely. The first version of the merge missed `! C-"Sashay..."` because it ran
 before leading punctuation was stripped.
 
+**`Twice` is not vocabulary, it is a rule.** All8's key defines it as *"repeat the previous call
+again"*, so it has no token-level answer and cannot live in `TOKENS`. It is resolved in `decodeLine`
+against what has already been read: `SpltC Twice RLG` is *Split Circulate, Split Circulate, Right and
+Left Grand*, and one corpus line contains two of them (`SHing Twice A8Cir Twice RLG`). That change
+made `decodeLine` the single authority for reading a line, so `decodeStats` and the conformance gate
+now call `decodeLine` instead of looping over `decodeToken` — otherwise a line's "readable" verdict
+would differ between the two. It also reclassified **6 lines out of "page text"**, because a line the
+decoder cannot read had been counted as prose rather than as a get-out it could not parse.
+
 | | Phase 4j | now |
 |---|---|---|
-| get-out lines decoded (of 265) | 195 (74%) | **213 (80%)** — 214 (81%) over all 553 published lines |
-| lines stopped at an unread token | 69 | **51** |
+| get-out lines decoded (of 265) | 195 (74%) | **218 (82%)** — 219 (82%) over all 553 published lines |
+| lines stopped at an unread token | 69 | **46** |
 | table names admissible | 120 | **126** |
-| corpus: reached the finish and applied it | 87 | **98** |
+| corpus: reached the finish and applied it | 87 | **108** |
 | corpus: stopped at an undecodable token | 82 | **56** |
-| corpus: stopped part-way through the body | 142 | 146 |
+| corpus: stopped part-way through the body | 142 | 145 |
 
 ### 5c — `Circulate` from a wave: FIXED; `Split Circulate` from a wave: PINNED AS WRONG
 

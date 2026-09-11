@@ -405,6 +405,20 @@ export function tokenize(line) {
     .filter((t) => !/^-+$/.test(t));
 }
 
+/** Tokens that repeat the PREVIOUS call rather than naming one. All8's key defines `Twice` as
+ * "repeat the previous call again", so it is not vocabulary and cannot live in `TOKENS`: it is
+ * resolved against what has already been read in the line. `SpltC Twice RLG` is two calls
+ * (Split Circulate, Split Circulate) followed by a third, and one corpus line contains two of
+ * them (`SHing Twice A8Cir Twice RLG`). */
+export const REPEAT_TOKENS = new Set(['Twice']);
+
+/** The punctuation contract for a single token, factored out because three callers need it:
+ * `tokenize`, `decodeTokenAll`, and `decodeStats`. Strips leading marker/joiner punctuation and a
+ * trailing joiner dash / sentence punctuation. */
+export function normalizeToken(token) {
+  return token.replace(/^[-\s!|]+/, '').replace(/[-\s!|,.;:]+$/, '').trim();
+}
+
 /** Decode a token to a call name, or null when we cannot read it. A group prefix is
  * decoded but flagged `scoped`, because the composed name ("Boys Run") is a reading
  * of All8's shorthand rather than a name All8 prints.
@@ -413,7 +427,7 @@ export function tokenize(line) {
  * (not only through `tokenize`) with tokens taken from a line, and a joiner dash must not be
  * the difference between reading a token and not. */
 export function decodeTokenAll(token) {
-  const t = token.replace(/^[-\s!|]+/, '').replace(/[-\s!|,.;:]+$/, '').trim();
+  const t = normalizeToken(token);
   if (!t) return null;
   const g = /^([ABGCEH])-(.+)$/.exec(t);
   if (g) {
@@ -437,6 +451,14 @@ export function decodeLine(line) {
   const tokens = tokenize(line);
   const calls = [];
   for (const tk of tokens) {
+    // `Twice` repeats what has already been read, so it is resolved HERE rather than in the token
+    // table - and with nothing behind it there is nothing to repeat, which is a genuine unreadable
+    // token rather than a silent no-op.
+    if (REPEAT_TOKENS.has(normalizeToken(tk))) {
+      if (calls.length === 0) return { calls, undecoded: tk };
+      calls.push({ ...calls[calls.length - 1] });
+      continue;
+    }
     const all = decodeTokenAll(tk);
     if (all === null) return { calls, undecoded: tk };
     calls.push(...all);
@@ -464,13 +486,17 @@ export function decodeStats(lines) {
   let decoded = 0;
   let undecoded = 0;
   for (const line of lines) {
+    const tokens = tokenize(line);
     let failed = false;
-    for (const tk of tokenize(line)) {
-      if (decodeToken(tk) === null) {
-        allOcc.set(tk, (allOcc.get(tk) ?? 0) + 1);
-        if (!failed) { firstFail.set(tk, (firstFail.get(tk) ?? 0) + 1); failed = true; }
-      }
-    }
+    tokens.forEach((tk, i) => {
+      // A repeat token is readable exactly when there is something behind it to repeat, which is
+      // the same rule `decodeLine` applies - and it must be applied here too, or a line whose only
+      // unknown is a leading `Twice` would be counted as decoded by one ranking and not the other.
+      const readable = REPEAT_TOKENS.has(normalizeToken(tk)) ? i > 0 : decodeToken(tk) !== null;
+      if (readable) return;
+      allOcc.set(tk, (allOcc.get(tk) ?? 0) + 1);
+      if (!failed) { firstFail.set(tk, (firstFail.get(tk) ?? 0) + 1); failed = true; }
+    });
     if (failed) undecoded++; else decoded++;
   }
   return { total: lines.length, decoded, undecoded, firstFail, allOcc };

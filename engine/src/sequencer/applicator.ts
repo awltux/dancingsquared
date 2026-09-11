@@ -235,6 +235,39 @@ export class CallApplicator {
       });
       return { board: { dancers: merged }, legal: true };
     }
+    // A call the catalogue publishes ONLY in its group-scoped form. `Cross Run` is
+    // the worked example: `ms/run.xml` has nine `Centers Cross Run` and nine
+    // `Ends Cross Run` tams and NO bare title at all, so a *gender* selection can
+    // never find it by name - even when that selection IS all centres or all ends
+    // and the scoped form therefore applies verbatim. All8 writes exactly this,
+    // and annotates the scoped form itself:
+    //
+    //   ! B-XRun   G-XRun   --PromH   (C-XRun both times)
+    //   !! G-XRun  B-XRun   --PromH   (E-XRun both times)
+    //
+    // MEASURED on the published get-outs: all three of the corpus's `XRun`
+    // refusals are of this kind - two where the gender selects all four CENTRES
+    // and one where it selects all four ENDS. Refusing them was the bug, not the
+    // missing call.
+    //
+    // The WHOLE board performs the scoped call, deliberately, and NOT the subset:
+    // `Centers Cross Run` means the centres cross-run AND the ends dodge, so the
+    // call moves all eight and a subset reading would drop the dodgers. This is
+    // only reached when the bare name is unknown AND the scoped name is a real
+    // catalogue call AND the selection is exactly that group, so nothing that
+    // matches today changes interpretation.
+    if (!this.library.hasCall(callName)) {
+      for (const group of ['Centers', 'Ends'] as const) {
+        const scopedName = `${group} ${callName}`;
+        if (!this.library.hasCall(scopedName)) continue;
+        const groupIds = this.resolveSelection(board, group);
+        if (!groupIds || groupIds.length !== ids.length) continue;
+        const groupSet = new Set(groupIds);
+        if (!ids.every((id) => groupSet.has(id))) continue;
+        const scoped = this.applyToBoardInner(board, scopedName, [], rebase, true);
+        if (scoped.legal) return scoped;
+      }
+    }
     // Fallback: the call as the WHOLE formation performs it, with only the
     // selected dancers actually moving. The parallel path is allowed here because
     // for many of these calls it is the only one that matches - an Eight Chain box

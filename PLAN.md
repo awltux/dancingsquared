@@ -1045,7 +1045,7 @@ Our `runRule` already exposes the `left`/`right` neighbour sets and the pairing 
 an extension of the same rule rather than a new one — but it is a **four-branch** rule and each branch
 is a real case, so it wants its own gate rather than being folded in silently.
 
-#### RESOLVED (round 33): Cross Run is NOT missing — do not implement it
+#### RESOLVED (rounds 33-34): the call exists — a SCOPED-NAME bug in the selection path was the gap
 
 An earlier draft of this section claimed the corpus's 3 `Cross Run` stops justified implementing the
 call, and then claimed that `Centers Cross Run` / `Ends Cross Run` returning LEGAL was an anomaly
@@ -1081,13 +1081,34 @@ So all five probed lines were behaving **correctly**:
 `Centers Cross Run` legitimately differs from `Centers Run` (dancers 1 and 4 swap destinations) — the
 "cross" is real motion, not an alias. Nothing here is a false positive and nothing is to be built.
 
-**Consequences and the one thing still open.** The get-out corpus's 3 Cross Run stops are all the
-*gender* forms (`G-XRun`, `B-XRun`), which the reference refuses because a gender selection mixes ends
-with centres in a Two-Faced Line. If those stops are on boards where the selected gender really is all
-ends or all centres, the refusal is a genuine gap after all and the corpus is right; if the selection
-is mixed, the refusal is correct and the stops are mis-attributed by the report. **This is one cheap
-probe away and it is the only remaining Cross Run question** — check the selection's end/centre purity
-on the three corpus boards before touching anything.
+**RESOLVED AND FIXED (round 34).** The three corpus stops were probed for selection purity — is the
+gender selection actually all-ends or all-centres, or does it mix them?
+
+| alignment | line | selection | purity |
+| --- | --- | --- | --- |
+| `5W2p` | `! B-Trd  G-Run  G-XRun  --Prom` | girls | **all four centres** |
+| `L.F2p` | `! B-XRun  G-XRun  --PromH  (C-XRun both times)` | boys | **all four centres** |
+| `L.F2p` | `!! G-XRun  B-XRun  --PromH  (E-XRun both times)` | girls | **all four ends** |
+
+All three are **pure**, so refusing them was a bug — and All8's own annotation on two of the lines
+(`(C-XRun both times)`, `(E-XRun both times)`) names the scoped form outright. The get-out report now
+moves all three out of "stopped part-way through the body":
+
+```
+corpus  129 / 6 / 0 / 54 / 134 / 45 / 44   ->   130 / 8 / 0 / 54 / 131 / 45 / 44
+        ^reached finish +1      ^reached resolve +2     ^body stops -3
+```
+
+The fix is general, not Cross-Run-specific (`applicator.ts`, in `applySelected` after the
+isolated-subset attempt): when the bare call name is unknown, a scoped name exists in the catalogue,
+and the selection is **exactly** that whole group, the WHOLE board performs the scoped call. The
+whole-board reading is deliberate, not the subset: `Centers Cross Run` means the centres cross-run
+*and the ends dodge*, so a subset reading would drop the dodgers and move only four dancers.
+
+Three gates in `selection.mjs` pin it: the girls→`Centers Cross Run` and boys→`Ends Cross Run`
+equivalences (board-for-board, so a silent subset reading fails), and a **mixed** control — four girls
+of which two are ends — which must still be refused. The mixed control is asserted to be shaped as
+intended before it is used, so it cannot pass vacuously.
 
 Also worth noting for later: some of these tams carry upstream's `sequencer="no"` attribute
 (`run.xml:770`, `:902`), which is Rich Reel's own marker that the tam is not solver-safe. We currently

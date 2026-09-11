@@ -800,6 +800,65 @@ console.log('\n== the NON-GEOMETRIC inputs to matching are exactly two, and both
   else ok('a rotated and a reflected copy both match at error ~0, so the search really is over rotation and reflection');
 }
 
+// ------------------------------------------- a call that only exists scoped
+// `Cross Run` has NINE `<tam title="Centers Cross Run">` and nine
+// `<tam title="Ends Cross Run">` entries in `poc/src/assets/ms/run.xml` and NO
+// bare title at all. So `splitSelection("Girls Cross Run")` yields
+// selection="Girls", call="Cross Run" - and neither the isolated-subset match nor
+// the whole-board fallback can find a call by that name, because there is none.
+// All8 relies on this working and annotates the scoped form itself:
+//     ! B-XRun   G-XRun   --PromH   (C-XRun both times)
+//     !! G-XRun  B-XRun   --PromH   (E-XRun both times)
+// All three of the published corpus's `XRun` refusals are of exactly this kind -
+// two where the gender selects all four CENTRES and one where it selects all four
+// ENDS. Measured effect of the fix: corpus 129/6/0/54/134 -> 130/8/0/54/131.
+{
+  // A Two-Faced Line: ends are boys, centres are girls, on both sides.
+  const twoFaced = (override = {}) => ({
+    dancers: assignHomeIdentity([
+      { id: 1, x: -2, y: 3, heading: Math.PI, gender: 'boy' },
+      { id: 2, x: -2, y: -1, heading: 0, gender: 'girl' },
+      { id: 3, x: 2, y: 3, heading: Math.PI, gender: 'boy' },
+      { id: 4, x: 2, y: -1, heading: 0, gender: 'girl' },
+      { id: 5, x: 2, y: -3, heading: 0, gender: 'boy' },
+      { id: 6, x: 2, y: 1, heading: Math.PI, gender: 'girl' },
+      { id: 7, x: -2, y: -3, heading: 0, gender: 'boy' },
+      { id: 8, x: -2, y: 1, heading: Math.PI, gender: 'girl' },
+    ].map((d) => ({ ...d, gender: override[d.id] ?? d.gender, angleDeg: (d.heading * 180) / Math.PI }))),
+  });
+
+  const b = twoFaced();
+  // The whole board performs the scoped call, dodgers included: the scoped tams
+  // are authored for the FULL formation, so the gender form of the call must
+  // give the same board as the scoped name, not a subset reading.
+  for (const [genderForm, scopedForm, why] of [
+    ['Girls Cross Run', 'Centers Cross Run', 'the girls are exactly the four centres'],
+    ['Boys Cross Run', 'Ends Cross Run', 'the boys are exactly the four ends'],
+  ]) {
+    const g = seq.applyToBoard(b, genderForm);
+    const s = seq.applyToBoard(b, scopedForm);
+    if (!s.legal) { fail(`${scopedForm} refused on the control board (${s.reason})`); continue; }
+    if (!g.legal) fail(`${genderForm} refused although ${why}: ${g.reason}`);
+    else if (boardSig(g.board) !== boardSig(s.board)) fail(`${genderForm} did not give the same board as ${scopedForm}`);
+    else ok(`${genderForm} resolves to ${scopedForm} when ${why}`);
+  }
+
+  // ...and a selection that is NOT one whole group must still be refused. Girls
+  // set to dancers 1, 7 (both ends), 2 and 4 (both centres) is four dancers, so
+  // it passes the length test - only the set-equality test rejects it.
+  const mixed = twoFaced({ 1: 'girl', 7: 'girl', 6: 'boy', 8: 'boy' });
+  const mixedIds = [...(seq.grouping.resolveSelection(mixed, 'Girls') ?? [])];
+  const mixedEnds = new Set(seq.grouping.resolveSelection(mixed, 'Ends') ?? []);
+  const endsInSelection = mixedIds.filter((id) => mixedEnds.has(id)).length;
+  if (mixedIds.length !== 4 || endsInSelection !== 2 || endsInSelection === mixedIds.length) {
+    fail(`the mixed-selection control is not shaped as intended (4 girls, 2 of them ends; got ${mixedIds.length} girls, ${endsInSelection} ends) - the gate below proves nothing`);
+  } else {
+    const r = seq.applyToBoard(mixed, 'Girls Cross Run');
+    if (r.legal) fail('a MIXED ends/centres selection used a group-scoped call - refusing it was the point');
+    else ok('a gender selection that mixes ends with centres still cannot borrow the scoped call');
+  }
+}
+
 console.log('\n=================');
 console.log(failures === 0 ? 'SELECTION: all gates passed.' : `SELECTION: ${failures} gate(s) FAILED.`);
 if (failures) process.exitCode = 1;

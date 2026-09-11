@@ -36,6 +36,9 @@ export class Sequencer {
 
   private readonly config = new SequencerConfig();
   private readonly library: CallLibrary;
+  /** Calls the SEQUENCER could not hand to the library at all (unparseable XML). The library's own
+   * per-tam failures are separate; `registrationFailures()` merges the two. */
+  private readonly registrationErrors: { call: string; reason: string }[] = [];
   private readonly matcher: FormationMatcher;
   private readonly applicator: CallApplicator;
   private readonly legality: LegalityChecker;
@@ -59,8 +62,11 @@ export class Sequencer {
     for (const c of calls) {
       try {
         this.register(c.name, c.xml);
-      } catch {
-        // Skip a call whose data fails to build; it just won't be applicable.
+      } catch (e) {
+        // A call whose XML cannot even be PARSED is still skipped rather than crashing the
+        // Sequencer, but it is no longer skipped SILENTLY: the reason is recorded so the loss can
+        // be seen and asserted. See `CallLibrary.registrationFailures`.
+        this.registrationErrors.push({ call: c.name, reason: e instanceof Error ? e.message : String(e) });
       }
     }
     // The body-relative coded calls (pure pivots / re-facings) come from the
@@ -118,6 +124,17 @@ export class Sequencer {
 
   register(name: string, xml: string): void {
     this.library.register(name, xml);
+  }
+
+  /** Every call variant the catalogue failed to build, as `{ call, reason }`.
+   *
+   * The shipped catalogue is NOT clean: some tams name formations that `formations.xml` does not
+   * ship (upstream does not ship them either), so this list is non-empty by design. It exists so
+   * that the loss is VISIBLE - before, one bad `from=` attribute erased an entire call inside a
+   * bare `catch`, and the only symptom was `Unknown call: Ferris Wheel` much later. `verify.mjs`
+   * pins the known set, so a NEW loss fails the build. */
+  registrationFailures(): { call: string; reason: string }[] {
+    return [...this.library.registrationFailures(), ...this.registrationErrors];
   }
 
   registerModule(name: string, calls: (string | CallStep)[]): void {

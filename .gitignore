@@ -11,3 +11,7 @@ poc-matrix/_ge.txt
 poc-matrix/graph-progress.log
 poc-matrix/analysis-progress.log
 poc-matrix/getout-graph.json
+
+# verify-suite run logs (tee'd so the run can be followed live; not source)
+verify*.log
+logs/

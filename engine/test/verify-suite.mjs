@@ -29,6 +29,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 const SUITE = [
   { h: 'gender-audit', light: true },
+  { h: 'catalogue', light: true },
   { h: 'verify', light: true },
   { h: 'sequencer', light: true },
   { h: 'mainstream', light: true },

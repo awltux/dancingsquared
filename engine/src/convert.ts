@@ -314,7 +314,10 @@ function buildCallImpl(
   if (dancers.length === 0 && tam.formationAttr) {
     dancers = (formations.get(tam.formationAttr) ?? []).map((d) => ({ ...d }));
   }
-  if (dancers.length === 0) throw new Error(`No formation for ${tam.title}`);
+  // NAME the missing formation, not just the call. The old message ("No formation for Ferris
+  // Wheel") said which call died but not which `from=` was wrong, and because one bad tam used to
+  // take the whole call with it, that message was the only clue anyone got.
+  if (dancers.length === 0) throw new Error(`No formation "${tam.formationAttr}" for ${tam.title}`);
 
   // Resolve each path into segments.
   const resolvedPaths = tam.paths.map((p) => resolvePath(p, moves, []));

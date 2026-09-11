@@ -28,6 +28,12 @@ export class CallLibrary {
   private readonly modules: Map<string, (string | CallStep)[]> = new Map(); // module name -> call steps
   private readonly namedFormations: { name: string; dancers: Matchable[] }[] = [];
   private readonly uniqueFormations: { name: string; dancers: Matchable[] }[] = [];
+  /** Variants that could not be built, and why. See `loadVariants` for why this is COLLECTED
+   * instead of thrown. */
+  private readonly failures: { call: string; reason: string }[] = [];
+  /** Lazy caches for the two XML documents every call build needs. See `loadVariants`. */
+  private parsedMoves?: ReturnType<typeof parseMoves>;
+  private parsedFormations?: ReturnType<typeof parseFormations>;
 
   constructor(private readonly movesXml: string, private readonly formationsXml: string) {
     const f = parseFormations(formationsXml);
@@ -69,7 +75,13 @@ export class CallLibrary {
   // ---- registration ----
 
   register(name: string, xml: string): void {
-    this.variants.set(canonicalName(name), this.loadVariants(xml));
+    const variants = this.loadVariants(xml);
+    // A call with NO buildable variant is left unregistered, so the applicator still reports
+    // `Unknown call: X` rather than `No setup in this call matches` - the same symptom the old
+    // all-or-nothing throw produced. The difference is that it is now visible in
+    // `registrationFailures()`. A PARTIALLY buildable call IS registered, which is the fix: it
+    // becomes usable from the setups that do resolve.
+    if (variants.length) this.variants.set(canonicalName(name), variants);
   }
 
   registerModule(name: string, calls: (string | CallStep)[]): void {
@@ -222,16 +234,49 @@ export class CallLibrary {
 
   // ---- variant building ----
 
+  /**
+   * Build every `<tam>` of one call, INDEPENDENTLY.
+   *
+   * WHY PER-TAM AND NOT ALL-OR-NOTHING. This used to be a plain `.map()`, so the first tam whose
+   * data would not build threw out of `register`, and `Sequencer`'s constructor swallowed it - the
+   * whole call then simply did not exist. Measured on the shipped catalogue, that lost exactly two
+   * real Mainstream calls, `Ferris Wheel` (nine tams) and `Couples Circulate`, because ONE
+   * `from="T-Bone Couples"` among their tams names a formation that is not in `formations.xml`
+   * (upstream has no such formation either - it is an inherited data inconsistency). A single bad
+   * attribute erased eight good tams.
+   *
+   * So a bad tam now costs only that tam. The call stays usable from the setups that do resolve,
+   * and every skip is RECORDED in `failures` rather than thrown into a bare `catch`, because a
+   * silent loss surfaces much later as `Unknown call: ...` - the most misleading possible symptom.
+   */
   private loadVariants(callXml: string): CallBundle[] {
-    const moves = parseMoves(this.movesXml);
-    const formations = parseFormations(this.formationsXml);
+    // Parsed ONCE, not once per call. These used to be re-parsed inside this method, which meant
+    // parsing all of `moves.xml` and `formations.xml` 2211 times to build the shipped catalogue -
+    // measured at 32s of a 55s fast verify tier. The parse is pure, so caching it is free.
+    const moves = (this.parsedMoves ??= parseMoves(this.movesXml));
+    const formations = (this.parsedFormations ??= parseFormations(this.formationsXml));
     const tams = parseCallXml(callXml);
-    // Stamp each 8-dancer setup with its home identity so matching can preserve
-    // home couples (keeping "Heads X"/"Sides X" on the original heads/sides).
-    return tams.map((tam) => {
-      const call = buildCall(tam, formations, moves, true);
-      return { ...call, dancers: assignHomeIdentity(call.dancers) };
-    });
+    const out: CallBundle[] = [];
+    for (const tam of tams) {
+      try {
+        const call = buildCall(tam, formations, moves, true);
+        // Stamp each 8-dancer setup with its home identity so matching can preserve
+        // home couples (keeping "Heads X"/"Sides X" on the original heads/sides).
+        out.push({ ...call, dancers: assignHomeIdentity(call.dancers) });
+      } catch (e) {
+        this.failures.push({ call: tam.title, reason: e instanceof Error ? e.message : String(e) });
+      }
+    }
+    return out;
+  }
+
+  /** Every variant that failed to build, as `{ call, reason }`, in registration order.
+   *
+   * This is a DIAGNOSTIC surface, and it is deliberately not empty: the shipped catalogue has
+   * tams naming formations it does not ship. A harness asserts the set equals the known list, so
+   * a NEW silent loss fails the build instead of quietly shrinking the engine. */
+  registrationFailures(): { call: string; reason: string }[] {
+    return [...this.failures];
   }
 
   /** A variant dancer's matchable position. Mirrored (duplicate-half) dancers

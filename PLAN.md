@@ -1250,11 +1250,64 @@ This is HANDOVER trap 4 ("the failure is SILENT") in its purest form, and it has
 the gap triage all along**: `Ferris Wheel` (11 stops) and `Couples Circulate` (16) appear in the
 reports' engine-gap lists as calls the engine "does not have", when it has them and cannot load them.
 
-Two things to fix, in order:
-1. **Report, don't swallow.** A failed registration should be collected and surfaced (a warning list
-   on the Sequencer, asserted by a harness), so this class of loss can never be invisible again.
-2. **Find which `from=` name is missing** and either add the formation or correct the tam. Then
-   re-measure the corpus, because the gap lists are wrong by at least these two names.
+**FIXED (round 35).** Both halves, and the missing formation turned out to be the same one for both
+calls. `convert.ts` now names it instead of just the call, which is how it was found:
+
+```
+No formation "T-Bone Couples" for Couples Circulate
+No formation "T-Bone Couples" for Ferris Wheel
+```
+
+`T-Bone Couples` is one dangling reference, and it is the ONLY one in the whole catalogue.
+`formations.xml` ships `T-Bone Couples 1` and `T-Bone Couples 2` and no unnumbered `T-Bone Couples`,
+**upstream does not ship it either** — so this is an inherited data inconsistency, and which of the
+two is meant is genuinely ambiguous. It is therefore **not guessed at**; it stays a recorded skip.
+
+The structural fix is per-tam loading (`CallLibrary.loadVariants`): build each `<tam>` in its own
+`try`, keep the ones that resolve, and RECORD every skip in `registrationFailures()`. One bad
+`from=` now costs one variant instead of the whole call. `Sequencer`'s registration `catch` records
+too, and `verify.mjs`'s new sibling `test/catalogue.mjs` (light tier) pins the skip set to a literal
+list, so a NEW silent loss fails the build instead of quietly shrinking the engine.
+
+Measured:
+
+```
+catalogue titles that register     2209 -> 2211    (every supplied title now registers)
+Ferris Wheel variants                 0 -> 8       (1 tam skipped: the T-Bone Couples one)
+Couples Circulate variants            0 -> 5       (1 tam skipped: the same)
+```
+
+The **get-out corpus scoreboard does not move at all** (130 / 8 / 0 / 54 / 131 / 45 / 44 before and
+after) - neither call appears in its stop lists, so the two losses were invisible there. The fig_m
+suite is where it shows, and the improvement is a *later* failure rather than a success:
+
+```
+before  34 Scoot Back, 31 Swing, ..., 16 Couples Circulate, 11 Ferris Wheel
+after   48 Swing, 34 Scoot Back, 17 Promenade, 10 1/2 Tag, ...    (both names gone)
+```
+
+Figures that used to stop at `Couples Circulate` or `Ferris Wheel` now get past them and stop at
+`Swing` instead, so the count of figures that run end-to-end is unchanged at 1. That is the honest
+shape of the win: two real calls came back and 13 authored variants with them, but neither was the
+binding constraint on a whole figure. The `KNOWN` gate drops from 12 names to 11.
+
+#### …and a large, unintended performance win
+
+Building the catalogue harness exposed why `catalogue` cost 32s. `loadVariants` re-parsed
+`moves.xml` **and** `formations.xml` on every call, so the shipped catalogue parsed both documents
+2211 times. Both parses are pure, so they are now cached on the library, parsed once.
+
+This is not a micro-optimisation - it lands on every harness that builds a full catalogue:
+
+```
+verify:light        79.8s -> 15.3s     (and was 55s before the catalogue harness existed)
+catalogue harness   32.5s ->  1.6s
+```
+
+The fast tier is now nearly four times faster than it was before this round while checking strictly
+more. The full tier should drop by a similar amount, since `behaviour-audit`, `alignment-boards`,
+`selection` and the other corpus-scale harnesses are all full-catalogue.
+
 
 ### Phase 4g — a second authoring, and it lands cleanly
 

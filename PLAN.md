@@ -1018,6 +1018,53 @@ The refusal message is a real part of the call rather than a formality: `Run Rig
 where the dancer to be run around is on the LEFT is not the call, and saying so is what keeps a
 direction-specified run from silently becoming a direction-agnostic one.
 
+### Two remaining items, now specified from the reference (round 32)
+
+Both of the next items have their motion stated in the reference's own code, so unlike the facing
+variants they can be DERIVED. Recorded here so the next attempt does not have to re-read the Dart.
+
+**1. `Cross Run` (3 corpus stops, declared a catalogue gap).** The reference implements it
+(`sequencer/calls/ms/cross_run.dart`, 113 lines) — it is a run where the runner goes around the
+**second** dancer on its side, so it crosses:
+
+- Runners must be **all ends or all centres** (`if (endsOnly.isNotEmpty && centersOnly.isNotEmpty)
+  throw`). That is a precondition, not a nicety.
+- For each runner, the DODGER is the neighbour on the side where the runner's *other* side holds
+  another runner (`if (dright != null && (dleft == null || runners.contains(dleft)))`), and
+  `dodgers.length` must equal `runners.length`.
+- The runner then runs around `dright[1]` / `dleft[1]` — the **second** dancer on that side, not the
+  nearest — which is what makes it a CROSS run. Two special cases: when the runner is a CENTRE and
+  the dancer to its right faces the same way, the motion is a half-sashay
+  (`DodgeRight.scale(1.0,0.5).changeBeats(1.0) + RunRight.scale(1.0, dist/2).skew(0.0,1.0)`); and when
+  the runner is an END with more than two to its right and the third faces the same way,
+  `scaleX = 2.0`.
+- The dodgers then move into the runners' vacated spots — `Dodge` if the runner is beside them,
+  `Forward`/`Back` if the runner is in front/behind.
+
+Our `runRule` already exposes the `left`/`right` neighbour sets and the pairing machinery, so this is
+an extension of the same rule rather than a new one — but it is a **four-branch** rule and each branch
+is a real case, so it wants its own gate rather than being folded in silently.
+
+**2. `Square Thru 1` (2 corpus stops, declared a catalogue gap).** The reference does NOT treat the
+count as a set of authored variants. It parses it off the name
+(`sequencer/calls/ms/square_thru.dart`):
+
+```dart
+var count = norm.replaceAll('toawave','').trim().last.toIntOrNull() ?? 4;
+if (norm.endsWith('on5')) count = 5;   //  really?
+if (norm.endsWith('on6')) count = 6;   //  now, honestly ...
+//  First hand is step to a wave if not already there
+if (ctx.actives.any((d) => ctx.isInCouple(d))) { ... }
+```
+
+and the XML ships tams for **2, 3 and 4 only** — so 1, 5 and 6 exist in the reference's CODE and
+nowhere in its data. Two things follow. First, our declared gap is real but the reading is pinned:
+`Square Thru 1` is one hand. Second, and more useful, the count is a **parameter**, and the reference
+notes that the first hand is a step-to-a-wave *when the dancers start in couples* — which is a motion
+detail our authored 1 1/2 / 2 / 2 1/2 / 3 / 3 1/2 / 4 variants each encode separately. That makes this
+a candidate for one parameterised implementation rather than three more authorings, and it is worth
+checking whether our existing count variants agree with the reference's rule before adding to them.
+
 The finish rows are listed only to show the conflation: the report keeps "stopped only at the finish"
 (54 lines) separate from the body stops, and a triage that did not would have made
 `Right and Left Grand` look like the biggest body gap in the corpus.

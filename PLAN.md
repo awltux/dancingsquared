@@ -1446,9 +1446,15 @@ job it was built for: the declared-gap list cannot silently drift out of date.
   diagram path and the FASR-code path, cross-checked against each other), the 576-assignment identity
   enumeration, arrangement/sequence read off the live board rather than stored on it, and why a
   relationship letter is WITHHELD rather than guessed. `features/all8_format.feature` covers the
-  import/export codec. Still uncovered: the solver/getout search, and the call editor.
+  import/export codec. `features/getout_search.feature` now covers the SOLVER: the caller convention
+  and why the path ends at a finish, `maxCalls` bounding the RETURNED path *including* that finish,
+  `Promenade` as a usable final edge despite being absent from the catalogue, determinism of the
+  answer, the `getin`/`fixIt` bounds being different on purpose, and the two cheap non-search answers
+  (`matrixGetout`, `closenessToHome`). It also documents the API shape that bites —
+  `Sequencer.getout(opts)` searches its OWN board, which cost a round of invalid measurements here
+  (HANDOVER §6, trap 4). Still uncovered: the call editor.
   `features/resolve_calls.feature` is the model — `@bind:`-tagged, with the engine behaviour in
-  comments, so `bind-audit` catches rot (110 tags across 21 files, 0 missing). Add one per phase as that phase lands.
+  comments, so `bind-audit` catches rot (113 unique tags across 22 files, 0 missing). Add one per phase as that phase lands.
 - **`transitionTable` / `map-tips.mjs`:** keep `poc-matrix/` out of `verify`; run `map-tips.mjs`
   whenever the FSM is touched.
 

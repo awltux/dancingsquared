@@ -36,6 +36,35 @@
     </path>
   </tam>
 
+  <!-- The variant the published get-outs need, and the data did not have.
+       The tam above is authored for facing couples THREE apart (Facing Couples Compact) and the
+       Lines variant below for FOUR (Normal Lines). Every board the corpus reaches `Centers Pass Thru`
+       from is a Double Pass Thru, whose four CENTRES are facing couples TWO apart - measured across
+       all 7 stopping lines, and `findMatchingVariant` returned null even at tolerance 6.0, which is
+       the signature of no fit at all rather than a near miss.
+
+       The motion is the same shoulder pass; only the travel scales with the separation, and the two
+       existing authorings pin that relation exactly: `scaleX` is 1.5 at separation 3 and 2 at
+       separation 4, so separation 2 gives `scaleX = 1`. Everything else is unchanged, and the start
+       formation is written INLINE at x = -1 so the engine's own mirror (180 degrees about the origin)
+       puts the facing pair at x = +1 - the separation 2 those boards use. This is the same fix, for
+       the same reason, as the authored `Box the Gnat` variant. -->
+  <tam title="Pass Thru"
+       from="Facing Couples">
+    <formation>
+      <dancer gender="boy" x="-1" y="1" angle="0" />
+      <dancer gender="girl" x="-1" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Extend Left" scaleX="1" scaleY=".5" />
+      <move select="Extend Right" scaleX="1" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Extend Left" scaleX="1" scaleY=".5" />
+      <move select="Extend Right" scaleX="1" scaleY=".5" />
+    </path>
+  </tam>
+
   <tam title="Pass Thru"
        from="Lines"
        formation="Normal Lines"

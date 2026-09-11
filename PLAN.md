@@ -830,6 +830,33 @@ as an engine gap. So the next Phase 4e step is not the report's top entry but th
 direct follow-up to Phase 5b, which fixed the `Centers`/`Ends` **grouping** (the engine now picks the
 right four dancers) without making `Pass Thru` match from the boards those four are then standing on.
 
+**FIXED (round 26) — and it was the same missing variant again.** All 7 stops are on **`Double Pass
+Thru`** boards, and the four centres are facing couples **two** apart. `Pass Thru` was authored for
+facing couples **three** apart (`Facing Couples Compact`, `scaleX="1.5"`) and **four** apart
+(`Normal Lines`, `scaleX="2"`), so nothing matched: `findMatchingVariant` returned **null even at
+tolerance 6.0**, which is the signature of no fit at all rather than a near miss. The existing
+authorings pin the relation exactly — `scaleX = separation / 2` — so separation 2 gives `scaleX="1"`,
+and the start formation is written inline at `x = -1` for the engine's mirror to place the facing
+pair at `+1`. Authored in `ms/pass_thru.xml`, same fix and same reasoning as the `Box the Gnat`
+variant above.
+
+| | before | after |
+|---|---|---|
+| corpus: reached the finish and applied it | 117 | **124** |
+| corpus: stopped part-way through the body | 146 | **139** |
+| `"Pass Thru" not legal for selected dancers` in the OTHER bucket | 7 | **0** (gone from the list) |
+
+The measured variant lands at `(-1,±1)` facing in and `(1,±1)` facing in — **exactly** the centres'
+geometry — so `Centers Pass Thru` now applies with best error **0**. Seven predicted stops became
+seven successes, which is what a missing-variant fix should look like: the diagnosis named the count
+in advance and the count moved by exactly that much.
+
+**The lesson generalises, and it is the third time.** Box the Gnat, the wave `Circulate` variants and
+now `Pass Thru` were all "the call exists but will not match" — and all three were a missing
+**separation**, not a missing capability. The relation `scaleX = separation / 2` (or
+`x2 = separation/2 + 1` for the couple turns) has held every time, so the next engine-gap entry
+should be checked for a missing separation before anything else is suspected.
+
 The finish rows are listed only to show the conflation: the report keeps "stopped only at the finish"
 (54 lines) separate from the body stops, and a triage that did not would have made
 `Right and Left Grand` look like the biggest body gap in the corpus.

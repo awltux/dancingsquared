@@ -1045,6 +1045,39 @@ Our `runRule` already exposes the `left`/`right` neighbour sets and the pairing 
 an extension of the same rule rather than a new one — but it is a **four-branch** rule and each branch
 is a real case, so it wants its own gate rather than being folded in silently.
 
+**BLOCKED ON AN ANOMALY THAT MUST BE EXPLAINED FIRST (round 33).** Before implementing anything, the
+corpus's stops were measured, and they do not say what the report implies. On a `Two-Faced Lines`
+board:
+
+```
+Cross Run             refused: Unknown call: Cross Run          <- correct, it is a declared gap
+Centers Cross Run     LEGAL, all 8 dancers move, and the result DIFFERS from `Centers Run`
+Ends Cross Run        LEGAL, all 8 dancers move, and the result DIFFERS from `Boys Run`
+Boys Cross Run        refused: "Cross Run" not legal for selected dancers
+Girls Cross Run       refused: "Cross Run" not legal for selected dancers
+```
+
+`Cross Run` is in the call INDEX (`poc/src/assets/src/calls.xml:180`) with **no `<tam>` anywhere** —
+the "the engine knows it and cannot perform it" category, which is why it is in
+`KNOWN_CATALOGUE_GAPS`. So **two of those five lines should not be LEGAL.** They are, they move all
+eight dancers, and their results differ from the neighbouring calls, so they are not silently applying
+`Centers Run` either.
+
+That means one of two things, and the difference matters a great deal:
+
+- something resolves `Cross Run` for the centers/ends selections that is not in the catalogue and not
+  registered as a derived move — in which case it should be found and either documented or removed; or
+- the selection path is accepting a call it cannot perform and returning a board for something else —
+  which would be a **false positive**, worse than the missing call, because the corpus would be
+  scoring lines that never actually dance.
+
+**No Cross Run work until that is resolved**, and it is a better lead than Cross Run itself: a
+false-positive acceptance would be a defect in the machinery every other call goes through, not in one
+call. The corpus's 3 Cross Run stops are all the *gender*-scoped forms (`G-XRun`, `B-XRun`), which are
+correctly refused — the reference requires all-ends or all-centres, and a gender selection mixes them.
+So the corpus is NOT evidence that `Cross Run` is missing; it is evidence that the *report* attributes
+these stops to a call that is partly accepted under two other names.
+
 **2. `Square Thru 1` (2 corpus stops, declared a catalogue gap).** The reference does NOT treat the
 count as a set of authored variants. It parses it off the name
 (`sequencer/calls/ms/square_thru.dart`):

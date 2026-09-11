@@ -854,8 +854,39 @@ in advance and the count moved by exactly that much.
 **The lesson generalises, and it is the third time.** Box the Gnat, the wave `Circulate` variants and
 now `Pass Thru` were all "the call exists but will not match" — and all three were a missing
 **separation**, not a missing capability. The relation `scaleX = separation / 2` (or
-`x2 = separation/2 + 1` for the couple turns) has held every time, so the next engine-gap entry
-should be checked for a missing separation before anything else is suspected.
+`x2 = separation/2 + 1` for the couple turns) has held every time.
+
+### …but the NEXT entries are FACING mismatches, not spacing ones (round 27)
+
+That run was a run, not a rule, and the next five entries say so. For each stopping board, ask for the
+best error at a tolerance of **100** and which variant achieved it — a finite answer means the
+positions are comparable, a null means no variant even has the right shape.
+
+The error metric is `position offsets + (facing offset / 2)`, established directly rather than
+assumed: **one dancer facing pi contributes 1.5708** while **moving one dancer 0.5 units contributes
+0.5**. So a best error that is a multiple of pi/2 is dominated by FACINGS, not by distance.
+
+| call | stop board | best error | reading |
+|---|---|---|---|
+| `Scoot Back` | Eight Chain Thru | **3.142** | pi → 2 dancers facing pi |
+| `Scoot Back` | Normal Lines | **6.283** | 2pi |
+| `Extend` | Eight Chain Thru | **6.283** | 2pi |
+| `Extend` | Normal Lines | **6.283** | 2pi |
+| `Extend` | (one unnamed board) | 4.000 | mixed |
+| `Boys Fold` | Two-Faced Lines | **6.283** | 2pi |
+| `Boys Fold` | Inverted Lines Ends Facing In | **6.283** | 2pi |
+| `Swing` | Normal Lines | **6.283** | 2pi |
+| `Do Paso` | Trade By / Eight Chain Thru | **11.142** | mixed |
+
+**Every one is FINITE at tolerance 100** — the shape and the positions are right — and **every one is
+dominated by pi/2 multiples**. So the missing thing is a variant with the right **facings**, which is
+a different fix from the three separation fixes and a **riskier** one: a separation is the call's
+scale, but a facing *is* the choreography. Authoring one means asserting how the call is danced, not
+just how far it reaches, so it wants the reference (or an existing authoring to scale) rather than
+inference.
+
+**Heuristic corrected**: check the error's COMPOSITION — pi/2 multiples mean facing, plain distance
+means separation — before deciding which kind of variant is missing.
 
 The finish rows are listed only to show the conflation: the report keeps "stopped only at the finish"
 (54 lines) separate from the body stops, and a triage that did not would have made

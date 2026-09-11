@@ -71,7 +71,12 @@
 // SINGING-CALL FIGURES, which is the corpus the sequence importer reads: `S-SqTh4`, `S-RLT`,
 // `S-PasTh`, `S-PsOcn`, `S-T1/4`, `S-Wk&Dg`, `S-LeadR` all occur there. The `{beau couple: H/S}`
 // aside had already said what `S` means; the get-out corpus simply had not used it yet.
-export const GROUP: Record<string, string> = { A: 'All', B: 'Boys', G: 'Girls', C: 'Centers', E: 'Ends', H: 'Heads', S: 'Sides' };
+export const GROUP: Record<string, string> = { A: 'All', B: 'Boys', G: 'Girls', C: 'Centers', E: 'Ends', H: 'Heads', S: 'Sides',
+  // `O-` is in All8's designator list as "Others -or- Outsides the context should make it clear
+  // which". Confirmed by the project owner that `O-SqTh3` reads as Outsides, so it is mapped; note
+  // that this is the only ambiguous designator in the list, and the engine's selection resolver is
+  // what decides whether `Outsiders ...` can actually be danced.
+  O: 'Outsiders' };
 
 export const TOKENS: Record<string, string> = {
   AL: 'Allemande Left',
@@ -152,6 +157,24 @@ export const TOKENS: Record<string, string> = {
   SFGrSqr: 'Sides Face, Grand Square',
   SlipC: 'Slip the Clutch',
   ALTAT: 'Allemande Left to an Allemande Thar',
+  // All8's key: "Pass One (Pass by 1, Pass 1 by, Skip 1)". Decoded because the READING is not in
+  // doubt; the engine has no such call, so the name is declared a gap below.
+  Pass1: 'Pass One',
+  // CONFIRMED BY THE PROJECT OWNER: `PtrTr` is the same call as `--PtTrd`, Partner Trade. It is
+  // NOT in All8's published key at all, so it could not be settled from the data - which is exactly
+  // why it was left unread rather than guessed at.
+  PtrTr: 'Partner Trade',
+  // ...and `ScooG` is `C-Scoot`: "Centers - Scoot".
+  ScooG: 'Scoot Back',
+  // ...and `to-BxGnt` carries prose in the call column ("to formation Box the Gnat"); the call is
+  // Box the Gnat.
+  'to-BxGnt': 'Box the Gnat',
+  // ALL8'S ACTIVE-DANCER NOTATION, and the one entry here that is an APPROXIMATION. All8's `-B` is
+  // "that Boy / same Boy(s) of dancers who were active on last call", so `-BRun` is not "the boys
+  // run" - it is "the boys AMONG THE ACTIVE DANCERS run". The engine has no active-set tracking, so
+  // the nearest engine call is `Boys Run`; where the active set is not all four boys (e.g. after
+  // `S-T1/4`, where the actives are the Sides) this OVER-SPECIFIES. Recorded rather than hidden.
+  BRun: 'Boys Run',
 
   // SOURCE MISSPELLINGS in fig_m.htm. Each of these appears once or twice on the page next to many
   // correct spellings of the same token, so they are typos in the published data rather than a
@@ -449,6 +472,7 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   'Back Up',
   'Square Thru 5',
   'Trade Right',
+  'Pass One', // `Pass1`; All8's key "Pass One (Pass by 1, Pass 1 by, Skip 1)"
 ]);
 
 /**
@@ -489,6 +513,32 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
  *       then would have decoded three `Centers Wheel Around` lines as `Circulate`. `tokenize` now
  *       reattaches the designator while the dash is still visible, which both reads those three
  *       lines correctly AND lets `C` be added as Circulate.
+ *
+ *   ---- the tokens that were still unread on the FIGURE page (fig_m.htm). Most are now RESOLVED
+ *   by a mapping supplied by the project owner, which settled every case the published key could
+ *   not (All8's key has no `PtrTr`, no `ScooG`, no `to-BxGnt`, and no unambiguous `O-`). What
+ *   remains is genuinely notation-shaped or malformed:
+ *
+ *   RESOLVED by that mapping: `--PtrTr` = Partner Trade (2), `C-ScooG` = Centers Scoot Back (1),
+ *       `to-BxGnt` = Box the Gnat (1), `O-SqTh3` = Outsiders Square Thru 3 (1), and `-BRun` (2),
+ *       which is All8's ACTIVE-dancer notation and maps to `Boys Run` only as an approximation.
+ *
+ *   `--1-1/2` (3) and `--1/2` (1) - MODIFIERS on a neighbour, not calls. The key gives
+ *       `1-1/2` = "do previous call once and a half - for SwThr say '3 hands'" and
+ *       `1/2of-` = "do one-half of the following call". Expressing either needs a call that is
+ *       actually reachable (Swing Thru has no "3 hands" form here, and a half of Touch 1/4 is a
+ *       Hinge, which is a DIFFERENT call rather than a scaled one). Composition, like `Expl&`.
+ *   `/-SqTh4` (3) - the designator is literally `/`, which appears in NO designator list in the
+ *       key (`--`, `-`, `?-`, `A-`, `B-`, `C-`, `E-`, `G-`, `H-`, `Lr`, `O-`, `S-`, `P-`, `VC`,
+ *       `VE`, `4L`, `4B`, `4G`, `C4`, `C6`, `CB`, `CG`, `HB`, `HG`, `IF`, `OF`, `OB`, `OG`, `O6`,
+ *       `Tr`, `6-`, `A8`, `-B`, `-G`). A malformed datum: not guessed at.
+ *   `--Keep` (1) - not in the key. Reads as prose in its line (`--Keep  --Prom`).
+ *   `G-UTurn,B-Trd` (1) - a COMMA-join, confirmed as simultaneous. The key's punctuation table gives
+ *       `,` = "while", so this is "Girls U-Turn Back while Boys Trade". Needs the tokenizer to
+ *       SPLIT on the comma into two scoped calls; decoding it as one name would be wrong.
+ *   `H-meet-T1/4` (1) - prose leaked into a call column ("meet"); the real content is Touch 1/4.
+ *   `S-` (1) - an ORPHANED DESIGNATOR: the line is `S-"reverse!" H-SqTh3`, and blanking the
+ *       quoted aside leaves the `S-` with no call to attach to. Not a call at all.
  */
 // N-hand counts: All8's digit counts HANDS, so `--SqTh1` is Square Thru on one hand. All8's own key
 // writes that expansion as the literal name `Square Thru 1`, which makes it a call name rather than
@@ -587,7 +637,10 @@ export function normalizeToken(token: string): string {
 export function decodeTokenAll(token: string): { name: string; scoped: boolean }[] | null {
   const t = normalizeToken(token);
   if (!t) return null;
-  const g = /^([ABGCEHS])-(.+)$/.exec(t);
+  // The designator letters are read FROM `GROUP` rather than hardcoded here. They were hardcoded,
+  // so adding `O` to GROUP above had no effect at all: `O-SqTh3` stayed unread and the table looked
+  // wrong when it was the regex that was stale. One source of truth, so the two cannot disagree.
+  const g = new RegExp(`^([${Object.keys(GROUP).join('')}])-(.+)$`).exec(t);
   if (g) {
     const base = TOKENS[g[2]];
     return base ? [{ name: `${GROUP[g[1]]} ${base}`, scoped: true }] : null;

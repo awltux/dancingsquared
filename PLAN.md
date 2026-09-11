@@ -1382,6 +1382,36 @@ What remains failing at call 0 is a much more honest 13: `Heads Right and Left T
 the Gnat` (4), `All Promenade 1/2` (1) and a few one-offs - each a genuine applicability question from
 Static Square rather than a mis-read page.
 
+#### round 38: the project owner's mapping, and a stale regex hiding a whole designator
+
+Every case the published key could not settle - `PtrTr`, `ScooG`, `to-BxGnt`, and All8's deliberately
+ambiguous `O-` - was resolved by a mapping supplied directly. Applied: `PtrTr` = Partner Trade (2),
+`ScooG` = `C-Scoot` (1), `to-BxGnt` = Box the Gnat (1), `O-SqTh3` = Outsiders Square Thru 3 (1).
+
+**`-BRun` is now decoded but it is an APPROXIMATION, and it is the only one in the table.** All8's
+`-B` designator means "that Boy / the Boy(s) AMONG THE DANCERS WHO WERE ACTIVE on the last call", so
+`-BRun` is not "the boys run" - it is "the active boys run". The engine has no active-set tracking, so
+the nearest engine call is `Boys Run`; where the active set is not all four boys (after `S-T1/4` the
+actives are the Sides) that over-specifies. It is mapped so the token is readable, and the loss is
+recorded in the table rather than hidden.
+
+**A stale regex was hiding a whole designator.** Adding `O` to `GROUP` had no effect, because
+`decodeTokenAll` matched designators with a HARDCODED character class `/^([ABGCEHS])-(.+)$/` that
+never consulted `GROUP`. The table looked wrong when the regex was stale. The pattern is now built
+from `Object.keys(GROUP)`, so the two cannot disagree again - the same "one source of truth" failure
+as the duplicated `KNOWN_CATALOGUE_GAPS` in round 36, in a different disguise.
+
+```
+fig_m unread cells   20 -> 11   (13 -> 7 distinct tokens)
+fig_m engine names   157 -> 160
+```
+
+The 7 left are all notation features or malformed data rather than missing abbreviations, and each is
+now documented in `all8-notation.ts` with All8's own definition: the `1-1/2` and `1/2of` NEIGHBOUR
+modifiers (composition, like `Expl&`), a `/` designator that appears in no designator list in the key,
+a comma-join that needs splitting on `,` = "while", an orphaned `S-` left by a blanked quoted aside,
+`--Keep` (not in the key), and `H-meet-T1/4` (prose in a call column).
+
 
 ### Phase 4g — a second authoring, and it lands cleanly
 

@@ -1387,7 +1387,16 @@ job it was built for: the declared-gap list cannot silently drift out of date.
   recording `getoutVerified`, or unamendable. No UI wires this yet.
 - **Phase 4:** audit checks for the bounded non-geometric matching exceptions (§8.2); the editor's
   "no match within tolerance" wording; an explicit runtime-join check.
-- **Phase 5:** `knownFormation` is the last loose-tolerance (6.0) outlier.
+- **Phase 5:** ~~`knownFormation` is the last loose-tolerance (6.0) outlier.~~ **DONE**: measured, and
+  the constant is *misleading rather than loose*. `error` is a sum over all dancers, but
+  `matchEqualLength`'s distance-signature pre-filter binds first, at `maxError / 12` — so the
+  effective per-dancer allowance is **0.5 units, a quarter of the 2-unit spacing**. Causally checked
+  rather than inferred: setting the constant to 3.0 moved the measured limit to exactly 0.25. The
+  value is therefore left ALONE (tightening it would double-tighten a tolerance that is already
+  tight), the relationship is documented at both constants, and `selection.mjs` pins the **effective**
+  behaviour as a band — 0.50 must still be accepted, 0.75 must not — so a change to either the
+  constant or the `/12` divisor fails. It also pins that translation, rotation and reflection keep a
+  board "known", since a rigid motion failing to match would be a bug rather than a tolerance.
 - **Feature specs are the biggest documentation gap.** Nothing covers the All8 alignment/corpus
   work steps 1–3 (`boardFromDiagram`, `arrangementFor`, `sequenceFor`, `relationshipStateOf`),
   nothing covers the solver/getout search, nothing covers the call editor.

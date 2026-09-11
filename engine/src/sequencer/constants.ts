@@ -13,6 +13,18 @@ export const SEARCH_MATCH_MAX = 6.0;
 
 // Tolerance for END-recognition: whether a call's RESULT lands in any known
 // catalog formation. This gates sequencing continuity, not legality.
+//
+// IT DOES NOT MEAN "6 UNITS OF SLACK", and the difference is worth knowing because the number reads
+// like a very loose tolerance and has been recorded as one. `error` is a SUM over all dancers, but
+// the distance-signature pre-filter in matchEqualLength binds first, and it binds at
+// `maxError / 12` - not at `maxError`. Measured on a real board: moving ONE dancer is forgiven up to
+// 0.50 units and no further, uniformly over every dancer and over Static Square, Normal Lines and
+// Ocean Waves. Changing this constant to 3.0 changes that limit to exactly 0.25, so the effective
+// per-dancer allowance is this value / 12 and the 12 is what actually decides it.
+//
+// The practical consequence: the effective tolerance is ~0.5, i.e. a QUARTER of the 2-unit dancer
+// spacing - tight, not loose. Do not "tighten" this constant on the assumption that 6.0 is being
+// spent; measure the effective limit instead (test/selection.mjs pins it).
 export const KNOWN_FORMATION_MAX = 6.0;
 
 // Couple value meaning "identity unknown". Real home couples are 1..4. A board

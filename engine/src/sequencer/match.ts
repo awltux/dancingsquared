@@ -162,6 +162,10 @@ function matchEqualLength(  source: Matchable[],
 ): FormationMatch | null {
   const s1 = distanceSignature(source);
   const s2 = distanceSignature(target);
+  // This is the tolerance that ACTUALLY binds, not `maxError`. Moving one dancer changes its
+  // distance to every other dancer by at most the displacement, so a caller passing maxError = 6.0
+  // gets an effective per-dancer allowance of 0.5, not 6.0. Measured and pinned in
+  // test/selection.mjs; see the note on KNOWN_FORMATION_MAX in constants.ts.
   const sigTol = maxError / 12;
   for (let k = 0; k < s1.length; k++) {
     if (Math.abs(s1[k] - s2[k]) > sigTol) return null;
@@ -269,6 +273,10 @@ export function matchFormationsAll(
 
   // Collect every matching subset (expanded to full source-index mappings).
   const tgtSig = distanceSignature(target);
+  // This is the tolerance that ACTUALLY binds, not `maxError`. Moving one dancer changes its
+  // distance to every other dancer by at most the displacement, so a caller passing maxError = 6.0
+  // gets an effective per-dancer allowance of 0.5, not 6.0. Measured and pinned in
+  // test/selection.mjs; see the note on KNOWN_FORMATION_MAX in constants.ts.
   const sigTol = maxError / 12;
   const candidates: { m: FormationMatch; combo: number[] }[] = [];
   forEachCombination(source.length, target.length, (combo) => {

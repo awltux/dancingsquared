@@ -595,6 +595,47 @@ console.log('\n== boardSig is POSITIONS-ONLY, and that is load-bearing (Phase 5e
   }
 }
 
+console.log('\n== knownFormation\'s tolerance is ~0.5, not 6.0 (Phase 7) ==');
+// The plan carried "`knownFormation` is the last loose-tolerance (6.0) outlier" as a risk that a
+// WRONG board could be laundered into a known formation. MEASURED, it is not: the constant is
+// misleading rather than loose. `error` is a SUM over all dancers, but `matchEqualLength`'s
+// distance-signature pre-filter binds first and binds at `maxError / 12`, so the effective
+// per-dancer allowance is 0.5 - a QUARTER of the 2-unit spacing.
+//
+// Causally checked, not inferred from the formula: setting KNOWN_FORMATION_MAX to 3.0 moved the
+// measured limit to exactly 0.25. So this gate pins the EFFECTIVE behaviour, which is what a future
+// change to either the constant or the /12 divisor would break - and it pins it as a band, because
+// asserting a single value would pass for an implementation that is too tight as well as too loose.
+{
+  const formations = ['Static Square', 'Normal Lines', 'Ocean Waves'];
+  const shift = (b, i, d) => ({ dancers: b.dancers.map((k, n) => (n === i ? { ...k, x: k.x + d } : k)) });
+  let tooLoose = '';
+  let tooTight = '';
+  for (const name of formations) {
+    const base = seq.boardForFormation(name);
+    if (!base) { fail(`no template for ${name}`); continue; }
+    for (let i = 0; i < base.dancers.length; i++) {
+      // 0.50 must still be "known"; 0.75 must not be. The margin either side is 0.25 units.
+      if (seq.knownFormation(shift(base, i, 0.5)) === null) tooTight = `${name} dancer ${i} at 0.50`;
+      if (seq.knownFormation(shift(base, i, 0.75)) !== null) tooLoose = `${name} dancer ${i} at 0.75`;
+    }
+  }
+  if (tooLoose) fail(`knownFormation forgives a dancer moved 0.75 units (${tooLoose}) - the effective tolerance has LOOSENED`);
+  else if (tooTight) fail(`knownFormation rejects a dancer moved 0.50 units (${tooTight}) - the effective tolerance has TIGHTENED`);
+  else ok('single-dancer allowance is ~0.50 units over 8 dancers x 3 formations: tight, not 6.0');
+
+  // Rigid motion must stay "known": the match is centre-relative and searches rotation/reflection.
+  // A board that stops being recognised after a translation would be a bug, not a tolerance.
+  const base = seq.boardForFormation('Static Square');
+  const moved = { dancers: base.dancers.map((d) => ({ ...d, x: d.x + 5, y: d.y + 5 })) };
+  const turned = { dancers: base.dancers.map((d) => ({ ...d, x: -d.y, y: d.x, heading: d.heading + Math.PI / 2 })) };
+  const mirrored = { dancers: base.dancers.map((d) => ({ ...d, x: -d.x, heading: -d.heading })) };
+  if (seq.knownFormation(moved) === null) fail('a rigid translation stops the board being a known formation');
+  else if (seq.knownFormation(turned) === null) fail('a rigid rotation stops the board being a known formation');
+  else if (seq.knownFormation(mirrored) === null) fail('a reflection stops the board being a known formation');
+  else ok('translation, rotation and reflection all keep the board "known" (the match is centre-relative)');
+}
+
 console.log('\n=================');
 console.log(failures === 0 ? 'SELECTION: all gates passed.' : `SELECTION: ${failures} gate(s) FAILED.`);
 if (failures) process.exitCode = 1;

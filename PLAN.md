@@ -1036,6 +1036,31 @@ we do not model (`O-`, and the `H`/`S` flip), direction-specified runs the engin
 
 ## Phase 5 — IN PROGRESS: latent correctness
 
+### 5d — DONE: `Circulate` from facing lines, authoring what the reference dispatches
+
+`Circulate` was illegal from **facing lines** while `Split Circulate` and `All 8 Circulate` were both
+legal from them — the same gap the wave variants had before step 4b. The shipped line variants were
+`Lines Facing In` / `Lines Facing Out`, and the engine's `Normal Lines` had none.
+
+**Which motion to author is not a guess**, because the reference dispatches bare `Circulate` by
+formation (`taminations-flutter/lib/sequencer/calls/ms/circulate.dart`):
+
+```dart
+else if (ctx.isTwoFacedLines()) ctx.applyAnimatedCall('Couples Circulate');
+else if (ctx.isLines())        ctx.applyAnimatedCall('All 8 Circulate');
+```
+
+So from lines, `Circulate` **is** `All 8 Circulate`, and the new tam reuses that call's paths for
+`Lines Facing In` / `Normal Lines` verbatim. That is the step-4b reasoning again — two calls
+coinciding at a formation — except that here it is the *reference* stating the coincidence rather
+than our derivation of it, which is a stronger footing than step 4b had.
+
+The gate is no longer a printed remark. It asserts the **reference's rule**: `Circulate` from
+`Normal Lines` must be legal *and* must produce the **same board** as `All 8 Circulate`, because
+"both legal" would pass even if the authored motion were something else entirely.
+
+Measured: mid-body stops **134 → 133**, corpus success unchanged at 88.
+
 ### 5a — DONE: `analyzeFasr`'s corner was wrong for every boy
 
 The plan recorded *"`analyzeFasr`'s `corner` returns the opposite girl (0/4 agreement with the home

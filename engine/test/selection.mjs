@@ -136,9 +136,30 @@ console.log('\n== Circulate from a wave: the variant that was missing ==');
     console.log('      place. The new Circulate inherits that motion by construction; if the wave paths are');
     console.log('      wrong, both calls need the same correction. Recorded as an open item.');
   }
-  const lines = seq.applyToBoard(formationBoard('Normal Lines'), 'Circulate');
-  console.log(`  Circulate from FACING LINES is still ${lines.legal ? 'legal' : 'illegal'}.`);
-  console.log('  The shipped line variants are "Lines Facing In/Out", not facing lines, so this remains a gap.');
+  // Circulate from FACING LINES: FIXED (Phase 5d). This used to report "still illegal" and call it
+  // a gap, because the shipped line variants were `Lines Facing In` / `Lines Facing Out` - the
+  // engine's Normal Lines had no Circulate while Split Circulate and All 8 Circulate both had one.
+  // The reference DISPATCHES bare `Circulate` by formation (calls/ms/circulate.dart):
+  //   isTwoFacedLines() -> Couples Circulate;  isLines() -> All 8 Circulate
+  // so from lines `Circulate` IS `All 8 Circulate`, and the new tam reuses that call's paths for
+  // `Lines Facing In` verbatim. The gate therefore asserts the reference's rule: the two calls must
+  // produce the SAME board here, not merely both be legal.
+  {
+    const lines = seq.applyToBoard(formationBoard('Normal Lines'), 'Circulate');
+    const all8 = seq.applyToBoard(formationBoard('Normal Lines'), 'All 8 Circulate');
+    if (!lines.legal) {
+      fail(`"Circulate" is illegal from FACING LINES: ${lines.reason}`);
+    } else if (!all8.legal) {
+      fail('"All 8 Circulate" is illegal from Normal Lines - inconsistent with the reference dispatch');
+    } else {
+      const pose = (b) => JSON.stringify(b.dancers.map((d) => [d.id, d.x.toFixed(3), d.y.toFixed(3), face(d.heading)]).sort());
+      if (pose(lines.board) !== pose(all8.board)) {
+        fail('the reference dispatches bare Circulate from lines to All 8 Circulate, but the two boards differ');
+      } else {
+        ok('Circulate from FACING LINES is legal and matches All 8 Circulate, as the reference dispatches');
+      }
+    }
+  }
 }
 
 console.log('\n== the `sequencer` attribute: parsed faithfully, and NOT yet acted on ==');

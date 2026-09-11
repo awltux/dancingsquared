@@ -371,8 +371,16 @@ for 447 nodes), which is the start-formation index Phase 3 did not need but Phas
   a corrupt board for phantom gap attributions is the trade the decoder phase spent a commit
   undoing. The real fix is the tam motion, and it is still open.
 
-- **`Circulate` from facing lines is still illegal** (`Normal Lines` has no matching variant; the
-  shipped line variants are `Lines Facing In`/`Out`). Same gap the wave templates had.
+- **`Circulate` from facing lines** (`Normal Lines` had no matching variant; the shipped line
+  variants are `Lines Facing In`/`Out` — the same gap the wave templates had).
+
+  **FIXED (Phase 5d).** A `Lines Facing In` / `Normal Lines` variant was authored, and the motion is
+  not a guess: the reference **dispatches bare `Circulate` by formation**
+  (`taminations-flutter/lib/sequencer/calls/ms/circulate.dart` — `isTwoFacedLines()` → Couples
+  Circulate, `isLines()` → All 8 Circulate), so from lines `Circulate` **is** `All 8 Circulate` and
+  the new tam reuses that call's paths verbatim. `selection.mjs` now asserts the reference's rule —
+  the two calls must produce the **same board**, not merely both be legal. Measured: mid-body stops
+  134 → 133.
 - **`Promenade`'s 8 beats are a fixed approximation** of a distance-dependent motion.
 - **Geometry-derived calls are still not FSM edges.** The precomputed table and
   `Sequencer.legalCalls` enumerate the catalogue, so `Promenade` appears in `legalNext()` (when it

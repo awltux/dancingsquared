@@ -559,6 +559,40 @@
     </path>
   </tam>
 
+  <!-- The line variant, which the data did not have. `Circulate` is illegal from FACING LINES while
+       `Split Circulate` and `All 8 Circulate` are both legal from them - the same gap the wave
+       variants had before step 4b.
+
+       WHICH motion is not a guess: the reference DISPATCHES bare `Circulate` by formation
+       (`taminations-flutter/lib/sequencer/calls/ms/circulate.dart`):
+
+           else if (ctx.isTwoFacedLines()) ctx.applyAnimatedCall('Couples Circulate');
+           else if (ctx.isLines())        ctx.applyAnimatedCall('All 8 Circulate');
+
+       So from lines, `Circulate` IS `All 8 Circulate`, and this tam therefore reuses that call's
+       paths for `Lines Facing In` / `Normal Lines` verbatim. That is the same reasoning step 4b
+       used for the wave variants - the two calls coincide at this formation - except that here it
+       is the REFERENCE stating the coincidence rather than our derivation of it. -->
+  <tam title="Circulate" from="Lines Facing In"
+       formation="Normal Lines" difficulty="2" fractions="2">
+    <path>
+      <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
+    </path>
+    <path>
+      <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
+    </path>
+    <path>
+      <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
+    </path>
+    <path>
+      <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
+    </path>
+  </tam>
+
   <tam title="Circulate" from="Double Pass Thru"
        formation="Double Pass Thru" display="no">
     <path>

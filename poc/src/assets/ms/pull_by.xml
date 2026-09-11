@@ -44,4 +44,47 @@
     </path>
   </tam>
 
+  <!-- The variants the published get-outs need, and the data did not have.
+       Same gap as Box the Gnat: `Pull By` is a 4-dancer call, so on an 8-dancer board it goes down
+       the parallel-subset path, and matching compares DISTANCES - so the setup's couple separation
+       has to be the board's. The two authorings above put the couples FOUR (b1) and THREE (ms)
+       apart; every board the corpus reaches `Right Pull By` from has them TWO apart, and the
+       measured best errors were 3.142 and 2.000 against a 1.5 tolerance.
+
+       The travel scales with the separation and the two authorings pin it exactly: `scaleX` is 2
+       at separation 4 and 1.5 at separation 3, i.e. `scaleX = separation / 2`, which is also what
+       the motion means - each pair travels half the gap between the couples. So separation 2 gives
+       `scaleX = 1`. The start formation is written INLINE at x = -1 so the engine's own mirror
+       (180 degrees about the origin) places the second couple at x = +1. Everything else, including
+       the group attribute, is copied unchanged. -->
+  <tam title="Right Pull By" group=" ">
+    <formation>
+      <dancer gender="boy" x="-1" y="1" angle="0" />
+      <dancer gender="girl" x="-1" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Pull Left" scaleX="1" scaleY=".5" beats="2"/>
+      <move select="Extend Right" scaleX="1" scaleY=".5" beats="2"/>
+    </path>
+    <path>
+      <move select="Pull Left" scaleX="1" scaleY=".5" beats="2"/>
+      <move select="Extend Right" scaleX="1" scaleY=".5" beats="2"/>
+    </path>
+  </tam>
+
+  <tam title="Left Pull By" group=" ">
+    <formation>
+      <dancer gender="boy" x="-1" y="1" angle="0" />
+      <dancer gender="girl" x="-1" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Pull Right" scaleX="1" scaleY=".5" beats="2"/>
+      <move select="Extend Left" scaleX="1" scaleY=".5" beats="2"/>
+    </path>
+    <path>
+      <move select="Pull Right" scaleX="1" scaleY=".5" beats="2"/>
+      <move select="Extend Left" scaleX="1" scaleY=".5" beats="2"/>
+    </path>
+  </tam>
+
 </tamination>

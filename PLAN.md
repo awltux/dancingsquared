@@ -776,9 +776,10 @@ origin) places the second couple at `+1`. Everything else is copied unchanged.
 It applies through the **parallel-subset** path rather than the whole-board one, and leaves a valid
 `Eight Chain Thru` with 8 distinct spots — verified before measuring.
 
-**The remaining 3 are a NARROWER bug, and my first explanation of them was WRONG.** I recorded that
-they are on `Trade By`, whose facing couples put the girl where Eight Chain Thru puts the boy, and
-that the `gender-specific` gate was correctly rejecting the variant. Measurement disproved it:
+**The remaining 3 are a NARROWER bug, and my first explanation of them was WRONG — Phase 4f pinned
+it exactly.** I recorded that they are on `Trade By`, whose facing couples put the girl where Eight
+Chain Thru puts the boy, and that the `gender-specific` gate was correctly rejecting the variant.
+Measurement disproved it:
 
 - the new variant matches a four-dancer subset of the `Trade By` board at **error 0.000 with the
   gender gate ON** (and 0.000 ungated), so neither spacing nor gender is the reason;
@@ -788,24 +789,44 @@ that the `gender-specific` gate was correctly rejecting the variant. Measurement
   `couple = 0` for all eight dancers** (UNKNOWN_COUPLE), so `isKnownCouple` is false for every
   dancer and no constraint is imposed.
 
-So the eight-dancer `findMatchingVariant` is correctly null, and the refusal comes out of
-`parallelApply` → `partition` → the per-group sub-apply, **not** out of matching. That is the thing
-to chase, and it is the same path the whole "missing variant" family goes through, so it is worth
-chasing properly rather than by adding more assets.
+Replicating `partition` step for step locates it. On `Eight Chain Thru` the new variant partitions
+cleanly — `[1,2,3,4] err=0.000 [5,6,7,8] err=0.000`. On `Trade By` the SAME variant fails, and the
+best group containing dancer 1 is `[1,2,3,4]` at **err = 3.142** — π — at *any* tolerance.
 
-Recorded rather than guessed, in the house style: the first explanation was plausible, checkable,
-and checked — and wrong.
+π is the tell, and the geometry explains it. In a `Trade By` the couples at `x=±1` face **each
+other** (a facing pair, separation 2) while those at `x=±3` face **away** from each other (also
+separation 2). A `Box the Gnat` needs a *facing* couple, so the setup matches the inner pair and is
+a pointwise face-reversal away from the outer pair — which no rotation or reflection can fix, hence
+π. And `parallelApply` requires the setup to tile the **whole** board (`n % k === 0`, and every
+dancer consumed), so one matching box is not enough.
+
+**So the gap is structural, not an asset gap**: the engine can apply a call to *every* box in
+parallel, and to a *selected subset* by dancer (`applySelected`), but there is no path for **a call
+that is legal from some boxes and not others** — which is what `Box the Gnat` from a `Trade By` is.
+That is a behaviour change with board-wide blast radius, so it is recorded rather than made on this
+evidence, exactly as the collision refusal was in Phase 4b.
+
+### Phase 4g — a second authoring, and it lands cleanly
+
+`Right Pull By` is the same gap with an even cleaner scaling law. Its two authorings put the couples
+**four** (b1) and **three** (ms) apart and scale the travel to match: `scaleX` is 2 at separation 4
+and 1.5 at separation 3, i.e. **`scaleX = separation / 2`** — which is also what the motion *means*,
+since each pair travels half the gap. So the missing variant is `scaleX = 1` at separation 2, with
+the start formation written inline at `x = -1`. `Left Pull By` is authored alongside it for symmetry.
+
+Measured: corpus success **78 → 79**, and **`Pull By` no longer appears among the stopping calls at
+all**.
 
 ### Still open from this family
 
-- **A second `Box the Gnat` variant** for the mirrored gender arrangement (`Trade By`, 3 lines).
-- **`Right Pull By`** (2 lines) — same shape, same near-miss: best error 2.000, and its two variants
-  are at separations 4 and 3.
+- **`Box the Gnat` from `Trade By`** (3 lines) — structural, not an asset gap: the call is legal
+  from the inner facing pair only, and the engine has no "some boxes, not all" path. See Phase 4f.
 - **`Scoot Back`** (4 lines, now the bucket's top entry) — best error **1.571** against 1.5, a
   whisker, so this needs its own diagnosis rather than an assumption about spacing.
 - **`Bend the Line` / `Ends Fold`** (3 each) at error 3.142, and `Star Thru` (2) on a board with no
   recognised formation at all.
 - **`Expl&`** (5) — "Explode and \<call\>" composition, and **`Single Hinge`** (11).
+- **`Recycle` / `Slide Thru` / `Turn Thru`** (3 each) — not yet diagnosed.
 
 ---
 

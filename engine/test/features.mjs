@@ -140,6 +140,9 @@ console.log('== Parallel edge cases (§7.2.1) ==');
 const sixBoard = { dancers: [...mkCopy(-6, 0, 1), ...mkCopy(6, 4, 2)].slice(0, 6) };
 const odd = seq.applyToBoard(sixBoard, 'Single Circle Right Full');
 check(odd.legal === false, `uneven remainder (6 dancers) refuses parallel apply (${odd.legal})`);
+// Partial coverage (a board that divides evenly but whose boxes are not congruent) is gated in
+// `selection.mjs`, which registers the whole catalogue; this harness hand-lists a few calls, so
+// `Box the Gnat` is not available here.
 // Offset ambiguity: the same call must be legal on a translated copy too — the
 // parallel partition matches the SHAPE, not an absolute location.
 const shifted = { dancers: twoFC.dancers.map((d) => ({ ...d, x: d.x + 100, y: d.y - 50 })) };

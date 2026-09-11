@@ -38,6 +38,37 @@
     </taminator>
   </tam>
 
+  <!-- The variant the published get-outs need, and the data did not have.
+       `Slide Thru` is a 4-dancer call, so on an 8-dancer board it goes down the parallel-subset
+       path and the setup's couple separation has to equal the board's. The tam above is authored
+       for `Facing Couples Compact`, i.e. couples THREE apart; the board the corpus reaches the
+       call from (a T-Bone the previous Box the Gnat leaves) has them TWO apart, giving a measured
+       best error of 2.000 against the 1.5 tolerance.
+
+       The scaling is not guessed. `Slide Thru` says in its OWN taminator that it is Star Thru with
+       no hands, and `Star Thru` is authored at BOTH spacings - b1 with `formation="Facing Couples"`
+       (couples four apart) and `scaleX="2"`, ms with `Facing Couples Compact` and `scaleX="1.5"`.
+       So `scaleX = separation / 2`, exactly the law `Pull By` follows, and separation 2 gives
+       `scaleX = 1`. Comparing the two Star Thru authorings also pins what does NOT scale:
+       `offsetX` stays 1 at both spacings, and the `.5` on `offsetY` in the wider one is simply
+       absent from the Compact one, so the nearer authoring is followed. -->
+  <tam title="Slide Thru"
+       from="Facing Couples" sequencer="gender-specific"
+       difficulty="1">
+    <formation>
+      <dancer gender="boy" x="-1" y="1" angle="0" />
+      <dancer gender="girl" x="-1" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Extend Left" beats="2" scaleX="1" scaleY=".5" />
+      <move select="Quarter Right" beats="2" offsetX="1"/>
+    </path>
+    <path>
+      <move select="Extend Left" beats="2" scaleX="1" scaleY=".5" />
+      <move select="Quarter Left" beats="2" offsetX="1" offsetY="-1" />
+    </path>
+  </tam>
+
   <tam title="Slide Thru" from="Sashayed Couples" sequencer="gender-specific"
        difficulty="2">
     <formation>

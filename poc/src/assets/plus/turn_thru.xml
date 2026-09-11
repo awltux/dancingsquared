@@ -37,6 +37,35 @@
     </path>
   </tam>
 
+  <!-- The variant the published get-outs need, and the data did not have.
+       Same gap as Slide Thru and Pull By: `Turn Thru` is a 4-dancer call, so on an 8-dancer board
+       the setup's couple separation has to equal the board's. The tam above is `Facing Couples
+       Compact`, couples THREE apart; the board the corpus reaches the call from (a Double Pass
+       Thru) has them TWO apart, measuring a best error of 2.000 against the 1.5 tolerance.
+
+       `scaleX = separation / 2` - the law `Star Thru` pins directly, since it is authored at
+       separation 4 with scaleX 2 and separation 3 with scaleX 1.5 - so separation 2 gives
+       `scaleX = 1` on the two Extends. The `Swing Right` keeps its own scaleX `.5`, which does not
+       vary with the separation in the Star Thru pair either. Start formation written INLINE at
+       x = -1 so the engine's mirror puts the second couple at +1. -->
+  <tam title="Turn Thru"
+       from="Facing Couples">
+    <formation>
+      <dancer gender="boy" x="-1" y="1" angle="0" />
+      <dancer gender="girl" x="-1" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Extend Left" scaleX="1" scaleY=".5" />
+      <move select="Swing Right" hands="gripright" beats="2" scaleX=".5" scaleY=".5" />
+      <move select="Extend Right" scaleX="1" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Extend Left" scaleX="1" scaleY=".5" />
+      <move select="Swing Right" hands="gripright" beats="2" scaleX=".5" scaleY=".5" />
+      <move select="Extend Right" scaleX="1" scaleY=".5" />
+    </path>
+  </tam>
+
   <tam title="Turn Thru" from="Right-Hand Box" formation="Box RH">
     <path>
       <move select="Hinge Right" scaleX=".75" />

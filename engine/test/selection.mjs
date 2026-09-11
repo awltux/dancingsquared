@@ -448,6 +448,43 @@ console.log('\n== the wave circulate: the crossing is real, and the group readin
   }
 }
 
+console.log('\n== partial coverage: a call acts on the boxes it applies to, not on all-or-nothing ==');
+// `parallelApply` used to require the setup to tile the WHOLE board, so a call whose setup matches
+// some boxes and not others was refused outright. That is a whole family rather than a corner case,
+// because a set whose boxes are not congruent is exactly what a `Trade By` and a `Double Pass Thru`
+// are: couples facing each other in the middle and couples facing out on the ends. Measured before
+// the fix, three separate published get-outs stopped this way - `Box the Gnat` from a `Trade By`,
+// `Turn Thru` from a `Double Pass Thru` (whose four-dancer SUBSET matched at 0.000 while no tiling
+// existed), and others reached on unrecognised boards.
+//
+// `square-dancing.md` §7.5 - "a call acts on everyone it applies to" - is the reading, and §7.2.1
+// still bounds it: the board must divide EVENLY into setup-sized boxes, so a 6-dancer board with a
+// 4-dancer setup is refused (asserted in `features.mjs`, which hand-lists fewer calls).
+{
+  const tradeBy = seq.boardForFormation('Trade By');
+  if (!tradeBy) {
+    fail('no Trade By template to test partial coverage on');
+  } else {
+    const r = seq.applyToBoard(tradeBy, 'Box the Gnat');
+    if (!r.legal) {
+      fail(`Box the Gnat does not apply from a Trade By: ${r.reason}`);
+    } else {
+      const before = new Map(tradeBy.dancers.map((d) => [d.id, d]));
+      const moved = r.board.dancers.filter((d) => Math.hypot(d.x - before.get(d.id).x, d.y - before.get(d.id).y) > 0.01);
+      if (moved.length !== 4) fail(`a partial apply moved ${moved.length} of 8; exactly one box should move`);
+      else ok('Box the Gnat from a Trade By moves exactly the one matching box (4 of 8)');
+      const spots = new Set(r.board.dancers.map((d) => `${d.x.toFixed(2)},${d.y.toFixed(2)}`));
+      if (spots.size !== 8) fail(`a partial apply left two dancers on one spot (${spots.size} distinct of 8)`);
+      else ok('the four dancers left standing keep their own spots, with no collision');
+    }
+    // The same shape on a Double Pass Thru, which stopped on `Turn Thru`.
+    const dpt = seq.boardForFormation('Double Pass Thru');
+    const t = dpt ? seq.applyToBoard(dpt, 'Turn Thru') : { legal: false, reason: 'no Double Pass Thru template' };
+    if (!t.legal) fail(`Turn Thru does not apply from a Double Pass Thru: ${t.reason}`);
+    else ok('Turn Thru applies from a Double Pass Thru through the same partial reading');
+  }
+}
+
 console.log('\n=================');
 console.log(failures === 0 ? 'SELECTION: all gates passed.' : `SELECTION: ${failures} gate(s) FAILED.`);
 if (failures) process.exitCode = 1;

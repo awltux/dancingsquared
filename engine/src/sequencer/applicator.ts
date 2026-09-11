@@ -326,10 +326,20 @@ export class CallApplicator {
     for (const v of variants) {
       const setup = v.dancers.map((d) => this.library.variantMatchable(d));
       const k = setup.length;
-      if (k <= 1 || k >= n || n % k !== 0) continue; // need >=2 full subsets, even split
-      const part = this.partition(setup, phys, matchTol);
+      // The board must still divide EVENLY into setup-sized boxes - `square-dancing.md` §7.2.1:
+      // "a board that cannot be split evenly into equal subsets (e.g. 6 dancers for a 4-dancer
+      // subset) has no clean partition and must not force one". So a 6-dancer board with a
+      // 4-dancer setup is refused here, exactly as before. What the partial reading below adds is
+      // only the case where the division IS even and some boxes match while others do not, which
+      // is what a Trade By or a Double Pass Thru is.
+      if (k <= 1 || k >= n || n % k !== 0) continue;
+      // A full tiling first, exactly as before. Only when the board CANNOT be tiled does the
+      // partial reading below get a chance, so nothing that works today changes.
+      const part = this.partition(setup, phys, matchTol)
+        ?? this.partitionPartial(setup, phys, matchTol);
       if (!part) continue;
       const { groups, error } = part;
+      if (groups.length === 0) continue;
       // Apply the call to each subset independently (disable parallel recursion).
       // Use rebase=false (PURE RELATIVE motion) so the parallel result preserves
       // every group's movement.
@@ -422,6 +432,70 @@ export class CallApplicator {
    * by the analyzer to decide a parallel-subset interpretation exists). */
   partitionExists(setup: Matchable[], dancers: SeqDancer[], maxError: number): boolean {
     return this.partition(setup, dancers, maxError) !== null;
+  }
+
+  /**
+   * The PARTIAL reading of `partition`: disjoint copies of `setup` covering as much of the board
+   * as they can, with the dancers in no copy left where they stand.
+   *
+   * WHY IT EXISTS. `partition` requires the setup to tile the whole board, so a call whose setup
+   * matches SOME boxes and not others is refused outright - and that is a whole family, not a
+   * corner case, because a set whose boxes are not congruent is exactly what a `Trade By` or a
+   * `Double Pass Thru` is: couples facing each other in the middle and couples facing out on the
+   * ends. Measured, three separate published get-outs stop this way:
+   *
+   *   - `Box the Gnat` from a `Trade By`: the facing pair matches, the outer couples do not.
+   *   - `Turn Thru` from a `Double Pass Thru`: same shape, measured best-group 3.000 while the
+   *     four-dancer SUBSET matches at 0.000.
+   *   - `Slide Thru`, `Recycle` and others reached on boards with no recognised formation.
+   *
+   * `square-dancing.md` §7.5 is explicit that "a call acts on everyone it applies to", so applying
+   * to the boxes that qualify and leaving the rest is the documented reading rather than a
+   * loosening. It is also STRICTLY ADDITIVE here: `parallelApply` tries `partition` first and only
+   * falls back to this, so a board that tiles today behaves exactly as before, and this can only
+   * turn a REFUSAL into an application.
+   */
+  partitionPartial(setup: Matchable[], dancers: SeqDancer[], maxError: number): { groups: SeqDancer[][]; error: number } | null {
+    const k = setup.length;
+    const n = dancers.length;
+    if (k < 2 || k > n) return null;
+    const used = new Array<boolean>(n).fill(false);
+    const groups: SeqDancer[][] = [];
+    let totalError = 0;
+    for (let anchor = 0; anchor < n; anchor++) {
+      if (used[anchor]) continue;
+      const rest: number[] = [];
+      for (let i = 0; i < n; i++) if (!used[i] && i !== anchor) rest.push(i);
+      if (rest.length < k - 1) break;
+      // The best group of k containing this anchor that still matches; null when none does, in
+      // which case the anchor is simply left unmatched and we move on to the next dancer.
+      let best: { idx: number[]; error: number } | null = null;
+      const combo = new Array<number>(k - 1);
+      const search = (start: number, depth: number): void => {
+        if (depth === k - 1) {
+          const idx = [anchor, ...combo];
+          const m = matchFormations(
+            idx.map((i) => ({ x: dancers[i].x, y: dancers[i].y, heading: dancers[i].heading })),
+            setup,
+            maxError,
+          );
+          if (m && !best) best = { idx, error: m.error };
+          return;
+        }
+        for (let i = start; i < rest.length; i++) {
+          combo[depth] = rest[i];
+          search(i + 1, depth + 1);
+          if (best) return;
+        }
+      };
+      search(0, 0);
+      if (!best) continue;
+      const found = best as { idx: number[]; error: number };
+      for (const i of found.idx) used[i] = true;
+      groups.push(found.idx.map((i) => dancers[i]));
+      totalError += found.error;
+    }
+    return groups.length > 0 ? { groups, error: totalError } : null;
   }
 }
 

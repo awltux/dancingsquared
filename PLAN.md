@@ -898,6 +898,73 @@ re-reading the code.
 
 ---
 
+## Phase 4i — DONE: "some boxes, not all", the structural gap behind several names
+
+**`parallelApply` required the setup to tile the WHOLE board**, so a call whose setup matches some
+boxes and not others was refused outright. Chasing `Turn Thru` found that three separate published
+get-outs stop this way, and the fix is a strictly-additive second reading.
+
+### The diagnosis, from the reusable survey
+
+```
+Turn Thru on the Double Pass Thru board it is reached from:
+  Facing Couples, couples 2 apart   full-board subset 0.000   best TILING group 3.000
+```
+
+The setup **matches at 0.000**; what fails is the *tiling*. A `Double Pass Thru` — like a
+`Trade By` — is couples facing each other in the middle and couples facing out on the ends, so the
+inner pair matches and the outer pair cannot, and `partition` demands every dancer be consumed. The
+same shape accounts for `Box the Gnat` from a `Trade By`, which is why those three lines survived
+Phase 4f's structural diagnosis.
+
+### The fix
+
+`partitionPartial` — disjoint copies of the setup covering as much of the board as they can, with
+the rest left where they stand — tried **only after** `partition` fails. That ordering makes it
+**strictly additive**: a board that tiles today behaves exactly as before, and this can only turn a
+refusal into an application.
+
+`square-dancing.md` §7.5 is the reading — *"a call acts on everyone it applies to"*. §7.2.1 still
+bounds it and is why the even-division guard stays: the board must divide **evenly** into
+setup-sized boxes, so a 6-dancer board with a 4-dancer setup is still refused, exactly as before
+(and `features.mjs` still asserts it).
+
+### A second authoring, from a law pin that is now direct
+
+`Slide Thru` and `Turn Thru` were the same spacing gap as `Box the Gnat` and `Pull By`: authored
+`Facing Couples Compact` (couples 3 apart) while the boards use 2, measuring best errors of 2.000
+against the 1.5 tolerance. This time the scaling law is **pinned directly rather than by analogy**:
+`Star Thru` — which `Slide Thru`'s own taminator says it is, "just Star Thru with no hands" — is
+authored at **both** spacings, `b1` with `Facing Couples` and `scaleX="2"`, `ms` with
+`Facing Couples Compact` and `scaleX="1.5"`. So `scaleX = separation / 2`, and comparing the two
+also pins what does *not* scale: `offsetX` stays **1** at both. Separation 2 therefore gives
+`scaleX = 1`.
+
+### Measured
+
+| | before | after |
+|---|---|---|
+| corpus: reached the finish and applied it | 79 | **81** |
+| corpus: stopped part-way through the body | 96 | **89** |
+| `Turn Thru` among the stopping calls | 3 | **0** |
+| `Box the Gnat` among the stopping calls | 3 | **0** |
+| `Slide Thru` among the stopping calls | 3 | 2 |
+
+`selection.mjs` gates the new reading on both concrete cases: `Box the Gnat` from a `Trade By` moves
+exactly the one matching box (4 of 8) with no collision, and `Turn Thru` applies from a
+`Double Pass Thru`.
+
+### The scaling procedure, as it now stands (three confirmed instances)
+
+1. A "will not match" call is usually a **near-miss in the match error**, not a missing call.
+2. Two authorings at other spacings pin the law — `x2 = sep/2 + 1` for `Box the Gnat`,
+   `scaleX = sep/2` for `Pull By`, `Star Thru` and (through it) `Slide Thru` / `Turn Thru`.
+3. Write the formation **inline** at `x = -1` and let the engine's mirror place the second couple.
+4. Then check whether the *tiling* or the *matching* was the real blocker — they are different
+   failures and `bestGroup` vs `fullBoard` tells them apart.
+
+---
+
 ## Phase 5 — Latent correctness
 
 Each needs its own measured step, ordered by blast radius:

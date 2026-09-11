@@ -741,6 +741,60 @@ engine gaps, which is the same effect Phase 2 had and the point of making them r
 
 ---
 
+## Phase 4e — IN PROGRESS: authoring the variants the data does not have
+
+**The largest remaining bucket is not missing calls — it is missing VARIANTS.** The report calls it
+"ENGINE GAPS: the call exists but will not match the board it was reached from", 25–31 distinct
+names. Diagnosing the top entry showed the label is right and the fix is not a matcher change:
+
+```
+Box the Gnat on the Eight Chain Thru board the corpus reaches it from
+  from="Facing Couples" (ms, couples 3 apart)   best error 2.000   (tolerance 1.5)
+  from="Facing Couples" (b2, couples 4 apart)   best error 4.000
+  from="Right-Hand Wave"                        best error 5.248
+```
+
+`Box the Gnat` is a 4-dancer call, so on an 8-dancer board it goes down the **parallel-subset** path,
+which partitions the board into two copies of the call's setup. Matching compares **distances**, so
+the setup's couple separation has to be the board's. The two authored `Facing Couples` variants put
+the couples **three** and **four** apart; every board the corpus reaches the call from — Eight Chain
+Thru, Trade By — puts them **two** apart. So all of them miss, and the call was reported as an engine
+gap it never was.
+
+**FIXED, by authoring the missing variant** — the same move as step 4b. The leading was not
+invented: the two existing authorings pin the travel-to-separation relation exactly,
+`x2 = separation/2 + 1` (3 at separation 4, 2.5 at separation 3), so separation 2 gives `x2 = 2`.
+The start formation is written **inline** at `x = -1` so the engine's own mirror (180° about the
+origin) places the second couple at `+1`. Everything else is copied unchanged.
+
+| | before | after |
+|---|---|---|
+| corpus: reached the finish and applied it | 75 | **78** |
+| corpus: stopped part-way through the body | 101 | **97** |
+| `Box the Gnat` among the stopping calls | 7 | **3** |
+
+It applies through the **parallel-subset** path rather than the whole-board one, and leaves a valid
+`Eight Chain Thru` with 8 distinct spots — verified before measuring.
+
+**The remaining 3 are a SECOND missing variant, and the reason is now identified**: they are on
+`Trade By`, whose facing couples put the GIRL at `y=+1` where `Eight Chain Thru` puts the boy. The
+call is `sequencer="gender-specific"`, so the gender gate correctly rejects the variant authored for
+the other arrangement — the data needs the mirrored-gender authoring too (with the two paths
+swapped, or the girl would get the man's motion).
+
+### Still open from this family
+
+- **A second `Box the Gnat` variant** for the mirrored gender arrangement (`Trade By`, 3 lines).
+- **`Right Pull By`** (2 lines) — same shape, same near-miss: best error 2.000, and its two variants
+  are at separations 4 and 3.
+- **`Scoot Back`** (4 lines, now the bucket's top entry) — best error **1.571** against 1.5, a
+  whisker, so this needs its own diagnosis rather than an assumption about spacing.
+- **`Bend the Line` / `Ends Fold`** (3 each) at error 3.142, and `Star Thru` (2) on a board with no
+  recognised formation at all.
+- **`Expl&`** (5) — "Explode and \<call\>" composition, and **`Single Hinge`** (11).
+
+---
+
 ## Phase 5 — Latent correctness
 
 Each needs its own measured step, ordered by blast radius:

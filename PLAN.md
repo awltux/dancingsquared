@@ -1034,7 +1034,7 @@ we do not model (`O-`, and the `H`/`S` flip), direction-specified runs the engin
 
 ---
 
-## Phase 5 — IN PROGRESS: latent correctness
+## Phase 5 — DONE: latent correctness (5a–5e)
 
 ### 5d — DONE: `Circulate` from facing lines, authoring what the reference dispatches
 
@@ -1308,17 +1308,13 @@ Each needs its own measured step, ordered by blast radius:
 
 ---
 
-## Phase 6 — The All8 → engine name bridge
-
-`CALL_SYNONYMS` is **empty** (`constants.ts:85`) — verified. The bridge is 3 entries living in a
-*test harness* (`engine/test/lib/engine-calls.mjs:112-116`), so only tests resolve `Touch 1/4`,
-`Cast Off 3/4`, `Do Sa Do`. Anyone consuming published choreography needs it in the engine, where
-`canonicalName()` already applies it. Small, independent, and it reduces how much of Phase 2's
-accounting is harness-side.
-
----
-
 ## Phase 6 — DONE: the All8 → engine name bridge lives in the engine
+
+**As originally stated:** `CALL_SYNONYMS` is **empty** (`constants.ts:85`) — verified. The bridge is
+3 entries living in a *test harness* (`engine/test/lib/engine-calls.mjs:112-116`), so only tests
+resolve `Touch 1/4`, `Cast Off 3/4`, `Do Sa Do`. Anyone consuming published choreography needs it in
+the engine, where `canonicalName()` already applies it. Small, independent, and it reduces how much
+of Phase 2's accounting is harness-side.
 
 **`CALL_SYNONYMS` was empty; the bridge was three entries in a test harness.** It is now engine data,
 and it immediately unblocked the largest remaining named gap.
@@ -1380,7 +1376,7 @@ job it was built for: the declared-gap list cannot silently drift out of date.
 
 ---
 
-## Phase 7 — Legacy phases, docs and harness gaps
+## Phase 7 — DONE, with one standing instruction: legacy phases, docs and harness gaps
 
 - **Phase 3 (amendment policy):** `FsmStore.amend` (`fsm-store.ts:49`) requires a getout. **STILL
   UNMEASURED — and the first two attempts to measure it were both invalid.** Recorded because the
@@ -1416,6 +1412,14 @@ job it was built for: the declared-gap list cannot silently drift out of date.
     `features/getout_search.feature` is corrected.
   - The original DECISION (an advisory gate recording `getoutVerified`, or unamendable) still has no
     evidence behind it — but it now has a cost estimate for the thing that would inform it.
+  - **DECIDED (round 24): keep the hard requirement — unamendable without a getout.** Reasoning from
+    the measurement, not from principle: the gate refuses only ~6% of candidates that are otherwise
+    valid, so the cost of keeping it is small; and an amendment whose result has no getout adds an
+    edge to a RESOLVE FSM that cannot help resolve, so it would make the FSM larger without making it
+    more useful. The advisory alternative would need a UI to surface the flag AND a policy for when
+    the search may traverse an unverified edge; neither exists, and building both to recover 6% is not
+    what the numbers justify. **Revisit if the corpus changes** — the ~6% is a bounded sample, not a
+    law. No UI wires this yet, so nothing depends on it today.
 - **Phase 4:** ~~audit checks for the bounded non-geometric matching exceptions (§8.2)~~ — **DONE**:
   §8.2 requires that identity be real data and that anything unknown not act as identity, which makes
   the audit a **bound**. Matching may consult non-geometric information in exactly two ways, and
@@ -1456,9 +1460,12 @@ job it was built for: the declared-gap list cannot silently drift out of date.
   enumeration, arrangement/sequence read off the live board rather than stored on it, and why a
   relationship letter is WITHHELD rather than guessed. `features/all8_format.feature` covers the
   import/export codec. `features/getout_search.feature` now covers the SOLVER: the caller convention
-  and why the path ends at a finish, `maxCalls` bounding the RETURNED path *including* that finish,
-  `Promenade` as a usable final edge despite being absent from the catalogue, determinism of the
-  answer, the `getin`/`fixIt` bounds being different on purpose, and the two cheap non-search answers
+  and what it actually guarantees — the path, applied, takes the set home, which is USUALLY but **not
+  always** a standard finish as the last call (measured: 4 of 15 accepted getouts ended elsewhere,
+  which corrected an earlier stronger claim of mine in that same file) — plus `maxCalls` bounding the
+  RETURNED path *including* the appended finish, `Promenade` as a usable final edge despite being
+  absent from the catalogue, determinism of the answer, the `getin`/`fixIt` bounds being different on
+  purpose, and the two cheap non-search answers
   (`matrixGetout`, `closenessToHome`). It also documents the API shape that bites —
   `Sequencer.getout(opts)` searches its OWN board, which cost a round of invalid measurements here
   (HANDOVER §6, trap 4). **`features/call_editor.feature` closes the gap**: the editor does not author

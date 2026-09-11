@@ -1169,6 +1169,47 @@ that is legal from some boxes and not others** — which is what `Box the Gnat` 
 That is a behaviour change with board-wide blast radius, so it is recorded rather than made on this
 evidence, exactly as the collision refusal was in Phase 4b.
 
+### Phase 4e — the remaining item: `Square Thru 1` (and 5, 6), and the reference's actual rule
+
+Measured in round 34 while chasing the report's `2x other: "Square Thru 1" not legal for selected
+dancers`. The gap is real and it is **not** a decoder gap: `all8-notation.ts` decodes `SqTh1` →
+`Square Thru 1` correctly, and lists it in `KNOWN_CATALOGUE_GAPS`. The catalogue simply does not have
+it — `ms/square_thru.xml` ships `Square Thru 2`, `3`, `4`, `1 1/2`, `2 1/2`, `3 1/2` (and the `Left`
+forms) and **no `Square Thru 1`, `5` or `6`**, and the engine has no derived implementation of the
+count at all. So `Square Thru 1` fails as a bare call, and as `Centers Square Thru 1` it reaches
+`applySelected`, fails the subset match, fails the whole-board fallback, and reports
+`"Square Thru 1" not legal for selected dancers`.
+
+The reference does **not** author the counts as data either — it implements the count generically
+(`taminations-flutter/lib/sequencer/calls/ms/square_thru.dart`), so the rule for our side is read off
+directly rather than guessed:
+
+```
+count = last number in the name, default 4
+if any active is in a couple:                 # i.e. facing couples, not already a wave
+    apply "Facing Dancers Step to a Compact <right> Wave"
+check the wave is the correct hand (belle/beau test)
+for c = 1 .. count-1:                         # NOTE: c < count, so count == 1 does NOTHING here
+    apply "Explode and Step to a Compact <hand> Wave"
+if "to a Wave":            done (no finish)
+elif "on the nth hand":    done (no finish)
+else:                      apply "Step Thru"
+```
+
+Two consequences worth having written down before anyone starts:
+
+- **`Square Thru 1` is not a trivial scaling of `Square Thru 2`.** With `count == 1` the loop body
+  never runs, so the reference performs *step to a compact RH wave* and then *step thru* — there is no
+  pull by in it at all. That is surprising enough that it should be checked against a real dance
+  before it is implemented, not implemented on the strength of the code alone.
+- `StepToACompactWave` is `ExtendLeft`/`ExtendRight` scaled by `dist/2, 0.5` — i.e. the same
+  `separation/2` law as the Phase 4d authorings, with `0.5` beats. That part is cheap; the expensive
+  part is `Explode and Step to a Compact <hand> Wave`, which needs `Explode` geometry we do not have.
+
+**Not started.** It is a multi-part authoring (Explode first, then the counts) and the reference's
+`on the nth hand` branch also drags in the `Touch 1/4` family, so it wants a round of its own rather
+than the tail of this one.
+
 ### Phase 4g — a second authoring, and it lands cleanly
 
 `Right Pull By` is the same gap with an even cleaner scaling law. Its two authorings put the couples

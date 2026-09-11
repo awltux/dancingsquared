@@ -89,14 +89,20 @@ arrangement plus one partner paired.
    truncated. A silently-partial corpus would be worse than none.
 2. **Call-name coverage** decodes each published line with a *conservative*
    abbreviation table (`test/lib/getout-decode.mjs`, shared with the behavioural
-   runner) and reports which call names the engine does not implement. The table is
-   **ours, not All8's** — All8's own notation reference (`help.cgi`) returns HTTP 500
-   — so tokens we cannot read with confidence are counted as undecoded rather than
-   guessed, and group-scoped readings (`B-Run` → "Boys Run") are reported separately
-   instead of being compared, because a composed name is our reading rather than a
-   name All8 prints. Names the engine implements under a different title
-   (`Touch 1/4` → `Touch a Quarter`) are reported as *named differently*, not as
-   gaps; the bridge is `test/lib/engine-calls.mjs`.
+   runner) and reports which call names the engine does not implement.
+   **The table's expansions are now All8's OWN**, taken from Rich Reel's notation page,
+   which survives on the Internet Archive:
+   <https://web.archive.org/web/20160701101228/http://www.all8.com/sd/calling/abbrlist.htm>
+   — "Call Name and Designator Abbreviations", 14 Oct 2012, carrying the call-name
+   table, the designator list and the punctuation legend. The live `help.cgi` CGI does
+   return HTTP 500, which is why this was previously built by reading the published
+   lines; with the key in hand, a token whose call the engine lacks is *decoded* and its
+   gap **declared**, so the line is attributed to the engine rather than to our reading.
+   Tokens the key does not settle are still counted as undecoded rather than guessed,
+   and group-scoped readings (`B-Run` → "Boys Run") are reported separately instead of
+   being compared, because a composed name is our reading either way. Names the engine
+   implements under a different title (`Touch 1/4` → `Touch a Quarter`) are reported as
+   *named differently*, not as gaps; the bridge is `test/lib/engine-calls.mjs`.
 
 `engine/test/getout-behaviour.mjs` **runs** the corpus: a start board from each
 alignment's diagram, the published line decoded and applied call by call, stopping at

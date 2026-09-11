@@ -965,6 +965,75 @@ exactly the one matching box (4 of 8) with no collision, and `Turn Thru` applies
 
 ---
 
+## Phase 4j — DONE: All8's own notation key, and the biggest decoder jump of the workstream
+
+**The key this file had been saying it could not get is available**, and using it moved **64 lines**
+out of "our decoder gap" and **6** more to full success.
+
+### The correction
+
+`getout-decode.mjs` said the table is *"ours, not All8's"* because *"All8's own notation reference
+(help.cgi) returns HTTP 500"*. The CGI does, but Rich Reel's notation page survives on the Internet
+Archive and is the missing key:
+
+> **Call Name and Designator Abbreviations** (14 Oct 2012) —
+> <https://web.archive.org/web/20160701101228/http://www.all8.com/sd/calling/abbrlist.htm>
+
+It carries the **call-name table, the designator list and the punctuation legend**, which between
+them settle three things this file had been inferring or refusing:
+
+1. **The expansions themselves.** 31 tokens whose calls this engine implements were added straight
+   from All8's own list — every entry copied verbatim rather than read off the published lines. The
+   membership gate still checked each one against `implementedTitles()`.
+2. **Two tokens the file had refused as too ambiguous.** `LA` is All8's *"Left Alamande (Alamande
+   Left)"* — **not** "Ladies Chain", which the membership rule alone would have accepted because
+   `Ladies Chain` is implemented and `Left Allemande` is not. And `SHing` is `"Single Hinge"`.
+3. **The punctuation and designators.** `,` is "while", `;` is "then", `!` marks a difficult line,
+   and `-` after a call is an **"and"/"same ones" tie-in** where *"the active dancers keep working"*
+   — which is the authority for the tokenizer's joiner-dash handling rather than our inference. The
+   designator list also documents the one genuine ambiguity: **`H-` is "Heads or Sides (when
+   H=Sides, S=Heads)"**, so `GROUP`'s `H: 'Heads'` is the default reading and the flip is a caller
+   convention we cannot resolve from the text.
+
+### The other half of the work: DECLARE the engine's gaps instead of hiding them
+
+With the key in hand the honest move for a token whose call the engine simply lacks is to **decode
+it and declare the gap**. `KNOWN_CATALOGUE_GAPS` now carries 13 more names — `Single Hinge` (11
+lines, the largest single item left), `Right-hand Star`, `Sweep 1/4`, `1/2 Tag`, `Eight Chain 1`–`5`,
+`Ladies In And The Men Sashay`, `Cross Run`, `See Saw`, `Left Hand Hinge` — each with All8's reading
+as the authority. That moves those lines out of *"our gap in reading All8"*, where they were being
+reported as a shorthand failure of ours, and into a correct **engine**-gap attribution.
+
+`Twice` was also removed from the harness's PROSE filter: All8 defines it as a call modifier
+(*"repeat the previous call again"*), so counting it as page text was wrong.
+
+### Measured
+
+| | before | after |
+|---|---|---|
+| get-out lines decoded (of 265) | 160 (60%) | **195 (74%)** |
+| lines stopped at an unread token | 104 | **69** |
+| corpus: reached the finish and applied it | 81 | **87** |
+| corpus: stopped at an undecodable token | 146 | **82** |
+| corpus: stopped part-way through the body | 89 | 142 |
+| table names admissible | 78 | **120** |
+
+The mid-body rise is the point again: **64 lines became readable** and then stopped at genuine
+engine gaps, which is exactly what the decoder exists to expose. The remaining undecoded 52 tokens
+are now mostly *modifiers needing composition* (`Twice` 5, `1-1/2`, `1/2of`, `Expl&`), designators
+we do not model (`O-`, and the `H`/`S` flip), direction-specified runs the engine lacks
+(`G-RunL`, `B-RunR`), and genuine page text (`"Dave Wilson"`, `"for beginners say"`).
+
+### Still open
+
+- **`Roll` is a modifier too.** All8's `&Roll` is *"(Anything) and Roll"* and `Roll` is *"{designated}
+  Roll (use &Roll if everyone can Roll)"* — so the derived `Roll` currently applied to whoever has a
+  remembered direction is a reading of the second form. Recorded, not reworked.
+- **Composition for `Expl&`, `Twice`, `1-1/2`, `1/2of-`** — each takes the preceding or following
+  call as an argument, and `Explode And (anything)` is the template for all four.
+
+---
+
 ## Phase 5 — Latent correctness
 
 Each needs its own measured step, ordered by blast radius:

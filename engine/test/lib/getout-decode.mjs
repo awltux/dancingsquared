@@ -4,27 +4,51 @@
 // catalogue) and getout-behaviour.mjs (which actually runs the get-outs), so both
 // use ONE abbreviation table and cannot drift apart.
 //
-// The table is OURS, not All8's: All8's own notation reference (help.cgi) returns
-// HTTP 500, so it is built from the published lines themselves. It is deliberately
-// conservative - a token is decoded only when its expansion is unambiguous to us,
-// and anything else is reported as UNDECODED rather than guessed, because a wrong
-// expansion would silently turn a real engine gap into a phantom call name.
+// ALL8'S OWN NOTATION KEY IS AVAILABLE, AND IT CHANGED THE METHOD. This file used to say the table
+// is "ours, not All8's" because "All8's own notation reference (help.cgi) returns HTTP 500". That is
+// true of the CGI, but Rich Reel's notation page survives on the Internet Archive, and it is the key:
+//
+//   Call Name and Designator Abbreviations (14 Oct 2012):
+//   https://web.archive.org/web/20160701101228/http://www.all8.com/sd/calling/abbrlist.htm
+//
+// It carries the call-name table AND the designator list AND the punctuation legend, which between
+// them settle three things this file had been inferring or refusing:
+//
+//   - the expansions themselves, so an entry is now ALL8'S OWN reading rather than a guess at it.
+//     The archived list contributed 31 tokens whose calls this engine implements, and confirmed
+//     `SHing` = "Single Hinge" and `LA` = "Allemande Left" (NOT "Ladies Chain", which this file had
+//     previously refused as too ambiguous to guess and which the membership rule alone would have
+//     got wrong);
+//   - the punctuation: `,` is "while", `;` is "then", `!` marks a difficult line, `-` after a call
+//     is an "and"/"same ones" tie-in where "the active dancers keep working", and `(...)`/`"..."`/
+//     `{...}` are asides. The tokenizer's joiner-dash and aside handling follow those, and
+//     `abbrlist.htm` is why a trailing dash must be stripped rather than treated as part of a name;
+//   - the designators, including the one genuine ambiguity: `H-` is "Heads or Sides (when H=Sides,
+//     S=Heads)". So `GROUP`'s `H: 'Heads'` is the default reading, and the flip is a documented
+//     caller convention rather than something we can resolve from the text.
+//
+// It is still deliberately conservative: a token is decoded only when its expansion is settled, and
+// anything else is reported as UNDECODED rather than guessed, because a wrong expansion would
+// silently turn a real engine gap into a phantom call name.
 //
 // PHASE 2 turned "conservative" from a stated intention into a PROCEDURE, because the risk it
 // guards against was not actually being caught by anything:
 //
 //   1. A candidate expansion is admissible only when it is an exact member of
-//      `implementedTitles(assets)` - the set of calls the engine can really perform. Two traps
-//      that rule catches and intuition did not: `Sweep a Quarter` is in the engine's call INDEX
-//      with no <tam> anywhere, so it is not a call; and `Single Hinge`, `1/2 Tag`, `Roll` and
-//      `Right Star` are absent under every spelling attempted.
-//   2. Where the catalogue admits MORE THAN ONE reading, the token is left undecoded. `LA` is
-//      the case in point: `Ladies Chain` is implemented and `Left Allemande` is not, so the
-//      membership rule alone would have passed a reading the abbreviation does not settle.
-//   3. `getout-conformance.mjs` now ENFORCES rule 1: every token must expand either to an
-//      implemented call or to a name declared in `KNOWN_CATALOGUE_GAPS`. Before that, a wrong
-//      expansion was invisible - it just moved a line from one report bucket to another, and
-//      the phantom name was attributed to the ENGINE.
+//      `implementedTitles(assets)` - the set of calls the engine can really perform - OR is
+//      declared in `KNOWN_CATALOGUE_GAPS`. Two traps that rule catches and intuition did not:
+//      `Sweep a Quarter` is in the engine's call INDEX with no <tam> anywhere, so it is not a call
+//      (All8's key agrees the token is `Sweep` = "Sweep 1/4", which the index does not carry
+//      either); and a name can be absent under every spelling the catalogue uses.
+//   2. Where the key is silent AND the catalogue admits more than one reading, the token is left
+//      undecoded. `LA` was the case in point until the key settled it.
+//   3. `getout-conformance.mjs` ENFORCES rule 1: every token must expand either to an implemented
+//      call or to a declared gap. Before that, a wrong expansion was invisible - it just moved a
+//      line from one report bucket to another, and the phantom name was attributed to the ENGINE.
+//
+// With the key in hand the second half of that work is now the honest one: a token whose call the
+// engine simply does not implement is DECODED and its gap DECLARED, which moves the line out of
+// "our gap in reading All8" and into a correct engine-gap attribution.
 //
 // A wrong expansion still cannot be detected automatically once it names a real call: the
 // remaining defence is the full before/after ranking diff, which is why `decodeStats` reports
@@ -124,7 +148,68 @@ export const TOKENS = {
   // entirely - no tam, not even in the call index - so this entry would have been a phantom name
   // and the membership gate below would have rejected it.
   '&Roll': 'Roll',
+  // ---- added from ALL8'S OWN ABBREVIATION LIST ----
+  // Rich Reel's "Call Name and Designator Abbreviations" note (abbrlist.htm, 14 Oct 2012) is now
+  // available from the Internet Archive, and it is the notation key this file has been saying it
+  // could not get:
+  //
+  //   https://web.archive.org/web/20160701101228/http://www.all8.com/sd/calling/abbrlist.htm
+  //
+  // Every entry below is All8's OWN expansion, copied verbatim, not a reading of the published
+  // lines - so these expansions are AUTHORITATIVE rather than inferred, and each was still checked
+  // against `implementedTitles()` by the gate. 34 of the key's expansions are calls this engine
+  // implements; these are the ones whose tokens the corpus actually uses.
+  //
+  // It also settles two tokens this table had refused as too ambiguous to guess. `LA` is "Left
+  // Alamande (Alamande Left)" - NOT "Ladies Chain" - and `SHing` is "Single Hinge".
+  LA: 'Allemande Left',
+  ALIAS: 'Allemande Left in the Alamo Style',
+  FYNbr: 'Follow Your Neighbor',
+  'Cpl.C': 'Couples Circulate',
+  'Cpl.H': 'Couples Hinge',
+  'Cpl.T': 'Couples Trade',
+  'SF.Pr': 'Single File Promenade',
+  'D.Cir': 'Diamond Circulate',
+  'Cut.D': 'Cut the Diamond',
+  '8ChTh': 'Eight Chain Thru',
+  GrSwT: 'Grand Swing Thru',
+  ReDcy: 'Relay the Deucey',
+  LTrnT: 'Left Turn Thru',
+  ChDTL: 'Chain Down the Line',
+  Coord: 'Coordinate',
+  SpChG: 'Spin Chain the Gears',
+  SpChX: 'Spin Chain and Exchange the Gears',
+  PeelT: 'Peel the Top',
+  Weave: 'Weave the Ring',
+  XFire: 'Crossfire',
+  Balnc: 'Balance',
+  StepT: 'Step Thru',
+  HSash: 'Half Sashay',
+  LChas: 'Left Chase',
+  LnCyc: 'Linear Cycle',
+  PingP: 'Ping Pong Circulate',
+  Shoot: 'Shoot the Star',
+  Trak2: 'Track 2',
+  WWThr: 'Wrong Way Thar',
+  Cir2L: 'Circle to a Line',
+  StrPr: 'Star Promenade',
+  // All8 confirms the reading; the ENGINE has no `Single Hinge`, so this is declared a catalogue
+  // gap below rather than left looking like a shorthand failure of ours.
+  SHing: 'Single Hinge',
+  // The remaining tokens whose reading All8's key settles and whose call the engine does NOT
+  // implement. Decoding them is the point: it moves the line out of "our gap in reading All8" and
+  // into an honest engine-gap attribution, which is what the declared list above is for. Leaving
+  // them undecoded would keep accusing our abbreviation table of a gap that is really a missing
+  // implementation.
+  RStar: 'Right-hand Star',
+  Sweep: 'Sweep 1/4',
+  '1/2Tg': '1/2 Tag',
+  LyIMS: 'Ladies In And The Men Sashay',
+  XRun: 'Cross Run',
+  SeSaw: 'See Saw',
+  LHing: 'Left Hand Hinge',
 };
+for (let n = 1; n <= 5; n++) TOKENS[`8Chn${n}`] = `Eight Chain ${n}`;
 
 /**
  * Names All8 uses that the catalogue genuinely does NOT implement.
@@ -147,6 +232,23 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   'Left Hinge',
   'Fold',
   'Cross Fold',
+  // Confirmed by All8's own abbreviation list, so the READING is not in doubt - the engine simply
+  // does not implement the call. Declaring them here is what moves those corpus lines out of "our
+  // gap in reading All8" and into a correct engine-gap attribution. `Single Hinge` alone is 11
+  // lines, and the biggest single item left on the decoder ranking.
+  'Single Hinge',
+  'Left Hand Hinge',
+  'Right-hand Star',
+  'Sweep 1/4',
+  '1/2 Tag',
+  'Eight Chain 1',
+  'Eight Chain 2',
+  'Eight Chain 3',
+  'Eight Chain 4',
+  'Eight Chain 5',
+  'Ladies In And The Men Sashay',
+  'Cross Run',
+  'See Saw',
 ]);
 
 /**
@@ -218,8 +320,11 @@ export function tokenize(line) {
     .map((t) => t.trim())
     .filter(Boolean)
     // Leading marker/joiner punctuation AND a trailing joiner dash, plus sentence punctuation.
-    // The group-prefix dash is INTERNAL (`B-Run`) and survives both.
     .map((t) => t.replace(/^[-\s!|]+/, '').replace(/[-\s!|,.;:]+$/, '').trim())
+    .filter(Boolean)
+    // All8's key defines the dash as a TIE-IN ("the active dancers keep working"), and `,` as
+    // "while", so a leading comma on a token is punctuation rather than part of a name.
+    .map((t) => t.replace(/^[,;]+/, '').trim())
     .filter(Boolean)
     // An aside that was dropped from the MIDDLE of a token can leave a bare joiner behind.
     .filter((t) => !/^-+$/.test(t));

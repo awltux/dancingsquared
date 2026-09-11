@@ -776,11 +776,25 @@ origin) places the second couple at `+1`. Everything else is copied unchanged.
 It applies through the **parallel-subset** path rather than the whole-board one, and leaves a valid
 `Eight Chain Thru` with 8 distinct spots — verified before measuring.
 
-**The remaining 3 are a SECOND missing variant, and the reason is now identified**: they are on
-`Trade By`, whose facing couples put the GIRL at `y=+1` where `Eight Chain Thru` puts the boy. The
-call is `sequencer="gender-specific"`, so the gender gate correctly rejects the variant authored for
-the other arrangement — the data needs the mirrored-gender authoring too (with the two paths
-swapped, or the girl would get the man's motion).
+**The remaining 3 are a NARROWER bug, and my first explanation of them was WRONG.** I recorded that
+they are on `Trade By`, whose facing couples put the girl where Eight Chain Thru puts the boy, and
+that the `gender-specific` gate was correctly rejecting the variant. Measurement disproved it:
+
+- the new variant matches a four-dancer subset of the `Trade By` board at **error 0.000 with the
+  gender gate ON** (and 0.000 ungated), so neither spacing nor gender is the reason;
+- `partition` does not consult gender at all — it calls `matchFormations` on
+  `{x, y, heading}` with no `requireGender` (`applicator.ts:387-391`);
+- and the couple-coherence check it *does* apply is inert here, because **both boards carry
+  `couple = 0` for all eight dancers** (UNKNOWN_COUPLE), so `isKnownCouple` is false for every
+  dancer and no constraint is imposed.
+
+So the eight-dancer `findMatchingVariant` is correctly null, and the refusal comes out of
+`parallelApply` → `partition` → the per-group sub-apply, **not** out of matching. That is the thing
+to chase, and it is the same path the whole "missing variant" family goes through, so it is worth
+chasing properly rather than by adding more assets.
+
+Recorded rather than guessed, in the house style: the first explanation was plausible, checkable,
+and checked — and wrong.
 
 ### Still open from this family
 

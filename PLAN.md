@@ -935,6 +935,44 @@ measure. That is why the facing entries are left open rather than "fixed": what 
 **rule that pins facings**, of the same kind and from a source of the same authority as the scale rule
 — not another attempt at inference.
 
+### "An unrecognised board must be a defect" — REFUTED (round 29)
+
+The remaining lead was the largest bucket: 6 of `Single File Promenade`'s 8 stops are reached from
+boards `knownFormation` returns null for, and a legal sequence of legal calls "should not" land the set
+somewhere the engine cannot name. Measured across the whole corpus — 160 recognised → unrecognised
+transitions, attributed to the call that caused each:
+
+```
+  48x  Allemande Left          <- the allemande pose: corner-facing, diagonal
+  47x  Right and Left Grand    <- the grand ring
+  22x  Roll                   <- a pivot: positions unchanged, facings rotated
+   9x  Dixie Grand
+   8x  Single Hinge
+   4x  Centers Swing Thru       (then a long tail, 3s and 1s)
+```
+
+The example settles it. `--AL` from `B1c` produces
+
+```
+(3.5,1.5)-45 (3.5,-1.5)45 (1,1.5)180 (1,-1.5)180 (-1,1.5)0 (-1,-1.5)0 (-3.5,1.5)-135 (-3.5,-1.5)135
+```
+
+— every dancer standing on their CORNER, facing diagonally. **That is the correct allemande-end pose**,
+not a bug. `Right and Left Grand` is the grand ring; `Roll` is a pivot, which by construction leaves
+the positions alone and rotates the facings, so it *cannot* leave a formation match.
+
+**So `knownFormation === null` is not evidence of a defect.** These are legitimate transient DANCE
+states that the engine has no formation *template* for — its vocabulary covers formations, not every
+state a caller can have the dancers standing in. The corollary is the useful part: the 6 unrecognised
+`Single File Promenade` stops cannot be closed by authoring a variant against a named formation,
+and chasing "unrecognised board" as a bug class would be chasing the allemande.
+
+The real question that remains is the opposite one: **what distinguishes a legitimately unnamed state
+from a wrong board?** The corpus currently cannot tell them apart, so those stops are indistinguishable
+from real defects. That needs a criterion — e.g. "is this state reachable-and-intended" is not
+testable, but "does a standard application of the PREVIOUS call from a FORMATION produce it" might be
+— and it is a prerequisite for touching this bucket at all.
+
 The finish rows are listed only to show the conflation: the report keeps "stopped only at the finish"
 (54 lines) separate from the body stops, and a triage that did not would have made
 `Right and Left Grand` look like the biggest body gap in the corpus.

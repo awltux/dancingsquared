@@ -144,7 +144,7 @@ function exchange(board: Board, pairs: [D, D][], flipRunner: boolean): Board {
  * with unknown couples simply has no partner preference, which is why `arePartners` requires a
  * known couple rather than falling back to array position.
  */
-export function runRule(board: Board, selectedIds: number[]): { board: Board } | { reason: string } {
+export function runRule(board: Board, selectedIds: number[], dir?: 'left' | 'right'): { board: Board } | { reason: string } {
   const phys = physical(board);
   const picked = new Set(selectedIds);
   const runners = phys.filter((d) => picked.has(d.id));
@@ -173,9 +173,21 @@ export function runRule(board: Board, selectedIds: number[]): { board: Board } |
       };
     }
 
-    const side = left.length > 0 && right.length > 0
-      ? (left.some((w) => arePartners(runner, w)) ? left : right)
-      : (left.length > 0 ? left : right);
+    // A DIRECTION-SPECIFIED run ("Boys Run Right") constrains which side the dancer is run
+    // around; it does not pick a different motion. `left`/`right` above ARE "the dancers beside
+    // the runner on that side", so a direction selects one of those sets and refuses when it is
+    // empty - the constraint comes from geometry already in hand rather than from new
+    // choreography, which is why this is derivable where the facing variants are not.
+    const side = dir === 'left' ? left
+      : dir === 'right' ? right
+      : (left.length > 0 && right.length > 0
+        ? (left.some((w) => arePartners(runner, w)) ? left : right)
+        : (left.length > 0 ? left : right));
+    if (side.length === 0) {
+      return {
+        reason: `"Run ${dir === 'left' ? 'Left' : 'Right'}" needs a dancer beside (${runner.x.toFixed(1)},${runner.y.toFixed(1)}) on the ${dir}, and there is none`,
+      };
+    }
 
     // Run around exactly ONE dancer: the reference's default is `runAround = 1`, and a caller
     // asking for more says so explicitly ("Run Around 2"). So the nearest dancer BESIDE the

@@ -135,6 +135,25 @@ const DEFS: {
     precondition: () => 'Run names a group to run ("Boys Run", "Centers Run"); it has no whole-set reading',
     applyToSelection: runRule,
   },
+  // DIRECTION-SPECIFIED RUNS. All8 writes them `G-RunL` / `B-RunR` and the corpus uses them
+  // (Run Left 4 lines, Run Right 3, both previously reported as "not legal for selected dancers").
+  // They are the SAME derived Run with the side constrained, not a second choreography: runRule
+  // already computes which side the dancer to be run around is on, so a direction selects one of
+  // those sets and refuses when it is empty. That is the same footing as the separation fixes -
+  // the constraint comes from geometry already in hand - which is why this is authored here
+  // rather than inferred like a facing would have to be.
+  {
+    aliases: ['Run Left'],
+    beats: RUN_TRADE_BEATS,
+    precondition: () => 'Run Left names a group to run ("Girls Run Left"); it has no whole-set reading',
+    applyToSelection: (b, ids) => runRule(b, ids, 'left'),
+  },
+  {
+    aliases: ['Run Right'],
+    beats: RUN_TRADE_BEATS,
+    precondition: () => 'Run Right names a group to run ("Boys Run Right"); it has no whole-set reading',
+    applyToSelection: (b, ids) => runRule(b, ids, 'right'),
+  },
   {
     aliases: ['Trade'],
     beats: RUN_TRADE_BEATS,

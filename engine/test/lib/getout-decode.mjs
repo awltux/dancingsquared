@@ -63,8 +63,11 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   // and 4, so the ONE-hand version is the odd one missing, and All8 uses it (`--SqTh1 --AL`).
   'Square Thru 1',
   'Circle 2',
-  'Run Left',
-  'Run Right',
+  // `Run Left` and `Run Right` USED TO BE HERE, and they were wrong for the same reason the Eight
+  // Chain entries were: the engine DOES perform them. They are the derived `Run` with the side
+  // constrained, now registered in coded-moves.ts (runRule takes an optional direction), so the
+  // corpus's "Run Left is not legal for selected dancers" was a missing registration rather than a
+  // missing call.
   // Fourth pass, reported from All8's own pages. Each is a reading we are confident in and a call
   // the catalogue does not implement, so declaring it is what moves the line out of "our reading
   // gap" and into an honest engine-gap attribution.

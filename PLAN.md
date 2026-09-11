@@ -999,6 +999,25 @@ call in `coded-moves.ts` — so a direction-specified run is a matter of constra
 runner already takes, not of inventing one. That is derivable in the same sense the separations were,
 and it is the last avenue in Phase 4e that does not require asserting choreography.
 
+**FIXED (round 31) — and this one really was a missing registration, not a missing call.**
+`runRule` already computed `left` and `right` as *"the dancers beside the runner on that side"*; it
+just never let the caller choose between them. So the direction-specified forms needed no new
+choreography at all: `runRule` gained an optional `dir`, the `side` computation selects that side and
+**refuses with a reason when it is empty**, and `Run Left` / `Run Right` are registered in
+`coded-moves.ts` as that same derived `Run` with the side constrained. Both are then removed from
+`KNOWN_CATALOGUE_GAPS`, which is the honest form of the claim: they are calls the engine *performs*,
+so declaring them gaps was the same misattribution the `Eight Chain` entries were.
+
+| | before | after |
+|---|---|---|
+| corpus: reached the finish and applied it | 124 | **129** |
+| corpus: stopped part-way through the body | 139 | **134** |
+| `"Run Left"` / `"Run Right"` in the OTHER bucket | 4 + 3 | **0** (gone from the list) |
+
+The refusal message is a real part of the call rather than a formality: `Run Right` from a board
+where the dancer to be run around is on the LEFT is not the call, and saying so is what keeps a
+direction-specified run from silently becoming a direction-agnostic one.
+
 The finish rows are listed only to show the conflation: the report keeps "stopped only at the finish"
 (54 lines) separate from the body stops, and a triage that did not would have made
 `Right and Left Grand` look like the biggest body gap in the corpus.

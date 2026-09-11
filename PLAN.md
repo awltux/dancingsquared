@@ -973,6 +973,32 @@ from real defects. That needs a criterion — e.g. "is this state reachable-and-
 testable, but "does a standard application of the PREVIOUS call from a FORMATION produce it" might be
 — and it is a prerequisite for touching this bucket at all.
 
+### The last unblocked sub-bucket is blocked too (round 30)
+
+`Single File Promenade` from **`Columns`** was the one sub-bucket that was not blocked on facings:
+`Columns` is a formation the engine names, so a variant could in principle be authored against it.
+Measured, it lands in the same class:
+
+- The stop boards really are `Columns` — two files at `x = ±1`, `y = 3,1,-1,-3`, one facing -90 and
+  the other +90.
+- `Single File Promenade` has **exactly one variant**, `from="Static Square"`, and it lives inside
+  `ms/promenade.xml:401` rather than a file of its own. That file is byte-identical to upstream's, so
+  upstream has the same single variant and there is nothing to copy.
+- The best error at tolerance 100 is **16.378** — not a multiple of pi/2, and far beyond any spacing
+  adjustment. The `Columns` board's motion is a *different shape* from the Static Square one, so this
+  is not a scaled variant; it is a different piece of choreography (a whole-set promenade reorientation).
+
+**So all three Phase 4e buckets now block on the same thing: a motion that has to be DERIVED, with
+nothing available that pins it.** The separation fixes were the only derivable kind, and the three
+candidates for them are done. Recorded so the next reader does not re-open these three in turn.
+
+**What is NOT blocked** is a different bucket entirely, and it is where the next step should go: the
+report's OTHER list holds `Run Left` (4), `Run Right` (3), `Circle 2` (3) and `Cross Run` (3) as
+declared CATALOGUE gaps. Those are not missing *motions* — `Run` already exists as a geometry-derived
+call in `coded-moves.ts` — so a direction-specified run is a matter of constraining the direction the
+runner already takes, not of inventing one. That is derivable in the same sense the separations were,
+and it is the last avenue in Phase 4e that does not require asserting choreography.
+
 The finish rows are listed only to show the conflation: the report keeps "stopped only at the finish"
 (54 lines) separate from the body stops, and a triage that did not would have made
 `Right and Left Grand` look like the biggest body gap in the corpus.

@@ -2228,6 +2228,35 @@ couples are no longer standing as couples, which is exactly why the `Promenade` 
 That is a Phase 4-class diagnosis (a wrong motion upstream of the visible failure), and it needs its
 own round.
 
+### Also measured this round, and not acted on
+
+Two of the three items the handover ranked above this phase were checked far enough to record what
+they are, which is worth more than the guess they started as.
+
+**The 13 first-call failures from Static Square are a `separation/2` case after all.** 11 of the 13
+are three calls refusing as *"not legal for selected dancers"*: `Heads Right and Left Thru` (6),
+`Heads Box the Gnat` (4), `Heads Touch 1/4` (1). Selecting the four heads gives **two facing couples
+6 apart**, and no `Facing Couples` variant is authored at that separation — measured best errors are
+`4.000` (`Right and Left Thru`, whose b1 authoring is separation 4), `6.000`/`4.000` (`Box the Gnat`,
+separation 3 and 4) and `4.000` (`Touch 1/4`). So this is the **fourth** instance of the law the plan
+already pinned three times (`scaleX = separation / 2`), with `separation 6 -> scaleX 3` and the
+formation written inline at `x = -3` — the same procedure as `Box the Gnat`/`Pass Thru`.
+
+It was NOT done here because of its blast radius, which is measurable in advance: the four heads and
+the four sides are both facing-couple boxes, so a separation-6 variant also lets the **whole board
+tile**, which makes bare `Right and Left Thru` legal from a Static Square via `partition`. That may
+well be right (it is the Phase 4i "a call acts on everyone it applies to" reading, and the two boxes
+do not share dancers) — but it is a board-wide behaviour change and wants its own round and its own
+gate, not a tail-end of the decoder work.
+
+**`Square Thru 1` does NOT need `Explode`**, which corrects the note above it. The reference's loop is
+`for (c = 1; c < count; c++)`, so with `count == 1` it never runs `Explode and Step to a Compact
+Wave` at all: `Square Thru 1` is *step to a compact wave* then *step thru*. Only the 5- and 6-hand
+forms need `Explode` geometry. What still blocks it is the reference's own caveat recorded in this
+file — with `count == 1` there is **no pull by in it at all**, and `StepToACompactWave` is
+`Extend` scaled by `dist/2, 0.5` (the same `separation/2` law again). So `Square Thru 1` is cheap to
+add and its *semantics* are the thing to check first, exactly as the note says.
+
 ---
 
 ## Recommended order

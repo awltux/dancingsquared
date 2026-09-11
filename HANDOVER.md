@@ -548,7 +548,12 @@ and the same treatment applies.
 3. **`getUniqueFormations` dedupes congruent shapes including reflection**, so it cannot name e.g.
    `Two-Faced Lines LH`; `recognize` does distinguish it.
 4. **`Sequencer.getout()`/`fixIt()` search the Sequencer's own board** — `setBoard(board)` first,
-   or you measure the home board N times.
+   or you measure the home board N times. **The failure is SILENT**: `Sequencer.getout(opts)` takes
+   only `opts`, while `HomeSolver.getout(board, opts)` takes the board — so writing
+   `seq.getout(someBoard, { ... })` does not error, it ignores `someBoard` and searches `this.board`.
+   This trap was already written down here and still cost a whole round: it produced a "the getout
+   gate never binds" measurement (all of it measuring the home board, which trivially has one) and
+   then a "defect" conclusion built on top of that. Check the arity, not your intent.
 5. **`boardSig` is positions-only**; a pure pivot therefore collapses onto the state it came from
    (which is why pivots need not be search edges).
 6. **All8's `--Prom` is a finish**, not a fraction; `A-Prom` = "All Promenade" = bare `Promenade`

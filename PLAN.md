@@ -1382,28 +1382,31 @@ job it was built for: the declared-gap list cannot silently drift out of date.
 
 ## Phase 7 — Legacy phases, docs and harness gaps
 
-- **Phase 3 (amendment policy):** ~~`FsmStore.amend` (`fsm-store.ts:49`) requires a getout; the claim
-  that step 5 reduced rejections is **unmeasured**. Measure it, then decide: an advisory gate
-  recording `getoutVerified`, or unamendable.~~ **MEASURED, and the question turned out not to be the
-  right one yet.** Two populations disagree:
+- **Phase 3 (amendment policy):** `FsmStore.amend` (`fsm-store.ts:49`) requires a getout. **STILL
+  UNMEASURED — and the first two attempts to measure it were both invalid.** Recorded because the
+  reason matters more than either number:
 
-  - **(A) Realistic amendments from CORPUS ALIGNMENT boards** (which carry home identity, being built
-    from All8's diagrams) × the 14 calls the corpus uses, two plies deep = **3206 candidates**:
-    rejected not-applicable 1387, unknown-formation 402, **no-getout 0**, collision 0; accepted 1417,
-    and **every** accepted amendment's getout is a **zero**. So for that population step 5 changed
-    nothing — the strict pre-step-5 rule would have accepted exactly the same set.
-  - **(B) `amendTransition(formation, call)`, the public entry point**, builds its board from the
-    formation NAME via `syntheticBoard`. From a non-home formation that path **is** rejected:
-    `amendTransition('Ocean Waves','Swing Thru')` → *"ends in a formation with no getout"* — while the
-    LIBRARY board of that same formation and call **has one**. The two boards are identical in
-    id/couple/gender/pose/ghost and even agree on `knownFormation`, so this is not a board difference.
+  - **Attempt 1 measured the wrong board, and produced a FALSE conclusion.** The plan's "does step 5
+    reduce amendment rejections?" was answered "the getout gate never binds" from 3206 candidates.
+    That was an artefact: `Sequencer.getout(opts)` takes **only opts** and searches **`this.board`**,
+    while `HomeSolver.getout(board, opts)` takes the board. Writing `seq.getout(applied.board, {...})`
+    silently ignored the board and searched the DEFAULT home board instead — a board that trivially
+    has a getout. Every "no-getout 0" figure from that round is meaningless.
+  - **Attempt 2 claimed a defect on top of it** — that `amendTransition` refused `Ocean Waves +
+    Swing Thru` for "no getout" while the same formation and call "has one". There is no defect.
+    Re-measured with the correct API (`setBoard(board)` then `getout(opts)`), the result genuinely has
+    **no getout within 4 calls**, and refusing the amendment is **right**. The "has one" comparison
+    was the same wrong-board artefact.
+  - **What is true, and now gated**: `amendTransition` **agrees** with a correct-API getout, a
+    rejected amendment carries a reason, and an unknown formation is refused by name.
+    `selection.mjs` also **pins the API trap** — `Sequencer.getout` must keep taking only `opts` —
+    because that mistake invalidated a whole round of measurements.
+  - **Why it is still unmeasured**: the correct measurement is expensive. 392 genuine getout searches
+    did not finish in 10 minutes, where the accidental home-board version took 2.4s. Measuring it
+    needs a bounded plan, not another ad-hoc sweep.
 
-  **So the decision is deferred, not made**: before choosing between an advisory gate and
-  unamendable, the two paths must agree. Refuting my own first reading matters here — population A
-  alone says "the getout gate never binds", which is FALSE for the API a caller would actually use.
-  `selection.mjs` now covers `amendTransition` for the first time (it had **no** coverage, which is
-  why the claim went unmeasured) and **pins the refusal**, so fixing it flips a gate instead of
-  quietly changing behaviour. Still true: no UI wires this yet.
+  The original decision (an advisory gate recording `getoutVerified`, or unamendable) therefore still
+  has no evidence behind it. Still true: no UI wires this yet.
 - **Phase 4:** audit checks for the bounded non-geometric matching exceptions (§8.2); the editor's
   "no match within tolerance" wording; an explicit runtime-join check.
 - **Phase 5:** ~~`knownFormation` is the last loose-tolerance (6.0) outlier.~~ **DONE**: measured, and

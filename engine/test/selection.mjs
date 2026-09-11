@@ -636,46 +636,52 @@ console.log('\n== knownFormation\'s tolerance is ~0.5, not 6.0 (Phase 7) ==');
   else ok('translation, rotation and reflection all keep the board "known" (the match is centre-relative)');
 }
 
-console.log('\n== FSM amendment policy: measured, and a discrepancy PINNED (Phase 3/4) ==');
+console.log('\n== FSM amendment policy: CORRECTION, and the API trap that fooled me (Phase 3/4) ==');
 // The plan's item: "`FsmStore.amend` requires a getout; the claim that step 5 reduced rejections is
-// UNMEASURED. Measure it, then decide: an advisory gate recording `getoutVerified`, or unamendable."
+// UNMEASURED."
 //
-// MEASURED, in two populations that disagree - which is the interesting part, and it refuted my own
-// first reading of the numbers:
+// A PREVIOUS ROUND OF THIS HARNESS CLAIMED A DEFECT HERE - that amendTransition refused
+// `Ocean Waves + Swing Thru` for "no getout" while the same formation and call HAD one. THAT CLAIM
+// WAS WRONG, and the reason is worth more than the claim was:
 //
-//   A. Realistic amendments from CORPUS ALIGNMENT boards (which carry home identity, being built
-//      from All8's diagrams) x the 14 calls the corpus uses, two plies deep = 3206 candidates.
-//      Rejected: not-applicable 1387, unknown-formation 402, **no-getout 0**, collision 0.
-//      Accepted 1417, and EVERY accepted amendment's getout is a ZERO - so the stricter pre-step-5
-//      rule would have accepted exactly the same set. For that population step 5 changed nothing.
+//   Sequencer.getout(opts)         takes ONLY opts, and searches THIS.BOARD.
+//   HomeSolver.getout(board, opts) takes the board.
 //
-//   B. `amendTransition(formation, call)`, the PUBLIC entry point, builds its board from the
-//      formation NAME via syntheticBoard. From a non-home formation that path IS rejected, and the
-//      refusal is contradicted by the library board of the same formation.
+// So `seq.getout(applied.board, { maxCalls: 4 })` does NOT search `applied.board`. The board is an
+// extra argument and is silently ignored; the search runs on whatever `this.board` happens to be -
+// which in those probes was the DEFAULT home board, a board that trivially has a getout. Every
+// "the getout gate never binds" number from that round was measuring the wrong board.
 //
-// So the decision the plan asks for is not yet the right question: before choosing between an
-// advisory gate and unamendable, the two paths have to agree. The refusal is pinned below so that
-// fixing it FLIPS a gate rather than quietly changing behaviour, and so nobody re-derives
-// "the getout gate never binds" from population A alone - which is exactly the mistake this note is
-// here to prevent.
+// Re-measured with the correct API, amendTransition AGREES with the engine: Swing Thru from Ocean
+// Waves really does end in a formation with no getout within 4 calls, and refusing it is right.
+// There is no discrepancy. The plan's original question is still open, and open for a concrete
+// reason: the CORRECT measurement is expensive - 392 real getout searches did not finish in 10
+// minutes, where the accidental home-board version took 2.4s.
 {
-  const formation = 'Ocean Waves';
-  const amended = seq.amendTransition(formation, 'Swing Thru');
-  const libBoard = seq.boardForFormation(formation);
-  const applied = libBoard ? seq.applyToBoard(libBoard, 'Swing Thru') : { legal: false };
-  const libGetout = applied.legal
-    ? seq.getout(applied.board, { maxCalls: 4, budget: 4000 })
-    : null;
-
-  if (amended.ok) {
-    fail('amendTransition from a non-home formation now SUCCEEDS - the pinned defect is fixed, so re-read the amendment note in PLAN.md and re-decide the policy');
-  } else if (libGetout === null) {
-    fail('the library board of the same formation has no getout either, so the discrepancy is gone and this pin is stale');
+  // Pin the trap itself: the Sequencer's getout counts no parameters, the solver's counts one.
+  if (seq.getout.length !== 0) {
+    fail(`Sequencer.getout now counts ${seq.getout.length} parameter(s) - if it has gained a board argument, re-read the note above, because getout calls throughout the harnesses would need revisiting`);
   } else {
-    ok(`KNOWN DEFECT PINNED: amendTransition("${formation}", "Swing Thru") is refused ("${amended.reason}") while that same formation + call HAS a getout from the library board (${libGetout.join(' > ')})`);
+    ok('Sequencer.getout takes only opts (the board comes from this.board) - the API trap is pinned');
   }
 
-  // The refusal must at least be a reasoned one, and an unknown formation must be refused by name.
+  // The amendment path must AGREE with a correct-API getout on the same board.
+  const formation = 'Ocean Waves';
+  const lib = seq.boardForFormation(formation);
+  const applied = lib ? seq.applyToBoard(lib, 'Swing Thru') : { legal: false };
+  const amended = seq.amendTransition(formation, 'Swing Thru');
+  if (!applied.legal) {
+    fail(`Swing Thru is not applicable from ${formation}`);
+  } else {
+    seq.setBoard(applied.board); // the CORRECT way to ask about a specific board
+    const viaSequencer = seq.getout({ maxCalls: 4 });
+    if (amended.ok !== (viaSequencer !== null)) {
+      fail('amendTransition and a correct-API getout DISAGREE on the same board');
+    } else {
+      ok(`amendTransition agrees with a correct-API getout: "${formation}" + Swing Thru is ${amended.ok ? 'accepted' : 'refused, and the result really has no getout within 4 calls'}`);
+    }
+  }
+
   const bad = seq.amendTransition('Static Square', 'No Such Call At All');
   if (bad.ok || !bad.reason) fail('a rejected amendment must report a reason');
   else ok(`a rejected amendment reports why: ${bad.reason}`);

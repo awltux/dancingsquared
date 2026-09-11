@@ -25,7 +25,7 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 
-import { CODED_MOVES } from '../../dist/index.js';
+import { CODED_MOVES, CALL_SYNONYMS } from '../../dist/index.js';
 
 export const ASSET_LEVELS = ['discovered', 'b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 
@@ -98,27 +98,20 @@ export function callsByTitle(assets) {
 /**
  * All8's published name -> the engine's title for the same call.
  *
- * These are NOT missing calls: the call exists, under another name, and counting it
- * as a catalogue gap would point the work at the wrong thing. The engine's
- * CALL_SYNONYMS map exists for exactly this and is currently empty, so the bridge
- * lives here, at the boundary where a published corpus meets the engine; moving it
- * into the engine is an open item in the docs.
+ * PHASE 6 MOVED THE BRIDGE INTO THE ENGINE. This used to be the only copy, which meant only this
+ * test harness could read published choreography: any real consumer had to re-implement the
+ * mapping. It now lives in `engine/src/sequencer/constants.ts` as CALL_SYNONYMS, where
+ * `canonicalName()` already applied it, and this re-export keeps every existing caller working
+ * while making the engine the single definition.
  *
- * Deliberately NOT bridged: `Promenade Home` and bare `Promenade`. They are not two
- * names for a call the engine spells differently - they are ONE call, and the engine
- * resolves both aliases itself (src/sequencer/promenade.ts). Bridging them here would
- * hide that.
+ * These are NOT missing calls: the call exists under another name, and counting it as a catalogue
+ * gap would point the work at the wrong thing.
+ *
+ * Deliberately NOT bridged: `Promenade Home` and bare `Promenade`. They are not two names for a
+ * call the engine spells differently - they are ONE call, and the engine resolves both aliases
+ * itself (src/sequencer/promenade.ts). Bridging them here would hide that.
  */
-export const ALL8_TO_ENGINE = {
-  'Touch 1/4': 'Touch a Quarter',
-  'Cast Off 3/4': 'Cast Off Three Quarters',
-  'Do Sa Do': 'Dosado',
-  // All8 writes the left-hand reading with the same 1/4 shorthand, so the same bridge
-  // applies. Without it `LT1/4` would have to be written straight into the abbreviation
-  // table under the ENGINE's spelling, which would put a second naming convention inside a
-  // table whose whole job is to record what ALL8 wrote.
-  'Left Touch 1/4': 'Left Touch a Quarter',
-};
+export const ALL8_TO_ENGINE = CALL_SYNONYMS;
 
 /** The engine's title for a name decoded from All8's notation. */
 export function engineNameFor(name) {

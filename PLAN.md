@@ -1070,6 +1070,68 @@ accounting is harness-side.
 
 ---
 
+## Phase 6 — DONE: the All8 → engine name bridge lives in the engine
+
+**`CALL_SYNONYMS` was empty; the bridge was three entries in a test harness.** It is now engine data,
+and it immediately unblocked the largest remaining named gap.
+
+### What was wrong
+
+`canonicalName()` already applied a synonym table (`constants.ts`), and `CallLibrary.hasCall`,
+`getVariants` and `register` all go through it — so the engine had the **mechanism** and no **data**.
+The mappings lived in `engine/test/lib/engine-calls.mjs`, which meant only the corpus harness could
+read published choreography; any real consumer had to re-implement them. The harness bridge is now a
+re-export of the engine's map, so there is one definition and every existing caller still works.
+
+These are differently-*named* calls, not different spellings — All8 writes `Touch 1/4` for the call
+the catalogue titles `Touch a Quarter`. Aliases that are the *same* call are already one registry
+entry (`Promenade` / `Promenade Home`), so they do not belong here.
+
+### The win came from All8's own key, not from guessing
+
+All8's notation key lists:
+
+```
+Hinge  {designated} Hinge  (prefer SHing if designating all)
+SHing  Single Hinge
+LHing  (with the) Left Hand (Single) Hinge  (Hinge by the Left)
+```
+
+So **"Single Hinge" is how All8 spells the call the catalogue titles `Hinge`** — and there is no
+`Single Hinge` title anywhere in the assets, not even in the call index. That is why it looked like a
+catalogue gap: nothing bridged the two names. `Hinge` is authored from **14 formations** (boxes,
+waves, columns, two-faced lines, diamonds, tidals, quarter tags, left- and right-handed), so bridging
+it is what makes the published get-outs that use `SHing` danceable. `Left Hand Hinge` bridges the same
+way, since `Hinge` is authored from the left-hand formations too.
+
+### The gate caught each step
+
+The stale-gap check added in Phase 2 — *"declared as a catalogue gap but the engine DOES implement it
+now"* — fired on `Single Hinge`, and then on `Left Hand Hinge`, the moment each was bridged. Both had
+to be **removed from `KNOWN_CATALOGUE_GAPS`** before the gate would pass again, which is precisely the
+job it was built for: the declared-gap list cannot silently drift out of date.
+
+### Measured
+
+| | before | after |
+|---|---|---|
+| corpus: reached the finish and applied it | 87 | **88** |
+| `Single Hinge` among the stopping calls | 9 | **0** |
+| `Left Hand Hinge` among the stopping calls | 3 | **0** |
+| corpus: stopped part-way through the body | 136 | 134 |
+| `CATALOGUE GAPS` distinct names | 12 | **9** |
+
+### Still open from this phase
+
+- **The rest of the bridge is unwritten.** Only the names the corpus needed are mapped; All8's key
+  carries many more aliases, and the same treatment should be applied to the index's alternative
+  spellings.
+- **`Extend`, `Single File Promenade` (8 lines each), `Scoot Back`, `Do Paso`, `Boys Fold`** remain
+  matching gaps; `Single File Promenade` is authored **only** from `Static Square` and is reached
+  from `Columns`, so it needs a variant rather than a bridge.
+
+---
+
 ## Phase 7 — Legacy phases, docs and harness gaps
 
 - **Phase 3 (amendment policy):** `FsmStore.amend` (`fsm-store.ts:49`) requires a getout; the claim

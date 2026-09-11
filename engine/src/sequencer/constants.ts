@@ -80,9 +80,38 @@ export const FORMATION_SYNONYMS: Record<string, string> = {
   'Squared Set': 'Static Square',
 };
 
-// Synonym table for CALL names: every key is an alias that resolves to the
-// canonical registered call name. Extend as alternate spellings/names are found.
-export const CALL_SYNONYMS: Record<string, string> = {};
+// Synonym table for CALL names: every key is an alias that resolves to the canonical registered
+// call name. `canonicalName()` applies it, and it is consulted by `CallLibrary.hasCall`,
+// `getVariants` and `register`, so an alias works everywhere a title does.
+//
+// PHASE 6: the bridge LIVES HERE NOW. It used to be three entries in a TEST HARNESS
+// (`engine/test/lib/engine-calls.mjs`), which meant only the corpus harness could read published
+// choreography - any real consumer had to re-implement the mapping. `canonicalName()` already
+// applied a (empty) synonym table, so the engine had the mechanism and no data.
+//
+// These are differently-NAMED calls, not spellings: All8 writes `Touch 1/4` for the call the
+// catalogue titles `Touch a Quarter`, and so on. Aliases that are the SAME call are already
+// handled by the call itself (`Promenade` / `Promenade Home` are one registry entry), so they do
+// not belong here.
+export const CALL_SYNONYMS: Record<string, string> = {
+  'Touch 1/4': 'Touch a Quarter',
+  'Cast Off 3/4': 'Cast Off Three Quarters',
+  'Do Sa Do': 'Dosado',
+  'Left Touch 1/4': 'Left Touch a Quarter',
+  // From All8's own abbreviation key, which lists these as the SAME call under two names:
+  //   `Hinge  {designated} Hinge  (prefer SHing if designating all)`
+  //   `SHing  Single Hinge`
+  // So "Single Hinge" is how All8 spells the call the catalogue titles `Hinge` - there is no
+  // `Single Hinge` title anywhere in the assets, and the reason it looked like a catalogue gap
+  // is that nothing bridged the two names. `Hinge` is authored from 14 formations (boxes, waves,
+  // columns, two-faced lines, diamonds, tidals, quarter tags), so bridging it is what makes the
+  // nine published get-outs that use `SHing` danceable.
+  'Single Hinge': 'Hinge',
+  // All8: `LHing  (with the) Left Hand (Single) Hinge  (Hinge by the Left)` - the same call with
+  // the other hand, and `Hinge` is authored from the LEFT-HAND boxes, waves, columns, two-faced
+  // lines and tidals as well as the right-hand ones, so the catalogue covers it the same way.
+  'Left Hand Hinge': 'Hinge',
+};
 
 // The calls a caller uses to CLOSE the square. Under the caller convention a
 // get-out succeeds by reaching a state one of these resolves from, which is exactly

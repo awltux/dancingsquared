@@ -236,8 +236,10 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   // does not implement the call. Declaring them here is what moves those corpus lines out of "our
   // gap in reading All8" and into a correct engine-gap attribution. `Single Hinge` alone is 11
   // lines, and the biggest single item left on the decoder ranking.
-  'Single Hinge',
-  'Left Hand Hinge',
+  // `Single Hinge` and `Left Hand Hinge` are NOT here any more: Phase 6 bridged both to the
+  // engine's `Hinge` in CALL_SYNONYMS, which is where All8's own key puts them ("Hinge
+  // {designated} Hinge (prefer SHing if designating all)"; "LHing ... Hinge by the Left"). The
+  // gate's stale-gap check is what caught each of them in turn.
   'Right-hand Star',
   'Sweep 1/4',
   '1/2 Tag',

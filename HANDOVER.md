@@ -369,12 +369,24 @@ for 447 nodes), which is the start-formation index Phase 3 did not need but Phas
 
 ### 4.6 The All8 → engine name bridge
 
-`CALL_SYNONYMS` in `engine/src/sequencer/constants.ts` is **empty**, so `Touch 1/4` → `Touch a
-Quarter`, `Cast Off 3/4` → `Cast Off Three Quarters` and `Do Sa Do` → `Dosado` resolve only
-because a *test harness* maps them (`engine/test/lib/engine-calls.mjs`). Anyone consuming
-published choreography needs that bridge in the engine, where `canonicalName()` already applies
-it. (Aliases that are the *same call* are already handled in the engine — `Promenade` /
-`Promenade Home` — so the bridge is only for differently-named calls.)
+**DONE (Phase 6).** `CALL_SYNONYMS` in `engine/src/sequencer/constants.ts` used to be **empty**, so
+`Touch 1/4` → `Touch a Quarter`, `Cast Off 3/4` → `Cast Off Three Quarters` and `Do Sa Do` →
+`Dosado` resolved only because a *test harness* mapped them. The bridge now lives in the engine,
+where `canonicalName()` already applied it, and `engine/test/lib/engine-calls.mjs` re-exports it —
+so there is one definition and any consumer of published choreography gets it.
+
+It immediately unblocked the largest remaining named gap, and the evidence came from All8's own
+notation key rather than from guessing: All8 lists `Hinge  {designated} Hinge  (prefer SHing if
+designating all)` and `SHing  Single Hinge`, i.e. **"Single Hinge" is how All8 spells the call the
+catalogue titles `Hinge`** — there is no `Single Hinge` title anywhere in the assets, which is why
+it looked like a catalogue gap. Bridging it cleared **9** stopping lines, `Left Hand Hinge` **3**
+more, and corpus success went **87 → 88**.
+
+The stale-gap check from Phase 2 fired on each in turn ("declared as a catalogue gap but the engine
+DOES implement it now"), forcing both out of `KNOWN_CATALOGUE_GAPS` — exactly what it is for.
+
+**Still open:** only the names the corpus needed are mapped. All8's key carries many more aliases
+and the same treatment applies.
 
 ### 4.7 Legacy phases (from the original plan)
 

@@ -298,7 +298,11 @@ export const MULTI_TOKENS: Record<string, string[]> = {
  * the catalogue's `Dosado to a Wave`. Appending to the raw name would leave a phantom: the catalogue
  * spells the title `Dosado`, not `Do Sa Do`, so the composed name needs the synonym bridge. */
 export const SUFFIX_TOKENS: Record<string, string> = { ToWav: ' to a Wave' };
-for (let n = 1; n <= 5; n++) TOKENS[`8Chn${n}`] = `Eight Chain ${n}`;
+for (let n = 1; n <= 7; n++) TOKENS[`8Chn${n}`] = `Eight Chain ${n}`;
+// All8 abbreviates the `Eight Chain` family with a DIGIT; the catalogue titles them with the number
+// SPELLED OUT (see CALL_SYNONYMS). Both spellings are kept here - the decoder emits All8's literal
+// reading, and the synonym table bridges it - so the token table stays a faithful record of what
+// All8 prints rather than a second place the engine's naming has to be maintained.
 
 /**
  * Names All8 uses that the catalogue genuinely does NOT implement.

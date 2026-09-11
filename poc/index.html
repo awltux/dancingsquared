@@ -123,6 +123,16 @@
             <button id="seqSaveModule">Save module</button>
           </div>
           <div id="seqModules" class="small"></div>
+          <div class="row">
+            <label title="All8 call-format text: 2+5 abbreviations, optional [FASR] setup, call sharing by indentation">All8</label>
+            <button id="seqAll8Import" title="Parse the text below as All8 figures and load the first one as a sequence">Import</button>
+            <button id="seqAll8Export" title="Render the current sequence as All8 call-format text">Export</button>
+            <span id="seqAll8Info" class="part"></span>
+          </div>
+          <div class="row">
+            <textarea id="seqAll8Text" class="wide" rows="3"
+              placeholder="Paste All8 figures, e.g.  H-SqTh4 --DoSaD --SwThr B-RunR --Cpl.C --ChDTL --PsOcn --A8Cir --Sw&Pr"></textarea>
+          </div>
         </div>
         <div id="editorPanel" hidden>
           <div class="row">

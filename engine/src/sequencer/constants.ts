@@ -119,6 +119,24 @@ export const CALL_SYNONYMS: Record<string, string> = {
   'Left Hand Hinge': 'Hinge',
 };
 
+// ---------------------------------------------------------------- number words
+//
+// Some call families are named with the NUMBER SPELLED OUT in the catalogue and with a DIGIT
+// everywhere else. The `Eight Chain` family is the case in hand: the Plus programme titles them
+// `Eight Chain One` .. `Eight Chain Seven`, while All8 abbreviates them `8Chn1` .. `8Chn7` and a
+// caller says "Eight Chain One". So the two differ by a digit-to-text conversion, and the bridge
+// belongs here - which is why `Eight Chain 1` was WRONGLY declared a catalogue gap: the engine
+// implements the call, under the other spelling. That is the exact failure the gap list exists to
+// make visible, and the stale-gap check is what caught it.
+//
+// The conversion is written out family by family rather than applied to every name, because a
+// blanket rule breaks real titles: `Square Thru 4` and `Square Thru 2 1/2` are catalogue titles
+// WITH digits, so converting digits unconditionally would rename them out of existence.
+const NUMBER_WORDS = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'];
+for (const n of [1, 2, 3, 4, 5, 6, 7]) {
+  CALL_SYNONYMS[`Eight Chain ${n}`] = `Eight Chain ${NUMBER_WORDS[n]}`;
+}
+
 // The calls a caller uses to CLOSE the square. Under the caller convention a
 // get-out succeeds by reaching a state one of these resolves from, which is exactly
 // how All8's published get-outs are written (their last token is `--AL`, `--RLG` or

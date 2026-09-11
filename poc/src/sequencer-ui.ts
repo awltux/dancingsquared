@@ -5,7 +5,7 @@
 
 import * as THREE from 'three';
 
-import { Sequencer, computeHandholds, sampleTrail, splitSelection } from 'dancing-squared-engine';
+import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures } from 'dancing-squared-engine';
 import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
@@ -43,6 +43,10 @@ export class SequencerController implements SequencerUI {
   private moduleNameInput = el<HTMLInputElement>('seqModuleName');
   private saveModuleBtn = el<HTMLButtonElement>('seqSaveModule');
   private modulesEl = el<HTMLDivElement>('seqModules');
+  private all8Text = el<HTMLTextAreaElement>('seqAll8Text');
+  private all8ImportBtn = el<HTMLButtonElement>('seqAll8Import');
+  private all8ExportBtn = el<HTMLButtonElement>('seqAll8Export');
+  private all8InfoEl = el<HTMLSpanElement>('seqAll8Info');
   private playBtn = el<HTMLButtonElement>('seqPlay');
   private scrub = el<HTMLInputElement>('seqScrub');
   private beatInput = el<HTMLInputElement>('seqBeatInput');
@@ -571,6 +575,75 @@ export class SequencerController implements SequencerUI {
     this.syncAnimation();
   }
 
+  // ---------------------------------------------------------------- All8 format
+
+  /** Import All8 call-format text (engine/src/sequencer/all8-format.ts).
+   *
+   * An All8 PAGE is a BLOCK of figures - indentation shares the leading calls - so the parse
+   * returns several complete sequences, not one. They are alternatives to choose between, not a
+   * medley, so the FIRST is loaded and the count of the others is reported rather than silently
+   * concatenating them.
+   *
+   * A `[FASR]` setup code is reported but NOT applied: the engine has no FASR-code -> board
+   * derivation yet (PLAN.md Phase 7), so the figure is danced from whatever board is up. The status
+   * names the setup the page wanted so the caller can "Set" it first. */
+  private importAll8() {
+    const text = this.all8Text.value;
+    if (!text.trim()) {
+      this.all8InfoEl.textContent = 'nothing to import';
+      return;
+    }
+    const { figures, skipped } = parseAll8Figures(text);
+    if (figures.length === 0) {
+      this.all8InfoEl.textContent = `✗ no All8 figure found (${skipped.length} non-figure line(s) skipped)`;
+      return;
+    }
+    const fig = figures[0];
+    const unknown = [...new Set(fig.calls.filter((c) => c.names.length === 0).map((c) => c.token))];
+    if (unknown.length > 0) {
+      this.all8InfoEl.textContent = `✗ unreadable token(s): ${unknown.join(', ')}`;
+      return;
+    }
+
+    this.reset();
+    const names = fig.calls.flatMap((c) => c.names);
+    let applied = 0;
+    let stopped = '';
+    for (const name of names) {
+      const step = this.seq.apply(name);
+      if (!step.legal) {
+        stopped = ` at "${name}"${step.reason ? ` — ${step.reason}` : ''}`;
+        break;
+      }
+      this.history.push(...this.seq.flatten([name]));
+      applied++;
+    }
+    const parts = [`${applied}/${names.length} calls`];
+    if (stopped) parts.unshift(`✗ stopped${stopped}`);
+    if (fig.setup) parts.push(`setup [${fig.setup}] not applied — Set the formation first`);
+    if (figures.length > 1) parts.push(`${figures.length} figures in the text, loaded figure 1`);
+    this.all8InfoEl.textContent = parts.join(' · ');
+    this.render();
+    this.refreshCallSelect();
+    this.syncAnimation();
+  }
+
+  /** Export the current sequence as a single All8 call-format line. A call with no All8
+   * abbreviation comes out in `[square brackets]` rather than being dropped, so the output never
+   * claims to be more complete than it is. */
+  private exportAll8() {
+    if (this.history.length === 0) {
+      this.all8InfoEl.textContent = 'nothing to export';
+      return;
+    }
+    const names = this.history.map((c) => (typeof c === 'string' ? c : c.call));
+    const text = formatAll8Figures([names]);
+    this.all8Text.value = text;
+    const unmapped = (text.match(/\[[^\]]+\]/g) ?? []).length;
+    this.all8InfoEl.textContent = `${names.length} calls exported`
+      + (unmapped > 0 ? ` · ${unmapped} with no All8 abbreviation (in brackets)` : '');
+  }
+
   private showGetout() {
     const path = this.seq.getout({ target: 'Static Square', maxCalls: 5 });
     this.statusEl.textContent = path ? `getout: ${path.join(' > ')}` : 'no getout found (≤5 calls)';
@@ -640,6 +713,8 @@ export class SequencerController implements SequencerUI {
     this.getinBtn.addEventListener('click', () => this.showGetin());
     this.fixBtn.addEventListener('click', () => this.showFixIt());
     this.saveModuleBtn.addEventListener('click', () => this.saveModule());
+    this.all8ImportBtn.addEventListener('click', () => this.importAll8());
+    this.all8ExportBtn.addEventListener('click', () => this.exportAll8());
     this.setFormationBtn.addEventListener('click', () => this.setBoardFormation());
     this.boardRotInput.addEventListener('change', () => this.applyBoardRot());
     this.view2dEl.addEventListener('change', () => {

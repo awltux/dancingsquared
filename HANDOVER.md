@@ -51,18 +51,32 @@ second pass and `Twice`; **and All8 sequence import/export (§2.1)**.
 with `node engine/test/getout-behaviour.mjs` from the repo root):
 
 ```
-110  27%  reached the finish and applied it        - SUCCESS by the caller convention
+117  28%  reached the finish and applied it        - SUCCESS by the caller convention
   6   1%  reached a state a finish resolves from   - SUCCESS
   0       completed the body but did not resolve
  54  13%  stopped only at the finish              - body ran, the resolve call refused
-153  37%  stopped part-way through the body       - the real coverage gap
+146  35%  stopped part-way through the body       - the real coverage gap
  45  11%  stopped at a token we cannot decode     - OUR gap in reading All8
  44  11%  page text, not a get-out line
 ```
 
 Decoder coverage of the 265 published get-out lines: **228 (86%)**, 36 stopped at an unread token,
-132 admissible table names. (Was 53/4/0/29/71/202/53 and 134 decoded at the start of this
+134 admissible table names. (Was 53/4/0/29/71/202/53 and 134 decoded at the start of this
 workstream.) What remains is a long tail: 32 distinct tokens, the largest only **2 occurrences**.
+
+**Five of those gap declarations were WRONG, and removing them was worth 7 get-outs.**
+`Eight Chain 1` .. `Eight Chain 5` were declared catalogue gaps, but the catalogue DOES implement
+them — it titles them with the number **spelled out** (`Eight Chain One` .. `Eight Chain Seven`, the
+Plus programme's own naming), while All8 abbreviates them `8Chn1` .. `8Chn7`. The bridge is a
+digit-to-text conversion in `CALL_SYNONYMS`, written out per family rather than applied to every
+name, because a blanket rule would rename real titles out of existence (`Square Thru 4` and
+`Square Thru 2 1/2` are catalogue titles *with* digits). This is precisely the misattribution the gap
+list exists to expose, and the gate's stale-gap check is what caught it.
+
+**The All8 codec is now reachable from the POC.** The sequencer panel has an **All8** row — a text
+box plus Import/Export — so a figure from an all8.com page can be pasted in and danced, and the
+current sequence can be rendered back into All8 notation. An `[FASR]` setup code is reported but not
+applied, because the engine still has no FASR-code → board derivation (PLAN.md Phase 7).
 
 ### 2.1 All8 sequence import/export
 

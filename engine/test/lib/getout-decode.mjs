@@ -49,11 +49,11 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   'Right-hand Star',
   'Sweep 1/4',
   '1/2 Tag',
-  'Eight Chain 1',
-  'Eight Chain 2',
-  'Eight Chain 3',
-  'Eight Chain 4',
-  'Eight Chain 5',
+  // `Eight Chain 1` .. `Eight Chain 5` USED TO BE HERE, and they were WRONG - a misattribution of
+  // exactly the kind this list exists to expose. The catalogue does implement them; it titles them
+  // with the number SPELLED OUT (`Eight Chain One` .. `Eight Chain Seven`, the Plus programme's own
+  // naming), and All8 writes the digit form. The bridge is a digit-to-text conversion in
+  // CALL_SYNONYMS, and the gate's stale-gap check is what caught the five bogus declarations.
   'Ladies In And The Men Sashay',
   'Cross Run',
   'See Saw',

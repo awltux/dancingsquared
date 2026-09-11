@@ -368,9 +368,36 @@ for (const boy of home.dancers.filter((d) => d.gender === 'boy')) {
 }
 console.log(`  analyzeFasr() corner vs Callerlab corner on the home square: ${cornerAgree}/${cornerTotal} agree`);
 for (const d of cornerDetail) console.log(`      ${d}`);
-console.log('  (relationshipCode() derives the corner from the home ring; analyzeFasr() uses a fixed +45deg');
-console.log('   angular offset, which in a squared set lands on the next ring position - the girl on his right -');
-console.log('   and, once the partner is excluded, falls through to the opposite girl.)');
+console.log('  FIXED (Phase 5): analyzeFasr() now derives the corner from HOME COUPLE IDENTITY by the same');
+console.log('  ring offset relationshipCode() uses (+3 = corner), instead of the fixed +45deg angular offset');
+console.log('  it used before. Measured on the home square, all eight dancers: the opposite-gender dancer');
+console.log('  geometrically on a dancer LEFT is ALWAYS the one at ring offset +3, boys and girls alike.');
+console.log('  The old bearing method landed on the next ring position - the girl on his right - for all');
+console.log('  four boys (0/4, which is what this line used to report) and happened to be right for all');
+console.log('  four girls, which is why it survived: half the dancers agreed.');
+// ...and it is a GATE now, for both genders, because a wrong corner is not cosmetic: fasrKey is
+// built from it, and that backs isZero and the solver's Static Square check.
+{
+  let agree = 0, n = 0;
+  for (const d of home.dancers) {
+    const wantCouple = ((d.couple - 1 + 3) % 4) + 1; // +3 = corner, same rule for both genders
+    const want = home.dancers.find((o) => o.gender !== d.gender && o.couple === wantCouple);
+    const got = home.dancers.find((o) => o.id === fasr.relationship[d.id]?.corner);
+    n++;
+    if (got && want && got.id === want.id) agree++;
+    else fail(`${d.gender} of couple ${d.couple}: corner is the ${want?.gender} of couple ${wantCouple}, engine says ${got ? `couple ${got.couple}` : 'none'}`);
+  }
+  if (agree === n) ok(`analyzeFasr corner: ALL ${n} dancers agree with the home ring (+3), both genders`);
+}
+// A dancer with no known home couple has NO corner: identity is data, so a relation between two
+// dancers with no known identity is not a fact we have (square-dancing.md §8.2).
+{
+  const anon = { dancers: home.dancers.map((d) => ({ ...d, couple: 0 })) };
+  const f = analyzeFasr(anon, null);
+  const corners = Object.values(f.relationship).filter((r) => r.corner !== null).length;
+  if (corners !== 0) fail(`a board with no known couples reported ${corners} corners; it must report none`);
+  else ok('a board with no known home couples reports no corners (identity is data)');
+}
 
 // 7b. what would settle the corner/right-hand naming for good.
 console.log('\n  7b. All8 publishes both halves of a cross-check:');

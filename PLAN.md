@@ -1034,7 +1034,46 @@ we do not model (`O-`, and the `H`/`S` flip), direction-specified runs the engin
 
 ---
 
-## Phase 5 — Latent correctness
+## Phase 5 — IN PROGRESS: latent correctness
+
+### 5a — DONE: `analyzeFasr`'s corner was wrong for every boy
+
+The plan recorded *"`analyzeFasr`'s `corner` returns the opposite girl (0/4 agreement with the home
+ring)"* with the mechanism identified as a fixed angular offset. Measured, it is slightly different
+and worse than that phrasing suggests:
+
+```
+home square, all eight dancers:
+  the opposite-gender dancer geometrically ON A DANCER'S LEFT  ->  ring offset +3, for boys AND girls
+  the old fixed bearing (boy +45deg / girl -45deg)             ->  ring offset +1 for all four BOYS
+                                                                   ring offset +3 for all four girls
+```
+
+So the bearing landed on the **right-hand girl** for every boy, and happened to be right for every
+girl — **half the dancers agreed**, which is exactly why it survived. (`alignment.ts` already had the
+correct model, and its own note records the cycle: `+0 p | +1 r | +2 o | +3 c`.)
+
+**The fix is one identity-based rule for both genders**: a dancer's corner is the opposite-gender
+dancer of couple `((couple - 1 + 3) % 4) + 1` — the previous couple in the promenade ring, taken
+from the **declared home couple**, never from a bearing. `angDiff` existed only for the old search
+and is deleted; `angleOf` remains, because ordering the couples by their *current* position is still
+how `sequence` is computed.
+
+A dancer whose home couple is UNKNOWN now reports **no corner**, exactly as the partner rule already
+did and for the same reason — identity is data, and a relation between two dancers with no known
+identity is not a fact we have (`square-dancing.md` §8.2). That is a deliberate change on
+geometry-only boards, where the old code produced a bearing-based guess; it is gated.
+
+**Gated, for both genders** (`alignment.mjs`): all 8 dancers must agree with the home ring, and a
+board with no known couples must report no corners. The pre-existing finding line is now a gate
+because a wrong corner is not cosmetic — `fasrKey` is built from it and backs `isZero` and the
+solver's `Static Square` check.
+
+**Corpus: unchanged at 88 / 55 / 134 / 82 / 48, and that is the honest result.** `fasrKey(board)` is
+compared against `homeFasrKey()`, and both come from the *same* function, so a systematic error
+cancels in that comparison — which is why a wrong corner could survive in production while the
+harness that checked it against Callerlab's answer reported 0/4. The fix is a correctness fix, and
+the only thing that had been catching it was a finding line that was not a gate.
 
 Each needs its own measured step, ordered by blast radius:
 

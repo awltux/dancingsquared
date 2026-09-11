@@ -10,12 +10,9 @@ import type { Board, Fasr } from './types.js';
 import { makeSquaredSet } from './board.js';
 import { isKnownCouple } from './constants.js';
 
-const angDiff = (a: number, b: number) => {
-  let d = (a - b) % (2 * Math.PI);
-  if (d < -Math.PI) d += 2 * Math.PI;
-  if (d > Math.PI) d -= 2 * Math.PI;
-  return d;
-};
+// REMOVED in Phase 5: `angDiff`, which existed only for the bearing-based corner search. The
+// corner is now derived from home couple identity, so no angle arithmetic is needed for it.
+// `angleOf` below is still used, for ordering the couples by their CURRENT position (sequence).
 
 export function analyzeFasr(board: Board, formationName: string | null): Fasr {
   const dancers = board.dancers;
@@ -37,20 +34,32 @@ export function analyzeFasr(board: Board, formationName: string | null): Fasr {
     const partner = isKnownCouple(d.couple)
       ? dancers.find((o) => o.couple === d.couple && o.id !== d.id) ?? null
       : null;
-    // Corner: for a squared set, a boy's corner is the girl in the next couple
-    // counterclockwise (~+45deg); a girl's corner is the boy ~-45deg. Pick the
-    // opposite-gender non-partner whose angle is closest to that offset.
-    const targetAngle = d.gender === 'boy' ? angleOf(d) + Math.PI / 4 : angleOf(d) - Math.PI / 4;
-    let corner: typeof partner = null;
-    let best = Infinity;
-    for (const o of dancers) {
-      if (o.gender === d.gender || o.id === d.id || (partner && o.id === partner.id)) continue;
-      const diff = Math.abs(angDiff(targetAngle, angleOf(o)));
-      if (diff < best) {
-        best = diff;
-        corner = o;
-      }
-    }
+    // Corner: the opposite-gender dancer of the PREVIOUS couple in the promenade cycle - the one
+    // on this dancer's left. Derived from HOME COUPLE IDENTITY, never from a bearing.
+    //
+    // MEASURED on the home square, all eight dancers: the opposite-gender dancer geometrically on
+    // a dancer's left is ALWAYS the one at ring offset +3 (own couple + 3, cyclically), for boys
+    // and girls alike. This used to be computed from a fixed angular offset - "+45 degrees for a
+    // boy, -45 for a girl" - which lands on the partner first and, with the partner excluded, falls
+    // through to the dancer at offset +1: the RIGHT-hand girl. That gave the wrong dancer for all
+    // four boys (0/4) and happened to be right for all four girls, which is exactly why it survived
+    // - half the dancers agreed.
+    //
+    // The identity rule is right for all eight, it needs no angle, and it agrees with
+    // `alignment.ts`'s `relationshipCode`, whose own note records the same cycle:
+    //
+    //   +0 p partner | +1 r right-hand girl | +2 o opposite girl | +3 c corner
+    //
+    // `fasrKey` is built from this, and it backs `isZero` and the solver's `Static Square` check,
+    // so a wrong corner was not merely a reporting blemish. A dancer whose home couple is UNKNOWN
+    // reports NO corner, exactly as the partner rule below does and for the same reason: identity
+    // is data, and a relation between two dancers who have no known identity is not a fact we have
+    // (square-dancing.md §8.2). That is a deliberate change on geometry-only boards, where the old
+    // code produced a bearing-based guess.
+    const cornerCouple = isKnownCouple(d.couple) ? ((d.couple - 1 + 3) % 4) + 1 : null;
+    const corner = cornerCouple === null
+      ? null
+      : dancers.find((o) => o.couple === cornerCouple && o.gender !== d.gender) ?? null;
     relationship[d.id] = { partner: partner ? partner.id : null, corner: corner ? corner.id : null };
   }
 

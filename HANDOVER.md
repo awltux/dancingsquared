@@ -305,6 +305,18 @@ for 447 nodes), which is the start-formation index Phase 3 did not need but Phas
 - **`analyzeFasr`'s `corner` returns the opposite girl** (0/4 agreement with the home ring).
   `FasrRelations.corner` feeds `fasrKey`, which backs `isZero` and the solver's `Static Square`
   check, so this needs its own measured step.
+
+  **FIXED (Phase 5).** Measured on the home square, all eight dancers: the opposite-gender dancer
+  geometrically on a dancer's **left** is always the one at ring offset **+3**, for boys and girls
+  alike. The old fixed bearing (+45° for a boy, −45° for a girl) landed on the **right-hand girl**
+  for all four boys and happened to be right for all four girls — half the dancers agreed, which is
+  how it survived. The corner is now derived from the **declared home couple**
+  (`((couple - 1 + 3) % 4) + 1`), the same ring offset `alignment.ts`'s `relationshipCode` uses, and
+  a dancer with no known couple reports **no** corner. Gated for both genders in `alignment.mjs`
+  (8/8 agree; a board with no known couples reports none). **The corpus is unchanged** — `fasrKey`
+  is compared against `homeFasrKey()` and both come from the same function, so a systematic error
+  cancels there; only the Callerlab cross-check, previously a *finding* line rather than a gate,
+  was catching it.
 - **The isolated selection reading can be unsound.** It centres the subset and matches with
   normal rotation tolerance, so an arbitrary pair can satisfy a two-dancer setup: `Centers Pass
   Thru` from Facing Lines resolves two dancers (one of them an end) rather than the 4 centres.

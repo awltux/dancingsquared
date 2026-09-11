@@ -636,6 +636,55 @@ console.log('\n== knownFormation\'s tolerance is ~0.5, not 6.0 (Phase 7) ==');
   else ok('translation, rotation and reflection all keep the board "known" (the match is centre-relative)');
 }
 
+console.log('\n== FSM amendment policy: measured, and a discrepancy PINNED (Phase 3/4) ==');
+// The plan's item: "`FsmStore.amend` requires a getout; the claim that step 5 reduced rejections is
+// UNMEASURED. Measure it, then decide: an advisory gate recording `getoutVerified`, or unamendable."
+//
+// MEASURED, in two populations that disagree - which is the interesting part, and it refuted my own
+// first reading of the numbers:
+//
+//   A. Realistic amendments from CORPUS ALIGNMENT boards (which carry home identity, being built
+//      from All8's diagrams) x the 14 calls the corpus uses, two plies deep = 3206 candidates.
+//      Rejected: not-applicable 1387, unknown-formation 402, **no-getout 0**, collision 0.
+//      Accepted 1417, and EVERY accepted amendment's getout is a ZERO - so the stricter pre-step-5
+//      rule would have accepted exactly the same set. For that population step 5 changed nothing.
+//
+//   B. `amendTransition(formation, call)`, the PUBLIC entry point, builds its board from the
+//      formation NAME via syntheticBoard. From a non-home formation that path IS rejected, and the
+//      refusal is contradicted by the library board of the same formation.
+//
+// So the decision the plan asks for is not yet the right question: before choosing between an
+// advisory gate and unamendable, the two paths have to agree. The refusal is pinned below so that
+// fixing it FLIPS a gate rather than quietly changing behaviour, and so nobody re-derives
+// "the getout gate never binds" from population A alone - which is exactly the mistake this note is
+// here to prevent.
+{
+  const formation = 'Ocean Waves';
+  const amended = seq.amendTransition(formation, 'Swing Thru');
+  const libBoard = seq.boardForFormation(formation);
+  const applied = libBoard ? seq.applyToBoard(libBoard, 'Swing Thru') : { legal: false };
+  const libGetout = applied.legal
+    ? seq.getout(applied.board, { maxCalls: 4, budget: 4000 })
+    : null;
+
+  if (amended.ok) {
+    fail('amendTransition from a non-home formation now SUCCEEDS - the pinned defect is fixed, so re-read the amendment note in PLAN.md and re-decide the policy');
+  } else if (libGetout === null) {
+    fail('the library board of the same formation has no getout either, so the discrepancy is gone and this pin is stale');
+  } else {
+    ok(`KNOWN DEFECT PINNED: amendTransition("${formation}", "Swing Thru") is refused ("${amended.reason}") while that same formation + call HAS a getout from the library board (${libGetout.join(' > ')})`);
+  }
+
+  // The refusal must at least be a reasoned one, and an unknown formation must be refused by name.
+  const bad = seq.amendTransition('Static Square', 'No Such Call At All');
+  if (bad.ok || !bad.reason) fail('a rejected amendment must report a reason');
+  else ok(`a rejected amendment reports why: ${bad.reason}`);
+  const noFormation = seq.amendTransition('Not A Formation', 'Swing Thru');
+  if (noFormation.ok) fail('an amendment from an unknown formation was accepted');
+  else ok(`an amendment from an unknown formation is refused: ${noFormation.reason}`);
+  seq.clearAmendments();
+}
+
 console.log('\n=================');
 console.log(failures === 0 ? 'SELECTION: all gates passed.' : `SELECTION: ${failures} gate(s) FAILED.`);
 if (failures) process.exitCode = 1;

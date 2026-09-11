@@ -789,6 +789,51 @@ origin) places the second couple at `+1`. Everything else is copied unchanged.
 It applies through the **parallel-subset** path rather than the whole-board one, and leaves a valid
 `Eight Chain Thru` with 8 distinct spots — verified before measuring.
 
+### The engine-gap bucket, re-ranked by FIXABILITY (round 25)
+
+The report presents **38 distinct call names** as a work queue ("these need the call to match from
+more formations"). Measured, that list is not the queue. The Box-the-Gnat method generalises: for
+every stop in the corpus, record the stopping call **and whether the board it was reached from is a
+formation the engine recognises at all**. A variant can only be authored against a board the engine
+can name; if `knownFormation` returns null, the blocker is whatever produced that board, not the call.
+
+```
+stopping call            total   from a RECOGNISED board   from an UNRECOGNISED one
+Single File Promenade        8              2                        6      <- the report's TOP gap
+Extend                       6              3                        3
+Do Paso                      5              4                        1
+Scoot Back                   4              4                        0
+Swing                        4              4                        0
+Boys Fold                    4              4                        0
+Right-hand Star              4              2                        2
+```
+
+**The report's top engine gap is only 2/8 fixable.** `Single File Promenade`'s most common stop (x4)
+is reached from a board whose `knownFormation` is **null** — two rows of four at `y = ±2` with
+alternating facings, which no catalogue template matches — so authoring a variant for it is not
+available yet.
+
+**And the engine-gap list is not the only queue.** Running the same walk over ALL stops (not just the
+ones the report files as engine gaps) gives:
+
+```
+stopping call            total   from a RECOGNISED board
+Right and Left Grand        36             12     <- FINISH stops, a separate bucket
+Allemande Left              10              8     <- FINISH stops
+Promenade                    9              8     <- FINISH stops
+Centers Pass Thru            7              7     <- the real top actionable item
+```
+
+`Centers Pass Thru` is **7 stops, every one from a recognised board** — the most fixable body item in
+the corpus — and the report files it under OTHER as *"Pass Thru" not legal for selected dancers*, not
+as an engine gap. So the next Phase 4e step is not the report's top entry but this one: it is the
+direct follow-up to Phase 5b, which fixed the `Centers`/`Ends` **grouping** (the engine now picks the
+right four dancers) without making `Pass Thru` match from the boards those four are then standing on.
+
+The finish rows are listed only to show the conflation: the report keeps "stopped only at the finish"
+(54 lines) separate from the body stops, and a triage that did not would have made
+`Right and Left Grand` look like the biggest body gap in the corpus.
+
 **The remaining 3 are a NARROWER bug, and my first explanation of them was WRONG — Phase 4f pinned
 it exactly.** I recorded that they are on `Trade By`, whose facing couples put the girl where Eight
 Chain Thru puts the boy, and that the `gender-specific` gate was correctly rejecting the variant.

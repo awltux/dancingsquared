@@ -44,20 +44,56 @@ Face/Turn moves; `isZero` restoring facings; `recognize` vs `matchesNamed`; gend
 declared gender on synthesised boards (Phase 6); steps 1–4 of the get-out workstream (a board
 in every All8 alignment, the corpus classifier, the corpus runner); 4a selection; 4b the missing
 wave `Circulate`; 4c `Promenade` as a geometry-derived resolve; 5 the caller convention in
-`getout()`.
+`getout()`; 5b the `Centers`/`Ends` grouping fix; 5c `Circulate` from a wave; the All8 notation
+second pass and `Twice`; **and All8 sequence import/export (§2.1)**.
 
 **The corpus scoreboard** (`engine/test/getout-behaviour.mjs`, 412 published lines — refresh it
 with `node engine/test/getout-behaviour.mjs` from the repo root):
 
 ```
- 53  13%  reached the finish and applied it        - SUCCESS by the caller convention
-  4   1%  reached a state a finish resolves from   - SUCCESS
+108  26%  reached the finish and applied it        - SUCCESS by the caller convention
+  6   1%  reached a state a finish resolves from   - SUCCESS
   0       completed the body but did not resolve
- 29   7%  stopped only at the finish              - body ran, the resolve call refused
- 71  17%  stopped part-way through the body       - the real coverage gap
-202  49%  stopped at a token we cannot decode     - OUR gap in reading All8
- 53  13%  page text, not a get-out line
+ 53  13%  stopped only at the finish              - body ran, the resolve call refused
+145  35%  stopped part-way through the body       - the real coverage gap
+ 56  14%  stopped at a token we cannot decode     - OUR gap in reading All8
+ 44  11%  page text, not a get-out line
 ```
+
+Decoder coverage of the 265 published get-out lines: **218 (82%)**, 46 stopped at an unread token,
+126 admissible table names. (Was 53/4/0/29/71/202/53 at the start of this workstream.)
+
+### 2.1 All8 sequence import/export
+
+New: choreography can be **imported from and exported to All8's own published call format**, the
+notation Rich Reel uses for the singing-call figures and get-out pages.
+
+- `engine/src/sequencer/all8-format.ts` — the codec. `parseAll8Figures` (plain text with call
+  sharing), `parseAll8CellRows` (real table cells), `formatAll8Figures` / `formatAll8Call`.
+- `engine/src/sequencer/all8-notation.ts` — the abbreviation table, tokenizer and line decoder.
+  **These MOVED out of `engine/test/lib/` into the engine**, because a production codec cannot reach
+  into `test/` and a second copy of a 130-entry table is how two readers drift. The old
+  `engine/test/lib/getout-decode.mjs` is now a re-export shim, so every harness is unchanged.
+- `engine/test/all8-format.mjs` — the gate (part of `npm run verify`).
+- `engine/test/fixtures/all8-figures.json` — verbatim from Rich Reel's pages, attributed.
+  Regenerate with `node engine/test/tools/fetch-all8-figures.mjs`.
+
+**The hard part is call sharing**, and it is gated against All8's own arithmetic rather than our
+reading of it: `abbrev.htm` publishes a sharing example *and prints the expected figure in full*,
+so if "an empty leading cell is inherited from the line above" is read wrong, the import cannot
+match the printed figure. Measured: all 188 published mainstream figures import, 169 of them via
+sharing, and 183 of 183 complete figures end at a resolve (the other 5 carry quoted delivery text
+and are breaks/codas).
+
+**Reading the figure corpus found two things the get-out corpus could not:**
+- `S-` = **Sides** does occur (`S-SqTh4`, `S-RLT`, …). An earlier note had recorded "no `S-` token
+  occurs" and omitted the prefix on that basis — true of the get-outs, false of the figures. Note it
+  had to be added to the tokenizer's **regex** as well as the designator table; adding it to the
+  table alone does nothing.
+- `Sw&Pr` = "Swing and Promenade" is the **most common token on the figure pages** (170 of them,
+  more than every other unread token combined) and was absent from the table entirely, because
+  get-outs almost always end at `--RLG`/`--AL`/`--Prom`.
+
 
 **The solver** (`engine/test/getout-convention.mjs`): 27 of the 28 alignments that have a start
 board now have a getout, and 27 of 27 replay through the Sequencer onto the home board; all 27

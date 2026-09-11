@@ -30,6 +30,35 @@ export * from './sequencer/types.js';
 export { matchFormations, matchFormationsAll } from './sequencer/match.js';
 export type { FormationMatch, Matchable } from './sequencer/match.js';
 export { analyzeFasr } from './sequencer/fasr.js';
+// All8's call notation (abbreviation table, tokenizer, line decoder) - the shared vocabulary behind
+// both the get-out conformance harnesses and the All8 sequence import/export codec.
+export {
+  TOKENS,
+  MULTI_TOKENS,
+  REPEAT_TOKENS,
+  GROUP,
+  tokenize,
+  decodeToken,
+  decodeTokenAll,
+  decodeLine,
+  normalizeToken,
+} from './sequencer/all8-notation.js';
+// All8 sequence import/export: the codec for All8's published choreography format, including its
+// call-sharing layout.
+export {
+  ALL8_PITCH,
+  ALL8_BASE_COLUMN,
+  parseAll8Figures,
+  parseAll8CellRows,
+  splitSetup,
+  looksLikeAll8Call,
+  tokensWithColumns,
+  decodeAll8Call,
+  formatAll8Call,
+  formatAll8Figures,
+  ENGINE_TO_TOKEN,
+} from './sequencer/all8-format.js';
+export type { All8Call, All8Figure } from './sequencer/all8-format.js';
 export {
   alignmentOf,
   arrangementFor,

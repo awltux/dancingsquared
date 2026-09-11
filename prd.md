@@ -363,6 +363,79 @@ third kind of call, with its own contract. Two flavours exist:
 
 ---
 
+## 9.6 All8 Sequence Import / Export
+
+Choreography can be imported from, and exported to, **All8's published call format** (Rich Reel,
+all8.com) — the notation All8 uses for its singing-call figures and get-out pages. Codec:
+`engine/src/sequencer/all8-format.ts`; notation table: `engine/src/sequencer/all8-notation.ts`.
+
+### 9.6.1 The format, as All8 defines it
+
+- **2+5 abbreviations.** A call token is 2 characters of *designator* plus up to 5 of *call name*:
+  `G-SwThr` = "Girls Swing Thru"; `--SwThr` = "(everyone) Swing Thru", where `--` holds the empty
+  designator place. Designators: `A B G C E H S` = All, Boys, Girls, Centers, Ends, Heads, Sides.
+- **A `[FASR]` setup header** is optional: `[L1p]` (lines, in sequence), `[B1c]` (the zero box).
+- **Uniform width, and therefore columns.** All8 states this as a feature of the format: because
+  every token is the same width, calls line up vertically. A cell is 7 characters plus a separator,
+  so the **column pitch is 8**.
+- **Call sharing.** When a line's leading calls are identical to a line above it, they are omitted
+  and the line is *indented*: "When a line appears indented, calls are shared in common with a line
+  above it." The shared count is read from the indent, which the uniform width makes exact.
+- **Punctuation.** `"quotes"` are literal words the caller says (not calls); `(...)` is optional
+  material or a comment; `(*)` / `(1)` are page references. `,` = "while" and `;` = "then" in the
+  call stream; a trailing `-` ties the next call to the same active dancers; `&` = "and"; `Twice`
+  repeats the previous call.
+
+### 9.6.2 Import
+
+`parseAll8Figures(text)` reads a plain-text block in the `fig_m.htm` shape and returns
+`All8Figure[]` plus the non-figure lines it skipped (page preamble, section notes) — nothing is
+dropped silently. Each figure carries the call tokens, the engine name each expands to, the setup
+code, and how many leading calls were inherited.
+
+`parseAll8CellRows(rows)` reads the *table* shape (`abbrev.htm`), where sharing is literal: an empty
+cell is inherited from the row above at the same index.
+
+Rule that governs both, and which the implementation must not "simplify" away:
+
+- **A blank line ends a sharing block.** Share counts are indents relative to the block's own
+  left-most column, so a page-text line at column 0 would otherwise become the base and shift every
+  subsequent count.
+- **`names` is an empty array for a token we cannot read**, never a fallback string, so an unread
+  token can never be mistaken for a call named after its own abbreviation.
+- **`[square brackets]` in export output mark a call with no All8 abbreviation.** Inventing a token
+  would produce something All8 never prints and nothing could read back.
+
+### 9.6.3 Export
+
+`formatAll8Figures(names)` emits All8 text and applies call sharing itself: a figure whose leading
+calls match the previous figure's omits them and is indented by that many cells. `formatAll8Call`
+returns `null` rather than a made-up token for a call outside All8's vocabulary.
+
+### 9.6.4 Why this is gated against All8's own arithmetic
+
+All8's `abbrev.htm` prints a call-sharing example **and the expected reading of one row in full**.
+That is a self-checking test of the sharing rule: if the reading of "empty cell = inherit from
+above" is wrong, the imported figure will not match the printed one, and no amount of internal
+consistency can hide it. `test/all8-format.mjs` gates exactly that, then imports all 188 published
+mainstream figures and checks the structural properties a share-count bug would break.
+
+### 9.6.5 What reading the figure corpus exposed
+
+The figure corpus is a **different vocabulary sample** from the get-out corpus, and importing it
+found four base tokens whose calls the engine already implemented (`FlutW`, `LeadR`, `2LChn`,
+`FaceI`), plus two corrections:
+
+- **`S-` = Sides does occur.** An earlier note recorded that "no `S-` token occurs" and therefore
+  deliberately omitted the prefix. That was true of the *get-out* corpus and false of the figures
+  (`S-SqTh4`, `S-RLT`, `S-PasTh`, …). The prefix had to be added to the tokenizer's regex as well as
+  the designator table — adding it to the table alone silently did nothing.
+- **`Sw&Pr` = "Swing and Promenade"** is the most common token on the figure pages (170 of them,
+  more than every other unread token combined) and was absent from the table entirely, because the
+  get-out corpus almost always ends at `--RLG`/`--AL`/`--Prom` instead.
+
+---
+
 ## 10. Rendering
 
 - Renderers are thin adapters over `Pose[]`/`AvatarPose[]`:

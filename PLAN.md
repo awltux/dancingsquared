@@ -1210,6 +1210,52 @@ Two consequences worth having written down before anyone starts:
 `on the nth hand` branch also drags in the `Touch 1/4` family, so it wants a round of its own rather
 than the tail of this one.
 
+### A SILENT LOADER BUG: two real Mainstream calls are not in the engine at all
+
+Found in round 35 while building the figures suite, and it is a better lead than anything in the
+decoder backlog. `Ferris Wheel` is a Mainstream call with **nine `<tam>` definitions** in
+`ms/ferris_wheel.xml` and `b2/ferris_wheel.xml`. The engine does not have it:
+
+```
+library.hasCall("Ferris Wheel")     = false
+library.hasModule("Ferris Wheel")   = false      <- absent, not merely uncallable
+[...library.callNames()]            -> 2209 keys;  "Ferris Wheel" is not one of them
+callsByTitle(assets)                -> 2211 entries; "Ferris Wheel" IS one of them
+```
+
+Exactly **two** of the 2211 catalogue titles fail to load, and both are real calls with real tams:
+`Ferris Wheel` and `Couples Circulate`. The cause is `sequencer.ts:59-65`:
+
+```ts
+for (const c of calls) {
+  try { this.register(c.name, c.xml); }
+  catch { /* Skip a call whose data fails to build; it just won't be applicable. */ }
+}
+```
+
+Re-registering each one by hand gives the actual error:
+
+```
+Ferris Wheel      -> THREW: No formation for Ferris Wheel
+Couples Circulate -> THREW: No formation for Couples Circulate
+```
+
+`Ferris Wheel`'s five tams name `T-Bone Couples`, `T-Bone Couples 2`, `Left-Handed Two-Faced Lines`,
+`Right-Handed Two-Faced Lines` and `Right-Handed Two-Faced Lines, strictly`. **One** of those is
+missing from `formations.xml`, and because registration is all-or-nothing per title, that single bad
+`from=` attribute destroys the whole call — and the `catch` makes the loss silent, surfacing only
+later as `Unknown call: Ferris Wheel`.
+
+This is HANDOVER trap 4 ("the failure is SILENT") in its purest form, and it has been **corrupting
+the gap triage all along**: `Ferris Wheel` (11 stops) and `Couples Circulate` (16) appear in the
+reports' engine-gap lists as calls the engine "does not have", when it has them and cannot load them.
+
+Two things to fix, in order:
+1. **Report, don't swallow.** A failed registration should be collected and surfaced (a warning list
+   on the Sequencer, asserted by a harness), so this class of loss can never be invisible again.
+2. **Find which `from=` name is missing** and either add the formation or correct the tam. Then
+   re-measure the corpus, because the gap lists are wrong by at least these two names.
+
 ### Phase 4g — a second authoring, and it lands cleanly
 
 `Right Pull By` is the same gap with an even cleaner scaling law. Its two authorings put the couples

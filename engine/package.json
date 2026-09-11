@@ -17,7 +17,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "verify": "tsc -p tsconfig.json && node test/verify-suite.mjs all",
-    "verify:light": "tsc -p tsconfig.json && node test/verify-suite.mjs light"
+    "verify:light": "tsc -p tsconfig.json && node test/verify-suite.mjs light",
+    "verify:figures": "tsc -p tsconfig.json && node test/verify-suite.mjs figures"
   },
   "keywords": [
     "square-dance",

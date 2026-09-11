@@ -47,13 +47,19 @@ const SUITE = [
   { h: 'selection', light: false, why: 'builds boards across formations and calls' },
   { h: 'behaviour-audit', light: false, why: '143 assertions, many over every formation' },
   { h: 'alignment-boards', light: false, why: 'the heaviest: arrangement tables over the corpus' },
+  // NOT a tier above: a TARGET. `all8-figures` states the finish line ("every one of All8's 188
+  // published Mainstream figures is recognised") and is red until the remaining edge cases are
+  // fixed, so it is excluded from BOTH tiers - a permanently-failing entry in the pre-commit gate
+  // trains everyone to ignore the gate. Run it on its own to see how far off the finish line is.
+  { h: 'all8-figures', future: true, why: 'the target suite: red until every published figure is recognised' },
 ];
 
-const mode = process.argv[2] === 'light' ? 'light' : 'all';
-const run = SUITE.filter((e) => mode === 'all' || e.light);
+const mode = process.argv[2] === 'light' ? 'light' : process.argv[2] === 'figures' ? 'figures' : 'all';
+const run = SUITE.filter((e) => (mode === 'figures' ? e.future : mode === 'all' ? !e.future : e.light));
 const skipped = SUITE.filter((e) => !run.includes(e));
 
-console.log(`verify-suite: ${mode === 'light' ? 'LIGHT (fast subset)' : 'FULL (pre-commit gate)'} - ${run.length} of ${SUITE.length} harnesses`);
+const MODE_LABEL = { light: 'LIGHT (fast subset)', all: 'FULL (pre-commit gate)', figures: 'TARGET (not a gate)' };
+console.log(`verify-suite: ${MODE_LABEL[mode]} - ${run.length} of ${SUITE.length} harnesses`);
 if (mode === 'light') {
   console.log('  SKIPPING the corpus-scale harnesses. This tier is for quick iteration; run the full');
   console.log('  suite (`npm run verify`) before committing, because everything below is NOT checked:');

@@ -44,6 +44,31 @@ export const ALL8_BASE_COLUMN = 2;
 export interface All8Call {
   token: string;
   names: string[];
+  /** True when All8 published the call in parentheses, e.g. `(DoSaD)`. All8's key says
+   * "calls in parentheses may be omitted", so this is a call the figure does not require -
+   * kept in the list (dropping it would silently lose choreography) but flagged so a reader
+   * can choose. */
+  optional?: boolean;
+}
+
+/**
+ * A `( ... )` group on a figure line that points at All8's page of common get-outs.
+ *
+ * All8 prints these as `(3)`, `(12)`, `(1*)` or `(*)` and links each one to `fig_go.htm`.
+ * The number is the get-out's index on that page, so the marker is a *reference to a
+ * continuation from this exact position in this figure* - which is why it is kept with the
+ * call index it sits after rather than thrown away as punctuation.
+ *
+ * All8's own preamble explains the two special labels:
+ *   `(3)`  - get-outs to AL, RLG, or Prom
+ *   `(*)`  - "I haven't worked the resolve yet"
+ */
+export interface All8GetoutLink {
+  /** The label exactly as published inside the brackets: `1`, `12`, `1*`, `*`. */
+  label: string;
+  /** How many calls of the RESOLVED figure precede the marker. `-1` would mean it precedes them
+   * all, which the page never does. */
+  afterCall: number;
 }
 
 /** One figure: a complete sequence of calls, optionally preceded by a FASR setup code. */
@@ -53,6 +78,8 @@ export interface All8Figure {
   setup?: string;
   /** How many leading calls were inherited from the line above (0 for a left-most line). */
   shared: number;
+  /** Get-out markers on this line, in the order they appear. See `All8GetoutLink`. */
+  links?: All8GetoutLink[];
   /** 0-based line number within the input, for diagnostics. */
   sourceLine?: number;
   /** The line carried QUOTED DELIVERY text ("Roll HIM away"), i.e. words the caller says rather
@@ -108,6 +135,51 @@ export function decodeAll8Call(token: string): All8Call {
   return { token, names: all ? all.map((d) => d.name) : [] };
 }
 
+/** One `( ... )` group found on a figure line, classified by what All8 means by it. */
+interface ParenSpan {
+  start: number;
+  end: number;
+  kind: 'link' | 'optional' | 'note';
+  /** For a link, the label (`3`, `1*`, `*`); for an optional call, the bare abbreviation. */
+  label: string;
+}
+
+/**
+ * Classify every `( ... )` group on a line. All8 uses the same brackets for three different
+ * things, so the three have to be told apart by content:
+ *
+ *   get-out link   `(3)` `(12)` `(1*)` `(*)` - digits and/or a star, nothing else
+ *   optional call  `(DoSaD)` `(Scoot)`       - the text decodes to a call in our table
+ *   caller note    `(clap)` `(in your wave)` `(fixes the optional BxGnt)` - everything else
+ *
+ * The test for an optional call is deliberately "does our own decoder read it" rather than a
+ * shape regex: `Scoot` is all-lowercase after the first letter, exactly like the page prose
+ * `practice`/`anyone`, so shape alone cannot separate them and a shape rule would silently
+ * demote a real call to a note.
+ */
+function scanParens(line: string): ParenSpan[] {
+  const out: ParenSpan[] = [];
+  const re = /\(([^)]*)\)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(line))) {
+    const raw = m[1].trim();
+    const bare = raw.replace(/\\/g, '').trim();
+    const span = { start: m.index, end: m.index + m[0].length };
+    if (/^(?:\*|\d+\*?|\*\d*)$/.test(bare)) {
+      out.push({ ...span, kind: 'link', label: bare });
+    } else if (!/\s/.test(bare) && (decodeTokenAll(bare) || decodeTokenAll(`--${bare}`))) {
+      out.push({ ...span, kind: 'optional', label: bare });
+    } else {
+      out.push({ ...span, kind: 'note', label: raw });
+    }
+  }
+  return out;
+}
+
+/** Blank a span, PRESERVING LENGTH, so every other token keeps its column. */
+const blankSpan = (line: string, s: { start: number; end: number }) =>
+  line.slice(0, s.start) + ' '.repeat(s.end - s.start) + line.slice(s.end);
+
 /**
  * Parse a plain-text block of All8 figures (the fig_m.htm shape), resolving call sharing.
  *
@@ -134,17 +206,42 @@ export function parseAll8Figures(text: string): { figures: All8Figure[]; skipped
       return;
     }
     const marked = blankQuoted(blankRowFlag(line));
-    const tk = tokensWithColumns(marked);
+    const parens = scanParens(marked);
+    // Build the line the token reader sees: links and caller notes are blanked away (they are not
+    // calls), while an optional CALL is put back in place of its own brackets so it survives as a
+    // call. Every replacement is length-preserving, so the share count - which is read from
+    // columns - is unaffected.
+    let scan = marked;
+    for (const p of parens) {
+      if (p.kind === 'optional') {
+        const text = p.label.padEnd(p.end - p.start, ' ');
+        scan = scan.slice(0, p.start) + text + scan.slice(p.end);
+      } else {
+        scan = blankSpan(scan, p);
+      }
+    }
+    const tk = tokensWithColumns(scan);
     const first = tk[0];
-    const calls = tk.filter((t) => looksLikeAll8Call(t.tok)).map((t) => decodeAll8Call(t.tok));
+    const optionalSpans = parens.filter((p) => p.kind === 'optional');
+    const calls = tk
+      .filter((t) => looksLikeAll8Call(t.tok))
+      .map((t) => {
+        const call = decodeAll8Call(t.tok);
+        if (optionalSpans.some((p) => t.col >= p.start && t.col < p.end)) call.optional = true;
+        return call;
+      });
     if (!first || !looksLikeAll8Call(first.tok) || calls.length === 0) {
       flush();
       skipped.push(line);
       return;
     }
     const { setup } = splitSetup(line);
-    // `[L1p]` is not call-shaped, so `calls` above already excludes it; nothing else to strip.
-    pending.push({ indent: first.col, own: calls, setup, sourceLine: i, spoken: /"/.test(line) });
+    // A get-out marker's position is "how many calls are to its left", so it survives the share
+    // resolution below as an index into the figure's own call list.
+    const links: All8GetoutLink[] = parens
+      .filter((p) => p.kind === 'link')
+      .map((p) => ({ label: p.label, afterCall: tk.filter((t) => t.col < p.start && looksLikeAll8Call(t.tok)).length }));
+    pending.push({ indent: first.col, own: calls, links, setup, sourceLine: i, spoken: /"/.test(line) });
   });
   flush();
   return { figures: rows, skipped };
@@ -164,6 +261,7 @@ export function splitSetup(line: string): { setup?: string; rest: string } {
 interface All8Row {
   indent: number;
   own: All8Call[];
+  links: All8GetoutLink[];
   setup?: string;
   sourceLine: number;
   spoken?: boolean;
@@ -186,7 +284,11 @@ function parseBlock(block: All8Row[], out: All8Figure[]): void {
     }
     const calls = [...prefix, ...r.own];
     resolved.push(calls);
-    out.push({ calls, setup: r.setup, shared, sourceLine: r.sourceLine, spoken: r.spoken });
+    // A marker's own-line index is relative to the row's VISIBLE cells; the shared prefix is
+    // inherited from the line above and sits to the left of all of them, so the index into the
+    // resolved figure is simply shifted by the share count.
+    const links = r.links.map((l) => ({ ...l, afterCall: l.afterCall + shared }));
+    out.push({ calls, setup: r.setup, shared, links, sourceLine: r.sourceLine, spoken: r.spoken });
   }
 }
 

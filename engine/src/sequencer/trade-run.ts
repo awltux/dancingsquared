@@ -35,6 +35,7 @@
 //   - the reference's hand-holds for the swing/slip trade cases (`!samedir && dist < 2.1`) are
 //     not modelled, because our board carries no hand state into a derived apply.
 
+import { normAngle } from '../moves.js';
 import type { Board } from './types.js';
 
 /** A board dancer, narrowed to what these rules read. */
@@ -92,15 +93,37 @@ function nearest(from: D, candidates: D[]): D | null {
 }
 
 /**
- * Exchange the complete state - position AND facing - of each pair. Returns a new board with
- * the board's own dancer order preserved, because callers pair dancers by array position (the
- * renderer draws view[i] from poses[i]).
+ * Apply a pair exchange. Positions are always swapped - both dancers move half the gap, which is
+ * what the reference's `dist/2` scaling gives - but the FACINGS are not, and the difference is
+ * load-bearing:
+ *
+ *   - the RUNNER turns 180 degrees from its own heading. `RunLeft`/`RunRight` pass no rotation
+ *     curve, so `brotate = btranslate` and the facing follows the path's tangent, which at the
+ *     endpoint points back the way the dancer came.
+ *   - the DANCER RUN AROUND keeps its own heading. `DodgeLeft`/`DodgeRight` DO carry a rotation
+ *     curve and it ends pointing forward, so a dodge is a pure sidestep.
+ *
+ * Swapping both facings instead - which this function used to do, on the reasoning that a full
+ * exchange is what keeps a wave coherent - is WRONG, and the corpus says so. From a wave the
+ * runner and the dancer run around face opposite ways, so a full exchange reproduces the wave;
+ * the reference's rule turns only the runner, so the pair ends facing the SAME way and the wave
+ * becomes a TWO-FACED LINE. All8's published get-out `--SwThr B-Run --BendL` only works if that is
+ * so, because `Bend the Line` is legal from a two-faced line and not from a wave - and it is the
+ * reason those lines were stopping at `Bend the Line`.
+ *
+ * `flipRunner` selects the behaviour: true for Run (runner turns), false for Trade, where both
+ * dancers trade and each ends facing the way the other did.
  */
-function exchange(board: Board, pairs: [D, D][]): Board {
+function exchange(board: Board, pairs: [D, D][], flipRunner: boolean): Board {
   const swap = new Map<number, { x: number; y: number; heading: number }>();
   for (const [a, b] of pairs) {
-    swap.set(a.id, { x: b.x, y: b.y, heading: b.heading });
-    swap.set(b.id, { x: a.x, y: a.y, heading: a.heading });
+    if (flipRunner) {
+      swap.set(a.id, { x: b.x, y: b.y, heading: normAngle(a.heading + Math.PI) });
+      swap.set(b.id, { x: a.x, y: a.y, heading: b.heading });
+    } else {
+      swap.set(a.id, { x: b.x, y: b.y, heading: b.heading });
+      swap.set(b.id, { x: a.x, y: a.y, heading: a.heading });
+    }
   }
   return {
     dancers: board.dancers.map((d) => {
@@ -165,7 +188,7 @@ export function runRule(board: Board, selectedIds: number[]): { board: Board } |
     pairs.push([runner, walker]);
   }
 
-  return { board: exchange(board, pairs) };
+  return { board: exchange(board, pairs, true) };
 }
 
 /**
@@ -221,5 +244,5 @@ export function tradeRule(board: Board, selectedIds: number[]): { board: Board }
     pairs.push([trader, partner]);
   }
 
-  return { board: exchange(board, pairs) };
+  return { board: exchange(board, pairs, false) };
 }

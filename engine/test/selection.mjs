@@ -276,20 +276,33 @@ console.log('\n== Trade / Run from two parallel waves: the derived calls ==');
       if (girlsMoved !== 0) fail('the intervening girls moved during a Trade; they must stay put');
     }
 
-    // 2. Boys Run: the runner and the dancer it runs around EXCHANGE position and facing, so
-    //    the wave keeps its shape and the genders swap end <-> centre.
+    // 2. Boys Run: the runner and the dancer it runs around EXCHANGE POSITIONS, but only the
+    //    RUNNER turns 180 degrees - the dancer run around keeps its own facing. So from a wave the
+    //    pair ends facing the SAME way and the wave becomes a TWO-FACED LINE.
+    //
+    //    THIS GATE USED TO ASSERT THE OPPOSITE ("keeps the wave an Ocean Waves"), and it was
+    //    WRONG. Phase 1b reasoned that a full state exchange is what keeps a wave coherent and
+    //    pinned it; the reference says otherwise and the corpus proves it. In
+    //    `taminations-flutter/lib/sequencer/calls/ms/run.dart` the runner's path is
+    //    `RunLeft`/`RunRight`, which carry NO rotation curve, so `brotate = btranslate` and the
+    //    facing follows the path tangent - which at the endpoint points back the way the dancer
+    //    came, i.e. a 180-degree turn. The dancer run around gets `DodgeLeft`/`DodgeRight`, which
+    //    DO carry a rotation curve ending forward, i.e. a pure sidestep with no turn. And All8's
+    //    published get-out `--SwThr B-Run --BendL` only works if the result is a line, because
+    //    `Bend the Line` is legal from a two-faced line and not from a wave.
     const before = layoutOf(board.dancers);
     const run = seq.applyToBoard(board, 'Boys Run');
     if (!run.legal) {
       fail(`Boys Run is not legal from Ocean Waves: ${run.reason}`);
     } else {
       const after = layoutOf(run.board.dancers);
-      if (seq.knownFormation(run.board) !== 'Ocean Waves') {
-        fail(`Boys Run left ${seq.knownFormation(run.board)}, not Ocean Waves`);
+      const formation = seq.knownFormation(run.board);
+      if (formation !== 'Two-Faced Lines') {
+        fail(`Boys Run from a wave left ${formation}; the runner turns 180 and the dancer run around does not, so it must be a two-faced line`);
       } else if (after === before) {
         fail(`Boys Run did not change the layout (${before})`);
       } else {
-        ok(`Boys Run keeps the wave an Ocean Waves and swaps the layout ${before} -> ${after}`);
+        ok(`Boys Run turns only the RUNNER, so the wave becomes a two-faced line (${before} -> ${after})`);
       }
       // Every dancer must have a distinct spot: an exchange that half-moved would stack two
       // dancers on one square, which is the failure a whole-board-transform-then-filter has.

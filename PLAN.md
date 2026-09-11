@@ -830,6 +830,61 @@ all**.
 
 ---
 
+## Phase 4h — CORRECTION: my `Run` facing rule was wrong in Phase 1b
+
+**Phase 1b made `Run` exchange position AND facing for both dancers. The reference does not: only the
+RUNNER turns.** Chasing the `Bend the Line` stops is what exposed it.
+
+The evidence is in the reference's own move curves, and it is unambiguous:
+
+- the runner's path is `RunLeft`/`RunRight`, which carry **no rotation curve**, so `brotate =
+  btranslate` and the facing follows the path tangent — which at the endpoint points back the way
+  the dancer came, i.e. **a 180° turn**;
+- the dancer run around gets `DodgeLeft`/`DodgeRight`, which **do** carry a rotation curve ending
+  forward, i.e. a pure sidestep with **no turn**.
+
+So from a wave — where the runner and the dancer run around face opposite ways — a full exchange
+reproduces the wave, while the reference's rule turns only the runner so the pair ends facing the
+**same** way and the wave becomes a **two-faced line**. And All8's published get-out
+`--SwThr B-Run --BendL` only works if that is so, because `Bend the Line` is legal from a two-faced
+line and **not** from a wave. Those were exactly the lines stopping at `Bend the Line`.
+
+**What went wrong in Phase 1b, and why the method still held.** I derived the rule from the *net*
+displacement of the reference's `dist/2` scaling — which is right about positions — and then
+reasoned that a full exchange is "what keeps a wave coherent", and pinned that in `selection.mjs`.
+The pin is what made this findable: the corrected rule **failed my own gate**, which is precisely
+what that gate was written to do ("implementing the derived call makes it go GREEN with a different
+message... any change to the current behaviour has to be made deliberately rather than by editing a
+number"). The gate now asserts the reference's behaviour, with the wrong reasoning recorded in it.
+
+| | before | after |
+|---|---|---|
+| `Bend the Line` among the stopping calls | 3 | **2** |
+| corpus: stopped only at the finish | 39 | 38 |
+| corpus: stopped part-way through the body | 96 | 97 |
+| promenade get-outs that resolve | 16 | 16 |
+
+The corpus is otherwise flat — one line recovered — so this is a **correctness** correction rather
+than a coverage win, and it is worth stating plainly: Phase 1b's committed `Run` was subtly wrong,
+the error survived three phases, and it was found by following a downstream symptom rather than by
+re-reading the code.
+
+### What the same survey found about the rest
+
+- **`Scoot Back` (4 lines) is NOT a tolerance problem, and its 1.571 "near-miss" must not be
+  accepted.** The setup scoring 1.571 is `bE(-1,1) gS(-1,-1) bW(1,-1) gN(1,1)` — four dancers
+  facing E, S, W, N — matched against an `Eight Chain Thru` box whose couples face each other.
+  The residual is π/2 of wrong facing, so widening the tolerance would apply **wrong motion**.
+  The data simply has no `Scoot Back` variant for facing couples (its variants are waves, boxes,
+  columns and tags).
+- **`Bend the Line`'s remaining 2** are the same shape: its variants are two-faced lines and tidal
+  lines, and the boards it is reached from are waves — a `Bend the Line` from a wave is genuinely
+  illegal, so those are upstream body problems, not matching gaps.
+- **`Recycle` / `Slide Thru` / `Turn Thru` / `Boys Fold` / `Ends Fold`** (3 each) — not yet
+  diagnosed; `Ends Fold` and `Boys Fold` are the `sequencer="no"` family from Phase 1.
+
+---
+
 ## Phase 5 — Latent correctness
 
 Each needs its own measured step, ordered by blast radius:

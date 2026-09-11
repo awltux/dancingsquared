@@ -30,6 +30,9 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
+// Deep import, like bind-audit.mjs does for internal collaborators: boardSig is deliberately NOT
+// part of the package's public surface.
+import { boardSig } from '../dist/sequencer/board.js';
 
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -544,6 +547,51 @@ console.log('\n== partial coverage: a call acts on the boxes it applies to, not 
     const t = dpt ? seq.applyToBoard(dpt, 'Turn Thru') : { legal: false, reason: 'no Double Pass Thru template' };
     if (!t.legal) fail(`Turn Thru does not apply from a Double Pass Thru: ${t.reason}`);
     else ok('Turn Thru applies from a Double Pass Thru through the same partial reading');
+  }
+}
+
+console.log('\n== boardSig is POSITIONS-ONLY, and that is load-bearing (Phase 5e) ==');
+// The standing note said "`boardSig` ignores facing (confirmed: board.ts copies `heading`; it is never
+// read). Positions-only is LOAD-BEARING - it is why pivots prune cleanly. Review, do not casually
+// 'fix'." The review is done, and the conclusion is: the invariant is CORRECT and DELIBERATE, the
+// documented contract is HONOURED by the code that depends on facing, and the only defect was a
+// dead `heading` field that made the function read as though facing were included.
+//
+// This gate pins the invariant in BOTH directions, because either half alone is passable by a wrong
+// implementation:
+//   (a) the signature must not see facing - otherwise a pure pivot stops collapsing and the search
+//       silently gains work and loses the property its comments promise;
+//   (b) it must still be invariant under rotation, translation and REFLECTION, which is the other
+//       half of what its name claims.
+// The compensating side is checked too: the facing-dependent cache key in solver.ts must DISTINGUISH
+// two boards that differ only by facing, or the "positions only" signature would leak a wrong answer
+// into the finish cache.
+{
+  const board = seq.boardForFormation('Static Square');
+  const turned = { dancers: board.dancers.map((d) => ({ ...d, heading: d.heading + Math.PI / 2 })) };
+  if (boardSig(turned) !== boardSig(board)) {
+    fail('boardSig sees FACING, so a pure pivot no longer collapses to its source state');
+  } else {
+    ok('boardSig ignores facing: two boards differing only in heading share a signature');
+  }
+
+  // (b) rotation / translation / reflection invariance.
+  const rot = (a) => ({ x: Math.cos(a), y: Math.sin(a) });
+  const mapBoard = (f) => ({ dancers: board.dancers.map((d) => ({ ...d, ...f(d) })) });
+  const rotate = mapBoard((d) => { const r = rot(Math.PI / 3); return { x: d.x * r.x - d.y * r.y, y: d.x * r.y + d.y * r.x, heading: d.heading + Math.PI / 3 }; });
+  const move = mapBoard((d) => ({ x: d.x + 7, y: d.y - 3 }));
+  const mirror = mapBoard((d) => ({ x: -d.x, y: d.y, heading: -d.heading }));
+  for (const [label, b] of [['rotation', rotate], ['translation', move], ['reflection', mirror]]) {
+    if (boardSig(b) !== boardSig(board)) fail(`boardSig is not invariant under ${label}`);
+  }
+  ok('boardSig is invariant under rotation, translation and reflection');
+
+  // The compensating side: the pose key used where facing DOES matter must separate the two.
+  const poseKey = (b) => b.dancers.map((d) => `${d.id},${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}`).join(';');
+  if (poseKey(turned) === poseKey(board)) {
+    fail('the full-pose key does not distinguish facings, so a facing-dependent cache would share a wrong answer');
+  } else {
+    ok('the full-pose key (solver.finishToHome) DOES distinguish them, as its comment claims');
   }
 }
 

@@ -1244,6 +1244,43 @@ Measured: corpus **98 / 6 / 0 / 56 / 146 / 56 / 50 → 106 / 6 / 0 / 51 / 143 / 
 lines moved out of the finish-only and mid-body buckets into success — which is the expected
 signature of a motion fix that is actually right, and the opposite of what a cosmetic change does.
 
+### 5e — DONE: `boardSig` is positions-only, and that is load-bearing
+
+The plan's note was *"`boardSig` ignores facing (confirmed: `board.ts:26` copies `heading`; line 29
+never reads it). Positions-only is **load-bearing** — it is why pivots prune cleanly. Review, do not
+casually 'fix'."* The review is done. **The invariant is correct and deliberate; the only defect was
+cosmetic, and it was a trap.**
+
+What was verified, not assumed:
+
+- **Positions-only is the design**, and the source already said why: two boards differing only in
+  facing share a signature, which is what makes a pure pivot collapse to the state it came from — the
+  reason the search never needs the coded pivots as edges (`board.ts:17-24`).
+- **The contract is HONOURED by the code that depends on facing.** `Solver.finishToHome` keys its
+  cache on the **full pose** — `id,x,y,heading` to 3dp (`solver.ts:90-92`) — with a comment stating it
+  does so *because* `boardSig` is positions-only; the second such site does the same
+  (`solver.ts:454`). So the two halves agree.
+
+**The defect: `board.ts:26` mapped each dancer to `{ x, y, heading }` and the signature never read
+`heading`.** Dead data, but the dangerous kind: a field that is carried and never read is exactly how
+the next reader concludes the *opposite* of the invariant, and "this is missing facing" is a fix
+someone would make with the best intentions and a silently worse search. The field is gone, and the
+reason not to add it back is now in the source next to the function rather than only in a plan.
+
+Gated in `selection.mjs`, **in both directions**, because either half alone is passable by a wrong
+implementation:
+
+1. the signature must **not** see facing — otherwise pivots stop collapsing and the search silently
+   gains work and loses the property its comments promise;
+2. it must still be **invariant under rotation, translation and reflection**, which is the other half
+   of what its name claims;
+3. and the compensating side is checked too: the full-pose key must **distinguish** two boards that
+   differ only by facing, or the positions-only signature would leak a wrong answer into the finish
+   cache.
+
+Measured: corpus unchanged, as expected for a review whose only code change removes a field nothing
+read. This phase is a *gate added*, not a behaviour change.
+
 Each needs its own measured step, ordered by blast radius:
 
 1. **`analyzeFasr`'s `corner` returns the opposite girl** — 0/4 agreement with the home ring, with
@@ -1260,9 +1297,10 @@ Each needs its own measured step, ordered by blast radius:
    from a wave is confirmed wrong and **pinned as a known defect** pending a verified path set.
 4. **`Circulate` from facing lines** — the shipped line variants are `Lines Facing In` / `Out`, not
    `Normal Lines`.
-5. **`boardSig` ignores facing** (confirmed: `board.ts:26` copies `heading`; line 29 never reads
-   it). Positions-only is *load-bearing* — it is why pivots prune cleanly. Review, do not casually
-   "fix".
+5. ~~**`boardSig` ignores facing**~~ — **DONE (5e)**: reviewed, and the invariant is correct and
+   deliberate. The only defect was a dead `heading` field that made it read as though facing were
+   included; that is gone, the "do not add facing here" reasoning is now in the source, and
+   `selection.mjs` pins the invariant in both directions plus the compensating pose key.
 6. **The `[B]` box promenade disagreement** (3 lines) — pinned by `getout-convention.mjs` §3b. Keep
    it pinned.
 7. **`Promenade`'s fixed 8 beats** and the fact that **geometry-derived calls are not FSM edges** —

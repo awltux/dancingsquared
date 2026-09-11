@@ -888,6 +888,53 @@ inference.
 **Heuristic corrected**: check the error's COMPOSITION — pi/2 multiples mean facing, plain distance
 means separation — before deciding which kind of variant is missing.
 
+### Why the remaining variants cannot be copied from the reference (round 28)
+
+The three separation fixes worked because the motion was pinned by DATA, not guessed. The obvious next
+question is whether the reference can pin the facings the same way. **It cannot, and the measurement
+says why — our assets already contain everything the reference has.**
+
+Measured across `poc/src/assets/ms/`: **59 of 66 files are byte-for-byte identical to
+`taminations-flutter/assets/ms/`**, and all 7 that differ are DELIBERATE and ours:
+
+| file | upstream tams | ours | difference |
+|---|---|---|---|
+| `circle.xml` | 46 | 60 | +14 authored variants |
+| `circulate.xml` | 54 | 57 | +3 |
+| `pull_by.xml` | 2 | 4 | +2 |
+| `box_the_gnat.xml` | 2 | 3 | +1 |
+| `pass_thru.xml` | 4 | 5 | +1 |
+| `slide_thru.xml` | 7 | 8 | +1 |
+| `allemande.xml` | 12 | 12 | in-place: a dedicated inline circle `<formation>` replaced by the named `Circle` one (our commit `7e2a191`) |
+
+**22 tams added, none removed, none altered.** So we never lack an authoring the reference has: where a
+variant is missing here, it is missing upstream too, and "author the variant" means **deriving** it.
+
+For the facing-mismatch candidates the reference cannot help with the derivation either, because its
+hand-coded implementations are STRUCTURAL, not motion. `ScootBack` is the clearest case
+(`sequencer/calls/ms/scoot_back.dart:23`):
+
+```dart
+class ScootBack extends SplitCall { ... }        // no performCall, no performOne
+abstract class SplitCall extends Action {        // common/split_call.dart:29
+  void performCall(CallContext ctx) {
+    var splitAmount = ctx.dancers.length ~/ 2;   // split the set in half ...
+    var splitName = name.replaceFirst('Split', '');
+    // ... and apply the same name to each half
+```
+
+That is a rule about *which dancers*, not about where they end up facing. `Extend` has no sequencer
+implementation at all (only generated XML, byte-identical to ours), and `fold`'s is generic over the
+same authored data.
+
+**So the remaining Phase 4e variants have to be DERIVED, and nothing in the data pins their facings
+the way `scaleX = separation / 2` pinned the separations.** A separation is the call's scale — two
+authorings determine it arithmetically. A facing *is* the choreography; deriving one means asserting
+how the call is danced, and a wrong assertion here would corrupt the very thing the corpus is used to
+measure. That is why the facing entries are left open rather than "fixed": what would unblock them is a
+**rule that pins facings**, of the same kind and from a source of the same authority as the scale rule
+— not another attempt at inference.
+
 The finish rows are listed only to show the conflation: the report keeps "stopped only at the finish"
 (54 lines) separate from the body stops, and a triage that did not would have made
 `Right and Left Grand` look like the biggest body gap in the corpus.

@@ -1045,38 +1045,54 @@ Our `runRule` already exposes the `left`/`right` neighbour sets and the pairing 
 an extension of the same rule rather than a new one — but it is a **four-branch** rule and each branch
 is a real case, so it wants its own gate rather than being folded in silently.
 
-**BLOCKED ON AN ANOMALY THAT MUST BE EXPLAINED FIRST (round 33).** Before implementing anything, the
-corpus's stops were measured, and they do not say what the report implies. On a `Two-Faced Lines`
-board:
+#### RESOLVED (round 33): Cross Run is NOT missing — do not implement it
+
+An earlier draft of this section claimed the corpus's 3 `Cross Run` stops justified implementing the
+call, and then claimed that `Centers Cross Run` / `Ends Cross Run` returning LEGAL was an anomaly
+because bare `Cross Run` is `Unknown call`. **Both claims are wrong, and the second was committed
+before it was explained.** The measurement that settles it:
 
 ```
-Cross Run             refused: Unknown call: Cross Run          <- correct, it is a declared gap
-Centers Cross Run     LEGAL, all 8 dancers move, and the result DIFFERS from `Centers Run`
-Ends Cross Run        LEGAL, all 8 dancers move, and the result DIFFERS from `Boys Run`
-Boys Cross Run        refused: "Cross Run" not legal for selected dancers
-Girls Cross Run       refused: "Cross Run" not legal for selected dancers
+splitSelection("Centers Cross Run") -> { selection: "Centers", call: "Cross Run" }
+library.hasCall("Cross Run")            = false      <- why bare `Cross Run` is "Unknown call"
+library.hasCall("Centers Cross Run")    = TRUE       <- why the selection path is never reached
 ```
 
-`Cross Run` is in the call INDEX (`poc/src/assets/src/calls.xml:180`) with **no `<tam>` anywhere** —
-the "the engine knows it and cannot perform it" category, which is why it is in
-`KNOWN_CATALOGUE_GAPS`. So **two of those five lines should not be LEGAL.** They are, they move all
-eight dancers, and their results differ from the neighbouring calls, so they are not silently applying
-`Centers Run` either.
+The applicator only routes to the subset path when the full name is not itself a registered call
+(`applicator.ts:92`). `Cross Run` exists in the catalogue **only in its group-scoped forms**, so the
+bare name is a gap while the scoped names are real catalogue titles — and they are implemented:
 
-That means one of two things, and the difference matters a great deal:
+```
+poc/src/assets/ms/run.xml
+  769-900   9 x <tam title="Centers Cross Run" ...>   (Two-Faced Line RH/LH, Wave RH/LH, + 5 more)
+  902-1029  9 x <tam title="Ends Cross Run" ...>      (+ <tam title="Ends Cross Run and Run">)
+```
 
-- something resolves `Cross Run` for the centers/ends selections that is not in the catalogue and not
-  registered as a derived move — in which case it should be found and either documented or removed; or
-- the selection path is accepting a call it cannot perform and returning a board for something else —
-  which would be a **false positive**, worse than the missing call, because the corpus would be
-  scoring lines that never actually dance.
+So all five probed lines were behaving **correctly**:
 
-**No Cross Run work until that is resolved**, and it is a better lead than Cross Run itself: a
-false-positive acceptance would be a defect in the machinery every other call goes through, not in one
-call. The corpus's 3 Cross Run stops are all the *gender*-scoped forms (`G-XRun`, `B-XRun`), which are
-correctly refused — the reference requires all-ends or all-centres, and a gender selection mixes them.
-So the corpus is NOT evidence that `Cross Run` is missing; it is evidence that the *report* attributes
-these stops to a call that is partly accepted under two other names.
+| call | result | verdict |
+| --- | --- | --- |
+| `Cross Run` | `Unknown call` | correct — no bare catalogue title |
+| `Centers Cross Run` | legal, 8 moved | correct — 9 real tams |
+| `Ends Cross Run` | legal, 8 moved | correct — 9 real tams |
+| `Boys Cross Run` | refused | correct — reference requires all-ends or all-centres |
+| `Girls Cross Run` | refused | correct — same |
+
+`Centers Cross Run` legitimately differs from `Centers Run` (dancers 1 and 4 swap destinations) — the
+"cross" is real motion, not an alias. Nothing here is a false positive and nothing is to be built.
+
+**Consequences and the one thing still open.** The get-out corpus's 3 Cross Run stops are all the
+*gender* forms (`G-XRun`, `B-XRun`), which the reference refuses because a gender selection mixes ends
+with centres in a Two-Faced Line. If those stops are on boards where the selected gender really is all
+ends or all centres, the refusal is a genuine gap after all and the corpus is right; if the selection
+is mixed, the refusal is correct and the stops are mis-attributed by the report. **This is one cheap
+probe away and it is the only remaining Cross Run question** — check the selection's end/centre purity
+on the three corpus boards before touching anything.
+
+Also worth noting for later: some of these tams carry upstream's `sequencer="no"` attribute
+(`run.xml:770`, `:902`), which is Rich Reel's own marker that the tam is not solver-safe. We currently
+ignore that attribute. It is not a defect today, but if a solver misbehaves on a Cross Run it is the
+first place to look.
 
 **2. `Square Thru 1` (2 corpus stops, declared a catalogue gap).** The reference does NOT treat the
 count as a set of authored variants. It parses it off the name

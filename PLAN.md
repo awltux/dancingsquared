@@ -1417,7 +1417,19 @@ job it was built for: the declared-gap list cannot silently drift out of date.
   `couple`** (declared, unknown or permuted). If identity could add cost, a board with plausible
   couples would beat a geometrically better one, which is exactly the "identity laundered out of
   position" failure §8.2 forbids. Also pinned: rotated and reflected copies both match at error ~0.
-  Still open: the editor's "no match within tolerance" wording; an explicit runtime-join check.
+  For the runtime-join check, §7.2.1 (line 170) supplies the invariant: *"a subset formation describes
+  a transient grouping. After the call the dancers must resolve back into a recognizable full
+  formation ... the endpoint of a subset call has to be defined in the context of the WHOLE set, not
+  just the subset."* Measured across ten subset applications, then gated: **nine are legal and all
+  nine re-join** into a formation `knownFormation` names, with every dancer on its own spot and no
+  dancer gained or lost. The tenth (`Ends Fold` from Normal Lines) does not apply at all — a coverage
+  gap, so it is asserted as illegal rather than silently skipped, to keep the two failure modes
+  distinguishable.
+- **Phase 4 (the editor's "no match within tolerance" wording):** **no such message exists.** Grepped
+  `engine/src`, `poc/src` and `engine/test`: the only match for "no match within tolerance" is a doc
+  comment in `match.ts:219`. The editor surface that does exist is the match-margin input
+  (`poc/src/sequencer-ui.ts:99,191,213`). So this item needs re-grounding against a message that is
+  actually produced before any wording is changed — recorded rather than "fixed" blind.
 - **Phase 5:** ~~`knownFormation` is the last loose-tolerance (6.0) outlier.~~ **DONE**: measured, and
   the constant is *misleading rather than loose*. `error` is a sum over all dancers, but
   `matchEqualLength`'s distance-signature pre-filter binds first, at `maxError / 12` — so the

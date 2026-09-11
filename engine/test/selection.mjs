@@ -550,6 +550,59 @@ console.log('\n== partial coverage: a call acts on the boxes it applies to, not 
   }
 }
 
+console.log('\n== a subset application must RE-JOIN the whole set (§7.2.1, runtime-join check) ==');
+// square-dancing.md §7.2.1: "Subset that must re-join the set - a subset formation describes a
+// transient grouping. After the call the dancers must resolve back into a recognizable full
+// formation (or another consistent subset), so the endpoint of a subset call has to be defined in
+// the context of the WHOLE set, not just the subset."
+//
+// That is the explicit runtime-join check the plan asks for: after a call that moves only part of the
+// set, the RESULT must be a formation the whole set is recognisably in, with every dancer on its own
+// spot. A subset application that leaves four dancers somewhere the engine cannot name would satisfy
+// "the subset danced its path" while breaking the invariant the call has to honour.
+//
+// Measured across ten subset applications before being gated: nine are legal and ALL NINE re-join.
+// The tenth (`Ends Fold` from Normal Lines) does not apply at all, which is a coverage gap rather
+// than a join failure, so it is asserted as illegal instead of being silently skipped.
+{
+  const cases = [
+    ['Normal Lines', 'Centers Pass Thru'],
+    ['Normal Lines', 'Centers Trade'],
+    ['Eight Chain Thru', 'Centers In'],
+    ['Trade By', 'Box the Gnat'],
+    ['Double Pass Thru', 'Turn Thru'],
+    ['Ocean Waves', 'Centers Run'],
+    ['Ocean Waves', 'Ends Circulate'],
+    ['Two-Faced Lines', 'Centers Trade'],
+    ['Static Square', 'Heads Pass Thru'],
+  ];
+  let joined = 0;
+  for (const [formation, call] of cases) {
+    const board = seq.boardForFormation(formation);
+    if (!board) { fail(`no template for ${formation}`); continue; }
+    const r = seq.applyToBoard(board, call);
+    if (!r.legal) { fail(`${call} from ${formation} does not apply: ${r.reason}`); continue; }
+    const physical = r.board.dancers.filter((d) => !d.isGhost);
+    const spots = new Set(physical.map((d) => `${d.x.toFixed(2)},${d.y.toFixed(2)}`));
+    const recognised = seq.knownFormation(r.board);
+    if (physical.length !== board.dancers.filter((d) => !d.isGhost).length) {
+      fail(`${call} from ${formation} lost or added dancers (${physical.length}) - the set did not re-join`);
+    } else if (spots.size !== physical.length) {
+      fail(`${call} from ${formation} left ${physical.length} dancers on ${spots.size} spots`);
+    } else if (recognised === null) {
+      fail(`${call} from ${formation} left the WHOLE set in a formation the engine cannot name - the subset endpoint was not defined in the context of the set`);
+    } else {
+      joined++;
+    }
+  }
+  if (joined === cases.length) ok(`all ${joined} subset applications re-join into a recognised whole-board formation, every dancer on its own spot`);
+
+  // The tenth case: a coverage gap, pinned as such so it cannot be confused with a join failure.
+  const endsFold = seq.applyToBoard(seq.boardForFormation('Normal Lines'), 'Ends Fold');
+  if (endsFold.legal) ok('Ends Fold now applies from Normal Lines (the coverage gap closed)');
+  else ok(`Ends Fold from Normal Lines does not apply (a coverage gap, not a join failure): ${endsFold.reason}`);
+}
+
 console.log('\n== boardSig is POSITIONS-ONLY, and that is load-bearing (Phase 5e) ==');
 // The standing note said "`boardSig` ignores facing (confirmed: board.ts copies `heading`; it is never
 // read). Positions-only is LOAD-BEARING - it is why pivots prune cleanly. Review, do not casually

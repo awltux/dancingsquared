@@ -1100,15 +1100,91 @@ cancels in that comparison — which is why a wrong corner could survive in prod
 harness that checked it against Callerlab's answer reported 0/4. The fix is a correctness fix, and
 the only thing that had been catching it was a finding line that was not a gate.
 
+### 5b — DONE: `Centers`/`Ends` were a 2-dancer "very centers" reading
+
+The plan recorded this as *"the isolated selection reading can be unsound — `Centers Pass Thru` from
+Facing Lines resolves 2 dancers (one an end) instead of the 4 centres"*, and proposed fixing it by
+resolving the group first. **Measured, the mechanism was simpler and did not need that**: the
+grouping layer never returned the centres at all.
+
+```ts
+// grouping.ts, subsetOfRaw, BEFORE
+case 'centers': case 'ends': {
+  const sides = this.splitLine(board);          // two 4-dancer lines, each sorted by y
+  const centers = [sides[0][1], sides[1][0]];   // one dancer from each line
+  const ends    = [sides[0][0], sides[1][1]];
+```
+
+`sides[0][1]` is "second from the bottom of line 0" and `sides[1][0]` is "bottom of line 1" — bare
+indices into a line sorted by `y`, not a position predicate. On `Normal Lines` that is `i3`
+(`-2,-1`, genuinely a centre) and `i5` (`2,-3`, an **end**), which is exactly the reported symptom.
+Callerlab's `Centers` from two facing lines is the **middle two of each** line: 4 dancers.
+
+**The fix is the position predicate, and `Centers Pass Thru` now moves 4 dancers — `i2 i3 i6 i7`,
+the inner pair of each line, no end among them.** `Centers Trade` moves the same four. Gated in
+`selection.mjs`.
+
+Two things kept separate rather than folded in:
+
+- **`verycenters` is preserved**, as its own case with the old 2-dancer pick, so the fix cannot
+  silently change any `Very Centers ...` asset. It is a stale reading, but it is a *different* one
+  and reworking it is not this step. `outside6` ("all except the very centers") follows it.
+- **`Centers In` and `Heads Pass Thru` still refuse** from `Normal Lines` — a different cause
+  (no matching variant; `couple=0` on an identity-less board) and not this defect.
+
+Measured: corpus **88 / 5 / 0 / 56 / 133 / 82 / 48 → 98 / 6 / 0 / 56 / 146 / 56 / 50**. The successes
+come from the decoder work below, not from this; the mid-body rise is the same decoder work moving
+lines out of "unreadable token" and into the body, where they now stop on a real engine gap.
+
+### Decoder: All8's key, second pass — 74% → 81% of published lines
+
+The `abbrlist.htm` key was mined again now that the corpus tokens are ranked. Every expansion below
+is All8's own, not a reading, and each was checked against `implementedTitles()` before being added
+— the membership gate makes a wrong expansion fail loudly instead of quietly accusing the engine.
+
+| token | reading | effect |
+| --- | --- | --- |
+| `Hing` | `Hinge` | `G-Hing` = Girls Hinge. `Hinge` is implemented; the base token was simply absent |
+| `Roll` | `Roll` | `C-Roll` = Centers Roll. `&Roll` had been the table's only spelling |
+| `DoPas` | `Do Paso` | `DoPaso`/`DoPaS` were already present |
+| `SqTh1` | `Square Thru 1` | **declared gap** — the catalogue ships 1 1/2, 2, 3, 4 but not 1 |
+| `Cir2` | `Circle 2` | `G-Cir2` = Girls Circle 2 — **declared gap**, and see the correction below |
+| `RunL` / `RunR` | `Run Left` / `Run Right` | `G-RunL`, `B-RunR` — **declared gaps**; `Girls Run` itself does apply |
+| `TagI` | `Tag the Line` **+** `Face In` | two calls, not one — both halves implemented, so no gap |
+
+`TagI` is why `MULTI_TOKENS` exists: All8 publishes it as "Tag The Line - Face In", a compound, and
+`decodeLine` now expands it to both calls while `TOKENS` stays one-name-per-token for the gate.
+
+**A correction, from the key against my own earlier note:** I had recorded `G-Cir2` as "Girls
+Circulate 2". The key says **Circle**. The note is corrected in `getout-decode.mjs`.
+
+**`C` needed a tokenizer fix, not a table entry.** The key gives `C` two readings told apart by the
+dash alone: `C` alone is "Circulate", `C-` is the "Centers -" **designator** for the next call. The
+corpus's bare `C` tokens were neither — they were designators stranded when a quoted aside between
+designator and call was dropped (`C-"reverse"-WhlAr`). `tokenize` now reattaches a dangling
+designator *before* the strip that erases the dash, so those lines read as **Centers Wheel Around**
+and **Centers Promenade** (4 lines, all previously mis-read as unreadable), and `C` could then be
+added as Circulate safely. The first version of the merge missed `! C-"Sashay..."` because it ran
+before leading punctuation was stripped.
+
+| | Phase 4j | now |
+|---|---|---|
+| get-out lines decoded (of 265) | 195 (74%) | **213 (80%)** — 214 (81%) over all 553 published lines |
+| lines stopped at an unread token | 69 | **51** |
+| table names admissible | 120 | **126** |
+| corpus: reached the finish and applied it | 87 | **98** |
+| corpus: stopped at an undecodable token | 82 | **56** |
+| corpus: stopped part-way through the body | 142 | 146 |
+
 Each needs its own measured step, ordered by blast radius:
 
 1. **`analyzeFasr`'s `corner` returns the opposite girl** — 0/4 agreement with the home ring, with
    the mechanism identified (a fixed +45° angular offset lands on the girl on his right, then falls
    through to the opposite girl once the partner is excluded). It feeds `fasrKey` → `isZero` → the
    solver's `Static Square` check.
-2. **The isolated selection reading can be unsound** — `Centers Pass Thru` from Facing Lines
-   resolves 2 dancers (one an end) instead of the 4 centres. Fix by resolving the group **first**
-   and constraining the match, not by centring.
+2. ~~**The isolated selection reading can be unsound**~~ — **DONE (5b)**: the group never resolved
+   the centres; `subsetOfRaw` picked one dancer from each line by bare index. Fixed by position
+   predicate; `Centers Pass Thru` from Facing Lines now moves 4.
 3. **The wave `Circulate` paths may be wrong** — half the dancers move 4 units *between* the
    parallel waves. Needs an independent read **before** changing `Split Circulate` and `Circulate`
    together.

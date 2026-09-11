@@ -201,6 +201,21 @@ whole-set names registered **46/48 → 54/56**, corpus success **59 → 66**, un
 **202 → 170**. Mid-body stops rose 68 → 94 — which is the phase working, not a regression: those
 lines are now readable, and they are genuine engine gaps instead of hiding behind an unread token.
 
+**A second pass over the same key (Phase 5b) took it to 213 of 265 (80%)**, corpus success
+**87 → 98**, undecodable stops **82 → 56**, admissible table names **120 → 126**. Seven base tokens
+the key gives and the table lacked (`Hing`, `Roll`, `DoPas`, `SqTh1`, `Cir2`, `RunL`, `RunR` —
+four of them DECLARED engine gaps, since the calls really are missing), plus `TagI`, which All8
+publishes as the compound "Tag The Line - Face In" and which `MULTI_TOKENS` now expands to two calls
+because both halves are implemented.
+
+**`C` was not a vocabulary gap but a tokenizer one.** All8's key gives it two readings separated by
+the dash alone — `C` alone = Circulate, `C-` = the "Centers -" **designator**. The corpus's bare `C`
+tokens are neither: they are designators stranded when a quoted aside between designator and call was
+dropped (`C-"reverse"-WhlAr`). `tokenize` now reattaches a dangling designator **before** the strip
+that erases the dash, so four previously unreadable lines now read as `Centers Wheel Around` /
+`Centers Promenade` / `Centers California Twirl`. Adding `C` to the table first would have decoded
+them as `Circulate` — the merge has to happen while the dash is still visible.
+
 **What is left of the decoder gap is not notation.** The four largest remaining tokens were
 `&Roll` (30) — the **Roll modifier**, `SHing` (11) — `Single Hinge` not being implemented,
 `LA` (9) — ambiguous on purpose, and `Expl&` (5) — "Explode and \<call\>" composition. The table

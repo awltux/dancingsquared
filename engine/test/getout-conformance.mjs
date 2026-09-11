@@ -102,7 +102,7 @@ const seq = new Sequencer(
 //
 // The abbreviation table and tokenizer live in lib/getout-decode.mjs so this script
 // and getout-behaviour.mjs decode the corpus identically.
-import { TOKENS, GROUP, tokenize, decodeToken, KNOWN_CATALOGUE_GAPS, decodeStats, formatRanking } from './lib/getout-decode.mjs';
+import { TOKENS, MULTI_TOKENS, GROUP, tokenize, decodeToken, KNOWN_CATALOGUE_GAPS, decodeStats, formatRanking } from './lib/getout-decode.mjs';
 
 let lines = 0, decoded = 0;
 const unknownTokens = new Map();
@@ -153,7 +153,7 @@ if (topUnknown.length > 40) console.log(`    ... and ${topUnknown.length - 40} m
 // ---------------------------------------------------------------------------------------
 console.log('\n== Every abbreviation expands to a call the engine has, or a DECLARED gap ==');
 {
-  const declared = new Set(Object.values(TOKENS));
+  const declared = new Set([...Object.values(TOKENS), ...Object.values(MULTI_TOKENS).flat()]);
   const undeclared = [...declared].filter((n) => !implemented.has(engineNameFor(n)) && !KNOWN_CATALOGUE_GAPS.has(n));
   const declaredButStale = [...KNOWN_CATALOGUE_GAPS].filter((n) => implemented.has(engineNameFor(n)));
   const gapButNotUsed = [...KNOWN_CATALOGUE_GAPS].filter((n) => !declared.has(n));

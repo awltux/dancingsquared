@@ -208,6 +208,38 @@ export const TOKENS = {
   XRun: 'Cross Run',
   SeSaw: 'See Saw',
   LHing: 'Left Hand Hinge',
+  // ---- second pass over the SAME key (abbrlist.htm) ----
+  // These base tokens were missing even though the calls they name ARE implemented, so each one
+  // is a pure reading gain: the group-scoped forms (`G-Hing`, `C-Roll`) compose through the
+  // `X-` prefix rule and needed only the base entry to exist.
+  Hing: 'Hinge',        // `G-Hing` = "Girls Hinge"  (bare `Hinge` is implemented; `Hing` was absent)
+  Roll: 'Roll',         // `C-Roll` = "Centers Roll" (`&Roll` was the only Roll spelling in the table)
+  DoPas: 'Do Paso',     // `DoPaso`/`DoPaS` were already here; the key also writes `DoPas`
+  // `C` is the one token with TWO readings in All8's key, disambiguated by the dash: `C` alone is
+  // "Circulate", `C-` is the "Centers -" designator. `tokenize` now reattaches a stranded
+  // designator before the dash is stripped, so by the time a token reaches this table a bare `C`
+  // really is the call. (Before that fix the corpus's only three bare `C` tokens were designator
+  // remnants from `C-"reverse"-WhlAr`, and adding this entry would have mis-decoded them.)
+  C: 'Circulate',
+  // The rest are All8's readings of tokens the ENGINE cannot perform. Decoding them is still the
+  // point: it moves the line out of "our gap in reading All8" into an honest engine-gap
+  // attribution, which is what the declared list below is for.
+  SqTh1: 'Square Thru 1', // `C-SqTh1` = "Centers Square Thru 1". The catalogue has Square Thru
+                          // 1 1/2, 2, 3 and 4 but NOT 1, so the bare name is a real gap.
+  Cir2: 'Circle 2',       // `G-Cir2` = "Girls - Circle 2". NOTE: this CORRECTS a comment further
+                          // down that read `G-Cir2` as "Girls Circulate 2" - All8's key says
+                          // Circle, and the corpus context fits it. No `Circle 2` title exists.
+  RunL: 'Run Left',       // `G-RunL` = "Girls - Run Left"  } direction-specified runs: the engine
+  RunR: 'Run Right',      // `B-RunR` = "Boys - Run Right"  } has no `Run Left`/`Run Right` title,
+};                        //                                  though `Girls Run` itself applies.
+
+/** Tokens All8's key expands to MORE THAN ONE call. `TagI` is published as "Tag The Line - Face
+ * In", which is a compound of two calls rather than one call carrying a modifier - and BOTH
+ * halves are engine-implemented names (`Tag the Line`, `Face In`), so this is a reading gain with
+ * no gap to declare. Kept out of `TOKENS` because that map is one-name-per-token and the
+ * conformance gate reads it directly. */
+export const MULTI_TOKENS = {
+  TagI: ['Tag the Line', 'Face In'],
 };
 for (let n = 1; n <= 5; n++) TOKENS[`8Chn${n}`] = `Eight Chain ${n}`;
 
@@ -251,6 +283,14 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   'Ladies In And The Men Sashay',
   'Cross Run',
   'See Saw',
+  // Second pass over All8's key. Each READING is authoritative (copied from the key, not inferred)
+  // and each was checked against `implementedTitles()`: the engine really has no such call. In
+  // particular `Square Thru 1` is a surprising gap - the catalogue ships Square Thru 1 1/2, 2, 3
+  // and 4, so the ONE-hand version is the odd one missing, and All8 uses it (`--SqTh1 --AL`).
+  'Square Thru 1',
+  'Circle 2',
+  'Run Left',
+  'Run Right',
 ]);
 
 /**
@@ -276,16 +316,28 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
  *   LA (14)    - "Ladies Chain" IS implemented and "Left Allemande" is not, but the corpus uses
  *       `LA` inside parenthetical commentary ("expecting LA") as well as as a token, so the
  *       reading is not unambiguous enough for this table.
- *   8Chn1/5, G-Cir2, B-Twice, Square Thru 1 - the engine implements Square Thru 2/3/4 only, and
- *       has no `Eight Chain N`, no `Girls Circulate 2` and no `Boys Twice`. Engine gaps.
+ *   8Chn1/5, B-Twice - the engine has no `Eight Chain N` and no `Boys Twice`. Engine gaps.
+ *      (`G-Cir2` and `Square Thru 1` were listed here too; both are now DECODED with their gaps
+ *       declared below. `G-Cir2` is "Girls - Circle 2", NOT "Girls Circulate 2" - see the
+ *       correction where the token is defined.)
  *   H-Trd      - "Heads Trade" is not a TITLE, but it does resolve: the engine reads a group
  *       prefix compositionally, so `Heads Trade` reaches the derived `Trade`. That is why the
  *       `H-` prefix is worth having even though no such title exists.
+ *   bare `C`   - RESOLVED, and it needed a TOKENIZER fix rather than a table entry. All8's key
+ *       gives `C` = "Circulate" alone but `C-` = the "Centers -" DESIGNATOR for the next call: the
+ *       trailing dash is the whole difference. The corpus's only three bare `C` tokens
+ *       (`C-"Sashay nose to nose"  --Prom`, `C-"reverse"-WhlAr`, `C-"RIGHT"-WhlAr`) were designator
+ *       remnants left when a quoted aside between designator and call was dropped, so adding `C`
+ *       then would have decoded three `Centers Wheel Around` lines as `Circulate`. `tokenize` now
+ *       reattaches the designator while the dash is still visible, which both reads those three
+ *       lines correctly AND lets `C` be added as Circulate.
  */
-// N-hand counts: All8's digit counts HANDS (e.g. --SqTh1 = Square Thru with one
-// hand), which is not the standard call suffix, so only the counts that ARE real
-// call names (2, 3, 4) are expanded. `--SqTh1`/`--SqTh5`/`--8Chn*` are therefore left
-// undecoded rather than expanded into names the catalogue cannot have.
+// N-hand counts: All8's digit counts HANDS, so `--SqTh1` is Square Thru on one hand. All8's own key
+// writes that expansion as the literal name `Square Thru 1`, which makes it a call name rather than
+// a private shorthand - but the catalogue has no such title, so it is decoded and its gap DECLARED.
+// That is the honest attribution: the line stops looking like a failure of our abbreviation table.
+// (The old comment here claimed `--8Chn*` was left undecoded too; it is not - `8Chn1`..`8Chn5` have
+// been expanded to `Eight Chain 1`..`5` since the key arrived, with those names declared as gaps.)
 for (let n = 2; n <= 4; n++) TOKENS[`SqTh${n}`] = `Square Thru ${n}`;
 for (let n = 3; n <= 4; n++) TOKENS[`SqT@${n}`] = `Square Thru ${n}`;
 for (let n = 3; n <= 4; n++) TOKENS[`LSqT${n}`] = `Left Square Thru ${n}`;
@@ -309,7 +361,7 @@ for (let n = 3; n <= 4; n++) TOKENS[`LSqT${n}`] = `Left Square Thru ${n}`;
  *     gap split.
  */
 export function tokenize(line) {
-  return line
+  const raw = line
     .replace(/\([^)]*\)/g, '  ')           // drop parenthetical asides
     .replace(/\{[^}]*\}/g, '  ')           // drop BRACED asides (conditional notes)
     .replace(/\[[^\]]*\]/g, '  ')          // drop BRACKETED alignment markers, e.g. `[B1c]`
@@ -320,7 +372,28 @@ export function tokenize(line) {
     // token, and the same glue produced the bare `C-` leftover).
     .split(/\s{2,}|\s+-\s+|\s+(?=--)/)
     .map((t) => t.trim())
-    .filter(Boolean)
+    .filter(Boolean);
+
+  // REATTACH A DANGLING GROUP DESIGNATOR, before the punctuation strip below can destroy the
+  // evidence. All8's key gives BOTH readings of `C`, and they are told apart by the dash alone:
+  // `C` on its own is "Circulate", while `C-` is the "Centers -" DESIGNATOR for the call that
+  // follows. Dropping a quoted aside from between the two leaves the designator stranded
+  // (`C-"reverse"-WhlAr` -> `C-`, `-WhlAr`), and stripping the trailing dash at that point turns
+  // it into a bare `C` that is then indistinguishable from the call. So the merge happens HERE,
+  // while the dash is still present: the designator moves onto the call it actually scopes.
+  // The test tolerates leading marker punctuation (`!`, `--`, spaces) because this pass runs
+  // BEFORE the strip below: All8's lines begin `! C-"Sashay nose to nose"`, which arrives here as
+  // the single raw token `! C-`, and a strict `/^([ABGCEH])-$/` would miss it and let the strip
+  // turn it into a bare `C` after all.
+  for (let i = 0; i < raw.length - 1; i++) {
+    const m = /^[-\s!|]*([ABGCEH])-$/.exec(raw[i]);
+    if (!m) continue;
+    raw[i + 1] = `${m[1]}-${raw[i + 1].replace(/^[-\s!|]+/, '')}`;
+    raw.splice(i, 1);
+    i--;
+  }
+
+  return raw
     // Leading marker/joiner punctuation AND a trailing joiner dash, plus sentence punctuation.
     .map((t) => t.replace(/^[-\s!|]+/, '').replace(/[-\s!|,.;:]+$/, '').trim())
     .filter(Boolean)
@@ -339,16 +412,23 @@ export function tokenize(line) {
  * The trailing-dash strip is repeated here because this function is also called directly
  * (not only through `tokenize`) with tokens taken from a line, and a joiner dash must not be
  * the difference between reading a token and not. */
-export function decodeToken(token) {
+export function decodeTokenAll(token) {
   const t = token.replace(/^[-\s!|]+/, '').replace(/[-\s!|,.;:]+$/, '').trim();
   if (!t) return null;
   const g = /^([ABGCEH])-(.+)$/.exec(t);
   if (g) {
     const base = TOKENS[g[2]];
-    return base ? { name: `${GROUP[g[1]]} ${base}`, scoped: true } : null;
+    return base ? [{ name: `${GROUP[g[1]]} ${base}`, scoped: true }] : null;
   }
+  const multi = MULTI_TOKENS[t];
+  if (multi) return multi.map((name) => ({ name, scoped: false }));
   const base = TOKENS[t];
-  return base ? { name: base, scoped: false } : null;
+  return base ? [{ name: base, scoped: false }] : null;
+}
+
+export function decodeToken(token) {
+  const all = decodeTokenAll(token);
+  return all ? all[0] : null;
 }
 
 /** Decode a whole published line. `undecoded` names the first token we could not
@@ -357,9 +437,9 @@ export function decodeLine(line) {
   const tokens = tokenize(line);
   const calls = [];
   for (const tk of tokens) {
-    const d = decodeToken(tk);
-    if (d === null) return { calls, undecoded: tk };
-    calls.push(d);
+    const all = decodeTokenAll(tk);
+    if (all === null) return { calls, undecoded: tk };
+    calls.push(...all);
   }
   return { calls };
 }

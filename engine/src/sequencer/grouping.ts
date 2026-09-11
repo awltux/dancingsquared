@@ -36,12 +36,26 @@ export class Grouping {
       case 'girls': case 'women': case 'ladies': return [sortIds(ds.filter((d) => d.gender === 'girl'))];
       case 'all': case 'everybody': case 'everyone': return [sortIds(ds)];
       case 'couples': return couples([1, 2, 3, 4]);
+      // Centers/Ends of two 4-dancer lines (or columns): the middle two and the
+      // outer two of *each* line, giving 4 dancers per group. Callerlab "Centers
+      // Pass Thru" from Facing Lines moves all four inner dancers; the previous
+      // 2-dancer reading here was really "very centers" and moved one dancer from
+      // each line — including an end, because the pick was a bare index into a
+      // y-sorted line rather than a position predicate.
       case 'centers': case 'ends': {
         const sides = this.splitLine(board);
         if (!sides) return null;
-        const centers = [sides[0][1], sides[1][0]];
-        const ends = [sides[0][0], sides[1][1]];
-        return group === 'centers' ? [sortIds(centers.map((id) => byId.get(id)!))] : [sortIds(ends.map((id) => byId.get(id)!))];
+        const [a, b] = sides;
+        const picked = group === 'centers' ? [a[1], a[2], b[1], b[2]] : [a[0], a[3], b[0], b[3]];
+        return [sortIds(picked.map((id) => byId.get(id)!))];
+      }
+      // Very centers: the two dancers in the middle of the whole set. Preserved
+      // as-is (one inner dancer from each line) so this fix does not silently
+      // change the "Very Centers ..." assets; see square-dancing.md §9.
+      case 'verycenters': {
+        const sides = this.splitLine(board);
+        if (!sides) return null;
+        return [sortIds([sides[0][1], sides[1][0]].map((id) => byId.get(id)!))];
       }
       case 'beaus': case 'belles': return this.beauBelle(ds, group);
       case 'leaders': case 'trailers': return this.leadersTrailers(ds, group);
@@ -79,12 +93,12 @@ export class Grouping {
       return subs ? [...new Set(subs.flat())].sort((a, b) => a - b) : null;
     }
     if (group === 'verycenters') {
-      const centers = this.subsetOf(board, 'centers');
+      const centers = this.subsetOf(board, 'verycenters');
       return centers ? [...new Set(centers.flat())].sort((a, b) => a - b) : null;
     }
     if (group === 'outside6') {
       // All except the very centers.
-      const centers = this.subsetOf(board, 'centers');
+      const centers = this.subsetOf(board, 'verycenters');
       const centerIds = centers ? new Set(centers.flat()) : new Set<number>();
       return ds.filter((d) => !centerIds.has(d.id)).map((d) => d.id).sort((a, b) => a - b);
     }

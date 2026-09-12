@@ -2825,6 +2825,91 @@ step**, with the two most valuable primitives already written.
 
 ---
 
+## Phase 9e-2 — the AUTHORITATIVE definitions, read (and one correction to 9e-1)
+
+The project owner supplied CALLERLAB's *New Mainstream Definitions* (rev. 29 Mar 2026) as a local
+PDF, and it is now the authority for the derived calls rather than the reference implementation
+alone. Read with `node engine/test/tools/extract-pdf-text.mjs docs/New_Mainstream_Definitions_26-03-29.pdf`
+(a dependency-free PDF text extractor, committed so the reading is reproducible — the online copy
+sits behind a Cloudflare challenge). CALLERLAB's notice travels with the work: **© 1994, 2000–2026 by
+CALLERLAB Inc., The International Association of Square Dance Callers. Permission to reprint,
+republish, and create derivative works without royalty is hereby granted, provided this notice
+appears.**
+
+### CONFIRMED: the port is the right design, and the definitions say why
+
+> **Swing Thru / Left Swing Thru** — Starting formations: **Ocean Wave, Alamo Ring**. Dance action:
+> *"Those who can turn 1/2 (180 degrees) by the right; then those who can turn 1/2 (180 degrees) by
+> the left."* … **"Dancers must work in their group: from an Alamo Ring, all dancers form one group.
+> Otherwise, active dancers form one or more groups of four dancers each."** Comments: *"The Facing
+> Couples Rule applies to these calls. … After applying the Facing Couples Rule, the starting
+> formation of Swing Thru must be a Wave or an Alamo Ring … **It is improper, for example, to call
+> "Swing Thru" from an Inverted Line.**"* … *"normally eight dancers work in two groups of four."*
+
+That is the reference's algorithm, stated independently: **per group of four, a half turn by the
+right with your hand-neighbour then a half turn by the left** — and a half arm turn with your
+hand-neighbour moves you exactly where they were, which is why the reference implements the whole
+call as `Trade` twice. It also settles the Phase 9a question the other way: **`Swing Thru` is a WAVE
+call, and it says nothing about partners** — so a home couple that happened to be a facing pair may
+legitimately end apart, and "the pairing the variant assumes" was never a coherent requirement.
+
+> **Facing Couples Rule** — *"A few specific calls that are defined to start from an Ocean Wave are
+> also proper starting from Facing Couples. Examples include Swing Thru and Spin the Top. In these
+> cases, the dancers first step into a momentary Right-Hand Ocean Wave and complete the call. … **If
+> there is no such comment, then the Facing Couples Rule may not be used.**"*
+> **Ocean Wave Rule** — the mirror: *"Some calls that are defined to start from Facing Couples are
+> also proper starting from a Right-Hand Ocean Wave. Examples include Right and Left Thru and Square
+> Thru."*
+
+**This is the authority our derived calls' preconditions should encode, and it is per call and
+documented** — the definitions are marked with a comment where a Rule applies. So the port gets its
+start-formation rules from the same source as its motion, rather than from a formation list we
+infer.
+
+### CORRECTED: our derived `Swing Your Partner` (9e-1) is one reading of `Swing`, not the whole call
+
+> **Swing** — Starting formation: **Facing Dancers (Man and Woman)**. Dance action: *"Dancers step
+> forward and slightly to their left, use a ballroom hold, and rotate clockwise as a unit … As
+> dancers end the swing, the Woman continues turning to her right … until she is facing the same
+> direction as the Man."* Ending formation: **Normal Couple**, *"usually facing into the set, or
+> facing appropriately for the next call (such as Promenade). Callers should not use choreography
+> that relies on a precise ending position for Swing."* Comments: **"The Ocean Wave Rule applies to
+> this call."** … *"The command "Swing your Partner" is a shorthand for "Face Your Partner;
+> Swing"."* … *"If a Couple is facing out of the square and asked to Swing, they should face each
+> other and Swing. Examples include Swing from a Trade By formation (**the Centers swing the dancer
+> they are facing and the Ends swing the dancer beside them**), and from Lines Facing, Square Thru 3
+> and Swing (swing the dancer beside you)."* … *"From a Squared Set … they Swing the dancer close to
+> them, **not the one they are facing across the square**."*
+
+Three consequences, and the first two are limits we now state rather than leave implicit:
+
+1. **The pairing is geometric, not identity-based** — "the dancer close to them", which from a Trade
+   By is *the dancer they face* for the centres and *the dancer beside them* for the ends, either of
+   which may be someone other than their partner. Our implementation requires the **partner** to be
+   standing with the dancer and refuses otherwise. That is correct for the **`Swing your Partner`
+   reading**, which is what All8's `Sw`/`Sw&Pr` means and which the shorthand note above supports —
+   but it is strictly narrower than `Swing`, and its refusal message should say so. The general
+   `Swing` belongs with the ported calls (row 1 of the list below), where the geometric pairing and
+   the Ocean Wave Rule can be implemented together.
+2. **The ending is a Normal Couple** — partners side by side, facing the same way. Our transform is
+   the **identity**, which is right where the partners were already side by side (measured: the
+   shipped `Swing Your Partner` tam really does move nobody), but does not normalise a pair that was
+   facing or back to back. Defensible under *"callers should not rely on a precise ending position"*,
+   recorded as a limit.
+3. **Our measured "the authored tam is the identity" claim survives** — it is exactly what "Ending
+   formation: Normal Couple" implies for a couple that was already standing as one, which is why the
+   figure suite's run metric moved 1 → 8.
+
+### What this changes in the plan
+
+Nothing structural: 9e-2 is still the port, in the same impact order, and the definitions now supply
+both the dance action and the start-formation Rules for each row. Two adjustments: **row 1 becomes
+`Swing Thru` + `Swing` together** (they share the wave/hand-hold machinery and the Ocean Wave /
+Facing Couples Rules), and every ported call's gate can now cite the definition's own words rather
+than the reference's code.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

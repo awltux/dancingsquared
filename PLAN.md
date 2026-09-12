@@ -2591,6 +2591,57 @@ one of the 6 remaining first-call failures until that is done.
 
 ---
 
+## Phase 9e — PROPOSED (highest impact): make `Swing` real, and the tail's two halves
+
+Two measurements this round turned "add more Swing variants" into a small, derivation-backed piece of
+work, and they are worth having before anyone authors motion.
+
+### The name `Swing` is held by a DIFFERENT call, and the Mainstream one is a net NO-OP
+
+| file | `<tamination title>` | `<tam title>`s | registered as |
+|---|---|---|---|
+| `a2/slip.xml` | `Slip` | `Slip`, `Slide`, **`Swing`**, `Slither`, … | **`Swing`** — the A2 call, 5 variants, all waves/tidals/inverted lines |
+| `ms/swing.xml` | **`Swing`** | `Swing Your Partner`, `Swing Your Corner` | those two names — the Mainstream call, `Facing Couples` only |
+
+All8's key defines `Swing` as *"Swing (your partner or your corner, etc.)"* — the **Mainstream** call —
+so All8's `Sw` / `Sw&Pr` decodes to the A2 call and refuses from everywhere it is really called. The
+registry keys on `<tam title>`, so `ms/swing.xml`'s own name never gets used.
+
+**And the Mainstream motion is the identity transform.** Measured on the authored tam:
+
+```
+Swing Your Partner  from Normal Lines:  0/8 dancers MOVED, 0/8 dancers whose FACING changed
+Swing Your Corner   from Normal Lines:  8/8 moved, 8/8 turned   (it really does go somewhere)
+```
+
+A partner swing returns every dancer to its own spot **and facing**, so in the engine's net model
+(positions + headings) it is a no-op. That makes it **derivable exactly like `Roll`/`Run`/`Trade`** —
+and unlike those, from a measurement rather than from re-reading the reference: a coded move whose
+precondition is *"every dancer has its partner standing beside it"* and whose transform is the
+identity. The precondition is the call's own definition ("swing **your partner**"), which is why it
+is sound where the blanket couple-coherence guard in Phase 9a is not.
+
+Shape: map All8's `Swing`/`Sw&Pr` to `Swing Your Partner` **in the token table** (All8's own reading;
+it does not touch the A2 library entry), and register the derived move. Then 66 figures stop being a
+hard stop on a call the engine cannot do from a square, the allemande pose, `Eight Chain Thru`,
+`Trade By` or `Lines Facing Out`.
+
+### The tail is TWO halves, and both are needed
+
+| half | what it is | measured size |
+|---|---|---|
+| **9e-1** the derived `Swing` | capability: the call applies wherever partners are standing together | **66 figures stop on it** |
+| **9e-2** the identity/pairing fix (9a) | correctness: bodies stop leaving couples spread | 17/17 tail-`Promenade` figures were already broken |
+
+Neither alone finishes the tail — a `Swing` that applies still leaves `Promenade` refusing on a body
+whose couples are 6 apart, and a coherent body still cannot be Swung. Together they turn the figure
+suite's 187 stops into progress. **If only one is done, 9e-2 is the one that makes the engine
+better rather than merely differently-stuck**: it is the only change on the board that removes
+silently wrong motion, which is the defect class this repo treats as worst. 9e-1 is the cheaper half
+and can land first as its own commit.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

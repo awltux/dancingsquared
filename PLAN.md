@@ -2910,6 +2910,65 @@ than the reference's code.
 
 ---
 
+## Phase 9e-2, row 1 — the rule is TRANSCRIBED and VALIDATED; the port is not yet shippable
+
+`Swing Thru` is the top entry of the port list, and this round got its rule exact. It also found a
+contract constraint that decides how the port must be staged, and refuted two answers for the second
+half of the call.
+
+### The rule, transcribed from the reference and confirmed by CALLERLAB
+
+From `call_context.dart` (note: **mutual right-to-right**, which I first mis-transcribed as
+right-to-left and the measurement caught):
+
+```
+dancersHoldingRightHands = { d : d2 = dancerToRight(d, minDistance 3.0); dancerToRight(d2) == d }
+dancersHoldingLeftHands  = { d : d2 = dancerToLeft(d,  minDistance 3.0); dancerToLeft(d2)  == d }
+isRightOf / isLeftOf are FACING-RELATIVE (bearing -pi/2 / +pi/2 in the dancer's own frame), with a
+tolerance of 0.1 rad (extensions.dart); isInWave(d,w) requires each to sit at the same relative
+bearing from the other, which is what excludes a side-by-side couple (bearings +pi/2 and -pi/2).
+```
+
+and `swing_thru.dart` then does `applyCalls('Trade')` on those two sets in turn. A half arm turn with
+your hand-neighbour puts you exactly where they were, so each part **is** a `Trade` — which is why the
+whole call is two of them, and why we already have the primitive.
+
+**Validated against the engine's own authored motion, before writing any code:**
+`Swing Thru` on the `Ocean Waves` template — the rule agrees with the tam **8 of 8 dancers, exact**,
+in positions and facings (`right pairs 1-2,3-4,5-6,7-8`; `left pairs 1-4,5-8`). So the wave arm of the
+rule is right, not merely plausible.
+
+### The constraint that decides the staging: **a coded move SHADOWS the catalogue**
+
+`Sequencer.applyToBoard` tries `tryCodedMove` FIRST and returns its verdict — a refusal does **not**
+fall through to the applicator (`sequencer.ts:230-235`). So a partially ported call cannot ship: a
+derived `Swing Thru` that implemented only the wave arm would *refuse* boards where the catalogue
+currently applies, and refusing is not free — from an Eight Chain Thru the call is legal
+(**Facing Couples Rule**) and the tam's application is the CALLERLAB result, so a refusal would be a
+capability loss, not an honest gap. The port must arrive complete per call, or the contract needs an
+explicit "decline and let the catalogue try" flag. Recorded rather than added speculatively.
+
+### The second arm is the Facing Couples Rule, and two answers for it are REFUTED
+
+CALLERLAB: *"the dancers first step into a momentary Right-Hand Ocean Wave and complete the call"* —
+so the arm needs the **momentary wave's positions**, which are not the box's. Tested and rejected:
+
+| hypothesis | result |
+|---|---|
+| trade the facing pairs in place, then the mutual-left pairs | finds the 4 facing pairs, but after part 1 **no left pairs exist** → only one part runs → **0/8** |
+| `Pass the Ocean`, then apply the wave rule to its result | **0/8**, and worse: the engine's `Pass the Ocean` on a box picks the **Tidal Wave** variant (8 dancers in one line) and on a `Double Pass Thru` lands **two dancers on the same spot** — a defect of its own, now recorded |
+
+What the arm must reproduce is measurable and now pinned as the specification: on the `Eight Chain
+Thru` template the tam's result is a wave **at the box's midline** (`x = ±2`) with the four dancers
+spread to the standard wave positions (`y = ±1, ±3`), the two couples occupying the two halves.
+
+So row 1 lands as: implement **both** arms together — the validated wave rule plus a derivation of the
+momentary-wave positions that reproduces the pinned mapping — and ship them in one commit so nothing
+regresses. The wave half is done and proven; the facing half is now a bounded geometry problem with a
+specification rather than a search.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

@@ -3037,6 +3037,105 @@ catalogue over the corpus to see what the change actually costs.
 
 ---
 
+## Step 2 — `Centers Left Hand Star`: DIAGNOSED (and it is not the next thing to fix)
+
+`Centers Left Hand Star` is the 5th most common stop in the figures (5 of 188). The question asked of
+it was whether it shares a root with the `Swing Thru` facing arm, which would make that derivation pay
+twice. **It shares the METHOD and not the code, and fixing it buys ZERO figures on its own** — because
+all five figures have a second, larger stopper behind it. Both halves of that are measured below.
+
+### The five figures are one chain
+
+| figure | sequence to the stop |
+|---|---|
+| figm74 | Heads Promenade 1/2 / Heads Square Thru 4 / **Right-hand Star** / `Centers Left Hand Star` |
+| figm75 | as figm74 |
+| figm167 / 168 / 169 | Heads Square Thru 4 / **Right-hand Star** / `Centers Left Hand Star` |
+
+All five stop with the identical reason: **`Unresolvable selection: Centers`**. The call itself is in
+the catalogue (`ms/star.xml`), and the refusal is not about the call at all — it is about the board the
+PRECEDING star left behind.
+
+### What `Centers` actually requires, and what the star does to it
+
+`Centers`/`Ends` are **the middle two and the outer two of TWO 4-DANCER LINES** (`grouping.ts:45-51`),
+and `splitLine` finds those lines by bucketing the eight dancers on x or on y and requiring **exactly
+two buckets of four** (`grouping.ts:221-235`). Measured on figm167:
+
+| board | formation | Centers | Ends |
+|---|---|---|---|
+| after `Heads Square Thru 4` | `Eight Chain Thru` | `[1,2,5,6]` = the Heads | `[3,4,7,8]` = the Sides |
+| after `Right-hand Star` | `Stars RH` | **null** | **null** |
+
+The ECT board splits on **y** into the rows `y = ∓1`; the middle two of each row are the Heads ✓. The
+board after the star is two stars at `(±2, 0)` — no two rows and no two columns — so `splitLine` returns
+null and the selection cannot resolve. **The star destroys the structure the next call is defined on.**
+
+### Why the star took the wrong four
+
+`Right-hand Star` on the 8-dancer board matches the catalogue's **`Eight Chain Thru` variant**, which is
+authored for two adjacent 4-dancer boxes, and so produces **two** stars — and each star is one middle
+couple plus one wall couple (`{1,6,7,8}` and `{2,3,4,5}`), i.e. the four centers are split across both.
+The dance means the four in the middle star and the four at the walls stand: the walls are two facing
+couples **six** apart with the star's centre between them, so they have nowhere to star. The published
+corpus says the same thing in prose — `C-T1/4 "4 hands to the center"-RStar`, `C-BxGnt "you 4"-RStar`
+(six lines, decoding to `Centers Right-hand Star` and `Right-hand Star`).
+
+### Three measurements that rule out the cheap fixes
+
+| fix | measurement |
+|---|---|
+| apply the star to the four centers alone | **refused** — `No setup in this call matches the current formation` |
+| ...because the tams are scale-locked | facing couples **3** apart: legal. **4** apart: legal. **2** apart — which is exactly the centers' box — **refused** |
+| name the group (`Centers Right-hand Star`) | **legal**, but it applies the EIGHT-dancer motion to only the four selected dancers, leaving a board the matcher cannot name (`formation null`) and `Centers` again null |
+| re-star from the star (the second call) | **refused both ways** — after `Right Hand Star`, `Left Hand Star` and `Right Hand Star` both fail: the catalogue has no setup whose start is a star |
+
+### The impact, measured with the most favourable hypothesis
+
+The corpus's own prose pins the amount a bare star turns: the same call is written
+`C-RStar- <pause 1/2 turn>` when a half turn is meant, so the bare form is the **full turn** — and a full
+turn is the one amount that leaves the board exactly as it was, which is also the only amount that keeps
+the two-line structure the next call needs. Granting that (the best case for any star fix), all five
+figures still stop:
+
+| figure | stops at | reason |
+|---|---|---|
+| figm74, figm75, figm167 | `Swing Your Partner` | partners are 4.00 / 6.00 apart — the 9e-1 narrow "your partner" reading |
+| figm168 | `All Promenade` | same limitation |
+| figm169 | `Rollaway` | a call the catalogue does not have |
+
+Those partner distances are **normal for the boards in question** (a wave's partners really are 6 apart;
+in a wave nobody is holding their partner). So the binding constraint on all five is not the star: it is
+**`Swing`/`Promenade` being restricted to partners inside the `1.0..3.0` band**, which is the 9e-1 debt
+already pinned, and which is the largest single stop in the figures (48 of them).
+
+### Answer to the question as asked
+
+- **Same root?** Yes for the method: the star is the second instance of a call that starts from facing
+  couples and is refused or mis-paired because its authored tams pin ONE arrangement — and here also one
+  SCALE (2 apart is not authored at all). The `Swing Thru` facing arm was the first instance, and the
+  way it was solved (`pin the momentary formation from the authored motion, then derive`) applies
+  unchanged.
+- **Does the code pay twice?** No. A wave is slots along a line with an alternating facing pattern; a
+  star is a ring of four with tangential facings. Nothing in `swing-thru.ts` transfers as code.
+- **What the star needs that the wave did not.** The wave's box arm could demand "the boxes cover the
+  board". A star cannot: four star and four stand, so the derived call must make a **group decision** —
+  and, sharper still, **its end state must preserve the two-4-dancer-line structure**, because the very
+  next call in all five figures is `Centers ...` and that grouping is defined by it. The catalogue's own
+  star end state (a radius-1 ring about the box centre) destroys it: measured, `formation null`,
+  `Centers none`. That constraint is the whole design problem for a derived star, and it is stricter
+  than anything the wave arm faced.
+
+### Resequencing consequence
+
+Fixing `Centers Left Hand Star` alone gains **0 of 188 figures** and is a prerequisite for 5 of them,
+each of which then still needs `Swing`/`Promenade` generalised. So it moves OFF the next step and behind
+the general `Swing` (9e-1's pinned debt): the star is now recorded as a prerequisite of the `Sw&Pr`
+family, not as an independent win. The port list below is otherwise unchanged — rows 2–5 are still
+`Touch a Quarter`, `Right and Left Thru`, the primitives, then the rest of `ms/`.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

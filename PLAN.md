@@ -2698,6 +2698,25 @@ not spread one per side of the square"*, which is worth a look of its own).
 So the tail's applicability half is closed. What remains blocking it is the pairing defect alone —
 which is why 9a and 9e-1 are recorded as the two halves of one problem, and why 9e-2 is next.
 
+### A refinement the refusal reasons give for free, and it matters for 9e-2's design
+
+The 58 refusals in the simulation were not all one signature: **26** failed with *"the four couples
+are not spread one per side of the square"*, and **30** with *"couple N's partners are X apart"*.
+`promenade.ts` settles what that means without any further measurement: the **partner-gap check runs
+BEFORE the quadrant check**, so a board that reports "not spread" has *already passed* the gap check —
+its couples are **intact**. So there are two body signatures at the tail, not one:
+
+| signature | count | couples |
+|---|---|---|
+| partners apart | ~30 | broken |
+| couples intact but in the wrong places | ~26 | **whole** |
+
+The second is probably the SAME root — a variant authored for another pairing moves dancers to other
+dancers' spots, so a couple can arrive somewhere wrong while staying together — but it is not proven,
+and it changes what 9e-2 has to check: **coherence is not only "are partners still together", it is
+also "is each couple where its call should have put it"**. A fix that only looks at partner gaps
+would pass the 26 and leave them stuck. Worth settling before designing the pairing derivation.
+
 `selection.mjs` gates the whole thing: the identity on six identity-carrying boards, the refusal on an
 identity-less board and on a couple 6 apart, that it is offered from a squared set, that `Swing Your
 Corner` is NOT derived, that the A2 `Swing` is intact, and that `--Sw&Pr` reads as the Mainstream

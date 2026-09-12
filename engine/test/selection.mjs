@@ -28,7 +28,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS, matchFormations, PROMENADE_COUPLE_MAX } from '../dist/index.js';
+import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS, matchFormations, PROMENADE_COUPLE_MAX, findCodedMove } from '../dist/index.js';
+import { decodeLine } from '../dist/sequencer/all8-notation.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import { startBoardFor } from './lib/all8-boards.mjs';
 // Deep import, like bind-audit.mjs does for internal collaborators: boardSig is deliberately NOT
@@ -931,13 +932,118 @@ console.log('\n== the SAME geometry, SIX authored pairings: an identity-blind ma
       }
     }
 
-    // (3) and the tail itself is a SEPARATE gap: no form of Swing applies from ANY of the six.
+    // (3) the tail's OTHER half is now fixed, and this is where that is asserted. When this gate was
+    // written no form of `Swing` applied from any of the six [B] boards, which made the tail an
+    // applicability gap independent of the pairing defect above. The derived Mainstream swing
+    // (Phase 9e-1) applies from all six, so what remains blocking the tail is the pairing defect
+    // alone - which is why the two are recorded as the two halves of one problem.
     const anySwing = ids.filter((id) => ['Swing', 'Swing Your Partner', 'Swing Your Corner'].some((c) => seq.applyToBoard(boards[id], c).legal));
-    if (anySwing.length === 0) {
-      ok('no form of Swing applies from any of the six [B] boards - the tail is an applicability gap independent of (2)');
+    if (anySwing.length === ids.length) {
+      ok(`a Swing now applies from ALL SIX [B] boards (the partner swing is derived) - so the tail's remaining blocker is the pairing defect above, not Swing`);
     } else {
-      ok(`a Swing applies from ${anySwing.join(',')} - re-measure the tail (PLAN.md Phase 9a)`);
+      fail(`a Swing applies from only ${anySwing.join(',') || 'none'} of the six [B] boards - the tail is blocked on applicability again`);
     }
+  }
+}
+
+console.log('\n== the Mainstream swing is DERIVED, because its authored motion is the IDENTITY ==');
+// Phase 9e-1. `Swing Your Partner` stops 65 of All8's 188 published figures at the end of a singing
+// call, and the catalogue authors it from `Facing Couples` alone - so the engine could not swing
+// from a squared set, the allemande-left pose, or any of the boards `--Sw&Pr` is actually reached
+// from. It is now a coded move whose precondition is the call's OWN definition ("you can only swing
+// your PARTNER if your partner is standing with you") and whose transform is the identity.
+//
+// The premise - that the authored motion IS the identity - was measured on the shipped tam before
+// the move was written: 0 of 8 dancers moved and 0 of 8 facings changed. The assertions below gate
+// the behaviour that premise buys, so a change that breaks it has to be deliberate.
+{
+  const faceOf = (h) => ((Math.round((h * 180) / Math.PI / 90) * 90 % 360) + 360) % 360;
+  const delta = (a, b) => {
+    let moved = 0, turned = 0;
+    for (let i = 0; i < a.dancers.length; i++) {
+      if (pos(a.dancers[i]) !== pos(b.dancers[i])) moved++;
+      if (faceOf(a.dancers[i].heading) !== faceOf(b.dancers[i].heading)) turned++;
+    }
+    return { moved, turned };
+  };
+
+  // (1) it applies where it is really called, and is a no-op there. The boards used are All8's own
+  // alignments, NOT the engine's formation templates: a template carries no home identity
+  // (`couple=0`), and refusing there is CORRECT - "your partner" is a fact about identity, not
+  // about geometry - so a template would test the refusal, not the transform.
+  const fixture = JSON.parse(readFileSync(path.join(__dirname, 'fixtures', 'all8-getouts.json'), 'utf8'));
+  const swingBoards = { 'Static Square': seq.boardForFormation('Static Square') };
+  for (const id of ['B1c', 'B4c', 'L1p', 'W1p', 'F1p']) {
+    const a = (fixture.alignments ?? []).find((x) => x.id === id);
+    const s = a ? startBoardFor(seq, a) : { board: null };
+    if (s.board) swingBoards[id] = s.board;
+  }
+  const applied = [];
+  for (const [label, b] of Object.entries(swingBoards)) {
+    if (!b) continue;
+    const r = seq.applyToBoard(b, 'Swing Your Partner');
+    if (!r.legal) { fail(`Swing Your Partner refused from ${label} (${r.reason}) - the tail cannot be danced`); continue; }
+    const d = delta(b, r.board);
+    if (d.moved === 0 && d.turned === 0) applied.push(label);
+    else fail(`Swing Your Partner from ${label}: not the identity (moved=${d.moved} turned=${d.turned})`);
+  }
+  if (applied.length < 3) fail(`Swing Your Partner applied from only ${applied.length} identity-carrying boards - the derivation is not doing its job`);
+  else ok(`Swing Your Partner applies from ${applied.length} identity-carrying boards and is the IDENTITY on each (0 moved, 0 turned): ${applied.join(', ')}`);
+
+  // (1b) and it still refuses a board with no identity, exactly as Promenade does.
+  {
+    const tpl = seq.boardForFormation('Eight Chain Thru');
+    const r = seq.applyToBoard(tpl, 'Swing Your Partner');
+    if (r.legal) fail('Swing Your Partner applied to an identity-less formation template - "your partner" must be real data');
+    else ok(`an identity-less board refuses, as Promenade does: ${r.reason.slice(0, 60)}...`);
+  }
+
+  // (2) and it is OFFERED from a squared set, which is where a caller says it. This is the whole
+  // point: it used to refuse everywhere it is really called.
+  seq.reset();
+  const home = seq.startBoard();
+  const offered = seq.legalNext();
+  if (!offered.includes('Swing Your Partner')) fail('Swing Your Partner is not offered from a squared set - the tail cannot be danced');
+  else ok('Swing Your Partner is offered by legalNext from a squared set (it used to refuse there)');
+
+  // (3) the precondition is the call's own definition, and it REFUSES rather than spreading couples.
+  const broken = {
+    dancers: home.dancers.map((d) => (d.couple === 1 && d.gender === 'girl' ? { ...d, x: d.x + 4 } : d)),
+  };
+  const r = seq.applyToBoard(broken, 'Swing Your Partner');
+  if (r.legal) fail('Swing Your Partner applied with a couple SIX apart - the precondition is not binding');
+  else if (!/partners are/.test(r.reason ?? '')) fail(`Swing Your Partner refused for the wrong reason: ${r.reason}`);
+  else ok(`Swing Your Partner refuses a couple standing 6.0 apart: ${r.reason}`);
+
+  // (4) `Swing` itself is a DIFFERENT call and is untouched - the A2 family from a2/slip.xml. This is
+  // why the bridge lives in the token table and not in CALL_SYNONYMS: a synonym would collide.
+  const codedSwing = findCodedMove('Swing');
+  const a2 = seq.getVariants('Swing') ?? [];
+  if (codedSwing) fail('findCodedMove("Swing") resolves - the A2 call named `Swing` has been shadowed');
+  else if (a2.length === 0) fail('getVariants("Swing") is empty - the A2 family was lost');
+  else ok(`the A2 call named "Swing" is untouched (${a2.length} variants: ${[...new Set(a2.map((v) => v.from))].join(', ')})`);
+
+  // (5) `Swing Your Corner` is deliberately NOT derived: it really does go somewhere (8 of 8 moved),
+  // so it stays an ordinary authored tam.
+  if (findCodedMove('Swing Your Corner')) fail('Swing Your Corner was made a coded move - it is not the identity');
+  else {
+    const fc = formationBoard('Normal Lines');
+    const rc = fc ? seq.applyToBoard(fc, 'Swing Your Corner') : { legal: false };
+    if (!rc.legal) ok('Swing Your Corner is left to the catalogue (not derived)');
+    else {
+      const d = delta(fc, rc.board);
+      if (d.moved === 0) fail('Swing Your Corner is the identity after all - re-derive, the premise was only checked for the partner swing');
+      else ok(`Swing Your Corner stays authored and really moves (${d.moved} of 8 moved) - only the partner swing is the identity`);
+    }
+  }
+
+  // (6) and All8's reading maps to it, so `--Sw&Pr` means what All8 means.
+  const decoded = decodeLine('! H-RLT --Sw&Pr');
+  const names = decoded.calls.map((c) => c.name);
+  if (!names.includes('Swing Your Partner') || !names.includes('Promenade')) {
+    fail(`"--Sw&Pr" decodes to ${JSON.stringify(names)}, not "Swing Your Partner" + "Promenade"`);
+  } else {
+    ok('All8\'s "--Sw&Pr" reads as the Mainstream swing, not the A2 call that held the name');
   }
 }
 

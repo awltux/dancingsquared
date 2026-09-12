@@ -19,7 +19,8 @@
 // a beat count — and its rule lives in promenade.ts.
 
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf, normAngle } from '../moves.js';
-import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS } from './promenade.js';
+import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS, PROMENADE_COUPLE_MIN, PROMENADE_COUPLE_MAX } from './promenade.js';
+import { isKnownCouple } from './constants.js';
 import { runRule, tradeRule } from './trade-run.js';
 import type { Board } from './types.js';
 
@@ -33,6 +34,68 @@ export const RUN_TRADE_BEATS = 4;
 /** Timeline length of `Roll`, in beats — the reference's `QuarterLeft`/`QuarterRight` carry
  * `beats: 1.5` (`moves.dart:56-58`), and `Roll` is exactly that move chosen per dancer. */
 export const ROLL_BEATS = 1.5;
+
+/** Timeline length of the Mainstream `Swing Your Partner`, in beats: the value the authored
+ * `ms/swing.xml` tam carries, so the timeline does not shift when the derived call replaces it —
+ * the same reason `RUN_TRADE_BEATS` copies the authored Run/Trade tams. */
+export const SWING_BEATS = 9;
+
+/**
+ * `Swing Your Partner` — the Mainstream swing — as a DERIVED call, because its authored motion is
+ * the IDENTITY TRANSFORM. Measured on the shipped `ms/swing.xml` tam from `Facing Couples`:
+ * **0 of 8 dancers moved and 0 of 8 facings changed**. A partner swing is a full turn taken around
+ * your partner, so every dancer finishes on its own spot facing its own way, which in this engine's
+ * net model (a position and a heading) is a no-op. `Swing Your Corner` is NOT this call — it moves
+ * 8 of 8 — and stays an ordinary authored tam.
+ *
+ * WHY IT IS DERIVED RATHER THAN AUTHORED PER FORMATION. The Mainstream `Swing` is the singing-call
+ * ending ("Swing and Promenade") and stops **65 of All8's 188 published figures** at the tail, but
+ * the catalogue authors it from `Facing Couples` alone — so the engine cannot swing from a squared
+ * set, the allemande-left pose, `Eight Chain Thru`, `Trade By` or `Lines Facing Out`, which is
+ * where it is actually called. The net effect being the identity makes the call formation-
+ * INDEPENDENT, so no per-formation authoring is needed and none is invented.
+ *
+ * THE PRECONDITION IS THE CALL'S OWN DEFINITION, not a heuristic: you can only swing your PARTNER
+ * if your partner is standing with you. It uses Promenade's own "standing as a couple" band
+ * (`PROMENADE_COUPLE_MIN/MAX`) so the two agree by construction, and it is therefore sound where a
+ * blanket "refuse anything that spreads a couple" guard is not — that guard would reject `Boys
+ * Trade`, which legitimately separates partners. A board with no home identity refuses, exactly as
+ * Promenade does: "your partner" is a fact about identity, not about geometry (§8.2).
+ *
+ * WHERE THE NAME LIVES, and why the bridge is here rather than in `CALL_SYNONYMS`: the engine's
+ * call named `Swing` is a DIFFERENT call — the A2 `Swing` from `a2/slip.xml` (waves, tidals,
+ * inverted lines, `Swing Left`/`Swing Right`). A `CALL_SYNONYMS` entry would collide in the
+ * registry (one of the two would silently overwrite the other), so All8's own reading — its key
+ * says `Swing  Swing (your partner or your corner, etc.)`, the Mainstream call — is emitted as
+ * `Swing Your Partner` by the token table instead, leaving the A2 family untouched.
+ */
+function swingProblem(board: Board): string | null {
+  const phys = board.dancers.filter((d) => !d.isGhost);
+  if (phys.length === 0) return 'Swing needs dancers to swing';
+  const couples = new Map<number, Board['dancers'][number][]>();
+  for (const d of phys) {
+    if (!isKnownCouple(d.couple)) {
+      return 'Swing needs dancers with a known home couple: you swing your PARTNER, and this board carries no identity';
+    }
+    const list = couples.get(d.couple) ?? [];
+    list.push(d);
+    couples.set(d.couple, list);
+  }
+  for (const [couple, list] of couples) {
+    if (list.length !== 2) return `couple ${couple} does not have exactly two dancers, so there is no partner to swing`;
+    const gap = Math.hypot(list[0].x - list[1].x, list[0].y - list[1].y);
+    if (gap < PROMENADE_COUPLE_MIN || gap > PROMENADE_COUPLE_MAX) {
+      return `couple ${couple}'s partners are ${gap.toFixed(2)} apart, not the standard 2, so they are not standing together and cannot swing`;
+    }
+  }
+  return null;
+}
+
+/** The swing itself: the identity transform, because the authored motion returns every dancer to
+ * its own spot and facing (see `swingProblem`). */
+function swingRule(board: Board): Board {
+  return board;
+}
 
 /**
  * `Roll`: each dancer turns a quarter in the direction they were ALREADY turning, and a dancer
@@ -170,6 +233,14 @@ const DEFS: {
     beats: ROLL_BEATS,
     precondition: rollProblem,
     fn: rollRule,
+  },
+  // The Mainstream swing: derived because its authored motion is the identity transform, which
+  // makes it formation-independent (see `swingProblem` for the measurement and the precondition).
+  {
+    aliases: ['Swing Your Partner'],
+    beats: SWING_BEATS,
+    precondition: swingProblem,
+    fn: swingRule,
   },
 ];
 

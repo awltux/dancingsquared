@@ -2642,6 +2642,70 @@ and can land first as its own commit.
 
 ---
 
+## Phase 9e-1 — DONE: the Mainstream `Swing` is derived, and the target suite's run metric went 1 → 8
+
+The first half of the tail, and the measurement that justified it came before the code.
+
+### The premise, measured on the shipped asset
+
+`Swing Your Partner` from its own `Facing Couples` setup: **0 of 8 dancers moved, 0 of 8 facings
+changed.** A partner swing is a full turn taken around your partner, so every dancer finishes on its
+own spot facing its own way — in this engine's net model (a position and a heading) that is the
+**identity transform**. `Swing Your Corner` is not: it moves 8 of 8, and it stays an ordinary authored
+tam. So the partner swing is formation-INDEPENDENT, which is why no per-formation authoring is needed
+and none is invented.
+
+### And the name was held by a different call
+
+`a2/slip.xml` (tamination title `Slip`) contains tams titled `Swing` — the **A2** call, 5 variants from
+waves/tidals/inverted lines. Because the registry keys on `<tam title>`, that is what `Swing`
+resolved to, while `ms/swing.xml`'s own title `Swing` was never used and its tams
+(`Swing Your Partner`/`Swing Your Corner`) are authored from `Facing Couples` **only**. So All8's
+`Sw`/`Sw&Pr` — whose key defines `Swing` as the Mainstream call — decoded to a call that refuses
+everywhere it is actually called. It cannot be a `CALL_SYNONYMS` bridge: that would collide in the
+registry and one of the two calls would silently overwrite the other. The token table emits
+`Swing Your Partner` instead, leaving the A2 family untouched (gated).
+
+### What was built
+
+`Swing Your Partner` as a derived coded move (`coded-moves.ts`), 9 beats — the authored tam's own
+`beats`, so the timeline does not shift — whose **precondition is the call's own definition**: every
+dancer's partner must be standing with them, using Promenade's existing `PROMENADE_COUPLE_MIN/MAX`
+band so the two agree by construction. It refuses an identity-less board for the same reason
+Promenade does ("your partner" is a fact about identity). This is the *sound* form of the guard
+Phase 9a rejected: it can never reject `Boys Trade`, because it never asks about a call it is not
+part of.
+
+### Measured
+
+| | before | after |
+|---|---|---|
+| **figures that run end-to-end** | **1** | **8** |
+| figures stopping at the final `Swing` | 65 | **48** |
+| `Swing Your Partner` in `legalNext` from a squared set | no | **yes** |
+| GETOUT BEHAVIOUR: reached the finish and applied it | 134 | **135** |
+| GETOUT BEHAVIOUR: stopped part-way through the body | 141 | **139** |
+| both verify tiers | green | **green** |
+
+**The 7 new successes were predicted before the code was written**, by simulating the fix as "the
+swing is the identity, so does `Promenade` apply to the board the figure stopped on?" — 65 stops, 7
+would then finish, 58 would still refuse. The measured result is exactly 7. That is the value of
+measuring first: the same probe also said the remaining 58 are **not** a Swing problem, and their
+refusals are the Phase 9a pairing defect (`couple 4's partners are 4.00 apart`, 22 of them;
+`couple 1's partners are 6.00 apart`, 7; and 26 of the earlier set failed with *"the four couples are
+not spread one per side of the square"*, which is worth a look of its own).
+
+So the tail's applicability half is closed. What remains blocking it is the pairing defect alone —
+which is why 9a and 9e-1 are recorded as the two halves of one problem, and why 9e-2 is next.
+
+`selection.mjs` gates the whole thing: the identity on six identity-carrying boards, the refusal on an
+identity-less board and on a couple 6 apart, that it is offered from a squared set, that `Swing Your
+Corner` is NOT derived, that the A2 `Swing` is intact, and that `--Sw&Pr` reads as the Mainstream
+call. The Phase 9a pin was updated deliberately: its old assertion ("no form of Swing applies from any
+of the six [B] boards") now asserts the opposite, because that gap is fixed.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

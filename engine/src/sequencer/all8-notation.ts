@@ -211,7 +211,16 @@ export const TOKENS: Record<string, string> = {
   BendL: 'Bend the Line',
   LSwTh: 'Left Swing Thru',
   Recyc: 'Recycle',
-  Swing: 'Swing',
+  // All8's key: `Swing  Swing (your partner or your corner, etc.)` - the MAINSTREAM call, so that
+  // is what this expands to. It has to be the engine NAME rather than a `CALL_SYNONYMS` entry
+  // because the engine's call named `Swing` is a DIFFERENT call (the A2 `Swing` from
+  // `a2/slip.xml`: waves, tidals, inverted lines, `Swing Left`/`Swing Right`), and a synonym would
+  // make the two collide in the registry - one would silently overwrite the other. The catalogue
+  // spells the Mainstream call by WHICH dancer you swing (`Swing Your Partner`, `Swing Your
+  // Corner`); All8's bare `Swing` is the partner reading by context, which is the same documented
+  // kind of approximation as `-BRun`'s active-dancer scoping. `Swing Your Partner` is now a
+  // DERIVED call (coded-moves.ts), because its authored motion is the identity transform.
+  Swing: 'Swing Your Partner',
   DPT: 'Double Pass Thru',
   VeerR: 'Veer Right',
   VeerL: 'Veer Left',
@@ -385,7 +394,11 @@ export const MULTI_TOKENS: Record<string, string[]> = {
   // so it is "Swing and Promenade": two calls, both engine-implemented. It went unnoticed until the
   // sequence importer read the FIGURES, because the get-out corpus ends at `--RLG`/`--AL`/`--Prom`
   // almost exclusively and uses this form once.
-  'Sw&Pr': ['Swing', 'Promenade'],
+  //
+  // The Swing half is `Swing Your Partner`, NOT the bare `Swing` it used to emit - see the token
+  // above for why the engine's `Swing` is a different call. This is the reading that matters most:
+  // 65 of the 188 published figures stop on it.
+  'Sw&Pr': ['Swing Your Partner', 'Promenade'],
   // `RolPr` = "Roll, then Promenade" - two calls, both implemented.
   'RolPr': ['Roll', 'Promenade'],
   // `Tag_I` is All8's same compound spelled with an underscore.

@@ -231,6 +231,19 @@ console.log('\n== FSM user-amendment / export + ledger ==');
   // Embedded (inline) formations must be folded into the state set, not just the named catalog.
   const embeddedStates = tbl.states().filter((s) => s.startsWith('@embed'));
   check(embeddedStates.length > 0, 'transition table includes embedded (inline) formation states', `embedded=${embeddedStates.length}`);
+  // EVERY EDGE MUST END IN A STATE. Not a nicety: the FSM view, the teacher app and the export all
+  // resolve an edge's end by NAME and silently drop the edge when the lookup misses. Commit 71b4465
+  // labelled edges with the curated `recognize` name (null outside STANDARD_FORMATIONS) while
+  // `legalCalls` had admitted them by `knownFormation`, so 935 of 1383 edges were stored with
+  // `endFormation: null` and the FSM view drew a graph of dead ends for a table full of transitions.
+  const stateSet = new Set(tbl.states());
+  const allEdges = tbl.states().flatMap((s) => tbl.edgesFor(s) ?? []);
+  const noEnd = allEdges.filter((e) => e.endFormation == null);
+  const dangling = allEdges.filter((e) => e.endFormation != null && !stateSet.has(e.endFormation));
+  check(noEnd.length === 0, 'every FSM edge has an end formation',
+    `edges=${allEdges.length} null=${noEnd.length}${noEnd.length ? ` e.g. "${noEnd[0].call}"` : ''}`);
+  check(dangling.length === 0, 'every FSM edge ends in a state of the table',
+    `dangling=${dangling.length}${dangling.length ? ` e.g. "${dangling[0].endFormation}"` : ''}`);
   // The amendment merged into the table makes it a queryable transition.
   if (accepted) {
     check(tbl.hasTransition('Static Square', accepted), 'amendment merged into the transition table', accepted);

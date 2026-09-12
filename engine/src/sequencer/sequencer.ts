@@ -519,11 +519,16 @@ export class Sequencer {
   buildFsmTable(): FsmTable {
     // Build a state-key -> geometry map, deduped by geometry.
     const stateGeo = new Map<string, Matchable[]>();
+    // Formation NAME -> the state key that ended up holding its geometry. The dedupe below keeps
+    // only the FIRST name of each geometry, so a name can be a recognised formation without being a
+    // state; an edge labelled with it would dangle and be dropped by every consumer.
+    const keyOf = new Map<string, string>();
     const addState = (key: string, dancers: Matchable[]) => {
-      for (const existing of stateGeo.values()) {
-        if (matchFormations(dancers, existing, 1.0) !== null) return existing;
+      for (const [existingKey, existing] of stateGeo) {
+        if (matchFormations(dancers, existing, 1.0) !== null) { keyOf.set(key, existingKey); return existing; }
       }
       stateGeo.set(key, dancers);
+      keyOf.set(key, key);
       return dancers;
     };
     // Named formations first (stable, human-readable keys).
@@ -533,21 +538,55 @@ export class Sequencer {
       addState(`@embed#${stateGeo.size}`, setup);
     }
     const states = [...stateGeo.keys()];
+    /**
+     * The calls the table enumerates from a board, each with the result the enumeration must judge.
+     *
+     * The vocabulary is the catalogue's own plus the geometry-derived calls that carry a
+     * PRECONDITION. The precondition rule is `searchLegalCalls`'s (legality.ts), for the same
+     * reason: a coded PIVOT (`Face Left`, `U-Turn Back`, ...) is legal from every board and lands on
+     * the formation it started in, so it would add one invisible self-loop per state (eight calls x
+     * every state) and can never be a step of a get-out. A coded RESOLVE is the opposite —
+     * `Promenade` is exactly the edge a get-out FSM exists to show and the catalogue cannot supply
+     * it — so leaving these out left the table unable to represent the thing it is for.
+     *
+     * Each result comes from the SAME application that admitted it: the applicator for a catalogue
+     * call, the coded rule for a coded one. Not the sequencer's coded-first dispatch — 61 edges
+     * (`Boys Trade`, `Girls Run`, `Centers Run` ...) are calls that exist in BOTH vocabularies, and
+     * the coded selection path lands them somewhere `knownFormation` cannot name where the
+     * catalogue's authored tam lands in a state. That divergence is real and worth its own
+     * investigation, but a table whose edge ends are unknown is not the place to discover it.
+     */
+    const enumerable = (board: Board): { call: string; res: { board: Board; legal: boolean } }[] => {
+      const out = this.legalCalls(board).map((call) => ({ call, res: this.applicator.applyToBoard(board, call) }));
+      const have = new Set(out.map((x) => x.call));
+      for (const n of CODED_MOVE_NAMES) {
+        if (have.has(n)) continue;
+        const r = applyCodedMove(board, n);
+        if (r?.legal && this.matcher.knownFormation(r.board) !== null) out.push({ call: n, res: r });
+      }
+      return out;
+    };
     const enumerate = (state: string): Omit<FsmTableEdge, 'source'>[] => {
       const geo = stateGeo.get(state);
       if (!geo) return [];
       const board = this.boardFromMatchables(geo);
-      return this.legalCalls(board).map((call) => {
-        const res = this.applicator.applyToBoard(board, call);
-        return {
-          call,
-          // Use the curated `recognize` name (the same label the sequencer
-          // displays) so the FSM table's end-formation edges agree with the
-          // sequencer, rather than `knownFormation` which can pick an obscure
-          // whole-catalog formation (e.g. T-Bone LDDR) the sequencer never shows.
-          endFormation: res.legal ? this.matcher.recognize(res.board).name : null,
-          orientationDelta: 0,
-        };
+      return enumerable(board).map(({ call, res }) => {
+        // An edge's end is ALWAYS one of the table's states. `legalCalls` admits a call only when
+        // `knownFormation` recognises the result, but `recognize` is the narrower, curated
+        // recogniser and returns null for many of those same boards. Labelling with `recognize`
+        // alone therefore stored `endFormation: null` for every one of them -- 935 of 1383 edges on
+        // the 274-call Mainstream catalog -- and every consumer silently DROPPED those edges, which
+        // is what made the FSM view look like a graph of dead ends. Two ways a curated name can fail
+        // to be a state, and both fall back: it can be null (the board is real but not one of the
+        // curated STANDARD_FORMATIONS), or it can name a formation the geometry DEDUPE above folded
+        // into another key. `knownFormation` scans the unique list, so it always yields a state.
+        let end: string | null = null;
+        if (res.legal) {
+          const curated = this.matcher.recognize(res.board).name;
+          const name = curated !== null && keyOf.has(curated) ? curated : this.matcher.knownFormation(res.board);
+          end = name === null ? null : keyOf.get(name) ?? null;
+        }
+        return { call, endFormation: end, orientationDelta: 0 };
       });
     };
     return FsmTable.build(states, enumerate, this.fsmStore.all());

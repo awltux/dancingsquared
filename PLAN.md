@@ -579,11 +579,94 @@ the quadratic term is gone.
 4. ~~Add the regression point the harness lacks.~~ **Done** — section 5b, behind `GETOUT_SWEEP=1`,
    and it immediately earned its keep by confirming 27 of 28 across every alignment, a claim that
    had been asserted nowhere.
-5. **Re-measure the `transitionTable` build** — still unverified, and still the worst case
-   remaining on the list. Recorded as open.
+5. ~~Re-measure the `transitionTable` build~~ — **Done, and it is measured twice more below**
+   (§ "The FSM table lost 68% of its edges"). On the 274-call Mainstream catalog it is **36.8 s**
+   for **155 states and 1961 edges**. The cost is `legalCalls`, which applies all ~250 catalogue
+   calls to each of the 155 state boards; the geometry-derived vocabulary adds 14 applications per
+   state, under 1% of it.
 
 **Done when `[P4p]` is bounded in seconds with the same `null` answer, and `fixIt depth=1` is
 usable** — met: 11.5 s and 3.6 s respectively, both from 95 s and 33 s.
+
+---
+
+## The FSM table lost 68% of its edges, and the view showed the loss as dead ends
+
+Reported from the outside as *"the FSM view seems sparse; with all the recent work I would expect
+more edges and fewer isolated nodes"*. It was not sparse data — it was a **regression in the labeller**
+plus a **stale asset**, and the view had no way to say so.
+
+### What the view was drawing
+
+The view looks each edge's `endFormation` up in the state list **by name** and silently skips the edge
+when it misses (`poc/src/fsm-view.ts`). On the current engine's table:
+
+| | before the fix | after |
+|---|---|---|
+| states | 155 | 155 |
+| edges in the table | 1383 | 1961 |
+| **drawn by the view** | **441 (32%)** | **1961 (100%)** |
+| dropped, `endFormation: null` | 935 | **0** |
+| nodes painted red "dead-end" | 126 | 19 |
+| nodes completely isolated | 125 | 19 |
+
+Those 441 edges sat on 154 nodes, so 125 of them had no edge at all and the view labelled them **DEAD
+END — no call**, which is a lie about a table that holds 1383 transitions.
+
+### The regression: the enumeration's filter and its label disagreed
+
+`legalCalls` admits a call only when `matcher.knownFormation(res.board) !== null`
+(`legality.ts:36`). Commit **`71b4465`** then changed the stored label from that same
+`knownFormation` to `matcher.recognize(...).name` — a **narrower** recogniser that scans only the
+curated `STANDARD_FORMATIONS` list — with the reasonable goal of agreeing with the sequencer's
+readout. `recognize` returns **null** for every board outside that curated list, and that null was
+stored as `endFormation: null`: **935 of 1383 edges**, including `Static Square --Allemande Left-->`
+and `Static Square --Heads Square Thru 3-->`.
+
+`buildFsmTable` now prefers the curated name when it names a **state** and falls back to the name the
+filter itself used otherwise. Two ways a curated name can fail to be a state, and both fall back: it
+can be null, or it can name a formation that the geometry **dedupe** folded into another key (`keyOf`
+now records which key won). The invariant is now exact: **every edge ends in a state**, measured
+1961 of 1961.
+
+### The vocabulary: the derived resolves were missing
+
+`legalWithResults` iterates `library.callNames()` and modules only, so no geometry-derived call could
+ever be an edge — `Promenade`, the call the whole get-out corpus ends on, had **zero** edges, and
+`Promenade` sat in the isolated-node list. The table now adds the coded moves that carry a
+**precondition**, which is `searchLegalCalls`'s own rule (`legality.ts:73-77`) for the same reason: a
+coded PIVOT is legal from every board and lands where it started, so it would add eight invisible
+self-loops per state, while a coded RESOLVE is exactly the edge a get-out FSM exists to show. That is
+the 1383 → 1961.
+
+### Recorded while measuring it
+
+- **The `poc/` workspace resolves a second, stale copy of the engine.**
+  `poc/node_modules/dancing-squared-engine` is a pnpm copy (a junction into `poc/node_modules/.pnpm`),
+  not a link to `engine/`, so `poc/scripts/build-fsm-asset.mjs` was importing an engine snapshot from
+  2026-09-11 while the `catalog.ts` next to it resolved the live one — two engines in one process. It
+  fails loudly the first time the copy is older than a new module (`Cannot find module
+  .../dist/sequencer/swing-thru.js`). The script now imports the workspace engine **by path**; the
+  copy itself is left alone because refreshing it is a dependency-management action, not a code edit,
+  and the POC app is what would gain.
+- **New open item: the coded-first dispatch and the catalogue disagree on where a call lands.**
+  Enumerating with the sequencer's own dispatch (coded move first, then the catalogue) instead of the
+  applicator changed **61 edges** into ones `knownFormation` cannot name, 12 of them coded calls and
+  the rest calls like `Boys Trade`, `Girls Run`, `Centers Run` — names that exist in BOTH vocabularies,
+  where the coded selection path lands somewhere unnamed and the catalogue's authored tam lands in a
+  state. The table deliberately uses the application that admitted each edge, so that divergence is
+  not hidden here; it should be diagnosed on its own, because it means the two paths produce
+  different boards for the same call.
+- **The 19 remaining isolated nodes are all `@embed#N`**, i.e. inline call-variant setups that no
+  catalogue call applies to (mostly four-dancer setups). **No named formation is isolated any more.**
+
+### Also fixed: a dragged node is left selected
+
+Requested directly. The view selected nodes on the `click` event, but a drag ends with the node
+somewhere else under the cursor, so the browser often delivers no click at all — and when it does, it
+would toggle the drag's selection straight back off. Selection is now driven from `pointerup`, which
+already knows whether the gesture moved: a release that moved **sets** the selection, a release that
+did not toggles as before.
 
 ---
 

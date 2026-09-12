@@ -6,7 +6,14 @@ import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
-import { setParser } from 'dancing-squared-engine';
+// The WORKSPACE engine, by path, deliberately. `poc/node_modules/dancing-squared-engine` is a
+// pnpm copy of `engine/` (a junction into `poc/node_modules/.pnpm`), not a link to it, so importing
+// the package name here picks up whatever the engine looked like when that copy was made — while
+// `../../poc-teacher/src/catalog.ts` resolves the same package name from ITS directory and gets the
+// live one. That is two engines in one process, and it fails loudly the first time the copied dist
+// is older than a new module (`Cannot find module .../dist/sequencer/swing-thru.js`). A repo script
+// has no reason to go through a package manager to reach its own sibling workspace.
+import { setParser } from '../../engine/dist/index.js';
 import { buildCatalog, makeSequencer } from '../../poc-teacher/src/catalog.ts';
 
 setParser(DOMParser);

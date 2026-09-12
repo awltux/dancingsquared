@@ -143,7 +143,14 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);const sec=(h,items,arrow)=>{const hd=document.createElement('div');hd.textContent=h;hd.style.fontWeight='600';hd.style.marginTop='4px';disp.appendChild(hd);if(!items.length){const em=document.createElement('div');em.style.color='#888';em.textContent='(none)';disp.appendChild(em);return;}const ul=document.createElement('ul');items.forEach(c=>{const li=document.createElement('li');li.textContent=arrow?c.from+' → '+c.call: c.call+' → '+c.to;ul.appendChild(li);});disp.appendChild(ul);};sec('Calls from here ('+nd.calls.length+'):',nd.calls,false);sec('Calls that lead here ('+nd.incoming.length+'):',nd.incoming,true);};
   function markSel(){document.querySelectorAll('.node').forEach(nd=>{const c=nd.querySelector('.nd');const on=sel>=0&&(+nd.dataset.i===sel);c.setAttribute('stroke',on?'#111':'#00000022');c.setAttribute('stroke-width',on?'3':'1.2');});}
   function select(i){sel=sel===i?-1:i;markSel();paint();if(sel>=0)showNode(sel);else disp.textContent='Click a node to see its calls.';}
-  document.querySelectorAll('.node').forEach(nd=>nd.addEventListener('click',()=>select(parseInt(nd.dataset.i,10))));
+  // Selection SET, not toggled: used when a drag ends, so a node that was already selected stays
+  // selected instead of being toggled off by the release.
+  function selectOnly(i){sel=i;markSel();paint();showNode(i);}
+  // Node selection is driven from POINTERUP (see the simulation below), not from the click event:
+  // a drag ends with the node somewhere else under the cursor, so the browser often delivers no
+  // click at all, and when it does deliver one it would toggle the drag's selection straight back
+  // off. Pointerup already knows whether the gesture moved, so one handler covers both: a release
+  // that did not move toggles, a release that did move leaves the node selected.
   // ---- live force simulation: drag a node and the layout reflows/spreads ----
   (function(){
     const P=JSON.parse(document.getElementById('topo').textContent);
@@ -155,7 +162,7 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
     const K=130,CX=1000,CY=1000;
     const force=Array.from({length:n},()=>[0,0]);
     const apply=()=>{for(let i=0;i<n;i++){const g=nodes[i];if(g)g.setAttribute('transform','translate('+X[i].toFixed(1)+','+Y[i].toFixed(1)+')');}lines.forEach(L=>{const a=+L.dataset.a,b=+L.dataset.b;L.setAttribute('x1',X[a]);L.setAttribute('y1',Y[a]);L.setAttribute('x2',X[b]);L.setAttribute('y2',Y[b]);});};
-    let temp=0,pinned=-1,running=false;
+    let temp=0,pinned=-1,running=false,moved=false,fromX=0,fromY=0;
     function step(){
       for(let i=0;i<n;i++)force[i][0]=force[i][1]=0;
       for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){let dx=X[i]-X[j],dy=Y[i]-Y[j];const d=Math.hypot(dx,dy)||1e-3;const f=(K*K)/d;const ux=dx/d,uy=dy/d;force[i][0]+=f*ux;force[i][1]+=f*uy;force[j][0]-=f*ux;force[j][1]-=f*uy;}
@@ -166,9 +173,11 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
       if(temp>0.3||pinned>=0){requestAnimationFrame(step);}else{running=false;}
     }
     const toWorld=e=>{const r=svg.getBoundingClientRect();return [vb.x+(e.clientX-r.left)*(vb.width/r.width),vb.y+(e.clientY-r.top)*(vb.height/r.height)];};
-    nodes.forEach((g,i)=>{g.style.cursor='grab';g.addEventListener('pointerdown',e=>{e.stopPropagation();pinned=i;const p=toWorld(e);X[i]=p[0];Y[i]=p[1];apply();temp=Math.max(temp,22);if(!running){running=true;requestAnimationFrame(step);}});});
-    window.addEventListener('pointermove',e=>{if(pinned<0)return;const p=toWorld(e);X[pinned]=p[0];Y[pinned]=p[1];apply();});
-    window.addEventListener('pointerup',()=>{pinned=-1;});
+    nodes.forEach((g,i)=>{g.style.cursor='grab';g.addEventListener('pointerdown',e=>{e.stopPropagation();pinned=i;moved=false;fromX=e.clientX;fromY=e.clientY;const p=toWorld(e);X[i]=p[0];Y[i]=p[1];apply();temp=Math.max(temp,22);if(!running){running=true;requestAnimationFrame(step);}});});
+    window.addEventListener('pointermove',e=>{if(pinned<0)return;if(Math.abs(e.clientX-fromX)>3||Math.abs(e.clientY-fromY)>3)moved=true;const p=toWorld(e);X[pinned]=p[0];Y[pinned]=p[1];apply();});
+    // Release: a gesture that MOVED was a drag, so the node is left SELECTED (set, not toggled);
+    // a gesture that did not move was a click, and toggles as before.
+    window.addEventListener('pointerup',()=>{if(pinned>=0){if(moved)selectOnly(pinned);else select(pinned);}pinned=-1;});
     apply();
   })();
   </script></body></html>`;

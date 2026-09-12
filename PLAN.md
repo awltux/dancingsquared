@@ -2725,6 +2725,106 @@ of the six [B] boards") now asserts the opposite, because that gap is fixed.
 
 ---
 
+## Phase 9e-2 — SPECIFIED: port the reference's coded Mainstream calls (the "pairing derivation" is not the answer)
+
+I set out to design the pairing derivation. **Four measurements refuted it, and the reference's own
+architecture supplies the answer instead.** The evidence is below in the order it arrived, because the
+refutations are the useful part.
+
+### Refuted: "derive each variant's assumed pairing and require it"
+
+1. **The pairing is not in the data, anywhere.** Zero `<dancer>` elements in the whole catalogue carry
+   a couple attribute, so **every variant setup is `couple=0`** — which means `match.ts`'s
+   `identityScore` tie-break, the mechanism `Phase 7` records as *"the identity tie-break may only
+   choose between equally-good geometric matches"*, **can never fire for a call**. It only ever scores
+   a pair when BOTH sides carry a real couple. That is worth knowing on its own: the engine's
+   identity-aware matching is inert, and the cache key's `c${d.couple}` term is doing nothing.
+2. **A variant's motion is a fixed POSITION → POSITION map, identical whatever the pairing.** Measured
+   on All8's `[B1c]` board and on the identity-free `Eight Chain Thru` template (the same geometry,
+   different pairing): the map agrees **8 of 8** for `Touch a Quarter` and `Right and Left Thru`, and
+   8 of 8 for `Swing Thru` up to a `2e-16` rounding artefact. So pairing-blind matching does not move
+   anybody differently — it decides *which dancer* lands where. A partner spread after such a call is
+   a **consequence of the identity**, not of the selection.
+3. **The derivation itself works, and is sound under one rule.** Enumerate the 24 boy-girl pairings of
+   a formation's 8 dancers and keep those the motion preserves (every couple inside Promenade's band
+   before *and* after). Measured: `Swing Thru` from ECT → **1** compatible pairing; `Touch a Quarter`
+   → 1; `Right and Left Thru` → 4; `Pass Thru` → 4; `Box the Gnat` → 4; `Split Circulate` → 4;
+   `Recycle`/`Square Thru 4`/`Star Thru`/`Slide Thru` → 1; `Scoot Back` → 1; `Spin the Top` → 5; and
+   **`Boys Trade` → 0 and `Walk and Dodge` → 0** — the calls that *legitimately* separate partners.
+   So the rule that makes a coherence requirement sound is **"use the set only when it is non-empty"**,
+   which dissolves the objection Phase 9a raised. That part of my earlier worry was wrong.
+4. **But it cannot fix the observed failures.** On the boards that break, the only geometrically
+   matching variant is the one whose set excludes the board's pairing, so "prefer a compatible variant"
+   has nothing to prefer, and "refuse" would reject a call that was applied *correctly by position*.
+   And the reference confirms the arrangement is legitimate: its canonical `Eight Chain Thru`
+   (`formation.dart:1042`) is a **4-dancer box** — `B(-3,1)E, G(-3,-1)E, B(-1,-1)W, G(-1,1)W`, whose
+   couples are the **same-x pairs** — and our 8-dancer template is exactly that box plus its 180°
+   mirror. So the canonical pairing is `[B4c]`/`[B3r]`-like, and All8's `[B1c]`/`[B1p]` arrivals have
+   couples elsewhere. Refusing them would refuse real dancing.
+
+### The answer: the reference does not match these calls at all — it composes them from code
+
+`sequencer/calls/ms/swing_thru.dart` is 85 lines and its entire content is:
+
+```dart
+var canDoBoth = _dancersWhoCanDoBothParts(ctx);      // dancers in a wave on BOTH sides
+ctx.subContext(ctx.dancersHoldingSameHands(...), (ctx2) { ... ctx2.applyCalls('Trade'); });
+```
+
+and the other two calls that break couples most often in the figures are the same shape:
+
+| reference file | its whole implementation |
+|---|---|
+| `touch_a_quarter.dart` | `applyCalls('Step to a $leftHand Wave')` then `Hinge` / `Swing` / `Cast Off 3/4` by fraction |
+| `right_and_left_thru.dart` | `applyCalls('Pull By')` then `applyCalls('Courtesy Turn')` |
+
+**The reference never matches these calls positionally.** It asks the dancers *relationship* questions
+(`dancerToRight`, `dancerToLeft`, `isInWave`, `isInCouple`, `dancerFacing`, `dancersHoldingSameHands`)
+and composes from a small set of coded primitives. That is precisely **why the Mainstream `<tam>`s are
+`sequencer="no"`**: they are demonstrations, not the sequencer's model. **50 files** under
+`sequencer/calls/ms/` are the whole Mainstream repertoire in code.
+
+**A positional tam is authored for ONE arrangement and carries no identity, so it cannot help but
+assume a pairing. The answer is not to make matching smarter — it is not to use tams for these calls.**
+Our engine already does exactly this wherever upstream forced it: `Roll`, `Run`, `Trade` and now
+`Swing Your Partner` are all derived, and every one of them moved the corpus. This is the same move,
+generalised, and it is the design for 9e-2.
+
+### The plan, in measured impact order
+
+Each step is a transcription of the reference (never a re-derivation), lands under the existing
+`CodedMove` contract (a precondition over the board, a refusal with a reason, one definition shared by
+apply / replay / search), gets a `selection.mjs` gate, and is measured on the figures' tail stops, the
+get-out scoreboard and both verify tiers. `Trade` and `Swing` are **already ours**, so the first four
+rows are compositions of primitives we have plus a wave predicate.
+
+| # | call(s) | reference | measured size |
+|---|---|---|---|
+| 1 | `Swing Thru`, `Left Swing Thru`, `Alamo Swing Thru` | `swing_thru.dart` = two `Trade`s over the wave dancers | **6 figures** break couples on it — the top entry |
+| 2 | `Touch a Quarter` + `Touch a Half` / `3/4`, and `Left` forms | `touch_a_quarter.dart` + `touch.dart` | 5 figures + 3 corpus lines |
+| 3 | `Right and Left Thru` | `right_and_left_thru.dart` | 2 figures + 1 corpus line |
+| 4 | the primitives the above need: `Step to a Wave`, `Hinge`, `Pull By`, `Courtesy Turn` | `pass_the_ocean.dart`, `hinge.dart`, `pull_by.dart`, `courtesy_turn.dart` | unblocks 1–3 |
+| 5 | `Pass Thru`, `Slide Thru`, `Star Thru`, `Dive Thru`, `Scoot Back`, `Spin the Top`, `Bend the Line`, `Circulate` / `Split Circulate`, `Zoom`, `Fold` / `Cross Fold`, `Half Sashay`, `Rollaway`, `Wheel Around`, `Cast Off 3/4`, `Square Thru`, `Tag the Line`, `Separate`, `Split Two`, `Sweep a Quarter`, `Wheel and Deal`, `Dosado`, `Pass the Ocean`, `Quarter`/`Half`/`3/4 Tag`, `Double Pass`, `Single Circle`, `Turn Back`, `Face`, `California Twirl`, `Clover and`, `Chain Down the Line`, `Balance`, `Allemande Left`, `Weave the Ring`, `Grand Square`, `Around to a Line` | the remaining `sequencer/calls/ms/*.dart` | the rest of the tail and much of the mid-body |
+
+Why this beats the derivation on every axis that matters here: it is **transcribed rather than
+derived** (this repo's rule), it is **relationship-driven**, so the pairing problem does not arise —
+the code asks the board instead of assuming an arrangement — and it is **incremental and cheap per
+step**, with the two most valuable primitives already written.
+
+### Two corrections recorded from this round
+
+- **The `(N)` marker on All8's figure page does NOT mean "a finish applies here".** The preamble says
+  *"`(3)` - get-outs to AL, RLG, or Prom"*, i.e. **a get-out path EXISTS from that position and ends at
+  one of those**. My probe tested it as "AL/RLG/Promenade applies immediately" and reported 31 of 89
+  markers failing — **that reading is wrong**, those markers need a *search*, which is what `getout`
+  does. The probe's real finding survives: **91 of 180 markers sit behind a body the engine cannot even
+  walk to**, which is a coverage statement, not a resolve statement.
+- **The marker probe's premise is a good oracle once read correctly**: each marker asserts "a get-out
+  exists here", which makes All8's page a ready-made, authored test suite for `getout` — path
+  existence, not immediate resolution.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

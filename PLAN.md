@@ -2969,6 +2969,74 @@ specification rather than a search.
 
 ---
 
+## Phase 9e-2, row 1 — DONE: `Swing Thru` and `Left Swing Thru` derived
+
+`engine/src/sequencer/swing-thru.ts` implements both arms; the two calls are registered in
+`coded-moves.ts`; `selection.mjs` gates them. Everything below is **measured**, not asserted:
+
+| check | result |
+|---|---|
+| `Ocean Waves` / `Swing Thru` and / `Left Swing Thru` | **MATCH** the authored tams, 8 of 8 dancers, positions and facings |
+| `Eight Chain Thru` / `Swing Thru` and / `Left Swing Thru` | **MATCH** the catalogue's own application, 8 of 8 |
+| 26 corpus `Swing Thru` applications: derived vs the catalogue's applicator | **1 differs, 0 collisions** |
+| that one difference | `[L1p]` — derived **applies** (two boxes) where the catalogue **refuses**. A gain, not a loss |
+| figures run end-to-end | **8 of 188**, unchanged |
+| corpus lines reaching the finish | **135 finish + 10 resolve** (was 135 + 9; one line moved finish→resolve, none lost) |
+| `npm run verify` | green, 19 harnesses |
+
+### `catalogueFallback`: how a call can be ported without being able to regress it
+
+The constraint from the previous section is real — a coded move shadows the catalogue and a refusal is
+final — so the port needed a way to *decline*. `CodedMove.catalogueFallback` is that flag, and the
+contract is narrow on purpose: a flagged move's **result is used when it applies** and, when it
+**refuses**, the sequencer falls through to the catalogue exactly as if the coded move did not exist
+(`sequencer.ts:87` returns `null` before the refusal is returned). So a flagged call can only ever
+**add** capability. That is what makes row 1 shippable while rows 2–5 are still unported, and it is
+what the remaining port should use until a row is proven to equal or beat the catalogue everywhere.
+The flag is not a substitute for the measurement: the 26-application diff above is what shows both
+paths now agree wherever both apply.
+
+### Two things the landed code had to get right, both found by measurement
+
+1. **Handedness in the Facing Couples arm.** The momentary wave's facing pattern along the line is
+   **mirrored for `Left Swing Thru`** — CALLERLAB has a left call step into a momentary *Left*-Hand
+   wave. The first build used one pattern for both, and the symptom was precise: `Eight Chain Thru`
+   matched for `Swing Thru` but not for `Left Swing Thru`, the two results differing by **which slot
+   each dancer took**. With the mirror, all four validations match and the three corpus differences
+   that came from it disappear. This is the second time in this row that a hand-relation guessed by
+   reading — rather than measured — was wrong.
+2. **The momentary wave is reconstructed from a specification, not searched for.** It is a canonical
+   four-dancer wave centred on the box's centre, its line perpendicular to the couples' facing axis,
+   slots two apart; each dancer takes the same-facing slot that moves it least (24 assignments,
+   enumerated). Nothing in the arm is tuned to the tam: the cost function is "moves least", which is
+   the physical statement of the step.
+
+### What row 1 still does NOT cover
+
+- **Alamo Ring** is named by CALLERLAB as a starting formation and is not implemented: the wave arm
+  needs mutual same-side hand pairs, and a ring rarely provides them, so the call will fall through to
+  the catalogue there (`catalogueFallback`), which is the honest outcome until it is measured.
+- **Facing Lines** — CALLERLAB generalises the Facing Couples Rule to *"Facing Lines step to a
+  Right-Hand Tidal Wave"*, danced in the wave on each half with no dancer crossing the centre. The
+  box arm does not cover it; the catalogue handles it today.
+- `Swing` (the other half of row 1) is untouched; it stays with the geometric pairing and Normal
+  Couple ending recorded in the 9e-1 section.
+
+### Where this leaves the port (rows 2–5, unchanged)
+
+1. ~~`Swing Thru`, `Left Swing Thru`~~ — **DONE, this section.**
+2. `Touch a Quarter` family (`Touch 1/4`, `Touch 1/2`, …) — 5 figures break on it.
+3. `Right and Left Thru`.
+4. The primitives (`Step to a Wave`, `Hinge`, `Pull By`, `Courtesy Turn`) that rows 2–3 and much of
+   the remaining `ms/` set are built from.
+5. The remaining files in `taminations-flutter/lib/sequencer/calls/ms/`.
+
+The method that worked here is the method for the rest: transcribe the reference's rule, validate it
+against the engine's own authored motion **before** writing engine code, then diff derived-against-
+catalogue over the corpus to see what the change actually costs.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

@@ -22,6 +22,7 @@ import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf,
 import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS, PROMENADE_COUPLE_MIN, PROMENADE_COUPLE_MAX } from './promenade.js';
 import { isKnownCouple } from './constants.js';
 import { runRule, tradeRule } from './trade-run.js';
+import { swingThru } from './swing-thru.js';
 import type { Board } from './types.js';
 
 /** Timeline length of a coded pivot, in beats. */
@@ -39,6 +40,10 @@ export const ROLL_BEATS = 1.5;
  * `ms/swing.xml` tam carries, so the timeline does not shift when the derived call replaces it —
  * the same reason `RUN_TRADE_BEATS` copies the authored Run/Trade tams. */
 export const SWING_BEATS = 9;
+
+/** Timeline length of `Swing Thru`, in beats: CALLERLAB's own `Timing: 6` for the call, and the
+ * authored tams agree closely enough that the timeline does not shift materially. */
+export const SWING_THRU_BEATS = 6;
 
 /**
  * `Swing Your Partner` — the Mainstream swing — as a DERIVED call, because its authored motion is
@@ -170,6 +175,21 @@ export interface CodedMove {
    * rejects it), because `Trade` and `Run` have no whole-set reading: they always name a
    * subset ("Boys Trade", "Centers Run"). */
   applyToSelection?(board: Board, selectedIds: number[]): { board: Board } | { reason: string };
+  /** Whether the CATALOGUE may handle this call when the derived rule declines it.
+   *
+   * This exists for a call that is being ported IN PIECES, and it is a deliberate, temporary
+   * property rather than a convenience: a coded move shadows the catalogue, so without it a
+   * partially ported call REFUSES boards the catalogue handles correctly, and a refusal is not
+   * free when the call is legal there. `Swing Thru` is the case — its wave and Facing Couples arms
+   * are derived and validated, and a board of facing LINES still needs the catalogue until that
+   * arm lands (CALLERLAB generalizes the Facing Couples Rule to "Facing Lines step to a
+   * Right-Hand Tidal Wave").
+   *
+   * A move WITHOUT this flag refuses as before, which is the right default: `Swing Your Partner`
+   * declining is a real answer about the call, not a missing arm. The gate for this is
+   * `selection.mjs`, which lists exactly which formations still fall through, so removing an arm
+   * from the list is a deliberate edit. */
+  catalogueFallback?: boolean;
 }
 
 const DEFS: {
@@ -178,6 +198,7 @@ const DEFS: {
   beats?: number;
   precondition?: (b: Board) => string | null;
   applyToSelection?: (b: Board, ids: number[]) => { board: Board } | { reason: string };
+  catalogueFallback?: boolean;
 }[] = [
   { aliases: ['Face Right', 'Turn Right', 'Right Face'], fn: (b) => applyMoveToBoard(b, FaceRight) },
   { aliases: ['Face Left', 'Turn Left', 'Left Face'], fn: (b) => applyMoveToBoard(b, FaceLeft) },
@@ -242,6 +263,28 @@ const DEFS: {
     precondition: swingProblem,
     fn: swingRule,
   },
+  // `Swing Thru`: derived because the reference never matches it positionally - it asks relationship
+  // questions and applies `Trade` twice - and CALLERLAB's definition says the same ("those who can
+  // turn 1/2 by the right; then ... by the left", from a wave, with the Facing Couples Rule
+  // generalising it to facing couples). See swing-thru.ts for the two validated arms.
+  {
+    aliases: ['Swing Thru'],
+    beats: SWING_THRU_BEATS,
+    precondition: (b) => swingThru(b, false).reason ?? null,
+    fn: (b) => swingThru(b, false).board,
+    // PARTIALLY PORTED: the wave and Facing Couples arms are derived and validated, but a board of
+    // facing LINES still needs the catalogue (the arm for it is the next step). Measured before this
+    // flag existed: without it the derived call refuses those boards and costs 1 figure and 3
+    // published get-out lines, which is not an honest gap - the call is legal there.
+    catalogueFallback: true,
+  },
+  {
+    aliases: ['Left Swing Thru'],
+    beats: SWING_THRU_BEATS,
+    precondition: (b) => swingThru(b, true).reason ?? null,
+    fn: (b) => swingThru(b, true).board,
+    catalogueFallback: true,
+  },
 ];
 
 export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
@@ -251,6 +294,7 @@ export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   ...(d.precondition ? { precondition: d.precondition } : {}),
   ...(d.fn ? { apply: d.fn } : {}),
   ...(d.applyToSelection ? { applyToSelection: d.applyToSelection } : {}),
+  ...(d.catalogueFallback ? { catalogueFallback: true } : {}),
 })) as CodedMove[];
 
 /** Canonical display names of the coded moves, in registration order. */

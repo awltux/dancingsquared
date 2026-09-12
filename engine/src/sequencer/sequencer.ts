@@ -80,7 +80,13 @@ export class Sequencer {
    * when `name` is not a coded move at all, so the catalogue can handle it. */
   private tryCodedMove(board: Board, name: string): { board: Board; legal: boolean; reason?: string } | null {
     const whole = applyCodedMove(board, name);
-    if (whole) return whole;
+    if (whole) {
+      // A move that does not apply may DECLINE and let the catalogue try, which is how a call being
+      // ported in pieces avoids refusing boards the catalogue still handles correctly (see
+      // `CodedMove.catalogueFallback`). Without the flag a refusal is final, as it was before.
+      if (!whole.legal && findCodedMove(splitSelection(name).call)?.catalogueFallback) return null;
+      return whole;
+    }
     // A coded move with a dancer selection, e.g. "Girls U-Turn Back": the selected
     // dancers pivot and everyone else stays put. This has to be handled HERE rather
     // than in the applicator's selection path, because coded moves are per-dancer

@@ -28,8 +28,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS, matchFormations } from '../dist/index.js';
+import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS, matchFormations, PROMENADE_COUPLE_MAX } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
+import { startBoardFor } from './lib/all8-boards.mjs';
 // Deep import, like bind-audit.mjs does for internal collaborators: boardSig is deliberately NOT
 // part of the package's public surface.
 import { boardSig } from '../dist/sequencer/board.js';
@@ -856,6 +857,87 @@ console.log('\n== the NON-GEOMETRIC inputs to matching are exactly two, and both
     const r = seq.applyToBoard(mixed, 'Girls Cross Run');
     if (r.legal) fail('a MIXED ends/centres selection used a group-scoped call - refusing it was the point');
     else ok('a gender selection that mixes ends with centres still cannot borrow the scoped call');
+  }
+}
+
+console.log('\n== the SAME geometry, SIX authored pairings: an identity-blind match splits couples ==');
+// KNOWN DEFECT, PINNED (PLAN.md Phase 9a). This is the measured root cause of the figure page's
+// 76-figure tail, and it is not a body bug in the ordinary sense: the body calls are all legal and
+// every board it reaches is a real, recognised formation.
+//
+// All8 publishes SIX alignments of the Box / 8-Chain family (B1c, B2r, B4c, B3r, B1p, B2p). They
+// share ONE geometry - all 8 positions and facings - and differ only in WHICH dancer is in which
+// couple. That makes them an oracle for the one thing the engine cannot otherwise check: the
+// variants in the catalogue are authored with `couple=0`, so nothing in the data says which pairing
+// a variant's motion assumes.
+//
+// Applied to those boards, the same call keeps couples together on some and splits them on others.
+// A caller would say the call simply does not apply in the pairings where it splits them, so the
+// honest behaviour is to REFUSE (or to choose a variant that fits); what the engine does instead is
+// apply motion authored for a different pairing, silently.
+//
+// The assertion below pins TODAY'S behaviour so a fix has to flip it deliberately. When the engine
+// learns to select on the pairing - or to refuse a variant whose motion would split a couple - the
+// `spreads` counts must fall and these two lines must be rewritten on purpose.
+{
+  const fixture = path.join(__dirname, 'fixtures', 'all8-getouts.json');
+  const corpus = JSON.parse(readFileSync(fixture, 'utf8'));
+  const boards = {};
+  for (const id of ['B1c', 'B2r', 'B4c', 'B3r', 'B1p', 'B2p']) {
+    const a = (corpus.alignments ?? []).find((x) => x.id === id);
+    const s = a ? startBoardFor(seq, a) : { board: null };
+    if (s.board) boards[id] = s.board;
+  }
+  const ids = Object.keys(boards);
+  if (ids.length !== 6) {
+    fail(`expected All8's six [B] alignment boards, built ${ids.length} (${ids.join(' ')}) - the gate below proves nothing`);
+  } else {
+    // (1) the load-bearing premise: the six boards share their geometry, so NOTHING positional can
+    // tell them apart. Sorted `x,y,heading,gender` is the geometry plus the gender layout.
+    const geo = (b) => b.dancers.map((d) => `${pos(d)},${face(d.heading)},${d.gender}`).sort().join(' ');
+    if (new Set(ids.map((id) => geo(boards[id]))).size !== 1) {
+      fail('the six [B] boards do NOT share one geometry - the premise of this gate is wrong');
+    } else {
+      ok(`all six [B] alignments share one geometry (positions, facings and gender layout) - only the couple pairing differs`);
+    }
+    const sameFormation = ids.filter((id) => seq.knownFormation(boards[id]) === 'Eight Chain Thru').length;
+    if (sameFormation !== ids.length) fail(`only ${sameFormation}/6 of them recognise as Eight Chain Thru`);
+    else ok('all six recognise as the same formation, so no positional test can separate them');
+
+    // (2) partner separations, by IDENTITY, using the band Promenade's own precondition uses.
+    const spreads = (b) => {
+      const seen = new Set();
+      let worst = 0;
+      for (const d of b.dancers) {
+        if (!d.couple || seen.has(d.couple)) continue;
+        seen.add(d.couple);
+        const p = b.dancers.find((x) => x.id !== d.id && x.couple === d.couple);
+        if (p) worst = Math.max(worst, Math.hypot(p.x - d.x, p.y - d.y));
+      }
+      return worst;
+    };
+    const report = (call, id) => {
+      const r = seq.applyToBoard(boards[id], call);
+      return r.legal ? spreads(r.board) : null;
+    };
+
+    for (const call of ['Swing Thru', 'Touch a Quarter', 'Right and Left Thru']) {
+      const kept = ids.filter((id) => { const w = report(call, id); return w !== null && w <= PROMENADE_COUPLE_MAX; });
+      const split = ids.filter((id) => { const w = report(call, id); return w !== null && w > PROMENADE_COUPLE_MAX; });
+      if (split.length === 0 || kept.length === 0) {
+        fail(`${call}: expected it to keep couples on SOME of the six authored pairings and split them on others; kept ${kept.length}, split ${split.length} - the defect may be fixed (good) or the gate is stale`);
+      } else {
+        ok(`${call} on the six authored pairings: keeps couples on ${kept.join(',')} but spreads them to ${split.map((id) => `${id}=${report(call, id).toFixed(2)}`).join(' ')} - KNOWN DEFECT, PINNED`);
+      }
+    }
+
+    // (3) and the tail itself is a SEPARATE gap: no form of Swing applies from ANY of the six.
+    const anySwing = ids.filter((id) => ['Swing', 'Swing Your Partner', 'Swing Your Corner'].some((c) => seq.applyToBoard(boards[id], c).legal));
+    if (anySwing.length === 0) {
+      ok('no form of Swing applies from any of the six [B] boards - the tail is an applicability gap independent of (2)');
+    } else {
+      ok(`a Swing applies from ${anySwing.join(',')} - re-measure the tail (PLAN.md Phase 9a)`);
+    }
   }
 }
 

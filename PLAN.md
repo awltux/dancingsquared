@@ -2377,6 +2377,74 @@ Outsides").
 
 ---
 
+## Phase 9a — DONE (diagnosis): the tail's root cause is IDENTITY-BLIND MATCHING
+
+**The diagnosis 9a asked for is done, and the answer is neither of the two options the plan offered.**
+It is not "the bodies are wrong" in the ordinary sense — every call in them is legal and every board
+they reach is a real, recognised formation — and it is not "the tail needs more `Swing` variants".
+It is that **the engine selects a variant by geometry alone, and these boards share their geometry
+with five other *identity* arrangements.**
+
+### The oracle that settles it
+
+All8 publishes **six alignments of the Box / 8-Chain family** — `B1c B2r B4c B3r B1p B2p` — and
+they are the perfect instrument, because they share **one geometry** and differ only in which dancer
+belongs to which couple. Gated in `selection.mjs`: positions, facings *and the gender layout* are
+identical across all six; only the couple pairing differs. Nothing positional can separate them.
+
+Applied to those six boards, the SAME call:
+
+| call | keeps couples together on | SPREADS them on |
+|---|---|---|
+| `Swing Thru` | `B4c B3r` | `B1c=5.66  B2r=5.66  B1p=4.00  B2p=4.00` |
+| `Touch a Quarter` | `B1p B2p` | `B1c=6.00  B2r=6.00  B4c=4.00  B3r=4.00` |
+| `Right and Left Thru` | `B4c B3r B1p B2p` | `B1c=6.00  B2r=6.00` |
+
+A caller would say the call simply **does not apply** in the pairings where it splits couples. The
+engine instead applies motion authored for a different pairing, **silently**. This is the recorded
+Phase 4 reasoning again — *a mirrored candidate must never decide an arrangement* — one level up: a
+variant authored for one pairing must not decide a call on another, when nothing in the data can
+tell them apart. And nothing can: **every `<tam>` setup in the catalogue is authored with
+`couple=0`**, so there is no authored pairing to compare against. That is now gated and pinned
+(`selection.mjs`, "the SAME geometry, SIX authored pairings"), so a fix must flip the assertion
+rather than quietly change a number.
+
+### Why this is the tail's cause, measured
+
+Using the engine's own definition of "standing as a couple" (Promenade's precondition band,
+`1.0 .. 3.0`), walking every figure and every published get-out line:
+
+- **17 of the 17** figures that stop at the final `Promenade` had **already** stopped standing as a
+  couple before the tail. None was coherent when the tail refused.
+- The call that first breaks it, in the figures: `Swing Thru` 6, `Touch 1/4` 5, `Extend` 2,
+  `Right and Left Thru` 2, `Step to a Wave` 1, `Slide Thru` 1.
+- In the get-out corpus, **33 of 108** resolve-ending lines that stop had already stopped standing
+  as couples; top breakers `Hinge` 4, `Dive Thru` 3, `Boys Trade` 3, `Centers Touch 1/4` 3,
+  `Pass Thru` 2, `Girls Circulate` 2.
+
+So the tail's `Promenade` refusals are the precondition **doing its job** — the corruption happened
+upstream, which is Phase 4's finding over again ("the finish stops were a symptom; the cause is in
+the body"), with the cause now named.
+
+### And the tail is a SECOND, independent gap
+
+`Swing`, `Swing Your Partner` and `Swing Your Corner` refuse from **all six** `[B]` boards, and the
+earlier measurement stands: no form of `Swing` applies from a Static Square, from the allemande-left
+pose, or from `Eight Chain Thru` / `Trade By` / `Lines Facing Out` / `Two-Faced Lines`. It applies
+from `Normal Lines` (the 4-dancer `Facing Couples` variants partitioning) and from `Ocean Waves`
+(for the a2/slip wave family that currently holds the name). Fixing the pairing corruption will let
+bodies reach *coherent* boards — but a coherent `Eight Chain Thru` still cannot be Swung, so the two
+fixes are independent and both are needed. Pinned too.
+
+### What this changes about 9b, 9c, 9d
+
+Nothing — they stand as written, and 9b's measured zero is confirmed by this: no bridge can repair a
+pairing the matcher chose wrongly. What it does change is the *order*: the identity fix is now a
+well-posed engineering question (select on the pairing, or refuse a variant whose motion would split
+a couple), not a hunt, and it is the only item that can move the 76.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

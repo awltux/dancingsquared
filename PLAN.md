@@ -2445,6 +2445,50 @@ a couple), not a hunt, and it is the only item that can move the 76.
 
 ---
 
+## Phase 9b — DONE: the rest of the bridge, and its measured zero
+
+Phase 6's "Still open" said *"the rest of the bridge is unwritten"*. Done, by a **procedure rather
+than a reading**: normalise every remaining declared gap against `implementedTitles()` and look for
+ones that are the same call under another spelling. Two were, and they are the two biggest:
+
+| All8's name | catalogue title | evidence |
+|---|---|---|
+| `1/2 Tag` (**13 figure stops**) | `Half Tag` | the key's `1/2Tg  1/2 Tag`, and the key reads `1/2` as "Half" itself in the next family it abbreviates (`Pr1/2` = "Promenade Half Way Around") |
+| `Right-hand Star` (5) | `Right Hand Star` | the key's `RStar  Right-hand Star  (also StarR)`, and the key's punctuation table says a hyphen in a call name means nothing |
+
+Both went into `CALL_SYNONYMS` (the table stays a record of what All8 *prints*; the bridge is where
+engine naming lives, per the `Eight Chain N` precedent), and the **stale-gap check demanded their
+removal from `KNOWN_CATALOGUE_GAPS` the moment the bridge existed** — the gate doing exactly what it
+was built for, as it did for `Single Hinge` in Phase 6.
+
+Three near-misses were deliberately NOT bridged, because they are equivalence *decisions* rather than
+spellings and each needs its own evidence: `All 8 Circulate 1 1/2` → `Circulate 1 1/2` (Phase 5c's
+dispatch says the two coincide **from a wave only**), `All Promenade 1/2` → `All 4 Couples Promenade
+1/2`, and `Split the Outside Couple` → `Centers Split the Outside Couple`.
+
+### Measured — and it is a cleanup, not progress
+
+| | before | after |
+|---|---|---|
+| figures: calls the engine "does not have" | 22 | **20** (all declared gaps) |
+| declared catalogue gaps (conformance gate) | 31 | **29** |
+| figures that run end-to-end | 1 | **1** |
+| figures stopping at the tail | 60 `Swing` / 17 `Prom` | **61 `Swing` / 21 `Prom`** |
+| GETOUT BEHAVIOUR: reached the finish and applied it | 133 | **134** |
+| GETOUT BEHAVIOUR: stopped only at the finish | 57 | 60 |
+
+So 18 figures change *where* they stop and **not one more runs to the end** — every one advances to
+the tail, which Phase 9a has now explained. Exactly the zero the plan predicted before implementing,
+which is the point of measuring first: this is worth doing (two false gaps removed, 18 stop-points
+made honest, one corpus line finished) and it is not progress on the target suite.
+
+**And it surfaced a new finding.** `Centers Left Hand Star` becomes a stop for **5** figures. That is
+a *selection* (`Centers`) over an *implemented* base (`Left Hand Star`), so it is not a naming
+problem — it is an **applicability** failure, and it belongs to Phase 9a's class rather than to the
+bridge.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

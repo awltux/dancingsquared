@@ -514,9 +514,13 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   // engine's `Hinge` in CALL_SYNONYMS, which is where All8's own key puts them ("Hinge
   // {designated} Hinge (prefer SHing if designating all)"; "LHing ... Hinge by the Left"). The
   // gate's stale-gap check is what caught each of them in turn.
-  'Right-hand Star',
+  // `Right-hand Star` and `1/2 Tag` are NOT here any more: Phase 9b bridged both in
+  // CALL_SYNONYMS, because normalising them against `implementedTitles()` showed they are the SAME
+  // CALL under another spelling (`Right Hand Star`; `Half Tag`) rather than gaps. The stale-gap
+  // check demanded their removal the moment the bridge existed, which is the gate doing its job -
+  // the same way it caught `Single Hinge` and `Left Hand Hinge` in Phase 6 and the `Eight Chain N`
+  // family before that.
   'Sweep 1/4',
-  '1/2 Tag',
   // `Eight Chain 1` .. `Eight Chain 5` USED TO BE HERE, and they were WRONG. The catalogue does
   // implement them - it spells the number out (`Eight Chain One` .. `Eight Chain Seven`) while All8
   // writes the digit - and the bridge is the digit-to-text loop in CALL_SYNONYMS. This copy of the

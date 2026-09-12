@@ -129,6 +129,28 @@ export const CALL_SYNONYMS: Record<string, string> = {
   // the other hand, and `Hinge` is authored from the LEFT-HAND boxes, waves, columns, two-faced
   // lines and tidals as well as the right-hand ones, so the catalogue covers it the same way.
   'Left Hand Hinge': 'Hinge',
+  // ---------------------------------------------------------------------------------------------
+  // PHASE 9b: the rest of the bridge, found by NORMALISING every remaining declared gap against
+  // `implementedTitles()` rather than by reading the key. Two of the figures suite's 22 declared
+  // gaps are not gaps at all - they are the same call under a different spelling - and these are
+  // the largest two:
+  //
+  //   `1/2 Tag` (13 figure stops, the single biggest item on that list). All8's key:
+  //       `1/2Tg  1/2 Tag`
+  //   and it reads `1/2` as "Half" itself in the very next family it abbreviates:
+  //       `Pr1/2  Promenade Half Way Around`
+  //   The catalogue titles the call `Half Tag` (`ms/fraction_tag.xml`, beside `Left Half Tag` and
+  //   the `3/4 Tag the Line` forms), so this is a pure spelling difference.
+  '1/2 Tag': 'Half Tag',
+  //   `Right-hand Star` (5 figure stops). All8's key:
+  //       `RStar  Right-hand Star  (also StarR)`
+  //   The catalogue titles it `Right Hand Star` (`ms/star.xml`) - identical but for the hyphen,
+  //   which All8's own punctuation table says carries no meaning inside a call name.
+  'Right-hand Star': 'Right Hand Star',
+  // NOT bridged, because they are equivalence decisions rather than spellings, and each needs its
+  // own evidence: `All 8 Circulate 1 1/2` -> `Circulate 1 1/2` (Phase 5c's dispatch says the two
+  // coincide FROM A WAVE only), `All Promenade 1/2` -> `All 4 Couples Promenade 1/2`, and
+  // `Split the Outside Couple` -> `Centers Split the Outside Couple`.
 };
 
 // ---------------------------------------------------------------- number words

@@ -2443,6 +2443,30 @@ pairing the matcher chose wrongly. What it does change is the *order*: the ident
 well-posed engineering question (select on the pairing, or refuse a variant whose motion would split
 a couple), not a hunt, and it is the only item that can move the 76.
 
+### Two constraints on the fix, measured, so they are not re-discovered
+
+The obvious fixes do not survive measurement, and both were checked before writing either note:
+
+1. **"Compare the variant's couple labels against the board's" is impossible.** Measured across the
+   whole catalogue: **zero** `<dancer>` elements carry a couple attribute (`<dancer[^>]*couple=`
+   matches nothing in `poc/src/assets`), and every variant setup built from a named formation comes
+   out with `couple=0`. There is no authored pairing anywhere to compare against. So the engine's
+   `couple` field means *home identity* (which of couples 1–4 a dancer belongs to), never "who this
+   variant assumes is standing together".
+2. **"Refuse any application that spreads a couple" is UNSOUND**, not merely strict. It would reject
+   `Boys Trade`, which legitimately changes partner separation — the boys trade with each other while
+   their partners stand. The corpus's breaker list contains exactly such calls (`Boys Trade` 3,
+   `Hinge` 4, `Girls Circulate` 2, `Pass Thru` 2), so a blanket guard would convert legal choreography
+   into refusals. This is the Phase 4i lesson in advance: a refusal costs capability and must be
+   measured, not assumed.
+
+**What is left, and it is derivable without new data:** a variant's motion *implies* the pairing it
+assumes, because the paths pair dancers up. So the compatible pairings can be computed **from the
+variant itself** — apply it to a canonical board under each authored pairing and keep the ones it
+does not corrupt — and then match only when the board's pairing is in that set. The six `[B]`
+alignments gated above are a ready-made test bed for deriving and checking it, and 24 (4! pairings)
+bounds the search. That is the design for the next round; it replaces both of the naive fixes.
+
 ---
 
 ## Phase 9b — DONE: the rest of the bridge, and its measured zero

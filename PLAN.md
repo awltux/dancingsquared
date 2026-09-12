@@ -2489,6 +2489,84 @@ bridge.
 
 ---
 
+## Phase 9c — PARTIAL: `Facing Couples` at separation 6, and the variant that had to be taken back
+
+Two of the three variants shipped; the third **regressed the corpus and was reverted**, which is the
+most useful thing this phase produced.
+
+### Shipped
+
+The 13 first-call failures were three calls refusing on the four heads of a Static Square, which are
+two facing couples **6 apart**. The authorings that existed were at separation 4 (b1) and 3 (ms), so
+nothing matched. Following the procedure the plan has now used four times — `scaleX = separation / 2`,
+formation written inline at `x = -3` so the engine's mirror puts the other couple at `+3`, everything
+else copied unchanged — gives `scaleX = 3`:
+
+- `ms/right_and_left_thru.xml` — `Pull Left`/`Extend Right` at `scaleX="3"` (`Beau`/`Belle Wheel`
+  not scaled: the courtesy turn is taken at the end, not part of the travel).
+- `ms/touch_a_quarter.xml` — `Extend Left` at `scaleX="3"` (`Hinge Right` not scaled, same reason).
+
+### Measured
+
+| | before | after |
+|---|---|---|
+| figures failing at call 0 | 13 | **6** |
+| legal calls from a Static Square (the blast radius) | 232 | **233** |
+| GETOUT BEHAVIOUR: reached the finish and applied it | 134 | **134** (unchanged) |
+| figures that run end-to-end | 1 | 1 |
+| `Heads Right and Left Thru` / `Heads Touch 1/4` among the stopping calls | 6 / 4 | **gone** |
+
+The blast radius the plan warned about did **not** materialise: heads and sides are both facing-couple
+boxes so the new variant does let the whole board tile, but the only call that becomes newly legal
+from a Static Square is `Right and Left Thru` itself — **+1**, not a flood. And the motion keeps every
+couple 2.00 apart, so it does not touch the identity-coherence defect Phase 9a pinned.
+
+### The one behaviour change, and the open question it leaves
+
+`matrix.mjs` caught it, which is what that gate is for: **bare `Right and Left Thru` is now legal
+from a Static Square**, where it used to be refused. The whole-board tiling applies it to all four
+couples, and the result is a single rigid transform of the home set — the 180° rotation, each couple
+trading with the couple across — measured exact (residual `6.3e-16`), with every couple 2.00 apart
+and **no get-out corpus regression**. The gate was moved from `nonRigid` (where it had been reporting
+`not legal from home; skipped`) to `rigidCalls`, with the reasoning in the harness, so a later change
+that makes it non-rigid from home has to be deliberate.
+
+**The open question, recorded rather than settled: would a caller SAY "Right and Left Thru" from a
+squared set without designating?** That is a caller convention, not a geometry fact, and the engine
+now says yes because the set genuinely tiles into two facing-couple boxes at separation 6. It is the
+Phase 4i reading ("a call acts on everyone it applies to"), and the plan flagged this exact side
+effect in advance as wanting its own round. It is noted here as *asserted and pinned* rather than
+silently adopted; if the convention is that a designator is required, the fix is a policy on
+whole-board tiling at a squared set, not a change to this variant.
+
+### Taken back: `Box the Gnat` at separation 6 — authored the same way, and it cost 5 get-out successes
+
+The third call in the same group (`Heads Box the Gnat`, 4 figures) was authored by the same rule
+(`x2 = separation/2 + 1` → 4, formation inline at `x = -3`). Applied, it took GETOUT BEHAVIOUR's
+**reached the finish from 134 to 129** — a regression against the gate the plan itself names for this
+kind of change. Isolated by stashing each variant in turn and rebuilding:
+
+```
+all three            129   <- the loss
+Right and Left Thru  134   <- clean
++ Touch a Quarter    134   <- clean
++ Box the Gnat       129   <- the loss, alone
+```
+
+So the two shipped and this one is reverted, with the record kept because **the argument that would
+have shipped it is the argument this repo trusts**: "same procedure, same law, four precedents". The
+measurement says the law holds for a `Pull`/`Extend` scaling but not, as authored, for this one.
+
+**The lead, stated so it is not guessed at next time.** The upstream authorings scale **only `x2`**:
+`cx1="1" cx2="2"` are the SAME at separation 3 (`x2=2.5`) and separation 4 (`x2=3`), and the
+separation-2 variant added in Phase 4e copied that with `x2=2`. Extrapolating the same lopsided
+scaling to separation 6 (`x2=4`) is what regressed. The next attempt should **measure the variant's
+own end state** at separation 6 — the same `bestGroup`/`fullBoard` and end-board probes the other
+separation fixes used — rather than scale another term by the same ratio. `Heads Box the Gnat` stays
+one of the 6 remaining first-call failures until that is done.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

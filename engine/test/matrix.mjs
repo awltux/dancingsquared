@@ -54,8 +54,22 @@ for (const f of fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'))) {
 }
 const { buildCatalog, makeSequencer } = await import('../../poc-teacher/src/catalog.ts');
 const seq = makeSequencer(movesXml, formationsXml, buildCatalog(files));
-const rigidCalls = ['Circle Left 1/4', 'Circle Right 1/4', 'All 4 Couples Promenade 1/4'];
-const nonRigid = ['Right and Left Thru', 'Heads Promenade 1/2', 'Spin the Top', 'Star Thru'];
+// PHASE 9c MOVED `Right and Left Thru` FROM `nonRigid` TO `rigidCalls`, and it is a BEHAVIOUR
+// CHANGE that is asserted rather than assumed. It used to be refused from home - so the `nonRigid`
+// loop reported "not legal from home; skipped" - because no `Facing Couples` authoring matched two
+// couples SIX apart. The separation-6 variant added in Phase 9c for `Heads Right and Left Thru`
+// also lets the whole board tile (heads and sides are both facing-couple boxes at separation 6), so
+// bare `Right and Left Thru` now applies to ALL FOUR couples, and the result is a single rigid
+// transform of the home set: the 180-degree rotation, i.e. each couple trades with the couple
+// across, which is what "everyone right and left thru" does. Measured, not assumed - the fit is
+// exact, every couple stays 2.00 apart, and the get-out corpus does not regress.
+//
+// The open question is whether a caller SAYS it from a squared set without designating; that is a
+// caller convention rather than a geometry fact and is recorded in PLAN.md Phase 9c. What is gated
+// here is that IF it applies, it applies as ONE rigid motion, so a later change that makes it
+// non-rigid from home has to be made deliberately.
+const rigidCalls = ['Circle Left 1/4', 'Circle Right 1/4', 'All 4 Couples Promenade 1/4', 'Right and Left Thru'];
+const nonRigid = ['Heads Promenade 1/2', 'Spin the Top', 'Star Thru'];
 for (const call of rigidCalls) {
   seq.reset();
   const start = seq.startBoard();

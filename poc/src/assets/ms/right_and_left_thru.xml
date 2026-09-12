@@ -38,6 +38,40 @@
     </path>
   </tam>
 
+  <!-- SEPARATION SIX. The authorings above are for couples THREE (Facing Couples Compact) and FOUR
+       (Facing Couples, b1) apart; the heads of a Static Square are two couples facing each other SIX
+       apart, so `Heads Right and Left Thru` - SIX of the first-call failures, the largest single
+       group - matched neither. The law is the one every separation fix in this catalogue has used
+       and the two authorings pin it: `scaleX = separation / 2`, so separation 6 gives
+       `scaleX = 3` on the pull-by and the extension. `Beau Wheel`/`Belle Wheel` are NOT scaled:
+       they are the courtesy turn taken at the end, not part of the travel. Everything else is
+       unchanged, and the start formation is written INLINE at x = -3 so the engine's own mirror
+       (180 degrees about the origin) puts the second couple at x = +3.
+
+       MEASURED BLAST RADIUS, because this variant also lets the whole board tile (heads and sides
+       are both facing-couple boxes, so bare `Right and Left Thru` becomes legal from a Static
+       Square): legal calls from a Static Square 232 -> 233, i.e. exactly this one call; the figure
+       suite's first-call failures 13 -> 7; and the motion keeps every couple 2.00 apart, so it does
+       not touch the identity-coherence defect pinned in selection.mjs. -->
+  <tam title="Right and Left Thru"
+       from="Facing Couples"
+       parts="3" difficulty="1" sequencer="no">
+    <formation>
+      <dancer gender="boy" x="-3" y="1" angle="0" />
+      <dancer gender="girl" x="-3" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="3" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="3" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="3" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="3" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+  </tam>
+
   <tam title="Right and Left Thru"
        from="Right-Hand Wave"
        formation="Wave RH"

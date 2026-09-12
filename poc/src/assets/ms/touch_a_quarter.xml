@@ -36,6 +36,33 @@
     </path>
   </tam>
 
+  <!-- SEPARATION SIX. The authorings above are for couples THREE (Facing Couples Compact) and FOUR
+       (Facing Couples, b2) apart; the heads of a Static Square are two couples facing each other
+       SIX apart, so `Heads Touch 1/4` - one of the first-call failures - matched neither. The law is
+       the one every separation fix in this catalogue has used and the two authorings pin it:
+       `scaleX = separation / 2`, so separation 6 gives `scaleX = 3`. Everything else is unchanged,
+       and the start formation is written INLINE at x = -3 so the engine's own mirror (180 degrees
+       about the origin) puts the second couple at x = +3.
+
+       The `Hinge Right` is NOT scaled: it is the quarter turn taken in place at the end of the
+       extension, so it does not depend on how far the dancers travelled to get there. -->
+  <tam title="Touch a Quarter"
+       from="Facing Couples"
+       difficulty="1">
+    <formation>
+      <dancer gender="boy" x="-3" y="1" angle="0" />
+      <dancer gender="girl" x="-3" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Extend Left" scaleX="3" />
+      <move select="Hinge Right" beats="1" scaleY=".5"/>
+    </path>
+    <path>
+      <move select="Extend Left" scaleX="3" scaleY=".5" />
+      <move select="Hinge Right" beats="1" />
+    </path>
+  </tam>
+
   <tam title="Touch a Quarter"
        from="Lines"
        formation="Normal Lines"

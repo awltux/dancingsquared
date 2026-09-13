@@ -637,6 +637,22 @@ console.log('== Sequencer: Allemande Left is legal from its OWN end pose (CALLER
   if (al1.legal) {
     const al2 = scopedSeq.applyToBoard(al1.board, 'Allemande Left');
     check(al2.legal === true, `...and legal again from its OWN end pose: ${al2.reason ?? 'ok'}`);
+    // ...AND IT RETURNS TO THE BOARD IT STARTED FROM, which is what the documented pattern needs:
+    // "Allemande Left Your Corner; Dosado Your Partner; Allemande Left Your Corner" is followed in
+    // the corpus by `Weave the Ring`, and that call's own authored setup IS the Static Square. The
+    // first version of this tam applied the Static Square's paths to the pose and turned every dancer
+    // another quarter - it ended on a board the engine names `Static Facing Out`, so the pattern
+    // danced on tilted instead of coming back. Measured here rather than assumed.
+    if (al2.legal) {
+      const before = new Map(scopedSeq.startBoard().dancers.map((d) => [d.id, d]));
+      const worst = Math.max(...al2.board.dancers.map((d) => {
+        const o = before.get(d.id);
+        return Math.max(Math.hypot(d.x - o.x, d.y - o.y), Math.abs(Math.atan2(
+          Math.sin(d.heading - o.heading), Math.cos(d.heading - o.heading))));
+      }));
+      check(worst < 1e-6,
+        `...and the pair of Allemande Lefts returns every dancer to where it started (worst departure ${worst.toFixed(6)})`);
+    }
   }
   // The progressed arrangement, reached by replaying figm167's chain.
   let b = scopedSeq.startBoard();

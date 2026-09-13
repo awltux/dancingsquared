@@ -144,6 +144,25 @@ reaching a resolve state (110 applying the finish, 110 body stops); FSM **155 / 
 unchanged**; CALLERLAB **unchanged** (the 9-of-45 row is still the name-matching artefact, and the
 real gap is still 2 (call, start) pairs + 24 formation names).
 
+**CORRECTED (round 10): the allemande pose tam's MOTION was wrong, and it is the pair that matters.**
+The first version applied the Static Square's own paths to the pose, so a second `Allemande Left`
+turned every dancer another quarter and ended on a board the engine names `Static Facing Out`. The
+corpus says otherwise: its chain is `Four Ladies Chain | Rollaway | Circle Left | Allemande Left |
+Do Sa Do | Allemande Left | Weave the Ring`, and **`Weave the Ring`'s own authored setup IS the
+Static Square** — so the pair of Allemande Lefts has to return to the square. The pose tam's paths
+are now the INVERSE of the square's, which in this engine is a pure pivot per slot (**boys
+`Quarter Left`, girls `Quarter Right`**), and the pair is measured as an exact involution: worst
+per-dancer departure **0.000000** in position and heading. Gated in `sequencer.mjs`, which now
+asserts the round trip rather than just legality. No figure moves (107 → 107, get-out 122 → 122): the
+three chains then stop one call later on `Weave the Ring`.
+**And that next stop is diagnosed, with its cheap fix measured and reverted.** `Weave the Ring`
+refuses on three boards — two `Static Square`, one `O Trade By` — and its setup is the Static Square
+with **gender-specific** slots, while the boards are the PROGRESSED square (the chain runs through
+`Four Ladies Chain`), so the slots hold the other gender. Adding `weave the ring` to
+`PAIR_GENDER_CALLS` — the per-couple retry that fixed exactly this for `Allemande Left` — is **INERT
+here: 107 → 107 and the three stops unchanged**, so either the retry's board test or its geometric
+match declines this board; reverted, and recorded as the lead it is rather than as a fix.
+
 The single most important reading of that table: **`catalogue tam has no setup` is not one owner.**
 `setup-split.mjs` splits it by whether every intermediate board in the chain is a named formation —
 `SETUP GAP` (a real missing authoring) vs `BODY ERROR` (an upstream call produced an arrangement the

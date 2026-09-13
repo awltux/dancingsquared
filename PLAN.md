@@ -483,6 +483,17 @@ stays open, at its true size (about five figures), rather than at the size the b
 
 ### Round 13: the `unknown call` and `Promenade` buckets, and the end of the separation recipe
 
+**`Swing Thru` (4) and `Scoot Back` (1) are the same shape as everything else here — partial-set calls.**
+`Swing Thru`'s three whole-board refusals are boards on which only PART of the set can act: on
+`figm4`'s `Completed Double Pass Thru` the two middle columns are a legal facing-couples box and the
+two OUTER couples face away from everything, so a whole-board `Swing Thru` is not the call. That is the
+"some boxes, not all" structural class the plan already records, and `catalogueFallback` cannot help
+because the catalogue has no setup for it either. `Scoot Back`'s single stop is `Boys Scoot Back` from
+`Normal Lines`, refused as *"not legal for selected dancers"*: the four boys are one dancer per column
+and do not form the mini-waves a Scoot Back needs, so the SELECTION is again the question rather than
+the setup. Neither is a spacing case — the plan's own "whisker" note about `Scoot Back` is superseded
+by this measurement.
+
 **`unknown call` (4) is blocked on reference material this repo does not have.** The four stops are
 `Yellow Rock`, `Partner Trade 1 1/2`, `Pass One` (twice) and `Separate Around Two`. `Yellow Rock` is a
 **Plus** call and the repo's CALLERLAB text is Mainstream only; `Pass One` is All8's own abbreviation

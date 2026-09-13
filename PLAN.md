@@ -58,16 +58,17 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 | side | value | command |
 |---|---|---|
 | figures end-to-end | **101 of 188** | `node engine/test/tools/figure-census.mjs` |
-| get-out: reached the finish and applied it | **140** | `node engine/test/getout-behaviour.mjs` |
-| get-out: reached a state a finish resolves from | **13** | same |
+| get-out corpus: reaching a state the standard finish resolves from | **120 of 265** (was 116) | `node engine/test/getout-behaviour.mjs` |
+| … of which ended by applying the finish itself | **108** (was 105) | same |
+| … decoded but stopped at a call (the body gap) | **112** (was 115) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **2 (call, start) pairs + 24 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
-| gates | `verify:light` green; `verify` green; `verify:figures` **red by design** | `npm run verify --prefix engine` |
+| gates | `verify:light` green; `verify` green (20 harnesses, ~295 s); `verify:figures` **red by design** | `npm run verify --prefix engine` |
 
-The figure census's blocking causes, re-measured this round:
+The figure census's blocking causes, re-measured after Phases A and E:
 
 ```
-   45  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
+   44  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
     8  selection will not resolve on this board
     6  derived call refuses ("Sweep 1/4")
     6  derived call refuses ("Promenade")
@@ -77,8 +78,27 @@ The figure census's blocking causes, re-measured this round:
     2  other: "Circle 2" not legal for selected dancers
     2  other: "Walk and Dodge" not legal for selected dancers
     1  each: Scoot Back | Promenade 1/2 | Turn Thru | Circulate | Walk Across | 8 Circulate 1 1/2
-    1  derived call refuses ("Promenade Home")
+    1  derived call refuses ("Trade") | ("Promenade Home")
 ```
+
+**Two phases landed in the session that rewrote this file, and neither moved the figure count** —
+which is the stacked-refusal shape this plan keeps recording: both cleared a body defect and moved
+their chains DEEPER, and the figure census is byte-identical before and after each.
+
+- **Phase A (done)** — `Touch a Quarter` ended in a 2-wide, 3-tall rectangle instead of the 2×2
+  right-hand box CALLERLAB's ending names; fixed in `ms/touch_a_quarter.xml` (the net lateral of
+  `Extend Left` + `Hinge Right` must cancel, so neither move may carry a `scaleY`). Cleared one
+  `COLLISION` body error in `facing-audit.mjs` (48 → 47 refusal boards) and made `Heads Touch a
+  Quarter` land on the centre box CALLERLAB's Squared Set Convention describes; `figm14` now runs two
+  calls further.
+- **Phase E (done)** — `Allemande Left`'s gender requirement is per COUPLE, not per slot
+  (`PAIR_GENDER_CALLS` in `matcher.ts`). `Allemande Left` is now legal on the board `figm203` reaches,
+  its chain runs to call 5, and `facing-audit.mjs`'s `SPLIT COUPLES` class fell **2 → 0**. The
+  get-out corpus gained 4 lines from the two phases together. **PLAN.md's own Phase E step was built
+  on a factual error, corrected here: `features.mjs`'s `swappedG` is NOT "a square of four
+  same-gender couples" — flipping every gender in a normal square leaves every couple one boy and one
+  girl, so `swappedG` IS the half-sashayed square. Its assertion was the opposite of CALLERLAB and is
+  corrected; a genuine same-gender-couples witness now sits beside it.**
 
 The single most important reading of that table: **`catalogue tam has no setup` is not one owner.**
 `setup-split.mjs` splits it by whether every intermediate board in the chain is a named formation —
@@ -126,6 +146,9 @@ Sizes are stops in the 188-figure census unless stated otherwise. Every phase st
 
 ### Phase A — the body errors (P16a): the largest owner the census cannot see
 
+**STATUS: the head is DONE** (`Heads Touch 1/4`, shipped and gated — see §2). What follows is the
+measurement that found it and the queue behind it.
+
 **Owner:** the call that MINTED the unnamed board, one step upstream of the stop.
 **Size:** 28 of 188 figures are poisoned by a body, and only ~13 of them stop *at* the poison, so the
 census under-counts this class by more than half. Work order by reach:
@@ -141,10 +164,10 @@ census under-counts this class by more than half. Work order by reach:
 | `Sides Right and Left Thru` | 2 |
 | `Extend` / `Boys Run` | 1 each |
 
-**The head of it, measured and not yet fixed — `Heads Touch 1/4`.** The defect is inside the tam's
-motion, not the match. Applying it to each of its own three authorings directly (`self-match
-err=0.000`, so matching is out of the picture) gives a rectangle whose forward dimension tracks the
-scale instead of collapsing to a box:
+**The head of it — `Heads Touch 1/4` — WAS THIS DEFECT, and it is fixed.** The tam's motion was
+wrong, not the match: applying `Touch a Quarter` to each of its own three authorings directly
+(`self-match err=0.000`, so matching is out of the picture) gave a rectangle whose forward dimension
+tracked the scale instead of collapsing to a box:
 
 ```
 separation 4 -> (±1, ±2)      2 wide × 4 tall
@@ -152,13 +175,15 @@ separation 3 -> (±1, ±1.5)    2 wide × 3 tall
 separation 6 -> (±1, ±1.5)    2 wide × 3 tall   <- the one the corpus needs
 ```
 
-None is the 2×2 box a completed `Touch 1/4` produces, and partners end 3 apart where a right-hand box
-has every adjacent pair 2 apart. `applySearch` returns the same boards, so nothing downstream masks
-it. `scaleX = separation / 2` is **refuted** as the cause (it collides at separation 6), so the defect
-is in the `Extend` + `Hinge` composition. The concrete next measurement — recorded so it is not
-re-derived — is the reference's own `Extend Left` + `Hinge Right` pair at unit scale from separation 2,
-where the two lateral components should cancel into a box; that row currently refuses, which is
-itself the anomaly to explain.
+None is the 2×2 box a completed `Touch 1/4` produces. The cause is the `scaleY` the tams put on ONE
+of the two moves (`Extend Left scaleY=".5"` on one path, `Hinge Right scaleY=".5"` on the other):
+the step to the wave dodges one unit sideways and the hinge brings it back, so the net lateral is
+what must cancel and halving either one leaves a residual 0.5. With both unscaled, separations 3 and
+6 both end on the four distinct spots of a right-hand box, and `Heads Touch a Quarter` from a Static
+Square lands the four heads on the centre box facing east/west — CALLERLAB's worked case, board for
+board. `scaleX = separation / 2` was **refuted** as the cause here (it collides at separation 6).
+
+**Still open in this phase:** the queue below, minus `Heads Touch 1/4`.
 
 **Instrument:** `setup-split.mjs`'s prefix scan (names every intermediate board) and
 `facing-audit.mjs` (`pairs`/`closest`/`mutual`/`split` columns).
@@ -173,9 +198,9 @@ itself the anomaly to explain.
 | call | figures | boards | state |
 |---|---|---|---|
 | `Pass Thru` | 5 | Quarter Tag, unnamed, Lines Facing Out, Tidal Wave | **4 of 6 re-attributed to Phase A** — no facing dancers, or two on one spot |
-| `Star Thru` | 5 | 2 × Static Square, unnamed, Completed Double Pass Thru, Eight Chain Thru | adjudicated a **notation issue** for the bare-from-squared-set cases; the ECT case is the per-PAIR gender question (Phase E) |
-| `Slide Thru` | 3 | 3 × Tidal Wave | open — needs its definition read |
-| `Touch 1/4` | 3 | 2 × Trade By, unnamed | **blocked by Phase A's composition defect** |
+| `Star Thru` | 5 | 2 × Static Square, unnamed, Completed Double Pass Thru, Eight Chain Thru | **NOT fixable by Phase E's relaxation** — see below |
+| `Slide Thru` | 3 | 3 × Tidal Wave | open — the 3 Tidal Wave boards are the same class Phase A's `Pass Thru` measurement found (bodies with no facing pairs), so diagnose before authoring |
+| `Touch 1/4` | 3 | 2 × Trade By, unnamed | the facing-couples end pose is FIXED (Phase A); these three are other boards |
 | `Turn Thru` | 1 | Static Square | open |
 | `Sides Face, Grand Square` | 1 (`figm170`) | Eight Chain Thru | a **definition read**: motion must be authored for the arrangement reached, not copied |
 | `Grand Square` (bare) | 0 | — | curiosity: CALLERLAB names Static Square, the engine has only Butterfly/Blocks; not exercised by any figure |
@@ -186,6 +211,13 @@ confirmed instances: `Box the Gnat`, `Pass Thru`, `Right Pull By`). Run both `fa
 chain trace before writing anything.
 **Gate:** each (call, board geometry) pair is covered by a setup or a derived rule, or recorded with
 its reason; the census must rise.
+
+**`Star Thru` cannot use Phase E's per-couple relaxation, and the reason generalises.** Its ECT case
+is the same shape as `Allemande Left`'s — a setup that overlays the board at error 0.000 with gender
+ignored and NULL with gender required — but `Star Thru`'s MOTION is slot-sensitive (the woman turns
+while the man steps), and the match's mapping is geometric, so relaxing per couple would apply the
+man's path to the woman. That is the rule for `PAIR_GENDER_CALLS`: only calls whose motion is
+gender-symmetric may go on the list.
 
 ### Phase C — the two missing conventions
 
@@ -227,6 +259,8 @@ authoring, which is why they are their own phase.
 
 ### Phase E — stale identity and the per-PAIR gender rule (Phase 19)
 
+**STATUS: item 2 is DONE** (shipped and gated — see §2). Item 1 remains open.
+
 **Owner:** the board's identity model. Two independent defects, both measured, and the first masks the
 second:
 
@@ -236,12 +270,23 @@ second:
    design question — a board-shape test fails (98 → 96) and a call-name test fires but moves 0
    figures. The next measurement is per-call and per-CALLERLAB: decide which calls progress, and check
    the census for each.
-2. **`Allemande Left`'s `from="Static Square"` authoring is `gender-specific` per SLOT, but the
-   requirement is per PAIR** — each couple must be a man and a woman, **side-agnostic**. This is the
-   concrete next change and it is small: `swingProblem` already has the per-pair shape ("couple N is
-   not a man and a woman, so there is no partner"). Two named witnesses already exist —
-   a **half-sashayed square must become legal**, and `features.mjs`'s `swappedG` (all genders flipped)
-   **must stay rejected**.
+2. **DONE — the per-PAIR gender requirement.** `Allemande Left`'s `from="Static Square"` authoring is
+   `gender-specific` per SLOT, but CALLERLAB's requirement is per PAIR (each couple a man and a woman,
+   side-agnostic): the call is "dancers face their corners and turn 1/2 by the left arm", the corner
+   is a home-position relation, and every dancer does the same turn. Implemented as a per-couple
+   retry of the same geometric match, gated to a one-entry `PAIR_GENDER_CALLS` list in `matcher.ts`
+   and requiring the BOARD to be a set of man-and-woman couples. The strict per-slot reading runs
+   first, so nothing that matched before changes, and the list stays one call deliberately: the retry
+   is safe only where the motion is gender-symmetric, because the mapping is geometric and a
+   slot-sensitive call (`Ladies Chain`, `Star Thru` — whose woman turns while the man steps) would
+   apply a slot's motion to the wrong dancer. **This also explains why `Star Thru`'s ECT case from
+   Phase B is NOT fixable the same way** — see Phase B.
+   **CORRECTION to the previous revision of this file:** its two "witnesses" were the same board.
+   `features.mjs`'s `swappedG` is not "a square of four same-gender couples"; flipping every gender
+   in a normal square leaves every couple one boy and one girl, so it IS the half-sashayed square, and
+   the half-sashayed square is ordinary for `Allemande Left`. The assertion was corrected, a genuine
+   same-gender-couples witness was added beside it, and `facing-audit.mjs`'s `SPLIT COUPLES` class
+   fell **2 → 0** (figm203, figm204).
 
 **Instrument:** `facing-audit.mjs`'s `SPLIT COUPLES` class identifies this family without any chain
 reasoning, and the `Promenade` ring-order refusals (6 in the census) read the same stale numbers.
@@ -391,13 +436,15 @@ separation is only the call's scale.
 
 ## 6. Recommended order
 
-**Phase A (body errors) first.** It is the largest owner the census can see and the one it
-systematically under-counts; `setup-split.mjs` already names the calls and `Heads Touch 1/4` costs at
-least six figures. Then:
+**DONE: Phase A's head (`Heads Touch 1/4`) and Phase E's item 2 (the per-couple gender rule).** Both
+cleared a body defect and moved their chains deeper without moving the figure count; the get-out
+corpus gained 4 lines. Then, in this order:
 
-1. **Phase E** — the per-PAIR gender rule for `Allemande Left`: small, two named witnesses, and it
-   unblocks the identity family the `SPLIT COUPLES` instrument already tracks.
-2. **Phase B** — the authoring queue, call by call, definition first. Run `facing-audit.mjs` and a
+1. **Phase A's remaining queue** — the body errors the `setup-split.mjs` prefix scan names next
+   (`Allemande Left` 3, `Sides Touch 1/4` 2, `Girls Run` 2, `Square Thru 4` 2, `Centers Swing Thru` 2,
+   `Sides Right and Left Thru` 2). `Allemande Left`'s three are a live lead: its gender gate is now
+   relaxed, so re-measure what those chains do before treating them as body errors.
+2. **Phase B** — the authoring queue, call by call, definition first; run `facing-audit.mjs` and a
    chain trace before each row.
 3. **Phase D** — the named missing calls (`unknown call` is down to 3, so this is bounded work).
 4. **Phase C** — the two conventions; design before code, both have board-wide blast radius.

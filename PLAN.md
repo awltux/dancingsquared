@@ -522,6 +522,40 @@ because a looser tolerance changes WHICH variant wins and the one it picks is re
 guard. **That is the honest ceiling on this phase, and it should be weighed against the ~30 SETUP GAP
 rows below before another round is spent on it.**
 
+**THE ~0.79 CLUSTER IS NOT A TOLERANCE ARTEFACT EITHER — and it looks exactly like one (round 32).**
+Re-measuring the SETUP GAP rows shows a striking pattern: **seven** of them sit at almost the same
+positional distance from their nearest same-size setup, and that distance is INSIDE `DEFAULT_MATCH_MAX`:
+
+```
+figm9   Eight Chain Thru   Mixed Columns RH Centers Out   0.79
+figm113 Pass Thru          Lines Facing Out               0.79
+figm202 Pass the Ocean     Lines Facing Out               0.79
+figm217 Square Thru 3      Trade By                      0.79
+figm219 Pass Thru          Double Pass Thru              0.79
+figm224 Circle Left        Normal Lines                  0.79
+figm35  Pass Thru          Quarter Tag                   0.81
+```
+
+A board 0.79 off its setup, refused by a matcher whose tolerance is 1.5, is the definition of a
+threshold artefact — so this was checked rather than assumed, and it is NOT one:
+
+- The binding gate is **not** `maxError` but `matchEqualLength`'s distance-signature check at
+  `sigTol = maxError / 12` (`match.ts` lines 169 and 280), i.e. 0.125 at the apply tolerance. §3's own
+  margin sweep already raised that **proportionally** — margin 1.0 puts `maxError` at 2.5 and `sigTol` at
+  0.208 — and measured **110 figures at every margin up to 1.0**, then a DROP to 101 at margin 2.0. So
+  loosening the signature by 66% cleared none of this cluster.
+- And the effective allowance is pinned ON PURPOSE by a gate. `test/selection.mjs` ("knownFormation's
+  tolerance is ~0.5, not 6.0") asserts, for every dancer of three formations, that a **0.50 displacement
+  must still match and 0.75 must NOT**, with the comment that this *"pins the EFFECTIVE behaviour, which
+  is what a future change to either the constant or the /12 divisor would break"*. The cluster sits above
+  that deliberate boundary, not below it.
+- Causally checked in that same gate: setting `KNOWN_FORMATION_MAX` to 3.0 moved the measured limit to
+  exactly 0.25, so the divisor really is what binds.
+
+**So the honest read is that these boards differ in SHAPE, not in position or scale** — seven calls
+whose authored setups genuinely are not the arrangement reached. They are authoring work in the §"genuine
+setup gaps" sense, and a constants change will not touch them; do not spend a round on the divisor.
+
 **Owner:** the matcher's setup vocabulary — tams authored for one arrangement and one scale.
 **Size:** the `SHAPE / NO-POSITIONAL-MATCH` class, ~25 rows, **no two sharing a call**; the
 `mutual` column of `facing-audit.mjs` is what cuts it from 35 to 25. Current heads:

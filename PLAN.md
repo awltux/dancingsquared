@@ -341,12 +341,17 @@ by two gates.
 **Still open, and now a separate item: `Swing Your Partner` is the IDENTITY transform.** Of the 103
 `Swing Your Partner` calls the figure walk reaches, **26 have no pair standing as a couple at all**
 (13 with every pair ≥ 4 apart) — and a swing is exactly the call that brings partners together, so
-the no-op is wrong wherever the body leaves them apart. CALLERLAB leaves the swing's end pose
-genuinely open (no position, no facing — the next call determines them), 65+ figures depend on it, and
-a wrong choice there is a silently wrong board, so it needs the corpus to decide between the two
-readings (the couple forms at the pair's MIDPOINT, or each dancer moves to the other's position) as
-its own measured round. `Promenade`'s two collision refusals (`dancers 5 and 7 are 0.87 apart`) are
-BODY errors and belong to Phase A.
+the no-op is wrong wherever the body leaves them apart. `Promenade`'s two collision refusals
+(`dancers 5 and 7 are 0.87 apart`) are BODY errors and belong to Phase A.
+
+**A first attempt at the end pose is REFUTED, measured this session.** Closing every co-oriented
+couple (partners facing the same way) up to the standard two-unit separation about its own midpoint —
+the one case CALLERLAB's silence still leaves unambiguous — measured **103 → 95 figures** while the
+get-out corpus gained one line (120 → 121). So the swing's end pose is **not derivable from the local
+pairing**: moving the pairs changes the anchors `Promenade` reads, and eight figures that used to
+reach a legal promenade no longer do. A correct model has to be pinned by the corpus or the
+reference, not by a local closure rule; until then the identity stands, and the refutation is
+recorded in `coded-moves.ts` beside the rule so it is not retried.
 
 ### Phase F — the CALLERLAB formation vocabulary (16b)
 

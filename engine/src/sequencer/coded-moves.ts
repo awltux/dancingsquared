@@ -124,7 +124,16 @@ function swingProblem(board: Board): string | null {
 }
 
 /** The swing itself: the identity transform, because the authored motion returns every dancer to
- * its own spot and facing (see `swingProblem`). */
+ * its own spot and facing (see `swingProblem`).
+ *
+ * A FIRST ATTEMPT AT MODELLING THE CLOSURE IS REFUTED, and the measurement is worth keeping so it is
+ * not retried: closing every co-oriented couple up to the standard two-unit separation about its own
+ * midpoint — the one case CALLERLAB's silence still leaves unambiguous — measures **103 → 95
+ * figures**, while the get-out corpus gains one line. The end pose is therefore NOT derivable from
+ * the local pairing: moving the pairs changes the anchors `Promenade` reads, and eight figures that
+ * used to reach a legal promenade no longer do. A correct model has to be pinned by the corpus (or
+ * by the reference), not by a local closure rule; until then the identity stands, which is right
+ * wherever the partners already stand together. */
 function swingRule(board: Board): Board {
   return board;
 }

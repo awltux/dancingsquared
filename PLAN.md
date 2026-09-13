@@ -4705,6 +4705,36 @@ ERROR class and means authoring the call will not win them.
 
 ### Phase 16b — the CALLERLAB vocabulary, as data (feeds 14 and 16)
 
+**RE-MEASURED, and the CALLERLAB side is SMALL — smaller than its own report suggests.** Running
+`callerlab-diff.mjs` at 101 figures:
+
+```
+(A) documented calls the engine cannot perform at all: 9 of 45  - and EVERY one has "figures using it: 0"
+(B/C) 56 documented (call, start) pairs over 36 implemented calls:
+   8 match one of the call's own tam setups
+   2 are a formation the engine HAS but that call has no setup for
+  24 distinct formation NAMES the engine has no formation for
+   5 entries are sentences the extractor merged into the list (noise, excluded)
+```
+
+- **The "9 of 45" is a NAME-MATCHING artefact, not nine missing calls, and the tool says so itself.**
+  Every one reports `figures using it: 0`, and reading the list shows why: `Star Right` / `Star Left` are
+  implemented as `Right Hand Star` / `Left Hand Star`; `Square Thru` is implemented as the one/two/
+  three/four family; `Cast Off Three -Quarters` carries an extractor space in the word; and `Right`,
+  `Box`, `First Couple Go Left`, `Right, Next Couple Go Left` are fragments of sentences the extractor
+  split. So this row is the same class the `Split the Outside Couple` bridge was: names, not calls.
+- **The real CALLERLAB gap is TWO (call, start) pairs**: `Dive Thru` documented from `Facing Couples`
+  and `Grand Square` documented from `Static Square` (whose authored setups are `[Butterfly, Blocks]`,
+  which is itself worth a look). That is a bounded, two-item list, not a phase.
+- **And 24 formation NAMES the engine has no formation for** — that is the phase's actual content, and
+  it is the `formation` vocabulary rather than the calls. It is also the same vocabulary the
+  `T-Bone`/`Quarter Tag`/`Stars RH` refusals keep landing on, so the two workstreams are the same one.
+
+**Conclusion for this phase:** the CALLERLAB side does not justify a vocabulary-as-data phase at its
+stated size. It is 2 (call, start) pairs plus 24 formation names, and the names the report ranks highest
+are artefacts. What it DOES corroborate is the direction the figure work has independently reached —
+that the remaining refusals are about FORMATIONS the engine can name but no call is authored from.
+
 - **Work:** a checked-in mapping from each documented starting-formation name to the engine's
   formation(s) — `Two-Faced Line` → `Two-Faced Lines`, `Ocean Wave` → `Ocean Waves` (and `Alamo Ring`
   → `Alamo Wave`), `Facing Dancers` → the facing-couples/mini-wave family — plus the decisions for the

@@ -19,7 +19,7 @@
 // a beat count — and its rule lives in promenade.ts.
 
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf, normAngle } from '../moves.js';
-import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS, PROMENADE_COUPLE_MIN, PROMENADE_COUPLE_MAX } from './promenade.js';
+import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS } from './promenade.js';
 import { isKnownCouple } from './constants.js';
 import { runRule, tradeRule } from './trade-run.js';
 import { swingThru } from './swing-thru.js';
@@ -60,11 +60,12 @@ export const SWING_THRU_BEATS = 6;
  * where it is actually called. The net effect being the identity makes the call formation-
  * INDEPENDENT, so no per-formation authoring is needed and none is invented.
  *
- * THE PRECONDITION IS THE CALL'S OWN DEFINITION, not a heuristic: you can only swing your PARTNER
- * if your partner is standing with you. It uses Promenade's own "standing as a couple" band
- * (`PROMENADE_COUPLE_MIN/MAX`) so the two agree by construction, and it is therefore sound where a
- * blanket "refuse anything that spreads a couple" guard is not — that guard would reject `Boys
- * Trade`, which legitimately separates partners. A board with no home identity refuses, exactly as
+ * THE PRECONDITION IS THE CALL'S OWN DEFINITION, not a heuristic: you can only swing your PARTNER,
+ * so the board has to carry identity (home couples) and each couple has to be a man and a woman.
+ * What it is NOT is a requirement that the two are already standing together — a swing is what brings
+ * them together. Until Phase 11 it required the pair to be 1.0..3.0 apart (`Promenade`'s own
+ * "standing as a couple" band), which refused 48 of the 188 published figures, every one of them from
+ * a wave, a line or an Eight Chain Thru. A board with no home identity still refuses, exactly as
  * Promenade does: "your partner" is a fact about identity, not about geometry (§8.2).
  *
  * WHERE THE NAME LIVES, and why the bridge is here rather than in `CALL_SYNONYMS`: the engine's
@@ -86,11 +87,26 @@ function swingProblem(board: Board): string | null {
     list.push(d);
     couples.set(d.couple, list);
   }
+  // THE PAIRING IS THE PRECONDITION; THE SEPARATION IS NOT.
+  //
+  // A swing brings you and your partner TOGETHER, so where the two of you are standing when the call
+  // is made cannot be a requirement of making it. CALLERLAB starts `Swing` from Facing Dancers (Man
+  // and Woman), ends it in a Normal Couple, and applies the Ocean Wave Rule; `Swing your Partner` is
+  // shorthand for "Face Your Partner; Swing". The old band here (partners 1.0..3.0 apart) refused 48
+  // of the 188 published figures, every one of them from an Ocean Wave (18), Lines Facing Out (15),
+  // an Eight Chain Thru (11) or an unnamed board (4) - i.e. it refused the call's most common use,
+  // because in a wave nobody is holding their partner.
+  //
+  // The transform below is still the identity, which means the couple's END POSE is not modelled -
+  // only the pairing is. That is the fidelity gap 9e-1 recorded, and it is why this call is now
+  // paired with `Promenade`: every one of the 48 figures calls Promenade next, and Promenade forms
+  // the ring and normalises the square, so the pairing is enough to get them there. A figure that
+  // swings and then continues elsewhere would still see the pre-swing board, and that is recorded in
+  // PLAN.md rather than hidden here.
   for (const [couple, list] of couples) {
     if (list.length !== 2) return `couple ${couple} does not have exactly two dancers, so there is no partner to swing`;
-    const gap = Math.hypot(list[0].x - list[1].x, list[0].y - list[1].y);
-    if (gap < PROMENADE_COUPLE_MIN || gap > PROMENADE_COUPLE_MAX) {
-      return `couple ${couple}'s partners are ${gap.toFixed(2)} apart, not the standard 2, so they are not standing together and cannot swing`;
+    if (list[0].gender === list[1].gender) {
+      return `couple ${couple} is not a man and a woman, so there is no partner to swing`;
     }
   }
   return null;

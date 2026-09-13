@@ -145,21 +145,29 @@ const refused = (label, board, expect) => {
   const swapped = { dancers: home.dancers.map((d) => (d.couple === 1 ? { ...d, couple: 2 } : d.couple === 2 ? { ...d, couple: 1 } : { ...d })) };
   refused('couples 1 and 2 swapped round the ring', swapped, /out of sequence/);
 }
-// (b) two couples on the same side of the square: there is no ring to promenade.
+// (b) two couples on the same side of the square: the ring is formed on the way round, so the
+//     LAYOUT is not the refusal - but a body with dancers on top of each other still is.
 {
   const bunched = {
     dancers: home.dancers.map((d) => (d.couple === 4 ? { ...d, x: d.x + 4, y: d.y + 4.5 } : { ...d })),
   };
-  refused('couples 3 and 4 both on the north side', bunched, /not spread one per side/);
+  refused('couples 3 and 4 both on the north side', bunched, /on top of each other/);
 }
-// (c) partners not standing together: this is the guard that stops a broken body
-//     being laundered into a success (see section 4).
-refused('partners 4 apart', {
-  dancers: home.dancers.map((d) => (d.couple === 1 ? { ...d, x: d.x * 2 } : { ...d })),
-}, /not standing as a couple/);
-refused('partners on the same spot', {
+// (c) partners NOT standing together is no longer a refusal, and that is a measured correction:
+//     a pair takes promenade position from wherever they are, and the corpus's legitimate
+//     pre-promenade boards have partners SIX apart because they are waves. 3 of the 32 published
+//     figures that used to stop on Promenade stopped on exactly this band. What must still be
+//     refused is a body that has fallen apart - dancers on the same spot - which is the collision
+//     guard these two cases now pin, one on each side.
+{
+  const apart = { dancers: home.dancers.map((d) => (d.couple === 1 ? { ...d, x: d.x * 2 } : { ...d })) };
+  const r = seq.applyToBoard(apart, 'Promenade');
+  if (!r.legal) fail(`partners 4 apart is the normal case and must promenade: ${r.reason}`);
+  else ok('partners 4 apart promenades home (forming the ring is part of the call)');
+}
+refused('dancers on the same spot', {
   dancers: home.dancers.map((d) => (d.couple === 1 ? { ...d, x: d.x / 8 } : { ...d })),
-}, /not standing as a couple/);
+}, /on top of each other/);
 // (d) no home identity: a template board has couples but no couple NUMBERS, and
 //     "promenade home" is only meaningful against the dancers' own home spots.
 {

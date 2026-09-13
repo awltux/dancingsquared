@@ -56,11 +56,17 @@ export const PROMENADE_ALIASES = ['Promenade', 'Promenade Home'];
  * 270 degrees promenades three quarters of the way round. */
 export const PROMENADE_BEATS = 8;
 
-/** How close a couple's two dancers must be to count as standing together: the
- * standard couple separation is 2 in the engine's metric, and the band is that
- * plus or minus one. Every healthy pre-Prom state in the published corpus measures
- * exactly 2.00; the states our own broken bodies produce measure 0.00, 4.00 or
- * 6.00. */
+/** How close two dancers may stand before the board counts as broken rather than dancable. The
+ * engine's formations put adjacent dancers 2 apart and the tightest legitimate arrangement in the
+ * corpus measures 1.41, so this sits in the empty band between those and the two broken bodies that
+ * measure 0.00 and 0.32. */
+export const PROMENADE_COLLISION_MIN = 1.0;
+
+/** How close a couple's two dancers stand when they are a couple: the standard separation is 2 in the
+ * engine's metric. This band WAS Promenade's precondition until Phase 12 and is kept as the
+ * measurement the published corpus states — every healthy pre-Prom state in it measures exactly 2.00,
+ * while the states our own broken bodies produced measured 0.00, 4.00 or 6.00. Forming the ring is
+ * part of the call, so it is no longer a requirement. */
 export const PROMENADE_COUPLE_MIN = 1.0;
 export const PROMENADE_COUPLE_MAX = 3.0;
 
@@ -109,6 +115,27 @@ export function promenadeHome(board: Board): PromenadeResult {
     return fail(`Promenade needs all four couples (${HOME_DANCERS.length} dancers); this board has ${phys.length}`);
   }
 
+  // 2. The board has to be a BOARD: no two dancers on top of each other.
+  //
+  // This replaces the couple-separation band that used to live here (partners 1.0..3.0 apart), which
+  // was doing two jobs at once and only one of them was right. Refusing "partners not standing
+  // together" refused the call's normal use - measured, 27 of the 32 published figures that stop on
+  // Promenade stop on the ring not existing yet and 3 more on the separation, and the corpus's
+  // legitimate pre-promenade boards have partners SIX apart, as a wave does. What genuinely must be
+  // refused is a body that has fallen apart, and the measurement separates those cleanly: of the 88
+  // figure calls that reach a Promenade, the closest pair of dancers is 1.41 or more on every board
+  // except two, which measure 0.00 and 0.32 - dancers on top of each other.
+  for (let i = 0; i < phys.length; i++) {
+    for (let j = i + 1; j < phys.length; j++) {
+      const gap = Math.hypot(phys[i].x - phys[j].x, phys[i].y - phys[j].y);
+      if (gap < PROMENADE_COLLISION_MIN) {
+        return fail(
+          `dancers ${phys[i].id} and ${phys[j].id} are ${gap.toFixed(2)} apart - the board has dancers on top of each other, so there is nothing to promenade`,
+        );
+      }
+    }
+  }
+
   const couples = new Map<number, SeqDancer[]>();
   for (const d of phys) {
     if (!isKnownCouple(d.couple)) {
@@ -131,34 +158,43 @@ export function promenadeHome(board: Board): PromenadeResult {
   for (const [couple, list] of couples) {
     if (list.length !== 2) return fail(`couple ${couple} does not have exactly two dancers`);
     if (list[0].gender === list[1].gender) return fail(`couple ${couple} is not a boy and a girl`);
-    const gap = Math.hypot(list[0].x - list[1].x, list[0].y - list[1].y);
-    if (gap < PROMENADE_COUPLE_MIN || gap > PROMENADE_COUPLE_MAX) {
-      return fail(
-        `couple ${couple}'s partners are ${gap.toFixed(2)} apart, not the standard 2, ` +
-        'so they are not standing as a couple and cannot promenade home from here',
-      );
-    }
   }
 
-  // 3. one couple per quadrant, snapped to that quadrant's axis point.
+  // 3. FORMING THE RING IS PART OF THE CALL, so the ring's geometry is not a precondition.
+  //
+  // CALLERLAB starts Promenade from a Squared Set, but a caller resolves a singing-call figure with
+  // it from whatever the figure ended in - a wave, a line, an Eight Chain Thru - and the dancers form
+  // the promenade ring on the way. This was measured, not assumed: of the 32 published figures that
+  // stop on Promenade, 27 stop on exactly "the four couples are not spread one per side of the square
+  // ... nothing to promenade around" and 3 more on the couple separation - i.e. on the ring not
+  // existing yet, which is the normal case and not an error.
+  //
+  // What IS still a refusal is a ring that already exists in the WRONG ORDER, because promenading
+  // from it does not bring everyone home and this call is "promenade HOME". That case is kept below
+  // and it is the 2 remaining corpus refusals.
   const anchors = new Map<number, [number, number]>();
   for (const [couple, [a, b]] of couples) {
     anchors.set(couple, promenadeAnchor((a.x + b.x) / 2, (a.y + b.y) / 2));
   }
-  if (new Set([...anchors.values()].map(uniqKey)).size !== 4) {
-    return fail('the four couples are not spread one per side of the square, so there is nothing to promenade around');
-  }
-
-  // 4. counter-clockwise ring order 1 -> 2 -> 3 -> 4: the "in sequence" test.
-  for (const k of [1, 2, 3, 4]) {
-    const here = anchors.get(k)!;
-    const next = anchors.get((k % 4) + 1)!;
-    const turn = ccwDelta(axisAngle(here), axisAngle(next));
-    if (Math.abs(turn - 90) > EPS) {
-      return fail(
-        `the couples are out of sequence: couple ${(k % 4) + 1} is ${turn.toFixed(0)} degrees round the ring from couple ${k}, ` +
-        'not 90 counter-clockwise, so promenading would not bring everyone home',
-      );
+  // ...and "already exists" means one couple per side of the square: four distinct axis directions.
+  //
+  // The test is deliberately about DIRECTION, not distance, because the ring's radius is not fixed -
+  // the engine's own squared set puts the couples at radius 3 while the anchor table names radius 2,
+  // and the corpus reaches rings at other scales too. Only the ORDER round those four sides decides
+  // whether promenading brings everyone home, and that is what is checked below.
+  const ringExists = new Set([...anchors.values()].map(uniqKey)).size === 4;
+  if (ringExists) {
+    // counter-clockwise ring order 1 -> 2 -> 3 -> 4: the "in sequence" test.
+    for (const k of [1, 2, 3, 4]) {
+      const here = anchors.get(k)!;
+      const next = anchors.get((k % 4) + 1)!;
+      const turn = ccwDelta(axisAngle(here), axisAngle(next));
+      if (Math.abs(turn - 90) > EPS) {
+        return fail(
+          `the couples are out of sequence: couple ${(k % 4) + 1} is ${turn.toFixed(0)} degrees round the ring from couple ${k}, ` +
+          'not 90 counter-clockwise, so promenading would not bring everyone home',
+        );
+      }
     }
   }
 

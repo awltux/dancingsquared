@@ -3395,25 +3395,62 @@ census (taken under the Phase 10 convention) unless stated otherwise.
   tool, and its baseline row is the pinned convention.
 
 
-### Phase 11 — the general `Swing` (48 figures)
+### Phase 11 + 12 — the `Sw&Pr` family: DONE, and they had to land together (8 → 83 figures)
 
-- **Size:** 48 figures, one refusal sentence, from Ocean Waves (18), Lines Facing Out (15), Eight
-  Chain Thru (11), unnamed (4).
-- **CALLERLAB:** `Swing` — starting formation **Facing Dancers (Man and Woman)**; *"the Ocean Wave
-  Rule applies"*; ends in a **Normal Couple**. `Swing your Partner` is shorthand for *"Face Your
-  Partner; Swing"*, and from a Trade By *"the Centers swing the dancer they are facing and the Ends
-  swing the dancer beside them"*.
-- **Work:** the geometric pairing and the step-to-facing-dancers entry, not the narrow 1.0..3.0 band.
-- **Gate:** `Swing Your Partner` applies from a wave, a line facing out and an Eight Chain Thru, and
-  the census's 48 stops on that sentence goes to 0 — with the figure count re-measured, not assumed.
+**Why they are one phase and not two.** `figure-census` measured what follows each of the 48 figures
+that stop on `Swing Your Partner`: **all 48 call `Promenade` next**. Fixing the swing alone would
+therefore have moved the stop one call later and gained nothing — the same trap the `Centers Left
+Hand Star` diagnosis found. They were sized as two phases, and the measurement merged them.
 
-### Phase 12 — `Promenade` from the formation the figure ends in (32 figures)
+**Result: 8 of 188 figures run end-to-end before, 83 after.** The two dominant causes the census
+found are gone, and every other cause is untouched:
 
-- **Size:** 32, of which 27 are *"the four couples are not spread one per side of the square"*.
-- **Work:** accept the boards the corpus actually reaches and form the ring from them; keep the two
-  ring-order refusals as data (they are the sequencing check, not the entry check).
-- **Gate:** the 27 disappear and the two `the couples are out of sequence` cases are either fixed or
-  shown to be genuinely out of sequence.
+| cause | before | after |
+|---|---|---|
+| derived `Swing Your Partner` refuses | 48 | **0** |
+| derived `Promenade` refuses | 32 | **0** |
+| everything else (unchanged) | 100 | 105 |
+
+**What changed, and on what authority.**
+
+1. `Swing Your Partner` — the precondition is the **pairing**, not the separation. CALLERLAB starts
+   `Swing` from Facing Dancers (Man and Woman), ends it in a Normal Couple, applies the Ocean Wave
+   Rule, and `Swing your Partner` is shorthand for "Face Your Partner; Swing" — so a swing is what
+   brings the two together and where they stand when it is called cannot be a requirement of making
+   it. The old band (partners 1.0..3.0 apart, borrowed from Promenade) refused 48 of 188 figures
+   from Ocean Waves (18), Lines Facing Out (15), an Eight Chain Thru (11) and unnamed boards (4):
+   the call's commonest use, because in a wave nobody is holding their partner. What it still
+   refuses is a board with no identity, and a couple that is not a man and a woman.
+2. `Promenade` — **forming the ring is part of the call**, so the ring's geometry is not a
+   precondition. 27 of the 32 stops were literally *"the four couples are not spread one per side of
+   the square"* and 3 more the couple separation — i.e. the ring not existing yet, from waves, lines
+   and Eight Chain Thrus. The **second** job that band was doing is real, though, and it was replaced
+   rather than dropped: refusing a body that has fallen apart. Measured, the closest pair of dancers
+   on the 88 corpus boards that reach a Promenade is **1.41 or more on all but two**, which measure
+   0.00 and 0.32. So the guard is now a **collision** guard at 1.0, which refuses those two broken
+   bodies and nothing else.
+3. The **ring-order** refusal is kept, and only fires when a ring already exists: promenading from a
+   ring whose couples are in the wrong order does not bring anyone home, and this call is "promenade
+   HOME". That is what still refuses `[B2r]` and `[B2p]`.
+
+**Three harnesses pinned the old contract and were adjudicated, not bent.** This is the part worth
+reading: each gate existed for a reason, and each was changed only after measuring whether its reason
+still held.
+
+| gate | decision |
+|---|---|
+| `promenade.mjs` "partners 4 apart: accepted, but should not be" | **contract change, accepted case now** — partners 4 apart is the corpus's normal pre-promenade board (a wave's are 6 apart). The same gate's real intent, "a broken body must not be laundered into a success", is re-pinned by the collision guard on both sides: `/on top of each other/` for the bunched and same-spot boards. |
+| `selection.mjs` "Swing Your Partner applied with a couple SIX apart - the precondition is not binding" | **inverted** — that board is precisely the case that must now apply; a new gate pins the man-and-woman requirement instead. |
+| `getout-convention.mjs` "[B4c]: a promenade is now legal from this box" | **recorded as resolved** — `[B4c]`'s couples are all in a line (midpoints (-3,0), (1,0), (3,0), (-1,0)), so it is the formed-on-the-way case like the 27 figures; `[B2r]`/`[B2p]` stay refused by ring order. |
+
+**What this phase does NOT fix, and now knows better.** The swing's transform is still the identity,
+so the couple's end pose is not modelled — only the pairing. Five figures (`figm40`, `figm102`,
+`figm215`, `figm225`, `figm92`) are refused for ring order after a swing; for at least figm40/figm102
+the couples reach the four sides in clockwise order, which a real swing would have oriented
+correctly. That is the fidelity gap 9e-1 recorded, it is now load-bearing for exactly those figures,
+and it is the natural next step in this family rather than a new phase.
+
+---
 
 ### Phase 13 — setup coverage for the catalogue calls (44 figures)
 

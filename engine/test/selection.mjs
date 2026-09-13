@@ -1006,14 +1006,29 @@ console.log('\n== the Mainstream swing is DERIVED, because its authored motion i
   if (!offered.includes('Swing Your Partner')) fail('Swing Your Partner is not offered from a squared set - the tail cannot be danced');
   else ok('Swing Your Partner is offered by legalNext from a squared set (it used to refuse there)');
 
-  // (3) the precondition is the call's own definition, and it REFUSES rather than spreading couples.
-  const broken = {
+  // (3) THE PRECONDITION IS THE PAIRING, NOT THE SEPARATION. A swing is what brings you and your
+  // partner together, so a couple standing apart is the case it must ACCEPT - and this gate is the
+  // exact board that used to be refused. Measured before the change: the 1.0..3.0 band refused 48 of
+  // All8's 188 published figures, every one of them from an Ocean Wave (18), Lines Facing Out (15),
+  // an Eight Chain Thru (11) or an unnamed board (4), i.e. the call's commonest use. What it still
+  // refuses is a board where "your partner" is not real data (gate 1b) or where the couple is not a
+  // man and a woman, which is the next gate.
+  const apart = {
     dancers: home.dancers.map((d) => (d.couple === 1 && d.gender === 'girl' ? { ...d, x: d.x + 4 } : d)),
   };
-  const r = seq.applyToBoard(broken, 'Swing Your Partner');
-  if (r.legal) fail('Swing Your Partner applied with a couple SIX apart - the precondition is not binding');
-  else if (!/partners are/.test(r.reason ?? '')) fail(`Swing Your Partner refused for the wrong reason: ${r.reason}`);
-  else ok(`Swing Your Partner refuses a couple standing 6.0 apart: ${r.reason}`);
+  const r = seq.applyToBoard(apart, 'Swing Your Partner');
+  if (!r.legal) fail(`Swing Your Partner refused a couple standing 6.0 apart (${r.reason}) - that is a wave, the call's commonest use`);
+  else ok('Swing Your Partner accepts a couple standing 6.0 apart - a swing is what brings them together');
+
+  // (3b) a "couple" that is not a man and a woman is not a partner to swing (CALLERLAB: Swing starts
+  // from Facing Dancers, one Man and one Woman).
+  {
+    const sameGender = { dancers: home.dancers.map((d) => (d.couple === 1 ? { ...d, gender: 'girl' } : d)) };
+    const rs = seq.applyToBoard(sameGender, 'Swing Your Partner');
+    if (rs.legal) fail('Swing Your Partner applied to a couple of two girls');
+    else if (!/man and a woman/.test(rs.reason ?? '')) fail(`Swing Your Partner refused for the wrong reason: ${rs.reason}`);
+    else ok(`a couple that is not a man and a woman refuses: ${rs.reason}`);
+  }
 
   // (4) `Swing` itself is a DIFFERENT call and is untouched - the A2 family from a2/slip.xml. This is
   // why the bridge lives in the token table and not in CALL_SYNONYMS: a synonym would collide.

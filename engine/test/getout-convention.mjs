@@ -160,16 +160,33 @@ console.log(`  ${found} of ${sampled} sampled alignments have a getout; ${closed
 // means the finish edge or the search regressed.
 if (found < SAMPLE.length) fail(`only ${found} of ${sampled} sampled alignments have a getout`);
 
-// The other direction: the [B] boxes our reading of All8's own diagrams refuses a
-// promenade from must STAY refused. If they ever start resolving by promenade, the
-// recorded disagreement has been papered over rather than settled.
-console.log('\n== 3b. the recorded [B]-box disagreement is not silently resolved ==');
-for (const id of ['B2r', 'B2p', 'B4c']) {
+// The other direction: the [B] boxes our reading of All8's own diagrams refuses a promenade from.
+//
+// PHASE 12 RESOLVED THE [B4c] HALF DELIBERATELY, and this gate records the resolution rather than
+// deleting the disagreement. [B2r] and [B2p] put one couple per side in the WRONG ORDER, so
+// promenading from them does not bring anyone home: still refused, and it is the ring-order check
+// that refuses them. [B4c] puts all four couples in a LINE - their midpoints measure (-3,0), (1,0),
+// (3,0), (-1,0) - which is not a ring at all, and "the four couples are not spread one per side of
+// the square" was exactly the check that refused 27 of the 32 published figures that stop on
+// Promenade, from waves and lines where forming the ring is the first thing the call does. So [B4c]
+// promenades now, by the same rule that lets those 27 dance.
+console.log('\n== 3b. the [B]-box disagreement: two halves, one resolution ==');
+for (const id of ['B2r', 'B2p']) {
   const start = boardFor(id);
   if (!start) { fail(`[${id}]: no start board`); continue; }
   const r = seq.applyToBoard(start, 'Promenade');
-  if (r.legal) fail(`[${id}]: a promenade is now legal from this box - the open question was answered by accident`);
-  else ok(`[${id}]: promenade still refused (${(r.reason ?? '').slice(0, 58)}...)`);
+  if (r.legal) fail(`[${id}]: a promenade is now legal from a ring that is out of sequence`);
+  else if (!/out of sequence/.test(r.reason ?? '')) fail(`[${id}]: refused for the wrong reason: ${r.reason}`);
+  else ok(`[${id}]: still refused - ${(r.reason ?? '').slice(0, 58)}...`);
+}
+{
+  const start = boardFor('B4c');
+  if (!start) fail('[B4c]: no start board');
+  else {
+    const r = seq.applyToBoard(start, 'Promenade');
+    if (!r.legal) fail(`[B4c]: refused (${r.reason}) - Phase 12 resolved this half by forming the ring`);
+    else ok('[B4c]: promenades - its couples are in a line, so the ring forms on the way (Phase 12)');
+  }
 }
 
 // ------------------------------------------------- 4. non-home targets unaffected

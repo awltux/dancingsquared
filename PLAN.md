@@ -3689,6 +3689,51 @@ per-dancer end.
 
 
 
+#### Phase 16b — the dispatch/matching refusals (5 EXACT + 5 FACING)
+
+**`Star Thru` after `Heads Rollaway` (`figm228`, `figm229`) — ADJUDICATED AS A FIGURE ISSUE, not an
+engine gap.** A bare `Star Thru` from a squared set is **not danceable**, and the measurement is
+unambiguous: every dancer in a squared set faces the dancer opposite, SIX apart, and a `Star Thru`
+brings each facing pair together in the middle. The whole board therefore tiles into two
+facing-couple boxes — the heads' and the sides' — whose centres are **the same point**, so both
+boxes collapse onto the centre.
+
+Tried and reverted, because the argument for shipping it was good and the measurement is what
+settled it: `Star Thru`'s 4-dancer `Facing Couples` authorings are at separations 3 and 4 only, so
+the parallel path had no setup for a squared set's six. Authoring one at separation 6 — the same
+`scaleX = separation / 2` procedure Phase 9c shipped twice — makes the call legal, and the
+`Quarter` offsets were solved by MEASUREMENT rather than extrapolation (`o1 = 1.5`, `o2 = -2.5`
+gives the clean 2.00 / 2.00 pair distances; Phase 9c's `Box the Gnat` regression is the reason it
+was not scaled blindly). It works perfectly on the four dancers in isolation and produces a literal
+2×2 box. On the whole board the result is:
+
+```
+  Star Thru from the rolled square: legal=true -> (unnamed)
+  5B@(-1,1)E 6G@(1,1)W 7B@(1,-1)S 8G@(1,1)N 1B@(1,-1)W 2G@(-1,-1)E 3B@(-1,1)N 4G@(-1,-1)S
+  4 distinct spots for 8 dancers; min pairwise distance 0.00
+```
+
+— i.e. it **launders a collision into a success**, which is the exact failure the promenade
+collision guard exists to prevent. So the variant is reverted and the two figures are recorded as
+**notation issues**: the caller would say `Heads Star Thru` or `Sides Star Thru`, never the bare
+call, and the figure as transcribed asks for something that cannot be danced.
+
+This is worth separating from Phase 9c's *shipped* separation-6 `Right and Left Thru`, which is legal
+from a squared set for the same structural reason and is NOT a collision: `Right and Left Thru`
+moves each COUPLE as a unit, and the whole-board tiling is a rigid 180° rotation of the home set
+(no two dancers share a spot). `Star Thru` moves each facing PAIR, and both boxes' centres coincide.
+The distinction is the call's own motion, so it has to be adjudicated per call rather than by a
+blanket policy on whole-board tiling.
+
+**The remaining EXACT three** (`figm174 Heads Pass Thru`, `figm224 Sides Pass Thru`, `figm121 Star
+Thru` from an Eight Chain Thru) all go through the SAME two mechanisms and are next: a selection
+prefix whose four selectees stand six apart (the separation-6 authoring now exists for
+`Right and Left Thru` and `Touch a Quarter`, and is what `Star Thru` lacks — but see above, the
+missing authoring has to be judged per call), and, for `figm121`, the **gender-slot rigidity**
+measured earlier: the call's own `from="Eight Chain Thru"` setup overlays the board at error 0.000
+with gender ignored and returns NULL with gender required, while CALLERLAB's requirement for the
+call is `Facing Dancers (Man facing Woman)` — a per-PAIR requirement, not a per-SLOT one.
+
 ### Phase 14 — the missing calls (13 + the 12 re-attributed = 25 figures)
 
 - **Size:** 25. From the census: `Sweep 1/4` 5, `Split the Outside Couple` 4, then `Yellow Rock`,

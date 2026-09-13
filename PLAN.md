@@ -3639,26 +3639,27 @@ done: `ms/touch_a_quarter.xml:39-64` carries three `Facing Couples` authorings a
 SIX apart"). The four heads after `Heads Promenade 1/2` are indeed 6 apart, and the isolated
 reading centres them without rescaling, so the separation-6 setup is the one that applies.
 
-Applying `Touch 1/4` to **each of the three setups directly** (so matching is out of the picture
-entirely - `self-match err=0.000`, `refl=false` for all three) gives the SAME end board in all three
-cases:
+Applying `Touch 1/4` to **each of the three setups directly** (so matching is out of the picture:
+`self-match err=0.000`, `refl=false`, identity mapping for all three) gives a rectangle whose
+FORWARD dimension tracks the scale instead of collapsing to the box:
 
-```
-  start (±2,±1)   ->  1@(1,1.5)  2@(1,-1.5)  3@(-1,-1.5)  4@(-1,1.5)
-  start (±1.5,±1) ->  1@(1,1.5)  2@(1,-1.5)  3@(-1,-1.5)  4@(-1,1.5)
-  start (±3,±1)   ->  1@(1,1.5)  2@(1,-1.5)  3@(-1,-1.5)  4@(-1,1.5)
-```
+| setup | start (`x=±s/2, y=±1`) | end |
+|---|---|---|
+| separation 4 | `x=±2` | `(±1, ±2)` — 2 wide × **4** tall |
+| separation 3 (`Compact`) | `x=±1.5` | `(±1, ±1.5)` — 2 wide × **3** tall |
+| separation 6 (what the corpus needs) | `x=±3` | `(±1, ±1.5)` — 2 wide × **3** tall |
 
-Two things follow, and only the second is a defect:
+`applySearch` (rebase off, no `snapBoard`) returns **exactly the same boards**, so nothing
+downstream is masking this.
 
-- **separation-independence is CORRECT and intended.** With `scaleX = separation / 2` the couples
-  meet in the middle and the final box does not depend on how far they travelled - that is the whole
-  point of the authoring, and it is why one variant can serve every separation.
-- **the end is a 2×3 RECTANGLE, not the 2×2 box a completed Touch 1/4 must produce.** The four end
-  at `(±1, ±1.5)`: partners 3 apart, where a right-hand box has every adjacent pair 2 apart. The
-  board is unnamed, which is what stops the chain. The lateral half-offset is `1.5` where the
-  geometry requires `1`, and it is a constant - the same for all three separations - so it comes
-  from the `scaleY=".5"` on the `Hinge Right` move, not from the separation.
+- **Separation-independence is CORRECT and intended**, and the table shows it only partially
+  holding. `scaleX = separation / 2` should make the couples meet in the middle, so the final box
+  must be the same for every separation. Separation 3 and 6 do agree; separation 4 does not, and
+  none of the three is the **2×2 box** a completed Touch 1/4 produces.
+- **The end is the defect.** The four end at `(±1, ±1.5)` for the case the corpus needs: partners
+  `3` apart where a right-hand box has every adjacent pair `2` apart, which is why the board is
+  unnamed and the chain stops.
+
 
 So this is neither a matching gap nor a body defect: it is in `resolvePath`'s application of
 `scaleX`/`scaleY` to a move (`convert.ts:200-203`), which scales the move's `translate` AND its

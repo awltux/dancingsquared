@@ -295,6 +295,36 @@ with **gender-specific** slots, while the boards are the PROGRESSED square (the 
 here: 107 → 107 and the three stops unchanged**, so either the retry's board test or its geometric
 match declines this board; reverted, and recorded as the lead it is rather than as a fix.
 
+**AND THE WAVE-BASED `Square Thru` ENDS IN A BOARD THAT SUPPORTS NOTHING — a measured body defect
+with a CALLERLAB citation, found in round 23 and NOT yet fixed.** `Square Thru`'s definition states
+**"Ending formation: Facing Couples"** and grants it the Ocean Wave Rule, so a wave-in square thru
+should end with the two couples FACING each other. Measured, the catalogue's wave authorings (which
+are byte-identical to the reference's, the only difference in the file being the separation-2 block an
+earlier round added) end with the couples facing AWAY:
+
+- from a canonical `Ocean Waves` board, `Square Thru 4` ends in `Lines Facing Out` (named, and the
+  dancers all face outward);
+- from the four-dancer `Right-Hand Wave` authoring — the one the corpus actually uses, via the
+  parallel path on a `Quarter Tag`'s centre wave — `figm36`'s board ends with **0 of 8 dancers having
+  anyone directly in front**, and the two centre couples facing apart.
+
+Applied to the centre four ALONE it gives the identical board, so the parallel path is not at fault;
+the authoring is. **Two corpus figures then depend on that board in OPPOSITE directions**, which is
+worth knowing before "fixing" it either way: `figm36` wants `Do Sa Do` (CALLERLAB: "Starting
+formation: Facing Dancers", ending "Facing Dancers") and `figm37` wants `Spin Chain Thru` (CALLERLAB:
+"Starting formation: Ocean Wave" — and its own change log says **"8/12/02 Removed the reference to Fan
+the Top and Spin Chain Thru from the Facing Couples Rule"**, so facing couples will NOT do). Correcting
+the ending to `Facing Couples` would therefore fit `figm36` and not `figm37`. **Round 23 stopped at
+the measurement: the fix is a hand-authored end pose and the data is the reference's own, so it needs
+one more round and a decision about which figure to believe.**
+
+**AND `Do Sa Do`'s OWN OCEAN WAVE RULE IS A DOCUMENTED GAP, INDEPENDENTLY OF THAT.** CALLERLAB:
+*"The Ocean Wave Rule applies to this call. The ending formation remains Facing Dancers."* The
+engine's derived `Do Sa Do` is an IDENTITY (measured, and correct) whose precondition requires every
+dancer to have a mutual facing partner, so it refuses a WAVE — a call CALLERLAB says applies there.
+Low yield on its own (the census has one `Do Sa Do` stop, and it is `figm36`'s, on the board above), so
+it is recorded with its citation rather than shipped alone.
+
 **THE GET-OUT CORPUS'S BIGGEST BLOCKER IS NOT WHAT ITS RANKING SUGGESTS (round 22).** Measured over
 every alignment's published lines, **51 of them stop on `Right and Left Grand`** — by far the largest
 single entry — and 15 more on `Allemande Left`, 9 on `Single File Promenade`, 6 on `Extend`, 5 on

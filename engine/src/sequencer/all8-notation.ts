@@ -572,7 +572,14 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   'A Full Turn',
   'Separate Around One',
   'Separate Around Two',
-  'Split the Outside Couple',
+  // `Split the Outside Couple` USED TO BE HERE, and it was a gap in the CATALOGUE but not in the
+  // engine: CALLERLAB renamed the call. Its own change log says "1/9/08 ... Replaced 'Split the
+  // Outside Couple' with 'Split Two'", the `Split Two` entry still lists the old wording among its
+  // command examples, and the catalogue HAS `Split Two`. So this was a missing BRIDGE, now in
+  // `CALL_SYNONYMS`, and the stale-gap check demanded the removal - which is the whole point of the
+  // check. `Separate Around One/Two` above stay: the catalogue implements those only as COMPOSED
+  // titles (`Heads Pass Thru, Separate Around 2 to a Line`) with no bare call behind them, so they
+  // are a genuine gap of a different kind.
   'Walk Across',
   'Yellow Rock',
   // These three were the ONLY entries in the harness's separate copy of this list that the engine's

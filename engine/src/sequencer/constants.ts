@@ -147,10 +147,30 @@ export const CALL_SYNONYMS: Record<string, string> = {
   //   The catalogue titles it `Right Hand Star` (`ms/star.xml`) - identical but for the hyphen,
   //   which All8's own punctuation table says carries no meaning inside a call name.
   'Right-hand Star': 'Right Hand Star',
+  //   `Split the Outside Couple` (4 figure stops). This one is not a spelling difference and it is
+  //   not an equivalence decision either: it is a call CALLERLAB RENAMED. Its own change log says so
+  //   in as many words -
+  //
+  //       "1/9/08 ... Replaced 'Split the Outside Couple' with 'Split Two' and corrected the
+  //        definition of Separate."
+  //
+  //   - and the current `Split Two` entry still lists both spellings among its own command examples
+  //   (`Centers Split the Outside Couple and Separate Around 1 to a Line`, `Heads Square Thru 4;
+  //   Split the Outside Couple`). The catalogue has `Split Two` (`ms/split_two.xml`), so All8 is
+  //   writing the retired name for a call the engine already performs.
+  'Split the Outside Couple': 'Split Two',
+  //   `Split the Outside 2` is the same entry's other wording for the same action (`Centers Split
+  //   the Outside 2`, `Heads Square Thru 4; Split the Outside 2`), so it is bridged with it. Not
+  //   `Split the Outsides`: that one appears only inside "Centers Split the Outsides, Go Around 1 to
+  //   a Line", where it carries the Around-1 continuation and is therefore a different reading of
+  //   the name rather than another spelling of the bare call.
+  'Split the Outside 2': 'Split Two',
   // NOT bridged, because they are equivalence decisions rather than spellings, and each needs its
   // own evidence: `All 8 Circulate 1 1/2` -> `Circulate 1 1/2` (Phase 5c's dispatch says the two
-  // coincide FROM A WAVE only), `All Promenade 1/2` -> `All 4 Couples Promenade 1/2`, and
-  // `Split the Outside Couple` -> `Centers Split the Outside Couple`.
+  // coincide FROM A WAVE only) and `All Promenade 1/2` -> `All 4 Couples Promenade 1/2`.
+  // `Split the Outside Couple` USED TO BE LISTED HERE and is bridged above: the plan wanted evidence
+  // that it means `Centers Split the Outside Couple`, and CALLERLAB's change log supplied better
+  // evidence than that - the name was retired in favour of `Split Two`.
 };
 
 // ---------------------------------------------------------------- number words

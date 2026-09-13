@@ -4018,6 +4018,47 @@ and the note is prose, not a call cell. It is the engine that danced the wrong a
 
 
 
+#### `Split the Outside Couple` — DONE as a BRIDGE, and it measures ZERO (with the reason now visible)
+
+The second-largest "unknown call" in the census (4 figures: `figm109`–`figm112`). It is not a missing
+call and it is not a spelling difference: **CALLERLAB renamed it.** Its own change log says so —
+
+> "1/9/08 … Replaced `Split the Outside Couple` with `Split Two` and corrected the definition of
+> `Separate`."
+
+— and the current `Split Two` entry still prints the old wording among its own command examples
+(`Centers Split the Outside Couple and Separate Around 1 to a Line`, `Heads Square Thru 4; Split the
+Outside Couple`). The catalogue has `Split Two` (`ms/split_two.xml`), so `CALL_SYNONYMS` now bridges
+both `Split the Outside Couple` and `Split the Outside 2`, and the stale-gap check demanded the removal
+from `KNOWN_CATALOGUE_GAPS` the moment the bridge existed — the same gate behaviour as `Join Hands`,
+`Fold`, `Single Hinge` and Phase 9b's two.
+
+**Measured: 95 → 95. It is a cleanup, not progress, and the honest accounting matters.** Unknown-call
+falls **12 → 8** and *catalogue tam has no setup* rises **40 → 44**: the four figures moved DEEPER and
+now stop on `Touch 1/4` (×2), `Tag the Line` and `Right and Left Thru`. That is the same re-attribution
+Phase 9b produced and it is the fourth time this workstream has had to write "0 figures" next to a
+correct fix; the reason it still ships is that the census's own cause table is a tool, and leaving four
+figures mislabelled "we do not know this call" misdirects the next phase.
+
+**And the bridge immediately exposed a body question, which is the real yield.** Applying `Split Two`
+to the engine's own `Eight Chain Thru` board moves **all eight dancers by exactly 2**:
+
+```
+#1B(-3,1)@E  -> (-1,1)@E      #4G(-1,1)@W  -> (-3,1)@W
+#2G(-3,-1)@E -> (-1,-1)@E     #3B(-1,-1)@W -> (-3,-1)@W
+...
+MOVED 8 of 8, every one by 2.00, ending in Trade By
+```
+
+— a whole-board `Pass Thru`. CALLERLAB's ending for the call is a per-dancer statement, not a whole-set
+one: *"The Inactive dancers move apart to let them through then move back together … **Inactive dancers
+end where they started**"*, and the actives end *"with their backs to the dancers they split"*. A tam
+in which every dancer advances cannot satisfy that, so either this tam is authored as a whole-set
+demonstration of the wrong call, or the board it is being asked to run on is not the Eight Chain Thru
+CALLERLAB means. That is a **concrete next measurement** and it is deliberately NOT adjudicated here:
+`Split Two` has more setups than the one variant that matched, and the four figures now stop one call
+later, so a wrong reading would be invisible in the figure count.
+
 #### `Sweep a Quarter` — the definition read, and the eight corpus cases measured
 
 

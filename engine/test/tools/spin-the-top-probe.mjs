@@ -78,4 +78,33 @@ for (const start of ['Ocean Waves', 'Tidal Wave']) {
     console.log(`  ${call.padEnd(13)} [${seq.knownFormation(r.board)}] ${pose(r.board)}`);
     console.log(`            gaps under 3.5: ${spacings(r.board)}`);
   }
+
+  // THE PER-HALF READING, FORCED. `parallelApply` is private, but `selectInterpretation` chooses
+  // between the whole-board and parallel readings with `config.rand()`, so probabilistic mode plus a
+  // fixed high random source pins the parallel branch. This is the reference's SplitCall route: the
+  // catalogue's 4-dancer wave tam applied to each half. It is ALSO the reading `parallelApply` can only
+  // reach today as a FALLBACK, i.e. never on these boards, whose whole-board match succeeds at 0.000.
+  seq.setSelectionMode('probabilistic');
+  seq.setRandomSource(() => 0.999);
+  for (const call of ['Fan the Top', 'Spin the Top']) {
+    const r = seq.applyToBoard(board, call);
+    console.log(
+      r.legal
+        ? `  ${call.padEnd(13)} [PARALLEL] [${seq.knownFormation(r.board)}] ${pose(r.board)}\n` +
+          `            gaps under 3.5: ${spacings(r.board)}`
+        : `  ${call.padEnd(13)} [PARALLEL] REFUSED: ${r.reason}`,
+    );
+  }
+  seq.setSelectionMode('best');
+}
+
+// WHAT SETUPS EXIST AT ALL. `parallelApply` skips any setup of size >= the board, so which sizes a
+// call HAS decides which of them the per-half route can even reach. A 2-dancer setup on an 8-dancer
+// board tiles into four groups of two, which is NOT the reference's SplitCall (halves of four).
+for (const call of ['Fan the Top', 'Spin the Top']) {
+  const variants = seq.matchableVariants(call);
+  const bySize = new Map();
+  for (const v of variants) bySize.set(v.dancers.length, (bySize.get(v.dancers.length) ?? 0) + 1);
+  const sizes = [...bySize].sort((a, b) => a[0] - b[0]).map(([k, n]) => `${n}x${k}-dancer`).join(', ');
+  console.log(`\n${call}: ${variants.length} matchable variant(s) - ${sizes || 'none'}`);
 }

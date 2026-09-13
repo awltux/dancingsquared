@@ -759,6 +759,7 @@ mis-measurement supported (there is no missing separation here) still holds, but
 does not: the bucket is not "no setup of the right shape", it is "the right setup with the genders
 the other way round" (the ROLE READING above, +3 figures) plus genuine body defects, several of them now
 root-caused just below.
+
 **THE HALF-SCALE `TIDAL WAVE` IS NOW ROOT-CAUSED, AND THE FIX IS AUTHORITATIVE BUT NOT YET A WIN
 (round 25).** The measurement, first:
 
@@ -801,20 +802,69 @@ Three facts pin the owner:
   shape. Whatever the fault is, it is in reading the per-half paths, not in finding them.
 
 **The next target is therefore `Fan the Top` as a derived call** (split near/far then left/right into
-4-dancer waves, apply the wave motion per half), and it is the SAME work round 26 scoped — a strict
-tolerance, no-snap per-half apply mode — now with a much better witness: the two canonical boards above
-are a two-line test that needs no figure at all to tell right from wrong. (The obvious stronger test —
-a bare 4-dancer wave — is NOT reachable through the public API: `library.ts` keeps only 8-dancer named
-formations and mirrors every 4-dancer one up to 8, so `boardForFormation('Wave RH GBBG')` yields no wave
-of four, and on the doubled board the matcher picks the 8-dancer demonstration tam anyway.)
-- **And the authority says it must work each.** `Fan the Top` is a per-half call in the reference —
-  `FanTheTop extends SplitCall`, and `split_call.dart` states it outright: *"This is a class for 3- or
-  4-dancer calls ... The formation is split and the call performed on each side"* (near/far first, then
-  left/right) — and `SpinTheTop` is defined as two parts: part 1 `Swing` (whole board, after checking
-  every active is in a wave), part 2 `Fan the Top`. Both are CODED in the reference and therefore only
-  demonstrations in the XML — our `ms/spin_the_top.xml` is byte-identical to the reference's and neither
-  marks it `sequencer="no"`. This is the `Fold` pattern exactly, whose remedy (transcribe the rule) is
-  already the house style.
+4-dancer waves, apply the wave motion per half) — but **read the next section first**: round 28 measured
+that simply *preferring* the per-half route does not work, because the 4-dancer tams are wrong too, so
+the 4-dancer motion itself has to be authored rather than borrowed from the catalogue. The witness is
+still much better than round 26's: the two canonical boards above are a two-line test that needs no
+figure at all to tell right from wrong. (The obvious stronger test — a bare 4-dancer wave — is NOT
+reachable through the public API: `library.ts` keeps only 8-dancer named formations and mirrors every
+4-dancer one up to 8, so `boardForFormation('Wave RH GBBG')` yields no wave of four, and on the doubled
+board the matcher picks the 8-dancer demonstration tam anyway.)
+
+**AND THE AUTHORITY SAYS IT MUST WORK EACH.** `Fan the Top` is a per-half call in the reference —
+`FanTheTop extends SplitCall`, and `split_call.dart` states it outright: *"This is a class for 3- or
+4-dancer calls ... The formation is split and the call performed on each side"* (near/far first, then
+left/right) — and `SpinTheTop` is defined as two parts: part 1 `Swing` (whole board, after checking
+every active is in a wave), part 2 `Fan the Top`. Both are CODED in the reference and therefore only
+demonstrations in the XML — our `ms/spin_the_top.xml` is byte-identical to the reference's and neither
+marks it `sequencer="no"`. This is the `Fold` pattern exactly, whose remedy (transcribe the rule) is
+already the house style.
+
+**TWO CHEAP CANDIDATE FIXES ARE NOW MEASURED AND ELIMINATED (round 28).** Both were the obvious
+shortcuts past writing a derived rule, and both are refuted by measurement rather than argument.
+
+1. **"Just prefer the per-half (parallel) reading."** REFUTED. `parallelApply` is private, but it is
+   reachable publicly: `selectInterpretation` picks between the whole-board and parallel readings with
+   `config.rand()`, so `setSelectionMode('probabilistic')` + `setRandomSource(() => 0.999)` pins the
+   parallel branch. Forced that way on the canonical boards:
+
+   ```
+   Ocean Waves  Fan the Top  [PARALLEL]  a line of 8 at y=0 spanning x=-5..5   WRONG
+   Ocean Waves  Spin the Top [PARALLEL]  a line of 8, x=-5..5                  WRONG
+   Tidal Wave   Fan the Top  [PARALLEL]  Ocean Waves, columns x=±1, ±3         same as whole-board
+   Tidal Wave   Spin the Top [PARALLEL]  Ocean Waves, columns x=±1, ±3         same as whole-board
+   ```
+
+   So the per-half route is not merely unhelpful on these boards, it is *worse* on `Ocean Waves`
+   (scattering dancers out to x=±5). `parallelApply` reaches the 4-dancer tams — line 492 of
+   `applicator.ts` skips any setup of size ≥ the board, so the 8-dancer demonstration tam is never a
+   candidate there — and the 4-dancer tam still produces the wrong shape. **The 4-dancer motion is
+   wrong too, not just the 8-dancer wrapping.** The variant inventory (added to the same probe, because
+   "which sizes exist" decides what the per-half route can even reach) rules out the alternative that
+   it had tiled into something smaller:
+
+   ```
+   Fan the Top:  28 matchable variant(s) - 10x4-dancer, 18x8-dancer   (no 2-dancer setup at all)
+   Spin the Top: 10 matchable variant(s) -  4x4-dancer,  6x8-dancer
+   ```
+
+   so on an 8-dancer board the parallel route can only ever use the four-dancer tams, and it did.
+
+2. **"Correct the `Tidal Wave` template's scale."** REFUTED, and this one matters because it looks like
+   a port bug. `formations.xml` authors `Tidal Wave` with its four dancers ONE apart (y = -3.5, -2.5,
+   -1.5, -0.5) while `Ocean Waves` authors its four TWO apart (y = 3, 1, -1, -3). That IS a real scale
+   outlier — but it is **not ours**: `taminations-flutter/assets/src/formations.xml` lines 1110-1115 are
+   byte-identical, so the half-scale `Tidal Wave` is authoritative reference data, not a transcription
+   error. The reference gets away with it because its calls are CODED and never use a template as a
+   match target; our engine does, which is the architectural difference this whole section is about.
+   Editing the template would be inventing data.
+
+   The reusable lesson: **`poc/src/assets` and `taminations-flutter/assets` are the same catalogue,
+   so "the data is wrong" must be checked against the reference copy before it is believed.** VERIFIED
+   for the four files this section depends on — `formations.xml`, `moves.xml`, `ms/spin_the_top.xml` and
+   `plus/fan_the_top.xml` all compare **identical** to their reference counterparts (only the path differs:
+   `assets/src/X` there, `assets/ms/X` here). A `Compare-Object` of the two trees is the cheap first
+   step, and it would have saved this round.
 
 **AND BOTH COMPOSITIONS WERE IMPLEMENTED, MEASURED AND REVERTED — ROUND 26 FOUND WHY.**
 In `tryCodedMove`, by two different routes:

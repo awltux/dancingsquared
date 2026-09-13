@@ -97,6 +97,11 @@ export interface CallBundle {
   // arrangement matches the setup's gender slots (e.g. "Boys Turn Back"). Derived from
   // `sequencerMode`, which is the single source of truth for the attribute.
   genderSpecific?: boolean;
+  // The authored `actives` attribute, verbatim, or absent. WHICH DANCERS the tam's paths describe:
+  // a tam that declares it is authored for a subset (or for "All"), and the engine currently
+  // IGNORES it when it mirrors a four-dancer setup to eight. Carried so that mis-registration is
+  // visible and pinnable; see `TamRaw.actives` in convert.ts and PLAN.md's Phase C.
+  actives?: string | null;
 }
 
 export interface Pose {

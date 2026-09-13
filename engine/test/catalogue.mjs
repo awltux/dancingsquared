@@ -26,7 +26,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser } from '../dist/index.js';
+import { Sequencer, parseCallXml, setParser } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
@@ -91,6 +91,44 @@ console.log('\n== the skips that DO happen are recorded, and are exactly the kno
   check(want.length > 0, 'the known-skip list is non-empty (the shipped catalogue is not clean)');
   check(seq.registrationFailures().length === want.length,
     `the failure count is ${want.length}, not ${seq.registrationFailures().length}`);
+}
+
+console.log('\n== the `actives` attribute is carried, and the shipped data is PINNED ==');
+// The attribute says WHICH DANCERS a tam's paths describe. Nobody read it, and that is the whole
+// reason `Centers Split Two` dances as a whole-board `Pass Thru`: the tam is authored against a
+// FOUR-dancer `Eight Chain Thru` formation with `actives="Centers"`, and the engine MIRRORS that
+// setup to eight, so the centres' motion is applied to everybody (PLAN.md, Phase C). Carrying the
+// attribute is the first half - the plumbing that makes the mis-registration visible and gateable;
+// what to DO with it at the apply path is a separate, riskier step.
+//
+// The values are pinned as a literal so the shipped data cannot drift silently, and so that adding
+// a subset-authored tam is a deliberate edit. Counting by VALUE rather than by tam is what makes
+// the pin meaningful: 18 tams say "All" (everyone moves, where the mirror is correct) and 10 name a
+// real subset ("Ends" 4, "Centers" 3, "Heads" 2, "Sides" 1).
+{
+  const EXPECTED = { All: 18, Ends: 4, Centers: 3, Heads: 2, Sides: 1 };
+  const got = new Map();
+  let declared = 0;
+  for (const { xml } of callsByTitle(assets)) {
+    for (const tam of parseCallXml(xml)) {
+      if (!tam.actives) continue;
+      declared++;
+      got.set(tam.actives, (got.get(tam.actives) ?? 0) + 1);
+    }
+  }
+  check(got.size > 0, 'the pipeline carries `actives` at all (it was parsed by nobody)');
+  check(declared === Object.values(EXPECTED).reduce((a, b) => a + b, 0),
+    `exactly ${Object.values(EXPECTED).reduce((a, b) => a + b, 0)} shipped tams declare actives=, not ${declared}`);
+  const mismatched = Object.entries(EXPECTED).filter(([k, v]) => got.get(k) !== v);
+  check(mismatched.length === 0,
+    `the declared values are unchanged (${[...got.entries()].map(([k, v]) => `${k}:${v}`).sort().join(' ')})`);
+  if (mismatched.length) console.log(`        wanted ${JSON.stringify(EXPECTED)}`);
+  // ...and the one that motivated the plumbing says what it says, so the record cannot rot.
+  const split = parseCallXml(
+    readFileSync(path.join(assets, 'ms', 'split_the_outside_couple.xml'), 'utf8'),
+  ).filter((t) => t.actives);
+  check(split.length > 0 && split.every((t) => t.actives === 'Centers'),
+    `"Centers Split Two"'s tams are the subset-authored witness (${split.map((t) => t.actives).join(', ')})`);
 }
 
 console.log('\n== a call defined at several LEVELS: the pool is highest-first, and nothing is dropped ==');

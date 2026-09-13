@@ -273,6 +273,20 @@ authoring, which is why they are their own phase.
    for every such tam, not just this call); then decide the apply path — the engine already has a
    subset reading (`applySelected`) and a tiling reading (`boxGroups`), and the reference's rule needs
    the ACTIVE set plus the inactive pairs it splits.
+   **Step 1 is DONE** (`convert.ts` + `types.ts`, gated in `test/catalogue.mjs`): the attribute is
+   parsed verbatim onto `TamRaw` and `CallBundle`, and the shipped data is pinned — **28 tams declare
+   it, by value `All` 18, `Ends` 4, `Centers` 3, `Heads` 2, `Sides` 1**, with `Centers Split Two`'s
+   three tams asserted to be the `Centers` witness. The census is unchanged at 103: this is plumbing,
+   not behaviour, and it is the plumbing that makes the next step reviewable.
+   **A CORRECTION the analysis turned up, and it moves the cause one level up.** The earlier note here
+   blamed the "1 path per dancer-pair" fallback in `buildCallImpl`. Measured over the whole catalogue,
+   **all 28 `actives` tams are 1:1** (paths == dancers) and NONE hits that branch — `formations.xml`'s
+   `Eight Chain Thru` is a **four**-dancer half-group formation, and `mirrorToFull` is what turns the
+   tam into an eight-dancer setup, so the centres' motion ends up applied to everybody. So the decision
+   to make is what the MIRRORED half should do: for `All` the mirror is correct as it stands; for
+   `Heads`/`Sides`/`Centers`/`Ends` the mirrored half is the OTHER dancers, which CALLERLAB's `Split
+   Two` says "end where they started". That is a change to `buildCallImpl`/`mirrorToFull` and it
+   affects 10 tams, so it wants its own round and its own gate rather than riding along with this one.
 
 ### Phase D — the missing calls (Phase 14 residue)
 

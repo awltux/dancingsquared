@@ -246,6 +246,15 @@ interface TamRaw {
   // `no`, which marks a demonstration animation the sequencer must not match — the
   // reference implementation skips those outright (`xml_call.dart:57-59`).
   sequencerMode: SequencerMode | null;
+  // The `<tam actives="…">` attribute, verbatim, or null. WHICH DANCERS THE TAM'S PATHS DESCRIBE.
+  //
+  // It matters because a tam carrying it is authored for a SUBSET: `Centers Split Two`
+  // (`ms/split_the_outside_couple.xml`) has `actives="Centers"` and four paths against a
+  // four-dancer `Eight Chain Thru` formation, which the engine then MIRRORS to eight — so the
+  // centres' motion is applied to all eight and the call becomes a whole-board `Pass Thru`. The
+  // attribute is read here so that the mis-registration is at least VISIBLE and pinnable; deciding
+  // what to do with it at the apply path is a separate step (PLAN.md, Phase C).
+  actives: string | null;
 }
 
 /** Parse the `sequencer` attribute, keeping every value Taminations defines. */
@@ -281,6 +290,7 @@ function parseCallXmlImpl(xmlText: string): TamRaw[] {
       dancers,
       paths,
       sequencerMode: parseSequencerMode(tam.getAttribute('sequencer')),
+      actives: tam.getAttribute('actives'),
     });
   }
   return tams;
@@ -361,6 +371,7 @@ function buildCallImpl(
     sequencerMode: tam.sequencerMode,
     forSequencer: tam.sequencerMode !== 'no',
     genderSpecific: tam.sequencerMode === 'gender-specific',
+    actives: tam.actives,
   };
 }
 

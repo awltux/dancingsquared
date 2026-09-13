@@ -775,6 +775,70 @@ console.log('\n== Sequencer: a gender-specific tam\'s path is a ROLE motion, not
   check(refused.legal === false, `a board with same-gender couples is still refused: ${refused.legal ? 'APPLIED' : refused.reason}`);
 }
 
+console.log('\n== Sequencer: CALLERLAB\'s implicit adjustment after a Fold, and its SCOPE ==');
+// CALLERLAB, on Fold: "Fold can create formations that are very unusual at Mainstream. In such
+// situations, callers generally use implicit adjustments to normalize the formation... Double Pass
+// Thru implicitly tells dancers that they should be in the starting formation for that call (facing
+// Tandems). The Double Pass Thru is danced as if the Tandems were facing, ending normally. This type
+// of implicit adjustment is generally accepted at Mainstream, particularly following Fold or Cross
+// Fold." The engine's matcher insists the board already IS the setup, so seven published chains
+// stopped on the call right after a Fold. MEASURED: six of the seven (the seventh is `Yellow Rock`,
+// a Plus call the catalogue does not have).
+//
+// The permission is the SCOPE, so that is what the gates below pin: the board a Fold leaves carries
+// it, no other board does, the same call on the same board WITHOUT it must still refuse, and the
+// adjustment must still leave a body.
+{
+  const replay = (calls) => {
+    let b = scopedSeq.startBoard();
+    for (const c of calls) {
+      const r = scopedSeq.applyToBoard(b, c);
+      if (!r.legal) return { ok: false, call: c, reason: r.reason, board: b };
+      b = r.board;
+    }
+    return { ok: true, board: b };
+  };
+  // figm89's chain up to and including the Fold.
+  const toFold = replay(['Heads Right and Left Thru', 'Heads Square Thru 4', 'Swing Thru', 'Boys Run',
+    'Couples Circulate', '1/2 Tag', 'Scoot Back', 'Boys Fold']);
+  check(toFold.ok, `the figm89 chain reaches the Fold: ${toFold.ok ? 'ok' : `${toFold.call}: ${toFold.reason}`}`);
+  if (toFold.ok) {
+    const foldBoard = toFold.board;
+    check(foldBoard.adjustToNextSetup === true,
+      'the board a Fold leaves CARRIES the implicit adjustment owed to the next call');
+    check(scopedSeq.knownFormation(foldBoard) === null,
+      `...and is unnamed, which is why the adjustment is owed at all: ${scopedSeq.knownFormation(foldBoard)}`);
+
+    // THE SCOPE. The same board WITHOUT the permission must refuse the same call - that is the whole
+    // difference the change makes, and it is why the adjustment cannot reach any other board.
+    const bare = { dancers: foldBoard.dancers.map((d) => ({ ...d })) };
+    const stripped = scopedSeq.applyToBoard(bare, 'Girls Turn Thru');
+    check(stripped.legal === false,
+      `the same call on the same board WITHOUT the permission still refuses: ${stripped.legal ? 'APPLIED' : stripped.reason}`);
+    const adjusted = scopedSeq.applyToBoard(foldBoard, 'Girls Turn Thru');
+    check(adjusted.legal === true,
+      `...and with it, the call is danced from its own starting formation: ${adjusted.reason ?? 'ok'}`);
+    if (adjusted.legal) {
+      check(!adjusted.board.adjustToNextSetup,
+        '...and the permission is SPENT, so it can only ever authorize the single call after a Fold');
+      const rest = replay(['Heads Right and Left Thru', 'Heads Square Thru 4', 'Swing Thru', 'Boys Run',
+        'Couples Circulate', '1/2 Tag', 'Scoot Back', 'Boys Fold', 'Girls Turn Thru', 'Swing Your Partner', 'Promenade']);
+      check(rest.ok, `...and the rest of figm89 then runs (Swing Your Partner, Promenade): ${rest.ok ? 'ok' : `${rest.call}: ${rest.reason}`}`);
+    }
+  }
+
+  // AND IT MUST LEAVE A BODY. figm83's post-Fold board stands 4.0 away from `Ladies Chain`'s setup, and
+  // normalizing onto it put two dancers on one spot - `facing-audit.mjs` re-classified that figure from
+  // `coverage?` to COLLISION, i.e. the adjustment laundered a body error. The guard refuses instead.
+  const f83 = replay(['Heads Promenade Full', 'Sides Square Thru 4', 'Touch 1/4', 'Scoot Back', 'Boys Fold']);
+  check(f83.ok, `the figm83 chain reaches its Fold: ${f83.ok ? 'ok' : `${f83.call}: ${f83.reason}`}`);
+  if (f83.ok && f83.board.adjustToNextSetup) {
+    const chain = scopedSeq.applyToBoard(f83.board, 'Ladies Chain');
+    check(chain.legal === false,
+      `...and the adjustment DECLINES it rather than leave two dancers on one spot: ${chain.legal ? 'APPLIED (a laundered collision)' : chain.reason}`);
+  }
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

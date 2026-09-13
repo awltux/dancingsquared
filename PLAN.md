@@ -57,10 +57,10 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 
 | side | value | command |
 |---|---|---|
-| figures end-to-end | **113 of 188** (was 110) | `node engine/test/tools/figure-census.mjs` |
-| get-out corpus: reaching a state the standard finish resolves from | **122 of 265** (was 116) | `node engine/test/getout-behaviour.mjs` |
-| … of which ended by applying the finish itself | **110** (was 105) | same |
-| … decoded but stopped at a call (the body gap) | **110** (was 115) | same |
+| figures end-to-end | **114 of 188** (was 113) | `node engine/test/tools/figure-census.mjs` |
+| get-out corpus: reaching a state the standard finish resolves from | **124 of 265** (was 122) | `node engine/test/getout-behaviour.mjs` |
+| … of which ended by applying the finish itself | **112** (was 110) | same |
+| … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **2 (call, start) pairs + 24 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
 | gates | `verify:light` green; `verify` green (20 harnesses, ~295 s); `verify:figures` **red by design** | `npm run verify --prefix engine` |
@@ -68,11 +68,11 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 The figure census's blocking causes, re-measured after Phases A and E:
 
 ```
-   35  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
+   34  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
     7  selection will not resolve on this board
     6  derived call refuses ("Sweep 1/4")
+    5  unknown call (no catalogue entry)
     4  derived call refuses ("Swing Thru")
-    4  unknown call (no catalogue entry)
     4  derived call refuses ("Promenade")
     2  other: "Circle 2" not legal for selected dancers
     2  other: "Walk and Dodge" not legal for selected dancers
@@ -356,10 +356,12 @@ five `Star Thru` stops (`figm#102`, `figm#185`, `figm#186`) went with it; what r
 `figm#15` (which now stops LATER, on a subsequent `Box the Gnat`) and the unnamed/`Completed Double
 Pass Thru` boards.
 
-### Phase C — the two missing conventions
+### Phase C — the missing conventions
 
 Both are stated by CALLERLAB and absent from the engine. They are different kinds of work from an
-authoring, which is why they are their own phase.
+authoring, which is why they are their own phase. **Item 1 (the implicit adjustment after
+Fold/Cross Fold) is DONE — round 17, +1 figure and +2 get-out lines; item 2 (the active set) is the
+last one open, and the Ocean Wave Rule is item 3.**
 
 1. **The implicit adjustment after Fold/Cross Fold.** CALLERLAB, on "Heads Square Thru 4, Touch a
    Quarter, Girls Fold, Double Pass Thru": *"Double Pass Thru implicitly tells dancers that they
@@ -368,6 +370,29 @@ authoring, which is why they are their own phase.
    already IS the setup. Four cleared Fold chains now stop on `Yellow Rock`, `Star Thru`,
    `Ladies Chain` and `Turn Thru` because of this. The scoping is in CALLERLAB's own words — the
    calls that follow a Fold — and the gate must assert it fires nowhere else.
+   **DONE in round 17: +1 figure (113 → 114) and +2 get-out lines (122 → 124).** The witness set,
+   measured rather than quoted: **SEVEN** figures stop on the call right after a Fold
+   (`figm30`, `figm70`, `figm71`, `figm83`, `figm89`, `figm136`, `figm142`), and every one reaches its
+   Fold from a NAMED, legitimate formation (Ocean Waves, Two-Faced Lines, Eight Chain Thru) — so no
+   upstream body error is involved, which was the thing to establish before touching it.
+   The mechanism is a **permission carried by the board** (`Board.adjustToNextSetup`, set only by
+   `foldRule` and dropped by every apply result, since each result is a freshly built board). The next
+   call is matched strictly FIRST; only if that refuses, and only on the interactive path, is it
+   re-matched at the SEARCH tolerance and **re-based onto its own setup** — which is literally
+   CALLERLAB's "danced as if the Tandems were facing", because `applyWholeBoard` with `rebase = true`
+   puts each dancer on the mapped setup slot before applying the motion. The permission IS the scope,
+   so the gate is structural: the same call on the same board with the flag stripped must still
+   refuse. Held off the search path deliberately — there a force-fit is not a normalization but a
+   bogus solver edge.
+   **The trap was walked into and is now guarded.** Without a postcondition the adjustment ran
+   `figm83`'s first `Ladies Chain` from a board **4.0** away from its setup and left two dancers on
+   one spot: `facing-audit.mjs` re-classified that figure `coverage?` → **COLLISION** (refusal boards
+   39 → 38 but COLLISION 3 → 4) — a laundered body error, which is what an implicit adjustment must
+   never be. `adjustToSetup` now refuses any result with two dancers closer than **1.0**, the same
+   threshold `SWEEP_COLLISION_MIN` and the audit's COLLISION class use, so the engine and the
+   instrument cannot disagree. Final measured state: figures **114**, refusal boards **39 → 38**,
+   COLLISION **3 → 3**, get-out **124**. `figm142` moved out of the no-setup bucket onto
+   `Change Hands` (an unknown call, Phase D) — an attribution change, not a win.
 2. **"Active dancers continue."** CALLERLAB assumes the active set carries across calls; the engine
    has no active-set tracking. This is the `Right-hand Star` / `Centers` family, and it is also why
    `-BRun` is an approximation in the decoder (`-B` = "the Boy(s) AMONG THE DANCERS WHO WERE ACTIVE").
@@ -974,7 +999,9 @@ swing's local closure end pose (103 → 95). Then, in this order:
    `Sides Right and Left Thru` 2).
 2. **Phase B** — the authoring queue, call by call, definition first; run `facing-audit.mjs` and a
    chain trace before each row.
-3. **Phase D** — the named missing calls (`unknown call` is down to 3, so this is bounded work).
+3. **Phase C item 3 (the Ocean Wave Rule)** and **Phase D** — the named missing calls (`unknown call`
+   is 5, so this is bounded work). Phase C items 1 and 2 are DONE and the per-PAIR/per-ROLE gender
+   work is DONE; Phase C's active-set item is the last convention left.
 4. **Phase C** — the two conventions; design before code, both have board-wide blast radius.
 5. **`Swing Your Partner`'s end pose** — needs a corpus- or reference-pinned model, not a local rule.
 6. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,

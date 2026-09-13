@@ -177,6 +177,10 @@ export function foldRule(
         const m = moved.get(d.id);
         return m ? { ...d, x: m.x, y: m.y, heading: m.heading } : d;
       }),
+      // The adjustment CALLERLAB owes the NEXT call — see `Board.adjustToNextSetup`. This rule
+      // deliberately does not tidy its own end pose (`ctx.noSnap()` in the reference), which is why
+      // the permission belongs on the board it returns rather than in this rule's geometry.
+      adjustToNextSetup: true,
     },
   };
 }

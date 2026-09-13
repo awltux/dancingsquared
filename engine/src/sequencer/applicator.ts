@@ -27,6 +27,14 @@ export interface ApplyResult {
   reason?: string;
 }
 
+/**
+ * The gap below which a board has "dancers on top of each other" — the SAME 1.0 the Sweep's
+ * `SWEEP_COLLISION_MIN` and `facing-audit.mjs`'s COLLISION class use, so the engine and the
+ * instrument cannot disagree about when a body has fallen apart. Used by the implicit adjustment
+ * (`adjustToSetup`), which is the one place in the engine that deliberately moves dancers a long way.
+ */
+const BODY_COLLISION_MIN = 1.0;
+
 export class CallApplicator {
   /** How deep the scoped-tam fallback may nest. See the fallback in `applyToBoardInner`. */
   private static readonly MAX_SCOPED_DEPTH = 2;
@@ -101,6 +109,23 @@ export class CallApplicator {
     if (!match) {
       const par = this.parallelApply(board, callName, rebase, matchTol);
       if (par) return par;
+      // CALLERLAB'S IMPLICIT ADJUSTMENT, owed by a Fold (see `Board.adjustToNextSetup` for the
+      // convention and its scope). `Fold` and `Cross Fold` "can create formations that are very
+      // unusual at Mainstream", and CALLERLAB's own comment says callers normalize them on the NEXT
+      // call - *"Double Pass Thru implicitly tells dancers that they should be in the starting
+      // formation for that call (facing Tandems)"*.
+      //
+      // The reading is: match the board against the call's own setup with the SEARCH tolerance and
+      // RE-BASE onto it, which is literally "danced as if the Tandems were facing". The permission is
+      // the scope - `foldRule` is its only setter and every apply result is a freshly built board, so
+      // this can only ever run for the single call that follows a Fold/Cross Fold, and only after the
+      // strict reading has already refused. Held to the INTERACTIVE path on purpose: the search path
+      // enumerates legal calls for the solver, where a force-fit is not a normalization but a bogus
+      // edge (the "loose-tolerance force-fits" already recorded against the `fixIt` list).
+      if (rebase && board.adjustToNextSetup) {
+        const adjusted = this.adjustToSetup(board, callName);
+        if (adjusted) return adjusted;
+      }
       // THE SCOPED-TAM FALLBACK. A name with a selection prefix that is ALSO a catalogue title
       // ("Heads Pass Thru", "Sides Pass Thru") takes the whole-board path above, on the reasoning
       // that the catalogue's own scoped tam knows best - and it does, WHEN it covers the board. The
@@ -176,6 +201,41 @@ export class CallApplicator {
     if (typeof step === 'string') return this.applyToBoardInner(board, step, stack, rebase, allowParallel);
     if (step.selection) return this.applySelected(board, step.selection, step.call, rebase);
     return this.applyToBoardInner(board, step.call, stack, rebase, allowParallel);
+  }
+
+  /**
+   * The implicit adjustment itself: match the board against the call's own setup at the SEARCH
+   * tolerance and re-base onto it, then dance the call from there.
+   *
+   * `applyWholeBoard` with `rebase = true` places each dancer on its mapped setup slot before
+   * applying the local motion, which is what makes this a NORMALIZATION rather than a force-fit: the
+   * call then runs from its documented starting formation. A 4-dancer setup is still handled by the
+   * parallel path (the witnesses are single-box reads of an 8-dancer board), which is why both
+   * readings are offered rather than only the whole-board one.
+   *
+   * AND IT MUST LEAVE A BODY. Normalizing onto a setup while the dancers stand several units away is
+   * a big move, and it is only a normalization if the result is still a set of dancers. MEASURED, and
+   * this guard exists because the trap was walked into: without it the adjustment ran `figm83`'s
+   * first `Ladies Chain` from a board 4.0 away from its setup and left two dancers on one spot, which
+   * `facing-audit.mjs` re-classified from `coverage?` to **COLLISION** (refusal boards 39 → 38 but
+   * COLLISION 3 → 4) — a laundered body error, which is exactly what an implicit adjustment must not
+   * be. With the guard, `figm83` keeps its original refusal and the one real gain is kept.
+   */
+  private adjustToSetup(board: Board, callName: string): (ApplyResult & { error: number }) | null {
+    const tol = SEARCH_MATCH_MAX + this.config.matchMargin;
+    const leavesABody = (r: ApplyResult & { error: number }): (ApplyResult & { error: number }) | null => {
+      const phys = r.board.dancers.filter((d) => !d.isGhost);
+      for (let i = 0; i < phys.length; i++) {
+        for (let j = i + 1; j < phys.length; j++) {
+          if (Math.hypot(phys[i].x - phys[j].x, phys[i].y - phys[j].y) < BODY_COLLISION_MIN) return null;
+        }
+      }
+      return r;
+    };
+    const loose = this.matcher.findMatchingVariant(board, callName, tol);
+    if (loose) return leavesABody({ ...this.applyWholeBoard(board, callName, loose, true), error: loose.error });
+    const par = this.parallelApply(board, callName, true, tol);
+    return par ? leavesABody(par) : null;
   }
 
   private applyWholeBoard(board: Board, callName: string, match: VariantMatch, rebase: boolean): ApplyResult {

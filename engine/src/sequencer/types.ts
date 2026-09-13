@@ -23,6 +23,21 @@ export interface SeqDancer {
 
 export interface Board {
   dancers: SeqDancer[]; // 8
+  /**
+   * CALLERLAB's IMPLICIT ADJUSTMENT, owed to the NEXT call. `Fold` and `Cross Fold` "can create
+   * formations that are very unusual at Mainstream", and CALLERLAB's own comment on Fold says
+   * callers "generally use implicit adjustments to normalize the formation" — *"Double Pass Thru
+   * implicitly tells dancers that they should be in the starting formation for that call (facing
+   * Tandems). The Double Pass Thru is danced as if the Tandems were facing, ending normally. This
+   * type of implicit adjustment is generally accepted at Mainstream, particularly following Fold or
+   * Cross Fold."*
+   *
+   * The flag is the SCOPE: `foldRule` is its only setter, and any apply result is a freshly built
+   * board, so it can only ever authorise the single call that follows a Fold/Cross Fold — which is
+   * exactly the scope CALLERLAB gives the convention. It is a permission, not a behaviour: the next
+   * call is still matched strictly FIRST, so nothing that works today changes.
+   */
+  adjustToNextSetup?: boolean;
 }
 
 export interface RecognizedFormation {

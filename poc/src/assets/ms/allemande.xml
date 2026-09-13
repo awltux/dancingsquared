@@ -291,32 +291,15 @@
       <dancer gender="boy" x="-3" y="1" angle="270"/>
       <dancer gender="girl" x="-3" y="-1" angle="90"/>
     </formation>
-    <path>
-      <move select="Quarter Left" beats="2" />
-    </path>
-    <path>
-      <move select="Quarter Right" beats="2" />
-    </path>
-    <path>
-      <move select="Quarter Left" beats="2" />
-    </path>
-    <path>
-      <move select="Quarter Right" beats="2" />
-    </path>
-    <path>
-      <move select="Quarter Left" beats="2" />
-    </path>
-    <path>
-      <move select="Quarter Right" beats="2" />
-    </path>
-    <path>
-      <move select="Quarter Left" beats="2" />
-    </path>
-    <path>
-      <move select="Quarter Right" beats="2" />
-    </path>
+    <path><move select="Stand" beats="2" /></path>
+    <path><move select="Stand" beats="2" /></path>
+    <path><move select="Stand" beats="2" /></path>
+    <path><move select="Stand" beats="2" /></path>
+    <path><move select="Stand" beats="2" /></path>
+    <path><move select="Stand" beats="2" /></path>
+    <path><move select="Stand" beats="2" /></path>
+    <path><move select="Stand" beats="2" /></path>
   </tam>
-
   <tam title="Allemande Left" from="Circle Left" formation="Circle" sequencer="gender-specific">
     <path>
       <move select="Eighth Left" beats="1.5" offsetX="1.1" offsetY=".4"/>

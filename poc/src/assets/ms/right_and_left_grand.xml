@@ -532,7 +532,7 @@
     </path>
   </tam>
 
-  <tam title="Weave the Ring" group=" " sequencer="gender-specific">
+  <tam title="Weave the Ring" group=" ">
      <formation>
       <dancer gender="boy" x="-1" y="-3" angle="0"/>
       <dancer gender="girl" x="1" y="-3" angle="180"/>

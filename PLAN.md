@@ -57,7 +57,7 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 
 | side | value | command |
 |---|---|---|
-| figures end-to-end | **107 of 188** | `node engine/test/tools/figure-census.mjs` |
+| figures end-to-end | **110 of 188** | `node engine/test/tools/figure-census.mjs` |
 | get-out corpus: reaching a state the standard finish resolves from | **122 of 265** (was 116) | `node engine/test/getout-behaviour.mjs` |
 | … of which ended by applying the finish itself | **110** (was 105) | same |
 | … decoded but stopped at a call (the body gap) | **110** (was 115) | same |
@@ -68,7 +68,7 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 The figure census's blocking causes, re-measured after Phases A and E:
 
 ```
-   42  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
+   39  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
     8  selection will not resolve on this board
     6  derived call refuses ("Sweep 1/4")
     4  derived call refuses ("Promenade")
@@ -76,7 +76,7 @@ The figure census's blocking causes, re-measured after Phases A and E:
     3  unknown call (no catalogue entry)
     2  other: "Circle 2" not legal for selected dancers
     2  other: "Walk and Dodge" not legal for selected dancers
-    1  each: Rollaway | Do Sa Do | Scoot Back | Promenade 1/2 | Turn Thru | Circulate | Walk Across | 8 Circulate 1 1/2
+    1  each: Rollaway | Do Sa Do | Allemande Left | Scoot Back | Promenade 1/2 | Turn Thru | Circulate | Walk Across | 8 Circulate 1 1/2
     1  derived call refuses ("Trade") | ("Promenade Home")
 ```
 
@@ -126,20 +126,23 @@ recording); the third **won two figures**:
   and the figure count does not move (107).** Kept because it is a correctness fix with a measured
   identity and it improves attribution, not because it pays; the honest cost of `catalogueFallback` is
   that when both readings refuse, the catalogue's message is the one that surfaces.
-- **And `Allemande Left` can now follow ITSELF (`0 figures`, two of its three stops fixed).**
-  CALLERLAB's command example is literally *"Allemande Left Your Corner; Dosado Your Partner;
-  Allemande Left Your Corner"*, and Case 2's starting formations include a Trade By — but every
-  authored setup was a Static Square with the HOME facings, so the allemande pose (the engine's own
-  result, labelled `O Trade By`) matched none of them: **every variant NULL even at tolerance 100 with
-  gender required**, and three census figures stopped there. The new tam is the pose's eight slots as
-  an inline formation with the sibling's paths, and it is deliberately **NOT `gender-specific`**,
-  unlike its siblings: the motion belongs to the SLOT, not the occupant, and six of the eight slots
-  hold the other gender once the couples have progressed (measured on `figm167`/`figm171`, whose
-  chains reach the pose through `Four Ladies Chain`). Declaring genders would have needed two copies
-  of the tam and would still gate on a fact the motion does not depend on. `Allemande Left` stops
-  **3 → 1** and the get-out corpus is unchanged at 122.
+- **And a FIFTH win, the ring pair: 107 → 110 figures (rounds 10–11).** `Allemande Left` called FROM
+  its own end pose is a **no-op**, because CALLERLAB defines the ending formation of ANY Allemande
+  Left as the Right and Left Grand Circle and says the next call is given "as if this were the ending
+  formation" — so a second one starts and finishes in the ring. Getting there took three attempts,
+  each refuted by measurement: the pose tam applying the square's paths (turned everyone another
+  quarter onto `Static Facing Out`), then as the exact INVERSE of the square (an involution back to
+  the Static Square), and finally the no-op. The fact that settled it is that **`Weave the Ring`'s
+  authored setup angles ARE the pose**, not the square's inward facings. Then the same ring needed
+  `Weave the Ring`'s own `sequencer="gender-specific"` slot gate removed: its four paths are per SLOT
+  (boys `Lead Left 1/2`, girls `Lead Right 1/2`) and a weave's hand pattern is fixed by the ring
+  POSITION, not by the occupant's gender, so the gate was rejecting exactly the PROGRESSED rings the
+  corpus reaches (six of eight slots hold the other gender after `Four Ladies Chain`). Measured:
+  107 → 108 for the no-op, 108 → 110 for the slot gate, `no setup` 42 → 39, get-out unchanged at 122.
+  Gated on the property the corpus needs: after the documented pattern, `Weave the Ring` must be
+  legal, on the plain ring AND the progressed one.
 
-All three sides re-measured at the end of the round: figures **107 of 188**; get-out **122 of 265**
+All three sides re-measured at the end of the round: figures **110 of 188**; get-out **122 of 265**
 reaching a resolve state (110 applying the finish, 110 body stops); FSM **155 / 92 / 43 / 19
 unchanged**; CALLERLAB **unchanged** (the 9-of-45 row is still the name-matching artefact, and the
 real gap is still 2 (call, start) pairs + 24 formation names).
@@ -162,6 +165,25 @@ with **gender-specific** slots, while the boards are the PROGRESSED square (the 
 `PAIR_GENDER_CALLS` — the per-couple retry that fixed exactly this for `Allemande Left` — is **INERT
 here: 107 → 107 and the three stops unchanged**, so either the retry's board test or its geometric
 match declines this board; reverted, and recorded as the lead it is rather than as a fix.
+
+**...AND ROUND 10'S OWN CONCLUSION WAS WRONG TOO — corrected in round 11, for +3 figures.** Probing
+the retry's inertness rather than guessing at it turned up the fact that settles the whole family:
+**`Weave the Ring`'s authored setup angles are the POSE, not the square** (boys a quarter towards
+promenade direction, girls the other way). The "returns to the square" reading was wrong, and so was
+the involution that implemented it. CALLERLAB's own sentence decides it: *"While the dance action of
+Allemande Left might not cause the dancers to end in precisely this formation, the next call should
+be given AS IF this were the ending formation"* — the ending formation of ANY Allemande Left is the
+Right and Left Grand Circle, so one called FROM that circle starts and finishes there. The pose tam is
+therefore a **NO-OP** (`Stand`), which took the census **107 → 108**.
+The second half came from the same probe: `boardHasCoupleGenderPairs` is **true** on the ring, so the
+retry runs and simply finds no geometric match — the ring has no side-by-side couples at all. What the
+ring needs instead is the `Weave the Ring` tam itself, whose four paths are per SLOT (boys
+`Lead Left 1/2`, girls `Lead Right 1/2`): a weave's hand pattern is fixed by the RING POSITION, not by
+the occupant's gender, so the `sequencer="gender-specific"` slot gate was rejecting exactly the
+progressed arrangements the corpus reaches. Removing it took the census **108 → 110** and the
+`no setup` bucket 42 → 39. Both halves are gated on the property the corpus needs — after the
+documented pattern, **`Weave the Ring` must be legal**, on the plain ring AND on the progressed one —
+and the gate now asserts that instead of the refuted involution. verify green.
 
 The single most important reading of that table: **`catalogue tam has no setup` is not one owner.**
 `setup-split.mjs` splits it by whether every intermediate board in the chain is a named formation —

@@ -637,21 +637,29 @@ console.log('== Sequencer: Allemande Left is legal from its OWN end pose (CALLER
   if (al1.legal) {
     const al2 = scopedSeq.applyToBoard(al1.board, 'Allemande Left');
     check(al2.legal === true, `...and legal again from its OWN end pose: ${al2.reason ?? 'ok'}`);
-    // ...AND IT RETURNS TO THE BOARD IT STARTED FROM, which is what the documented pattern needs:
-    // "Allemande Left Your Corner; Dosado Your Partner; Allemande Left Your Corner" is followed in
-    // the corpus by `Weave the Ring`, and that call's own authored setup IS the Static Square. The
-    // first version of this tam applied the Static Square's paths to the pose and turned every dancer
-    // another quarter - it ended on a board the engine names `Static Facing Out`, so the pattern
-    // danced on tilted instead of coming back. Measured here rather than assumed.
+    // WHAT THE ROUND TRIP HAS TO BE, and the first two answers were both wrong. "The pair returns to
+    // the square" was tried and REFUTED: `Weave the Ring` - the call the corpus puts next - carries
+    // the POSE as its own authored setup (measured: its dancer angles are the pose's, boys a quarter
+    // towards promenade direction and girls the other way, NOT the square's inward facings). And the
+    // pose tam's first version applied the square's paths again, turning everyone another quarter
+    // onto a board the engine names `Static Facing Out`, which matched nothing.
+    // CALLERLAB's own words settle it: "While the dance action of Allemande Left might not cause the
+    // dancers to end in precisely this formation, the next call should be given AS IF this were the
+    // ending formation" - the ending formation of ANY Allemande Left is the Right and Left Grand
+    // Circle, so one called FROM that circle starts and finishes there. The pose tam is therefore a
+    // NO-OP, and the property to gate is the one the corpus actually needs.
     if (al2.legal) {
-      const before = new Map(scopedSeq.startBoard().dancers.map((d) => [d.id, d]));
+      const before = new Map(al1.board.dancers.map((d) => [d.id, d]));
       const worst = Math.max(...al2.board.dancers.map((d) => {
         const o = before.get(d.id);
         return Math.max(Math.hypot(d.x - o.x, d.y - o.y), Math.abs(Math.atan2(
           Math.sin(d.heading - o.heading), Math.cos(d.heading - o.heading))));
       }));
       check(worst < 1e-6,
-        `...and the pair of Allemande Lefts returns every dancer to where it started (worst departure ${worst.toFixed(6)})`);
+        `...and leaves the ring as it found it, because the ring IS the ending formation (worst departure ${worst.toFixed(6)})`);
+      const weave = scopedSeq.applyToBoard(al2.board, 'Weave the Ring');
+      check(weave.legal === true,
+        `...and Weave the Ring - the call the corpus puts next - is legal there: ${weave.reason ?? 'ok'}`);
     }
   }
   // The progressed arrangement, reached by replaying figm167's chain.
@@ -669,6 +677,10 @@ console.log('== Sequencer: Allemande Left is legal from its OWN end pose (CALLER
   if (ok) {
     const r = scopedSeq.applyToBoard(b, 'Allemande Left');
     check(r.legal === true, `...and from the PROGRESSED pose too, where six of the eight slots hold the other gender: ${r.reason ?? 'ok'}`);
+    if (r.legal) {
+      const weave = scopedSeq.applyToBoard(r.board, 'Weave the Ring');
+      check(weave.legal === true, `...and "Weave the Ring" follows it on the progressed board too: ${weave.reason ?? 'ok'}`);
+    }
   }
 }
 

@@ -3850,6 +3850,27 @@ So the honest authoring list is **25 rows**, not 35, and the four-figure `Comple
 cluster is three body errors plus one call for which `mutual = 0` proves nothing. That is the state of
 P16c: a long tail of 25 single authorings, no two sharing a call, each needing its own definition read.
 
+**`Flutterwheel` at separation 2 — DONE, another measured zero that moves its target deeper.**
+`figm111` (a `Trade By`) was the first row of the 25 and refuses `Flutterwheel`, whose authorings were
+separations 3 and 6. Authored at separation 2 by the same law, and this call pins it twice: the Compact
+authoring's travel is `scaleX = 1.5` AND `offsetX = 1.5` at separation 3, the Far one's are `3` and `3`
+at separation 6, so both are `separation / 2` and separation 2 gives `1` for each. `scaleY` and
+`offsetY` are the box's lateral width and the handhold, not travel, so they are unscaled.
+
+| | before | after |
+|---|---|---|
+| figures end-to-end | 101 | **101** |
+| `catalogue no-setup` | 46 | **45** |
+| `figm111` stops at | call **#5** (`Flutterwheel`) | call **#6** (`Sweep 1/4`) |
+
+Kept on the same reasoning as the `Square Thru 4` authoring: it ADDS a separation that was absent and
+cannot change the reading of any board that already matched. It is the third such authoring in a row to
+measure zero on the figure count while moving its target deeper, and that is now the clear signal about
+where P16c has arrived: **the remaining refusals are stacked, so a coverage fix at call N reveals a
+different defect at call N+1 rather than completing the figure.** `figm111` is the illustration — it
+now stops on `Sweep 1/4`'s tiling, which is the `partition`-coherence path that was itself measured and
+REFUTED above (relaxing it launders a collision), so that figure needs work of a third kind.
+
 The coverage queue was re-taken with `facing-audit.mjs --list`, which prints every well-formed refusal
 with its call, its board and its classification. Sorting that list found the pattern the largest group
 shares: **five figures stop on a `Trade By` board** (`figm109`, `figm111`, `figm112`, `figm184`,

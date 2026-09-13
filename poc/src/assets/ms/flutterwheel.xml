@@ -38,6 +38,36 @@
     </path>
   </tam>
 
+  <!-- SEPARATION TWO, for the Trade By boards. The authorings above are separations THREE (Facing
+       Couples Compact) and SIX (`Facing Couples Far`), and `figm111` refuses `Flutterwheel` on a Trade
+       By whose facing couples are TWO apart.
+
+       Same law and same numbers as every other separation fix here, and this call pins it twice: the
+       Compact authoring's travel is `scaleX = 1.5` AND `offsetX = 1.5` at separation 3, and the Far
+       one's are `3` and `3` at separation 6 - so both are `separation / 2`, and separation 2 gives
+       `1` for each. The `scaleY` values (1.5, 1.75, 2, .75) and the `offsetY` of `.5`/`.25` are NOT
+       scaled: they are the lateral width of the box and the handhold, not distance travelled. The
+       start formation is written INLINE at x = -1 so the engine's own mirror puts the second couple at
+       x = +1. -->
+  <tam title="Flutterwheel"
+       from="Facing Couples"
+       difficulty="1" >
+    <formation>
+      <dancer gender="boy" x="-1" y="1" angle="0" />
+      <dancer gender="girl" x="-1" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Stand" hands="nohands" beats="3.5" />
+      <move select="Extend Left" hands="right" beats="1.5" scaleX="1" scaleY="1.5" />
+      <move select="Run Right" hands="right" scaleX="1" scaleY="2" offsetX="1" offsetY=".5" />
+    </path>
+    <path>
+      <move select="Extend Left" beats="2" scaleX="1" scaleY="1.75" />
+      <move select="Swing Right" hands="both" scaleX=".75" scaleY=".75" />
+      <move select="U-Turn Right" hands="left" offsetX="1" offsetY=".25" />
+    </path>
+  </tam>
+
   <tam title="Flutterwheel"
        from="Facing Couples Far"
        formation="Facing Couples Far"

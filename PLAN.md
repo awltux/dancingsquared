@@ -803,7 +803,10 @@ Three facts pin the owner:
 **The next target is therefore `Fan the Top` as a derived call** (split near/far then left/right into
 4-dancer waves, apply the wave motion per half), and it is the SAME work round 26 scoped — a strict
 tolerance, no-snap per-half apply mode — now with a much better witness: the two canonical boards above
-are a two-line test that needs no figure at all to tell right from wrong.
+are a two-line test that needs no figure at all to tell right from wrong. (The obvious stronger test —
+a bare 4-dancer wave — is NOT reachable through the public API: `library.ts` keeps only 8-dancer named
+formations and mirrors every 4-dancer one up to 8, so `boardForFormation('Wave RH GBBG')` yields no wave
+of four, and on the doubled board the matcher picks the 8-dancer demonstration tam anyway.)
 - **And the authority says it must work each.** `Fan the Top` is a per-half call in the reference —
   `FanTheTop extends SplitCall`, and `split_call.dart` states it outright: *"This is a class for 3- or
   4-dancer calls ... The formation is split and the call performed on each side"* (near/far first, then

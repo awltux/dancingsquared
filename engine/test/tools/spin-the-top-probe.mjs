@@ -6,6 +6,13 @@
 // `Spin the Top`, `Fan the Top` and `Swing` are three different authored things and only one of them
 // may be wrong.
 //
+// WHY ONLY 8-DANCER BOARDS ARE USED. The tempting test -- apply `Fan the Top` to a bare 4-dancer wave
+// and check the 4-dancer tam in isolation -- is NOT reachable through the public API: `library.ts`
+// keeps only 8-dancer named formations and MIRRORS every 4-dancer one up to 8 (`namedFormations`), so
+// `boardForFormation('Wave RH GBBG')` does not yield a wave of four, and on the doubled board the
+// matcher picks the 8-dancer demonstration tam anyway. The two canonical boards below are therefore the
+// smallest honest witness.
+//
 // Usage: node engine/test/tools/spin-the-top-probe.mjs
 
 import { readFileSync } from 'node:fs';

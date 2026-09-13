@@ -1,4 +1,4 @@
-// CallApplicator: applies a call (or module) to a board. Handles the whole-board
+﻿// CallApplicator: applies a call (or module) to a board. Handles the whole-board
 // apply with re-base/snap, the pure-relative search apply, probabilistic
 // selection, and the parallel-subset path. Owns the per-variant pose/matrix
 // caches. Depends on the FormationMatcher (to find which variant applies) and the
@@ -28,6 +28,9 @@ export interface ApplyResult {
 }
 
 export class CallApplicator {
+  /** How deep the scoped-tam fallback may nest. See the fallback in `applyToBoardInner`. */
+  private static readonly MAX_SCOPED_DEPTH = 2;
+  private scopedDepth = 0;
   private variantEndCache = new WeakMap<CallBundle, Pose[]>();
   private variantMatrixCache = new WeakMap<CallBundle, Mat5[] | null>();
 
@@ -52,7 +55,7 @@ export class CallApplicator {
     return this.applyStepInner(board, callName, [], true);
   }
 
-  /** Apply a call using PURE relative motion â€” no drift re-base. Used by the
+  /** Apply a call using PURE relative motion ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â no drift re-base. Used by the
    * search operations (legalCalls, getout, fixIt) where re-basing would pin
    * dancers to their current (possibly permuted) positions and destroy the
    * identity information those searches need to un-permute home. */
@@ -113,15 +116,30 @@ export class CallApplicator {
       // by construction - it only runs where the whole-board reading AND the parallel tiling have
       // already both failed, so it can turn a refusal into an application but never replace one -
       // which is the same `catalogueFallback` shape the coded moves use.
-      if (sel.selection && this.library.hasCall(callName)) {
-        // `allowScoped: false` is load-bearing, not defensive. `applySelected`'s second reading
-        // looks the SCOPED catalogue name back up (`"${group} ${callName}"`), and when the scoped
-        // name IS the one we are already failing on - `Centers Pass Thru` is a catalogue title -
-        // that closes a cycle: Pass Thru -> scoped lookup -> Centers Pass Thru -> fallback ->
-        // applySelected -> scoped lookup -> ... MEASURED as a `Maximum call stack size exceeded`
-        // inside `partition` in getout-behaviour; the census's 188 figures never reached it because
-        // none of them hits that pair of names on a tiling board.
-        const scoped = this.applySelected(board, sel.selection, sel.call, rebase, false);
+      if (sel.selection && this.library.hasCall(callName) && this.scopedDepth < CallApplicator.MAX_SCOPED_DEPTH) {
+        // The name that closes the cycle is suppressed, not the capability. `applySelected`'s
+        // second reading looks the SCOPED catalogue name back up (`"${group} ${callName}"`), so
+        // passing the full name we are already failing on tells it to skip exactly that one:
+        // `Pass Thru` -> scoped lookup -> `Centers Pass Thru` -> fallback -> applySelected ->
+        // scoped lookup -> ... MEASURED as a `Maximum call stack size exceeded` inside `partition`
+        // in getout-behaviour; the census's 188 figures never reached it because none of them hits
+        // that pair of names on a tiling board.
+        //
+        // Disabling the scoped lookup OUTRIGHT here was tried first and MEASURED one figure worse
+        // (88 -> 87): the cycle is not always a cycle, and a one-level lookup still rescues calls
+        // the catalogue publishes only in their group-scoped form (the `Cross Run` case the
+        // reading exists for). Suppressing the single name keeps that and breaks the loop.
+        //
+        // The DEPTH CAP is the termination guarantee rather than a second guess at the cycle: a
+        // scoped lookup can also walk between TWO names (`Centers X` -> `Ends X` -> `Centers X`),
+        // which suppression alone cannot catch. Nothing measured needs more than one level.
+        this.scopedDepth++;
+        let scoped: ApplyResult;
+        try {
+          scoped = this.applySelected(board, sel.selection, sel.call, rebase, callName);
+        } finally {
+          this.scopedDepth--;
+        }
         if (scoped.legal) return scoped;
       }
       return {
@@ -239,7 +257,7 @@ export class CallApplicator {
    * where nobody is facing anyone).
    *
    * Returns legal=false if neither reading works. */
-  applySelected(board: Board, selection: string, callName: string, rebase: boolean, allowScoped = true): ApplyResult {
+  applySelected(board: Board, selection: string, callName: string, rebase: boolean, suppressScopedName?: string): ApplyResult {
     const byId = new Map(board.dancers.map((d) => [d.id, d]));
     const ids = this.resolveSelection(board, selection);
     if (!ids || ids.length === 0) {
@@ -285,10 +303,12 @@ export class CallApplicator {
     // only reached when the bare name is unknown AND the scoped name is a real
     // catalogue call AND the selection is exactly that group, so nothing that
     // matches today changes interpretation.
-    if (allowScoped && !this.library.hasCall(callName)) {
+    if (!this.library.hasCall(callName)) {
       for (const group of ['Centers', 'Ends'] as const) {
         const scopedName = `${group} ${callName}`;
         if (!this.library.hasCall(scopedName)) continue;
+        // Already failing on this exact name one level up - re-entering it is the cycle.
+        if (scopedName === suppressScopedName) continue;
         const groupIds = this.resolveSelection(board, group);
         if (!groupIds || groupIds.length !== ids.length) continue;
         const groupSet = new Set(groupIds);
@@ -378,7 +398,7 @@ export class CallApplicator {
     rebase: boolean,
     matchTol: number,
   ): (ApplyResult & { error: number }) | null {
-    // Every authored variant, `sequencer="no"` ones included â€” see
+    // Every authored variant, `sequencer="no"` ones included ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â see
     // CallLibrary.matchableVariants for the measurement that keeps this unfiltered.
     const variants = this.library.matchableVariants(callName);
     if (variants.length === 0) return null;
@@ -388,7 +408,7 @@ export class CallApplicator {
     for (const v of variants) {
       const setup = v.dancers.map((d) => this.library.variantMatchable(d));
       const k = setup.length;
-      // The board must still divide EVENLY into setup-sized boxes - `square-dancing.md` Â§7.2.1:
+      // The board must still divide EVENLY into setup-sized boxes - `square-dancing.md` Ãƒâ€šÃ‚Â§7.2.1:
       // "a board that cannot be split evenly into equal subsets (e.g. 6 dancers for a 4-dancer
       // subset) has no clean partition and must not force one". So a 6-dancer board with a
       // 4-dancer setup is refused here, exactly as before. What the partial reading below adds is
@@ -511,7 +531,7 @@ export class CallApplicator {
    *     four-dancer SUBSET matches at 0.000.
    *   - `Slide Thru`, `Recycle` and others reached on boards with no recognised formation.
    *
-   * `square-dancing.md` Â§7.5 is explicit that "a call acts on everyone it applies to", so applying
+   * `square-dancing.md` Ãƒâ€šÃ‚Â§7.5 is explicit that "a call acts on everyone it applies to", so applying
    * to the boxes that qualify and leaving the rest is the documented reading rather than a
    * loosening. It is also STRICTLY ADDITIVE here: `parallelApply` tries `partition` first and only
    * falls back to this, so a board that tiles today behaves exactly as before, and this can only

@@ -4658,6 +4658,31 @@ The general lesson, and it has now recurred at least four times in this workstre
 stops on one call is frequently blocked by more than one defect, and the census shows only the first.**
 Attributing a bucket to a single owner is a hypothesis to be measured, not a conclusion.
 
+**CORRECTION to item 2, and it points at a much smaller fix.** `Four Ladies Chain` is NOT what mirrors
+the couples. Traced call by call (`figm203` is `Four Ladies Chain | Rollaway | Circle Left | Allemande
+Left`):
+
+| after | couple 3 | normal? |
+|---|---|---|
+| the Static Square | `#1B(1,3) #2G(-1,3)` | yes — man on the woman's left |
+| `Four Ladies Chain` | `#1B(1,3) #6G(-1,3)` | **yes** — a new pair, correctly arranged |
+| `Rollaway` | `#1B(-1,3) #6G(1,3)` | no — mirrored |
+| `Circle Left` | unchanged | still mirrored |
+
+So it is **`Rollaway`** — a `Half Sashay`-family call whose whole action is to exchange the two dancers
+of a couple — and the resulting state is not a bug at all: a half-sashayed square is a state the
+corpus legitimately reaches, and dancing `Allemande Left` from it is completely ordinary.
+
+**The blocker is that `Allemande Left`'s twenty-one authorings are ALL `sequencer="gender-specific"`**,
+so none can match a half-sashayed square even though the call does not depend on which side the man
+stands: each dancer simply turns 180 degrees with the corner. The probe above shows this decisively —
+every variant, including `from="Static Square"`, returns `blind=NULL`, i.e. it fails on IDENTITY before
+gender is even considered, and once the identity is fixed it would fail on the GENDER SLOTS of a
+half-sashayed pair. That is a much smaller question than "modelling the courtesy turn", and the next
+measurement is to re-run the match on a board whose couples are normal but whose identity has been
+re-assigned — if `strict` then returns a number, `Allemande Left` needs a non-gender-specific
+authoring (or the sashed state needs normalising), and neither is a body fix.
+
 ---
 
 ## Recommended order

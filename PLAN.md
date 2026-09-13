@@ -5081,3 +5081,39 @@ the `leaders` selection, and `Pass Thru` / the CDPT class).
 The lesson is the one the P16c state block already carries, now with a second instance: **the census
 ranks by the call that STOPPED, and that call can be entirely correct** — so the `no setup` bucket is a
 symptom list, not a work list, until `facing-audit.mjs` and a chain trace have both been run on it.
+
+---
+
+## `Split Two` is authored as a whole-board call, and that answers the open question (round 37)
+
+The `Split the Outside Couple` bridge (round 22) shipped a CALLERLAB-documented rename and measured
+zero figures, and its write-up ended with an explicitly UN-adjudicated question: the tam moved all eight
+dancers where the definition says the inactive ones do not move. Measured:
+
+```
+Split Two: 1 setup: from="" n=8 seq=null
+  applied to an Eight Chain Thru: moved 8 [1,2,3,4,5,6,7,8] -> Trade By
+```
+
+**There is exactly ONE authored setup, it is for EIGHT dancers, and it names no starting formation.**
+So the catalogue does not model `Split Two` as a call at all — it models the whole board passing
+through, which is a `Pass Thru`. CALLERLAB's definition is per-dancer and cannot be satisfied by that:
+*"The Active or directed dancers move forward between the two Inactive dancers (splitting them). The
+Inactive dancers move apart to let them through then move back together. … **Inactive dancers end where
+they started**."*
+
+Two consequences, and the second is the uncomfortable one:
+
+1. **The round-22 question is resolved**: the tam is not a faithful `Split Two`, and the four figures the
+   bridge routes through it stop later for that reason rather than for a missing setup. A correct
+   `Split Two` would need 4-dancer authorings of the active-and-inactive action, which is a definition
+   read and a real authoring — not a bridge.
+2. **The bridge is still right and still worth keeping**, but its measured zero has a second cause: it
+   replaced an `unknown call` attribution with a *wrong body* one. That is strictly better for the
+   census's accuracy and it is why the change was framed as a re-attribution rather than a win, but it
+   is a reminder that bridging a NAME is not the same as implementing a CALL.
+
+This is the third finding in the last three rounds of the same shape — `Sides Face, Grand Square`,
+`Walk and Dodge`, and now `Split Two` — and they point the same way: **the remaining work is dominated
+by bodies and authorings whose correctness the census cannot see, so the figure count is a lagging
+indicator rather than the scoreboard.**

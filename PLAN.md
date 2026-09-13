@@ -655,6 +655,18 @@ asserting choreography, which is the line this plan does not cross.
   implementation (`setup-coverage.mjs` classifies them).
 - `Yellow Rock`, `Pass One`, `Separate Around Two` — named in the census and in CALLERLAB; read the
   definition before writing the rule.
+- **`Change Hands` — DIAGNOSED, deliberately NOT implemented (round 17).** It became `figm142`'s stop
+  once the Fold adjustment moved that figure deeper, and the corpus reaches it as
+  `... Boys Fold | Box the Gnat | Change Hands | Allemande Left | ...`. It is **not a call with a
+  dance action**: CALLERLAB mentions it once, in Box the Gnat's *command examples*
+  (`Box the Gnat, Change Hands; Allemande Left`), and its Box the Gnat comment explains it — *"The
+  right hands are still joined at the completion of the action, and often the next call will begin
+  with the joined right hands."* So it changes which hand is joined and moves nobody. The reference
+  has no implementation of it either (no hit in `taminations-flutter/lib`). The engine keeps no
+  handhold state on the board, so a no-op coded move would be geometrically invisible and would make
+  the engine claim a call it does not model — a figure moved by an unobservable change is exactly the
+  kind of "win" this plan refuses. Recorded with its evidence instead; it belongs with the handhold
+  model, not with Phase D's missing calls.
   **`Separate Around Two` is now READ, and it is not a missing call — it is a missing PHRASE
   (round 16).** All8's `--SepA2` decodes to the name `Separate Around Two`, and the catalogue has no
   such title; but `ms/separate.xml` and `b1/separate.xml` DO author the motion, as fragments of the

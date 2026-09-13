@@ -4755,6 +4755,17 @@ specific board, which is exactly the class the 25-row queue is made of, and not 
 which CALLERLAB names as its starting formation — is a separate curiosity worth one look by whoever
 takes the queue on; it is not exercised by any figure, so the census cannot see it.
 
+**The `Grand Square` fix is IDENTIFIED BUT NOT SMALL, and that is why it is a queue item rather than a
+round.** Inspected before attempting: `Heads Face, Grand Square` (the same family as `Sides Face,
+Grand Square`) carries `parts="4;4;4;4;4;4;4"` and multiple long paths inside a 538-line asset, so an
+Eight-Chain-Thru variant means copying that whole body with an inline formation — a large, error-prone
+edit that the separation recipe's one-line scale changes are not comparable to. The HYPOTHESIS to test
+before doing it is cheap and is stated here so the next round does not have to re-derive it: if `Sides
+Face, Grand Square` is applied to a board with the square's POSITIONS but inward facings, it should
+succeed — which would confirm that only the facings block and that the Tam's paths are
+formation-independent. If it does not succeed, the facings are not the whole story and the copy would
+not have worked either.
+
 - **Work:** a checked-in mapping from each documented starting-formation name to the engine's
   formation(s) — `Two-Faced Line` → `Two-Faced Lines`, `Ocean Wave` → `Ocean Waves` (and `Alamo Ring`
   → `Alamo Wave`), `Facing Dancers` → the facing-couples/mini-wave family — plus the decisions for the

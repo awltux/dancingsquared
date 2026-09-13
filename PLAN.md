@@ -749,7 +749,8 @@ probe was comparing every board against a near-half target and got NULL for ever
 with the matcher's own mapping, **43 of 43 stops have a finite best error**. The conclusion the
 mis-measurement supported (there is no missing separation here) still holds, but its stated reason
 does not: the bucket is not "no setup of the right shape", it is "the right setup with the genders
-the other way round" (the ROLE READING above, +3 figures) plus genuine body defects (several already
+the other way round" (the ROLE READING above, +3 figures) plus genuine body defects, several of them now
+root-caused just below.
 **THE HALF-SCALE `TIDAL WAVE` IS NOW ROOT-CAUSED, AND THE FIX IS AUTHORITATIVE BUT NOT YET A WIN
 (round 25).** The measurement, first:
 
@@ -769,18 +770,57 @@ the other way round" (the ROLE READING above, +3 figures) plus genuine body defe
   marks it `sequencer="no"`. This is the `Fold` pattern exactly, whose remedy (transcribe the rule) is
   already the house style.
 
-**BUT BOTH COMPOSITIONS WERE IMPLEMENTED, MEASURED AND REVERTED.** In `tryCodedMove`:
-`Swing` (whole) then `Fan the Top` through the engine's own per-subset path (`parallelApply`) measured
-**116 → 112**; `Fan the Top` per half ALONE measured **116 → 115**, losing `figm34` and gaining nothing.
-So the per-half reading is right and this engine's ingredients are not: the composition leans on the
-engine's `Swing` (the A2 wave swing from `a2/slip.xml`), which is evidently not the reference's part-1
-`Swing`, and the 4-dancer `Fan the Top` authoring may be off in the same way. **Pin `Swing` first, then
-redo this** — and note the simulation that DID pass: applying the composition outside the engine made
-figm48 and figm59 run end-to-end, on a proper two-wave board.
+**AND BOTH COMPOSITIONS WERE IMPLEMENTED, MEASURED AND REVERTED — ROUND 26 FOUND WHY.**
+In `tryCodedMove`, by two different routes:
 
-diagnosed: `Spin the Top`'s half scale, `Split Two`'s whole-board motion, the `Mixed Columns` boards
-`Heads Touch 1/4` leaves) or choreography that would have to be derived from a definition this repo
-does not hold. `/walk and dodge` evidence retained below; the 1.57-against-1.5 coincidence that made
+- `Swing` (whole) then `Fan the Top` through `parallelApply`: **116 → 112**.
+- the same composition with `Fan the Top` split GEOMETRICALLY (by the separating axis, near/far then
+  left/right, as the reference does) and applied with pure-relative motion: **116 → 108**.
+- `Fan the Top` per half ALONE, by BOTH routes: **116 → 115**, losing `figm34` and gaining nothing.
+
+And the boards the last of those produces are the answer: `figm34` comes out with dancers **seven units
+apart** (`(-7,0) … (7,0) … (-1,2)`) and `figm126` with **two dancers on (0,-2) and two on (0,0)** — i.e.
+broken bodies, not waves. The cause is a MISSING ENGINE CAPABILITY, not a wrong reading: the engine's
+only pure-relative apply path is `applySearch`, and `applyToBoardInner` ties the tolerance to the rebase
+— `matchTol = rebase ? DEFAULT_MATCH_MAX : SEARCH_MATCH_MAX`, i.e. **the no-snap path is always the LOOSE
+6.0 path**, so a half that is not exactly a wave matches some other setup and the motion goes anywhere.
+There is no "strict tolerance, no snap" mode to do what the reference does with centred halves.
+
+**AND THE REFERENCE'S OWN `Swing` IS A FURTHER INGREDIENT THE ENGINE LACKS.** Transcribed verbatim from
+`taminations-flutter/lib/sequencer/calls/a2/swing.dart` (CODED there, so `a2/slip.xml`'s tams are
+demonstrations too — which is exactly why the composition leaned on the wrong `Swing`):
+
+```
+//  If single wave in center, just those 4 Swing
+if (!ctx.subContext(ctx.center(4), (ctx2) {
+  if (ctx.dancers.length > 4 && ctx2.isLines() && ctx2.isWaves() && !ctx.isTidal()) {
+    ctx2.analyze();
+    ctx2.applyCalls('Trade');
+  }
+})) {
+  //  Not single wave in center
+  if (ctx.actives.every((it) => ctx.isInWave(it)))
+    ctx.applyCalls('Trade');
+  else
+    throw CallError('Dancers must be in mini-waves to Swing');
+}
+```
+
+— i.e. the A2 `Swing` IS `Trade`: the centre 4 trade when the board is lines-and-waves and not tidal,
+otherwise every active trades provided every active is in a wave. The engine's derived `Trade`
+deliberately REFUSES a bare call ("Trade names a group to trade"), so the composition has no whole-board
+wave `Trade` to lean on either — two missing ingredients, not one.
+
+**Next step, precisely:** pin `Swing` to this rule, pin a whole-board wave `Trade`, and add a
+strict-tolerance no-snap apply mode (or split only into halves that match a wave setup within
+`DEFAULT_MATCH_MAX`), then redo this. The prize is not small — `figm48`, `figm59`, `figm115` and `figm126`
+all stop on the half-scale board this would remove, and 16 figures use `Spin the Top` at all. Note also
+the simulation that DID pass: applying the composition OUTSIDE the engine made figm48 and figm59
+run end-to-end on a proper two-wave board, so the reading is sound and only the ingredients are missing.
+
+Those defects, once diagnosed, are `Spin the Top`'s half scale, `Split Two`'s whole-board motion, and the
+`Mixed Columns` boards that `Heads Touch 1/4` leaves — or else choreography that would have to be derived
+from a definition this repo does not hold. `/walk and dodge` evidence retained below; the 1.57-against-1.5 coincidence that made
 the bucket look like a tolerance artefact is refuted in §3.
 
 ### The `selection will not resolve` bucket, diagnosed (round 12) — three causes, not one

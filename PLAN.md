@@ -3826,6 +3826,30 @@ therefore body errors, exactly the class the audit exists to find.
   is the one thing the current column cannot express — whether any two dancers FACE EACH OTHER
   (`headings opposite AND each on the other's facing axis`), as opposed to merely standing in a line.
 
+**DONE: the column now exists, and it cuts the queue from 35 to 25.** `facing-audit.mjs` gained
+`mutualFaces(board)` — opposite headings, each on the other's facing axis — and prints it as `mutual`.
+It is deliberately DATA rather than a verdict, because `mutual = 0` is decisive only for a call whose
+definition names `Facing Dancers`, and two calls legitimately start from a line where nobody faces
+anybody (`Tag the Line` from `Lines Facing Out`, `Split Circulate` from lines). Ten rows have
+`mutual = 0`:
+
+| row | call | board | decisive? |
+|---|---|---|---|
+| `figm13` | `Swing Thru` | Completed Double Pass Thru | **yes** — needs waves/facing |
+| `figm19` | `Square Thru 3` | Completed Double Pass Thru | **yes** |
+| `figm107` | `Star Thru` | Completed Double Pass Thru | **yes** |
+| `figm110` | `Tag the Line` | Completed Double Pass Thru | no — legal from `Lines Facing Out` |
+| `figm10` | `Split Circulate` | Two-Faced Lines | no — circulates from lines |
+| `figm30` | `Double Pass Thru` | (unnamed, `split = 4`) | already a body error |
+| `figm83` | `Ladies Chain` | (unnamed, `split = 4`) | **yes** + already a body error |
+| `figm136` | `Touch 1/4` | (unnamed, `split = 4`) | **yes** + already a body error |
+| `figm154` | `Slip the Clutch` | Ocean Waves | **yes** |
+| `figm33` | `Ferris Wheel` | T-Bone URRD | **yes** |
+
+So the honest authoring list is **25 rows**, not 35, and the four-figure `Completed Double Pass Thru`
+cluster is three body errors plus one call for which `mutual = 0` proves nothing. That is the state of
+P16c: a long tail of 25 single authorings, no two sharing a call, each needing its own definition read.
+
 The coverage queue was re-taken with `facing-audit.mjs --list`, which prints every well-formed refusal
 with its call, its board and its classification. Sorting that list found the pattern the largest group
 shares: **five figures stop on a `Trade By` board** (`figm109`, `figm111`, `figm112`, `figm184`,

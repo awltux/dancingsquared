@@ -56,6 +56,39 @@ function facingPairs(board, tol = 0.05) {
   return out;
 }
 
+/**
+ * Pairs of dancers who FACE EACH OTHER: opposite headings, each standing on the other's facing axis.
+ *
+ * This is NOT what `facingPairs` above measures. That one asks "has this dancer got someone directly in
+ * front", which a TANDEM satisfies — both face the same way and one stands behind the other. Measured
+ * on the canonical `Completed Double Pass Thru`: SIX calls (`Star Thru`, `Square Thru 3`, `Swing Thru`,
+ * `Tag the Line`, `Square Thru 4`, `Pass Thru`) all refuse it, and the audit had reported the figures
+ * that reach it as `coverage?` with `pairs = 4`, because a CDPT has no mutual facing at all — only
+ * tandems. A `Facing Dancers` call cannot apply to such a board, so those rows are BODY errors.
+ *
+ * NOTE this column is still not a classification on its own: a call like `Tag the Line` legally starts
+ * from `Lines Facing Out`, where nobody faces anybody either. `mutual = 0` is decisive only for a call
+ * whose definition names Facing Dancers, which this tool does not model — so the column is DATA for the
+ * reader and the one-way inference stays with the `NO FACING PAIR` verdict.
+ */
+function mutualFaces(board) {
+  const phys = board.dancers.filter((d) => !d.isGhost);
+  const faces = (a, b) => {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    if (Math.hypot(dx, dy) < 0.5) return false;
+    let diff = Math.atan2(dy, dx) - a.heading;
+    while (diff > Math.PI) diff -= 2 * Math.PI;
+    while (diff < -Math.PI) diff += 2 * Math.PI;
+    return Math.abs(diff) <= 0.05;
+  };
+  let n = 0;
+  for (let i = 0; i < phys.length; i++)
+    for (let j = i + 1; j < phys.length; j++)
+      if (faces(phys[i], phys[j]) && faces(phys[j], phys[i])) n++;
+  return n;
+}
+
 const closestPair = (board) => {
   const phys = board.dancers.filter((d) => !d.isGhost);
   let m = Infinity;
@@ -118,17 +151,18 @@ for (const f of data.figures) {
   const off = offAxisFacings(stop.board);
   const named = seq.knownFormation(stop.board) ?? '(unnamed)';
   const split = splitCouples(stop.board);
+  const mutual = mutualFaces(stop.board);
   const verdict = close < 1.0 ? 'COLLISION'
     : pairs.length === 0 ? 'NO FACING PAIR'
       : off > 0 ? 'DIAGONAL'
         : (split > 0 && named === 'Static Square') ? 'SPLIT COUPLES'
           : 'coverage?';
-  rows.push({ id: f.id, at: stop.i + 1, call: stop.call, board: named, pairs: pairs.length, close, off, split, verdict });
+  rows.push({ id: f.id, at: stop.i + 1, call: stop.call, board: named, pairs: pairs.length, mutual, close, off, split, verdict });
 }
 
 if (process.argv.includes('--list')) {
   for (const r of rows) {
-    console.log(`  ${r.id} #${r.at} ${r.call.padEnd(22)} [${r.board}] pairs=${r.pairs} closest=${r.close.toFixed(2)} offAxis=${r.off} split=${r.split}  -> ${r.verdict}`);
+    console.log(`  ${r.id} #${r.at} ${r.call.padEnd(22)} [${r.board}] pairs=${r.pairs} closest=${r.close.toFixed(2)} offAxis=${r.off} split=${r.split} mutual=${r.mutual}  -> ${r.verdict}`);
   }
 } else {
   const by = new Map();

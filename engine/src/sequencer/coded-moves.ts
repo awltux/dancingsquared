@@ -216,6 +216,24 @@ const DEFS: {
   applyToSelection?: (b: Board, ids: number[]) => { board: Board } | { reason: string };
   catalogueFallback?: boolean;
 }[] = [
+  // `Join Hands` IS NOT A CALL WITH A BODY, and implementing it as one would be wrong. CALLERLAB
+  // uses it only as a PROMPT inside command examples - "From a Squared Set: 'Join Hands, Circle
+  // Left; Heads Up to the Middle and Back; Heads Square Thru 4.'" (Mainstream definitions, Squared
+  // Set Convention) - where it tells the dancers to take the circle handhold that the NEXT call
+  // (`Circle Left`) is about to use. It has no starting formation, no ending formation and no
+  // timing, and it moves nobody. All8 nevertheless prints it as a call cell with its own
+  // abbreviation (`JoinH`), which is why it arrived in the corpus as a call name at all, and it was
+  // carried in `all8-notation.ts`'s KNOWN_CATALOGUE_GAPS as "absent from the catalogue entirely" -
+  // a correct statement about the catalogue and a wrong conclusion about the work: the fix is a
+  // NO-OP, not a new call.
+  //
+  // Measured: 2 figures (`figm197`, `figm224`), and `figm224`'s chain is CALLERLAB's own pattern
+  // exactly (`... Star Thru | Join Hands | Circle Left | ...`). Zero beats, because it costs no
+  // time - it is the prompt that precedes the call that does.
+  //
+  // The board is returned UNCHANGED (not cloned) on purpose: nothing reads it, and a clone would
+  // hide the identity from the caller's own mutation checks.
+  { aliases: ['Join Hands'], beats: 0, fn: (b) => b },
   { aliases: ['Face Right', 'Turn Right', 'Right Face'], fn: (b) => applyMoveToBoard(b, FaceRight) },
   { aliases: ['Face Left', 'Turn Left', 'Left Face'], fn: (b) => applyMoveToBoard(b, FaceLeft) },
   { aliases: ['Face Half', 'U-Turn Back', 'Face Back'], fn: (b) => applyMoveToBoard(b, FaceHalf) },

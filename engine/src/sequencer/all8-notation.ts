@@ -514,7 +514,11 @@ for (let n = 1; n <= 7; n++) TOKENS[`8Chn${n}`] = `Eight Chain ${n}`;
  *   Fold, Cross Fold                     - in the index, with no <tam> anywhere
  */
 export const KNOWN_CATALOGUE_GAPS = new Set([
-  'Join Hands',
+  // `Join Hands` USED TO BE HERE, and it was the wrong conclusion from a correct observation. The
+  // catalogue really has no such call - but neither does CALLERLAB: it is a PROMPT that appears
+  // inside command examples ("Join Hands, Circle Left; ..."), with no formation and no timing, and
+  // it moves nobody. It is now a documented no-op in `coded-moves.ts`, so the stale-gap check
+  // demanded its removal, which is the gate doing exactly its job.
   '1/2 Circulate',
   'Left Hinge',
   'Fold',

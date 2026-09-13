@@ -3767,7 +3767,45 @@ turn a refusal into an application and never replace one. It is the same shape a
 
 ### Phase 14 — the missing calls (13 + the 12 re-attributed = 25 figures)
 
+#### `Join Hands` — DONE (a no-op, correctly): zero figures alone, and it exposes `Circle Left`
+
+`Join Hands` was carried in `all8-notation.ts`'s `KNOWN_CATALOGUE_GAPS` as "absent from the catalogue
+entirely". That statement was true and the conclusion was wrong: CALLERLAB has no such call either.
+It appears only as a **PROMPT inside command examples** — "From a Squared Set: *Join Hands, Circle
+Left; Heads Up to the Middle and Back; Heads Square Thru 4*" (Mainstream definitions, Squared Set
+Convention) — where it tells the dancers to take the circle handhold the NEXT call is about to use.
+No starting formation, no ending formation, no timing, and it moves nobody. All8 nevertheless prints
+it as a call cell with its own abbreviation (`JoinH`), which is how it reached the corpus as a name.
+
+It is now a documented **no-op coded move** (zero beats), and the stale-gap check in
+`all8-notation.ts` demanded its removal from the gap list the moment the engine could perform it.
+
+- **Measured: 0 figures alone.** The census holds at 88, and `unknown call` falls **14 → 12** while
+  `catalogue tam has no setup` rises **38 → 40** — the two figures (`figm197`, `figm224`) moved
+  DEEPER and stopped later. This is the third time the plan's own adjudication rule has applied
+  ("a phase that measures 0 figures alone must not ship alone"), so it ships with the finding below
+  rather than as a figure claim.
+- **What they stop on is one body, and it is now measured.** Both stop at `Circle Left`:
+  `figm197` after it (`Heads Square Thru 4` refuses on the board `Circle Left` leaves) and `figm224`
+  on it (`Circle Left` refused from `Normal Lines`).
+
+**`Circle Left` — the next body, with the defect quantified.** Applied to a Static Square it does not
+return the set:
+
+```
+  radius from the centre, start vs after:  3.16 ×8   ->   2.61 ×8
+  worst position residual vs the start:    0.614
+  worst heading residual:                  43.8 degrees
+  knownFormation:                          Circle  (not Static Square)
+```
+
+So the circle ends **smaller** (the `Back` step does not undo the `Forward` step — the tam scales
+each by `.59` of its own displacement, which is not a round trip) and **rotated** (the `cl` steps do
+not accumulate a full 360°). `Circle Left` is on the path of many figures, so this is a body fix that
+should pay more than the three that currently stop on it.
+
 #### `Sweep a Quarter` — the definition read, and the eight corpus cases measured
+
 
 The single biggest missing call. **It is not in the catalogue at all** (`hasCall('Sweep 1/4')` is
 false, and it is not in `CALL_SYNONYMS`), so every one of its uses refuses with `Unknown call`.

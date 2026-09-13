@@ -3643,6 +3643,26 @@ isolated reading of a selection, where the same "setup present, still refused" s
 > last three rounds: **the remaining refusals are STACKED — a coverage fix at call N generally reveals
 > a different defect at call N+1 rather than completing the figure**, so the figure count moves less
 > than the number of defects fixed.
+>
+> **All three sides re-measured at 101 figures** (the objective asks for this each phase): figures
+> **101 of 188**; FSM **155 states / 92 home / 43 nohome / 19 dead — UNCHANGED across six figures
+> gained**, which says the FSM backlog is the route-finding scoreboard, not the figure one; CALLERLAB
+> **2 (call, start) pairs + 24 formation names**, with its headline "9 calls the engine cannot perform"
+> shown to be a name-artefact list (every entry reports `figures using it: 0`).
+>
+> **The facing-arrangement class, which is new and has two instances**: a call authored from one FACING
+> arrangement while the corpus reaches it from another with the SAME positions — `Sides Face, Grand
+> Square` and the `Completed Double Pass Thru` cluster — where the engine names the board correctly,
+> cannot match the call, and the call's own wording ("Sides Face") is what establishes what its setup
+> already demands.
+>
+> **The closing judgement to carry forward**: the last three rounds each found that the work is
+> **dominated by bodies and authorings whose correctness the census cannot see** — `Sides Face, Grand
+> Square` (a copy would be silently wrong: a probe that a call MATCHES says nothing about whether its
+> paths are CORRECT on that board), `Walk and Dodge` (refusing a board `Touch 1/4` had already mangled),
+> and `Split Two` (authored as a whole-board `Pass Thru`, so bridging the NAME was never implementing
+> the CALL). Treat the figure count as a **lagging indicator**, and run both `facing-audit.mjs` and a
+> chain trace before authoring anything.
 
 > **THE SEPARATION RECIPE IS NOW EXHAUSTED — closed with its final tally.** Rounds 9–29 applied it to
 > every visible candidate, and the complete record is worth keeping because the recipe is cheap and

@@ -339,7 +339,7 @@ authoring, which is why they are their own phase.
    or supplements the authored tam. A round that only suppressed the mirrored half would trade a
    faithful whole-board advance for a collision.
 
-### A BODY DEFECT THE CENSUS CANNOT SEE: `Spin the Top` half-scales the wave (measured)
+### A BODY DEFECT THE CENSUS CANNOT SEE: `Spin the Top` half-scales the wave (measured, and smaller than first recorded)
 
 Found while reading the top `no setup` entries board-by-board (the read that found `Rollaway`'s
 missing separation). The three `Slide Thru` stops all sit on a board the engine NAMES `Tidal Wave`,
@@ -360,40 +360,59 @@ So `Spin the Top` rotates each wave 90 degrees about its own centre — which IS
 spacing**, and the half-scale template then hands the malformed result a legitimate name. Three
 figures stop one call later on `Slide Thru`, and the census reports them as a coverage gap.
 
-**Why it is not fixed here, and what a fix has to decide.** A 2-spaced rotation is geometrically
-impossible from the engine's own `Ocean Waves` template: each 4-dancer wave rotates about its own
-centre, so wave 1 (centre `(-2,0)`) would span `x = -5..1` and wave 2 (centre `(2,0)`) `x = -1..5`,
-and they would collide at `x = +-1`. The half-scale merge into ONE tidal wave is Taminations'
-device for fitting both into a 7-wide set, so "fix the tam's scale" is not a one-number change — it
-forces a decision about what `Spin the Top` means for eight dancers in two parallel waves at all,
-which CALLERLAB does not answer (its definition is written for one wave). Recorded with the numbers
-rather than guessed at, and the two live options are: give the engine a SECOND `Tidal Wave` template
-at the standard spacing and teach the wave-facing calls to act on it, or accept Taminations'
-convention and make the follow-on calls scale-aware. **Either way the lesson is the one this plan
-keeps meeting: a wrong board that gets a legitimate NAME is invisible to the census** — here it was
-invisible for two reasons at once (the template is half-scale *and* the call that produces the board
-is the one that looks correct).
+**Why it is not fixed here, and what a fix has to decide.** A 2-spaced rotation *per wave* is
+geometrically impossible from the engine's own `Ocean Waves` template: each 4-dancer wave rotating
+about its own centre, wave 1 (centre `(-2,0)`) would span `x = -5..1` and wave 2 (centre `(2,0)`)
+`x = -1..5`, and they would collide at `x = +-1`. The half-scale merge into ONE tidal wave is
+Taminations' device for fitting both into a 7-wide set. **The whole-SET rotation avoids that** — the
+canonical board rotated a quarter turn about the set centre is still named `Ocean Waves` at the
+closest pair 2.00 — and it was measured as a substitution anyway: **7 figures complete today, 5 with
+the rotation.** So the remaining options are additive ones, each measured per follow-on call: give
+the engine a second `Tidal Wave` template at the standard spacing and teach the wave-facing calls to
+act on it; accept Taminations' convention and make those calls scale-aware; or leave the motion and
+fix the follow-on calls it actually blocks (`Slide Thru` 3, `Swing Thru` 2, `Sweep 1/4` 2 — all of
+which are refused BEFORE and AFTER the rotation, so they are not caused by the scale at all).
+**The lesson this plan keeps meeting, now with a second edge: a wrong board that gets a legitimate
+NAME is invisible to the census** — and a *measurement* that mislabels a normal intermediate state is
+invisible in exactly the same way, one level up. Both were caught by re-running the walk without the
+label.
 
-**How much it is worth, measured.** Every figure in the corpus that uses `Spin the Top`:
+**How much it is worth, measured — AND THE FIRST NUMBER RECORDED HERE WAS WRONG.** Every corpus
+figure that uses `Spin the Top`, walked with no substitution (the shipped behaviour):
 
 ```
-figures using Spin the Top: 16;   running to the end: 0
-   5  reached a 1.00-spaced board named Tidal Wave after it, next call Right and Left Thru
+figures using Spin the Top: 16;   completing: 7
    3  stopped on Slide Thru
    2  stopped on Swing Thru
    2  stopped on Sweep 1/4
-   1  reached a 1.00-spaced board named Tidal Wave, next call Spin the Top (the "do it again" pattern)
    1  stopped on Heads Sweep 1/4
-   1  reached a 0.50-spaced board, NAMED NULL, next call Right and Left Thru
    1  stopped on Separate Around Two (a missing call, not this)
 ```
 
-**Zero of sixteen.** Six of them stop on the call immediately after `Spin the Top` with the board at
-exactly the template's half spacing, and one more reaches a board at a QUARTER of the engine's
-spacing (`0.50`, and unnamed, which is the same defect compounding). So this is not a one-figure
-curiosity: it is the largest single identified blocker left in the corpus after the missing-variant
-class, and unlike those it currently shows up in the census as five different calls refusing. It
-deserves its own scheduled round, with the two options above as the decision to make first.
+So the half-scale result is real and it is the shape of five or six of those failures, but it is
+**not** the blocker the previous revision of this section claimed. That revision said *"figures using
+Spin the Top: 16; running to the end: 0"* — a **probe artefact**: the walk recorded the half-scale
+board as the figure's outcome and then overwrote it, so every figure that passed through Spin the
+Top and went on to complete was counted as a stop. Corrected here, and worth recording as a lesson
+of its own: the number was produced by a tool, looked decisive, and was wrong because the tool
+mis-labelled a normal intermediate state; the same walk re-run without the label gives 7.
+
+**The whole-set rotation was then measured as a SUBSTITUTION, and it is REFUTED.** The obvious
+repair — `Spin the Top` rotates the whole set a quarter turn about the SET's centre, which the grid
+CAN represent (measured: the canonical two-wave board rotates to a board the engine still names
+`Ocean Waves` at the closest pair 2.00, and on it BOTH `Swing Thru` and `Right and Left Thru` are
+legal, so the follow-on calls are reachable) — makes the corpus WORSE:
+
+```
+shipped half-scale behaviour     7 of the 16 figures complete
+whole-set rotation, CCW          5
+whole-set rotation, CW           5
+```
+
+Substituting the rotation moves 7 figures past Spin the Top but costs 2 net, so the half-scale board
+is not merely wrong: for some follow-on calls it is the board they are authored against. **A fix
+must therefore be additive and measured per follow-on call, not a swap of the motion.** The defect
+stays open, at its true size (about five figures), rather than at the size the bad probe claimed.
 
 ### Phase D — the missing calls (Phase 14 residue)
 

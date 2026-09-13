@@ -3452,35 +3452,54 @@ and it is the natural next step in this family rather than a new phase.
 
 ---
 
-### Phase 13 — setup coverage for the catalogue calls (44 figures)
+### Phase 13 — DISSOLVED: "the selection path" is not one owner (measured)
 
-- **Size:** 44, spread over the top blocking calls: `Pass Thru` 5, `Do Sa Do` 3, `Slide Thru` 3,
-  `Sides Pass Thru` 3, `Star Thru` 3, then a long tail of 1s and 2s.
-- **Owner:** the matcher's setup vocabulary — tams authored for one arrangement and one scale
-  (Phase 9a), the same disease as the star's 2-apart box.
-- **Gate:** the (call, board formation) pairs are enumerated as data first, then either a derived rule
-  or a setup covers each; the count is re-measured.
+The phase was sized at 33 figures from the two selection sentences in the census. Taken call by call,
+that bucket has **four** owners and only one of them is the selection machinery:
 
-### Phase 14 — the selection path must match the selected dancers (26 figures)
+| figures | owner | evidence |
+|---|---|---|
+| **12** | **missing calls** | the BASE call is not in the catalogue at all — `Circle 2` 2, `Sweep 1/4` 3, `Cross Fold` 2, `Fold` 1, `Promenade 1/2` 1, `Trade 1 1/2` 1, `Walk Across` 1, `8 Circulate 1 1/2` 1. The selection prefix is incidental; both readings refuse with `Unknown call`. |
+| **most of 22** | **setup coverage** | `Heads Rollaway` from an Eight Chain Thru: the whole-board reading DOES try a parallel partition (`applicator.ts:368`, `n % k === 0`), so the failure is not the selection machinery but that `Rollaway`'s authored setup does not match a couple standing in an ECT box; the isolated reading of the same four is the same setup. `Centers Pass Thru` is the same shape — its four selectees stand six apart while the authored facing-couples setups are four apart and nearer. |
+| **5** | **the star family** | `Centers Left Hand Star`, already diagnosed: the bare `Right-hand Star` takes the wrong four dancers and destroys the `Centers` split. |
+| the rest | **the grouping** | `Centers`/`Ends` are the middle and outer two of TWO 4-dancer lines (`splitLine`), which a star-shaped board does not have. |
 
-- **Size:** 26 — `Heads Rollaway` 4, `Heads Box the Gnat` 4, `Centers Sweep 1/4` 2, `Girls Turn Thru`
-  2, `Boys Cross Fold` 2, plus 12 singletons.
-- **Owner:** the applicator: today it matches the call against the **whole** board and then filters the
-  motion to the selected dancers, which is why `Centers Right-hand Star` applied an eight-dancer
-  motion to four dancers and produced a board the matcher could not even name (measured while
-  diagnosing the star).
-- **Gate:** a selected call is matched against the selected group's own board, and the phase's 26
-  stops are re-measured.
+So it is dissolved into Phase 14, Phase 16 and the star work rather than run on its own, and that
+**re-orders the list: setup coverage now comes before the missing calls**, because it owns the larger
+share of this bucket as well as the largest census bucket.
 
-### Phase 15 — the missing calls (13 figures)
+### Phase 16 — setup coverage: the largest single owner (44, plus most of the 22 above) — NEXT
 
-- **Size:** 13 — `Sweep 1/4` 5, `Split the Outside Couple` 4, then `Yellow Rock`, `Pass One`,
-  `Join Hands`, `Separate Around Two` (1 each).
-- **CALLERLAB** lists `Sweep a Quarter`; the engine implements none of these.
-- **Gate:** each is either implemented (in the same style as the port: rule first, validated against
-  the reference), or recorded as not-Mainstream with the definition quoted.
+- **Size:** 44 figures stop with "the catalogue tam has no setup for this board": `Pass Thru` 5,
+  `Do Sa Do` 3, `Slide Thru` 3, `Sides Pass Thru` 3, `Star Thru` 3, then a long tail of 1s and 2s.
+  Add most of the 22 re-attributed from Phase 13, e.g. `Heads Rollaway` 2, `Sides Rollaway` 1,
+  `Ends Rollaway` 1, `Centers Pass Thru` 1, `Boys Scoot Back` 1, `Girls Turn Thru` 2,
+  `Heads/Boys Walk and Dodge` 3, `Boys Circulate` 1, `Centers Swing Thru` 1, `Centers Turn Thru` 1.
+- **Owner:** the matcher's setup vocabulary — tams authored for one arrangement and one SCALE
+  (Phase 9a), the same disease as the star's 2-apart box, and now measured to be the single largest
+  owner in the census.
+- **Work:** enumerate the (call, board geometry, scale) triples that fail as DATA before touching
+  anything, because that list is what decides whether the fix is a derived rule, a wider matching
+  tolerance, or an authored setup.
+- **Gate:** the triples are enumerated and each is either covered or recorded with its reason; the
+  census is re-taken and the figure count must rise.
 
-### Phase 16 — the CALLERLAB vocabulary, as data (feeds 13–15)
+### Phase 14 — the missing calls (13 + the 12 re-attributed = 25 figures)
+
+- **Size:** 25. From the census: `Sweep 1/4` 5, `Split the Outside Couple` 4, then `Yellow Rock`,
+  `Pass One`, `Join Hands`, `Separate Around Two` (1 each). Re-attributed from Phase 13: `Circle 2` 2,
+  `Sweep 1/4` 3 (as `Centers`/`Heads Sweep 1/4`), `Cross Fold` 2, `Fold` 1, `Promenade 1/2` 1,
+  `Trade 1 1/2` 1, `Walk Across` 1, `8 Circulate 1 1/2` 1.
+- **CALLERLAB** documents `Sweep a Quarter` (a SUFFIX call: "Circle Right or Left 1/4 … The circling
+  direction continues the motion that completed the previous call", ending in Facing Couples) and the
+  `Fold / Cross Fold` family; the engine implements none of them.
+- **Work order:** the definition first (the extractor already has it), then the rule, then validation
+  against the corpus — the port's method. `Sweep a Quarter` needs the `lastTurnDir` convention the
+  coded `Run`/`Trade` already use, which is why it is not a five-minute call.
+- **Gate:** each is implemented or recorded as not-Mainstream with the definition quoted; figure
+  count re-measured.
+
+### Phase 16b — the CALLERLAB vocabulary, as data (feeds 14 and 16)
 
 - **Work:** a checked-in mapping from each documented starting-formation name to the engine's
   formation(s) — `Two-Faced Line` → `Two-Faced Lines`, `Ocean Wave` → `Ocean Waves` (and `Alamo Ring`

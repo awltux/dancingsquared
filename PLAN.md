@@ -4570,6 +4570,34 @@ the ring order was being read from numbers that should already have been re-assi
   the `SPLIT COUPLES` count in `facing-audit.mjs` must fall, which is the instrument that already
   identifies this class without any chain reasoning.
 
+### Implemented, MEASURED, and REVERTED: the rule is right, the TRIGGER is the design question
+
+`progressionIdentity(board)` was written and wired into both `applyToBoard` and `applySearch`. It
+re-assigns each woman's `couple` to her man's **only** when the board is unambiguously a couple
+arrangement — every man has exactly one woman beside him (`COUPLE_WIDTH` away, on his lateral axis,
+facing the same way), the pairing is a bijection — so a wave, facing couples, lines or a broken body
+returns the board unchanged, and a board whose pairing already matches the identity is a no-op.
+
+It is a no-op on exactly the case it was written for, and it HURTS everywhere else:
+
+| | before | after |
+|---|---|---|
+| figures end-to-end | 98 | **96** |
+| `Promenade` refusals | 8 | **11** |
+| `catalogue no-setup` | 48 | **49** |
+
+So "apply CALLERLAB's rule after every call" is refuted as stated, and the reason is not the rule but
+the TRIGGER: `couple` also carries Heads/Sides identity, and re-assigning it changes which dancers a
+later `Heads …` call targets. CALLERLAB says the woman takes the man's identity **once she has
+progressed to a new Man**, and "has progressed" is a judgement about the CALL, not a property of the
+board — `Four Ladies Chain` progresses, `Circle Left` does not, and both end in a couple arrangement
+whose pairing may differ from the identity. The next measurement is therefore per-call: take the
+figures in the `SPLIT COUPLES` class, apply the rule after the ONE call that progresses them
+(`Four Ladies Chain` first), and check the census; a board-shape test cannot decide it.
+
+Reverted, census re-taken at 98, and the convention stays recorded with its citation because the
+diagnosis (three symptoms, one stale identity) is not in doubt — only the moment to apply it is.
+
 ---
 
 ## Recommended order

@@ -5117,3 +5117,29 @@ This is the third finding in the last three rounds of the same shape — `Sides 
 `Walk and Dodge`, and now `Split Two` — and they point the same way: **the remaining work is dominated
 by bodies and authorings whose correctness the census cannot see, so the figure count is a lagging
 indicator rather than the scoreboard.**
+
+---
+
+## The `Star Thru` seam-2 RE-TEST also measures zero, and for a sharper reason (round 38)
+
+That authoring was reverted in an earlier round for winning no figures, and the revert's note said the
+recipe is cheap to re-run — so it was re-applied now that the engine has gained `Right and Left Thru`
+seam-2 (which moved a whole cluster) and `Square Thru 4` seam-2, on the theory that its DOWNSTREAM had
+changed. It has not:
+
+| | before | after |
+|---|---|---|
+| figures end-to-end | 101 | **101** |
+| `catalogue no-setup` | 45 | **45** |
+| `figm121` (`Star Thru`, its stated target) | refused at **#7** | refused at **#7** |
+
+**No effect at all** — not even a deeper stop — which is a sharper result than the original revert
+recorded. The original said the authoring made an Eight Chain Thru board legal (`-> Normal Lines`), and
+`figm121`'s failing board IS named `Eight Chain Thru`; the re-test shows the tam is NOT being reached
+there, so **that board's facing couples are not the seam-2 arrangement the name suggests**. `facing-audit`
+reports it as `pairs=16 closest=2.00 mutual=6 split=2`, i.e. a busy board that is not a clean
+facing-couple box, and the name is matching on positions.
+
+Reverted again. The value of the round is the distinction: the ORIGINAL revert said "legal, but no
+figures"; this one says "**not even legal there**", so the earlier record would have misled the next
+reader into thinking the authoring covers that board. That is worth the one probe it cost.

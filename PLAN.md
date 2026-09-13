@@ -3767,6 +3767,62 @@ turn a refusal into an application and never replace one. It is the same shape a
 
 ### Phase 14 — the missing calls (13 + the 12 re-attributed = 25 figures)
 
+#### `Sweep a Quarter` — the definition read, and the eight corpus cases measured
+
+The single biggest missing call. **It is not in the catalogue at all** (`hasCall('Sweep 1/4')` is
+false, and it is not in `CALL_SYNONYMS`), so every one of its uses refuses with `Unknown call`.
+CALLERLAB (docs/…pdf, p.57):
+
+> **Sweep a Quarter** is a *suffix call*, which means that its action depends on the preceding call.
+> Starting formation: **Facing Couples only**. Dance action: **Circle Right or Left 1/4**, except that
+> each Couple does not join hands with the Couple they are facing. **The circling direction continues
+> the motion that completed the previous call.** Ending formation: Facing Couples. Timing: 2.
+> Styling: Dancers use a Couple handhold.
+> Comments: "When the previous call ends, each dancer's motion around the center of the forming
+> Facing Couples must be the same (either clockwise or counter-clockwise). Sweep a Quarter is improper
+> after Chain Down the Line … Similarly, it is improper to call Sweep a Quarter after Bend the Line,
+> Wheel Around, Cast Off 3/4, etc. **From a Wave, Recycle and Sweep a Quarter is proper.** This is an
+> exception made because of years of use."
+
+So the rule is: each facing-couple BOX rotates 1/4 about its OWN centre, in the direction the
+previous call's motion already had, and the ending is Facing Couples again — which means the couples'
+headings rotate with them (rotating positions alone would leave two couples side by side facing the
+same way, not Facing Couples).
+
+**The eight cases, with the board and what the engine recorded for the dancers' last turn:**
+
+| figure | call | preceded by | board | `lastTurnDir` |
+|---|---|---|---|---|
+| figm21, figm150 | `Sweep 1/4` | `Wheel and Deal` | Eight Chain Thru | **all `right`** |
+| figm63, figm64 | `Centers Sweep 1/4` | `Ferris Wheel` | Double Pass Thru | **all `right`** |
+| figm18, figm26, figm139 | `Sweep 1/4` | `Flutterwheel` | Normal Lines | **MIXED** (`5B l, 6G r, 7B l, 8G l, …`) |
+| figm187 | `Heads Sweep 1/4` | `Heads Flutterwheel` | an unnamed 2×6-ish arrangement, couples broken | mixed and partly absent |
+
+Two of these are CALLERLAB's own command examples, which is the corroboration that the reading is
+right: "Couples Circulate, Wheel and Deal and Sweep One Quarter" is figm21/figm150's chain, and
+"Ferris Wheel, Centers Sweep a Quarter" is figm63/figm64's.
+
+**The open question the implementation turns on, stated so it is not guessed at.** The direction is
+"the motion that completed the previous call", and `applyWholeBoard` already records that per dancer
+as `lastTurnDir` (from the heading delta; positive is left/CCW). But it is **per dancer**, and it came
+out MIXED in the `Flutterwheel` cases while being uniform in the `Wheel and Deal` and `Ferris Wheel`
+ones. That is not necessarily a defect in the record: `Flutterwheel` turns the two dancers of a
+couple in opposite senses about the COUPLE's centre, which is precisely the distinction CALLERLAB's
+comment draws when it says a Sweep is improper where "their turning motion is not around … the center
+point of the forming Facing Couples". So the first measurement of the next round is whether the
+direction should be read per BOX (the majority/consensus of the dancers in that box, which is what
+the call's own wording implies: "each dancer's motion … must be the same") and how a box that has no
+consensus should behave — refused with the reason, per the same convention the rest of the catalogue
+uses.
+
+- **Size:** 8 figures (5 in the census, 3 reached through a selection prefix).
+- **Work order:** the rule as a `coded-moves.ts` entry (precondition = the board decomposes into
+  facing-couple boxes; `apply` rotates each box 1/4 about its own centre by the box's consensus
+  direction), then validation against these eight, then the census.
+- **Gate:** the census must rise; a box with no consensus direction is refused with a reason rather
+  than approximated.
+
+
 - **Size:** 25. From the census: `Sweep 1/4` 5, `Split the Outside Couple` 4, then `Yellow Rock`,
   `Pass One`, `Join Hands`, `Separate Around Two` (1 each). Re-attributed from Phase 13: `Circle 2` 2,
   `Sweep 1/4` 3 (as `Centers`/`Heads Sweep 1/4`), `Cross Fold` 2, `Fold` 1, `Promenade 1/2` 1,

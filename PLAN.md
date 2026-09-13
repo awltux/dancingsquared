@@ -3608,6 +3608,60 @@ isolated reading of a selection, where the same "setup present, still refused" s
   call, largest first, with the method the port uses: the definition first, then the rule, then
   validation against the corpus.
 
+#### P16c, re-taken and re-ranked: the biggest sub-bucket is ONE missing separation, not 45 gaps
+
+P16c was carried as "~21 genuine arrangement gaps, call by call, largest first". Measured again from
+the census's own blocking-call table, the 45 `catalogue tam has no setup` figures are not 45
+independent authorings; **the largest single cause is that `Facing Dancers` calls have no SIX-apart
+authoring**, and the heads of a Static Square are two couples facing each other exactly six apart:
+
+| call | figures | the board it refuses | the separation it needs |
+|---|---|---|---|
+| `Pass Thru` | 5 | Quarter Tag, Lines Facing Out, Tidal Wave, unnamed | 6 (and 2 for the tight cases) |
+| `Star Thru` | 5 | **2 × Static Square**, Completed Double Pass Thru, Eight Chain Thru, unnamed | 6 — but see below |
+| `Heads Box the Gnat` | 4 | **4 × Static Square** | 6 |
+| `Slide Thru` | 3 | 3 × Tidal Wave | 6 |
+| `Touch 1/4` | 3 | Trade By, unnamed | 6 |
+| `Turn Thru` | 1 | Static Square | 6 |
+
+`Heads Box the Gnat` is the cleanest of these because every one of its four cases is the SAME board —
+a Static Square — so a single authoring either fixes all four or none.
+
+**DONE: authored, and the revert's cost does NOT reproduce (97 → 98 figures).** The separation-6
+`Box the Gnat` tam is in `ms/box_the_gnat.xml`, extrapolated by the law the separation-2 authoring
+states (`x2 = separation / 2 + 1`, so `x2 = 4`), and the experiment was run on BOTH metrics because
+Phase 9c's revert was decided on the second one:
+
+| metric | before | after |
+|---|---|---|
+| figures end-to-end | 97 | **98** |
+| get-out corpus: reached the finish and applied it | 140 | **140** |
+| get-out corpus: reached a state a finish resolves from | 13 | **13** |
+
+So the five get-out successes that took this tam back out the first time are **not** lost now — the
+engine between then and now has changed enough (`Sweep a Quarter`, the level tie-break, the
+leaders/trailers parity, the `Join Hands` no-op) that the earlier measurement no longer applies, and
+measuring it again rather than trusting the recorded reason is what settled it.
+
+- **The collision that decided the `Star Thru` case does NOT arise for the heads**, and that is what
+  made the re-try credible rather than a repeat. `Star Thru` at separation 6 puts all eight dancers on
+  ONE spot, because both of the Static Square's facing-couple boxes have the SAME centre. Here the four
+  facing pairs meet at four DIFFERENT points — the heads' at `(1,0)` and `(-1,0)`, the sides' at
+  `(0,1)` and `(0,-1)`.
+- **Still open and measured, not hidden:** `Heads Box the Gnat` now ends the heads at `(±1, ∓1)`
+  facing each other ACROSS the centre — a `T-Bone LUUR` — where CALLERLAB's ending formation is
+  "Facing Dancers". That is the extrapolated motion doing something plausible rather than verified, so
+  the end pose is the next thing to check on this tam; the figure count and the get-out corpus both
+  improved, and neither metric can see whether the ending is the one the definition names.
+
+Also re-measured and worth recording, because it narrows the "long tail" that looked like 19 separate
+selection bugs: the `not legal for selected dancers` refusals are **not** one cause. `Heads Rollaway`
+from a Static Square is LEGAL today (checked directly), so the three `Rollaway` figures stop on some
+later board, not on the call's authoring — and the remaining ones (`Girls Circle 2`, `Boys Scoot
+Back`, `Girls Turn Thru`, `Boys Circulate`, `Boys Walk Across`, `Heads Walk and Dodge`, `Partner
+Trade 1 1/2`) are each a single figure in a different formation. The one homogeneous member of that
+family is `Heads Box the Gnat`, 4 from a Static Square, which is the row above.
+
 #### Phase 16a — the broken bodies, ranked by REACH (the new head of the queue)
 
 The same prefix scan run over all 188 figures (not just the ones that stop) is the work order,

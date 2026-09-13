@@ -73,5 +73,36 @@
       <movement hands="gripright" beats="4" cx1="1" cy1=".1" cx2="2" cy2=".1" x2="2" y2="0" cx3="1.3" cx4="1.3" cy4="2" x4="0" y4="2" />
     </path>
   </tam>
+  <!-- SEPARATION SIX, the board `Heads Box the Gnat` is asked for. The heads of a Static Square are
+       two couples facing each other SIX apart (the north couple at x = +-1, y = +3 and the south at
+       x = +-1, y = -3), and the three authorings above are separations 3, 4 and 2, so all four
+       figures that call `Heads Box the Gnat` from a squared set refuse.
+
+       The extrapolation is the one the separation-2 authoring states: `x2 = separation / 2 + 1`, so
+       separation 6 gives `x2 = 4`, and the inline formation is at x = -3 so the engine's own mirror
+       puts the second couple at x = +3. `x2` is the only number that changes - the rest of the
+       couple turn is the same motion, exactly as it is across the 3 and 4 authorings.
+
+       THIS IS THE EXPERIMENT PHASE 16b REVERTED ONCE, and it is being re-tried rather than
+       re-derived because the two cases are not the same: `Star Thru` at separation 6 collapsed all
+       eight dancers onto ONE spot (both boxes' centres coincide), so it was taken back out. Here the
+       four facing pairs of a Static Square meet at four DIFFERENT points - the heads' at (1,0) and
+       (-1,0), the sides' at (0,1) and (0,-1) - so the collision that decided that case does not
+       arise. The revert's stated cost was five get-out successes, so BOTH the census and the
+       get-out harnesses decide this one, and it comes straight back out if they fall. -->
+  <tam title="Box the Gnat"
+       from="Facing Couples"
+       sequencer="gender-specific">
+    <formation>
+      <dancer gender="boy" x="-3" y="1" angle="0" />
+      <dancer gender="girl" x="-3" y="-1" angle="0" />
+    </formation>
+    <path>
+      <movement hands="gripleft" beats="4" cx1="1" cy1="1" cx2="2" cy2="1" x2="4" y2="0" cx3="1.3" cx4="1.3" cy4="-2" x4="0" y4="-2" />
+    </path>
+    <path>
+      <movement hands="gripright" beats="4" cx1="1" cy1=".1" cx2="2" cy2=".1" x2="4" y2="0" cx3="1.3" cx4="1.3" cy4="2" x4="0" y4="2" />
+    </path>
+  </tam>
 
 </tamination>

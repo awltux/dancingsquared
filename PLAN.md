@@ -3789,6 +3789,24 @@ the quarter-turn handoff between pull-bys rather than distance travelled.
   exists (so that board is NOT a seam-2 facing-couple arrangement), and `figm193` reaches one where the
   DERIVED `Swing Thru` refuses. Both are named stops rather than a wall.
 
+**The `T-Bone` group is NOT one missing kind of authoring, which corrects the hypothesis above.** The
+coverage queue was re-listed and its three remaining `T-Bone LUUR` / `T-Bone URRD` rows stop on
+`Swing Thru` (`figm193`), `Extend` (`figm194`) and `Lead Right` (`figm63`), plus `Ferris Wheel` on a
+`T-Bone URRD` (`figm33`). Checked against the catalogue, those are not the separation pattern at all:
+`Extend` is authored from **tag and box formations** (`Single Quarter Tag`, `Single 3/4 Tag`,
+`Right-Hand Box`, …) and has no separation-scaled `Facing Couples` authoring to interpolate from, so
+the recipe that has now worked four times does not apply to it. The `T-Bone` group is genuinely four
+different authorings on one shape of board — which is why the five figure-ids were misleading, and why
+the shape being real is not on its own a work item.
+
+**The queue as it now stands: 35 well-formed coverage rows, and no two share a call.** That is the
+honest end state of P16c's "call by call, largest first": the remaining work is a long tail of single
+authorings, each needing its own definition read, with two groups already shown to be dead ends for the
+separation recipe (`Touch 1/4` on a Trade By, the `T-Bone` calls). The next round should take the
+**`Completed Double Pass Thru` cluster** (`figm13 Swing Thru`, `figm19 Square Thru 3`, `figm107 Star
+Thru`, `figm110 Tag the Line` — four figures on ONE board), because a single board reached by four
+different calls is the shape that produced the last two wins.
+
 The coverage queue was re-taken with `facing-audit.mjs --list`, which prints every well-formed refusal
 with its call, its board and its classification. Sorting that list found the pattern the largest group
 shares: **five figures stop on a `Trade By` board** (`figm109`, `figm111`, `figm112`, `figm184`,

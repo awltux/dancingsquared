@@ -630,6 +630,21 @@ asserting choreography, which is the line this plan does not cross.
   implementation (`setup-coverage.mjs` classifies them).
 - `Yellow Rock`, `Pass One`, `Separate Around Two` — named in the census and in CALLERLAB; read the
   definition before writing the rule.
+  **`Separate Around Two` is now READ, and it is not a missing call — it is a missing PHRASE
+  (round 16).** All8's `--SepA2` decodes to the name `Separate Around Two`, and the catalogue has no
+  such title; but `ms/separate.xml` and `b1/separate.xml` DO author the motion, as fragments of the
+  published phrase: `Around One to a Line`, `Around Two to a Line`, `Around One and Come Into the
+  Middle`, `Around Two and Come Into the Middle`, each `formation="T-Bone URLU"`, plus the whole-phrase
+  tams `Heads Pass Thru, Separate Around 1/2 to a Line` and `... and Come Into the Middle`, all
+  `formation="Static Square"`. The corpus's `figm226` is
+  `H-PasTh | --SepA2 | S-SqTh4 | H-meet-T1/4 | -BRun | ...`, i.e. exactly the decomposed form of
+  *Heads Pass Thru, Separate Around 2 to a Line* — so the fragment is the right target. **Measured:
+  after `Heads Pass Thru` the engine's board is `T-Bone LDDR`, and `Around Two to a Line`
+  (`T-Bone URLU`) refuses on it with "no setup matches"**, so the fragment's authored start and the
+  board the engine produces are different T-Bones; a bridge would need a `T-Bone LDDR` authoring, i.e.
+  new choreography, not a synonym. **And `figm226` has a second, independent blocker**: its
+  `H-meet-T1/4` cell is one of the four UNREAD notation cells, so the figure would still not run
+  end-to-end. Two blockers, one of them in the decoder → recorded, not started.
 - **`Square Thru 1` / `5` / `6`.** Real gap, and the reading is pinned: the reference's loop is
   `for (c = 1; c < count; c++)`, so `count == 1` never runs `Explode and Step to a Compact Wave` —
   `Square Thru 1` is *step to a compact RH wave* then *step thru*, with **no pull by in it at all**.
@@ -648,6 +663,20 @@ asserting choreography, which is the line this plan does not cross.
   right-hand star (the chase is `... Right-hand Star | Centers Left Hand Star | ...`, and the bare
   `Right-hand Star` was applied to all eight). That is Phase C's active-set problem again, so it is
   recorded rather than guessed; a derived star would not touch this blocker at all.
+  **CLOSED AS "NOT AN ENGINE GAP" in round 16, by measuring the reference.** Its `analyze()`
+  (`call_context.dart`) sorts the dancers by distance from the set's centre and only designates
+  centers when there is a clean split: a 4-vs-4 gap (`!dorder[3].isAbout(dorder[4])`) or a centre
+  wave of 4. On this board the distances are **{1.0, 1.0, 2.236 ×4, 3.0 ×2}**, so `dorder[3]` and
+  `dorder[4]` are BOTH 2.236 and the 4-centres branch is skipped, while `dorder[1] = 1.0 ≉ dorder[2]
+  = 2.236` puts the two closest into **very centers** — so the reference's `Centers` here is **zero
+  dancers**, and its `Centers Left Hand Star` cannot run either. The reference does not decompose this
+  chain at all: its `ms/star.xml` ships a SINGLE `<tam>` titled *"Heads Square Thru; Make A Right Hand
+  Star With The Sides; Heads Center Left Hand Star; Back To The Same Girl With A Right and Left Thru"*
+  — one animation for the whole phrase (see Phase L). The engine's refusal agrees with the reference;
+  what is missing is the phrase, not the selection rule.
+  (`figm75` is in this set AND has an unread notation cell, `--1/2`, so even a fix here would leave it
+  short — `unreadCells` reports 4 cells in total: `figm75 --1/2`, `figm170 S-`, `figm184 --Keep`,
+  `figm226 H-meet-T1/4`.)
 
 ### Phase E — stale identity and the per-PAIR gender rule (Phase 19)
 
@@ -858,6 +887,44 @@ is preserved as its own 2-dancer case (deliberately, so the `Centers` fix could 
 `Very Centers …` asset) and `outside6` follows it; and `Centers In` / `Heads Pass Thru` still refuse
 from `Normal Lines` — a different cause (no matching variant; `couple=0` on an identity-less board).
 
+### Phase L — PHRASE tams: the catalogue's own model for whole published chains (round 16)
+
+**The finding, and it is a structural one.** `taminations-flutter/`'s XML — and **our own
+`poc/src/assets/`**, which is the same data — author several of the corpus's published chains as a
+**single `<tam>` whose title is the whole phrase**, `formation="Static Square"`, with the actives'
+paths run end to end and the others standing:
+
+- `ms/star.xml`: *"Heads Square Thru; Make A Right Hand Star With The Sides; Heads Center Left Hand
+  Star; Back To The Same Girl With A Right and Left Thru"* — the exact chain behind the five
+  `Centers Left Hand Star` stops.
+- `ms/separate.xml` + `b1/separate.xml`: `Heads Pass Thru, Separate Around 1 to a Line`, `… Around 2
+  to a Line`, `… Around 1/2 and Come Into the Middle`, `… Around 2; Meet Your Partner and Dosado`.
+
+The engine has these tams loaded (they are ordinary `<tam>` titles, so `callsByTitle` registers them),
+but **nothing can reach them**: the corpus is decomposed into individual calls, and no call name
+equals a sentence. So the 5 `Centers Left Hand Star` figures and the `Separate Around Two` figure are
+blocked by the absence of a phrase layer, not by a selection rule or a missing call — which is also
+why the reference can run them and a decomposed sequencer cannot.
+
+**Why this is worth having, and why it is not a shortcut.** Reading the tams' paths is reading the
+published choreography for exactly these chains, from a source this repo already ships; it is not
+inventing motion (the line Phase B does not cross). Two mechanisms are possible and they are very
+different in size:
+
+1. **A phrase match** — before decomposing, see whether the incoming call WINDOW matches a registered
+   tam whose title is that phrase. Cheap to try, but it changes what a call IS (`Right-hand Star` +
+   `Centers Left Hand Star` would sometimes be one step), so it needs its own decision about which
+   sequences it may claim, and the tams only exist for the phrases upstream chose to animate.
+2. **Authoring the missing FRAGMENT** — the same motion as a call whose setup is the board the engine
+   actually produces. `Separate Around Two` is the witness that this is not a drop-in: the fragments
+   are authored from `T-Bone URLU` while the engine's post-`Heads Pass Thru` board is `T-Bone LDDR`,
+   so the fragment would have to be re-authored for the board, and getting a T-Bone's four facings
+   right is exactly the kind of authoring Phase B demands a definition for.
+
+**Do not start with the star file.** `Centers` on that board has no answer in either implementation
+(round 16's measurement above), and `figm75` has an unread cell besides; the phrase layer is the only
+route for those five, so nothing else should be spent on them.
+
 ---
 
 ## 5. Blocked, and recorded so nobody re-opens them
@@ -912,6 +979,11 @@ swing's local closure end pose (103 → 95). Then, in this order:
 5. **`Swing Your Partner`'s end pose** — needs a corpus- or reference-pinned model, not a local rule.
 6. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
    tie-break sweeps; independent of each other and of the figure work.
+7. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
+   chains, but it is a new mechanism (what is a call?) rather than a fix, and it should be designed
+   against a second witness before any code. Its cheap half is the decoder side — the 4 unread cells
+   (`figm75 --1/2`, `figm170 S-`, `figm184 --Keep`, `figm226 H-meet-T1/4`) are Phase I work and two of
+   them sit in figures Phase L would otherwise unblock.
 
 The closing judgement from the last rounds, kept because it should shape expectations: **the
 remaining refusals are STACKED.** A coverage fix at call N generally reveals a different defect at

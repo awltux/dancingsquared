@@ -3609,6 +3609,38 @@ names as `Ocean Waves`.
 `Heads Touch 1/4` (4) is second and is the `Touch 1/4` body, whose 1/4-turn currently lands the
 heads *past* the center.
 
+**`Boys Fold` (5 chains) — RE-ATTRIBUTED to Phase 14, and it is not a body defect.** All four of its
+authored setups are demonstrations: `ms/fold.xml` marks both `Boys Fold` tams and both `Girls Fold`
+tams `sequencer="no"`, and `getVariants` confirms `Boys Fold` has exactly two variants, both
+`forSeq=false`. That is the same shape as `Run`/`Trade`: Taminations implements Fold in code
+(`calls/ms/fold.dart`), so its tams are demos — and the engine deliberately does not filter them
+out of matching (measured in Phase 4 as a change for the worse), so a *demonstration* is matched as
+an ordinary setup.
+
+The consequence is measurable and specific. The tams DO say which dancers fold, through the setup's
+gender pattern — `Boys Fold` names `Ocean Waves LH BGBG` and `Girls Fold` names
+`Ocean Waves RH BGBG` — but `genderSpecific` is false for them (only `sequencer="gender-specific"`
+sets it), so `matchFormations` runs with `requireGender=false` and that pattern is ignored. On the
+canonical `Ocean Waves` board `Boys Fold` therefore matches `from="Ocean Waves"` at **error 0.000
+with `reflect=true`** and folds **dancers 2, 4, 6 and 8 — two girls and two boys — instead of the
+four boys**, pushing the moved dancers from x=∓2 out to ∓4 and leaving the board unnamed. The
+mapping is geometrically valid and designation-blind, which is exactly the failure mode of matching
+a demo.
+
+So the fix is not in the matcher or a body: it is to implement `Fold`/`Cross Fold` as derived calls,
+which Phase 14 already carries (`Fold` 1, `Cross Fold` 2) and which the library's own note names as
+the reference's answer. **5 of the 28 poisoned chains are missing-call work, not body work.**
+
+**`Heads Touch 1/4` (4 chains) — next, and the measurement to take first.** Unlike `Boys Fold`,
+`Touch 1/4` *does* have sequencer-eligible setups (`Lines` and `Eight Chain Thru` at 8 dancers, and
+a `Facing Couples` at 4), so this one is a real application. It reaches the board through
+`applySelected`'s ISOLATED reading (the name is only a selection prefix), and after
+`Heads Promenade 1/2` it ends the four heads at **x=±1.5, y=∓1 with the partners 3 apart** where a
+completed `Touch 1/4` should leave each couple 2 apart — the same 1.5-versus-2 discrepancy
+`Hinge`'s `Right-Hand Waves` tam showed at `ms/hinge.xml:73`. First measurement next: whether the
+matched 4-dancer `Facing Couples` setup is the `forSeq=false` demo copy, and what spacing the tam's
+own `<formation>` block declares.
+
 
 
 

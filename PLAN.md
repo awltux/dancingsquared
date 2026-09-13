@@ -911,6 +911,29 @@ the prerequisite for `Spin the Top` — which is where the figures actually are 
 removes). **The next step is therefore `Spin the Top` as part 1 `Swing` + part 2 `Fan the Top`, now that
 part 2 exists.**
 
+**AND THE COMPOSITION FOR `Spin the Top` IS ALREADY MEASURED TO WORK ON THE WAVE CASE (round 29).**
+Nothing is wired yet — this is a probe result, recorded because it decides the next move. `Swing` then
+`Fan the Top`, both existing calls, against `Spin the Top` direct:
+
+```
+start          Swing                then Fan the Top      Spin the Top direct
+Ocean Waves    Ocean Waves (2.00)   Ocean Waves (2.00)    Tidal Wave  (1,2,3)   <- direct is WRONG
+Tidal Wave     Tidal Wave (1,2,3)   Ocean Waves (2.00)    Ocean Waves (2.00)
+Normal Lines   REFUSED              (Swing refused)       Ocean Waves (2.00)
+```
+
+So on `Ocean Waves` the two-part composition gives the RIGHT answer where the catalogue tam gives the
+wrong one, and `Swing` preserving the formation (measured in round 27) is exactly why. Three things the
+next round needs, all now visible in that table:
+
+- the `Ocean Waves` row is the win to wire, and it is the board the four blocked figures reach;
+- the `Tidal Wave` row is NOT yet right, and the reason is specific: an eight-dancer Tidal Wave is ONE
+  continuous chain of eight hand-holds (facings W,E,W,E,E,W,E,W — a wave of EIGHT, not two waves of
+  four), so `findWaves` correctly refuses it and the call falls back to the catalogue. Whether Fan the
+  Top is even legal from a tidal wave is the open question, and it should be settled before coding;
+- the `Normal Lines` row shows `Swing` refusing, so the composition needs `catalogueFallback` like the
+  other partially-ported calls rather than replacing the call outright.
+
 **AND THE RULE, AND WHERE IT CAME FROM (round 28).** The definition is not in `callerlab-ms.txt`
 (`Fan the Top` is Plus), but the reference ships CALLERLAB's own text at
 `taminations-flutter/assets/plus/fan_the_top.md`, and it is short enough to derive from directly:

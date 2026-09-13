@@ -98,6 +98,22 @@ for (const start of ['Ocean Waves', 'Tidal Wave']) {
   seq.setSelectionMode('best');
 }
 
+// CAN `Swing` + `Fan the Top` COMPOSE INTO `Spin the Top`? The reference defines it that way
+// (`SpinTheTop` = part 1 `Swing`, part 2 `Fan the Top`), and both parts now exist in this engine. This
+// is a measurement only - nothing is wired - so the next round knows whether the composition is the
+// route or whether part 1 needs pinning first. `Swing` preserving the formation is the whole question.
+for (const start of ['Ocean Waves', 'Tidal Wave', 'Normal Lines']) {
+  const board = seq.boardForFormation(start);
+  if (!board) { console.log(`\n${start}: NOT A KNOWN FORMATION`); continue; }
+  const s = seq.applyToBoard(board, 'Swing');
+  const f = s.legal ? seq.applyToBoard(s.board, 'Fan the Top') : { legal: false, reason: 'Swing refused' };
+  console.log(`\n=== ${start} -> Swing -> Fan the Top ===`);
+  console.log(`  Swing         ${s.legal ? `[${seq.knownFormation(s.board)}] gaps: ${spacings(s.board)}` : `REFUSED: ${s.reason}`}`);
+  console.log(`  then Fan      ${f.legal ? `[${seq.knownFormation(f.board)}] gaps: ${spacings(f.board)}` : `REFUSED: ${f.reason}`}`);
+  const direct = seq.applyToBoard(board, 'Spin the Top');
+  console.log(`  Spin the Top  ${direct.legal ? `[${seq.knownFormation(direct.board)}] gaps: ${spacings(direct.board)}` : `REFUSED: ${direct.reason}`}`);
+}
+
 // WHAT SETUPS EXIST AT ALL. `parallelApply` skips any setup of size >= the board, so which sizes a
 // call HAS decides which of them the per-half route can even reach. A 2-dancer setup on an 8-dancer
 // board tiles into four groups of two, which is NOT the reference's SplitCall (halves of four).

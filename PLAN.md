@@ -4523,6 +4523,55 @@ ERROR class and means authoring the call will not win them.
 
 ---
 
+## Phase 19 — THE ROOT CAUSE OF THE STALE-IDENTITY FAMILY, and CALLERLAB states the rule
+
+This is the single largest owner left, it was found by tracing three calls of one figure, and it is
+**one missing convention** rather than a list of per-call defects. `figm203` is
+`Rollaway | Circle Left | Allemande Left | …`, and it refuses at `Allemande Left` with
+`No setup in this call matches the current formation` even though the board is plainly a Static Square:
+
+```
+before: #1B(1,3) #2G(-1,3) | #3B(3,-1) #4G(3,1) | #5B(-1,-3) #6G(1,-3) | #7B(-3,1) #8G(-3,-1)
+after `Four Ladies Chain`:
+        #1B(1,3) #6G(-1,3) | #2G(1,-3) #5B(-1,-3) | #3B(3,-1) #8G(3,1) | #4G(-3,-1) #7B(-3,1)
+```
+
+The finishing POSITIONS are a correct Static Square and the physical pairs are correct — but they are
+**new** pairs (`{1,6} {2,5} {3,8} {4,7}`), while the engine's `couple` field still carries the **old**
+ones (`{1,3} {2,3} {2,4} …`). Every `gender-specific` authoring matches on those slots, so the next
+call cannot find its setup — and it is not a `Four Ladies Chain` bug: the ladies progressing to a new
+man is what the call IS.
+
+**CALLERLAB states the rule the engine is missing**, in Ways of Naming Dancers:
+
+> "The figure portion of singing calls almost always causes each Woman to progress to a new Man. Once
+> this has happened, **she temporarily takes on the Head/Side identity and home position of that
+> Man.**"
+
+So the woman's couple number and home position are re-assigned to her NEW partner's. The engine never
+does this, and the failures it owns are not one family but three that have each been investigated
+separately:
+
+| symptom | figures | what was concluded at the time |
+|---|---|---|
+| `Promenade` ring order, "couple 2 is -90 degrees from couple 1" | 8 | "the swing's end pose is not modelled" — true, but the ring order is read from STALE numbers |
+| `Allemande Left` on a board named Static Square | 3 | "the identity assignment is broken" (this round localises it to `Four Ladies Chain`) |
+| the `SPLIT COUPLES` class in `facing-audit.mjs` | 2 | newly classified as body errors |
+
+The mechanism also explains the round-6 finding that `figm40`'s `Promenade` verdict depended on one ULP:
+the ring order was being read from numbers that should already have been re-assigned.
+
+- **Work:** apply the convention after a call completes — each physical man-and-woman pair takes the
+  MAN's couple number and home position, so the next call's `gender-specific` slots describe the pair
+  the dancers are actually in. The two honest limits to pin first are that it must not fire for a
+  board with no progression (a plain `Circle Left` must not shuffle anyone) and that in-sequence vs
+  out-of-sequence must stay distinguishable, since that is what `Promenade` refuses on.
+- **Gate:** `Allemande Left` must be legal on the board `figm203` reaches; the census must rise; and
+  the `SPLIT COUPLES` count in `facing-audit.mjs` must fall, which is the instrument that already
+  identifies this class without any chain reasoning.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

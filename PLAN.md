@@ -57,10 +57,10 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 
 | side | value | command |
 |---|---|---|
-| figures end-to-end | **103 of 188** | `node engine/test/tools/figure-census.mjs` |
-| get-out corpus: reaching a state the standard finish resolves from | **121 of 265** (was 116) | `node engine/test/getout-behaviour.mjs` |
-| … of which ended by applying the finish itself | **109** (was 105) | same |
-| … decoded but stopped at a call (the body gap) | **111** (was 115) | same |
+| figures end-to-end | **107 of 188** | `node engine/test/tools/figure-census.mjs` |
+| get-out corpus: reaching a state the standard finish resolves from | **122 of 265** (was 116) | `node engine/test/getout-behaviour.mjs` |
+| … of which ended by applying the finish itself | **110** (was 105) | same |
+| … decoded but stopped at a call (the body gap) | **110** (was 115) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **2 (call, start) pairs + 24 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
 | gates | `verify:light` green; `verify` green (20 harnesses, ~295 s); `verify:figures` **red by design** | `npm run verify --prefix engine` |
@@ -68,16 +68,15 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 The figure census's blocking causes, re-measured after Phases A and E:
 
 ```
-   44  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
+   43  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
     8  selection will not resolve on this board
     6  derived call refuses ("Sweep 1/4")
-    4  derived call refuses ("Promenade")            <- was 6; see Phase E item 1
+    4  derived call refuses ("Promenade")
     4  derived call refuses ("Swing Thru")
-    4  other: "Rollaway" not legal for selected dancers
     3  unknown call (no catalogue entry)
     2  other: "Circle 2" not legal for selected dancers
     2  other: "Walk and Dodge" not legal for selected dancers
-    1  each: Scoot Back | Promenade 1/2 | Turn Thru | Circulate | Walk Across | 8 Circulate 1 1/2
+    1  each: Rollaway | Scoot Back | Promenade 1/2 | Turn Thru | Circulate | Walk Across | 8 Circulate 1 1/2
     1  derived call refuses ("Trade") | ("Promenade Home")
 ```
 
@@ -106,6 +105,17 @@ recording); the third **won two figures**:
   co-oriented couples (**103 → 95 figures**), and reading the same couple-number convention inside the
   Sweep's `boxGroups` (Sweep refusals 6 → 4 but Promenade 4 → 6, figure count unchanged, and the
   resulting boards collide). Both are reverted and both are recorded beside the code.
+- **And a FOURTH separation fix, the largest single win of the session (`Rollaway`, 103 → 107
+  figures).** The corpus reaches `Rollaway` from boards whose couples stand **two** apart (an
+  `Eight Chain Thru`, a `Quarter Tag`) while the only `Facing Couples` authoring placed them four
+  apart, so five figures refused. A Rollaway is a per-couple HALF SASHAY, so its displacement is the
+  couple's own width and does not depend on how far two couples stand apart — the paths are in each
+  dancer's own frame, so the same paths at separation 2 give the same swap. Authored inline at
+  `x = -1` in `b1/sashay.xml` and gated in `sequencer.mjs` (both separations must end with each
+  couple's dancers exactly exchanged, facings unchanged — which the figure count cannot see).
+  **The separation recipe's tally is now: `Right and Left Thru` +3, `Box the Gnat` +1, `Rollaway`
+  +4, and the zero-figure instances `Square Thru 4`, `Flutterwheel`, `Star Thru` (reverted),
+  `Touch 1/4` seam-2 (reverted) and `Dosado` (reverted).**
 
 All three sides re-measured at the end of the round: figures **103 of 188**; get-out **121 of 265**
 reaching a resolve state (109 applying the finish, 111 body stops); FSM **155 / 92 / 43 / 19
@@ -219,9 +229,12 @@ board. `scaleX = separation / 2` was **refuted** as the cause here (it collides 
 | `Grand Square` (bare) | 0 | — | curiosity: CALLERLAB names Static Square, the engine has only Butterfly/Blocks; not exercised by any figure |
 
 **Method, non-negotiable:** the CALLERLAB definition first, then the rule/authoring, then validation
-against the corpus — and `scaleX = separation / 2` is the law for *separation* gaps only (three
-confirmed instances: `Box the Gnat`, `Pass Thru`, `Right Pull By`). Run both `facing-audit.mjs` and a
-chain trace before writing anything.
+against the corpus — and `scaleX = separation / 2` is the law for *separation* gaps only (four
+confirmed instances now: `Box the Gnat` +1 figure, `Pass Thru`, `Right Pull By`, and **`Rollaway` +4**,
+whose case also shows the limits of the law: a HALF SASHAY does not scale with the separation at all,
+because its displacement is the couple's own width, so there the fix is the same paths on an inline
+formation at `x = -1` rather than a rescaled move). Run both `facing-audit.mjs` and a chain trace
+before writing anything.
 **Gate:** each (call, board geometry) pair is covered by a setup or a derived rule, or recorded with
 its reason; the census must rise.
 

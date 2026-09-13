@@ -523,6 +523,42 @@ console.log('== Sequencer: a Sweep whose boxes would COLLIDE is refused, not for
   check(rw.legal === true, `Sweep 1/4 applies when the boxes are 6 apart: ${rw.reason ?? 'ok'}`);
 }
 
+console.log('== Sequencer: Rollaway swaps each couple, at every authored separation ==');
+// The separation-2 authoring in `b1/sashay.xml` was ADDED because the corpus reaches `Rollaway` from
+// boards whose couples stand two apart (an Eight Chain Thru, a Quarter Tag) while the only
+// `Facing Couples` authoring placed them four apart — four figures and a get-out line refused with
+// "no setup in this call matches". A Rollaway is a per-couple HALF SASHAY, so the displacement is the
+// couple's own width (2) and the same paths must give the SAME end pose at either separation. This
+// asserts exactly that, which the figure count cannot see.
+{
+  const facingCouples = (s) => ({
+    dancers: [
+      { id: 1, couple: 1, gender: 'boy', x: -s / 2, y: 1, heading: 0 },
+      { id: 2, couple: 1, gender: 'girl', x: -s / 2, y: -1, heading: 0 },
+      { id: 3, couple: 2, gender: 'boy', x: s / 2, y: -1, heading: Math.PI },
+      { id: 4, couple: 2, gender: 'girl', x: s / 2, y: 1, heading: Math.PI },
+    ],
+  });
+  for (const s of [2, 4]) {
+    const b = facingCouples(s);
+    const r = scopedSeq.applyToBoard(b, 'Rollaway');
+    check(r.legal === true, `Rollaway is legal on facing couples ${s} apart: ${r.reason ?? 'ok'}`);
+    if (!r.legal) continue;
+    const before = new Map(b.dancers.map((d) => [d.id, d]));
+    const after = new Map(r.board.dancers.map((d) => [d.id, d]));
+    const swapped = (a, bId) =>
+      Math.abs(after.get(a).x - before.get(bId).x) < 1e-6 && Math.abs(after.get(a).y - before.get(bId).y) < 1e-6;
+    check(swapped(1, 2) && swapped(2, 1), `${s} apart: couple 1's two dancers exchange places exactly`);
+    check(swapped(3, 4) && swapped(4, 3), `${s} apart: couple 2's two dancers exchange places exactly`);
+    check([1, 2, 3, 4].every((id) =>
+      Math.abs(Math.atan2(
+        Math.sin(after.get(id).heading - before.get(id).heading),
+        Math.cos(after.get(id).heading - before.get(id).heading),
+      )) < 1e-6),
+    `${s} apart: every dancer keeps its own facing (${[1, 2, 3, 4].map((id) => `${after.get(id).heading.toFixed(9)}/${before.get(id).heading.toFixed(9)}`).join(' ')})`);
+  }
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

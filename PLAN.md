@@ -293,6 +293,48 @@ reasoning, and the `Promenade` ring-order refusals (6 in the census) read the sa
 **Gate:** `Allemande Left` is legal on the board `figm203` reaches; the census rises; `SPLIT COUPLES`
 falls.
 
+#### Phase E, NEW LEAD (measured this session): item 1 is worth RE-TESTING, and `Swing` is a no-op
+
+Diagnosing the six figures that stop on `Promenade` — the largest derived-call bucket — splits them
+into **four ring-order refusals** and **two collisions**, and the four share one cause that the census
+attributes to the wrong call:
+
+```
+reason: the couples are out of sequence: couple 2 is -90 degrees round the ring from couple 1, ...
+board : c4#7(-1,-1)@180 c4#8(-1,1)@180  c3#1(3,-1)@180 c3#2(-3,-1)@0
+        c2#3(1,1)@0    c2#4(1,-1)@0     c1#5(-3,1)@0   c1#6(3,1)@180      -> Eight Chain Thru
+```
+
+Read the couples: **couple 3 is split across the set** (`#1` at x=+3 and `#2` at x=-3, facing each
+other 6 apart) and so is couple 1. The board is a proper `Eight Chain Thru` and the physical pairs are
+correct — but two couples stand facing each other the width of the set apart, so `Promenade` cannot
+see couples and its ring-order check reads nonsense. The call before it is **`Swing Your Partner`**.
+
+**The cause is that the derived `Swing Your Partner` is the IDENTITY transform.** Its authored motion
+is a full turn about the partner, so in a net model it moves nobody — which is true only when the
+partners are ALREADY standing together. Where the body leaves partners facing each other across the
+set, a swing is exactly the call that brings them together, and the no-op leaves the board as it
+found it. This is the "the call that STOPPED is a symptom" pattern again, one call upstream of the
+census's attribution.
+
+**Two things to do, in this order, before writing anything:**
+
+1. **RE-TEST Phase 19 item 1 (the temporary couple number).** Its revert was decided partly because
+   the re-assigned board "fails on something else": the man ends on the wrong side of the couple, so
+   the `gender-specific` slots miss. **That masking defect is what Phase E item 2 just fixed** — a
+   mirrored couple is now accepted for `Allemande Left` by the per-couple retry. The rule is recorded
+   in this file with its CALLERLAB citation, the board-shape trigger measured 98 → 96 and the call-name
+   trigger fired but moved 0; both were measured BEFORE the gender relaxation. Re-measure both now.
+   (The implementation was never committed — `git log -S progressionIdentity` shows commit `6a4e0ab`
+   carried only the PLAN note — so it has to be written again.)
+2. **Then decide the swing's end pose, which is genuinely under-specified.** CALLERLAB's `Swing` is
+   "join right hands and turn around each other, ending in a normal couple" and names no position or
+   facing, because the next call determines them. The two candidate readings — the couple forms at the
+   pair's MIDPOINT, or each dancer moves to the other's position — must be measured against the
+   corpus, and a wrong choice here would silently corrupt every board that follows a swing (65+
+   figures use it), which is the failure mode this catalogue's gates exist to prevent. Do not
+   implement the swing on the strength of the ring-order refusal alone.
+
 ### Phase F — the CALLERLAB formation vocabulary (16b)
 
 **Owner:** the formation vocabulary — the gap is **24 formation NAMES**, not 9 missing calls.
@@ -440,15 +482,18 @@ separation is only the call's scale.
 cleared a body defect and moved their chains deeper without moving the figure count; the get-out
 corpus gained 4 lines. Then, in this order:
 
-1. **Phase A's remaining queue** — the body errors the `setup-split.mjs` prefix scan names next
+1. **Phase E, item 1, RE-TESTED** (see "Phase E, NEW LEAD"): the gender relaxation removed the masking
+   defect that its revert was partly decided on, so the temporary-couple-number rule is worth
+   measuring again — and it is the owner of the four `Promenade` ring-order refusals, the largest
+   derived-call bucket in the census.
+2. **Phase A's remaining queue** — the body errors the `setup-split.mjs` prefix scan names next
    (`Allemande Left` 3, `Sides Touch 1/4` 2, `Girls Run` 2, `Square Thru 4` 2, `Centers Swing Thru` 2,
-   `Sides Right and Left Thru` 2). `Allemande Left`'s three are a live lead: its gender gate is now
-   relaxed, so re-measure what those chains do before treating them as body errors.
-2. **Phase B** — the authoring queue, call by call, definition first; run `facing-audit.mjs` and a
+   `Sides Right and Left Thru` 2).
+3. **Phase B** — the authoring queue, call by call, definition first; run `facing-audit.mjs` and a
    chain trace before each row.
-3. **Phase D** — the named missing calls (`unknown call` is down to 3, so this is bounded work).
-4. **Phase C** — the two conventions; design before code, both have board-wide blast radius.
-5. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
+4. **Phase D** — the named missing calls (`unknown call` is down to 3, so this is bounded work).
+5. **Phase C** — the two conventions; design before code, both have board-wide blast radius.
+6. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
    tie-break sweeps; independent of each other and of the figure work.
 
 The closing judgement from the last rounds, kept because it should shape expectations: **the

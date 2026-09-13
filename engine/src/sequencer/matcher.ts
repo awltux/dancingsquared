@@ -14,6 +14,70 @@ import type { Board, RecognizedFormation, VariantMatch } from './types.js';
  * deciding whether a board IS a given formation (they are the same geometry). */
 const MATCH_TIE_EPS = 1e-9;
 
+/**
+ * CALLS WHOSE GENDER REQUIREMENT IS PER **COUPLE**, NOT PER **SLOT**.
+ *
+ * The catalogue's `gender-specific` attribute pins a gender to each SLOT of an authored setup, and
+ * the matcher enforces it slot for slot. For most calls that is exactly right — a `Boys Run` slot is
+ * a boy's slot. For `Allemande Left` it is an OVER-CONSTRAINT: CALLERLAB's definition is "Dancers
+ * face their corners and turn 1/2 by the left arm", the corner is a fact about the dancer's HOME
+ * POSITION, and every dancer does the same 180-degree turn. So the requirement the call really has
+ * is the one CALLERLAB states for couples generally — **each couple is a man and a woman,
+ * side-agnostic** — and a HALF-SASHayed square satisfies it. `gender-specific` rejects that board,
+ * which is what refused `figm203` (the `Rollaway` in its chain half-sashays every couple) and the
+ * three `Allemande Left` stops the census attributes to a Static Square.
+ *
+ * THE BOARD, NOT THE MAPPING, IS WHAT IS CHECKED. The retry runs the SAME geometric match with the
+ * gender constraint off and then requires the board itself to be a set of man-and-woman couples
+ * (`boardHasCoupleGenderPairs`). That is safe HERE because the call's motion is gender-symmetric —
+ * every dancer turns 180 with its corner — so which slot a dancer is mapped to cannot change what
+ * that dancer does. The list is therefore deliberately ONE call; adding a slot-sensitive call
+ * (`Ladies Chain`, `Boys Circulate`) would apply a slot's motion to the wrong dancer.
+ *
+ * THE WITNESSES, and one of PLAN.md's two was a mistake worth recording: a half-sashayed square
+ * MUST become legal, and a square of four SAME-GENDER couples must stay refused. `features.mjs`'s
+ * `swappedG` is NOT the second witness — measured, it flips every dancer's gender, which in a
+ * normal square leaves every couple one boy and one girl, i.e. it IS the half-sashayed square. Its
+ * assertion (`legal === false`) was the opposite of CALLERLAB and is corrected with this change; a
+ * genuine same-gender-couples witness is added alongside it.
+ */
+export const PAIR_GENDER_CALLS = new Set(['allemande left']);
+
+/** How far apart the two dancers of a couple stand. */
+const COUPLE_WIDTH = 2.0;
+const COUPLE_WIDTH_TOL = 0.35;
+
+/**
+ * Whether every physical dancer is part of a couple — two dancers `COUPLE_WIDTH` apart, side by
+ * side, facing the same way — and every one of those couples is a man and a woman. A board that is
+ * not a couple arrangement at all (a wave, a line, facing couples, a broken body) is NOT eligible:
+ * this is a relaxation of the gender gate only, never of the geometry.
+ */
+export function boardHasCoupleGenderPairs(board: Board): boolean {
+  const phys = board.dancers.filter((d) => !d.isGhost);
+  if (phys.length === 0 || phys.length % 2 !== 0) return false;
+  const used = new Set<number>();
+  let pairs = 0;
+  for (const d of phys) {
+    if (used.has(d.id)) continue;
+    let mate: (typeof phys)[number] | null = null;
+    for (const o of phys) {
+      if (o.id === d.id || used.has(o.id)) continue;
+      const dist = Math.hypot(o.x - d.x, o.y - d.y);
+      if (Math.abs(dist - COUPLE_WIDTH) > COUPLE_WIDTH_TOL) continue;
+      if (Math.abs(Math.atan2(Math.sin(o.heading - d.heading), Math.cos(o.heading - d.heading))) > 0.2) continue;
+      mate = o;
+      break;
+    }
+    if (!mate) return false;
+    if (d.gender === 'phantom' || mate.gender === 'phantom' || d.gender === mate.gender) return false;
+    used.add(d.id);
+    used.add(mate.id);
+    pairs++;
+  }
+  return pairs * 2 === phys.length;
+}
+
 export class FormationMatcher {
   // Caches the best call-variant match for a (board geometry + call) pair. Boards
   // are immutable (always cloned before mutation), so a given signature + call
@@ -55,41 +119,49 @@ export class FormationMatcher {
     // couple is always included because identity-aware matching (keeps
     // heads/sides on their home couples) depends on it.
     const genderSensitive = variants.some((v) => v.genderSpecific);
-    const key = `${maxError}|${callName}|${board.dancers
+    const perPair = PAIR_GENDER_CALLS.has(callName.trim().toLowerCase()) && boardHasCoupleGenderPairs(board);
+    const key = `${maxError}|${callName}|${perPair ? 'pair|' : ''}${board.dancers
       .map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}${genderSensitive ? '|' + d.gender : ''}|c${d.couple}`)
       .join(';')}`;
     const cached = this.matchMemo.get(key);
     if (cached !== undefined) return cached;
     const src = this.matchables(board);
-    let best: VariantMatch | null = null;
-    for (const v of variants) {
-      const tgt = v.dancers.map((d) => this.library.variantMatchable(d));
-      const m = matchFormations(src, tgt, maxError, !!v.genderSpecific);
-      // The whole-board APPLY path needs a full 1:1 mapping (every board dancer
-      // maps to a variant dancer). A SUBSET match (m.subset set) is handled by the
-      // parallel-subset path, not a whole-board apply — so it is rejected here.
-      if (!m || m.subset) continue;
-      // Least error wins; on an EQUAL error, a variant matching WITHOUT reflection wins over
-      // one that needs it. Reflection is real and stays available - `prd.md` §9.5 matches "up to
-      // translation, rotation and reflection" - but it must be the FALLBACK, never the tie
-      // winner, because a mirrored match applies mirrored motion and the two variants are not
-      // interchangeable.
-      //
-      // MEASURED, and this is not hypothetical. On a right-hand wave, `Left Swing Thru` matched a
-      // `from="Left-Hand Waves"` variant by REFLECTION at error 0.0000 AND a
-      // `from="Right-Hand Waves"` variant directly at error 0.0000. The tie went to array order,
-      // so the mirrored variant won, and its motion sent the wave's end dancers from y=±3 to
-      // y=±7 - the span of the set more than doubled, the board stopped being a formation at all,
-      // and the finish then refused with "no setup matches". Same reasoning as the recorded
-      // decision that "a mirrored candidate must never decide an arrangement": a reflection must
-      // not decide a call either when a direct reading is available at the same error.
-      const better = best === null
-        || m.error < best.error - FormationMatcher.REFLECT_TIE_EPS
-        || (Math.abs(m.error - best.error) <= FormationMatcher.REFLECT_TIE_EPS && best.reflect && !m.reflect);
-      if (better) {
-        best = { variant: v, mapping: m.mapping, error: m.error, rot: m.rot, reflect: m.reflect, cSrc: m.cSrc, cTgt: m.cTgt };
+    const run = (requireGender: boolean): VariantMatch | null => {
+      let best: VariantMatch | null = null;
+      for (const v of variants) {
+        const tgt = v.dancers.map((d) => this.library.variantMatchable(d));
+        const m = matchFormations(src, tgt, maxError, requireGender && !!v.genderSpecific);
+        // The whole-board APPLY path needs a full 1:1 mapping (every board dancer
+        // maps to a variant dancer). A SUBSET match (m.subset set) is handled by the
+        // parallel-subset path, not a whole-board apply — so it is rejected here.
+        if (!m || m.subset) continue;
+        // Least error wins; on an EQUAL error, a variant matching WITHOUT reflection wins over
+        // one that needs it. Reflection is real and stays available - `prd.md` §9.5 matches "up to
+        // translation, rotation and reflection" - but it must be the FALLBACK, never the tie
+        // winner, because a mirrored match applies mirrored motion and the two variants are not
+        // interchangeable.
+        //
+        // MEASURED, and this is not hypothetical. On a right-hand wave, `Left Swing Thru` matched a
+        // `from="Left-Hand Waves"` variant by REFLECTION at error 0.0000 AND a
+        // `from="Right-Hand Waves"` variant directly at error 0.0000. The tie went to array order,
+        // so the mirrored variant won, and its motion sent the wave's end dancers from y=±3 to
+        // y=±7 - the span of the set more than doubled, the board stopped being a formation at all,
+        // and the finish then refused with "no setup matches". Same reasoning as the recorded
+        // decision that "a mirrored candidate must never decide an arrangement": a reflection must
+        // not decide a call either when a direct reading is available at the same error.
+        const better = best === null
+          || m.error < best.error - FormationMatcher.REFLECT_TIE_EPS
+          || (Math.abs(m.error - best.error) <= FormationMatcher.REFLECT_TIE_EPS && best.reflect && !m.reflect);
+        if (better) {
+          best = { variant: v, mapping: m.mapping, error: m.error, rot: m.rot, reflect: m.reflect, cSrc: m.cSrc, cTgt: m.cTgt };
+        }
       }
-    }
+      return best;
+    };
+    let best = run(true);
+    // THE PER-COUPLE GENDER RETRY. See PAIR_GENDER_CALLS for what this is and the two witnesses.
+    // The strict (per-slot) reading is tried FIRST, so nothing that matches today changes.
+    if (best === null && perPair) best = run(false);
     this.matchMemo.set(key, best);
     return best;
   }

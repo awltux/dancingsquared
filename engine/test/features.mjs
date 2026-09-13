@@ -207,9 +207,10 @@ if (go) {
 }
 
 console.log('== Gender-specific matching (§1.1) ==');
-// A gender-specific call (e.g. "Allemande Left", marked sequencer="gender-specific")
-// must only apply when the board's boy/girl arrangement matches its setup. A board
-// with IDENTICAL geometry but swapped genders must be rejected.
+// A gender-specific call (e.g. "Allemande Left", marked sequencer="gender-specific") must only apply
+// when the board's boy/girl arrangement matches its setup. CORRECTED: the requirement is PER COUPLE
+// (each couple is a man and a woman), not per SLOT, and a square where every couple's sides are
+// swapped — a HALF-SASHED square — is ordinary. See PAIR_GENDER_CALLS in matcher.ts.
 const seq3 = new Sequencer(movesXml, formationsXml, [
   { name: 'Allemande Left', xml: ms('allemande') },
   { name: 'Rollaway', xml: ms('sashay') }, // non-gender-specific control
@@ -219,8 +220,25 @@ const homeB = seq3.startBoard();
 const gsOk = seq3.applyToBoard(homeB, 'Allemande Left');
 check(gsOk.legal === true, `Allemande Left (gender-specific) legal from correct arrangement`);
 const swappedG = { dancers: homeB.dancers.map((d) => ({ ...d, gender: d.gender === 'boy' ? 'girl' : 'boy' })) };
+// MEASURED, and the earlier note here was wrong: a normal square has one boy and one girl per
+// couple, so flipping EVERY dancer's gender leaves one boy and one girl per couple. `swappedG` is
+// therefore not "a square of four same-gender couples" — it IS a half-sashayed square, and
+// CALLERLAB's `Allemande Left` ("dancers face their corners and turn 1/2 by the left arm", the
+// corner being a home-position relation, with every dancer doing the same turn) is proper from it.
 const gsSwap = seq3.applyToBoard(swappedG, 'Allemande Left');
-check(gsSwap.legal === false, `Allemande Left rejected when genders swapped (same geometry)`);
+check(gsSwap.legal === true, `Allemande Left legal from a HALF-SASHED square (every couple still one boy + one girl)`);
+// The board that genuinely IS improper gets its own witness: make each couple same-gender by giving
+// every second dancer of a couple the first one's gender.
+const sameSex = { dancers: homeB.dancers.map((d) => ({ ...d })) };
+{
+  const firstOfCouple = new Map();
+  for (const d of sameSex.dancers) {
+    if (!firstOfCouple.has(d.couple)) firstOfCouple.set(d.couple, d.gender);
+    else d.gender = firstOfCouple.get(d.couple);
+  }
+}
+const gsSameSex = seq3.applyToBoard(sameSex, 'Allemande Left');
+check(gsSameSex.legal === false, `Allemande Left rejected on a square of SAME-GENDER couples`);
 const ctl = seq3.applyToBoard(swappedG, 'Rollaway');
 check(ctl.legal === true, `Rollaway (gender-agnostic) still applies on swapped board`);
 

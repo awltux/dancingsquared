@@ -722,6 +722,29 @@ the missing-separation recipe that won four figures elsewhere does not apply, an
 a Plus call whose definition is not in this repo's CALLERLAB text — authoring a variant would be
 asserting choreography, which is the line this plan does not cross.
 
+**CORRECTED IN ROUND 20 (the attribution, not the outcome — and it makes this a real lead).** The
+para above calls those boards a body defect, and `Heads Touch 1/4`'s output is NOT one. Measured:
+
+- `Heads Touch 1/4` from a Static Square lands on the engine's own **named** `Mixed Columns RH Ends
+  In` at error **0.00**, and its arrangement is exactly what CALLERLAB's *Static Square Convention*
+  prescribes for this very call — it lists "Heads Touch a Quarter" among the calls whose actives
+  "remain in the center". The heads end as two right-hand mini-waves at `(±1,±1)` and the sides never
+  move ✓. `Boys Run Right` then lands on the named `Mixed Columns RH Centers Out` at error **0.00**.
+  So the stops are the CALLS' fault, not the body's.
+- `Swing Thru` is genuinely improper on `Mixed Columns RH Centers Out`: after the Facing Couples Rule
+  its starting formation "must be a Wave or an Alamo Ring", the board's inner four are two couples
+  facing OPPOSITE ways, and two separate mini-waves are not a group of four. Its derived rule already
+  declines, correctly (round 18's finding, now confirmed on a SECOND board).
+- `Walk and Dodge` is an **ARRANGEMENT gap inside columns**, which is a fixable class: the catalogue
+  DOES author this call from columns — `from="Right-Hand Columns"` (`Column RH GBGB`) and
+  `from="Left-Hand Columns"` (`Column LH GBGB`) — but not from `Mixed Columns RH Ends In`. And the
+  rule is readable: the reference's `plus/walk_and_dodge.dart` gives each variant's paths, and the
+  pattern is per column — the dancer who can move forward WALKS (`Forward_3`) and the one with a
+  dancer behind dodges sideways (`DodgeRight`/`DodgeLeft`), with the reference's own note *"Centers
+  facing in must be careful to dodge and not walk."* That is a rule to transcribe, exactly as `fold.ts`
+  and `trade-run.ts` were transcribed, and it is worth **up to 3 figures** (`figm6`, `figm7` and the
+  selection stop). Not started here — it is a rule, not a rename.
+
 ### Phase D — the missing calls (Phase 14 residue)
 
 **Owner:** `coded-moves.ts` (derived) or the catalogue (authored). Census `unknown call` is down to
@@ -742,6 +765,20 @@ asserting choreography, which is the line this plan does not cross.
   witness; the same helper serves them in one line.
 - `Yellow Rock`, `Pass One`, `Separate Around Two` — named in the census and in CALLERLAB; read the
   definition before writing the rule.
+  **`Pass One` is now READ and CLOSED (round 20), and it is the strongest temptation in this file so
+  far.** All8's key glosses it `Pass1  Pass One  (Pass by 1, Pass 1 by, Skip 1)`, and the corpus
+  reaches it twice, both as `... Allemande Left | Pass One | Swing Your Partner | Promenade`
+  (`figm125`, `figm149`) — the two figures the `Circulate 2` multiple just moved deeper. **It is not a
+  CALLERLAB call**: the Mainstream text has no entry, and its Right and Left Grand family (where such a
+  prompt would live) gives only "Right and Left Grand" and "Grand Right and Left" as command examples.
+  The reference does not implement it either — no hit anywhere in `taminations-flutter/lib`. And the
+  measurement that makes a no-op tempting is exactly why it must not be one: **after `Allemande Left`
+  every dancer already faces their PARTNER** (`seq.applyToBoard(sq,'Allemande Left')` gives the
+  `O Trade By` pose, each dancer facing its own home couple) and **`Swing Your Partner` is already
+  legal on that board**, so shipping `Pass One` as "no geometric effect" would win two figures by
+  asserting an effect nobody has defined — the same call as `Change Hands` above, and the same answer.
+  If it is ever implemented it needs a definition of where a "pass" leaves the ring, and neither
+  authority in this repo has one.
 - **`Change Hands` — DIAGNOSED, deliberately NOT implemented (round 17).** It became `figm142`'s stop
   once the Fold adjustment moved that figure deeper, and the corpus reaches it as
   `... Boys Fold | Box the Gnat | Change Hands | Allemande Left | ...`. It is **not a call with a

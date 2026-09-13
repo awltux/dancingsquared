@@ -4715,6 +4715,29 @@ ERROR class and means authoring the call will not win them.
 
 ### Phase 17 — the FSM's get-out backlog (43 states)
 
+**RE-MEASURED after the figure census went 95 → 101, and the FSM side is UNCHANGED.**
+
+```
+155 states: 92 route home, 43 NO route home, 19 dead (no call at all)
+=== the figures as an oracle (101 of 188 run end-to-end) ===
+  (a) DEAD states a figure walked straight through: 0
+  (b) NOHOME states on a path that REACHES HOME in our own graph: 0
+  (c) NOHOME states a stopping figure passed through (evidence, not proof): 1
+```
+
+That is the same 155 / 92 / 43 / 19 as when it was first measured, across **six** figures gained. The
+reading is worth recording because it says what the two sides measure: the census gains came from
+figures that now COMPLETE, and completing a figure adds no state to the graph — the states on those
+paths were already there. The FSM's 43 `nohome` states are the exotic formations (Diamonds, Galaxies,
+I-Beams, Butterflies, Siamese waves) that no published Mainstream figure walks, so they are unmoved by
+Mainstream work by construction.
+
+**Consequence for the phase's own gate** ("0 `nohome` states, or a recorded reason per state"): the
+backlog is not a scoreboard for the figure work, which is what the phase assumed. It is a scoreboard
+for the ROUTE-FINDING work, and the two are independent. The 19 dead `@embed#N` states remain un-named
+by construction, and the single NOHOME state a stopping figure passes through remains the only link
+between the two sides.
+
 - **Size:** 43 states with no route home, all corroborated (0 figures walk them and reach home; the
   engine's own search finds nothing from any of them at `maxCalls=3`), plus 19 unnamed `@embed#N`
   states that are dead by construction.

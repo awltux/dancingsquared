@@ -484,6 +484,44 @@ board. `scaleX = separation / 2` was **refuted** as the cause here (it collides 
 
 ### Phase B — the authoring queue (P16c): genuine setup gaps, per call
 
+**WHERE THE BODY ERRORS ACTUALLY GATE THE COUNT (measured, round 31).** `setup-split.mjs`'s P16a work
+order ranks 32 figures POISONED by an unnamed board somewhere in the chain, but "poisoned" is neither
+"blocked" nor "fixable" — `figm17` runs end to end with an unnamed board in the middle, which is exactly
+what CALLERLAB expects after a Fold. Intersecting the 32 poisoned figures with the 72 BLOCKED ids
+(`figure-census.mjs --ids`) gives the list that actually matters, and it is much smaller:
+
+```
+19 of the 72 blocked figures are also poisoned, by first offender:
+   5  after Boys Fold            figm30 figm70 figm71 figm83 figm142
+   3  after Square Thru 4        figm36 figm37 figm191
+   2  after Allemande Left       figm125 figm149
+   2  after Girls Run            figm24 figm216
+   2  after Centers Swing Thru   figm65 figm212
+   1  each: after Star Thru (figm92), after Centers Pass Thru (figm122),
+            after All Fold (figm136), after Centers Star Thru (figm174),
+            after Sides Touch 1/4 (figm207)
+```
+
+So the body errors that actually gate blocked figures are TEN boards, and the largest is **`after Boys
+Fold`, five figures** — one this plan has already been round once. Traced in round 31, those five do NOT
+share a downstream call, which is why a single fix has never moved them together:
+
+```
+figm30   #9  Double Pass Thru   "no setup matches"    (the 17.88 case §3 records)
+figm71   #10 Star Thru          "no setup matches"
+figm83   #6  Ladies Chain       "no setup matches"
+figm142  #9  Change Hands       unknown call          (closed, no definition in any authority)
+figm70   #9  Yellow Rock        unknown call          (closed, round 27)
+```
+
+Two of the five are closed outright (`Change Hands`, `Yellow Rock`), so **`Boys Fold` can yield at most
+three figures**, and only if the implicit-adjustment route works for `Double Pass Thru`, `Star Thru` and
+`Ladies Chain` on three different unnamed boards. §3 records that route's own limit: raising the
+adjustment's tolerance to 24.0 measured 114 → 114 with `facing-audit`'s refusal list going 38 → 39,
+because a looser tolerance changes WHICH variant wins and the one it picks is refused by the collision
+guard. **That is the honest ceiling on this phase, and it should be weighed against the ~30 SETUP GAP
+rows below before another round is spent on it.**
+
 **Owner:** the matcher's setup vocabulary — tams authored for one arrangement and one scale.
 **Size:** the `SHAPE / NO-POSITIONAL-MATCH` class, ~25 rows, **no two sharing a call**; the
 `mutual` column of `facing-audit.mjs` is what cuts it from 35 to 25. Current heads:

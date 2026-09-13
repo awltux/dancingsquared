@@ -25,6 +25,7 @@ import { runRule, tradeRule } from './trade-run.js';
 import { foldRule } from './fold.js';
 import { sweepBox, sweepProblem, sweepCollision } from './sweep.js';
 import { swingThru } from './swing-thru.js';
+import { fanTheTop, fanTheTopProblem } from './fan-the-top.js';
 import type { Board } from './types.js';
 
 /** Timeline length of a coded pivot, in beats. */
@@ -42,6 +43,9 @@ export const CROSS_FOLD_BEATS = 4;
 
 /** Timeline length of `Sweep a Quarter` in beats: CALLERLAB's own `Timing: 2`. */
 export const SWEEP_BEATS = 2;
+
+/** Timeline length of `Fan the Top` in beats: CALLERLAB's own `Timing: 4`. */
+export const FAN_THE_TOP_BEATS = 4;
 
 /** Timeline length of `Roll`, in beats — the reference's `QuarterLeft`/`QuarterRight` carry
  * `beats: 1.5` (`moves.dart:56-58`), and `Roll` is exactly that move chosen per dancer. */
@@ -471,6 +475,24 @@ const DEFS: {
     beats: SWING_THRU_BEATS,
     precondition: (b) => swingThru(b, true).reason ?? null,
     fn: (b) => swingThru(b, true).board,
+    catalogueFallback: true,
+  },
+  // `Fan the Top`: derived because the catalogue's tams are DEMONSTRATIONS (the reference implements
+  // the call in code as a SplitCall) and reading them as setups is MEASURED wrong from BOTH canonical
+  // boards -- from `Ocean Waves` it collapses two waves into one line at half spacing, and from
+  // `Tidal Wave` it produces Ocean Waves, when the call must stay in its own formation. See
+  // fan-the-top.ts for CALLERLAB's definition, the derivation, and the two boards it was validated on.
+  //
+  // PARTIALLY PORTED, like the Swing Thrus: the derived rule covers boards that divide into waves of
+  // four joined by hand, which is the case the tams get wrong. Everything the catalogue reaches and
+  // this does not -- diamonds, facing couples, Eight Chain Thru, lines -- still goes to the catalogue,
+  // and that is what `catalogueFallback` means here: the derived rule never REPLACES a board the
+  // catalogue handles, it only replaces the boards the catalogue handles wrongly.
+  {
+    aliases: ['Fan the Top'],
+    beats: FAN_THE_TOP_BEATS,
+    precondition: fanTheTopProblem,
+    fn: (b) => fanTheTop(b).board,
     catalogueFallback: true,
   },
 ];

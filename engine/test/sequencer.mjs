@@ -976,6 +976,51 @@ console.log('\n== Sequencer: a MULTIPLE of a catalogue call, and the guard that 
   }
 }
 
+console.log('\n== Sequencer: `Fan the Top` is DERIVED, and the two canonical boards pin it ==');
+// CALLERLAB's definition (shipped by the reference at assets/plus/fan_the_top.md): "The centers of the
+// line or wave turn three quarters (270 degrees) while the outside dancers move forward in a quarter
+// circle. The ending formation is at right angles to the starting formation. Centers remain centers and
+// ends remain ends."
+//
+// BEFORE the derived rule the engine read the catalogue's DEMONSTRATION tams as setups and MEASURED
+// wrong from BOTH canonical boards: from `Ocean Waves` it collapsed two waves into ONE LINE OF EIGHT
+// at half spacing (positions x = -0.5, -1.5, -2.5, -3.5 ... all at y = 0), and from `Tidal Wave` it
+// produced Ocean Waves. Neither is a formation the call can end in.
+//
+// The rule is checked by its two observable PROPERTIES rather than by coordinates, because those are
+// what the definition actually states and they are what a wrong sign breaks.
+{
+  const wave = scopedSeq.boardForFormation('Ocean Waves');
+  const before = scopedSeq.knownFormation(wave);
+  check(before === 'Ocean Waves', `the canonical board starts as Ocean Waves: ${before}`);
+  const r = scopedSeq.applyToBoard(wave, 'Fan the Top');
+  check(r.legal === true, `Fan the Top applies to the canonical Ocean Waves: ${r.reason ?? 'ok'}`);
+  if (r.legal) {
+    // (a) the ending formation is at right angles AND is still an Ocean Wave - not one flat line.
+    const ends = scopedSeq.knownFormation(r.board);
+    check(ends === 'Ocean Waves',
+      `...and the ending formation is still an Ocean Waves (at right angles), not a collapsed line: ${ends}`);
+    // "one line of eight at half spacing" was the OLD failure; assert the two rows are separated.
+    const ys = [...new Set(r.board.dancers.map((d) => d.y.toFixed(2)))].sort((a, b) => Number(a) - Number(b));
+    check(ys.length === 2 && Number(ys[1]) - Number(ys[0]) > 3,
+      `...so the dancers stand in TWO rows, not one: rows at y = ${ys.join(', ')}`);
+    // (b) centres remain centres and ends remain ends. On the canonical board the centres of the two
+    // waves are ids 2,3 (wave at x=-2) and 6,7 (wave at x=+2), so whichever row each lands in, those
+    // four must be the MIDDLE two and never the outer two.
+    const centreIds = new Set([2, 3, 6, 7]);
+    const xs = (row) => r.board.dancers.filter((d) => Math.abs(d.y - row) < 0.01)
+      .slice().sort((a, b) => a.x - b.x).map((d) => d.id);
+    for (const row of ys.map(Number)) {
+      const line = xs(row);
+      const middles = [line[1], line[2]];
+      check(middles.every((id) => centreIds.has(id)),
+        `...centres stay centres: row y=${row} has middle two #${middles.join(',#')}, which must be centres`);
+      check(!centreIds.has(line[0]) && !centreIds.has(line[3]),
+        `...ends stay ends: row y=${row} ends are #${line[0]}, #${line[3]}, which must not be centres`);
+    }
+  }
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

@@ -808,11 +808,12 @@ Three facts pin the owner:
   tolerance or tiling failure: the engine believes it has a perfect match and then produces the wrong
   shape. Whatever the fault is, it is in reading the per-half paths, not in finding them.
 
-**The next target is therefore `Fan the Top` as a derived call** (split near/far then left/right into
-4-dancer waves, apply the wave motion per half) — but **read the next section first**: round 28 measured
-that simply *preferring* the per-half route does not work, because the 4-dancer tams are wrong too, so
-the 4-dancer motion itself has to be authored rather than borrowed from the catalogue. The witness is
-still much better than round 26's: the two canonical boards above are a two-line test that needs no
+**The target this section set was `Fan the Top` as a derived call, and it is DONE — see the
+IMPLEMENTED block below.** Note how it was reached, because it changed: the plan expected a per-half
+split, and round 28 measured that simply *preferring* the per-half route does not work (the 4-dancer
+tams are wrong too). What actually worked was reading the definition as a whole-board FAN about the SET
+centre — no split at all. The witness is still much better than round 26's: the two canonical boards
+above are a two-line test that needs no
 figure at all to tell right from wrong. (The obvious stronger test — a bare 4-dancer wave — is NOT
 reachable through the public API: `library.ts` keeps only 8-dancer named formations and mirrors every
 4-dancer one up to 8, so `boardForFormation('Wave RH GBBG')` yields no wave of four, and on the doubled
@@ -873,7 +874,44 @@ shortcuts past writing a derived rule, and both are refuted by measurement rathe
    `assets/src/X` there, `assets/ms/X` here). A `Compare-Object` of the two trees is the cheap first
    step, and it would have saved this round.
 
-**AND THE RULE TO IMPLEMENT IS NOW IN HAND (round 28).** The definition is not in `callerlab-ms.txt`
+**IMPLEMENTED (round 29): `fan-the-top.ts` is now a DERIVED call, and the defect above is gone.** The
+rule, the derivation and the two canonical boards it was validated on are in that file's header; the
+short version is that reading CALLERLAB's "three quarters" (centres) against "a quarter circle" (ends)
+as two groups turning in OPPOSITE senses is the only reading in which **every dancer walks forward**,
+and it is the only one that satisfies the definition's own closing sentences:
+
+```
+ends     rotate -90° (clockwise)        about the SET centre
+centres  rotate +90° (counterclockwise) about the SET centre     positions AND headings
+```
+
+Measured on the canonical board, before and after:
+
+```
+Ocean Waves  Fan the Top   BEFORE: "Tidal Wave", ONE line of 8 at half spacing (all y = 0)
+Ocean Waves  Fan the Top   AFTER:  "Ocean Waves", TWO rows at y = ±2, gaps 2.00
+```
+
+with centres still the middle two of their row and ends still the outer two, on both rows — which is
+the definition's "centers remain centers and ends remain ends" checked directly rather than assumed.
+Both properties are now a GATE in `engine/test/sequencer.mjs`.
+
+WHY THE SET CENTRE AND NOT EACH WAVE'S OWN: rotating each wave about its own centre sends both onto the
+same line (both centres lie on the x-axis) where they overlap; about the SET centre they stay separate,
+which is what makes `Spin the Top` work from two parallel waves. Registered with `catalogueFallback`,
+so the boards the derived rule does not cover — diamonds, facing couples, Eight Chain Thru, lines — are
+still the catalogue's, and the derived rule only ever replaces the boards the catalogue gets wrong.
+
+**IT FIXES A MEASURED DEFECT WITHOUT MOVING A METRIC — and that is recorded rather than glossed.** All
+three sides are UNCHANGED: figures **116 of 188**, get-out **124 of 265 / 112 applying the finish**,
+`verify` green (20 harnesses). So no published figure currently depends on a wave `Fan the Top`. It is
+kept because it is a correctness fix with a gate, it is strictly additive by construction, and it is
+the prerequisite for `Spin the Top` — which is where the figures actually are (`Spin the Top` is used by
+16 figures, and 4 of them — `figm48`, `figm59`, `figm115`, `figm126` — stop on the half-scale board this
+removes). **The next step is therefore `Spin the Top` as part 1 `Swing` + part 2 `Fan the Top`, now that
+part 2 exists.**
+
+**AND THE RULE, AND WHERE IT CAME FROM (round 28).** The definition is not in `callerlab-ms.txt`
 (`Fan the Top` is Plus), but the reference ships CALLERLAB's own text at
 `taminations-flutter/assets/plus/fan_the_top.md`, and it is short enough to derive from directly:
 

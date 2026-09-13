@@ -873,6 +873,23 @@ shortcuts past writing a derived rule, and both are refuted by measurement rathe
    `assets/src/X` there, `assets/ms/X` here). A `Compare-Object` of the two trees is the cheap first
    step, and it would have saved this round.
 
+**AND THE RULE TO IMPLEMENT IS NOW IN HAND (round 28).** The definition is not in `callerlab-ms.txt`
+(`Fan the Top` is Plus), but the reference ships CALLERLAB's own text at
+`taminations-flutter/assets/plus/fan_the_top.md`, and it is short enough to derive from directly:
+
+> Starting formation - ocean wave or two-faced lines. **The centers of the line or wave turn three
+> quarters (270°) while the outside dancers move forward in a quarter circle.** The ending formation is
+> at right angles to the starting formation. **Centers remain centers and ends remain ends.**
+> (Timing: 4)
+
+That is a DERIVABLE rule — a rotation about the wave's own centre, with the centres taking 270° and the
+ends a quarter circle, the result at right angles — and it needs no catalogue motion at all. So the
+implementation is `fan-the-top.ts` in the same shape as `fold.ts` / `trade-run.ts` / `swing-thru.ts`:
+transcribe the rule, split for boards over four dancers, and gate it on the two canonical boards. The
+one thing to get right and to MEASURE first is the SIGN of the rotation (which way the wave turns),
+since the definition does not state it — and the canonical test settles that in one run, which is why
+the probe prints facings as well as positions.
+
 **AND BOTH COMPOSITIONS WERE IMPLEMENTED, MEASURED AND REVERTED — ROUND 26 FOUND WHY.**
 In `tryCodedMove`, by two different routes:
 

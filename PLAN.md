@@ -321,9 +321,18 @@ authoring, which is why they are their own phase.
   Check that against a real dance before implementing; only 5 and 6 need `Explode` geometry.
 - **`Explode and <call>` composition** (`Expl&`, 5 get-out lines) — the reference's template for the
   `1-1/2`, `1/2of-`, `Twice` and `&Roll` modifiers, three of which are already implemented as folds.
-- `Centers Left Hand Star` (5 figures) is **not** here: diagnosed, its end state destroys the 4-dancer
-  line structure the next `Centers …` call needs, so it is a **prerequisite of the `Sw&Pr` family**
-  and gains 0 figures on its own. A derived star must make a group decision and preserve those lines.
+- `Centers Left Hand Star` (5 figures) is **not** here, and the previous note about it was wrong
+  about WHERE it fails. Re-measured: all five figures stop at that call with
+  **`Unresolvable selection: Centers`** on a `Stars RH` board — the star's own motion is never
+  reached, so nothing about the call's end state is being measured by the census. The five boards are
+  two shapes, e.g. `#1B(-2,-1)@W #2G(1,0)@N #3B(2,-1)@W #4G(3,0)@S #5B(2,1)@E #6G(-1,0)@S #7B(-2,1)@E
+  #8G(-3,0)@N` — an off-grid double-star the engine names `Stars RH`. `Centers` is defined in
+  `grouping.ts` as the middle two of each of two LINES, and this board is not lines, so the selection
+  refuses before anything dances. What the corpus means by `Centers` here is one of two readings the
+  board cannot settle: the four dancers at the centre of the SET, or the four who just did the
+  right-hand star (the chase is `... Right-hand Star | Centers Left Hand Star | ...`, and the bare
+  `Right-hand Star` was applied to all eight). That is Phase C's active-set problem again, so it is
+  recorded rather than guessed; a derived star would not touch this blocker at all.
 
 ### Phase E — stale identity and the per-PAIR gender rule (Phase 19)
 

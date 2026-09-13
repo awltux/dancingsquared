@@ -65,6 +65,13 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 | CALLERLAB | real gap is **9 (call, start) pairs + 20 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
 | gates | `verify:light` green; `verify` green (20 harnesses, ~295 s); `verify:figures` **red by design** | `npm run verify --prefix engine` |
 
+All three sides above were re-measured again in round 28 and agree with the table exactly: figures
+**116 of 188** (also confirmed independently by `fsm-getout-audit.mjs`), FSM **155 / 92 / 43 / 19**, and
+CALLERLAB **9 documented start formations with no matching tam setup + 20 formation names**. The audit's
+cross-checks are all zero — "(a) DEAD states a figure walked straight through: 0" and "(b) NOHOME states
+on a path that REACHES HOME in our own graph: 0" — so no figure is being carried by a state the engine
+cannot actually resolve.
+
 The figure census's blocking causes, **re-measured in round 27 and REPLACED — the previous table was
 stale**. It still listed three calls that no longer appear as blockers in the re-measurement
 (`Circle 2` 2, `Promenade 1/2` 1, `Turn Thru` 1) and so summed to **75** against the **72** blocked

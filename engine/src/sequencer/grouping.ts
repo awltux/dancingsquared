@@ -4,6 +4,7 @@
 
 import { CallApplicator } from './applicator.js';
 import { isKnownCouple } from './constants.js';
+import { normAngle } from '../moves.js';
 import type { Board, SeqDancer } from './types.js';
 import { normalizeSelection, selectionGroup } from './selection.js';
 
@@ -163,33 +164,41 @@ export class Grouping {
     return out.length ? [[...out].sort((a, b) => a - b)] : null;
   }
 
-  /** Positional role in a tandem (front/back pair sharing a travel axis): the
-   * dancer in front (leading) is the leader; the one behind is the trailer.
-   * Determined by which dancer is ahead along the shared heading. */
+  /** Positional role in a line: the dancer at the FRONT of a tandem leads, the one behind trails.
+   *
+   * Transcribed from the reference (`call_context.dart` `analyze()`), which decides it PER DANCER
+   * from two counts rather than by pairing dancers up:
+   *
+   *     if (frontcount % 2 == 0 && backcount % 2 == 1) leader
+   *     else if (frontcount % 2 == 1 && backcount % 2 == 0) trailer
+   *
+   * where "in front"/"in back" are `dancersInFront`/`dancersInBack` — the dancers DIRECTLY ahead of
+   * and behind this dancer, within an angular tolerance (`isAround(0)` / `isAround(pi)`, 0.1 rad).
+   * A dancer with an ODD count on both sides is neither, which is the point of the parity: in a
+   * Completed Double Pass Thru the back dancer of an east-facing tandem has one dancer ahead and one
+   * behind, and is not a leader.
+   *
+   * WHY THIS REPLACED A PAIRING. The previous rule bucketed by heading axis — 0 or 180 ONLY — sorted
+   * each bucket by x, and emitted `sorted[i]` for EVERY i, so a bucket of four dancers produced
+   * THREE leaders, and a tandem travelling north/south was never seen at all. Measured on All8's
+   * `Leaders Trade` from a Completed Double Pass Thru: the engine designated SIX dancers
+   * (`[2,3,4,5,7,8]`) where the call has four (`[1,4,5,8]`), and the refusal it produced named the
+   * wrong dancer - "no other designated dancer is beside (-1.0,1.0), so it has no one to trade
+   * with". Four figures stop there.
+   */
   private leadersTrailers(
     ds: SeqDancer[],
     role: 'leaders' | 'trailers',
   ): number[][] | null {
-    // Group by approximate heading axis so front/back pairs are within a tandem.
-    const dir = (h: number) => {
-      let d = ((h * 180) / Math.PI) % 360;
-      if (d < 0) d += 360;
-      return d < 180 ? 0 : 180; // facing along +x (0) or -x (180) after normalization
-    };
-    const buckets = new Map<number, SeqDancer[]>();
-    for (const d of ds) {
-      const axis = dir(d.heading);
-      if (!buckets.has(axis)) buckets.set(axis, []);
-      buckets.get(axis)!.push(d);
-    }
+    const TOL = 0.1; // the reference's own `isAround(..., delta: 0.1)`
+    const rel = (a: SeqDancer, b: SeqDancer) => normAngle(Math.atan2(b.y - a.y, b.x - a.x) - a.heading);
     const out: number[] = [];
-    for (const [, arr] of buckets) {
-      if (arr.length < 2) continue;
-      const sorted = [...arr].sort((x, y) => x.x - y.x);
-      for (let i = 0; i < sorted.length - 1; i++) {
-        const front = role === 'leaders' ? sorted[i] : sorted[i + 1];
-        out.push(front.id);
-      }
+    for (const d of ds) {
+      const front = ds.filter((o) => o.id !== d.id && Math.abs(rel(d, o)) <= TOL).length;
+      const back = ds.filter((o) => o.id !== d.id && Math.abs(normAngle(rel(d, o) - Math.PI)) <= TOL).length;
+      const isLeader = front % 2 === 0 && back % 2 === 1;
+      const isTrailer = front % 2 === 1 && back % 2 === 0;
+      if (role === 'leaders' ? isLeader : isTrailer) out.push(d.id);
     }
     return out.length ? [[...out].sort((a, b) => a - b)] : null;
   }

@@ -273,6 +273,42 @@ console.log('== Sequencer: Fold is DERIVED, so it folds the dancers the CALL nam
     `Fold goes around ONE dancer position and Cross Fold passes one and takes the next (lateral ${lit(eFold).toFixed(2)} vs ${lit(eCross).toFixed(2)})`);
 }
 
+console.log('== Sequencer: leaders / trailers are a PARITY per dancer, not a pairing ==');
+// The previous rule bucketed dancers by heading axis (0 or 180 only), sorted each bucket by X, and
+// emitted sorted[i] for EVERY i - so four dancers in one bucket produced THREE leaders, and a
+// tandem travelling north/south could not be seen at all. MEASURED on `Leaders Trade` from a
+// Completed Double Pass Thru: the engine designated SIX dancers ([2,3,4,5,7,8]) where the call has
+// four ([1,4,5,8]) and refused with "no other designated dancer is beside (-1.0,1.0)", naming the
+// wrong dancer. Four published figures stop on that call. The replacement is the reference's own
+// per-dancer count (`call_context.dart` `analyze()`): leader when the dancers directly ahead are
+// EVEN in number and those directly behind are ODD, trailer when that is reversed.
+{
+  const cdpt = scopedSeq.boardForFormation('Completed Double Pass Thru');
+  const groups = scopedSeq.subsetOf(cdpt, 'leaders');
+  const leaders = groups ? groups.flat().sort((a, b) => a - b) : [];
+  check(leaders.length === 4,
+    `a Completed Double Pass Thru has FOUR leaders, not ${leaders.length} ([${leaders.join(',')}])`);
+  const lt = scopedSeq.applyToBoard(cdpt, 'Leaders Trade');
+  check(lt.legal === true, `Leaders Trade is legal from a Completed Double Pass Thru: ${lt.reason ?? 'ok'}`);
+  const beforeL = Object.fromEntries(cdpt.dancers.map((d) => [d.id, d]));
+  const movedL = lt.board.dancers.filter((d) => Math.hypot(d.x - beforeL[d.id].x, d.y - beforeL[d.id].y) > 0.01)
+    .map((d) => d.id).sort((a, b) => a - b);
+  check(JSON.stringify(movedL) === JSON.stringify(leaders),
+    `only the designated leaders move (moved=[${movedL}], leaders=[${leaders}])`);
+  check(scopedSeq.knownFormation(lt.board) !== null,
+    `the board is still a formation after the trade: ${scopedSeq.knownFormation(lt.board) ?? '(unnamed)'}`);
+
+  // The old rule sorted by X, so it could only ever see a tandem that ran along X. Rotating the same
+  // board a quarter turn keeps every relation that matters and changes only the axis, which is
+  // exactly what the old rule got wrong - so this witness is the regression, not a variation.
+  const rot90 = { dancers: cdpt.dancers.map((d) => { const p = rotP(d.x, d.y, d.heading * 180 / Math.PI, 90); return { ...d, x: p.x, y: p.y, heading: p.h * Math.PI / 180 }; }) };
+  const rotGroups = scopedSeq.subsetOf(rot90, 'leaders');
+  const rotLeaders = rotGroups ? rotGroups.flat().sort((a, b) => a - b) : [];
+  const rotLt = scopedSeq.applyToBoard(rot90, 'Leaders Trade');
+  check(rotLeaders.length === 4 && rotLt.legal === true,
+    `the same board rotated a quarter turn still names four leaders and is still tradeable (leaders=[${rotLeaders.join(',')}], ${rotLt.reason ?? 'ok'})`);
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

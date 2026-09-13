@@ -3684,6 +3684,43 @@ Chain` and `Turn Thru`. So the Fold family has a second half — an "implicit ad
 text defines, scoped by its own words to the calls that follow Fold/Cross Fold — and that is a
 different kind of work from the two derived calls that just shipped.
 
+**`Leaders Trade` — DONE (92 → 95 figures): the `leaders`/`trailers` selection was a PAIRING where
+the call needs a PARITY.** The census attributed four figures to *"derived call refuses (`Trade`)"* from
+a **Completed Double Pass Thru**, and the refusal named the wrong dancer — "no other designated dancer
+is beside `(-1.0,1.0)`, so it has no one to trade with" — which is the signature of a bad SELECTION
+rather than a bad rule. It was:
+
+> `leadersTrailers` bucketed dancers by heading axis **(0 or 180 only)**, sorted each bucket by
+> **x**, and emitted `sorted[i]` for **every** `i`. Four dancers in one bucket therefore produced
+> **three** leaders, and a tandem travelling north/south could not be seen at all.
+
+Measured on the board the corpus produces: the engine designated **six** dancers (`[2,3,4,5,7,8]`)
+where the call has **four** (`[1,4,5,8]`). The replacement is the reference's own per-dancer count
+(`call_context.dart` `analyze()`), which needs no axis at all:
+
+```
+leader  when (# directly ahead is EVEN) and (# directly behind is ODD)
+trailer when (# directly ahead is ODD)  and (# directly behind is EVEN)
+```
+
+with "directly ahead/behind" the reference's `dancersInFront`/`dancersInBack` at its own 0.1-radian
+tolerance. The parity is the whole point and the old rule had no way to express it: in a Completed
+Double Pass Thru the back dancer of each tandem has one dancer ahead **and** one behind, so it is
+neither a leader nor a trailer — and the old pairing emitted it as a leader.
+
+- **Measured: 92 → 95 figures**, and *"derived call refuses (`Trade`)"* disappears from the census
+  causes entirely (4 → 0), as does `Leaders Trade` from the blocking calls. One figure moved deeper
+  and now stops elsewhere, so the net is +3 rather than +4.
+- **The axis-independence is the half a "fix the pairing" patch would have missed**, so the gate
+  asserts it directly: `sequencer.mjs` checks that a Completed Double Pass Thru names four leaders and
+  that `Leaders Trade` is legal, and then checks the SAME board rotated a quarter turn, where the old
+  rule's `sort by x` is guaranteed to pick the wrong dancers.
+- **A note on how this was found**, because it is the second time in this workstream: the census ranks
+  by the call that STOPPED, and that call was `Leaders Trade` — a derived call with a rule already
+  measured and validated. The defect was one layer up, in the selection that feeds it. The refusal
+  SENTENCE ("no other designated dancer is beside …") is what pointed at it, which is the same reason
+  the `Fold` phase could be settled from the reference in one reading.
+
 **`Heads Touch 1/4` (4 chains) — measured: the defect is inside the TAM'S MOTION, not the match.**
 Unlike `Boys Fold`, `Touch 1/4` has sequencer-eligible setups, and the separation work is already
 done: `ms/touch_a_quarter.xml:39-64` carries three `Facing Couples` authorings at separations 4

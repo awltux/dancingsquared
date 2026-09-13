@@ -8,6 +8,8 @@ import { matchFormations, type FormationMatch, type Matchable } from './match.js
 import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, KNOWN_FORMATION_MAX, STANDARD_FORMATIONS, canonicalName } from './constants.js';
+import { DEG } from '../core.js';
+import type { CallBundle, DancerSpec, Seg } from '../types.js';
 import type { Board, RecognizedFormation, VariantMatch } from './types.js';
 
 /** Two formation matches within this of each other are treated as tied when
@@ -76,6 +78,143 @@ export function boardHasCoupleGenderPairs(board: Board): boolean {
     pairs++;
   }
   return pairs * 2 === phys.length;
+}
+
+/**
+ * THE ROLE READING: for some `gender-specific` calls the authored paths are ROLE motions — "what a
+ * boy does, what a girl does" — rather than the motions of two particular SLOTS.
+ *
+ * WHY IT IS NEEDED, measured. `Heads Rollaway` half-sashays the two head couples, so every dancer
+ * still faces an opposite-gender dancer and `Star Thru` is legal from there — but the catalogue's
+ * `Static Square` setup pins `boy` to the south-west slot, and after the rollaway the BOY stands on
+ * the south-EAST slot. Slot-wise gender matching therefore refuses an EXACT geometry match
+ * (`figm#185`, `figm#186`; measured error 0.000 with the gender constraint off). The same thing
+ * refuses `figm#102` (a `Star Thru` on an `Eight Chain Thru`, exact match, error 0.000) and
+ * `figm#15` (`Box the Gnat`, exact match at a 2x separation). All four are CALLERLAB calls refused
+ * only because an earlier call in the chain left the interacting pairs' two dancers on each other's
+ * side — `Rollaway` does that to a couple. Which upstream call did it in the other two chains was
+ * NOT traced; what IS measured is that dropping the gender constraint makes the geometry match at
+ * error 0.000 and that the gender constraint is the only thing refusing it.
+ *
+ * WHY THE DATA SETTLES IT RATHER THAN AN ARGUMENT. `BezierData` is authored in DANCER-LOCAL space
+ * (`types.ts`: "+X is the dancer's initial facing direction, +Y is to the dancer's left"), so a
+ * slot's path IS its local motion and two slots can be compared directly. Grouping every
+ * `gender-specific` variant's slots by `(gender, active)` — `active` meaning the slot has a
+ * non-empty path, which is how the tams express "the side couples stand" — and comparing paths
+ * WITHIN each group gives 145 of 287 variants that are ROLE-UNIFORM: every dancer of a given gender
+ * performs an identical local motion, so the gender does resolve the motion. The other 142 differ
+ * from slot to slot (one of the two `Star Thru <Eight Chain Thru>` tams is uniform and the other is
+ * not; `Wave the Boys`, `Ramble`, `Twist the Line <Normal Lines>` and `Brace Thru <Eight Chain Thru>`
+ * are firmly in the second kind — in those a boy on one side does what a boy on the other side does
+ * NOT). `roleUniformMotions` returns the table for the first kind and null for the second, so the
+ * reading is enabled per VARIANT by the catalogue's own data, never by a hand-maintained call list.
+ *
+ * WHY IT CANNOT CHANGE A WORKING CASE. When the board already satisfies the slot genders, the board
+ * dancer's gender at slot `j` is `j`'s authored gender, so the role motion looked up IS `j`'s own
+ * path — the reading reproduces the existing motion exactly. It is also tried strictly LAST, after
+ * both the slot-wise reading and the per-couple retry have failed, so it can only turn a refusal
+ * into an application. What it adds is exactly the half-sashayed case: the geometry still has to
+ * land on the authored slots, and the board must still preserve the authored gender MULTISET of the
+ * setup's own interacting pairs (`anyPairingKeepsGenders`), so a board that is not the call's gender
+ * structure at all is still refused.
+ */
+export function segsEqual(a: Seg[], b: Seg[]): boolean {
+  if (a.length !== b.length) return false;
+  const KEYS = ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2'] as const;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].beats !== b[i].beats || a[i].hands !== b[i].hands) return false;
+    for (const k of KEYS) if (a[i].translate[k] !== b[i].translate[k]) return false;
+    const ra = a[i].rotate;
+    const rb = b[i].rotate;
+    if ((ra === null) !== (rb === null)) return false;
+    if (ra && rb) for (const k of KEYS) if (ra[k] !== rb[k]) return false;
+  }
+  return true;
+}
+
+/** Whether a slot's path actually moves the dancer — the tams' own way of saying "this slot is not
+ * one of the actives" (`Heads Star Thru` gives the two side couples an empty `<path/>`). */
+function slotIsActive(d: DancerSpec): boolean {
+  return d.path.length > 0;
+}
+
+/** The role key a board dancer occupies in a slot: the dancer's own GENDER (the role) plus whether
+ * the SLOT is an active one (a positional fact about the setup, not about the dancer). */
+function roleKey(gender: Matchable['gender'], active: boolean): string {
+  return `${gender}|${active ? 'active' : 'stand'}`;
+}
+
+/** The motion each role performs, or null when the variant's paths differ WITHIN a role and so
+ * cannot be resolved by gender at all (see the block comment above for the measured split). */
+export function roleUniformMotions(variant: CallBundle): Map<string, Seg[]> | null {
+  const table = new Map<string, Seg[]>();
+  for (const d of variant.dancers) {
+    const key = roleKey(d.gender, slotIsActive(d));
+    const seen = table.get(key);
+    if (seen === undefined) table.set(key, d.path);
+    else if (!segsEqual(seen, d.path)) return null;
+  }
+  return table;
+}
+
+/**
+ * The slots a slot may interact with: about a couple's width away and facing the SAME way (a couple,
+ * side by side) or the OPPOSITE way (a facing pair — the two dancers who join right hands).
+ */
+function slotPartners(v: CallBundle, j: number): number[] {
+  const heading = (i: number) => v.dancers[i].angleDeg * DEG;
+  const out: number[] = [];
+  for (let o = 0; o < v.dancers.length; o++) {
+    if (o === j) continue;
+    const dist = Math.hypot(v.dancers[j].x - v.dancers[o].x, v.dancers[j].y - v.dancers[o].y);
+    if (Math.abs(dist - COUPLE_WIDTH) > COUPLE_WIDTH_TOL) continue;
+    const dh = Math.abs(normAngleWrap(heading(o) - heading(j)));
+    if (dh <= 0.05 || Math.abs(dh - Math.PI) <= 0.05) out.push(o);
+  }
+  return out;
+}
+
+/**
+ * Whether the board's genders preserve the authored gender MULTISET of SOME way of pairing the
+ * variant's own interacting slots.
+ *
+ * SOME way, not one way, because the pairing is genuinely ambiguous and a greedy first-match picks
+ * wrong: an `Eight Chain Thru` setup's slots are two apart in BOTH axes, so the eight slots form two
+ * 4-cycles and only one of each cycle's two perfect matchings keeps the gender multisets — measured
+ * on `figm#102`, where the greedy reading rejected the very case this reading exists to accept.
+ *
+ * This is the strongest structural check the role reading can make without claiming to know WHY a
+ * call is gender-specific, and it is what refuses a square of four same-gender couples: every
+ * authored couple is `{boy, girl}` and holding two girls there is not a swap of roles. `Rollaway`'s
+ * half-sashayed square keeps one boy and one girl on each couple's two slots, so it passes.
+ */
+function anyPairingKeepsGenders(v: CallBundle, genderAtSlot: (Matchable['gender'])[]): boolean {
+  const k = v.dancers.length;
+  if (k % 2 !== 0) return false;
+  const opts: number[][] = [];
+  for (let j = 0; j < k; j++) opts.push(slotPartners(v, j));
+  const used = new Array<boolean>(k).fill(false);
+  const sameGenders = (a: number, b: number): boolean => {
+    if (genderAtSlot[a] === undefined || genderAtSlot[b] === undefined) return false;
+    const authored = [v.dancers[a].gender, v.dancers[b].gender].map(String).sort().join('|');
+    const actual = [genderAtSlot[a], genderAtSlot[b]].map(String).sort().join('|');
+    return authored === actual;
+  };
+  const rec = (): boolean => {
+    let j = -1;
+    for (let i = 0; i < k; i++) if (!used[i]) { j = i; break; }
+    if (j < 0) return true;
+    used[j] = true;
+    for (const o of opts[j]) {
+      if (used[o] || !sameGenders(j, o)) continue;
+      used[o] = true;
+      if (rec()) return true;
+      used[o] = false;
+    }
+    used[j] = false;
+    return false;
+  };
+  return rec();
 }
 
 export class FormationMatcher {
@@ -158,10 +297,60 @@ export class FormationMatcher {
       }
       return best;
     };
+    /**
+     * Geometry from the SLOT, motion from the ROLE.
+     *
+     * The geometric match is run with the gender constraint OFF, and then each slot's PATH is
+     * replaced by the motion its occupant's own gender performs. The START pose is left as authored,
+     * which is what keeps the geometry honest — the dancers must still stand exactly on the setup's
+     * slots — and because a path is expressed in the dancer's local frame, taking the motion from
+     * another slot of the same role is well defined.
+     */
+    const runRole = (): VariantMatch | null => {
+      let bestRole: VariantMatch | null = null;
+      for (const v of variants) {
+        if (!v.genderSpecific) continue;
+        const roles = roleUniformMotions(v);
+        if (!roles) continue;
+        const tgt = v.dancers.map((d) => this.library.variantMatchable(d));
+        const m = matchFormations(src, tgt, maxError, false);
+        if (!m || m.subset) continue;
+        // Which dancer stands on each slot, and therefore which ROLE each slot is being asked to
+        // play on this board.
+        const genderAtSlot: (Matchable['gender'])[] = new Array(tgt.length);
+        for (let i = 0; i < src.length; i++) genderAtSlot[m.mapping[i]] = src[i].gender;
+        if (!anyPairingKeepsGenders(v, genderAtSlot)) continue;
+        const dancers: DancerSpec[] = [];
+        let complete = true;
+        for (let j = 0; j < v.dancers.length; j++) {
+          const motion = roles.get(roleKey(genderAtSlot[j], slotIsActive(v.dancers[j])));
+          if (!motion) { complete = false; break; }
+          dancers.push({ ...v.dancers[j], path: motion });
+        }
+        if (!complete) continue;
+        const better = bestRole === null
+          || m.error < bestRole.error - FormationMatcher.REFLECT_TIE_EPS
+          || (Math.abs(m.error - bestRole.error) <= FormationMatcher.REFLECT_TIE_EPS && bestRole.reflect && !m.reflect);
+        if (better) {
+          bestRole = {
+            variant: { ...v, dancers },
+            mapping: m.mapping,
+            error: m.error,
+            rot: m.rot,
+            reflect: m.reflect,
+            cSrc: m.cSrc,
+            cTgt: m.cTgt,
+          };
+        }
+      }
+      return bestRole;
+    };
     let best = run(true);
     // THE PER-COUPLE GENDER RETRY. See PAIR_GENDER_CALLS for what this is and the two witnesses.
     // The strict (per-slot) reading is tried FIRST, so nothing that matches today changes.
     if (best === null && perPair) best = run(false);
+    // THE ROLE READING. See `roleUniformMotions` for the data and the four measured witnesses.
+    if (best === null) best = runRole();
     this.matchMemo.set(key, best);
     return best;
   }

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, Sequencer } from '../dist/index.js';
+import { roleUniformMotions, segsEqual } from '../dist/sequencer/matcher.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
@@ -25,6 +26,12 @@ let failures = 0;
 const check = (cond, msg) => {
   console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
   if (!cond) failures++;
+};
+// Used by the witness chains below: report a refusal as a FAILED check instead of throwing, so a
+// broken premise shows up as a named failure rather than a stack trace.
+const fail = (msg) => {
+  console.log('  FAIL ' + msg);
+  failures++;
 };
 
 const movesXml = read('../../poc/src/assets/moves.xml');
@@ -682,6 +689,90 @@ console.log('== Sequencer: Allemande Left is legal from its OWN end pose (CALLER
       check(weave.legal === true, `...and "Weave the Ring" follows it on the progressed board too: ${weave.reason ?? 'ok'}`);
     }
   }
+}
+
+console.log('\n== Sequencer: a gender-specific tam\'s path is a ROLE motion, not a slot\'s ==');
+// `Heads Rollaway` half-sashays the head couples, so every dancer still faces an opposite-gender
+// dancer and `Star Thru` is legal from there - CALLERLAB's own words are "Starting formation -
+// facing dancers (man and woman)", which the half-sashayed square satisfies. Slot-wise gender
+// matching refused it anyway, because the catalogue's `Static Square` setup pins a boy to the
+// south-WEST slot and the rollaway puts him south-EAST. MEASURED: four census figures stopped on
+// exactly this (`figm#102`, `figm#185`, `figm#186`, `figm#15`), all with a setup that overlays the
+// board at error 0.000 once the gender constraint is off.
+{
+  // The CALLERLAB outcome a Star Thru must produce: the two dancers end side by side facing the
+  // SAME direction with the woman on the man's RIGHT - which is the engine's own canonical result
+  // (checked below), so this is the engine's authored convention, not an outside guess.
+  //
+  // Asserted PER BOY rather than by pairing dancers up, because the pairing is ambiguous: in
+  // `Double Pass Thru` a dancer has same-heading neighbours two away in TWO directions, so a greedy
+  // "find my partner" check picks a different partner than the engine did and reports a false
+  // failure (measured). "The spot two to my right is a girl" needs no pairing at all.
+  const allCouplesRight = (label, board) => {
+    const boys = board.dancers.filter((d) => d.gender === 'boy');
+    check(boys.length === 4, `${label}: the set still holds four boys (${boys.length})`);
+    let ok = 0;
+    for (const b of boys) {
+      const spot = { x: b.x + 2 * Math.sin(b.heading), y: b.y - 2 * Math.cos(b.heading) };
+      const mate = board.dancers.find((o) => Math.hypot(o.x - spot.x, o.y - spot.y) < 0.05);
+      if (mate && mate.gender === 'girl') ok++;
+      else fail(`${label}: the dancer two to the right of boy id${b.id} is ${mate ? mate.gender : 'nobody'}`);
+    }
+    check(ok === 4, `${label}: the woman is on the man's right in all four couples (${ok}/4)`);
+  };
+
+  // THE CONTROL: the canonical arrangement is untouched by the role reading, because the role
+  // reading is only tried after the slot-wise reading fails.
+  const square = scopedSeq.startBoard();
+  const plain = scopedSeq.applyToBoard(square, 'Star Thru');
+  check(plain.legal === true, `Star Thru from a plain Static Square still applies: ${plain.reason ?? 'ok'}`);
+  if (plain.legal) {
+    check(scopedSeq.knownFormation(plain.board) === 'Double Pass Thru',
+      `...and is still the canonical Double Pass Thru result: ${scopedSeq.knownFormation(plain.board)}`);
+    allCouplesRight('canonical Star Thru', plain.board);
+  }
+
+  // THE WITNESS.
+  const rolled = scopedSeq.applyToBoard(square, 'Heads Rollaway');
+  check(rolled.legal === true, `Heads Rollaway applies: ${rolled.reason ?? 'ok'}`);
+  if (rolled.legal) {
+    check(scopedSeq.knownFormation(rolled.board) === 'Static Square',
+      `...and leaves the set a Static Square: ${scopedSeq.knownFormation(rolled.board)}`);
+    const st = scopedSeq.applyToBoard(rolled.board, 'Star Thru');
+    check(st.legal === true, `Star Thru from the half-sashayed square is LEGAL (CALLERLAB: facing man and woman): ${st.reason ?? 'ok'}`);
+    if (st.legal) {
+      allCouplesRight('half-sashayed Star Thru', st.board);
+      // The heads swap partners across the set, so the result is the Eight Chain Thru, not a
+      // Double Pass Thru - a DIFFERENT but equally correct outcome, and the proof that the role
+      // reading moved the dancers by ROLE rather than merely relaxing the gate.
+      check(scopedSeq.knownFormation(st.board) === 'Eight Chain Thru',
+        `...and the heads have swapped partners into an Eight Chain Thru: ${scopedSeq.knownFormation(st.board)}`);
+      const on = scopedSeq.applyToBoard(st.board, 'Swing Your Partner');
+      check(on.legal === true, `...from which the rest of figm#185 continues (Swing Your Partner): ${on.reason ?? 'ok'}`);
+    }
+  }
+
+  // THE PRECONDITION IS THE CATALOGUE'S OWN DATA. `roleUniformMotions` returns a table only when
+  // every slot of a given (gender, active) role performs an IDENTICAL local motion; 145 of the 287
+  // gender-specific variants qualify. Both sides are pinned so a future tam that breaks the
+  // assumption without a gate cannot silently widen the reading.
+  const uniform = roleUniformMotions(scopedSeq.getVariants('Star Thru').find((v) => v.from === 'Static Square'));
+  check(uniform !== null, 'Star Thru <Static Square> is role-uniform (data-enabled for the reading)');
+  if (uniform) {
+    check(uniform.has('boy|active') && uniform.has('girl|active')
+      && uniform.has('boy|stand') && uniform.has('girl|stand'),
+      `...with all four roles present: [${[...uniform.keys()].join(', ')}]`);
+    check(!segsEqual(uniform.get('boy|active'), uniform.get('girl|active')),
+      '...and the two ACTIVE roles are genuinely different motions (a boy and a girl do not do the same thing)');
+  }
+  const notUniform = scopedSeq.getVariants('Twist the Line').find((v) => v.from === 'Normal Lines');
+  check(roleUniformMotions(notUniform) === null,
+    'Twist the Line <Normal Lines> is NOT role-uniform, so the reading stays off for it');
+  // A same-gender square must still be refused: the reading adds a ROLE, never a relaxation of
+  // the call's gender structure.
+  const sameSex = { dancers: square.dancers.map((d) => (d.couple === 1 || d.couple === 3 ? { ...d, gender: 'girl' } : { ...d, gender: 'boy' })) };
+  const refused = scopedSeq.applyToBoard(sameSex, 'Star Thru');
+  check(refused.legal === false, `a board with same-gender couples is still refused: ${refused.legal ? 'APPLIED' : refused.reason}`);
 }
 
 console.log('\n=================');

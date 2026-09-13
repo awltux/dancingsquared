@@ -57,7 +57,7 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 
 | side | value | command |
 |---|---|---|
-| figures end-to-end | **110 of 188** | `node engine/test/tools/figure-census.mjs` |
+| figures end-to-end | **113 of 188** (was 110) | `node engine/test/tools/figure-census.mjs` |
 | get-out corpus: reaching a state the standard finish resolves from | **122 of 265** (was 116) | `node engine/test/getout-behaviour.mjs` |
 | … of which ended by applying the finish itself | **110** (was 105) | same |
 | … decoded but stopped at a call (the body gap) | **110** (was 115) | same |
@@ -68,15 +68,16 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 The figure census's blocking causes, re-measured after Phases A and E:
 
 ```
-   39  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
-    8  selection will not resolve on this board
+   35  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
+    7  selection will not resolve on this board
     6  derived call refuses ("Sweep 1/4")
-    4  derived call refuses ("Promenade")
     4  derived call refuses ("Swing Thru")
-    3  unknown call (no catalogue entry)
+    4  unknown call (no catalogue entry)
+    4  derived call refuses ("Promenade")
     2  other: "Circle 2" not legal for selected dancers
     2  other: "Walk and Dodge" not legal for selected dancers
-    1  each: Rollaway | Do Sa Do | Allemande Left | Scoot Back | Promenade 1/2 | Turn Thru | Circulate | Walk Across | 8 Circulate 1 1/2
+    1  each: Rollaway | Do Sa Do | Scoot Back | Promenade 1/2 | Turn Thru | Circulate | Walk Across
+             | Left Hand Star | 8 Circulate 1 1/2
     1  derived call refuses ("Trade") | ("Promenade Home")
 ```
 
@@ -142,10 +143,47 @@ recording); the third **won two figures**:
   Gated on the property the corpus needs: after the documented pattern, `Weave the Ring` must be
   legal, on the plain ring AND the progressed one.
 
-All three sides re-measured at the end of the round: figures **110 of 188**; get-out **122 of 265**
+All three sides re-measured at the end of the round: figures **110 of 188** then (now **113**, see
+the role reading below); get-out **122 of 265**
 reaching a resolve state (110 applying the finish, 110 body stops); FSM **155 / 92 / 43 / 19
 unchanged**; CALLERLAB **unchanged** (the 9-of-45 row is still the name-matching artefact, and the
 real gap is still 2 (call, start) pairs + 24 formation names).
+
+**AND A SIXTH WIN — the ROLE READING: 110 → 113 figures (round 15), and it is the largest single
+class left.** A `gender-specific` tam's paths are a **ROLE** motion — what a boy does, what a girl
+does — not the motion of a particular SLOT. `Heads Rollaway` half-sashays the head couples, so every
+dancer still faces an opposite-gender dancer and `Star Thru` is legal (CALLERLAB: "Starting formation
+- facing dancers (man and woman)"), but the catalogue's `Static Square` setup pins `boy` to the
+south-WEST slot and the rollaway puts him south-EAST — so slot-wise gender matching refused **an
+exact geometry match**. Measured: 43 stops in the `no setup` bucket have a best setup error of
+**1.57** against a tolerance of 1.5, and **four** of them (`figm#102`, `figm#185`, `figm#186`,
+`figm#15`) overlay a setup at **error 0.000** once the gender constraint is off.
+The fix is *geometry from the SLOT, motion from the ROLE*: match with gender off, then take each
+slot's PATH from the role its occupant's own gender performs. It is well defined because
+`BezierData` is authored in **dancer-local space** (`types.ts`: "+X is the dancer's initial facing
+direction"), so a slot's path IS its local motion and two slots are directly comparable. It is
+enabled per VARIANT by the catalogue's own data rather than by a hand-maintained call list:
+`roleUniformMotions` returns a table only when every slot of a given `(gender, active)` role performs
+an IDENTICAL local motion — **145 of the 287 gender-specific variants qualify**, and the other 142
+(`Wave the Boys`, `Ramble`, `Twist the Line <Normal Lines>`, `Brace Thru <Eight Chain Thru>`, …) do
+not, so the reading stays off for them. It cannot change a working case: where the board already
+satisfies the slot genders the role motion looked up IS the slot's own path, so the outcome is
+identical — pinned in `sequencer.mjs` by asserting the canonical `Star Thru` from a Static Square
+still ends in `Double Pass Thru`. Nor is it a relaxation of the gender structure: the board's genders
+must still preserve the authored gender multiset of its own interacting pairs (`anyPairingKeepsGenders`,
+backtracking over the pairings because an `Eight Chain Thru`'s slots are two apart in BOTH axes and
+only one of each 4-cycle's matchings is right — measured, the greedy first-match rejected the very
+case the reading exists to accept), so a square of four same-gender couples is still refused.
+`figm#102` and `figm#185` now run **end to end**; the other two progress further and stop later
+(`#15` on a later `Box the Gnat`, `#186` on `Heads Left Hand Star`). The motion is verified against
+the engine's own rule rather than argued: after the half-sashayed `Star Thru` the heads have swapped
+partners into an `Eight Chain Thru` and **the woman is on the man's right in all four couples** —
+the same convention the untouched canonical result obeys. Get-out holds at **122**, FSM
+**155 / 92 / 43 / 19** unchanged, CALLERLAB unchanged; verify green (20 harnesses).
+**Two hypotheses were refuted on the way there**, both now in §3: a TOLERANCE change (swept
+`setMatchMargin` 0 → 4.5: nothing at all up to tolerance 2.5, and loosening to 3.5 is *harmful*,
+101 figures) and UNIFORM-SCALE matching (24 of the 43 stops do prefer a non-unit scale, but 19 have
+no scale at all and most of the 24 keep a residual of 1.1–11.7 even at their best scale).
 
 **CORRECTED (round 10): the allemande pose tam's MOTION was wrong, and it is the pair that matters.**
 The first version applied the Static Square's own paths to the pose, so a second `Allemande Left`
@@ -217,6 +255,9 @@ Each of these was tried, measured, and reverted. The measurement is what settles
 | `Single Hinge` as a missing call | it is `Hinge` + a synonym; chasing it found a real matcher defect (reflected-motion, now fixed) |
 | read the temporary couple number in `boxGroups` too | the tiling of a `Normal Lines` board IS blocked by the stale pairing, and unblocking it (Sweep refusals 6 → 4) is still **wrong**: those boxes are FOUR apart, so a box 2 wide × 4 tall rotating 90° about its own centre becomes 4 wide × 2 tall and the two boxes meet at x = 0 with four dancers on two spots. The figures then refuse on `Promenade` from an UNNAMED board (4 → 6) with the figure count unchanged. The refusal was right and only its REASON was wrong — a board of lines cannot Sweep at all on this geometry. **The trap is now closed at the source**: `sweepCollision` refuses the swept board with that reason, gated in `sequencer.mjs` with a witness that tiles cleanly |
 | narrow `partition`'s couple coherence to couples actually standing as couples | `figm131`'s `Eight Chain Thru` (after `Wheel and Deal`) is refused by the Sweep because its stored pairs are FACING PAIRS — 2 apart, opposite headings — so requiring them to stay in one subset forbids EVERY tiling, even though the board divides cleanly into facing-couple boxes. Restricting the constraint to pairs that are together AND co-oriented (measured: gap ≤ 3.0 and headings within 0.2 rad) is principled and does let it tile — Sweep refusals **6 → 5** — and it measures **107 → 107 figures and 122 → 122 get-out lines**, with one figure moving from the Sweep bucket into `no setup`. Reverted: no gain, and `partition` is the tiling used by `parallelApply` for EVERY call, so a relaxation there needs a payoff to justify its blast radius. It is also a variant of the relaxation already refuted above, whose recorded reason is that the coherence rule "is what makes the decomposition well posed" |
+| **raise the MATCHING TOLERANCE to clear the `no setup` bucket** | the bucket looked like a threshold artefact because its stops' best setup error is **1.57** against `DEFAULT_MATCH_MAX = 1.5`, and the binding gate is `matchEqualLength`'s distance-signature reject at `sigTol = maxError / 12` (0.125 at the apply tolerance). Swept `setMatchMargin` over **0, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 4.5**: **110 figures at every margin up to 1.0** (tolerance 2.5, well past 1.57) — the error budget is not what refuses these boards — and at margin 2.0 the count goes **DOWN to 101**, gaining 5 and losing 14. Loosening is actively harmful; the bucket is a genuine body/shape gap |
+| **match up to uniform SCALE as well as translation/rotation/reflection** | measured: only **24 of the 43** `no setup` stops prefer a non-unit scale at all, and most of those keep a residual of 1.1–11.7 even at their best scale (`Slide Thru` on a `Tidal Wave` 3.17 at 0.34, `Trade By` on `Lines Facing Out` 11.71 at 0.75, `Sides Face, Grand Square` 11.14 at 1.0), so a scale-invariant matcher would not have unlocked them. The real shape of the bucket is the ROLE READING above and the four exact-match witnesses, not spacing |
+| **`Star Thru` with a WEAKER board check (gender counts only)** | the first version of the role reading required only that the board's gender MULTISET match the setup's, which accepts a square of four same-gender couples (4 boys / 4 girls either way). Caught by the gate added with the change, not by the census: the reading now requires the board to preserve the authored gender multiset of the setup's own interacting PAIRS, and the same-gender square is refused again. **A gate written with a change is what found this, which is the reason the rule is "gate it in the same commit"** |
 
 Closed and shipped (do not reopen): `Trade`/`Run` derived; `Roll`; `Fold`/`Cross Fold`;
 `Leaders Trade`; `Sweep 1/4`; `Join Hands`; `Split Two` bridge; `Box the Gnat` seam-6;
@@ -285,7 +326,7 @@ board. `scaleX = separation / 2` was **refuted** as the cause here (it collides 
 | call | figures | boards | state |
 |---|---|---|---|
 | `Pass Thru` | 5 | Quarter Tag, unnamed, Lines Facing Out, Tidal Wave | **4 of 6 re-attributed to Phase A** — no facing dancers, or two on one spot |
-| `Star Thru` | 5 | 2 × Static Square, unnamed, Completed Double Pass Thru, Eight Chain Thru | **NOT fixable by Phase E's relaxation** — see below |
+| `Star Thru` | 5 | 2 × Static Square, unnamed, Completed Double Pass Thru, Eight Chain Thru | **DONE in round 15 — three of the five were the ROLE reading (`figm#102`, `#185`, `#186`); see below** |
 | `Slide Thru` | 3 | 3 × Tidal Wave | open — the 3 Tidal Wave boards are the same class Phase A's `Pass Thru` measurement found (bodies with no facing pairs), so diagnose before authoring |
 | `Touch 1/4` | 3 | 2 × Trade By, unnamed | the facing-couples end pose is FIXED (Phase A); these three are other boards |
 | `Turn Thru` | 1 | Static Square | open |
@@ -302,12 +343,18 @@ before writing anything.
 **Gate:** each (call, board geometry) pair is covered by a setup or a derived rule, or recorded with
 its reason; the census must rise.
 
-**`Star Thru` cannot use Phase E's per-couple relaxation, and the reason generalises.** Its ECT case
+**`Star Thru` cannot use Phase E's per-couple relaxation, and the reason generalises — but it IS
+fixed, by the ROLE reading (round 15, 110 → 113 figures).** Its ECT case
 is the same shape as `Allemande Left`'s — a setup that overlays the board at error 0.000 with gender
 ignored and NULL with gender required — but `Star Thru`'s MOTION is slot-sensitive (the woman turns
 while the man steps), and the match's mapping is geometric, so relaxing per couple would apply the
 man's path to the woman. That is the rule for `PAIR_GENDER_CALLS`: only calls whose motion is
-gender-symmetric may go on the list.
+gender-symmetric may go on the list. The role reading is the OTHER answer to the same problem:
+instead of reusing a slot's motion, it takes the motion of the dancer's own gender from wherever the
+setup authors it, which is well defined because a path is in the dancer's local frame. Three of the
+five `Star Thru` stops (`figm#102`, `figm#185`, `figm#186`) went with it; what remains of this row is
+`figm#15` (which now stops LATER, on a subsequent `Box the Gnat`) and the unnamed/`Completed Double
+Pass Thru` boards.
 
 ### Phase C — the two missing conventions
 
@@ -518,15 +565,20 @@ then. Recorded here so the next reader does not re-derive it.
 
 **AND THE SEPARATION RECIPE IS NOW EXHAUSTED — measured, not assumed.** The recipe that won four
 figures is: find the authored setup with the board's SHAPE at another SCALE, and author the missing
-separation. That requires the best error against the call's own setups to be **FINITE**. Across the
-whole remaining `no setup` bucket, measured call by call against every authored setup at tolerance
-100, **every single stop returns NULL** — `Pass Thru` 5, `Star Thru` 5, `Swing Thru` 3, `Slide Thru`
-3, `Touch 1/4` 3, `Walk and Dodge` 2, `Box the Gnat` 2, `Trade By` 2, and every one-figure call:
-**no setup even has the right shape** (finite-shape: 0 of 46 stops). So none of them is a missing
-separation or a missing arrangement, and the method that paid three times has no candidates left.
-What remains in that bucket is upstream body defects (several already diagnosed: `Spin the Top`'s
-half scale, `Split Two`'s whole-board motion, the `Mixed Columns` boards `Heads Touch 1/4` leaves)
-or choreography that would have to be derived from a definition this repo does not hold.
+separation. That requires the best error against the call's own setups to be **FINITE**.
+**CORRECTED IN ROUND 15, and the round-13 form of this paragraph was a PROBE ARTEFACT.** It used to
+claim "every single stop returns NULL ... finite-shape: 0 of 46". The probe mapped each variant with
+the raw `<formation>` coordinates, but the MATCHER maps them through `variantMatchable`, which is
+where the `mirror` flag of a duplicated half is turned into a real 180-degree rotation — so the
+probe was comparing every board against a near-half target and got NULL for everything. Re-measured
+with the matcher's own mapping, **43 of 43 stops have a finite best error**. The conclusion the
+mis-measurement supported (there is no missing separation here) still holds, but its stated reason
+does not: the bucket is not "no setup of the right shape", it is "the right setup with the genders
+the other way round" (the ROLE READING above, +3 figures) plus genuine body defects (several already
+diagnosed: `Spin the Top`'s half scale, `Split Two`'s whole-board motion, the `Mixed Columns` boards
+`Heads Touch 1/4` leaves) or choreography that would have to be derived from a definition this repo
+does not hold. `/walk and dodge` evidence retained below; the 1.57-against-1.5 coincidence that made
+the bucket look like a tolerance artefact is refuted in §3.
 
 ### The `selection will not resolve` bucket, diagnosed (round 12) — three causes, not one
 
@@ -624,6 +676,18 @@ section that follows. What remains of this family is the `Swing` no-op recorded 
    the half-sashayed square is ordinary for `Allemande Left`. The assertion was corrected, a genuine
    same-gender-couples witness was added beside it, and `facing-audit.mjs`'s `SPLIT COUPLES` class
    fell **2 → 0** (figm203, figm204).
+3. **DONE (110 → 113 figures) — the ROLE reading, which is what the note above said could not be
+   done.** The note was right that `Star Thru`'s motion is slot-SENSITIVE and that a geometric retry
+   applying a slot's motion to the wrong dancer is wrong — and that is exactly why the fix is not a
+   retry of the SLOT motion but a move to the ROLE motion: the call's paths are what a BOY does and
+   what a GIRL does, so the right motion for a board dancer is selected by that dancer's own gender.
+   Legitimate because a path is authored in **dancer-local space** (`types.ts`), making two slots'
+   paths directly comparable, and enabled only where the variant's own data says the role is
+   unambiguous (`roleUniformMotions`: 145 of 287 gender-specific variants). See §2 for the four
+   witnesses and the measurements. So the family is now **three** distinct gender mechanisms, in the
+   order they are tried: per-SLOT (the catalogue's own, unchanged and first), per-COUPLE
+   (`PAIR_GENDER_CALLS`, for calls whose motion is gender-symmetric), and per-ROLE (`roleUniformMotions`,
+   for calls whose motion differs by gender but is identical within a gender).
 
 **Instrument:** `facing-audit.mjs`'s `SPLIT COUPLES` class identifies this family without any chain
 reasoning, and the `Promenade` ring-order refusals (6 in the census) read the same stale numbers.

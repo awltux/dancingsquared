@@ -142,7 +142,7 @@ Each of these was tried, measured, and reverted. The measurement is what settles
 | "an unrecognised board is a defect" | the allemande pose, the grand ring and a pivot are legitimate dance states the engine has no template for |
 | the 578-call `fixIt` list | inflated by a duplicate bug and by loose-tolerance force-fits; 18 is the real list |
 | `Single Hinge` as a missing call | it is `Hinge` + a synonym; chasing it found a real matcher defect (reflected-motion, now fixed) |
-| read the temporary couple number in `boxGroups` too | the tiling of a `Normal Lines` board IS blocked by the stale pairing, and unblocking it (Sweep refusals 6 → 4) is still **wrong**: those boxes are FOUR apart, so a box 2 wide × 4 tall rotating 90° about its own centre becomes 4 wide × 2 tall and the two boxes meet at x = 0 with four dancers on two spots. The figures then refuse on `Promenade` from an UNNAMED board (4 → 6) with the figure count unchanged. The refusal was right and only its REASON was wrong — a board of lines cannot Sweep at all on this geometry |
+| read the temporary couple number in `boxGroups` too | the tiling of a `Normal Lines` board IS blocked by the stale pairing, and unblocking it (Sweep refusals 6 → 4) is still **wrong**: those boxes are FOUR apart, so a box 2 wide × 4 tall rotating 90° about its own centre becomes 4 wide × 2 tall and the two boxes meet at x = 0 with four dancers on two spots. The figures then refuse on `Promenade` from an UNNAMED board (4 → 6) with the figure count unchanged. The refusal was right and only its REASON was wrong — a board of lines cannot Sweep at all on this geometry. **The trap is now closed at the source**: `sweepCollision` refuses the swept board with that reason, gated in `sequencer.mjs` with a witness that tiles cleanly |
 
 Closed and shipped (do not reopen): `Trade`/`Run` derived; `Roll`; `Fold`/`Cross Fold`;
 `Leaders Trade`; `Sweep 1/4`; `Join Hands`; `Split Two` bridge; `Box the Gnat` seam-6;
@@ -248,6 +248,31 @@ authoring, which is why they are their own phase.
    has no active-set tracking. This is the `Right-hand Star` / `Centers` family, and it is also why
    `-BRun` is an approximation in the decoder (`-B` = "the Boy(s) AMONG THE DANCERS WHO WERE ACTIVE").
    Design before code: the active set has to be a first-class part of the board or the sequencer state.
+3. **`Split Two` is the first concrete case, and its blocker is MEASURED — including an attribute the
+   engine reads from nobody.** The call IS in the catalogue, under a file whose name hides it:
+   `ms/split_the_outside_couple.xml` is a tamination titled **`Split Two`** whose tams are
+   `Centers Split the Outside Couple` and `Centers Split Two`, each `formation="Eight Chain Thru"`
+   with **`actives="Centers"`** — and each carrying FOUR `<path>` elements, i.e. the four ACTIVE
+   dancers only, with the motion `Extend Left scaleY=.5` + `Extend Right scaleY=.5` = **net forward 2,
+   no lateral, facing unchanged**, which agrees with the reference's `split_two.dart` (actives advance
+   `dist/2 + 1`; tandems `Forward_2`; inactives step apart and back, ending where they started).
+   `grep actives engine/src/convert.ts` returns NOTHING: `actives`, `group` and `display` are parsed by
+   nobody, so those four paths are registered as a whole-board setup — the recorded "1 setup, n=8,
+   positions `b(-3,1) g(-3,-1) b(-1,-1) g(-1,1)` listed TWICE" — which is why applying the call moves
+   all eight by 2 (a whole-board `Pass Thru`) and why the bridge's four figures then stop on
+   `Touch 1/4` from a bogus `Trade By`.
+   **And the active set cannot be guessed geometrically.** On the board `figm109`/`figm112` reach
+   (`Heads Square Thru 4` from a Static Square, an Eight Chain Thru), the PHYSICAL couples are
+   `(#1(1,1)@E, #6(1,-1)@E)` and `(#2(-1,1)@W, #5(-1,-1)@W)` in the centre, `(#4(3,1)@W, #3(3,-1)@W)`
+   and `(#7(-3,1)@E, #8(-3,-1)@E)` outside — parallel facing couples 2 apart. If the centre couple is
+   active and "actives advance 2, inactives end where they started", the actives land **exactly on**
+   the outside couple: the rule is unsatisfiable there. So the actives have to come from the call's own
+   `actives` attribute (or a designation), not from the board.
+   **Work, in order:** parse `actives` in `convert.ts` and carry it on `TamRaw`/`CallBundle` so a
+   subset-authored tam is not mis-registered as a whole-board setup (this alone is a correctness fix
+   for every such tam, not just this call); then decide the apply path — the engine already has a
+   subset reading (`applySelected`) and a tiling reading (`boxGroups`), and the reference's rule needs
+   the ACTIVE set plus the inactive pairs it splits.
 
 ### Phase D — the missing calls (Phase 14 residue)
 

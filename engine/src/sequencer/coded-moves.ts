@@ -23,7 +23,7 @@ import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, P
 import { isKnownCouple } from './constants.js';
 import { runRule, tradeRule } from './trade-run.js';
 import { foldRule } from './fold.js';
-import { sweepBox, sweepProblem } from './sweep.js';
+import { sweepBox, sweepProblem, sweepCollision } from './sweep.js';
 import { swingThru } from './swing-thru.js';
 import type { Board } from './types.js';
 
@@ -238,6 +238,10 @@ export interface CodedMove {
    * board that decomposes. The decomposition comes from `CallApplicator.boxGroups`, i.e. from the
    * engine's own matcher, for the reason recorded there. */
   boxedBy?: string;
+  /** A POSTCONDITION on the whole board after a BOXED call has run, for a failure only the whole
+   * board can see — neighbouring boxes overlapping once each rotates about its own centre. See
+   * `sweepCollision`. */
+  collisionCheck?: (b: Board) => string | null;
 }
 
 const DEFS: {
@@ -248,6 +252,7 @@ const DEFS: {
   applyToSelection?: (b: Board, ids: number[]) => { board: Board } | { reason: string };
   catalogueFallback?: boolean;
   boxedBy?: string;
+  collisionCheck?: (b: Board) => string | null;
 }[] = [
   // `Join Hands` IS NOT A CALL WITH A BODY, and implementing it as one would be wrong. CALLERLAB
   // uses it only as a PROMPT inside command examples - "From a Squared Set: 'Join Hands, Circle
@@ -347,6 +352,7 @@ const DEFS: {
     boxedBy: 'Touch a Quarter',
     precondition: sweepProblem,
     fn: sweepBox,
+    collisionCheck: sweepCollision,
   },
   // Roll: derived because the engine has NO `Roll` of any kind - no title, no tam, not even in the
   // call index - while All8 writes it as a modifier on the preceding call (`--SqTh3 --PtTrd --&Roll`,
@@ -400,6 +406,7 @@ export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   ...(d.applyToSelection ? { applyToSelection: d.applyToSelection } : {}),
   ...(d.catalogueFallback ? { catalogueFallback: true } : {}),
   ...(d.boxedBy ? { boxedBy: d.boxedBy } : {}),
+  ...(d.collisionCheck ? { collisionCheck: d.collisionCheck } : {}),
 })) as CodedMove[];
 
 /** Canonical display names of the coded moves, in registration order. */

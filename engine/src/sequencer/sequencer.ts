@@ -111,7 +111,14 @@ export class Sequencer {
       if (moved.size === 0) {
         return { board, legal: false, reason: `${boxed.name} has no box to act on` };
       }
-      return { board: { dancers: board.dancers.map((d) => moved.get(d.id) ?? d) }, legal: true };
+      const swept: Board = { dancers: board.dancers.map((d) => moved.get(d.id) ?? d) };
+      // A BOXED call must leave a BOARD. Neighbouring boxes can overlap once each rotates about its
+      // own centre, and this is the only place that can see it - see `sweepCollision`.
+      if (boxed.collisionCheck) {
+        const problem = boxed.collisionCheck(swept);
+        if (problem) return { board, legal: false, reason: problem };
+      }
+      return { board: swept, legal: true };
     }
     const whole = applyCodedMove(board, name);
     if (whole) {

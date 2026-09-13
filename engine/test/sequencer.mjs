@@ -482,6 +482,47 @@ console.log('== Sequencer: Touch a Quarter ends in the 2x2 right-hand box the de
   }
 }
 
+console.log('== Sequencer: a Sweep whose boxes would COLLIDE is refused, not forced ==');
+// A box 2 wide and 4 tall rotating 90 degrees about its own centre becomes 4 wide and 2 tall, so two
+// boxes standing side by side along the rotation axis end up on the SAME two spots. `boxGroups`
+// cannot see this (each box is fine on its own) and only the whole board can, so the call carries a
+// postcondition. This gate exists because the trap was walked into: unblocking the tiling of a
+// Normal Lines board by reading CALLERLAB's temporary couple number let the Sweep apply and produced
+// four dancers on two spots. The witness below TILES cleanly (each stored couple sits inside one box),
+// so it can only be caught by the collision check itself.
+{
+  const S = -Math.PI / 2;
+  const N = Math.PI / 2;
+  const boxes = {
+    dancers: [
+      { id: 1, couple: 1, gender: 'boy', x: -3, y: 2, heading: S, lastTurnDir: 'left' },
+      { id: 2, couple: 1, gender: 'girl', x: -1, y: 2, heading: S, lastTurnDir: 'left' },
+      { id: 3, couple: 2, gender: 'boy', x: 1, y: 2, heading: S, lastTurnDir: 'left' },
+      { id: 4, couple: 2, gender: 'girl', x: 3, y: 2, heading: S, lastTurnDir: 'left' },
+      { id: 5, couple: 3, gender: 'boy', x: -3, y: -2, heading: N, lastTurnDir: 'left' },
+      { id: 6, couple: 3, gender: 'girl', x: -1, y: -2, heading: N, lastTurnDir: 'left' },
+      { id: 7, couple: 4, gender: 'boy', x: 1, y: -2, heading: N, lastTurnDir: 'left' },
+      { id: 8, couple: 4, gender: 'girl', x: 3, y: -2, heading: N, lastTurnDir: 'left' },
+    ],
+  };
+  const r = scopedSeq.applyToBoard(boxes, 'Sweep 1/4');
+  check(r.legal === false && /rotate a quarter about its own centre/.test(r.reason ?? ''),
+    `Sweep 1/4 refuses a board whose two boxes would land on the same spots: ${r.legal ? 'APPLIED' : r.reason}`);
+  // ...and the SAME geometry with the boxes far enough apart is legal, so the check is not just
+  // refusing every lines board. Each box is still 2 wide and 4 tall; the two boxes are 6 apart
+  // instead of touching, so the sweeps land on (-6,±1)/(-2,±1) and (2,±1)/(6,±1).
+  const wide = {
+    dancers: boxes.dancers.map((d) => {
+      const bx = d.x < 0 ? -1 : 1;
+      const near = Math.abs(d.x) === 1; // inner edge of its box
+      const x = bx * (near ? 3 : 5);
+      return { ...d, x };
+    }),
+  };
+  const rw = scopedSeq.applyToBoard(wide, 'Sweep 1/4');
+  check(rw.legal === true, `Sweep 1/4 applies when the boxes are 6 apart: ${rw.reason ?? 'ok'}`);
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

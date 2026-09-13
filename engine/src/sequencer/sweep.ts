@@ -79,3 +79,37 @@ export function sweepBox(box: Board): Board {
     }),
   };
 }
+
+/** How close two dancers may end before the swept board counts as broken. The engine's formations put
+ * adjacent dancers 2 apart, so this sits in the empty band below that. */
+export const SWEEP_COLLISION_MIN = 1.0;
+
+/**
+ * Why the SWEPT board is not a board, or null when it is: a box 2 wide and 4 tall rotating 90 degrees
+ * about its own centre becomes 4 wide and 2 tall, so when boxes stand side by side along the rotation
+ * axis their sweeps OVERLAP. That is a property of the geometry, not of the tiling, and it is the
+ * reason a board of facing LINES cannot Sweep at all.
+ *
+ * MEASURED, and this postcondition exists because the trap was walked into: reading CALLERLAB's
+ * temporary couple number inside `boxGroups` unblocked the tiling of `figm` #17/#120 (a `Normal Lines`
+ * board whose stored couples straddle the boxes), let the Sweep apply, and the result had four dancers
+ * on two spots — the figures then refused on `Promenade` from an UNNAMED board, with the figure count
+ * unchanged. The refusal was right; only its reason was wrong. This check states the real reason at
+ * the call that causes it, so a future tiling change cannot launder the collision.
+ *
+ * CALLERLAB's handhold test is the other half of the same idea and is checked per box in
+ * `sweepProblem`; this one can only be asked of the WHOLE board, because it is about neighbouring
+ * boxes.
+ */
+export function sweepCollision(board: Board): string | null {
+  const phys = physical(board);
+  for (let i = 0; i < phys.length; i++) {
+    for (let j = i + 1; j < phys.length; j++) {
+      const gap = Math.hypot(phys[i].x - phys[j].x, phys[i].y - phys[j].y);
+      if (gap < SWEEP_COLLISION_MIN) {
+        return `Sweep a Quarter would put dancers ${phys[i].id} and ${phys[j].id} ${gap.toFixed(2)} apart - this board's boxes stand too close for each to rotate a quarter about its own centre`;
+      }
+    }
+  }
+  return null;
+}

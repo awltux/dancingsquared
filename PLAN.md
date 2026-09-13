@@ -65,20 +65,28 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 | CALLERLAB | real gap is **9 (call, start) pairs + 20 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
 | gates | `verify:light` green; `verify` green (20 harnesses, ~295 s); `verify:figures` **red by design** | `npm run verify --prefix engine` |
 
-The figure census's blocking causes, re-measured after Phases A and E:
+The figure census's blocking causes, **re-measured in round 27 and REPLACED — the previous table was
+stale**. It still listed three calls that no longer appear as blockers in the re-measurement
+(`Circle 2` 2, `Promenade 1/2` 1, `Turn Thru` 1) and so summed to **75** against the **72** blocked
+that the same scoreboard reports; the corrected rows sum to exactly 72 = 188 − 116:
 
 ```
    34  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
     7  selection will not resolve on this board
     6  derived call refuses ("Sweep 1/4")
-    5  unknown call (no catalogue entry)
+    6  unknown call (no catalogue entry)              <- was recorded as 5; see Phase D
     4  derived call refuses ("Swing Thru")
     4  derived call refuses ("Promenade")
-    2  other: "Circle 2" not legal for selected dancers
     2  other: "Walk and Dodge" not legal for selected dancers
-    1  each: Rollaway | Do Sa Do | Scoot Back | Promenade 1/2 | Turn Thru | Circulate | Walk Across
-             | Left Hand Star | 8 Circulate 1 1/2
-    1  derived call refuses ("Trade") | ("Promenade Home")
+    1  other: "Rollaway" not legal for selected dancers
+    1  derived call refuses ("Do Sa Do")
+    1  other: "Scoot Back" not legal for selected dancers
+    1  other: "Circulate" not legal for selected dancers
+    1  other: "Walk Across" not legal for selected dancers
+    1  derived call refuses ("Trade")
+    1  other: "8 Circulate 1 1/2" not legal for selected dancers
+    1  derived call refuses ("Promenade Home")
+    1  other: "Left Hand Star" not legal for selected dancers
 ```
 
 **Three phases landed in the session that rewrote this file.** Two cleared a body defect and moved
@@ -892,13 +900,28 @@ para above calls those boards a body defect, and `Heads Touch 1/4`'s output is N
 
 ### Phase D — the missing calls (Phase 14 residue)
 
-**Owner:** `coded-moves.ts` (derived) or the catalogue (authored). Census `unknown call` is down to
-**3**; this is the tail of the named set. Re-ranked by what is now known about each:
+**Owner:** `coded-moves.ts` (derived) or the catalogue (authored). The header here used to say the
+census `unknown call` was "down to **3**"; **re-measured in round 27 it is 6**, and the new probe
+`engine/test/tools/unknown-calls.mjs` names the figure behind each one (the census only reports the
+call name). The six, with their dispositions:
 
-- `Circle 2` (2 figures), `Trade 1 1/2` (1), `Walk Across` (1),
-  `8 Circulate 1 1/2` (1), `Scoot Back` (1), `Turn Thru` (1), `Circulate` (1) — single-figure
+| figure | call | disposition |
+|---|---|---|
+| `figm125`, `figm149` | `Pass One` | read and CLOSED (round 20) — not a CALLERLAB call, not in the reference |
+| `figm142` | `Change Hands` | read and CLOSED (round 17) — a handhold change, moves nobody |
+| `figm145` | `Partner Trade 1 1/2` | declared gap: `--PtTrd --1-1/2` composes a name the catalogue lacks (`KNOWN_CATALOGUE_GAPS`) |
+| `figm226` | `Separate Around Two` | read (round 16) — a missing PHRASE, plus an unread notation cell |
+| `figm70` | `Yellow Rock` | read and CLOSED in round 27; see below |
+
+Then the rest of the tail, re-ranked by what is now known about each:
+
+- `Walk Across` (1), `8 Circulate 1 1/2` (1), `Scoot Back` (1), `Circulate` (1) — single-figure
   refusals, each "not legal for selected dancers" or a no-setup, so each wants a diagnosis before an
   implementation (`setup-coverage.mjs` classifies them).
+  **Three names have dropped out of this list, re-measured in round 27**: `Circle 2` and `Trade 1 1/2`
+  block **nothing** any more (neither appears in the census at all), and the only remaining `Turn Thru`
+  refusal is `Centers Turn Thru`, whose recorded cause is `selection will not resolve on this board` — a
+  selection problem, not a missing call, so it belongs to Phase C's active-set item below.
   **`Promenade 1/2` is DONE — round 18, +1 figure (`figm86`).** It was not a missing call so much as a
   missing FRACTION: `all8-notation.ts` decodes `Pr1/2` to "Promenade 1/2", the corpus reaches it as
   `All Promenade 1/2`, and the engine had no bare `Promenade 1/2` at all (`Unknown call`) while the
@@ -908,8 +931,27 @@ para above calls those boards a body defect, and `Heads Touch 1/4`'s output is N
   convention (counter-clockwise, home couple 1 on the south side). Only the HALF is registered:
   `Promenade 3/4` and `Promenade Full` decode too but are reached by no figure bare, so they wait for a
   witness; the same helper serves them in one line.
-- `Yellow Rock`, `Pass One`, `Separate Around Two` — named in the census and in CALLERLAB; read the
-  definition before writing the rule.
+- `Yellow Rock`, `Pass One`, `Separate Around Two` — three names this section once grouped as "named in
+  the census and in CALLERLAB; read the definition before writing the rule". All three are now read, and
+  that grouping was itself wrong: **two of the three are not in CALLERLAB at all**. A corpus name that
+  neither authority defines is the finding, not a detail.
+  **`Yellow Rock` is now READ and CLOSED (round 27), and it is NOT in CALLERLAB.** The corpus reaches
+  it once, at `figm70`, whose chain (decoded names, from `figure-trace.mjs`) is
+  `Heads Promenade 1/2 | Heads Square Thru 4 | Right and Left Thru | Veer Left | Couples Circulate |
+  1/2 Tag | Cast Off 3/4 | Boys Fold | Yellow Rock | ...`,
+  and the engine stops on it with `Unknown call: Yellow Rock` from an **unnamed** board — the
+  `Boys Fold` body error again, so `figm70` carries two independent blockers exactly as `figm226` does.
+  Searches: `callerlab-ms.txt` (231,768 bytes, and it DOES contain `Square Thru`) has **no** occurrence
+  of the word `Yellow` at all, and its only `Rock` is line 628, `Rock Forward and Back (from Facing
+  Lines)` — a COMMAND EXAMPLE of `Forward and Back`, a different call; `taminations-flutter/lib` has no
+  hit either. So neither authority in this repo defines it, and — the difference that matters — **the
+  corpus itself declines to treat it as a call**: All8's get-out key reaches it twice more as
+  `B-XFold "sneaky"-YelRk` and as `--YelRk (gimmick - still [B1c] - neutralizes hand use)`. A call whose
+  own corpus gloss is "gimmick ... neutralizes hand use" is a HANDHOLD effect, which is `Change Hands`'s
+  blocker again: the engine keeps no handhold state on the board, so any implementation would be a
+  motionless no-op asserting an effect the engine cannot represent. Recorded, not implemented — and note
+  it is NOT worth re-opening for the figure count even if a definition were found, because the
+  `Boys Fold` board in front of it would have to be fixed as well.
   **`Pass One` is now READ and CLOSED (round 20), and it is the strongest temptation in this file so
   far.** All8's key glosses it `Pass1  Pass One  (Pass by 1, Pass 1 by, Skip 1)`, and the corpus
   reaches it twice, both as `... Allemande Left | Pass One | Swing Your Partner | Promenade`

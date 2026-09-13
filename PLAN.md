@@ -4673,15 +4673,43 @@ So it is **`Rollaway`** — a `Half Sashay`-family call whose whole action is to
 of a couple — and the resulting state is not a bug at all: a half-sashayed square is a state the
 corpus legitimately reaches, and dancing `Allemande Left` from it is completely ordinary.
 
-**The blocker is that `Allemande Left`'s twenty-one authorings are ALL `sequencer="gender-specific"`**,
-so none can match a half-sashayed square even though the call does not depend on which side the man
-stands: each dancer simply turns 180 degrees with the corner. The probe above shows this decisively —
-every variant, including `from="Static Square"`, returns `blind=NULL`, i.e. it fails on IDENTITY before
-gender is even considered, and once the identity is fixed it would fail on the GENDER SLOTS of a
-half-sashayed pair. That is a much smaller question than "modelling the courtesy turn", and the next
-measurement is to re-run the match on a board whose couples are normal but whose identity has been
-re-assigned — if `strict` then returns a number, `Allemande Left` needs a non-gender-specific
-authoring (or the sashed state needs normalising), and neither is a body fix.
+**FIXED AND SHIPPED, WITH A MEASURED ZERO: the `from="Static Square"` authoring is no longer
+`gender-specific`.** The conclusion above was tested rather than recorded. `Allemande Left` does not
+depend on which side the man stands — each dancer turns 180 degrees with the corner — and the
+over-constraint is exactly what refused the half-sashayed square:
+
+| board | before | after |
+|---|---|---|
+| the home square | legal | legal |
+| a **half-sashayed** square | **refused** | **legal** |
+| figures end-to-end | 98 | **98** |
+
+**...and it is REFUTED, by a gate rather than by a count, so it is NOT shipped.** `features.mjs` has
+pinned the opposite all along:
+
+```
+const swappedG = { dancers: homeB.dancers.map((d) => ({ ...d, gender: d.gender === 'boy' ? 'girl' : 'boy' })) };
+check(gsSwap.legal === false, 'Allemande Left rejected when genders swapped (same geometry)');
+```
+
+and with the attribute removed that check fails. Reading what `swappedG` actually IS settles the
+argument, because it is not the board I was chasing: it flips EVERY dancer's gender, so it is a square
+of four **same-gender** couples, where `Allemande Left` genuinely is improper. My change conflated two
+different boards, and the two measurements are now both on record:
+
+| board | half-sashayed square | all-genders-flipped square |
+|---|---|---|
+| should `Allemande Left` be legal? | **yes** — man and woman per couple, just the other way round | **no** — same-gender couples |
+
+`gender-specific` rejects BOTH, and removing it accepts BOTH. So the fix is neither: **the requirement
+is per PAIR, not per SLOT** — each couple must be a man and a woman, side-agnostic, which is exactly
+the shape `swingProblem` already uses ("couple N is not a man and a woman, so there is no partner").
+That is the concrete next change, it is smaller than anything else left on this call, and it has two
+named witnesses already in place: the half-sashayed square must become legal and `features.mjs`'s
+`swappedG` must stay rejected.
+
+Reverted, census re-taken at 98. Worth recording that this cost a full verify cycle to find: the change
+looked strictly relaxing, and a gate that had been green for many rounds caught it.
 
 ---
 

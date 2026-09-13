@@ -3454,6 +3454,29 @@ the couples reach the four sides in clockwise order, which a real swing would ha
 correctly. That is the fidelity gap 9e-1 recorded, it is now load-bearing for exactly those figures,
 and it is the natural next step in this family rather than a new phase.
 
+**RE-MEASURED, and it is now the single largest derived refusal left (8 figures).** The census's
+`Promenade` bucket — 8 figures — taken with each board printed:
+
+| figure | the call before it | the refusal |
+|---|---|---|
+| figm40, figm80, figm81, figm102, figm143 | **`Swing Your Partner`** | *"the couples are out of sequence: couple 2 is **-90 degrees** round the ring from couple 1, not 90 counter-clockwise"* |
+| figm92 | `Swing Your Partner` | *"dancers 5 and 7 are 0.87 apart — the board has dancers on top of each other"* |
+| figm86 | *(first call)* | `All Promenade 1/2` — `"Promenade 1/2" not legal for selected dancers` (a SELECTION case, not this one) |
+
+So five of the eight are **one sentence**, and every one of them follows a `Swing Your Partner`. The
+mechanism is now visible rather than inferred, and the boards make it concrete: in `figm40` two of the
+four home couples have their partners **six** apart, facing each other, so the couple centres the ring
+test reads are the **midpoints of split partners** — `c1` measures `(0,1)` and `c3` `(0,-1)`, which
+anchor to north and south, and the four centres then run 1, 4, 3, 2 counter-clockwise. The promenade is
+RIGHT to refuse: a real promenade from that board would not bring everyone home. What is wrong is the
+board, and the only thing that should have changed it is the swing.
+
+`promenade.mjs`'s own comment records why the engine must not simply reject "partners not together" —
+27 of the 32 figures that reach a Promenade legitimately have partners six apart, as a wave does — so
+the check cannot tell a wave from a swing that failed to happen, and that is exactly why the swing's
+**end pose** is the fix rather than a tighter promenade test. CALLERLAB's `Swing` ends in a Couple
+facing the couple's original facing, which is a real transform and not the identity.
+
 ---
 
 ### Phase 13 — DISSOLVED: "the selection path" is not one owner (measured)

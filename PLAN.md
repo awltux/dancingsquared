@@ -4735,6 +4735,26 @@ stated size. It is 2 (call, start) pairs plus 24 formation names, and the names 
 are artefacts. What it DOES corroborate is the direction the figure work has independently reached —
 that the remaining refusals are about FORMATIONS the engine can name but no call is authored from.
 
+**The two real pairs, checked — and the `Grand Square` one is a FORMATION-FACING case, not a missing
+call.** Measured:
+
+```
+Grand Square             4 setups from  Butterfly | Blocks          (and it refuses a Static Square)
+Sides Face, Grand Square 2 setups from  Static Square | Sides Face  (and it refuses an Eight Chain Thru)
+Sides Face Grand Square  0 setups      (the unpunctuated spelling is not a title)
+```
+
+`figm170`'s second call is `Sides Face, Grand Square` and its board is an **Eight Chain Thru** — the
+square's POSITIONS with everyone facing along the set rather than inward. The composed title is authored
+from `Static Square`, whose facings are inward, so it misses. That is the same shape as the
+`Completed Double Pass Thru` finding: **the call's own first instruction ("Sides Face") is what would
+establish the facings the setup already demands.** It is therefore a one-figure authoring for a
+specific board, which is exactly the class the 25-row queue is made of, and not a vocabulary gap.
+
+`Grand Square` bare having setups only from `Butterfly` and `Blocks` — and refusing a Static Square,
+which CALLERLAB names as its starting formation — is a separate curiosity worth one look by whoever
+takes the queue on; it is not exercised by any figure, so the census cannot see it.
+
 - **Work:** a checked-in mapping from each documented starting-formation name to the engine's
   formation(s) — `Two-Faced Line` → `Two-Faced Lines`, `Ocean Wave` → `Ocean Waves` (and `Alamo Ring`
   → `Alamo Wave`), `Facing Dancers` → the facing-couples/mini-wave family — plus the decisions for the

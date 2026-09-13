@@ -3477,6 +3477,39 @@ the check cannot tell a wave from a swing that failed to happen, and that is exa
 **end pose** is the fix rather than a tighter promenade test. CALLERLAB's `Swing` ends in a Couple
 facing the couple's original facing, which is a real transform and not the identity.
 
+**AND THE RING ORDER THE PROMENADE READS IS NOT A FUNCTION OF THE BOARD — `figm40` proves it.** Same
+figure, same calls, same assets, two verdicts:
+
+| how the run got there | `Promenade` at step 10 |
+|---|---|
+| `figure-trace.mjs figm40` on a fresh `Sequencer` | **legal** |
+| `figure-census.mjs` (the corpus walked first) | **refused**, "couples are out of sequence" |
+| the same figure twice on one `Sequencer` | legal both times |
+
+The two boards differ ONLY in the last bit of four coordinates — `x = 3.0000000000000004` against
+`x = 3` — and that is enough, because `promenadeAnchor` decides a couple's quadrant with EXACT
+comparisons (`x >= 0`, `x <= 0`, `y > 0`). A couple lying on an axis of the square — which every
+properly squared couple does — has a centre that is the AVERAGE of two positions, so one ULP of noise
+turns `0` into `+2.2e-16`, and the couple lands in **east** instead of **south**.
+
+- **The tolerance was tried and REVERTED, with the number that decided it.** Widening the comparisons
+  by 1e-9 (`|x| <= eps` decides the y-axis, `|y| <= eps` the x-axis, the reference's chain otherwise)
+  makes the ring detection fire on boards where it previously **collapsed two couples onto one
+  anchor** — and the census goes **95 → 93**. So the tolerance is not the fix.
+- **What that refutation exposed is the real finding.** `figm40` passes today BY ACCIDENT: its `c1`
+  centre is `(2.2e-16, -1)` and its `c3` centre is `(2.2e-16, -1)` too, so `ringExists` sees three
+  distinct anchors instead of four and **skips the order test entirely**. Correct the arithmetic and
+  the ring appears and is genuinely out of sequence. The boards these figures reach really are wrong,
+  and the owner is the swing's missing **RE-PAIRING**, not its end pose: `Swing Your Partner` is a
+  no-op, so the home-couple NUMBERS are never re-assigned to the pair the dancers are actually
+  standing with, and the ring order `promenadeHome` reads is the home numbering rather than the
+  current pairing. CALLERLAB says callers should not rely on a precise ending position for `Swing` —
+  which is exactly a statement that the swing's job here is to re-pair, not to place.
+- **This is Phase 10's subject, one layer down.** Phase 10 is "make a verdict a function of the
+  board"; here the verdict IS a function of the board and the BOARD is what wobbles. Any future work
+  on `promenadeAnchor` has to start from that, and the two figures that differ by traversal order
+  (`figm40`, and whichever the corpus order moves next) are the witness.
+
 ---
 
 ### Phase 13 — DISSOLVED: "the selection path" is not one owner (measured)

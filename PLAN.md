@@ -57,7 +57,7 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 
 | side | value | command |
 |---|---|---|
-| figures end-to-end | **101 of 188** | `node engine/test/tools/figure-census.mjs` |
+| figures end-to-end | **103 of 188** | `node engine/test/tools/figure-census.mjs` |
 | get-out corpus: reaching a state the standard finish resolves from | **120 of 265** (was 116) | `node engine/test/getout-behaviour.mjs` |
 | … of which ended by applying the finish itself | **108** (was 105) | same |
 | … decoded but stopped at a call (the body gap) | **112** (was 115) | same |
@@ -71,7 +71,7 @@ The figure census's blocking causes, re-measured after Phases A and E:
    44  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
     8  selection will not resolve on this board
     6  derived call refuses ("Sweep 1/4")
-    6  derived call refuses ("Promenade")
+    4  derived call refuses ("Promenade")            <- was 6; see Phase E item 1
     4  derived call refuses ("Swing Thru")
     4  other: "Rollaway" not legal for selected dancers
     3  unknown call (no catalogue entry)
@@ -81,9 +81,9 @@ The figure census's blocking causes, re-measured after Phases A and E:
     1  derived call refuses ("Trade") | ("Promenade Home")
 ```
 
-**Two phases landed in the session that rewrote this file, and neither moved the figure count** —
-which is the stacked-refusal shape this plan keeps recording: both cleared a body defect and moved
-their chains DEEPER, and the figure census is byte-identical before and after each.
+**Three phases landed in the session that rewrote this file.** Two cleared a body defect and moved
+their chains DEEPER without moving the figure count (the stacked-refusal shape this plan keeps
+recording); the third **won two figures**:
 
 - **Phase A (done)** — `Touch a Quarter` ended in a 2-wide, 3-tall rectangle instead of the 2×2
   right-hand box CALLERLAB's ending names; fixed in `ms/touch_a_quarter.xml` (the net lateral of
@@ -91,14 +91,16 @@ their chains DEEPER, and the figure census is byte-identical before and after ea
   `COLLISION` body error in `facing-audit.mjs` (48 → 47 refusal boards) and made `Heads Touch a
   Quarter` land on the centre box CALLERLAB's Squared Set Convention describes; `figm14` now runs two
   calls further.
-- **Phase E (done)** — `Allemande Left`'s gender requirement is per COUPLE, not per slot
+- **Phase E item 2 (done)** — `Allemande Left`'s gender requirement is per COUPLE, not per slot
   (`PAIR_GENDER_CALLS` in `matcher.ts`). `Allemande Left` is now legal on the board `figm203` reaches,
-  its chain runs to call 5, and `facing-audit.mjs`'s `SPLIT COUPLES` class fell **2 → 0**. The
-  get-out corpus gained 4 lines from the two phases together. **PLAN.md's own Phase E step was built
-  on a factual error, corrected here: `features.mjs`'s `swappedG` is NOT "a square of four
-  same-gender couples" — flipping every gender in a normal square leaves every couple one boy and one
-  girl, so `swappedG` IS the half-sashayed square. Its assertion was the opposite of CALLERLAB and is
-  corrected; a genuine same-gender-couples witness now sits beside it.**
+  its chain runs to call 5, and `facing-audit.mjs`'s `SPLIT COUPLES` class fell **2 → 0**. **PLAN.md's
+  own Phase E step was built on a factual error, corrected here: `features.mjs`'s `swappedG` is NOT "a
+  square of four same-gender couples" — flipping every gender in a normal square leaves every couple
+  one boy and one girl, so `swappedG` IS the half-sashayed square.** Its assertion was the opposite of
+  CALLERLAB and is corrected; a genuine same-gender-couples witness now sits beside it.
+- **Phase E item 1 (done, 101 → 103 figures)** — CALLERLAB's TEMPORARY COUPLE NUMBER, read where
+  identity is USED rather than written onto the board. See the section below for the measurement and
+  for why the two earlier reverts do not apply to this placement.
 
 The single most important reading of that table: **`catalogue tam has no setup` is not one owner.**
 `setup-split.mjs` splits it by whether every intermediate board in the chain is a named formation —
@@ -261,15 +263,12 @@ authoring, which is why they are their own phase.
 
 **STATUS: item 2 is DONE** (shipped and gated — see §2). Item 1 remains open.
 
-**Owner:** the board's identity model. Two independent defects, both measured, and the first masks the
-second:
+**Owner:** the board's identity model. **Both items are now DONE** — item 2 above, item 1 in the
+section that follows. What remains of this family is the `Swing` no-op recorded there.
 
-1. **CALLERLAB's temporary couple number.** *"Once this has happened, she temporarily takes on the
-   Head/Side identity and home position of that Man."* The engine never does this, so a
-   `gender-specific` setup is matched against stale slots. The rule is right; the TRIGGER is the open
-   design question — a board-shape test fails (98 → 96) and a call-name test fires but moves 0
-   figures. The next measurement is per-call and per-CALLERLAB: decide which calls progress, and check
-   the census for each.
+1. **DONE — CALLERLAB's temporary couple number**, read where identity is used (`promenade.ts`). See
+   the section below: **101 → 103 figures**, and it is the reason two earlier reverts of the same rule
+   do not apply to this placement.
 2. **DONE — the per-PAIR gender requirement.** `Allemande Left`'s `from="Static Square"` authoring is
    `gender-specific` per SLOT, but CALLERLAB's requirement is per PAIR (each couple a man and a woman,
    side-agnostic): the call is "dancers face their corners and turn 1/2 by the left arm", the corner
@@ -293,11 +292,11 @@ reasoning, and the `Promenade` ring-order refusals (6 in the census) read the sa
 **Gate:** `Allemande Left` is legal on the board `figm203` reaches; the census rises; `SPLIT COUPLES`
 falls.
 
-#### Phase E, NEW LEAD (measured this session): item 1 is worth RE-TESTING, and `Swing` is a no-op
+#### Phase E item 1 — DONE (101 → 103 figures): the temporary couple number, read where identity is USED
 
-Diagnosing the six figures that stop on `Promenade` — the largest derived-call bucket — splits them
-into **four ring-order refusals** and **two collisions**, and the four share one cause that the census
-attributes to the wrong call:
+Diagnosing the six figures that stopped on `Promenade` — the largest derived-call bucket — split them
+into **four ring-order refusals** and **two collisions**, and the four shared one cause the census
+attributed to `Promenade` itself:
 
 ```
 reason: the couples are out of sequence: couple 2 is -90 degrees round the ring from couple 1, ...
@@ -305,35 +304,49 @@ board : c4#7(-1,-1)@180 c4#8(-1,1)@180  c3#1(3,-1)@180 c3#2(-3,-1)@0
         c2#3(1,1)@0    c2#4(1,-1)@0     c1#5(-3,1)@0   c1#6(3,1)@180      -> Eight Chain Thru
 ```
 
-Read the couples: **couple 3 is split across the set** (`#1` at x=+3 and `#2` at x=-3, facing each
-other 6 apart) and so is couple 1. The board is a proper `Eight Chain Thru` and the physical pairs are
-correct — but two couples stand facing each other the width of the set apart, so `Promenade` cannot
-see couples and its ring-order check reads nonsense. The call before it is **`Swing Your Partner`**.
+The board is a proper Eight Chain Thru whose **PHYSICAL couples** are `(#1B,#6G)`, `(#2G,#5B)`,
+`(#3B,#4G)`, `(#7B,#8G)` — every one a man and a woman standing side by side two apart — while the
+stored identity pairs `#1` with `#2` and `#5` with `#6`, putting those two "couples" six apart across
+the set. That is CALLERLAB's temporary couple number exactly: *"each Woman … temporarily takes on the
+Head/Side identity and home position of that Man."* Promenade anchored couple 1 north and couple 2
+east, read the ring as out of sequence and refused.
 
-**The cause is that the derived `Swing Your Partner` is the IDENTITY transform.** Its authored motion
-is a full turn about the partner, so in a net model it moves nobody — which is true only when the
-partners are ALREADY standing together. Where the body leaves partners facing each other across the
-set, a swing is exactly the call that brings them together, and the no-op leaves the board as it
-found it. This is the "the call that STOPPED is a symptom" pattern again, one call upstream of the
-census's attribution.
+**The rule was implemented and reverted TWICE before (Phase 19), and this placement is why it works
+now.** Applied to the BOARD after every call it cost two figures (98 → 96), because `couple` also
+carries the Heads/Sides identity that a later `Heads …` call targets; applied on a call-name trigger
+it fired but moved nothing, because the board it aimed at then failed on a MIRRORED couple — which is
+precisely what Phase E item 2's per-couple gender retry now accepts. Reading it inside
+`promenadeProblem` has no blast radius at all: it changes one call's precondition and nothing else.
+The convention is applied where it is needed instead of globally.
 
-**Two things to do, in this order, before writing anything:**
+**Measured:** figures **101 → 103**; `Promenade` refusals **6 → 4**, and the remainder are the
+legitimate ones. Gated in `test/promenade.mjs` §3b, which REBUILDS the witness by replaying the
+published chain rather than hardcoding coordinates, asserts the witness really is the stale case
+(the physical pairs are two apart and do NOT share a stored couple; the stored pair IS six apart, so
+the gate cannot go vacuous), and keeps the `[B2r]` permuted-ring refusal as the control. The get-out
+corpus and `facing-audit.mjs` are unchanged (120 reaching a resolve state; 47 refusal boards), and
+`verify` is green.
 
-1. **RE-TEST Phase 19 item 1 (the temporary couple number).** Its revert was decided partly because
-   the re-assigned board "fails on something else": the man ends on the wrong side of the couple, so
-   the `gender-specific` slots miss. **That masking defect is what Phase E item 2 just fixed** — a
-   mirrored couple is now accepted for `Allemande Left` by the per-couple retry. The rule is recorded
-   in this file with its CALLERLAB citation, the board-shape trigger measured 98 → 96 and the call-name
-   trigger fired but moved 0; both were measured BEFORE the gender relaxation. Re-measure both now.
-   (The implementation was never committed — `git log -S progressionIdentity` shows commit `6a4e0ab`
-   carried only the PLAN note — so it has to be written again.)
-2. **Then decide the swing's end pose, which is genuinely under-specified.** CALLERLAB's `Swing` is
-   "join right hands and turn around each other, ending in a normal couple" and names no position or
-   facing, because the next call determines them. The two candidate readings — the couple forms at the
-   pair's MIDPOINT, or each dancer moves to the other's position — must be measured against the
-   corpus, and a wrong choice here would silently corrupt every board that follows a swing (65+
-   figures use it), which is the failure mode this catalogue's gates exist to prevent. Do not
-   implement the swing on the strength of the ring-order refusal alone.
+**THE TRIGGER TOOK THREE TRIES, and the two failures are worth keeping.** (1) Apply the regrouping
+whenever some stored couple's dancers are not exactly two apart: this broke figure #12, whose couples
+stand THREE apart — a normal, healthy spacing — and got a ring-order problem invented for it
+(103 → 102). (2) The band that decides it is the engine's OWN notion of "standing together", already
+in this file as the promenade couple band `1.0..3.0`; every healthy pre-promenade state measures
+exactly 2.00 while the states a broken body produces measure 0.00, 4.00 or 6.00. The trigger is
+therefore a stored couple **outside that band** — a partner genuinely somewhere else — and it keeps
+figure #12, `[B2r]` and `[B2p]` all on the stored reading while still firing for `figm` #31/#83.
+Worth recording because the first two versions each looked right and each was wrong by one figure or
+by two gates.
+
+**Still open, and now a separate item: `Swing Your Partner` is the IDENTITY transform.** Of the 103
+`Swing Your Partner` calls the figure walk reaches, **26 have no pair standing as a couple at all**
+(13 with every pair ≥ 4 apart) — and a swing is exactly the call that brings partners together, so
+the no-op is wrong wherever the body leaves them apart. CALLERLAB leaves the swing's end pose
+genuinely open (no position, no facing — the next call determines them), 65+ figures depend on it, and
+a wrong choice there is a silently wrong board, so it needs the corpus to decide between the two
+readings (the couple forms at the pair's MIDPOINT, or each dancer moves to the other's position) as
+its own measured round. `Promenade`'s two collision refusals (`dancers 5 and 7 are 0.87 apart`) are
+BODY errors and belong to Phase A.
 
 ### Phase F — the CALLERLAB formation vocabulary (16b)
 

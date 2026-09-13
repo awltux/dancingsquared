@@ -191,6 +191,66 @@ refused('dancers on the same spot', {
   }
 }
 
+// ------------------------------------------- 3b. CALLERLAB's temporary couple number
+//
+// "The figure portion of singing calls almost always causes each Woman to progress to a new Man.
+// Once this has happened, she temporarily takes on the Head/Side identity and home position of that
+// Man." The engine never applies that convention to the board — doing so globally cost figures
+// (PLAN.md phase 19, measured twice) because `couple` also carries the Heads/Sides identity a later
+// `Heads ...` call targets. It is applied where identity is READ instead: `promenadeProblem` groups
+// the dancers by their PHYSICAL pairing, each pair taking the MAN's couple, when the board is
+// unambiguously a set of man-and-woman couples two apart.
+//
+// MEASURED on the board `figm` #31/#83 reaches (the chain `... Pass Thru | Trade By | Swing Your
+// Partner | Promenade`): an Eight Chain Thru whose physical couples are (#1B,#6G), (#2G,#5B),
+// (#3B,#4G), (#7B,#8G) — every one a man and a woman two apart — while the stored identity pairs #1
+// with #2 and #5 with #6, putting those two "couples" six apart across the set. Without the
+// convention Promenade anchors couple 1 north and couple 2 east, calls the ring out of sequence and
+// refuses; with it the four physical couples anchor two-to-a-side, the ring does not exist yet, and
+// the call proceeds — which is right, because forming the ring is part of the call.
+{
+  console.log('\n== 3b. CALLERLAB\'s temporary couple number, read where identity is used ==');
+  // The exact board, built by replaying the published chain rather than by hardcoding coordinates.
+  let b = seq.startBoard();
+  for (const call of [
+    'Heads Promenade 1/2', 'Heads Square Thru 4', 'Touch 1/4', 'Scoot Back', 'Boys Run',
+    'Star Thru', 'Pass Thru', 'Trade By', 'Swing Your Partner',
+  ]) {
+    const r = seq.applyToBoard(b, call);
+    if (!r.legal) { fail(`figm31 chain: "${call}" refused: ${r.reason}`); b = null; break; }
+    b = r.board;
+  }
+  if (b) {
+    // Assert the WITNESS is what it claims to be before using it, so the gate cannot go vacuous.
+    const byId = new Map(b.dancers.map((d) => [d.id, d]));
+    const side = (a, c) =>
+      Math.abs(Math.hypot(byId.get(a).x - byId.get(c).x, byId.get(a).y - byId.get(c).y) - 2) < 0.35 &&
+      byId.get(a).heading === byId.get(c).heading;
+    if (!(side(1, 6) && side(2, 5) && side(3, 4) && side(7, 8))) {
+      fail('figm31 witness: the physical couples are not two apart side by side');
+    } else if (!(byId.get(1).couple !== byId.get(6).couple)) {
+      fail('figm31 witness: the physical pair (#1,#6) already shares a stored couple, so it proves nothing');
+    } else if (Math.abs(Math.hypot(byId.get(1).x - byId.get(2).x, byId.get(1).y - byId.get(2).y) - 6) > 0.35) {
+      fail('figm31 witness: the STORED couple (#1,#2) is not six apart, so it is not the stale case');
+    } else {
+      ok('the witness really is an Eight Chain Thru whose physical pairs have progressed past their stored couples');
+      const r = seq.applyToBoard(b, 'Promenade');
+      if (!r.legal) fail(`Promenade must be legal once the temporary couple number is read: ${r.reason}`);
+      else ok('Promenade is legal there: the progressed couples anchor two-to-a-side, so the ring is not yet formed');
+    }
+  }
+  // ...and the convention must NOT weaken the genuine in-sequence refusal: a set whose rings are
+  // permuted is still refused (this is the [B2r] case above, re-stated as the control).
+  const a = corpus.alignments.find((x) => x.id === 'B2r');
+  if (a) {
+    const start = startBoardFor(seq, a);
+    if (start.board) {
+      const g = seq.applyToBoard(start.board, 'Girls U-Turn Back');
+      if (g.legal) refused('[B2r] control still refused after the convention', g.board, /out of sequence/);
+    }
+  }
+}
+
 // ------------------------------------------------------------ 4. the analyser agrees
 
 console.log('\n== 4. the analyser: beats, no teleport, and no false zero ==');

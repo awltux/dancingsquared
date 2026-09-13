@@ -750,6 +750,34 @@ with the matcher's own mapping, **43 of 43 stops have a finite best error**. The
 mis-measurement supported (there is no missing separation here) still holds, but its stated reason
 does not: the bucket is not "no setup of the right shape", it is "the right setup with the genders
 the other way round" (the ROLE READING above, +3 figures) plus genuine body defects (several already
+**THE HALF-SCALE `TIDAL WAVE` IS NOW ROOT-CAUSED, AND THE FIX IS AUTHORITATIVE BUT NOT YET A WIN
+(round 25).** The measurement, first:
+
+- `formations.xml` authors `Tidal Wave` with its dancers **ONE** apart (y = -3.5, -2.5, -1.5, -0.5)
+  while `Ocean Waves` authors them **TWO** apart (y = 3, 1, -1, -3). `Spin the Top` from a canonical
+  `Ocean Waves` produces **one line of eight at half spacing** (x = ±0.5, ±1.5, ±2.5, ±3.5) instead of
+  two waves, and four published figures whose next call is `Slide Thru` (figm48, figm59, figm115) or
+  `Pass Thru` (figm126) then refuse, because those calls' setups are the REAL waves.
+- The root is not the template but the AUTHORING: the catalogue ships an 8-dancer
+  `from="Right-Hand Waves"` `Spin the Top`, and it merges the two facing waves instead of working each.
+- **And the authority says it must work each.** `Fan the Top` is a per-half call in the reference —
+  `FanTheTop extends SplitCall`, and `split_call.dart` states it outright: *"This is a class for 3- or
+  4-dancer calls ... The formation is split and the call performed on each side"* (near/far first, then
+  left/right) — and `SpinTheTop` is defined as two parts: part 1 `Swing` (whole board, after checking
+  every active is in a wave), part 2 `Fan the Top`. Both are CODED in the reference and therefore only
+  demonstrations in the XML — our `ms/spin_the_top.xml` is byte-identical to the reference's and neither
+  marks it `sequencer="no"`. This is the `Fold` pattern exactly, whose remedy (transcribe the rule) is
+  already the house style.
+
+**BUT BOTH COMPOSITIONS WERE IMPLEMENTED, MEASURED AND REVERTED.** In `tryCodedMove`:
+`Swing` (whole) then `Fan the Top` through the engine's own per-subset path (`parallelApply`) measured
+**116 → 112**; `Fan the Top` per half ALONE measured **116 → 115**, losing `figm34` and gaining nothing.
+So the per-half reading is right and this engine's ingredients are not: the composition leans on the
+engine's `Swing` (the A2 wave swing from `a2/slip.xml`), which is evidently not the reference's part-1
+`Swing`, and the 4-dancer `Fan the Top` authoring may be off in the same way. **Pin `Swing` first, then
+redo this** — and note the simulation that DID pass: applying the composition outside the engine made
+figm48 and figm59 run end-to-end, on a proper two-wave board.
+
 diagnosed: `Spin the Top`'s half scale, `Split Two`'s whole-board motion, the `Mixed Columns` boards
 `Heads Touch 1/4` leaves) or choreography that would have to be derived from a definition this repo
 does not hold. `/walk and dodge` evidence retained below; the 1.57-against-1.5 coincidence that made

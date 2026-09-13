@@ -374,6 +374,27 @@ keeps meeting: a wrong board that gets a legitimate NAME is invisible to the cen
 invisible for two reasons at once (the template is half-scale *and* the call that produces the board
 is the one that looks correct).
 
+**How much it is worth, measured.** Every figure in the corpus that uses `Spin the Top`:
+
+```
+figures using Spin the Top: 16;   running to the end: 0
+   5  reached a 1.00-spaced board named Tidal Wave after it, next call Right and Left Thru
+   3  stopped on Slide Thru
+   2  stopped on Swing Thru
+   2  stopped on Sweep 1/4
+   1  reached a 1.00-spaced board named Tidal Wave, next call Spin the Top (the "do it again" pattern)
+   1  stopped on Heads Sweep 1/4
+   1  reached a 0.50-spaced board, NAMED NULL, next call Right and Left Thru
+   1  stopped on Separate Around Two (a missing call, not this)
+```
+
+**Zero of sixteen.** Six of them stop on the call immediately after `Spin the Top` with the board at
+exactly the template's half spacing, and one more reaches a board at a QUARTER of the engine's
+spacing (`0.50`, and unnamed, which is the same defect compounding). So this is not a one-figure
+curiosity: it is the largest single identified blocker left in the corpus after the missing-variant
+class, and unlike those it currently shows up in the census as five different calls refusing. It
+deserves its own scheduled round, with the two options above as the decision to make first.
+
 ### Phase D — the missing calls (Phase 14 residue)
 
 **Owner:** `coded-moves.ts` (derived) or the catalogue (authored). Census `unknown call` is down to

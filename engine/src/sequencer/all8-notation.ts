@@ -564,11 +564,15 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   // of these are declared because the engine genuinely has no such call - NOT because the reading
   // is uncertain; every expansion in TOKENS above is a literal entry in All8's key.
   //
-  // The three Promenade fractions are the interesting case: the BARE name is not a title, but the
-  // designator forms ARE (`Heads Promenade 1/2`, `Sides Promenade 3/4`, `Heads Promenade Full` are
-  // all real catalogue titles), so `H-Pr1/2` dances fine while this table entry - which exists only
-  // so the designator handler has something to prefix - is correctly called a gap.
-  'Promenade 1/2',
+  // The three Promenade fractions are the interesting case: the BARE name is not a catalogue title,
+  // but the designator forms ARE (`Heads Promenade 1/2`, `Sides Promenade 3/4`, `Heads Promenade Full`
+  // are all real catalogue titles), so `H-Pr1/2` dances fine from the catalogue and this entry exists
+  // so the designator handler has something to prefix.
+  //
+  // `Promenade 1/2` IS NO LONGER A GAP (round 18): it is a DERIVED call (`promenadeFraction`), which is
+  // why it is absent here — the harness fails loudly if a name is declared a gap while the engine has
+  // come to implement it, and that is exactly what caught this. The other two stay: they decode, but
+  // the corpus reaches neither bare, so they wait for a witness rather than shipping inert.
   'Promenade 3/4',
   'Promenade Full',
   'Change Hands',

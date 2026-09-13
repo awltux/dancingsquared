@@ -57,7 +57,7 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 
 | side | value | command |
 |---|---|---|
-| figures end-to-end | **114 of 188** (was 113) | `node engine/test/tools/figure-census.mjs` |
+| figures end-to-end | **115 of 188** (was 114) | `node engine/test/tools/figure-census.mjs` |
 | get-out corpus: reaching a state the standard finish resolves from | **124 of 265** (was 122) | `node engine/test/getout-behaviour.mjs` |
 | … of which ended by applying the finish itself | **112** (was 110) | same |
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
@@ -185,6 +185,23 @@ the same convention the untouched canonical result obeys. Get-out holds at **122
 101 figures) and UNIFORM-SCALE matching (24 of the 43 stops do prefer a non-unit scale, but 19 have
 no scale at all and most of the 24 keep a residual of 1.1–11.7 even at their best scale).
 
+**AND TWO MORE CONVENTIONS, ONE PER ROUND (113 → 115 figures, 124 get-out lines).**
+
+- **Round 17 — CALLERLAB's implicit adjustment after a Fold** (Phase C item 1, 113 → 114 figures and
+  122 → 124 get-out lines): the board a Fold/Cross Fold leaves carries a PERMISSION
+  (`Board.adjustToNextSetup`, set only by `foldRule`), and the single call after it may be re-matched
+  at the SEARCH tolerance and re-based onto its own setup — "danced as if the Tandems were facing".
+  The permission is the scope, the strict reading is still tried first, and a result with two dancers
+  closer than 1.0 is refused. See Phase C item 1 for the seven-figure witness set, the collision the
+  guard now prevents, and the refutation of a looser tolerance.
+- **Round 18 — `Promenade 1/2` is the ring HALF WAY round, not home** (Phase D, 114 → 115 figures):
+  All8's `Pr1/2`, reached by the corpus as `All Promenade 1/2` — `figm86`'s FIRST call. It reuses
+  `promenadeHome` wholesale for every precondition and then ROTATES the home squared set by the ring's
+  current rotation plus the fraction, so a half promenade puts every couple on the opposite side. The
+  vertical direction is fixed by the ring-order test's own convention, and the seventy
+  `Heads Promenade 1/2` figures are NOT shadowed (a partial selection with a `precondition` returns
+  null from the coded-move selection path and keeps the catalogue's own reading) — gated both ways.
+
 **CORRECTED (round 10): the allemande pose tam's MOTION was wrong, and it is the pair that matters.**
 The first version applied the Static Square's own paths to the pose, so a second `Allemande Left`
 turned every dancer another quarter and ended on a board the engine names `Static Facing Out`. The
@@ -257,7 +274,10 @@ Each of these was tried, measured, and reverted. The measurement is what settles
 | narrow `partition`'s couple coherence to couples actually standing as couples | `figm131`'s `Eight Chain Thru` (after `Wheel and Deal`) is refused by the Sweep because its stored pairs are FACING PAIRS — 2 apart, opposite headings — so requiring them to stay in one subset forbids EVERY tiling, even though the board divides cleanly into facing-couple boxes. Restricting the constraint to pairs that are together AND co-oriented (measured: gap ≤ 3.0 and headings within 0.2 rad) is principled and does let it tile — Sweep refusals **6 → 5** — and it measures **107 → 107 figures and 122 → 122 get-out lines**, with one figure moving from the Sweep bucket into `no setup`. Reverted: no gain, and `partition` is the tiling used by `parallelApply` for EVERY call, so a relaxation there needs a payoff to justify its blast radius. It is also a variant of the relaxation already refuted above, whose recorded reason is that the coherence rule "is what makes the decomposition well posed" |
 | **raise the MATCHING TOLERANCE to clear the `no setup` bucket** | the bucket looked like a threshold artefact because its stops' best setup error is **1.57** against `DEFAULT_MATCH_MAX = 1.5`, and the binding gate is `matchEqualLength`'s distance-signature reject at `sigTol = maxError / 12` (0.125 at the apply tolerance). Swept `setMatchMargin` over **0, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 4.5**: **110 figures at every margin up to 1.0** (tolerance 2.5, well past 1.57) — the error budget is not what refuses these boards — and at margin 2.0 the count goes **DOWN to 101**, gaining 5 and losing 14. Loosening is actively harmful; the bucket is a genuine body/shape gap |
 | **match up to uniform SCALE as well as translation/rotation/reflection** | measured: only **24 of the 43** `no setup` stops prefer a non-unit scale at all, and most of those keep a residual of 1.1–11.7 even at their best scale (`Slide Thru` on a `Tidal Wave` 3.17 at 0.34, `Trade By` on `Lines Facing Out` 11.71 at 0.75, `Sides Face, Grand Square` 11.14 at 1.0), so a scale-invariant matcher would not have unlocked them. The real shape of the bucket is the ROLE READING above and the four exact-match witnesses, not spacing |
-| **`Star Thru` with a WEAKER board check (gender counts only)** | the first version of the role reading required only that the board's gender MULTISET match the setup's, which accepts a square of four same-gender couples (4 boys / 4 girls either way). Caught by the gate added with the change, not by the census: the reading now requires the board to preserve the authored gender multiset of the setup's own interacting PAIRS, and the same-gender square is refused again. **A gate written with a change is what found this, which is the reason the rule is "gate it in the same commit"** |
+| **`Star Thru` with a WEAKER board check (gender counts only)** | the first version of the role reading required only that the board's gender MULTISET match the setup's, which accepts a square of four same-gender couples (4 boys / 4 girls either way). Caught by the gate added with the change, not by the census: the reading now requires the board to preserve the authored gender multisets of the setup's own interacting PAIRS, and the same-gender square is refused again. **A gate written with a change is what found this, which is the reason the rule is "gate it in the same commit"** |
+| **loosen the Fold adjustment's tolerance to catch CALLERLAB's own flagship example** | CALLERLAB's illustration of the convention is "Girls Fold, Double Pass Thru", and `figm30` IS that example — its `Double Pass Thru` setup is **17.88** away, so the SEARCH tolerance (6.0) refuses the very case the rule was written for. Raising the adjustment to **24.0** measured **114 → 114 figures** (no gain at all) while `facing-audit.mjs`'s refusal list went **38 → 39**, moving `figm142` back into it. The reason is that a looser tolerance changes WHICH VARIANT wins (least error for the whole-board reading, first that tiles for the parallel one), so its effect is not monotonic, and the variant it picks at 24.0 is refused by the collision guard where the one picked at 6.0 is accepted. Reverted |
+| **a per-dancer DISPLACEMENT bound on the Fold adjustment** | considered as the alternative to the collision guard and rejected as an arbitrary threshold, on measurement: the case known to be WRONG (`figm83`, which left two dancers on one spot) moves dancers **2.00**, the case known to be right (`figm142`) **0.50**, and `figm71`/`figm136` sit at **2.00 / 2.06** — two cases a hair apart on opposite sides of any such number. Note also that the repeated binding constraint here is the same one round 15 found: `matchEqualLength`'s distance-signature reject at `sigTol = maxError / 12`, which is why the three post-Fold boards that failed at 6.0 are a SIGNATURE question, not a Fold question |
+| **`Swing Thru` on the four boards that refuse it** | the four stops (`figm13` `Completed Double Pass Thru`, `figm14` `Mixed Columns RH Centers Out`, `figm193` `T-Bone LUUR`, and one more) all have a four-dancer `Right-Hand Wave` setup at a best error of **3.14** — positions right, facings π out — which is why they look like a facing bug. They are not fixed cheaply: CALLERLAB's own comment on Swing Thru says *"After applying the Facing Couples Rule, the starting formation of Swing Thru must be a Wave or an Alamo Ring … It is improper, for example, to call Swing Thru from an Inverted Line"*, and a `Completed Double Pass Thru` is couples facing west/west/east/east — no two couples face each other, so the Facing Couples Rule has no box to step into. The engine's derived rule already declines correctly (`swing-thru.ts`, arm 2 requires the boxes to COVER the board). Settle what a `Completed Double Pass Thru` is in CALLERLAB's vocabulary before touching this |
 
 Closed and shipped (do not reopen): `Trade`/`Run` derived; `Roll`; `Fold`/`Cross Fold`;
 `Leaders Trade`; `Sweep 1/4`; `Join Hands`; `Split Two` bridge; `Box the Gnat` seam-6;
@@ -649,10 +669,19 @@ asserting choreography, which is the line this plan does not cross.
 **Owner:** `coded-moves.ts` (derived) or the catalogue (authored). Census `unknown call` is down to
 **3**; this is the tail of the named set. Re-ranked by what is now known about each:
 
-- `Circle 2` (2 figures), `Promenade 1/2` (1), `Trade 1 1/2` (1), `Walk Across` (1),
+- `Circle 2` (2 figures), `Trade 1 1/2` (1), `Walk Across` (1),
   `8 Circulate 1 1/2` (1), `Scoot Back` (1), `Turn Thru` (1), `Circulate` (1) — single-figure
   refusals, each "not legal for selected dancers" or a no-setup, so each wants a diagnosis before an
   implementation (`setup-coverage.mjs` classifies them).
+  **`Promenade 1/2` is DONE — round 18, +1 figure (`figm86`).** It was not a missing call so much as a
+  missing FRACTION: `all8-notation.ts` decodes `Pr1/2` to "Promenade 1/2", the corpus reaches it as
+  `All Promenade 1/2`, and the engine had no bare `Promenade 1/2` at all (`Unknown call`) while the
+  circle's own precondition already knew how to tell whether a board may promenade. `promenadeFraction`
+  reuses every one of `promenadeHome`'s checks and then ROTATES the home squared set by the ring's
+  current rotation plus the fraction — the vertical direction taken from the ring-order test's own
+  convention (counter-clockwise, home couple 1 on the south side). Only the HALF is registered:
+  `Promenade 3/4` and `Promenade Full` decode too but are reached by no figure bare, so they wait for a
+  witness; the same helper serves them in one line.
 - `Yellow Rock`, `Pass One`, `Separate Around Two` — named in the census and in CALLERLAB; read the
   definition before writing the rule.
 - **`Change Hands` — DIAGNOSED, deliberately NOT implemented (round 17).** It became `figm142`'s stop

@@ -216,3 +216,66 @@ export function promenadeProblem(board: Board): string | null {
   const r = promenadeHome(board);
   return r.legal ? null : r.reason ?? 'this board cannot promenade home';
 }
+
+/**
+ * The ring's rotation about the set centre, in degrees counter-clockwise, measured from the HOME
+ * squared set — where the home couple 1 stands on the SOUTH side. Null when the board's couples
+ * cannot be read (the same couple resolution `promenadeHome` uses, including CALLERLAB's temporary
+ * couple number, so the two cannot disagree).
+ *
+ * One couple settles the whole ring: `promenadeHome` has already established that the four couples
+ * appear 1 -> 2 -> 3 -> 4 counter-clockwise when the ring exists, so the ring is the home ring rotated
+ * by a multiple of a quarter turn, and couple 1's side names that turn exactly.
+ */
+function ringRotation(board: Board): number | null {
+  const phys = board.dancers.filter((d) => !d.isGhost);
+  const progressed = progressedCoupleNumbers(phys);
+  const c1 = phys.filter((d) => (progressed ? progressed.get(d.id)! : d.couple) === 1);
+  if (c1.length !== 2) return null;
+  const anchor = promenadeAnchor((c1[0].x + c1[1].x) / 2, (c1[0].y + c1[1].y) / 2);
+  return ccwDelta(-Math.PI / 2, axisAngle(anchor));
+}
+
+/**
+ * `Promenade 1/2` — the same ring, promenaded a FRACTION of the way round instead of home.
+ *
+ * All8 writes `Pr1/2` ("Promenade Half Way Around"), and the designator supplies who, so the corpus
+ * reaches it as `All Promenade 1/2` (`figm86`, where it is the figure's FIRST call) and, 70 times
+ * over, as `Heads Promenade 1/2` — which is a CATALOGUE title and is handled by the catalogue, not
+ * here (see the selection path in `tryCodedMove`: a partial selection with a `precondition` returns
+ * null and falls through, so registering this alias cannot shadow those seventy).
+ *
+ * THE END STATE IS NOT HOME, and that is the whole point of the call: a half promenade puts every
+ * couple on the OPPOSITE side of the square, still in ring order, still facing in. So the geometry is
+ * the home squared set ROTATED by the ring's current rotation plus the fraction — which is why this
+ * reuses `promenadeHome` wholesale for the preconditions (four couples, a body, one couple per side,
+ * ring order) and then rotates rather than snapping home. That reuse is what keeps the two readings
+ * from drifting: every check the engine makes about whether a board may promenade at all is the same
+ * check here.
+ *
+ * The vertical direction is fixed by the ring-order test's own convention: counter-clockwise from
+ * home couple 1 on the south side, so a quarter turn CCW takes the south couple to the east side.
+ * `figm86` is the witness and the gate: from a Static Square a half promenade must land couple 1 on
+ * the NORTH side, and the rest of that figure's chain (Heads Lead Right ... Promenade) must then run.
+ */
+export function promenadeFraction(board: Board, fraction: number): PromenadeResult {
+  const home = promenadeHome(board);
+  if (!home.legal) return home;
+  if (fraction === 1) return home;
+  const rot = ringRotation(board);
+  if (rot === null) return home;
+  const turn = ((rot + 360 * fraction) * Math.PI) / 180;
+  const cos = Math.cos(turn);
+  const sin = Math.sin(turn);
+  return {
+    board: {
+      dancers: home.board.dancers.map((d) => ({
+        ...d,
+        x: d.x * cos - d.y * sin,
+        y: d.x * sin + d.y * cos,
+        heading: d.heading + turn,
+      })),
+    },
+    legal: true,
+  };
+}

@@ -19,7 +19,7 @@
 // a beat count — and its rule lives in promenade.ts.
 
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf, normAngle } from '../moves.js';
-import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS } from './promenade.js';
+import { promenadeApplies, promenadeFraction, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS } from './promenade.js';
 import { isKnownCouple } from './constants.js';
 import { runRule, tradeRule } from './trade-run.js';
 import { foldRule } from './fold.js';
@@ -340,6 +340,13 @@ const DEFS: {
   // Promenade: the standard finish. Unlike the pivots above it is NOT always
   // legal, so it carries its precondition and reports the reason it fails.
   { aliases: PROMENADE_ALIASES, beats: PROMENADE_BEATS, precondition: promenadeProblem, fn: (b) => promenadeHome(b).board },
+  // `Promenade 1/2` — the ring turned half way round instead of home (All8's `Pr1/2`). Only the half
+  // is registered, because only the half has a witness: `All Promenade 1/2` is `figm86`'s first call
+  // and the figure then runs end-to-end from the rotated square, while `Promenade 3/4` and
+  // `Promenade Full` (which `all8-notation.ts` also decodes) are reached by no figure, bare. The same
+  // rule serves all three — `promenadeFraction(board, fraction)` — so registering them is a one-line
+  // change the day a witness appears, and not before.
+  { aliases: ['Promenade 1/2'], beats: PROMENADE_BEATS / 2, precondition: promenadeProblem, fn: (b) => promenadeFraction(b, 0.5).board },
   // Run and Trade: derived because Taminations implements them in code and marks every
   // authored `Run` tam (32) and bare `Trade` not-for-sequencer — see trade-run.ts for the rule
   // and for the measurement that settled the facing half of it. Both REFUSE without a

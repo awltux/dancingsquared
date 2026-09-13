@@ -839,6 +839,83 @@ console.log('\n== Sequencer: CALLERLAB\'s implicit adjustment after a Fold, and 
   }
 }
 
+console.log('\n== Sequencer: `Promenade 1/2` is the ring HALF WAY round, not home ==');
+// All8 writes `Pr1/2` ("Promenade Half Way Around") and the designator supplies who, so the corpus
+// reaches it as `All Promenade 1/2` - figm86's FIRST call, which then runs end-to-end from the
+// rotated square - and, seventy times over, as `Heads Promenade 1/2`, which is a CATALOGUE title.
+// The gates below pin the end state that makes this the call rather than a home snap, and pin that
+// registering it did NOT shadow those seventy.
+{
+  const square = scopedSeq.startBoard();
+  const half = scopedSeq.applyToBoard(square, 'Promenade 1/2');
+  check(half.legal === true, `Promenade 1/2 is legal from a Static Square: ${half.reason ?? 'ok'}`);
+  if (half.legal) {
+    check(scopedSeq.knownFormation(half.board) === 'Static Square',
+      `...and leaves a squared set: ${scopedSeq.knownFormation(half.board)}`);
+    // HOME puts couple 1 SOUTH, couple 2 EAST, couple 3 NORTH, couple 4 WEST (the ring order the
+    // promenade's own sequence test uses, counter-clockwise). Half way round is the OPPOSITE side for
+    // every couple - which is the whole difference between this call and a promenade HOME.
+    const side = (couple) => {
+      const ds = half.board.dancers.filter((d) => d.couple === couple);
+      const mx = ds.reduce((s, d) => s + d.x, 0) / ds.length;
+      const my = ds.reduce((s, d) => s + d.y, 0) / ds.length;
+      return Math.abs(mx) > Math.abs(my) ? (mx > 0 ? 'east' : 'west') : (my > 0 ? 'north' : 'south');
+    };
+    check(side(1) === 'north', `couple 1 ends on the NORTH side, opposite its home side (${side(1)})`);
+    check(side(2) === 'west', `couple 2 ends on the WEST side (${side(2)})`);
+    check(side(3) === 'south', `couple 3 ends on the SOUTH side (${side(3)})`);
+    check(side(4) === 'east', `couple 4 ends on the EAST side (${side(4)})`);
+    // A RIGID rotation, not a re-stacking: every pairwise distance is preserved and every dancer's
+    // heading turns by the SAME amount. Home is the control, so this compares two real boards.
+    // (A squared-set dancer does NOT face the set's centre point - it faces along its own side - so the
+    // property to assert is the rigid one, not "faces the middle", which home itself fails.)
+    const sig = (b) => b.dancers
+      .flatMap((a, i) => b.dancers.slice(i + 1).map((c) => Math.hypot(a.x - c.x, a.y - c.y).toFixed(6)))
+      .sort().join(',');
+    check(sig(half.board) === sig(square),
+      '...and every pairwise distance is unchanged (a rotation of the set, not a new arrangement)');
+    const turns = half.board.dancers.map((d) => {
+      const o = square.dancers.find((x) => x.id === d.id);
+      return Math.atan2(Math.sin(d.heading - o.heading), Math.cos(d.heading - o.heading));
+    });
+    const turn = turns[0];
+    check(turns.every((t) => Math.abs(t - turn) < 1e-6),
+      `...and every dancer turns by the same angle (${((turn * 180) / Math.PI).toFixed(1)} degrees)`);
+    check(Math.abs(Math.abs(turn) - Math.PI) < 1e-6,
+      '...which is exactly half a turn, as a half promenade is');
+
+    // NOT SHADOWED. `Heads Promenade 1/2` must keep the catalogue's reading (which moves only the
+    // heads), not become a four-dancer half promenade - the selection path returns null for a partial
+    // selection with a precondition, and this is the gate that says so.
+    const heads = scopedSeq.applyToBoard(square, 'Heads Promenade 1/2');
+    check(heads.legal === true, `Heads Promenade 1/2 still applies: ${heads.reason ?? 'ok'}`);
+    if (heads.legal) {
+      const moved = square.dancers.filter((d) => {
+        const o = heads.board.dancers.find((x) => x.id === d.id);
+        return Math.hypot(o.x - d.x, o.y - d.y) > 1e-6;
+      }).length;
+      check(moved === 4 || moved === 8,
+        `...and moves only the four heads (or all eight), not a subset of another size: ${moved} moved`);
+    }
+    // THE WITNESS: the rest of figm86 from this board.
+    let b = half.board;
+    let ok = true;
+    for (const call of ['Heads Lead Right', 'Circle to a Line', 'Pass Thru', 'Tag the Line',
+      'Cloverleaf', 'Centers Turn Thru', 'Pass Thru', 'Swing Your Partner', 'Promenade']) {
+      const r = scopedSeq.applyToBoard(b, call);
+      if (!r.legal) { fail(`figm86 after the half promenade: "${call}" refused: ${r.reason}`); ok = false; break; }
+      b = r.board;
+    }
+    if (ok) check(scopedSeq.knownFormation(b) === 'Static Square',
+      `...and the rest of figm86 runs to a resolved square: ${scopedSeq.knownFormation(b)}`);
+  }
+  // `Promenade` itself is unaffected: it still ends HOME (couple 1 south).
+  const home = scopedSeq.applyToBoard(square, 'Promenade');
+  const c1 = home.legal ? home.board.dancers.filter((d) => d.couple === 1) : [];
+  check(home.legal && c1.length === 2 && c1.reduce((s, d) => s + d.y, 0) < 0,
+    'plain Promenade still ends with couple 1 on its HOME (south) side');
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

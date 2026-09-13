@@ -220,6 +220,21 @@ export class CallApplicator {
    * `facing-audit.mjs` re-classified from `coverage?` to **COLLISION** (refusal boards 39 → 38 but
    * COLLISION 3 → 4) — a laundered body error, which is exactly what an implicit adjustment must not
    * be. With the guard, `figm83` keeps its original refusal and the one real gain is kept.
+   *
+   * THE TOLERANCE IS `SEARCH_MATCH_MAX`, AND LOOSENING IT WAS MEASURED AND REFUTED. CALLERLAB's own
+   * flagship example of the convention ("Girls Fold, Double Pass Thru") argues for a snap loose enough
+   * to accept `figm30`, whose `Double Pass Thru` setup is **17.88** away, so the adjustment was run at
+   * **24.0**: figures **114 → 114** — no gain at all — while `facing-audit.mjs`'s refusal list went
+   * **38 → 39**, moving `figm142` back into it. A looser tolerance changes WHICH VARIANT wins (least
+   * error for the whole-board reading, first that tiles for the parallel one), so the effect is not
+   * monotonic, and the variant it picks at 24.0 is rejected by the collision guard where the one
+   * picked at 6.0 is accepted. Reverted.
+   *
+   * A per-dancer DISPLACEMENT bound was the alternative and is rejected as an arbitrary threshold: the
+   * case known to be WRONG (`figm83`) moves dancers **2.00**, the case known to be right (`figm142`)
+   * **0.50**, and `figm71` and `figm136` sit at 2.00 and 2.06 — two cases a hair apart on opposite
+   * sides of any such number. What separates good from bad here is the RESULT
+   * (`BODY_COLLISION_MIN`), not the distance.
    */
   private adjustToSetup(board: Board, callName: string): (ApplyResult & { error: number }) | null {
     const tol = SEARCH_MATCH_MAX + this.config.matchMargin;

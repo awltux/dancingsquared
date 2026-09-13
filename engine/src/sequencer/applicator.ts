@@ -474,6 +474,18 @@ export class CallApplicator {
     const phys = board.dancers.filter((d) => !d.isGhost);
     const n = phys.length;
     if (n === 0 || n % 4 !== 0) return null;
+    // A STALE COUPLE PAIRING DOES BLOCK THIS TILING, and fixing that is REFUTED — measured, so it is
+    // not retried. `partition` below enforces COUPLE COHERENCE (a stored couple's two dancers must
+    // land in the same box), and after a `Flutterwheel` the stored pairing straddles the boxes:
+    // `figm` #17/#120's physical couples are (#2,#5) (#7,#8) (#4,#3) (#1,#6) while the stored ones
+    // are (1,2) (3,4) (5,6) (7,8). Reading CALLERLAB's temporary couple number here (the convention
+    // `promenadeProblem` uses) DOES make the tiling succeed — `Sweep 1/4` refusals 6 -> 4 — and it is
+    // still WRONG: those boards are Normal Lines whose facing-couple boxes are FOUR apart, so a box
+    // 2 wide and 4 tall rotating 90 degrees about its own centre becomes 4 wide and 2 tall, and the
+    // two boxes meet at x = 0 with four dancers on two spots. The figures then refuse on `Promenade`
+    // from an UNNAMED board (Promenade refusals 4 -> 6). The refusal was therefore right, and only
+    // its REASON was wrong: a board of lines cannot Sweep at all on this geometry.
+    //
     // Couples separated by `s`, each couple 2 wide, facing each other along x.
     for (const s of [2, 3, 4, 6, 8]) {
       const setup: Matchable[] = [

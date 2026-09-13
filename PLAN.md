@@ -58,9 +58,9 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 | side | value | command |
 |---|---|---|
 | figures end-to-end | **103 of 188** | `node engine/test/tools/figure-census.mjs` |
-| get-out corpus: reaching a state the standard finish resolves from | **120 of 265** (was 116) | `node engine/test/getout-behaviour.mjs` |
-| … of which ended by applying the finish itself | **108** (was 105) | same |
-| … decoded but stopped at a call (the body gap) | **112** (was 115) | same |
+| get-out corpus: reaching a state the standard finish resolves from | **121 of 265** (was 116) | `node engine/test/getout-behaviour.mjs` |
+| … of which ended by applying the finish itself | **109** (was 105) | same |
+| … decoded but stopped at a call (the body gap) | **111** (was 115) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **2 (call, start) pairs + 24 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
 | gates | `verify:light` green; `verify` green (20 harnesses, ~295 s); `verify:figures` **red by design** | `npm run verify --prefix engine` |
@@ -100,13 +100,15 @@ recording); the third **won two figures**:
   CALLERLAB and is corrected; a genuine same-gender-couples witness now sits beside it.
 - **Phase E item 1 (done, 101 → 103 figures)** — CALLERLAB's TEMPORARY COUPLE NUMBER, read where
   identity is USED rather than written onto the board. See the section below for the measurement and
-  for why the two earlier reverts do not apply to this placement.
-- **And one refutation recorded** — the `Swing Your Partner` end pose, modelled as a local closure of
-  co-oriented couples, measures **103 → 95 figures** and is reverted; the swing's pose is not
-  derivable from the local pairing. See the Phase E lead below.
+  for why the two earlier reverts do not apply to this placement. **The get-out corpus gained five
+  lines across the session's three phases (116 → 121 reaching a resolve state).**
+- **And two refutations recorded** — the `Swing Your Partner` end pose, modelled as a local closure of
+  co-oriented couples (**103 → 95 figures**), and reading the same couple-number convention inside the
+  Sweep's `boxGroups` (Sweep refusals 6 → 4 but Promenade 4 → 6, figure count unchanged, and the
+  resulting boards collide). Both are reverted and both are recorded beside the code.
 
-All three sides re-measured at the end of the round: figures **103 of 188**; get-out **120 of 265**
-reaching a resolve state (108 applying the finish, 112 body stops); FSM **155 / 92 / 43 / 19
+All three sides re-measured at the end of the round: figures **103 of 188**; get-out **121 of 265**
+reaching a resolve state (109 applying the finish, 111 body stops); FSM **155 / 92 / 43 / 19
 unchanged**; CALLERLAB **unchanged** (the 9-of-45 row is still the name-matching artefact, and the
 real gap is still 2 (call, start) pairs + 24 formation names).
 

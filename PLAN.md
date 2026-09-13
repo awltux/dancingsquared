@@ -3765,6 +3765,89 @@ turn a refusal into an application and never replace one. It is the same shape a
   Centers"** — `Centers Star Thru` left the board unnamed, and the grouping cannot split an unnamed
   board into centres and ends. That is the grouping/`named` side, not the dispatch side.
 
+### Phase 18 — DONE: the catalogue tie-break, and `Circle Left` was never the defect (88 → 90)
+
+**What the round was asked to settle** was narrow: read `figm197`'s verbatim source line and decide
+whether the figure is abbreviated at transcription or the engine needs a "break the circle and square
+the set" convention. The line is
+
+```
+  --JoinH --CirL exactly half way H-SqTh4 --8Chn4 (*)     --Sw&Pr
+```
+
+— the call is printed, with a caller note `exactly half way` beside it, and the note is prose rather
+than a call cell. So the figure is **not** abbreviated and no danced convention is missing.
+
+**The measurement that followed is the whole phase.** Applying each fraction of `Circle Left` to a
+Static Square, straight from the catalogue:
+
+| call | end radius | best rigid rotation of the start set | worst position residual |
+|---|---|---|---|
+| `Circle Left 1/8` | 3.162 | 7×45° | 0.448 |
+| `Circle Left 1/4` | **3.162** | −90° | **0.000** |
+| `Circle Left 1/2` | **3.162** | 180° | **0.000** |
+| `Circle Left 3/4` | **3.162** | −270° | **0.000** |
+| `Circle Left` (bare) | 2.609 | 0° | 0.614 |
+
+The fractions are EXACT and the bare call is not — and the bare call is the one the figure asks for.
+That inverted the previous conclusion (this file's own `Circle Left` paragraph, corrected above):
+`Back .59` does undo `Forward .59`, so an authoring of `Forward .59` · `cl`×N · `Back .59` is a round
+trip, and `ms/circle.xml`'s bare `Circle Left` is one of those.
+
+**The cause is not in any tam: it is which tam the engine MATCHED.** `findMatchingVariant` was
+returning `from="Static Square"`, `err=0.0000`, `reflect=false`, identity mapping — the *right
+description* of the *wrong authoring*, because `Circle Left` is defined at two levels:
+
+| level | file | authored motion | ends |
+|---|---|---|---|
+| `b1` | `b1/circle.xml` | `Forward .59` · `cl`×8 — **no closing step out** | a circle of radius 2.61, unnamed |
+| `ms` | `ms/circle.xml` | `Forward .59` · `cl`×8 · `Back .59` | the Static Square, exactly |
+
+`callsByTitle` pooled both and walked `ASSET_LEVELS` **ascending**, and the matcher resolves an EQUAL
+error by array order (`matcher.ts:86-91`: only a strict improvement, or a non-reflected match over a
+reflected one, changes the winner). Every tie therefore went to the **lowest** level, and this call's
+two authorings tie exactly.
+
+- **Fix:** pool exactly as before — the variant SET is unchanged — but walk the levels **highest
+  first**, so the tie goes to the higher level's authoring. One line of ordering, with the reasoning
+  recorded beside it in `engine/test/lib/engine-calls.mjs`.
+- **Measured: 88 → 90 figures of 188.** Both gains are strictly additive; no figure that ran stopped
+  running. `figm197` now runs end-to-end (`Circle Left` returns the board to a board whose positions
+  and headings are identical to the start) and `figm51` comes back too. Catalogue no-setup
+  **40 → 37**.
+- **The other half of the rule is pooling itself, and it was tested as well because the obvious
+  "cleaner" alternative is wrong.** `poc/src/data.ts`'s `sequencerCallsUpTo` walked levels ascending
+  and OVERWROTE, so only the highest level that defines a title was registered. Measured four ways
+  over the same corpus: pooled-all **88** (before), pooled-highest-first **90** (shipped),
+  highest-level-only-all **49**, highest-level-only-up-to-ms **64**. Higher levels ADD setups rather
+  than replace them — `c1/circulate.xml` adds `Thar` and `Wrong Way Thar` and does **not** carry
+  Mainstream's wave setups — so highest-only loses 39 figures. `sequencerCallsUpTo` now pools
+  highest-first too, with the same comment, so the GUI registers the same catalogue the harness
+  measures; it also skips the duplicate contribution an ALIAS entry would otherwise make.
+- **Gate:** `catalogue.mjs` gained two witnesses, each of which alone is satisfied by a wrong rule.
+  `Circle Left` from a Static Square must round-trip (position residual < 0.01, heading residual < 1°,
+  board still named `Static Square`) — under the ascending order this is 0.614 / 43.80° / `Circle`,
+  so the gate cannot go vacuous. And `Circulate` must still be legal from `Ocean Waves`, a setup only
+  the Mainstream authoring carries, which is what fails if anyone narrows the pool to the highest
+  level again.
+
+**Why this was invisible for so long, and the general lesson.** Nothing pointed at the loader: the
+census reported `Circle Left` as a body that fails to return the set, the tam file "explained" it, and
+the explanation was accepted. The thing that broke the deadlock was comparing the call against its
+own FRACTIONS, which are the same authoring at a different count and are therefore an oracle for
+whether the motion is a round trip. A call whose sub-calls exist is self-checking, and that is worth
+reaching for before believing a story about a broken body.
+
+**Still open from this phase.** The tie-break is now level-ordered, but level is a proxy: it says
+"prefer the later programme" rather than "prefer the authoring that round-trips". Two further turns
+are cheap and were not taken here. First, `Circle Left 1/8` is the one fraction that is NOT exact
+(residual 0.448), and `display="no"` is a UI hint the matcher does not read, so it is registered and
+matchable like any other setup — nothing stops a `1/8` reading being chosen for a figure that writes
+`Circle Left 1/8`, and nothing should until its authoring is checked the same way the others were.
+Second, the same `from`-overlap question has not been swept for the other 231 multi-level titles —
+this phase fixed the ORDER, not the "which authoring is right" question, which is a per-call
+measurement of exactly the kind that found this one.
+
 ### Phase 14 — the missing calls (13 + the 12 re-attributed = 25 figures)
 
 #### `Join Hands` — DONE (a no-op, correctly): zero figures alone, and it exposes `Circle Left`
@@ -3808,19 +3891,20 @@ should pay more than the three that currently stop on it.
 tam file.** `ms/circle.xml` also ships a **`Circle Left from="Circle"`** tam (one `cl` step). So
 Taminations models the call as `Static Square → Circle` — form the circle and step in, ONCE — and
 then `Circle → Circle`, one step per further `Circle Left`. Ending in `Circle` is therefore
-**intended and correct**, and the engine is reproducing the authored demo faithfully. The measured
-radius (2.61) and the 45° phase split are properties of that first-step authoring, not defects in
-themselves:
+**intended and correct** *for the Mainstream authoring*. The measured radius (2.61) and the 45° phase
+split are properties of that first-step authoring, not defects in themselves:
 
 | path (`ms/circle.xml:25-51`) | composition |
 |---|---|
 | 1 | `Forward .59` · `cl`×8 · `Back .59` |
 | 2 | `Eighth Left offsetX=.59` · `cl`×8 · `Eighth Right offsetX=-.417 offsetY=.417` |
 
-(`Back`'s net displacement is zero by construction — its path is `(-1,0)` then `(+1,0)` — so the
-`Back .59` at the end contributes nothing; and the `Eighth` pair on path 2 does not cancel, which is
-the 45° phase split. Both are *as authored*, and both only matter if this tam is asked to be a
-COMPLETE `Circle Left`.)
+(An earlier version of this paragraph claimed `Back`'s net displacement is zero by construction —
+its path being `(-1,0)` then `(+1,0)` — so that the closing `Back .59` contributed nothing. **That
+is refuted by measurement and the refutation is what *resolved* this section; see Phase 18 below.**
+The fractional tams are the oracle: `ms/circle.xml` authors `Circle Left 1/4`, `1/2` and `3/4` with
+exactly the same `Forward .59` · `cl`×N · `Back .59` shape, and all three round-trip the ring to
+**3.162 with a 0.000 position residual**, which is only possible if `Back .59` undoes `Forward .59`.)
 
 **So the real question is the one the corpus asks, and it is not about the tam.** All8 writes a bare
 `Circle Left` and then continues as though the set were available again (`figm197`: `Join Hands |
@@ -3829,8 +3913,18 @@ Circle Left | Heads Square Thru 4`). CALLERLAB's own gloss on exactly this patte
 published pattern has a call between them that All8's line does not. Two possibilities, and the next
 step is to tell them apart from the source line rather than to guess: the figure is abbreviated at
 transcription, or the engine needs the caller convention that a `Circle` is broken and the set
-squared before the next call. **Next step: read `figm197`'s verbatim source line** (the fixture keeps
-it) before touching either the tam or the grouping.
+squared before the next call.
+
+**Both questions are now answered, and neither answer was the one expected.** The source line
+(`engine/test/fixtures/all8-figures.json`, read through `loadAll8Figures`) is
+
+```
+  --JoinH --CirL exactly half way H-SqTh4 --8Chn4 (*)     --Sw&Pr
+```
+
+so the figure is **not** abbreviated: All8 prints the call with the caller note *"exactly half way"*,
+and the note is prose, not a call cell. It is the engine that danced the wrong authoring — see
+**Phase 18**.
 
 
 

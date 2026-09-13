@@ -425,23 +425,50 @@ export class Catalog {
     return out;
   }
 
-  /** Calls available to a sequencer for `level` and all earlier levels. */
+  /** Calls available to a sequencer for `level` and all earlier levels.
+   *
+   * POOLED, HIGHEST LEVEL FIRST - and both halves are load-bearing, the same way
+   * `engine/test/lib/engine-calls.mjs` `callsByTitle` documents.
+   *
+   * A title defined at several levels is several AUTHORINGS of the same call, and the
+   * matcher resolves an equal error by registration order (`FormationMatcher.findMatchingVariant`:
+   * only a strict improvement, or a non-reflected match over a reflected one, changes the
+   * winner). Walking the levels ascending therefore handed every tie to the LOWEST level, and
+   * `Circle Left` is the case that proves it wrong: `b1/circle.xml` authors `Forward .59` + 8x
+   * `cl` and stops, so the dancer never steps back out of the circle, while `ms/circle.xml`
+   * authors the round trip. Measured on All8's 188 published figures, ordering the pool this
+   * way is 90 figures instead of 88, with no loss.
+   *
+   * Keeping only the highest level that defines a title - what this method used to do by
+   * overwriting - is worse still: higher levels ADD setups rather than replace them
+   * (`c1/circulate.xml` adds `Thar` and `Wrong Way Thar` and does not carry Mainstream's wave
+   * setups), so it dropped 39 of the 188. */
   sequencerCallsUpTo(level: string): { name: string; xml: string }[] {
     const idx = this.levelOrder.indexOf(level);
     const maxIdx = idx >= 0 ? idx : this.levelOrder.length - 1;
     const order: string[] = [];
-    const best = new Map<string, { xml: string }>();
-    for (let k = 0; k <= maxIdx; k++) {
+    const parts = new Map<string, string[]>();
+    const files = new Map<string, Set<string>>();
+    for (let k = maxIdx; k >= 0; k--) {
       const lv = this.levelOrder[k];
       for (const c of this.fullCatalog) {
         if (c.level !== lv) continue;
+        // An ALIAS entry points at the same file as the real one, so contributing both would
+        // register the identical tam twice. Keep the first (highest-level) contribution.
+        const seen = files.get(c.title) ?? new Set<string>();
+        if (seen.has(c.file)) continue;
         const xml = this.registrationXml(c);
         if (xml == null) continue;
-        if (!best.has(c.title)) order.push(c.title);
-        best.set(c.title, { xml });
+        seen.add(c.file);
+        files.set(c.title, seen);
+        if (!parts.has(c.title)) {
+          parts.set(c.title, []);
+          order.push(c.title);
+        }
+        parts.get(c.title)!.push(xml.replace(/^\s*<calls>\s*/, '').replace(/\s*<\/calls>\s*$/, ''));
       }
     }
-    return order.map((title) => ({ name: title, xml: best.get(title)!.xml }));
+    return order.map((title) => ({ name: title, xml: `<calls>\n${parts.get(title)!.join('\n')}\n</calls>` }));
   }
 }
 

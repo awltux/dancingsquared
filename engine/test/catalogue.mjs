@@ -93,6 +93,51 @@ console.log('\n== the skips that DO happen are recorded, and are exactly the kno
     `the failure count is ${want.length}, not ${seq.registrationFailures().length}`);
 }
 
+console.log('\n== a call defined at several LEVELS: the pool is highest-first, and nothing is dropped ==');
+// WHY THIS IS A GATE. A title defined at two levels is two AUTHORINGS of one call, and
+// `FormationMatcher.findMatchingVariant` decides an equal error by array order, so the order of
+// the pool decides which authoring dances. `callsByTitle` used to walk `ASSET_LEVELS` ascending,
+// which handed every tie to the LOWEST level; reverting that is silent everywhere except here.
+// The two witnesses pin both halves of the rule, and each one alone is satisfied by a WRONG rule:
+// the round trip fails if the order goes back to ascending, and the `Circulate` setups fail if the
+// pool is narrowed to the highest level that defines a title (`poc/src/data.ts` used to do that).
+{
+  const byId = (b) => b.dancers.slice().sort((a, c) => a.id - c.id);
+  const normDeg = (d) => {
+    let x = (d * 180) / Math.PI % 360;
+    if (x > 180) x -= 360;
+    if (x < -180) x += 360;
+    return x;
+  };
+
+  // Witness 1 — ORDER. `b1/circle.xml` authors `Forward .59` + 8x `cl` and stops, so the dancer
+  // never steps back out of the circle: that authoring ends at radius 2.61 with a 43.8 degree
+  // heading error. `ms/circle.xml` authors the round trip and ends exactly where it started.
+  const square = seq.boardForFormation('Static Square');
+  const cl = seq.applyToBoard(square, 'Circle Left');
+  check(cl.legal, 'Circle Left is legal from a Static Square');
+  const a = byId(square);
+  const b = byId(cl.board);
+  const posResid = Math.max(...a.map((d, i) => Math.hypot(d.x - b[i].x, d.y - b[i].y)));
+  const headResid = Math.max(...a.map((d, i) => Math.abs(normDeg(b[i].heading - d.heading))));
+  check(posResid < 0.01,
+    `Circle Left from a Static Square ROUND-TRIPS (worst position residual ${posResid.toFixed(4)}, was 0.6140 under the ascending order)`);
+  check(headResid < 1,
+    `Circle Left leaves every facing where it found it (worst heading residual ${headResid.toFixed(2)} deg, was 43.80)`);
+  check(seq.knownFormation(cl.board) === 'Static Square',
+    `the board after Circle Left is still named Static Square (got ${seq.knownFormation(cl.board)})`);
+
+  // Witness 2 — NOTHING IS DROPPED. `Circulate` is defined in `ms/circulate.xml` AND in
+  // `c1/circulate.xml`, whose tams are `Thar`, `Wrong Way Thar`, `Star Promenade`,
+  // `Reverse Star Promenade` - different setups, not more of the same. Keeping only the highest
+  // level that defines the title therefore loses every Mainstream `Circulate` AND the 39 figures
+  // that use one. Measured: 90 figures pooled, 64 with the highest level alone.
+  const waves = seq.boardForFormation('Ocean Waves');
+  const circ = seq.applyToBoard(waves, 'Circulate');
+  check(circ.legal,
+    `Circulate is still legal from Ocean Waves, a setup only the Mainstream authoring carries (${circ.reason ?? 'ok'})`);
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('CATALOGUE TEST PASSED');
 else {

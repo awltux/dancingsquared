@@ -29,10 +29,17 @@ import { CODED_MOVES, CALL_SYNONYMS } from '../../dist/index.js';
 
 export const ASSET_LEVELS = ['discovered', 'b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 
-/** Every call XML under the assets tree: the level folders plus assets/src. */
-export function callXmlFiles(assets) {
+/**
+ * Every call XML under the assets tree: the level folders plus assets/src, in the order
+ * given by `levels`.
+ *
+ * The order is a parameter because it is LOAD-BEARING, not cosmetic: the same call title
+ * is often defined at several levels, and the engine's tie-break is "first registered
+ * wins" (see `FormationMatcher.findMatchingVariant`). See `callsByTitle`.
+ */
+export function callXmlFiles(assets, levels = ASSET_LEVELS) {
   const files = [];
-  for (const lv of ASSET_LEVELS) {
+  for (const lv of levels) {
     const dir = path.join(assets, lv);
     if (!existsSync(dir)) continue;
     for (const f of readdirSync(dir).filter((x) => x.endsWith('.xml'))) files.push(path.join(dir, f));
@@ -80,10 +87,29 @@ export function implementedTitles(assets) {
  * title -> all of its `<tam>` blocks pooled, in the form `Sequencer` expects.
  * Pooling matters: a call with several setups registered under one title can be
  * matched from any of them, which is how the engine already works internally.
+ *
+ * LEVELS ARE WALKED HIGHEST FIRST, and that is a measurement, not a preference.
+ *
+ * A title defined at two levels contributes TWO authorings of the same call, and
+ * `FormationMatcher.findMatchingVariant` resolves an EQUAL error by array order
+ * (`matcher.ts:86-91`: only a strict improvement or a reflect/non-reflect tie changes the
+ * winner). So the order of the pool decides which authoring runs whenever both match the
+ * same board, and walking `ASSET_LEVELS` ascending handed every such tie to the LOWEST
+ * level. `Circle Left` is the case that proves it is wrong: `b1/circle.xml` authors
+ * `Forward .59` + 8x `cl` and stops - the dancer never steps back out of the circle - while
+ * `ms/circle.xml` authors the round trip (`... Back .59`). Measured on All8's published
+ * figures, the difference is 88 vs 90 of 188 end-to-end, and NOTHING is lost by pooling in
+ * the other order (the variant SET is identical; only the tie-break changes).
+ *
+ * Pooling at all - rather than keeping only the highest level that defines a title, which is
+ * what `poc/src/data.ts` `sequencerCallsUpTo` used to do - matters just as much and was
+ * measured the same way: higher levels add setups, they do not replace them (`c1/circulate.xml`
+ * adds `Thar` and `Wrong Way Thar` and does NOT carry Mainstream's wave setups), so
+ * highest-level-only drops 39 of the 188 figures. Pool, highest first.
  */
 export function callsByTitle(assets) {
   const byTitle = new Map();
-  for (const file of callXmlFiles(assets)) {
+  for (const file of callXmlFiles(assets, [...ASSET_LEVELS].reverse())) {
     const xml = readFileSync(file, 'utf8');
     for (const block of xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []) {
       const title = (block.match(/title="([^"]*)"/) ?? [])[1];

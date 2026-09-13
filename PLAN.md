@@ -3804,6 +3804,36 @@ each by `.59` of its own displacement, which is not a round trip) and **rotated*
 not accumulate a full 360°). `Circle Left` is on the path of many figures, so this is a body fix that
 should pay more than the three that currently stop on it.
 
+**Both causes are located, and the framing above was WRONG — corrected by reading the rest of the
+tam file.** `ms/circle.xml` also ships a **`Circle Left from="Circle"`** tam (one `cl` step). So
+Taminations models the call as `Static Square → Circle` — form the circle and step in, ONCE — and
+then `Circle → Circle`, one step per further `Circle Left`. Ending in `Circle` is therefore
+**intended and correct**, and the engine is reproducing the authored demo faithfully. The measured
+radius (2.61) and the 45° phase split are properties of that first-step authoring, not defects in
+themselves:
+
+| path (`ms/circle.xml:25-51`) | composition |
+|---|---|
+| 1 | `Forward .59` · `cl`×8 · `Back .59` |
+| 2 | `Eighth Left offsetX=.59` · `cl`×8 · `Eighth Right offsetX=-.417 offsetY=.417` |
+
+(`Back`'s net displacement is zero by construction — its path is `(-1,0)` then `(+1,0)` — so the
+`Back .59` at the end contributes nothing; and the `Eighth` pair on path 2 does not cancel, which is
+the 45° phase split. Both are *as authored*, and both only matter if this tam is asked to be a
+COMPLETE `Circle Left`.)
+
+**So the real question is the one the corpus asks, and it is not about the tam.** All8 writes a bare
+`Circle Left` and then continues as though the set were available again (`figm197`: `Join Hands |
+Circle Left | Heads Square Thru 4`). CALLERLAB's own gloss on exactly this pattern is
+*"Join Hands, Circle Left; **Heads Up to the Middle and Back**; Heads Square Thru 4"* — i.e. the
+published pattern has a call between them that All8's line does not. Two possibilities, and the next
+step is to tell them apart from the source line rather than to guess: the figure is abbreviated at
+transcription, or the engine needs the caller convention that a `Circle` is broken and the set
+squared before the next call. **Next step: read `figm197`'s verbatim source line** (the fixture keeps
+it) before touching either the tam or the grouping.
+
+
+
 #### `Sweep a Quarter` — the definition read, and the eight corpus cases measured
 
 

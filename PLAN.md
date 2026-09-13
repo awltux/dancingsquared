@@ -342,14 +342,17 @@ authoring, which is why they are their own phase.
    repo's own rule — a behaviour change with no measured gain is not a phase — and recorded here as
    the prerequisite it is: the rule is real, its authoring is cheap, and it is blocked on the scale
    defect, not on itself.
-   **Two data inconsistencies found while checking it, both worth knowing before the same ground is
-   re-covered:** (a) the engine's canonical `Ocean Waves` template carries the gender arrangement
-   **B,G,G,B** along each wave — two girls adjacent in the middle — while every call's wave setup is
-   authored **B,G,B,G**, so a synthetic `boardForFormation('Ocean Waves')` board does not match
-   `Slide Thru`'s own `from="Ocean Waves"` authoring; and (b) `mirrorToFull` appends the far half as
-   COPIES carrying a `mirror` flag rather than mirrored coordinates, so a bundle's raw formation
-   prints its near half twice — the mirror is applied at match time, which is correct but makes the
-   raw data look duplicated in any diagnostic.
+   **One data note and one CORRECTED false alarm, both worth knowing before the same ground is
+   re-covered.** (a) `mirrorToFull` appends the far half as COPIES carrying a `mirror` flag rather
+   than mirrored coordinates, so a bundle's raw formation prints its near half twice — the mirror is
+   applied at match time, which is correct but makes the raw data look duplicated in any diagnostic.
+   (b) **CORRECTED (round 14): "the `Ocean Waves` template is BGGB while the calls are GBBG" is NOT an
+   inconsistency.** `formations.xml` names **six** legitimate wave arrangements — `Ocean Waves RH/LH
+   BGGB`, `GBBG`, `BGBG` and `GBGB` — so a wave with two girls adjacent is a named, proper formation,
+   and the engine's template simply happens to be one of them while a given call's setup is authored
+   for another. That is the ARRANGEMENT class `setup-coverage.mjs` already reports (a call whose setups
+   cover only one arrangement refuses a board in another), not a template bug, and "fix the template"
+   would have been wrong.
 3. **`Split Two` is the first concrete case, and its blocker is MEASURED — including an attribute the
    engine reads from nobody.** The call IS in the catalogue, under a file whose name hides it:
    `ms/split_the_outside_couple.xml` is a tamination titled **`Split Two`** whose tams are

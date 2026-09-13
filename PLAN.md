@@ -4347,6 +4347,24 @@ which is also why no "the selection must be whole boxes" test is needed.
   rejects every tiling. That coherence rule is right in general and is what makes the tiling
   unambiguous, so relaxing it is a decision to take deliberately rather than a bug to patch.
 
+  **TAKEN, AND ANSWERED: do NOT relax it.** `partition` gained a `requireCoupleCoherence` flag and
+  `boxGroups` passed `false`, on the argument that a BOX is two FACING couples (the physical pairing)
+  rather than a subset of a call, and the engine's `couple` field is the HOME couple that a
+  `Flutterwheel` legitimately breaks. Measured:
+
+  | | before | after |
+  |---|---|---|
+  | figures end-to-end | 98 | **98** |
+  | `Sweep 1/4` refusals in the census | 4 | **0** |
+  | `Promenade` refusals | 8 | **10** |
+
+  The call stops refusing and the figures get WORSE, because on those boards more than one tiling is
+  geometrically valid — the ambiguity the earlier round recorded — and without coherence the matcher
+  picks one that puts **two dancers on one spot**: both figures then stop on `Promenade` with
+  `"dancers 7 and 4 are 0.00 apart"`. The coherence rule is therefore not bookkeeping; it is what makes
+  the decomposition well posed, and the collision guard catching it one call later is the laundering
+  the `Star Thru` revert was about. The flag is reverted and the census re-taken at 98.
+
 ##### The diagnosis this was built from, kept because it is the measurement the rule rests on
 
 The single biggest missing call. **It is not in the catalogue at all** (`hasCall('Sweep 1/4')` is

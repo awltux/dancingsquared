@@ -3669,7 +3669,34 @@ Back`, `Girls Turn Thru`, `Boys Circulate`, `Boys Walk Across`, `Heads Walk and 
 Trade 1 1/2`) are each a single figure in a different formation. The one homogeneous member of that
 family is `Heads Box the Gnat`, 4 from a Static Square, which is the row above.
 
-#### The same recipe applied to `Star Thru` at separation 2: authored, measured, REVERTED
+#### `Pass Thru` (5 figures) — re-attributed from P16c to P16a, with the instrument that decides it
+
+`Pass Thru` was the largest remaining `catalogue tam has no setup` call, so it was the next authoring
+target. It is not that. `Pass Thru`'s own definition is *"Starting formation: **Facing Dancers**"*, so
+the question that decides each case is answerable directly from the board: **does any dancer have
+another dancer directly in front of them?** Measured on all six figures that stop on `Pass Thru`:
+
+| figure | board it refuses on | dancers with someone directly in front |
+|---|---|---|
+| `figm113` | Lines Facing Out | **NONE** |
+| `figm126` | Tidal Wave | **NONE** |
+| `figm47` | unnamed | facing pairs exist — but two dancers are on **the same spot** (`#3` and `#7` both at `(0,1)`) |
+| `figm219` | Double Pass Thru | facing pairs exist only at **diagonal** headings (135°, 108°, 72°, 45°) |
+| `figm35` | Quarter Tag | facing pairs exist, at 3 and 6 apart |
+| `figm174` | unnamed (`Centers Pass Thru`) | facing pairs exist; a SELECTION case |
+
+So **four of the six are BODY ERRORS, not coverage gaps**: a board with no facing dancers at all is a
+board on which `Pass Thru` is not the call, and a board with two dancers on one spot or with diagonal
+headings is a body that has fallen apart. The fault is one call upstream, which is exactly the class
+P16a measures with its prefix scan — and it is the same lesson the `Fold` family taught, one level up:
+the census ranks by the call that STOPPED, and that call can be entirely correct.
+
+The instrument is worth keeping because it is one line and it decides the class without any tolerance:
+**`if no dancer has another directly in front, a `Facing Dancers` call cannot apply, so the refusal is
+attributable upstream.** A future pass over the 45 `catalogue tam has no setup` figures can run it
+before authoring anything, and only `figm35` (Quarter Tag) and `figm174` (a selection) survive it here.
+
+**The same recipe applied to `Star Thru` at separation 2: authored, measured, REVERTED**
 
 The separation-6 `Box the Gnat` recipe was tried on the next row of the table — `Star Thru`'s two
 remaining non-figure-issue cases, a Completed Double Pass Thru and an Eight Chain Thru, whose facing

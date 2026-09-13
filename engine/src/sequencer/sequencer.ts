@@ -20,6 +20,7 @@ import { makeSquaredSet, cloneBoard } from './board.js';
 import { HOME_DANCERS } from './identity.js';
 import { matchFormations } from './match.js';
 import { mul5, dancerMatrix, type Mat5 } from '../matrix.js';
+import { DEFAULT_MATCH_MAX } from './constants.js';
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
 import { CODED_MOVE_NAMES, applyCodedMove, codedMoveApplies, findCodedMove } from './coded-moves.js';
 import { analyzeFasr } from './fasr.js';
@@ -79,6 +80,39 @@ export class Sequencer {
    * when it carries a precondition that this board does not meet. Returns null
    * when `name` is not a coded move at all, so the catalogue can handle it. */
   private tryCodedMove(board: Board, name: string): { board: Board; legal: boolean; reason?: string } | null {
+    const sel = splitSelection(name);
+    // A BOXED call is handled first and on its own, because it is not a whole-board transform and not
+    // a selection either: it acts on each box of a named 4-dancer setup, so its `precondition` and
+    // `apply` are per BOX and the whole-board reading below must not run. See `CodedMove.boxedBy`.
+    const boxed = findCodedMove(sel.call);
+    if (boxed?.boxedBy) {
+      // A named group is the SUBJECT: `Centers Sweep 1/4` sweeps the box the centres form, and the
+      // rest of the board is not part of a box at all. So the tiling runs over the DESIGNATED dancers
+      // and the non-designated ones simply do not move - which is also why no "the selection must be
+      // whole boxes" test is needed here.
+      const ids = sel.selection ? this.grouping.resolveSelection(board, sel.selection) : null;
+      const picked = ids ? new Set(ids) : null;
+      const subject: Board = picked ? { dancers: board.dancers.filter((d) => picked.has(d.id)) } : board;
+      const groups = this.applicator.boxGroups(subject, DEFAULT_MATCH_MAX + this.config.matchMargin);
+      if (!groups) {
+        return {
+          board,
+          legal: false,
+          reason: `${boxed.name} needs ${picked ? 'the named group' : 'the board'} to divide into facing-couple boxes, and it does not`,
+        };
+      }
+      const moved = new Map<number, typeof board.dancers[number]>();
+      for (const g of groups) {
+        const box: Board = { dancers: g.map((d) => ({ ...d })) };
+        const problem = boxed.precondition?.(box) ?? null;
+        if (problem) return { board, legal: false, reason: problem };
+        for (const d of boxed.apply(box).dancers) moved.set(d.id, d);
+      }
+      if (moved.size === 0) {
+        return { board, legal: false, reason: `${boxed.name} has no box to act on` };
+      }
+      return { board: { dancers: board.dancers.map((d) => moved.get(d.id) ?? d) }, legal: true };
+    }
     const whole = applyCodedMove(board, name);
     if (whole) {
       // A move that does not apply may DECLINE and let the catalogue try, which is how a call being
@@ -95,11 +129,11 @@ export class Sequencer {
     // fails with "not legal for selected dancers" even though the pivot is trivially
     // well defined for any subset, which is how every "Girls U-Turn Back" line in the
     // published get-out corpus was stopping.
-    const sel = splitSelection(name);
-    if (!sel.selection) return null;
-    const base = findCodedMove(sel.call);
+    const sel2 = splitSelection(name);
+    if (!sel2.selection) return null;
+    const base = findCodedMove(sel2.call);
     if (!base) return null;
-    const ids = this.grouping.resolveSelection(board, sel.selection);
+    const ids = this.grouping.resolveSelection(board, sel2.selection);
     if (!ids || ids.length === 0) return null;
     // A move that moves NON-designated dancers as well (a Run's walker, a Trade's intervening
     // dancers) has to compute the whole board itself — the whole-board-transform-then-filter

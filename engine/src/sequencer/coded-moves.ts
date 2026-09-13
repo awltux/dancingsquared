@@ -23,6 +23,7 @@ import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, P
 import { isKnownCouple } from './constants.js';
 import { runRule, tradeRule } from './trade-run.js';
 import { foldRule } from './fold.js';
+import { sweepBox, sweepProblem } from './sweep.js';
 import { swingThru } from './swing-thru.js';
 import type { Board } from './types.js';
 
@@ -38,6 +39,9 @@ export const FOLD_BEATS = 2;
 
 /** Timeline length of `Cross Fold` in beats: CALLERLAB's own `Timing: 4` for the call. */
 export const CROSS_FOLD_BEATS = 4;
+
+/** Timeline length of `Sweep a Quarter` in beats: CALLERLAB's own `Timing: 2`. */
+export const SWEEP_BEATS = 2;
 
 /** Timeline length of `Roll`, in beats — the reference's `QuarterLeft`/`QuarterRight` carry
  * `beats: 1.5` (`moves.dart:56-58`), and `Roll` is exactly that move chosen per dancer. */
@@ -213,6 +217,18 @@ export interface CodedMove {
    * `selection.mjs`, which lists exactly which formations still fall through, so removing an arm
    * from the list is a deliberate edit. */
   catalogueFallback?: boolean;
+  /** A call that acts on each BOX of a named call's 4-dancer setup rather than on the whole board.
+   *
+   * `Sweep a Quarter` is the case: CALLERLAB's starting formation is "Facing Couples ONLY", so on an
+   * 8-dancer board the call is danced independently by each facing-couple box, rotating each box a
+   * quarter turn about its own centre. That is not "apply this call to that subset" and cannot be
+   * expressed by `applyToSelection`, which is why the tiling is a separate idea.
+   *
+   * WHEN THIS IS SET, `precondition` and `apply` are evaluated on each BOX and not on the whole
+   * board — the board-level precondition is never consulted, because a boxed call applies to any
+   * board that decomposes. The decomposition comes from `CallApplicator.boxGroups`, i.e. from the
+   * engine's own matcher, for the reason recorded there. */
+  boxedBy?: string;
 }
 
 const DEFS: {
@@ -222,6 +238,7 @@ const DEFS: {
   precondition?: (b: Board) => string | null;
   applyToSelection?: (b: Board, ids: number[]) => { board: Board } | { reason: string };
   catalogueFallback?: boolean;
+  boxedBy?: string;
 }[] = [
   // `Join Hands` IS NOT A CALL WITH A BODY, and implementing it as one would be wrong. CALLERLAB
   // uses it only as a PROMPT inside command examples - "From a Squared Set: 'Join Hands, Circle
@@ -306,6 +323,22 @@ const DEFS: {
     precondition: () => 'Cross Fold names a group to cross fold ("Girls Cross Fold", "Ends Cross Fold"); it has no whole-set reading',
     applyToSelection: (b, ids) => foldRule(b, ids, true),
   },
+  // `Sweep a Quarter`: derived because the catalogue has no such call at all, and BOXED because
+  // CALLERLAB's starting formation is "Facing Couples only" — each facing-couple box sweeps
+  // independently. See sweep.ts for the definition, the per-box direction reading, and the two of
+  // the eight corpus cases that have no direction to read.
+  //
+  // `boxedBy` names `Touch a Quarter` because that call's authored setups ARE two facing couples, at
+  // three separations (3, 4 and 6), so the engine already trusts them as the box template. It is the
+  // TEMPLATE only: nothing about `Touch a Quarter` is applied, and `boxGroups` reads the setup and
+  // matches it — the motion comes from sweep.ts.
+  {
+    aliases: ['Sweep a Quarter', 'Sweep 1/4'],
+    beats: SWEEP_BEATS,
+    boxedBy: 'Touch a Quarter',
+    precondition: sweepProblem,
+    fn: sweepBox,
+  },
   // Roll: derived because the engine has NO `Roll` of any kind - no title, no tam, not even in the
   // call index - while All8 writes it as a modifier on the preceding call (`--SqTh3 --PtTrd --&Roll`,
   // 30 published lines, the single largest token in the corpus). The reference implements it in
@@ -357,6 +390,7 @@ export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   ...(d.fn ? { apply: d.fn } : {}),
   ...(d.applyToSelection ? { applyToSelection: d.applyToSelection } : {}),
   ...(d.catalogueFallback ? { catalogueFallback: true } : {}),
+  ...(d.boxedBy ? { boxedBy: d.boxedBy } : {}),
 })) as CodedMove[];
 
 /** Canonical display names of the coded moves, in registration order. */

@@ -309,6 +309,72 @@ console.log('== Sequencer: leaders / trailers are a PARITY per dancer, not a pai
     `the same board rotated a quarter turn still names four leaders and is still tradeable (leaders=[${rotLeaders.join(',')}], ${rotLt.reason ?? 'ok'})`);
 }
 
+console.log('== Sequencer: Sweep a Quarter acts PER BOX and reads the direction per box ==');
+// CALLERLAB: "Starting formation: Facing Couples ONLY ... Circle Right or Left 1/4, except that each
+// Couple does not join hands with the Couple they are facing. The circling direction continues the
+// motion that completed the previous call." So this is not a whole-board transform and not a
+// selection either - it is one rotation per facing-couple BOX - and the three witnesses below pin the
+// three ways it can go wrong: a box rotated the wrong way, a box with no consensus direction being
+// approximated anyway, and a board that is not boxes at all being forced into some.
+{
+  const box = (dir) => ({
+    dancers: [
+      { id: 1, couple: 1, gender: 'boy', x: -1, y: 1, heading: 0, lastTurnDir: dir },
+      { id: 2, couple: 1, gender: 'girl', x: -1, y: -1, heading: 0, lastTurnDir: dir },
+      { id: 3, couple: 2, gender: 'boy', x: 1, y: -1, heading: Math.PI, lastTurnDir: dir },
+      { id: 4, couple: 2, gender: 'girl', x: 1, y: 1, heading: Math.PI, lastTurnDir: dir },
+    ],
+  });
+
+  for (const [dir, deg] of [['left', 90], ['right', -90]]) {
+    const start = box(dir);
+    const r = scopedSeq.applyToBoard(start, 'Sweep 1/4');
+    check(r.legal === true, `Sweep 1/4 is legal on a facing-couple box after a ${dir} turn: ${r.reason ?? 'ok'}`);
+    const turn = (deg * Math.PI) / 180;
+    const c = Math.cos(turn);
+    const s = Math.sin(turn);
+    const worst = Math.max(...start.dancers.map((d) => {
+      const e = r.board.dancers.find((x) => x.id === d.id);
+      // The box is centred at the origin, so the expectation is a plain rotation of (x, y).
+      const ex = d.x * c - d.y * s;
+      const ey = d.x * s + d.y * c;
+      let dh = ((e.heading - d.heading) * 180) / Math.PI % 360;
+      if (dh > 180) dh -= 360;
+      if (dh < -180) dh += 360;
+      return Math.max(Math.hypot(e.x - ex, e.y - ey), Math.abs(dh - deg) / 90);
+    }));
+    check(worst < 1e-9,
+      `the whole box rotates ${deg} degrees about its own centre, positions and facings together (worst error ${worst.toExponential(1)})`);
+  }
+
+  // A mixed box is REFUSED, not approximated - and that is not hypothetical: measured on the corpus,
+  // `figm18`'s box after `Flutterwheel` is 3 left / 1 right, and CALLERLAB's own comment says why (a
+  // Flutterwheel turns the two dancers of a couple in opposite senses about the COUPLE's centre).
+  const mixed = box('left');
+  mixed.dancers[2].lastTurnDir = 'right';
+  const m = scopedSeq.applyToBoard(mixed, 'Sweep 1/4');
+  check(m.legal === false && /must be the same/.test(m.reason ?? ''),
+    `a box whose dancers disagree is REFUSED with its own reason: ${m.reason ?? 'IT WAS LEGAL'}`);
+  const none = box(undefined);
+  const n = scopedSeq.applyToBoard(none, 'Sweep 1/4');
+  check(n.legal === false && /not every dancer in this box has one/.test(n.reason ?? ''),
+    `a box with no remembered turn is refused too: ${n.reason ?? 'IT WAS LEGAL'}`);
+
+  // And a board that is not facing-couple boxes at all is refused rather than forced: four dancers
+  // all facing the SAME way is a tandem, which is not the call's starting formation.
+  const tandem = {
+    dancers: [
+      { id: 1, couple: 1, gender: 'boy', x: -1, y: 1, heading: 0, lastTurnDir: 'left' },
+      { id: 2, couple: 1, gender: 'girl', x: -3, y: 1, heading: 0, lastTurnDir: 'left' },
+      { id: 3, couple: 2, gender: 'boy', x: 1, y: 1, heading: 0, lastTurnDir: 'left' },
+      { id: 4, couple: 2, gender: 'girl', x: 3, y: 1, heading: 0, lastTurnDir: 'left' },
+    ],
+  };
+  const t = scopedSeq.applyToBoard(tandem, 'Sweep 1/4');
+  check(t.legal === false && /divide into facing-couple boxes/.test(t.reason ?? ''),
+    `a board that is not facing couples is refused, not forced: ${t.reason ?? 'IT WAS LEGAL'}`);
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

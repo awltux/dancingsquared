@@ -538,7 +538,10 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   // check demanded their removal the moment the bridge existed, which is the gate doing its job -
   // the same way it caught `Single Hinge` and `Left Hand Hinge` in Phase 6 and the `Eight Chain N`
   // family before that.
-  'Sweep 1/4',
+  // `Sweep 1/4` USED TO BE HERE, as "in the index with no <tam> anywhere". That was true and it is now
+  // false: the call is DERIVED, per facing-couple box, in `sweep.ts`, so the stale-gap check demanded
+  // its removal - the same gate behaviour as `Join Hands`, `Fold`, `Cross Fold`,
+  // `Split the Outside Couple`, `Single Hinge` and Phase 9b's two.
   // `Eight Chain 1` .. `Eight Chain 5` USED TO BE HERE, and they were WRONG. The catalogue does
   // implement them - it spells the number out (`Eight Chain One` .. `Eight Chain Seven`) while All8
   // writes the digit - and the bridge is the digit-to-text loop in CALL_SYNONYMS. This copy of the

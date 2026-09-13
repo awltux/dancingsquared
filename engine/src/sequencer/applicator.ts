@@ -1,4 +1,4 @@
-﻿// CallApplicator: applies a call (or module) to a board. Handles the whole-board
+// CallApplicator: applies a call (or module) to a board. Handles the whole-board
 // apply with re-base/snap, the pure-relative search apply, probabilistic
 // selection, and the parallel-subset path. Owns the per-variant pose/matrix
 // caches. Depends on the FormationMatcher (to find which variant applies) and the
@@ -441,6 +441,55 @@ export class CallApplicator {
         const movedById = new Map(merged.map((d) => [d.id, d]));
         return { board: { dancers: board.dancers.map((d) => movedById.get(d.id) ?? d) }, legal: true, error };
       }
+    }
+    return null;
+  }
+
+  /**
+   * The board tiled into 4-dancer FACING-COUPLE boxes, or null.
+   *
+   * This is `parallelApply`'s variant loop without the "apply the call inside each box" half, for a
+   * rule that acts PER BOX instead of per subset: `Sweep a Quarter` rotates each facing-couple box a
+   * quarter turn about the box's own centre, which is not any one call and cannot be expressed by
+   * applying a call to the box.
+   *
+   * The grouping comes from the engine's own `partition`, i.e. from `matchFormations` with couple
+   * coherence, rather than from ad-hoc geometry, and that was a measured decision: on All8's eight
+   * `Sweep 1/4` cases a hand-written "find the facing pairs and group them" produces several
+   * different tilings of the same board, and `figm21` and `figm150` — the same chain with the same
+   * preceding call — do not tile the same way.
+   *
+   * The SETUP is swept over scales rather than taken from a call, because a facing-couple box has no
+   * canonical size: CALLERLAB's starting formation is "Facing Couples only" and the corner cases in
+   * the corpus run from a tight 2x2 (`figm21`'s couples are TWO apart) to a 2x6 rectangle
+   * (`figm63`'s centres). `partition`'s own tolerance then decides which of these the board actually
+   * is, and a board that no scale tiles is refused - which is what keeps `figm150`'s malformed board
+   * from being laundered into a success.
+   *
+   * Only a FULL tiling counts: `partitionPartial` is deliberately not consulted, because a Sweep
+   * applies to each facing-couple box and a board that does not divide into boxes is not a Sweep
+   * board.
+   */
+  boxGroups(board: Board, matchTol: number): SeqDancer[][] | null {
+    const phys = board.dancers.filter((d) => !d.isGhost);
+    const n = phys.length;
+    if (n === 0 || n % 4 !== 0) return null;
+    // Couples separated by `s`, each couple 2 wide, facing each other along x.
+    for (const s of [2, 3, 4, 6, 8]) {
+      const setup: Matchable[] = [
+        { x: -s / 2, y: 1, heading: 0 },
+        { x: -s / 2, y: -1, heading: 0 },
+        { x: s / 2, y: -1, heading: Math.PI },
+        { x: s / 2, y: 1, heading: Math.PI },
+      ];
+      const part = this.partition(setup, phys, matchTol);
+      if (part && part.groups.length === n / 4) return part.groups;
+      // ...and the same box along the other axis, which is what a "lines facing" board is.
+      const rotated: Matchable[] = setup.map((d) => ({
+        x: -d.y, y: d.x, heading: normAngle(d.heading + Math.PI / 2),
+      }));
+      const part2 = this.partition(rotated, phys, matchTol);
+      if (part2 && part2.groups.length === n / 4) return part2.groups;
     }
     return null;
   }

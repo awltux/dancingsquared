@@ -4149,8 +4149,61 @@ CALLERLAB means. That is a **concrete next measurement** and it is deliberately 
 `Split Two` has more setups than the one variant that matched, and the four figures now stop one call
 later, so a wrong reading would be invisible in the figure count.
 
-#### `Sweep a Quarter` — the definition read, and the eight corpus cases measured
+#### `Sweep a Quarter` — DONE (95 → 97 figures): the call is PER BOX, and the tiling comes from the matcher
 
+The single biggest missing call, and the only remaining phase with a complete specification. It is
+**not in the catalogue at all**, so every use refused with `Unknown call`. Implemented as a derived
+call in a new file, `engine/src/sequencer/sweep.ts`, from CALLERLAB p.57:
+
+> **Sweep a Quarter** is a *suffix call* … Starting formation: **Facing Couples only**. Dance action:
+> **Circle Right or Left 1/4**, except that each Couple does not join hands with the Couple they are
+> facing. **The circling direction continues the motion that completed the previous call.** Ending
+> formation: Facing Couples. Timing: 2. … "each dancer's motion around the center of the forming
+> Facing Couples must be the same … **From a Wave, Recycle and Sweep a Quarter is proper.**"
+
+So each facing-couple box rotates a quarter turn about its OWN centre — positions AND facings — in the
+direction the previous call's motion already had. Three things had to be decided, and each was
+measured rather than argued:
+
+- **The direction is read PER BOX, from `lastTurnDir`.** Re-running the eight corpus cases with each
+  board decomposed gave a consensus in six (all `right` after `Wheel and Deal`; all `right` after
+  `Ferris Wheel`; 8/8 `left` after `Flutterwheel`) and none in two — `figm18` is 3 left / 1 right and
+  `figm187` has dancers with no remembered direction at all. That is not a defect in the record:
+  CALLERLAB's comment says exactly why a box can be mixed, because `Flutterwheel` turns the two
+  dancers of a couple in OPPOSITE senses about the couple's centre. So a mixed box is refused with its
+  reason, not approximated.
+- **The tiling cannot be ad-hoc geometry, and this is the constraint the earlier round measured.**
+  `figm21` and `figm150` are the same chain with the same preceding call and their boards tile
+  differently, and `figm150` does not tile into facing-couple boxes at all. So the decomposition comes
+  from the engine's own `partition` (`CallApplicator.boxGroups`), i.e. `matchFormations` with couple
+  coherence, exactly as `parallelApply` does it.
+- **The box has no canonical size.** CALLERLAB says "Facing Couples only" and the corpus runs from a
+  tight 2×2 (`figm21`'s couples are TWO apart) to a 2×6 rectangle (`figm63`'s centres), so the setup
+  is swept over SCALES (2, 3, 4, 6, 8, each in both orientations) and `partition`'s tolerance decides
+  which the board actually is. Sweeping scales rather than taking a call's setup was forced by
+  measurement: the first attempt used `Touch a Quarter`'s authored boxes (separations 3, 4 and 6) and
+  refused `figm21` outright, whose box is separation **2**.
+
+**A new registry concept: `boxedBy`.** A boxed call is neither a whole-board transform nor a
+selection — it acts on each box — so `CodedMove` gained one field, `boxedBy`, and when it is set the
+move's `precondition` and `apply` are evaluated **per BOX** (`tryCodedMove` handles it before the
+whole-board path, so the board-level precondition is never consulted). A named group is the SUBJECT:
+`Centers Sweep 1/4` tiles the box the centres form and the rest of the board simply does not move,
+which is also why no "the selection must be whole boxes" test is needed.
+
+- **Measured: 95 → 97 figures.** `Sweep 1/4` refusals fall **8 → 5** and the call leaves the
+  `unknown call` bucket entirely (that bucket was 12 at the start of this family and is now 8).
+- **Gate:** `sequencer.mjs` pins the three ways it can go wrong, each with a synthetic board so none
+  can go vacuous — a box after a LEFT turn rotates **+90** about its own centre and after a RIGHT turn
+  **−90** (worst error 0.0), a box whose dancers disagree is refused with CALLERLAB's own sentence, a
+  box with no remembered turn is refused too, and a board of four dancers all facing the same way (a
+  tandem, not the call's starting formation) is refused rather than forced.
+- **Still open:** five figures keep refusing. `figm26`/`figm139` (8/8 `left`) reach a board whose
+  couples are not physically paired — `Flutterwheel` moved them — so `partition`'s couple coherence
+  rejects every tiling. That coherence rule is right in general and is what makes the tiling
+  unambiguous, so relaxing it is a decision to take deliberately rather than a bug to patch.
+
+##### The diagnosis this was built from, kept because it is the measurement the rule rests on
 
 The single biggest missing call. **It is not in the catalogue at all** (`hasCall('Sweep 1/4')` is
 false, and it is not in `CALL_SYNONYMS`), so every one of its uses refuses with `Unknown call`.

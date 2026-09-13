@@ -68,7 +68,7 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 The figure census's blocking causes, re-measured after Phases A and E:
 
 ```
-   43  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
+   42  catalogue tam has no setup for this board      <- split below into AUTHORING vs BODY ERROR
     8  selection will not resolve on this board
     6  derived call refuses ("Sweep 1/4")
     4  derived call refuses ("Promenade")
@@ -76,7 +76,7 @@ The figure census's blocking causes, re-measured after Phases A and E:
     3  unknown call (no catalogue entry)
     2  other: "Circle 2" not legal for selected dancers
     2  other: "Walk and Dodge" not legal for selected dancers
-    1  each: Rollaway | Scoot Back | Promenade 1/2 | Turn Thru | Circulate | Walk Across | 8 Circulate 1 1/2
+    1  each: Rollaway | Do Sa Do | Scoot Back | Promenade 1/2 | Turn Thru | Circulate | Walk Across | 8 Circulate 1 1/2
     1  derived call refuses ("Trade") | ("Promenade Home")
 ```
 
@@ -116,6 +116,16 @@ recording); the third **won two figures**:
   **The separation recipe's tally is now: `Right and Left Thru` +3, `Box the Gnat` +1, `Rollaway`
   +4, and the zero-figure instances `Square Thru 4`, `Flutterwheel`, `Star Thru` (reverted),
   `Touch 1/4` seam-2 (reverted) and `Dosado` (reverted).**
+- **And `Do Sa Do` derived as a measured IDENTITY (`0 figures`, and it is kept knowingly).** The
+  authored tams are a net no-op — from `Normal Lines` and from an `Eight Chain Thru`, worst position
+  change **0.000** and worst heading change **0.00°** — so in this net model the call is
+  formation-INDEPENDENT and the setups were only limiting which boards it could be reached from. It is
+  now a coded move (identity + "every dancer has a mutual facing partner" as the precondition, with
+  `catalogueFallback` so a board the rule declines keeps the authored tams). **Measured: all three
+  `Do Sa Do` stops are gone from the census, two of those figures move DEEPER onto `Allemande Left`,
+  and the figure count does not move (107).** Kept because it is a correctness fix with a measured
+  identity and it improves attribution, not because it pays; the honest cost of `catalogueFallback` is
+  that when both readings refuse, the catalogue's message is the one that surfaces.
 
 All three sides re-measured at the end of the round: figures **103 of 188**; get-out **121 of 265**
 reaching a resolve state (109 applying the finish, 111 body stops); FSM **155 / 92 / 43 / 19

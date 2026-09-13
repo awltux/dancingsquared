@@ -559,6 +559,68 @@ console.log('== Sequencer: Rollaway swaps each couple, at every authored separat
   }
 }
 
+console.log('== Sequencer: Do Sa Do is formation-independent, because its authored motion is the identity ==');
+// MEASURED on the authored tams: from `Normal Lines` and from an `Eight Chain Thru`, worst position
+// change 0.000 and worst heading change 0.00 degrees. So the call is a no-op in the net model and the
+// authored setups were only ever limiting WHICH boards it could be reached from - the census's three
+// `Do Sa Do` stops are all "no setup matches". The derived rule reproduces the identity exactly and
+// extends it; the precondition is the call's own starting formation (Facing Dancers).
+{
+  const worst = (before, after) => {
+    const b = new Map(before.dancers.map((d) => [d.id, d]));
+    let pos = 0;
+    let ang = 0;
+    for (const d of after.dancers) {
+      const o = b.get(d.id);
+      pos = Math.max(pos, Math.hypot(d.x - o.x, d.y - o.y));
+      ang = Math.max(ang, Math.abs(Math.atan2(Math.sin(d.heading - o.heading), Math.cos(d.heading - o.heading))));
+    }
+    return { pos, ang };
+  };
+  const lines = scopedSeq.boardForFormation('Normal Lines');
+  const r1 = scopedSeq.applyToBoard(lines, 'Do Sa Do');
+  check(r1.legal === true, `Do Sa Do is legal from Normal Lines: ${r1.reason ?? 'ok'}`);
+  if (r1.legal) {
+    const w = worst(lines, r1.board);
+    check(w.pos < 1e-9 && w.ang < 1e-9,
+      `...and every dancer ends on its own spot facing its own way (${w.pos.toFixed(6)}, ${w.ang.toFixed(6)} rad)`);
+  }
+  // THE WITNESS THAT MOTIVATED THE DERIVATION: the allemande pose (four facing pairs at the four
+  // sides of the set), reached by replaying figm203's chain. NO authored setup covers it.
+  let b = scopedSeq.startBoard();
+  let chainOk = true;
+  for (const call of ['Four Ladies Chain', 'Rollaway', 'Circle Left', 'Allemande Left']) {
+    const r = scopedSeq.applyToBoard(b, call);
+    if (!r.legal) {
+      chainOk = false;
+      fail(`Do Sa Do witness chain: "${call}" refused: ${r.reason}`);
+      break;
+    }
+    b = r.board;
+  }
+  if (chainOk) {
+    const r2 = scopedSeq.applyToBoard(b, 'Do Sa Do');
+    check(r2.legal === true, `Do Sa Do is legal on the allemande pose every authored setup misses: ${r2.reason ?? 'ok'}`);
+    if (r2.legal) {
+      const w = worst(b, r2.board);
+      check(w.pos < 1e-9 && w.ang < 1e-9, `...and is the identity there too (${w.pos.toFixed(6)}, ${w.ang.toFixed(6)})`);
+    }
+  }
+  // ...and the precondition is the call's STARTING FORMATION, not a formality: a tandem has someone
+  // in front but that dancer faces away, so the call is refused. WHICH reason comes back depends on
+  // `catalogueFallback`: when the derived rule declines, the authored tams are consulted and their
+  // "no setup matches" is the message that surfaces. Either way the call is not danced.
+  const tandem = {
+    dancers: [
+      { id: 1, couple: 1, gender: 'boy', x: -1, y: 1, heading: -Math.PI / 2 },
+      { id: 2, couple: 1, gender: 'girl', x: -1, y: -1, heading: -Math.PI / 2 },
+    ],
+  };
+  const r3 = scopedSeq.applyToBoard(tandem, 'Do Sa Do');
+  check(r3.legal === false,
+    `a tandem is refused (the derived rule declines and the catalogue has no setup): ${r3.legal ? 'APPLIED' : r3.reason}`);
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

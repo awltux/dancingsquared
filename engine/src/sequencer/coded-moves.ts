@@ -139,6 +139,66 @@ function swingRule(board: Board): Board {
 }
 
 /**
+ * `Do Sa Do` / `Dosado` — a DERIVED call whose net motion is the IDENTITY, for the same reason and by
+ * the same measurement as the swing above, except that here the authored tams AGREE.
+ *
+ * CALLERLAB: "Starting formation - Facing Dancers. Each dancer steps forward, around the other
+ * dancer, and back to their own position, ending facing the other dancer." So every dancer finishes
+ * on its own spot facing its own way — measured on the authored tams: from `Normal Lines` and from an
+ * `Eight Chain Thru`, worst position change **0.000** and worst heading change **0.00 degrees**. The
+ * derived call reproduces that exactly, and extends it to boards the authored setups do not cover,
+ * which is the point: the census's three `Do Sa Do` stops are all "no setup in this call matches"
+ * (`figm203`/`figm204` on the allemande pose and one unnamed board), not a wrong motion.
+ *
+ * THE PRECONDITION IS THE CALL'S OWN STARTING FORMATION: every dancer must have exactly one other
+ * dancer directly in front of it, facing back. A board where someone faces nobody (a line facing out,
+ * a column) is not a `Do Sa Do` board and is refused with that reason. `catalogueFallback` keeps the
+ * authored tams in play beyond that — a board this rule declines cannot lose capability, and a board
+ * it accepts gets the identical net motion the tams were measured to produce.
+ *
+ * Beats are the authored tams' own 4, so the timeline does not move.
+ */
+export const DOSADO_BEATS = 4;
+
+/** How far a "facing dancer" may stand, and the bearing tolerance on "directly in front". The
+ * corpus's `Do Sa Do` boards put the pairs 2 apart (waves, an Eight Chain Thru, the allemande pose)
+ * and 4 apart (Normal Lines), so the limit has to clear 4 while still refusing a diagonal body. */
+const DOSADO_MAX_FACING_DIST = 4.5;
+const DOSADO_FACING_TOL = 0.2;
+
+function facingPartnerOf(d: Board['dancers'][number], others: Board['dancers'][number][]) {
+  let best: (typeof others)[number] | null = null;
+  let bestDist = Infinity;
+  for (const o of others) {
+    if (o.id === d.id) continue;
+    const dx = o.x - d.x;
+    const dy = o.y - d.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > DOSADO_MAX_FACING_DIST) continue;
+    const bearing = Math.atan2(-dx * Math.sin(d.heading) + dy * Math.cos(d.heading), dx * Math.cos(d.heading) + dy * Math.sin(d.heading));
+    if (Math.abs(bearing) > DOSADO_FACING_TOL) continue;
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = o;
+    }
+  }
+  return best;
+}
+
+function dosadoProblem(board: Board): string | null {
+  const phys = board.dancers.filter((d) => !d.isGhost);
+  if (phys.length === 0) return 'Do Sa Do needs dancers to do sa do';
+  for (const d of phys) {
+    const p = facingPartnerOf(d, phys);
+    if (!p) return `Do Sa Do starts from Facing Dancers; #${d.id} has no dancer directly in front of it`;
+    if (facingPartnerOf(p, phys)?.id !== d.id) {
+      return `Do Sa Do starts from Facing Dancers; #${d.id} faces #${p.id} but #${p.id} does not face back`;
+    }
+  }
+  return null;
+}
+
+/**
  * `Roll`: each dancer turns a quarter in the direction they were ALREADY turning, and a dancer
  * who was not turning does not move at all.
  *
@@ -372,6 +432,17 @@ const DEFS: {
     beats: SWING_BEATS,
     precondition: swingProblem,
     fn: swingRule,
+  },
+  // `Do Sa Do`: derived for the same reason — the authored motion IS the identity (measured 0.000
+  // position and 0.00 degrees of heading change) — so the call is formation-independent and the
+  // authored setups were only ever limiting WHICH boards it could be reached from. See
+  // `dosadoProblem`.
+  {
+    aliases: ['Do Sa Do', 'Dosado'],
+    beats: DOSADO_BEATS,
+    precondition: dosadoProblem,
+    fn: (b) => b,
+    catalogueFallback: true,
   },
   // `Swing Thru`: derived because the reference never matches it positionally - it asks relationship
   // questions and applies `Trade` twice - and CALLERLAB's definition says the same ("those who can

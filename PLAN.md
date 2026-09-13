@@ -58,8 +58,8 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 | side | value | command |
 |---|---|---|
 | figures end-to-end | **116 of 188** (was 114) | `node engine/test/tools/figure-census.mjs` |
-| get-out corpus: reaching a state the standard finish resolves from | **125 of 265** (was 122) | `node engine/test/getout-behaviour.mjs` |
-| … of which ended by applying the finish itself | **113** (was 110) | same |
+| get-out corpus: reaching a state the standard finish resolves from | **124 of 265** (was 122) | `node engine/test/getout-behaviour.mjs` |
+| … of which ended by applying the finish itself | **112** (was 110) | same |
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **2 (call, start) pairs + 24 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
@@ -241,6 +241,18 @@ been done from memory. What it says, against what the table had:
   seven calls earlier on `Heads Walk and Dodge` — so no figure was dancing the wrong call, and the
   census is unchanged at 116 with the correction in. **A missing CONSTRUCTION**, and one no figure
   reaches yet.
+  **AND THE CORRECTION COST ONE GET-OUT LINE (125 → 124), WHICH IS RECORDED RATHER THAN GLOSSED.**
+  Round 21 measured the FIGURES after this change and not the get-out corpus, and this is the cost of
+  that. The nine published lines that use the cell are used exactly as CALLERLAB describes it —
+  `--BxGnt --SqT@3 --RLG`, `--SqT@4 --AL ("...but on the 4th arm...")`, `--PasTh --TrdBy --LSqT@3 --AL`
+  — i.e. the cell's whole job is the BLEND. One of them used to "pass" by dancing a full `Square Thru`
+  and then the next call, which is a *different board*: CALLERLAB's blend omits the final quarter turn
+  ("the Pull By action on the specified hand blends into the following call"). So the line was not
+  lost, a FALSE PASS was removed — and the construction cannot be used to win it back, because
+  CALLERLAB says of it *"Unless the caller specifies, the call … does not have a clear ending"*: there
+  is no end state to model, which is exactly why the old reading was a coincidence rather than a
+  reading. **Lesson, and it is the goal's own instruction: measure all three sides for every change.**
+  The get-out corpus is a lagging indicator (§6), so a -1 there is not an argument for the wrong name.
 - **`Pass1` is "Pass One (Pass by 1, Pass 1 by, Skip 1)"**, `ChgHn` is "Change (Switch) Hands
   **(NOL)**" and `YelRk` is "Yellow Rock **(NOL)**" — i.e. none of them is a CALLERLAB call. That
   confirms, from the authority, round 16's reading of `Pass One` and round 17's refusal to ship
@@ -282,6 +294,19 @@ with **gender-specific** slots, while the boards are the PROGRESSED square (the 
 `PAIR_GENDER_CALLS` — the per-couple retry that fixed exactly this for `Allemande Left` — is **INERT
 here: 107 → 107 and the three stops unchanged**, so either the retry's board test or its geometric
 match declines this board; reverted, and recorded as the lead it is rather than as a fix.
+
+**THE GET-OUT CORPUS'S BIGGEST BLOCKER IS NOT WHAT ITS RANKING SUGGESTS (round 22).** Measured over
+every alignment's published lines, **51 of them stop on `Right and Left Grand`** — by far the largest
+single entry — and 15 more on `Allemande Left`, 9 on `Single File Promenade`, 6 on `Extend`, 5 on
+`Do Paso`. `Right and Left Grand` is worth a look because CALLERLAB gives it a deliberately BROAD set
+of starting formations (a Grand Circle, an Eight Chain Thru, a Trade By plus the ends Face In, any of
+those with dancers stepped to a mini-wave, "or any formation in which dancers may conveniently turn up
+to 90 degrees so the Men face promenade direction and the Women face wrong way promenade direction").
+**The boards say it is not a coverage gap: 35 of the 51 are on UNNAMED boards** — body errors
+upstream — against 4 `Ocean Waves`, 3 `Tidal Wave`, 4 T-Bone variants, 2 `Normal Lines`, 1 each of
+`Lines Facing Out`, `Two-Faced Lines` and `Quarter Z RH`. So the work here is the same body-error
+hunt the figure census needs, not a new `Right and Left Grand` setup; the named ones are a per-case
+question (arrangement or improper) and are the only part a coverage fix could touch.
 
 **...AND ROUND 10'S OWN CONCLUSION WAS WRONG TOO — corrected in round 11, for +3 figures.** Probing
 the retry's inertness rather than guessing at it turned up the fact that settles the whole family:

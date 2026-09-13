@@ -3799,13 +3799,32 @@ the recipe that has now worked four times does not apply to it. The `T-Bone` gro
 different authorings on one shape of board — which is why the five figure-ids were misleading, and why
 the shape being real is not on its own a work item.
 
-**The queue as it now stands: 35 well-formed coverage rows, and no two share a call.** That is the
-honest end state of P16c's "call by call, largest first": the remaining work is a long tail of single
-authorings, each needing its own definition read, with two groups already shown to be dead ends for the
-separation recipe (`Touch 1/4` on a Trade By, the `T-Bone` calls). The next round should take the
-**`Completed Double Pass Thru` cluster** (`figm13 Swing Thru`, `figm19 Square Thru 3`, `figm107 Star
-Thru`, `figm110 Tag the Line` — four figures on ONE board), because a single board reached by four
-different calls is the shape that produced the last two wins.
+**The `Completed Double Pass Thru` cluster is NOT a coverage gap either, and checking it found a flaw in
+the audit's own column.** The cluster looked like the best remaining target — four figures
+(`figm13 Swing Thru`, `figm19 Square Thru 3`, `figm107 Star Thru`, `figm110 Tag the Line`) on ONE board,
+which is the shape that produced the last two wins. Measured on the canonical board:
+
+```
+CDPT board: #1(-3,1)@W #2(-3,-1)@W #3(-1,1)@W #4(-1,-1)@W  |  #5(3,-1)@E #6(3,1)@E #7(1,-1)@E #8(1,1)@E
+  Swing Thru / Square Thru 3 / Star Thru / Tag the Line / Square Thru 4 / Pass Thru  -> all "no setup"
+```
+
+**A true Completed Double Pass Thru has NO two dancers facing each other.** Its lines are back to back,
+so every relation along the travel axis is a TANDEM (`#3` at `(-1,1)` faces `#1` at `(-3,1)`; both face
+west). `Star Thru`, `Square Thru 3` and `Swing Thru` all require facing dancers, so refusing them there
+is CORRECT — and the figures that ask for them on a board *named* `Completed Double Pass Thru` are
+therefore body errors, exactly the class the audit exists to find.
+
+- **The audit reported them as `coverage?` because its `pairs` column counts TANDEM relations too.** It
+  measures "does this dancer have someone directly in front", which a tandem satisfies. So the column
+  canNOT be read as "facing pairs exist": `pairs = 0` is sound evidence that a `Facing Dancers` call
+  cannot apply (that is the class that has been acted on), but `pairs > 0` proves nothing, and the
+  `NO FACING PAIR` bucket is the only one of the four verdicts that is a one-way test. That is a
+  correction to the instrument rather than to a phase, and it is recorded here so the column is not
+  over-read again.
+- **Consequence for the queue:** of the 35 `coverage?` rows, some are this class. The cheap next filter
+  is the one thing the current column cannot express — whether any two dancers FACE EACH OTHER
+  (`headings opposite AND each on the other's facing axis`), as opposed to merely standing in a line.
 
 The coverage queue was re-taken with `facing-audit.mjs --list`, which prints every well-formed refusal
 with its call, its board and its classification. Sorting that list found the pattern the largest group

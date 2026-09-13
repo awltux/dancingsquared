@@ -278,15 +278,31 @@ authoring, which is why they are their own phase.
    it, by value `All` 18, `Ends` 4, `Centers` 3, `Heads` 2, `Sides` 1**, with `Centers Split Two`'s
    three tams asserted to be the `Centers` witness. The census is unchanged at 103: this is plumbing,
    not behaviour, and it is the plumbing that makes the next step reviewable.
-   **A CORRECTION the analysis turned up, and it moves the cause one level up.** The earlier note here
-   blamed the "1 path per dancer-pair" fallback in `buildCallImpl`. Measured over the whole catalogue,
-   **all 28 `actives` tams are 1:1** (paths == dancers) and NONE hits that branch — `formations.xml`'s
-   `Eight Chain Thru` is a **four**-dancer half-group formation, and `mirrorToFull` is what turns the
-   tam into an eight-dancer setup, so the centres' motion ends up applied to everybody. So the decision
-   to make is what the MIRRORED half should do: for `All` the mirror is correct as it stands; for
-   `Heads`/`Sides`/`Centers`/`Ends` the mirrored half is the OTHER dancers, which CALLERLAB's `Split
-   Two` says "end where they started". That is a change to `buildCallImpl`/`mirrorToFull` and it
-   affects 10 tams, so it wants its own round and its own gate rather than riding along with this one.
+   **A CORRECTION the analysis turned up, and it moves the cause one level up — twice.** The earlier
+   note here blamed the "1 path per dancer-pair" fallback in `buildCallImpl`. Measured over the whole
+   catalogue, **all 28 `actives` tams are 1:1** (paths == dancers) and NONE hits that branch. The
+   mechanism is the HALF-SETUP convention: `formations.xml`'s `Eight Chain Thru` is a **four**-dancer
+   formation (two facing couples at `x=-3` and `x=-1`), and `mirrorToFull` is what produces the full
+   eight-dancer ECT.
+   **And the engine is NOT mis-applying the tam.** Checked board-for-board on `figm109`/`figm112`'s
+   board: the tam's motion is `Extend Left scaleY=.5` + `Extend Right scaleY=.5`, i.e. **advance 2 with
+   facing unchanged**, and applied to the eight mirrored dancers it moves all eight by exactly 2.00,
+   which **swaps each facing-couple pair** (`x=1 ↔ x=3` and `x=-1 ↔ x=-3`) and lands in a named
+   `Trade By`. That is the authored data applied faithfully — a closed swap inside each half, which is
+   what the four-dancer setup says.
+   So the conflict is between the DATA and the DEFINITION, and `actives="Centers"` is where it shows:
+   in the full ECT the "centres" are the four dancers at `x=±1`, which spans **both** halves (2 + 2),
+   while the paths describe the authored half's own two couples swapping internally. Trusting
+   `actives` instead — move only four — makes them land **exactly on** the other four, so it is
+   unsatisfiable on this board; trusting the data gives the whole-board advance the engine already
+   does. What is genuinely missing is CALLERLAB's per-dancer rule ("the actives move forward between
+   the two inactives; the inactives end where they started"), which the reference computes from an
+   active set the engine does not have.
+   **Work, revised:** the plumbing is done (above), so the next step is NOT "stop mirroring the
+   inactive half" — that reading is refuted by the swap. It is to give the sequencer an ACTIVE SET
+   (Phase C item 2) and compute `Split Two` from the definition, then decide whether the call replaces
+   or supplements the authored tam. A round that only suppressed the mirrored half would trade a
+   faithful whole-board advance for a collision.
 
 ### Phase D — the missing calls (Phase 14 residue)
 

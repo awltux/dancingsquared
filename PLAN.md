@@ -4766,6 +4766,28 @@ succeed — which would confirm that only the facings block and that the Tam's p
 formation-independent. If it does not succeed, the facings are not the whole story and the copy would
 not have worked either.
 
+**TESTED, AND CONFIRMED — the paths are formation-independent, and only the facings block.**
+
+```
+Sides Face, Grand Square               ok -> [Static Square]
+Heads Face, Grand Square               ok -> [Static Square]
+Boys Face your Partner, Grand Square   ok -> [Static Square]
+```
+
+All three apply cleanly from a Static Square and return to one, so the motion does not depend on the
+board's facings: `figm170` is blocked ONLY by its board being an **Eight Chain Thru** (the square's
+positions, facings along the set) rather than a Static Square. That reduces the fix from "a speculative
+538-line duplication" to a **mechanical copy** — the same paths in a tam whose setup declares the Eight
+Chain Thru facings inline. It remains a large edit relative to the separation changes, which is why it
+stays a queue item, but it is now known-correct in advance and the only open question is whether the
+copy is faithful.
+
+The shape is worth recording because it has now appeared twice: **a call authored from one FACING
+arrangement while the corpus reaches it from another arrangement with the SAME positions** — `Sides
+Face, Grand Square` here, and the `Completed Double Pass Thru` cluster above. The engine names such
+boards correctly and then cannot match the call, and in both cases the call's own wording ("Sides
+Face") is what establishes the missing arrangement.
+
 - **Work:** a checked-in mapping from each documented starting-formation name to the engine's
   formation(s) — `Two-Faced Line` → `Two-Faced Lines`, `Ocean Wave` → `Ocean Waves` (and `Alamo Ring`
   → `Alamo Wave`), `Facing Dancers` → the facing-couples/mini-wave family — plus the decisions for the

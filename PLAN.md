@@ -3644,6 +3644,27 @@ isolated reading of a selection, where the same "setup present, still refused" s
 > a different defect at call N+1 rather than completing the figure**, so the figure count moves less
 > than the number of defects fixed.
 
+> **THE SEPARATION RECIPE IS NOW EXHAUSTED — closed with its final tally.** Rounds 9–29 applied it to
+> every visible candidate, and the complete record is worth keeping because the recipe is cheap and
+> will be reached for again:
+>
+> | call | separation | outcome |
+> |---|---|---|
+> | `Right and Left Thru` | 2 | **WON 3 figures** (98 → 101) |
+> | `Box the Gnat` | 6 | won 1 (97 → 98) |
+> | `Square Thru 4` | 2 | 0 figures; `figm191` #2 → #6, `figm193` #2 → #3 |
+> | `Flutterwheel` | 2 | 0 figures; `figm111` #5 → #6 |
+> | `Touch 1/4` | 6 | shipped in an earlier round, as part of the separation-6 set |
+> | `Star Thru` | 2 | REVERTED — legal, no figures, and it does not fix its target |
+> | `Touch 1/4` | 2 | REVERTED — matches, but the end pose is not a formation |
+> | `Dosado` | 2 | REVERTED — **no effect at all**, so its two figures are not on seam-2 boards |
+>
+> The last row is the informative one: it moved NEITHER the figure count NOR the cause table, which
+> means a missing separation is not what those refusals are. `Do Sa Do`'s two remaining figures sit on
+> an unnamed board and an `O Trade By`, neither a seam-2 facing-couple arrangement — so the recipe that
+> found two wins and four zeroes has no candidate the instruments can still see, and what is left
+> genuinely needs the per-call definition read P16c always called for.
+
 
 P16c was carried as "~21 genuine arrangement gaps, call by call, largest first". Measured again from
 the census's own blocking-call table, the 45 `catalogue tam has no setup` figures are not 45

@@ -186,7 +186,6 @@ the same convention the untouched canonical result obeys. Get-out holds at **122
 no scale at all and most of the 24 keep a residual of 1.1–11.7 even at their best scale).
 
 **AND TWO MORE CONVENTIONS, ONE PER ROUND (113 → 115 figures, 124 get-out lines).**
-
 - **Round 17 — CALLERLAB's implicit adjustment after a Fold** (Phase C item 1, 113 → 114 figures and
   122 → 124 get-out lines): the board a Fold/Cross Fold leaves carries a PERMISSION
   (`Board.adjustToNextSetup`, set only by `foldRule`), and the single call after it may be re-matched
@@ -201,6 +200,52 @@ no scale at all and most of the 24 keep a residual of 1.1–11.7 even at their b
   vertical direction is fixed by the ring-order test's own convention, and the seventy
   `Heads Promenade 1/2` figures are NOT shadowed (a partial selection with a `precondition` returns
   null from the coded-move selection path and keeps the catalogue's own reading) — gated both ways.
+
+**AND ALL8'S OWN NOTATION KEY HAS NOW BEEN FETCHED AND READ (round 19), which settles four open
+readings and corrects one entry that a previous round had made WRONG.** The key is
+`abbrlist.htm` (Rich Reel, 14 Oct 2012), the URL the fixture already records as its
+`archivedNotationKey`; reading it is the procedure `all8-notation.ts`'s header prescribes and it had
+been done from memory. What it says, against what the table had:
+
+- **`Cir2` is "{designated} Circulate 2 spots (Circulate Twice)"** — the table said `Circle 2`, and
+  carried a note claiming "All8's key says Circle" while *correcting* an earlier comment that had it
+  right as "Girls Circulate 2". The key has no `Circle 2` at all; its circle entries are
+  `CirL`/`CirR` and `4Cir1`/`4Cir2`/`4Cir3` ("4 dancers Join Hands, Circle Left 1/4 / half-way /
+  3/4"). **CORRECTED to `Circulate 2`**, gap list updated (`Circle 2` out, `Circulate 2` in), and the
+  two `G-Cir2` figures now stop on an honest engine gap: the catalogue ships `Circulate 1 1/2` (and
+  `Split Circulate 1 1/2`) but **no `Circulate 2`**, and `figm17`'s chain from there
+  (`Turn Thru | Allemande Left | Promenade`) is otherwise clear, so `Circulate 2` is a REAL +1 lead
+  (it needs a circulate RULE — the call is catalogue tams today — so it is a job, not a rename).
+- **`SqT@#` is "Square Thru, But On The # Hand", NOT `SqTh#` ("Square Thru #")** — and the table maps
+  both to the same name. That is NOT a rename: CALLERLAB's own text for it says it is an *extended
+  application* of Square Thru "where the Pull By action on the specified hand blends into the
+  following call" (`Square Thru, on the Third Hand Spin the Top`), and *"Unless the caller specifies,
+  the call … does not have a clear ending"*. So `SqT@3` is a **blend construction**, not a call, and
+  `figm179` currently completes by reading it as a complete `Square Thru 3` — the wrong reading
+  happening to work. Left alone deliberately: renaming it without modelling the blend would turn a
+  running figure into a refusal while modelling nothing. **A missing CONSTRUCTION.**
+- **`Pass1` is "Pass One (Pass by 1, Pass 1 by, Skip 1)"**, `ChgHn` is "Change (Switch) Hands
+  **(NOL)**" and `YelRk` is "Yellow Rock **(NOL)**" — i.e. none of them is a CALLERLAB call. That
+  confirms, from the authority, round 16's reading of `Pass One` and round 17's refusal to ship
+  `Change Hands` as an invisible no-op.
+- **`SepA2` is "Separate Around Two    (Make A Line if not followed by ComIn)"** — the parenthetical
+  confirms round 16's finding that the catalogue's phrase fragment is `Around Two to a Line`.
+- Checked and found HARMLESS in effect, so left as they are: `2LChn` ("2 Ladies Chain Across", table
+  says `Ladies Chain` — a naming simplification, the call resolves), `4LRollA` (the key's designator
+  `4L` = "4 Ladies", so "4 Ladies Rollaway"; a Rollaway IS the lady rolling across, so the same
+  motion), and `Sp2A1` (the key says "Split The Outside Couple (Outside 2) **Around One**", which the
+  table truncates — the bridge to `Split Two` is recorded as a re-attribution with 0 figures, and the
+  key's full wording is worth having when that bridge is re-checked).
+- The key also shows the table is MISSING `Splt2` ("Split The Outside Two / Split The Outside
+  Couple") and `ComIn` ("Come In To (Down) The Middle") outright, neither reached by this corpus.
+
+**AND THE RECORDED `Touch 1/4` REFUTATION IS CONFIRMED BY A FRESH MEASUREMENT (round 19).** `figm109`
+and `figm112` share a board — `Heads Square Thru 4 | Split the Outside Couple` leaves a `Trade By`
+whose MIDDLE four are two facing couples, so CALLERLAB's "Starting formation: Facing Dancers only"
+gives a reading for `Touch 1/4`. A loose match does apply it, and then the NEXT call stops with the
+board UNNAMED (`Column Circulate` for `figm109`, `Right-hand Star` for `figm112`) — which is exactly
+the refuted "the end pose is not a formation" entry, now measured rather than quoted. Authoring a
+seam-2 `Touch 1/4` would win nothing on these two.
 
 **CORRECTED (round 10): the allemande pose tam's MOTION was wrong, and it is the pair that matters.**
 The first version applied the Static Square's own paths to the pose, so a second `Allemande Left`

@@ -357,9 +357,20 @@ export const TOKENS: Record<string, string> = {
   // attribution, which is what the declared list below is for.
   SqTh1: 'Square Thru 1', // `C-SqTh1` = "Centers Square Thru 1". The catalogue has Square Thru
                           // 1 1/2, 2, 3 and 4 but NOT 1, so the bare name is a real gap.
-  Cir2: 'Circle 2',       // `G-Cir2` = "Girls - Circle 2". NOTE: this CORRECTS a comment further
-                          // down that read `G-Cir2` as "Girls Circulate 2" - All8's key says
-                          // Circle, and the corpus context fits it. No `Circle 2` title exists.
+  Cir2: 'Circulate 2',    // key (abbrlist.htm, fetched and read): "Cir2  {designated} Circulate 2 spots
+                          // (Circulate Twice)" — `G-Cir2` is "Girls Circulate 2", the girls moving TWO
+                          // positions along the wave.
+                          //
+                          // CORRECTED IN ROUND 19. This entry used to read 'Circle 2' and carried a note
+                          // claiming "All8's key says Circle" while correcting an earlier comment that had
+                          // it as "Girls Circulate 2". The key says the opposite of that note: there is no
+                          // `Circle 2` in it at all, and the two tokens that do exist are `CirL`/`CirR`
+                          // (Circle Left/Right) and `4Cir1`/`4Cir2`/`4Cir3` ("4 dancers Join Hands, Circle
+                          // Left 1/4 / half-way / 3/4"). So the earlier reading was RIGHT and the
+                          // "correction" was wrong — which is why the key was fetched rather than
+                          // re-argued. What the corpus needs now is `Circulate 2` itself: the catalogue
+                          // has `Circulate 1 1/2` (and `Split Circulate 1 1/2`) but no `Circulate 2`, so
+                          // the two figures that stop here stop at an honest engine gap.
   RunL: 'Run Left',       // `G-RunL` = "Girls - Run Left"  } direction-specified runs: the engine
   RunR: 'Run Right',      // `B-RunR` = "Boys - Run Right"  } has no `Run Left`/`Run Right` title,
                           //                                  though `Girls Run` itself applies.
@@ -555,7 +566,10 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   // particular `Square Thru 1` is a surprising gap - the catalogue ships Square Thru 1 1/2, 2, 3
   // and 4, so the ONE-hand version is the odd one missing, and All8 uses it (`--SqTh1 --AL`).
   'Square Thru 1',
-  'Circle 2',
+  // `Circulate 2` IS the gap here, not `Circle 2`: All8's key's `Cir2` is "Circulate 2 spots
+  // (Circulate Twice)" and the table above decodes it that way as of round 19. The catalogue ships
+  // `Circulate 1 1/2` but not `Circulate 2`, which is what the two `G-Cir2` figures now stop on.
+  'Circulate 2',
   // `Run Left` and `Run Right` USED TO BE HERE too, wrong for the same reason: the engine DOES
   // perform them. They are the derived `Run` with the side constrained, registered in
   // coded-moves.ts (runRule takes an optional direction), so the corpus's "Run Left is not legal
@@ -646,8 +660,8 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
  *       reading is not unambiguous enough for this table.
  *   8Chn1/5, B-Twice - the engine has no `Eight Chain N` and no `Boys Twice`. Engine gaps.
  *      (`G-Cir2` and `Square Thru 1` were listed here too; both are now DECODED with their gaps
- *       declared below. `G-Cir2` is "Girls - Circle 2", NOT "Girls Circulate 2" - see the
- *       correction where the token is defined.)
+ *       declared below. `G-Cir2` is "Girls Circulate 2" — see the CORRECTION where the token is
+ *       defined; the note that stood here said the opposite and the key disproves it.)
  *   H-Trd      - "Heads Trade" is not a TITLE, but it does resolve: the engine reads a group
  *       prefix compositionally, so `Heads Trade` reaches the derived `Trade`. That is why the
  *       `H-` prefix is worth having even though no such title exists.

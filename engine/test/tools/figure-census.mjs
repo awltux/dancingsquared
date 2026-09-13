@@ -65,6 +65,15 @@ for (const f of data.figures) {
 const ran = runs.filter((r) => !r.failed);
 console.log(`=== All8 figures: ${ran.length} of ${runs.length} run end-to-end ===\n`);
 
+// `--ids` prints the blocking figure ids as one sorted line, so two runs can be diffed to find which
+// figures a change REGRESSED. Without it the breakdown is by call and cause, which answers "what is
+// failing" but not "what did I just break".
+if (process.argv.includes('--ids')) {
+  console.log(`=== ${runs.length - ran.length} blocking figure id(s) ===`);
+  console.log(runs.filter((r) => r.failed).map((r) => r.f.id).join(' '));
+  console.log('');
+}
+
 // ---- by CAUSE
 const byCause = new Map();
 for (const r of runs) {

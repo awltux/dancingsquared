@@ -934,6 +934,47 @@ next round needs, all now visible in that table:
 - the `Normal Lines` row shows `Swing` refusing, so the composition needs `catalogueFallback` like the
   other partially-ported calls rather than replacing the call outright.
 
+**IT WAS THEN WIRED AND MEASURED, AND IT COSTS TWO FIGURES — SO IT IS NOT SHIPPED (round 30).** The
+branch is written, works on the canonical board, and is recorded in `sequencer.ts` as a comment rather
+than as code. The measurement:
+
+```
+census   116 -> 114 figures        (72 -> 74 blocking ids)
+get-out  unchanged
+```
+
+DIAGNOSED, not assumed — and the diagnosis is the useful part. `Spin the Top` does **not** appear in the
+blocking-call list after the change, so the two figures do not fail AT the call; they fail LATER, on the
+corrected board. `figure-census.mjs` gained an `--ids` flag for exactly this, and diffing the two runs
+names them: **`figm140`** and **`figm183`**. Traced with the composition enabled:
+
+```
+figm140  ... Spin the Top | Right and Left Thru | Rollaway | Touch 1/4 | Boys Run Right | Swing Your
+         Partner | Promenade            -> FAILS at #10 Promenade
+         "the couples are out of sequence: couple 2 is -90 degrees round the ring from couple 1,
+          not 90 counter-clockwise, so promenading would not bring everyone home"
+figm183  ...                             -> FAILS at #8 Trade By
+         "No setup in this call matches the current formation."
+```
+
+So both regressions are the STACKED-REFUSAL shape this plan keeps recording, and both are already-known
+categories: the `Promenade` ring-order refusal is the one §5 documents (its owner is the unmodelled
+`Swing Your Partner` end pose, which no local rule fixes), and `Trade By` is a Phase B setup gap. Two
+figures were passing only because the catalogue's half-scale `Spin the Top` happened to leave the pose
+the next call wanted — which is worth recording on its own, because it means **a correct call can lower
+the census**, and the two downstream gaps must be fixed in the SAME change as the composition.
+
+TWO THINGS THE NEXT ATTEMPT MUST NOT RE-LEARN:
+
+- **each part must go through the coded-move dispatch, not straight to the applicator.** `CallApplicator`
+  has no knowledge of coded moves (`findCodedMove` does not appear in it), so
+  `applicator.applyStep(board, 'Fan the Top')` silently reads the CATALOGUE tam and returns the wrong
+  board as a legal result — the very bug the composition exists to fix, one level down. The first cut of
+  the branch did exactly that and measured `Spin the Top` from `Ocean Waves` as unchanged. The working
+  line is `const applyAny = (b, call) => this.tryCodedMove(b, call) ?? this.applicator.applyStep(b, call);`
+- `Right and Left Thru` is NOT the blocker, despite being the next call in `figm140`: measured legal at
+  error 0.000 on both canonical boards (Eight Chain Thru / Normal Lines). The blocker is ten calls later.
+
 **AND THE RULE, AND WHERE IT CAME FROM (round 28).** The definition is not in `callerlab-ms.txt`
 (`Fan the Top` is Plus), but the reference ships CALLERLAB's own text at
 `taminations-flutter/assets/plus/fan_the_top.md`, and it is short enough to derive from directly:

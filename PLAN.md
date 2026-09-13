@@ -5053,3 +5053,31 @@ concentrated in exactly the families the corpus is stuck on.
 Phase 1 is the riskiest (it changes what every search node sees), which is why it wants two commits
 and the Phase 0 baseline behind it. Phases 2 and 6 are mechanical and independent; Phase 3 is
 independent of both.
+
+---
+
+## The `Heads Touch 1/4` defect costs more downstream than its own chains (round 36)
+
+Phase 16a measured that defect on the body: `Touch 1/4`'s `Extend` + `Hinge` composition ends a facing
+couple box in a **2×3 rectangle** rather than a 2×2 box, at every authored separation, and it recorded
+the cost as "`Heads Touch 1/4` (4 chains)".
+
+Two more figures are behind it than the poisoned-chain count showed. `figm15` and `figm16` both stop at
+call **#3**:
+
+```
+figm15 #3 FAIL Walk and Dodge   board it was asked to run on: [null]
+figm16 #3 FAIL Walk and Dodge   board it was asked to run on: [null]
+```
+
+The call that stops is `Walk and Dodge` on an **unnamed** board — and the audit's own row for it is
+`pairs=18 closest=1.50 mutual=6`, i.e. a board so relation-busy that nothing is well formed. The
+`Walk and Dodge` refusals are therefore not a coverage gap at all: the board was mangled earlier in the
+chain, by the same `Touch 1/4` composition the Phase 16a work measured directly. That makes the defect's
+downstream cost **at least six figures** rather than four, and it is the third time in this workstream
+that a call has been blamed for a board an upstream body produced (the others being `Leaders Trade` /
+the `leaders` selection, and `Pass Thru` / the CDPT class).
+
+The lesson is the one the P16c state block already carries, now with a second instance: **the census
+ranks by the call that STOPPED, and that call can be entirely correct** — so the `no setup` bucket is a
+symptom list, not a work list, until `facing-audit.mjs` and a chain trace have both been run on it.

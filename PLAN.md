@@ -3757,6 +3757,40 @@ writes no designation and expects the dancers who just acted to continue. That "
 continue" reading is the real owner, it is shared with several other undesignated calls, and it is the
 next thing to decide here — not a `Centers` special case for stars.
 
+#### P16c: `Right and Left Thru` at separation 2 — DONE, 98 → 101 figures
+
+The coverage queue was re-taken with `facing-audit.mjs --list`, which prints every well-formed refusal
+with its call, its board and its classification. Sorting that list found the pattern the largest group
+shares: **five figures stop on a `Trade By` board** (`figm109`, `figm111`, `figm112`, `figm184`,
+`figm217`) on `Touch 1/4` ×2, `Right and Left Thru` ×2 and `Square Thru 3` ×1 — and a Trade By's facing
+couples are **TWO** apart. `Right and Left Thru` was authored at separations 3 and 6 only, so it missed.
+
+Authored at separation 2 by the same law and the same number as every other separation fix here
+(`scaleX = separation / 2 = 1` on the pull-by and the extension; `Beau Wheel`/`Belle Wheel` unscaled
+because they are the courtesy turn rather than travel; the start inline at `x = -1` so the engine's own
+mirror puts the second couple at `x = +1`).
+
+| | before | after |
+|---|---|---|
+| figures end-to-end | 98 | **101** |
+| `catalogue no-setup` | 48 | **47** |
+| `Promenade` refusals | 8 | **6** |
+| `unknown call` | 8 | **3** |
+
+- **Three figures, and two other buckets moved with them**, which is the useful part: the census was
+  attributing some figures to calls they reach *after* the refusal, so those counts were partly
+  mis-attributed too.
+- **This is the recipe working on its fourth call** (`Right and Left Thru` seam-6 shipped in Phase 9c,
+  `Box the Gnat` seam-6 in round 9, `Touch 1/4` seam-6 earlier; `Star Thru` seam-2 and `Touch 1/4`
+  seam-2 reverted for measuring zero). The difference here is that the target board is one the corpus
+  reaches OVER AND OVER — a Trade By — rather than a single figure's arrangement.
+- **Next in this queue, by the same reading:** the Trade By cluster's remaining two need the
+  `Extend`+`Hinge` composition fixed first (`Touch 1/4` seam-2 matches but its end pose is not a
+  formation), and the **five figures on a `T-Bone` board** (`figm63`, `figm191`, `figm193`, `figm194`,
+  `figm33` — `Square Thru 4`, `Sides Square Thru 4`, `Extend`, `Lead Right`, `Ferris Wheel`) are the
+  next coherent group: a T-Bone is a real formation, so those may be one missing kind of authoring
+  rather than five separate setups.
+
 **The same recipe applied to `Star Thru` at separation 2: authored, measured, REVERTED**
 
 The separation-6 `Box the Gnat` recipe was tried on the next row of the table — `Star Thru`'s two

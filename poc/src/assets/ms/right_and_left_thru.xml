@@ -72,6 +72,37 @@
     </path>
   </tam>
 
+  <!-- SEPARATION TWO, for the Trade By boards. The authorings above are separations THREE (Facing
+       Couples Compact) and SIX (the inline one), and the corpus's remaining `Right and Left Thru`
+       refusals are on a Trade By whose facing couples are TWO apart - so both miss, and it is the
+       largest remaining `no setup matches` group that is not a body error.
+
+       Same law, same number as every other separation fix here: `scaleX = separation / 2` on the
+       pull-by and the extension, so separation 2 gives `1`. `Beau Wheel`/`Belle Wheel` are NOT scaled
+       (the courtesy turn at the end, not travel), and the start formation is written INLINE at x = -1
+       so the engine's own mirror puts the second couple at x = +1.
+
+       MEASURED: see PLAN.md. Authored, then the census and `verify-suite` decide - the same
+       procedure as the `Box the Gnat` separation-6 tam, which is the one that has held. -->
+  <tam title="Right and Left Thru"
+       from="Facing Couples"
+       parts="3" difficulty="1" sequencer="no">
+    <formation>
+      <dancer gender="boy" x="-1" y="1" angle="0" />
+      <dancer gender="girl" x="-1" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="1" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="1" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="1" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="1" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+  </tam>
+
   <tam title="Right and Left Thru"
        from="Right-Hand Wave"
        formation="Wave RH"

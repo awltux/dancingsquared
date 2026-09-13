@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, Sequencer } from '../dist/index.js';
+import { callsByTitle } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
 
@@ -168,6 +169,30 @@ const extent = (b) => {
 };
 check(Math.abs(extent(hinge.board) - extent(waveBoard)) < 0.01,
   `the pivot rotates the set without growing it (extent ${extent(waveBoard).toFixed(2)} -> ${extent(hinge.board).toFixed(2)})`);
+
+console.log('== Sequencer: a SCOPED catalogue call falls back to its generic reading ==');
+// "Heads Pass Thru" is BOTH a selection prefix and a catalogue title, so it takes the whole-board
+// path on the reasoning that the catalogue's own scoped tam knows best. It does - when it covers the
+// board. The shipped scoped tams are authored for a SQUARED SET (heads pass thru, sides wait), so on
+// any other arrangement the whole-board reading fails and the call used to be refused even though
+// the generic reading is perfectly well defined: gather the named four and apply the BASE call.
+// MEASURED in the census's EXACT bucket - the five cases where a same-size setup overlays the
+// board's positions AND facings at error 0.000 and the call is still refused - `figm174 Heads Pass
+// Thru` and `figm224 Sides Pass Thru`, both from a Double Pass Thru.
+const scopedSeq = new Sequencer(movesXml, formationsXml, callsByTitle(path.resolve(__dirname, '../../poc/src/assets')));
+const dptBoard = scopedSeq.applyToBoard(scopedSeq.boardForFormation('Static Square'), 'Heads Star Thru');
+check(dptBoard.legal && scopedSeq.knownFormation(dptBoard.board) === 'Double Pass Thru',
+  `the witness board is a Double Pass Thru: ${scopedSeq.knownFormation(dptBoard.board) ?? '(unnamed)'}`);
+const scopedWhole = scopedSeq.matcher.findMatchingVariant(dptBoard.board, 'Heads Pass Thru', 1.5);
+check(scopedWhole === null,
+  'the scoped tam alone does NOT cover that board (so the gate below is about the fallback)');
+const hpt = scopedSeq.applyToBoard(dptBoard.board, 'Heads Pass Thru');
+check(hpt.legal === true, `Heads Pass Thru is legal through the generic reading: ${hpt.reason ?? 'ok'}`);
+const beforeH = Object.fromEntries(dptBoard.board.dancers.map((d) => [d.id, d]));
+const movedH = hpt.board.dancers.filter((d) => Math.hypot(d.x - beforeH[d.id].x, d.y - beforeH[d.id].y) > 0.01).map((d) => d.id).sort((a, b) => a - b);
+const headsH = dptBoard.board.dancers.filter((d) => d.couple % 2 === 1).map((d) => d.id).sort((a, b) => a - b);
+check(JSON.stringify(movedH) === JSON.stringify(headsH),
+  `only the named four move (moved=[${movedH}], heads=[${headsH}])`);
 
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');

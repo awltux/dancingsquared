@@ -1,4 +1,4 @@
-﻿// CallApplicator: applies a call (or module) to a board. Handles the whole-board
+// CallApplicator: applies a call (or module) to a board. Handles the whole-board
 // apply with re-base/snap, the pure-relative search apply, probabilistic
 // selection, and the parallel-subset path. Owns the per-variant pose/matrix
 // caches. Depends on the FormationMatcher (to find which variant applies) and the
@@ -98,6 +98,32 @@ export class CallApplicator {
     if (!match) {
       const par = this.parallelApply(board, callName, rebase, matchTol);
       if (par) return par;
+      // THE SCOPED-TAM FALLBACK. A name with a selection prefix that is ALSO a catalogue title
+      // ("Heads Pass Thru", "Sides Pass Thru") takes the whole-board path above, on the reasoning
+      // that the catalogue's own scoped tam knows best - and it does, WHEN it covers the board. The
+      // shipped scoped tams are authored for a squared set (heads pass thru, sides wait), so on any
+      // OTHER arrangement the prefix is doing the work the tam cannot, and the engine refused a call
+      // whose generic reading is perfectly well defined: gather the named group, apply the BASE call
+      // to them.
+      //
+      // MEASURED, twice, in the census's EXACT bucket - the five cases where a same-size setup
+      // overlays the board's positions AND facings at error 0.000 and the call is still refused:
+      // `figm174 Heads Pass Thru` and `figm224 Sides Pass Thru`, both from a Double Pass Thru whose
+      // named four stand in a box while the scoped tam wants a squared set. It is strictly additive
+      // by construction - it only runs where the whole-board reading AND the parallel tiling have
+      // already both failed, so it can turn a refusal into an application but never replace one -
+      // which is the same `catalogueFallback` shape the coded moves use.
+      if (sel.selection && this.library.hasCall(callName)) {
+        // `allowScoped: false` is load-bearing, not defensive. `applySelected`'s second reading
+        // looks the SCOPED catalogue name back up (`"${group} ${callName}"`), and when the scoped
+        // name IS the one we are already failing on - `Centers Pass Thru` is a catalogue title -
+        // that closes a cycle: Pass Thru -> scoped lookup -> Centers Pass Thru -> fallback ->
+        // applySelected -> scoped lookup -> ... MEASURED as a `Maximum call stack size exceeded`
+        // inside `partition` in getout-behaviour; the census's 188 figures never reached it because
+        // none of them hits that pair of names on a tiling board.
+        const scoped = this.applySelected(board, sel.selection, sel.call, rebase, false);
+        if (scoped.legal) return scoped;
+      }
       return {
         board: cloneBoard(board),
         legal: false,
@@ -213,7 +239,7 @@ export class CallApplicator {
    * where nobody is facing anyone).
    *
    * Returns legal=false if neither reading works. */
-  applySelected(board: Board, selection: string, callName: string, rebase: boolean): ApplyResult {
+  applySelected(board: Board, selection: string, callName: string, rebase: boolean, allowScoped = true): ApplyResult {
     const byId = new Map(board.dancers.map((d) => [d.id, d]));
     const ids = this.resolveSelection(board, selection);
     if (!ids || ids.length === 0) {
@@ -259,7 +285,7 @@ export class CallApplicator {
     // only reached when the bare name is unknown AND the scoped name is a real
     // catalogue call AND the selection is exactly that group, so nothing that
     // matches today changes interpretation.
-    if (!this.library.hasCall(callName)) {
+    if (allowScoped && !this.library.hasCall(callName)) {
       for (const group of ['Centers', 'Ends'] as const) {
         const scopedName = `${group} ${callName}`;
         if (!this.library.hasCall(scopedName)) continue;

@@ -3734,6 +3734,37 @@ measured earlier: the call's own `from="Eight Chain Thru"` setup overlays the bo
 with gender ignored and returns NULL with gender required, while CALLERLAB's requirement for the
 call is `Facing Dancers (Man facing Woman)` — a per-PAIR requirement, not a per-SLOT one.
 
+#### Phase 16b (cont.) — DONE: the SCOPED-TAM fallback (85 → 88 figures)
+
+The other half of the EXACT bucket was a DISPATCH defect, not a matching one. `Heads Pass Thru` is
+both a selection prefix and a catalogue title, so it takes the whole-board path on the reasoning the
+comment beside it gives — "it IS a catalog title and must keep its whole-board behaviour". It does,
+**when the scoped tam covers the board**. The shipped scoped tams are authored for a SQUARED SET
+("heads pass thru, sides wait"), so on any other arrangement the prefix is doing work the tam cannot,
+and the engine refused a call whose generic reading is perfectly well defined: gather the named
+group, apply the BASE call.
+
+`applyToBoardInner` now falls back to exactly that — `applySelected(selection, base)` — but **only
+after** the whole-board match AND the parallel tiling have both failed, so by construction it can
+turn a refusal into an application and never replace one. It is the same shape as the coded moves'
+`catalogueFallback`.
+
+- **A cycle had to be broken, and it was not defensive.** `applySelected`'s second reading looks the
+  SCOPED catalogue name back up (`"${group} ${callName}"`), and when the scoped name IS the one
+  already being failed on — `Centers Pass Thru` is a catalogue title — that closes a loop:
+  `Pass Thru` → scoped lookup → `Centers Pass Thru` → fallback → `applySelected` → scoped lookup →
+  … MEASURED as `Maximum call stack size exceeded` inside `partition` in `getout-behaviour`. The
+  census's 188 figures never reached it, because none of them hits that pair of names on a tiling
+  board. `applySelected` therefore takes an `allowScoped` flag, false from the fallback.
+- **Result:** figures **85 → 88**; catalogue no-setup **43 → 38**. Gated in `sequencer.mjs`: the
+  witness asserts the board really is a Double Pass Thru, that the scoped tam ALONE does not match
+  it (so the gate cannot go vacuous), that the call is legal, and that only the named four move.
+- **`figm174` moved and then stopped on something else, which is the lead:** it now runs
+  `Heads Star Thru | Heads Pass Thru | Circle to a Line | Forward and Back | Pass Thru | Wheel and
+  Deal | Centers Star Thru` and refuses at `Centers Pass Thru` with **"Unresolvable selection:
+  Centers"** — `Centers Star Thru` left the board unnamed, and the grouping cannot split an unnamed
+  board into centres and ends. That is the grouping/`named` side, not the dispatch side.
+
 ### Phase 14 — the missing calls (13 + the 12 re-attributed = 25 figures)
 
 - **Size:** 25. From the census: `Sweep 1/4` 5, `Split the Outside Couple` 4, then `Yellow Rock`,

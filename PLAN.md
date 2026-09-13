@@ -3470,19 +3470,34 @@ share of this bucket as well as the largest census bucket.
 
 ### Phase 16 — setup coverage: the largest single owner (44, plus most of the 22 above) — NEXT
 
-- **Size:** 44 figures stop with "the catalogue tam has no setup for this board": `Pass Thru` 5,
-  `Do Sa Do` 3, `Slide Thru` 3, `Sides Pass Thru` 3, `Star Thru` 3, then a long tail of 1s and 2s.
-  Add most of the 22 re-attributed from Phase 13, e.g. `Heads Rollaway` 2, `Sides Rollaway` 1,
-  `Ends Rollaway` 1, `Centers Pass Thru` 1, `Boys Scoot Back` 1, `Girls Turn Thru` 2,
-  `Heads/Boys Walk and Dodge` 3, `Boys Circulate` 1, `Centers Swing Thru` 1, `Centers Turn Thru` 1.
+**Step 1 is done and it changes the phase's shape.** `engine/test/tools/setup-coverage.mjs` walks the
+corpus, finds every figure that stops with *"no setup in this call matches the current formation"*,
+and classifies what is actually wrong by comparing the board (or the selected group) against the
+call's own authored setups:
+
+| verdict | cases | meaning |
+|---|---|---|
+| **ARRANGEMENT** | **34** | a setup of the right SIZE and the same SCALE exists, but the layout differs |
+| SCALE | 7 | a setup of the right size exists at a different spacing (27–44% off) |
+| UNKNOWN | 4 | the call has no variants at all (`Boys Fold`, `Ladies Chain`, …) — a missing call |
+| SIZE | 1 | no setup has the board's dancer count (`Box the Gnat`: board 8, setups 4) |
+
+**There is no single fix here, and the data says so plainly:** the 34 arrangement failures are spread
+over **25 distinct calls** — the top ones are only `Pass Thru` 5, `Do Sa Do` 3, `Slide Thru` 3,
+`Star Thru` 3, then a long tail of ones and twos. So this phase is *per-call coverage work*, not one
+matcher change, and it must be run as a series of small call-by-call steps rather than as a single
+"widen the tolerance" commit — which the SCALE column (7 cases, 27–44% off) also warns against: only
+those could be reached by tolerance, and even there the authored setup may be right and the board
+wrong.
+
+- **Size:** ~46 figures by this tool's walk; 44 in the census, plus the selection cases re-attributed
+  from Phase 13.
 - **Owner:** the matcher's setup vocabulary — tams authored for one arrangement and one SCALE
-  (Phase 9a), the same disease as the star's 2-apart box, and now measured to be the single largest
-  owner in the census.
-- **Work:** enumerate the (call, board geometry, scale) triples that fail as DATA before touching
-  anything, because that list is what decides whether the fix is a derived rule, a wider matching
-  tolerance, or an authored setup.
-- **Gate:** the triples are enumerated and each is either covered or recorded with its reason; the
-  census is re-taken and the figure count must rise.
+  (Phase 9a), now measured to be the single largest owner in the census.
+- **Gate:** each (call, board geometry) pair is either covered by a setup or a derived rule, or
+  recorded with its reason; the census is re-taken and the figure count must rise. Run it call by
+  call, largest first, with the method the port uses: the definition first, then the rule, then
+  validation against the corpus.
 
 ### Phase 14 — the missing calls (13 + the 12 re-attributed = 25 figures)
 

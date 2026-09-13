@@ -916,6 +916,66 @@ console.log('\n== Sequencer: `Promenade 1/2` is the ring HALF WAY round, not hom
     'plain Promenade still ends with couple 1 on its HOME (south) side');
 }
 
+console.log('\n== Sequencer: a MULTIPLE of a catalogue call, and the guard that keeps it narrow ==');
+// All8's own key (abbrlist.htm, read in round 19) defines `Cir2` as "{designated} Circulate 2 spots
+// (Circulate Twice)", and CALLERLAB's Circulate Family says "Fractions are proper and occasionally
+// used with calls in the Circulate family". Circulate is catalogue TAMS here, not a rule, so "twice"
+// can only be the engine's own reading of the base call applied twice - which is what makes
+// `Girls Circulate 2` work in figm17 (115 -> 116 figures).
+{
+  const replay = (calls) => {
+    let b = scopedSeq.startBoard();
+    for (const c of calls) {
+      const r = scopedSeq.applyToBoard(b, c);
+      if (!r.legal) return { ok: false, call: c, reason: r.reason, board: b };
+      b = r.board;
+    }
+    return { ok: true, board: b };
+  };
+  const before = replay(['Heads Promenade 1/2', 'Heads Lead Right', 'Circle to a Line',
+    'Forward and Back', 'Pass the Ocean', 'Spin Chain Thru']);
+  check(before.ok, `figm17 reaches the circulate multiple on a wave: ${before.ok ? scopedSeq.knownFormation(before.board) : before.reason}`);
+  if (before.ok) {
+    const once = scopedSeq.applyToBoard(before.board, 'Girls Circulate');
+    const twice = once.legal ? scopedSeq.applyToBoard(once.board, 'Girls Circulate') : { legal: false };
+    const multiple = scopedSeq.applyToBoard(before.board, 'Girls Circulate 2');
+    check(multiple.legal === true, `Girls Circulate 2 applies: ${multiple.reason ?? 'ok'}`);
+    check(twice.legal && multiple.legal,
+      '...and the base call itself applies twice, which is what the multiple is composed from');
+    if (twice.legal && multiple.legal) {
+      const worst = Math.max(...multiple.board.dancers.map((d) => {
+        const o = twice.board.dancers.find((x) => x.id === d.id);
+        return Math.max(Math.hypot(d.x - o.x, d.y - o.y), Math.abs(Math.atan2(
+          Math.sin(d.heading - o.heading), Math.cos(d.heading - o.heading))));
+      }));
+      check(worst < 1e-9,
+        `...and lands exactly where two applications of the base call land (worst departure ${worst.toFixed(9)})`);
+    }
+    // THE GUARD: it must NOT hijack a real title that happens to end in " 2". Asserted on the
+    // strongest available case - from a Static Square the catalogue's own `Square Thru 2` applies
+    // while the BARE `Square Thru` does not, so if the multiple branch had taken it the call could
+    // not have been danced at all. That is why this is asserted from a Static Square and not from the
+    // wave above, where neither reading applies and the assertion would silently skip.
+    const square = scopedSeq.startBoard();
+    const st2 = scopedSeq.applyToBoard(square, 'Square Thru 2');
+    const bare = scopedSeq.applyToBoard(square, 'Square Thru');
+    check(st2.legal === true,
+      `a registered "… 2" title keeps its OWN authoring: Square Thru 2 applies from a Static Square: ${st2.reason ?? 'ok'}`);
+    check(bare.legal === false,
+      `...while bare Square Thru does NOT there, which is what would have made the multiple branch fail instead: ${bare.legal ? 'APPLIED' : bare.reason}`);
+    // THE WITNESS: the rest of figm17.
+    let b = multiple.legal ? multiple.board : before.board;
+    let ok = true;
+    for (const call of ['Turn Thru', 'Allemande Left', 'Promenade']) {
+      const r = scopedSeq.applyToBoard(b, call);
+      if (!r.legal) { fail(`figm17 after the multiple: "${call}" refused: ${r.reason}`); ok = false; break; }
+      b = r.board;
+    }
+    if (ok) check(scopedSeq.knownFormation(b) === 'Static Square',
+      `...and the rest of figm17 runs to a resolved square: ${scopedSeq.knownFormation(b)}`);
+  }
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

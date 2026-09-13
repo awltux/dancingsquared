@@ -57,9 +57,9 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 
 | side | value | command |
 |---|---|---|
-| figures end-to-end | **115 of 188** (was 114) | `node engine/test/tools/figure-census.mjs` |
-| get-out corpus: reaching a state the standard finish resolves from | **124 of 265** (was 122) | `node engine/test/getout-behaviour.mjs` |
-| … of which ended by applying the finish itself | **112** (was 110) | same |
+| figures end-to-end | **116 of 188** (was 114) | `node engine/test/tools/figure-census.mjs` |
+| get-out corpus: reaching a state the standard finish resolves from | **125 of 265** (was 122) | `node engine/test/getout-behaviour.mjs` |
+| … of which ended by applying the finish itself | **113** (was 110) | same |
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **2 (call, start) pairs + 24 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
@@ -185,7 +185,8 @@ the same convention the untouched canonical result obeys. Get-out holds at **122
 101 figures) and UNIFORM-SCALE matching (24 of the 43 stops do prefer a non-unit scale, but 19 have
 no scale at all and most of the 24 keep a residual of 1.1–11.7 even at their best scale).
 
-**AND TWO MORE CONVENTIONS, ONE PER ROUND (113 → 115 figures, 124 get-out lines).**
+**AND TWO MORE CONVENTIONS, PLUS A NOTATION ROUND, ONE PER ROUND (113 → 116 figures, 125 get-out
+lines).**
 - **Round 17 — CALLERLAB's implicit adjustment after a Fold** (Phase C item 1, 113 → 114 figures and
   122 → 124 get-out lines): the board a Fold/Cross Fold leaves carries a PERMISSION
   (`Board.adjustToNextSetup`, set only by `foldRule`), and the single call after it may be re-matched
@@ -200,6 +201,13 @@ no scale at all and most of the 24 keep a residual of 1.1–11.7 even at their b
   vertical direction is fixed by the ring-order test's own convention, and the seventy
   `Heads Promenade 1/2` figures are NOT shadowed (a partial selection with a `precondition` returns
   null from the coded-move selection path and keeps the catalogue's own reading) — gated both ways.
+- **Round 19 — a NOTATION round that turned into a win** (115 → 116 figures, 124 → 125 get-out lines):
+  All8's own abbreviation key (`abbrlist.htm`, Rich Reel, 14 Oct 2012 — the URL the fixture already
+  records as its `archivedNotationKey`) was FETCHED AND READ rather than remembered. It corrected
+  `Cir2` back to "Circulate 2 spots **(Circulate Twice)**" — the table had `Circle 2` and a note
+  claiming the key said so, which it does not — and that definition is what made the multiple
+  implementable. The four other readings the key settled, including the `SqT@#` blend construction
+  that is NOT a rename, are recorded in full below.
 
 **AND ALL8'S OWN NOTATION KEY HAS NOW BEEN FETCHED AND READ (round 19), which settles four open
 readings and corrects one entry that a previous round had made WRONG.** The key is
@@ -211,11 +219,16 @@ been done from memory. What it says, against what the table had:
   carried a note claiming "All8's key says Circle" while *correcting* an earlier comment that had it
   right as "Girls Circulate 2". The key has no `Circle 2` at all; its circle entries are
   `CirL`/`CirR` and `4Cir1`/`4Cir2`/`4Cir3` ("4 dancers Join Hands, Circle Left 1/4 / half-way /
-  3/4"). **CORRECTED to `Circulate 2`**, gap list updated (`Circle 2` out, `Circulate 2` in), and the
-  two `G-Cir2` figures now stop on an honest engine gap: the catalogue ships `Circulate 1 1/2` (and
-  `Split Circulate 1 1/2`) but **no `Circulate 2`**, and `figm17`'s chain from there
-  (`Turn Thru | Allemande Left | Promenade`) is otherwise clear, so `Circulate 2` is a REAL +1 lead
-  (it needs a circulate RULE — the call is catalogue tams today — so it is a job, not a rename).
+  3/4"). **CORRECTED to `Circulate 2`**, the gap list updated (`Circle 2` out, `Circulate 2` in), and
+  the reading IMPLEMENTED as a MULTIPLE: `Circulate 2` is the base call applied twice, which is
+  All8's own parenthetical and CALLERLAB's rule that "Fractions are proper and occasionally used with
+  calls in the Circulate family" (line 1041). **115 → 116 figures and 124 → 125 get-out lines** —
+  `figm17`'s chain (`Girls Circulate 2 | Turn Thru | Allemande Left | Promenade`) is otherwise clear.
+  Circulate is catalogue TAMS here, not a rule, so "twice" cannot be composed from geometry; it is
+  composed from the engine's own reading of the base call, in `Sequencer.tryCodedMove`, guarded so a
+  REGISTERED `… 2` title keeps its own authoring (`Square Thru 2`, `Eight Chain 2`) — gated on the
+  strongest available case, that `Square Thru 2` applies from a Static Square while bare `Square Thru`
+  is not even a call there.
 - **`SqT@#` is "Square Thru, But On The # Hand", NOT `SqTh#` ("Square Thru #")** — and the table maps
   both to the same name. That is NOT a rename: CALLERLAB's own text for it says it is an *extended
   application* of Square Thru "where the Pull By action on the specified hand blends into the

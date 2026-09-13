@@ -81,6 +81,32 @@ export class Sequencer {
    * when `name` is not a coded move at all, so the catalogue can handle it. */
   private tryCodedMove(board: Board, name: string): { board: Board; legal: boolean; reason?: string } | null {
     const sel = splitSelection(name);
+    // A MULTIPLE OF A CATALOGUE CALL: "Circulate 2" IS the same call applied twice.
+    //
+    // All8's own key (abbrlist.htm, read in round 19) defines the notation exactly that way -
+    // "Cir2  {designated} Circulate 2 spots (Circulate Twice)" - and CALLERLAB's Circulate Family says
+    // "Fractions are proper and occasionally used with calls in the Circulate family". Circulate is
+    // authored as TAMS in this catalogue (Box/Centers/Ends/All 8/Split Circulate), not as a rule, so
+    // "twice" cannot be composed from geometry - but it CAN be composed from the engine's own reading
+    // of the base call, which is what this does, and it is the only reading that keeps the two in step.
+    //
+    // Guarded exactly like the applicator's scoped path: only when the FULL name is NOT itself a
+    // registered call (so `Eight Chain 2`, `Square Thru 2`, `Circulate 1 1/2` and every other real
+    // title keep their own authoring) and the base IS one. The selection is carried through both
+    // applications, which is what makes `Girls Circulate 2` work: the girls move two positions.
+    const multiple = /^(.+) 2$/.exec(sel.call);
+    if (multiple && !this.library.hasCall(sel.call) && this.library.hasCall(multiple[1])) {
+      const step: string | CallStep = sel.selection ? { selection: sel.selection, call: multiple[1] } : multiple[1];
+      let cur = board;
+      for (let i = 0; i < 2; i++) {
+        const r = this.applicator.applyStep(cur, step);
+        if (!r.legal) {
+          return { board, legal: false, reason: r.reason ?? `${sel.call} needs two applications of ${multiple[1]}, and the ${i === 0 ? 'first' : 'second'} does not apply` };
+        }
+        cur = r.board;
+      }
+      return { board: cur, legal: true };
+    }
     // A BOXED call is handled first and on its own, because it is not a whole-board transform and not
     // a selection either: it acts on each box of a named 4-dancer setup, so its `precondition` and
     // `apply` are per BOX and the whole-board reading below must not run. See `CodedMove.boxedBy`.

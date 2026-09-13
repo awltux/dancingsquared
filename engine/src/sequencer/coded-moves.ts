@@ -22,6 +22,7 @@ import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf,
 import { promenadeApplies, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS } from './promenade.js';
 import { isKnownCouple } from './constants.js';
 import { runRule, tradeRule } from './trade-run.js';
+import { foldRule } from './fold.js';
 import { swingThru } from './swing-thru.js';
 import type { Board } from './types.js';
 
@@ -31,6 +32,12 @@ export const CODED_MOVE_BEATS = 1;
 /** Timeline length of the derived Run / Trade, in beats — the value the authored `Run` and
  * `Trade` tams carry, so the timeline does not shift when the derived call replaces them. */
 export const RUN_TRADE_BEATS = 4;
+
+/** Timeline length of `Fold` in beats: CALLERLAB's own `Timing: 2` for the call. */
+export const FOLD_BEATS = 2;
+
+/** Timeline length of `Cross Fold` in beats: CALLERLAB's own `Timing: 4` for the call. */
+export const CROSS_FOLD_BEATS = 4;
 
 /** Timeline length of `Roll`, in beats — the reference's `QuarterLeft`/`QuarterRight` carry
  * `beats: 1.5` (`moves.dart:56-58`), and `Roll` is exactly that move chosen per dancer. */
@@ -277,6 +284,27 @@ const DEFS: {
     beats: RUN_TRADE_BEATS,
     precondition: () => 'Trade names a group to trade ("Boys Trade", "Centers Trade"); it has no whole-set reading',
     applyToSelection: tradeRule,
+  },
+  // Fold and Cross Fold: derived for the same reason as Run and Trade - Taminations implements both
+  // in code and marks the `Boys Fold`/`Girls Fold` tams `sequencer="no"`, and matching a
+  // demonstration as a setup is designation-blind, so `Boys Fold` moved two girls and two boys. See
+  // fold.ts for the rule, transcribed from `fold.dart`/`cross_fold.dart`, and for why the two calls
+  // are the SAME rule with a different `d2`.
+  //
+  // Both REFUSE the bare name, which is correct rather than a placeholder: CALLERLAB's command
+  // examples are all designated ("Boys Fold", "Ends Fold", "Leaders Fold") and `Everyone Fold` is
+  // documented as a GIMMICK, so there is no whole-set reading of the name to fall back on.
+  {
+    aliases: ['Fold'],
+    beats: FOLD_BEATS,
+    precondition: () => 'Fold names a group to fold ("Boys Fold", "Ends Fold"); it has no whole-set reading',
+    applyToSelection: (b, ids) => foldRule(b, ids, false),
+  },
+  {
+    aliases: ['Cross Fold'],
+    beats: CROSS_FOLD_BEATS,
+    precondition: () => 'Cross Fold names a group to cross fold ("Girls Cross Fold", "Ends Cross Fold"); it has no whole-set reading',
+    applyToSelection: (b, ids) => foldRule(b, ids, true),
   },
   // Roll: derived because the engine has NO `Roll` of any kind - no title, no tam, not even in the
   // call index - while All8 writes it as a modifier on the preceding call (`--SqTh3 --PtTrd --&Roll`,

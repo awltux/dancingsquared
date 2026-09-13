@@ -194,6 +194,85 @@ const headsH = dptBoard.board.dancers.filter((d) => d.couple % 2 === 1).map((d) 
 check(JSON.stringify(movedH) === JSON.stringify(headsH),
   `only the named four move (moved=[${movedH}], heads=[${headsH}])`);
 
+console.log('== Sequencer: Fold is DERIVED, so it folds the dancers the CALL names ==');
+// `Fold`/`Cross Fold` were the last of the "catalogue has only a DEMONSTRATION" family after Run and
+// Trade. `ms/fold.xml` marks both `Boys Fold` tams and both `Girls Fold` tams `sequencer="no"`
+// because Taminations implements the call in code, and the engine matches `sequencer="no"` variants
+// on purpose (filtering them was measured as a change for the worse) - so a demonstration was being
+// matched as an ordinary setup. That is a DESIGNATION-BLIND match, and the measurement is loud:
+//
+//   `Boys Fold` from this wave matched `from="Ocean Waves"` at error 0.000 with reflect=true and
+//   folded dancers 2, 4, 6 and 8 - on this board, the four GIRLS - pushing them 4 to 6 units and
+//   leaving the board unnamed.
+//
+// The witness is figm30's own board, replayed rather than hardcoded, so the gate exercises the
+// arrangement the corpus actually produced.
+{
+  let wb = scopedSeq.boardForFormation('Static Square');
+  const chain = ['Heads Promenade 1/2', 'Heads Pass the Ocean', 'Extend', 'Swing Thru', 'Boys Run', '1/2 Tag', 'Scoot Back'];
+  let chainOk = true;
+  for (const c of chain) {
+    const r = scopedSeq.applyToBoard(wb, c);
+    if (!r.legal) { chainOk = false; console.log(`        witness chain broke at ${c}: ${r.reason}`); break; }
+    wb = r.board;
+  }
+  check(chainOk && scopedSeq.knownFormation(wb) === 'Ocean Waves',
+    `the witness board is the Ocean Waves board figm30 folds on (${scopedSeq.knownFormation(wb) ?? '(unnamed)'})`);
+
+  const beforeF = Object.fromEntries(wb.dancers.map((d) => [d.id, d]));
+  const f = scopedSeq.applyToBoard(wb, 'Boys Fold');
+  check(f.legal === true, `Boys Fold is legal on it: ${f.reason ?? 'ok'}`);
+  const movedF = f.board.dancers.filter((d) => Math.hypot(d.x - beforeF[d.id].x, d.y - beforeF[d.id].y) > 0.01)
+    .map((d) => d.id).sort((a, b) => a - b);
+  const boysF = wb.dancers.filter((d) => d.gender === 'boy').map((d) => d.id).sort((a, b) => a - b);
+  check(JSON.stringify(movedF) === JSON.stringify(boysF),
+    `Boys Fold moves the four BOYS and nobody else (moved=[${movedF}], boys=[${boysF}]) - the catalogue's demo moved [2,4,6,8], the four girls here`);
+  // The fold is "1.5 forward and `dist` toward the dancer folded in front of, facing back": on this
+  // wave the adjacent dancer is 2 away, so every folder ends hypot(1.5, 2) = 2.5 from its start and
+  // 180 degrees round. The heading half is what distinguishes a fold from a sidestep.
+  const foldDists = movedF.map((id) => Math.hypot(f.board.dancers.find((d) => d.id === id).x - beforeF[id].x, f.board.dancers.find((d) => d.id === id).y - beforeF[id].y));
+  const worstDist = Math.max(...foldDists.map((v) => Math.abs(v - Math.hypot(1.5, 2))));
+  check(worstDist < 1e-6,
+    `every folder moves 1.5 forward and 2 toward the dancer beside it (worst error ${worstDist.toFixed(4)}, max ${Math.max(...foldDists).toFixed(4)})`);
+  const worstTurn = Math.max(...movedF.map((id) => {
+    const d = f.board.dancers.find((x) => x.id === id);
+    let dh = (d.heading - beforeF[id].heading) * 180 / Math.PI % 360;
+    if (dh > 180) dh -= 360; if (dh < -180) dh += 360;
+    return Math.abs(Math.abs(dh) - 180);
+  }));
+  check(worstTurn < 1e-6, `every folder ends facing back the way it came (worst departure from 180 deg: ${worstTurn.toFixed(4)})`);
+  // A fold must not put two dancers on one spot - the demo's large displacements are how the
+  // collision this class of bug produces would show up.
+  let minPair = Infinity;
+  for (let i = 0; i < f.board.dancers.length; i++)
+    for (let j = i + 1; j < f.board.dancers.length; j++)
+      minPair = Math.min(minPair, Math.hypot(f.board.dancers[i].x - f.board.dancers[j].x, f.board.dancers[i].y - f.board.dancers[j].y));
+  check(minPair > 1.0, `no two dancers collide after the fold (closest pair ${minPair.toFixed(3)})`);
+
+  // `Fold` on its own names no group - CALLERLAB's command examples are all designated and
+  // `Everyone Fold` is documented as a GIMMICK - so the bare name must refuse rather than guess.
+  const bareFold = scopedSeq.applyToBoard(wb, 'Fold');
+  check(bareFold.legal === false && /no whole-set reading/.test(bareFold.reason ?? ''),
+    `bare Fold refuses with its own reason: ${bareFold.reason ?? 'IT WAS LEGAL'}`);
+
+  // CROSS FOLD is the same rule with the SECOND dancer on the side, so on a line of four the lateral
+  // displacement is two positions (4) where Fold's is one (2). That ratio is the whole distinction
+  // between the two calls, so it is asserted rather than assumed.
+  const lines = scopedSeq.boardForFormation('Normal Lines');
+  const lat = (startBoardIn, endBoard, id) => {
+    const s = startBoardIn.dancers.find((d) => d.id === id);
+    const e = endBoard.dancers.find((d) => d.id === id);
+    return -((e.x - s.x) * Math.sin(s.heading)) + ((e.y - s.y) * Math.cos(s.heading));
+  };
+  const eFold = scopedSeq.applyToBoard(lines, 'Ends Fold');
+  const eCross = scopedSeq.applyToBoard(lines, 'Ends Cross Fold');
+  check(eFold.legal && eCross.legal, `Ends Fold and Ends Cross Fold are both legal from Normal Lines (${eFold.reason ?? 'ok'} / ${eCross.reason ?? 'ok'})`);
+  const endsMoved = (r) => r.board.dancers.filter((d) => Math.hypot(d.x - lines.dancers.find((s) => s.id === d.id).x, d.y - lines.dancers.find((s) => s.id === d.id).y) > 0.01).map((d) => d.id);
+  const lit = (r) => Math.max(...endsMoved(r).map((id) => Math.abs(lat(lines, r.board, id))));
+  check(Math.abs(lit(eFold) - 2) < 1e-6 && Math.abs(lit(eCross) - 4) < 1e-6,
+    `Fold goes around ONE dancer position and Cross Fold passes one and takes the next (lateral ${lit(eFold).toFixed(2)} vs ${lit(eCross).toFixed(2)})`);
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

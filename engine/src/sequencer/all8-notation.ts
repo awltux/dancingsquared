@@ -507,11 +507,9 @@ for (let n = 1; n <= 7; n++) TOKENS[`8Chn${n}`] = `Eight Chain ${n}`;
  * what lets `getout-conformance.mjs` require every OTHER token to expand to a call the engine
  * actually has, and fail loudly if one does not.
  *
- * Measured (Phase 2): 59 of the table's 64 distinct names are implemented. These are the 5 that
- * are not, and they are genuine engine gaps, not decoding errors:
- *   Join Hands, 1/2 Circulate            - absent from the catalogue entirely
- *   Left Hinge                           - absent entirely (only bare `Hinge` exists)
- *   Fold, Cross Fold                     - in the index, with no <tam> anywhere
+ * Measured (Phase 2): 59 of the table's 64 distinct names are implemented. The gaps are declared
+ * below one at a time, each with the measurement that put it there and the one that took it out;
+ * `Join Hands`, `Fold` and `Cross Fold` are the three that have since been implemented.
  */
 export const KNOWN_CATALOGUE_GAPS = new Set([
   // `Join Hands` USED TO BE HERE, and it was the wrong conclusion from a correct observation. The
@@ -521,8 +519,11 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   // demanded its removal, which is the gate doing exactly its job.
   '1/2 Circulate',
   'Left Hinge',
-  'Fold',
-  'Cross Fold',
+  // `Fold` and `Cross Fold` USED TO BE HERE as "in the index, with no <tam> anywhere". The second
+  // half of that was never quite true - `ms/fold.xml` has four tams - but they are all
+  // `sequencer="no"` DEMONSTRATIONS, so the catalogue could not sequence them and the statement was
+  // right about the effect. They are now derived calls (`fold.ts`), and the stale-gap check demanded
+  // their removal the moment the engine could perform them.
   // Confirmed by All8's own abbreviation list, so the READING is not in doubt - the engine simply
   // does not implement the call. Declaring them here is what moves those corpus lines out of "our
   // gap in reading All8" and into a correct engine-gap attribution. `Single Hinge` alone is 11

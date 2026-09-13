@@ -3605,9 +3605,9 @@ names as `Ocean Waves`.
   vacuous), that the result is still a formation, and that the pivot rotates the set without
   growing it.
 
-`Boys Fold` (5) is now the head of the queue and is the `Fold` family Phase 14 already owns;
-`Heads Touch 1/4` (4) is second and is the `Touch 1/4` body, whose 1/4-turn currently lands the
-heads *past* the center.
+`Boys Fold` (5) was the head of the queue and is the `Fold` family Phase 14 owns — **now DONE, see
+the `Fold` / `Cross Fold` block below**; `Heads Touch 1/4` (4) is second and is the `Touch 1/4` body,
+whose 1/4-turn currently lands the heads *past* the center.
 
 **`Boys Fold` (5 chains) — RE-ATTRIBUTED to Phase 14, and it is not a body defect.** All four of its
 authored setups are demonstrations: `ms/fold.xml` marks both `Boys Fold` tams and both `Girls Fold`
@@ -3630,6 +3630,59 @@ a demo.
 So the fix is not in the matcher or a body: it is to implement `Fold`/`Cross Fold` as derived calls,
 which Phase 14 already carries (`Fold` 1, `Cross Fold` 2) and which the library's own note names as
 the reference's answer. **5 of the 28 poisoned chains are missing-call work, not body work.**
+
+**`Fold` / `Cross Fold` — DONE (91 → 92 figures), and the rule turned out to be ONE rule.** Derived in
+`engine/src/sequencer/fold.ts`, transcribed from the reference's two files rather than re-derived, and
+the two calls differ ONLY in which dancer `d2` is:
+
+| | source | `d2` |
+|---|---|---|
+| `Fold` | `fold.dart` | the dancer to fold in front of — the partner, else the side with an ODD count |
+| `Cross Fold` | `cross_fold.dart` | the SECOND dancer on that side ("passing both the center of the Line and one dancer position") |
+| both | `moves.dart` | `m = d2.isRightOf(d) ? FoldRight : FoldLeft; path = m.scale(0.75, dist/2)` |
+
+so the net displacement is **1.5 forward and `dist` toward `d2`, facing reversed** — `CrossFold` is
+NOT a different arc, only a further `d2`, which is what makes its lateral step twice as large. Gated
+directly: on a line of four, `Ends Fold` moves the ends laterally **2.00** and `Ends Cross Fold`
+**4.00**.
+
+- **The measurement that corrected the transcription.** `fold.dart` tries `d.data.partner` FIRST and
+  uses the parity search only as a fallback, so the first implementation read the engine's `couple`
+  field for the partner. That is a CATEGORY ERROR here and the corpus showed it immediately: `couple`
+  is the dancer's **home** couple, not the current partner, so on figm30's wave a boy at one end had
+  his home partner at the other end **six** away, and `Boys Fold` moved dancers 4 to 6 units and left
+  the board unnamed. The reference's `partner` is not a stored identity at all — `CallContext.analyze()`
+  DERIVES it from the same left/right counts — so the parity branch IS the reference's rule wherever
+  the reference's partner is well defined, and using it alone is both simpler and correct.
+- **Also corrected by the transcription:** the reference calls `ctx.noSnap()`, because CALLERLAB says
+  "Fold can create formations that are very unusual at Mainstream" and callers normalise them with the
+  NEXT call. So the fold does not tidy its result, and the bare names refuse (CALLERLAB's command
+  examples are all designated and `Everyone Fold` is documented as a GIMMICK, so there is no whole-set
+  reading to guess).
+- **Measured, and this is the honest shape of the win.** `Fold` and `Cross Fold` disappear from the
+  census's causes entirely, all **five `Boys Fold` chains are cleared**, and the count goes **90 → 92**.
+  But four of the five now stop on a LATER gap, and the next one is the lead below — so the poisoned-
+  chain count understates how much of this family is still ahead.
+- **Gate:** `sequencer.mjs` replays figm30's own seven-call chain to the board rather than hardcoding
+  coordinates, then asserts that `Boys Fold` moves the four BOYS and nobody else (the demo moved
+  `[2,4,6,8]`, the four girls here), that every folder moves exactly `hypot(1.5, 2)`, that every folder
+  ends 180° round, that no two dancers collide, that bare `Fold` refuses with its own reason, and the
+  2-vs-4 lateral ratio above.
+
+**THE NEXT LEAD, and it is CALLERLAB's own documented example of it.** `figm30` now folds cleanly and
+stops at `Double Pass Thru` on an unnamed board. That is not a coverage gap — it is the **implicit
+adjustment** the Fold definition explicitly describes:
+
+> "Heads Square Thru 4, Touch a Quarter, Girls Fold, Double Pass Thru." The Girls Fold creates a
+> formation with Tandems that are not directly facing. **Double Pass Thru implicitly tells dancers that
+> they should be in the starting formation for that call** (facing Tandems). … This type of implicit
+> adjustment is generally accepted at Mainstream, particularly following Fold or Cross Fold.
+
+The engine has no such convention: a matcher that insists the board already IS the setup cannot do
+this, and the four other cleared chains stop on `Yellow Rock` (unknown call), `Star Thru`, `Ladies
+Chain` and `Turn Thru`. So the Fold family has a second half — an "implicit adjustment" the CALLERLAB
+text defines, scoped by its own words to the calls that follow Fold/Cross Fold — and that is a
+different kind of work from the two derived calls that just shipped.
 
 **`Heads Touch 1/4` (4 chains) — measured: the defect is inside the TAM'S MOTION, not the match.**
 Unlike `Boys Fold`, `Touch 1/4` has sequencer-eligible setups, and the separation work is already

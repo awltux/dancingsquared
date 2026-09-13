@@ -3669,6 +3669,31 @@ Back`, `Girls Turn Thru`, `Boys Circulate`, `Boys Walk Across`, `Heads Walk and 
 Trade 1 1/2`) are each a single figure in a different formation. The one homogeneous member of that
 family is `Heads Box the Gnat`, 4 from a Static Square, which is the row above.
 
+#### The same recipe applied to `Star Thru` at separation 2: authored, measured, REVERTED
+
+The separation-6 `Box the Gnat` recipe was tried on the next row of the table — `Star Thru`'s two
+remaining non-figure-issue cases, a Completed Double Pass Thru and an Eight Chain Thru, whose facing
+couples are two apart. The tam was authored at separation 2 (`Extend Left scaleX = separation / 2 =
+1`, the `Quarter` offsets unchanged from the Compact authoring), and it is **verifiably consistent**:
+the separation-2 and separation-3 boxes end in the SAME pose, `(±1, ±1.5)` with the correct facings,
+which is the same cross-check the `Box the Gnat` tam passed.
+
+It was reverted anyway, and the two measurements are why:
+
+| | before | after |
+|---|---|---|
+| figures end-to-end | 98 | **98** |
+| `Star Thru` on an Eight Chain Thru board | refused | **legal → Normal Lines** |
+| `Star Thru` on a Static Square | refused | **legal → Double Pass Thru** |
+| `Star Thru` on a Completed Double Pass Thru | refused | **still refused** |
+
+So it makes two boards legal, wins no figures, and does NOT fix the Completed Double Pass Thru it was
+aimed at — the missing separation for that board is something else. Changing what a bare `Star Thru`
+does from a squared set with no figure to show for it is the trade P16b already refused once (the
+separation-6 tam was taken out for exactly that), so it comes back out on the same principle: a
+behaviour change with no measured gain is not a phase. The recipe is now known to be cheap to re-run,
+and the Completed Double Pass Thru board is the concrete next measurement for this call.
+
 #### Phase 16a — the broken bodies, ranked by REACH (the new head of the queue)
 
 The same prefix scan run over all 188 figures (not just the ones that stop) is the work order,

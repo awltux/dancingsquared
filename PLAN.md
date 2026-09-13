@@ -3663,11 +3663,26 @@ Two things follow, and only the second is a defect:
 So this is neither a matching gap nor a body defect: it is in `resolvePath`'s application of
 `scaleX`/`scaleY` to a move (`convert.ts:200-203`), which scales the move's `translate` AND its
 `rotate` bezier by `(sx, sy)` - and scaling a rotating arc's control points is not the same as
-halving the dancer's lateral offset. **Next measurement:** the authored `Hinge Right` and
-`Extend Left` in `moves.xml` (their base `translate`/`rotate`), to see whether `scaleY=.5` on a
-rotation is being asked to mean something the current scaling cannot express. It is the same family
-as the `Hinge` wave tams above, and `Touch 1/4`, `Touch a Half`, `Left Touch a Quarter` and the
-`Touch By` tams all use this pattern.
+halving the dancer's lateral offset.
+
+**And the authoring does not add up, which is the concrete next question.** Read against
+`moves.xml`, the law in the tam comment cannot hold as written:
+
+| move | authored base displacement (`moves.xml`) |
+|---|---|
+| `Extend Left` (line 140) | `(2, 0.4)` - the two cubic segments end at `x=2`, not 1, despite the comment "Move one unit left" |
+| `Hinge Left` (line 176) | `(1, 1)` - one forward, one left, the 90-degree pivot |
+
+If `Extend`'s base is 2 then `scaleX = separation / 2` yields a displacement equal to the WHOLE
+separation, so a couple starting `separation/2` from the centre crosses to `+separation/2` instead
+of meeting at 0 - the opposite of the comment's stated intent, and it cannot be what produces the
+measured result either, since all three separations end identically. So one of three things is
+wrong and they are cheap to tell apart: the base is meant to be 1, the law is meant to be
+`separation / 4`, or something downstream (the re-base `snapBoard`, or the matrix-vs-pose `end`
+path) is normalising the difference away. **Next measurement:** apply the separation-6 setup with
+`rebase` off (the search path, `applySearch`) so no snap can mask it, and print the pre-snap
+per-dancer end.
+
 
 
 

@@ -3727,6 +3727,36 @@ apart, which is why `promenade.mjs` may not require them together — so it only
 board is one the engine NAMES as a formation whose couples stand side by side. That condition is where
 the measured evidence is, and it is not extended beyond it.
 
+#### `Centers Left Hand Star` (5 figures) — the CATALOGUE is wrong upstream, and CALLERLAB says so
+
+All five refuse with `Unresolvable selection: Centers` on a board the engine names `Stars RH`, so the
+first instinct is to teach `Centers` a reading for a star formation. That would treat the symptom.
+Measured:
+
+- `Right-hand Star` has **four** authored setups — `Facing Couples` and **`Eight Chain Thru`** — and
+  the Eight Chain Thru one is **eight dancers**. Applied to that board it moves **all eight** and
+  produces `Stars RH`: two stars at `(±2, 0)`, each mixing two heads and two sides
+  (`{2,3,4,5}` and `{1,6,7,8}` in `figm74`).
+- The chain is CALLERLAB's own example, almost word for word. `Star Right / Star Left`:
+
+  > Starting formations: **Facing Couples, Static Square, Infacing Circle of 8** … Command examples:
+  > … **Heads Square Thru; Right-Hand Star; Heads Star Left inside to the same folks** … Dance action:
+  > **The designated dancers** form a Star … Comments: **The stars described above are 4-dancer
+  > stars.**
+
+So the call is a **4-dancer** action by the **designated** dancers, its starting formations do not
+include `Eight Chain Thru`, and the corpus's `Heads Square Thru 4 | Right-hand Star | Centers Left
+Hand Star` is the pattern CALLERLAB illustrates by name — where the star is done by the four dancers
+who just squared thru, which is why the NEXT call can ask for the `Centers`.
+
+**The defect is therefore the 8-dancer `Right-hand Star` tam, not the `Centers` selection**, and
+"Centers" would be well defined on the correct board (a star plus four outside dancers — CALLERLAB's
+"2×4 Formation: 'Centers' or 'Ends' General Star or Thar"). Removing that tam is not enough on its own
+either, because the engine has no model of the convention that makes the bare name work: CALLERLAB
+writes no designation and expects the dancers who just acted to continue. That "active dancers
+continue" reading is the real owner, it is shared with several other undesignated calls, and it is the
+next thing to decide here — not a `Centers` special case for stars.
+
 **The same recipe applied to `Star Thru` at separation 2: authored, measured, REVERTED**
 
 The separation-6 `Box the Gnat` recipe was tried on the next row of the table — `Star Thru`'s two

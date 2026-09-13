@@ -4619,6 +4619,45 @@ their dancers, keyed on the call name. Two results:
   offset), and it is now the concrete next measurement — the identity hypothesis has been tested twice
   and neither form of it moves a single figure.
 
+**THE SECOND QUESTION IS ANSWERED, AND THE ANSWER IS THAT THERE ARE TWO DEFECTS STACKED.** Matching
+`Allemande Left`'s twenty-one authored setups against the board `figm203` reaches, with a probe that
+records the error of EVERY variant:
+
+```
+  [8]  from="Static Square" seq=gender-specific genderParts=true blind=NULL strict=NULL
+  ... all 21 variants: blind=NULL strict=NULL
+```
+
+**Every variant returns NULL even with gender IGNORED** — so the board does not match the home square
+on IDENTITY, not on gender or on a residual angle. That confirms the stale-identity diagnosis above;
+it also explains why fixing it alone was not enough, because the re-assigned board then fails on
+something else, and that something is visible in the same trace:
+
+```
+  #1B(-1,3)@-90  #6G(1,3)@-90     <- couple 3, north side, facing south
+  home couple 3 would be  #1B(1,3)  #2G(-1,3)
+```
+
+After the re-assignment the pair is right and the POSITIONS are right, but the **man is on the wrong
+side of the couple**: facing south, a normal couple has the man on the EAST, and the board puts `#1B`
+on the west. `Four Ladies Chain` ends each new couple MIRRORED — so the gender-specific slots miss for
+a reason the identity fix cannot reach.
+
+So the two defects are independent and both real:
+
+1. **stale `couple`** (CALLERLAB's temporary couple number, never implemented); and
+2. **`Four Ladies Chain` ends the couples mirrored**, i.e. that call's own motion or its courtesy
+   turn's handedness.
+
+Fixing only the first moves no figure — measured twice, above. The next measurement is therefore on
+`Four Ladies Chain`'s END POSE (compare its result for one new couple against a `Courtesy Turn`'s, which
+is the composition CALLERLAB names), and the identity rule stays recorded with its citation but not
+shipped until there is a case that measures.
+
+The general lesson, and it has now recurred at least four times in this workstream: **a figure that
+stops on one call is frequently blocked by more than one defect, and the census shows only the first.**
+Attributing a bucket to a single owner is a hypothesis to be measured, not a conclusion.
+
 ---
 
 ## Recommended order

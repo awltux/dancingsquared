@@ -59,7 +59,7 @@ for (const start of ['Ocean Waves', 'Tidal Wave']) {
   console.log(`\n=== ${start} ===`);
   console.log(`  start     [${seq.knownFormation(board)}] ${pose(board)}`);
   console.log(`            gaps under 3.5: ${spacings(board)}`);
-  for (const call of ['Swing', 'Fan the Top', 'Spin the Top', 'Right and Left Thru']) {
+  for (const call of ['Swing', 'Fan the Top', 'Spin the Top', 'Right and Left Thru', 'Slide Thru', 'Pass Thru']) {
     // WHICH variant does the matcher pick, and at what error? A 4-dancer tam matched against an
     // 8-dancer board is exactly the tiling question, so the answer has to be on the record.
     const m = seq.findMatchingVariant(board, call, 6.0);

@@ -975,6 +975,35 @@ TWO THINGS THE NEXT ATTEMPT MUST NOT RE-LEARN:
 - `Right and Left Thru` is NOT the blocker, despite being the next call in `figm140`: measured legal at
   error 0.000 on both canonical boards (Eight Chain Thru / Normal Lines). The blocker is ten calls later.
 
+**AND THE COMPOSITION DOES UNBLOCK THE FOUR TIDAL FIGURES — THEY JUST LAND ON TWO KNOWN GAPS.** This is
+the part that decides where the next round should spend its time, so it is measured rather than reasoned.
+With the branch enabled and the four figures traced:
+
+```
+figure    blocked WITHOUT the composition        blocked WITH it
+figm48    #5 Slide Thru                          #7 Trade By        (two calls deeper)
+figm59    (same tidal wall)                      #10 Promenade
+figm115   (same tidal wall)                      #11 Promenade
+figm126   #4 Pass Thru                           #4 Pass Thru       (unchanged)
+```
+
+So `Slide Thru` and `Pass Thru` ARE unblocked by it — they refuse only on the half-scale tidal board and
+are both legal at error 0.000 on a proper `Ocean Waves` (measured: `Slide Thru` -> Normal Lines,
+`Pass Thru` -> Trade By). The chain then ends on one of exactly two things, both already in this plan:
+
+- **`Promenade`, the ring-order refusal** — the one §5 documents as CORRECT and unfixable locally, whose
+  owner is the unmodelled `Swing Your Partner` end pose. It blocks `figm59`, `figm115` and `figm140`.
+- **`Trade By`, "no setup matches"** — a Phase B setup gap. It blocks `figm48` and `figm183`.
+
+WHY THAT MAKES THE COMPOSITION A NET LOSS AND NOT A NEAR MISS: enabling it costs `figm140` and `figm183`
+and gains nothing, so the four tidal figures must ALSO start passing for it to pay — and three of the
+four are behind the `Promenade` refusal that no local rule fixes. **The honest conclusion is that
+`Fan the Top` / `Spin the Top` cannot reach the figure count until `Trade By`'s setup gap and the
+`Swing Your Partner` end pose are solved**, and that the four figures this section was chasing are NOT
+gated on the half-scale `Tidal Wave` after all — that was the plan's assumption, and it is now refuted.
+The derived `Fan the Top` is still kept on its own merits (correctness, a gate, strictly additive), but
+it is not a route to figures, and neither is the composition that builds on it.
+
 **AND THE RULE, AND WHERE IT CAME FROM (round 28).** The definition is not in `callerlab-ms.txt`
 (`Fan the Top` is Plus), but the reference ships CALLERLAB's own text at
 `taminations-flutter/assets/plus/fan_the_top.md`, and it is short enough to derive from directly:

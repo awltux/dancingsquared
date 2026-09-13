@@ -75,6 +75,30 @@ function offAxisFacings(board) {
   }).length;
 }
 
+/**
+ * Couples whose two dancers are more than `gap` apart.
+ *
+ * This is NOT an error on its own - the corpus's legitimate pre-Promenade boards have partners six
+ * apart, as a wave does, which is why `promenade.mjs` may not require partners to be together. It IS
+ * an error when the board is one the engine NAMES as a formation whose couples stand side by side, and
+ * that is the measured case below: `Allemande Left` refuses on a board named **Static Square** whose
+ * every couple has its partners six apart, one dancer at the north side and the other at the south.
+ */
+function splitCouples(board, gap = 3) {
+  const phys = board.dancers.filter((d) => !d.isGhost);
+  const byCouple = new Map();
+  for (const d of phys) {
+    if (!d.couple) continue;
+    byCouple.set(d.couple, [...(byCouple.get(d.couple) ?? []), d]);
+  }
+  let n = 0;
+  for (const list of byCouple.values()) {
+    if (list.length !== 2) continue;
+    if (Math.hypot(list[0].x - list[1].x, list[0].y - list[1].y) > gap) n++;
+  }
+  return n;
+}
+
 const only = process.argv.slice(2).find((a) => !a.startsWith('--')) ?? null;
 const rows = [];
 for (const f of data.figures) {
@@ -92,16 +116,19 @@ for (const f of data.figures) {
   const pairs = facingPairs(stop.board);
   const close = closestPair(stop.board);
   const off = offAxisFacings(stop.board);
+  const named = seq.knownFormation(stop.board) ?? '(unnamed)';
+  const split = splitCouples(stop.board);
   const verdict = close < 1.0 ? 'COLLISION'
     : pairs.length === 0 ? 'NO FACING PAIR'
       : off > 0 ? 'DIAGONAL'
-        : 'coverage?';
-  rows.push({ id: f.id, at: stop.i + 1, call: stop.call, board: seq.knownFormation(stop.board) ?? '(unnamed)', pairs: pairs.length, close, off, verdict });
+        : (split > 0 && named === 'Static Square') ? 'SPLIT COUPLES'
+          : 'coverage?';
+  rows.push({ id: f.id, at: stop.i + 1, call: stop.call, board: named, pairs: pairs.length, close, off, split, verdict });
 }
 
 if (process.argv.includes('--list')) {
   for (const r of rows) {
-    console.log(`  ${r.id} #${r.at} ${r.call.padEnd(22)} [${r.board}] pairs=${r.pairs} closest=${r.close.toFixed(2)} offAxis=${r.off}  -> ${r.verdict}`);
+    console.log(`  ${r.id} #${r.at} ${r.call.padEnd(22)} [${r.board}] pairs=${r.pairs} closest=${r.close.toFixed(2)} offAxis=${r.off} split=${r.split}  -> ${r.verdict}`);
   }
 } else {
   const by = new Map();

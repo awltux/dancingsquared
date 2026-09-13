@@ -3698,16 +3698,34 @@ WHOLE `no setup matches` bucket it re-attributes a quarter of the largest census
 
 ```
 === 50 figure(s), by the board they refuse on ===
-   38  coverage?        (well-formed board: this one really is a missing setup)
+   36  coverage?        (well-formed board: this one really is a missing setup)
     7  NO FACING PAIR   figm48 figm49 figm61 figm98 figm113 figm126 figm202
     4  COLLISION        figm47 figm59 figm115 figm122
+    2  SPLIT COUPLES    figm203 figm204
     1  DIAGONAL         figm219
 ```
 
-**12 of the 50 are BODY errors** — a board on which the call is not the call, or a body that has
-fallen apart — so a third of P16c's work list is P16a's, and authoring a setup for any of them would
-enshrine a bug. The 38 that survive are the real coverage list, and `Pass Thru` contributes just one
-of them (`figm35`, Quarter Tag) plus one selection case (`figm174`).
+**14 of the 50 are BODY errors** — a board on which the call is not the call, or a body that has
+fallen apart — so more than a quarter of P16c's work list is P16a's, and authoring a setup for any of
+them would enshrine a bug. The 36 that survive are the real coverage list, and `Pass Thru` contributes
+just one of them (`figm35`, Quarter Tag) plus one selection case (`figm174`).
+
+**`Allemande Left` (3 figures) — the same class, and it added the fourth signature.** `Allemande Left`
+was surprising enough to check on its own, because it has TWENTY-ONE authored setups including
+`Static Square` and it is the most basic call there is. All three are body errors:
+
+- `figm122` is a COLLISION — `#3` and `#6` are both at `(3,-1)`.
+- `figm203` and `figm204` (`Four Ladies Chain | Rollaway | Circle Left | Allemande Left`) reach a board
+  the engine NAMES **Static Square** whose **every couple has its partners SIX apart** — one dancer at
+  the north side, the partner at the south. The positions are the square's; the IDENTITY assignment is
+  broken, which is the same shape as the Promenade/swing finding above and is not something an
+  `Allemande Left` setup can fix.
+
+`splitCouples` is therefore the fourth signal, and it is deliberately NARROW: partners six apart is
+**not** an error on its own — the corpus's legitimate pre-Promenade boards are waves with partners six
+apart, which is why `promenade.mjs` may not require them together — so it only classifies when the
+board is one the engine NAMES as a formation whose couples stand side by side. That condition is where
+the measured evidence is, and it is not extended beyond it.
 
 **The same recipe applied to `Star Thru` at separation 2: authored, measured, REVERTED**
 

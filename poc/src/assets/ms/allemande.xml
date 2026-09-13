@@ -265,6 +265,78 @@
     </path>
   </tam>
 
+  <!-- THE ALLEMANDE POSE, and CALLERLAB names the pattern by name.
+       `Allemande Left` from a Static Square leaves every dancer on its own home spot with the men
+       turned a quarter towards promenade direction and the women the other way - the engine's own
+       result, and the pose it labels `O Trade By`. CALLERLAB's command example is "Allemande Left
+       Your Corner; Dosado Your Partner; Allemande Left Your Corner" (Mainstream definitions,
+       "Allemande Left / Allemande Right"), and Case 2's listed starting formations include a Trade
+       By, so the call MUST be legal again from that pose. It was not: every authored setup is a
+       Static Square with the HOME facings, so the pose matched none of them (measured: every variant
+       NULL even at tolerance 100 with gender required), and three census figures stopped there.
+       NOT `gender-specific`, unlike its siblings, and that is deliberate: the motion belongs to the
+       SLOT, not to the occupant. The same eight slots are occupied by the other genders as soon as
+       the couples have PROGRESSED (`Four Ladies Chain` first, as `figm167`/`figm171` do - measured:
+       six of the eight slots swap gender), and the allemande at a slot is fixed by the pose's
+       geometry - who you face and which arm. Declaring genders here would need two copies of this
+       tam and would still gate on a fact that does not decide the motion. -->
+  <tam title="Allemande Left" from="O Trade By">
+    <formation>
+      <dancer gender="boy" x="1" y="3" angle="180"/>
+      <dancer gender="girl" x="-1" y="3" angle="0"/>
+      <dancer gender="boy" x="3" y="-1" angle="90"/>
+      <dancer gender="girl" x="3" y="1" angle="270"/>
+      <dancer gender="boy" x="-1" y="-3" angle="0"/>
+      <dancer gender="girl" x="1" y="-3" angle="180"/>
+      <dancer gender="boy" x="-3" y="1" angle="270"/>
+      <dancer gender="girl" x="-3" y="-1" angle="90"/>
+    </formation>
+    <path>
+      <move select="Lead Left" beats="3" offsetX=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="Extend Right" beats="2" offsetY=".5" />
+    </path>
+    <path>
+      <move select="Lead Right" beats="1.5" offsetX="-.5" />
+      <move select="Hinge Left" scaleX=".5" scaleY=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="Lead Right" beats="2" offsetY=".5" />
+    </path>
+    <path>
+      <move select="Lead Left" beats="3" offsetX=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="Extend Right" beats="2" offsetY=".5" />
+    </path>
+    <path>
+      <move select="Lead Right" beats="1.5" offsetX="-.5" />
+      <move select="Hinge Left" scaleX=".5" scaleY=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="Lead Right" beats="2" offsetY=".5" />
+    </path>
+    <path>
+      <move select="Lead Left" beats="3" offsetX=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="Extend Right" beats="2" offsetY=".5" />
+    </path>
+    <path>
+      <move select="Lead Right" beats="1.5" offsetX="-.5" />
+      <move select="Hinge Left" scaleX=".5" scaleY=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="Lead Right" beats="2" offsetY=".5" />
+    </path>
+    <path>
+      <move select="Lead Left" beats="3" offsetX=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="Extend Right" beats="2" offsetY=".5" />
+    </path>
+    <path>
+      <move select="Lead Right" beats="1.5" offsetX="-.5" />
+      <move select="Hinge Left" scaleX=".5" scaleY=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="Lead Right" beats="2" offsetY=".5" />
+    </path>
+  </tam>
+
   <tam title="Allemande Left" from="Circle Left" formation="Circle" sequencer="gender-specific">
     <path>
       <move select="Eighth Left" beats="1.5" offsetX="1.1" offsetY=".4"/>

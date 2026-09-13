@@ -621,6 +621,41 @@ console.log('== Sequencer: Do Sa Do is formation-independent, because its author
     `a tandem is refused (the derived rule declines and the catalogue has no setup): ${r3.legal ? 'APPLIED' : r3.reason}`);
 }
 
+console.log('== Sequencer: Allemande Left is legal from its OWN end pose (CALLERLAB\'s own pattern) ==');
+// CALLERLAB's command example is literally "Allemande Left Your Corner; Dosado Your Partner;
+// Allemande Left Your Corner" (Mainstream definitions, "Allemande Left / Allemande Right"), and Case
+// 2's listed starting formations include a Trade By - so a call that cannot follow ITSELF in its own
+// documented pattern was missing a setup, not refusing wrongly. MEASURED before the pose tam
+// existed: every `Allemande Left` variant returned NULL on that pose even at tolerance 100 with
+// gender required, and three census figures stopped there.
+//
+// The pose arrives in TWO gender arrangements and BOTH must work, because callers run the pattern
+// after the couples have progressed: six of the eight slots swap gender after `Four Ladies Chain`.
+{
+  const al1 = scopedSeq.applyToBoard(scopedSeq.startBoard(), 'Allemande Left');
+  check(al1.legal === true, `Allemande Left is legal from a Static Square: ${al1.reason ?? 'ok'}`);
+  if (al1.legal) {
+    const al2 = scopedSeq.applyToBoard(al1.board, 'Allemande Left');
+    check(al2.legal === true, `...and legal again from its OWN end pose: ${al2.reason ?? 'ok'}`);
+  }
+  // The progressed arrangement, reached by replaying figm167's chain.
+  let b = scopedSeq.startBoard();
+  let ok = true;
+  for (const call of ['Four Ladies Chain', 'Rollaway', 'Circle Left', 'Allemande Left', 'Do Sa Do']) {
+    const r = scopedSeq.applyToBoard(b, call);
+    if (!r.legal) {
+      ok = false;
+      fail(`Allemande Left pose (progressed): "${call}" refused: ${r.reason}`);
+      break;
+    }
+    b = r.board;
+  }
+  if (ok) {
+    const r = scopedSeq.applyToBoard(b, 'Allemande Left');
+    check(r.legal === true, `...and from the PROGRESSED pose too, where six of the eight slots hold the other gender: ${r.reason ?? 'ok'}`);
+  }
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

@@ -126,9 +126,21 @@ recording); the third **won two figures**:
   and the figure count does not move (107).** Kept because it is a correctness fix with a measured
   identity and it improves attribution, not because it pays; the honest cost of `catalogueFallback` is
   that when both readings refuse, the catalogue's message is the one that surfaces.
+- **And `Allemande Left` can now follow ITSELF (`0 figures`, two of its three stops fixed).**
+  CALLERLAB's command example is literally *"Allemande Left Your Corner; Dosado Your Partner;
+  Allemande Left Your Corner"*, and Case 2's starting formations include a Trade By — but every
+  authored setup was a Static Square with the HOME facings, so the allemande pose (the engine's own
+  result, labelled `O Trade By`) matched none of them: **every variant NULL even at tolerance 100 with
+  gender required**, and three census figures stopped there. The new tam is the pose's eight slots as
+  an inline formation with the sibling's paths, and it is deliberately **NOT `gender-specific`**,
+  unlike its siblings: the motion belongs to the SLOT, not the occupant, and six of the eight slots
+  hold the other gender once the couples have progressed (measured on `figm167`/`figm171`, whose
+  chains reach the pose through `Four Ladies Chain`). Declaring genders would have needed two copies
+  of the tam and would still gate on a fact the motion does not depend on. `Allemande Left` stops
+  **3 → 1** and the get-out corpus is unchanged at 122.
 
-All three sides re-measured at the end of the round: figures **103 of 188**; get-out **121 of 265**
-reaching a resolve state (109 applying the finish, 111 body stops); FSM **155 / 92 / 43 / 19
+All three sides re-measured at the end of the round: figures **107 of 188**; get-out **122 of 265**
+reaching a resolve state (110 applying the finish, 110 body stops); FSM **155 / 92 / 43 / 19
 unchanged**; CALLERLAB **unchanged** (the 9-of-45 row is still the name-matching artefact, and the
 real gap is still 2 (call, start) pairs + 24 formation names).
 

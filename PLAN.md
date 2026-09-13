@@ -4038,6 +4038,23 @@ unit scale is `(1, 1)`, not the `(2, 0.4)` the table above records, and there is
   at a UNIT scale (`scaleX=1`) from separation 2, where the two moves' lateral components should
   cancel into a box — the `separation 2` row above REFUSES, which is itself the anomaly to explain.
 
+**SEPARATION TWO AUTHORED, AND IT CONFIRMS THE COMPOSITION IS THE DEFECT — then reverted.** The corpus
+also reaches `Touch 1/4` from a **Trade By**, whose facing couples are two apart, so the same recipe
+was run: `Extend Left scaleX = separation / 2 = 1`, with an inline formation at `x = -1`. Measured:
+
+| | before | after |
+|---|---|---|
+| figures end-to-end | 98 | **98** |
+| `catalogue no-setup` | 48 | **48** |
+| `Touch 1/4` from a Trade By | refused | **legal — and the resulting board is UNNAMED** |
+
+The tam MATCHES and the call becomes legal, and no figure is won — which is the sharpest evidence yet
+for what the round above measured from the other side: **the end pose is not a formation.** The defect
+is in the `Extend` + `Hinge` COMPOSITION rather than in the separation scaling, so a new separation
+simply inherits it, and the recipe that worked for `Box the Gnat` cannot work here until the composition
+is understood. The tam comes back out on the same rule as the `Star Thru` one: a behaviour change with
+no measured gain is not a phase.
+
 
 
 

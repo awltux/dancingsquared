@@ -769,6 +769,41 @@ root-caused just below.
   `Pass Thru` (figm126) then refuse, because those calls' setups are the REAL waves.
 - The root is not the template but the AUTHORING: the catalogue ships an 8-dancer
   `from="Right-Hand Waves"` `Spin the Top`, and it merges the two facing waves instead of working each.
+
+**SHARPENED, ROUND 27 — THE OWNER IS `Fan the Top`, NOT `Spin the Top`, AND THE DEFECT IS SYMMETRIC.**
+The round-25 statement above was measured on a mid-chain board. Re-measured on the two CANONICAL boards
+(`engine/test/tools/spin-the-top-probe.mjs`, which prints the matched variant, the error, and the
+distinct inter-dancer gaps):
+
+```
+start          call           result                                     gaps < 3.5
+Ocean Waves    Swing          Ocean Waves                     (unchanged) 2.00
+Ocean Waves    Fan the Top    "Tidal Wave", ONE line of 8 at y=0          1.00, 2.00, 3.00   <- WRONG
+Ocean Waves    Spin the Top   "Tidal Wave", ONE line of 8                1.00, 2.00, 3.00   <- WRONG
+Tidal Wave     Swing          Tidal Wave                      (unchanged) 1.00, 2.00, 3.00
+Tidal Wave     Fan the Top    Ocean Waves, two columns at x=±3           2.00               <- WRONG
+Tidal Wave     Spin the Top   Ocean Waves, two columns at x=±1           2.00               <- WRONG
+```
+
+So it is **not** "Spin the Top merges two facing waves": **`Fan the Top` is wrong from BOTH formations,
+in both directions**, and `Spin the Top` merely inherits it. `Swing` is correct from both — which is why
+the round-26 composition attempt could not have worked whatever the sub-apply tolerance did.
+
+Three facts pin the owner:
+
+- `Fan the Top` has **no derived rule in this engine at all** (`coded-moves.ts` has no entry); it is a
+  PLUS call served entirely by `poc/src/assets/plus/fan_the_top.xml`. `Spin the Top` is a Mainstream tam.
+- Its `from="Right-Hand Waves"` tam carries `formation="Ocean Waves RH BGGB"` and only **FOUR `<path>`
+  elements for eight dancers**, i.e. the catalogue itself expresses it as a 4-dancer wave read applied
+  per half — which is the reference's `SplitCall`, exactly as round 25 cited from `split_call.dart`.
+- The matcher reports an **8-dancer** variant matched at **error 0.000** on BOTH boards, so this is not a
+  tolerance or tiling failure: the engine believes it has a perfect match and then produces the wrong
+  shape. Whatever the fault is, it is in reading the per-half paths, not in finding them.
+
+**The next target is therefore `Fan the Top` as a derived call** (split near/far then left/right into
+4-dancer waves, apply the wave motion per half), and it is the SAME work round 26 scoped — a strict
+tolerance, no-snap per-half apply mode — now with a much better witness: the two canonical boards above
+are a two-line test that needs no figure at all to tell right from wrong.
 - **And the authority says it must work each.** `Fan the Top` is a per-half call in the reference —
   `FanTheTop extends SplitCall`, and `split_call.dart` states it outright: *"This is a class for 3- or
   4-dancer calls ... The formation is split and the call performed on each side"* (near/far first, then

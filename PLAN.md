@@ -3357,17 +3357,43 @@ two vocabularies are related, which is what Phase 16 is for.
 Each phase states its measured size, the owner, and the gate. Sizes are stops in the 188-figure
 census (taken under the Phase 10 convention) unless stated otherwise.
 
-### Phase 10 — make a verdict a function of the board (prerequisite)
+### Phase 10 — make a verdict a function of the board (PARTIAL: pinned and reproduced, not isolated)
 
-- **Size:** 8 vs 20 vs 17 of 188 across three walk conventions; the blocker for every number below.
-- **Work:** find the board field two walks disagree on (dump the whole dancer object and diff, rather
-  than the five fields a human thinks of); make `applyToBoard`/`knownFormation` history-independent;
-  and either seed or remove the `config.rand()` interpretation pick, which is stochastic in an engine
-  whose other selection path defaults to `best`.
-- **Gate:** walking the corpus with and without interleaved read-only queries gives byte-identical
-  results, pinned in a harness; a second harness pins that the same board+call asked twice, with
-  other boards queried in between, gives the same verdict. Then re-take every baseline in this
-  document and record the convention.
+- **Size:** 8 vs 20 vs 17 of 188 across three walk conventions.
+- **LANDED.** `engine/test/tools/determinism-audit.mjs` runs the same corpus through eight procedures
+  with the random source pinned to a constant and reports, per procedure, how many figures run and
+  exactly which figures differ. Run on the current engine:
+
+  | procedure | figures that run | difference from baseline |
+  |---|---|---|
+  | baseline (one instance, one start board) | **8** | — |
+  | fresh start board per figure | 8 | none |
+  | `knownFormation` after every call | **20** | 12 figures, all `Promenade` → ran |
+  | `recognize` after every call | **8** | none |
+
+  Two things this fixes in the record:
+
+  1. **The convention is now pinned in the tools.** `figure-census.mjs` (8) and `fsm-getout-audit.mjs`
+     (20) print which convention they use, so the two numbers can no longer be compared by accident.
+     Every baseline in this document uses the **no-interleaved-queries** convention, which is stable
+     and which the target suite and the corpus harnesses also use.
+  2. **The anomaly is reproduced on demand**, narrowed to `knownFormation` specifically: `recognize`
+     queries the same matcher and changes nothing, so the state is what only `knownFormation`
+     populates — the matcher's `formationMatchCache`, whose other consumer is `snapBoard`
+     (`matcher.ts:140-150`), the post-apply snap on the applicator's path. At the divergence the two
+     procedures apply the SAME call to a byte-identical board and get **different boards**.
+
+- **NOT DONE, and deliberately not guessed at.** The trigger was not isolated. Attempts that all
+  came back clean: the boards are not mutated by a query; the start board is not shared; two
+  identically-constructed instances agree on the whole figm31 walk; `knownFormation`, `recognize` and
+  `legalCalls` are stable on the named formations before and after a full corpus walk; warming with
+  N earlier figures changes nothing in isolation. Since only a *diagnostic* interleaving exposes it,
+  and every real consumer uses the stable convention, this does not block the phases below — but it
+  is a live correctness smell and it stays open.
+- **Remaining done-when:** the two procedures (with and without interleaved `knownFormation`) produce
+  identical results, and the audit is promoted into `verify` as a gate. Until then the audit is a
+  tool, and its baseline row is the pinned convention.
+
 
 ### Phase 11 — the general `Swing` (48 figures)
 

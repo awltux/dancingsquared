@@ -481,6 +481,39 @@ is not merely wrong: for some follow-on calls it is the board they are authored 
 must therefore be additive and measured per follow-on call, not a swap of the motion.** The defect
 stays open, at its true size (about five figures), rather than at the size the bad probe claimed.
 
+### Round 13: the `unknown call` and `Promenade` buckets, and the end of the separation recipe
+
+**`unknown call` (4) is blocked on reference material this repo does not have.** The four stops are
+`Yellow Rock`, `Partner Trade 1 1/2`, `Pass One` (twice) and `Separate Around Two`. `Yellow Rock` is a
+**Plus** call and the repo's CALLERLAB text is Mainstream only; `Pass One` is All8's own abbreviation
+(*"Pass One (Pass by 1, Pass 1 by, Skip 1)"*) with no CALLERLAB definition at all; `Circle 2` likewise
+(*"No `Circle 2` title exists"*). Each is already DECLARED in `KNOWN_CATALOGUE_GAPS` with its reason,
+which is exactly what that list is for — so they are recorded gaps, not oversights, and implementing
+any of them means asserting choreography from nothing.
+
+**`Promenade` (4) is two honest refusals and two misattributed reasons.** Measured: two are
+`collision` refusals (`dancers 5 and 7 are 0.87 apart`, `dancers 6 and 2 are 1.00 apart`) — bodies
+that have fallen apart, where refusing is right. The other two are `couples out of sequence`, and on
+BOTH the board is not a couple arrangement at all: `figm175`'s board has **no two dancers of a pair
+standing together at any spacing** (every 2-apart pair faces opposite ways), and `figm124`'s couples
+are four apart with no physical pairing to fall back on. So the ring-order arithmetic is being run
+over couple midpoints that are fictions. **Fixing the reason is not available cheaply**: gating the
+check on "the couples are standing together" is exactly the relaxation that breaks the `[B2r]`/`[B2p]`
+alignment gates, whose stored pairs are ALSO 2-apart facing pairs — measured in round 2 and recorded
+then. Recorded here so the next reader does not re-derive it.
+
+**AND THE SEPARATION RECIPE IS NOW EXHAUSTED — measured, not assumed.** The recipe that won four
+figures is: find the authored setup with the board's SHAPE at another SCALE, and author the missing
+separation. That requires the best error against the call's own setups to be **FINITE**. Across the
+whole remaining `no setup` bucket, measured call by call against every authored setup at tolerance
+100, **every single stop returns NULL** — `Pass Thru` 5, `Star Thru` 5, `Swing Thru` 3, `Slide Thru`
+3, `Touch 1/4` 3, `Walk and Dodge` 2, `Box the Gnat` 2, `Trade By` 2, and every one-figure call:
+**no setup even has the right shape** (finite-shape: 0 of 46 stops). So none of them is a missing
+separation or a missing arrangement, and the method that paid three times has no candidates left.
+What remains in that bucket is upstream body defects (several already diagnosed: `Spin the Top`'s
+half scale, `Split Two`'s whole-board motion, the `Mixed Columns` boards `Heads Touch 1/4` leaves)
+or choreography that would have to be derived from a definition this repo does not hold.
+
 ### The `selection will not resolve` bucket, diagnosed (round 12) — three causes, not one
 
 The bucket had never been read at all; all eight stops are now attributed, and they are three

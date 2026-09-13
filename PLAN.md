@@ -3468,7 +3468,14 @@ So it is dissolved into Phase 14, Phase 16 and the star work rather than run on 
 **re-orders the list: setup coverage now comes before the missing calls**, because it owns the larger
 share of this bucket as well as the largest census bucket.
 
-### Phase 16 — setup coverage: the largest single owner (44, plus most of the 22 above) — NEXT
+Phase 16's own step 2 then re-orders it again, in the same direction the census keeps pointing: the
+census attributes a figure to the call it STOPPED on, so every phase here has been quoting the
+*symptom*. 15 of the 46 census failures are already standing in an arrangement the engine cannot name —
+the fault is one call earlier — and 10 more refuse while a setup overlays the board exactly. Ranking the
+work by the number of figures that name a call therefore mis-sizes every one of them; the bodies come
+first, and P16a below is the new head of the queue.
+
+### Phase 16 — setup coverage: the largest single owner (44, plus most of the 22 above) — NEXT, split three ways by step 2
 
 **Step 1 is done and it changes the phase's shape.** `engine/test/tools/setup-coverage.mjs` walks the
 corpus, finds every figure that stops with *"no setup in this call matches the current formation"*,
@@ -3490,10 +3497,54 @@ matcher change, and it must be run as a series of small call-by-call steps rathe
 those could be reached by tolerance, and even there the authored setup may be right and the board
 wrong.
 
+**Step 2 is done, and it splits the phase three ways.** ARRANGEMENT ("same size, same scale,
+different shape") hides the question that has to be answered before a single setup is authored:
+*is this board an arrangement the call should apply to?* `engine/test/tools/setup-split.mjs` asks it
+three ways — the match is re-run with all headings zeroed so the positional overlay can be scored
+separately from the facings (facing is worth 0.5/radian inside `matchFormations`, `match.ts:105`,
+so one error number cannot tell them apart); the board is re-named; and **every intermediate board in
+the chain is named**, which is the measurement that decides it.
+
+| split | cases | meaning |
+|---|---|---|
+| **SETUP GAP** | **31** | every board on the way to the failure — start, every intermediate result, and the board the call faces — is a *named* formation. The arrangement is real; the call has no setup for it. |
+| **BODY ERROR** | **15** | a preceding call was accepted as LEGAL and produced an arrangement the engine cannot name. Authoring a setup here would enshrine the bug; the failing call is a symptom. |
+
+`legal` only means a setup matched and a body ran. It does not mean the body produced the arrangement
+the call actually calls for, and nothing in the pipeline checks that — so a *silent* wrong board is
+invisible until some later call cannot match. The prefix scan is what makes those visible, and it
+names the suspects: `Heads Touch 1/4` 3, `Boys Fold` 2, `Single Hinge` 2, `Square Thru 4` 2,
+`Sides Right and Left Thru` 2, then `Sides Touch 1/4`, `Girls Run`, `Boys Run`, `Centers Pass Thru`
+one each.
+
+The decomposition then splits the 31 "real" failures again, and two of the three sub-classes are
+**not missing setups at all**:
+
+| verdict | cases | what it actually is |
+|---|---|---|
+| SHAPE / NO-POSITIONAL-MATCH | 21 | the genuine arrangement gap — the only class a new setup can fix |
+| **FACING** | **5** | the positions overlay a setup *exactly* and half the facings are 180° off (`Split Circulate`, `Swing Thru`, `Eight Chain 4`, and `Right and Left Thru` where 8/8 differ) |
+| **EXACT** | **5** | positions **and** facings overlay a same-size setup at error 0.000 and the engine still refuses |
+
+The EXACT five are a dispatch defect, measured rather than argued. `Star Thru` after `Heads Rollaway`
+(`figm228`, `figm229`) refuses, yet `findMatchingVariant` on that board returns NULL while the call's
+own `from="Static Square"` 8-dancer setup matches it at **error 0.000 with gender ignored and NULL with
+gender required** — every authored `Star Thru` setup is `gender-specific`. CALLERLAB's authority for
+the call is *"Starting formation: Facing Dancers (Man facing Woman)"*, and after the rollaway all four
+across-the-set pairs are still man-facing-woman: the call is legal, and the refusal is the **gender-slot
+rigidity** of a tam whose per-slot genders no longer line up, not a geometry or coverage gap. The other
+three (`figm174 Heads Pass Thru`, `figm224 Sides Pass Thru`, `figm121 Star Thru`) go through the
+isolated reading of a selection, where the same "setup present, still refused" shape appears.
+
 - **Size:** ~46 figures by this tool's walk; 44 in the census, plus the selection cases re-attributed
-  from Phase 13.
-- **Owner:** the matcher's setup vocabulary — tams authored for one arrangement and one SCALE
-  (Phase 9a), now measured to be the single largest owner in the census.
+  from Phase 13 — but only ~21 of them are setup authoring.
+- **Owner:** three different ones, so the phase runs in three steps, and the order is forced by the
+  measurement: **P16a the broken bodies** (the 9 suspects, ~15 figures — one body fix pays every figure
+  that passes through it, and `Single Hinge` and `Touch 1/4` are upstream of far more than the figures
+  that stop *on* them); **P16b the dispatch/matching refusals** (the 5 EXACT + 5 FACING, no new setup
+  needed); **P16c the ~21 genuine arrangement gaps**, call by call, largest first.
+- **Owner (P16c only):** the matcher's setup vocabulary — tams authored for one arrangement and one
+  SCALE (Phase 9a), now measured to be the single largest owner in the census.
 - **Gate:** each (call, board geometry) pair is either covered by a setup or a derived rule, or
   recorded with its reason; the census is re-taken and the figure count must rise. Run it call by
   call, largest first, with the method the port uses: the definition first, then the rule, then

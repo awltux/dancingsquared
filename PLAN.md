@@ -3610,6 +3610,41 @@ isolated reading of a selection, where the same "setup present, still refused" s
 
 #### P16c, re-taken and re-ranked: the biggest sub-bucket is ONE missing separation, not 45 gaps
 
+> **STATE OF THE OBJECTIVE — read this first if you are resuming.** Rounds 1–27 of this workstream
+> took the All8 figure census from **88 to 101 of 188** and are summarised here so the detail below
+> does not have to be re-derived:
+>
+> **Shipped and verified** (`verify-suite` green after each, 20 harnesses, ~290s): the catalogue LEVEL
+> TIE-BREAK (pool all levels, highest first — 88→90); `Fold`/`Cross Fold` derived (90→92); the
+> `leaders`/`trailers` selection as a PARITY rather than a pairing (92→95); `Sweep a Quarter` derived,
+> PER BOX, with the new `boxedBy` registry concept (95→97); the `Split the Outside Couple` bridge (a
+> CALLERLAB rename, zero figures); `Box the Gnat` seam-6 (97→98); `Right and Left Thru` seam-2
+> (**98→101**); `Square Thru 4` seam-2 and `Flutterwheel` seam-2 (both zero figures, both moving their
+> target deeper).
+>
+> **REFUTED, with the measurement recorded so it is not re-litigated**: `Star Thru` seam-2 (legal but
+> no figures, and it does not fix the board it aimed at); relaxing `partition`'s couple coherence for
+> the Sweep (removes the refusals and LAUNDERS A COLLISION — 98→96); `Touch 1/4` seam-2 (matches, end
+> pose is not a formation); applying CALLERLAB's temporary couple number either per board shape
+> (98→96) or per call (`Four Ladies Chain` never fired — `splitSelection` reads it as "the four Ladies
+> do a Chain"); and removing `sequencer="gender-specific"` from `Allemande Left` (refuted by a
+> long-green gate in `features.mjs`).
+>
+> **The instruments, which are the durable output**: `figure-census.mjs` (the count and the cause
+> table), `figure-trace.mjs` (one figure, call by call), `facing-audit.mjs` (classifies every
+> `no setup matches` refusal — 14 of 50 are BODY errors, and its `mutual` column cuts the authoring
+> queue from 35 rows to **25**), and `setup-split.mjs`, `setup-coverage.mjs`, `fsm-getout-audit.mjs`.
+>
+> **Where the remaining work actually is, in order of leverage**: the **25 single authorings** below
+> (no two share a call); the **body errors** the audit names, which need a call one step UPSTREAM
+> rather than a setup; the **"active dancers continue"** convention CALLERLAB assumes and the engine
+> lacks (the `Right-hand Star` / `Centers` family); and a handful of refuted-adjacent paths that need a
+> third kind of work (`figm111` now stops on the Sweep tiling). The single clearest signal from the
+> last three rounds: **the remaining refusals are STACKED — a coverage fix at call N generally reveals
+> a different defect at call N+1 rather than completing the figure**, so the figure count moves less
+> than the number of defects fixed.
+
+
 P16c was carried as "~21 genuine arrangement gaps, call by call, largest first". Measured again from
 the census's own blocking-call table, the 45 `catalogue tam has no setup` figures are not 45
 independent authorings; **the largest single cause is that `Facing Dancers` calls have no SIX-apart

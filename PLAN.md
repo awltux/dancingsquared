@@ -283,6 +283,31 @@ authoring, which is why they are their own phase.
    has no active-set tracking. This is the `Right-hand Star` / `Centers` family, and it is also why
    `-BRun` is an approximation in the decoder (`-B` = "the Boy(s) AMONG THE DANCERS WHO WERE ACTIVE").
    Design before code: the active set has to be a first-class part of the board or the sequencer state.
+4. **THE OCEAN WAVE RULE — an unambiguously missing convention, and its prerequisite is now measured.**
+   CALLERLAB, "Ocean Wave Rule": *"Some calls that are defined to start from Facing Couples are also
+   proper starting from a Right-Hand Ocean Wave … While the rule is called the Ocean Wave Rule, it is
+   generalized to include Mini-Wave (Facing Dancers) and Tidal Wave (Facing Lines), etc. **Examples
+   include Pass Thru, Slide Thru, Box the Gnat, and Double Pass Thru** … The adjustment that is part of
+   the Ocean Wave Rule does not change the effect of the call … **It is as if any dancer in a mini-wave
+   had first stepped back into facing dancers and then all did the call.** For example, from a
+   Right-Hand Mini-Wave, 'Dosado' ends in Facing Dancers, not in a Right-Hand Mini-Wave."*
+   So the engine needs a way for these calls to act on **facing PAIRS (2 dancers)**, and every
+   `Slide Thru` authoring is a 4- or 8-dancer setup — a wave cannot be tiled by them. **Measured: a
+   `from="Facing Dancers"` authoring (an inline pair, mirrored to itself) registers and works on a
+   bare facing pair, and changes NO figure outcome at all** (census 107 → 107, all 42 `no setup`
+   refusals unchanged), because the three `Slide Thru` stops are the HALF-SCALE `Tidal Wave` boards
+   described above and their dancers stand ONE apart, so no 2-apart pair matches. Reverted on the
+   repo's own rule — a behaviour change with no measured gain is not a phase — and recorded here as
+   the prerequisite it is: the rule is real, its authoring is cheap, and it is blocked on the scale
+   defect, not on itself.
+   **Two data inconsistencies found while checking it, both worth knowing before the same ground is
+   re-covered:** (a) the engine's canonical `Ocean Waves` template carries the gender arrangement
+   **B,G,G,B** along each wave — two girls adjacent in the middle — while every call's wave setup is
+   authored **B,G,B,G**, so a synthetic `boardForFormation('Ocean Waves')` board does not match
+   `Slide Thru`'s own `from="Ocean Waves"` authoring; and (b) `mirrorToFull` appends the far half as
+   COPIES carrying a `mirror` flag rather than mirrored coordinates, so a bundle's raw formation
+   prints its near half twice — the mirror is applied at match time, which is correct but makes the
+   raw data look duplicated in any diagnostic.
 3. **`Split Two` is the first concrete case, and its blocker is MEASURED — including an attribute the
    engine reads from nobody.** The call IS in the catalogue, under a file whose name hides it:
    `ms/split_the_outside_couple.xml` is a tamination titled **`Split Two`** whose tams are

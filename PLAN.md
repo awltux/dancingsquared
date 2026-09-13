@@ -101,6 +101,14 @@ recording); the third **won two figures**:
 - **Phase E item 1 (done, 101 → 103 figures)** — CALLERLAB's TEMPORARY COUPLE NUMBER, read where
   identity is USED rather than written onto the board. See the section below for the measurement and
   for why the two earlier reverts do not apply to this placement.
+- **And one refutation recorded** — the `Swing Your Partner` end pose, modelled as a local closure of
+  co-oriented couples, measures **103 → 95 figures** and is reverted; the swing's pose is not
+  derivable from the local pairing. See the Phase E lead below.
+
+All three sides re-measured at the end of the round: figures **103 of 188**; get-out **120 of 265**
+reaching a resolve state (108 applying the finish, 112 body stops); FSM **155 / 92 / 43 / 19
+unchanged**; CALLERLAB **unchanged** (the 9-of-45 row is still the name-matching artefact, and the
+real gap is still 2 (call, start) pairs + 24 formation names).
 
 The single most important reading of that table: **`catalogue tam has no setup` is not one owner.**
 `setup-split.mjs` splits it by whether every intermediate board in the chain is a named formation —
@@ -496,21 +504,18 @@ separation is only the call's scale.
 
 ## 6. Recommended order
 
-**DONE: Phase A's head (`Heads Touch 1/4`) and Phase E's item 2 (the per-couple gender rule).** Both
-cleared a body defect and moved their chains deeper without moving the figure count; the get-out
-corpus gained 4 lines. Then, in this order:
+**DONE: Phase A's head (`Heads Touch 1/4`), Phase E item 2 (the per-couple gender rule) and Phase E
+item 1 (the temporary couple number, +2 figures).** One attempted phase is REFUTED and recorded: the
+swing's local closure end pose (103 → 95). Then, in this order:
 
-1. **Phase E, item 1, RE-TESTED** (see "Phase E, NEW LEAD"): the gender relaxation removed the masking
-   defect that its revert was partly decided on, so the temporary-couple-number rule is worth
-   measuring again — and it is the owner of the four `Promenade` ring-order refusals, the largest
-   derived-call bucket in the census.
-2. **Phase A's remaining queue** — the body errors the `setup-split.mjs` prefix scan names next
+1. **Phase A's remaining queue** — the body errors the `setup-split.mjs` prefix scan names next
    (`Allemande Left` 3, `Sides Touch 1/4` 2, `Girls Run` 2, `Square Thru 4` 2, `Centers Swing Thru` 2,
    `Sides Right and Left Thru` 2).
-3. **Phase B** — the authoring queue, call by call, definition first; run `facing-audit.mjs` and a
+2. **Phase B** — the authoring queue, call by call, definition first; run `facing-audit.mjs` and a
    chain trace before each row.
-4. **Phase D** — the named missing calls (`unknown call` is down to 3, so this is bounded work).
-5. **Phase C** — the two conventions; design before code, both have board-wide blast radius.
+3. **Phase D** — the named missing calls (`unknown call` is down to 3, so this is bounded work).
+4. **Phase C** — the two conventions; design before code, both have board-wide blast radius.
+5. **`Swing Your Partner`'s end pose** — needs a corpus- or reference-pinned model, not a local rule.
 6. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
    tie-break sweeps; independent of each other and of the figure work.
 

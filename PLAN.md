@@ -3403,13 +3403,13 @@ therefore have moved the stop one call later and gained nothing — the same tra
 Hand Star` diagnosis found. They were sized as two phases, and the measurement merged them.
 
 **Result: 8 of 188 figures run end-to-end before, 83 after.** The two dominant causes the census
-found are gone, and every other cause is untouched:
+found are reduced from 80 figures to 5, and every other cause is untouched:
 
 | cause | before | after |
 |---|---|---|
 | derived `Swing Your Partner` refuses | 48 | **0** |
-| derived `Promenade` refuses | 32 | **0** |
-| everything else (unchanged) | 100 | 105 |
+| derived `Promenade` refuses | 32 | **5** (the ring-order refusals, kept deliberately) |
+| everything else (unchanged) | 100 | 100 |
 
 **What changed, and on what authority.**
 

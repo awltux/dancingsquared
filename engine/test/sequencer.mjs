@@ -407,6 +407,81 @@ console.log('== Sequencer: Box the Gnat ends in the SAME box at every authored s
     `the couples end facing the way they came from (headings ${a.heading.toFixed(2)}, ${b.heading.toFixed(2)})`);
 }
 
+console.log('== Sequencer: Touch a Quarter ends in the 2x2 right-hand box the definition names ==');
+// PHASE A (PLAN.md) HEAD FIX. CALLERLAB: "Touch a Quarter - Starting formation: Facing Dancers only.
+// Dance action: In one smooth motion, Step to a Wave and Turn 1/4 by the Right. Ending formation:
+// Right-Hand Mini-Wave", plus "When called from Facing Couples, the four dancers do not make a Wave
+// midway through Touch a Quarter." The authored facing-couples tams put a stray `scaleY` on ONE of
+// their two moves (`Extend Left scaleY=".5"` on one path, `Hinge Right scaleY=".5"` on the other),
+// which leaves a residual lateral 0.5 and ends the call in a 2-wide, 3-tall rectangle instead of the
+// box. Measured before the fix, at the three authored separations: separation 6 and 3 both ended
+// `(+-1, +-1.5)`, and the separation-4 b2 demonstration `(+-1, +-2)`. The net lateral must CANCEL -
+// the step to the wave dodges one unit sideways and the hinge brings it back - so neither move may
+// be scaled.
+{
+  const facingCouples = (s) => ({
+    dancers: [
+      { id: 1, couple: 1, gender: 'boy', x: -s / 2, y: 1, heading: 0 },
+      { id: 2, couple: 1, gender: 'girl', x: -s / 2, y: -1, heading: 0 },
+      { id: 3, couple: 2, gender: 'boy', x: s / 2, y: -1, heading: Math.PI },
+      { id: 4, couple: 2, gender: 'girl', x: s / 2, y: 1, heading: Math.PI },
+    ],
+  });
+  const shape = (ds) => JSON.stringify(ds.map((d) => [d.x.toFixed(2), d.y.toFixed(2), d.heading.toFixed(2)]));
+  const ends = [3, 6].map((s) => {
+    const r = scopedSeq.applyToBoard(facingCouples(s), 'Touch a Quarter');
+    check(r.legal === true, `Touch a Quarter is legal on facing couples ${s} apart: ${r.reason ?? 'ok'}`);
+    return r.legal ? r.board.dancers.slice().sort((a, b) => a.id - b.id) : null;
+  });
+  check(ends.every((e) => e && shape(e) === shape(ends[0])),
+    `separation 3 and 6 end in the SAME pose (3 apart: ${shape(ends[0])})`);
+  if (ends[0]) {
+    const spots = ends[0].map((d) => `${d.x.toFixed(2)},${d.y.toFixed(2)}`);
+    check(new Set(spots).size === 4 && spots.every((s) => /^-?1\.00,-?1\.00$/.test(s)),
+      `the four end on the four DISTINCT spots of a 2x2 box (${spots.join(' ')})`);
+    // A right-hand box: two right-hand mini-waves, so the paired dancers (1,4) and (2,3) here face
+    // OPPOSITE ways, each having turned the same sense ("Turn 1/4 by the Right" is per dancer).
+    const byId = new Map(ends[0].map((d) => [d.id, d]));
+    const opposite = (a, b) => Math.abs(Math.abs(ends[0].find((d) => d.id === a).heading - byId.get(b).heading) - Math.PI) < 1e-6;
+    check(opposite(1, 4) && opposite(2, 3),
+      `each mini-wave faces opposite ways (${[1, 2, 3, 4].map((id) => byId.get(id).heading.toFixed(2)).join(' ')})`);
+    check([1, 2, 3, 4].every((id) => {
+      const before = facingCouples(3).dancers.find((d) => d.id === id);
+      return Math.abs(byId.get(id).heading - before.heading + Math.PI / 2) < 1e-6;
+    }), 'every dancer turned exactly 1/4 to the RIGHT');
+    let min = Infinity;
+    for (let i = 0; i < ends[0].length; i++)
+      for (let j = i + 1; j < ends[0].length; j++)
+        min = Math.min(min, Math.hypot(ends[0][i].x - ends[0][j].x, ends[0][i].y - ends[0][j].y));
+    check(min > 0.25, `no two dancers collide (closest pair ${min.toFixed(3)})`);
+  }
+
+  // CALLERLAB's OWN WORKED CASE, from the Squared Set Convention: "The active dancers move forward
+  // into the center of the set and execute the call. If they end facing the same walls as the
+  // inactive dancers, they will remain in the center (for example, 'Heads Square Thru 4', 'Heads
+  // Star Thru', 'Heads Touch a Quarter')." The heads of a Static Square are six apart, so this is
+  // also the case the seam-6 authoring exists for.
+  const sq = scopedSeq.boardForFormation('Static Square');
+  const heads = scopedSeq.applyToBoard(sq, 'Heads Touch a Quarter');
+  check(heads.legal === true, `Heads Touch a Quarter is legal from a Static Square: ${heads.reason ?? 'ok'}`);
+  if (heads.legal) {
+    const at = (id) => heads.board.dancers.find((d) => d.id === id);
+    const headIds = [1, 2, 5, 6];
+    const centres = headIds.every((id) => Math.abs(Math.abs(at(id).x) - 1) < 1e-6 && Math.abs(Math.abs(at(id).y) - 1) < 1e-6);
+    check(centres, 'the four heads end on the centre 2x2 box (+-1, +-1)');
+    // ... facing the walls the SIDES face (east/west), which is what "remains in the centre" means.
+    check(headIds.every((id) => Math.abs(Math.sin(at(id).heading)) < 1e-6),
+      'the heads end facing east/west, the same walls the inactive sides face');
+    check(headIds.every((id) => Math.abs(Math.cos(at(id).heading)) > 0.99),
+      'the heads face along the east/west axis (cos heading +-1)');
+    const sides = [3, 4, 7, 8];
+    check(sides.every((id) => {
+      const before = sq.dancers.find((d) => d.id === id);
+      return Math.hypot(at(id).x - before.x, at(id).y - before.y) < 1e-6 && at(id).heading === before.heading;
+    }), 'the inactive sides do not move');
+  }
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

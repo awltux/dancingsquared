@@ -28,10 +28,10 @@
        difficulty="1">
     <path>
       <move select="Extend Left" scaleX="1.5" />
-      <move select="Hinge Right" beats="1" scaleY=".5"/>
+      <move select="Hinge Right" beats="1"/>
     </path>
     <path>
-      <move select="Extend Left" scaleX="1.5" scaleY=".5" />
+      <move select="Extend Left" scaleX="1.5" />
       <move select="Hinge Right" beats="1" />
     </path>
   </tam>
@@ -55,10 +55,10 @@
     </formation>
     <path>
       <move select="Extend Left" scaleX="3" />
-      <move select="Hinge Right" beats="1" scaleY=".5"/>
+      <move select="Hinge Right" beats="1"/>
     </path>
     <path>
-      <move select="Extend Left" scaleX="3" scaleY=".5" />
+      <move select="Extend Left" scaleX="3" />
       <move select="Hinge Right" beats="1" />
     </path>
   </tam>

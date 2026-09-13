@@ -4598,6 +4598,27 @@ figures in the `SPLIT COUPLES` class, apply the rule after the ONE call that pro
 Reverted, census re-taken at 98, and the convention stays recorded with its citation because the
 diagnosis (three symptoms, one stale identity) is not in doubt — only the moment to apply it is.
 
+**The per-call trigger was then tried too, and it also measures ZERO — with a gotcha worth keeping.**
+`progressionIdentity` was kept and gated behind a one-entry measurement list of calls that progress
+their dancers, keyed on the call name. Two results:
+
+| trigger | figures | `Allemande Left` on `figm203` |
+|---|---|---|
+| board shape (the revert above) | 96 | refused |
+| the call name `Four Ladies Chain` | **98** | **still refused** |
+| none (baseline) | 98 | refused |
+
+- **The name trigger did not fire at first, and the reason is a real trap.** `splitSelection('Four
+  Ladies Chain')` returns `{ selection: 'Four Ladies', call: 'Chain' }` — `selection.ts` maps the
+  phrase `four ladies` to the `girls` group — so a trigger keyed on the SELECTION-SPLIT base name never
+  matches this call. Testing the full name first fixed that, and the census moved not at all.
+- **And even firing, it does not fix the case it was written for.** So the re-assignment of `couple`
+  is NOT what makes `Allemande Left` miss: the board `figm203` reaches has the right positions and, by
+  the guard's own test, the right physical couples, yet no authored `Static Square` setup matches it.
+  That is a second, independent question about that tam (its gender slots, or a residual facing
+  offset), and it is now the concrete next measurement — the identity hypothesis has been tested twice
+  and neither form of it moves a single figure.
+
 ---
 
 ## Recommended order

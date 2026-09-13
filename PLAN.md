@@ -3693,8 +3693,21 @@ the census ranks by the call that STOPPED, and that call can be entirely correct
 
 The instrument is worth keeping because it is one line and it decides the class without any tolerance:
 **`if no dancer has another directly in front, a `Facing Dancers` call cannot apply, so the refusal is
-attributable upstream.** A future pass over the 45 `catalogue tam has no setup` figures can run it
-before authoring anything, and only `figm35` (Quarter Tag) and `figm174` (a selection) survive it here.
+attributable upstream.** It is now a tool — `engine/test/tools/facing-audit.mjs` — and run over the
+WHOLE `no setup matches` bucket it re-attributes a quarter of the largest census bucket:
+
+```
+=== 50 figure(s), by the board they refuse on ===
+   38  coverage?        (well-formed board: this one really is a missing setup)
+    7  NO FACING PAIR   figm48 figm49 figm61 figm98 figm113 figm126 figm202
+    4  COLLISION        figm47 figm59 figm115 figm122
+    1  DIAGONAL         figm219
+```
+
+**12 of the 50 are BODY errors** — a board on which the call is not the call, or a body that has
+fallen apart — so a third of P16c's work list is P16a's, and authoring a setup for any of them would
+enshrine a bug. The 38 that survive are the real coverage list, and `Pass Thru` contributes just one
+of them (`figm35`, Quarter Tag) plus one selection case (`figm174`).
 
 **The same recipe applied to `Star Thru` at separation 2: authored, measured, REVERTED**
 

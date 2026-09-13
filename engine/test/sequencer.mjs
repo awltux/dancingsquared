@@ -375,6 +375,38 @@ console.log('== Sequencer: Sweep a Quarter acts PER BOX and reads the direction 
     `a board that is not facing couples is refused, not forced: ${t.reason ?? 'IT WAS LEGAL'}`);
 }
 
+console.log('== Sequencer: Box the Gnat ends in the SAME box at every authored separation ==');
+// The separation-6 authoring in `ms/box_the_gnat.xml` was EXTRAPOLATED - `x2 = separation / 2 + 1`,
+// pinned by the separation-3 and 4 authorings - and the figure count cannot see whether an
+// extrapolated motion ends where the definition says ("Ending formation: Facing Dancers"). This can:
+// the tam exists at separations 2, 3, 4 and 6, the three older ones are shipped and validated, so a
+// new separation is correct exactly when it lands on the SAME end pose they do. Measured before this
+// gate existed: all four end at `(+-1, +-1)` with each couple's facing reversed, exactly.
+{
+  const gnatBox = (s) => ({
+    dancers: [
+      { id: 1, couple: 1, gender: 'boy', x: -s / 2, y: 1, heading: 0 },
+      { id: 2, couple: 1, gender: 'girl', x: -s / 2, y: -1, heading: 0 },
+      { id: 3, couple: 2, gender: 'boy', x: s / 2, y: -1, heading: Math.PI },
+      { id: 4, couple: 2, gender: 'girl', x: s / 2, y: 1, heading: Math.PI },
+    ],
+  });
+  const ends = [2, 3, 4, 6].map((s) => {
+    const r = scopedSeq.applyToBoard(gnatBox(s), 'Box the Gnat');
+    check(r.legal === true, `Box the Gnat is legal on a facing-couple box ${s} apart: ${r.reason ?? 'ok'}`);
+    return r.legal ? r.board.dancers.slice().sort((a, b) => a.id - b.id) : null;
+  });
+  const shape = (ds) => JSON.stringify(ds.map((d) => [d.x.toFixed(2), d.y.toFixed(2), d.heading.toFixed(2)]));
+  const allSame = ends.every((e) => e && shape(e) === shape(ends[0]));
+  check(allSame,
+    `every separation ends in the SAME box (2 apart: ${shape(ends[0])})`);
+  // ...and that box is the one the definition names: Facing Dancers, with each couple's facing
+  // reversed by the twirl, which is what "the woman turns 360 degrees under his arm" does.
+  const [a, b] = [ends[0][0], ends[0][1]];
+  check(a.heading === Math.PI && b.heading === Math.PI,
+    `the couples end facing the way they came from (headings ${a.heading.toFixed(2)}, ${b.heading.toFixed(2)})`);
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

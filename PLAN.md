@@ -3648,11 +3648,18 @@ measuring it again rather than trusting the recorded reason is what settled it.
   ONE spot, because both of the Static Square's facing-couple boxes have the SAME centre. Here the four
   facing pairs meet at four DIFFERENT points — the heads' at `(1,0)` and `(-1,0)`, the sides' at
   `(0,1)` and `(0,-1)`.
-- **Still open and measured, not hidden:** `Heads Box the Gnat` now ends the heads at `(±1, ∓1)`
-  facing each other ACROSS the centre — a `T-Bone LUUR` — where CALLERLAB's ending formation is
-  "Facing Dancers". That is the extrapolated motion doing something plausible rather than verified, so
-  the end pose is the next thing to check on this tam; the figure count and the get-out corpus both
-  improved, and neither metric can see whether the ending is the one the definition names.
+- **The extrapolated end pose is VERIFIED, not assumed, and that was the open item.** The figure count
+  and the get-out corpus can both improve while an extrapolated motion ends somewhere no definition
+  names, so the tam was checked against the three authorings that are already shipped and validated:
+  `Box the Gnat` at separations **2, 3, 4 and 6 all end in the SAME box**, `(±1, ±1)` with each
+  couple's facing reversed — which is the "Ending formation: Facing Dancers" the definition names, and
+  is what "the woman turns 360° under his arm" does to the pair. `sequencer.mjs` now pins it, so a
+  future separation authoring cannot land on a different shape unnoticed.
+- **What the tam won:** `figm192` (`Heads Box the Gnat | Slide Thru | Swing Thru | Spin the Top | …`)
+  runs end to end. The other two `Box the Gnat` refusals are a different shape and were already
+  stopping there — `figm24` and `figm142` reach a wave-ish board from `Girls Run`/`Boys Fold` that
+  matches none of the authored facing-couple separations, so they are the long tail rather than this
+  authoring. And `figm104` (`… Rollaway | Box the Gnat | …`) was already running.
 
 Also re-measured and worth recording, because it narrows the "long tail" that looked like 19 separate
 selection bugs: the `not legal for selected dancers` refusals are **not** one cause. `Heads Rollaway`

@@ -993,16 +993,34 @@ are both legal at error 0.000 on a proper `Ocean Waves` (measured: `Slide Thru` 
 
 - **`Promenade`, the ring-order refusal** — the one §5 documents as CORRECT and unfixable locally, whose
   owner is the unmodelled `Swing Your Partner` end pose. It blocks `figm59`, `figm115` and `figm140`.
-- **`Trade By`, "no setup matches"** — a Phase B setup gap. It blocks `figm48` and `figm183`.
+- **`Trade By`, "no setup matches"** — and this one I first called a Phase B setup gap (round 30) and was
+  WRONG: **§3 ALREADY REFUTES IT**, and the row is in the refuted table because it was measured there —
+  *"`Trade By` on `Lines Facing Out` 11.71 at 0.75"*, i.e. **no uniform scale gets this board near any
+  `Trade By` setup** (best residual 11.71 even at the best scale found). So it is not a setup that is
+  missing at a wrong spacing; the arrangement is simply not one the call has. That is confirmed against
+  both authorities: CALLERLAB's starting formation for `Trade By` is the formation NAMED "Trade By"
+  (dance action: *"Centers Pass Thru while Outsides, who must be Couples facing out, Partner Trade"*,
+  ending Eight Chain Thru), and on `Lines Facing Out` there are no facing dancers anywhere for the
+  centres' `Pass Thru` — every one of the four physical couples (the columns) faces OUT. The reference
+  cannot dance it either: `Trade By` has **no `.dart` file at all** (`find` over `lib/sequencer` finds
+  only the abbreviation table and `square_the_bases.dart`), so it is pure catalogue tams, and those tams
+  are `from="Trade By"`, `from="3/4 Tag"`, `from="T-Bones"` — no `Lines Facing Out`. **So the engine's
+  refusal agrees with the reference and with CALLERLAB's starting formation, and the two figures are
+  gated on the corpus's choreography, not on a missing setup.** Authoring one would be inventing
+  choreography for an arrangement no authority lists.
 
 WHY THAT MAKES THE COMPOSITION A NET LOSS AND NOT A NEAR MISS: enabling it costs `figm140` and `figm183`
-and gains nothing, so the four tidal figures must ALSO start passing for it to pay — and three of the
-four are behind the `Promenade` refusal that no local rule fixes. **The honest conclusion is that
-`Fan the Top` / `Spin the Top` cannot reach the figure count until `Trade By`'s setup gap and the
-`Swing Your Partner` end pose are solved**, and that the four figures this section was chasing are NOT
-gated on the half-scale `Tidal Wave` after all — that was the plan's assumption, and it is now refuted.
-The derived `Fan the Top` is still kept on its own merits (correctness, a gate, strictly additive), but
-it is not a route to figures, and neither is the composition that builds on it.
+and gains nothing, so the four tidal figures must ALSO start passing for it to pay — and they sit behind
+`Promenade` (three of the four) and this `Trade By` board (the fourth), **and NEITHER is fixable from the
+authorities this repo holds**: the `Promenade` ring-order refusal is correct and owned by the unmodelled
+`Swing Your Partner` end pose, and this `Trade By` board is not a starting formation at all.
+**THE CONCLUSION IS THEREFORE THAT `Fan the Top` / `Spin the Top` IS A DEAD END FOR THE FIGURE COUNT**,
+not merely unprofitable today — both of its downstream gates are closed for reasons no code change in
+this repo can clear. The four figures this section was chasing are NOT gated on the half-scale
+`Tidal Wave` after all; that was the plan's assumption, and it is refuted. The derived `Fan the Top` is
+still kept on its own merits (correctness, a gate, strictly additive), but it is not a route to figures,
+and neither is the composition that builds on it. **The next work should go where the census's own causes
+point — the authoring queue and the body errors — not further down this branch.**
 
 **AND THE RULE, AND WHERE IT CAME FROM (round 28).** The definition is not in `callerlab-ms.txt`
 (`Fan the Top` is Plus), but the reference ships CALLERLAB's own text at

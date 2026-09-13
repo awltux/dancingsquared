@@ -339,6 +339,41 @@ authoring, which is why they are their own phase.
    or supplements the authored tam. A round that only suppressed the mirrored half would trade a
    faithful whole-board advance for a collision.
 
+### A BODY DEFECT THE CENSUS CANNOT SEE: `Spin the Top` half-scales the wave (measured)
+
+Found while reading the top `no setup` entries board-by-board (the read that found `Rollaway`'s
+missing separation). The three `Slide Thru` stops all sit on a board the engine NAMES `Tidal Wave`,
+and the name is the problem:
+
+```
+application                          result
+Spin the Top from the engine's OWN
+  canonical `Ocean Waves`            span 7.0 x 0.0, CLOSEST PAIR 1.00  -> named "Tidal Wave"
+Swing Thru from the same board       closest pair 2.00                  -> named "Ocean Waves"
+```
+
+Every formation in this engine puts adjacent dancers **2** apart — except `formations.xml`'s
+`Tidal Wave`, which is authored at **1** (`x=0, y = -.5/-1.5/-2.5/-3.5`), inherited unchanged from
+upstream Taminations (`taminations-flutter/assets/src/formations.xml:1110`, identical coordinates).
+So `Spin the Top` rotates each wave 90 degrees about its own centre — which IS what CALLERLAB asks
+("Ending formation: Ocean Wave **perpendicular** to starting formation") — but it also **halves the
+spacing**, and the half-scale template then hands the malformed result a legitimate name. Three
+figures stop one call later on `Slide Thru`, and the census reports them as a coverage gap.
+
+**Why it is not fixed here, and what a fix has to decide.** A 2-spaced rotation is geometrically
+impossible from the engine's own `Ocean Waves` template: each 4-dancer wave rotates about its own
+centre, so wave 1 (centre `(-2,0)`) would span `x = -5..1` and wave 2 (centre `(2,0)`) `x = -1..5`,
+and they would collide at `x = +-1`. The half-scale merge into ONE tidal wave is Taminations'
+device for fitting both into a 7-wide set, so "fix the tam's scale" is not a one-number change — it
+forces a decision about what `Spin the Top` means for eight dancers in two parallel waves at all,
+which CALLERLAB does not answer (its definition is written for one wave). Recorded with the numbers
+rather than guessed at, and the two live options are: give the engine a SECOND `Tidal Wave` template
+at the standard spacing and teach the wave-facing calls to act on it, or accept Taminations'
+convention and make the follow-on calls scale-aware. **Either way the lesson is the one this plan
+keeps meeting: a wrong board that gets a legitimate NAME is invisible to the census** — here it was
+invisible for two reasons at once (the template is half-scale *and* the call that produces the board
+is the one that looks correct).
+
 ### Phase D — the missing calls (Phase 14 residue)
 
 **Owner:** `coded-moves.ts` (derived) or the catalogue (authored). Census `unknown call` is down to

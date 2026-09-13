@@ -11,7 +11,7 @@
 // validateSegment) are intrinsically home-anchored and never take one.
 
 import { dancerBeats, poseFor } from '../core.js';
-import { FormationMatcher, rebasedPose } from './matcher.js';
+import { FormationMatcher, rebasedPose, localMotion } from './matcher.js';
 import { CallApplicator } from './applicator.js';
 import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
@@ -245,7 +245,7 @@ export class SequenceAnalyzer {
       const t = variant.dancers[mapping[i]];
       const start = poseFor(t, 0);
       const cur = poseFor(t, Math.min(localBeat, dancerBeats(t)));
-      const localDisp = rot(-start.heading, { x: cur.x - start.x, y: cur.y - start.y });
+      const localDisp = localMotion(start, cur, m.reflect);
       const delta = normAngle(cur.heading - start.heading);
       const base = rebasedPose(start, m);
       const bx = d.x + (base.x - d.x) * f;

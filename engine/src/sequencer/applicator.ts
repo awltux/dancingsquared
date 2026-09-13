@@ -1,4 +1,4 @@
-// CallApplicator: applies a call (or module) to a board. Handles the whole-board
+﻿// CallApplicator: applies a call (or module) to a board. Handles the whole-board
 // apply with re-base/snap, the pure-relative search apply, probabilistic
 // selection, and the parallel-subset path. Owns the per-variant pose/matrix
 // caches. Depends on the FormationMatcher (to find which variant applies) and the
@@ -6,7 +6,7 @@
 
 import { dancerBeats, poseFor } from '../core.js';
 import { matchFormations, type Matchable } from './match.js';
-import { FormationMatcher, rebasedPose } from './matcher.js';
+import { FormationMatcher, rebasedPose, localMotion } from './matcher.js';
 import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX, isKnownCouple } from './constants.js';
@@ -52,7 +52,7 @@ export class CallApplicator {
     return this.applyStepInner(board, callName, [], true);
   }
 
-  /** Apply a call using PURE relative motion — no drift re-base. Used by the
+  /** Apply a call using PURE relative motion â€” no drift re-base. Used by the
    * search operations (legalCalls, getout, fixIt) where re-basing would pin
    * dancers to their current (possibly permuted) positions and destroy the
    * identity information those searches need to un-permute home. */
@@ -147,7 +147,10 @@ export class CallApplicator {
         const o = apply5(mats[mapping[i]], v);
         return { x: o[0], y: o[1], heading: Math.atan2(o[3], o[2]) };
       })() : ends[mapping[i]];
-      const localDisp = rot(-start.heading, { x: end.x - start.x, y: end.y - start.y });
+      // The displacement is expressed in the DANCER's own frame and turned back into the board's
+      // frame by the dancer's own heading - see `localMotion`, which owns that transform and the
+      // reflected-match handedness correction that goes with it.
+      const localDisp = localMotion(start, end, match.reflect);
       const delta = normAngle(end.heading - start.heading);
       const base = rebase ? rebasedPose(start, match) : start;
       const bx = d.x + (base.x - d.x) * f;
@@ -349,7 +352,7 @@ export class CallApplicator {
     rebase: boolean,
     matchTol: number,
   ): (ApplyResult & { error: number }) | null {
-    // Every authored variant, `sequencer="no"` ones included — see
+    // Every authored variant, `sequencer="no"` ones included â€” see
     // CallLibrary.matchableVariants for the measurement that keeps this unfiltered.
     const variants = this.library.matchableVariants(callName);
     if (variants.length === 0) return null;
@@ -359,7 +362,7 @@ export class CallApplicator {
     for (const v of variants) {
       const setup = v.dancers.map((d) => this.library.variantMatchable(d));
       const k = setup.length;
-      // The board must still divide EVENLY into setup-sized boxes - `square-dancing.md` §7.2.1:
+      // The board must still divide EVENLY into setup-sized boxes - `square-dancing.md` Â§7.2.1:
       // "a board that cannot be split evenly into equal subsets (e.g. 6 dancers for a 4-dancer
       // subset) has no clean partition and must not force one". So a 6-dancer board with a
       // 4-dancer setup is refused here, exactly as before. What the partial reading below adds is
@@ -482,7 +485,7 @@ export class CallApplicator {
    *     four-dancer SUBSET matches at 0.000.
    *   - `Slide Thru`, `Recycle` and others reached on boards with no recognised formation.
    *
-   * `square-dancing.md` §7.5 is explicit that "a call acts on everyone it applies to", so applying
+   * `square-dancing.md` Â§7.5 is explicit that "a call acts on everyone it applies to", so applying
    * to the boxes that qualify and leaving the rest is the documented reading rather than a
    * loosening. It is also STRICTLY ADDITIVE here: `parallelApply` tries `partition` first and only
    * falls back to this, so a board that tiles today behaves exactly as before, and this can only

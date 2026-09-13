@@ -3397,6 +3397,10 @@ census (taken under the Phase 10 convention) unless stated otherwise.
 
 ### Phase 11 + 12 — the `Sw&Pr` family: DONE, and they had to land together (8 → 83 figures)
 
+> **Baseline note (P16a).** The figure count is **85 of 188** after the reflected-motion fix
+> recorded in Phase 16a; the 83 below is this phase's own result and is left as the measurement it
+> was. Every other figure count in this file that predates Phase 16a is on the 83 baseline.
+
 **Why they are one phase and not two.** `figure-census` measured what follows each of the 48 figures
 that stop on `Swing Your Partner`: **all 48 call `Promenade` next**. Fixing the swing alone would
 therefore have moved the stop one call later and gained nothing — the same trap the `Centers Left
@@ -3571,26 +3575,40 @@ can see neither, since it attributes to the call that *stopped*:
 Only 15 of those 33 stop *at* the poison, which is why the census under-counts this class by more
 than half.
 
-**`Single Hinge` — the first target, diagnosed.** The corpus writes `Single Hinge`; the catalogue's
-tam title is `Hinge` (`ms/hinge.xml`), reached through `CALL_SYNONYMS`, and CALLERLAB gives it
-*"Starting formations: Mini-Wave only. Dance action: 1/2 Trade. Ending formation: Mini-Wave."*
-Applying it to the engine's own canonical `Ocean Waves` board is legal, matches
-`from="Left-Hand Waves"` at **error 0.000**, and returns a board the engine cannot name, with the
-set's span changed from 4 wide × 6 tall to 6 × 8. Two things measured along the way, and the second
-is the one to look at first because it is a one-token data defect:
+**`Single Hinge` — DONE: it was not `Single Hinge` at all.** The corpus writes `Single Hinge`; the
+catalogue's tam title is `Hinge` (`ms/hinge.xml`), reached through `CALL_SYNONYMS`, and CALLERLAB
+gives it *"Starting formations: Mini-Wave only. Dance action: 1/2 Trade. Ending formation:
+Mini-Wave."* Chasing the mangled result found a defect in the **matcher→body handoff** that has
+nothing to do with hinges:
 
-- the call's two 8-dancer wave setups are authored **at different scales**: `Right-Hand Waves`
-  (`ms/hinge.xml:73`) uses an inline 4-dancer block at `x=-1.5` that the converter expands by
-  mirroring through the origin, so its waves stand 3.0 apart, while `Left-Hand Waves`
-  (`ms/hinge.xml:96`) names `Ocean Waves LH BGGB`, which resolves to the engine's ±2. The engine's
-  canonical `Ocean Waves` is at ±2, so **only the left-hand setup is ever reachable** and the
-  right-hand one is stranded at the other scale.
-- that alone does NOT explain the mangled result: the left-hand variant matched at error 0.000, so
-  its setup *did* overlay the board exactly. The wrong end board therefore comes from that variant's
-  motion or from the re-base, and the causal link between the two is left open rather than assumed.
+> `applyWholeBoard` expresses each dancer's displacement in that dancer's OWN frame and turns it back
+> out by the dancer's own heading. That is a rotation — and it was applied even when the
+> variant→board transform was a **REFLECTION**. A mirror swaps left for right, and the frame's `+y`
+> is the dancer's *left* (headings are ccw-positive), so for a reflected match the lateral component
+> must be negated together with the reflection. `rebasedPose` mirrored the POSITION (`x = -x`) and
+> nothing mirrored the MOTION.
 
-`Boys Fold` (5) is next and is the `Fold` family Phase 14 already owns; `Heads Touch 1/4` (4) is
-third and is the `Touch 1/4` body, whose 1/4-turn currently lands the heads *past* the center.
+Measured on the engine's canonical `Ocean Waves` board: `Single Hinge` matches
+`from="Left-Hand Waves"` at **error 0.000 with `reflect=true`**, and each mini-wave's two dancers
+then moved `(+1,+1)` and `(-1,-1)` in world space — **apart, from 2 to 4.47** — instead of pivoting
+about their joined hands; the set's extent grew from 7.21 to 8.94 and the board stopped being a
+formation. The corrected call keeps every pair 2 apart, rotates the set 4×6 → 6×4, and still
+names as `Ocean Waves`.
+
+- **Blast radius, and why it stayed hidden:** a call whose motion is purely forward/backward (a
+  `Pass Thru`) has a zero lateral component and is untouched. Only calls with a lateral component —
+  hinges, trades, runs, circulates, turns — are affected, and only when the matcher chooses a
+  reflection. Both halves of that were needed to see it, which is why no gate caught it.
+- **Result:** poisoned chains **33 → 28**, `Single Hinge` off the list entirely, BODY ERROR
+  **15 → 13**, figures **83 → 85 of 188**, catalogue no-setup **44 → 43**. Pinned by a new
+  `sequencer.mjs` gate that asserts the witness really is a reflected match (so it cannot go
+  vacuous), that the result is still a formation, and that the pivot rotates the set without
+  growing it.
+
+`Boys Fold` (5) is now the head of the queue and is the `Fold` family Phase 14 already owns;
+`Heads Touch 1/4` (4) is second and is the `Touch 1/4` body, whose 1/4-turn currently lands the
+heads *past* the center.
+
 
 
 

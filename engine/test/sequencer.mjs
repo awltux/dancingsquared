@@ -135,6 +135,40 @@ const expectedHeads = rotated.filter((d) => d.couple % 2 === 1).map((d) => d.id)
 check(JSON.stringify(movedIds) === JSON.stringify(expectedHeads),
   `Heads Pass Thru on a rotated square moves the ORIGINAL heads (moved=[${movedIds}], expect=[${expectedHeads}])`);
 
+console.log('== Sequencer: a REFLECTED match must mirror the MOTION, not just the position ==');
+// `applyWholeBoard` expresses each dancer's displacement in that dancer's own frame and turns it
+// back out by their heading. That is a rotation, and it was applied even when the variant->board
+// transform was a REFLECTION - so the motion kept its unmirrored handedness and went the wrong way
+// round. The lateral component is the giveaway: a `Hinge` is a pivot about the joined hands, so each
+// mini-wave must END 2 apart (one step round), not spread. This call is a good witness because the
+// matcher reaches the board through a REFLECTION (`Left-Hand Waves` onto a right-hand wave at error
+// 0.000), every dancer has a lateral component, and the wrong answer is loud: the pairs went from 2
+// to 4.47 apart and the board stopped being a formation at all.
+const hingeSeq = new Sequencer(movesXml, formationsXml, [{ name: 'Single Hinge', xml: ms('hinge') }]);
+const waveBoard = hingeSeq.boardForFormation('Ocean Waves');
+const hingeMatch = hingeSeq.matcher.findMatchingVariant(waveBoard, 'Single Hinge', 1.5);
+check(!!hingeMatch && hingeMatch.reflect === true,
+  `the witness is a REFLECTED match (from="${hingeMatch?.variant.from}", reflect=${hingeMatch?.reflect}) - if this stops being true the gate below is vacuous`);
+const hinge = hingeSeq.applyToBoard(waveBoard, 'Single Hinge');
+check(hinge.legal === true, 'Single Hinge is legal on an Ocean Waves board');
+check(hingeSeq.knownFormation(hinge.board) !== null,
+  `the result is still a formation: ${hingeSeq.knownFormation(hinge.board) ?? '(unnamed)'}`);
+// A pivot moves each dancer round their joined hands, so the set may ROTATE but it must not GROW.
+// Its greatest pairwise distance is the sharpest form of that: 7.21 before the call, 7.21 after,
+// and 8.94 / 10.00 when the motion is not mirrored (each mini-wave's two dancers are pushed apart
+// along the unmirrored diagonal instead of round the handhold). The pairing that the call acts
+// within cannot be read off the geometry - in a wave, POSITION-adjacent dancers are also 2 apart -
+// so the extent is the invariant used here, and `knownFormation` above is the second half.
+const extent = (b) => {
+  let m = 0;
+  for (let i = 0; i < b.dancers.length; i++)
+    for (let j = i + 1; j < b.dancers.length; j++)
+      m = Math.max(m, Math.hypot(b.dancers[i].x - b.dancers[j].x, b.dancers[i].y - b.dancers[j].y));
+  return m;
+};
+check(Math.abs(extent(hinge.board) - extent(waveBoard)) < 0.01,
+  `the pivot rotates the set without growing it (extent ${extent(waveBoard).toFixed(2)} -> ${extent(hinge.board).toFixed(2)})`);
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

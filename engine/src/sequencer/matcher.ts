@@ -239,6 +239,38 @@ export function rebasedPose(pose: { x: number; y: number; heading: number }, m: 
   return { x: rx + m.cSrc.x, y: ry + m.cSrc.y, heading: normAngleWrap(pose.heading + m.rot + (m.reflect ? Math.PI : 0)) };
 }
 
+/**
+ * A variant dancer's MOTION (from `from` to `to`, both in the variant's own frame) expressed in the
+ * dancer's local frame, then corrected for a REFLECTED match. Callers rotate the result back out by
+ * the dancer's board heading to get the world displacement.
+ *
+ * THE REFLECTION IS WHY THIS IS A FUNCTION AND NOT TWO INLINE EXPRESSIONS. Expressing a
+ * displacement in the dancer's own frame (rotate by `-from.heading`) and turning it back out by
+ * their board heading is a RIGID ROTATION, which is only the right transform while the
+ * variant->board map is a rotation. A reflected match is a mirror, and a mirror swaps left for
+ * right; the local frame's `+y` IS the dancer's left because headings are ccw-positive, so the
+ * lateral component has to be negated along with the reflection. `rebasedPose` mirrors the
+ * POSITION (`x = -x`) and nothing mirrored the MOTION.
+ *
+ * MEASURED, and this has now gone wrong twice. On the canonical `Ocean Waves` board, `Single
+ * Hinge` matches `from="Left-Hand Waves"` at error 0.000 with `reflect=true`, and without the
+ * correction each mini-wave's two dancers moved `(+1,+1)` and `(-1,-1)` in world space - APART,
+ * from 2 to 4.47 - instead of pivoting about their joined hands, which grew the set's extent from
+ * 7.21 to 8.94 and left the board an unnamed arrangement. It is shared with `sequence.ts`'s
+ * `evaluateVariantAt` because that is the same arithmetic on the same match: when only the
+ * applicator was corrected, the ANIMATION still played the unmirrored motion and
+ * `behaviour-audit`'s "the last animated frame lands on the applied board" gate failed with a
+ * 4.00-unit jump on the final beat. Two copies of this expression drift; one cannot.
+ */
+export function localMotion(from: { x: number; y: number; heading: number }, to: { x: number; y: number; heading: number }, reflect: boolean): { x: number; y: number } {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const c = Math.cos(-from.heading);
+  const s = Math.sin(-from.heading);
+  const local = { x: dx * c - dy * s, y: dx * s + dy * c };
+  return reflect ? { x: local.x, y: -local.y } : local;
+}
+
 function normAngleWrap(a: number): number {
   while (a > Math.PI) a -= 2 * Math.PI;
   while (a < -Math.PI) a += 2 * Math.PI;

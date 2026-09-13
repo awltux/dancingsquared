@@ -3964,25 +3964,45 @@ Two of these are CALLERLAB's own command examples, which is the corroboration th
 right: "Couples Circulate, Wheel and Deal and Sweep One Quarter" is figm21/figm150's chain, and
 "Ferris Wheel, Centers Sweep a Quarter" is figm63/figm64's.
 
-**The open question the implementation turns on, stated so it is not guessed at.** The direction is
-"the motion that completed the previous call", and `applyWholeBoard` already records that per dancer
-as `lastTurnDir` (from the heading delta; positive is left/CCW). But it is **per dancer**, and it came
-out MIXED in the `Flutterwheel` cases while being uniform in the `Wheel and Deal` and `Ferris Wheel`
-ones. That is not necessarily a defect in the record: `Flutterwheel` turns the two dancers of a
-couple in opposite senses about the COUPLE's centre, which is precisely the distinction CALLERLAB's
-comment draws when it says a Sweep is improper where "their turning motion is not around … the center
-point of the forming Facing Couples". So the first measurement of the next round is whether the
-direction should be read per BOX (the majority/consensus of the dancers in that box, which is what
-the call's own wording implies: "each dancer's motion … must be the same") and how a box that has no
-consensus should behave — refused with the reason, per the same convention the rest of the catalogue
-uses.
+**The open question was whether the direction is read per BOX, and it is now MEASURED — the answer is
+"yes, and in two of the eight cases there is no box to read it from."** `lastTurnDir` is per dancer and
+came out MIXED after `Flutterwheel`, which is not necessarily a defect in the record: `Flutterwheel`
+turns the two dancers of a couple in opposite senses about the COUPLE's centre, which is exactly the
+distinction CALLERLAB's comment draws when it says a Sweep is improper where the turning motion is not
+about "the center point of the forming Facing Couples". Re-running the eight cases with each board
+decomposed into facing-couple boxes:
 
-- **Size:** 8 figures (5 in the census, 3 reached through a selection prefix).
-- **Work order:** the rule as a `coded-moves.ts` entry (precondition = the board decomposes into
-  facing-couple boxes; `apply` rotates each box 1/4 about its own centre by the box's consensus
-  direction), then validation against these eight, then the census.
+| figure | previous call | board | every box's consensus |
+|---|---|---|---|
+| figm21 | `Wheel and Deal` | Eight Chain Thru | **right** (2 clean side-2 boxes, 4/4 each) |
+| figm150 | `Wheel and Deal` | Eight Chain Thru | **right** — but the board does NOT tile into facing-couple boxes: one box is a side-2 square and the other is **2 wide x 6 tall** |
+| figm63, figm64 | `Ferris Wheel` | Double Pass Thru | **right** (4/4) |
+| figm26, figm139 | `Flutterwheel` | Normal Lines | **left** (8/8, unanimous across both boxes) |
+| figm18 | `Flutterwheel` | Normal Lines | **MIXED (3 left / 1 right)** in each box — no consensus |
+| figm187 | `Heads Flutterwheel` | Static Square | **two dancers have NO `lastTurnDir` at all**, and the rest are mixed |
+
+Three of the eight (`figm16`, `figm111`, `figm136`) never reach the Sweep: their chains stop earlier on
+`Walk and Dodge` / `Split the Outside Couple` / `Fold`, which are other phases' work.
+
+So the consensus reading is right, and it leaves a specific, non-negotiable design constraint that the
+plan did not have before: **the box decomposition cannot be ad-hoc geometry.** `figm21` tiles into two
+side-2 squares and `figm150` — the SAME chain, the SAME preceding call — does not, and `figm187` has a
+pair of dancers with no remembered direction. The measurement also re-attributes two of the eight:
+`figm18` and `figm150` are BODY defects upstream (`Flutterwheel` / `Wheel and Deal` leaving a board that
+is not a facing-couple arrangement), not `Sweep` gaps, which is the same shape as Phase 16a's BODY
+ERROR class and means authoring the call will not win them.
+
+- **Size:** 8 figures (5 in the census, 3 reached through a selection prefix) — but only ~4 are the
+  call's own; 2 are upstream bodies and 2 more are behind other calls.
+- **Work order:** the rule as a `coded-moves.ts` entry, but with the tiling taken from the ENGINE's own
+  matcher rather than re-derived: `CallApplicator.partition` already tiles a board into the 4-dancer
+  boxes of a named setup with couple coherence and a tolerance, which is the mechanism
+  `parallelApply` uses and the one the scoped-tam fallback relies on. The coded-move interface
+  therefore needs a way to say "act on each box of setup S" — that is the design decision this round
+  did not take, and it should be taken before the rule is written.
 - **Gate:** the census must rise; a box with no consensus direction is refused with a reason rather
-  than approximated.
+  than approximated; and a board that does not decompose into facing-couple boxes is refused, not
+  forced (that is what keeps `figm150`'s malformed board from being laundered into a success).
 
 
 - **Size:** 25. From the census: `Sweep 1/4` 5, `Split the Outside Couple` 4, then `Yellow Rock`,

@@ -481,6 +481,45 @@ is not merely wrong: for some follow-on calls it is the board they are authored 
 must therefore be additive and measured per follow-on call, not a swap of the motion.** The defect
 stays open, at its true size (about five figures), rather than at the size the bad probe claimed.
 
+### The `selection will not resolve` bucket, diagnosed (round 12) — three causes, not one
+
+The bucket had never been read at all; all eight stops are now attributed, and they are three
+different things:
+
+| stop | figures | what it actually is |
+|---|---|---|
+| `Centers Left Hand Star` | 5 | `Centers` has **no definition on a two-star board** |
+| `Partner Trade 1 1/2` | 1 | a **dangling group key**: `'partner' → 'partners'`, a group nothing implements |
+| `Centers Swing Thru` / `Centers Pass Thru` / `Centers Turn Thru` | 3 | unnamed, off-grid boards — body errors upstream |
+
+**The `partner` fix is DONE and is an attribution fix, not a figure win.** `SELECTION_GROUP` mapped
+`'partner' → 'partners'` and `Grouping.subsetOf` has **no `partners` case**, so the mapping made
+`splitSelection` claim a selection that nothing could ever resolve. Measured: `Partner Trade 1 1/2`
+split into `{ selection: 'Partner', call: 'Trade 1 1/2' }`, neither name is a registered call, and the
+failure surfaced as *"Unresolvable selection: Partner"* — an accusation about a GROUP, for a call the
+engine simply lacks. `Partner Trade` and `Partner Hinge` **are** registered calls (12 and 4 variants),
+so the whole-board path already handles them and never reaches the table. With the key removed the
+engine says what is true — `Unknown call: Partner Trade 1 1/2` — and the census moves 8 → **7**
+selection refusals and 3 → **4** unknown calls, with the figure count unchanged at 110.
+
+**`Centers` on a two-star board is a real gap with no cheap fix.** The five figures stop on a board
+the engine names `Stars RH`: two four-dancer stars, each of radius 1, centred at `(-2,0)` and `(2,0)`.
+`Centers` is defined in `grouping.ts` as *the middle two of each of two LINES*, and that board has no
+lines at all, so the selection refuses before anything dances. What the corpus means by `Centers`
+there is one of two readings the board cannot settle — the four dancers nearest the SET's centre, or
+the four who formed one of the two stars — and the second reading is really Phase C's active-set
+question, because the corpus's `Right-hand Star` is bare and the engine applies it to all eight,
+forming TWO stars. A definition that picks four of those eight would be a guess.
+
+**`Walk and Dodge` (4 stops, three of them counted in other buckets) is NOT a spacing gap, and that is
+now measured rather than assumed.** All four sit on a `Mixed Columns RH Ends In` board produced by
+`Heads Touch 1/4`, and against every authored setup — `Right-Hand Box`, `Left-Hand Box`, RH/LH Waves,
+RH/LH Columns — the best error is **NULL at tolerance 100**: no setup even has the right SHAPE. The
+inner four dancers are two couples facing OPPOSITE ways, which is not a box circulate formation. So
+the missing-separation recipe that won four figures elsewhere does not apply, and `Walk and Dodge` is
+a Plus call whose definition is not in this repo's CALLERLAB text — authoring a variant would be
+asserting choreography, which is the line this plan does not cross.
+
 ### Phase D — the missing calls (Phase 14 residue)
 
 **Owner:** `coded-moves.ts` (derived) or the catalogue (authored). Census `unknown call` is down to

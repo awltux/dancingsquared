@@ -6,12 +6,21 @@
 
 // Map a normalized selection string to a Grouping.subsetOf group key, or null if
 // not a recognized single-group selection.
+//
+// `'partner'` USED TO BE HERE, mapped to `'partners'`, and it was a DANGLING KEY: `Grouping.subsetOf`
+// has no `partners` case, so the mapping made `splitSelection` claim a selection that nothing could
+// ever resolve. MEASURED on the census's one case, `Partner Trade 1 1/2`: it split into
+// `{ selection: 'Partner', call: 'Trade 1 1/2' }`, neither name is a registered call, and the failure
+// surfaced as "Unresolvable selection: Partner" - an accusation about a GROUP, for a call the engine
+// simply does not have. `Partner Trade` and `Partner Hinge` ARE registered calls, so the whole-board
+// path already handles them and never reaches this table. Removing the key makes the engine say what
+// is true: `Unknown call: Partner Trade 1 1/2`.
 const SELECTION_GROUP: Record<string, string> = {
   'heads': 'heads', 'sides': 'sides', 'boys': 'boys', 'girls': 'girls',
   'men': 'men', 'women': 'women', 'ladies': 'girls', 'centers': 'centers',
   'ends': 'ends', 'couples': 'couples', 'all': 'all', 'everybody': 'all',
   'everyone': 'all', 'leaders': 'leaders', 'trailers': 'trailers',
-  'beaus': 'beaus', 'belles': 'belles', 'partner': 'partners',
+  'beaus': 'beaus', 'belles': 'belles',
 };
 
 // Multi-word selectors recognized as a fixed phrase -> (groupKey | special).

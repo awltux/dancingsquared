@@ -1,4 +1,4 @@
-// P16 ANALYSIS TOOL, step 2: split the "catalogue tam has no setup for this board"
+﻿// P16 ANALYSIS TOOL, step 2: split the "catalogue tam has no setup for this board"
 // failures into the two things that actually need different work.
 //
 // setup-coverage.mjs answered "is the size/scale right?" and left 34 cases as
@@ -79,25 +79,35 @@ const faceChar = (h) => 'N NE E SE S SW W NW'.split(' ')[Math.round((((h % (2 * 
 const toMatchable = (d, zeroHeading = false) => ({ x: d.x, y: d.y, heading: zeroHeading ? 0 : d.heading, gender: d.gender, couple: d.couple });
 
 // Every failing case, with the whole call chain so the board can be judged in context.
+// `firstUnnamed` is the prefix scan: the first board in a chain the engine cannot name. It is
+// applied per-figure (below) and over the whole corpus (the P16a work order).
+const firstUnnamed = (boards) => boards.find((x) => !x.formation) ?? null;
 const cases = [];
+const corpusSuspect = new Map(); // call -> figures whose FIRST unnamed board it produced
+let corpusClean = 0;
 for (const f of data.figures) {
   const calls = figureEngineCalls(f);
   let b = seq.boardForFormation(ALL8_FIGURE_START);
   const boards = [{ call: '(start)', board: b, formation: seq.knownFormation(b) }];
+  let failed = false;
   for (let i = 0; i < calls.length; i++) {
     const r = seq.applyToBoard(b, calls[i]);
     if (!r.legal) {
+      failed = true;
       if (/No setup in this call matches/.test(r.reason ?? '')) cases.push({ fig: f.id, idx: i, call: calls[i], board: b, chain: calls.slice(0, i), boards });
       break;
     }
     b = r.board;
     boards.push({ call: calls[i], board: b, formation: seq.knownFormation(b) });
   }
+  // The corpus-wide reach measure: which call first leaves the dancers in an arrangement the engine
+  // cannot name. This is the work order for the body fixes - a body that poisons five chains is worth
+  // more than one that stops one figure, and the census cannot see any of them.
+  const first = firstUnnamed(boards);
+  if (first) corpusSuspect.set(first.call, [...(corpusSuspect.get(first.call) ?? []), f.id]);
+  else if (!failed) corpusClean++;
 }
 
-// The prefix scan: the first call in the chain whose OUTPUT board the engine cannot name.
-// `(start)` is included, so a chain that is already unnamed going in says so.
-const firstUnnamed = (boards) => boards.find((x) => !x.formation) ?? null;
 
 const rows = [];
 for (const c of cases) {
@@ -168,6 +178,13 @@ console.log('\n  the first unnamed board in each broken chain, which is the call
 const bySuspect = new Map();
 for (const r of broken) bySuspect.set(r.suspect.call, (bySuspect.get(r.suspect.call) ?? 0) + 1);
 for (const [k, n] of [...bySuspect.entries()].sort((a, b) => b[1] - a[1])) console.log(`      ${String(n).padStart(3)}  after ${k}`);
+
+// The work order for Phase 16a: reach over the WHOLE corpus, not just the figures that stop on it.
+console.log('\n=== P16a WORK ORDER: the first unnamed board over all 188 figures (reach, not stops) ===');
+const ranked = [...corpusSuspect.entries()].sort((a, b) => b[1].length - a[1].length);
+console.log(`  ${String(corpusClean).padStart(3)} of ${data.figures.length} figures walk their whole chain with every board named`);
+console.log(`  ${String(ranked.reduce((s, [, v]) => s + v.length, 0)).padStart(3)} figures are POISONED by a body somewhere in the chain, by first offender:`);
+for (const [call, figs] of ranked) console.log(`      ${String(figs.length).padStart(3)}  after ${call.padEnd(24)} ${figs.slice(0, 8).join(' ')}${figs.length > 8 ? ' â€¦' : ''}`);
 
 console.log('\n=== the SETUP GAP cases (these are the ones a setup can fix) ===');
 for (const r of gaps) console.log(`  ${r.fig}  ${r.call.padEnd(24)} ${r.verdict.padEnd(20)} ${r.known.padEnd(22)} ${r.detail}`);

@@ -3539,16 +3539,60 @@ isolated reading of a selection, where the same "setup present, still refused" s
 - **Size:** ~46 figures by this tool's walk; 44 in the census, plus the selection cases re-attributed
   from Phase 13 — but only ~21 of them are setup authoring.
 - **Owner:** three different ones, so the phase runs in three steps, and the order is forced by the
-  measurement: **P16a the broken bodies** (the 9 suspects, ~15 figures — one body fix pays every figure
-  that passes through it, and `Single Hinge` and `Touch 1/4` are upstream of far more than the figures
-  that stop *on* them); **P16b the dispatch/matching refusals** (the 5 EXACT + 5 FACING, no new setup
-  needed); **P16c the ~21 genuine arrangement gaps**, call by call, largest first.
+  measurement: **P16a the broken bodies**, **P16b the dispatch/matching refusals** (the 5 EXACT + 5
+  FACING, no new setup needed), **P16c the ~21 genuine arrangement gaps**, call by call, largest first.
 - **Owner (P16c only):** the matcher's setup vocabulary — tams authored for one arrangement and one
   SCALE (Phase 9a), now measured to be the single largest owner in the census.
 - **Gate:** each (call, board geometry) pair is either covered by a setup or a derived rule, or
   recorded with its reason; the census is re-taken and the figure count must rise. Run it call by
   call, largest first, with the method the port uses: the definition first, then the rule, then
   validation against the corpus.
+
+#### Phase 16a — the broken bodies, ranked by REACH (the new head of the queue)
+
+The same prefix scan run over all 188 figures (not just the ones that stop) is the work order,
+because a body that poisons five chains is worth more than one that stops one figure — and the census
+can see neither, since it attributes to the call that *stopped*:
+
+| first unnamed board after | figures poisoned | examples |
+|---|---|---|
+| **`Boys Fold`** | **5** | figm30 figm70 figm71 figm83 figm89 |
+| **`Single Hinge`** | **5** | figm34 figm128 figm143 figm165 figm202 |
+| **`Heads Touch 1/4`** | **4** | figm14 figm15 figm16 figm179 |
+| `Allemande Left` | 3 | figm91 figm149 figm151 |
+| `Sides Touch 1/4` | 2 | figm9 figm207 |
+| `Girls Run` | 2 | figm24 figm216 |
+| `Square Thru 4` | 2 | figm36 figm37 |
+| `Centers Swing Thru` | 2 | figm65 figm212 |
+| `Sides Right and Left Thru` | 2 | figm80 figm81 |
+| `Extend` / `Boys Run` | 1 each | figm28 / figm47 |
+
+**78 of 188** figures walk their whole chain with every board named; **33** are poisoned by a body.
+Only 15 of those 33 stop *at* the poison, which is why the census under-counts this class by more
+than half.
+
+**`Single Hinge` — the first target, diagnosed.** The corpus writes `Single Hinge`; the catalogue's
+tam title is `Hinge` (`ms/hinge.xml`), reached through `CALL_SYNONYMS`, and CALLERLAB gives it
+*"Starting formations: Mini-Wave only. Dance action: 1/2 Trade. Ending formation: Mini-Wave."*
+Applying it to the engine's own canonical `Ocean Waves` board is legal, matches
+`from="Left-Hand Waves"` at **error 0.000**, and returns a board the engine cannot name, with the
+set's span changed from 4 wide × 6 tall to 6 × 8. Two things measured along the way, and the second
+is the one to look at first because it is a one-token data defect:
+
+- the call's two 8-dancer wave setups are authored **at different scales**: `Right-Hand Waves`
+  (`ms/hinge.xml:73`) uses an inline 4-dancer block at `x=-1.5` that the converter expands by
+  mirroring through the origin, so its waves stand 3.0 apart, while `Left-Hand Waves`
+  (`ms/hinge.xml:96`) names `Ocean Waves LH BGGB`, which resolves to the engine's ±2. The engine's
+  canonical `Ocean Waves` is at ±2, so **only the left-hand setup is ever reachable** and the
+  right-hand one is stranded at the other scale.
+- that alone does NOT explain the mangled result: the left-hand variant matched at error 0.000, so
+  its setup *did* overlay the board exactly. The wrong end board therefore comes from that variant's
+  motion or from the re-base, and the causal link between the two is left open rather than assumed.
+
+`Boys Fold` (5) is next and is the `Fold` family Phase 14 already owns; `Heads Touch 1/4` (4) is
+third and is the `Touch 1/4` body, whose 1/4-turn currently lands the heads *past* the center.
+
+
 
 ### Phase 14 — the missing calls (13 + the 12 re-attributed = 25 figures)
 

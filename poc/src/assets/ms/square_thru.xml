@@ -314,6 +314,39 @@
     </path>
   </tam>
 
+  <!-- SEPARATION TWO. The authorings above are separations THREE (Facing Couples Compact) and SIX
+       (the Eight Chain Thru ones, via `scaleX="2"` on the extension), and the corpus also reaches
+       `Square Thru 4` from a board of facing couples TWO apart - `figm191`, whose `T-Bone LUUR` board
+       after `Heads Box the Gnat` is four facing pairs with the dancers 2 apart.
+
+       Same law and same number as every other separation fix in this catalogue: the TRAVEL scales are
+       `separation / 2`, so the Compact authoring's `1.5` values become `1`. The `offsetX`/`offsetY`
+       of `.5` are NOT scaled - they are the quarter-turn handoff between the pull-bys, not distance
+       travelled. The start formation is written INLINE at x = -1 so the engine's own mirror puts the
+       second couple at x = +1. -->
+  <tam title="Square Thru 4"
+       from="Facing Couples"
+       difficulty="1">
+    <formation>
+      <dancer gender="boy" x="-1" y="1" angle="0" />
+      <dancer gender="girl" x="-1" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Pull Left" beats="2" scaleX="1" scaleY=".5" />
+      <move select="Lead Right" beats="2" scaleX=".5" scaleY="1" />
+      <move select="Lead Right" beats="2" offsetX=".5" offsetY=".5" />
+      <move select="Lead Right" beats="2" scaleX=".5" scaleY="1" />
+      <move select="Extend Left" beats="2" scaleX="1" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Pull Left" beats="2" scaleX="1" scaleY=".5" />
+      <move select="Lead Left" beats="2" offsetX=".5" offsetY="-.5" />
+      <move select="Lead Left" beats="2" scaleX=".5" scaleY="1" />
+      <move select="Lead Left" beats="2" offsetX=".5" offsetY="-.5" />
+      <move select="Extend Left" beats="2" scaleX="1" scaleY=".5" />
+    </path>
+  </tam>
+
   <tam title="Square Thru 4" from="Right-Hand Wave"
       formation="Wave RH" difficulty="2">
     <path>

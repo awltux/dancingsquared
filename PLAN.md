@@ -3757,7 +3757,37 @@ writes no designation and expects the dancers who just acted to continue. That "
 continue" reading is the real owner, it is shared with several other undesignated calls, and it is the
 next thing to decide here — not a `Centers` special case for stars.
 
-#### P16c: `Right and Left Thru` at separation 2 — DONE, 98 → 101 figures
+#### P16c: `Square Thru 4` at separation 2 — DONE, a measured zero with both targets moving deep
+
+The `T-Bone` group's first entry. `figm191`'s chain is `Heads Box the Gnat | Square Thru 4 | …`, and the
+board `Heads Box the Gnat` leaves is a `T-Bone LUUR` whose geometry is four **facing pairs two apart** —
+`#1B(1,-1)@N` facing `#6G(1,1)@S`, `#2B(-1,-1)@N` facing `#5G(-1,1)@S`, and the sides likewise outside.
+`Square Thru 4` was authored at separations 3 and 6 only, so it missed.
+
+Authored at separation 2 by the same law: the TRAVEL scales are `separation / 2`, so the Compact
+authoring's `1.5` values become `1`; the `offsetX`/`offsetY` of `.5` are NOT scaled, because they are
+the quarter-turn handoff between pull-bys rather than distance travelled.
+
+| | before | after |
+|---|---|---|
+| figures end-to-end | 101 | **101** |
+| `catalogue no-setup` | 47 | **46** |
+| `figm191` stops at | call **#2** (`Square Thru 4`) | call **#6** (`Right and Left Thru`) |
+| `figm193` stops at | call **#2** (`Sides Square Thru 4`) | call **#3** (`Swing Thru`) |
+
+- **A measured zero on the figure count and a large move on both targets** — four calls of progress on
+  one figure. It is kept rather than reverted, and the distinction from the changes that were taken
+  back is the same one that made `Right and Left Thru` seam-2 a win: this ADDS coverage for a
+  separation that was simply absent, and cannot change the reading of any board that already matched.
+  The three reverts (`Star Thru` seam-2, `Sweep` coherence, `Touch 1/4` seam-2) all REPLACED a reading
+  or forced a decomposition.
+- **The `Square Thru 4` authoring also helped `figm193`**, which stops on `Sides Square Thru 4` — the
+  whole-board tiling reaches it — so one authoring covered both, and the `T-Bone` group is smaller than
+  its five figure-ids suggested.
+- **What the two now need is different from what they needed before**, which is the useful part for the
+  next round: `figm191` reaches a board on which `Right and Left Thru` misses even though seam-2 now
+  exists (so that board is NOT a seam-2 facing-couple arrangement), and `figm193` reaches one where the
+  DERIVED `Swing Thru` refuses. Both are named stops rather than a wall.
 
 The coverage queue was re-taken with `facing-audit.mjs --list`, which prints every well-formed refusal
 with its call, its board and its classification. Sorting that list found the pattern the largest group

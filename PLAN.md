@@ -3830,6 +3830,40 @@ path) is normalising the difference away. **Next measurement:** apply the separa
 `rebase` off (the search path, `applySearch`) so no snap can mask it, and print the pre-snap
 per-dancer end.
 
+**MEASURED, and BOTH of the premises above are wrong.** Applying `Touch a Quarter` to a hand-built
+facing-couple board at each separation, and then the `Extend Left` MOVE alone through a one-path tam
+scaled four ways, settles it without matching or re-basing in the picture:
+
+| `Extend Left` scaleX | displacement of a dancer at `(-3,1)` facing `+x` | forward | lateral |
+|---|---|---|---|
+| 1 | `(-2, 2)` | **1** | **1** |
+| 1.5 | `(-1.5, 2)` | 1.5 | 1 |
+| 2 | `(-1, 2)` | 2 | 1 |
+| 3 | `(0, 2)` | 3 | 1 |
+
+So `Extend Left` is **forward `scaleX`, lateral `scaleY`, and no more** — its base displacement on a
+unit scale is `(1, 1)`, not the `(2, 0.4)` the table above records, and there is no `0.4` anywhere.
+
+| separation | authored `scaleX` | end | box | closest pair |
+|---|---|---|---|---|
+| 3 (`Compact`) | 1.5 | `(±1, ±1.5)` | 2 wide × 3 tall | 2.00 |
+| 4 | 1.5 | `(±1, ±2)` | 2 wide × 4 tall | 2.00 |
+| 6 (ours) | 3 | `(±1, ±1.5)` | 2 wide × 3 tall | 2.00 |
+| 6 (ours, `scaleX` **tried at 2**) | 2 | `(0, ±1.5)` ×4 | **0 wide** | **0.00** |
+
+- **`scaleX = separation / 2` is REFUTED, and lowering it makes things worse.** At separation 6 the
+  end x is `start.x + scaleX ∓ 1`, so the shipped `scaleX = 3` lands at `±1` and the "law's" smaller
+  value `2` lands both couples on **x = 0** — a collision, measured as a closest pair of 0.00. To land
+  at `∓1` the scale would have to be **1 at every separation**, i.e. the forward step cannot scale
+  with the separation at all under this motion. The change was made, measured (census 95 → 95, with
+  the board now colliding) and REVERTED.
+- **And no separation produces a 2×2 box**, which is the original observation, now with numbers: the
+  tall side is 3, 4 and 3. So the defect is inside the `Extend`+`Hinge` COMPOSITION, not in the scale
+  law that was suspected, and the tam we authored is authored on a law that does not hold. The
+  concrete next measurement is therefore the reference's own `Extend Left`+`Hinge Right` pair applied
+  at a UNIT scale (`scaleX=1`) from separation 2, where the two moves' lateral components should
+  cancel into a box — the `separation 2` row above REFUSES, which is itself the anomaly to explain.
+
 
 
 

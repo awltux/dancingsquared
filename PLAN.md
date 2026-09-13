@@ -3631,15 +3631,44 @@ So the fix is not in the matcher or a body: it is to implement `Fold`/`Cross Fol
 which Phase 14 already carries (`Fold` 1, `Cross Fold` 2) and which the library's own note names as
 the reference's answer. **5 of the 28 poisoned chains are missing-call work, not body work.**
 
-**`Heads Touch 1/4` (4 chains) — next, and the measurement to take first.** Unlike `Boys Fold`,
-`Touch 1/4` *does* have sequencer-eligible setups (`Lines` and `Eight Chain Thru` at 8 dancers, and
-a `Facing Couples` at 4), so this one is a real application. It reaches the board through
-`applySelected`'s ISOLATED reading (the name is only a selection prefix), and after
-`Heads Promenade 1/2` it ends the four heads at **x=±1.5, y=∓1 with the partners 3 apart** where a
-completed `Touch 1/4` should leave each couple 2 apart — the same 1.5-versus-2 discrepancy
-`Hinge`'s `Right-Hand Waves` tam showed at `ms/hinge.xml:73`. First measurement next: whether the
-matched 4-dancer `Facing Couples` setup is the `forSeq=false` demo copy, and what spacing the tam's
-own `<formation>` block declares.
+**`Heads Touch 1/4` (4 chains) — measured: the defect is inside the TAM'S MOTION, not the match.**
+Unlike `Boys Fold`, `Touch 1/4` has sequencer-eligible setups, and the separation work is already
+done: `ms/touch_a_quarter.xml:39-64` carries three `Facing Couples` authorings at separations 4
+(`x=±2`), 3 (`Compact`, `x=±1.5`) and **6** (`x=±3`, inline, with a comment stating the law
+`scaleX = separation / 2` because "the heads of a Static Square are two couples facing each other
+SIX apart"). The four heads after `Heads Promenade 1/2` are indeed 6 apart, and the isolated
+reading centres them without rescaling, so the separation-6 setup is the one that applies.
+
+Applying `Touch 1/4` to **each of the three setups directly** (so matching is out of the picture
+entirely - `self-match err=0.000`, `refl=false` for all three) gives the SAME end board in all three
+cases:
+
+```
+  start (±2,±1)   ->  1@(1,1.5)  2@(1,-1.5)  3@(-1,-1.5)  4@(-1,1.5)
+  start (±1.5,±1) ->  1@(1,1.5)  2@(1,-1.5)  3@(-1,-1.5)  4@(-1,1.5)
+  start (±3,±1)   ->  1@(1,1.5)  2@(1,-1.5)  3@(-1,-1.5)  4@(-1,1.5)
+```
+
+Two things follow, and only the second is a defect:
+
+- **separation-independence is CORRECT and intended.** With `scaleX = separation / 2` the couples
+  meet in the middle and the final box does not depend on how far they travelled - that is the whole
+  point of the authoring, and it is why one variant can serve every separation.
+- **the end is a 2×3 RECTANGLE, not the 2×2 box a completed Touch 1/4 must produce.** The four end
+  at `(±1, ±1.5)`: partners 3 apart, where a right-hand box has every adjacent pair 2 apart. The
+  board is unnamed, which is what stops the chain. The lateral half-offset is `1.5` where the
+  geometry requires `1`, and it is a constant - the same for all three separations - so it comes
+  from the `scaleY=".5"` on the `Hinge Right` move, not from the separation.
+
+So this is neither a matching gap nor a body defect: it is in `resolvePath`'s application of
+`scaleX`/`scaleY` to a move (`convert.ts:200-203`), which scales the move's `translate` AND its
+`rotate` bezier by `(sx, sy)` - and scaling a rotating arc's control points is not the same as
+halving the dancer's lateral offset. **Next measurement:** the authored `Hinge Right` and
+`Extend Left` in `moves.xml` (their base `translate`/`rotate`), to see whether `scaleY=.5` on a
+rotation is being asked to mean something the current scaling cannot express. It is the same family
+as the `Hinge` wave tams above, and `Touch 1/4`, `Touch a Half`, `Left Touch a Quarter` and the
+`Touch By` tams all use this pattern.
+
 
 
 

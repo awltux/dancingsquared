@@ -15,3 +15,7 @@ poc-matrix/getout-graph.json
 # verify-suite run logs (tee'd so the run can be followed live; not source)
 verify*.log
 logs/
+
+# CALLERLAB's Mainstream definitions, extracted from docs/*.pdf by
+# test/tools/extract-pdf-text.mjs. Regenerated on demand, and not ours to redistribute by default.
+callerlab-ms.txt

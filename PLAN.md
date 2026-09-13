@@ -3219,6 +3219,226 @@ family, not as an independent win. The port list below is otherwise unchanged �
 
 ---
 
+## The next build phase — measured from three sides: the figures, the FSM, and CALLERLAB
+
+Before choosing what to build, three analyses were run: where All8's 188 figures actually stop and
+**why**; whether the FSM's "no getout" nodes can be falsified; and whether the calls and starting
+formations in CALLERLAB's Mainstream definitions are represented in the engine. This section is what
+they found, and the phases below are what the findings imply.
+
+The instruments are kept, because the phases need to re-run them:
+`engine/test/tools/figure-census.mjs`, `engine/test/tools/fsm-getout-audit.mjs` and
+`engine/test/tools/callerlab-diff.mjs`.
+
+### First, the measurement itself has to be pinned (Phase 10)
+
+The same 188 figures, the same engine, the same fixed random source, walked three ways:
+
+| walk convention | figures that run end-to-end |
+|---|---|
+| apply each call, nothing else | **8** |
+| ...with `knownFormation(board)` asked between calls | **20** |
+| ...with a fresh `Sequencer` per figure | **17** |
+
+A read-only query between calls changes what the next call decides, and that is not supposed to be
+possible. Two things were ruled out rather than assumed:
+
+- **It is not the random source.** `applicator.ts:311` picks the whole-vs-parallel interpretation of
+  a call with `config.rand()`, which defaults to `Math.random` (`config.ts:37`) and is **not** gated by
+  `selectionMode` (whose default, `best`, only governs the selection path). That is a genuine
+  stochastic path in a deterministic engine — but pinning it to always-whole, always-parallel, four
+  LCG seeds and `Math.random` gives **8 of 188 under every one**, with identical blocking-call
+  rankings. So it does not explain the census; it is still worth removing.
+- **It is not board mutation.** `knownFormation` and `recognize` do not write to the board they are
+  given.
+
+What is left is the one thing the third row proves: the boards two different walks produce for the
+same figure are **not byte-identical** even when every field printed (`id`, `x`, `y`, `heading`,
+`couple`, `gender`) matches, and the *pure* `promenadeProblem(board)` then disagrees on them. So a
+second board field is carrying state that the printed ones do not show. Until that is found, every
+figure/corpus number in this repo — including the two baselines above and everything below — is a
+property of a walk convention rather than of the engine. **This is why it is Phase 10 and not a
+footnote:** the plan's whole method is "measure, don't reason", and this is the measurement failing.
+
+### 1. Where the 188 figures stop, and who owns each stop
+
+Taken with the `all8-figures` convention (8 of 188 run; 180 blocked), each stop attributed to the
+component that has to change:
+
+| figures | cause | the owner |
+|---|---|---|
+| **48** | derived `Swing Your Partner` refuses | the 9e-1 partner-band precondition |
+| **44** | catalogue tam has no setup for this board | setup coverage / the matcher (Phase 9a's disease) |
+| **32** | derived `Promenade` refuses | the promenade precondition |
+| **26** | `"<call>" not legal for selected dancers` | the applicator's selection path |
+| **13** | unknown call, no catalogue entry | missing calls |
+| **7** | selection will not resolve on this board | the grouping's centre/end rules |
+| **6** | derived `Trade` refuses | the coded Trade's adjacency rule |
+| **3** | derived `Swing Thru` refuses | the star case diagnosed above + 2 unmatched boards |
+| **1** | derived `Promenade Home` refuses | as `Promenade` |
+
+Two of those are single, uniform failures, which is what makes them the cheapest large wins:
+
+- **`Swing Your Partner`, 48 figures, one sentence.** All 48 refuse with *"couple N's partners are N
+  apart, not the standard 2, so they are not standing together and cannot swing"* — the narrow
+  "your partner in the 1.0..3.0 band" reading of 9e-1, measured from 18 Ocean Waves, 15 Lines Facing
+  Out, 11 Eight Chain Thru and 4 unnamed boards. In a wave nobody is holding their partner, so this
+  refuses the **normal** geometry of the call's most common use.
+- **`Promenade`, 32 figures,** of which **27** are one sentence: *"the four couples are not spread one
+  per side of the square, so there is nothing to promenade around"* — the precondition demands the
+  ring already exists, where a get-out ends in a wave or a line and the dancers form the ring on the
+  way. The other 5 are the same partner-band failure (3) and ring order (2).
+
+Depth matters for sequencing: only **6** figures fail at their first call; **147** fail at call #4 or
+later. The engine walks published choreography most of the way and dies at the ending, which is why
+two derived resolves dominate the census.
+
+The decoder's own gap is small and separate: **4 unread cells** in 188 figures (`--1/2`, `S-`,
+`--Keep`, `H-meet-T1/4`).
+
+### 2. The FSM's "no getout" nodes survive being tested
+
+The view labels every state `home`, `route home`, `nohome` or `dead`. Both "dead" labels are claims
+about **our edge set**, so the All8 material is a real test of them:
+
+| check | result |
+|---|---|
+| 155 states, after the edge-loss fix | 92 route home, **43 no route home**, **19 dead** |
+| a `dead` state walked straight through by a figure | **0** — no contradiction |
+| a `nohome` state on a path that reaches home in our own graph | **0** — no contradiction |
+| a `nohome` state visited by figures that then stop | **1**: `Stars RH`, by all 5 `Centers Left Hand Star` figures |
+| the engine's own get-out SEARCH from each of the 43 states | **none** within `maxCalls=3`, on all 43 |
+| the 19 `dead` states | all are `@embed#N` inline setups — they cannot even be built as a board |
+
+**Verdict: the labels are honest, and are not falsified.** `Stars RH` is not a counter-example but a
+confirmation: the five figures stop there, so "no route home" is exactly what our engine has. So the
+43 are not a bug list; they are the **get-out coverage backlog**, and they are a good scoreboard for
+the phases below, because they are the formations the corpus actually reaches.
+
+### 3. CALLERLAB: the calls and the starting formations
+
+`docs/New_Mainstream_Definitions_26-03-29.pdf` yields **84 `Starting formation` sections** over ~45
+distinct call names (the document groups calls into *families* with lettered cases — "Hinge Family",
+"b.y. Allemande Left Case 2" — which any parser has to model).
+
+**Calls.** Of the documented call names, **33 are implemented and 12 are not**, and the diff is
+corroborated from a second direction by the figures:
+
+| documented call | corroboration |
+|---|---|
+| `Sweep a Quarter` | All8's `Sweep 1/4`: **5 figures** stop on it as an unknown call, and 3 more as `Centers`/`Heads Sweep 1/4` |
+| `Cross Fold` | the index lists it with no implementation (`engine-calls.mjs` says so), and `Boys Cross Fold` stops 2 figures |
+| `Fold` | `All Fold` stops a figure with `"Fold" not legal for selected dancers` |
+| `Left Square Thru`, `Star Right`, `Star Left` | no figure uses them yet; names to adjudicate (`Star Right`/`Star Left` vs the engine's `Right Hand Star`/`Left Hand Star`) |
+| `Cast Off Three-Quarters` | the engine implements `Cast Off 3/4` — a **name bridge**, not a gap |
+| `Box`, `Right`, `First Couple Go Left` | parser artefacts from the doc's family headings; to be re-checked, not assumed |
+
+**Starting formations.** Over the 33 implemented calls there are **51 documented (call, start)
+pairs**, and only **8** match one of that call's own `<tam from="...">` setups — but that number is
+**not** 43 gaps: **22 distinct formation names** in the definitions have no counterpart anywhere in
+the engine, and most are CALLERLAB's vocabulary rather than missing formations:
+
+`Two-Faced Line`, `One-Faced Line`, `Ocean Wave`, `Ocean Wave`/`Alamo Ring`, `Box Circulate`,
+`1/4 Tag`, `Single 1/4 Tag`, `Mini-Wave`, `Couple`, `Facing Dancers`, `one Man and one Woman`,
+`Facing Tandems`, `Tandem Couples`, `Tandem facing a Couple`, `Normal Couple only`, `Facing Dancers
+only`, `Eight Chain Thru formation; in general`, `a Couple`, `a Couple with their backs to the
+center of the set`, `each center dancer directly looking at an outside dancer`, `Restricted at
+Mainstream to Facing Couples only`, `A Tandem and a center point to work away from`.
+
+The engine says `Two-Faced Lines` for `Two-Faced Line`, `Ocean Waves` for `Ocean Wave`, `Alamo Wave`
+for `Alamo Ring`; it has no name at all for `Facing Dancers`, `Mini-Wave`, `Tandem`, `1/4 Tag` or
+`Box Circulate`. **The mapping is the work** — the diff cannot rank start-formation gaps until the
+two vocabularies are related, which is what Phase 16 is for.
+
+---
+
+## Phases 10–17 — the next build phase
+
+Each phase states its measured size, the owner, and the gate. Sizes are stops in the 188-figure
+census (taken under the Phase 10 convention) unless stated otherwise.
+
+### Phase 10 — make a verdict a function of the board (prerequisite)
+
+- **Size:** 8 vs 20 vs 17 of 188 across three walk conventions; the blocker for every number below.
+- **Work:** find the board field two walks disagree on (dump the whole dancer object and diff, rather
+  than the five fields a human thinks of); make `applyToBoard`/`knownFormation` history-independent;
+  and either seed or remove the `config.rand()` interpretation pick, which is stochastic in an engine
+  whose other selection path defaults to `best`.
+- **Gate:** walking the corpus with and without interleaved read-only queries gives byte-identical
+  results, pinned in a harness; a second harness pins that the same board+call asked twice, with
+  other boards queried in between, gives the same verdict. Then re-take every baseline in this
+  document and record the convention.
+
+### Phase 11 — the general `Swing` (48 figures)
+
+- **Size:** 48 figures, one refusal sentence, from Ocean Waves (18), Lines Facing Out (15), Eight
+  Chain Thru (11), unnamed (4).
+- **CALLERLAB:** `Swing` — starting formation **Facing Dancers (Man and Woman)**; *"the Ocean Wave
+  Rule applies"*; ends in a **Normal Couple**. `Swing your Partner` is shorthand for *"Face Your
+  Partner; Swing"*, and from a Trade By *"the Centers swing the dancer they are facing and the Ends
+  swing the dancer beside them"*.
+- **Work:** the geometric pairing and the step-to-facing-dancers entry, not the narrow 1.0..3.0 band.
+- **Gate:** `Swing Your Partner` applies from a wave, a line facing out and an Eight Chain Thru, and
+  the census's 48 stops on that sentence goes to 0 — with the figure count re-measured, not assumed.
+
+### Phase 12 — `Promenade` from the formation the figure ends in (32 figures)
+
+- **Size:** 32, of which 27 are *"the four couples are not spread one per side of the square"*.
+- **Work:** accept the boards the corpus actually reaches and form the ring from them; keep the two
+  ring-order refusals as data (they are the sequencing check, not the entry check).
+- **Gate:** the 27 disappear and the two `the couples are out of sequence` cases are either fixed or
+  shown to be genuinely out of sequence.
+
+### Phase 13 — setup coverage for the catalogue calls (44 figures)
+
+- **Size:** 44, spread over the top blocking calls: `Pass Thru` 5, `Do Sa Do` 3, `Slide Thru` 3,
+  `Sides Pass Thru` 3, `Star Thru` 3, then a long tail of 1s and 2s.
+- **Owner:** the matcher's setup vocabulary — tams authored for one arrangement and one scale
+  (Phase 9a), the same disease as the star's 2-apart box.
+- **Gate:** the (call, board formation) pairs are enumerated as data first, then either a derived rule
+  or a setup covers each; the count is re-measured.
+
+### Phase 14 — the selection path must match the selected dancers (26 figures)
+
+- **Size:** 26 — `Heads Rollaway` 4, `Heads Box the Gnat` 4, `Centers Sweep 1/4` 2, `Girls Turn Thru`
+  2, `Boys Cross Fold` 2, plus 12 singletons.
+- **Owner:** the applicator: today it matches the call against the **whole** board and then filters the
+  motion to the selected dancers, which is why `Centers Right-hand Star` applied an eight-dancer
+  motion to four dancers and produced a board the matcher could not even name (measured while
+  diagnosing the star).
+- **Gate:** a selected call is matched against the selected group's own board, and the phase's 26
+  stops are re-measured.
+
+### Phase 15 — the missing calls (13 figures)
+
+- **Size:** 13 — `Sweep 1/4` 5, `Split the Outside Couple` 4, then `Yellow Rock`, `Pass One`,
+  `Join Hands`, `Separate Around Two` (1 each).
+- **CALLERLAB** lists `Sweep a Quarter`; the engine implements none of these.
+- **Gate:** each is either implemented (in the same style as the port: rule first, validated against
+  the reference), or recorded as not-Mainstream with the definition quoted.
+
+### Phase 16 — the CALLERLAB vocabulary, as data (feeds 13–15)
+
+- **Work:** a checked-in mapping from each documented starting-formation name to the engine's
+  formation(s) — `Two-Faced Line` → `Two-Faced Lines`, `Ocean Wave` → `Ocean Waves` (and `Alamo Ring`
+  → `Alamo Wave`), `Facing Dancers` → the facing-couples/mini-wave family — plus the decisions for the
+  names the engine has no formation for. Then re-run the diff over all 51 (call, start) pairs.
+- **Gate:** every documented (call, start) pair is matched by a setup, modelled as a derived start, or
+  listed as a justified exception with the definition quoted; and the diff is a harness, so it cannot
+  drift.
+
+### Phase 17 — the FSM's get-out backlog (43 states)
+
+- **Size:** 43 states with no route home, all corroborated (0 figures walk them and reach home; the
+  engine's own search finds nothing from any of them at `maxCalls=3`), plus 19 unnamed `@embed#N`
+  states that are dead by construction.
+- **Work:** treat the 43 as the scoreboard for Phases 11–15 rather than a separate workstream; and
+  name or exclude the 19 inline setups, because a dead node with no name is not actionable.
+- **Gate:** 0 `nohome` states, or a recorded reason per state; the 19 embeds named or excluded; and
+  the FSM asset regenerated so the view shows the result.
+
+---
+
 ## Recommended order
 
 Phases 0 → 1 → 2 → 3 match `HANDOVER.md` §7's ranking, with one change of emphasis: **Phase 1

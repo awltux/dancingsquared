@@ -62,7 +62,7 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 | … of which ended by applying the finish itself | **112** (was 110) | same |
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
-| CALLERLAB | real gap is **2 (call, start) pairs + 24 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
+| CALLERLAB | real gap is **9 (call, start) pairs + 20 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
 | gates | `verify:light` green; `verify` green (20 harnesses, ~295 s); `verify:figures` **red by design** | `npm run verify --prefix engine` |
 
 The figure census's blocking causes, re-measured after Phases A and E:
@@ -146,8 +146,9 @@ recording); the third **won two figures**:
 All three sides re-measured at the end of the round: figures **110 of 188** then (now **113**, see
 the role reading below); get-out **122 of 265**
 reaching a resolve state (110 applying the finish, 110 body stops); FSM **155 / 92 / 43 / 19
-unchanged**; CALLERLAB **unchanged** (the 9-of-45 row is still the name-matching artefact, and the
-real gap is still 2 (call, start) pairs + 24 formation names).
+unchanged**; CALLERLAB **re-classified, not moved** (the 9-of-45 row is still the name-matching
+artefact; the real gap re-measured in round 24 as 9 (call, start) pairs + 20 formation names, see
+Phase F).
 
 **AND A SIXTH WIN — the ROLE READING: 110 → 113 figures (round 15), and it is the largest single
 class left.** A `gender-specific` tam's paths are a **ROLE** motion — what a boy does, what a girl
@@ -317,6 +318,18 @@ the Top and Spin Chain Thru from the Facing Couples Rule"**, so facing couples w
 the ending to `Facing Couples` would therefore fit `figm36` and not `figm37`. **Round 23 stopped at
 the measurement: the fix is a hand-authored end pose and the data is the reference's own, so it needs
 one more round and a decision about which figure to believe.**
+  **ROUND 24 EXTENDED THE MEASUREMENT AND IT CHANGES THE PICTURE: the whole FAMILY ends that way, so it
+  is a modelling choice rather than a slip in one tam.** Applying every `Square Thru N` authoring to
+  its OWN setup (`variantStarts`) shows all of them — the two `Facing Couples` authorings and the
+  `Right-Hand Wave` one, for N = 2, 3 and 4 — ending with the two couples facing APART. Two further
+  facts, both surprising and both worth having before anyone edits the data: `Square Thru 2` and
+  `Square Thru 4` give the SAME end state from a wave, and no authoring of any N ends in a wave. That
+  is consistent with the corpus's own use (every other figure calls `Swing Your Partner` or `Promenade`
+  next, neither of which looks at facings), and it means the two figures above are the ONLY witnesses
+  for what the end state must support — and they still disagree, unless the answer is "a wave", which
+  is what `Do Sa Do`'s Ocean Wave Rule would make work for figm36 and `Spin Chain Thru` needs for
+  figm37. **Left alone deliberately: editing one member of a family that behaves uniformly, on the
+  strength of two conflicting figures, is exactly the kind of guess this plan refuses.**
 
 **AND `Do Sa Do`'s OWN OCEAN WAVE RULE IS A DOCUMENTED GAP, INDEPENDENTLY OF THAT.** CALLERLAB:
 *"The Ocean Wave Rule applies to this call. The ending formation remains Facing Dancers."* The
@@ -1011,23 +1024,39 @@ recorded in `coded-moves.ts` beside the rule so it is not retried.
 
 ### Phase F — the CALLERLAB formation vocabulary (16b)
 
-**Owner:** the formation vocabulary — the gap is **24 formation NAMES**, not 9 missing calls.
+**Owner:** the formation vocabulary — the gap is **20 formation NAMES**, not 9 missing calls.
+**RE-MEASURED IN ROUND 24, AND THE PREVIOUS NUMBERS WERE AN INSTRUMENT BUG.** The tool's (C) check asked
+a formation name against `formations.xml` ALONE, so every name the engine authors INLINE on a `<tam>`
+(`from="Facing Couples"`, `from="Right-Hand Wave"`, `from="Mini-Wave"`) was reported as "a formation the
+engine has no formation for" — false, and misleading for anyone planning work from it. `formationIsKnown`
+now also accepts any name used as a tam's `from`, which is the vocabulary that actually matters (the
+engine can start a call from it). The measured effect: **8 matched / 2 (call, start) pairs / 24 names
+becomes 13 / 9 / 20**, and the seven names that moved are the ones the engine genuinely has (they are
+per-call setup gaps, which is what (B) is for).
 
 ```
 (A) "9 calls the engine cannot perform": EVERY one reports "figures using it: 0" - a name-matching
     artefact (Star Right / Star Left are implemented as Right/Left Hand Star; Square Thru is the
     1/2/3/4 family; Cast Off Three -Quarters carries an extractor space).
-(B) the real pairs:  Dive Thru from "Facing Couples"; Grand Square from "Static Square"
-    (its authored setups are Butterfly | Blocks, which is itself worth a look).
-(C) 24 formation names the engine has no formation for, led by Couple (6 calls),
-    Facing Dancers (5), Two-Faced Line (4), Ocean Wave (3), Box Circulate (2), Mini-Wave (2),
-    Alamo Ring (2), then 1s.
+(B) 9 (call, start) pairs where the engine HAS the formation but the call authors no setup from it.
+    They are mostly GRANULARITY, not absence: "Facing Dancers" is a two-dancer formation (Box the
+    Gnat, Dosado, Pass Thru, Slide Thru, Star Thru all document it) while the engine's cheapest
+    authorings are four-dancer `Facing Couples`, and "Ocean Wave" is documented for the calls whose
+    setups name a wave ARRANGEMENT (`Right-Hand Wave`). Dove Thru from "Facing Couples" and Grand
+    Square from "Static Square" (its setups are Butterfly | Blocks) remain the two that are really
+    about setups.
+(C) 20 formation names the engine has no formation for, led by Couple (6 calls), Ocean Wave (3),
+    Box Circulate (2), Mini-Wave (2), One-Faced Line, then 1s. Several are CALLERLAB's SPELLING of a
+    formation the engine has under another name (`Ocean Wave`/`Ocean Waves`, `1/4 Tag`/`Quarter Tag`,
+    `Two-Faced Line`/`Two-Faced Lines`) - see the note in the tool for why a spelling-bridge map was
+    written, measured and REMOVED: it moved three names from (C) straight into (B) without fixing
+    either, so the counting is left literal.
 ```
 
 **Work:** a checked-in mapping from each documented starting-formation name to the engine's
-formation(s) — `Two-Faced Line` → `Two-Faced Lines`, `Ocean Wave` → `Ocean Waves`, `Alamo Ring` →
-`Alamo Wave`, `Facing Dancers` → the facing-couples / mini-wave family — plus explicit decisions for
-the names the engine has no formation for; then re-run the diff over all 51 (call, start) pairs.
+formation(s) — but see the removal note above: the honest version of that mapping has to model the
+FAMILY/arrangement relationship (`setup-coverage.mjs`'s job), not string-equality; then re-run the
+diff over all 51 (call, start) pairs.
 **Gate:** every documented pair is matched by a setup, modelled as a derived start, or listed as a
 justified exception with the definition quoted; `callerlab-diff.mjs` becomes a harness so it cannot
 drift. Note the overlap with Phase 4e's blocked facing-variant work: this is the same vocabulary.

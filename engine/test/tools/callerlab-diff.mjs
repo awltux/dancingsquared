@@ -149,6 +149,35 @@ for (const lv of ['ms', 'plus', 'b1', 'b2', 'ssd', 'a1', 'a2', 'c1', 'c2', 'c3a'
 for (const m of readFileSync(path.join(assets, 'formations.xml'), 'utf8').matchAll(/<formation\b[^>]*\bname="([^"]*)"/g)) knownFormations.add(norm(m[1]));
 for (const f of STANDARD_FORMATIONS) knownFormations.add(norm(f));
 
+/**
+ * THE ENGINE'S FORMATION VOCABULARY IS BIGGER THAN `formations.xml`, and counting only that file
+ * reported a PHANTOM GAP (corrected round 24). A `<tam>` may author its setup INLINE and name it only
+ * in its `from=` attribute — `from="Facing Couples"`, `from="Right-Hand Wave"`, `from="Mini-Wave"` —
+ * which is a formation the engine can start that call from just as much as a catalog template is. The
+ * (C) check below used to ask only `formations.xml`, so every such name was reported as "a formation
+ * NAME the engine has no formation for", and that number (24) is quoted in PLAN.md and in the CALLERLAB
+ * row of the scoreboard as the real gap. It is not: a name used as some tam's `from` is part of the
+ * vocabulary, and the question that actually matters for a given call — does THIS call have a setup
+ * for THIS formation — is what (B) already answers.
+ *
+ * `STANDARD_FORMATIONS` is already folded in above for the same reason; this is the other half of it.
+ */
+const tamFromNames = new Set([...tamFrom.values()].flatMap((s) => [...s].map(norm)));
+const formationIsKnown = (n) => knownFormations.has(n) || tamFromNames.has(n);
+
+/**
+ * WHAT THIS DOES *NOT* TRY TO BRIDGE, and why the attempt was dropped (round 24). CALLERLAB's formation
+ * names are COARSER than the engine's setups: it says "Ocean Wave" where the engine says
+ * `Right-Hand Wave`, and "Facing Dancers" where the engine's cheapest setup is a four-dancer `Facing
+ * Couples`. A map of spelling bridges for those was written and measured — it moved three names out of
+ * (C) and straight into (B), turning "the engine has no formation for Ocean Wave" into "Spin the Top
+ * has no setup for Ocean Wave", which is just as false (it has a dozen wave setups). Neither category
+ * can express "the call HAS a setup that is a member of this formation's FAMILY, in another
+ * arrangement", which is the real relationship and is what `setup-coverage.mjs` reports. So the counting
+ * is left honest and literal: (C) means the engine's own vocabulary has no entry under that NAME, and
+ * (B) means it has a formation for it but this call authors no setup from it.
+ */
+
 const unknownFormation = new Map(); // documented formation name -> calls asking for it
 const notASetup = [];                // (call, formation) with no matching from= anywhere
 let pairs = 0, matched = 0, prose = 0;
@@ -165,7 +194,7 @@ for (const [call, es] of pdfCalls) {
       // the extractor leaves sentences inside the list; counting them as "unknown formations"
       // would inflate the gap, so they are separated out and reported as noise instead
       if (PROSEISH.test(fm)) { prose++; continue; }
-      if (!knownFormations.has(n)) {
+      if (!formationIsKnown(n)) {
         matched += 0;
         if (!unknownFormation.has(fm)) unknownFormation.set(fm, new Set());
         unknownFormation.get(fm).add(call);

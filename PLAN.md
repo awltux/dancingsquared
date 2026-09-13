@@ -229,14 +229,18 @@ been done from memory. What it says, against what the table had:
   REGISTERED `… 2` title keeps its own authoring (`Square Thru 2`, `Eight Chain 2`) — gated on the
   strongest available case, that `Square Thru 2` applies from a Static Square while bare `Square Thru`
   is not even a call there.
-- **`SqT@#` is "Square Thru, But On The # Hand", NOT `SqTh#` ("Square Thru #")** — and the table maps
-  both to the same name. That is NOT a rename: CALLERLAB's own text for it says it is an *extended
-  application* of Square Thru "where the Pull By action on the specified hand blends into the
-  following call" (`Square Thru, on the Third Hand Spin the Top`), and *"Unless the caller specifies,
-  the call … does not have a clear ending"*. So `SqT@3` is a **blend construction**, not a call, and
-  `figm179` currently completes by reading it as a complete `Square Thru 3` — the wrong reading
-  happening to work. Left alone deliberately: renaming it without modelling the blend would turn a
-  running figure into a refusal while modelling nothing. **A missing CONSTRUCTION.**
+- **`SqT@#` is "Square Thru, But On The # Hand", NOT `SqTh#` ("Square Thru #")** — and the table
+  mapped BOTH to the same name. That is not a rename: CALLERLAB's own text for it says it is an
+  *extended application* of Square Thru "where the Pull By action on the specified hand blends into
+  the following call" (`Square Thru, on the Third Hand Spin the Top`), and *"Unless the caller
+  specifies, the call … does not have a clear ending"*. So `SqT@#` is a **blend construction**, not a
+  call. **CORRECTED in round 21** — the four key forms now decode to their own names and are declared
+  gaps — and the correction is FREE, which a measurement settled: the old reading was *latent*, not
+  active. An earlier revision of this paragraph said `figm179` "currently completes by reading it as a
+  complete `Square Thru 3`"; **that was wrong**. `figm179` is not in the running set at all — it stops
+  seven calls earlier on `Heads Walk and Dodge` — so no figure was dancing the wrong call, and the
+  census is unchanged at 116 with the correction in. **A missing CONSTRUCTION**, and one no figure
+  reaches yet.
 - **`Pass1` is "Pass One (Pass by 1, Pass 1 by, Skip 1)"**, `ChgHn` is "Change (Switch) Hands
   **(NOL)**" and `YelRk` is "Yellow Rock **(NOL)**" — i.e. none of them is a CALLERLAB call. That
   confirms, from the authority, round 16's reading of `Pass One` and round 17's refusal to ship
@@ -735,15 +739,20 @@ para above calls those boards a body defect, and `Heads Touch 1/4`'s output is N
   its starting formation "must be a Wave or an Alamo Ring", the board's inner four are two couples
   facing OPPOSITE ways, and two separate mini-waves are not a group of four. Its derived rule already
   declines, correctly (round 18's finding, now confirmed on a SECOND board).
-- `Walk and Dodge` is an **ARRANGEMENT gap inside columns**, which is a fixable class: the catalogue
-  DOES author this call from columns — `from="Right-Hand Columns"` (`Column RH GBGB`) and
-  `from="Left-Hand Columns"` (`Column LH GBGB`) — but not from `Mixed Columns RH Ends In`. And the
-  rule is readable: the reference's `plus/walk_and_dodge.dart` gives each variant's paths, and the
-  pattern is per column — the dancer who can move forward WALKS (`Forward_3`) and the one with a
-  dancer behind dodges sideways (`DodgeRight`/`DodgeLeft`), with the reference's own note *"Centers
-  facing in must be careful to dodge and not walk."* That is a rule to transcribe, exactly as `fold.ts`
-  and `trade-run.ts` were transcribed, and it is worth **up to 3 figures** (`figm6`, `figm7` and the
-  selection stop). Not started here — it is a rule, not a rename.
+- `Walk and Dodge` is an **ARRANGEMENT gap inside columns** — but **the round-20 hope that the rule
+  is "readable" from the reference is REFUTED (round 21), before any code was written.** What IS true:
+  the catalogue and the reference AGREE exactly on every arrangement they both author (their RH/LH
+  Columns path lists are identical), and for columns the rule is consistent — in each pair one behind
+  the other with the same facing, the BACK dancer walks (`Forward`) and the FRONT dodges sideways
+  (right for RH, left for LH). What is NOT true is that one rule covers the call: the `Box RH` variant
+  is authored from a two-dancer MINI-WAVE whose pair are 2 apart with OPPOSITE facings, and there the
+  east-facing dancer walks — a different shape with a different assignment. And the arrangement the
+  corpus reaches (`Mixed Columns RH Ends In`) is authored by NEITHER: it is two RH mini-waves in the
+  centre plus two end couples, whose pairing for Walk and Dodge is not determined by either authority
+  (a line of three dancers facing the same way plus one facing back). Authoring it would be a guess
+  that the metric would reward — up to 3 figures (`figm15`, `figm16`, `figm179`; `figm207` is on an
+  unnamed board) — while corrupting the boards, which is the line the plan does not cross. It needs a
+  CALLERLAB Plus definition this repo does not hold.
 
 ### Phase D — the missing calls (Phase 14 residue)
 
@@ -1121,6 +1130,18 @@ separation is only the call's scale.
   part of the call (so the ring geometry is not a precondition), but the second job the old band did —
   refusing a body that has fallen apart — was replaced by a collision guard at 1.0, and the two
   broken boards that guard refuses are the point of it.
+  **AND THE RING-ORDER TEST IS RIGHT ABOUT ITS BOARDS — checked by hand in round 21, which moves the
+  owner elsewhere.** The two "out of sequence" refusals are `figm143` (`Ocean Waves`) and `figm215`
+  (`Trade By`), and in both the couples' centres snap to four distinct axes in CLOCKWISE order:
+  `figm143` has couple 1 NORTH and couple 3 SOUTH (swapped), `figm215` couple 1 SOUTH, 2 WEST, 3
+  NORTH, 4 EAST (a rotation of the clockwise reading). No single wheeling brings them home, so the
+  refusal is correct and no relaxation is wanted. What is worth knowing is WHERE those boards come
+  from: **both are the board immediately after `Swing Your Partner`**, and `Swing Your Partner` is the
+  IDENTITY in this engine (`coded-moves.ts`: a partner swing is a full turn, so in a net model of
+  position + heading it moves nobody), so the order Promenade judges is the PRE-swing order. That
+  makes the swing's unmodelled end pose the owner of these two — the fidelity gap already recorded
+  against it — and it also says a LOCAL end pose cannot fix them: a swing is a per-couple action and
+  cannot change the couples' angular order round the centre. Rule it out before spending a phase.
 
 ---
 

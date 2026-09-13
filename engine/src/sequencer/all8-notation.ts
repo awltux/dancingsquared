@@ -566,6 +566,15 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   // particular `Square Thru 1` is a surprising gap - the catalogue ships Square Thru 1 1/2, 2, 3
   // and 4, so the ONE-hand version is the odd one missing, and All8 uses it (`--SqTh1 --AL`).
   'Square Thru 1',
+  // The `SqT@#` construction's names, so the cell reads and the gap is honest (round 21). It is not a
+  // call: CALLERLAB calls it an extended application whose Pull By "blends into the following call"
+  // and which "does not have a clear ending". All four of the key's forms are declared, not just the
+  // two this corpus happens to use - the table reads the key, and the harness fails loudly if a name
+  // it can produce is neither implemented nor declared.
+  'Square Thru, on the Second Hand',
+  'Square Thru, on the Third Hand',
+  'Square Thru, on the Fourth Hand',
+  'Square Thru, on the Fifth Hand',
   // `Circulate 2` IS the gap here, not `Circle 2`: All8's key's `Cir2` is "Circulate 2 spots
   // (Circulate Twice)" and the table above decodes it that way as of round 19. The catalogue ships
   // `Circulate 1 1/2` but not `Circulate 2`, which is what the two `G-Cir2` figures now stop on.
@@ -727,7 +736,23 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
 // (The old comment here claimed `--8Chn*` was left undecoded too; it is not - `8Chn1`..`8Chn5` have
 // been expanded to `Eight Chain 1`..`5` since the key arrived, with those names declared as gaps.)
 for (let n = 2; n <= 4; n++) TOKENS[`SqTh${n}`] = `Square Thru ${n}`;
-for (let n = 3; n <= 4; n++) TOKENS[`SqT@${n}`] = `Square Thru ${n}`;
+// `SqT@#` IS NOT `SqTh#`, and mapping them to the same name was WRONG (corrected in round 21). All8's
+// own key says: "SqTh#  Square Thru #  (# = 1, 2, 3, 4, 5, 6)" and "SqT@#  Square Thru, But On The #
+// Hand  (# = 2nd, 3rd, 4th, 5th)" - two different calls.
+//
+// WHAT THE OTHER ONE IS, from CALLERLAB rather than from the abbreviation: Square Thru's own
+// definition calls it an "extended application ... where the Pull By action on the specified hand
+// blends into the following call" (`Square Thru, on the Third Hand Spin the Top`), and adds "Unless
+// the caller specifies, the call ... does not have a clear ending". So it is a CONSTRUCTION over the
+// NEXT call, not a call with an end state - which is why it is decoded here (so the line is read) and
+// its name declared as a GAP below, rather than being quietly danced as a plain Square Thru.
+//
+// The old reading was LATENT rather than actively wrong, and that is measured: the corpus uses
+// `SqT@3` exactly once (`figm179`), and that figure stops seven calls EARLIER, on `Heads Walk and
+// Dodge`, so no figure was dancing the wrong call. Renaming it also cannot regress one: the census is
+// unchanged at 116 with this correction in place.
+const ORDINAL = ['', 'First', 'Second', 'Third', 'Fourth', 'Fifth'];
+for (let n = 2; n <= 5; n++) TOKENS[`SqT@${n}`] = `Square Thru, on the ${ORDINAL[n]} Hand`;
 for (let n = 3; n <= 4; n++) TOKENS[`LSqT${n}`] = `Left Square Thru ${n}`;
 
 /**

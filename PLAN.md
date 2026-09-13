@@ -4788,6 +4788,28 @@ Face, Grand Square` here, and the `Completed Double Pass Thru` cluster above. Th
 boards correctly and then cannot match the call, and in both cases the call's own wording ("Sides
 Face") is what establishes the missing arrangement.
 
+**CORRECTION, before acting on that: "mechanical copy" was the wrong conclusion, and this is the exact
+trap the workstream has warned about twice.** The probe established that the tam's paths run to
+completion from a Static Square — i.e. that MATCHING is facing-independent. It did NOT establish that
+the MOTION is, and it is not: the tam's moves are expressed in each dancer's OWN frame (`localMotion`
+turns a displacement out by the dancer's heading), so a `Quarter Right` from an Eight Chain Thru facing
+lands somewhere different from the same move from an inward facing. The two boards do not merely have
+different facings in the same pattern — they have different dancer-to-position assignments, so slot k's
+role is preserved but its STARTING FACING is not:
+
+```
+Static Square    #1B( 1, 3)@S   #3B( 3,-1)@W   #5B(-1,-3)@N   #7B(-3, 1)@E
+Eight Chain Thru #1B(-1,-1)@W   #3B( 3,-1)@W   #5B( 1, 1)@E   #7B(-3, 1)@E
+```
+
+Copying the paths into a tam with an Eight Chain Thru setup would therefore produce a **silently wrong
+board rather than a refusal** — which is the one failure mode this catalogue's gates are built around
+(see the `Star Thru` seam-6 revert, the Sweep coherence refutation, and the promenade collision guard).
+`Sides Face, Grand Square` is thus a genuine **definition read**: the motion has to be authored for the
+arrangement the corpus actually reaches it from, which is exactly the class the 25-row queue is made of.
+The lesson recorded here is the narrow one: **a probe that shows a call MATCHES a board says nothing
+about whether the same paths are CORRECT on it.**
+
 - **Work:** a checked-in mapping from each documented starting-formation name to the engine's
   formation(s) — `Two-Faced Line` → `Two-Faced Lines`, `Ocean Wave` → `Ocean Waves` (and `Alamo Ring`
   → `Alamo Wave`), `Facing Dancers` → the facing-couples/mini-wave family — plus the decisions for the

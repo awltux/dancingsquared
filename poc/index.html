@@ -53,19 +53,13 @@
           <span id="partLabel" class="part"></span>
         </div>
         <div class="row">
-          <label>Facing</label>
-          <select id="facing">
-            <option value="rotation" selected>Rotation Bézier (data)</option>
-            <option value="travel">Along travel</option>
-          </select>
-        </div>
-        <div class="row">
           <label><input id="mirror" type="checkbox" checked /> Full square (mirror)</label>
         </div>
         <div class="row">
           <input id="scrub" type="range" min="0" max="100" value="0" />
           <span id="beatReadout" class="part"></span>
         </div>
+        <div id="browseUses" class="small"></div>
         <div id="legend"></div>
         </div>
         <div id="seqPanel" hidden>
@@ -185,6 +179,13 @@
           </div>
           <div id="edSaved" class="small"></div>
           <textarea id="edXml" class="small" rows="6" readonly placeholder="Exported <tam> XML appears here."></textarea>
+          <div class="row">
+            <label>Facing</label>
+            <select id="facing" title="How the previewed dancers orient: the authored rotation Bézier, or always along the travel direction.">
+              <option value="rotation" selected>Rotation Bézier (data)</option>
+              <option value="travel">Along travel</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>

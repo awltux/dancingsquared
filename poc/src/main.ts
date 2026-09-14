@@ -38,7 +38,15 @@ const seqPanel = el<HTMLDivElement>('seqPanel');
 const editorPanel = el<HTMLDivElement>('editorPanel');
 
 const player = new Player({ speed: speedMul });
-const browser = new CallBrowser(stage, player);
+// The browse view can hand a named sequence to the sequence view. `seqUi` and `applyMode` are
+// declared below, which is fine: this is a closure, so they are read when the button is CLICKED.
+const browser = new CallBrowser(stage, player, {
+  openSequence: (steps, atCall) => {
+    modeSelect.value = 'sequence';
+    applyMode();
+    seqUi.openSequence(steps, atCall);
+  },
+});
 const seqUi = initSequencer(stage);
 const editorUi = initEditor(stage, (c) => browser.showCall(c));
 

@@ -34,6 +34,17 @@ orientation is visible. Dancers are **colour-coded by couple** (1=red, 2=yellow,
 3=green, 4=blue) and **women have a distinct shape** (narrower torso + flared
 skirt) so gender is readable from the silhouette as well as colour.
 
+Below the call, **"Used by N modules"** lists the named sequences that use the
+selected call — the ceder-translated corpus plus any modules you have saved — with
+the step number at which the call appears. Each has an **open** button that
+switches to Sequencer mode with that sequence loaded WHOLE (its context before and
+after the call intact) and the playhead parked where the call starts, ready to
+play. The list shows the first 20 and summarises the rest.
+
+A call is matched on its FULL name, selection included: browsing `Heads Pass Thru`
+lists the modules that actually dance it scoped, not the far more numerous ones
+that dance bare `Pass Thru`.
+
 ## Sequencer mode
 
 Switch the **Mode** dropdown to **Sequencer** to build and validate a call
@@ -57,16 +68,6 @@ sequence on the 8-dancer board:
 
 The board uses the same 3D avatars (colored by gender; identity is tracked as 4
 couples internally and reported in the FASR readout).
-
-The **Facing** dropdown lets you pick how dancers orient:
-
-- **Rotation Bézier (data)** — the authoritative taminations facing, taken
-  from each movement's dedicated rotation Bézier (`cx3/cx4/cy4/x4/y4`, falling
-  back to the travel tangent when absent). This intentionally makes a dancer
-  walk **forward or backward** along the path — e.g. in a Wheel one partner
-  backs up while the other walks forward.
-- **Along travel** — always faces the instantaneous direction of motion (the
-  translation-tangent heading), i.e. "always walk forward".
 
 **Full square (duplicate half)** — taminations authors many calls for only
 **one half** of the set (e.g. Brace Thru "Lines, Boys Ends" is a single line of
@@ -127,6 +128,23 @@ Both share an **Edit call + Setup** (the call/setup being edited) and a **Post
 call + Setup** (whose *start* position is the target end). Pre/post positions are
 mapped to the edit call's dancer identities by aligning to its start, tolerating a
 whole-set rotation.
+
+The **Facing** dropdown sits here because the editor is the view that needs it: it
+picks how the PREVIEWED dancers orient, and every editor action previews through
+the same renderer.
+
+- **Rotation Bézier (data)** — the authoritative taminations facing, taken
+  from each movement's dedicated rotation Bézier (`cx3/cx4/cy4/x4/y4`, falling
+  back to the travel tangent when absent). This intentionally makes a dancer
+  walk **forward or backward** along the path — e.g. in a Wheel one partner
+  backs up while the other walks forward.
+- **Along travel** — always faces the instantaneous direction of motion (the
+  translation-tangent heading), i.e. "always walk forward".
+
+It is a property of the shared call renderer, so the BROWSE view honours whatever
+is set here (and uses the default, `Rotation Bézier (data)`, if you have not been
+to the editor). The sequencer does not use it - it draws from the engine's own
+board state, not from an authored call path.
 
 **Fix closure** — correct an existing call setup that doesn't close cleanly (e.g. a
 full Circle Left leaves the girls ~44° off, so the sequencer sees an unrecognized

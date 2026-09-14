@@ -6,16 +6,27 @@
 import * as THREE from 'three';
 
 import { allPoses, sampleTrail, computeHandholds, assignHomeIdentity } from 'dancing-squared-engine';
-import type { HeadingMode, HoldMode, CallBundle, Pose } from 'dancing-squared-engine';
+import type { HeadingMode, HoldMode, CallBundle, CallStep, Pose } from 'dancing-squared-engine';
 import { availableCalls, loadCall } from './data';
 import type { CallInfo } from './data';
+import { modulesUsing } from './modules';
 import { DancerView, buildHandConnectors } from './scene';
 import type { Stage } from './scene';
 import { Player } from './player';
 
+/** What the browse view needs from the rest of the app. */
+export interface BrowserHost {
+  /** Open the SEQUENCE view with `steps` loaded and the playhead at the first step playing `atCall`. */
+  openSequence(steps: (string | CallStep)[], atCall: string): void;
+}
+
+/** How many "used by" entries the browse panel lists before summarising the rest. */
+const USES_SHOWN = 20;
+
 export class CallBrowser {
   private stage: Stage;
   private player: Player;
+  private host: BrowserHost;
 
   private levelSelect = el<HTMLSelectElement>('levelSelect');
   private callSelect = el<HTMLSelectElement>('callSelect');
@@ -26,20 +37,23 @@ export class CallBrowser {
   private beatReadout = el<HTMLSpanElement>('beatReadout');
   private partLabel = el<HTMLSpanElement>('partLabel');
   private legend = el<HTMLDivElement>('legend');
+  private usesEl = el<HTMLDivElement>('browseUses');
 
   private catalog: CallInfo[] = availableCalls();
   views: DancerView[] = [];
   connectors: ReturnType<typeof buildHandConnectors>;
   availableLevels: string[] = [];
 
-  constructor(stage: Stage, player: Player) {
+  constructor(stage: Stage, player: Player, host: BrowserHost) {
     this.stage = stage;
     this.player = player;
+    this.host = host;
     this.connectors = buildHandConnectors(stage.scene);
     this.availableLevels = Array.from(new Set(this.catalog.map((c) => c.level)));
     this.populateLevels();
     this.populateCalls();
     this.refreshSetups();
+    this.renderUses();
     this.loadCurrent();
   }
 
@@ -123,11 +137,50 @@ export class CallBrowser {
     const prev = this.callSelect.value;
     this.populateCalls(prev);
     this.refreshSetups();
+    this.renderUses();
     this.loadCurrent();
   }
   onCallChange() {
     this.refreshSetups();
+    this.renderUses();
     this.loadCurrent();
+  }
+
+  /**
+   * The named sequences that USE the selected call, each with an "open" button.
+   *
+   * A call on its own says little about how it is danced - what you want next is the published
+   * sequences it appears in, and a way into them. The list comes from `modulesUsing`, which reads
+   * the SAME ceder corpus and saved modules the sequencer registers; the button hands the sequence
+   * to the sequence view whole and parks the playhead where this call starts.
+   */
+  private renderUses() {
+    const c = this.catalog.find((x) => x.id === this.callSelect.value);
+    if (!c) {
+      this.usesEl.innerHTML = '';
+      return;
+    }
+    const uses = modulesUsing(c.title);
+    if (uses.length === 0) {
+      this.usesEl.innerHTML = `<i>no module uses ${esc(c.title)}</i>`;
+      return;
+    }
+    // The ceder corpus is ~1650 modules, so a common call matches a great many. Show the first
+    // handful and say how many were held back rather than flooding the panel.
+    const shown = uses.slice(0, USES_SHOWN);
+    this.usesEl.innerHTML =
+      `<div class="small"><b>Used by ${uses.length} module${uses.length === 1 ? '' : 's'}:</b></div>` +
+      shown.map((u, i) =>
+        `<div class="row"><button data-use="${i}" title="Open the sequence view at this call">open</button>` +
+        `<span class="part">${esc(u.seq.name)} <i>(call ${u.index + 1} of ${u.seq.steps.length}${u.seq.source === 'saved' ? ', saved' : ''})</i></span></div>`,
+      ).join('') +
+      (uses.length > shown.length ? `<div class="small"><i>… and ${uses.length - shown.length} more</i></div>` : '');
+    for (const btn of this.usesEl.querySelectorAll<HTMLButtonElement>('button[data-use]')) {
+      btn.addEventListener('click', () => {
+        const u = shown[Number(btn.dataset.use)];
+        if (u) this.host.openSequence(u.seq.steps, c.title);
+      });
+    }
   }
   onSetupChange() {
     this.loadCurrent();
@@ -198,4 +251,10 @@ export class CallBrowser {
 
 function el<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
+}
+
+/** Escape text that goes into innerHTML. Module names are DATA (the ceder corpus and whatever the
+ * caller typed when saving), so a name containing `<` must not become markup. */
+function esc(s: string): string {
+  return s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch] as string);
 }

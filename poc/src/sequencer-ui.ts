@@ -9,15 +9,17 @@ import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figu
 import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
+import { callKey, MODULES_STORAGE_KEY } from './modules';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import type { Stage, WalkCycle } from './scene';
 
 export interface SequencerUI {
   setActive(active: boolean): void;
   render(): void;
+  /** Load a named sequence whole and park the playhead at its first step that plays `atCall`. */
+  openSequence(steps: (string | CallStep)[], atCall?: string): void;
 }
 
-const STORAGE_KEY = 'dsModules';
 const MS_PER_BEAT = 500;
 
 export class SequencerController implements SequencerUI {
@@ -166,7 +168,7 @@ export class SequencerController implements SequencerUI {
 
   private loadModules() {
     try {
-      this.modules = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') as Module[];
+      this.modules = JSON.parse(localStorage.getItem(MODULES_STORAGE_KEY) || '[]') as Module[];
     } catch {
       this.modules = [];
     }
@@ -176,7 +178,7 @@ export class SequencerController implements SequencerUI {
     for (const m of validCederModules()) this.seq.registerModule(m.name, m.steps);
   }
   private persistModules() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.modules));
+    localStorage.setItem(MODULES_STORAGE_KEY, JSON.stringify(this.modules));
   }
   private restoreModules() {
     for (const m of this.modules) this.seq.registerModule(m.name, m.calls);
@@ -515,9 +517,22 @@ export class SequencerController implements SequencerUI {
     this.seqListEl.innerHTML = listText;
   }
 
+  /** Put the LIVE board back at the END of the sequence: rewind to the board the sequence began
+   * from and replay the history into it.
+   *
+   * Needed before APPENDING a call, because `seekTo` moves the live board to the formation at the
+   * start of whichever call was clicked. Applying a call extends the sequence, which is an edit at
+   * its END, not at the playhead - so without this, appending after a seek would build a sequence
+   * that does not replay to the board it was built from. */
+  private replayHistory() {
+    this.rewindToStart();
+    for (const name of this.history) this.seq.applyStep(name);
+  }
+
   private applySelected() {
     const name = this.callSelect.value;
     if (!name) return;
+    this.replayHistory();
     const step = this.seq.apply(name);
     if (!step.legal) {
       this.statusEl.textContent = `✗ ${name}${step.reason ? ` — ${step.reason}` : ''}`;
@@ -541,26 +556,79 @@ export class SequencerController implements SequencerUI {
   private undo() {
     if (this.history.length === 0) return;
     this.history.pop();
-    this.rewindToStart();
-    for (const name of this.history) this.seq.applyStep(name);
+    this.replayHistory();
     this.statusEl.textContent = '';
     this.render();
     this.refreshCallSelect();
     this.syncAnimation();
   }
 
+  /** Load a named sequence whole and park the playhead at the first step that plays `atCall`.
+   *
+   * This is the browse view's "open" button. The sequence is loaded ENTIRELY - the call keeps its
+   * context before and after it, which is the point of opening it rather than jumping to a board -
+   * and then `seekTo` moves the playhead to where that call starts, so the animation is already at
+   * the right place to press Play. */
+  openSequence(steps: (string | CallStep)[], atCall?: string) {
+    this.playing = false;
+    this.playBtn.textContent = '▶ Play';
+    // A module is a sequence in its own right, not a continuation of whatever board was up, so it
+    // starts from home (the same reasoning as `reset`).
+    this.startBoard = undefined;
+    this.history = this.seq.flatten(steps);
+    this.rewindToStart();
+    let refused = 0;
+    for (const name of this.history) {
+      const r = this.seq.applyStep(name);
+      if (!r.legal) refused++;
+    }
+    this.lastTraceKey = '';
+    this.refreshCallSelect();
+    this.syncAnimation();
+    const idx = atCall === undefined ? -1 : this.history.findIndex((s) => callKey(s) === callKey(atCall));
+    if (idx >= 0) this.seekTo(idx);
+    this.statusEl.textContent = refused
+      ? `loaded ${this.history.length} call(s), ${refused} refused from home`
+      : `loaded ${this.history.length} call(s)`;
+  }
+
+  /** Move the playhead to the START of history step `idx`.
+   *
+   * SEEK, DO NOT EDIT. This used to do `this.history.length = idx`, which DELETED the clicked
+   * call and every call after it - selecting a call in the list was a destructive edit. A click
+   * in the sequence list is navigation, so nothing here touches `history`.
+   *
+   * The board at any beat is already "as if they had danced from the beginning", because the
+   * animation is evaluated from the sequence's own `startBoard` by `evaluateSequence`; seeking is
+   * therefore just a parse of where that call begins. The LIVE board is moved too, so the
+   * formation readout and the call picker agree with what is drawn - which means `applySelected`
+   * has to put the board back at the end before it appends (see there). */
   private seekTo(idx: number) {
     if (idx < 0 || idx >= this.history.length) return;
     this.playing = false;
     this.playBtn.textContent = '▶ Play';
-    this.history.length = idx;
-    this.rewindToStart();
-    for (const name of this.history) this.seq.applyStep(name);
+    this.playhead = this.beatAtStep(idx);
+    const at = this.seq.evaluateSequence(this.flat, this.playhead, this.startBoard).board;
+    this.seq.setBoard(at);
+    this.scrub.value = String(this.playhead);
     this.statusEl.textContent = '';
     this.lastTraceKey = '';
-    this.render();
+    this.renderPlayhead();
+    this.updateBeatLabel();
     this.refreshCallSelect();
-    this.syncAnimation();
+    this.updateReadout();
+  }
+
+  /** The beat at which history step `idx` begins: the total beats of the steps before it.
+   *
+   * Counted through `flatten` per step because a MODULE expands to several flat steps, so a
+   * history index is not a flat index. `sequenceBeats` needs the prefix, and the prefix is what
+   * "everything up to this call" means in beats. */
+  private beatAtStep(idx: number): number {
+    let flatCount = 0;
+    for (let i = 0; i < idx; i++) flatCount += this.seq.flatten([this.history[i]]).length;
+    if (flatCount === 0) return 0;
+    return this.seq.sequenceBeats(this.flat.slice(0, flatCount), this.startBoard);
   }
 
   private reset() {

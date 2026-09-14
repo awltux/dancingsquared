@@ -73,7 +73,7 @@ second one: `process.env` appears in exactly ONE place in the whole engine, and 
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **10 (call, start) pairs + 9 formation names** (was 20 — TWO instrument bugs, rounds 24 and 37/38) | `node engine/test/tools/callerlab-diff.mjs` |
-| gates | `verify:light` green; `verify` green (**22 harnesses, ~510 s**); `verify:figures` **red by design** | `npm run verify --prefix engine` |
+| gates | `verify:light` green; `verify` green (**22 harnesses, ~595 s, measured**); `verify:figures` **red by design** | `npm run verify --prefix engine` |
 
 All three sides above were re-measured again in round 28 and agree with the table exactly: figures
 **116 of 188** (also confirmed independently by `fsm-getout-audit.mjs`), FSM **155 / 92 / 43 / 19**, and

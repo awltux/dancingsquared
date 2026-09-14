@@ -94,18 +94,24 @@ export class SequenceAnalyzer {
     return v ? v.beats : 0;
   }
 
-  /** The board part-way through a coded move. Two kinds, and they interpolate differently.
+  /**
+   * The board part-way through a coded move. Three kinds, and they interpolate differently.
    *
    * A PIVOT (`Face Left`, `U-Turn Back`) moves nobody, so the straight line is degenerate and the
-   * only real work is rotating each heading. That is what this always did.
+   * only real work is rotating each heading.
    *
-   * A RING MOVE (`Promenade` and its fractions) wheels the whole set around the ring, and a straight
-   * line is WRONG for it in a way you can see: every dancer cuts across the middle of the square
-   * instead of travelling along the ring. MEASURED on MS `ceder-10530` followed by `Promenade` -
-   * closest pair 0.031 units during the call, against 2.000 for the same call from a Static Square
-   * (where start and end coincide, so the old interpolation had nothing to do). Those are
-   * interpolated in POLAR coordinates about the set centre, which is the shape of the dance: the
-   * radius eases and the angle sweeps. It converges exactly at t=1 like the linear form. */
+   * AN EXCHANGE (`Swing Thru`, `Touch a Quarter`, `Box the Gnat`, `Scoot Back`...) sends a dancer
+   * where another dancer stands. A straight line puts BOTH of them through the midpoint of their
+   * chord, so they pass through each other. MEASURED by `walkthrough-survey.mjs`: this is the single
+   * largest cause of the walk-through defect - 12 of the 42 (formation, call) pairs whose destination
+   * is sound and which still put two dancers on one spot. The pair is therefore rotated RIGIDLY by
+   * half a turn about its own midpoint, which keeps the two diametrically opposite for the whole
+   * move - their separation never changes - and lands them exactly swapped at t=1. The sweep
+   * direction is chosen so both dancers walk FORWARD, i.e. the tangent agrees with the facing.
+   *
+   * A RING MOVE (`Promenade` and its fractions) wheels the whole set around the ring, so it is
+   * interpolated in POLAR coordinates about the set centre: the radius eases and the angle sweeps.
+   */
   private evaluateCodedAt(board: Board, move: CodedMove, localBeat: number): Board {
     const t = Math.max(0, Math.min(1, move.beats > 0 ? localBeat / move.beats : 1));
     const end = move.apply(board);
@@ -114,28 +120,70 @@ export class SequenceAnalyzer {
     const cx = phys.length ? phys.reduce((s, d) => s + d.x, 0) / phys.length : 0;
     const cy = phys.length ? phys.reduce((s, d) => s + d.y, 0) / phys.length : 0;
     const shortest = (from: number, to: number) => normAngle(to - from);
+
+    // EXCHANGE PAIRS: i ends where j started and j ends where i started. The tolerance is loose
+    // because the ends are snapped board positions, and a pair whose dancers were further apart than
+    // this is not an exchange of neighbours.
+    const EXCH = 0.35;
+    const partner = new Map<number, number>();
+    for (const a of phys) {
+      if (partner.has(a.id)) continue;
+      const ea = endById.get(a.id);
+      if (!ea) continue;
+      for (const b of phys) {
+        if (b.id === a.id || partner.has(b.id)) continue;
+        const eb = endById.get(b.id);
+        if (!eb) continue;
+        if (Math.hypot(a.x - b.x, a.y - b.y) < EXCH) continue;
+        if (Math.hypot(a.x - eb.x, a.y - eb.y) < EXCH && Math.hypot(b.x - ea.x, b.y - ea.y) < EXCH) {
+          partner.set(a.id, b.id);
+          partner.set(b.id, a.id);
+          break;
+        }
+      }
+    }
+
+    const straight = (d: Board['dancers'][number], e: Board['dancers'][number], heading: number) => ({
+      ...d, x: d.x + (e.x - d.x) * t, y: d.y + (e.y - d.y) * t, heading,
+    });
+
     return {
       dancers: board.dancers.map((d) => {
         const e = endById.get(d.id);
         if (!e) return d;
         const heading = normAngle(d.heading + shortest(d.heading, e.heading) * t);
-        if (!move.ringMove) {
-          return { ...d, x: d.x + (e.x - d.x) * t, y: d.y + (e.y - d.y) * t, heading };
+
+        const pid = partner.get(d.id);
+        if (pid !== undefined) {
+          const p = phys.find((x) => x.id === pid)!;
+          const mx = (d.x + p.x) / 2;
+          const my = (d.y + p.y) / 2;
+          const r = Math.hypot(d.x - mx, d.y - my);
+          if (r < 1e-6) return straight(d, e, heading);
+          const as = Math.atan2(d.y - my, d.x - mx);
+          // Which way round: the sense that has BOTH dancers walking forward. The tangent at the
+          // start is `dir * (-sin as, cos as)`, so its agreement with a facing `h` is
+          // `dir * sin(h - as)`; the pair picks the sign that maximises the worse of the two.
+          const fwd = (dir: number) =>
+            Math.min(dir * Math.sin(d.heading - as), dir * Math.sin(p.heading - Math.atan2(p.y - my, p.x - mx)));
+          const dir = fwd(1) >= fwd(-1) ? 1 : -1;
+          const a = as + dir * Math.PI * t;
+          return { ...d, x: mx + r * Math.cos(a), y: my + r * Math.sin(a), heading };
         }
+
+        if (!move.ringMove) return straight(d, e, heading);
+
         const rs = Math.hypot(d.x - cx, d.y - cy);
         const re = Math.hypot(e.x - cx, e.y - cy);
         // A dancer standing ON the centre has no angle to sweep; fall back to the straight line.
-        if (rs < 1e-6 || re < 1e-6) {
-          return { ...d, x: d.x + (e.x - d.x) * t, y: d.y + (e.y - d.y) * t, heading };
-        }
+        if (rs < 1e-6 || re < 1e-6) return straight(d, e, heading);
         const as = Math.atan2(d.y - cy, d.x - cx);
         const ae = Math.atan2(e.y - cy, e.x - cx);
         const r = rs + (re - rs) * t;
-        // Radius eases and the angle sweeps: the shape of a wheel around the ring. Each dancer takes
-        // its OWN shortest sweep. A common sweep was tried and MEASURED WORSE on the case that
-        // prompted this (0.098 against 0.303), because that board is not a rigid rotation of the
-        // square - see the probe, which shows partners needing opposite sweeps and standing 5.8
-        // apart. Forcing one angle then drags half the set across the other half.
+        // Each dancer takes its OWN shortest sweep. A common sweep was tried and MEASURED WORSE on
+        // the case that prompted this (0.098 against 0.303), because that board is not a rigid
+        // rotation of the square - see the probe, which shows partners needing opposite sweeps and
+        // standing 5.8 apart. Forcing one angle then drags half the set across the other half.
         const a = as + shortest(as, ae) * t;
         return { ...d, x: cx + r * Math.cos(a), y: cy + r * Math.sin(a), heading };
       }),

@@ -306,6 +306,11 @@ export interface CodedMove {
    * board can see — neighbouring boxes overlapping once each rotates about its own centre. See
    * `sweepCollision`. */
   collisionCheck?: (b: Board) => string | null;
+  /** A move that WHEELS THE WHOLE SET around the ring (`Promenade` and its fractions). Such a move
+   * must be ANIMATED as an arc about the set centre, not as a straight line - see
+   * `SequenceAnalyzer.evaluateCodedAt`, where the linear form made every dancer cut through the
+   * middle of the square. */
+  ringMove?: boolean;
 }
 
 const DEFS: {
@@ -317,6 +322,7 @@ const DEFS: {
   catalogueFallback?: boolean;
   boxedBy?: string;
   collisionCheck?: (b: Board) => string | null;
+  ringMove?: boolean;
 }[] = [
   // `Join Hands` IS NOT A CALL WITH A BODY, and implementing it as one would be wrong. CALLERLAB
   // uses it only as a PROMPT inside command examples - "From a Squared Set: 'Join Hands, Circle
@@ -343,14 +349,14 @@ const DEFS: {
   { aliases: ['Face Out', 'Turn Out'], fn: (b) => applyFaceInOutToBoard(b, false) },
   // Promenade: the standard finish. Unlike the pivots above it is NOT always
   // legal, so it carries its precondition and reports the reason it fails.
-  { aliases: PROMENADE_ALIASES, beats: PROMENADE_BEATS, precondition: promenadeProblem, fn: (b) => promenadeHome(b).board },
+  { aliases: PROMENADE_ALIASES, beats: PROMENADE_BEATS, precondition: promenadeProblem, fn: (b) => promenadeHome(b).board, ringMove: true },
   // `Promenade 1/2` — the ring turned half way round instead of home (All8's `Pr1/2`). Only the half
   // is registered, because only the half has a witness: `All Promenade 1/2` is `figm86`'s first call
   // and the figure then runs end-to-end from the rotated square, while `Promenade 3/4` and
   // `Promenade Full` (which `all8-notation.ts` also decodes) are reached by no figure, bare. The same
   // rule serves all three — `promenadeFraction(board, fraction)` — so registering them is a one-line
   // change the day a witness appears, and not before.
-  { aliases: ['Promenade 1/2'], beats: PROMENADE_BEATS / 2, precondition: promenadeProblem, fn: (b) => promenadeFraction(b, 0.5).board },
+  { aliases: ['Promenade 1/2'], beats: PROMENADE_BEATS / 2, precondition: promenadeProblem, fn: (b) => promenadeFraction(b, 0.5).board, ringMove: true },
   // Run and Trade: derived because Taminations implements them in code and marks every
   // authored `Run` tam (32) and bare `Trade` not-for-sequencer — see trade-run.ts for the rule
   // and for the measurement that settled the facing half of it. Both REFUSE without a
@@ -507,6 +513,7 @@ export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   ...(d.catalogueFallback ? { catalogueFallback: true } : {}),
   ...(d.boxedBy ? { boxedBy: d.boxedBy } : {}),
   ...(d.collisionCheck ? { collisionCheck: d.collisionCheck } : {}),
+  ...(d.ringMove ? { ringMove: true } : {}),
 })) as CodedMove[];
 
 /** Canonical display names of the coded moves, in registration order. */

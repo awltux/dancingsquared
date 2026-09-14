@@ -1,7 +1,6 @@
 // SequenceAnalyzer: reads/animates a flat call sequence. Computes total beats,
 // evaluates the board at an arbitrary beat, and validates the 64-beat singing-call
-// segment / tip / zero structure. Pure over a board: it advances via the
-// CallApplicator and holds no mutable state.
+// segment / tip / zero structure. Advances via the CallApplicator.
 //
 // The REPLAY evaluators (sequenceBeats / evaluateSequence / sequenceInfo) replay
 // a flat sequence from a START BOARD. That start board defaults to the home
@@ -9,6 +8,14 @@
 // e.g. a board jumped to with setFormation - so playback and export agree with
 // what is on screen. The tip-structure helpers (isZero / buildTip /
 // validateSegment) are intrinsically home-anchored and never take one.
+//
+// IT HOLDS ONE MUTABLE FIELD, `replayMemo`, and it is a CACHE rather than state: it records the
+// walk one (flat, start board) pair produced, keyed on the CONTENT of both, so it can never serve
+// a result for different input. The UI drives these evaluators every animation frame - playback
+// calls `evaluateSequence` for the board and `sequenceInfo` for the trace label - and without the
+// memo that is a full replay of the sequence twice per frame. Keying on CONTENT rather than on
+// object identity is deliberate: an identity key would go stale if any caller mutated a board in
+// place, and this repo has already had to reason about exactly that hazard.
 
 import { dancerBeats, poseFor } from '../core.js';
 import { FormationMatcher, rebasedPose, localMotion } from './matcher.js';
@@ -33,7 +40,43 @@ const rot = (a: number, v: { x: number; y: number }) => ({
  * absorbs floating-point drift (~0.06 degrees). */
 const FACING_EPS = 1e-3;
 
+/** One flat step of a recorded replay. */
+interface ReplayStep {
+  /** The raw step, kept so the applicator can be handed the CallStep form. */
+  raw: string | CallStep;
+  /** The call/selection label. */
+  name: string;
+  /** The coded move this step is, or null when it is a catalogue call. */
+  coded: CodedMove | null;
+  /** The matched variant info for a catalogue step, or null when none matches. */
+  info: { beats: number; variant: CallBundle | null } | null;
+  /** The board the step runs on. */
+  before: Board;
+  /** The board after the step - identical to `before` when nothing applied. */
+  after: Board;
+  /** Beats charged. 0 when no variant matches, and 0 for a coded stop. */
+  beats: number;
+  /** Whether the step can be WALKED AT ALL. False for a coded move whose precondition fails, or a
+   * catalogue call with no matching variant - and the two evaluator families treat that
+   * differently, which is why `coded` is recorded alongside it. */
+  walkable: boolean;
+}
+
+/** The memo key: the CONTENT of the flat sequence and of the board the replay starts from. */
+function replayKey(flat: (string | CallStep)[], start: Board): string {
+  const f = flat.map((s) => (typeof s === 'string' ? s : `${s.call}@${s.selection ?? ''}`)).join('\u0000');
+  // 3 decimals, the same scheme the matcher's own memo uses for a board's pose.
+  const p = start.dancers
+    .map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)},${d.gender ?? ''},${d.couple ?? ''},${d.isGhost ? 'g' : ''}`)
+    .join(';');
+  return `${f}\u0001${p}`;
+}
+
 export class SequenceAnalyzer {
+  /** The last recorded replay walk, keyed on content. See the header for why it is content-keyed
+   * and why one entry is enough (the callers repeat the same pair). */
+  private replayMemo: { key: string; steps: ReplayStep[] } | null = null;
+
   constructor(
     private readonly library: CallLibrary,
     private readonly matcher: FormationMatcher,
@@ -51,23 +94,50 @@ export class SequenceAnalyzer {
     return v ? v.beats : 0;
   }
 
-  /** The board part-way through a coded move: positions are unchanged (these are
-   * pivots/re-facings) and each dancer's heading rotates smoothly from its current
-   * facing to the move's end facing, so the pivot animates rather than snapping. */
+  /** The board part-way through a coded move. Two kinds, and they interpolate differently.
+   *
+   * A PIVOT (`Face Left`, `U-Turn Back`) moves nobody, so the straight line is degenerate and the
+   * only real work is rotating each heading. That is what this always did.
+   *
+   * A RING MOVE (`Promenade` and its fractions) wheels the whole set around the ring, and a straight
+   * line is WRONG for it in a way you can see: every dancer cuts across the middle of the square
+   * instead of travelling along the ring. MEASURED on MS `ceder-10530` followed by `Promenade` -
+   * closest pair 0.031 units during the call, against 2.000 for the same call from a Static Square
+   * (where start and end coincide, so the old interpolation had nothing to do). Those are
+   * interpolated in POLAR coordinates about the set centre, which is the shape of the dance: the
+   * radius eases and the angle sweeps. It converges exactly at t=1 like the linear form. */
   private evaluateCodedAt(board: Board, move: CodedMove, localBeat: number): Board {
     const t = Math.max(0, Math.min(1, move.beats > 0 ? localBeat / move.beats : 1));
     const end = move.apply(board);
     const endById = new Map(end.dancers.map((d) => [d.id, d]));
+    const phys = board.dancers.filter((d) => !d.isGhost);
+    const cx = phys.length ? phys.reduce((s, d) => s + d.x, 0) / phys.length : 0;
+    const cy = phys.length ? phys.reduce((s, d) => s + d.y, 0) / phys.length : 0;
+    const shortest = (from: number, to: number) => normAngle(to - from);
     return {
       dancers: board.dancers.map((d) => {
         const e = endById.get(d.id);
         if (!e) return d;
-        return {
-          ...d,
-          x: d.x + (e.x - d.x) * t,
-          y: d.y + (e.y - d.y) * t,
-          heading: normAngle(d.heading + normAngle(e.heading - d.heading) * t),
-        };
+        const heading = normAngle(d.heading + shortest(d.heading, e.heading) * t);
+        if (!move.ringMove) {
+          return { ...d, x: d.x + (e.x - d.x) * t, y: d.y + (e.y - d.y) * t, heading };
+        }
+        const rs = Math.hypot(d.x - cx, d.y - cy);
+        const re = Math.hypot(e.x - cx, e.y - cy);
+        // A dancer standing ON the centre has no angle to sweep; fall back to the straight line.
+        if (rs < 1e-6 || re < 1e-6) {
+          return { ...d, x: d.x + (e.x - d.x) * t, y: d.y + (e.y - d.y) * t, heading };
+        }
+        const as = Math.atan2(d.y - cy, d.x - cx);
+        const ae = Math.atan2(e.y - cy, e.x - cx);
+        const r = rs + (re - rs) * t;
+        // Radius eases and the angle sweeps: the shape of a wheel around the ring. Each dancer takes
+        // its OWN shortest sweep. A common sweep was tried and MEASURED WORSE on the case that
+        // prompted this (0.098 against 0.303), because that board is not a rigid rotation of the
+        // square - see the probe, which shows partners needing opposite sweeps and standing 5.8
+        // apart. Forcing one angle then drags half the set across the other half.
+        const a = as + shortest(as, ae) * t;
+        return { ...d, x: cx + r * Math.cos(a), y: cy + r * Math.sin(a), heading };
       }),
     };
   }
@@ -105,27 +175,57 @@ export class SequenceAnalyzer {
     return startBoard ? cloneBoard(startBoard) : makeSquaredSet();
   }
 
+  /**
+   * The REPLAY WALK for one (flat, start board) pair, recorded once and memoised on the CONTENT of
+   * both.
+   *
+   * WHY ONE WALK CAN SERVE ALL THREE EVALUATORS. `evaluateSequence` and `sequenceInfo` walk
+   * identically; `sequenceBeats` differs in exactly ONE place - a catalogue step with no matching
+   * variant stops the first two but is charged 0 beats and SKIPPED by the third. So the record
+   * keeps `walkable` per step and the consumers apply their own rule to it, rather than the walk
+   * pretending the two are the same. Anything else would silently change one of them.
+   *
+   * It records to the END of `flat` unless a coded move's precondition fails, which stops BOTH
+   * consumers and therefore stops the recording.
+   */
+  private replayWalk(flat: (string | CallStep)[], startBoard?: Board): ReplayStep[] {
+    const start = this.replayStart(startBoard);
+    const key = replayKey(flat, start);
+    if (this.replayMemo && this.replayMemo.key === key) return this.replayMemo.steps;
+
+    const steps: ReplayStep[] = [];
+    let board = start;
+    for (const raw of flat) {
+      const name = typeof raw === 'string' ? raw : raw.call;
+      const coded = findCodedMove(name);
+      if (coded) {
+        const ok = codedMoveApplies(coded, board);
+        const after = ok ? coded.apply(board) : board;
+        steps.push({ raw, name, coded, info: null, before: board, after, beats: ok ? coded.beats : 0, walkable: ok });
+        if (!ok) break;
+        board = after;
+        continue;
+      }
+      const info = this.matchingVariantInfo(board, name);
+      const r = this.applicator.applyToBoard(board, raw);
+      const after = r.legal ? r.board : board;
+      steps.push({ raw, name, coded: null, info, before: board, after, beats: info ? info.beats : 0, walkable: info !== null });
+      board = after;
+    }
+    this.replayMemo = { key, steps };
+    return steps;
+  }
+
   /** Total beats to play a flat sequence, starting from `startBoard` (default:
    * the home squared set). */
   sequenceBeats(flat: (string | CallStep)[], startBoard?: Board): number {
-    let board = this.replayStart(startBoard);
     let total = 0;
-    for (const name of flat) {
-      const label = typeof name === 'string' ? name : name.call;
-      const coded = findCodedMove(label);
-      if (coded) {
-        // The precondition is checked BEFORE the beats are charged: a call that does
-        // not apply is not part of the sequence at all, so it must not add its cost to
-        // a total that stops there. (It used to add them and then break, which made a
-        // refused resolve look like it had been danced.)
-        if (!codedMoveApplies(coded, board)) break;
-        total += coded.beats;
-        board = coded.apply(board);
-        continue;
-      }
-      total += this.stepBeats(board, label);
-      const r = this.applicator.applyToBoard(board, name);
-      if (r.legal) board = r.board;
+    for (const s of this.replayWalk(flat, startBoard)) {
+      // A coded move that does not apply is not part of the sequence at all, so its cost must not
+      // be added to a total that stops there. A CATALOGUE step with no variant is different: it
+      // charges 0 and the walk continues, which is what this loop's `walkable` check preserves.
+      if (s.coded && !s.walkable) break;
+      total += s.beats;
     }
     return total;
   }
@@ -133,30 +233,19 @@ export class SequenceAnalyzer {
   /** Evaluate the board at a global beat of a flat sequence, starting from
    * `startBoard` (default: the home squared set). */
   evaluateSequence(flat: (string | CallStep)[], beat: number, startBoard?: Board): { board: Board; beats: number } {
-    let board = this.replayStart(startBoard);
     let acc = 0;
-    for (const raw of flat) {
-      const callName = typeof raw === 'string' ? raw : raw.call;
-      // Coded body-relative moves animate as a smooth pivot from the live board; a
-      // whole-set resolve such as Promenade blends straight to the home squared set.
-      const coded = findCodedMove(callName);
-      if (coded) {
-        if (!codedMoveApplies(coded, board)) break;
-        if (beat < acc + coded.beats) return { board: this.evaluateCodedAt(board, coded, beat - acc), beats: 0 };
-        board = coded.apply(board);
-        acc += coded.beats;
-        continue;
-      }
-      const info = this.matchingVariantInfo(board, callName);
-      if (!info) break;
-      const beats = info.beats;
-      if (beat < acc + beats) {
-        const evBoard = this.evaluateCallAt(board, callName, info, beat - acc);
+    let board = this.replayStart(startBoard);
+    for (const s of this.replayWalk(flat, startBoard)) {
+      // Both stop kinds end the walk here, leaving the step's own start board.
+      if (!s.walkable) return { board: s.before, beats: acc };
+      if (beat < acc + s.beats) {
+        const evBoard = s.coded
+          ? this.evaluateCodedAt(s.before, s.coded, beat - acc)
+          : this.evaluateCallAt(s.before, s.name, s.info!, beat - acc);
         return { board: evBoard, beats: 0 };
       }
-      const r = this.applicator.applyToBoard(board, raw);
-      if (r.legal) board = r.board;
-      acc += beats;
+      board = s.after;
+      acc += s.beats;
     }
     return { board, beats: acc };
   }
@@ -164,30 +253,83 @@ export class SequenceAnalyzer {
   /** Place the board at a local beat of a call.
    *
    * A WHOLE-BOARD call follows its authored path, which converges on the board the
-   * call produces. A call that only applies via the subset/parallel path does not:
-   * the parallel path partitions the board at its own tolerance and runs each group
-   * with pure-relative motion, so re-deriving an authored-path interpolation here
-   * yielded frames that did not converge on the completed board — the dancers
-   * visibly jumped on the final beat (measured up to 10.2 units / 180 degrees).
-   * Those calls are therefore blended from the call's start board to the board the
-   * call actually produces, which converges exactly. */
+   * call produces. A call that only applies via the subset/parallel path does not: the parallel
+   * path partitions the board at its own tolerance and runs each group with pure-relative motion. */
   private evaluateCallAt(board: Board, name: string, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
     const whole = this.matcher.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
     if (whole) return this.evaluateVariantAt(board, whole, localBeat);
-    return this.blendToAppliedEnd(board, name, info.beats, localBeat);
+    return this.evaluateParallelAt(board, name, info, localBeat);
   }
 
-  /** Interpolate a subset/parallel call from its start board to the board the call
-   * ACTUALLY produces, per dancer by identity: positions blend linearly and
-   * headings take the shortest turn. At the last beat this is exactly the applied
-   * board, so the animation always lands on the state the sequencer stores. */
-  private blendToAppliedEnd(board: Board, name: string, beats: number, localBeat: number): Board {
+  /**
+   * Interpolate a subset/parallel call PER GROUP, following each group's own authored path.
+   *
+   * WHY NOT A STRAIGHT-LINE BLEND. This used to interpolate every dancer linearly from its start
+   * position to its end position. That always converges, which is why it was written, but on a call
+   * that SWAPS two groups across the centre it is catastrophic: `Right and Left Thru` from a Static
+   * Square ends with the facing couples having exchanged sides, so every dancer's start and end are
+   * diametrically opposite and the linear midpoint puts ALL EIGHT on the origin. MEASURED - closest
+   * pair 0.000 at the half-beat, against 0.830 for the same call on a placement that takes the
+   * whole-board path.
+   *
+   * So each group is animated along the authored path of the variant that tiled it, pure-relative,
+   * exactly as `parallelApply` applies it. The authored end rarely equals the APPLIED end - that is
+   * the non-convergence the old comment recorded - so the difference is added back proportionally:
+   *
+   *     pose(t) = authored(t) + (appliedEnd - authoredEnd) * t
+   *
+   * which is the authored path at t=0, the APPLIED board at t=1, and the authored dance in
+   * between. The correction is a residual, so it cannot dominate the path the way a full blend did.
+   */
+  private evaluateParallelAt(board: Board, name: string, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
     const res = this.applicator.applyToBoard(board, name);
     if (!res.legal) return board;
+    const beats = info.beats;
     const t = beats > 0 ? Math.max(0, Math.min(1, localBeat / beats)) : 1;
     const endById = new Map(res.board.dancers.map((d) => [d.id, d]));
+
+    const posed = new Map<number, { x: number; y: number; heading: number }>();
+    // The variant `matchingVariantInfo` chose is the one `parallelApply` would too - same catalogue
+    // order, same tiling predicate - so partitioning with it reproduces the grouping that was
+    // APPLIED. The residual below converges on the applied board regardless, so a mismatch here
+    // would cost path fidelity, not correctness.
+    if (info.variant) {
+      const setup = info.variant.dancers.map((d) => this.library.variantMatchable(d));
+      const phys = board.dancers.filter((d) => !d.isGhost);
+      const tol = SEARCH_MATCH_MAX + this.config.matchMargin;
+      const part = this.applicator.partition(setup, phys, tol) ?? this.applicator.partitionPartial(setup, phys, tol);
+      for (const group of part?.groups ?? []) {
+        const gb: Board = { dancers: group.map((d) => ({ ...d })) };
+        // SEARCH tolerance, because that is what `parallelApply`'s own sub-apply uses:
+        // `applyToBoardInner(subBoard, callName, [], false, false)` matches at SEARCH_MATCH_MAX when
+        // rebase is false. Matching the group at the tighter DEFAULT here left groups unmatched that
+        // the parallel path HAD applied, and an unmatched group falls back to the linear blend -
+        // which is the very thing this method exists to avoid.
+        const m = this.matcher.findMatchingVariant(gb, name, SEARCH_MATCH_MAX + this.config.matchMargin);
+        if (!m) continue;
+        // Pure relative, the way the parallel path applies each subset.
+        const at = this.evaluateVariantAt(gb, m, localBeat, false);
+        const end = this.evaluateVariantAt(gb, m, beats, false);
+        for (const d of group) {
+          const a = at.dancers.find((x) => x.id === d.id);
+          const ae = end.dancers.find((x) => x.id === d.id);
+          const e = endById.get(d.id);
+          if (!a || !ae || !e) continue;
+          posed.set(d.id, {
+            x: a.x + (e.x - ae.x) * t,
+            y: a.y + (e.y - ae.y) * t,
+            heading: normAngle(a.heading + normAngle(e.heading - ae.heading) * t),
+          });
+        }
+      }
+    }
+
     return {
       dancers: board.dancers.map((d) => {
+        const p = posed.get(d.id);
+        if (p) return { ...d, ...p };
+        // Not covered by any group (a tiling that did not happen, or a ghost): keep the old blend
+        // so the frame still lands on the applied board.
         const e = endById.get(d.id);
         if (!e) return d;
         return {
@@ -204,31 +346,17 @@ export class SequenceAnalyzer {
    * and the board->variant mapping. Returns null past the end of the sequence.
    * Replays from `startBoard` (default: the home squared set). */
   sequenceInfo(flat: (string | CallStep)[], beat: number, startBoard?: Board): { name: string; variant: CallBundle; mapping: number[] } | null {
-    let board = this.replayStart(startBoard);
     let acc = 0;
-    for (const raw of flat) {
-      const callName = typeof raw === 'string' ? raw : raw.call;
-      const coded = findCodedMove(callName);
-      if (coded) {
-        // A coded move has no authored path, so there is no trail to trace while
-        // it plays; the replay still continues past it.
-        if (!codedMoveApplies(coded, board)) return null;
-        if (beat < acc + coded.beats) return null;
-        board = coded.apply(board);
-        acc += coded.beats;
-        continue;
-      }
-      const info = this.matchingVariantInfo(board, callName);
-      if (!info) return null;
-      const beats = info.beats;
-      if (beat < acc + beats) {
-        const whole = this.matcher.findMatchingVariant(board, callName, DEFAULT_MATCH_MAX + this.config.matchMargin);
-        if (whole) return { name: callName, variant: whole.variant, mapping: whole.mapping };
+    for (const s of this.replayWalk(flat, startBoard)) {
+      if (!s.walkable) return null;
+      if (beat < acc + s.beats) {
+        // A coded move has no authored path, so there is no trail to trace while it plays.
+        if (s.coded) return null;
+        const whole = this.matcher.findMatchingVariant(s.before, s.name, DEFAULT_MATCH_MAX + this.config.matchMargin);
+        if (whole) return { name: s.name, variant: whole.variant, mapping: whole.mapping };
         return null;
       }
-      const r = this.applicator.applyToBoard(board, raw);
-      if (r.legal) board = r.board;
-      acc += beats;
+      acc += s.beats;
     }
     return null;
   }

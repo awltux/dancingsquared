@@ -53,6 +53,10 @@ const SUITE = [
   // established the divergence becomes the gate that keeps it from coming back. It lives in `tools/`
   // as an analysis tool and is reached through `sub`.
   { h: 'determinism-audit', sub: 'tools', light: false, why: 'runs the corpus once per walk procedure' },
+  // Phase F's closure requires the CALLERLAB diff to be a harness "so it cannot drift". It pins four
+  // measured numbers exactly; a movement in EITHER direction fails, so an improvement is re-pinned
+  // deliberately rather than absorbed silently.
+  { h: 'callerlab-diff', sub: 'tools', light: false, why: 'parses the definitions PDF text and walks the catalogue' },
   // NOT a tier above: a TARGET. `all8-figures` states the finish line ("every one of All8's 188
   // published Mainstream figures is recognised") and is red until the remaining edge cases are
   // fixed, so it is excluded from BOTH tiers - a permanently-failing entry in the pre-commit gate

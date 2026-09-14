@@ -178,7 +178,7 @@ const formationIsKnown = (n) => knownFormations.has(n) || tamFromNames.has(n);
  * (B) means it has a formation for it but this call authors no setup from it.
  */
 
-const unknownFormation = new Map(); // documented formation name -> calls asking for it
+const unknownFormation = new Map(); // NORMALISED formation name -> { raw, calls }
 const notASetup = [];                // (call, formation) with no matching from= anywhere
 let pairs = 0, matched = 0, prose = 0;
 const PROSEISH = /\.\s|\.$|\b(are|is|the two|which|while|when|that|their|they|usually|generally|more)\b/i;
@@ -196,8 +196,16 @@ for (const [call, es] of pdfCalls) {
       if (PROSEISH.test(fm)) { prose++; continue; }
       if (!formationIsKnown(n)) {
         matched += 0;
-        if (!unknownFormation.has(fm)) unknownFormation.set(fm, new Set());
-        unknownFormation.get(fm).add(call);
+        // KEYED ON THE NORMALISED NAME, and that is an instrument fix, not tidying. This map used to
+        // be keyed on the RAW string while the lookup above used `norm(fm)`, so ONE name could be
+        // counted twice whenever the extractor put a space in it: `One -Faced Line` normalises to the
+        // same `one faced line` as `One-Faced Line`, and `Mini- Wave` to the same `mini wave` as
+        // `Mini-Wave`. Both pairs were reported as two missing formations each. The raw spellings are
+        // kept on the entry so a genuine spelling difference is still visible.
+        if (!unknownFormation.has(n)) unknownFormation.set(n, { raw: new Set(), calls: new Set() });
+        const uf = unknownFormation.get(n);
+        uf.raw.add(fm);
+        uf.calls.add(call);
         continue;
       }
       const hit = [...fromsN].some((f) => f === n || f.includes(n) || n.includes(f));
@@ -218,8 +226,9 @@ for (const r of notASetup.slice(0, 30)) {
 if (notASetup.length > 30) console.log(`  ... and ${notASetup.length - 30} more`);
 
 console.log(`\n=== (C) documented formation NAMES the engine has no formation for (${unknownFormation.size}) ===`);
-for (const [fm, calls] of [...unknownFormation.entries()].sort((a, b) => b[1].size - a[1].size).slice(0, 30)) {
-  console.log(`  ${fm.padEnd(40)} asked for by ${calls.size}: ${[...calls].slice(0, 5).join(', ')}`);
+for (const [n, uf] of [...unknownFormation.entries()].sort((a, b) => b[1].calls.size - a[1].calls.size).slice(0, 30)) {
+  const spellings = uf.raw.size > 1 ? `   [raw spellings: ${[...uf.raw].join(' | ')}]` : `   "${[...uf.raw][0]}"`;
+  console.log(`  ${n.padEnd(40)} asked for by ${uf.calls.size}: ${[...uf.calls].slice(0, 5).join(', ')}${spellings}`);
 }
 if (unknownFormation.size > 30) console.log(`  ... and ${unknownFormation.size - 30} more`);
 
@@ -228,5 +237,38 @@ const docNames = new Set([...pdfCalls.keys()]);
 const extra = [...figFreq.keys()].filter((c) => !docNames.has(engineNameFor(c))).sort((a, b) => (figFreq.get(b) ?? 0) - (figFreq.get(a) ?? 0));
 console.log(`  ${extra.length} names (module names, selections, and All8 spellings included)`);
 for (const c of extra.slice(0, 25)) console.log(`      ${String(figFreq.get(c)).padStart(3)}  ${c}`);
+
+// ---------------------------------------------------------------------------------------------
+// THE GATE. Phase F's own closure requires "`callerlab-diff.mjs` becomes a harness so it cannot
+// drift", and this is that half of it. The numbers are PINNED, not target-checked: a change in EITHER
+// direction fails, because the point is that a future round sees the movement and re-pins it
+// deliberately with its reason - the same shape as `catalogue.mjs`'s KNOWN_SKIPS, and the same lesson
+// as `getout-convention`'s [P4p] negative, which stayed red for rounds because nothing ran it.
+//
+// PINNED AS OF ROUND 37, with the second instrument bug found in this check now fixed (see the note at
+// `unknownFormation`): the map was keyed on the raw string while the lookup normalised, so
+// `One -Faced Line`/`One-Faced Line` and `Mini- Wave`/`Mini-Wave` each counted twice - (C) was 20 and
+// is 18. The remaining 18 are NOT 18 missing formations: about ten are extractor artefacts, named in
+// the list above - `box circulate` is a CALL name, `facing dancers m an` and `w oman` are the two
+// halves of one wrapped line, and the `... only` / `restricted at mainstream ...` entries are prose.
+// Pinning the number keeps the drift visible; separating the artefacts is the next round's job.
+const PINNED = { matched: 13, notASetup: 9, unknown: 18, prose: 5 };
+console.log('\n=== the pinned numbers (Phase F\'s anti-drift gate) ===');
+let gateFailures = 0;
+const pin = (label, got, want) => {
+  if (got === want) { console.log(`  ok   ${label}: ${got}`); return; }
+  console.log(`  FAIL ${label}: measured ${got}, pinned ${want}`);
+  console.log(`       re-pin DELIBERATELY: state what moved and why, then update PINNED in this file.`);
+  gateFailures++;
+};
+pin('(B/C) pairs matching a setup', matched, PINNED.matched);
+pin('(B) formation the engine HAS, no setup for that call', notASetup.length, PINNED.notASetup);
+pin('(C) formation NAMES the engine has no formation for', unknownFormation.size, PINNED.unknown);
+pin('prose entries excluded as noise', prose, PINNED.prose);
+if (gateFailures) {
+  console.log(`\nCALLERLAB DIFF FAILED: ${gateFailures} pinned number(s) moved.`);
+  process.exit(1);
+}
+console.log('\nCALLERLAB DIFF PASSED: all four pinned numbers hold.');
 
 

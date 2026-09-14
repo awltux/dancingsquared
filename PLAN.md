@@ -72,8 +72,8 @@ second one: `process.env` appears in exactly ONE place in the whole engine, and 
 | … of which ended by applying the finish itself | **112** (was 110) | same |
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
-| CALLERLAB | real gap is **9 (call, start) pairs + 20 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
-| gates | `verify:light` green; `verify` green (**21 harnesses, ~500 s**); `verify:figures` **red by design** | `npm run verify --prefix engine` |
+| CALLERLAB | real gap is **9 (call, start) pairs + 18 formation names** (was 20 — instrument fix, round 37) | `node engine/test/tools/callerlab-diff.mjs` |
+| gates | `verify:light` green; `verify` green (**22 harnesses, ~510 s**); `verify:figures` **red by design** | `npm run verify --prefix engine` |
 
 All three sides above were re-measured again in round 28 and agree with the table exactly: figures
 **116 of 188** (also confirmed independently by `fsm-getout-audit.mjs`), FSM **155 / 92 / 43 / 19**, and
@@ -1543,6 +1543,40 @@ diff over all 51 (call, start) pairs.
 **Gate:** every documented pair is matched by a setup, modelled as a derived start, or listed as a
 justified exception with the definition quoted; `callerlab-diff.mjs` becomes a harness so it cannot
 drift. Note the overlap with Phase 4e's blocked facing-variant work: this is the same vocabulary.
+
+**A SECOND INSTRUMENT BUG IN THE SAME CHECK, AND THE GATE (round 37).** This section already records
+one instrument problem fixed in round 24. There was another, in the (C) count itself:
+
+`unknownFormation` was keyed on the **raw** string while the lookup used `norm(fm)`, so ONE name counted
+twice whenever the extractor put a space in it. `One -Faced Line` normalises to the same
+`one faced line` as `One-Faced Line`, and `Mini- Wave` to the same `mini wave` as `Mini-Wave` — four
+entries for two names. Keying the map on the normalised name (keeping the raw spellings on the entry)
+takes **(C) from 20 to 18**, and the tool now prints the spellings so a genuine difference is still
+visible.
+
+**AND THE REMAINING 18 ARE NOT 18 MISSING FORMATIONS — about ten are still extractor artefacts**, which
+is why the gate pins the NUMBER rather than claiming the list is clean:
+
+```
+box circulate                      <- a CALL name, not a formation: Split Circulate, Scoot Back
+facing dancers m an  +  w oman     <- the two halves of ONE wrapped line, from "Facing Dancers (Man…"
+one m an and one w oman            <- the same wrap inside a description, with the words split too
+a couple / normal couple only / facing couples only / facing dancers only
+restricted at mainstream to facing couples only
+eight chain thru formation in general
+```
+
+so the genuine candidates are about EIGHT, not twenty: `couple`, `mini wave`, `ocean wave`,
+`one faced line`, `facing tandems`, `single 14 tag`, `tandem facing a couple`, `tandem couples` — and
+two of those (`ocean wave`/`Ocean Waves`, `single 14 tag`/`Quarter Tag`) are CALLERLAB's SPELLING of a
+formation the engine already has. **Before any mapping is written, the extractor noise has to be
+separated**, or the mapping will be built against a list that is half fiction.
+
+**THE GATE IS NOW IN PLACE, which is the second half of this phase's closure:** `callerlab-diff.mjs`
+pins four measured numbers exactly — 13 matched, 9 (B) pairs, 18 (C) names, 5 prose — and exits
+non-zero if ANY moves in EITHER direction, so an improvement is re-pinned deliberately with its reason
+rather than absorbed silently. It is registered in `verify-suite.mjs` through the same optional `sub`
+field the determinism audit uses, so the suite's "one place to add a harness" rule still holds.
 
 ### Phase G — the FSM backlog, and a live determinism smell
 

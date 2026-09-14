@@ -94,12 +94,16 @@ function buildFloorAxes(): THREE.Group {
     g.add(lab);
   };
 
-  // X axis: east = 0°, west = 180°.
-  addAxisRay(0, new THREE.Vector3(1, 0, 0), X_COL, 'X  0°');
-  addAxisRay(180, new THREE.Vector3(-1, 0, 0), X_COL, 'X  180°');
+  // X axis: east = 0°, west = 180°. Each label carries BOTH facts, because they answer
+  // different questions: the signed axis name says which way the board COORDINATE grows
+  // (board +x is east, so `+X` is the 0° ray), and the angle is the compass a dancer's
+  // HEADING is measured against (0° faces east, 90° faces north = board +y, which maps to
+  // 3D −z). Sign first, so it reads the way a coordinate axis is written.
+  addAxisRay(0, new THREE.Vector3(1, 0, 0), X_COL, '+X  0°');
+  addAxisRay(180, new THREE.Vector3(-1, 0, 0), X_COL, '-X  180°');
   // Y axis (board +y = north = 3D −z): 90°, and 270° south.
-  addAxisRay(90, new THREE.Vector3(0, 0, -1), Y_COL, 'Y  90°');
-  addAxisRay(270, new THREE.Vector3(0, 0, 1), Y_COL, 'Y  270°');
+  addAxisRay(90, new THREE.Vector3(0, 0, -1), Y_COL, '+Y  90°');
+  addAxisRay(270, new THREE.Vector3(0, 0, 1), Y_COL, '-Y  270°');
 
   // Central origin dot so the crossing point reads clearly.
   const dot = new THREE.Mesh(

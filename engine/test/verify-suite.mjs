@@ -48,6 +48,11 @@ const SUITE = [
   { h: 'selection', light: false, why: 'builds boards across formations and calls' },
   { h: 'behaviour-audit', light: false, why: '143 assertions, many over every formation' },
   { h: 'alignment-boards', light: false, why: 'the heaviest: arrangement tables over the corpus' },
+  // Phase 10's done-when, now met: the walk procedures all agree (round 33 measured 7 of 7 procedures
+  // at 116 figures with ZERO differences, and the baseline repeating identically), so the audit that
+  // established the divergence becomes the gate that keeps it from coming back. It lives in `tools/`
+  // as an analysis tool and is reached through `sub`.
+  { h: 'determinism-audit', sub: 'tools', light: false, why: 'runs the corpus once per walk procedure' },
   // NOT a tier above: a TARGET. `all8-figures` states the finish line ("every one of All8's 188
   // published Mainstream figures is recognised") and is red until the remaining edge cases are
   // fixed, so it is excluded from BOTH tiers - a permanently-failing entry in the pre-commit gate
@@ -69,12 +74,18 @@ if (mode === 'light') {
 
 const results = [];
 let failed = null;
-for (const { h } of run) {
+for (const e of run) {
   const started = Date.now();
-  const r = spawnSync(process.execPath, [path.join(here, `${h}.mjs`)], { stdio: 'inherit' });
+  // `sub` is for a harness that lives in `test/` but not directly in it - currently only the
+  // determinism audit, which is an analysis tool in `test/tools/` that Phase 10's done-when promotes
+  // into this suite. Keeping the entry HERE preserves the file's own rule that a harness is added in
+  // exactly one place; the alternative (a second copy of the tool under `test/`) is the duplication
+  // this suite was written to avoid.
+  const file = path.join(here, ...(e.sub ? [e.sub] : []), `${e.h}.mjs`);
+  const r = spawnSync(process.execPath, [file], { stdio: 'inherit' });
   const seconds = (Date.now() - started) / 1000;
-  results.push({ h, seconds });
-  if (r.status !== 0 && failed === null) failed = { h, status: r.status };
+  results.push({ h: e.h, seconds });
+  if (r.status !== 0 && failed === null) failed = { h: e.h, status: r.status };
 }
 
 const total = results.reduce((s, r) => s + r.seconds, 0);

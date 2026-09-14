@@ -12,7 +12,18 @@
 // A procedure difference that changes any of those is the bug. Ordering is varied too (figures in
 // reverse), because a per-instance cache that survives across figures is the prime suspect.
 //
-//   node test/tools/determinism-audit.mjs
+//   node test/tools/determinism-audit.mjs           (the fast set, and what the verify suite runs)
+//   node test/tools/determinism-audit.mjs --full    (adds the `legalCalls` procedure)
+//
+// THE `legalCalls` PROCEDURE IS OFF BY DEFAULT, and the reason is measured: it enumerates every legal
+// call after every call of every figure, ~2000 `legalCalls` computations over the 274-call Mainstream
+// catalogue, and it alone pushed a full run past 35 minutes. The Phase 10 question is whether the
+// procedures DISAGREE, and `legalCalls` is a query like `knownFormation`/`recognize` - a robustness
+// check, not part of the comparison the plan asks for. The default set is what a gate can afford.
+//
+// IT EXITS NON-ZERO on any disagreement, because Phase 10's done-when is "both procedures agree, and
+// `determinism-audit.mjs` is promoted into verify" - which needs a verdict, not just a report.
+const FAST = !process.argv.includes('--full');
 
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -69,16 +80,18 @@ const procedures = [
   ['...fresh Sequencer per figure', { reuseSequencer: false }],
   ['...figures walked in REVERSE order', { reverse: true }],
   ['...fresh catalog objects', { freshCatalog: true }],
-];
+].filter(([label]) => !FAST || !label.includes('legalCalls'));
 
 const baseline = runCorpus({});
 const ran = (m) => [...m.values()].filter((v) => v === 'ran').length;
 console.log(`=== ${procedures.length} procedures over ${data.figures.length} figures, random source pinned to 0.5 ===\n`);
 console.log(`  ${'procedure'.padEnd(44)} runs  differences vs baseline`);
+let differed = 0;
 for (const [label, opts] of procedures) {
   const m = runCorpus(opts);
   const diffs = [];
   for (const [id, v] of m) if (baseline.get(id) !== v) diffs.push(`${id}: ${baseline.get(id)} -> ${v}`);
+  if (diffs.length) differed++;
   console.log(`  ${label.padEnd(44)} ${String(ran(m)).padStart(4)}  ${diffs.length === 0 ? 'none' : `${diffs.length}: ${diffs.slice(0, 4).join(' ; ')}`}`);
 }
 
@@ -87,3 +100,14 @@ const again = runCorpus({});
 let selfDiff = 0;
 for (const [id, v] of again) if (baseline.get(id) !== v) selfDiff++;
 console.log(`\n  baseline repeated: ${selfDiff === 0 ? 'identical (the harness is stable)' : `${selfDiff} differences - the ENGINE is nondeterministic between identical runs`}`);
+
+// EXIT CODE, so this can be a gate. Phase 10's done-when is "both procedures agree, and
+// `determinism-audit.mjs` is promoted into verify" - which needs a verdict, not just a report.
+// A procedure difference is a FAILURE: the same call on the same board must not land two ways.
+// `--fast` is what the suite runs (see the header for why `legalCalls` is dropped there).
+if (differed > 0 || selfDiff > 0) {
+  console.log(`\nDETERMINISM AUDIT FAILED: ${differed} procedure(s) disagreed with the baseline, ${selfDiff} repeat difference(s).`);
+  process.exit(1);
+}
+console.log('\nDETERMINISM AUDIT PASSED: every procedure agrees with the baseline.');
+

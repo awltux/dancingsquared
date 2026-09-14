@@ -7,8 +7,10 @@
 // call name is what the target suite already does.
 //
 // The walk here applies each call and asks nothing in between - the convention the target suite and
-// PLAN.md's baselines use (8 of 188 run). `tools/fsm-getout-audit.mjs` uses the other convention and
-// reports 20; Phase 10 in PLAN.md is about why those differ.
+// PLAN.md's baselines use. It used to differ from `tools/fsm-getout-audit.mjs` (8 versus 20 figures),
+// which was Phase 10; that divergence is now CLOSED and both conventions report the SAME 116 figures
+// (round 33 measured 7 walk procedures at 116 with zero differences, and `determinism-audit.mjs` is a
+// gate in the verify suite). So the two numbers may be compared directly.
 
 import { readFileSync } from 'node:fs';
 import path from 'node:path';

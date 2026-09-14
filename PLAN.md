@@ -556,6 +556,36 @@ threshold artefact — so this was checked rather than assumed, and it is NOT on
 whose authored setups genuinely are not the arrangement reached. They are authoring work in the §"genuine
 setup gaps" sense, and a constants change will not touch them; do not spend a round on the divisor.
 
+**THE `T-Bone LUUR` CLUSTER IS NOT AUTHORABLE FROM THIS REPO'S AUTHORITIES EITHER (round 33).** It is
+the most attractive remaining row — three figures sharing ONE board, which is why it was the recommended
+next target — and it is closed for a reason that also bounds the rest of the phase:
+
+```
+figm63   #7  Lead Right   T-Bone LUUR   "4/8 face the wrong way (max 90 deg)"
+figm193  #3  Swing Thru   T-Bone LUUR   same board signature
+figm194  #3  Extend       T-Bone LUUR   same
+```
+
+(`figm193` and `figm194` reach it the same way — `Heads Box the Gnat` leaves the `LUUR` T-Bone — which is
+why the three are one row and not three.)
+
+- **`callerlab-ms.txt` does not contain the word "T-Bone" AT ALL** (zero occurrences in 3,438 lines).
+  The Mainstream document simply does not discuss T-Bones, so there is no definition here to transcribe —
+  and unlike `Fan the Top`, whose rule the reference ships as `assets/plus/fan_the_top.md`, there is no
+  CALLERLAB text for this arrangement anywhere in the repo.
+- **The reference's catalogue has no T-Bone setup for any of the three calls.** Checked directly:
+  `swing_thru.xml`, `extend.xml`, `lead_right.xml`, and for good measure `pass_thru.xml` and
+  `wheel_and_deal.xml` all have **no `T-Bone` entry**, while `ferris_wheel.xml` does (`from="T-Bone
+  Couples"`, `from="T-Bone Couples 2"`). So the catalogue supports SOME calls from T-Bones and simply
+  does not author these.
+- The reference does not code them either, so there is no rule to port.
+
+So authoring these would be **inventing choreography for an arrangement neither authority in this repo
+defines for these calls**. That is the same disposition as `Trade By` on `Lines Facing Out` and it is the
+general shape of what is left in this phase: the rows that remain are ones where the corpus reaches a
+call from a board no authority covers, NOT rows where a known setup exists at a wrong scale. Recorded so
+the row is not re-opened.
+
 **Owner:** the matcher's setup vocabulary — tams authored for one arrangement and one scale.
 **Size:** the `SHAPE / NO-POSITIONAL-MATCH` class, ~25 rows, **no two sharing a call**; the
 `mutual` column of `facing-audit.mjs` is what cuts it from 35 to 25. Current heads:
@@ -1521,15 +1551,45 @@ rest names like `Boys Trade` / `Girls Run` / `Centers Run` that exist in BOTH vo
 deliberately uses the application that admitted each edge; the divergence should be diagnosed on its
 own, because it means the two paths produce different boards for the same call.
 
-**Phase 10 — the determinism smell.** Running the corpus with an interleaved `knownFormation` query
-after every call yields **20** figures instead of 8; `recognize` yields 8. At the divergence the two
-procedures apply the SAME call to a byte-identical board and get different boards. Every attempt to
-isolate the trigger came back clean (no board mutation, no shared start board, stable queries), and
-every real consumer uses the stable convention — so it does not block anything, but it is a live
-correctness smell and it stays open. Done-when: both procedures agree, and `determinism-audit.mjs` is
-promoted into `verify`. Note the convention is pinned in the tools meanwhile
-(`figure-census.mjs` = 8, `fsm-getout-audit.mjs` = 20) so the two numbers cannot be compared by
-accident.
+**Phase 10 — the determinism smell. CLOSED, and its done-when is now met (round 33).**
+
+What this section used to say: *"Running the corpus with an interleaved `knownFormation` query after every
+call yields **20** figures instead of 8; `recognize` yields 8. At the divergence the two procedures apply
+the SAME call to a byte-identical board and get different boards... it is a live correctness smell and it
+stays open. Done-when: both procedures agree, and `determinism-audit.mjs` is promoted into `verify`."*
+
+**Both halves of that are now satisfied, and the divergence is gone.** Re-measured:
+
+```
+=== 7 procedures over 188 figures, random source pinned to 0.5 ===
+  baseline: one instance, one start board       116  none
+  ...fresh start board per figure               116  none
+  ...knownFormation after every call            116  none
+  ...recognize after every call                 116  none
+  ...fresh Sequencer per figure                 116  none
+  ...figures walked in REVERSE order            116  none
+  ...fresh catalog objects                      116  none
+  baseline repeated: identical (the harness is stable)
+```
+
+Seven procedures, **zero differences**, at the CURRENT 116 figures rather than the 8/20 the smell was
+found at — so whatever caused it did not survive the intervening work, and the interleaved
+`knownFormation` query no longer changes any figure's outcome. The audit now EXITS NON-ZERO on any
+disagreement and is registered in `verify-suite.mjs` (full tier only; it lives in `tools/` and is reached
+through a new optional `sub` field, so the suite's "one place to add a harness" rule still holds).
+
+TWO THINGS WORTH KEEPING FROM THE EXERCISE:
+
+- the audit's `legalCalls` procedure is **off by default** (`--full` adds it). It enumerates every legal
+  call after every call of every figure — ~2000 `legalCalls` computations over the 274-call catalogue —
+  and it alone pushed a run past **35 minutes**. The Phase 10 question is whether the procedures
+  DISAGREE, and `legalCalls` is a robustness check rather than part of that comparison.
+- the promoted set costs **214.9s**, measured. `verify` was 290.2s over 20 harnesses, so this is the
+  largest single addition the suite has taken; it is still within the ~9 minutes the suite's own header
+  budgets for the full pre-commit gate, and `verify:light` is untouched.
+
+The 61-edge coded-vs-catalogue divergence recorded above is a DIFFERENT open item and is NOT closed by
+this — the audit compares walk PROCEDURES, not the two application paths.
 
 **Standing (Phase 7):** keep `poc-matrix/` out of `verify`, and run `map-tips.mjs` whenever the FSM is
 touched. `transitionTable` costs **36.8 s / 155 states / 1961 edges** on the 274-call Mainstream

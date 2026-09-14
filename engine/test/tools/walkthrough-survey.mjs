@@ -17,7 +17,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser } from '../../dist/index.js';
+import { Sequencer, setParser, findCodedMove } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 
 setParser(DOMParser);
@@ -113,6 +113,62 @@ for (const h of animFault) byCall.set(h.call, (byCall.get(h.call) ?? 0) + 1);
 console.log('  ANIMATION-fault pairs, by CALL:');
 for (const [call, n] of [...byCall].sort((a, b) => b[1] - a[1])) {
   console.log(`    ${String(n).padStart(3)}  ${call}`);
+}
+
+// WHICH OF THESE CAN THE CODED PATH EVEN REACH? `evaluateSequence` dispatches a call that
+// `findCodedMove` knows to `evaluateCodedAt`; everything else goes through `evaluateCallAt`, i.e.
+// the whole-board authored path or the parallel per-group path. This matters because a change to
+// `evaluateCodedAt` CANNOT affect a catalogue call, so the split says where the next work belongs:
+// one is a routing problem, the other an authoring/matching problem.
+const codedHits = animFault.filter((h) => findCodedMove(h.call));
+const catHits = animFault.filter((h) => !findCodedMove(h.call));
+console.log(`\n  reachable by evaluateCodedAt (CODED):     ${codedHits.length}`);
+console.log(`  NOT coded (authored path / parallel):     ${catHits.length}`);
+const catByCall = new Map();
+for (const h of catHits) catByCall.set(h.call, (catByCall.get(h.call) ?? 0) + 1);
+for (const [call, n] of [...catByCall].sort((a, b) => b[1] - a[1]).slice(0, 10)) {
+  console.log(`       ${String(n).padStart(3)}  ${call}`);
+}
+
+// THE PERMUTATION STRUCTURE, which decides what kind of routing is needed. A position permutation
+// decomposes into cycles; a 2-cycle is two dancers swapping (routable as a rigid half-turn about
+// their midpoint, which is what the engine now does), a k-cycle is k dancers each moving to the next
+// position, which a pair rotation cannot express. If the remaining failures are LONGER cycles then
+// the fix has to generalise; if they are 2-cycles then the detection is what is failing.
+console.log('\n  permutation structure of the animation-fault pairs:');
+const shapes = new Map();
+const POS_TOL = 0.35;
+for (const h of animFault) {
+  const start = seq.boardForFormation(h.formation);
+  const r = seq.applyToBoard(start, h.call);
+  const ends = r.board.dancers;
+  const starts = start.dancers;
+  const map = new Map(); // start dancer id -> end dancer id whose START it lands on
+  for (const d of ends) {
+    const p = starts.find((s) => Math.hypot(s.x - d.x, s.y - d.y) < POS_TOL);
+    if (p) map.set(p.id, d.id);
+  }
+  const seen = new Set();
+  const sizes = [];
+  for (const id of map.keys()) {
+    if (seen.has(id)) continue;
+    let n = 0;
+    let cur = id;
+    while (!seen.has(cur)) {
+      seen.add(cur);
+      cur = map.get(cur);
+      n++;
+      if (cur === undefined) break;
+    }
+    sizes.push(n);
+  }
+  const key = sizes.sort((a, b) => a - b).join('+') || 'unmapped';
+  if (!shapes.has(key)) shapes.set(key, []);
+  shapes.get(key).push(`${h.call} from ${h.formation}`);
+}
+for (const [shape, list] of [...shapes].sort((a, b) => b[1].length - a[1].length)) {
+  console.log(`    ${String(list.length).padStart(3)}  cycles ${shape}`);
+  for (const x of list.slice(0, 3)) console.log(`           e.g. ${x}`);
 }
 
 console.log('\n  worst 12 in detail:');

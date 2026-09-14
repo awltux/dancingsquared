@@ -1597,16 +1597,46 @@ catalog, and `legalCalls` is ~99% of it.
 
 ### Phase H — the solver side (the Phase 3 leftover)
 
-**Owner:** the search's remaining C term. `[P4p]`'s failing getout (`maxCalls=3, budget=400`) now
-answers `null` in **11.5 s** (was 95 s) and does `candidateScans=17` for 447 nodes — those 17
-catalogue scans ARE the 11.5 s. The quadratic L × C term is gone (`eqScans=0, eqIters=0`).
-
-**Work:** index the catalogue by start formation. `library.allVariantSetups()` is still the flat list
-that **drops the call name**; making it `{ name, setup }[]` is the minimal change, then pre-filter the
+**Owner:** the search's remaining C term. `library.allVariantSetups()` is still the flat list that
+**drops the call name**; making it `{ name, setup }[]` is the minimal change, then pre-filter the
 per-name loop with a mirror-aware signature map. **Do not build it as an FSM table** — that is
 O(states × catalogue), which is what killed the 20-minute build.
-**Gate:** `[P4p]` keeps its `null` answer and stays bounded; `GETOUT_SWEEP=1` still reports 27 of 28
-alignments and the `[P4p]` timing bound.
+
+**ITS MOTIVATION IS GONE, AND THE GATE ABOVE IT WAS STALE (round 33).** This section used to read:
+*"`[P4p]`'s failing getout (`maxCalls=3, budget=400`) now answers `null` in **11.5 s** … those 17
+catalogue scans ARE the 11.5 s"*, with the gate *"`[P4p]` keeps its `null` answer and stays bounded;
+`GETOUT_SWEEP=1` still reports 27 of 28 alignments"*. Both halves are now false, and `getout-convention`
+with the sweep ON was **RED at HEAD** because of it:
+
+```
+FAIL  [P4p] now HAS a getout ([Promenade]) - re-measure the documented negative
+  28 of 28 alignments have a getout within 3 calls
+```
+
+`[P4p]` (a Double Pass Thru) now has a **one-call** getout, `Promenade`, and it is GENUINE rather than a
+search false positive: `acceptPath` plays it with the real applicator and confirms it ends home — the
+same check the sweep already applies to all 28 alignments. So `27 of 28` is `28 of 28`, and there is no
+failed search left to time.
+
+THREE CONSEQUENCES:
+
+- **the index is no longer urgent.** It was worth building to make a FAILED search affordable; there are
+  no failed searches. The remaining scans are real but no longer bound anything, so this is now an
+  optimisation with no witness.
+- **`getout-convention`'s sweep is ON BY DEFAULT**, and that is a measured reversal: 58.0 s with it,
+  58.8 s without, because what made it slow was the failed search. Leaving it opt-in would have kept OFF
+  the check that caught this — which is how the staleness survived. `GETOUT_SWEEP=0` opts out.
+- **the 40 s FAILED-search bound has LOST ITS WITNESS**, and that is recorded rather than silently
+  dropped. A future negative would have to be re-established before it can be asserted again.
+
+**An attempt at the index was made and REVERTED, with a hazard worth recording.** The first cut memoised
+`matchables(board)` and the board's half of the `matchMemo` key in `WeakMap`s keyed on the BOARD OBJECT
+(the search passes one immutable board to ~2211 titles per node, so the pose string was being rebuilt
+2211 times). That is the right shape, but keying on object identity is a STRICTER assumption than the
+existing string-keyed cache: if any board were mutated in place, a string key would reflect the change
+and an identity key would not. `matchMemo`'s own comment claims boards are "always cloned before
+mutation", and the reverted cut did not verify that for every producer. Measure that first, or key the
+memo on the pose string and cache only the per-board STRING.
 
 ### Phase I — decoder residue (small, and mostly deliberate)
 

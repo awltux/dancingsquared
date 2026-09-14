@@ -245,18 +245,21 @@ console.log('\n== 5. fixIt uses the same goal ==');
 // pass unnoticed - and the documented result for this workstream is "27 of the 28 alignments
 // that have a start board", which nothing asserted. This closes that gap, and pins the
 // failing-search cost.
+// ON BY DEFAULT as of round 33, and that is a MEASURED reversal. It used to be off because "every
+// getout() is seconds, and the `[P4p]` negative deliberately spends a whole budget before answering
+// null" - and that negative no longer exists (see 5b below: `[P4p]` now has a one-call getout to
+// `Promenade`). Timed both ways on the same machine: **58.0 s with the sweep, 58.8 s without**, i.e.
+// the marginal cost is nil, because what made it slow was the failed search and there are no failed
+// searches left. Leaving it opt-in would keep OFF the check that actually caught this staleness.
 //
-// OFF BY DEFAULT because it is the one slow thing here: every getout() is seconds, and the
-// `[P4p]` negative deliberately spends a whole budget before answering null. Run it with
-//
-//     $env:GETOUT_SWEEP=1; node engine/test/getout-convention.mjs
+// Set `GETOUT_SWEEP=0` to skip it (the old opt-in behaviour, for a machine that cannot afford it).
 {
-  const SWEEP = !!process.env.GETOUT_SWEEP;
+  const SWEEP = process.env.GETOUT_SWEEP !== '0';
   if (!SWEEP) {
     console.log('\n== 5b. full alignment sweep: SKIPPED ==');
-    console.log('  set GETOUT_SWEEP=1 to run it (it is the slow part: one getout() per alignment)');
+    console.log('  GETOUT_SWEEP=0 was set; the sweep is ON by default (its marginal cost measured ~0)');
   } else {
-    console.log('\n== 5b. every alignment with a start board, and the cost of a FAILED search ==');
+    console.log('\n== 5b. every alignment with a start board ==');
     const ids = corpus.alignments.map((a) => a.id);
     let withBoard = 0, resolved = 0;
     const unresolved = [];
@@ -277,17 +280,26 @@ console.log('\n== 5. fixIt uses the same goal ==');
     }
     console.log(`  ${resolved} of ${withBoard} alignments have a getout within 3 calls`);
     if (unresolved.length) console.log(`  no getout: ${unresolved.join(', ')}`);
-    // The negative is EXPECTED to be the slowest call in the suite; what is asserted is that
-    // it is bounded, not that it is fast. Before Phase 3 this one call took 95 s.
+    // `[P4p]` USED TO BE THE DOCUMENTED NEGATIVE — "Beginning Double Pass Thru has no get-out within
+    // 3 calls" — and this block asserted that, plus the 40 s bound that a FAILED search had to stay
+    // under. RE-MEASURED (round 33): the negative no longer holds. `[P4p]` now has a ONE-CALL getout,
+    // `[Promenade]`, and it is GENUINE rather than a search false positive: `acceptPath` above plays it
+    // with the real applicator and confirms it ends home, which is exactly the check the sweep loop
+    // already applies to all 28 alignments. The gate fired with its own instruction ("re-measure the
+    // documented negative"), so that instruction is followed here rather than the block being deleted.
+    //
+    // AND THE FAILED-SEARCH COST BOUND NOW HAS NO WITNESS: the sweep finds "28 of 28 alignments have a
+    // getout within 3 calls", so no alignment is left whose search exhausts a budget. That bound was
+    // the reason the harness was slow and off by default, and it is recorded as LOST, not dropped
+    // silently - a future negative would have to be re-established before it can be asserted again.
     const p4 = boardFor('P4p');
     if (p4) {
       seq.setBoard(p4);
       const t = Date.now();
       const path = seq.getout({ target: 'Static Square', maxCalls: 3, budget: 400 });
       const ms = Date.now() - t;
-      if (path) fail(`[P4p] now HAS a getout ([${path.join(' > ')}]) - re-measure the documented negative`);
-      else if (ms >= 40000) fail(`[P4p] failing getout took ${(ms / 1000).toFixed(1)} s, over the 40 s bound (it was 95 s before Phase 3)`);
-      else ok(`[P4p] failing getout answers null in ${(ms / 1000).toFixed(1)} s (the bound is 40 s; it was 95 s before Phase 3)`);
+      if (!path) fail('[P4p] lost the getout this file now documents - re-measure the sweep');
+      else if (acceptPath('[P4p]', p4, path)) ok(`[P4p] (${seq.knownFormation(p4)}) -> [${path.join(' > ')}] in ${(ms / 1000).toFixed(1)} s`);
     }
   }
 }

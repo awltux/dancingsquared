@@ -72,7 +72,7 @@ second one: `process.env` appears in exactly ONE place in the whole engine, and 
 | … of which ended by applying the finish itself | **112** (was 110) | same |
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
-| CALLERLAB | real gap is **9 (call, start) pairs + 18 formation names** (was 20 — instrument fix, round 37) | `node engine/test/tools/callerlab-diff.mjs` |
+| CALLERLAB | real gap is **10 (call, start) pairs + 9 formation names** (was 20 — TWO instrument bugs, rounds 24 and 37/38) | `node engine/test/tools/callerlab-diff.mjs` |
 | gates | `verify:light` green; `verify` green (**22 harnesses, ~510 s**); `verify:figures` **red by design** | `npm run verify --prefix engine` |
 
 All three sides above were re-measured again in round 28 and agree with the table exactly: figures
@@ -1571,6 +1571,36 @@ so the genuine candidates are about EIGHT, not twenty: `couple`, `mini wave`, `o
 two of those (`ocean wave`/`Ocean Waves`, `single 14 tag`/`Quarter Tag`) are CALLERLAB's SPELLING of a
 formation the engine already has. **Before any mapping is written, the extractor noise has to be
 separated**, or the mapping will be built against a list that is half fiction.
+
+**SEPARATED (round 38), AND (C) IS NINE.** Three fixes, all in `callerlab-diff.mjs`, each measured:
+
+1. **Parenthesised asides are stripped BEFORE the list is split.** The source writes `Facing Dancers
+   (Man and Woman)`; splitting first on `\s+and\s+(?=[A-Z])` produced `Facing Dancers (M an` and
+   `W oman)` — two fragments with unmatched parens, neither of them a formation.
+2. **CALL names are excluded from formation lists** — `Box Circulate` is documented as the starting
+   formation for `Split Circulate` and is a call the catalogue HAS; three such entries are now counted
+   and reported separately.
+3. **`PROSEISH` extended** with the markers the list actually showed: `only`, `in general`, a leading
+   `a `, `restricted`. Prose entries went 5 → 11.
+
+```
+              before   after
+matched          13      12
+(B) pairs         9      10
+(C) names        18       9      <- of which EIGHT are genuine
+prose             5      11
+call-not-formation 0      3
+```
+
+**The nine, and they are clean:** `Couple` (6 calls), `Mini-Wave` (3), `Ocean Wave` (3), `One-Faced
+Line` (2), `Facing Tandems` (1), `Single 1/4 Tag` (1), `Tandem facing a Couple` (1), `Tandem Couples`
+(1) — plus ONE residual artefact, `one m an and one w oman`, which is `one Man and one Woman` with the
+PDF's split words and no parens to strip. The tool prints both raw spellings when a name has several
+(`Mini-Wave | Mini- Wave`), so a genuine spelling difference stays visible.
+
+**So Phase F's mapping has EIGHT names to model, not twenty** — and two of them (`Ocean Wave`,
+`Single 1/4 Tag`) are CALLERLAB's spelling of a formation the engine already has under another name,
+which leaves six to actually author or model. That is a tractable piece of work for the first time.
 
 **THE GATE IS NOW IN PLACE, which is the second half of this phase's closure:** `callerlab-diff.mjs`
 pins four measured numbers exactly — 13 matched, 9 (B) pairs, 18 (C) names, 5 prose — and exits

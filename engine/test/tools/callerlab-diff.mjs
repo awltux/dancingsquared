@@ -90,9 +90,16 @@ for (let i = 0; i < lines.length; i++) {
     parts.push(s);
   }
   const listRaw = parts.join(' ').replace(/\s+/g, ' ').trim();
+  // PARENTHESISED ASIDES ARE REMOVED BEFORE THE LIST IS SPLIT, and the order is the whole fix. The
+  // source writes "Facing Dancers (Man and Woman)" and the text has the PDF's split words, so
+  // splitting FIRST on `\s+and\s+(?=[A-Z])` produced "Facing Dancers (M an" and "W oman)" - two
+  // fragments, neither of which has a matched paren for the strip below to remove, and neither of
+  // which is a formation. Measured: this pair was 2 of the (C) entries. Stripping first leaves
+  // "Facing Dancers", which is the real name.
   const formations = listRaw
+    .replace(/\([^)]*\)/g, ' ')
     .split(/\s*,\s*|\s+or\s+|\s+and\s+(?=[A-Z])/)
-    .map((f) => f.replace(/\([^)]*\)/g, '').trim())
+    .map((f) => f.replace(/\s+/g, ' ').trim())
     .filter((f) => f.length > 1 && f.length < 60);
   entries.push({ call, caseLabel, family, listRaw, formations, line: i + 1 });
 }
@@ -180,8 +187,8 @@ const formationIsKnown = (n) => knownFormations.has(n) || tamFromNames.has(n);
 
 const unknownFormation = new Map(); // NORMALISED formation name -> { raw, calls }
 const notASetup = [];                // (call, formation) with no matching from= anywhere
-let pairs = 0, matched = 0, prose = 0;
-const PROSEISH = /\.\s|\.$|\b(are|is|the two|which|while|when|that|their|they|usually|generally|more)\b/i;
+let pairs = 0, matched = 0, prose = 0, callNotFormation = 0;
+const PROSEISH = /\.\s|\.$|\b(are|is|the two|which|while|when|that|their|they|usually|generally|more)\b|\bonly\b|\bin general\b|^\s*a\s|\brestricted\b/i;
 for (const [call, es] of pdfCalls) {
   if (!implemented.has(call)) continue;
   const froms = tamFrom.get(call) ?? new Set();
@@ -194,6 +201,11 @@ for (const [call, es] of pdfCalls) {
       // the extractor leaves sentences inside the list; counting them as "unknown formations"
       // would inflate the gap, so they are separated out and reported as noise instead
       if (PROSEISH.test(fm)) { prose++; continue; }
+      // A CALL name can land in a formation list - `Box Circulate` is documented as the starting
+      // formation for `Split Circulate`, and it is a call the catalogue HAS. Counting it as "a
+      // formation the engine has no formation for" is the same class of error as counting prose:
+      // the engine certainly cannot be asked for a formation by that name, because it is not one.
+      if (catalogue.has(fm) || implemented.has(fm)) { callNotFormation++; continue; }
       if (!formationIsKnown(n)) {
         matched += 0;
         // KEYED ON THE NORMALISED NAME, and that is an instrument fix, not tidying. This map used to
@@ -219,6 +231,7 @@ console.log(`  ${matched} match one of the call's own tam setups`);
 console.log(`  ${notASetup.length} are a formation the engine HAS but that call has no setup for`);
 console.log(`  ${unknownFormation.size} distinct formation NAMES the engine has no formation for`);
 console.log(`  ${prose} entries are sentences the extractor merged into the list (noise, excluded)`);
+console.log(`  ${callNotFormation} entries are CALL names the extractor put in a formation list (excluded)`);
 console.log(`\n=== (B) documented start formations with NO matching tam setup (${notASetup.length}) ===`);
 for (const r of notASetup.slice(0, 30)) {
   console.log(`  ${r.call.padEnd(24)} documented "${r.documented}"   engine setups: [${r.actual.join(', ') || 'none'}]`);
@@ -245,14 +258,16 @@ for (const c of extra.slice(0, 25)) console.log(`      ${String(figFreq.get(c)).
 // deliberately with its reason - the same shape as `catalogue.mjs`'s KNOWN_SKIPS, and the same lesson
 // as `getout-convention`'s [P4p] negative, which stayed red for rounds because nothing ran it.
 //
-// PINNED AS OF ROUND 37, with the second instrument bug found in this check now fixed (see the note at
-// `unknownFormation`): the map was keyed on the raw string while the lookup normalised, so
-// `One -Faced Line`/`One-Faced Line` and `Mini- Wave`/`Mini-Wave` each counted twice - (C) was 20 and
-// is 18. The remaining 18 are NOT 18 missing formations: about ten are extractor artefacts, named in
-// the list above - `box circulate` is a CALL name, `facing dancers m an` and `w oman` are the two
-// halves of one wrapped line, and the `... only` / `restricted at mainstream ...` entries are prose.
-// Pinning the number keeps the drift visible; separating the artefacts is the next round's job.
-const PINNED = { matched: 13, notASetup: 9, unknown: 18, prose: 5 };
+// PINNED AS OF ROUND 38, after the extractor artefacts were separated from the genuine names. This
+// check had TWO instrument bugs, both now fixed: round 24's (the tool asked a formation name against
+// `formations.xml` alone, so every INLINE `from=` was reported missing - 24 names became 20), and
+// round 37-38's (the map was keyed on the raw string while the lookup normalised, so one name with a
+// stray space counted twice; and the list was split on " and " BEFORE parenthesised asides were
+// stripped, so "Facing Dancers (Man and Woman)" became two fragments). With those fixed and CALL
+// names excluded from formation lists, (C) is NINE - of which one, `one m an and one w oman`, is still
+// a split-word artefact, so the genuine gap is EIGHT names: Couple, Mini-Wave, Ocean Wave,
+// One-Faced Line, Facing Tandems, Single 1/4 Tag, Tandem facing a Couple, Tandem Couples.
+const PINNED = { matched: 12, notASetup: 10, unknown: 9, prose: 11, callNotFormation: 3 };
 console.log('\n=== the pinned numbers (Phase F\'s anti-drift gate) ===');
 let gateFailures = 0;
 const pin = (label, got, want) => {
@@ -265,10 +280,11 @@ pin('(B/C) pairs matching a setup', matched, PINNED.matched);
 pin('(B) formation the engine HAS, no setup for that call', notASetup.length, PINNED.notASetup);
 pin('(C) formation NAMES the engine has no formation for', unknownFormation.size, PINNED.unknown);
 pin('prose entries excluded as noise', prose, PINNED.prose);
+pin('call names excluded from formation lists', callNotFormation, PINNED.callNotFormation);
 if (gateFailures) {
   console.log(`\nCALLERLAB DIFF FAILED: ${gateFailures} pinned number(s) moved.`);
   process.exit(1);
 }
-console.log('\nCALLERLAB DIFF PASSED: all four pinned numbers hold.');
+console.log('\nCALLERLAB DIFF PASSED: all five pinned numbers hold.');
 
 

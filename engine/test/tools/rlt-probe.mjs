@@ -131,7 +131,36 @@ for (const formation of ['Eight Chain Thru', 'Normal Lines']) {
   console.log(`  [${formation}] whole-board match: ${m ? `yes (error ${m.error.toFixed(3)})` : 'NO -> parallel/blend route'}`);
   console.log(`      animation closest pair: ${min2.toFixed(3)} at beat ${at2.toFixed(1)}`);
 }
-// THE OTHER INSTANCES. Every authored right-and-left-thru, by level and by setup, with its END
+// CALLERLAB'S OWN TABLE, from the teaching site's "Analysis" page
+// (docs/downloads/teaching.callerlab.org/mainstream/right-and-left-thru-definition). It lists the
+// ENDING formation for each STANDARD starting formation and arrangement, which makes it a small,
+// authoritative oracle the engine can be checked against directly:
+//
+//   a) Static Square, Normal Couples, Heads Right and Left Thru -> Static Square, Normal Couples
+//   b) Facing Lines, Normal Couples, Right and Left Thru        -> Facing Lines
+//   c) Eight Chain Thru, Normal Couples, Right and Left Thru    -> Eight Chain Thru
+//   d) Right-Hand Parallel Waves, Boys on Ends, RLT            -> Eight Chain Thru formation
+//   e) Right-Hand Tidal Wave, Girls in Center of each four, RLT -> Facing Lines
+console.log('\n=== CALLERLAB\'s ending-formation table vs the engine ===');
+const TABLE = [
+  ['Static Square', 'Heads Right and Left Thru', 'Static Square'],
+  ['Normal Lines', 'Right and Left Thru', 'Normal Lines'],
+  ['Eight Chain Thru', 'Right and Left Thru', 'Eight Chain Thru'],
+  ['Ocean Waves', 'Right and Left Thru', 'Eight Chain Thru'],
+  ['Tidal Wave', 'Right and Left Thru', 'Normal Lines'],
+];
+let tblFail = 0;
+for (const [start, call, want] of TABLE) {
+  const b = seq.boardForFormation(start);
+  if (!b) { console.log(`  ?    ${start}: no such formation`); continue; }
+  const r = seq.applyToBoard(b, call);
+  const got = r.legal ? seq.knownFormation(r.board) : `REFUSED (${r.reason})`;
+  const ok = got === want;
+  if (!ok) tblFail++;
+  console.log(`  ${ok ? 'ok  ' : 'DIFF'} ${call} from ${start}: engine says [${got}], CALLERLAB says [${want}]`);
+}
+console.log(`  ${TABLE.length - tblFail} of ${TABLE.length} agree with CALLERLAB`);
+
 // pose - which is what "analyse the other instances to figure out how to do it" needs. The end
 // pose is taken from a ONE-TAM sequencer so each authoring is read on its own setup.
 console.log('\n=== every authored Right and Left Thru, by file and setup ===');

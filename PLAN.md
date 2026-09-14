@@ -48,7 +48,7 @@ Three external oracles, plus one derived artefact:
 
 Analyses (tools, not gates): `figure-census.mjs`, `figure-trace.mjs`, `facing-audit.mjs`,
 `setup-split.mjs`, `setup-coverage.mjs`, `fsm-getout-audit.mjs`, `callerlab-diff.mjs`,
-`unknown-calls.mjs`, `spin-the-top-probe.mjs`. Gates: `test/verify-suite.mjs`
+`unknown-calls.mjs`, `spin-the-top-probe.mjs`, `from-overlap.mjs`. Gates: `test/verify-suite.mjs`
 (`light` ≈ 15 s, `all` ≈ 500 s, **21 harnesses**) and `figures`, which is a **red target suite by
 design** (the finish line, not a gate).
 
@@ -1673,6 +1673,44 @@ programme", not "prefer the authoring that round-trips". Two cheap turns not tak
 - The `from`-overlap question has been swept for **one** multi-level title; the other **231** are
   unswept. This is a per-call measurement of "which authoring is right" — exactly the measurement that
   found this one.
+
+**SWEPT (round 35) — AND THE QUESTION IS 17 TITLES, NOT 231.** `engine/test/tools/from-overlap.mjs`
+answers it, and answering it needed the key to be corrected twice:
+
+```
+2211 titles, 232 defined at more than one LEVEL
+  212 of those author the same `formation` twice
+   40 of those write a DIFFERENT MOTION on a shared `formation`
+   17 of those END DIFFERENTLY on a shared `formation`   <- the tie-break decides these
+```
+
+The 17, and note how many of them the census touches — `Wheel and Deal`, `Box Circulate`, `Rollaway`,
+`Courtesy Turn`:
+
+`Box Circulate`, `Boys Trade`, `California Twirl`, `Centers Cross Run`, `Centers Trade`, `Circle Left`,
+`Circle Right`, `Courtesy Turn`, `Ends Trade`, `Face In`, `Face Left`, `Face Right`, `Girls Trade`,
+`Ladies In, Men Sashay`, `Partner Trade`, `Rollaway`, `Wheel and Deal`.
+
+**TWO CORRECTIONS TO THE KEY WERE NEEDED, and both were made by measuring rather than reasoning:**
+
+1. **The key is `formation`, NOT `from`.** `from` is a coarse label: `Square Thru 3` is authored at `b1`
+   from `formation="Facing Couples"` and at `ms` from `formation="Facing Couples Compact"` — two setups
+   at different SEPARATIONS, which the engine pools deliberately and which can never both match one
+   board. Keying on `from` counted those as conflicts and gave **65** false ones; keying on `formation`
+   gives 40, and only 17 where the ENDING actually differs.
+2. **A tam with no `formation` must be excluded.** Those author their dancers INLINE, so the empty
+   string is not a setup name and grouping on it conflates unrelated tams — `Star Thru` and
+   `Allemande Left` each appeared as a single row with a dozen distinct endings for exactly that reason.
+   131 such tams are excluded and counted in the tool's output.
+
+`CallBundle` does not carry `formation`, which is WHY the first key was wrong — the attribute is in the
+XML but not in the engine's view, so the tool reads it from the blocks and gets each tam's end pose from
+a ONE-TAM `Sequencer`. The end pose is compared as SHAPE + FACINGS so a rotated authoring of the same
+dance is not a conflict.
+
+**The sanity check is that `Circle Left` / `formation="Static Square"` / `b1, ms` is in the list** — the
+one case the plan already measured (88 vs 90 figures). So 16 are unswept, and the next round has a
+17-row list to judge instead of a 231-row question.
 
 ### Phase K — the target suite (the finish line, not a gate)
 

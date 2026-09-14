@@ -138,10 +138,22 @@ for (const c of missing) {
 }
 
 // ------------------------------------------------------------------ (B)+(C) starting formations
-const tamFrom = new Map(); // title -> Set(from)
+const tamFrom = new Map(); // title -> Set(label the engine can start this call from)
 for (const { name, xml } of callsByTitle(assets)) {
   const froms = new Set();
-  for (const m of xml.matchAll(/\bfrom="([^"]*)"/g)) froms.add(m[1]);
+  // PER TAM, AND WITH THE ENGINE'S OWN FALLBACK, which is the third instrument bug in this file. The
+  // `from` attribute was read alone, so a tam that declares only `formation="..."` looked like a call
+  // with NO setups at all: `Dive Thru` is authored as `formation="Pass Thru"` with no `from`, and the
+  // report said "engine setups: [none]" for the very pair it was flagging. The engine has always done
+  // the opposite - convert.ts:414 - `label: t.from || t.formationAttr || '(default)'`, and
+  // convert.ts:324 builds the setup from `formationAttr` when the tam has no inline dancers. So the
+  // label the engine can START the call from is `from`, else `formation`, and that is what is read.
+  for (const block of xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []) {
+    const from = (block.match(/\bfrom="([^"]*)"/) ?? [])[1] ?? '';
+    const formation = (block.match(/\bformation="([^"]*)"/) ?? [])[1] ?? '';
+    const label = from || formation;
+    if (label) froms.add(label);
+  }
   tamFrom.set(name, froms);
 }
 const norm = (s) => s.toLowerCase().replace(/[-â€“]/g, ' ').replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
@@ -258,16 +270,22 @@ for (const c of extra.slice(0, 25)) console.log(`      ${String(figFreq.get(c)).
 // deliberately with its reason - the same shape as `catalogue.mjs`'s KNOWN_SKIPS, and the same lesson
 // as `getout-convention`'s [P4p] negative, which stayed red for rounds because nothing ran it.
 //
-// PINNED AS OF ROUND 38, after the extractor artefacts were separated from the genuine names. This
-// check had TWO instrument bugs, both now fixed: round 24's (the tool asked a formation name against
-// `formations.xml` alone, so every INLINE `from=` was reported missing - 24 names became 20), and
-// round 37-38's (the map was keyed on the raw string while the lookup normalised, so one name with a
-// stray space counted twice; and the list was split on " and " BEFORE parenthesised asides were
-// stripped, so "Facing Dancers (Man and Woman)" became two fragments). With those fixed and CALL
-// names excluded from formation lists, (C) is NINE - of which one, `one m an and one w oman`, is still
-// a split-word artefact, so the genuine gap is EIGHT names: Couple, Mini-Wave, Ocean Wave,
-// One-Faced Line, Facing Tandems, Single 1/4 Tag, Tandem facing a Couple, Tandem Couples.
-const PINNED = { matched: 12, notASetup: 10, unknown: 9, prose: 11, callNotFormation: 3 };
+// PINNED AS OF ROUND 39. This check has had THREE instrument bugs, all now fixed: round 24's (it asked
+// a formation name against `formations.xml` alone, so every INLINE `from=` was reported missing - 24
+// names became 20); rounds 37-38's (the map was keyed on the raw string while the lookup normalised, so
+// one name with a stray space counted twice, and the list was split on " and " BEFORE parenthesised
+// asides were stripped); and round 39's (only the `from` attribute was read, so a tam declaring only
+// `formation=` looked like a call with NO setups - `Dive Thru` reported "engine setups: [none]" for the
+// very pair being flagged, while convert.ts:414 has always fallen back to `formationAttr`).
+//
+// With all three fixed: (C) is NINE names, of which one is a residual split-word artefact (`one m an
+// and one w oman`), leaving EIGHT genuine - Couple, Mini-Wave, Ocean Wave, One-Faced Line, Facing
+// Tandems, Single 1/4 Tag, Tandem facing a Couple, Tandem Couples - and two of those are CALLERLAB's
+// spelling of a formation the engine already has. (B) is ELEVEN pairs, and MOST of them are
+// GRANULARITY rather than absence: `Facing Dancers` is a two-dancer formation (Box the Gnat, Dosado,
+// Pass Thru, Slide Thru, Star Thru, Swing) while the engine's cheapest authorings are four-dancer
+// `Facing Couples`. It is pinned so a movement in either direction is re-pinned deliberately.
+const PINNED = { matched: 11, notASetup: 11, unknown: 9, prose: 11, callNotFormation: 3 };
 console.log('\n=== the pinned numbers (Phase F\'s anti-drift gate) ===');
 let gateFailures = 0;
 const pin = (label, got, want) => {

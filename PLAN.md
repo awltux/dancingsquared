@@ -72,7 +72,7 @@ second one: `process.env` appears in exactly ONE place in the whole engine, and 
 | … of which ended by applying the finish itself | **112** (was 110) | same |
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
-| CALLERLAB | real gap is **10 (call, start) pairs + 9 formation names** (was 20 — TWO instrument bugs, rounds 24 and 37/38) | `node engine/test/tools/callerlab-diff.mjs` |
+| CALLERLAB | real gap is **11 (call, start) pairs + 9 formation names** (was 9 + 24 — THREE instrument bugs, rounds 24, 37/38, 39) | `node engine/test/tools/callerlab-diff.mjs` |
 | gates | `verify:light` green; `verify` green (**22 harnesses, ~595 s, measured**); `verify:figures` **red by design** | `npm run verify --prefix engine` |
 
 All three sides above were re-measured again in round 28 and agree with the table exactly: figures
@@ -1601,6 +1601,33 @@ PDF's split words and no parens to strip. The tool prints both raw spellings whe
 **So Phase F's mapping has EIGHT names to model, not twenty** — and two of them (`Ocean Wave`,
 `Single 1/4 Tag`) are CALLERLAB's spelling of a formation the engine already has under another name,
 which leaves six to actually author or model. That is a tractable piece of work for the first time.
+
+**A THIRD INSTRUMENT BUG, in the (B) COLUMN, FOUND BY CHASING THE ONE PAIR THAT LOOKED REAL (round 39).**
+`Dive Thru` was the single (B) entry whose "engine setups" column read `[none]`, so it looked like the
+one genuine missing setup in the list. It is not — **the column was being computed from the `from`
+attribute alone, and `Dive Thru`'s tams declare only `formation="Pass Thru"` with no `from` at all**.
+The engine has never worked that way: `convert.ts:414` is `label: t.from || t.formationAttr ||
+'(default)'`, and `convert.ts:324` builds the setup from `formationAttr` when the tam has no inline
+dancers. Reading the label the way the engine does, per tam:
+
+```
+Dive Thru   documented "Facing Couples"   engine setups: [Pass Thru]      (was: [none])
+```
+
+and two more pairs became visible, which is why (B) went 10 → **11**:
+
+```
+Scoot Back  documented "1/4 Tag"          engine setups: [Right-Hand Box, Left-Hand Box, ... Quarter Tag, ...]
+Swing       documented "Facing Dancers"   engine setups: [Right-Hand Waves, Left-Hand Waves, Inverted Lines, ...]
+```
+
+**AND MOST OF (B) IS GRANULARITY, NOT ABSENCE.** Six of the eleven pairs document `Facing Dancers` —
+Box the Gnat, Dosado, Pass Thru, Slide Thru, Star Thru, Swing — and CALLERLAB's `Facing Dancers` is a
+TWO-dancer formation while the engine's cheapest authorings are four-dancer `Facing Couples`. Two more
+document `Alamo Ring` (Swing Thru, Left Swing Thru) where the engine has `Alamo Wave`. The genuinely
+missing setups reduce to `Dive Thru`'s (`Pass Thru` is two facing couples, so the geometry exists and
+only the NAME differs) and the two the plan already named: `Dove Thru` from Facing Couples and `Grand
+Square` from Static Square, whose setups are Butterfly | Blocks.
 
 **THE GATE IS NOW IN PLACE, which is the second half of this phase's closure:** `callerlab-diff.mjs`
 pins four measured numbers exactly — 13 matched, 9 (B) pairs, 18 (C) names, 5 prose — and exits

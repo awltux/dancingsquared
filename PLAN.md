@@ -48,8 +48,18 @@ Three external oracles, plus one derived artefact:
 
 Analyses (tools, not gates): `figure-census.mjs`, `figure-trace.mjs`, `facing-audit.mjs`,
 `setup-split.mjs`, `setup-coverage.mjs`, `fsm-getout-audit.mjs`, `callerlab-diff.mjs`,
-`determinism-audit.mjs`. Gates: `test/verify-suite.mjs` (`light` ≈ 15 s, `all` ≈ 290 s, 20 harnesses)
-and `figures`, which is a **red target suite by design** (the finish line, not a gate).
+`unknown-calls.mjs`, `spin-the-top-probe.mjs`. Gates: `test/verify-suite.mjs`
+(`light` ≈ 15 s, `all` ≈ 500 s, **21 harnesses**) and `figures`, which is a **red target suite by
+design** (the finish line, not a gate).
+
+**One tool is deliberately NOT a gate, and it is the only one on disk that is not registered:**
+`test/map-tips.mjs`. It is a GENERATOR, not a check — it walks tips and writes the missing FSM edges
+into `poc/src/assets/discovered/` — and Phase G already says to run it by hand whenever the FSM is
+touched. Recorded here because "a file in `test/` that the suite does not run" is exactly the shape that
+hid the staleness in `getout-convention` (`GETOUT_SWEEP`), and the answer here is that there is no
+second one: `process.env` appears in exactly ONE place in the whole engine, and every other skip in
+`test/` is either the `light` tier's explicit message or an exactly-pinned list (`catalogue.mjs`'s
+`KNOWN_SKIPS`).
 
 ---
 
@@ -63,7 +73,7 @@ and `figures`, which is a **red target suite by design** (the finish line, not a
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **9 (call, start) pairs + 20 formation names** | `node engine/test/tools/callerlab-diff.mjs` |
-| gates | `verify:light` green; `verify` green (20 harnesses, ~295 s); `verify:figures` **red by design** | `npm run verify --prefix engine` |
+| gates | `verify:light` green; `verify` green (**21 harnesses, ~500 s**); `verify:figures` **red by design** | `npm run verify --prefix engine` |
 
 All three sides above were re-measured again in round 28 and agree with the table exactly: figures
 **116 of 188** (also confirmed independently by `fsm-getout-audit.mjs`), FSM **155 / 92 / 43 / 19**, and
@@ -1666,9 +1676,29 @@ programme", not "prefer the authoring that round-trips". Two cheap turns not tak
 
 ### Phase K — the target suite (the finish line, not a gate)
 
-`npm run verify:figures` is red **by design** and should stay that way until the work is done:
-**4 unread cells** and **22 call names** the engine lacks, with **101 of 188** figures running from
-Static Square. It is the finish line the user set ("once the engine has fixed existing edge cases"),
+`npm run verify:figures` is red **by design** and should stay that way until the work is done.
+**RE-MEASURED round 34, and two of the three numbers were stale:**
+
+```
+BEFORE (this section):   4 unread cells, 22 call names the engine lacks, 101 of 188 figures
+NOW (measured):          4 unread cells, 13 call names the engine lacks, 116 of 188 figures
+```
+
+- **`101 of 188` is now 116 of 188.** Confirmed independently: `all8-figures.mjs` prints *"116 of 188
+  figures run end-to-end"* and `figure-census.mjs` prints the same, so the target suite and the census
+  agree. The stale number had survived the whole session's +15 figures.
+- **`22 call names` is now 13.** That is a count of distinct NAMES the corpus uses and the engine lacks,
+  which is a different measure from `unknown-calls.mjs`'s SIX — that tool counts the figures that
+  actually STOP on an unknown name, and a name used by a figure which already stops earlier for another
+  reason never gets there. Both numbers are right; they answer different questions, and the plan should
+  say so rather than carry one and imply the other.
+- **`4 unread cells` is still 4** ✓ (Phase I, closed by design as malformed source).
+
+The suite's own failing gates are exactly two, and they are the first two numbers: *"4 call cells across
+4 distinct tokens are not readable"* and *"13 of them are calls the engine does not have"*. The third
+(the run count) is REPORTED rather than gated, which is why it could drift to 101 unremarked.
+
+It is the finish line the user set ("once the engine has fixed existing edge cases"),
 excluded from both verify tiers on purpose. Two small stale readings it still carries: `verycenters`
 is preserved as its own 2-dancer case (deliberately, so the `Centers` fix could not change any
 `Very Centers …` asset) and `outside6` follows it; and `Centers In` / `Heads Pass Thru` still refuse

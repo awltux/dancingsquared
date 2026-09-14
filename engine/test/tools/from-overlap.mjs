@@ -27,7 +27,8 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser, poseFor, dancerBeats } from '../../dist/index.js';
-import { ASSET_LEVELS, callXmlFiles } from '../lib/engine-calls.mjs';
+import { ASSET_LEVELS, callXmlFiles, callsByTitle } from '../lib/engine-calls.mjs';
+import { ALL8_FIGURE_START, figureEngineCalls, loadAll8Figures } from '../lib/all8-figures.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const assets = path.resolve(here, '..', '..', '..', 'poc', 'src', 'assets');
@@ -153,5 +154,92 @@ for (const { title, differing } of endConflicts) {
     console.log(`      formation="${formation}"  authored at: ${levels}  (${new Set(shapes).size} distinct ending(s))`);
     if (VERBOSE) ts.forEach((t, i) => console.log(`        [${t.level}] ${[...new Set(shapes)][i]?.slice(0, 100) ?? '?'}`));
   }
+}
+
+// WHICH OF THE 17 CAN ACTUALLY COST A FIGURE. A tie-break can only matter where the call is USED, so
+// each conflicting title is cross-referenced against the published corpus: the figures whose chains
+// contain it, and whether those figures run end-to-end today. A title used only by figures that
+// already pass (or that already pass despite it) cannot be where a figure is being lost, and that
+// screen costs one corpus walk instead of one full census PER TITLE, which is what judging all 17
+// head-to-head would cost (17 x ~60 s).
+const corpus = loadAll8Figures();
+const seqForCorpus = new Sequencer(movesXml, formsXml, callsByTitle(assets));
+const startBoard = seqForCorpus.boardForFormation(ALL8_FIGURE_START);
+const figureStatus = new Map();
+for (const f of corpus.figures) {
+  const calls = figureEngineCalls(f);
+  let b = startBoard;
+  let stop = null;
+  for (const c of calls) {
+    const r = seqForCorpus.applyToBoard(b, c);
+    if (!r.legal) { stop = c; break; }
+    b = r.board;
+  }
+  figureStatus.set(f.id, { stop, calls });
+}
+// The engine's name for a corpus call, so `Box Circulate` matches `Centers Box Circulate` too.
+const baseOf = (name) => {
+  const m = /^(Heads|Sides|Centers|Ends|Boys|Girls|Leads|Trailers|Outsides|Insides|All|All 8)\s+(.*)$/.exec(name);
+  return m ? m[2] : name;
+};
+console.log('');
+console.log('=== of the 17, which are USED BY A BLOCKED FIGURE (the only ones that can cost a figure) ===');
+let useful = 0;
+for (const { title } of endConflicts) {
+  const users = [...figureStatus].filter(([, s]) => s.calls.some((c) => baseOf(c) === title));
+  const blocked = users.filter(([, s]) => s.stop !== null);
+  if (blocked.length) useful++;
+  console.log(
+    `  ${title.padEnd(24)} used by ${String(users.length).padStart(2)} figure(s), ` +
+      `${String(blocked.length).padStart(2)} of them BLOCKED` +
+      (blocked.length ? `  -> ${blocked.slice(0, 6).map(([id, s]) => `${id}(${s.stop})`).join(' ')}` : ''),
+  );
+}
+console.log(`\n  ${useful} of ${endConflicts.length} are used by a blocked figure - judge THOSE first.`);
+
+// THE DECISIVE TEST, one title at a time: `--flip <Title>` rebuilds the catalogue with THAT title's
+// tam blocks in the opposite order and re-runs the corpus. The pool is highest-level-first and the
+// tie-break is "first registered wins", so reversing a title hands every equal-error tie in it to the
+// LOWEST level - exactly the experiment that found `Circle Left` was worth 2 figures (88 vs 90).
+//
+// One title per run, because the question is per-title and a full-corpus walk is ~60 s.
+const flipIdx = process.argv.indexOf('--flip');
+if (flipIdx >= 0 && process.argv[flipIdx + 1]) {
+  const title = process.argv[flipIdx + 1];
+  const blocksOf = (xml) => xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
+  const flipped = callsByTitle(assets).map(({ name, xml }) =>
+    name === title ? { name, xml: `<calls>${blocksOf(xml).reverse().join('\n')}</calls>` } : { name, xml });
+  const seqFlip = new Sequencer(movesXml, formsXml, flipped);
+  const walk = (s) => {
+    const out = new Map();
+    for (const [id, { calls }] of figureStatus) {
+      let b = s.boardForFormation(ALL8_FIGURE_START);
+      let stop = null;
+      for (const c of calls) {
+        const r = s.applyToBoard(b, c);
+        if (!r.legal) { stop = c; break; }
+        b = r.board;
+      }
+      out.set(id, stop);
+    }
+    return out;
+  };
+  const before = new Map([...figureStatus].map(([id, s]) => [id, s.stop]));
+  const after = walk(seqFlip);
+  const gained = [], lost = [], moved = [];
+  for (const [id, was] of before) {
+    const now = after.get(id);
+    if (was === null && now !== null) lost.push(`${id}(${now})`);
+    else if (was !== null && now === null) gained.push(id);
+    else if (was !== now) moved.push(`${id}: ${was} -> ${now}`);
+  }
+  const ranBefore = [...before.values()].filter((v) => v === null).length;
+  const ranAfter = [...after.values()].filter((v) => v === null).length;
+  console.log(`\n=== --flip "${title}": level order reversed for that title alone ===`);
+  console.log(`  figures running: ${ranBefore} -> ${ranAfter}`);
+  if (gained.length) console.log(`  GAINED (${gained.length}): ${gained.join(' ')}`);
+  if (lost.length) console.log(`  LOST (${lost.length}): ${lost.join(' ')}`);
+  if (moved.length) console.log(`  stopped elsewhere (${moved.length}): ${moved.slice(0, 8).join(' ; ')}`);
+  if (!gained.length && !lost.length && !moved.length) console.log('  no figure changed at all');
 }
 

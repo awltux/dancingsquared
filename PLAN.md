@@ -1712,6 +1712,44 @@ dance is not a conflict.
 one case the plan already measured (88 vs 90 figures). So 16 are unswept, and the next round has a
 17-row list to judge instead of a 231-row question.
 
+**AND THEY ARE NOW ALL JUDGED: THE TIE-BREAK COSTS NOTHING (round 36).** Two screens, both in the same
+tool, and the phase closes negative.
+
+FIRST, a tie-break can only matter where the call is USED, so the 17 were cross-referenced against the
+published corpus. **8 of the 17 are used by at least one BLOCKED figure** — the rest cannot be losing a
+figure because nothing reaches them:
+
+```
+Wheel and Deal       22 figures, 10 BLOCKED     Rollaway        17 figures,  4 BLOCKED
+Partner Trade        12 figures,  4 BLOCKED     Face In          5 figures,  4 BLOCKED
+Circle Left           5 figures,  1 BLOCKED     California Twirl 1 figure,   1 BLOCKED
+Courtesy Turn         1 figure,   1 BLOCKED     Face Right       1 figure,   1 BLOCKED
+```
+
+SECOND, each of those 8 was A/B tested on its own (`--flip <Title>`, which rebuilds the catalogue with
+THAT title's tam blocks reversed and re-runs the whole corpus; the pool is highest-first, so reversing
+hands every equal-error tie in that title to the lowest level):
+
+```
+Circle Left        116 -> 114   LOST 2: figm197(Heads Square Thru 4) figm204(Rollaway)
+Wheel and Deal     116 -> 116   no figure changed at all
+California Twirl   116 -> 116   no change
+Courtesy Turn      116 -> 116   no change
+Face Right         116 -> 116   no change
+Face In            116 -> 116   no change
+Rollaway           116 -> 116   no change
+Partner Trade      116 -> 116   no change
+```
+
+**So exactly ONE of the seventeen is material, and the engine already has it RIGHT**: reversing
+`Circle Left` LOSES the two figures the plan's own 88-vs-90 measurement names, which is that measurement
+reproduced at today's 116 baseline. The other seven are immaterial — the two authorings never both match
+the same board anywhere in the corpus, so the tie never decides an outcome.
+
+**CONCLUSION: the level-ordered tie-break is not costing any figure.** The remaining Phase J item is the
+other half of the bullet — `Circle Left 1/8`, whose residual is 0.448 and whose `display="no"` the
+matcher does not read — and that is a different (setup-precision) question from this one.
+
 ### Phase K — the target suite (the finish line, not a gate)
 
 `npm run verify:figures` is red **by design** and should stay that way until the work is done.

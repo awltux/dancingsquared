@@ -1629,6 +1629,40 @@ missing setups reduce to `Dive Thru`'s (`Pass Thru` is two facing couples, so th
 only the NAME differs) and the two the plan already named: `Dove Thru` from Facing Couples and `Grand
 Square` from Static Square, whose setups are Butterfly | Blocks.
 
+**THE DISPOSITION TABLE (round 40), which is this phase's own gate — "every documented pair is matched
+by a setup, modelled as a derived start, or listed as a justified exception with the definition
+quoted".** Both lists are now short enough to dispose of item by item. The "documented" column IS the
+CALLERLAB text, read by the tool from `callerlab-ms.txt`; the dispositions are grouped, not individually
+adjudicated, and the two that need real work are named:
+
+```
+(B) — a formation the engine HAS, with no setup for it on that call   11 pairs
+  GRANULARITY (8): the doc names a TWO-dancer formation and the engine's cheapest authoring is the
+    four-dancer one, so the call is performable from the documented start but not MATCHABLE from it.
+      Facing Dancers   Box the Gnat, Dosado, Pass Thru, Slide Thru, Star Thru, Swing
+      Alamo Ring       Swing Thru, Left Swing Thru   (engine: Alamo Wave)
+      -> the work is a two-dancer start for `Facing Dancers`, i.e. one modelled START, not a setup
+         per call. `setup-coverage.mjs` is the tool that has to decide the family relationship.
+  NAME DIFFERS (1): Dive Thru — doc "Facing Couples", engine setup `Pass Thru`, which IS two facing
+    couples (formations.xml: -3/+1 facing, -1/-1 facing). Same geometry, different name.
+  GENUINE (1): Grand Square — doc "Static Square", engine setups Butterfly | Blocks. This one is a
+    real missing setup, and the plan has said so since Phase 16b.
+  (1 left: Scoot Back from "1/4 Tag", where the engine has Quarter Tag AND Single Quarter Tag; a
+    spelling question for the same reason as `Single 1/4 Tag` below.)
+
+(C) — formation NAMES the engine has no formation for                       9 names
+  SPELLING of a formation the engine already has (4): Ocean Wave (Ocean Waves), Mini-Wave
+    (Wave RH/LH, Compact Wave), Single 1/4 Tag (Quarter Tag), One-Faced Line (the engine names the
+    two-faced and normal lines; "One-Faced" is the arrangement it does NOT name).
+  GENUINE (4): Couple (6 calls), Facing Tandems, Tandem facing a Couple, Tandem Couples.
+  ARTEFACT (1): `one m an and one w oman` — the PDF's split words with no parens to strip.
+```
+
+**So the honest state of Phase F is: ONE missing setup (`Grand Square`), ONE name mismatch (`Dive Thru`),
+ONE modelled start that would clear eight pairs (`Facing Dancers` as a two-dancer formation), and FOUR
+formation names to add.** That is the whole phase, and it is a bounded authoring job — not the "20
+formation names" the section opened with, which was an instrument artefact three times over.
+
 **THE GATE IS NOW IN PLACE, which is the second half of this phase's closure:** `callerlab-diff.mjs`
 pins four measured numbers exactly — 13 matched, 9 (B) pairs, 18 (C) names, 5 prose — and exits
 non-zero if ANY moves in EITHER direction, so an improvement is re-pinned deliberately with its reason

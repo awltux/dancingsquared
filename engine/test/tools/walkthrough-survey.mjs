@@ -12,17 +12,19 @@
 //
 // Usage: node engine/test/tools/walkthrough-survey.mjs [--min <units>]
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, findCodedMove } from '../../dist/index.js';
+import { Sequencer, setParser, findCodedMove, splitSelection } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
+import { ALL8_FIGURE_START, figureEngineCalls, loadAll8Figures } from '../lib/all8-figures.mjs';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', '..', 'poc', 'src', 'assets');
+const root = path.resolve(here, '..', '..', '..');
+const assets = path.join(root, 'poc', 'src', 'assets');
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),
@@ -128,6 +130,59 @@ const catByCall = new Map();
 for (const h of catHits) catByCall.set(h.call, (catByCall.get(h.call) ?? 0) + 1);
 for (const [call, n] of [...catByCall].sort((a, b) => b[1] - a[1]).slice(0, 10)) {
   console.log(`       ${String(n).padStart(3)}  ${call}`);
+}
+
+// DOES REAL CHOREOGRAPHY USE THE COMBINATION? The survey enumerates every LEGAL (formation, call)
+// pair, and most of those no one ever calls. So the ranking above can be aimed at combinations that
+// never occur - `Right and Left Thru from 3 and 1 lines #1` is the worst case on the list and the
+// corpora use it ZERO times. This walks the ceder module corpus and All8's 188 figures, records the
+// formation standing before each call, and marks the faults accordingly.
+{
+  const used = new Set();
+  const note = (call, fm) => used.add(`${call}\u0000${fm}`);
+  let board = seq.boardForFormation(ALL8_FIGURE_START);
+  if (board) {
+    for (const f of loadAll8Figures().figures) {
+      let b = seq.boardForFormation(ALL8_FIGURE_START);
+      for (const s of figureEngineCalls(f)) {
+        const fm = seq.knownFormation(b);
+        if (fm) note(splitSelection(typeof s === 'string' ? s : s.call).call, fm);
+        const r = seq.applyToBoard(b, s);
+        if (!r.legal) break;
+        b = r.board;
+      }
+    }
+  }
+  const walkDir = (dir) => {
+    for (const e of readdirSync(dir)) {
+      const p = path.join(dir, e);
+      if (statSync(p).isDirectory()) { walkDir(p); continue; }
+      if (!p.endsWith('.json')) continue;
+      let v;
+      try { v = JSON.parse(readFileSync(p, 'utf8')); } catch { continue; }
+      if (!v || !Array.isArray(v.steps) || v.success !== true) continue;
+      if (v.steps.includes('ALLEMANDE_LEFT')) continue;
+      let b = seq.boardForFormation(ALL8_FIGURE_START);
+      for (const s of v.steps) {
+        const fm = seq.knownFormation(b);
+        if (fm) note(splitSelection(typeof s === 'string' ? s : s.call).call, fm);
+        const r = seq.applyToBoard(b, s);
+        if (!r.legal) break;
+        b = r.board;
+      }
+    }
+  };
+  walkDir(path.join(root, 'modules'));
+  const real = hits.filter((h) => used.has(`${h.call}\u0000${h.formation}`));
+  const unused = hits.filter((h) => !used.has(`${h.call}\u0000${h.formation}`));
+  console.log(`\n  COMBINATIONS REAL CHOREOGRAPHY ACTUALLY USES (of the flagged ones): ${real.length}`);
+  console.log(`  flagged but NEVER used by any figure or module:                     ${unused.length}`);
+  if (real.length) {
+    console.log('\n  the ones that matter, worst first:');
+    for (const h of real.slice(0, 15)) {
+      console.log(`    ${h.worst.toFixed(2)} @${h.worstBeat.toFixed(1)}/${h.total.toFixed(1)}b  ${h.call}  from ${h.formation}  (end ${h.endGap.toFixed(2)})`);
+    }
+  }
 }
 
 // THE PERMUTATION STRUCTURE, which decides what kind of routing is needed. A position permutation

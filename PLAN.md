@@ -74,7 +74,7 @@ second one: `process.env` appears in exactly ONE place in the whole engine, and 
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **11 (call, start) pairs + 9 formation names** (was 9 + 24 — THREE instrument bugs, rounds 24, 37/38, 39) | `node engine/test/tools/callerlab-diff.mjs` |
 | gates | `verify:light` green; `verify` green (**22 harnesses, ~1205 s, measured**); `verify:figures` **red by design** | `npm run verify --prefix engine` |
-| walk-through (POC) | COINCIDENT **58**, of which ANIMATION fault **33** / APPLY fault **25** (was 72 / 42 / 30) | `node engine/test/tools/walkthrough-survey.mjs` |
+| walk-through (POC) | COINCIDENT **32**, of which ANIMATION fault **10** / APPLY fault **22** (was 72 / 42 / 30) | `node engine/test/tools/walkthrough-survey.mjs` |
 | … coded calls that applied but animated nothing | **84 → 27** (move, board) pairs; no standard formation among the 27 | `node engine/test/tools/coded-refusal-probe.mjs` |
 
 All three sides above were re-measured again in round 28 and agree with the table exactly: figures
@@ -1907,7 +1907,7 @@ is preserved as its own 2-dancer case (deliberately, so the `Centers` fix could 
 `Very Centers …` asset) and `outside6` follows it; and `Centers In` / `Heads Pass Thru` still refuse
 from `Normal Lines` — a different cause (no matching variant; `couple=0` on an identity-less board).
 
-### The walk-through defect (POC): four mechanisms, two now closed, all measured
+### The walk-through defect (POC): four mechanisms, three now closed, all measured
 
 The POC sequencer animates a call by interpolating from the board before it to the board after it.
 `engine/test/tools/walkthrough-survey.mjs` puts a number on what that gets wrong. It enumerates every
@@ -1923,10 +1923,11 @@ combination, and only then ranks. That filter is what made the target obvious �
 
 | metric | before | after |
 |---|---|---|
-| COINCIDENT pairs (< 0.1 units) | 72 | **58** |
-| … ANIMATION fault (end board healthy) | 42 | **33** |
-| … APPLY fault (end board already broken) | 30 | **25** |
+| COINCIDENT pairs (< 0.1 units) | 72 | **32** |
+| … ANIMATION fault (end board healthy) | 42 | **10** |
+| … APPLY fault (end board already broken) | 30 | **22** |
 | `Swing Thru` animation faults | 12 | **2** |
+| `Right and Left Thru` animation faults | 8 | **0** |
 
 **Mechanism 1 — multi-cycle coded moves, CLOSED for `Swing Thru`.** The call is two EXCHANGES, and a
 dancer's path depends on which one it is doing, so a single straight line cannot express it; on an
@@ -1946,7 +1947,7 @@ which is what the applicator does; **57 of 84** animate, and the animation is fa
 the sequencer stores. The residual **27** are all exotic boards (Diamonds, Hourglass, Stars,
 Misshapen I-Beam, Tidal Wave of 6, 3/4 Tag) where the CATALOGUE also has no variant at walk
 tolerance, so `applyToBoard` calling those LEGAL is the questionable half — a different defect, and
-no standard Mainstream formation is among them.
+no standard Mainstream formation is among them (commit `d33a851`).
 
 **The two metrics in the table moved UP for this fix, and that is the honest direction.** Those
 calls previously animated nothing, so nothing could collide; now they play, and some of them do
@@ -1954,17 +1955,35 @@ collide. The collision was always latent — the end board was already being pro
 invisible. A call the walk-through silently refuses to play is a worse defect than one it plays
 badly, because only the second is diagnosable.
 
-**Mechanism 3 — the parallel path, OPEN, and now the largest single owner.** `Right and Left Thru`
-accounts for **8** of the remaining animation faults. The parallel path partitions the board and runs
-each group with pure-relative motion, then adds a residual `pose(t) = authored(t) + (appliedEnd −
-authoredEnd)·t`; the groups do not know about each other, so two groups can be sent through the same
-point. `Right and Left Thru from Double Pass Thru` is measured at 0.00 at beat 3.0 of 6.0 with an end
-board at a healthy 2.00.
+**Mechanism 3 — the parallel path's grouping, CLOSED, and it was the largest owner.** The animator
+and the applicator each answered "which groups is this call tiled into?" with their own code, and the
+two predicates are not the same: `matchingVariantInfo` requires a FULL tiling, while `parallelApply`
+also accepts `partitionPartial`. `engine/test/tools/parallel-group-probe.mjs` measures the divergence
+at **2 of the 13** survey pairs — both `Right and Left Thru`, and both the worst cases. There the
+applicator had applied the call to ONE group of four and left the other four dancers standing, while
+the animator animated TWO groups of four: the four dancers the call never moves were spun up to 86°
+and dragged 1.2 units out and back, and the four that moved were swept through the centre.
+`ApplyResult.parallel` now carries the variant and grouping the applicator actually used, and the
+animator follows it — **the second implementation is removed rather than kept in step**. That one
+change took `Right and Left Thru` from 8 animation faults to **0**, `Box the Gnat` 6 → 0, and
+`Square Thru 3`, `Zoom`, `Scoot Back`, `Turn Thru`, `Veer Left`, `Veer Right` all to 0.
 
-**Mechanism 4 — the apply side, not an animation fault at all.** **25** pairs whose end board already
+**Mechanism 4 — the apply side, not an animation fault at all.** **22** pairs whose end board already
 has coincident dancers. No interpolation can fix these; they need the call's own body fixed, which is
 census-side work (Phases A/B), not walk-through work. They are counted separately for exactly that
-reason.
+reason, and **every remaining entry on the survey's "worst first" list with a closest pair of 0.00 now
+has a broken END board** — the animation is no longer the thing putting dancers on top of each other.
+
+**A NEW residual, found by the new gate, recorded not papered over: the final-frame jump.** Extending
+`anim-convergence.mjs` from the coded moves to the 111 non-coded calls the corpora use turned up
+**7 (board, call) pairs where the last drawn frame is not the board the call produces** — a jump on
+the final beat, worst **0.1476** units on a lattice that stands 2.00 apart (~7%). Every one is a
+CIRCLE call (`Circle Left`, `Circle Left 1/4`, `Circle Left 3/4`, `Circle Right 3/4`, and
+`Rollaway from Circle`), plus `Lead Right from Eight Chain Thru`, which is one cause or two and is
+the next thing to chase: the frame just before the end disagrees with the board `applyWholeBoard`
+stores, so `poseFor(t, dancerBeats(t))` and whatever places the applied end are not the same pose for
+these variants. Pinned as a LIST in the harness so it can only shrink deliberately. Note the survey
+could not see this class at all — the closest pair stays ~1.9 while a dancer teleports 0.15.
 
 **A model limit, deliberately left.** `Swing Thru` from `Columns` still touches 0.00 at beat 1.5
 (#2/#8). That board's `2+2+2+2` pairs stand 2.0 apart, so their radius-1 semicircles are **tangent**
@@ -2064,9 +2083,9 @@ separation is only the call's scale.
 **DONE: Phase A's head (`Heads Touch 1/4`), Phase E item 2 (the per-couple gender rule) and Phase E
 item 1 (the temporary couple number, +2 figures).** One attempted phase is REFUTED and recorded: the
 swing's local closure end pose (103 → 95). Also DONE, and outside the phase list because it is
-POC-facing rather than census-facing: the walk-through defect's **mechanisms 1 and 2** (the
-parts-based `Swing Thru` animation, and the coded calls that applied but animated nothing). Then, in
-this order:
+POC-facing rather than census-facing: the walk-through defect's **mechanisms 1, 2 and 3** (the
+parts-based `Swing Thru` animation, the coded calls that applied but animated nothing, and the
+parallel grouping the animator re-derived differently from the applicator). Then, in this order:
 
 1. **Phase A's remaining queue** — the body errors the `setup-split.mjs` prefix scan names next
    (`Allemande Left` 3, `Sides Touch 1/4` 2, `Girls Run` 2, `Square Thru 4` 2, `Centers Swing Thru` 2,
@@ -2078,12 +2097,10 @@ this order:
    work is DONE; Phase C's active-set item is the last convention left.
 4. **Phase C** — the two conventions; design before code, both have board-wide blast radius.
 5. **`Swing Your Partner`'s end pose** — needs a corpus- or reference-pinned model, not a local rule.
-6. **The walk-through defect's mechanism 3 (the parallel path)** — `Right and Left Thru` is 8 of the
-   remaining 33 animation faults, and it is the largest single owner now that 1 and 2 are closed. The
-   groups are run with pure-relative motion and then shifted by a residual that does not know where
-   the other groups went, so two groups can be sent through the same point. It is a POC-facing defect
-   (the engine's boards are right; only the frames are wrong), but it is measurable in engine terms
-   with `walkthrough-survey.mjs`.
+6. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
+   plus `Lead Right from Eight Chain Thru`. Small (worst 0.1476 units) but it is a teleport on the
+   last beat, and it names one cause: the pose just before the end is not the pose `applyWholeBoard`
+   stores. Start from `poseFor(t, dancerBeats(t))` versus `endPoses(variant)`.
 7. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
    tie-break sweeps; independent of each other and of the figure work.
 8. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`

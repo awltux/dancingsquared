@@ -41,9 +41,10 @@ const SUITE = [
   { h: 'alignment', light: true },
   // The animation is the ONE consumer of the analyzer that can be wrong while every stored board is
   // right, so no other harness here can see it: a call that applies and animates nothing, or a last
-  // frame that is not the board the call produces, leaves the data untouched. Two defects of exactly
-  // that shape were found by hand during the walk-through work; this pins both. Fast (13s over 2814
-  // pairs), so it belongs in `light`.
+  // frame that is not the board the call produces, leaves the data untouched. Three defects of that
+  // shape were found by hand during the walk-through work - the silent coded call, the parallel
+  // grouping the animator re-derived differently from the applicator, and the final-frame jump - and
+  // this pins all three. 66s over 134 boards x 132 calls (17688 pairs, 1524 of which apply).
   { h: 'anim-convergence', light: true },
   { h: 'all8-formation-map', light: true },
   { h: 'promenade', light: false, why: 'corpus-scale sweep' },

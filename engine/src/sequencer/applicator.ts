@@ -25,6 +25,17 @@ export interface ApplyResult {
   board: Board;
   legal: boolean;
   reason?: string;
+  /**
+   * Set only by the PARALLEL path: the variant it tiled with and the groups it tiled the board
+   * into. The grouping is invisible in the result board - a group that the call does not move ends up
+   * exactly where it started - so the walk-through animator had to re-derive it, and its own
+   * predicate (`matchingVariantInfo`, FULL tilings only) is subtly weaker than this one (which also
+   * accepts `partitionPartial`). MEASURED disagreement on 2 of 13 survey pairs, both `Right and Left
+   * Thru`, where the animator animated TWO groups of four that the applicator had applied as ONE:
+   * the four dancers the call never moves were then spun and dragged out and back. Reporting the
+   * grouping removes the second implementation rather than trying to keep the two in step.
+   */
+  parallel?: { variant: CallBundle; groups: SeqDancer[][] };
 }
 
 /**
@@ -514,7 +525,14 @@ export class CallApplicator {
         // position (the renderer draws view[i] from poses[i]), so a permuted board
         // made the dancers appear to swap places once a subset call completed.
         const movedById = new Map(merged.map((d) => [d.id, d]));
-        return { board: { dancers: board.dancers.map((d) => movedById.get(d.id) ?? d) }, legal: true, error };
+        return {
+          board: { dancers: board.dancers.map((d) => movedById.get(d.id) ?? d) },
+          legal: true,
+          error,
+          // Carry the grouping out so the animator follows the tiling that was APPLIED rather than
+          // re-deriving one. See `ApplyResult.parallel`.
+          parallel: { variant: v, groups },
+        };
       }
     }
     return null;

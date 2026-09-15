@@ -347,6 +347,24 @@ export class SequenceAnalyzer {
   }
 
   /**
+   * The grouping to animate with when the APPLY did not go through `parallelApply`, so it could not
+   * report one. `matchingVariantInfo`'s variant tiled with the same predicate the animator uses here,
+   * so this reproduces the older behaviour exactly for that case.
+   */
+  private animatorGrouping(
+    info: { beats: number; variant: CallBundle | null },
+    board: Board,
+    name: string,
+  ): { groups: SeqDancer[][] } | null {
+    if (!info.variant) return null;
+    const setup = info.variant.dancers.map((d) => this.library.variantMatchable(d));
+    const phys = board.dancers.filter((d) => !d.isGhost);
+    const tol = SEARCH_MATCH_MAX + this.config.matchMargin;
+    const part = this.applicator.partition(setup, phys, tol) ?? this.applicator.partitionPartial(setup, phys, tol);
+    return part ? { groups: part.groups } : null;
+  }
+
+  /**
    * Interpolate a subset/parallel call PER GROUP, following each group's own authored path.
    *
    * WHY NOT A STRAIGHT-LINE BLEND. This used to interpolate every dancer linearly from its start
@@ -374,16 +392,20 @@ export class SequenceAnalyzer {
     const endById = new Map(res.board.dancers.map((d) => [d.id, d]));
 
     const posed = new Map<number, { x: number; y: number; heading: number }>();
-    // The variant `matchingVariantInfo` chose is the one `parallelApply` would too - same catalogue
-    // order, same tiling predicate - so partitioning with it reproduces the grouping that was
-    // APPLIED. The residual below converges on the applied board regardless, so a mismatch here
-    // would cost path fidelity, not correctness.
-    if (info.variant) {
-      const setup = info.variant.dancers.map((d) => this.library.variantMatchable(d));
-      const phys = board.dancers.filter((d) => !d.isGhost);
-      const tol = SEARCH_MATCH_MAX + this.config.matchMargin;
-      const part = this.applicator.partition(setup, phys, tol) ?? this.applicator.partitionPartial(setup, phys, tol);
-      for (const group of part?.groups ?? []) {
+    // THE GROUPING THAT WAS ACTUALLY APPLIED, taken from the apply itself rather than re-derived.
+    // `matchingVariantInfo` answers the same question with a weaker predicate - it wants a FULL
+    // tiling, while `parallelApply` also accepts `partitionPartial` - so the two disagree on 2 of the
+    // 13 pairs `engine/test/tools/parallel-group-probe.mjs` checks, both `Right and Left Thru`. There,
+    // the animator animated two groups of four where the applicator had applied ONE and left the other
+    // four dancers standing; those four were then spun and dragged out and back by the residual.
+    // `ApplyResult.parallel` removes the second implementation instead of keeping two in step.
+    // The fallback below is for the rare apply that succeeds WITHOUT the parallel path (the implicit
+    // adjustment in `applyToBoardInner`), where `info.variant` is still the best available grouping.
+    const applied = res.parallel
+      ? { variant: res.parallel.variant, groups: res.parallel.groups }
+      : this.animatorGrouping(info, board, name);
+    if (applied) {
+      for (const group of applied.groups) {
         const gb: Board = { dancers: group.map((d) => ({ ...d })) };
         // SEARCH tolerance, because that is what `parallelApply`'s own sub-apply uses:
         // `applyToBoardInner(subBoard, callName, [], false, false)` matches at SEARCH_MATCH_MAX when

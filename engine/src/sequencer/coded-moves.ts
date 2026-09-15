@@ -24,7 +24,7 @@ import { isKnownCouple } from './constants.js';
 import { runRule, tradeRule } from './trade-run.js';
 import { foldRule } from './fold.js';
 import { sweepBox, sweepProblem, sweepCollision } from './sweep.js';
-import { swingThru } from './swing-thru.js';
+import { swingThru, swingThruLegs } from './swing-thru.js';
 import { fanTheTop, fanTheTopProblem } from './fan-the-top.js';
 import type { Board } from './types.js';
 
@@ -311,6 +311,19 @@ export interface CodedMove {
    * `SequenceAnalyzer.evaluateCodedAt`, where the linear form made every dancer cut through the
    * middle of the square. */
   ringMove?: boolean;
+  /**
+   * The INTERMEDIATE boards a multi-part coded move passes through, for the ANIMATION only.
+   *
+   * A call composed of parts has a NET position permutation that is an artefact of composing them,
+   * and the animation can only route it well if it is given the parts. `Swing Thru` is the case that
+   * forced this: its net on a wave is two 4-CYCLES, not swaps, so the exchange routing never fired and
+   * two dancers walked the same segment in opposite directions (measured closest pair 0.000). Each
+   * PART is a pair trade, which routes cleanly.
+   *
+   * Returns the boards after each part, ending with the move's own end board, or null when the move
+   * does not apply. Returning null must leave the animation no worse than before.
+   */
+  legs?: (b: Board) => Board[] | null;
 }
 
 const DEFS: {
@@ -323,6 +336,7 @@ const DEFS: {
   boxedBy?: string;
   collisionCheck?: (b: Board) => string | null;
   ringMove?: boolean;
+  legs?: (b: Board) => Board[] | null;
 }[] = [
   // `Join Hands` IS NOT A CALL WITH A BODY, and implementing it as one would be wrong. CALLERLAB
   // uses it only as a PROMPT inside command examples - "From a Squared Set: 'Join Hands, Circle
@@ -470,6 +484,7 @@ const DEFS: {
     beats: SWING_THRU_BEATS,
     precondition: (b) => swingThru(b, false).reason ?? null,
     fn: (b) => swingThru(b, false).board,
+    legs: (b) => swingThruLegs(b, false),
     // PARTIALLY PORTED: the wave and Facing Couples arms are derived and validated, but a board of
     // facing LINES still needs the catalogue (the arm for it is the next step). Measured before this
     // flag existed: without it the derived call refuses those boards and costs 1 figure and 3
@@ -481,6 +496,7 @@ const DEFS: {
     beats: SWING_THRU_BEATS,
     precondition: (b) => swingThru(b, true).reason ?? null,
     fn: (b) => swingThru(b, true).board,
+    legs: (b) => swingThruLegs(b, true),
     catalogueFallback: true,
   },
   // `Fan the Top`: derived because the catalogue's tams are DEMONSTRATIONS (the reference implements
@@ -514,6 +530,7 @@ export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   ...(d.boxedBy ? { boxedBy: d.boxedBy } : {}),
   ...(d.collisionCheck ? { collisionCheck: d.collisionCheck } : {}),
   ...(d.ringMove ? { ringMove: true } : {}),
+  ...(d.legs ? { legs: d.legs } : {}),
 })) as CodedMove[];
 
 /** Canonical display names of the coded moves, in registration order. */

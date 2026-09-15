@@ -95,26 +95,49 @@ export class SequenceAnalyzer {
   }
 
   /**
-   * The board part-way through a coded move. Three kinds, and they interpolate differently.
+   * The board part-way through a coded move.
+   *
+   * A MOVE WITH PARTS is animated PART BY PART, because its NET position permutation is an artefact
+   * of composing them and can be unroutable while every part is easy. `Swing Thru` is the case that
+   * forced this: MEASURED, its net from `Ocean Waves` is two 4-CYCLES, so the exchange routing below
+   * never fired and two dancers walked the same four-unit segment in opposite directions - closest
+   * pair 0.000 at the halfway beat. Each PART is a pair trade, which routes cleanly. The parts come
+   * from the move itself through `CodedMove.legs`, and the beats are split evenly between them.
+   *
+   * A single-segment move is handled by `interpolateSegment`. See there for the three shapes.
+   */
+  private evaluateCodedAt(board: Board, move: CodedMove, localBeat: number): Board {
+    const legs = move.legs ? move.legs(board) : null;
+    if (legs && legs.length > 0) {
+      const legBeats = move.beats / legs.length;
+      const idx = legBeats > 0
+        ? Math.max(0, Math.min(legs.length - 1, Math.floor(localBeat / legBeats)))
+        : legs.length - 1;
+      const from = idx === 0 ? board : legs[idx - 1];
+      const tf = legBeats > 0 ? Math.max(0, Math.min(1, (localBeat - idx * legBeats) / legBeats)) : 1;
+      return this.interpolateSegment(from, legs[idx], tf, false);
+    }
+    const t = Math.max(0, Math.min(1, move.beats > 0 ? localBeat / move.beats : 1));
+    return this.interpolateSegment(board, move.apply(board), t, !!move.ringMove);
+  }
+
+  /**
+   * One segment of a coded move: the board at `t` in [0, 1] between `board` and `end`. Three shapes.
    *
    * A PIVOT (`Face Left`, `U-Turn Back`) moves nobody, so the straight line is degenerate and the
    * only real work is rotating each heading.
    *
-   * AN EXCHANGE (`Swing Thru`, `Touch a Quarter`, `Box the Gnat`, `Scoot Back`...) sends a dancer
-   * where another dancer stands. A straight line puts BOTH of them through the midpoint of their
-   * chord, so they pass through each other. MEASURED by `walkthrough-survey.mjs`: this is the single
-   * largest cause of the walk-through defect - 12 of the 42 (formation, call) pairs whose destination
-   * is sound and which still put two dancers on one spot. The pair is therefore rotated RIGIDLY by
-   * half a turn about its own midpoint, which keeps the two diametrically opposite for the whole
-   * move - their separation never changes - and lands them exactly swapped at t=1. The sweep
-   * direction is chosen so both dancers walk FORWARD, i.e. the tangent agrees with the facing.
+   * AN EXCHANGE (`Touch a Quarter`, `Box the Gnat`, `Scoot Back`, and each PART of `Swing Thru`) sends
+   * a dancer where another dancer stands. A straight line puts BOTH of them through the midpoint of
+   * their chord, so they pass through each other. The pair is therefore rotated RIGIDLY by half a turn
+   * about its own midpoint, which keeps the two diametrically opposite for the whole segment - their
+   * separation never changes - and lands them exactly swapped at t=1. The sweep direction is chosen so
+   * both dancers walk FORWARD, i.e. the tangent agrees with the facing.
    *
    * A RING MOVE (`Promenade` and its fractions) wheels the whole set around the ring, so it is
    * interpolated in POLAR coordinates about the set centre: the radius eases and the angle sweeps.
    */
-  private evaluateCodedAt(board: Board, move: CodedMove, localBeat: number): Board {
-    const t = Math.max(0, Math.min(1, move.beats > 0 ? localBeat / move.beats : 1));
-    const end = move.apply(board);
+  private interpolateSegment(board: Board, end: Board, t: number, ring: boolean): Board {
     const endById = new Map(end.dancers.map((d) => [d.id, d]));
     const phys = board.dancers.filter((d) => !d.isGhost);
     const cx = phys.length ? phys.reduce((s, d) => s + d.x, 0) / phys.length : 0;
@@ -171,7 +194,7 @@ export class SequenceAnalyzer {
           return { ...d, x: mx + r * Math.cos(a), y: my + r * Math.sin(a), heading };
         }
 
-        if (!move.ringMove) return straight(d, e, heading);
+        if (!ring) return straight(d, e, heading);
 
         const rs = Math.hypot(d.x - cx, d.y - cy);
         const re = Math.hypot(e.x - cx, e.y - cy);

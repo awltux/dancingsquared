@@ -127,6 +127,51 @@ function twoTrades(board: Board, first: 'left' | 'right'): Board {
 }
 
 /**
+ * The INTERMEDIATE boards of a Swing Thru: `[after part 1, after part 2]`, or null when neither arm
+ * applies.
+ *
+ * WHY THE ANIMATION NEEDS THEM. A Swing Thru is two trades done in sequence, and its NET position
+ * permutation is what those two compose into - which on a wave is two 4-CYCLES, not a set of swaps.
+ * MEASURED (`swing-thru-anim-probe.mjs`): from `Ocean Waves` the net is `4+4`, so a route that looks
+ * for exchanging pairs never fires, the frames fall back to straight lines, and two dancers traverse
+ * the same four-unit segment in opposite directions - closest pair 0.000 at the halfway beat.
+ *
+ * The net is an artefact of the composition; the DANCE is the two parts, and each part IS a pair
+ * trade that the exchange routing already handles. So the animation is given the parts instead.
+ */
+export function swingThruLegs(board: Board, isLeft = false): Board[] | null {
+  const first: 'left' | 'right' = isLeft ? 'left' : 'right';
+  const second: 'left' | 'right' = isLeft ? 'right' : 'left';
+  // Arm 1, an existing wave.
+  {
+    const touched = new Set<number>();
+    for (const side of ['left', 'right'] as const) for (const [a, b] of handPairs(board, side)) { touched.add(a.id); touched.add(b.id); }
+    if (covers(board, touched)) {
+      const after1 = exchangePairs(board, handPairs(board, first));
+      return [after1, exchangePairs(after1, handPairs(after1, second))];
+    }
+  }
+  // Arm 2, facing couples via the Facing Couples Rule: step into the momentary wave, then the same.
+  const boxes = findBoxes(board);
+  if (boxes.length > 0) {
+    const members = new Set<number>();
+    const waves: D[] = [];
+    for (const box of boxes) {
+      const wave = momentaryWave(box, isLeft);
+      if (!wave) return null;
+      waves.push(...wave);
+      for (const d of box) members.add(d.id);
+    }
+    if (waves.length > 0 && covers(board, members)) {
+      const stepped: Board = { dancers: board.dancers.map((d) => waves.find((w) => w.id === d.id) ?? d) };
+      const after1 = exchangePairs(stepped, handPairs(stepped, first));
+      return [after1, exchangePairs(after1, handPairs(after1, second))];
+    }
+  }
+  return null;
+}
+
+/**
  * A BOX of facing couples: a four-set containing TWO facing pairs (each directly in front of the
  * other) and TWO couple pairs (side by side, facing the same way), disjoint and covering the four.
  * Characterised by that structure rather than by chasing relations, so it cannot half-match.

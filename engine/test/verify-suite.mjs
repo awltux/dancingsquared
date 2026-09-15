@@ -39,13 +39,13 @@ const SUITE = [
   { h: 'features', light: true },
   { h: 'bind-audit', light: true },
   { h: 'alignment', light: true },
-  // The animation is the ONE consumer of the analyzer that can be wrong while every stored board is
-  // right, so no other harness here can see it: a call that applies and animates nothing, or a last
-  // frame that is not the board the call produces, leaves the data untouched. Three defects of that
-  // shape were found by hand during the walk-through work - the silent coded call, the parallel
-  // grouping the animator re-derived differently from the applicator, and the final-frame jump - and
-  // this pins all three. 66s over 134 boards x 132 calls (17688 pairs, 1524 of which apply).
-  { h: 'anim-convergence', light: true },
+  // NOT in `light`, despite being the most valuable harness here: it replays every corpus call on
+  // every named board and measures 110s, which would more than double the tier that exists to be
+  // quick. The animation is the ONE consumer of the analyzer that can be wrong while every stored
+  // board is right, so no other harness can see this class at all - the silent coded call, the
+  // parallel grouping the animator re-derived differently from the applicator, and the final-frame
+  // jump were all found here.
+  { h: 'anim-convergence', light: false, why: 'replays every corpus call on every named board' },
   { h: 'all8-formation-map', light: true },
   { h: 'promenade', light: false, why: 'corpus-scale sweep' },
   { h: 'getout-conformance', light: false, why: 'decodes all 553 published lines' },

@@ -106,24 +106,39 @@ const CONVERGE_TOL = 0.02;
 const nonConvergent = [];
 const jumps = [];        // (A) passed but the last frame does not reach the applied board
 const silent = [];       // applied, moved the dancers, and the walk plays NOTHING
+const phantom = [];      // REFUSED by the applicator, yet the walk charges beats and plays it
+const dropped = [];      // applied, moved the dancers, and the walk plays NOTHING - non-coded
 let played = 0;
 let refused = 0;
 
 for (const { name, b } of boards) {
   for (const call of [...CALLS, ...CORPUS_CALLS].sort()) {
     const r = seq.applyToBoard(b, call);
-    if (!r.legal) { refused++; continue; }
-
     const total = seq.sequenceBeats([call], b);
+    if (!r.legal) {
+      refused++;
+      // (D) THE WALK SHOULD NOT PLAY A CALL THE APPLICATOR REFUSES - it charges beats for motion no
+      // board change accounts for, and `evaluateParallelAt` returns the board UNCHANGED for them, so
+      // a sequence containing one silently stalls. `matchingVariantInfo` partitions at SEARCH
+      // tolerance while `applyToBoardInner` hands `parallelApply` DEFAULT tolerance, so the walk's
+      // predicate is the LOOSER of the two - the opposite direction from the grouping bug. The
+      // population is large and PRE-EXISTING, so the count is pinned rather than fixed here; see
+      // PHANTOM_KNOWN below for why it is not simply tightened.
+      if (total > 0) phantom.push({ board: name, call, total });
+      continue;
+    }
+
     const endWalk = seq.evaluateSequence([call], total, b).board;
 
     if (total <= 0) {
-      // The applicator moved the board but the walk cannot play it. If the walk's own board is the
-      // START board, the call is a silent no-op: legal, and nothing animates it. Only the CODED moves
-      // can be silent this way - an authored call with no matching variant is a known, deliberate
-      // stop (`walkable: false`) that `sequenceBeats` charges 0 and steps past - so the pin below is
-      // restricted to them rather than reporting every unmatched (board, call) pair as a defect.
-      if (findCodedMove(call) && gap(endWalk, b) < 1e-9 && gap(r.board, b) > 1e-9) silent.push({ board: name, call });
+      // The applicator moved the board but the walk cannot play it: a silent no-op.
+      const moved = gap(r.board, b) > 1e-9 && gap(endWalk, b) < 1e-9;
+      if (moved && findCodedMove(call)) silent.push({ board: name, call });
+      // (E) the same thing for an AUTHORED call. It is a different question from (C) - an authored
+      // call with no matching variant is a deliberate `walkable: false` stop, so this is a count to
+      // watch rather than a pin - but if it is non-zero the applicator and the walk disagree about
+      // the same board in the same direction.
+      else if (moved) dropped.push({ board: name, call });
       continue;
     }
     played++;
@@ -140,7 +155,7 @@ for (const { name, b } of boards) {
   }
 }
 
-console.log(`  applied ${played + silent.length}, refused ${refused}; played ${played}`);
+console.log(`  applied ${played + silent.length + dropped.length}, refused ${refused}; played ${played}`);
 console.log(`  (A) the walk finishes where the applicator does: ${played - nonConvergent.length} of ${played} agree`);
 console.log(`  (B) the last drawn frame is within ${CONVERGE_TOL} of the end board: ${played - jumps.length} of ${played} converge`);
 
@@ -240,6 +255,36 @@ if (!sameList) {
 } else {
   console.log(`  (C) silent no-ops: ${silentKeys.length}, exactly as pinned`);
 }
+
+// (D) A PHANTOM: charged beats, refused by the applicator. The walk reports the sequence as taking
+// time that no board change accounts for, and `evaluateParallelAt` returns the board UNCHANGED for
+// those beats, so a sequence containing one silently stalls. Hand-checked rather than inferred -
+// `engine/test/tools/phantom-probe.mjs` shows `Square Thru 4` from `Columns` refusing with "No setup
+// in this call matches the current formation" while `sequenceBeats` charges 10.0.
+//
+// The cause is the same shape as the grouping bug: `matchingVariantInfo` partitions at SEARCH
+// tolerance, while `applyToBoardInner` hands `parallelApply` DEFAULT tolerance, so the walk's
+// predicate is the LOOSER of the two. It is a large, pre-existing population and tightening it moves
+// both the beat counts and which calls the walk stops on, so the count is PINNED here and the fix is
+// left for a deliberate pass with the census re-measured - not slipped into an animation change.
+const PHANTOM_KNOWN = 2466;
+if (phantom.length !== PHANTOM_KNOWN) {
+  bad++;
+  console.log(`\nFAIL: the phantom list changed: measured ${phantom.length}, pinned ${PHANTOM_KNOWN}.`);
+  for (const p of phantom.sort((a, c) => c.total - a.total).slice(0, 25)) {
+    console.log(`  ${p.total.toFixed(1)} beats charged  ${p.call} from ${p.board}`);
+  }
+  if (phantom.length > 25) console.log(`  ... and ${phantom.length - 25} more`);
+} else {
+  console.log(`  (D) calls refused by the applicator but played by the walk: ${phantom.length}, exactly as pinned`);
+}
+
+// (E) REPORTED, NOT GATED. An authored call with no variant matching at walk tolerance is a
+// deliberate `walkable: false` stop, so this is a count to watch rather than a defect to pin. It IS
+// how a whole class would show up, though, so it is printed every run.
+console.log(`  (E) applied but not played, non-coded (the same shape as (C) for authored calls): ${dropped.length}`);
+for (const d of dropped.slice(0, 5)) console.log(`      ${d.call} from ${d.board}`);
+if (dropped.length > 5) console.log(`      ... and ${dropped.length - 5} more`);
 
 if (bad) {
   console.log('\nanim-convergence: FAILED');

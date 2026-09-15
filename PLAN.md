@@ -1990,6 +1990,28 @@ could not see this class at all — the closest pair stays ~1.9 while a dancer t
 and no split into parts separates them. Expressing it would need the two exchanges sequenced in TIME
 within a part, which the leg model does not express. Recorded rather than papered over.
 
+**TWO MORE DISAGREEMENTS, both found by check (D)/(E) of the new gate, both PRE-EXISTING, both
+PINNED rather than fixed.** Widening `anim-convergence.mjs` to the non-coded corpus calls made the
+harness ask the applicator and the walk the same question directly, and they do not always answer
+alike. Both are the same smell as the grouping bug — one question, two implementations — but both sit
+under the CENSUS, not just under the animation, so neither is safe to change inside an
+animation-focussed commit:
+
+- **PHANTOMS: 2466 (board, call) pairs where `applyToBoard` REFUSES the call but `sequenceBeats`
+  charges it beats.** Hand-checked in `engine/test/tools/phantom-probe.mjs`: `Square Thru 4` from
+  `Columns` refuses with *"No setup in this call matches the current formation"* and is still charged
+  **10.0 beats**. `evaluateParallelAt` returns the board unchanged for those beats, so a sequence
+  containing one silently stalls — the caller's beat count and the dancers disagree. Cause:
+  `matchingVariantInfo` partitions at SEARCH tolerance while `applyToBoardInner` hands `parallelApply`
+  DEFAULT tolerance, so the walk's predicate is the LOOSER of the two — the opposite direction from
+  the grouping bug. Tightening it moves beat counts and which calls the walk stops on, so it wants its
+  own pass with the census re-measured.
+- **DROPPED: 400 pairs where the applicator applies a call and moves the dancers but the walk plays
+  nothing.** An authored call with no variant at walk tolerance is a deliberate `walkable: false`
+  stop, so this is `walkable` behaving as designed — but the applicator disagreeing with it 400 times
+  says the tolerance pair should be looked at in the same pass. Reported by the harness every run, not
+  gated.
+
 ### Phase L — PHRASE tams: the catalogue's own model for whole published chains (round 16)
 
 **The finding, and it is a structural one.** `taminations-flutter/`'s XML — and **our own
@@ -2097,13 +2119,18 @@ parallel grouping the animator re-derived differently from the applicator). Then
    work is DONE; Phase C's active-set item is the last convention left.
 4. **Phase C** — the two conventions; design before code, both have board-wide blast radius.
 5. **`Swing Your Partner`'s end pose** — needs a corpus- or reference-pinned model, not a local rule.
-6. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
+6. **The walk/walk agreement pass: the 2466 PHANTOMS and the 400 DROPPED pairs** — see the two
+   mechanisms above. One change should move both: decide what tolerance `matchingVariantInfo` should
+   partition at, given that `applyToBoardInner` hands `parallelApply` DEFAULT and only the per-GROUP
+   sub-apply uses SEARCH. This one touches beat counts, so re-measure the census, the get-out corpus
+   and the FSM either side of it rather than only the gates.
+7. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
    plus `Lead Right from Eight Chain Thru`. Small (worst 0.1476 units) but it is a teleport on the
    last beat, and it names one cause: the pose just before the end is not the pose `applyWholeBoard`
    stores. Start from `poseFor(t, dancerBeats(t))` versus `endPoses(variant)`.
-7. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
+8. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
    tie-break sweeps; independent of each other and of the figure work.
-8. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
+9. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
    chains, but it is a new mechanism (what is a call?) rather than a fix, and it should be designed
    against a second witness before any code. Its cheap half is the decoder side — the 4 unread cells
    (`figm75 --1/2`, `figm170 S-`, `figm184 --Keep`, `figm226 H-meet-T1/4`) are Phase I work and two of

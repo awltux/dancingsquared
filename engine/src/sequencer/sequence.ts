@@ -256,8 +256,10 @@ export class SequenceAnalyzer {
    * keeps `walkable` per step and the consumers apply their own rule to it, rather than the walk
    * pretending the two are the same. Anything else would silently change one of them.
    *
-   * It records to the END of `flat` unless a coded move's precondition fails, which stops BOTH
-   * consumers and therefore stops the recording.
+   * It records to the END of `flat` unless a coded move's precondition fails WITHOUT a catalogue
+   * fallback, which stops BOTH consumers and therefore stops the recording. A refusal that the move
+   * overrides with `catalogueFallback` is recorded as an ordinary catalogue step instead, because
+   * that is how the applicator reads it.
    */
   private replayWalk(flat: (string | CallStep)[], startBoard?: Board): ReplayStep[] {
     const start = this.replayStart(startBoard);
@@ -271,11 +273,23 @@ export class SequenceAnalyzer {
       const coded = findCodedMove(name);
       if (coded) {
         const ok = codedMoveApplies(coded, board);
-        const after = ok ? coded.apply(board) : board;
-        steps.push({ raw, name, coded, info: null, before: board, after, beats: ok ? coded.beats : 0, walkable: ok });
-        if (!ok) break;
-        board = after;
-        continue;
+        if (ok) {
+          const after = coded.apply(board);
+          steps.push({ raw, name, coded, info: null, before: board, after, beats: coded.beats, walkable: true });
+          board = after;
+          continue;
+        }
+        if (!coded.catalogueFallback) {
+          steps.push({ raw, name, coded, info: null, before: board, after: board, beats: 0, walkable: false });
+          break;
+        }
+        // Refused by the derived rule, but the move declares a catalogue fallback - which means the
+        // APPLICATOR applies it from the catalogue anyway (`sequencer.tryCodedMove` returns null and
+        // `applyWholeBoard` reads the authored variant). The walk has to agree with the applicator or
+        // the call is legal, moves the dancers, and animates nothing: measured on 84 (move, board)
+        // pairs by `engine/test/tools/coded-refusal-probe.mjs`, including `Swing Thru` from
+        // `Normal Lines`, which real choreography calls. So fall through to the catalogue step below,
+        // with `coded: null`, and let it read the same variant the applicator did.
       }
       const info = this.matchingVariantInfo(board, name);
       const r = this.applicator.applyToBoard(board, raw);

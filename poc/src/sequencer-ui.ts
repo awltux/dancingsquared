@@ -17,7 +17,7 @@ export interface SequencerUI {
   setActive(active: boolean): void;
   render(): void;
   /** Load a named sequence whole and park the playhead at its first step that plays `atCall`. */
-  openSequence(steps: (string | CallStep)[], atCall?: string): void;
+  openSequence(steps: (string | CallStep)[], atCall?: string, startFormation?: string): void;
 }
 
 const MS_PER_BEAT = 500;
@@ -569,7 +569,7 @@ export class SequencerController implements SequencerUI {
    * context before and after it, which is the point of opening it rather than jumping to a board -
    * and then `seekTo` moves the playhead to where that call starts, so the animation is already at
    * the right place to press Play. */
-  openSequence(steps: (string | CallStep)[], atCall?: string) {
+  openSequence(steps: (string | CallStep)[], atCall?: string, startFormation?: string) {
     this.playing = false;
     this.playBtn.textContent = '▶ Play';
     // A module is a sequence in its own right, not a continuation of whatever board was up, so it
@@ -587,9 +587,17 @@ export class SequencerController implements SequencerUI {
     this.syncAnimation();
     const idx = atCall === undefined ? -1 : this.history.findIndex((s) => callKey(s) === callKey(atCall));
     if (idx >= 0) this.seekTo(idx);
-    this.statusEl.textContent = refused
-      ? `loaded ${this.history.length} call(s), ${refused} refused from home`
-      : `loaded ${this.history.length} call(s)`;
+    // SAY WHEN THE START BOARD IS WRONG. The corpus records where each module was written to begin
+    // (137 Static Square / 108 Zero Line / 71 Zero Box), and this view always replays from home - so
+    // 168 of the 294 corpus modules are danced from a formation they were not written for, and a
+    // refusal below is a consequence of that rather than of the calls. Reporting it is the difference
+    // between "this sequence is broken" and "this sequence starts elsewhere".
+    const away = startFormation && !/^\s*(static square|squared set)\s*$/i.test(startFormation);
+    this.statusEl.textContent = [
+      `loaded ${this.history.length} call(s)`,
+      away ? `written for a "${startFormation}" start, replayed from home` : '',
+      refused ? `${refused} refused` : '',
+    ].filter(Boolean).join(', ');
   }
 
   /** Move the playhead to the START of history step `idx`.

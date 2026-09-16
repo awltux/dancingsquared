@@ -201,44 +201,12 @@ if (jumpKeys.length !== jumpKnown.length || !jumpKeys.every((k, i) => k === jump
   console.log(`  (B) final-frame jumps over ${JUMP_TOL}: ${jumpKeys.length}, exactly as pinned (worst ${worst.toFixed(4)})`);
 }
 
-// (C) NO SILENT NO-OPS, pinned as a LIST rather than a count so a swap cannot hide a fix. The
-// residual is the APPLICATOR being permissive on boards the catalogue cannot read at all - Diamonds,
-// Hourglass, Stars, Misshapen I-Beam, Tidal Wave of 6, Quarter H, 3/4 Tag - which is a different
-// defect from an animation fault: there is no variant for the walk to draw, so the applicator
-// claiming LEGAL is the questionable half. No standard Mainstream formation appears below.
-//
-// The list was 84 before `replayWalk` learned the `catalogueFallback` rule the applicator already
-// had. Two names that LEFT it are the ones worth remembering, because both are real choreography:
-// `Swing Thru` from `Normal Lines` and `Fan the Top` from `Normal Lines`.
-const SILENT_KNOWN = [
-  '3/4 Tag\u0000Left Swing Thru',
-  '3/4 Tag\u0000Swing Thru',
-  'Butterfly In\u0000Fan the Top',
-  'Butterfly Trade By\u0000Fan the Top',
-  'Concentric Diamonds Mixed\u0000Fan the Top',
-  'Concentric Diamonds RH\u0000Fan the Top',
-  'Diamonds\u0000Left Swing Thru',
-  'Diamonds\u0000Swing Thru',
-  'Diamonds 3 and 1 Girl Points\u0000Left Swing Thru',
-  'Diamonds 3 and 1 Girl Points\u0000Swing Thru',
-  'Diamonds LH Girl Points\u0000Left Swing Thru',
-  'Diamonds LH Girl Points\u0000Swing Thru',
-  'Hourglass Facing LH Box\u0000Fan the Top',
-  'Hourglass Facing RH Box\u0000Fan the Top',
-  'Hourglass LH BP\u0000Fan the Top',
-  'Hourglass RH BP\u0000Fan the Top',
-  'Misshapen I-Beam\u0000Fan the Top',
-  'Misshapen I-Beam\u0000Left Swing Thru',
-  'Misshapen I-Beam\u0000Swing Thru',
-  'Quarter H\u0000Fan the Top',
-  'Quarter H\u0000Left Swing Thru',
-  'Quarter H\u0000Swing Thru',
-  'Stars LH\u0000Fan the Top',
-  'Stars RH\u0000Fan the Top',
-  'Tidal Wave of 6\u0000Fan the Top',
-  'Tidal Wave of 6\u0000Left Swing Thru',
-  'Tidal Wave of 6\u0000Swing Thru',
-];
+// (C) NO SILENT NO-OPS. This was a list of 27, every one a coded move that the applicator applied (via
+// `catalogueFallback`) on a board where `matchingVariantInfo` could find no FULL tiling - so the walk
+// charged 0 beats and nothing animated. When `matchingVariantInfo` was given `parallelApply`'s own
+// predicate (`partition ?? partitionPartial`, at DEFAULT) the list went to ZERO: all 27 animate now.
+// An EMPTY pin is the point of keeping it - it is the gate that says they cannot come back.
+const SILENT_KNOWN = [];
 const silentKeys = silent.map((s) => `${s.board}\u0000${s.call}`).sort();
 const knownKeys = [...SILENT_KNOWN].sort();
 const sameList = silentKeys.length === knownKeys.length && silentKeys.every((k, i) => k === knownKeys[i]);
@@ -260,14 +228,15 @@ if (!sameList) {
 // time that no board change accounts for, and `evaluateParallelAt` returns the board UNCHANGED for
 // those beats, so a sequence containing one silently stalls. Hand-checked rather than inferred -
 // `engine/test/tools/phantom-probe.mjs` shows `Square Thru 4` from `Columns` refusing with "No setup
-// in this call matches the current formation" while `sequenceBeats` charges 10.0.
+// in this call matches the current formation" while `sequenceBeats` charged 10.0.
 //
-// The cause is the same shape as the grouping bug: `matchingVariantInfo` partitions at SEARCH
-// tolerance, while `applyToBoardInner` hands `parallelApply` DEFAULT tolerance, so the walk's
-// predicate is the LOOSER of the two. It is a large, pre-existing population and tightening it moves
-// both the beat counts and which calls the walk stops on, so the count is PINNED here and the fix is
-// left for a deliberate pass with the census re-measured - not slipped into an animation change.
-const PHANTOM_KNOWN = 2466;
+// The cause was the same shape as the grouping bug: `matchingVariantInfo` asked `partitionExists`
+// (FULL tilings only) at SEARCH, while `applyToBoardInner` hands `parallelApply`
+// `partition ?? partitionPartial` at DEFAULT. Aligning them took this from **2466 to 11**, and the
+// 11 that remain are accounts of the ONE difference left: `parallelApply` also requires every
+// SUB-APPLY to succeed, which `matchingVariantInfo` cannot cheaply check. All 11 are `Box the Gnat`
+// or `Slide Thru` on Galaxy/Diamond/Star boards - no standard formation.
+const PHANTOM_KNOWN = 11;
 if (phantom.length !== PHANTOM_KNOWN) {
   bad++;
   console.log(`\nFAIL: the phantom list changed: measured ${phantom.length}, pinned ${PHANTOM_KNOWN}.`);
@@ -279,12 +248,19 @@ if (phantom.length !== PHANTOM_KNOWN) {
   console.log(`  (D) calls refused by the applicator but played by the walk: ${phantom.length}, exactly as pinned`);
 }
 
-// (E) REPORTED, NOT GATED. An authored call with no variant matching at walk tolerance is a
-// deliberate `walkable: false` stop, so this is a count to watch rather than a defect to pin. It IS
-// how a whole class would show up, though, so it is printed every run.
-console.log(`  (E) applied but not played, non-coded (the same shape as (C) for authored calls): ${dropped.length}`);
-for (const d of dropped.slice(0, 5)) console.log(`      ${d.call} from ${d.board}`);
-if (dropped.length > 5) console.log(`      ... and ${dropped.length - 5} more`);
+// (E) APPLIED BY THE APPLICATOR, NOT PLAYED BY THE WALK - the authored-call half of (C). An authored
+// call with no variant at walk tolerance is a deliberate `walkable: false` stop, so this is not a
+// defect in itself; but the applicator disagreeing with it IS, in the same direction as (C). The
+// predicate alignment took it from **400 to 6**, all of them `Circulate 2` on a promenade or
+// double-pass-thru board, so it is now small enough to PIN and stop drifting.
+const DROPPED_KNOWN = 6;
+if (dropped.length !== DROPPED_KNOWN) {
+  bad++;
+  console.log(`\nFAIL: the applied-but-not-played list changed: measured ${dropped.length}, pinned ${DROPPED_KNOWN}.`);
+  for (const d of dropped.sort((a, c) => a.call.localeCompare(c.call))) console.log(`  ${d.call} from ${d.board}`);
+} else {
+  console.log(`  (E) applied but not played, non-coded: ${dropped.length}, exactly as pinned`);
+}
 
 if (bad) {
   console.log('\nanim-convergence: FAILED');

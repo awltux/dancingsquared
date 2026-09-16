@@ -18,6 +18,20 @@ export interface NamedSequence {
   name: string;
   steps: (string | CallStep)[];
   source: 'ceder' | 'saved';
+  /**
+   * The formation the CORPUS says this module was written for, when it is not home.
+   *
+   * This matters and was being dropped. The corpus splits 137 Static Square / 108 Zero Line /
+   * 71 Zero Box, so **168 of the 294 modules the app offers** were written for a start that is not
+   * home; a module written for a Zero Line replayed from a Static Square does not dance the same
+   * calls - `ceder-7046` gets as far as its fourth step and then `Right and Left Grand` refuses,
+   * because `Swing Thru` from the `Double Pass Thru` a square reaches is not the call the module
+   * means. The engine has no formation by either of those names today
+   * (`engine/test/tools/start-formation-probe.mjs`, which also measures what they map to), so the
+   * app cannot simply start there - but it can stop pretending the module begins at home.
+   */
+  startFormation?: string;
+  endFormation?: string;
 }
 
 /** The shape the sequencer persists: `Module` from the engine, narrowed to what is read here. */
@@ -44,8 +58,24 @@ export function savedModules(): NamedSequence[] {
 
 /** Every named sequence the app knows, ceder corpus first then the caller's own. */
 export function allModules(): NamedSequence[] {
-  const ceder = validCederModules().map((m) => ({ name: m.name, steps: m.steps, source: 'ceder' as const }));
+  const ceder = validCederModules().map((m) => ({
+    name: m.name,
+    steps: m.steps,
+    source: 'ceder' as const,
+    startFormation: m.startFormation,
+    endFormation: m.endFormation,
+  }));
   return [...ceder, ...savedModules()];
+}
+
+/**
+ * Whether this sequence is written to begin somewhere other than the home square, which is where the
+ * sequencer will actually start it. True means the replay is an approximation of the module, not the
+ * module - see `NamedSequence.startFormation`.
+ */
+export function startsAwayFromHome(seq: NamedSequence): boolean {
+  const f = seq.startFormation?.trim().toLowerCase();
+  return !!f && f !== 'static square' && f !== 'squared set';
 }
 
 /**

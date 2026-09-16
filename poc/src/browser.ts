@@ -9,15 +9,17 @@ import { allPoses, sampleTrail, computeHandholds, assignHomeIdentity } from 'dan
 import type { HeadingMode, HoldMode, CallBundle, CallStep, Pose } from 'dancing-squared-engine';
 import { availableCalls, loadCall } from './data';
 import type { CallInfo } from './data';
-import { modulesUsing } from './modules';
+import { modulesUsing, startsAwayFromHome } from './modules';
 import { DancerView, buildHandConnectors } from './scene';
 import type { Stage } from './scene';
 import { Player } from './player';
 
 /** What the browse view needs from the rest of the app. */
 export interface BrowserHost {
-  /** Open the SEQUENCE view with `steps` loaded and the playhead at the first step playing `atCall`. */
-  openSequence(steps: (string | CallStep)[], atCall: string): void;
+  /** Open the SEQUENCE view with `steps` loaded, the playhead at the first step playing `atCall`,
+   * and `startFormation` naming where the corpus says the module begins when that is not home (so
+   * the sequence view can say its replay is an approximation). */
+  openSequence(steps: (string | CallStep)[], atCall: string, startFormation?: string): void;
 }
 
 /** How many "used by" entries the browse panel lists before summarising the rest. */
@@ -170,15 +172,26 @@ export class CallBrowser {
     const shown = uses.slice(0, USES_SHOWN);
     this.usesEl.innerHTML =
       `<div class="small"><b>Used by ${uses.length} module${uses.length === 1 ? '' : 's'}:</b></div>` +
-      shown.map((u, i) =>
-        `<div class="row"><button data-use="${i}" title="Open the sequence view at this call">open</button>` +
-        `<span class="part">${esc(u.seq.name)} <i>(call ${u.index + 1} of ${u.seq.steps.length}${u.seq.source === 'saved' ? ', saved' : ''})</i></span></div>`,
-      ).join('') +
+      shown.map((u, i) => {
+        // Say where the module START is when it is not the home square. The sequence view replays
+        // every module from home, so 168 of the 294 corpus modules are danced from a board they were
+        // not written for - which is the whole difference between "this sequence is broken" and "this
+        // sequence starts elsewhere". One word here saves that investigation.
+        const away = startsAwayFromHome(u.seq);
+        const where = away ? `, from ${esc(u.seq.startFormation ?? '')}` : '';
+        return `<div class="row"><button data-use="${i}" title="Open the sequence view at this call">open</button>` +
+          `<span class="part">${esc(u.seq.name)} <i>(call ${u.index + 1} of ${u.seq.steps.length}${u.seq.source === 'saved' ? ', saved' : ''}${where})</i></span></div>`;
+      }).join('') +
       (uses.length > shown.length ? `<div class="small"><i>… and ${uses.length - shown.length} more</i></div>` : '');
+    if (shown.some((u) => startsAwayFromHome(u.seq))) {
+      this.usesEl.innerHTML +=
+        `<div class="small"><i>"from X" marks a module the corpus wrote for a formation other than ` +
+        `home; the sequence view always replays from home, so those will not run as published.</i></div>`;
+    }
     for (const btn of this.usesEl.querySelectorAll<HTMLButtonElement>('button[data-use]')) {
       btn.addEventListener('click', () => {
         const u = shown[Number(btn.dataset.use)];
-        if (u) this.host.openSequence(u.seq.steps, c.title);
+        if (u) this.host.openSequence(u.seq.steps, c.title, u.seq.startFormation);
       });
     }
   }

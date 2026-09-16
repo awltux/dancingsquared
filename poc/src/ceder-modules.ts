@@ -29,16 +29,32 @@ const modules: Record<string, CederModule> = import.meta.glob<CederModule>(
   { eager: true, import: 'default' },
 );
 
-/** The replayable ceder modules, as { name, steps } ready for registerModule. */
-export function validCederModules(): { name: string; steps: (string | CallStep)[] }[] {
-  const out: { name: string; steps: (string | CallStep)[] }[] = [];
+/** The replayable ceder modules, ready for registerModule. */
+export function validCederModules(): CederModuleRef[] {
+  const out: CederModuleRef[] = [];
   for (const value of Object.values(modules)) {
     if (!value || !Array.isArray(value.steps)) continue;
     if (value.success !== true) continue;
     if (value.steps.includes('ALLEMANDE_LEFT')) continue;
-    out.push({ name: value.name || `ceder-${value.id}`, steps: value.steps });
+    // `startFormation` is carried through rather than dropped: 168 of the 294 corpus modules the app
+    // offers were written for a Zero Line or a Zero Box, and replaying one from the home square is a
+    // different dance. See `NamedSequence.startFormation` for what that costs.
+    out.push({
+      name: value.name || `ceder-${value.id}`,
+      steps: value.steps,
+      startFormation: value.startFormation,
+      endFormation: value.endFormation,
+    });
   }
   // Stable ordering so the picker list is deterministic.
   out.sort((a, b) => a.name.localeCompare(b.name));
   return out;
+}
+
+/** What `validCederModules` hands the app: the steps plus the corpus's own formation labels. */
+export interface CederModuleRef {
+  name: string;
+  steps: (string | CallStep)[];
+  startFormation?: string;
+  endFormation?: string;
 }

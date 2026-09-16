@@ -222,7 +222,18 @@ export class SequenceAnalyzer {
   ): { beats: number; variant: CallBundle | null } | null {
     const m = this.matcher.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
     if (m) return { beats: Math.max(...m.variant.dancers.map((d) => dancerBeats(d))), variant: m.variant };
-    const tol = SEARCH_MATCH_MAX + this.config.matchMargin;
+    // THE SAME PREDICATE `parallelApply` USES, because the two disagreeing is what makes a call
+    // "apply but not exist". `parallelApply` takes `partition(...) ?? partitionPartial(...)` at the
+    // tolerance `applyToBoardInner` hands it - DEFAULT when re-basing, which is what `replayWalk`
+    // does. This used to ask `partitionExists` (FULL tilings only) at SEARCH, and there are boards
+    // where NO variant tiles FULLY while one tiles PARTIALLY.
+    //
+    // MEASURED on ceder-7046: `Swing Thru` from the `Double Pass Thru` the module reaches is applied
+    // by variant #10 through `partitionPartial(DEFAULT)`; no variant tiles fully at SEARCH, so the
+    // walk charged the call 0 beats and `evaluateSequence` then aborted - returning the board BEFORE
+    // the call, which is the reported "last frame jumps the board back". See
+    // `engine/test/tools/7046-swing-thru-probe.mjs`.
+    const tol = DEFAULT_MATCH_MAX + this.config.matchMargin;
     const variants = this.library.matchableVariants(name);
     {
       const phys = board.dancers.filter((d) => !d.isGhost);
@@ -231,9 +242,9 @@ export class SequenceAnalyzer {
         const setup = v.dancers.map((d) => this.library.variantMatchable(d));
         const k = setup.length;
         if (k <= 1 || k >= n || n % k !== 0) continue;
-        if (this.applicator.partitionExists(setup, phys, tol)) {
-          return { beats: Math.max(...v.dancers.map((d) => dancerBeats(d))), variant: v };
-        }
+        const part = this.applicator.partition(setup, phys, tol)
+          ?? this.applicator.partitionPartial(setup, phys, tol);
+        if (part) return { beats: Math.max(...v.dancers.map((d) => dancerBeats(d))), variant: v };
       }
     }
     return null;

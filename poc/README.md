@@ -45,6 +45,15 @@ A call is matched on its FULL name, selection included: browsing `Heads Pass Thr
 lists the modules that actually dance it scoped, not the far more numerous ones
 that dance bare `Pass Thru`.
 
+The corpus records where each module was written to begin, and **168 of the 294
+modules it offers start somewhere other than home** (108 from a Zero Line, 71 from
+a Zero Box). Sequencer mode always replays from home, and the engine has no
+formation by either of those names, so those modules are not danced as published.
+The list therefore says `from Zero Line` next to any module whose start is not
+home, and the Sequencer's status line repeats it on load — `written for a "Zero
+Line" start, replayed from home`. That is the difference between *this sequence is
+broken* and *this sequence starts elsewhere*.
+
 ## Sequencer mode
 
 Switch the **Mode** dropdown to **Sequencer** to build and validate a call

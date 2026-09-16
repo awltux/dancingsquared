@@ -41,10 +41,10 @@ const player = new Player({ speed: speedMul });
 // The browse view can hand a named sequence to the sequence view. `seqUi` and `applyMode` are
 // declared below, which is fine: this is a closure, so they are read when the button is CLICKED.
 const browser = new CallBrowser(stage, player, {
-  openSequence: (steps, atCall) => {
+  openSequence: (steps, atCall, startFormation) => {
     modeSelect.value = 'sequence';
     applyMode();
-    seqUi.openSequence(steps, atCall);
+    seqUi.openSequence(steps, atCall, startFormation);
   },
 });
 const seqUi = initSequencer(stage);

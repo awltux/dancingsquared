@@ -73,9 +73,10 @@ second one: `process.env` appears in exactly ONE place in the whole engine, and 
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **11 (call, start) pairs + 9 formation names** (was 9 + 24 — THREE instrument bugs, rounds 24, 37/38, 39) | `node engine/test/tools/callerlab-diff.mjs` |
-| gates | `verify:light` green; `verify` green (**22 harnesses, ~1205 s, measured**); `verify:figures` **red by design** | `npm run verify --prefix engine` |
+| gates | `verify:light` green; `verify` green (**23 harnesses, ~1400 s, measured**); `verify:figures` **red by design** | `npm run verify --prefix engine` |
 | walk-through (POC) | COINCIDENT **32**, of which ANIMATION fault **10** / APPLY fault **22** (was 72 / 42 / 30) | `node engine/test/tools/walkthrough-survey.mjs` |
-| … coded calls that applied but animated nothing | **84 → 27** (move, board) pairs; no standard formation among the 27 | `node engine/test/tools/coded-refusal-probe.mjs` |
+| … walk vs applicator, over 134 boards × 132 calls | agree **1920 of 1920**; silent no-ops **0**; phantoms **11**; dropped **6** (were 27 / 2466 / 400) | `node engine/test/anim-convergence.mjs` |
+| … ceder modules replayed from a start formation the corpus did not specify | **168 of 294** (Zero Line 108, Zero Box 71); the engine has neither formation | `node engine/test/tools/start-formation-probe.mjs` |
 
 All three sides above were re-measured again in round 28 and agree with the table exactly: figures
 **116 of 188** (also confirmed independently by `fsm-getout-audit.mjs`), FSM **155 / 92 / 43 / 19**, and
@@ -1907,7 +1908,7 @@ is preserved as its own 2-dancer case (deliberately, so the `Centers` fix could 
 `Very Centers …` asset) and `outside6` follows it; and `Centers In` / `Heads Pass Thru` still refuse
 from `Normal Lines` — a different cause (no matching variant; `couple=0` on an identity-less board).
 
-### The walk-through defect (POC): four mechanisms, three now closed, all measured
+### The walk-through defect (POC): five mechanisms, four now closed, all measured
 
 The POC sequencer animates a call by interpolating from the board before it to the board after it.
 `engine/test/tools/walkthrough-survey.mjs` puts a number on what that gets wrong. It enumerates every
@@ -1974,7 +1975,49 @@ census-side work (Phases A/B), not walk-through work. They are counted separatel
 reason, and **every remaining entry on the survey's "worst first" list with a closest pair of 0.00 now
 has a broken END board** — the animation is no longer the thing putting dancers on top of each other.
 
-**A NEW residual, found by the new gate, recorded not papered over: the final-frame jump.** Extending
+**Mechanism 5 — the walk's own predicate, CLOSED, and it was the largest of all.** The (D)/(E)
+disagreements recorded below were one bug, and it turned out to be worth finding: for a call with no
+whole-board match, `matchingVariantInfo` asked `partitionExists` — **FULL tilings only, at SEARCH** —
+while `applyToBoardInner` hands `parallelApply` **`partition ?? partitionPartial`, at DEFAULT**. There
+are boards where NO variant tiles fully while one tiles partially, and on those the walk charged the
+call **0 beats** and then `evaluateSequence` aborted the whole animation and returned the board BEFORE
+that call. Aligning the predicate to `parallelApply`'s:
+
+```
+(C) silent no-ops        27 -> 0        (E) applied but not played   400 -> 6
+(D) phantoms           2466 -> 11        calls the walk plays       1497 -> 1920
+```
+
+It also fixed a REPORTED POC BUG end-to-end: `ceder-7046`'s fourth call, `Swing Thru`, is applied by
+the applicator through variant #10's `partitionPartial(DEFAULT)` on the `Double Pass Thru` the module
+reaches, and had been charged 0 beats — so the walk-through aborted there and snapped the board back to
+`Double Pass Thru`. `sequenceBeats` for that module went **24.5 → 33.5** and the animation now ends on
+the board the stored walk reaches. See `engine/test/tools/7046-swing-thru-probe.mjs`.
+
+**The census does NOT move for any of this**, which was the reason to fix it rather than pin it:
+`applyToBoard` decides the boards, `sequenceBeats` only decides the frames. Re-measured after the
+change — figures **116 of 188**, get-out **124 of 265** (112 finishing), FSM **155 / 92 / 43 / 19** —
+all identical. The three remaining pinned populations are now accounts of one thing only:
+`parallelApply` ALSO requires every sub-apply to succeed, which `matchingVariantInfo` cannot cheaply
+check, and the 11 + 6 survivors are that gap on Galaxy/Diamond/Star/Star-Promenade boards.
+
+**A REPORTED POC BUG THAT IS NOT A BODY BUG: modules replayed from the wrong start formation.**
+`ceder-7046` is `startFormation: "Zero Line"`, and **the engine has no such formation**
+(`boardForFormation("Zero Line")` is null; `formations.xml` has `Zero Box`, but only as a 4-dancer
+entry). The corpus splits **137 Static Square / 108 Zero Line / 71 Zero Box**, and
+`poc/src/ceder-modules.ts` was throwing that field away, so the sequence view replays **168 of the 294
+modules it offers** from the home square regardless. From `Static Square` ceder-7046 gets through four
+calls and then `Right and Left Grand` refuses — which is what the user saw as "the dancers wander off
+into an unknown formation", the unknown formation being the `T-Bone RDRD` that `Swing Thru` produces
+from a board that is geometrically a `Double Pass Thru` but is not where the module means to be. From
+`Normal Lines` the same five steps run 5/5. The POC now carries the label and says so in both the
+browse list and the loaded status; **the real fix is a formation-vocabulary job** —
+`engine/test/tools/start-formation-probe.mjs` measures what `Zero Line` and `Zero Box` map to and does
+NOT support assuming `Normal Lines` (only 6 of 25 Zero Line modules run from it, against 9 of 25 Static
+Square modules from `Static Square` — so the corpus is not yet replayable well enough for the mapping
+to be readable off the data).
+
+**A residual, found by the new gate, recorded not papered over: the final-frame jump.** Extending
 `anim-convergence.mjs` from the coded moves to the 111 non-coded calls the corpora use turned up
 **7 (board, call) pairs where the last drawn frame is not the board the call produces** — a jump on
 the final beat, worst **0.1476** units on a lattice that stands 2.00 apart (~7%). Every one is a
@@ -1990,27 +2033,23 @@ could not see this class at all — the closest pair stays ~1.9 while a dancer t
 and no split into parts separates them. Expressing it would need the two exchanges sequenced in TIME
 within a part, which the leg model does not express. Recorded rather than papered over.
 
-**TWO MORE DISAGREEMENTS, both found by check (D)/(E) of the new gate, both PRE-EXISTING, both
-PINNED rather than fixed.** Widening `anim-convergence.mjs` to the non-coded corpus calls made the
-harness ask the applicator and the walk the same question directly, and they do not always answer
-alike. Both are the same smell as the grouping bug — one question, two implementations — but both sit
-under the CENSUS, not just under the animation, so neither is safe to change inside an
-animation-focussed commit:
+**TWO MORE DISAGREEMENTS, both found by check (D)/(E) of the new gate, and BOTH NOW CLOSED.** Widening
+`anim-convergence.mjs` to the non-coded corpus calls made the harness ask the applicator and the walk
+the same question directly, and they did not always answer alike. Both were the same smell — one
+question, two implementations — and Mechanism 5 above is the fix:
 
-- **PHANTOMS: 2466 (board, call) pairs where `applyToBoard` REFUSES the call but `sequenceBeats`
-  charges it beats.** Hand-checked in `engine/test/tools/phantom-probe.mjs`: `Square Thru 4` from
-  `Columns` refuses with *"No setup in this call matches the current formation"* and is still charged
-  **10.0 beats**. `evaluateParallelAt` returns the board unchanged for those beats, so a sequence
-  containing one silently stalls — the caller's beat count and the dancers disagree. Cause:
-  `matchingVariantInfo` partitions at SEARCH tolerance while `applyToBoardInner` hands `parallelApply`
-  DEFAULT tolerance, so the walk's predicate is the LOOSER of the two — the opposite direction from
-  the grouping bug. Tightening it moves beat counts and which calls the walk stops on, so it wants its
-  own pass with the census re-measured.
-- **DROPPED: 400 pairs where the applicator applies a call and moves the dancers but the walk plays
-  nothing.** An authored call with no variant at walk tolerance is a deliberate `walkable: false`
+- **PHANTOMS: `applyToBoard` REFUSES the call, `sequenceBeats` charges it beats. Measured 2466, now
+  11.** Hand-checked in `engine/test/tools/phantom-probe.mjs`: `Square Thru 4` from `Columns` refuses
+  with *"No setup in this call matches the current formation"* and was still charged **10.0 beats**.
+  `evaluateParallelAt` returns the board unchanged for those beats, so a sequence containing one
+  silently stalls — the caller's beat count and the dancers disagree.
+- **DROPPED: the applicator applies a call and moves the dancers but the walk plays nothing. Measured
+  400, now 6.** An authored call with no variant at walk tolerance is a deliberate `walkable: false`
   stop, so this is `walkable` behaving as designed — but the applicator disagreeing with it 400 times
-  says the tolerance pair should be looked at in the same pass. Reported by the harness every run, not
-  gated.
+  was the same tolerance pair, and the same one-line alignment closed it.
+
+The cause of both was NOT the tolerance: it was the PREDICATE. `matchingVariantInfo` asked
+`partitionExists` — full tilings only — while `parallelApply` accepts `partition ?? partitionPartial`.
 
 ### Phase L — PHRASE tams: the catalogue's own model for whole published chains (round 16)
 
@@ -2119,18 +2158,25 @@ parallel grouping the animator re-derived differently from the applicator). Then
    work is DONE; Phase C's active-set item is the last convention left.
 4. **Phase C** — the two conventions; design before code, both have board-wide blast radius.
 5. **`Swing Your Partner`'s end pose** — needs a corpus- or reference-pinned model, not a local rule.
-6. **The walk/walk agreement pass: the 2466 PHANTOMS and the 400 DROPPED pairs** — see the two
-   mechanisms above. One change should move both: decide what tolerance `matchingVariantInfo` should
-   partition at, given that `applyToBoardInner` hands `parallelApply` DEFAULT and only the per-GROUP
-   sub-apply uses SEARCH. This one touches beat counts, so re-measure the census, the get-out corpus
-   and the FSM either side of it rather than only the gates.
-7. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
+6. **The walk/walk agreement pass (Mechanism 5) is CLOSED** — the predicate alignment took phantoms
+   2466 → 11, dropped 400 → 6 and silent 27 → 0 with the census unmoved. What is left of it is the
+   ONE remaining difference: `parallelApply` also requires every SUB-APPLY to succeed, which
+   `matchingVariantInfo` cannot cheaply check. Closing that fully means having the walk take its
+   variant from the apply's own `ApplyResult.parallel` (which now exists) instead of re-deriving it,
+   which is a small change with a much larger blast radius because `matchingVariantInfo` also feeds
+   the BEAT COUNT. Do it only with the census, get-out and FSM measured either side.
+7. **`Zero Line` and `Zero Box` as real formations** — the fix for the reported "modules replayed from
+   the wrong start". 168 of the 294 corpus modules are written for them and the engine has neither
+   (`Zero Box` exists in `formations.xml` only as a 4-dancer entry). `start-formation-probe.mjs`
+   measures the mapping and says it cannot be read off the data yet, so this is vocabulary work of the
+   Phase F kind, not a rename.
+8. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
    plus `Lead Right from Eight Chain Thru`. Small (worst 0.1476 units) but it is a teleport on the
    last beat, and it names one cause: the pose just before the end is not the pose `applyWholeBoard`
    stores. Start from `poseFor(t, dancerBeats(t))` versus `endPoses(variant)`.
-8. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
+9. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
    tie-break sweeps; independent of each other and of the figure work.
-9. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
+10. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
    chains, but it is a new mechanism (what is a call?) rather than a fix, and it should be designed
    against a second witness before any code. Its cheap half is the decoder side — the 4 unread cells
    (`figm75 --1/2`, `figm170 S-`, `figm184 --Keep`, `figm226 H-meet-T1/4`) are Phase I work and two of

@@ -165,6 +165,12 @@ export const CALL_SYNONYMS: Record<string, string> = {
   //   a Line", where it carries the Around-1 continuation and is therefore a different reading of
   //   the name rather than another spelling of the bare call.
   'Split the Outside 2': 'Split Two',
+  //   `Left Allemande` is how the ceder corpus writes `Allemande Left` - the same call with the words
+  //   the other way round, and the repo's own All8 key already treats them as one: `all8-notation.ts`
+  //   records `LA` as "Allemande Left" while its comment calls that token "Left Allemande" out loud.
+  //   It is also the single largest stop in the `Zero Box` corpus (33 modules of 324), so it is worth
+  //   having even though nothing in the asset catalogue carries the title.
+  'Left Allemande': 'Allemande Left',
   // NOT bridged, because they are equivalence decisions rather than spellings, and each needs its
   // own evidence: `All 8 Circulate 1 1/2` -> `Circulate 1 1/2` (Phase 5c's dispatch says the two
   // coincide FROM A WAVE only) and `All Promenade 1/2` -> `All 4 Couples Promenade 1/2`.

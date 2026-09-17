@@ -2158,9 +2158,42 @@ ordinary coverage gaps, the same class the get-out corpus reports, not a mis-set
 also All8's own name for the code, verbatim from its get-out diagram: *"[B1c] ... Facing Corners / ZERO
 BOX / AL BOX / Box 1-4 / 'AL'"*, and `relationshipStateOf(board, 'B')` reads `c` on exactly that board.
 
-**The corpus counts are worth correcting here too:** the plan said "71 Zero Box", and the corpus on disk
-now holds **324** files labelled `Zero Box` out of 1652 — the entry's number is stale, and the switch
-moves all 324 rather than 71.
+**THE STOPPING CALLS, DIAGNOSED — and the two biggest are NOT the same kind of thing.**
+`test/tools/zero-box-stops-probe.mjs` classifies every stop by WHY it stops, because three causes look
+identical in a count and are owned by different work: NAMING (no title), ENGINE (the call exists and
+will not apply), and CORPUS (the module's own step is not a call name). Of the 270 modules that stop:
+
+- **`Left Allemande` (33) was PURE NAMING, and is now BRIDGED** — `CALL_SYNONYMS` maps it to
+  `Allemande Left`. The evidence is the repo's own: `all8-notation.ts` records `LA` as "Allemande Left"
+  while its comment calls that token "Left Allemande" out loud. **Measured effect: the `Zero Box` corpus
+  goes 54 → 76 modules replaying all the way**, census (116) and get-out (124) unmoved. The 11 stops
+  that still name `Left Allemande` are a DIFFERENT cause — the call is reached on an UNNAMED board, so
+  the engine refuses it there; that is the unrecognised-board bucket, not a naming gap.
+- **The rest of the "Left Allemande" entries are CORPUS DATA, not naming.** Ceder's own comments are
+  concatenated into the step string: `Left Allemande This is a ZB-ZB module just before the Left
+  Allemande.`, `Left Allemande After the Square Thru 3/4 the Formation = 8ChT (0) and ZB.`,
+  `Left Allemande Lines of Four facing out.`, and even a literal
+  `*** not validated *** (Zero Box) Swing Thru`. Nothing in the engine should resolve those.
+- **`Trade` (22) is the biggest GENUINE item and it is a DESIGN question, not a spelling.**
+  `test/tools/trade-whole-set-probe.mjs` measured where the corpus calls a bare `Trade`, and the answer
+  rules out the cheap fix: **85 modules use it, and it is called from EIGHT different formations** —
+  `Ocean Waves` 26, `Completed Double Pass Thru` 7, `Two-Faced Lines` 6, `Tidal Wave` 3,
+  `Lines Facing Out` 3, `Quarter Tag` 2, `Two-Faced Tidal Line RH` 1, `3/4 Tag` 1. The call's own tams
+  are only authored `from="Right-Hand Waves"` and `from="Left-Hand Waves"` and are marked
+  `sequencer="no"`, and the engine refuses a bare `Trade` with "names a group to trade ... it has no
+  whole-set reading". A whole-set reading is therefore only defined for the wave cases unless each of
+  the other formations is established separately — which is a choreography question, not a bridge.
+  **A first reading of this probe was WRONG and is recorded so it is not repeated:** it counted dancers
+  with a same-gender dancer *straight ahead* and reported 4 of 8 everywhere, which looked like "the
+  corpus is misusing the call". A Trade is a `Swing`, not straight-ahead motion, so that count measured
+  the wrong thing entirely and refutes nothing.
+
+**AND A DIFFERENT KIND OF FINDING, worth knowing before chasing more of this list:** of the ~30 distinct
+stopping strings in the `Zero Box` corpus, a third are not call names at all — Ceder comments and
+`*** not validated ***` markers that were concatenated into the step, or prose naming a formation. The
+engine-side residue is the ENGINE class below, and it is smaller than the raw stop count suggests.
+
+
 
 ### WHY `[L1p]` DISAGREED: THE CODE NAMES FOUR BOARDS, AND THE ENGINE TOOK THE FIRST
 

@@ -98,6 +98,16 @@ export const ARRANGEMENT_TABLES: Record<string, ArrangementTableRow[]> = {
 };
 
 /**
+ * How many spots of a table's lattice actually carry a dancer: the lattice is
+ * `rows x columns`, and a cell marked EMPTY_CELL (a hole, e.g. the middle of every
+ * row and column of a squared set) carries none. Every "does this board fit this
+ * formation" test counts with this, never with `rows * columns`.
+ */
+function occupiedSpots(table: ArrangementTableRow[]): number {
+  return table.reduce((n, row) => n + [...row.facing].filter((f) => f !== EMPTY_CELL).length, 0);
+}
+
+/**
  * Engine formation name -> All8 formation letter. Step 1
  * (engine/test/all8-formation-map.mjs, fixtures/all8-formation-map.json) mapped
  * every published All8 get-out family to one of the engine's templates; this is
@@ -144,22 +154,46 @@ function faceChar(heading: number): string | null {
 
 const genderChar = (gender: string) => (gender === 'boy' ? 'B' : gender === 'girl' ? 'g' : '?');
 
+/**
+ * The character an arrangement-table row uses for an EMPTY spot.
+ *
+ * A row is a string with one character per column, so a formation with holes needs
+ * an explicit marker: a squared set's eight points are the four corners of a 4x4
+ * lattice with the middle of every row and every column empty, and without a
+ * marker the hole would shift every later column (and change the row's width).
+ *
+ * `.` cannot collide with anything else a row carries: genders are `B`, `g` and
+ * the unknown `?`; facings are `>`, `^`, `<`, `v` and the non-axis-aligned `?`.
+ */
+export const EMPTY_CELL = '.';
+
 interface Grid {
-  rows: string[][]; // gender chars, top row first
-  facing: string[]; // facing chars joined per row, top row first
-  cells: SeqDancer[][]; // the dancer on each spot, same row/column order
+  rows: string[][]; // gender chars (or EMPTY_CELL), top row first
+  facing: string[]; // facing chars joined per row (or EMPTY_CELL), top row first
+  /**
+   * The dancer on each spot, same row/column order - `null` on a hole. A formation
+   * with holes therefore has a cells grid that is NOT fully populated, and every
+   * consumer has to say what it does with a hole.
+   */
+  cells: (SeqDancer | null)[][];
 }
 
 /**
  * Project dancers onto their lattice: one row per distinct y (top first), one
- * column per distinct x (left first). Returns null unless the lattice is
- * completely and singly occupied, since a partly occupied grid cannot be read
- * against a full-formation table.
+ * column per distinct x (left first).
+ *
+ * The lattice is the product of the distinct x and y values, and a spot may be
+ * EMPTY - a ring is exactly a shape with holes, and demanding a full rectangle
+ * refuses every one of them (measured: a squared set is 4x4 = 16 cells for 8
+ * dancers, and none of the 8 symmetries of the square changes that). What is still
+ * refused is a board that cannot be read against a table at all: two dancers on
+ * one spot, or a dancer off the lattice (which cannot happen by construction) or a
+ * non-axis-aligned facing.
  */
 function toGrid(dancers: SeqDancer[]): Grid | null {
   const xs = [...new Set(dancers.map((d) => +d.x.toFixed(4)))].sort((a, b) => a - b);
   const ys = [...new Set(dancers.map((d) => +d.y.toFixed(4)))].sort((a, b) => b - a);
-  if (xs.length * ys.length !== dancers.length) return null;
+  if (dancers.length > xs.length * ys.length) return null; // more dancers than the lattice has spots
   const at = new Map<string, SeqDancer>();
   for (const d of dancers) {
     const key = `${(+d.x.toFixed(4)).toFixed(4)},${(+d.y.toFixed(4)).toFixed(4)}`;
@@ -168,14 +202,20 @@ function toGrid(dancers: SeqDancer[]): Grid | null {
   }
   const rows: string[][] = [];
   const facing: string[] = [];
-  const cells: SeqDancer[][] = [];
+  const cells: (SeqDancer | null)[][] = [];
   for (const y of ys) {
     const gRow: string[] = [];
     const fRow: string[] = [];
-    const cRow: SeqDancer[] = [];
+    const cRow: (SeqDancer | null)[] = [];
     for (const x of xs) {
       const d = at.get(`${x.toFixed(4)},${y.toFixed(4)}`);
-      if (!d) return null;
+      if (!d) {
+        // an empty spot: the lattice has it, the board does not
+        gRow.push(EMPTY_CELL);
+        fRow.push(EMPTY_CELL);
+        cRow.push(null);
+        continue;
+      }
       const f = faceChar(d.heading);
       if (!f) return null;
       gRow.push(genderChar(d.gender));
@@ -284,8 +324,9 @@ export function arrangementFor(board: Board, letter: string): ArrangementResult 
   const table = ARRANGEMENT_TABLES[letter];
   if (!table) return { number: null, letter, candidates: [], reason: `no arrangement table transcribed for [${letter}]` };
   const dancers = board.dancers.filter((d) => !d.isGhost);
-  if (dancers.length !== table.length * table[0].facing.length) {
-    return { number: null, letter, candidates: [], reason: `formation has ${table.length}x${table[0].facing.length} spots, board has ${dancers.length} dancers` };
+  const spots = occupiedSpots(table);
+  if (dancers.length !== spots) {
+    return { number: null, letter, candidates: [], reason: `formation has ${spots} occupied spot(s) on a ${table.length}x${table[0].facing.length} lattice, board has ${dancers.length} dancers` };
   }
 
   const rotations = new Set<ArrangementNumber>();
@@ -559,8 +600,8 @@ export interface PartnerPair {
 export interface BoardLayout {
   /** Facing of every spot, top row first, as All8's table draws it. */
   rows: string[];
-  /** The dancer standing on each spot, same row/column order. */
-  cells: SeqDancer[][];
+  /** The dancer standing on each spot, same row/column order; `null` on a hole. */
+  cells: (SeqDancer | null)[][];
   /** The all8 table this reading was taken against. */
   table: ArrangementTableRow[];
 }
@@ -694,12 +735,19 @@ export function adjacentPairs(board: Board, letter: string): { pairs: AdjacentPa
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const a = layout.cells[r][c];
+      if (!a) continue; // an empty spot has no face and no adjacent pair
       if (a.gender !== 'boy') continue;
       const [r2, c2] = pairOf(r, c);
       if (r2 < 0 || r2 >= rows || c2 < 0 || c2 >= cols) {
         return { pairs: null, reason: `spot (${r},${c}) has no adjacent spot in [${letter}]'s drawing` };
       }
       const b = layout.cells[r2][c2];
+      if (!b) {
+        return {
+          pairs: null,
+          reason: `in [${letter}] the spot adjacent to the boy at (${r},${c}) is EMPTY, so "the girl next to him" is not defined`,
+        };
+      }
       if (b.gender !== 'girl') {
         return {
           pairs: null,
@@ -945,8 +993,10 @@ export function boardsForAlignment(template: Board, spec: AlignmentSpec): Constr
   const column = ARRANGEMENT_NUMBER_ORDER.indexOf(spec.arrangement);
   if (column < 0) return { boards: [], attempted: 0, reason: `${spec.arrangement} is not one of the 6 arrangement numbers` };
   const dancers = template.dancers.filter((d) => !d.isGhost);
-  if (dancers.length !== table.length * table[0].facing.length) {
-    return { boards: [], attempted: 0, reason: `[${spec.letter}] has ${table.length * table[0].facing.length} spots but the template has ${dancers.length} dancers` };
+  const tableCells = table.length * table[0].facing.length;
+  const tableOccupied = occupiedSpots(table);
+  if (dancers.length !== tableOccupied) {
+    return { boards: [], attempted: 0, reason: `[${spec.letter}] has ${tableOccupied} occupied spot(s) of ${tableCells} on its lattice but the template has ${dancers.length} dancers` };
   }
   const layout = readingForLayout(dancers, table, false);
   if (!layout) {
@@ -959,12 +1009,15 @@ export function boardsForAlignment(template: Board, spec: AlignmentSpec): Constr
   const spots: { x: number; y: number; heading: number; gender: 'boy' | 'girl' }[] = [];
   layout.cells.forEach((row, r) => {
     row.forEach((transformed, c) => {
+      const g = table[r].genders[column][c];
+      if (g === EMPTY_CELL) return; // a hole in the lattice carries no dancer
+      if (!transformed) return; // unreachable while the counts above agree
       const orig = byId.get(transformed.id) ?? transformed;
       spots.push({
         x: orig.x,
         y: orig.y,
         heading: orig.heading,
-        gender: table[r].genders[column][c] === 'B' ? 'boy' : 'girl',
+        gender: g === 'B' ? 'boy' : 'girl',
       });
     });
   });
@@ -1052,25 +1105,36 @@ export function boardForFasrCode(
 
 const HEADING_BY_CHAR: Record<string, number> = { '>': 0, '^': QUARTER, '<': 2 * QUARTER, v: 3 * QUARTER };
 
-/** Project cells carrying (x, y, facing) onto their lattice, top row first. */
-function projectCells<T extends { x: number; y: number; facing: string }>(cells: T[]): { rows: string[]; cells: T[][] } | null {
+/**
+ * Project cells carrying (x, y, facing) onto their lattice, top row first.
+ *
+ * Same lattice rule as toGrid: the product of the distinct x and y values, with a
+ * spot allowed to be EMPTY (`.` in the printed row) because a ring has holes. A row
+ * keeps one character per COLUMN, so the empty marker is what holds the columns of
+ * the following cells in place.
+ */
+function projectCells<T extends { x: number; y: number; facing: string }>(cells: T[]): { rows: string[]; cells: (T | null)[][] } | null {
   const xs = [...new Set(cells.map((c) => +c.x.toFixed(4)))].sort((a, b) => a - b);
   const ys = [...new Set(cells.map((c) => +c.y.toFixed(4)))].sort((a, b) => b - a);
-  if (xs.length * ys.length !== cells.length) return null;
+  if (cells.length > xs.length * ys.length) return null; // more cells than the lattice has spots
   const at = new Map<string, T>();
   for (const c of cells) {
     const key = `${(+c.x.toFixed(4)).toFixed(4)},${(+c.y.toFixed(4)).toFixed(4)}`;
-    if (at.has(key)) return null;
+    if (at.has(key)) return null; // two cells on one spot
     at.set(key, c);
   }
   const rows: string[] = [];
-  const out: T[][] = [];
+  const out: (T | null)[][] = [];
   for (const y of ys) {
     let f = '';
-    const row: T[] = [];
+    const row: (T | null)[] = [];
     for (const x of xs) {
       const c = at.get(`${x.toFixed(4)},${y.toFixed(4)}`);
-      if (!c) return null;
+      if (!c) {
+        f += EMPTY_CELL;
+        row.push(null);
+        continue;
+      }
       row.push(c);
       f += c.facing;
     }
@@ -1121,11 +1185,12 @@ export function boardFromDiagram(
       raw.push({ x: c, y: -r, heading: HEADING_BY_CHAR[arrow], couple: Number(m[2]) });
     }
   }
-  if (raw.length !== table.length * table[0].facing.length) {
-    return { board: null, reason: `diagram has ${raw.length} spots, [${letter}] has ${table.length * table[0].facing.length}` };
+  const occupied = occupiedSpots(table);
+  if (raw.length !== occupied) {
+    return { board: null, reason: `diagram has ${raw.length} spots, [${letter}] has ${occupied}` };
   }
 
-  let diag: { rows: string[]; cells: typeof raw[] } | null = null;
+  let diag: { rows: string[]; cells: (typeof raw[number] | null)[][] } | null = null;
   for (const s of SYMMETRIES) {
     if (s.mirrored) continue;
     const p = projectCells(raw.map((c) => {
@@ -1142,11 +1207,15 @@ export function boardFromDiagram(
 
   const dancers: SeqDancer[] = [];
   diag.cells.forEach((row, r) => row.forEach((cell, c) => {
-    const orig = byId.get(layout.cells[r][c].id) ?? layout.cells[r][c];
+    const g = table[r].genders[column][c];
+    if (!cell || g === EMPTY_CELL) return; // a hole in the lattice carries no dancer
+    const placed = layout.cells[r][c];
+    if (!placed) return; // unreachable: the diagram matched this table's facing layout
+    const orig = byId.get(placed.id) ?? placed;
     dancers.push({
       id: 0,
       couple: cell.couple,
-      gender: table[r].genders[column][c] === 'B' ? 'boy' : 'girl',
+      gender: g === 'B' ? 'boy' : 'girl',
       x: orig.x,
       y: orig.y,
       heading: orig.heading,

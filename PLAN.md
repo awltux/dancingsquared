@@ -2358,6 +2358,54 @@ give `3 * 3 = 9 !== 4`).
 So adding `[S]` is not "transcribe one more table"; it is a small format change plus the table. Worth
 deciding before writing, because everything ring-shaped depends on it.
 
+**BUILT (Step 1). The format change is DONE, and the guard was in TWO places, not one.** Measured and
+shipped:
+
+- **The empty marker is `EMPTY_CELL = '.'`**, and a row keeps one character per COLUMN, so a hole holds
+  the later columns in place instead of shifting them. `.` cannot collide with a row's other
+  characters (genders `B`/`g`/`?`; facings `>`/`^`/`<`/`v`/`?`).
+- **BOTH rectangle guards are relaxed**, and the second one is not in `projectCells`' first line but
+  the same test repeated: `toGrid` (`xs.length * ys.length !== dancers.length`) and `projectCells`
+  (`xs.length * ys.length !== cells.length`). Each now refuses only what genuinely cannot be read: a
+  board with more dancers than the lattice has spots, or two dancers on one spot. A hole is a `null`
+  cell and an `.` in the row.
+- **One more test had the same shape and was not in the report: `arrangementFor`'s own pre-check**
+  (`dancers.length !== table.length * table[0].facing.length`) refused a squared set *after* the grid
+  was built, with the reason "formation has 4x4 spots, board has 8 dancers". All three now count
+  OCCUPIED spots (`occupiedSpots(table)`), which is `rows * columns` for every table that has no holes -
+  so the mapped six are untouched.
+- **Behaviour freeze, measured:** `ring-round-trip-probe.mjs` builds every mapped formation from its own
+  table for all 6 arrangements and reads it back at all 4 rotations - **144 readings, all correct** -
+  and `ring-representability-probe.mjs` shows the guard refusing a squared set under **0 of 8**
+  symmetries before the change. The squared set now projects, its rows read `.vv. / >..< / >..< / .^^.`,
+  and its 8 holes appear as 8 `null` cells.
+- **A property of RINGS that the change exposes, measured on a 4-dancer diamond:** the diamond projects,
+  but a half turn maps it onto itself, so arrangement **0 and arrangement 4 are both readings** and the
+  module reports the ambiguity (`candidates [0,4]`) rather than picking one. That is the shape's
+  symmetry, not a guard artefact - and it is the question `[S]` itself raises in Step 2, since home is
+  symmetric under a quarter turn. Expect the `[S]` readout to be ambiguous by construction.
+- **What the change costs at the source:** `fetch-arrangements.mjs` DROPS every printed row whose six
+  gender cells cannot be joined into contiguous letters, so the fixture on disk holds only the two
+  hole-FREE rows of `[S]` (and loses a row of `[D]` and three of `[I]` the same way). The `[S]` table
+  therefore has to be transcribed from `arrngdia.htm`'s raw `<pre>` block, and the parser needs the same
+  empty-cell awareness before the fixture can check it. Both are Step 2 work.
+- **The `[S]` table's middle rows, and WHY the fixture loses them — both measured, and the first
+  reading of it was wrong.** The fixture's `fetch-arrangements.mjs` strips HTML with
+  `.replace(/<[^>]+>/g, '')`, and the middle rows of `[S]` print a literal `<` (the Sides facing west)
+  which that rule eats as the opening of a tag - it consumes everything up to the next `>`, which is
+  the one in "Choreo Bits:" two lines later. That is why the fixture holds only the two hole-FREE rows
+  of `[S]` (and loses a row of `[D]` and the middle row of `[I]`, whose arrows include `<`). So there
+  is no disagreement between two versions of the page: the raw `<pre>` block is the source, and the
+  text rendering is a parse artefact. `live-squared-set-block-probe.mjs` prints both side by side.
+- **`[S]` transcribed from the raw `<pre>` block, with the holes read off the LEFT formation block.**
+  The page draws the formation's own facing first and then the 6 arrangements, so the left block gives
+  the row's facing layout: rows 0, 3 are `v v` / `^ ^` (the Heads, at the two middle spots) and rows 1,
+  2 are `> ... <` (the Sides, at the two END spots, facing the centre). Arrangement 0 is therefore
+  `.gB.` / `B..g` / `g..B` / `.Bg.` - which is exactly the home square's own occupied lattice, so the
+  geometry confirms the transcription independently. The middle rows' gender cells are unambiguous in
+  the source (two per arrangement: `Bg gB gg BB gB Bg` for row 1), and each carries the two facing
+  tokens at the row's two OUTER cell positions with the hole between them.
+
 **AND A SMALLER CORRECTION THAT IS INDEPENDENT OF THAT.** `FORMATION_LETTER` has no entry for
 `Static Square`, so `letterForFormation` returns null and `fasrooOf` bails out before it can read
 anything — which is why the POC prints nothing at all for home rather than a partial code. All8 DOES

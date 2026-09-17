@@ -2087,6 +2087,48 @@ thru, "the dancer you face" is not a straight-ahead pairing, so the property has
 formation before it can be checked. That is the argument FOR a declared per-formation setup rather
 than a universal rule — and it is why `Zero Box` is currently left UNRESOLVED and fails loudly.
 
+### WHAT ALL8 ACTUALLY SAYS, AND A CONFLICT WITH `boardForFasrCode` (fetched, not inferred)
+
+`https://www.all8.com/sd/calling/fasr.htm` and `/getoutd.htm`, Rich Reel. The authoritative facts:
+
+- **`[B1c]` IS NAMED "ZERO BOX"** — verbatim from its get-out diagram: *"Facing Corners / ZERO BOX /
+  AL BOX / Box 1-4 / 'AL'"*. So the zero box is a stated code, not something to derive. That closes
+  the `Zero Box` question once the convention below is settled.
+- **The arrangement number is the GENDER pattern**, six states 0/5/1/2/3/4 (`\u00bd` is 5 here), and it is
+  assigned per formation — "the assignment depends on the specific formation".
+- **Sequence** is the promenade-direction order of the couples, 1..4 (1 both in, 2 both out, 3 boys in
+  / girls out, 4 the reverse), measured by connecting the same-gender dancers without crossing; in a
+  wave, "Rear Back" first.
+- **Relationship** is `p`/`c`/`o`/`r`, and all8's own texts state the reference pair for exactly the
+  four formations the engine implements: `[0L]` the **left-hand couple**, `[0B]` the **outside boy and
+  the girl he is facing**, `[0F]` the **trailing couple**, `[0W]` the **in-facing end and the adjacent
+  girl**. all8 also warns the letter "unfortunately" depends on that choice.
+
+**THE CONFLICT.** all8's text diagram for `[L1p]` is
+
+```
+3> <2
+3> <2
+4> <1
+4> <1
+```
+
+so the FACING couple-pairs are **`{2,3}` and `{1,4}`** — the corner pairs — and that holds whichever
+way the diagram is rotated or reflected. The engine's `boardForFasrCode('L1p')` produces facing pairs
+**`{1,2}` and `{3,4}`**, and it is `L1o` that produces `{2,3}`/`{1,4}`. So **the engine's relationship
+letter for `[L]` is offset by one from all8's.**
+
+That matters well beyond the POC: `boardForFasrCode` is the mechanism the per-formation FASR setup
+would be built on, and `alignment.ts` already records that it "reproduces the diagram-derived board
+for 26" of All8's 29 published alignments. A spec of (arrangement, sequence, relationship) that more
+than one identity assignment satisfies — which is exactly what all8 warns about for the arbitrary
+reference pair — is a search that can return a valid-but-not-canonical board, and nothing in the
+harness would notice, because the board it returns satisfies the code it was asked for.
+
+**Until that is settled, `Zero Box` stays refused and `Zero Line` stays on the engine's `L1o`** — the
+board that measures right for the PROPERTY a zero line needs (sequence in, every dancer facing a
+corner pair). Pinning it to all8's spelling would be trusting one side of an unresolved disagreement.
+
 **A residual, found by the new gate, recorded not papered over: the final-frame jump.** Extending
 `anim-convergence.mjs` from the coded moves to the 111 non-coded calls the corpora use turned up
 **7 (board, call) pairs where the last drawn frame is not the board the call produces** — a jump on
@@ -2235,24 +2277,31 @@ parallel grouping the animator re-derived differently from the applicator). Then
    variant from the apply's own `ApplyResult.parallel` (which now exists) instead of re-deriving it,
    which is a small change with a much larger blast radius because `matchingVariantInfo` also feeds
    the BEAT COUNT. Do it only with the census, get-out and FSM measured either side.
-7. **A FASR SETUP per formation, and a COMPLIANCE LEVEL per module** — the design section above. The
+7. **THE RELATIONSHIP LETTER IS OFFSET FROM ALL8'S FOR `[L]`** — see the section above. all8's
+   `[L1p]` has facing couple-pairs `{2,3}`/`{1,4}`; the engine's `boardForFasrCode('L1p')` gives
+   `{1,2}`/`{3,4}` and it is its `L1o` that gives all8's pairs. This is the prerequisite for item 8,
+   not a detail: the whole per-formation FASR setup would be built on a code system that does not
+   currently agree with the published diagrams. Check the reference-pair rule for `[0L]` ("the
+   left-hand couple") against `REFERENCE_PAIR_RULES`, and ask whether `boardForAlignment`'s identity
+   search can return a non-canonical assignment when the spec admits more than one.
+8. **A FASR SETUP per formation, and a COMPLIANCE LEVEL per module** — the design section above. The
    engine can already BUILD an identified board from an All8 code (`boardForFasrCode`); what is missing
    is the association from a formation NAME to its canonical code, and any way for a module to say how
-   much of the FASR it needs. `Normal Lines` → `L1o` is confirmed; `[B]`, `[W]`, `[P]`, `[F]` need
-   their "who faces whom" stated before they can be filled in, and `Zero Box` stays refused until then.
-8. **`Right and Left Grand`'s final board** — from `Ocean Waves` it leaves all eight on a ring at 45°
+   much of the FASR it needs. `Normal Lines` → `L1o` is confirmed by property; `Zero Box` is all8's
+   `B1c` by name — but both wait on item 7 before they can be pinned to a spelling.
+9. **`Right and Left Grand`'s final board** — from `Ocean Waves` it leaves all eight on a ring at 45°
    increments that `knownFormation` cannot name, while `ceder-7046` declares `Static Square`. Decide
    whether the grand's end rotation is wrong or recognition only has an axis-aligned circle template.
    Small, and it is the last thing between that module and running as published.
-9. **Fix the second "arrangement"** — `analyzeFasr`'s field is a prose count that cannot distinguish
-   `gBgB` from `BgBg`; `alignment.ts` has the real Callerlab number. One name, one meaning.
-10. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
+10. **Fix the second "arrangement"** — `analyzeFasr`'s field is a prose count that cannot distinguish
+    `gBgB` from `BgBg`; `alignment.ts` has the real Callerlab number. One name, one meaning.
+11. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
     plus `Lead Right from Eight Chain Thru`. Small (worst 0.1476 units) but it is a teleport on the
     last beat, and it names one cause: the pose just before the end is not the pose `applyWholeBoard`
     stores. Start from `poseFor(t, dancerBeats(t))` versus `endPoses(variant)`.
-11. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
+12. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
    tie-break sweeps; independent of each other and of the figure work.
-12. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
+13. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
    chains, but it is a new mechanism (what is a call?) rather than a fix, and it should be designed
    against a second witness before any code. Its cheap half is the decoder side — the 4 unread cells
    (`figm75 --1/2`, `figm170 S-`, `figm184 --Keep`, `figm226 H-meet-T1/4`) are Phase I work and two of

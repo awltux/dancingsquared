@@ -2252,6 +2252,27 @@ reference dancer. Two consequences worth having on record:
   partner by construction — so it is the cheapest place to add a letter, an arrangement table (0 and 5
   at least) and a reference pair, and it would make the two readings differ.
 
+**HOME IS `[0S1p?+]`, NOT `[?S1???]` — the difference matters and the `?`s in our own output are a
+lie.** Every part except Occupation is determined *by definition*, not by measurement:
+
+- **Formation is not open.** Home is a squared set — a definite geometry. (The `?` here in our output
+  is the missing letter, not generality.)
+- **Arrangement is not open.** Home is arrangement **0**; arrangement 5 is a half-sashayed square,
+  which is a different setup. There is no arrangement in which home is home.
+- **Sequence is not open.** Home is in sequence by definition.
+- **Relationship is not open.** At home the reference boy is adjacent to his partner by construction.
+- **Orientation is not open, and this is the strongest of the five**: Orientation is DEFINED as the
+  reference boy's displacement from his home position, so at home it is zero → **H** by definition. It
+  is true by construction rather than read off the board.
+- **Occupation is the only genuinely open slot**, and not because home is vague: it reports whether the
+  reference boy is a Head or a Side, and that needs a REFERENCE PAIR, which Callerlab defines for `[L]`,
+  `[B]`, `[F]` and `[W]` only. Adopt all8's own convention — the #1 Head boy as the reference dancer —
+  and it is `+`, giving **`[0S1pH+]`**.
+
+So the answer to "is home more general" is NO for five of the six parts and yes only for Occupation.
+Reading our `[??1???]` as "home has no FASR" would be the same mistake as reading a missing table as a
+fact about the dance.
+
 **What is still NOT trustworthy in `fasrooOf`: the ORIENTATION CONSTRUCTION.** All8 defines it by
 superimposing the SQUARED SET, where the reference boy's home is a SPOT (couple 3 north at (1,3)) that
 does not exist in a line or a wave at all; `fasrooOf` compares bearings about the centre instead, which

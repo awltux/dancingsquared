@@ -2273,6 +2273,30 @@ So the answer to "is home more general" is NO for five of the six parts and yes 
 Reading our `[??1???]` as "home has no FASR" would be the same mistake as reading a missing table as a
 fact about the dance.
 
+**THE LETTER IS `[S]`, AND OCCUPATION SPLITS "HOME" FROM "THE INITIAL SETUP".** Home as a STATE does not
+need Occupation — the board does not care, and Occupation is a description relative to a reference pair
+rather than a property of the board. The INITIAL Static Square SETUP does need it, because that is what
+anchors the couple numbering: at home Orientation is trivially H, so Occupation is the only remaining
+handle on which physical couple stands where, and it is the thing a caller relies on the moment a call
+designates Heads, Sides or a couple number (All8's `Centers Star Thru; Back Away` ends at home either
+way; `Heads Trade` does not).
+
+```
+home as a state       [0S1p]      no Occupation - the board does not care
+the initial setup     [0S1pH+]    needs it - it is the couple-numbering anchor
+```
+
+**A TENSION THIS EXPOSES, worth testing before anything is built on it.** All8's own example is
+`[0P1cH+]` versus `[0P1cH']` — same formation, arrangement, sequence, relationship AND orientation,
+differing only in Occupation — so **Orientation and Occupation are INDEPENDENT axes**. But our four
+`[L1p]` boards, which differ only by whole-set couple relabelling, come out ONE PER ORIENTATION
+(H/L/O/R), which would make Occupation redundant rather than independent. Both cannot be true. The
+likely reading is that `fasrooOf`'s orientation construction is not merely unverified but **measuring
+the wrong axis** — it is picking up the couple-relabelling freedom and labelling it Orientation, which
+would also explain why every board landed on a half-step before the 90-degree quantisation. Test it on
+`[P]`, the case All8 actually draws: if the two boards of `[0P1cH+]` and `[0P1cH']` do not read H with
+different Occupations, the construction is wrong rather than merely imprecise.
+
 **What is still NOT trustworthy in `fasrooOf`: the ORIENTATION CONSTRUCTION.** All8 defines it by
 superimposing the SQUARED SET, where the reference boy's home is a SPOT (couple 3 north at (1,3)) that
 does not exist in a line or a wave at all; `fasrooOf` compares bearings about the centre instead, which

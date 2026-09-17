@@ -2297,6 +2297,34 @@ would also explain why every board landed on a half-step before the 90-degree qu
 `[P]`, the case All8 actually draws: if the two boards of `[0P1cH+]` and `[0P1cH']` do not read H with
 different Occupations, the construction is wrong rather than merely imprecise.
 
+**RESOLUTION: A SETUP IS KEYED ON THE COUPLE-TO-SPOT ASSIGNMENT, AND FASROO IS A CALLER'S VIEW OF IT.**
+(The report's reading, and it settles the tension above.)
+
+For **constructing and identifying a setup**, the natural and complete anchor is *which home couple
+stands on which spot* — couple index zero and the cycle from it. That is exactly the freedom
+`boardsForAlignment` leaves: four boards identical in geometry, facing and gender, differing only in
+the couple-to-spot map. It needs no reference pair, no handedness convention and no overlay.
+
+**Orientation and Occupation are a caller-facing DESCRIPTION of that same information**, re-encoded
+through conventions that are themselves disputed: a reference pair Callerlab defines for four
+formations only, and an R-versus-L handedness stated only in All8's diagrams. That is why they do not
+line up with the couple-to-spot map — All8's `[0P1cH+]`/`[0P1cH']` pair shows O and O varying
+independently, while a cyclic relabelling of four couples has only four members. **The two encodings
+are not the same shape**, and forcing them to correspond is what produced the one-per-orientation
+artefact. So:
+
+- **Store and select a setup by its couple-to-spot assignment.** That is the primitive.
+- **Derive FASROO for display only**, never to choose a board, and keep the `?` marker on the
+  Orientation letter.
+
+**AND ORIENTATION IS POSITION, NOT FACING.** The report's reading: it is where the reference boy's
+POSITION falls relative to an **overlaid squared set**, in 90-degree steps — a rotation of the board
+carries him through all four states. `fasrooOf` instead compares his current bearing to HIS OWN home
+bearing about the formation centre, a proxy that never asks which home spot he now corresponds to; the
+one-per-orientation result is evidence it is the wrong question. All8's own worked case is the check:
+in `[P]` the reference boy inside, with the formation rotated 90 degrees, is a **Side** occupation yet
+still oriented **H** — so a correct implementation must produce H and `'` for the same board.
+
 **What is still NOT trustworthy in `fasrooOf`: the ORIENTATION CONSTRUCTION.** All8 defines it by
 superimposing the SQUARED SET, where the reference boy's home is a SPOT (couple 3 north at (1,3)) that
 does not exist in a line or a wave at all; `fasrooOf` compares bearings about the centre instead, which

@@ -2227,6 +2227,31 @@ but **Orientation is relative to HOME**, so the half-steps are not orientations 
 genuinely ends half-rotated is described by its FORMATION. `ORIENTATION_STEP_DEG` is 90, which is what
 All8's four states are.
 
+**WHY HOME HAS NO FASR(OO) TABLE — and it is not that home is outside the notation.** All8 lists `[S]`
+as a formation letter ("Squared Set (Static Square)"); what is missing is the engine's mapping and a
+transcribed arrangement table, exactly as `alignment.ts` says of the other 30 of its 36 formations. The
+reason the TABLES skip it is that **every component of the notation is defined RELATIVE to home**:
+
+- Arrangement **0** is defined as "Boy on the left, Girl on the right" — which IS the home arrangement.
+- Sequence **1** is "in sequence" — which IS the home order.
+- Relationship **p** is the reference boy adjacent to his **partner** — which IS home.
+- Orientation **H** is literally "Reference Boy **At Home**".
+
+So home's FASR(OO) is the constant `[0S1pH+]` — the identity element. The notation exists to say how
+far a board has drifted from home so the caller can bring it back, and home is where the measuring
+starts. All8's arrangement diagrams and reference-pair rules are for boards you have been CALLED to.
+
+**It is not vacuous, though, and the engine's reading proves it.** `fasrooOf(home)` returns
+`[??1???]`: only the sequence is determined, because the engine has no letter for `[S]` and so no
+reference dancer. Two consequences worth having on record:
+
+- A **half-sashayed** squared set is arrangement **5**, not 0, and a **rotated** home is Orientation
+  ≠ H. Both are real states a caller may need, and neither is "home".
+- The engine currently reads `[??1???]` for home AND for home-rotated, and **cannot tell them apart**.
+  `[S]` is the one formation where the reference pair is unambiguous — at home every dancer has their
+  partner by construction — so it is the cheapest place to add a letter, an arrangement table (0 and 5
+  at least) and a reference pair, and it would make the two readings differ.
+
 **What is still NOT trustworthy in `fasrooOf`: the ORIENTATION CONSTRUCTION.** All8 defines it by
 superimposing the SQUARED SET, where the reference boy's home is a SPOT (couple 3 north at (1,3)) that
 does not exist in a line or a wave at all; `fasrooOf` compares bearings about the centre instead, which

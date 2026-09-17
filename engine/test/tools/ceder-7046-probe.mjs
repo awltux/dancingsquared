@@ -69,6 +69,29 @@ for (const [i, s] of STEPS.entries()) {
 }
 console.log(`  board at the very END (beat ${total.toFixed(1)}): [${seq.knownFormation(seq.evaluateSequence(STEPS, total, seq.boardForFormation('Static Square')).board)}]`);
 
+// ---------------------------------------------------------------- from the module's OWN start
+//
+// `startFormation: "Zero Line"` is All8's `L0`, and the engine's `Normal Lines` IS `L0` (the
+// transcribed `[L]` table at column 0 is `gBgB`/`BgBg`, which is what that board classifies as). So
+// the module CAN be replayed as published - the app was matching on ceder's LABEL rather than
+// resolving it, and started everything from home. This is the run that matters.
+console.log('\n=== the SAME five steps from the module\'s OWN start ("Zero Line" = [L0] = Normal Lines) ===');
+{
+  const start = seq.boardForFormation('Normal Lines');
+  console.log(`  start [${seq.knownFormation(start)}] ${pose(start)}`);
+  let b = start;
+  for (const [i, s] of STEPS.entries()) {
+    const r = seq.applyToBoard(b, s);
+    if (!r.legal) { console.log(`  ${i + 1}. ${s}\n     REFUSED: ${r.reason}`); break; }
+    b = r.board;
+    console.log(`  ${i + 1}. ${s} -> [${seq.knownFormation(b)}] ${pose(b)}`);
+  }
+  const total = seq.sequenceBeats(STEPS, start);
+  console.log(`  sequenceBeats = ${total.toFixed(1)} beats`);
+  const end = seq.evaluateSequence(STEPS, total, start).board;
+  console.log(`  board at the end (beat ${total.toFixed(1)}): [${seq.knownFormation(end)}] ${pose(end)}`);
+}
+
 // ---------------------------------------------------------------- the LAST call alone
 console.log('\n=== the LAST call on its own, from the board it starts on ===');
 const prefix = STEPS.slice(0, STEPS.length - 1);

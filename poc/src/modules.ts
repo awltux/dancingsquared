@@ -69,10 +69,44 @@ export function allModules(): NamedSequence[] {
 }
 
 /**
- * Whether this sequence is written to begin somewhere other than the home square, which is where the
- * sequencer will actually start it. True means the replay is an approximation of the module, not the
- * module - see `NamedSequence.startFormation`.
+ * The corpus's start-formation LABELS mapped onto engine formations.
+ *
+ * The corpus names where a module was written to begin, but those names are ceder's, not the
+ * engine's, and matching on the label is why 168 of the 294 modules were replayed from the wrong
+ * board.
+ *
+ * `Zero Line` is All8's **`L0`** — formation letter `L`, arrangement 0 — and the engine's
+ * `Normal Lines` IS `L0`. Two independent agreements: `arrangementFor(boardForFormation('Normal
+ * Lines'), 'L')` returns 0, and the engine's transcribed table for `[L]` at arrangement 0 is
+ * `gBgB` / `BgBg`, which is exactly the row All8 prints for `[L]` column 0. So the engine had a zero
+ * line all along; the app never asked for it by the right name.
+ *
+ * `Zero Box` is `[B]`, and `alignment.ts`'s own comment on that table is *"Box / 8-Chain Thru"* — so
+ * the engine formation for it is `Eight Chain Thru`. `start-formation-probe.mjs` agrees
+ * independently: against the corpus's Zero Box modules `Eight Chain Thru` finishes 11 of 25 where the
+ * runner-up manages 3.
  */
+export const START_FORMATION: Record<string, string> = {
+  'static square': 'Static Square',
+  'squared set': 'Static Square',
+  'zero line': 'Normal Lines',
+  'zero box': 'Eight Chain Thru',
+};
+
+/**
+ * The engine formation a corpus start-formation label resolves to, or null when the engine has no
+ * equivalent.
+ *
+ * NULL IS THE POINT. A label the engine cannot stand the dancers up in must not be silently replaced
+ * by home: the module then dances different calls, which reads as "the sequence is broken" rather
+ * than "the sequence starts elsewhere". The caller fails loudly instead.
+ */
+export function resolveStartFormation(label: string | undefined): string | null {
+  if (!label) return null;
+  return START_FORMATION[label.trim().toLowerCase()] ?? null;
+}
+
+/** Whether this sequence is written to begin somewhere other than the home square. */
 export function startsAwayFromHome(seq: NamedSequence): boolean {
   const f = seq.startFormation?.trim().toLowerCase();
   return !!f && f !== 'static square' && f !== 'squared set';

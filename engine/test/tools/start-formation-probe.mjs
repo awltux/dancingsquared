@@ -17,7 +17,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser } from '../../dist/index.js';
+import { Sequencer, setParser, boardForFasrCode } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 
 setParser(DOMParser);
@@ -84,3 +84,55 @@ for (const [label, all] of [...groups].sort((a, b) => b[1].length - a[1].length)
   }
   console.log('');
 }
+
+// ---------------------------------------------------------------- the FASR-CODE candidates
+//
+// The named formations above are geometry plus per-slot gender and NOTHING else - 129 of the 134
+// carry no couple identity, so no partner, no corner and no sequence. The engine's ARRANGEMENT
+// machinery is elsewhere: `boardForFasrCode` builds a fully identified board from All8's published
+// `[arrangement]LETTER[sequence][relationship]` code. So the labels may name a CODE, not a formation,
+// and this scores the code candidates the same way. Let the corpus decide.
+const TEMPLATE = {
+  B: 'Eight Chain Thru', L: 'Normal Lines', W: 'Ocean Waves', P: 'Double Pass Thru',
+  F: 'Two-Faced Lines', 'L.F': 'Two-Faced Lines LH',
+};
+function scoreCode(code, modules) {
+  const built = boardForFasrCode(code, (l) => (TEMPLATE[l] ? seq.boardForFormation(TEMPLATE[l]) : null));
+  if (!built.board) return null;
+  let done = 0, named = 0;
+  for (const steps of modules) {
+    let board = built.board;
+    let ok = true;
+    for (const s of steps) {
+      const r = seq.applyToBoard(board, s);
+      if (!r.legal) { ok = false; break; }
+      board = r.board;
+    }
+    if (ok) { done++; if (seq.knownFormation(board)) named++; }
+  }
+  return { done, named };
+}
+
+const CODES = [];
+for (const letter of ['L', 'B', 'W', 'P', 'F']) {
+  for (const seqNo of ['1', '2']) {
+    for (const rel of ['p', 'c', 'r', 'o']) CODES.push(`${letter}${seqNo}${rel}`);
+  }
+  for (const rel of ['p', 'c']) CODES.push(`5${letter}1${rel}`, `5${letter}2${rel}`);
+}
+
+console.log('=== the FASR-CODE candidates, scored the same way ===');
+console.log('  (boardForFasrCode builds a FULLY IDENTIFIED board - partner, corner and sequence included)');
+for (const [label, all] of [...groups].sort((a, b) => b[1].length - a[1].length)) {
+  const sample = all.slice(0, PER_GROUP);
+  const rows = CODES.map((c) => ({ c, s: scoreCode(c, sample) })).filter((r) => r.s);
+  rows.sort((a, b) => b.s.named - a.s.named || b.s.done - a.s.done);
+  console.log(`\n  startFormation ${JSON.stringify(label)}, best codes by modules reaching a NAMED end:`);
+  for (const r of rows.slice(0, 5)) {
+    const pct = ((100 * r.s.named) / sample.length).toFixed(0);
+    console.log(`    ${r.c.padEnd(5)} ${String(r.s.named).padStart(3)}/${sample.length} named (${pct.padStart(3)}%), ${String(r.s.done).padStart(3)} applied all`);
+  }
+  const best = rows[0];
+  if (best) console.log(`    -> best is ${best.c}; the best NAMED FORMATION scored ${[...FORMATIONS].map((f) => score(f, sample)).reduce((m, x) => Math.max(m, x.named), 0)}/${sample.length}`);
+}
+

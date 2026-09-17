@@ -45,14 +45,22 @@ A call is matched on its FULL name, selection included: browsing `Heads Pass Thr
 lists the modules that actually dance it scoped, not the far more numerous ones
 that dance bare `Pass Thru`.
 
-The corpus records where each module was written to begin, and **168 of the 294
-modules it offers start somewhere other than home** (108 from a Zero Line, 71 from
-a Zero Box). Sequencer mode always replays from home, and the engine has no
-formation by either of those names, so those modules are not danced as published.
-The list therefore says `from Zero Line` next to any module whose start is not
-home, and the Sequencer's status line repeats it on load — `written for a "Zero
-Line" start, replayed from home`. That is the difference between *this sequence is
-broken* and *this sequence starts elsewhere*.
+The corpus records where each module was written to begin, and those names are
+ceder's, not the engine's — **168 of the 294 modules it offers start somewhere
+other than home** (108 from a Zero Line, 71 from a Zero Box). Sequencer mode
+resolves the label and replays from THAT formation:
+
+| corpus label | engine formation | why |
+|---|---|---|
+| `Zero Line` | `Normal Lines` | All8's `L0`; the engine's `[L]` arrangement 0 is exactly All8's `gBgB`/`BgBg` |
+| `Zero Box` | `Eight Chain Thru` | All8's `[B]`, which `alignment.ts` labels "Box / 8-Chain Thru" |
+| `Static Square` | `Static Square` | home |
+
+A label the engine cannot resolve is a **failure, not an approximation**: the
+sequence view loads nothing and says which formation it wanted, because replaying
+a module from the wrong board dances different calls and reads as "the sequence is
+broken" rather than "the sequence starts elsewhere". The status line names the
+formation actually used — `loaded 5 call(s), from Normal Lines`.
 
 ## Sequencer mode
 

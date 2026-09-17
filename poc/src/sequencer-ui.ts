@@ -9,7 +9,7 @@ import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figu
 import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
-import { callKey, MODULES_STORAGE_KEY } from './modules';
+import { callKey, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import type { Stage, WalkCycle } from './scene';
 
@@ -572,9 +572,33 @@ export class SequencerController implements SequencerUI {
   openSequence(steps: (string | CallStep)[], atCall?: string, startFormation?: string) {
     this.playing = false;
     this.playBtn.textContent = '▶ Play';
-    // A module is a sequence in its own right, not a continuation of whatever board was up, so it
-    // starts from home (the same reasoning as `reset`).
-    this.startBoard = undefined;
+
+    // START WHERE THE MODULE SAYS IT STARTS, and REFUSE rather than substitute.
+    //
+    // The corpus records each module's start formation, and it is not a decoration: `ceder-7046` is
+    // written for a `Zero Line`, and replayed from home its fourth call lands on a `T-Bone RDRD` from
+    // which `Right and Left Grand` refuses - which reads as "the calls are broken" when the board is
+    // what is wrong. `Zero Line` is All8's `L0`, and the engine's `Normal Lines` IS `L0`, so most of
+    // these resolve after all. A label the engine has no formation for is a FAILURE, not an
+    // approximation: it is announced and nothing is loaded, because a silently wrong board is worse
+    // than no board.
+    const declared = startFormation?.trim();
+    const target = resolveStartFormation(declared);
+    const startBoard = target ? this.seq.boardForFormation(target) : null;
+    if (declared && !startBoard) {
+      this.history = [];
+      this.startBoard = undefined;
+      this.rewindToStart();
+      this.lastTraceKey = '';
+      this.refreshCallSelect();
+      this.syncAnimation();
+      this.statusEl.textContent = target
+        ? `cannot load: starts from a "${declared}", which the engine maps to "${target}" - but it could not build that formation.`
+        : `cannot load: starts from a "${declared}", and the engine has no such formation. Replaying it from home would dance different calls, so it is refused rather than approximated.`;
+      return;
+    }
+    this.startBoard = startBoard ?? undefined;
+
     this.history = this.seq.flatten(steps);
     this.rewindToStart();
     let refused = 0;
@@ -587,15 +611,9 @@ export class SequencerController implements SequencerUI {
     this.syncAnimation();
     const idx = atCall === undefined ? -1 : this.history.findIndex((s) => callKey(s) === callKey(atCall));
     if (idx >= 0) this.seekTo(idx);
-    // SAY WHEN THE START BOARD IS WRONG. The corpus records where each module was written to begin
-    // (137 Static Square / 108 Zero Line / 71 Zero Box), and this view always replays from home - so
-    // 168 of the 294 corpus modules are danced from a formation they were not written for, and a
-    // refusal below is a consequence of that rather than of the calls. Reporting it is the difference
-    // between "this sequence is broken" and "this sequence starts elsewhere".
-    const away = startFormation && !/^\s*(static square|squared set)\s*$/i.test(startFormation);
     this.statusEl.textContent = [
       `loaded ${this.history.length} call(s)`,
-      away ? `written for a "${startFormation}" start, replayed from home` : '',
+      target ? `from ${target}` : '',
       refused ? `${refused} refused` : '',
     ].filter(Boolean).join(', ');
   }

@@ -2001,21 +2001,48 @@ all identical. The three remaining pinned populations are now accounts of one th
 `parallelApply` ALSO requires every sub-apply to succeed, which `matchingVariantInfo` cannot cheaply
 check, and the 11 + 6 survivors are that gap on Galaxy/Diamond/Star/Star-Promenade boards.
 
-**A REPORTED POC BUG THAT IS NOT A BODY BUG: modules replayed from the wrong start formation.**
-`ceder-7046` is `startFormation: "Zero Line"`, and **the engine has no such formation**
-(`boardForFormation("Zero Line")` is null; `formations.xml` has `Zero Box`, but only as a 4-dancer
-entry). The corpus splits **137 Static Square / 108 Zero Line / 71 Zero Box**, and
-`poc/src/ceder-modules.ts` was throwing that field away, so the sequence view replays **168 of the 294
-modules it offers** from the home square regardless. From `Static Square` ceder-7046 gets through four
-calls and then `Right and Left Grand` refuses — which is what the user saw as "the dancers wander off
-into an unknown formation", the unknown formation being the `T-Bone RDRD` that `Swing Thru` produces
-from a board that is geometrically a `Double Pass Thru` but is not where the module means to be. From
-`Normal Lines` the same five steps run 5/5. The POC now carries the label and says so in both the
-browse list and the loaded status; **the real fix is a formation-vocabulary job** —
-`engine/test/tools/start-formation-probe.mjs` measures what `Zero Line` and `Zero Box` map to and does
-NOT support assuming `Normal Lines` (only 6 of 25 Zero Line modules run from it, against 9 of 25 Static
-Square modules from `Static Square` — so the corpus is not yet replayable well enough for the mapping
-to be readable off the data).
+**A REPORTED POC BUG THAT WAS NOT A BODY BUG: modules replayed from the wrong start formation.**
+`ceder-7046` is `startFormation: "Zero Line"` and the sequence view replayed it from home, so its
+fourth call (`Swing Thru`) landed on a `T-Bone RDRD` from which `Right and Left Grand` refused — which
+reads as "the calls are broken" when the BOARD is what is wrong. **The engine had the formation all
+along: `Zero Line` is All8's `L0`, and the engine's `Normal Lines` IS `L0`.** Two independent
+agreements — `arrangementFor(boardForFormation('Normal Lines'), 'L')` returns 0, and the engine's
+transcribed `[L]` table at column 0 is `gBgB`/`BgBg`, character for character what All8 prints. The app
+was matching the corpus's LABEL against engine names and never resolving it.
+
+Fixed in the POC: `START_FORMATION` maps the labels (`Zero Line` → `Normal Lines`, `Zero Box` →
+`Eight Chain Thru` — `[B]`, whose own table comment in `alignment.ts` is *"Box / 8-Chain Thru"*), the
+sequence view now replays from the resolved formation, and **a label that does not resolve is a
+FAILURE that loads nothing and says so** rather than being silently replaced by home. Measured: the
+five steps now run **5 of 5** from `Normal Lines` at **35.0 beats**, reaching `Normal Lines` →
+`Eight Chain Thru` → **`Ocean Waves`** on the way, where from home they stopped at `Swing Thru`.
+
+**AND THAT EXPOSED A NEW ONE. From its own start, `ceder-7046`'s last call ends on a board the engine
+cannot name.** `Right and Left Grand` from `Ocean Waves` puts all eight dancers on a ring of radius
+~3.46 at 45° increments, and `knownFormation` returns **null** — while the module declares
+`endFormation: "Static Square"`. Either the grand's final rotation is off by 45°, or recognition only
+has an axis-aligned circle template. Not investigated; recorded.
+
+**DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
+**both, in two disconnected systems**:
+
+- **Formations**: `boardForFormation(name)` gives GEOMETRY plus each slot's declared GENDER, and
+  nothing else. Identity (id/couple) is stamped only when the geometry matches the home square
+  (`boardFromMatchables`), so **129 of the 134 named formations carry NO identity at all** —
+  `couple: UNKNOWN_COUPLE` for all eight, which means no partner, no corner and no sequence. Measured
+  by the new `engine/test/tools/arrangement-probe.mjs`.
+- **Arrangements**: `alignment.ts` is the real machinery — All8's formation LETTER, arrangement
+  NUMBER 0–5 transcribed from All8's published tables, sequence and relationship — and
+  `boardForFasrCode('L1p', template)` builds a **fully identified** board (8/8 identity, sequence in)
+  from a published code alone.
+
+So `Static Square`'s arrangement is **not** a coincidence: `HOME_DANCERS` in `identity.ts` is authored
+data naming every dancer's couple, gender and pose, and `analyzeFasr` reads partner and corner off it
+for all eight. It is simply the ONLY arrangement the formation library carries.
+
+Two things in this engine are also both called "arrangement" and they are not the same: `analyzeFasr`'s
+field is a **prose count** (`"8 dancers (4 boys, 4 girls), 0 couples"`) that cannot tell `gBgB` from
+`BgBg`, while `alignment.ts`'s is the Callerlab number. Worth renaming the first.
 
 **A residual, found by the new gate, recorded not papered over: the final-frame jump.** Extending
 `anim-convergence.mjs` from the coded moves to the 111 non-coded calls the corpora use turned up
@@ -2165,18 +2192,19 @@ parallel grouping the animator re-derived differently from the applicator). Then
    variant from the apply's own `ApplyResult.parallel` (which now exists) instead of re-deriving it,
    which is a small change with a much larger blast radius because `matchingVariantInfo` also feeds
    the BEAT COUNT. Do it only with the census, get-out and FSM measured either side.
-7. **`Zero Line` and `Zero Box` as real formations** — the fix for the reported "modules replayed from
-   the wrong start". 168 of the 294 corpus modules are written for them and the engine has neither
-   (`Zero Box` exists in `formations.xml` only as a 4-dancer entry). `start-formation-probe.mjs`
-   measures the mapping and says it cannot be read off the data yet, so this is vocabulary work of the
-   Phase F kind, not a rename.
-8. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
+7. **`Right and Left Grand`'s final board** — from `Ocean Waves` it leaves all eight on a ring at 45°
+   increments that `knownFormation` cannot name, while `ceder-7046` declares `Static Square`. Decide
+   whether the grand's end rotation is wrong or recognition only has an axis-aligned circle template.
+   Small, and it is the last thing between that module and running as published.
+8. **Fix the second "arrangement"** — `analyzeFasr`'s field is a prose count that cannot distinguish
+   `gBgB` from `BgBg`; `alignment.ts` has the real Callerlab number. One name, one meaning.
+9. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
    plus `Lead Right from Eight Chain Thru`. Small (worst 0.1476 units) but it is a teleport on the
    last beat, and it names one cause: the pose just before the end is not the pose `applyWholeBoard`
    stores. Start from `poseFor(t, dancerBeats(t))` versus `endPoses(variant)`.
-9. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
+10. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
    tie-break sweeps; independent of each other and of the figure work.
-10. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
+11. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
    chains, but it is a new mechanism (what is a call?) rather than a fix, and it should be designed
    against a second witness before any code. Its cheap half is the decoder side — the 4 unread cells
    (`figm75 --1/2`, `figm170 S-`, `figm184 --Keep`, `figm226 H-meet-T1/4`) are Phase I work and two of

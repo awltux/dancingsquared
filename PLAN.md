@@ -2658,11 +2658,24 @@ parallel grouping the animator re-derived differently from the applicator). Then
    (`0`, `1`, `2`, `5`), while the INDEX varies with the letter and the arrangement and is therefore
    the wrong key. The in-sequence/out-of-sequence indices are only *usually* 1 and 2 (8 of 10 each)
    because index and relabelling coincide on those codes by coincidence of construction order.
-   **What that means for `boardForAlignment`:** the selection freedom the plan describes is exactly a
-   rotation of the whole set, and All8's drawing fixes it by the sequence state. This is a measurement
-   over one corpus and has NOT been shipped as a rule — the honest next step is to check it against a
-   second source (the `getoutd.htm` non-`[L]` diagrams it already covers, and the `16com` pages) before
-   any code path selects on it.
+   **What that means for `boardForAlignment`, and it is narrower than the plan assumed:** the selection
+   freedom is exactly a rotation of the whole set, All8's drawing fixes it by the sequence state, and
+   the fixing rotation is **0 for sequences 3 and 4** — so the CURRENT behaviour (`boards[0]`) is
+   already right for every sequence-3/-4 code, and the fix is confined to sequences 1 and 2. The corpus
+   contains no sequence-3/-4 code whose relationship resolves (`P1c`/`P2r` admit no board for exactly
+   that reason), so nothing the engine does today changes either way. **The rule is measured on 26
+   diagrams across six formation letters and four arrangement numbers, and it is spelled out as a
+   sequence->rotation table rather than a formula**; the honest next step before it selects anything is
+   a check on a second source (below).
+   **THE SECOND SOURCE IS REAL BUT NOT YET DECODED.** All8's "16 Possible Pairings" pages
+   (`16com_<b|l|f|w|p>.htm`) publish a couple-numbered grid per state — every spot is an `<img>` whose
+   `alt` is `<gender><facing><couple>`, e.g. `alt="Gv3"` — plus the state's own FASR label and resolve
+   hint, so they cover all 16 states including sequences 3 and 4 that the corpus cannot reach.
+   `test/tools/sixteen-states-board-probe.mjs` reads them (16 labelled cells of 8 tiles per page, all
+   parsed), but the page's TILE ORDER does not line up with the engine template's spot order under any
+   of the simple readings, and the tile-to-spot mapping has not been solved yet — so this source has
+   NOT confirmed or refuted anything. Recorded because the pages are the right second source and the
+   parser is already written; what is missing is the layout, not the data.
 8. **`boardFromMatchables` uses the ARRAY INDEX as dancer id** (`id: i + 1`) for any geometry that is
    not home-like, so a named formation stood up from the library has arbitrary ids and reports
    `sequence: unknown`. At SETUP the FASR properties should place the dancers, not the index. 129 of

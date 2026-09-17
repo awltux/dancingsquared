@@ -133,6 +133,21 @@ for (const [k, v] of [...rule.entries()].sort()) {
   const codes = rows.filter((r) => `${r.arr}${r.seq}` === k).map((r) => r.code);
   console.log(`  ${k.padEnd(9)}  +${v}         ${codes.join(' ')}`);
 }
+
+// WHY THE FIX IS NARROWER THAN IT LOOKED. `boardForAlignment` returns boards[0]; the rule says to
+// relabel by k(sequence). If k is 0 the CURRENT pick is already all8's, and only sequences 1 and 2
+// need anything doing - which is exactly the case the corpus can validate, because it contains no
+// sequence-3 or -4 code whose relationship resolves.
+console.log('\n=== does boards[0] already need changing, per sequence? ===');
+for (const s of [1, 2, 3, 4]) {
+  const rs = rows.filter((r) => r.seq === s);
+  const rots = [...new Set(rs.map((r) => r.rot))].sort();
+  console.log(`  sequence ${s}: ${rs.length} diagram-measured code(s), rotations {${rots.join(',')}}`
+    + `${rots.length === 1 && rots[0] === 0 ? '  -> boards[0] is ALREADY correct here' : ''}`);
+}
+const s34 = rows.filter((r) => r.seq === 3 || r.seq === 4);
+console.log(`\n  sequences 3 and 4 together: ${s34.length} measurements, every one at rotation 0,`);
+console.log('  so the current behaviour is already right for them and the fix is confined to 1 and 2.');
+
 console.log('\n  NOTE: this is a table fitted to 26 measurements, not a derivation. It is reported as the');
-console.log('  candidate to test against a SECOND source (the getoutd.htm non-[L] diagrams and the');
-console.log('  16com pages), not as a rule to ship.');
+console.log('  candidate to test against a SECOND source, not as a rule to ship.');

@@ -2141,8 +2141,26 @@ happens to satisfy the code, because it now selects All8's own board through the
 
 **`Zero Box` is therefore no longer refused on this ground** — `boardForFasrCode('B1c')` now stands up
 All8's own board and agrees with the setup registry, so the reason the entry gave for keeping it out is
-gone. Wiring it into the app's `START_FORMATION` is the next piece of work, and it is a separate change
-from this correction.
+gone. **AND IT IS NOW WIRED, MEASURED FIRST.** `poc/src/modules.ts` maps `'zero box' -> { code: 'B1c' }`
+and `LETTER_TEMPLATE` gained `S: 'Static Square'` (without it an `[S]`-coded label is told the engine has
+no template for a formation it has). `test/tools/zero-box-probe.mjs` measured the switch before making
+it, over the corpus's own `Zero Box` modules:
+
+```
+from the [B1c] board:  54/324 replay all the way   stops: Left Allemande (33), Trade (22), Pass Thru (19), Circulate (17)
+from home:              0/324 replay all the way   stops: Swing Thru (97), Veer Left (20), Centers In (16), Slide Thru (14)
+```
+
+The second line is the "wrong start" signature this file warns about — `Swing Thru` from a square is
+what a zero-box module meets first when danced from home — so the label demonstrably matters, and the
+board that resolves it is demonstrably better. The 270 that still stop from `[B1c]` are the engine's
+ordinary coverage gaps, the same class the get-out corpus reports, not a mis-set board. `Zero Box` is
+also All8's own name for the code, verbatim from its get-out diagram: *"[B1c] ... Facing Corners / ZERO
+BOX / AL BOX / Box 1-4 / 'AL'"*, and `relationshipStateOf(board, 'B')` reads `c` on exactly that board.
+
+**The corpus counts are worth correcting here too:** the plan said "71 Zero Box", and the corpus on disk
+now holds **324** files labelled `Zero Box` out of 1652 — the entry's number is stale, and the switch
+moves all 324 rather than 71.
 
 ### WHY `[L1p]` DISAGREED: THE CODE NAMES FOUR BOARDS, AND THE ENGINE TOOK THE FIRST
 

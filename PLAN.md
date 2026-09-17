@@ -2174,19 +2174,34 @@ will not apply), and CORPUS (the module's own step is not a call name). Of the 2
   Allemande.`, `Left Allemande After the Square Thru 3/4 the Formation = 8ChT (0) and ZB.`,
   `Left Allemande Lines of Four facing out.`, and even a literal
   `*** not validated *** (Zero Box) Swing Thru`. Nothing in the engine should resolve those.
-- **`Trade` (22) is the biggest GENUINE item and it is a DESIGN question, not a spelling.**
-  `test/tools/trade-whole-set-probe.mjs` measured where the corpus calls a bare `Trade`, and the answer
-  rules out the cheap fix: **85 modules use it, and it is called from EIGHT different formations** —
-  `Ocean Waves` 26, `Completed Double Pass Thru` 7, `Two-Faced Lines` 6, `Tidal Wave` 3,
-  `Lines Facing Out` 3, `Quarter Tag` 2, `Two-Faced Tidal Line RH` 1, `3/4 Tag` 1. The call's own tams
-  are only authored `from="Right-Hand Waves"` and `from="Left-Hand Waves"` and are marked
-  `sequencer="no"`, and the engine refuses a bare `Trade` with "names a group to trade ... it has no
-  whole-set reading". A whole-set reading is therefore only defined for the wave cases unless each of
-  the other formations is established separately — which is a choreography question, not a bridge.
-  **A first reading of this probe was WRONG and is recorded so it is not repeated:** it counted dancers
-  with a same-gender dancer *straight ahead* and reported 4 of 8 everywhere, which looked like "the
-  corpus is misusing the call". A Trade is a `Swing`, not straight-ahead motion, so that count measured
-  the wrong thing entirely and refutes nothing.
+- **`Trade` (22) is the biggest GENUINE item, and an attempt to derive it was made and REVERTED.** The
+  bare `Trade` is real: All8 authors it `from="Right-Hand Waves"` with FOUR `Swing Right` paths,
+  `from="Left-Hand Waves"` with four `Swing Left`, and from `Inverted Lines` too — eight dancers moving
+  in four pairs. The corpus uses it in **85 modules**, and the board it is called FROM is not the start
+  label: `Ocean Waves` 26, `Completed Double Pass Thru` 7, `Two-Faced Lines` 6, `Tidal Wave` 3,
+  `Lines Facing Out` 3, `Quarter Tag` 2, `Two-Faced Tidal Line RH` 1, `3/4 Tag` 1.
+
+  **What was tried:** designate every dancer and reuse `tradeRule`, with a precondition that every
+  dancer has a partner beside them. It made the `Zero Box` corpus go 76 → 83 modules — and it was
+  WRONG, caught by two harness gates rather than by the corpus. Measured afterwards
+  (`test/tools/trade-whole-set-record-probe.mjs`):
+  - **it applied from 126 of the 134 named formations**, `Static Square` included, because "every dancer
+    has someone beside them" is true nearly everywhere and the parity rule then always finds a partner.
+    A derivation covering 94% of formations is not a reading of the call.
+  - **it paired DIFFERENT GENDERS, 2 apart, on a wave**, because `tradeRule`'s rule is "the nearest other
+    trader" and on the engine's wave template the nearest is 2 away, not 4.
+
+  **The trap, recorded so it is not re-entered:** the invariant "leaves an `Ocean Waves` with every
+  gender in its original spot" is satisfied by ALL THREE candidate pairings — same-column 2 apart,
+  across-column 4 apart, and same-gender — and they are **different boards**. Only the across-column one
+  is consistent with the authored motion, since `Swing Left` is defined as `Run Left hands="gripleft"`,
+  i.e. a pair 4 apart. So the cheap invariant does not identify the pairing, and the corpus's
+  module count improving was the wrong reason to believe it.
+
+  **A correct derivation needs two things, and neither is in hand:** (a) the PAIRING the call means on
+  each board, from a source rather than chosen; and (b) a precondition false for the 126 formations
+  where a bare `Trade` is not that call. It therefore REFUSES everywhere, as before — reverted in full,
+  with the engine source otherwise untouched.
 
 **AND A DIFFERENT KIND OF FINDING, worth knowing before chasing more of this list:** of the ~30 distinct
 stopping strings in the `Zero Box` corpus, a third are not call names at all — Ceder comments and

@@ -204,6 +204,22 @@ export function runRule(board: Board, selectedIds: number[], dir?: 'left' | 'rig
 }
 
 /**
+ * `Trade` with NO designation: every dancer is a trader, so every dancer trades with the one beside
+ * them. This is the reading All8's own tams give, and the measurement is why it is safe to derive:
+ * the bare `Trade` tam is authored `from="Right-Hand Waves"` with FOUR paths, all `Swing Right` (and
+ * `from="Left-Hand Waves"` with four `Swing Left`), i.e. all eight dancers move, in four pairs.
+ *
+ * The pairing itself is NOT re-derived here - it is `tradeRule`'s, the same one `Boys Trade` uses, so
+ * the two cannot drift apart. What this adds is the whole-set precondition: EVERY dancer must have a
+ * partner beside them, or the call refuses rather than trading the ones that pair and standing the
+ * rest still (which would be a silently half-applied call).
+ *
+ * Checked against the wave geometry rather than assumed: from the engine's `Ocean Waves` template the
+ * pairs come out `1-8, 2-7, 3-6, 4-5` at a 4-unit gap, and trading them leaves `Ocean Waves` with
+ * every gender in its original slot - which is what a trade of a wave must do.
+ * `test/tools/trade-swing-pose-probe.mjs` prints it.
+ */
+/**
  * `Trade`: the designated dancers trade with each other, running around anyone in between;
  * the dancers in between do not move.
  *
@@ -211,6 +227,11 @@ export function runRule(board: Board, selectedIds: number[], dir?: 'left' | 'rig
  * trader in the direction holding an ODD number of them, and the reference requires that side
  * to be unambiguous (the opposite side holds an even number). Every trader must resolve, and
  * each is used at most once.
+ *
+ * A WHOLE-SET `Trade` (every dancer a trader) was ATTEMPTED on this rule and REVERTED: it applies from
+ * 126 of the 134 named formations, because "every dancer has someone beside them" is true nearly
+ * everywhere and the parity rule then always finds a partner. It also pairs different genders 2 apart
+ * on a wave. See `coded-moves.ts`'s note on the bare `Trade` entry and PLAN.md.
  */
 export function tradeRule(board: Board, selectedIds: number[]): { board: Board } | { reason: string } {
   const phys = physical(board);

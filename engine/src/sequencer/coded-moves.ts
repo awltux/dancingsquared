@@ -401,6 +401,25 @@ const DEFS: {
     precondition: () => 'Run Right names a group to run ("Boys Run Right"); it has no whole-set reading',
     applyToSelection: (b, ids) => runRule(b, ids, 'right'),
   },
+  //   `Trade` FROM A WAVE, with no designation, is NOT DERIVED - see the record below. All8 authors
+  //   the bare `Trade` tam `from="Right-Hand Waves"` with FOUR paths, all `Swing Right`, so a whole-set
+  //   reading looked as available as `Run`'s; but the only rule the engine has for pairing traders
+  //   (`tradeRule`'s parity rule) applies it from 126 of 134 named formations once every dancer is
+  //   designated, which is not a reading of the call. Left refusing, with the shape of a correct
+  //   derivation recorded in PLAN.
+  //   `Trade` WITH NO DESIGNATION IS *NOT* DERIVED, and the attempt is recorded rather than left as a
+  //   mystery. The evidence looked sufficient - All8 authors the bare `Trade` tam `from="Right-Hand
+  //   Waves"` with four `Swing Right` paths, and a bare `Trade` stops 22 modules of the `Zero Box`
+  //   corpus - and it was not. Measured afterwards
+  //   (`test/tools/trade-whole-set-revert-probe.mjs`): a whole-set reading built from `tradeRule` with
+  //   every dancer designated APPLIES FROM 126 OF 134 NAMED FORMATIONS, including `Static Square`,
+  //   because "every dancer has someone beside them" is true nearly everywhere. It also pairs dancers
+  //   of DIFFERENT GENDERS 2 apart on a wave, where a wave trade pairs same-gender dancers across the
+  //   wave. The corpus number improved (76 -> 83 modules) for the wrong reason: more calls applied.
+  //
+  //   The cheap fix - "every dancer has a partner beside them" - is what fails, and the right shape is
+  //   recorded in PLAN so the next attempt starts from it rather than repeating this one.
+  //   `test/tools/trade-whole-set-probe.mjs` and `trade-pairing-board-probe.mjs` hold the measurements.
   {
     aliases: ['Trade'],
     beats: RUN_TRADE_BEATS,

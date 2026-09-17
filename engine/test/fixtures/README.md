@@ -180,18 +180,33 @@ universal rule; it has to be looked up per formation.
 ```
 
 - `rows` are top row first, as printed; each `facing` string gives one character per
-  column: `^` north, `v` south, `<` west, `>` east.
+  column: `^` north, `v` south, `<` west, `>` east. A `.` is an EMPTY spot: a
+  squared set is a ring, and its rows print a gap in the middle rather than a cell,
+  so the row keeps one character per COLUMN and the hole is explicit.
 - `gender` is in the **printed column order `0, 5, 1, 2, 3, 4`** — recorded in
   `keys.numberOrder` so the order can never be silently assumed to be numeric. Entry
-  `k` is one character per column: `B` boy, `g` girl.
+  `k` is one character per column: `B` boy, `g` girl (and `.` on a hole).
+
+**Two versions of a table on the page.** All8 prints the `[S]` table TWICE (two
+orientations of the same square), so the fixture holds 8 rows for it. The first
+`table.length` rows are the arrangements All8 lists under the header; the rest are
+the second drawing of the same data. `alignment.mjs` compares the first
+`table.length` rows, which is every row for every other formation.
+
+**A parsing hazard, fixed here and worth knowing about.** The refresh tool used to
+strip tags with `/<[^>]+>/g`, and the middle rows of `[S]` print a literal `<` (a
+Side facing west). That rule ate everything from that `<` to the next `>`, which is
+the one in "Choreo Bits:" two lines later — so the fixture silently lost `[S]`'s two
+middle rows, one of `[D]`'s and one of `[I]`'s. The tool now only treats `<` as a tag
+when a name or slash follows it. Regenerating the fixture after the fix ADDS those
+rows and changes no other byte.
 
 ## How it is used
 
 `engine/test/alignment.mjs` requires the hand-written tables in
-`src/sequencer/alignment.ts` to equal this file cell for cell (96 cells across the 6
-mapped formations). Transcribing tables by eye is the obvious failure mode, so it is
-checked rather than trusted — and the engine's own templates must independently read
-as arrangement 0, which they do.
+`src/sequencer/alignment.ts` to equal this file cell for cell. Transcribing tables by
+eye is the obvious failure mode, so it is checked rather than trusted — and the
+engine's own templates must independently read as arrangement 0, which they do.
 
 # 3. The 16 states (`all8-16-states.json`)
 

@@ -18,9 +18,33 @@ const SOURCE = 'https://www.all8.com/sd/calling/arrngdia.htm';
 const r = await fetch(SOURCE);
 if (!r.ok) { console.log(`FAIL: HTTP ${r.status} from ${SOURCE}`); process.exit(1); }
 const html = await r.text();
-const text = html.replace(/<script[\s\S]*?<\/script>/gi, '')
-  .replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|div|tr|li|h\d|table|pre|td)>/gi, '\n')
-  .replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ')
+
+/**
+ * Strip tags WITHOUT eating a lone `<`.
+ *
+ * The naive `/ <[^>]+> /g` is what lost the middle rows of [S]: those rows print a literal `<` (a Side
+ * facing west), and the rule consumed everything from it to the next `>` - which is the one in
+ * "Choreo Bits:" two lines later. A tag starts with `<` followed by a name or a slash, so that is the
+ * test; anything else is text, and an unterminated one is left alone.
+ */
+function stripTags(s) {
+  let out = '';
+  let i = 0;
+  while (i < s.length) {
+    const lt = s.indexOf('<', i);
+    if (lt < 0) { out += s.slice(i); break; }
+    out += s.slice(i, lt);
+    const after = s[lt + 1];
+    if (!after || !/[A-Za-z/!]/.test(after)) { out += '<'; i = lt + 1; continue; }
+    const gt = s.indexOf('>', lt);
+    if (gt < 0) { out += s.slice(lt); break; }
+    i = gt + 1;
+  }
+  return out;
+}
+
+const text = stripTags(html.replace(/<script[\s\S]*?<\/script>/gi, ''))
+  .replace(/<br\s*\/?>/gi, '\n').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
   .replace(/\r/g, '').replace(/\n{2,}/g, '\n');
 
 const FACE = new Set(['^', 'v', '<', '>']);
@@ -41,13 +65,28 @@ for (const raw of text.split('\n')) {
   while (i < toks.length && [...toks[i]].every((c) => FACE.has(c))) i++;
   const facing = toks.slice(0, i).join('');
   // The 6 gender cells are printed as separate letters ("g B") for the narrow
-  // formations and run together ("BggBBggB") for the tidal ones, so join them and
-  // split into 6 cells of one column's width.
+  // formations and run together ("BggBBggB") for the tidal ones, so join them.
   const joined = toks.slice(i).join('');
   const width = facing.length;
   if (joined.length !== 6 * width) { cur = null; continue; }
-  const gender = Array.from({ length: 6 }, (_, k) => joined.slice(k * width, (k + 1) * width));
-  if (gender.some((g) => /[^Bg]/.test(g))) { cur = null; continue; }
+
+  // A row that does not occupy all of its lattice - a squared set's Side row prints `> <`, two
+  // characters at its two END spots with the middle empty - carries one letter per arrangement per
+  // OCCUPIED spot, so its cells are 1 character where the others are `width`. Those rows are
+  // recognised by the gap the printed facing shows, and turned into full-width cells with the empty
+  // marker so the row keeps one character per COLUMN like every other.
+  const occupied = [...facing].map((c, j) => (c === '.' || c === ' ' ? -1 : j)).filter((j) => j >= 0);
+  let gender;
+  if (joined.length === 6 * occupied.length && occupied.length < width) {
+    gender = Array.from({ length: 6 }, (_, k) => {
+      const row = Array.from({ length: width }, () => '.');
+      occupied.forEach((col, j) => { row[col] = joined[k * occupied.length + j]; });
+      return row.join('');
+    });
+  } else {
+    gender = Array.from({ length: 6 }, (_, k) => joined.slice(k * width, (k + 1) * width));
+  }
+  if (gender.some((g) => /[^Bg.]/.test(g))) { cur = null; continue; }
   out[cur].rows.push({ facing, gender });
 }
 

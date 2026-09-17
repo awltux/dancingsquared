@@ -2228,9 +2228,10 @@ genuinely ends half-rotated is described by its FORMATION. `ORIENTATION_STEP_DEG
 All8's four states are.
 
 **WHY HOME HAS NO FASR(OO) TABLE — and it is not that home is outside the notation.** All8 lists `[S]`
-as a formation letter ("Squared Set (Static Square)"); what is missing is the engine's mapping and a
-transcribed arrangement table, exactly as `alignment.ts` says of the other 30 of its 36 formations. The
-reason the TABLES skip it is that **every component of the notation is defined RELATIVE to home**:
+as a formation letter ("Squared Set (Static Square)"). It NOW has the engine mapping and a transcribed
+arrangement table (Step 2, above), so home reads `[0S1?]`; what it still lacks is a reference pair, and
+that is a Step 3 question. The reason the TABLES originally skipped it is that **every component of the
+notation is defined RELATIVE to home**:
 
 - Arrangement **0** is defined as "Boy on the left, Girl on the right" — which IS the home arrangement.
 - Sequence **1** is "in sequence" — which IS the home order.
@@ -2253,7 +2254,10 @@ reference dancer. Two consequences worth having on record:
   at least) and a reference pair, and it would make the two readings differ.
 
 **HOME IS `[0S1p?+]`, NOT `[?S1???]` — the difference matters and the `?`s in our own output are a
-lie.** Every part except Occupation is determined *by definition*, not by measurement:
+lie.** (The `?S` half of this is now CLOSED: `[S]` is mapped and the table transcribed, so the engine
+reads `[0S1?]` as an alignment and `[0S1???]` from `fasrooOf`. The relationship is the one part still
+open, and it is open because no reference pair is recorded for `[S]` — not because home is vague.)
+Every part except Occupation is determined *by definition*, not by measurement:
 
 - **Formation is not open.** Home is a squared set — a definite geometry. (The `?` here in our output
   is the missing letter, not generality.)
@@ -2406,12 +2410,65 @@ shipped:
   the source (two per arrangement: `Bg gB gg BB gB Bg` for row 1), and each carries the two facing
   tokens at the row's two OUTER cell positions with the hole between them.
 
-**AND A SMALLER CORRECTION THAT IS INDEPENDENT OF THAT.** `FORMATION_LETTER` has no entry for
-`Static Square`, so `letterForFormation` returns null and `fasrooOf` bails out before it can read
-anything — which is why the POC prints nothing at all for home rather than a partial code. All8 DOES
-give home a letter (`[S]`), so mapping it is correct on its own terms. It is left undone here only
-because on its own it would render `[?S1????]` — a letter with every other part unknown — and that is
-more misleading on screen than the current silence until the table question above is settled.
+**BUILT (Step 2). `[S]` IS IN, with its table, and the readout is no longer a bare letter with
+unknowns.** Measured:
+
+- **`FORMATION_LETTER` has `'Static Square': 'S'` and `ARRANGEMENT_TABLES.S` has the six arrangements.**
+  A SECOND spelling is needed and it is not cosmetic: `alignmentOf` is handed the name
+  `knownFormation` returns, and recognition reports **'Squared Set'** (it comes first in
+  `STANDARD_FORMATIONS`), so keying only the canonical name left `alignmentOf(home, 'Squared Set')`
+  reading `[??1?]` while `alignmentOf(home, 'Static Square')` read `[0S1?]`. Both are listed now, and
+  the reverse map still names one template because 'Squared Set' is not in the formation library.
+  `arrangementFor(home, 'S')` is **0** (candidates `[0]`, mirroredCandidates `[5]`) and
+  `alignmentOf(home, 'Static Square').notation` is **`[0S1?]`** - a real arrangement and a real
+  sequence, with the relationship unknown for the stated reason. `fasrooOf(home, ...)` is
+  **`[0S1???]`**. So the POC no longer reads `[?S1????]`: the two parts the engine can determine are
+  determined, and the note attached to the readout already says why the reference pair is missing.
+  **THE DECISION IS TO SHOW IT**, because the misleading shape the plan was worried about (one real
+  letter, everything else `?`) does not arise: arrangement and sequence come out real, and the
+  remaining `?`s are exactly the ones Callerlab gives `[S]` no convention for.
+- **The table had to be stated in the ENGINE's frame, and that is forced by the code rather than
+  chosen.** `arrangementFor` matches the facing layout EXACTLY under the four rotations and never
+  accepts a reflection; the home square is invariant under all four rotations, so its facing layout
+  (`.vv. / >..< / >..< / .^^.`) is the only one reachable. The source page draws the same square in the
+  other orientation, which is not a rotation of it, so the source's rows cannot be used as printed.
+  What IS taken from the source is the six gender patterns in their printed column order, which put
+  arrangement 0 where All8's own definition puts it: at home.
+- **The row ORDER and the cell COLUMNS are what had to be derived, and hand-deriving them produced two
+  wrong tables before a mechanical check caught it.** `squared-set-table-build-probe.mjs` now reads the
+  source's token stream, tries all six cyclic column shifts, and picks the one whose arrangement 0 is
+  the home square. It matters because the engine's row order is NOT the source's: the home square's
+  own projection is `.vv. / >..< / >..< / .^^.`, and that projection is what fixes which source row
+  goes where.
+- **A half-sashay now reads 5** (`swap each couple's two spots`), so home and half-sashayed home - the
+  pair the plan says the engine "cannot tell apart" - are now distinguished.
+- **`boardsForAlignment` no longer refuses `[S]`, but only for a spec that does not name a
+  relationship.** It compared a board's arrangement to one NUMBER, and a ring's board can carry two
+  honest readings (a half turn maps 1<->2 and 3<->5), so it admitted nothing; membership of the
+  candidate set is the right test, and `{letter S, arrangement 0}` now returns **576** boards rather
+  than 0. The harness's reachability table still prints `0:0/16` for `[S]` and that is correct rather
+  than a leftover: it asks for all four parts, `relationshipStateOf(board, 'S')` is null, and a
+  constraint the engine cannot evaluate admits nothing. **`boardForAlignment` picks the first of those
+  576** - the same order-dependence the plan records for `[L1p]`, now visible for `[S]` too. That is
+  Step 3's problem and it is not guessed at here.
+- **Still NOT resolved for `[S]`, recorded as Step 3's starting point.** A board built by the
+  enumeration reads `sequence null` (`sequenceFor` finds the couple order asymmetric), and
+  `relationshipStateOf(board, 'S')` is null because `[S]` has no recorded adjacent-pair structure - so
+  a spec naming a sequence or a relationship admits nothing. `{letter S, arrangement 0}` gives 576
+  boards; adding `sequence: 1` gives 16; adding `relationship: 'p'` gives 0. The setup primitive is to
+  be keyed on the couple-to-spot assignment and build the board directly, which is what skips this
+  whole search.
+- **A second parser defect in the fixture refresh, fixed, and it is why the fixture is worth
+  regenerating rather than hand-editing.** `fetch-arrangements.mjs` stripped tags with `/<[^>]+>/g`,
+  which ate every row whose printed arrows include `<` - the middle rows of `[S]`, one row of `[D]` and
+  one of `[I]`. A `<` only starts a tag when a name or a slash follows it, and the fix says so.
+  Regenerating AFTER the fix ADDS those rows and changes no other byte: 39 formations, 0 deletions.
+
+**AND A SMALLER CORRECTION THAT IS INDEPENDENT OF THAT (DONE in Step 2).** `FORMATION_LETTER` had no
+entry for `Static Square`, so `letterForFormation` returned null and `fasrooOf` bailed out before it
+could read anything — which is why the POC printed nothing at all for home rather than a partial code.
+All8 DOES give home a letter (`[S]`), and it is now mapped, together with the table that makes the
+arrangement readable.
 
 **What is still NOT trustworthy in `fasrooOf`: the ORIENTATION CONSTRUCTION.** All8 defines it by
 superimposing the SQUARED SET, where the reference boy's home is a SPOT (couple 3 north at (1,3)) that

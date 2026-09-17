@@ -95,6 +95,34 @@ export const ARRANGEMENT_TABLES: Record<string, ArrangementTableRow[]> = {
     { facing: 'vv^^', genders: ['gBBg', 'BggB', 'ggBB', 'BBgg', 'BgBg', 'gBgB'] },
     { facing: 'vv^^', genders: ['gBBg', 'BggB', 'BBgg', 'ggBB', 'gBgB', 'BgBg'] },
   ],
+  // Squared Set (Static Square). A RING: eight points on a 4x4 lattice, with the
+  // middle of every row and column EMPTY, so this is the one table whose rows carry
+  // the empty marker.
+  //
+  // The layout is stated in the ENGINE's frame, not in the source page's drawing
+  // frame, and that is forced rather than chosen: `arrangementFor` matches the
+  // facing layout EXACTLY under the four rotations (a reflection is never accepted),
+  // the home square is invariant under all four rotations, and its facing layout is
+  // `.vv. / >..< / >..< / .^^.` - the Heads at the two middle spots (facing south
+  // and north) and the Sides at the two END spots (facing east and west, i.e. toward
+  // the centre). That is also why each Side row's two cells sit at its END columns
+  // and each Head row's pair at its two MIDDLE columns, which is what puts the empty
+  // marker in the middle of the Head rows and at the ends of the Side rows.
+  //
+  // The six GENDER patterns are All8's own, read off the source's token stream in
+  // its printed column order, and the column that is HOME is All8's definition of
+  // arrangement 0 - which here is the source's own first column, so no relabelling is
+  // needed. Both facts are mechanical and checked:
+  // test/tools/squared-set-table-build-probe.mjs rebuilds this table from the page
+  // and picks the column shift; arrangement 0 comes out as the engine's home square
+  // `.gB. / B..g / g..B / .Bg.`, and test/tools/squared-set-readout-probe.mjs then
+  // confirms arrangementFor(home, 'S') is 0 and a half-sashayed home is 5.
+  S: [
+    { facing: '.vv.', genders: ['.gB.', '.Bg.', '.BB.', '.gg.', '.gB.', '.Bg.'] },
+    { facing: '>..<', genders: ['B..g', 'g..B', 'g..g', 'B..B', 'g..B', 'B..g'] },
+    { facing: '>..<', genders: ['g..B', 'B..g', 'g..g', 'B..B', 'B..g', 'g..B'] },
+    { facing: '.^^.', genders: ['.Bg.', '.gB.', '.BB.', '.gg.', '.Bg.', '.gB.'] },
+  ],
 };
 
 /**
@@ -130,6 +158,18 @@ export const FORMATION_LETTER: Record<string, string> = {
   'Two-Faced Lines': 'F',
   'Two-Faced Lines RH Compact': 'F',
   'Two-Faced Lines LH': 'L.F',
+  // All8 gives home a letter: "[S] Squared Set (Static Square)". Adding it is what
+  // lets `arrangementFor` read the home arrangement at all. It is safe for the reverse
+  // map too, because the engine's own template is the only formation that realises
+  // [S], so FORMATIONS_FOR_LETTER['S'] names exactly that one board.
+  //
+  // BOTH of the engine's names for home are listed, and they are not interchangeable
+  // here: FORMATION_SYNONYMS maps 'Squared Set' -> 'Static Square', but
+  // `alignmentOf` is handed the name `knownFormation` returns, and recognition
+  // reports 'Squared Set' (it comes first in STANDARD_FORMATIONS). Keying only the
+  // canonical spelling left `alignmentOf(home, 'Squared Set')` reading `[??1?]`.
+  'Static Square': 'S',
+  'Squared Set': 'S',
 };
 
 /** All8's formation letter for an engine formation name, or null if unmapped. */
@@ -1041,7 +1081,20 @@ export function boardsForAlignment(template: Board, spec: AlignmentSpec): Constr
           heading: spot.heading,
         }));
       const board: Board = { dancers: [...place(boySpots, boyOrder), ...place(girlSpots, girlOrder)] };
-      if (arrangementFor(board, spec.letter).number !== spec.arrangement) continue; // genders are fixed by construction; this only guards a mismatched letter
+      // The board must be IN the requested arrangement. A ring can have more than one honest reading
+      // of the same board (a half turn maps 1<->2 and 3<->5, and 0<->4 are the same pattern), in which
+      // case `arrangementFor` reports the pair rather than picking one - so membership is the test,
+      // not equality with a single number.
+      const read = arrangementFor(board, spec.letter);
+      if (read.number !== spec.arrangement && !read.candidates.includes(spec.arrangement)) continue;
+      // Sequence and relationship are deliberately NOT relaxed here. `relationshipStateOf` is undefined
+      // for every letter Callerlab records no reference pair for, and `sequenceFor` reads a ring's
+      // couple order only for the boards whose identities make it readable - so for [S] a
+      // sequence/relationship filter admits nothing and says so, rather than silently admitting
+      // everything. That is honest but not useful, and it is why Step 3's setup primitive is to be
+      // keyed on the COUPLE-TO-SPOT ASSIGNMENT and build the board directly: a spec of
+      // (arrangement, sequence, relationship) does not determine one board even when it resolves, and
+      // for [S] it does not resolve at all.
       if (spec.sequence !== undefined && sequenceFor(board).code !== spec.sequence) continue;
       if (spec.relationship !== undefined && relationshipStateOf(board, spec.letter).code !== spec.relationship) continue;
       boards.push(board);

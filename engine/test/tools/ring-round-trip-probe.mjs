@@ -65,11 +65,16 @@ for (const letter of Object.keys(ARRANGEMENT_TABLES)) {
     for (const turns of [0, 1, 2, 3]) {
       readings++;
       const r = arrangementFor(rotateBoard(boardFromTable(letter, number), turns), letter);
-      if (r.number !== number) bad.push(`${number}@${turns * 90}deg -> ${r.number ?? 'null'} (${r.reason ?? ''})`);
+      // A board is read correctly when its own arrangement is among the readings. For a full grid that
+      // is the same as an exact match; for a RING it is not, because a half turn maps 1<->2 and 3<->5
+      // (and 0<->4 are the same pattern), so such a board has two honest readings.
+      if (r.number !== number && !r.candidates.includes(number)) {
+        bad.push(`${number}@${turns * 90}deg -> ${r.number ?? 'null'} [${r.candidates.join(',')}]`);
+      }
     }
   }
   if (bad.length) fail(`[${letter}] ${bad.slice(0, 3).join('; ')}${bad.length > 3 ? ` (+${bad.length - 3})` : ''}`);
-  else ok(`[${letter}] ${table.length} rows, all ${ARRANGEMENT_NUMBER_ORDER.length * 4} readings correct`);
+  else ok(`[${letter}] ${table.length} rows, all ${ARRANGEMENT_NUMBER_ORDER.length * 4} readings name their own arrangement`);
 }
 console.log(`  ${readings} readings compared against the tables`);
 

@@ -261,6 +261,55 @@
       "gBBg",
       "BggB"
      ]
+    },
+    {
+     "facing": "<<",
+     "gender": [
+      "BB",
+      "gg",
+      "Bg",
+      "gB",
+      "Bg",
+      "gB"
+     ]
+    }
+   ]
+  },
+  "L.D": {
+   "letter": "L.D",
+   "rows": [
+    {
+     "facing": "<<",
+     "gender": [
+      "gg",
+      "BB",
+      "Bg",
+      "gB",
+      "gB",
+      "Bg"
+     ]
+    },
+    {
+     "facing": "v^v^",
+     "gender": [
+      "BBBB",
+      "gggg",
+      "BggB",
+      "gBBg",
+      "BggB",
+      "gBBg"
+     ]
+    },
+    {
+     "facing": ">>",
+     "gender": [
+      "gg",
+      "BB",
+      "gB",
+      "Bg",
+      "Bg",
+      "gB"
+     ]
     }
    ]
   },
@@ -314,6 +363,82 @@
       "ggBB",
       "gBgB",
       "BgBg"
+     ]
+    }
+   ]
+  },
+  "I": {
+   "letter": "I",
+   "rows": [
+    {
+     "facing": "><",
+     "gender": [
+      "Bg",
+      "gB",
+      "BB",
+      "gg",
+      "Bg",
+      "gB"
+     ]
+    },
+    {
+     "facing": "^v^v",
+     "gender": [
+      "BggB",
+      "gBBg",
+      "gggg",
+      "BBBB",
+      "gBBg",
+      "BggB"
+     ]
+    },
+    {
+     "facing": "><",
+     "gender": [
+      "gB",
+      "Bg",
+      "BB",
+      "gg",
+      "gB",
+      "Bg"
+     ]
+    }
+   ]
+  },
+  "L.I": {
+   "letter": "L.I",
+   "rows": [
+    {
+     "facing": "><",
+     "gender": [
+      "Bg",
+      "gB",
+      "BB",
+      "gg",
+      "Bg",
+      "gB"
+     ]
+    },
+    {
+     "facing": "^v^v",
+     "gender": [
+      "gBBg",
+      "BggB",
+      "gggg",
+      "BBBB",
+      "BggB",
+      "gBBg"
+     ]
+    },
+    {
+     "facing": "><",
+     "gender": [
+      "gB",
+      "Bg",
+      "BB",
+      "gg",
+      "gB",
+      "Bg"
      ]
     }
    ]
@@ -1036,6 +1161,83 @@
       "gg",
       "gB",
       "Bg"
+     ]
+    },
+    {
+     "facing": "><",
+     "gender": [
+      "Bg",
+      "gB",
+      "gg",
+      "BB",
+      "gB",
+      "Bg"
+     ]
+    },
+    {
+     "facing": "><",
+     "gender": [
+      "gB",
+      "Bg",
+      "gg",
+      "BB",
+      "Bg",
+      "gB"
+     ]
+    },
+    {
+     "facing": "^^",
+     "gender": [
+      "Bg",
+      "gB",
+      "BB",
+      "gg",
+      "Bg",
+      "gB"
+     ]
+    },
+    {
+     "facing": "vv",
+     "gender": [
+      "gB",
+      "Bg",
+      "BB",
+      "gg",
+      "gB",
+      "Bg"
+     ]
+    },
+    {
+     "facing": "><",
+     "gender": [
+      "Bg",
+      "gB",
+      "gg",
+      "BB",
+      "gB",
+      "Bg"
+     ]
+    },
+    {
+     "facing": "><",
+     "gender": [
+      "gB",
+      "Bg",
+      "gg",
+      "BB",
+      "Bg",
+      "gB"
+     ]
+    },
+    {
+     "facing": "^^",
+     "gender": [
+      "Bg",
+      "gB",
+      "BB",
+      "gg",
+      "Bg",
+      "gB"
      ]
     }
    ]

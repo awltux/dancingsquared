@@ -13,13 +13,19 @@ const html = await r.text();
 console.log(`fetched ${html.length} bytes`);
 
 const anchor = html.indexOf('<a name="S"></a>');
-console.log(`\n=== RAW <pre> of the [S] block (anchor at ${anchor}) ===`);
-{
-  const open = html.indexOf('<pre>', anchor);
+const LETTERS = process.argv.slice(2).length ? process.argv.slice(2) : ['S'];
+for (const letter of LETTERS) {
+  const a = html.indexOf(`<a name="${letter}"></a>`);
+  console.log(`\n=== RAW <pre> of the [${letter}] block (anchor at ${a}) ===`);
+  if (a < 0) { console.log('  (no anchor)'); continue; }
+  const open = html.indexOf('<pre>', a);
   const close = html.indexOf('</pre>', open);
   console.log(`  <pre> at ${open}, </pre> at ${close}`);
   html.slice(open + 5, close).split('\n').forEach((l, i) => {
-    if (l.trim()) console.log(`${String(i).padStart(3)} len=${String(l.length).padStart(3)} |${l}|`);
+    if (!l.trim()) return;
+    console.log(`${String(i).padStart(3)} len=${String(l.length).padStart(3)} |${l}|`);
+    console.log(`        ${[...l].map((c) => (c === ' ' ? ' ' : '^')).join('')}`);
+    console.log(`        ${[...l].map((_, j) => String(j % 10)).join('')}`);
   });
 }
 

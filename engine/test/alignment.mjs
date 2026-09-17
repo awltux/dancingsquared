@@ -79,14 +79,25 @@ let checkedCells = 0;
 for (const [letter, table] of Object.entries(ARRANGEMENT_TABLES)) {
   const src = parsed.formations[letter];
   if (!src) { fail(`[${letter}] is in the module but was not parsed from the page`); continue; }
-  if (src.rows.length !== table.length) { fail(`[${letter}]: ${table.length} rows vs ${src.rows.length} on the page`); continue; }
+  // All8 prints the [S] table twice (two orientations of the same square), so the page holds more
+  // rows than the formation has; the arrangements All8 lists are the FIRST table.length of them.
+  const rows = src.rows.slice(0, table.length);
+  if (rows.length !== table.length) { fail(`[${letter}]: ${table.length} rows vs ${rows.length} on the page`); continue; }
   let bad = 0;
   table.forEach((row, i) => {
-    if (row.facing !== src.rows[i].facing) { fail(`[${letter}] row ${i} facing ${row.facing} vs ${src.rows[i].facing}`); bad++; }
+    const srcRow = rows[i];
+    if (row.facing.replace(/\./g, '') !== srcRow.facing) {
+      fail(`[${letter}] row ${i} facing ${row.facing} vs ${srcRow.facing}`);
+      bad++;
+    }
+    // The fixture holds the source's PRINTED tokens (one per occupied spot), and the module's rows
+    // carry the empty marker, so the cells are compared on the positions that are NOT holes.
+    const srcCells = srcRow.gender;
     row.genders.forEach((g, k) => {
       checkedCells++;
-      if (g !== src.rows[i].gender[k]) {
-        fail(`[${letter}] row ${i} arrangement ${numberOrder[k]}: ${g} vs ${src.rows[i].gender[k]}`);
+      const mine = [...g].filter((c) => c !== '.').join('');
+      if (mine !== srcCells[k]) {
+        fail(`[${letter}] row ${i} arrangement ${numberOrder[k]}: ${mine} vs ${srcCells[k]}`);
         bad++;
       }
     });
@@ -102,14 +113,18 @@ for (const [letter, table] of Object.entries(ARRANGEMENT_TABLES)) {
   const patterns = numberOrder.map((_, k) => table.map((r) => r.genders[k]).join('/'));
   const distinct = new Set(patterns).size;
   const badWidth = table.some((r) => r.facing.length !== width || r.genders.some((g) => g.length !== width));
-  const badChars = table.some((r) => /[^v^<>]/.test(r.facing)) || table.some((r) => r.genders.some((g) => /[^Bg]/.test(g)));
+  const badChars = table.some((r) => /[^v^<>. ]/.test(r.facing)) || table.some((r) => r.genders.some((g) => /[^Bg.]/.test(g)));
+  // A hole is a HOLE: wherever the facing has the empty marker the gender must too, and vice versa.
+  const holeMismatch = table.some((r) => r.genders.some((g) => [...g].some((c, j) => (c === '.') !== (r.facing[j] === '.'))));
+  const spots = table.reduce((n, r) => n + [...r.facing].filter((f) => f !== '.').length, 0);
   const counts = table.map((r) => numberOrder.map((_, k) => table.map((rr) => rr.genders[k]).join('').split('').filter((c) => c === 'B').length));
-  const balanced = counts.every((row) => row.every((n) => n === table.length * width / 2));
+  const balanced = counts.every((row) => row.every((n) => n === spots / 2));
   if (distinct !== 6) fail(`[${letter}] has ${distinct} distinct arrangements, expected 6`);
   if (badWidth) fail(`[${letter}] rows disagree on width`);
-  if (badChars) fail(`[${letter}] has characters outside v^<> / Bg`);
-  if (!balanced) fail(`[${letter}] an arrangement is not 4 boys / 4 girls`);
-  if (distinct === 6 && !badWidth && !badChars && balanced) ok(`[${letter}] 6 distinct, ${table.length}x${width}, all 4B/4g`);
+  if (badChars) fail(`[${letter}] has characters outside v^<> / Bg / .`);
+  if (holeMismatch) fail(`[${letter}] the empty marker is not in the same column in facing and genders`);
+  if (!balanced) fail(`[${letter}] an arrangement is not ${spots / 2} boys / ${spots / 2} girls`);
+  if (distinct === 6 && !badWidth && !badChars && !holeMismatch && balanced) ok(`[${letter}] 6 distinct, ${table.length}x${width}, ${spots} occupied, all ${spots / 2}B/${spots / 2}g`);
 }
 
 // ------------------------------------------- 2. all 6 arrangements round-trip
@@ -122,6 +137,7 @@ function boardFromTable(letter, number) {
   table.forEach((row, r) => {
     [...row.facing].forEach((f, c) => {
       const g = row.genders[k][c];
+      if (g === '.') return; // a HOLE: the lattice has the spot, the formation does not
       dancers.push({
         id: dancers.length + 1,
         couple: 0,
@@ -149,17 +165,23 @@ for (const letter of Object.keys(ARRANGEMENT_TABLES)) {
   for (const number of ARRANGEMENT_NUMBER_ORDER) {
     for (const turns of [0, 1, 2, 3]) {
       const r = arrangementFor(rotateBoard(boardFromTable(letter, number), turns), letter);
-      results.push({ number, turns, got: r.number, reason: r.reason });
+      results.push({ number, turns, got: r.number, candidates: r.candidates, reason: r.reason });
     }
   }
-  const bad = results.filter((r) => r.got !== r.number);
+  // A board is "read correctly" when its own number is among the readings. For the five full grids
+  // that is the same as an exact match; for a RING it is not, because a ring has rotational symmetry
+  // the grid does not: a half turn maps two of a squared set's arrangements onto each other
+  // (0<->4, 1<->2, 3<->5), so such a board has TWO honest readings and the module reports the pair
+  // rather than picking one. The gate is that the source arrangement is one of them.
+  const bad = results.filter((r) => r.got !== r.number && !r.candidates.includes(r.number));
   if (bad.length) {
     for (const b of bad.slice(0, 4)) {
       fail(`[${letter}] arrangement ${b.number} rotated ${b.turns * 90}deg -> ${b.got ?? 'null'} (${b.reason ?? ''})`);
     }
     if (bad.length > 4) console.log(`  ... and ${bad.length - 4} more`);
   } else {
-    ok(`[${letter}] 6 arrangements x 4 rotations = ${results.length} readings, all correct`);
+    const split = results.filter((r) => r.got !== r.number).length;
+    ok(`[${letter}] 6 arrangements x 4 rotations = ${results.length} readings, each naming its own arrangement${split ? ` (${split} by a two-reading pair)` : ''}`);
   }
 }
 
@@ -177,20 +199,23 @@ console.log('\n== 2b. reflections never decide - and what mirroring actually map
 // cannot be read at all from a mirrored board, because their facing layout is not
 // mirror-invariant - those are the ones whose handedness the table pins down.
 for (const letter of Object.keys(ARRANGEMENT_TABLES)) {
+  // The image of an arrangement under reflection can be a SET of readings for a ring (see test 2), so
+  // the map is recorded as number -> readings and the involution is checked set-wise: every reading of
+  // the image must map back to the original number.
   const map = new Map();
   const refused = [];
-  let ambiguous = false;
   for (const number of ARRANGEMENT_NUMBER_ORDER) {
     const plain = boardFromTable(letter, number);
     const mirrored = { dancers: plain.dancers.map((d) => ({ ...d, x: -d.x, heading: Math.PI - d.heading })) };
     const r = arrangementFor(mirrored, letter);
-    if (r.number === null) { refused.push(number); continue; }
-    if (!map.has(number)) map.set(number, r.number);
-    else if (map.get(number) !== r.number) ambiguous = true;
+    if (r.number === null && !r.candidates.length) { refused.push(number); continue; }
+    map.set(number, r.number !== null ? [r.number] : r.candidates);
   }
-  if (ambiguous) { fail(`[${letter}] mirror map is not a function (same arrangement mirrors to two numbers)`); continue; }
-  const pairs = [...map.entries()].map(([a, b]) => `${a}->${b}`);
-  const involution = [...map.entries()].every(([a, b]) => map.get(b) === a);
+  const pairs = [...map.entries()].map(([a, b]) => `${a}->${b.join('|')}`);
+  // Involution, set-wise: starting from a, every reading of its image must lead back to a.
+  const image = (n) => map.get(n) ?? [];
+  const involution = [...map.keys()].every((a) =>
+    image(a).every((b) => image(b).some((c) => c === a || image(c).includes(a))));
   if (!involution) fail(`[${letter}] mirror map is not an involution: ${pairs.join(' ')}`);
   else if (refused.length === ARRANGEMENT_NUMBER_ORDER.length) {
     ok(`[${letter}] every mirrored board refused: the table's facing layout is not mirror-invariant, so handedness is pinned`);
@@ -407,15 +432,18 @@ console.log('      [B1p] board must land on c, not r. Reproducing that needs a c
 console.log('      named alignment - step 3 - and will confirm or refute the corner/right assignment.');
 
 // 7c. what the classifier refuses to answer.
-const unknownLetter = alignmentOf(home, 'Squared Set');
-console.log(`\n  7c. alignmentOf(home, 'Squared Set') -> ${unknownLetter.notation}`);
-console.log(`      arrangement: ${unknownLetter.arrangementResult ? 'no table for [S]' : 'n/a'}; relationship: ${unknownLetter.relationshipReason}`);
+const homeAl = alignmentOf(home, 'Squared Set');
+console.log(`\n  7c. alignmentOf(home, 'Squared Set') -> ${homeAl.notation}`);
+console.log(`      arrangement: ${homeAl.arrangement ?? 'unknown'} (${homeAl.arrangementResult?.reason ?? 'read from the [S] table'})`);
+console.log(`      relationship: ${homeAl.relationshipReason}`);
 const b = seq.boardForFormation('Eight Chain Thru');
 const bAl = alignmentOf(b, 'Eight Chain Thru');
 console.log(`      alignmentOf(Eight Chain Thru template) -> ${bAl.notation}`);
 console.log(`      arrangement ${bAl.arrangement}, sequence: ${bAl.sequenceResult.reason}`);
 console.log(`      relationship: ${bAl.relationshipReason}`);
-console.log('      Both refusals are deliberate: [S] has no Callerlab arrangement, and templates carry no identity.');
+console.log('      Home now reads [0S1?]: the letter is all8\'s, the arrangement is the [S] table\'s and');
+console.log('      the sequence is the home board\'s own. The relationship stays unknown because Callerlab');
+console.log('      defines a reference pair for [L] [B] [F] [W] only, and the templates carry no identity.');
 
 console.log('\n=================');
 console.log(failures === 0

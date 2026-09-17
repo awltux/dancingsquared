@@ -186,7 +186,9 @@ export class CallBrowser {
     if (shown.some((u) => startsAwayFromHome(u.seq))) {
       this.usesEl.innerHTML +=
         `<div class="small"><i>"from X" marks a module the corpus wrote for a formation other than ` +
-        `home; the sequence view always replays from home, so those will not run as published.</i></div>`;
+        `home. The sequence view starts those from the formation itself, in the arrangement the corpus ` +
+        `means - and REFUSES the ones whose arrangement this engine cannot build, rather than replaying ` +
+        `them from the wrong board.</i></div>`;
     }
     for (const btn of this.usesEl.querySelectorAll<HTMLButtonElement>('button[data-use]')) {
       btn.addEventListener('click', () => {

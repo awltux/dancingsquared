@@ -9,7 +9,7 @@ import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figu
 import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
-import { callKey, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
+import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import type { Stage, WalkCycle } from './scene';
 
@@ -578,13 +578,25 @@ export class SequencerController implements SequencerUI {
     // The corpus records each module's start formation, and it is not a decoration: `ceder-7046` is
     // written for a `Zero Line`, and replayed from home its fourth call lands on a `T-Bone RDRD` from
     // which `Right and Left Grand` refuses - which reads as "the calls are broken" when the board is
-    // what is wrong. `Zero Line` is All8's `L0`, and the engine's `Normal Lines` IS `L0`, so most of
-    // these resolve after all. A label the engine has no formation for is a FAILURE, not an
-    // approximation: it is announced and nothing is loaded, because a silently wrong board is worse
-    // than no board.
+    // what is wrong.
+    //
+    // A formation NAME is not enough, because the label names a formation AND an ARRANGEMENT.
+    // `boardForFormation('Normal Lines')` classifies as `[L0]` and still is not a zero line: it
+    // carries no identity and its couples are authored 1,4,3,2. So the start is built from a FASR
+    // CODE (`L1o` = sequence in, facing couples 1-4 and 2-3) on the letter's template.
+    //
+    // A label that does not resolve is a FAILURE, not an approximation: nothing is loaded and the
+    // reason is announced, because a silently wrong board is worse than no board.
     const declared = startFormation?.trim();
-    const target = resolveStartFormation(declared);
-    const startBoard = target ? this.seq.boardForFormation(target) : null;
+    const spec = resolveStartFormation(declared);
+    const startBoard = !spec
+      ? null
+      : spec.formation
+        ? this.seq.boardForFormation(spec.formation)
+        : boardForFasrCode(spec.code ?? '', (l) => {
+            const name = LETTER_TEMPLATE[l];
+            return name ? this.seq.boardForFormation(name) : null;
+          }).board;
     if (declared && !startBoard) {
       this.history = [];
       this.startBoard = undefined;
@@ -592,12 +604,13 @@ export class SequencerController implements SequencerUI {
       this.lastTraceKey = '';
       this.refreshCallSelect();
       this.syncAnimation();
-      this.statusEl.textContent = target
-        ? `cannot load: starts from a "${declared}", which the engine maps to "${target}" - but it could not build that formation.`
-        : `cannot load: starts from a "${declared}", and the engine has no such formation. Replaying it from home would dance different calls, so it is refused rather than approximated.`;
+      this.statusEl.textContent = spec
+        ? `cannot load: starts from a "${declared}", which resolves to ${spec.code} - but the engine could not build that board.`
+        : `cannot load: starts from a "${declared}", and this engine cannot put the dancers into that formation in the RIGHT arrangement. Replaying it from home would dance different calls, so it is refused rather than approximated.`;
       return;
     }
     this.startBoard = startBoard ?? undefined;
+    const startLabel = spec?.code ?? spec?.formation ?? '';
 
     this.history = this.seq.flatten(steps);
     this.rewindToStart();
@@ -613,7 +626,7 @@ export class SequencerController implements SequencerUI {
     if (idx >= 0) this.seekTo(idx);
     this.statusEl.textContent = [
       `loaded ${this.history.length} call(s)`,
-      target ? `from ${target}` : '',
+      startLabel ? `from ${startLabel}` : '',
       refused ? `${refused} refused` : '',
     ].filter(Boolean).join(', ');
   }

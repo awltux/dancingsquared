@@ -47,20 +47,26 @@ that dance bare `Pass Thru`.
 
 The corpus records where each module was written to begin, and those names are
 ceder's, not the engine's — **168 of the 294 modules it offers start somewhere
-other than home** (108 from a Zero Line, 71 from a Zero Box). Sequencer mode
-resolves the label and replays from THAT formation:
+other than home**. A label names a formation **and an arrangement**, and the
+formation library only gets the first half right: `boardForFormation('Normal
+Lines')` classifies as `[L0]` yet carries no identity at all and its couples are
+authored **1,4,3,2**. So the start board is built from a FASR code:
 
-| corpus label | engine formation | why |
+| corpus label | start board | why |
 |---|---|---|
-| `Zero Line` | `Normal Lines` | All8's `L0`; the engine's `[L]` arrangement 0 is exactly All8's `gBgB`/`BgBg` |
-| `Zero Box` | `Eight Chain Thru` | All8's `[B]`, which `alignment.ts` labels "Box / 8-Chain Thru" |
-| `Static Square` | `Static Square` | home |
+| `Zero Line` | All8 code **`L1o`** | sequence in, facing couple-pairs `1-4` and `2-3` — the zero line's own FASR |
+| `Static Square` | `Static Square` | home, where the library is right |
+
+`L1p` is the near-miss: identical at a glance, but its facing pairs are
+`1-2 3-4`, the wrong couples. `engine/test/tools/zero-line-probe.mjs` measures all
+thirteen candidates side by side.
 
 A label the engine cannot resolve is a **failure, not an approximation**: the
 sequence view loads nothing and says which formation it wanted, because replaying
-a module from the wrong board dances different calls and reads as "the sequence is
-broken" rather than "the sequence starts elsewhere". The status line names the
-formation actually used — `loaded 5 call(s), from Normal Lines`.
+from the wrong board dances different calls and reads as "the sequence is broken".
+`Zero Box` is deliberately in that state — the same question for `[B]` has not
+been settled, so its modules refuse rather than run wrong. The status line names
+the board actually used: `loaded 5 call(s), from L1o`.
 
 ## Sequencer mode
 

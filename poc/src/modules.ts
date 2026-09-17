@@ -69,39 +69,59 @@ export function allModules(): NamedSequence[] {
 }
 
 /**
- * The corpus's start-formation LABELS mapped onto engine formations.
+ * The corpus's start-formation LABELS, resolved to an engine board.
  *
- * The corpus names where a module was written to begin, but those names are ceder's, not the
- * engine's, and matching on the label is why 168 of the 294 modules were replayed from the wrong
- * board.
+ * A label names a FORMATION **and an ARRANGEMENT**, and the arrangement is the half the app was
+ * dropping. `Zero Line` is All8's `L0`: letter `L`, arrangement 0. But `boardForFormation('Normal
+ * Lines')` is NOT it — that board classifies as `[L0]` by its gender pattern and still carries NO
+ * identity (couple UNKNOWN for all eight, `sequence` unknown), and its couples are authored in
+ * **1,4,3,2** order. A zero line is couples **1,2,3,4 in sequence**, partner and corner intact.
  *
- * `Zero Line` is All8's **`L0`** — formation letter `L`, arrangement 0 — and the engine's
- * `Normal Lines` IS `L0`. Two independent agreements: `arrangementFor(boardForFormation('Normal
- * Lines'), 'L')` returns 0, and the engine's transcribed table for `[L]` at arrangement 0 is
- * `gBgB` / `BgBg`, which is exactly the row All8 prints for `[L]` column 0. So the engine had a zero
- * line all along; the app never asked for it by the right name.
+ * So the entry is a FASR CODE, built with `boardForFasrCode`, not a formation name. `L1o` is the code
+ * that measures right: identity 8/8, sequence `in`, and the facing couple-pairs are **`1-4` and
+ * `2-3`** — which is exactly what the zero line's FASR says (`1B><4G`, `1G><4B`, `2B><3G`, `2G><3B`).
+ * `L1p` is the near-miss trap: same sequence, same everything visible, but its facing pairs are
+ * `1-2 3-4`, the wrong couples. `engine/test/tools/zero-line-probe.mjs` measures all thirteen
+ * candidates side by side.
  *
- * `Zero Box` is `[B]`, and `alignment.ts`'s own comment on that table is *"Box / 8-Chain Thru"* — so
- * the engine formation for it is `Eight Chain Thru`. `start-formation-probe.mjs` agrees
- * independently: against the corpus's Zero Box modules `Eight Chain Thru` finishes 11 of 25 where the
- * runner-up manages 3.
+ * `Zero Box` IS DELIBERATELY ABSENT. The same question for `[B]` has not been settled, and a wrong
+ * start is worse than none: the module dances different calls and reads as broken. Its modules fail
+ * loudly until someone answers it.
  */
-export const START_FORMATION: Record<string, string> = {
-  'static square': 'Static Square',
-  'squared set': 'Static Square',
-  'zero line': 'Normal Lines',
-  'zero box': 'Eight Chain Thru',
+export interface StartSpec {
+  /** An engine formation name, for a board the formation library gets right (home). */
+  formation?: string;
+  /** An All8 `[arrangement]LETTER[sequence][relationship]` code, for everything else. */
+  code?: string;
+}
+
+export const START_FORMATION: Record<string, StartSpec> = {
+  'static square': { formation: 'Static Square' },
+  'squared set': { formation: 'Static Square' },
+  'zero line': { code: 'L1o' },
 };
 
 /**
- * The engine formation a corpus start-formation label resolves to, or null when the engine has no
- * equivalent.
- *
- * NULL IS THE POINT. A label the engine cannot stand the dancers up in must not be silently replaced
- * by home: the module then dances different calls, which reads as "the sequence is broken" rather
- * than "the sequence starts elsewhere". The caller fails loudly instead.
+ * The engine geometry each All8 formation letter is built from. `boardForFasrCode` needs a TEMPLATE
+ * per letter — the geometry and the per-slot gender — and stamps the arrangement's identity onto it.
  */
-export function resolveStartFormation(label: string | undefined): string | null {
+export const LETTER_TEMPLATE: Record<string, string> = {
+  B: 'Eight Chain Thru',
+  L: 'Normal Lines',
+  W: 'Ocean Waves',
+  P: 'Double Pass Thru',
+  F: 'Two-Faced Lines',
+  'L.F': 'Two-Faced Lines LH',
+};
+
+/**
+ * The engine board a corpus start-formation label resolves to, or null when it cannot be resolved.
+ *
+ * NULL IS THE POINT. A label the engine cannot stand up in the right ARRANGEMENT must not be silently
+ * replaced by one it can: replaying from the wrong board dances different calls, which reads as "the
+ * sequence is broken" rather than "the sequence starts elsewhere". The caller fails loudly instead.
+ */
+export function resolveStartFormation(label: string | undefined): StartSpec | null {
   if (!label) return null;
   return START_FORMATION[label.trim().toLowerCase()] ?? null;
 }

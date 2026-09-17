@@ -2513,6 +2513,30 @@ The code's own `FASROO_ORIENTATION_NOTE` already flags the construction as unver
 `[L1p]` boards reading 315/45/135/225 degrees before quantising is the standing evidence that the
 superposition All8 describes is not what the code does.
 
+### THE ONE LIVE CALLER OF THE OLD SELECTION, CHECKED RATHER THAN ASSUMED
+
+`boardForFasrCode` still returns `boards[0]` — the setup work added `canonicalBoard` and used it in the
+registry, and deliberately did not change the code path the POC runs on. So the app's one coded start
+was asked the question directly, by `test/tools/poc-zero-line-probe.mjs`:
+
+```
+the app loads `Zero Line` as boardForFasrCode('L1o')      identity 8/8, sequence 1, facing pairs 1-4 2-3
+the app's own comment claims                                facing pairs are 1-4 and 2-3   -> CLAIM HOLDS
+```
+
+**So the app is not currently loading a wrong board, and that is a property of `L1o` rather than of the
+code path.** The same probe shows why it is luck rather than correctness: `L1o`'s four candidates read
+`1-4 2-3`, `1-2 3-4`, `1-4 2-3`, `1-2 3-4`, so the property holds on indices **0 and 2** but NOT on 1
+and 3 — the ONE code whose selection happens not to matter is the one code the app uses.
+
+**The consequence is a live trap for the next coded start.** `Zero Box` (`B1c`) is the obvious next
+entry, and for it the measured index is **0 of the same four**, i.e. `boards[0]` would stand the module
+up on the wrong board — silently, on the right geometry, with the right gender pattern. The fix is one
+line at the caller: build through `canonicalBoard(boards, letter, spec)` (or call `setupForFormation`)
+instead of `boardForAlignment`. It is recorded here rather than done because it changes a public
+function's behaviour and nothing in the corpus exercises the difference yet, so it wants the census and
+get-out measured either side.
+
 **AND A SMALLER CORRECTION THAT IS INDEPENDENT OF THAT (DONE in Step 2).** `FORMATION_LETTER` had no
 entry for `Static Square`, so `letterForFormation` returned null and `fasrooOf` bailed out before it
 could read anything — which is why the POC printed nothing at all for home rather than a partial code.

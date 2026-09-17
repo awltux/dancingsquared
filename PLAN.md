@@ -2329,21 +2329,34 @@ couple labels rotated under him — so their four different orientation letters 
 proof of an error. `[P]` is what separates the two readings, and `boardsForAlignment` currently returns
 ZERO boards for `[P]`, so that case has to be built from the diagram rather than from the code path.
 
-**WHY `[S]` HAS NO ARRANGEMENT TABLE, AND IT MAY BE STRUCTURAL.** Attempting to add one surfaced a
-reason that is not about convention at all. `ARRANGEMENT_TABLES` rows are **rectangular grids**: `[B]`
-is 4 rows of 2, `[L]` is 2 rows of 4, `[W]` and `[F]` likewise, and `boardsForAlignment` asserts
-`dancers.length === table.length * table[0].facing.length`, then reads the board onto that grid with
-`readingForLayout` under any rotation.
+**THE MECHANISM, READ NOT INFERRED.** Two specifics, and neither is about the 4x4 lattice being too
+small — it holds the eight dancers comfortably. The blockers are the table FORMAT and one guard:
 
-A squared set is a **RING, not a rectangle**. Its eight occupied points are `(±1,±3)` and `(±3,±1)` —
-eight of the sixteen points of a 4x4 lattice, none of the four corners, none of the centre. No
-rectangular grid contains them, so `[S]` cannot be written in the table format the machinery expects,
-whatever the arrangement number. That is consistent with All8 publishing arrangement DIAGRAMS for the
-formations it gives letters to rather than row-tables for all of them.
+1. **`ARRANGEMENT_TABLES` has no way to express an empty spot.** Each row is a STRING with one character
+   per column — `facing: 'vvvv'`, `genders: ['gBgB', ...]` — so a row is always full width. A ring cannot
+   be written in it, because a ring is exactly a shape with holes.
+2. **`projectCells` demands a COMPLETE CARTESIAN PRODUCT.** Its second line is
 
-So adding `[S]` is not "transcribe one more table". It needs either a non-rectangular table form or a
-separate path for ring formations — and it is worth deciding which before writing anything, because the
-same will be true of every other ring formation (Thars, Alamo, the various diamonds).
+   ```ts
+   const xs = [...new Set(cells.map((c) => +c.x.toFixed(4)))].sort((a, b) => a - b);
+   const ys = [...new Set(cells.map((c) => +c.y.toFixed(4)))].sort((a, b) => b - a);
+   if (xs.length * ys.length !== cells.length) return null;
+   ```
+
+   and it then requires every `(x, y)` combination to be occupied. A squared set's eight points are
+   `(±1,±3)` and `(±3,±1)`: FOUR distinct x values and FOUR distinct y values, so `4 * 4 = 16 !== 8` and
+   the projection bails before anything else runs. No rotation changes that, since a rotation permutes
+   the same eight points.
+
+So the earlier claim was right but loosely stated: it is not that "no rectangular grid contains them",
+it is that **the engine requires the occupied cells to BE a rectangle, and its row-string tables cannot
+write a hole.** Both are general, and both are small: allow an explicit empty marker in the table and
+relax the guard to "every non-empty cell is occupied". That would also cover the other ring and
+spoke formations — Thars, Alamo, diamonds — which are in the same position (a diamond's four points
+give `3 * 3 = 9 !== 4`).
+
+So adding `[S]` is not "transcribe one more table"; it is a small format change plus the table. Worth
+deciding before writing, because everything ring-shaped depends on it.
 
 **AND A SMALLER CORRECTION THAT IS INDEPENDENT OF THAT.** `FORMATION_LETTER` has no entry for
 `Static Square`, so `letterForFormation` returns null and `fasrooOf` bails out before it can read

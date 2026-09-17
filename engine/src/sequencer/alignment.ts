@@ -781,6 +781,139 @@ export interface ConstructionResult {
   reason?: string;
 }
 
+// =====================================================================
+// FASROO - FASR + Orientation + Occupation, which is what a SETUP needs
+// =====================================================================
+
+/**
+ * All8's **Orientation**: how the REFERENCE BOY is rotated from his home spot.
+ *
+ *   H at **H**ome | R **R**ight of Home | O **O**pposite of Home | L **L**eft of Home
+ *
+ * THIS IS A ROTATION OF THE BOARD, NOT THE COUPLE NUMBERING. Which couple index stands on which spot
+ * is pinned by Sequence + Orientation + Occupation TOGETHER, and by none of them alone: Sequence gives
+ * the cyclic ORDER of the couples and says nothing about where the order starts; Orientation rotates
+ * the whole setup; Occupation says whether the reference position is a Head place or a Side place.
+ * Reading Orientation as "which couple is where" was wrong.
+ */
+export type OrientationCode = 'H' | 'R' | 'O' | 'L';
+
+/**
+ * All8's **Occupation**: the reference boy's own couple. `+` he is a **Head** (couples 1 and 3), `'` he
+ * is a **Side** (couples 2 and 4). It matters the moment a call designates Heads, Sides or a couple
+ * number - All8's example is that `Centers Star Thru; Back Away` ends at home either way, but
+ * `Heads Trade` does not.
+ */
+export type OccupationCode = '+' | "'";
+
+/**
+ * ORIENTATION IS QUANTISED IN 45-DEGREE STEPS, not the 90 All8 names. All8's notation carries only
+ * H/R/O/L, but a board can end at a 45-degree offset (several calls leave the square half-rotated), so
+ * the step has to be 45 or those boards cannot be described at all. At a 45-degree offset `code` is
+ * null and `between` names the two states it sits between; the extension is deliberate and is NOT
+ * All8 notation.
+ */
+export const ORIENTATION_STEP_DEG = 45;
+
+export interface Orientation {
+  /** Signed rotation taking the reference boy's home bearing to his current one, in degrees, quantised. */
+  deg: number;
+  /** All8's letter when the rotation is a multiple of 90, otherwise null. */
+  code: OrientationCode | null;
+  /** The two named states a 45-degree offset sits between, e.g. `['H','R']`; empty otherwise. */
+  between: OrientationCode[];
+  reason?: string;
+}
+
+export interface Fasroo {
+  alignment: Alignment;
+  orientation: Orientation | null;
+  occupation: OccupationCode | null;
+  /** The reference boy whose home spot Orientation is measured against. */
+  referenceBoy: number | null;
+  reason?: string;
+  /** e.g. `[0L1pH+]`. A part that cannot be determined is `?` rather than a guess. */
+  notation: string;
+}
+
+const ORIENTATION_NAMES: OrientationCode[] = ['H', 'R', 'O', 'L'];
+
+/**
+ * Read the whole FASROO of a board: FASR plus Orientation and Occupation.
+ *
+ * WHY THIS IS NOT JUST `alignmentOf`. A FASR code names a CLASS of boards: `boardsForAlignment` returns
+ * FOUR distinct boards for every code, identical in every dancer's position, heading and gender, and
+ * differing ONLY in which couple number stands on which spot. FASR tells a caller where the board is so
+ * they can choose the next call; it does not place the dancers absolutely. Orientation and Occupation
+ * supply the rest, and All8's word for FASR + O + O is a **setup**.
+ */
+export function fasrooOf(board: Board, formationName: string | null): Fasroo {
+  const letter = letterForFormation(formationName);
+  const base = alignmentOf(board, formationName);
+  const fail = (reason: string): Fasroo => ({
+    alignment: base,
+    orientation: null,
+    occupation: null,
+    referenceBoy: null,
+    reason,
+    notation: `[${base.arrangement ?? '?'}${letter ?? '?'}${base.sequence ?? '?'}${base.relationship ?? '?'}??]`,
+  });
+  if (!letter) return fail('the formation has no All8 letter, so Orientation and Occupation have no reference dancer');
+  if (!REFERENCE_PAIR_RULES[letter]) return fail(`All8 records a reference pair for [L], [B], [F] and [W] only, so [${letter}] has none to measure from`);
+
+  const rs = relationshipStateOf(board, letter);
+  const reference = rs.reference ?? rs.pairs?.find((p) => p.letter !== null) ?? rs.pairs?.[0];
+  if (!reference) return fail(rs.reason ?? 'no reference pair could be identified on this board');
+
+  const boyId = reference.boy;
+  const home = HOME_DANCERS.find((d) => d.id === boyId);
+  const cur = board.dancers.find((d) => d.id === boyId);
+  if (!home || !cur) return fail('the reference boy is not on the board');
+
+  // Occupation is read straight off the reference boy's own couple: odd = Head (1 and 3), even = Side.
+  const occupation: OccupationCode | null = isKnownCouple(reference.boyCouple)
+    ? (reference.boyCouple % 2 === 1 ? '+' : "'")
+    : null;
+
+  // Orientation: the rotation taking his HOME bearing to his CURRENT bearing, about the set centre.
+  //
+  // *** THIS CONSTRUCTION IS UNVERIFIED AND ALMOST CERTAINLY WRONG. *** All8 says to "superimpose the
+  // image of the squared set with the formation in question" and picture "how the boy in the reference
+  // position is oriented to his home position" - and the reference boy's home is a SPOT on the square
+  // (couple 3 is north at (1,3)), which does not exist in a line or a wave at all. Comparing bearings
+  // about the centre is a different question. MEASURED SYMPTOM: all four `[L1p]` boards come out at a
+  // 45-degree offset (315/45/135/225), never 0/90/180/270 - if the construction were right, at least
+  // one board would read plain H, and all8's canonical board for `[L1p]` is among the four. See
+  // `engine/test/tools/fasroo-probe.mjs`. Left in place because the four values DO separate the four
+  // boards, which is the property that matters, but the absolute reading must not be trusted.
+  const n = board.dancers.length;
+  const cx = board.dancers.reduce((s, d) => s + d.x, 0) / n;
+  const cy = board.dancers.reduce((s, d) => s + d.y, 0) / n;
+  const hx = HOME_DANCERS.reduce((s, d) => s + d.x, 0) / HOME_DANCERS.length;
+  const hy = HOME_DANCERS.reduce((s, d) => s + d.y, 0) / HOME_DANCERS.length;
+  const homeBearing = Math.atan2(home.y - hy, home.x - hx);
+  const curBearing = Math.atan2(cur.y - cy, cur.x - cx);
+  const raw = (Math.atan2(Math.sin(curBearing - homeBearing), Math.cos(curBearing - homeBearing)) * 180) / Math.PI;
+  const deg = Math.round(raw / ORIENTATION_STEP_DEG) * ORIENTATION_STEP_DEG;
+  const normalised = ((deg % 360) + 360) % 360;
+
+  // Hmm: R and L are the one part of this that CANNOT be derived from the code - they are conventions
+  // about which way "right" is, and All8's diagrams are the only statement of them. Clockwise-negative
+  // is used here and is flagged as unconfirmed in PLAN.md.
+  const byDeg: Record<number, OrientationCode> = { 0: 'H', 270: 'R', 180: 'O', 90: 'L' };
+  const code = byDeg[normalised] ?? null;
+  const idx = (normalised / 90) % 4;
+  const between: OrientationCode[] = code
+    ? []
+    : [ORIENTATION_NAMES[Math.floor(idx) % 4], ORIENTATION_NAMES[Math.ceil(idx) % 4]];
+  const orientation: Orientation = { deg: normalised, code, between };
+
+  const notation =
+    `[${base.arrangement ?? '?'}${letter}${base.sequence ?? '?'}${base.relationship ?? rs.code ?? '?'}` +
+    `${code ?? (between.length === 2 ? `${between[0]}${between[1]}` : '?')}${occupation ?? '?'}]`;
+  return { alignment: base, orientation, occupation, referenceBoy: boyId, notation };
+}
+
 /** Every ordering of a small array, in a stable order. */
 function permutations<T>(items: T[]): T[][] {
   if (items.length <= 1) return [items.slice()];

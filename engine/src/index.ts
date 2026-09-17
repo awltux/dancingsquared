@@ -82,8 +82,14 @@ export {
   boardForFasrCode,
   boardFromDiagram,
   readLayout,
+  fasrooOf,
+  ORIENTATION_STEP_DEG,
 } from './sequencer/alignment.js';
 export type {
+  Fasroo,
+  Orientation,
+  OrientationCode,
+  OccupationCode,
   Alignment,
   ArrangementResult,
   SequenceResult,

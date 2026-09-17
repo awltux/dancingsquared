@@ -84,9 +84,19 @@ export function allModules(): NamedSequence[] {
  * `1-2 3-4`, the wrong couples. `engine/test/tools/zero-line-probe.mjs` measures all thirteen
  * candidates side by side.
  *
- * `Zero Box` IS DELIBERATELY ABSENT. The same question for `[B]` has not been settled, and a wrong
- * start is worse than none: the module dances different calls and reads as broken. Its modules fail
- * loudly until someone answers it.
+ * `Zero Box` IS DELIBERATELY ABSENT, AND NO LONGER FOR THE OLD REASON. It was left out because the
+ * `[B]` question had not been settled and a wrong start is worse than none: the module dances different
+ * calls and reads as broken. That question was the SELECTION - a FASR code admits four boards differing
+ * only in which couple stands where, and the engine used to take the first one the enumeration produced,
+ * which is All8's board for `L1o` only by luck - and the engine has since settled it: it now selects
+ * All8's own board through `CANONICAL_INDEX`, a table measured against the 26 diagrams All8 publishes,
+ * and `boardForFasrCode('B1c')` stands up All8's own box. `L1o` is unchanged by that fix, being the one
+ * code whose selection happened not to matter.
+ *
+ * What is left is therefore a PLUMBING decision rather than a measurement, and `START_FORMATION` below
+ * has NOT been changed: the corpus splits 71 modules onto `Zero Box`, so switching them on is a
+ * behaviour change that wants its own commit and a look at how those modules replay (the POC cannot be
+ * run in the environment this work is done in, so it cannot be eyeballed here).
  */
 export interface StartSpec {
   /** An engine formation name, for a board the formation library gets right (home). */

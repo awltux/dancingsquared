@@ -2104,42 +2104,67 @@ than a universal rule — and it is why `Zero Box` is currently left UNRESOLVED 
   the girl he is facing**, `[0F]` the **trailing couple**, `[0W]` the **in-facing end and the adjacent
   girl**. all8 also warns the letter "unfortunately" depends on that choice.
 
-**THE CONFLICT.** all8's text diagram for `[L1p]` is
+**THE CONFLICT — RE-MEASURED AND NO LONGER TRUE.** This entry recorded: all8's text diagram for `[L1p]`
+has facing couple-pairs `{2,3}`/`{1,4}`; "the engine's `boardForFasrCode('L1p')` produces `{1,2}`/`{3,4}`,
+and it is `L1o` that produces `{2,3}`/`{1,4}`", therefore the engine's relationship letter for `[L]` was
+offset by one from all8's. `test/tools/l1p-conflict-probe.mjs` checks it against the fixture's own
+diagram and reads BOTH fields, and the claim does not hold today:
 
 ```
-3> <2
-3> <2
-4> <1
-4> <1
+code     all8 pairs   engine pairs   same?
+L1p      1-4 2-3      1-4 2-3        YES
+L2p      1-4 2-3      1-4 2-3        YES
+L4r      1-1 2-2 3-3 4-4  1-1 2-2 3-3 4-4   YES
+L3c      1-1 2-2 3-3 4-4  1-1 2-2 3-3 4-4   YES
+5L1p     1-4 2-3      1-4 2-3        YES
+5L2p     1-4 2-3      1-4 2-3        YES
+
+all8's diagram           3B(id1) 2G(id4) 3G(id2) 2B(id3) 4B(id7) 1G(id6) 4G(id8) 1B(id5)
+boardForFasrCode('L1p')  3B(id1) 2G(id4) 3G(id2) 2B(id3) 4B(id7) 1G(id6) 4G(id8) 1B(id5)
+boardForFasrCode('L1o')  4B(id7) 1G(id6) 2G(id4) 3B(id1) 1B(id5) 4G(id8) 3G(id2) 2B(id3)
 ```
 
-so the FACING couple-pairs are **`{2,3}` and `{1,4}`** — the corner pairs — and that holds whichever
-way the diagram is rotated or reflected. The engine's `boardForFasrCode('L1p')` produces facing pairs
-**`{1,2}` and `{3,4}`**, and it is `L1o` that produces `{2,3}`/`{1,4}`. So **the engine's relationship
-letter for `[L]` is offset by one from all8's.**
+**What the entry was actually seeing, and why that matters more than the correction.** The `{2,3}`/`{1,4}`
+it attributes to all8's diagram is not what all8 DRAWS — it is the *identity* (`id`) reading of the
+engine's own board, printed by the probe that recorded the entry. `couple` and `id` are different fields:
+`couple` is the board's own numbering (which a FASR code does **not** pin — that is the orientation
+freedom) and `id` is the home identity. All8's diagram assigns couple numbers, so the diagram's **couple**
+field is the authority, and on that field `L1p` reproduces the page character for character while `L1o`
+does not (same facing pairs, different couples). So the offset the entry reported was a field confusion
+in the instrument, not a disagreement with all8 — and the standing lesson is one this file already
+carries in another form: a probe that reads the wrong field will agree with itself and prove nothing.
 
-That matters well beyond the POC: `boardForFasrCode` is the mechanism the per-formation FASR setup
-would be built on, and `alignment.ts` already records that it "reproduces the diagram-derived board
-for 26" of All8's 29 published alignments. A spec of (arrangement, sequence, relationship) that more
-than one identity assignment satisfies — which is exactly what all8 warns about for the arbitrary
-reference pair — is a search that can return a valid-but-not-canonical board, and nothing in the
-harness would notice, because the board it returns satisfies the code it was asked for.
+That retires the second half of the entry as well: `boardForFasrCode` is no longer a search whose answer
+happens to satisfy the code, because it now selects All8's own board through the measured
+`CANONICAL_INDEX` (see the SETUP section above), and `all8-format.mjs` gates the COUPLE placement on all
+26 published diagrams rather than only the identity-free geometry.
 
-**Until that is settled, `Zero Box` stays refused and `Zero Line` stays on the engine's `L1o`** — the
-board that measures right for the PROPERTY a zero line needs (sequence in, every dancer facing a
-corner pair). Pinning it to all8's spelling would be trusting one side of an unresolved disagreement.
+**`Zero Box` is therefore no longer refused on this ground** — `boardForFasrCode('B1c')` now stands up
+All8's own board and agrees with the setup registry, so the reason the entry gave for keeping it out is
+gone. Wiring it into the app's `START_FORMATION` is the next piece of work, and it is a separate change
+from this correction.
 
-### WHY `[L1p]` DISAGREES: THE CODE NAMES FOUR BOARDS, AND THE ENGINE TAKES THE FIRST
+### WHY `[L1p]` DISAGREED: THE CODE NAMES FOUR BOARDS, AND THE ENGINE TOOK THE FIRST
+
+**STATUS: CLOSED, and the measurements below stand — only the "disagrees" part is historical.** The
+diagnosis was exactly right and is worth keeping: a code admits four boards and the engine took the
+first. What has changed since is the SELECTION. `boardForFasrCode` now picks All8's own board through
+the measured `CANONICAL_INDEX` (SETUP section), so no caller sees the disagreement any more, and the
+bullet below that says all8's board is "index 1 of the 4" is still true *for `[L1p]`* while the general
+rule turned out to be a per-code table rather than an index.
 
 Measured by `engine/test/tools/fasr-determinism-probe.mjs`, and it is NOT the indexing hypothesis:
 
 - **Every code admits exactly 4 distinct boards** (`L1p`, `L1o`, `B1c`, `W1p`, `F1p`, … all 4;
   `P1c`/`P2r` admit 0, for the stated reason). So a plain FASR code **does not determine a board**.
 - **`boardForAlignment` returns `boards[0]`** — the first of the four, chosen by enumeration order.
-  That is the whole of the disagreement with all8's diagram.
+  That was the whole of the disagreement with all8's diagram, and it is why `boardForFasrCode` no
+  longer routes through it.
 - **all8's own `[L1p]` IS in the set**: 2 of the 4 boards have its facing pairs `{2,3}`/`{1,4}` with
-  partners adjacent. The engine's pick has `{1,2}`/`{3,4}`. Both satisfy "0L1p"; they are different
-  boards.
+  partners adjacent. The engine's old pick had `{1,2}`/`{3,4}`. Both satisfy "0L1p"; they are different
+  boards. **The facing pairs here are read off the IDENTITY field**, which is what made this look like
+  an offset in the relationship letter — see the correction above; on the COUPLE field, which is what
+  All8's diagram actually prints, the engine's `L1p` board reproduces the page.
 - **The template's ARRAY ORDER changes nothing.** Reversing and rotating the template gives the
   identical 4 boards and the identical `boards[0]`. So dancer indexing does NOT leak into the
   alignment construction.
@@ -2201,9 +2226,10 @@ distinct couple-numberings among them:                      4
 
 So FASR pins the formation geometry, the gender on every spot, the sequence and the relationships —
 **everything except which COUPLE NUMBER sits on which spot**. That free part is exactly all8's
-Orientation, and adding it is what turns a class of boards into an absolute setup. The engine has no
-such part, which is why `boardForFasrCode` returns `boards[0]` and why four different boards honestly
-read the same `[0L1p]`.
+Orientation, and adding it is what turns a class of boards into an absolute setup. **This is what the
+SETUP registry now supplies** (`setupForFormation`, above): the anchor is the couple-to-spot
+assignment, and it is what `boardForFasrCode` selects with — so four different boards still read the
+same `[0L1p]` honestly, and the engine now returns ALL8'S one rather than `boards[0]`.
 
 **This is the correct name for the per-formation table.** It is not a "FASR setup" for a formation; it
 is the formation's **setup** — FASR plus the couple numbering (and, if Head/Side designators are to be
@@ -2513,6 +2539,30 @@ The code's own `FASROO_ORIENTATION_NOTE` already flags the construction as unver
 `[L1p]` boards reading 315/45/135/225 degrees before quantising is the standing evidence that the
 superposition All8 describes is not what the code does.
 
+### THE POC CAN BE CHECKED HEADLESSLY, AND IT HAS THREE PRE-EXISTING FAILURES
+
+Worth recording because the working rule says the POC cannot be run here: `node poc/verify.cjs` DOES run
+— it is a plain Node script against the engine's built `dist`, so it never touches Vite or esbuild and
+the `spawn EPERM` that blocks the app does not apply. It is not a full app check (no UI, no rendering),
+but it exercises the formation/call pipeline a coded start feeds, and it is now the closest thing to a
+POC-side gate this environment has.
+
+**It fails 3 of its checks, and they are PRE-EXISTING rather than caused by this work** — checked by
+rebuilding the engine from the Step 2 commit (`009965b`, before `boardForFasrCode` changed) and running
+it again, which reproduces the identical three:
+
+```
+FAIL Pass Thru half has 2 dancers (expect 4)
+FAIL Pass Thru full (mirrored) has 4 dancers (expect 8)
+FAIL Pass Thru start line shows all dancers holding hands (static)
+```
+
+They are about a `Pass Thru` setup's dancer COUNT and hand holds, which no part of the FASR/setup work
+touches. Recorded rather than fixed: they are a separate defect, and a suite that fails before your
+change is not a gate for it. The POC's own `START_FORMATION` path is exercised by
+`test/tools/poc-zero-line-probe.mjs` and `fasr-code-canonical-probe.mjs` instead, which ask the engine
+the same questions headlessly.
+
 ### THE ONE LIVE CALLER OF THE OLD SELECTION, CHECKED RATHER THAN ASSUMED
 
 `boardForFasrCode` used to return `boards[0]` — the setup work added `canonicalBoard` and used it in the
@@ -2713,15 +2763,18 @@ parallel grouping the animator re-derived differently from the applicator). Then
    variant from the apply's own `ApplyResult.parallel` (which now exists) instead of re-deriving it,
    which is a small change with a much larger blast radius because `matchingVariantInfo` also feeds
    the BEAT COUNT. Do it only with the census, get-out and FSM measured either side.
-7. **PIN THE ORIENTATION.** Every FASR code admits 4 boards — the 4 orientations — and
-   `boardForAlignment` silently returns `boards[0]`. all8's canonical board IS among the four (index 1
-   for `[L1p]`, character-for-character its published diagram); only the SELECTION is wrong. all8's own
-   page says FASR alone is not "Total FASR" and that resolving at home needs Orientation on top, which
-   the engine has no notion of. `REFERENCE_PAIR_RULES` CLASSIFIES a board but is never used to SELECT
-   one. The geometric "nearest its home bearing" rule was TESTED against all six published [L] diagrams
-   and REFUTED (0 of 6), so do not use it.
-   **MEASURED, AND THE "INDEX 1 / INDEX 2" HYPOTHESIS IS REFUTED — the rotation is a function of the
-   SEQUENCE alone.** `test/tools/canonical-board-probe.mjs` rebuilds all8's own board for every one of
+7. **PIN THE ORIENTATION — DONE for the SELECTION, open for the READOUT.** Every FASR code admits 4
+   boards — the 4 orientations — and `boardForFasrCode` used to silently return `boards[0]`. all8's
+   canonical board IS among the four (index 1 for `[L1p]`, character-for-character its published
+   diagram); only the SELECTION was wrong. **The selection is now closed: `CANONICAL_INDEX` is the
+   measured index per code and `boardForFasrCode` routes through `canonicalBoard`, reproducing All8's
+   own board on all 26 published diagrams.** What is still open is `fasrooOf`'s ORIENTATION
+   CONSTRUCTION, which is a display question and is blocked on the `[P]` reference pair — see the
+   dedicated entry above. `REFERENCE_PAIR_RULES` CLASSIFIES a board but is never used to SELECT one.
+   The geometric "nearest its home bearing" rule was TESTED against all six published [L] diagrams
+   and REFUTED (0 of 6), and re-measured at 3 of 26, so do not use it.
+   **MEASURED, AND THE "INDEX 1 / INDEX 2" HYPOTHESIS IS REFUTED.** `test/tools/canonical-board-probe.mjs`
+   rebuilds all8's own board for every one of
    the **26** corpus alignments that publish a diagram (`boardFromDiagram`, the same path
    `alignment-boards.mjs` uses), locates it in `boardsForAlignment`'s enumeration, and reports the
    CYCLIC RELABELLING that takes `boards[0]` to it. The result is not index-based and not
@@ -2735,15 +2788,23 @@ parallel grouping the animator re-derived differently from the applicator). Then
    (`0`, `1`, `2`, `5`), while the INDEX varies with the letter and the arrangement and is therefore
    the wrong key. The in-sequence/out-of-sequence indices are only *usually* 1 and 2 (8 of 10 each)
    because index and relabelling coincide on those codes by coincidence of construction order.
-   **What that means for `boardForAlignment`, and it is narrower than the plan assumed:** the selection
-   freedom is exactly a rotation of the whole set, All8's drawing fixes it by the sequence state, and
-   the fixing rotation is **0 for sequences 3 and 4** — so the CURRENT behaviour (`boards[0]`) is
-   already right for every sequence-3/-4 code, and the fix is confined to sequences 1 and 2. The corpus
-   contains no sequence-3/-4 code whose relationship resolves (`P1c`/`P2r` admit no board for exactly
-   that reason), so nothing the engine does today changes either way. **The rule is measured on 26
-   diagrams across six formation letters and four arrangement numbers, and it is spelled out as a
-   sequence->rotation table rather than a formula**; the honest next step before it selects anything is
-   a check on a second source (below).
+   **THE SEQUENCE-ALONE READING WAS THEN REFUTED TOO, and the shipped form is a per-code table.**
+   `[B]` puts its in-sequence `p` code at index 2 and its `c`/`r` codes at index 0, while
+   `[L] [W] [F] [L.F]` put theirs at 1 — so the relabelling is not a function of the sequence, and
+   `(letter, relationship)` is not a function either (`canonical-rule-probe.mjs` scores each candidate).
+   What ships is `CANONICAL_INDEX`: the measured index per code, with a fallback to `boards[0]` for a
+   code it did not measure. Sequence 3 and 4 codes all measure at index 0, which is worth knowing
+   because it means the CURRENT behaviour was already All8's board for them. **The rule is measured on
+   26 diagrams across six formation letters and four arrangement numbers**; the honest next step before
+   it is trusted further is a check on a second source (below).
+   **AND ONE READ-WITH-CARE NOTE, because it looks like a contradiction and is not.** The old
+   `fasr-determinism-probe.mjs` prints, next to All8's own drawing, `boards[0] ... facing pairs
+   1-2 3-4`. That is the PRE-FIX board, and it is exactly what the entry above records as the
+   "offset by one" conflict. After the fix `boardForFasrCode` returns the board at `CANONICAL_INDEX`
+   instead, which `l1p-board-diagnostic.mjs` confirms dancer by dancer for `[L1p]`: the built board is
+   the enumeration's index 1, couples 3-3-4-4 down one column and 2-2-1-1 down the other, facing pairs
+   `1-4 2-3` — All8's board. The probe still reports on `boards[0]` because that is what it was written
+   to measure; it is not reporting a live disagreement.
    **THE SECOND SOURCE IS REAL BUT NOT YET DECODED, AND THE GAP IS NOW PRECISE.** All8's "16 Possible
    Pairings" pages (`16com_<b|l|f|w|p>.htm`) publish a couple-numbered grid per state — every spot is
    an `<img>` whose `alt` is `<gender><facing><couple>` in EITHER order (`<G4` and `4B>` both occur) —

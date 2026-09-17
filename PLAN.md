@@ -2151,6 +2151,34 @@ resolving dancers "at home" additionally needs **Orientation** (0/90/180/270°) 
 (Head/Side), which all8 marks as *not officially recognized by Callerlab*. The engine has no
 orientation anchor, so `boards[0]` supplies one silently.
 
+**AND ALL8'S CANONICAL BOARD IS ALREADY IN THE SET — index 1 of the 4.** The probe now renders the
+four the way all8's `getoutd.htm` draws them, and the comparison is exact:
+
+```
+all8 getoutd.htm says:   3> 2< | 3> 2< | 4> 1< | 4> 1<
+  [0] <- what boardForAlignment returns   4> 3< | 4> 3< | 1> 2< | 1> 2<
+  [1]                                     3> 2< | 3> 2< | 4> 1< | 4> 1<   *** THIS IS ALL8'S ***
+  [2]                                     2> 1< | 2> 1< | 3> 4< | 3> 4<
+  [3]                                     1> 4< | 1> 4< | 2> 3< | 2> 3<
+```
+
+all8 is the canonical form and the Taminations-derived board is an arbitrary FASR of the four — but
+NOT the one used at the start position. So nothing has to be authored: `boardsForAlignment` already
+computes it, and only the SELECTION is wrong.
+
+**A CANDIDATE SELECTION RULE, derived from the four and checkable.** Read the four by which couple
+stands where, against the home compass positions (`HOME_DANCERS`: couple 3 north, 2 east, 1 south,
+4 west):
+
+- all8's `[1]`: NW 3 (home north), NE 2 (home east), SE 1 (home south), SW 4 (home west) — **every
+  couple is on the side of the formation nearest its home position**, i.e. orientation 0.
+- the engine's `[0]`: NW 4, NE 3, SE 2, SW 1 — the same board rotated one place.
+
+So the rule is "pick the relabelling that puts each couple nearest its home bearing", which is all8's
+own definition of Orientation ("how a reference boy is positioned relative to his home"). It needs no
+new data, only a selection among the four, and it is exactly the anchor `REFERENCE_PAIR_RULES` was
+never used to provide. **CONFIRM THE RULE BEFORE CODING IT** — it is derived from one formation.
+
 **The fix follows the report's wording**: use the FASR properties plus an orientation/reference anchor
 to place the dancers, rather than taking enumeration index 0. `REFERENCE_PAIR_RULES` is used to
 CLASSIFY a board, never to SELECT one, which is the gap.
@@ -2310,11 +2338,12 @@ parallel grouping the animator re-derived differently from the applicator). Then
    which is a small change with a much larger blast radius because `matchingVariantInfo` also feeds
    the BEAT COUNT. Do it only with the census, get-out and FSM measured either side.
 7. **PIN THE ORIENTATION.** Every FASR code admits 4 boards — the 4 orientations — and
-   `boardForAlignment` silently returns `boards[0]`. all8's own page says FASR alone is not "Total
-   FASR" and that resolving at home needs Orientation (and Occupation) on top, neither of which the
-   engine has. `REFERENCE_PAIR_RULES` CLASSIFIES a board but is never used to SELECT one. Until a code
-   (or an explicit anchor) pins which of the 4, "the engine's `[L1p]`" is an arbitrary member of the
-   set and no per-formation FASR setup can be trusted. This is the prerequisite for item 8.
+   `boardForAlignment` silently returns `boards[0]`. all8's canonical board IS among the four (index 1
+   for `[L1p]`, character-for-character its published diagram); only the SELECTION is wrong. all8's own
+   page says FASR alone is not "Total FASR" and that resolving at home needs Orientation on top, which
+   the engine has no notion of. `REFERENCE_PAIR_RULES` CLASSIFIES a board but is never used to SELECT
+   one. Candidate rule: pick the relabelling that puts each couple nearest its home bearing (orientation
+   0). Confirm it, then code it — nothing else in items 8 and 9 can be trusted until then.
 8. **`boardFromMatchables` uses the ARRAY INDEX as dancer id** (`id: i + 1`) for any geometry that is
    not home-like, so a named formation stood up from the library has arbitrary ids and reports
    `sequence: unknown`. At SETUP the FASR properties should place the dancers, not the index. 129 of

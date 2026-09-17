@@ -137,3 +137,54 @@ console.log('      4> <1\n');
   }
   console.log(`  so the set is ${set.size} boards, i.e. the ORIENTATIONS of one board rather than 4 unrelated ones`);
 }
+
+// ---------------------------------------------------------------- (E) THE FOUR, RENDERED AS ALL8 DRAWS THEM
+//
+// all8's getoutd.htm prints [L1p] as two columns of four, each dancer as <couple><facing>:
+//
+//     3> <2
+//     3> <2
+//     4> <1
+//     4> <1
+//
+// Printing the four admitted boards the same way says which one the page means, without anyone having
+// to translate coordinates by hand.
+console.log('\n=== (E) THE FOUR BOARDS FOR [L1p], DRAWN AS ALL8 DRAWS THEM ===');
+{
+  const FACE = ['>', '^', '<', 'v'];
+  const faceChar = (h) => FACE[((Math.round(h / (Math.PI / 2)) % 4) + 4) % 4];
+  /** all8's two-column rendering: lines sorted by x, dancers within a line top to bottom. */
+  const draw = (b) => {
+    const cols = new Map();
+    for (const d of b.dancers) {
+      const key = d.x.toFixed(3);
+      if (!cols.has(key)) cols.set(key, []);
+      cols.get(key).push(d);
+    }
+    const lines = [...cols.entries()].sort((a, c) => Number(a[0]) - Number(c[0])).map(([, ds]) => ds.sort((a, c) => c.y - a.y));
+    const rows = [];
+    for (let r = 0; r < 4; r++) rows.push(lines.map((l) => `${l[r].couple}${faceChar(l[r].heading)}`).join(' '));
+    return rows;
+  };
+  const template = seq.boardForFormation('Normal Lines');
+  const spec = parseAlignmentId('L1p');
+  const res = boardsForAlignment(template, spec);
+  const ALL8 = ['3> <2', '3> <2', '4> <1', '4> <1'];
+  // all8 puts the arrow on the INSIDE of each column (`3> <2`), the renderer here puts it after the
+  // couple, so normalise every token to couple-then-facing before comparing.
+  const norm = (s) => s
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((tok) => (/^[><^v]/.test(tok) ? tok.slice(1) + tok[0] : tok))
+    .join(' ');
+  const key = (rows) => rows.map(norm).join(' | ');
+  console.log(`  all8 getoutd.htm says:   ${key(ALL8)}`);
+  console.log('  the four the engine admits, in the order it enumerates them:');
+  res.boards.forEach((b, i) => {
+    const rows = draw(b);
+    const match = key(rows) === key(ALL8);
+    console.log(`    [${i}]${i === 0 ? ' <- boards[0], what boardForAlignment returns' : '                                                  '} ${key(rows)}${match ? "   *** THIS IS ALL8'S ***" : ''}`);
+  });
+  const idx = res.boards.findIndex((b) => key(draw(b)) === key(ALL8));
+  console.log(`\n  all8's canonical board is at index ${idx} of ${res.boards.length}; boardForAlignment returns index 0.`);
+}

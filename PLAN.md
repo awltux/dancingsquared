@@ -2166,18 +2166,32 @@ all8 is the canonical form and the Taminations-derived board is an arbitrary FAS
 NOT the one used at the start position. So nothing has to be authored: `boardsForAlignment` already
 computes it, and only the SELECTION is wrong.
 
-**A CANDIDATE SELECTION RULE, derived from the four and checkable.** Read the four by which couple
-stands where, against the home compass positions (`HOME_DANCERS`: couple 3 north, 2 east, 1 south,
-4 west):
+**A CANDIDATE SELECTION RULE, TESTED AND REFUTED.** The guess was "pick the relabelling that puts each
+couple on the side of the formation nearest its home position" (orientation 0, all8's own notion).
+`engine/test/tools/fasr-determinism-probe.mjs` transcribes **all six** \([L]\) diagrams all8 publishes
+and checks the rule against every one:
 
-- all8's `[1]`: NW 3 (home north), NE 2 (home east), SE 1 (home south), SW 4 (home west) — **every
-  couple is on the side of the formation nearest its home position**, i.e. orientation 0.
-- the engine's `[0]`: NW 4, NE 3, SE 2, SW 1 — the same board rotated one place.
+```
+code    all8 index   rule index   rule picks all8?
+L1p              1            0   NO
+L2p              2            0   NO
+L4r              1            0   NO
+L3c              2            0   NO
+5L1p             1            0   NO
+5L2p             2            0   NO
+```
 
-So the rule is "pick the relabelling that puts each couple nearest its home bearing", which is all8's
-own definition of Orientation ("how a reference boy is positioned relative to his home"). It needs no
-new data, only a selection among the four, and it is exactly the anchor `REFERENCE_PAIR_RULES` was
-never used to provide. **CONFIRM THE RULE BEFORE CODING IT** — it is derived from one formation.
+**0 of 6.** The rule is not merely unproven, it is wrong — and worse, it is ill-posed for a line
+formation: the four couple centroids sit at the four DIAGONALS (±45°, ±135°) while the home bearings
+are the four cardinals, so every board scores almost the same and the metric degenerates to
+enumeration order. Do not build on it.
+
+**THE SIGNAL WORTH FOLLOWING IS IN THE INDEX ITSELF.** all8's board is at index **1** for every
+in-sequence code (`L1p`, `L4r`, `5L1p`) and index **2** for every out-of-sequence one (`L2p`, `L3c`,
+`5L2p`) — and `boardsForAlignment` enumerates boys first, then girls, so those two indices are near the
+START of the enumeration rather than at arbitrary points in it. That is a much better clue than a
+geometric guess: the canonical board looks like a particular position in the enumeration, not a
+particular shape. Find out what distinguishes indices 1 and 2 from 0 and 3 and the rule falls out.
 
 **The fix follows the report's wording**: use the FASR properties plus an orientation/reference anchor
 to place the dancers, rather than taking enumeration index 0. `REFERENCE_PAIR_RULES` is used to
@@ -2342,8 +2356,10 @@ parallel grouping the animator re-derived differently from the applicator). Then
    for `[L1p]`, character-for-character its published diagram); only the SELECTION is wrong. all8's own
    page says FASR alone is not "Total FASR" and that resolving at home needs Orientation on top, which
    the engine has no notion of. `REFERENCE_PAIR_RULES` CLASSIFIES a board but is never used to SELECT
-   one. Candidate rule: pick the relabelling that puts each couple nearest its home bearing (orientation
-   0). Confirm it, then code it — nothing else in items 8 and 9 can be trusted until then.
+   one. The geometric "nearest its home bearing" rule was TESTED against all six published [L] diagrams
+   and REFUTED (0 of 6), so do not use it. The real clue: all8's board is at enumeration index **1** for
+   in-sequence codes and **2** for out-of-sequence ones, i.e. near the start of the enumeration rather
+   than at a geometric extreme. Work out what distinguishes 1 and 2 from 0 and 3.
 8. **`boardFromMatchables` uses the ARRAY INDEX as dancer id** (`id: i + 1`) for any geometry that is
    not home-like, so a named formation stood up from the library has arbitrary ids and reports
    `sequence: unknown`. At SETUP the FASR properties should place the dancers, not the index. 129 of

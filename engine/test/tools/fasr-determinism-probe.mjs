@@ -188,3 +188,81 @@ console.log('\n=== (E) THE FOUR BOARDS FOR [L1p], DRAWN AS ALL8 DRAWS THEM ===')
   const idx = res.boards.findIndex((b) => key(draw(b)) === key(ALL8));
   console.log(`\n  all8's canonical board is at index ${idx} of ${res.boards.length}; boardForAlignment returns index 0.`);
 }
+
+// ---------------------------------------------------------------- (F) DOES THE CANDIDATE RULE REPRODUCE ALL8?
+//
+// One formation is not evidence. all8's getoutd.htm publishes SIX [L] diagrams, so the candidate rule
+// - "the canonical board is the one that puts each couple on the side of the formation nearest its home
+// position", i.e. orientation 0 - can be tested against all six rather than guessed from one.
+//
+// The decision from the report is that all8 is the authority where it and the Taminations-derived data
+// disagree, so the rule has to REPRODUCE all8, not merely be plausible.
+console.log('\n=== (F) DOES THE ORIENTATION RULE REPRODUCE ALL8 ON EVERY PUBLISHED [L] DIAGRAM? ===\n');
+
+// Transcribed from all8 getoutd.htm, [L] section, exactly as printed.
+const ALL8_L = {
+  L1p: ['3> <2', '3> <2', '4> <1', '4> <1'],
+  L2p: ['4> <1', '4> <1', '3> <2', '3> <2'],
+  L4r: ['1> <1', '2> <2', '4> <4', '3> <3'],
+  L3c: ['2> <2', '1> <1', '3> <3', '4> <4'],
+  '5L1p': ['3> <2', '3> <2', '4> <1', '4> <1'],
+  '5L2p': ['4> <1', '4> <1', '3> <2', '3> <2'],
+};
+
+{
+  const FACE = ['>', '^', '<', 'v'];
+  const faceChar = (h) => FACE[((Math.round(h / (Math.PI / 2)) % 4) + 4) % 4];
+  const norm = (s) => s.split(/\s+/).filter(Boolean).map((t) => (/^[><^v]/.test(t) ? t.slice(1) + t[0] : t)).join(' ');
+  const key = (rows) => rows.map(norm).join(' | ');
+  const draw = (b) => {
+    const cols = new Map();
+    for (const d of b.dancers) {
+      const k = d.x.toFixed(3);
+      if (!cols.has(k)) cols.set(k, []);
+      cols.get(k).push(d);
+    }
+    const lines = [...cols.entries()].sort((a, c) => Number(a[0]) - Number(c[0])).map(([, ds]) => ds.sort((a, c) => c.y - a.y));
+    const rows = [];
+    for (let r = 0; r < 4; r++) rows.push(lines.map((l) => `${l[r].couple}${faceChar(l[r].heading)}`).join(' '));
+    return rows;
+  };
+
+  // HOME_DANCERS: couple 3 north, 2 east, 1 south, 4 west.
+  const HOME_BEARING = { 1: -Math.PI / 2, 2: 0, 3: Math.PI / 2, 4: Math.PI };
+  const angDiff = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+  /** Orientation cost: how far each couple's centroid bearing is from its home bearing. Lower = more home-like. */
+  const orientationCost = (b) => {
+    const n = b.dancers.length;
+    const cx = b.dancers.reduce((s, d) => s + d.x, 0) / n;
+    const cy = b.dancers.reduce((s, d) => s + d.y, 0) / n;
+    let cost = 0;
+    for (const c of [1, 2, 3, 4]) {
+      const ds = b.dancers.filter((d) => d.couple === c);
+      if (!ds.length) return Infinity;
+      const bx = ds.reduce((s, d) => s + d.x, 0) / ds.length - cx;
+      const by = ds.reduce((s, d) => s + d.y, 0) / ds.length - cy;
+      cost += angDiff(Math.atan2(by, bx), HOME_BEARING[c]);
+    }
+    return cost;
+  };
+
+  const template = seq.boardForFormation('Normal Lines');
+  let agree = 0, total = 0;
+  console.log('  code    all8 index   rule index   rule picks all8?');
+  for (const [code, rows] of Object.entries(ALL8_L)) {
+    const spec = parseAlignmentId(code);
+    if (!spec) { console.log(`  ${code.padEnd(7)} not a parseable code`); continue; }
+    const res = boardsForAlignment(template, spec);
+    if (!res.boards.length) { console.log(`  ${code.padEnd(7)} 0 boards admitted`); continue; }
+    const all8Idx = res.boards.findIndex((b) => key(draw(b)) === key(rows));
+    // The rule's pick: lowest orientation cost (ties broken by enumeration order).
+    let bestIdx = 0, bestCost = Infinity;
+    res.boards.forEach((b, i) => { const c = orientationCost(b); if (c < bestCost - 1e-9) { bestCost = c; bestIdx = i; } });
+    total++;
+    const ok = all8Idx >= 0 && bestIdx === all8Idx;
+    if (ok) agree++;
+    console.log(`  ${code.padEnd(7)} ${String(all8Idx).padStart(10)}   ${String(bestIdx).padStart(10)}   ${ok ? 'yes' : 'NO'}`);
+  }
+  console.log(`\n  the orientation rule reproduces all8 on ${agree} of ${total} published [L] diagrams`);
+  console.log(`  (${total < 6 ? 'some codes admitted no boards' : 'all six'})`);
+}

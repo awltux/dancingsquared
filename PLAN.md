@@ -2320,10 +2320,37 @@ artefact. So:
 **AND ORIENTATION IS POSITION, NOT FACING.** The report's reading: it is where the reference boy's
 POSITION falls relative to an **overlaid squared set**, in 90-degree steps — a rotation of the board
 carries him through all four states. `fasrooOf` instead compares his current bearing to HIS OWN home
-bearing about the formation centre, a proxy that never asks which home spot he now corresponds to; the
-one-per-orientation result is evidence it is the wrong question. All8's own worked case is the check:
-in `[P]` the reference boy inside, with the formation rotated 90 degrees, is a **Side** occupation yet
-still oriented **H** — so a correct implementation must produce H and `'` for the same board.
+bearing about the formation centre, a proxy that never asks which home spot he now corresponds to.
+All8's own worked case is the check: in `[P]` the reference boy inside, with the formation rotated 90
+degrees, is a **Side** occupation yet still oriented **H** — so a correct implementation must produce
+H and `'` for the same board. NOTE the honest caveat measured at the same time: in our four `[L1p]`
+boards the reference boy is a DIFFERENT PHYSICAL DANCER each time (refBoy 1, 3, 5, 7), because the
+couple labels rotated under him — so their four different orientation letters are not by themselves
+proof of an error. `[P]` is what separates the two readings, and `boardsForAlignment` currently returns
+ZERO boards for `[P]`, so that case has to be built from the diagram rather than from the code path.
+
+**WHY `[S]` HAS NO ARRANGEMENT TABLE, AND IT MAY BE STRUCTURAL.** Attempting to add one surfaced a
+reason that is not about convention at all. `ARRANGEMENT_TABLES` rows are **rectangular grids**: `[B]`
+is 4 rows of 2, `[L]` is 2 rows of 4, `[W]` and `[F]` likewise, and `boardsForAlignment` asserts
+`dancers.length === table.length * table[0].facing.length`, then reads the board onto that grid with
+`readingForLayout` under any rotation.
+
+A squared set is a **RING, not a rectangle**. Its eight occupied points are `(±1,±3)` and `(±3,±1)` —
+eight of the sixteen points of a 4x4 lattice, none of the four corners, none of the centre. No
+rectangular grid contains them, so `[S]` cannot be written in the table format the machinery expects,
+whatever the arrangement number. That is consistent with All8 publishing arrangement DIAGRAMS for the
+formations it gives letters to rather than row-tables for all of them.
+
+So adding `[S]` is not "transcribe one more table". It needs either a non-rectangular table form or a
+separate path for ring formations — and it is worth deciding which before writing anything, because the
+same will be true of every other ring formation (Thars, Alamo, the various diamonds).
+
+**AND A SMALLER CORRECTION THAT IS INDEPENDENT OF THAT.** `FORMATION_LETTER` has no entry for
+`Static Square`, so `letterForFormation` returns null and `fasrooOf` bails out before it can read
+anything — which is why the POC prints nothing at all for home rather than a partial code. All8 DOES
+give home a letter (`[S]`), so mapping it is correct on its own terms. It is left undone here only
+because on its own it would render `[?S1????]` — a letter with every other part unknown — and that is
+more misleading on screen than the current silence until the table question above is settled.
 
 **What is still NOT trustworthy in `fasrooOf`: the ORIENTATION CONSTRUCTION.** All8 defines it by
 superimposing the SQUARED SET, where the reference boy's home is a SPOT (couple 3 north at (1,3)) that

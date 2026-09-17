@@ -83,6 +83,15 @@ export {
   boardForFasrCode,
   boardFromDiagram,
   readLayout,
+  coupleToSpot,
+  sameCoupleToSpot,
+  rotationBetweenBoards,
+  relabelCouples,
+  canonicalBoard,
+  CANONICAL_INDEX,
+  FORMATION_SETUP_CODE,
+  setupForFormation,
+  compliesWithSetup,
   fasrooOf,
   ORIENTATION_STEP_DEG,
 } from './sequencer/alignment.js';
@@ -104,6 +113,9 @@ export type {
   AdjacentPairResult,
   PartnerPair,
   RelationshipState,
+  CoupleToSpot,
+  FormationSetup,
+  ComplianceLevel,
 } from './sequencer/alignment.js';
 export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS, STANDARD_FINISHES } from './sequencer/constants.js';
 export { applyCodedMove } from './sequencer/coded-moves.js';

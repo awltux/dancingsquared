@@ -2464,6 +2464,36 @@ unknowns.** Measured:
   one of `[I]`. A `<` only starts a tag when a name or a slash follows it, and the fix says so.
   Regenerating AFTER the fix ADDS those rows and changes no other byte: 39 formations, 0 deletions.
 
+**BUILT (Step 3). THE SETUP PRIMITIVE, keyed on the couple-to-spot assignment.** Measured:
+
+- **The anchor is the assignment, and the operations on it are exported**: `CoupleToSpot`,
+  `coupleToSpot`, `sameCoupleToSpot`, `rotationBetweenBoards`, `relabelCouples`. Orientation and
+  Occupation stay derived for display, never used to choose a board.
+- **All8's own board is now SELECTED, not accidentally taken, and the rule is a measurement.** Three
+  candidates were refuted before the table was written, and `canonical-rule-probe.mjs` scores them so
+  nobody re-derives them: the SEQUENCE ALONE (holds for `[L] [W] [F] [L.F]` — in → +3, out → +2 — and is
+  refuted by `[B]`, whose in-sequence `p` code sits at 2 and whose `c`/`r` codes sit at 0), the
+  ARRANGEMENT, and the geometric "nearest its home bearing" rule (**re-measured at 3 of 26**; the plan
+  already had this refuted at 0 of 6). The relationship IS involved — it is the letter All8 measures
+  FROM the reference pair, so it says where the reference pair goes — but `(letter, relationship)` is
+  not a function either. What ships is `CANONICAL_INDEX`, the measured index per code, and **26 of 26
+  published diagrams now select All8's own board**. A code with no entry falls back to `boards[0]`,
+  i.e. to the old behaviour rather than to a guess.
+- **`setupForFormation(name, templateFor)`** is the registry: All8's zero setup code per formation plus
+  the board and assignment it stands up, and it **fails loudly** when the code names a relationship the
+  table has not measured, so a setup is never silently rotated wrong. Nine entries stand up a board with
+  8/8 identity that reads back as its own code, and `Normal Lines → L1o` is confirmed a **ZERO LINE by
+  property** (in sequence, and every dancer facing a dancer of a corner couple).
+- **`compliesWithSetup(board, setup, level)`** with levels `formation | arrangement | sequence |
+  relationship`. A corpus label like `Zero Line` is a REQUIREMENT; the engine could not express that,
+  which is how a module came to start on the right geometry in the wrong arrangement.
+- **TWO THINGS RECORDED RATHER THAN SMOOTHED.** `[S]`'s setup code is **`S1` with no relationship
+  component** — `[S]` has no reference pair, so `S1p` is a state that cannot exist and the enumeration
+  correctly admits nothing for it. And **`L1o`'s index is the one entry not measured off a diagram**:
+  All8 publishes none for an `o` code, and the zero-line property holds on ALL FOUR candidates because
+  it is rotation-invariant (relabelling couples does not change who faces whom), so index 0 is a
+  **recorded choice**, verified to satisfy the property it is used for.
+
 **AND A SMALLER CORRECTION THAT IS INDEPENDENT OF THAT (DONE in Step 2).** `FORMATION_LETTER` had no
 entry for `Static Square`, so `letterForFormation` returned null and `fasrooOf` bailed out before it
 could read anything — which is why the POC printed nothing at all for home rather than a partial code.

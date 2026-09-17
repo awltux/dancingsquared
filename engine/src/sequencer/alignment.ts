@@ -1115,6 +1115,233 @@ export function boardForAlignment(template: Board, spec: AlignmentSpec): Board |
   return boardsForAlignment(template, spec).boards[0] ?? null;
 }
 
+// =====================================================================
+// Part 3: a SETUP - a formation with its couple numbering - and the
+// per-formation registry that stands one up.
+// =====================================================================
+
+/**
+ * A setup's ANCHOR: which home couple stands on which spot.
+ *
+ * This is the primitive the setup work is keyed on, and the reason is measured rather than preferred.
+ * A FASR code admits four boards that are identical in every dancer's position, heading and gender
+ * and differ ONLY here - the couple-to-spot assignment. Orientation and Occupation are a caller-facing
+ * re-encoding of the same information, through conventions that are themselves disputed (a reference
+ * pair Callerlab defines for four formations, an R-vs-L handedness only All8's diagrams state), so
+ * they are derived for DISPLAY and never used to choose a board.
+ */
+export type CoupleToSpot = Record<string, number>;
+
+/** The couple-to-spot assignment of a board, keyed by spot. */
+export function coupleToSpot(board: Board): CoupleToSpot {
+  const out: CoupleToSpot = {};
+  for (const d of board.dancers) {
+    if (isKnownCouple(d.couple)) out[`${d.x.toFixed(3)},${d.y.toFixed(3)}`] = d.couple;
+  }
+  return out;
+}
+
+/** Whether two boards are the same physical board, differing at most by a cyclic couple relabelling. */
+export function sameCoupleToSpot(a: Board, b: Board): boolean {
+  return rotationBetweenBoards(a, b) !== null;
+}
+
+/** The +k relabelling that turns `from` INTO `to`, or null when no k does. */
+export function rotationBetweenBoards(from: Board, to: Board): number | null {
+  const target = coupleToSpot(to);
+  for (let k = 0; k < 4; k++) {
+    const moved: CoupleToSpot = {};
+    for (const d of from.dancers) {
+      if (isKnownCouple(d.couple)) moved[`${d.x.toFixed(3)},${d.y.toFixed(3)}`] = ((d.couple - 1 + k) % 4) + 1;
+    }
+    if (Object.keys(target).length === Object.keys(moved).length
+      && Object.entries(target).every(([spot, couple]) => moved[spot] === couple)) return k;
+  }
+  return null;
+}
+
+/** Apply a +k cyclic relabelling to a board, preserving every dancer's identity otherwise. */
+export function relabelCouples(board: Board, k: number): Board {
+  return {
+    dancers: board.dancers.map((d) => ({
+      ...d,
+      couple: isKnownCouple(d.couple) ? ((d.couple - 1 + k) % 4) + 1 : d.couple,
+    })),
+  };
+}
+
+/**
+ * WHICH OF THE ENUMERATION'S BOARDS IS ALL8'S OWN, measured per code.
+ *
+ * `boardsForAlignment` returns the four boards a code admits in a fixed order, and `boards[0]` is an
+ * enumeration artefact, not All8's board. `test/tools/canonical-board-probe.mjs` rebuilds All8's own
+ * board for every one of the 26 corpus alignments that publishes a diagram, finds it in the
+ * enumeration, and this is the index it lands on. Three things were REFUTED on the way here, so
+ * nobody re-derives them:
+ *
+ *   - it is NOT the formation letter alone, nor the arrangement, nor the sequence alone. A first
+ *     reading said "in sequence -> +3, out -> +2" because that holds for `[L] [W] [F] [L.F]`; `[B]`
+ *     refutes it, putting its in-sequence `p` code at 2 and its `c`/`r` codes at 0.
+ *   - it is NOT the geometric "nearest its home bearing" rule, already recorded as refuted (0 of 6)
+ *     and re-measured here at 3 of 26.
+ *   - the RELATIONSHIP is involved (it is the letter All8 measures FROM the reference pair, so it
+ *     says where the reference pair goes), but (letter, relationship) is not a function either.
+ *
+ * What survives is the table itself: for a code, the index. `p` codes of `[L] [W] [F] [L.F]` sit at 1
+ * when the sequence is 1 and 2 when it is 2, `[B]` sits at 2/1/0/0 by (sequence, relationship), `[P]`
+ * - which admits no board for its non-`p` codes at all - sits at 0 for both `p` codes, and the
+ * sequence-3/4 codes all sit at 0, which is worth knowing because it means the CURRENT behaviour is
+ * already All8's board for them.
+ *
+ * A code with no entry here has NO MEASUREMENT BEHIND ITS SELECTION and falls back to `boards[0]`,
+ * which is what the engine did before this existed. That is deliberate: the plan's rule is to fail
+ * loudly rather than stand dancers up on a guess.
+ */
+export const CANONICAL_INDEX: Record<string, Record<number, Partial<Record<RelationshipCode, number>>>> = {
+  B: { 1: { c: 0, p: 2 }, 2: { r: 0, p: 1 }, 3: { r: 0 }, 4: { c: 0 } },
+  // [L] sequence 1: `p` is measured at 1 (L1p's published diagram). `o` is NOT measured - All8
+  // publishes diagrams for L1p/L2p/L3c/L4r and the 5L variants, not for an `o` code - and index 0 is
+  // taken for it with the reasoning stated rather than hidden: the ZERO-LINE PROPERTY (in sequence,
+  // and every dancer facing a dancer of a corner couple) holds on ALL FOUR candidates, because
+  // relabelling couples does not change who faces whom. So no property can select among them, All8
+  // gives no authority for this one code, and the choice is recorded as a choice. It is verified to
+  // satisfy the property it is used for (setup-registry-probe.mjs, section 1b).
+  L: { 1: { p: 1, o: 0 }, 2: { p: 2 }, 3: { c: 2 }, 4: { r: 1 } },
+  W: { 1: { p: 1 }, 2: { p: 2 } },
+  F: { 1: { p: 1 }, 2: { p: 2 } },
+  'L.F': { 1: { p: 1 }, 2: { p: 2 } },
+  P: { 3: { p: 0 }, 4: { p: 0 } },
+};
+
+/** All8's own board among the ones a code admits, or `boards[0]` when the code is unmeasured. */
+export function canonicalBoard(boards: Board[], letter: string, spec?: AlignmentSpec): Board | null {
+  if (!boards.length) return null;
+  const rel = spec?.relationship;
+  const sequence = spec?.sequence;
+  const index = rel && sequence !== undefined
+    ? CANONICAL_INDEX[letter]?.[sequence]?.[rel]
+    : undefined;
+  if (index === undefined || index >= boards.length) return boards[0];
+  return boards[index];
+}
+
+/**
+ * A named FORMATION's setup: the FASR code All8's zero setup names, and the couple-to-spot assignment
+ * that places the couples - which is the part a code cannot carry, because it admits four boards.
+ */
+export interface FormationSetup {
+  formation: string;
+  letter: string;
+  /** All8's `[arrangement]LETTER[sequence][relationship]` code for this formation's zero setup. */
+  code: string;
+  /** Which home couple stands on which spot; the anchor. Derived, and identical to the code's board. */
+  assignment: CoupleToSpot;
+  /** The board the setup stands up, in the engine template's own metric. */
+  board: Board;
+}
+
+/** The codes. `Normal Lines` -> `L1o` is the one the plan confirmed by property. */
+export const FORMATION_SETUP_CODE: Record<string, string> = {
+  'Normal Lines': 'L1o',
+  'Normal Lines Compact': 'L1o',
+  'Eight Chain Thru': 'B1c',
+  'Ocean Waves': 'W1p',
+  'Two-Faced Lines': 'F1p',
+  'Two-Faced Lines LH': 'L.F1p',
+  'Two-Faced Lines RH Compact': 'F1p',
+  'Ocean Waves RH BGGB Compact': 'W1p',
+  // Home is the one setup that is the identity: arrangement 0, in sequence, partners adjacent. Its
+  // code carries NO relationship component, and that is not an omission: `relationshipStateOf` needs a
+  // reference pair, Callerlab records one for [L] [B] [F] [W] only, and [S] therefore has no
+  // relationship letter at all - which is exactly what `alignmentOf(home)` reports as `[0S1?]`. Writing
+  // `S1p` here would ask the enumeration for a board in a state that cannot exist.
+  'Static Square': 'S1',
+  'Squared Set': 'S1',
+};
+
+/**
+ * Stand a named formation up in its zero setup, or null when the engine has no setup for it.
+ *
+ * `templateFor` supplies the formation's geometry, so this stays pure and does not reach into the
+ * Sequencer - the caller passes `Sequencer.boardForFormation`, exactly as `boardForFasrCode` does.
+ *
+ * The board is CARRIED, not searched for: `boardForFasrCode` enumerates 576 identity assignments and
+ * takes the first of whatever survives, which is why its answer depends on enumeration order. Here the
+ * RELABELLING All8's drawing requires is applied to that first board instead, and the result is stored
+ * alongside the assignment that anchors it.
+ */
+export function setupForFormation(
+  formation: string,
+  templateFor: (name: string) => Board | null,
+): FormationSetup | null {
+  const code = FORMATION_SETUP_CODE[formation];
+  if (!code) return null;
+  const letter = letterForFormation(formation);
+  if (!letter) return null;
+  const template = templateFor(formation);
+  if (!template) return null;
+  const spec = parseAlignmentId(code);
+  if (!spec) return null;
+  // FAIL LOUDLY rather than stand dancers up on a guess: when the code names a RELATIONSHIP letter,
+  // All8's own board for it has to be one the canonical index actually measured. A code it did not
+  // measure would otherwise silently fall back to `boards[0]`, which is the bug this work is fixing.
+  if (spec.relationship !== undefined && CANONICAL_INDEX[letter]?.[spec.sequence ?? 1]?.[spec.relationship] === undefined) {
+    return null;
+  }
+  const built = boardsForAlignment(template, spec);
+  const board = canonicalBoard(built.boards, letter, spec);
+  if (!board) return null;
+  return { formation, letter, code, assignment: coupleToSpot(board), board };
+}
+
+// =====================================================================
+// Part 4: MATCHING a start board against what a module requires.
+// =====================================================================
+
+/**
+ * How much of a setup a caller needs to have honoured, weakest first.
+ *
+ * A corpus label like `Zero Line` is a REQUIREMENT, not a hint: a module written for a zero line
+ * replayed from a square dances different calls. The engine could not express that, so a label was
+ * silently resolved to a board in the wrong ARRANGEMENT - which looked right, because the arrangement
+ * only fixes the gender pattern. This is the missing half.
+ */
+export type ComplianceLevel = 'formation' | 'arrangement' | 'sequence' | 'relationship';
+
+/** Whether a board satisfies a setup at the requested level, with the reason when it does not. */
+export function compliesWithSetup(
+  board: Board,
+  setup: FormationSetup,
+  level: ComplianceLevel,
+  opts: { formationName?: string | null } = {},
+): { ok: boolean; reason?: string } {
+  const name = opts.formationName ?? setup.formation;
+  if (level === 'formation') {
+    return letterForFormation(name) === setup.letter
+      ? { ok: true }
+      : { ok: false, reason: `the board is not a ${setup.formation} (its letter is ${letterForFormation(name) ?? 'unknown'}, the setup needs [${setup.letter}])` };
+  }
+  const read = arrangementFor(board, setup.letter);
+  if (level === 'arrangement') {
+    const want = parseAlignmentId(setup.code)!.arrangement;
+    return read.candidates.includes(want)
+      ? { ok: true }
+      : { ok: false, reason: `the board is not in arrangement ${want} of [${setup.letter}] (it reads ${read.number ?? read.candidates.join('/') ?? 'nothing'})` };
+  }
+  const sequence = sequenceFor(board).code;
+  if (level === 'sequence') {
+    const want = parseAlignmentId(setup.code)!.sequence;
+    return sequence === want
+      ? { ok: true }
+      : { ok: false, reason: `the board is not in sequence ${want} (it reads ${sequence ?? 'nothing'})` };
+  }
+  const want = parseAlignmentId(setup.code)!.relationship;
+  const rel = relationshipStateOf(board, setup.letter).code;
+  return rel === want
+    ? { ok: true }
+    : { ok: false, reason: `the board's relationship is ${rel ?? 'undefined for this formation'}, the setup needs '${want}'` };
+}
+
 /**
  * Build the board an All8 `[FASR]` setup CODE names, with no diagram needed.
  *

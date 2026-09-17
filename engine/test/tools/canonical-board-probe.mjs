@@ -149,5 +149,26 @@ const s34 = rows.filter((r) => r.seq === 3 || r.seq === 4);
 console.log(`\n  sequences 3 and 4 together: ${s34.length} measurements, every one at rotation 0,`);
 console.log('  so the current behaviour is already right for them and the fix is confined to 1 and 2.');
 
+// ---------------------------------------------------------------- THE TABLE TO SHIP
+//
+// The rule is NOT a function of the sequence alone - `[B]` puts its in-sequence codes at rotation 0
+// while `[L] [W] [F] [L.F]` put theirs at +3. It is a function of (FORMATION LETTER, SEQUENCE), which
+// is what this prints as a table ready to paste into `CANONICAL_INDEX`.
+console.log('\n=== THE MEASURED TABLE: index(letter, sequence) ===');
+const table = {};
+for (const r of rows) {
+  (table[r.letter] ??= {});
+  if (table[r.letter][r.seq] === undefined) table[r.letter][r.seq] = r.idx;
+  else if (table[r.letter][r.seq] !== r.idx) {
+    console.log(`  INCONSISTENT: [${r.letter}] sequence ${r.seq} measures both ${table[r.letter][r.seq]} and ${r.idx}`);
+  }
+}
+for (const [letter, byS] of Object.entries(table).sort()) {
+  const entries = Object.entries(byS).sort((a, b) => Number(a[0]) - Number(b[0]));
+  const covered = entries.map(([s]) => s).join(',');
+  console.log(`  '${letter}': { ${entries.map(([s, i]) => `${s}: ${i}`).join(', ')} },   // sequences measured: ${covered}`);
+}
+console.log(`\n  every row of this table is a measurement; ${rows.length} in total. Codes NOT in it (an`);
+console.log('  unmeasured sequence for that letter) have no evidence, and must fall back to boards[0].');
 console.log('\n  NOTE: this is a table fitted to 26 measurements, not a derivation. It is reported as the');
 console.log('  candidate to test against a SECOND source, not as a rule to ship.');

@@ -2209,6 +2209,32 @@ read the same `[0L1p]`.
 is the formation's **setup** — FASR plus the couple numbering (and, if Head/Side designators are to be
 interpreted, Occupation, which the engine also has no notion of).
 
+**FASROO IS NOW IMPLEMENTED — `fasrooOf(board, formationName)`** (All8's `fasroo.htm`: FASR +
+Orientation + Occupation, e.g. `[0L1pH+]`; Orientation `H`/`R`/`O`/`L` measured from the **boy of the
+reference pair**, Occupation `+` Head / `'` Side; both marked *not recognised by Callerlab*; the terms
+are Gero Teufert's, and Bill Davis called Orientation "Quadrature"). It is additive — a new export, no
+existing path touched — and it does the job FASR cannot:
+
+```
+the four boards [L1p] admits, all reading the identical [0L1p]:
+  board 0  [0L1pH+]      board 1  [0L1pL']   <- all8's canonical
+  board 2  [0L1pO+]      board 3  [0L1pR']
+```
+
+Four distinct codes, one per orientation. **A 45-DEGREE ORIENTATION STEP WAS TRIED AND IS WRONG —
+removed.** The reasoning was that a board can end half-rotated and would otherwise be indescribable;
+but **Orientation is relative to HOME**, so the half-steps are not orientations at all. A board that
+genuinely ends half-rotated is described by its FORMATION. `ORIENTATION_STEP_DEG` is 90, which is what
+All8's four states are.
+
+**What is still NOT trustworthy in `fasrooOf`: the ORIENTATION CONSTRUCTION.** All8 defines it by
+superimposing the SQUARED SET, where the reference boy's home is a SPOT (couple 3 north at (1,3)) that
+does not exist in a line or a wave at all; `fasrooOf` compares bearings about the centre instead, which
+is a different question. The four boards do read four distinct orientations — 1:1 onto H/L/O/R — so
+the structure is sound and the readout works, but the ABSOLUTE letter must not be trusted until the
+construction follows All8's superposition, and the **R-vs-L handedness is a convention only All8's
+diagrams state**. Flagged in the source next to the code, not just here.
+
 **The fix follows the report's wording**: use the FASR properties plus an orientation/reference anchor
 to place the dancers, rather than taking enumeration index 0. `REFERENCE_PAIR_RULES` is used to
 CLASSIFY a board, never to SELECT one, which is the gap.

@@ -3,6 +3,10 @@
 // `fasrooOf` reads All8's full setup description: FASR plus Orientation (H/R/O/L) and Occupation
 // (+/'), which is what turns a FASR code - a CLASS of four boards - into an absolute SETUP.
 //
+// ORIENTATION IS IN 90-DEGREE STEPS. An earlier version quantised in 45-degree steps on the reasoning
+// that a board can end half-rotated; that was wrong and has been removed, because Orientation is
+// relative to HOME. A board that genuinely ends half-rotated is described by its FORMATION.
+//
 // The one part that cannot be derived from the code is which of R and L is which: they are conventions
 // about which way "right" is, and All8's diagrams are the only statement of them. Everything else is
 // checkable, and this checks it on boards whose answer is known by construction.
@@ -30,7 +34,7 @@ const show = (label, board, formation) => {
   const f = fasrooOf(board, formation ?? seq.knownFormation(board));
   const o = f.orientation;
   console.log(
-    `  ${label.padEnd(30)} ${f.notation.padEnd(11)} orientation=${o ? `${o.deg}deg ${o.code ?? `between ${o.between.join('/')}`}` : '-'}` +
+    `  ${label.padEnd(30)} ${f.notation.padEnd(11)} orientation=${o ? `${o.deg}deg ${o.code ?? '?'}` : '-'}` +
     `  occupation=${f.occupation ?? '-'}  refBoy=${f.referenceBoy ?? '-'}${f.reason ? `\n      (${f.reason})` : ''}`,
   );
 };

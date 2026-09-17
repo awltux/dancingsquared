@@ -807,21 +807,22 @@ export type OrientationCode = 'H' | 'R' | 'O' | 'L';
 export type OccupationCode = '+' | "'";
 
 /**
- * ORIENTATION IS QUANTISED IN 45-DEGREE STEPS, not the 90 All8 names. All8's notation carries only
- * H/R/O/L, but a board can end at a 45-degree offset (several calls leave the square half-rotated), so
- * the step has to be 45 or those boards cannot be described at all. At a 45-degree offset `code` is
- * null and `between` names the two states it sits between; the extension is deliberate and is NOT
- * All8 notation.
+ * ORIENTATION IS IN 90-DEGREE STEPS, which is what All8's four states are: H/R/O/L are the reference
+ * boy at home, a quarter turn from it, opposite it, and three quarters from it - all measured against
+ * HOME, not against the formation's own axes.
+ *
+ * An earlier version of this quantised in 45-degree steps, on the reasoning that a board can end
+ * half-rotated and would otherwise be indescribable. THAT WAS WRONG and has been removed: Orientation
+ * is relative to Home, so the half-turn states are not orientations at all. A board that ends
+ * half-rotated is described by its FORMATION, which is where the half-rotation lives.
  */
-export const ORIENTATION_STEP_DEG = 45;
+export const ORIENTATION_STEP_DEG = 90;
 
 export interface Orientation {
   /** Signed rotation taking the reference boy's home bearing to his current one, in degrees, quantised. */
   deg: number;
-  /** All8's letter when the rotation is a multiple of 90, otherwise null. */
+  /** All8's letter. H/R/O/L only - there is no half-step state. */
   code: OrientationCode | null;
-  /** The two named states a 45-degree offset sits between, e.g. `['H','R']`; empty otherwise. */
-  between: OrientationCode[];
   reason?: string;
 }
 
@@ -881,11 +882,11 @@ export function fasrooOf(board: Board, formationName: string | null): Fasroo {
   // image of the squared set with the formation in question" and picture "how the boy in the reference
   // position is oriented to his home position" - and the reference boy's home is a SPOT on the square
   // (couple 3 is north at (1,3)), which does not exist in a line or a wave at all. Comparing bearings
-  // about the centre is a different question. MEASURED SYMPTOM: all four `[L1p]` boards come out at a
-  // 45-degree offset (315/45/135/225), never 0/90/180/270 - if the construction were right, at least
-  // one board would read plain H, and all8's canonical board for `[L1p]` is among the four. See
-  // `engine/test/tools/fasroo-probe.mjs`. Left in place because the four values DO separate the four
-  // boards, which is the property that matters, but the absolute reading must not be trusted.
+  // about the centre is a different question, and it shows: the four `[L1p]` boards come out at
+  // 315/45/135/225 degrees before quantising, i.e. every one of them lands on a half-step, and All8's
+  // canonical board reads 'L' rather than the 'H' a correct construction would be expected to give.
+  // See `engine/test/tools/fasroo-probe.mjs`. Left in place because the four values DO separate the
+  // four boards, which is the property the readout needs, but the ABSOLUTE value must not be trusted.
   const n = board.dancers.length;
   const cx = board.dancers.reduce((s, d) => s + d.x, 0) / n;
   const cy = board.dancers.reduce((s, d) => s + d.y, 0) / n;
@@ -894,23 +895,21 @@ export function fasrooOf(board: Board, formationName: string | null): Fasroo {
   const homeBearing = Math.atan2(home.y - hy, home.x - hx);
   const curBearing = Math.atan2(cur.y - cy, cur.x - cx);
   const raw = (Math.atan2(Math.sin(curBearing - homeBearing), Math.cos(curBearing - homeBearing)) * 180) / Math.PI;
+  // Quantised to All8's four states. A board that genuinely ends half-rotated is described by its
+  // FORMATION (a T-bone, a diamond), not by a half-step orientation - Orientation is relative to Home.
   const deg = Math.round(raw / ORIENTATION_STEP_DEG) * ORIENTATION_STEP_DEG;
   const normalised = ((deg % 360) + 360) % 360;
 
-  // Hmm: R and L are the one part of this that CANNOT be derived from the code - they are conventions
-  // about which way "right" is, and All8's diagrams are the only statement of them. Clockwise-negative
-  // is used here and is flagged as unconfirmed in PLAN.md.
+  // R and L are the one part of this that CANNOT be derived: they are conventions about which way
+  // "right" is, and All8's diagrams are the only statement of them. Clockwise-negative is used here
+  // and is flagged as unconfirmed.
   const byDeg: Record<number, OrientationCode> = { 0: 'H', 270: 'R', 180: 'O', 90: 'L' };
-  const code = byDeg[normalised] ?? null;
-  const idx = (normalised / 90) % 4;
-  const between: OrientationCode[] = code
-    ? []
-    : [ORIENTATION_NAMES[Math.floor(idx) % 4], ORIENTATION_NAMES[Math.ceil(idx) % 4]];
-  const orientation: Orientation = { deg: normalised, code, between };
+  const code = byDeg[normalised] ?? ORIENTATION_NAMES[(normalised / 90) % 4];
+  const orientation: Orientation = { deg: normalised, code };
 
   const notation =
     `[${base.arrangement ?? '?'}${letter}${base.sequence ?? '?'}${base.relationship ?? rs.code ?? '?'}` +
-    `${code ?? (between.length === 2 ? `${between[0]}${between[1]}` : '?')}${occupation ?? '?'}]`;
+    `${code ?? '?'}${occupation ?? '?'}]`;
   return { alignment: base, orientation, occupation, referenceBoy: boyId, notation };
 }
 

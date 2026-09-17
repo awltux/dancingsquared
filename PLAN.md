@@ -2642,9 +2642,27 @@ parallel grouping the animator re-derived differently from the applicator). Then
    page says FASR alone is not "Total FASR" and that resolving at home needs Orientation on top, which
    the engine has no notion of. `REFERENCE_PAIR_RULES` CLASSIFIES a board but is never used to SELECT
    one. The geometric "nearest its home bearing" rule was TESTED against all six published [L] diagrams
-   and REFUTED (0 of 6), so do not use it. The real clue: all8's board is at enumeration index **1** for
-   in-sequence codes and **2** for out-of-sequence ones, i.e. near the start of the enumeration rather
-   than at a geometric extreme. Work out what distinguishes 1 and 2 from 0 and 3.
+   and REFUTED (0 of 6), so do not use it.
+   **MEASURED, AND THE "INDEX 1 / INDEX 2" HYPOTHESIS IS REFUTED — the rotation is a function of the
+   SEQUENCE alone.** `test/tools/canonical-board-probe.mjs` rebuilds all8's own board for every one of
+   the **26** corpus alignments that publish a diagram (`boardFromDiagram`, the same path
+   `alignment-boards.mjs` uses), locates it in `boardsForAlignment`'s enumeration, and reports the
+   CYCLIC RELABELLING that takes `boards[0]` to it. The result is not index-based and not
+   arrangement-based:
+   ```
+     sequence 1 (in)    -> relabel +3     (10 of 10)   not 1
+     sequence 2 (out)   -> relabel +2     (10 of 10)   not 2
+     sequence 3, 4      -> relabel  0     ( 6 of  6)
+   ```
+   It holds across every formation letter (`[B] [L] [W] [F] [L.F] [P]`) and every arrangement number
+   (`0`, `1`, `2`, `5`), while the INDEX varies with the letter and the arrangement and is therefore
+   the wrong key. The in-sequence/out-of-sequence indices are only *usually* 1 and 2 (8 of 10 each)
+   because index and relabelling coincide on those codes by coincidence of construction order.
+   **What that means for `boardForAlignment`:** the selection freedom the plan describes is exactly a
+   rotation of the whole set, and All8's drawing fixes it by the sequence state. This is a measurement
+   over one corpus and has NOT been shipped as a rule — the honest next step is to check it against a
+   second source (the `getoutd.htm` non-`[L]` diagrams it already covers, and the `16com` pages) before
+   any code path selects on it.
 8. **`boardFromMatchables` uses the ARRAY INDEX as dancer id** (`id: i + 1`) for any geometry that is
    not home-like, so a named formation stood up from the library has arbitrary ids and reports
    `sequence: unknown`. At SETUP the FASR properties should place the dancers, not the index. 129 of

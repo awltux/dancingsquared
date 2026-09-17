@@ -2494,6 +2494,25 @@ unknowns.** Measured:
   it is rotation-invariant (relabelling couples does not change who faces whom), so index 0 is a
   **recorded choice**, verified to satisfy the property it is used for.
 
+**STILL OPEN from Step 3, measured and recorded: `fasrooOf`'s Orientation cannot be checked on `[P]`
+YET, and the reason is upstream of the probe.** The plan's check was "all8's own worked case is a
+reference boy inside with the formation rotated 90 degrees, which is a Side occupation yet still
+oriented H — so a correct implementation must produce H and `'` for the same board". Two things block
+it, both measured from the code and the corpus:
+
+- **`fasrooOf(board, 'Double Pass Thru')` returns NULL, orientation and occupation both**, with the
+  reason "All8 records a reference pair for [L], [B], [F] and [W] only, so [P] has none to measure
+  from" — `REFERENCE_PAIR_RULES` has no `[P]` entry, so the function bails before it computes
+  anything. All8's own worked case therefore exercises a code path that refuses `[P]` outright.
+- **The `[P]` board has to come from the diagram**, as the plan says, and the corpus does carry it
+  (`P4p`: `3v v3 / 4v v4 / 2^ ^2 / 1^ ^1`, "All Paired In Order"). Building it is not the obstacle.
+
+So the next step is NOT the orientation probe: it is to decide and record the `[P]` reference pair
+(first, because `fasrooOf` needs one), and only then compare its Orientation with All8's worked case.
+The code's own `FASROO_ORIENTATION_NOTE` already flags the construction as unverified, and the four
+`[L1p]` boards reading 315/45/135/225 degrees before quantising is the standing evidence that the
+superposition All8 describes is not what the code does.
+
 **AND A SMALLER CORRECTION THAT IS INDEPENDENT OF THAT (DONE in Step 2).** `FORMATION_LETTER` had no
 entry for `Static Square`, so `letterForFormation` returned null and `fasrooOf` bailed out before it
 could read anything — which is why the POC printed nothing at all for home rather than a partial code.

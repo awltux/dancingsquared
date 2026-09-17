@@ -60,45 +60,42 @@ function statesOf(html) {
 }
 
 const token = (t) => {
-  const m = /^([v^<>])?([BG])(\d)([v^<>])?$/.exec(t);
+  // The page writes the same thing two ways: facing-first ("<G4", "<B2") and couple-first ("4B>",
+  // "1G>"). Direction is which way the dancer FACES, so both orders carry it.
+  const m = /^(?:([v^<>])([BG])(\d)|(\d)([BG])([v^<>]))$/.exec(t);
   if (!m) return null;
-  const facing = m[1] ?? m[4];
-  return facing ? { gender: m[2] === 'B' ? 'boy' : 'girl', heading: FACE[facing] * DEG, couple: Number(m[3]) } : null;
+  const facing = m[1] ?? m[6];
+  const gender = m[2] ?? m[5];
+  const couple = Number(m[3] ?? m[4]);
+  return { gender: gender === 'B' ? 'boy' : 'girl', heading: FACE[facing] * DEG, couple };
 };
 
 /**
- * Solve the page's document order against the engine template's spot order for this arrangement.
- * The template's spots sorted the way the page reads them (top row first, left to right) is what is
- * tried; the gender sequence of the arrangement's own table picks the correct alignment.
+ * The page's tile order -> the engine template's spot order.
+ *
+ * MEASURED, not guessed, and the FACINGS are what pin it: the page's slot grid is 2 tiles by 4 for
+ * [B] (two `<br>`-separated rows) where the engine's is 4 by 2, and its facing sequence is
+ * `> < > < | > < > <` while the template's own row-major order is `^ < ^ < | v > v >`. Reading the
+ * page's rows in the opposite order and rotating the whole thing a half turn reproduces the page's
+ * facings exactly, and the 45-degree diagonal slots take care of themselves (the page draws a
+ * diagonal column, which is why its first cell of the pair is the same tile position as the second).
  */
-function boardsFromTiles(template, letter, arrangement, tiles) {
-  const table = ARRANGEMENT_TABLES[letter];
-  const column = ARRANGEMENT_NUMBER_ORDER.indexOf(arrangement);
-  if (!table || column < 0) return [];
+function boardFromTiles(template, tiles) {
   const toks = tiles.map(token);
-  if (toks.some((t) => !t)) return [];
-  // The template's spots, in the page's reading order (row-major, top row first, left to right).
+  if (toks.some((t) => !t)) {
+    console.log(`      debug: unreadable tile(s): ${tiles.filter((t) => !token(t)).join(' ')}`);
+    return null;
+  }
   const spots = [...template.dancers].sort((a, b) => (b.y - a.y) || (a.x - b.x));
-  const wantGender = [];
-  table.forEach((row) => [...row.facing].forEach((f, c) => { if (f !== '.') wantGender.push(row.genders[column][c] === 'B' ? 'boy' : 'girl'); }));
-  // The tiles' gender sequence must equal the arrangement's, up to a CYCLIC rotation.
-  const got = toks.map((t) => t.gender);
-  const rotations = [];
-  for (let k = 0; k < 8; k++) {
-    const rot = [...got.slice(k), ...got.slice(0, k)];
-    if (rot.join() === wantGender.join()) rotations.push(k);
-  }
-  const out = [];
-  for (const k of rotations) {
-    const dancers = [];
-    for (let i = 0; i < 8; i++) {
-      const t = toks[(i + k) % 8];
-      const s = spots[i];
-      dancers.push({ id: HOME_ID[`${t.couple}${t.gender}`], couple: t.couple, gender: t.gender, x: s.x, y: s.y, heading: s.heading });
-    }
-    out.push({ dancers });
-  }
-  return out;
+  // The template's spots in the page's own reading order: its row pairs swapped (top row first on the
+  // page is the SECOND row of the template's lattice because the page draws the frame half-turned).
+  const rows = [0, 1, 2, 3].map((r) => spots.slice(r * 2, r * 2 + 2));
+  const pageOrder = [...rows[1], ...rows[0], ...rows[3], ...rows[2]];
+  const dancers = toks.map((t, i) => {
+    const s = pageOrder[i];
+    return { id: HOME_ID[`${t.couple}${t.gender}`], couple: t.couple, gender: t.gender, x: s.x, y: s.y, heading: s.heading };
+  });
+  return { dancers };
 }
 
 const assignment = (b) => b.dancers.map((d) => `${d.x.toFixed(2)},${d.y.toFixed(2)}:${d.couple}:${d.gender}`).sort().join(' ');
@@ -139,23 +136,31 @@ for (const letter of ['B', 'L', 'W', 'F', 'P']) {
   for (const st of states) {
     const spec = parseAlignmentId(st.label);
     if (!spec || spec.letter !== letter) continue;
-    const candidates = boardsFromTiles(template, letter, spec.arrangement, st.alt);
-    if (!candidates.length) { unresolved++; console.log(`    ${st.label}: could not place the tiles against the template`); continue; }
-    // Keep the candidate that the module itself reads as this arrangement and sequence.
+    const pageBoard = boardFromTiles(template, st.alt);
+    if (!pageBoard) { unresolved++; console.log(`    ${st.label}: could not read the tiles`); continue; }
     const res2 = boardsForAlignment(template, spec);
     if (!res2.boards.length) { console.log(`    ${st.label.padEnd(6)} code admits no board`); continue; }
-    const match = candidates.find((c) => res2.boards.some((b) => assignment(b) === assignment(c)));
-    if (!match) { notFound++; console.log(`    ${st.label}: all8's tiles are NOT in the enumeration (${res2.boards.length} boards)`); continue; }
-    const idx = res2.boards.findIndex((b) => assignment(b) === assignment(match));
-    const rot = rotationBetween(res2.boards[0], res2.boards[idx]);
-    const readSeq = sequenceFor(match).code;
-    const readArr = arrangementFor(match, letter).number;
+    // all8's board and the engine's are the same PHYSICAL board; they may differ in couple numbering,
+    // which is the freedom the code leaves. `rotationBetween(x, y)` is the +k relabelling that turns x
+    // INTO y, so the board we are looking for is the one that turns the PAGE's board into itself.
+    const listed = res2.boards.findIndex((b) => rotationBetween(pageBoard, b) !== null);
+    if (listed < 0) {
+      notFound++;
+      console.log(`    ${st.label}: all8's tiles are NOT in the enumeration, up to relabelling (${res2.boards.length} boards)`);
+      const posMap = (b) => b.dancers.map((d) => `${d.x},${d.y}=${d.couple}${d.gender[0]}`).sort().join(' ');
+      console.log(`        page board : ${posMap(pageBoard)}`);
+      res2.boards.forEach((b, i) => console.log(`        boards[${i}]  : ${posMap(b)}`));
+      continue;
+    }
+    const rot = rotationBetween(res2.boards[0], res2.boards[listed]);
+    const readSeq = sequenceFor(pageBoard).code;
+    const readArr = arrangementFor(pageBoard, letter).number;
     const corpusSays = CORPUS_RULE[readSeq];
     checked++;
     const ok = rot === corpusSays;
     if (ok) agree++;
-    rows.push({ letter, label: st.label, idx, count: res2.boards.length, rot, readSeq, readArr, corpusSays, ok, hint: st.hint });
-    console.log(`    ${st.label.padEnd(6)} reads arr ${readArr ?? '?'} seq ${readSeq ?? '?'}  index ${idx}/${res2.boards.length}, relabel +${rot}  rule +${corpusSays}  ${ok ? 'ok' : 'DISAGREES'}  "${st.hint}"`);
+    rows.push({ letter, label: st.label, idx: listed, count: res2.boards.length, rot, readSeq, readArr, corpusSays, ok, hint: st.hint });
+    console.log(`    ${st.label.padEnd(6)} reads arr ${readArr ?? '?'} seq ${readSeq ?? '?'}  index ${listed}/${res2.boards.length}, relabel +${rot}  rule +${corpusSays}  ${ok ? 'ok' : 'DISAGREES'}  "${st.hint}"`);
   }
 }
 

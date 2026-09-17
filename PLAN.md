@@ -2667,15 +2667,23 @@ parallel grouping the animator re-derived differently from the applicator). Then
    diagrams across six formation letters and four arrangement numbers, and it is spelled out as a
    sequence->rotation table rather than a formula**; the honest next step before it selects anything is
    a check on a second source (below).
-   **THE SECOND SOURCE IS REAL BUT NOT YET DECODED.** All8's "16 Possible Pairings" pages
-   (`16com_<b|l|f|w|p>.htm`) publish a couple-numbered grid per state — every spot is an `<img>` whose
-   `alt` is `<gender><facing><couple>`, e.g. `alt="Gv3"` — plus the state's own FASR label and resolve
-   hint, so they cover all 16 states including sequences 3 and 4 that the corpus cannot reach.
-   `test/tools/sixteen-states-board-probe.mjs` reads them (16 labelled cells of 8 tiles per page, all
-   parsed), but the page's TILE ORDER does not line up with the engine template's spot order under any
-   of the simple readings, and the tile-to-spot mapping has not been solved yet — so this source has
-   NOT confirmed or refuted anything. Recorded because the pages are the right second source and the
-   parser is already written; what is missing is the layout, not the data.
+   **THE SECOND SOURCE IS REAL BUT NOT YET DECODED, AND THE GAP IS NOW PRECISE.** All8's "16 Possible
+   Pairings" pages (`16com_<b|l|f|w|p>.htm`) publish a couple-numbered grid per state — every spot is
+   an `<img>` whose `alt` is `<gender><facing><couple>` in EITHER order (`<G4` and `4B>` both occur) —
+   plus the state's own FASR label and resolve hint, so they cover all 16 states including sequences 3
+   and 4. `test/tools/sixteen-states-board-probe.mjs` parses all of it (16 labelled cells of 8 tiles per
+   page, tiles read correctly), and the TILE ORDER is now pinned by the FACINGS: the page draws the
+   frame with its two tile-rows in the opposite order from the engine's lattice, and reading it that way
+   reproduces the page's facing sequence exactly. **What is still unsolved is the CELL-to-SPOT mapping.**
+   The page's eight tiles then land on the engine's eight spots with the same gender at every spot —
+   which is the encouraging part — but the couple-to-spot pattern is `a,b,b,a,c,d,d,c` on every one of
+   the engine's boards and `a,b,a,b,c,d,c,d` on the page's, so no cyclic relabelling maps one to the
+   other and the spots are permuted by something not yet identified. Until that permutation is found
+   this source has NOT confirmed or refuted the rule, and it is recorded that way.
+   **The gating argument, however, does not depend on it:** the fix is confined to sequences 1 and 2,
+   and those are measured across six formation letters and four arrangement numbers in the corpus. The
+   16com pass would strengthen the rule for sequences 3 and 4, where the current behaviour is already
+   what the rule prescribes.
 8. **`boardFromMatchables` uses the ARRAY INDEX as dancer id** (`id: i + 1`) for any geometry that is
    not home-like, so a named formation stood up from the library has arbitrary ids and reports
    `sequence: unknown`. At SETUP the FASR properties should place the dancers, not the index. 129 of

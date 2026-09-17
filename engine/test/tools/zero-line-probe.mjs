@@ -126,3 +126,37 @@ for (const code of ['(plain Normal Lines)', winner?.code].filter(Boolean)) {
   console.log(`    ${pose(built.board)}`);
   console.log(`    analyzeFasr: sequence=${analyzeFasr(built.board, null).sequence}, relationships=${JSON.stringify(analyzeFasr(built.board, null).relationship[1])} for #1`);
 }
+
+// ---------------------------------------------------------------- is the ZERO setup derivable per letter?
+//
+// `L1o` was not guessed: it is the one `[L]` code whose FACING COUPLES are the corner couples
+// ({1,4} and {2,3}) with the couples in sequence. If that is what "zero" means, it is a PROPERTY, not
+// a datum - and it should pick the canonical code for every letter without anyone supplying one.
+// This tests that on all six transcribed formations, which is what a per-formation FASR SETUP would
+// need in order to be filled in rather than hand-written.
+console.log('\n=== is the "zero" setup DERIVABLE for every letter? ===');
+console.log('  the rule: sequence IN, and every facing couple-pair must be a CORNER pair');
+console.log('  (corner(c) = c+3, so the corner pairs are exactly {1,4} and {2,3})\n');
+const CORNER = new Set(['1-4', '2-3']);
+for (const [letter, formation] of Object.entries(TEMPLATE)) {
+  const hits = [];
+  for (const seqNo of ['1', '2']) {
+    for (const rl of ['p', 'c', 'r', 'o']) {
+      const code = `${letter}${seqNo}${rl}`;
+      const built = boardForFasrCode(code, templateForLetter);
+      if (!built.board) continue;
+      const b = built.board;
+      const f = analyzeFasr(b, null);
+      const pairs = new Set();
+      let all = true;
+      for (const d of b.dancers) {
+        const o = ahead(b, d);
+        if (!o || d.couple === 0 || o.couple === 0) { all = false; break; }
+        pairs.add([d.couple, o.couple].sort().join('-'));
+      }
+      const cornerOnly = all && [...pairs].every((p) => CORNER.has(p));
+      if (cornerOnly) hits.push(`${code} (${f.sequence}, pairs ${[...pairs].sort().join(' ')})`);
+    }
+  }
+  console.log(`  [${letter.padEnd(3)}] ${formation.padEnd(26)} -> ${hits.length ? hits.join('  |  ') : 'NO code satisfies it'}`);
+}

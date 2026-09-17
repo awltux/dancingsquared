@@ -2044,6 +2044,49 @@ Two things in this engine are also both called "arrangement" and they are not th
 field is a **prose count** (`"8 dancers (4 boys, 4 girls), 0 couples"`) that cannot tell `gBgB` from
 `BgBg`, while `alignment.ts`'s is the Callerlab number. Worth renaming the first.
 
+### A FASR SETUP PER FORMATION, AND A COMPLIANCE LEVEL PER MODULE (designed, not built)
+
+**The gap.** A corpus label like `Zero Line` names a formation **and an arrangement**, and the engine
+can only associate the first with a name. `boardForFormation('Normal Lines')` classifies as `[L0]` and
+is still not a zero line: no identity at all, and its couples are authored **1,4,3,2**. Worse, the
+POC's first fix resolved the label to that name and produced a board in the WRONG COUPLE ORDER — which
+is the reported symptom, and it looked right because arrangement 0 only fixes the GENDER pattern.
+
+**The shape of the fix, and it belongs in the engine's formation model, not in the POC:**
+
+1. **A canonical FASR setup per formation.** `FASR_SETUP: Record<formationName, code>` in
+   `alignment.ts` — the All8 `[arrangement]LETTER[sequence][relationship]` code that stands that
+   formation up in its zero arrangement. Then `boardForFormation` (or a sibling) can return an
+   IDENTIFIED board, and `analyzeFasr` stops reporting `sequence: unknown` for every named formation.
+   `Normal Lines` → `L1o` is the first entry and is confirmed.
+2. **A compliance level per MODULE, not only per formation.** The corpus's label is a REQUIREMENT:
+   some modules run from any board with the right geometry, some need the arrangement, some need the
+   couples in sequence, some need partner/corner intact. Today nothing can express that, which is why
+   the wrong board was accepted silently. A level (`formation` | `arrangement` | `sequence` |
+   `relationship`) checked against the start board, failing loudly, is the missing half.
+3. **Matching, not just setup.** `matchFormations` matches geometry and facing; if a call's setup is
+   authored in a particular arrangement, matching should be able to require it. That is the risky
+   third of the three — `matcher.ts` already records that a reflection must never be allowed to
+   decide an arrangement — and it should come after 1 and 2.
+
+**Is the canonical entry DERIVABLE, so the table need not be hand-written?** Measured by the new
+section of `engine/test/tools/zero-line-probe.mjs`, on the rule "sequence IN and every facing couple
+pair is a CORNER pair" (`corner(c) = c+3`, so the pairs are `{1,4}` and `{2,3}`):
+
+```
+[B  ] Eight Chain Thru    -> NO code satisfies it
+[L  ] Normal Lines        -> L1o (in, pairs 1-4 2-3)   |  L2p (out, pairs 1-4 2-3)
+[W  ] Ocean Waves         -> NO code satisfies it
+[P  ] Double Pass Thru    -> NO code satisfies it
+[F  ] Two-Faced Lines     -> NO code satisfies it
+[L.F] Two-Faced Lines LH  -> NO code satisfies it
+```
+
+So the rule is **right for `[L]` and incomplete for the rest**: in a wave, a box or a double pass
+thru, "the dancer you face" is not a straight-ahead pairing, so the property has to be stated per
+formation before it can be checked. That is the argument FOR a declared per-formation setup rather
+than a universal rule — and it is why `Zero Box` is currently left UNRESOLVED and fails loudly.
+
 **A residual, found by the new gate, recorded not papered over: the final-frame jump.** Extending
 `anim-convergence.mjs` from the coded moves to the 111 non-coded calls the corpora use turned up
 **7 (board, call) pairs where the last drawn frame is not the board the call produces** — a jump on
@@ -2192,19 +2235,24 @@ parallel grouping the animator re-derived differently from the applicator). Then
    variant from the apply's own `ApplyResult.parallel` (which now exists) instead of re-deriving it,
    which is a small change with a much larger blast radius because `matchingVariantInfo` also feeds
    the BEAT COUNT. Do it only with the census, get-out and FSM measured either side.
-7. **`Right and Left Grand`'s final board** — from `Ocean Waves` it leaves all eight on a ring at 45°
+7. **A FASR SETUP per formation, and a COMPLIANCE LEVEL per module** — the design section above. The
+   engine can already BUILD an identified board from an All8 code (`boardForFasrCode`); what is missing
+   is the association from a formation NAME to its canonical code, and any way for a module to say how
+   much of the FASR it needs. `Normal Lines` → `L1o` is confirmed; `[B]`, `[W]`, `[P]`, `[F]` need
+   their "who faces whom" stated before they can be filled in, and `Zero Box` stays refused until then.
+8. **`Right and Left Grand`'s final board** — from `Ocean Waves` it leaves all eight on a ring at 45°
    increments that `knownFormation` cannot name, while `ceder-7046` declares `Static Square`. Decide
    whether the grand's end rotation is wrong or recognition only has an axis-aligned circle template.
    Small, and it is the last thing between that module and running as published.
-8. **Fix the second "arrangement"** — `analyzeFasr`'s field is a prose count that cannot distinguish
+9. **Fix the second "arrangement"** — `analyzeFasr`'s field is a prose count that cannot distinguish
    `gBgB` from `BgBg`; `alignment.ts` has the real Callerlab number. One name, one meaning.
-9. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
-   plus `Lead Right from Eight Chain Thru`. Small (worst 0.1476 units) but it is a teleport on the
-   last beat, and it names one cause: the pose just before the end is not the pose `applyWholeBoard`
-   stores. Start from `poseFor(t, dancerBeats(t))` versus `endPoses(variant)`.
-10. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
+10. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
+    plus `Lead Right from Eight Chain Thru`. Small (worst 0.1476 units) but it is a teleport on the
+    last beat, and it names one cause: the pose just before the end is not the pose `applyWholeBoard`
+    stores. Start from `poseFor(t, dancerBeats(t))` versus `endPoses(variant)`.
+11. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
    tie-break sweeps; independent of each other and of the figure work.
-11. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
+12. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
    chains, but it is a new mechanism (what is a call?) rather than a fix, and it should be designed
    against a second witness before any code. Its cheap half is the decoder side — the 4 unread cells
    (`figm75 --1/2`, `figm170 S-`, `figm184 --Keep`, `figm226 H-meet-T1/4`) are Phase I work and two of

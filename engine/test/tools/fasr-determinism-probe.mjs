@@ -1,0 +1,139 @@
+// IS THE FASR CODE UNDER-DETERMINED, AND IS `boards[0]` AN ARBITRARY PICK?
+//
+// The report: Taminations indexes dancers incrementally, and the engine may have assumed that the
+// formation's indexing aligns with dancer indexing at setup. At setup the FASR properties should place
+// the dancers, not the index.
+//
+// The suspect is `boardForAlignment`, which is documented as returning "the first board in the
+// requested alignment" - and `boardsForAlignment` above it says it enumerates the whole alignment
+// space "rather than one guess at it". If a spec admits MORE than one board, then `boards[0]` is a
+// guess, and nothing in the code says which one all8's diagram would be.
+//
+// This measures, for every letter and code:
+//   how many boards the spec admits            (1 = determined, >1 = a coin toss)
+//   whether the TEMPLATE'S ARRAY ORDER changes the set or the pick
+//   whether all8's own diagram for [L1p] is even in the set
+//
+// Usage: node engine/test/tools/fasr-determinism-probe.mjs
+
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { DOMParser } from '@xmldom/xmldom';
+
+import { Sequencer, setParser, boardsForAlignment, boardForAlignment, parseAlignmentId, arrangementFor, analyzeFasr } from '../../dist/index.js';
+import { callsByTitle } from '../lib/engine-calls.mjs';
+
+setParser(DOMParser);
+const here = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(here, '..', '..', '..');
+const assets = path.join(root, 'poc', 'src', 'assets');
+const seq = new Sequencer(
+  readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
+  readFileSync(path.join(assets, 'formations.xml'), 'utf8'),
+  callsByTitle(assets),
+);
+
+const TEMPLATE = { B: 'Eight Chain Thru', L: 'Normal Lines', W: 'Ocean Waves', P: 'Double Pass Thru', F: 'Two-Faced Lines', 'L.F': 'Two-Faced Lines LH' };
+
+/** A board as a position -> couple map, so two boards can be compared regardless of array order. */
+const shape = (b) => b.dancers
+  .map((d) => `${d.couple === 0 ? '-' : d.couple}${d.gender === 'boy' ? 'B' : 'G'}@${d.x},${d.y}`)
+  .sort()
+  .join(' ');
+
+console.log('=== (A) HOW MANY BOARDS DOES EACH CODE ADMIT? ===');
+console.log('  a code that admits more than one board is not a specification of a board\n');
+for (const [letter, formation] of Object.entries(TEMPLATE)) {
+  const template = seq.boardForFormation(formation);
+  if (!template) continue;
+  for (const seqNo of [1, 2]) {
+    for (const rl of ['p', 'c', 'o', 'r']) {
+      const code = `${letter}${seqNo}${rl}`;
+      const spec = parseAlignmentId(code);
+      if (!spec) continue;
+      const res = boardsForAlignment(template, spec);
+      if (res.boards.length === 0) { console.log(`  ${code.padEnd(6)} 0 boards  (${res.reason ?? ''})`); continue; }
+      const shapes = new Set(res.boards.map(shape));
+      console.log(`  ${code.padEnd(6)} ${String(res.boards.length).padStart(3)} board(s), ${shapes.size} distinct shape(s) of ${res.attempted} assignments${res.boards.length > 1 ? '   <- UNDETERMINED' : ''}`);
+    }
+  }
+}
+
+// ---------------------------------------------------------------- (B) does the TEMPLATE's array order matter?
+console.log('\n=== (B) DOES THE TEMPLATE\'S ARRAY ORDER CHANGE THE ANSWER? ===');
+console.log('  the template is the FORMATION, whose dancers carry ids by ARRAY INDEX (boardFromMatchables)');
+console.log('  if permuting that array changes the boards, the index is being used as identity\n');
+{
+  const template = seq.boardForFormation('Normal Lines');
+  const perms = {
+    'as authored': template,
+    'reversed': { dancers: [...template.dancers].reverse() },
+    'rotated by 3': { dancers: [...template.dancers.slice(3), ...template.dancers.slice(0, 3)] },
+  };
+  for (const code of ['L1p', 'L1o']) {
+    const spec = parseAlignmentId(code);
+    console.log(`  ${code}:`);
+    for (const [label, t] of Object.entries(perms)) {
+      const res = boardsForAlignment(t, spec);
+      const pick = res.boards[0];
+      console.log(`    ${label.padEnd(14)} ${String(res.boards.length).padStart(3)} board(s), boards[0] = ${pick ? shape(pick) : 'none'}`);
+    }
+  }
+}
+
+// ---------------------------------------------------------------- (C) is all8's [L1p] in the set?
+console.log('\n=== (C) IS ALL8\'S OWN [L1p] EVEN IN THE SET? ===');
+console.log('  all8 getoutd.htm draws [L1p] as (facing pairs, row by row):');
+console.log('      3> <2      so the FACING couple-pairs are {2,3} and {1,4}');
+console.log('      3> <2      and every dancer stands beside their partner');
+console.log('      4> <1');
+console.log('      4> <1\n');
+{
+  const template = seq.boardForFormation('Normal Lines');
+  const spec = parseAlignmentId('L1p');
+  const res = boardsForAlignment(template, spec);
+  // Which boards in the SET have facing couple-pairs {2,3} and {1,4}?
+  const ahead = (b, d) => {
+    const hx = Math.cos(d.heading), hy = Math.sin(d.heading);
+    let best = null;
+    for (const o of b.dancers) {
+      if (o.id === d.id) continue;
+      const dx = o.x - d.x, dy = o.y - d.y, dist = Math.hypot(dx, dy);
+      if (dist < 0.5 || (dx * hx + dy * hy) / dist < 0.99) continue;
+      if (!best || dist < best.dist) best = { o, dist };
+    }
+    return best?.o ?? null;
+  };
+  const pairsOf = (b) => {
+    const s = new Set();
+    for (const d of b.dancers) { const o = ahead(b, d); if (o) s.add([d.couple, o.couple].sort().join('-')); }
+    return [...s].sort().join(' ');
+  };
+  const partnersAdjacent = (b) => b.dancers.every((d) => {
+    const p = b.dancers.find((o) => o.couple === d.couple && o.id !== d.id);
+    return p ? Math.abs(Math.hypot(p.x - d.x, p.y - d.y) - 2) < 0.35 : false;
+  });
+  const all8 = res.boards.filter((b) => pairsOf(b) === '1-4 2-3' && partnersAdjacent(b));
+  console.log(`  ${res.boards.length} board(s) admit [L1p]; ${all8.length} of them have all8's {2,3}/{1,4} facing pairs AND partners adjacent`);
+  console.log(`  boards[0] (what boardForAlignment returns) has pairs: ${pairsOf(res.boards[0])}, partners adjacent: ${partnersAdjacent(res.boards[0])}`);
+  if (all8.length) {
+    console.log(`  all8's board IS in the set. One of them:`);
+    console.log(`    ${shape(all8[0])}`);
+    console.log(`  and boards[0] is:`);
+    console.log(`    ${shape(res.boards[0])}`);
+  }
+
+  // ------------------------------------------------------------ (D) WHAT ARE THE 4, EXACTLY?
+  // If they are related by a CYCLIC RELABELLING of the couples then the freedom the code leaves is
+  // the whole-set rotation - which all8's own fasr.htm calls ORIENTATION and says is needed on top of
+  // FASR to resolve "at home": "FASR alone" is not Total FASR.
+  console.log('\n=== (D) ARE THE 4 BOARDS THE 4 ORIENTATIONS? ===');
+  console.log('  relabel every couple c -> c+1 (mod 4) and see whether the result is another admitted board\n');
+  const relabel = (b, k) => shape({ dancers: b.dancers.map((d) => ({ ...d, couple: ((d.couple - 1 + k) % 4) + 1 })) });
+  const set = new Set(res.boards.map(shape));
+  for (const [label, k] of [['+1', 1], ['+2', 2], ['+3', 3]]) {
+    console.log(`  boards[0] relabelled by ${label}: ${set.has(relabel(res.boards[0], k)) ? 'IS another admitted board' : 'is NOT admitted'}`);
+  }
+  console.log(`  so the set is ${set.size} boards, i.e. the ORIENTATIONS of one board rather than 4 unrelated ones`);
+}

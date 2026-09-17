@@ -2129,6 +2129,38 @@ harness would notice, because the board it returns satisfies the code it was ask
 board that measures right for the PROPERTY a zero line needs (sequence in, every dancer facing a
 corner pair). Pinning it to all8's spelling would be trusting one side of an unresolved disagreement.
 
+### WHY `[L1p]` DISAGREES: THE CODE NAMES FOUR BOARDS, AND THE ENGINE TAKES THE FIRST
+
+Measured by `engine/test/tools/fasr-determinism-probe.mjs`, and it is NOT the indexing hypothesis:
+
+- **Every code admits exactly 4 distinct boards** (`L1p`, `L1o`, `B1c`, `W1p`, `F1p`, … all 4;
+  `P1c`/`P2r` admit 0, for the stated reason). So a plain FASR code **does not determine a board**.
+- **`boardForAlignment` returns `boards[0]`** — the first of the four, chosen by enumeration order.
+  That is the whole of the disagreement with all8's diagram.
+- **all8's own `[L1p]` IS in the set**: 2 of the 4 boards have its facing pairs `{2,3}`/`{1,4}` with
+  partners adjacent. The engine's pick has `{1,2}`/`{3,4}`. Both satisfy "0L1p"; they are different
+  boards.
+- **The template's ARRAY ORDER changes nothing.** Reversing and rotating the template gives the
+  identical 4 boards and the identical `boards[0]`. So dancer indexing does NOT leak into the
+  alignment construction.
+- **The 4 boards are the 4 ORIENTATIONS.** Relabelling every couple `c -> c+k (mod 4)` for k=1,2,3
+  maps `boards[0]` onto the other three. So the freedom the code leaves is the whole-set rotation.
+
+That last point is exactly what all8's own page says about it: FASR alone is **not** "Total FASR" —
+resolving dancers "at home" additionally needs **Orientation** (0/90/180/270°) and **Occupation**
+(Head/Side), which all8 marks as *not officially recognized by Callerlab*. The engine has no
+orientation anchor, so `boards[0]` supplies one silently.
+
+**The fix follows the report's wording**: use the FASR properties plus an orientation/reference anchor
+to place the dancers, rather than taking enumeration index 0. `REFERENCE_PAIR_RULES` is used to
+CLASSIFY a board, never to SELECT one, which is the gap.
+
+**A REAL INDEX-AS-IDENTITY BUG, but somewhere else.** `boardFromMatchables` stamps
+`id: m ? home[m.mapping[i]] : i + 1` — for any geometry that is not home-like, DANCER ID IS THE ARRAY
+INDEX. That is the report's instinct, and it is why a named formation stood up from the library carries
+no real identity at all (129 of the 134) and why `sequence` reads `unknown` for every one of them. It
+is a separate defect from the `[L1p]` mismatch and does not cause it.
+
 **A residual, found by the new gate, recorded not papered over: the final-frame jump.** Extending
 `anim-convergence.mjs` from the coded moves to the 111 non-coded calls the corpora use turned up
 **7 (board, call) pairs where the last drawn frame is not the board the call produces** — a jump on
@@ -2277,31 +2309,34 @@ parallel grouping the animator re-derived differently from the applicator). Then
    variant from the apply's own `ApplyResult.parallel` (which now exists) instead of re-deriving it,
    which is a small change with a much larger blast radius because `matchingVariantInfo` also feeds
    the BEAT COUNT. Do it only with the census, get-out and FSM measured either side.
-7. **THE RELATIONSHIP LETTER IS OFFSET FROM ALL8'S FOR `[L]`** — see the section above. all8's
-   `[L1p]` has facing couple-pairs `{2,3}`/`{1,4}`; the engine's `boardForFasrCode('L1p')` gives
-   `{1,2}`/`{3,4}` and it is its `L1o` that gives all8's pairs. This is the prerequisite for item 8,
-   not a detail: the whole per-formation FASR setup would be built on a code system that does not
-   currently agree with the published diagrams. Check the reference-pair rule for `[0L]` ("the
-   left-hand couple") against `REFERENCE_PAIR_RULES`, and ask whether `boardForAlignment`'s identity
-   search can return a non-canonical assignment when the spec admits more than one.
-8. **A FASR SETUP per formation, and a COMPLIANCE LEVEL per module** — the design section above. The
+7. **PIN THE ORIENTATION.** Every FASR code admits 4 boards — the 4 orientations — and
+   `boardForAlignment` silently returns `boards[0]`. all8's own page says FASR alone is not "Total
+   FASR" and that resolving at home needs Orientation (and Occupation) on top, neither of which the
+   engine has. `REFERENCE_PAIR_RULES` CLASSIFIES a board but is never used to SELECT one. Until a code
+   (or an explicit anchor) pins which of the 4, "the engine's `[L1p]`" is an arbitrary member of the
+   set and no per-formation FASR setup can be trusted. This is the prerequisite for item 8.
+8. **`boardFromMatchables` uses the ARRAY INDEX as dancer id** (`id: i + 1`) for any geometry that is
+   not home-like, so a named formation stood up from the library has arbitrary ids and reports
+   `sequence: unknown`. At SETUP the FASR properties should place the dancers, not the index. 129 of
+   the 134 named formations are in this state.
+9. **A FASR SETUP per formation, and a COMPLIANCE LEVEL per module** — the design section above. The
    engine can already BUILD an identified board from an All8 code (`boardForFasrCode`); what is missing
    is the association from a formation NAME to its canonical code, and any way for a module to say how
    much of the FASR it needs. `Normal Lines` → `L1o` is confirmed by property; `Zero Box` is all8's
    `B1c` by name — but both wait on item 7 before they can be pinned to a spelling.
-9. **`Right and Left Grand`'s final board** — from `Ocean Waves` it leaves all eight on a ring at 45°
-   increments that `knownFormation` cannot name, while `ceder-7046` declares `Static Square`. Decide
-   whether the grand's end rotation is wrong or recognition only has an axis-aligned circle template.
-   Small, and it is the last thing between that module and running as published.
-10. **Fix the second "arrangement"** — `analyzeFasr`'s field is a prose count that cannot distinguish
+10. **`Right and Left Grand`'s final board** — from `Ocean Waves` it leaves all eight on a ring at 45°
+    increments that `knownFormation` cannot name, while `ceder-7046` declares `Static Square`. Decide
+    whether the grand's end rotation is wrong or recognition only has an axis-aligned circle template.
+    Small, and it is the last thing between that module and running as published.
+11. **Fix the second "arrangement"** — `analyzeFasr`'s field is a prose count that cannot distinguish
     `gBgB` from `BgBg`; `alignment.ts` has the real Callerlab number. One name, one meaning.
-11. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
+12. **The final-frame jump** — 7 (board, call) pairs in `anim-convergence.mjs`, every one a CIRCLE call
     plus `Lead Right from Eight Chain Thru`. Small (worst 0.1476 units) but it is a teleport on the
     last beat, and it names one cause: the pose just before the end is not the pose `applyWholeBoard`
     stores. Start from `poseFor(t, dancerBeats(t))` versus `endPoses(variant)`.
-12. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
+13. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
    tie-break sweeps; independent of each other and of the figure work.
-13. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
+14. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`
    chains, but it is a new mechanism (what is a call?) rather than a fix, and it should be designed
    against a second witness before any code. Its cheap half is the decoder side — the 4 unread cells
    (`figm75 --1/2`, `figm170 S-`, `figm184 --Keep`, `figm226 H-meet-T1/4`) are Phase I work and two of

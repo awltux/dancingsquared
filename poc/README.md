@@ -88,6 +88,18 @@ sequence on the 8-dancer board:
   persisted in `localStorage`, and are considered by Getout/Fix it.
 - The readout shows the recognized formation, arrangement, sequence parity, and
   dancer 1's partner/corner (FASR).
+- It also shows the board's **All8 FASR code** — `[0L1p]` — whenever the board is a
+  setup all8 has a name for. Arrangement, formation letter and sequence come from
+  `alignmentOf`; the relationship letter comes from `relationshipStateOf`, which
+  applies all8's own reference-pair rules for `[L]`, `[B]`, `[F]` and `[W]`. A part
+  that cannot be determined prints `?` rather than a guess, so a formation stood up
+  from the library reads `[0L??]` (it carries no identity) and `Static Square`
+  prints nothing at all, because All8 gives it no letter.
+- The code carries a **`?` marker**, and it is not decoration: **a FASR code admits
+  four boards** — the four orientations — and this engine has no orientation anchor,
+  so two boards can honestly share `[0L1p]` while standing the couples differently.
+  That discrepancy is the reason the code is on screen; hover the marker for it.
+  `engine/test/tools/fasr-readout-probe.mjs` shows all four printing the same code.
 
 The board uses the same 3D avatars (colored by gender; identity is tracked as 4
 couples internally and reported in the FASR readout).

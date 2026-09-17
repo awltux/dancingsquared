@@ -5,7 +5,7 @@
 
 import * as THREE from 'three';
 
-import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER } from 'dancing-squared-engine';
+import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, alignmentOf, relationshipStateOf } from 'dancing-squared-engine';
 import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
@@ -21,6 +21,15 @@ export interface SequencerUI {
 }
 
 const MS_PER_BEAT = 500;
+
+/**
+ * Why the FASR readout carries a `?` marker. A FASR code names FOUR boards - the four ORIENTATIONS -
+ * and the engine has no orientation anchor, so two boards can honestly share `[0L1p]` and still stand
+ * the couples differently. Saying so on screen is the point of showing the code at all: it is the
+ * instrument that makes that discrepancy visible instead of mysterious.
+ */
+const FASR_ORIENTATION_NOTE =
+  'A FASR code admits 4 boards (the 4 orientations); this engine has no orientation anchor, so the code does not pin which one.';
 
 export class SequencerController implements SequencerUI {
   private stage: Stage;
@@ -504,9 +513,17 @@ export class SequencerController implements SequencerUI {
     const rel = fasr.relationship[1]
       ? ` · dancer1: partner=${fasr.relationship[1].partner ?? '?'} corner=${fasr.relationship[1].corner ?? '?'}`
       : '';
+    // THE ALL8 FASR CODE, when the board IS a setup all8 has a name for. This is the instrument the
+    // FASR work needs: it turns "the board looks odd" into "[0L1p] vs the [0L1o] all8 draws".
+    const board = this.seq.evaluateSequence(this.flat, this.playhead, this.startBoard).board;
+    const code = this.fasrCode(board);
+    const codeText = code
+      ? `<br>FASR: <b>${code.code}</b>${code.note ? ` <i>(${code.note})</i>` : ''}` +
+        `<span class="small" title="${FASR_ORIENTATION_NOTE}"> ·?</span>`
+      : '';
     const fasrText =
       `Formation: <b>${fasr.formation ?? '?'}</b> · ${fasr.arrangement}<br>` +
-      `Sequence: <b>${fasr.sequence}</b>${rel}`;
+      `Sequence: <b>${fasr.sequence}</b>${rel}${codeText}`;
     const listText = this.history.length
       ? this.history.map((c, i) => `<span class="seq-call" data-idx="${i}">${i + 1}. ${stepLabel(c)}</span>`).join('<br>')
       : '<i>(no calls yet)</i>';
@@ -515,6 +532,32 @@ export class SequencerController implements SequencerUI {
     this.lastReadout = key;
     this.fasrEl.innerHTML = fasrText;
     this.seqListEl.innerHTML = listText;
+  }
+
+  /**
+   * The board's All8 FASR code — `[0L1p]` — or null when it is not a setup with a formation letter.
+   *
+   * `alignmentOf` supplies arrangement, letter and sequence on its own, but its RELATIONSHIP part
+   * needs a reference pair passed in, and Callerlab defines that pair for `[L]`, `[B]`, `[F]` and
+   * `[W]` only. `relationshipStateOf` already applies exactly those rules — including all8's stated
+   * reference pair for each — so it fills the fourth part instead of leaving a `?`.
+   *
+   * THE CODE IS NOT A COMPLETE ADDRESS, and the `?` marker in the readout says so: a FASR code admits
+   * FOUR boards, differing by orientation, and the engine has no orientation anchor (see PLAN.md).
+   * So two boards can honestly share `[0L1p]` and still stand the couples in different places - which
+   * is the whole of the discrepancy this readout exists to expose.
+   */
+  private fasrCode(board: Board): { code: string; note?: string } | null {
+    const a = alignmentOf(board, this.seq.knownFormation(board));
+    if (!a.letter) return null;
+    let rel = a.relationship;
+    let note = a.relationshipReason;
+    if (!rel) {
+      const rs = relationshipStateOf(board, a.letter);
+      if (rs.code) { rel = rs.code; note = undefined; }
+      else note = rs.reason;
+    }
+    return { code: `[${a.arrangement ?? '?'}${a.letter}${a.sequence ?? '?'}${rel ?? '?'}]`, note };
   }
 
   /** Put the LIVE board back at the END of the sequence: rewind to the board the sequence began

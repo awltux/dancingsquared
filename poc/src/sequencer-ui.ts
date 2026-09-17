@@ -5,7 +5,7 @@
 
 import * as THREE from 'three';
 
-import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, alignmentOf, relationshipStateOf } from 'dancing-squared-engine';
+import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf } from 'dancing-squared-engine';
 import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
@@ -23,13 +23,20 @@ export interface SequencerUI {
 const MS_PER_BEAT = 500;
 
 /**
- * Why the FASR readout carries a `?` marker. A FASR code names FOUR boards - the four ORIENTATIONS -
- * and the engine has no orientation anchor, so two boards can honestly share `[0L1p]` and still stand
- * the couples differently. Saying so on screen is the point of showing the code at all: it is the
- * instrument that makes that discrepancy visible instead of mysterious.
+ * Why the FASROO readout carries a `?` marker.
+ *
+ * FASROO is [arrangement][formation][sequence][relationship] + Orientation + Occupation, e.g. `[0L1pH+]`,
+ * and it is what makes a board a SETUP rather than a class of boards: the plain FASR part admits FOUR
+ * boards - the four orientations - and says nothing about which one it is.
+ *
+ * The marker is not decoration. This engine's Orientation CONSTRUCTION is unverified: All8 defines it by
+ * superimposing the squared set, where the reference boy's home is a spot that does not exist in a line
+ * or a wave, and `fasrooOf` compares bearings about the formation centre instead. The four boards do
+ * separate cleanly one-per-orientation, so the structure holds, but the absolute letter - and the R/L
+ * handedness, which is a convention only All8's diagrams state - must not be trusted yet.
  */
-const FASR_ORIENTATION_NOTE =
-  'A FASR code admits 4 boards (the 4 orientations); this engine has no orientation anchor, so the code does not pin which one.';
+const FASROO_ORIENTATION_NOTE =
+  'FASROO = FASR + Orientation + Occupation. The Orientation letter here is UNVERIFIED: the engine compares bearings about the centre, where All8 superimposes the squared set. Treat the letter as indicative.';
 
 export class SequencerController implements SequencerUI {
   private stage: Stage;
@@ -513,13 +520,15 @@ export class SequencerController implements SequencerUI {
     const rel = fasr.relationship[1]
       ? ` · dancer1: partner=${fasr.relationship[1].partner ?? '?'} corner=${fasr.relationship[1].corner ?? '?'}`
       : '';
-    // THE ALL8 FASR CODE, when the board IS a setup all8 has a name for. This is the instrument the
-    // FASR work needs: it turns "the board looks odd" into "[0L1p] vs the [0L1o] all8 draws".
+    // THE ALL8 FASROO CODE, when the board IS a setup all8 has a name for. A plain FASR code names a
+    // CLASS of four boards - the four orientations - so it cannot say where the dancers actually are;
+    // FASROO adds Orientation and Occupation, so it does. This is the instrument the FASR work needs:
+    // it turns "the board looks odd" into "[0L1pH+] vs the [0L1pL'] all8 draws".
     const board = this.seq.evaluateSequence(this.flat, this.playhead, this.startBoard).board;
-    const code = this.fasrCode(board);
+    const code = this.fasrooCode(board);
     const codeText = code
-      ? `<br>FASR: <b>${code.code}</b>${code.note ? ` <i>(${code.note})</i>` : ''}` +
-        `<span class="small" title="${FASR_ORIENTATION_NOTE}"> ·?</span>`
+      ? `<br>FASROO: <b>${code.code}</b>${code.note ? ` <i>(${code.note})</i>` : ''}` +
+        `<span class="small" title="${FASROO_ORIENTATION_NOTE}"> ·?</span>`
       : '';
     const fasrText =
       `Formation: <b>${fasr.formation ?? '?'}</b> · ${fasr.arrangement}<br>` +
@@ -535,29 +544,28 @@ export class SequencerController implements SequencerUI {
   }
 
   /**
-   * The board's All8 FASR code — `[0L1p]` — or null when it is not a setup with a formation letter.
+   * The board's All8 **FASROO** code — `[0L1pH+]` — or null when it is not a setup with a formation
+   * letter.
    *
-   * `alignmentOf` supplies arrangement, letter and sequence on its own, but its RELATIONSHIP part
-   * needs a reference pair passed in, and Callerlab defines that pair for `[L]`, `[B]`, `[F]` and
-   * `[W]` only. `relationshipStateOf` already applies exactly those rules — including all8's stated
-   * reference pair for each — so it fills the fourth part instead of leaving a `?`.
+   * WHY FASROO AND NOT FASR. A plain FASR code names a CLASS of boards, not a board:
+   * `boardsForAlignment` returns FOUR distinct boards for every code — identical in every dancer's
+   * position, heading and gender, differing ONLY in which couple number stands on which spot. FASR
+   * tells a caller where the board is so they can choose the next call; it does not place the dancers.
+   * FASROO adds Orientation (H/R/O/L, how the reference boy is rotated from his home) and Occupation
+   * (`+` Head / `'` Side), and all8's word for the three together is a SETUP.
    *
-   * THE CODE IS NOT A COMPLETE ADDRESS, and the `?` marker in the readout says so: a FASR code admits
-   * FOUR boards, differing by orientation, and the engine has no orientation anchor (see PLAN.md).
-   * So two boards can honestly share `[0L1p]` and still stand the couples in different places - which
-   * is the whole of the discrepancy this readout exists to expose.
+   * `fasrooOf` does the whole reading, including finding the reference pair — it uses
+   * `relationshipStateOf`, which already applies all8's stated reference pair for `[L]`, `[B]`, `[F]`
+   * and `[W]`, the only four Callerlab defines one for. Formation letters outside those four cannot be
+   * read this far, and the `note` says why rather than leaving a bare `?`.
+   *
+   * The `?` marker in the readout is separate and is about the ORIENTATION CONSTRUCTION being
+   * unverified — see `FASROO_ORIENTATION_NOTE`.
    */
-  private fasrCode(board: Board): { code: string; note?: string } | null {
-    const a = alignmentOf(board, this.seq.knownFormation(board));
-    if (!a.letter) return null;
-    let rel = a.relationship;
-    let note = a.relationshipReason;
-    if (!rel) {
-      const rs = relationshipStateOf(board, a.letter);
-      if (rs.code) { rel = rs.code; note = undefined; }
-      else note = rs.reason;
-    }
-    return { code: `[${a.arrangement ?? '?'}${a.letter}${a.sequence ?? '?'}${rel ?? '?'}]`, note };
+  private fasrooCode(board: Board): { code: string; note?: string } | null {
+    const f = fasrooOf(board, this.seq.knownFormation(board));
+    if (!f.alignment.letter) return null;
+    return { code: f.notation, note: f.reason };
   }
 
   /** Put the LIVE board back at the END of the sequence: rewind to the board the sequence began

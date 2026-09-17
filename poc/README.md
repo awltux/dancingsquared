@@ -88,18 +88,25 @@ sequence on the 8-dancer board:
   persisted in `localStorage`, and are considered by Getout/Fix it.
 - The readout shows the recognized formation, arrangement, sequence parity, and
   dancer 1's partner/corner (FASR).
-- It also shows the board's **All8 FASR code** — `[0L1p]` — whenever the board is a
-  setup all8 has a name for. Arrangement, formation letter and sequence come from
-  `alignmentOf`; the relationship letter comes from `relationshipStateOf`, which
-  applies all8's own reference-pair rules for `[L]`, `[B]`, `[F]` and `[W]`. A part
-  that cannot be determined prints `?` rather than a guess, so a formation stood up
-  from the library reads `[0L??]` (it carries no identity) and `Static Square`
-  prints nothing at all, because All8 gives it no letter.
-- The code carries a **`?` marker**, and it is not decoration: **a FASR code admits
-  four boards** — the four orientations — and this engine has no orientation anchor,
-  so two boards can honestly share `[0L1p]` while standing the couples differently.
-  That discrepancy is the reason the code is on screen; hover the marker for it.
-  `engine/test/tools/fasr-readout-probe.mjs` shows all four printing the same code.
+- It also shows the board's **All8 FASROO code** — `[0L1pH+]` — whenever the board is
+  a setup all8 has a name for. **FASROO, not FASR**, because a plain FASR code names
+  a *class* of four boards, identical in every dancer's position, heading and gender
+  and differing only in which couple number stands on which spot; it tells a caller
+  where the board is, but it does not place the dancers. FASROO adds **Orientation**
+  (H/R/O/L, how the reference boy is rotated from his home) and **Occupation** (`+`
+  Head / `'` Side), and all8's word for the three together is a **setup**.
+  `fasrooOf` does the whole reading, including the reference pair that `[L]`, `[B]`,
+  `[F]` and `[W]` are the only formations Callerlab defines one for. A part that
+  cannot be determined prints `?` rather than a guess, so a formation stood up from
+  the library reads `[0L????]` (it carries no identity) and `Static Square` prints
+  nothing at all, because All8 gives it no letter.
+- The code carries a **`?` marker**, and it is about the **Orientation letter** being
+  unverified, not about the code being incomplete: all8 defines Orientation by
+  superimposing the squared set, where the reference boy's home is a spot that does
+  not exist in a line or a wave, and the engine compares bearings about the centre
+  instead. The four boards do separate cleanly, one per orientation, so the structure
+  holds — but treat the letter as indicative. Hover the marker for it.
+  `engine/test/tools/fasroo-probe.mjs` shows the whole reading.
 
 The board uses the same 3D avatars (colored by gender; identity is tracked as 4
 couples internally and reported in the FASR readout).

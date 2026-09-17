@@ -2605,6 +2605,44 @@ The code's own `FASROO_ORIENTATION_NOTE` already flags the construction as unver
 `[L1p]` boards reading 315/45/135/225 degrees before quantising is the standing evidence that the
 superposition All8 describes is not what the code does.
 
+### THE `[S]` "0:0/16" WAS AN INSTRUMENT FAULT, NOT A COVERAGE GAP - and the fix is in the instrument
+
+Worth its own entry because the wrong reading of it is so inviting, and because the obvious repair is
+wrong. `alignment-boards.mjs`'s reachability table printed
+
+```
+  [S] Static Square          0:0/16  5:0/16  1:0/16  2:0/16  3:0/16  4:0/16
+```
+
+for every arrangement, next to letters showing 16/16 and 8/16, which reads as "squared sets are
+broken". They are not. The table asks for all four parts, `relationshipStateOf` is undefined for `[S]`
+(Callerlab records a reference pair for `[L] [B] [F] [W]` only), and the strict relationship filter
+therefore admits nothing - while the same call with the relationship left out returns 576 boards.
+
+**THE OBVIOUS REPAIR WAS TRIED AND REVERTED, and it is the interesting part.** Relaxing the sequence and
+relationship filters to "skip a constraint the engine cannot evaluate" is a defensible principle, and it
+broke two things at once (measured, `all8-format.mjs`):
+
+- **`boardsForAlignment` returns MORE boards**, so **14 corpus codes then selected the wrong one** -
+  `canonicalBoard`'s measured index is only meaningful over the set the strict filter produced;
+- the `[P]`, `[W]` and `[F]` refusals moved, because the strict filter is what keeps a relationship
+  LETTER meaningful: a spec naming one is satisfied only by a board whose relationship the engine can
+  read.
+
+So the zero STANDS and the filter is left strict. **The fault was the instrument's silence**, and it is
+now fixed there: the harness prints, beside every zero, whether it is a coverage gap or an unnameable
+state, and which part cannot be read. For `[S]` it now says
+
+```
+      [0S]   NONE of them can be named: no relationship letter can be measured for this formation
+      [0S]   (readable here: sequence 4/2/1/3, relationship none)
+```
+
+which is the fact that matters: the SEQUENCE is perfectly readable, the RELATIONSHIP is not, and a
+caller refusing an `[S]`-with-relationship label is therefore CORRECT rather than blocked. It also
+prints a gate: a zero from `boardsForAlignment` with no reason is a failure, because a silent zero is
+exactly what produced this confusion.
+
 ### THE POC CAN BE CHECKED HEADLESSLY, AND IT HAS THREE PRE-EXISTING FAILURES
 
 Worth recording because the working rule says the POC cannot be run here: `node poc/verify.cjs` DOES run

@@ -278,7 +278,12 @@ console.log('\n== 3b. why geometry alone can never check a relationship letter =
 
 console.log('\n== 4. how much of the alignment space is reachable ==');
 console.log('   (per formation and arrangement: how many of the 16 sequence x relationship states have a board)');
+console.log('   AND WHY when the answer is none - see the note at the end of this section');
+
 const LETTERS = Object.keys(FORMATIONS_FOR_LETTER);
+/** Whether a missing state's own two parts are even nameable in this arrangement. */
+const calculable = (missingCode, sequences, relationships) =>
+  sequences.has(Number(missingCode[0])) && relationships.has(missingCode[1]);
 for (const letter of LETTERS) {
   const t = templateFor(letter);
   if (!t) continue;
@@ -286,18 +291,62 @@ for (const letter of LETTERS) {
   for (const arrangement of [0, 5, 1, 2, 3, 4]) {
     let have = 0;
     const missing = [];
+    const reasons = new Set();
     for (const sequence of [1, 2, 3, 4]) {
       for (const relationship of ['p', 'c', 'o', 'r']) {
         const r = boardsForAlignment(t.board, { letter, arrangement, sequence, relationship });
         if (r.boards.length) have++;
-        else missing.push(`${sequence}${relationship}`);
+        else {
+          missing.push(`${sequence}${relationship}`);
+          // A ZERO MUST SAY WHY. This table used to print `[S] Static Square 0:0/16 ... 4:0/16` with no
+          // reason at all, and that reads as "squared sets are broken" when it means "no relationship
+          // letter is defined for [S]". The distinction is the whole point of the column: 0 because no
+          // board exists is a gap, 0 because the STATE CANNOT BE NAMED is not.
+          if (r.reason) reasons.add(r.reason);
+        }
       }
     }
     counts.push(`${arrangement}:${have}/16`);
-    if (missing.length) console.log(`      [${arrangement}${letter}] missing ${missing.join(' ')}`);
+    if (missing.length) {
+      console.log(`      [${arrangement}${letter}] missing ${missing.join(' ')}`);
+      // A ZERO MUST SAY WHY, and this table used to print `[S] Static Square 0:0/16 ... 4:0/16` with no
+      // reason at all - which reads as "squared sets are broken" when it means "no relationship letter
+      // is defined for [S] at all". 0 because the STATE CANNOT BE NAMED for this letter is not the same
+      // as 0 because no assignment reaches it: the first is a fact about the notation (and why a caller
+      // refusing such a label is CORRECT), the second is a coverage gap.
+      const byArrangement = boardsForAlignment(t.board, { letter, arrangement }).boards;
+      const reachableSequences = new Set(byArrangement.map((b) => sequenceFor(b).code).filter((c) => c !== null));
+      const measurableRelationships = new Set(byArrangement.map((b) => relationshipStateOf(b, letter).code).filter((c) => c !== null));
+      const unnameable = missing.filter((m) => !calculable(m, reachableSequences, measurableRelationships));
+      if (unnameable.length === missing.length) {
+        // WHICH PART is unnameable matters, so the SEQUENCE half is measured directly rather than
+        // inferred: build the boards with no relationship filter and see which sequences appear.
+        const anyRel = boardsForAlignment(t.board, { letter, arrangement });
+        const seqsWithoutRelFilter = new Set(anyRel.boards.map((b) => sequenceFor(b).code).filter((c) => c !== null));
+        const noSequence = seqsWithoutRelFilter.size === 0;
+        const noRelationship = measurableRelationships.size === 0;
+        const why = noRelationship && noSequence ? 'neither a sequence nor a relationship can be read'
+          : noRelationship ? 'no relationship letter can be measured for this formation'
+            : noSequence ? 'no sequence can be read on any board in this arrangement'
+              : 'each missing state has a part that cannot be read';
+        console.log(`      [${arrangement}${letter}]   NONE of them can be named: ${why}`);
+        console.log(`      [${arrangement}${letter}]   (readable here: sequence ${[...seqsWithoutRelFilter].sort((a, b) => a - b).join('/') || 'none'}, relationship ${[...measurableRelationships].sort().join('/') || 'none'})`);
+      } else if (unnameable.length) {
+        console.log(`      [${arrangement}${letter}]   ${unnameable.length} of ${missing.length} cannot be named (unreadable sequence or unmeasurable relationship)`);
+        console.log(`      [${arrangement}${letter}]   the other ${missing.length - unnameable.length} are a genuine coverage gap`);
+      } else {
+        console.log(`      [${arrangement}${letter}]   all ${missing.length} are a genuine coverage gap (no assignment reaches them)`);
+      }
+      // THE GATE: a zero from `boardsForAlignment` must carry a reason, because a silent zero is exactly
+      // what hid this distinction.
+      const silent = missing.length && !boardsForAlignment(t.board, { letter, arrangement, sequence: Number(missing[0][0]), relationship: missing[0][1] }).reason;
+      if (silent) fail(`[${arrangement}${letter}] returned 0 boards with no reason, so a reader cannot tell a gap from an unnameable state`);
+    }
   }
   console.log(`  [${letter}] ${t.name.padEnd(22)} ${counts.join('  ')}`);
 }
+console.log('   (a 0 that carries "no relationship letter is justified" is NOT a coverage gap: the state');
+console.log('    cannot be named for that formation at all, which is why the POC refuses such a label.)');
 
 // -------------------------------------------------------------- 5. findings
 

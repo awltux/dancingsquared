@@ -1087,14 +1087,19 @@ export function boardsForAlignment(template: Board, spec: AlignmentSpec): Constr
       // not equality with a single number.
       const read = arrangementFor(board, spec.letter);
       if (read.number !== spec.arrangement && !read.candidates.includes(spec.arrangement)) continue;
-      // Sequence and relationship are deliberately NOT relaxed here. `relationshipStateOf` is undefined
-      // for every letter Callerlab records no reference pair for, and `sequenceFor` reads a ring's
-      // couple order only for the boards whose identities make it readable - so for [S] a
-      // sequence/relationship filter admits nothing and says so, rather than silently admitting
-      // everything. That is honest but not useful, and it is why Step 3's setup primitive is to be
-      // keyed on the COUPLE-TO-SPOT ASSIGNMENT and build the board directly: a spec of
-      // (arrangement, sequence, relationship) does not determine one board even when it resolves, and
-      // for [S] it does not resolve at all.
+      // SEQUENCE and RELATIONSHIP are checked STRICTLY, and that is load-bearing rather than incidental.
+      //
+      // Relaxing them to "skip a constraint the engine cannot evaluate" was TRIED and reverted: it is a
+      // defensible principle and it broke two things at once. `boardsForAlignment` returns MORE boards,
+      // so 14 corpus codes then selected the wrong one (`canonicalBoard`'s index is only meaningful
+      // over the set the strict filter produced), and the `[P]`/`[W]`/`[F]` refusals moved. The strict
+      // filter is what keeps a relationship LETTER meaningful: a spec that names one is only satisfied
+      // by a board whose relationship the engine can actually read.
+      //
+      // So the zero for `[S]` stands, and what was wrong was the INSTRUMENT, not this filter: the
+      // reachability table printed `0:0/16` with no reason, which reads as "squared sets are broken"
+      // when it means "a relationship letter is undefined for [S]". `alignment-boards.mjs` now prints
+      // the reason beside the zero. See PLAN.md for the full account.
       if (spec.sequence !== undefined && sequenceFor(board).code !== spec.sequence) continue;
       if (spec.relationship !== undefined && relationshipStateOf(board, spec.letter).code !== spec.relationship) continue;
       boards.push(board);

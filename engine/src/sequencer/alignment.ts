@@ -1354,12 +1354,17 @@ export function compliesWithSetup(
  * reach into the Sequencer.
  *
  * MEASURED against All8's own 29 published alignments: this reproduces the diagram-derived board
- * for **26**. The two it cannot are `[P]` (`P1c`, `P2r`, i.e. Beginning Double Pass Thru), and the
- * refusal is CORRECT rather than a gap: for that formation the boys' relationships genuinely
- * disagree, so no single relationship letter is justified
- * (see `relationshipStateOf`'s reason). All8 still labels those pages with a letter, which is why a
- * caller reading the page sees one and the engine will not invent it. The diagram is the only way to
- * pin those two, so a caller importing them must set the board up by hand.
+ * for **26**, and now reproduces All8's OWN CHOICE of the four for every one of them, because it
+ * selects through `canonicalBoard` rather than taking `boards[0]`. The two it cannot are `[P]`
+ * (`P1c`, `P2r`, i.e. Beginning Double Pass Thru), and the refusal is CORRECT rather than a gap: for
+ * that formation the boys' relationships genuinely disagree, so no single relationship letter is
+ * justified (see `relationshipStateOf`'s reason). All8 still labels those pages with a letter, which
+ * is why a caller reading the page sees one and the engine will not invent it. The diagram is the only
+ * way to pin those two, so a caller importing them must set the board up by hand.
+ *
+ * For a code the canonical table has NOT measured, `canonicalBoard` falls back to `boards[0]`, i.e. to
+ * exactly the behaviour this function had before the setup work - so nothing got silently worse for
+ * an unmeasured code, it simply did not get better.
  */
 export function boardForFasrCode(
   code: string,
@@ -1369,7 +1374,12 @@ export function boardForFasrCode(
   if (!spec) return { board: null, spec: null, reason: `"${code}" is not a FASR setup code` };
   const template = templateForLetter(spec.letter);
   if (!template) return { board: null, spec, reason: `no engine template for [${spec.letter}]` };
-  const board = boardForAlignment(template, spec);
+  // All8's OWN board among the ones the code admits, not the first one the enumeration happens to
+  // produce. For `L1o` the two are the same board by luck (the property that makes it a zero line
+  // holds on indices 0 and 2 of its four); for `B1c` they are NOT, and taking `boards[0]` would stand
+  // a module up on the right geometry with the right gender pattern and the wrong couples - silently.
+  const result = boardsForAlignment(template, spec);
+  const board = canonicalBoard(result.boards, spec.letter, spec);
   if (!board) {
     return {
       board: null,

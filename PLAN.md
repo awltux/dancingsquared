@@ -2515,27 +2515,31 @@ superposition All8 describes is not what the code does.
 
 ### THE ONE LIVE CALLER OF THE OLD SELECTION, CHECKED RATHER THAN ASSUMED
 
-`boardForFasrCode` still returns `boards[0]` — the setup work added `canonicalBoard` and used it in the
-registry, and deliberately did not change the code path the POC runs on. So the app's one coded start
-was asked the question directly, by `test/tools/poc-zero-line-probe.mjs`:
+`boardForFasrCode` used to return `boards[0]` — the setup work added `canonicalBoard` and used it in the
+registry but deliberately did not change the code path the POC runs on, so the app's one coded start was
+asked the question directly, by `test/tools/poc-zero-line-probe.mjs`:
 
 ```
-the app loads `Zero Line` as boardForFasrCode('L1o')      identity 8/8, sequence 1, facing pairs 1-4 2-3
-the app's own comment claims                                facing pairs are 1-4 and 2-3   -> CLAIM HOLDS
+the app loaded `Zero Line` as boardForFasrCode('L1o')    identity 8/8, sequence 1, facing pairs 1-4 2-3
+the app's own comment claims                              facing pairs are 1-4 and 2-3   -> CLAIM HOLDS
 ```
 
-**So the app is not currently loading a wrong board, and that is a property of `L1o` rather than of the
-code path.** The same probe shows why it is luck rather than correctness: `L1o`'s four candidates read
+**So the app was not loading a wrong board, and that is a property of `L1o` rather than of the code
+path.** The same probe shows why it was luck rather than correctness: `L1o`'s four candidates read
 `1-4 2-3`, `1-2 3-4`, `1-4 2-3`, `1-2 3-4`, so the property holds on indices **0 and 2** but NOT on 1
-and 3 — the ONE code whose selection happens not to matter is the one code the app uses.
+and 3 — the ONE code whose selection happens not to matter was the one code the app used.
 
-**The consequence is a live trap for the next coded start.** `Zero Box` (`B1c`) is the obvious next
-entry, and for it the measured index is **0 of the same four**, i.e. `boards[0]` would stand the module
-up on the wrong board — silently, on the right geometry, with the right gender pattern. The fix is one
-line at the caller: build through `canonicalBoard(boards, letter, spec)` (or call `setupForFormation`)
-instead of `boardForAlignment`. It is recorded here rather than done because it changes a public
-function's behaviour and nothing in the corpus exercises the difference yet, so it wants the census and
-get-out measured either side.
+**The consequence was a live trap for the next coded start, and it is now CLOSED.** `Zero Box` (`B1c`)
+is the obvious next entry, and for it the measured index is **0 of the same four**, so `boards[0]` would
+have stood the module up on the wrong board — silently, on the right geometry, with the right gender
+pattern. `boardForFasrCode` now builds through `canonicalBoard`, and the function the POC actually calls
+was re-measured: **26 of 26 published alignments place the same COUPLE on every spot as All8's own
+diagram**, `L1o` still carries the property the app's comment claims, and `B1c` now agrees with the
+setup registry. Exactly **12 codes change** (`B1p B2p L1p L2p L3c L4r W1p W2p F1p F2p L.F1p L.F2p`,
+the ones whose measured index is not 0); every other code, measured or not, builds what it built before,
+because `canonicalBoard` falls back to `boards[0]`. The guarantee is now GATED rather than only probed:
+`all8-format.mjs` used an identity-free geometry signature that could not see the couple placement at
+all, and it now compares the couple-to-spot assignment too.
 
 **AND A SMALLER CORRECTION THAT IS INDEPENDENT OF THAT (DONE in Step 2).** `FORMATION_LETTER` had no
 entry for `Static Square`, so `letterForFormation` returned null and `fasrooOf` bailed out before it

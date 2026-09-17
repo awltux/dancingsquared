@@ -224,10 +224,19 @@ console.log('\n== 5. a [FASR] setup code derives the board All8\'s own diagram d
   const geo = (b) => b.dancers
     .map((d) => `${d.gender}@${d.x.toFixed(2)},${d.y.toFixed(2)},${((d.heading * 180) / Math.PI).toFixed(0)}`)
     .sort().join(' ');
+  // The COUPLE-to-spot assignment, which the geometry signature above deliberately drops. A FASR code
+  // admits FOUR boards that share the geometry and differ only here, so this is the half that says
+  // whether the code produced ALL8'S board or an arbitrary rotation of it - and `boardForFasrCode`
+  // used to produce `boards[0]`, which was All8's only for `L1o` (by luck) and not for `B1c`.
+  const assignment = (b) => b.dancers
+    .map((d) => `${d.x.toFixed(2)},${d.y.toFixed(2)}:${d.couple}`)
+    .sort().join(' ');
 
   let same = 0;
+  let sameBoard = 0;
   const refused = [];
   const wrong = [];
+  const wrongBoard = [];
   let skipped = 0;
   for (const a of getouts.alignments ?? []) {
     const spec = parseAlignmentId(a.id);
@@ -239,10 +248,17 @@ console.log('\n== 5. a [FASR] setup code derives the board All8\'s own diagram d
     if (!built.board) { refused.push(`${a.id} (${built.reason})`); continue; }
     if (geo(built.board) === geo(fromDiagram.board)) same++;
     else wrong.push(a.id);
+    if (assignment(built.board) === assignment(fromDiagram.board)) sameBoard++;
+    else wrongBoard.push(a.id);
   }
 
   if (wrong.length > 0) fail(`${wrong.length} FASR code(s) derived a board that disagrees with All8's diagram: ${wrong.join(', ')}`);
   else ok(`${same} of All8's published alignments derive the SAME board from the code as from its diagram`);
+
+  // Stricter, and the point of the canonical selection: the couples land where All8 draws them, not
+  // merely on the same geometry. Pinned so the selection cannot silently regress to `boards[0]`.
+  if (wrongBoard.length > 0) fail(`${wrongBoard.length} FASR code(s) put the COUPLES somewhere other than All8's diagram: ${wrongBoard.join(', ')}`);
+  else ok(`${sameBoard} of them also place the same COUPLE on every spot - All8's own board, not a rotation of it`);
 
   // The refusals must be the known, correct ones: [P] is Beginning Double Pass Thru, where the
   // boys' relationships genuinely disagree so NO relationship letter is justified. All8 labels the

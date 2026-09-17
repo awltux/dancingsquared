@@ -76,4 +76,22 @@ console.log('  that is the discrepancy the readout exposes - the code does not p
     const r = fasrCode(b);
     console.log(`    board ${i}: reads ${r ? r.code : '(none)'}   drawn as  ${draw(b)}`);
   });
+
+  // THE CLAIM, CHECKED: the four boards differ ONLY in which COUPLE NUMBER sits on which spot.
+  // Positions, headings and the gender of every spot must be identical across all four - if they are,
+  // then FASR pins everything EXCEPT the couple numbering, which is exactly what makes a "setup"
+  // absolute and a bare FASR not.
+  const spots = (b) => b.dancers
+    .map((d) => `${d.gender}@${d.x},${d.y}@${Math.round((d.heading * 180) / Math.PI)}`)
+    .sort()
+    .join('|');
+  const same = res.boards.every((b) => spots(b) === spots(res.boards[0]));
+  const coupleMaps = new Set(res.boards.map((b) => b.dancers
+    .map((d) => `${d.couple}@${d.x},${d.y}`)
+    .sort()
+    .join('|')));
+  console.log(`\n  positions+headings+gender per spot identical across all 4: ${same ? 'YES' : 'NO'}`);
+  console.log(`  distinct couple-numberings among them:                      ${coupleMaps.size}`);
+  console.log(`  => FASR pins everything except the COUPLE NUMBERING; that extra part is what`);
+  console.log(`     makes the board an absolute SETUP rather than a class of boards.`);
 }

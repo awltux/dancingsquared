@@ -2186,12 +2186,28 @@ formation: the four couple centroids sit at the four DIAGONALS (±45°, ±135°)
 are the four cardinals, so every board scores almost the same and the metric degenerates to
 enumeration order. Do not build on it.
 
-**THE SIGNAL WORTH FOLLOWING IS IN THE INDEX ITSELF.** all8's board is at index **1** for every
-in-sequence code (`L1p`, `L4r`, `5L1p`) and index **2** for every out-of-sequence one (`L2p`, `L3c`,
-`5L2p`) — and `boardsForAlignment` enumerates boys first, then girls, so those two indices are near the
-START of the enumeration rather than at arbitrary points in it. That is a much better clue than a
-geometric guess: the canonical board looks like a particular position in the enumeration, not a
-particular shape. Find out what distinguishes indices 1 and 2 from 0 and 3 and the rule falls out.
+**SETUP vs FASR — the terminology names the missing piece, and it is measured.** all8's page opens by
+saying callers call "a formation with the dancers arranged in a specific way" a **setup**, and that
+"for 'at-home' choreography, two additional terms are required to fully specify the setup or Total
+FASR": **Orientation** and **Occupation**. FASR identifies where the board IS, at any moment, for a
+caller choosing the next call; it does not place the dancers absolutely.
+
+Checked directly by `engine/test/tools/fasr-readout-probe.mjs`, on the four boards `[L1p]` admits:
+
+```
+positions+headings+gender per spot identical across all 4: YES
+distinct couple-numberings among them:                      4
+```
+
+So FASR pins the formation geometry, the gender on every spot, the sequence and the relationships —
+**everything except which COUPLE NUMBER sits on which spot**. That free part is exactly all8's
+Orientation, and adding it is what turns a class of boards into an absolute setup. The engine has no
+such part, which is why `boardForFasrCode` returns `boards[0]` and why four different boards honestly
+read the same `[0L1p]`.
+
+**This is the correct name for the per-formation table.** It is not a "FASR setup" for a formation; it
+is the formation's **setup** — FASR plus the couple numbering (and, if Head/Side designators are to be
+interpreted, Occupation, which the engine also has no notion of).
 
 **The fix follows the report's wording**: use the FASR properties plus an orientation/reference anchor
 to place the dancers, rather than taking enumeration index 0. `REFERENCE_PAIR_RULES` is used to
@@ -2364,11 +2380,13 @@ parallel grouping the animator re-derived differently from the applicator). Then
    not home-like, so a named formation stood up from the library has arbitrary ids and reports
    `sequence: unknown`. At SETUP the FASR properties should place the dancers, not the index. 129 of
    the 134 named formations are in this state.
-9. **A FASR SETUP per formation, and a COMPLIANCE LEVEL per module** — the design section above. The
-   engine can already BUILD an identified board from an All8 code (`boardForFasrCode`); what is missing
-   is the association from a formation NAME to its canonical code, and any way for a module to say how
-   much of the FASR it needs. `Normal Lines` → `L1o` is confirmed by property; `Zero Box` is all8's
-   `B1c` by name — but both wait on item 7 before they can be pinned to a spelling.
+9. **A SETUP per formation, and a COMPLIANCE LEVEL per module** — the design section above. NOTE THE
+   NAME: what a formation needs is a **setup** (FASR + couple numbering, all8's Orientation), not a
+   FASR code — a code admits four boards and three of them are the wrong placement. The engine can
+   already BUILD an identified board from a code (`boardForFasrCode`); what is missing is the
+   association from a formation NAME to its canonical setup, and any way for a module to say how much
+   of it it needs. `Normal Lines` → `L1o` is confirmed by property; `Zero Box` is all8's `B1c` by name
+   — but both wait on item 7 before they can be pinned to a spelling.
 10. **`Right and Left Grand`'s final board** — from `Ocean Waves` it leaves all eight on a ring at 45°
     increments that `knownFormation` cannot name, while `ceder-7046` declares `Static Square`. Decide
     whether the grand's end rotation is wrong or recognition only has an axis-aligned circle template.

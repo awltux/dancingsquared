@@ -1297,6 +1297,73 @@ and not couples, so the ring test fired on a body that is not a ring and refused
 figures **116 → 115**, three runs each way, with `tools/promenade-figure-stop-probe.mjs` naming the
 victim. Gated in `promenade.mjs` §4c, which checks the witness really is an Alamo ring before using it.
 
+**The call editor now edits an INSTANCE — the start formation and its arrangement, the end formation,
+and the moves — and the `<tam>` round trip is MEASURED.** Until now the editor could only RE-FRAME a
+call: `synthesizeSetup` pads another call's end onto its start. It could not touch the instance itself,
+and a `<tam>` is exactly three things — a start formation, a path per dancer, and the beats around them.
+
+The model is the BUNDLE. A `DancerSpec` already IS a start pose plus a path and a `CallBundle` already
+IS an instance, so the editor adds OPERATIONS (`normalizeInstance`, `instanceTable`, `setDancerStart`,
+`setDancerGender`, `setDancerEnd`, `setMove`, `addMove`, `removeMove`) rather than a second
+representation that could drift out of step with the renderer, the matcher or the XML codec.
+
+**`normalizeInstance` is the safety property, and it is measured rather than asserted.** A tam authored
+for half the set publishes its four dancers in HALF-set space — `ms/circle.xml` and `b1/circle.xml` both
+carry **4 mirrored of 8** — so letting a caller edit those numbers would edit a frame they never see,
+and a start edit would land on the MIRROR of the spot that was typed. Normalization is a 180-degree
+rotation about the origin, which is exactly `fromPosAngle(-x, -y, a + pi)`, and that left factor
+commutes with the whole path chain. MEASURED over t = 0, ¼, ½, ¾ and the end on both witnesses: worst
+pose gap **2.3e-15 units** — one ulp, because `cos(a + pi)` is not bit-identical to `-cos(a)` —
+idempotent, with no mirror left. THE FIRST DRAFT OF THAT CLAIM SAID "EXACT" AND THE HARNESS KILLED IT:
+the honest form is "exact algebra, exact in floating point to one ulp", and the bound is pinned rather
+than rounded to zero.
+
+**What each edit does is a measurement, not a description.** `setDancerStart`: a translated start
+translates the whole path — a (+2, −1) start edit moves that dancer's end by exactly
+**(2.000000, -1.000000)** — and a start HEADING edit **rotates** the path about the start, (dx, dy) →
+(−dy, dx) to 1e-9, because a path is authored in dancer-local coordinates. That is what makes this an
+edit of the INSTANCE rather than a rewrite of its choreography. `setDancerGender`: nobody moves, nobody
+re-faces, and the derived home couple is **unchanged**, because identity is matched on position and
+heading — which is why `couple` is reported as a READ and not as an editable field: a taminations
+`<dancer>` declares only gender/x/y/angle, so an editable couple could not round-trip. `setDancerEnd`:
+the dancer ends exactly on the target, only its LAST move changes, no other dancer moves, and the beats
+are held. `setMove`/`addMove`/`removeMove` re-time the call.
+
+**The first re-timing rule was wrong, and the harness caught it.** "beats = max(path)" CUT an authored
+pause: a 14-beat call whose longest path is 10 came back at **10.5** after half a beat was added to a
+shorter dancer — a 3.5-beat pause destroyed by an edit that never touched it — while leaving the number
+alone ignores a genuine re-time. The pause is now carried as a DELTA: 14 → 14.5, pause still 3.5.
+
+**Two real defects fell out of the export.** `callToXml` dropped `sequencer`, `actives` and the
+`<taminator>` note. `sequencer` is not decoration: `Catalog.registrationXml` registers an applied fix
+from THIS xml, so an edit to the `sequencer="no"` half of a call came back as an ordinary **matchable**
+setup — the demonstration hole the flag exists to close, re-opened. Second, the 2-decimal precision is
+the assets' own house style and is not enough for a round trip: a path is a CHAIN, so each segment's
+rounded rotation Bezier accumulates. MEASURED on `ms/circle.xml` edited to 10.5 beats: the end pose came
+back **0.0672 units** out, 13× the rounding of any single coordinate — a dancer visibly off its spot. At
+**four** decimals the same path is out by **0.000082** end / 0.000037 move, and the harness pins
+**0.001**, which the 2-decimal form fails.
+
+**The round trip is the done-when and it is gated in `engine/test/editor.mjs`** — which is in the
+`light` tier, so it runs in the fast gate. Edit every dimension the editor can reach, export, re-parse,
+and require the same start formation, the same end formation, the same ARRANGEMENT (gender per dancer),
+the same moves beats-and-Bezier and the same beat count — plus that exporting the RE-PARSED instance is
+**byte-identical**, so the round trip cannot drift.
+
+**One footgun is pinned rather than discovered later.** The engine's mirror rule is geometric — it
+duplicates a half set only while SOME 180-degree partner exists — so an edited eight-dancer formation
+with no origin-opposite pair is read back as **16 dancers** under `mirror: true`. A rigid edit (a
+translation, or a rotation about the origin) PRESERVES every pair and cannot demonstrate it; moving one
+dancer out of each pair can, and the harness does exactly that. Every editor path is `mirror: false`.
+
+**The POC wiring is typechecked, not measured, and that is said rather than implied.** The Vite app
+cannot run under this sandbox (`spawn EPERM`), so the instance table, the moves editor and the
+save/apply-as-`kind: 'instance'` path are reasoned from the code; what IS measured is every geometric
+decision they call. THE PRE-EXISTING `editor-ui.ts` TS2739 IS FIXED IN PASSING, so
+`npx --prefix poc tsc -p poc --noEmit` is now CLEAN — a POC typecheck is a real signal from here on.
+`node poc/verify.cjs` still fails the same THREE pre-existing `Pass Thru` checks and loads all 542
+catalogue calls; `verify:light` is green at 12 harnesses in 36.3 s.
+
 
 
 

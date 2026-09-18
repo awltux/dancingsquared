@@ -2386,6 +2386,69 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     declared couples disagree, a promenade still shows the couples separating. Its size is the same
     before and after this round, and no animation change can reduce it.
 
+- **THE CALL EDITOR NOW EDITS AN INSTANCE, AND THE `<tam>` ROUND TRIP IS MEASURED.** The editor could
+  only RE-FRAME a call — pad another call's end onto its start — and could not touch the instance
+  itself. A `<tam>` is a start formation, a path per dancer and the beats around them, and the ask was
+  to edit all three. The model is the BUNDLE (a `DancerSpec` already IS a start pose plus a path), so
+  the editor adds OPERATIONS rather than a second representation that can drift out of step with the
+  renderer, the matcher or the XML codec.
+  - **`normalizeInstance` IS THE SAFETY PROPERTY, AND IT IS MEASURED, NOT ASSERTED.** A tam authored
+    for half the set publishes four dancers in HALF-set space — `ms/circle.xml` and `b1/circle.xml`
+    both carry **4 mirrored of 8** — so letting a caller edit those numbers would edit a frame they
+    never see, and a start edit would land on the MIRROR of the spot that was typed. Normalization is a
+    180-degree rotation about the origin, i.e. exactly `fromPosAngle(-x, -y, a + pi)`, and that left
+    factor commutes with the whole path chain. MEASURED over t = 0, ¼, ½, ¾, end on both witnesses:
+    worst pose gap **2.3e-15 units** — one ulp, because `cos(a + pi)` is not bit-identical to `-cos(a)`
+    — idempotent, no mirror left. So the claim is "exact algebra, exact in floating point to one ulp",
+    and the harness pins the bound instead of pretending it is zero.
+  - **WHAT EACH EDIT MEASURABLY DOES.** `setDancerStart`: a translated start translates the whole path
+    (end delta exactly **(2.000000, -1.000000)** for a (+2, −1) start edit) and a start heading edit
+    **ROTATES** the path about the start ((dx, dy) → (−dy, dx) to 1e-9), because a path is authored in
+    dancer-local coordinates — which is what makes this an edit of the INSTANCE and not of the
+    choreography. `setDancerGender`: nobody moves, nobody re-faces, and the derived home couple is
+    **unchanged** (identity is matched on position and heading), which is why `couple` is reported as a
+    READ rather than as an editable field — the taminations `<dancer>` declares only gender/x/y/angle,
+    so an editable couple could not round-trip. `setDancerEnd`: the dancer ends exactly on the target,
+    only its LAST move changes, no other dancer moves, beats held.
+  - **THE FIRST RE-TIMING RULE WAS WRONG AND THE HARNESS CAUGHT IT.** `beats = max(path)` CUT an
+    authored pause: a 14-beat call whose longest path is 10 came back at **10.5** after half a beat was
+    added to a shorter dancer — a 3.5-beat pause destroyed by an edit that never touched it — while
+    leaving the number alone ignores a genuine re-time. The pause is now carried as a **DELTA**:
+    14 → 14.5 with the pause still 3.5.
+  - **A REAL DEFECT FELL OUT OF THE EXPORT.** `callToXml` dropped `sequencer`, `actives` and the
+    `<taminator>` note, and `sequencer` is not decoration: `Catalog.registrationXml` registers an
+    applied fix from THIS xml, so an edit to the `sequencer="no"` half of a call came back as an
+    ordinary **matchable** setup — the demonstration hole the flag exists to close, re-opened. All
+    three are now written back out and pinned (`Ends Bend` `no` → `no` with `forSequencer false`;
+    `Split the Outside Couple` `actives="Centers"` preserved; the `<taminator>` text preserved).
+  - **THE EXPORT PRECISION WAS TOO LOW, AND THE NUMBER IS THE REASON.** Two decimals is the assets' own
+    house style and it is not enough for a round trip: a path is a CHAIN, so each segment's rounded
+    rotation Bezier accumulates and the final pose is out by the distance travelled since. MEASURED on
+    `ms/circle.xml` edited to 10.5 beats: the end pose came back **0.0672 units** out — 13× the
+    rounding of any single coordinate, a dancer standing visibly off its spot. At **four** decimals the
+    same path is out by **0.000082** end / 0.000037 move, and the harness pins **0.001**, which the
+    2-decimal form fails.
+  - **THE ROUND TRIP IS THE DONE-WHEN, GATED IN `engine/test/editor.mjs`** (and that harness is in the
+    `light` tier, so it runs in the fast gate): edit every dimension the editor can reach, export,
+    re-parse, and require the same start formation, the same end formation, the same **ARRANGEMENT**
+    (gender per dancer), the same moves beats-and-Bezier and the same beat count — and that exporting
+    the RE-PARSED instance is **byte-identical**, so the round trip cannot drift.
+  - **ONE FOOTGUN IS PINNED RATHER THAN DISCOVERED LATER.** The engine's mirror rule is geometric — it
+    duplicates a half set only while SOME 180-degree partner exists — so an edited eight-dancer
+    formation with no origin-opposite pair is read back as **16 dancers** under `mirror: true`. A rigid
+    edit (a translation, or a rotation about the origin) PRESERVES every pair and cannot demonstrate
+    it; moving one dancer out of each pair can, and the harness does exactly that. Every editor path is
+    `mirror: false`, and `data.ts` says so where it matters.
+  - **THE POC WIRING IS TYPECHECKED, NOT MEASURED**, and the commit says so: the Vite app cannot run
+    under this sandbox (`spawn EPERM`), so the instance table, the moves editor and the
+    save/apply-as-`kind: 'instance'` path are reasoned from the code — what IS measured is every
+    geometric decision they call. **The pre-existing `editor-ui.ts` TS2739 is fixed in passing**, so
+    `npx --prefix poc tsc -p poc --noEmit` is now **CLEAN**, and a POC typecheck is a real signal from
+    here on (it is trap 18 in `HANDOVER.md`). `node poc/verify.cjs` still fails the same **three**
+    pre-existing `Pass Thru` checks and loads all **542** catalogue calls.
+  - The new instrument is `node engine/test/tools/editor-instance-probe.mjs`; `verify:light` is green
+    (12 harnesses, 36.3 s).
+
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:
 

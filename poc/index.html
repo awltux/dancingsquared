@@ -132,6 +132,7 @@
           <div class="row">
             <label>Mode</label>
             <select id="edMode">
+              <option value="instance">Edit instance</option>
               <option value="fix">Fix closure</option>
               <option value="create">Create position</option>
             </select>
@@ -142,7 +143,29 @@
             <label>Setup</label>
             <select id="edSetup"></select>
           </div>
-          <div class="row">
+          <div id="edInstancePanel">
+            <div class="row">
+              <button id="edInstReset" title="Throw away the edits made in this tab and reload the instance. An edit already applied to the live catalogue is part of what is reloaded.">Reset</button>
+              <button id="edInstExport" title="Export the edited instance as taminations &lt;tam&gt; XML">Export &lt;tam&gt;</button>
+              <span id="edInstInfo" class="part"></span>
+            </div>
+            <div class="small">
+              <b>Formation</b> — the start pose of every dancer, and the pose each arrives at. The
+              <i>gender</i> column is the ARRANGEMENT (which spots hold a boy and which a girl); <i>couple</i>
+              is a read of the start formation, not a field of the format, so it follows the positions.
+            </div>
+            <div id="edFormation"></div>
+            <div class="row">
+              <label>Moves of</label>
+              <select id="edMoveDancer"></select>
+              <label>Move</label>
+              <select id="edMovePick"></select>
+              <button id="edMoveAdd" title="Append a one-beat pause to this dancer">+ Move</button>
+              <button id="edMoveDel" title="Delete the selected move">− Move</button>
+            </div>
+            <div id="edMoveFields"></div>
+          </div>
+          <div class="row" id="edPostRow">
             <label>Post call</label>
             <select id="edPostCall" class="wide"></select>
             <label>Post setup</label>

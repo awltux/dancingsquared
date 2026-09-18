@@ -14,6 +14,10 @@
 
 import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Seg } from './types.js';
 import { DEG, poseFor } from './core.js';
+// The DERIVED identity of an edited start formation: `assignHomeIdentity` is the same
+// read the renderer colours by, so the editor's `couple` column cannot disagree with the
+// stage next to it.
+import { assignHomeIdentity } from './sequencer/identity.js';
 
 function normAngleSafe(a: number): number {
   while (a > Math.PI) a -= 2 * Math.PI;
@@ -511,7 +515,254 @@ export function correctEndTo(call: CallBundle, target: FormDancer[]): CallBundle
   return { ...call, dancers: newDancers }; // beats / totalBeats unchanged
 }
 
-/** Serialize an arbitrary call bundle as a taminations-style `<tam>` XML string. */
+// ------------------------------------------------------------------ call instance
+//
+// A CALL INSTANCE is one `<tam>`: a start formation, a start-to-end path for every
+// dancer, and the bookkeeping around them. The editor's first job is to let a caller
+// edit that instance DIRECTLY - the start formation and its arrangement (which spot
+// holds a boy and which a girl), the end formation, and the moves that carry each
+// dancer from one to the other - rather than only re-framing a call by padding it.
+//
+// THE MODEL IS THE BUNDLE. `DancerSpec` already IS a start pose plus a path, and
+// `CallBundle` already IS an instance, so the editor edits a bundle and needs no
+// parallel representation to drift out of step with the renderer, the matcher or the
+// XML codec. What it adds is the OPERATIONS, and every one of them returns a NEW
+// bundle.
+//
+// FULL-SET COORDINATES, ALWAYS. A tam authored for half the set carries four dancers
+// and `mirror: true`, and its published (x, y, angle) are in HALF-set space: letting a
+// caller edit those numbers would be editing a frame they never see, and a start edit
+// applied to the wrong frame moves a dancer to the mirror image of the spot that was
+// typed. Every operation therefore normalizes first. The normalization is exact ALGEBRA -
+// a mirrored dancer's pose is the base pose under a 180-degree rotation about the origin,
+// which is precisely `fromPosAngle(-x, -y, a + pi)`, and that left factor commutes with
+// the whole path chain - and it is exact IN FLOATING POINT to within one ulp, because
+// `cos(a + pi)` is not bit-identical to `-cos(a)`. MEASURED over the corpus witnesses in
+// `editor.mjs`: worst pose gap 2.3e-15 units, the same order as the round-off in the
+// operations it is comparing. Nothing here treats that as zero.
+
+/** One dancer of an editable call instance, reported in FULL-SET coordinates. */
+export interface InstanceDancer {
+  /** Index into `call.dancers`; the identity the mutators take. */
+  index: number;
+  gender: Gender;
+  start: FormDancer;
+  /** The pose the dancer arrives at when the call's LAST beat is reached. */
+  end: FormDancer;
+  /**
+   * Home-square couple and dancer id, DERIVED from the start formation by
+   * `assignHomeIdentity` (the same read the renderer colours by), or null when the
+   * start formation is not a home-like 8-dancer set. NOT editable and NOT exported:
+   * a taminations `<dancer>` declares only gender/x/y/angle, so `couple` is a READ of
+   * the arrangement, not a field of the format. See the note on `setDancerGender`.
+   */
+  couple: number | null;
+  id: number | null;
+  /** Sum of this dancer's own segment beats (the call's own `beats` is their max). */
+  beats: number;
+  /** A COPY of the dancer's moves, so editing the report cannot edit the bundle. */
+  moves: Seg[];
+}
+
+function cloneSegs(path: Seg[]): Seg[] {
+  return path.map((s) => ({
+    beats: s.beats,
+    hands: s.hands,
+    translate: { ...s.translate },
+    rotate: s.rotate ? { ...s.rotate } : null,
+  }));
+}
+
+function pathBeats(path: Seg[]): number {
+  return path.reduce((n, s) => n + s.beats, 0);
+}
+
+/** The longest dancer's own path length: the converter's own definition of a call's
+ *  `beats` (`buildCallImpl`). A shorter dancer simply stops when it is done. */
+export function instanceBeats(call: CallBundle): number {
+  return call.dancers.reduce((m, d) => Math.max(m, pathBeats(d.path)), 0);
+}
+
+/** Re-time the call after a MOVE edit.
+ *
+ * `beats` is normally the longest dancer's path, and that is what a re-timed move should
+ * produce. But an authored tam may declare `beats` LONGER than every one of its paths - a
+ * pause, expressed by trailing zero-travel movement - and both obvious rules are wrong
+ * for it:
+ *
+ *   - `beats = max(path)` silently CUTS the pause off the end of an unrelated edit
+ *     (MEASURED: an 14-beat call whose longest path is 10, edited by half a beat on a
+ *     shorter dancer, came back at 10.5 - a 3.5-beat pause destroyed by a change that
+ *     never touched it); and
+ *   - leaving `beats` alone ignores a genuine re-time.
+ *
+ * So the PAUSE IS CARRIED AS A DELTA: whatever the authored number exceeds the longest
+ * path by, it keeps exceeding it by. A call with no pause (the two are equal) simply
+ * follows its longest path. */
+function retime(call: CallBundle, beforeMax: number): CallBundle {
+  const after = instanceBeats(call);
+  const beats = call.beats === beforeMax ? after : call.beats + (after - beforeMax);
+  return { ...call, beats, totalBeats: call.leadin + beats + call.leadout };
+}
+
+/** Rewrite a call instance in FULL-SET coordinates: every dancer explicit, no mirrors.
+ *
+ * Exact ALGEBRA and exact in floating point to one ulp - see the section note, and note
+ * that `editor.mjs` pins the ulp rather than rounding it away. Idempotent, and the identity
+ * it needs (`id` / `couple`) is carried across rather than re-derived, so a caller's
+ * declared identity is not silently replaced by a guess. */
+export function normalizeInstance(call: CallBundle): CallBundle {
+  const dancers: DancerSpec[] = call.dancers.map((d) => {
+    const p = poseFor(d, 0);
+    const out: DancerSpec = {
+      gender: d.gender,
+      x: p.x,
+      y: p.y,
+      angleDeg: p.heading / DEG,
+      mirror: false,
+      path: cloneSegs(d.path),
+    };
+    if (d.id != null) out.id = d.id;
+    if (d.couple != null) out.couple = d.couple;
+    return out;
+  });
+  return { ...call, dancers };
+}
+
+/** The call instance as an editable TABLE: one row per dancer, full-set coordinates,
+ *  with the derived identity and the moves. This is what the editor UI renders and
+ *  what `editor.mjs` measures the round trip against. */
+export function instanceTable(call: CallBundle): InstanceDancer[] {
+  const full = call.dancers.some((d) => d.mirror) ? normalizeInstance(call) : call;
+  const stamped = assignHomeIdentity(full.dancers);
+  return stamped.map((d, i) => {
+    const s = poseFor(d, 0);
+    const e = poseFor(d, full.beats);
+    return {
+      index: i,
+      gender: d.gender,
+      start: { x: s.x, y: s.y, heading: s.heading, gender: d.gender },
+      end: { x: e.x, y: e.y, heading: e.heading, gender: d.gender },
+      couple: d.couple ?? null,
+      id: d.id ?? null,
+      beats: pathBeats(d.path),
+      moves: cloneSegs(d.path),
+    };
+  });
+}
+
+function requireDancer(call: CallBundle, index: number): CallBundle {
+  if (!Number.isInteger(index) || index < 0 || index >= call.dancers.length) {
+    throw new Error(`instance edit: dancer ${index} is out of range (the instance has ${call.dancers.length})`);
+  }
+  return call.dancers.some((d) => d.mirror) ? normalizeInstance(call) : call;
+}
+
+/** Move dancer `index`'s START pose (and optionally its gender).
+ *
+ * A path is authored in dancer-LOCAL coordinates, with +X the dancer's initial facing, so
+ * re-posing the start does NOT leave the movement alone - it re-frames it:
+ *
+ *   - translating the start translates the whole path by the same vector, so every later
+ *     pose moves with it; and
+ *   - changing the start heading rotates the whole path about the start by the same angle.
+ *
+ * That is the authored semantics and the reason an edit here is an edit of the INSTANCE:
+ * the choreography is carried through verbatim, in the frame the caller just chose. An
+ * edit that should NOT move the end belongs on `setDancerEnd` instead. */
+export function setDancerStart(call: CallBundle, index: number, pose: FormDancer): CallBundle {
+  const base = requireDancer(call, index);
+  const dancers = base.dancers.map((d, j) =>
+    j === index
+      ? { ...d, x: pose.x, y: pose.y, angleDeg: pose.heading / DEG, gender: pose.gender ?? d.gender }
+      : d,
+  );
+  return { ...base, dancers };
+}
+
+/** Set dancer `index`'s gender: the ONLY thing that changes a formation's ARRANGEMENT,
+ *  in the FASR sense of "which spots are occupied by boys and which by girls".
+ *
+ * A taminations `<dancer>` declares gender/x/y/angle, so this edit is carried by the XML
+ * exactly as made; `couple` is a read of the result and follows from it. */
+export function setDancerGender(call: CallBundle, index: number, gender: Gender): CallBundle {
+  const base = requireDancer(call, index);
+  const dancers = base.dancers.map((d, j) => (j === index ? { ...d, gender } : d));
+  return { ...base, dancers };
+}
+
+/** Send dancer `index` to `pose` at the END of the call, holding the beat count.
+ *
+ * Only the dancer's LAST move is re-aimed (the same construction `correctEndTo` uses for
+ * a whole set), so every earlier move, and every other dancer, is untouched. */
+export function setDancerEnd(call: CallBundle, index: number, pose: FormDancer): CallBundle {
+  const base = requireDancer(call, index);
+  const d = base.dancers[index];
+  if (d.path.length === 0) {
+    throw new Error(`instance edit: dancer ${index} has no moves to re-aim at an end pose`);
+  }
+  const last = d.path[d.path.length - 1];
+  const before = d.path.slice(0, -1);
+  const pre = poseFor({ ...d, path: before }, pathBeats(before));
+  const seg = padSegment({ x: pre.x, y: pre.y, heading: pre.heading }, { x: pose.x, y: pose.y, heading: pose.heading }, last.beats);
+  seg.hands = last.hands;
+  const dancers = base.dancers.map((x, j) => (j === index ? { ...x, path: [...before, seg] } : x));
+  return retime({ ...base, dancers }, instanceBeats(base));
+}
+
+/** Replace one of dancer `index`'s moves. Beats are re-timed by `retime`. */
+export function setMove(call: CallBundle, index: number, moveIndex: number, seg: Seg): CallBundle {
+  const base = requireDancer(call, index);
+  const moves = base.dancers[index].path;
+  if (!Number.isInteger(moveIndex) || moveIndex < 0 || moveIndex >= moves.length) {
+    throw new Error(`instance edit: dancer ${index} has no move ${moveIndex} (it has ${moves.length})`);
+  }
+  const beforeMax = instanceBeats(base);
+  const path = moves.map((s, k) => (k === moveIndex ? cloneSegs([seg])[0] : s));
+  const dancers = base.dancers.map((d, j) => (j === index ? { ...d, path } : d));
+  return retime({ ...base, dancers }, beforeMax);
+}
+
+/** Insert a move for dancer `index` (at the end by default). */
+export function addMove(call: CallBundle, index: number, seg: Seg, at?: number): CallBundle {
+  const base = requireDancer(call, index);
+  const moves = base.dancers[index].path;
+  const k = at == null ? moves.length : Math.max(0, Math.min(moves.length, at));
+  const beforeMax = instanceBeats(base);
+  const path = [...moves.slice(0, k), cloneSegs([seg])[0], ...moves.slice(k)];
+  const dancers = base.dancers.map((d, j) => (j === index ? { ...d, path } : d));
+  return retime({ ...base, dancers }, beforeMax);
+}
+
+/** Delete one of dancer `index`'s moves. */
+export function removeMove(call: CallBundle, index: number, moveIndex: number): CallBundle {
+  const base = requireDancer(call, index);
+  const moves = base.dancers[index].path;
+  if (!Number.isInteger(moveIndex) || moveIndex < 0 || moveIndex >= moves.length) {
+    throw new Error(`instance edit: dancer ${index} has no move ${moveIndex} (it has ${moves.length})`);
+  }
+  const beforeMax = instanceBeats(base);
+  const path = moves.filter((_, k) => k !== moveIndex);
+  const dancers = base.dancers.map((d, j) => (j === index ? { ...d, path } : d));
+  return retime({ ...base, dancers }, beforeMax);
+}
+
+/** Serialize an arbitrary call bundle as a taminations-style `<tam>` XML string.
+ *
+ * EVERY DECLARATION THE BUNDLE CARRIES IS WRITTEN BACK OUT, and the two attributes that
+ * used to be dropped are the ones that change behaviour:
+ *
+ *  - `sequencer` decides whether the sequencer may MATCH this variant. A fix or a created
+ *    position is registered from this XML (`Catalog.registrationXml`), so dropping it
+ *    re-opened the demonstration hole the flag exists to close: an edit to the
+ *    `sequencer="no"` half of a call came back as an ordinary, matchable setup.
+ *  - `actives` says WHICH dancers the tam's paths describe, which is the whole reason
+ *    `Centers Split Two` currently applies as a whole-board `Pass Thru`. An editor has no
+ *    business erasing the attribute that records that.
+ *
+ * The edit is written in EXPANDED form: named `<move select="…"/>` references come out as
+ * explicit `<movement>` Beziers. The two are the same animation (`resolvePath` expands the
+ * first into the second), and `editor.mjs` proves the round trip both ways. */
 export function callToXml(call: CallBundle, name?: string): string {
   const from = name ?? (call.from || call.title);
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -524,21 +775,31 @@ export function callToXml(call: CallBundle, name?: string): string {
       const x = d.mirror ? -d.x : d.x;
       const y = d.mirror ? -d.y : d.y;
       const a = d.mirror ? d.angleDeg + 180 : d.angleDeg;
-      return `        <dancer gender="${d.gender}" x="${r2(x)}" y="${r2(y)}" angle="${r2(a)}"/>`;
+      return `        <dancer gender="${d.gender}" x="${rf(x)}" y="${rf(y)}" angle="${rf(a)}"/>`;
     })
     .join('\n');
   const paths = call.dancers
     .map(
       (d) =>
         `    <path>\n` +
-        d.path.map((s) => `      <movement hands="${s.hands}" beats="${r2(s.beats)}" ${bezAttr(s.translate)}${s.rotate ? ' ' + bezRotAttr(s.rotate) : ''}/>`).join('\n') +
+        d.path.map((s) => `      <movement hands="${s.hands}" beats="${rf(s.beats)}" ${bezAttr(s.translate)}${s.rotate ? ' ' + bezRotAttr(s.rotate) : ''}/>`).join('\n') +
         `\n    </path>`,
     )
     .join('\n');
+  const attrs = [
+    `title="${esc(call.title)}"`,
+    `from="${esc(from)}"`,
+    `parts="${esc(call.parts)}"`,
+    call.sequencerMode ? `sequencer="${call.sequencerMode}"` : '',
+    call.actives ? `actives="${esc(call.actives)}"` : '',
+  ]
+    .filter((a) => a !== '')
+    .join(' ');
+  const taminator = call.taminator ? `\n    <taminator>${esc(call.taminator)}</taminator>` : '';
   return (
-    `  <tam title="${esc(call.title)}" from="${esc(from)}" parts="${esc(call.parts)}">\n` +
+    `  <tam ${attrs}>\n` +
     `    <formation>\n${dancers}\n    </formation>\n` +
-    `${paths}\n  </tam>`
+    `${paths}${taminator}\n  </tam>`
   );
 }
 
@@ -548,11 +809,22 @@ export function setupToXml(core: CallBundle, setup: NewSetup): string {
 }
 
 function bezAttr(b: BezierData): string {
-  return `cx1="${r2(b.cx1)}" cy1="${r2(b.cy1)}" cx2="${r2(b.cx2)}" cy2="${r2(b.cy2)}" x2="${r2(b.x2)}" y2="${r2(b.y2)}"`;
+  return `cx1="${rf(b.cx1)}" cy1="${rf(b.cy1)}" cx2="${rf(b.cx2)}" cy2="${rf(b.cy2)}" x2="${rf(b.x2)}" y2="${rf(b.y2)}"`;
 }
 function bezRotAttr(b: BezierData): string {
-  return `cx3="${r2(b.cx1)}" cx4="${r2(b.cx2)}" cy4="${r2(b.cy2)}" x4="${r2(b.x2)}" y4="${r2(b.y2)}"`;
+  return `cx3="${rf(b.cx1)}" cx4="${rf(b.cx2)}" cy4="${rf(b.cy2)}" x4="${rf(b.x2)}" y4="${rf(b.y2)}"`;
 }
-function r2(n: number): string {
-  return (Math.round(n * 100) / 100).toString();
+/**
+ * Export precision.
+ *
+ * Two decimals is the asset files' own house style, and it is NOT enough for the editor's
+ * round trip: a path is a CHAIN of segments, each exporting its rotation Bezier to the
+ * nearest 0.01, so the heading error accumulates along the chain and the final pose is out
+ * by the distance travelled since. MEASURED on `ms/circle.xml` edited to 10.5 beats: the
+ * end pose came back 0.0672 units out - 13 times the rounding of any single coordinate -
+ * which is a dancer standing visibly off its spot. At four decimals the same path is out
+ * by 0.0008, and `editor.mjs` pins both numbers.
+ */
+function rf(n: number): string {
+  return (Math.round(n * 1e4) / 1e4).toString();
 }

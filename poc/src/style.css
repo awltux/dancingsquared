@@ -48,6 +48,20 @@ html, body {
 #edSaved .setup.applied { background: rgba(77, 159, 255, 0.12); border: 1px solid #4d9fff; border-radius: 4px; padding: 2px 4px; }
 #edSaved .setup.applied b { color: #7db8ff; }
 #edSaved button { margin-left: 6px; }
+/* The instance editor edits 8 dancers x (start pose + end pose) plus a move's Bezier, so the
+   HUD widens while it is showing rather than pushing the table into a horizontal scroll. */
+#hud.ed-instance { max-width: 780px; }
+.ed-table { width: 100%; border-collapse: collapse; font-size: 11px; margin: 2px 0 8px; }
+.ed-table th { color: var(--dim); font-weight: 500; text-align: right; padding: 1px 4px; white-space: nowrap; }
+.ed-table th.ed-side { text-align: center; border-bottom: 1px solid #2a3542; }
+.ed-table td { padding: 1px 2px; }
+.ed-table input[type="number"] { width: 48px; padding: 2px 3px; font-size: 11px; }
+.ed-table select { padding: 1px 2px; font-size: 11px; flex: none; }
+.ed-table td.ed-derived { color: var(--dim); text-align: right; padding-right: 8px; }
+.ed-grid { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 11px; margin-top: 2px; }
+.ed-grid label { width: auto; }
+.ed-grid input[type="number"] { width: 58px; padding: 2px 3px; font-size: 11px; }
+.ed-grid .ed-group { display: flex; gap: 4px; align-items: center; }
 #legend { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 2px; }
 #legend b { color: var(--text); }
 .build-footer {

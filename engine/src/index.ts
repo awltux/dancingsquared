@@ -156,6 +156,21 @@ export {
 } from './editor.js';
 export type { FormDancer, NewSetup, ChainSpec, ClosureDiscrepancy, Rigid } from './editor.js';
 
+// Call editor, part two: edit a call INSTANCE directly - its start formation and the
+// arrangement of that formation, its end formation, and the moves between them.
+export {
+  normalizeInstance,
+  instanceTable,
+  instanceBeats,
+  setDancerStart,
+  setDancerGender,
+  setDancerEnd,
+  setMove,
+  addMove,
+  removeMove,
+} from './editor.js';
+export type { InstanceDancer } from './editor.js';
+
 export {
   setParser,
   parseMoves,

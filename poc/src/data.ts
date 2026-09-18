@@ -49,17 +49,28 @@ export interface CallInfo {
 
 // A user-authored call edit (from the call editor). `applied` means it is
 // currently overriding the live call-position database.
+//
+// THREE KINDS, and the third is a different shape from the other two:
+//   'fix'      retarget one setup's last move to a post-call's start
+//   'create'   synthesize a NEW setup between a pre-call's end and a post-call's start
+//   'instance' an EDITED `<tam>` in full - start formation and its arrangement, end
+//              formation, and the moves - carried as the exported XML itself, because a
+//              whole instance is exactly what `callToXml` is for and re-deriving it from a
+//              handful of fields would be a second, weaker representation of the same thing.
 export interface CallEdit {
-  kind: 'fix' | 'create';
+  kind: 'fix' | 'create' | 'instance';
   callId: string;
   setupIdx: number;
-  postCallId: string;
-  postSetupIdx: number;
+  postCallId?: string;
+  postSetupIdx?: number;
   preCallId?: string;
   preSetupIdx?: number;
   name: string;
   padBeats: number;
   applied?: boolean;
+  /** kind 'instance': the edited instance as taminations `<tam>` XML - expanded and
+   *  full-set, exactly as `callToXml` emitted it. */
+  xml?: string;
 }
 
 export interface ClosureCandidate {
@@ -300,25 +311,43 @@ export class Catalog {
   }
   private rebuildFix(edit: CallEdit): CallBundle {
     const editSetup = this.loadCallBase(edit.callId, edit.setupIdx, true);
-    const post = this.loadCallBase(edit.postCallId, edit.postSetupIdx, true);
+    const post = this.loadCallBase(edit.postCallId!, edit.postSetupIdx ?? 0, true);
     const target = this.alignToSetup(editSetup, this.callStart(post));
     return correctEndTo(editSetup, target);
   }
   private rebuildCreate(edit: CallEdit): CallBundle {
     const core = this.loadCallBase(edit.callId, edit.setupIdx, true);
     const pre = this.loadCallBase(edit.preCallId!, edit.preSetupIdx ?? 0, true);
-    const post = this.loadCallBase(edit.postCallId, edit.postSetupIdx, true);
+    const post = this.loadCallBase(edit.postCallId!, edit.postSetupIdx ?? 0, true);
     const start = this.alignToSetup(core, this.callEnd(pre));
     const end = this.alignToSetup(core, this.callStart(post));
     return synthesizeSetup(core, { name: edit.name, start, end, padBeats: edit.padBeats });
   }
+  /**
+   * Rebuild an EDITED INSTANCE from the `<tam>` XML it was saved as.
+   *
+   * `mirror: false`, ALWAYS, and that is not a preference. An exported instance is explicit
+   * about all eight dancers, and the engine's mirror rule is geometric - it duplicates a
+   * formation only while SOME 180-degree partner exists - so reading an edited formation
+   * with no origin-opposite pair back with `mirror: true` returns SIXTEEN dancers.
+   * `engine/test/editor.mjs` pins that measurement, and the whole reason the editor's export
+   * is full-set is so that this path is unambiguous.
+   */
+  private rebuildInstance(edit: CallEdit): CallBundle {
+    const xml = edit.xml;
+    if (!xml) throw new Error(`instance edit "${edit.name}" carries no XML`);
+    const tam = parseCallXml('<calls>\n' + xml + '\n</calls>')[0];
+    if (!tam) throw new Error(`instance edit "${edit.name}" has no <tam>`);
+    return buildCall(tam, this.formationsMap, this.movesMap, false);
+  }
 
   /** Rebuild an edit's call bundle from its SHIP definitions (no override recursion). */
   rebuildEdit(edit: CallEdit): CallBundle {
+    if (edit.kind === 'instance') return this.rebuildInstance(edit);
     return edit.kind === 'fix' ? this.rebuildFix(edit) : this.rebuildCreate(edit);
   }
 
-  /** Load a call setup, honoring applied edit overrides (fix replaces, create appends). */
+  /** Load a call setup, honoring applied edit overrides (fix and instance replace, create appends). */
   loadCall(id: string, tamIndex: number, mirror = true): CallBundle {
     const entry = this.fullCatalog.find((c) => c.id === id);
     if (!entry) throw new Error(`Unknown call: ${id}`);
@@ -326,8 +355,8 @@ export class Catalog {
     const creates = edits.filter((e) => e.kind === 'create');
     const shippedCount = entry.setups.length;
     if (tamIndex < shippedCount) {
-      const fix = edits.find((e) => e.kind === 'fix' && e.setupIdx === tamIndex);
-      if (fix) return this.rebuildFix(fix);
+      const repl = edits.find((e) => (e.kind === 'fix' || e.kind === 'instance') && e.setupIdx === tamIndex);
+      if (repl) return repl.kind === 'instance' ? this.rebuildInstance(repl) : this.rebuildFix(repl);
       return this.loadCallBase(id, tamIndex, mirror);
     }
     const create = creates[tamIndex - shippedCount];
@@ -382,9 +411,11 @@ export class Catalog {
     const out: string[] = [];
     for (let si = 0; si < entry.tamIndices.length; si++) {
       const fileIdx = entry.tamIndices[si];
-      const fix = edits.find((e) => e.kind === 'fix' && e.setupIdx === si);
-      if (fix) {
-        const t = this.tamFromCall(this.rebuildEdit(fix));
+      const repl = edits.find((e) => (e.kind === 'fix' || e.kind === 'instance') && e.setupIdx === si);
+      if (repl) {
+        // An applied INSTANCE already IS a `<tam>`, carrying its own `sequencer` and
+        // `actives` declarations, so it is registered verbatim rather than re-serialized.
+        const t = repl.kind === 'instance' ? repl.xml ?? null : this.tamFromCall(this.rebuildEdit(repl));
         if (t) out.push(t);
       } else if (blocks[fileIdx]) {
         out.push(blocks[fileIdx]);

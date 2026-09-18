@@ -23,6 +23,17 @@ import {
   endPoses,
   closureDiscrepancy,
   correctEndTo,
+  // The call-INSTANCE editor: read an instance as a table, edit its start formation and
+  // arrangement, its end formation and its moves, and round-trip it through `<tam>` XML.
+  normalizeInstance,
+  instanceTable,
+  instanceBeats,
+  setDancerStart,
+  setDancerGender,
+  setDancerEnd,
+  setMove,
+  addMove,
+  removeMove,
   DEG,
 } from '../dist/index.js';
 setParser(DOMParser);
@@ -43,6 +54,13 @@ const nearAng = (a, b, eps = 0.06) => {
   while (d > Math.PI) d -= 2 * Math.PI;
   while (d < -Math.PI) d += 2 * Math.PI;
   return Math.abs(d) < eps;
+};
+// The engine's own angle normalization, mirrored here so an EXACTNESS check (`gap === 0`)
+// can compare raw headings without borrowing a tolerance to hide behind.
+const normAngleSafe = (a) => {
+  while (a > Math.PI) a -= 2 * Math.PI;
+  while (a <= -Math.PI) a += 2 * Math.PI;
+  return a;
 };
 
 // Pick a full-set mainstream setup (no mirrored half). Circle Left from a
@@ -207,6 +225,286 @@ console.log('== callToXml mirror round-trip ==');
     if (!(near(a.x, b.x, 0.05) && near(a.y, b.y, 0.05))) ok = false;
   }
   check(ok, 'callToXml -> reparse preserves the start formation for a mirrored call');
+}
+
+// ---------------------------------------------------------------------------
+// 11. THE CALL INSTANCE: read it as a table, in full-set coordinates.
+// ---------------------------------------------------------------------------
+// A `<tam>` IS an instance: a start formation, a path per dancer, and the beats around
+// them. The editor's second job is to edit that instance DIRECTLY. This section pins the
+// read; the sections after it pin each edit and the XML round trip.
+console.log('\n== call-instance table (11) ==');
+const circleMs = read('../../poc/src/assets/ms/circle.xml');
+const circleB1 = read('../../poc/src/assets/b1/circle.xml');
+const inst = loadCallFromXml(circleMs, movesXml, formationsXml, 0, true);
+const instRows = instanceTable(inst);
+check(instRows.length === 8, `instance table has one row per dancer (${instRows.length})`);
+{
+  let ok = true;
+  for (const r of instRows) {
+    const s = poseFor(inst.dancers[r.index], 0);
+    const e = poseFor(inst.dancers[r.index], inst.beats);
+    if (!(near(r.start.x, s.x, 1e-12) && near(r.start.y, s.y, 1e-12) && nearAng(r.start.heading, s.heading, 1e-12))) ok = false;
+    if (!(near(r.end.x, e.x, 1e-12) && near(r.end.y, e.y, 1e-12) && nearAng(r.end.heading, e.heading, 1e-12))) ok = false;
+    if (r.gender !== inst.dancers[r.index].gender) ok = false;
+    if (r.beats !== inst.dancers[r.index].path.reduce((n, x) => n + x.beats, 0)) ok = false;
+    if (r.moves.length !== inst.dancers[r.index].path.length) ok = false;
+  }
+  check(ok, 'every row reports its own dancer: start, end, gender, beats, move count');
+}
+check(instanceBeats(inst) === inst.beats, `instanceBeats == the call's beats (${instanceBeats(inst)} == ${inst.beats})`);
+{
+  // The derived identity is the SAME read the renderer colours by: four couples, two
+  // dancers each, one boy and one girl per couple on a squared set.
+  const byCouple = new Map();
+  for (const r of instRows) byCouple.set(r.couple, [...(byCouple.get(r.couple) ?? []), r.gender]);
+  const couples = [...byCouple.keys()].sort();
+  check(
+    couples.length === 4 && couples.every((c) => byCouple.get(c).length === 2 && new Set(byCouple.get(c)).size === 2),
+    `derived identity is 4 couples of one boy + one girl (${couples.map((c) => `${c}:${byCouple.get(c).join('')}`).join(' ')})`,
+  );
+}
+{
+  // A 4-dancer formation that is NOT a home-like set declares no identity, and the table
+  // must say null rather than invent one from array position (the §5 identity rule).
+  const sashay = loadCallFromXml(read('../../poc/src/assets/ms/sashay.xml'), movesXml, formationsXml, 0, true);
+  const rows = instanceTable(sashay);
+  check(rows.length === 4 && rows.every((r) => r.couple === null && r.id === null), `Facing Couples declares no home identity (${rows.length} rows, all null)`);
+}
+
+// ---------------------------------------------------------------------------
+// 12. `normalizeInstance` is exact algebra, and float-exact to one ulp - which is
+//     what makes editing half-set tams safe. The bound is MEASURED, not asserted to
+//     be zero: `cos(a + pi)` is not bit-identical to `-cos(a)`.
+// ---------------------------------------------------------------------------
+console.log('\n== normalizeInstance is pose-exact (12) ==');
+{
+  const worst = (a, b, t) => {
+    let m = 0;
+    for (let i = 0; i < a.dancers.length; i++) {
+      const p = poseFor(a.dancers[i], t);
+      const q = poseFor(b.dancers[i], t);
+      m = Math.max(m, Math.hypot(p.x - q.x, p.y - q.y), Math.abs(normAngleSafe(p.heading - q.heading)));
+    }
+    return m;
+  };
+  for (const [label, xml] of [['ms/circle', circleMs], ['b1/circle', circleB1]]) {
+    const call = loadCallFromXml(xml, movesXml, formationsXml, 0, true);
+    const norm = normalizeInstance(call);
+    const mirrored = call.dancers.filter((d) => d.mirror).length;
+    let m = 0;
+    for (const t of [0, call.beats / 4, call.beats / 2, (3 * call.beats) / 4, call.beats]) m = Math.max(m, worst(call, norm, t));
+    // One ulp on a 3-unit coordinate is ~4.4e-16; the measured worst is a few times that.
+    check(m < 1e-14, `${label}: ${mirrored} mirrored dancers -> normalization is float-exact (worst pose gap ${m.toExponential(2)} < 1e-14)`);
+    check(norm.dancers.every((d) => d.mirror !== true), `${label}: no dancer is left mirrored`);
+    check(worst(norm, normalizeInstance(norm), call.beats / 2) === 0, `${label}: normalization is idempotent (a no-op on its own output)`);
+    check(norm.beats === call.beats && norm.dancers.length === call.dancers.length, `${label}: beats and dancer count unchanged`);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 13. THE EDITS: start pose (which re-frames the path), gender (the arrangement),
+//     end pose (which re-aims the last move), and the moves themselves.
+// ---------------------------------------------------------------------------
+console.log('\n== editing the start formation (13) ==');
+const row0 = instRows[0];
+{
+  const shifted = setDancerStart(inst, 0, { x: row0.start.x + 2, y: row0.start.y - 1, heading: row0.start.heading });
+  const after = instanceTable(shifted);
+  check(
+    near(after[0].start.x, row0.start.x + 2, 1e-12) && near(after[0].start.y, row0.start.y - 1, 1e-12),
+    `the edited start is where it was put (${after[0].start.x.toFixed(3)},${after[0].start.y.toFixed(3)})`,
+  );
+  // A path is authored in dancer-LOCAL coordinates, so a translated start translates the
+  // whole movement: the end moves by exactly the same vector.
+  check(
+    near(after[0].end.x - row0.end.x, 2, 1e-12) && near(after[0].end.y - row0.end.y, -1, 1e-12),
+    `the end travelled with it by exactly the start's delta (${(after[0].end.x - row0.end.x).toFixed(6)},${(after[0].end.y - row0.end.y).toFixed(6)})`,
+  );
+  let others = true;
+  for (const r of after) if (r.index !== 0 && (Math.abs(r.end.x - instRows[r.index].end.x) > 1e-12 || Math.abs(r.end.y - instRows[r.index].end.y) > 1e-12)) others = false;
+  check(others, 'no other dancer moved');
+  check(shifted.beats === inst.beats, `the beat count is untouched by a pose edit (${shifted.beats})`);
+
+  // A start-heading edit rotates the whole path about the start.
+  const turned = instanceTable(setDancerStart(inst, 0, { ...row0.start, heading: row0.start.heading + Math.PI / 2 }));
+  const dx = row0.end.x - row0.start.x;
+  const dy = row0.end.y - row0.start.y;
+  const rx = turned[0].end.x - turned[0].start.x;
+  const ry = turned[0].end.y - turned[0].start.y;
+  check(
+    near(rx, -dy, 1e-9) && near(ry, dx, 1e-9),
+    `+90° on the start rotates the path about the start: (${dx.toFixed(3)},${dy.toFixed(3)}) -> (${rx.toFixed(3)},${ry.toFixed(3)})`,
+  );
+}
+console.log('\n== editing the ARRANGEMENT (13b) ==');
+{
+  const swapped = setDancerGender(inst, 0, 'girl');
+  const r = instanceTable(swapped)[0];
+  check(r.gender === 'girl', 'the edited dancer reads as a girl');
+  check(near(r.start.x, row0.start.x, 1e-12) && near(r.end.x, row0.end.x, 1e-12), 'the arrangement edit moved nobody');
+  check(nearAng(r.start.heading, row0.start.heading, 1e-12), 'the arrangement edit re-faced nobody');
+  // MEASURED, and the reason `couple` is reported as a READ rather than as a field: the
+  // home identity is matched on position and heading only, so flipping a dancer's gender
+  // changes WHICH SPOTS ARE BOYS AND GIRLS and leaves the couple number where it was.
+  check(r.couple === row0.couple, `couple is a positional read and is unchanged by gender (${r.couple})`);
+  const pair = instanceTable(swapped).filter((x) => x.couple === row0.couple);
+  check(pair.every((x) => x.gender === 'girl'), `couple ${row0.couple} now holds two girls - the arrangement really changed`);
+}
+console.log('\n== editing the end formation (13c) ==');
+{
+  const target = { x: 0, y: 0, heading: 0 };
+  const reaimed = setDancerEnd(inst, 3, target);
+  const rows = instanceTable(reaimed);
+  check(
+    near(rows[3].end.x, 0, 1e-12) && near(rows[3].end.y, 0, 1e-12) && nearAng(rows[3].end.heading, 0, 1e-12),
+    `the dancer now ends exactly on the requested pose (${rows[3].end.x.toFixed(6)},${rows[3].end.y.toFixed(6)} @${((rows[3].end.heading * 180) / Math.PI).toFixed(3)}°)`,
+  );
+  check(rows[3].moves.length === instRows[3].moves.length, 'only the LAST move was re-aimed (move count unchanged)');
+  check(reaimed.beats === inst.beats, `the beat count is held (${reaimed.beats} == ${inst.beats})`);
+  let others = true;
+  for (const r of rows) {
+    if (r.index === 3) continue;
+    if (Math.abs(r.end.x - instRows[r.index].end.x) > 1e-12 || Math.abs(r.end.y - instRows[r.index].end.y) > 1e-12) others = false;
+  }
+  check(others, 'no other dancer moved');
+}
+
+console.log('\n== editing the MOVES (13d) ==');
+{
+  const longest = instRows.reduce((m, r) => (r.beats > instRows[m].beats ? r.index : m), 0);
+  const seg0 = instRows[longest].moves[0];
+  const slowed = setMove(inst, longest, 0, { ...seg0, beats: seg0.beats + 2 });
+  check(slowed.beats === inst.beats + 2, `re-timing the LONGEST dancer re-times the call (${inst.beats} -> ${slowed.beats})`);
+  check(instanceBeats(slowed) === slowed.beats, 'and the call beats equal the longest path again');
+  // The CONTROL needs a dancer that is not the longest, and every dancer of a real call has
+  // the same path length. So build one: give dancer 1 a spare beat, then re-time dancer 2
+  // without reaching it. The call must not move.
+  const stretched = addMove(inst, 0, { beats: 1, hands: 'none', translate: { cx1: 0, cy1: 0, cx2: 0, cy2: 0, x2: 0, y2: 0 }, rotate: null });
+  const ctlSeg = instanceTable(stretched)[1].moves[0];
+  const tweak = setMove(stretched, 1, 0, { ...ctlSeg, beats: ctlSeg.beats + 0.5 });
+  check(instanceBeats(stretched) === inst.beats + 1, `control setup: dancer 1 is now the longest at ${instanceBeats(stretched)} beats`);
+  check(tweak.beats === inst.beats + 1, `re-timing a SHORTER dancer leaves the call beats alone (${inst.beats + 1})`);
+  const grown = addMove(inst, 0, { beats: 1, hands: 'none', translate: { cx1: 0, cy1: 0, cx2: 0, cy2: 0, x2: 0, y2: 0 }, rotate: null });
+  check(instanceTable(grown)[0].moves.length === instRows[0].moves.length + 1, 'addMove appends a move');
+  const shrunk = removeMove(inst, 0, 0);
+  check(instanceTable(shrunk)[0].moves.length === instRows[0].moves.length - 1, 'removeMove deletes a move');
+
+  // The PAUSE rule. A real call has no pause, so make one: an authored `beats` 4 longer
+  // than its longest path, then edit an unrelated move. Before the rule existed the pause
+  // was destroyed (14 -> 10.5); the pause is carried as a DELTA instead.
+  const paused = { ...inst, beats: inst.beats + 4, totalBeats: inst.totalBeats + 4 };
+  const p0 = instanceTable(paused);
+  const pauseBefore = paused.beats - instanceBeats(paused);
+  const p = setMove(paused, 0, 0, { ...p0[0].moves[0], beats: p0[0].moves[0].beats + 0.5 });
+  check(
+    p.beats - instanceBeats(p) === pauseBefore,
+    `an authored ${pauseBefore}-beat pause survives an unrelated move edit as the same delta (beats ${paused.beats} -> ${p.beats}, longest path ${instanceBeats(paused)} -> ${instanceBeats(p)})`,
+  );
+  check(p.beats === paused.beats + 0.5, `and the call re-timed by exactly the edit (+0.5): ${p.beats}`);
+}
+
+// ---------------------------------------------------------------------------
+// 14. THE ROUND TRIP: edit an instance, export it as `<tam>` XML, re-parse it, and
+//     require the same formation, the same arrangement, the same moves and the same
+//     declarations back. This is the editor's done-when.
+// ---------------------------------------------------------------------------
+console.log('\n== instance round trip through <tam> XML (14) ==');
+{
+  // An edit that touches every dimension the editor can reach.
+  let edited = setDancerStart(inst, 0, { x: row0.start.x + 1, y: row0.start.y + 0.5, heading: row0.start.heading + Math.PI / 4 });
+  edited = setDancerGender(edited, 1, 'boy');
+  edited = setDancerEnd(edited, 2, { x: 2.5, y: -0.5, heading: Math.PI });
+  edited = setMove(edited, 3, 0, { ...instanceTable(edited)[3].moves[0], beats: 1.5 });
+  edited = addMove(edited, 4, { beats: 0.5, hands: 'right', translate: { cx1: 0.25, cy1: 0, cx2: 0.5, cy2: 0, x2: 0.75, y2: 0 }, rotate: null });
+
+  const xmlEdit = callToXml(edited, edited.from);
+  const rt = buildCall(parseCallXml('<calls>\n' + xmlEdit + '\n</calls>')[0], parseFormations(formationsXml), parseMoves(movesXml), false);
+  const a = instanceTable(edited);
+  const b = instanceTable(rt);
+  check(b.length === a.length, `re-parsed instance has the same dancers (${b.length})`);
+  check(
+    a.every((r, i) => r.gender === b[i].gender),
+    `ARRANGEMENT survives: gender per dancer identical (${a.map((r) => r.gender[0]).join('')} -> ${b.map((r) => r.gender[0]).join('')})`,
+  );
+  let worstStart = 0;
+  let worstEnd = 0;
+  let worstMove = 0;
+  for (let i = 0; i < a.length; i++) {
+    worstStart = Math.max(worstStart, Math.hypot(a[i].start.x - b[i].start.x, a[i].start.y - b[i].start.y), Math.abs(normAngleSafe(a[i].start.heading - b[i].start.heading)));
+    worstEnd = Math.max(worstEnd, Math.hypot(a[i].end.x - b[i].end.x, a[i].end.y - b[i].end.y), Math.abs(normAngleSafe(a[i].end.heading - b[i].end.heading)));
+    check(a[i].moves.length === b[i].moves.length, `dancer ${i + 1}: move count survives (${a[i].moves.length})`);
+    for (let k = 0; k < Math.min(a[i].moves.length, b[i].moves.length); k++) {
+      worstMove = Math.max(worstMove, Math.abs(a[i].moves[k].beats - b[i].moves[k].beats));
+      worstMove = Math.max(worstMove, Math.abs(a[i].moves[k].translate.x2 - b[i].moves[k].translate.x2), Math.abs(a[i].moves[k].translate.cy2 - b[i].moves[k].translate.cy2));
+      if (a[i].moves[k].hands !== b[i].moves[k].hands) worstMove = Infinity;
+    }
+  }
+  // "Identical" is bounded by the EXPORT's rounding, and the bound is pinned rather than
+  // slack: at the assets' own 2 decimals the end pose came back 0.0672 units out (a path is
+  // a chain, so each segment's rounded rotation Bezier accumulates), which this 0.001
+  // rejects. At 4 decimals the measured worst is 0.000082 end / 0.000037 move.
+  const RT = 0.001;
+  check(worstStart < RT, `start formation survives (worst ${worstStart.toFixed(6)} < ${RT})`);
+  check(worstEnd < RT, `end formation survives (worst ${worstEnd.toFixed(6)} < ${RT}; 2-decimal export measured 0.0672)`);
+  check(worstMove < RT, `every move survives, beats and Bezier (worst ${worstMove.toFixed(6)} < ${RT})`);
+  check(rt.beats === edited.beats, `the call's beats survive (${rt.beats} == ${edited.beats})`);
+  check(callToXml(rt, rt.from) === xmlEdit, 'exporting the re-parsed instance is BYTE-IDENTICAL - the round trip does not drift');
+}
+
+console.log('\n== the XML keeps the declarations that change behaviour (14b) ==');
+{
+  // A fix or a created position is registered into the sequencer from `callToXml`, so an
+  // export that dropped `sequencer` would re-open the demonstration hole the flag exists
+  // to close - an edit of the `sequencer="no"` half of a call would come back matchable.
+  const endsBend = parseCallXml(read('../../poc/src/assets/a1/ends_bend.xml')).find((t) => t.sequencerMode === 'no');
+  check(!!endsBend, 'witness: a tam declaring sequencer="no"');
+  if (endsBend) {
+    const b = buildCall(endsBend, parseFormations(formationsXml), parseMoves(movesXml), true);
+    check(b.forSequencer === false, 'the witness is not for the sequencer');
+    const back = buildCall(parseCallXml(callToXml(b))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
+    check(back.sequencerMode === 'no' && back.forSequencer === false, `sequencer="no" survives the export (${back.sequencerMode}, forSequencer ${back.forSequencer})`);
+  }
+  const actives = parseCallXml(read('../../poc/src/assets/ms/split_the_outside_couple.xml')).find((t) => t.actives);
+  check(!!actives, 'witness: a tam declaring actives');
+  if (actives) {
+    const b = buildCall(actives, parseFormations(formationsXml), parseMoves(movesXml), true);
+    const back = buildCall(parseCallXml(callToXml(b))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
+    check(back.actives === actives.actives, `actives="${actives.actives}" survives the export (${back.actives})`);
+  }
+  const tamator = parseCallXml(read('../../poc/src/assets/a1/cast_a_shadow.xml')).find((t) => t.taminator);
+  check(!!tamator, 'witness: a tam carrying a <taminator> note');
+  if (tamator) {
+    const b = buildCall(tamator, parseFormations(formationsXml), parseMoves(movesXml), true);
+    const back = buildCall(parseCallXml(callToXml(b))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
+    check(back.taminator === tamator.taminator, 'the <taminator> note survives the export');
+  }
+}
+
+// The one footgun the export carries, pinned rather than discovered later: the ENGINE's
+// own mirror rule is geometric ("mirror the half set unless a 180-degree partner already
+// exists"), so an 8-dancer instance whose edited formation has no origin-opposite pair is
+// DOUBLED when it is read back with mirror=true. The editor's own path is mirror=false,
+// which is why the round trip above is exact; anything that writes an edited tam into the
+// assets must know which of the two it is asking for.
+console.log('\n== the mirror-on-reparse footgun (14c) ==');
+{
+  // A rigid move (translation, or rotation about the origin) PRESERVES every origin-opposite
+  // pair, so it cannot demonstrate anything. Moving one dancer out of each pair can: the
+  // engine mirrors a half set only while SOME 180-degree partner exists.
+  let lopsided = inst;
+  for (let i = 0; i < 4; i++) {
+    const r = instanceTable(lopsided)[i];
+    lopsided = setDancerStart(lopsided, i, { x: r.start.x + 2.5, y: r.start.y + 2.5, heading: r.start.heading });
+  }
+  const xml = callToXml(lopsided, lopsided.from);
+  const tam = parseCallXml(xml)[0];
+  const doubled = buildCall(tam, parseFormations(formationsXml), parseMoves(movesXml), true);
+  const plain = buildCall(tam, parseFormations(formationsXml), parseMoves(movesXml), false);
+  check(plain.dancers.length === 8, `mirror=false reads the edited instance back as 8 dancers (${plain.dancers.length})`);
+  check(doubled.dancers.length === 16, `mirror=true DOUBLES a formation with no origin-opposite pair (${doubled.dancers.length}) - the editor must export/import with mirror=false`);
+  const symmetric = buildCall(parseCallXml(callToXml(inst, inst.from))[0], parseFormations(formationsXml), parseMoves(movesXml), true);
+  check(symmetric.dancers.length === 8, `a symmetric formation is not doubled (${symmetric.dancers.length})`);
 }
 
 console.log('\n=================');

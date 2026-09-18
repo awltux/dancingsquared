@@ -158,18 +158,16 @@ only contains the browser/renderer layer:
 | `src/scene.ts` | Three.js adapter: floor grid, low-poly **wireframe** humanoids (torso/head/2-seg arm IK/legs with a beat-synced **walk cycle** via `WalkCycle`), hand-hold connectors, path trails. |
 | `src/main.ts` | Playhead (beats → ms), HUD wiring, play/pause/step/scrub, level filter, mode switch, frame loop. |
 | `src/sequencer-ui.ts` | Sequencer panel: apply calls on the board, FASR readout, getout + fix-it buttons. |
-| `src/editor-ui.ts` | Call editor: pick a call + start/end formation, generate a missing setup (padding core moves), preview, save to `localStorage`, export `<tam>` XML. |
+| `src/editor-ui.ts` | Call editor: edit a taminations call INSTANCE (its start formation and arrangement, its end formation and its moves), fix a setup's closure, or generate a missing setup (padding core moves); preview, save to `localStorage`, export `<tam>` XML. |
 | `src/assets/*.xml` | taminations data per level (`b1, b2, ms, plus, a1, a2, c1, c2, c3a, c3b`), plus `moves.xml` / `formations.xml` / `calls.xml` (GPL/A-GPL data; license headers preserved). |
 | `verify.cjs` | Headless assertions over the engine + a full-catalog scan. |
 
 ## Call editor mode
 
-Switch the **Mode** dropdown to **Call editor**. It has two distinct features,
-selected with the editor's own **Mode** toggle (Fix closure / Create position).
-Both share an **Edit call + Setup** (the call/setup being edited) and a **Post
-call + Setup** (whose *start* position is the target end). Pre/post positions are
-mapped to the edit call's dancer identities by aligning to its start, tolerating a
-whole-set rotation.
+Switch the **Mode** dropdown to **Call editor**. It has three distinct features,
+selected with the editor's own **Mode** toggle (**Edit instance** / Fix closure /
+Create position). All three share an **Edit call + Setup** — the taminations call
+instance being edited — and all three preview through the same 3D renderer.
 
 The **Facing** dropdown sits here because the editor is the view that needs it: it
 picks how the PREVIEWED dancers orient, and every editor action previews through
@@ -188,6 +186,35 @@ is set here (and uses the default, `Rotation Bézier (data)`, if you have not be
 to the editor). The sequencer does not use it - it draws from the engine's own
 board state, not from an authored call path.
 
+**Edit instance** — edit the `<tam>` itself: the START FORMATION (each dancer's x, y and
+heading), the ARRANGEMENT (the gender of every spot, which the `gender` column sets), the
+END FORMATION (each dancer's arrival pose) and the MOVES that carry each dancer between
+them. Every number is a full-set coordinate: the engine normalizes a half-set authoring on
+load, so a tam authored for four dancers is edited as the eight the renderer draws.
+
+Two properties of the data are worth knowing before using the table, and both are measured
+by `engine/test/editor.mjs`:
+
+- A path is authored in **dancer-local** coordinates, so re-posing a dancer's start
+  RE-FRAMES its whole movement: translating the start translates the path, and changing the
+  start heading rotates the path about the start. The choreography is carried through
+  verbatim, in the frame you have just chosen.
+- The **`couple` column is a read**, not a field. A taminations `<dancer>` declares only
+  gender/x/y/angle, so the home couple is DERIVED from the start formation's geometry by
+  `assignHomeIdentity` — the same read the dancer colours use. Changing a dancer's gender
+  changes the arrangement and leaves the couple where it was.
+
+The moves table edits the selected dancer's selected move: its beats, its hands, its
+translation Bézier (`t.*`) and, when `explicit` facing is ticked, its rotation Bézier
+(`r.*`). Ticking `explicit` copies the translation curve, which is behaviour-preserving
+because that is exactly the curve the renderer falls back to when no rotation Bézier is
+present. Re-timing a move re-times the call when it changes the LONGEST dancer's path; a
+call whose authored beat count is longer than every path (a pause) keeps the pause.
+**Reset** throws away the edits made in the tab and reloads the instance — and note what it
+reloads: `loadCall` honours an edit already applied to the live catalogue, so an
+applied instance edit is reloaded as itself. Unapply it in the saved list to get the
+shipped tam back.
+
 **Fix closure** — correct an existing call setup that doesn't close cleanly (e.g. a
 full Circle Left leaves the girls ~44° off, so the sequencer sees an unrecognized
 formation). Pick the edit call+setup and a post call+setup; the editor shows the
@@ -201,13 +228,16 @@ adjusted, not their durations). Large corrections prompt a warning before applyi
 and ends at the **Post call + Setup**'s *start*, with a new position name. The
 result is shown on the 3D stage and can be played/scrubbed.
 
-For both features: **Save** persists the result to `localStorage` (reusable this
+For all three features: **Save** persists the result to `localStorage` (reusable this
 session), and **Export &lt;tam&gt; XML** produces a paste-able taminations `<tam>`
-you can drop back into the data files.
+you can drop back into the data files. An instance edit is saved as the exported XML
+itself — expanded, full-set, carrying its own `sequencer`/`actives` declarations — and is
+read back with `mirror: false`, because the engine's mirror rule would otherwise DOUBLE an
+edited formation that has no 180-degree partner.
 
 Each saved edit has an **apply to live** toggle. Applying it overrides the live
-call-position database: `loadCall` returns the edited setup (a `fix` replaces the
-setup, a `create` appends a new setup) **and the sequencer's call registration
+call-position database: `loadCall` returns the edited setup (a `fix` or an `instance`
+replaces the setup, a `create` appends a new setup) **and the sequencer's call registration
 delivers the edited `<tam>`** — so browse, editor and sequencer all use the edit.
 Applied edits are **highlighted** in the saved list. These applied override flags
 are stored with a data-version stamp and are **cleared on an app/data update** —

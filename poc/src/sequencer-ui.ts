@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 
 import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf } from 'dancing-squared-engine';
-import type { Board, CallStep, Module, Pose } from 'dancing-squared-engine';
+import type { Board, CallStep, Module, Pose, SequenceStop } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
@@ -99,6 +99,10 @@ export class SequencerController implements SequencerUI {
    * squared set; it is set to the board when a formation is jumped to with
    * "Set", so playback, trails and copy agree with the live board. */
   private startBoard: Board | undefined;
+  /** The first call in the sequence that cannot be played from the board it reaches, if any. See
+   * `syncAnimation` and `renderPlayhead`: without it a sequence that stops early looks complete, and
+   * its last frame is the start board of the call it stopped on. */
+  private stop: SequenceStop | null = null;
   private lastFrame = performance.now();
   private lastTraceKey = '';
   private lastReadout = '';
@@ -386,6 +390,10 @@ export class SequencerController implements SequencerUI {
   private syncAnimation() {
     this.flat = this.seq.flatten(this.history);
     this.totalBeats = this.seq.sequenceBeats(this.flat, this.startBoard);
+    // WHERE THE SEQUENCE STOPS BEING PLAYABLE. A call the walk cannot walk is charged 0 beats and
+    // `evaluateSequence` returns the board BEFORE it, so the end of a sequence that stops early is
+    // that call's start board. Without this the panel looks like it played the whole thing.
+    this.stop = this.seq.sequenceStop(this.flat, this.startBoard);
     this.playhead = this.totalBeats;
     this.scrub.max = String(Math.max(1, this.totalBeats));
     this.scrub.value = String(this.playhead);
@@ -393,7 +401,8 @@ export class SequencerController implements SequencerUI {
   }
 
   private updateBeatLabel() {
-    this.beatEl.textContent = `${this.playhead.toFixed(1)} / ${this.totalBeats.toFixed(1)} b`;
+    const where = this.stop ? `  ·  ends before "${this.stop.call}"` : '';
+    this.beatEl.textContent = `${this.playhead.toFixed(1)} / ${this.totalBeats.toFixed(1)} b${where}`;
     if (this.beatInput) this.beatInput.value = String(Math.round(this.playhead * 2) / 2);
   }
 
@@ -402,7 +411,22 @@ export class SequencerController implements SequencerUI {
     const res = this.seq.evaluateSequence(this.flat, this.playhead, this.startBoard);
     const walkPhase = ((this.playhead + 1000) % 2) / 2;
     this.renderBoard(res.board, { phase: walkPhase });
-    if (res.beats > 0) this.render();
+    // AT OR PAST THE END the evaluator returns the sequence's FINAL board, and `res.beats > 0` is how
+    // it says so (`beats: 0` means "part way through a call").
+    //
+    // This used to call `render()`, which draws `this.seq.board` - the LIVE board, the result of a
+    // SEPARATE replay (the `applyStep` history) - and that overrode the frame just drawn. Where the
+    // two replays part, the last frame is therefore the live board: on a sequence whose final call
+    // cannot be played it is the board BEFORE that call, which is exactly the start formation the
+    // panel prints for the selected call. MEASURED on ceder-7046: from home, `Right and Left Grand`
+    // cannot be played and the live board stops on the T-Bone its chain reaches (33.5 beats); from the
+    // module's own `Zero Line` start the same call applies and both replays end on the ring (35
+    // beats). Moving the live board to the evaluated one keeps the readout and the call picker in
+    // agreement WITHOUT overwriting what is drawn.
+    if (res.beats > 0) {
+      this.seq.setBoard(res.board);
+      this.updateReadout();
+    }
     this.updateCurrentTrace();
   }
 
@@ -679,6 +703,9 @@ export class SequencerController implements SequencerUI {
       `loaded ${this.history.length} call(s)`,
       startLabel ? `from ${startLabel}` : '',
       refused ? `${refused} refused` : '',
+      // The walk's own verdict, which is the one that decides where the ANIMATION ends. Named
+      // because a count does not tell the user that the last frame is the board before that call.
+      this.stop ? `stops at "${this.stop.call}" - ${this.stop.reason}` : '',
     ].filter(Boolean).join(', ');
   }
 

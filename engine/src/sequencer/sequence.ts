@@ -60,6 +60,23 @@ interface ReplayStep {
    * catalogue call with no matching variant - and the two evaluator families treat that
    * differently, which is why `coded` is recorded alongside it. */
   walkable: boolean;
+  /** WHY it cannot be walked, when it cannot. Recorded rather than discarded because an unwalkable
+   * step is what makes `evaluateSequence` return the step's own START board - so the caller sees the
+   * sequence end on the board BEFORE a call with nothing saying so, which reads as "the last frame
+   * jumps back". See `sequenceStop`. */
+  reason?: string;
+}
+
+/** Where a flat sequence stops being playable. */
+export interface SequenceStop {
+  /** Index into the flat sequence of the first step that cannot be walked. */
+  index: number;
+  /** The call/selection label of that step. */
+  call: string;
+  /** Why it cannot be walked, as the applicator reported it. */
+  reason: string;
+  /** The board it was asked to run on - the board the animation ends on. */
+  board: Board;
 }
 
 /** The memo key: the CONTENT of the flat sequence and of the board the replay starts from. */
@@ -291,7 +308,8 @@ export class SequenceAnalyzer {
           continue;
         }
         if (!coded.catalogueFallback) {
-          steps.push({ raw, name, coded, info: null, before: board, after: board, beats: 0, walkable: false });
+          const refused = this.applicator.applyToBoard(board, raw);
+          steps.push({ raw, name, coded, info: null, before: board, after: board, beats: 0, walkable: false, reason: refused.reason ?? `${name} cannot be danced from this board` });
           break;
         }
         // Refused by the derived rule, but the move declares a catalogue fallback - which means the
@@ -305,11 +323,45 @@ export class SequenceAnalyzer {
       const info = this.matchingVariantInfo(board, name);
       const r = this.applicator.applyToBoard(board, raw);
       const after = r.legal ? r.board : board;
-      steps.push({ raw, name, coded: null, info, before: board, after, beats: info ? info.beats : 0, walkable: info !== null });
+      steps.push({
+        raw, name, coded: null, info, before: board, after,
+        beats: info ? info.beats : 0,
+        walkable: info !== null,
+        reason: info === null ? r.reason ?? `no setup in "${name}" matches the board it is asked to run on` : undefined,
+      });
       board = after;
     }
     this.replayMemo = { key, steps };
     return steps;
+  }
+
+  /**
+   * WHERE A FLAT SEQUENCE STOPS BEING PLAYABLE, or null when it plays all the way.
+   *
+   * This is the missing half of `evaluateSequence`'s contract. A step the walk cannot walk is
+   * returned as its own START board (`return { board: s.before }`), and `sequenceBeats` charges a
+   * catalogue step 0 beats and moves on - so a sequence whose LAST call cannot be played reports a
+   * total that excludes that call and an end board that is the board BEFORE it, with nothing saying
+   * why. Measured on the POC: `ceder-7046` replayed from home has `Right and Left Grand` refused on
+   * the `T-Bone` its chain reaches (33.5 beats, ending on that T-Bone) while replayed from the
+   * module's own `Zero Line` start the same call applies (35 beats, ending on the ring it produces).
+   * The UI reported the first as "the last frame jumps the board back".
+   *
+   * `board` is deliberately the step's own start board: it is what an evaluator returns and therefore
+   * what the user is looking at when this happens.
+   */
+  sequenceStop(flat: (string | CallStep)[], startBoard?: Board): SequenceStop | null {
+    const steps = this.replayWalk(flat, startBoard);
+    for (let i = 0; i < steps.length; i++) {
+      const s = steps[i];
+      // A coded move with no catalogue fallback stops BOTH consumers, so it is a stop. A catalogue
+      // step with no variant stops the two evaluators but not the beat total; it is still the point
+      // the sequence stops being playable, which is what this reports.
+      if (!s.walkable) {
+        return { index: i, call: s.name, reason: s.reason ?? `${s.name} cannot be danced from this board`, board: s.before };
+      }
+    }
+    return null;
   }
 
   /** Total beats to play a flat sequence, starting from `startBoard` (default:

@@ -177,6 +177,32 @@ const extent = (b) => {
 check(Math.abs(extent(hinge.board) - extent(waveBoard)) < 0.01,
   `the pivot rotates the set without growing it (extent ${extent(waveBoard).toFixed(2)} -> ${extent(hinge.board).toFixed(2)})`);
 
+console.log('== Sequencer: a sequence that cannot be played says WHERE it stops ==');
+// `evaluateSequence` returns the board BEFORE a step it cannot walk, and `sequenceBeats` charges a
+// catalogue step 0 beats and moves on - so a sequence whose LAST call cannot be played reports a total
+// that excludes that call and an end board that is that call's START board, with nothing saying why.
+// A POC report ("the last frame jumps the board back to the previous formation") is this: ceder-7046
+// replayed from home has `Right and Left Grand` refused on the T-Bone its chain reaches, so it plays
+// 33.5 beats and ends on that T-Bone, while from its own `Zero Line` start the same call applies and
+// it plays 35 and ends on the ring. `sequenceStop` is the missing half of that contract.
+{
+  const home = seq.boardForFormation('Static Square');
+  const flat = ['Circle Left', 'Swing Thru'];
+  const beats = seq.sequenceBeats(flat, home);
+  const stop = seq.sequenceStop(flat, home);
+  const end = seq.evaluateSequence(flat, beats, home).board;
+  const same = (a, b) => a.dancers.length === b.dancers.length && a.dancers.every((d) => {
+    const o = b.dancers.find((x) => x.id === d.id);
+    return o && Math.abs(o.x - d.x) < 1e-9 && Math.abs(o.y - d.y) < 1e-9 && Math.abs(o.heading - d.heading) < 1e-9;
+  });
+  check(stop !== null && stop.index === 1 && stop.call === 'Swing Thru',
+    `a call that cannot be danced is reported: ${stop ? `index ${stop.index}, "${stop.call}"` : 'no stop reported'}`);
+  check(stop !== null && same(stop.board, end),
+    'the board it reports is the board the animation actually ends on (that call\'s own start board)');
+  check(seq.sequenceStop(['Circle Left'], home) === null,
+    'a sequence that plays all the way reports NO stop');
+}
+
 console.log('== Sequencer: Face In / Face Out is a QUARTER TURN, not "point at the centre" ==');
 // CALLERLAB, verbatim: "Face In: Each individual turns in place 90 degrees, turning toward the center
 // of the set." / "Face Out: ... turning away from the center of the set."

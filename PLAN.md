@@ -2072,6 +2072,40 @@ cannot name.** `Right and Left Grand` from `Ocean Waves` puts all eight dancers 
 `endFormation: "Static Square"`. Either the grand's final rotation is off by 45°, or recognition only
 has an axis-aligned circle template. Not investigated; recorded.
 
+**AND A SECOND REPORTED POC DEFECT ON THE SAME MODULE, FIXED — "the last frame renders the start
+formation of the currently selected call".** The sequence view played the module and then, on the final
+frame, showed the board the LAST call started from instead of the board it ends on. It is TWO defects
+stacked, and both are now closed:
+
+1. **THE EVALUATOR'S CONTRACT HAS NO WAY TO SAY "IT STOPS HERE".** `evaluateSequence` returns
+   `step.before` for a step the walk cannot walk, and `sequenceBeats` charges a CATALOGUE step 0 beats
+   and moves on (only a coded refusal `break`s). So a sequence whose LAST call cannot be played reports
+   a total that EXCLUDES that call and an end board that is the board before it — silently. Measured on
+   `ceder-7046`: replayed from HOME, `Right and Left Grand` is refused on the `T-Bone ULLD` its chain
+   reaches, so it plays **33.5 beats** and ends on that T-Bone; replayed from the module's own
+   `Zero Line` start (`boardForFasrCode('L1o')`, which is what the app does) the same call applies, it
+   plays **35 beats**, and it ends on the ring the call produces (`sequence-stop-probe.mjs`). The
+   missing 1.5 beats are exactly
+   that call. **`Sequencer.sequenceStop(flat, start)` is the missing half**: it names the first step
+   that cannot be walked, why (the applicator's own reason), and the board the animation therefore ends
+   on. Gated in `sequencer.mjs` on a primitive witness (`["Circle Left", "Swing Thru"]` from home stops
+   at index 1) and on the property that the reported board is the one `evaluateSequence` returns.
+2. **THE UI DREW THE LAST FRAME FROM THE WRONG BOARD.** `SequencerUI.renderPlayhead` drew the evaluated
+   board and then, because `evaluateSequence` signals "this is the final board" with `beats > 0`,
+   called `render()` — which draws `this.seq.board`, the LIVE board, the result of a SEPARATE
+   `applyStep` replay. The live board therefore won the last frame. Where the two replays agree it is
+   invisible (measured identical for `ceder-7046` from `L1o`), but where they part the user sees the
+   live one. It now MOVES the live board to the evaluated one and refreshes the readout instead of
+   drawing over the animation, so the drawn frame is always the evaluator's. The panel also names the
+   stop (`stops at "<call>" - <reason>` in the load status and `ends before "<call>"` beside the beat
+   counter) rather than leaving a sequence that stops early looking complete.
+
+**Not verified in this environment, and recorded as such:** the POC's UI cannot be exercised here (the
+Vite/esbuild spawn is blocked), so the UI half is typechecked (`tsc -p poc --noEmit`, whose only error
+is the pre-existing `editor-ui.ts` TS2739) and reviewed, not measured. `node poc/verify.cjs` still fails
+exactly its three pre-existing `Pass Thru` checks. The ENGINE half is measured and gated. The module's
+end state being an unnameable ring is the item above, and is untouched by this.
+
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:
 

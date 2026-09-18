@@ -9,7 +9,7 @@ import { CallLibrary } from './library.js';
 import { FormationMatcher } from './matcher.js';
 import { CallApplicator } from './applicator.js';
 import { LegalityChecker } from './legality.js';
-import { SequenceAnalyzer } from './sequence.js';
+import { SequenceAnalyzer, type SequenceStop } from './sequence.js';
 import { HomeSolver } from './solver.js';
 import { Grouping } from './grouping.js';
 import { splitSelection } from './selection.js';
@@ -787,6 +787,13 @@ export class Sequencer {
    * (default: the home squared set). */
   evaluateSequence(flat: (string | CallStep)[], beat: number, startBoard?: Board): { board: Board; beats: number } {
     return this.analyzer.evaluateSequence(flat, beat, startBoard);
+  }
+
+  /** Where a flat sequence stops being playable, or null when it plays all the way. A caller that
+   * draws a sequence should say so rather than let the last frame silently render the board before
+   * the call that could not be played - see `SequenceAnalyzer.sequenceStop`. */
+  sequenceStop(flat: (string | CallStep)[], startBoard?: Board): SequenceStop | null {
+    return this.analyzer.sequenceStop(flat, startBoard);
   }
 
   sequenceInfo(flat: (string | CallStep)[], beat: number, startBoard?: Board): { name: string; variant: CallBundle; mapping: number[] } | null {

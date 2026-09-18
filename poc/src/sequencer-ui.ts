@@ -103,6 +103,8 @@ export class SequencerController implements SequencerUI {
    * `syncAnimation` and `renderPlayhead`: without it a sequence that stops early looks complete, and
    * its last frame is the start board of the call it stopped on. */
   private stop: SequenceStop | null = null;
+  /** The board the next-call list was last built for. See `settlePlayhead`. */
+  private listBoardKey = '';
   private lastFrame = performance.now();
   private lastTraceKey = '';
   private lastReadout = '';
@@ -273,6 +275,8 @@ export class SequencerController implements SequencerUI {
     for (const sel of [...bySel.keys()].sort()) group(`Subset: ${sel}`, bySel.get(sel)!);
     group('Modules', modules);
     if (prev && legal.includes(prev)) this.callSelect.value = prev;
+    // Remember which board this list answers for, so `settlePlayhead` can skip a redundant rebuild.
+    this.listBoardKey = boardKey(this.seq.board);
     this.updateFormationSelect();
     this.renderSubsetInfo();
   }
@@ -468,6 +472,10 @@ export class SequencerController implements SequencerUI {
           this.playhead = this.totalBeats;
           this.playing = false;
           this.playBtn.textContent = '▶ Play';
+          // Playback has STOPPED on the sequence's final board: make that board live, so the
+          // next-call list is the one for the end formation/arrangement rather than for wherever the
+          // last edit left the sequencer.
+          this.settlePlayhead();
         }
       }
       this.renderPlayhead();
@@ -486,12 +494,45 @@ export class SequencerController implements SequencerUI {
     this.playing = !this.playing;
     this.lastFrame = performance.now();
     this.playBtn.textContent = this.playing ? '⏸ Pause' : '▶ Play';
+    // Pausing leaves the playhead where it is, so the board under it is definite and can be made
+    // live; starting does not, because the playhead is about to move.
+    if (!this.playing) this.settlePlayhead();
   }
 
   private onScrub() {
     this.playhead = parseFloat(this.scrub.value);
     this.renderPlayhead();
     this.updateBeatLabel();
+  }
+
+  /**
+   * Make the board the user is LOOKING AT live, once the playhead stops moving.
+   *
+   * The frame is drawn from `evaluateSequence`, but `legalNext()`, the readout and the formation
+   * select all answer from the SEQUENCER'S OWN board, and the two only met at the very end of a
+   * sequence (`renderPlayhead`). So everything in between - which is the whole point of opening a
+   * module - left the next-call list answering from whatever board the last EDIT produced. Reported:
+   * "when a module is loaded into the sequencer, the list of next calls isn't updated with those
+   * calls available from the end formation/arrangement" - `openSequence` parks the playhead at the
+   * clicked call, playing to the end moves the frame but not the live board, and the list stayed on
+   * the parked board.
+   *
+   * Settled means the playhead is NOT moving: `!playing`, and a scrub or a seek has finished. The
+   * refresh costs one `legalNext()` over the whole catalogue (`legalCalls` is ~99% of a
+   * `transitionTable` build), so it is done once per settled position and never per frame - which is
+   * why this is not in the frame loop.
+   */
+  private settlePlayhead() {
+    if (this.playing) return;
+    const board = this.seq.evaluateSequence(this.flat, this.playhead, this.startBoard).board;
+    this.seq.setBoard(board);
+    this.updateReadout();
+    // ONE REFRESH PER SETTLE IS STILL ~0.7 s (`legalNext()` enumerates the whole catalogue and
+    // applies every call to the board - measured 686-692 ms warm, 1.6 s the first time), so it is
+    // skipped when the settled board is the one the list was already built from. That keeps a pause
+    // on the same spot, or a scrub released where it started, free.
+    if (boardKey(this.seq.board) === this.listBoardKey) return;
+    this.refreshCallSelect();
   }
 
   private onBeatInput() {
@@ -697,6 +738,10 @@ export class SequencerController implements SequencerUI {
     this.lastTraceKey = '';
     this.refreshCallSelect();
     this.syncAnimation();
+    // The sequence is parked at its END (`syncAnimation`), so settle there: the loaded module's final
+    // formation is what the next-call list should answer from. `seekTo` below re-settles if the
+    // browse view asked to park on a particular call instead.
+    this.settlePlayhead();
     const idx = atCall === undefined ? -1 : this.history.findIndex((s) => callKey(s) === callKey(atCall));
     if (idx >= 0) this.seekTo(idx);
     this.statusEl.textContent = [
@@ -725,15 +770,15 @@ export class SequencerController implements SequencerUI {
     this.playing = false;
     this.playBtn.textContent = '▶ Play';
     this.playhead = this.beatAtStep(idx);
-    const at = this.seq.evaluateSequence(this.flat, this.playhead, this.startBoard).board;
-    this.seq.setBoard(at);
     this.scrub.value = String(this.playhead);
     this.statusEl.textContent = '';
     this.lastTraceKey = '';
     this.renderPlayhead();
     this.updateBeatLabel();
-    this.refreshCallSelect();
-    this.updateReadout();
+    // The seek is finished, so the board under the playhead is definite: one settle puts the live
+    // board, the readout and the call picker on it - the same call the frame loop and the scrub
+    // release make, rather than a second copy of it here.
+    this.settlePlayhead();
   }
 
   /** The beat at which history step `idx` begins: the total beats of the steps before it.
@@ -939,6 +984,9 @@ export class SequencerController implements SequencerUI {
     this.marginInput.addEventListener('input', () => this.applyMargin());
     this.playBtn.addEventListener('click', () => this.togglePlay());
     this.scrub.addEventListener('input', () => this.onScrub());
+    // `input` fires continuously while dragging, and each settle costs a catalogue scan, so the
+    // live board (and with it the next-call list) is only re-derived when the drag RELEASES.
+    this.scrub.addEventListener('change', () => this.settlePlayhead());
     this.beatInput.addEventListener('change', () => this.onBeatInput());
     this.copyPosBtn.addEventListener('click', () => this.copyPositions());
     this.seqListEl.addEventListener('click', (e) => {
@@ -976,6 +1024,20 @@ function el<T extends HTMLElement>(id: string): T {
 /** A step's human-readable call name (a CallStep's `.call`; otherwise the string). */
 function stepLabel(step: string | CallStep): string {
   return typeof step === 'string' ? step : step.call;
+}
+
+/**
+ * Which board this is, for deciding whether the next-call list needs rebuilding.
+ *
+ * Position AND facing, because two boards that differ only in facings offer different calls, and a
+ * position-only signature is exactly the trap the engine records for `boardSig`. Rounded, because the
+ * evaluated frames are interpolations and only a materially different board should cost a rebuild.
+ */
+function boardKey(board: Board): string {
+  return board.dancers
+    .map((d) => `${d.id}:${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(4)}`)
+    .sort()
+    .join('|');
 }
 
 /** Backwards-compatible factory (used by main.ts). */

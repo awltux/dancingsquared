@@ -2106,6 +2106,22 @@ is the pre-existing `editor-ui.ts` TS2739) and reviewed, not measured. `node poc
 exactly its three pre-existing `Pass Thru` checks. The ENGINE half is measured and gated. The module's
 end state being an unnameable ring is the item above, and is untouched by this.
 
+**AND A THIRD POC REPORT, SAME AREA: "when a module is loaded the next-call list isn't updated with the
+calls available from the end formation".** The frame is drawn from `evaluateSequence`, but `legalNext()`,
+the readout and the formation select all answer from the SEQUENCER'S OWN board — and the two only met at
+the very END of a sequence (`renderPlayhead`). Everything in between therefore left the next-call list
+answering from whatever board the last EDIT produced: `openSequence` parks the playhead on the clicked
+call, playing to the end moves the FRAME but not the live board, and the list stayed on the parked
+board. `settlePlayhead()` now makes the board under a stationary playhead live — on playback stop, on
+pause, on scrub RELEASE, and after a load — and one `seekTo` copy of the same work is removed.
+
+**The cost is why it is not in the frame loop, and it is measured: `legalNext()` takes 686-692 ms warm
+(1.6 s cold) because it enumerates the whole catalogue and applies every call to the board.** So the
+refresh is skipped when the settled board is the one the list was already built from (`boardKey`, on
+positions AND facings — a position-only signature is the `boardSig` trap), which keeps a pause or a
+scrub released where it started free. Note this cost is pre-existing: every edit, seek and undo already
+pays it, and it is the same `legalCalls` term Phase H is about.
+
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:
 

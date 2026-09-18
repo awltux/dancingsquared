@@ -177,6 +177,24 @@ Feature: Synthesizing a Missing Setup (the Call Editor)
     #          and leaving the number alone ignored a genuine re-time. The pause is carried as a
     #          delta: whatever the authored count exceeds the longest path by, it keeps exceeding it by.
 
+  @bind:moveBeatRange @bind:sampleTrailRange
+  Scenario: A move owns a beat range, and that range is what the track highlights
+    Given a dancer of an instance and one of its moves
+    When the stretch of that dancer's track belonging to the move is asked for
+    Then the move's range must begin where the previous move ended and must tile the dancer's clock
+    And the pose at the range's START must be the pose reached with only the EARLIER moves on the path
+    And the pose at its END must be the pose reached with this move included too
+    And a declared PAUSE must fall AFTER the last move, not inside it
+    And sampling that range must return its two endpoints exactly, and no point off the dancer's track
+    # Engine: editor.ts moveBeatRange and core.ts sampleTrailRange, measured in editor.mjs section 15.
+    #          The moves row of the editor drives the stage with these two: "Moves of" hides every
+    #          other dancer's track and "Move" highlights this stretch of the chosen one. Deriving the
+    #          range in the ENGINE rather than in the UI is what makes it checkable, and the check is
+    #          deliberately not "re-add the beats": the endpoints are compared against a TRUNCATED PATH,
+    #          which is a different code path and therefore separates an off-by-one from a typo.
+    #          A zero-beat move owns an empty range, which the renderer must draw as nothing rather
+    #          than as a degenerate line along the track.
+
   @bind:callToXml
   Scenario: An edited instance exports back to `<tam>` XML and re-parses to the same instance
     Given an edited call instance

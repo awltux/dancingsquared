@@ -143,3 +143,27 @@ export function sampleTrail(dancer: DancerSpec, steps = 60): { x: number; y: num
   }
   return pts;
 }
+
+/**
+ * Sample ONE STRETCH of a dancer's path - the poses between two absolute beats - so the
+ * editor can highlight the part of the track that one move is responsible for.
+ *
+ * `from`/`to` are clamped to the dancer's own path (a move's range always is inside it, but
+ * a caller asking about a call whose `beats` exceed the longest path is not an error, it is
+ * the pause at the end). Both endpoints are included and are EXACTLY `poseFor` at those
+ * beats, so a highlight can be compared to the trail it sits on rather than merely looking
+ * about right. A zero-length range collapses to a single repeated point, which is what a
+ * movement with no beats deserves.
+ */
+export function sampleTrailRange(dancer: DancerSpec, from: number, to: number, steps = 48): { x: number; y: number }[] {
+  const total = dancerBeats(dancer);
+  const a = Math.max(0, Math.min(total, from));
+  const b = Math.max(0, Math.min(total, to));
+  const n = Math.max(1, Math.round(steps));
+  const pts: { x: number; y: number }[] = [];
+  for (let i = 0; i <= n; i++) {
+    const p = poseFor(dancer, a + ((b - a) * i) / n);
+    pts.push({ x: p.x, y: p.y });
+  }
+  return pts;
+}

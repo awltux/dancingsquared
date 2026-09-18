@@ -28,6 +28,7 @@ import {
   setMove,
   addMove,
   removeMove,
+  moveBeatRange,
 } from 'dancing-squared-engine';
 import type { CallBundle, FormDancer, Gender, Hands, InstanceDancer, Seg } from 'dancing-squared-engine';
 
@@ -47,6 +48,16 @@ export interface EditorUI {
   setActive(a: boolean): void;
 }
 
+/** What the editor needs from the rest of the app. */
+export interface EditorHost {
+  /** Show a call bundle (a still frame or a synthesized/edited instance). */
+  preview(call: CallBundle): void;
+  /** Show only `index`'s track, with `range` highlighted, or every track in full for null.
+   *  The moves editor drives the TRAIL with these two selections: which dancer is being
+   *  edited decides whose track is shown, and which move decides which stretch of it. */
+  focusTrail(index: number | null, range: { from: number; to: number } | null): void;
+}
+
 // Warning threshold for a "large" closure correction.
 const HEADING_WARN = 0.35; // rad (~20deg)
 const POS_WARN = 2.0; // units
@@ -62,7 +73,7 @@ const toRad = (deg: number): number => (deg * Math.PI) / 180;
 
 export class EditorController implements EditorUI {
   private stage: Stage;
-  private preview: (call: CallBundle) => void;
+  private host: EditorHost;
   private active = false;
 
   private modeSel = el<HTMLSelectElement>('edMode');
@@ -121,9 +132,9 @@ export class EditorController implements EditorUI {
    *  on every spin-button click). */
   private focusKey: string | null = null;
 
-  constructor(stage: Stage, preview: (call: CallBundle) => void) {
+  constructor(stage: Stage, host: EditorHost) {
     this.stage = stage;
-    this.preview = preview;
+    this.host = host;
 
     for (const c of this.catalog) {
       const label = `${c.level.toUpperCase()} · ${c.title}`;
@@ -198,7 +209,7 @@ export class EditorController implements EditorUI {
     const tam = parseInt(this.editSetupSel.value || '0', 10);
     try {
       this.editSetup = loadCall(id, tam, true);
-      this.preview(this.staticCall(`edit setup start — ${this.editSetup.title}`, this.callStart(this.editSetup)));
+      this.host.preview(this.staticCall(`edit setup start — ${this.editSetup.title}`, this.callStart(this.editSetup)));
       this.refreshFixInfo();
     } catch (err) {
       this.editSetup = null;
@@ -224,7 +235,7 @@ export class EditorController implements EditorUI {
       this.instanceEdited = false;
       this.moveDancer = 0;
       this.moveIndex = 0;
-      this.preview(this.instance);
+      this.host.preview(this.instance);
       this.renderInstance();
     } catch (err) {
       this.instance = null;
@@ -311,7 +322,7 @@ export class EditorController implements EditorUI {
   private commit(next: CallBundle, focusKey?: string) {
     this.instance = next;
     this.instanceEdited = true;
-    this.preview(next);
+    this.host.preview(next);
     this.renderInstance(focusKey);
   }
 
@@ -321,10 +332,35 @@ export class EditorController implements EditorUI {
     this.renderMoveSelectors();
     this.renderMoveFields();
     this.renderInstanceInfo();
+    this.syncTrailFocus();
     if (this.focusKey) {
       const el2 = this.instPanel.querySelector<HTMLElement>(`[data-key="${this.focusKey}"]`);
       el2?.focus();
     }
+  }
+
+  /**
+   * Point the stage at what is being edited.
+   *
+   * The two selections in the moves row ARE the trail instruction: "Moves of" hides every
+   * other dancer's track, and "Move" highlights the stretch that move owns. Both the range
+   * and the mapping from beats to floor positions come from the engine
+   * (`moveBeatRange` + `sampleTrailRange`), so what is highlighted is the move the panel
+   * says it is, not a plausible-looking slice. Every other mode, and every state where there
+   * is nothing to edit, restores the full tracks.
+   */
+  private syncTrailFocus() {
+    if (!this.active || !this.isInstanceMode() || !this.instance) {
+      this.host.focusTrail(null, null);
+      return;
+    }
+    const dancer = this.instance.dancers[this.moveDancer];
+    const seg = dancer?.path[this.moveIndex];
+    if (!dancer || !seg) {
+      this.host.focusTrail(this.moveDancer, null);
+      return;
+    }
+    this.host.focusTrail(this.moveDancer, moveBeatRange(dancer, this.moveIndex));
   }
 
   private renderInstanceInfo() {
@@ -592,9 +628,11 @@ export class EditorController implements EditorUI {
     if (instance) {
       // The instance editor has been showing a still frame while another mode was up, so
       // hand the preview back to the instance being edited.
-      if (this.instance) this.preview(this.instance);
+      if (this.instance) this.host.preview(this.instance);
     } else {
       this.refreshFixInfo();
+      // Leaving the instance editor gives the full tracks back.
+      this.host.focusTrail(null, null);
     }
   }
 
@@ -620,7 +658,7 @@ export class EditorController implements EditorUI {
     const fixed = correctEndTo(this.editSetup, target);
     this.generated = fixed;
     this.generatedName = `${this.editSetup.title} (fixed)`;
-    this.preview(fixed);
+    this.host.preview(fixed);
     this.fixInfoEl.textContent =
       `corrected: end formation now ${posErr.toFixed(2)} apart from post-call start` +
       (maxHead > 0.1 ? `, headings ${((maxHead * 180) / Math.PI).toFixed(0)}° apart` : '');
@@ -640,7 +678,7 @@ export class EditorController implements EditorUI {
       const created = synthesizeSetup(this.editSetup, { name, start, end, padBeats: beats });
       this.generated = created;
       this.generatedName = name;
-      this.preview(created);
+      this.host.preview(created);
       this.statusEl.textContent = `✓ created "${name}" (${created.beats} beats)`;
     } catch (err) {
       this.statusEl.textContent = `✗ ${(err as Error).message}`;
@@ -650,17 +688,17 @@ export class EditorController implements EditorUI {
   private showTarget() {
     if (!this.postStart) return;
     const name = this.postCallSel.selectedOptions[0]?.textContent ?? this.postCallSel.value;
-    this.preview(this.staticCall(`post start — ${name}`, this.postStart));
+    this.host.preview(this.staticCall(`post start — ${name}`, this.postStart));
   }
   private showEnd() {
     if (!this.editSetup) return;
     const name = this.editCallSel.selectedOptions[0]?.textContent ?? this.editCallSel.value;
-    this.preview(this.staticCall(`edit end — ${name}`, this.callEnd(this.editSetup)));
+    this.host.preview(this.staticCall(`edit end — ${name}`, this.callEnd(this.editSetup)));
   }
   private showStart() {
     if (!this.preEnd) return;
     const name = this.preCallSel.selectedOptions[0]?.textContent ?? this.preCallSel.value;
-    this.preview(this.staticCall(`pre end — ${name}`, this.preEnd));
+    this.host.preview(this.staticCall(`pre end — ${name}`, this.preEnd));
   }
 
   /** Throw the in-editor edits away and reload the instance from its source. NOTE what the
@@ -787,7 +825,7 @@ export class EditorController implements EditorUI {
       loadBtn.textContent = 'preview';
       loadBtn.addEventListener('click', () => {
         try {
-          this.preview(rebuildEdit(s));
+          this.host.preview(rebuildEdit(s));
           this.statusEl.textContent = `✓ ${s.name}`;
         } catch (err) {
           this.statusEl.textContent = `✗ ${(err as Error).message}`;
@@ -856,6 +894,9 @@ export class EditorController implements EditorUI {
     this.movePickSel.addEventListener('change', () => {
       this.moveIndex = parseInt(this.movePickSel.value, 10) || 0;
       this.renderMoveFields();
+      // A different move is a different stretch of the track, and no other panel state
+      // changed - so the focus is re-derived here rather than only on a full re-render.
+      this.syncTrailFocus();
     });
     this.moveAddBtn.addEventListener('click', () => this.addInstanceMove());
     this.moveDelBtn.addEventListener('click', () => this.deleteInstanceMove());
@@ -867,6 +908,9 @@ export class EditorController implements EditorUI {
     if (a) {
       this.renderSaved();
       this.renderInstance();
+    } else {
+      // The editor is off screen: give every dancer's track back.
+      this.host.focusTrail(null, null);
     }
   }
 }
@@ -876,6 +920,6 @@ function el<T extends HTMLElement>(id: string): T {
 }
 
 /** Backwards-compatible factory (used by main.ts). */
-export function initEditor(stage: Stage, preview: (call: CallBundle) => void): EditorUI {
-  return new EditorController(stage, preview);
+export function initEditor(stage: Stage, host: EditorHost): EditorUI {
+  return new EditorController(stage, host);
 }

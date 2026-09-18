@@ -210,6 +210,18 @@ translation Bézier (`t.*`) and, when `explicit` facing is ticked, its rotation 
 because that is exactly the curve the renderer falls back to when no rotation Bézier is
 present. Re-timing a move re-times the call when it changes the LONGEST dancer's path; a
 call whose authored beat count is longer than every path (a pause) keeps the pause.
+
+**The moves row drives the stage**, which is what makes a single move editable at all:
+
+- **Moves of** — only the chosen dancer's TRACK is drawn; every other dancer's track is
+  hidden, so the one you are editing is not lost among eight. The dancers themselves stay
+  visible (only tracks are hidden), and leaving the instance editor gives every track back.
+- **Move** — the chosen move's own stretch of that track is highlighted in amber, and the
+  rest of the track is dimmed. The stretch is the BEAT RANGE the move occupies, from
+  `moveBeatRange`, mapped to floor positions by `sampleTrailRange` — both engine functions,
+  so what is highlighted is the move the panel names rather than a plausible-looking slice.
+  A zero-beat move owns an empty range and draws nothing.
+
 **Reset** throws away the edits made in the tab and reloads the instance — and note what it
 reloads: `loadCall` honours an edit already applied to the live catalogue, so an
 applied instance edit is reloaded as itself. Unapply it in the saved list to get the

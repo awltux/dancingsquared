@@ -1364,6 +1364,30 @@ decision they call. THE PRE-EXISTING `editor-ui.ts` TS2739 IS FIXED IN PASSING, 
 `node poc/verify.cjs` still fails the same THREE pre-existing `Pass Thru` checks and loads all 542
 catalogue calls; `verify:light` is green at 12 harnesses in 36.3 s.
 
+**The moves row drives the stage, and the beat range comes from the engine.** Selecting a dancer in
+**Moves of** hides every other dancer's track — the dancers stay visible, only the tracks are hidden,
+and leaving the instance editor gives every track back. Selecting a **Move** highlights that move's own
+stretch of the chosen track in amber and dims the rest of it. That stretch is a BEAT RANGE, so it is
+`moveBeatRange(dancer, k)` in `editor.ts` and `sampleTrailRange` in `core.ts` rather than arithmetic in
+the UI, which is the only reason it can be checked at all.
+
+MEASURED: the ranges TILE the dancer's clock — `[0,1) [1,2) … [9,10)` for a ten-move path — and the
+last move ends at the dancer's OWN path total. The poses at the range's `from` and `to` are the poses
+reached with the earlier moves on the path and with this one included, and the check does that by
+TRUNCATING THE PATH, a different code path from re-adding beats, so an off-by-one separates from a
+typo. A declared PAUSE falls AFTER the last move and not inside it (`to` 10 against the call's 14) —
+the distinction that keeps a highlight from claiming beats the move does not dance. A zero-beat move
+owns an empty range and the renderer draws nothing for it, and an out-of-range index THROWS rather
+than returning a silent empty range. For the sampling, the endpoints are **exactly** the poses at the
+range ends, every sample lies inside the full track's bounding box, the stretch is never longer than
+the whole track (2.04 against 17.53 units for move 2 of dancer 1), and a range past the end of the
+path clamps to the path's last pose rather than returning NaN.
+
+The trail itself is one state with ONE application rule. App-mode visibility, the dancer isolation and
+the move highlight were three things that could disagree, and a trail that silently reappears after the
+views are rebuilt is exactly the "draws wrong while it measures right" class this workstream exists to
+remove — so `CallBrowser` remembers the focus and re-applies it whenever `showCall` rebuilds the views.
+
 
 
 

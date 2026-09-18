@@ -2439,13 +2439,29 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     edit (a translation, or a rotation about the origin) PRESERVES every pair and cannot demonstrate
     it; moving one dancer out of each pair can, and the harness does exactly that. Every editor path is
     `mirror: false`, and `data.ts` says so where it matters.
-  - **THE POC WIRING IS TYPECHECKED, NOT MEASURED**, and the commit says so: the Vite app cannot run
-    under this sandbox (`spawn EPERM`), so the instance table, the moves editor and the
-    save/apply-as-`kind: 'instance'` path are reasoned from the code — what IS measured is every
-    geometric decision they call. **The pre-existing `editor-ui.ts` TS2739 is fixed in passing**, so
-    `npx --prefix poc tsc -p poc --noEmit` is now **CLEAN**, and a POC typecheck is a real signal from
-    here on (it is trap 18 in `HANDOVER.md`). `node poc/verify.cjs` still fails the same **three**
-    pre-existing `Pass Thru` checks and loads all **542** catalogue calls.
+  - **THE POC WIRING IS TYPECHECKED, NOT MEASURED**, and the commit says so: the Vite app
+    cannot run under this sandbox (`spawn EPERM`), so the instance table, the moves editor and
+    the save/apply-as-`kind: 'instance'` path are reasoned from the code — what IS measured is
+    every geometric decision they call. **The pre-existing `editor-ui.ts` TS2739 is fixed in
+    passing**, so `npx --prefix poc tsc -p poc --noEmit` is now **CLEAN**, and a POC typecheck
+    is a real signal from here on (it is trap 18 in `HANDOVER.md`). `node poc/verify.cjs` still
+    fails the same **three** pre-existing `Pass Thru` checks and loads all **542** catalogue
+    calls.
+  - **THE MOVES ROW DRIVES THE STAGE, and the beat range comes from the ENGINE.** Picking a
+    dancer in **Moves of** hides every other dancer's track, and picking a **Move** highlights
+    that move's own stretch of the chosen track in amber with the rest of it dimmed. The stretch
+    is a beat range, so it is `moveBeatRange(dancer, k)` in `editor.ts` and `sampleTrailRange` in
+    `core.ts`, not arithmetic in the UI — which is what makes it checkable. MEASURED (section 15):
+    the ranges TILE the dancer's clock ([0,1) [1,2) … [9,10) for a 10-move path), the last move
+    ends at the dancer's own path total, and the poses at `from`/`to` are the poses reached with
+    the earlier moves on the path and with this one included — checked against a TRUNCATED PATH,
+    a different code path from re-adding beats, so an off-by-one separates from a typo. A PAUSE
+    falls **after** the last move (`to` 10, call 14 — the distinction the doc comment makes), a
+    zero-beat move owns an empty range and draws nothing, and an out-of-range index THROWS rather
+    than returning a silent empty range. `sampleTrailRange`'s endpoints are **exactly** the poses
+    at the range ends, every sample is inside the full track's bounding box, the stretch is never
+    longer than the whole track (2.04 against 17.53 units for move 2 of dancer 1), and a range
+    past the path end clamps to the path's last pose rather than returning NaN.
   - The new instrument is `node engine/test/tools/editor-instance-probe.mjs`; `verify:light` is green
     (12 harnesses, 36.3 s).
 

@@ -48,7 +48,13 @@ const browser = new CallBrowser(stage, player, {
   },
 });
 const seqUi = initSequencer(stage);
-const editorUi = initEditor(stage, (c) => browser.showCall(c));
+// The editor drives the stage through the browse view: `preview` shows a bundle, and
+// `focusTrail` is how the moves editor isolates one dancer's track and highlights the
+// selected move's stretch of it.
+const editorUi = initEditor(stage, {
+  preview: (c) => browser.showCall(c),
+  focusTrail: (index, range) => browser.setTrailFocus(index, range),
+});
 
 const playBtn = el<HTMLButtonElement>('play');
 const pauseBtn = el<HTMLButtonElement>('pause');

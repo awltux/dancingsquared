@@ -494,6 +494,9 @@ export class DancerView {
   group: THREE.Group;
   private parts: AvatarParts;
   trail: THREE.Line;
+  /** The chosen move's own stretch of `trail`, drawn on top of it in a contrasting colour.
+   *  Invisible until a caller highlights a range - see `setTrailHighlight`. */
+  trailHighlight: THREE.Line;
 
   // Walk-cycle state: we measure the dancer's own translation frame-to-frame so
   // the stride eases to rest the moment the dancer stops moving.
@@ -525,6 +528,16 @@ export class DancerView {
       new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.55 }),
     );
     this.trail.frustumCulled = false;
+
+    // The move highlight. Amber (the same colour the hand holds use) rather than the couple
+    // colour, so "the move you have selected" is never confused with "whose track this is".
+    // It sits 0.03 ABOVE the trail: the two are the same curve, and co-planar lines z-fight.
+    this.trailHighlight = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0xffd166, transparent: true, opacity: 1 }),
+    );
+    this.trailHighlight.frustumCulled = false;
+    this.trailHighlight.visible = false;
   }
 
   update(pose: Pose, arms: { left?: THREE.Vector3; right?: THREE.Vector3 }, walk?: WalkCycle): void {
@@ -614,6 +627,34 @@ export class DancerView {
     this.trail.geometry.dispose();
     this.trail.geometry = new THREE.BufferGeometry();
     this.trail.geometry.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+  }
+
+  /**
+   * Mark the stretch of the track that ONE MOVE is responsible for, or pass null to clear it.
+   *
+   * Setting a highlight also DIMS the trail underneath it, which is the point: the track is
+   * still there for context, but the move being edited is the only thing competing for
+   * attention. The geometry is rebuilt in place (a handful of points, once per selection
+   * change, never per frame).
+   */
+  setTrailHighlight(points: { x: number; y: number }[] | null): void {
+    const on = points != null && points.length > 1;
+    (this.trail.material as THREE.LineBasicMaterial).opacity = on ? 0.22 : 0.55;
+    this.trailHighlight.visible = on;
+    this.trailHighlight.geometry.dispose();
+    if (!on) {
+      this.trailHighlight.geometry = new THREE.BufferGeometry();
+      return;
+    }
+    const arr = new Float32Array(points.length * 3);
+    for (let i = 0; i < points.length; i++) {
+      arr[i * 3] = points[i].x;
+      arr[i * 3 + 1] = 0.06; // above the trail, so the two do not z-fight
+      arr[i * 3 + 2] = -points[i].y;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    this.trailHighlight.geometry = geo;
   }
 }
 

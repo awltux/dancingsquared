@@ -162,6 +162,7 @@ export {
   normalizeInstance,
   instanceTable,
   instanceBeats,
+  moveBeatRange,
   setDancerStart,
   setDancerGender,
   setDancerEnd,

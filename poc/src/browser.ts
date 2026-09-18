@@ -5,8 +5,8 @@
 
 import * as THREE from 'three';
 
-import { allPoses, sampleTrail, computeHandholds, assignHomeIdentity } from 'dancing-squared-engine';
-import type { HeadingMode, HoldMode, CallBundle, CallStep, Pose } from 'dancing-squared-engine';
+import { allPoses, sampleTrail, sampleTrailRange, computeHandholds, assignHomeIdentity } from 'dancing-squared-engine';
+import type { HeadingMode, HoldMode, CallBundle, CallStep, DancerSpec, Pose } from 'dancing-squared-engine';
 import { availableCalls, loadCall } from './data';
 import type { CallInfo } from './data';
 import { modulesUsing, startsAwayFromHome } from './modules';
@@ -45,6 +45,15 @@ export class CallBrowser {
   views: DancerView[] = [];
   connectors: ReturnType<typeof buildHandConnectors>;
   availableLevels: string[] = [];
+
+  /** The dancers whose trails the current views were built from, so a trail FOCUS can be
+   *  re-applied after `showCall` rebuilds them. */
+  private dancers: DancerSpec[] = [];
+  /** Whether the dancer views should be shown at all (the app's mode). */
+  private dancersVisible = true;
+  /** Which dancer's track is being edited, and which stretch of it. `null` = show every
+   *  track in full, which is the browse view's behaviour. */
+  private trailFocus: { index: number; range: { from: number; to: number } | null } | null = null;
 
   constructor(stage: Stage, player: Player, host: BrowserHost) {
     this.stage = stage;
@@ -100,23 +109,29 @@ export class CallBrowser {
     for (const v of this.views) {
       this.stage.scene.remove(v.group);
       this.stage.scene.remove(v.trail);
+      this.stage.scene.remove(v.trailHighlight);
     }
     this.views = [];
+    this.dancers = [];
     if (!call) {
       this.legend.innerHTML = '<i>no call</i>';
       return;
     }
     const dancers = assignHomeIdentity(call.dancers);
+    this.dancers = dancers;
     this.views = dancers.map((d) => new DancerView(d, d.couple ?? 0));
     for (let i = 0; i < this.views.length; i++) {
       this.stage.scene.add(this.views[i].group);
       this.stage.scene.add(this.views[i].trail);
+      this.stage.scene.add(this.views[i].trailHighlight);
       this.views[i].setTrail(sampleTrail(dancers[i], 80));
     }
     if (call.taminator) this.legend.innerHTML = `<b>${call.title}</b> — ${call.taminator}`;
     else this.legend.innerHTML = `<b>${call.title}</b><br>from ${call.from || '(default setup)'}`;
     this.player.setCall(call);
     this.updateScrub(call);
+    // The views were just rebuilt, so any trail focus has to be put back.
+    this.applyTrailState();
   }
 
   /** Alias for `showCall` used as the editor's preview callback. */
@@ -204,13 +219,41 @@ export class CallBrowser {
     this.loadCurrent();
   }
 
+  /**
+   * Show ONE dancer's track and hide the rest, optionally highlighting the stretch that a
+   * single move is responsible for. `null` restores every track in full.
+   *
+   * This is ONE state with ONE application rule (`applyTrailState`) rather than two
+   * independent toggles, because two toggles is how the app-mode visibility, the isolation
+   * and the highlight end up disagreeing after a `showCall` rebuild - and a trail that
+   * silently reappears is exactly the kind of "draws wrong while it measures right" defect
+   * this workstream exists to remove.
+   */
+  setTrailFocus(index: number | null, range: { from: number; to: number } | null = null) {
+    this.trailFocus = index == null ? null : { index, range };
+    this.applyTrailState();
+  }
+
+  /** The single place the trail visibility rule lives: app mode AND focus, together. */
+  private applyTrailState() {
+    for (let i = 0; i < this.views.length; i++) {
+      const v = this.views[i];
+      const focused = this.trailFocus?.index === i;
+      v.group.visible = this.dancersVisible;
+      v.trail.visible = this.dancersVisible && (this.trailFocus == null || focused);
+      const range = focused ? this.trailFocus?.range ?? null : null;
+      // The highlight is a stretch of the SAME curve, sampled from the dancer's own beat
+      // clock - `moveBeatRange` says which beats, this says where that is on the floor.
+      v.setTrailHighlight(range && this.dancers[i] ? sampleTrailRange(this.dancers[i], range.from, range.to, 48) : null);
+      v.trailHighlight.visible = v.trailHighlight.visible && this.dancersVisible;
+    }
+    this.connectors.group.visible = this.dancersVisible;
+  }
+
   /** Show/hide the dancer views + connectors (used by mode switching). */
   setVisible(v: boolean) {
-    for (const dv of this.views) {
-      dv.group.visible = v;
-      dv.trail.visible = v;
-    }
-    this.connectors.group.visible = v;
+    this.dancersVisible = v;
+    this.applyTrailState();
   }
 
   // ---------------------------------------------------------------- rendering

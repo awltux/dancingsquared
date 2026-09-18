@@ -28,12 +28,15 @@ import {
   normalizeInstance,
   instanceTable,
   instanceBeats,
+  moveBeatRange,
   setDancerStart,
   setDancerGender,
   setDancerEnd,
   setMove,
   addMove,
   removeMove,
+  sampleTrail,
+  sampleTrailRange,
   DEG,
 } from '../dist/index.js';
 setParser(DOMParser);
@@ -505,6 +508,104 @@ console.log('\n== the mirror-on-reparse footgun (14c) ==');
   check(doubled.dancers.length === 16, `mirror=true DOUBLES a formation with no origin-opposite pair (${doubled.dancers.length}) - the editor must export/import with mirror=false`);
   const symmetric = buildCall(parseCallXml(callToXml(inst, inst.from))[0], parseFormations(formationsXml), parseMoves(movesXml), true);
   check(symmetric.dancers.length === 8, `a symmetric formation is not doubled (${symmetric.dancers.length})`);
+}
+
+// ---------------------------------------------------------------------------
+// 15. THE MOVE'S STRETCH OF THE TRACK. The moves row of the editor drives the stage:
+//     "Moves of" hides every other dancer's track, and "Move" highlights the part of
+//     THIS dancer's track that the selected move is responsible for. That part is a
+//     BEAT RANGE, and it is derived here rather than in the UI so it can be measured.
+// ---------------------------------------------------------------------------
+console.log('\n== the beat range a move owns (15) ==');
+{
+  // A dancer with several moves, which is every dancer of a real call.
+  const d = inst.dancers[0];
+  const total = dancerBeats(d);
+  check(d.path.length > 2, `witness: dancer 1 has ${d.path.length} moves`);
+  let cursor = 0;
+  let tiles = true;
+  const ranges = [];
+  for (let k = 0; k < d.path.length; k++) {
+    const r = moveBeatRange(d, k);
+    ranges.push(r);
+    if (r.from !== cursor || r.to !== r.from + d.path[k].beats) tiles = false;
+    cursor = r.to;
+  }
+  check(tiles, `the ranges TILE the dancer's clock: ${ranges.map((r) => `[${r.from},${r.to})`).join(' ')}`);
+  check(cursor === total, `the last move ends at the dancer's own path total (${cursor} == ${total})`);
+
+  // The range brackets the move, checked against a DIFFERENT code path: `poseFor` at the
+  // range's start must be the pose the dancer reaches when only the earlier moves are on
+  // its path. If the cumulative sum were off by one move, or by one beat, this separates.
+  let brackets = true;
+  for (let k = 0; k < d.path.length; k++) {
+    const r = moveBeatRange(d, k);
+    const before = poseFor({ ...d, path: d.path.slice(0, k) }, r.from);
+    const atFrom = poseFor(d, r.from);
+    const after = poseFor({ ...d, path: d.path.slice(0, k + 1) }, r.to);
+    const atTo = poseFor(d, r.to);
+    if (Math.hypot(before.x - atFrom.x, before.y - atFrom.y) > 1e-12) brackets = false;
+    if (Math.hypot(after.x - atTo.x, after.y - atTo.y) > 1e-12) brackets = false;
+  }
+  check(brackets, 'the pose at `from` is the pose BEFORE the move and the pose at `to` is the pose AFTER it (checked by truncating the path, not by re-adding beats)');
+
+  // A move that occupies no beats collapses instead of drawing a line along the track.
+  const zero = { ...d, path: [{ ...d.path[0], beats: 0 }, ...d.path.slice(1)] };
+  check(moveBeatRange(zero, 0).from === moveBeatRange(zero, 0).to, 'a zero-beat move owns an empty range');
+
+  // The distinction the doc comment makes: a PAUSE lives after the last move, so the last
+  // move's `to` is the dancer's path total and NOT the call's beat count.
+  const paused = { ...inst, beats: inst.beats + 4, totalBeats: inst.totalBeats + 4 };
+  const lastMove = moveBeatRange(paused.dancers[0], paused.dancers[0].path.length - 1);
+  check(
+    lastMove.to === instanceBeats(paused) && lastMove.to !== paused.beats,
+    `a pause is NOT inside the last move: it ends at ${lastMove.to} (the longest path) and the call runs to ${paused.beats}`,
+  );
+  let threw = false;
+  try {
+    moveBeatRange(d, d.path.length);
+  } catch {
+    threw = true;
+  }
+  check(threw, 'an out-of-range move index throws rather than returning a silent empty range');
+}
+
+console.log('\n== sampling one stretch of the track (15b) ==');
+{
+  const d = inst.dancers[0];
+  const k = 1;
+  const r = moveBeatRange(d, k);
+  const STEPS = 48;
+  const sub = sampleTrailRange(d, r.from, r.to, STEPS);
+  check(sub.length === STEPS + 1, `the sub-trail has steps + 1 points (${sub.length})`);
+  const p0 = poseFor(d, r.from);
+  const p1 = poseFor(d, r.to);
+  check(
+    sub[0].x === p0.x && sub[0].y === p0.y && sub[sub.length - 1].x === p1.x && sub[sub.length - 1].y === p1.y,
+    'its endpoints are EXACTLY the poses at the range ends, so the highlight sits on the trail it marks',
+  );
+  // It has to be a stretch OF THE DANCER'S TRACK, not a plausible curve near it: every
+  // sample must lie inside the full trail's bounding box, and the stretch cannot be longer
+  // than the whole track.
+  const full = sampleTrail(d, 80);
+  const bb = full.reduce(
+    (b, p) => ({ x0: Math.min(b.x0, p.x), x1: Math.max(b.x1, p.x), y0: Math.min(b.y0, p.y), y1: Math.max(b.y1, p.y) }),
+    { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity },
+  );
+  const arc = (pts) => pts.slice(1).reduce((s, p, i) => s + Math.hypot(p.x - pts[i].x, p.y - pts[i].y), 0);
+  const inside = sub.every((p) => p.x >= bb.x0 - 1e-9 && p.x <= bb.x1 + 1e-9 && p.y >= bb.y0 - 1e-9 && p.y <= bb.y1 + 1e-9);
+  check(inside, 'every sample lies inside the full track\'s bounding box');
+  check(arc(sub) <= arc(full) + 1e-9, `the stretch is no longer than the whole track (${arc(sub).toFixed(2)} <= ${arc(full).toFixed(2)})`);
+  check(arc(sub) > 0, `the selected move actually moves (arc ${arc(sub).toFixed(2)} units)`);
+  // Clamping, so a caller that asks beyond the path gets the path's end and not NaN.
+  const over = sampleTrailRange(d, r.from, dancerBeats(d) + 100, 8);
+  const endPose = poseFor(d, dancerBeats(d));
+  check(
+    over.every((p) => Number.isFinite(p.x) && Number.isFinite(p.y)) && over[over.length - 1].x === endPose.x && over[over.length - 1].y === endPose.y,
+    'a range past the end of the path clamps to the path\'s last pose',
+  );
+  const zero = sampleTrailRange(d, 2, 2, 8);
+  check(zero.length === 9 && zero.every((p) => p.x === zero[0].x && p.y === zero[0].y), 'a zero-length range collapses to a single repeated point (so nothing degenerate is drawn)');
 }
 
 console.log('\n=================');

@@ -583,6 +583,26 @@ export function instanceBeats(call: CallBundle): number {
   return call.dancers.reduce((m, d) => Math.max(m, pathBeats(d.path)), 0);
 }
 
+/**
+ * The stretch of a dancer's own beat clock that ONE of its moves occupies: `[from, to)`.
+ *
+ * This is the range the editor highlights on that dancer's track, and it is the dancer's OWN
+ * clock rather than the call's: a call whose `beats` exceed the longest path (a pause) leaves
+ * that surplus AFTER the last move, so the last move's `to` is the dancer's path total and
+ * not necessarily `call.beats`. Deriving it here rather than in the UI is what makes it
+ * measurable - `editor.mjs` checks that the pose at `from` and the pose at `to` are the poses
+ * at that move's two ends, on a call with several moves per dancer.
+ */
+export function moveBeatRange(dancer: DancerSpec, moveIndex: number): { from: number; to: number } {
+  const moves = dancer.path;
+  if (!Number.isInteger(moveIndex) || moveIndex < 0 || moveIndex >= moves.length) {
+    throw new Error(`moveBeatRange: the dancer has no move ${moveIndex} (it has ${moves.length})`);
+  }
+  let from = 0;
+  for (let k = 0; k < moveIndex; k++) from += moves[k].beats;
+  return { from, to: from + moves[moveIndex].beats };
+}
+
 /** Re-time the call after a MOVE edit.
  *
  * `beats` is normally the longest dancer's path, and that is what a re-timed move should

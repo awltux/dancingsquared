@@ -138,6 +138,17 @@
             </select>
           </div>
           <div class="row">
+            <label>Find</label>
+            <input
+              id="edCallFilter"
+              class="wide"
+              type="text"
+              placeholder="filter calls: level, title or setup — e.g. &quot;circle&quot;, &quot;ms wave&quot;, &quot;static square&quot;"
+              title="Narrows EVERY call list in this panel (edit, post and pre). Terms are ANDed and matched as substrings against the level, the title, the file and the setup's `from` label, so &quot;ms circle&quot; and &quot;static square&quot; both work. The call you currently have selected is always kept at the top of its list, so narrowing the list cannot silently change what you are editing. Escape clears it."
+            />
+            <span id="edCallFound" class="part"></span>
+          </div>
+          <div class="row">
             <label>Edit call</label>
             <select id="edCall" class="wide"></select>
             <label>Setup</label>

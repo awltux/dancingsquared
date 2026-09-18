@@ -41,7 +41,7 @@ import {
   effectiveSetups,
   rebuildEdit,
 } from './data';
-import type { CallEdit } from './data';
+import type { CallEdit, CallInfo } from './data';
 import type { Stage } from './scene';
 
 export interface EditorUI {
@@ -89,6 +89,8 @@ export class EditorController implements EditorUI {
   private active = false;
 
   private modeSel = el<HTMLSelectElement>('edMode');
+  private callFilterInput = el<HTMLInputElement>('edCallFilter');
+  private callFoundEl = el<HTMLSpanElement>('edCallFound');
   private editCallSel = el<HTMLSelectElement>('edCall');
   private editSetupSel = el<HTMLSelectElement>('edSetup');
   private postRow = el<HTMLDivElement>('edPostRow');
@@ -126,6 +128,10 @@ export class EditorController implements EditorUI {
 
   private catalog = availableCalls();
   private saved: CallEdit[] = loadEdits();
+  /** The call filter's text. One box, every call list - see `applyCallFilter`. */
+  private callQuery = '';
+  /** See `haystack`. */
+  private haystacks: Map<string, string> | null = null;
 
   // current state
   private editSetup: CallBundle | null = null;
@@ -148,12 +154,7 @@ export class EditorController implements EditorUI {
     this.stage = stage;
     this.host = host;
 
-    for (const c of this.catalog) {
-      const label = `${c.level.toUpperCase()} · ${c.title}`;
-      this.editCallSel.add(new Option(label, c.id));
-      this.postCallSel.add(new Option(label, c.id));
-      this.preCallSel.add(new Option(label, c.id));
-    }
+    for (const sel of [this.editCallSel, this.postCallSel, this.preCallSel]) this.fillCallSelect(sel, sel.value);
 
     this.wireEvents();
     this.fillSetupSelect(this.editSetupSel, this.editCallSel.value);
@@ -212,6 +213,72 @@ export class EditorController implements EditorUI {
   private fillSetupSelect(sel: HTMLSelectElement, callId: string) {
     sel.innerHTML = '';
     effectiveSetups(callId).forEach((s, i) => sel.add(new Option(s.label, String(i))));
+  }
+
+  // ---- the call filter ----
+
+  /** Lazily built lower-cased haystacks for the filter: level, title, file and every setup
+   *  label. Built once, because the catalogue does not change while the app runs and this is
+   *  read on every keystroke (three selects x the whole catalogue). */
+  private haystack(c: CallInfo): string {
+    if (!this.haystacks) {
+      this.haystacks = new Map(
+        this.catalog.map((x) => [x.id, `${x.level} ${x.title} ${x.file} ${x.setups.map((s) => s.from).join(' ')}`.toLowerCase()]),
+      );
+    }
+    return this.haystacks.get(c.id) ?? '';
+  }
+
+  /**
+   * Re-populate a call select from the catalogue, narrowed by the panel's filter.
+   *
+   * THE CURRENT SELECTION IS ALWAYS KEPT, re-inserted at the top when the filter excludes it,
+   * and that is not politeness. Clearing a select's options moves its `value` onto whatever
+   * survived, and no `change` event fires - so a filter typed over the top of the chosen call
+   * would leave the PANEL showing one call while the editor's state still held another, with
+   * nothing to reconcile them. Keeping the selection makes the filter a pure VIEW of the
+   * catalogue: it can only ever change which calls you can reach, never which one you have.
+   */
+  private fillCallSelect(sel: HTMLSelectElement, keepId: string): number {
+    const terms = this.callQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const label = (c: CallInfo) => `${c.level.toUpperCase()} · ${c.title}`;
+    sel.innerHTML = '';
+    const keep = this.catalog.find((c) => c.id === keepId) ?? null;
+    let kept = false;
+    let found = 0;
+    for (const c of this.catalog) {
+      if (!terms.every((t) => this.haystack(c).includes(t))) continue;
+      found++;
+      sel.add(new Option(label(c), c.id, false, c.id === keepId));
+      if (c.id === keepId) kept = true;
+    }
+    if (keep && !kept) {
+      const opt = new Option(`▸ ${label(keep)}`, keep.id, false, true);
+      opt.title = 'kept — this is the call you have selected, and the filter excludes it';
+      sel.insertBefore(opt, sel.firstChild);
+    }
+    if (sel.options.length === 0) {
+      // Only reachable when the select held no valid id to begin with.
+      const opt = new Option('no call matches', '');
+      opt.disabled = true;
+      sel.add(opt);
+    }
+    return found;
+  }
+
+  /**
+   * Apply the filter to every call list in the panel.
+   *
+   * One box narrows all three (edit, post and pre) because they are the same list, and a
+   * filter that quietly worked for one of three identical controls would be its own bug -
+   * the input's tooltip says so. The terms are ANDed substrings over the level, title, file
+   * and setup labels, so "ms circle" and "static square" both read the way they should.
+   */
+  private applyCallFilter() {
+    const found = this.fillCallSelect(this.editCallSel, this.editCallSel.value);
+    this.fillCallSelect(this.postCallSel, this.postCallSel.value);
+    this.fillCallSelect(this.preCallSel, this.preCallSel.value);
+    this.callFoundEl.textContent = this.callQuery.trim() ? `${found} of ${this.catalog.length} calls` : '';
   }
 
   // ---- loading ----
@@ -923,6 +990,19 @@ export class EditorController implements EditorUI {
     this.showEndBtn.addEventListener('click', () => this.showEnd());
     this.showStartBtn.addEventListener('click', () => this.showStart());
     this.modeSel.addEventListener('change', () => this.applyMode());
+    // The filter narrows the LISTS only, so it never reloads a call: the selected ids are
+    // preserved by `fillCallSelect`, and reloading on every keystroke would fight the user.
+    this.callFilterInput.addEventListener('input', () => {
+      this.callQuery = this.callFilterInput.value;
+      this.applyCallFilter();
+    });
+    this.callFilterInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.callFilterInput.value = '';
+        this.callQuery = '';
+        this.applyCallFilter();
+      }
+    });
     this.editCallSel.addEventListener('change', () => {
       this.fillSetupSelect(this.editSetupSel, this.editCallSel.value);
       this.loadEditSetup();

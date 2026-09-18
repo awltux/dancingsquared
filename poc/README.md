@@ -169,6 +169,18 @@ selected with the editor's own **Mode** toggle (**Edit instance** / Fix closure 
 Create position). All three share an **Edit call + Setup** — the taminations call
 instance being edited — and all three preview through the same 3D renderer.
 
+**Find** narrows the call lists, because the catalogue is several hundred calls. Terms
+are ANDed substrings matched against the LEVEL, the TITLE, the file name and every
+setup's `from` label, so `circle`, `ms wave` and `static square` all do what they look
+like they should; the readout says how many calls are left, and **Escape** clears it.
+The box narrows **every** call list in the panel (edit, post and pre) rather than one of
+three identical controls, and **the call you currently have selected is always kept** at
+the top of its list, marked `▸`, whenever the filter excludes it. That last part is not
+politeness: clearing a `<select>`'s options moves its value onto whatever survived and
+fires no `change` event, so a filter typed over the top of the chosen call would leave the
+panel showing one call while the editor still held another. The filter can only change
+which calls you can *reach*, never which one you *have*.
+
 The **Facing** dropdown sits here because the editor is the view that needs it: it
 picks how the PREVIEWED dancers orient, and every editor action previews through
 the same renderer.

@@ -1394,6 +1394,21 @@ the move highlight were three things that could disagree, and a trail that silen
 views are rebuilt is exactly the "draws wrong while it measures right" class this workstream exists to
 remove — so `CallBrowser` remembers the focus and re-applies it whenever `showCall` rebuilds the views.
 
+**The call lists have a filter, and it cannot change what you have selected.** The editor's catalogue is
+several hundred calls, so a **Find** box narrows every call list in the panel — edit, post and pre —
+by ANDed substrings over the level, the title, the file name and every setup's `from` label, which makes
+`circle`, `ms wave` and `static square` all mean what they look like they mean, with a count of what is
+left and Escape to clear it.
+
+The one subtle part is the selection, and it is the reason this is worth writing down. Clearing a
+`<select>`'s options moves its `value` onto whatever survived, and NO `change` event fires — so a filter
+typed over the top of the chosen call would leave the panel showing one call while the editor's state
+still held another, with nothing to reconcile them. The chosen call is therefore always kept, re-inserted
+at the top of its list and marked `▸`, which makes the filter a pure VIEW of the catalogue: it can only
+change which calls you can reach, never which one you have. It is UI-only and typechecked — no engine
+code, no harness and no feature file changed for it, and the predicate is a substring test with no
+geometry in it to measure.
+
 
 
 

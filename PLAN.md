@@ -2466,6 +2466,16 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     at the range ends, every sample is inside the full track's bounding box, the stretch is never
     longer than the whole track (2.04 against 17.53 units for move 2 of dancer 1), and a range
     past the path end clamps to the path's last pose rather than returning NaN.
+  - **THE CALL LISTS HAVE A FILTER, AND IT CANNOT CHANGE WHAT YOU HAVE SELECTED.** The editor's
+    catalogue is several hundred calls, so a **Find** box narrows every call list in the panel
+    (edit, post and pre) by ANDed substrings over the level, title, file and setup labels —
+    `circle`, `ms wave` and `static square` all read the way they should. The one subtle part is
+    the SELECTION: clearing a `<select>`'s options moves its value onto whatever survived and
+    fires no `change` event, so a filter typed over the top of the chosen call would leave the
+    panel showing one call while the editor still held another, with nothing to reconcile them.
+    The chosen call is therefore always kept, re-inserted at the top and marked, which makes the
+    filter a pure VIEW of the catalogue. UI-only, typechecked: no engine code, no harness and no
+    feature file changes, and the filter predicate is a substring test with no geometry in it.
   - The new instrument is `node engine/test/tools/editor-instance-probe.mjs`; `verify:light` is green
     (12 harnesses, 36.3 s).
 

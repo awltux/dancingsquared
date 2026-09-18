@@ -2225,6 +2225,22 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     is why they never showed this); `behaviour-audit` **148 PASS / 0 FAIL** with a new primitive gate
     ("a selection animates ONLY the selected dancers", worst unselected move 0.000000).
     The convergence RESIDUAL is consequently unnecessary, so its collision cost is not paid either.
+  - **THE UNGROUPED MOVERS NOW FOLLOW A SEGMENT, NOT A STRAIGHT LINE.** Where the bare call cannot tile
+    the board, the dancers in no matched group used to be blended along a straight line — which walks two
+    dancers who TRADE PLACES (partners passing, as `Right and Left Thru` does) through the same midpoint.
+    They now go through `interpolateSegment`, the coded path's own routing, whose EXCHANGE pair is
+    rotated rigidly by a half turn about its midpoint so the two stay diametrically opposite and land
+    exactly swapped at t = 1. MEASURED, for its size: this changes exactly **ONE** module across the
+    corpus (`modules/static_set/resolve/2728.json`, minimum closest pair **0.00 → 1.00** — a real
+    collapse, fixed) and nothing else.
+  - **STILL OPEN, and the second hypothesis is now DISPROVED too**: the collision scan shows modules with
+    a coincident pair (min gap < 0.1) going **73 → 103** when the selection fix landed (52 modules improve
+    by >0.3, 37 worsen). The straight-line collapse explained this in principle and does NOT in fact —
+    fixing it moved exactly one module — so the cause is **not diagnosed**. The remaining candidate is
+    the pinning itself: a dancer the call does not move now STANDS STILL (correct) where before it was
+    dragged along the authored path (incorrect, but it kept the movers clear of it), and a stationary
+    dancer is something a mover can brush past. That is a hypothesis, not a measurement, and the next
+    step is to check it on the modules that entered the band rather than to guess a third time.
   - Recorded for the next reader: `behaviour-audit` registers calls by FILENAME SLUG, so a title-keyed
     selection step cannot resolve there; the new gate builds its own `callsByTitle` Sequencer for that
     reason. A gate that uses the harness's own catalogue measures the harness, not the engine.

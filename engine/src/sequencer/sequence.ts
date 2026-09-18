@@ -534,20 +534,37 @@ export class SequenceAnalyzer {
       }
     }
 
+    // EVERYONE ELSE MOVES ALONG A SEGMENT, NOT A STRAIGHT LINE. A dancer covered by no group is a
+    // dancer the tiling could not account for - which is the normal case for a SELECTION step whose
+    // bare call does not tile the board at all (`Heads Right and Left Thru` from a squared set). The
+    // straight-line blend that used to be here walks two dancers who TRADE PLACES - partners passing
+    // each other, which is what `Right and Left Thru` does - through the same midpoint, i.e. through
+    // each other.
+    //
+    // `interpolateSegment` is the coded path's answer to the same problem and is reused rather than
+    // re-implemented: an EXCHANGE pair is rotated rigidly by a half turn about its own midpoint, so the
+    // two stay diametrically opposite for the whole segment and land exactly swapped at t = 1. A dancer
+    // that is not half of an exchange still gets the straight line, so nothing that worked changes.
+    //
+    // MEASURED, and worth recording for its SIZE: across the 1607-module corpus this changes exactly ONE
+    // module (`modules/static_set/resolve/2728.json`, minimum closest pair 0.00 -> 1.00 - a real
+    // collapse, fixed) and leaves the other 1061 that come inside 1.0 unit untouched. So it is a strict
+    // improvement, and it is NOT the explanation for the coincident band moving 73 -> 103 when the
+    // selection fix landed: that hypothesis is disproved by this measurement, not merely unproven.
+    const free = board.dancers.filter((d) => !posed.has(d.id) && endById.has(d.id));
+    if (free.length) {
+      const from: Board = { dancers: free.map((d) => ({ ...d })) };
+      const to: Board = { dancers: free.map((d) => ({ ...endById.get(d.id)! })) };
+      for (const d of this.interpolateSegment(from, to, t, false).dancers) {
+        posed.set(d.id, { x: d.x, y: d.y, heading: d.heading });
+      }
+    }
+
     return {
       dancers: board.dancers.map((d) => {
         const p = posed.get(d.id);
         if (p) return { ...d, ...p };
-        // Not covered by any group (a tiling that did not happen, or a ghost): keep the old blend
-        // so the frame still lands on the applied board.
-        const e = endById.get(d.id);
-        if (!e) return d;
-        return {
-          ...d,
-          x: d.x + (e.x - d.x) * t,
-          y: d.y + (e.y - d.y) * t,
-          heading: normAngle(d.heading + normAngle(e.heading - d.heading) * t),
-        };
+        return d;
       }),
     };
   }

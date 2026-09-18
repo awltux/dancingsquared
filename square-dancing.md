@@ -315,9 +315,11 @@ Two rules, both enforced by `features/index_independence.feature`:
 
 ## 9. Open Items
 
-Remaining planned work, in the order agreed. `HANDOVER.md` at the repo root is the consolidated
-version of this section: what is done (with the numbers and the command to reproduce them), what
-remains, the decisions already made, and the traps that have already bitten.
+Remaining planned work, in the order agreed. **`PLAN.md` at the repo root is the consolidated version
+of this section**: the measured state (§2, with the command for every row), what is refuted (§3), what
+remains (§4, §6) and what is blocked (§5). `HANDOVER.md` is the *orientation* document — the repo map,
+the working rules, the decisions already made and the traps that have already bitten — and it
+deliberately holds no numbers of its own, because duplicating them is how it went stale.
 
 ### 9.1 Get-out conformance (the active workstream)
 

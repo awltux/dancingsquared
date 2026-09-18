@@ -6,9 +6,11 @@ chronological record of what was built, refuted and measured on the way here —
 working rules, the measured state, the list of things that were refuted so nobody re-litigates them,
 and the phases that still have work in them.
 
-**Read in this order:** `HANDOVER.md` §1 and §3 (what the repo is, and the working rules — note its
-§2 scoreboard is stale and this file supersedes it) → this file → `square-dancing.md` §9.1 for any
-claim below you want the derivation of.
+**Read in this order:** `HANDOVER.md` §1 and §3 (what the repo is, and the working rules) → this file →
+`square-dancing.md` §9.1 for any claim below you want the derivation of. `HANDOVER.md` is the
+orientation document and deliberately carries **no scoreboard**: §2 here is the only scoreboard, and
+this file is the only work queue. It was the duplication of those two that made an earlier revision of
+`HANDOVER.md` stale by four workstreams, so the numbers are not copied back into it.
 
 ---
 

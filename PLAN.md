@@ -2174,13 +2174,28 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
   PER-DANCER field in which some dancers have delta **exactly 0.00** and others are displaced by
   **lattice-valued** vectors (2.00 / 4.00 / 6.00 / 6.32) in partner pairs. That is a SNAP signature,
   not a smooth transform — a rotation or translation would move every dancer.
-- **THE ROOT IS `snapBoard`, NOT THE ANIMATOR.** `applyWholeBoard` returns `snapBoard(...)` on the
-  interactive (rebase) path (`applicator.ts:320`) while `evaluateVariantAt` never snaps, and `snapBoard`
-  (`matcher.ts:401`) accepts a snap when the **MEAN** match error is within `snapMaxError = 1.0`
-  (`config.ts:18`). A mean bound does not bound how far an INDIVIDUAL dancer is moved, so a "drift
-  absorption" clamp relocates a dancer up to 6.32 units — it rewrites the arrangement instead of
-  absorbing drift. The stored board is the snapped one, so the last drawn frame (the authored end) and
-  `step.after` disagree by exactly the snap.
+- **THE SNAP IS NOT THE OWNER — MEASURED, AND THE FIRST ATTRIBUTION HERE WAS WRONG.** Lattice-valued
+  deltas plus `snapBoard`'s MEAN-error bound (`matcher.ts:401`, `snapMaxError = 1.0`) made the snap the
+  obvious cause, and it is a latent defect of its own kind (a mean bound does not bound a dancer). But
+  it is not THIS one: `snap-source-probe.mjs` disables the snap outright (`setSnapMaxError(0)`) and
+  re-measures the whole corpus — of the 86, **3 are the snap** (shifts of 0.07–0.13, `Men Run` ×2 and
+  one `Right and Left Grand`) and **83 survive**. A BOUNDED SNAP was implemented and measured
+  (`snapMaxShift = 0.25`, refusing a snap that moves any single dancer further than the drift the clamp
+  exists to absorb, in `config.ts` + `matcher.ts`): it fixes exactly those 3 and nothing else, so it was
+  **reverted** rather than shipped as a behavioural change to the interactive board for a 3-module
+  gain. `snapBoard` still deserves a per-dancer bound one day; it does not belong to this defect.
+- **THE BRANCH STORY IS STILL OPEN — this is where the next session should start.**
+  `last-frame-branch-probe.mjs` asks which branch EACH SIDE took for the last call: 5 animate a
+  whole-board match, 3 store a parallel grouping, **0 take both** (the re-derivation disagreement the
+  parallel work already fixed), and **77 are "no whole-board match AND no stored parallel grouping"**.
+  That last number is the contradiction to resolve: the applicator produced a board nevertheless (the
+  candidates are the implicit `adjustToSetup` after a Fold, the scoped-tam fallback, and a `before`
+  board that differs between the probe's `applyStep` replay and `replayWalk`), and
+  `evaluateParallelAt` is convergent BY CONSTRUCTION, so a 6.32-unit jump should be impossible on the
+  parallel branch. Something in that chain is not what the code says it is, and it is not diagnosed.
+- **RECOMMENDED NEXT STEP**: explain the 77 before touching anything. The residual below is the only
+  fix DEMONSTRATED to work, and it costs collisions — so the choice between them should be made with
+  the 77 understood, not guessed at.
 - **THE RESIDUAL WAS TRIED AND REVERTED.** Hoisting the parallel branch's correction into
   `evaluateSequence` for every branch — `pose(t) = authored(t) + (appliedEnd − authoredEnd) * t` —
   works on its own terms: corpus last-frame jumps **86 → 0** (worst 6.32 → 0.00), `anim-convergence`
@@ -2190,15 +2205,6 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
   dance: across 1607 modules / 63645 samples (`sequence-anim-collision-scan.mjs`) modules with a
   coincident pair (**< 0.1**) go **73 → 135**, `< 0.5` goes **109 → 193**, and 55 modules move from a
   ≥ 0.5 pass to an exact coincidence. Trading a visible jump for dancers crossing is not a fix.
-- **RECOMMENDED FIX (next)**: bound the snap by **PER-DANCER displacement** in `snapBoard` — reject
-  the snap when any dancer would move more than the drift it exists to absorb (order 0.25) — so the
-  interactive board KEEPS the call's own end. That is already what the search path does
-  (`applySearch` is `rebase = false`, so it never snaps), and it is the principle the promenade report
-  established: the arrangement deduced from dancing wins over a re-derived reading. With the snap
-  bounded, `step.after` IS the authored end and the animation needs **no** residual at all. To measure,
-  in this order: corpus last-frame jumps (expect 0 with no correction), `sequence-anim-collision-scan`
-  (expect ≈ baseline), then figures / get-out / FSM, then the POC readout on off-lattice ends (7046
-  already ends on an unnamed ring, so a `null` formation there is a known, recorded state).
 - **ALSO RECORDED**: `behaviour-audit.mjs`'s convergence gate allows 0.5 units / 0.1 rad, which cannot
   catch a class whose worst member is 0.1476 on the single-call sample — tighten it when the root is
   fixed (`anim-convergence`'s empty pin already gates the corpus-facing property).

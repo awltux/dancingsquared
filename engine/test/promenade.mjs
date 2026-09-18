@@ -368,6 +368,66 @@ console.log('\n== 4b. a full promenade from home is one counter-clockwise circui
   if (halfOfHalf > 1e-9) fail(`half way through a half promenade the worst dancer is ${halfOfHalf.toFixed(4)} units from a quarter turn counter-clockwise (the fraction must not take the full call's lap)`);
   else ok('half way through a "Promenade 1/2" the dancers are a quarter round, so the fraction takes no lap');
 }
+
+// ------------------------------------------- 4c. a ring's couples are the FACING pairs
+//
+// THE REPORT: "they travel in different directions". MEASURED on MS `ceder-7046`'s end ring
+// (`tools/ring-facing-probe.mjs`): it is an ALAMO RING - boys outside at radius 3.45, girls inside at
+// 2.93, each pair FACING at 2.3 units with a side-offset of 0.01-0.05 - while the board's stored
+// `couple` labels pair dancers 180 degrees apart with the SAME heading, the FASR `o` ("opposite")
+// reading. `promenadeHome` groups by a pairing read at the point of use, and that read could only
+// see partners standing SIDE BY SIDE with the same heading, so it found no mate here, returned null,
+// and left the stored labels standing: every "couple centre" it then computed was the MIDDLE OF THE
+// SET (radius 1.13, against 3.00 for the real pairs).
+//
+// The rotation a ring is out by comes from couple 1's anchor, which is a SNAP of that centre to one of
+// the four axis points, so a meaningless centre gives a meaningless quarter turn. MEASURED: without
+// the facing read, a `Promenade 1/2` from this ring ends a QUARTER TURN SHORT of home (-90 degrees);
+// with it, the ring reads as half a turn out and the same call ends EXACTLY HOME. The full promenade
+// is legal either way (both readings run 1 -> 2 -> 3 -> 4 counter-clockwise), which is why the figure
+// census does not move - figures stay at 116 of 188.
+console.log('\n== 4c. a ring reads its couples from the floor, not from the stored labels ==');
+{
+  const mod = JSON.parse(readFileSync(path.join(root, 'modules/zero_line/static_set/7046.json'), 'utf8'));
+  const start = boardForFasrCode('L1o', (l) => templateForLetter(seq, l)).board;
+  const flat = seq.flatten(mod.steps);
+  const ring = seq.evaluateSequence(flat, seq.sequenceBeats(flat, start), start).board;
+
+  // (a) THE WITNESS IS WHAT IT CLAIMS TO BE, checked before it is used, or the gate goes vacuous: four
+  //     FACING pairs at the measured distance, and stored pairs that are genuinely on opposite sides.
+  const phys = ring.dancers.filter((d) => !d.isGhost);
+  const taken = new Set();
+  const facingPairs = [];
+  for (const d of phys) {
+    if (taken.has(d.id)) continue;
+    for (const o of phys) {
+      if (o.id === d.id || taken.has(o.id) || o.gender === d.gender) continue;
+      const vx = o.x - d.x;
+      const vy = o.y - d.y;
+      const dist = Math.hypot(vx, vy);
+      const along = vx * Math.cos(d.heading) + vy * Math.sin(d.heading);
+      const perp = Math.abs(-vx * Math.sin(d.heading) + vy * Math.cos(d.heading));
+      if (dist < 1.4 || dist > 3.6 || along < 1.4 || perp > 1.5) continue;
+      taken.add(d.id);
+      taken.add(o.id);
+      facingPairs.push(dist);
+      break;
+    }
+  }
+  const byStored = new Map();
+  for (const d of phys) byStored.set(d.couple, [...(byStored.get(d.couple) ?? []), d]);
+  const storedGaps = [...byStored.values()].filter((p) => p.length === 2).map((p) => Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y));
+  if (facingPairs.length !== 4) fail(`the 7046 witness is not an Alamo ring: ${facingPairs.length} facing pair(s), not 4`);
+  else if (Math.max(...facingPairs) > 2.5) fail(`the 7046 witness pairs stand up to ${Math.max(...facingPairs).toFixed(2)} apart, not the measured ~2.3`);
+  else if (storedGaps.length !== 4 || Math.min(...storedGaps) <= 3.0) fail(`the 7046 witness's stored labels do NOT pair dancers on opposite sides (min gap ${Math.min(...storedGaps).toFixed(2)}), so it proves nothing about the reading`);
+  else ok(`the witness really is an Alamo ring: 4 pairs facing at ${Math.min(...facingPairs).toFixed(2)}-${Math.max(...facingPairs).toFixed(2)} units, stored pairs ${Math.min(...storedGaps).toFixed(1)}-${Math.max(...storedGaps).toFixed(1)} apart`);
+
+  // (b) THE RING IS READ FROM THE FLOOR: a half promenade from a ring that is half a turn out is home.
+  const half = seq.evaluateSequence(['Promenade 1/2'], PROMENADE_BEATS / 2, ring).board;
+  const diff = sameBoard(half, home);
+  if (diff) fail(`a "Promenade 1/2" from 7046's end ring should land exactly home (the ring is read as half a turn out): ${diff}`);
+  else ok('a "Promenade 1/2" from the Alamo ring lands exactly home, because the ring is read from its pairs');
+}
 // A promenade that does not apply must not teleport the board home mid-replay.
 {
   const box = startBoardFor(seq, corpus.alignments.find((x) => x.id === 'B2r'));

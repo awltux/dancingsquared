@@ -2329,6 +2329,62 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
   - `node engine/test/tools/promenade-travel-probe.mjs` and `promenade-corpus-play-probe.mjs` are the
     two new instruments; `anim-convergence` PASSES with its 7 pins unchanged and `behaviour-audit`
     148/0, `verify:light` all green.
+- **A RING'S COUPLES ARE THE FACING PAIRS, NOT THE STORED `couple` LABELS — HALF DONE, AND THE OTHER
+  HALF IS REFUTED BY MEASUREMENT.** The report was "they travel in different directions" on MS
+  `ceder-7046`'s end ring. `tools/ring-facing-probe.mjs` measures the board: it is an **Alamo ring** -
+  boys outside at radius 3.45, girls inside at 2.93, each pair FACING at 2.3 units with a side-offset of
+  0.01-0.05 - while the stored labels pair dancers 180 degrees apart with the SAME heading (the FASR
+  `o` reading).
+  - **A NEW INSTRUMENT FIRST**, because the corpus-wide scans cannot see any of this:
+    `tools/promenade-pair-probe.mjs` re-derives the pairs from the floor INDEPENDENTLY of the engine and
+    reports, over the boards the call applies to, whether a pair wheels together. MEASURED before this
+    round: **0** boards where a pair takes two different directions (the item-1 counter-clockwise fix
+    had already removed that), but **12 of 17** where a partner separation moves more than 0.5 units,
+    worst swing **6.15 units**, and on 7046 the four pair MIDPOINTS sweep a uniform **509 degrees** (the
+    ring does turn as one) while the two members of a pair disagree by **184 degrees**.
+  - **"WHEEL EACH PAIR RIGIDLY" IS REFUTED.** It was implemented - each pair taking its own midpoint's
+    sweep as a shared axis, with each member's offset from that axis held through the wheel and eased
+    out over a settle, which is the reference's own shape (Taminations wheels with `Counter Rotate` and
+    THEN does `Half Wheel Around` + `adjustToFormation`). MEASURED, and it is worse on every axis:
+    closest pair **0.055 -> 0.007** (`[L3c]`), largest quarter-beat move **1.180 -> 2.086**, and on a
+    half promenade **2 boards where the pair members take opposite directions** - the very thing the
+    change was for. A softer settle (half the call instead of a quarter) restores the collisions
+    (0.057) but leaves the peak move at **1.464** and still splits 2 pairs on the fraction.
+    **And it cannot achieve the gate in any case**: the partner separation swing is **5.79** against
+    the **5.59** it started at, because the swing is not made by the wheel at all. It is made by the END
+    BOARD - see below.
+  - **THE REASON IS THE IDENTITY MODEL, NOT THE PAIRING.** `promenadeHome` returns `makeSquaredSet()` BY
+    ID: every dancer to its OWN declared home spot. On an Alamo ring a floor pair's members are declared
+    into different couples - the pair (#1, #6) is declared couple 3 and couple 1 - so their homes are
+    **180 degrees apart** and ANY animation that converges must separate them by 180 degrees by the end
+    of the call. The only freedom is WHEN, and the four measurements above show that holding them
+    together and settling late is worse than the current smooth spread; the linear per-dancer trip is
+    the smoothest reconciliation there is. Making a promenade end with the pair at the MAN's home is
+    CALLERLAB's own "the Couples Promenade to the Man's home position" - i.e. applying the temporary
+    couple number to the RESULT - which is the change this repo reverted TWICE (it cost 2 figures;
+    `progression.ts`) and which contradicts "identity is data". **That is the real decision, and it is
+    the user's, not an animation tweak's.**
+  - **THE READING HALF IS DONE, AND IT IS FREE.** The pairing read at the point of use could only see
+    partners standing SIDE BY SIDE with the same heading, so on an Alamo ring it found no mate, returned
+    null and left the stored labels standing - whose "couple centres" are the MIDDLE OF THE SET (radius
+    **1.13**, against **3.00** for the real pairs). `progression.ts` now has a FACING pass for that
+    arrangement, behind a guard: it fires only when EVERY stored pair is outside the couple band, i.e.
+    when the board's own labels pair every dancer with somebody on the far side. MEASURED effect: a
+    `Promenade 1/2` from 7046's end ring ended **-90 degrees from home** and now ends **EXACTLY HOME**
+    (`tools/promenade-rotation-probe.mjs`), because the ring reads as half a turn out. Figures stay
+    **116 of 188**, get-out behaviour and conformance are byte-identical, `anim-convergence` keeps its 7
+    pins, `verify:light` green.
+  - **THE GUARD IS LOAD-BEARING, AND FINDING THAT OUT COST A CENSUS ROUND-TRIP.** Without it the facing
+    pass fires on `figm130` too, whose board is two squeezed LINES (floor pairs 1.5 apart, midpoints at
+    the four CORNERS) carrying one stored pair that IS inside the band, 2.50 apart. Pairs read off a
+    line are line adjacency, not couples, so the ring test fired on a body that is not a ring and refused
+    its `Promenade`: figures **116 -> 115**, three runs each way, and `tools/promenade-figure-stop-probe.mjs`
+    names the victim. The guard is the measurement that separates the two cases - the Alamo ring has all
+    four stored pairs ~6.0 apart, figm130 has one at 2.50. Gated in `promenade.mjs` §4c, which checks the
+    witness really is an Alamo ring before using it.
+  - **STILL OPEN, and it is the identity decision above**: on the 13 boards whose floor pairs and
+    declared couples disagree, a promenade still shows the couples separating. Its size is the same
+    before and after this round, and no animation change can reduce it.
 
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:
@@ -3287,8 +3343,11 @@ POC-facing rather than census-facing: the walk-through defect's **mechanisms 1, 
 parts-based `Swing Thru` animation, the coded calls that applied but animated nothing, and the
 parallel grouping the animator re-derived differently from the applicator), and **the ring's travel
 coming from the CALL** (the full `Promenade` from a squared set now wheels a full counter-clockwise
-circuit instead of standing still, and a ring move is no longer routed as an exchange). Then, in this
-order:
+circuit instead of standing still, and a ring move is no longer routed as an exchange). **The ring's
+couples are now read from the FLOOR too**, behind a guard, which is free: figures stay at 116. The
+rigid-pair WHEEL that was supposed to go with it is REFUTED by measurement and recorded in the
+walk-through section - it is worse on collisions and peak speed and cannot meet its own gate while
+`promenadeHome` homes every dancer to its own declared spot. Then, in this order:
 
 1. **Phase A's remaining queue** — the body errors the `setup-split.mjs` prefix scan names next
    (`Allemande Left` 3, `Sides Touch 1/4` 2, `Girls Run` 2, `Square Thru 4` 2, `Centers Swing Thru` 2,

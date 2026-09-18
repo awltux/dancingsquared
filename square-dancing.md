@@ -1247,5 +1247,56 @@ travelled by the half beat, exactly home at the last beat, and a fraction that t
 and its old "in motion, not home" check — which passed on a wobble, and on 0.000 of motion —
 is now a floor, with `[L.F1p]`'s worst dancer at **6.97** units by the half beat.
 
+**Done, and half refuted.** **A ring's couples are read from the FLOOR, not from the stored `couple`
+labels — and the pairs cannot be made to wheel rigidly while the identity model stands.** The report was
+"they travel in different directions" on MS `ceder-7046`'s end ring, which `tools/ring-facing-probe.mjs`
+measures as an **Alamo ring**: boys outside at radius 3.45, girls inside at 2.93, each pair FACING at
+2.3 units with a side-offset of 0.01-0.05, while the stored labels pair dancers 180 degrees apart with
+the same heading (the FASR `o` reading).
+
+A new instrument was needed before anything could be judged, because neither corpus-wide scan can see
+this class: `tools/promenade-pair-probe.mjs` re-derives the pairs from the floor INDEPENDENTLY of the
+engine. MEASURED: **0** boards where a pair takes two different directions (the counter-clockwise fix
+above had already removed the reported symptom), but **12 of 17** where a partner separation moves more
+than 0.5 units, worst swing **6.15 units**; on 7046 the four pair MIDPOINTS sweep a uniform **509
+degrees** while the two members of a pair disagree by **184 degrees**.
+
+**"Wheel each pair rigidly" was implemented and REFUTED.** Each pair took its own midpoint's sweep as a
+shared axis, each member's offset from that axis was held through the wheel and eased out over a settle —
+the reference's own shape, since Taminations wheels and THEN does `Half Wheel Around` +
+`adjustToFormation`. MEASURED worse on every axis: closest pair **0.055 → 0.007** (`[L3c]`), largest
+quarter-beat move **1.180 → 2.086**, and on a half promenade **2 boards where a pair's members take
+opposite directions**, the very thing the change was for. A softer settle restores the collisions (0.057)
+but leaves the peak move at **1.464** and still splits 2 pairs. And it cannot meet the stated gate:
+the separation swing is **5.79** against the **5.59** it started at, because the swing comes from the END
+BOARD, not from the wheel.
+
+**The cause is the identity model.** `promenadeHome` returns `makeSquaredSet()` BY ID — every dancer to
+its OWN declared home spot — so on an Alamo ring a floor pair's members (declared into couple 3 and
+couple 1) home **180 degrees apart**, and any converging animation must separate them by 180 degrees by
+the end. The only freedom is WHEN, and the measurements show holding them together and settling late is
+worse than the current smooth spread. Ending a promenade with the pair at the MAN's home is CALLERLAB's
+own "the Couples Promenade to the Man's home position", i.e. applying the temporary couple number to the
+RESULT — the change this repo reverted twice for 2 figures, and which contradicts "identity is data".
+That decision belongs to the project, not to an animation tweak.
+
+**The reading half IS done, and it is free.** The point-of-use pairing read could only see partners
+standing SIDE BY SIDE with the same heading, so on an Alamo ring it found no mate, returned null, and let
+the stored labels stand — whose "couple centres" are the MIDDLE OF THE SET (radius **1.13**, against
+**3.00** for the real pairs). `progression.ts` now has a FACING pass, guarded to fire only when EVERY
+stored pair is outside the couple band, i.e. when the labels pair every dancer with somebody on the far
+side. MEASURED: a `Promenade 1/2` from 7046's end ring ended **-90 degrees from home** and now ends
+**EXACTLY HOME** (`tools/promenade-rotation-probe.mjs`), because the ring reads as half a turn out.
+Figures stay **116 of 188**; get-out behaviour and conformance byte-identical; `anim-convergence` keeps
+its 7 pins; `verify:light` green.
+
+**The guard is load-bearing, and that cost a census round-trip.** Unguarded, the facing pass also fires on
+`figm130`, whose board is two squeezed LINES (floor pairs 1.5 apart, midpoints at the four CORNERS)
+carrying one stored pair that IS inside the band, 2.50 apart; pairs read off a line are line adjacency
+and not couples, so the ring test fired on a body that is not a ring and refused its `Promenade`:
+figures **116 → 115**, three runs each way, with `tools/promenade-figure-stop-probe.mjs` naming the
+victim. Gated in `promenade.mjs` §4c, which checks the witness really is an Alamo ring before using it.
+
+
 
 

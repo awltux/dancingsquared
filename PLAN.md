@@ -493,6 +493,53 @@ board. `scaleX = separation / 2` was **refuted** as the cause here (it collides 
 
 **Still open in this phase:** the queue below, minus `Heads Touch 1/4`.
 
+**RE-MEASURED, AND THE QUEUE IS SMALLER THAN THE REACH TABLE SUGGESTS — the intersection is what
+matters.** `setup-split.mjs`'s reach scan counts every figure with an unnamed board anywhere, and that
+is a SUPERSET: the allemande pose, the grand ring and a Fold are all legitimately unnamed, so
+`figm17` is "poisoned" and still runs end to end. The queue is the intersection of *blocked* and
+*poisoned*, and re-measuring it (`figure-census.mjs --ids` against the prefix scan) gives **19 figures
+— exactly the set the round-31 note records**, with the plan's own shorter list (3/2/2/2/2/2 for
+`Allemande Left`/`Sides Touch 1/4`/…) now STALE: the reach order today is `Boys Fold` 7,
+`Allemande Left` 5, `Square Thru 4` 3, then `Slide Thru`, `Girls Run`, `Centers Swing Thru`,
+`Star Thru`, `Boys Cross Fold` 2 each, and seven singletons. Of the 19:
+
+- **14 are already adjudicated** by the plan and must not be re-opened: `Boys Fold` 5 (two of them
+  closed outright as `Change Hands`/`Yellow Rock`, the tolerance route refuted), `Square Thru 4` 3
+  (the family-wide recorded measure), `Allemande Left` 2 (`Pass One`, a Phase D name no authority
+  defines), and the four `[W]`/pose cases.
+- **3 are SELECTION problems, not body errors**: `figm65` and `figm212` fail with `Unresolvable
+  selection: Centers` on an unnamed board, and `figm174` the same via `Centers Pass Thru`. That is
+  Phase C's active-set item, and `phase-a-queue-probe.mjs` prints the reason for each.
+- **2 have no defect at all** — `figm24` and `figm216` (`Girls Run`) are geometrically sound (closest
+  pair 2.00) and their next call is LEGAL; the figure simply fails further on. A body scan cannot fix
+  what is not broken.
+- **ONE is a genuine collision: `figm92`**, whose board has two dancers **0.32** apart.
+
+**AND THAT ONE IS FIXED — the minting call was not the poisoned one.** `figm92`'s chain is
+`Tag the Line | Face In | Star Thru | …`, and the collision is minted TWO CALLS UP: `Face In` produced
+headings of **-108 / -135 / -45 degrees**, off the 90-degree grid, and the `Star Thru` after it
+collapsed the set. The cause was in `moves.ts`: `faceInOutStates` aimed each dancer at the centre's
+EXACT bearing, which is not what the call is —
+
+> "Face In: Each individual turns in place **90 degrees**, turning toward the center of the set."
+> (CALLERLAB; Face Out is the same, turning away)
+
+— and on a Completed Double Pass Thru the corner dancers sit at 45 degrees to the centre, so the
+"aim" is a diagonal and the whole set leaves the grid. It is now a QUARTER TURN with the sense chosen
+by which way the centre lies, and CALLERLAB's own worked note is the shape gate: *"From General Lines,
+Tag the Line, Face In (or Face Out) ends in Facing Lines (or Lines Back-to-Back)"* — measured, every
+heading on the grid, every turn exactly 90 degrees, every dancer inward (or outward) afterwards.
+Gated in `sequencer.mjs`.
+
+**IT DOES NOT MOVE A FIGURE, AND THAT IS RECORDED RATHER THAN GLOSSED.** All three sides are unchanged
+— figures **116 of 188**, get-out **124 of 265**, FSM **155/92/43/19** — because `figm92` now stops one
+call later: the corrected `Face In` leaves a facing line **2 apart** and `Star Thru` has no setup at
+that separation, so the blocker becomes the compact-line spacing Phase B's `scaleX = separation / 2`
+recipe owns. It is kept for the same reason the plan kept `Fan the Top` and the `Do Sa Do` identity: a
+correctness fix with an authority citation and a gate, whose metric is unchanged. **The lesson is the
+phase's own — a call that STOPPED is a symptom, not an owner: the collision was attributed to
+`Star Thru` and belonged to `Face In`.**
+
 **Instrument:** `setup-split.mjs`'s prefix scan (names every intermediate board) and
 `facing-audit.mjs` (`pairs`/`closest`/`mutual`/`split` columns).
 **Gate:** poisoned chains fall; each cleared chain must land on a NAMED board, not merely run further.

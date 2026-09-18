@@ -177,6 +177,62 @@ const extent = (b) => {
 check(Math.abs(extent(hinge.board) - extent(waveBoard)) < 0.01,
   `the pivot rotates the set without growing it (extent ${extent(waveBoard).toFixed(2)} -> ${extent(hinge.board).toFixed(2)})`);
 
+console.log('== Sequencer: Face In / Face Out is a QUARTER TURN, not "point at the centre" ==');
+// CALLERLAB, verbatim: "Face In: Each individual turns in place 90 degrees, turning toward the center
+// of the set." / "Face Out: ... turning away from the center of the set."
+//
+// The engine used to aim each dancer at the centre's EXACT bearing instead, which is not a quarter
+// turn and puts a dancer on a diagonal wherever its position is not axis-aligned with the centre.
+// MEASURED on `figm92`: from a Completed Double Pass Thru, `Tag the Line, Face In` produced headings
+// of -108/-135/-45 degrees, the set came off the 90-degree grid, and the `Star Thru` after it
+// collapsed two dancers to 0.32 apart. The two properties below are what a pivot must have, and the
+// second one is what caught it: the headings stay on the grid.
+{
+  const QUARTER = Math.PI / 2;
+  const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+  const onGrid = (h) => Math.abs(h - Math.round(h / QUARTER) * QUARTER) < 1e-6;
+  const cdpd = seq.boardForFormation('Completed Double Pass Thru');
+  check(!!cdpd, 'the witness board exists: a Completed Double Pass Thru');
+  for (const [call, toward] of [['Face In', true], ['Face Out', false]]) {
+    const r = seq.applyToBoard(cdpd, call);
+    check(r.legal === true, `${call} is legal on the witness board`);
+    const cx = r.board.dancers.reduce((s, d) => s + d.x, 0) / r.board.dancers.length;
+    const cy = r.board.dancers.reduce((s, d) => s + d.y, 0) / r.board.dancers.length;
+    let grid = 0, quarter = 0, sense = 0;
+    for (const before of cdpd.dancers) {
+      const after = r.board.dancers.find((d) => d.id === before.id);
+      if (onGrid(after.heading)) grid++;
+      const turn = norm(after.heading - before.heading);
+      if (Math.abs(Math.abs(turn) - QUARTER) < 1e-6) quarter++;
+      // the sense: the signed angle from the old facing to the centre must match the turn's sign
+      const toCentre = norm(Math.atan2(cy - before.y, cx - before.x) - before.heading);
+      if (Math.sign(turn) === Math.sign(toward ? toCentre : -toCentre)) sense++;
+    }
+    const n = cdpd.dancers.length;
+    check(grid === n, `${call} leaves every heading on the 90-degree grid (${grid}/${n})`);
+    check(quarter === n, `${call} is a quarter turn for every dancer (${quarter}/${n})`);
+    check(sense === n, `${call} turns ${toward ? 'toward' : 'away from'} the centre for every dancer (${sense}/${n})`);
+  }
+  // ...and the SHAPE it lands on, which is CALLERLAB's own worked note: "From General Lines, Tag the
+  // Line, Face In (or Face Out) ends in Facing Lines (or Lines Back-to-Back)." Stated the way that
+  // does not depend on which axis the template happens to be drawn on: after `Face In` every dancer
+  // faces INWARD (its facing has a positive component toward the set centre) and after `Face Out`
+  // every dancer faces outward.
+  for (const [call, toward] of [['Face In', true], ['Face Out', false]]) {
+    const r = seq.applyToBoard(cdpd, call);
+    const cx = r.board.dancers.reduce((s, d) => s + d.x, 0) / r.board.dancers.length;
+    const cy = r.board.dancers.reduce((s, d) => s + d.y, 0) / r.board.dancers.length;
+    const facingInward = r.board.dancers.filter((d) => {
+      const inward = Math.hypot(cx - d.x, cy - d.y);
+      if (inward < 1e-9) return true;
+      const dot = Math.cos(d.heading) * ((cx - d.x) / inward) + Math.sin(d.heading) * ((cy - d.y) / inward);
+      return toward ? dot > 0 : dot < 0;
+    }).length;
+    const n = r.board.dancers.length;
+    check(facingInward === n, `${call} leaves every dancer facing ${toward ? 'inward' : 'outward'} (${facingInward}/${n}) — Facing Lines / Lines Back-to-Back`);
+  }
+}
+
 console.log('== Sequencer: a SCOPED catalogue call falls back to its generic reading ==');
 // "Heads Pass Thru" is BOTH a selection prefix and a catalogue title, so it takes the whole-board
 // path on the reasoning that the catalogue's own scoped tam knows best. It does - when it covers the

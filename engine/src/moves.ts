@@ -94,6 +94,25 @@ export function moveMatrix(d: DancerState, move: Move): Mat5 {
  * it (Face Out). Which way each dancer turns depends on its angle about the
  * centre, so the moves are not fixed matrices — computed per dancer. Returns a
  * list of per-dancer end states (in the same order as `dancers`).
+ *
+ * IT IS A QUARTER TURN, NOT "POINT AT THE CENTRE", and CALLERLAB says so outright:
+ *
+ *   "Face In: Each individual turns in place 90 degrees, turning toward the center of the set."
+ *   "Face Out: Each individual turns in place 90 degrees, turning away from the center of the set."
+ *
+ * The difference matters whenever a dancer is not axis-aligned with the centre. Aiming at the exact
+ * bearing leaves a dancer on a diagonal - from a Completed Double Pass Thru the corner dancer at
+ * (1,3) facing north has the centre at -108.4 degrees - and the whole set then sits off the 90-degree
+ * grid, so every later call that needs an axis facing refuses or mangles the board. MEASURED:
+ * `figm92`'s `Tag the Line, Face In` produced headings of -108/-135/-45 degrees, and the `Star Thru`
+ * after it collapsed the set to two dancers 0.32 apart. With the quarter turn it ends in the
+ * `Normal Lines` pattern, which is what CALLERLAB's own worked note promises ("From General Lines,
+ * Tag the Line, Face In (or Face Out) ends in Facing Lines (or Lines Back-to-Back)").
+ *
+ * The SENSE of the turn is what "toward the centre" decides: turn left when the centre is
+ * counter-clockwise of the dancer's facing, right when it is clockwise. Facing exactly away leaves
+ * the two senses equivalent and the left one is taken; `Face In` is called from dancers facing out,
+ * where the centre is never behind them along their own axis.
  */
 export function faceInOutStates(
   dancers: DancerState[],
@@ -101,10 +120,12 @@ export function faceInOutStates(
 ): DancerState[] {
   const cx = dancers.reduce((a, d) => a + d.x, 0) / dancers.length;
   const cy = dancers.reduce((a, d) => a + d.y, 0) / dancers.length;
+  const QUARTER = Math.PI / 2;
   return dancers.map((d) => {
-    const target = Math.atan2(cy - d.y, cx - d.x) + (towardCentre ? 0 : PI);
-    const turn = normAngle(target - d.heading);
-    // Normalise the turn to the shorter direction (-PI, PI].
+    const toCentre = Math.atan2(cy - d.y, cx - d.x);
+    const signed = normAngle(toCentre - d.heading);
+    const left = signed >= 0;
+    const turn = QUARTER * ((towardCentre ? left : !left) ? 1 : -1);
     return { x: d.x, y: d.y, heading: normAngle(d.heading + turn) };
   });
 }

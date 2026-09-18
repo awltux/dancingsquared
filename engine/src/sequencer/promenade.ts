@@ -88,6 +88,59 @@ export function promenadeAnchor(x: number, y: number): [number, number] {
 const uniqKey = (v: [number, number]) => `${v[0]},${v[1]}`;
 const axisAngle = (v: [number, number]) => Math.atan2(v[1], v[0]);
 
+/** One full turn, in radians. */
+const TAU = Math.PI * 2;
+
+/**
+ * How far a RING MOVE turns one dancer, counter-clockwise about the set centre, from the angle it
+ * starts at to the angle its end board puts it at. Both angles are `Math.atan2` results, so the
+ * result is in [0, 2pi).
+ *
+ * THE TRAVEL IS A PROPERTY OF THE CALL, NOT OF THE END BOARD. `Promenade` means "promenade until
+ * you are home", so its end board IS the home squared set - and from a squared set that is also the
+ * board the call started on. Any animation that derives its arc from the start->end difference
+ * therefore finds NOTHING to do and leaves all eight dancers standing while the timeline counts
+ * eight beats, which is the defect this exists to fix (`interpolateSegment`'s ring branch).
+ *
+ * THE DIRECTION IS CALLERLAB'S OWN ("Promenade Direction: Counter-clockwise"), and it is a
+ * correction here too: the shortest turn either way sends a ring that is more than half way home
+ * round the WRONG way.
+ */
+export function promenadeTrip(from: number, to: number): number {
+  let turn = (to - from) % TAU;
+  if (turn < 0) turn += TAU;
+  return turn;
+}
+
+/**
+ * THE LAP the set takes ON TOP of its trip home: a full turn when that trip is a quarter turn or
+ * less, otherwise nothing.
+ *
+ * IT IS CALLERLAB'S OWN RULE, from the Mainstream definitions' Comments: "Especially in singing
+ * calls, Promenade Home is usually more than a quarter of the way around the set. If not, dancers
+ * are often expected to add a full Promenade." The reference says the same thing in code:
+ * Taminations' `promenade_home.dart` repeatedly applies `Counter Rotate` - a quarter turn about the
+ * set centre, `counter_rotate.dart` sweeping `3 * anginc` with `anginc = pi/6` - until the dancer's
+ * location angle (`dancer.dart`'s `anglePosition`) comes back around its home anchor, and its
+ * `do/while` forces at least one application. From a squared set that is four of them: one lap.
+ *
+ * IT IS TAKEN BY THE WHOLE SET, AND THAT IS NOT A DETAIL. `lap` is the same number for all eight
+ * dancers, so it CANCELS out of every pairwise angle: dancer i sits at `as_i + (trip_i + lap) * t`,
+ * so the angle between i and j is `(as_i - as_j) + (trip_i - trip_j) * t` and the `lap` terms are
+ * gone. The relative geometry of the set over the whole call is therefore EXACTLY the trips', and
+ * this rule cannot collide two dancers that the trip alone would not. Applied PER DANCER it can,
+ * because the trips differ on a board whose couples do not sit on a true ring - some trips fall
+ * inside the quarter and some do not, and the set splits. MEASURED on the Zero Box template `B1c`,
+ * whose couples' midpoints are one per side in sequence but whose dancers are not on a ring:
+ * closest pair 1.905 with the lap shared, against 0.076 with it per dancer.
+ *
+ * The animation still ends exactly on the home board either way: a lap of 2pi is congruent to no
+ * lap at all, so every dancer lands on its own home spot.
+ */
+export function promenadeLap(trip: number): number {
+  return trip <= Math.PI / 2 + EPS ? TAU : 0;
+}
+
 /** Counter-clockwise turn from `from` to `to`, in (-180, 180]. */
 function ccwDelta(from: number, to: number): number {
   let d = ((to - from) * 180) / Math.PI;

@@ -1192,5 +1192,60 @@ so gender gating works on Set-formation boards and the false rejection the fabri
 rejected; and gender-based selections resolve on a synthesised board while the
 couple-based ones still do not (`UNKNOWN_COUPLE`).
 
+**Done.** **The ring's travel comes from the CALL, not from the end board.** Reported
+from the POC: "the dancers don't move, but the sequencer counts 8 beats". The mechanism
+is exact — `Promenade` means "promenade until you are home", so from a squared set its
+end board IS the board it started on, and `interpolateSegment`'s ring branch derived its
+whole arc from the start→end angle difference. Measured (`tools/promenade-instance-probe.mjs`):
+net travel **0° for all eight dancers** from home, against **±180°** for `Promenade 1/2`.
+The old route was also sign-ambiguous at half a turn, so a half promenade's partners took
+OPPOSITE directions.
+
+The rule is CALLERLAB's own Mainstream text: "Promenade Direction: Counter-clockwise", and
+"Promenade Home is usually more than a quarter of the way around the set. If not, dancers
+are often expected to add a full Promenade" — so a trip of a quarter turn or less becomes a
+full circuit, which is the case that matters because from home the trip is zero. The
+reference agrees and is the stronger evidence because it is an animation: Taminations has no
+`AnimatedCall('Promenade')` (its `ms/promenade.dart` is every QUALIFIED form), the coded
+table catches the bare name only to REFUSE it ("Use either Promenade Home or Promenade
+<fraction>"), and the form that does move — `Promenade Home` — repeatedly applies
+`Counter Rotate` (a quarter turn about the set centre) in a `do/while` until the dancer's
+location angle returns to its home anchor, i.e. four quarter turns from a squared set. The
+engine's bare `Promenade` is a documented bridge for All8's `--Prom`; what it lacked was
+the motion, and the motion now comes from `promenadeTrip` + `promenadeLap`.
+
+Measured after, over the 19 boards the call applies to (the 4 named formations + the 15
+All8 get-out start boards; `tools/promenade-travel-probe.mjs`): home net travel **0 → 360°
+for all 8**, end still exactly home; `Promenade 1/2` **±180° alternating → +180° for all 8**;
+worst closest pair **0.055 unchanged**, boards with a pair inside 1.0 **13 unchanged**,
+largest quarter-beat move **0.279 → 1.180**. It is a redistribution — `[P4p]` 0.076 → 0.764
+and `[B4c]` 0.055 → 0.093 improve while `[P3p]` 0.764 → 0.076 and `[B1p]` 0.881 → 0.138
+deepen, and a twentieth board outside that set, the body ceder-10530's `Right and Left Grand`
+leaves (the known limit recorded at 0.303 when the ring arc landed), goes **0.303 → 0.187**.
+**No board moves from a clean pass into the band** — every one that deepens was already inside
+1.0 — and they are all bodies whose stored "couple" is split across the set, whose fix is the
+facing-pair ring recorded in `HANDOVER.md` §4.2.
+
+Two mechanisms had to be separated by measurement rather than argument. **(a)** The
+CALLERLAB lap is decided ONCE for the whole set: being the same number for all eight it
+cancels out of every pairwise angle, so it cannot collide anyone the trip would not, where
+per dancer it can — measured on the Zero Box template `[B1c]`, **1.905 → 0.076 per dancer
+against 1.905 → 1.905 shared**. **(b)** A ring move is never an EXCHANGE: the exchange
+pairing runs first and a half promenade sends each dancer to the point diametrically
+opposite its own, so it paired dancers six units apart and swept them the same way round a
+shared midpoint until they met — measured closest pair **0.000** from `O In`, against 2.000
+for the wheel the call is; guarding that detection took the `Promenade 1/2` band **17 → 13**
+boards and its worst gap **0.000 → 0.127**.
+
+`sequence-anim-collision-scan.mjs` is BLIND to all of this and returns byte-identical
+numbers either side: of the 113 modules carrying a promenade step only **4 animate one**
+and all four are qualified CATALOGUE calls. That is why the corpus probe was written
+(`tools/promenade-corpus-play-probe.mjs`) and why the before/after is measured on the
+boards the CALL applies to. Gated in the same commit: `promenade.mjs` pins the shape and the
+direction exactly (a quarter turn counter-clockwise at the quarter beat to 1e-9, 6.32 units
+travelled by the half beat, exactly home at the last beat, and a fraction that takes no lap),
+and its old "in motion, not home" check — which passed on a wobble, and on 0.000 of motion —
+is now a floor, with `[L.F1p]`'s worst dancer at **6.97** units by the half beat.
+
 
 

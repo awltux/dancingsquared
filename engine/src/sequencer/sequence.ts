@@ -26,6 +26,7 @@ import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
 import { normAngle } from './identity.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { findCodedMove, codedMoveApplies, type CodedMove } from './coded-moves.js';
+import { promenadeTrip, promenadeLap } from './promenade.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, CallStep, SeqDancer, VariantMatch } from './types.js';
 import type { CallBundle } from '../types.js';
@@ -132,10 +133,10 @@ export class SequenceAnalyzer {
         : legs.length - 1;
       const from = idx === 0 ? board : legs[idx - 1];
       const tf = legBeats > 0 ? Math.max(0, Math.min(1, (localBeat - idx * legBeats) / legBeats)) : 1;
-      return this.interpolateSegment(from, legs[idx], tf, false);
+      return this.interpolateSegment(from, legs[idx], tf, null);
     }
     const t = Math.max(0, Math.min(1, move.beats > 0 ? localBeat / move.beats : 1));
-    return this.interpolateSegment(board, move.apply(board), t, !!move.ringMove);
+    return this.interpolateSegment(board, move.apply(board), t, move.ringMove ? { home: !!move.ringHome } : null);
   }
 
   /**
@@ -153,8 +154,10 @@ export class SequenceAnalyzer {
    *
    * A RING MOVE (`Promenade` and its fractions) wheels the whole set around the ring, so it is
    * interpolated in POLAR coordinates about the set centre: the radius eases and the angle sweeps.
+   * The SWEEP comes from the CALL and not from the end board - see `promenadeSweep`, and the ring
+   * branch below for the defect that distinction fixes. `ring` is null for every non-ring segment.
    */
-  private interpolateSegment(board: Board, end: Board, t: number, ring: boolean): Board {
+  private interpolateSegment(board: Board, end: Board, t: number, ring: { home: boolean } | null): Board {
     const endById = new Map(end.dancers.map((d) => [d.id, d]));
     const phys = board.dancers.filter((d) => !d.isGhost);
     const cx = phys.length ? phys.reduce((s, d) => s + d.x, 0) / phys.length : 0;
@@ -164,21 +167,32 @@ export class SequenceAnalyzer {
     // EXCHANGE PAIRS: i ends where j started and j ends where i started. The tolerance is loose
     // because the ends are snapped board positions, and a pair whose dancers were further apart than
     // this is not an exchange of neighbours.
+    //
+    // A RING MOVE IS NEVER AN EXCHANGE, and this is not a shortcut: the exchange routing keeps the
+    // two dancers diametrically opposite about the pair's OWN midpoint while BOTH orbit it, which is
+    // the right shape for two neighbours trading places and the wrong one for a wheel. A half
+    // promenade from a squared set sends every dancer to the point diametrically opposite its own -
+    // so the detection pairs it with the dancer standing THERE, six units away - and the two then
+    // sweep opposite ways about a shared midpoint and MEET IN THE MIDDLE: measured closest pair
+    // 0.000 from `O In` and 0.448 from a Static Square, against 2.000 for the wheel the call is. So
+    // the ring branch below must own every dancer of a ring move, and `partner` stays empty here.
     const EXCH = 0.35;
     const partner = new Map<number, number>();
-    for (const a of phys) {
-      if (partner.has(a.id)) continue;
-      const ea = endById.get(a.id);
-      if (!ea) continue;
-      for (const b of phys) {
-        if (b.id === a.id || partner.has(b.id)) continue;
-        const eb = endById.get(b.id);
-        if (!eb) continue;
-        if (Math.hypot(a.x - b.x, a.y - b.y) < EXCH) continue;
-        if (Math.hypot(a.x - eb.x, a.y - eb.y) < EXCH && Math.hypot(b.x - ea.x, b.y - ea.y) < EXCH) {
-          partner.set(a.id, b.id);
-          partner.set(b.id, a.id);
-          break;
+    if (!ring) {
+      for (const a of phys) {
+        if (partner.has(a.id)) continue;
+        const ea = endById.get(a.id);
+        if (!ea) continue;
+        for (const b of phys) {
+          if (b.id === a.id || partner.has(b.id)) continue;
+          const eb = endById.get(b.id);
+          if (!eb) continue;
+          if (Math.hypot(a.x - b.x, a.y - b.y) < EXCH) continue;
+          if (Math.hypot(a.x - eb.x, a.y - eb.y) < EXCH && Math.hypot(b.x - ea.x, b.y - ea.y) < EXCH) {
+            partner.set(a.id, b.id);
+            partner.set(b.id, a.id);
+            break;
+          }
         }
       }
     }
@@ -186,6 +200,26 @@ export class SequenceAnalyzer {
     const straight = (d: Board['dancers'][number], e: Board['dancers'][number], heading: number) => ({
       ...d, x: d.x + (e.x - d.x) * t, y: d.y + (e.y - d.y) * t, heading,
     });
+
+    // THE LAP IS DECIDED ONCE FOR THE WHOLE SET, before any dancer is placed. It is the CALLERLAB
+    // rule "add a full Promenade" for a trip of a quarter turn or less (see `promenadeLap`), and
+    // because it is the SAME number for all eight dancers it cancels out of every pairwise angle -
+    // so the set's relative geometry over the call is exactly the trips', and this can never collide
+    // two dancers that the trip alone would not. Deciding it per dancer is what turns a fix into a
+    // new defect on a board whose couples are not on a true ring; the measurement is in
+    // `promenadeLap`. The ring's rotation is the SMALLEST trip any dancer must make - the couple
+    // nearest its home side tells you how far round the set already is.
+    let lap = 0;
+    if (ring?.home) {
+      let smallest = Infinity;
+      for (const d of phys) {
+        const e = endById.get(d.id);
+        if (!e) continue;
+        if (Math.hypot(d.x - cx, d.y - cy) < 1e-6 || Math.hypot(e.x - cx, e.y - cy) < 1e-6) continue;
+        smallest = Math.min(smallest, promenadeTrip(Math.atan2(d.y - cy, d.x - cx), Math.atan2(e.y - cy, e.x - cx)));
+      }
+      if (Number.isFinite(smallest)) lap = promenadeLap(smallest);
+    }
 
     return {
       dancers: board.dancers.map((d) => {
@@ -220,11 +254,35 @@ export class SequenceAnalyzer {
         const as = Math.atan2(d.y - cy, d.x - cx);
         const ae = Math.atan2(e.y - cy, e.x - cx);
         const r = rs + (re - rs) * t;
-        // Each dancer takes its OWN shortest sweep. A common sweep was tried and MEASURED WORSE on
-        // the case that prompted this (0.098 against 0.303), because that board is not a rigid
-        // rotation of the square - see the probe, which shows partners needing opposite sweeps and
-        // standing 5.8 apart. Forcing one angle then drags half the set across the other half.
-        const a = as + shortest(as, ae) * t;
+        // THE SWEEP IS THE CALL'S, NOT THE END BOARD'S, and this is the whole of a real defect. A
+        // `Promenade` is "promenade until you are home", so from a squared set its end board IS the
+        // board it started on: start and end angles coincide, and a sweep derived from their
+        // difference is zero for all eight dancers while the timeline counts eight beats. Reported
+        // as "the dancers don't move, but the sequencer counts 8 beats". `promenadeTrip` is the
+        // counter-clockwise angle to the home side and `lap` is added on top, so from a squared set
+        // the call is one full circuit. The end board is still reached exactly: trip and lap
+        // together are congruent to the start->end difference modulo a whole turn.
+        //
+        // COUNTER-CLOCKWISE IS NOT A PREFERENCE, it is the promenade direction ("Promenade
+        // Direction: Counter-clockwise") and it has to be DETERMINISTIC, which the old
+        // `shortest(as, ae)` was not: a turn of half a turn has no shorter side, so `normAngle`
+        // returned the sign per dancer and split the set. MEASURED on a half promenade - the case
+        // whose trip IS half a turn - taking each dancer's own shortest route collapsed seven of
+        // the nineteen boards to closest pair 0.000, against 0.127 for the counter-clockwise route.
+        //
+        // A COMMON ANGLE WAS TRIED BEFORE AND MEASURED WORSE (0.098 against 0.303) on the board that
+        // prompted the ring branch. That is not this: it forced one ANGLE, i.e. one trip, on a board
+        // whose partners need different trips and stand 5.8 apart, dragging half the set across the
+        // other half. Each dancer still takes its own trip here, and only the lap is shared.
+        //
+        // THE COUNTER-CLOCKWISE ROUTE IS MEASURED AGAINST THE OLD ONE on the 15 All8 get-out boards
+        // the call applies from, and it is a redistribution rather than a loss: across the nineteen
+        // boards the count with a pair inside 1.0 is unchanged at 13 and the worst gap unchanged at
+        // 0.055, with `[P4p]` 0.076 -> 0.764 and `[B4c]` 0.055 -> 0.093 better and `[P3p]` 0.764 ->
+        // 0.076 and `[B1p]` 0.881 -> 0.138 deeper. The two that deepen are bodies where a "couple"
+        // is split across the set, so the counter-clockwise route sends one partner the long way
+        // - the ring these calls should be read from, which the stored couple labels do not give.
+        const a = as + (promenadeTrip(as, ae) + lap) * t;
         return { ...d, x: cx + r * Math.cos(a), y: cy + r * Math.sin(a), heading };
       }),
     };
@@ -555,7 +613,7 @@ export class SequenceAnalyzer {
     if (free.length) {
       const from: Board = { dancers: free.map((d) => ({ ...d })) };
       const to: Board = { dancers: free.map((d) => ({ ...endById.get(d.id)! })) };
-      for (const d of this.interpolateSegment(from, to, t, false).dancers) {
+      for (const d of this.interpolateSegment(from, to, t, null).dancers) {
         posed.set(d.id, { x: d.x, y: d.y, heading: d.heading });
       }
     }

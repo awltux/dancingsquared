@@ -2256,6 +2256,79 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
 - **ALSO RECORDED**: `behaviour-audit.mjs`'s convergence gate allows 0.5 units / 0.1 rad, which cannot
   catch a class whose worst member is 0.1476 on the single-call sample — tighten it when the root is
   fixed (`anim-convergence`'s empty pin already gates the corpus-facing property).
+- **A FULL `Promenade` FROM A SQUARED SET DID NOT MOVE, AND THE TRAVEL WAS NEVER THE CALL'S. DONE.**
+  The report was "the dancers don't move, but the sequencer counts 8 beats". The mechanism is exact:
+  `Promenade` means "promenade until you are home", so `promenadeHome` returns the home squared set —
+  and FROM a squared set that is also the board the call STARTED on. `interpolateSegment`'s ring branch
+  derived the whole arc from the start→end angle difference, so the difference was zero for all eight
+  dancers. MEASURED (`tools/promenade-instance-probe.mjs`): net travel **0° for all 8**, against
+  **±180°** for the same call's `Promenade 1/2`. It has never animated in this repo's history (commit
+  `a753955`, which introduced the ring arc, records that same 0.000 in its own message), so this is a
+  missing mechanism rather than a regression.
+  - **THE AUTHORITY IS CALLERLAB'S OWN COMMENT, and the direction is CALLERLAB's too**: "Promenade
+    Direction: Counter-clockwise", and "Especially in singing calls, Promenade Home is usually more
+    than a quarter of the way around the set. **If not, dancers are often expected to add a full
+    Promenade**." So the trip is the counter-clockwise angle to the home side and a trip of a quarter
+    turn or less becomes a full circuit — which is the case that matters, because from home it is zero.
+  - **THE REFERENCE AGREES, AND IT IS AN ANIMATION RATHER THAN A DESCRIPTION.** Taminations has no
+    `AnimatedCall('Promenade')` at all: `ms/promenade.dart`'s 24 entries are every QUALIFIED form
+    (`Heads/Sides/All 4 Couples Promenade <1/4…Full>`, `Star Promenade`, `Single File`, Wrong-Way), and
+    the coded table catches the bare name with `'Promenade(Home)?' → PromenadeHome`, whose
+    `performCall` **refuses a bare `Promenade`** ("Use either Promenade Home or Promenade <fraction>").
+    The instance that does exist and does move is `Promenade Home`: it repeatedly applies
+    `Counter Rotate` — a quarter turn about the set centre, `counter_rotate.dart` sweeping
+    `3 * anginc` with `anginc = pi/6` — in a `do/while` until the dancer's `location.angle` (its
+    `anglePosition`) comes back around its home anchor, which from a squared set is four of them. The
+    engine's bare `Promenade` is a bridge for All8's `--Prom` and is documented as such; what it did
+    not have was the motion, and the reference is where the motion comes from.
+  - **IMPLEMENTED**: `promenadeTrip` (counter-clockwise, `[0, 2pi)`) replaces `shortest`, and
+    `promenadeLap` adds the CALLERLAB full turn, both in `promenade.ts`; the ring branch takes them
+    from `CodedMove.ringHome`. **MEASURED**: home `Promenade` net travel **0 → 360° for all 8**, end
+    still exactly home; `Promenade 1/2` **±180° alternating → +180° for all 8** (the old route was sign
+    ambiguous at half a turn, so partners went opposite ways).
+  - **THE LAP IS DECIDED ONCE FOR THE WHOLE SET, AND THAT IS A MEASUREMENT, NOT A PREFERENCE.** The
+    same number for all eight dancers CANCELS out of every pairwise angle, so the set's relative
+    geometry over the call is exactly the trips' and the lap cannot collide anyone the trip would not.
+    Per dancer it can, because on a board whose couples are not a ring the trips differ and some fall
+    inside the quarter while others do not. MEASURED (`tools/promenade-travel-probe.mjs`, 19 boards =
+    the 4 named formations the call applies to + the 15 All8 get-out start boards): the Zero Box
+    template **`[B1c]` 1.905 → 0.076 per dancer, 1.905 → 1.905 shared**.
+  - **A RING MOVE IS NEVER AN EXCHANGE, and that was a second live defect.** The exchange-pair
+    detection runs before the ring branch, and a half promenade sends every dancer to the point
+    diametrically opposite its own — so it paired a dancer with whoever stood there, six units away,
+    and the two swept opposite ways about their shared midpoint and MET IN THE MIDDLE. MEASURED:
+    closest pair **0.000 from `O In`** and 0.448 on three more, against 2.000 for the wheel the call
+    is. Guarding that detection to non-ring segments fixed all four; `Promenade 1/2`'s band went
+    **17 → 13** boards and its worst gap **0.000 → 0.127**.
+  - **THE CORPUS-WIDE COLLISION SCAN CANNOT SEE ANY OF THIS, which is worth knowing before quoting
+    it.** `sequence-anim-collision-scan.mjs` returns byte-identical numbers before and after, because
+    of the 113 modules carrying a promenade step **only 4 animate one and all four are QUALIFIED
+    CATALOGUE calls**; the rest are Ceder prose that fails to parse, and the bare coded `Promenade` is
+    reached by NO module (`tools/promenade-corpus-play-probe.mjs` is the measurement of that, and is
+    the reason `promenade-travel-probe.mjs` exists). An instrument's silence is not a pass.
+  - **WHAT IT COSTS, measured rather than claimed.** Across the 19 boards: full `Promenade` closest
+    pair **0.055 unchanged**, boards with a pair inside 1.0 **13 unchanged**, non-rigid **16
+    unchanged**, largest quarter-beat move **0.279 → 1.180** (the motion). It is a REDISTRIBUTION:
+    `[P4p]` 0.076 → 0.764 and `[B4c]` 0.055 → 0.093 improve, `[P3p]` 0.764 → 0.076 and `[B1p]` 0.881 →
+    0.138 deepen. A twentieth board outside that set deepens too: the body ceder-10530's
+    `Right and Left Grand` leaves, which is the KNOWN LIMIT commit `a753955` recorded at 0.303,
+    goes **0.303 → 0.187** (`tools/promenade-anim-probe.mjs`). **No board moves from a clean pass
+    into the band** — all five that deepen were already inside 1.0 — and the two that deepen are
+    bodies where a stored "couple" is split across the set, so the counter-clockwise route sends one
+    partner the long way. **That is the next item's job** — the ring these calls should be read from
+    is the FACING pairs' (see the `7046` Alamo-ring entry in `HANDOVER.md` §4.2 and
+    `tools/ring-facing-probe.mjs`), and the stored `couple` labels are the FASR `o` reading, which
+    pairs dancers 180° apart with the same heading.
+  - **GATED IN THE SAME COMMIT**: `promenade.mjs` now pins the shape, the direction and the magnitude
+    exactly — from home, a quarter of the way in every dancer is a quarter turn counter-clockwise
+    (tolerance 1e-9), half way in every dancer is on the opposite side and has travelled **6.32**
+    units, the last beat is exactly home, and `Promenade 1/2` is a quarter round at its own half way
+    (so the full call's lap cannot leak into a fraction). Its old "in motion, not home" check passed on
+    a wobble and is now a floor: `[L.F1p]`'s worst dancer moves **6.97** units by the half beat, where
+    from home the old derivation moved **0.000**.
+  - `node engine/test/tools/promenade-travel-probe.mjs` and `promenade-corpus-play-probe.mjs` are the
+    two new instruments; `anim-convergence` PASSES with its 7 pins unchanged and `behaviour-audit`
+    148/0, `verify:light` all green.
 
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:
@@ -3212,7 +3285,10 @@ item 1 (the temporary couple number, +2 figures).** One attempted phase is REFUT
 swing's local closure end pose (103 → 95). Also DONE, and outside the phase list because it is
 POC-facing rather than census-facing: the walk-through defect's **mechanisms 1, 2 and 3** (the
 parts-based `Swing Thru` animation, the coded calls that applied but animated nothing, and the
-parallel grouping the animator re-derived differently from the applicator). Then, in this order:
+parallel grouping the animator re-derived differently from the applicator), and **the ring's travel
+coming from the CALL** (the full `Promenade` from a squared set now wheels a full counter-clockwise
+circuit instead of standing still, and a ring move is no longer routed as an exchange). Then, in this
+order:
 
 1. **Phase A's remaining queue** — the body errors the `setup-split.mjs` prefix scan names next
    (`Allemande Left` 3, `Sides Touch 1/4` 2, `Girls Run` 2, `Square Thru 4` 2, `Centers Swing Thru` 2,

@@ -311,6 +311,12 @@ export interface CodedMove {
    * `SequenceAnalyzer.evaluateCodedAt`, where the linear form made every dancer cut through the
    * middle of the square. */
   ringMove?: boolean;
+  /** A ring move whose travel is TO HOME rather than to the board its fraction names, so its arc
+   * cannot be read off the start->end difference: `Promenade` / `Promenade Home`. See
+   * `promenadeSweep`, which also carries CALLERLAB's "add a full Promenade" rule for a trip of a
+   * quarter turn or less - the case that matters, because from home the trip is zero and the end
+   * board is the start board. */
+  ringHome?: boolean;
   /**
    * The INTERMEDIATE boards a multi-part coded move passes through, for the ANIMATION only.
    *
@@ -336,6 +342,7 @@ const DEFS: {
   boxedBy?: string;
   collisionCheck?: (b: Board) => string | null;
   ringMove?: boolean;
+  ringHome?: boolean;
   legs?: (b: Board) => Board[] | null;
 }[] = [
   // `Join Hands` IS NOT A CALL WITH A BODY, and implementing it as one would be wrong. CALLERLAB
@@ -363,7 +370,7 @@ const DEFS: {
   { aliases: ['Face Out', 'Turn Out'], fn: (b) => applyFaceInOutToBoard(b, false) },
   // Promenade: the standard finish. Unlike the pivots above it is NOT always
   // legal, so it carries its precondition and reports the reason it fails.
-  { aliases: PROMENADE_ALIASES, beats: PROMENADE_BEATS, precondition: promenadeProblem, fn: (b) => promenadeHome(b).board, ringMove: true },
+  { aliases: PROMENADE_ALIASES, beats: PROMENADE_BEATS, precondition: promenadeProblem, fn: (b) => promenadeHome(b).board, ringMove: true, ringHome: true },
   // `Promenade 1/2` — the ring turned half way round instead of home (All8's `Pr1/2`). Only the half
   // is registered, because only the half has a witness: `All Promenade 1/2` is `figm86`'s first call
   // and the figure then runs end-to-end from the rotated square, while `Promenade 3/4` and
@@ -549,6 +556,7 @@ export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   ...(d.boxedBy ? { boxedBy: d.boxedBy } : {}),
   ...(d.collisionCheck ? { collisionCheck: d.collisionCheck } : {}),
   ...(d.ringMove ? { ringMove: true } : {}),
+  ...(d.ringHome ? { ringHome: true } : {}),
   ...(d.legs ? { legs: d.legs } : {}),
 })) as CodedMove[];
 

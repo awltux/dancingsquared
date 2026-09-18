@@ -266,10 +266,107 @@ else ok('a promenade from home is a zero (it returns home in sequence, facing re
   const half = seq.evaluateSequence(['Promenade'], PROMENADE_BEATS / 2, from).board;
   const diff = sameBoard(half, home);
   if (!diff) fail('the board half way through a promenade is already home (it should be in motion)');
-  else ok('half way through a promenade the board is in motion, not home');
+  // "In motion" used to be checked as "not home", which a wobble passes. A half-beat of a
+  // promenade is a long way round the ring, so the tightening is a FLOOR on how far the worst
+  // dancer has actually travelled from the board it started on.
+  let moved = 0;
+  {
+    const by = new Map(half.dancers.map((d) => [d.id, d]));
+    for (const d of from.dancers) {
+      const e = by.get(d.id);
+      if (e) moved = Math.max(moved, Math.hypot(e.x - d.x, e.y - d.y));
+    }
+  }
+  if (moved < 1.0) {
+    fail(`half way through a promenade from [L.F1p] the worst dancer has moved only ${moved.toFixed(3)} units of the 4 units it must - the call is not dancing`);
+  } else ok(`half way through a promenade from [L.F1p] the board is in motion, not home (worst dancer ${moved.toFixed(2)} units from its start)`);
   const endDiff = sameBoard(seq.evaluateSequence(['Promenade'], PROMENADE_BEATS, from).board, home);
   if (endDiff) fail(`at the last beat of a promenade the board is not home: ${endDiff}`);
   else ok('at the last beat of a promenade the board is exactly home');
+}
+
+// ------------------------------------------- 4b. the ring's travel comes from the CALL
+//
+// A FULL `Promenade` IS "promenade until you are home", so FROM HOME its end board IS the board it
+// started on - and an animation that derives its arc from the start->end difference then has nothing
+// to sweep and leaves all eight dancers standing while the timeline counts eight beats. That is the
+// POC report this gate exists for ("the dancers don't move, but the sequencer counts 8 beats"), and
+// the CALLERLAB definitions are the rule that fixes it: "Promenade Direction: Counter-clockwise",
+// and "Especially in singing calls, Promenade Home is usually more than a quarter of the way around
+// the set. If not, dancers are often expected to add a full Promenade." So from a squared set the
+// call is one full circuit counter-clockwise. The reference agrees and it is the stronger evidence
+// because it is an animation: Taminations' `promenade_home.dart` repeatedly applies `Counter Rotate`
+// (a quarter turn about the set centre) in a `do/while` until the dancer's location angle returns to
+// its home anchor, which from a squared set is four of them.
+//
+// The primitives below pin the SHAPE, the DIRECTION and the MAGNITUDE in one measurement each, and
+// they are exact rather than approximate: the arc is `as + (trip + lap) * t` at the ring's own
+// radius, so a quarter of the way through the call every dancer is a quarter turn counter-clockwise
+// from where it started, to floating-point precision.
+console.log('\n== 4b. a full promenade from home is one counter-clockwise circuit ==');
+{
+  const centre = (b) => {
+    const p = b.dancers.filter((d) => !d.isGhost);
+    return { x: p.reduce((s, d) => s + d.x, 0) / p.length, y: p.reduce((s, d) => s + d.y, 0) / p.length };
+  };
+  /** The same board turned `turn` radians counter-clockwise about its own centre. Positions only:
+   * a ring move eases each dancer's FACING towards the end board's, so only the wheel is compared. */
+  const spin = (b, turn) => {
+    const c = centre(b);
+    const cos = Math.cos(turn);
+    const sin = Math.sin(turn);
+    return {
+      dancers: b.dancers.map((d) => {
+        const x = d.x - c.x;
+        const y = d.y - c.y;
+        return { ...d, x: c.x + x * cos - y * sin, y: c.y + x * sin + y * cos };
+      }),
+    };
+  };
+  const worstGap = (a, b) => {
+    const by = new Map(b.dancers.map((d) => [d.id, d]));
+    let worst = 0;
+    for (const d of a.dancers) {
+      const e = by.get(d.id);
+      if (!e) return Infinity;
+      worst = Math.max(worst, Math.hypot(d.x - e.x, d.y - e.y));
+    }
+    return worst;
+  };
+
+  const quarter = worstGap(seq.evaluateSequence(['Promenade'], PROMENADE_BEATS / 4, home).board, spin(home, Math.PI / 2));
+  if (quarter > 1e-9) fail(`a quarter of the way through a full promenade, the worst dancer is ${quarter.toFixed(4)} units from a quarter turn counter-clockwise (it must be exact)`);
+  else ok('a quarter of the way in, every dancer is exactly a quarter turn counter-clockwise from home');
+
+  const opposite = seq.evaluateSequence(['Promenade'], PROMENADE_BEATS / 2, home).board;
+  const half = worstGap(opposite, spin(home, Math.PI));
+  if (half > 1e-9) fail(`half way through a full promenade, the worst dancer is ${half.toFixed(4)} units from the opposite side of the set (it must be exact)`);
+  else ok('half way in, every dancer is exactly on the opposite side of the set - it is dancing, not standing still');
+
+  // The floor the whole gate is about: a promenade from home MOVES every dancer. The squared set's
+  // dancers stand 3 from the centre, so half a circuit is 6 units, and the old derivation moved
+  // them 0.000.
+  let moved = 0;
+  {
+    const by = new Map(opposite.dancers.map((d) => [d.id, d]));
+    for (const d of home.dancers) {
+      const e = by.get(d.id);
+      if (e) moved = Math.max(moved, Math.hypot(e.x - d.x, e.y - d.y));
+    }
+  }
+  if (moved < 5.0) fail(`half way through a full promenade from home the worst dancer has moved only ${moved.toFixed(3)} units`);
+  else ok(`and each dancer has travelled ${moved.toFixed(2)} units by then`);
+
+  const endDiff = sameBoard(seq.evaluateSequence(['Promenade'], PROMENADE_BEATS, home).board, home);
+  if (endDiff) fail(`the last beat of a full promenade is not exactly home: ${endDiff}`);
+  else ok('and the last beat is exactly home again, facing restored');
+
+  // A FRACTION CARRIES ITS OWN TRAVEL and takes no lap: its end board is the home ring turned by
+  // the fraction, so half way through a half it is a QUARTER turn round - not the three quarters a
+  // leaked full lap would make it.
+  const halfOfHalf = worstGap(seq.evaluateSequence(['Promenade 1/2'], PROMENADE_BEATS / 4, home).board, spin(home, Math.PI / 2));
+  if (halfOfHalf > 1e-9) fail(`half way through a half promenade the worst dancer is ${halfOfHalf.toFixed(4)} units from a quarter turn counter-clockwise (the fraction must not take the full call's lap)`);
+  else ok('half way through a "Promenade 1/2" the dancers are a quarter round, so the fraction takes no lap');
 }
 // A promenade that does not apply must not teleport the board home mid-replay.
 {

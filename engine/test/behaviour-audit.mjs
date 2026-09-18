@@ -13,6 +13,7 @@
 // which do not run in Node). Unknown/unparseable files are skipped.
 
 import { readdirSync, readFileSync } from 'node:fs';
+import { callsByTitle } from './lib/engine-calls.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
@@ -822,6 +823,57 @@ console.log('\n== The animation lands on the applied board (feature: sequence_re
   check(worstPos < 0.5 && worstAng < 0.1,
     'the last animated frame lands on the applied board (no jump on the final beat)',
     `${checked} calls; worst dPos=${worstPos.toFixed(4)} dAng=${(worstAng * 180 / Math.PI).toFixed(2)}deg at ${worstAt}`);
+
+  // 3. A SELECTION step animates ONLY the dancers the call moved.
+  //
+  // `replayWalk` stores the board from `applyToBoard(board, RAW)` - selection included - while
+  // `evaluateSequence` used to animate the BARE call, so for `{ selection: 'Heads', call: ... }` the
+  // unselected dancers stood still in the stored board and were dragged across the floor in the
+  // animation. That was the real owner of the reported "the last frame jumps": MEASURED by
+  // `engine/test/tools/last-frame-owner-probe.mjs`, 84 of the 86 corpus modules whose last frame moved
+  // a dancer had a selection on the step that owned the jump, and on 83 the raw-step and bare-name
+  // applies differed by EXACTLY the jump (worst 6.32 units). This is the primitive witness: from a
+  // squared set the Sides must not move at any beat, and the Heads must land on the applied board.
+  // A LOCAL SEQUENCER, and the reason is a real difference between harnesses: this one registers calls
+  // by FILENAME SLUG (`{ name: base, xml }`, see the top of this file), so a title-based selection step
+  // cannot resolve here - every candidate comes back "\"Pass Thru\" not legal for selected dancers".
+  // The engine's own title-keyed construction is `callsByTitle`, which is what the POC and the engine
+  // probes use, so the gate builds one. Building it from THIS harness's `calls` is how a gate measures
+  // the harness instead of the engine.
+  const selSeq = new Sequencer(movesXml, formationsXml, callsByTitle(path.join(root, 'poc/src/assets')));
+  const selStart = selSeq.boardForFormation('Static Square');
+  const selCandidates = ['Pass Thru', 'Square Thru 3', 'Star Thru', 'Right and Left Thru']
+    .map((call) => ({ selection: 'Heads', call }));
+  const selApplied = selCandidates.map((s) => ({ s, r: selSeq.applyToBoard(selStart, s) }));
+  const selPick = selApplied.find((x) => x.r.legal);
+  const selStep = selPick?.s;
+  const selRes = selPick?.r;
+  check(!!selPick, `a selection step applies from a squared set (${selCandidates.map((c) => c.call).join(', ')})`,
+    selApplied.map((x) => `${x.s.call}: ${x.r.legal ? 'legal' : x.r.reason}`).join(' | '));
+  if (selPick && selRes) {
+    const selFlat = [selStep];
+    const selBeats = selSeq.sequenceBeats(selFlat, selStart);
+    const movedIds = new Set(selRes.board.dancers.filter((d) => {
+      const s = selStart.dancers.find((x) => x.id === d.id);
+      return !s || Math.hypot(d.x - s.x, d.y - s.y) > 1e-9 || angDiff(d.heading, s.heading) > 1e-9;
+    }).map((d) => d.id));
+    let stillWorst = 0;
+    for (let b = 0; b <= selBeats + 1e-9; b += 0.25) {
+      for (const d of selSeq.evaluateSequence(selFlat, Math.min(b, selBeats), selStart).board.dancers) {
+        if (movedIds.has(d.id)) continue;
+        const s = selStart.dancers.find((x) => x.id === d.id);
+        if (s) stillWorst = Math.max(stillWorst, Math.hypot(d.x - s.x, d.y - s.y));
+      }
+    }
+    check(stillWorst < 1e-9, 'a selection animates ONLY the selected dancers (the rest never move)',
+      `over ${selBeats} beats, worst unselected move ${stillWorst.toFixed(6)} (the call moves ${movedIds.size})`);
+    const selEnd = selSeq.evaluateSequence(selFlat, selBeats, selStart).board;
+    const selGap = Math.max(...selRes.board.dancers.map((d) => {
+      const e = selEnd.dancers.find((x) => x.id === d.id);
+      return e ? Math.hypot(e.x - d.x, e.y - d.y) : 0;
+    }));
+    check(selGap < 1e-6, 'and it still lands on the board the apply produced', `gap ${selGap.toFixed(6)}`);
+  }
 }
 
 console.log('\n=================');

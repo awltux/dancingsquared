@@ -389,7 +389,7 @@ export class SequenceAnalyzer {
       if (beat < acc + s.beats) {
         const evBoard = s.coded
           ? this.evaluateCodedAt(s.before, s.coded, beat - acc)
-          : this.evaluateCallAt(s.before, s.name, s.info!, beat - acc);
+          : this.evaluateCallAt(s.before, s.raw, s.info!, beat - acc);
         return { board: evBoard, beats: 0 };
       }
       board = s.after;
@@ -402,11 +402,31 @@ export class SequenceAnalyzer {
    *
    * A WHOLE-BOARD call follows its authored path, which converges on the board the
    * call produces. A call that only applies via the subset/parallel path does not: the parallel
-   * path partitions the board at its own tolerance and runs each group with pure-relative motion. */
-  private evaluateCallAt(board: Board, name: string, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
+   * path partitions the board at its own tolerance and runs each group with pure-relative motion.
+   *
+   * THE STEP, NOT JUST ITS NAME, and that distinction is the whole of a real defect. `replayWalk`
+   * stores `step.after` from `applyToBoard(board, RAW)` - selection included - while this was handed
+   * `step.name`, which is `raw.call`, i.e. the bare call with any SELECTION DROPPED. For a step like
+   * `{ selection: 'Heads', call: 'Right and Left Thru' }` the applicator moved only the Heads while
+   * the animation played the whole-set reading, so every unselected dancer stood still in the stored
+   * board and was dragged across the floor in the animation. MEASURED - see
+   * `engine/test/tools/last-frame-owner-probe.mjs`: of 86 modules whose last frame moved a dancer
+   * more than 0.05 units, **84 had a selection** on the step that owned the jump, and on 83 of them
+   * the raw-step and bare-NAME applies differed by EXACTLY the jump. The error field gave it away: some
+   * dancers at delta 0.00 (the unselected, who never moved) and others on lattice-valued vectors.
+   *
+   * A STEP WITH A SELECTION never takes the whole-board branch, even when the bare call matches the
+   * whole board: the apply did not touch the whole board, so animating a whole-board path would move
+   * dancers the call never moved. It goes to `evaluateParallelAt`, whose per-group motion already has
+   * the right shape - the groups it cannot match fall back to a blend against the APPLIED board, which
+   * for an unselected dancer is the pose they are already in, so they do not move at all. */
+  private evaluateCallAt(board: Board, step: string | CallStep, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
+    const name = typeof step === 'string' ? step : step.call;
+    const selection = typeof step === 'string' ? null : step.selection ?? null;
+    if (selection) return this.evaluateParallelAt(board, step, info, localBeat);
     const whole = this.matcher.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
     if (whole) return this.evaluateVariantAt(board, whole, localBeat);
-    return this.evaluateParallelAt(board, name, info, localBeat);
+    return this.evaluateParallelAt(board, step, info, localBeat);
   }
 
   /**
@@ -447,8 +467,11 @@ export class SequenceAnalyzer {
    * which is the authored path at t=0, the APPLIED board at t=1, and the authored dance in
    * between. The correction is a residual, so it cannot dominate the path the way a full blend did.
    */
-  private evaluateParallelAt(board: Board, name: string, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
-    const res = this.applicator.applyToBoard(board, name);
+  private evaluateParallelAt(board: Board, step: string | CallStep, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
+    const name = typeof step === 'string' ? step : step.call;
+    // THE STEP, not the name: a selection must be applied here exactly as `replayWalk` applied it, or
+    // the animation targets a board the sequence never reached. See `evaluateCallAt`.
+    const res = this.applicator.applyToBoard(board, step);
     if (!res.legal) return board;
     const beats = info.beats;
     const t = beats > 0 ? Math.max(0, Math.min(1, localBeat / beats)) : 1;
@@ -491,6 +514,23 @@ export class SequenceAnalyzer {
             heading: normAngle(a.heading + normAngle(e.heading - ae.heading) * t),
           });
         }
+      }
+    }
+
+    // A DANCER THE CALL DID NOT MOVE DOES NOT MOVE, and this has to come AFTER the groups: the groups
+    // come from the board's TILING, not from what the call touched, so a group the call leaves standing
+    // is animated along the authored path and dragged back out and in by the residual - the "spun and
+    // dragged" this method's grouping comment records for `Right and Left Thru`. Writing the pin first
+    // was tried and MEASURED useless: the group loop simply overwrote it (unselected dancers still moved
+    // 3.16 units on `Heads Right and Left Thru`, see `engine/test/tools/selection-witness-probe.mjs`).
+    //
+    // Pinning is exact - the applied pose IS the current pose - and it is what makes a SELECTION step
+    // animate ONLY the dancers the selection moved, since `applySelected` leaves everyone else exactly
+    // where they stood.
+    for (const d of board.dancers) {
+      const e = endById.get(d.id);
+      if (e && Math.hypot(e.x - d.x, e.y - d.y) < 1e-6 && Math.abs(normAngle(e.heading - d.heading)) < 1e-6) {
+        posed.set(d.id, { x: d.x, y: d.y, heading: d.heading });
       }
     }
 

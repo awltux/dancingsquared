@@ -2208,13 +2208,26 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
   - **So the residual was masking this, not fixing it**: dragging the whole-set animation onto the
     selected board hides a selection bug, which is why the snap probe found only 3 and why the residual
     needed 6-unit drags at all.
-  - **THE FIX (next)**: thread the raw step into the animator — `evaluateSequence` must hand
-    `evaluateCallAt`/`evaluateParallelAt` the step's selection as well as its call, so the animated
-    motion IS the motion that was applied. For a selection step that means moving only the resolved
-    selection and leaving the rest at the step's start pose, which is the existing per-group machinery's
-    shape. Then the residual should be unnecessary or negligible, and the collision cost with it.
-    Measure: corpus last-frame jumps (expect ≈ 0), the owner probe's 84 → 0 selection offenders, the
-    collision scan against baseline, then figures / get-out / FSM.
+  - **THE FIX — DONE, and it needs no residual.** `evaluateSequence` now hands the animator the STEP
+    (`s.raw`) instead of `s.name`, `evaluateCallAt` takes `string | CallStep` and refuses the whole-board
+    branch for a step carrying a selection (the apply never touched the whole board, so a whole-board
+    path would move dancers the call never moved), and `evaluateParallelAt` applies the same `step`. A
+    second half was needed and MEASURED: the groups come from the board's TILING rather than from what
+    the call touched, so a group the call leaves standing was still animated along the authored path and
+    dragged back - **any dancer whose APPLIED pose equals its current pose is now pinned**, after the
+    group loop (writing the pin before it was tried and was useless - the group loop simply overwrote
+    it, leaving 3.16 units of unselected motion on `Heads Right and Left Thru`; see
+    `selection-witness-probe.mjs`, which enumerates 6 formations × 8 selections × 14 calls and now shows
+    `unselected-move 0.000 / end-gap 0.000` on every pair that applies).
+  - **MEASURED**: corpus last-frame jumps **86 → 2** (worst **6.32 → 0.13**, and the 2 that remain are
+    modules whose final call does not play at all); the owner probe's selection offenders **84 → 0**;
+    `anim-convergence` unchanged and PASSING (its 7 pins are single calls from NAMED formations, which
+    is why they never showed this); `behaviour-audit` **148 PASS / 0 FAIL** with a new primitive gate
+    ("a selection animates ONLY the selected dancers", worst unselected move 0.000000).
+    The convergence RESIDUAL is consequently unnecessary, so its collision cost is not paid either.
+  - Recorded for the next reader: `behaviour-audit` registers calls by FILENAME SLUG, so a title-keyed
+    selection step cannot resolve there; the new gate builds its own `callsByTitle` Sequencer for that
+    reason. A gate that uses the harness's own catalogue measures the harness, not the engine.
 - **THE RESIDUAL WAS TRIED AND REVERTED.** Hoisting the parallel branch's correction into
   `evaluateSequence` for every branch — `pose(t) = authored(t) + (appliedEnd − authoredEnd) * t` —
   works on its own terms: corpus last-frame jumps **86 → 0** (worst 6.32 → 0.00), `anim-convergence`

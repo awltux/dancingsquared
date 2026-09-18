@@ -2159,6 +2159,50 @@ call, and with it the report reproduces exactly.
   half is reasoned from `renderBoard`'s positional binding and measured through the engine board it is
   handed. `poc/verify.cjs` still fails exactly its three pre-existing `Pass Thru` checks.
 
+**THE LAST-FRAME CONVERGENCE RESIDUAL — DIAGNOSED TO THE SNAP, FIX DESIGNED, NOT APPLIED (the fix
+was implemented, measured, and REVERTED, because it buys convergence with collisions).** The residual
+is the second way a final frame lies: 86 of 1652 modules move a dancer more than 0.05 units on the last
+frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call cases at 0.02–0.1476
+(`sequence-last-frame-jump-scan.mjs`).
+
+- **WHO OWNS IT**: 85 of the 86 are CATALOGUE calls, not coded ones — `Right and Left Grand` 23,
+  `Allemande Left` + `ALLEMANDE_LEFT` 22, then `Star Thru`, `Bend the Line`, `Pass Thru`,
+  `Partner Trade`, `Boys Run`, `Right and Left Thru`, `1/2 Square Thru`, `Extend` at 6.32
+  (`sequence-convergence-owner-probe.mjs`). Only 1 is coded, so `evaluateCodedAt` is not the owner —
+  which was worth measuring, because the by-call list looks like coded moves until it is classified.
+- **THE ERROR FIELD NAMES THE CAUSE** (`sequence-authored-end-probe.mjs`): 80 of the 86 are a
+  PER-DANCER field in which some dancers have delta **exactly 0.00** and others are displaced by
+  **lattice-valued** vectors (2.00 / 4.00 / 6.00 / 6.32) in partner pairs. That is a SNAP signature,
+  not a smooth transform — a rotation or translation would move every dancer.
+- **THE ROOT IS `snapBoard`, NOT THE ANIMATOR.** `applyWholeBoard` returns `snapBoard(...)` on the
+  interactive (rebase) path (`applicator.ts:320`) while `evaluateVariantAt` never snaps, and `snapBoard`
+  (`matcher.ts:401`) accepts a snap when the **MEAN** match error is within `snapMaxError = 1.0`
+  (`config.ts:18`). A mean bound does not bound how far an INDIVIDUAL dancer is moved, so a "drift
+  absorption" clamp relocates a dancer up to 6.32 units — it rewrites the arrangement instead of
+  absorbing drift. The stored board is the snapped one, so the last drawn frame (the authored end) and
+  `step.after` disagree by exactly the snap.
+- **THE RESIDUAL WAS TRIED AND REVERTED.** Hoisting the parallel branch's correction into
+  `evaluateSequence` for every branch — `pose(t) = authored(t) + (appliedEnd − authoredEnd) * t` —
+  works on its own terms: corpus last-frame jumps **86 → 0** (worst 6.32 → 0.00), `anim-convergence`
+  convergence **1913/1920 → 1920/1920**, `behaviour-audit`'s worst dPos **0.0392 → 0.0000**, and the
+  largest single half-beat move across the corpus **6.836 → 1.868 units** (so most of the observed
+  "jumps" are this defect, not a rounding artefact). But it is a DRAG, and a 6-unit drag is not a
+  dance: across 1607 modules / 63645 samples (`sequence-anim-collision-scan.mjs`) modules with a
+  coincident pair (**< 0.1**) go **73 → 135**, `< 0.5` goes **109 → 193**, and 55 modules move from a
+  ≥ 0.5 pass to an exact coincidence. Trading a visible jump for dancers crossing is not a fix.
+- **RECOMMENDED FIX (next)**: bound the snap by **PER-DANCER displacement** in `snapBoard` — reject
+  the snap when any dancer would move more than the drift it exists to absorb (order 0.25) — so the
+  interactive board KEEPS the call's own end. That is already what the search path does
+  (`applySearch` is `rebase = false`, so it never snaps), and it is the principle the promenade report
+  established: the arrangement deduced from dancing wins over a re-derived reading. With the snap
+  bounded, `step.after` IS the authored end and the animation needs **no** residual at all. To measure,
+  in this order: corpus last-frame jumps (expect 0 with no correction), `sequence-anim-collision-scan`
+  (expect ≈ baseline), then figures / get-out / FSM, then the POC readout on off-lattice ends (7046
+  already ends on an unnamed ring, so a `null` formation there is a known, recorded state).
+- **ALSO RECORDED**: `behaviour-audit.mjs`'s convergence gate allows 0.5 units / 0.1 rad, which cannot
+  catch a class whose worst member is 0.1476 on the single-call sample — tighten it when the root is
+  fixed (`anim-convergence`'s empty pin already gates the corpus-facing property).
+
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:
 

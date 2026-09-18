@@ -890,13 +890,23 @@ at index 0). Census, get-out and FSM are all unmoved: no figure uses a `[P]` cod
 `alignment.mjs` (letters, reference cell, the reduction being involutive) and `alignment-boards.mjs`
 (the reduction equals the catalogue call; All8's four conversion lines).
 
-*And the probe the pair was blocking now runs, which DISPROVES the Orientation construction.* All8's
-own worked pair — the same board with the couples shifted, differing only in Occupation — reads
-`[0P1cR+]` and `[0P1cR']`: **Occupation exactly right for both** (`+` and `'`), which validates the
-reference pair, and **Orientation R where All8 says H**. The construction compares the reference boy's
-current bearing to his own home bearing about the centre; All8 superimposes the squared set. This is
-the same fault the four `[L1p]` boards show as 315/45/135/225 before quantising, now demonstrated on
-the authority's own example instead of merely flagged in the source.
+*And the probe the pair was blocking now runs, which DISPROVED the Orientation construction - and the
+construction is now FIXED.* All8's own worked pair — the same board with the couples shifted, differing
+only in Occupation — used to read `[0P1cR+]` and `[0P1cR']`: **Occupation exactly right for both**
+(`+` and `'`), which validated the reference pair, and **Orientation R where All8 says H**. The fault
+was a FRAME, not a missing definition: the old construction compared the reference boy's current
+bearing with his home bearing and read the board in the engine's TEMPLATE frame, which for a 4x2
+formation is All8's own drawing rotated a quarter turn — and for a line the two positions are not a
+rotation of each other at all (raw **-37.9 deg**), so the quantisation was arbitrary. It now reads his
+position in the formation's **own arrangement table** (All8's drawing frame, `readLayout`) and takes
+the clockwise 90-degree step from his home side to that side, which is All8's own rule: its four
+published `[B]` orientation diagrams put the reference boy south-west / north-east / north-west /
+south-east and label them H / O / L / R. Both worked labels now come out exactly as All8 prints them
+(`[0P1cH+]`, `[0P1cH']`), and every `[B]`, `[L]` and `[P]` code resolves its four boards to four
+distinct FASROO codes where before the letters were half a step out. Two residues are recorded: a
+synthesised board (no home couple) is now REFUSED an orientation rather than given one read off
+arbitrary ids, and `[W]`/`[F]` still do not separate their boards because their reference pair is
+recorded in words but not pinned to spots.
 
 *The second source for the other twelve states cannot be read either, and that is recorded.* All8's
 "16 Possible Pairings" page draws all sixteen with couple-numbered tiles, and the tiles now decode

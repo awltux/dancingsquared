@@ -49,6 +49,9 @@ import {
   relationshipStateOf,
   centresPassThru,
   readLayout,
+  fasrooOf,
+  relabelCouples,
+  boardsForAlignment,
   REFERENCE_PAIR_SPOTS,
   ARRANGEMENT_TABLES,
   ARRANGEMENT_NUMBER_ORDER,
@@ -491,6 +494,57 @@ console.log('      defines a reference pair for [L] [B] [F] [W] only, and the te
     });
   if (involutive) ok('[P] the mental Centers Pass Thru is a pass thru: applying it twice restores the board');
   else fail('[P] the mental Centers Pass Thru is not an involution, so it is not a pass thru');
+}
+
+// 9. ORIENTATION, against the only two places All8 publishes the letter with a picture.
+//
+// (a) All8's worked pair - `[0P1cH+]` and `[0P1cH']` are the SAME board with the couples shifted, and
+//     All8 labels BOTH "H", differing only in Occupation. This is the witness the orientation
+//     construction was blocked on, and it is stated in the labels themselves.
+// (b) All8's four `[0B]` orientation diagrams put the reference boy south-west / north-east /
+//     north-west / south-east and label them H / O / L / R. That is the rule: the CLOCKWISE
+//     90-degree step from his home side to the side of his own drawing he now occupies.
+//
+// The construction reads that step in the formation's arrangement TABLE - All8's own drawing frame,
+// whose facing layout is exactly what those diagrams are drawn on - rather than from the board's
+// coordinates, which for a LINE are not a rotation of home at all.
+{
+  const getouts = JSON.parse(read('engine/test/fixtures/all8-getouts.json'));
+  const p1c = getouts.alignments.find((a) => a.id === 'P1c');
+  const built = boardFromDiagram(seq.boardForFormation('Double Pass Thru'), 'P', 0, p1c.diagram);
+  const H = built.board ? fasrooOf(built.board, 'Double Pass Thru') : null;
+  const Hp = built.board ? fasrooOf(relabelCouples(built.board, 1), 'Double Pass Thru') : null;
+  if (H?.orientation?.code === 'H' && H.occupation === '+') ok('[P] orientation: All8\'s `[0P1cH+]` reads H with occupation +');
+  else fail(`[P] All8 publishes \`[0P1cH+]\`; the engine reads ${H?.orientation?.code ?? '?'} with occupation ${H?.occupation ?? '?'}`);
+  if (Hp?.orientation?.code === 'H' && Hp.occupation === "'") ok('[P] orientation: All8\'s `[0P1cH\']` - the same board, couples shifted - also reads H, with occupation \'');
+  else fail(`[P] All8 publishes \`[0P1cH']\`; the engine reads ${Hp?.orientation?.code ?? '?'} with occupation ${Hp?.occupation ?? '?'}`);
+
+  // (c) the four boards a code admits must be told apart: a code names a class, and FASROO is what
+  // sorts it. Checked where the repo has PINNED the reference pair (the formations All8's published
+  // alignments discriminate), so this is a property of the readout rather than of a guess.
+  let distinctOk = 0, checked = 0;
+  for (const [letter, formation] of [['B', 'Eight Chain Thru'], ['L', 'Normal Lines'], ['P', 'Double Pass Thru']]) {
+    const template = seq.boardForFormation(formation);
+    if (!template) continue;
+    for (const sequence of [1, 2, 3, 4]) {
+      for (const relationship of ['p', 'o', 'c', 'r']) {
+        const boards = boardsForAlignment(template, { letter, arrangement: 0, sequence, relationship }).boards;
+        if (!boards.length) continue;
+        checked++;
+        const notations = boards.map((b) => fasrooOf(b, formation).notation);
+        const distinct = new Set(notations).size;
+        if (distinct === boards.length) distinctOk++;
+        else fail(`[${letter}${sequence}${relationship}] ${boards.length} boards resolve to only ${distinct} FASROO code(s): ${notations.join(' ')}`);
+      }
+    }
+  }
+  if (checked && distinctOk === checked) ok(`every code whose reference pair is pinned resolves its boards to distinct FASROO codes (${distinctOk}/${checked})`);
+
+  // (d) IDENTITY IS DATA: a synthesised board carries no home couple, so it must NOT be given an
+  // orientation read off its (arbitrary) ids - it has to say why instead.
+  const synthesised = fasrooOf(seq.boardForFormation('Double Pass Thru'), 'Double Pass Thru');
+  if (synthesised.orientation === null && synthesised.reason) ok(`a board with no identity is refused an orientation, with its reason: "${synthesised.reason.slice(0, 60)}..."`);
+  else fail(`a synthesised board was given orientation ${synthesised.orientation?.code ?? 'null'} instead of being refused`);
 }
 
 console.log('\n=================');

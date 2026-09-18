@@ -1018,8 +1018,6 @@ export interface Fasroo {
   notation: string;
 }
 
-const ORIENTATION_NAMES: OrientationCode[] = ['H', 'R', 'O', 'L'];
-
 /**
  * Read the whole FASROO of a board: FASR plus Orientation and Occupation.
  *
@@ -1044,55 +1042,79 @@ export function fasrooOf(board: Board, formationName: string | null): Fasroo {
   if (!REFERENCE_PAIR_RULES[letter]) return fail(`All8 records a reference pair for [L], [B], [F] and [W] only, so [${letter}] has none to measure from`);
 
   const rs = relationshipStateOf(board, letter);
-  const reference = rs.reference ?? rs.pairs?.find((p) => p.letter !== null) ?? rs.pairs?.[0];
+  // THE REFERENCE DANCER. All8: "The reference pair used for Orientation and Occupation is the same as
+  // is used in determining relationship. The Boy position in this reference pair becomes the reference
+  // dancer." Where that pair is pinned in REFERENCE_PAIR_SPOTS use it; where it is not (W and F, whose
+  // published alignments do not discriminate and so record no spots) fall back to what All8's own
+  // diagrams do - "These diagrams use the #1 (Head) Boy ... Alternately, the opposite dancer, the #3
+  // (Head) Boy ... could be used as the reference dancer, the result is the same" - rather than to
+  // whatever pair happens to sort first.
+  const HEAD_BOY = HOME_DANCERS.find((d) => d.couple === 1 && d.gender === 'boy')!;
+  const reference = rs.reference
+    ?? rs.pairs?.find((p) => p.letter !== null && p.boy === HEAD_BOY.id)
+    ?? rs.pairs?.find((p) => p.letter !== null)
+    ?? rs.pairs?.[0];
   if (!reference) return fail(rs.reason ?? 'no reference pair could be identified on this board');
 
   const boyId = reference.boy;
   const home = HOME_DANCERS.find((d) => d.id === boyId);
-  const cur = board.dancers.find((d) => d.id === boyId);
-  if (!home || !cur) return fail('the reference boy is not on the board');
+  if (!home) return fail('the reference boy has no home position');
+  // IDENTITY IS DATA. A synthesised board (`boardForFormation`, whose dancers carry no home couple and
+  // whose ids are array positions) must not be given an Orientation read off those ids: that would be
+  // inventing the very identity the reading is relative to. `relabelCouples` is the opposite case and
+  // is deliberately still allowed - its couples are KNOWN, just shifted, which is exactly what All8's
+  // `[0P1cH']` is.
+  if (!isKnownCouple(reference.boyCouple)) {
+    return fail('the reference boy has no home couple, so there is no home for Orientation to be measured against (identity is data)');
+  }
 
   // Occupation is read straight off the reference boy's own couple: odd = Head (1 and 3), even = Side.
   const occupation: OccupationCode | null = isKnownCouple(reference.boyCouple)
     ? (reference.boyCouple % 2 === 1 ? '+' : "'")
     : null;
 
-  // Orientation: the rotation taking his HOME bearing to his CURRENT bearing, about the set centre.
+  // ORIENTATION IS READ IN ALL8'S OWN DRAWING FRAME, which is the formation's arrangement TABLE.
   //
-  // *** THIS CONSTRUCTION IS UNVERIFIED AND ALMOST CERTAINLY WRONG. *** All8 says to "superimpose the
-  // image of the squared set with the formation in question" and picture "how the boy in the reference
-  // position is oriented to his home position" - and the reference boy's home is a SPOT on the square
-  // (couple 3 is north at (1,3)), which does not exist in a line or a wave at all. Comparing bearings
-  // about the centre is a different question, and it shows: the four `[L1p]` boards come out at
-  // 315/45/135/225 degrees before quantising, i.e. every one of them lands on a half-step, and All8's
-  // canonical board reads 'L' rather than the 'H' a correct construction would be expected to give.
-  // See `engine/test/tools/fasroo-probe.mjs`. Left in place because the four values DO separate the
-  // four boards, which is the property the readout needs, but the ABSOLUTE value must not be trusted.
+  // All8: "To determine Orientation, superimpose the image of the squared set with the formation in
+  // question ... Picture how the boy in the reference position is oriented to his home position", with
+  // H/R/O/L the reference boy At / Right of / Opposite of / Left of Home. The table IS All8's drawing
+  // (its facing layout is exactly what the published orientation diagrams are drawn on, couple 1 at
+  // the bottom facing north), so the superimposition is not a guess: it is the frame the tables are
+  // written in, and `readLayout` already computes the change into it.
   //
-  // AND THE WITNESS IS NOW ALL8'S OWN `[P]` WORKED CASE, which used to be unreachable because `[P]`
-  // had no reference pair and this function refused it before computing anything. With the `[P]`
-  // reduction recorded, All8's pair of diagrams - the same board with the couples shifted, differing
-  // only in Occupation - reads `[0P1cR+]` and `[0P1cR']`: the OCCUPATION is exactly what All8 draws,
-  // and the ORIENTATION is R where All8 says H. So the fault is no longer a suspicion; it is
-  // demonstrated on the authority's own example. See `p-reference-pair-probe.mjs`.
-  const n = board.dancers.length;
-  const cx = board.dancers.reduce((s, d) => s + d.x, 0) / n;
-  const cy = board.dancers.reduce((s, d) => s + d.y, 0) / n;
-  const hx = HOME_DANCERS.reduce((s, d) => s + d.x, 0) / HOME_DANCERS.length;
-  const hy = HOME_DANCERS.reduce((s, d) => s + d.y, 0) / HOME_DANCERS.length;
-  const homeBearing = Math.atan2(home.y - hy, home.x - hx);
-  const curBearing = Math.atan2(cur.y - cy, cur.x - cx);
-  const raw = (Math.atan2(Math.sin(curBearing - homeBearing), Math.cos(curBearing - homeBearing)) * 180) / Math.PI;
-  // Quantised to All8's four states. A board that genuinely ends half-rotated is described by its
-  // FORMATION (a T-bone, a diamond), not by a half-step orientation - Orientation is relative to Home.
-  const deg = Math.round(raw / ORIENTATION_STEP_DEG) * ORIENTATION_STEP_DEG;
-  const normalised = ((deg % 360) + 360) % 360;
+  // READING IT OFF THE BOARD'S OWN COORDINATES WAS WRONG, and measurably so. The engine's template for
+  // a 4x2 formation is that picture rotated 90 degrees, so a board built from an All8 diagram sits in
+  // a frame a quarter turn off home; and for a LINE the reference boy's current position is not the
+  // image of his home under ANY rotation (home (3,-1) is 341.6 deg, current (2,-3) is 303.7 - a raw
+  // -37.9 deg), so the old construction quantised an arbitrary angle. That produced `[0P1cR+]` where
+  // All8 prints `[0P1cH+]`, and it is why the four `[L1p]` boards read a half-step apart.
+  //
+  // The letter is therefore the CLOCKWISE 90-degree step from the reference boy's HOME SIDE to the side
+  // of the table his cell lies in. Verified against the only place All8 publishes the letter with a
+  // picture: its four `[0B]` orientation diagrams place the reference boy south-west / north-east /
+  // north-west / south-east and label them H / O / L / R, which this reproduces.
+  const layout = readLayout(board, letter);
+  if (!layout) return fail(`this board does not read as [${letter}], so Orientation has no frame to be read in`);
+  const rows = layout.cells.length;
+  const cols = layout.cells[0].length;
+  let cell: [number, number] | null = null;
+  layout.cells.forEach((row, r) => row.forEach((d, c) => { if (d && d.id === boyId) cell = [r, c]; }));
+  if (!cell) return fail('the reference boy is not on the board read onto its own table');
 
-  // R and L are the one part of this that CANNOT be derived: they are conventions about which way
-  // "right" is, and All8's diagrams are the only statement of them. Clockwise-negative is used here
-  // and is flagged as unconfirmed.
-  const byDeg: Record<number, OrientationCode> = { 0: 'H', 270: 'R', 180: 'O', 90: 'L' };
-  const code = byDeg[normalised] ?? ORIENTATION_NAMES[(normalised / 90) % 4];
+  // A cell exactly on a diagonal of the table has no nearest side, so the letter is not defined.
+  const tx = cell[1] - (cols - 1) / 2;
+  const ty = (rows - 1) / 2 - cell[0];
+  const rawAngle = (Math.atan2(ty, tx) * 180) / Math.PI;
+  const side = ((Math.round(rawAngle / ORIENTATION_STEP_DEG) * ORIENTATION_STEP_DEG) % 360 + 360) % 360;
+  if (Math.abs(((rawAngle % 90) + 90) % 90 - 45) < 1e-6) {
+    return fail(`the reference boy sits on a diagonal of [${letter}]'s own drawing, so no side of the squared set corresponds to him`);
+  }
+  // His home side, from the home square's own axis-aligned geometry: a Head is north or south, a Side
+  // east or west, whichever axis he is further out on.
+  const homeSide = Math.abs(home.y) > Math.abs(home.x) ? (home.y > 0 ? 90 : 270) : (home.x > 0 ? 0 : 180);
+  const CW_LETTER: Record<number, OrientationCode> = { 0: 'H', 90: 'L', 180: 'O', 270: 'R' };
+  const normalised = ((side - homeSide) % 360 + 360) % 360;
+  const code = CW_LETTER[normalised];
   const orientation: Orientation = { deg: normalised, code };
 
   const notation =

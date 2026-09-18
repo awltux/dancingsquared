@@ -2629,22 +2629,21 @@ is now right by measurement). No census moves: figures 116 of 188, get-out 124 o
 pins the letters, the reference cell and the reduction being involutive; `alignment-boards.mjs` pins
 the call-level half — the reduction equals the catalogue call, and All8's four conversion lines.
 
-**AND THE ORIENTATION PROBE NOW RUNS, WHICH IS WHAT THE DECISION WAS FOR. `fasrooOf` on All8's own
-worked pair gives the right OCCUPATION and the WRONG ORIENTATION:**
+**AND THE ORIENTATION PROBE NOW RUNS, WHICH IS WHAT THE DECISION WAS FOR. It was WRONG on All8's own
+worked pair, and that defect is now FIXED — see the ORIENTATION entry below.** Running it on All8's
+pair used to give the right OCCUPATION and the WRONG ORIENTATION:
 
 ```
-[0P1cH+]  (the published board)            -> [0P1cR+]   occupation +   orientation 270 deg / R
-[0P1cH']  (same board, couples +1)         -> [0P1cR']   occupation '   orientation 270 deg / R
+BEFORE  [0P1cH+]  (the published board)    -> [0P1cR+]   occupation +   orientation 270 deg / R
+        [0P1cH']  (same board, couples +1) -> [0P1cR']   occupation '   orientation 270 deg / R
+AFTER   [0P1cH+]                           -> [0P1cH+]   occupation +   orientation   0 deg / H
+        [0P1cH']                           -> [0P1cH']   occupation '   orientation   0 deg / H
 ```
 
-Occupation is **exactly right for both**, which is a direct validation of the reference pair: All8's
-two diagrams differ only in Occupation and the engine reproduces `+` and `'`. Orientation reads **R
-where All8 says H**, on the authority's own example — so the construction is no longer merely "flagged
-unverified in the source", it is **disproved**, and the fix is now the next piece of work rather than a
-suspicion. (The four `[L1p]` boards reading 315/45/135/225 degrees before quantising is the same fault
-seen from the other side.) **The reference pair itself is not the cause**: All8's pair of diagrams is
-the same geometry with a different couple numbering, and the engine gives the same orientation letter
-for both, which is what All8 says it should.
+Occupation was right for both even before, which is a direct validation of the reference pair; the
+ORIENTATION was R where All8 says H on the authority's own example — no longer a suspicion flagged in
+the source but a demonstrated fault. **It is now repaired** (the reference boy's side read in All8's
+own drawing frame), and both labels come out exactly as All8 prints them.
 
 **A SECOND SOURCE WAS SOUGHT FOR THE OTHER TWELVE `[P]` STATES AND CANNOT BE READ EITHER.** All8's
 "16 Possible Pairings" page draws all sixteen with couple-numbered tiles, and the tiles decode exactly
@@ -2663,6 +2662,66 @@ girl, `dir` = facing — confirmed by the user and by the page's own "At Home" d
 
 The code's own `FASROO_ORIENTATION_NOTE` still flags the construction in the source, and now carries
 the `[P]` witness beside the `[L1p]` one.
+
+### THE ORIENTATION CONSTRUCTION, FIXED - and it was a FRAME bug, not a missing definition
+
+`fasrooOf`'s Orientation was the last open item of the FASR thread, and it took two measurements to
+settle because the first one pointed the wrong way (`fasroo-orientation-frame-probe.mjs`).
+
+**What was wrong.** The old construction compared the reference boy's CURRENT bearing about the board
+centre with his HOME bearing about the home centre, and quantised the difference. Two things are wrong
+with that:
+
+- for a LINE the two positions are not related by a rotation at all — home `(3,-1)` is at 341.6 deg
+  while `[L1p]`'s reference cell is at 303.7 deg, a raw **-37.9 deg**, i.e. not a multiple of 90 — so
+  the quantisation was picking arbitrarily between two states; and
+- more importantly it read the board in the engine's TEMPLATE frame, which for a 4x2 formation is
+  All8's own drawing **rotated a quarter turn**, and Orientation is precisely the rotation relative to
+  home. That is what produced `[0P1cR+]` where All8 prints `[0P1cH+]`.
+
+**The fix.** Read the reference boy's position in the formation's **own arrangement TABLE** — which IS
+All8's drawing frame; its facing layout is exactly what the published orientation diagrams are drawn
+on (`[P]`'s table is `vv vv ^^ ^^`, couple 1 at the bottom facing north, which is his home) — take the
+nearest compass SIDE of his cell about the table centre, and make the letter the **clockwise
+90-degree step from his home side to it**. `readLayout` already computes the change into that frame, so
+nothing had to be invented. Two supporting choices, both from the authority:
+
+- the reference dancer is the boy of the pair `REFERENCE_PAIR_SPOTS` pins; where it is not pinned
+  (`[W]`, `[F]`) the fallback is All8's own — "These diagrams use the **#1 (Head) Boy** as the
+  reference dancer. Alternately, the opposite dancer, the **#3 (Head) Boy** could be used … the result
+  is the same" — rather than whatever pair happened to sort first, which is what the old code did;
+- a cell on a DIAGONAL of the table has no nearest side, so the letter is refused with that reason
+  instead of being rounded.
+
+**The two witnesses, both All8's own.**
+
+```
+(a) the worked pair, which the labels state:   [0P1cH+]  ->  [0P1cH+]   occupation +   orientation H
+                                               [0P1cH']  ->  [0P1cH']   occupation '   orientation H
+(b) the four published [0B] orientation diagrams: reference boy at
+        south-west -> H     north-east -> O     north-west -> L     south-east -> R
+    which the rule reproduces (they are the only place All8 publishes the letter WITH a picture).
+```
+
+**And it restored resolution as well as correctness: every `[B]`, `[L]` and `[P]` code now resolves
+its four boards to four DISTINCT FASROO codes** (`fasroo-injectivity-probe.mjs`, 48 of 48 at
+arrangement 0, e.g. `[0B1pH+] [0B1pL'] [0B1pO+] [0B1pR']`), where the old construction produced a
+half-step-shifted set. Two things are recorded rather than smoothed:
+
+- **a synthesised board is refused an Orientation outright.** `boardForFormation` stamps array-index ids
+  and no home couple, so reading a home off those ids invents the identity the reading is relative to.
+  It now says so: "the reference boy has no home couple, so there is no home for Orientation to be
+  measured against (identity is data)". (`relabelCouples` is the opposite case and is still allowed —
+  its couples are KNOWN, merely shifted, which is exactly what `[0P1cH']` is.)
+- **`[W]` and `[F]` still collapse**: their reference pair is recorded in WORDS but not pinned to spots
+  (no published alignment discriminates them), so with the #1-boy fallback a code's four boards do not
+  all separate — 24 of 72 codes at arrangement 0. That is the same tension the plan records: whether
+  Orientation separates the boards at all, or is purely geometric and FASROO is therefore 2-to-1. It is
+  measurable now (`fasroo-injectivity-probe.mjs`) and pinning `[0W]`/`[0F]` spots is the obvious next
+  probe — All8 gives both in words ("the in facing end (boy) and adjacent dancer (girl)", "the trailing
+  couple"), so it is a measurement, not a guess.
+
+**Gates:** `alignment.mjs` pins both witnesses, the 48-of-48 distinctness, and the identity refusal.
 
 ### THE `[S]` "0:0/16" WAS AN INSTRUMENT FAULT, NOT A COVERAGE GAP - and the fix is in the instrument
 
@@ -2926,20 +2985,18 @@ parallel grouping the animator re-derived differently from the applicator). Then
    variant from the apply's own `ApplyResult.parallel` (which now exists) instead of re-deriving it,
    which is a small change with a much larger blast radius because `matchingVariantInfo` also feeds
    the BEAT COUNT. Do it only with the census, get-out and FSM measured either side.
-7. **PIN THE ORIENTATION — DONE for the SELECTION and for the `[P]` reference pair; the READOUT is the
-   last piece and it is now DISPROVED rather than suspected.** Every FASR code admits 4 boards — the 4
-   orientations — and `boardForFasrCode` used to silently return `boards[0]`. all8's canonical board IS
-   among the four (index 1 for `[L1p]`, character-for-character its published diagram); only the
-   SELECTION was wrong. **The selection is closed: `CANONICAL_INDEX` is the measured index per code and
-   `boardForFasrCode` routes through `canonicalBoard`, reproducing All8's own board on all 28 published
-   diagrams** — 28 and not 26 because the two `[P]` refusals are gone (see the `[P]` entry above).
-   **The `[P]` reference pair is decided and recorded** (`REFERENCE_PAIR_SPOTS.P`, All8's own mental
-   Centers Pass Thru reduction), `fasrooOf` no longer refuses `[P]`, and on All8's own worked pair the
-   OCCUPATION comes out exactly right (`+` and `'`) while the ORIENTATION reads **R where All8 says
-   H** — so `fasrooOf`'s ORIENTATION CONSTRUCTION is now demonstrated wrong on the authority's own
-   example, and fixing it is the next piece of work rather than a suspicion. `REFERENCE_PAIR_RULES`
-   CLASSIFIES a board but is never used to SELECT one, and the same rule applies to the `[P]` reduction
-   — it is a readout, and `boardForFasrCode` uses the measured `CANONICAL_INDEX`, not it.
+7. **PIN THE ORIENTATION — DONE for the SELECTION and for the READOUT.** Every FASR code admits 4
+   boards — the 4 relabellings — and `boardForFasrCode` used to silently return `boards[0]`. all8's
+   canonical board IS among the four (index 1 for `[L1p]`, character-for-character its published
+   diagram); only the SELECTION was wrong. **The selection is closed: `CANONICAL_INDEX` is the
+   measured index per code and `boardForFasrCode` routes through `canonicalBoard`, reproducing All8's
+   own board on all 28 published diagrams** — 28 and not 26 because the two `[P]` refusals are gone
+   (see the `[P]` entry above). **The `[P]` reference pair is decided and recorded**
+   (`REFERENCE_PAIR_SPOTS.P`, All8's own mental Centers Pass Thru reduction), `fasrooOf` no longer
+   refuses `[P]`, and **the ORIENTATION CONSTRUCTION IS FIXED** — see the dedicated entry above for the
+   measurement and the two witnesses. `REFERENCE_PAIR_RULES` CLASSIFIES a board but is never used to
+   SELECT one, and the same rule applies to the `[P]` reduction — it is a readout, and
+   `boardForFasrCode` uses the measured `CANONICAL_INDEX`, not it.
    The geometric "nearest its home bearing" rule was TESTED against all six published [L] diagrams
    and REFUTED (0 of 6), and re-measured at 3 of 26, so do not use it.
    **MEASURED, AND THE "INDEX 1 / INDEX 2" HYPOTHESIS IS REFUTED.** `test/tools/canonical-board-probe.mjs`

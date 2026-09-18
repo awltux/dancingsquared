@@ -260,15 +260,17 @@ console.log('\n== 5. a [FASR] setup code derives the board All8\'s own diagram d
   if (wrongBoard.length > 0) fail(`${wrongBoard.length} FASR code(s) put the COUPLES somewhere other than All8's diagram: ${wrongBoard.join(', ')}`);
   else ok(`${sameBoard} of them also place the same COUPLE on every spot - All8's own board, not a rotation of it`);
 
-  // The refusals must be the known, correct ones: [P] is Beginning Double Pass Thru, where the
-  // boys' relationships genuinely disagree so NO relationship letter is justified. All8 labels the
-  // page with one anyway. Pinning the exact set means a NEW refusal shows up as a failure rather
-  // than blending into a count.
-  const expectedRefusals = new Set(['P1c', 'P2r']);
-  const unexpected = refused.filter((r) => !expectedRefusals.has(r.slice(0, r.indexOf(' '))));
-  if (unexpected.length > 0) fail(`unexpected FASR refusal(s): ${unexpected.join('; ')}`);
-  else if (refused.length !== expectedRefusals.size) fail(`expected exactly ${expectedRefusals.size} refusals, got ${refused.length}: ${refused.join('; ')}`);
-  else ok(`the only refusals are the known [P] pair (${refused.length}) - Beginning Double Pass Thru, where no relationship letter is justified`);
+  // THERE ARE NOW NO REFUSALS, and that is a measured CHANGE rather than a loosening: the two codes
+  // that used to refuse were `P1c` and `P2r` (Beginning Double Pass Thru), where the boys'
+  // relationships genuinely disagree so no fixed reference pair picks a letter. All8 supplies the
+  // missing definition itself - "mentally have the Centers Pass Thru then evaluate relationship in
+  // the resulting [0B] Eight Chain Thru Formation" (16com_p.htm) - and `relationshipStateOf` now
+  // applies it. Both codes then build All8's OWN board, not a rotation of it (the two checks above),
+  // so the engine no longer has to decline a code the authority publishes.
+  //
+  // Pinned at zero so a NEW refusal shows up as a failure rather than blending into a count.
+  if (refused.length > 0) fail(`${refused.length} FASR code(s) refused: ${refused.join('; ')}`);
+  else ok('no published alignment is refused any more - the old [P] pair now derives All8\'s own board');
   if (skipped > 0) console.log(`  note  ${skipped} alignments skipped (no FASR id or no diagram to compare against)`);
 }
 

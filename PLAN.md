@@ -2223,8 +2223,11 @@ rule turned out to be a per-code table rather than an index.
 
 Measured by `engine/test/tools/fasr-determinism-probe.mjs`, and it is NOT the indexing hypothesis:
 
-- **Every code admits exactly 4 distinct boards** (`L1p`, `L1o`, `B1c`, `W1p`, `F1p`, … all 4;
-  `P1c`/`P2r` admit 0, for the stated reason). So a plain FASR code **does not determine a board**.
+- **Every code admits exactly 4 distinct boards** (`L1p`, `L1o`, `B1c`, `W1p`, `F1p`, … all 4). So a
+  plain FASR code **does not determine a board**. **CORRECTED: `P1c`/`P2r` "admit 0" was a
+  consequence of the missing `[P]` relationship rule, not of the enumeration** — with All8's own
+  mental-Centers-Pass-Thru convention recorded (see the `[P]` SETUP entry below) every `[P]` code
+  admits its 4 as well, and All8's own board is at index 0 of them.
 - **`boardForAlignment` returns `boards[0]`** — the first of the four, chosen by enumeration order.
   That was the whole of the disagreement with all8's diagram, and it is why `boardForFasrCode` no
   longer routes through it.
@@ -2588,24 +2591,78 @@ unknowns.** Measured:
   it is rotation-invariant (relabelling couples does not change who faces whom), so index 0 is a
   **recorded choice**, verified to satisfy the property it is used for.
 
-**STILL OPEN from Step 3, measured and recorded: `fasrooOf`'s Orientation cannot be checked on `[P]`
-YET, and the reason is upstream of the probe.** The plan's check was "all8's own worked case is a
-reference boy inside with the formation rotated 90 degrees, which is a Side occupation yet still
-oriented H — so a correct implementation must produce H and `'` for the same board". Two things block
-it, both measured from the code and the corpus:
+**THE `[P]` REFERENCE PAIR IS DECIDED AND RECORDED, AND IT WAS THE GATE ON THE ORIENTATION CHECK —
+which now RUNS and DISPROVES the construction.** This was the first thing to settle in the whole
+thread, because `fasrooOf` refuses a formation with no reference pair before it computes anything.
+The decision turned on reading the authority rather than reasoning, and All8 states the rule outright
+(`16com_p.htm`, "Special note about Double Pass Thru Formation"):
 
-- **`fasrooOf(board, 'Double Pass Thru')` returns NULL, orientation and occupation both**, with the
-  reason "All8 records a reference pair for [L], [B], [F] and [W] only, so [P] has none to measure
-  from" — `REFERENCE_PAIR_RULES` has no `[P]` entry, so the function bails before it computes
-  anything. All8's own worked case therefore exercises a code path that refuses `[P]` outright.
-- **The `[P]` board has to come from the diagram**, as the plan says, and the corpus does carry it
-  (`P4p`: `3v v3 / 4v v4 / 2^ ^2 / 1^ ^1`, "All Paired In Order"). Building it is not the obstacle.
+> "To determine relationship, by convention we need one girl and one boy in each quadrant of the
+> setup. … Since **[0P]** Double Pass Thru formation does not have a single boy and a single girl in
+> each quadrant, for purposes of evaluating relationship, **we mentally have the Centers Pass Thru
+> then evaluate relationship in the resulting [0B] Eight Chain Thru Formation**."
 
-So the next step is NOT the orientation probe: it is to decide and record the `[P]` reference pair
-(first, because `fasrooOf` needs one), and only then compare its Orientation with All8's worked case.
-The code's own `FASROO_ORIENTATION_NOTE` already flags the construction as unverified, and the four
-`[L1p]` boards reading 315/45/135/225 degrees before quantising is the standing evidence that the
-superposition All8 describes is not what the code does.
+So `[P]` gets a **reduction to `[B]`**, not a fifth agreed pair — Callerlab's four are unchanged, and
+the engine records All8's own extension as such (`REFERENCE_PAIR_RULES.P`, `relationshipStateOf`,
+`centresPassThru`). Measured on all four `[P]` alignments the get-out corpus publishes a diagram for:
+
+- **the reduction IS the catalogue's own `Centers Pass Thru`, dancer for dancer** (positions and
+  headings identical), and the result is named `Eight Chain Thru` every time — so it is a pure
+  permutation of the board's four INNER dancers, which is why `alignment.ts` can do it at all;
+- **All8's OWN conversion lines are reproduced 4/4**, and they are the independent check:
+  `C-PasTh [B1c]` (P1c), `[B2r]` (P2r), `[B3r]` (P3p), `[B4c]` (P4p);
+- **the reference POSITION is one fixed cell**: `REFERENCE_PAIR_SPOTS.P = [[3,0],[3,1]]`, measured by
+  carrying `[B]`'s reference pair back through the reduction (`p-reference-position-probe.mjs`);
+- **the LETTERS are not a fixed pair's**, and that split is measured rather than assumed: scoring every
+  boy spot × girl spot over all four alignments finds **0** pairs that reproduce the published letters,
+  while the reduction does. The rule therefore reads the board's own pairs when they AGREE (P3p/P4p,
+  "All Paired" — every boy beside his partner, published `p`) and reduces only when they disagree
+  (P1c/P2r, "Outsides Paired") — applying the reduction unconditionally would contradict the published
+  `p` for P3p and P4p.
+
+**What it changes, measured on three sides.** `boardForFasrCode` now derives All8's OWN board for **28
+of 28** published alignments instead of 26 — the two refusals are gone, and the harness pins "no
+refusal" rather than pinning the two. `CANONICAL_INDEX.P` gains the two measured entries (`1:{c:0}`,
+`2:{r:0}`; all four `[P]` codes measure at index 0, so the enumeration fallback was right by luck and
+is now right by measurement). No census moves: figures 116 of 188, get-out 124 of 265, FSM
+155/92/43/19 are all unchanged, because no figure uses a `[P]` code. Gates: `alignment.mjs` (light)
+pins the letters, the reference cell and the reduction being involutive; `alignment-boards.mjs` pins
+the call-level half — the reduction equals the catalogue call, and All8's four conversion lines.
+
+**AND THE ORIENTATION PROBE NOW RUNS, WHICH IS WHAT THE DECISION WAS FOR. `fasrooOf` on All8's own
+worked pair gives the right OCCUPATION and the WRONG ORIENTATION:**
+
+```
+[0P1cH+]  (the published board)            -> [0P1cR+]   occupation +   orientation 270 deg / R
+[0P1cH']  (same board, couples +1)         -> [0P1cR']   occupation '   orientation 270 deg / R
+```
+
+Occupation is **exactly right for both**, which is a direct validation of the reference pair: All8's
+two diagrams differ only in Occupation and the engine reproduces `+` and `'`. Orientation reads **R
+where All8 says H**, on the authority's own example — so the construction is no longer merely "flagged
+unverified in the source", it is **disproved**, and the fix is now the next piece of work rather than a
+suspicion. (The four `[L1p]` boards reading 315/45/135/225 degrees before quantising is the same fault
+seen from the other side.) **The reference pair itself is not the cause**: All8's pair of diagrams is
+the same geometry with a different couple numbering, and the engine gives the same orientation letter
+for both, which is what All8 says it should.
+
+**A SECOND SOURCE WAS SOUGHT FOR THE OTHER TWELVE `[P]` STATES AND CANNOT BE READ EITHER.** All8's
+"16 Possible Pairings" page draws all sixteen with couple-numbered tiles, and the tiles decode exactly
+once the sprite convention is pinned (`d1/<n><dir>.gif`, `couple = floor(n/2) + 1`, even = boy, odd =
+girl, `dir` = facing — confirmed by the user and by the page's own "At Home" drawing, where `0n` is the
+`#1` boy All8 marks red). Two findings, both recorded rather than smoothed:
+
+- **the page's four overlapping states are NOT all the get-out pages' boards.** `P1c` and `P2r` match
+  up to a uniform couple relabelling; `P3p` and `P4p` do not, and **no bijection of the eight tile slots
+  onto the eight spots reconciles all four** (`p-tile-order-probe.mjs` searches all 40,320 and finds
+  **zero**). Read in document order the page's `P3p`/`P4p` cells are not valid boards at all — a
+  couple's two dancers end up two columns apart with another couple's boy between them.
+- so the `[P]` rule stays measured on the **four** published get-out diagrams, each cross-checked
+  against the conversion line All8 prints beside it. That is the honest sample size, and it is why the
+  rule is gated on those four rather than claimed for the other twelve.
+
+The code's own `FASROO_ORIENTATION_NOTE` still flags the construction in the source, and now carries
+the `[P]` witness beside the `[L1p]` one.
 
 ### THE `[S]` "0:0/16" WAS AN INSTRUMENT FAULT, NOT A COVERAGE GAP - and the fix is in the instrument
 
@@ -2869,14 +2926,20 @@ parallel grouping the animator re-derived differently from the applicator). Then
    variant from the apply's own `ApplyResult.parallel` (which now exists) instead of re-deriving it,
    which is a small change with a much larger blast radius because `matchingVariantInfo` also feeds
    the BEAT COUNT. Do it only with the census, get-out and FSM measured either side.
-7. **PIN THE ORIENTATION — DONE for the SELECTION, open for the READOUT.** Every FASR code admits 4
-   boards — the 4 orientations — and `boardForFasrCode` used to silently return `boards[0]`. all8's
-   canonical board IS among the four (index 1 for `[L1p]`, character-for-character its published
-   diagram); only the SELECTION was wrong. **The selection is now closed: `CANONICAL_INDEX` is the
-   measured index per code and `boardForFasrCode` routes through `canonicalBoard`, reproducing All8's
-   own board on all 26 published diagrams.** What is still open is `fasrooOf`'s ORIENTATION
-   CONSTRUCTION, which is a display question and is blocked on the `[P]` reference pair — see the
-   dedicated entry above. `REFERENCE_PAIR_RULES` CLASSIFIES a board but is never used to SELECT one.
+7. **PIN THE ORIENTATION — DONE for the SELECTION and for the `[P]` reference pair; the READOUT is the
+   last piece and it is now DISPROVED rather than suspected.** Every FASR code admits 4 boards — the 4
+   orientations — and `boardForFasrCode` used to silently return `boards[0]`. all8's canonical board IS
+   among the four (index 1 for `[L1p]`, character-for-character its published diagram); only the
+   SELECTION was wrong. **The selection is closed: `CANONICAL_INDEX` is the measured index per code and
+   `boardForFasrCode` routes through `canonicalBoard`, reproducing All8's own board on all 28 published
+   diagrams** — 28 and not 26 because the two `[P]` refusals are gone (see the `[P]` entry above).
+   **The `[P]` reference pair is decided and recorded** (`REFERENCE_PAIR_SPOTS.P`, All8's own mental
+   Centers Pass Thru reduction), `fasrooOf` no longer refuses `[P]`, and on All8's own worked pair the
+   OCCUPATION comes out exactly right (`+` and `'`) while the ORIENTATION reads **R where All8 says
+   H** — so `fasrooOf`'s ORIENTATION CONSTRUCTION is now demonstrated wrong on the authority's own
+   example, and fixing it is the next piece of work rather than a suspicion. `REFERENCE_PAIR_RULES`
+   CLASSIFIES a board but is never used to SELECT one, and the same rule applies to the `[P]` reduction
+   — it is a readout, and `boardForFasrCode` uses the measured `CANONICAL_INDEX`, not it.
    The geometric "nearest its home bearing" rule was TESTED against all six published [L] diagrams
    and REFUTED (0 of 6), and re-measured at 3 of 26, so do not use it.
    **MEASURED, AND THE "INDEX 1 / INDEX 2" HYPOTHESIS IS REFUTED.** `test/tools/canonical-board-probe.mjs`
@@ -2924,10 +2987,21 @@ parallel grouping the animator re-derived differently from the applicator). Then
    the engine's boards and `a,b,a,b,c,d,c,d` on the page's, so no cyclic relabelling maps one to the
    other and the spots are permuted by something not yet identified. Until that permutation is found
    this source has NOT confirmed or refuted the rule, and it is recorded that way.
+   **SHARPENED, and it is worse than "unsolved": for `[P]` the page's own drawings are not all the
+   get-out pages' boards at all.** The sprite convention is now pinned
+   (`d1/<n><dir>.gif`, `couple = floor(n/2) + 1`, even = boy, odd = girl, `dir` = facing — confirmed
+   by the user and consistent with the page's own "At Home" drawing, where `0n` is the `#1` boy All8
+   marks red). With it, the four `[P]` states BOTH sources draw can be compared directly: `P1c` and
+   `P2r` agree up to a uniform couple relabelling, **`P3p` and `P4p` do not** — read in document order
+   those two cells are not valid boards at all (a couple's two dancers end up two columns apart with
+   another couple's boy between them) — and **no bijection of the eight tile slots onto the eight
+   spots reconciles all four**: `p-tile-order-probe.mjs` searches all 40,320 and finds **zero**. So the
+   blocker is not that the mapping is unidentified but that no single mapping can exist, which means
+   the page's tiles are laid out per state rather than on one lattice, or the page disagrees with
+   itself. Either way this source cannot be read as boards yet, and the `[P]` rule rests on the four
+   published get-out diagrams plus their four published conversion lines.
    **The gating argument, however, does not depend on it:** the fix is confined to sequences 1 and 2,
-   and those are measured across six formation letters and four arrangement numbers in the corpus. The
-   16com pass would strengthen the rule for sequences 3 and 4, where the current behaviour is already
-   what the rule prescribes.
+   and those are measured across six formation letters and four arrangement numbers in the corpus.
 8. **`boardFromMatchables` uses the ARRAY INDEX as dancer id** (`id: i + 1`) for any geometry that is
    not home-like, so a named formation stood up from the library has arbitrary ids and reports
    `sequence: unknown`. At SETUP the FASR properties should place the dancers, not the index. 129 of
@@ -2956,6 +3030,38 @@ parallel grouping the animator re-derived differently from the applicator). Then
    against a second witness before any code. Its cheap half is the decoder side — the 4 unread cells
    (`figm75 --1/2`, `figm170 S-`, `figm184 --Keep`, `figm226 H-meet-T1/4`) are Phase I work and two of
    them sit in figures Phase L would otherwise unblock.
+15. **HOW MUCH A CODE CAN BE TOLD APART — measured, and it names a reader gap nobody had priced.**
+    `fasr-injectivity-probe.mjs` enumerates all 576 boards of a formation at a fixed arrangement
+    (4! boy placements × 4! girl placements) and classifies each, which turns "does a code name a
+    board?" into a count:
+    ```
+    [P] [B] [L] [W] at arrangement 0, 576 boards each
+      sequence read as ASYMMETRIC (no FASR digit at all)   512
+      named by a (sequence, relationship) code              64   as 16 classes of 4 boards
+    ```
+    Four facts, all measured:
+    - **a named state is always a class of exactly 4 boards**, and for `[P] [B] [L]` the four are
+      always whole-set relabellings of each other. So a code names a class, never a board — which is
+      the whole reason `CANONICAL_INDEX` exists, and why selection must go through the couple-to-spot
+      assignment.
+    - **out-of-sequence is NOT where the notation weakens.** Sequences 2, 3 and 4 are 4 classes × 4
+      boards each, exactly like sequence 1: the four-fold freedom is a property of every state, not of
+      the scrambled ones.
+    - **512 of 576 boards are ASYMMETRIC** — no sequence digit exists at all, which is All8's own
+      "any other order … the sequence is asymmetric". All8's 96 states describe only the symmetric
+      slice of the space, which is why All8 started the separate "bang" notation. Not actionable, but
+      it is the honest size of what FASR covers.
+    - **`[W]` at sequences 3 and 4 is a genuine collapse: 16 boards share one bucket, and those 16 are
+      NOT relabellings of each other.** The relationship letter cannot be read there, so the class is
+      keyed on (arrangement, sequence) alone. All8's `16com_w.htm` lists all 16 `W` states and its
+      wave rule says to **Rear Back** before evaluating relationship, which the reader does not do — so
+      this is most likely an ENGINE gap rather than a notation limit, and it is the same shape as
+      `[P]` before All8's reduction was recorded (which took `[P]` from 10 classes — two of them
+      16-board buckets — to 16 classes of 4).
+    **Work:** read the Rear Back convention and see whether the wave relationship becomes readable at
+    sequences 3/4; if it does, it is a reader fix with a measurable resolution gain; if it does not,
+    the limit is the notation's and gets recorded. **Gate:** the class sizes, pinned in
+    `fasr-injectivity-probe.mjs`.
 
 The closing judgement from the last rounds, kept because it should shape expectations: **the
 remaining refusals are STACKED.** A coverage fix at call N generally reveals a different defect at

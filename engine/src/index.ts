@@ -76,6 +76,7 @@ export {
   parseAlignmentId,
   adjacentPairs,
   relationshipStateOf,
+  centresPassThru,
   ADJACENT_PAIR,
   REFERENCE_PAIR_SPOTS,
   boardsForAlignment,

@@ -534,13 +534,17 @@ Both spots are recorded, not just the one a boy stood on, because a call can mov
 *within* his own pair — after a pass thru the reference couple's boy and girl have swapped
 spots.
 
-*`[P]` is a real, understood gap.* Beginning Double Pass Thru matches **no** fixed adjacent
+*`[P]` is a real, understood gap — **CORRECTED AND CLOSED, see "The `[P]` reference pair" below**.*
+Beginning Double Pass Thru matches **no** fixed adjacent
 place: its own diagrams show `P1c` pairing the outer couples side by side and the inner ones
 as facing couples, because DPT genuinely mixes the two. That is precisely why All8 agrees a
-reference pair for `[0L] [0B] [0F] [0W]` and not for `[P]` — so `P1c` and `P2r` cannot be
-classified and are reported as a gap, not silently rounded. (`P3p`/`P4p` are unanimous and
+reference pair for `[0L] [0B] [0F] [0W]` and not for `[P]` — so `P1c` and `P2r` could not be
+classified and were reported as a gap, not silently rounded. (`P3p`/`P4p` were unanimous and
 fine.) The same applies to `[W]` and `[F]`, where no published alignment discriminates, so
-nothing is recorded and only unanimous states are reported.
+nothing is recorded and only unanimous states are reported. What this paragraph got wrong was
+the conclusion: All8 does not leave `[P]` undefined, it leaves it to a **reduction** — mentally
+have the Centers Pass Thru and read the relationship in the resulting `[0B]` — and the engine
+now applies it.
 
 *Two structural facts this step measured, both load-bearing for step 4:*
 
@@ -847,6 +851,63 @@ Line > Promenade`, `Circle Four Left 1/2 > Promenade`, `Flip Cross Reaction > Pr
 
 **Step 4d is next**: `Trade`/`Run` variant selection (see below) — the corpus's top engine gap
 and upstream of 6 of the 9 promenade finishes that still refuse.
+
+**The `[P]` reference pair is SETTLED — and it was the gate on the Orientation check, which now RUNS.**
+Recorded here because it is the one part of the FASR model that All8 leaves to a procedure rather than
+to an agreed pair, and reading the authority rather than reasoning is what settled it.
+
+Callerlab agrees a reference pair for `[L] [B] [F] [W]` only; for Beginning Double Pass Thru it agrees
+none, "since `[0P]` … does not have a single boy and a single girl in each quadrant". All8 supplies the
+missing half in the same paragraph (`16com_p.htm`, "Special note about Double Pass Thru Formation"):
+*"for purposes of evaluating relationship, we mentally have the Centers Pass Thru then evaluate
+relationship in the resulting `[0B]` Eight Chain Thru Formation."* The engine records that as All8's
+own **extension**, not a fifth convention (`REFERENCE_PAIR_RULES.P`, `relationshipStateOf`,
+`centresPassThru`, `REFERENCE_PAIR_SPOTS.P`).
+
+Measured on the four `[P]` alignments the get-out corpus publishes a diagram for
+(`p-reference-pair-probe.mjs`, `p-reference-position-probe.mjs`):
+
+- the reduction **is** the catalogue's own `Centers Pass Thru`, dancer for dancer (position and
+  heading), and the result is named `Eight Chain Thru` every time — it is a pure permutation of the
+  board's four INNER dancers, which is why the module can do it without the applicator;
+- All8's **own conversion lines** are reproduced **4/4** — `C-PasTh [B1c]` (P1c), `[B2r]` (P2r),
+  `[B3r]` (P3p), `[B4c]` (P4p) — which is the independent check, since those lines are what All8
+  prints beside each diagram;
+- the reference **POSITION** is one fixed cell, `(row 3, col 0)`, on all four, and the pair is
+  `[[3,0],[3,1]]` — pinned the same way `[B]` and `[L]` were, through the reduction rather than
+  directly;
+- the published **LETTERS** are not a fixed pair's, and that split is measured rather than assumed:
+  scoring every boy spot × girl spot over the four alignments finds **0** pairs that work, while the
+  reduction does. So the rule reads the board's own pairs when they AGREE (P3p/P4p, "All Paired", every
+  boy beside his partner) and reduces only when they disagree (P1c/P2r, "Outsides Paired").
+  **Applying the reduction unconditionally would contradict the published `p` for P3p and P4p**, which
+  is the measurement that fixes this shape.
+
+*What it changes:* `boardForFasrCode` derives All8's own board for **28 of 28** published alignments
+instead of 26 — both refusals gone, and `all8-format.mjs` now pins "no refusal" rather than the pair —
+and `CANONICAL_INDEX.P` gains two measured entries (`1:{c:0}`, `2:{r:0}`; all four `[P]` codes measure
+at index 0). Census, get-out and FSM are all unmoved: no figure uses a `[P]` code. Gated in
+`alignment.mjs` (letters, reference cell, the reduction being involutive) and `alignment-boards.mjs`
+(the reduction equals the catalogue call; All8's four conversion lines).
+
+*And the probe the pair was blocking now runs, which DISPROVES the Orientation construction.* All8's
+own worked pair — the same board with the couples shifted, differing only in Occupation — reads
+`[0P1cR+]` and `[0P1cR']`: **Occupation exactly right for both** (`+` and `'`), which validates the
+reference pair, and **Orientation R where All8 says H**. The construction compares the reference boy's
+current bearing to his own home bearing about the centre; All8 superimposes the squared set. This is
+the same fault the four `[L1p]` boards show as 315/45/135/225 before quantising, now demonstrated on
+the authority's own example instead of merely flagged in the source.
+
+*The second source for the other twelve states cannot be read either, and that is recorded.* All8's
+"16 Possible Pairings" page draws all sixteen with couple-numbered tiles, and the tiles now decode
+exactly (`d1/<n><dir>.gif`, `couple = floor(n/2) + 1`, even = boy, odd = girl, `dir` = facing —
+confirmed by the user, and consistent with the page's own "At Home" drawing where `0n` is the `#1` boy
+All8 marks red). But the page's four overlapping states are **not** all the get-out pages' boards:
+`P1c` and `P2r` match up to a uniform couple relabelling, `P3p` and `P4p` do not, and **no bijection of
+the eight tile slots onto the eight spots reconciles all four** (`p-tile-order-probe.mjs` searches all
+40,320 and finds zero) — read in document order those two cells are not valid boards at all. So the
+`[P]` rule rests on the four published get-out diagrams and their four conversion lines, and that is
+the honest sample size; the twelve unread states are neither confirmed nor refuted.
 
 ### 9.2 Other open items
 1. **The decoder table is now the top blocker (§9.1 step 4).** 202 of 412 published lines stop

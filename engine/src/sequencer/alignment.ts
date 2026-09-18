@@ -523,12 +523,26 @@ export function relationshipCode(boyCouple: number, girlCouple: number): Relatio
  * ("It is somewhat arbitrary which dancers we choose for the reference pair and
  * it unfortunately makes a definite difference, affecting which letter (p, c, o,
  * r) gets assigned.")
+ *
+ * `[P]` IS NOT ONE OF THE FOUR, and its entry is All8's own stated procedure rather than an agreed
+ * pair: Callerlab records a pair for `[L] [B] [F] [W]` and none for Beginning Double Pass Thru,
+ * because that formation "does not have a single boy and a single girl in each quadrant". All8
+ * supplies the workaround in the same breath (16com_p.htm, "Special note about Double Pass Thru
+ * Formation"):
+ *
+ *   "... for purposes of evaluating relationship, we mentally have the Centers Pass Thru then
+ *    evaluate relationship in the resulting [0B] Eight Chain Thru Formation."
+ *
+ * That is a DERIVATION from `[B]`, not a fifth agreed convention, and the engine records it as such.
+ * See `REFERENCE_PAIR_SPOTS['P']`, `centresPassThru` and `relationshipStateOf` for the measurement.
  */
 export const REFERENCE_PAIR_RULES: Record<string, string> = {
   L: 'Facing Lines [0L] ... The Left-hand couple',
   B: 'Box / 8 Chain Thru [0B] ... Outside boy and dancer (girl) he is facing',
   F: 'R-H 2 Face Lines [0F] ... The trailing couple',
   W: 'Parallel R-H Waves [0W] ... The in facing end (boy) and adjacent dancer (girl)',
+  P: "(Beginning) DPT [0P] ... Callerlab agrees no pair (no single boy and girl in each quadrant); "
+    + "All8's procedure is to mentally have the Centers Pass Thru and read relationship in the resulting [0B] Eight Chain Thru",
 };
 
 export interface Alignment {
@@ -737,14 +751,25 @@ export const ADJACENT_PAIR: Record<string, (r: number, c: number) => [number, nu
  * and its boy is whichever of the two dancers is the boy.
  *
  * For [W] and [F] no published alignment discriminates, so nothing is recorded and
- * only unanimous states are reported. [P] is absent for a reason: no place works
- * there at all, because Beginning Double Pass Thru genuinely mixes side-by-side
- * couples with facing ones - which is precisely why All8 agreed a reference pair
- * for four formations and not for this one.
+ * only unanimous states are reported.
+ *
+ * [P] IS RECORDED NOW, and it is the one entry DERIVED rather than solved for directly. Beginning
+ * Double Pass Thru genuinely mixes side-by-side couples with facing ones - which is precisely why
+ * All8 agreed a reference pair for four formations and not for this one - and no fixed pair
+ * reproduces its published relationship LETTERS (`p-reference-position-probe.mjs` scores every boy
+ * spot x girl spot over the four published [P] alignments and finds **0** that work). What IS fixed
+ * is the reference POSITION, and All8's procedure is what pins it: reading relationship in the
+ * resulting `[0B]` means locating `[B]`'s own reference pair THERE and carrying it back. Measured on
+ * all four published [P] alignments, that boy is the same cell of the [P] drawing every time -
+ * `(row 3, col 0)` - and the girl adjacent to him on the [P] board is the one at `(row 3, col 1)`.
+ * So the pair is `[[3, 0], [3, 1]]`, pinned by the corpus the same way `[B]` and `[L]` are, through
+ * the reduction rather than directly. The LETTERS come from the reduction, in `relationshipStateOf`;
+ * the pair recorded here is what Orientation and Occupation are read from.
  */
 export const REFERENCE_PAIR_SPOTS: Record<string, [number, number][]> = {
   B: [[2, 0], [3, 0]],
   L: [[0, 2], [0, 3]],
+  P: [[3, 0], [3, 1]],
 };
 
 /** One boy-girl adjacent pair, with the relationship letter it implies. */
@@ -821,33 +846,101 @@ export interface RelationshipState {
 }
 
 /**
+ * THE MENTAL CENTERS PASS THRU, as pure geometry - the reduction All8's `[P]` convention needs.
+ *
+ * All8 says to "mentally have the Centers Pass Thru then evaluate relationship in the resulting [0B]
+ * Eight Chain Thru Formation". On a Beginning Double Pass Thru board that "pass thru" is exactly the
+ * four INNER dancers exchanging places, because those are the only ones that face each other: the two
+ * outer couples face the same way as their neighbours, and the two inner couples face across the
+ * middle. So the operation is a permutation of the board, no call catalogue involved - which is what
+ * lets `alignment.ts` (a pure geometry/identity module) do it at all.
+ *
+ * MEASURED, not assumed: this reproduces the catalogue's own `Centers Pass Thru` board IDENTICALLY
+ * (every dancer's position and heading) from all four published `[P]` alignments
+ * (`p-reference-pair-probe.mjs`), and the result is named `Eight Chain Thru` in every case.
+ *
+ * The inner four are found by distance from the set centre rather than by coordinate, so a rotated
+ * board works; each must face exactly one of the others at roughly one lattice step, or the board is
+ * not a Double Pass Thru and this refuses with the reason.
+ */
+export function centresPassThru(board: Board): { board: Board | null; reason?: string } {
+  const dancers = board.dancers.filter((d) => !d.isGhost);
+  if (dancers.length !== 8) return { board: null, reason: `a Double Pass Thru has 8 dancers, this board has ${dancers.length}` };
+  const cx = dancers.reduce((s, d) => s + d.x, 0) / dancers.length;
+  const cy = dancers.reduce((s, d) => s + d.y, 0) / dancers.length;
+  const byDistance = [...dancers].sort((a, b) => Math.hypot(a.x - cx, a.y - cy) - Math.hypot(b.x - cx, b.y - cy));
+  const inner = byDistance.slice(0, 4);
+  const facing = new Map<number, SeqDancer>();
+  for (const d of inner) {
+    const opposite = inner.filter((o) => o !== d
+      && Math.hypot(o.x - d.x, o.y - d.y) < 2.1
+      && Math.abs(((o.heading - d.heading) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI) < 0.2);
+    if (opposite.length !== 1) {
+      return { board: null, reason: `the centres do not form facing pairs: the inner dancer at (${d.x}, ${d.y}) faces ${opposite.length} of them` };
+    }
+    facing.set(d.id, opposite[0]);
+  }
+  const moved = board.dancers.map((d) => {
+    const to = facing.get(d.id);
+    return to ? { ...d, x: to.x, y: to.y } : { ...d };
+  });
+  return { board: { dancers: moved } };
+}
+
+/** The adjacent pair sitting on a formation's recorded reference spots, in either order. */
+function referencePairAtSpots(pairs: AdjacentPairResult[], spots: [number, number][] | undefined): AdjacentPairResult | undefined {
+  if (!spots) return undefined;
+  return pairs.find((p) =>
+    spots.some(([r, c]) => p.boySpot[0] === r && p.boySpot[1] === c) &&
+    spots.some(([r, c]) => p.girlSpot[0] === r && p.girlSpot[1] === c));
+}
+
+/**
  * Read a board's relationship state for a formation.
  *
  * In a symmetric state every boy's adjacent girl is in the same relationship, so a
  * unanimous answer is reported directly. Where the boys do not agree - All8's
  * warning that the reference pair "makes a definite difference, affecting which
  * letter gets assigned, especially in sequence states 3 and 4" - the answer comes
- * from the reference pair, which is pinned per formation in REFERENCE_BOY_SPOT.
+ * from the reference pair, which is pinned per formation in REFERENCE_PAIR_SPOTS.
  * Where no reference pair is known and the boys disagree, this says so and hands
  * back all four letters rather than picking one, because picking arbitrarily is
  * exactly the mistake All8 says the convention exists to prevent.
+ *
+ * [P] IS THE ONE FORMATION THAT NEEDS A REDUCTION RATHER THAN A PAIR, and both halves of that are
+ * measured on the four published [P] alignments:
+ *
+ *   - the board's OWN adjacent pairs answer it when they agree (the two "All Paired" states, P3p and
+ *     P4p, read `p` - every boy has his partner beside him - which is what All8 publishes);
+ *   - when they disagree (P1c, P2r - "Outsides Paired", two side-by-side couples and two facing
+ *     ones) no fixed pair reproduces the published letters, and All8's mental Centers Pass Thru does:
+ *     the resulting `[0B]` board's own reference pair gives exactly the published `c` and `r`.
+ *
+ * The `[P]` reference pair is still reported in both cases, because `fasrooOf` reads Orientation and
+ * Occupation from it; it is `REFERENCE_PAIR_SPOTS.P`, the cell All8's worked `[0P1cH+]`/`[0P1cH']`
+ * example anchors.
  */
 export function relationshipStateOf(board: Board, letter: string): RelationshipState {
   const a = adjacentPairs(board, letter);
   if (!a.pairs) return { code: null, pairs: [], reason: a.reason };
   const letters = new Set(a.pairs.map((p) => p.letter));
   if (letters.size === 1 && !letters.has(null)) {
-    return { code: [...letters][0] as RelationshipCode, pairs: a.pairs };
+    return { code: [...letters][0] as RelationshipCode, pairs: a.pairs, reference: referencePairAtSpots(a.pairs, REFERENCE_PAIR_SPOTS[letter]) };
+  }
+  if (letter === 'P') {
+    const reference = referencePairAtSpots(a.pairs, REFERENCE_PAIR_SPOTS.P);
+    const reduced = centresPassThru(board);
+    if (!reduced.board) {
+      return { code: null, pairs: a.pairs, reference, reason: `the boys disagree (${a.pairs.map((p) => p.letter ?? '?').join('')}) and the mental Centers Pass Thru cannot be taken: ${reduced.reason}` };
+    }
+    const asB = relationshipStateOf(reduced.board, 'B');
+    if (asB.code) return { code: asB.code, pairs: a.pairs, reference };
+    return { code: null, pairs: a.pairs, reference, reason: `the boys disagree (${a.pairs.map((p) => p.letter ?? '?').join('')}) and the resulting [0B] board does not resolve it either: ${asB.reason}` };
   }
   const spots = REFERENCE_PAIR_SPOTS[letter];
-  if (spots) {
-    const isRef = (p: AdjacentPairResult) =>
-      spots.some(([r, c]) => p.boySpot[0] === r && p.boySpot[1] === c) &&
-      spots.some(([r, c]) => p.girlSpot[0] === r && p.girlSpot[1] === c);
-    const reference = a.pairs.find(isRef);
-    if (reference?.letter) {
-      return { code: reference.letter, pairs: a.pairs, reference };
-    }
+  const reference = referencePairAtSpots(a.pairs, spots);
+  if (reference?.letter) {
+    return { code: reference.letter, pairs: a.pairs, reference };
   }
   const shown = a.pairs.map((p) => p.letter ?? '?').join('');
   return {
@@ -857,7 +950,7 @@ export function relationshipStateOf(board: Board, letter: string): RelationshipS
       ? 'an adjacent pair has no home couple, so its relationship is undefined'
       : spots
         ? `the boys disagree (${shown}) and the reference pair does not resolve it`
-        : `the boys disagree (${shown}) and All8 records no reference pair for [${letter}], so no single letter is justified${letter === 'P' ? ' (Beginning Double Pass Thru mixes side-by-side and facing couples, which is why it is outside the four formations Callerlab defines this for)' : ''}`,
+        : `the boys disagree (${shown}) and All8 records no reference pair for [${letter}]`,
   };
 }
 
@@ -975,6 +1068,13 @@ export function fasrooOf(board: Board, formationName: string | null): Fasroo {
   // canonical board reads 'L' rather than the 'H' a correct construction would be expected to give.
   // See `engine/test/tools/fasroo-probe.mjs`. Left in place because the four values DO separate the
   // four boards, which is the property the readout needs, but the ABSOLUTE value must not be trusted.
+  //
+  // AND THE WITNESS IS NOW ALL8'S OWN `[P]` WORKED CASE, which used to be unreachable because `[P]`
+  // had no reference pair and this function refused it before computing anything. With the `[P]`
+  // reduction recorded, All8's pair of diagrams - the same board with the couples shifted, differing
+  // only in Occupation - reads `[0P1cR+]` and `[0P1cR']`: the OCCUPATION is exactly what All8 draws,
+  // and the ORIENTATION is R where All8 says H. So the fault is no longer a suspicion; it is
+  // demonstrated on the authority's own example. See `p-reference-pair-probe.mjs`.
   const n = board.dancers.length;
   const cx = board.dancers.reduce((s, d) => s + d.x, 0) / n;
   const cy = board.dancers.reduce((s, d) => s + d.y, 0) / n;
@@ -1193,10 +1293,9 @@ export function relabelCouples(board: Board, k: number): Board {
  *     says where the reference pair goes), but (letter, relationship) is not a function either.
  *
  * What survives is the table itself: for a code, the index. `p` codes of `[L] [W] [F] [L.F]` sit at 1
- * when the sequence is 1 and 2 when it is 2, `[B]` sits at 2/1/0/0 by (sequence, relationship), `[P]`
- * - which admits no board for its non-`p` codes at all - sits at 0 for both `p` codes, and the
- * sequence-3/4 codes all sit at 0, which is worth knowing because it means the CURRENT behaviour is
- * already All8's board for them.
+ * when the sequence is 1 and 2 when it is 2, `[B]` sits at 2/1/0/0 by (sequence, relationship), every
+ * `[P]` code measures at 0, and the sequence-3/4 codes all sit at 0, which is worth knowing because it
+ * means the CURRENT behaviour is already All8's board for them.
  *
  * A code with no entry here has NO MEASUREMENT BEHIND ITS SELECTION and falls back to `boards[0]`,
  * which is what the engine did before this existed. That is deliberate: the plan's rule is to fail
@@ -1215,7 +1314,11 @@ export const CANONICAL_INDEX: Record<string, Record<number, Partial<Record<Relat
   W: { 1: { p: 1 }, 2: { p: 2 } },
   F: { 1: { p: 1 }, 2: { p: 2 } },
   'L.F': { 1: { p: 1 }, 2: { p: 2 } },
-  P: { 3: { p: 0 }, 4: { p: 0 } },
+  // [P] now has all four of its PUBLISHED codes, because the reduction above made its non-`p` codes
+  // readable: `P1c` and `P2r` were refused outright before, and each now measures at index 0 - the
+  // same slot as the two `p` codes. So All8's own board is selected by measurement for every [P] code
+  // the corpus publishes a diagram for, and `boardForFasrCode` no longer has to decline one.
+  P: { 1: { c: 0 }, 2: { r: 0 }, 3: { p: 0 }, 4: { p: 0 } },
 };
 
 /** All8's own board among the ones a code admits, or `boards[0]` when the code is unmeasured. */
@@ -1358,14 +1461,12 @@ export function compliesWithSetup(
  * `templateForLetter` supplies the engine formation for a letter, so this stays pure and does not
  * reach into the Sequencer.
  *
- * MEASURED against All8's own 29 published alignments: this reproduces the diagram-derived board
- * for **26**, and now reproduces All8's OWN CHOICE of the four for every one of them, because it
- * selects through `canonicalBoard` rather than taking `boards[0]`. The two it cannot are `[P]`
- * (`P1c`, `P2r`, i.e. Beginning Double Pass Thru), and the refusal is CORRECT rather than a gap: for
- * that formation the boys' relationships genuinely disagree, so no single relationship letter is
- * justified (see `relationshipStateOf`'s reason). All8 still labels those pages with a letter, which
- * is why a caller reading the page sees one and the engine will not invent it. The diagram is the only
- * way to pin those two, so a caller importing them must set the board up by hand.
+ * MEASURED against All8's own published alignments: this reproduces the diagram-derived board for
+ * ALL of them - the two that used to refuse (`P1c`, `P2r`, Beginning Double Pass Thru) are now built,
+ * because All8's own mental-Centers-Pass-Thru convention supplies the relationship letter that a fixed
+ * reference pair cannot (see `relationshipStateOf`), and both measure at `CANONICAL_INDEX` 0. Every
+ * code that publishes a diagram therefore reproduces All8's OWN CHOICE of the four, because this
+ * selects through `canonicalBoard` rather than taking `boards[0]`.
  *
  * For a code the canonical table has NOT measured, `canonicalBoard` falls back to `boards[0]`, i.e. to
  * exactly the behaviour this function had before the setup work - so nothing got silently worse for

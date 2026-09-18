@@ -45,6 +45,11 @@ import {
   relationshipCode,
   letterForFormation,
   alignmentOf,
+  boardFromDiagram,
+  relationshipStateOf,
+  centresPassThru,
+  readLayout,
+  REFERENCE_PAIR_SPOTS,
   ARRANGEMENT_TABLES,
   ARRANGEMENT_NUMBER_ORDER,
   HOME_RING_ORDER,
@@ -444,6 +449,49 @@ console.log(`      relationship: ${bAl.relationshipReason}`);
 console.log('      Home now reads [0S1?]: the letter is all8\'s, the arrangement is the [S] table\'s and');
 console.log('      the sequence is the home board\'s own. The relationship stays unknown because Callerlab');
 console.log('      defines a reference pair for [L] [B] [F] [W] only, and the templates carry no identity.');
+
+// 8. [P] (Beginning Double Pass Thru): the reference pair and the relationship rule it needs.
+//
+// Callerlab agrees a reference pair for [L] [B] [F] [W] only, and [P] is the formation where a fixed
+// pair cannot pick a letter at all. All8 supplies the missing half itself (16com_p.htm): "mentally
+// have the Centers Pass Thru then evaluate relationship in the resulting [0B] Eight Chain Thru
+// Formation". This gate reads All8's four published [P] diagrams out of the get-out fixture - the
+// same ground truth `alignment-boards.mjs` rebuilds everything else from - and pins both halves.
+// (The call-level half, that the reduction IS the catalogue's own Centers Pass Thru and lands on the
+// conversion All8 publishes beside each diagram, is gated in `alignment-boards.mjs`, which has the
+// call catalogue loaded.)
+{
+  const getouts = JSON.parse(read('engine/test/fixtures/all8-getouts.json'));
+  const pTemplate = seq.boardForFormation('Double Pass Thru');
+  const wantCell = REFERENCE_PAIR_SPOTS.P[0];
+  let letters = 0, cells = 0, boards = 0;
+  for (const a of getouts.alignments.filter((x) => /^P[1-4][pocr]$/.test(x.id ?? ''))) {
+    const spec = { arrangement: 0, letter: 'P', sequence: Number(a.id[1]), relationship: a.id[2] };
+    const built = boardFromDiagram(pTemplate, 'P', spec.arrangement, a.diagram);
+    if (!built.board) { fail(`[${a.id}]: ${built.reason}`); continue; }
+    boards++;
+    const rel = relationshipStateOf(built.board, 'P');
+    if (rel.code === spec.relationship) letters++;
+    else fail(`[${a.id}] reads relationship '${rel.code ?? 'none'}', All8 publishes '${spec.relationship}'`);
+    const layout = readLayout(built.board, 'P');
+    let cell = null;
+    layout?.cells.forEach((row, r) => row.forEach((d, c) => { if (d && d.id === rel.reference?.boy) cell = [r, c]; }));
+    if (cell && cell[0] === wantCell[0] && cell[1] === wantCell[1]) cells++;
+    else fail(`[${a.id}] reference pair is at ${cell ? `(${cell})` : 'no cell'}, not the recorded (row ${wantCell[0]}, col ${wantCell[1]})`);
+  }
+  if (boards && letters === boards) ok(`[P] relationship: All8's published letter reproduced on all ${boards} published alignments`);
+  if (boards && cells === boards) ok(`[P] reference pair: the same drawing cell on all ${cells}, and it is the pair fasrooOf reads Orientation from`);
+  // The reduction is a PASS THRU, so applying it twice is the identity - a property, not a reading.
+  const own = centresPassThru(pTemplate);
+  const twice = own.board ? centresPassThru(own.board) : null;
+  const involutive = own.board && twice?.board
+    && pTemplate.dancers.every((d) => {
+      const o = twice.board.dancers.find((x) => x.id === d.id);
+      return o && Math.abs(o.x - d.x) < 1e-9 && Math.abs(o.y - d.y) < 1e-9;
+    });
+  if (involutive) ok('[P] the mental Centers Pass Thru is a pass thru: applying it twice restores the board');
+  else fail('[P] the mental Centers Pass Thru is not an involution, so it is not a pass thru');
+}
 
 console.log('\n=================');
 console.log(failures === 0

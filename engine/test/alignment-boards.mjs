@@ -35,7 +35,8 @@
 // arrangements the published diagram is being read with our structural pairing
 // (nearest opposite-gender neighbour) rather than an agreed convention. Those are
 // reported separately so the settled cases are not confused with the extrapolated
-// ones.
+// ones. `[P]` is the fifth entry and the one All8 leaves to a reduction rather than
+// an agreed pair - section 5b gates it.
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
@@ -51,6 +52,8 @@ import {
   arrangementFor,
   sequenceFor,
   relationshipStateOf,
+  centresPassThru,
+  readLayout,
   letterForFormation,
   FORMATIONS_FOR_LETTER,
   FORMATION_LETTER,
@@ -355,18 +358,72 @@ console.log('  5a. the reference pair is PINNED by the corpus, not chosen.');
 console.log('      All8 gives the reference pair in words ("the outside boy", "the left-hand couple"), and');
 console.log('      the words only resolve to a spot once you know which end of the drawing is meant. Solving');
 console.log('      it against the published letters:');
-for (const [letter, spot] of Object.entries(REFERENCE_PAIR_SPOTS)) {
+for (const [letter, spots] of Object.entries(REFERENCE_PAIR_SPOTS)) {
   const list = corpus.alignments.filter((a) => parseAlignmentId(a.id)?.letter === letter);
   const ids = list.map((a) => a.id).join(' ');
-  console.log(`        [${letter}] reference boy at table spot (row ${spot[0]}, col ${spot[1]}) - reproduces all ${list.length}: ${ids}`);
+  console.log(`        [${letter}] reference pair at table spots ${spots.map(([r, c]) => `(row ${r}, col ${c})`).join(' + ')} - reproduces all ${list.length}: ${ids}`);
 }
-console.log('      In both cases it is the only spot that reproduces every letter, so the convention is derived,');
-console.log('      not guessed. For [W] and [F] no published alignment discriminates (they are all `p`, where any');
-console.log('      pair agrees), so nothing is recorded and only unanimous states are reported.');
-console.log('  5b. the [P] gap. Beginning Double Pass Thru matches NO fixed adjacent spot: its own diagrams show');
-console.log('      P1c pairing the outer couples side by side and the inner ones as facing couples. That is');
-console.log('      exactly why All8 agrees a reference pair for [0L] [0B] [0F] [0W] and not for [P]. The 2');
-console.log('      non-`p` corpus alignments (P1c, P2r) therefore cannot be classified; P3p/P4p are unanimous.');
+console.log('      For [B] and [L] it is the only spot that reproduces every letter, so the convention is');
+console.log('      derived, not guessed. For [W] and [F] no published alignment discriminates (they are all `p`,');
+console.log('      where any pair agrees), so the boy spot is recorded from the corpus and the girl from him.');
+console.log('      [P] is the one that needed All8\'s own reduction - see 5b.');
+
+// ---------------------------------------------------------------- 5b. the [P] rule, gated
+//
+// Beginning Double Pass Thru has no Callerlab reference pair, and All8 supplies the missing half
+// itself (16com_p.htm): "mentally have the Centers Pass Thru then evaluate relationship in the
+// resulting [0B] Eight Chain Thru Formation". `relationshipStateOf` now applies it, and this section
+// gates the three independent facts it rests on. All four published [P] alignments are used, so this
+// is the strongest evidence the repo holds for the rule.
+console.log('\n  5b. the [P] rule (All8\'s mental Centers Pass Thru into [0B]), gated three ways.');
+const pAlignments = corpus.alignments.filter((a) => parseAlignmentId(a.id)?.letter === 'P');
+const P_CONVERSION = { P1c: 'B1c', P2r: 'B2r', P3p: 'B3r', P4p: 'B4c' };
+let pLetters = 0, pRef = 0, pGeom = 0, pConv = 0, pBoards = 0;
+for (const a of pAlignments) {
+  const spec = parseAlignmentId(a.id);
+  const t = templateFor('P');
+  const built = boardFromDiagram(t.board, 'P', spec.arrangement, a.diagram);
+  if (!built.board) continue;
+  pBoards++;
+  const board = built.board;
+  // (1) the recorded reader reproduces All8's published relationship letter
+  const rel = relationshipStateOf(board, 'P');
+  if (rel.code === spec.relationship) pLetters++;
+  else fail(`[${a.id}] reads relationship '${rel.code ?? 'none'}' but All8 publishes '${spec.relationship}'`);
+  // (2) the reference pair lands on the recorded spots, and it is the pair fasrooOf needs
+  const layout = readLayout(board, 'P');
+  let boyCell = null;
+  layout?.cells.forEach((row, r) => row.forEach((d, c) => { if (d && d.id === rel.reference?.boy) boyCell = [r, c]; }));
+  const want = REFERENCE_PAIR_SPOTS.P[0];
+  if (rel.reference && boyCell && boyCell[0] === want[0] && boyCell[1] === want[1]) pRef++;
+  else fail(`[${a.id}] the reference pair is not the recorded cell (row ${want[0]}, col ${want[1]}): ${boyCell ? `(${boyCell})` : 'absent'}`);
+
+  // (3) the pure-geometry reduction IS the catalogue's own Centers Pass Thru, dancer for dancer
+  const geom = centresPassThru(board);
+  const call = seq.applyToBoard(board, 'Centers Pass Thru');
+  const same = geom.board && call.legal && geom.board.dancers.every((d) => {
+    const o = call.board.dancers.find((x) => x.id === d.id);
+    return o && Math.abs(o.x - d.x) < 1e-6 && Math.abs(o.y - d.y) < 1e-6 && Math.abs(o.heading - d.heading) < 1e-9;
+  });
+  if (same) pGeom++;
+  else fail(`[${a.id}] the geometric reduction is not the catalogue's Centers Pass Thru board`);
+
+  // (4) and All8's OWN conversion line for that state, which says where the pass thru lands
+  const reduced = geom.board;
+  const asB = reduced ? `${sequenceFor(call.board).code}${relationshipStateOf(call.board, 'B').code}` : null;
+  if (call.legal && `B${asB}` === P_CONVERSION[a.id]) pConv++;
+  else fail(`[${a.id}] All8 publishes the conversion ${P_CONVERSION[a.id]} but the pass thru gives B${asB ?? '?'}`);
+}
+if (pLetters === pBoards && pBoards) ok(`the [P] rule reproduces All8's published relationship letter on all ${pBoards}: ${pAlignments.map((a) => a.id).join(' ')}`);
+if (pRef === pBoards && pBoards) ok(`the reference pair is the same drawing cell on all ${pRef} - and it is the pair Orientation and Occupation are read from`);
+if (pGeom === pBoards && pBoards) ok(`the reduction is the catalogue's own Centers Pass Thru board, dancer for dancer, on all ${pGeom}`);
+if (pConv === pBoards && pBoards) ok(`All8's OWN conversion lines are reproduced on all ${pConv}: ${Object.entries(P_CONVERSION).map(([k, v]) => `${k} -> ${v}`).join(', ')}`);
+console.log('      The reference pair POSITION is fixed and the LETTERS come from the reduction, and that split');
+console.log('      is measured rather than assumed: no fixed pair reproduces the published letters (0 of every');
+console.log('      boy spot x girl spot, over all four), while the reduction does. The rule reads the board\'s');
+console.log('      own pairs when they AGREE (P3p/P4p, "All Paired", every boy beside his partner) and reduces');
+console.log('      only when they disagree (P1c/P2r, "Outsides Paired") - applying the reduction unconditionally');
+console.log('      would contradict the published letters for P3p and P4p.');
 
 const familyToLetter = new Map();
 for (const [family, entry] of Object.entries(JSON.parse(readFileSync(path.join(__dirname, 'fixtures', 'all8-formation-map.json'), 'utf8')).families)) {

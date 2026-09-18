@@ -211,15 +211,20 @@ because that is exactly the curve the renderer falls back to when no rotation B�
 present. Re-timing a move re-times the call when it changes the LONGEST dancer's path; a
 call whose authored beat count is longer than every path (a pause) keeps the pause.
 
-**The moves row drives the stage**, which is what makes a single move editable at all:
+**The moves row drives the stage**, which is what makes a single move editable at all. The
+moves themselves are shown as a STRIP: every move of the chosen track, in order, so the whole
+path being edited is visible at once instead of one move at a time behind a dropdown. The move
+being edited is **triple width** (180px against the compact tiles' 60px) and carries its
+numbers; every other move is a compact tile showing its number, its beats and its hands, and
+clicking one selects it. A long path scrolls horizontally.
 
 - **Moves of** — only the chosen dancer's TRACK is drawn; every other dancer's track is
   hidden, so the one you are editing is not lost among eight. The dancers themselves stay
   visible (only tracks are hidden), and leaving the instance editor gives every track back.
-- **Move** — the chosen move's own stretch of that track is highlighted in amber, and the
-  rest of the track is dimmed. The stretch is the BEAT RANGE the move occupies, from
+- **The current move** — its own stretch of that track is highlighted in amber, and the rest
+  of the track is dimmed. The stretch is the BEAT RANGE the move occupies, from
   `moveBeatRange`, mapped to floor positions by `sampleTrailRange` — both engine functions,
-  so what is highlighted is the move the panel names rather than a plausible-looking slice.
+  so what is highlighted is the move the strip names rather than a plausible-looking slice.
   A zero-beat move owns an empty range and draws nothing.
 
 **Reset** throws away the edits made in the tab and reloads the instance — and note what it

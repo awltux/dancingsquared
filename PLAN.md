@@ -2447,9 +2447,13 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     is a real signal from here on (it is trap 18 in `HANDOVER.md`). `node poc/verify.cjs` still
     fails the same **three** pre-existing `Pass Thru` checks and loads all **542** catalogue
     calls.
-  - **THE MOVES ROW DRIVES THE STAGE, and the beat range comes from the ENGINE.** Picking a
-    dancer in **Moves of** hides every other dancer's track, and picking a **Move** highlights
-    that move's own stretch of the chosen track in amber with the rest of it dimmed. The stretch
+  - **THE MOVES ROW DRIVES THE STAGE, and the beat range comes from the ENGINE.** The moves of
+    the chosen track are shown as ONE STRIP rather than one at a time behind a dropdown: the move
+    being edited is TRIPLE WIDTH and carries its numbers, and every other move is a compact tile
+    (number, beats, hands) that selects on click — which is also what moves the highlight, so a
+    long path is read whole instead of probed one move at a time. Picking a dancer in **Moves of**
+    hides every other dancer's track, and the current move's own stretch of the chosen track is
+    highlighted in amber with the rest of it dimmed. The stretch
     is a beat range, so it is `moveBeatRange(dancer, k)` in `editor.ts` and `sampleTrailRange` in
     `core.ts`, not arithmetic in the UI — which is what makes it checkable. MEASURED (section 15):
     the ranges TILE the dancer's clock ([0,1) [1,2) … [9,10) for a 10-move path), the last move

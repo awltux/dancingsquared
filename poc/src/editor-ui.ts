@@ -65,6 +65,18 @@ const POS_WARN = 2.0; // units
 const HANDS: Hands[] = ['none', 'left', 'right', 'both', 'gripleft', 'gripright', 'gripboth'];
 const GENDERS: Gender[] = ['boy', 'girl', 'phantom'];
 
+/** Hands, abbreviated for a compact move tile. */
+const HANDS_SHORT: Record<Hands, string> = {
+  none: '—',
+  left: 'L',
+  right: 'R',
+  both: 'B',
+  gripleft: 'gL',
+  gripright: 'gR',
+  gripboth: 'gB',
+};
+const handsShort = (h: Hands): string => HANDS_SHORT[h] ?? h;
+
 /** Round the way the engine's XML export does, so a value read out of the table and typed
  *  back in is the same number rather than a 15-digit float. */
 const show = (n: number): string => (Math.round(n * 1e4) / 1e4).toString();
@@ -107,10 +119,10 @@ export class EditorController implements EditorUI {
   private instInfoEl = el<HTMLSpanElement>('edInstInfo');
   private formationEl = el<HTMLDivElement>('edFormation');
   private moveDancerSel = el<HTMLSelectElement>('edMoveDancer');
-  private movePickSel = el<HTMLSelectElement>('edMovePick');
+  private moveStripEl = el<HTMLDivElement>('edMoveStrip');
+  private moveInfoEl = el<HTMLSpanElement>('edMoveInfo');
   private moveAddBtn = el<HTMLButtonElement>('edMoveAdd');
   private moveDelBtn = el<HTMLButtonElement>('edMoveDel');
-  private moveFieldsEl = el<HTMLDivElement>('edMoveFields');
 
   private catalog = availableCalls();
   private saved: CallEdit[] = loadEdits();
@@ -330,7 +342,7 @@ export class EditorController implements EditorUI {
     if (focusKey !== undefined) this.focusKey = focusKey;
     this.renderFormation();
     this.renderMoveSelectors();
-    this.renderMoveFields();
+    this.renderMoveStrip();
     this.renderInstanceInfo();
     this.syncTrailFocus();
     if (this.focusKey) {
@@ -503,29 +515,77 @@ export class EditorController implements EditorUI {
     for (const d of dancers) {
       this.moveDancerSel.add(new Option(`#${d.index + 1} ${d.gender} (${d.moves.length})`, String(d.index), false, d.index === this.moveDancer));
     }
-    const moves = dancers[this.moveDancer]?.moves ?? [];
-    if (this.moveIndex >= moves.length) this.moveIndex = Math.max(0, moves.length - 1);
-    this.movePickSel.innerHTML = '';
-    moves.forEach((s, k) => {
-      this.movePickSel.add(new Option(`move ${k + 1} · ${show(s.beats)}b · ${s.hands}`, String(k), false, k === this.moveIndex));
-    });
-    this.moveDelBtn.disabled = moves.length === 0;
+    this.moveDelBtn.disabled = (dancers[this.moveDancer]?.moves.length ?? 0) === 0;
   }
 
-  /** The selected move's numbers. `rotate` absent means "face along the travel tangent",
-   *  which is the taminations default, so the toggle is behaviour-preserving when it is
-   *  switched on: `rotate = translate` gives the same heading `poseFor` falls back to. */
-  private renderMoveFields() {
-    const host = this.moveFieldsEl;
+  /**
+   * EVERY move of the chosen track, in order, as one strip - so the whole path being edited
+   * is visible at once instead of one move at a time behind a dropdown. The move being edited
+   * is TRIPLE WIDTH (180px against the compact tiles' 60px, per the stylesheet) and carries
+   * its numbers; the others are compact tiles, and clicking one selects it - which is also
+   * what moves the track highlight, because the selection IS the trail instruction.
+   */
+  private renderMoveStrip() {
+    const host = this.moveStripEl;
     host.innerHTML = '';
     const moves = this.currentMoves();
-    const seg = moves[this.moveIndex];
-    if (!seg) {
-      host.innerHTML = '<i class="small">this dancer has no moves</i>';
+    if (moves.length === 0) {
+      host.innerHTML = '<i class="small">this dancer has no moves — use + Move to add one</i>';
+      this.moveInfoEl.textContent = '';
       return;
     }
+    if (this.moveIndex >= moves.length) this.moveIndex = moves.length - 1;
+    for (let k = 0; k < moves.length; k++) {
+      host.appendChild(k === this.moveIndex ? this.currentMoveTile(moves[k]) : this.compactMoveTile(moves[k], k));
+    }
+    const cur = moves[this.moveIndex];
+    this.moveInfoEl.textContent = `move ${this.moveIndex + 1}/${moves.length} · ${show(cur.beats)}b · ${cur.hands}`;
+  }
+
+  /** A move you are not editing: its number, its beats and its hands, and nothing else. */
+  private compactMoveTile(seg: Seg, k: number): HTMLElement {
+    const tile = document.createElement('button');
+    tile.type = 'button';
+    tile.className = 'ed-move';
+    tile.title = `move ${k + 1}: ${show(seg.beats)} beats, hands ${seg.hands}${seg.rotate ? ', explicit facing' : ', facing along travel'} — click to edit`;
+    const n = document.createElement('b');
+    n.textContent = String(k + 1);
+    const b = document.createElement('span');
+    b.textContent = `${show(seg.beats)}b`;
+    const h = document.createElement('span');
+    h.textContent = handsShort(seg.hands);
+    tile.append(n, b, h);
+    tile.addEventListener('click', () => this.selectMove(k));
+    return tile;
+  }
+
+  private selectMove(k: number) {
+    if (k === this.moveIndex) return;
+    this.moveIndex = k;
+    this.renderMoveStrip();
+    this.syncTrailFocus();
+  }
+
+  /** The move being edited: TRIPLE width, with its beats, hands, travel and facing.
+   *
+   * `rotate` absent means "face along the travel tangent", which is the taminations default,
+   * so the toggle is behaviour-preserving when it is switched on: `rotate = translate` gives
+   * the heading `poseFor` already falls back to. */
+  private currentMoveTile(seg: Seg): HTMLElement {
+    const tile = document.createElement('div');
+    tile.className = 'ed-move selected';
     const i = this.moveDancer;
     const k = this.moveIndex;
+    const head = document.createElement('div');
+    head.className = 'ed-move-head';
+    const name = document.createElement('b');
+    name.textContent = `move ${k + 1}`;
+    head.appendChild(name);
+    tile.appendChild(head);
+
+    const grid = document.createElement('div');
+    grid.className = 'ed-grid';
+
     // The focus key must be the EDITED FIELD's own `data-key`, or the re-render after a
     // commit has nothing to find and the focus is lost on every spin-button click.
     const write = (patch: Partial<Seg>, field: string) => {
@@ -534,7 +594,7 @@ export class EditorController implements EditorUI {
       this.commit(setMove(call, i, k, { ...seg, ...patch }), `m${i}:${k}:${field}`);
     };
 
-    host.appendChild(this.field(`m${i}:${k}:beats`, 'beats', seg.beats, 0.5, (v) => write({ beats: v }, 'beats')));
+    grid.appendChild(this.field(`m${i}:${k}:beats`, 'beats', seg.beats, 0.5, (v) => write({ beats: v }, 'beats')));
 
     const hands = document.createElement('span');
     hands.className = 'ed-group';
@@ -544,9 +604,8 @@ export class EditorController implements EditorUI {
     hsel.dataset.key = `m${i}:${k}:hands`;
     for (const h of HANDS) hsel.add(new Option(h, h, false, h === seg.hands));
     hsel.addEventListener('change', () => write({ hands: hsel.value as Hands }, 'hands'));
-    hands.appendChild(hl);
-    hands.appendChild(hsel);
-    host.appendChild(hands);
+    hands.append(hl, hsel);
+    grid.appendChild(hands);
 
     const t = seg.translate;
     const tKeys: [keyof typeof t, string, number][] = [
@@ -558,7 +617,7 @@ export class EditorController implements EditorUI {
       ['y2', 'y2', 0.25],
     ];
     for (const [key, label, step] of tKeys) {
-      host.appendChild(this.field(`m${i}:${k}:t.${key}`, `t.${label}`, t[key], step, (v) => write({ translate: { ...t, [key]: v } }, `t.${key}`)));
+      grid.appendChild(this.field(`m${i}:${k}:t.${key}`, `t.${label}`, t[key], step, (v) => write({ translate: { ...t, [key]: v } }, `t.${key}`)));
     }
 
     const rot = document.createElement('span');
@@ -573,10 +632,8 @@ export class EditorController implements EditorUI {
     const rc = document.createElement('label');
     rc.textContent = 'explicit';
     rchk.addEventListener('change', () => write({ rotate: rchk.checked ? { ...t } : null }, 'rot'));
-    rot.appendChild(rl);
-    rot.appendChild(rchk);
-    rot.appendChild(rc);
-    host.appendChild(rot);
+    rot.append(rl, rchk, rc);
+    grid.appendChild(rot);
 
     if (seg.rotate) {
       const r = seg.rotate;
@@ -588,9 +645,12 @@ export class EditorController implements EditorUI {
         ['y2', 'y4', 0.25],
       ];
       for (const [key, label, step] of rKeys) {
-        host.appendChild(this.field(`m${i}:${k}:r.${key}`, `r.${label}`, r[key], step, (v) => write({ rotate: { ...r, [key]: v } }, `r.${key}`)));
+        grid.appendChild(this.field(`m${i}:${k}:r.${key}`, `r.${label}`, r[key], step, (v) => write({ rotate: { ...r, [key]: v } }, `r.${key}`)));
       }
     }
+
+    tile.appendChild(grid);
+    return tile;
   }
 
   private field(key: string, label: string, value: number, step: number, onCommit: (v: number) => void): HTMLSpanElement {
@@ -891,13 +951,8 @@ export class EditorController implements EditorUI {
       this.moveIndex = 0;
       this.renderInstance();
     });
-    this.movePickSel.addEventListener('change', () => {
-      this.moveIndex = parseInt(this.movePickSel.value, 10) || 0;
-      this.renderMoveFields();
-      // A different move is a different stretch of the track, and no other panel state
-      // changed - so the focus is re-derived here rather than only on a full re-render.
-      this.syncTrailFocus();
-    });
+    // There is no "Move" dropdown any more: the strip IS the picker, and `selectMove` both
+    // re-draws it and re-derives the track highlight.
     this.moveAddBtn.addEventListener('click', () => this.addInstanceMove());
     this.moveDelBtn.addEventListener('click', () => this.deleteInstanceMove());
   }

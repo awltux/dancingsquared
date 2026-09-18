@@ -1364,12 +1364,18 @@ decision they call. THE PRE-EXISTING `editor-ui.ts` TS2739 IS FIXED IN PASSING, 
 `node poc/verify.cjs` still fails the same THREE pre-existing `Pass Thru` checks and loads all 542
 catalogue calls; `verify:light` is green at 12 harnesses in 36.3 s.
 
-**The moves row drives the stage, and the beat range comes from the engine.** Selecting a dancer in
-**Moves of** hides every other dancer's track — the dancers stay visible, only the tracks are hidden,
-and leaving the instance editor gives every track back. Selecting a **Move** highlights that move's own
-stretch of the chosen track in amber and dims the rest of it. That stretch is a BEAT RANGE, so it is
-`moveBeatRange(dancer, k)` in `editor.ts` and `sampleTrailRange` in `core.ts` rather than arithmetic in
-the UI, which is the only reason it can be checked at all.
+**The moves row drives the stage, and the beat range comes from the engine.** The moves of the
+chosen track are shown as ONE STRIP rather than one at a time behind a dropdown, so the whole path
+being edited is readable at once: the move being edited is **triple width** (180px against the
+compact tiles' 60px) and carries its numbers, every other move is a compact tile showing its number,
+its beats and its hands, and clicking one selects it — which is also what moves the highlight. A
+declared pause still falls after the last move, and a long path scrolls horizontally.
+
+Selecting a dancer in **Moves of** hides every other dancer's track — the dancers stay visible, only
+the tracks are hidden, and leaving the instance editor gives every track back. The current move's own
+stretch of the chosen track is highlighted in amber and the rest of it is dimmed. That stretch is a
+BEAT RANGE, so it is `moveBeatRange(dancer, k)` in `editor.ts` and `sampleTrailRange` in `core.ts`
+rather than arithmetic in the UI, which is the only reason it can be checked at all.
 
 MEASURED: the ranges TILE the dancer's clock — `[0,1) [1,2) … [9,10)` for a ten-move path — and the
 last move ends at the dancer's OWN path total. The poses at the range's `from` and `to` are the poses

@@ -62,6 +62,30 @@ html, body {
 .ed-grid label { width: auto; }
 .ed-grid input[type="number"] { width: 58px; padding: 2px 3px; font-size: 11px; }
 .ed-grid .ed-group { display: flex; gap: 4px; align-items: center; }
+/* The moves strip: every move of the chosen track in order, so the whole path is visible at
+   once. The CURRENT move is tripled in width and carries its numbers; the rest are compact
+   tiles that select on click - which is also what moves the track highlight.
+   PREFIXED WITH #editorPanel ON PURPOSE: `#hud button` is (1,0,1) and would otherwise win
+   the padding, font-size and background on the compact tiles, which ARE buttons. */
+#editorPanel .ed-moves { display: flex; flex-wrap: nowrap; gap: 4px; overflow-x: auto; align-items: stretch; padding: 2px 0 6px; }
+#editorPanel .ed-move {
+  flex: 0 0 60px; min-width: 0; display: flex; flex-direction: column; gap: 1px;
+  align-items: center; justify-content: center; text-align: center;
+  background: #0e141b; color: var(--dim); border: 1px solid #2a3542; border-radius: 4px;
+  padding: 4px 3px; font-size: 11px; font-family: inherit; line-height: 1.25; cursor: pointer;
+}
+#editorPanel .ed-move:hover { border-color: var(--accent); color: var(--text); }
+#editorPanel .ed-move b { color: var(--text); font-size: 12px; }
+#editorPanel .ed-move.selected {
+  flex: 0 0 180px; /* exactly 3x the 60px tile */
+  align-items: stretch; justify-content: flex-start; text-align: left; cursor: default;
+  border-color: #4d9fff; background: rgba(77, 159, 255, 0.08); box-shadow: 0 0 0 1px rgba(77, 159, 255, 0.35);
+}
+#editorPanel .ed-move.selected:hover { border-color: #4d9fff; }
+#editorPanel .ed-move.selected .ed-move-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 2px; }
+#editorPanel .ed-move .ed-grid { gap: 3px 6px; }
+#editorPanel .ed-move .ed-grid label { color: var(--dim); }
+#editorPanel .ed-move .ed-grid input[type="number"] { width: 50px; }
 #legend { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 2px; }
 #legend b { color: var(--text); }
 .build-footer {

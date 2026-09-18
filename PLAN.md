@@ -2122,6 +2122,43 @@ positions AND facings — a position-only signature is the `boardSig` trap), whi
 scrub released where it started free. Note this cost is pre-existing: every edit, seek and undo already
 pays it, and it is the same `legalCalls` term Phase H is about.
 
+**AND A FOURTH POC REPORT, THE MOST PRECISE OF THEM, FIXED — "if I apply a Promenade to the end, the
+Dancers switch position in the final static square ... they flip to setup arrangement for Static Square
+on the last frame".** The reported module (`ceder-7046`) had already been cleared on every headless
+mechanism I could test — the `dancers` array order, the `couple` field per id, the live-vs-walk end
+board, the final instant `total − 1e-6`, and per-frame motion (worst single-frame move over its 35
+beats: **0.060 units at beat 11.93**, twice the 0.0305 median). The missing variable was the APPENDED
+call, and with it the report reproduces exactly.
+
+- **THE CAUSE IS THE DANCER ARRAY ORDER, and it is one line of data.** `evaluateSequence` returns an
+  INTERPOLATED board at a mid-call beat — which carries the order the sequence walked in (from the
+  `L1o` start, `1,3,7,5,6,8,4,2`) — but at the total it returns `step.after`, the board the call STORES.
+  `promenadeHome` stored a fresh `makeSquaredSet()`, whose order is `1..8`. The POC's `renderBoard`
+  builds its pose list in `board.dancers` order and hands pose `i` to dancer view `i`, so on that ONE
+  frame all eight views jump to a neighbour's body: **per-id poses identical, the set scrambled on
+  screen** (measured). `makeSquaredSet()` is literally the SETUP ARRANGEMENT, which is why the report
+  named it. `applyToBoard` re-bases with `board.dancers.map(...)` (`sequencer.ts:186-191`), so every
+  other path already carried the incoming order through — promenade was the only component that did not.
+- **THE FIX**: `reorderLike(order, rebuilt)` in `board.ts` — it takes only the ORDER, leaving every
+  position, heading, couple and gender the coded move's — applied in `promenadeHome` (and inherited by
+  `promenadeFraction`, which maps over `home.board.dancers`). `promenadeHome` still lands every dancer
+  on its own home spot; `Promenade 1/2` still ends on the rotated square it is defined to end on, and
+  that genuinely non-standard arrangement now STAYS as danced, which is the stated principle: what was
+  deduced from dancing the sequence wins over a re-derived reading of it.
+- **MEASURED ACROSS THE CORPUS** (`sequence-order-flip-scan.mjs`, 1652 modules, every step boundary as
+  well as the final frame): last-frame re-orders **0 → 0** — the corpus never exercises the reported
+  case, because no module ENDS on a promenade finish, which is exactly why it took a user-appended call
+  to surface it — while **live-vs-walk order disagreements 16 → 0**. The geometry is untouched: the
+  last-frame jump scan (`sequence-last-frame-jump-scan.mjs`, 86 modules / worst 6.32 units) is
+  unchanged by this fix, because that residual is per-ID motion and this defect was not.
+- **GATED** in `promenade.mjs`: (1) `promenadeHome` on a home square whose dancers are merely LISTED in
+  another order keeps that order and still lands everyone exactly home; (2) `ceder-7046` + `Promenade`
+  from `L1o` — the last frame keeps the order the sequence danced in, moves nobody (worst 1e-6), and
+  the live replay agrees with the walk.
+- **NOT verified here**: the POC UI itself, again (the Vite/esbuild spawn is blocked), so the renderer
+  half is reasoned from `renderBoard`'s positional binding and measured through the engine board it is
+  handed. `poc/verify.cjs` still fails exactly its three pre-existing `Pass Thru` checks.
+
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:
 

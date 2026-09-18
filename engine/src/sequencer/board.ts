@@ -14,6 +14,33 @@ export function cloneBoard(b: Board): Board {
   return { dancers: b.dancers.map((d) => ({ ...d })) };
 }
 
+/**
+ * A REBUILT board, in the dancer-array ORDER of the board it replaces.
+ *
+ * The array order is not decorative: `SequencerUI.renderBoard` builds its pose list in `dancers`
+ * order and hands pose `i` to dancer view `i`, so the array order is the renderer's binding from a
+ * dancer to a body on screen. Every other path in the engine already carries the incoming order
+ * through - `applyToBoard` re-bases with `board.dancers.map(...)` and the sequence walk interpolates
+ * from the previous step's board - which is why a rebuild that returns a board in its OWN order
+ * scrambles the set on exactly the frame it lands on, while every position in it stays put.
+ *
+ * MEASURED, and the reason this exists: `promenadeHome` returns `makeSquaredSet()`, so a `Promenade`
+ * appended to `ceder-7046` ends on the canonical board whose order is 1..8 while the frames before it
+ * are in the module's own 1,3,7,5,6,8,4,2 order. Reported as "if I apply a Promenade to the end the
+ * Dancers switch position in the final static square ... they flip to setup arrangement for Static
+ * Square on the last frame".
+ *
+ * Only the order is taken from `order`: every position, heading, couple and gender comes from
+ * `rebuilt`, so a coded move's geometry and identity are unchanged. A dancer missing from either side
+ * leaves `rebuilt` exactly as it is, because a partial re-order is a worse answer than none.
+ */
+export function reorderLike(order: Board, rebuilt: Board): Board {
+  if (order.dancers.length !== rebuilt.dancers.length) return rebuilt;
+  const byId = new Map(rebuilt.dancers.map((d) => [d.id, d]));
+  if (order.dancers.some((d) => !byId.has(d.id))) return rebuilt;
+  return { dancers: order.dancers.map((d) => byId.get(d.id)!) };
+}
+
 // Rotation/translation/reflection-invariant signature for BFS dedup: the sorted
 // pairwise-distance multiset.
 //

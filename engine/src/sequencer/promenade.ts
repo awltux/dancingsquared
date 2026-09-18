@@ -43,7 +43,7 @@
 // partner separations 0.00, 4.00 and 6.00 (see the get-out behaviour report), where
 // 0.00 is two dancers standing on the same spot.
 
-import { makeSquaredSet } from './board.js';
+import { makeSquaredSet, reorderLike } from './board.js';
 import { HOME_DANCERS } from './identity.js';
 import { isKnownCouple } from './constants.js';
 import { progressedCoupleNumbers } from './progression.js';
@@ -203,7 +203,12 @@ export function promenadeHome(board: Board): PromenadeResult {
     }
   }
 
-  return { board: makeSquaredSet(), legal: true };
+  // THE HOME BOARD IN THE INCOMING ORDER. `makeSquaredSet` is a fresh canonical board, so returning
+  // it raw replaced the dancer ARRAY order the sequence had carried from its start with the home
+  // order 1..8 - and since the POC's views are positional, the set visually scrambled on the last
+  // frame of a promenade while every position was already home. `reorderLike` takes only the order,
+  // so the geometry and the identity below are untouched.
+  return { board: reorderLike(board, makeSquaredSet()), legal: true };
 }
 
 /** Whether `board` can promenade home (no reason, for the analyser's replay). */

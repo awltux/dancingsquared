@@ -29,10 +29,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, promenadeHome, PROMENADE_BEATS } from '../dist/index.js';
+import { setParser, Sequencer, promenadeHome, PROMENADE_BEATS, boardForFasrCode } from '../dist/index.js';
 import { callsByTitle, engineNameFor } from './lib/engine-calls.mjs';
 import { decodeLine } from './lib/getout-decode.mjs';
-import { startBoardFor } from './lib/all8-boards.mjs';
+import { startBoardFor, templateForLetter } from './lib/all8-boards.mjs';
 
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -341,6 +341,61 @@ if (outcomes.refused.some((r) => !r.reason)) fail('a refusal came back with no r
 // regressed, and a rise means a body call was fixed (update this number deliberately).
 if (outcomes.resolved.length < 12) {
   fail(`only ${outcomes.resolved.length} published promenade get-outs resolve; 12 did when this gate was written`);
+}
+
+// --------------------------------------------------------------------------------------------
+// THE DANCER ARRAY ORDER IS THE RENDERER'S BINDING, so a promenade must not re-order the set.
+//
+// `SequencerUI.renderBoard` builds its pose list in `board.dancers` order and hands pose `i` to
+// dancer view `i`, and `applyToBoard` re-bases with `board.dancers.map(...)`, so every other path
+// carries the incoming order through. `promenadeHome` returned a fresh `makeSquaredSet()`, whose
+// order is 1..8 - so appending a `Promenade` to a module scrambled the whole set on the ONE frame
+// drawn from that stored board (the sequence's last frame) while every dancer in it was already
+// standing home. Reported: "if I apply a Promenade to the end ... the Dancers switch position in the
+// final static square ... they flip to setup arrangement for Static Square on the last frame".
+console.log('\n== Promenade keeps the dancers in the order they danced in ==');
+const orderOf = (b) => b.dancers.map((d) => d.id).join(',');
+
+// (1) the rule itself: a rotated ARRAY is not a rotated SET.
+{
+  const home = seq.startBoard();
+  const scrambled = { dancers: [...home.dancers.slice(3), ...home.dancers.slice(0, 3)] };
+  const r = promenadeHome(scrambled);
+  if (!r.legal) fail(`promenadeHome refused a squared set whose dancers are merely LISTED in another order: ${r.reason}`);
+  else {
+    if (orderOf(r.board) !== orderOf(scrambled)) fail(`promenadeHome re-ordered the dancers: ${orderOf(scrambled)} -> ${orderOf(r.board)}`);
+    else ok(`promenadeHome keeps the array order it was given (${orderOf(scrambled)})`);
+    const diff = sameBoard(r.board, home);
+    if (diff) fail(`and it must still land everyone home: ${diff}`);
+    else ok('and it still lands every dancer on its own home spot');
+  }
+}
+
+// (2) the sequence: appending a promenade to a real module must not re-order on the last frame.
+{
+  const mod = JSON.parse(readFileSync(path.join(root, 'modules/zero_line/static_set/7046.json'), 'utf8'));
+  const start = boardForFasrCode('L1o', (l) => templateForLetter(seq, l)).board;
+  const flat = seq.flatten([...mod.steps, 'Promenade']);
+  const beats = seq.sequenceBeats(flat, start);
+  const pre = seq.evaluateSequence(flat, beats - 1e-6, start).board;
+  const end = seq.evaluateSequence(flat, beats, start).board;
+  if (!start || beats <= 0) fail('the witness sequence (7046 + Promenade from L1o) plays no beats at all');
+  else {
+    if (orderOf(pre) !== orderOf(end)) fail(`the LAST frame re-orders the dancers: ${orderOf(pre)} -> ${orderOf(end)}`);
+    else ok(`the last frame keeps the order the sequence danced in (${orderOf(end)})`);
+    const byId = new Map(end.dancers.map((d) => [d.id, d]));
+    let maxMove = 0;
+    for (const d of pre.dancers) {
+      const e = byId.get(d.id);
+      if (e) maxMove = Math.max(maxMove, Math.hypot(e.x - d.x, e.y - d.y));
+    }
+    if (maxMove > 1e-3) fail(`the last frame also MOVES a dancer by ${maxMove.toFixed(4)} - the promenade is over by then`);
+    else ok(`and moves nobody on that frame (worst ${maxMove.toFixed(6)})`);
+    seq.setBoard(start);
+    for (const h of flat) seq.applyStep(h);
+    if (orderOf(seq.board) !== orderOf(end)) fail(`the live replay ends in a different order (${orderOf(seq.board)}) from the walk (${orderOf(end)})`);
+    else ok('the live replay and the walk agree on the order');
+  }
 }
 
 console.log('\n=================');

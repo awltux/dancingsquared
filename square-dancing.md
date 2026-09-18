@@ -904,9 +904,12 @@ published `[B]` orientation diagrams put the reference boy south-west / north-ea
 south-east and label them H / O / L / R. Both worked labels now come out exactly as All8 prints them
 (`[0P1cH+]`, `[0P1cH']`), and every `[B]`, `[L]` and `[P]` code resolves its four boards to four
 distinct FASROO codes where before the letters were half a step out. Two residues are recorded: a
-synthesised board (no home couple) is now REFUSED an orientation rather than given one read off
-arbitrary ids, and `[W]`/`[F]` still do not separate their boards because their reference pair is
-recorded in words but not pinned to spots.
+synthesised board (no home couple) is REFUSED an orientation rather than given one read off arbitrary
+ids, and `[L.F]` (the left-handed two-faced line) is refused a reference pair outright, because
+Callerlab agrees one for the four standard-arrangement formations only. `[W]` and `[F]` — which had
+the same collapse problem — are now pinned from All8's own "Reference Pair shown in RED" diagram
+(`fasr-reference-pair-probe.mjs`, checked against the two pairs the corpus already pinned), so all
+five formations with an agreed pair resolve their boards to distinct FASROO codes (80 of 80).
 
 *The second source for the other twelve states cannot be read either, and that is recorded.* All8's
 "16 Possible Pairings" page draws all sixteen with couple-numbered tiles, and the tiles now decode

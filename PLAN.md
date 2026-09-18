@@ -2713,15 +2713,29 @@ half-step-shifted set. Two things are recorded rather than smoothed:
   It now says so: "the reference boy has no home couple, so there is no home for Orientation to be
   measured against (identity is data)". (`relabelCouples` is the opposite case and is still allowed —
   its couples are KNOWN, merely shifted, which is exactly what `[0P1cH']` is.)
-- **`[W]` and `[F]` still collapse**: their reference pair is recorded in WORDS but not pinned to spots
-  (no published alignment discriminates them), so with the #1-boy fallback a code's four boards do not
-  all separate — 24 of 72 codes at arrangement 0. That is the same tension the plan records: whether
-  Orientation separates the boards at all, or is purely geometric and FASROO is therefore 2-to-1. It is
-  measurable now (`fasroo-injectivity-probe.mjs`) and pinning `[0W]`/`[0F]` spots is the obvious next
-  probe — All8 gives both in words ("the in facing end (boy) and adjacent dancer (girl)", "the trailing
-  couple"), so it is a measurement, not a guess.
+- **`[W]` and `[F]` were COLLAPSING and are now FIXED**: their reference pair was recorded in WORDS
+  but not pinned to spots (no published alignment discriminates their relationship letter), so with
+  the #1-boy fallback a code's four boards did not all separate — 24 of 72 codes at arrangement 0.
+  **All8 draws all four agreed pairs side by side under "Reference Pair shown in RED" on its FASR
+  page**, and `fasr-reference-pair-probe.mjs` reads them: that page's sprites are a COLOUR set
+  (0 = red boy, 1 = red girl, 8 = black boy, 9 = black girl), so the 0/1 tiles are exactly the
+  reference dancers — four of them, because All8's convention has two reference positions "opposite
+  each other" and draws both — and the probe solves each diagram's print layout against All8's OWN
+  table facings, checking itself on the two formations the corpus already pinned (**[L]'s red couple
+  lands on `(0,2)+(0,3)`, [B]'s on `(2,0)+(3,0)`**, the recorded cells). `[F]` and `[W]` come out at
+  `(0,2)+(0,3)` too. Pinned in `REFERENCE_PAIR_SPOTS`, and the collapse is gone: **all five formations
+  with an agreed pair now resolve their boards to distinct FASROO codes, 80 of 80** at arrangement 0,
+  where before it was 48 of 72 with 24 collisions. **The only collisions left are `[L.F]`**
+  (Two-Faced Lines LH) — 8 codes whose boards read `[0L.F2???]` — and that is CORRECT rather than a
+  gap: Callerlab agrees the pair for the four standard-arrangement formations only, the left-handed
+  variant is not one, and `fasrooOf` refuses it outright instead of guessing. Gated in `alignment.mjs`.
+  *(Consequence recorded: pinning the pair also makes `[W]`/`[F]` readable at sequences 3 and 4, where
+  the boys disagree and the letter was previously null, so 16 more codes now build boards. Their
+  `CANONICAL_INDEX` entries cannot be measured — All8 publishes no sequence-3/4 wave diagram — so
+  `boardForFasrCode` uses the documented `boards[0]` fallback for an unmeasured code.)*
 
-**Gates:** `alignment.mjs` pins both witnesses, the 48-of-48 distinctness, and the identity refusal.
+**Gates:** `alignment.mjs` pins both witnesses, the 80-of-80 distinctness across all five formations
+with an agreed pair, the `[L.F]` refusal and the identity refusal.
 
 ### THE `[S]` "0:0/16" WAS AN INSTRUMENT FAULT, NOT A COVERAGE GAP - and the fix is in the instrument
 

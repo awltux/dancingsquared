@@ -726,13 +726,12 @@ export const ADJACENT_PAIR: Record<string, (r: number, c: number) => [number, nu
 };
 
 /**
- * The reference pair's two SPOTS in the table frame, for the formations where it
- * could be pinned against published letters.
+ * The reference pair's two SPOTS in the table frame, for every formation All8 agrees a pair for.
  *
  * All8 states the reference pair for [0L], [0B], [0F] and [0W] in words ("the
  * outside boy", "the left-hand couple", ...) but the words only resolve to a place
  * once you know which end or side of the drawing each refers to. Rather than guess,
- * this was solved against the corpus: for each formation, the spot whose boy (with
+ * [B] and [L] were solved against the corpus: for each formation, the spot whose boy (with
  * his adjacent girl) reproduces the PUBLISHED relationship letter for every
  * alignment is the reference.
  *
@@ -750,8 +749,18 @@ export const ADJACENT_PAIR: Record<string, (r: number, c: number) => [number, nu
  * and girl of the reference couple have exchanged spots. The reference is the pair,
  * and its boy is whichever of the two dancers is the boy.
  *
- * For [W] and [F] no published alignment discriminates, so nothing is recorded and
- * only unanimous states are reported.
+ * For [W] and [F] the CORPUS does not discriminate - every published alignment is `p`, where any pair
+ * agrees - so they were left unrecorded until Orientation needed them. All8 draws all four agreed
+ * pairs side by side on its FASR page under "Reference Pair shown in RED", and that diagram supplies
+ * them: its sprite set is a COLOUR set (0 = red boy, 1 = red girl, 8 = black boy, 9 = black girl), so
+ * the 0/1 tiles are exactly the reference dancers, and there are four of them because All8's
+ * convention has two reference positions "opposite each other" and the drawing shows both.
+ * `fasr-reference-pair-probe.mjs` solves each diagram's print layout against All8's OWN table facings
+ * and checks itself on the two formations the corpus already pinned: [L]'s red couple lands on
+ * `(0,2)+(0,3)` and [B]'s on `(2,0)+(3,0)`, the recorded cells. Read off the same way, [F] and [W]
+ * come out at `(0,2)+(0,3)` as well - the tables share the drawing convention. Either of the two red
+ * couples is safe, and All8 says so: the opposite reference dancer "could be used as the reference
+ * dancer, the result is the same".
  *
  * [P] IS RECORDED NOW, and it is the one entry DERIVED rather than solved for directly. Beginning
  * Double Pass Thru genuinely mixes side-by-side couples with facing ones - which is precisely why
@@ -770,6 +779,8 @@ export const REFERENCE_PAIR_SPOTS: Record<string, [number, number][]> = {
   B: [[2, 0], [3, 0]],
   L: [[0, 2], [0, 3]],
   P: [[3, 0], [3, 1]],
+  F: [[0, 2], [0, 3]],
+  W: [[0, 2], [0, 3]],
 };
 
 /** One boy-girl adjacent pair, with the relationship letter it implies. */

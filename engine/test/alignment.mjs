@@ -520,10 +520,12 @@ console.log('      defines a reference pair for [L] [B] [F] [W] only, and the te
   else fail(`[P] All8 publishes \`[0P1cH']\`; the engine reads ${Hp?.orientation?.code ?? '?'} with occupation ${Hp?.occupation ?? '?'}`);
 
   // (c) the four boards a code admits must be told apart: a code names a class, and FASROO is what
-  // sorts it. Checked where the repo has PINNED the reference pair (the formations All8's published
-  // alignments discriminate), so this is a property of the readout rather than of a guess.
+  // sorts it. All five formations All8 defines a reference pair for - and which the repo has now
+  // pinned to spots, [W] and [F] from All8's own reference-pair diagram - must resolve four distinct
+  // codes. `[L.F]` (Two-Faced Lines LH) is the exception and is refused outright: Callerlab agrees the
+  // pair for the four standard-arrangement formations only, and the left-handed variant is not one.
   let distinctOk = 0, checked = 0;
-  for (const [letter, formation] of [['B', 'Eight Chain Thru'], ['L', 'Normal Lines'], ['P', 'Double Pass Thru']]) {
+  for (const [letter, formation] of [['B', 'Eight Chain Thru'], ['L', 'Normal Lines'], ['P', 'Double Pass Thru'], ['F', 'Two-Faced Lines'], ['W', 'Ocean Waves']]) {
     const template = seq.boardForFormation(formation);
     if (!template) continue;
     for (const sequence of [1, 2, 3, 4]) {
@@ -538,7 +540,10 @@ console.log('      defines a reference pair for [L] [B] [F] [W] only, and the te
       }
     }
   }
-  if (checked && distinctOk === checked) ok(`every code whose reference pair is pinned resolves its boards to distinct FASROO codes (${distinctOk}/${checked})`);
+  if (checked && distinctOk === checked) ok(`all five formations with an agreed reference pair resolve their boards to distinct FASROO codes (${distinctOk}/${checked})`);
+  const handed = fasrooOf(seq.boardForFormation('Two-Faced Lines LH'), 'Two-Faced Lines LH');
+  if (handed.orientation === null && handed.reason?.includes('reference pair')) ok(`[L.F] is refused a reference pair rather than guessed (Callerlab agrees one for the four standard formations only)`);
+  else fail(`[L.F] was given ${handed.notation} instead of being refused`);
 
   // (d) IDENTITY IS DATA: a synthesised board carries no home couple, so it must NOT be given an
   // orientation read off its (arbitrary) ids - it has to say why instead.

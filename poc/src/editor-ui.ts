@@ -29,6 +29,9 @@ import {
   addMove,
   removeMove,
   moveBeatRange,
+  setStartFormation,
+  connectStart,
+  endPoseError,
 } from 'dancing-squared-engine';
 import type { CallBundle, FormDancer, Gender, Hands, InstanceDancer, Seg } from 'dancing-squared-engine';
 
@@ -56,6 +59,10 @@ export interface EditorHost {
    *  The moves editor drives the TRAIL with these two selections: which dancer is being
    *  edited decides whose track is shown, and which move decides which stretch of it. */
   focusTrail(index: number | null, range: { from: number; to: number } | null): void;
+  /** The 8-dancer named formations a clone's start can be re-based onto, as start poses.
+   *  Sourced from the sequencer's formation library - building a second one here would
+   *  double the catalogue registration the app already pays for at startup. */
+  startFormations(): { name: string; poses: FormDancer[] }[];
 }
 
 // Warning threshold for a "large" closure correction.
@@ -117,8 +124,12 @@ export class EditorController implements EditorUI {
   // ---- the instance editor ----
   private instPanel = el<HTMLDivElement>('edInstancePanel');
   private instResetBtn = el<HTMLButtonElement>('edInstReset');
+  private cloneBtn = el<HTMLButtonElement>('edClone');
   private instExportBtn = el<HTMLButtonElement>('edInstExport');
   private instInfoEl = el<HTMLSpanElement>('edInstInfo');
+  private startFormationSel = el<HTMLSelectElement>('edStartFormation');
+  private connectBtn = el<HTMLButtonElement>('edConnect');
+  private cloneInfoEl = el<HTMLDivElement>('edCloneInfo');
   private formationEl = el<HTMLDivElement>('edFormation');
   private moveDancerSel = el<HTMLSelectElement>('edMoveDancer');
   private moveStripEl = el<HTMLDivElement>('edMoveStrip');
@@ -143,6 +154,13 @@ export class EditorController implements EditorUI {
   /** The instance being edited, in FULL-SET coordinates and with no mirrors. */
   private instance: CallBundle | null = null;
   private instanceEdited = false;
+  /** The instance as it was loaded from the catalogue: the REFERENCE TRACK a clone re-bases
+   *  away from and then reconnects to, and what `endPoseError` is measured against. */
+  private source: CallBundle | null = null;
+  /** Whether Save/apply should ADD this instance as a new setup ('clone') rather than replace
+   *  the one it came from ('instance'). Set by the Clone button. */
+  private asClone = false;
+  private startFormationsLoaded = false;
   private moveDancer = 0;
   private moveIndex = 0;
   /** The `data-key` of the field being edited, so re-rendering after a commit can put the
@@ -309,15 +327,21 @@ export class EditorController implements EditorUI {
   private loadInstance() {
     const id = this.editCallSel.value;
     const tam = parseInt(this.editSetupSel.value || '0', 10);
+    this.ensureStartFormations();
     try {
-      this.instance = normalizeInstance(loadCall(id, tam, true));
+      // `source` is the REFERENCE TRACK: what a clone re-bases away from and reconnects to.
+      this.source = normalizeInstance(loadCall(id, tam, true));
+      this.instance = this.source;
       this.instanceEdited = false;
+      this.asClone = false;
       this.moveDancer = 0;
       this.moveIndex = 0;
+      this.startFormationSel.value = '';
       this.host.preview(this.instance);
       this.renderInstance();
     } catch (err) {
       this.instance = null;
+      this.source = null;
       this.statusEl.textContent = `edit call failed: ${(err as Error).message}`;
       this.renderInstance();
     }
@@ -411,6 +435,7 @@ export class EditorController implements EditorUI {
     this.renderMoveSelectors();
     this.renderMoveStrip();
     this.renderInstanceInfo();
+    this.refreshCloneInfo();
     this.syncTrailFocus();
     if (this.focusKey) {
       const el2 = this.instPanel.querySelector<HTMLElement>(`[data-key="${this.focusKey}"]`);
@@ -836,6 +861,104 @@ export class EditorController implements EditorUI {
     this.statusEl.textContent = 'reloaded the instance';
   }
 
+  // ---- clone onto a different start setup ----
+
+  /** The formation list is asked for once, lazily: it comes from the sequencer's library. */
+  private ensureStartFormations() {
+    if (this.startFormationsLoaded) return;
+    this.startFormationsLoaded = true;
+    this.startFormationSel.innerHTML = '';
+    this.startFormationSel.add(new Option('— keep the current start —', ''));
+    for (const f of this.host.startFormations()) this.startFormationSel.add(new Option(f.name, f.name));
+  }
+
+  /** Start a NEW setup from the catalogue instance, rather than editing the existing one. */
+  private doClone() {
+    this.loadInstance();
+    this.asClone = true;
+    this.startFormationSel.value = '';
+    this.refreshCloneInfo();
+    this.statusEl.textContent = 'cloned — pick a Start setup, then Connect';
+  }
+
+  /** Re-base the clone's START onto the chosen formation, KEEPING every move. The track no
+   *  longer ends where the call ends; `refreshCloneInfo` measures by how much, and Connect is
+   *  the other half of the operation. */
+  private doStartFormation() {
+    const name = this.startFormationSel.value;
+    if (!name) return;
+    // Re-base the CURRENT instance, not the pristine source, so move edits made before the
+    // start was chosen survive. The CONNECT anchor stays the source: that is the original
+    // track, and it is what makes the end invariant.
+    const base = this.instance ?? this.source;
+    if (!base) return;
+    const formation = this.host.startFormations().find((f) => f.name === name);
+    if (!formation) {
+      this.statusEl.textContent = `✗ unknown formation "${name}"`;
+      return;
+    }
+    try {
+      const rebased = setStartFormation(base, formation.poses);
+      // The setup's LABEL is the formation's name: a tam is identified by its `from`, and this
+      // is the new setup, so the name is not decoration - it is what the export and the
+      // catalogue index will carry.
+      this.instance = { ...rebased, from: name };
+      this.asClone = true;
+      this.instanceEdited = true;
+      this.host.preview(this.instance);
+      this.renderInstance();
+      this.statusEl.textContent = `re-based the start onto "${name}" — the track no longer closes`;
+    } catch (err) {
+      this.statusEl.textContent = `✗ ${(err as Error).message}`;
+    }
+  }
+
+  /** Complete the re-based track: re-aim each dancer's FIRST move onto the old track. */
+  private doConnect() {
+    if (!this.instance || !this.source) {
+      this.statusEl.textContent = 'nothing to connect';
+      return;
+    }
+    try {
+      this.instance = connectStart(this.instance, this.source);
+      this.instanceEdited = true;
+      this.host.preview(this.instance);
+      this.renderInstance();
+      this.statusEl.textContent = 'connected the first moves';
+    } catch (err) {
+      this.statusEl.textContent = `✗ ${(err as Error).message}`;
+    }
+  }
+
+  /**
+   * How far the edited instance's END formation has drifted from the source track's.
+   *
+   * This is the "now invalid track" made visible: re-posing a start re-frames every move, so
+   * the set stops finishing where the call finishes and the editor has to SAY so rather than
+   * leave the user to notice it on the stage.
+   */
+  private refreshCloneInfo() {
+    const inst = this.instance;
+    const ref = this.source;
+    if (!inst || !ref) {
+      this.cloneInfoEl.textContent = '';
+      return;
+    }
+    const err = endPoseError(inst, ref);
+    const deg = (err.heading * 180) / Math.PI;
+    if (err.pos < 1e-9 && err.heading < 1e-9) {
+      this.cloneInfoEl.textContent = `end formation unchanged from "${ref.from || 'the source'}"${this.asClone ? ' · saving as a NEW setup' : ''}`;
+      return;
+    }
+    // The clone workflow gets the loud wording because the drift there is a DEFECT with a
+    // named fix. Re-aiming an end on purpose in an ordinary edit is not a defect, so it gets
+    // the same number without the alarm.
+    this.cloneInfoEl.innerHTML = this.asClone
+      ? `<span style="color:#ffb454">track incomplete</span>: the ends are ${err.pos.toFixed(2)} units / ` +
+        `${deg.toFixed(0)}° from "${esc(ref.from || 'the source')}" — <b>Connect</b> re-aims the first move of every dancer to close it`
+      : `ends differ from the catalogue's by ${err.pos.toFixed(2)} units / ${deg.toFixed(0)}°`;
+  }
+
   private addInstanceMove() {
     const call = this.instance;
     if (!call) return;
@@ -870,7 +993,11 @@ export class EditorController implements EditorUI {
     if (isInstance) {
       if (!this.instance) return null;
       return {
-        kind: 'instance',
+        // A CLONE ADDS a setup; an INSTANCE edit replaces the one it came from. That is the
+        // whole difference between the two, and it is why they are separate kinds rather than
+        // one kind with a flag: `loadCall` and `effectiveSetups` have to agree about which
+        // appended index a label names, and two kinds make that read off the data.
+        kind: this.asClone ? 'clone' : 'instance',
         callId: id,
         setupIdx,
         name: this.instanceName(this.instance),
@@ -945,7 +1072,7 @@ export class EditorController implements EditorUI {
       const row = document.createElement('div');
       row.className = 'setup' + (s.applied ? ' applied' : '');
       const label = document.createElement('b');
-      const kind = s.kind === 'fix' ? 'fix' : s.kind === 'create' ? 'create' : 'instance';
+      const kind = s.kind === 'fix' ? 'fix' : s.kind === 'create' ? 'create' : s.kind === 'clone' ? 'clone' : 'instance';
       label.textContent = `${kind} · ${s.name}${s.applied ? ' ✔' : ''}`;
       row.appendChild(label);
       const loadBtn = document.createElement('button');
@@ -1025,7 +1152,10 @@ export class EditorController implements EditorUI {
 
     // Instance editor.
     this.instResetBtn.addEventListener('click', () => this.doResetInstance());
+    this.cloneBtn.addEventListener('click', () => this.doClone());
     this.instExportBtn.addEventListener('click', () => this.doExport());
+    this.startFormationSel.addEventListener('change', () => this.doStartFormation());
+    this.connectBtn.addEventListener('click', () => this.doConnect());
     this.moveDancerSel.addEventListener('change', () => {
       this.moveDancer = parseInt(this.moveDancerSel.value, 10) || 0;
       this.moveIndex = 0;
@@ -1052,6 +1182,12 @@ export class EditorController implements EditorUI {
 
 function el<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
+}
+
+/** Escape text that goes into innerHTML. A call's `from` label is authored DATA, so a name
+ *  containing `<` must not become markup - the same rule `browser.ts` applies to module names. */
+function esc(s: string): string {
+  return s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch] as string);
 }
 
 /** Backwards-compatible factory (used by main.ts). */

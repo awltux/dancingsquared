@@ -29,6 +29,9 @@ import {
   instanceTable,
   instanceBeats,
   moveBeatRange,
+  setStartFormation,
+  connectStart,
+  endPoseError,
   setDancerStart,
   setDancerGender,
   setDancerEnd,
@@ -606,6 +609,157 @@ console.log('\n== sampling one stretch of the track (15b) ==');
   );
   const zero = sampleTrailRange(d, 2, 2, 8);
   check(zero.length === 9 && zero.every((p) => p.x === zero[0].x && p.y === zero[0].y), 'a zero-length range collapses to a single repeated point (so nothing degenerate is drawn)');
+}
+
+// ---------------------------------------------------------------------------
+// 16. CLONING A CALL ONTO A DIFFERENT START SETUP. Re-posing the start re-frames the whole
+//     local chain, so the track no longer ends where the call ends; `connectStart` re-aims
+//     ONE move per dancer (the first) to put the end back exactly.
+// ---------------------------------------------------------------------------
+console.log('\n== re-basing onto a different START setup (16) ==');
+const src = normalizeInstance(inst);
+{
+  // A real, different, EIGHT-dancer setup out of the assets - the same kind of thing the
+  // picker offers, without needing a Sequencer in a `light`-tier harness.
+  const dpt = loadCallFromXml(read('../../poc/src/assets/ms/double_pass_thru.xml'), movesXml, formationsXml, 1, true);
+  const formation = dpt.dancers.map((d) => {
+    const p = poseFor(d, 0);
+    return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
+  });
+  check(formation.length === 8, `witness formation: "${dpt.from}" stands up ${formation.length} dancers`);
+
+  const rebased = setStartFormation(src, formation);
+  check(rebased.dancers.length === 8 && rebased.beats === src.beats, `the re-base keeps 8 dancers and ${src.beats} beats`);
+  // Every dancer stands ON a formation spot, and the spots are used once each.
+  const usedSlots = new Set();
+  let worstOff = 0;
+  for (const r of instanceTable(rebased)) {
+    let best = -1;
+    let bestD = Infinity;
+    formation.forEach((p, k) => {
+      const d = Math.hypot(r.start.x - p.x, r.start.y - p.y);
+      if (d < bestD) {
+        bestD = d;
+        best = k;
+      }
+    });
+    usedSlots.add(best);
+    worstOff = Math.max(worstOff, bestD);
+  }
+  check(worstOff === 0 && usedSlots.size === 8, `every dancer stands on a formation spot and the spots are used once each (worst offset ${worstOff})`);
+  // The MOVES are untouched: the re-base re-poses, it does not re-author.
+  check(
+    src.dancers.every((d, i) => JSON.stringify(d.path) === JSON.stringify(rebased.dancers[i].path)),
+    'every move is byte-identical to the source: the re-base re-poses and does not re-author',
+  );
+  // THE INVALID TRACK, MEASURED rather than asserted to exist.
+  const broken = endPoseError(rebased, src);
+  check(
+    broken.pos > 2,
+    `the track is now invalid: the ends are ${broken.pos.toFixed(2)} units and ${((broken.heading * 180) / Math.PI).toFixed(0)}deg from the call's end`,
+  );
+
+  // GENDER IS THE DANCER'S, AND SPOTS ARE PREFERRED BY IT. Give the formation declared
+  // genders and require that nobody stands on a spot declared as the other gender.
+  const gendered = formation.map((p, k) => ({ ...p, gender: k % 2 === 0 ? 'boy' : 'girl' }));
+  const onGendered = setStartFormation(src, gendered);
+  let mismatched = 0;
+  for (const r of instanceTable(onGendered)) {
+    const spot = gendered.find((p) => Math.hypot(p.x - r.start.x, p.y - r.start.y) < 1e-9);
+    if (spot && spot.gender !== r.gender) mismatched++;
+  }
+  check(mismatched === 0, `4 boys + 4 girls land on the 4 boy spots + 4 girl spots (${mismatched} mismatches)`);
+  // With the counts deliberately wrong the assignment must still be TOTAL, by geometry.
+  const lopsided = formation.map((p, k) => ({ ...p, gender: k < 6 ? 'boy' : 'girl' }));
+  const onLopsided = setStartFormation(src, lopsided);
+  check(onLopsided.dancers.length === 8, 'a formation whose gender counts do not match still assigns every dancer (by geometry)');
+  let threw = false;
+  try {
+    setStartFormation(src, formation.slice(0, 4));
+  } catch {
+    threw = true;
+  }
+  check(threw, 'a formation with the wrong NUMBER of dancers throws rather than re-basing onto gaps');
+}
+
+console.log('\n== completing the track: one move per dancer (16b) ==');
+{
+  const dpt = loadCallFromXml(read('../../poc/src/assets/ms/double_pass_thru.xml'), movesXml, formationsXml, 1, true);
+  const formation = dpt.dancers.map((d) => {
+    const p = poseFor(d, 0);
+    return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
+  });
+  const rebased = setStartFormation(src, formation);
+  const connected = connectStart(rebased, src);
+
+  const err = endPoseError(connected, src);
+  // Measured: 2.220e-15 - ONE ULP, because the re-aimed first move reaches the anchor through
+  // a pad Bezier whose end heading is recovered from a TANGENT, which is not bit-identical to
+  // walking the authored chain. The claim is "the end comes back", bounded and pinned.
+  check(err.pos < 1e-14 && err.heading < 1e-14, `the END FORMATION comes back exactly (worst ${err.pos.toExponential(2)} units, ${err.heading.toExponential(2)} rad)`);
+
+  // Every pose from the end of move 1 onward is the source's, because the remaining chain is
+  // identical and it composes from the same anchor pose.
+  let worstAfter = 0;
+  for (let i = 0; i < connected.dancers.length; i++) {
+    const tb = moveBeatRange(src.dancers[i], 0).to;
+    for (const t of [tb, tb + 0.5, src.beats]) {
+      const a = poseFor(src.dancers[i], t);
+      const b = poseFor(connected.dancers[i], t);
+      worstAfter = Math.max(worstAfter, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+    }
+  }
+  check(worstAfter < 1e-12, `every pose from the end of move 1 onward is the source's (worst ${worstAfter.toExponential(2)})`);
+  // Only the FIRST move differs, and it keeps the beats and hands it had.
+  let laterMovesSame = true;
+  let firstKeptMeta = true;
+  for (let i = 0; i < src.dancers.length; i++) {
+    const a = src.dancers[i].path;
+    const b = connected.dancers[i].path;
+    if (a.length !== b.length) laterMovesSame = false;
+    if (b[0].beats !== a[0].beats || b[0].hands !== a[0].hands) firstKeptMeta = false;
+    for (let k = 1; k < Math.min(a.length, b.length); k++) {
+      if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) laterMovesSame = false;
+    }
+  }
+  check(laterMovesSame, 'EXACTLY ONE move per dancer changed, and it is the first: every later move is byte-identical');
+  check(firstKeptMeta, 'the re-aimed first move keeps its own beats and hands: this re-aims a movement, it does not re-time the call');
+  // The start is still the NEW formation - connecting must not drag the start back.
+  check(
+    instanceTable(connected).every((r) => formation.some((p) => Math.hypot(p.x - r.start.x, p.y - r.start.y) < 1e-9)),
+    'connecting the track leaves the new start formation exactly where the re-base put it',
+  );
+  check(connected.beats === src.beats, `the beat count is still ${src.beats}`);
+
+  // IDENTITY: a track that already reaches the anchor is left EXACTLY as authored, which is
+  // what keeps this from straightening an authored first curve by accident.
+  const identity = connectStart(src, src);
+  check(
+    src.dancers.every((d, i) => JSON.stringify(d.path) === JSON.stringify(identity.dancers[i].path)),
+    'connectStart(ancestor, ancestor) is an EXACT no-op - an already-connected track is not restraightened',
+  );
+
+  // A dancer that cannot walk in is left alone and STAYS wrong - a limitation, pinned.
+  {
+    const noTime = { ...rebased, dancers: rebased.dancers.map((d, i) => (i === 0 ? { ...d, path: [{ ...d.path[0], beats: 0 }, ...d.path.slice(1)] } : d)) };
+    const after = connectStart(noTime, src);
+    const before = endPoseError(noTime, src);
+    const post = endPoseError(after, src);
+    check(
+      post.pos === before.pos && post.pos > 3,
+      `a dancer whose first move has ZERO beats cannot be connected and stays wrong (${post.pos.toFixed(2)} units, unchanged) - reported by endPoseError rather than hidden`,
+    );
+  }
+}
+
+console.log('\n== endPoseError is index-for-index, on purpose (16c) ==');
+{
+  check(endPoseError(src, src).pos === 0, 'a call against itself reports zero');
+  // Swapping two dancers' ends must READ as an error. This is the whole reason this comparison
+  // does not re-derive a correspondence the way `closureDiscrepancy` does: a clone and its
+  // ancestor share dancer identity, so pairing dancer i with its counterpart is the question.
+  const permuted = { ...src, dancers: [src.dancers[1], src.dancers[0], ...src.dancers.slice(2)] };
+  check(endPoseError(permuted, src).pos > 1, `a permutation of the SAME ends reads as an error (${endPoseError(permuted, src).pos.toFixed(2)} units), not as zero`);
 }
 
 console.log('\n=================');

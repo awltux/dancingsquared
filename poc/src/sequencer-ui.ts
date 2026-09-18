@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 
 import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf } from 'dancing-squared-engine';
-import type { Board, CallStep, Module, Pose, SequenceStop } from 'dancing-squared-engine';
+import type { Board, CallStep, FormDancer, Module, Pose, SequenceStop } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
@@ -18,6 +18,8 @@ export interface SequencerUI {
   render(): void;
   /** Load a named sequence whole and park the playhead at its first step that plays `atCall`. */
   openSequence(steps: (string | CallStep)[], atCall?: string, startFormation?: string): void;
+  /** The EIGHT-dancer named formations, as start poses, for the editor's clone Start setup. */
+  startFormations(): { name: string; poses: FormDancer[] }[];
 }
 
 const MS_PER_BEAT = 500;
@@ -76,6 +78,8 @@ export class SequencerController implements SequencerUI {
   private view2dEl = el<HTMLSelectElement>('seqView2d');
   private subsetInfoEl = el<HTMLDivElement>('seqSubsetInfo');
   private formationNames: string[] = [];
+  /** See `startFormations`. */
+  private startFormationCache: { name: string; poses: FormDancer[] }[] | null = null;
 
   // State.
   private seq: Sequencer;
@@ -140,6 +144,37 @@ export class SequencerController implements SequencerUI {
     for (const f of this.formationNames) this.formationSelect.add(new Option(f, f));
     if (prev && this.formationNames.includes(prev)) this.formationSelect.value = prev;
     else this.formationSelect.value = '';
+  }
+
+  /**
+   * The named formations an EIGHT-DANCER call can be re-based onto, as start poses: what the
+   * editor's "clone onto a different Start setup" picker is built from.
+   *
+   * EIGHT DANCERS ONLY, and that is a requirement rather than a tidy-up: `setStartFormation`
+   * refuses a formation whose dancer count differs from the call's, because re-basing eight
+   * dancers onto four spots is not a setup, it is a gap. MEASURED
+   * (`node engine/test/tools/editor-clone-probe.mjs`, over the whole pooled catalogue):
+   * `listFormations()` currently offers **134 formations and every one of them is eight
+   * dancers**, so this filter removes nothing today and is here so that the day one is not,
+   * the picker cannot offer it.
+   *
+   * Memoized: building 134 boards is cheap but this is read once per editor construction and
+   * the catalogue cannot change while the app runs.
+   */
+  startFormations(): { name: string; poses: FormDancer[] }[] {
+    if (!this.startFormationCache) {
+      const out: { name: string; poses: FormDancer[] }[] = [];
+      for (const name of this.formationNames) {
+        const b = this.seq.boardForSetup(name);
+        if (!b || b.dancers.length !== 8) continue;
+        out.push({
+          name,
+          poses: b.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender })),
+        });
+      }
+      this.startFormationCache = out;
+    }
+    return this.startFormationCache;
   }
 
   /** Jump the board into the chosen formation and clear the current sequence. */

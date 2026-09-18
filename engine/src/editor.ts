@@ -12,7 +12,7 @@
 // Each pad segment is a straight-line translate plus a turn, built with the same
 // Bezier convention taminations uses (`Movement.fromTransform`).
 
-import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Seg } from './types.js';
+import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Pose, Seg } from './types.js';
 import { DEG, poseFor } from './core.js';
 // The DERIVED identity of an edited start formation: `assignHomeIdentity` is the same
 // read the renderer colours by, so the editor's `couple` column cannot disagree with the
@@ -765,6 +765,193 @@ export function removeMove(call: CallBundle, index: number, moveIndex: number): 
   const path = moves.filter((_, k) => k !== moveIndex);
   const dancers = base.dancers.map((d, j) => (j === index ? { ...d, path } : d));
   return retime({ ...base, dancers }, beforeMax);
+}
+
+// ------------------------------------------------------------------ cloning a start
+//
+// CLONING A CALL ONTO A DIFFERENT START SETUP. A `<tam>` is authored for ONE start formation,
+// and its moves are written in dancer-LOCAL coordinates - each move's origin is where the
+// dancer stands when the move begins, and its +X is the dancer's facing. So the authoring
+// unit is really `[start formation] + [local move chain]`, and re-using the chain from a
+// different start is the cheap half of authoring a new setup for a call.
+//
+// WHAT GOES WRONG WITHOUT THIS SECTION. Re-posing the start re-frames the WHOLE chain
+// (`setDancerStart` documents exactly that), so the set no longer performs the intended
+// whole-set motion and the END board comes apart: for `Circle Left` re-based from a squared
+// set onto Facing Lines the ends move by as much as the difference between the two
+// formations. That is the "now invalid track", and it is measured rather than asserted -
+// `endPoseError` is how the editor shows it, and `editor.mjs` pins the size on a witness.
+//
+// THE FIX IS ONE MOVE PER DANCER, NOT A WHOLE TRACK. The END FORMATION IS KEPT EXACTLY, and
+// only the FIRST move is re-aimed, so that it carries the dancer from the new start to the
+// pose where the ORIGINAL track resumes (`connectStart`). Every later move is untouched, and
+// because a local chain composes identically from the same pose, every pose from that
+// boundary onward - including the end - comes back bit-for-bit. The clone therefore walks
+// in from the new setup, then dances the call exactly as authored, and finishes where the
+// call always finished.
+//
+// EVERY REFERENCE IS TO THE FINISH, NOT THE START. It would be easy to re-aim the first move
+// at the OLD START's first boundary instead; that would move the end with the start and
+// would not be a clone of anything. The anchor is the pose of the ANCESTOR's track at that
+// boundary, which is what makes the end invariant.
+
+/**
+ * Re-base a call instance's START formation onto `formation`, leaving every MOVE untouched.
+ *
+ * The dancers are assigned to the formation's spots GEOMETRICALLY - nearest first, from the
+ * outside in, the same rule the rest of this module uses - and, whenever the counts allow, a
+ * dancer only takes a spot whose declared gender matches its own. That second rule is what
+ * makes the result actually be the setup that was asked for: a formation declares which
+ * spots hold boys and which hold girls, and an assignment that ignored it would produce a
+ * board that merely LOOKS like the formation. The first pass is a preference, not a
+ * constraint, so a formation whose gender counts do not match the dancers' still assigns
+ * (by geometry) rather than refusing.
+ *
+ * GENDER IS THE DANCER'S, NOT THE SPOT'S. A dancer keeps its own gender and identity; the
+ * assignment chooses where it stands. Silently swapping somebody's gender to fit a spot
+ * would change WHO is dancing, and identity here is data.
+ *
+ * The result's track is NOT valid on its own - it ends wherever the old chain now carries
+ * it. `connectStart` is the other half, and `endPoseError` measures what is left to do.
+ */
+export function setStartFormation(call: CallBundle, formation: FormDancer[]): CallBundle {
+  const base = normalizeInstance(call);
+  const n = base.dancers.length;
+  if (formation.length !== n) {
+    throw new Error(
+      `setStartFormation: the formation has ${formation.length} dancers and the call has ${n} - refusing to re-base a track onto the wrong number of dancers`,
+    );
+  }
+  const slotOf = assignStartSlots(base, formation);
+  const dancers = base.dancers.map((d, i) => ({
+    ...d,
+    x: formation[slotOf[i]].x,
+    y: formation[slotOf[i]].y,
+    angleDeg: formation[slotOf[i]].heading / DEG,
+  }));
+  return { ...base, dancers };
+}
+
+/**
+ * Assign each dancer of `call` to a spot of `formation`: `slotOf[i]` is the formation index
+ * dancer `i` stands on. Dancers are placed from the OUTSIDE IN (the far ones have the fewest
+ * good options), scoring position plus half the facing difference, and a spot whose declared
+ * gender is the dancer's own is preferred in a first pass over any spot at all.
+ */
+function assignStartSlots(call: CallBundle, formation: FormDancer[]): number[] {
+  const n = call.dancers.length;
+  const cur = call.dancers.map((d) => poseFor(d, 0));
+  const used = new Array<boolean>(n).fill(false);
+  const slotOf = new Array<number>(n).fill(-1);
+  const order = cur.map((_, i) => i).sort((a, b) => cur[b].x ** 2 + cur[b].y ** 2 - (cur[a].x ** 2 + cur[a].y ** 2));
+  for (const i of order) {
+    const wants = call.dancers[i].gender;
+    let best = -1;
+    // Pass 0 keeps the formation's declared arrangement; pass 1 is what makes the assignment
+    // TOTAL when the gender counts do not line up, rather than leaving a dancer out.
+    for (const pass of [0, 1]) {
+      let bestD = Infinity;
+      for (let s = 0; s < n; s++) {
+        if (used[s]) continue;
+        const g = formation[s].gender;
+        if (pass === 0 && g !== undefined && g !== wants) continue;
+        const d =
+          Math.hypot(cur[i].x - formation[s].x, cur[i].y - formation[s].y) +
+          Math.abs(normAngleSafe(cur[i].heading - formation[s].heading)) * 0.5;
+        if (d < bestD) {
+          bestD = d;
+          best = s;
+        }
+      }
+      if (best >= 0) break;
+    }
+    used[best] = true;
+    slotOf[i] = best;
+  }
+  return slotOf;
+}
+
+/** Whether a dancer's pose is already the `target` pose, to within floating-point noise.
+ *  Used to leave an authored first move ALONE when it already reaches the track. */
+function poseIs(pose: Pose, target: { x: number; y: number; heading: number }): boolean {
+  return (
+    Math.abs(pose.x - target.x) <= 1e-9 &&
+    Math.abs(pose.y - target.y) <= 1e-9 &&
+    Math.abs(normAngleSafe(pose.heading - target.heading)) <= 1e-9
+  );
+}
+
+/**
+ * Complete a re-based track: re-aim each dancer's FIRST move so it connects the new start to
+ * `reference`'s own track, leaving the END FORMATION exactly where the reference put it.
+ *
+ * ONE MOVE PER DANCER, AND ONLY THE FIRST. The anchor is `reference`'s pose at the end of ITS
+ * first move - the point where the authored chain resumes - so the END composes from the same
+ * pose it always did and comes back. The re-aimed move keeps the ORIGINAL first move's beats
+ * and hands: this re-aims a movement, it does not re-time the call. (Where the first moves
+ * agree on beats - which a re-base guarantees, since it does not touch them - every pose from
+ * that boundary onward is the reference's, not merely the end.)
+ *
+ * A dancer whose OWN first move ALREADY ends on the anchor is left exactly as authored. That
+ * is not politeness either: it is what makes `connectStart(ancestor, ancestor)` the identity,
+ * so an already-good track is not restraightened into a pad when nothing asked for it.
+ *
+ * A dancer with no first move, or with a first move of zero beats, CANNOT be connected -
+ * there is no time in which to walk in - so it is left alone and stays wrong. That is a
+ * measurement, not an oversight: `endPoseError` reports it, and the editor shows it.
+ */
+export function connectStart(call: CallBundle, reference: CallBundle): CallBundle {
+  const base = normalizeInstance(call);
+  const ref = reference.dancers.some((d) => d.mirror) ? normalizeInstance(reference) : reference;
+  if (ref.dancers.length !== base.dancers.length) {
+    throw new Error(
+      `connectStart: the reference has ${ref.dancers.length} dancers and the call has ${base.dancers.length} - a clone and its ancestor must match dancer for dancer`,
+    );
+  }
+  const dancers = base.dancers.map((d, i) => {
+    const r = ref.dancers[i];
+    if (d.path.length === 0 || r.path.length === 0) return d;
+    const first = d.path[0];
+    if (!(first.beats > 0)) return d;
+    const anchor = poseFor(r, moveBeatRange(r, 0).to);
+    // ALREADY THERE means the dancer's OWN first move ends on the anchor - not that its start
+    // is the anchor, which is a different question with a different answer for every dancer.
+    // Getting this wrong re-aims an authored first curve into a straight pad even when the
+    // track needed nothing, which is how `connectStart(ancestor, ancestor)` stops being the
+    // identity it has to be.
+    if (poseIs(poseFor(d, moveBeatRange(d, 0).to), anchor)) return d;
+    const start = poseFor(d, 0);
+    const seg = padSegment(
+      { x: start.x, y: start.y, heading: start.heading },
+      { x: anchor.x, y: anchor.y, heading: anchor.heading },
+      first.beats,
+    );
+    seg.hands = first.hands;
+    return { ...d, path: [seg, ...d.path.slice(1)] };
+  });
+  return { ...base, dancers };
+}
+
+/**
+ * How far apart two calls' END poses are, DANCER BY INDEX.
+ *
+ * Index-for-index is the right comparison HERE and it is not the same question
+ * `closureDiscrepancy` answers: that one re-derives a correspondence geometrically because it
+ * is measuring against an independent target formation, whereas a clone and its ancestor share
+ * their dancer order and their identity, and re-deriving a correspondence between them could
+ * hide exactly the error being measured by pairing a dancer with somebody else.
+ */
+export function endPoseError(a: CallBundle, b: CallBundle): { pos: number; heading: number } {
+  const n = Math.min(a.dancers.length, b.dancers.length);
+  let pos = 0;
+  let heading = 0;
+  for (let i = 0; i < n; i++) {
+    const p = poseFor(a.dancers[i], a.beats);
+    const q = poseFor(b.dancers[i], b.beats);
+    pos = Math.max(pos, Math.hypot(p.x - q.x, p.y - q.y));
+    heading = Math.max(heading, Math.abs(normAngleSafe(p.heading - q.heading)));
+  }
+  return { pos, heading };
 }
 
 /** Serialize an arbitrary call bundle as a taminations-style `<tam>` XML string.

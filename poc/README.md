@@ -244,6 +244,30 @@ reloads: `loadCall` honours an edit already applied to the live catalogue, so an
 applied instance edit is reloaded as itself. Unapply it in the saved list to get the
 shipped tam back.
 
+**Clone onto a different Start setup** — author a NEW setup for a call out of an existing one.
+A `<tam>` is authored for one start formation and its moves are written in *dancer-local*
+coordinates, so re-posing the start re-frames the whole chain and the set stops finishing
+where the call finishes. The three controls are the three steps:
+
+| control | what it does |
+|---|---|
+| **Clone** | starts a NEW setup from this instance; Save/apply will ADD it rather than replace the one it came from |
+| **Start setup** | re-bases the clone's start onto a named formation, keeping every move. The track is now **incomplete**, and the panel says by how much (`track incomplete: 2.86 units / 90° from "Static Square"`) |
+| **Connect** | re-aims the **first move of every dancer** so it walks in from the new start to where the old track resumes. The end formation comes back exactly; no other move changes |
+
+Only **eight-dancer** formations are offered, because `setStartFormation` refuses a count
+mismatch — re-basing eight dancers onto four spots is a gap, not a setup. `listFormations()`
+currently offers 134 formations and *every one of them is eight dancers*
+(`node engine/test/tools/editor-clone-probe.mjs`), so the filter removes nothing today; it is
+there so that the day one is not, the picker cannot offer it.
+
+The end is what the connection aims at: re-aiming each first move at the *old start's* first
+boundary instead would move the end along with the start and would not be a clone of anything.
+A dancer whose own first move already ends on the anchor is left exactly as authored, which is
+what makes connecting an already-good track a no-op rather than a straightening of an authored
+curve; and a dancer whose first move has **zero beats** cannot walk in, is left alone, and is
+reported as still wrong rather than quietly accepted.
+
 **Fix closure** — correct an existing call setup that doesn't close cleanly (e.g. a
 full Circle Left leaves the girls ~44° off, so the sequencer sees an unrecognized
 formation). Pick the edit call+setup and a post call+setup; the editor shows the

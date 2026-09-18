@@ -50,10 +50,13 @@ const browser = new CallBrowser(stage, player, {
 const seqUi = initSequencer(stage);
 // The editor drives the stage through the browse view: `preview` shows a bundle, and
 // `focusTrail` is how the moves editor isolates one dancer's track and highlights the
-// selected move's stretch of it.
+// selected move's stretch of it. `startFormations` is the clone's Start setup picker, and it
+// comes from the sequencer because the formation library lives there - it is built from the
+// registered catalogue, and building a second one here would double that cost.
 const editorUi = initEditor(stage, {
   preview: (c) => browser.showCall(c),
   focusTrail: (index, range) => browser.setTrailFocus(index, range),
+  startFormations: () => seqUi.startFormations(),
 });
 
 const playBtn = el<HTMLButtonElement>('play');

@@ -50,15 +50,15 @@ export interface CallInfo {
 // A user-authored call edit (from the call editor). `applied` means it is
 // currently overriding the live call-position database.
 //
-// THREE KINDS, and the third is a different shape from the other two:
-//   'fix'      retarget one setup's last move to a post-call's start
-//   'create'   synthesize a NEW setup between a pre-call's end and a post-call's start
-//   'instance' an EDITED `<tam>` in full - start formation and its arrangement, end
-//              formation, and the moves - carried as the exported XML itself, because a
-//              whole instance is exactly what `callToXml` is for and re-deriving it from a
-//              handful of fields would be a second, weaker representation of the same thing.
+// FOUR KINDS, and the difference between the last two is where the result GOES:
+//   'fix'      retarget one setup's last move to a post-call's start - REPLACES that setup
+//   'create'   synthesize a NEW setup between a pre-call's end and a post-call's start - ADDS one
+//   'instance' an EDITED `<tam>` in full: start formation and its arrangement, end formation,
+//              and the moves - carried as the exported XML itself - REPLACES that setup
+//   'clone'    the same edited instance, but re-based onto a different START setup - ADDS one,
+//              because a clone is a new setup of the call rather than a correction to an old one
 export interface CallEdit {
-  kind: 'fix' | 'create' | 'instance';
+  kind: 'fix' | 'create' | 'instance' | 'clone';
   callId: string;
   setupIdx: number;
   postCallId?: string;
@@ -68,7 +68,7 @@ export interface CallEdit {
   name: string;
   padBeats: number;
   applied?: boolean;
-  /** kind 'instance': the edited instance as taminations `<tam>` XML - expanded and
+  /** kind 'instance' / 'clone': the edited instance as taminations `<tam>` XML - expanded and
    *  full-set, exactly as `callToXml` emitted it. */
   xml?: string;
 }
@@ -270,12 +270,12 @@ export class Catalog {
     }
   }
 
-  /** Effective setup labels for a call, including any applied CREATE positions. */
+  /** Effective setup labels for a call, including any applied CREATE positions and CLONES. */
   effectiveSetups(callId: string): { label: string; from: string }[] {
     const entry = this.fullCatalog.find((c) => c.id === callId);
     const base = entry ? [...entry.setups] : [];
     for (const e of this.appliedEdits()) {
-      if (e.kind === 'create' && e.callId === callId) base.push({ label: e.name, from: e.name });
+      if ((e.kind === 'create' || e.kind === 'clone') && e.callId === callId) base.push({ label: e.name, from: e.name });
     }
     return base;
   }
@@ -343,24 +343,27 @@ export class Catalog {
 
   /** Rebuild an edit's call bundle from its SHIP definitions (no override recursion). */
   rebuildEdit(edit: CallEdit): CallBundle {
-    if (edit.kind === 'instance') return this.rebuildInstance(edit);
+    if (edit.kind === 'instance' || edit.kind === 'clone') return this.rebuildInstance(edit);
     return edit.kind === 'fix' ? this.rebuildFix(edit) : this.rebuildCreate(edit);
   }
 
-  /** Load a call setup, honoring applied edit overrides (fix and instance replace, create appends). */
+  /** Load a call setup, honoring applied edit overrides (fix and instance replace, create and
+   *  clone append). */
   loadCall(id: string, tamIndex: number, mirror = true): CallBundle {
     const entry = this.fullCatalog.find((c) => c.id === id);
     if (!entry) throw new Error(`Unknown call: ${id}`);
     const edits = this.appliedEdits().filter((e) => e.callId === id);
-    const creates = edits.filter((e) => e.kind === 'create');
+    // APPENDED in the order `effectiveSetups` lists them, or the index a caller got from the
+    // Setup select would name a different setup here.
+    const appended = edits.filter((e) => e.kind === 'create' || e.kind === 'clone');
     const shippedCount = entry.setups.length;
     if (tamIndex < shippedCount) {
       const repl = edits.find((e) => (e.kind === 'fix' || e.kind === 'instance') && e.setupIdx === tamIndex);
       if (repl) return repl.kind === 'instance' ? this.rebuildInstance(repl) : this.rebuildFix(repl);
       return this.loadCallBase(id, tamIndex, mirror);
     }
-    const create = creates[tamIndex - shippedCount];
-    if (create) return this.rebuildCreate(create);
+    const added = appended[tamIndex - shippedCount];
+    if (added) return added.kind === 'clone' ? this.rebuildInstance(added) : this.rebuildCreate(added);
     return this.loadCallBase(id, Math.max(0, shippedCount - 1), mirror);
   }
 
@@ -422,9 +425,12 @@ export class Catalog {
       }
     }
     for (const e of edits) {
+      // A CLONE is registered the same way, but as its own setup - which is what it is.
       if (e.kind === 'create') {
         const t = this.tamFromCall(this.rebuildEdit(e));
         if (t) out.push(t);
+      } else if (e.kind === 'clone' && e.xml) {
+        out.push(e.xml);
       }
     }
     if (out.length === 0) return null;

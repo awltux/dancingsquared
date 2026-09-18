@@ -2476,6 +2476,38 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     The chosen call is therefore always kept, re-inserted at the top and marked, which makes the
     filter a pure VIEW of the catalogue. UI-only, typechecked: no engine code, no harness and no
     feature file changes, and the filter predicate is a substring test with no geometry in it.
+  - **CLONING A CALL ONTO A DIFFERENT START SETUP, AND COMPLETING THE TRACK.** A `<tam>` is authored
+    for ONE start formation and its moves are written in dancer-LOCAL coordinates, so re-posing the
+    start re-frames the whole chain. That is the cheap half of authoring a new setup, and it is also
+    why the track goes wrong: MEASURED, `Circle Left` re-based from a squared set onto `Double Pass
+    Thru` finishes **2.86 units and 90° away** from where the call finishes. `setStartFormation`
+    re-bases (assigning dancers to the formation's spots geometrically, preferring a spot of the
+    dancer's own declared gender whenever the counts allow, and REFUSING a count mismatch rather than
+    re-basing onto gaps), and `connectStart` completes the track by re-aiming **exactly one move per
+    dancer — the first** — so it walks in from the new start to where the old track resumes.
+  - **THE ANCHOR IS THE END, NOT THE START, and the identity was got wrong first.** The anchor is the
+    ANCESTOR's pose at the end of ITS first move; re-aiming at the old start's boundary instead would
+    move the end with the start and would not be a clone of anything. MEASURED: the end comes back to
+    **1.54e-15 units / 4.44e-16 rad** — one ulp, because the pad Bezier recovers its end heading from a
+    tangent, which is not bit-identical to walking the authored chain — every later move is
+    byte-identical, and the re-aimed move keeps its own beats and hands. The FIRST attempt asked
+    whether the dancer's START is the anchor, which is a different question with a different answer
+    for every dancer, and it silently re-aimed every authored first curve into a straight pad:
+    `connectStart(ancestor, ancestor)` was not the identity. Asking whether the dancer's OWN FIRST
+    MOVE already ends on the anchor fixes it, and the harness now pins that identity.
+  - **WHAT CANNOT BE CONNECTED IS REPORTED, NOT HIDDEN.** A dancer whose first move has zero beats has
+    no time to walk in: it is left alone and stays **3.25 units** wrong, which `endPoseError` shows.
+    `endPoseError` compares dancer **BY INDEX** on purpose — a clone and its ancestor share identity,
+    so a permutation of the same ends must read as an error rather than be paired away by a
+    re-derived correspondence, which is exactly what `closureDiscrepancy` does and why it is the
+    wrong tool here.
+  - **THE PICKER OFFERS EIGHT-DANCER FORMATIONS ONLY, AND TODAY THAT FILTERS NOTHING.**
+    `listFormations()` over the whole pooled catalogue is **134 formations and every one is eight
+    dancers** (`node engine/test/tools/editor-clone-probe.mjs`; the registration takes 1.6 s). The
+    filter is a guard rather than a fix, and it is recorded that way — a filter that is doing nothing
+    should say so rather than look load-bearing. A clone is saved and applied as a NEW setup
+    (`kind: 'clone'`, appended), not as a replacement, which is the difference between it and an
+    instance edit.
   - The new instrument is `node engine/test/tools/editor-instance-probe.mjs`; `verify:light` is green
     (12 harnesses, 36.3 s).
 

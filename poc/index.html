@@ -157,9 +157,16 @@
           <div id="edInstancePanel">
             <div class="row">
               <button id="edInstReset" title="Throw away the edits made in this tab and reload the instance. An edit already applied to the live catalogue is part of what is reloaded.">Reset</button>
+              <button id="edClone" title="Start a NEW setup from this instance instead of replacing it: edits are then saved and applied as an addition. Picking a Start setup re-bases the clone onto that formation.">Clone</button>
               <button id="edInstExport" title="Export the edited instance as taminations &lt;tam&gt; XML">Export &lt;tam&gt;</button>
               <span id="edInstInfo" class="part"></span>
             </div>
+            <div class="row">
+              <label>Start setup</label>
+              <select id="edStartFormation" class="wide" title="Re-base the clone's START formation onto a named 8-dancer formation, keeping every move. The track will not end where the call ends - that is what Connect is for."></select>
+              <button id="edConnect" title="Re-aim the FIRST move of every dancer so it connects the new start to the old track. The end formation comes back exactly; no other move changes.">Connect</button>
+            </div>
+            <div class="small" id="edCloneInfo"></div>
             <div class="small">
               <b>Formation</b> — the start pose of every dancer, and the pose each arrives at. The
               <i>gender</i> column is the ARRANGEMENT (which spots hold a boy and which a girl); <i>couple</i>

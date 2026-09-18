@@ -195,6 +195,39 @@ Feature: Synthesizing a Missing Setup (the Call Editor)
     #          A zero-beat move owns an empty range, which the renderer must draw as nothing rather
     #          than as a degenerate line along the track.
 
+  @bind:setStartFormation @bind:connectStart @bind:endPoseError
+  Scenario: Cloning a call onto a different START setup, and completing the track
+    Given a call instance and a different EIGHT-dancer start formation
+    When the clone's start is re-based onto that formation
+    Then every dancer must stand on one of the formation's spots, used once each
+    And every move must be left byte-identical, because a re-base re-poses and does not re-author
+    And a dancer must stand on a spot of its own declared gender whenever the counts allow
+    And a formation with the wrong NUMBER of dancers must be refused rather than re-based onto gaps
+    And the track must then be INVALID, and the size of that must be measured rather than assumed
+    When the track is connected
+    Then exactly ONE move per dancer may change, and it must be the first
+    And the re-aimed move must keep its own beats and hands
+    And the END FORMATION must come back, so the call still finishes where it always did
+    And a dancer whose own first move already ends on the anchor must be left exactly as authored
+    # Engine: editor.ts setStartFormation / connectStart / endPoseError, measured in editor.mjs
+    #          section 16. A `<tam>` is authored for ONE start formation and its moves are written
+    #          in dancer-LOCAL coordinates, so re-posing the start re-frames the whole chain: for
+    #          `Circle Left` re-based onto Double Pass Thru the ends come apart by 2.86 units and
+    #          90 degrees. That is the now-invalid track, and it is MEASURED (endPoseError).
+    #          THE FIX IS ONE MOVE PER DANCER, and the end is what the anchor is measured from -
+    #          re-aiming at the OLD START's first boundary instead would move the end with the start
+    #          and would not be a clone of anything. The end comes back to 1.5e-15 units (one ulp:
+    #          the pad Bezier recovers its end heading from a tangent, which is not bit-identical to
+    #          walking the authored chain), and the bound is pinned rather than asserted to be zero.
+    #          THE IDENTITY MATTERS AND WAS GOT WRONG FIRST: "already connected" asks whether the
+    #          dancer's OWN first move ends on the anchor, not whether its start does - asking the
+    #          second question re-aimed every authored first curve into a straight pad, so
+    #          `connectStart(ancestor, ancestor)` was not the identity it has to be.
+    #          WHAT CANNOT BE CONNECTED IS REPORTED, NOT HIDDEN: a dancer whose first move has zero
+    #          beats has no time to walk in, is left alone, and stays wrong, which `endPoseError`
+    #          then shows. `endPoseError` compares dancer BY INDEX on purpose - a clone and its
+    #          ancestor share identity, so a permutation of the same ends must read as an error.
+
   @bind:callToXml
   Scenario: An edited instance exports back to `<tam>` XML and re-parses to the same instance
     Given an edited call instance

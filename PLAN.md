@@ -2184,18 +2184,37 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
   exists to absorb, in `config.ts` + `matcher.ts`): it fixes exactly those 3 and nothing else, so it was
   **reverted** rather than shipped as a behavioural change to the interactive board for a 3-module
   gain. `snapBoard` still deserves a per-dancer bound one day; it does not belong to this defect.
-- **THE BRANCH STORY IS STILL OPEN — this is where the next session should start.**
-  `last-frame-branch-probe.mjs` asks which branch EACH SIDE took for the last call: 5 animate a
-  whole-board match, 3 store a parallel grouping, **0 take both** (the re-derivation disagreement the
-  parallel work already fixed), and **77 are "no whole-board match AND no stored parallel grouping"**.
-  That last number is the contradiction to resolve: the applicator produced a board nevertheless (the
-  candidates are the implicit `adjustToSetup` after a Fold, the scoped-tam fallback, and a `before`
-  board that differs between the probe's `applyStep` replay and `replayWalk`), and
-  `evaluateParallelAt` is convergent BY CONSTRUCTION, so a 6.32-unit jump should be impossible on the
-  parallel branch. Something in that chain is not what the code says it is, and it is not diagnosed.
-- **RECOMMENDED NEXT STEP**: explain the 77 before touching anything. The residual below is the only
-  fix DEMONSTRATED to work, and it costs collisions — so the choice between them should be made with
-  the 77 understood, not guessed at.
+- **THE CAUSE IS A DROPPED DANCER SELECTION, and the animation has been playing the WRONG CALL.** The
+  count that would not add up — 77 offenders with no whole-board match and no stored parallel — was a
+  question aimed at the wrong step, and MEASURING THE STEP rather than assuming it is what found this:
+  - `last-frame-before-probe.mjs`: on **81 of the 86** the module's LAST flat step is charged **0
+    beats**, i.e. the final call never plays at all (`sequenceBeats` skips a catalogue step with no
+    matching variant). `evaluateSequence(flat, total)` then returns that step's `before`, so the jump
+    being measured belongs to the last step that DOES play. Every probe before this one asked
+    `findMatchingVariant` about the final call — a call that contributes nothing.
+  - `last-frame-owner-probe.mjs` identifies the OWNER properly (`the last step whose own beats are
+    non-zero`) and asks about THAT: owners split 43 whole-board / 34 parallel-stored / 8 coded — so the
+    parallel branch, which converges by construction, does jump — and **84 of the 86 owner steps carry
+    a SELECTION**, with a raw-step-vs-bare-NAME apply difference on **83 of them that equals the jump
+    exactly** (6.32 = 6.32 on the worst four).
+  - **The mechanism**: `replayWalk` stores `step.after` from `applyToBoard(board, raw)` — the raw step,
+    selection included — while `evaluateSequence` animates `evaluateCallAt(s.before, s.name, ...)`, and
+    `ReplayStep.name` is `raw.call`, i.e. the bare call with the selection DROPPED. For a selection
+    step the animation therefore plays the whole-set reading of the call (every dancer moves) while the
+    stored board is the selected reading (the unselected dancers never move). That is precisely the
+    error field `sequence-authored-end-probe.mjs` measured — **some dancers at delta exactly 0.00,
+    others displaced by lattice-valued vectors, in partner pairs** — which the earlier commit in this
+    section mis-attributed to `snapBoard`.
+  - **So the residual was masking this, not fixing it**: dragging the whole-set animation onto the
+    selected board hides a selection bug, which is why the snap probe found only 3 and why the residual
+    needed 6-unit drags at all.
+  - **THE FIX (next)**: thread the raw step into the animator — `evaluateSequence` must hand
+    `evaluateCallAt`/`evaluateParallelAt` the step's selection as well as its call, so the animated
+    motion IS the motion that was applied. For a selection step that means moving only the resolved
+    selection and leaving the rest at the step's start pose, which is the existing per-group machinery's
+    shape. Then the residual should be unnecessary or negligible, and the collision cost with it.
+    Measure: corpus last-frame jumps (expect ≈ 0), the owner probe's 84 → 0 selection offenders, the
+    collision scan against baseline, then figures / get-out / FSM.
 - **THE RESIDUAL WAS TRIED AND REVERTED.** Hoisting the parallel branch's correction into
   `evaluateSequence` for every branch — `pose(t) = authored(t) + (appliedEnd − authoredEnd) * t` —
   works on its own terms: corpus last-frame jumps **86 → 0** (worst 6.32 → 0.00), `anim-convergence`

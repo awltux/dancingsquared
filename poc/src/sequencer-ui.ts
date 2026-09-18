@@ -107,6 +107,8 @@ export class SequencerController implements SequencerUI {
   private listBoardKey = '';
   private lastFrame = performance.now();
   private lastTraceKey = '';
+  /** The identity the dancer VIEWS were built for. See `viewKeyOf` and `renderBoard`. */
+  private viewKey = '';
   private lastReadout = '';
 
   constructor(stage: Stage) {
@@ -144,7 +146,7 @@ export class SequencerController implements SequencerUI {
   private setBoardFormation() {
     const name = this.formationSelect.value;
     if (!name) return;
-    if (!this.seq.setFormation(name)) {
+    if (!this.seq.setSetup(name)) {
       this.statusEl.textContent = `✗ unknown formation "${name}"`;
       return;
     }
@@ -300,7 +302,24 @@ export class SequencerController implements SequencerUI {
     this.moduleNameInput.value = '';
   }
 
-  private rebuildViews() {
+  /** The identity a set of views is bound to, in ARRAY ORDER: which dancer (id), of which gender, in
+   * which couple, standing where in the array. A `DancerView` bakes its AVATAR - the boy/girl shape and
+   * the couple colour - at construction and only its POSE is updated per frame, so if this changes and
+   * the views are not rebuilt, the dancers drawn are the old board's dancers wearing the new board's
+   * positions.
+   *
+   * THAT IS NOT HYPOTHETICAL, and it is what a real report turned out to be: `ceder-7046` starts on the
+   * corpus's `Zero Line`, which stands up as `boardForFasrCode('L1o')` - a correct zero line whose
+   * ARRAY ORDER is `BBBBgggg`, all four boys first. Drawn against views built for the home square
+   * (`BgBgBgBg`), the four boys' poses are indices 0-3 and the girls' 4-7, so the set appears with BOTH
+   * BOYS AT ONE END of the formation and both girls at the other, in each line, with same-gender facing
+   * pairs - reported as "a very odd arrangement with Normal lines but all the girls at one end and the
+   * boys at the other", and reproduced exactly from the two array orders. */
+  private static viewKeyOf(board: Board): string {
+    return board.dancers.map((d) => `${d.id}:${d.gender}:${d.couple ?? 0}:${d.isGhost ? 'g' : ''}`).join('|');
+  }
+
+  private rebuildViews(board: Board = this.seq.board) {
     for (const v of this.views) {
       this.stage.scene.remove(v.group);
       this.stage.scene.remove(v.trail);
@@ -313,10 +332,10 @@ export class SequencerController implements SequencerUI {
     // visually distinguishable - this value never reaches the engine board.
     const displayCouple = (d: { couple: number }, i: number): number =>
       d.couple > 0 ? d.couple : (Math.floor(i / 2) % 4) + 1;
-    this.views = this.seq.board.dancers.map((d, i) =>
+    this.views = board.dancers.map((d, i) =>
       new DancerView({ gender: d.gender, x: 0, y: 0, angleDeg: 0, path: [] }, displayCouple(d, i), !!d.isGhost),
     );
-    this.markers = this.seq.board.dancers.map((d, i) => buildFlatMarker(d.gender, displayCouple(d, i)));
+    this.markers = board.dancers.map((d, i) => buildFlatMarker(d.gender, displayCouple(d, i)));
     for (const v of this.views) {
       v.group.visible = this.active && !this.use2d;
       this.stage.scene.add(v.group);
@@ -328,10 +347,17 @@ export class SequencerController implements SequencerUI {
       this.stage.scene.add(m);
     }
     this.lastTraceKey = '';
+    this.viewKey = SequencerController.viewKeyOf(board);
   }
 
   private renderBoard(board: Board, walk?: WalkCycle) {
-    if (this.views.length !== board.dancers.length) this.rebuildViews();
+    // THE VIEWS FOLLOW THE BOARD'S IDENTITY, not just its dancer COUNT. A `DancerView` builds its
+    // avatar once (boy/girl shape, couple colour) and only receives poses afterwards, so a board whose
+    // identity or array order differs from the one the views were built for draws the wrong dancers in
+    // the right places. See `viewKeyOf` for the ceder-7046 report that this was.
+    if (this.views.length !== board.dancers.length || this.viewKey !== SequencerController.viewKeyOf(board)) {
+      this.rebuildViews(board);
+    }
 
     const poses: Pose[] = board.dancers.map((d) => {
       if (this.boardRot === 0) return { x: d.x, y: d.y, heading: d.heading, hands: 'both' };
@@ -708,7 +734,7 @@ export class SequencerController implements SequencerUI {
     const startBoard = !spec
       ? null
       : spec.formation
-        ? this.seq.boardForFormation(spec.formation)
+        ? this.seq.boardForSetup(spec.formation)
         : boardForFasrCode(spec.code ?? '', (l) => {
             const name = LETTER_TEMPLATE[l];
             return name ? this.seq.boardForFormation(name) : null;

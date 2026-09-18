@@ -26,6 +26,7 @@ import { CODED_MOVE_NAMES, applyCodedMove, codedMoveApplies, findCodedMove } fro
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
+import { boardForFasrCode, FORMATION_LETTER, FORMATIONS_FOR_LETTER } from './alignment.js';
 import type { Matchable } from './match.js';
 import type { Board, CallStep, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep, VariantMatch } from './types.js';
 import type { CallBundle } from '../types.js';
@@ -374,6 +375,55 @@ export class Sequencer {
    * formation is unknown (board left unchanged). */
   setFormation(name: string): boolean {
     const b = this.syntheticBoard(name);
+    if (!b) return false;
+    this.board = b;
+    this.matcher.clearCaches();
+    this.solver.clearCaches();
+    return true;
+  }
+
+  /**
+   * The board to SET DANCERS UP on for a named formation: the arrangement-0, both-in-sequence FASR
+   * board when the formation has an All8 letter AND that code builds the SAME formation, otherwise the
+   * named template.
+   *
+   * WHY A NAME IS NOT ENOUGH. `boardForFormation` is geometry plus the formation's declared genders and
+   * nothing else, which for most of the offered formations means NO home couple at all - so there is
+   * nothing for the dancers to be in sequence WITH, and a caller setting up from a name gets anonymous
+   * dancers whose colours are then derived from their array position. MEASURED by
+   * `engine/test/tools/setup-path-probe.mjs`: 129 of the 134 offered formations are anonymous by name,
+   * `boardForFormation('Normal Lines')` is identity 0/8, and `boardForFasrCode('L1')` - arrangement 0
+   * (All8's "normal"), sequence 1 (both in sequence) - is identity 8/8 on the same geometry.
+   *
+   * "WHEN POSSIBLE" IS THE SAME-FORMATION TEST, and it is what keeps this from changing an answer: the
+   * code for a letter builds the letter's FIRST template, so `Normal Lines Compact` would come back as
+   * plain `Normal Lines`. The name wins there, because a caller who asked for the compact line and got
+   * the wide one has been silently overruled rather than helped.
+   *
+   * `setFormation` is deliberately left as it is: it is the plain geometry/template path the harnesses
+   * use to build anonymous boards ON PURPOSE (the Formation-tab tests), and this is the setup path.
+   */
+  boardForSetup(name: string): Board | null {
+    const wanted = canonicalName(name) ?? name;
+    const letter = Object.entries(FORMATION_LETTER)
+      .find(([n]) => (canonicalName(n) ?? n) === wanted)?.[1];
+    if (letter) {
+      const built = boardForFasrCode(`${letter}1`, (l) => {
+        for (const n of FORMATIONS_FOR_LETTER[l] ?? []) {
+          const b = this.boardForFormation(n);
+          if (b) return b;
+        }
+        return null;
+      }).board;
+      if (built && (canonicalName(this.knownFormation(built) ?? '') ?? '') === wanted) return built;
+    }
+    return this.boardForFormation(name);
+  }
+
+  /** Set the current board to the SETUP board for `name` (`boardForSetup`): the identified,
+   * arrangement-0, in-sequence board when there is one. Returns false if the formation is unknown. */
+  setSetup(name: string): boolean {
+    const b = this.boardForSetup(name);
     if (!b) return false;
     this.board = b;
     this.matcher.clearCaches();

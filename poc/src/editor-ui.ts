@@ -794,7 +794,15 @@ export class EditorController implements EditorUI {
     this.refreshNumberFields();
   }
 
-  /** The selected dancers' move, each changed by `f` in its OWN frame. Null when nothing applies. */
+  /** The selected dancers' move, each changed by `f` in its OWN frame. Null when nothing applies.
+   *
+   *  A FACING write goes through here like any other. It cannot be "just the facing": the heading a move
+   *  ends on IS the frame the next move is played in - the format composes `tx * translate * rotate` per
+   *  move (`taminations-flutter/lib/math/path.dart`, `Path.recalculate`) - so turning it turns every later
+   *  heading AND swings every later segment round the floor. MEASURED (`poc/tools/facing-chain-probe.mjs`):
+   *  10deg of extra end heading rotates every later boundary pose rigidly about the pose the move ends on
+   *  and carries the call's end 0.42 units across the board. That is what the dance means, and the Facing
+   *  tab says so rather than pretending otherwise; `engine/test/editor.mjs` 19 pins it. */
   private foldMoveChange(f: (seg: Seg) => Seg): CallBundle | null {
     const call = this.instance;
     if (!call) return null;
@@ -1628,7 +1636,7 @@ export class EditorController implements EditorUI {
       const note = document.createElement('div');
       note.className = 'small';
       note.textContent =
-        'cyan curve: the facing Bezier itself, drawn from the dancer\'s spot at the move\'s start, with its own control points as the draggable dots. The DIRECTION of the curve at a point is the heading the dancer has there - the same headings as the cyan ticks on the amber trail - not its distance from the dancer. r1 slides on the dancer\'s forward axis (the format has no cy3), r2 and r3 are free, and r3 sets the heading the move ends on';
+        'cyan curve: the facing Bezier itself, drawn from the dancer\'s spot at the move\'s start, with its own control points as the draggable dots. The DIRECTION of the curve at a point is the heading the dancer has there - the same headings as the cyan ticks on the amber trail - not its distance from the dancer. r1 slides on the dancer\'s forward axis (the format has no cy3), r2 and r3 are free, and r3 sets the heading the move ends on. THAT HEADING IS THE FRAME THE NEXT MOVE IS PLAYED IN, as the format composes a dancer\'s moves, so turning it turns every later heading of the call AND SWINGS THE REST OF THE TRACE ROUND THE FLOOR - which is what the move means, not a drawing error: the end formation turns with it.';
       grid.appendChild(note);
     } else {
       grid.appendChild(this.field(`m${i}:${k}:beats`, 'beats', seg.beats, 0.5, (v) => write((s) => ({ ...s, beats: v }), 'beats')));

@@ -709,6 +709,18 @@ goes to every selected dancer *patch by patch* rather than segment by segment �
 first dancer's segment would copy its other control points onto everybody. `+ Move` / `− Move` apply to
 the whole selection too, and a selected dancer with no move at that index is *skipped*, never given one.
 
+**A facing edit is a real edit: the heading a move ends on is the frame the next move is played in.**
+Reported as a bug — "adjusting the end of the facing curve alters the direction of the rest of the trace.
+This shouldn't happen" — and MEASURED (`node poc/tools/facing-chain-probe.mjs`) it should, and does: a 10°
+change to a middle move's end heading rotates **every later boundary pose rigidly about the pose the move
+ends on** by exactly that angle (agreement to 2.8e-15 units), swings every later drawn segment by the same
+10°, and carries the call's end 0.417 units across the floor. It is the FORMAT, not this engine's choice:
+taminations composes a dancer's moves as `tx = tx * it.translate(); tx = tx * it.rotate();` and carries the
+frame forward (`taminations-flutter/lib/math/path.dart`, `Path.recalculate`), so the trail and the
+animation agree by construction. The Facing tab says so where the numbers are, `engine/test/editor.mjs` 19
+pins the numbers headlessly, and the probe keeps the measurement and the reference quote together so the
+next reader gets an answer instead of an opinion.
+
 **The facing curve gets no handles**, and that is a fact about the data rather than an omission:
 `poseFor` reads it with `bezierAngle`, so its **tangent is the heading** and its coordinates live in a
 tangent space. A no-translation turn in `moves.xml` is `x4="0" y4="2"` with the tangent running 0° to

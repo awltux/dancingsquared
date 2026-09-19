@@ -2508,6 +2508,21 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     should say so rather than look load-bearing. A clone is saved and applied as a NEW setup
     (`kind: 'clone'`, appended), not as a replacement, which is the difference between it and an
     instance edit.
+  - **A MOVE'S END FACING IS THE FRAME THE NEXT MOVE IS PLAYED IN, AND THAT IS THE FORMAT RATHER THAN A
+     BUG.** Reported as one: "adjusting the end of the facing curve alters the direction of the rest of the
+     trace. This shouldn't happen." MEASURED on a witness (`poc/tools/facing-chain-probe.mjs`): a 10deg
+     change to a middle move's end heading rotates every later boundary pose RIGIDLY about the pose the move
+     ends on by exactly that angle (agreement 2.8e-15 units), swings every later drawn segment by the same
+     10deg, and carries the call's end 0.417 units across the floor. Confirmed against the reference:
+     taminations composes a dancer's moves as `tx = tx * it.translate(); tx = tx * it.rotate();` and carries
+     the frame forward (`taminations-flutter/lib/math/path.dart`, `Path.recalculate`), so the trail and the
+     animation agree by construction and the end formation turns with the facing. The caller's own follow-up
+     was "yes, I think it's all correct. My misunderstanding." So the behaviour is UNCHANGED and now PINNED
+     - `engine/test/editor.mjs` 19 (the rotation, the exact angle, the untouched moves before it and the
+     untouched other dancers), the probe (the same numbers with the reference quoted), and a sentence on the
+     Facing tab where the numbers are. The compensation that was built first (`setMoveFacing`, which kept
+     the trace and turned only the headings) was DELETED rather than left switched off: a mutator nothing
+     calls is a decision waiting to be made by accident.
   - **THE CLONE'S WALK-IN IS FORCED, AND THE EDITOR'S GROUP GATE NOW ASKS ABOUT THE CURVE IT WRITES.**
      Reported after a completed clone: "selecting multiple dancers is no longer activating the bezier
      edit mode - they look the same", then "the connect created for opposites seem to match, but not

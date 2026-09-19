@@ -1972,6 +1972,40 @@ dominated by how far apart the dancers stand: two dancers doing the same move tw
 2-unit disagreement that was not about the move at all. `coords-gate-probe.mjs` was updated to model the
 per-curve gate it now describes, and the new probe carries the checks.
 
+**A MOVE'S END FACING IS THE FRAME THE NEXT MOVE IS PLAYED IN, AND THE REPORT THAT IT SHOULD NOT BE WAS
+WRONG - INCLUDING MINE.** "Adjusting the end of the facing curve alters the direction of the rest of the
+trace. This shouldn't happen. The facing curve should only affect the direction the dancer is facing for the
+duration of the move." So it was measured before it was touched, and the measurement has three parts, all
+of them exact (`poc/tools/facing-chain-probe.mjs`): a facing edit writes no translation, so the position the
+move itself ends on is bit-identical; the heading it ends on moves by the whole edit; and EVERY LATER
+BOUNDARY POSE of the call is the old one RIGIDLY ROTATED about that pose by exactly that angle - agreement
+to 2.8e-15 units, every later heading turned by the same amount, the drawn trace of every later move swung
+by the same 10deg, and the call's end 0.417 units across the floor.
+
+Then the reference, because a measurement says what happens and only the format says what SHOULD happen:
+taminations composes a dancer's moves as `tx = tx * it.translate(); tx = tx * it.rotate();` per movement and
+carries the frame forward (`taminations-flutter/lib/math/path.dart`, `Path.recalculate`, and the in-progress
+movement as `tx * m.translate(bv) * m.rotate(bv)`). A trajectory is authored in the dancer's own frame, so
+the heading a move ends on IS the frame the next move is played in; the trail and the animation agree by
+construction because they are the same composition, and a facing edit is a REAL edit whose end formation
+turns with it. The caller's follow-up settled it: "yes, I think it's all correct. My misunderstanding."
+
+WHAT WAS BUILT FIRST AND THEN DELETED, because the honest version of this story is that I had started
+implementing the request: `setMoveFacing`, an engine mutator that set the facing curve and turned the moves
+after it BACK by the change in the end heading, so the facings turned and every later POSITION stayed where
+it was (measured: trace bit-identical to 3.1e-15, later headings still turned by the whole 10deg, invertible
+to one ulp). It was wired into the panel, gated in the harness and measured by the probe - and when the
+caller said the swing was correct after all, it was removed rather than left switched off, because a
+mutator nothing calls is a decision waiting to be made by accident. What stayed is the measurement: the
+probe keeps the numbers and the reference quote together, `engine/test/editor.mjs` 19 pins the same numbers
+in the headless suite ("whichever of us is tempted to 'fix' the swing has to come here and delete a
+measurement first"), and the Facing tab says on screen that turning r3 swings the rest of the trace.
+
+The one thing the episode did change is that the panel no longer lets the two readings be confused: the tab
+used to say only that r3 "sets the heading the move ends on", which reads as a local tweak. It now says
+that the heading is the frame the next move is played in, that the rest of the trace turns with it, and
+that this is what the move means rather than a drawing error.
+
 
 
 

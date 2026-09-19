@@ -1084,6 +1084,84 @@ console.log('\n== what a facing curve MEANS, and the gate that compares it (18) 
   }
 }
 
+// ---------------------------------------------------------------------------
+// 19. a move's end facing IS the frame the next move is played in
+// ---------------------------------------------------------------------------
+//
+// Reported as a bug - "adjusting the end of the facing curve alters the direction of the rest of the
+// trace" - and it is the format: a trajectory is authored in the dancer's own frame, and taminations
+// composes a dancer's moves as `tx = tx * it.translate(); tx = tx * it.rotate();` per move
+// (`taminations-flutter/lib/math/path.dart`, `Path.recalculate`), carrying the frame forward. Measured here
+// on a real witness, so the size of the effect is PINNED rather than described: the rest of the call is
+// rigidly rotated about the pose the move ends on by exactly the change in its end heading. Anyone tempted
+// to "fix" the swing has to come here and delete a measurement first.
+console.log('\n== a move\'s end facing is the frame the next move is played in (19) ==');
+{
+  const src = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
+  const d = 0;
+  const k = src.dancers[d].path.findIndex((s, i) => s.rotate && i < src.dancers[d].path.length - 1);
+  check(k >= 0, `the witness has a move with a facing curve and something after it (move ${k + 1})`);
+  const path0 = src.dancers[d].path;
+  const r0 = path0[k].rotate;
+  const DELTA = 10 * DEG; // `DEG` here is radians per degree, the engine's own constant
+  const spin = (x, y) => ({ x: x * Math.cos(DELTA) - y * Math.sin(DELTA), y: x * Math.sin(DELTA) + y * Math.cos(DELTA) });
+  const c2 = spin(r0.cx2, r0.cy2);
+  const p3 = spin(r0.x2, r0.y2);
+  const spun = { ...r0, cx2: c2.x, cy2: c2.y, x2: p3.x, y2: p3.y };
+  const q = (call, j) => poseFor(call.dancers[d], moveBeatRange(call.dancers[d], j).to);
+  const edited = setMove(src, d, k, { ...path0[k], rotate: spun });
+
+  const dh = normAngleSafe(bezierAngle(spun, 1) - bezierAngle(r0, 1));
+  check(Math.abs(dh - DELTA) < 1e-12, `rotating the final span of the facing curve turns the heading the move ends on by exactly ${(dh / DEG).toFixed(2)}deg`);
+  const pEnd = q(src, k);
+  const pEndAfter = q(edited, k);
+  check(Math.hypot(pEndAfter.x - pEnd.x, pEndAfter.y - pEnd.y) < 1e-12,
+    'a facing edit writes no translation, so the position the move itself ends on is bit-identical');
+  check(Math.abs(normAngleSafe(pEndAfter.heading - pEnd.heading) - dh) < 1e-12,
+    `and the heading it ends on moves by the whole ${(dh / DEG).toFixed(2)}deg - which is the heading that decides the next move's frame`);
+
+  // THE WHOLE REST OF THE CALL, pose by pose: the old pose rigidly rotated by dh about the pose the move
+  // ends on. Not a shift, not a scale - a rotation about that point, which is what the composition means.
+  let worstRaw = 0;
+  let headingsTurned = 0;
+  for (let j = k + 1; j < path0.length; j++) {
+    const a = q(src, j);
+    const b = q(edited, j);
+    const vx = a.x - pEnd.x;
+    const vy = a.y - pEnd.y;
+    const want = { x: pEnd.x + vx * Math.cos(dh) - vy * Math.sin(dh), y: pEnd.y + vx * Math.sin(dh) + vy * Math.cos(dh) };
+    worstRaw = Math.max(worstRaw, Math.hypot(b.x - want.x, b.y - want.y));
+    if (Math.abs(normAngleSafe(b.heading - a.heading) - dh) < 1e-12) headingsTurned++;
+  }
+  check(worstRaw < 1e-9,
+    `THE REST OF THE CALL IS RIGIDLY ROTATED about that pose by the whole ${(dh / DEG).toFixed(0)}deg (worst error ${worstRaw.toExponential(1)} units) - the format's semantics, pinned so that a change here is a decision rather than a drift`);
+  check(headingsTurned === path0.length - k - 1, `every one of the ${headingsTurned} later boundary headings is turned by the same ${(dh / DEG).toFixed(0)}deg, so the dancer does the same footwork facing round`);
+  const srcEnd = poseFor(src.dancers[d], src.beats);
+  const endAfter = poseFor(edited.dancers[d], src.beats);
+  check(Math.hypot(endAfter.x - srcEnd.x, endAfter.y - srcEnd.y) > 0.1,
+    `which carries the call's end ${Math.hypot(endAfter.x - srcEnd.x, endAfter.y - srcEnd.y).toFixed(3)} units across the floor: a facing edit is a real edit, and the end formation turns with it`);
+
+  // THE MOVES BEFORE IT, and every other dancer, are untouched: the edit is local in TIME, and it is the
+  // dance's own composition - not a compensation - that carries it forward.
+  let beforeTouched = 0;
+  let othersTouched = 0;
+  for (let j = 0; j < k; j++) {
+    for (const key of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2']) {
+      if (edited.dancers[d].path[j].translate[key] !== path0[j].translate[key]) beforeTouched++;
+    }
+  }
+  for (let i = 0; i < edited.dancers.length; i++) {
+    if (i === d) continue;
+    for (let j = 0; j < edited.dancers[i].path.length; j++) {
+      for (const key of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2']) {
+        if (edited.dancers[i].path[j].translate[key] !== src.dancers[i].path[j].translate[key]) othersTouched++;
+      }
+    }
+  }
+  check(beforeTouched === 0, 'no move BEFORE the edited one changes');
+  check(othersTouched === 0, 'and no other dancer is touched at all');
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('EDITOR TEST PASSED');
 else {

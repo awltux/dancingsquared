@@ -327,8 +327,14 @@ becomes the only thing that advances it. Two consequences are load-bearing:
   all eight dancer views and their trails, which is far too much work for a pointer move.
 
 The bar's value IS the beat (`0` = the call's first beat), and the readout carries the beat, the total
-and which part of the call it is in. **Leaving the editor gives the animation back** — tracked by the
-previous mode, so a pause you set in the browse view is not overridden.
+and which part of the call it is in. It is **the width of the formation table above it** — which needs
+its own line, because inside a flex row it shared the line with its readout and came out narrower than
+the table it is read against — and its step is **0.01 beat**, a hundredth: placing a dancer while
+shaping a curve needs fine adjustment, and at that step a drag across the bar moves in finer increments
+than one per pixel, the arrow keys nudge by 0.01 and Page Up/Down by 0.1. (The browse tab's Position
+bar is the same control at quarter-beat steps, where the job is playing rather than placing.)
+**Leaving the editor gives the animation back** — tracked by the previous mode, so a pause you set in
+the browse view is not overridden.
 
 Two properties of the data are worth knowing before using the table, and both are measured
 by `engine/test/editor.mjs`:

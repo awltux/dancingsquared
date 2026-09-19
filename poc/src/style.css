@@ -99,6 +99,10 @@ html, body {
 #editorPanel .ed-tabs button:hover:not(:disabled) { color: var(--text); border-color: var(--accent); }
 #editorPanel .ed-tabs button.on { background: rgba(77, 159, 255, 0.22); color: var(--text); border-color: #4d9fff; }
 #editorPanel .ed-tabs button:disabled { opacity: 0.4; cursor: not-allowed; }
+/* The Position bar spans the SAME WIDTH AS THE FORMATION TABLE above it, which needs its own line:
+   inside the flex row it shared the line with its readout and came out narrower than the table it is
+   read against. `#editorPanel #edScrub` is two ids so it beats `#hud input[type=range] { flex: 1 }`. */
+#editorPanel #edScrub { flex: 1 0 100%; width: 100%; }
 #legend { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 2px; }
 #legend b { color: var(--text); }
 .build-footer {

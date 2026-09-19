@@ -499,7 +499,11 @@ export class EditorController implements EditorUI {
     }
     const total = call.totalBeats || 1;
     this.scrubEl.max = String(total);
-    this.scrubEl.step = '0.25';
+    // A HUNDREDTH OF A BEAT. The bar was in quarter beats, which is coarse for the job it does here -
+    // placing a dancer while shaping a curve needs fine adjustment, and at this step a drag across
+    // the bar is finer than one step per pixel (so the movement is smooth as well as precise) and the
+    // arrow keys nudge by 0.01 while Page Up/Down move by 0.1.
+    this.scrubEl.step = '0.01';
     const b = Math.max(0, Math.min(total, this.editBeat));
     // Never write into the control the caller is dragging: the value is theirs while the pointer is
     // down, and a write that lands mid-gesture is the classic way a scrubber starts fighting back.

@@ -699,9 +699,20 @@ export class DancerView {
   }
 }
 
-/** A trail with nothing selected, and a trail that is context for a highlighted move. */
+/**
+ * The two brightnesses of a trail, and they have to be far enough apart to read as two things.
+ *
+ * `TRAIL_DIM_OPACITY` is the chosen dancer's WHOLE track while one move is highlighted - the
+ * context, and `TRAIL_OPACITY` is a track with nothing selected. The dim value started at 0.22 and
+ * was REPORTED INVISIBLE: a saturated couple colour at 22% over a floor whose grid lines are drawn
+ * at 95% in `0x2f9e77` loses to the grid, so the only thing visible was the amber highlight and the
+ * "full track at low brightness" contract was not met. It is now just under the unselected level,
+ * which reads as a faint line rather than a ghost. Anything below about a third does not survive
+ * this floor; if a future change to the floor or the grid makes the track compete again, move this
+ * number rather than the grid.
+ */
 const TRAIL_OPACITY = 0.55;
-const TRAIL_DIM_OPACITY = 0.22;
+const TRAIL_DIM_OPACITY = 0.45;
 
 export function buildHandConnectors(scene: THREE.Scene): {
   group: THREE.Group;

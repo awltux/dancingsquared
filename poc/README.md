@@ -344,11 +344,16 @@ to), and unticking it while Facing is selected falls back to Move. Clicking thro
 the selection, except onto a move that has no facing.
 
 **Brightness carries the selection.** The chosen dancer's **whole track stays visible at low
-brightness** (`TRAIL_DIM_OPACITY`, 0.22) and the selected move is the only thing at full brightness —
-the track is context, the move is the subject. Every other dancer's track is hidden outright. The
-ticks are cyan against the move highlight's amber so the two shapes are never mistaken for each
-other, and a tick is drawn at every sample deliberately: a smooth facing curve and a jittery one look
-different, which is the point of being able to select it at all.
+brightness** and the selected move is the only thing at full brightness — the track is context, the
+move is the subject. Every other dancer's track is hidden outright. The two levels are named constants
+in `scene.ts` (`TRAIL_OPACITY` 0.55 with nothing selected, `TRAIL_DIM_OPACITY` 0.45 for the context
+track), and the dim value was **raised from 0.22 because it was invisible in use**: a saturated couple
+colour at 22% loses to floor grid lines drawn at 95% in `0x2f9e77`, so the only thing that read on
+screen was the amber highlight. Anything below about a third does not survive this floor.
+
+The facing ticks are cyan against the move highlight's amber so the two shapes are never mistaken for
+each other, and one tick is drawn per sample deliberately: a smooth facing curve and a jittery one
+look different, which is the point of being able to select it at all.
 
 The remaining numbers: **beats** and **hands** belong to the move (they are its timing and its hold),
 and re-timing a move re-times the call when it changes the LONGEST dancer's path; a call whose

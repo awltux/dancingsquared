@@ -5,7 +5,7 @@
 
 import * as THREE from 'three';
 
-import { allPoses, sampleTrail, sampleTrailRange, computeHandholds, assignHomeIdentity, boardAtBeat, formationToXml } from 'dancing-squared-engine';
+import { allPoses, sampleTrail, sampleTrailRange, poseFor, computeHandholds, assignHomeIdentity, boardAtBeat, formationToXml } from 'dancing-squared-engine';
 import type { HeadingMode, HoldMode, Board, CallBundle, CallStep, DancerSpec, Matchable, Pose } from 'dancing-squared-engine';
 import { availableCalls, loadCall } from './data';
 import type { CallInfo } from './data';
@@ -69,9 +69,9 @@ export class CallBrowser {
   private dancers: DancerSpec[] = [];
   /** Whether the dancer views should be shown at all (the app's mode). */
   private dancersVisible = true;
-  /** Which dancer's track is being edited, and which stretch of it. `null` = show every
-   *  track in full, which is the browse view's behaviour. */
-  private trailFocus: { index: number; range: { from: number; to: number } | null } | null = null;
+  /** Which dancer's track is being edited, which stretch of it, and WHICH OF THE MOVE'S TWO SHAPES
+   *  is selected (`kind`). `null` = show every track in full, which is the browse view's behaviour. */
+  private trailFocus: { index: number; range: { from: number; to: number } | null; kind: 'move' | 'facing' } | null = null;
 
   constructor(stage: Stage, player: Player, host: BrowserHost) {
     this.stage = stage;
@@ -334,6 +334,7 @@ export class CallBrowser {
       this.stage.scene.remove(v.group);
       this.stage.scene.remove(v.trail);
       this.stage.scene.remove(v.trailHighlight);
+      this.stage.scene.remove(v.facingTicks);
     }
     this.views = [];
     this.dancers = [];
@@ -348,6 +349,7 @@ export class CallBrowser {
       this.stage.scene.add(this.views[i].group);
       this.stage.scene.add(this.views[i].trail);
       this.stage.scene.add(this.views[i].trailHighlight);
+      this.stage.scene.add(this.views[i].facingTicks);
       this.views[i].setTrail(sampleTrail(dancers[i], 80));
     }
     if (call.taminator) this.legend.innerHTML = `<b>${call.title}</b> — ${call.taminator}`;
@@ -455,8 +457,8 @@ export class CallBrowser {
    * silently reappears is exactly the kind of "draws wrong while it measures right" defect
    * this workstream exists to remove.
    */
-  setTrailFocus(index: number | null, range: { from: number; to: number } | null = null) {
-    this.trailFocus = index == null ? null : { index, range };
+  setTrailFocus(index: number | null, range: { from: number; to: number } | null = null, kind: 'move' | 'facing' = 'move') {
+    this.trailFocus = index == null ? null : { index, range, kind };
     this.applyTrailState();
   }
 
@@ -466,12 +468,22 @@ export class CallBrowser {
       const v = this.views[i];
       const focused = this.trailFocus?.index === i;
       v.group.visible = this.dancersVisible;
+      // The focused dancer's WHOLE track is low brightness; every other track is hidden outright.
       v.trail.visible = this.dancersVisible && (this.trailFocus == null || focused);
       const range = focused ? this.trailFocus?.range ?? null : null;
       // The highlight is a stretch of the SAME curve, sampled from the dancer's own beat
       // clock - `moveBeatRange` says which beats, this says where that is on the floor.
       v.setTrailHighlight(range && this.dancers[i] ? sampleTrailRange(this.dancers[i], range.from, range.to, 48) : null);
       v.trailHighlight.visible = v.trailHighlight.visible && this.dancersVisible;
+      // AND THE SECOND SHAPE. A move's facing is a direction, not a path, so the Facing selection
+      // draws headings over the same beats instead of a line - which is what makes the two
+      // selections show two different things rather than the same line twice.
+      const ticks =
+        focused && range && this.trailFocus?.kind === 'facing' && this.dancers[i]
+          ? facingSamples(this.dancers[i], range.from, range.to, 14)
+          : null;
+      v.setFacingTicks(ticks);
+      v.facingTicks.visible = v.facingTicks.visible && this.dancersVisible;
     }
     this.connectors.group.visible = this.dancersVisible;
   }
@@ -553,4 +565,22 @@ function el<T extends HTMLElement>(id: string): T {
  * caller typed when saving), so a name containing `<` must not become markup. */
 function esc(s: string): string {
   return s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch] as string);
+}
+
+/**
+ * The POSES along a beat range - position AND heading - for the facing ticks.
+ *
+ * `sampleTrailRange` deliberately returns points only, because a path is points; the facing is the
+ * heading, so this asks `poseFor` directly. Kept here rather than in the engine because it is a
+ * drawing concern: nothing is measured off these, they are the drawing of a curve that already
+ * exists.
+ */
+function facingSamples(dancer: DancerSpec, from: number, to: number, steps: number): { x: number; y: number; heading: number }[] {
+  const n = Math.max(1, Math.round(steps));
+  const out: { x: number; y: number; heading: number }[] = [];
+  for (let i = 0; i <= n; i++) {
+    const p = poseFor(dancer, from + ((to - from) * i) / n);
+    out.push({ x: p.x, y: p.y, heading: p.heading });
+  }
+  return out;
 }

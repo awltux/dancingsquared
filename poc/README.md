@@ -308,12 +308,33 @@ by `engine/test/editor.mjs`:
   `assignHomeIdentity` — the same read the dancer colours use. Changing a dancer's gender
   changes the arrangement and leaves the couple where it was.
 
-The moves table edits the selected dancer's selected move: its beats, its hands, its
-translation Bézier (`t.*`) and, when `explicit` facing is ticked, its rotation Bézier
-(`r.*`). Ticking `explicit` copies the translation curve, which is behaviour-preserving
-because that is exactly the curve the renderer falls back to when no rotation Bézier is
-present. Re-timing a move re-times the call when it changes the LONGEST dancer's path; a
-call whose authored beat count is longer than every path (a pause) keeps the pause.
+The moves table edits the selected dancer's selected move. **A move has TWO SHAPES and they are
+selected separately**, because they are different curves in different spaces:
+
+| selection | the shape | drawn on the board as |
+|---|---|---|
+| **move** | the translation Bézier — *where the dancer goes* | the highlighted stretch of the track, in amber |
+| **facing** | the rotation Bézier — *how the dancer turns* | **heading ticks** along the same stretch, in cyan |
+
+Editing one while looking at the other is how a facing gets set to nonsense, so the tile shows one at
+a time. The **facing** selection is only available when the move carries a rotation curve at all:
+`rotate` absent means "face along the travel tangent", which is the taminations default and *not* a
+curve anyone can edit, so with the **explicit** box unticked the facing tab is **disabled** rather
+than opening onto nothing. The box itself stays reachable in the tile header; ticking it copies the
+translation curve (which is behaviour-preserving — that is exactly the curve the renderer falls back
+to), and unticking it while Facing is selected falls back to Move. Clicking through the strip keeps
+the selection, except onto a move that has no facing.
+
+**Brightness carries the selection.** The chosen dancer's **whole track stays visible at low
+brightness** (`TRAIL_DIM_OPACITY`, 0.22) and the selected move is the only thing at full brightness —
+the track is context, the move is the subject. Every other dancer's track is hidden outright. The
+ticks are cyan against the move highlight's amber so the two shapes are never mistaken for each
+other, and a tick is drawn at every sample deliberately: a smooth facing curve and a jittery one look
+different, which is the point of being able to select it at all.
+
+The remaining numbers: **beats** and **hands** belong to the move (they are its timing and its hold),
+and re-timing a move re-times the call when it changes the LONGEST dancer's path; a call whose
+authored beat count is longer than every path (a pause) keeps the pause.
 
 **The moves row drives the stage**, which is what makes a single move editable at all. The
 moves themselves are shown as a STRIP: every move of the chosen track, in order, so the whole

@@ -86,6 +86,19 @@ html, body {
 #editorPanel .ed-move .ed-grid { gap: 3px 6px; }
 #editorPanel .ed-move .ed-grid label { color: var(--dim); }
 #editorPanel .ed-move .ed-grid input[type="number"] { width: 50px; }
+/* The two shapes a move has, as a two-way selection inside the current tile. The disabled tab is
+   the FACING one when the move carries no rotation curve: there is no facing shape to select, and a
+   tab that opened onto nothing would be worse than one that says why it cannot. */
+#editorPanel .ed-tabs { display: inline-flex; gap: 0; margin: 2px 0 3px; }
+#editorPanel .ed-tabs button {
+  padding: 1px 6px; font-size: 10px; line-height: 1.4; border-radius: 0; border-color: #2a3542;
+  background: #0b1118; color: var(--dim); font-family: inherit;
+}
+#editorPanel .ed-tabs button:first-child { border-radius: 4px 0 0 4px; }
+#editorPanel .ed-tabs button:last-child { border-radius: 0 4px 4px 0; border-left-width: 0; }
+#editorPanel .ed-tabs button:hover:not(:disabled) { color: var(--text); border-color: var(--accent); }
+#editorPanel .ed-tabs button.on { background: rgba(77, 159, 255, 0.22); color: var(--text); border-color: #4d9fff; }
+#editorPanel .ed-tabs button:disabled { opacity: 0.4; cursor: not-allowed; }
 #legend { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 2px; }
 #legend b { color: var(--text); }
 .build-footer {

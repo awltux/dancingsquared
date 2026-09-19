@@ -497,6 +497,10 @@ export class DancerView {
   /** The chosen move's own stretch of `trail`, drawn on top of it in a contrasting colour.
    *  Invisible until a caller highlights a range - see `setTrailHighlight`. */
   trailHighlight: THREE.Line;
+  /** HEADING TICKS along a stretch: the FACING shape, which the path cannot show. A move has two
+   *  curves - where the dancer goes, and how they turn - and they live in different spaces, so the
+   *  second one has to be drawn as something other than the path. */
+  facingTicks: THREE.LineSegments;
 
   // Walk-cycle state: we measure the dancer's own translation frame-to-frame so
   // the stride eases to rest the moment the dancer stops moving.
@@ -538,6 +542,15 @@ export class DancerView {
     );
     this.trailHighlight.frustumCulled = false;
     this.trailHighlight.visible = false;
+
+    // Heading ticks are CYAN, against the move highlight's amber: the two selections show two
+    // different shapes over the same beats, and they must never be mistaken for one another.
+    this.facingTicks = new THREE.LineSegments(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0x7fe3ff, transparent: true, opacity: 1 }),
+    );
+    this.facingTicks.frustumCulled = false;
+    this.facingTicks.visible = false;
   }
 
   update(pose: Pose, arms: { left?: THREE.Vector3; right?: THREE.Vector3 }, walk?: WalkCycle): void {
@@ -632,14 +645,17 @@ export class DancerView {
   /**
    * Mark the stretch of the track that ONE MOVE is responsible for, or pass null to clear it.
    *
-   * Setting a highlight also DIMS the trail underneath it, which is the point: the track is
-   * still there for context, but the move being edited is the only thing competing for
-   * attention. The geometry is rebuilt in place (a handful of points, once per selection
-   * change, never per frame).
+   * Setting a highlight also DIMS the trail underneath it, which is the point, and the two levels
+   * are named here rather than buried: the dancer's WHOLE track stays visible at a LOW brightness,
+   * and the move being edited is the only thing at full brightness. The track is context; the move
+   * is the subject.
+   *
+   * The geometry is rebuilt in place (a handful of points, once per selection change, never per
+   * frame).
    */
   setTrailHighlight(points: { x: number; y: number }[] | null): void {
     const on = points != null && points.length > 1;
-    (this.trail.material as THREE.LineBasicMaterial).opacity = on ? 0.22 : 0.55;
+    (this.trail.material as THREE.LineBasicMaterial).opacity = on ? TRAIL_DIM_OPACITY : TRAIL_OPACITY;
     this.trailHighlight.visible = on;
     this.trailHighlight.geometry.dispose();
     if (!on) {
@@ -656,7 +672,36 @@ export class DancerView {
     geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
     this.trailHighlight.geometry = geo;
   }
+
+  /**
+   * Draw the FACING along a stretch as short ticks, one per sample, pointing where the dancer faces
+   * at that instant - or pass null to clear them.
+   *
+   * This is the second of a move's two shapes. The translation curve is a path on the floor; the
+   * rotation curve is a direction, and no amount of path drawing shows it, so the honest way to draw
+   * it is a row of headings. A tick at every sample, deliberately: a smooth facing curve and a
+   * jittery one look different here, which is the point of being able to select it at all.
+   */
+  setFacingTicks(poses: { x: number; y: number; heading: number }[] | null, len = 0.5): void {
+    const on = poses != null && poses.length > 1;
+    this.facingTicks.visible = on;
+    this.facingTicks.geometry.dispose();
+    const verts: number[] = [];
+    if (on) {
+      for (const p of poses) {
+        // Board (x, y) -> 3D (x, 0, -y), and a heading of 0 faces +x, 90 faces +y (3D -z).
+        verts.push(p.x, 0.08, -p.y, p.x + Math.cos(p.heading) * len, 0.08, -(p.y + Math.sin(p.heading) * len));
+      }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    this.facingTicks.geometry = geo;
+  }
 }
+
+/** A trail with nothing selected, and a trail that is context for a highlighted move. */
+const TRAIL_OPACITY = 0.55;
+const TRAIL_DIM_OPACITY = 0.22;
 
 export function buildHandConnectors(scene: THREE.Scene): {
   group: THREE.Group;

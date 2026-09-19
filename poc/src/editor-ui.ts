@@ -57,8 +57,9 @@ export interface EditorHost {
   preview(call: CallBundle): void;
   /** Show only `index`'s track, with `range` highlighted, or every track in full for null.
    *  The moves editor drives the TRAIL with these two selections: which dancer is being
-   *  edited decides whose track is shown, and which move decides which stretch of it. */
-  focusTrail(index: number | null, range: { from: number; to: number } | null): void;
+   *  edited decides whose track is shown, and which move decides which stretch of it. `kind` says
+   *  WHICH OF THE MOVE'S TWO SHAPES to draw over that stretch - the path, or the facings. */
+  focusTrail(index: number | null, range: { from: number; to: number } | null, kind?: 'move' | 'facing'): void;
   /** The 8-dancer named formations a clone's start can be re-based onto, as start poses.
    *  Sourced from the sequencer's formation library - building a second one here would
    *  double the catalogue registration the app already pays for at startup. */
@@ -163,6 +164,8 @@ export class EditorController implements EditorUI {
   private startFormationsLoaded = false;
   private moveDancer = 0;
   private moveIndex = 0;
+  /** WHICH OF THE MOVE'S TWO SHAPES is selected: the translation curve or the facing curve. */
+  private moveKind: 'move' | 'facing' = 'move';
   /** The `data-key` of the field being edited, so re-rendering after a commit can put the
    *  focus back where it was (a `change` on a number input fires on blur, but it also fires
    *  on every spin-button click). */
@@ -464,7 +467,10 @@ export class EditorController implements EditorUI {
       this.host.focusTrail(this.moveDancer, null);
       return;
     }
-    this.host.focusTrail(this.moveDancer, moveBeatRange(dancer, this.moveIndex));
+    // A facing selection with no facing curve to show falls back to the move, so the board can never
+    // be drawing a shape the tile is not editing.
+    const kind = this.moveKind === 'facing' && !seg.rotate ? 'move' : this.moveKind;
+    this.host.focusTrail(this.moveDancer, moveBeatRange(dancer, this.moveIndex), kind);
   }
 
   private renderInstanceInfo() {
@@ -627,6 +633,10 @@ export class EditorController implements EditorUI {
       return;
     }
     if (this.moveIndex >= moves.length) this.moveIndex = moves.length - 1;
+    // A FACING SELECTION DOES NOT SURVIVE A MOVE THAT HAS NO FACING. Clicking through the strip
+    // while editing facings should keep you in facing mode, but not on a move where there is no
+    // such shape - otherwise the tile would claim a selection the board is not drawing.
+    if (this.moveKind === 'facing' && moves[this.moveIndex]?.rotate == null) this.moveKind = 'move';
     for (let k = 0; k < moves.length; k++) {
       host.appendChild(k === this.moveIndex ? this.currentMoveTile(moves[k]) : this.compactMoveTile(moves[k], k));
     }
@@ -660,74 +670,85 @@ export class EditorController implements EditorUI {
 
   /** The move being edited: TRIPLE width, with its beats, hands, travel and facing.
    *
-   * `rotate` absent means "face along the travel tangent", which is the taminations default,
-   * so the toggle is behaviour-preserving when it is switched on: `rotate = translate` gives
-   * the heading `poseFor` already falls back to. */
+   * A MOVE HAS TWO SHAPES AND THEY ARE SELECTED SEPARATELY. The translation Bezier is where the
+   * dancer GOES; the rotation Bezier is how they TURN. They are different curves in different
+   * spaces, they are drawn differently on the board (a highlighted path, or heading ticks), and
+   * editing one while looking at the other is how a facing gets set to nonsense. So the tile carries
+   * a `move | facing` selection and shows one at a time.
+   *
+   * FACING IS ONLY SELECTABLE WHEN IT EXISTS. `rotate` absent means "face along the travel tangent",
+   * which is the taminations default and NOT a curve anyone can edit - so with the explicit box
+   * unticked there is no facing shape to select, and the tab is disabled rather than opening onto
+   * nothing. The explicit box itself stays reachable in the header; turning it off while Facing is
+   * selected falls back to Move. */
   private currentMoveTile(seg: Seg): HTMLElement {
     const tile = document.createElement('div');
     tile.className = 'ed-move selected';
     const i = this.moveDancer;
     const k = this.moveIndex;
+    const t = seg.translate;
     const head = document.createElement('div');
     head.className = 'ed-move-head';
     const name = document.createElement('b');
     name.textContent = `move ${k + 1}`;
     head.appendChild(name);
+
+    const rchk = document.createElement('input');
+    rchk.type = 'checkbox';
+    rchk.checked = seg.rotate != null;
+    rchk.dataset.key = `m${i}:${k}:rot`;
+    rchk.title = 'Off: the dancer faces along the travel tangent (no rotation Bezier - and no facing shape to select). On: an explicit facing curve.';
+    const rc = document.createElement('label');
+    rc.textContent = 'explicit';
+    rchk.addEventListener('change', () => {
+      // Turning the facing OFF while it is selected would leave the tile showing a shape that no
+      // longer exists, so the selection falls back with it.
+      if (!rchk.checked && this.moveKind === 'facing') this.moveKind = 'move';
+      write({ rotate: rchk.checked ? { ...t } : null }, 'rot');
+    });
+    head.appendChild(rchk);
+    head.appendChild(rc);
     tile.appendChild(head);
 
-    const grid = document.createElement('div');
-    grid.className = 'ed-grid';
-
-    // The focus key must be the EDITED FIELD's own `data-key`, or the re-render after a
-    // commit has nothing to find and the focus is lost on every spin-button click.
+    // The focus key must be the EDITED FIELD's own `data-key`, or the re-render after a commit has
+    // nothing to find and the focus is lost on every spin-button click.
     const write = (patch: Partial<Seg>, field: string) => {
       const call = this.instance;
       if (!call) return;
       this.commit(setMove(call, i, k, { ...seg, ...patch }), `m${i}:${k}:${field}`);
     };
 
-    grid.appendChild(this.field(`m${i}:${k}:beats`, 'beats', seg.beats, 0.5, (v) => write({ beats: v }, 'beats')));
-
-    const hands = document.createElement('span');
-    hands.className = 'ed-group';
-    const hl = document.createElement('label');
-    hl.textContent = 'hands';
-    const hsel = document.createElement('select');
-    hsel.dataset.key = `m${i}:${k}:hands`;
-    for (const h of HANDS) hsel.add(new Option(h, h, false, h === seg.hands));
-    hsel.addEventListener('change', () => write({ hands: hsel.value as Hands }, 'hands'));
-    hands.append(hl, hsel);
-    grid.appendChild(hands);
-
-    const t = seg.translate;
-    const tKeys: [keyof typeof t, string, number][] = [
-      ['cx1', 'cx1', 0.25],
-      ['cy1', 'cy1', 0.25],
-      ['cx2', 'cx2', 0.25],
-      ['cy2', 'cy2', 0.25],
-      ['x2', 'x2', 0.25],
-      ['y2', 'y2', 0.25],
-    ];
-    for (const [key, label, step] of tKeys) {
-      grid.appendChild(this.field(`m${i}:${k}:t.${key}`, `t.${label}`, t[key], step, (v) => write({ translate: { ...t, [key]: v } }, `t.${key}`)));
+    // ITS OWN LINE, because the tile is 180px wide and `move 4` + `explicit` + two tabs does not
+    // fit beside each other; the two-shape selection is the most important control here, so it gets
+    // the space rather than being squeezed to fit.
+    const tabs = document.createElement('span');
+    tabs.className = 'ed-tabs';
+    for (const kind of ['move', 'facing'] as const) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.key = `m${i}:${k}:tab:${kind}`;
+      b.textContent = kind;
+      if (this.moveKind === kind) b.className = 'on';
+      b.disabled = kind === 'facing' && seg.rotate == null;
+      b.title =
+        kind === 'facing'
+          ? seg.rotate
+            ? 'The FACING shape: how the dancer turns through this move (drawn as heading ticks)'
+            : 'This move has no explicit facing - tick "explicit" to give it one'
+          : 'The MOVE shape: where the dancer goes (drawn along the path)';
+      b.addEventListener('click', () => {
+        if (this.moveKind === kind) return;
+        this.moveKind = kind;
+        this.renderInstance(`m${i}:${k}:tab:${kind}`);
+      });
+      tabs.appendChild(b);
     }
+    tile.appendChild(tabs);
 
-    const rot = document.createElement('span');
-    rot.className = 'ed-group';
-    const rl = document.createElement('label');
-    rl.textContent = 'facing';
-    const rchk = document.createElement('input');
-    rchk.type = 'checkbox';
-    rchk.checked = seg.rotate != null;
-    rchk.dataset.key = `m${i}:${k}:rot`;
-    rchk.title = 'Off: the dancer faces along the travel tangent (no rotation Bezier). On: an explicit facing curve.';
-    const rc = document.createElement('label');
-    rc.textContent = 'explicit';
-    rchk.addEventListener('change', () => write({ rotate: rchk.checked ? { ...t } : null }, 'rot'));
-    rot.append(rl, rchk, rc);
-    grid.appendChild(rot);
+    const grid = document.createElement('div');
+    grid.className = 'ed-grid';
 
-    if (seg.rotate) {
+    if (this.moveKind === 'facing' && seg.rotate) {
       const r = seg.rotate;
       const rKeys: [keyof typeof r, string, number][] = [
         ['cx1', 'cx3', 0.25],
@@ -738,6 +759,31 @@ export class EditorController implements EditorUI {
       ];
       for (const [key, label, step] of rKeys) {
         grid.appendChild(this.field(`m${i}:${k}:r.${key}`, `r.${label}`, r[key], step, (v) => write({ rotate: { ...r, [key]: v } }, `r.${key}`)));
+      }
+    } else {
+      grid.appendChild(this.field(`m${i}:${k}:beats`, 'beats', seg.beats, 0.5, (v) => write({ beats: v }, 'beats')));
+
+      const hands = document.createElement('span');
+      hands.className = 'ed-group';
+      const hl = document.createElement('label');
+      hl.textContent = 'hands';
+      const hsel = document.createElement('select');
+      hsel.dataset.key = `m${i}:${k}:hands`;
+      for (const h of HANDS) hsel.add(new Option(h, h, false, h === seg.hands));
+      hsel.addEventListener('change', () => write({ hands: hsel.value as Hands }, 'hands'));
+      hands.append(hl, hsel);
+      grid.appendChild(hands);
+
+      const tKeys: [keyof typeof t, string, number][] = [
+        ['cx1', 'cx1', 0.25],
+        ['cy1', 'cy1', 0.25],
+        ['cx2', 'cx2', 0.25],
+        ['cy2', 'cy2', 0.25],
+        ['x2', 'x2', 0.25],
+        ['y2', 'y2', 0.25],
+      ];
+      for (const [key, label, step] of tKeys) {
+        grid.appendChild(this.field(`m${i}:${k}:t.${key}`, `t.${label}`, t[key], step, (v) => write({ translate: { ...t, [key]: v } }, `t.${key}`)));
       }
     }
 

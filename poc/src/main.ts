@@ -66,7 +66,7 @@ const browser = new CallBrowser(stage, player, {
 // registered catalogue, and building a second one here would double that cost.
 const editorUi = initEditor(stage, {
   preview: (c) => browser.showCall(c),
-  focusTrail: (index, range) => browser.setTrailFocus(index, range),
+  focusTrail: (index, range, kind) => browser.setTrailFocus(index, range, kind),
   startFormations: () => seqUi.startFormations(),
 });
 

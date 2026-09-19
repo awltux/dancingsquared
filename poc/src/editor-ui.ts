@@ -46,7 +46,7 @@ import {
   rebuildEdit,
 } from './data';
 import type { CallEdit, CallInfo } from './data';
-import type { Stage } from './scene';
+import type { Stage, HandleSpec } from './scene';
 
 export interface EditorUI {
   setActive(a: boolean): void;
@@ -66,6 +66,9 @@ export interface EditorHost {
   /** Move the parked playhead without re-showing the call, for a drag. Re-showing would rebuild all
    *  eight dancer views and their trails on every pointer move. */
   setPlayhead(absoluteBeat: number): void;
+  /** Re-path the shown call WITHOUT rebuilding the views: same dancers, new geometry. Used by the
+   *  handle drag, where `previewAt`'s full rebuild is far too much work per pointer move. */
+  updateCall(call: CallBundle): void;
   /** Show only `index`'s track, with `range` highlighted, or every track in full for null.
    *  The moves editor drives the TRAIL with these two selections: which dancer is being
    *  edited decides whose track is shown, and which move decides which stretch of it. `kind` says
@@ -149,6 +152,7 @@ export class EditorController implements EditorUI {
   private scrubEl = el<HTMLInputElement>('edScrub');
   private beatReadoutEl = el<HTMLSpanElement>('edBeatReadout');
   private moveDancerSel = el<HTMLSelectElement>('edMoveDancer');
+  private moveAllBtn = el<HTMLButtonElement>('edMoveAll');
   private moveStripEl = el<HTMLDivElement>('edMoveStrip');
   private moveInfoEl = el<HTMLSpanElement>('edMoveInfo');
   private moveAddBtn = el<HTMLButtonElement>('edMoveAdd');
@@ -183,6 +187,21 @@ export class EditorController implements EditorUI {
   private startFormationsLoaded = false;
   private moveDancer = 0;
   private moveIndex = 0;
+  /**
+   * WHICH DANCERS AN EDIT APPLIES TO. Most calls give every dancer the SAME movement, each rotated
+   * into its own position, so editing one move eight times to fix one curve is the wrong unit of
+   * work.
+   *
+   * THE LOCAL FRAME IS WHAT MAKES THIS EXACT RATHER THAN APPROXIMATE. A move's translation Bezier is
+   * authored in dancer-LOCAL coordinates - the origin is the dancer's spot when the move begins and
+   * +X is the facing at that instant - so the SAME local control point on two dancers IS the same
+   * shape, rotated and translated into each of their positions. So propagating a control point needs
+   * no rotation arithmetic at all: the value IS the shared description. (Only a DRAG needs the one
+   * conversion, from the pointer's floor position into the dragged dancer's frame.)
+   *
+   * Always contains `moveDancer`, which is the one whose values the chain tile shows.
+   */
+  private selectedDancers = new Set<number>([0]);
   /** WHICH OF THE MOVE'S TWO SHAPES is selected: the translation curve or the facing curve. */
   private moveKind: 'move' | 'facing' = 'move';
   /** The editor's OWN playhead, in absolute beats. The animation is OFF while editing an instance,
@@ -201,6 +220,7 @@ export class EditorController implements EditorUI {
     for (const sel of [this.editCallSel, this.postCallSel, this.preCallSel]) this.fillCallSelect(sel, sel.value);
 
     this.wireEvents();
+    this.wireHandleDrag();
     this.fillSetupSelect(this.editSetupSel, this.editCallSel.value);
     this.fillSetupSelect(this.postSetupSel, this.postCallSel.value);
     this.fillSetupSelect(this.preSetupSel, this.preCallSel.value);
@@ -362,6 +382,7 @@ export class EditorController implements EditorUI {
       this.asClone = false;
       this.moveDancer = 0;
       this.moveIndex = 0;
+      this.selectedDancers = new Set([0]);
       this.startFormationSel.value = '';
       // A NEW instance starts at its own first beat, with the animation off.
       this.editBeat = 0;
@@ -495,6 +516,171 @@ export class EditorController implements EditorUI {
     this.beatReadoutEl.textContent = `beat ${b.toFixed(2)} / ${total.toFixed(2)}` + (idx >= 0 ? ` · part ${idx + 1}/${parts.length}` : '');
   }
 
+  /** The selected dancers, in index order, always including the focused one. */
+  private selectedSorted(): number[] {
+    const set = new Set(this.selectedDancers);
+    set.add(this.moveDancer);
+    return [...set].sort((a, b) => a - b);
+  }
+
+  /**
+   * Apply a PER-DANCER change to the selected dancers' same-numbered move.
+   *
+   * THE CHANGE IS A FUNCTION OF THE DANCER'S OWN SEGMENT, not a finished segment. That is the whole
+   * difference between "set this control point on all of them" and "copy this dancer's whole move
+   * onto the others": a patch built from the focused dancer's translate would overwrite every other
+   * dancer's OTHER control points with the focused one's, which is exactly the per-dancer difference
+   * the caller is trying to keep.
+   *
+   * A selected dancer with no move at that index is SKIPPED rather than given one: the dancers of a
+   * call do not always have the same number of moves, and inventing a move would change the track.
+   */
+  private commitMoveChange(f: (seg: Seg) => Seg, focusKey: string, light = false) {
+    const next = this.foldMoveChange(f);
+    if (!next) return;
+    if (!light) {
+      this.commit(next, focusKey);
+      return;
+    }
+    // THE DRAG PATH. Re-path only - no view rebuild, no DOM rebuild - because this runs on every
+    // pointer move; rebuilding eight dancer views and a hundred table inputs per move is the
+    // difference between a drag and a slideshow. The playhead is re-applied because it is parked.
+    this.instance = next;
+    this.instanceEdited = true;
+    this.host.updateCall(next);
+    this.host.setPlayhead(this.editBeat);
+    this.renderHandles();
+  }
+
+  /** The selected dancers' move, each changed by `f` in its OWN frame. Null when nothing applies. */
+  private foldMoveChange(f: (seg: Seg) => Seg): CallBundle | null {
+    const call = this.instance;
+    if (!call) return null;
+    let next = call;
+    let changed = false;
+    for (const d of this.selectedSorted()) {
+      const seg = next.dancers[d]?.path[this.moveIndex];
+      if (!seg) continue;
+      next = setMove(next, d, this.moveIndex, f(seg));
+      changed = true;
+    }
+    return changed ? next : null;
+  }
+
+  /**
+   * The two Bezier control-point handles for the selected move's TRANSLATION curve, on the floor -
+   * one pair per SELECTED dancer, which is the picture of the group edit: the same shape, drawn
+   * around each dancer's own position.
+   *
+   * THE CURVE'S OWN FRAME IS THE DANCER'S POSE WHERE THE MOVE BEGINS. A move's translation Bezier is
+   * authored in dancer-local coordinates, so a control point is placed by transforming it by the pose
+   * at the move's start. The anchors are then the move's own two ends: c1's leader comes from the
+   * start, c2's from the end, which is the classic handle layout and also what makes it obvious which
+   * control point you are about to move.
+   *
+   * THE FACING CURVE GETS NO HANDLES, and that is a fact about the data rather than an omission:
+   * `poseFor` reads it with `bezierAngle`, so it is a curve whose TANGENT is the heading - its
+   * coordinates are a tangent space, not floor positions. A no-translation turn in `moves.xml` is
+   * `x4="0" y4="2"` with the tangent running 0deg to 180deg; there is nowhere on the floor to put
+   * that. The tile says so when the Facing tab is selected.
+   */
+  private renderHandles() {
+    const call = this.instance;
+    const stage = this.stage;
+    if (!call || !this.active || !this.isInstanceMode() || this.moveKind !== 'move') {
+      stage.setHandles(null);
+      return;
+    }
+    const handles: HandleSpec[] = [];
+    for (const d of this.selectedSorted()) {
+      const dancer = call.dancers[d];
+      const seg = dancer?.path[this.moveIndex];
+      if (!dancer || !seg) continue;
+      const range = moveBeatRange(dancer, this.moveIndex);
+      const p0 = poseFor(dancer, range.from);
+      const p1 = poseFor(dancer, range.to);
+      const world = (lx: number, ly: number) => ({
+        x: p0.x + Math.cos(p0.heading) * lx - Math.sin(p0.heading) * ly,
+        y: p0.y + Math.sin(p0.heading) * lx + Math.cos(p0.heading) * ly,
+      });
+      const t = seg.translate;
+      handles.push({ id: `d${d}:c1`, anchor: { x: p0.x, y: p0.y }, point: world(t.cx1, t.cy1) });
+      handles.push({ id: `d${d}:c2`, anchor: { x: p1.x, y: p1.y }, point: world(t.cx2, t.cy2) });
+    }
+    stage.setHandles(handles.length > 0 ? handles : null);
+  }
+
+  /** The handle being dragged, as `d<dancer>:c<1|2>`. */
+  private dragHandle: string | null = null;
+
+  /**
+   * Wire the canvas for handle dragging.
+   *
+   * The camera is switched OFF for the duration (`controls.enabled = false`) - otherwise the orbit
+   * control takes the same gesture and the board rotates while the handle is being dragged, which is
+   * the single most obvious way this could feel broken.
+   */
+  private wireHandleDrag() {
+    const canvas = this.stage.renderer.domElement;
+    canvas.addEventListener('pointerdown', (e) => {
+      if (!this.active || !this.isInstanceMode() || this.moveKind !== 'move') return;
+      const id = this.stage.pickHandle(e.clientX, e.clientY);
+      if (!id) return;
+      this.dragHandle = id;
+      // The focused dancer is DELIBERATELY not changed by grabbing a handle: the drag writes the same
+      // LOCAL value to every selected dancer, so the tile's numbers read the same whichever handle was
+      // taken, and moving the panel's focus mid-gesture would be motion for nothing.
+      this.stage.controls.enabled = false;
+      canvas.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      if (!this.dragHandle) return;
+      const p = this.stage.floorPoint(e.clientX, e.clientY);
+      if (!p) return;
+      this.applyHandleDrag(this.dragHandle, p);
+    });
+    const endDrag = (e: PointerEvent) => {
+      if (!this.dragHandle) return;
+      this.dragHandle = null;
+      this.stage.controls.enabled = true;
+      if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+      // A FULL re-render once, at the end: the numbers in the tile and the strip's beat/hands labels
+      // are only worth rebuilding when the gesture is over, and doing it per pointer move is the
+      // difference between a drag and a slideshow.
+      this.renderInstance();
+    };
+    canvas.addEventListener('pointerup', endDrag);
+    canvas.addEventListener('pointercancel', endDrag);
+  }
+
+  /** One step of a handle drag: put the control point where the pointer is, and re-path. */
+  private applyHandleDrag(handle: string, board: { x: number; y: number }) {
+    const call = this.instance;
+    if (!call) return;
+    const d = parseInt(handle.slice(1), 10);
+    const isC1 = handle.endsWith('c1');
+    const dancer = call.dancers[d];
+    if (!dancer) return;
+    const range = moveBeatRange(dancer, this.moveIndex);
+    const p0 = poseFor(dancer, range.from);
+    // The INVERSE of the placement in `renderHandles`: the pointer's floor point -> the LOCAL frame
+    // of the move as the DRAGGED dancer performs it. This is the only rotation accounting the group
+    // edit needs, and it is what makes the others land on the SAME shape rather than on the same
+    // spot: every selected dancer gets this local value, each in its own frame.
+    const dx = board.x - p0.x;
+    const dy = board.y - p0.y;
+    const h = p0.heading;
+    const lx = Math.cos(h) * dx + Math.sin(h) * dy;
+    const ly = -Math.sin(h) * dx + Math.cos(h) * dy;
+    this.commitMoveChange((seg) => {
+      const t = seg.translate;
+      // ONLY THE SHAPE: the endpoint (`x2`, `y2`) and the beats and hands are untouched, which is what
+      // makes this the control-point gesture rather than a way to move the track.
+      return { ...seg, translate: isC1 ? { ...t, cx1: lx, cy1: ly } : { ...t, cx2: lx, cy2: ly } };
+    }, `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`, true);
+  }
+
   /**
    * Apply an engine edit, show it, and re-draw the table.
    *
@@ -519,6 +705,8 @@ export class EditorController implements EditorUI {
     this.renderInstanceInfo();
     this.refreshCloneInfo();
     this.syncTrailFocus();
+    // The handles follow the same selection the trail does, and they are cleared by the same guard.
+    this.renderHandles();
     if (this.focusKey) {
       const el2 = this.instPanel.querySelector<HTMLElement>(`[data-key="${this.focusKey}"]`);
       el2?.focus();
@@ -560,8 +748,10 @@ export class EditorController implements EditorUI {
     }
     const rows = instanceTable(call);
     const unknown = rows.filter((r) => r.couple === null).length;
+    const n = this.selectedSorted().length;
     this.instInfoEl.textContent =
       `${call.title} · ${call.dancers.length} dancers · ${show(call.beats)} beats` +
+      (n > 1 ? ` · ${n} selected (edits apply to all, each in its own frame)` : '') +
       (this.instanceEdited ? ' · edited' : '') +
       (unknown === call.dancers.length ? ' · no home identity (not a squared set)' : '');
   }
@@ -578,11 +768,13 @@ export class EditorController implements EditorUI {
     const thead = document.createElement('thead');
     const r1 = document.createElement('tr');
     r1.innerHTML =
-      '<th></th><th colspan="4" class="ed-side">START</th>' +
+      '<th></th><th></th><th colspan="4" class="ed-side">START</th>' +
       '<th colspan="3" class="ed-side">END (last move re-aimed)</th>' +
       '<th colspan="3" class="ed-side">READ</th>';
     const r2 = document.createElement('tr');
-    r2.innerHTML = '<th>#</th><th>gender</th><th>x</th><th>y</th><th>head°</th><th>x</th><th>y</th><th>head°</th><th>couple</th><th>beats</th><th>moves</th>';
+    r2.innerHTML =
+      '<th title="Tick the dancers an edit applies to. Most calls give every dancer the same movement rotated into its own position, so one move change usually belongs on all of them.">sel</th>' +
+      '<th>#</th><th>gender</th><th>x</th><th>y</th><th>head°</th><th>x</th><th>y</th><th>head°</th><th>couple</th><th>beats</th><th>moves</th>';
     thead.appendChild(r1);
     thead.appendChild(r2);
     table.appendChild(thead);
@@ -596,6 +788,26 @@ export class EditorController implements EditorUI {
   private formationRow(r: InstanceDancer): HTMLTableRowElement {
     const tr = document.createElement('tr');
     const i = r.index;
+
+    // THE SELECTION. A tick means "move edits apply to this dancer too", and the focused dancer is
+    // always in it and cannot be removed - otherwise the tile would be showing values that edits do
+    // not touch, which is the one state nobody can read.
+    const selTd = document.createElement('td');
+    const selBox = document.createElement('input');
+    selBox.type = 'checkbox';
+    selBox.checked = this.selectedDancers.has(i) || i === this.moveDancer;
+    selBox.disabled = i === this.moveDancer;
+    selBox.title =
+      i === this.moveDancer
+        ? 'The dancer the moves panel is showing; always part of the selection'
+        : 'Apply move edits to this dancer as well (in its own rotated frame)';
+    selBox.addEventListener('change', () => {
+      if (selBox.checked) this.selectedDancers.add(i);
+      else this.selectedDancers.delete(i);
+      this.renderInstance();
+    });
+    selTd.appendChild(selBox);
+    tr.appendChild(selTd);
 
     const num = document.createElement('td');
     num.textContent = String(i + 1);
@@ -783,18 +995,21 @@ export class EditorController implements EditorUI {
       // Turning the facing OFF while it is selected would leave the tile showing a shape that no
       // longer exists, so the selection falls back with it.
       if (!rchk.checked && this.moveKind === 'facing') this.moveKind = 'move';
-      write({ rotate: rchk.checked ? { ...t } : null }, 'rot');
+      // Turning the facing ON copies the DANCER'S OWN translation curve, which is behaviour-
+      // preserving on every selected dancer (it is the curve `poseFor` already falls back to) and
+      // keeps each dancer's facing curve its own rather than the focused dancer's.
+      write((s) => ({ ...s, rotate: rchk.checked ? { ...s.translate } : null }), 'rot');
     });
     head.appendChild(rchk);
     head.appendChild(rc);
     tile.appendChild(head);
 
-    // The focus key must be the EDITED FIELD's own `data-key`, or the re-render after a commit has
-    // nothing to find and the focus is lost on every spin-button click.
-    const write = (patch: Partial<Seg>, field: string) => {
-      const call = this.instance;
-      if (!call) return;
-      this.commit(setMove(call, i, k, { ...seg, ...patch }), `m${i}:${k}:${field}`);
+    // PER-DANCER PATCHES, and that is not a detail: a patch built from THIS dancer's segment
+    // (`{...t, cx1: v}`) would copy this dancer's OTHER control points onto every other selected
+    // dancer, which is the per-dancer difference a group edit exists to preserve. So each field
+    // writes exactly its own value, into whichever dancer's segment it is handed.
+    const write = (patch: (seg: Seg) => Seg, field: string) => {
+      this.commitMoveChange(patch, `m${i}:${k}:${field}`);
     };
 
     // ITS OWN LINE, because the tile is 180px wide and `move 4` + `explicit` + two tabs does not
@@ -837,10 +1052,25 @@ export class EditorController implements EditorUI {
         ['y2', 'y4', 0.25],
       ];
       for (const [key, label, step] of rKeys) {
-        grid.appendChild(this.field(`m${i}:${k}:r.${key}`, `r.${label}`, r[key], step, (v) => write({ rotate: { ...r, [key]: v } }, `r.${key}`)));
+        // From the DANCER'S OWN rotate curve (or its translation, when it has none yet) - so the
+        // same field means the same thing on every selected dancer without copying one dancer's
+        // other control points onto the rest.
+        grid.appendChild(
+          this.field(`m${i}:${k}:r.${key}`, `r.${label}`, r[key], step, (v) =>
+            write((s) => ({ ...s, rotate: { ...(s.rotate ?? s.translate), [key]: v } }), `r.${key}`),
+          ),
+        );
       }
+      // NO HANDLES ON THE BOARD FOR THIS ONE, and the tile says why rather than leaving the reader to
+      // wonder where they went: the facing curve is read with `bezierAngle`, so its TANGENT is the
+      // heading and its coordinates live in a tangent space - there is no floor position to put a
+      // handle at. The move curve is a floor path and gets both handles.
+      const note = document.createElement('div');
+      note.className = 'small';
+      note.textContent = 'no handles on the board for the facing: its coordinates are a tangent space (its tangent IS the heading), so they have no floor position';
+      grid.appendChild(note);
     } else {
-      grid.appendChild(this.field(`m${i}:${k}:beats`, 'beats', seg.beats, 0.5, (v) => write({ beats: v }, 'beats')));
+      grid.appendChild(this.field(`m${i}:${k}:beats`, 'beats', seg.beats, 0.5, (v) => write((s) => ({ ...s, beats: v }), 'beats')));
 
       const hands = document.createElement('span');
       hands.className = 'ed-group';
@@ -849,7 +1079,7 @@ export class EditorController implements EditorUI {
       const hsel = document.createElement('select');
       hsel.dataset.key = `m${i}:${k}:hands`;
       for (const h of HANDS) hsel.add(new Option(h, h, false, h === seg.hands));
-      hsel.addEventListener('change', () => write({ hands: hsel.value as Hands }, 'hands'));
+      hsel.addEventListener('change', () => write((s) => ({ ...s, hands: hsel.value as Hands }), 'hands'));
       hands.append(hl, hsel);
       grid.appendChild(hands);
 
@@ -862,7 +1092,11 @@ export class EditorController implements EditorUI {
         ['y2', 'y2', 0.25],
       ];
       for (const [key, label, step] of tKeys) {
-        grid.appendChild(this.field(`m${i}:${k}:t.${key}`, `t.${label}`, t[key], step, (v) => write({ translate: { ...t, [key]: v } }, `t.${key}`)));
+        grid.appendChild(
+          this.field(`m${i}:${k}:t.${key}`, `t.${label}`, t[key], step, (v) =>
+            write((s) => ({ ...s, translate: { ...s.translate, [key]: v } }), `t.${key}`),
+          ),
+        );
       }
     }
 
@@ -908,8 +1142,10 @@ export class EditorController implements EditorUI {
       if (this.instance) this.showInstance(this.instance);
     } else {
       this.refreshFixInfo();
-      // Leaving the instance editor gives the full tracks back.
+      // Leaving the instance editor gives the full tracks back, and takes the Bézier handles with
+      // it: they belong to a move selection that is no longer on screen.
       this.host.focusTrail(null, null);
+      this.stage.setHandles(null);
     }
   }
 
@@ -1095,12 +1331,16 @@ export class EditorController implements EditorUI {
     if (!call) return;
     // A one-beat pause: a zero-travel move is the honest default, because it changes the
     // timing of the call without inventing choreography nobody asked for.
-    const next = addMove(call, this.moveDancer, {
+    const seg: Seg = {
       beats: 1,
       hands: 'none',
       translate: { cx1: 0, cy1: 0, cx2: 0, cy2: 0, x2: 0, y2: 0 },
       rotate: null,
-    });
+    };
+    // ON EVERY SELECTED DANCER, like every other move edit - a group edit that propagated the
+    // numbers but not the moves would leave the dancers silently out of step with each other.
+    let next = call;
+    for (const d of this.selectedSorted()) next = addMove(next, d, seg);
     this.moveIndex = this.currentMoves().length; // the appended move
     this.commit(next, `m${this.moveDancer}:${this.moveIndex}:beats`);
   }
@@ -1108,7 +1348,11 @@ export class EditorController implements EditorUI {
   private deleteInstanceMove() {
     const call = this.instance;
     if (!call || this.currentMoves().length === 0) return;
-    const next = removeMove(call, this.moveDancer, this.moveIndex);
+    let next = call;
+    for (const d of this.selectedSorted()) {
+      // A dancer with no move at this index is skipped rather than throwing the whole delete away.
+      if ((next.dancers[d]?.path.length ?? 0) > this.moveIndex) next = removeMove(next, d, this.moveIndex);
+    }
     this.moveIndex = Math.max(0, this.moveIndex - 1);
     this.commit(next);
   }
@@ -1314,7 +1558,17 @@ export class EditorController implements EditorUI {
     });
     this.moveDancerSel.addEventListener('change', () => {
       this.moveDancer = parseInt(this.moveDancerSel.value, 10) || 0;
+      // LOOKING AT A DANCER SHOULD NOT DROP THE OTHERS from the selection: the usual edit is a group
+      // edit, and the focused dancer joins the set rather than replacing it.
+      this.selectedDancers.add(this.moveDancer);
       this.moveIndex = 0;
+      this.renderInstance();
+    });
+    // The whole point of the selection: a call gives most dancers the same movement rotated into
+    // their own positions, so "all" is the common case and eight ticks per edit is the wrong unit.
+    this.moveAllBtn.addEventListener('click', () => {
+      if (this.selectedDancers.size > 1) this.selectedDancers = new Set([this.moveDancer]);
+      else this.selectedDancers = new Set(Array.from({ length: this.instance?.dancers.length ?? 0 }, (_, i) => i));
       this.renderInstance();
     });
     // There is no "Move" dropdown any more: the strip IS the picker, and `selectMove` both
@@ -1330,8 +1584,10 @@ export class EditorController implements EditorUI {
       this.renderSaved();
       this.renderInstance();
     } else {
-      // The editor is off screen: give every dancer's track back.
+      // The editor is off screen: give every dancer's track back, and drop the Bézier handles so
+      // the browse and sequence views cannot inherit a magenta dot from an edit that is not showing.
       this.host.focusTrail(null, null);
+      this.stage.setHandles(null);
     }
   }
 }

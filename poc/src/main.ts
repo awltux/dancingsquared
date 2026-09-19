@@ -73,6 +73,9 @@ const editorUi = initEditor(stage, {
     player.seekAbsolute(b);
   },
   setPlayhead: (b) => player.seekAbsolute(b),
+  // A handle drag re-paths the call many times a second, so it must NOT go through `showCall`'s
+  // view rebuild - same dancers, new geometry.
+  updateCall: (c) => browser.updateCall(c),
   focusTrail: (index, range, kind) => browser.setTrailFocus(index, range, kind),
   startFormations: () => seqUi.startFormations(),
   // Naming a generated setup means naming the FORMATION it starts from; the library is the only

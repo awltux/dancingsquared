@@ -375,6 +375,38 @@ The remaining numbers: **beats** and **hands** belong to the move (they are its 
 and re-timing a move re-times the call when it changes the LONGEST dancer's path; a call whose
 authored beat count is longer than every path (a pause) keeps the pause.
 
+### Bezier handles, and editing many dancers at once
+
+Each selected dancer gets the two **control-point handles** of the current move's translation curve,
+drawn on the floor: a leader line from the curve's fixed anchor (its start for `c1`, its end for `c2`)
+out to a magenta dot. **Dragging a dot changes the SHAPE only** — the endpoints, the beats and the
+hands are untouched. The camera is switched off for the duration, or the orbit control takes the same
+gesture and the board spins while you are dragging. Moving the *shared connecting point* between two
+curves (which adjusts both) is deliberately not offered yet.
+
+**A drag on any selected dancer's handle applies to all of them, each in its own frame** — and that is
+*exact*, not approximate, because a move's Bézier is authored in **dancer-local coordinates**. The
+origin is the dancer's spot where the move begins and +X is the facing at that instant, so the *same*
+local control point on two dancers **is** the same shape rotated and translated into each of their
+positions. Propagating a change therefore needs no rotation arithmetic at all: the local value is the
+shared description. The only conversion is the one that puts the pointer where you dropped it, in the
+frame of the dancer whose handle you grabbed.
+
+Both halves of the group edit use that:
+
+- **ticking dancers** in the `sel` column of the formation table (the `all` button in the moves row
+  toggles the whole set) — the focused dancer is always in the selection, because the tile must not be
+  showing values that edits do not touch;
+- **every move edit** — the tile's fields, `+ Move` and `− Move` — goes to every selected dancer,
+  *patch by patch* rather than segment by segment: a patch built from the focused dancer's segment would
+  copy its other control points onto everybody, which is exactly the per-dancer difference a group edit
+  exists to preserve. A selected dancer with no move at that index is skipped, never given one.
+
+**The facing curve gets no handles**, and that is a fact about the data rather than an omission:
+`poseFor` reads it with `bezierAngle`, so its **tangent is the heading** and its coordinates live in a
+tangent space. A no-translation turn in `moves.xml` is `x4="0" y4="2"` with the tangent running 0° to
+180° — there is nowhere on the floor to put that. The tile says so when the Facing tab is selected.
+
 **The moves row drives the stage**, which is what makes a single move editable at all. The
 moves themselves are shown as a STRIP: every move of the chosen track, in order, so the whole
 path being edited is visible at once instead of one move at a time behind a dropdown. The move

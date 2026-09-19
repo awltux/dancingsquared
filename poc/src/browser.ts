@@ -367,6 +367,30 @@ export class CallBrowser {
     this.showCall(call);
   }
 
+  /**
+   * Re-path the call being shown WITHOUT rebuilding the views: same dancers, new geometry.
+   *
+   * `showCall` builds eight `DancerView`s and samples 80-point trails for each, which is right when
+   * the cast changes and far too much work for a HANDLE DRAG, where the pointer moves many times a
+   * second. What a drag changes is the path, so the path is all this re-does: the player's call (for
+   * the poses the frame loop draws) and the trails.
+   *
+   * ONLY VALID WHILE THE CAST IS THE SAME. The views are bound to dancers by array position, so this
+   * assumes the same count and identity as the last `showCall` - true for every editor edit, which
+   * changes poses and paths and never adds or removes a dancer.
+   */
+  updateCall(call: CallBundle) {
+    if (this.views.length !== call.dancers.length) {
+      this.showCall(call);
+      return;
+    }
+    this.player.call = call;
+    this.dancers = this.dancers.length === call.dancers.length ? call.dancers : this.dancers;
+    for (let i = 0; i < this.views.length; i++) this.views[i].setTrail(sampleTrail(call.dancers[i], 80));
+    // A shorter call can leave the playhead past the end, so the beam is re-clamped by the player.
+    this.applyTrailState();
+  }
+
   private loadCurrent() {
     const id = this.callSelect.value;
     const tamIndex = parseInt(this.tamSelect.value, 10);

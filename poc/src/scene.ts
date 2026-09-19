@@ -17,6 +17,25 @@ export interface Stage {
    * 2D camera (disables orbit rotation in 2D). */
   setView2D(on: boolean): void;
   resize(): void;
+  /** Show the two Bezier control-point handles for one move, or clear them with null.
+   *  A handle is the classic vector-editor pair: a leader line from the curve's FIXED anchor (its
+   *  start for c1, its end for c2) out to the control point, with a grabbable dot at the end. */
+  setHandles(handles: HandleSpec[] | null): void;
+  /** The handle id under a canvas point, or null. */
+  pickHandle(clientX: number, clientY: number): string | null;
+  /** The BOARD (x, y) under a canvas point, on the floor plane - the inverse of the drawing
+   *  mapping - or null when the ray misses the plane. */
+  floorPoint(clientX: number, clientY: number): { x: number; y: number } | null;
+}
+
+/** One draggable Bezier control point: where its leader line is anchored, and where the dot is. */
+export interface HandleSpec {
+  /** `d<dancerIndex>:c1` or `d<dancerIndex>:c2`, so a hit says WHICH dancer's handle and which end.
+   *  Every selected dancer has its own pair, and the same local control point on all of them is the
+   *  same shape rotated into each dancer's position. */
+  id: string;
+  anchor: { x: number; y: number };
+  point: { x: number; y: number };
 }
 
 /** A flat always-facing-camera text label (Sprite) so axis/angle names stay
@@ -194,6 +213,68 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     }
   };
 
+  // ---------------------------------------------------------------- Bezier handles
+  //
+  // The classic vector-editor handles for ONE move's translation curve: a leader line from the
+  // curve's fixed anchor out to each control point, and a dot you can grab. Only the SHAPE is
+  // editable here - the endpoints are the authored track, and moving them is a different gesture
+  // (the shared connecting point between two curves) that this deliberately does not offer.
+  //
+  // THE BOARD MAPPING IS (x, 0, -y): board +x is 3D +x, board +y is 3D -z. `floorPoint` is its
+  // inverse, so a drag lands where the pointer is rather than mirrored across an axis.
+  const HANDLE_COLOR = 0xff6fd0; // magenta, distinct from the amber move highlight and cyan ticks
+  const HANDLE_Y = 0.12;
+  const handleGroup = new THREE.Group();
+  scene.add(handleGroup);
+  const raycaster = new THREE.Raycaster();
+  const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  const ndc = new THREE.Vector2();
+
+  const toNdc = (clientX: number, clientY: number) => {
+    const r = renderer.domElement.getBoundingClientRect();
+    ndc.set(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1);
+  };
+
+  const setHandles = (handles: HandleSpec[] | null) => {
+    handleGroup.clear();
+    if (!handles) return;
+    const lineMat = new THREE.LineBasicMaterial({ color: HANDLE_COLOR, transparent: true, opacity: 0.85 });
+    const dotMat = new THREE.MeshBasicMaterial({ color: HANDLE_COLOR });
+    for (const h of handles) {
+      const a = new THREE.Vector3(h.anchor.x, HANDLE_Y - 0.03, -h.anchor.y);
+      const b = new THREE.Vector3(h.point.x, HANDLE_Y, -h.point.y);
+      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), lineMat);
+      line.frustumCulled = false;
+      handleGroup.add(line);
+      const dot = new THREE.Mesh(new THREE.CircleGeometry(0.3, 18), dotMat);
+      dot.rotation.x = -Math.PI / 2; // lie flat on the floor
+      dot.position.copy(b);
+      // The id rides on the mesh so a raycast hit IS the answer; no index arithmetic on the way back.
+      dot.userData.handleId = h.id;
+      dot.name = `handle:${h.id}`;
+      handleGroup.add(dot);
+    }
+  };
+
+  const pickHandle = (clientX: number, clientY: number): string | null => {
+    if (handleGroup.children.length === 0) return null;
+    toNdc(clientX, clientY);
+    raycaster.setFromCamera(ndc, out.camera);
+    // Only the DOTS are pickable: a leader line is a thin target, and hitting one by accident while
+    // reaching for the other handle would move the wrong control point.
+    const dots = handleGroup.children.filter((c) => (c as THREE.Mesh).isMesh === true);
+    const hits = raycaster.intersectObjects(dots, false);
+    return hits.length > 0 ? (hits[0].object.userData.handleId as string) ?? null : null;
+  };
+
+  const floorPoint = (clientX: number, clientY: number): { x: number; y: number } | null => {
+    toNdc(clientX, clientY);
+    raycaster.setFromCamera(ndc, out.camera);
+    const hit = new THREE.Vector3();
+    if (!raycaster.ray.intersectPlane(floorPlane, hit)) return null;
+    return { x: hit.x, y: -hit.z };
+  };
+
   const out: Stage = {
     scene,
     camera,
@@ -205,6 +286,9 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       out.camera = on ? camera2d : camera;
       controls.enabled = !on;
     },
+    setHandles,
+    pickHandle,
+    floorPoint,
   };
   return out;
 }

@@ -163,16 +163,45 @@ const toRad = (deg: number): number => (deg * Math.PI) / 180;
  * gesture from "help me land on the line". The quarter cell is about 10 px in the flat view at 1080p
  * (the probe measures 40.9 px per unit there), so the pull is felt but the drag stays smooth.
  *
- * THE SNAP IS IN THE MOVE'S OWN FRAME, which is the frame the tile's numbers - and the arc's two
- * handle lengths - are in, so a snapped drag leaves whole numbers behind. The floor's grid is drawn in
- * the same units, so the two coincide whenever the dancer's frame is square to the floor, which is
- * every multiple of 90 degrees.
+ * AND IT IS THE BOARD'S GRID, not a grid turned with the dancer's frame: the point is snapped in the
+ * coordinates the floor is drawn in, before it is taken into the local frame at all. So a snapped
+ * control point lands on a line the caller can SEE. The tile's numbers are then the dancer-local
+ * coordinates of a grid point, which are not round when the dancer is turned - the honest consequence of
+ * snapping to a grid drawn in another frame, and the reason the panel does not pretend otherwise.
  */
 const SNAP_CELL = 1;
 const SNAP_TOL = SNAP_CELL / 4;
+/**
+ * The HALF grid's pull, and it is deliberately weaker than the whole grid's.
+ *
+ * HALF POSITIONS ARE WHERE THIS DANCE'S OWN COORDINATES LIVE. MEASURED over the move registry
+ * (`tools/snap-grid-probe.mjs`): 61% of the authored coordinates sit on half units against 46% on whole
+ * ones - a half-slot step is an ordinary thing to author - so a magnet that only knew the drawn lines
+ * would refuse the position the assets use most.
+ *
+ * Two tiers rather than one finer grid, so the DRAWN lines keep their precedence: a whole unit wins
+ * whenever both are in range, which is why this pull is half as wide. A point a quarter of a unit from
+ * both lands on the drawn line.
+ *
+ * NOTE THAT NOTHING IS DRAWN AT THE HALF POSITIONS - the floor draws 1-unit cells and a 2-unit overlay -
+ * so a half-snapped control point sits midway between two lines. That is a real place in this dance's
+ * vocabulary rather than an arbitrary point, but it is not a place the grid shows, and the two tiers are
+ * the honest way to say both things at once.
+ */
+const SNAP_HALF_TOL = SNAP_CELL / 8;
+/**
+ * Pull a coordinate onto the nearest grid line, or leave it exactly where it is.
+ *
+ * BOTH AXES ARE HANDLED INDEPENDENTLY, so a point can land on a line in x and stay free in y - which is
+ * what "on the grid" means for a control point, and it avoids rounding a coordinate the caller did not
+ * put near anything.
+ */
 const snapTo = (v: number): number => {
-  const near = Math.round(v / SNAP_CELL) * SNAP_CELL;
-  return Math.abs(v - near) <= SNAP_TOL ? near : v;
+  const whole = Math.round(v / SNAP_CELL) * SNAP_CELL;
+  if (Math.abs(v - whole) <= SNAP_TOL) return whole;
+  const half = Math.round(v / (SNAP_CELL / 2)) * (SNAP_CELL / 2);
+  if (Math.abs(v - half) <= SNAP_HALF_TOL) return half;
+  return v;
 };
 
 /**
@@ -906,18 +935,21 @@ export class EditorController implements EditorUI {
     if (!seg) return;
     const range = moveBeatRange(dancer, this.moveIndex);
     const p0 = poseFor(dancer, range.from);
+    // THE SNAP GOES ON THE BOARD POINT, IN THE FRAME THE GRID IS DRAWN IN - and only then is the point
+    // taken into the dancer's local frame. Snapping the LOCAL coordinates instead puts the dot on a grid
+    // ROTATED WITH THE DANCER, so it lines up with the lines the caller can see only when the dancer's
+    // frame happens to be square to the floor: a snap that looks broken rather than one that looks like
+    // help. The cost is on the other side and is worth stating plainly - the numbers left in the tile
+    // are whatever a grid point's dancer-local coordinates are, so they are not round when the dancer is
+    // turned. "Snap to the grid" means the grid you can see.
+    const snapped = snap ? { x: snapTo(board.x), y: snapTo(board.y) } : board;
     // The INVERSE of the placement in `renderHandles`: the pointer's floor point -> the LOCAL frame
     // of the move as the DRAGGED dancer performs it.
-    const dx = board.x - p0.x;
-    const dy = board.y - p0.y;
+    const dx = snapped.x - p0.x;
+    const dy = snapped.y - p0.y;
     const h = p0.heading;
-    // The snap goes on the LOCAL point, which is the frame the fields are in - so a snapped drag leaves
-    // whole numbers in the tile, and the control point sits on a grid line whenever the dancer's own
-    // frame is aligned with the floor's, which it is for every multiple of 90deg.
-    const rawX = Math.cos(h) * dx + Math.sin(h) * dy;
-    const rawY = -Math.sin(h) * dx + Math.cos(h) * dy;
-    const lx = snap ? snapTo(rawX) : rawX;
-    const ly = snap ? snapTo(rawY) : rawY;
+    const lx = Math.cos(h) * dx + Math.sin(h) * dy;
+    const ly = -Math.sin(h) * dx + Math.cos(h) * dy;
 
     const facing = which.startsWith('r');
     const bez = facing ? seg.rotate : seg.translate;

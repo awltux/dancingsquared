@@ -24,8 +24,12 @@
 // Run: node tools/stage-sync-probe.mjs   (from poc/)
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const SRC = path.join(process.cwd(), 'src', 'editor-ui.ts');
+// Resolved from THIS FILE, so the audit runs from anywhere and not only from poc/.
+const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+const SRC = path.join(POC_DIR, 'src', 'editor-ui.ts');
 
 let failures = 0;
 const check = (cond, msg) => {

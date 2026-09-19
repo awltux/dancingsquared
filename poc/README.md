@@ -566,17 +566,55 @@ coordinates are on the unit grid — the rest are ⅓s, 4/3s and 1/√2s, what a
 produces — so this is a new convention rather than a restoration of one, which is why it is behind a
 modifier.
 
-**Holding CTRL while dragging pulls the point onto a line only when it is already within a quarter of a
-cell of one**, and leaves it exactly where the pointer is otherwise. That is a *magnet*: rounding from
-anywhere in the cell would quantise the drag, so every position would be a grid position and the gesture
-would stop being "help me land on the line". The quarter cell is **10.2 px** in the flat view at 1080p
-(40.9 px per unit there), so the pull is felt without fighting the pointer. Measured: half of the cell
-is within a quarter of a line on either side, so half of the positions along a drag are pulled.
+**Holding CTRL while dragging pulls the point onto a line only when it is already close to one**, and
+leaves it exactly where the pointer is otherwise. That is a *magnet*: rounding from anywhere in the cell
+would quantise the drag, so every position would be a grid position and the gesture would stop being
+"help me land on the line".
 
-**The snap is in the move's own frame** — the frame the tile's numbers, and the arc's two handle
-lengths, are in — so a snapped drag leaves whole numbers behind. The floor's grid is drawn in the same
-units, so the two coincide whenever the dancer's frame is square to the floor, which is every multiple
-of 90°.
+**There are two tiers.** The drawn grid pulls from a quarter of a cell (**10.2 px** in the flat view at
+1080p, where a whole cell is 40.9 px), and the **half positions** pull from half that (**5.1 px**) — a
+weaker tier, so a drawn line wins wherever they compete. Half positions are worth a tier because they are
+where this dance's own coordinates live: **61%** of the corpus's authored coordinates sit on half units
+against **46%** on whole ones. Nothing is *drawn* at the half positions — the floor draws 1-unit cells and
+a 2-unit overlay — so a half-snapped point sits midway between two lines. That is a real place in this
+dance's vocabulary rather than an arbitrary point, but it is not a place the grid shows, and two tiers is
+the honest way to say both things at once.
+
+Measured: of 1000 positions across two cells, **496** are pulled to a drawn line, **248** to a half
+position and **256** left free — sticky enough to help, free enough over a quarter of the cell to still
+be a magnet rather than a lock.
+
+**It snaps to the board's grid — the lines you can see — not to a grid turned with the dancer.** The
+point is snapped in the coordinates the floor is drawn in, *before* it is taken into the dancer's local
+frame; snapping the local coordinates instead puts the dot on a grid **rotated and offset with the
+dancer**, so it lines up with the visible lines only when they are both square to the floor *and*
+standing on a whole coordinate. Measured by `node tools/snap-grid-probe.mjs`, sweeping 384 pose/pointer
+combinations: the board snap lands exactly on a drawn line in **every** case, while the local one misses
+by up to **0.196** units (about 8 px — a control point sitting visibly beside the line it claims to be
+on) and agrees with the board snap only in the 64 cases where the dancer is square to the floor on a
+whole coordinate, which is the usual stance at the start of a move and the only one where it was not
+misleading.
+
+The trade is real and worth stating: the numbers left in the tile are then the **dancer-local
+coordinates of a grid point**, so they are not round when the dancer is turned (a dancer facing 34°
+leaves 4.2132 rather than 4.25). That is the honest consequence of snapping to a grid drawn in another
+frame, and the panel does not pretend otherwise.
+
+**It snaps to the board's grid — the lines you can see — not to a grid turned with the dancer.** The
+point is snapped in the coordinates the floor is drawn in, *before* it is taken into the dancer's local
+frame; snapping the local coordinates instead puts the dot on a grid **rotated and offset with the
+dancer**, so it lines up with the visible lines only when they are both square to the floor *and*
+standing on a whole coordinate. Measured by `node tools/snap-grid-probe.mjs`, sweeping 384 pose/pointer
+combinations: the board snap lands exactly on a drawn line in **every** case, while the local one misses
+by up to **0.196** units (about 8 px — a control point sitting visibly beside the line it claims to be
+on) and agrees with the board snap only in the 64 cases where the dancer is square to the floor on a
+whole coordinate, which is the usual stance at the start of a move and the only one where it was not
+misleading.
+
+The trade is real and worth stating: the numbers left in the tile are then the **dancer-local
+coordinates of a grid point**, so they are not round when the dancer is turned (a dancer facing 34°
+leaves 4.2132 rather than 4.25). That is the honest consequence of snapping to a grid drawn in another
+frame, and the panel does not pretend otherwise.
 
 ### `arc`: locking a curve to a quarter of a circle or an ellipse
 

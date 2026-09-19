@@ -1705,8 +1705,43 @@ The first version ROUNDED from anywhere in the cell, which quantises the drag: e
 grid position and the gesture stops being "help me land on the line". It is now a magnet — it pulls only
 within a quarter of a cell (**10.2 px** in the flat view at 1080p, where a whole cell is 40.9 px) and
 leaves the point EXACTLY where the pointer is otherwise, which the probe checks as a measurement of the
-tolerance rather than an assertion about it. The snap is in the move's own frame, the frame the tile's
-numbers and the arc's handle lengths are in, so a snapped drag leaves whole numbers behind.
+tolerance rather than an assertion about it.
+
+**AND IT SNAPS TO THE BOARD'S GRID, NOT THE DANCER'S — the caller's third correction on this feature.**
+Snapping the LOCAL coordinates put the control point on a grid rotated AND offset with the dancer, so it
+lined up with the lines the caller can SEE only when the dancer was square to the floor *and* standing on
+a whole coordinate. The point is now snapped in the coordinates the floor is drawn in, before it is taken
+into the local frame at all. MEASURED (`poc/tools/snap-grid-probe.mjs`, which also reads three's own
+GridHelper geometry to pin the premise that the drawn grid is 21 whole coordinates from -10 to 10 at a
+spacing of 1): across **384** pose/pointer combinations the board snap lands exactly on a drawn line in
+EVERY case, while the local one misses by up to **0.196** units — about 8 px, a control point visibly
+beside the line it claims to be on — and agrees with the board snap only in the **64** cases where the
+dancer is square to the floor on a whole coordinate. That stance is the usual one at the start of a move,
+and it is the only one where the local snap was not misleading.
+
+The trade is stated rather than hidden: the numbers left in the tile are the DANCER-LOCAL coordinates of
+a grid point, so they are not round when the dancer is turned (a dancer facing 34° leaves 4.2132 rather
+than 4.25). TWO OF THE PROBE'S OWN CLAIMS WERE WRONG AND THE SWEEP CAUGHT THEM: a single hand-picked
+example happened to land 0.002 units from a line by luck, and the local snap is on a line in 32 of 384
+half-coordinate cases by coincidence — never agreeing with the board snap in any of them.
+
+**AND THE MAGNET HAS TWO TIERS, BECAUSE HALF POSITIONS ARE WHERE THIS DANCE'S COORDINATES LIVE.** The
+caller asked for the half grid as well, and the measurement agrees with them: 61% of the corpus's authored
+coordinates sit on half units against 46% on whole ones, so a magnet that only knew the drawn lines would
+refuse the position the assets use most. The whole grid pulls from a quarter of a cell and the half grid
+from half that — so a DRAWN line wins wherever they compete — and of 1000 positions across two cells 496
+are pulled to a drawn line, 248 to a half position and 256 are left free: sticky enough to help, and free
+over a quarter of the cell. Recorded rather than glossed: NOTHING IS DRAWN at the half positions, so a
+half-snapped point sits midway between two lines. That is a real place in the dance's vocabulary rather
+than an arbitrary point, but it is not a place the grid shows, and two tiers is the honest way to say both
+things at once.
+
+**AND THE PROBES NOW RESOLVE THEIR PATHS FROM THEIR OWN FILE.** They read the POC's assets and source
+through `process.cwd()`, so they ran only from `poc/`: `node poc/tools/x.mjs` from the repository root died
+with ENOENT and looked like a broken probe rather than a misplaced one — found by running all five in one
+loop from the root, which turned four of them red for a reason that had nothing to do with what they
+measure. The dynamic engine import also needed a `file://` URL, because a bare Windows path is not a valid
+ESM specifier.
 
 **`arc` LOCKS A CURVE TO A QUARTER OF A CIRCLE OR AN ELLIPSE, AND THE GEOMETRY IS THE ENGINE'S.** The user
 asked for a checkbox on each tab, and for it to be DISABLED where the handle directions make a quadrant

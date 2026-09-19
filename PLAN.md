@@ -2765,9 +2765,41 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     It now pulls only within a quarter of a cell (**10.2 px** in the flat view at 1080p, where the whole
     cell is 40.9 px) and leaves the point EXACTLY where the pointer is otherwise — and the probe checks
     that outside the magnet there is no rounding at all, which is what makes it a magnet. The snap is in
-    the move's own frame, the frame the tile's numbers and the arc's lengths are in, so a snapped drag
-    leaves whole numbers behind; the floor's grid is drawn in the same units, so the two coincide
-    whenever the dancer's frame is square to the floor.
+    the BOARD'S grid, not a grid turned with the dancer's frame, because "snap to the grid" means the
+    grid the caller can see — see the correction below.
+  - **AND THE SNAP IS IN THE BOARD'S FRAME, NOT THE DANCER'S — THE CALLER'S THIRD CORRECTION ON THIS
+    FEATURE.** Snapping the LOCAL coordinates put the dot on a grid rotated AND offset with the dancer,
+    so it lined up with the lines the caller can see only when the dancer was square to the floor AND
+    standing on a whole coordinate. The point is now snapped in the coordinates the floor is drawn in,
+    before it is taken into the local frame at all. MEASURED by `node poc/tools/snap-grid-probe.mjs`,
+    which sweeps 384 pose/pointer combinations: the board snap lands exactly on a drawn line in EVERY
+    case; the local one misses by up to **0.196** units (about 8 px at the flat view's 40.9 px/unit) and
+    agrees with the board snap only in the 64 cases where the dancer is square to the floor on a whole
+    coordinate — the usual stance at the start of a move, and the only one where it was not misleading.
+    The probe also reads three's own GridHelper geometry to pin the premise: the drawn grid is 21 whole
+    coordinates from -10 to 10 at a spacing of 1, so a 1-unit cell IS the drawn cell and a whole
+    coordinate IS a drawn line. AND THE TRADE IS STATED RATHER THAN HIDDEN: the numbers left in the tile
+    are then the dancer-local coordinates of a grid point, so they are not round when the dancer is
+    turned (a dancer facing 34deg leaves 4.2132 rather than 4.25). Two of the probe's own claims were
+    wrong and it caught them: a single example chosen by hand landed 0.002 units from a line by luck, and
+    the sweep then showed the local snap is on a line in 32 of 384 half-coordinate cases by coincidence
+    — never agreeing with the board snap in any of them.
+  - **AND THE MAGNET HAS TWO TIERS, BECAUSE HALF POSITIONS ARE WHERE THIS DANCE'S COORDINATES LIVE.**
+    The caller asked for the half grid as well, and the measurement agrees with them: 61% of the corpus's
+    authored coordinates sit on half units against 46% on whole ones, so a magnet that only knew the
+    drawn lines would refuse the position the assets use most. The whole grid pulls from a quarter of a
+    cell and the half grid from half that, so a DRAWN line wins wherever they compete; MEASURED, of 1000
+    positions across two cells 496 are pulled to a drawn line, 248 to a half position and 256 are left
+    free — sticky enough to help, free over a quarter of the cell. Recorded rather than glossed: NOTHING
+    IS DRAWN at the half positions, so a half-snapped point sits midway between two lines. That is a real
+    place in the dance's vocabulary rather than an arbitrary point, but it is not a place the grid shows,
+    and two tiers is the honest way to say both things at once.
+  - **AND THE PROBES NOW RESOLVE THEIR PATHS FROM THEIR OWN FILE.** They read the POC's assets and source
+    through `process.cwd()`, which made them runnable only from `poc/` — `node poc/tools/x.mjs` from the
+    repository root died with ENOENT and looked like a broken probe rather than a misplaced one. Found
+    because running all five in one loop from the root turned four of them red. (The dynamic engine import
+    also needed a `file://` URL: a bare Windows path is not a valid ESM specifier.) All five now run from
+    either directory.
   - **THE `arc` CHECKBOX LOCKS A CURVE TO A QUARTER OF A CIRCLE OR AN ELLIPSE.** The geometry is the
     engine's (`arcBezier`, `arcOf`, `arcIsCircle`, `arcCorner`, `arcBlocker`, `projectToArc`,
     `setMoveArc`) and it is gated in `editor/test/editor.mjs` section 17, because that is where

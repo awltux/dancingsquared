@@ -20,12 +20,16 @@
 // Run: node tools/facing-handle-probe.mjs   (from poc/)
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const engine = await import('../../engine/dist/index.js');
+// Resolved from THIS FILE, so the probe runs from anywhere and not only from poc/.
+const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(process.cwd(), 'src/assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(POC_DIR, 'src/assets', p), 'utf8');
 // Half the floor grid, so "the drawn curve stays on the board" is a number rather than an impression.
 const FLOOR_HALF_ASSUMED = 10;
 const movesXml = asset('moves.xml');
@@ -54,7 +58,7 @@ let explicitSegs = 0;
 let totalSegs = 0;
 const firstWithRotate = { call: null, seg: null };
 for (const lv of levels) {
-  const dir = path.join(process.cwd(), 'src/assets', lv);
+  const dir = path.join(POC_DIR, 'src/assets', lv);
   if (!fs.existsSync(dir)) continue;
   for (const f of fs.readdirSync(dir)) {
     if (!f.endsWith('.xml')) continue;

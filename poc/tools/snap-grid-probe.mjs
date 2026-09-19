@@ -8,15 +8,21 @@
 //   - the MOVE coordinates in `moves.xml`, which is the frame the handles are authored and dragged in.
 //
 // This measures all three so the snap can be stated as a fact about the dance rather than a number
-// somebody liked. Run: node tools/snap-grid-probe.mjs   (from poc/)
+// somebody liked. Run: node tools/snap-grid-probe.mjs   (from anywhere)
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const engine = await import('../../engine/dist/index.js');
+// RESOLVED FROM THIS FILE, NOT THE WORKING DIRECTORY: every probe here reads the POC's assets or its
+// source, and `process.cwd()` made them runnable only from `poc/` - so `node poc/tools/x.mjs` from the
+// repository root died with ENOENT and looked like a broken probe rather than a misplaced one.
+const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(process.cwd(), 'src/assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(POC_DIR, 'src/assets', p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 
@@ -32,6 +38,9 @@ const check = (cond, msg) => {
 // unit, and the tolerance is a distance on screen.
 const SNAP_CELL = 1;
 const SNAP_TOL = SNAP_CELL / 4;
+// The HALF tier: 61% of the corpus's coordinates are on half units against 46% on whole ones, so the
+// magnet has to know them - see `SNAP_HALF_TOL` in the panel for why the pull is half as wide.
+const SNAP_HALF_TOL = SNAP_CELL / 8;
 
 // ---------------------------------------------------------------- the home square
 console.log('== The home square, in engine units ==');
@@ -124,28 +133,154 @@ console.log('\n== How big is "a quarter of a cell" on screen? ==');
   // then silently measures `undefined * pxPerUnit` and reports NaN px - which is exactly what the first
   // version of this did, and why the check below reads a number rather than a truthy NaN comparison.
   const tolerancePx = SNAP_TOL * pxPerUnit;
+  const halfPx = SNAP_HALF_TOL * pxPerUnit;
   console.log(`    the flat view at ${W}x${H}: ${pxPerUnit.toFixed(2)} px per unit`);
-  console.log(`    a ${SNAP_TOL}-unit magnet is ${tolerancePx.toFixed(1)} px of pull; the whole cell is ${pxPerUnit.toFixed(1)} px`);
-  check(SNAP_TOL < SNAP_CELL / 2,
-    `the magnet is a MAGNET and not a lock: it pulls from ${SNAP_TOL} of a ${SNAP_CELL}-unit cell, so the drag is free over ${(((SNAP_CELL - 2 * SNAP_TOL) / SNAP_CELL) * 100).toFixed(0)}% of it`);
+  console.log(`    pull: ${tolerancePx.toFixed(1)} px around a drawn line, ${halfPx.toFixed(1)} px around a half position; the whole cell is ${pxPerUnit.toFixed(1)} px`);
+  check(SNAP_TOL < SNAP_CELL / 2 && SNAP_HALF_TOL < SNAP_CELL / 4,
+    `each tier is a magnet and not a lock: the whole grid pulls from ${SNAP_TOL} of a cell and the half grid from ${SNAP_HALF_TOL}, so neither covers the gap between its own lines`);
   check(tolerancePx >= 5 && tolerancePx <= 20,
     `and that is ${tolerancePx.toFixed(1)} px at 1080p - enough to feel, small enough not to fight the pointer`);
-  // The rule itself, restated as arithmetic on the two things that decide it. The panel's own two
-  // lines are the same expression; this pins the BEHAVIOUR they must have.
+  // The rule itself, restated as arithmetic on the things that decide it. The panel's own lines are the
+  // same expression; this pins the BEHAVIOUR they must have.
   const snap = (v) => {
-    const near = Math.round(v / SNAP_CELL) * SNAP_CELL;
-    return Math.abs(v - near) <= SNAP_TOL ? near : v;
+    const whole = Math.round(v / SNAP_CELL) * SNAP_CELL;
+    if (Math.abs(v - whole) <= SNAP_TOL) return whole;
+    const half = Math.round(v / (SNAP_CELL / 2)) * (SNAP_CELL / 2);
+    if (Math.abs(v - half) <= SNAP_HALF_TOL) return half;
+    return v;
   };
   check(snap(0.9) === 1 && snap(1.2) === 1 && snap(-1.2) === -1, 'a point within the magnet is pulled exactly onto the line');
   check(snap(0.5) === 0.5 && snap(0.74) === 0.74, 'a point outside it is left EXACTLY where it was, with no rounding');
   check(snap(0) === 0 && snap(2.0) === 2.0, 'and a point already on a line is unchanged');
+  // THE HALF TIER, which the caller asked for because half positions are popular in this dance.
+  check(snap(0.6) === 0.5 && snap(-1.4) === -1.5, 'a point near a HALF position is pulled onto it');
+  check(snap(0.25) === 0 && snap(0.75) === 1, 'and the DRAWN line wins where both are in range: a quarter of a unit from each lands on the whole');
   let pulled = 0;
+  let pulledWhole = 0;
+  let pulledHalf = 0;
   for (let i = 0; i < 1000; i++) {
     const v = (i / 1000) * 4 - 2;
-    if (snap(v) !== v) pulled++;
+    if (snap(v) === v) continue;
+    pulled++;
+    if (Number.isInteger(snap(v))) pulledWhole++;
+    else pulledHalf++;
   }
-  check(pulled / 1000 > 0.4 && pulled / 1000 < 0.6,
-    `across two cells, ${((pulled / 1000) * 100).toFixed(0)}% of positions are pulled - half the cell is within a quarter of a line on either side`);
+  console.log(`    over two cells at 1000 positions: ${pulledWhole} pulled to a DRAWN line, ${pulledHalf} to a half position, ${1000 - pulled} left free`);
+  check(pulled / 1000 > 0.6 && pulled / 1000 < 0.85,
+    `the magnet pulls ${((pulled / 1000) * 100).toFixed(0)}% of positions and leaves ${(100 - (pulled / 1000) * 100).toFixed(0)}% free - sticky, but still a magnet rather than a lock`);
+  check(pulledWhole > pulledHalf, 'and the drawn grid is the stronger tier, so it wins where they compete');
+  // Where the half positions come from: the corpus's own coordinates.
+  check(onHalf / nonZero.length > onGrid / nonZero.length,
+    `the half grid is worth having because the assets use it MORE than the whole one (${((onHalf / nonZero.length) * 100).toFixed(1)}% against ${((onGrid / nonZero.length) * 100).toFixed(1)}%)`);
+}
+
+// ---------------------------------------------------------------- the visible grid, and the frame
+console.log('\n== The grid the caller can SEE, and which frame the snap is in ==');
+{
+  const THREE = await import('three');
+
+  // FIRST THE PREMISE: the drawn floor grid really is 1-unit lines at WHOLE coordinates. If it were not,
+  // "snap to the visible grid" would mean something else entirely - so this reads the geometry three's
+  // GridHelper actually builds rather than trusting the constructor arguments.
+  const g = new THREE.GridHelper(20, 20);
+  const pos = g.geometry.attributes.position;
+  const xs = new Set();
+  const zs = new Set();
+  for (let i = 0; i < pos.count; i++) {
+    xs.add(Math.round(pos.getX(i) * 1e6) / 1e6);
+    zs.add(Math.round(pos.getZ(i) * 1e6) / 1e6);
+  }
+  const lines = [...new Set([...xs, ...zs])].sort((a, b) => a - b);
+  const spacing = [];
+  for (let i = 1; i < lines.length; i++) spacing.push(Math.round((lines[i] - lines[i - 1]) * 1e6) / 1e6);
+  console.log(`    the floor grid: ${lines.length} distinct line coordinates from ${lines[0]} to ${lines[lines.length - 1]}, spacing ${[...new Set(spacing)].join(',')}`);
+  check(lines.every((v) => Number.isInteger(v)) && lines[0] === -10 && lines[lines.length - 1] === 10,
+    'the drawn grid is whole coordinates from -10 to 10');
+  check(new Set(spacing).size === 1 && spacing[0] === SNAP_CELL,
+    `so a ${SNAP_CELL}-unit cell IS the drawn cell, and a whole coordinate IS a drawn line`);
+
+  const STEPS = 24;
+  // SEVERAL POINTERS, because how far the local snap misses depends on where in the cell the pointer is
+  // as well as on the pose - one pointer near a line on both axes measured a worst miss of 0.196 units,
+  // which is a real miss but not the whole story of how wrong it can look.
+  const POINTERS = [
+    { x: 2.1, y: 3.15 },
+    { x: -1.05, y: 0.9 },
+    { x: 4.2, y: -2.1 },
+    { x: 0.15, y: 0.2 },
+  ];
+  const toLocal = (pose, p) => {
+    const dx = p.x - pose.x;
+    const dy = p.y - pose.y;
+    return { x: Math.cos(pose.heading) * dx + Math.sin(pose.heading) * dy, y: -Math.sin(pose.heading) * dx + Math.cos(pose.heading) * dy };
+  };
+  const toBoard = (pose, l) => ({
+    x: pose.x + Math.cos(pose.heading) * l.x - Math.sin(pose.heading) * l.y,
+    y: pose.y + Math.sin(pose.heading) * l.x + Math.cos(pose.heading) * l.y,
+  });
+  const magnet = (v) => {
+    const near = Math.round(v / SNAP_CELL) * SNAP_CELL;
+    return Math.abs(v - near) <= SNAP_TOL ? near : v;
+  };
+  /** How far a point is from the nearest drawn line: 0 means it is ON the board's grid. */
+  const offLine = (p) => Math.min(Math.abs(p.x - Math.round(p.x)), Math.abs(p.y - Math.round(p.y)));
+  const sweep = (pose) => {
+    let worstBoard = 0;
+    let worstLocal = 0;
+    let localOnLine = 0;
+    let same = 0;
+    let total = 0;
+    for (let s = 0; s < STEPS; s++) {
+      for (const quarter of [0, 1, 2, 3]) {
+        const heading = (s / STEPS) * 2 * Math.PI + (quarter * Math.PI) / 2;
+        const at = { ...pose, heading };
+        for (const pointer of POINTERS) {
+          const boardSnapped = { x: magnet(pointer.x), y: magnet(pointer.y) };
+          const l = toLocal(at, pointer);
+          const localSnapped = toBoard(at, { x: magnet(l.x), y: magnet(l.y) });
+          worstBoard = Math.max(worstBoard, offLine(boardSnapped));
+          worstLocal = Math.max(worstLocal, offLine(localSnapped));
+          if (offLine(localSnapped) < 1e-9) localOnLine++;
+          if (Math.hypot(boardSnapped.x - localSnapped.x, boardSnapped.y - localSnapped.y) < 1e-9) same++;
+          total++;
+        }
+      }
+    }
+    return { pose, worstBoard, worstLocal, localOnLine, same, total };
+  };
+
+  // TWO POSES, and the second is the one that makes the case: the local frame's grid ORIGIN is the
+  // dancer, so it is offset from the board's grid by the dancer's own position as well as turned by
+  // their heading. A dancer on a WHOLE coordinate square to the floor has the two grids in step; a
+  // dancer on a half coordinate has them half a cell apart however they face.
+  const homeSquare = sweep({ x: 1, y: -3 }); // a real squared-set position, measured above
+  const halfCell = sweep({ x: 1.5, y: -0.5 });
+  for (const r of [homeSquare, halfCell]) {
+    console.log(`    dancer at (${r.pose.x}, ${r.pose.y}), ${r.total} headings:`);
+    console.log(`      BOARD snap: worst distance from a drawn line ${r.worstBoard.toFixed(4)}`);
+    console.log(`      LOCAL snap: worst ${r.worstLocal.toFixed(4)}, exactly on a line in ${r.localOnLine} of ${r.total}, identical to the board snap in ${r.same}`);
+  }
+  check(homeSquare.worstBoard === 0 && halfCell.worstBoard === 0,
+    'snapping the BOARD point lands exactly ON a drawn line at every heading and from either stance - the snap cannot look wrong because of where the dancer is or how they face');
+  check(halfCell.same === 0,
+    `and from a half coordinate the two grids never agree at any heading (${halfCell.same} of ${halfCell.total}), because the local grid ORIGIN is the dancer: being square to the floor is not enough, the dancer has to stand on a whole coordinate too`);
+  check(halfCell.localOnLine > 0 && halfCell.localOnLine < halfCell.total / 4,
+    `the local snap does land on a line in ${halfCell.localOnLine} of ${halfCell.total} cases anyway - coincidences where the half-cell offset in position happens to cancel the local rounding, and in NONE of them does it agree with the board snap`);
+  check(homeSquare.same > 0 && homeSquare.same === homeSquare.localOnLine,
+    `they coincide only on a whole coordinate square to the floor (${homeSquare.same} of ${homeSquare.total} headings, every multiple of 90deg) - the usual stance at the start of a move, and the only one where the local snap was not misleading`);
+  check(homeSquare.worstLocal > 0.1,
+    `off that stance the LOCAL snap misses by up to ${homeSquare.worstLocal.toFixed(3)} units - a fifth of a cell, about ${(homeSquare.worstLocal * 40.91).toFixed(0)} px on screen, so the control point sits visibly beside the line it claims to be on`);
+  // The cost, measured rather than waved at: the tile's numbers are the local coordinates of a grid
+  // point, so they are not round when the dancer is turned away from the board's axes.
+  {
+    const at = { x: 1, y: -3, heading: 0.6 };
+    const pointer = POINTERS[0];
+    const boardLocal = toLocal(at, { x: magnet(pointer.x), y: magnet(pointer.y) });
+    const localLocal = { x: magnet(toLocal(at, pointer).x), y: magnet(toLocal(at, pointer).y) };
+    console.log(`      the tile numbers for a dancer facing 34deg: BOARD snap leaves (${boardLocal.x.toFixed(4)}, ${boardLocal.y.toFixed(4)}), LOCAL snap leaves (${localLocal.x.toFixed(4)}, ${localLocal.y.toFixed(4)})`);
+    check(Math.abs(boardLocal.x - Math.round(boardLocal.x)) > 0.05,
+      'the trade is real: a turned dancer means the tile shows the local coordinates of a grid point, which are not round - said out loud rather than hidden');
+  }
 }
 
 console.log('\n=================');

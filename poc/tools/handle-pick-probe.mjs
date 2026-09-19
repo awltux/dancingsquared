@@ -16,6 +16,10 @@
 import * as THREE from 'three';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+// Resolved from THIS FILE, so the probe runs from anywhere and not only from poc/.
+const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const HANDLE_Y = 0.12;
 const HANDLE_RADIUS = 0.1;
@@ -118,10 +122,10 @@ for (const [label, pos] of cameras) {
 
 // ---------------------------------------------------------------- 3. handle separation, whole corpus
 console.log('== How close are a move\'s two handles? (whole corpus) ==');
-const engine = await import('../../engine/dist/index.js');
+const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
-const asset = (p) => fs.readFileSync(path.join(process.cwd(), 'src/assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(POC_DIR, 'src/assets', p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 const moves = engine.parseMoves(movesXml);
@@ -137,7 +141,7 @@ for (const [name, items] of moves) {
 const levels = ['b1', 'b2', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 let calls = 0;
 for (const lv of levels) {
-  const dir = path.join(process.cwd(), 'src/assets', lv);
+  const dir = path.join(POC_DIR, 'src/assets', lv);
   if (!fs.existsSync(dir)) continue;
   for (const f of fs.readdirSync(dir)) {
     if (!f.endsWith('.xml')) continue;

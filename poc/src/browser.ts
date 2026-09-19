@@ -69,11 +69,12 @@ export class CallBrowser {
   private dancers: DancerSpec[] = [];
   /** Whether the dancer views should be shown at all (the app's mode). */
   private dancersVisible = true;
-  /** HOW the dancers are drawn: small flat icons from above, or the 3D wireframes - which can be
-   *  hidden outright, because an editor measuring a track wants the track and not a body standing on
-   *  it. Both are the editor's options and are scoped to it (see `EditorController.setActive`). */
+  /** HOW the dancers are drawn: small flat icons from above, or the 3D wireframes - and whether they
+   *  are drawn AT ALL, in either representation, because an editor measuring a track wants the track
+   *  and not a body standing on it. Both are the editor's options and are scoped to it (see
+   *  `EditorController.applyViewOptions`). */
   private use2d = false;
-  private showAvatars = true;
+  private showDancers = true;
   /** Flat markers, one per dancer, shown in the 2D view. Parallel to `views`. */
   private markers: THREE.Group[] = [];
   /** Which dancer's track is being edited, which stretch of it, and WHICH OF THE MOVE'S TWO SHAPES
@@ -499,12 +500,13 @@ export class CallBrowser {
 
   /**
    * How the dancers are drawn: `use2d` swaps the 3D wireframes for small flat icons seen from
-   * above, and `showAvatars: false` hides the wireframes without changing the view - an editor
-   * measuring a track wants the track, not a body standing on it.
+   * above, and `showDancers: false` draws NO dancers at all - in EITHER representation, which is the
+   * point of it: "hide the dancers" is a statement about the dancers, not about the wireframes, and
+   * a flat icon is just as much a body standing on the move you are trying to look at.
    */
-  setDisplayMode(opts: { use2d?: boolean; showAvatars?: boolean }) {
+  setDisplayMode(opts: { use2d?: boolean; showDancers?: boolean }) {
     if (opts.use2d !== undefined) this.use2d = opts.use2d;
-    if (opts.showAvatars !== undefined) this.showAvatars = opts.showAvatars;
+    if (opts.showDancers !== undefined) this.showDancers = opts.showDancers;
     this.applyDisplay();
   }
 
@@ -528,9 +530,12 @@ export class CallBrowser {
     for (let i = 0; i < this.views.length; i++) {
       const v = this.views[i];
       const focused = this.trailFocus?.index === i;
-      v.group.visible = on && !flat && this.showAvatars;
+      v.group.visible = on && !flat && this.showDancers;
       const marker = this.markers[i];
-      if (marker) marker.visible = on && flat;
+      // THE SAME SWITCH IN BOTH REPRESENTATIONS. A flat icon is a dancer, so "hide the dancers" hides
+      // it too - otherwise the option would mean "hide the 3D ones", which is not what it says and
+      // not what it is for: the point is to get bodies off the track being measured.
+      if (marker) marker.visible = on && flat && this.showDancers;
       // The focused dancer's WHOLE track is low brightness; every other track is hidden outright.
       v.trail.visible = on && (this.trailFocus == null || focused);
       const range = focused ? this.trailFocus?.range ?? null : null;
@@ -548,7 +553,7 @@ export class CallBrowser {
       v.setFacingTicks(ticks);
       v.facingTicks.visible = v.facingTicks.visible && on;
     }
-    this.connectors.group.visible = on && !flat && this.showAvatars;
+    this.connectors.group.visible = on && !flat && this.showDancers;
   }
 
   /** Show/hide the dancer views + connectors (used by mode switching). */

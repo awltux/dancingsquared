@@ -266,7 +266,7 @@ the track you are measuring:
 
 | option | what it does |
 |---|---|
-| **Hide dancers** | stops drawing the 3D figures — the dancers are still there, only their bodies are not, so the trail, the handles and the floor grid read cleanly |
+| **Hide dancers** | draws **no dancers at all, in either view** — the 3D figures and the 2D icons alike. The dancers are still there, only their bodies are not, so the trail, the handles and the floor grid read cleanly. A flat icon is just as much a body standing on the move you are looking at, so the option is about the dancers rather than about one representation of them |
 | **2D icons** | looks straight down and draws small flat markers instead of the figures (the same markers the sequencer's 2D view uses). The trails and handles read **best** from above, so they stay in both views |
 
 They are **scoped to the editor**: applied while it is the panel on screen and released when it is

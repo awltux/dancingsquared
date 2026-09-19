@@ -81,8 +81,8 @@ export interface EditorHost {
   /** The library's name for a board, or null. Used to NAME a generated setup after the formation it
    *  starts from, which is what every other setup's label is - see `instanceName`. */
   nameBoard(board: Board): string | null;
-  /** How the dancers are drawn: flat icons from above, and/or the 3D figures hidden. */
-  setDisplayMode(opts: { use2d?: boolean; showAvatars?: boolean }): void;
+  /** How the dancers are drawn: flat icons from above, and/or no dancers drawn at all. */
+  setDisplayMode(opts: { use2d?: boolean; showDancers?: boolean }): void;
 }
 
 // Warning threshold for a "large" closure correction.
@@ -1172,10 +1172,10 @@ export class EditorController implements EditorUI {
    */
   private applyViewOptions() {
     if (!this.active) {
-      this.host.setDisplayMode({ use2d: false, showAvatars: true });
+      this.host.setDisplayMode({ use2d: false, showDancers: true });
       return;
     }
-    this.host.setDisplayMode({ use2d: this.view2dChk.checked, showAvatars: !this.hideDancersChk.checked });
+    this.host.setDisplayMode({ use2d: this.view2dChk.checked, showDancers: !this.hideDancersChk.checked });
   }
 
   // ---- actions ----

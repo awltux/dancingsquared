@@ -231,8 +231,21 @@ console.log('\n== the ancestor its own first move leaves behind, and how symmetr
 // then no window between the two would change a single answer, and the differences are the data's.
 console.log('\n== is the compare too strict? the noise floor against the refusals ==');
 {
-  const WINDOW = 0.01;
+  // THE PANEL'S GATE AS IT NOW IS: the travel curves compared AS CURVES at one pixel (0.025 units), the
+  // facing through the engine at half a degree. (This block originally modelled the 0.01-unit
+  // control-point window; `clone-refusal-probe.mjs` is what changed it, on a 0.58px refusal.)
+  const WINDOW = 0.025;
   const FACING_WINDOW_DEG = 0.5;
+  const travelGap = (a, b) => {
+    let gap = 0;
+    for (let i = 0; i <= 16; i++) {
+      const t = i / 16;
+      const qa = engine.bezierPoint(a.translate, t);
+      const qb = engine.bezierPoint(b.translate, t);
+      gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
+    }
+    return gap;
+  };
   let accepted = 0;
   let acceptedWorst = 0;
   let refusedTravel = 0;
@@ -255,8 +268,7 @@ console.log('\n== is the compare too strict? the noise floor against the refusal
         const a = clone.dancers[i].path[0];
         const b = clone.dancers[j].path[0];
         if (!a || !b) continue;
-        let num = 0;
-        for (const k of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2']) num = Math.max(num, Math.abs(a.translate[k] - b.translate[k]));
+        const num = travelGap(a, b);
         const travelOk = num < WINDOW;
         const facingOk = engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
         if (travelOk && facingOk) {
@@ -320,8 +332,7 @@ console.log('\n== is the compare too strict? the noise floor against the refusal
         const a = clone.dancers[i].path[0];
         const b = clone.dancers[j].path[0];
         if (!a || !b) continue;
-        let num = 0;
-        for (const k of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2']) num = Math.max(num, Math.abs(a.translate[k] - b.translate[k]));
+        const num = travelGap(a, b);
         const travelOk = num < WINDOW;
         const facingOk = engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
         if (travelOk && !facingOk) { opensTravel++; any = true; }
@@ -332,6 +343,187 @@ console.log('\n== is the compare too strict? the noise floor against the refusal
   }
   console.log(`   with a gate per curve, the walk-in would open for: ${opensTravel} pairs on the Move tab (travel agrees, facing does not), ${opensFacing} on the Facing tab (facing agrees, travel does not)`);
   check(targetsEither > 0, `and that is ${targetsEither} of ${names.length} clone targets, where the panel currently locks both tabs`);
+}
+
+// ---------------------------------------------------------------- the pads themselves, number by number
+//
+// Reported: "the curves that are being refused are straight lines added during the Start Setup Connect -
+// these should not cause a compare problem". So: are the two refused curves straight lines, WHICH of the
+// six numbers differs, and is the difference in the LINE (the endpoint, which is the drawn shape) or in
+// the parameterisation (how the control points sit along it, which is the speed)?
+console.log('\n== the refused pads, number by number ==');
+{
+  const WINDOW = 0.025;
+  const FACING_WINDOW_DEG = 0.5;
+  const travelGap = (a, b) => {
+    let gap = 0;
+    for (let i = 0; i <= 16; i++) {
+      const t = i / 16;
+      const qa = engine.bezierPoint(a.translate, t);
+      const qb = engine.bezierPoint(b.translate, t);
+      gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
+    }
+    return gap;
+  };
+  const sameTravel = (a, b) => travelGap(a, b) < WINDOW;
+  const sameFacingCurve = (a, b) => engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
+  const sameCoords = (a, b) => sameTravel(a, b) && sameFacingCurve(a, b);
+  const straight = (t) => {
+    // Collinear control polygon = a straight line: the cross products of consecutive spans vanish.
+    const p = [[0, 0], [t.cx1, t.cy1], [t.cx2, t.cy2], [t.x2, t.y2]];
+    let worst = 0;
+    for (let i = 0; i + 2 < p.length; i++) {
+      const ax = p[i + 1][0] - p[i][0];
+      const ay = p[i + 1][1] - p[i][1];
+      const bx = p[i + 2][0] - p[i + 1][0];
+      const by = p[i + 2][1] - p[i + 1][1];
+      worst = Math.max(worst, Math.abs(ax * by - ay * bx) / Math.max(1e-12, Math.hypot(ax, ay) * Math.hypot(bx, by)));
+    }
+    return worst < 1e-12;
+  };
+  const rows = [];
+  for (const name of names) {
+    const board = seq.boardForFormation(name);
+    if (!board) continue;
+    let clone;
+    try {
+      clone = engine.connectStart(engine.setStartFormation(src, board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender }))), src);
+    } catch {
+      continue;
+    }
+    for (let i = 0; i < 8; i++) {
+      for (let j = i + 1; j < 8; j++) {
+        const a = clone.dancers[i].path[0];
+        const b = clone.dancers[j].path[0];
+        if (!a || !b || sameCoords(a, b)) continue;
+        const fields = {};
+        for (const k of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2']) fields[k] = Math.abs(a.translate[k] - b.translate[k]);
+        const turn = (idx) => {
+          const s = engine.poseFor(clone.dancers[idx], 0);
+          return norm(anchors[idx].heading - s.heading) * DEG;
+        };
+        rows.push({ name, i: i + 1, j: j + 1, a, b, fields, worst: Math.max(...Object.values(fields)), sa: straight(a.translate), sb: straight(b.translate), ta: turn(i), tb: turn(j) });
+      }
+    }
+  }
+  rows.sort((x, y) => x.worst - y.worst);
+  const shape = (r) => `${r.sa && r.sb ? 'both straight' : r.sa || r.sb ? 'ONE straight' : 'both curved'}`;
+  console.log(`   the 6 smallest refused pad pairs, by the largest single-number difference:`);
+  for (const r of rows.slice(0, 6)) {
+    const differing = Object.entries(r.fields).filter(([, v]) => v > 0).map(([k, v]) => `${k}=${v.toFixed(4)}`);
+    console.log(`     "${r.name}" d${r.i}-d${r.j}: ${shape(r)}, worst translate number ${r.worst.toFixed(4)}; differing: ${differing.join(', ') || 'none'}`);
+    console.log(`       d${r.i} translate (${r.a.translate.cx1.toFixed(4)}, ${r.a.translate.cy1.toFixed(4)}, ${r.a.translate.cx2.toFixed(4)}, ${r.a.translate.cy2.toFixed(4)}, ${r.a.translate.x2.toFixed(4)}, ${r.a.translate.y2.toFixed(4)}) turns ${r.ta.toFixed(2)}deg`);
+    console.log(`       d${r.j} translate (${r.b.translate.cx1.toFixed(4)}, ${r.b.translate.cy1.toFixed(4)}, ${r.b.translate.cx2.toFixed(4)}, ${r.b.translate.cy2.toFixed(4)}, ${r.b.translate.x2.toFixed(4)}, ${r.b.translate.y2.toFixed(4)}) turns ${r.tb.toFixed(2)}deg`);
+  }
+  // How many refused pairs are two straight lines whose ENDPOINTS agree - the same drawn segment, a
+  // different speed along it?
+  const sameLine = rows.filter((r) => r.sa && r.sb && Math.abs(r.a.translate.x2 - r.b.translate.x2) < WINDOW && Math.abs(r.a.translate.y2 - r.b.translate.y2) < WINDOW);
+  console.log(`   refused pairs that are two STRAIGHT lines with the SAME local endpoint: ${sameLine.length} of ${rows.length}`);
+  // THE FAMILY THE REPORT IS ABOUT: the same line, refused because the two dancers END UP FACING
+  // DIFFERENTLY. The line is identical to the last bit; what differs is the rotate curve the same pad
+  // writes, whose job is to carry the heading to the anchor's. Is that difference ever spurious - the
+  // same total turn, refused anyway?
+  const sameTurn = (r) => Math.abs(norm((r.ta - r.tb) / DEG)) < 0.5 / DEG;
+  const identicalLine = rows.filter((r) => r.worst === 0);
+  const sameTurnRefused = identicalLine.filter(sameTurn);
+  const turnGaps = identicalLine.map((r) => Math.abs(r.ta - r.tb)).sort((x, y) => x - y);
+  console.log(`   refused pairs whose SIX translation numbers are IDENTICAL: ${identicalLine.length}`);
+  if (turnGaps.length) {
+    console.log(`     their turns differ by: smallest ${turnGaps[0].toFixed(2)}deg, largest ${turnGaps[turnGaps.length - 1].toFixed(2)}deg`);
+  }
+  check(identicalLine.length > 0, `the report's family exists: ${identicalLine.length} refused pairs walk the IDENTICAL line and are refused on the rotate curve alone`);
+  check(sameTurnRefused.length === 0,
+    `and every one of them is a REAL difference of turn (${turnGaps[0]?.toFixed(2)}deg at the smallest, 0 refused while turning alike), so the line is not what refused them - the anchor's own heading is`);
+  check(rows.length > 0, 'there are refused pad pairs to look at');
+}
+
+// ---------------------------------------------------------------- the symmetry of the two sets
+//
+// "Opposites agree, but it doesn't agree with the 90deg rot" - so this measures the symmetry the answer
+// depends on: the ancestor's own first boundary (what the walk-in must reach) and each formation the
+// picker offers (where the walk-in starts). A pair agrees exactly when the two SETS allow the same local
+// motion, which for a pair related by a rotation means both sets must be closed under it.
+console.log('\n== the symmetry of the boundary, and of every formation offered ==');
+{
+  const symmetry = (poses, deg, tol) => {
+    // The rotation about the centroid: does it map the pose SET to itself?
+    const cx = poses.reduce((n, p) => n + p.x, 0) / poses.length;
+    const cy = poses.reduce((n, p) => n + p.y, 0) / poses.length;
+    const a = (deg * Math.PI) / 180;
+    const worst = { pos: 0, head: 0 };
+    for (const p of poses) {
+      const dx = p.x - cx;
+      const dy = p.y - cy;
+      const rx = cx + dx * Math.cos(a) - dy * Math.sin(a);
+      const ry = cy + dx * Math.sin(a) + dy * Math.cos(a);
+      const rh = p.heading + a;
+      let best = Infinity;
+      let bestH = Infinity;
+      for (const q of poses) {
+        const d = Math.hypot(q.x - rx, q.y - ry);
+        if (d < best) { best = d; bestH = Math.abs(norm(q.heading - rh)); }
+      }
+      worst.pos = Math.max(worst.pos, best);
+      worst.head = Math.max(worst.head, bestH * DEG);
+    }
+    return { ok: worst.pos < tol && worst.head < tol * DEG, ...worst };
+  };
+  const boundary = anchors.map((p) => ({ x: p.x, y: p.y, heading: p.heading }));
+  const b180 = symmetry(boundary, 180, 1e-9);
+  const b90 = symmetry(boundary, 90, 1e-9);
+  console.log(`   the ancestor's own first boundary: 180deg symmetry error ${b180.pos.toExponential(2)} units / ${b180.head.toExponential(2)}deg, 90deg ${b90.pos.toFixed(4)} units / ${b90.head.toFixed(4)}deg`);
+  let n180 = 0;
+  let n90 = 0;
+  const fourFold = [];
+  for (const name of names) {
+    const poses = posesOf(name);
+    const s180 = symmetry(poses, 180, 1e-6);
+    const s90 = symmetry(poses, 90, 1e-6);
+    if (s180.ok) n180++;
+    if (s90.ok) { n90++; fourFold.push(name); }
+  }
+  console.log(`   of the ${names.length} formations offered: ${n180} are 180deg-symmetric, ${n90} are 90deg-symmetric`);
+  if (fourFold.length) console.log(`     the 90deg-symmetric ones: ${fourFold.slice(0, 8).join(', ')}${fourFold.length > 8 ? ' ...' : ''}`);
+  check(n180 > n90, `the opposite pairs agree because the 180deg symmetry is COMMON (${n180} of ${names.length} formations have it) while the 90deg symmetry is rare (${n90})`);
+  check(!b90.ok, `and the ancestor's own boundary is not exactly 90deg-symmetric either: ${b90.pos.toFixed(4)} units out - the corpus's own first move gives its two \`Eighth Left\` paths \`offsetX=".59"\` and \`offsetX=".5"\``);
+
+  // THE DECISIVE ONE: onto a formation that IS 90deg-symmetric, do the 90deg pairs agree? If they do,
+  // the remaining disagreement is the boundary's own 0.09 units; if they do not, it is the assignment.
+  console.log(`\n   the 90deg pairs onto the 90deg-symmetric formations:`);  for (const name of fourFold.slice(0, 6)) {
+    const clone = engine.connectStart(engine.setStartFormation(src, posesOf(name)), src);
+    const starts = clone.dancers.map((d) => engine.poseFor(d, 0));
+    let agree = 0;
+    let differ = 0;
+    let worst = 0;
+    const which = [];
+    for (let i = 0; i < 8; i++) {
+      for (let j = i + 1; j < 8; j++) {
+        const da = Math.round(Math.abs(norm(starts[i].heading - starts[j].heading)) * DEG);
+        if (da !== 90) continue;
+        const a = clone.dancers[i].path[0];
+        const b = clone.dancers[j].path[0];
+        let num = 0;
+        for (const k of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2']) num = Math.max(num, Math.abs(a.translate[k] - b.translate[k]));
+        const ok = num < 0.01 && engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, 0.5);
+        if (ok) agree++;
+        else { differ++; worst = Math.max(worst, num); which.push(`${i + 1}-${j + 1} (${num.toFixed(4)})`); }
+      }
+    }
+    console.log(`     "${name}": ${agree} of ${agree + differ} 90deg pairs agree${differ ? `, the rest differ by up to ${worst.toFixed(4)} units: ${which.slice(0, 4).join(', ')}` : ''}`);
+  }
+
+  // AND THE SOURCE'S OWN END, because a call whose first move is not 4-fold symmetric has to pay for it
+  // somewhere: `ms/circle.xml` runs `Forward scaleX=".59"` for four dancers and `Eighth Left offsetX=.59`
+  // and `offsetX=.5` for the other four, and only the LAST of those differs from its partner.
+  console.log(`\n   the source's own END poses, "Circle Left" from "${src.from}":`);
+  const ends = src.dancers.map((d) => engine.poseFor(d, src.beats));
+  for (let i = 0; i < 8; i++) {
+    const e = ends[i];
+    console.log(`     d${i + 1}: (${e.x.toFixed(4)}, ${e.y.toFixed(4)}) @ ${(e.heading * DEG).toFixed(2)}deg   r=${Math.hypot(e.x, e.y).toFixed(4)}`);
+  }
+  const e180 = symmetry(ends.map((p) => ({ x: p.x, y: p.y, heading: p.heading })), 180, 1e-9);
+  const e90 = symmetry(ends.map((p) => ({ x: p.x, y: p.y, heading: p.heading })), 90, 1e-9);
+  console.log(`     its END is 180deg-symmetric to ${e180.pos.toExponential(2)} units, 90deg-symmetric to ${e90.pos.toFixed(4)} units`);
 }
 
 console.log('\n=================');

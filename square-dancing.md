@@ -1934,12 +1934,28 @@ dancers a 0.59 step and the other four a 0.5 step plus a 45.15deg turn, and the 
 symmetric only to about a tenth of a unit. So a caller selecting a head and a side is looking at two
 walk-ins whose PATHS are identical and whose TURNS are 45deg apart.
 
-AND IT IS NOT PRECISION, which the same probe measures rather than argues. Of the 570 walk-in pairs the
-gate accepts, the largest difference any of them has is **3.06e-3 units**; the smallest travel difference
-it refuses is **0.0636 units (2.6px)** and the smallest refused facing difference is **3.15deg**. The
-window sits in a 21x gap, so no window between the two values would change a single answer, and nothing at
-all is refused below 0.05 units. Widening the shape window to a tenth of a unit would open 174 pairs and
-merge moves up to 4px apart - a judgement about pixels, which is where 0.01 units (0.4px) already sits.
+AND IT IS NOT PRECISION IN THE SENSE OF FLOATING POINT, but the report's own follow-up turned out to be
+right about the WINDOW, and that needed a witness to settle. Measured over `ms/circle.xml` against every
+formation: of the 570 walk-in pairs the gate accepts, the largest difference any of them has is 3.06e-3
+units, and the smallest travel difference it refuses is 0.0561 units = 2.3px - so nothing there was being
+refused on the last decimals. THEN THE WITNESS ARRIVED: "All 4 Couples Promenade Full" | Clone | Start From
+the formation made from the END of "Right and Left Grand" (its "Grand Circle 3") | Connect | select dancers 1
+and 3 | and the panel says so itself - "coordinates locked: dancer 1 and dancer 3 do not move alike here -
+their curves are 0.0141 units apart". Reproduced exactly (`clone-refusal-probe.mjs`, which takes the target
+formation from the end of a named call, because that is how the caller made it): the two straight connectors
+differ by **0.0142 units, which is 0.58 px**, and the window was 0.01 units (0.4 px). The window was the
+fault, by a hair.
+
+SO THE WINDOW IS NOW ONE PIXEL, AND THE FIGURE IS MEASURED RATHER THAN ARGUED. `clone-refusal-probe.mjs
+--sweep` walks every call in a sample against every formation the picker offers - 12248 refused walk-in pairs
+- and bands the gap between the two curves at the flat view's 40.91 px per unit: **232 refusals rest on a
+difference under half a pixel, and the next smallest is 2 px**, with NOTHING at all between 0.5 and 2 px. The
+window may sit anywhere in that empty band and the same refusals are made; at one pixel (0.025 units) it
+opens the 232 and the witness and refuses nothing else in the corpus. It is also measured **along the curves**
+now instead of on the control points: a Bezier is a convex combination of its control points, so equal control
+points mean equal curves - but the converse fails, and a control point can differ by more than the curves do,
+which is how the same straight segment written as an ease-in and as a constant-speed line was refused while
+both trace the same line. The facing window stays at half a degree, where the refusals start at 3.15deg.
 
 WHAT WAS ACTUALLY WRONG IS THAT THE GATE ASKED ABOUT THE WRONG CURVE. A Move-tab field writes
 `translate.<attr>` and a Facing-tab field writes `rotate.<attr>`, so the question is whether THAT curve

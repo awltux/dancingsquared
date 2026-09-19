@@ -2519,14 +2519,25 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
      **opposites match because the ancestor's own first boundary is point-symmetric** (504 accepted
      walk-in pairs are 180deg apart against 76 at any other angle - and only 4-fold symmetry, which the
      boundary does not have to within a tenth of a unit, would make a 90deg pair agree); and **it is not
-     precision** (the worst difference the gate ACCEPTS is 3.06e-3 units, the smallest it refuses is
-     0.0636 units = 2.6px of travel or 3.15deg of facing, a 21x gap, so no window between them changes an
-     answer; nothing at all is refused below 0.05 units). The real defect the report exposed is
-     different: the gate asked whether BOTH curves agree while a Move-tab edit writes only `translate`
-     and a Facing-tab edit only `rotate`, so it locked a tab whose own numbers were unanimous - **76
-     refused walk-in pairs have identical travel curves (0.0000 units apart) refused on the facing
-     alone, 242 face identically and are refused on the travel alone, and 64 of the 134 targets have
-     such a pair**. The gate is now per curve, and the lock note gives the difference in that curve's own
+     precision** (the worst difference the gate ACCEPTS is 3.06e-3 units, the smallest it refuses 0.0561
+     units = 2.3px, so the refusals are not floating-point noise); and the WINDOW ITSELF WAS TOO TIGHT, which
+     the report was right about after all. The reported witness - `All 4 Couples Promenade Full` cloned onto
+     the formation made from the end of `Right and Left Grand`, then dancers 1 and 3 - was refused on a
+     difference of **0.0142 units = 0.58 px**, because the window was 0.01 units (0.4 px). The shape window
+     is now **0.025 units, one pixel**, measured ALONG THE CURVES rather than on the control points (a
+     control point can differ by more than the curves do, which is how the same segment written as an
+     ease-in and as a constant-speed line was refused), and the one-pixel figure is measured:
+     `clone-refusal-probe.mjs --sweep` bands 12248 refused walk-in pairs over a call sample x every offered
+     formation and finds **232 under half a pixel and the next smallest at 2 px, with nothing in between**,
+     so the window sits in that empty band and opens the 232 plus the witness while refusing nothing else.
+
+     THE OTHER HALF OF THE REPORT WAS A DIFFERENT DEFECT: the gate asked whether BOTH curves agreed while a
+     Move-tab edit writes only `translate` and a Facing-tab edit only `rotate`, so it locked a tab whose own
+     numbers were unanimous. Of the walk-in pairs it refuses, **76 are refused on the FACING alone while
+     their travel curves agree to within the window - 24 of them with all six numbers identical, the very
+     same straight line - and 242 face identically and are refused on the travel alone**, with 64 of the 134
+     targets having such a pair. The gate, the field locks, the handles, the drag path and the arc checkbox
+     are now keyed on the curve in hand, and the lock note gives the difference in that curve's own
      units (board units for the path, degrees for the facing - the old note measured the two curves
      where they lie ON THE FLOOR, so two dancers doing the same move two units apart reported a 2-unit
      disagreement about nothing).

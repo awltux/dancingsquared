@@ -784,14 +784,22 @@ dancers a 0.59 step and the other four a 0.5 step plus a 45.15° turn, and the b
 Connect is looking at two walk-ins whose *paths* are identical and whose *turns* are 45° apart, and
 the per-curve gate above is what lets the Move tab edit that shared path.
 
-**Is the window the fault?** No, and the same probe measures it rather than arguing it. Of the 570
-walk-in pairs the gate accepts, the largest difference any of them has is **3.06e-3 units**; the
-smallest travel difference it refuses is **0.0636 units (2.6px)** and the smallest refused facing
-difference is **3.15°**. The window (0.01 units, half a degree) sits in a 21× gap, so no window
-between the two would change a single answer — the refusals are not floating-point noise. Bands:
-nothing at all is refused under 0.05 units, 174 pairs sit in 0.05–0.1, 102 in 0.1–0.5 and 2830 over
-0.5. Widening the shape window to a tenth of a unit would open those 174 pairs and merge moves up to
-4px apart; that is a judgement about pixels, not a bug, and 0.01 units (0.4px) is where it sits.
+**Is the window the fault?** For the case that was reported, YES — by a hair — and that is what changed it.
+The reported witness: `All 4 Couples Promenade Full` cloned onto the formation made from the end of
+`Right and Left Grand`, connected, then dancers 1 and 3 selected. Their two straight connectors differ by
+**0.0142 units — 0.58 px** — and the gate refused them, because the window was 0.01 units (0.4 px). It is
+now **0.025 units, one pixel**, and it is measured **along the curves** rather than on the control points:
+a Bézier is a convex combination of its control points, so equal control points mean equal curves, but a
+control point can differ by more than the window while the curves stay inside it — which is how the same
+segment written as an ease-in and as a constant-speed line was refused although both trace the same line.
+
+**The one-pixel figure is measured, not chosen.** `node poc/tools/clone-refusal-probe.mjs --sweep` walks
+every call in a sample against every formation the picker offers (12248 refused walk-in pairs) and bands
+the gap between the two curves at the flat view's 40.91 px per unit: **232 refusals rest on a difference
+under half a pixel, and the next smallest is 2 px** — with nothing at all in between. So the window may sit
+anywhere in that empty band and the same refusals are made; at one pixel it opens the 232 and the reported
+witness and refuses nothing else in the corpus. The facing window stays at half a degree, where the
+refusals also start well clear of it (**3.15°** at the nearest).
 
 **Fix closure** — correct an existing call setup that doesn't close cleanly (e.g. a
 full Circle Left leaves the girls ~44° off, so the sequencer sees an unrecognized

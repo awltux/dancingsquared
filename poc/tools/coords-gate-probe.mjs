@@ -44,15 +44,24 @@ const check = (cond, msg) => {
 /** The panel's own comparison, to the letter - now PER CURVE, because that is what the edit writes: a
  *  Move-tab field writes the travel numbers and a Facing-tab field writes the rotation's, so the gate
  *  asks about one curve. `both` is kept for the questions about a single set of numbers describing the
- *  whole move; the panel's refusal is `sameTravel` or `sameFacing` on the curve in hand. */
-const WINDOW = 0.01;
+ *  whole move; the panel's refusal is `sameTravel` or `sameFacing` on the curve in hand.
+ *
+ *  THE SHAPE WINDOW IS ON THE CURVES AT ONE PIXEL (0.025 board units here), not on the control points:
+ *  see the long note in `editor-ui.ts`, and `clone-refusal-probe.mjs`, which measured that the refusals a
+ *  caller hits come in two sizes - under half a pixel, and 2 px and up - with nothing in between. */
+const WINDOW = 0.025;
 const FACING_WINDOW_DEG = 0.5;
-const sameTravel = (a, b) => {
-  const eq = (x, y) => Math.abs(x - y) < WINDOW;
-  const t = a.translate;
-  const u = b.translate;
-  return eq(t.cx1, u.cx1) && eq(t.cy1, u.cy1) && eq(t.cx2, u.cx2) && eq(t.cy2, u.cy2) && eq(t.x2, u.x2) && eq(t.y2, u.y2);
+const travelGap = (a, b) => {
+  let gap = 0;
+  for (let i = 0; i <= 16; i++) {
+    const t = i / 16;
+    const qa = engine.bezierPoint(a.translate, t);
+    const qb = engine.bezierPoint(b.translate, t);
+    gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
+  }
+  return gap;
 };
+const sameTravel = (a, b) => travelGap(a, b) < WINDOW;
 const sameFacingCurve = (a, b) =>
   // BY MEANING, not by numbers: the facing curve is scale-invariant (see sameFacing in the engine).
   engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
@@ -184,10 +193,11 @@ console.log('\n== The window in the data, and on the screen ==');
   check(noiseHi > 0 && noiseHi < WINDOW,
     `the windows sit above the arithmetic noise: the largest difference the gate treats as the SAME shape is ${noiseHi.toExponential(2)} units, an order of magnitude below the ${WINDOW}-unit window`);
   // The question that decides it: is a difference the gate CALLS real one the caller can see? The shape
-  // window is 0.01 units = 0.4 px, and the control-point comparison is a guarantee about the curve (a
-  // Bezier is a convex combination of its control points), so nothing it refuses is under half a pixel.
-  check(WINDOW * 40.91 < 1,
-    `the gate reacts only to differences above ${(WINDOW * 40.91).toFixed(1)} px - below what an eye resolves, so a refusal is always about something real`);
+  // window is 0.025 units = one pixel at this scale, measured along the curves themselves, and this
+  // probe's own sweep below shows the next refusal up is 2 px - so a refusal is always about a difference
+  // of at least a pixel, and everything under a pixel is accepted.
+  check(WINDOW * 40.91 <= 1.1,
+    `the gate refuses only diffs of a pixel or more: the shape window is ${(WINDOW * 40.91).toFixed(2)} px measured along the curves, and this probe measures the smallest refusal it makes below`);
 }
 
 // ---------------------------------------------------------------- what the connect actually wrote

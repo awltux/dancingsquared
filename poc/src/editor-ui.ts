@@ -120,39 +120,62 @@ const handsShort = (h: Hands): string => HANDS_SHORT[h] ?? h;
 /**
  * The two windows the group gate turns on, both tied to what a caller can SEE.
  *
- * THE SHAPE WINDOW IS A GUARANTEE RATHER THAN A SAMPLE: a Bezier is a convex combination of its control
- * points, so two curves whose control points are within T of each other are within T EVERYWHERE. 0.01
- * board units is 0.4 px in the flat view at 1080p - below what an eye resolves - so a group edit that
- * merges two moves this close cannot be seen to have changed anything.
+ * THE SHAPE WINDOW IS HALF A PIXEL'S WORTH OF MOVEMENT, and the two numbers that decide it are in a gap
+ * in the data rather than in an argument. MEASURED (`poc/tools/clone-refusal-probe.mjs --sweep`, the walk-in
+ * the connect writes for every call x every formation the picker offers, 12248 refused pairs, at the flat
+ * view's 40.91 px per unit): the refusals come in exactly two sizes - **232 rest on a difference under half
+ * a pixel, and the next smallest is 2 px** - with NOTHING at all between 0.5 and 2 px. So the window may be
+ * anywhere in that empty band and the same refusals are made; it sat at 0.01 units (0.4 px), which refused
+ * the 232, and those are differences nobody can see.
+ *
+ * THE ONE THAT PROMPTED THIS: "All 4 Couples Promenade Full" cloned onto the formation made from the end of
+ * `Right and Left Grand`, connected, then dancers 1 and 3 selected - refused, on a difference of 0.0142
+ * units, which is **0.58 px**. The curves were a hair apart and the panel said the two dancers do not move
+ * alike. The window is now 0.025 units, one pixel, which opens that witness and all 232 and refuses nothing
+ * else in the corpus.
+ *
+ * AND THE WINDOW IS ON THE CURVES, not on the control points. A Bezier is a convex combination of its
+ * control points, so equal control points mean equal curves - but a control point can differ by more than
+ * the window while the curves stay well inside it, which is how the same move written as an ease-in and as
+ * a constant-speed line was refused although both trace the same segment. What a caller compares is the
+ * drawn shape, so that is what is measured, at seventeen points along it.
  *
  * The window used to be 1e-6 ON THE RAW NUMBERS, and its fault was not its width but its KIND: it asked
- * whether five numbers match rather than whether the move does. MEASURED
- * (`poc/tools/coords-gate-probe.mjs`): it refused group edits resting on a difference of 0.0 units and
- * 0.0 degrees, which is what a caller reported as "they look the same". They did.
+ * whether five numbers match rather than whether the move does. MEASURED (`poc/tools/coords-gate-probe.mjs`):
+ * it refused group edits resting on a difference of 0.0 units and 0.0 degrees, which is what a caller
+ * reported as "they look the same". They did.
  *
  * THE FACING IS COMPARED THROUGH THE ENGINE, which also knows the one exact case: a facing curve
  * multiplied by a positive constant is the SAME facing at every instant, because `bezierAngle` is `atan2`
- * of the derivative. Half a degree is well below the spacing of the facing ticks themselves.
+ * of the derivative. Half a degree is well below the spacing of the facing ticks themselves, and MEASURED
+ * the facing refusals start at 3.15deg - three degrees above the window rather than a hair above it.
  */
-const SHAPE_WINDOW = 0.01;
+const SHAPE_WINDOW = 0.025;
 const FACING_WINDOW_DEG = 0.5;
 
 /** Which of a move's TWO curves an edit is about. They are different spaces - the travel Bezier is where
  *  the dancer goes, the rotation Bezier is how they turn - and so is every edit that writes one. */
 type CurveKind = 'travel' | 'facing';
 
+/** How far apart two dancers' TRAVEL curves are, in board units, measured along the curves themselves. */
+function travelGap(a: Seg, b: Seg): number {
+  let gap = 0;
+  for (let i = 0; i <= 16; i++) {
+    const t = i / 16;
+    const qa = bezierPoint(a.translate, t);
+    const qb = bezierPoint(b.translate, t);
+    gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
+  }
+  return gap;
+}
+
 /**
- * Whether two dancers' TRAVEL curves are the same local shape.
- *
- * This is "the same shape, rotated to each dancer's position" made checkable. Beats and hands are
- * deliberately NOT compared - the gate is about shapes, and unifying a timing or a hold across a
- * selection is a legitimate group edit.
+ * Whether two dancers' TRAVEL curves are the same local shape: "the same shape, rotated to each dancer's
+ * position" made checkable. Beats and hands are deliberately NOT compared - the gate is about shapes, and
+ * unifying a timing or a hold across a selection is a legitimate group edit.
  */
 function sameTravel(a: Seg, b: Seg): boolean {
-  const eq = (x: number, y: number) => Math.abs(x - y) < SHAPE_WINDOW;
-  const t = a.translate;
-  const u = b.translate;
-  return eq(t.cx1, u.cx1) && eq(t.cy1, u.cy1) && eq(t.cx2, u.cx2) && eq(t.cy2, u.cy2) && eq(t.x2, u.x2) && eq(t.y2, u.y2);
+  return travelGap(a, b) < SHAPE_WINDOW;
 }
 
 /**
@@ -177,9 +200,11 @@ function sameFacingCurve(a: Seg, b: Seg): boolean {
  * the two curves agree, which is a strictly stronger condition on a write that touches one of them.
  *
  * MEASURED (`poc/tools/connect-assign-probe.mjs`, after a `connect` onto each of the 134 start
- * formations): of the walk-in pairs the gate refuses, 76 have IDENTICAL travel curves (0.0000 units
- * apart) refused on the facing alone - the trails on the board are the same shape and the Move tab was
- * locked anyway, which is exactly "they look the same" - and 242 are refused on the travel alone while
+ * formations): of the walk-in pairs the gate refuses, 76 are refused on the FACING alone while their
+ * travel curves agree to within the window - 24 of them with all six numbers identical, i.e. the same
+ * straight line to the last bit, refused because the two dancers end the walk facing 45.15deg apart (the
+ * ancestor's own first move turns half its dancers and not the other half) - so the tab that edits the
+ * line they share was locked over a curve it does not write. 242 are refused on the travel alone while
  * facing identically, locking the Facing tab on a pair a facing edit cannot collapse. 64 of the 134
  * targets have at least one such pair.
  */
@@ -1178,21 +1203,16 @@ export class EditorController implements EditorUI {
       const other = call.dancers[d];
       const b = other?.path[k];
       if (!other || !b || sameCurve(a, b, curve)) continue;
+      if (curve === 'travel') return { dancer: d, gap: travelGap(a, b) };
+      // The two dancers' own heading profiles: `bezierAngle` is the heading in the local frame, so the
+      // difference is how much more one of them turns than the other, at the worst instant.
       let gap = 0;
       for (let i = 0; i <= 8; i++) {
         const t = i / 8;
-        if (curve === 'travel') {
-          const qa = bezierPoint(a.translate, t);
-          const qb = bezierPoint(b.translate, t);
-          gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
-        } else {
-          // The two dancers' own heading profiles: `bezierAngle` is the heading in the local frame, so
-          // the difference is how much more one of them turns than the other, at the worst instant.
-          const ha = bezierAngle(a.rotate ?? a.translate, t);
-          const hb = bezierAngle(b.rotate ?? b.translate, t);
-          const dd = Math.atan2(Math.sin(ha - hb), Math.cos(ha - hb));
-          gap = Math.max(gap, Math.abs((dd * 180) / Math.PI));
-        }
+        const ha = bezierAngle(a.rotate ?? a.translate, t);
+        const hb = bezierAngle(b.rotate ?? b.translate, t);
+        const dd = Math.atan2(Math.sin(ha - hb), Math.cos(ha - hb));
+        gap = Math.max(gap, Math.abs((dd * 180) / Math.PI));
       }
       return { dancer: d, gap };
     }
@@ -1657,6 +1677,11 @@ export class EditorController implements EditorUI {
       // paths are frequently identical while the turns are not, and "2.00 units apart" - the dancers'
       // standing separation, which is what measuring the floor used to report - reads as a disagreement
       // about the move when the paths in fact agree exactly.
+      //
+      // THERE IS NO "but it is only the last decimals" CASE ANY MORE, and the branch that said so is gone
+      // with it: the windows ARE the visibility thresholds (a half-pixel of movement, half a degree of
+      // turn), so a refusal is always about a difference a caller could see. The branch was reachable only
+      // while the gate compared raw numbers, where a difference of 1e-16 refused two identical curves.
       const diff = this.coordsDisagreement(curve);
       const note = document.createElement('div');
       note.className = 'small';
@@ -1664,7 +1689,7 @@ export class EditorController implements EditorUI {
       const size = curve === 'travel' ? `${show(diff?.gap ?? 0)} units apart` : `${show(diff?.gap ?? 0)}deg apart`;
       const tab = curve === 'travel' ? 'Move' : 'Facing';
       note.textContent = diff
-        ? `coordinates locked: dancer ${this.moveDancer + 1} and dancer ${diff.dancer + 1} do not ${what} here - their ${curve === 'travel' ? 'curves are' : 'facings are'} ${size}${diff.gap < (curve === 'travel' ? SHAPE_WINDOW : FACING_WINDOW_DEG) ? ', which is under what the eye resolves: the numbers differ in the last decimals, and one set of them still cannot describe both' : ''}. The ${tab} tab edits ${curve === 'travel' ? 'the path' : 'the facing'} alone, so select one dancer to edit it.`
+        ? `coordinates locked: dancer ${this.moveDancer + 1} and dancer ${diff.dancer + 1} do not ${what} here - their ${curve === 'travel' ? 'curves are' : 'facings are'} ${size}. The ${tab} tab edits ${curve === 'travel' ? 'the path' : 'the facing'} alone, so select one dancer to edit it.`
         : `coordinates locked: the ${this.selectedSorted().length} selected dancers do not share this move's ${curve === 'travel' ? 'path' : 'facing'}, and one set of numbers cannot describe several - select one dancer to edit it`;
       grid.appendChild(note);
     }

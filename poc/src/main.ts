@@ -244,7 +244,7 @@ function tick(now: number) {
   }
 
   if (!fsmActive) {
-    stage.controls.update();
+    stage.updateControls();
     stage.renderer.render(stage.scene, stage.camera);
   }
   requestAnimationFrame(tick);

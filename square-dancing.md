@@ -1673,6 +1673,73 @@ dancer (331.5°), and that the export discards it. If someone later adds cy3 to 
 that check fails and tells them the rail is no longer the format's constraint but a self-imposed one.
 `verify:light` green at 12 harnesses in 36.7 s, typecheck clean.
 
+**THE FLAT VIEW WAS NEVER FRAMED, AND HAD NO PAN OR ZOOM.** Two reported symptoms, two distinct faults,
+and the first explains the second half of the report — *"it used to jump to square when dragged or
+scaled"*. The orthographic camera is CONSTRUCTED with a square frustum (±11 on both axes), and `resize()`
+— the one place that recomputes `left`/`right` from the canvas ASPECT — was only ever called from the
+window's `resize` listener. The app never called it at startup, so on a 16:9 window the floor grid was
+drawn stretched until the first window resize snapped it square. MEASURED, and the stretch is not
+approximately the aspect but EXACTLY it: **72.7273 px per world unit across against 40.9091 up, ratio
+1.777778** on 1600×900.
+
+The fix is one implementation called from three places: `createStage` frames both cameras as it builds,
+`setView2D` re-frames on every switch, and a `ResizeObserver` on the canvas catches a device-pixel-ratio
+change or a fullscreen toggle. `resize()` deliberately does not touch `camera.zoom`, so a resize cannot
+throw away the caller's view — which is what makes framing on every switch safe rather than annoying.
+
+**PAN AND ZOOM DID NOTHING IN 2D BECAUSE THE FLAT VIEW HAD NO CONTROLS AT ALL.** OrbitControls binds to
+ONE camera object for its whole life, so `setView2D` had been switching the single control set OFF — and
+simply enabling it in 2D would not have worked either, because that set drives the 3D camera: the pan and
+dolly would have gone to the camera that was not on screen. There is now a second control set for
+`camera2d`, with `enableRotate = false` (a top-down view that can be tilted is not a 2D view) and the LEFT
+button re-mapped from ROTATE to PAN, which is not cosmetic: with rotation disabled the default mapping
+leaves the first gesture anyone tries doing nothing at all. `Stage.controls` is no longer EXPORTED,
+replaced by `setControlsEnabled`/`updateControls` that act on whichever view is on screen — the mistake
+that produced this bug was a caller reaching for "the" controls, so the interface no longer offers one to
+reach for.
+
+**THE ZOOM AND PAN ARE BOUNDED, AND BOTH BOUNDS ARE ARGUMENTS RATHER THAN TASTE.** An orthographic frustum
+of zero width has no inverse, so an unbounded dolly ends in a blank screen: 0.2× to 20×, which still frames
+the whole floor at the wide end. The pan bound is the floor's half-width plus the visible half-span on that
+axis, so the board's edge can always be brought to the screen's edge and the board can never be pushed off
+with no gesture that brings it back. THE FIRST VERSION USED ONE SYMMETRIC LIMIT AND THE PROBE MEASURED IT
+TOO TIGHT: `node poc/tools/view2d-probe.mjs` found the floor's edge stopping **0.571** of a screen-half
+short of the side edge on a 21:9 canvas, because a limit derived from the VERTICAL half-span is
+conservative horizontally by exactly the aspect ratio. Per axis, the edge now lands on the viewport edge to
+**1.7e-14** across 80 clamped positions at five zooms and four canvas shapes, with a strip of floor always
+visible.
+
+**AND THE CONTROLS ARE MEASURED, NOT MERELY CONFIGURED**, because every claim above is about what three.js
+does with these settings: the probe drives three's OWN OrbitControls through a fake canvas. A left drag of
+100×50 px pans the view centre by 2.444×1.222 units — the orthographic pan scale, to 1e-6 — the camera
+stays directly overhead (y = 40 to twelve decimal places, which is OrbitControls' own polar clamp rather
+than a coincidence), the offset from the target is preserved so a pan is a pan and not a tilt, a wheel
+changes the ZOOM ONLY with the camera left in place, and the clamps land exactly on 0.2 and 20 with an
+invertible projection matrix.
+
+**THE HANDLES DID NOT FOLLOW THE MOVE SELECTION, AND THAT IS THE THIRD BUG OF THIS SHAPE.** Selecting
+another move in the strip re-rendered the strip and re-focused the trail highlight, but `renderHandles`
+was called only from `renderInstance` — so the tile and the highlight described the new move while the
+gizmo sat on the PREVIOUS move's control points. The trail-focus bug and the `registerUserFormations` bug
+before it were the same fault: one thing that says "this is what is being edited" was updated and another
+was not.
+
+The fix is structural rather than local. `syncTrailFocus` is now `syncStageSelection` and draws the
+handles itself, so the trail focus and the gizmo are ONE step: they are the same instruction to the stage,
+and either alone is a board that disagrees with the panel. `renderInstance` calls it, `selectMove` calls
+it, and `renderMoveStrip`'s own index clamp is covered because both of its call sites sync after it.
+
+**AND THE FAULT CLASS IS NOW CHECKED IN THE SOURCE, WITH A NEGATIVE CONTROL.**
+`node poc/tools/stage-sync-probe.mjs` parses `editor-ui.ts`, finds every method that writes the move
+index, the travel/facing kind or the dancer set (or calls the strip renderer), and requires each to reach
+the stage sync — either directly, or through `renderInstance`/`commit`. Two rules and one exemption: a
+`render*` method may touch the selection because every caller of a renderer must itself sync, which the
+second rule enforces. It reports the eight methods that qualify and passes. THEN IT IS SHOWN TO FAIL: the
+same analysis runs over a copy of the source with `selectMove`'s sync call removed — the code as it was —
+and it flags exactly `selectMove`. A structural check that cannot fail on the bug it was written for is
+decoration, and this one is labelled as what it is: a check on the SOURCE, not a measurement of behaviour,
+because the wiring fault is invisible to every engine harness and this sandbox cannot drive the browser.
+
 
 
 

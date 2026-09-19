@@ -12,11 +12,21 @@ export interface Stage {
   /** Fixed top-down orthographic camera used in the 2D (flat) view. */
   camera2d: THREE.OrthographicCamera;
   renderer: THREE.WebGLRenderer;
-  controls: OrbitControls;
+  /** `controls` is deliberately NOT exported any more: there is one orbit control per camera, and a
+   *  caller reaching for "the" controls while the 2D view was up is exactly how the 2D camera ended up
+   *  with no pan and no zoom. Use `setControlsEnabled` and `updateControls`, which act on whichever
+   *  view is on screen. */
   /** Switch the active camera between the 3D orbit camera and the fixed top-down
-   * 2D camera (disables orbit rotation in 2D). */
+   * 2D camera (which pans and zooms, but does not rotate). */
   setView2D(on: boolean): void;
   resize(): void;
+  /** Turn pointer input to the ACTIVE camera's controls on or off. The Bezier drag uses this so the
+   *  board cannot rotate or pan underneath a point being dragged - and it goes through here rather
+   *  than through `controls` because there are TWO control sets now, and reaching for the 3D one while
+   *  the 2D view is up is how the 2D camera came to be left out of the pan and zoom. */
+  setControlsEnabled(on: boolean): void;
+  /** Advance both control sets (damping). Call once per frame. */
+  updateControls(): void;
   /** Show the Bezier control-point handles for one move, or clear them with null.
    *  A handle is the classic vector-editor gadget: a line from an anchor out to the control point,
    *  with a grabbable dot at the end. */
@@ -148,6 +158,11 @@ function buildFloorAxes(): THREE.Group {
 }
 
 export function createStage(canvas: HTMLCanvasElement): Stage {
+  // The flat view's frame, in the two numbers the whole thing is built from: the floor is 20 units
+  // across, so its half-width is 10, and the orthographic camera shows 11 units above and below the
+  // centre at zoom 1. `resize` and `panLimit2D` both derive from these rather than repeating them.
+  const FLOOR_HALF = 10;
+  const ORTHO_HALF_HEIGHT = 11;
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0b0f14);
 
@@ -169,10 +184,56 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   controls.update();
 
   // Fixed top-down orthographic camera for the flat 2D view (north up = -z).
-  const camera2d = new THREE.OrthographicCamera(-11, 11, 11, -11, 0.1, 200);
+  const camera2d = new THREE.OrthographicCamera(-ORTHO_HALF_HEIGHT, ORTHO_HALF_HEIGHT, ORTHO_HALF_HEIGHT, -ORTHO_HALF_HEIGHT, 0.1, 200);
   camera2d.position.set(0, 40, 0);
   camera2d.up.set(0, 0, -1);
   camera2d.lookAt(0, 0, 0);
+
+  // A SECOND CONTROL SET, BECAUSE ORBITCONTROLS IS BOUND TO ONE CAMERA OBJECT for its whole life.
+  // The flat view used to switch `controls.enabled` off entirely, which is why dragging and zooming
+  // did nothing in 2D - and it is why they still would not work if this had simply stayed disabled:
+  // the one control set drives the 3D camera, so allowing it in 2D would pan and dolly the camera
+  // that is not on screen.
+  //
+  // ROTATION IS OFF because a top-down view that can be tilted is not a 2D view; pan and dolly are
+  // exactly what a flat plan needs and both work on an orthographic camera (the dolly changes
+  // `camera.zoom`, which `resize` never touches, so the zoom survives a resize).
+  //
+  // LEFT DRAGS PAN, and that is a deliberate departure from the 3D defaults: OrbitControls maps the
+  // left button to ROTATE, and with rotation disabled a left drag would do nothing at all - which is
+  // the gesture a caller reaches for first. The Bezier-handle drag still wins where it applies,
+  // because grabbing a handle switches these controls off for the duration of the gesture.
+  const controls2d = new OrbitControls(camera2d, canvas);
+  controls2d.target.set(0, 0, 0);
+  controls2d.enableRotate = false;
+  controls2d.enableDamping = true;
+  controls2d.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+  // ZOOM IS BOUNDED, and not for taste: an orthographic frustum of zero width has no inverse, so an
+  // unbounded dolly ends in a blank screen - and zooming out forever loses the board just as
+  // thoroughly. 0.2 shows 5x the floor, 20 is close enough to place a control point by eye.
+  controls2d.minZoom = 0.2;
+  controls2d.maxZoom = 20;
+  controls2d.enabled = false; // the 3D view is the one on screen at startup
+  controls2d.update();
+
+  // HOW FAR THE FLAT VIEW MAY BE PANNED, as a function of the zoom rather than a constant: the whole
+  // point of the limit is that the floor cannot be pushed off screen with no gesture that brings it
+  // back, and how far "off screen" is depends on how much world the viewport covers. The limit is
+  // PER AXIS - the floor's half-width plus the visible half-span on that axis - so it lands exactly
+  // where the floor's own edge reaches the edge of the screen in whichever direction you pan.
+  //
+  // THE FIRST VERSION USED ONE SYMMETRIC LIMIT AND WAS MEASURABLY TOO TIGHT: `tools/view2d-probe.mjs`
+  // caught the floor's edge stopping 0.571 of a screen-half short of the side edge on a 21:9 canvas,
+  // because a limit that only accounts for the vertical half-span is conservative horizontally by
+  // exactly the aspect ratio. It kept the board reachable, which was the point, but it also refused
+  // panning that the caller can see nothing wrong with.
+  const panLimit2D = () => {
+    const halfH = ORTHO_HALF_HEIGHT / camera2d.zoom;
+    // The aspect as FRAMED, read back off the camera rather than the canvas: `resize` is the one place
+    // that sets these, so they are the authority on what is on screen.
+    const aspect = (camera2d.right - camera2d.left) / (2 * ORTHO_HALF_HEIGHT);
+    return { x: FLOOR_HALF + halfH * aspect, z: FLOOR_HALF + halfH };
+  };
 
   scene.add(new THREE.AmbientLight(0xffffff, 0.9));
   const key = new THREE.DirectionalLight(0xffffff, 1.6);
@@ -208,21 +269,58 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   // the compass a dancer heading is measured against.
   scene.add(buildFloorAxes());
 
+  /**
+   * Size the renderer and BOTH cameras to the canvas as it is RIGHT NOW.
+   *
+   * THE 2D CAMERA IS THE REASON THIS IS NOT JUST A RENDERER CALL. Its left/right are the canvas
+   * ASPECT times its half-height, so a stale aspect draws the floor stretched - and the app never
+   * called this at startup, which left the flat view on the SQUARE frustum its constructor was given
+   * (±11 on both axes) however wide the canvas actually was. The grid was visibly not square until
+   * the first window resize recomputed it, which is exactly what a caller reported: "it used to jump
+   * to square when dragged or scaled". `createStage` now calls this once itself, `setView2D` calls it
+   * on every switch, and a ResizeObserver below calls it whenever the canvas box changes, so the
+   * frame is never a layout behind again.
+   *
+   * `camera2d.zoom` is deliberately untouched: the flat view's pan and zoom belong to the caller, and
+   * a resize is not a reason to throw them away.
+   */
   const resize = () => {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
+    if (w <= 0 || h <= 0) return; // a hidden canvas has no aspect; keep the last good one
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    if (camera2d) {
-      const half = 11;
-      const aspect = Math.max(0.1, w / h);
-      camera2d.left = -half * aspect;
-      camera2d.right = half * aspect;
-      camera2d.top = half;
-      camera2d.bottom = -half;
-      camera2d.updateProjectionMatrix();
-    }
+    const aspect = Math.max(0.1, w / h);
+    camera2d.left = -ORTHO_HALF_HEIGHT * aspect;
+    camera2d.right = ORTHO_HALF_HEIGHT * aspect;
+    camera2d.top = ORTHO_HALF_HEIGHT;
+    camera2d.bottom = -ORTHO_HALF_HEIGHT;
+    camera2d.updateProjectionMatrix();
+  };
+  resize();
+
+  // The window listener in `main.ts` only fires when the WINDOW changes size; the canvas box can
+  // change without that (a device-pixel-ratio change, fullscreen, browser zoom), and the two cameras
+  // would then be sizing themselves to a frame that no longer exists. The observer fires once on
+  // observe too, so this is also the second line of defence for the startup sizing above.
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(() => resize()).observe(canvas);
+  }
+
+  /** Keep the flat view's centre within reach of the floor - see `panLimit2D`. */
+  const clampPan2D = () => {
+    const limit = panLimit2D();
+    const tx = Math.max(-limit.x, Math.min(limit.x, controls2d.target.x));
+    const tz = Math.max(-limit.z, Math.min(limit.z, controls2d.target.z));
+    if (tx === controls2d.target.x && tz === controls2d.target.z) return;
+    // The camera carries the same offset as the target, so moving one by a delta moves the other by
+    // the same delta and the view direction is untouched: this is a clamp on where you are looking,
+    // not a tilt.
+    camera2d.position.x += tx - controls2d.target.x;
+    camera2d.position.z += tz - controls2d.target.z;
+    controls2d.target.x = tx;
+    controls2d.target.z = tz;
   };
 
   // ---------------------------------------------------------------- Bezier handles
@@ -347,11 +445,27 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     camera,
     camera2d,
     renderer,
-    controls,
     resize,
     setView2D: (on: boolean) => {
       out.camera = on ? camera2d : camera;
+      // THE FRUSTUM IS RE-APPLIED ON EVERY SWITCH, not only on a resize: entering the flat view after
+      // any layout change would otherwise draw one frame (or more) of floor at the wrong aspect.
+      resize();
       controls.enabled = !on;
+      controls2d.enabled = on;
+    },
+    setControlsEnabled: (on: boolean) => {
+      // Only the ACTIVE view's controls, or a handle drag in 2D would leave the 3D camera live.
+      controls.enabled = on && out.camera === camera;
+      controls2d.enabled = on && out.camera === camera2d;
+    },
+    updateControls: () => {
+      // BOTH are advanced, not just the one on screen: with damping an orbit keeps gliding for a
+      // moment after the input stops, and a camera frozen mid-glide looks like a jump on the switch
+      // back. The cost is a few trigonometric operations per frame.
+      controls.update();
+      controls2d.update();
+      clampPan2D();
     },
     setHandles,
     pickHandle,

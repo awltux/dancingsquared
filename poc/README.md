@@ -275,6 +275,62 @@ panel to explain why. The camera is **one object shared by every panel**, so the
 wins — `applyMode` therefore calls the browse view, then the editor, then the sequencer, and the
 sequencer only touches the camera while it is the active panel.
 
+### The flat (2D) view: square framing, and pan and zoom that work
+
+The flat view is a **second camera**, an orthographic one looking straight down, and it has its **own
+orbit controls** because OrbitControls binds to one camera object for its whole life. It used to switch
+the single control set off entirely, which is why dragging and zooming did nothing in 2D — and reusing
+the 3D controls would not have fixed it either, since those drive the camera that is not on screen.
+
+**In 2D: left-drag pans, the wheel zooms, and rotation is off.** Rotation is off because a top-down
+view that can be tilted is not a 2D view; left-drag is re-mapped to pan because OrbitControls maps the
+left button to *rotate*, which with rotation disabled would leave the first gesture anyone tries doing
+nothing. The Bezier-handle drag still wins where it applies — grabbing a handle switches the active
+controls off for the duration of the gesture, which is what `setControlsEnabled` exists for.
+
+**The zoom is bounded (0.2×–20×), and not for taste**: an orthographic frustum of zero width has no
+inverse, so an unbounded dolly ends in a blank screen. **The pan is bounded too**, at the floor's own
+half-width plus the visible half-span on that axis — so the board's edge can always be brought to the
+screen's edge, and the board can never be pushed off with no gesture that brings it back. The limit is
+**per axis**, which the probe forced: one symmetric limit kept the board reachable but stopped the
+floor's edge 0.571 of a screen-half short of the side edge on a 21:9 canvas, because a limit derived
+from the vertical half-span is conservative horizontally by exactly the aspect ratio.
+
+**The appearance of the flat view used to depend on whether you had resized the window.** The
+orthographic camera is constructed with a *square* frustum (±11 on both axes), and `resize()` — the one
+place that recomputes it from the canvas aspect — was only ever called from the window's `resize`
+listener, never at startup. So on a 16:9 window the floor grid was drawn **1.78× wider than it was
+tall** until the first window resize snapped it square, which is exactly what a caller reported. It is
+now resized once as the stage is built, again on every 3D↔2D switch, and by a **`ResizeObserver`** on
+the canvas, so a device-pixel-ratio change or a fullscreen toggle cannot leave the frame a layout
+behind either. `resize()` never touches `camera.zoom`, so panning and zooming survive it.
+
+Measured by `node tools/view2d-probe.mjs`, which drives three.js's real OrbitControls through a fake
+canvas: the construction-time frustum stretches the floor by exactly the canvas aspect (1.7778 on
+1600×900) and the framed one is square to **1.1e-16** at all six canvas shapes tested; a left drag of
+100×50 px moves the view centre by 2.444×1.222 units (the orthographic pan scale, to 1e-6) while the
+camera stays directly overhead; a wheel changes the **zoom only**, leaving the camera in place; the
+zoom clamps land exactly on 0.2 and 20; and at the pan clamp the floor's edge sits on the viewport edge
+to **1.7e-14** across 80 clamped positions, with a strip of floor always still visible.
+
+### The board follows the selection — and the class of bug is audited
+
+Selecting another move in the strip **moves the highlight, the tile and the Bézier handles together**.
+That is one step in the code (`syncStageSelection`: the trail focus and the handles), not three
+separate refreshes, because they are the same instruction — "this is the move being edited" — and any
+one of them alone is a board that disagrees with the panel. It was not: the handles were drawn only by
+the full panel re-render, so clicking through the strip left the gizmo on the **previous** move's
+control points while everything else said otherwise.
+
+`node tools/stage-sync-probe.mjs` audits the source for that class: every method that writes the move
+index, the travel/facing kind or the dancer set — or re-renders the strip, which clamps the index itself
+— must reach the stage sync, directly or through `renderInstance`/`commit`. `render*` methods are
+exempt because every caller of a renderer must itself sync, which the same audit enforces. It prints the
+eight methods that qualify, **and then runs the same analysis over a copy with the fix removed and
+requires it to fail** — a check that cannot fail on the bug it was written for is decoration. This is a
+check on the source rather than on behaviour, said plainly: the wiring is invisible to the engine
+harnesses and the Vite app cannot run in this sandbox.
+
 **Find** narrows the call lists, because the catalogue is several hundred calls. Terms
 are ANDed substrings matched against the LEVEL, the TITLE, the file name and every
 setup's `from` label, so `circle`, `ms wave` and `static square` all do what they look

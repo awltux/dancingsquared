@@ -759,7 +759,9 @@ export class EditorController implements EditorUI {
       // board is already `moveDancer`'s, and the drag writes the same LOCAL value to every selected
       // dancer, so the tile's numbers read the same either way. Touching the selection mid-gesture
       // would only be motion for nothing.
-      this.stage.controls.enabled = false;
+      // THE ACTIVE VIEW'S controls, whichever that is: in the flat view this has to silence the 2D
+      // orbit or the board pans while a control point is being dragged.
+      this.stage.setControlsEnabled(false);
       canvas.setPointerCapture(e.pointerId);
       e.preventDefault();
     });
@@ -772,7 +774,7 @@ export class EditorController implements EditorUI {
     const endDrag = (e: PointerEvent) => {
       if (!this.dragHandle) return;
       this.dragHandle = null;
-      this.stage.controls.enabled = true;
+      this.stage.setControlsEnabled(true);
       if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
       // A FULL re-render once, at the end. The tile's NUMBERS follow the drag live (see
       // `refreshNumberFields`), but the rest of the panel - the strip's beat and hand labels, the
@@ -885,9 +887,7 @@ export class EditorController implements EditorUI {
     this.renderMoveStrip();
     this.renderInstanceInfo();
     this.refreshCloneInfo();
-    this.syncTrailFocus();
-    // The handles follow the same selection the trail does, and they are cleared by the same guard.
-    this.renderHandles();
+    this.syncStageSelection();
     if (this.focusKey) {
       const el2 = this.instPanel.querySelector<HTMLElement>(`[data-key="${this.focusKey}"]`);
       el2?.focus();
@@ -895,30 +895,39 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * Point the stage at what is being edited.
+   * Point the stage at what is being edited: the trail focus AND the Bezier handles.
    *
-   * The two selections in the moves row ARE the trail instruction: "Moves of" hides every
-   * other dancer's track, and "Move" highlights the stretch that move owns. Both the range
-   * and the mapping from beats to floor positions come from the engine
-   * (`moveBeatRange` + `sampleTrailRange`), so what is highlighted is the move the panel
-   * says it is, not a plausible-looking slice. Every other mode, and every state where there
-   * is nothing to edit, restores the full tracks.
+   * THE TWO SELECTIONS IN THE MOVES ROW ARE THE WHOLE INSTRUCTION. "Moves of" hides every other
+   * dancer's track and "Move" highlights the stretch that move owns; the range and the mapping from
+   * beats to floor positions both come from the engine (`moveBeatRange` + `sampleTrailRange`), so what
+   * is highlighted is the move the panel says it is rather than a plausible-looking slice. Every other
+   * mode, and every state where there is nothing to edit, restores the full tracks.
+   *
+   * THE HANDLES ARE IN HERE RATHER THAN BESIDE IT, and that is the fix for a real bug rather than
+   * tidying: they were called from `renderInstance` only, so selecting a move in the strip - which
+   * re-renders the strip and re-focuses the trail - left the gizmo sitting on the PREVIOUS move's
+   * control points, on the board, while the tile and the highlight described the new one. Anything that
+   * resyncs the stage now gets the handles for free, because they are one thing with the focus: both
+   * say "this is the move being edited", and either alone is a board that disagrees with the panel.
    */
-  private syncTrailFocus() {
+  private syncStageSelection() {
     if (!this.active || !this.isInstanceMode() || !this.instance) {
       this.host.focusTrail(null, null);
+      this.renderHandles();
       return;
     }
     const dancer = this.instance.dancers[this.moveDancer];
     const seg = dancer?.path[this.moveIndex];
     if (!dancer || !seg) {
       this.host.focusTrail(this.moveDancer, null);
+      this.renderHandles();
       return;
     }
     // A facing selection with no facing curve to show falls back to the move, so the board can never
     // be drawing a shape the tile is not editing.
     const kind = this.moveKind === 'facing' && !seg.rotate ? 'move' : this.moveKind;
     this.host.focusTrail(this.moveDancer, moveBeatRange(dancer, this.moveIndex), kind);
+    this.renderHandles();
   }
 
   private renderInstanceInfo() {
@@ -1165,11 +1174,22 @@ export class EditorController implements EditorUI {
     return tile;
   }
 
+  /**
+   * Choose a move in the strip.
+   *
+   * `renderMoveStrip` rather than `renderInstance`, because the rest of the panel - the formation
+   * table, the scrub bar, the clone warning - does not depend on which move is selected, and rebuilding
+   * it on every click is work for nothing.
+   *
+   * `syncStageSelection` IS NOT OPTIONAL HERE, and it is what was missing: it re-focuses the trail
+   * highlight AND re-draws the handles, so the board shows the move that was just clicked. Without it
+   * the highlight moved and the handles stayed behind on the previous move's control points.
+   */
   private selectMove(k: number) {
     if (k === this.moveIndex) return;
     this.moveIndex = k;
     this.renderMoveStrip();
-    this.syncTrailFocus();
+    this.syncStageSelection();
   }
 
   /** The move being edited: TRIPLE width, with its beats, hands, travel and facing.

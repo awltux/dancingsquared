@@ -2664,6 +2664,68 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     the exporter, the check fails and tells them the rail is no longer the format's constraint.
     `verify:light` green (12 harnesses, 36.7 s); typecheck clean; `poc/verify.cjs` the same 3
     pre-existing Pass Thru failures.
+  - **THE FLAT VIEW WAS NEVER FRAMED, AND HAD NO PAN OR ZOOM.** Two reported symptoms, two distinct
+    faults, and the first one explains the second half of the report ("it used to jump to square when
+    dragged or scaled"): the orthographic camera is constructed with a SQUARE frustum (±11 on both
+    axes) and `resize()` — the one place that recomputes left/right from the canvas ASPECT — was only
+    ever called from the window's `resize` listener. The app never called it at startup, so on a 16:9
+    window the floor grid was drawn **1.78x wider than tall** until the first window resize snapped it
+    square. MEASURED, and the ratio is not approximately the aspect but EXACTLY it: 72.7273 px/unit
+    across against 40.9091 up, ratio 1.777778. `createStage` now resizes once as it builds, `setView2D`
+    resizes on every switch, and a `ResizeObserver` on the canvas catches a device-pixel-ratio change or
+    a fullscreen toggle — three calls, one implementation, and the frame can no longer be a layout
+    behind. `resize()` deliberately does not touch `camera.zoom`, so a resize cannot throw away the
+    caller's view.
+  - **PAN AND ZOOM DID NOTHING IN 2D BECAUSE THE FLAT VIEW HAD NO CONTROLS AT ALL.** OrbitControls
+    binds to ONE camera object for its whole life, so `setView2D` had been switching the single control
+    set off — and simply enabling it in 2D would not have worked either, because that control set drives
+    the 3D camera: the pan and dolly would have gone to the camera that was not on screen. There is now
+    a second control set for `camera2d` with `enableRotate = false` (a top-down view that can be tilted
+    is not a 2D view) and the LEFT button re-mapped from ROTATE to PAN, which is not cosmetic: with
+    rotation disabled the default mapping leaves the first gesture anyone tries doing NOTHING.
+    `Stage.controls` is no longer exported, replaced by `setControlsEnabled`/`updateControls` that act
+    on whichever view is on screen — the mistake that created this bug was a caller reaching for "the"
+    controls, so the interface no longer offers one to reach for.
+  - **THE ZOOM AND PAN ARE BOUNDED, AND BOTH BOUNDS ARE ARGUMENTS RATHER THAN TASTE.** An orthographic
+    frustum of zero width has no inverse, so an unbounded dolly ends in a blank screen: 0.2x to 20x, a
+    100x range that still frames the whole floor at the wide end. The pan bound is the floor's own
+    half-width plus the visible half-span on that axis, so the board's edge can always be brought to the
+    screen's edge and the board can never be pushed off with no gesture that brings it back. THE FIRST
+    VERSION USED ONE SYMMETRIC LIMIT AND THE PROBE MEASURED IT TOO TIGHT: `node poc/tools/view2d-probe.mjs`
+    found the floor's edge stopping 0.571 of a screen-half short of the side edge on a 21:9 canvas,
+    because a limit derived from the VERTICAL half-span is conservative horizontally by exactly the
+    aspect ratio. Per axis, the edge now lands on the viewport edge to **1.7e-14** across 80 clamped
+    positions at five zooms and four canvas shapes, with a strip of floor always visible.
+  - **THE CONTROLS ARE MEASURED, NOT MERELY CONFIGURED.** Every claim above is about what three.js does
+    with these settings, so the probe drives three's OWN OrbitControls through a fake canvas: a left
+    drag of 100x50 px pans the view centre by 2.444x1.222 units — the orthographic pan scale, to 1e-6 —
+    the camera stays directly overhead (y = 40 to 12 decimal places, which is OrbitControls' own polar
+    clamp, not a coincidence), the offset from the target is preserved so a pan is a pan and not a tilt,
+    a wheel changes the ZOOM ONLY with the camera left in place (which is why a resize cannot disturb
+    it), and the clamps land exactly on 0.2 and 20 with an invertible projection matrix. Typecheck
+    clean; `verify:light` green (12 harnesses, 36.9 s); `poc/verify.cjs` the same 3 pre-existing
+    Pass Thru failures.
+  - **THE HANDLES DID NOT FOLLOW THE MOVE SELECTION — THE THIRD BUG OF THAT SHAPE, SO THE CLASS IS NOW
+    CHECKED.** Selecting another move in the strip re-rendered the strip and re-focused the trail
+    highlight, but `renderHandles` was called only from `renderInstance`: the tile and the highlight
+    described the new move while the gizmo sat on the PREVIOUS move's control points. Same fault as the
+    trail-focus bug and the `registerUserFormations` bug before it — one thing that says "this is what is
+    being edited" was updated and another was not.
+  - **THE FIX IS STRUCTURAL RATHER THAN LOCAL.** `syncTrailFocus` is now `syncStageSelection` and draws
+    the handles itself, so the trail focus and the gizmo are ONE step: they are the same instruction to
+    the stage, and either alone is a board that disagrees with the panel. `renderInstance` calls it,
+    `selectMove` calls it, and `renderMoveStrip`'s own index clamp is covered because both of its call
+    sites sync after it.
+  - **AND THE CLASS IS AUDITED IN THE SOURCE, WITH A NEGATIVE CONTROL.** `node
+    poc/tools/stage-sync-probe.mjs` parses `editor-ui.ts`, finds every method that writes the move index,
+    the travel/facing kind or the dancer set (or calls the strip renderer), and requires each to reach
+    the stage sync — directly or through `renderInstance`/`commit`. Two rules and one exemption: a
+    `render*` method may touch the selection because every caller of a renderer must itself sync, which
+    the second rule enforces — and it names the eight qualifying methods. THEN IT IS SHOWN TO FAIL: the
+    same analysis over a copy with `selectMove`'s sync call removed (the code as it was) flags exactly
+    `selectMove`. A structural check that cannot fail on the bug it was written for is decoration. It is
+    labelled for what it is — a check on the SOURCE and not on behaviour, because this wiring fault is
+    invisible to every engine harness and the Vite app cannot run in this sandbox.
 
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:

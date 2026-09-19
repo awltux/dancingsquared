@@ -2562,6 +2562,48 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     and then created again under the same name cannot eat its own work.
   - The new instrument is `node engine/test/tools/editor-instance-probe.mjs`; `verify:light` is green
     (12 harnesses, 36.3 s).
+  - **THE "ALL" BUTTON IS GONE, AND THE COORDINATE FIELDS LOCK WHEN A SELECTION'S SHAPES DIFFER.** The
+    "all" button was near-useless for the reason the user gave — very few calls have every dancer doing
+    exactly the same move — so it is now ONE TOGGLE PER DANCER (numbered chips in the moves row, the
+    same state as the `sel` column of the table). That deleted a concept as well: there is no separate
+    "focused dancer" any more, `moveDancer` is a GETTER over the selection returning the
+    lowest-numbered member, because picking a dancer to look at and picking dancers to change are the
+    same act and two pieces of state for it only gave the panel a way to show values edits did not
+    touch. Unticking the last member is refused; the set can never be empty.
+  - **MULTIPLE SELECTED DANCERS ARE EDITED FROM THE FIRST ONE'S DATA, AND ONLY WHEN THE NUMBERS
+    GENUINELY AGREE.** The gate is on the LOCAL values, which is what "after correct orientation"
+    means for this data: a move's Bezier is authored in dancer-local coordinates, so the same local
+    control point on two dancers IS the same shape in each frame and no rotation arithmetic is
+    involved. Writing a number into a field writes it to every selected dancer, so on a selection whose
+    curves differ the write would COLLAPSE genuinely different shapes into one in a keystroke — the
+    exact difference the table exists to show. Where they agree the write keeps them agreeing, and a
+    single selection is always editable. When locked the fields are greyed, not hidden (the first
+    dancer's value stays readable), the tile names the reason and the fix, and the board handles are
+    not drawn at all, because a drag is a coordinate edit the same gate would refuse. The gate is
+    enforced in `commitMoveChange` as well as in the fields, because THE DRAG PATH REACHES THAT
+    FUNCTION WITHOUT PASSING THE FIELDS — a fields-only check would have left that hole open. Beats and
+    hands are deliberately NOT gated: they are not coordinates, and unifying a timing or a hold is a
+    legitimate group edit rather than a collapse of geometry.
+  - **ONE PAIR OF HANDLES, NOT ONE PAIR PER DANCER, AND A THIRD OF THE SIZE.** The handles are the
+    first selected dancer's, which is what makes the picture and the tile describe the same dancer. A
+    pair per selected dancer is the literal picture of the group edit and was the earlier behaviour; it
+    was unreadable with a dozen dancers selected, and the pairs are copies of each other anyway.
+    The dot went 0.3 -> 0.1 board units. MEASURED, and this is what makes "very big" an objective
+    complaint rather than a preference: a DANCER MARKER is 0.12, so the handle was **2.5x the thing it
+    is a handle for**. The GRAB TARGET deliberately did not shrink with it — it is now a floor-plane
+    radius checked independently of the mesh, on a plane at the handles' own height rather than the
+    floor, so the pick cannot drift with the camera angle. `node poc/tools/handle-pick-probe.mjs`
+    measures the plane's sign (the classic `Plane(normal, constant)` off-by-a-sign, which a steep
+    camera hides), that a point 0.20 away is picked and 0.35 is not at 50deg AND 14deg elevation, that
+    the target is 31-35 px at 1080p against the dot's 10-11 px, and — over all **9994 resolved
+    segments of the 542 catalog calls** — that 69.7% of curves have separable handles, 24.8% have them
+    distinct but closer than the radius and **5.5% have them EXACTLY coincident**. The first version of
+    that probe asserted "unambiguous for >98% of curves" and the corpus scan FAILED it: the claim in
+    the code comment was wrong, so the comment now states the real limit. Where the dots coincide the
+    strict nearest-wins test gives the grab to `c1` and one control point is unreachable — a
+    pre-existing limit (two coincident meshes were picked in traversal order before), recorded rather
+    than papered over. Typecheck clean, `verify:light` green (12 harnesses, 38.7 s), `poc/verify.cjs`
+    the same 3 pre-existing Pass Thru failures.
 
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:

@@ -224,10 +224,30 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   // inverse, so a drag lands where the pointer is rather than mirrored across an axis.
   const HANDLE_COLOR = 0xff6fd0; // magenta, distinct from the amber move highlight and cyan ticks
   const HANDLE_Y = 0.12;
+  // A THIRD of what it was (0.3). The 0.3 was 2.5x a DANCER MARKER (0.12), which is the actual reason
+  // it read as "very big": the handle was larger than the thing it is a handle FOR, so the board
+  // looked like it was mostly handle. At 0.1 it is a little under a dancer.
+  const HANDLE_RADIUS = 0.1;
+  // THE PICK TARGET IS NOT THE DOT. It is a floor-plane radius, left at the old dot's size, because
+  // shrinking the visible dot to a third shrinks its hit area nine-fold, and a handle you can see but
+  // cannot grab is a worse artefact than a large one. Padding a target beyond the drawn shape is
+  // ordinary UI practice.
+  //
+  // WHAT A GENEROUS RADIUS COSTS, MEASURED over all 9994 resolved segments of the 542 catalog calls
+  // (`tools/handle-pick-probe.mjs`): 69.7% of curves have their two handles further apart than this
+  // radius, 24.8% have them distinct but closer, and 5.5% have them EXACTLY coincident - a Stand, or
+  // any curve whose control points collapse onto the dancer's own position. In those cases "nearest"
+  // has no meaning, and the tie goes to c1, because the scan takes the first strict improvement and
+  // c1 is pushed first. That is a real limit: where the dots overlap, ONE of them is unreachable.
+  // It is not a regression - two coincident meshes picked in traversal order before this - but it is
+  // not a feature either, and a deterministic tie is the most a single grab point can honestly offer.
+  const HANDLE_PICK_RADIUS = 0.3;
   const handleGroup = new THREE.Group();
   scene.add(handleGroup);
   const raycaster = new THREE.Raycaster();
   const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  // y = HANDLE_Y: THREE's plane is `normal . p + constant = 0`, so the constant is the NEGATED height.
+  const handlePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -HANDLE_Y);
   const ndc = new THREE.Vector2();
 
   const toNdc = (clientX: number, clientY: number) => {
@@ -246,25 +266,47 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), lineMat);
       line.frustumCulled = false;
       handleGroup.add(line);
-      const dot = new THREE.Mesh(new THREE.CircleGeometry(0.3, 18), dotMat);
+      const dot = new THREE.Mesh(new THREE.CircleGeometry(HANDLE_RADIUS, 18), dotMat);
       dot.rotation.x = -Math.PI / 2; // lie flat on the floor
       dot.position.copy(b);
-      // The id rides on the mesh so a raycast hit IS the answer; no index arithmetic on the way back.
+      // The id rides on the mesh so the picker has no index arithmetic to do on the way back.
       dot.userData.handleId = h.id;
       dot.name = `handle:${h.id}`;
       handleGroup.add(dot);
     }
   };
 
+  /**
+   * Which handle is under the pointer, or null.
+   *
+   * A plane at the handles' OWN height (`HANDLE_Y`), not the floor: the dots lie at `HANDLE_Y`, so
+   * intersecting there puts the ray's point in exactly the plane of the positions it is compared
+   * against and the distance test stays a flat one. Intersecting the floor instead would displace
+   * the point by the perspective foreshortening of 0.12 units - small, but a bias that grows with the
+   * camera angle, and a pick that drifts with the camera is the kind of thing blamed on the mouse.
+   */
   const pickHandle = (clientX: number, clientY: number): string | null => {
     if (handleGroup.children.length === 0) return null;
     toNdc(clientX, clientY);
     raycaster.setFromCamera(ndc, out.camera);
-    // Only the DOTS are pickable: a leader line is a thin target, and hitting one by accident while
-    // reaching for the other handle would move the wrong control point.
-    const dots = handleGroup.children.filter((c) => (c as THREE.Mesh).isMesh === true);
-    const hits = raycaster.intersectObjects(dots, false);
-    return hits.length > 0 ? (hits[0].object.userData.handleId as string) ?? null : null;
+    const hit = new THREE.Vector3();
+    if (!raycaster.ray.intersectPlane(handlePlane, hit)) return null;
+    // NEAREST WITHIN THE RADIUS, over the DOTS only: a leader line is a thin target, and treating one
+    // as grabbable would move the wrong control point when reaching for the other. On the 5.5% of
+    // curves whose two handles coincide, the strict `<` gives the tie to c1 - see the note on
+    // HANDLE_PICK_RADIUS.
+    let best: string | null = null;
+    let bestSq = HANDLE_PICK_RADIUS * HANDLE_PICK_RADIUS;
+    for (const child of handleGroup.children) {
+      if ((child as THREE.Mesh).isMesh !== true) continue;
+      const p = child.position;
+      const sq = (p.x - hit.x) * (p.x - hit.x) + (p.z - hit.z) * (p.z - hit.z);
+      if (sq < bestSq) {
+        bestSq = sq;
+        best = (child.userData.handleId as string) ?? null;
+      }
+    }
+    return best;
   };
 
   const floorPoint = (clientX: number, clientY: number): { x: number; y: number } | null => {

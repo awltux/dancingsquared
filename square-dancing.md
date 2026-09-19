@@ -1539,6 +1539,78 @@ the invariant is the one the modules line beside it already stated: anything the
 library has to be re-added whenever the library is rebuilt. Names are also compared canonically on the
 store side, since the library canonicalises on the way in and the store keeps what was typed.
 
+**The "all dancers" toggle is gone, replaced by one toggle per dancer, and the coordinate fields LOCK
+when the selected dancers' shapes differ.** The user's own words were the argument for removing the
+button: *"The 'All' button is almost useless as there are very few calls where all dancers do exactly
+the same move."* A button you press and then have to undo is not a shortcut. It is now numbered chips in
+the moves row, the same single state as the `sel` column of the instance table (one state, two places to
+reach it), and a member of the selection can never be the last one removed — a panel showing a move with
+no dancer selected has no meaning.
+
+That removal deleted a concept rather than adding one. There is no separate "focused dancer" any more:
+`moveDancer` is a GETTER over the selection returning its lowest-numbered member, because picking a
+dancer to LOOK AT and picking dancers to CHANGE are the same act held in one place. Two pieces of state
+for it gave the panel a way to display numbers that the next edit would not touch — the "draws wrong
+while it measures right" class this workstream exists to remove.
+
+**"Use the first selected dancer's data to modify all selected dancers" is exactly right for this data,
+and the gate is on the LOCAL numbers.** A move's Bezier is authored in dancer-local coordinates — origin
+at the dancer's spot when the move begins, +X along the facing at that instant — so the SAME local
+control point on two dancers **is** the same shape, each rotated and translated into its own position.
+Propagating a group edit therefore needs no rotation arithmetic at all: the local value is the shared
+description, and the only conversion is the one that puts the pointer back in the dragged dancer's frame.
+"After correct orientation" has a precise meaning here, and it is equality of those local values.
+
+Which is why the fields are LOCKED unless the selected dancers' coordinates genuinely agree. Writing a
+number into a field writes it to **every** selected dancer, so on a selection whose curves differ the
+write would COLLAPSE genuinely different shapes into one in a keystroke — destroying the per-dancer
+difference that made the selection worth making. Where they agree the write keeps them agreeing, which is
+exactly the case where one set of numbers describes them all; a single selection is always editable. When
+locked, the fields are **greyed rather than hidden** (the first selected dancer's value stays readable,
+and a vanished field reads as a bug), the tile names the reason and the fix, and the board handles are
+**not drawn at all** — a drag is a coordinate edit the same gate would refuse, and a draggable-looking dot
+that does nothing is worse than no dot.
+
+The gate is enforced in `commitMoveChange` AS WELL AS in the fields, and that is not belt-and-braces:
+**the drag path reaches that function without going through the fields**, so a fields-only check would
+have left the one path that writes geometry open. Beats and hands are deliberately NOT gated — they are
+not coordinates, and unifying a timing or a hold across a selection is a legitimate group edit rather
+than a collapse of geometry.
+
+**ONE pair of handles is drawn, for the first selected dancer, and the dot is a third of the size.**
+The pair belongs to `moveDancer`, so the handle on the board and the numbers in the tile are never two
+dancers' worth of information. A pair per selected dancer is the literal picture of the group edit and
+was the earlier behaviour; it is unreadable with a dozen dancers selected, the dots do not say which pair
+is whose, and the pairs are copies of one another in any case because the drag writes one local value to
+all of them.
+
+The user reported the handles as *"very big"*, and measuring turns that from a preference into a fact: a
+DANCER MARKER is radius **0.12** and the handle dot was **0.3** — **2.5x the thing it is a handle for**,
+so the board looked like it was mostly handle. It is now **0.1**, a little under a dancer. The GRAB
+TARGET deliberately did not shrink with it: shrinking the visible dot to a third shrinks its hit area
+nine-fold, and a handle you can see but cannot grab is a worse artifact than a large one. The target is a
+floor-plane radius checked independently of the mesh, on a plane at the handles' OWN height rather than
+the floor, so a pick cannot drift with the camera angle.
+
+`node poc/tools/handle-pick-probe.mjs` measures it, and wrote down a correction rather than a
+confirmation. It pins the plane's sign (the classic `Plane(normal, constant)` off-by-a-sign, which a
+steep camera hides and a grazing one does not), that a point 0.20 away is picked and 0.35 is not at BOTH
+50° and 14° elevation, and that the target is 31-35 px on a 1080p view against the dot's 10-11 px. Then
+it scans the corpus — **9994 resolved segments of the 542 catalog calls** — and reports that 69.7% of
+curves have their two handles further apart than the pick radius, 24.8% have them distinct but closer,
+and **5.5% have them EXACTLY coincident** (a Stand, or any curve whose control points collapse onto the
+dancer's position). The first version of the probe asserted "unambiguous for >98% of curves" and THE SCAN
+FAILED IT, so the claim that had just been written into the code comment was wrong and the comment now
+states the real limit: where the dots coincide, the strict nearest-wins test gives the grab to `c1` and
+one control point is unreachable. That limit predates the shrink — two coincident meshes were picked in
+traversal order before — and a deterministic tie is the most a single grab point can honestly offer. It is
+recorded rather than papered over.
+
+(UI-only, as before: `npx --prefix poc tsc -p poc --noEmit` clean, `verify:light` green at 12 harnesses in
+38.7 s, and `poc/verify.cjs` failing the same THREE pre-existing `Pass Thru` checks while loading all 542
+catalogue calls. The Vite app cannot run in this sandbox, so the feel of the drag and the look of the
+smaller dots remain reasoned from code and typechecked, not rendered.)
+
 
 
 

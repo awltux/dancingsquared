@@ -397,12 +397,31 @@ authored beat count is longer than every path (a pause) keeps the pause.
 
 ### Bezier handles, and editing many dancers at once
 
-Each selected dancer gets the two **control-point handles** of the current move's translation curve,
-drawn on the floor: a leader line from the curve's fixed anchor (its start for `c1`, its end for `c2`)
-out to a magenta dot. **Dragging a dot changes the SHAPE only** — the endpoints, the beats and the
-hands are untouched. The camera is switched off for the duration, or the orbit control takes the same
+**One pair** of control-point handles is drawn, for the **first selected dancer** — the same
+`moveDancer` whose numbers the tile shows. A pair *per* selected dancer is the literal picture of the
+group edit, and an earlier version drew exactly that; it was unreadable, because with a dozen dancers
+selected the board fills with near-identical pairs and the dots themselves do not say which pair
+belongs to which dancer. The pairs are not independent anyway — the drag writes one LOCAL value to
+every selected dancer, so the second pair is only a copy of the first.
+
+Each handle is a leader line from the curve's fixed anchor (its start for `c1`, its end for `c2`) out
+to a magenta dot. **Dragging a dot changes the SHAPE only** — the endpoints, the beats and the hands
+are untouched. The camera is switched off for the duration, or the orbit control takes the same
 gesture and the board spins while you are dragging. Moving the *shared connecting point* between two
 curves (which adjusts both) is deliberately not offered yet.
+
+**The dot is a third of what it was (0.1 board units), and that number is measured against the
+dancers rather than guessed**: the old 0.3 was **2.5× a dancer marker** (0.12), so the handle was
+bigger than the thing it is a handle for and the board looked like it was mostly handle. At 0.1 it is
+a little under a dancer. **The grab target did not shrink with it** — it is a 0.3 radius on the plane
+at the handles' own height, which is 31–35 px on a 1080p view against the dot's 10–11 px
+(`node tools/handle-pick-probe.mjs`), because a handle you can see but cannot grab is worse than a
+large one. The tie is real: over all 9994 resolved segments of the 542 catalog calls, 69.7% of curves
+have their two handles further apart than the radius, 24.8% have them distinct but closer, and **5.5%
+have them exactly coincident** (a Stand, or any curve whose control points collapse onto the dancer's
+position) — where the dots overlap, the strict nearest-wins test gives the grab to `c1`, so one of
+the two is unreachable. That limitation predates the shrink (two coincident meshes were picked in
+traversal order), and a deterministic tie is the most a single grab point can offer.
 
 **The dancer selector is one toggle per dancer** — the numbered chips in the moves row, and the `sel`
 column of the formation table (one state, two places to reach it). It replaced an "all" button, which
@@ -411,13 +430,13 @@ you pressed and then had to undo. **The lowest-numbered dancer selected is the o
 the strip lists**, and the set can never be emptied — unticking the last one is refused, because a
 panel showing a move with no dancer selected has no meaning.
 
-**A drag on any selected dancer's handle applies to all of them, each in its own frame** — and that is
-*exact*, not approximate, because a move's Bézier is authored in **dancer-local coordinates**. The
-origin is the dancer's spot where the move begins and +X is the facing at that instant, so the *same*
-local control point on two dancers **is** the same shape rotated and translated into each of their
-positions. Propagating a change therefore needs no rotation arithmetic at all: the local value is the
-shared description. The only conversion is the one that puts the pointer where you dropped it, in the
-frame of the dancer whose handle you grabbed.
+**A drag propagates to all selected dancers, each in its own frame** — and that is *exact*, not
+approximate, because a move's Bézier is authored in **dancer-local coordinates**. The origin is the
+dancer's spot where the move begins and +X is the facing at that instant, so the *same* local control
+point on two dancers **is** the same shape rotated and translated into each of their positions.
+Propagating a change therefore needs no rotation arithmetic at all: the local value is the shared
+description. The only conversion is the one that puts the pointer where you dropped it, in the frame
+of the handle's own dancer.
 
 **The coordinate fields are LOCKED unless the selected dancers' coordinates genuinely agree** — the same
 shape, rotated to each position, which is the only case where one set of numbers describes them all.

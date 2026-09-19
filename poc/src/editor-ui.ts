@@ -637,8 +637,18 @@ export class EditorController implements EditorUI {
 
   /**
    * The two Bezier control-point handles for the selected move's TRANSLATION curve, on the floor -
-   * one pair per SELECTED dancer, which is the picture of the group edit: the same shape, drawn
-   * around each dancer's own position.
+   * ONE pair, for the FIRST selected dancer.
+   *
+   * Drawing a pair per selected dancer is the literal picture of the group edit - the same shape,
+   * drawn around each dancer's own position - and an earlier version did exactly that. It was
+   * unreadable: with a dozen dancers selected the board fills with near-identical handle pairs, and
+   * which pair belongs to which dancer is not something the dots themselves say. The pairs are not
+   * independent anyway, because the drag writes one LOCAL value to every selected dancer, so the
+   * second pair is a copy of the first and a copy is all the picture needs.
+   *
+   * The pair drawn is `moveDancer`'s - the same dancer whose numbers the tile shows and whose track
+   * the strip lists - so the handle on the board and the value on screen are never two dancers'
+   * worth of information.
    *
    * THE CURVE'S OWN FRAME IS THE DANCER'S POSE WHERE THE MOVE BEGINS. A move's translation Bezier is
    * authored in dancer-local coordinates, so a control point is placed by transforming it by the pose
@@ -666,10 +676,10 @@ export class EditorController implements EditorUI {
       return;
     }
     const handles: HandleSpec[] = [];
-    for (const d of this.selectedSorted()) {
-      const dancer = call.dancers[d];
-      const seg = dancer?.path[this.moveIndex];
-      if (!dancer || !seg) continue;
+    const d = this.moveDancer;
+    const dancer = call.dancers[d];
+    const seg = dancer?.path[this.moveIndex];
+    if (dancer && seg) {
       const range = moveBeatRange(dancer, this.moveIndex);
       const p0 = poseFor(dancer, range.from);
       const p1 = poseFor(dancer, range.to);
@@ -701,9 +711,10 @@ export class EditorController implements EditorUI {
       const id = this.stage.pickHandle(e.clientX, e.clientY);
       if (!id) return;
       this.dragHandle = id;
-      // The focused dancer is DELIBERATELY not changed by grabbing a handle: the drag writes the same
-      // LOCAL value to every selected dancer, so the tile's numbers read the same whichever handle was
-      // taken, and moving the panel's focus mid-gesture would be motion for nothing.
+      // The selected dancers are DELIBERATELY not re-ordered by grabbing a handle: the pair on the
+      // board is already `moveDancer`'s, and the drag writes the same LOCAL value to every selected
+      // dancer, so the tile's numbers read the same either way. Touching the selection mid-gesture
+      // would only be motion for nothing.
       this.stage.controls.enabled = false;
       canvas.setPointerCapture(e.pointerId);
       e.preventDefault();

@@ -66,6 +66,13 @@ const browser = new CallBrowser(stage, player, {
 // registered catalogue, and building a second one here would double that cost.
 const editorUi = initEditor(stage, {
   preview: (c) => browser.showCall(c),
+  // The editor's moves mode parks the playhead: `setCall` inside `showCall` would otherwise put it
+  // back at the lead-in on every edit, so the beat is re-applied after the call is shown.
+  previewAt: (c, b) => {
+    browser.showCall(c);
+    player.seekAbsolute(b);
+  },
+  setPlayhead: (b) => player.seekAbsolute(b),
   focusTrail: (index, range, kind) => browser.setTrailFocus(index, range, kind),
   startFormations: () => seqUi.startFormations(),
   // Naming a generated setup means naming the FORMATION it starts from; the library is the only
@@ -170,6 +177,8 @@ const fsmPanel = el<HTMLDivElement>('fsmPanel');
 const fsmFrame = el<HTMLIFrameElement>('fsmFrame');
 const fsmTitle = el<HTMLSpanElement>('fsmTitle');
 let fsmActive = false;
+/** The mode the app was in before this one. See `applyMode` and the editor's parked playhead. */
+let lastMode = '';
 
 function showFsm() {
   fsmActive = true;
@@ -186,6 +195,12 @@ function showFsm() {
 
 function applyMode() {
   const mode = modeSelect.value;
+  // LEAVING THE EDITOR GIVES THE ANIMATION BACK. The editor's moves mode parks the playhead with the
+  // animation OFF (only a manual scrub moves the dancers there), and nothing else in the app expects
+  // to inherit that: the browse and sequence views behave exactly as they always did. Tracked by the
+  // PREVIOUS mode rather than by "not editor", so a deliberate pause elsewhere is left alone.
+  if (lastMode === 'editor' && mode !== 'editor') player.setPlaying(true);
+  lastMode = mode;
   const browse = mode === 'browse';
   const seq = mode === 'sequence';
   const ed = mode === 'editor';

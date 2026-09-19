@@ -314,6 +314,22 @@ END FORMATION (each dancer's arrival pose) and the MOVES that carry each dancer 
 them. Every number is a full-set coordinate: the engine normalizes a half-set authoring on
 load, so a tam authored for four dancers is edited as the eight the renderer draws.
 
+**The animation is OFF in this mode, and the Position bar above the moves is what moves the
+dancers.** A move is edited one frame at a time, and an animation that kept running would move the
+dancers out from under the move being edited, so entering the mode parks the playhead and the bar
+becomes the only thing that advances it. Two consequences are load-bearing:
+
+- **The parked beat is the editor's, not the player's.** Every edit re-shows the instance, and
+  re-showing calls `Player.setCall`, which parks the playhead at the lead-in — so the beat is held in
+  `editBeat` and re-applied after every re-show. Without that, the dancers would jump back to the start
+  on every keystroke and the bar would be useless for the one thing it is for.
+- **Dragging does not re-show the call.** `setPlayhead` moves the playhead alone; re-showing rebuilds
+  all eight dancer views and their trails, which is far too much work for a pointer move.
+
+The bar's value IS the beat (`0` = the call's first beat), and the readout carries the beat, the total
+and which part of the call it is in. **Leaving the editor gives the animation back** — tracked by the
+previous mode, so a pause you set in the browse view is not overridden.
+
 Two properties of the data are worth knowing before using the table, and both are measured
 by `engine/test/editor.mjs`:
 

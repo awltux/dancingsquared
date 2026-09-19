@@ -54,8 +54,18 @@ export interface EditorUI {
 
 /** What the editor needs from the rest of the app. */
 export interface EditorHost {
-  /** Show a call bundle (a still frame or a synthesized/edited instance). */
+  /** Show a call bundle (a still frame or a synthesized/edited instance) and let it ANIMATE. */
   preview(call: CallBundle): void;
+  /** Show a call with the playhead PARKED at an absolute beat, animation off.
+   *
+   *  The moves editor works on one frame at a time: an animation that keeps running moves the
+   *  dancers out from under the move being edited, and a re-preview happens on EVERY edit (each
+   *  commit re-shows the instance), so the position has to be the caller's and has to survive being
+   *  re-shown. This is that - `preview` plus a seek, in one call. */
+  previewAt(call: CallBundle, absoluteBeat: number): void;
+  /** Move the parked playhead without re-showing the call, for a drag. Re-showing would rebuild all
+   *  eight dancer views and their trails on every pointer move. */
+  setPlayhead(absoluteBeat: number): void;
   /** Show only `index`'s track, with `range` highlighted, or every track in full for null.
    *  The moves editor drives the TRAIL with these two selections: which dancer is being
    *  edited decides whose track is shown, and which move decides which stretch of it. `kind` says
@@ -136,6 +146,8 @@ export class EditorController implements EditorUI {
   private connectBtn = el<HTMLButtonElement>('edConnect');
   private cloneInfoEl = el<HTMLDivElement>('edCloneInfo');
   private formationEl = el<HTMLDivElement>('edFormation');
+  private scrubEl = el<HTMLInputElement>('edScrub');
+  private beatReadoutEl = el<HTMLSpanElement>('edBeatReadout');
   private moveDancerSel = el<HTMLSelectElement>('edMoveDancer');
   private moveStripEl = el<HTMLDivElement>('edMoveStrip');
   private moveInfoEl = el<HTMLSpanElement>('edMoveInfo');
@@ -173,6 +185,10 @@ export class EditorController implements EditorUI {
   private moveIndex = 0;
   /** WHICH OF THE MOVE'S TWO SHAPES is selected: the translation curve or the facing curve. */
   private moveKind: 'move' | 'facing' = 'move';
+  /** The editor's OWN playhead, in absolute beats. The animation is OFF while editing an instance,
+   *  so this is the only thing that moves the dancers - and it has to be remembered HERE because
+   *  every edit re-shows the instance and re-showing parks the playhead at the lead-in. */
+  private editBeat = 0;
   /** The `data-key` of the field being edited, so re-rendering after a commit can put the
    *  focus back where it was (a `change` on a number input fires on blur, but it also fires
    *  on every spin-button click). */
@@ -347,12 +363,15 @@ export class EditorController implements EditorUI {
       this.moveDancer = 0;
       this.moveIndex = 0;
       this.startFormationSel.value = '';
-      this.host.preview(this.instance);
+      // A NEW instance starts at its own first beat, with the animation off.
+      this.editBeat = 0;
+      this.showInstance(this.instance);
       this.renderInstance();
     } catch (err) {
       this.instance = null;
       this.source = null;
       this.statusEl.textContent = `edit call failed: ${(err as Error).message}`;
+      this.renderScrub(null);
       this.renderInstance();
     }
   }
@@ -439,6 +458,44 @@ export class EditorController implements EditorUI {
   }
 
   /**
+   * Show the instance with the animation OFF and the playhead where the caller left it.
+   *
+   * EVERY instance preview goes through here. Editing a move re-shows the instance, and re-showing
+   * calls `Player.setCall`, which parks the playhead at the lead-in - so without re-applying
+   * `editBeat` the dancers would jump back to the start on every keystroke, and the scrub would be
+   * useless for the one thing it is for.
+   */
+  private showInstance(call: CallBundle) {
+    this.host.previewAt(call, this.editBeat);
+    this.renderScrub(call);
+  }
+
+  /** The editor's own progress bar: its value IS the beat, and the animation is off. */
+  private renderScrub(call: CallBundle | null) {
+    if (!call) {
+      this.beatReadoutEl.textContent = '';
+      return;
+    }
+    const total = call.totalBeats || 1;
+    this.scrubEl.max = String(total);
+    this.scrubEl.step = '0.25';
+    const b = Math.max(0, Math.min(total, this.editBeat));
+    // Never write into the control the caller is dragging: the value is theirs while the pointer is
+    // down, and a write that lands mid-gesture is the classic way a scrubber starts fighting back.
+    if (document.activeElement !== this.scrubEl) this.scrubEl.value = String(b);
+    const parts = call.parts ? call.parts.split(';') : [];
+    let acc = 0;
+    let idx = -1;
+    // The call's own beat, not the absolute one: `parts` is authored against the call's clock.
+    const callBeat = b - call.leadin;
+    for (let k = 0; k < parts.length; k++) {
+      acc += parseFloat(parts[k]);
+      if (callBeat >= acc) idx = k + 1;
+    }
+    this.beatReadoutEl.textContent = `beat ${b.toFixed(2)} / ${total.toFixed(2)}` + (idx >= 0 ? ` · part ${idx + 1}/${parts.length}` : '');
+  }
+
+  /**
    * Apply an engine edit, show it, and re-draw the table.
    *
    * A FULL re-render on every commit is safe here because the listeners are on `change`
@@ -449,13 +506,14 @@ export class EditorController implements EditorUI {
   private commit(next: CallBundle, focusKey?: string) {
     this.instance = next;
     this.instanceEdited = true;
-    this.host.preview(next);
+    this.showInstance(next);
     this.renderInstance(focusKey);
   }
 
   private renderInstance(focusKey?: string | null) {
     if (focusKey !== undefined) this.focusKey = focusKey;
     this.renderFormation();
+    this.renderScrub(this.instance);
     this.renderMoveSelectors();
     this.renderMoveStrip();
     this.renderInstanceInfo();
@@ -845,9 +903,9 @@ export class EditorController implements EditorUI {
     this.setHudWide();
     this.renderSaved();
     if (instance) {
-      // The instance editor has been showing a still frame while another mode was up, so
-      // hand the preview back to the instance being edited.
-      if (this.instance) this.host.preview(this.instance);
+      // The instance editor has been showing a still frame while another mode was up, so hand the
+      // preview back to the instance being edited - ANIMATION OFF, at the beat the caller left.
+      if (this.instance) this.showInstance(this.instance);
     } else {
       this.refreshFixInfo();
       // Leaving the instance editor gives the full tracks back.
@@ -978,7 +1036,7 @@ export class EditorController implements EditorUI {
       this.instance = { ...rebased, from: name };
       this.asClone = true;
       this.instanceEdited = true;
-      this.host.preview(this.instance);
+      this.showInstance(this.instance);
       this.renderInstance();
       this.statusEl.textContent = `re-based the start onto "${name}" — the track no longer closes`;
     } catch (err) {
@@ -995,7 +1053,7 @@ export class EditorController implements EditorUI {
     try {
       this.instance = connectStart(this.instance, this.source);
       this.instanceEdited = true;
-      this.host.preview(this.instance);
+      this.showInstance(this.instance);
       this.renderInstance();
       this.statusEl.textContent = 'connected the first moves';
     } catch (err) {
@@ -1244,6 +1302,16 @@ export class EditorController implements EditorUI {
     this.instExportBtn.addEventListener('click', () => this.doExport());
     this.startFormationSel.addEventListener('change', () => this.doStartFormation());
     this.connectBtn.addEventListener('click', () => this.doConnect());
+    // THE MANUAL SCRUB. The animation is off in this mode, so this is the only thing that moves the
+    // dancers: `setPlayhead` moves the playhead WITHOUT re-showing the call, because re-showing
+    // rebuilds all eight dancer views and their trails and would be done on every pointer move.
+    this.scrubEl.addEventListener('input', () => {
+      const b = parseFloat(this.scrubEl.value);
+      if (!Number.isFinite(b)) return;
+      this.editBeat = b;
+      this.host.setPlayhead(b);
+      this.renderScrub(this.instance);
+    });
     this.moveDancerSel.addEventListener('change', () => {
       this.moveDancer = parseInt(this.moveDancerSel.value, 10) || 0;
       this.moveIndex = 0;

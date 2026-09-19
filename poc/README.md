@@ -543,6 +543,76 @@ frames at five headings), each of the three rules writes its own point's numbers
 every edit keeps `cy1` at exactly 0 and survives export + re-parse (worst **0**), and a handle dropped
 back on its own value exports **byte-identically**, so touching one is not an edit.
 
+### CTRL snaps to the grid — as a magnet, not a lock
+
+**The cell is the floor's own**, and the authority is the format's header rather than a preference:
+*"The scale is in dancer units, same as shown when the grid is on."* The floor this app draws is 20
+units in 20 divisions, a `Forward` (`x2 = 1`) is one cell of travel, and the couples of a squared set
+stand **2** units apart (`node tools/snap-grid-probe.mjs`). Only **46%** of the corpus's authored
+coordinates are on the unit grid — the rest are ⅓s, 4/3s and 1/√2s, what a Bézier approximation of an arc
+produces — so this is a new convention rather than a restoration of one, which is why it is behind a
+modifier.
+
+**Holding CTRL while dragging pulls the point onto a line only when it is already within a quarter of a
+cell of one**, and leaves it exactly where the pointer is otherwise. That is a *magnet*: rounding from
+anywhere in the cell would quantise the drag, so every position would be a grid position and the gesture
+would stop being "help me land on the line". The quarter cell is **10.2 px** in the flat view at 1080p
+(40.9 px per unit there), so the pull is felt without fighting the pointer. Measured: half of the cell
+is within a quarter of a line on either side, so half of the positions along a drag are pulled.
+
+**The snap is in the move's own frame** — the frame the tile's numbers, and the arc's two handle
+lengths, are in — so a snapped drag leaves whole numbers behind. The floor's grid is drawn in the same
+units, so the two coincide whenever the dancer's frame is square to the floor, which is every multiple
+of 90°.
+
+### `arc`: locking a curve to a quarter of a circle or an ellipse
+
+Each tab has an **`arc`** checkbox. Ticking it **locks the curve to a quarter arc**, which means its five
+coordinates stop being independent: they follow from the two handle **lengths**, and the tile offers
+exactly those two instead (`arc x`, `arc y`), with a readout naming the shape — *quarter CIRCLE, radius
+1.5* when the two offsets are equal, *quarter ELLIPSE, 1.5 x 0.6* when they differ. That is the rule as
+asked for: **a circle if the x and y offsets of the start and finish lines are equal, otherwise an
+ellipse.** Unticking releases the fields without touching the curve.
+
+**The quadrant keeps the curve's own handle directions.** A quarter arc's two end tangents are
+perpendicular — they are tangents at two radii a quadrant apart — so the family is the start direction
+plus the two lengths, and the endpoint follows to the conic's corner. Nothing about which way the dancer
+travels or faces changes; what moves is the endpoint. The cubic is the standard `k = 4/3(√2 − 1)`
+construction: it is a circle to **2.73e-4** of the radius, which is the best a cubic does and thousands
+of times finer than this board.
+
+**A drag in arc mode can only change a length.** `r1` slides along the start direction, `r2` along the
+finish one, and `r3` (the corner) sets both at once — so nothing a handle can do takes the curve off the
+family. That is what "locks out manual editing" means here: not that the handles stop working, but that
+they cannot break the shape.
+
+**And the checkbox is DISABLED — with the reason on screen — wherever a quarter arc is impossible.**
+There are two such situations, and they are separated because they call for different things from you:
+
+- **The handles are not at a right angle.** A quadrant's end tangents *are* perpendicular by definition,
+  so locking such a curve would have to turn the dancer, and the lock refuses rather than doing it in
+  silence. The tile prints the angle it measured. This is the common case: over b1/ms/a1, **71.5%** of
+  the corpus's curves have non-perpendicular handles — a straight walk's two handles are *parallel* and a
+  U-turn's are *anti-parallel*, and neither is a quadrant of anything.
+- **There is no handle length at all to size an arc from.** A `Stand` has every coordinate zero, so there
+  is no hint of how big to make the arc, and the panel says that rather than inventing a size. (Where
+  only *one* handle is zero, the other's length is the hint and the arc comes out a circle.)
+
+A third refusal, for a facing curve whose start handle points backwards, never fires on the corpus (no
+authored facing curve starts by turning 180°) and is recorded as a guard.
+
+Measured (`engine/test/editor.mjs`, section 17; `node poc/tools/snap-grid-probe.mjs`): of **4150** curves
+in b1/ms/a1, **0** are already quarter arcs, **690 (16.6%)** could take the lock, and the rest are
+blocked — **2968 (71.5%)** by the angle and **492 (11.9%)** by having no handle length. The projection is
+checked to keep both handle lengths and both directions exactly while moving only the corner; a rotated
+arc is the unrotated one turned by its angle (worst **4.6e-16**); a projected arc sets off and finishes
+facing exactly as the original curve did; a facing arc turns the dancer **exactly** a quarter turn; and
+the arc survives export and re-parse, with re-exporting byte-identical.
+
+**A curve with no handle length is not reported as an arc** — and that took a definition to get right.
+The first version called the degenerate all-zero member of the family an arc and counted **138** corpus
+`Stand`s as "already arcs"; with the shape refused, that number is zero.
+
 **The dancer selector is one toggle per dancer** — the numbered chips in the moves row, and the `sel`
 column of the formation table (one state, two places to reach it). It replaced an "all" button, which
 was near-useless: very few calls have every dancer doing exactly the same move, so "all" was a button

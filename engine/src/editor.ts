@@ -13,7 +13,7 @@
 // Bezier convention taminations uses (`Movement.fromTransform`).
 
 import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Pose, Seg } from './types.js';
-import { DEG, poseFor } from './core.js';
+import { DEG, bezierAngle, poseFor } from './core.js';
 // The DERIVED identity of an edited start formation: `assignHomeIdentity` is the same
 // read the renderer colours by, so the editor's `couple` column cannot disagree with the
 // stage next to it.
@@ -952,6 +952,222 @@ export function endPoseError(a: CallBundle, b: CallBundle): { pos: number; headi
     heading = Math.max(heading, Math.abs(normAngleSafe(p.heading - q.heading)));
   }
   return { pos, heading };
+}
+
+// ------------------------------------------------------------------ the quarter arc
+
+/**
+ * The control-point distance that makes a cubic Bezier a quarter of a circle.
+ *
+ * `4/3 * (sqrt(2) - 1)`, the standard constant: a cubic with its control points at that fraction of
+ * the way along perpendicular tangents is a quarter conic to within 2.7e-4 of the radius, which is
+ * the best a cubic can do and is far below anything visible on this board.
+ */
+export const ARC_K = (4 / 3) * (Math.SQRT2 - 1);
+
+/**
+ * How far from an exact quarter arc a curve may be and still be read as one.
+ *
+ * It is tied to the EXPORT rather than chosen for feel: `callToXml` writes four decimals, so a curve
+ * that was exactly an arc comes back within 5e-5 of one, and a tolerance tighter than that would
+ * make the panel's own "this curve is an arc" flag flicker off after a save and a reload. 1e-3 is
+ * 20x the rounding and still a tenth of the coarsest control point in the corpus.
+ */
+export const ARC_TOL = 1e-3;
+
+/**
+ * The tolerance on being a RIGHT ANGLE, for the panel's disable rule, and it is deliberately two
+ * orders looser than `ARC_TOL`.
+ *
+ * The two measure different things: `ARC_TOL` asks whether a curve's COORDINATES are a quarter arc,
+ * which the export's four decimals decide, while this asks whether the handles' DIRECTIONS are a
+ * right angle - and a direction is not degraded by the rounding of a length. Half a degree is far
+ * below anything a caller could mean by "perpendicular" and far above the noise in the assets'
+ * two-decimal lengths.
+ */
+export const ARC_ANGLE_TOL = (0.5 * Math.PI) / 180;
+
+/** A length below which a handle has no direction and no size to speak of. */
+const ARC_EPS = 1e-9;
+
+/**
+ * A quarter arc, described by its two HANDLE LENGTHS and the direction of the first - which is what
+ * the panel shows and drags, and what the projection below reads.
+ *
+ * THE QUADRANT KEEPS THE CURVE'S OWN HANDLE DIRECTIONS. That is the whole definition: a quarter arc's
+ * two end tangents are PERPENDICULAR to each other (they are tangents at two radii a quadrant apart),
+ * so the family is parameterised by the start direction plus the two lengths, and the corner - and
+ * with it the endpoint - follows from them.
+ *
+ *  - `x` is the START handle's length, along `angle`. It is never negative: the direction carries the
+ *    sign, and a move that travels backwards simply has its direction pointing backwards.
+ *  - `y` is the FINISH handle's length, along `angle + 90deg`. Its SIGN is the turn: positive turns
+ *    the dancer's left, negative right.
+ *  - `|x| === |y|` is exactly a CIRCLE: equal semi-axes. That is the panel's "a circle if the offsets
+ *    are equal, otherwise an ellipse".
+ *  - `angle` is the start direction in the dancer's local frame. A FACING curve's is always 0 or PI,
+ *    because the `<rotate>` element has no `cy3`: its first control point is pinned to the x axis.
+ */
+export interface ArcParams {
+  readonly x: number;
+  readonly y: number;
+  readonly angle: number;
+}
+
+/** The quarter arc as a Bezier, in the dancer-local frame both curves are authored in. */
+export function arcBezier(p: ArcParams): BezierData {
+  const ux = Math.cos(p.angle);
+  const uy = Math.sin(p.angle);
+  const wx = -uy; // w = u rotated +90deg
+  const wy = ux;
+  const a = p.x / ARC_K;
+  const b = p.y / ARC_K;
+  // The conic's corner: a along the start direction, b along the finish direction.
+  const x2 = a * ux + b * wx;
+  const y2 = a * uy + b * wy;
+  // The finish handle runs back from the corner along -w, its length exactly `y`.
+  return { cx1: p.x * ux, cy1: p.x * uy, cx2: x2 - p.y * wx, cy2: y2 - p.y * wy, x2, y2 };
+}
+
+/**
+ * The angle between the curve's two handle directions, or null when one of them has no length to
+ * have a direction.
+ *
+ * This is the test the panel's disable rule turns on, so it is a function rather than arithmetic in
+ * the UI. A quarter arc needs this to be a RIGHT ANGLE.
+ */
+export function arcCorner(b: BezierData): number | null {
+  const x = Math.hypot(b.cx1, b.cy1);
+  const e = Math.hypot(b.x2 - b.cx2, b.y2 - b.cy2);
+  if (x <= ARC_EPS || e <= ARC_EPS) return null;
+  const ux = b.cx1 / x;
+  const uy = b.cy1 / x;
+  const ex = (b.x2 - b.cx2) / e;
+  const ey = (b.y2 - b.cy2) / e;
+  // The signed angle from the start direction to the finish direction.
+  return Math.atan2(ux * ey - uy * ex, ux * ex + uy * ey);
+}
+
+/**
+ * Read a curve as a quarter arc, or null when it is not one.
+ *
+ * The relations ARE the definition, and asking them of the numbers is deliberately not the same as
+ * re-deriving an arc: a curve that is nearly one but not is NOT an arc, and the panel's lock has to
+ * say so rather than quietly round it into the family.
+ *
+ * A CURVE WITH NO HANDLE LENGTH AT ALL IS NOT AN ARC, which is a definition rather than a
+ * technicality: every coordinate zero - a `Stand` - is the degenerate member of the family, but there
+ * is no shape there to lock and no length for the panel to size anything from. Reporting it as an arc
+ * would tick the box and lock the fields on a curve nobody can do anything with. (The first version
+ * did exactly that and counted 138 corpus `Stand`s as "already arcs".) A curve with only ONE zero
+ * handle IS a member, and is reported as one.
+ */
+export function arcOf(b: BezierData): ArcParams | null {
+  const x = Math.hypot(b.cx1, b.cy1);
+  const ex = b.x2 - b.cx2;
+  const ey = b.y2 - b.cy2;
+  const yLen = Math.hypot(ex, ey);
+  if (x <= ARC_EPS && yLen <= ARC_EPS) return null;
+  // The start direction, with the frame's +x standing in when the handle has no length: cx1 = 0 and
+  // cy1 = 0 is "no change of heading at the start", and atan2(0, 0) is 0.
+  const ux = x > ARC_EPS ? b.cx1 / x : 1;
+  const uy = x > ARC_EPS ? b.cy1 / x : 0;
+  const wx = -uy;
+  const wy = ux;
+  const tol = ARC_TOL * Math.max(1, x, yLen);
+  // THE FINISH HANDLE MUST BE PERPENDICULAR TO THE START ONE - the condition a quarter arc cannot do
+  // without, and the one the panel disables the checkbox for.
+  if (Math.abs(ex * ux + ey * uy) > tol) return null;
+  const y = ex * wx + ey * wy;
+  // And the corner must be where the two lengths put it.
+  const a = x / ARC_K;
+  const bq = y / ARC_K;
+  if (Math.hypot(b.x2 - (a * ux + bq * wx), b.y2 - (a * uy + bq * wy)) > tol) return null;
+  return { x, y, angle: Math.atan2(uy, ux) };
+}
+
+/**
+ * Whether an arc's two handle lengths are equal, which is the panel's "a circle if the offsets are
+ * equal, otherwise an ellipse".
+ *
+ * A RELATIVE TOLERANCE, AND THE MEASUREMENT IS THE REASON: the two lengths are recovered from a
+ * subtraction, so a `Forward` - authored `cx1="0.333" cx2="0.667" x2="1"` - has handles of 0.333 and
+ * 0.33300000000000002. They are the same length, and an equality test would call that walk an ellipse.
+ */
+export function arcIsCircle(p: ArcParams): boolean {
+  return Math.abs(p.x - Math.abs(p.y)) <= 1e-9 * Math.max(1, p.x, Math.abs(p.y));
+}
+
+/** How far a curve is from being free to become a quarter arc - the panel's DISABLE reason. */
+export type ArcBlocker = 'no-handle-length' | 'handles-not-perpendicular' | 'starts-backwards';
+
+/**
+ * Why this curve cannot be locked to a quarter arc, or null when it can.
+ *
+ * The panel shows the reason rather than a dead checkbox, and this is one place rather than two: the
+ * moment the box is enabled is exactly the moment a projection exists.
+ *
+ * `allowBackwards` is false for a facing curve: a start handle pointing along -x means a heading
+ * change of 180deg at t = 0, i.e. the dancer snapping round to face the other way as the move begins.
+ * MEASURED over the corpus, no authored facing curve does that (every `cx1` is >= 0), so a facing
+ * curve that does is refused rather than silently flipped.
+ */
+export function arcBlocker(b: BezierData, allowBackwards: boolean): ArcBlocker | null {
+  if (arcOf(b)) return null; // already a quarter arc
+  const xLen = Math.hypot(b.cx1, b.cy1);
+  const yLen = Math.hypot(b.x2 - b.cx2, b.y2 - b.cy2);
+  if (xLen <= ARC_EPS && yLen <= ARC_EPS) return 'no-handle-length';
+  if (!allowBackwards && b.cx1 < 0) return 'starts-backwards';
+  // With one handle of zero length there is no angle to check, and the other handle's direction is
+  // the only hint there is - the projection takes it and closes the arc as a circle.
+  if (xLen > ARC_EPS && yLen > ARC_EPS) {
+    const corner = arcCorner(b);
+    if (corner === null || Math.abs(Math.abs(corner) - Math.PI / 2) > ARC_ANGLE_TOL) return 'handles-not-perpendicular';
+  }
+  return null;
+}
+
+/**
+ * The quarter arc closest to a curve, or null when the curve gives NO HINT of how big to make one.
+ *
+ * THE HINT IS THE HANDLE LENGTHS, AND THE DIRECTIONS ARE KEPT AS THEY ARE: the arc keeps both
+ * handles' lengths and both handles' directions, and imposes only the conic's own relation between
+ * them - so nothing about which way the dancer travels or faces changes. What moves is the ENDPOINT,
+ * to the conic's corner; that is visible, and it is the price of the constraint.
+ *
+ * A handle of ZERO LENGTH IS NO HINT, and the cases are separated rather than papered over: one zero
+ * handle takes its size from the other (which gives a CIRCLE, the only shape the remaining length can
+ * justify), and BOTH zero means there is nothing to go on at all, so the answer is `null` and the
+ * panel says so instead of inventing a size. A `Stand` is exactly that case.
+ *
+ * `allowBackwards` is false for a facing curve, for the reason `arcBlocker` gives.
+ */
+export function projectToArc(b: BezierData, allowBackwards: boolean): ArcParams | null {
+  const already = arcOf(b);
+  if (already) return already;
+  if (arcBlocker(b, allowBackwards)) return null;
+  const xLen = Math.hypot(b.cx1, b.cy1);
+  const yLen = Math.hypot(b.x2 - b.cx2, b.y2 - b.cy2);
+  const angle = xLen > ARC_EPS ? Math.atan2(b.cy1, b.cx1) : 0;
+  if (xLen > ARC_EPS && yLen <= ARC_EPS) {
+    // One handle only: a circle, turning the way the move actually turns. Mid-move is where the turn
+    // is well defined even when the end tangent is the zero vector.
+    const ySign = bezierAngle(b, 0.5) < 0 ? -1 : 1;
+    return { x: xLen, y: ySign * xLen, angle };
+  }
+  if (yLen > ARC_EPS && xLen <= ARC_EPS) return { x: yLen, y: yLen, angle };
+  const wx = -Math.sin(angle);
+  const wy = Math.cos(angle);
+  const y = (b.x2 - b.cx2) * wx + (b.y2 - b.cy2) * wy;
+  return { x: xLen, y, angle };
+}
+
+/** One move's curve set to a quarter arc - `travel` for the path, `facing` for the heading. */
+export function setMoveArc(call: CallBundle, dancer: number, index: number, curve: 'travel' | 'facing', params: ArcParams): CallBundle {
+  const seg = call.dancers[dancer]?.path[index];
+  if (!seg) return call;
+  const b = arcBezier(params);
+  return setMove(call, dancer, index, curve === 'travel' ? { ...seg, translate: b } : { ...seg, rotate: b });
 }
 
 /** Serialize an arbitrary call bundle as a taminations-style `<tam>` XML string.

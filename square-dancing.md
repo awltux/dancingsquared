@@ -1693,6 +1693,59 @@ dancer (331.5°), and that the export discards it. If someone later adds cy3 to 
 that check fails and tells them the rail is no longer the format's constraint but a self-imposed one.
 `verify:light` green at 12 harnesses in 36.7 s, typecheck clean.
 
+**CTRL SNAPS TO THE GRID — AS A MAGNET, AND THE CALLER CORRECTED MY FIRST ATTEMPT.** The cell is the
+floor's own, and the authority is the format's header rather than a preference: *"The scale is in dancer
+units, same as shown when the grid is on."* One unit is one drawn cell, a `Forward` (x2 = 1) is one cell
+of travel, and the couples of a squared set stand **2** units apart. MEASURED
+(`poc/tools/snap-grid-probe.mjs`): only **46%** of the corpus's authored coordinates are on the unit grid —
+the rest are ⅓s, 4/3s and 1/√2s, what a Bézier approximation of an arc produces — so the snap is a NEW
+convention rather than a restoration of one, which is why it sits behind a modifier.
+
+The first version ROUNDED from anywhere in the cell, which quantises the drag: every position becomes a
+grid position and the gesture stops being "help me land on the line". It is now a magnet — it pulls only
+within a quarter of a cell (**10.2 px** in the flat view at 1080p, where a whole cell is 40.9 px) and
+leaves the point EXACTLY where the pointer is otherwise, which the probe checks as a measurement of the
+tolerance rather than an assertion about it. The snap is in the move's own frame, the frame the tile's
+numbers and the arc's handle lengths are in, so a snapped drag leaves whole numbers behind.
+
+**`arc` LOCKS A CURVE TO A QUARTER OF A CIRCLE OR AN ELLIPSE, AND THE GEOMETRY IS THE ENGINE'S.** The user
+asked for a checkbox on each tab, and for it to be DISABLED where the handle directions make a quadrant
+impossible. That last condition is the definition rather than a guard: A QUARTER ARC'S TWO END TANGENTS ARE
+PERPENDICULAR — they are tangents at two radii a quadrant apart — so the family is the start direction plus
+two lengths, and the endpoint follows to the conic's corner. The cubic is the standard
+`k = 4/3(√2 − 1)` construction, a circle to **2.73e-4** of the radius, which is the best a cubic does.
+
+**The quadrant keeps the curve's own handle directions**, so nothing about which way the dancer travels or
+faces changes and only the endpoint moves. **The two handle lengths are the whole shape**, so they are the
+two fields the tile offers while the five coordinates are locked, and the readout names the shape — which
+is the rule as asked for: a circle if the two offsets are equal, otherwise an ellipse. The circle test
+needs a RELATIVE tolerance, because the lengths come from a subtraction: a `Forward`'s two handles are
+0.333 and 0.33300000000000002, and an equality test calls that walk an ellipse.
+
+**MEASURED, AND IT DECIDES THE FEATURE'S SHAPE** (`engine/test/editor.mjs` section 17, over b1/ms/a1's
+**4150** curves): **0** are already quarter arcs, **690 (16.6%)** could take the lock, and the rest are
+blocked — **2968 (71.5%)** because their two handles are not at a right angle and **492 (11.9%)** because
+they have no handle length to size an arc from. So the disabled state is the COMMON one, and a dead
+checkbox with no explanation would have been the normal experience; the tile prints the angle it measured,
+which is the number that tells the caller what to fix. A straight walk's handles are PARALLEL and a
+U-turn's are ANTI-parallel, and neither is a quadrant of anything. A third refusal — a facing curve whose
+start handle points backwards — never fires on the corpus (no authored facing curve starts by turning 180°)
+and is recorded as a guard.
+
+**A CURVE WITH NO HANDLE LENGTH IS NOT AN ARC, and that definition took a run to get right.** The first
+version called the degenerate all-zero member of the family an arc and counted **138** corpus `Stand`s as
+"already arcs" — three per cent of the corpus reported as a shape that is not there. With the no-shape case
+refused, that number is zero. The projection's own first version also failed: its circle test was the
+equality above.
+
+The projection is checked to preserve what matters: both handle lengths and both directions kept exactly
+with only the corner moving; a rotated arc is the unrotated one turned by its angle (worst **4.6e-16**); a
+projected arc sets off and finishes facing EXACTLY as the original curve did; a facing arc turns the dancer
+exactly a quarter turn; the disable reason and the projection agree on every witness, because the panel's
+enabled state and its ability to project are one question asked once; and the arc survives export and
+re-parse with re-exporting byte-identical. `verify:light` green at 12 harnesses, and the full engine gate
+green at 23.
+
 **THE FLAT VIEW WAS NEVER FRAMED, AND HAD NO PAN OR ZOOM.** Two reported symptoms, two distinct faults,
 and the first explains the second half of the report — *"it used to jump to square when dragged or
 scaled"*. The orthographic camera is CONSTRUCTED with a square frustum (±11 on both axes), and `resize()`

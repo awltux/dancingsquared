@@ -173,8 +173,18 @@ export {
   setMove,
   addMove,
   removeMove,
+  ARC_K,
+  ARC_TOL,
+  ARC_ANGLE_TOL,
+  arcBezier,
+  arcOf,
+  arcIsCircle,
+  arcCorner,
+  arcBlocker,
+  projectToArc,
+  setMoveArc,
 } from './editor.js';
-export type { InstanceDancer } from './editor.js';
+export type { InstanceDancer, ArcParams, ArcBlocker } from './editor.js';
 
 export {
   setParser,

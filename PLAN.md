@@ -2750,7 +2750,73 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     same analysis over a copy with `selectMove`'s sync call removed (the code as it was) flags exactly
     `selectMove`. A structural check that cannot fail on the bug it was written for is decoration. It is
     labelled for what it is — a check on the SOURCE and not on behaviour, because this wiring fault is
-    invisible to every engine harness and the Vite app cannot run in this sandbox.
+    invisible to every engine harness and the Vite app cannot run in this sandbox. The audit's mutator
+    list now also carries the ARC LOCK's two fields, which are selection-dependent state for the same
+    reason the move index is.
+  - **CTRL SNAPS TO THE GRID, AS A MAGNET RATHER THAN A LOCK.** The cell is the floor's own and the
+    authority is the format's own header — *"The scale is in dancer units, same as shown when the grid
+    is on"* — so one unit is one drawn cell, a `Forward` (x2 = 1) is one cell of travel, and the couples
+    of a squared set stand **2** units apart. MEASURED (`node poc/tools/snap-grid-probe.mjs`): only
+    **46%** of the corpus's authored coordinates are on the unit grid (the rest are 1/3s, 4/3s and
+    1/sqrt2s, what a Bezier approximation of an arc produces), so the snap is a NEW convention rather
+    than a restoration of one — which is why it is behind a modifier. THE TOLERANCE IS THE ONE JUDGEMENT
+    CALL and the caller corrected the first attempt: rounding from anywhere in the cell quantises the
+    drag, so every position is a grid position and the gesture stops being "help me land on the line".
+    It now pulls only within a quarter of a cell (**10.2 px** in the flat view at 1080p, where the whole
+    cell is 40.9 px) and leaves the point EXACTLY where the pointer is otherwise — and the probe checks
+    that outside the magnet there is no rounding at all, which is what makes it a magnet. The snap is in
+    the move's own frame, the frame the tile's numbers and the arc's lengths are in, so a snapped drag
+    leaves whole numbers behind; the floor's grid is drawn in the same units, so the two coincide
+    whenever the dancer's frame is square to the floor.
+  - **THE `arc` CHECKBOX LOCKS A CURVE TO A QUARTER OF A CIRCLE OR AN ELLIPSE.** The geometry is the
+    engine's (`arcBezier`, `arcOf`, `arcIsCircle`, `arcCorner`, `arcBlocker`, `projectToArc`,
+    `setMoveArc`) and it is gated in `editor/test/editor.mjs` section 17, because that is where
+    geometric decisions live in this codebase; the panel only wires it. A quarter arc's two end tangents
+    are PERPENDICULAR — they are tangents at two radii a quadrant apart — so the family is the start
+    direction plus two lengths, and the endpoint follows to the conic's corner. **The quadrant keeps the
+    curve's own handle directions**: nothing about which way the dancer travels or faces changes, and
+    only the endpoint moves. The cubic is the standard k = 4/3(sqrt2 - 1) construction, a circle to
+    **2.73e-4** of the radius — the best a cubic does.
+  - **THE LOCK IS EDITING STATE, NOT DATA, AND IT FOLLOWS THE SELECTION.** The `<tam>` format has no
+    "this is an arc" flag and inventing one would be a field the assets cannot read, so the flag is a
+    mode keyed to the curve being edited: whenever the tile is built for a different (dancer, move,
+    curve) it is re-initialised FROM THE DATA, so a curve whose numbers already are a quarter arc comes
+    up locked and the panel cannot claim a curve is free when it is not. Unticking releases the fields
+    without touching the curve.
+  - **THE TWO HANDLE LENGTHS ARE THE WHOLE SHAPE**, so they are the two fields the tile offers (`arc x`,
+    `arc y`) while the five coordinates are locked — the same `locked` styling the group gate uses, and
+    for the same reason: one set of numbers cannot describe the curve any more. The readout names the
+    shape, which is the rule as asked for: **a circle if the two offsets are equal, otherwise an
+    ellipse** (`arcIsCircle`, with a RELATIVE tolerance because the lengths come from a subtraction and
+    a `Forward`'s two handles differ by one ulp — 0.333 against 0.33300000000000002 — which an equality
+    test would call an ellipse).
+  - **A DRAG IN ARC MODE CAN ONLY CHANGE A LENGTH.** r1 slides along the start direction, r2 along the
+    finish one, and r3 — the corner — sets both at once, so nothing a handle can do takes the curve off
+    the family. That is what "locks out manual editing" means: not that the handles stop working, but
+    that they cannot break the shape.
+  - **AND THE CHECKBOX IS DISABLED, WITH THE REASON ON SCREEN, WHEREVER A QUARTER ARC IS IMPOSSIBLE —
+    THE CALLER'S SECOND CORRECTION, AND IT IS THE COMMON CASE.** Two situations, separated because they
+    call for different things: the handles are **not at a right angle** (locking such a curve would have
+    to turn the dancer, and the lock refuses rather than doing it in silence — the tile prints the angle
+    it measured), and there is **no handle length to size from** (a `Stand` has every coordinate zero,
+    so the panel says that rather than inventing a size; where only ONE handle is zero, the other's
+    length is the hint and the arc comes out a circle). A third refusal — a facing curve whose start
+    handle points backwards — never fires on the corpus and is recorded as a guard. MEASURED over
+    b1/ms/a1's **4150** curves: **0** already quarter arcs, **690 (16.6%)** lockable, and blocked
+    **2968 (71.5%)** by the angle plus **492 (11.9%)** by having no handle length. So the disabled state
+    is the COMMON one, and a dead checkbox with no explanation would have been the normal experience.
+    Two of the probe's own claims were killed by its first runs and are recorded: `arcOf` called the
+    degenerate all-zero member of the family an arc and counted **138** corpus `Stand`s as "already
+    arcs" (zero, once the no-shape case is refused), and the projection's circle test was an equality
+    that the ulp above broke.
+  - **THE PROJECTION IS CHECKED TO PRESERVE WHAT MATTERS.** Both handle lengths and both directions are
+    kept exactly and only the corner moves; a rotated arc is the unrotated one turned by its angle
+    (worst **4.6e-16**); a projected arc sets off and finishes facing EXACTLY as the original curve did;
+    a facing arc turns the dancer exactly a quarter turn (90.0000deg); the disable reason and the
+    projection agree on every witness (the panel's enabled state and its ability to project are one
+    question, asked once); and the arc survives export and re-parse with re-exporting byte-identical.
+    Typecheck clean; all four POC probes green; `poc/verify.cjs` the same 3 pre-existing Pass Thru
+    failures; the FULL engine gate green (23 harnesses).
 
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:

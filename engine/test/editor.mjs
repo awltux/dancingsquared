@@ -41,6 +41,19 @@ import {
   sampleTrail,
   sampleTrailRange,
   DEG,
+  // The quarter arc: the one shape the instance editor can lock a curve to.
+  bezierAngle,
+  bezierPoint,
+  callMeta,
+  ARC_K,
+  ARC_TOL,
+  arcBezier,
+  arcOf,
+  arcIsCircle,
+  arcCorner,
+  arcBlocker,
+  projectToArc,
+  setMoveArc,
 } from '../dist/index.js';
 setParser(DOMParser);
 
@@ -804,6 +817,221 @@ console.log('\n== endPoseError is index-for-index, on purpose (16c) ==');
   // ancestor share dancer identity, so pairing dancer i with its counterpart is the question.
   const permuted = { ...src, dancers: [src.dancers[1], src.dancers[0], ...src.dancers.slice(2)] };
   check(endPoseError(permuted, src).pos > 1, `a permutation of the SAME ends reads as an error (${endPoseError(permuted, src).pos.toFixed(2)} units), not as zero`);
+}
+
+console.log('\n== the quarter arc (17) ==');
+{
+  // A quarter arc is the ONLY shape the panel can lock a curve to, so the family is pinned here
+  // rather than in the UI: the engine owns the geometry, and this is the harness that runs in the
+  // `light` tier.
+  const K = ARC_K;
+  const circle = (r) => arcBezier({ x: K * r, y: K * r, angle: 0 });
+
+  // 17a. The claim that makes it an arc at all: the tangents are exactly on the axes. This is what
+  // "quadrant" means, and for a FACING curve it is also what the format can express - the start
+  // tangent is horizontal because cy1 IS 0, which is the attribute the XML does not have.
+  let worstTangent = 0;
+  for (const r of [0.25, 1, 4]) {
+    const c = circle(r);
+    worstTangent = Math.max(worstTangent, Math.abs(bezierAngle(c, 0)), Math.abs(bezierAngle(c, 1) - Math.PI / 2));
+  }
+  check(worstTangent < 1e-9, `the start tangent is EXACTLY +x and the finish tangent EXACTLY +y (worst error ${worstTangent.toExponential(2)} rad)`);
+  check(circle(1).cy1 === 0, 'and the start tangent is horizontal because cy1 is 0 - the one coordinate the format has no attribute for');
+  // The corner of the conic is where the two lengths put it: a quarter turn from the start point.
+  check(Math.abs(bezierAngle(arcBezier({ x: 1, y: 1, angle: 0.7 }), 0) - 0.7) < 1e-12,
+    'and a ROTATED arc starts along the direction it was given, so a travel curve keeps the way it sets off');
+
+  // 17b. It is a real conic, to the accuracy a cubic can manage: the classic 2.7e-4 of the radius.
+  const radialError = (r) => {
+    const c = circle(r);
+    let worst = 0;
+    for (let i = 0; i <= 200; i++) {
+      const p = bezierPoint(c, i / 200);
+      const d = Math.hypot(p.x, p.y - r); // the circle is centred at (0, r)
+      worst = Math.max(worst, Math.abs(d - r));
+    }
+    return worst / r;
+  };
+  const unitErr = radialError(1);
+  console.log(`    worst radial error: ${unitErr.toExponential(4)} of the radius at r=1, ${radialError(4).toExponential(4)} absolute at r=4`);
+  check(unitErr < 3e-4, `the cubic is the circle to ${unitErr.toExponential(2)} of the radius - the best a cubic does, and thousands of times finer than this board`);
+  check(Math.abs(radialError(4) - unitErr) < 1e-12, 'and the error is exactly PROPORTIONAL to the radius, so the shape does not change with size');
+
+  // 17c. A circle IF AND ONLY IF the two handle lengths are equal - the panel's own rule, measured.
+  {
+    const offCircle = arcBezier({ x: K, y: K * 0.5, angle: 0 });
+    let worst = 0;
+    for (let i = 0; i <= 100; i++) {
+      const p = bezierPoint(offCircle, i / 100);
+      worst = Math.max(worst, Math.abs(Math.hypot(p.x, p.y - 1) - 1));
+    }
+    check(worst > 0.1, `equal handle lengths are what make it a circle: halving the finish handle pushes the curve ${worst.toFixed(3)} units off the same circle`);
+    // And an ellipse is still an exact conic in its own right: (x/a)^2 + ((y-b)/b)^2 = 1.
+    const a = 1.5;
+    const b = 0.6;
+    const e = arcBezier({ x: K * a, y: K * b, angle: 0 });
+    let worstEllipse = 0;
+    for (let i = 0; i <= 200; i++) {
+      const p = bezierPoint(e, i / 200);
+      worstEllipse = Math.max(worstEllipse, Math.abs((p.x / a) ** 2 + ((p.y - b) / b) ** 2 - 1));
+    }
+    check(worstEllipse < 1e-3, `and an unequal pair is the ellipse with those semi-axes, to ${worstEllipse.toExponential(2)} (a=${a}, b=${b})`);
+    // A ROTATED ellipse is the same conic turned: the radial distance from its own centre is the
+    // same as the unrotated one's, so the shape travels with the angle.
+    const rot = arcBezier({ x: K * a, y: K * b, angle: 0.9 });
+    const unrot = arcBezier({ x: K * a, y: K * b, angle: 0 });
+    let worstRot = 0;
+    for (let i = 0; i <= 100; i++) {
+      const pr = bezierPoint(rot, i / 100);
+      const pu = bezierPoint(unrot, i / 100);
+      const c = Math.cos(0.9);
+      const s = Math.sin(0.9);
+      worstRot = Math.max(worstRot, Math.hypot(pr.x - (pu.x * c - pu.y * s), pr.y - (pu.x * s + pu.y * c)));
+    }
+    check(worstRot < 1e-12, `a rotated arc is the unrotated one turned by the angle (worst gap ${worstRot.toExponential(2)})`);
+  }
+
+  // 17d. Reading the family back, and the tolerance's reason.
+  {
+    let worst = 0;
+    for (const p of [{ x: K, y: K, angle: 0 }, { x: 2, y: -1.5, angle: 0.3 }, { x: 0.25, y: 0.25, angle: -2 }, { x: 1, y: 1, angle: Math.PI / 2 }, { x: 0, y: 2, angle: 0 }]) {
+      const back = arcOf(arcBezier(p));
+      worst = Math.max(worst, Math.abs(back.x - p.x), Math.abs(back.y - p.y), Math.abs(normAngleSafe(back.angle - p.angle)));
+    }
+    check(worst < 1e-15, `arcOf(arcBezier(p)) returns p exactly for five shapes including a degenerate one (worst ${worst.toExponential(2)})`);
+    // A curve that is nearly-but-not an arc is NOT reported as one: the panel's lock must not
+    // quietly round a curve into the family.
+    const nearly = { ...arcBezier({ x: K, y: K, angle: 0 }), cx2: 1.5 };
+    check(arcOf(nearly) === null, 'a curve that is not an arc is not read as one');
+    // But the EXPORT rounds to four decimals, so an arc that has been saved and reloaded must still
+    // read as an arc - which is the entire reason ARC_TOL is not zero.
+    const rounded = Object.fromEntries(Object.entries(arcBezier({ x: K * 3, y: K * -2, angle: 0 })).map(([k, v]) => [k, Math.round(v * 1e4) / 1e4]));
+    check(arcOf(rounded) !== null, 'and an arc that went through the four-decimal export still reads as an arc after it');
+  }
+
+  // 17e. THE DISABLE RULE. A quarter arc's two end tangents are perpendicular, so a curve whose
+  // handles are not at a right angle CANNOT be locked into the family without turning the dancer -
+  // and the panel refuses rather than doing that. This is the check the checkbox hangs on.
+  {
+    const perp = { cx1: 1, cy1: 0, cx2: 1, cy2: 0.4, x2: 1, y2: 1 }; // finish handle straight up
+    const skew = { cx1: 1, cy1: 0, cx2: 1, cy2: 0.4, x2: 1.4, y2: 1 }; // ...and now off at an angle
+    const walk = { cx1: 0.333, cy1: 0, cx2: 0.667, cy2: 0, x2: 1, y2: 0 }; // handles PARALLEL
+    const uturn = { cx1: 1.333, cy1: 0, cx2: 1.333, cy2: 2, x2: 0, y2: 2 }; // handles ANTI-parallel
+    check(Math.abs(Math.abs(arcCorner(perp)) - Math.PI / 2) < 1e-12, `a perpendicular pair measures a right angle (${((Math.abs(arcCorner(perp)) * 180) / Math.PI).toFixed(2)}deg)`);
+    check(arcBlocker(perp, true) === null, 'so the box is ENABLED for it');
+    check(arcBlocker(skew, true) === 'handles-not-perpendicular', 'a skewed pair is refused with the reason the panel shows');
+    check(arcBlocker(walk, true) === 'handles-not-perpendicular', 'a straight walk has PARALLEL handles, and a straight line is not a quadrant of anything');
+    check(arcBlocker(uturn, true) === 'handles-not-perpendicular', 'and a U-turn has ANTI-parallel handles: 180deg is two quadrants, not one');
+    const zero = { cx1: 0, cy1: 0, cx2: 0, cy2: 0, x2: 0, y2: 0 };
+    check(arcBlocker(zero, true) === 'no-handle-length', 'a Stand has no handle length to size an arc from, and says THAT rather than blaming the angle');
+    const backwards = { cx1: -2, cy1: 0, cx2: -1, cy2: 1, x2: -1, y2: 1 };
+    check(arcBlocker(backwards, false) === 'starts-backwards',
+      'a facing curve whose start handle points backwards is refused rather than flipped: that would be a 180deg snap at t=0');
+    check(arcBlocker(backwards, true) === null, 'while a TRAVEL curve going backwards is fine - that is what a Back move does');
+    // The panel's enabled state and the projection are the same question, asked once.
+    for (const b of [perp, skew, walk, uturn, zero, backwards]) {
+      check((arcBlocker(b, true) === null) === (projectToArc(b, true) !== null),
+        `the disable reason and the projection agree about ${arcBlocker(b, true) ?? 'this one'}`);
+    }
+  }
+
+  // 17f. The projection, and how much of the corpus could take the lock at all.
+  {
+    const perp = { cx1: 1, cy1: 0, cx2: 1, cy2: 0.4, x2: 1, y2: 1 };
+    const p = projectToArc(perp, true);
+    check(Math.abs(p.x - 1) < 1e-15 && Math.abs(p.y - 0.6) < 1e-15 && p.angle === 0,
+      `the projection keeps BOTH handle lengths (${p.x.toFixed(4)}, ${p.y.toFixed(4)}) and the direction, and imposes only the conic relation`);
+    const asArc = arcBezier(p);
+    check(Math.abs(bezierAngle(asArc, 0) - bezierAngle(perp, 0)) < 1e-12 && Math.abs(bezierAngle(asArc, 1) - bezierAngle(perp, 1)) < 1e-12,
+      'so the dancer sets off and finishes facing exactly as the curve said - only the corner moved');
+
+    // One handle of zero length borrows the other's, which is the only size the remaining hint can
+    // justify; both zero is no hint at all.
+    const oneZero = projectToArc({ cx1: 0.8, cy1: 0, cx2: 0.8, cy2: 0.3, x2: 0.8, y2: 0.3 }, true);
+    check(oneZero !== null && arcIsCircle(oneZero), `a zero FINISH handle borrows the start handle's length and gives a circle (${oneZero && oneZero.x.toFixed(4)})`);
+    check(projectToArc({ cx1: 0, cy1: 0, cx2: 0, cy2: 0, x2: 0, y2: 0 }, true) === null, 'a Stand gives NO hint, and the projection says so rather than inventing a size');
+    // Already an arc: the projection is the identity, so ticking the box twice cannot change a curve.
+    const arc = arcBezier({ x: 1.2, y: -0.4, angle: 0.2 });
+    const again = projectToArc(arc, true);
+    check(again.x === 1.2 && again.y === -0.4 && again.angle === 0.2, 'projecting a curve that is ALREADY an arc is the identity');
+  }
+
+  // 17g. Through a real call, a real export and a real re-parse.
+  {
+    const seg0 = src.dancers[1].path[0];
+    const asArc = setMoveArc(src, 1, 0, 'travel', { x: K, y: K, angle: 0 }); // a unit quarter circle
+    const back = asArc.dancers[1].path[0].translate;
+    check(arcOf(back) !== null, 'setMoveArc writes a curve the reader recognises as an arc');
+    check(asArc.dancers[1].path[0].beats === seg0.beats && asArc.dancers[1].path[0].hands === seg0.hands,
+      'and it does not touch the beats or the hands, which are not coordinates');
+    check(asArc.dancers[0].path[0].translate.x2 === src.dancers[0].path[0].translate.x2,
+      'and it changes ONE dancer: the ones not named are byte-identical');
+
+    // The heading a facing arc delivers is a quarter turn, by construction.
+    const facing = setMoveArc(src, 1, 0, 'facing', { x: 1, y: 1, angle: 0 });
+    const h0 = poseFor(facing.dancers[1], moveBeatRange(facing.dancers[1], 0).from).heading;
+    const h1 = poseFor(facing.dancers[1], moveBeatRange(facing.dancers[1], 0).to).heading;
+    check(Math.abs(Math.abs(normAngleSafe(h1 - h0)) - Math.PI / 2) < 1e-9,
+      `a facing arc turns the dancer EXACTLY a quarter turn (${((Math.abs(normAngleSafe(h1 - h0)) * 180) / Math.PI).toFixed(4)}deg)`);
+
+    const xml = callToXml(asArc, asArc.from);
+    const rt = buildCall(parseCallXml(xml)[0], parseFormations(formationsXml), parseMoves(movesXml), false);
+    const rtArc = arcOf(rt.dancers[1].path[0].translate);
+    check(rtArc !== null && Math.abs(rtArc.x - K) < ARC_TOL && Math.abs(rtArc.y - K) < ARC_TOL,
+      `the arc survives export and re-parse (${rtArc && rtArc.x.toFixed(4)}, ${rtArc && rtArc.y.toFixed(4)} against ${K.toFixed(4)})`);
+    check(callToXml(rt, rt.from) === xml, 'and exporting the re-parsed call is byte-identical, so an arc does not drift');
+  }
+
+  // 17h. How much of the corpus could take the lock, and how much of it is already an arc?
+  {
+    const levels = ['b1', 'ms', 'a1'];
+    let curves = 0;
+    let arcs = 0;
+    let lockable = 0;
+    const blocked = { 'no-handle-length': 0, 'handles-not-perpendicular': 0, 'starts-backwards': 0 };
+    for (const lv of levels) {
+      const dir = path.join(__dirname, '../../poc/src/assets', lv);
+      if (!fs.existsSync(dir)) continue;
+      for (const f of fs.readdirSync(dir)) {
+        if (!f.endsWith('.xml')) continue;
+        const x = fs.readFileSync(path.join(dir, f), 'utf8');
+        if (callMeta(x).setups.length === 0) continue;
+        let c;
+        try {
+          c = loadCallFromXml(x, movesXml, formationsXml, 0);
+        } catch {
+          continue;
+        }
+        for (const d of c.dancers) {
+          for (const s of d.path) {
+            for (const [kind, b] of [['travel', s.translate], ['facing', s.rotate]]) {
+              if (!b) continue;
+              curves++;
+              if (arcOf(b)) arcs++;
+              const why = arcBlocker(b, kind === 'travel');
+              if (why) blocked[why]++;
+              else lockable++;
+            }
+          }
+        }
+      }
+    }
+    console.log(`    of ${curves} authored curves in ${levels.join('/')}:`);
+    console.log(`      already exact quarter arcs: ${arcs}`);
+    console.log(`      could be locked to one    : ${lockable} (${((lockable / curves) * 100).toFixed(1)}%)`);
+    console.log(`      blocked: ${Object.entries(blocked).map(([k, v]) => `${k} ${v} (${((v / curves) * 100).toFixed(1)}%)`).join(', ')}`);
+    check(blocked['handles-not-perpendicular'] / curves > 0.2,
+      `the disable rule is doing real work rather than guarding a corner case: ${((blocked['handles-not-perpendicular'] / curves) * 100).toFixed(1)}% of curves have handles that are not at a right angle`);
+    check(lockable > 0, `and the lock is available for ${lockable} of them`);
+    // ZERO, AND THAT TOOK A DEFINITION TO GET RIGHT: the first version of `arcOf` called the
+    // degenerate all-zero member of the family an arc, and reported 138 of these curves as already
+    // arcs - every one of them a `Stand`, with no shape to lock and no handle length to size
+    // anything from. Pinned at zero because it is the measurement that says the checkbox is a NEW
+    // shape rather than a description of the corpus; if a future corpus does carry arcs, that is a
+    // fact worth looking at rather than a number to compare against a threshold.
+    check(arcs === 0,
+      `no authored curve in ${levels.join('/')} is a quarter arc (${arcs}), so the checkbox adds a shape rather than naming one the assets already use`);
+  }
 }
 
 console.log('\n=================');

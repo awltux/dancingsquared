@@ -34,8 +34,17 @@ import {
   setStartFormation,
   connectStart,
   endPoseError,
+  // The quarter arc: the one shape a curve can be LOCKED to, so that the coordinate fields stop
+  // being five independent numbers and become the two handle lengths the arc is made of.
+  ARC_K,
+  arcBezier,
+  arcOf,
+  arcIsCircle,
+  arcCorner,
+  arcBlocker,
+  projectToArc,
 } from 'dancing-squared-engine';
-import type { Board, BezierData, CallBundle, FormDancer, Gender, Hands, InstanceDancer, Seg } from 'dancing-squared-engine';
+import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, FormDancer, Gender, Hands, InstanceDancer, Seg } from 'dancing-squared-engine';
 
 import {
   availableCalls,
@@ -137,6 +146,34 @@ function sameCoords(a: Seg, b: Seg): boolean {
 const show = (n: number): string => (Math.round(n * 1e4) / 1e4).toString();
 const toDeg = (rad: number): number => (rad * 180) / Math.PI;
 const toRad = (deg: number): number => (deg * Math.PI) / 180;
+
+/**
+ * The grid a CTRL-drag snaps to, and how close the pointer must come before it is pulled in.
+ *
+ * THE CELL IS THE FLOOR'S OWN, and the authority is the format's own header rather than a preference:
+ * "The scale is in dancer units, same as shown when the grid is on", and the floor this app draws is 20
+ * units in 20 divisions. So a whole unit is a drawn cell, a `Forward` (x2 = 1) is one cell of travel,
+ * and MEASURED (`tools/snap-grid-probe.mjs`) the couples of a squared set stand 2 units apart. Only
+ * 46% of the corpus's authored coordinates are on the unit grid, so this is a new convention rather
+ * than a restoration of one - which is why it is behind a modifier.
+ *
+ * IT IS A MAGNET AND NOT A LOCK: the point is pulled onto a line only when it is already within a
+ * quarter of a cell of one, and is left exactly where the pointer is otherwise. Rounding from anywhere
+ * in the cell would make the drag quantised - every position a grid position - which is a different
+ * gesture from "help me land on the line". The quarter cell is about 10 px in the flat view at 1080p
+ * (the probe measures 40.9 px per unit there), so the pull is felt but the drag stays smooth.
+ *
+ * THE SNAP IS IN THE MOVE'S OWN FRAME, which is the frame the tile's numbers - and the arc's two
+ * handle lengths - are in, so a snapped drag leaves whole numbers behind. The floor's grid is drawn in
+ * the same units, so the two coincide whenever the dancer's frame is square to the floor, which is
+ * every multiple of 90 degrees.
+ */
+const SNAP_CELL = 1;
+const SNAP_TOL = SNAP_CELL / 4;
+const snapTo = (v: number): number => {
+  const near = Math.round(v / SNAP_CELL) * SNAP_CELL;
+  return Math.abs(v - near) <= SNAP_TOL ? near : v;
+};
 
 /**
  * A Bezier as a polyline, using the ENGINE'S OWN `bezierPoint`.
@@ -255,6 +292,19 @@ export class EditorController implements EditorUI {
   }
   /** WHICH OF THE MOVE'S TWO SHAPES is selected: the translation curve or the facing curve. */
   private moveKind: 'move' | 'facing' = 'move';
+  /**
+   * Whether the curve being edited is LOCKED to a quarter arc, and which curve that answer is about.
+   *
+   * The lock is EDITING state rather than data: the `<tam>` format has no "this is an arc" flag, and
+   * adding one would be inventing a field the assets cannot read. So the flag is a mode that follows
+   * the selection, and `arcKey` is what makes it follow: whenever the tile is built for a different
+   * (dancer, move, curve), the flag is re-initialised FROM THE DATA - a curve whose numbers already
+   * are a quarter arc comes up locked, and the panel cannot claim a curve is free when it is not.
+   * Unticking releases the fields without touching the curve, so an arc can be edited like any other
+   * shape once the caller says so.
+   */
+  private arcOn = false;
+  private arcKey = '';
   /** Which of the shown dancer's moves is selected in the strip. */
   private moveIndex = 0;
   /** The editor's OWN playhead, in absolute beats. The animation is OFF while editing an instance,
@@ -798,7 +848,9 @@ export class EditorController implements EditorUI {
       if (!this.dragHandle) return;
       const p = this.stage.floorPoint(e.clientX, e.clientY);
       if (!p) return;
-      this.applyHandleDrag(this.dragHandle, p);
+      // CTRL SNAPS TO THE GRID, read from the event rather than held as state: a modifier that stays
+      // latched after the key is released is worse than no snap at all.
+      this.applyHandleDrag(this.dragHandle, p, e.ctrlKey);
     });
     const endDrag = (e: PointerEvent) => {
       if (!this.dragHandle) return;
@@ -831,16 +883,27 @@ export class EditorController implements EditorUI {
    *
    * NOTE WHAT "the pointer's local point" MEANS FOR A FACING: it is the position of a coefficient in a
    * tangent space, drawn where the tile's numbers can be read off it. The drag is honest about the
-   * data - it writes exactly the number the field shows - and the direction from the dancer to the
-   * curve is what the dancer's heading responds to, not the distance.
+   * data - it writes exactly the number the field shows - and the DIRECTION of the curve is what the
+   * dancer's heading responds to, not the distance.
+   *
+   * CTRL SNAPS TO THE GRID as a MAGNET: see `SNAP_CELL` - the point is pulled onto a line only when it
+   * is already within a quarter of a cell of one, and left where the pointer is otherwise.
+   *
+   * WITH THE ARC ON, EVERY HANDLE IS ON A RAIL, because the curve is no longer five free numbers: the
+   * arc's parameters are the two handle LENGTHS, so a drag can only change a length and never a
+   * direction. r1 slides along the start direction, r2 along the finish direction, and r3 - the corner
+   * - sets both lengths at once. That is what "locks out manual editing" means here: not that the
+   * handles stop working, but that nothing they can do takes the curve off the family.
    */
-  private applyHandleDrag(handle: string, board: { x: number; y: number }) {
+  private applyHandleDrag(handle: string, board: { x: number; y: number }, snap = false) {
     const call = this.instance;
     if (!call) return;
     const d = parseInt(handle.slice(1), 10);
     const which = handle.slice(handle.indexOf(':') + 1);
     const dancer = call.dancers[d];
     if (!dancer) return;
+    const seg = dancer.path[this.moveIndex];
+    if (!seg) return;
     const range = moveBeatRange(dancer, this.moveIndex);
     const p0 = poseFor(dancer, range.from);
     // The INVERSE of the placement in `renderHandles`: the pointer's floor point -> the LOCAL frame
@@ -848,8 +911,50 @@ export class EditorController implements EditorUI {
     const dx = board.x - p0.x;
     const dy = board.y - p0.y;
     const h = p0.heading;
-    const lx = Math.cos(h) * dx + Math.sin(h) * dy;
-    const ly = -Math.sin(h) * dx + Math.cos(h) * dy;
+    // The snap goes on the LOCAL point, which is the frame the fields are in - so a snapped drag leaves
+    // whole numbers in the tile, and the control point sits on a grid line whenever the dancer's own
+    // frame is aligned with the floor's, which it is for every multiple of 90deg.
+    const rawX = Math.cos(h) * dx + Math.sin(h) * dy;
+    const rawY = -Math.sin(h) * dx + Math.cos(h) * dy;
+    const lx = snap ? snapTo(rawX) : rawX;
+    const ly = snap ? snapTo(rawY) : rawY;
+
+    const facing = which.startsWith('r');
+    const bez = facing ? seg.rotate : seg.translate;
+    const arc = this.arcOn && bez ? arcOf(bez) : null;
+    if (arc) {
+      // THE ARC'S TWO LENGTHS, in the arc's own orthonormal frame: u along the start handle, w along
+      // the finish one. `x` is a length and cannot be negative, so the clamp is the definition rather
+      // than a guard; `y` keeps its sign, which is which way the turn goes.
+      const ux = Math.cos(arc.angle);
+      const uy = Math.sin(arc.angle);
+      const wx = -uy;
+      const wy = ux;
+      const a = arc.x / ARC_K;
+      const b = arc.y / ARC_K;
+      const cornerX = a * ux + b * wx;
+      const cornerY = a * uy + b * wy;
+      let x = arc.x;
+      let y = arc.y;
+      if (which === 'r1' || which === 'c1') {
+        x = Math.max(0, lx * ux + ly * uy);
+      } else if (which === 'r2' || which === 'c2') {
+        y = (cornerX - lx) * wx + (cornerY - ly) * wy;
+      } else {
+        x = Math.max(0, ARC_K * (lx * ux + ly * uy));
+        y = ARC_K * (lx * wx + ly * wy);
+      }
+      const next: ArcParams = { x, y, angle: arc.angle };
+      const b2 = arcBezier(next);
+      this.commitMoveChange(
+        (s) => (facing ? { ...s, rotate: b2 } : { ...s, translate: b2 }),
+        `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`,
+        true,
+        true,
+      );
+      return;
+    }
+
     const patch: (seg: Seg) => Seg =
       which === 'r1'
         ? // THE RAIL. cx1 alone; cy1 stays exactly the 0 the format requires, so the dot cannot leave
@@ -1306,6 +1411,26 @@ export class EditorController implements EditorUI {
     grid.className = 'ed-grid';
     const coordsOk = this.coordinatesAgree();
 
+    // THE ARC LOCK, resolved before anything is drawn.
+    //
+    // The flag follows the SELECTION (see `arcOn`), and it is initialised from the data every time the
+    // tile is built for a different curve - so a curve whose numbers already are a quarter arc comes up
+    // locked, and one that is not comes up free.
+    const curveKey = `m${i}:${k}:tab:${this.moveKind}`;
+    if (this.arcKey !== curveKey) {
+      this.arcKey = curveKey;
+      const c0 = this.moveKind === 'facing' ? seg.rotate : seg.translate;
+      this.arcOn = !!c0 && arcOf(c0) !== null;
+    }
+    // Whether a quarter arc is POSSIBLE here is the engine's answer, not the panel's: a quarter arc's
+    // two end tangents are perpendicular, so a curve whose handles are not at a right angle cannot be
+    // locked without turning the dancer - and the reasons are separated because "no handle to size it
+    // from" and "your handles are not at a right angle" call for different things from the caller.
+    const cur = this.moveKind === 'facing' ? seg.rotate : seg.translate;
+    const allowBackwards = this.moveKind === 'move';
+    const blocker: ArcBlocker | null = cur ? arcBlocker(cur, allowBackwards) : 'no-handle-length';
+    const arcParams = this.arcOn && cur ? (arcOf(cur) ?? projectToArc(cur, allowBackwards)) : null;
+
     if (this.moveKind === 'facing' && seg.rotate) {
       const r = seg.rotate;
       const rKeys: [keyof typeof r, string, number][] = [
@@ -1326,7 +1451,10 @@ export class EditorController implements EditorUI {
             r[key],
             step,
             (v) => write((s) => ({ ...s, rotate: { ...(s.rotate ?? s.translate), [key]: v } }), `r.${key}`, true),
-            !coordsOk,
+            // LOCKED BY EITHER GATE, and the two read the same on purpose: the group gate locks the
+            // fields because one set of numbers cannot describe several shapes, and the ARC locks them
+            // because the five numbers are no longer independent - they follow from the two lengths.
+            !coordsOk || this.arcOn,
           ),
         );
       }
@@ -1370,7 +1498,7 @@ export class EditorController implements EditorUI {
             t[key],
             step,
             (v) => write((s) => ({ ...s, translate: { ...s.translate, [key]: v } }), `t.${key}`, true),
-            !coordsOk,
+            !coordsOk || this.arcOn,
           ),
         );
       }
@@ -1384,6 +1512,116 @@ export class EditorController implements EditorUI {
       note.textContent =
         `coordinates locked: the ${this.selectedSorted().length} selected dancers do not share this move's shape, and one set of numbers cannot describe several - select one dancer to edit it`;
       grid.appendChild(note);
+    }
+
+    // ---- the quarter-arc lock -------------------------------------------------
+    //
+    // A CHECKBOX ON EACH TAB, as asked for, and it is disabled - with the reason on screen - wherever a
+    // quarter arc is not possible. MEASURED over b1/ms/a1 (`engine/test/editor.mjs`, section 17h):
+    // 71.5% of the corpus's curves have handles that are not at a right angle, 11.9% have no handle
+    // length to size from, and none of them is a quarter arc - so the disabled state is the COMMON one
+    // and a dead checkbox with no explanation would be the normal experience.
+    const arcRow = document.createElement('span');
+    arcRow.className = 'ed-group';
+    const achk = document.createElement('input');
+    achk.type = 'checkbox';
+    achk.checked = this.arcOn;
+    achk.disabled = blocker !== null;
+    achk.dataset.key = `m${i}:${k}:arc`;
+    achk.title =
+      blocker === 'no-handle-length'
+        ? 'Both of this curve\'s handles have zero length, so there is nothing to size a quarter arc from - drag a control point out first, or type a coordinate.'
+        : blocker === 'handles-not-perpendicular'
+          ? 'This curve\'s two handles are not at a right angle. A quarter arc\'s end tangents are perpendicular by definition, so locking this curve would have to turn the dancer - which the lock refuses to do.'
+          : blocker === 'starts-backwards'
+            ? 'The start handle points backwards, which for a facing curve would mean the dancer snapping round 180deg as the move begins.'
+            : 'Lock this curve to a quarter of a circle or an ellipse. Its two handles keep their lengths and their directions and the endpoint moves to the conic\'s corner, so the dancer sets off and finishes facing exactly as it did. Tick it and the coordinates stop being independent - only the two handle lengths are editable.';
+    if (blocker) arcRow.classList.add('locked');
+    const alab = document.createElement('label');
+    alab.textContent = 'arc';
+    achk.addEventListener('change', () => {
+      this.arcOn = achk.checked;
+      if (!achk.checked) {
+        // UNTICKING DOES NOT TOUCH THE CURVE. It releases the fields, which is the whole of what the
+        // lock was doing; the numbers are still a quarter arc until an edit moves them off it.
+        this.renderInstance(`m${i}:${k}:arc`);
+        return;
+      }
+      const p = cur ? projectToArc(cur, allowBackwards) : null;
+      if (!p) {
+        this.arcOn = false;
+        this.renderInstance(`m${i}:${k}:arc`);
+        return;
+      }
+      // ONE SET OF PARAMETERS, written to every selected dancer - the same rule as every other
+      // coordinate edit, and the gate refuses it when the selected curves differ.
+      write((s) => {
+        const b2 = arcBezier(p);
+        return this.moveKind === 'facing' ? { ...s, rotate: b2 } : { ...s, translate: b2 };
+      }, 'arc', true);
+    });
+    arcRow.append(achk, alab);
+    grid.appendChild(arcRow);
+    if (blocker) {
+      // SAY WHY, NUMBERED. A disabled control with no explanation is indistinguishable from a broken
+      // one, and the angle is the number that tells the caller what to fix about the handles.
+      const angle = blocker === 'handles-not-perpendicular' && cur ? arcCorner(cur) : null;
+      const why = document.createElement('div');
+      why.className = 'small';
+      why.textContent =
+        blocker === 'no-handle-length'
+          ? 'no arc: this curve has no handle length to size one from'
+          : blocker === 'starts-backwards'
+            ? 'no arc: a facing curve that starts by turning 180deg'
+            : `no arc: this curve's two handles are ${((Math.abs(angle ?? 0) * 180) / Math.PI).toFixed(1)}deg apart, and a quadrant needs a right angle`;
+      grid.appendChild(why);
+    }
+    if (arcParams) {
+      // THE TWO HANDLE LENGTHS ARE THE WHOLE SHAPE, so they are the two fields - and they are the
+      // "x and y offsets of the lines start and finish" whose equality makes it a circle.
+      const arcField = (key: 'x' | 'y', label: string) => {
+        const wrap = document.createElement('span');
+        wrap.className = 'ed-group';
+        const l = document.createElement('label');
+        l.textContent = label;
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.step = '0.25';
+        input.value = show(arcParams[key]);
+        input.dataset.key = `m${i}:${k}:arc.${key}`;
+        input.title =
+          key === 'x'
+            ? 'The START handle\'s length, along the direction the curve sets off in. Always a length: the direction carries the sign.'
+            : 'The FINISH handle\'s length, at right angles to the start. Its sign is the turn - positive is the dancer\'s left.';
+        input.addEventListener('change', () => {
+          const v = parseFloat(input.value);
+          if (!Number.isFinite(v)) { this.renderInstance(); return; }
+          // x is a LENGTH and cannot be negative - the direction carries the sign - while y KEEPS the
+          // sign the caller typed, because its sign is which way the turn goes.
+          const next: ArcParams = { x: key === 'x' ? Math.max(0, v) : arcParams.x, y: key === 'y' ? v : arcParams.y, angle: arcParams.angle };
+          write((s) => {
+            const b2 = arcBezier(next);
+            return this.moveKind === 'facing' ? { ...s, rotate: b2 } : { ...s, translate: b2 };
+          }, `arc.${key}`, true);
+        });
+        wrap.append(l, input);
+        return wrap;
+      };
+      grid.appendChild(arcField('x', 'arc x'));
+      grid.appendChild(arcField('y', 'arc y'));
+      const shape = document.createElement('div');
+      shape.className = 'small';
+      const r0 = arcParams.x / ARC_K;
+      const r1 = Math.abs(arcParams.y) / ARC_K;
+      shape.textContent = arcIsCircle(arcParams)
+        ? `quarter CIRCLE, radius ${show(r0)} - the two offsets are equal, so the conic has equal semi-axes${arcParams.y < 0 ? ', turning right' : ''}`
+        : `quarter ELLIPSE, ${show(r0)} x ${show(r1)} - the offsets differ, so the semi-axes do${arcParams.y < 0 ? ', turning right' : ''}`;
+      grid.appendChild(shape);
+      const locked = document.createElement('div');
+      locked.className = 'small';
+      locked.textContent =
+        'the coordinates are locked: the curve is a quarter arc, so its five numbers follow from these two handle lengths. The curve\'s directions are untouched - only the endpoint moved, to the conic\'s corner.';
+      grid.appendChild(locked);
     }
 
     tile.appendChild(grid);

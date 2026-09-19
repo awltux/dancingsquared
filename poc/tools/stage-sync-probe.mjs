@@ -97,6 +97,11 @@ const MUTATORS = [
   /this\.moveKind\s*=\s*[^=]/g,
   /this\.selectedDancers\s*=\s*[^=]/g,
   /this\.selectedDancers\.(?:add|delete)\(/g,
+  // The ARC LOCK is selection-dependent state too: it follows the curve the tile is showing, so a
+  // method that re-points the selection without re-deriving it would leave the lock describing a
+  // different move - the same fault this audit exists for, one field over.
+  /this\.arcOn\s*=\s*[^=]/g,
+  /this\.arcKey\s*=\s*[^=]/g,
 ];
 const REACHES_STAGE = [/this\.syncStageSelection\(/, /this\.renderInstance\(/, /this\.commit\(/];
 

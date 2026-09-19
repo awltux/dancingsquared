@@ -2817,6 +2817,24 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     question, asked once); and the arc survives export and re-parse with re-exporting byte-identical.
     Typecheck clean; all four POC probes green; `poc/verify.cjs` the same 3 pre-existing Pass Thru
     failures; the FULL engine gate green (23 harnesses).
+  - **DRAGGING A CONTROL POINT ALSO DRAGGED THE BOARD, AND THE CAUSE WAS TWO QUESTIONS SHARING ONE
+    VARIABLE.** `setControlsEnabled(false)` silences the camera for the length of a Bezier drag — but the
+    drag RE-RENDERS ON EVERY POINTER MOVE, and that path is `updateCall` -> `applyDisplay` ->
+    `setView2D`, which wrote `controls.enabled = !on` and therefore re-enabled the camera in the middle
+    of the gesture. The panel's own pointermove handler runs FIRST, so by the time OrbitControls' handler
+    ran on the same event the controls were live again and the board panned under the point being
+    dragged. "Which view is on screen" and "is camera input suppressed right now" are now two facts:
+    `inputSuppressed` is the caller's, `setView2D` decides only WHICH control set it applies to, and a
+    view switch can no longer resurrect the camera mid-gesture.
+  - **AND THE FAULT IS REPRODUCED, NOT JUST FIXED.** `node poc/tools/view2d-probe.mjs` section 5 drives
+    three's own OrbitControls through a fake canvas IN THE ORDER THE BROWSER DELIVERS THE EVENTS: the
+    camera is LIVE at pointerdown, because OrbitControls registered its listener when the stage was built
+    and therefore runs before the panel's. The view moves **0.0000** units with the fix and **3.13**
+    with the rule it replaced — the second number is the regression test, because a check that cannot
+    fail on the bug is decoration. THE PROBE'S OWN FIRST VERSION PASSED THE NEGATIVE CONTROL BY
+    MISTAKE: it suppressed input before dispatching the pointerdown, which lets OrbitControls decline the
+    gesture entirely, so nothing could pan however the view switch behaved. The ordering was the whole
+    mechanism, and getting it wrong made the instrument silent rather than wrong.
 
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:

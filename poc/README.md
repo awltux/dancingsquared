@@ -296,6 +296,19 @@ screen's edge, and the board can never be pushed off with no gesture that brings
 floor's edge 0.571 of a screen-half short of the side edge on a 21:9 canvas, because a limit derived
 from the vertical half-span is conservative horizontally by exactly the aspect ratio.
 
+**Two questions, two flags: "which view is on screen" and "is camera input suppressed right now".**
+They were one variable, and that was a real fault rather than untidiness. Dragging a Bézier control
+point silences the camera for the length of the gesture, but the drag **re-renders on every pointer
+move** — `updateCall` → `applyDisplay` → `setView2D` — and `setView2D` wrote `controls.enabled = !on`,
+re-enabling the camera mid-drag. The panel's pointermove handler runs first, so by the time
+OrbitControls' handler ran on the same event the controls were live again and **the board panned under
+the point being dragged**. Now `setControlsEnabled` sets a suppression that `setView2D` honours, so a
+view switch cannot resurrect the camera during a gesture. Measured by `node tools/view2d-probe.mjs`,
+driving three's own OrbitControls through a fake canvas in the order the browser delivers the events
+(the camera is live at pointerdown, because OrbitControls' listener was registered first): the view
+moves **0.0000** units with the fix and **3.13** with the rule it replaced — and that second number is
+the regression test, because a check that cannot fail on the bug is decoration.
+
 **The appearance of the flat view used to depend on whether you had resized the window.** The
 orthographic camera is constructed with a *square* frustum (±11 on both axes), and `resize()` — the one
 place that recomputes it from the canvas aspect — was only ever called from the window's `resize`

@@ -1746,6 +1746,27 @@ enabled state and its ability to project are one question asked once; and the ar
 re-parse with re-exporting byte-identical. `verify:light` green at 12 harnesses, and the full engine gate
 green at 23.
 
+**DRAGGING A CONTROL POINT ALSO DRAGGED THE BOARD, AND THE CAUSE WAS TWO QUESTIONS SHARING ONE VARIABLE.**
+`setControlsEnabled(false)` silences the camera for the length of a Bezier drag — but the drag RE-RENDERS
+ON EVERY POINTER MOVE, and that path is `updateCall` → `applyDisplay` → `setView2D`, which wrote
+`controls.enabled = !on` and so re-enabled the camera in the middle of the gesture. Worse, THE ORDER WAS
+AGAINST US: OrbitControls registers its pointerdown listener when the stage is built, so it starts a pan
+before the panel's handler silences it; and the panel's pointermove handler runs first, so the re-enable
+landed before OrbitControls' handler ran on the same event. The board therefore panned under the point
+being dragged. "Which view is on screen" and "is camera input suppressed right now" are now two facts:
+`inputSuppressed` is the caller's, `setView2D` decides only WHICH control set it applies to, and a view
+switch cannot resurrect the camera mid-gesture.
+
+**AND THE FAULT IS REPRODUCED RATHER THAN JUST FIXED.** `poc/tools/view2d-probe.mjs` section 5 drives
+three's own OrbitControls through a fake canvas in the order the browser delivers the events, with the
+camera LIVE at pointerdown because the library's listener was registered first. The view moves **0.0000**
+units with the fix and **3.13** with the rule it replaced — the second number is the regression test,
+because a check that cannot fail on the bug is decoration. THE PROBE'S OWN FIRST VERSION PASSED ITS
+NEGATIVE CONTROL BY MISTAKE: it suppressed input before dispatching the pointerdown, which lets
+OrbitControls decline the gesture entirely, so nothing could pan however the view switch behaved. The
+ordering WAS the mechanism, and getting it wrong made the instrument silent rather than wrong — the
+failure mode this workstream keeps meeting.
+
 **THE FLAT VIEW WAS NEVER FRAMED, AND HAD NO PAN OR ZOOM.** Two reported symptoms, two distinct faults,
 and the first explains the second half of the report — *"it used to jump to square when dragged or
 scaled"*. The orthographic camera is CONSTRUCTED with a square frustum (±11 on both axes), and `resize()`

@@ -221,7 +221,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   // thoroughly. 0.2 shows 5x the floor, 20 is close enough to place a control point by eye.
   controls2d.minZoom = 0.2;
   controls2d.maxZoom = 20;
-  controls2d.enabled = false; // the 3D view is the one on screen at startup
+  controls2d.enabled = false; // the 3D view is the one on screen at startup (see `applyControlsEnabled`)
   controls2d.update();
 
   // HOW FAR THE FLAT VIEW MAY BE PANNED, as a function of the zoom rather than a constant: the whole
@@ -462,6 +462,24 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     return { x: hit.x, y: -hit.z };
   };
 
+  // WHETHER CAMERA INPUT IS SUPPRESSED RIGHT NOW, which is a DIFFERENT QUESTION from which view is on
+  // screen - and keeping them in one variable was a real bug rather than a tidy-up.
+  //
+  // `setControlsEnabled(false)` silences the camera for the length of a Bezier drag, and the drag
+  // re-renders on every pointer move: `updateCall` -> `applyDisplay` -> `setView2D`, which used to
+  // write `controls.enabled = !on` and therefore RE-ENABLED the camera in the middle of the gesture.
+  // The panel's own pointermove handler runs first, so by the time OrbitControls' handler ran on the
+  // same event the controls were live again and the board panned under the point being dragged - which
+  // is exactly what a caller reported.
+  //
+  // So the two facts are kept apart: `inputSuppressed` is the caller's, and the view decides only
+  // WHICH control set it applies to.
+  let inputSuppressed = false;
+  const applyControlsEnabled = () => {
+    controls.enabled = !inputSuppressed && out.camera === camera;
+    controls2d.enabled = !inputSuppressed && out.camera === camera2d;
+  };
+
   const out: Stage = {
     scene,
     camera,
@@ -473,13 +491,12 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       // THE FRUSTUM IS RE-APPLIED ON EVERY SWITCH, not only on a resize: entering the flat view after
       // any layout change would otherwise draw one frame (or more) of floor at the wrong aspect.
       resize();
-      controls.enabled = !on;
-      controls2d.enabled = on;
+      // ...and this respects a suppression in force, so a view switch mid-drag cannot start a pan.
+      applyControlsEnabled();
     },
     setControlsEnabled: (on: boolean) => {
-      // Only the ACTIVE view's controls, or a handle drag in 2D would leave the 3D camera live.
-      controls.enabled = on && out.camera === camera;
-      controls2d.enabled = on && out.camera === camera2d;
+      inputSuppressed = !on;
+      applyControlsEnabled();
     },
     updateControls: () => {
       // BOTH are advanced, not just the one on screen: with damping an orbit keeps gliding for a

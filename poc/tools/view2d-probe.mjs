@@ -304,6 +304,102 @@ const { OrbitControls } = await import('three/examples/jsm/controls/OrbitControl
   check(Number.isFinite(e[0]) && e[0] > 0, `the projection matrix is still invertible at the far end (p00 ${e[0].toFixed(5)})`);
 }
 
+// ---------------------------------------------------------------- 5. input suppression vs the view
+//
+// THE REPORTED FAULT: dragging a Bezier control point also dragged the board. The cause was two facts
+// sharing one variable. `setControlsEnabled(false)` silences the camera for the length of a drag, but
+// the drag re-renders on every pointer move - `updateCall` -> `applyDisplay` -> `setView2D` - and
+// `setView2D` wrote `controls.enabled = !on`, which RE-ENABLED the camera in the middle of the gesture.
+// The panel's pointermove handler runs first, so by the time OrbitControls' handler ran on the same
+// event the controls were live again and the view panned under the point being dragged.
+//
+// This drives three's own OrbitControls through a fake canvas to show both halves: the rule as it is
+// now (a view switch honours a suppression in force) and the rule it replaced (a view switch re-enables,
+// and the next pointer move pans) - because a check that cannot fail on the bug is decoration.
+console.log('\n== 5. a drag keeps the camera still, and the negative control shows why ==');
+{
+  const { OrbitControls } = await import('three/examples/jsm/controls/OrbitControls.js');
+  const W = 1600;
+  const H = 900;
+  const el = new FakeCanvas(W, H);
+  const cam = makeCamera2d();
+  frame(cam, W, H);
+  const c = new OrbitControls(cam, el);
+  c.target.set(0, 0, 0);
+  c.enableRotate = false;
+  c.enableDamping = true;
+  c.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+  c.enabled = true;
+  c.update();
+
+  const mouse = (x, y, extra = {}) => ({
+    pointerId: 1, pointerType: 'mouse', button: 0, buttons: 1, deltaMode: 0,
+    clientX: x, clientY: y, ctrlKey: false, metaKey: false, shiftKey: false,
+    preventDefault() {}, ...extra,
+  });
+  const settle = (n = 300) => { for (let i = 0; i < n; i++) {
+    // The render loop, with whichever rule is being tested.
+    c.update();
+  } };
+  /**
+   * One drag of a Bezier handle, in the order the browser actually delivers it.
+   *
+   * THE ORDER IS THE WHOLE POINT: OrbitControls registers its pointerdown listener when the stage is
+   * built, so on a handle grab ITS handler runs FIRST and starts a gesture, and only then does the
+   * panel's handler silence the camera. Simulating the suppression before the pointerdown - the first
+   * version of this did - lets OrbitControls decline the gesture entirely, and then nothing can pan
+   * however the view switch behaves. That is why the negative control passed when it should have failed.
+   */
+  const dragHandle = (oldRule) => {
+    const before = { x: c.target.x, z: c.target.z };
+    c.enabled = true; // as the camera is when the pointer goes down
+    el.dispatch('pointerdown', mouse(800, 450)); // OrbitControls starts a PAN
+    c.enabled = false; // ...and the panel's own handler suppresses input for the drag
+    for (const [x, y] of [[820, 470], [860, 500], [900, 530]]) {
+      // The handle edit re-renders, which re-applies the view: `setView2D` on every pointer move.
+      if (oldRule) c.enabled = true; // THE OLD RULE: setView2D wrote enabled = !on
+      // ...and OrbitControls' handler runs on the SAME event, after the panel's.
+      el.dispatch('pointermove', mouse(x, y));
+      settle(20);
+    }
+    c.enabled = false;
+    el.dispatch('pointerup', mouse(900, 530));
+    settle();
+    return Math.hypot(c.target.x - before.x, c.target.z - before.z);
+  };
+
+  const movedAsIs = dragHandle(false);
+  console.log(`    with the fix (a view switch honours the suppression): the view moved ${movedAsIs.toFixed(4)} units`);
+  check(movedAsIs < 1e-9, 'dragging a control point leaves the BOARD exactly where it was');
+
+  // The negative control, on a fresh control set so the first drag cannot have left state behind.
+  const cam2 = makeCamera2d();
+  frame(cam2, W, H);
+  const c2 = new OrbitControls(cam2, el);
+  c2.target.set(0, 0, 0);
+  c2.enableRotate = false;
+  c2.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+  c2.enabled = true;
+  c2.update();
+  {
+    const before = { x: c2.target.x, z: c2.target.z };
+    c2.enabled = true;
+    el.dispatch('pointerdown', mouse(800, 450));
+    c2.enabled = false;
+    for (const [x, y] of [[820, 470], [860, 500], [900, 530]]) {
+      c2.enabled = true; // the old rule, on every re-render
+      el.dispatch('pointermove', mouse(x, y));
+      for (let i = 0; i < 20; i++) c2.update();
+    }
+    c2.enabled = false;
+    el.dispatch('pointerup', mouse(900, 530));
+    for (let i = 0; i < 300; i++) c2.update();
+    const moved = Math.hypot(c2.target.x - before.x, c2.target.z - before.z);
+    console.log(`    with the OLD rule (a view switch re-enables): the view moved ${moved.toFixed(4)} units`);
+    check(moved > 0.5, `and that is the reported fault - the board panned ${moved.toFixed(2)} units under the point being dragged`);
+  }
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('ALL CHECKS PASSED');
 else { console.log(`${failures} CHECK(S) FAILED`); process.exit(1); }

@@ -81,6 +81,8 @@ export interface EditorHost {
   /** The library's name for a board, or null. Used to NAME a generated setup after the formation it
    *  starts from, which is what every other setup's label is - see `instanceName`. */
   nameBoard(board: Board): string | null;
+  /** How the dancers are drawn: flat icons from above, and/or the 3D figures hidden. */
+  setDisplayMode(opts: { use2d?: boolean; showAvatars?: boolean }): void;
 }
 
 // Warning threshold for a "large" closure correction.
@@ -138,6 +140,8 @@ export class EditorController implements EditorUI {
   private statusEl = el<HTMLSpanElement>('edStatus');
   private savedEl = el<HTMLDivElement>('edSaved');
   private xmlEl = el<HTMLTextAreaElement>('edXml');
+  private hideDancersChk = el<HTMLInputElement>('edHideDancers');
+  private view2dChk = el<HTMLInputElement>('edView2d');
 
   // ---- the instance editor ----
   private instPanel = el<HTMLDivElement>('edInstancePanel');
@@ -1159,6 +1163,21 @@ export class EditorController implements EditorUI {
     if (hud) hud.classList.toggle('ed-instance', this.active && this.isInstanceMode());
   }
 
+  /**
+   * The editor's two view options, and their SCOPE.
+   *
+   * The stage is shared with the browse and sequence views, so these apply while the editor is the
+   * panel on screen and are RELEASED when it is not - otherwise a caller who hid the dancers in the
+   * editor would find them gone in the browse view too, with nothing on that panel to explain why.
+   */
+  private applyViewOptions() {
+    if (!this.active) {
+      this.host.setDisplayMode({ use2d: false, showAvatars: true });
+      return;
+    }
+    this.host.setDisplayMode({ use2d: this.view2dChk.checked, showAvatars: !this.hideDancersChk.checked });
+  }
+
   // ---- actions ----
 
   private doFix() {
@@ -1511,6 +1530,8 @@ export class EditorController implements EditorUI {
     this.showEndBtn.addEventListener('click', () => this.showEnd());
     this.showStartBtn.addEventListener('click', () => this.showStart());
     this.modeSel.addEventListener('change', () => this.applyMode());
+    this.hideDancersChk.addEventListener('change', () => this.applyViewOptions());
+    this.view2dChk.addEventListener('change', () => this.applyViewOptions());
     // The filter narrows the LISTS only, so it never reloads a call: the selected ids are
     // preserved by `fillCallSelect`, and reloading on every keystroke would fight the user.
     this.callFilterInput.addEventListener('input', () => {
@@ -1584,6 +1605,8 @@ export class EditorController implements EditorUI {
   setActive(a: boolean) {
     this.active = a;
     this.setHudWide();
+    // The view options are scoped to this panel: applied on the way in, released on the way out.
+    this.applyViewOptions();
     if (a) {
       this.renderSaved();
       this.renderInstance();

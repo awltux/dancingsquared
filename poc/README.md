@@ -261,6 +261,20 @@ selected with the editor's own **Mode** toggle (**Edit instance** / Fix closure 
 Create position). All three share an **Edit call + Setup** — the taminations call
 instance being edited — and all three preview through the same 3D renderer.
 
+Two **view options** sit at the bottom of the panel, both about getting the dancers out of the way of
+the track you are measuring:
+
+| option | what it does |
+|---|---|
+| **Hide dancers** | stops drawing the 3D figures — the dancers are still there, only their bodies are not, so the trail, the handles and the floor grid read cleanly |
+| **2D icons** | looks straight down and draws small flat markers instead of the figures (the same markers the sequencer's 2D view uses). The trails and handles read **best** from above, so they stay in both views |
+
+They are **scoped to the editor**: applied while it is the panel on screen and released when it is
+not, or a caller who hid the dancers here would find them gone in the browse view with nothing on that
+panel to explain why. The camera is **one object shared by every panel**, so the last panel to set it
+wins — `applyMode` therefore calls the browse view, then the editor, then the sequencer, and the
+sequencer only touches the camera while it is the active panel.
+
 **Find** narrows the call lists, because the catalogue is several hundred calls. Terms
 are ANDed substrings matched against the LEVEL, the TITLE, the file name and every
 setup's `from` label, so `circle`, `ms wave` and `static square` all do what they look

@@ -81,6 +81,9 @@ const editorUi = initEditor(stage, {
   // Naming a generated setup means naming the FORMATION it starts from; the library is the only
   // thing that can do that, and it lives in the sequencer.
   nameBoard: (board) => seqUi.readBoard(board).name,
+  // The editor's view options (2D icons, hidden dancers). The browse view owns the drawing, so this
+  // is the same path the trail focus takes.
+  setDisplayMode: (opts) => browser.setDisplayMode(opts),
 });
 
 const playBtn = el<HTMLButtonElement>('play');
@@ -215,8 +218,13 @@ function applyMode() {
   fsmActive = fsm;
   const showDancers = (browse || ed) && !fsm;
   browser.setVisible(showDancers);
-  seqUi.setActive(seq && !fsm);
+  // ORDER IS LOAD-BEARING, because the camera is ONE object shared by every panel and the last
+  // caller wins. The browse view draws the dancers (and owns the 2D/3D question for the browse and
+  // editor modes), then the editor's own view options are applied or released, and the sequencer
+  // goes LAST so that when IT is the active panel its 2D select decides - it only touches the camera
+  // while it is active, which is what stops it overriding the editor's choice.
   editorUi.setActive(ed && !fsm);
+  seqUi.setActive(seq && !fsm);
   if (fsm) showFsm();
 }
 modeSelect.addEventListener('change', applyMode);

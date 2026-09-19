@@ -1133,9 +1133,9 @@ export class SequencerController implements SequencerUI {
       if (this.active) {
         this.render();
         this.updateCurrentTrace();
-      } else {
-        this.stage.setView2D(false);
       }
+      // Nothing to do when the sequencer is off screen: the select is not reachable from another
+      // panel, and setting the camera here would override whoever IS on screen (see `setActive`).
     });
     this.levelSelect.addEventListener('change', () => this.rebuildSeq());
     this.marginInput.addEventListener('input', () => this.applyMargin());
@@ -1156,8 +1156,12 @@ export class SequencerController implements SequencerUI {
     this.active = a;
     this.playing = false;
     this.playBtn.textContent = '▶ Play';
-    // Keep the camera/view consistent with the current mode.
-    this.stage.setView2D(a && this.use2d);
+    // THE ACTIVE PANEL OWNS THE CAMERA. The camera is one object shared by every view, and this used
+    // to set it to 3D whenever the SEQUENCER was not the active panel - which silently overrode the
+    // editor's own 2D view on every mode switch. So the sequencer now only sets it while it is the
+    // one on screen, and `main.ts` calls the browse view first so the editor's choice is in place
+    // before this runs.
+    if (a) this.stage.setView2D(this.use2d);
     this.connectors.group.visible = this.active && !this.use2d;
     for (let i = 0; i < this.views.length; i++) {
       const v = this.views[i];

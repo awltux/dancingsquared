@@ -12,7 +12,7 @@ import type { CallInfo } from './data';
 import { addUserFormation, applyLabel, detachLabel, loadUserFormations, reattachLabel, removeUserFormation } from './formations';
 import type { UserFormation } from './formations';
 import { modulesUsing, startsAwayFromHome } from './modules';
-import { DancerView, buildHandConnectors } from './scene';
+import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import type { Stage } from './scene';
 import { Player } from './player';
 import type { BoardRead } from './sequencer-ui';
@@ -69,6 +69,13 @@ export class CallBrowser {
   private dancers: DancerSpec[] = [];
   /** Whether the dancer views should be shown at all (the app's mode). */
   private dancersVisible = true;
+  /** HOW the dancers are drawn: small flat icons from above, or the 3D wireframes - which can be
+   *  hidden outright, because an editor measuring a track wants the track and not a body standing on
+   *  it. Both are the editor's options and are scoped to it (see `EditorController.setActive`). */
+  private use2d = false;
+  private showAvatars = true;
+  /** Flat markers, one per dancer, shown in the 2D view. Parallel to `views`. */
+  private markers: THREE.Group[] = [];
   /** Which dancer's track is being edited, which stretch of it, and WHICH OF THE MOVE'S TWO SHAPES
    *  is selected (`kind`). `null` = show every track in full, which is the browse view's behaviour. */
   private trailFocus: { index: number; range: { from: number; to: number } | null; kind: 'move' | 'facing' } | null = null;
@@ -336,7 +343,9 @@ export class CallBrowser {
       this.stage.scene.remove(v.trailHighlight);
       this.stage.scene.remove(v.facingTicks);
     }
+    for (const m of this.markers) this.stage.scene.remove(m);
     this.views = [];
+    this.markers = [];
     this.dancers = [];
     if (!call) {
       this.legend.innerHTML = '<i>no call</i>';
@@ -345,11 +354,13 @@ export class CallBrowser {
     const dancers = assignHomeIdentity(call.dancers);
     this.dancers = dancers;
     this.views = dancers.map((d) => new DancerView(d, d.couple ?? 0));
+    this.markers = dancers.map((d) => buildFlatMarker(d.gender, d.couple ?? 0));
     for (let i = 0; i < this.views.length; i++) {
       this.stage.scene.add(this.views[i].group);
       this.stage.scene.add(this.views[i].trail);
       this.stage.scene.add(this.views[i].trailHighlight);
       this.stage.scene.add(this.views[i].facingTicks);
+      this.stage.scene.add(this.markers[i]);
       this.views[i].setTrail(sampleTrail(dancers[i], 80));
     }
     if (call.taminator) this.legend.innerHTML = `<b>${call.title}</b> — ${call.taminator}`;
@@ -358,8 +369,8 @@ export class CallBrowser {
     this.updateScrub(call);
     // The end-formation field describes the call that is now loaded.
     this.renderEndFormation(call);
-    // The views were just rebuilt, so any trail focus has to be put back.
-    this.applyTrailState();
+    // The views were just rebuilt, so the trail focus and the display mode have to be put back.
+    this.applyDisplay();
   }
 
   /** Alias for `showCall` used as the editor's preview callback. */
@@ -388,7 +399,7 @@ export class CallBrowser {
     this.dancers = this.dancers.length === call.dancers.length ? call.dancers : this.dancers;
     for (let i = 0; i < this.views.length; i++) this.views[i].setTrail(sampleTrail(call.dancers[i], 80));
     // A shorter call can leave the playhead past the end, so the beam is re-clamped by the player.
-    this.applyTrailState();
+    this.applyDisplay();
   }
 
   private loadCurrent() {
@@ -475,30 +486,58 @@ export class CallBrowser {
    * Show ONE dancer's track and hide the rest, optionally highlighting the stretch that a
    * single move is responsible for. `null` restores every track in full.
    *
-   * This is ONE state with ONE application rule (`applyTrailState`) rather than two
-   * independent toggles, because two toggles is how the app-mode visibility, the isolation
-   * and the highlight end up disagreeing after a `showCall` rebuild - and a trail that
-   * silently reappears is exactly the kind of "draws wrong while it measures right" defect
+   * This is ONE state with ONE application rule (`applyDisplay`) rather than independent
+   * toggles, because toggles is how the app-mode visibility, the view mode, the avatar switch,
+   * the isolation and the highlight end up disagreeing after a `showCall` rebuild - and a trail
+   * that silently reappears is exactly the kind of "draws wrong while it measures right" defect
    * this workstream exists to remove.
    */
   setTrailFocus(index: number | null, range: { from: number; to: number } | null = null, kind: 'move' | 'facing' = 'move') {
     this.trailFocus = index == null ? null : { index, range, kind };
-    this.applyTrailState();
+    this.applyDisplay();
   }
 
-  /** The single place the trail visibility rule lives: app mode AND focus, together. */
-  private applyTrailState() {
+  /**
+   * How the dancers are drawn: `use2d` swaps the 3D wireframes for small flat icons seen from
+   * above, and `showAvatars: false` hides the wireframes without changing the view - an editor
+   * measuring a track wants the track, not a body standing on it.
+   */
+  setDisplayMode(opts: { use2d?: boolean; showAvatars?: boolean }) {
+    if (opts.use2d !== undefined) this.use2d = opts.use2d;
+    if (opts.showAvatars !== undefined) this.showAvatars = opts.showAvatars;
+    this.applyDisplay();
+  }
+
+  /**
+   * The single place the DISPLAY rules live: app mode, view (3D or flat), avatars on or off, and the
+   * trail focus, together.
+   *
+   * ONE FUNCTION, because the four answer the same question - what is drawn - and four independent
+   * toggles is how they end up disagreeing: an avatar that reappears after a `showCall` rebuild, or a
+   * trail that survives into a view meant to show only icons. Every path that changes one of them
+   * calls this (mode switch, focus change, display change, and the rebuild at the end of `showCall`).
+   *
+   * TRAILS STAY IN BOTH VIEWS. They are floor lines, they read BEST from above, and they are what the
+   * editor is actually working on; the 2D view is a better place to see them, not a reason to hide
+   * them.
+   */
+  private applyDisplay() {
+    const on = this.dancersVisible;
+    const flat = this.use2d;
+    this.stage.setView2D(flat);
     for (let i = 0; i < this.views.length; i++) {
       const v = this.views[i];
       const focused = this.trailFocus?.index === i;
-      v.group.visible = this.dancersVisible;
+      v.group.visible = on && !flat && this.showAvatars;
+      const marker = this.markers[i];
+      if (marker) marker.visible = on && flat;
       // The focused dancer's WHOLE track is low brightness; every other track is hidden outright.
-      v.trail.visible = this.dancersVisible && (this.trailFocus == null || focused);
+      v.trail.visible = on && (this.trailFocus == null || focused);
       const range = focused ? this.trailFocus?.range ?? null : null;
       // The highlight is a stretch of the SAME curve, sampled from the dancer's own beat
       // clock - `moveBeatRange` says which beats, this says where that is on the floor.
       v.setTrailHighlight(range && this.dancers[i] ? sampleTrailRange(this.dancers[i], range.from, range.to, 48) : null);
-      v.trailHighlight.visible = v.trailHighlight.visible && this.dancersVisible;
+      v.trailHighlight.visible = v.trailHighlight.visible && on;
       // AND THE SECOND SHAPE. A move's facing is a direction, not a path, so the Facing selection
       // draws headings over the same beats instead of a line - which is what makes the two
       // selections show two different things rather than the same line twice.
@@ -507,15 +546,15 @@ export class CallBrowser {
           ? facingSamples(this.dancers[i], range.from, range.to, 14)
           : null;
       v.setFacingTicks(ticks);
-      v.facingTicks.visible = v.facingTicks.visible && this.dancersVisible;
+      v.facingTicks.visible = v.facingTicks.visible && on;
     }
-    this.connectors.group.visible = this.dancersVisible;
+    this.connectors.group.visible = on && !flat && this.showAvatars;
   }
 
   /** Show/hide the dancer views + connectors (used by mode switching). */
   setVisible(v: boolean) {
     this.dancersVisible = v;
-    this.applyTrailState();
+    this.applyDisplay();
   }
 
   // ---------------------------------------------------------------- rendering
@@ -565,6 +604,15 @@ export class CallBrowser {
     const walkPhase = ((t + 1000) % 2) / 2;
     for (let i = 0; i < this.views.length; i++) {
       this.views[i].update(poses[i], targets[i], { phase: walkPhase });
+      // THE FLAT ICONS ARE POSED HERE, in the frame loop, because they are drawn INSTEAD of the
+      // wireframes and nothing else would move them: `DancerView.update` does the avatars, and this
+      // is the same information for the other representation. Board (x, y) -> 3D (x, 0, -y), and a
+      // heading of 0 faces +x, so the marker's y-rotation IS the heading.
+      const marker = this.markers[i];
+      if (marker && marker.visible) {
+        marker.position.set(poses[i].x, 0, -poses[i].y);
+        marker.rotation.y = poses[i].heading;
+      }
     }
     this.connectors.set(lines, poses);
 

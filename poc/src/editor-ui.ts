@@ -47,6 +47,7 @@ import {
 } from './data';
 import type { CallEdit, CallInfo } from './data';
 import type { Stage, HandleSpec } from './scene';
+import { HANDLE_COLOR } from './scene';
 
 export interface EditorUI {
   setActive(a: boolean): void;
@@ -618,6 +619,9 @@ export class EditorController implements EditorUI {
     this.host.updateCall(next);
     this.host.setPlayhead(this.editBeat);
     this.renderHandles();
+    // The numbers are the ONE part of the panel that must not wait for the gesture to end: they are
+    // what the caller is steering by. Writing them is eight field assignments, not a rebuild.
+    this.refreshNumberFields();
   }
 
   /** The selected dancers' move, each changed by `f` in its OWN frame. Null when nothing applies. */
@@ -636,36 +640,46 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * The two Bezier control-point handles for the selected move's TRANSLATION curve, on the floor -
-   * ONE pair, for the FIRST selected dancer.
+   * The control points of the move's SELECTED curve, as draggable handles on the floor - drawn for
+   * `moveDancer`, the first selected dancer.
    *
-   * Drawing a pair per selected dancer is the literal picture of the group edit - the same shape,
+   * Drawing a gadget per selected dancer is the literal picture of the group edit - the same shape,
    * drawn around each dancer's own position - and an earlier version did exactly that. It was
-   * unreadable: with a dozen dancers selected the board fills with near-identical handle pairs, and
-   * which pair belongs to which dancer is not something the dots themselves say. The pairs are not
-   * independent anyway, because the drag writes one LOCAL value to every selected dancer, so the
-   * second pair is a copy of the first and a copy is all the picture needs.
+   * unreadable: with a dozen dancers selected the board fills with near-identical gadgets, and which
+   * one belongs to which dancer is not something the dots themselves say. They are not independent
+   * anyway, because the drag writes one LOCAL value to every selected dancer, so the second is a copy
+   * of the first and a copy is all the picture needs. The one drawn is the same dancer whose numbers
+   * the tile shows and whose track the strip lists, so the board and the panel never disagree.
    *
-   * The pair drawn is `moveDancer`'s - the same dancer whose numbers the tile shows and whose track
-   * the strip lists - so the handle on the board and the value on screen are never two dancers'
-   * worth of information.
+   * THE CURVE'S OWN FRAME IS THE DANCER'S POSE WHERE THE MOVE BEGINS. Both Beziers are authored in
+   * dancer-local coordinates, so a control point is placed by transforming it by the pose at the
+   * move's start - one rotation and one translation, and no other arithmetic for either curve.
    *
-   * THE CURVE'S OWN FRAME IS THE DANCER'S POSE WHERE THE MOVE BEGINS. A move's translation Bezier is
-   * authored in dancer-local coordinates, so a control point is placed by transforming it by the pose
-   * at the move's start. The anchors are then the move's own two ends: c1's leader comes from the
-   * start, c2's from the end, which is the classic handle layout and also what makes it obvious which
-   * control point you are about to move.
+   * THE TRAVEL CURVE gets two points, c1 and c2, each with a line from its own fixed anchor: c1's from
+   * the move's start, c2's from the end. That is the classic layout, and it is also what makes it
+   * obvious which control point you are about to move.
    *
-   * THE FACING CURVE GETS NO HANDLES, and that is a fact about the data rather than an omission:
-   * `poseFor` reads it with `bezierAngle`, so it is a curve whose TANGENT is the heading - its
-   * coordinates are a tangent space, not floor positions. A no-translation turn in `moves.xml` is
-   * `x4="0" y4="2"` with the tangent running 0deg to 180deg; there is nowhere on the floor to put
-   * that. The tile says so when the Facing tab is selected.
+   * THE FACING CURVE gets three, drawn as its OWN CONTROL POLYGON - the dancer's spot at the move's
+   * start, then C1, C2 and the endpoint P3, joined in order. It is a different picture because it is a
+   * different space: `poseFor` reads this curve with `bezierAngle`, so the tangent is the heading and
+   * the coefficients are a tangent space with no floor position at all. What the cyan polygon shows is
+   * the SHAPE OF THE DATA, drawn in the frame where the tile's own numbers can be read off it. THE
+   * DISTANCE FROM THE DANCER MEANS NOTHING - there is no distance to mean - and the direction from the
+   * dancer to a point OF THE CURVE is the heading change at that instant. For a no-translation turn in
+   * `moves.xml` (`x4="0" y4="2"`, the tangent running 0deg to 180deg) there is simply nowhere on the
+   * floor to put the heading; the polygon is the honest thing to draw instead.
+   *
+   * THREE POINTS AND NOT TWO, BECAUSE THE TILE HAS FIVE FIELDS. The facing tab edits `r.cx3 cx4 cy4
+   * x4 y4` - five numbers - and the polygon's three points carry exactly them: r1 -> cx1, r2 -> cx2
+   * and cy2, r3 -> x2 and y2. A pair like the travel curve's would leave the endpoint, which is the
+   * heading the move FINISHES on, with no handle at all. The travel curve keeps its pair on purpose:
+   * there the endpoint IS the authored track, and dragging it is the deferred "shared connecting
+   * point" gesture.
    */
   private renderHandles() {
     const call = this.instance;
     const stage = this.stage;
-    if (!call || !this.active || !this.isInstanceMode() || this.moveKind !== 'move') {
+    if (!call || !this.active || !this.isInstanceMode()) {
       stage.setHandles(null);
       return;
     }
@@ -675,26 +689,56 @@ export class EditorController implements EditorUI {
       stage.setHandles(null);
       return;
     }
-    const handles: HandleSpec[] = [];
     const d = this.moveDancer;
     const dancer = call.dancers[d];
     const seg = dancer?.path[this.moveIndex];
-    if (dancer && seg) {
-      const range = moveBeatRange(dancer, this.moveIndex);
-      const p0 = poseFor(dancer, range.from);
-      const p1 = poseFor(dancer, range.to);
-      const world = (lx: number, ly: number) => ({
-        x: p0.x + Math.cos(p0.heading) * lx - Math.sin(p0.heading) * ly,
-        y: p0.y + Math.sin(p0.heading) * lx + Math.cos(p0.heading) * ly,
-      });
-      const t = seg.translate;
-      handles.push({ id: `d${d}:c1`, anchor: { x: p0.x, y: p0.y }, point: world(t.cx1, t.cy1) });
-      handles.push({ id: `d${d}:c2`, anchor: { x: p1.x, y: p1.y }, point: world(t.cx2, t.cy2) });
+    if (!dancer || !seg) {
+      stage.setHandles(null);
+      return;
     }
-    stage.setHandles(handles.length > 0 ? handles : null);
+    const range = moveBeatRange(dancer, this.moveIndex);
+    const p0 = poseFor(dancer, range.from);
+    const world = (lx: number, ly: number) => ({
+      x: p0.x + Math.cos(p0.heading) * lx - Math.sin(p0.heading) * ly,
+      y: p0.y + Math.sin(p0.heading) * lx + Math.cos(p0.heading) * ly,
+    });
+    const handles: HandleSpec[] = [];
+
+    if (this.moveKind === 'facing') {
+      // FACING IS ONLY SELECTABLE WHEN IT EXISTS - `rotate` absent means "face along the travel
+      // tangent", which is not a curve anyone can edit - so the tab being on is the whole guard.
+      const r = seg.rotate;
+      if (!r) {
+        stage.setHandles(null);
+        return;
+      }
+      // r1 IS PINNED TO THE DANCER'S OWN FORWARD AXIS, and that is the FORMAT's constraint rather than
+      // this gadget's choice: the rotate element carries no cy3, the converter hardcodes `cy1: 0` and
+      // the exporter emits no cy1, so an edit to cy1 is silently thrown away on export (measured: a
+      // cy1 of 0.5 turns the dancer 331deg mid-move and re-parses as the authored curve exactly). So
+      // r1 writes cx1 ALONE, which is also why no drag here can produce a facing the corpus cannot
+      // express. In the 14 curves whose cx1 is already 0 the rail pointer sits on the dancer's own
+      // spot - a real authored shape (Sashay, Lateral Substitute), not a degenerate accident, and it
+      // still means "no change of heading at the start", because atan2(0, 0) is 0.
+      const c1 = world(r.cx1, 0);
+      const c2 = world(r.cx2, r.cy2);
+      const p3 = world(r.x2, r.y2);
+      const origin = { x: p0.x, y: p0.y };
+      handles.push({ id: `d${d}:r1`, anchor: origin, point: c1, color: HANDLE_COLOR.facing });
+      handles.push({ id: `d${d}:r2`, anchor: c1, point: c2, color: HANDLE_COLOR.facing });
+      handles.push({ id: `d${d}:r3`, anchor: c2, point: p3, color: HANDLE_COLOR.facing });
+      stage.setHandles(handles);
+      return;
+    }
+
+    const p1 = poseFor(dancer, range.to);
+    const t = seg.translate;
+    handles.push({ id: `d${d}:c1`, anchor: { x: p0.x, y: p0.y }, point: world(t.cx1, t.cy1) });
+    handles.push({ id: `d${d}:c2`, anchor: { x: p1.x, y: p1.y }, point: world(t.cx2, t.cy2) });
+    stage.setHandles(handles);
   }
 
-  /** The handle being dragged, as `d<dancer>:c<1|2>`. */
+  /** The handle being dragged, as `d<dancer>:c<1|2>` for travel or `d<dancer>:r<1|2|3>` for facing. */
   private dragHandle: string | null = null;
 
   /**
@@ -707,11 +751,11 @@ export class EditorController implements EditorUI {
   private wireHandleDrag() {
     const canvas = this.stage.renderer.domElement;
     canvas.addEventListener('pointerdown', (e) => {
-      if (!this.active || !this.isInstanceMode() || this.moveKind !== 'move') return;
+      if (!this.active || !this.isInstanceMode()) return;
       const id = this.stage.pickHandle(e.clientX, e.clientY);
       if (!id) return;
       this.dragHandle = id;
-      // The selected dancers are DELIBERATELY not re-ordered by grabbing a handle: the pair on the
+      // The selected dancers are DELIBERATELY not re-ordered by grabbing a handle: the gadget on the
       // board is already `moveDancer`'s, and the drag writes the same LOCAL value to every selected
       // dancer, so the tile's numbers read the same either way. Touching the selection mid-gesture
       // would only be motion for nothing.
@@ -730,40 +774,92 @@ export class EditorController implements EditorUI {
       this.dragHandle = null;
       this.stage.controls.enabled = true;
       if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
-      // A FULL re-render once, at the end: the numbers in the tile and the strip's beat/hands labels
-      // are only worth rebuilding when the gesture is over, and doing it per pointer move is the
-      // difference between a drag and a slideshow.
+      // A FULL re-render once, at the end. The tile's NUMBERS follow the drag live (see
+      // `refreshNumberFields`), but the rest of the panel - the strip's beat and hand labels, the
+      // scrub bar, the clone warning - is only worth rebuilding when the gesture is over.
       this.renderInstance();
     };
     canvas.addEventListener('pointerup', endDrag);
     canvas.addEventListener('pointercancel', endDrag);
   }
 
-  /** One step of a handle drag: put the control point where the pointer is, and re-path. */
+  /**
+   * One step of a handle drag: put the dragged control point where the pointer is, and re-path.
+   *
+   * The pointer is turned into the move's LOCAL frame once, and that is the only rotation accounting
+   * the group edit needs: every selected dancer receives this local value and each re-frames it, which
+   * is what makes them land on the SAME shape rather than on the same spot.
+   *
+   * WHICH CONTROLS THE POINT WRITES IS THE WHOLE DIFFERENCE BETWEEN THE TWO CURVES:
+   *
+   *  - travel `c1`/`c2` write the point's own x and y, and stop there. The endpoint (`x2`, `y2`) and
+   *    the beats and hands are untouched, which is what makes this the control-point gesture rather
+   *    than a way to move the track.
+   *  - facing `r1` is on the RAIL: only cx1 is written, because the format has no cy3 and an edit to
+   *    cy1 does not survive the export. `r2` and `r3` write both of their local coordinates.
+   *
+   * NOTE WHAT "the pointer's local point" MEANS FOR A FACING: it is the position of a coefficient in a
+   * tangent space, drawn where the tile's numbers can be read off it. The drag is honest about the
+   * data - it writes exactly the number the field shows - and the direction from the dancer to the
+   * curve is what the dancer's heading responds to, not the distance.
+   */
   private applyHandleDrag(handle: string, board: { x: number; y: number }) {
     const call = this.instance;
     if (!call) return;
     const d = parseInt(handle.slice(1), 10);
-    const isC1 = handle.endsWith('c1');
+    const which = handle.slice(handle.indexOf(':') + 1);
     const dancer = call.dancers[d];
     if (!dancer) return;
     const range = moveBeatRange(dancer, this.moveIndex);
     const p0 = poseFor(dancer, range.from);
     // The INVERSE of the placement in `renderHandles`: the pointer's floor point -> the LOCAL frame
-    // of the move as the DRAGGED dancer performs it. This is the only rotation accounting the group
-    // edit needs, and it is what makes the others land on the SAME shape rather than on the same
-    // spot: every selected dancer gets this local value, each in its own frame.
+    // of the move as the DRAGGED dancer performs it.
     const dx = board.x - p0.x;
     const dy = board.y - p0.y;
     const h = p0.heading;
     const lx = Math.cos(h) * dx + Math.sin(h) * dy;
     const ly = -Math.sin(h) * dx + Math.cos(h) * dy;
-    this.commitMoveChange((seg) => {
-      const t = seg.translate;
-      // ONLY THE SHAPE: the endpoint (`x2`, `y2`) and the beats and hands are untouched, which is what
-      // makes this the control-point gesture rather than a way to move the track.
-      return { ...seg, translate: isC1 ? { ...t, cx1: lx, cy1: ly } : { ...t, cx2: lx, cy2: ly } };
-    }, `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`, true, true);
+    const patch: (seg: Seg) => Seg =
+      which === 'r1'
+        ? // THE RAIL. cx1 alone; cy1 stays exactly the 0 the format requires, so the dot cannot leave
+          // the dancer's forward axis even momentarily mid-drag.
+          (seg) => (seg.rotate ? { ...seg, rotate: { ...seg.rotate, cx1: lx } } : seg)
+        : which === 'r2'
+          ? (seg) => (seg.rotate ? { ...seg, rotate: { ...seg.rotate, cx2: lx, cy2: ly } } : seg)
+          : which === 'r3'
+            ? (seg) => (seg.rotate ? { ...seg, rotate: { ...seg.rotate, x2: lx, y2: ly } } : seg)
+            : which === 'c1'
+              ? (seg) => ({ ...seg, translate: { ...seg.translate, cx1: lx, cy1: ly } })
+              : (seg) => ({ ...seg, translate: { ...seg.translate, cx2: lx, cy2: ly } });
+    this.commitMoveChange(patch, `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`, true, true);
+  }
+
+  /**
+   * Put the live instance's numbers into the tile's fields, without rebuilding anything.
+   *
+   * THE DRAG PATH NEEDS THIS. `applyHandleDrag` deliberately skips `renderInstance` per pointer move -
+   * rebuilding the table, the strip and eight dancer views sixty times a second is the difference
+   * between a drag and a slideshow - but that left the one thing the caller is watching, the numbers,
+   * frozen until the pointer came up. So the numbers follow the drag and nothing else does.
+   *
+   * The FOCUSED field is skipped: a drag and a keystroke cannot happen at once, but a value written
+   * under a caret is a real way to lose an edit, and the check is one comparison.
+   */
+  private refreshNumberFields() {
+    const call = this.instance;
+    if (!call) return;
+    const i = this.moveDancer;
+    const k = this.moveIndex;
+    const seg = call.dancers[i]?.path[k];
+    if (!seg) return;
+    const values: [string, number][] = [];
+    for (const key of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2'] as const) values.push([`m${i}:${k}:t.${key}`, seg.translate[key]]);
+    if (seg.rotate) for (const key of ['cx1', 'cx2', 'cy2', 'x2', 'y2'] as const) values.push([`m${i}:${k}:r.${key}`, seg.rotate[key]]);
+    values.push([`m${i}:${k}:beats`, seg.beats]);
+    for (const [key, v] of values) {
+      const el = this.instPanel.querySelector<HTMLInputElement>(`input[data-key="${key}"]`);
+      if (el && el !== document.activeElement) el.value = show(v);
+    }
   }
 
   /**
@@ -1185,13 +1281,14 @@ export class EditorController implements EditorUI {
           ),
         );
       }
-      // NO HANDLES ON THE BOARD FOR THIS ONE, and the tile says why rather than leaving the reader to
-      // wonder where they went: the facing curve is read with `bezierAngle`, so its TANGENT is the
-      // heading and its coordinates live in a tangent space - there is no floor position to put a
-      // handle at. The move curve is a floor path and gets both handles.
+      // THE HANDLES FOR THIS ONE ARE A DIFFERENT SHAPE AND A DIFFERENT COLOUR, and the tile says what
+      // they are rather than leaving the reader to guess why a cyan polygon is elsewhere on the board:
+      // the facing curve is read with `bezierAngle`, so its coefficients live in a tangent space and
+      // what the polygon shows is the data drawn in the dancer's frame, not places on the floor.
       const note = document.createElement('div');
       note.className = 'small';
-      note.textContent = 'no handles on the board for the facing: its coordinates are a tangent space (its tangent IS the heading), so they have no floor position';
+      note.textContent =
+        'cyan handles: this curve\'s own control points, drawn in the dancer\'s frame at the move\'s start. Their DISTANCE means nothing - each point of the curve is a heading, and the ray from the dancer to it is that heading. r1 slides on the dancer\'s forward axis (the format has no cy3), r2 and r3 are free; r3 sets the heading the move ends on';
       grid.appendChild(note);
     } else {
       grid.appendChild(this.field(`m${i}:${k}:beats`, 'beats', seg.beats, 0.5, (v) => write((s) => ({ ...s, beats: v }), 'beats')));

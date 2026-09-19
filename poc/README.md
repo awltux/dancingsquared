@@ -404,11 +404,10 @@ selected the board fills with near-identical pairs and the dots themselves do no
 belongs to which dancer. The pairs are not independent anyway — the drag writes one LOCAL value to
 every selected dancer, so the second pair is only a copy of the first.
 
-Each handle is a leader line from the curve's fixed anchor (its start for `c1`, its end for `c2`) out
-to a magenta dot. **Dragging a dot changes the SHAPE only** — the endpoints, the beats and the hands
-are untouched. The camera is switched off for the duration, or the orbit control takes the same
-gesture and the board spins while you are dragging. Moving the *shared connecting point* between two
-curves (which adjusts both) is deliberately not offered yet.
+Each handle is a line from an anchor out to a dot. **Dragging a dot changes the SHAPE only** — the
+endpoints, the beats and the hands are untouched. The camera is switched off for the duration, or the
+orbit control takes the same gesture and the board spins while you are dragging. Moving the *shared
+connecting point* between two curves (which adjusts both) is deliberately not offered yet.
 
 **The dot is a third of what it was (0.1 board units), and that number is measured against the
 dancers rather than guessed**: the old 0.3 was **2.5× a dancer marker** (0.12), so the handle was
@@ -422,6 +421,52 @@ have them exactly coincident** (a Stand, or any curve whose control points colla
 position) — where the dots overlap, the strict nearest-wins test gives the grab to `c1`, so one of
 the two is unreachable. That limitation predates the shrink (two coincident meshes were picked in
 traversal order), and a deterministic tie is the most a single grab point can offer.
+
+**The numbers follow the drag live.** The drag deliberately skips the full panel re-render on every
+pointer move (rebuilding the table, the strip and eight dancer views sixty times a second is the
+difference between a drag and a slideshow), but that used to leave the one thing you are steering by —
+the numbers — frozen until you let go. They are now written on each move; nothing else in the panel is.
+
+### The facing curve is draggable too, in a different colour, and it is a different picture
+
+The **Facing** tab draws the facing curve's **own control polygon** in **cyan**, in the dancer's frame
+at the move's start: the dancer's spot, then `C1`, `C2` and the endpoint `P3`, joined in order. Magenta
+points are places on the floor where the dancer goes; cyan points are the coefficients of a heading
+profile, which is a different kind of thing and so gets a different colour. They appear **only on the
+Facing tab with `explicit` ticked**, because without an explicit curve there is no facing shape to drag
+(`rotate` absent means "face along the travel tangent", which is not a curve).
+
+**The distance from the dancer means nothing.** `poseFor` reads this curve with `bezierAngle`, so its
+tangent *is* the heading and its coordinates live in a tangent space; there is nowhere on the floor to
+put a heading. The direction from the dancer to a point *of the curve* is the heading change at that
+instant. The polygon is the honest drawing of the data, placed where the tile's numbers can be read
+straight off it.
+
+**Three points, not two, because the tile has five fields.** The Facing tab edits `r.cx3 cx4 cy4 x4
+y4`, and the polygon's three points carry exactly them: `r1` → `cx1`, `r2` → `cx2`/`cy2`, `r3` →
+`x2`/`y2`. A pair like the travel curve's would leave the endpoint — the heading the move *finishes*
+on — with no handle at all. The travel curve keeps its pair on purpose: there the endpoint is the
+authored track, and dragging it is the deferred shared-connecting-point gesture.
+
+**`r1` slides on a rail along the dancer's own forward axis, and that is the file format talking, not
+the gizmo.** The `<rotate>` element carries `cx3 cx4 cy4 x4 y4` — there is no `cy3` — so the converter
+hardcodes `cy1: 0` and the exporter emits no `cy1`. Measured: a `cy1` of 0.5 turns the dancer **331°**
+mid-move and re-parses as the authored curve **exactly**. So `r1` writes `cx1` alone, which is also why
+no drag here can produce a facing the corpus cannot express. In the 14 corpus curves whose `cx1` is
+already 0 the rail pointer sits on the dancer's own spot (Sashay, Lateral Substitute) — a real authored
+shape, and it still means "no change of heading at the start", because `atan2(0, 0)` is 0.
+
+**Which point sets which end** (measured, `node tools/facing-handle-probe.mjs`): the heading change at
+`t = 1` is the direction of `P3 − C2` **only**, so `C2` and `P3` set the facing the move ends on while
+`C1` shapes only the middle; and *nothing* moves the heading change at `t = 0`, because `cy1 = 0` makes
+the start tangent point along the dancer's own `+x`. Over the corpus: 4145 facing curves, **4088 of the
+9994 resolved segments carry an explicit one**, and the end-of-move heading change is 0° for 2233 of
+them, 180° for 674, −90° for 597, 90° for 383.
+
+The same probe checks the drag's arithmetic — placing a point and reading the pointer back is the
+identity (worst **4.4e-16** over 20 frames), each of the three rules writes its own point's numbers and
+no other field, every edit keeps `cy1` at exactly 0 and survives export + re-parse (worst **0**), and a
+handle dropped back on its own value exports **byte-identically**, so touching one is not an edit.
 
 **The dancer selector is one toggle per dancer** — the numbered chips in the moves row, and the `sel`
 column of the formation table (one state, two places to reach it). It replaced an "all" button, which

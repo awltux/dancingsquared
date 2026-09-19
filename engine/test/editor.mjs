@@ -487,13 +487,57 @@ console.log('\n== the XML keeps the declarations that change behaviour (14b) =='
   }
 }
 
+// The facing curve's first control point has no y in the format, pinned because the editor now
+// leans on it: the moves editor's facing handles put that control point on a RAIL.
+console.log('\n== the facing curve cannot express its first control point\'s y (14c) ==');
+{
+  // PINNED BECAUSE THE EDITOR DEPENDS ON IT. The `<rotate>` element carries cx3/cx4/cy4/x4/y4 -
+  // there is no cy3 - so `parsePathChildren` hardcodes `cy1: 0` and `callToXml` emits no cy1.
+  // The moves editor's facing handles therefore put the first control point on a RAIL along the
+  // dancer's own forward axis and write `cx1` alone. If someone later adds cy3 to the format and
+  // the exporter, the rail is no longer the format's constraint but a self-imposed one, and this
+  // check is what tells them so.
+  //
+  // Measured on a real call rather than argued: a cy1 of 0.5 turns the dancer 331deg mid-move and
+  // re-parses as the authored curve exactly. The heading change at t=1 is NOT the place to measure
+  // it - that is atan2 of the last derivative span, (x2 - cx2, y2 - cy2), which contains no C1.
+  const witness = buildCall(parseCallXml(read('../../poc/src/assets/b1/allemande.xml'))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
+  let d = -1;
+  let k = -1;
+  for (let i = 0; i < witness.dancers.length && d < 0; i++) {
+    for (let j = 0; j < witness.dancers[i].path.length; j++) {
+      if (witness.dancers[i].path[j].rotate && witness.dancers[i].path[j].beats > 0) { d = i; k = j; break; }
+    }
+  }
+  check(d >= 0, `witness: a move with an explicit facing (dancer ${d + 1}, move ${k + 1})`);
+  if (d >= 0) {
+    const authored = witness.dancers[d].path[k].rotate;
+    check(authored.cy1 === 0, `the parsed facing curve carries cy1 = ${authored.cy1} exactly`);
+    const bent = setMove(witness, d, k, { ...witness.dancers[d].path[k], rotate: { ...authored, cy1: 0.5 } });
+    const moveStart = witness.dancers[d].path.slice(0, k).reduce((s, x) => s + x.beats, 0);
+    const headingAt = (c, frac) => poseFor(c.dancers[d], moveStart + frac * c.dancers[d].path[k].beats).heading;
+    let worstEdit = 0;
+    let worstDiscard = 0;
+    const back = buildCall(parseCallXml(callToXml(bent, bent.from))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
+    const backBase = buildCall(parseCallXml(callToXml(witness, witness.from))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
+    for (const frac of [0.25, 0.5, 0.75]) {
+      worstEdit = Math.max(worstEdit, Math.abs(headingAt(bent, frac) - headingAt(witness, frac)));
+      worstDiscard = Math.max(worstDiscard, Math.abs(headingAt(back, frac) - headingAt(backBase, frac)));
+    }
+    const deg = (r) => (r * 180) / Math.PI;
+    check(deg(worstEdit) > 1, `cy1 = 0.5 really does turn the dancer mid-move (${deg(worstEdit).toFixed(1)}deg)`);
+    check(deg(worstDiscard) < 1e-6,
+      `and the export DISCARDS it: the re-parsed facing is the authored one (${deg(worstDiscard).toExponential(2)}deg)`);
+  }
+}
+
 // The one footgun the export carries, pinned rather than discovered later: the ENGINE's
 // own mirror rule is geometric ("mirror the half set unless a 180-degree partner already
 // exists"), so an 8-dancer instance whose edited formation has no origin-opposite pair is
 // DOUBLED when it is read back with mirror=true. The editor's own path is mirror=false,
 // which is why the round trip above is exact; anything that writes an edited tam into the
 // assets must know which of the two it is asking for.
-console.log('\n== the mirror-on-reparse footgun (14c) ==');
+console.log('\n== the mirror-on-reparse footgun (14d) ==');
 {
   // A rigid move (translation, or rotation about the origin) PRESERVES every origin-opposite
   // pair, so it cannot demonstrate anything. Moving one dancer out of each pair can: the

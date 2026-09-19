@@ -1611,6 +1611,68 @@ recorded rather than papered over.
 catalogue calls. The Vite app cannot run in this sandbox, so the feel of the drag and the look of the
 smaller dots remain reasoned from code and typechecked, not rendered.)
 
+**THE FACING CURVE IS DRAGGABLE TOO, IN A DIFFERENT COLOUR — AND THE COLOUR IS THE ARGUMENT.** The Facing
+tab now draws the facing curve's own CONTROL POLYGON on the board, in cyan against the travel curve's
+magenta, and it appears only on the Facing tab with `explicit` ticked. That last part is not a new guard:
+the tab is already disabled when `rotate` is null, because "face along the travel tangent" is not a curve
+anyone can edit. The colour earns its place because the two curves are different KINDS of thing — a
+magenta point is a place on the floor where the dancer goes, a cyan point is a coefficient of a heading
+profile — and one colour for both would invite reading the second as the first.
+
+**AND THE PICTURE HAS TO BE HONEST ABOUT BEING A TANGENT SPACE**, which is where the previous entry in
+this log stopped, having concluded that the facing curve gets no handles at all. That conclusion was right
+about positions and wrong about usefulness. `poseFor` reads the curve with `bezierAngle`, so the tangent
+IS the heading and the coefficients have no floor position; what the polygon shows is the SHAPE OF THE
+DATA, drawn in the dancer's frame at the move's start, where the tile's own numbers can be read straight
+off it. The distance from the dancer means nothing — there is no distance to mean — and the direction from
+the dancer to a point OF THE CURVE is the heading change at that instant. The tile now says so in words
+rather than leaving the reader to work out why a second polygon appeared.
+
+**THREE POINTS AND NOT TWO, BECAUSE THE TILE HAS FIVE FIELDS.** The Facing tab edits `r.cx3 cx4 cy4 x4
+y4`; the polygon's three points carry exactly those (r1 → cx1, r2 → cx2/cy2, r3 → x2/y2). A pair like the
+travel curve's would leave the endpoint — the heading the move FINISHES on — with no handle at all. The
+travel curve keeps its pair deliberately: there the endpoint IS the authored track, and dragging it is the
+deferred shared-connecting-point gesture. So the asymmetry has a reason on both sides.
+
+**r1 SLIDES ON A RAIL, AND THAT IS THE FILE FORMAT TALKING.** MEASURED, and it is the finding that shaped
+the gizmo: the `<rotate>` element carries cx3/cx4/cy4/x4/y4 and NO cy3, so the converter hardcodes
+`cy1: 0` and the exporter emits no cy1 — an edit to cy1 is silently thrown away. A cy1 of 0.5 turns the
+dancer **331°** mid-move and re-parses as the authored curve **exactly**. r1 therefore writes cx1 alone,
+which is also what guarantees that no drag on this board can produce a facing the corpus cannot express.
+In the **14** curves whose cx1 is already 0 the rail pointer sits on the dancer's own spot (Sashay,
+Lateral Substitute) — a real authored shape, and it still means "no change of heading at the start",
+because `atan2(0, 0)` is 0.
+
+THE PROBE'S FIRST VERSION ASSERTED `cx1 > 0` OVER THE WHOLE CORPUS AND THE SCAN FAILED IT, the second time
+in two commits that a claim written into a code comment was killed by its own instrument. The honest
+assertion is `cx1 >= 0` with the zeros named. The same probe checks which point sets which end, and
+MEASURED AT t < 1 TO DO IT: the heading change at t = 1 is the direction of `P3 − C2` only, so C2 and P3
+set the facing the move ends on while C1 shapes only the middle, and nothing at all moves the heading
+change at t = 0, because cy1 = 0 puts the start tangent along the dancer's own +x. A test at t = 1
+reported "no change" for a cy1 edit that plainly changes the turn — the last derivative span contains no
+C1 — which is why the measurement moved. Population: **4145 facing curves, 4088 of the 9994 resolved
+segments carry an explicit one**; the end-of-move heading change is 0° for 2233 of them, 180° for 674,
+−90° for 597, 90° for 383.
+
+The drag's arithmetic is checked with its bound stated: placing a point and reading the pointer back is the
+identity (worst **4.4e-16** over 20 frames at five headings), each of the three write rules touches its own
+point's numbers and no other field, every edit keeps cy1 at exactly 0 and survives export + re-parse (worst
+**0**), and a handle dropped back on its own value exports BYTE-IDENTICALLY, so a touch is not an edit. The
+placement math is a COPY rather than the panel's function under test, because `editor-ui.ts` is TypeScript
+inside a Vite app that cannot run in this sandbox, and the probe says so.
+
+**AND THE NUMBERS FOLLOW THE DRAG LIVE, on both curves.** The drag path deliberately skips `renderInstance`
+per pointer move — rebuilding the table, the strip and eight dancer views sixty times a second is the
+difference between a drag and a slideshow — but that left the one thing the caller is steering by, the
+numbers, frozen until the pointer came up. `refreshNumberFields` now writes the live instance's values into
+the tile's existing inputs (skipping the focused one) on the light path.
+
+The format fact the rail depends on is now a PERMANENT GATE rather than a comment: `engine/test/editor.mjs`
+section 14c measures that a parsed facing curve carries cy1 = 0, that a cy1 of 0.5 really does turn the
+dancer (331.5°), and that the export discards it. If someone later adds cy3 to the format and the exporter,
+that check fails and tells them the rail is no longer the format's constraint but a self-imposed one.
+`verify:light` green at 12 harnesses in 36.7 s, typecheck clean.
+
 
 
 

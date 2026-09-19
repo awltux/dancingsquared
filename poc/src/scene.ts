@@ -17,9 +17,9 @@ export interface Stage {
    * 2D camera (disables orbit rotation in 2D). */
   setView2D(on: boolean): void;
   resize(): void;
-  /** Show the two Bezier control-point handles for one move, or clear them with null.
-   *  A handle is the classic vector-editor pair: a leader line from the curve's FIXED anchor (its
-   *  start for c1, its end for c2) out to the control point, with a grabbable dot at the end. */
+  /** Show the Bezier control-point handles for one move, or clear them with null.
+   *  A handle is the classic vector-editor gadget: a line from an anchor out to the control point,
+   *  with a grabbable dot at the end. */
   setHandles(handles: HandleSpec[] | null): void;
   /** The handle id under a canvas point, or null. */
   pickHandle(clientX: number, clientY: number): string | null;
@@ -28,14 +28,26 @@ export interface Stage {
   floorPoint(clientX: number, clientY: number): { x: number; y: number } | null;
 }
 
-/** One draggable Bezier control point: where its leader line is anchored, and where the dot is. */
+/**
+ * The two handle colours, so the palette lives in one place and the panel can name them.
+ *
+ * THEY ARE DIFFERENT COLOURS BECAUSE THEY ARE DIFFERENT SPACES. Magenta points are the TRAVEL curve's
+ * control points: real places on the floor, where the dancer goes. Cyan points are the FACING curve's:
+ * a heading profile's coefficients, drawn in the dancer's frame at the move's start, where distance
+ * means nothing and DIRECTION is the heading. A single colour would invite reading the second set as
+ * positions on the board.
+ */
+export const HANDLE_COLOR = { travel: 0xff6fd0, facing: 0x3fd0ff } as const;
+
+/** One draggable Bezier control point: where its line is anchored, and where the dot is. */
 export interface HandleSpec {
-  /** `d<dancerIndex>:c1` or `d<dancerIndex>:c2`, so a hit says WHICH dancer's handle and which end.
-   *  Every selected dancer has its own pair, and the same local control point on all of them is the
-   *  same shape rotated into each dancer's position. */
+  /** `d<dancerIndex>:c1|c2` for the travel curve, `d<dancerIndex>:r1|r2|r3` for the facing curve - so
+   *  a hit says WHICH dancer's handle and WHICH control point it is. */
   id: string;
   anchor: { x: number; y: number };
   point: { x: number; y: number };
+  /** Defaults to the travel colour. */
+  color?: number;
 }
 
 /** A flat always-facing-camera text label (Sprite) so axis/angle names stay
@@ -215,14 +227,14 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
 
   // ---------------------------------------------------------------- Bezier handles
   //
-  // The classic vector-editor handles for ONE move's translation curve: a leader line from the
-  // curve's fixed anchor out to each control point, and a dot you can grab. Only the SHAPE is
-  // editable here - the endpoints are the authored track, and moving them is a different gesture
-  // (the shared connecting point between two curves) that this deliberately does not offer.
+  // The classic vector-editor gadget for ONE move's Bezier curves: a line from an anchor out to each
+  // control point, and a dot you can grab. See HANDLE_COLOR above for why the two curves are drawn in
+  // two colours. Only the SHAPE is editable here - the travel curve's endpoints are the authored
+  // track, and moving them is a different gesture (the shared connecting point between two curves)
+  // that this deliberately does not offer.
   //
   // THE BOARD MAPPING IS (x, 0, -y): board +x is 3D +x, board +y is 3D -z. `floorPoint` is its
   // inverse, so a drag lands where the pointer is rather than mirrored across an axis.
-  const HANDLE_COLOR = 0xff6fd0; // magenta, distinct from the amber move highlight and cyan ticks
   const HANDLE_Y = 0.12;
   // A THIRD of what it was (0.3). The 0.3 was 2.5x a DANCER MARKER (0.12), which is the actual reason
   // it read as "very big": the handle was larger than the thing it is a handle FOR, so the board
@@ -258,15 +270,28 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   const setHandles = (handles: HandleSpec[] | null) => {
     handleGroup.clear();
     if (!handles) return;
-    const lineMat = new THREE.LineBasicMaterial({ color: HANDLE_COLOR, transparent: true, opacity: 0.85 });
-    const dotMat = new THREE.MeshBasicMaterial({ color: HANDLE_COLOR });
+    // ONE MATERIAL PER COLOUR, cached for the call: a move shows both curves at once only while the
+    // panel is switching between them, but the two colours have to coexist whenever they do.
+    const lineMats = new Map<number, THREE.LineBasicMaterial>();
+    const dotMats = new Map<number, THREE.MeshBasicMaterial>();
+    const lineMatFor = (c: number) => {
+      let m = lineMats.get(c);
+      if (!m) { m = new THREE.LineBasicMaterial({ color: c, transparent: true, opacity: 0.85 }); lineMats.set(c, m); }
+      return m;
+    };
+    const dotMatFor = (c: number) => {
+      let m = dotMats.get(c);
+      if (!m) { m = new THREE.MeshBasicMaterial({ color: c }); dotMats.set(c, m); }
+      return m;
+    };
     for (const h of handles) {
+      const color = h.color ?? HANDLE_COLOR.travel;
       const a = new THREE.Vector3(h.anchor.x, HANDLE_Y - 0.03, -h.anchor.y);
       const b = new THREE.Vector3(h.point.x, HANDLE_Y, -h.point.y);
-      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), lineMat);
+      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), lineMatFor(color));
       line.frustumCulled = false;
       handleGroup.add(line);
-      const dot = new THREE.Mesh(new THREE.CircleGeometry(HANDLE_RADIUS, 18), dotMat);
+      const dot = new THREE.Mesh(new THREE.CircleGeometry(HANDLE_RADIUS, 18), dotMatFor(color));
       dot.rotation.x = -Math.PI / 2; // lie flat on the floor
       dot.position.copy(b);
       // The id rides on the mesh so the picker has no index arithmetic to do on the way back.

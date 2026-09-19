@@ -2604,6 +2604,66 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     pre-existing limit (two coincident meshes were picked in traversal order before), recorded rather
     than papered over. Typecheck clean, `verify:light` green (12 harnesses, 38.7 s), `poc/verify.cjs`
     the same 3 pre-existing Pass Thru failures.
+  - **THE FACING CURVE IS DRAGGABLE TOO, IN A DIFFERENT COLOUR, AND IT IS A DIFFERENT PICTURE.** The
+    Facing tab now draws the facing curve's **own control polygon** — the dancer's spot at the move's
+    start, then C1, C2 and the endpoint P3, joined in order — in **cyan** against the travel curve's
+    magenta. It appears ONLY on the Facing tab with `explicit` ticked, which is not a new guard: the
+    Facing tab is already disabled when `rotate` is null, because "face along the travel tangent" is
+    not a curve anyone can edit. The colour is the point of the exercise rather than decoration: a
+    magenta point is a place on the floor where the dancer goes, a cyan one is a coefficient of a
+    heading profile, and one colour for both would invite reading the second as the first.
+  - **THE PICTURE IS THE DATA, AND IT IS HONEST ABOUT BEING A TANGENT SPACE.** `poseFor` reads this
+    curve with `bezierAngle`, so its tangent IS the heading and its coordinates have no floor position;
+    what the polygon shows is the SHAPE OF THE DATA drawn in the dancer's frame at the move's start,
+    where the tile's own numbers can be read straight off it. The distance from the dancer means
+    nothing (there is no distance to mean) and the direction from the dancer to a point OF THE CURVE is
+    the heading change at that instant. The tile says this in words instead of leaving the reader to
+    infer why a second polygon appeared.
+  - **THREE POINTS AND NOT TWO, BECAUSE THE TILE HAS FIVE FIELDS.** The facing tab edits `r.cx3 cx4
+    cy4 x4 y4`; the polygon's three points carry exactly them (r1 → cx1, r2 → cx2/cy2, r3 → x2/y2). A
+    pair like the travel curve's would leave the endpoint — the heading the move FINISHES on — with no
+    handle at all. The travel curve keeps its pair deliberately: there the endpoint IS the authored
+    track, and dragging it is the deferred shared-connecting-point gesture. So the asymmetry has a
+    reason on both sides rather than being an oversight.
+  - **r1 SLIDES ON A RAIL, AND THAT IS THE FORMAT'S CONSTRAINT RATHER THAN THE GIZMO'S CHOICE.**
+    MEASURED (`node poc/tools/facing-handle-probe.mjs`): the `<rotate>` element carries
+    cx3/cx4/cy4/x4/y4 and **no cy3**, the converter hardcodes `cy1: 0` and the exporter emits no cy1, so
+    an edit to cy1 is silently thrown away — a cy1 of 0.5 turns the dancer **331deg** mid-move and
+    re-parses as the authored curve **exactly**. r1 therefore writes cx1 alone, which is also what
+    guarantees no drag here can produce a facing the corpus cannot express. In the **14** curves whose
+    cx1 is already 0 the rail pointer sits on the dancer's own spot (Sashay, Lateral Substitute) — a
+    real authored shape, and it still means "no change of heading at the start", because `atan2(0, 0)`
+    is 0. The probe's FIRST version asserted `cx1 > 0` for the whole corpus and the scan FAILED it;
+    like the coincident-handle claim last commit, the assertion was the wrong shape and the honest one
+    is `cx1 >= 0` with the zeros named.
+  - **WHICH POINT SETS WHICH END, MEASURED RATHER THAN REASONED.** The heading change at t = 1 is the
+    direction of `P3 − C2` ONLY, so C2 and P3 set the facing the move ends on while C1 shapes only the
+    middle — and NOTHING moves the heading change at t = 0, because cy1 = 0 puts the start tangent along
+    the dancer's own +x. The probe's second version had to MEASURE AT t < 1 to see a cy1 edit at all: at
+    t = 1 it reported "no change" for an edit that plainly changes the turn, because the last derivative
+    span contains no C1. Population over the corpus: **4145 facing curves, 4088 of the 9994 resolved
+    segments carry an explicit one**, and the end-of-move heading change is 0deg for 2233, 180deg for
+    674, -90deg for 597, 90deg for 383.
+  - **THE DRAG'S ARITHMETIC IS CHECKED, WITH ITS BOUND STATED.** Placing a point and reading the
+    pointer back is the identity (worst **4.4e-16** over 20 frames at five headings), each of the three
+    write rules touches its own point's numbers and no other field, every edit keeps cy1 at exactly 0,
+    each survives export + re-parse (worst **0** against the harness's own 0.001 tolerance), and a
+    handle dropped back on its own value exports **BYTE-IDENTICALLY** — a touch is not an edit. The
+    placement math is a COPY rather than the panel's own function under test, because `editor-ui.ts` is
+    TypeScript inside a Vite app that cannot run in this sandbox; the probe says so, so the bound is the
+    honest one.
+  - **THE NUMBERS NOW FOLLOW THE DRAG LIVE.** The drag path deliberately skips `renderInstance` per
+    pointer move — rebuilding the table, the strip and eight dancer views sixty times a second is the
+    difference between a drag and a slideshow — but that left the one thing the caller is steering by,
+    the numbers, frozen until the pointer came up, on BOTH curves. `refreshNumberFields` writes the live
+    instance's values into the tile's existing inputs (skipping the focused one) as part of the light
+    path, which is a handful of field assignments rather than a rebuild.
+  - **AND THE FORMAT FACT THE RAIL DEPENDS ON IS NOW A PINNED GATE.** `engine/test/editor.mjs` section
+    14c measures that a parsed facing curve carries cy1 = 0, that a cy1 of 0.5 really does turn the
+    dancer (331.5deg), and that the export DISCARDS it — so if someone later adds cy3 to the format and
+    the exporter, the check fails and tells them the rail is no longer the format's constraint.
+    `verify:light` green (12 harnesses, 36.7 s); typecheck clean; `poc/verify.cjs` the same 3
+    pre-existing Pass Thru failures.
 
 **DOES THE ENGINE SUPPORT ARRANGEMENTS, OR ONLY FORMATIONS?** Asked directly, and the answer is
 **both, in two disconnected systems**:

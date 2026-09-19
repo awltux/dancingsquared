@@ -26,6 +26,8 @@ const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
 const asset = (p) => fs.readFileSync(path.join(process.cwd(), 'src/assets', p), 'utf8');
+// Half the floor grid, so "the drawn curve stays on the board" is a number rather than an impression.
+const FLOOR_HALF_ASSUMED = 10;
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 const moves = engine.parseMoves(movesXml);
@@ -277,6 +279,164 @@ console.log(`\n== 6. a drag of each of the three points ==`);
   const samePlace = engine.setMove(base, d, k, { ...base.dancers[d].path[k], rotate: drags.r2(authored, authored.cx2, authored.cy2) });
   check(engine.callToXml(samePlace, samePlace.from) === engine.callToXml(base, base.from),
     'dropping a handle back on its own value exports byte-identically (a touch is not an edit)');
+}
+
+// ---------------------------------------------------------------- 7. the drawn curve IS the heading
+console.log(`\n== 7. the curve the panel draws, and what its direction means ==`);
+{
+  // The panel draws the facing curve as a sampled cubic (`bezierPoint`) and claims that ITS DIRECTION
+  // at a point is the heading the dancer has there. That claim is checkable without the browser,
+  // because both halves are engine functions: the drawn points are `bezierPoint`, and the heading is
+  // `bezierAngle` - which is atan2 of the DERIVATIVE, so it is the direction of the curve's TANGENT.
+  //
+  // AN EARLIER VERSION OF THE PANEL'S OWN NOTE SAID THE OPPOSITE - that "the ray from the dancer to a
+  // point of the curve is that heading". The same section measures how wrong that was, so the
+  // correction is pinned rather than trusted.
+  const angDiff = (a, b) => Math.abs(((a - b + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
+  const deg = (r) => (r * 180) / Math.PI;
+
+  // The panel samples 32 segments; that number is repeated here so the measurement is of the drawing
+  // the caller sees rather than of a finer curve that would flatter it.
+  const SEGMENTS = 32;
+  const sample = (r, n = SEGMENTS) => {
+    const pts = [];
+    for (let i = 0; i <= n; i++) pts.push(engine.bezierPoint(r, i / n));
+    return pts;
+  };
+
+  // 7a. The endpoints are exactly the data's: the curve starts at the dancer's own spot (the implicit
+  // P0 = origin) and ends at (x2, y2).
+  let worstStart = 0;
+  let worstEnd = 0;
+  for (const [, r] of curves) {
+    const pts = sample(r);
+    worstStart = Math.max(worstStart, Math.hypot(pts[0].x, pts[0].y));
+    worstEnd = Math.max(worstEnd, Math.hypot(pts[pts.length - 1].x - r.x2, pts[pts.length - 1].y - r.y2));
+  }
+  check(worstStart === 0, `the drawn curve starts at the dancer's own spot, exactly (worst ${worstStart})`);
+  check(worstEnd < 1e-15, `and ends on the endpoint the tile edits (worst ${worstEnd.toExponential(2)})`);
+
+  // 7b. THE CLAIM: the direction of the curve at t is the heading at t. Measured as a chord against
+  // `bezierAngle`, which is what the engine feeds the renderer.
+  //
+  // TWO THINGS MAKE THIS SUBTLER THAN IT LOOKS, and the first version of this check got both wrong.
+  // Where the derivative is the near-zero vector - every curve whose cx1 is 0 at t = 0 - the tangent
+  // has no well-defined direction at all, and the chord has an arbitrary one; and a chord ACROSS the
+  // instant is second-order accurate in the interior but only FIRST-order at the two ends, where the
+  // window has to be one-sided. So the endpoints are measured separately, and the convergence is
+  // shown rather than asserted.
+  const deriv = (r, t) => {
+    const mt = 1 - t;
+    const cy1 = r.cy1 ?? 0; // the format has no cy3; see section 1
+    return {
+      dx: 3 * mt * mt * r.cx1 + 6 * mt * t * (r.cx2 - r.cx1) + 3 * t * t * (r.x2 - r.cx2),
+      dy: 3 * mt * mt * cy1 + 6 * mt * t * (r.cy2 - cy1) + 3 * t * t * (r.y2 - r.cy2),
+    };
+  };
+  const chordGap = (r, t, h) => {
+    const a = engine.bezierPoint(r, Math.max(0, t - h));
+    const b = engine.bezierPoint(r, Math.min(1, t + h));
+    return deg(angDiff(Math.atan2(b.y - a.y, b.x - a.x), engine.bezierAngle(r, t)));
+  };
+  const interior = [];
+  for (const [where, r] of curves) {
+    for (let i = 1; i < 20; i++) {
+      const t = i / 20;
+      const d = deriv(r, t);
+      if (Math.hypot(d.dx, d.dy) < 1e-3) continue; // no direction to speak of; the engine has none either
+      interior.push([where, r, t]);
+    }
+  }
+  let worstChord = 0;
+  let worstChordAt = '';
+  let worstEndpoint = 0;
+  for (const [where, r, t] of interior) {
+    const gap = chordGap(r, t, 0.002);
+    if (gap > worstChord) { worstChord = gap; worstChordAt = `${where} t=${t}`; }
+  }
+  for (const [, r] of curves) {
+    worstEndpoint = Math.max(worstEndpoint, chordGap(r, 0, 0.002), chordGap(r, 1, 0.002));
+  }
+  // The convergence that makes it a proof rather than a coincidence: quarter the window and the
+  // interior error must fall by roughly sixteen (second order), while the endpoint error falls by
+  // roughly four (first order, one-sided).
+  const worstAt = (h, onlyEnds) => {
+    let w = 0;
+    if (onlyEnds) {
+      for (const [, r] of curves) w = Math.max(w, chordGap(r, 0, h), chordGap(r, 1, h));
+    } else {
+      for (const [, r, t] of interior) w = Math.max(w, chordGap(r, t, h));
+    }
+    return w;
+  };
+  const h2 = 0.002 / 4;
+  const shrinkInterior = worstAt(0.002, false) / worstAt(h2, false);
+  const shrinkEnd = worstAt(0.002, true) / worstAt(h2, true);
+  console.log(`    the curve's own direction against the engine's heading, over ${curves.length} curves:`);
+  console.log(`      interior instants (${interior.length}): worst ${worstChord.toFixed(5)}deg at h=0.002 (${worstChordAt})`);
+  console.log(`      quartering the window shrinks that ${shrinkInterior.toFixed(1)}x (second order, as a symmetric chord must)`);
+  console.log(`      the two ENDPOINTS are one-sided: worst ${worstEndpoint.toFixed(4)}deg, shrinking ${shrinkEnd.toFixed(1)}x (first order)`);
+  check(worstChord < 0.01, `away from the ends the direction of the curve IS the heading - worst ${worstChord.toFixed(5)}deg`);
+  check(shrinkInterior > 8, `and it converges: quartering the chord window cuts the error ${shrinkInterior.toFixed(1)}x, so the limit is the tangent`);
+  check(shrinkEnd > 2 && shrinkEnd < 8, `the endpoint error is first order (${shrinkEnd.toFixed(1)}x), which is the finite difference and not the claim`);
+  // And at the spacing the DRAWING actually has, so 32 segments can be judged rather than assumed.
+  let worstDrawn = 0;
+  const drawnGaps = [];
+  for (const [, r] of curves) {
+    const pts = sample(r);
+    let local = 0;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const gap = deg(angDiff(Math.atan2(pts[i + 1].y - pts[i].y, pts[i + 1].x - pts[i].x), engine.bezierAngle(r, (i + 0.5) / SEGMENTS)));
+      local = Math.max(local, gap);
+    }
+    drawnGaps.push(local);
+    worstDrawn = Math.max(worstDrawn, local);
+  }
+  drawnGaps.sort((a, b) => a - b);
+  console.log(`      the DRAWN chords (32 per curve, what the eye sees): median ${drawnGaps[Math.floor(drawnGaps.length / 2)].toFixed(3)}deg, worst ${worstDrawn.toFixed(3)}deg`);
+  check(worstDrawn < 2, `32 drawn segments resolve the direction to ${worstDrawn.toFixed(3)}deg at worst - the polyline is the curve, not a lookalike`);
+
+  // 7c. THE WRONG READING, MEASURED. The ray from the dancer out to a point of the curve is a
+  // different angle from the curve's direction, and for a real share of the corpus it is a wildly
+  // different one - which is why the note had to be rewritten rather than reworded.
+  let over1 = 0;
+  let over10 = 0;
+  let over90 = 0;
+  let worstRay = 0;
+  for (const [, r] of curves) {
+    for (const t of [0.25, 0.5, 0.75]) {
+      const p = engine.bezierPoint(r, t);
+      if (Math.hypot(p.x, p.y) < 1e-9) continue; // no ray to speak of
+      const gap = deg(angDiff(Math.atan2(p.y, p.x), engine.bezierAngle(r, t)));
+      worstRay = Math.max(worstRay, gap);
+      if (gap > 1) over1++;
+      if (gap > 10) over10++;
+      if (gap > 90) over90++;
+    }
+  }
+  const n = curves.length * 3;
+  console.log(`    the "ray from the dancer to the curve" reading, same ${n} instants: >1deg at ${((over1 / n) * 100).toFixed(1)}%, >10deg at ${((over10 / n) * 100).toFixed(1)}%, >90deg at ${((over90 / n) * 100).toFixed(1)}%`);
+  check(over10 / n > 0.25,
+    `the ray reading is measurably NOT the heading (${((over10 / n) * 100).toFixed(1)}% of instants differ by more than 10deg) - the earlier note was wrong, not merely loose`);
+
+  // 7d. How far the drawn curve reaches, which decides whether it is a local annotation beside the
+  // dancer or a shape across the board - and whether it can run off the floor.
+  const reaches = [];
+  for (const [, r] of curves) {
+    let far = 0;
+    for (const p of sample(r)) far = Math.max(far, Math.hypot(p.x, p.y));
+    reaches.push(far);
+  }
+  reaches.sort((a, b) => a - b);
+  const pct = (q) => reaches[Math.min(reaches.length - 1, Math.floor(reaches.length * q))];
+  const overFloor = reaches.filter((v) => v > FLOOR_HALF_ASSUMED).length;
+  console.log(`    reach from the dancer: median ${pct(0.5).toFixed(2)} units, 90th ${pct(0.9).toFixed(2)}, 99th ${pct(0.99).toFixed(2)}, worst ${reaches[reaches.length - 1].toFixed(2)} (floor is 20 across, dancers about 2.5 apart)`);
+  check(pct(0.9) < 7,
+    `nine in ten curves are a LOCAL annotation: within ${pct(0.9).toFixed(2)} units of the dancer, a couple of dancer-spacings`);
+  // THE TAIL IS REPORTED RATHER THAN ASSERTED AWAY: the first version of this check demanded that every
+  // curve stay inside the floor, and the corpus refused it - one curve reaches 10.03 units.
+  check(overFloor / reaches.length < 0.001,
+    `${overFloor} of ${reaches.length} curves reach past the floor's own half-width (${((overFloor / reaches.length) * 100).toFixed(3)}%), so the tail is negligible but not absent`);
 }
 
 console.log('\n=================');

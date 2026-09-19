@@ -27,10 +27,13 @@ export interface Stage {
   setControlsEnabled(on: boolean): void;
   /** Advance both control sets (damping). Call once per frame. */
   updateControls(): void;
-  /** Show the Bezier control-point handles for one move, or clear them with null.
+  /** Show the Bezier gizmo for one move, or clear it with `setGizmo(null)`.
+   *
    *  A handle is the classic vector-editor gadget: a line from an anchor out to the control point,
-   *  with a grabbable dot at the end. */
-  setHandles(handles: HandleSpec[] | null): void;
+   *  with a grabbable dot at the end. A curve is the Bezier ITSELF, already sampled into a polyline by
+   *  the caller - this module stays a renderer, and the samples come from the engine's own
+   *  `bezierPoint`, so what is drawn is the curve the engine evaluates rather than a lookalike. */
+  setGizmo(handles: HandleSpec[] | null, curves?: CurveSpec[] | null): void;
   /** The handle id under a canvas point, or null. */
   pickHandle(clientX: number, clientY: number): string | null;
   /** The BOARD (x, y) under a canvas point, on the floor plane - the inverse of the drawing
@@ -41,13 +44,18 @@ export interface Stage {
 /**
  * The two handle colours, so the palette lives in one place and the panel can name them.
  *
- * THEY ARE DIFFERENT COLOURS BECAUSE THEY ARE DIFFERENT SPACES. Magenta points are the TRAVEL curve's
- * control points: real places on the floor, where the dancer goes. Cyan points are the FACING curve's:
- * a heading profile's coefficients, drawn in the dancer's frame at the move's start, where distance
- * means nothing and DIRECTION is the heading. A single colour would invite reading the second set as
- * positions on the board.
+ * THEY ARE DIFFERENT COLOURS BECAUSE THEY ARE DIFFERENT KINDS OF CURVE. Magenta is the TRAVEL curve -
+ * a path on the floor, where the dancer goes. Cyan is the FACING curve - a curve drawn in the mover's
+ * own frame at the move's start whose DIRECTION at each point is the heading the dancer has at that
+ * instant. One colour for both would invite reading the second as a place the dancer goes.
  */
 export const HANDLE_COLOR = { travel: 0xff6fd0, facing: 0x3fd0ff } as const;
+
+/** A Bezier curve to draw, already sampled into board coordinates by the caller. */
+export interface CurveSpec {
+  points: { x: number; y: number }[];
+  color?: number;
+}
 
 /** One draggable Bezier control point: where its line is anchored, and where the dot is. */
 export interface HandleSpec {
@@ -352,6 +360,10 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   // It is not a regression - two coincident meshes picked in traversal order before this - but it is
   // not a feature either, and a deterministic tie is the most a single grab point can honestly offer.
   const HANDLE_PICK_RADIUS = 0.3;
+  // THE CURVE RIDES A HAIR BELOW THE DOTS, so a control point that sits ON its own curve - which is
+  // every point of a straight walk's facing curve, where the controls are collinear between the ends -
+  // draws the dot over the line rather than z-fighting with it.
+  const CURVE_Y = HANDLE_Y - 0.01;
   const handleGroup = new THREE.Group();
   scene.add(handleGroup);
   const raycaster = new THREE.Raycaster();
@@ -365,16 +377,16 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     ndc.set(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1);
   };
 
-  const setHandles = (handles: HandleSpec[] | null) => {
+  const setGizmo = (handles: HandleSpec[] | null, curves?: CurveSpec[] | null) => {
     handleGroup.clear();
-    if (!handles) return;
     // ONE MATERIAL PER COLOUR, cached for the call: a move shows both curves at once only while the
     // panel is switching between them, but the two colours have to coexist whenever they do.
     const lineMats = new Map<number, THREE.LineBasicMaterial>();
     const dotMats = new Map<number, THREE.MeshBasicMaterial>();
-    const lineMatFor = (c: number) => {
-      let m = lineMats.get(c);
-      if (!m) { m = new THREE.LineBasicMaterial({ color: c, transparent: true, opacity: 0.85 }); lineMats.set(c, m); }
+    const lineMatFor = (c: number, opacity = 0.85) => {
+      const key = c * 100 + Math.round(opacity * 100);
+      let m = lineMats.get(key);
+      if (!m) { m = new THREE.LineBasicMaterial({ color: c, transparent: true, opacity }); lineMats.set(key, m); }
       return m;
     };
     const dotMatFor = (c: number) => {
@@ -382,7 +394,17 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       if (!m) { m = new THREE.MeshBasicMaterial({ color: c }); dotMats.set(c, m); }
       return m;
     };
-    for (const h of handles) {
+    // THE CURVES FIRST, THEN THE GADGET OVER THEM: the polyline is the shape, the handle lines are the
+    // scaffolding, and drawing the scaffolding last keeps the dots and their arms legible against it.
+    for (const c of curves ?? []) {
+      if (c.points.length < 2) continue;
+      const color = c.color ?? HANDLE_COLOR.travel;
+      const pts = c.points.map((p) => new THREE.Vector3(p.x, CURVE_Y, -p.y));
+      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lineMatFor(color, 1));
+      line.frustumCulled = false;
+      handleGroup.add(line);
+    }
+    for (const h of handles ?? []) {
       const color = h.color ?? HANDLE_COLOR.travel;
       const a = new THREE.Vector3(h.anchor.x, HANDLE_Y - 0.03, -h.anchor.y);
       const b = new THREE.Vector3(h.point.x, HANDLE_Y, -h.point.y);
@@ -467,7 +489,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       controls2d.update();
       clampPan2D();
     },
-    setHandles,
+    setGizmo,
     pickHandle,
     floorPoint,
   };

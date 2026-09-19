@@ -18,6 +18,7 @@ import {
   correctEndTo,
   callToXml,
   poseFor,
+  bezierPoint,
   endPoses,
   rigidFit,
   normalizeInstance,
@@ -34,7 +35,7 @@ import {
   connectStart,
   endPoseError,
 } from 'dancing-squared-engine';
-import type { Board, CallBundle, FormDancer, Gender, Hands, InstanceDancer, Seg } from 'dancing-squared-engine';
+import type { Board, BezierData, CallBundle, FormDancer, Gender, Hands, InstanceDancer, Seg } from 'dancing-squared-engine';
 
 import {
   availableCalls,
@@ -46,7 +47,7 @@ import {
   rebuildEdit,
 } from './data';
 import type { CallEdit, CallInfo } from './data';
-import type { Stage, HandleSpec } from './scene';
+import type { Stage, CurveSpec, HandleSpec } from './scene';
 import { HANDLE_COLOR } from './scene';
 
 export interface EditorUI {
@@ -136,6 +137,22 @@ function sameCoords(a: Seg, b: Seg): boolean {
 const show = (n: number): string => (Math.round(n * 1e4) / 1e4).toString();
 const toDeg = (rad: number): number => (rad * 180) / Math.PI;
 const toRad = (deg: number): number => (deg * Math.PI) / 180;
+
+/**
+ * A Bezier as a polyline, using the ENGINE'S OWN `bezierPoint`.
+ *
+ * The curve is drawn from the same function the engine evaluates the dance with, so the picture cannot
+ * drift from the data: a hand-rolled cubic in the renderer would be a second implementation of the
+ * engine's geometry, which is the one thing this POC's split exists to avoid.
+ *
+ * 32 segments, which is finer than the eye and cheap enough to rebuild on every pointer move of a drag.
+ */
+const CURVE_SEGMENTS = 32;
+function sampleBezier(b: BezierData, segments = CURVE_SEGMENTS): { x: number; y: number }[] {
+  const pts: { x: number; y: number }[] = [];
+  for (let i = 0; i <= segments; i++) pts.push(bezierPoint(b, i / segments));
+  return pts;
+}
 
 export class EditorController implements EditorUI {
   private stage: Stage;
@@ -657,20 +674,28 @@ export class EditorController implements EditorUI {
    *
    * THE TRAVEL CURVE gets two points, c1 and c2, each with a line from its own fixed anchor: c1's from
    * the move's start, c2's from the end. That is the classic layout, and it is also what makes it
-   * obvious which control point you are about to move.
+   * obvious which control point you are about to move. It gets NO drawn Bezier of its own, and that is
+   * not an omission: THE TRAVEL CURVE IS ALREADY DRAWN, because it IS the trail - `sampleTrailRange`
+   * walks the very same cubic onto the floor, highlighted in amber for exactly this move. A second copy
+   * would sit on top of it and say nothing new.
    *
-   * THE FACING CURVE gets three, drawn as its OWN CONTROL POLYGON - the dancer's spot at the move's
-   * start, then C1, C2 and the endpoint P3, joined in order. It is a different picture because it is a
-   * different space: `poseFor` reads this curve with `bezierAngle`, so the tangent is the heading and
-   * the coefficients are a tangent space with no floor position at all. What the cyan polygon shows is
-   * the SHAPE OF THE DATA, drawn in the frame where the tile's own numbers can be read off it. THE
-   * DISTANCE FROM THE DANCER MEANS NOTHING - there is no distance to mean - and the direction from the
-   * dancer to a point OF THE CURVE is the heading change at that instant. For a no-translation turn in
-   * `moves.xml` (`x4="0" y4="2"`, the tangent running 0deg to 180deg) there is simply nowhere on the
-   * floor to put the heading; the polygon is the honest thing to draw instead.
+   * THE FACING CURVE gets three points AND the curve itself. The curve is the point: it is a heading
+   * profile, and WHAT THE HEADING IS AT ANY INSTANT IS THE DIRECTION OF THE CURVE AT THAT INSTANT.
+   * `poseFor` reads the curve with `bezierAngle`, whose own comment says "atan2 of the tangent", so the
+   * tangent's direction IS the heading change - not, as an earlier version of this comment claimed, the
+   * ray from the dancer out to a point of the curve. That is why the curve is drawn as a curve: the
+   * control polygon alone says where the coefficients are, and only the curve says which way the dancer
+   * faces. Its length means nothing (uniformly scaling the whole curve leaves every tangent unchanged,
+   * so the facing is untouched), which is the one thing to be careful about when reading it.
+   *
+   * The cyan heading ticks on the highlighted trail are the SAME headings, drawn where the dancer
+   * actually is, so the two can be compared: at each instant the tick and the curve's direction agree.
+   * For a no-translation turn in `moves.xml` (`x4="0" y4="2"`, the heading running 0deg to 180deg) there
+   * is nowhere on the floor to put a facing, so the curve is drawn in the dancer's own frame at the
+   * move's start - the frame the control points are authored in - rather than anywhere on the track.
    *
    * THREE POINTS AND NOT TWO, BECAUSE THE TILE HAS FIVE FIELDS. The facing tab edits `r.cx3 cx4 cy4
-   * x4 y4` - five numbers - and the polygon's three points carry exactly them: r1 -> cx1, r2 -> cx2
+   * x4 y4` - five numbers - and the curve's three points carry exactly them: r1 -> cx1, r2 -> cx2
    * and cy2, r3 -> x2 and y2. A pair like the travel curve's would leave the endpoint, which is the
    * heading the move FINISHES on, with no handle at all. The travel curve keeps its pair on purpose:
    * there the endpoint IS the authored track, and dragging it is the deferred "shared connecting
@@ -680,20 +705,20 @@ export class EditorController implements EditorUI {
     const call = this.instance;
     const stage = this.stage;
     if (!call || !this.active || !this.isInstanceMode()) {
-      stage.setHandles(null);
+      stage.setGizmo(null);
       return;
     }
     // NO HANDLES WHEN THE COORDINATES DIFFER, because a handle drag is a coordinate edit and the gate
     // would refuse it. Drawing a draggable-looking dot that does nothing is worse than drawing none.
     if (!this.coordinatesAgree()) {
-      stage.setHandles(null);
+      stage.setGizmo(null);
       return;
     }
     const d = this.moveDancer;
     const dancer = call.dancers[d];
     const seg = dancer?.path[this.moveIndex];
     if (!dancer || !seg) {
-      stage.setHandles(null);
+      stage.setGizmo(null);
       return;
     }
     const range = moveBeatRange(dancer, this.moveIndex);
@@ -709,7 +734,7 @@ export class EditorController implements EditorUI {
       // tangent", which is not a curve anyone can edit - so the tab being on is the whole guard.
       const r = seg.rotate;
       if (!r) {
-        stage.setHandles(null);
+        stage.setGizmo(null);
         return;
       }
       // r1 IS PINNED TO THE DANCER'S OWN FORWARD AXIS, and that is the FORMAT's constraint rather than
@@ -718,8 +743,9 @@ export class EditorController implements EditorUI {
       // cy1 of 0.5 turns the dancer 331deg mid-move and re-parses as the authored curve exactly). So
       // r1 writes cx1 ALONE, which is also why no drag here can produce a facing the corpus cannot
       // express. In the 14 curves whose cx1 is already 0 the rail pointer sits on the dancer's own
-      // spot - a real authored shape (Sashay, Lateral Substitute), not a degenerate accident, and it
-      // still means "no change of heading at the start", because atan2(0, 0) is 0.
+      // spot - a real authored shape (Sashay, Lateral Substitute), not a degenerate accident: the
+      // curve's tangent there is the zero vector and atan2(0, 0) is still 0, so it means "no change of
+      // heading at the start" either way.
       const c1 = world(r.cx1, 0);
       const c2 = world(r.cx2, r.cy2);
       const p3 = world(r.x2, r.y2);
@@ -727,7 +753,10 @@ export class EditorController implements EditorUI {
       handles.push({ id: `d${d}:r1`, anchor: origin, point: c1, color: HANDLE_COLOR.facing });
       handles.push({ id: `d${d}:r2`, anchor: c1, point: c2, color: HANDLE_COLOR.facing });
       handles.push({ id: `d${d}:r3`, anchor: c2, point: p3, color: HANDLE_COLOR.facing });
-      stage.setHandles(handles);
+      // The cubic the engine evaluates, sampled in the same local frame as the dots and transformed by
+      // the same `world`, so the curve, the dots and the tile's numbers are one picture of one thing.
+      const curve: CurveSpec[] = [{ points: sampleBezier(r).map((p) => world(p.x, p.y)), color: HANDLE_COLOR.facing }];
+      stage.setGizmo(handles, curve);
       return;
     }
 
@@ -735,7 +764,7 @@ export class EditorController implements EditorUI {
     const t = seg.translate;
     handles.push({ id: `d${d}:c1`, anchor: { x: p0.x, y: p0.y }, point: world(t.cx1, t.cy1) });
     handles.push({ id: `d${d}:c2`, anchor: { x: p1.x, y: p1.y }, point: world(t.cx2, t.cy2) });
-    stage.setHandles(handles);
+    stage.setGizmo(handles);
   }
 
   /** The handle being dragged, as `d<dancer>:c<1|2>` for travel or `d<dancer>:r<1|2|3>` for facing. */
@@ -1301,14 +1330,15 @@ export class EditorController implements EditorUI {
           ),
         );
       }
-      // THE HANDLES FOR THIS ONE ARE A DIFFERENT SHAPE AND A DIFFERENT COLOUR, and the tile says what
-      // they are rather than leaving the reader to guess why a cyan polygon is elsewhere on the board:
-      // the facing curve is read with `bezierAngle`, so its coefficients live in a tangent space and
-      // what the polygon shows is the data drawn in the dancer's frame, not places on the floor.
+      // THE CURVE IS THE POINT OF THIS TAB, and the tile says what it means rather than leaving the
+      // reader to guess why a second cyan shape is on the board: the facing curve is read with
+      // `bezierAngle`, so the DIRECTION of the curve at each point is the heading the dancer has at
+      // that instant. Its length means nothing - scaling the whole curve leaves every tangent, and so
+      // every facing, exactly as it was.
       const note = document.createElement('div');
       note.className = 'small';
       note.textContent =
-        'cyan handles: this curve\'s own control points, drawn in the dancer\'s frame at the move\'s start. Their DISTANCE means nothing - each point of the curve is a heading, and the ray from the dancer to it is that heading. r1 slides on the dancer\'s forward axis (the format has no cy3), r2 and r3 are free; r3 sets the heading the move ends on';
+        'cyan curve: the facing Bezier itself, drawn from the dancer\'s spot at the move\'s start, with its own control points as the draggable dots. The DIRECTION of the curve at a point is the heading the dancer has there - the same headings as the cyan ticks on the amber trail - not its distance from the dancer. r1 slides on the dancer\'s forward axis (the format has no cy3), r2 and r3 are free, and r3 sets the heading the move ends on';
       grid.appendChild(note);
     } else {
       grid.appendChild(this.field(`m${i}:${k}:beats`, 'beats', seg.beats, 0.5, (v) => write((s) => ({ ...s, beats: v }), 'beats')));
@@ -1405,10 +1435,10 @@ export class EditorController implements EditorUI {
       if (this.instance) this.showInstance(this.instance);
     } else {
       this.refreshFixInfo();
-      // Leaving the instance editor gives the full tracks back, and takes the Bézier handles with
-      // it: they belong to a move selection that is no longer on screen.
+      // Leaving the instance editor gives the full tracks back, and takes the Bézier gizmo with it:
+      // it belongs to a move selection that is no longer on screen.
       this.host.focusTrail(null, null);
-      this.stage.setHandles(null);
+      this.stage.setGizmo(null);
     }
   }
 
@@ -1854,10 +1884,10 @@ export class EditorController implements EditorUI {
       this.renderSaved();
       this.renderInstance();
     } else {
-      // The editor is off screen: give every dancer's track back, and drop the Bézier handles so
-      // the browse and sequence views cannot inherit a magenta dot from an edit that is not showing.
+      // The editor is off screen: give every dancer's track back, and drop the Bézier gizmo so the
+      // browse and sequence views cannot inherit a magenta dot from an edit that is not showing.
       this.host.focusTrail(null, null);
-      this.stage.setHandles(null);
+      this.stage.setGizmo(null);
     }
   }
 }

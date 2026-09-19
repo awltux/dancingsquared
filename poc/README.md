@@ -483,26 +483,38 @@ pointer move (rebuilding the table, the strip and eight dancer views sixty times
 difference between a drag and a slideshow), but that used to leave the one thing you are steering by —
 the numbers — frozen until you let go. They are now written on each move; nothing else in the panel is.
 
-### The facing curve is draggable too, in a different colour, and it is a different picture
+### The facing curve is drawn as a CURVE, and its direction is the heading
 
-The **Facing** tab draws the facing curve's **own control polygon** in **cyan**, in the dancer's frame
-at the move's start: the dancer's spot, then `C1`, `C2` and the endpoint `P3`, joined in order. Magenta
-points are places on the floor where the dancer goes; cyan points are the coefficients of a heading
-profile, which is a different kind of thing and so gets a different colour. They appear **only on the
-Facing tab with `explicit` ticked**, because without an explicit curve there is no facing shape to drag
-(`rotate` absent means "face along the travel tangent", which is not a curve).
+The **Facing** tab draws the facing Bézier itself in **cyan**, sampled from the engine's own
+`bezierPoint` — the same cubic `poseFor` evaluates the dance with, so the picture cannot drift from the
+data — together with its three draggable control points. Magenta is the travel curve, a path on the
+floor where the dancer goes; cyan is a curve whose *direction* is where the dancer faces. They appear
+**only on the Facing tab with `explicit` ticked**, because without an explicit curve there is no facing
+shape to drag (`rotate` absent means "face along the travel tangent", which is not a curve).
 
-**The distance from the dancer means nothing.** `poseFor` reads this curve with `bezierAngle`, so its
-tangent *is* the heading and its coordinates live in a tangent space; there is nowhere on the floor to
-put a heading. The direction from the dancer to a point *of the curve* is the heading change at that
-instant. The polygon is the honest drawing of the data, placed where the tile's numbers can be read
-straight off it.
+**What the heading is at any instant is the DIRECTION OF THE CURVE at that instant.** `poseFor` reads
+the curve with `bezierAngle`, whose own implementation is `atan2` of the derivative — the tangent — so
+the curve's direction *is* the heading change. The cyan heading ticks drawn on the amber trail are the
+same headings, placed where the dancer actually is, so the two can be compared directly.
+
+An earlier version of this panel drew only the **control polygon** — the dancer's spot, `C1`, `C2`, `P3`
+joined by straight lines — and its note claimed that "the ray from the dancer out to a point of the
+curve is that heading". **That was wrong.** The ray and the tangent are different angles, and measured
+over the corpus they differ by more than 10° at **47.6%** of instants (more than 1° at 79.3%). The note
+was not loose, it was false, and it is now the tangent reading above. The control polygon is still
+drawn, as the scaffolding the dots hang from.
+
+**The curve's length means nothing.** Uniformly scaling the whole curve leaves every tangent — and so
+every facing — exactly as it was, so the distance from the dancer carries no information. It is drawn at
+the data's own scale so the dots and the tile's numbers read straight off it; nine curves in ten reach
+no more than **4.08** units from the dancer, a couple of dancer-spacings.
 
 **Three points, not two, because the tile has five fields.** The Facing tab edits `r.cx3 cx4 cy4 x4
-y4`, and the polygon's three points carry exactly them: `r1` → `cx1`, `r2` → `cx2`/`cy2`, `r3` →
+y4`, and the curve's three points carry exactly them: `r1` → `cx1`, `r2` → `cx2`/`cy2`, `r3` →
 `x2`/`y2`. A pair like the travel curve's would leave the endpoint — the heading the move *finishes*
-on — with no handle at all. The travel curve keeps its pair on purpose: there the endpoint is the
-authored track, and dragging it is the deferred shared-connecting-point gesture.
+on — with no handle at all. **The travel curve gets no drawn curve of its own, and that is not an
+omission: the travel curve IS the trail.** `sampleTrailRange` walks the very same cubic onto the floor,
+highlighted in amber for exactly this move, so a second copy would sit on top of it and say nothing new.
 
 **`r1` slides on a rail along the dancer's own forward axis, and that is the file format talking, not
 the gizmo.** The `<rotate>` element carries `cx3 cx4 cy4 x4 y4` — there is no `cy3` — so the converter
@@ -510,19 +522,26 @@ hardcodes `cy1: 0` and the exporter emits no `cy1`. Measured: a `cy1` of 0.5 tur
 mid-move and re-parses as the authored curve **exactly**. So `r1` writes `cx1` alone, which is also why
 no drag here can produce a facing the corpus cannot express. In the 14 corpus curves whose `cx1` is
 already 0 the rail pointer sits on the dancer's own spot (Sashay, Lateral Substitute) — a real authored
-shape, and it still means "no change of heading at the start", because `atan2(0, 0)` is 0.
+shape, and it still means "no change of heading at the start", because the tangent there is the zero
+vector and `atan2(0, 0)` is 0.
 
-**Which point sets which end** (measured, `node tools/facing-handle-probe.mjs`): the heading change at
-`t = 1` is the direction of `P3 − C2` **only**, so `C2` and `P3` set the facing the move ends on while
-`C1` shapes only the middle; and *nothing* moves the heading change at `t = 0`, because `cy1 = 0` makes
-the start tangent point along the dancer's own `+x`. Over the corpus: 4145 facing curves, **4088 of the
-9994 resolved segments carry an explicit one**, and the end-of-move heading change is 0° for 2233 of
-them, 180° for 674, −90° for 597, 90° for 383.
+**Which point sets which end** (measured): the heading change at `t = 1` is the direction of `P3 − C2`
+**only**, so `C2` and `P3` set the facing the move ends on while `C1` shapes only the middle; and
+*nothing* moves the heading change at `t = 0`, because `cy1 = 0` makes the start tangent point along the
+dancer's own `+x`. Over the corpus: 4145 facing curves, **4088 of the 9994 resolved segments carry an
+explicit one**, and the end-of-move heading change is 0° for 2233 of them, 180° for 674, −90° for 597,
+90° for 383.
 
-The same probe checks the drag's arithmetic — placing a point and reading the pointer back is the
-identity (worst **4.4e-16** over 20 frames), each of the three rules writes its own point's numbers and
-no other field, every edit keeps `cy1` at exactly 0 and survives export + re-parse (worst **0**), and a
-handle dropped back on its own value exports **byte-identically**, so touching one is not an edit.
+`node tools/facing-handle-probe.mjs` measures the drawing as well as the drag. The drawn curve starts at
+the dancer's own spot **exactly** and ends on the endpoint the tile edits (worst **0**); away from the
+ends its direction matches the engine's heading to **0.00073°**, and quartering the measuring window cuts
+that by **16×**, so the limit really is the tangent; the **32** drawn segments resolve the direction to
+**0.056°** at worst, so the polyline is the curve rather than a lookalike; and the two ends are a
+one-sided difference, first order, which is the measurement and not the claim. The drag's arithmetic is
+checked too: placing a point and reading the pointer back is the identity (worst **4.4e-16** over 20
+frames at five headings), each of the three rules writes its own point's numbers and no other field,
+every edit keeps `cy1` at exactly 0 and survives export + re-parse (worst **0**), and a handle dropped
+back on its own value exports **byte-identically**, so touching one is not an edit.
 
 **The dancer selector is one toggle per dancer** — the numbered chips in the moves row, and the `sel`
 column of the formation table (one state, two places to reach it). It replaced an "all" button, which

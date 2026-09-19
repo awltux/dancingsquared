@@ -2604,23 +2604,48 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     pre-existing limit (two coincident meshes were picked in traversal order before), recorded rather
     than papered over. Typecheck clean, `verify:light` green (12 harnesses, 38.7 s), `poc/verify.cjs`
     the same 3 pre-existing Pass Thru failures.
-  - **THE FACING CURVE IS DRAGGABLE TOO, IN A DIFFERENT COLOUR, AND IT IS A DIFFERENT PICTURE.** The
-    Facing tab now draws the facing curve's **own control polygon** — the dancer's spot at the move's
-    start, then C1, C2 and the endpoint P3, joined in order — in **cyan** against the travel curve's
-    magenta. It appears ONLY on the Facing tab with `explicit` ticked, which is not a new guard: the
-    Facing tab is already disabled when `rotate` is null, because "face along the travel tangent" is
-    not a curve anyone can edit. The colour is the point of the exercise rather than decoration: a
-    magenta point is a place on the floor where the dancer goes, a cyan one is a coefficient of a
-    heading profile, and one colour for both would invite reading the second as the first.
-  - **THE PICTURE IS THE DATA, AND IT IS HONEST ABOUT BEING A TANGENT SPACE.** `poseFor` reads this
-    curve with `bezierAngle`, so its tangent IS the heading and its coordinates have no floor position;
-    what the polygon shows is the SHAPE OF THE DATA drawn in the dancer's frame at the move's start,
-    where the tile's own numbers can be read straight off it. The distance from the dancer means
-    nothing (there is no distance to mean) and the direction from the dancer to a point OF THE CURVE is
-    the heading change at that instant. The tile says this in words instead of leaving the reader to
-    infer why a second polygon appeared.
+  - **THE FACING CURVE IS DRAGGABLE TOO, IN A DIFFERENT COLOUR, AND IT IS DRAWN AS A CURVE.** The
+    Facing tab draws the facing Bezier ITSELF in **cyan** against the travel curve's magenta, sampled
+    through the ENGINE'S OWN `bezierPoint`, so the picture cannot drift from the data — the point of
+    the POC's split is that there is no second implementation of the geometry, in the renderer or
+    anywhere else. The three control points are the draggable dots and the control polygon is the
+    scaffolding they hang from. It appears ONLY on the Facing tab with `explicit` ticked, which is not a
+    new guard: the Facing tab is already disabled when `rotate` is null, because "face along the travel
+    tangent" is not a curve anyone can edit. The colour is the point of the exercise rather than
+    decoration: magenta is a path on the floor where the dancer goes, cyan is a curve whose DIRECTION is
+    where the dancer faces, and one colour for both would invite reading the second as the first.
+  - **AND THE FIRST VERSION OF THIS WAS DRAWING JOIN-THE-DOTS WITH A FALSE EXPLANATION, WHICH A CALLER
+    CAUGHT.** The reasoning that "the coefficients are a tangent space, so there is nowhere on the floor
+    to put a heading" was right, and the conclusion drawn from it — draw only the control polygon — was
+    wrong: the curve is drawable, and it is the thing that says which way the dancer faces. The note
+    then went further and claimed that **the ray from the dancer out to a point of the curve is the
+    heading**. `bezierAngle` is `atan2` of the DERIVATIVE, so the heading is the direction of the
+    curve's TANGENT. MEASURED: the two readings differ by more than 10deg at **47.6%** of instants and
+    more than 1deg at **79.3%** — the claim was not loose, it was false, and the correction is pinned in
+    the probe (7c) rather than trusted to this entry.
+  - **THE PICTURE IS THE DATA.** `poseFor` reads the curve with `bezierAngle`, so its tangent IS the
+    heading; the curve is drawn in the dancer's frame at the move's start, which is the frame its
+    coefficients are authored in, and where the tile's own numbers can be read straight off it. Its
+    LENGTH means nothing — uniformly scaling the whole curve leaves every tangent, and so every facing,
+    exactly as it was — which is the one thing to be careful about when reading it. The cyan heading
+    ticks on the amber trail are the same headings drawn where the dancer actually is, so the two can be
+    compared directly. MEASURED (`node poc/tools/facing-handle-probe.mjs`, section 7): the drawn curve
+    starts at the dancer's own spot EXACTLY and ends on the endpoint the tile edits (worst **0**); away
+    from the ends its direction matches the engine's heading to **0.00073deg** and quartering the
+    measuring window cuts that by **16x**, so the limit really is the tangent; the **32** drawn segments
+    resolve the direction to **0.056deg** at worst, so the polyline is the curve and not a lookalike;
+    and the two ends measure worse (0.688deg, shrinking 4x) because a chord at an endpoint is a
+    one-sided difference — first order, which is the INSTRUMENT and not the claim. The probe's first
+    version failed its own check by asserting a single bound across all instants, and the second failure
+    in the same section was an assertion that every curve stays inside the floor: 4 of 4145 reach past
+    the floor's half-width, so the tail is reported rather than asserted away. Nine curves in ten reach
+    no more than **4.08** units from the dancer.
+  - **THE TRAVEL CURVE GETS NO DRAWN CURVE OF ITS OWN, AND THAT IS NOT AN OMISSION: IT IS THE TRAIL.**
+    `sampleTrailRange` walks the very same cubic onto the floor, highlighted in amber for exactly this
+    move, so a second copy would sit on top of it and say nothing new. That is the whole reason the
+    facing curve looked like join-the-dots: it had no other rendering, and the travel curve did.
   - **THREE POINTS AND NOT TWO, BECAUSE THE TILE HAS FIVE FIELDS.** The facing tab edits `r.cx3 cx4
-    cy4 x4 y4`; the polygon's three points carry exactly them (r1 → cx1, r2 → cx2/cy2, r3 → x2/y2). A
+    cy4 x4 y4`; the curve's three points carry exactly them (r1 → cx1, r2 → cx2/cy2, r3 → x2/y2). A
     pair like the travel curve's would leave the endpoint — the heading the move FINISHES on — with no
     handle at all. The travel curve keeps its pair deliberately: there the endpoint IS the authored
     track, and dragging it is the deferred shared-connecting-point gesture. So the asymmetry has a

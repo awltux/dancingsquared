@@ -404,6 +404,13 @@ hands are untouched. The camera is switched off for the duration, or the orbit c
 gesture and the board spins while you are dragging. Moving the *shared connecting point* between two
 curves (which adjusts both) is deliberately not offered yet.
 
+**The dancer selector is one toggle per dancer** — the numbered chips in the moves row, and the `sel`
+column of the formation table (one state, two places to reach it). It replaced an "all" button, which
+was near-useless: very few calls have every dancer doing exactly the same move, so "all" was a button
+you pressed and then had to undo. **The lowest-numbered dancer selected is the one the tile shows and
+the strip lists**, and the set can never be emptied — unticking the last one is refused, because a
+panel showing a move with no dancer selected has no meaning.
+
 **A drag on any selected dancer's handle applies to all of them, each in its own frame** — and that is
 *exact*, not approximate, because a move's Bézier is authored in **dancer-local coordinates**. The
 origin is the dancer's spot where the move begins and +X is the facing at that instant, so the *same*
@@ -412,15 +419,20 @@ positions. Propagating a change therefore needs no rotation arithmetic at all: t
 shared description. The only conversion is the one that puts the pointer where you dropped it, in the
 frame of the dancer whose handle you grabbed.
 
-Both halves of the group edit use that:
+**The coordinate fields are LOCKED unless the selected dancers' coordinates genuinely agree** — the same
+shape, rotated to each position, which is the only case where one set of numbers describes them all.
+Writing a number into a field writes it to *every* selected dancer, so on a selection whose curves
+differ it would collapse genuinely different shapes into one — destroying the per-dancer difference you
+were looking at. Where they agree, the write keeps them agreeing, which is exactly when it is safe; a
+single selection is always editable. When locked the fields are **greyed, not hidden** (the first
+selected dancer's value stays readable), the tile says why and what fixes it, and the board handles are
+not drawn — a drag is a coordinate edit that the same gate would refuse.
 
-- **ticking dancers** in the `sel` column of the formation table (the `all` button in the moves row
-  toggles the whole set) — the focused dancer is always in the selection, because the tile must not be
-  showing values that edits do not touch;
-- **every move edit** — the tile's fields, `+ Move` and `− Move` — goes to every selected dancer,
-  *patch by patch* rather than segment by segment: a patch built from the focused dancer's segment would
-  copy its other control points onto everybody, which is exactly the per-dancer difference a group edit
-  exists to preserve. A selected dancer with no move at that index is skipped, never given one.
+**Beats and hands are deliberately NOT gated**: they are not coordinates, and unifying a timing or a
+hold across a selection is a legitimate group edit rather than a collapse of geometry. Every move edit
+goes to every selected dancer *patch by patch* rather than segment by segment — a patch built from the
+first dancer's segment would copy its other control points onto everybody. `+ Move` / `− Move` apply to
+the whole selection too, and a selected dancer with no move at that index is *skipped*, never given one.
 
 **The facing curve gets no handles**, and that is a fact about the data rather than an omission:
 `poseFor` reads it with `bezierAngle`, so its **tangent is the heading** and its coordinates live in a

@@ -103,6 +103,19 @@ html, body {
    inside the flex row it shared the line with its readout and came out narrower than the table it is
    read against. `#editorPanel #edScrub` is two ids so it beats `#hud input[type=range] { flex: 1 }`. */
 #editorPanel #edScrub { flex: 1 0 100%; width: 100%; }
+/* One toggle per dancer. It replaced an "all" button, which was near-useless - very few calls have
+   every dancer doing exactly the same move - so this is the selector, and the lowest-numbered one
+   selected (`.focus`, the dancer the tile shows) is ringed. */
+#editorPanel .ed-picks { display: inline-flex; gap: 2px; }
+#editorPanel .ed-pick {
+  min-width: 22px; padding: 2px 5px; font-size: 11px; line-height: 1.3; font-family: inherit;
+  background: #0e141b; color: var(--dim); border: 1px solid #2a3542;
+}
+#editorPanel .ed-pick:hover { color: var(--text); border-color: var(--accent); }
+#editorPanel .ed-pick.on { background: rgba(77, 159, 255, 0.22); color: var(--text); border-color: #4d9fff; }
+#editorPanel .ed-pick.focus { box-shadow: 0 0 0 1px #4d9fff inset; font-weight: 700; }
+/* A locked coordinate field: the selected dancers differ, so one number cannot describe them all. */
+#editorPanel .ed-group.locked input { opacity: 0.5; }
 #legend { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 2px; }
 #legend b { color: var(--text); }
 .build-footer {

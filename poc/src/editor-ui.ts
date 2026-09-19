@@ -104,6 +104,32 @@ const HANDS_SHORT: Record<Hands, string> = {
 };
 const handsShort = (h: Hands): string => HANDS_SHORT[h] ?? h;
 
+/**
+ * Whether two segments carry the same LOCAL COORDINATES: the same translation curve, and the same
+ * facing curve (or none on both).
+ *
+ * This is "the same shape, rotated to each dancer's position" made checkable, and it is the test the
+ * coordinate gate turns on. Beats and hands are deliberately NOT compared - the gate is about shapes,
+ * and unifying a timing or a hold across a selection is a legitimate group edit.
+ */
+function sameCoords(a: Seg, b: Seg): boolean {
+  const eq = (x: number, y: number) => Math.abs(x - y) < 1e-6;
+  const t = a.translate;
+  const u = b.translate;
+  if (!eq(t.cx1, u.cx1) || !eq(t.cy1, u.cy1) || !eq(t.cx2, u.cx2) || !eq(t.cy2, u.cy2) || !eq(t.x2, u.x2) || !eq(t.y2, u.y2)) return false;
+  if ((a.rotate == null) !== (b.rotate == null)) return false;
+  if (a.rotate && b.rotate) {
+    return (
+      eq(a.rotate.cx1, b.rotate.cx1) &&
+      eq(a.rotate.cx2, b.rotate.cx2) &&
+      eq(a.rotate.cy2, b.rotate.cy2) &&
+      eq(a.rotate.x2, b.rotate.x2) &&
+      eq(a.rotate.y2, b.rotate.y2)
+    );
+  }
+  return true;
+}
+
 /** Round the way the engine's XML export does, so a value read out of the table and typed
  *  back in is the same number rather than a 15-digit float. */
 const show = (n: number): string => (Math.round(n * 1e4) / 1e4).toString();
@@ -155,8 +181,7 @@ export class EditorController implements EditorUI {
   private formationEl = el<HTMLDivElement>('edFormation');
   private scrubEl = el<HTMLInputElement>('edScrub');
   private beatReadoutEl = el<HTMLSpanElement>('edBeatReadout');
-  private moveDancerSel = el<HTMLSelectElement>('edMoveDancer');
-  private moveAllBtn = el<HTMLButtonElement>('edMoveAll');
+  private moveDancerSel = el<HTMLSpanElement>('edDancerPicks');
   private moveStripEl = el<HTMLDivElement>('edMoveStrip');
   private moveInfoEl = el<HTMLSpanElement>('edMoveInfo');
   private moveAddBtn = el<HTMLButtonElement>('edMoveAdd');
@@ -189,25 +214,31 @@ export class EditorController implements EditorUI {
    *  the one it came from ('instance'). Set by the Clone button. */
   private asClone = false;
   private startFormationsLoaded = false;
-  private moveDancer = 0;
-  private moveIndex = 0;
   /**
-   * WHICH DANCERS AN EDIT APPLIES TO. Most calls give every dancer the SAME movement, each rotated
-   * into its own position, so editing one move eight times to fix one curve is the wrong unit of
-   * work.
+   * WHICH DANCERS AN EDIT APPLIES TO, and the answer to "whose values am I looking at".
    *
-   * THE LOCAL FRAME IS WHAT MAKES THIS EXACT RATHER THAN APPROXIMATE. A move's translation Bezier is
-   * authored in dancer-LOCAL coordinates - the origin is the dancer's spot when the move begins and
-   * +X is the facing at that instant - so the SAME local control point on two dancers IS the same
-   * shape, rotated and translated into each of their positions. So propagating a control point needs
-   * no rotation arithmetic at all: the value IS the shared description. (Only a DRAG needs the one
+   * There is no separate "focused dancer" any more: the LOWEST-numbered selected dancer IS the one the
+   * tile shows and the strip lists. A caller picking a dancer to look at and a caller picking dancers
+   * to change are doing the same thing, and keeping two pieces of state for it only produced a way for
+   * the panel to show values that edits did not touch.
+   *
+   * THE LOCAL FRAME IS WHAT MAKES THE GROUP EDIT EXACT RATHER THAN APPROXIMATE. A move's translation
+   * Bezier is authored in dancer-LOCAL coordinates - the origin is the dancer's spot when the move
+   * begins and +X is the facing at that instant - so the SAME local control point on two dancers IS
+   * the same shape, rotated and translated into each of their positions. Propagating a change needs no
+   * rotation arithmetic at all: the value IS the shared description. (Only a DRAG needs the one
    * conversion, from the pointer's floor position into the dragged dancer's frame.)
-   *
-   * Always contains `moveDancer`, which is the one whose values the chain tile shows.
    */
   private selectedDancers = new Set<number>([0]);
+
+  /** The dancer whose values the tile shows: the lowest-numbered selected one. */
+  private get moveDancer(): number {
+    return this.selectedSorted()[0] ?? 0;
+  }
   /** WHICH OF THE MOVE'S TWO SHAPES is selected: the translation curve or the facing curve. */
   private moveKind: 'move' | 'facing' = 'move';
+  /** Which of the shown dancer's moves is selected in the strip. */
+  private moveIndex = 0;
   /** The editor's OWN playhead, in absolute beats. The animation is OFF while editing an instance,
    *  so this is the only thing that moves the dancers - and it has to be remembered HERE because
    *  every edit re-shows the instance and re-showing parks the playhead at the lead-in. */
@@ -384,7 +415,6 @@ export class EditorController implements EditorUI {
       this.instance = this.source;
       this.instanceEdited = false;
       this.asClone = false;
-      this.moveDancer = 0;
       this.moveIndex = 0;
       this.selectedDancers = new Set([0]);
       this.startFormationSel.value = '';
@@ -524,11 +554,37 @@ export class EditorController implements EditorUI {
     this.beatReadoutEl.textContent = `beat ${b.toFixed(2)} / ${total.toFixed(2)}` + (idx >= 0 ? ` · part ${idx + 1}/${parts.length}` : '');
   }
 
-  /** The selected dancers, in index order, always including the focused one. */
+  /** The selected dancers, in index order. */
   private selectedSorted(): number[] {
-    const set = new Set(this.selectedDancers);
-    set.add(this.moveDancer);
-    return [...set].sort((a, b) => a - b);
+    return [...this.selectedDancers].sort((a, b) => a - b);
+  }
+
+  /**
+   * Whether every selected dancer's move at this index carries the SAME LOCAL COORDINATES - which is
+   * what "the same shape, rotated to each position" means, and the only case where ONE set of numbers
+   * describes them all.
+   *
+   * THE COORDINATE FIELDS ARE LOCKED WHEN THEY DIFFER, and this is the reason. Writing a number into a
+   * field writes it to EVERY selected dancer, so on a selection whose curves disagree it would silently
+   * collapse genuinely different shapes into one - destroying, in a keystroke, the per-dancer
+   * difference the caller was looking at. Where they agree the write is a no-op in meaning (the same
+   * shape stays the same shape), which is exactly when it is safe.
+   *
+   * The BEATS and HANDS are deliberately not gated: they are not coordinates, and unifying a timing or
+   * a hold across a selection is a legitimate group edit rather than a collapse of geometry.
+   */
+  private coordinatesAgree(): boolean {
+    const call = this.instance;
+    if (!call) return true;
+    const sel = this.selectedSorted();
+    if (sel.length < 2) return true; // one dancer is always editable
+    const first = call.dancers[sel[0]]?.path[this.moveIndex];
+    if (!first) return false;
+    for (const d of sel.slice(1)) {
+      const seg = call.dancers[d]?.path[this.moveIndex];
+      if (!seg || !sameCoords(first, seg)) return false;
+    }
+    return true;
   }
 
   /**
@@ -543,7 +599,11 @@ export class EditorController implements EditorUI {
    * A selected dancer with no move at that index is SKIPPED rather than given one: the dancers of a
    * call do not always have the same number of moves, and inventing a move would change the track.
    */
-  private commitMoveChange(f: (seg: Seg) => Seg, focusKey: string, light = false) {
+  private commitMoveChange(f: (seg: Seg) => Seg, focusKey: string, light = false, coords = false) {
+    // THE COORDINATE GATE, enforced HERE as well as in the fields, because the drag path reaches this
+    // without going through them: a coordinate change on a selection whose curves differ would collapse
+    // them into one shape, which is the whole thing `coordinatesAgree` exists to prevent.
+    if (coords && !this.coordinatesAgree()) return;
     const next = this.foldMoveChange(f);
     if (!next) return;
     if (!light) {
@@ -596,6 +656,12 @@ export class EditorController implements EditorUI {
     const call = this.instance;
     const stage = this.stage;
     if (!call || !this.active || !this.isInstanceMode() || this.moveKind !== 'move') {
+      stage.setHandles(null);
+      return;
+    }
+    // NO HANDLES WHEN THE COORDINATES DIFFER, because a handle drag is a coordinate edit and the gate
+    // would refuse it. Drawing a draggable-looking dot that does nothing is worse than drawing none.
+    if (!this.coordinatesAgree()) {
       stage.setHandles(null);
       return;
     }
@@ -686,7 +752,7 @@ export class EditorController implements EditorUI {
       // ONLY THE SHAPE: the endpoint (`x2`, `y2`) and the beats and hands are untouched, which is what
       // makes this the control-point gesture rather than a way to move the track.
       return { ...seg, translate: isC1 ? { ...t, cx1: lx, cy1: ly } : { ...t, cx2: lx, cy2: ly } };
-    }, `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`, true);
+    }, `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`, true, true);
   }
 
   /**
@@ -708,7 +774,7 @@ export class EditorController implements EditorUI {
     if (focusKey !== undefined) this.focusKey = focusKey;
     this.renderFormation();
     this.renderScrub(this.instance);
-    this.renderMoveSelectors();
+    this.renderDancerPicks();
     this.renderMoveStrip();
     this.renderInstanceInfo();
     this.refreshCloneInfo();
@@ -803,15 +869,16 @@ export class EditorController implements EditorUI {
     const selTd = document.createElement('td');
     const selBox = document.createElement('input');
     selBox.type = 'checkbox';
-    selBox.checked = this.selectedDancers.has(i) || i === this.moveDancer;
-    selBox.disabled = i === this.moveDancer;
-    selBox.title =
-      i === this.moveDancer
-        ? 'The dancer the moves panel is showing; always part of the selection'
-        : 'Apply move edits to this dancer as well (in its own rotated frame)';
+    selBox.checked = this.selectedDancers.has(i);
+    selBox.title = `Apply move edits to dancer ${i + 1} as well (in its own rotated frame)`;
     selBox.addEventListener('change', () => {
-      if (selBox.checked) this.selectedDancers.add(i);
-      else this.selectedDancers.delete(i);
+      if (selBox.checked) {
+        this.selectedDancers.add(i);
+      } else if (this.selectedDancers.size > 1) {
+        // The set is never allowed to empty: a panel showing a move with no dancer selected is not a
+        // state anybody can read.
+        this.selectedDancers.delete(i);
+      }
       this.renderInstance();
     });
     selTd.appendChild(selBox);
@@ -904,15 +971,46 @@ export class EditorController implements EditorUI {
     return instanceTable(call)[this.moveDancer]?.moves ?? [];
   }
 
-  private renderMoveSelectors() {
+  /**
+   * THE DANCER SELECTOR: one toggle per dancer.
+   *
+   * It replaced an "all" button, which was near-useless - very few calls have every dancer doing
+   * exactly the same move, so "all" was a button you could press and then have to undo. One toggle per
+   * dancer is what the job needs, and the LOWEST-numbered one selected is the one the tile shows.
+   *
+   * The set can never be emptied: unticking the last one is refused, because a panel showing a dancer's
+   * move with no dancer selected has no sensible meaning.
+   */
+  private renderDancerPicks() {
     const call = this.instance;
-    const dancers = call ? instanceTable(call) : [];
-    if (this.moveDancer >= dancers.length) this.moveDancer = 0;
-    this.moveDancerSel.innerHTML = '';
-    for (const d of dancers) {
-      this.moveDancerSel.add(new Option(`#${d.index + 1} ${d.gender} (${d.moves.length})`, String(d.index), false, d.index === this.moveDancer));
+    const host = this.moveDancerSel;
+    host.innerHTML = '';
+    if (!call) return;
+    const sel = this.selectedDancers;
+    // Once, not per chip: `instanceTable` matches the start formation against the home square, and
+    // eight of those for eight tooltips is work nobody asked for.
+    const rows = instanceTable(call);
+    for (let i = 0; i < call.dancers.length; i++) {
+      const d = call.dancers[i];
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ed-pick' + (sel.has(i) ? ' on' : '') + (i === this.moveDancer ? ' focus' : '');
+      b.textContent = String(i + 1);
+      b.title =
+        `dancer ${i + 1} (${d.gender}, couple read ${rows[i]?.couple ?? '—'}, ${d.path.length} moves)` +
+        (i === this.moveDancer ? ' — the one the tile shows' : '') +
+        '\nClick to add it to the selection, or to take it out (the last one cannot be removed).';
+      b.addEventListener('click', () => {
+        if (sel.has(i)) {
+          if (sel.size === 1) return; // never empty
+          sel.delete(i);
+        } else {
+          sel.add(i);
+        }
+        this.renderInstance();
+      });
+      host.appendChild(b);
     }
-    this.moveDelBtn.disabled = (dancers[this.moveDancer]?.moves.length ?? 0) === 0;
   }
 
   /**
@@ -1015,9 +1113,10 @@ export class EditorController implements EditorUI {
     // PER-DANCER PATCHES, and that is not a detail: a patch built from THIS dancer's segment
     // (`{...t, cx1: v}`) would copy this dancer's OTHER control points onto every other selected
     // dancer, which is the per-dancer difference a group edit exists to preserve. So each field
-    // writes exactly its own value, into whichever dancer's segment it is handed.
-    const write = (patch: (seg: Seg) => Seg, field: string) => {
-      this.commitMoveChange(patch, `m${i}:${k}:${field}`);
+    // writes exactly its own value, into whichever dancer's segment it is handed. `coords` marks the
+    // Bezier coordinate fields, which the gate above refuses on a selection whose curves differ.
+    const write = (patch: (seg: Seg) => Seg, field: string, coords = false) => {
+      this.commitMoveChange(patch, `m${i}:${k}:${field}`, false, coords);
     };
 
     // ITS OWN LINE, because the tile is 180px wide and `move 4` + `explicit` + two tabs does not
@@ -1049,6 +1148,7 @@ export class EditorController implements EditorUI {
 
     const grid = document.createElement('div');
     grid.className = 'ed-grid';
+    const coordsOk = this.coordinatesAgree();
 
     if (this.moveKind === 'facing' && seg.rotate) {
       const r = seg.rotate;
@@ -1064,8 +1164,13 @@ export class EditorController implements EditorUI {
         // same field means the same thing on every selected dancer without copying one dancer's
         // other control points onto the rest.
         grid.appendChild(
-          this.field(`m${i}:${k}:r.${key}`, `r.${label}`, r[key], step, (v) =>
-            write((s) => ({ ...s, rotate: { ...(s.rotate ?? s.translate), [key]: v } }), `r.${key}`),
+          this.field(
+            `m${i}:${k}:r.${key}`,
+            `r.${label}`,
+            r[key],
+            step,
+            (v) => write((s) => ({ ...s, rotate: { ...(s.rotate ?? s.translate), [key]: v } }), `r.${key}`, true),
+            !coordsOk,
           ),
         );
       }
@@ -1101,18 +1206,33 @@ export class EditorController implements EditorUI {
       ];
       for (const [key, label, step] of tKeys) {
         grid.appendChild(
-          this.field(`m${i}:${k}:t.${key}`, `t.${label}`, t[key], step, (v) =>
-            write((s) => ({ ...s, translate: { ...s.translate, [key]: v } }), `t.${key}`),
+          this.field(
+            `m${i}:${k}:t.${key}`,
+            `t.${label}`,
+            t[key],
+            step,
+            (v) => write((s) => ({ ...s, translate: { ...s.translate, [key]: v } }), `t.${key}`, true),
+            !coordsOk,
           ),
         );
       }
+    }
+
+    if (!coordsOk) {
+      // SAID WHERE IT APPLIES. A field that is greyed out with no explanation reads as a bug; this is
+      // the one sentence that turns it into a rule, and it names the action that fixes it.
+      const note = document.createElement('div');
+      note.className = 'small';
+      note.textContent =
+        `coordinates locked: the ${this.selectedSorted().length} selected dancers do not share this move's shape, and one set of numbers cannot describe several - select one dancer to edit it`;
+      grid.appendChild(note);
     }
 
     tile.appendChild(grid);
     return tile;
   }
 
-  private field(key: string, label: string, value: number, step: number, onCommit: (v: number) => void): HTMLSpanElement {
+  private field(key: string, label: string, value: number, step: number, onCommit: (v: number) => void, locked = false): HTMLSpanElement {
     const wrap = document.createElement('span');
     wrap.className = 'ed-group';
     const l = document.createElement('label');
@@ -1122,6 +1242,13 @@ export class EditorController implements EditorUI {
     input.step = String(step);
     input.value = show(value);
     input.dataset.key = key;
+    if (locked) {
+      // LOCKED, NOT HIDDEN. The value shown is the first selected dancer's, so it stays readable - and
+      // the reason it cannot be edited is what the caller needs to know, not that the field is gone.
+      input.disabled = true;
+      input.title = 'the selected dancers differ here, and one field cannot describe several shapes - select one dancer, or make them agree';
+      wrap.classList.add('locked');
+    }
     input.addEventListener('change', () => {
       const v = parseFloat(input.value);
       if (!Number.isFinite(v)) this.renderInstance();
@@ -1581,21 +1708,9 @@ export class EditorController implements EditorUI {
       this.host.setPlayhead(b);
       this.renderScrub(this.instance);
     });
-    this.moveDancerSel.addEventListener('change', () => {
-      this.moveDancer = parseInt(this.moveDancerSel.value, 10) || 0;
-      // LOOKING AT A DANCER SHOULD NOT DROP THE OTHERS from the selection: the usual edit is a group
-      // edit, and the focused dancer joins the set rather than replacing it.
-      this.selectedDancers.add(this.moveDancer);
-      this.moveIndex = 0;
-      this.renderInstance();
-    });
-    // The whole point of the selection: a call gives most dancers the same movement rotated into
-    // their own positions, so "all" is the common case and eight ticks per edit is the wrong unit.
-    this.moveAllBtn.addEventListener('click', () => {
-      if (this.selectedDancers.size > 1) this.selectedDancers = new Set([this.moveDancer]);
-      else this.selectedDancers = new Set(Array.from({ length: this.instance?.dancers.length ?? 0 }, (_, i) => i));
-      this.renderInstance();
-    });
+    // There is no dancer dropdown and no "all" button any more: the chips ARE the selector
+    // (`renderDancerPicks`), one toggle per dancer, and the lowest-numbered selected one is the dancer
+    // the tile shows.
     // There is no "Move" dropdown any more: the strip IS the picker, and `selectMove` both
     // re-draws it and re-derives the track highlight.
     this.moveAddBtn.addEventListener('click', () => this.addInstanceMove());

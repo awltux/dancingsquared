@@ -24,6 +24,16 @@ export interface UserFormation {
   created: string;
   /** What it was created from, for the list: "Call (from Setup)". */
   origin: string;
+  /**
+   * WHETHER THIS SHAPE HAS BEEN ADDED TO THE CORPUS - `poc/src/assets/formations.xml`.
+   *
+   * A browser cannot write that file, so this is the CALLER'S ASSERTION that the `<formation>` block
+   * has gone into it (the panel hands them the block and says so). It is the flag that lets a created
+   * call be written as a `formation="Name"` REFERENCE instead of an embedded block: a reference to a
+   * formation only this browser's store has is a call that does not load anywhere else, so the app
+   * refuses to write one until the caller says the shape is in the corpus.
+   */
+  inCorpus?: boolean;
 }
 
 export function loadUserFormations(): UserFormation[] {
@@ -56,8 +66,27 @@ export function addUserFormation(f: UserFormation): UserFormation[] {
   return list;
 }
 
-/** Remove a labelled formation by name. Returns the new list. */
-export function removeUserFormation(name: string): UserFormation[] {
+/**
+ * Record that a formation has (or has not) been added to the corpus. See `UserFormation.inCorpus`.
+ *
+ * Returns the new list, and does nothing if the name is not stored - a flag on a formation nobody has
+ * is not a state worth inventing.
+ */
+export function setFormationInCorpus(name: string, inCorpus: boolean): UserFormation[] {
+  const key = canonicalName(name);
+  const list = loadUserFormations().map((f) => (canonicalName(f.name) === key ? { ...f, inCorpus } : f));
+  saveUserFormations(list);
+  return list;
+}
+
+/** The stored formation of that name, if any. Names are compared canonically, because the library
+ *  canonicalises on the way in and the store keeps whatever was typed. */
+export function findUserFormation(name: string): UserFormation | null {
+  const key = canonicalName(name);
+  return loadUserFormations().find((f) => canonicalName(f.name) === key) ?? null;
+}
+
+/** Remove a labelled formation by name. Returns the new list. */export function removeUserFormation(name: string): UserFormation[] {
   const list = loadUserFormations().filter((x) => x.name !== name);
   saveUserFormations(list);
   // DROP ITS DETACHMENTS TOO. A detachment says "this formation does not describe that call's

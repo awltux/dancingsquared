@@ -757,8 +757,37 @@ reloads: `loadCall` honours an edit already applied to the live catalogue, so an
 applied instance edit is reloaded as itself. Unapply it in the saved list to get the
 shipped tam back.
 
-**Clone onto a different Start setup** — author a NEW setup for a call out of an existing one.
-A `<tam>` is authored for one start formation and its moves are written in *dancer-local*
+**A created call NAMES its start formation once that formation is in the corpus.** The corpus's own tams
+carry `formation="Name"` and no geometry — `<tam title="Circle Four Left 1/4" from="Facing Couples"
+formation="Facing Couples">` — while every tam the editor wrote embedded a `<formation>` block. For a
+created call that is not a style question: the whole point of labelling a formation from a call's end is
+that other calls start from it, and an embedded copy means the shape exists once per call, so editing the
+formation never reaches them. So the **Browse Calls** panel's user-formation list grows an **add to corpus**
+button beside the `xml` one: it marks the formation as corpus-backed (the flag lives with the stored shape),
+puts its `<formation>` block on the clipboard for `poc/src/assets/formations.xml`, and says what follows —
+calls that start from it now export as `formation="Name"`. Taking it back out returns them to embedding.
+
+Three rules keep that honest, and the third is what makes it safe:
+
+- **A reference is only written for a formation the caller has ADDED to the corpus**, never for one that
+  only exists in this browser's store: a reference to a shape nobody else has is a call that loads nowhere,
+  which is far worse than a repeated block.
+- **The reference must describe the call**, checked by the engine's `startsFromFormation` **index for
+  index** — a tam's paths are paired with the formation's dancers by POSITION, so a call whose dancers
+  merely occupy the same spots in another order would hand each of them somebody else's path. The gender at
+  each spot is part of it too; that arrangement is what the gender gates read.
+- **The catalogue can resolve it.** A call is BUILT when it is registered, so the app registers the user
+  formations BEFORE the calls (both at startup and on a level change, which rebuilds the library). This was
+  a real bug rather than a precaution: registering the calls first made every saved call that names a
+  caller-made formation fail with `No formation "…"`, and the library does not retry.
+
+The decision itself is the engine's (`callToXmlNamed`), so there is one definition of "the reference is
+faithful"; `poc/src/tam-xml.ts` only answers what a name resolves to here, and every place that writes a
+`<tam>` goes through it. Gated by `engine/test/editor.mjs` 20 (the reference export, the reference
+resolving against a registered formation, the `No formation` guard, and the three fallbacks to the block)
+and by `poc/tools/formation-ref-probe.mjs` for the wiring.
+
+**Clone onto a different Start setup** — author a NEW setup for a call out of an existing one.A `<tam>` is authored for one start formation and its moves are written in *dancer-local*
 coordinates, so re-posing the start re-frames the whole chain and the set stops finishing
 where the call finishes. The three controls are the three steps:
 

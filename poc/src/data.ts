@@ -21,13 +21,14 @@ import {
   alignFormationToCore,
   correctEndTo,
   synthesizeSetup,
-  callToXml,
 } from 'dancing-squared-engine';
 import type { CallBundle, FormDancer } from 'dancing-squared-engine';
 
 import movesXml from './assets/moves.xml?raw';
 import formationsXml from './assets/formations.xml?raw';
 import callsXml from './assets/src/calls.xml?raw';
+// How a call is written as a `<tam>`: with an embedded start formation, or naming one the corpus carries.
+import { callTamXml } from './tam-xml';
 
 // Each per-level call XML is kept as its OWN async-loadable chunk (not inlined
 // into the main bundle). loadCatalog() fetches them all and reports real
@@ -403,7 +404,7 @@ export class Catalog {
   // ---- sequencer registration ----
 
   private tamFromCall(call: CallBundle): string | null {
-    const m = callToXml(call).match(/<tam\b[\s\S]*?<\/tam>/s);
+    const m = callTamXml(call).match(/<tam\b[\s\S]*?<\/tam>/s);
     return m ? m[0] : null;
   }
   private registrationXml(entry: CallInfo): string | null {

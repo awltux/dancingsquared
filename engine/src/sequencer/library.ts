@@ -9,7 +9,7 @@ import { matchFormations, type Matchable } from './match.js';
 import { assignHomeIdentity, normAngle } from './identity.js';
 import { canonicalName } from './constants.js';
 import type { CallStep, Module } from './types.js';
-import type { CallBundle } from '../types.js';
+import type { CallBundle, Gender } from '../types.js';
 
 // Calls that are conceptually sequences of multiple smaller calls (e.g. Running
 // Bear) but are authored in the data as a single call. The picker shows these as
@@ -30,12 +30,17 @@ export class CallLibrary {
   private readonly uniqueFormations: { name: string; dancers: Matchable[] }[] = [];
   /** Names added by `registerFormation` rather than read from `formations.xml`. See its note. */
   private readonly userFormations = new Set<string>();
+  /** The AUTHORED shapes of those names, for resolving a `formation="Name"` reference. Held in the
+   *  format's own degrees and unmapped, exactly as `formations.xml` would carry them. */
+  private readonly referenceShapes: { name: string; dancers: { gender: Gender; x: number; y: number; angleDeg: number }[] }[] = [];
+  /** The formation map the call parser reads: the corpus plus `referenceShapes`. Lazy, and dropped
+   *  whenever `registerFormation` adds one. */
+  private callFormations?: Map<string, { gender: Gender; x: number; y: number; angleDeg: number }[]>;
   /** Variants that could not be built, and why. See `loadVariants` for why this is COLLECTED
    * instead of thrown. */
   private readonly failures: { call: string; reason: string }[] = [];
   /** Lazy caches for the two XML documents every call build needs. See `loadVariants`. */
   private parsedMoves?: ReturnType<typeof parseMoves>;
-  private parsedFormations?: ReturnType<typeof parseFormations>;
 
   constructor(private readonly movesXml: string, private readonly formationsXml: string) {
     const f = parseFormations(formationsXml);
@@ -120,6 +125,33 @@ export class CallLibrary {
       this.uniqueFormations.push(fm);
     }
     this.userFormations.add(canonical);
+    // AND IT BECOMES REFERENCEABLE BY A CALL. A `<tam>` names its start formation with
+    // `formation="Name"` and carries no geometry, and until now only the CORPUS could be named that
+    // way - `loadVariants` parsed `formations.xml` and nothing else - so a call starting from a
+    // formation a CALLER labelled could not be authored as a reference at all. The authored shape is
+    // kept here (in the format's own degrees, unmapped and unmirrored, exactly as `formations.xml`
+    // would carry it) and merged into the map the call parser reads.
+    if (!this.referenceShapes.some((x) => x.name === canonical)) {
+      this.referenceShapes.push({
+        name: canonical,
+        dancers: dancers.map((d) => ({ x: d.x, y: d.y, angleDeg: d.heading / DEG, gender: d.gender ?? 'phantom' })),
+      });
+    }
+    // The parse caches were built without it, so the next registration of a call resolves it.
+    this.callFormations = undefined;
+  }
+
+  /** The formations a `formation="Name"` reference can resolve to: the corpus, plus what
+   *  `registerFormation` has added. See `registerFormation` for why the authored shape is kept. */
+  private callFormationMap(): Map<string, { gender: Gender; x: number; y: number; angleDeg: number }[]> {
+    if (!this.callFormations) {
+      const m = parseFormations(this.formationsXml);
+      // THE CORPUS WINS A NAME COLLISION: registering a shape under a corpus name is a relabel, and a
+      // reference to that name must mean what the corpus means by it.
+      for (const f of this.referenceShapes) if (!m.has(f.name)) m.set(f.name, f.dancers);
+      this.callFormations = m;
+    }
+    return this.callFormations;
   }
 
   /** The user-defined formation names, in registration order. */
@@ -294,7 +326,7 @@ export class CallLibrary {
     // parsing all of `moves.xml` and `formations.xml` 2211 times to build the shipped catalogue -
     // measured at 32s of a 55s fast verify tier. The parse is pure, so caching it is free.
     const moves = (this.parsedMoves ??= parseMoves(this.movesXml));
-    const formations = (this.parsedFormations ??= parseFormations(this.formationsXml));
+    const formations = this.callFormationMap();
     const tams = parseCallXml(callXml);
     const out: CallBundle[] = [];
     for (const tam of tams) {

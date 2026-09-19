@@ -148,7 +148,16 @@ export class SequencerController implements SequencerUI {
   constructor(stage: Stage) {
     this.stage = stage;
     this.connectors = buildHandConnectors(stage.scene);
-    this.seq = new Sequencer(movesXmlText, formationsXmlText, sequencerCallsUpTo('ms'));
+    // THE USER'S FORMATIONS GO IN FIRST, AND THE CALLS SECOND, because a call is BUILT when it is
+    // registered: a saved call that names its start formation (`formation="Name"`, which is how a
+    // created setup is exported once its formation is in the corpus) resolves against what the library
+    // already has. Registering the calls first made such a call fail with "No formation ..." and the
+    // library does not retry.
+    this.seq = new Sequencer(movesXmlText, formationsXmlText, []);
+    // AFTER the corpus is in, so the user's own shapes are added to a library that already has it
+    // rather than being deduped against a half-built one.
+    this.registerUserFormations();
+    for (const c of sequencerCallsUpTo('ms')) this.seq.register(c.name, c.xml);
     this.loadModules();
     this.refreshModulesList();
     this.restoreModules();
@@ -344,7 +353,10 @@ export class SequencerController implements SequencerUI {
   }
 
   private rebuildSeq() {
-    this.seq = new Sequencer(movesXmlText, formationsXmlText, sequencerCallsUpTo(this.levelSelect.value));
+    // THE SAME ORDER AS THE CONSTRUCTOR, and for the same reason: the formations first, then the calls -
+    // a call that NAMES its start formation is built when it is registered, and a reference to a
+    // formation that is not in the library yet is a failure rather than a retry.
+    this.seq = new Sequencer(movesXmlText, formationsXmlText, []);
     for (const m of this.modules) this.seq.registerModule(m.name, m.calls);
     this.registerCederModules();
     // THE USER'S FORMATIONS GO BACK IN WITH EVERYTHING ELSE. This is the SAME requirement as the
@@ -353,6 +365,7 @@ export class SequencerController implements SequencerUI {
     // panel's end-formation field went back to "not named" for the very call the label was made
     // from. Anything this library holds that the user added has to be re-added on a rebuild.
     this.registerUserFormations();
+    for (const c of sequencerCallsUpTo(this.levelSelect.value)) this.seq.register(c.name, c.xml);
     this.history.length = 0;
     this.playing = false;
     this.playhead = 0;

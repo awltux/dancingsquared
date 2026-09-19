@@ -1226,6 +1226,25 @@ export function setMoveArc(call: CallBundle, dancer: number, index: number, curv
   return setMove(call, dancer, index, curve === 'travel' ? { ...seg, translate: b } : { ...seg, rotate: b });
 }
 
+/** How `callToXml` writes the call's START formation.
+ *
+ *  `embed` is the inline `<formation>` block: self-contained, round-trip-safe, and what every
+ *  editor-authored tam carried until now.
+ *
+ *  `reference` is `formation="Name"` with NO geometry, which is what the CORPUS's own tams use
+ *  (`<tam title="Circle Four Left 1/4" from="Facing Couples" formation="Facing Couples">`). It is
+ *  the form to write when the formation is one the corpus already carries: the created call then
+ *  names it once instead of repeating its eight dancers, and an edit to the formation reaches every
+ *  call that starts from it. It is ONLY correct when the named formation resolves AND is the shape
+ *  the call actually starts from, which is what `startsFromFormation` checks - a reference to a
+ *  formation that has drifted, or that exists only in one browser's local store, is a call that
+ *  either starts somewhere else or does not load at all. */
+export type FormationRef = 'embed' | 'reference';
+
+export interface CallXmlOptions {
+  formation?: FormationRef;
+}
+
 /** Serialize an arbitrary call bundle as a taminations-style `<tam>` XML string.
  *
  * EVERY DECLARATION THE BUNDLE CARRIES IS WRITTEN BACK OUT, and the two attributes that
@@ -1242,8 +1261,9 @@ export function setMoveArc(call: CallBundle, dancer: number, index: number, curv
  * The edit is written in EXPANDED form: named `<move select="…"/>` references come out as
  * explicit `<movement>` Beziers. The two are the same animation (`resolvePath` expands the
  * first into the second), and `editor.mjs` proves the round trip both ways. */
-export function callToXml(call: CallBundle, name?: string): string {
+export function callToXml(call: CallBundle, name?: string, opts: CallXmlOptions = {}): string {
   const from = name ?? (call.from || call.title);
+  const reference = opts.formation === 'reference';
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   // A mirrored (half-set) dancer is authored at base (x,y,a) and rendered 180deg
   // about the origin. The XML format has no `mirror` attribute, so serialize it
@@ -1268,6 +1288,11 @@ export function callToXml(call: CallBundle, name?: string): string {
   const attrs = [
     `title="${esc(call.title)}"`,
     `from="${esc(from)}"`,
+    // THE REFERENCE NAMES THE FORMATION THE GEOMETRY WOULD HAVE COME FROM, and it is the attribute
+    // the parser resolves (`buildCallImpl`: "inline wins over named attribute"). Written ONLY in
+    // reference mode: alongside an inline block it would be dead data that reads like a second
+    // source of truth for where the dancers stand.
+    reference ? `formation="${esc(from)}"` : '',
     `parts="${esc(call.parts)}"`,
     call.sequencerMode ? `sequencer="${call.sequencerMode}"` : '',
     call.actives ? `actives="${esc(call.actives)}"` : '',
@@ -1275,11 +1300,53 @@ export function callToXml(call: CallBundle, name?: string): string {
     .filter((a) => a !== '')
     .join(' ');
   const taminator = call.taminator ? `\n    <taminator>${esc(call.taminator)}</taminator>` : '';
-  return (
-    `  <tam ${attrs}>\n` +
-    `    <formation>\n${dancers}\n    </formation>\n` +
-    `${paths}${taminator}\n  </tam>`
-  );
+  const body = reference ? '' : `    <formation>\n${dancers}\n    </formation>\n`;
+  return `  <tam ${attrs}>\n` + body + `${paths}${taminator}\n  </tam>`;
+}
+
+/**
+ * Whether `poses` is the formation `call` STARTS FROM, dancer for dancer, so that a
+ * `formation="Name"` reference describes the call.
+ *
+ * INDEX FOR INDEX, and that is not a formality: a tam's paths are assigned to the formation's
+ * dancers BY POSITION IN THE LIST (`buildCallImpl` pairs `dancers[i]` with `paths[i]`, mirroring a
+ * four-dancer formation to eight before it does). So a call whose dancers merely occupy the same SET
+ * of spots in a different order is NOT described by that reference - re-parsing it would hand each
+ * dancer somebody else's path. `synthesizeSetup` produces exactly that case whenever the core call
+ * orders its dancers differently from the formation, which is why this is checked rather than
+ * assumed.
+ *
+ * The tolerance is the XML's own: the exporter rounds to four decimals, so a formation that has been
+ * through the corpus once comes back within about 1e-4.
+ */
+export function startsFromFormation(call: CallBundle, poses: FormDancer[], tol = 1e-3): boolean {
+  if (call.dancers.length !== poses.length) return false;
+  for (let i = 0; i < poses.length; i++) {
+    const d = call.dancers[i];
+    const p = poseFor(d, 0);
+    if (Math.abs(p.x - poses[i].x) > tol || Math.abs(p.y - poses[i].y) > tol) return false;
+    if (Math.abs(normAngleSafe(p.heading - poses[i].heading)) > tol) return false;
+    // GENDER IS PART OF THE FORMATION rather than decoration: it is the arrangement the call's
+    // gender gates read, so a reference to a shape with the boys and girls swapped is a different
+    // setup, and the block has to be written out instead.
+    if (poses[i].gender !== undefined && d.gender !== poses[i].gender) return false;
+  }
+  return true;
+}
+
+/**
+ * The `<tam>` for a call, NAMING its start formation when the app can resolve that name and the call
+ * really starts from it, and embedding the block otherwise.
+ *
+ * `posesOf` is how the app answers "is that formation in the corpus" - the engine has no business
+ * knowing a browser's storage or which files an app ships - and it is asked rather than assumed because
+ * a reference to a formation that does not resolve is a call that loads NOWHERE, which is a far worse
+ * outcome than a repeated `<formation>` block. `startsFromFormation` is the other half: the name must
+ * also describe the shape the call starts from, dancer for dancer.
+ */
+export function callToXmlNamed(call: CallBundle, name: string, posesOf: (n: string) => FormDancer[] | null): string {
+  const poses = posesOf(name);
+  return callToXml(call, name, { formation: poses != null && startsFromFormation(call, poses) ? 'reference' : 'embed' });
 }
 
 /** Export a synthesized setup as a taminations-style `<tam>` XML string. */

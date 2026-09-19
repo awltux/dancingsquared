@@ -9,7 +9,7 @@ import { allPoses, sampleTrail, sampleTrailRange, poseFor, computeHandholds, ass
 import type { HeadingMode, HoldMode, Board, CallBundle, CallStep, DancerSpec, Matchable, Pose } from 'dancing-squared-engine';
 import { availableCalls, loadCall } from './data';
 import type { CallInfo } from './data';
-import { addUserFormation, applyLabel, detachLabel, loadUserFormations, reattachLabel, removeUserFormation } from './formations';
+import { addUserFormation, applyLabel, detachLabel, loadUserFormations, reattachLabel, removeUserFormation, setFormationInCorpus } from './formations';
 import type { UserFormation } from './formations';
 import { modulesUsing, startsAwayFromHome } from './modules';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
@@ -256,20 +256,24 @@ export class CallBrowser {
     this.storeLabel(name);
   }
 
-  /** The user-defined formation list: what is stored, what it exports, and how to drop it. */
+  /** The user-defined formation list: what is stored, what it exports, whether it is in the corpus, and
+   *  how to drop it. */
   private renderUserFormations() {
     const list = loadUserFormations();
     if (list.length === 0) {
       this.userFormationsEl.innerHTML = '';
       return;
     }
+    const corpus = list.filter((f) => f.inCorpus).length;
     this.userFormationsEl.innerHTML =
       `<div class="small"><b>${list.length} user-defined formation${list.length === 1 ? '' : 's'}</b>` +
-      ` <i>— stored locally and registered with the library; export the block to add it to the corpus</i></div>` +
+      ` <i>— stored locally and registered with the library; ${corpus} added to the corpus. A call that starts from an` +
+      ` ADDED formation exports as \`formation="Name"\` instead of repeating its dancers</i></div>` +
       list
         .map(
           (f, i) =>
             `<div class="row"><button data-xml="${i}" title="Copy this formation's &lt;formation&gt; block for pasting into poc/src/assets/formations.xml">xml</button>` +
+            `<button data-corpus="${i}" title="${f.inCorpus ? 'This formation is in the corpus: calls that start from it are exported as a name reference. Click to take it back out' : 'Add it to the corpus: the block goes on your clipboard to paste into poc/src/assets/formations.xml, and calls that start from it are then exported as a name reference rather than an embedded copy'}">${f.inCorpus ? 'in corpus ✓' : 'add to corpus'}</button>` +
             `<button data-del="${i}" title="Forget this label">del</button>` +
             `<span class="part">${esc(f.name)} <i>(${f.dancers.length} dancers, from ${esc(f.origin)})</i></span></div>`,
         )
@@ -278,9 +282,30 @@ export class CallBrowser {
       btn.addEventListener('click', () => {
         const f = list[Number(btn.dataset.xml)];
         if (!f) return;
-        const xml = formationToXml(f.name, f.dancers);
-        void navigator.clipboard?.writeText(xml);
+        void navigator.clipboard?.writeText(formationToXml(f.name, f.dancers));
         this.legend.innerHTML = `copied <b>${esc(f.name)}</b> as a &lt;formation&gt; block<br><span class="small">paste it into poc/src/assets/formations.xml</span>`;
+      });
+    }
+    for (const btn of this.userFormationsEl.querySelectorAll<HTMLButtonElement>('button[data-corpus]')) {
+      btn.addEventListener('click', () => {
+        const f = list[Number(btn.dataset.corpus)];
+        if (!f) return;
+        const now = !f.inCorpus;
+        setFormationInCorpus(f.name, now);
+        this.renderUserFormations();
+        // ADDING HANDS OVER THE BLOCK, because the flag is the caller's assertion that it is in the
+        // file - the app cannot write it, so the two halves of the action have to happen together or
+        // the flag would be a lie. Taking it back out does not touch the file: whether the block is
+        // pasted is the caller's business, and the export is the only thing this controls.
+        if (now) {
+          void navigator.clipboard?.writeText(formationToXml(f.name, f.dancers));
+          this.legend.innerHTML =
+            `added <b>${esc(f.name)}</b> to the corpus<br><span class="small">its &lt;formation&gt; block is on your clipboard - paste it into ` +
+            `poc/src/assets/formations.xml. Until it is there, a call that names it loads only in this browser; calls starting from it now export ` +
+            `as <b>formation="${esc(f.name)}"</b> instead of an embedded copy.</span>`;
+        } else {
+          this.legend.innerHTML = `took <b>${esc(f.name)}</b> back out of the corpus<br><span class="small">calls that start from it will export their own &lt;formation&gt; block again</span>`;
+        }
       });
     }
     for (const btn of this.userFormationsEl.querySelectorAll<HTMLButtonElement>('button[data-del]')) {

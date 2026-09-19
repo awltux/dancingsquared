@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   setParser,
+  Sequencer,
   parseMoves,
   parseFormations,
   parseCallXml,
@@ -20,6 +21,8 @@ import {
   synthesizeSetupChain,
   setupToXml,
   callToXml,
+  startsFromFormation,
+  callToXmlNamed,
   endPoses,
   closureDiscrepancy,
   correctEndTo,
@@ -1160,6 +1163,76 @@ console.log('\n== a move\'s end facing is the frame the next move is played in (
   }
   check(beforeTouched === 0, 'no move BEFORE the edited one changes');
   check(othersTouched === 0, 'and no other dancer is touched at all');
+}
+
+// ---------------------------------------------------------------------------
+// 20. a created call can name its start formation instead of embedding it
+// ---------------------------------------------------------------------------
+//
+// The corpus's own tams name their start with `formation="Name"` and carry no geometry; only an
+// editor-authored one embedded the block, because a formation the CALLER created could not be named at
+// all - `loadVariants` resolved references against `formations.xml` and nothing else. Both halves are
+// tested here: the export, and the reference resolving against a REGISTERED formation.
+console.log('\n== a created call can name its start formation (20) ==');
+{
+  const src = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
+  // A "created end formation": the shape a caller labels in the editor from a call's end. Taken here
+  // exactly as that path takes it.
+  const endShape = endPoses(src).map((p) => ({ x: p.x, y: p.y, heading: p.heading, gender: p.gender }));
+  const NAME = 'Test Created End';
+  // A call that starts, dancer for dancer, at that formation - which is what a created setup IS.
+  const starts = { ...src, from: NAME, dancers: src.dancers.map((d, i) => ({ ...d, x: endShape[i].x, y: endShape[i].y, angleDeg: endShape[i].heading / DEG })) };
+
+  check(startsFromFormation(starts, endShape), 'the created call starts from that formation, dancer for dancer');
+  const embedded = callToXml(starts, NAME);
+  const named = callToXml(starts, NAME, { formation: 'reference' });
+  check(embedded.includes('<formation>') && !embedded.includes('formation="'), 'the DEFAULT is still the inline block, with no `formation` attribute: every existing caller and the round-trip gate are untouched');
+  check(!named.includes('<formation>') && named.includes(`formation="${NAME}"`), `the reference form writes \`formation="${NAME}"\` and NO geometry`);
+  check(named.includes(`from="${NAME}"`), 'and keeps `from` as the human label, which is what the corpus does');
+
+  // THE REFERENCE MUST RESOLVE, which is the half that did not work before: a library TOLD about the
+  // caller's formation builds a call naming it. THE FORMATION GOES IN FIRST - a call is built when it
+  // is registered, so a reference to a formation registered afterwards is a failure, not a retry, and
+  // that ordering is the app's responsibility too.
+  const tam = `<calls>\n${named}\n</calls>`;
+  const mk = () => new Sequencer(movesXml, formationsXml, []);
+  const matchable = endShape.map((p) => ({ x: p.x, y: p.y, heading: p.heading, gender: p.gender }));
+  const told = mk();
+  told.registerFormation(NAME, matchable);
+  told.register('Test', tam);
+  const built = told.getVariants('Test')?.[0] ?? null;
+  check(!!built, 'a library that has been TOLD about it builds the call: a reference to a caller-made formation used to fail with "No formation ..."');
+  if (built) {
+    let worst = 0;
+    for (let i = 0; i < endShape.length; i++) {
+      const p = poseFor(built.dancers[i], 0);
+      worst = Math.max(worst, Math.hypot(p.x - endShape[i].x, p.y - endShape[i].y), Math.abs(normAngleSafe(p.heading - endShape[i].heading)));
+    }
+    check(worst < 1e-3, `and it starts at EXACTLY the named formation's poses (worst ${worst.toExponential(1)}), so the reference is faithful rather than nearly right`);
+    let travelled = 0;
+    for (const d of built.dancers) for (const s of d.path) travelled += Math.abs(s.translate.x2) + Math.abs(s.translate.y2);
+    check(travelled > 0, 'with its paths built from the file, not left empty by a silent skip');
+  }
+  // THE GUARD: a name nothing knows is REPORTED, not silently turned into a call that starts nowhere.
+  const alone = mk();
+  alone.register('Test', tam);
+  check(!alone.getVariants('Test')?.length, 'a reference to a formation the library does NOT have is not built at all');
+  check(alone.registrationFailures().some((f) => /No formation/.test(f.reason)), `and the reason NAMES it: "${alone.registrationFailures()[0]?.reason ?? ''}"`);
+  // THE DECISION ITSELF (`callToXmlNamed`), which is what the app calls: the name is used only when it
+  // RESOLVES and when it describes the shape the call starts from.
+  const resolves = () => endShape;
+  const nothing = () => null;
+  const permuted = () => [endShape[1], endShape[0], ...endShape.slice(2)];
+  check(callToXmlNamed(starts, NAME, resolves).includes(`formation="${NAME}"`), 'the app-facing helper writes the reference when the name RESOLVES and the call starts from it');
+  check(callToXmlNamed(starts, NAME, nothing).includes('<formation>'), 'and falls back to the embedded block when the name resolves to NOTHING: a reference to a formation nobody has is a call that loads nowhere');
+  check(callToXmlNamed(starts, NAME, permuted).includes('<formation>'), 'and when it resolves to a formation whose dancers are in another ORDER: the paths would go to the wrong dancers');
+  // AND THE CHECK THAT STOPS A WRONG REFERENCE: the same spots in another ORDER are not this
+  // formation, and neither is the same shape with the genders swapped.
+  const swapped = endShape.map((p, i) => (i === 0 ? { ...p, x: endShape[1].x, y: endShape[1].y, heading: endShape[1].heading } : p));
+  check(!startsFromFormation(starts, swapped), 'a formation whose dancers merely occupy the same SPOTS in a different order is refused: the paths would be handed out to the wrong dancers');
+  const regendered = endShape.map((p, i) => (i === 0 ? { ...p, gender: p.gender === 'boy' ? 'girl' : 'boy' } : p));
+  check(!startsFromFormation(starts, regendered), 'and so is the same shape with the arrangement (genders) changed: that is a different setup');
+  check(startsFromFormation(starts, endShape.map((p) => ({ ...p, x: p.x + 5e-4 }))), "while the exporter's own rounding (5e-4) is inside the tolerance, so a formation that has been through the corpus once still matches");
 }
 
 console.log('\n=================');

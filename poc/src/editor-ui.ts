@@ -16,7 +16,6 @@ import {
   alignFormationToCore,
   synthesizeSetup,
   correctEndTo,
-  callToXml,
   poseFor,
   bezierPoint,
   bezierAngle,
@@ -58,6 +57,8 @@ import {
   rebuildEdit,
 } from './data';
 import type { CallEdit, CallInfo } from './data';
+// The one place that decides whether an exported `<tam>` embeds its start formation or NAMES it.
+import { callTamXml } from './tam-xml';
 import type { Stage, CurveSpec, HandleSpec } from './scene';
 import { HANDLE_COLOR } from './scene';
 
@@ -2113,7 +2114,7 @@ export class EditorController implements EditorUI {
         padBeats: 1,
         // The whole edited instance, exactly as exported: expanded, full-set, and carrying
         // the declarations the apply path registers with.
-        xml: callToXml(this.instance, this.instance.from),
+        xml: callTamXml(this.instance, this.instance.from),
       };
     }
     const base: CallEdit = {
@@ -2160,7 +2161,7 @@ export class EditorController implements EditorUI {
   /** The XML an export should produce for the CURRENT mode. */
   private exportXml(): string | null {
     if (this.isInstanceMode()) {
-      return this.instance ? callToXml(this.instance, this.instance.from) : null;
+      return this.instance ? callTamXml(this.instance, this.instance.from) : null;
     }
     const call = this.generated ?? (() => {
       const spec = this.currentSpec();
@@ -2168,7 +2169,7 @@ export class EditorController implements EditorUI {
       return rebuildEdit(spec);
     })();
     if (!call) return null;
-    return callToXml(call, this.generatedName || call.from || call.title);
+    return callTamXml(call, this.generatedName || call.from || call.title);
   }
 
   private doExport() {

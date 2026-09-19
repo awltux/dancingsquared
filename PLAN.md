@@ -2508,6 +2508,27 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     should say so rather than look load-bearing. A clone is saved and applied as a NEW setup
     (`kind: 'clone'`, appended), not as a replacement, which is the difference between it and an
     instance edit.
+  - **A CREATED CALL CAN NAME ITS START FORMATION, AND A CALLER-MADE FORMATION CAN BE ADDED TO THE
+     CORPUS.** Asked for: "in the Browse Calls, allow the created end formations to be added to the corpus,
+     so that created calls that start from it export xml with a formation reference rather than an embedded
+     [formation]". The corpus's own tams name their start (`formation="Name"`, no geometry); every tam the
+     editor wrote embedded the block, so a shape labelled from one call's end existed once per call that
+     started from it and editing it reached none of them. TWO ENGINE HALVES, both gated in
+     `engine/test/editor.mjs` 20: `callToXml(call, name, { formation: 'reference' })` writes
+     `formation="Name"` and no block (the default is still the block, so every existing caller and the
+     round-trip gate are untouched), and `CallLibrary` now resolves a `formation="Name"` reference against
+     the formations `registerFormation` has added as well as the corpus - without that half a reference to
+     a caller-made shape simply failed with `No formation "..."`, and the library does not retry, so the
+     APP's registration ORDER matters too (formations before calls, at both construction sites; registering
+     the calls first was a real bug). `startsFromFormation` is the guard that keeps a reference honest: the
+     name must describe the shape the call starts from INDEX FOR INDEX, because a tam's paths are paired
+     with the formation's dancers by position, and the gender at each spot is part of the arrangement the
+     gender gates read; `callToXmlNamed` is the app-facing decision (reference only when the name resolves
+     AND matches, else the block). The POC side is one flag (`UserFormation.inCorpus`), one Browse button
+     (`add to corpus`, which hands over the `<formation>` block because a browser cannot write
+     `formations.xml`), and one helper (`poc/src/tam-xml.ts`) that every `<tam>` writer goes through - the
+     wiring is checked by `poc/tools/formation-ref-probe.mjs`, with the two faults it exists for shown to
+     fail on a patched copy.
   - **A MOVE'S END FACING IS THE FRAME THE NEXT MOVE IS PLAYED IN, AND THAT IS THE FORMAT RATHER THAN A
      BUG.** Reported as one: "adjusting the end of the facing curve alters the direction of the rest of the
      trace. This shouldn't happen." MEASURED on a witness (`poc/tools/facing-chain-probe.mjs`): a 10deg

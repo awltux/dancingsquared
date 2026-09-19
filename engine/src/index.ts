@@ -185,8 +185,10 @@ export {
   setMoveArc,
   facingProfile,
   sameFacing,
+  startsFromFormation,
+  callToXmlNamed,
 } from './editor.js';
-export type { InstanceDancer, ArcParams, ArcBlocker } from './editor.js';
+export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef } from './editor.js';
 
 export {
   setParser,

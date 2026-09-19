@@ -2006,6 +2006,51 @@ used to say only that r3 "sets the heading the move ends on", which reads as a l
 that the heading is the frame the next move is played in, that the rest of the trace turns with it, and
 that this is what the move means rather than a drawing error.
 
+**A CREATED CALL NOW NAMES ITS START FORMATION, AND A CALLER-MADE FORMATION CAN BE ADDED TO THE CORPUS.**
+Asked for: "in the Browse Calls, allow the created end formations to be added to the corpus, so that created
+calls that start from it export xml with a formation reference rather than an embedded [formation]". The
+corpus's own tams have always named their start - `<tam title="Circle Four Left 1/4" from="Facing Couples"
+formation="Facing Couples">`, no geometry - and every tam the EDITOR wrote embedded a `<formation>` block
+instead. For a created call that is not a matter of style: the point of labelling a formation from a call's
+end is that other calls start from it, and an embedded copy puts the shape in every one of those files, so
+editing the formation reaches none of them.
+
+TWO HALVES, AND THE SECOND IS THE ONE THAT WAS ACTUALLY MISSING. `callToXml` grew a reference mode - it
+writes `formation="Name"` and no block, with the embedded block still the DEFAULT so that every existing
+caller and the round-trip gate are untouched - and `CallLibrary` now resolves a `formation="Name"`
+reference against the formations `registerFormation` has added as well as against `formations.xml`.
+Without that second half a reference to a caller-made shape simply died with `No formation "…"`, because
+`loadVariants` parsed the corpus text and nothing else: the export would have been written and then failed
+to load in the very app that wrote it.
+
+THE ORDER THEN MATTERS, and it was already wrong. A call is BUILT when it is registered, and the library
+does not retry, so `SequencerUi` was registering the whole catalogue at construction and only THEN
+registering the caller's formations - which would have made every saved call that names its own start
+formation fail to build. The formations now go in first, at both construction sites, including the level
+change that rebuilds the library from scratch.
+
+THE GUARD, because a reference that is nearly right is worse than a repeated block: `startsFromFormation`
+compares the named formation's dancers with the call's start INDEX FOR INDEX - a tam's paths are paired
+with the formation's dancers by POSITION, so a call whose dancers merely occupy the same spots in another
+order would hand each of them somebody else's path - and the gender at each spot is part of it, because
+that arrangement is what the gender gates read. `callToXmlNamed` is the decision the app calls: a
+reference only when the name RESOLVES and the shape matches, the block otherwise.
+
+ON THE APP SIDE it is one flag, one button and one helper. `UserFormation.inCorpus` is the CALLER'S
+ASSERTION that the shape is in `formations.xml` - a browser cannot write the file, so the **add to corpus**
+button in the Browse panel sets the flag and puts the `<formation>` block on the clipboard in the same
+click, and the legend says plainly that a call naming it loads only in this browser until the block is
+pasted. `poc/src/tam-xml.ts` is the one place that answers what a name resolves to, and every place that
+writes a `<tam>` goes through it: the editor's saved instance, its copy-xml button, its generated setup and
+the catalogue's sequencer registration, because one of them embedding while another referenced would be the
+same class of fault as the stage-sync bug.
+
+GATED: `engine/test/editor.mjs` 20 measures the reference export, the resolution against a registered
+formation, the `No formation` guard, the three fallbacks to the block (no such name, a permuted shape, a
+swapped arrangement) and the tolerance the exporter's own rounding needs; `poc/tools/formation-ref-probe.mjs`
+checks the wiring in the source and is SHOWN TO FAIL on two patched copies - a direct `callToXml` call, and
+the calls registered before the formations.
+
 
 
 

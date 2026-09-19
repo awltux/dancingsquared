@@ -1454,6 +1454,59 @@ falls back to pure geometry when they do not, so it is total either way. A clone
 a NEW setup (`kind: 'clone'`, appended) rather than as a replacement — which is the whole difference
 between it and an instance edit.
 
+**The browse panel names the call's END FORMATION, and a caller can label one the library cannot.**
+The panel holds a call BUNDLE and every read the engine offers takes a BOARD, so `boardAtBeat` is what
+makes "what formation does this finish in" askable at all. Identity is read from the START — identity is
+fixed at the opening square and never changes — while the geometry comes from the last beat; a start that
+is not home-like reports `id: 0` / `UNKNOWN_COUPLE` rather than inventing an identity from the array
+index, and the field shows the name, whether it is user-defined, the `[FASROO]` notation and the Callerlab
+arrangement number when the formation's letter is known.
+
+**The answer is COMPUTED, not looked up, and the FSM is the reason that is the right call.** The obvious
+route is the precomputed FSM asset, whose edges carry an `endFormation` per (state, call). But that value
+is itself produced by the same recognition, so it cannot name anything the recogniser cannot, while being
+a BUILD ARTEFACT that can lag the assets. The panel has the call in hand, so its end board is one
+`poseFor` per dancer away and is always current. Using the FSM here would have added a staleness failure
+mode and bought nothing; what the read does instead is say WHICH recogniser answered — the permissive
+library read or the curated label — so a stale FSM surfaces as a disagreement in the FSM tab rather than
+as a wrong label here.
+
+MEASURED, and it decides the shape of the feature (`node engine/test/tools/end-formation-probe.mjs`, MS
+level, 1015 call variants): the library names **636 (62.7%)** of the end boards, **413 (40.7%)** also
+carry a curated label, and **379 (37.3%) are unnameable**. The split inside that last number is the whole
+story:
+
+```
+   2 dancers:     2 variants,     0 nameable
+   4 dancers:   312 variants,     0 nameable
+   6 dancers:     6 variants,     0 nameable
+   8 dancers:   695 variants,   636 nameable (91.5%)
+```
+
+**Not one half-set end board can be named, and that is by construction** — the formation library holds
+eight-dancer geometries only (its constructor mirrors a four-dancer corpus entry to eight and drops the
+original), and `bestFormationMatch` skips any formation whose dancer count differs. So the labelling flow
+is offered for the **59** unnameable EIGHT-dancer ends, and REFUSED with the reason on screen for a
+half-set authoring, where a label would be exactly as unusable as the board it was made from.
+
+**A user-defined formation is tagged and registers immediately.** `registerFormation` adds the name and
+the geometry to the library and CLEARS THE MATCH CACHE, which is not a detail: the read is memoized by
+exact geometry signature, so without that the board the caller was looking at would keep answering
+"unnamed" for the rest of the session while the *next* board received the label. The same
+geometry-dedupe the constructor applies is applied to the user path too, so re-registering a shape the
+corpus already carries adds the NAME without a second copy of the geometry. Gated in `sequencer.mjs`:
+the read before registration, the same read after (which is the cache), the tag, the dedupe, that an
+already-named board keeps its name, that a FRESH sequencer over the same corpus does not know the label
+(no leakage into the shipped catalogue), and that `formationToXml` round-trips through `parseFormations`
+to 3.1e-16.
+
+Stored locally and exported for the corpus, like every other authoring path here: a browser cannot write
+`formations.xml`, so the label lives in `localStorage` (`dsUserFormations`), is registered at startup so
+a shape labelled last session is recognised on the first read, and the panel offers the `<formation>`
+block for pasting in. `del` forgets the label but the LIBRARY keeps the name until the page is reloaded —
+said on screen, because a registered shape is the load-bearing part and unregistering mid-session would
+leave cached reads naming a formation the store no longer holds.
+
 
 
 

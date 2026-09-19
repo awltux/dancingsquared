@@ -162,6 +162,51 @@ only contains the browser/renderer layer:
 | `src/assets/*.xml` | taminations data per level (`b1, b2, ms, plus, a1, a2, c1, c2, c3a, c3b`), plus `moves.xml` / `formations.xml` / `calls.xml` (GPL/A-GPL data; license headers preserved). |
 | `verify.cjs` | Headless assertions over the engine + a full-catalog scan. |
 
+## Browse mode: the end formation, and naming one
+
+Under the call picker, **End** says what formation the loaded call **finishes in** — the question a
+caller actually asks of a call, and one the panel could not answer at all before. It shows the
+name, whether that name is user-defined, the `[FASROO]` notation, and the Callerlab arrangement
+number when it can be read; when nothing is named it shows what *is* known — the dancer count and
+the gender pattern — rather than filling the gaps in.
+
+**The answer is computed, not looked up.** The obvious alternative is the precomputed FSM asset,
+whose edges carry an `endFormation` per (state, call). But the panel has the call *in hand*, so its
+end board is one cheap read away (`boardAtBeat` — a `poseFor` per dancer at the last beat) and it is
+always current, where the FSM is a build artefact that can lag the assets — and its `endFormation` is
+itself produced by the same recognition, so it cannot name anything the recogniser cannot. Using the
+FSM here would add a staleness failure mode and buy nothing; a stale FSM shows up instead as a
+disagreement in the sequence view's own FSM tab.
+
+**Not named? Label it.** The **Label** row appears and stores the end board's *geometry* under the
+name you type, tagged **user-defined**, registered with the live library so boards like it are
+recognised from that moment on (including the one on screen, whose read is already cached — the
+registry clears the match cache for exactly that reason). The list below it shows each stored shape
+with an **xml** button that copies a `<formation>` block for pasting into
+`poc/src/assets/formations.xml`, and a **del** button that forgets the label.
+
+Three measured facts shape this, all from `node engine/test/tools/end-formation-probe.mjs` (MS level,
+1015 call variants):
+
+| | |
+|---|---|
+| end boards the library can name | **636 of 1015** (62.7%); **413** (40.7%) also carry a curated label |
+| unnameable **8-dancer** ends | **59** — these are what the label flow is for |
+| unnameable 2/4/6-dancer ends | **320, and all of them are unnameable by construction** |
+
+That last row is why the **Label** row does *not* appear for a half-set authoring: a formation is
+matched only against a board of the same dancer count, and the formation library holds
+**eight-dancer geometries only** — its constructor mirrors a four-dancer corpus entry to eight and
+drops the original. So a 4-dancer end cannot be named, and labelling one would create a formation
+that is just as unusable. The panel says so rather than offering a button that cannot work.
+
+User-defined formations live in `localStorage` (`dsUserFormations`), not in the corpus, because a
+browser cannot write `formations.xml` — the same local-first, export-for-the-corpus shape the call
+editor uses. They are registered at startup, so a shape labelled in an earlier session is recognised
+on the first read. A **del** only forgets the label: the library keeps the name until the page is
+reloaded, because a registered shape is the load-bearing part and unregistering it mid-session would
+leave every cached read naming a formation the store no longer holds.
+
 ## Call editor mode
 
 Switch the **Mode** dropdown to **Call editor**. It has three distinct features,

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer } from '../dist/index.js';
+import { setParser, Sequencer, buildCallVariants, boardAtBeat, formationToXml, parseFormations } from '../dist/index.js';
 import { roleUniformMotions, segsEqual } from '../dist/sequencer/matcher.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
@@ -1099,6 +1099,87 @@ console.log('\n== Sequencer: `Fan the Top` is DERIVED, and the two canonical boa
         `...centres stay centres: row y=${row} has middle two #${middles.join(',#')}, which must be centres`);
       check(!centreIds.has(line[0]) && !centreIds.has(line[3]),
         `...ends stay ends: row y=${row} ends are #${line[0]}, #${line[3]}, which must not be centres`);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// The END FORMATION of a call instance, and labelling one the library cannot name.
+//
+// The browse view holds a call BUNDLE (one authored <tam>) and every read the engine offers takes
+// a BOARD, so `boardAtBeat` is what makes "what formation does this finish in" askable at all.
+// Where the answer is nothing, the user can name the shape - and a user-defined formation has to
+// be recognisable AT ONCE, which is what makes the cache clearing in `registerFormation` part of
+// the feature rather than a detail.
+// ---------------------------------------------------------------------------
+console.log('\n== the end formation of a call instance, and user-defined formations ==');
+{
+  // A witness found by MEASUREMENT rather than by name: any EIGHT-dancer variant of MS
+  // `Allemande Left` whose end board the library cannot name. Naming one by hand would break the
+  // day the corpus learns it, and naming a 4-dancer one would be useless - see the note below.
+  const variants = buildCallVariants(ms('allemande'), movesXml, formationsXml, true);
+  const witness = variants.find((v) => v.dancers.length === 8 && seq.knownFormation(boardAtBeat(v, v.beats)) === null);
+  if (!witness) {
+    fail('no unnameable EIGHT-dancer end board in ms/allemande.xml - the premise of this section is gone');
+  } else {
+    const board = boardAtBeat(witness, witness.beats);
+    const shaped = board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender }));
+    check(board.dancers.length === 8, `witness: "${witness.title}" from ${witness.from} ends on ${board.dancers.length} dancers`);
+    // READ IT ONCE BEFORE REGISTERING, so the cache is primed with the null. A registration that
+    // did not clear the cache would still answer "null" below and the label would never appear on
+    // the board the user was looking at.
+    check(seq.knownFormation(board) === null, 'the end board has no name in the library');
+    check(seq.recognize(board).name === null, 'and no curated label either');
+    check(seq.listUserFormations().length === 0, 'nothing is user-defined yet');
+
+    const before = seq.listFormations().length;
+    seq.registerFormation('Probe End Shape', shaped);
+    check(seq.knownFormation(board) === 'Probe End Shape', 'after registering a name, the SAME board reads as that name (so the match cache was cleared)');
+    check(seq.isUserFormation('Probe End Shape'), 'and the formation is TAGGED as user-defined');
+    check(seq.listUserFormations().includes('Probe End Shape'), 'it appears in the user-defined list');
+    check(seq.listFormations().length === before + 1, `a NEW shape adds one formation to the library (${before} -> ${seq.listFormations().length})`);
+
+    // Registering a shape the corpus already carries must add the NAME and not a second copy of
+    // the geometry - the constructor's dedupe, applied to the user path too.
+    const dup = seq.listFormations().length;
+    seq.registerFormation('Probe End Shape Twice', shaped);
+    check(seq.listFormations().length === dup, `registering the SAME geometry again adds the name without a second shape (${dup})`);
+    check(seq.knownFormation(board) === 'Probe End Shape', 'and the original name still wins for that board');
+
+    // A board that was ALREADY named must keep its name: a user-defined formation is an addition
+    // to the library, not an override of it.
+    const circle = buildCallVariants(ms('circle'), movesXml, formationsXml, true)[0];
+    const cEnd = boardAtBeat(circle, circle.beats);
+    const cName = seq.knownFormation(cEnd);
+    check(cName !== null, `control: another call's end is already named (${cName})`);
+    check(seq.knownFormation(cEnd) === cName, 'and it is unchanged by the registration');
+
+    // NO LEAKAGE: a fresh sequencer over the same corpus does not know the label. A user-defined
+    // formation lives in a session (or in local storage), not in the shipped catalogue.
+    const fresh = new Sequencer(movesXml, formationsXml, [{ name: 'Allemande Left', xml: ms('allemande') }]);
+    check(fresh.knownFormation(board) === null, 'a fresh sequencer over the same corpus does NOT know the label');
+    check(fresh.listUserFormations().length === 0, 'and reports no user-defined formations');
+
+    // THE CORPUS FORMAT, round-tripped: this is how a labelled shape gets into formations.xml.
+    const xml = formationToXml('Probe End Shape', shaped);
+    const parsed = parseFormations(`<formations>${xml}</formations>`).get('Probe End Shape');
+    check(!!parsed && parsed.length === 8, `formationToXml -> parseFormations returns ${parsed ? parsed.length : 0} dancers`);
+    let worst = 0;
+    for (let i = 0; i < parsed.length; i++) {
+      worst = Math.max(worst, Math.hypot(parsed[i].x - shaped[i].x, parsed[i].y - shaped[i].y));
+    }
+    check(worst < 1e-12, `and the geometry round-trips (worst offset ${worst.toExponential(2)})`);
+
+    // THE SIZE RULE, measured rather than asserted: a formation is matched only against a board of
+    // the SAME dancer count (`bestFormationMatch` skips the rest), and the library holds
+    // eight-dancer geometries only - the constructor MIRRORS a four-dancer entry to eight. So a
+    // half-set end board cannot be named, and labelling one would not help.
+    const four = buildCallVariants(ms('allemande'), movesXml, formationsXml, true).find((v) => v.dancers.length === 4);
+    if (four) {
+      const b4 = boardAtBeat(four, four.beats);
+      check(b4.dancers.length === 4 && seq.knownFormation(b4) === null, `a ${b4.dancers.length}-dancer end board cannot be named even after registering formations (the library holds eight-dancer geometries)`);
+    } else {
+      fail('expected a 4-dancer variant of Allemande Left as the size-rule control');
     }
   }
 }

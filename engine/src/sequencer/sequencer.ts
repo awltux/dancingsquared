@@ -441,6 +441,31 @@ export class Sequencer {
     return this.matcher.knownFormation(board);
   }
 
+  /**
+   * Add a USER-DEFINED named formation, so boards like it can be named from now on.
+   *
+   * THE CACHES HAVE TO GO. `bestFormationMatch` memoizes a board's best formation by exact
+   * geometry signature, so a board that was read BEFORE this call is remembered as "no formation"
+   * and would keep answering that way for the rest of the session - the label would appear on the
+   * next board and not on the one the user was looking at. Clearing here is the whole reason this
+   * is a Sequencer method rather than a direct library poke.
+   */
+  registerFormation(name: string, dancers: Matchable[]): void {
+    this.library.registerFormation(name, dancers);
+    this.matcher.clearCaches();
+    this.solver.clearCaches();
+  }
+
+  /** The user-defined formation names. */
+  listUserFormations(): string[] {
+    return this.library.listUserFormations();
+  }
+
+  /** Whether a formation name came from a user rather than from `formations.xml`. */
+  isUserFormation(name: string): boolean {
+    return this.library.isUserFormation(name);
+  }
+
   snapBoard(board: Board): Board {
     return this.matcher.snapBoard(board);
   }

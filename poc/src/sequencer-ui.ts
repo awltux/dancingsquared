@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 
 import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf } from 'dancing-squared-engine';
-import type { Board, CallStep, FormDancer, Module, Pose, SequenceStop } from 'dancing-squared-engine';
+import type { Board, CallStep, FormDancer, Matchable, Module, Pose, SequenceStop } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
@@ -20,6 +20,35 @@ export interface SequencerUI {
   openSequence(steps: (string | CallStep)[], atCall?: string, startFormation?: string): void;
   /** The EIGHT-dancer named formations, as start poses, for the editor's clone Start setup. */
   startFormations(): { name: string; poses: FormDancer[] }[];
+  /** Everything the library can say about a board: the name it recognizes, the curated label,
+   *  the FASR/OO notation, the arrangement number, and the raw gender pattern. Used by the browse
+   *  panel's end-formation field, and deliberately returned as plain data so the panel formats it
+   *  rather than re-deriving it. */
+  readBoard(board: Board): BoardRead;
+  /** Add a user-defined formation to the live library, so boards like it are named from now on. */
+  registerFormation(name: string, dancers: Matchable[]): void;
+}
+
+/** What the library can say about a board. `name` is the permissive read (`knownFormation`), which
+ *  is the one that can name a user-defined formation; `curated` is the stable display label
+ *  (`recognize`, restricted to the curated list). */
+export interface BoardRead {
+  name: string | null;
+  curated: string | null;
+  /** The All8 formation letter, when the board's formation maps to one. */
+  letter: string | null;
+  /** The Callerlab arrangement number (0 normal, 5 half-sashayed), when it can be read. */
+  arrangement: number | null;
+  sequence: number | null;
+  relationship: string | null;
+  /** e.g. `[0B1p]`, `?` where a part cannot be determined. */
+  notation: string;
+  /** Whether `name` came from a user rather than from `formations.xml`. */
+  userDefined: boolean;
+  /** Dancer count - a formation is only matched against a board of the same size. */
+  dancers: number;
+  /** The board's genders in array order, e.g. `BgBgBgBg`. Always available, named or not. */
+  genderPattern: string;
 }
 
 const MS_PER_BEAT = 500;
@@ -175,6 +204,45 @@ export class SequencerController implements SequencerUI {
       this.startFormationCache = out;
     }
     return this.startFormationCache;
+  }
+
+  /**
+   * Everything the library can say about a board.
+   *
+   * TWO READS, DELIBERATELY. `recognize` is the curated display label and refuses to guess (a board
+   * merely CLOSEST to a standard name reports null), while `knownFormation` is permissive over the
+   * whole library - which is the one that can name a formation the user just defined. Reporting both
+   * means the panel can say "known as X, no curated label" instead of collapsing two different
+   * answers into one.
+   *
+   * The ARRANGEMENT NUMBER needs a formation LETTER, which comes from the NAME - so an unnamed board
+   * gets a `?` there and is not guessed at. The raw gender pattern is returned whatever happens,
+   * because it is the one fact that needs no name at all.
+   */
+  readBoard(board: Board): BoardRead {
+    const name = this.seq.knownFormation(board);
+    const curated = this.seq.recognize(board).name;
+    const f = fasrooOf(board, name);
+    return {
+      name,
+      curated,
+      letter: f.alignment.letter,
+      arrangement: f.alignment.arrangement,
+      sequence: f.alignment.sequence,
+      relationship: f.alignment.relationship,
+      notation: f.notation,
+      userDefined: name !== null && this.seq.isUserFormation(name),
+      dancers: board.dancers.length,
+      genderPattern: board.dancers.map((d) => (d.gender === 'boy' ? 'B' : d.gender === 'girl' ? 'g' : '.')).join(''),
+    };
+  }
+
+  /** Add a user-defined formation. It is tagged, so the panel can label it as such. */
+  registerFormation(name: string, dancers: Matchable[]): void {
+    this.seq.registerFormation(name, dancers);
+    // A newly named shape can change what the formation dropdowns hold.
+    this.startFormationCache = null;
+    this.populateFormations();
   }
 
   /** Jump the board into the chosen formation and clear the current sequence. */

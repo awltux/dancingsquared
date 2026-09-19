@@ -5,14 +5,17 @@
 
 import * as THREE from 'three';
 
-import { allPoses, sampleTrail, sampleTrailRange, computeHandholds, assignHomeIdentity } from 'dancing-squared-engine';
-import type { HeadingMode, HoldMode, CallBundle, CallStep, DancerSpec, Pose } from 'dancing-squared-engine';
+import { allPoses, sampleTrail, sampleTrailRange, computeHandholds, assignHomeIdentity, boardAtBeat, formationToXml } from 'dancing-squared-engine';
+import type { HeadingMode, HoldMode, Board, CallBundle, CallStep, DancerSpec, Matchable, Pose } from 'dancing-squared-engine';
 import { availableCalls, loadCall } from './data';
 import type { CallInfo } from './data';
+import { addUserFormation, loadUserFormations, removeUserFormation } from './formations';
+import type { UserFormation } from './formations';
 import { modulesUsing, startsAwayFromHome } from './modules';
 import { DancerView, buildHandConnectors } from './scene';
 import type { Stage } from './scene';
 import { Player } from './player';
+import type { BoardRead } from './sequencer-ui';
 
 /** What the browse view needs from the rest of the app. */
 export interface BrowserHost {
@@ -20,6 +23,14 @@ export interface BrowserHost {
    * and `startFormation` naming where the corpus says the module begins when that is not home (so
    * the sequence view can say its replay is an approximation). */
   openSequence(steps: (string | CallStep)[], atCall: string, startFormation?: string): void;
+  /** Name the board and say what the library can read about it. The FORMATION LIBRARY lives in the
+   *  sequencer (it is built from the registered catalogue), so the browse view asks rather than
+   *  building a second one. */
+  readBoard(board: Board): BoardRead;
+  /** Register a user-defined formation with the live library, so boards like it are named from now
+   *  on - including the board the caller was just looking at, which the read cache would otherwise
+   *  remember as unnamed. */
+  registerFormation(name: string, dancers: Matchable[]): void;
 }
 
 /** How many "used by" entries the browse panel lists before summarising the rest. */
@@ -40,6 +51,13 @@ export class CallBrowser {
   private partLabel = el<HTMLSpanElement>('partLabel');
   private legend = el<HTMLDivElement>('legend');
   private usesEl = el<HTMLDivElement>('browseUses');
+  private endFormationEl = el<HTMLSpanElement>('browseEndFormation');
+  private labelRow = el<HTMLDivElement>('browseLabelRow');
+  private formationNameInput = el<HTMLInputElement>('browseFormationName');
+  private createFormationBtn = el<HTMLButtonElement>('browseCreateFormation');
+  private userFormationsEl = el<HTMLDivElement>('browseUserFormations');
+  /** The board the panel is currently describing: what a label would be created FROM. */
+  private endBoard: Board | null = null;
 
   private catalog: CallInfo[] = availableCalls();
   views: DancerView[] = [];
@@ -66,6 +84,133 @@ export class CallBrowser {
     this.refreshSetups();
     this.renderUses();
     this.loadCurrent();
+    this.createFormationBtn.addEventListener('click', () => this.createFormationFromEndBoard());
+    this.renderUserFormations();
+  }
+
+  // ---------------------------------------------------------------- the end formation
+  //
+  // What formation the loaded call FINISHES in - the question a caller actually asks of a call, and
+  // one the panel could not answer at all: the library was reachable only from the sequence view.
+  //
+  // THE ANSWER IS COMPUTED, NOT LOOKED UP, and that is deliberate. The alternative is the
+  // precomputed FSM asset, whose edges carry an `endFormation` per (state, call). But the panel has
+  // the call IN HAND, so its end board is one cheap read away (a `poseFor` per dancer at the last
+  // beat) and it is always current - where the FSM is a BUILD ARTEFACT that can lag the assets, and
+  // its `endFormation` is itself produced by the same recognition, so it cannot name anything the
+  // recogniser cannot. Using the FSM here would add a staleness failure mode and buy nothing.
+  //
+  // The one thing the FSM would add is a cross-check, and the panel's read is worth more: it says
+  // WHICH read answered (library / curated / neither), so a stale FSM would show up as a
+  // disagreement in the sequence view's own FSM tab rather than as a wrong label here.
+
+  /** Describe the loaded call's end board. */
+  private renderEndFormation(call: CallBundle | null) {
+    this.endBoard = null;
+    this.labelRow.hidden = true;
+    if (!call) {
+      this.endFormationEl.textContent = '';
+      return;
+    }
+    try {
+      const board = boardAtBeat(call, call.beats);
+      this.endBoard = board;
+      const read = this.host.readBoard(board);
+      const bits: string[] = [];
+      if (read.name) {
+        bits.push(`<b>${esc(read.name)}</b>${read.userDefined ? ' <i>(user-defined)</i>' : ''}`);
+        if (read.curated && read.curated !== read.name) bits.push(`labels as ${esc(read.curated)}`);
+        bits.push(esc(read.notation));
+        if (read.arrangement !== null) bits.push(`arrangement ${read.arrangement}`);
+      } else {
+        // NOT NAMED. Say what IS known: the size, the gender pattern, and the notation with its
+        // unknowns left as `?` rather than filled in.
+        bits.push('<span style="color:#ffb454">not named</span>');
+        bits.push(`${read.dancers} dancers`);
+        bits.push(`genders ${read.genderPattern}`);
+        if (read.notation.includes('?')) bits.push(esc(read.notation));
+      }
+      this.endFormationEl.innerHTML = bits.join(' · ');
+      // A formation is matched only against a board of the SAME dancer count, and the library holds
+      // eight-dancer geometries only - so a half-set authoring cannot be named and labelling one
+      // would not help. Offer the label only where it can do something.
+      const canLabel = read.name === null && read.dancers === 8;
+      this.labelRow.hidden = !canLabel;
+      if (read.name === null && !canLabel) {
+        this.endFormationEl.innerHTML +=
+          ` — <i>a ${read.dancers}-dancer setup: the formation library holds eight-dancer geometries, so this end cannot be named</i>`;
+      }
+    } catch (err) {
+      this.endFormationEl.textContent = `end formation unavailable: ${(err as Error).message}`;
+    }
+  }
+
+  /**
+   * Name the current end board and add it to the library as a USER-DEFINED formation.
+   *
+   * The board is stored, not a reference to the call, so the shape can be registered again in a
+   * later session without that call. Registering it with the live library is what makes it
+   * recognisable immediately - including for the board on screen, whose read is already cached.
+   */
+  private createFormationFromEndBoard() {
+    const board = this.endBoard;
+    if (!board) return;
+    const name = this.formationNameInput.value.trim();
+    if (!name) {
+      this.endFormationEl.innerHTML += ' — <i>give it a name first</i>';
+      return;
+    }
+    const dancers = board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender }));
+    const origin = `${this.callSelect.selectedOptions[0]?.textContent ?? ''} (from ${this.tamSelect.selectedOptions[0]?.textContent ?? 'default'})`;
+    const formed: UserFormation = { name, dancers, created: new Date().toISOString(), origin };
+    addUserFormation(formed);
+    this.host.registerFormation(name, dancers);
+    this.formationNameInput.value = '';
+    this.renderUserFormations();
+    // Re-read so the field shows the new name rather than the state it was labelled from.
+    if (this.player.call) this.renderEndFormation(this.player.call);
+    this.legend.innerHTML = `<b>${esc(name)}</b> — user-defined formation, ${dancers.length} dancers<br><span class="small">this is a label for a shape, not a call</span>`;
+  }
+
+  /** The user-defined formation list: what is stored, what it exports, and how to drop it. */
+  private renderUserFormations() {
+    const list = loadUserFormations();
+    if (list.length === 0) {
+      this.userFormationsEl.innerHTML = '';
+      return;
+    }
+    this.userFormationsEl.innerHTML =
+      `<div class="small"><b>${list.length} user-defined formation${list.length === 1 ? '' : 's'}</b>` +
+      ` <i>— stored locally and registered with the library; export the block to add it to the corpus</i></div>` +
+      list
+        .map(
+          (f, i) =>
+            `<div class="row"><button data-xml="${i}" title="Copy this formation's &lt;formation&gt; block for pasting into poc/src/assets/formations.xml">xml</button>` +
+            `<button data-del="${i}" title="Forget this label">del</button>` +
+            `<span class="part">${esc(f.name)} <i>(${f.dancers.length} dancers, from ${esc(f.origin)})</i></span></div>`,
+        )
+        .join('');
+    for (const btn of this.userFormationsEl.querySelectorAll<HTMLButtonElement>('button[data-xml]')) {
+      btn.addEventListener('click', () => {
+        const f = list[Number(btn.dataset.xml)];
+        if (!f) return;
+        const xml = formationToXml(f.name, f.dancers);
+        void navigator.clipboard?.writeText(xml);
+        this.legend.innerHTML = `copied <b>${esc(f.name)}</b> as a &lt;formation&gt; block<br><span class="small">paste it into poc/src/assets/formations.xml</span>`;
+      });
+    }
+    for (const btn of this.userFormationsEl.querySelectorAll<HTMLButtonElement>('button[data-del]')) {
+      btn.addEventListener('click', () => {
+        const f = list[Number(btn.dataset.del)];
+        if (!f) return;
+        removeUserFormation(f.name);
+        this.renderUserFormations();
+        // The library keeps the name until the page is reloaded: there is no unregister, on
+        // purpose (a registered shape is the load-bearing part, and removing it mid-session would
+        // leave every cached read naming a formation the store no longer holds).
+        this.legend.innerHTML = `forgot <b>${esc(f.name)}</b><br><span class="small">the library keeps the name until the page is reloaded</span>`;
+      });
+    }
   }
 
   private populateLevels() {
@@ -130,6 +275,8 @@ export class CallBrowser {
     else this.legend.innerHTML = `<b>${call.title}</b><br>from ${call.from || '(default setup)'}`;
     this.player.setCall(call);
     this.updateScrub(call);
+    // The end-formation field describes the call that is now loaded.
+    this.renderEndFormation(call);
     // The views were just rebuilt, so any trail focus has to be put back.
     this.applyTrailState();
   }

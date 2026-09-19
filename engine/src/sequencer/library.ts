@@ -28,6 +28,8 @@ export class CallLibrary {
   private readonly modules: Map<string, (string | CallStep)[]> = new Map(); // module name -> call steps
   private readonly namedFormations: { name: string; dancers: Matchable[] }[] = [];
   private readonly uniqueFormations: { name: string; dancers: Matchable[] }[] = [];
+  /** Names added by `registerFormation` rather than read from `formations.xml`. See its note. */
+  private readonly userFormations = new Set<string>();
   /** Variants that could not be built, and why. See `loadVariants` for why this is COLLECTED
    * instead of thrown. */
   private readonly failures: { call: string; reason: string }[] = [];
@@ -90,6 +92,44 @@ export class CallLibrary {
       return { ...(c.selection ? { selection: c.selection } : {}), call: canonicalName(c.call) };
     };
     this.modules.set(canonicalName(name), calls.map(norm));
+  }
+
+  /**
+   * Add a USER-DEFINED named formation to the recognition registry.
+   *
+   * A board the library cannot name is a real dead end for a caller - the engine will not say
+   * what formation the dancers are in, so the FSM has no state for it and no call can be checked
+   * against it. Labelling one is how that dead end gets closed, and it has to reach BOTH lists:
+   * `uniqueFormations` is what `knownFormation` and the snap scan over, and `namedFormations` is
+   * what `matchesNamed`/`recognize` read.
+   *
+   * IT IS TAGGED. `userFormations` keeps the names, so a name that came from a person rather than
+   * from `formations.xml` is reportable and removable - and so the two can never be confused in a
+   * list. Nothing else about recognition changes: a registered formation is matched by the same
+   * geometry as any other, and a board that already matched something closer keeps that answer.
+   *
+   * The same geometry-dedupe the constructor applies is applied here, so registering a shape the
+   * corpus already carries adds the NAME (which is useful - it is the label the caller wants) but
+   * not a second copy of the geometry.
+   */
+  registerFormation(name: string, dancers: Matchable[]): void {
+    const canonical = canonicalName(name);
+    const fm = { name: canonical, dancers: dancers.map((d) => ({ ...d })) };
+    if (!this.namedFormations.some((x) => x.name === canonical)) this.namedFormations.push(fm);
+    if (!this.uniqueFormations.some((u) => matchFormations(u.dancers, fm.dancers, 0.5) !== null)) {
+      this.uniqueFormations.push(fm);
+    }
+    this.userFormations.add(canonical);
+  }
+
+  /** The user-defined formation names, in registration order. */
+  listUserFormations(): string[] {
+    return [...this.userFormations];
+  }
+
+  /** Whether a name came from a user rather than from `formations.xml`. */
+  isUserFormation(name: string): boolean {
+    return this.userFormations.has(canonicalName(name));
   }
 
   listModules(): string[] {

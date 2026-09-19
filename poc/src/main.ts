@@ -4,6 +4,7 @@
 
 import { createStage } from './scene';
 import { loadCatalog } from './data';
+import { loadUserFormations } from './formations';
 import { Player } from './player';
 import { CallBrowser } from './browser';
 import { initSequencer } from './sequencer-ui';
@@ -37,17 +38,29 @@ const browseControls = el<HTMLDivElement>('browseControls');
 const seqPanel = el<HTMLDivElement>('seqPanel');
 const editorPanel = el<HTMLDivElement>('editorPanel');
 
+// THE SEQUENCER COMES FIRST, and it has to: the browse panel's end-formation field asks the
+// formation library what a board is, and `CallBrowser`'s constructor loads a call - so the host it
+// is handed must already exist when it is built. `openSequence` was only ever called on a click,
+// which is why this order survived until the end-formation field needed a read at construction.
+const seqUi = initSequencer(stage);
+
+// User-defined formations live in local storage; register them with the library up front so a
+// shape the caller labelled in an earlier session is recognised on the first read, not the first
+// reload after this one.
+for (const f of loadUserFormations()) seqUi.registerFormation(f.name, f.dancers);
+
 const player = new Player({ speed: speedMul });
-// The browse view can hand a named sequence to the sequence view. `seqUi` and `applyMode` are
-// declared below, which is fine: this is a closure, so they are read when the button is CLICKED.
+// The browse view can hand a named sequence to the sequence view. `applyMode` is declared below,
+// which is fine: this is a closure, so it is read when the button is CLICKED.
 const browser = new CallBrowser(stage, player, {
   openSequence: (steps, atCall, startFormation) => {
     modeSelect.value = 'sequence';
     applyMode();
     seqUi.openSequence(steps, atCall, startFormation);
   },
+  readBoard: (board) => seqUi.readBoard(board),
+  registerFormation: (name, dancers) => seqUi.registerFormation(name, dancers),
 });
-const seqUi = initSequencer(stage);
 // The editor drives the stage through the browse view: `preview` shows a bundle, and
 // `focusTrail` is how the moves editor isolates one dancer's track and highlights the
 // selected move's stretch of it. `startFormations` is the clone's Start setup picker, and it

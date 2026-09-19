@@ -39,6 +39,16 @@
           <select id="tamSelect"></select>
         </div>
         <div class="row">
+          <label>End</label>
+          <span id="browseEndFormation" class="part"></span>
+        </div>
+        <div class="row" id="browseLabelRow" hidden>
+          <label>Label</label>
+          <input id="browseFormationName" class="wide" type="text" placeholder="name this formation — e.g. &quot;Left-Hand Waves, offset&quot;" />
+          <button id="browseCreateFormation" title="Store the end board's geometry under this name, tagged user-defined, and register it with the formation library so boards like it are recognised from now on">Create</button>
+        </div>
+        <div id="browseUserFormations" class="small"></div>
+        <div class="row">
           <button id="play" title="Play / resume">▶ Play</button>
           <button id="pause" title="Pause (hold current frame)">⏸ Pause</button>
           <button id="stepBack" title="Step backward 1/4 beat">⏪</button>

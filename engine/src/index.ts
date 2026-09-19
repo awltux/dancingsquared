@@ -27,6 +27,7 @@ export type { HeadingMode } from './core.js';
 export { Sequencer } from './sequencer/sequencer.js';
 export type { SequenceStop } from './sequencer/sequence.js';
 export { assignHomeIdentity } from './sequencer/identity.js';
+export { makeSquaredSet, cloneBoard, reorderLike, boardSig, boardAtBeat } from './sequencer/board.js';
 export * from './sequencer/types.js';
 export { matchFormations, matchFormationsAll } from './sequencer/match.js';
 export type { FormationMatch, Matchable } from './sequencer/match.js';
@@ -183,6 +184,7 @@ export {
   buildCall,
   buildCallVariants,
   callMeta,
+  formationToXml,
   loadCallFromXml,
 } from './convert.js';
 export type { CallMeta } from './convert.js';

@@ -1,12 +1,51 @@
 // Board utilities: constructing the home squared set, cloning, and the
 // rotation/translation/reflection-invariant signature used for search dedup.
 
-import { HOME_DANCERS } from './identity.js';
+import { HOME_DANCERS, assignHomeIdentity } from './identity.js';
+import { UNKNOWN_COUPLE } from './constants.js';
+import { poseFor } from '../core.js';
 import type { Board, SeqDancer } from './types.js';
+import type { CallBundle } from '../types.js';
 
 export function makeSquaredSet(): Board {
   return {
     dancers: HOME_DANCERS.map((d): SeqDancer => ({ id: d.id, couple: d.couple, gender: d.gender, x: d.x, y: d.y, heading: d.heading })),
+  };
+}
+
+/**
+ * The BOARD a call's dancers stand on at `beat`, for READING rather than for dancing.
+ *
+ * It exists because the browse view holds a call BUNDLE - one authored `<tam>` - and not a board,
+ * while every read the engine offers (recognize / knownFormation / fasrooOf) takes a board. The
+ * end of a call is what a caller wants named, so this is how "what formation does this finish in"
+ * gets asked at all.
+ *
+ * IDENTITY COMES FROM THE START, geometry from `beat`. Identity is fixed at the opening square and
+ * never changes (`assignHomeIdentity` reads it off the START formation), so the end board's dancer
+ * ids are the start's - and when the start is not a home-like set there is NO identity to read,
+ * which is reported as `id: 0` / `couple: UNKNOWN_COUPLE` rather than invented from the array index
+ * (`boardFromMatchables`' documented defect) or guessed at the end, which would name the wrong
+ * dancer. Anything that needs a couple must check for the unknown value; the recognisers do not,
+ * because formation matching is a geometry question.
+ *
+ * This board is NOT for the search: it carries no ghost/history bookkeeping and is not meant to be
+ * applied to.
+ */
+export function boardAtBeat(call: CallBundle, beat: number): Board {
+  const stamped = assignHomeIdentity(call.dancers);
+  return {
+    dancers: stamped.map((d): SeqDancer => {
+      const p = poseFor(d, beat);
+      return {
+        id: d.id ?? 0,
+        couple: d.couple ?? UNKNOWN_COUPLE,
+        gender: d.gender,
+        x: p.x,
+        y: p.y,
+        heading: p.heading,
+      };
+    }),
   };
 }
 

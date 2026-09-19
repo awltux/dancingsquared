@@ -2508,6 +2508,43 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     should say so rather than look load-bearing. A clone is saved and applied as a NEW setup
     (`kind: 'clone'`, appended), not as a replacement, which is the difference between it and an
     instance edit.
+  - **THE BROWSE PANEL NOW NAMES THE CALL'S END FORMATION, AND A CALLER CAN LABEL ONE IT CANNOT.**
+    The panel holds a call BUNDLE and every read the engine offers takes a BOARD, so `boardAtBeat`
+    is what makes "what formation does this finish in" askable at all; identity is read from the
+    START (identity is fixed at the opening square), geometry from the last beat, and a start that
+    is not home-like reports `id: 0` / `UNKNOWN_COUPLE` rather than inventing an identity from the
+    array index. The field shows the name, whether it is user-defined, the `[FASROO]` notation and
+    the arrangement number when the letter is known.
+  - **THE ANSWER IS COMPUTED, NOT LOOKED UP, AND THE FSM IS WHY THAT IS THE RIGHT CALL.** The
+    obvious route is the precomputed FSM asset, whose edges carry an `endFormation` per (state,
+    call) — but its `endFormation` is itself produced by the same recognition, so it CANNOT name
+    anything the recogniser cannot, while being a build artefact that can lag the assets. The panel
+    has the call in hand, so the end board is one `poseFor` per dancer away and always current.
+    The FSM would have added a staleness failure mode and bought nothing; the read says WHICH
+    recogniser answered instead, so a stale FSM shows up as a disagreement in the FSM tab.
+  - **MEASURED, AND IT DECIDES THE SHAPE OF THE FEATURE** (`tools/end-formation-probe.mjs`, MS,
+    1015 call variants): the library names **636 (62.7%)** of the end boards, **413 (40.7%)** also
+    carry a curated label, and **379 (37.3%) are unnameable** — of which **320 are 2/4/6-dancer
+    boards that are unnameable BY CONSTRUCTION** (the formation library holds eight-dancer
+    geometries only: the constructor mirrors a four-dancer corpus entry to eight and drops the
+    original, and `bestFormationMatch` skips any formation of a different dancer count). So the
+    labelling flow is offered for the **59** unnameable EIGHT-dancer ends and REFUSED — with the
+    reason on screen — for a half-set authoring, where a label would be as unusable as the board.
+  - **A USER-DEFINED FORMATION IS TAGGED AND REGISTERS IMMEDIATELY.** `registerFormation` adds the
+    name and the geometry to the library and CLEARS THE MATCH CACHE, which is not a detail: the read
+    is memoized by exact geometry signature, so without it the board the caller was looking at would
+    keep answering "unnamed" for the rest of the session while the next board got the label. The
+    same geometry-dedupe the constructor applies is applied to the user path, so re-registering a
+    shape the corpus carries adds the NAME without a second copy of the geometry. Gated in
+    `sequencer.mjs`: the read before registration, the same read after (the cache), the tag, the
+    dedupe, that an ALREADY-named board keeps its name, that a FRESH sequencer over the same corpus
+    does not know the label (no leakage into the shipped catalogue), and that `formationToXml`
+    round-trips through `parseFormations` to 3.1e-16.
+  - **STORED LOCALLY, EXPORTED FOR THE CORPUS**, like every other authoring path here: a browser
+    cannot write `formations.xml`, so the label lives in `localStorage` (`dsUserFormations`), is
+    registered at startup, and the panel offers the `<formation>` block for pasting in. `del` forgets
+    the label but the LIBRARY keeps the name until reload — said on screen, because unregistering
+    mid-session would leave cached reads naming a formation the store no longer holds.
   - The new instrument is `node engine/test/tools/editor-instance-probe.mjs`; `verify:light` is green
     (12 harnesses, 36.3 s).
 

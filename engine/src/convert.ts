@@ -403,6 +403,26 @@ export interface CallMeta {
   setups: { label: string; from: string }[];
 }
 
+/**
+ * Serialize a named formation as a `<formation>` block, the form `formations.xml` is written in.
+ *
+ * This is the CORPUS format, and the round trip is the point: a formation a user labels is
+ * stored locally so it can be recognized immediately, and this is how it gets into the corpus -
+ * pasted into `pom/src/assets/formations.xml`, where the next `parseFormations` reads it like
+ * any other. `convert.mjs`-side symmetry is deliberate: the parser and the writer live side by
+ * side so neither can drift from the other without the round-trip gate noticing.
+ *
+ * Only the four attributes the reader understands are written (`gender`, `x`, `y`, `angle`), in
+ * degrees, because that is what `parseFormations` reads back.
+ */
+export function formationToXml(name: string, dancers: { x: number; y: number; heading: number; gender?: Gender }[]): string {
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const r = (n: number) => (Math.round(n * 1e4) / 1e4).toString();
+  const lines = dancers.map(
+    (d) => `    <dancer gender="${esc(d.gender ?? 'boy')}" x="${r(d.x)}" y="${r(d.y)}" angle="${r((d.heading * 180) / Math.PI)}" />`,
+  );
+  return `  <formation name="${esc(name)}">\n${lines.join('\n')}\n  </formation>`;
+}
 export function callMeta(xmlText: string): CallMeta {
   const tams = parseCallXmlImpl(xmlText);
   return {

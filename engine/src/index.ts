@@ -183,6 +183,8 @@ export {
   arcBlocker,
   projectToArc,
   setMoveArc,
+  facingProfile,
+  sameFacing,
 } from './editor.js';
 export type { InstanceDancer, ArcParams, ArcBlocker } from './editor.js';
 

@@ -19,6 +19,7 @@ import {
   callToXml,
   poseFor,
   bezierPoint,
+  bezierAngle,
   endPoses,
   rigidFit,
   normalizeInstance,
@@ -43,6 +44,7 @@ import {
   arcCorner,
   arcBlocker,
   projectToArc,
+  sameFacing,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, FormDancer, Gender, Hands, InstanceDancer, Seg } from 'dancing-squared-engine';
 
@@ -116,29 +118,73 @@ const HANDS_SHORT: Record<Hands, string> = {
 const handsShort = (h: Hands): string => HANDS_SHORT[h] ?? h;
 
 /**
- * Whether two segments carry the same LOCAL COORDINATES: the same translation curve, and the same
- * facing curve (or none on both).
+ * The two windows the group gate turns on, both tied to what a caller can SEE.
  *
- * This is "the same shape, rotated to each dancer's position" made checkable, and it is the test the
- * coordinate gate turns on. Beats and hands are deliberately NOT compared - the gate is about shapes,
- * and unifying a timing or a hold across a selection is a legitimate group edit.
+ * THE SHAPE WINDOW IS A GUARANTEE RATHER THAN A SAMPLE: a Bezier is a convex combination of its control
+ * points, so two curves whose control points are within T of each other are within T EVERYWHERE. 0.01
+ * board units is 0.4 px in the flat view at 1080p - below what an eye resolves - so a group edit that
+ * merges two moves this close cannot be seen to have changed anything.
+ *
+ * The window used to be 1e-6 ON THE RAW NUMBERS, and its fault was not its width but its KIND: it asked
+ * whether five numbers match rather than whether the move does. MEASURED
+ * (`poc/tools/coords-gate-probe.mjs`): it refused group edits resting on a difference of 0.0 units and
+ * 0.0 degrees, which is what a caller reported as "they look the same". They did.
+ *
+ * THE FACING IS COMPARED THROUGH THE ENGINE, which also knows the one exact case: a facing curve
+ * multiplied by a positive constant is the SAME facing at every instant, because `bezierAngle` is `atan2`
+ * of the derivative. Half a degree is well below the spacing of the facing ticks themselves.
  */
-function sameCoords(a: Seg, b: Seg): boolean {
-  const eq = (x: number, y: number) => Math.abs(x - y) < 1e-6;
+const SHAPE_WINDOW = 0.01;
+const FACING_WINDOW_DEG = 0.5;
+
+/** Which of a move's TWO curves an edit is about. They are different spaces - the travel Bezier is where
+ *  the dancer goes, the rotation Bezier is how they turn - and so is every edit that writes one. */
+type CurveKind = 'travel' | 'facing';
+
+/**
+ * Whether two dancers' TRAVEL curves are the same local shape.
+ *
+ * This is "the same shape, rotated to each dancer's position" made checkable. Beats and hands are
+ * deliberately NOT compared - the gate is about shapes, and unifying a timing or a hold across a
+ * selection is a legitimate group edit.
+ */
+function sameTravel(a: Seg, b: Seg): boolean {
+  const eq = (x: number, y: number) => Math.abs(x - y) < SHAPE_WINDOW;
   const t = a.translate;
   const u = b.translate;
-  if (!eq(t.cx1, u.cx1) || !eq(t.cy1, u.cy1) || !eq(t.cx2, u.cx2) || !eq(t.cy2, u.cy2) || !eq(t.x2, u.x2) || !eq(t.y2, u.y2)) return false;
-  if ((a.rotate == null) !== (b.rotate == null)) return false;
-  if (a.rotate && b.rotate) {
-    return (
-      eq(a.rotate.cx1, b.rotate.cx1) &&
-      eq(a.rotate.cx2, b.rotate.cx2) &&
-      eq(a.rotate.cy2, b.rotate.cy2) &&
-      eq(a.rotate.x2, b.rotate.x2) &&
-      eq(a.rotate.y2, b.rotate.y2)
-    );
-  }
-  return true;
+  return eq(t.cx1, u.cx1) && eq(t.cy1, u.cy1) && eq(t.cx2, u.cx2) && eq(t.cy2, u.cy2) && eq(t.x2, u.x2) && eq(t.y2, u.y2);
+}
+
+/**
+ * Whether two dancers FACE the same way through the move, compared through the engine.
+ *
+ * `rotate ?? translate` IS the facing a dancer has: an absent rotation curve means "face along the
+ * travel tangent", which `poseFor` implements by reading the translation curve's direction. So a
+ * dancer with an explicit facing that happens to equal its path faces EXACTLY like one that has none -
+ * and comparing a null against a curve refused the pair on a difference of nothing at all. A positive
+ * rescaling of a facing curve is the same facing at every instant, which `sameFacing` knows exactly.
+ */
+function sameFacingCurve(a: Seg, b: Seg): boolean {
+  return sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
+}
+
+/**
+ * THE GATE IS PER CURVE, and that is the whole of what makes a completed clone editable.
+ *
+ * A coordinate edit writes ONE curve: a field on the Move tab writes `translate.<attr>`, a field on the
+ * Facing tab writes `rotate.<attr>`, and a handle drag writes whichever curve the handle belongs to. So
+ * the question the gate has to answer is whether THAT curve agrees across the selection - not whether
+ * the two curves agree, which is a strictly stronger condition on a write that touches one of them.
+ *
+ * MEASURED (`poc/tools/connect-assign-probe.mjs`, after a `connect` onto each of the 134 start
+ * formations): of the walk-in pairs the gate refuses, 76 have IDENTICAL travel curves (0.0000 units
+ * apart) refused on the facing alone - the trails on the board are the same shape and the Move tab was
+ * locked anyway, which is exactly "they look the same" - and 242 are refused on the travel alone while
+ * facing identically, locking the Facing tab on a pair a facing edit cannot collapse. 64 of the 134
+ * targets have at least one such pair.
+ */
+function sameCurve(a: Seg, b: Seg, curve: CurveKind): boolean {
+  return curve === 'travel' ? sameTravel(a, b) : sameFacingCurve(a, b);
 }
 
 /** Round the way the engine's XML export does, so a value read out of the table and typed
@@ -657,20 +703,23 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * Whether every selected dancer's move at this index carries the SAME LOCAL COORDINATES - which is
-   * what "the same shape, rotated to each position" means, and the only case where ONE set of numbers
-   * describes them all.
+   * Whether every selected dancer's move at this index carries the SAME LOCAL COORDINATES ON THE CURVE
+   * BEING EDITED - which is what "the same shape, rotated to each position" means, and the only case
+   * where ONE set of numbers describes them all.
    *
-   * THE COORDINATE FIELDS ARE LOCKED WHEN THEY DIFFER, and this is the reason. Writing a number into a
-   * field writes it to EVERY selected dancer, so on a selection whose curves disagree it would silently
-   * collapse genuinely different shapes into one - destroying, in a keystroke, the per-dancer
-   * difference the caller was looking at. Where they agree the write is a no-op in meaning (the same
-   * shape stays the same shape), which is exactly when it is safe.
+   * THE FIELDS ARE LOCKED WHEN THEY DIFFER, and this is the reason. Writing a number into a field writes
+   * it to EVERY selected dancer, so on a selection whose curve disagrees it would silently collapse
+   * genuinely different shapes into one - destroying, in a keystroke, the per-dancer difference the
+   * caller was looking at. Where they agree the write is a no-op in meaning (the same shape stays the
+   * same shape), which is exactly when it is safe.
+   *
+   * `curve` IS THE CURVE THE EDIT WRITES (see `sameCurve`), because asking about the other one locks a
+   * tab whose own numbers are unanimous.
    *
    * The BEATS and HANDS are deliberately not gated: they are not coordinates, and unifying a timing or
    * a hold across a selection is a legitimate group edit rather than a collapse of geometry.
    */
-  private coordinatesAgree(): boolean {
+  private coordinatesAgree(curve: CurveKind): boolean {
     const call = this.instance;
     if (!call) return true;
     const sel = this.selectedSorted();
@@ -679,7 +728,7 @@ export class EditorController implements EditorUI {
     if (!first) return false;
     for (const d of sel.slice(1)) {
       const seg = call.dancers[d]?.path[this.moveIndex];
-      if (!seg || !sameCoords(first, seg)) return false;
+      if (!seg || !sameCurve(first, seg, curve)) return false;
     }
     return true;
   }
@@ -696,11 +745,11 @@ export class EditorController implements EditorUI {
    * A selected dancer with no move at that index is SKIPPED rather than given one: the dancers of a
    * call do not always have the same number of moves, and inventing a move would change the track.
    */
-  private commitMoveChange(f: (seg: Seg) => Seg, focusKey: string, light = false, coords = false) {
+  private commitMoveChange(f: (seg: Seg) => Seg, focusKey: string, light = false, curve: CurveKind | null = null) {
     // THE COORDINATE GATE, enforced HERE as well as in the fields, because the drag path reaches this
-    // without going through them: a coordinate change on a selection whose curves differ would collapse
+    // without going through them: a coordinate change on a selection whose curve differs would collapse
     // them into one shape, which is the whole thing `coordinatesAgree` exists to prevent.
-    if (coords && !this.coordinatesAgree()) return;
+    if (curve && !this.coordinatesAgree(curve)) return;
     const next = this.foldMoveChange(f);
     if (!next) return;
     if (!light) {
@@ -787,9 +836,12 @@ export class EditorController implements EditorUI {
       stage.setGizmo(null);
       return;
     }
-    // NO HANDLES WHEN THE COORDINATES DIFFER, because a handle drag is a coordinate edit and the gate
-    // would refuse it. Drawing a draggable-looking dot that does nothing is worse than drawing none.
-    if (!this.coordinatesAgree()) {
+    // NO HANDLES WHEN THE CURVE ON SCREEN DIFFERS, because a handle drag is a coordinate edit of THAT
+    // curve and the gate would refuse it. Drawing a draggable-looking dot that does nothing is worse
+    // than drawing none. The gate names the curve rather than both: the Move tab's handles write the
+    // travel curve and the Facing tab's write the rotation, so a pair whose paths agree and whose turns
+    // do not can be dragged on the tab that edits what they share.
+    if (!this.coordinatesAgree(this.moveKind === 'facing' ? 'facing' : 'travel')) {
       stage.setGizmo(null);
       return;
     }
@@ -982,7 +1034,7 @@ export class EditorController implements EditorUI {
         (s) => (facing ? { ...s, rotate: b2 } : { ...s, translate: b2 }),
         `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`,
         true,
-        true,
+        facing ? 'facing' : 'travel',
       );
       return;
     }
@@ -999,7 +1051,7 @@ export class EditorController implements EditorUI {
             : which === 'c1'
               ? (seg) => ({ ...seg, translate: { ...seg.translate, cx1: lx, cy1: ly } })
               : (seg) => ({ ...seg, translate: { ...seg.translate, cx2: lx, cy2: ly } });
-    this.commitMoveChange(patch, `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`, true, true);
+    this.commitMoveChange(patch, `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`, true, facing ? 'facing' : 'travel');
   }
 
   /**
@@ -1094,6 +1146,57 @@ export class EditorController implements EditorUI {
     const kind = this.moveKind === 'facing' && !seg.rotate ? 'move' : this.moveKind;
     this.host.focusTrail(this.moveDancer, moveBeatRange(dancer, this.moveIndex), kind);
     this.renderHandles();
+  }
+
+  /**
+   * The first selected dancer whose curve at this move differs from the first selected one's, and HOW
+   * BIG the difference is IN THE UNITS OF THE CURVE THE TAB IS EDITING: board units for the travel
+   * curve, degrees for the facing.
+   *
+   * WHY A SIZE AND NOT THE NUMBERS. Two dancers author a move in their OWN frames, so their local
+   * numbers are not comparable - but what they do IS, and a caller looking at the board is asking about
+   * that. This is what turns "coordinates locked" from a rule into an answer to "but they look the
+   * same": the panel can name the pair and the size.
+   *
+   * THE MEASURE IS THE SAME FRAME THE GATE USES, and it did not used to be. The old note measured the
+   * two dancers' curves where they LIE ON THE FLOOR, which is dominated by how far apart the two
+   * dancers stand: two dancers doing exactly the same move two units apart reported "2.00 units apart",
+   * a disagreement that is not about the move at all. MEASURED (`poc/tools/coords-gate-probe.mjs`
+   * measures both): the same shape measured in the dancers' own frames is the number that answers the
+   * question, and it is the one the gate's windows are set against.
+   */
+  private coordsDisagreement(curve: CurveKind): { dancer: number; gap: number } | null {
+    const call = this.instance;
+    if (!call) return null;
+    const sel = this.selectedSorted();
+    if (sel.length < 2) return null;
+    const k = this.moveIndex;
+    const first = call.dancers[sel[0]];
+    const a = first?.path[k];
+    if (!first || !a) return null;
+    for (const d of sel.slice(1)) {
+      const other = call.dancers[d];
+      const b = other?.path[k];
+      if (!other || !b || sameCurve(a, b, curve)) continue;
+      let gap = 0;
+      for (let i = 0; i <= 8; i++) {
+        const t = i / 8;
+        if (curve === 'travel') {
+          const qa = bezierPoint(a.translate, t);
+          const qb = bezierPoint(b.translate, t);
+          gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
+        } else {
+          // The two dancers' own heading profiles: `bezierAngle` is the heading in the local frame, so
+          // the difference is how much more one of them turns than the other, at the worst instant.
+          const ha = bezierAngle(a.rotate ?? a.translate, t);
+          const hb = bezierAngle(b.rotate ?? b.translate, t);
+          const dd = Math.atan2(Math.sin(ha - hb), Math.cos(ha - hb));
+          gap = Math.max(gap, Math.abs((dd * 180) / Math.PI));
+        }
+      }
+      return { dancer: d, gap };
+    }
+    return null;
   }
 
   private renderInstanceInfo() {
@@ -1406,10 +1509,10 @@ export class EditorController implements EditorUI {
     // PER-DANCER PATCHES, and that is not a detail: a patch built from THIS dancer's segment
     // (`{...t, cx1: v}`) would copy this dancer's OTHER control points onto every other selected
     // dancer, which is the per-dancer difference a group edit exists to preserve. So each field
-    // writes exactly its own value, into whichever dancer's segment it is handed. `coords` marks the
-    // Bezier coordinate fields, which the gate above refuses on a selection whose curves differ.
-    const write = (patch: (seg: Seg) => Seg, field: string, coords = false) => {
-      this.commitMoveChange(patch, `m${i}:${k}:${field}`, false, coords);
+    // writes exactly its own value, into whichever dancer's segment it is handed. `curve` names the
+    // Bezier the patch writes, which is what the gate above refuses a selection on.
+    const write = (patch: (seg: Seg) => Seg, field: string, curve: CurveKind | null = null) => {
+      this.commitMoveChange(patch, `m${i}:${k}:${field}`, false, curve);
     };
 
     // ITS OWN LINE, because the tile is 180px wide and `move 4` + `explicit` + two tabs does not
@@ -1441,7 +1544,10 @@ export class EditorController implements EditorUI {
 
     const grid = document.createElement('div');
     grid.className = 'ed-grid';
-    const coordsOk = this.coordinatesAgree();
+    // THE TAB'S OWN CURVE, and nothing else: the fields below write `translate` on the Move tab and
+    // `rotate` on the Facing tab, so that is what the gate is asked about.
+    const curve: CurveKind = this.moveKind === 'facing' ? 'facing' : 'travel';
+    const coordsOk = this.coordinatesAgree(curve);
 
     // THE ARC LOCK, resolved before anything is drawn.
     //
@@ -1476,13 +1582,17 @@ export class EditorController implements EditorUI {
         // From the DANCER'S OWN rotate curve (or its translation, when it has none yet) - so the
         // same field means the same thing on every selected dancer without copying one dancer's
         // other control points onto the rest.
+        //
+        // THE LABEL IS THE XML ATTRIBUTE ALONE - `cx3`, not `r.cx3`. Only one curve's fields are ever on
+        // screen (the tab selects which), so the prefix said nothing the tab had not already said, and it
+        // cost the row the width a second field needed.
         grid.appendChild(
           this.field(
             `m${i}:${k}:r.${key}`,
-            `r.${label}`,
+            label,
             r[key],
             step,
-            (v) => write((s) => ({ ...s, rotate: { ...(s.rotate ?? s.translate), [key]: v } }), `r.${key}`, true),
+            (v) => write((s) => ({ ...s, rotate: { ...(s.rotate ?? s.translate), [key]: v } }), `r.${key}`, 'facing'),
             // LOCKED BY EITHER GATE, and the two read the same on purpose: the group gate locks the
             // fields because one set of numbers cannot describe several shapes, and the ARC locks them
             // because the five numbers are no longer independent - they follow from the two lengths.
@@ -1523,13 +1633,15 @@ export class EditorController implements EditorUI {
         ['y2', 'y2', 0.25],
       ];
       for (const [key, label, step] of tKeys) {
+        // The bare coordinate name, for the same reason as the facing fields above: the tab already
+        // says which curve these belong to, and the width is what the numbers need.
         grid.appendChild(
           this.field(
             `m${i}:${k}:t.${key}`,
-            `t.${label}`,
+            label,
             t[key],
             step,
-            (v) => write((s) => ({ ...s, translate: { ...s.translate, [key]: v } }), `t.${key}`, true),
+            (v) => write((s) => ({ ...s, translate: { ...s.translate, [key]: v } }), `t.${key}`, 'travel'),
             !coordsOk || this.arcOn,
           ),
         );
@@ -1537,12 +1649,23 @@ export class EditorController implements EditorUI {
     }
 
     if (!coordsOk) {
-      // SAID WHERE IT APPLIES. A field that is greyed out with no explanation reads as a bug; this is
-      // the one sentence that turns it into a rule, and it names the action that fixes it.
+      // SAID WHERE IT APPLIES, AND WITH THE DIFFERENCE IN IT. A field that is greyed out with no
+      // explanation reads as a bug - and "they look the same" is the report that produced this sentence:
+      // the panel names the pair and gives the size of the disagreement IN THE CURVE'S OWN UNITS, so a
+      // locked Move tab says how far apart the two paths are and a locked Facing tab says by how many
+      // degrees the two dancers turn differently. Naming the curve matters: on a completed clone the
+      // paths are frequently identical while the turns are not, and "2.00 units apart" - the dancers'
+      // standing separation, which is what measuring the floor used to report - reads as a disagreement
+      // about the move when the paths in fact agree exactly.
+      const diff = this.coordsDisagreement(curve);
       const note = document.createElement('div');
       note.className = 'small';
-      note.textContent =
-        `coordinates locked: the ${this.selectedSorted().length} selected dancers do not share this move's shape, and one set of numbers cannot describe several - select one dancer to edit it`;
+      const what = curve === 'travel' ? 'move alike' : 'turn alike';
+      const size = curve === 'travel' ? `${show(diff?.gap ?? 0)} units apart` : `${show(diff?.gap ?? 0)}deg apart`;
+      const tab = curve === 'travel' ? 'Move' : 'Facing';
+      note.textContent = diff
+        ? `coordinates locked: dancer ${this.moveDancer + 1} and dancer ${diff.dancer + 1} do not ${what} here - their ${curve === 'travel' ? 'curves are' : 'facings are'} ${size}${diff.gap < (curve === 'travel' ? SHAPE_WINDOW : FACING_WINDOW_DEG) ? ', which is under what the eye resolves: the numbers differ in the last decimals, and one set of them still cannot describe both' : ''}. The ${tab} tab edits ${curve === 'travel' ? 'the path' : 'the facing'} alone, so select one dancer to edit it.`
+        : `coordinates locked: the ${this.selectedSorted().length} selected dancers do not share this move's ${curve === 'travel' ? 'path' : 'facing'}, and one set of numbers cannot describe several - select one dancer to edit it`;
       grid.appendChild(note);
     }
 
@@ -1590,7 +1713,7 @@ export class EditorController implements EditorUI {
       write((s) => {
         const b2 = arcBezier(p);
         return this.moveKind === 'facing' ? { ...s, rotate: b2 } : { ...s, translate: b2 };
-      }, 'arc', true);
+      }, 'arc', curve);
     });
     arcRow.append(achk, alab);
     grid.appendChild(arcRow);
@@ -1634,7 +1757,7 @@ export class EditorController implements EditorUI {
           write((s) => {
             const b2 = arcBezier(next);
             return this.moveKind === 'facing' ? { ...s, rotate: b2 } : { ...s, translate: b2 };
-          }, `arc.${key}`, true);
+          }, `arc.${key}`, curve);
         });
         wrap.append(l, input);
         return wrap;

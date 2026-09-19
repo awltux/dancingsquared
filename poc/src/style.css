@@ -60,7 +60,12 @@ html, body {
 .ed-table td.ed-derived { color: var(--dim); text-align: right; padding-right: 8px; }
 .ed-grid { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 11px; margin-top: 2px; }
 .ed-grid label { width: auto; }
-.ed-grid input[type="number"] { width: 58px; padding: 2px 3px; font-size: 11px; }
+/* WIDE ENOUGH FOR THE WHOLE NUMBER. `show()` rounds to four decimals, so the longest string a field
+   ever holds is eight characters ("-10.3333"); at 11px that is about 49px of digits, and the field also
+   owes 6px of padding, 2px of border and the browser's own number spinner (~15px) - which is 72px. The
+   fields used to be 58px here and 50px inside the moves tile, i.e. six characters, so a coordinate was
+   cut off and the caller could not read the value they were editing. */
+.ed-grid input[type="number"] { width: 72px; padding: 2px 3px; font-size: 11px; }
 .ed-grid .ed-group { display: flex; gap: 4px; align-items: center; }
 /* The moves strip: every move of the chosen track in order, so the whole path is visible at
    once. The CURRENT move is tripled in width and carries its numbers; the rest are compact
@@ -76,8 +81,11 @@ html, body {
 }
 #editorPanel .ed-move:hover { border-color: var(--accent); color: var(--text); }
 #editorPanel .ed-move b { color: var(--text); font-size: 12px; }
+/* Four times the compact tile, not three: the extra width is what lets TWO label-and-field pairs sit
+   on a row at the 72px the numbers need (2 x 94px + the 6px gap fits in 232px of content), so the tile
+   stays three rows tall instead of growing to six. The tile the strip scrolls past is unchanged. */
 #editorPanel .ed-move.selected {
-  flex: 0 0 180px; /* exactly 3x the 60px tile */
+  flex: 0 0 240px;
   align-items: stretch; justify-content: flex-start; text-align: left; cursor: default;
   border-color: #4d9fff; background: rgba(77, 159, 255, 0.08); box-shadow: 0 0 0 1px rgba(77, 159, 255, 0.35);
 }
@@ -85,7 +93,8 @@ html, body {
 #editorPanel .ed-move.selected .ed-move-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 2px; }
 #editorPanel .ed-move .ed-grid { gap: 3px 6px; }
 #editorPanel .ed-move .ed-grid label { color: var(--dim); }
-#editorPanel .ed-move .ed-grid input[type="number"] { width: 50px; }
+/* No override here any more: the tile used to narrow its own fields to 50px, which is the six
+   characters that clipped the numbers. It inherits the 72px above. */
 /* The two shapes a move has, as a two-way selection inside the current tile. The disabled tab is
    the FACING one when the move carries no rotation curve: there is no facing shape to select, and a
    tab that opened onto nothing would be worse than one that says why it cannot. */

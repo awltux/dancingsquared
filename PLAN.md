@@ -2508,6 +2508,28 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     should say so rather than look load-bearing. A clone is saved and applied as a NEW setup
     (`kind: 'clone'`, appended), not as a replacement, which is the difference between it and an
     instance edit.
+  - **THE CLONE'S WALK-IN IS FORCED, AND THE EDITOR'S GROUP GATE NOW ASKS ABOUT THE CURVE IT WRITES.**
+     Reported after a completed clone: "selecting multiple dancers is no longer activating the bezier
+     edit mode - they look the same", then "the connect created for opposites seem to match, but not
+     dancers at other angles", then the hypothesis "sounds like a precision issue". All three are
+     answerable by measurement, and `poc/tools/connect-assign-probe.mjs` answers them over all 134
+     targets: **the walk-in cannot be one shared move** (no assignment of dancers to the new formation's
+     spots makes all eight agree - 0 of 134, to 1e-9 or to within the windows, because the end formation
+     is kept and the chain is local, so the walk-in is whatever carries *this* dancer to *its* anchor);
+     **opposites match because the ancestor's own first boundary is point-symmetric** (504 accepted
+     walk-in pairs are 180deg apart against 76 at any other angle - and only 4-fold symmetry, which the
+     boundary does not have to within a tenth of a unit, would make a 90deg pair agree); and **it is not
+     precision** (the worst difference the gate ACCEPTS is 3.06e-3 units, the smallest it refuses is
+     0.0636 units = 2.6px of travel or 3.15deg of facing, a 21x gap, so no window between them changes an
+     answer; nothing at all is refused below 0.05 units). The real defect the report exposed is
+     different: the gate asked whether BOTH curves agree while a Move-tab edit writes only `translate`
+     and a Facing-tab edit only `rotate`, so it locked a tab whose own numbers were unanimous - **76
+     refused walk-in pairs have identical travel curves (0.0000 units apart) refused on the facing
+     alone, 242 face identically and are refused on the travel alone, and 64 of the 134 targets have
+     such a pair**. The gate is now per curve, and the lock note gives the difference in that curve's own
+     units (board units for the path, degrees for the facing - the old note measured the two curves
+     where they lie ON THE FLOOR, so two dancers doing the same move two units apart reported a 2-unit
+     disagreement about nothing).
   - **THE BROWSE PANEL NOW NAMES THE CALL'S END FORMATION, AND A CALLER CAN LABEL ONE IT CANNOT.**
     The panel holds a call BUNDLE and every read the engine offers takes a BOARD, so `boardAtBeat`
     is what makes "what formation does this finish in" askable at all; identity is read from the

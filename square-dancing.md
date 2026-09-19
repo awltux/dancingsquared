@@ -1736,6 +1736,49 @@ half-snapped point sits midway between two lines. That is a real place in the da
 than an arbitrary point, but it is not a place the grid shows, and two tiers is the honest way to say both
 things at once.
 
+**THE GROUP GATE WAS COMPARING THE WRONG THING, WHICH IS WHY A COMPLETED CLONE COULD NOT BE EDITED AS A
+GROUP.** A caller reported that after "connect" cloned a start onto a new formation, selecting several
+dancers no longer opened the Bézier edit — "they look the same" — and asked what the error window was.
+The window was `1e-6` on each of the six translation numbers and the five facing ones, and the honest
+answer to *what is the window* turned out to be that its WIDTH was never the problem: its KIND was.
+
+MEASURED (`poc/tools/coords-gate-probe.mjs`, which drives the real engine through the panel's own clone
+path): of 134 clone targets, 31677 pairs were identical to the last bit and 5326 were refused — and NOT
+ONE refusal rested on a difference below 0.0889 units (3.6 px), while 509 pairs sat below 1e-6 and were
+correctly treated as equal. So the raw-number window was separating noise from reality about as well as
+it could. What it could not see was that a FACING CURVE IS SCALE-INVARIANT: `poseFor` reads it with
+`bezierAngle`, which is `atan2` of the derivative, so multiplying all five numbers by any positive
+constant leaves every heading at every instant EXACTLY as it was. Two such curves are the same facing,
+and comparing the numbers refused the pair — which is the literal "they look the same". The same
+happened with `rotate = null`: "face along the travel tangent" IS a facing, and comparing a null against a
+curve refused on a difference of nothing at all.
+
+The fix has three parts, and the first two are the engine's so they are gated headlessly:
+`facingProfile` normalises a facing curve by its own derivative so a positive rescaling cancels and a
+negative one (a 180° flip) does not; `sameFacing(a, b, tolDeg)` compares profiles exactly and falls back
+to sampling the heading, because a heading is what it is only where it is evaluated and a bound on
+`atan2` of a difference of derivative cubics blows up wherever the derivative nears zero — which facing
+curves are full of, a hold's derivative being the zero vector. And the panel's gate now compares
+`rotate ?? translate` — the facing the dancer ACTUALLY HAS — with a SHAPE window of 0.01 units and a
+FACING window of half a degree. The shape window is a guarantee rather than a sample: a Bézier is a
+convex combination of its control points, so two curves whose control points are within T are within T
+everywhere, and 0.01 units is 0.4 px — below what an eye resolves.
+
+The panel also stopped being silent about it: the lock note now names the two dancers, gives the
+distance between their curves, and says outright when the difference is one nobody could see. Gated in
+`engine/test/editor.mjs` section 18 (a curve and a multiple of it are the same facing while their
+numbers differ by 0.825; a negative multiple is not; the tolerance form accepts 0.2° at half a degree
+and rejects it at zero; a hold has no direction at all) and by the probe, which shows the tightest
+refusal over every target to be a 0.09-unit difference in how far two dancers walk in.
+
+**AND THE NUMBER FIELDS ARE NOW WIDE ENOUGH TO READ.** `show()` rounds to four decimals, so the longest
+string a field holds is eight characters (`-10.3333`) — about 49px of digits at 11px, plus padding,
+border and the browser's number spinner, which is 72px. They were 58px, and 50px inside the moves tile:
+six characters, so a coordinate was clipped and the value being edited could not be read. The current
+tile went from 180px to 240px so that two label-and-field pairs still share a row (three rows, not six),
+and the field labels dropped their redundant `t.`/`r.` prefix — the tab already says which curve is on
+screen — which is the width the second field needed.
+
 **AND THE PROBES NOW RESOLVE THEIR PATHS FROM THEIR OWN FILE.** They read the POC's assets and source
 through `process.cwd()`, so they ran only from `poc/`: `node poc/tools/x.mjs` from the repository root died
 with ENOENT and looked like a broken probe rather than a misplaced one — found by running all five in one
@@ -1868,6 +1911,50 @@ same analysis runs over a copy of the source with `selectMove`'s sync call remov
 and it flags exactly `selectMove`. A structural check that cannot fail on the bug it was written for is
 decoration, and this one is labelled as what it is: a check on the SOURCE, not a measurement of behaviour,
 because the wiring fault is invisible to every engine harness and this sandbox cannot drive the browser.
+
+**THE CLONE'S WALK-IN IS FORCED, SO "USE VALUES THAT WILL MATCH" HAD TO BE ANSWERED BY MEASUREMENT RATHER
+THAN BY THE SOLVER.** The report came in three parts: after a `connect`, selecting several dancers did not
+open the bezier edit although they "look the same"; then that the walk-ins the connect creates "for
+opposites seem to match, but not dancers at other angles"; then the hypothesis that it "sounds like a
+precision issue" and "the compare is too strict perhaps". `poc/tools/connect-assign-probe.mjs` answers all
+three over every one of the 134 start formations, and the answers are not what any of us guessed.
+
+The walk-in CANNOT be one shared move, and that is a proof rather than an opinion: the clone keeps the
+ancestor's END formation and every move after the first is dancer-local, so the walk-in must carry *this*
+dancer from *its* new start pose to exactly the pose the ancestor's own track resumes from. The probe
+searches for an assignment of dancers to the new formation's spots that makes all eight walk-ins the same
+local move - trying every spot for the first dancer and requiring the rest to match - and finds **none, on
+any of the 134 targets**, not to 1e-9 and not to within the gate's windows. The values are the geometry.
+
+What the geometry gives for free is the OPPOSITE pairs, and that is the reported symptom exactly: the
+ancestor's own first boundary is point-symmetric, so a pair of dancers 180deg apart walks in identically.
+MEASURED: 504 of the accepted walk-in pairs are 180deg apart against 76 at any other angle. A 90deg pair
+would need the boundary to be 4-fold symmetric, and it is not: the source's own first move gives four
+dancers a 0.59 step and the other four a 0.5 step plus a 45.15deg turn, and the boundary set is 4-fold
+symmetric only to about a tenth of a unit. So a caller selecting a head and a side is looking at two
+walk-ins whose PATHS are identical and whose TURNS are 45deg apart.
+
+AND IT IS NOT PRECISION, which the same probe measures rather than argues. Of the 570 walk-in pairs the
+gate accepts, the largest difference any of them has is **3.06e-3 units**; the smallest travel difference
+it refuses is **0.0636 units (2.6px)** and the smallest refused facing difference is **3.15deg**. The
+window sits in a 21x gap, so no window between the two values would change a single answer, and nothing at
+all is refused below 0.05 units. Widening the shape window to a tenth of a unit would open 174 pairs and
+merge moves up to 4px apart - a judgement about pixels, which is where 0.01 units (0.4px) already sits.
+
+WHAT WAS ACTUALLY WRONG IS THAT THE GATE ASKED ABOUT THE WRONG CURVE. A Move-tab field writes
+`translate.<attr>` and a Facing-tab field writes `rotate.<attr>`, so the question is whether THAT curve
+agrees across the selection; asking about both is a strictly stronger condition on a write that touches
+one, and it locked tabs whose own numbers were unanimous. Of the walk-in pairs the gate refuses, **76 have
+identical travel curves (0.0000 units apart) and are refused on the facing alone** - the trails on the
+board are the same shape and the Move tab was locked anyway, which is the literal "they look the same" -
+and **242 face identically and are refused on the travel alone**, locking the Facing tab on a pair a
+facing edit cannot collapse. **64 of the 134 targets have at least one such pair.** The gate, the field
+locks, the board handles, the arc checkbox and the drag path are now all keyed on the curve in hand, and
+the lock note gives the difference in that curve's own units - board units for the path, degrees for the
+facing - instead of the old note's distance between the two curves *where they lie on the floor*, which is
+dominated by how far apart the dancers stand: two dancers doing the same move two units apart reported a
+2-unit disagreement that was not about the move at all. `coords-gate-probe.mjs` was updated to model the
+per-curve gate it now describes, and the new probe carries the checks.
 
 
 

@@ -54,6 +54,8 @@ import {
   arcBlocker,
   projectToArc,
   setMoveArc,
+  facingProfile,
+  sameFacing,
 } from '../dist/index.js';
 setParser(DOMParser);
 
@@ -1031,6 +1033,54 @@ console.log('\n== the quarter arc (17) ==');
     // fact worth looking at rather than a number to compare against a threshold.
     check(arcs === 0,
       `no authored curve in ${levels.join('/')} is a quarter arc (${arcs}), so the checkbox adds a shape rather than naming one the assets already use`);
+  }
+}
+
+console.log('\n== what a facing curve MEANS, and the gate that compares it (18) ==');
+{
+  // The editor's group gate asks whether several dancers share a move. For the PATH that is a question
+  // about the numbers, because a Bezier is a convex combination of its control points. For the FACING it
+  // is not: `poseFor` reads the curve with `bezierAngle`, which is `atan2` of the derivative, so the
+  // curve's meaning is SCALE-INVARIANT - and comparing the numbers refused group edits of dancers who
+  // were in the same places facing the same ways. A caller reported exactly that ("they look the same").
+  const base = { cx1: 0.55, cy1: 0, cx2: 1, cy2: 0.45, x2: 1, y2: 1 };
+  const scaled = Object.fromEntries(Object.entries(base).map(([k, v]) => [k, v * 2.5]));
+  const flipped = Object.fromEntries(Object.entries(base).map(([k, v]) => [k, -v]));
+  const nudged = { ...base, cy2: 0.45 + 0.001 };
+
+  check(sameFacing(base, scaled), 'a facing curve and a multiple of it are the SAME facing - every heading at every instant is identical');
+  check(!sameFacing(base, flipped), 'but a NEGATIVE multiple is not: that turns every heading 180deg the other way');
+  check(sameFacing(base, base), 'and a curve is itself');
+  {
+    let worst = 0;
+    for (let i = 0; i <= 20; i++) worst = Math.max(worst, Math.abs(bezierAngle(base, i / 20) - bezierAngle(scaled, i / 20)));
+    check(worst < 1e-12, `the two really do face identically: worst heading gap ${worst.toExponential(2)} rad over 21 instants`);
+    check(Math.abs(base.cx1 - scaled.cx1) > 0.5, `while their NUMBERS differ by ${Math.abs(base.cx1 - scaled.cx1).toFixed(3)} - which is what the old comparison was reading`);
+  }
+  // The tolerance form, which is what the panel calls: it also samples, for curves that differ without
+  // being multiples of one another.
+  check(sameFacing(base, nudged, 0.5) && !sameFacing(base, nudged, 0), 'the tolerance form accepts a small difference at half a degree and rejects it at zero');
+  check(sameFacing(null, null) && !sameFacing(null, base) && !sameFacing(base, null), 'two absent facings are the same; one absent and one present are not');
+  check(facingProfile({ cx1: 0, cy1: 0, cx2: 0, cy2: 0, x2: 0, y2: 0 }) === null, 'a hold has no direction at all, and the profile says so rather than returning zeros');
+  {
+    // The population the defect had: facing curves that MEAN the same thing while their numbers differ.
+    let pairs = 0;
+    let sameByMeaning = 0;
+    let sameByNumbers = 0;
+    for (const d of src.dancers) {
+      for (let k = 0; k < d.path.length; k++) {
+        for (const e of src.dancers) {
+          const a = d.path[k];
+          const b = e.path[k];
+          if (!a || !b || !a.rotate || !b.rotate) continue;
+          pairs++;
+          if (sameFacing(a.rotate, b.rotate, 0.5)) sameByMeaning++;
+          if (Object.keys(a.rotate).every((key) => Math.abs(a.rotate[key] - b.rotate[key]) < 1e-6)) sameByNumbers++;
+        }
+      }
+    }
+    console.log(`    over ${pairs} ordered pairs of explicit facing curves in the witness: ${sameByMeaning} mean the same facing, ${sameByNumbers} have the same numbers`);
+    check(sameByMeaning >= sameByNumbers, 'comparing by meaning accepts at least everything comparing by numbers did - it can only ever be more permissive, which is the direction of the fix');
   }
 }
 

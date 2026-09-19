@@ -688,6 +688,21 @@ single selection is always editable. When locked the fields are **greyed, not hi
 selected dancer's value stays readable), the tile says why and what fixes it, and the board handles are
 not drawn — a drag is a coordinate edit that the same gate would refuse.
 
+**The gate asks about the ONE curve the tab edits, not both.** A Move-tab field writes `translate.<attr>`
+and a Facing-tab field writes `rotate.<attr>`, so the question is whether *that* curve agrees across the
+selection; asking about both is a strictly stronger condition on a write that touches one, and it locked
+tabs whose own numbers were unanimous. MEASURED (`node poc/tools/connect-assign-probe.mjs`, after a
+`connect` onto each of the 134 start formations): of the walk-in pairs the gate refuses, **76 have
+identical travel curves (0.0000 units apart) refused on the facing alone** — the trails on the board are
+the same shape and the Move tab was locked anyway — and **242 are refused on the travel alone while facing
+identically**, locking the Facing tab on a pair a facing edit cannot collapse. **64 of the 134 targets**
+have at least one such pair, and that number is the size of the fix. The lock note names the curve and
+gives the difference **in that curve's own units** — board units for the path, degrees for the facing —
+because "2.00 units apart" measured the two dancers' curves *where they lie on the floor*, which is
+dominated by how far apart the dancers stand: two dancers doing the same move two units apart reported a
+2-unit disagreement that was not about the move at all. The measure is now the same frame the windows are
+set against, so the number answers the question the gate asked.
+
 **Beats and hands are deliberately NOT gated**: they are not coordinates, and unifying a timing or a
 hold across a selection is a legitimate group edit rather than a collapse of geometry. Every move edit
 goes to every selected dancer *patch by patch* rather than segment by segment — a patch built from the
@@ -702,9 +717,19 @@ tangent space. A no-translation turn in `moves.xml` is `x4="0" y4="2"` with the 
 **The moves row drives the stage**, which is what makes a single move editable at all. The
 moves themselves are shown as a STRIP: every move of the chosen track, in order, so the whole
 path being edited is visible at once instead of one move at a time behind a dropdown. The move
-being edited is **triple width** (180px against the compact tiles' 60px) and carries its
-numbers; every other move is a compact tile showing its number, its beats and its hands, and
-clicking one selects it. A long path scrolls horizontally.
+being edited is **four times the width** of the others (240px against the compact tiles' 60px) and
+carries its numbers; every other move is a compact tile showing its number, its beats and its hands,
+and clicking one selects it. A long path scrolls horizontally.
+
+**The number fields are 72px, sized to the numbers rather than to the space left over.** `show()`
+rounds to four decimals, so the longest string a field ever holds is eight characters (`-10.3333`);
+that is about 49px of digits at 11px, plus 6px of padding, 2px of border and the browser's own number
+spinner at roughly 15px. They used to be 58px, and 50px inside the tile — six characters, so a
+coordinate was cut off and the value being edited could not be read. The current tile grew from 180px
+to 240px for the same reason: at 72px a row fits two label-and-field pairs, so the tile stays three
+rows tall instead of growing to six. The **field labels lost their `t.`/`r.` prefix** with it — only
+one curve's fields are ever on screen, because the tab selects which, so the prefix said nothing the
+tab had not and cost the row the width a second field needed.
 
 - **Moves of** — only the chosen dancer's TRACK is drawn; every other dancer's track is
   hidden, so the one you are editing is not lost among eight. The dancers themselves stay
@@ -743,6 +768,30 @@ A dancer whose own first move already ends on the anchor is left exactly as auth
 what makes connecting an already-good track a no-op rather than a straightening of an authored
 curve; and a dancer whose first move has **zero beats** cannot walk in, is left alone, and is
 reported as still wrong rather than quietly accepted.
+
+**The walk-in the Connect writes is FORCED, dancer by dancer, and cannot be made the same move for
+everyone.** The end formation is kept and the rest of the chain is dancer-local, so the walk-in must
+carry *this* dancer from *its* new start pose to *exactly* the pose the ancestor's own track resumes
+from; the local curve is whatever that takes. MEASURED (`node poc/tools/connect-assign-probe.mjs`,
+over all 134 targets): **no assignment of dancers to the new formation's spots gives all eight the same
+walk-in** — not to 1e-9, and not to within the gate's windows — which is the proof that this is the
+geometry and not the solver. What the geometry *does* give for free is the opposite pairs: the
+ancestor's own first boundary is **point-symmetric**, so a pair of dancers 180° apart walks in
+identically (**504 of the accepted walk-in pairs**; 76 are at any other angle). Dancers at 90° agree
+only when the boundary is 4-fold symmetric, and it is not: the source's own first move gives four
+dancers a 0.59 step and the other four a 0.5 step plus a 45.15° turn, and the boundary set is
+4-fold symmetric only to about a tenth of a unit. So a caller selecting a head and a side after a
+Connect is looking at two walk-ins whose *paths* are identical and whose *turns* are 45° apart, and
+the per-curve gate above is what lets the Move tab edit that shared path.
+
+**Is the window the fault?** No, and the same probe measures it rather than arguing it. Of the 570
+walk-in pairs the gate accepts, the largest difference any of them has is **3.06e-3 units**; the
+smallest travel difference it refuses is **0.0636 units (2.6px)** and the smallest refused facing
+difference is **3.15°**. The window (0.01 units, half a degree) sits in a 21× gap, so no window
+between the two would change a single answer — the refusals are not floating-point noise. Bands:
+nothing at all is refused under 0.05 units, 174 pairs sit in 0.05–0.1, 102 in 0.1–0.5 and 2830 over
+0.5. Widening the shape window to a tenth of a unit would open those 174 pairs and merge moves up to
+4px apart; that is a judgement about pixels, not a bug, and 0.01 units (0.4px) is where it sits.
 
 **Fix closure** — correct an existing call setup that doesn't close cleanly (e.g. a
 full Circle Left leaves the girls ~44° off, so the sequencer sees an unrecognized

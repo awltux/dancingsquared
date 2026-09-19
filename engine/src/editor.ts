@@ -1162,6 +1162,62 @@ export function projectToArc(b: BezierData, allowBackwards: boolean): ArcParams 
   return { x: xLen, y, angle };
 }
 
+/**
+ * A facing curve's DIRECTION PROFILE, scaled so that two curves meaning the same facing compare equal.
+ *
+ * THE FACING CURVE'S MEANING IS SCALE-INVARIANT, and that is not a detail of the arithmetic: `poseFor`
+ * reads it with `bezierAngle`, which is `atan2` of the derivative, so multiplying all five numbers by
+ * any positive factor leaves the heading at EVERY instant exactly as it was. Two such curves are the
+ * same facing and a group edit of them is safe.
+ *
+ * Comparing the raw numbers instead says they differ, and that is a real defect rather than a
+ * theoretical one - MEASURED (`poc/tools/coords-gate-probe.mjs`): after completing a cloned track, the
+ * editor refused group edits on differences of 0.0 units and 0.0 degrees, i.e. on dancers whose curves
+ * put them in exactly the same places facing exactly the same ways. A caller reported the same thing in
+ * words: "selecting multiple dancers is no longer activating the bezier edit mode - they look the same."
+ * They did look the same. They WERE the same.
+ *
+ * The profile is the three derivative spans, normalised by the first non-zero one's length, so a
+ * positive rescaling cancels and a NEGATIVE one (a 180deg flip) does not. Null when the curve has no
+ * direction at all - every derivative span zero, which is a hold.
+ */
+export function facingProfile(b: BezierData): number[] | null {
+  const d = [b.cx1, b.cy1, b.cx2 - b.cx1, b.cy2 - b.cy1, b.x2 - b.cx2, b.y2 - b.cy2];
+  const scale = Math.hypot(d[0], d[1]) || Math.hypot(d[2], d[3]) || Math.hypot(d[4], d[5]);
+  if (scale <= 1e-12) return null;
+  return d.map((v) => v / scale);
+}
+
+/**
+ * Whether two facing curves mean the same headings, to within `tolDeg` degrees.
+ *
+ * With the default 0 this asks whether they are the same PROFILE up to a positive scale - exact, and the
+ * fast path. With a tolerance it also samples the heading, because a heading is what it is only where it
+ * is evaluated: the exact test cannot tell a curve from one that differs by a degree in the middle if the
+ * difference is not a rescaling.
+ *
+ * NINE SAMPLES, and the honest bound is that it is a sample: two cubics whose headings agree at nine
+ * instants could in principle differ between them. The alternative is a bound on `atan2` of a difference
+ * of two derivative cubics, which blows up wherever the derivative passes near zero - and a facing curve
+ * is FULL of those, since a hold's derivative is the zero vector. Sampling a heading is the measure that
+ * means something here.
+ */
+export function sameFacing(a: BezierData | null, b: BezierData | null, tolDeg = 0): boolean {
+  if ((a == null) !== (b == null)) return false;
+  if (!a || !b) return true;
+  const pa = facingProfile(a);
+  const pb = facingProfile(b);
+  if (pa == null && pb == null) return true; // both holds: no direction, so nothing to disagree about
+  if (pa != null && pb != null && pa.every((v, i) => Math.abs(v - pb[i]) <= 1e-9)) return true;
+  const tol = (tolDeg * Math.PI) / 180;
+  for (let i = 0; i <= 8; i++) {
+    const t = i / 8;
+    const d = bezierAngle(a, t) - bezierAngle(b, t);
+    if (Math.abs(Math.atan2(Math.sin(d), Math.cos(d))) > tol) return false;
+  }
+  return true;
+}
+
 /** One move's curve set to a quarter arc - `travel` for the path, `facing` for the heading. */
 export function setMoveArc(call: CallBundle, dancer: number, index: number, curve: 'travel' | 'facing', params: ArcParams): CallBundle {
   const seg = call.dancers[dancer]?.path[index];

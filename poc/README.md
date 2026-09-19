@@ -215,6 +215,13 @@ is applying a label to one call. So the library keeps matching, nothing else in 
 hole, and the panel simply declines the name for that instance (keyed by `callId` + `setupIdx`, the
 same identity the editor's saved edits use).
 
+**Nothing is declined silently.** If the library *did* detect a user-defined label and the field is
+not applying it, the field says which label and why — `detected "X", detached from this call
+[reattach]`, or `detected "X", which is no longer in the corpus [store]`. A bare "not named" for a
+label that exists is an instrument that cannot report its own state, and it cost a round trip: the
+first version of this returned a null with no reason, so "detached", "removed from the store" and
+"the library has never heard of this shape" all looked identical on screen.
+
 **Removing** a formation deletes it from the store and drops any detachments that named it — a
 record saying "this formation does not describe that end" is dangling once the formation is gone, and
 leaving it would silently suppress a future formation given the same name. The *library* keeps the
@@ -226,8 +233,11 @@ also exactly what a reload would show.
 
 User-defined formations live in `localStorage` (`dsUserFormations`, detachments in
 `dsFormationDetachments`), not in the corpus, because a browser cannot write `formations.xml` — the
-same local-first, export-for-the-corpus shape the call editor uses. They are registered at startup,
-so a shape labelled in an earlier session is recognised on the first read.
+same local-first, export-for-the-corpus shape the call editor uses. **They are registered by the
+panel that owns the formation library, on every library build** — the sequencer's constructor *and*
+its `rebuildSeq` (a level change replaces the whole `Sequencer`, and the second build used to forget
+them, so a label silently stopped being recognised the moment the level changed). Anything the panel
+adds to that library has to be re-added on a rebuild, exactly as the saved modules are.
 
 Three measured facts shape the whole feature, all from
 `node engine/test/tools/end-formation-probe.mjs` (MS level, 1015 call variants):

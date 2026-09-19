@@ -1522,6 +1522,23 @@ unregister, on purpose), so the panel declines a user-defined name that is no lo
 exactly what a reload would show. Labelling a board RE-ATTACHES it, so a formation detached here and then
 created again under the same name cannot eat its own work.
 
+**NOTHING IS DECLINED SILENTLY, and that is the correction this feature needed.** The first version
+returned a bare null, so the field read "not named" when the label was detached, when it had been removed
+from the store, AND when the library had never heard of the shape — three different situations with one
+appearance. A caller hit exactly that and reported "I created a new formation but the call I created it
+from doesn't use it, still showing not named". The field now names the label it declined and why —
+`detected "X", detached from this call [reattach]` / `detected "X", which is no longer in the corpus
+[store]` — because an instrument that cannot report its own state is the bug, not a cosmetic gap.
+
+**THE ACTUAL MISSING PLUMBING WAS THE SECOND LIBRARY BUILD.** `SequencerUI` builds a `Sequencer` in the
+constructor AND in `rebuildSeq` (which replaces it wholesale on a level change). `rebuildSeq` re-registered
+the user's saved MODULES and not their FORMATIONS, so a shape the caller had labelled stopped being
+recognised the moment the level changed — the browse field went back to "not named" for the very call the
+label came from. The registration now runs on BOTH builds, in one place (`registerUserFormations`), and
+the invariant is the one the modules line beside it already stated: anything the panel adds to that
+library has to be re-added whenever the library is rebuilt. Names are also compared canonically on the
+store side, since the library canonicalises on the way in and the store keeps what was typed.
+
 
 
 

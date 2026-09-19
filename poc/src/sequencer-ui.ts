@@ -10,6 +10,7 @@ import type { Board, CallStep, FormDancer, Matchable, Module, Pose, SequenceStop
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
+import { loadUserFormations } from './formations';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import type { Stage, WalkCycle } from './scene';
 
@@ -159,6 +160,9 @@ export class SequencerController implements SequencerUI {
 
     this.wireEvents();
     this.populateFormations();
+    // AFTER the catalogue is in, so the user's own shapes are added to a library that already has
+    // the corpus in it rather than being deduped against a half-built one.
+    this.registerUserFormations();
     this.refreshCallSelect();
     this.renderSubsetInfo();
     this.requestFrame();
@@ -235,6 +239,24 @@ export class SequencerController implements SequencerUI {
       dancers: board.dancers.length,
       genderPattern: board.dancers.map((d) => (d.gender === 'boy' ? 'B' : d.gender === 'girl' ? 'g' : '.')).join(''),
     };
+  }
+
+  /**
+   * Put every stored user-defined formation into the CURRENT library.
+   *
+   * ONE PLACE, because a library that is built more than once needs it more than once: this runs
+   * from the constructor and from `rebuildSeq`, and those are the only two places a Sequencer is
+   * made. Registering is idempotent (the name list is a set and the geometry is deduped), so
+   * running it twice is safe - which is what makes it safe to have it here rather than spread
+   * across the callers.
+   */
+  private registerUserFormations() {
+    const stored = loadUserFormations();
+    for (const f of stored) this.seq.registerFormation(f.name, f.dancers);
+    // A rebuilt library invalidates what the editor's clone picker was offered, and a newly
+    // registered shape belongs in the formation dropdown.
+    this.startFormationCache = null;
+    if (stored.length > 0) this.populateFormations();
   }
 
   /** Add a user-defined formation. It is tagged, so the panel can label it as such. */
@@ -325,6 +347,12 @@ export class SequencerController implements SequencerUI {
     this.seq = new Sequencer(movesXmlText, formationsXmlText, sequencerCallsUpTo(this.levelSelect.value));
     for (const m of this.modules) this.seq.registerModule(m.name, m.calls);
     this.registerCederModules();
+    // THE USER'S FORMATIONS GO BACK IN WITH EVERYTHING ELSE. This is the SAME requirement as the
+    // modules one line above, and leaving it out was a real bug: the library is REPLACED here, so a
+    // shape the caller labelled stopped being recognised the moment the level changed - the browse
+    // panel's end-formation field went back to "not named" for the very call the label was made
+    // from. Anything this library holds that the user added has to be re-added on a rebuild.
+    this.registerUserFormations();
     this.history.length = 0;
     this.playing = false;
     this.playhead = 0;

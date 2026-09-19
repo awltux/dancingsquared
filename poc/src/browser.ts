@@ -143,13 +143,23 @@ export class CallBrowser {
         bits.push(`${read.dancers} dancers`);
         bits.push(`genders ${read.genderPattern}`);
         if (read.notation.includes('?')) bits.push(esc(read.notation));
-        if (applied.reason === 'detached' && applied.suppressed) {
-          // The detach is shown where it APPLIES, which is also where it can be undone - otherwise
-          // a mis-click would be invisible and permanent.
-          bits.push(
-            `<i>&ldquo;${esc(applied.suppressed)}&rdquo; is detached from this call</i>` +
-              `<button data-act="reattach" title="Apply that formation to this call's end again">reattach</button>`,
-          );
+        // AND WHEN THE LIBRARY *DID* DETECT A USER-DEFINED LABEL, SAY SO AND WHY IT IS NOT USED.
+        // Returning a bare null here made "the label is detached" and "the shape is not stored"
+        // indistinguishable from "the library has never heard of this shape", which is how a
+        // declined label became invisible and cost a round trip.
+        if (applied.suppressed) {
+          if (applied.reason === 'detached') {
+            // Shown where it APPLIES, which is also where it can be undone.
+            bits.push(
+              `<i>detected &ldquo;${esc(applied.suppressed)}&rdquo;, detached from this call</i>` +
+                `<button data-act="reattach" title="Apply that formation to this call's end again">reattach</button>`,
+            );
+          } else {
+            bits.push(
+              `<i>detected &ldquo;${esc(applied.suppressed)}&rdquo;, which is no longer in the corpus</i>` +
+                `<button data-act="store" title="Put this shape back in the corpus under that name">store</button>`,
+            );
+          }
         }
       }
       this.endFormationEl.innerHTML = bits.join(' · ');
@@ -168,7 +178,7 @@ export class CallBrowser {
     }
   }
 
-  /** The detach / remove / reattach buttons live inside the field's own markup. */
+  /** The detach / remove / reattach / store buttons live inside the field's own markup. */
   private wireEndFormationActions(name: string | null, callId: string, setupIdx: number) {
     if (!name) return;
     for (const btn of this.endFormationEl.querySelectorAll<HTMLButtonElement>('button[data-act]')) {
@@ -180,6 +190,10 @@ export class CallBrowser {
         } else if (act === 'reattach') {
           reattachLabel(name, callId, setupIdx);
           this.legend.innerHTML = `re-attached <b>${esc(name)}</b> to this call`;
+        } else if (act === 'store') {
+          // The library still recognises the shape but the corpus no longer holds it: put it back
+          // from the board in front of us, which is the only geometry that can be meant.
+          this.storeLabel(name);
         } else if (act === 'remove') {
           removeUserFormation(name);
           this.renderUserFormations();
@@ -197,14 +211,17 @@ export class CallBrowser {
    * later session without that call. Registering it with the live library is what makes it
    * recognisable immediately - including for the board on screen, whose read is already cached.
    */
-  private createFormationFromEndBoard() {
+  /**
+   * Store the CURRENT end board's geometry under `name`, tagged user-defined, and register it.
+   *
+   * ONE PATH FOR BOTH WAYS IN, which is why it is a method: the Label row supplies a new name, and
+   * the field's `store` button supplies a name the library still recognises but the corpus no longer
+   * holds. The only difference between them is where the name comes from, and the board is the only
+   * geometry that can be meant in either case.
+   */
+  private storeLabel(name: string) {
     const board = this.endBoard;
     if (!board) return;
-    const name = this.formationNameInput.value.trim();
-    if (!name) {
-      this.endFormationEl.innerHTML += ' — <i>give it a name first</i>';
-      return;
-    }
     const dancers = board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender }));
     const origin = `${this.callSelect.selectedOptions[0]?.textContent ?? ''} (from ${this.tamSelect.selectedOptions[0]?.textContent ?? 'default'})`;
     const formed: UserFormation = { name, dancers, created: new Date().toISOString(), origin };
@@ -214,11 +231,21 @@ export class CallBrowser {
     // been detached here could be created again under the same name and still not show, which is
     // the one way this feature could eat its own work.
     reattachLabel(name, this.callSelect.value, parseInt(this.tamSelect.value || '0', 10));
-    this.formationNameInput.value = '';
     this.renderUserFormations();
     // Re-read so the field shows the new name rather than the state it was labelled from.
     if (this.player.call) this.renderEndFormation(this.player.call);
     this.legend.innerHTML = `<b>${esc(name)}</b> — user-defined formation, ${dancers.length} dancers<br><span class="small">this is a label for a shape, not a call</span>`;
+  }
+
+  /** The Label row's action: name the current end board and store it. */
+  private createFormationFromEndBoard() {
+    const name = this.formationNameInput.value.trim();
+    if (!name) {
+      this.endFormationEl.innerHTML += ' — <i>give it a name first</i>';
+      return;
+    }
+    this.formationNameInput.value = '';
+    this.storeLabel(name);
   }
 
   /** The user-defined formation list: what is stored, what it exports, and how to drop it. */

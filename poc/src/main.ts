@@ -4,7 +4,6 @@
 
 import { createStage } from './scene';
 import { loadCatalog } from './data';
-import { loadUserFormations } from './formations';
 import { Player } from './player';
 import { CallBrowser } from './browser';
 import { initSequencer } from './sequencer-ui';
@@ -42,12 +41,11 @@ const editorPanel = el<HTMLDivElement>('editorPanel');
 // formation library what a board is, and `CallBrowser`'s constructor loads a call - so the host it
 // is handed must already exist when it is built. `openSequence` was only ever called on a click,
 // which is why this order survived until the end-formation field needed a read at construction.
+//
+// STORED USER FORMATIONS ARE REGISTERED BY THE PANEL THAT OWNS THE LIBRARY, not here: the library is
+// built in TWO places (the constructor and `rebuildSeq`), and registering from a caller meant the
+// second build - a level change - silently dropped every label the caller had made.
 const seqUi = initSequencer(stage);
-
-// User-defined formations live in local storage; register them with the library up front so a
-// shape the caller labelled in an earlier session is recognised on the first read, not the first
-// reload after this one.
-for (const f of loadUserFormations()) seqUi.registerFormation(f.name, f.dancers);
 
 const player = new Player({ speed: speedMul });
 // The browse view can hand a named sequence to the sequence view. `applyMode` is declared below,

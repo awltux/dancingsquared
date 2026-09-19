@@ -12,6 +12,7 @@
 // session, without that call being loaded.
 
 import type { Gender, Matchable } from 'dancing-squared-engine';
+import { canonicalName } from 'dancing-squared-engine';
 
 const KEY = 'dsUserFormations';
 
@@ -136,22 +137,33 @@ export function reattachLabel(formation: string, callId: string, setupIdx: numbe
  *
  *  - the formation is NO LONGER STORED. Removing one cannot un-register it from the live library
  *    (there is no unregister, and cached reads name it), so without this the destructive button
- *    would appear to do nothing until the page was reloaded. Declining a label whose formation is
- *    gone makes the field agree with what a reload would show.
+ *    would appear to do nothing until the page was reloaded.
  *  - it was DETACHED from this instance, which is the caller saying the label is wrong HERE.
+ *
+ * BOTH REASONS ARE REPORTED, NEVER SWALLOWED. The first version returned a bare null and the field
+ * simply read "not named" - which is the same thing it says when the library does not know the shape
+ * at all. That is an INSTRUMENT THAT CANNOT REPORT ITS OWN STATE, and it cost a round trip: a label
+ * the library HAD recognised was being declined for a reason the panel did not say. So the reason
+ * comes out with the answer and the panel puts it on screen, with the button that fixes it.
+ *
+ * Names are compared CANONICALLY (`canonicalName`), because the library canonicalises on the way in
+ * and the store keeps what was typed: naming a shape "Squared Set" registers as "Static Square", and
+ * comparing the two spellings directly would decline a label that is there.
  *
  * A name from the shipped corpus is never filtered: this is about user-defined labels only.
  */
 export interface AppliedLabel {
   name: string | null;
-  /** The detected name, when it was NOT applied - so the panel can say which label was detached. */
+  /** The detected name, when it was NOT applied - so the panel can name the label it declined. */
   suppressed: string | null;
   reason: 'detached' | 'not-stored' | null;
 }
 
 export function applyLabel(detected: string | null, userDefined: boolean, callId: string, setupIdx: number): AppliedLabel {
   if (!detected || !userDefined) return { name: detected, suppressed: null, reason: null };
-  if (!loadUserFormations().some((f) => f.name === detected)) return { name: null, suppressed: detected, reason: 'not-stored' };
+  const key = canonicalName(detected);
+  const stored = loadUserFormations().some((f) => canonicalName(f.name) === key);
+  if (!stored) return { name: null, suppressed: detected, reason: 'not-stored' };
   if (isDetached(detected, callId, setupIdx)) return { name: null, suppressed: detected, reason: 'detached' };
   return { name: detected, suppressed: null, reason: null };
 }

@@ -63,11 +63,13 @@
           <span id="partLabel" class="part"></span>
         </div>
         <div class="row">
-          <label><input id="mirror" type="checkbox" checked /> Full square (mirror)</label>
+          <label title="Where the dancers are in the call. Drag to move them along the call by hand — playback pauses while you drag.">Position</label>
+          <input id="scrub" type="range" min="0" max="1" step="0.25" value="0" title="Drag to move the dancers along the call. Playback pauses while you drag, so this is how to place them by hand." />
+          <input id="beatInput" type="number" min="0" step="0.25" value="0" class="small" title="Type a beat to place the dancers exactly there (0 = the first beat of the call)" />
+          <span id="beatReadout" class="part"></span>
         </div>
         <div class="row">
-          <input id="scrub" type="range" min="0" max="100" value="0" />
-          <span id="beatReadout" class="part"></span>
+          <label><input id="mirror" type="checkbox" checked /> Full square (mirror)</label>
         </div>
         <div id="browseUses" class="small"></div>
         <div id="legend"></div>

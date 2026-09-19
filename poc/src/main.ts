@@ -78,6 +78,7 @@ const stepBackBtn = el<HTMLButtonElement>('stepBack');
 const stepFwdBtn = el<HTMLButtonElement>('stepFwd');
 const speedSelect = el<HTMLSelectElement>('speed');
 const scrub = el<HTMLInputElement>('scrub');
+const beatInput = el<HTMLInputElement>('beatInput');
 const levelSelect = el<HTMLSelectElement>('levelSelect');
 const callSelect = el<HTMLSelectElement>('callSelect');
 const tamSelect = el<HTMLSelectElement>('tamSelect');
@@ -140,8 +141,17 @@ stepFwdBtn.addEventListener('click', () => {
   player.step(STEP);
   reflectPlayState();
 });
+// The position bar is in BEATS, not percent (`CallBrowser.updateScrub` sets its max from the
+// loaded call), so its own value is the number the beat box beside it takes. Dragging PAUSES the
+// call and places the dancers where the call's own paths put them at that beat - which is what
+// makes the bar a way to move them around the board by hand rather than only a video scrubber.
 scrub.addEventListener('input', () => {
-  player.scrub(parseFloat(scrub.value) / 100);
+  player.seekAbsolute(parseFloat(scrub.value));
+  reflectPlayState();
+});
+beatInput.addEventListener('change', () => {
+  const v = parseFloat(beatInput.value);
+  if (Number.isFinite(v)) player.seekAbsolute(v);
   reflectPlayState();
 });
 reflectPlayState();
@@ -199,7 +209,12 @@ function tick(now: number) {
   const dt = Math.min(now - lastTime, 120); // clamp large frame gaps
   lastTime = now;
   const beat = player.advance(dt);
-  if (player.call) browser.render(beat, player.call);
+  if (player.call) {
+    browser.render(beat, player.call);
+    // Keep the beat box on the playhead, but NEVER while it is being typed into - writing into the
+    // field the user is in the middle of is the classic way a synced readout becomes unusable.
+    if (document.activeElement !== beatInput) beatInput.value = String(Math.round(player.absoluteBeat() * 100) / 100);
+  }
 
   if (!fsmActive) {
     stage.controls.update();

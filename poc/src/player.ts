@@ -68,11 +68,30 @@ export class Player {
     this.phase = 'play';
   }
 
-  /** Seek to a fraction [0,1] of the call (from the scrubber), pausing first. */
-  scrub(f: number): void {
+  /**
+   * The playhead in ABSOLUTE beats: 0 at the start of the lead-in, `totalBeats` at the end.
+   *
+   * This is the scale the progress bar and the beat box work in, and it is not `beat`: `beat` is
+   * call-relative and negative through the lead-in, which is the right thing for evaluation and
+   * the wrong thing to show a caller, who thinks of a call as starting at its first beat and
+   * running to its last.
+   */
+  absoluteBeat(): number {
+    return this.beat + (this.call?.leadin ?? 0);
+  }
+
+  /**
+   * Place the playhead at an ABSOLUTE beat, pausing first.
+   *
+   * This is the manual placement control: it moves the dancers to wherever the call's own paths
+   * put them at that beat, so dragging the bar walks them around the board without playing the
+   * call. It clamps rather than refusing, because a drag can run past either end and the honest
+   * answer there is the start or the end of the call, not the last accepted value.
+   */
+  seekAbsolute(a: number): void {
     if (!this.call) return;
     this.setPlaying(false);
-    this.beat = -this.call.leadin + f * this.call.totalBeats;
+    this.beat = Math.max(-this.call.leadin, Math.min(this.call.totalBeats, a - this.call.leadin));
     this.phase = 'play';
   }
 

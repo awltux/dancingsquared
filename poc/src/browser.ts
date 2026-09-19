@@ -424,9 +424,21 @@ export class CallBrowser {
     return { targets, lines };
   }
 
+  /**
+   * The progress bar: the playhead in ABSOLUTE beats, so the control's own value IS the beat.
+   *
+   * The bar used to be a 0-100 percentage, which made it a scrub without a scale - you could not
+   * read a beat off it, type one in, or compare two calls. Beats are what the data is in and what
+   * the beat box beside it takes, so the bar is beats too, and the readout carries the beat, the
+   * total and the percentage.
+   */
   private updateScrub(call: CallBundle) {
-    const f = (this.player.beat + call.leadin) / call.totalBeats;
-    this.scrub.value = String(f * 100);
+    const abs = this.player.absoluteBeat();
+    this.scrub.max = String(call.totalBeats || 1);
+    this.scrub.step = '0.25';
+    this.scrub.value = String(Math.max(0, Math.min(call.totalBeats, abs)));
+    const pct = call.totalBeats > 0 ? (abs / call.totalBeats) * 100 : 0;
+    this.beatReadout.textContent = `beat ${abs.toFixed(2)} / ${call.totalBeats.toFixed(2)} (${Math.round(pct)}%)`;
   }
 
   /** Render the current frame: pose the views, draw hand holds, update readouts. */
@@ -449,7 +461,7 @@ export class CallBrowser {
       if (t >= acc) idx = k + 1;
     }
     this.partLabel.textContent = idx >= 0 ? `part ${idx + 1}/${parts.length}` : '';
-    this.beatReadout.textContent = `${(t + call.leadin).toFixed(2)} / ${call.totalBeats.toFixed(2)} b`;
+    // The beat readout belongs to `updateScrub`, which is the one place that knows the scale.
     this.updateScrub(call);
   }
 }

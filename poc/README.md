@@ -162,6 +162,22 @@ only contains the browser/renderer layer:
 | `src/assets/*.xml` | taminations data per level (`b1, b2, ms, plus, a1, a2, c1, c2, c3a, c3b`), plus `moves.xml` / `formations.xml` / `calls.xml` (GPL/A-GPL data; license headers preserved). |
 | `verify.cjs` | Headless assertions over the engine + a full-catalog scan. |
 
+## Browse mode: moving the dancers by hand
+
+**Position** is the call's progress bar, and it is a *placement* control rather than only a
+transport one: dragging it PAUSES the call and moves the dancers to wherever the call's own paths
+put them at that beat, so you can walk them around the board a quarter-beat at a time instead of
+watching the whole call. The **beat box** beside it does the same thing exactly — type `3.25` and
+they are there — and both work in **absolute beats**, `0` at the first beat of the call, which is
+what the readout (`beat 3.25 / 12.00 (27%)`) is measuring.
+
+The bar is in beats rather than percent so that its own value is the number the beat box takes: a
+percentage scrubber could not be read off, typed into, or compared between two calls. Dragging past
+either end CLAMPS to the start or the end of the call rather than being refused, because that is the
+honest answer at the end of a drag. The beat box is kept in step with the playhead each frame, but
+never while it has the focus — writing into the field somebody is typing in is the classic way a
+synced readout becomes unusable.
+
 ## Browse mode: the end formation, and naming one
 
 Under the call picker, **End** says what formation the loaded call **finishes in** — the question a

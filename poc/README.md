@@ -265,6 +265,24 @@ instance being edited — and all three preview through the same 3D renderer.
 are ANDed substrings matched against the LEVEL, the TITLE, the file name and every
 setup's `from` label, so `circle`, `ms wave` and `static square` all do what they look
 like they should; the readout says how many calls are left, and **Escape** clears it.
+
+**A generated setup is named by its FORMATION, never by the call.** A setup lives *inside* a call's
+`<tam>` list, so the call is already its address — and every shipped setup is labelled by its `from`
+alone (`Static Square`, `Facing Couples`). Generated ones now read the same way, in the Setup dropdown
+and in the saved list:
+
+| mode | the name it gets |
+|---|---|
+| **Edit instance** / **Clone** | the instance's own `from` — a clone's is the Start setup you picked |
+| **Fix closure** | that setup's `from`; a fix does not change the formation, so it keeps the label (the list already says `fix ·`) |
+| **Create position** | what you type in **Name**, or else the **pre call's END formation**, read from the library (`boardAtBeat` + a board read) — which is the formation the new setup actually starts from, not a pair of call names |
+
+The last row is why the editor asks the host to name a board: without it the only name the editor had
+for a created setup was `preCallId → postCallId`, which is two *call* names where a *formation* name
+belongs. And because a setup's identity is its (call, index) pair, a **replacing** edit (fix or
+instance) is now replaced by setup rather than by name — so an edit saved under the old
+`Call · Formation` label cannot survive beside the new one and shadow it. An **appending** edit
+(create or clone) is still identified by its name, because the name *is* the new setup.
 The box narrows **every** call list in the panel (edit, post and pre) rather than one of
 three identical controls, and **the call you currently have selected is always kept** at
 the top of its list, marked `▸`, whenever the filter excludes it. That last part is not

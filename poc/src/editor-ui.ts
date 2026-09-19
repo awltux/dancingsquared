@@ -29,11 +29,12 @@ import {
   addMove,
   removeMove,
   moveBeatRange,
+  boardAtBeat,
   setStartFormation,
   connectStart,
   endPoseError,
 } from 'dancing-squared-engine';
-import type { CallBundle, FormDancer, Gender, Hands, InstanceDancer, Seg } from 'dancing-squared-engine';
+import type { Board, CallBundle, FormDancer, Gender, Hands, InstanceDancer, Seg } from 'dancing-squared-engine';
 
 import {
   availableCalls,
@@ -64,6 +65,9 @@ export interface EditorHost {
    *  Sourced from the sequencer's formation library - building a second one here would
    *  double the catalogue registration the app already pays for at startup. */
   startFormations(): { name: string; poses: FormDancer[] }[];
+  /** The library's name for a board, or null. Used to NAME a generated setup after the formation it
+   *  starts from, which is what every other setup's label is - see `instanceName`. */
+  nameBoard(board: Board): string | null;
 }
 
 // Warning threshold for a "large" closure correction.
@@ -149,6 +153,9 @@ export class EditorController implements EditorUI {
   private editSetup: CallBundle | null = null;
   private postStart: FormDancer[] | null = null;
   private preEnd: FormDancer[] | null = null;
+  /** The library's name for the pre call's end formation: the start formation of a CREATED setup,
+   *  and therefore what that setup is called. See `loadPre`. */
+  private preEndName: string | null = null;
   private generated: CallBundle | null = null;
   private generatedName = '';
 
@@ -366,9 +373,16 @@ export class EditorController implements EditorUI {
     try {
       const c = loadCall(this.preCallSel.value, parseInt(this.preSetupSel.value || '0', 10), true);
       this.preEnd = this.callEnd(c);
-      this.statusEl.textContent = `pre end — ${c.title}`;
+      // THE PRE CALL'S END FORMATION, by name. It is the formation a CREATED position starts from,
+      // so it is what that setup should be called - and it is one gated engine call away
+      // (`boardAtBeat` reads the board, the host names it), not a guess. Without it the only name
+      // available to the editor was a pair of CALL names, which is exactly what a setup name must
+      // not be.
+      this.preEndName = this.host.nameBoard(boardAtBeat(c, c.beats));
+      this.statusEl.textContent = `pre end — ${c.title}${this.preEndName ? ` → ${this.preEndName}` : ''}`;
     } catch (err) {
       this.preEnd = null;
+      this.preEndName = null;
       this.statusEl.textContent = `pre call failed: ${(err as Error).message}`;
     }
   }
@@ -411,10 +425,17 @@ export class EditorController implements EditorUI {
     return this.modeSel.value === 'instance';
   }
 
-  /** The saved name of an instance edit. Deterministic from the instance, because
-   *  `setApplied` matches a saved edit on its name as well as its call/setup. */
+  /**
+   * The saved name of a generated setup: THE FORMATION ITSELF, with no call name in it.
+   *
+   * A setup lives INSIDE a call's `<tam>` list, so the call is already the address and repeating it
+   * in the label is redundant - and it is not what the corpus does: every shipped setup is labelled
+   * by its `from` alone ("Static Square", "Facing Couples"). A generated one is no different, and the
+   * dropdown and the saved list now read the same way. `loadCall` resolves a setup by its (call,
+   * index) pair, so nothing about uniqueness depended on the call name here.
+   */
   private instanceName(call: CallBundle): string {
-    return `${call.title} · ${call.from || 'default'}`;
+    return call.from || 'default';
   }
 
   /**
@@ -855,7 +876,10 @@ export class EditorController implements EditorUI {
     const target = this.alignToSetup(this.editSetup, this.postStart);
     const fixed = correctEndTo(this.editSetup, target);
     this.generated = fixed;
-    this.generatedName = `${this.editSetup.title} (fixed)`;
+    // A FIX DOES NOT CHANGE THE SETUP'S FORMATION, so it keeps that setup's own label - which is
+    // already a formation name. "(fixed)" was a marker for the saved list, and the list already says
+    // which kind it is (`fix · Static Square`), so the suffix carried nothing but the call name.
+    this.generatedName = this.instanceName(this.editSetup);
     this.host.preview(fixed);
     this.fixInfoEl.textContent =
       `corrected: end formation now ${posErr.toFixed(2)} apart from post-call start` +
@@ -868,7 +892,10 @@ export class EditorController implements EditorUI {
       this.statusEl.textContent = 'pick an edit call+setup, a pre call+setup, and a post call+setup';
       return;
     }
-    const name = this.nameInput.value.trim() || `${this.preCallSel.value} → ${this.postCallSel.value}`;
+    // THE NAME IS THE FORMATION THE NEW SETUP STARTS FROM - the pre call's END formation - or what
+    // the caller typed. It is NEVER a pair of call names: a setup's label is a formation, and the
+    // setup's own (call, index) address is what makes it unique.
+    const name = this.nameInput.value.trim() || this.preEndName || 'new position';
     const beats = parseFloat(this.padInput.value) || 2;
     const start = this.alignToSetup(this.editSetup, this.preEnd);
     const end = this.alignToSetup(this.editSetup, this.postStart);
@@ -1059,7 +1086,9 @@ export class EditorController implements EditorUI {
       setupIdx,
       postCallId: this.postCallSel.value,
       postSetupIdx: parseInt(this.postSetupSel.value || '0', 10),
-      name: this.generatedName || this.nameInput.value.trim() || `${id} → ${this.postCallSel.value}`,
+      // Same rule as `doCreate`: a formation name, never a pair of call names. `preEndName` is the
+      // pre call's END formation, which is where a created setup begins.
+      name: this.generatedName || this.nameInput.value.trim() || this.preEndName || 'new position',
       padBeats: isCreate ? parseFloat(this.padInput.value) || 2 : 1,
     };
     if (base.kind === 'create') {
@@ -1072,7 +1101,20 @@ export class EditorController implements EditorUI {
   private doSave() {
     const spec = this.currentSpec();
     if (!spec) return;
-    this.saved = this.saved.filter((s) => !(s.kind === spec.kind && s.callId === spec.callId && s.setupIdx === spec.setupIdx && s.name === spec.name));
+    // WHAT IDENTIFIES A SAVED EDIT DEPENDS ON WHAT IT DOES TO THE CALL.
+    //
+    // A REPLACING edit (fix / instance) is identified by the SETUP it replaces, so re-saving it
+    // replaces the previous one WHATEVER IT WAS CALLED - and that matters now that names changed
+    // shape: without it, an edit saved under the old "Call · Formation" label would survive
+    // alongside the new "Formation" one, both applied, and `loadCall` would take the first while the
+    // list showed the second.
+    //
+    // An APPENDING edit (create / clone) is identified by its NAME, because the name IS the new
+    // setup - two clones of one call from one setup are two different setups.
+    const replaces = spec.kind === 'fix' || spec.kind === 'instance';
+    this.saved = this.saved.filter(
+      (s) => !(s.kind === spec.kind && s.callId === spec.callId && s.setupIdx === spec.setupIdx && (replaces || s.name === spec.name)),
+    );
     this.saved.push(spec);
     persistEdits(this.saved);
     this.renderSaved();

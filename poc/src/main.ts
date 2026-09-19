@@ -68,6 +68,9 @@ const editorUi = initEditor(stage, {
   preview: (c) => browser.showCall(c),
   focusTrail: (index, range, kind) => browser.setTrailFocus(index, range, kind),
   startFormations: () => seqUi.startFormations(),
+  // Naming a generated setup means naming the FORMATION it starts from; the library is the only
+  // thing that can do that, and it lives in the sequencer.
+  nameBoard: (board) => seqUi.readBoard(board).name,
 });
 
 const playBtn = el<HTMLButtonElement>('play');

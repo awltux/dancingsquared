@@ -2545,6 +2545,21 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     registered at startup, and the panel offers the `<formation>` block for pasting in. `del` forgets
     the label but the LIBRARY keeps the name until reload — said on screen, because unregistering
     mid-session would leave cached reads naming a formation the store no longer holds.
+  - **TWO MISTAKES, TWO CONTROLS, because they are not the same mistake.** A user-defined end
+    formation gets a **detach** (the label is wrong HERE — stop it applying to this call; the
+    formation stays in the corpus and still labels every other call) and a **remove** (the label is
+    wrong — delete it for every call). DETACHING IS NOT A CHANGE TO THE LIBRARY, deliberately:
+    recognition is a geometry question and geometrically the shape IS the shape, so there is nothing
+    to correct; what can be wrong is applying a label to one call. The instance is keyed by
+    `callId` + `setupIdx`, the same identity the editor's saved edits use, and the detach is shown
+    WHERE IT APPLIES (`"X" is detached from this call` + reattach) because a mis-click must not be
+    invisible or permanent. `remove` also drops the detachments that named the formation — the
+    record would otherwise dangle and silently suppress a future formation given the same name.
+  - **AND THE FIELD MUST STOP APPLYING A LABEL WHOSE FORMATION IS GONE**, or the destructive button
+    appears to do nothing: `remove` deletes the STORE entry, the library keeps the name until reload
+    (as chosen), so `applyLabel` declines a user-defined name that is no longer stored — which is
+    exactly what a reload would show. Labelling a board re-attaches it, so a formation detached here
+    and then created again under the same name cannot eat its own work.
   - The new instrument is `node engine/test/tools/editor-instance-probe.mjs`; `verify:light` is green
     (12 harnesses, 36.3 s).
 

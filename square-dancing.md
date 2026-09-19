@@ -1503,9 +1503,24 @@ to 3.1e-16.
 Stored locally and exported for the corpus, like every other authoring path here: a browser cannot write
 `formations.xml`, so the label lives in `localStorage` (`dsUserFormations`), is registered at startup so
 a shape labelled last session is recognised on the first read, and the panel offers the `<formation>`
-block for pasting in. `del` forgets the label but the LIBRARY keeps the name until the page is reloaded —
-said on screen, because a registered shape is the load-bearing part and unregistering mid-session would
-leave cached reads naming a formation the store no longer holds.
+block for pasting in.
+
+**Two mistakes, two controls, because they are not the same mistake.** A user-defined end formation gets
+a **detach** — the label is wrong *here*, so it stops applying to this call while the formation stays in
+the corpus and still labels every other call that ends in it — and a **remove**, which deletes the stored
+formation for every call. Detaching is deliberately NOT a change to the library: recognition is a geometry
+question and geometrically the shape IS the shape, so there is nothing to correct; what can be wrong is
+APPLYING a label to one call. The instance is keyed by `callId` + `setupIdx`, the same identity the
+editor's saved edits use, and the detach is shown WHERE IT APPLIES (`"X" is detached from this call` with
+a **reattach** button), because a mis-click must not be invisible or permanent. `remove` also drops the
+detachments that named the formation — the record would otherwise dangle and silently suppress a future
+formation given the same name.
+
+**And the field must stop applying a label whose formation is gone**, or the destructive button appears
+to do nothing: `remove` deletes the store entry and the library keeps the name until reload (there is no
+unregister, on purpose), so the panel declines a user-defined name that is no longer stored — which is
+exactly what a reload would show. Labelling a board RE-ATTACHES it, so a formation detached here and then
+created again under the same name cannot eat its own work.
 
 
 

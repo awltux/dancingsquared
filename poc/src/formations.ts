@@ -59,5 +59,99 @@ export function addUserFormation(f: UserFormation): UserFormation[] {
 export function removeUserFormation(name: string): UserFormation[] {
   const list = loadUserFormations().filter((x) => x.name !== name);
   saveUserFormations(list);
+  // DROP ITS DETACHMENTS TOO. A detachment says "this formation does not describe that call's
+  // end"; with the formation gone the record is dangling, and leaving it would silently suppress a
+  // FUTURE formation that happened to be given the same name.
+  saveDetachments(loadDetachments().filter((d) => d.formation !== name));
   return list;
+}
+
+// ---------------------------------------------------------------- detaching a label
+
+const DETACH_KEY = 'dsFormationDetachments';
+
+/**
+ * "This user-defined formation does NOT describe THIS call's end."
+ *
+ * WHY THIS IS SEPARATE FROM DELETING THE FORMATION, and why it is keyed by the CALL INSTANCE rather
+ * than by anything geometric: recognition is a geometry question, and geometrically the shape IS the
+ * shape - there is nothing to correct. What can be wrong is the APPLICATION of a label to one call:
+ * a caller labels a shape from one call's end, and on a second call that happens to end in the same
+ * geometry the label reads badly. Detaching is how that is said without throwing away a label that
+ * is right everywhere else.
+ *
+ * It is deliberately NOT a change to the library: the shape keeps matching, so nothing else in the
+ * app inherits a hole. The panel simply declines to apply that name to that instance.
+ */
+export interface DetachedLabel {
+  formation: string;
+  /** The catalogue call id and setup index - the same identity the editor's edits use. */
+  callId: string;
+  setupIdx: number;
+  detachedAt: string;
+}
+
+export function loadDetachments(): DetachedLabel[] {
+  try {
+    const raw = localStorage.getItem(DETACH_KEY);
+    if (!raw) return [];
+    const list = JSON.parse(raw) as DetachedLabel[];
+    return Array.isArray(list) ? list.filter((d) => d && typeof d.formation === 'string' && typeof d.callId === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveDetachments(list: DetachedLabel[]): void {
+  try {
+    localStorage.setItem(DETACH_KEY, JSON.stringify(list));
+  } catch {
+    /* ignore storage failures, as the edit store does */
+  }
+}
+
+export function isDetached(formation: string, callId: string, setupIdx: number): boolean {
+  return loadDetachments().some((d) => d.formation === formation && d.callId === callId && d.setupIdx === setupIdx);
+}
+
+/** Detach a label from one call instance. Returns the new list. */
+export function detachLabel(formation: string, callId: string, setupIdx: number): DetachedLabel[] {
+  const list = loadDetachments().filter((d) => !(d.formation === formation && d.callId === callId && d.setupIdx === setupIdx));
+  list.push({ formation, callId, setupIdx, detachedAt: new Date().toISOString() });
+  saveDetachments(list);
+  return list;
+}
+
+/** Undo a detach. Returns the new list. */
+export function reattachLabel(formation: string, callId: string, setupIdx: number): DetachedLabel[] {
+  const list = loadDetachments().filter((d) => !(d.formation === formation && d.callId === callId && d.setupIdx === setupIdx));
+  saveDetachments(list);
+  return list;
+}
+
+/**
+ * The name the panel should SHOW for a board, given what it detected.
+ *
+ * Two reasons a detected user-defined name is not applied, and they are different in kind:
+ *
+ *  - the formation is NO LONGER STORED. Removing one cannot un-register it from the live library
+ *    (there is no unregister, and cached reads name it), so without this the destructive button
+ *    would appear to do nothing until the page was reloaded. Declining a label whose formation is
+ *    gone makes the field agree with what a reload would show.
+ *  - it was DETACHED from this instance, which is the caller saying the label is wrong HERE.
+ *
+ * A name from the shipped corpus is never filtered: this is about user-defined labels only.
+ */
+export interface AppliedLabel {
+  name: string | null;
+  /** The detected name, when it was NOT applied - so the panel can say which label was detached. */
+  suppressed: string | null;
+  reason: 'detached' | 'not-stored' | null;
+}
+
+export function applyLabel(detected: string | null, userDefined: boolean, callId: string, setupIdx: number): AppliedLabel {
+  if (!detected || !userDefined) return { name: detected, suppressed: null, reason: null };
+  if (!loadUserFormations().some((f) => f.name === detected)) return { name: null, suppressed: detected, reason: 'not-stored' };
+  if (isDetached(detected, callId, setupIdx)) return { name: null, suppressed: detected, reason: 'detached' };
+  return { name: detected, suppressed: null, reason: null };
 }

@@ -9,7 +9,7 @@ import { allPoses, sampleTrail, sampleTrailRange, computeHandholds, assignHomeId
 import type { HeadingMode, HoldMode, Board, CallBundle, CallStep, DancerSpec, Matchable, Pose } from 'dancing-squared-engine';
 import { availableCalls, loadCall } from './data';
 import type { CallInfo } from './data';
-import { addUserFormation, loadUserFormations, removeUserFormation } from './formations';
+import { addUserFormation, applyLabel, detachLabel, loadUserFormations, reattachLabel, removeUserFormation } from './formations';
 import type { UserFormation } from './formations';
 import { modulesUsing, startsAwayFromHome } from './modules';
 import { DancerView, buildHandConnectors } from './scene';
@@ -116,12 +116,26 @@ export class CallBrowser {
       const board = boardAtBeat(call, call.beats);
       this.endBoard = board;
       const read = this.host.readBoard(board);
+      // The call INSTANCE identity, which is what a detach is keyed by - the same
+      // (callId, setupIdx) pair the editor's saved edits use.
+      const callId = this.callSelect.value;
+      const setupIdx = parseInt(this.tamSelect.value || '0', 10);
+      const applied = applyLabel(read.name, read.userDefined, callId, setupIdx);
       const bits: string[] = [];
-      if (read.name) {
-        bits.push(`<b>${esc(read.name)}</b>${read.userDefined ? ' <i>(user-defined)</i>' : ''}`);
-        if (read.curated && read.curated !== read.name) bits.push(`labels as ${esc(read.curated)}`);
+      if (applied.name) {
+        bits.push(`<b>${esc(applied.name)}</b>${read.userDefined ? ' <i>(user-defined)</i>' : ''}`);
+        if (read.curated && read.curated !== applied.name) bits.push(`labels as ${esc(read.curated)}`);
         bits.push(esc(read.notation));
         if (read.arrangement !== null) bits.push(`arrangement ${read.arrangement}`);
+        // A USER-DEFINED label is the caller's own, so it gets its own controls: detach it from
+        // THIS call (the label is wrong here and right elsewhere) or remove it from the corpus
+        // (the label is wrong). Two different mistakes, two different actions.
+        if (read.userDefined) {
+          bits.push(
+            `<button data-act="detach" title="Stop this formation labelling THIS call's end. The formation stays in the corpus and still labels other calls that end in it.">detach</button>`,
+            `<button data-act="remove" title="Delete this formation from the corpus, for every call. The library keeps the name until the page is reloaded, but the field stops applying it at once.">remove</button>`,
+          );
+        }
       } else {
         // NOT NAMED. Say what IS known: the size, the gender pattern, and the notation with its
         // unknowns left as `?` rather than filled in.
@@ -129,19 +143,50 @@ export class CallBrowser {
         bits.push(`${read.dancers} dancers`);
         bits.push(`genders ${read.genderPattern}`);
         if (read.notation.includes('?')) bits.push(esc(read.notation));
+        if (applied.reason === 'detached' && applied.suppressed) {
+          // The detach is shown where it APPLIES, which is also where it can be undone - otherwise
+          // a mis-click would be invisible and permanent.
+          bits.push(
+            `<i>&ldquo;${esc(applied.suppressed)}&rdquo; is detached from this call</i>` +
+              `<button data-act="reattach" title="Apply that formation to this call's end again">reattach</button>`,
+          );
+        }
       }
       this.endFormationEl.innerHTML = bits.join(' · ');
+      this.wireEndFormationActions(applied.suppressed ?? applied.name, callId, setupIdx);
       // A formation is matched only against a board of the SAME dancer count, and the library holds
       // eight-dancer geometries only - so a half-set authoring cannot be named and labelling one
       // would not help. Offer the label only where it can do something.
-      const canLabel = read.name === null && read.dancers === 8;
+      const canLabel = applied.name === null && read.dancers === 8;
       this.labelRow.hidden = !canLabel;
-      if (read.name === null && !canLabel) {
+      if (applied.name === null && !canLabel) {
         this.endFormationEl.innerHTML +=
           ` — <i>a ${read.dancers}-dancer setup: the formation library holds eight-dancer geometries, so this end cannot be named</i>`;
       }
     } catch (err) {
       this.endFormationEl.textContent = `end formation unavailable: ${(err as Error).message}`;
+    }
+  }
+
+  /** The detach / remove / reattach buttons live inside the field's own markup. */
+  private wireEndFormationActions(name: string | null, callId: string, setupIdx: number) {
+    if (!name) return;
+    for (const btn of this.endFormationEl.querySelectorAll<HTMLButtonElement>('button[data-act]')) {
+      const act = btn.dataset.act;
+      btn.addEventListener('click', () => {
+        if (act === 'detach') {
+          detachLabel(name, callId, setupIdx);
+          this.legend.innerHTML = `detached <b>${esc(name)}</b> from this call<br><span class="small">the formation is still in the corpus and still labels other calls</span>`;
+        } else if (act === 'reattach') {
+          reattachLabel(name, callId, setupIdx);
+          this.legend.innerHTML = `re-attached <b>${esc(name)}</b> to this call`;
+        } else if (act === 'remove') {
+          removeUserFormation(name);
+          this.renderUserFormations();
+          this.legend.innerHTML = `removed <b>${esc(name)}</b> from the corpus<br><span class="small">gone for every call; the library keeps the name until the page is reloaded</span>`;
+        }
+        if (this.player.call) this.renderEndFormation(this.player.call);
+      });
     }
   }
 
@@ -165,6 +210,10 @@ export class CallBrowser {
     const formed: UserFormation = { name, dancers, created: new Date().toISOString(), origin };
     addUserFormation(formed);
     this.host.registerFormation(name, dancers);
+    // LABELLING THIS CALL'S END WITH THE NAME IS ALSO A RE-ATTACH. Otherwise a formation that had
+    // been detached here could be created again under the same name and still not show, which is
+    // the one way this feature could eat its own work.
+    reattachLabel(name, this.callSelect.value, parseInt(this.tamSelect.value || '0', 10));
     this.formationNameInput.value = '';
     this.renderUserFormations();
     // Re-read so the field shows the new name rather than the state it was labelled from.
@@ -205,6 +254,9 @@ export class CallBrowser {
         if (!f) return;
         removeUserFormation(f.name);
         this.renderUserFormations();
+        // The End field may have been SHOWING that formation; re-read it so the removal is visible
+        // where it was made rather than only after the next call is picked.
+        if (this.player.call) this.renderEndFormation(this.player.call);
         // The library keeps the name until the page is reloaded: there is no unregister, on
         // purpose (a registered shape is the load-bearing part, and removing it mid-session would
         // leave every cached read naming a formation the store no longer holds).

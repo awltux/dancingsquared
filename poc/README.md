@@ -201,8 +201,36 @@ registry clears the match cache for exactly that reason). The list below it show
 with an **xml** button that copies a `<formation>` block for pasting into
 `poc/src/assets/formations.xml`, and a **del** button that forgets the label.
 
-Three measured facts shape this, all from `node engine/test/tools/end-formation-probe.mjs` (MS level,
-1015 call variants):
+When the end formation **is** user-defined, the field carries two controls, because there are two
+different mistakes and they need different answers:
+
+| control | it means | what it does |
+|---|---|---|
+| **detach** | "this label is wrong *here*" | stops the formation labelling **this call's** end. The formation stays in the corpus and still labels every other call that ends in it. The field then reads `not named`, and the detach is shown *where it applies* — `"X" is detached from this call` with a **reattach** button, because a mis-click must not be invisible or permanent |
+| **remove** | "this label is wrong" | deletes the stored formation, for every call |
+
+**Detaching is not a change to the library**, and that is deliberate: recognition is a geometry
+question, and geometrically the shape *is* the shape — there is nothing to correct. What can be wrong
+is applying a label to one call. So the library keeps matching, nothing else in the app inherits a
+hole, and the panel simply declines the name for that instance (keyed by `callId` + `setupIdx`, the
+same identity the editor's saved edits use).
+
+**Removing** a formation deletes it from the store and drops any detachments that named it — a
+record saying "this formation does not describe that end" is dangling once the formation is gone, and
+leaving it would silently suppress a future formation given the same name. The *library* keeps the
+name until the page is reloaded (there is no unregister, on purpose: a registered shape is the
+load-bearing part, and removing it mid-session would leave every cached read naming a formation the
+store no longer holds). So the field stops applying a label whose formation is no longer stored,
+which is what makes the destructive button visibly work instead of appearing to do nothing; that is
+also exactly what a reload would show.
+
+User-defined formations live in `localStorage` (`dsUserFormations`, detachments in
+`dsFormationDetachments`), not in the corpus, because a browser cannot write `formations.xml` — the
+same local-first, export-for-the-corpus shape the call editor uses. They are registered at startup,
+so a shape labelled in an earlier session is recognised on the first read.
+
+Three measured facts shape the whole feature, all from
+`node engine/test/tools/end-formation-probe.mjs` (MS level, 1015 call variants):
 
 | | |
 |---|---|
@@ -215,13 +243,6 @@ matched only against a board of the same dancer count, and the formation library
 **eight-dancer geometries only** — its constructor mirrors a four-dancer corpus entry to eight and
 drops the original. So a 4-dancer end cannot be named, and labelling one would create a formation
 that is just as unusable. The panel says so rather than offering a button that cannot work.
-
-User-defined formations live in `localStorage` (`dsUserFormations`), not in the corpus, because a
-browser cannot write `formations.xml` — the same local-first, export-for-the-corpus shape the call
-editor uses. They are registered at startup, so a shape labelled in an earlier session is recognised
-on the first read. A **del** only forgets the label: the library keeps the name until the page is
-reloaded, because a registered shape is the load-bearing part and unregistering it mid-session would
-leave every cached read naming a formation the store no longer holds.
 
 ## Call editor mode
 

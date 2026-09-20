@@ -2101,6 +2101,33 @@ Recorded honestly as the one change here that is NOT gated: a probe could assert
 present, which is a different claim from "the sentence fits on one line", and this sandbox cannot render a
 page to check the second one. The instrument for that is the caller's eye.
 
+**A CLONE IS NOT A MODE, WHICH IS WHY THE PANEL WAS SO QUIET ABOUT ONE.** Asked for: "make it more obvious
+that a clone of a call is being worked on". Clicking Clone sets one flag, `asClone`, and that flag changes
+exactly one thing - what Save does, an ADDITION instead of a replacement - while everything else on the panel
+looks identical: the Clone button went back to looking unclicked and the Save button still said "Save". A
+clone in hand with a button saying "Save" is a caller about to overwrite the setup they meant to copy.
+
+So the state is now written in three places at once: a blue **CLONE** bar over the table naming the call and
+the setup that is left as it is (and saying **Reset** goes back to editing that one), the Save button reading
+**Save as new setup**, and the HUD's own edge taking the same blue - the amber palette was already taken by
+"track incomplete", and blue is what this panel uses for what is being edited. One function writes all of it
+(`renderCloneChrome`), because the alternative is the fault this panel has now produced three times: a method
+changes state and a second view of it is not updated.
+
+THE CLONE BUTTON IS DISABLED WHILE A CLONE IS IN HAND, and that is the one behavioural change rather than a
+label. `doClone` RELOADS the catalogue instance, so pressing it a second time silently discarded the
+re-based start and every move edit made since - a destructive button that looked like it was offering to
+help. Its tooltip now says so, and the way back is Reset, which the bar names.
+
+GATED by `poc/tools/clone-chrome-probe.mjs`, in the shape `stage-sync-probe.mjs` established: it parses the
+class and requires every method that writes `asClone` (`loadInstance`, `doClone`, `doStartFormation`) to
+reach the chrome, directly or through `renderInstance`; that the Save button's label has exactly ONE writer,
+which is the chrome; and that the chrome asks the MODE, because the Save button lives outside the instance
+panel and is shared with Fix and Create - so the label cannot outlive the clone it described. It then puts
+two of those faults back - `doClone`'s own chrome pass removed (which is how the code was, and is the button
+a caller actually presses) and the mode handler's pass removed - and requires each to fail. `tsc` clean, all
+twelve POC probes green.
+
 
 
 

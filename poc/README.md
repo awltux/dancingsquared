@@ -803,7 +803,7 @@ faithful"; `poc/src/tam-xml.ts` only answers what a name resolves to here, and e
 resolving against a registered formation, the `No formation` guard, and the three fallbacks to the block)
 and by `poc/tools/formation-ref-probe.mjs` for the wiring.
 
-**Clone onto a different Start setup** — author a NEW setup for a call out of an existing one.A `<tam>` is authored for one start formation and its moves are written in *dancer-local*
+**Clone onto a different Start setup** — author a NEW setup for a call out of an existing one. A `<tam>` is authored for one start formation and its moves are written in *dancer-local*
 coordinates, so re-posing the start re-frames the whole chain and the set stops finishing
 where the call finishes. The three controls are the three steps:
 
@@ -812,6 +812,18 @@ where the call finishes. The three controls are the three steps:
 | **Clone** | starts a NEW setup from this instance; Save/apply will ADD it rather than replace the one it came from |
 | **Start setup** | re-bases the clone's start onto a named formation, keeping every move. The track is now **incomplete**, and the panel says by how much (`track incomplete: 2.86 units / 90° from "Static Square"`) |
 | **Connect** | re-aims the **first move of every dancer** so it walks in from the new start to where the old track resumes. The end formation comes back exactly; no other move changes |
+
+**A clone is announced, because it is not a mode.** The flag changes exactly one thing — what
+**Save** does, an ADDITION rather than a replacement — and everything else on the panel looks
+identical, so the state is written in three places at once: a blue **CLONE** bar over the table
+naming the call and the setup being *left as it is* (and saying **Reset** goes back to editing that
+one), the Save button reading **Save as new setup**, and the HUD's own edge taking the same blue.
+The **Clone** button is then **disabled** — `doClone` re-loads the catalogue instance, so pressing it
+mid-clone would silently throw away the re-based start and every move edit made since.
+`node poc/tools/clone-chrome-probe.mjs` audits the wiring in the source (every writer of the flag
+reaches the one function that draws any of it, the Save label has that one writer, and the chrome asks
+the MODE because the Save button is shared with Fix and Create), and it is **shown to fail** on
+`doClone`'s missing pass and on the mode handler's.
 
 Only **eight-dancer** formations are offered, because `setStartFormation` refuses a count
 mismatch — re-basing eight dancers onto four spots is a gap, not a setup. `listFormations()`

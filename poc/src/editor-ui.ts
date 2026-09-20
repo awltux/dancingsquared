@@ -107,6 +107,10 @@ const POS_WARN = 2.0; // units
 /** The level the editor's call lists open on. See `populateLevels`. */
 const DEFAULT_LEVEL = 'ms';
 
+/** The Clone button's tooltip while a clone is ALREADY being built. See `renderCloneChrome`. */
+const CLONE_BUSY_TITLE =
+  'A clone is already being built. Clone would RE-LOAD the catalogue instance and throw away the re-based start and every move edit made since, so it is off until you Reset back to that setup.';
+
 const HANDS: Hands[] = ['none', 'left', 'right', 'both', 'gripleft', 'gripright', 'gripboth'];
 const GENDERS: Gender[] = ['boy', 'girl', 'phantom'];
 
@@ -338,7 +342,12 @@ export class EditorController implements EditorUI {
   private instInfoEl = el<HTMLSpanElement>('edInstInfo');
   private startFormationSel = el<HTMLSelectElement>('edStartFormation');
   private connectBtn = el<HTMLButtonElement>('edConnect');
+  private cloneBarEl = el<HTMLDivElement>('edCloneBar');
+  private cloneTextEl = el<HTMLSpanElement>('edCloneText');
   private cloneInfoEl = el<HTMLDivElement>('edCloneInfo');
+  /** The Clone button's tooltip from the MARKUP, read once: the panel restores it when the clone is
+   *  abandoned, and keeping the sentence in the HTML means there is only one copy of it. */
+  private readonly cloneTitle = this.cloneBtn.title;
   private formationEl = el<HTMLDivElement>('edFormation');
   private scrubEl = el<HTMLInputElement>('edScrub');
   private beatReadoutEl = el<HTMLSpanElement>('edBeatReadout');
@@ -1180,6 +1189,7 @@ export class EditorController implements EditorUI {
     this.renderDancerPicks();
     this.renderMoveStrip();
     this.renderInstanceInfo();
+    this.renderCloneChrome();
     this.refreshCloneInfo();
     this.syncStageSelection();
     if (this.focusKey) {
@@ -1897,6 +1907,10 @@ export class EditorController implements EditorUI {
     this.fixPanel.hidden = instance || create;
     this.createPanel.hidden = !create;
     this.setHudWide();
+    // The Save button is OUTSIDE the instance panel and shared with the other two modes, so whether it
+    // says "Save" or "Save as new setup" has to be re-asked whenever the mode changes - not only when
+    // the instance does.
+    this.renderCloneChrome();
     this.renderSaved();
     if (instance) {
       // The instance editor has been showing a still frame while another mode was up, so hand the
@@ -1911,10 +1925,15 @@ export class EditorController implements EditorUI {
     }
   }
 
-  /** The instance table needs the width; the other modes do not. */
+  /** The instance table needs the width; the other modes do not - and a clone tints the HUD's edge, which
+   *  is the third place a clone is announced. Both classes are derived here from the same three facts, so
+   *  the HUD cannot say "clone" while the panel says otherwise. */
   private setHudWide() {
     const hud = document.getElementById('hud');
-    if (hud) hud.classList.toggle('ed-instance', this.active && this.isInstanceMode());
+    if (!hud) return;
+    const instance = this.active && this.isInstanceMode();
+    hud.classList.toggle('ed-instance', instance);
+    hud.classList.toggle('ed-clone', instance && this.asClone);
   }
 
   /**
@@ -2022,6 +2041,9 @@ export class EditorController implements EditorUI {
     this.asClone = true;
     this.startFormationSel.value = '';
     this.refreshCloneInfo();
+    // `loadInstance` has already re-rendered with the clone OFF (it resets the flag), so the state
+    // written AFTER it needs its own pass - and this is the call the probe exists to require.
+    this.renderCloneChrome();
     this.statusEl.textContent = 'cloned — pick a Start setup, then Connect';
   }
 
@@ -2075,8 +2097,42 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * How far the edited instance's END formation has drifted from the source track's.
+   * SAY THAT A CLONE IS BEING BUILT, wherever that changes what a control will do.
    *
+   * A clone is not a mode: it is this same editor with `asClone` set, and the ONE thing it changes is what
+   * Save does - it ADDS a setup instead of replacing the one the instance came from. That is invisible on
+   * a panel where the Clone button goes back to looking unclicked and the Save button still says "Save", so
+   * the state is written in three places at once: the bar over the table (which also names the source and
+   * the way back to it), the Save button's own label, and the HUD's edge.
+   *
+   * EVERYTHING THAT CHANGES `asClone` REACHES THIS, and both entry points call it: `renderInstance` for
+   * anything the editor does, and `applyMode` because the Save button lives OUTSIDE the instance panel and
+   * would otherwise keep saying "Save as new setup" in Fix and Create. `poc/tools/clone-chrome-probe.mjs`
+   * audits that, because this is the shape of fault this panel has produced three times already.
+   *
+   * The Clone button is DISABLED while a clone is in hand, and that is not decoration either: `doClone`
+   * RELOADS the catalogue instance, so pressing it mid-clone would silently discard the re-based start and
+   * every move edit made since - a destructive button that looks like it is offering to help.
+   */
+  private renderCloneChrome() {
+    const cloning = this.asClone && this.isInstanceMode();
+    this.cloneBarEl.hidden = !cloning;
+    this.cloneBtn.disabled = cloning;
+    this.cloneBtn.title = cloning ? CLONE_BUSY_TITLE : this.cloneTitle;
+    this.saveBtn.textContent = cloning ? 'Save as new setup' : 'Save';
+    // The HUD's own edge is `setHudWide`'s business; calling it here is what stops the two views of
+    // "is a clone being built" from ever disagreeing.
+    this.setHudWide();
+    if (!cloning) return;
+    const title = this.instance?.title || 'this call';
+    const from = this.source?.from || 'the setup you started from';
+    this.cloneTextEl.innerHTML =
+      `building a <b>new setup</b> of <b>${esc(title)}</b> — <b>Save</b> adds it and leaves ` +
+      `<i>${esc(from)}</i> as it is. <b>Reset</b> goes back to editing that one.`;
+  }
+
+  /**
+   * How far the edited instance's END formation has drifted from the source track's.
    * This is the "now invalid track" made visible: re-posing a start re-frames every move, so
    * the set stops finishing where the call finishes and the editor has to SAY so rather than
    * leave the user to notice it on the stage.

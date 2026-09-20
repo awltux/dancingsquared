@@ -57,6 +57,24 @@ html, body {
 /* The instance editor edits 8 dancers x (start pose + end pose) plus a move's Bezier, so the
    HUD widens while it is showing rather than pushing the table into a horizontal scroll. */
 #hud.ed-instance { max-width: 780px; }
+/* A CLONE IS NOT A MODE, SO IT HAS TO BE SAID OUT LOUD. Clicking Clone changes exactly one thing - what
+   Save does, an ADDITION rather than a replacement - and that is invisible on a panel whose Clone button
+   then looks untouched and whose Save button says "Save". So the state is written in three places at once:
+   this bar over the table, the Save button's own label, and the HUD's edge. The amber palette is taken by
+   "track incomplete", so the clone's colour is the blue the panel already uses for what is being edited.
+   `[hidden]` IS RESTATED because `display: flex` beats the attribute's own `display: none`. */
+.ed-clone-bar {
+  display: flex; align-items: center; gap: 8px; font-size: 11px; line-height: 1.4; color: var(--dim);
+  background: rgba(77, 159, 255, 0.10); border: 1px solid #4d9fff; border-radius: 6px;
+  padding: 5px 8px; margin-bottom: 8px;
+}
+.ed-clone-bar[hidden] { display: none; }
+.ed-clone-bar .ed-clone-tag {
+  color: #0b0f14; background: #4d9fff; border-radius: 4px; padding: 1px 6px;
+  font-size: 10px; letter-spacing: 0.6px;
+}
+.ed-clone-bar span b { color: var(--text); }
+#hud.ed-clone { border-color: #4d9fff; box-shadow: 0 0 0 1px rgba(77, 159, 255, 0.35), 0 8px 30px rgba(0, 0, 0, 0.4); }
 .ed-table { width: 100%; border-collapse: collapse; font-size: 11px; margin: 2px 0 8px; }
 .ed-table th { color: var(--dim); font-weight: 500; text-align: right; padding: 1px 4px; white-space: nowrap; }
 .ed-table th.ed-side { text-align: center; border-bottom: 1px solid #2a3542; }

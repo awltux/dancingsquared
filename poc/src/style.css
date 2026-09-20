@@ -99,7 +99,10 @@ html, body {
    fields used to be 58px here and 50px inside the moves tile, i.e. six characters, so a coordinate was
    cut off and the caller could not read the value they were editing. */
 .ed-grid input[type="number"] { width: 72px; padding: 2px 3px; font-size: 11px; }
-.ed-grid .ed-group { display: flex; gap: 4px; align-items: center; }
+/* `flex-wrap` so a group can never push its contents off the pane: the grid wraps BETWEEN groups, but a group
+   is a nowrap row by default, and six controls in one group (the circle row: label, two fields, two buttons)
+   was a row that could not break - the make-circle button fell off the end of the panel. */
+.ed-grid .ed-group { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
 /* The moves strip: every move of the chosen track in order, so the whole path is visible at
    once. The CURRENT move is tripled in width and carries its numbers; the rest are compact
    tiles that select on click - which is also what moves the track highlight.

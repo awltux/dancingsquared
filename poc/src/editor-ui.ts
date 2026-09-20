@@ -2411,10 +2411,13 @@ export class EditorController implements EditorUI {
       const fit = this.instance ? fitCircleRun(this.instance, i, k, to) : null;
       const beats = all.slice(k, to + 1).reduce((a, g) => a + g.beats, 0);
       const radius = this.circleRadius ?? fit?.r ?? null;
-      const row = document.createElement('span');
-      row.className = 'ed-group';
+      // THREE GROUPS AND NOT ONE, because `.ed-group` is a NOWRAP flex row and `.ed-grid` is the thing that
+      // wraps. Six items in a single group is a row that cannot break, so the button fell off the end of the
+      // pane at the panel's width; as separate groups each label+control pair wraps like every other field.
+      const runWrap = document.createElement('span');
+      runWrap.className = 'ed-group';
       const lab = document.createElement('label');
-      lab.textContent = 'circle';
+      lab.textContent = 'circle to';
       lab.title =
         'Lay a RUN of consecutive moves on one arc, keeping both ends where they are. The run keeps its move count, its beats and its hands; only the shape between its ends is rewritten, and the turn is spread in proportion to the beats. The radius is the continuous choice and the side is the discrete one - the end headings follow from the circle.';
       const toInput = document.createElement('input');
@@ -2431,7 +2434,11 @@ export class EditorController implements EditorUI {
         this.circleRadius = null;
         this.renderInstance(`m${i}:${k}:circle.to`);
       });
-      row.append(lab, toInput);
+      runWrap.append(lab, toInput);
+      grid.appendChild(runWrap);
+
+      const rWrap = document.createElement('span');
+      rWrap.className = 'ed-group';
       const rLab = document.createElement('label');
       rLab.textContent = 'radius';
       const rInput = document.createElement('input');
@@ -2449,7 +2456,11 @@ export class EditorController implements EditorUI {
         this.circleRadius = Number.isFinite(v) && v > 0 ? v : null;
         this.renderInstance(`m${i}:${k}:circle.r`);
       });
-      row.appendChild(rInput);
+      rWrap.append(rLab, rInput);
+      grid.appendChild(rWrap);
+
+      const goWrap = document.createElement('span');
+      goWrap.className = 'ed-group';
       const sideBtn = document.createElement('button');
       sideBtn.type = 'button';
       sideBtn.textContent = this.circleSide === 1 ? '↺' : '↻';
@@ -2466,8 +2477,8 @@ export class EditorController implements EditorUI {
       go.dataset.key = `m${i}:${k}:circle.go`;
       go.title = 'Lay this run on the circle for every selected dancer, each about its own ends.';
       go.addEventListener('click', () => this.doRunCircle());
-      row.append(sideBtn, go);
-      grid.appendChild(row);
+      goWrap.append(sideBtn, go);
+      grid.appendChild(goWrap);
 
       const note = document.createElement('div');
       note.className = 'small';

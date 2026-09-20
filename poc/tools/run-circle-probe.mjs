@@ -50,6 +50,11 @@ has(/go\.addEventListener\('click', \(\) => this\.doRunCircle\(\)\)/, 'and a but
 has(/selectMove\(k, ev\.shiftKey\)/, 'shift-click in the moves strip extends the run');
 has(/this\.circleTo = k;/, 'and that is what the run end is set from');
 has(/in-run/, 'the moves inside the run are drawn as part of the selection, so the range is visible before it is applied');
+// THE REFLOW. `.ed-group` is a nowrap row and `.ed-grid` is the thing that wraps, so the six controls of the
+// circle row in ONE group was a row that could not break and the button fell off the end of the pane. Each
+// label+control pair is its own group now, and a regression to one group is a regression to the overflow.
+has(/grid\.appendChild\(runWrap\)/, 'the circle controls are SEPARATE groups rather than one nowrap row, which is what pushed the button off the pane');
+has(/grid\.appendChild\(goWrap\)/, 'and the buttons are in a group of their own, so they wrap like every other field');
 has(/this\.statusEl\.textContent = `✗ \$\{why\[0\]/, 'a run that no dancer accepted is reported, not swallowed');
 // The refusal is the user's chosen rule, so its TEXT has to reach the screen rather than being replaced by a
 // generic "could not".

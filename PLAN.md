@@ -3882,7 +3882,9 @@ own modes**: *Don't Change* / *Follow Direction of Movement* / *Face a Fixed Dir
 / *Face to a Point*, plus "take N counts to move" interpolating the heading over a range. That is the
 separate `rotate` channel and the "face along travel OR an absolute heading" switch, arrived at independently
 by a mature commercial product in exactly this domain - so the two-channel `Seg` is not an oddity to
-apologise for, it is the feature to protect. (The research prototype **ChoreoVis**, Eurographics 2024,
+apologise for, it is the feature to protect. The domain even *defines* the separation in its own vocabulary:
+glide-step marching distinguishes **sliding**, "keeping the upper body facing a different direction than the
+lower body", from back-marching - which is our 37.8%. (The research prototype **ChoreoVis**, Eurographics 2024,
 `ar5iv.labs.arxiv.org/html/2404.04100v1`, does the same for formation dancing with up to 16 dancers:
 drag-and-drop formations, transition waypoints, per-dancer path-length charts.) **And the same tools show the
 failure mode to avoid:** straight-line interpolation between formations, and endpoint-only authoring. In square
@@ -3916,6 +3918,48 @@ what makes `moves.xml` reusable across formations - so both are wanted, but the 
 one. Today a local-curve edit moves the world path downstream of it, which is exactly the "the board rotated
 when I changed a number" class of surprise. The conversion is mechanical and should be a gate: re-express the
 whole corpus world-first and require a round trip inside the export's own four decimals.
+
+**D2a. And the PATH itself is DERIVED first, with the curve as an OVERRIDE.** This is the architectural
+consensus of the sibling domain and it corrects an implication of D2: Pyware, EnVision, OpenMarch and Drill
+Studio all **auto-generate** the transition when a form is repositioned, and offer curves as an *override*
+(Pyware's `Straighten Paths` and `Curved Shape` toggles); only Field Artist makes path drawing primary. The
+published schema behind the same model - US 9,812,031 - stores **`performers[{coordinates[{setId,x,y}]}]` and
+no paths at all**. So the user's primary act is placing **joints** (which D1 already makes the unit), the path
+between them is *computed*, and the six Bezier numbers are what you get when you press "customise this path".
+That is a better fit for this repo than "the user draws curves", because a library of 500+ calls whose paths
+are all bespoke is not a library - and because it makes the **derivation rule** the thing to get right instead
+of the drawing tool. **The rule must not be a straight line**, which is the documented failure in this same
+domain and one of the five walk-through mechanisms already closed here; the rule to use is the one CALLERLAB
+writes the calls in - *turn, as a unit, a fraction of a circle about a named centre*.
+
+**D2b. A HOLD is its own element, not a zero-length move.** Ultimate Drill Book documents a workaround -
+directors insert a "subset tab" for a "move 8, hold 8" - that exists **only** because the marching model
+conflates a transition with a single interpolated span. This corpus has the same conflation and it has already
+cost us: a `Seg` with zero beats, or with a handle that has collapsed onto its endpoint, is a *hold* wearing a
+move's clothes, and it is exactly the case that produced the **144 of 884** moves with a collapsed exit handle
+and the **22** arcs whose joint could not be turned. Making a hold explicit removes a whole class of
+degenerate cases rather than handling each one.
+
+**D2c. And two cheap derived readouts are worth more than a constraint HUD** (see D6a for why the HUD does not
+work). UDBapp computes and displays **xCounts** - the counts at which a performer crosses each yard line - and
+a **Halfway Point**, both of which are exactly what someone reading a call wants to know. The square-dance
+equivalents are nearly free from what the engine already evaluates: **the count at which each dancer passes the
+centre of the square**, and **where each dancer is halfway through the call**.
+
+**D2d. Coordinates read as "N steps from a named checkpoint".** OpenMarch's model is the cleanest and is open
+source: signed steps from the field centre on one axis, steps from the front on the other, each checkpoint
+carrying a `Short Name` that becomes the *displayed* coordinate, plus a separate `Use as Reference` flag that
+distinguishes visual reference points from real coordinate references. `formations.xml` is already centred at
+the origin, so this is a display and naming layer rather than a data change - and Pyware's Terms tab exists
+purely because every ensemble renames the sides, which for square dancing is "heads/tails", "boys/girls",
+"left/right".
+
+**D2e. One sibling-domain primitive does NOT transfer, and it is worth saying so.** Pyware's interval (spacing)
+box is described as its most transferable idea: locking the spacing makes a form grow by *changing the number
+of positions*, with mixed-interval notation like `5x3,10x2,5x3`. **Square dancing cannot do that** - a square is
+eight dancers and the spacing is a property of the *formation*, not an authoring value - so interval is not a
+free variable here and there is nothing to gain from exposing it. The transferable half is only that spacing
+is *named* and *visible*, which `formations.xml` already does.
 
 **D3. The hard constraints are STRUCTURAL, not solved.** A pinned joint stores a **reference** to a formation
 spot, not coordinates, and the position/facing are *read* from it - so "exactly" cannot drift. A free joint

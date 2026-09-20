@@ -359,6 +359,12 @@ export class EditorController implements EditorUI {
   private scrubEl = el<HTMLInputElement>('edScrub');
   private beatReadoutEl = el<HTMLSpanElement>('edBeatReadout');
   private moveDancerSel = el<HTMLSpanElement>('edDancerPicks');
+  private selNoneBtn = el<HTMLButtonElement>('edSelNone');
+  private selAllBtn = el<HTMLButtonElement>('edSelAll');
+  private selBoysBtn = el<HTMLButtonElement>('edSelBoys');
+  private selGirlsBtn = el<HTMLButtonElement>('edSelGirls');
+  private selMatchBtn = el<HTMLButtonElement>('edSelMatch');
+  private selInfoEl = el<HTMLSpanElement>('edSelInfo');
   private moveStripEl = el<HTMLDivElement>('edMoveStrip');
   private moveInfoEl = el<HTMLSpanElement>('edMoveInfo');
   private moveAddBtn = el<HTMLButtonElement>('edMoveAdd');
@@ -819,6 +825,80 @@ export class EditorController implements EditorUI {
   }
 
   /**
+   * THE DANCERS WHOSE MOVE HERE IS THE SAME SHAPE AS THE ONE THE TILE SHOWS.
+   *
+   * This is `matching`, and it is built out of the SAME comparison the coordinate lock uses (`sameCurve`,
+   * which is the gate itself) rather than a second definition of "the same move": the set it returns is
+   * therefore a set the fields will accept, by construction. The reference is the lowest selected dancer's
+   * move at the selected index - the same dancer the tile is showing - so "matching" answers "who else is
+   * doing this, here".
+   *
+   * `curve` is the tab's curve, because that is what an edit writes: the Move tab selects the dancers whose
+   * PATHS match, the Facing tab those whose TURN matches.
+   */
+  private matchingDancers(curve: CurveKind): number[] {
+    const call = this.instance;
+    if (!call) return [];
+    const ref = call.dancers[this.moveDancer]?.path[this.moveIndex];
+    if (!ref) return [];
+    const out: number[] = [];
+    for (let j = 0; j < call.dancers.length; j++) {
+      const seg = call.dancers[j]?.path[this.moveIndex];
+      if (seg && sameCurve(ref, seg, curve)) out.push(j);
+    }
+    return out;
+  }
+
+  /** The curve the tile is editing, which is the one `matching` and the lock are asked about. */
+  private tabCurve(): CurveKind {
+    return this.moveKind === 'facing' ? 'facing' : 'travel';
+  }
+
+  /**
+   * REPLACE the selection with a set, whoever asked. The one writer of `selectedDancers` outside the
+   * per-dancer ticks, so every bulk pick ends in the same re-render and the same stage sync.
+   *
+   * AN EMPTY SET IS A LEGAL STATE NOW, and that is `none`'s whole purpose: it is how a caller clears eight
+   * ticks before picking two. What it must NOT be is a state where the panel still shows numbers and the
+   * edits go nowhere - so the empty set is reported where the tile would be, no handles are drawn, and the
+   * coordinate gate refuses (`foldMoveChange` already returns null for it: there is nothing to fold).
+   */
+  private setDancerSelection(next: number[], what: string) {
+    this.selectedDancers = new Set(next);
+    this.renderInstance();
+    const n = this.selectedDancers.size;
+    this.statusEl.textContent = n === 0 ? 'no dancers selected — edits have nowhere to go' : `${what}: ${n} dancer${n === 1 ? '' : 's'} selected`;
+  }
+
+  /** The bulk picks, and what each of them can currently do. */
+  private renderSelectRow() {
+    const call = this.instance;
+    const sel = this.selectedSorted();
+    // `matching` needs something to match FROM and a selection that already agrees - the rule as asked for:
+    // it WIDENS a set that can be edited together, and it is not a way to select a disagreeing set.
+    const agrees = sel.length > 0 && this.coordinatesAgree(this.tabCurve());
+    const matches = agrees ? this.matchingDancers(this.tabCurve()) : [];
+    const boys = call ? call.dancers.filter((d) => d.gender === 'boy').length : 0;
+    const girls = call ? call.dancers.filter((d) => d.gender === 'girl').length : 0;
+    // The move buttons need a dancer for the same reason the fields do: `+ Move` on nobody is not a move.
+    this.moveAddBtn.disabled = !call || sel.length === 0;
+    this.moveDelBtn.disabled = !call || sel.length === 0;
+    this.selMatchBtn.disabled = !agrees;
+    this.selAllBtn.disabled = !call;
+    this.selBoysBtn.disabled = !call || boys === 0;
+    this.selGirlsBtn.disabled = !call || girls === 0;
+    this.selNoneBtn.disabled = !call || sel.length === 0;
+    this.selMatchBtn.textContent = matches.length ? `matching (${matches.length})` : 'matching';
+    this.selInfoEl.textContent = !call
+      ? ''
+      : sel.length === 0
+        ? 'nothing selected'
+        : agrees
+          ? `${this.tabCurve() === 'travel' ? 'this path' : 'this turn'} is shared by ${matches.length} of ${call.dancers.length} dancers`
+          : 'the selected dancers do not share this move, so matching has nothing to match on';
+  }
+
+  /**
    * Whether every selected dancer's move at this index carries the SAME LOCAL COORDINATES ON THE CURVE
    * BEING EDITED - which is what "the same shape, rotated to each position" means, and the only case
    * where ONE set of numbers describes them all.
@@ -839,6 +919,10 @@ export class EditorController implements EditorUI {
     const call = this.instance;
     if (!call) return true;
     const sel = this.selectedSorted();
+    // NOWHERE TO WRITE. `none` is a legal selection (see `setDancerSelection`), and the fields are locked
+    // for it rather than live: a field that accepted a number and wrote it to nobody would be the silent
+    // no-op this panel refuses everywhere else.
+    if (sel.length === 0) return false;
     if (sel.length < 2) return true; // one dancer is always editable
     const first = call.dancers[sel[0]]?.path[this.moveIndex];
     if (!first) return false;
@@ -862,6 +946,13 @@ export class EditorController implements EditorUI {
    * call do not always have the same number of moves, and inventing a move would change the track.
    */
   private commitMoveChange(f: (seg: Seg) => Seg, focusKey: string, light = false, curve: CurveKind | null = null) {
+    // NOWHERE TO WRITE IS REFUSED OUT LOUD. Every write in the tile comes through here, including the ones
+    // the coordinate gate does not cover (beats, hands, the explicit-facing box), and a write to an empty
+    // selection would otherwise be a keystroke that quietly did nothing.
+    if (this.selectedDancers.size === 0) {
+      this.statusEl.textContent = 'no dancers selected — pick dancers above the table, or the edit has nowhere to go';
+      return;
+    }
     // THE COORDINATE GATE, enforced HERE as well as in the fields, because the drag path reaches this
     // without going through them: a coordinate change on a selection whose curve differs would collapse
     // them into one shape, which is the whole thing `coordinatesAgree` exists to prevent.
@@ -1248,6 +1339,7 @@ export class EditorController implements EditorUI {
     this.renderDancerPicks();
     this.renderMoveStrip();
     this.renderInstanceInfo();
+    this.renderSelectRow();
     this.renderCloneChrome();
     this.renderEndTarget();
     this.refreshCloneInfo();
@@ -1275,7 +1367,7 @@ export class EditorController implements EditorUI {
    * say "this is the move being edited", and either alone is a board that disagrees with the panel.
    */
   private syncStageSelection() {
-    if (!this.active || !this.isInstanceMode() || !this.instance) {
+    if (!this.active || !this.isInstanceMode() || !this.instance || this.selectedDancers.size === 0) {
       this.host.focusTrail(null, null);
       this.renderHandles();
       return;
@@ -1603,7 +1695,9 @@ export class EditorController implements EditorUI {
       const d = call.dancers[i];
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'ed-pick' + (sel.has(i) ? ' on' : '') + (i === this.moveDancer ? ' focus' : '');
+      // NO FOCUS RING WITH NOTHING SELECTED: `moveDancer` falls back to dancer 0 for the tile's numbers, and
+      // a ring round dancer 1 in a panel that says "nothing selected" reads as a selection that is not there.
+      b.className = 'ed-pick' + (sel.has(i) ? ' on' : '') + (i === this.moveDancer && sel.size > 0 ? ' focus' : '');
       b.textContent = String(i + 1);
       b.title =
         `dancer ${i + 1} (${d.gender}, couple read ${rows[i]?.couple ?? '—'}, ${d.path.length} moves)` +
@@ -1632,6 +1726,13 @@ export class EditorController implements EditorUI {
   private renderMoveStrip() {
     const host = this.moveStripEl;
     host.innerHTML = '';
+    // NOWHERE TO WRITE. With no dancers selected the strip would be showing one dancer's moves as if they
+    // were the edit's target, so it says what is true instead: nothing is selected.
+    if (this.selectedDancers.size === 0) {
+      host.innerHTML = '<i class="small">no dancers selected — the ticks in the table, or the buttons above it, pick who an edit applies to</i>';
+      this.moveInfoEl.textContent = '';
+      return;
+    }
     const moves = this.currentMoves();
     if (moves.length === 0) {
       host.innerHTML = '<i class="small">this dancer has no moves — use + Move to add one</i>';
@@ -1913,8 +2014,10 @@ export class EditorController implements EditorUI {
       const what = curve === 'travel' ? 'move alike' : 'turn alike';
       const size = curve === 'travel' ? `${show(diff?.gap ?? 0)} units apart` : `${show(diff?.gap ?? 0)}deg apart`;
       const tab = curve === 'travel' ? 'Move' : 'Facing';
-      note.textContent = diff
-        ? `coordinates locked: dancer ${this.moveDancer + 1} and dancer ${diff.dancer + 1} do not ${what} here - their ${curve === 'travel' ? 'curves are' : 'facings are'} ${size}. The ${tab} tab edits ${curve === 'travel' ? 'the path' : 'the facing'} alone, so select one dancer to edit it.`
+      note.textContent = this.selectedSorted().length === 0
+        ? 'no dancers selected — this tile has nowhere to write. Pick dancers with the buttons above the table.'
+        : diff
+          ? `coordinates locked: dancer ${this.moveDancer + 1} and dancer ${diff.dancer + 1} do not ${what} here - their ${curve === 'travel' ? 'curves are' : 'facings are'} ${size}. The ${tab} tab edits ${curve === 'travel' ? 'the path' : 'the facing'} alone, so select one dancer to edit it.`
         : `coordinates locked: the ${this.selectedSorted().length} selected dancers do not share this move's ${curve === 'travel' ? 'path' : 'facing'}, and one set of numbers cannot describe several - select one dancer to edit it`;
       grid.appendChild(note);
     }
@@ -2700,6 +2803,25 @@ export class EditorController implements EditorUI {
     // progress. (Reloading the instance here would also have been the one way for a VIEW to
     // destroy work.)
     this.levelSel.addEventListener('change', () => this.applyCallFilter());
+    // THE BULK PICKS. `matching` is the one that asks the data a question - see `matchingDancers` - and the
+    // others are the sets a caller reaches for: nothing, everything, the boys, the girls.
+    this.selNoneBtn.addEventListener('click', () => this.setDancerSelection([], 'none'));
+    this.selAllBtn.addEventListener('click', () => {
+      const call = this.instance;
+      if (call) this.setDancerSelection(call.dancers.map((_, i) => i), 'all');
+    });
+    this.selBoysBtn.addEventListener('click', () => {
+      const call = this.instance;
+      if (call) this.setDancerSelection(call.dancers.map((d, i) => (d.gender === 'boy' ? i : -1)).filter((i) => i >= 0), 'boys');
+    });
+    this.selGirlsBtn.addEventListener('click', () => {
+      const call = this.instance;
+      if (call) this.setDancerSelection(call.dancers.map((d, i) => (d.gender === 'girl' ? i : -1)).filter((i) => i >= 0), 'girls');
+    });
+    this.selMatchBtn.addEventListener('click', () => {
+      if (this.selMatchBtn.disabled) return;
+      this.setDancerSelection(this.matchingDancers(this.tabCurve()), `matching ${this.tabCurve() === 'travel' ? 'paths' : 'turns'}`);
+    });
     this.hideDancersChk.addEventListener('change', () => this.applyViewOptions());
     this.view2dChk.addEventListener('change', () => this.applyViewOptions());
     // The filter narrows the LISTS only, so it never reloads a call: the selected ids are

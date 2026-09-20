@@ -893,6 +893,25 @@ moves have a zero-length exit handle**, where there is no direction to read, and
 With the arc lock on, the end handle is the conic's corner, and the lock wins: the family's promise is that
 the curve stays a quarter arc, which cannot also be a promise about the exit direction.
 
+**A row of bulk dancer picks sits above the table**: `none`, `all`, `boys`, `girls` and `matching`, next to
+the per-dancer ticks in the table's first column. **`matching` is the one with a question in it**: it selects
+every dancer whose move at the selected position is the same shape as the one the tile is showing, and it is
+built from `sameCurve` — *the gate itself* — so the set it picks is a set the fields accept, by construction.
+It is refused unless the current selection already agrees, which is the rule as asked for: it **widens** a set
+that can be edited together rather than being a way to select a disagreeing one. MEASURED over the ms level
+(`node tools/select-row-probe.mjs`): no pair inside any of the **2032** classes it produces is refused by the
+gate, and it is worth having — **every** group has a class bigger than the dancer you started from, mean size
+**3.65** dancers (a call's move is usually done by halves), and 104 of the 1016 travel groups are all eight.
+The measurement's own control: widen the travel window from 0.025 to 4 units and **72 pairs** inside a class
+would be refused by the gate, so the safety claim is a property of the gate's window and not of the grouping.
+
+**`none` is a real state, and the panel refuses to write into it.** An empty selection is how a caller clears
+eight ticks before picking two, so the ticks and the table's checkboxes can now leave nobody selected — and
+everything that would otherwise become a silent no-op says so instead: the strip shows *no dancers selected*
+where the moves would be, the coordinate gate refuses (locking the fields), `+ Move`/`− Move` are disabled,
+no handles are drawn, and a write that reaches `commitMoveChange` — including the ones the coordinate gate
+does not cover, like beats and hands — is refused with a status line rather than doing nothing.
+
 Only **eight-dancer** formations are offered, because `setStartFormation` refuses a count
 mismatch — re-basing eight dancers onto four spots is a gap, not a setup. `listFormations()`
 currently offers 134 formations and *every one of them is eight dancers*

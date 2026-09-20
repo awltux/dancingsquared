@@ -2269,6 +2269,44 @@ with rotation disabled a one-finger drag in the flat view did NOTHING AT ALL - t
 2D" report over again, for anyone on a touchscreen. `touches = { ONE: PAN, TWO: DOLLY_PAN }` now, the same
 re-mapping the left button already had. `tsc` clean, all fifteen POC probes green.
 
+**BULK DANCER PICKS ABOVE THE TABLE, AND `matching` IS THE GATE ASKED THE OTHER WAY ROUND.** Asked for:
+"Above the formation table, add dancer selectors for none, all, boys, girls and matching to make selecting
+dancers more efficient. The matching selector will select all dancers that match the currently selected
+Move(s) that can be edited together, if the currently selected Moves are already editable."
+
+A row of five buttons - `none`, `all`, `boys`, `girls`, `matching` - sits above the table, next to the
+per-dancer ticks in its first column. `all`/`boys`/`girls` read the data and are the sets a caller reaches for;
+`matching` is the one with a question in it, and it is answered with THE GATE'S OWN COMPARISON rather than a
+second definition of "the same move": `matchingDancers` builds its set with `sameCurve` (a half-pixel of
+movement along the travel curve, half a degree of turn for the facing), so the set it picks is a set the
+fields accept, BY CONSTRUCTION. The reference is the lowest selected dancer's move at the selected index -
+the dancer whose values the tile is showing - and the curve is the tab's, because that is what an edit writes.
+
+MEASURED OVER THE ms LEVEL (`poc/tools/select-row-probe.mjs`, 2032 classes): **no pair inside any class is
+refused by the gate**, and the value of the feature is not marginal - EVERY group has a class bigger than the
+dancer it started from, the mean class is **3.65** dancers (a move is usually done by halves: four heads, four
+sides), and 104 of the 1016 travel groups are all eight. The measurement has a control of its own: widen the
+travel window from 0.025 to 4 units and **72 pairs** inside a class would be refused, so "the sets are
+editable together" is a property of the gate's window and not of the grouping.
+
+`matching` IS REFUSED UNLESS THE CURRENT SELECTION ALREADY AGREES, which is the rule as asked for - it widens
+a set that can be edited together, and it is not a way to select a disagreeing one. The button is disabled and
+the row says why ("the selected dancers do not share this move, so matching has nothing to match on"); when it
+is available it carries the count (`matching (4)`), and the row reports what `matching` is looking at ("this
+path is shared by 4 of 8 dancers").
+
+`none` MAKES AN EMPTY SELECTION A LEGAL STATE, and that is a change to an invariant this panel asserted
+everywhere: the set used to be impossible to empty, on the grounds that a panel showing a move with no dancer
+selected is not a state anybody can read. `none` is exactly that state, so it had to be made readable rather
+than forbidden - the strip shows "no dancers selected" where the moves would be, the coordinate gate refuses
+so the fields lock rather than stay live, `+ Move`/`- Move` are disabled, no handles are drawn, no chip is
+drawn as the focus, and `commitMoveChange` refuses ANY write with nothing selected (including the beats and
+hands writes the coordinate gate never covered), because a field that accepts a number and writes it to
+nobody is the silent no-op this panel refuses everywhere else. GATED by `poc/tools/select-row-probe.mjs` -
+the pairwise-gate sweep, the class-size measurement, seven wiring checks and two negative controls (the
+empty-selection guard removed from the write path, and the window widened until the classes stop agreeing).
+`tsc` clean, all sixteen POC probes green.
+
 
 
 

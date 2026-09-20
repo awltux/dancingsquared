@@ -203,6 +203,15 @@
               <i>gender</i> column is the ARRANGEMENT (which spots hold a boy and which a girl); <i>couple</i>
               is a read of the start formation, not a field of the format, so it follows the positions.
             </div>
+            <div class="row" id="edSelectRow">
+              <label title="Bulk ways to pick the dancers an edit applies to. The tick boxes in the table below do one dancer at a time; these do the sets a caller usually wants, and `matching` is the one that answers 'who else is doing this same move here'.">Select</label>
+              <button id="edSelNone" title="Select nobody. The panel then has nowhere to write, and says so instead of showing numbers no edit will reach.">none</button>
+              <button id="edSelAll" title="Select every dancer in the call">all</button>
+              <button id="edSelBoys" title="Select every boy">boys</button>
+              <button id="edSelGirls" title="Select every girl">girls</button>
+              <button id="edSelMatch" title="Select every dancer whose move at the selected position is the same shape as the one the tile is showing — the same comparison the coordinate lock makes, so a set this picks is a set that can be edited together. Only available when the current selection already agrees.">matching</button>
+              <span id="edSelInfo" class="part"></span>
+            </div>
             <div id="edFormation"></div>
             <div class="row">
               <label title="Where the dancers are in the call. The animation is OFF while editing an instance: DRAG THIS to move them by hand along the call.">Position</label>

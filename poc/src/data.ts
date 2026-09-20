@@ -21,6 +21,10 @@ import {
   alignFormationToCore,
   correctEndTo,
   synthesizeSetup,
+  // The Setup label's precedence, and the file's FAMILY, are both owned by the engine so the catalog built
+  // here and `callMeta` cannot drift apart.
+  setupLabel,
+  parseTaminationTitle,
 } from 'dancing-squared-engine';
 import type { CallBundle, FormDancer } from 'dancing-squared-engine';
 
@@ -43,6 +47,8 @@ export interface CallInfo {
   level: string; // display level ("b1" | "ms" | ...)
   file: string; // asset file actually loaded (e.g. "b1/circle")
   title: string; // the specific call's <tam> title
+  /** The `<tamination title>` of the file this call lives in - the FAMILY. `Export All` groups tams under it. */
+  family: string | null;
   setups: { label: string; from: string }[];
   tamIndices: number[]; // indices into the file's <tam> list for this title
   isAlias?: boolean; // true for b1/b2/ssd level aliases
@@ -150,13 +156,20 @@ export class Catalog {
       byTitle.set(key, arr);
     });
     const out: CallInfo[] = [];
+    // THE FAMILY, once per file: the `<tamination title>` every call in this file is filed under, so an export
+    // can group its tams the way the corpus does and be pasted back where it came from.
+    const family = parseTaminationTitle(this.levelXml.get(`./assets/${file}.xml`) ?? '');
     for (const [title, indices] of byTitle) {
       out.push({
         id: `${file}::${title}`,
         level,
         file,
         title,
-        setups: indices.map((i) => ({ label: tams[i].from || '(default)', from: tams[i].from })),
+        family,
+        // THE FORMATION, NOT THE `from` LABEL - this is the list the Setup dropdown shows, and it is built HERE
+        // rather than through `callMeta` (this walk needs the tam INDICES as well as the labels, so it reads
+        // the file itself). `setupLabel` is the one place that decides the precedence, so the two reads agree.
+        setups: indices.map((i) => ({ label: setupLabel(tams[i].formationAttr, tams[i].from), from: tams[i].from })),
         tamIndices: indices,
       });
     }
@@ -181,6 +194,7 @@ export class Catalog {
           level,
           file: found.file,
           title: found.title,
+          family: found.family,
           setups: found.setups,
           tamIndices: found.tamIndices,
           isAlias: true,

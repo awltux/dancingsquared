@@ -370,6 +370,7 @@ export class EditorController implements EditorUI {
   private exportBtn = el<HTMLButtonElement>('edExport');
   private statusEl = el<HTMLSpanElement>('edStatus');
   private savedEl = el<HTMLDivElement>('edSaved');
+  private exportAllBtn = el<HTMLButtonElement>('edExportAll');
   private xmlEl = el<HTMLTextAreaElement>('edXml');
   private hideDancersChk = el<HTMLInputElement>('edHideDancers');
   private view2dChk = el<HTMLInputElement>('edView2d');
@@ -3222,6 +3223,85 @@ export class EditorController implements EditorUI {
     }
   }
 
+  /**
+   * EXPORT ALL: every saved edit, grouped the way the corpus files them.
+   *
+   * Asked for: "add an 'Export All' button that copies all the created calls. Each tam should be inside a
+   * tamination element under its appropriate family title (this should match the existing tamination). Add a
+   * filepath property to taminations, to make it easier to find the file to update. Also add a type property
+   * that indicates either 'clone' or 'update'."
+   *
+   * THE FAMILY IS THE FILE'S OWN `<tamination title>`, not a name invented here - a file groups its calls under
+   * one title (`arm_turns.xml` holds "Turn Partner by the Right", "Left Arm Turn 3/4" and more under "Arm
+   * Turns"), and a block that has to be merged back needs to say which title it belongs beneath rather than
+   * guess. The `filepath` rides on the same element because the title alone does not say WHICH FILE.
+   *
+   * AND `type` IS THE APP'S OWN WORD FOR WHAT THE EDIT DOES, which it already distinguishes in `doSave`: a
+   * REPLACING edit (fix, instance) is identified by the setup it replaces, and an APPENDING one (create, clone)
+   * is identified by its name because the name IS the new setup. So `update` and `clone` are not a new
+   * taxonomy - they are the two things the editor has been doing all along, written where the corpus can see
+   * them.
+   *
+   * EVERY TAM IS REBUILT rather than replayed from `s.xml`: only an instance or a clone carries its XML, and a
+   * fix or a create is synthesized on demand - so replaying `s.xml` would silently export two thirds of the
+   * list and say nothing about the rest.
+   */
+  private doExportAll() {
+    if (this.saved.length === 0) {
+      this.statusEl.textContent = 'nothing saved to export';
+      return;
+    }
+    const groups = new Map<string, { family: string | null; filepath: string; tams: string[] }>();
+    const problems: string[] = [];
+    let exported = 0;
+    for (const s of this.saved) {
+      const entry = this.catalog.find((c) => c.id === s.callId);
+      let built: CallBundle;
+      try {
+        built = rebuildEdit(s);
+      } catch (err) {
+        problems.push(`${s.name}: ${(err as Error).message}`);
+        continue;
+      }
+      const tamXml = callTamXml(built, s.name).match(/<tam\b[\s\S]*?<\/tam>/)?.[0];
+      if (!tamXml) {
+        problems.push(`${s.name}: no <tam> in the export`);
+        continue;
+      }
+      // The type the corpus is told: a replacing edit UPDATES a tam that is there, an appending one is a CLONE.
+      const type = s.kind === 'fix' || s.kind === 'instance' ? 'update' : 'clone';
+      // Inserted as the FIRST attribute, which is the one place the shape is certain - the exporter always
+      // writes `<tam title=".."`. A miss is REPORTED rather than exported untyped.
+      const typed = tamXml.replace('<tam ', `<tam type="${type}" `);
+      if (typed === tamXml) {
+        problems.push(`${s.name}: could not write the type onto the <tam>`);
+        continue;
+      }
+      const key = entry?.file ?? `?${s.callId}`;
+      const group = groups.get(key) ?? {
+        family: entry?.family ?? null,
+        filepath: entry ? `poc/src/assets/${entry.file}.xml` : '(unknown file)',
+        tams: [],
+      };
+      group.tams.push(typed);
+      groups.set(key, group);
+      exported++;
+    }
+    if (exported === 0) {
+      this.statusEl.textContent = `X nothing could be exported${problems.length ? ` - ${problems[0]}` : ''}`;
+      return;
+    }
+    const blocks = [...groups.values()].map((g) => {
+      const open = `<tamination title="${esc(g.family ?? 'Unknown')}" filepath="${esc(g.filepath)}">`;
+      return `${open}\n${g.tams.join('\n\n')}\n</tamination>`;
+    });
+    const out = `${blocks.join('\n\n')}\n`;
+    this.xmlEl.value = out;
+    void navigator.clipboard?.writeText(out);
+    this.statusEl.textContent =
+      `exported ${exported} saved call${exported === 1 ? '' : 's'} in ${blocks.length} tamination${blocks.length === 1 ? '' : 's'} (copied)` +
+      (problems.length ? ` - ${problems.length} skipped: ${problems[0]}` : '');
+  }
   private renderSaved() {
     this.savedEl.innerHTML = '';
     if (this.saved.length === 0) {
@@ -3293,6 +3373,7 @@ export class EditorController implements EditorUI {
     this.createBtn.addEventListener('click', () => this.doCreate());
     this.saveBtn.addEventListener('click', () => this.doSave());
     this.exportBtn.addEventListener('click', () => this.doExport());
+    this.exportAllBtn.addEventListener('click', () => this.doExportAll());
     this.showTargetBtn.addEventListener('click', () => this.showTarget());
     this.showEndBtn.addEventListener('click', () => this.showEnd());
     this.showStartBtn.addEventListener('click', () => this.showStart());

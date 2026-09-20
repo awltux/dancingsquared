@@ -1270,6 +1270,34 @@ formation or gives a named one an alternative name, and `buildCallImpl` resolves
 reversed, with `from` as the **fallback** (an embedded formation has no `formation` attribute, so its `from` is
 the only name there is). MEASURED over four levels: **1876 of 2657** setups now read differently, and **847**
 setups with a blank `from` are named by their formation instead of collapsing to `(default)`.
+**`Export All` copies every saved edit, grouped the way the corpus files them.** Asked for as: *"add an 'Export
+All' button that copies all the created calls. Each tam should be inside a tamination element under its
+appropriate family title (this should match the existing tamination). Add a filepath property to taminations...
+Also add a type property that indicates either 'clone' or 'update'."*
+
+Each block is filed under the **file's own `<tamination title>`**, not a name invented here. A file groups all
+its calls under one title — `arm_turns.xml` holds *Turn Partner by the Right*, *Left Arm Turn 3/4* and more
+under **Arm Turns** — so a block that has to be merged back says which title it belongs beneath rather than
+guessing. MEASURED (`poc/tools/export-all-probe.mjs`): **553 of 554** call files carry a `<tamination title>`,
+in **486** distinct families, and **63 families are shared by more than one file** — which is exactly why the
+`filepath` rides on the element too, since the title alone does not say *which* file.
+
+**`type` is the app's own word, not a new taxonomy.** `doSave` already distinguishes a **replacing** edit
+(`fix`, `instance` — identified by the setup it replaces) from an **appending** one (`create`, `clone` —
+identified by its name, because the name *is* the new setup). The export writes those two as `update` and
+`clone`, and the probe checks the two predicates are the same expression.
+
+```
+<tamination title="Circle Family" filepath="poc/src/assets/ms/circle.xml">
+  <tam type="clone" title="Circle Left" from="Circle" formation="Circle" ...>
+```
+
+**And the Setup label fix had to be made twice.** The precedence went into `callMeta` first — and `callMeta`'s
+own output was measured — but **the Setup dropdown does not read `callMeta` at all**: `data.ts` walks the file
+itself (it needs the tam *indices* as well as the labels) and built labels from `tams[i].from` directly. The
+engine read said "1876 of 2657 changed" while the dropdown was untouched. The rule now lives in **one exported
+function**, `setupLabel`, that both call sites use, and `saved-label-probe.mjs` measures it on the tams the
+dropdown is actually built from: **1249 of 1879** setups over three levels read differently from their `from`.
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

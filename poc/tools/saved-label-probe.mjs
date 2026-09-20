@@ -92,5 +92,43 @@ for (const r of rows.filter((x) => x.start === x.end).slice(0, 3)) {
   console.log(`      ${r.start} → ${r.title} → ${r.end}`);
 }
 
+// ============================================================ 3. and the SETUP label's real source
+//
+// THE FIRST ATTEMPT AT THIS FIXED THE WRONG LAYER. `callMeta` was changed to prefer the formation, and it was
+// MEASURED on `callMeta`'s own output - but the Setup dropdown does not read `callMeta` at all: `data.ts` walks
+// the file itself (it needs the tam INDICES as well as the labels) and built the labels from `tams[i].from`
+// directly. So the engine read said "1876 of 2657 changed" while the dropdown was untouched.
+//
+// The precedence now lives in ONE exported function (`setupLabel`) that BOTH call sites use, and this checks the
+// half that was missed: that the catalog the dropdown is filled from goes through it.
+console.log('\n== 3. The Setup dropdown names a setup by its FORMATION ==');
+const data = fs.readFileSync(path.join(POC_DIR, 'src', 'data.ts'), 'utf8');
+check(/setups: indices\.map\(\(i\) => \(\{ label: setupLabel\(tams\[i\]\.formationAttr, tams\[i\]\.from\), from: tams\[i\]\.from \}\)\)/.test(data),
+  'the catalogue builds each setup label through `setupLabel`, which is the list the dropdown is filled from');
+check(!/label: tams\[i\]\.from \|\| '\(default\)'/.test(data),
+  'and the old `from`-first label is GONE from that line rather than left beside it');
+const engineSrc = fs.readFileSync(path.join(POC_DIR, '..', 'engine', 'src', 'convert.ts'), 'utf8');
+check(/export function setupLabel\(formation: string \| null, from: string\): string \{\s*\n\s*return formation \|\| from \|\| '\(default\)';/.test(engineSrc),
+  'and the precedence itself is one exported function, so the catalogue and `callMeta` cannot drift apart');
+check(/label: setupLabel\(t\.formationAttr, t\.from\)/.test(engineSrc),
+  'which `callMeta` uses too - the two reads carry the same rule because they call the same thing');
+// MEASURED at the layer the dropdown sees: the raw `<tam>` list of every file in a level.
+let labeled = 0;
+let sameAsFrom = 0;
+let fromBlank = 0;
+for (const lvl of ['ms', 'b1', 'a1']) {
+  for (const f of fs.readdirSync(path.join(assets, lvl)).filter((x) => x.endsWith('.xml'))) {
+    let tams = [];
+    try { tams = engine.parseCallXml(asset(`${lvl}/${f}`)); } catch { continue; }
+    for (const t of tams) {
+      labeled++;
+      if (engine.setupLabel(t.formationAttr, t.from) === t.from) sameAsFrom++;
+      if (!t.from.trim()) fromBlank++;
+    }
+  }
+}
+console.log(`    ${labeled} setups over three levels: ${labeled - sameAsFrom} of them read differently from their \`from\`, and ${fromBlank} have a blank \`from\``);
+check(labeled - sameAsFrom > 100, 'so the dropdown really does change, measured on the tams it is built from rather than on an engine read that nothing there calls');
+
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');
 process.exit(failures ? 1 : 0);

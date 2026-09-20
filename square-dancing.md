@@ -2642,3 +2642,30 @@ fallback (an embedded formation has no `formation` attribute, so its `from` is t
 over ms/b1/a1/c2: 1876 of 2657 setups read differently, and 847 setups with a blank `from` are named by their
 formation instead of collapsing to `(default)`. This is the engine's shared `callMeta`, so the browse view's
 setup list changes with the editor's - which is the point, they are the same control.
+
+EXPORT ALL, AND A CORRECTION TO THE PREVIOUS COMMIT. Asked for: "add an 'Export All' button that copies all the
+created calls. Each tam should be inside a tamination element under its appropriate family title (this should
+match the existing tamination). Add a filepath property to taminations, to make it easier to find the file to
+update. Also add a type property that indicates either 'clone' or 'update'."
+
+The button sits directly under the saved list and walks it, rebuilding EVERY edit rather than replaying `s.xml` -
+only an instance or a clone carries XML, and a fix or a create is synthesized on demand, so replaying the stored
+XML would have silently exported two thirds of the list. Each tam is wrapped in a `<tamination>` carrying the
+file's OWN `<tamination title>` (measured: 553 of 554 call files carry one, in 486 distinct families) plus a
+`filepath` built from the catalogue entry the edit came from - and the filepath is not decoration, because 63
+families are shared by more than one file, so the title alone does not say which file to edit. The `type` is the
+app's own distinction: `doSave` already calls fix/instance REPLACING and create/clone APPENDING, and the export
+writes those as `update` and `clone`; the probe checks the two predicates are the same expression rather than two
+opinions.
+
+AND THE PREVIOUS COMMIT'S SETUP-LABEL FIX WAS MADE AT THE WRONG LAYER. `callMeta` was changed to prefer the
+formation and the change was MEASURED on `callMeta`'s own output (1876 of 2657 differ) - but the Setup dropdown
+does not read `callMeta` at all: `data.ts` walks the file itself, because it needs the tam INDICES as well as the
+labels, and built each label from `tams[i].from` directly. So the engine read changed and the dropdown did not.
+The precedence now lives in ONE exported function, `setupLabel`, used by both call sites, and
+`poc/tools/saved-label-probe.mjs` measures it on the tams the dropdown is actually built from: 1249 of 1879
+setups over ms/b1/a1 read differently from their `from`. The lesson is the one that keeps recurring here - an
+instrument's silence is not a pass, and a measurement is only about the layer it was taken at.
+
+Also adds `CallMeta.family` and `CallInfo.family` (the file's tamination title) and `parseTaminationTitle`, which
+`Export All` needs to file each block correctly.

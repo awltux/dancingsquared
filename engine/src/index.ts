@@ -215,6 +215,7 @@ export {
   loadCallFromXml,
 } from './convert.js';
 export type { CallMeta } from './convert.js';
+export { setupLabel, parseTaminationTitle } from './convert.js';
 // The four values of the `<tam sequencer="…">` attribute. Only `no` is behaviour-bearing so
 // far: it marks a demonstration animation the sequencer must not match. `perimeter` and
 // `exact` are carried but not yet acted on — see the note on `SequencerMode`.

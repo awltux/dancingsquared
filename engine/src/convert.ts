@@ -444,6 +444,8 @@ export function buildCall(
 
 export interface CallMeta {
   title: string;
+  /** The `<tamination title>` this file's calls live under - the FAMILY, for grouping an export. */
+  family: string | null;
   setups: { label: string; from: string }[];
 }
 
@@ -467,25 +469,40 @@ export function formationToXml(name: string, dancers: { x: number; y: number; he
   );
   return `  <formation name="${esc(name)}">\n${lines.join('\n')}\n  </formation>`;
 }
+/**
+ * A setup's identifying name: its FORMATION, with the `from` label as the fallback.
+ *
+ * ONE FUNCTION RATHER THAN TWO COPIES OF THE SAME PRECEDENCE. `from` is free text FOR THE USER - it labels an
+ * EMBEDDED formation or gives a named one an alternative name - and `buildCallImpl` resolves the dancers from
+ * `formationAttr` and never from it. So a Setup list named by `from` names the setup by something that need not
+ * be a formation at all: the corpus writes `from="Lines"` for a tam whose formation is `Normal Lines`, and
+ * `from=""` for tams that name themselves entirely through `formation`.
+ *
+ * AN EMBEDDED formation has no `formation` attribute, so its `from` is the only name there is - which is why
+ * `from` is the fallback rather than discarded.
+ */
+export function setupLabel(formation: string | null, from: string): string {
+  return formation || from || '(default)';
+}
+
+/**
+ * The `<tamination>` a file's tams live in: the FAMILY the call belongs to, and the attribute a block of
+ * exported tams is grouped under so it can be pasted back into the file it came from.
+ */
+export function parseTaminationTitle(xmlText: string): string | null {
+  const el = byTag(parseXML(xmlText), 'tamination')[0];
+  const title = el?.getAttribute('title');
+  return title ? title : null;
+}
+
 export function callMeta(xmlText: string): CallMeta {
   const tams = parseCallXmlImpl(xmlText);
   return {
     title: tams[0]?.title ?? '',
-    // THE LABEL IS THE FORMATION'S NAME, NOT THE `from` LABEL. Asked for as: "The dropdown for the Setup should
-    // only use the Formation name."
-    //
-    // `from` is free text FOR THE USER - it labels an EMBEDDED formation, or gives a named one an alternative
-    // name - and `buildCallImpl` resolves the dancers from `formationAttr` and never from it (see line 324). So
-    // a Setup list built on `from` names the setup by something that need not be a formation at all: the corpus
-    // writes `from="Lines"` for a tam whose formation is `Normal Lines`, and `from=""` for tams that name
-    // themselves entirely through `formation`.
-    //
-    // So the preference is reversed, and `from` is the FALLBACK rather than the first choice: an embedded
-    // formation has no `formation` attribute and its `from` is the only name there is.
-    //
-    // `from` is still carried beside it, because the call-name filter searches it and because a tam that has
-    // one is still identified by it in the corpus's own files.
-    setups: tams.map((t) => ({ label: t.formationAttr || t.from || '(default)', from: t.from })),
+    // The FAMILY the file groups its calls under, which is what a merged export has to be filed beneath.
+    family: parseTaminationTitle(xmlText),
+    // THE LABEL IS THE FORMATION'S NAME, NOT THE `from` LABEL - see `setupLabel`.
+    setups: tams.map((t) => ({ label: setupLabel(t.formationAttr, t.from), from: t.from })),
   };
 }
 

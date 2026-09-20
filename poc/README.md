@@ -1088,6 +1088,16 @@ travel and **62.2%** are forward within 10° — but **2.3%** are **backward** a
 **37.8%** are more than 10° off. A single direction per point, which is what most path editors have (the
 tangent), cannot express this corpus at all: a `Wheel` is a dancer walking backwards on purpose.
 
+**And the stored LOCAL form is an exact restatement of the WORLD path, which is what makes the editor's choice
+of space free.** The format is incremental: move *k*'s six numbers are a curve in the frame the dancer stands
+in when move *k* **starts**, and the frames chain. Part 6 states the prediction the design rests on —
+*`world position = start pose + R(heading) · local curve`, `world heading = start heading + local angle
+profile`* — and checks it **against `poseFor` as written** (which composes transforms, so agreement is a real
+test rather than a restatement): over **1037564** samples the position agrees to **7.2e-15 units** and the
+heading to **4.1e-13°**. So the two spaces carry the same information, a joint can be dragged in world space
+with the local numbers recomputed, and the local form is kept where it belongs — as the reusable library
+format, which is the whole reason `moves.xml` works across formations.
+
 **And the first draft of this probe was wrong in a way worth recording.** It asked `arcOf` whether
 the circle-fitting curves were quarter arcs by handing it the whole `Seg` rather than
 `seg.translate`; `arcOf` then read `undefined` for all six coordinates and returned a NaN object for

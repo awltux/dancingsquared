@@ -361,5 +361,53 @@ console.log(`    facing vs direction of travel: median ${median(facings).toFixed
 console.log(`    ${pct(forward, facings.length)}% face FORWARD (within ${SIDE_TOL}deg of travel), ${pct(backward, facings.length)}% face BACKWARD, ${pct(sideways, facings.length)}% are SIDEWAYS`);
 check(backward + sideways > 0, 'a dancer really does travel while NOT facing the way it goes - so a single direction per point (the tangent, as most path editors have) cannot express this corpus');
 
+// ============================================================ 6. is LOCAL storage a restatement of WORLD paths?
+//
+// THE CLAIM EVERY "edit in world space" DESIGN RESTS ON, and it is checkable rather than arguable. The stored
+// form is incremental: move k's six numbers are a curve in the frame the dancer stands in when move k STARTS,
+// and the frames chain. If that chaining is exactly a rigid frame per move, then (boundary position, boundary
+// heading, world curve) and (the stored local curves) carry the SAME information, and an editor may work in
+// either - so a joint can be dragged in world space and the local numbers recomputed, instead of the other way
+// round, which is what the panel does today and why editing a number moves the board.
+//
+// THE PREDICTION, stated so it can fail: for move k, with (pk, hk) the pose where the move starts,
+//     world position at t = pk + R(hk) . translate_k(t)
+//     world heading  at t = hk + bezierAngle(rotate_k ?? translate_k, t)
+// This is not how `poseFor` is written - it composes transforms - so agreement is a real check of the model,
+// not a restatement of the code. The heading side is the one that matters, because it is where the facing
+// channel and the path tangent meet.
+console.log('\n== 6. Is the local (stored) form an exact restatement of the world path? ==');
+let worstPos = 0;
+let worstHead = 0;
+let samples = 0;
+let worstAt = null;
+for (const { level, file, call } of calls) {
+  call.dancers.forEach((dancer, i) => {
+    dancer.path.forEach((seg, k) => {
+      const r = engine.moveBeatRange(dancer, k);
+      const start = engine.poseFor(dancer, k === 0 ? 0 : engine.moveBeatRange(dancer, k - 1).to);
+      const cos = Math.cos(start.heading);
+      const sin = Math.sin(start.heading);
+      for (let s = 0; s <= 10; s++) {
+        const t = s / 10;
+        const beat = r.from + (r.to - r.from) * t;
+        const truth = engine.poseFor(dancer, beat);
+        const lp = engine.bezierPoint(seg.translate, t);
+        const pred = { x: start.x + cos * lp.x - sin * lp.y, y: start.y + sin * lp.x + cos * lp.y };
+        const dp = Math.hypot(pred.x - truth.x, pred.y - truth.y);
+        // The predicted heading is the frame's heading plus the local angle profile of the FACING curve.
+        const predHead = norm(start.heading + engine.bezierAngle(seg.rotate ?? seg.translate, t));
+        const dh = Math.abs(norm(predHead - truth.heading));
+        samples++;
+        if (dp > worstPos) worstPos = dp;
+        if (dh > worstHead) { worstHead = dh; worstAt = `${level}/${file} dancer ${i + 1} move ${k + 1} t=${t}`; }
+      }
+    });
+  });
+}
+console.log(`    ${samples} samples over every move of every dancer; worst position disagreement ${worstPos.toExponential(2)} units`);
+console.log(`    worst HEADING disagreement ${(worstHead * DEG).toExponential(2)}deg${worstAt ? ` (${worstAt})` : ''}`);
+check(worstPos < 1e-9 && worstHead < 1e-9, 'the stored local curves and (boundary pose + world curve) carry the SAME information to float precision, so an editor may freely choose which space the user works in');
+
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');
 process.exit(failures ? 1 : 0);

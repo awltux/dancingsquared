@@ -2444,3 +2444,11 @@ median of 0.0deg off the direction of travel and 62.2% are forward within 10deg 
 3.5% are SIDEWAYS, so 37.8% are more than 10deg off. A single direction per point, which is what most path
 editors have (the tangent), cannot express this corpus at all: a `Wheel` is a dancer walking backwards on
 purpose, and the second channel is why the format can say so.
+
+AND THE STORED LOCAL FORM IS AN EXACT RESTATEMENT OF THE WORLD PATH, which is the premise the "edit in world
+space" design rests on and it is checkable. The prediction - world position = start pose + R(heading) . local
+curve, and world heading = start heading + local angle profile - is checked against `poseFor` AS WRITTEN (which
+composes transforms, so agreement is a test rather than a restatement): over 1037564 samples the position
+agrees to 7.2e-15 units and the heading to 4.1e-13deg. So the two spaces carry the same information, a joint
+can be dragged in world space with the local numbers recomputed, and the local form stays where it belongs - as
+the reusable library format, which is why `moves.xml` works across formations at all.

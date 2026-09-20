@@ -1298,7 +1298,13 @@ export class EditorController implements EditorUI {
         handles.push({ id: `d${d}:r3`, anchor: c2, point: p3, color: HANDLE_COLOR.facing });
       } else {
         handles.push({ id: `d${d}:r1`, anchor: origin, point: c1, color: HANDLE_COLOR.facing });
-        handles.push({ id: `d${d}:r2`, anchor: c1, point: c2, color: HANDLE_COLOR.facing });
+        // r2 IS ANCHORED ON THE POINT THE CURVE ENDS AT, like every other handle here - the travel branch
+        // anchors its second control on the move's end pose for the same reason. It used to be anchored on
+        // `c1`, which drew the line from one CONTROL POINT to the other: a line that says nothing about where
+        // the curve finishes, on the one shape whose whole meaning is where the dancer finishes facing.
+        // Reported as: "It connects from the control point to the other control point. It should connect to the
+        // end point."
+        handles.push({ id: `d${d}:r2`, anchor: p3, point: c2, color: HANDLE_COLOR.facing });
       }
       // The cubic the engine evaluates, sampled in the same local frame as the dots and transformed by
       // the same `world`, so the curve, the dots and the tile's numbers are one picture of one thing.

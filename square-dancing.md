@@ -2669,3 +2669,20 @@ instrument's silence is not a pass, and a measurement is only about the layer it
 
 Also adds `CallMeta.family` and `CallInfo.family` (the file's tamination title) and `parseTaminationTitle`, which
 `Export All` needs to file each block correctly.
+
+THE FACING CURVE'S HANDLES WERE DRAWN WITH THE WRONG ARM. Reported: "The bezier controls for the Facing curve
+display the connecting lines for the end point incorrectly. It connects from the control point to the other
+control point. It should connect to the end point."
+
+A handle's line runs from its ANCHOR to its dot, so it is the ARM of the cubic - the segment from an END of the
+curve out to one of its controls. The facing branch anchored its second control on `c1`, which drew
+control-point-to-control-point: a line that is not part of the curve at all and says nothing about where the
+dancer finishes, on the one shape whose whole meaning is where the dancer finishes facing. The travel branch had
+it right all along (`anchor: p1`, the move's end pose), so the two shapes were drawn differently.
+
+Fixed to `anchor: p3` - the facing curve's own end point, which is what the `end` handle mode already used.
+
+NOTHING CHECKED THE DRAWN ARMS, which is why it survived: `facing-handle-probe.mjs` tests what a DRAG does to the
+NUMBERS, and the numbers were always right. The picture was wrong and no probe looked at the picture. The probe
+now checks all three facing arms and both travel arms, that no handle anywhere is anchored on a control point,
+and carries a mutation putting the old anchor back to prove both facing checks go red.

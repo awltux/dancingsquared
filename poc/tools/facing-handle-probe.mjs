@@ -443,6 +443,42 @@ console.log(`\n== 7. the curve the panel draws, and what its direction means ==`
     `${overFloor} of ${reaches.length} curves reach past the floor's own half-width (${((overFloor / reaches.length) * 100).toFixed(3)}%), so the tail is negligible but not absent`);
 }
 
+// ============================================================ the DRAWN arms
+//
+// Reported: "The bezier controls for the Facing curve display the connecting lines for the end point
+// incorrectly. It connects from the control point to the other control point. It should connect to the end
+// point."
+//
+// THE LINE FROM A HANDLE'S ANCHOR TO ITS DOT IS THE ARM OF THE CURVE - the segment from an END of the cubic out
+// to one of its controls - so it has to join a control point to an endpoint. The facing curve's second control
+// was anchored on `c1`, which drew control-point-to-control-point: a line that is not part of the curve and says
+// nothing about where the dancer finishes, on the one shape whose whole meaning is where the dancer finishes
+// facing.
+//
+// NOTHING CHECKED THIS BEFORE, which is why it survived: `facing-handle-probe` tests what a DRAG does to the
+// numbers, and the numbers were always right - only the picture was wrong.
+console.log('\n== the arms the handles are drawn with ==');
+const uiSrc = fs.readFileSync(path.join(POC_DIR, 'src', 'editor-ui.ts'), 'utf8');
+check(/id: `d\$\{d\}:r1`, anchor: origin, point: c1/.test(uiSrc),
+  'the facing curve\'s FIRST control is anchored on the point the curve starts at');
+check(/id: `d\$\{d\}:r2`, anchor: p3, point: c2/.test(uiSrc),
+  'and its SECOND on the point the curve ends at, which is what was wrong');
+check(!/anchor: c1,/.test(uiSrc),
+  'and no handle anywhere is anchored on a CONTROL POINT: a line from one control to the other is not an arm of the curve');
+// The travel curve is the shape that was already right, and it is checked so the two cannot drift apart again.
+check(/id: `d\$\{d\}:c1`, anchor: \{ x: p0\.x, y: p0\.y \}, point: world\(t\.cx1, t\.cy1\)/.test(uiSrc),
+  'the travel curve\'s first control is anchored on the move\'s start');
+check(/id: `d\$\{d\}:c2`, anchor: \{ x: p1\.x, y: p1\.y \}, point: world\(t\.cx2, t\.cy2\)/.test(uiSrc),
+  'and its second on the move\'s end - so both shapes are drawn the same way');
+// The END-POINT handle is the third arm of the same curve, anchored on its own exit control, and it is checked
+// here because a fix to the other two could quietly move it.
+check(/id: `d\$\{d\}:r3`, anchor: c2, point: p3/.test(uiSrc),
+  'and the facing END POINT is still anchored on its own exit control, so its line IS the heading the move leaves on');
 console.log('\n=================');
-if (failures === 0) console.log('ALL CHECKS PASSED');
+
+// AND THE CHECK FAILS ON THE BUG IT WAS WRITTEN FOR. Put the old anchor back in the source TEXT and both facing
+// checks must go red - otherwise they are two regexes that happen to match a line, not a gate.
+const buggy = uiSrc.replace('anchor: p3, point: c2', 'anchor: c1, point: c2');
+check(!/id: `d\$\{d\}:r2`, anchor: p3, point: c2/.test(buggy) && /anchor: c1,/.test(buggy),
+  'restoring the control-to-control anchor fails BOTH of the checks above, so neither is decoration');if (failures === 0) console.log('ALL CHECKS PASSED');
 else { console.log(`${failures} CHECK(S) FAILED`); process.exit(1); }

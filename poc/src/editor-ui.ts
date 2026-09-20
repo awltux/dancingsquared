@@ -364,7 +364,6 @@ export class EditorController implements EditorUI {
   private selBoysBtn = el<HTMLButtonElement>('edSelBoys');
   private selGirlsBtn = el<HTMLButtonElement>('edSelGirls');
   private selMatchBtn = el<HTMLButtonElement>('edSelMatch');
-  private selInfoEl = el<HTMLSpanElement>('edSelInfo');
   private moveStripEl = el<HTMLDivElement>('edMoveStrip');
   private moveInfoEl = el<HTMLSpanElement>('edMoveInfo');
   private moveAddBtn = el<HTMLButtonElement>('edMoveAdd');
@@ -888,14 +887,20 @@ export class EditorController implements EditorUI {
     this.selBoysBtn.disabled = !call || boys === 0;
     this.selGirlsBtn.disabled = !call || girls === 0;
     this.selNoneBtn.disabled = !call || sel.length === 0;
+    // THE EXPLANATION IS A HOVER, NOT A LINE OF TEXT. The row used to print a sentence about what matching
+    // was looking at, which is one line of prose between the buttons and the table - and a sentence a caller
+    // reads once and then reads past is noise on every render. It is the same sentence, in the tooltip,
+    // where it is there when the question is asked and nowhere when it is not. The button's LABEL keeps the
+    // count, because a number is not prose and it is the one thing worth seeing before the click.
     this.selMatchBtn.textContent = matches.length ? `matching (${matches.length})` : 'matching';
-    this.selInfoEl.textContent = !call
-      ? ''
+    const what = this.tabCurve() === 'travel' ? 'path' : 'turn';
+    this.selMatchBtn.title = !call
+      ? 'Select a call first'
       : sel.length === 0
-        ? 'nothing selected'
+        ? `Select some dancers to start from — matching widens a set that can be edited together, so it needs one. It picks every dancer whose ${what} here is the same as the dancer the tile is showing's.`
         : agrees
-          ? `${this.tabCurve() === 'travel' ? 'this path' : 'this turn'} is shared by ${matches.length} of ${call.dancers.length} dancers`
-          : 'the selected dancers do not share this move, so matching has nothing to match on';
+          ? `${matches.length} of the ${call.dancers.length} dancers share this ${what} with dancer ${this.moveDancer + 1} — click to select them. That is the same comparison the coordinate lock makes, so the set can be edited together.`
+          : `The selected dancers do not share this ${what} here, so matching has nothing to match on. Select dancers that already agree, or one dancer, and matching then picks everyone else doing the same thing.`;
   }
 
   /**

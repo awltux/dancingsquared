@@ -2291,9 +2291,15 @@ editable together" is a property of the gate's window and not of the grouping.
 
 `matching` IS REFUSED UNLESS THE CURRENT SELECTION ALREADY AGREES, which is the rule as asked for - it widens
 a set that can be edited together, and it is not a way to select a disagreeing one. The button is disabled and
-the row says why ("the selected dancers do not share this move, so matching has nothing to match on"); when it
-is available it carries the count (`matching (4)`), and the row reports what `matching` is looking at ("this
-path is shared by 4 of 8 dancers").
+WHY is in its tooltip; when it is available it carries the count (`matching (4)`) and the tooltip says what it
+would pick ("4 of the 8 dancers share this path with dancer 3 - click to select them").
+
+AND THE EXPLANATION IS A HOVER, NOT A LINE OF TEXT, which was the caller's next correction: the row printed a
+sentence about what `matching` was looking at, and "it's just distracting. Move it to a hover over." One line
+of prose between the buttons and the table is read once and read past on every render afterwards, so the same
+sentence now lives on the button it is about, the span it used to fill is DELETED rather than hidden, and the
+probe requires both (`this.selMatchBtn.title = ` present, no `edSelInfo` anywhere) - a request to remove
+something is as checkable as a request to add it.
 
 `none` MAKES AN EMPTY SELECTION A LEGAL STATE, and that is a change to an invariant this panel asserted
 everywhere: the set used to be impossible to empty, on the grounds that a panel showing a move with no dancer

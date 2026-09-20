@@ -898,7 +898,10 @@ the per-dancer ticks in the table's first column. **`matching` is the one with a
 every dancer whose move at the selected position is the same shape as the one the tile is showing, and it is
 built from `sameCurve` — *the gate itself* — so the set it picks is a set the fields accept, by construction.
 It is refused unless the current selection already agrees, which is the rule as asked for: it **widens** a set
-that can be edited together rather than being a way to select a disagreeing one. MEASURED over the ms level
+that can be edited together rather than being a way to select a disagreeing one. The button carries the
+**count** (`matching (4)`) and everything else about it is a **tooltip** — what it would pick, or why it
+cannot: a sentence printed between the buttons and the table is read once and read past on every render
+afterwards. MEASURED over the ms level
 (`node tools/select-row-probe.mjs`): no pair inside any of the **2032** classes it produces is refused by the
 gate, and it is worth having — **every** group has a class bigger than the dancer you started from, mean size
 **3.65** dancers (a call's move is usually done by halves), and 104 of the 1016 travel groups are all eight.

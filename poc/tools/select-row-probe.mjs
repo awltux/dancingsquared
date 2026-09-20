@@ -138,6 +138,12 @@ check(/if \(this\.selectedDancers\.size === 0\) \{\s*host\.innerHTML = '<i class
   'and the strip says so where the moves would be, instead of showing one dancer\'s moves as if they were the target');
 check(/if \(sel\.length === 0\) return false;/.test(src), 'and the coordinate gate refuses an empty selection, which locks the fields rather than leaving them live');
 check(/sel\.size > 0 \? ' focus' : ''/.test(src), 'and no dancer is drawn as the focus of a selection that does not exist');
+// AND THE EXPLANATION IS A HOVER, NOT A LINE OF TEXT: a sentence between the buttons and the table is read
+// once and read past afterwards, so it belongs on the button it is about.
+const html = fs.readFileSync(path.join(POC_DIR, 'index.html'), 'utf8');
+check(/this\.selMatchBtn\.title = /.test(src), 'what `matching` would pick is written into the button\'s TOOLTIP');
+check(!/selInfoEl/.test(src) && !/edSelInfo/.test(html) && !/id="edSelInfo"/.test(html),
+  'and the row carries no prose element of its own: the span the sentence used to live in is gone, not hidden');
 
 // SHOWN TO FAIL, or it is decoration.
 console.log('\n== the checks fail on the faults they were written for ==');

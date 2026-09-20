@@ -1036,6 +1036,65 @@ transitions** (non-congruent — dancers walk directly from their new spots into
 the core). Mirrored (half-set) calls are handled by re-basing at their actual
 full-set positions.
 
+### What a WYSIWYG path editor would have to express, measured
+
+The goal stated for this editor is *"an intuitive mechanism to edit the dance path through a
+wysiwyg interface. Many of the paths are circular (so this has to be easy to achieve), and the
+dancers moves must start and end at fixed points (defined by a formation). There should be an easy
+way to make the dancer face the right direction."* Those are three claims about the corpus, so they
+are measured rather than designed around: `node poc/tools/wysiwyg-path-probe.mjs` reads **every
+level, every `<tam>` variant** — **4754** eight-dancer variants, **94544** dancer-moves — because
+the ms level alone is 66 files of which 17 build, and a one-level sample would be a fifth of it.
+
+**A circular MOVE is always a QUARTER, and the corpus is full of them.** **10884** of **94544**
+travel curves (**11.5%**) lie on a circle within 2% of its radius. Their sweeps run from **10.1°**
+to **90.0°**, median exactly **90°**, and **89.1%** sweep the full quarter. So the panel's quarter
+lock is the *right shape for the unit it locks* — and part 2 is where the interest is. (The lock
+would be *enabled* for **22930** curves, **24.3%**: **55642** are blocked on handles that are not at
+a right angle and **15752** on having no handle length to size from. And **0** curves in the whole
+corpus is already the quarter arc `arcOf` describes, so ticking the box is always a projection and
+never a no-op.)
+
+**An ORBIT, though, is a CHAIN of moves, and the panel has no object for one.** Because no single
+move turns more than 90°, a dancer going round is *necessarily* several moves — and **4589** runs of
+two or more consecutive moves lie on ONE circle to within 2% of its radius, across **207** variants
+(**4.4%** of the corpus). Their sweeps: median **270.3°**, max **765.1°**; **4141** sweep more than
+a quarter, **3503** more than half, **2814** more than three quarters, and **652** more than a full
+turn. **1162** runs span three or more moves. The densest are `ms/circle.xml` and `b1/circle.xml`
+(a whole 360° `Circle Left` as **8** moves of 45°, radius 2.59) and
+`plus/spin_chain_and_exchange_the_gears.xml`. This is the gap the quarter lock leaves: a user who
+means *"that is a circle"* can only say it one quarter at a time, and nothing in the panel holds the
+radius across the chain or notices when a move stops matching its neighbours.
+
+**Joints really are formation points, and they really are not — both, in bulk.** Over **132356**
+joints, **82.2%** land on a spot some formation in the picker offers and **95401** of those carry
+that spot's declared heading, so a formation can pin position **and** facing. Of the **57460**
+*interior* joints, **67.2%** are on a catalogue spot and **32.8%** are on no spot at all. So a
+design that only supports "snap every joint to a formation" is wrong, and so is one that only
+supports free points: the editor needs both, and it needs to say which a given joint is.
+
+**A joint is usually already smooth, so an editor may not casually break one — but a corner is an
+authored thing too.** Over **51180** interior joints, the direction is measured as a *chord* of the
+real world path immediately either side (not from `bezierAngle` plus a frame, which assumes the
+frame does not rotate during a move and a facing curve makes it rotate): median corner **0.06°**,
+**83.7%** within **1°**, and a maximum of **180°**. Split by mechanism, **93.3%** of the joints that
+follow a move with *no* facing curve are within 1°, against **68.6%** of those that follow one with
+a facing curve. Both mechanisms are real — handles lining up, and a facing curve turning the dancer
+— which is why the facing channel cannot be folded into the travel tangent.
+
+**And the dancer frequently does NOT face where it is going, so facing cannot be folded into the tangent.**
+Over **89132** poses sampled at the middle of every move, facing is a median of **0.0°** off the direction of
+travel and **62.2%** are forward within 10° — but **2.3%** are **backward** and **3.5%** are **sideways**, so
+**37.8%** are more than 10° off. A single direction per point, which is what most path editors have (the
+tangent), cannot express this corpus at all: a `Wheel` is a dancer walking backwards on purpose.
+
+**And the first draft of this probe was wrong in a way worth recording.** It asked `arcOf` whether
+the circle-fitting curves were quarter arcs by handing it the whole `Seg` rather than
+`seg.translate`; `arcOf` then read `undefined` for all six coordinates and returned a NaN object for
+everything, so the report was "10884 of 10884 agree" — a perfect agreement produced entirely by
+handing the instrument the wrong argument. The corrected reading is **0 of 10884**, and the probe
+now checks that the two tests *disagree*, so the same mistake cannot pass again.
+
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

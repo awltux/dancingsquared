@@ -71,7 +71,9 @@ import {
   runCircleMoveCount,
   circleThrough,
   fitCircleRun,
+  runTurn,
   setRunCircle,
+  RUN_FIT_MAX_DEV,
 } from '../dist/index.js';
 setParser(DOMParser);
 
@@ -1892,6 +1894,98 @@ console.log('\n== 25. A run of moves laid on one circle ==');
   check(runCircleMoveCount(Math.PI / 2) === 1 && runCircleMoveCount(Math.PI / 2 + 1e-6) === 2 && runCircleMoveCount(2 * Math.PI) === 4,
     'a quarter turn needs one move, a hair over needs two, and a full circle needs four - the count the refusal message quotes');
   check(RUN_ARC_MAX === Math.PI / 2, 'and the quarter is the engine\'s stated limit, not a number buried in a comparison');
+}
+
+// --------------------------------------------------------------------------------
+// 26. two arcs fit two points: which one is the run's, and when is a "circle" not one
+//
+// Both of these are a bug a caller found. "The Make Circle button seems to completely collapse the trace. After
+// pressing all I see is a single drag point and no trace line." Two things had to be wrong at once for that,
+// and each is gated here on its own.
+console.log('\n== 26. The arc that is meant, and the fit that says nothing ==');
+{
+  // (a) THE MINOR ARC IS NOT ALWAYS THE ARC MEANT. Two points on a circle admit two arcs and the endpoints do
+  // not say which; a near-closed orbit's minor arc is nothing at all.
+  const circleCall = (() => {
+    try {
+      return normalizeInstance(loadCallFromXml(fs.readFileSync(path.join(__dirname, '../../poc/src/assets/ms/circle.xml'), 'utf8'), movesXml, formationsXml, 0));
+    } catch { return null; }
+  })();
+  check(!!circleCall, 'ms/circle.xml - the 360deg `Circle Left` - is the witness, because it is the flagship case');
+  if (circleCall) {
+    const d = circleCall.dancers[0];
+    const own = fitCircleRun(circleCall, 0, 1, 8);
+    check(!!own && Math.abs(Math.abs(own.sweep) - 2 * Math.PI) < 0.15,
+      `and it reads as ONE turn, not as a small arc (${own ? ((Math.abs(own.sweep) * 180) / Math.PI).toFixed(1) : '?'}deg)`);
+    if (own) {
+      const p0 = poseFor(d, moveBeatRange(d, 0).to);
+      const p1 = poseFor(d, moveBeatRange(d, 8).to);
+      const chord = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+      const bare = circleThrough(p0, p1, own.r, 1);
+      check(chord < 0.1 && !!bare && (Math.abs(bare.sweep) * 180) / Math.PI < 5,
+        `the MINOR arc through its ends is almost nothing (${bare ? ((Math.abs(bare.sweep) * 180) / Math.PI).toFixed(2) : '?'}deg for a chord of ${chord.toFixed(3)} on a radius of ${own.r.toFixed(3)}) - which is the collapse`);
+      // THE CONTRACT: the sweep is congruent to the endpoints' own base angle, so the arc passes through BOTH
+      // ends, and it is the congruent value NEAREST the turn given. `normAngleSafe` is the engine's own, so a
+      // sweep of 361deg and one of 1deg are the same arc and this says so.
+      for (const turn of [own.sweep, 3 * Math.PI, -5 * Math.PI]) {
+        const told = circleThrough(p0, p1, own.r, 1, turn);
+        const congruent = Math.abs(normAngleSafe(told.sweep - bare.sweep)) < 1e-9;
+        const nearest = Math.abs(told.sweep - turn) <= Math.PI + 1e-9;
+        check(congruent && nearest,
+          `told the run turns ${(turn * 180) / Math.PI}deg it lays the arc the ends allow and nearest that turn: ${((told.sweep * 180) / Math.PI).toFixed(1)}deg`);
+      }
+      check(Math.abs(circleThrough(p0, p1, own.r, 1, own.sweep).sweep) > Math.PI,
+        'so a 360deg orbit gets an arc of more than half a turn rather than a sliver - which is the whole fix');
+    }
+    // The 3/4 turn, which is the case that shows a WRAP is needed rather than a choice between two candidates:
+    // an arc that covers three quarters has ends a quarter apart, so the base sweep and the answer differ by a
+    // whole turn. Asserted as the CONTRACT (congruent to the ends, nearest the turn given) rather than as an
+    // equality with the fit, because which side of the chord the centre falls on is the caller's `side` and not
+    // something the fit gets to overrule.
+    const quarter = fitCircleRun(circleCall, 0, 2, 8);
+    if (quarter) {
+      const q0 = poseFor(d, moveBeatRange(d, 1).to);
+      const q1 = poseFor(d, moveBeatRange(d, 8).to);
+      const bare = circleThrough(q0, q1, quarter.r, 1);
+      const told = circleThrough(q0, q1, quarter.r, 1, quarter.sweep);
+      check(Math.abs(normAngleSafe(told.sweep - bare.sweep)) < 1e-9 && Math.abs(told.sweep - quarter.sweep) <= Math.PI + 1e-9 && Math.abs(told.sweep) > Math.PI,
+        `and the ${((quarter.sweep * 180) / Math.PI).toFixed(1)}deg turn is laid as an arc past half a turn (${((told.sweep * 180) / Math.PI).toFixed(1)}deg) through the same two ends, not as the ${((bare.sweep * 180) / Math.PI).toFixed(1)}deg arc the ends alone would give`);
+    }
+  }
+  // `runTurn` is the turn that exists when the fit does not. IT IS A PROXY AND ONLY HAS TO BE GOOD ENOUGH TO
+  // PICK BETWEEN ARCS A WHOLE TURN APART, so the tolerance is loose on purpose: it is the sum of the moves'
+  // own LOCAL turns, while the fit measures the turn in WORLD space, and `ms/circle.xml` differs by 7.2deg
+  // over eight moves because the frames rotate as it goes.
+  if (circleCall) {
+    const own = fitCircleRun(circleCall, 0, 1, 8);
+    const t = runTurn(circleCall, 0, 1, 8);
+    check(!!own && Math.abs(normAngleSafe(t - own.sweep)) < 0.2,
+      `runTurn agrees with the fit to within a few degrees, which is all a choice between arcs 360deg apart needs (${((t * 180) / Math.PI).toFixed(1)} against ${own ? ((own.sweep * 180) / Math.PI).toFixed(1) : '?'}deg)`);
+  }
+
+  // (b) AND A "CIRCLE" MUST DESCRIBE THE RUN IT WAS FITTED TO. A nearly straight run can sit inside any
+  // relative tolerance on a huge enough circle, and then the radius is meaningless.
+  const gs = (() => {
+    try {
+      return normalizeInstance(loadCallFromXml(fs.readFileSync(path.join(__dirname, '../../poc/src/assets/ms/grand_spin.xml'), 'utf8'), movesXml, formationsXml, 0));
+    } catch { return null; }
+  })();
+  check(!!gs, 'ms/grand_spin.xml carries the witness: two moves that go STRAIGHT, which Kasa fitted as a circle of radius 28');
+  if (gs) {
+    const turn = runTurn(gs, 2, 21, 22);
+    check(Math.abs(turn) * (180 / Math.PI) < 5,
+      `the witness really is nearly straight: it turns ${(Math.abs(turn) * (180 / Math.PI)).toFixed(2)}deg`);
+    check(fitCircleRun(gs, 2, 21, 22) === null,
+      'and it is REFUSED - the circle that fitted it had a radius of 28 units and so said nothing about a 1.5-unit path');
+    // NOT A BAN, and the count is what says so: the same call's other runs must go on reading as circles.
+    let accepted = 0;
+    for (let di = 0; di < 8; di++) {
+      const n = gs.dancers[di].path.length;
+      for (let from = 0; from < n - 1; from++) for (let to = from + 1; to < n; to++) if (fitCircleRun(gs, di, from, to)) accepted++;
+    }
+    check(accepted > 10, `and it is a GUARD and not a ban: ${accepted} other runs in the same call are still read as circles`);
+    check(RUN_FIT_MAX_DEV === 0.05, 'and the threshold is a named constant, not a number buried in a comparison');
+  }
 }
 
 console.log('\n=================');

@@ -2525,3 +2525,30 @@ and finds a case where the engine must refuse: a full turn over beats [1.5, 3, 3
 In the panel: a `to` move, a `radius`, a side toggle and "make circle" on the selected move's tile, with
 shift-click in the strip setting the run end and the run drawn as part of the selection so the range is visible
 before it is applied.
+
+THE RUN-LEVEL CIRCLE DESTROYED THE FLAGSHIP CASE, and a caller found it: "The Make Circle button seems to
+completely collapse the trace. After pressing all I see is a single drag point and no trace line." It was real.
+TWO POINTS ON A CIRCLE ADMIT TWO ARCS AND THE ENDPOINTS DO NOT SAY WHICH; `circleThrough` returned the minor one
+always, and for a near-closed orbit the minor arc is nothing. Measured over the ms level, 48 of 527 runs lost
+most of their length: `ms/circle.xml` is a 360deg `Circle Left` whose ends are 0.055 apart on a radius of 2.595,
+so the minor arc between them is 1.22deg and a 16.34-unit orbit became 0.06. The missing quantity is the one SVG
+calls `large-arc-flag`, and the run itself supplies it.
+
+THE RULE IS NOW TWO BRANCHES, and the split is the whole of the fix. A run that ALREADY HAS A CENTRE keeps it -
+only the radius and the turn move - because the centre is the circle's identity and a near-closed chord cannot
+say which side it falls on. A run that is NOT a circle has no centre to keep, so the ENDS are the anchor and the
+radius and side are what the caller supplies; that is the case the "both ends are kept exactly" property belongs
+to. `circleThrough` takes an optional `turn` for the no-fit path - the sweep is the value CONGRUENT to the ends'
+base angle that is NEAREST the turn given, so a 270deg turn through ends 90deg apart comes back as 270 and not
+as the -90deg arc - and `runTurn` is the summed per-move turn that always exists when `fitCircleRun` says no.
+Re-measured (`poc/tools/run-circle-probe.mjs` section 6, which is the regression gate): 1125 runs, worst keeps
+98.6% of its path, turn moves by 5.5e-3deg.
+
+AND A SECOND, MILDER FAULT CAME OUT OF THE SAME MEASUREMENT: `fitCircleRun` accepted runs it had no business
+accepting. A RELATIVE TOLERANCE ALONE IS NOT ENOUGH - a straight run sits inside any relative tolerance on a
+huge enough circle. `ms/grand_spin.xml` has two moves that go STRAIGHT (runTurn 0.00deg) and Kasa fitted them as
+a circle of radius 28.23 at relDev 1.6e-2, just inside the default; re-laying that run moved its end 0.73 units
+and cost it 12% of its length. `RUN_FIT_MAX_DEV` bounds the worst deviation against the run's OWN LENGTH too,
+and the corpus separates cleanly: of 2253 accepted run fits the two bad ones sit at 29.9% and 14.7% of the path
+length and the worst that SHOULD be kept is 3.8%, so any threshold between them decides every run the same way.
+With it, the worst survivor keeps 98.6% instead of 87.6%.

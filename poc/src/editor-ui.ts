@@ -54,6 +54,7 @@ import {
   runCircleMoveCount,
   circleThrough,
   fitCircleRun,
+  runTurn,
   setRunCircle,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, FormDancer, Gender, Hands, InstanceDancer, RunCircle, Seg } from 'dancing-squared-engine';
@@ -1071,32 +1072,42 @@ export class EditorController implements EditorUI {
    * centre start and finish in eight different places, so what a group edit can hold in common is the RADIUS
    * (and the side); the centre is whatever follows from each dancer's own run. That is also why this cannot be
    * one `RunCircle` for the whole selection.
+   *
+   * A RUN THAT IS ALREADY A CIRCLE KEEPS ITS CENTRE, and only its radius and its turn are touched. That is not
+   * a refinement, it is the difference between working and destroying the call. MEASURED (`ms/circle.xml`, the
+   * 360deg `Circle Left`): two points on a circle admit TWO arcs, the endpoints do not say which, and this run's
+   * ends are **0.055** apart on a radius of 2.595 - so the chord is nearly a point and the side of it the
+   * centre falls on is not a decision the geometry can support. Choosing by the chord gave the run a **1.2deg**
+   * arc through those ends and collapsed a 16.34-unit orbit to **0.06**, which is what a caller saw as a single
+   * drag point and no trail. A run that already has a centre does not need to be told one, and the turn it
+   * already takes is the turn to keep.
+   *
+   * A RUN THAT IS NOT A CIRCLE HAS NO CENTRE TO KEEP, so there the ENDS are the anchor and the radius and side
+   * are what the caller supplies - which is the case the "both ends are kept exactly" property belongs to.
    */
   private circleFor(call: CallBundle, d: number, from: number, to: number, radius: number, side: 1 | -1): RunCircle | null {
     const dancer = call.dancers[d];
     if (!dancer || to <= from || to >= dancer.path.length) return null;
     const p0 = poseFor(dancer, from === 0 ? 0 : moveBeatRange(dancer, from - 1).to);
     const p1 = poseFor(dancer, moveBeatRange(dancer, to).to);
-    const through = circleThrough(p0, p1, radius, side);
-    if (through) return through;
-    // THE RUN CLOSES ON ITSELF, so the chord is a single point and defines no circle - and that is not an edge
-    // case here, it is the flagship one: `ms/circle.xml` is a 360deg `Circle Left`. When the ends are the same
-    // point the only thing left to keep is the CENTRE, so the new radius is taken along the direction the
-    // centre already lies in, and the turn is the run's own turn (rounded to whole revolutions, so a 360deg
-    // orbit stays one). `side` there reverses the direction of travel, which is the same choice the other
-    // branch makes with the chord - "the other way round".
-    const fit = fitCircleRun(call, d, from, to);
-    if (!fit) return null;
-    const dist = Math.hypot(p0.x - fit.cx, p0.y - fit.cy);
-    if (!(dist > 1e-9)) return null;
-    const k = radius / dist;
-    const turns = Math.max(1, Math.round(Math.abs(fit.sweep) / (2 * Math.PI)));
-    return {
-      cx: p0.x + (fit.cx - p0.x) * k,
-      cy: p0.y + (fit.cy - p0.y) * k,
-      r: radius,
-      sweep: (fit.sweep >= 0 ? 1 : -1) * side * turns * 2 * Math.PI,
-    };
+    const own = fitCircleRun(call, d, from, to);
+    if (own) {
+      // The centre is kept as a DIRECTION from the run's start, so the new radius is reached exactly and
+      // `setRunCircle`'s own snap-to-the-start is a no-op rather than a fight. The turn is kept as it is -
+      // including a 361deg one, which rounding to whole revolutions would quietly make 360.
+      const dist = Math.hypot(p0.x - own.cx, p0.y - own.cy);
+      if (!(dist > 1e-9)) return null;
+      const k = radius / dist;
+      return {
+        cx: p0.x + (own.cx - p0.x) * k,
+        cy: p0.y + (own.cy - p0.y) * k,
+        r: radius,
+        sweep: side === 1 ? own.sweep : -own.sweep,
+      };
+    }
+    // No circle of its own: the run's own turn still says how much of one it covers, and passing it is what
+    // stops the minor arc from being chosen when the run turns most of the way round.
+    return circleThrough(p0, p1, radius, side, runTurn(call, d, from, to));
   }
 
   /**

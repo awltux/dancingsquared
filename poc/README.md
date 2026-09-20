@@ -1188,6 +1188,25 @@ are the *same point*, so the chord is a point and defines no circle at all (`cir
 null), and there is nothing left to keep but the **centre**: the new radius is taken along the direction the
 centre already lies in and the turn is the run's own, rounded to whole revolutions.
 
+**TWO POINTS ON A CIRCLE ADMIT TWO ARCS, AND THE ENDPOINTS DO NOT SAY WHICH.** That is the one thing this
+control got wrong, and it destroyed the flagship case. `ms/circle.xml` is a 360° `Circle Left` whose ends are
+**0.055** apart on a radius of 2.595 — so the chord is nearly a point, the *minor* arc through those ends is
+**1.22°**, and "make circle" turned a **16.34**-unit orbit into **0.06**. A caller saw exactly that: *"a single
+drag point and no trace line."* Measured over the ms level, **48 of 527** runs lost most of their length that
+way. The missing quantity is the one SVG calls `large-arc-flag`, and the run itself supplies it — so a run that
+**already has a centre keeps it**, and only its radius and turn move. A run that is *not* a circle has no centre
+to keep, so there the **ends** are the anchor and the radius and side are what the caller supplies; that is the
+case the "both ends kept exactly" property belongs to. Re-measured: **1125** runs, the worst keeps **98.6%** of
+its path, and the turn moves by **5.5e-3°**.
+
+**And a "circle" has to describe the run it was fitted to.** A relative tolerance alone is not enough: a
+*straight* run sits inside any relative tolerance on a huge enough circle. `ms/grand_spin.xml` has two moves
+that go straight, and Kasa described them as a circle of radius **28** at a relative deviation of 1.6e-2, just
+inside the default; re-laying that run moved its end **0.73** units. `RUN_FIT_MAX_DEV` bounds the worst
+deviation against the run's **own length** as well, and the corpus separates cleanly — of 2253 accepted run
+fits the two bad ones sit at **29.9%** and **14.7%** of the path length and the worst that should be *kept* is
+**3.8%**, so any threshold between them decides every run in the corpus the same way.
+
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

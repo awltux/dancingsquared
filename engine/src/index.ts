@@ -193,6 +193,8 @@ export {
   runCircleMoveCount,
   circleThrough,
   fitCircleRun,
+  runTurn,
+  RUN_FIT_MAX_DEV,
   setRunCircle,
   facingProfile,
   sameFacing,

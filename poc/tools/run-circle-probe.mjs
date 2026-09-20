@@ -62,27 +62,27 @@ has(/why\.push\(`dancer \$\{d \+ 1\}: \$\{\(err as Error\)\.message\}`\)/, 'and 
 
 // ============================================================ 2. the panel's rule, mirrored
 //
-// The exact rule from `circleFor`, including the closed-run branch, so what is measured is the panel's
-// behaviour and not a convenient simplification of it.
+// The exact rule from `circleFor`, so what is measured is the panel's behaviour and not a convenient
+// simplification of it. A RUN THAT IS ALREADY A CIRCLE KEEPS ITS CENTRE and only its radius and turn move; a
+// run that is not takes the circle through its ENDS. Getting this backwards is what section 6 exists to catch.
 function circleFor(call, d, from, to, radius, side) {
   const dancer = call.dancers[d];
   if (!dancer || to <= from || to >= dancer.path.length) return null;
   const p0 = engine.poseFor(dancer, from === 0 ? 0 : engine.moveBeatRange(dancer, from - 1).to);
   const p1 = engine.poseFor(dancer, engine.moveBeatRange(dancer, to).to);
-  const through = engine.circleThrough(p0, p1, radius, side);
-  if (through) return through;
-  const fit = engine.fitCircleRun(call, d, from, to);
-  if (!fit) return null;
-  const dist = Math.hypot(p0.x - fit.cx, p0.y - fit.cy);
-  if (!(dist > 1e-9)) return null;
-  const k = radius / dist;
-  const turns = Math.max(1, Math.round(Math.abs(fit.sweep) / (2 * Math.PI)));
-  return {
-    cx: p0.x + (fit.cx - p0.x) * k,
-    cy: p0.y + (fit.cy - p0.y) * k,
-    r: radius,
-    sweep: (fit.sweep >= 0 ? 1 : -1) * side * turns * 2 * Math.PI,
-  };
+  const own = engine.fitCircleRun(call, d, from, to);
+  if (own) {
+    const dist = Math.hypot(p0.x - own.cx, p0.y - own.cy);
+    if (!(dist > 1e-9)) return null;
+    const k = radius / dist;
+    return {
+      cx: p0.x + (own.cx - p0.x) * k,
+      cy: p0.y + (own.cy - p0.y) * k,
+      r: radius,
+      sweep: side === 1 ? own.sweep : -own.sweep,
+    };
+  }
+  return engine.circleThrough(p0, p1, radius, side, engine.runTurn(call, d, from, to));
 }
 
 /** The panel's whole-call edit: ONE radius and ONE side, every selected dancer about its own ends. */
@@ -249,6 +249,81 @@ if (closed) {
 } else {
   check(false, 'the refusal case could not be built without a closed run');
 }
+
+// ============================================================ 6. no run is DESTROYED
+//
+// THE REGRESSION GATE FOR A BUG A CALLER FOUND: "The Make Circle button seems to completely collapse the trace.
+// After pressing all I see is a single drag point and no trace line." It was real, and it was the flagship
+// case - `ms/circle.xml`'s 360deg `Circle Left`, whose ends are 0.055 apart on a radius of 2.595, so the arc
+// chosen through those ends was 1.2deg and a 16.34-unit orbit became 0.06. TWO POINTS ON A CIRCLE ADMIT TWO
+// ARCS and the endpoints do not say which; the run's own turn and its own centre do.
+//
+// So EVERY run the control is offered for, laid on its OWN circle at its OWN radius, must come back with the
+// turn it had and the length it had. Section 3 could not have caught this: it only looked at runs whose WHOLE
+// path fits a circle, which excludes the lead-in and lead-out of exactly the calls built around an orbit.
+console.log('\n== 6. Is any run DESTROYED by being laid on its own circle? ==');
+const pathLen = (dancer, t0, t1) => {
+  let L = 0;
+  let prev = engine.poseFor(dancer, t0);
+  for (let i = 1; i <= 40; i++) {
+    const q = engine.poseFor(dancer, t0 + ((t1 - t0) * i) / 40);
+    L += Math.hypot(q.x - prev.x, q.y - prev.y);
+    prev = q;
+  }
+  return L;
+};
+let tested = 0;
+let destroyed = 0;
+let worstKeep = 1;
+let worstTurn = 0;
+let worstAt = '';
+const losses = [];
+for (const [lvl, f] of files) {
+  let tams = [];
+  try { tams = engine.parseCallXml(asset(`${lvl}/${f}`)); } catch { continue; }
+  for (const tam of tams.slice(0, 2)) {
+    let call;
+    try { call = engine.normalizeInstance(engine.buildCall(tam, engine.parseFormations(formationsXml), engine.parseMoves(movesXml), true)); } catch { continue; }
+    if (call.dancers.length !== 8) continue;
+    for (let d = 0; d < 8; d++) {
+      const n = call.dancers[d].path.length;
+      for (let from = 0; from < n - 1; from++) {
+        for (let to = from + 1; to < n; to++) {
+          const own = engine.fitCircleRun(call, d, from, to);
+          // The panel only has a default radius when the run already fits a circle, so that is the population
+          // the button acts on without the caller typing anything.
+          if (!own) continue;
+          const circle = circleFor(call, d, from, to, own.r, 1);
+          if (!circle) continue;
+          let next;
+          try { next = engine.setRunCircle(call, d, from, to, circle); } catch { continue; }
+          tested++;
+          const dancer = call.dancers[d];
+          const nd = next.dancers[d];
+          const b0 = from === 0 ? 0 : engine.moveBeatRange(dancer, from - 1).to;
+          const b1 = engine.moveBeatRange(dancer, to).to;
+          const nb0 = from === 0 ? 0 : engine.moveBeatRange(nd, from - 1).to;
+          const nb1 = engine.moveBeatRange(nd, to).to;
+          const before = pathLen(dancer, b0, b1);
+          const after = pathLen(nd, nb0, nb1);
+          const keep = before > 1e-9 ? after / before : 1;
+          if (keep < worstKeep) { worstKeep = keep; worstAt = `${lvl}/${f} d${d + 1} ${from + 1}..${to + 1}`; }
+          if (keep < 0.9) { destroyed++; losses.push(`${lvl}/${f} ${from + 1}..${to + 1}: ${(keep * 100).toFixed(0)}%`); }
+          // The turn, read off the re-laid run rather than assumed.
+          const refit = engine.fitCircleRun(next, d, from, to);
+          if (refit) worstTurn = Math.max(worstTurn, Math.abs(refit.sweep - own.sweep) * DEG);
+        }
+      }
+    }
+  }
+}
+console.log(`    ${tested} runs laid on their own circle at their own radius`);
+console.log(`    the least of the path that survives: ${(worstKeep * 100).toFixed(1)}% (${worstAt})`);
+console.log(`    the turn moves by at most ${worstTurn.toExponential(1)}deg`);
+check(tested > 100, 'the sweep is every run the control would act on, not a witness');
+check(destroyed === 0, `NO run is destroyed - none loses even a tenth of its length${losses.length ? ` (${losses.length} did: ${losses.slice(0, 3).join('; ')})` : ''}`);
+check(worstKeep > 0.9, `and the worst case keeps ${(worstKeep * 100).toFixed(1)}% of its path, so this is a re-lay and not a rewrite`);
+check(worstTurn < 1, 'and the run keeps the turn it had, so the call still goes as far round as it did');
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');
 process.exit(failures ? 1 : 0);

@@ -544,6 +544,28 @@ export interface RunCircle {
 }
 
 /**
+ * How far a RUN of moves turns, in radians - the sum of the turns its individual moves make.
+ *
+ * It exists because `fitCircleRun` can say no: a run that is not close enough to a circle has no centre, no
+ * radius and no sweep, but it still TURNS, and that turn is the only thing that can tell a `circleThrough` on
+ * its ends whether the run goes a little way round or most of the way round. Without it the minor arc is
+ * chosen, and for a run whose ends are close together - a near-closed orbit - the minor arc is nothing at all:
+ * MEASURED, `ms/circle.xml` moves 2..9 turn 361.2deg and the minor arc between those ends is 1.2deg, which
+ * collapsed a 16.34-unit orbit to 0.06. The sweep of a fitted circle is the better answer when there is one
+ * because it is measured on the whole path; this is the answer that always exists.
+ */
+export function runTurn(call: CallBundle, index: number, kFrom: number, kTo: number): number {
+  const dancer = call.dancers[index];
+  if (!dancer) return 0;
+  let total = 0;
+  for (let k = Math.max(0, kFrom); k <= kTo && k < dancer.path.length; k++) {
+    const t = dancer.path[k].translate;
+    total += normAngleSafe(bezierAngle(t, 1) - bezierAngle(t, 0));
+  }
+  return total;
+}
+
+/**
  * The circle of radius `radius` through two points, on the side of the chord the caller names - or null when
  * there is none.
  *
@@ -554,8 +576,8 @@ export interface RunCircle {
  * perpendicular to its radius, so the heading the run arrives on is *derived*, not chosen. That is why this is
  * a safe primitive: there is no way to ask for an arc that does not join up.
  *
- * The sweep returned is the MINOR arc. A major arc is the same circle with the other sign of the centre's
- * offset, and the caller asks for it by naming the side, so the two are never ambiguous.
+ * The sweep returned is the MINOR arc unless a `turn` is given, and a major arc is the same circle with the
+ * other sign of the centre's offset - so the two are never ambiguous when the caller has nothing to say.
  *
  * Two cases have no answer and return null rather than a guess: COINCIDENT endpoints (the chord is a point, so
  * it defines no circle at all - a full turn is a different parameterisation, and this is exactly the case
@@ -566,6 +588,7 @@ export function circleThrough(
   b: { x: number; y: number },
   radius: number,
   side: 1 | -1,
+  turn?: number,
 ): RunCircle | null {
   const r = Math.abs(radius);
   if (!(r > 1e-9)) return null;
@@ -581,7 +604,28 @@ export function circleThrough(
   const cy = (a.y + b.y) / 2 + side * h * ux;
   const a0 = Math.atan2(a.y - cy, a.x - cx);
   const a1 = Math.atan2(b.y - cy, b.x - cx);
-  return { cx, cy, r, sweep: normAngleSafe(a1 - a0) };
+  // ------------------------------------------------------------------ minor is NOT enough
+  //
+  // THERE ARE TWO ARCS THROUGH TWO POINTS ON A GIVEN CIRCLE, and the endpoints do not say which. This function
+  // used to return the minor one always, and the failure is not theoretical: MEASURED over the ms level
+  // (`poc/tools/run-circle-probe.mjs`), **48 of 527** runs lost most of their length when re-laid on their own
+  // circle, and the worst were catastrophic - `ms/circle.xml` moves 2..9 turn **361.2deg** through a chord of
+  // **0.0554** on a radius of 2.595, so the minor arc between those ends is **1.2deg** and a 16.34-unit orbit
+  // collapsed to 0.06. That is the flagship case: a 360deg `Circle Left`, whose ends are the same point.
+  //
+  // The missing quantity is the one SVG calls `large-arc-flag`, and the honest place to get it is THE RUN
+  // ITSELF: `turn` is the turn the run already takes, and the arc is the sweep going from `a` to `b` that
+  // agrees with it. Sweeps congruent modulo a full turn are the SAME arc through the same two points, so
+  // adding whole turns changes nothing about where the ends are and only says how many times round - which is
+  // exactly the difference between the minor and the major arc, and between a 3/4 turn and a -1/4 turn.
+  // A 3/4 turn is the case that proves the wrap is needed: its ends are 90deg apart, so the base sweep is
+  // **-90deg** and the answer is base + 360 = 270, not "the closest of two candidates".
+  //
+  // With no `turn` the minor arc is returned, which is the old behaviour and the right default for a run that
+  // has no turn of its own to keep.
+  const base = normAngleSafe(a1 - a0);
+  const sweep = Number.isFinite(turn) ? base + Math.round(((turn as number) - base) / (2 * Math.PI)) * 2 * Math.PI : base;
+  return { cx, cy, r, sweep };
 }
 
 /** The world pose of one dancer at absolute beat `t`, or the pose a run starts from. */
@@ -614,10 +658,17 @@ function moveEndBeat(dancer: DancerSpec, k: number): number {
  * (Pratt/Taubin) is a generalised eigenproblem for a gain this measurement does not need. `tolRel` is the
  * caller's "closely", relative to the radius, exactly as `fitCircle`'s is.
  *
- * `sweep` is the total SIGNED turn about the centre over the run, summed sample to sample rather than taken as
- * a difference of two angles - so a circle and a half, which is real (`ms/circle.xml` measures 361deg), reads
- * as 361deg and not as 1deg.
+ * AND A RELATIVE TOLERANCE ALONE IS NOT ENOUGH, which is the other half of this function. A nearly STRAIGHT run
+ * can sit inside any relative tolerance on a huge enough circle, and then the circle says nothing about the
+ * run: MEASURED, `ms/grand_spin.xml` moves 22..23 are a 1.5-unit path that turns 2.67deg, and Kasa describes
+ * them as a circle of radius **28.23** at a relative deviation of 1.6e-2, just inside the default. Re-laying
+ * that run on that circle moved its end 0.73 units. `RUN_FIT_MAX_DEV` bounds the worst deviation against the
+ * run's OWN LENGTH as well, and the corpus separates cleanly: of 2253 accepted run fits the two bad ones sit at
+ * **29.9%** and **14.7%** of the path length and the worst that SHOULD be kept is **3.8%**, so any threshold
+ * between them makes the same decision on every run in the corpus.
  */
+export const RUN_FIT_MAX_DEV = 0.05;
+
 export function fitCircleRun(call: CallBundle, index: number, kFrom: number, kTo: number, tolRel = 0.02, samplesPerMove = 8): CircleFit | null {
   const dancer = call.dancers[index];
   if (!dancer) return null;
@@ -661,6 +712,11 @@ export function fitCircleRun(call: CallBundle, index: number, kFrom: number, kTo
   for (const p of pts) maxDev = Math.max(maxDev, Math.abs(Math.hypot(p.x - cx, p.y - cy) - r));
   const relDev = maxDev / r;
   if (relDev > tolRel) return null;
+  // The absolute half of the test - see RUN_FIT_MAX_DEV. The run's own length is the polyline the samples
+  // already are, so this costs one pass and no extra sampling.
+  let runLength = 0;
+  for (let i = 1; i < pts.length; i++) runLength += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+  if (!(runLength > 1e-9) || maxDev > RUN_FIT_MAX_DEV * runLength) return null;
   let sweep = 0;
   let prev = Math.atan2(pts[0].y - cy, pts[0].x - cx);
   for (let i = 1; i < pts.length; i++) {

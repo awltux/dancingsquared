@@ -3874,6 +3874,28 @@ of the position curve, and the facing only through a second tab on the same six-
 asked for this session - the handle/endpoint mode toggle, the quarter-arc checkbox, the arc-centre handle, the
 end-formation connect - is a workaround for that one mismatch.
 
+**D0. Prior art, and the one piece of it that validates the model we already have.** The closest analogue by
+far is **marching-band drill design** - Pyware 3D X (`pyware.com/guide/3dx/`), FORMI, StageKeep - which solves
+the identical problem for 100+ performers: a step grid with snapped divisions, **named curve tools including
+Arc, Circle and Bezier**, a count-track timeline, and, critically, **facing authored as its own curve with its
+own modes**: *Don't Change* / *Follow Direction of Movement* / *Face a Fixed Direction* / *Face to a Performer*
+/ *Face to a Point*, plus "take N counts to move" interpolating the heading over a range. That is the
+separate `rotate` channel and the "face along travel OR an absolute heading" switch, arrived at independently
+by a mature commercial product in exactly this domain - so the two-channel `Seg` is not an oddity to
+apologise for, it is the feature to protect. (The research prototype **ChoreoVis**, Eurographics 2024,
+`ar5iv.labs.arxiv.org/html/2404.04100v1`, does the same for formation dancing with up to 16 dancers:
+drag-and-drop formations, transition waypoints, per-dancer path-length charts.) **And the same tools show the
+failure mode to avoid:** straight-line interpolation between formations, and endpoint-only authoring. In square
+dancing there is no editor of this kind at all - Taminations, the corpus this engine renders, is
+**hand-written XML with no GUI** (`taminations-flutter`, AGPL), and the commercial choreography tools that
+exist (CSDS, `ceder.net/csds/`) drag dancers from a start spot to an end spot and state outright that they do
+**not** animate or count beats. **The vocabulary to build the gestures out of is already standardised**:
+CALLERLAB's definitions (`knowledge.callerlab.org/programdocuments/`) specify each call as *starting formation
+/ dance action / ending formation / timing in beats*, and describe the motion in reusable terms - "turn, **as a
+unit**, away from the center of the Line for **3/4 of a circle (270 degrees)**", "Turn 1/4 by the left", the
+**Facing Couples Rule** and the **Ocean Wave Rule**. So the arc gesture's units should be the ones the
+definitions use: a **fraction of a circle**, about a named centre, as a unit - not a raw Bezier control point.
+
 **The measurements that constrain any design:**
 - a joint is **usually already smooth** (**83.7%** of 51180 interior joints within 1deg), but a **corner is an
   authored thing** (max 180deg) - so an editor may neither break continuity casually nor force it;
@@ -3989,6 +4011,17 @@ is the documented regret of every tool that took this shortcut, and D4's radius/
 in the survey is an artefact of the under-determined tangent-to-orientation map in **3D**. In 2D the heading is
 one scalar and the flip is one named sign. The POC already has the flat view (`ORTHO_CAM_HEIGHT`,
 `squareCamera2D`); path authoring belongs there.
+
+**D7b. And the specific avoid-list the prior art contributes,** each of which is a documented dead end in a
+sibling domain: **endpoint-only authoring** (CSDS - cannot animate); **straight-line interpolation between
+formations** (wrong for every orbital call, and one of the five walk-through mechanisms already closed here);
+**free-form curves with no formation snapping** (Pyware can afford bespoke curves, this repo has 500+ reusable
+calls); **hand-edited XML as the only authoring path** (keep it as import/export - which is exactly what
+`callToXml` already is); **a duplicate animation per starting formation** where the Facing Couples or Ocean
+Wave rule would compose it; **absolute floor coordinates inside a movement primitive** (it kills reuse across
+formations, which is the whole reason the local frame exists - and D2 must therefore not leak world
+coordinates *into* `moves.xml`); and **treating styling as decoration**, since paths, facings, hands and beats
+are the contract. A music/caller console is explicitly *not* this tool's problem.
 
 **The cheapest first step, and the one that de-risks the rest:** D2. It is a change of *coordinates*, not of
 feature, it is exactly checkable against the whole corpus, and every later item is easier in world space.

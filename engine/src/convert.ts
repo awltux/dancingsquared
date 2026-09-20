@@ -303,14 +303,40 @@ function parseCallXmlImpl(xmlText: string): TamRaw[] {
 // Squared Set or an on-axis wave/column).
 const MIRROR_EPS = 0.01;
 
-function mirrorToFull(dancers: DancerSpec[]): DancerSpec[] {
+/** Anything placed on the floor: both the formation registry's dancers and a tam's own carry these. */
+type PlacedDancer = { x: number; y: number; angleDeg: number; mirror?: boolean };
+
+/** Whether a set already CONTAINS its own 180-degree partners, and so is already whole. */
+function hasAntipode(dancers: PlacedDancer[]): boolean {
   for (const d of dancers) {
     for (const e of dancers) {
       if (d === e) continue;
-      if (Math.abs(-d.x - e.x) < MIRROR_EPS && Math.abs(-d.y - e.y) < MIRROR_EPS) return dancers;
+      if (Math.abs(-d.x - e.x) < MIRROR_EPS && Math.abs(-d.y - e.y) < MIRROR_EPS) return true;
     }
   }
+  return false;
+}
+
+function mirrorToFull(dancers: DancerSpec[]): DancerSpec[] {
+  if (hasAntipode(dancers)) return dancers;
   return [...dancers, ...dancers.map((d) => ({ ...d, mirror: true }))];
+}
+
+/**
+ * A formation's dancers as the FULL set, with the duplicated half PLACED rather than flagged.
+ *
+ * `mirrorToFull` marks the duplicate half instead of moving it: the duplicate keeps the base's `(x, y)` and
+ * `poseFor` negates the pose when it reads it. That is right while ONE path is replayed for both halves, and
+ * wrong the moment each dancer has its OWN path - which is exactly what a full set of paths means - because the
+ * negation would then be applied on top of a start that was already placed. So this puts the duplicate where
+ * `poseFor` would have put it and clears the flag.
+ */
+function materialiseFull<T extends PlacedDancer>(dancers: T[]): T[] {
+  if (hasAntipode(dancers)) return dancers; // already a whole set: nothing to place
+  return [
+    ...dancers.map((d) => ({ ...d, mirror: false }) as T),
+    ...dancers.map((d) => ({ ...d, x: -d.x, y: -d.y, angleDeg: d.angleDeg + 180, mirror: false }) as T),
+  ];
 }
 
 function buildCallImpl(
@@ -332,6 +358,24 @@ function buildCallImpl(
   // Resolve each path into segments.
   const resolvedPaths = tam.paths.map((p) => resolvePath(p, moves, []));
   if (resolvedPaths.length === 0) throw new Error(`No paths for ${tam.title}`);
+
+  // A FULL SET OF PATHS AGAINST A HALF SET OF DANCERS - and this is what an EDITOR-AUTHORED call looks like
+  // whenever its `from` names a formation that authors less than a whole set. The corpus pairs N paths with N
+  // dancers, or with 2N dancers when one path is replayed for a pair; a CREATED or EDITED call is always
+  // full-set, so `formation="Circle"` - which authors FOUR - travelled with EIGHT paths and threw
+  // "Path count mismatch for Circle Left: 8 paths vs 4 dancers" the moment the edit was applied to the library.
+  //
+  // The WRITER already knew this: `callTamXml` mirrors a four-dancer formation to eight before comparing, and
+  // says so, "because that is what `buildCallImpl` does with a four-dancer formation before pairing paths". It
+  // did not - it paired first and mirrored after - so the reference it wrote was one the reader could never
+  // resolve. The two halves of the same decision were in different files and only one of them was tested.
+  //
+  // Mirroring is attempted and the counts are re-checked rather than assumed: a formation that already
+  // CONTAINS its own antipodes is a whole set however few dancers it lists, and `mirrorToFull` leaves it alone.
+  if (resolvedPaths.length === dancers.length * 2) {
+    const full = materialiseFull(dancers);
+    if (full.length === resolvedPaths.length) dancers = full;
+  }
 
   // Align paths to dancers (1:1, or 1 path per dancer-pair).
   const withPath: DancerSpec[] = [];

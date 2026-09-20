@@ -1988,6 +1988,90 @@ console.log('\n== 26. The arc that is meant, and the fit that says nothing ==');
   }
 }
 
+// --------------------------------------------------------------------------------
+// 27. a call whose `from` names a HALF-SET formation must be readable, not just writable
+//
+// Reported: "The create circle is not preserving the half set as I get this error after applying create circle
+// and apply to live: Path count mismatch for Circle Left: 8 paths vs 4 dancers".
+//
+// THE WRITER AND THE READER DISAGREED, and only the writer was tested. `callTamXml` mirrors a four-dancer
+// formation to eight BEFORE comparing, and says why: "because that is what `buildCallImpl` does with a
+// four-dancer formation before pairing paths". It did not - it paired paths FIRST and mirrored after - so a
+// full set of paths against a half set of dancers threw before the mirroring was ever reached. The reference
+// was therefore one the reader could never resolve.
+//
+// AND THE OLD CHECK COULD NOT SEE IT: section 20 asserts the written XML CONTAINS `formation="NAME"`, and
+// registers an EIGHT-dancer formation to resolve it against, so it never went near the half-set case. A gate on
+// the TEXT of an export is not a gate on the export.
+console.log('\n== 27. A full set of paths against a HALF-set formation ==');
+{
+  const corpus = parseFormations(formationsXml);
+  const circleShape = corpus.get('Circle') ?? null;
+  check(!!circleShape && circleShape.length === 4,
+    `\`Circle\` authors HALF a set (${circleShape ? circleShape.length : 0} dancers), which is what makes this reachable while the corpus itself never writes it`);
+  const halfTam = parseCallXml(circleXml).find((t) => /^circle$/i.test((t.formationAttr ?? '').trim()));
+  check(!!halfTam, 'and ms/circle.xml has a `Circle Left` that names it');
+  if (circleShape && halfTam) {
+    const call = normalizeInstance(buildCall(halfTam, corpus, parseMoves(movesXml), true));
+    check(call.dancers.length === 8, `which builds to a whole set of ${call.dancers.length} dancers by mirroring the four`);
+    // The app's own rule for "what does that name resolve to here" (`poc/src/tam-xml.ts`): the authored
+    // formation, mirrored to eight when it authors four.
+    const DEG2 = Math.PI / 180;
+    const corpusPoses = (name) => {
+      if (!/^circle$/i.test(name)) return null;
+      const p = circleShape.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG2, gender: d.gender }));
+      return p.length === 4
+        ? p.concat(p.map((q) => ({ x: -q.x, y: -q.y, heading: q.heading + Math.PI, gender: q.gender })))
+        : p;
+    };
+    // Lay the whole call on one circle about the origin, which is the edit that produced the report.
+    const to = call.dancers[0].path.length - 1;
+    let edited = call;
+    for (let d = 0; d < 8; d++) {
+      const dn = edited.dancers[d];
+      const p0 = poseFor(dn, 0);
+      const own = fitCircleRun(edited, d, 0, to);
+      edited = setRunCircle(edited, d, 0, to, {
+        cx: 0,
+        cy: 0,
+        r: Math.hypot(p0.x, p0.y),
+        sweep: own ? own.sweep : runTurn(edited, d, 0, to),
+      });
+    }
+    const xml = callToXmlNamed(edited, edited.from, corpusPoses).match(/<tam[\s\S]*?<\/tam>/)[0];
+    check(/formation="Circle"/.test(xml), 'the export writes the reference it should - the name resolves and the shape matches');
+    check((xml.match(/<path/g) ?? []).length === 8, 'and it carries a path for every one of the eight dancers');
+    // THE ROUND TRIP, which is the half that was missing. Both mirrorings are read, because the app reads an
+    // applied edit with `mirror: false` and the live catalogue with `mirror: true`.
+    for (const mirroring of [false, true]) {
+      let back = null;
+      try {
+        back = normalizeInstance(loadCallFromXml(`<calls>\n${xml}\n</calls>`, movesXml, formationsXml, 0, mirroring));
+      } catch (e) {
+        check(false, `reading it back with mirror=${mirroring} throws: ${e.message}`);
+        continue;
+      }
+      check(back.dancers.length === 8, `it READS BACK with mirror=${mirroring} as ${back.dancers.length} dancers`);
+      let worstStart = 0;
+      let worstOrbit = 0;
+      for (let d = 0; d < 8; d++) {
+        const a = poseFor(edited.dancers[d], 0);
+        const b = poseFor(back.dancers[d], 0);
+        worstStart = Math.max(worstStart, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+        const ra = fitCircleRun(edited, d, 0, to);
+        const rb = fitCircleRun(back, d, 0, to);
+        if (ra && rb) worstOrbit = Math.max(worstOrbit, Math.abs(ra.r - rb.r), Math.abs(ra.cx - rb.cx), Math.abs(ra.cy - rb.cy));
+      }
+      check(worstStart < 1e-9, `and every dancer stands exactly where it did (worst ${worstStart.toExponential(1)}) - the mirrored half is PLACED, not re-flagged`);
+      // The export writes four decimals, so the paths come back within that and the orbits with them.
+      check(worstOrbit < 1e-3, `and the circle is the same one (worst ${worstOrbit.toExponential(1)}, the export's own rounding)`);
+      // THE MIRROR FLAG IS THE TRAP HERE. A duplicate that kept `mirror: true` would have `poseFor` negate a
+      // start that was already placed, putting that dancer back on the other half of the square.
+      check(back.dancers.every((d) => !d.mirror), `and none of them is flagged as the mirrored half with mirror=${mirroring}, because each one has its own path`);
+    }
+  }
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('EDITOR TEST PASSED');
 else {

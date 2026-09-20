@@ -1230,6 +1230,30 @@ The centre is **shared** across the selection (unlike the radius, which follows 
 and naming a radius clears a named centre and vice versa - they are two ways to drive the same two degrees of
 freedom, not two independent numbers. A **drag** of the centre on the board is the intended next gesture and is
 not built yet.
+**A FULL SET OF PATHS AGAINST A HALF-SET FORMATION COULD BE WRITTEN BUT NOT READ.** Reported after an edit was
+applied to the library: *"Path count mismatch for Circle Left: 8 paths vs 4 dancers."* `Circle` in
+`formations.xml` authors **four** dancers; a tam that names it builds to eight by mirroring. An edited call is
+always full-set, so it **names** the formation and carries **eight** paths - and the parser paired paths against
+the authored **four** and threw *before* it mirrored.
+
+**The writer and the reader disagreed, and only the writer was tested.** `tam-xml.ts` mirrors a four-dancer
+formation to eight before comparing, with the note *"because that is what `buildCallImpl` does with a
+four-dancer formation before pairing paths"* - which it did not. And the old gate asserted the exported XML
+**contains** `formation="NAME"`, resolving it against a **registered eight-dancer** formation, so it never went
+near this case. A gate on the *text* of an export is not a gate on the export.
+
+The parser now materialises the half to a whole set **before** pairing. The duplicate is **placed** rather than
+flagged: `mirrorToFull` keeps the base's `(x, y)` and lets `poseFor` negate it at read time, which is right
+while **one** path is replayed for both halves and wrong the moment each dancer has its **own** path — the
+negation would land on top of a start already placed. Round-tripped, both ways the app reads an edit:
+
+| | |
+|---|---|
+| `formation="Circle"` + 8 paths, read with `mirror=false` **and** `mirror=true` | **8 dancers** |
+| worst start-pose difference | **0.0** |
+| worst orbit difference | **4.7e-5** (the export's four decimals) |
+| dancers left carrying the mirror flag | **none** |
+| the corpus | **5943** tams, still exactly the same **2** pre-existing failures |
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

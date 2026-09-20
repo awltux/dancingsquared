@@ -2572,3 +2572,30 @@ every orbit's centre goes from 1.013 off the origin to 1.7e-7, each radius lands
 distance, so nothing was chosen - no dancer's start moves at all (0.0), and the turn changes by 8.0e-8deg so it
 still closes. Panel: `centre x`, `centre y`, an `origin` button and a `clear`, in a group of their own so they
 wrap. A DRAG of the centre on the board is the intended next gesture and is NOT built yet.
+
+A FULL SET OF PATHS AGAINST A HALF-SET FORMATION WOULD NOT LOAD. Reported: "The create circle is not preserving
+the half set as I get this error after applying create circle and apply to live: Path count mismatch for Circle
+Left: 8 paths vs 4 dancers". Reproduced exactly: `Circle` in formations.xml authors FOUR dancers, the tam builds
+to eight by mirroring, the editor's export names it (`formation="Circle"`) and carries EIGHT paths - and
+`buildCallImpl` threw before it ever mirrored, because it paired paths against the AUTHORED four and mirrored
+afterwards.
+
+THE WRITER AND THE READER DISAGREED AND ONLY THE WRITER WAS TESTED. `poc/src/tam-xml.ts` mirrors a four-dancer
+formation to eight before comparing and says why: "because that is what `buildCallImpl` does with a four-dancer
+formation before pairing paths". It did not. So the reference was one the reader could never resolve, and the
+gate could not see it because section 20 asserts the written XML CONTAINS `formation="NAME"` and resolves it
+against a REGISTERED EIGHT-dancer formation - it never went near the half-set case. A gate on the text of an
+export is not a gate on the export.
+
+Fixed in `convert.ts`: when a tam carries twice as many paths as the formation authors dancers, the half is
+MATERIALISED to a whole set BEFORE pairing. `materialiseFull` places the duplicate rather than flagging it -
+`mirrorToFull` keeps the base's (x,y) and lets `poseFor` negate at read time, which is right while ONE path is
+replayed for both halves and wrong the moment each dancer has its OWN path, since the negation would land on top
+of a start already placed. Mirroring is attempted and the counts re-checked rather than assumed, so a formation
+that already contains its own antipodes stays whole.
+
+Round-tripped: `formation="Circle"` with eight paths reads back with mirror=false AND mirror=true as eight
+dancers, every start pose identical to 0.0, the orbit identical to 4.7e-5 (the export's four decimals), and no
+dancer left carrying the mirror flag. The corpus is untouched - 5943 tams, still exactly 2 failures, both the
+pre-existing "No formation T-Bone Couples" tams, and 4794 building to eight dancers. Gated in
+`engine/test/editor.mjs` 27, which round-trips the tam rather than reading its text.

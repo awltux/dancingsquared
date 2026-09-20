@@ -44,6 +44,13 @@ function corpusOf(name: string): { x: number; y: number; angleDeg: number; gende
  * MIRRORED TO EIGHT when the corpus authors four dancers, because that is what `buildCallImpl` does with
  * a four-dancer formation before pairing paths: a created call is always full-set, so the comparison has
  * to be against the shape the parser will actually build.
+ *
+ * THAT SENTENCE USED TO BE FALSE AND THE REFERENCE IT JUSTIFIED WAS UNREADABLE. `buildCallImpl` paired paths
+ * against the AUTHORED four and mirrored later, so a four-dancer formation carrying eight paths threw "Path
+ * count mismatch ... 8 paths vs 4 dancers" - and since `Circle` authors four, a `Circle Left` whose whole call
+ * had been laid on a circle could be written but not read back. The comparison here was always right; the
+ * parser was the half that disagreed, and `convert.ts` now places the mirrored half BEFORE pairing. A gate on
+ * the TEXT of an export cannot see this, which is why `engine/test/editor.mjs` 27 round-trips one instead.
  */
 export function corpusFormationPoses(name: string): FormDancer[] | null {
   const authored = corpusOf(name);

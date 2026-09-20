@@ -3860,6 +3860,144 @@ route for those five, so nothing else should be spent on them.
 
 ---
 
+### A WYSIWYG PATH EDITOR: the design the measurements point at (designed, not built)
+
+The goal, in the user's words: *"an intuitive mechanism to edit the dance path through a wysiwyg interface.
+Many of the paths are circular (so this has to be easy to achieve), and the dancers moves must start and end
+at fixed points (defined by a formation). There should be an easy way to make the dancer face the right
+direction."* `poc/tools/wysiwyg-path-probe.mjs` measures the corpus against those three claims (the numbers
+are in `poc/README.md`); this is what they imply.
+
+**The panel exposes ONE of the three things a move has.** A `Seg` carries a *position* curve, a *facing*
+channel (`rotate`, or "face along travel" when null), and *timing*. The instance panel edits the six numbers
+of the position curve, and the facing only through a second tab on the same six-number widget. Everything
+asked for this session - the handle/endpoint mode toggle, the quarter-arc checkbox, the arc-centre handle, the
+end-formation connect - is a workaround for that one mismatch.
+
+**The measurements that constrain any design:**
+- a joint is **usually already smooth** (**83.7%** of 51180 interior joints within 1deg), but a **corner is an
+  authored thing** (max 180deg) - so an editor may neither break continuity casually nor force it;
+- the dancer **often does not face where it is going** (**37.8%** of 89132 poses more than 10deg off, 2.3%
+  walking backwards) - so facing is **not** derivable from the path;
+- joints are **two-thirds on a formation spot and one-third on none** - so pinning and freeing must both be
+  first-class;
+- a circular **move** is always a **quarter** (max sweep 90.0deg over 10884 circle fits), while an **orbit is a
+  chain** of them (**4589** runs, median 270deg, max 765deg).
+
+**D1. The JOINT is the editing unit, not the move.** A joint is `(position, facing)` at a move boundary. Every
+measured fact above is about joints; the six numbers are what a *pair* of joints compiles to. The panel should
+put a draggable dot at each joint with a heading arrow, and treat the curve as the rendering of it.
+
+**D2. Edit in WORLD space; store in LOCAL space.** The stored form is a bijection of the world description
+(each move's curve is the world curve re-expressed in the frame at that move's start), and the local form is
+what makes `moves.xml` reusable across formations - so both are wanted, but the *editor* must be the world
+one. Today a local-curve edit moves the world path downstream of it, which is exactly the "the board rotated
+when I changed a number" class of surprise. The conversion is mechanical and should be a gate: re-express the
+whole corpus world-first and require a round trip inside the export's own four decimals.
+
+**D3. The hard constraints are STRUCTURAL, not solved.** A pinned joint stores a **reference** to a formation
+spot, not coordinates, and the position/facing are *read* from it - so "exactly" cannot drift. A free joint
+stores a world point. Precedent: SolveSpace special-cases any equation solvable by forward substitution and
+only runs Newton on the genuinely coupled remainder (`solvespace.com/tech.pl`). The alternative - a numeric
+constraint solver - is **history-dependent**: the branch is chosen by the initial guess, which is FreeCAD's
+documented "flipping" problem. For 6 unknowns per segment and tens of segments that price is not worth paying.
+
+**D4. The CIRCLE is ONE object over a RUN of moves.** Select the run, press *circle*: fit (Pratt/Taubin on
+world samples - **not** Kasa, which is biased toward small circles on partial arcs), show centre and radius,
+and edit **radius + side**. That is exactly the true degree of freedom: a circular arc between two fixed
+points has **1 continuous DOF (the radius) and 1 discrete one (which side)**, and the endpoint headings are
+then *derived*. Storage splits it into <=90deg cubics, because the standard construction's error is O(theta^6)
+- a quarter is 2.7e-4 of the radius, a single cubic semicircle is **100x worse** - and **the centre and radius
+are the source of truth**, never the cubics, or repeated editing bleeds the shape off the circle (which is
+what mainstream 2D tools gave up on and why their circles stop being circles).
+
+**D4a. THREE arc gestures, one storage.** The prior art converges on a clear split, and the corpus supports it:
+- **Tangent-continuation is the DEFAULT for one move.** The previous move's exit tangent is already data, so
+  the user supplies **one** input and gets a G1-continuous arc - this is AutoCAD's "press Enter at the start
+  prompt" and BricsCAD's "follow last point" (`help.bricsys.com/.../arc-command`), and it is exactly the
+  gesture for "dance around the circle", where the joint is measured to be smooth anyway.
+- **Bulge-drag is the general "make this an arc".** Drag the curve sideways; the distance sets the radius and
+  the direction sets the side, with **no sign convention at all**. This is the same family as the 3-point arc
+  (AutoCAD's most intuitive option) but continuous rather than click-commit.
+- **A radius field, with the flip NAMED, not hidden.** `Start-End-Radius` is two-valued in radius (minor /
+  major) and two-valued in side: four arcs. AutoCAD resolves side by endpoint pick ORDER and flips CCW/CW on
+  Ctrl, and SVG formalises it as `large-arc-flag` + `sweep-flag` - two flags that are *not geometric
+  quantities*, which is the W3C's own complaint about them (`github.com/w3c/svgwg/issues/945`). Ship the
+  radius field **with a visible minor/major and side toggle**; shipping it alone is the classic "I typed 5 ft
+  and got the wrong arc".
+
+**AND THE OVER-DETERMINATION IS REAL, WHICH IS WHY THE TWO CHANNELS MATTER.** If the *facing* is also pinned
+to the travel tangent at both ends, a circle through two fixed points is **over-determined by one** (5 unknowns
+of centre+radius+angles, 6 equations) and generically **has no solution** at all. This engine keeps facing in a
+**separate channel**, so the circle survives - and the UI should say *which* constraint is being relaxed rather
+than silently producing a non-circle. That is the concrete payoff of the two-channel model the corpus uses.
+FreeCAD's own worked algebra for the same primitive says the same thing from the other end: an arc has 5 DOF,
+two endpoint coincidences eat 4, and the **last one has to be the radius** - a third coincidence is an
+over-constraint (`wiki.freecad.org/Sketcher_CreateArc`).
+
+**D5. FACING is a first-class per-joint control with three states.** *along travel* (derived), *an absolute
+heading* (pinned, and what a formation declares), *an authored profile* (the `rotate` curve). The panel shows
+the turn as a number and lets the heading arrow be dragged; the curve is generated. The prior art is
+unanimous that this must be a *proper channel with an explicit off*, not a derived read-only consequence:
+CSS `offset-rotate` is independently animatable and names the reversal (`auto | reverse | <angle>`, where
+`reverse` is literally `auto 180deg`); Unity splines have `Align To = None`; Maya replaced a boolean
+`useNormal` with a five-mode enum because "which way is forward" is not a checkbox. **And the failure mode to
+avoid is the top reported complaint in this whole area: an auto-facing rule and a manual heading that both
+write the same channel and are silently combined, so the user cannot debug it.** So: one writer per joint, and
+"face along travel" is switched OFF *visibly* when a heading is pinned.
+
+**D6. Continuity defaults to SMOOTH with NO OVERSHOOT.** Blender's `AUTO_CLAMPED` is the right precedent: it
+refuses to let an automatic handle overshoot past the fixed point, which for us means the path may not bulge
+past a pinned formation spot. A corner stays available and explicit. Note the documented trap: Inkscape's
+switch to auto-smooth **repositions handles and deforms the path**, and touching a handle silently drops the
+auto status (`bugs.launchpad.net/inkscape/+bug/654765`). **A mode switch must never move geometry.**
+
+**D6a. Do NOT show a "degrees of freedom" badge and expect it to work.** Measured elsewhere and worth
+inheriting: of 40 engineering students, **only 20% could correctly judge whether a sketch was fully
+constrained, and training did not significantly improve it** (`cad-journal.net/files/vol_18/CAD_18(3)_2021_612-623.pdf`).
+So the panel must show the *geometric consequence* - a ghost of the curve the constraint allows, or the
+reachable handle - rather than a symbol the user is expected to interpret. Colour (Onshape's blue/black) is a
+useful ambient cue and nothing more.
+
+**D6b. Every refusal and every silent no-op has to be on screen.** "The tool did nothing and did not say why"
+is the single most repeated failure in the survey (Blender's Follow Path inert until *Animate Path*; AE's
+auto-orient inert when a position expression exists; 3ds Max's bank only working when `follow` is true). This
+repo already writes reasons into the status line for the arc lock and the coordinate gate; that is the
+established pattern and it must hold for all of the above.
+
+**D6c. The handle/endpoint collision needs more than the mode toggle.** The measured problem (5.5% of corpus
+curves have a control point sitting on its own endpoint, and a straight segment's handle retracts *exactly*
+onto the anchor) has four standard fixes, all better than one toggle: **don't draw handles until the joint is
+selected** (Figma creates handles on demand, so a resting handle never covers an anchor); **give the joint
+priority over its own handles** (Onshape: non-fully-constrained points are prioritised over overlapping
+fully-constrained ones); **Ctrl-click retracts a handle to zero and Shift-drag pulls a hidden one back out**
+(Inkscape); and **Tab cycles the joints** so there is always a keyboard route. The existing `controls / ends`
+toggle stays as the coarse switch, but it should not be the only answer, and **snapping must have a bypass
+modifier** (Inkscape's "can't disable node handle snapping" is a documented pain).
+
+**D7. Do NOT build:** a general CAD constraint solver (D3 gives the structural answer for every case the corpus
+has); SVG's `A` arc parameterisation *as the internal storage* (four candidate arcs, two non-geometric flags,
+silently rescaled out-of-range radii, no way to express a full circle) - keep it only as the interchange
+encoding, which is exactly what D4a's "store it as two flags" means; clothoid/Spiro/G2 blends (at walking speed
+with radii of 1-3 units the lateral-jerk step is imperceptible, the separate facing channel already decouples
+visible turn smoothness from path curvature, and Inkscape's own manual concedes its Spiro implementation
+"sometimes yields wild curves"); and **destructive arc baking** - "a shape can always be converted to a path,
+but a path can never be converted back into an object" (`inkscape-manuals.readthedocs.io/.../objects-to-paths.html`)
+is the documented regret of every tool that took this shortcut, and D4's radius/sweep editing dies with it.
+
+**D7a. Keep the editor 2D, and treat that as a feature.** Every "it flipped" / "it rolled" / gimbal complaint
+in the survey is an artefact of the under-determined tangent-to-orientation map in **3D**. In 2D the heading is
+one scalar and the flip is one named sign. The POC already has the flat view (`ORTHO_CAM_HEIGHT`,
+`squareCamera2D`); path authoring belongs there.
+
+**The cheapest first step, and the one that de-risks the rest:** D2. It is a change of *coordinates*, not of
+feature, it is exactly checkable against the whole corpus, and every later item is easier in world space.
+`poc/tools/wysiwyg-path-probe.mjs` part 6 already pins the premise it rests on: over **1037564** samples the
+stored local curves and (boundary pose + world curve) agree to **7.2e-15 units** and **4.1e-13 deg**, so the
+two spaces carry the same information and the editor may move between them freely.
+
+---
+
 ## 5. Blocked, and recorded so nobody re-opens them
 
 These are Phase 4e's remainder. Each was probed to a definite answer and each needs a **source of the

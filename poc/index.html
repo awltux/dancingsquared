@@ -150,13 +150,20 @@
             </select>
           </div>
           <div class="row">
+            <label title="Which LEVEL the three call lists below offer — the same selector the browse and sequence views carry. MS is the default, because a caller's own edits are Mainstream until it says otherwise.">Level</label>
+            <select
+              id="edLevel"
+              title="Narrows every call list in this panel to one level, on top of whatever the Find box says. It narrows the LISTS only: the call you already have selected STAYS selected, so switching level cannot throw away an edit in progress — and 'All levels' puts every call back within reach."
+            ></select>
+          </div>
+          <div class="row">
             <label>Find</label>
             <input
               id="edCallFilter"
               class="wide"
               type="text"
               placeholder="filter calls: level, title or setup — e.g. &quot;circle&quot;, &quot;ms wave&quot;, &quot;static square&quot;"
-              title="Narrows EVERY call list in this panel (edit, post and pre). Terms are ANDed and matched as substrings against the level, the title, the file and the setup's `from` label, so &quot;ms circle&quot; and &quot;static square&quot; both work. The call you currently have selected is always kept at the top of its list, so narrowing the list cannot silently change what you are editing. Escape clears it."
+              title="Narrows EVERY call list in this panel (edit, post and pre). Terms are ANDed and matched as substrings against the level, the title, the file and the setup's `from` label, so &quot;ms circle&quot; and &quot;static square&quot; both work. This box and the Level selector narrow the same lists and combine: a term that names a level other than the selected one matches nothing. The call you currently have selected is always kept at the top of its list, so narrowing the list cannot silently change what you are editing. Escape clears it."
             />
             <span id="edCallFound" class="part"></span>
           </div>

@@ -49,6 +49,7 @@ import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, FormDancer, 
 
 import {
   availableCalls,
+  availableLevels,
   loadCall,
   loadEdits,
   persistEdits,
@@ -102,6 +103,9 @@ export interface EditorHost {
 // Warning threshold for a "large" closure correction.
 const HEADING_WARN = 0.35; // rad (~20deg)
 const POS_WARN = 2.0; // units
+
+/** The level the editor's call lists open on. See `populateLevels`. */
+const DEFAULT_LEVEL = 'ms';
 
 const HANDS: Hands[] = ['none', 'left', 'right', 'both', 'gripleft', 'gripright', 'gripboth'];
 const GENDERS: Gender[] = ['boy', 'girl', 'phantom'];
@@ -298,6 +302,7 @@ export class EditorController implements EditorUI {
   private active = false;
 
   private modeSel = el<HTMLSelectElement>('edMode');
+  private levelSel = el<HTMLSelectElement>('edLevel');
   private callFilterInput = el<HTMLInputElement>('edCallFilter');
   private callFoundEl = el<HTMLSpanElement>('edCallFound');
   private editCallSel = el<HTMLSelectElement>('edCall');
@@ -421,7 +426,10 @@ export class EditorController implements EditorUI {
     this.stage = stage;
     this.host = host;
 
-    for (const sel of [this.editCallSel, this.postCallSel, this.preCallSel]) this.fillCallSelect(sel, sel.value);
+    this.populateLevels();
+    // The same call the Find box and the level selector make, so the panel opens with its readout
+    // filled in and the three lists showing the same view a change to either control would produce.
+    this.applyCallFilter();
 
     this.wireEvents();
     this.wireHandleDrag();
@@ -485,6 +493,26 @@ export class EditorController implements EditorUI {
 
   // ---- the call filter ----
 
+  /**
+   * Fill the LEVEL selector, and choose its default.
+   *
+   * MS IS THE DEFAULT because it is where a caller's own authoring normally belongs, and because the
+   * panel used to open on whatever call happens to sort first in a catalogue of every level the app
+   * ships - which is not a choice anybody made. `All levels` stays available: the level narrows what
+   * the lists OFFER, and a selector with no way back to the whole catalogue would make every other
+   * level unreachable from the editor.
+   *
+   * The list itself comes from the loaded catalogue, not from a hard-coded level list, so a level the
+   * app has no calls for cannot be offered - the same rule the browse and sequence views use.
+   */
+  private populateLevels() {
+    this.levelSel.add(new Option('All levels', ''));
+    for (const lv of availableLevels()) this.levelSel.add(new Option(lv.toUpperCase(), lv));
+    // Only if the catalogue really has it: `value` on a select ignores an id it does not hold, which
+    // would silently leave the first option selected and the default a lie.
+    if (Array.from(this.levelSel.options).some((o) => o.value === DEFAULT_LEVEL)) this.levelSel.value = DEFAULT_LEVEL;
+  }
+
   /** Lazily built lower-cased haystacks for the filter: level, title, file and every setup
    *  label. Built once, because the catalogue does not change while the app runs and this is
    *  read on every keystroke (three selects x the whole catalogue). */
@@ -509,12 +537,16 @@ export class EditorController implements EditorUI {
    */
   private fillCallSelect(sel: HTMLSelectElement, keepId: string): number {
     const terms = this.callQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const level = this.levelSel.value;
     const label = (c: CallInfo) => `${c.level.toUpperCase()} · ${c.title}`;
     sel.innerHTML = '';
     const keep = this.catalog.find((c) => c.id === keepId) ?? null;
     let kept = false;
     let found = 0;
     for (const c of this.catalog) {
+      // The level narrows the list exactly as the Find box does, and for the same reason: it is a
+      // VIEW of the catalogue. `All levels` (`''`) is not a level, so it matches everything.
+      if (level && c.level !== level) continue;
       if (!terms.every((t) => this.haystack(c).includes(t))) continue;
       found++;
       sel.add(new Option(label(c), c.id, false, c.id === keepId));
@@ -546,7 +578,13 @@ export class EditorController implements EditorUI {
     const found = this.fillCallSelect(this.editCallSel, this.editCallSel.value);
     this.fillCallSelect(this.postCallSel, this.postCallSel.value);
     this.fillCallSelect(this.preCallSel, this.preCallSel.value);
-    this.callFoundEl.textContent = this.callQuery.trim() ? `${found} of ${this.catalog.length} calls` : '';
+    // The readout is the panel's account of WHY a list is short, so it names the level whenever the
+    // level is doing any narrowing at all - matching what the Find box already did for its terms.
+    const bits: string[] = [];
+    const level = this.levelSel.value;
+    if (level) bits.push(level.toUpperCase());
+    if (level || this.callQuery.trim()) bits.push(`${found} of ${this.catalog.length} calls`);
+    this.callFoundEl.textContent = bits.join(' · ');
   }
 
   // ---- loading ----
@@ -2242,6 +2280,12 @@ export class EditorController implements EditorUI {
     this.showEndBtn.addEventListener('click', () => this.showEnd());
     this.showStartBtn.addEventListener('click', () => this.showStart());
     this.modeSel.addEventListener('change', () => this.applyMode());
+    // LEVEL AND FIND NARROW THE LISTS ONLY, and the level selector is not exempt because it sits
+    // above the lists rather than beside them: `fillCallSelect` keeps the selected call whatever
+    // either control says, so switching level cannot swap the call out from under an edit in
+    // progress. (Reloading the instance here would also have been the one way for a VIEW to
+    // destroy work.)
+    this.levelSel.addEventListener('change', () => this.applyCallFilter());
     this.hideDancersChk.addEventListener('change', () => this.applyViewOptions());
     this.view2dChk.addEventListener('change', () => this.applyViewOptions());
     // The filter narrows the LISTS only, so it never reloads a call: the selected ids are

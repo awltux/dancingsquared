@@ -2051,6 +2051,36 @@ swapped arrangement) and the tolerance the exporter's own rounding needs; `poc/t
 checks the wiring in the source and is SHOWN TO FAIL on two patched copies - a direct `callToXml` call, and
 the calls registered before the formations.
 
+**THE EDITOR NOW HAS A LEVEL SELECTOR, AND IT IS THE SAME CONTROL THE OTHER SCREENS CARRY.** Asked for as a
+"Programme selector e.g. MS, SSD, A1 etc under the Mode element, MS by default", and then named: "call it
+Level, like the other screens". So it is a `<select>` directly under **Mode**, filled from the loaded
+catalogue's own level list rather than a hard-coded one, with **All levels** among the options — the level
+decides what the three call lists *offer* and must never put the rest of the catalogue out of reach. The
+default is MS, and the default is CHECKED rather than assigned: a `<select>` ignores a value it holds no
+option for, so setting `'ms'` blindly would have left the first option selected and the default a lie.
+
+The panel needed this more than the other two screens did. Its three lists (edit, post, pre) were the whole
+catalogue — several thousand `<tam>` entries whose level was only a prefix in the label — and the panel
+therefore opened on whatever call happens to sort first, which is not a choice anybody made.
+
+**THE RULE THAT MAKES IT SAFE IS THE ONE THE FIND BOX ALREADY HAD.** The level is applied inside
+`fillCallSelect`, the single function that builds a call list and the only thing the three selects are
+filled from, so no list can be narrowed differently from another. It is a **view**: the call you already
+have selected is still re-inserted (marked `▸`) when the level excludes it, and the level handler
+re-narrows the lists WITHOUT reloading the instance — the one thing a selector here must not do, because
+replacing the selected call would discard an edit in progress. The readout names the level whenever the
+level is doing any of the narrowing (`MS · 137 of 4821 calls`), so a short list always says why, and the
+level and the Find box AND together.
+
+GATED by `poc/tools/editor-level-probe.mjs`, which is labelled as what it is — a check on the SOURCE,
+because this is DOM code no engine harness can run and the sandbox cannot drive the browser: it checks the
+row under Mode, the MS default against the catalogue's own level order and asset directory, `All levels`,
+the filter living inside `fillCallSelect`, the pinned selection, all three lists being filled from that one
+function, and the handler that re-narrows without reloading — then runs the same analysis over four
+deliberately broken copies (the filter line removed, the default assignment removed, the handler reloading
+the instance, the pinned option dropped) and requires each to fail. `tsc -p poc --noEmit` clean, all
+eleven POC probes green.
+
 
 
 

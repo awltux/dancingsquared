@@ -1,0 +1,110 @@
+// Probe: DOES THE EDITOR'S LEVEL SELECTOR NARROW THE LISTS WITHOUT TAKING THE CALL AWAY?
+//
+// The request: "In the call editor | edit instance, add a Level selector ... under the Mode element,
+// and make MS the default selection", named Level "like the other screens".
+//
+// There is nothing here to measure numerically: the behaviour lives in DOM code that no engine harness
+// can run. What CAN be checked is the wiring, and two of these rules are the ones that would break
+// silently:
+//
+//   1. THE LEVEL GOES INTO THE ONE PLACE THAT BUILDS A CALL LIST (`fillCallSelect`), not into a second
+//      filtering path beside it. Three selects are filled from that one function, so a level applied
+//      anywhere else narrows some lists and not others.
+//   2. IT IS A VIEW, NOT A LOAD. `fillCallSelect` re-inserts the currently selected call when either
+//      control excludes it, and the level handler must NOT reload the instance: changing the selector
+//      would otherwise throw away edits in progress, which is the one thing a filter must not do.
+//
+// Run: node tools/editor-level-probe.mjs   (from anywhere)
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const read = (p) => fs.readFileSync(path.join(POC_DIR, p), 'utf8');
+
+let failures = 0;
+const check = (cond, msg) => {
+  if (cond) console.log('  ok   ' + msg);
+  else { failures++; console.log('  FAIL ' + msg); }
+};
+
+/** A method's body, from its signature to the `\n  }` that closes it at class-member indentation. */
+function body(src, signature) {
+  const i = src.indexOf(signature);
+  if (i < 0) return '';
+  const end = src.indexOf('\n  }\n', i);
+  return end < 0 ? src.slice(i) : src.slice(i, end);
+}
+
+/** The rules, applied to the panel's source so the same analysis can run over a broken copy. */
+function wiring(html, editor) {
+  const fill = body(editor, 'private fillCallSelect(');
+  const filter = body(editor, 'private applyCallFilter(');
+  const handler = /this\.levelSel\.addEventListener\('change', \(\) => ([^;]*)\);/.exec(editor);
+  return {
+    // The control is a LEVEL control under Mode, and it is the same kind of control the other
+    // screens carry (a select, filled from the catalogue).
+    underMode: /<select id="edMode">[\s\S]*?<\/select>\s*<\/div>\s*<div class="row">[\s\S]*?<select\s+id="edLevel"/.test(html),
+    // MS by default, and only when the catalogue really has it.
+    defaultsToMs: /const DEFAULT_LEVEL = 'ms'/.test(editor) && /this\.levelSel\.value = DEFAULT_LEVEL/.test(editor),
+    // Every level reachable, so the selector is a narrowing and not a wall.
+    allLevels: /new Option\('All levels', ''\)/.test(editor),
+    // The catalogue decides which levels are offered.
+    fromCatalogue: /for \(const lv of availableLevels\(\)\) this\.levelSel\.add/.test(editor),
+    // The level filters INSIDE the one function that builds a call list...
+    filtersInFill: /const level = this\.levelSel\.value;/.test(fill) && /if \(level && c\.level !== level\) continue;/.test(fill),
+    // ...and the selection is still kept when the level excludes it.
+    keepsSelection: /const opt = new Option\(`▸ \$\{label\(keep\)\}`/.test(fill) && /sel\.insertBefore\(opt, sel\.firstChild\)/.test(fill),
+    // All three lists are filled from that one function and nowhere else.
+    fillsAllThree: (filter.match(/this\.fillCallSelect\(/g) || []).length === 3
+      && (editor.match(/this\.fillCallSelect\(/g) || []).length === 3,
+    // And the handler only re-narrows: it reloads nothing.
+    viewOnly: handler !== null && /applyCallFilter\(\)/.test(handler[1]) && !/load(Instance|EditSetup|Post|Pre)\s*\(/.test(handler[1]),
+  };
+}
+
+const html = read('index.html');
+const src = { 'editor-ui.ts': read('src/editor-ui.ts') };
+const good = wiring(html, src['editor-ui.ts']);
+
+console.log('== the wiring, as it is ==');
+check(good.underMode, 'the Level selector is a row of its own directly under the Mode row');
+check(good.defaultsToMs, 'and it opens on MS, but only after checking the catalogue actually has that level (a select ignores an id it does not hold, so setting it blindly would leave the first option selected and the default a lie)');
+check(good.allLevels, 'with "All levels" among the options: the level narrows what the lists OFFER, and without it every other level would be unreachable from the editor');
+check(good.fromCatalogue, 'the levels offered come from the loaded catalogue, the same rule the browse and sequence views use');
+check(good.filtersInFill, 'the level is applied INSIDE `fillCallSelect`, the one function that builds a call list');
+check(good.keepsSelection, 'and the selected call is still re-inserted when the level excludes it');
+check(good.fillsAllThree, 'all three lists (edit, post, pre) are filled through that one function, so no list can be narrowed differently');
+check(good.viewOnly, 'changing the level only re-narrows the lists: it does not reload the instance, which is what would silently discard an edit in progress');
+
+// The default is a STRING, and a string that named a programme the catalogue does not carry would set
+// nothing (see `populateLevels`), so it is checked against the catalogue's own level list rather than
+// against the request that asked for it.
+console.log('\n== the default is a level the catalogue really carries ==');
+const levelOrder = (/levelOrder = \[([^\]]*)\]/.exec(read('src/data.ts'))?.[1].match(/'([^']+)'/g) || []).map((s) => s.slice(1, -1));
+const def = /const DEFAULT_LEVEL = '([^']+)'/.exec(src['editor-ui.ts'])?.[1] ?? '';
+const offersLevel = (lv) => {
+  const dir = path.join(POC_DIR, 'src/assets', lv);
+  return levelOrder.includes(lv) && fs.existsSync(dir) && fs.readdirSync(dir).some((f) => f.endsWith('.xml'));
+};
+check(def !== '' && offersLevel(def), `the default \`${def}\` is in the catalogue's level order and has calls under src/assets/${def}`);
+check(!offersLevel('mainstream') && !offersLevel(''), 'and a default naming a programme the catalogue does not carry is caught, as is an empty one');
+
+console.log('\n== the check fails on the bugs it was written for ==');
+{
+  const unfiltered = wiring(html, src['editor-ui.ts'].replace('const level = this.levelSel.value;', 'const level = \'\';'));
+  check(!unfiltered.filtersInFill, 'the selector stops narrowing anything when the filter line goes (the panel would show every level while the control claimed MS)');
+
+  const noDefault = wiring(html, src['editor-ui.ts'].replace('this.levelSel.value = DEFAULT_LEVEL;', 'this.levelSel.value = \'\';'));
+  check(!noDefault.defaultsToMs, 'and the default is not the default once the assignment goes');
+
+  const reloads = wiring(html, src['editor-ui.ts'].replace("this.levelSel.addEventListener('change', () => this.applyCallFilter());", "this.levelSel.addEventListener('change', () => { this.loadInstance(); });"));
+  check(!reloads.viewOnly, 'and a level change that reloads the instance is caught: the call would be replaced and edits in progress lost');
+
+  const unpinned = wiring(html, src['editor-ui.ts'].replace('sel.insertBefore(opt, sel.firstChild);', 'void keep;'));
+  check(!unpinned.keepsSelection, 'and so is dropping the pinned option, which is what makes the filter a view rather than a way to change what you have selected');
+}
+
+console.log('\n=================');
+if (failures === 0) console.log('ALL CHECKS PASSED');
+else { console.log(`${failures} CHECK(S) FAILED`); process.exit(1); }

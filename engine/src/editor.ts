@@ -500,6 +500,274 @@ export function moveCurveEnd(b: BezierData, x2: number, y2: number): BezierData 
   return { ...b, cx2: x2 - dx, cy2: y2 - dy, x2, y2 };
 }
 
+// ------------------------------------------------------------------ the run-level circle
+
+/**
+ * The largest turn ONE move may carry, and it is the corpus's own limit rather than a taste.
+ *
+ * MEASURED (`poc/tools/wysiwyg-path-probe.mjs` part 1): of the **10884** travel curves in the corpus that lie on
+ * a circle within 2% of its radius, the sweeps run from 10.1deg to **90.0deg** with a median of exactly 90deg -
+ * NOT ONE exceeds a quarter. So the format's own convention is at most a quarter turn per move, and a 360deg
+ * `Circle Left` is authored as EIGHT moves of 45deg.
+ *
+ * AND IT IS THE ACCURACY LIMIT TOO, which is why it is enforced rather than merely observed. The standard
+ * construction's error is O(theta^6): a quarter arc misses its circle by 2.72e-4 of the radius, and a single
+ * cubic SEMICIRCLE is about 100x worse (2.7e-2). Past a quarter the curve visibly leaves the circle, so a run
+ * that cannot carry the turn in quarters is refused with the number of moves it needs.
+ */
+export const RUN_ARC_MAX = Math.PI / 2;
+
+/** How many moves a turn needs, at most a quarter each. Always at least one, so a tiny turn is not zero. */
+export function runCircleMoveCount(sweep: number): number {
+  return Math.max(1, Math.ceil(Math.abs(sweep) / RUN_ARC_MAX - 1e-9));
+}
+
+/**
+ * Radians as degrees, for a message a caller reads.
+ *
+ * `DEG` IN THIS ENGINE IS `PI / 180` - it converts degrees TO radians - so `rad * DEG` is not a conversion at
+ * all, it is a number 3283 times too small. That is not a hypothetical: it made this file's own refusal say
+ * "move 2 would have to turn 0.0deg" for a move that had to turn 120, which reads as a broken guard rather
+ * than a broken run.
+ */
+function degrees(rad: number): number {
+  return (rad * 180) / Math.PI;
+}
+
+/** A circle and the turn to be taken on it. */
+export interface RunCircle {
+  cx: number;
+  cy: number;
+  r: number;
+  /** The signed total turn: positive is counter-clockwise, and the sign is which way round the circle. */
+  sweep: number;
+}
+
+/**
+ * The circle of radius `radius` through two points, on the side of the chord the caller names - or null when
+ * there is none.
+ *
+ * THIS IS THE WHOLE DEGREE OF FREEDOM, and it is worth stating because it is smaller than it looks. A circular
+ * arc has five numbers (centre, radius, and the two angles); pinning BOTH endpoints is four equations, so
+ * **one continuous degree of freedom remains** - the radius - **plus one discrete one**, which side of the
+ * chord the centre falls on. Everything else follows, INCLUDING both end headings: an arc's tangent is
+ * perpendicular to its radius, so the heading the run arrives on is *derived*, not chosen. That is why this is
+ * a safe primitive: there is no way to ask for an arc that does not join up.
+ *
+ * The sweep returned is the MINOR arc. A major arc is the same circle with the other sign of the centre's
+ * offset, and the caller asks for it by naming the side, so the two are never ambiguous.
+ *
+ * Two cases have no answer and return null rather than a guess: COINCIDENT endpoints (the chord is a point, so
+ * it defines no circle at all - a full turn is a different parameterisation, and this is exactly the case
+ * `fitCircle`'s own chord guard refuses) and a radius too SHORT to span the chord (`r < d/2`).
+ */
+export function circleThrough(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+  radius: number,
+  side: 1 | -1,
+): RunCircle | null {
+  const r = Math.abs(radius);
+  if (!(r > 1e-9)) return null;
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const d = Math.hypot(dx, dy);
+  if (!(d > 1e-9)) return null;
+  if (r < d / 2 - 1e-9) return null;
+  const h = Math.sqrt(Math.max(0, r * r - (d / 2) * (d / 2)));
+  const ux = dx / d;
+  const uy = dy / d;
+  const cx = (a.x + b.x) / 2 + side * h * -uy;
+  const cy = (a.y + b.y) / 2 + side * h * ux;
+  const a0 = Math.atan2(a.y - cy, a.x - cx);
+  const a1 = Math.atan2(b.y - cy, b.x - cx);
+  return { cx, cy, r, sweep: normAngleSafe(a1 - a0) };
+}
+
+/** The world pose of one dancer at absolute beat `t`, or the pose a run starts from. */
+function frameAt(dancer: DancerSpec, beat: number): Pose {
+  return poseFor(dancer, beat);
+}
+
+/** The beat at which move `k` begins for this dancer. */
+function moveStartBeat(dancer: DancerSpec, k: number): number {
+  return k === 0 ? 0 : moveBeatRange(dancer, k - 1).to;
+}
+
+/** The beat at which move `k` ends for this dancer. */
+function moveEndBeat(dancer: DancerSpec, k: number): number {
+  return moveBeatRange(dancer, k).to;
+}
+
+/**
+ * The circle a RUN of consecutive moves follows, or null.
+ *
+ * THE END TANGENTS CANNOT DO THIS JOB, which is why it is a least-squares fit over the whole run rather than
+ * the exact one-linear-solve construction `fitCircle` uses for a single curve. That construction finds the
+ * centre where the two end perpendiculars MEET, and a run may CLOSE ON ITSELF: `ms/circle.xml` is a 360deg
+ * `Circle Left` whose start and end tangents are PARALLEL, so the perpendiculars never meet and the answer
+ * would be "a straight line". Sampling the run and fitting the points has no such blind spot.
+ *
+ * Kasa's algebraic fit, so the caveat is recorded rather than hidden: on a PARTIAL arc it is biased toward
+ * small circles, because the algebraic residual is `d(2r + d)` rather than `d`. It is used here because the
+ * run is sampled densely across the whole turn, where that bias is smallest, and because the alternative
+ * (Pratt/Taubin) is a generalised eigenproblem for a gain this measurement does not need. `tolRel` is the
+ * caller's "closely", relative to the radius, exactly as `fitCircle`'s is.
+ *
+ * `sweep` is the total SIGNED turn about the centre over the run, summed sample to sample rather than taken as
+ * a difference of two angles - so a circle and a half, which is real (`ms/circle.xml` measures 361deg), reads
+ * as 361deg and not as 1deg.
+ */
+export function fitCircleRun(call: CallBundle, index: number, kFrom: number, kTo: number, tolRel = 0.02, samplesPerMove = 8): CircleFit | null {
+  const dancer = call.dancers[index];
+  if (!dancer) return null;
+  if (kFrom < 0 || kTo >= dancer.path.length || kTo < kFrom) return null;
+  const pts: { x: number; y: number }[] = [];
+  for (let k = kFrom; k <= kTo; k++) {
+    const from = moveStartBeat(dancer, k);
+    const to = moveEndBeat(dancer, k);
+    for (let i = 0; i <= samplesPerMove; i++) {
+      if (k > kFrom && i === 0) continue; // the shared joint is written by the previous move's t=1
+      const p = frameAt(dancer, from + ((to - from) * i) / samplesPerMove);
+      pts.push({ x: p.x, y: p.y });
+    }
+  }
+  if (pts.length < 3) return null;
+  let Suu = 0, Svv = 0, Suv = 0, Su = 0, Sv = 0, Sw = 0, Suw = 0, Svw = 0;
+  for (const p of pts) {
+    const w = p.x * p.x + p.y * p.y;
+    Suu += p.x * p.x; Svv += p.y * p.y; Suv += p.x * p.y;
+    Su += p.x; Sv += p.y; Sw += w;
+    Suw += p.x * w; Svw += p.y * w;
+  }
+  const det3 = (m: number[][]) =>
+    m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
+    m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) +
+    m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+  const M = [[Suu, Suv, Su], [Suv, Svv, Sv], [Su, Sv, pts.length]];
+  const rhs = [-Suw, -Svw, -Sw];
+  const det = det3(M);
+  if (!Number.isFinite(det) || Math.abs(det) < 1e-12) return null;
+  const swap = (c: number) => M.map((row, i) => row.map((v, j) => (j === c ? rhs[i] : v)));
+  const D = det3(swap(0)) / det;
+  const E = det3(swap(1)) / det;
+  const F = det3(swap(2)) / det;
+  const cx = -D / 2;
+  const cy = -E / 2;
+  const r2 = cx * cx + cy * cy - F;
+  if (!(r2 > 0)) return null;
+  const r = Math.sqrt(r2);
+  let maxDev = 0;
+  for (const p of pts) maxDev = Math.max(maxDev, Math.abs(Math.hypot(p.x - cx, p.y - cy) - r));
+  const relDev = maxDev / r;
+  if (relDev > tolRel) return null;
+  let sweep = 0;
+  let prev = Math.atan2(pts[0].y - cy, pts[0].x - cx);
+  for (let i = 1; i < pts.length; i++) {
+    const ang = Math.atan2(pts[i].y - cy, pts[i].x - cx);
+    sweep += normAngleSafe(ang - prev);
+    prev = ang;
+  }
+  return { cx, cy, r, maxDev, relDev, sweep };
+}
+
+/**
+ * Lay a RUN of consecutive moves along an arc, leaving everything outside the run EXACTLY as it was.
+ *
+ * The run keeps its move count, its beats and its hands: what changes is only the shape between its two ends,
+ * which is the point. THE TURN IS SPREAD IN PROPORTION TO BEATS, so a call that spends twice as long on one
+ * part of its circle travels twice as far round it - and a 45deg `Circle Left` move stays a 45deg move.
+ *
+ * HOW THE FRAMES ARE HANDLED, because this is where a path rewrite goes wrong. The stored curve is local: the
+ * arc is built in WORLD coordinates and then re-expressed in the frame each move starts in, and THAT FRAME
+ * MOVES WITH THE REWRITE. So the frames are recomputed as the run is written, not read from where they used to
+ * be:
+ *  - the frame's position is the sub-arc's own start point, so the joints land ON the circle;
+ *  - the frame's heading advances by the FACING channel's own rule - a move with a `rotate` curve keeps its
+ *    authored turn (which is the thing a caller wrote), and a move without one takes the arc's tangent, so a
+ *    dancer with no facing curve ends up walking the circle;
+ *  - the facing curves themselves are not touched. The relative turn a move was authored with survives, and
+ *    only the frame it is played in is new.
+ *
+ * THROWS rather than approximating, in three cases, each with the reason: a turn a move would have to take
+ * more than a quarter of (naming how many moves it needs), a run that starts off the circle, and a run with a
+ * move that has no beats.
+ */
+export function setRunCircle(call: CallBundle, index: number, kFrom: number, kTo: number, circle: RunCircle, tolRel = 0.02): CallBundle {
+  const dancer = call.dancers[index];
+  if (!dancer) throw new Error(`no dancer ${index}`);
+  if (kFrom < 0 || kTo >= dancer.path.length || kTo < kFrom) throw new Error(`no such run ${kFrom}..${kTo}`);
+  const r = Math.abs(circle.r);
+  if (!(r > 1e-9)) throw new Error('the circle has no radius');
+  const run = dancer.path.slice(kFrom, kTo + 1);
+  if (run.some((s) => !(s.beats > 0))) throw new Error('the run contains a move with no beats, so there is nothing to spread the turn over');
+  const totalBeats = run.reduce((s, g) => s + g.beats, 0);
+  const need = runCircleMoveCount(circle.sweep);
+  if (need > run.length) {
+    throw new Error(`a ${degrees(Math.abs(circle.sweep)).toFixed(1)}deg turn needs ${need} moves and the run has ${run.length}`);
+  }
+  const thetas = run.map((s) => (circle.sweep * s.beats) / totalBeats);
+  thetas.forEach((theta, i) => {
+    if (Math.abs(theta) > RUN_ARC_MAX + 1e-9) {
+      throw new Error(`move ${kFrom + i + 1} would have to turn ${degrees(Math.abs(theta)).toFixed(1)}deg and a move carries at most 90deg - spread the turn over more moves, or over moves with more even beats`);
+    }
+  });
+  const start = frameAt(dancer, moveStartBeat(dancer, kFrom));
+  const off = Math.hypot(start.x - circle.cx, start.y - circle.cy);
+  if (!(off > 1e-9)) throw new Error('the run starts at the centre of the circle, which is no radius at all');
+  if (Math.abs(off - r) > tolRel * Math.max(1, r)) {
+    throw new Error(`the run starts ${off.toFixed(3)} from the centre and the radius asked for is ${r.toFixed(3)}, which is a different circle`);
+  }
+  // THE RADIUS IS THE ONE THAT PASSES THROUGH WHERE THE RUN STARTS, so the start lands exactly on the circle by
+  // construction and the run's first pose does not move at all. That matters because the centre is what a
+  // caller means by "this circle" and the radius is only how big it is - and it is what lets a run be re-laid
+  // on its OWN LEAST-SQUARES FIT, which by definition does not put the sampled points exactly on the circle
+  // (measured: ms/circle.xml's fit sits 2.597 units from the centre at a fitted radius of 2.595). The
+  // tolerance above is what stops that from becoming licence to move the run onto a different circle
+  // altogether. The one thing this costs is the END: it lands where this circle puts it, which is within the
+  // fit's own error of where it was, and that is the honest price of snapping a run onto a circle.
+  const rr = off;
+  const next = dancer.path.slice();
+  let angle = Math.atan2(start.y - circle.cy, start.x - circle.cx);
+  let h = start.heading;
+  let px = start.x;
+  let py = start.y;
+  for (let i = 0; i < run.length; i++) {
+    const seg = run[i];
+    const theta = thetas[i];
+    const a0 = angle;
+    const a1 = angle + theta;
+    const kk = (4 / 3) * Math.tan(theta / 4);
+    const P0 = { x: circle.cx + rr * Math.cos(a0), y: circle.cy + rr * Math.sin(a0) };
+    const P3 = { x: circle.cx + rr * Math.cos(a1), y: circle.cy + rr * Math.sin(a1) };
+    const P1 = { x: P0.x - kk * rr * Math.sin(a0), y: P0.y + kk * rr * Math.cos(a0) };
+    const P2 = { x: P3.x + kk * rr * Math.sin(a1), y: P3.y - kk * rr * Math.cos(a1) };
+    // Into this move's own frame: the frame's position is the sub-arc's start, its heading is the dancer's.
+    const cos = Math.cos(h);
+    const sin = Math.sin(h);
+    const inv = (q: { x: number; y: number }) => ({
+      x: cos * (q.x - px) + sin * (q.y - py),
+      y: -sin * (q.x - px) + cos * (q.y - py),
+    });
+    const p1 = inv(P1);
+    const p2 = inv(P2);
+    const p3 = inv(P3);
+    next[kFrom + i] = {
+      ...seg,
+      translate: { cx1: p1.x, cy1: p1.y, cx2: p2.x, cy2: p2.y, x2: p3.x, y2: p3.y },
+    };
+    // Advance the frame the way the FACING channel says, so an authored turn survives and a missing facing
+    // curve keeps meaning "walk the way you are going".
+    px = P3.x;
+    py = P3.y;
+    h = seg.rotate ? h + bezierAngle(seg.rotate, 1) : Math.atan2(P3.y - P2.y, P3.x - P2.x);
+    angle = a1;
+  }
+  const dancers = call.dancers.slice();
+  dancers[index] = { ...dancer, path: next };
+  return { ...call, dancers };
+}
+
 /** Build one padding segment that carries a dancer from `from` to `to`. */
 export function padSegment(from: { x: number; y: number; heading: number }, to: { x: number; y: number; heading: number }, beats: number): Seg {
   const d = rot(-from.heading, { x: to.x - from.x, y: to.y - from.y });

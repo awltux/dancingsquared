@@ -189,12 +189,17 @@ export {
   arcBlocker,
   projectToArc,
   setMoveArc,
+  RUN_ARC_MAX,
+  runCircleMoveCount,
+  circleThrough,
+  fitCircleRun,
+  setRunCircle,
   facingProfile,
   sameFacing,
   startsFromFormation,
   callToXmlNamed,
 } from './editor.js';
-export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef } from './editor.js';
+export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef, RunCircle } from './editor.js';
 
 export {
   setParser,

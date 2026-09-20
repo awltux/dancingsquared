@@ -66,6 +66,12 @@ import {
   setMoveArc,
   facingProfile,
   sameFacing,
+  // The RUN-level circle: lay a run of consecutive moves on one arc, keeping both ends.
+  RUN_ARC_MAX,
+  runCircleMoveCount,
+  circleThrough,
+  fitCircleRun,
+  setRunCircle,
 } from '../dist/index.js';
 setParser(DOMParser);
 
@@ -1723,6 +1729,169 @@ console.log('\n== swinging an arc about its start (24) ==');
     check(Math.hypot(s1.x - s0.x, s1.y - s0.y) < 1e-12 && Math.abs(normAngleSafe(s1.heading - s0.heading)) < 1e-12,
       'and the arc still swings exactly as it does everywhere else: the start and the frame are still what they were');
   }
+}
+
+// --------------------------------------------------------------------------------
+// 25. laying a RUN of moves on one circle: the ends stay, the turn is kept, the joints join
+//
+// The operation behind "make these moves a circle". A run of consecutive moves keeps its move count, its beats
+// and its hands; only the shape between its two ends is rewritten. Five things have to hold and each is a
+// separate check, because each fails on its own:
+//   - the run's START does not move at all (the radius is snapped to it, so this is structural);
+//   - the END moves by no more than the FIT'S OWN ERROR - the honest price of snapping a run that was nearly a
+//     circle onto one exactly;
+//   - the run is a circle afterwards, by two orders of magnitude;
+//   - the turn is preserved AND spread in proportion to beats;
+//   - everything outside the run is untouched, the facing curves survive, and the joints still join.
+console.log('\n== 25. A run of moves laid on one circle ==');
+{
+  const msDir = path.join(__dirname, '../../poc/src/assets/ms');
+  const fits = [];
+  for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+    let call;
+    try {
+      call = normalizeInstance(loadCallFromXml(fs.readFileSync(path.join(msDir, f), 'utf8'), movesXml, formationsXml, 0));
+    } catch { continue; }
+    if (call.dancers.length !== 8) continue;
+    for (let i = 0; i < 8; i++) {
+      const n = call.dancers[i].path.length;
+      let found = false;
+      for (let len = n; len >= 3 && !found; len--) {
+        for (let s = 0; s + len <= n; s++) {
+          const fit = fitCircleRun(call, i, s, s + len - 1);
+          if (fit) { fits.push({ file: f, call, i, s, e: s + len - 1, fit }); found = true; break; }
+        }
+      }
+    }
+  }
+  check(fits.length > 10, `${fits.length} runs of three or more consecutive moves in the ms level lie on one circle - the sample is the corpus, not a witness`);
+
+  const worst = { start: 0, heading: 0, endPast: -Infinity, refit: 0, sweep: 0, corner: 0, outside: 0, ratio: 0 };
+  const refusals = [];
+  let applied = 0;
+  let facingKept = 0;
+  let facingChecked = 0;
+  for (const r of fits) {
+    const d = r.call.dancers[r.i];
+    const b0 = moveBeatRange(d, r.s).from;
+    const b1 = moveBeatRange(d, r.e).to;
+    const p0 = poseFor(d, b0);
+    const p1 = poseFor(d, b1);
+    let out;
+    try {
+      out = setRunCircle(r.call, r.i, r.s, r.e, r.fit);
+    } catch (e) {
+      refusals.push({ file: r.file, i: r.i, s: r.s, e: r.e, msg: e.message });
+      continue;
+    }
+    applied++;
+    const nd = out.dancers[r.i];
+    const q0 = poseFor(nd, b0);
+    const q1 = poseFor(nd, b1);
+    worst.start = Math.max(worst.start, Math.hypot(q0.x - p0.x, q0.y - p0.y));
+    worst.heading = Math.max(worst.heading, Math.abs(normAngleSafe(q0.heading - p0.heading)));
+    // How far the end moved BEYOND what the fit itself was already out by.
+    worst.endPast = Math.max(worst.endPast, Math.hypot(q1.x - p1.x, q1.y - p1.y) - r.fit.maxDev);
+    const refit = fitCircleRun(out, r.i, r.s, r.e);
+    if (!refit) { worst.refit = Infinity; } else {
+      worst.refit = Math.max(worst.refit, refit.relDev);
+      worst.sweep = Math.max(worst.sweep, Math.abs(refit.sweep - r.fit.sweep) * (180 / Math.PI));
+    }
+    // The turn each move carries, against its share of the beats.
+    const totalBeats = d.path.slice(r.s, r.e + 1).reduce((a, g) => a + g.beats, 0);
+    for (let k = r.s; k <= r.e; k++) {
+      const seg = nd.path[k];
+      const turn = Math.abs(normAngleSafe(bezierAngle(seg.translate, 1) - bezierAngle(seg.translate, 0)));
+      const share = d.path[k].beats / totalBeats;
+      worst.ratio = Math.max(worst.ratio, Math.abs(turn - Math.abs(r.fit.sweep) * share));
+      facingChecked++;
+      if (!!seg.rotate === !!d.path[k].rotate) facingKept++;
+    }
+    // Everything OUTSIDE the run, and the run's own timing and hands.
+    for (let k = 0; k < nd.path.length; k++) {
+      const a = nd.path[k];
+      const b = d.path[k];
+      if (k >= r.s && k <= r.e) {
+        if (a.beats !== b.beats || a.hands !== b.hands) worst.outside = Infinity;
+        continue;
+      }
+      for (const key of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2']) {
+        worst.outside = Math.max(worst.outside, Math.abs(a.translate[key] - b.translate[key]));
+      }
+      if (!!a.rotate !== !!b.rotate) worst.outside = Infinity;
+    }
+    // Every joint INSIDE the run still joins.
+    const dirOf = (dd, x, y) => {
+      const u = poseFor(dd, x);
+      const v = poseFor(dd, y);
+      return Math.atan2(v.y - u.y, v.x - u.x);
+    };
+    for (let k = r.s + 1; k <= r.e; k++) {
+      const bb = moveBeatRange(nd, k - 1).to;
+      const corner = Math.abs(normAngleSafe(dirOf(nd, bb + 1e-3, bb) - dirOf(nd, bb, bb - 1e-3)));
+      worst.corner = Math.max(worst.corner, Math.min(corner, 2 * Math.PI - corner) * (180 / Math.PI));
+    }
+  }
+  check(applied > 0, `${applied} of the ${fits.length} runs were re-laid on their own circle`);
+  check(worst.start < 1e-9, `the run's START does not move (worst ${worst.start.toExponential(1)} units) - the radius is snapped to it, so this is structural rather than lucky`);
+  check(worst.heading < 1e-9, `and neither does the heading it sets off on (worst ${(worst.heading * (180 / Math.PI)).toExponential(1)}deg)`);
+  check(worst.endPast < 1e-9, `the END moves by no more than the fit was already out by (worst excess ${worst.endPast.toExponential(1)} units)`);
+  check(worst.refit < 1e-4, `and the run IS a circle afterwards: worst deviation ${worst.refit.toExponential(1)} of the radius, against a 2e-2 tolerance`);
+  // The per-move turn is compared against the BEATS, and the two are the same quantity arrived at two ways (the
+  // turn the curve carries, and the share of the beats it was given), so radians here are not degrees.
+  check(worst.ratio < 1e-9, `the turn is spread in PROPORTION TO BEATS (worst disagreement ${worst.ratio.toExponential(1)} rad)`);
+  // The tolerance is 1e-2deg because THIS READ IS SAMPLED: `fitCircleRun` sums the angle sample to sample, and
+  // the run it is reading was only NEARLY a circle beforehand (up to 2% of the radius out), so the two reads
+  // differ by the sampling and not by any geometry. The exact statement of "the turn is preserved" is the
+  // per-move check above, where the sum of the thetas is the sweep by construction.
+  check(worst.sweep < 1e-2, `the total turn is preserved (worst change ${worst.sweep.toExponential(1)}deg, which is the sampling of a run that was only nearly a circle before)`);
+  check(worst.corner < 0.5, `every joint inside the run still joins (worst corner ${worst.corner.toExponential(1)}deg)`);
+  check(worst.outside === 0, `everything OUTSIDE the run is bit-for-bit untouched, and the move has kept its beats and hands`);
+  check(facingKept === facingChecked, `every move in every run keeps whether it had a facing curve (${facingKept} of ${facingChecked}) - the authored turn survives and "face along travel" still means that`);
+
+  // The refusals are the user's chosen rule - refuse, and say how many moves it needs - so they are gated
+  // rather than tolerated. BOTH SHAPES ARE BUILT DELIBERATELY rather than hoped for in the corpus: which run
+  // happens to have uneven beats is not something a gate should depend on.
+  const refusal = (fn) => {
+    try { fn(); return null; } catch (e) { return e.message; }
+  };
+  // A sweep one move's worth too big for the run, built from the run's OWN length so it cannot depend on which
+  // runs the scan happened to keep. (The first version looked for a run of exactly three moves, and the scan
+  // keeps the LONGEST run per dancer, so that run usually does not exist and the check silently tested nothing.)
+  const anyRun = fits[0];
+  const tooBigLen = anyRun.e - anyRun.s + 1;
+  const shortMsg = refusal(() => setRunCircle(anyRun.call, anyRun.i, anyRun.s, anyRun.e, { ...anyRun.fit, sweep: tooBigLen * (Math.PI / 2) + 0.2 }));
+  check(!!shortMsg && new RegExp(`needs ${tooBigLen + 1} moves and the run has ${tooBigLen}`).test(shortMsg),
+    `a turn too big for its run is refused with the number of moves it needs: "${shortMsg}"`);
+  const wide = anyRun;
+  const unevenMsg = wide
+    ? refusal(() => {
+      const d = wide.call.dancers[wide.i];
+      const path = d.path.map((g, k) => (k >= wide.s && k <= wide.e ? { ...g, beats: k === wide.s + 1 ? 3 : 1 } : g));
+      const call2 = { ...wide.call, dancers: wide.call.dancers.map((dd, j) => (j === wide.i ? { ...dd, path } : dd)) };
+      setRunCircle(call2, wide.i, wide.s, wide.e, { ...wide.fit, sweep: 2 * Math.PI });
+    })
+    : null;
+  const unevenAngle = unevenMsg ? Number((/turn ([\d.]+)deg/.exec(unevenMsg) ?? [])[1]) : NaN;
+  check(!!unevenMsg && unevenAngle > 90 && unevenAngle <= 360,
+    `and a turn the BEATS cannot carry in quarters is refused naming the move and a real angle, not a broken number: "${unevenMsg}"`);
+  check(applied > 0, `${applied} of the ${fits.length} runs were re-laid on their own circle`);
+
+  // The parameterisation itself: one continuous degree of freedom, one discrete one.
+  const A = { x: 0, y: 0 };
+  const B = { x: 2, y: 0 };
+  const up = circleThrough(A, B, 2, 1);
+  const down = circleThrough(A, B, 2, -1);
+  check(!!up && !!down && Math.abs(up.cx - down.cx) < 1e-12 && Math.abs(up.cy + down.cy) < 1e-12,
+    'the two SIDES are mirror images across the chord - the discrete degree of freedom is the side and nothing else');
+  check(!!up && Math.abs(Math.hypot(A.x - up.cx, A.y - up.cy) - up.r) < 1e-12 && Math.abs(Math.hypot(B.x - up.cx, B.y - up.cy) - up.r) < 1e-12,
+    'and BOTH pinned endpoints lie on it exactly, so an arc built this way cannot fail to join up');
+  check(!!up && Math.abs(Math.abs(up.sweep) - 2 * Math.asin(2 / (2 * 2))) < 1e-12, 'the sweep returned is the MINOR arc, so a major one is the same circle with the other side');
+  check(circleThrough(A, A, 2, 1) === null, 'COINCIDENT endpoints define no circle and return null - a full turn is a different parameterisation');
+  check(circleThrough(A, B, 0.5, 1) === null, 'and neither does a radius too short to span the chord (0.5 < 2/2)');
+  check(runCircleMoveCount(Math.PI / 2) === 1 && runCircleMoveCount(Math.PI / 2 + 1e-6) === 2 && runCircleMoveCount(2 * Math.PI) === 4,
+    'a quarter turn needs one move, a hair over needs two, and a full circle needs four - the count the refusal message quotes');
+  check(RUN_ARC_MAX === Math.PI / 2, 'and the quarter is the engine\'s stated limit, not a number buried in a comparison');
 }
 
 console.log('\n=================');

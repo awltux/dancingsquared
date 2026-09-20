@@ -2708,3 +2708,21 @@ unmatched. The `?? translate` is that 27% rather than a preference.
 And the link is drawn on the gate's own `sameCurve`, so the comparison that decides whether to show it and the
 one that decides whether it worked are the same function - which is what makes "the link disappears once they
 match" true by construction.
+
+EVERY EXPORT NOW CARRIES THE BUILD IT CAME FROM. Asked for: "add an xml comment at the top of the export
+containing the web apps buildhash. This should give basic version control when importing them."
+
+Both exports carry it - `Export <tam> XML` and `Export All` - as `<!-- exported by the dancing-squared web app:
+commit 7ee29bf, built 2024-06-01 12:00Z -->`. The values are the ones `vite.config.ts` already injects for the
+build footer (`__GIT_COMMIT_SHORT__`, `__GIT_DIRTY__`, `__BUILD_TIME__`), and the built bundle was checked to
+contain the resolved hash rather than the placeholder.
+
+THE DIRTY FLAG IS THE HALF THAT MATTERS MOST: a short hash identifies a COMMIT, and an export made from a working
+tree with uncommitted changes corresponds to no commit at all - so the hash alone would be a version stamp that
+is quietly wrong exactly when it is most needed.
+
+A COMMENT RATHER THAN AN ELEMENT, because these blocks are pasted INTO a corpus file and an element would become
+part of that file's data. A comment at the top of a document is legal; an invalid one is not, and `--` may not
+appear inside a comment at all - so the probe checks the content contains none AND that a stamped export still
+parses back as the same single <tam>. (The first version of that check tested the whole string, including the
+`<!--` and `-->` delimiters, and failed on a perfectly good comment.)

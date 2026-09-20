@@ -116,5 +116,36 @@ for (const [lvl, file] of [['ms', 'circle'], ['ms', 'arm_turns'], ['b1', 'circul
 console.log(`    ${roundTripped} of ${built} blocks built from real files parsed back as a call`);
 check(built > 0 && roundTripped === built, 'every block is a real `<tamination>` of real `<tam>`s - the grouping does not break what it wraps');
 
+// ============================================================ 4. the build stamp
+//
+// Asked for: "add an xml comment at the top of the export containing the web apps buildhash. This should give
+// basic version control when importing them."
+//
+// IT HAS TO BE A COMMENT RATHER THAN AN ELEMENT, because these blocks are PASTED INTO a corpus file - an element
+// would become part of that file's data. And it has to not break the parse: a comment at the top of a document
+// is legal, but an invalid one is not, and `--` may not appear inside a comment at all.
+console.log('\n== 4. The build stamp at the top ==');
+check(/function buildStamp\(\): string \{/.test(ui), 'there is one function that writes the stamp');
+check(/buildStamp\(\) \+ '\\n' \+ '<calls>/.test(ui), 'the single export puts it at the very top');
+check(/const out = buildStamp\(\) \+ '\\n' \+ /.test(ui), 'and so does Export All');
+check(/__GIT_COMMIT_SHORT__/.test(ui), 'it names the commit the app was BUILT FROM');
+check(/__GIT_DIRTY__ === 'dirty'/.test(ui), 'and says when that build had UNCOMMITTED CHANGES, which a bare hash would state as if it were a commit');
+// The value cannot contain `--`: the hash is hex and the timestamp is `YYYY-MM-DDTHH:MM`. An export carrying a
+// comment with `--` in it would not re-parse anywhere, which is the one way a stamp can destroy the file.
+const stamp = `<!-- exported by the dancing-squared web app: commit ${'a1b2c3d'}, with uncommitted changes, built 2024-06-01 12:00Z -->`;
+// THE CONTENT, not the delimiters - `<!--` and `-->` are `--` by definition, and testing the whole string for
+// `--` fails on a perfectly good comment. (It did, on the first run of this check.)
+const content = stamp.slice(4, -3);
+check(!content.includes('--'), 'nothing INSIDE the stamp forms a `--`, so the comment cannot terminate early');
+// AND THE EXPORT STILL PARSES with the stamp in front of it, which is the property that actually matters.
+{
+  const xml = asset('ms/arm_turns.xml');
+  const tams = engine.parseCallXml(xml);
+  const call = engine.normalizeInstance(engine.buildCall(tams[0], engine.parseFormations(formationsXml), engine.parseMoves(movesXml), true));
+  const tam = engine.callToXmlNamed(call, call.from || call.title, () => null).match(/<tam\b[\s\S]*?<\/tam>/)[0];
+  const stamped = `${stamp}\n<calls>\n${tam}\n</calls>`;
+  const back = engine.parseCallXml(stamped);
+  check(back.length === 1 && back[0].title === tams[0].title, 'and a stamped export parses back as the same single <tam> - the comment does not become data');
+}
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');
 process.exit(failures ? 1 : 0);

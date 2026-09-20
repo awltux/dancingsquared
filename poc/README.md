@@ -1322,6 +1322,26 @@ leave **1254 of them (27.1%)** still not matching. The `?? translate` is that 27
 The link is drawn on the gate's own `sameCurve` rather than a second definition of "matches", so the comparison
 that decides whether to show it and the comparison that decides whether it worked are the same function — which
 is what makes "the link disappears once they match" true by construction rather than by hope.
+**Every export carries the BUILD it came from, as an XML comment at the top.** Asked for as: *"add an xml
+comment at the top of the export containing the web apps buildhash. This should give basic version control when
+importing them."*
+
+```xml
+<!-- exported by the dancing-squared web app: commit 7ee29bf, built 2024-06-01 12:00Z -->
+```
+
+Both exports carry it — `Export <tam> XML` and `Export All`.
+
+**THE DIRTY FLAG IS THE HALF THAT MATTERS MOST.** A short hash identifies a *commit*, and an export made from a
+working tree with uncommitted changes corresponds to **no commit at all** — so `commit abc1234` alone would be a
+version stamp that is quietly wrong exactly when it is most needed. `__GIT_DIRTY__` is injected by
+`vite.config.ts` beside the hash (the build footer already reads it), and the stamp appends *"with uncommitted
+changes"* when it is set.
+
+**A comment rather than an element**, because these blocks are pasted *into* a corpus file and an element would
+become part of that file's data. A comment at the top of a document is legal; an invalid one is not, and `--`
+may not appear inside a comment at all, so the probe checks the content contains none and that a stamped export
+still parses back as the same single `<tam>`.
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

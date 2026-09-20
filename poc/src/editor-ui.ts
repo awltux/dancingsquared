@@ -3278,7 +3278,7 @@ export class EditorController implements EditorUI {
         this.statusEl.textContent = 'nothing to export yet';
         return;
       }
-      this.xmlEl.value = '<calls>\n' + xml + '\n</calls>';
+      this.xmlEl.value = buildStamp() + '\n' + '<calls>\n' + xml + '\n</calls>';
       void navigator.clipboard?.writeText(this.xmlEl.value);
       this.statusEl.textContent = 'exported <tam> XML (copied)';
     } catch (err) {
@@ -3358,7 +3358,7 @@ export class EditorController implements EditorUI {
       const open = `<tamination title="${esc(g.family ?? 'Unknown')}" filepath="${esc(g.filepath)}">`;
       return `${open}\n${g.tams.join('\n\n')}\n</tamination>`;
     });
-    const out = `${blocks.join('\n\n')}\n`;
+    const out = buildStamp() + '\n' + `${blocks.join('\n\n')}\n`;
     this.xmlEl.value = out;
     void navigator.clipboard?.writeText(out);
     this.statusEl.textContent =
@@ -3558,6 +3558,27 @@ function el<T extends HTMLElement>(id: string): T {
  *  containing `<` must not become markup - the same rule `browser.ts` applies to module names. */
 function esc(s: string): string {
   return s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch] as string);
+}
+/**
+ * The line every export carries at the top: WHICH BUILD OF THIS APP WROTE IT.
+ *
+ * Asked for as: "add an xml comment at the top of the export containing the web apps buildhash. This should give
+ * basic version control when importing them."
+ *
+ * THE DIRTY FLAG IS THE HALF THAT MATTERS MOST. A short hash identifies a commit, and an export made from a
+ * working tree with uncommitted changes does NOT correspond to any commit at all - so saying `commit abc1234`
+ * without saying "and uncommitted changes" would be a version stamp that is quietly wrong exactly when it is
+ * most needed. `__GIT_DIRTY__` is injected by `vite.config.ts` alongside the hash for the build footer, and this
+ * is the same reading of the same value.
+ *
+ * A COMMENT RATHER THAN AN ELEMENT, so the export still parses as the thing it is: `<tam>` blocks and
+ * `<tamination>` blocks are pasted into a corpus file, and an element would become part of that file's data.
+ * (Comments may not contain `--`, and none of these values can.)
+ */
+function buildStamp(): string {
+  const dirty = __GIT_DIRTY__ === 'dirty' ? ', with uncommitted changes' : '';
+  const when = __BUILD_TIME__ ? `, built ${__BUILD_TIME__.slice(0, 16).replace('T', ' ')}Z` : '';
+  return `<!-- exported by the dancing-squared web app: commit ${__GIT_COMMIT_SHORT__ || 'unknown'}${dirty}${when} -->`;
 }
 
 /** Backwards-compatible factory (used by main.ts). */

@@ -3910,7 +3910,13 @@ definitions use: a **fraction of a circle**, about a named centre, as a unit - n
 
 **D1. The JOINT is the editing unit, not the move.** A joint is `(position, facing)` at a move boundary. Every
 measured fact above is about joints; the six numbers are what a *pair* of joints compiles to. The panel should
-put a draggable dot at each joint with a heading arrow, and treat the curve as the rendering of it.
+put a draggable dot at each joint with a heading arrow, and treat the curve as the rendering of it. **And the
+interaction belongs on the BOARD, not in the panel** - which is a measured claim rather than a preference:
+Knotation's field study of choreographers counted **30.8 interactions with the floorplan against 4.3 with the
+timeline** (`hal.science/hal-01817569/document`), a factor of seven, and what worked was the floorplan and the
+timeline *paired* rather than one substituting for the other. The instance panel is currently the opposite way
+round - a column of number fields with the board as the preview - and that is the biggest single change the
+prior art asks for.
 
 **D2. Edit in WORLD space; store in LOCAL space.** The stored form is a bijection of the world description
 (each move's curve is the world curve re-expressed in the frame at that move's start), and the local form is
@@ -3961,6 +3967,20 @@ eight dancers and the spacing is a property of the *formation*, not an authoring
 free variable here and there is nothing to gain from exposing it. The transferable half is only that spacing
 is *named* and *visible*, which `formations.xml` already does.
 
+**D2f. And the editor should REUSE the FASR layer this engine already has, not invent a state model.** Square
+dancing already has a formal four-part state - **FASR** = Formation + Arrangement + Sequence + Relationship,
+"based on terminology approved by Callerlab" (`all8.com/sd/calling/fasr.htm`) - and its definition of Formation
+is *verbatim this problem*: *"where dancers are standing on the floor relative to each other; which direction
+each of the dancers is facing relative to the others."* This repo already implements it: `analyzeFasr`,
+`fasrKey`, `homeFasrKey`, `fasrooOf`, `boardForFasrCode`, `CANONICAL_INDEX`. **And it already learned the one
+trap the summary of FASR invites** - formations are *rotation-invariant* ("Formations rotated 90, 180 and 270
+degrees are still the same formation"), so **a FASR code admits four boards and three of them are the wrong
+placement**. That is not a hypothesis here: PLAN.md 4 recorded it as *"a code admits four boards and three of
+them are the wrong placement"* and fixed it with a measured `CANONICAL_INDEX`, and `fasrooOf`-injectivity was
+probed to 80 of 80. So the rule is the one already written down - **store the SETUP (FASR + the couple-to-spot
+assignment) and derive FASROO for display only** - and the editor's pin-state and validation should read the
+existing layer rather than grow a second opinion about where the dancers are.
+
 **D3. The hard constraints are STRUCTURAL, not solved.** A pinned joint stores a **reference** to a formation
 spot, not coordinates, and the position/facing are *read* from it - so "exactly" cannot drift. A free joint
 stores a world point. Precedent: SolveSpace special-cases any equation solvable by forward substitution and
@@ -3991,6 +4011,18 @@ what mainstream 2D tools gave up on and why their circles stop being circles).
   quantities*, which is the W3C's own complaint about them (`github.com/w3c/svgwg/issues/945`). Ship the
   radius field **with a visible minor/major and side toggle**; shipping it alone is the classic "I typed 5 ft
   and got the wrong arc".
+
+**D4b. And the orbit primitive's parameters are already PUBLISHED: direction, fraction, beats.** CALLERLAB
+states the rule - *"While executing each call, the dancers should take one step for each beat of music"* - and
+then publishes the table: **Circle** 1/4 = **4** beats, 1/2 = **8**, 3/4 = **12**, Full = **16**; **Star R/L**
+1/2 = 4, 3/4 = 6, Full = 8; **Arm Turn** 1/2 = 4, 3/4 = 4-6, Full = 6-8; **Allemande Left** 1/2 = 4-6, 3/4 =
+6-8, Full = 8; **Cast Off 3/4 = 6**. So an orbit's natural parameterisation is **(direction, fraction of a
+circle, beats)** - not degrees, and not a handle length - and the beats are *derivable* from the fraction by
+the caller's own rule. This is also the only place in the whole survey where an orbit primitive appears in a
+published schema at all: MovementXML's `set-path` carries `type in {straight, circular, stationary, any}`,
+`strict` (false = ad libitum), `direction in {clockwise, counter-clockwise, any}`, a start/duration and a
+nested payload for what the dancer does *while* orbiting - **and no centre**, which is the field to add,
+because a square-dance orbit is always around something (a named spot, a partner, or the centre of the set).
 
 **AND THE OVER-DETERMINATION IS REAL, WHICH IS WHY THE TWO CHANNELS MATTER.** If the *facing* is also pinned
 to the travel tangent at both ends, a circle through two fixed points is **over-determined by one** (5 unknowns

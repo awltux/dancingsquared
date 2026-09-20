@@ -409,5 +409,55 @@ console.log(`    ${samples} samples over every move of every dancer; worst posit
 console.log(`    worst HEADING disagreement ${(worstHead * DEG).toExponential(2)}deg${worstAt ? ` (${worstAt})` : ''}`);
 check(worstPos < 1e-9 && worstHead < 1e-9, 'the stored local curves and (boundary pose + world curve) carry the SAME information to float precision, so an editor may freely choose which space the user works in');
 
+// ============================================================ 7. are the panel's two primitives degraded?
+//
+// TWO THINGS THE PANEL OFFERS TODAY ARE SUSPECT FOR A MEASURABLE REASON, and both are cheap to check.
+//
+// (a) A HOLD WEARING A MOVE'S CLOTHES. If a hold is stored as an ordinary move with zero beats, or with a
+//     travel curve of no length, then every editor that treats moves uniformly has to carry a degenerate case,
+//     and this repo already has: the arc swing's 22 un-turnable joints are exactly collapsed exit handles.
+// (b) THE ARC LOCK CAN NEVER BE A NO-OP. `arcOf` is the panel's "this curve IS a quarter arc" test, and part 1
+//     found 0 curves in the corpus pass it - so ticking the box is ALWAYS a projection, which moves the
+//     endpoint. If that is true of every curve the box is enabled for, then the lock is a control that always
+//     deforms, and the user has no way to lock a curve that is already the shape they want.
+console.log('\n== 7. Two primitives the panel offers today ==');
+let zeroBeats = 0;
+let zeroTravel = 0;
+let noExit = 0;
+let enabled = 0;
+let moved = 0;
+const endpointMoves = [];
+const relMoves = [];
+let worstMove = 0;
+for (const { call } of calls) {
+  call.dancers.forEach((dancer) => {
+    dancer.path.forEach((seg) => {
+      const b = seg.translate;
+      if (seg.beats === 0) zeroBeats++;
+      if (Math.hypot(b.x2, b.y2) <= 1e-9) zeroTravel++;
+      if (!engine.hasExitDirection(b)) noExit++;
+      if (engine.arcBlocker(b, true) !== null) return; // the box would be disabled
+      enabled++;
+      const p = engine.projectToArc(b, true);
+      if (!p) return;
+      const q = engine.arcBezier(p);
+      const d = Math.hypot(q.x2 - b.x2, q.y2 - b.y2);
+      const chord = Math.hypot(b.x2, b.y2);
+      endpointMoves.push(d);
+      relMoves.push(chord > 1e-9 ? d / chord : Infinity);
+      if (d > 1e-9) moved++;
+      worstMove = Math.max(worstMove, d);
+    });
+  });
+}
+console.log(`    HOLDS: ${zeroTravel} of ${allMoves} moves have a travel curve of ZERO LENGTH, and ${zeroBeats} have zero beats`);
+console.log(`    ${noExit} moves end with the exit handle collapsed onto the endpoint, so their departure has no direction to turn`);
+const over = (t) => endpointMoves.filter((d) => d > t).length;
+console.log(`    ARC LOCK: enabled for ${enabled} curves; projecting moves the endpoint on ${moved} of them (${pct(moved, enabled)}%)`);
+console.log(`    the move: >0.01 units ${over(0.01)} (${pct(over(0.01), enabled)}%), >0.1 units ${over(0.1)} (${pct(over(0.1), enabled)}%), >1 unit ${over(1)} (${pct(over(1), enabled)}%), worst ${worstMove.toFixed(2)}`);
+console.log(`    as a fraction of the curve's own chord: median ${pct(median(relMoves), 1)}%`);
+check(zeroTravel > 0 && zeroBeats === 0, 'a HOLD is a zero-length travel curve that still costs beats - never zero beats, so the timing channel cannot be used to spot one');
+check(moved === enabled, 'the arc lock is enabled ONLY for curves it will change - it can never confirm a curve that is already the shape the user wants');
+
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');
 process.exit(failures ? 1 : 0);

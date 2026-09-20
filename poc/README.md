@@ -1098,6 +1098,15 @@ heading to **4.1e-13°**. So the two spaces carry the same information, a joint 
 with the local numbers recomputed, and the local form is kept where it belongs — as the reusable library
 format, which is the whole reason `moves.xml` works across formations.
 
+**And two primitives the panel offers today are measurably degraded.** Part 7. A **HOLD** is stored as an
+ordinary move whose travel curve has **zero length** — **5192** of 94544 moves, and **0** of them have zero
+beats, so a hold always costs beats and the *timing* channel cannot be used to spot one; only the geometry can.
+**15778** moves additionally end with the exit handle collapsed onto the endpoint, so their departure has no
+direction to turn at all. And the **arc lock can never be a no-op**: it is enabled for **22930** curves and
+projecting moves the endpoint on **100%** of them — usually by a hair (**median 0.4%** of the curve's own
+chord, which is why it feels like a snap), but **1128** of them move by more than a whole unit, worst **8.85**.
+So the box always deforms, and the size of the deformation is not visible before ticking it.
+
 **And the first draft of this probe was wrong in a way worth recording.** It asked `arcOf` whether
 the circle-fitting curves were quarter arcs by handing it the whole `Seg` rather than
 `seg.translate`; `arcOf` then read `undefined` for all six coordinates and returned a NaN object for

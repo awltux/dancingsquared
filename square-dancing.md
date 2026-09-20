@@ -2452,3 +2452,11 @@ composes transforms, so agreement is a test rather than a restatement): over 103
 agrees to 7.2e-15 units and the heading to 4.1e-13deg. So the two spaces carry the same information, a joint
 can be dragged in world space with the local numbers recomputed, and the local form stays where it belongs - as
 the reusable library format, which is why `moves.xml` works across formations at all.
+
+AND TWO PRIMITIVES THE PANEL OFFERS TODAY ARE DEGRADED, measured in part 7. A HOLD is stored as an ordinary
+move whose travel curve has ZERO LENGTH - 5192 of 94544 moves - and 0 of them has zero beats, so a hold always
+costs beats and the TIMING channel cannot be used to spot one; only the geometry can. 15778 moves additionally
+end with the exit handle collapsed onto the endpoint, so their departure has no direction to turn. And the ARC
+LOCK can never be a no-op: it is enabled for 22930 curves and projecting moves the endpoint on 100% of them -
+median 0.4% of the curve's own chord, which is why it feels like a snap, but 1128 of them move more than a
+whole unit, worst 8.85. So the box always deforms and the size of the deformation is not visible beforehand.

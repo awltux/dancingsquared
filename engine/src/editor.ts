@@ -107,10 +107,16 @@ export function rigidFit(src: { x: number; y: number }[], dst: { x: number; y: n
  * established — never array order. It throws when the lists hold different
  * numbers of dancers, or when the assignment cannot fill every slot, rather than
  * silently pairing dancers by array index.
+ *
+ * `preferGender` passes through to the assignment, and is OFF by default so that
+ * every existing caller keeps the pure geometry it has always had. See
+ * `greedyAssignEditor` for why the ARRANGEMENT is part of a correspondence and
+ * what the flag changes.
  */
 export function deriveFormationMapping(
   coreStart: { x: number; y: number }[],
   formation: FormDancer[],
+  preferGender = false,
 ): number[] {
   if (formation.length !== coreStart.length) {
     throw new Error(
@@ -138,7 +144,7 @@ export function deriveFormationMapping(
       heading: f.heading,
       gender: f.gender,
     }));
-    const { mapping, error } = greedyAssignEditor(moved, coreStart);
+    const { mapping, error } = greedyAssignEditor(moved, coreStart, preferGender);
     if (error < bestErr) {
       bestErr = error;
       bestMap = mapping;
@@ -200,10 +206,27 @@ function centroid(ds: { x: number; y: number }[]): { x: number; y: number } {
   return ds.length ? { x: x / ds.length, y: y / ds.length } : { x: 0, y: 0 };
 }
 
-// Greedy 1:1 assignment: map[j] = core index, minimizing position+facing.
+/**
+ * Greedy 1:1 assignment: map[j] = core index, minimizing position+facing.
+ *
+ * `preferGender` IS OFF BY DEFAULT AND THAT IS LOAD-BEARING: with it off this is the pure geometry every
+ * existing caller has always got, bit for bit, so turning the flag on somewhere cannot move anything
+ * elsewhere. With it on, a dancer is first offered only the spots whose DECLARED GENDER is its own, and a
+ * second pass over every remaining spot makes the assignment TOTAL when the two gender counts do not line
+ * up - the same two passes `assignStartSlots` has always used for the start of a track.
+ *
+ * WHY THE ARRANGEMENT BELONGS IN THE CORRESPONDENCE AT ALL: a formation's genders are not decoration, they
+ * are the ARRANGEMENT (which spots hold a boy and which a girl), and every gate that reads a board reads
+ * it. Pair a dancer with a spot the formation declares for the other gender and the shape comes out right
+ * while the SETUP is a different one - the caller asks to finish in the waves and gets the same wave shape
+ * with the boys on the wrong side. MEASURED over every call in the ms level against every formation the
+ * picker offers (`poc/tools/end-pair-probe.mjs`): the geometry alone puts somebody on the other gender's
+ * spot in **77.7%** of the 2278 pairings, 8840 spots in total.
+ */
 function greedyAssignEditor(
-  moved: { x: number; y: number; heading: number }[],
-  core: { x: number; y: number; heading?: number }[],
+  moved: { x: number; y: number; heading: number; gender?: Gender }[],
+  core: { x: number; y: number; heading?: number; gender?: Gender }[],
+  preferGender = false,
 ): { mapping: number[]; error: number } {
   const mapping = new Array<number>(moved.length).fill(-1);
   const used = new Array<boolean>(core.length).fill(false);
@@ -215,17 +238,26 @@ function greedyAssignEditor(
   for (const j of order) {
     let best = -1;
     let bestD = Infinity;
-    for (let i = 0; i < core.length; i++) {
-      if (used[i]) continue;
-      const h = core[i].heading;
-      const dx = moved[j].x - core[i].x;
-      const dy = moved[j].y - core[i].y;
-      const dh = h === undefined ? 0 : Math.abs(normAngleSafe(moved[j].heading - h)) * 0.5;
-      const d = Math.hypot(dx, dy) + dh;
-      if (d < bestD) {
-        bestD = d;
-        best = i;
+    for (const pass of preferGender ? [0, 1] : [1]) {
+      bestD = Infinity;
+      for (let i = 0; i < core.length; i++) {
+        if (used[i]) continue;
+        const wants = moved[j].gender;
+        const has = core[i].gender;
+        // Pass 0 keeps the formation's declared arrangement; pass 1 is what makes the assignment total
+        // when it cannot be kept - a formation of eight boys cannot take four girls twice.
+        if (pass === 0 && wants !== undefined && has !== undefined && has !== wants) continue;
+        const h = core[i].heading;
+        const dx = moved[j].x - core[i].x;
+        const dy = moved[j].y - core[i].y;
+        const dh = h === undefined ? 0 : Math.abs(normAngleSafe(moved[j].heading - h)) * 0.5;
+        const d = Math.hypot(dx, dy) + dh;
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
       }
+      if (best >= 0) break;
     }
     used[best] = true;
     mapping[j] = best;

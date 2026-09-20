@@ -3711,6 +3711,29 @@ change is not a gate for it. The POC's own `START_FORMATION` path is exercised b
 `test/tools/poc-zero-line-probe.mjs` and `fasr-code-canonical-probe.mjs` instead, which ask the engine
 the same questions headlessly.
 
+### A FORMATION'S NAME IS NOT STABLE AT 1e-14 RADIANS (open, measured)
+
+Found while building the editor's **End setup / Connect end** (the end of a track can now be re-based onto a
+named formation). The end board a connect produces has the target formation's poses to within **~3e-15
+radians** in heading, and the library's curated read (`Sequencer.recognize`) sometimes names it differently:
+`Quarter Lines RH` comes back as `Quarter Lines LH`.
+
+The cause is not the connect. MEASURED directly on the library's own boards: taking a formation's board and
+adding **1e-14 rad to every heading** — a rotation by nothing at all — changes the NAME for **5 of the 16**
+formations the curated read can name (`Magic Column RH`, `Quarter Lines RH`, `Quarter Tag`, `Tidal Line RH`
+all flip to their LH reading; the 134-formation sweep and the full list are printed by
+`poc/tools/end-pair-probe.mjs` section 6). Every heading in those boards sits on the ±π branch cut, so
+whatever decides RH from LH is resolved by a comparison that a 1e-14 rotation can tip.
+
+Consequences, both real: the **Browse** panel's end-formation read can report the mirrored arrangement for a
+board that is the one it was given, and any check of the form "does this call finish in formation X" has to
+snap headings before it compares, or it is testing this knife edge instead of the feature. The probe does
+snap, and reports the instability separately so it cannot hide.
+
+Not fixed: the read is in the matcher/alignment path, and a fix means finding exactly which comparison
+decides RH from LH and giving it a tolerance — a change to every formation read in the app, which wants its
+own measurement rather than a patch bolted onto this feature.
+
 ### THE ONE LIVE CALLER OF THE OLD SELECTION, CHECKED RATHER THAN ASSUMED
 
 `boardForFasrCode` used to return `boards[0]` — the setup work added `canonicalBoard` and used it in the

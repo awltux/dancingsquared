@@ -16,6 +16,7 @@ import {
   alignFormationToCore,
   synthesizeSetup,
   correctEndTo,
+  deriveFormationMapping,
   poseFor,
   bezierPoint,
   bezierAngle,
@@ -342,6 +343,11 @@ export class EditorController implements EditorUI {
   private instInfoEl = el<HTMLSpanElement>('edInstInfo');
   private startFormationSel = el<HTMLSelectElement>('edStartFormation');
   private connectBtn = el<HTMLButtonElement>('edConnect');
+  private endFormationSel = el<HTMLSelectElement>('edEndFormation');
+  private connectEndBtn = el<HTMLButtonElement>('edConnectEnd');
+  private endAutoBtn = el<HTMLButtonElement>('edEndAuto');
+  private endInfoEl = el<HTMLSpanElement>('edEndInfo');
+  private endPairEl = el<HTMLDivElement>('edEndPair');
   private cloneBarEl = el<HTMLDivElement>('edCloneBar');
   private cloneTextEl = el<HTMLSpanElement>('edCloneText');
   private cloneInfoEl = el<HTMLDivElement>('edCloneInfo');
@@ -383,6 +389,17 @@ export class EditorController implements EditorUI {
   /** Whether Save/apply should ADD this instance as a new setup ('clone') rather than replace
    *  the one it came from ('instance'). Set by the Clone button. */
   private asClone = false;
+  /**
+   * WHERE THE DANCE SHOULD FINISH, and WHICH OF ITS SPOTS EACH DANCER FINISHES ON.
+   *
+   * `endTarget` is the named formation and its authored poses; `endOverride` is ONLY a caller's
+   * correction to the pairing, kept as `dancer -> spot`. The automatic pairing is NOT stored: it is derived
+   * on demand by `endPairing()` from the instance's own start poses, so it cannot go stale when a start,
+   * a gender or a move changes underneath it - and an override that survives those changes stays exactly
+   * what the caller said, which is the rule this editor applies to identity everywhere.
+   */
+  private endTarget: { name: string; poses: FormDancer[] } | null = null;
+  private endOverride: number[] | null = null;
   private startFormationsLoaded = false;
   /**
    * WHICH DANCERS AN EDIT APPLIES TO, and the answer to "whose values am I looking at".
@@ -638,6 +655,11 @@ export class EditorController implements EditorUI {
       this.moveIndex = 0;
       this.selectedDancers = new Set([0]);
       this.startFormationSel.value = '';
+      // A NEW instance starts with no end target: both re-bases belong to the setup that was loaded, so
+      // loading another one must not leave a stale target (or a stale pairing) behind.
+      this.endFormationSel.value = '';
+      this.endTarget = null;
+      this.endOverride = null;
       // A NEW instance starts at its own first beat, with the animation off.
       this.editBeat = 0;
       this.showInstance(this.instance);
@@ -1190,6 +1212,7 @@ export class EditorController implements EditorUI {
     this.renderMoveStrip();
     this.renderInstanceInfo();
     this.renderCloneChrome();
+    this.renderEndTarget();
     this.refreshCloneInfo();
     this.syncStageSelection();
     if (this.focusKey) {
@@ -1294,6 +1317,89 @@ export class EditorController implements EditorUI {
       (n > 1 ? ` · ${n} selected (edits apply to all, each in its own frame)` : '') +
       (this.instanceEdited ? ' · edited' : '') +
       (unknown === call.dancers.length ? ' · no home identity (not a squared set)' : '');
+  }
+
+  /**
+   * The END TARGET as the panel reports it: how far the track still is from it, and WHICH SPOT OF THE
+   * FORMATION every dancer is aimed at.
+   *
+   * THE GAP IS RE-MEASURED EVERY RENDER, never remembered from the last Connect, and that is the point:
+   * the end moves whenever the FRAME before the last move changes - re-aiming the first move, re-posing a
+   * start, editing a middle move - so a panel that said "connected" because it once was would be lying
+   * within one edit. What it says instead is the number, so a lost end is visible as a number.
+   *
+   * THE PAIRING IS ON SCREEN BECAUSE IT IS A DECISION. The automatic one is derived and is usually right,
+   * but a caller can see at a glance whether dancer 3 is aimed at the spot they meant, and change it. The
+   * row of pickers appears only when an end setup is chosen, because a pairing against no formation is not
+   * a fact about anything.
+   */
+  private renderEndTarget() {
+    const inst = this.instance;
+    const target = this.endTarget;
+    this.endPairEl.innerHTML = '';
+    if (!inst || !target) {
+      this.endInfoEl.textContent = '';
+      this.endPairEl.hidden = true;
+      this.endAutoBtn.hidden = true;
+      this.connectEndBtn.disabled = true;
+      return;
+    }
+    const pairing = this.endPairing();
+    if (!pairing) {
+      this.endInfoEl.innerHTML =
+        `<span style="color:#ffb454">cannot pair</span> the dancers with <b>${esc(target.name)}</b> — ` +
+        'the two sets cannot be matched up by position and facing, so nothing here would be a correspondence. Pick another end setup.';
+      this.endPairEl.hidden = true;
+      this.endAutoBtn.hidden = true;
+      this.connectEndBtn.disabled = true;
+      return;
+    }
+    this.connectEndBtn.disabled = false;
+    this.endAutoBtn.hidden = this.endOverride === null;
+    const gap = this.endTargetGap(pairing);
+    const deg = toDeg(gap.heading);
+    const connected = gap.pos < 1e-9 && Math.abs(deg) < 1e-9;
+    this.endInfoEl.innerHTML = connected
+      ? `<b>${esc(target.name)}</b>: every dancer ends on its spot${this.endOverride ? ' (pairing changed by hand)' : ''}`
+      : `ends ${gap.pos.toFixed(2)} units / ${Math.abs(deg).toFixed(0)}° from <b>${esc(target.name)}</b> — ` +
+        '<b>Connect end</b> re-aims the last move of every dancer' +
+        (this.endOverride ? ' (pairing changed by hand)' : '');
+    this.renderEndPairing(pairing);
+  }
+
+  /** The pairing editor: one picker per dancer, `# -> spot`, over the chosen formation's spots. */
+  private renderEndPairing(pairing: number[]) {
+    const target = this.endTarget;
+    if (!target) return;
+    pairing.forEach((spot, i) => {
+      const wrap = document.createElement('span');
+      wrap.className = 'ed-pair';
+      const lab = document.createElement('label');
+      lab.textContent = `${i + 1}→`;
+      lab.title = `Which spot of "${target.name}" dancer ${i + 1} finishes on`;
+      const sel = document.createElement('select');
+      sel.dataset.key = `r${i}:end`;
+      target.poses.forEach((p, j) => {
+        const holder = pairing.indexOf(j);
+        const opt = new Option(
+          `#${j + 1} ${(p.gender ?? '?').charAt(0).toUpperCase()} (${show(p.x)}, ${show(p.y)}) ${toDeg(p.heading).toFixed(0)}°` +
+            (holder === i ? '' : ` ⇄${holder + 1}`),
+          String(j),
+          false,
+          j === spot,
+        );
+        opt.title =
+          holder === i
+            ? `#${j + 1}: this dancer's spot`
+            : `#${j + 1} is dancer ${holder + 1}'s spot — choosing it SWAPS the two, so every spot stays used once`;
+        sel.add(opt);
+      });
+      sel.addEventListener('change', () => this.setEndSpot(i, parseInt(sel.value, 10)));
+      wrap.appendChild(lab);
+      wrap.appendChild(sel);
+      this.endPairEl.appendChild(wrap);
+    });
+    this.endPairEl.hidden = false;
   }
 
   /** The formation table: a start pose and an end pose per dancer, plus the reads. */
@@ -2024,15 +2130,26 @@ export class EditorController implements EditorUI {
     this.statusEl.textContent = 'reloaded the instance';
   }
 
-  // ---- clone onto a different start setup ----
+  // ---- re-basing on a named formation: the start, and the end ----
 
-  /** The formation list is asked for once, lazily: it comes from the sequencer's library. */
+  /**
+   * The formation list is asked for once, lazily: it comes from the sequencer's library.
+   *
+   * THE SAME LIST FILLS BOTH PICKERS. A start and an end are both "a named 8-dancer formation", and the
+   * correspondence between a call's dancers and a formation's spots is derived the same way for either
+   * end of the track (`setStartFormation` / `deriveFormationMapping`), so there is nothing end-specific to
+   * build a second list from - and two lists that could disagree would be a bug waiting to happen.
+   */
   private ensureStartFormations() {
     if (this.startFormationsLoaded) return;
     this.startFormationsLoaded = true;
+    const formations = this.host.startFormations();
     this.startFormationSel.innerHTML = '';
     this.startFormationSel.add(new Option('— keep the current start —', ''));
-    for (const f of this.host.startFormations()) this.startFormationSel.add(new Option(f.name, f.name));
+    for (const f of formations) this.startFormationSel.add(new Option(f.name, f.name));
+    this.endFormationSel.innerHTML = '';
+    this.endFormationSel.add(new Option('— keep the current end —', ''));
+    for (const f of formations) this.endFormationSel.add(new Option(f.name, f.name));
   }
 
   /** Start a NEW setup from the catalogue instance, rather than editing the existing one. */
@@ -2090,10 +2207,171 @@ export class EditorController implements EditorUI {
       this.instanceEdited = true;
       this.showInstance(this.instance);
       this.renderInstance();
-      this.statusEl.textContent = 'connected the first moves';
+      this.statusEl.textContent =
+        'connected the first moves' +
+        // A later start connect RE-FRAMES every move after the first, so an end that was already
+        // connected is no longer on its target. The gap is re-measured above rather than assumed, and
+        // saying so here is the difference between a caller pressing Connect end again and a caller
+        // believing the end they asked for and that they lost it.
+        (this.endTarget ? ' — the end moved with the frame: press Connect end again to re-aim the last moves' : '');
     } catch (err) {
       this.statusEl.textContent = `✗ ${(err as Error).message}`;
     }
+  }
+
+  // ---- finishing on a named end formation ----
+
+  /**
+   * The pairing in force: WHICH SPOT OF THE END FORMATION EACH DANCER FINISHES ON.
+   *
+   * DERIVED, NEVER BY INDEX - and derived the way the START is, with the engine's own
+   * `deriveFormationMapping`: it tries every multiple of 45 degrees of whole-set rotation about the origin
+   * plus a centring translation, then keeps the best 1:1 assignment on position and facing. Array order is
+   * never consulted, and that is the whole answer to "how does the interface handle a formation whose
+   * spots are indexed differently from the end positions": a formation's spot `j` is wherever ITS file
+   * wrote its j-th dancer, so `dancer 3 -> spot 3` is a coincidence of two unrelated authorings and not a
+   * correspondence at all. MEASURED over the formations the picker offers: index-for-index puts dancers on
+   * the wrong spot for most of them (`poc/tools/end-pair-probe.mjs`).
+   *
+   * AN EXPLICIT PAIRING WINS and is kept: the automatic answer can be right by the geometry and wrong by
+   * intent - a caller may want a particular dancer to take a particular spot - and then their correction IS
+   * the data. `endOverride === null` means "ask the geometry".
+   */
+  private endPairing(): number[] | null {
+    const inst = this.instance;
+    const target = this.endTarget;
+    if (!inst || !target) return null;
+    if (target.poses.length !== inst.dancers.length) return null;
+    if (this.endOverride && this.endOverride.length === inst.dancers.length) return this.endOverride;
+    const start = inst.dancers.map((d) => {
+      const p = poseFor(d, 0);
+      return { x: p.x, y: p.y, heading: p.heading };
+    });
+    try {
+      // `preferGender` is what makes the pairing the CALLER'S formation rather than its shape: a
+      // formation's genders are its ARRANGEMENT, and pairing a dancer with a spot declared for the other
+      // gender gives the right shape with the boys on the wrong side. The start re-base has always
+      // preferred the declared arrangement (`setStartFormation`); this is the same rule at the other end.
+      // MEASURED: the geometry alone does it wrong in 77.7% of the 2278 (call, formation) pairings
+      // (`poc/tools/end-pair-probe.mjs`).
+      return deriveFormationMapping(start, target.poses, true);
+    } catch {
+      // No 1:1 assignment by position and facing: refused rather than paired by index, which is the
+      // engine's rule and the reason `deriveFormationMapping` has no fallback to fall back to.
+      return null;
+    }
+  }
+
+  /** How far the call's end still is from the end target, over the pairing in force. */
+  private endTargetGap(pairing: number[]): { pos: number; heading: number } {
+    const inst = this.instance!;
+    const target = this.endTarget!;
+    let pos = 0;
+    let heading = 0;
+    inst.dancers.forEach((d, i) => {
+      const p = poseFor(d, inst.beats);
+      const t = target.poses[pairing[i]];
+      pos = Math.max(pos, Math.hypot(p.x - t.x, p.y - t.y));
+      heading = Math.max(heading, Math.abs(Math.atan2(Math.sin(p.heading - t.heading), Math.cos(p.heading - t.heading))));
+    });
+    return { pos, heading };
+  }
+
+  /**
+   * Choose the formation the dance should finish on. NOTHING MOVES YET: like the Start setup, this
+   * re-bases the track's intent, and `Connect end` is the step that re-aims the last moves.
+   */
+  private doEndFormation() {
+    const name = this.endFormationSel.value;
+    this.endOverride = null;
+    const inst = this.instance;
+    if (!name) {
+      this.endTarget = null;
+      this.renderInstance();
+      this.statusEl.textContent = inst ? 'end target cleared' : '';
+      return;
+    }
+    const formation = this.host.startFormations().find((f) => f.name === name);
+    if (!formation) {
+      this.endTarget = null;
+      this.renderInstance();
+      this.statusEl.textContent = `✗ unknown formation "${name}"`;
+      return;
+    }
+    if (inst && formation.poses.length !== inst.dancers.length) {
+      this.endTarget = null;
+      this.renderInstance();
+      this.statusEl.textContent = `✗ "${name}" has ${formation.poses.length} dancers and the call has ${inst.dancers.length}`;
+      return;
+    }
+    this.endTarget = { name, poses: formation.poses };
+    this.renderInstance();
+    this.statusEl.textContent = `end target "${name}" — Connect end re-aims the last move of every dancer`;
+  }
+
+  /**
+   * Re-aim the LAST move of every dancer at its assigned spot of the end formation.
+   *
+   * ONE DANCER AT A TIME, THROUGH THE ENGINE'S OWN PER-DANCER MUTATOR (`setDancerEnd`), which re-aims only
+   * that dancer's last move and holds its beats and its hands. The whole-set `correctEndTo` does the same
+   * thing but derives the pairing ITSELF, which is exactly what an override has to be able to replace; the
+   * probe measures the two against each other on the corpus, so the manual route cannot drift from the
+   * engine's.
+   *
+   * A DANCER WITH NO MOVES CANNOT BE RE-AIMED - there is no last move to aim - so it is reported rather
+   * than silently left wrong, the same rule the start connect follows.
+   */
+  private doConnectEnd() {
+    const inst = this.instance;
+    const target = this.endTarget;
+    const pairing = this.endPairing();
+    if (!inst || !target || !pairing) {
+      this.statusEl.textContent = 'pick an end setup first';
+      return;
+    }
+    let out = inst;
+    const skipped: number[] = [];
+    try {
+      for (let i = 0; i < inst.dancers.length; i++) {
+        if (out.dancers[i].path.length === 0) {
+          skipped.push(i + 1);
+          continue;
+        }
+        out = setDancerEnd(out, i, target.poses[pairing[i]]);
+      }
+    } catch (err) {
+      this.statusEl.textContent = `✗ ${(err as Error).message}`;
+      return;
+    }
+    this.commit(out);
+    this.statusEl.textContent =
+      `connected the last moves onto "${target.name}"` +
+      (skipped.length ? ` — dancers ${skipped.join(', ')} have no move to re-aim` : '');
+  }
+
+  /**
+   * Point dancer `dancer` at another spot of the end formation.
+   *
+   * PICKING A SPOT ANOTHER DANCER IS ON SWAPS THE TWO, and that is what keeps the pairing a PERMUTATION:
+   * "the call finishes on this formation" means eight spots used ONCE EACH, so eight independent choices
+   * could put two dancers on one spot and leave another empty. A free spot is simply taken; a taken one
+   * trades, which is also the move a wrong automatic pairing usually needs.
+   */
+  private setEndSpot(dancer: number, spot: number) {
+    const pairing = this.endPairing();
+    if (!pairing) return;
+    const next = [...pairing];
+    const holder = next.indexOf(spot);
+    if (holder === dancer) return;
+    if (holder >= 0) next[holder] = next[dancer];
+    next[dancer] = spot;
+    this.endOverride = next;
+    this.focusKey = `r${dancer}:end`;
+    this.renderInstance();
+    this.statusEl.textContent =
+      holder >= 0
+        ? `dancer ${dancer + 1} and dancer ${holder + 1} swapped end spots`
+        : `dancer ${dancer + 1} now finishes on spot ${spot + 1}`;
   }
 
   /**
@@ -2136,6 +2414,12 @@ export class EditorController implements EditorUI {
    * This is the "now invalid track" made visible: re-posing a start re-frames every move, so
    * the set stops finishing where the call finishes and the editor has to SAY so rather than
    * leave the user to notice it on the stage.
+   *
+   * A RE-BASED END IS NOT AN INCOMPLETE TRACK, and the two are told apart by MEASUREMENT rather than by a
+   * flag: if the call's end is on the chosen end target, the drift from the source is exactly what the
+   * caller asked for, and the note names that instead of telling them to press Connect (which would then
+   * fight the end they just set). A flag would have gone stale the moment a later edit moved the end; the
+   * measurement cannot.
    */
   private refreshCloneInfo() {
     const inst = this.instance;
@@ -2148,6 +2432,18 @@ export class EditorController implements EditorUI {
     const deg = (err.heading * 180) / Math.PI;
     if (err.pos < 1e-9 && err.heading < 1e-9) {
       this.cloneInfoEl.textContent = `end formation unchanged from "${ref.from || 'the source'}"${this.asClone ? ' · saving as a NEW setup' : ''}`;
+      return;
+    }
+    const pairing = this.endPairing();
+    const onTarget = pairing !== null && (() => {
+      const gap = this.endTargetGap(pairing);
+      return gap.pos < 1e-9 && Math.abs(gap.heading) < 1e-9;
+    })();
+    if (onTarget) {
+      this.cloneInfoEl.innerHTML =
+        `<span style="color:#4d9fff">end re-based</span>: the call finishes on <b>${esc(this.endTarget!.name)}</b>, ` +
+        `${err.pos.toFixed(2)} units / ${deg.toFixed(0)}° from "${esc(ref.from || 'the source')}"` +
+        (this.asClone ? ' · saving as a NEW setup' : '');
       return;
     }
     // The clone workflow gets the loud wording because the drift there is a DEFECT with a
@@ -2387,6 +2683,13 @@ export class EditorController implements EditorUI {
     this.instExportBtn.addEventListener('click', () => this.doExport());
     this.startFormationSel.addEventListener('change', () => this.doStartFormation());
     this.connectBtn.addEventListener('click', () => this.doConnect());
+    this.endFormationSel.addEventListener('change', () => this.doEndFormation());
+    this.connectEndBtn.addEventListener('click', () => this.doConnectEnd());
+    this.endAutoBtn.addEventListener('click', () => {
+      this.endOverride = null;
+      this.renderInstance();
+      this.statusEl.textContent = 'pairing back to the derived one';
+    });
     // THE MANUAL SCRUB. The animation is off in this mode, so this is the only thing that moves the
     // dancers: `setPlayhead` moves the playhead WITHOUT re-showing the call, because re-showing
     // rebuilds all eight dancer views and their trails and would be done on every pointer move.

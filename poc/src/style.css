@@ -84,6 +84,15 @@ html, body {
 .ed-table td.ed-derived { color: var(--dim); text-align: right; padding-right: 8px; }
 .ed-grid { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 11px; margin-top: 2px; }
 .ed-grid label { width: auto; }
+/* THE END TARGET'S PAIRING: one small picker per dancer, `# -> spot`. It is a wrapping grid rather than a
+   column in the formation table because it is a statement about the END SETUP, not about a pose: the table
+   is already the widest thing on the panel, and eight more selects in it would push it into a scroll. */
+.ed-endpair { margin: 3px 0 6px; }
+.ed-endpair .ed-pair { display: flex; align-items: center; gap: 3px; color: var(--dim); }
+.ed-endpair .ed-pair label { width: auto; color: var(--dim); }
+.ed-endpair .ed-pair select { max-width: 150px; }
+/* `display: flex` in a class beats the `hidden` attribute's own `display: none`, so it is restated. */
+.ed-grid[hidden] { display: none; }
 /* WIDE ENOUGH FOR THE WHOLE NUMBER. `show()` rounds to four decimals, so the longest string a field
    ever holds is eight characters ("-10.3333"); at 11px that is about 49px of digits, and the field also
    owes 6px of padding, 2px of border and the browser's own number spinner (~15px) - which is 72px. The

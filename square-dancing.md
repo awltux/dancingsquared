@@ -2128,6 +2128,73 @@ two of those faults back - `doClone`'s own chrome pass removed (which is how the
 a caller actually presses) and the mode handler's pass removed - and requires each to fail. `tsc` clean, all
 twelve POC probes green.
 
+**THE END OF A TRACK CAN NOW BE RE-BASED ONTO A NAMED FORMATION, AND THE PAIRING IS THE HARD PART.** Asked
+for: "Add an option to select a different end formation and Connect a last move to the new end point. How can
+the interface handle formations with different indexes to the end positions. I may connect the end of the
+dance path to the wrong formation point. Need a solution to change the auto-selected endpoint."
+
+The panel gets an **End setup** picker and a **Connect end** button, mirroring the start's. `Connect end`
+re-aims the LAST move of every dancer at its spot of that formation, one dancer at a time through the engine's
+own `setDancerEnd`, which holds the beats and the hands: the call is not re-timed and no earlier move
+changes.
+
+THE ANSWER TO "DIFFERENT INDEXES" IS THAT A SPOT NUMBER IS NOT A CORRESPONDENCE, and the number says how
+badly that would go: sweeping every call in the ms level against all 134 formations the picker offers (2278
+pairings, `poc/tools/end-pair-probe.mjs`), index-for-index agrees with the geometric correspondence for **64
+of them (2.8%)**, and where it disagrees it sends a dancer up to **11.57 units** from the spot the geometry
+assigns. A formation's spot `j` is wherever ITS file wrote its j-th dancer, and nothing ties that to the
+caller's dancer `j`. So the pairing is derived with the engine's own `deriveFormationMapping` - eight whole-set
+rotations about the origin plus a centring translation, then the best 1:1 assignment on position and facing -
+exactly as the start re-base does, and it is always a bijection over the spots.
+
+AND THE PAIRING HAD A BUG THE MEASUREMENT FOUND RATHER THAN THE EYE. A formation's genders are its
+ARRANGEMENT, and the geometric correspondence ignored them: over the same sweep, the geometry alone put a
+dancer on a spot the formation declares for the OTHER gender in **1770 of 2278 pairings** (8840 spots - 77.7%,
+worst case 8 of 8 dancers on an "Alamo Wave"). The shape would look right and the setup would be a different
+one, which is precisely the "wrong formation point" the request was worried about. `deriveFormationMapping`
+gained an opt-in `preferGender`: pass 0 offers only spots whose declared gender is the dancer's own, pass 1
+over what is left makes the assignment TOTAL when the counts cannot line up - the two passes
+`assignStartSlots` has always used at the start of a track. OFF BY DEFAULT, so every existing caller is
+unchanged (the harness measures that erasing the genders changes no unflagged pairing), and the panel turns
+it on: 8840 mismatched spots become 0.
+
+THE OVERRIDE IS THE FEATURE, so it is a first-class control rather than an emergency hatch: beneath the End
+setup row, one picker per dancer shows `dancer -> spot` with the spot's gender, coordinates and heading, and
+choosing a spot another dancer holds SWAPS the two - eight independent choices could put two dancers on one
+spot and leave another empty, and the permutation is what "the call finishes on this formation" means. The
+association is DATA once the caller sets it (an override is kept and wins) and DERIVED while they have not,
+and the derived one is NOT stored: it is recomputed from the instance's own start poses, so it cannot go stale
+when a start, a gender or a move changes underneath it. MEASURED: an overridden dancer lands on the spot it
+was pointed at to 2.4e-14, every other dancer's end moves by exactly 0.0, and every earlier move of the two
+swapped dancers is bit-identical.
+
+THE GAP IS RE-MEASURED, NEVER REMEMBERED. Re-aiming the FIRST move re-frames everything after it, so an end
+that was connected stops being on target the moment the start is connected - the note under the End setup row
+therefore prints the distance on every render, and the Start Connect's status says outright that the end moved
+with the frame. When the call is on its end target and its ends differ from the catalogue's, the drift note
+reads **end re-based** instead of `track incomplete`, and that is decided by measurement too: a flag would
+have gone stale on the next edit.
+
+TWO THINGS WERE FOUND WHILE MEASURING, AND NEITHER IS THE CONNECT'S FAULT. (a) `correctEndTo`, the engine's
+whole-set route, DERIVES its own correspondence from the target it is handed, so it cannot carry an explicit
+pairing at all: of 24 applied pairings it keeps the one it was given 5 times, diverging by up to 6.50 units
+elsewhere - which is why an override has to go through the per-dancer mutator, and why the probe checks the
+two routes against each other where they DO agree (0.00e+0). (b) A FORMATION'S NAME IS NOT STABLE AT 1e-14
+RADIANS: adding 1e-14 rad to every heading of a formation's own board - a rotation by nothing - changes the
+name for 5 of the 16 formations the curated read can name (`Quarter Lines RH` -> `Quarter Lines LH` and
+friends), because their headings sit on the +/-pi branch cut. The connect's end board differs from the target
+by ~3e-15 rad, so a raw name comparison would be testing that knife edge; the probe snaps headings before
+comparing (48 of 48 named targets read back correctly) and reports the instability separately. Recorded as an
+open item in `PLAN.md`: it affects the Browse panel's end-formation read too, and a fix means finding the
+comparison that decides RH from LH and giving it a tolerance.
+
+GATED by `poc/tools/end-pair-probe.mjs` (the sweep above, the bijection, the two routes, the override's
+exactness and isolation, the recogniser read-back, the arrangement count, and the knife edge, with a negative
+control that pairs by index and shows a different end board) and by `engine/test/editor.mjs` section 21 (the
+flag off is the old behaviour bit for bit; the flag on leaves no mismatched spot; the assignment stays a
+bijection and stays TOTAL when the counts do not line up; a different dancer count still throws). `verify:light`
+green at 12 harnesses, `tsc` clean, all thirteen POC probes green.
+
 
 
 

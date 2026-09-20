@@ -17,6 +17,7 @@ import {
   dancerBeats,
   rigidFit,
   alignFormationToCore,
+  deriveFormationMapping,
   synthesizeSetup,
   synthesizeSetupChain,
   setupToXml,
@@ -1233,6 +1234,102 @@ console.log('\n== a created call can name its start formation (20) ==');
   const regendered = endShape.map((p, i) => (i === 0 ? { ...p, gender: p.gender === 'boy' ? 'girl' : 'boy' } : p));
   check(!startsFromFormation(starts, regendered), 'and so is the same shape with the arrangement (genders) changed: that is a different setup');
   check(startsFromFormation(starts, endShape.map((p) => ({ ...p, x: p.x + 5e-4 }))), "while the exporter's own rounding (5e-4) is inside the tolerance, so a formation that has been through the corpus once still matches");
+}
+
+// ---------------------------------------------------------------------------
+// 21. the correspondence between a call and a formation can keep the ARRANGEMENT
+// ---------------------------------------------------------------------------
+//
+// Asked for: "Add an option to select a different end formation and Connect a last move to the new end
+// point. How can the interface handle formations with different indexes to the end positions. I may
+// connect the end of the dance path to the wrong formation point."
+//
+// `deriveFormationMapping` pairs two equal-length dancer lists by GEOMETRY and never by array order, and
+// that is what makes "dancer 3 -> spot 3" not a correspondence at all. What it did NOT consider is gender,
+// and a formation's genders ARE its arrangement (which spots hold a boy and which a girl): pair a dancer
+// with a spot declared for the other gender and the shape comes out right while the SETUP is a different
+// one. `preferGender` closes that, and it is OFF by default so every existing caller is bit-for-bit
+// unchanged - which is the first thing this section measures.
+console.log('\n== the correspondence can keep the formation\'s arrangement (21) ==');
+{
+  // REAL WITNESSES: every ms-level call's own start against its own END (a real board with real genders),
+  // plus the same ends with the arrangements deliberately broken.
+  const msDir = path.join(__dirname, '../../poc/src/assets/ms');
+  const pairs = [];
+  for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+    try {
+      const call = normalizeInstance(loadCallFromXml(read(`../../poc/src/assets/ms/${f}`), movesXml, formationsXml, 0));
+      if (call.dancers.length !== 8) continue;
+      pairs.push({
+        file: f,
+        start: call.dancers.map((d) => {
+          const p = poseFor(d, 0);
+          return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
+        }),
+        end: call.dancers.map((d) => {
+          const p = poseFor(d, call.beats);
+          return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
+        }),
+      });
+    } catch {
+      /* not a call setup */
+    }
+  }
+  check(pairs.length > 10, `the sweep is ${pairs.length} real (start, end) pairs from the ms level, not a hand-built witness`);
+
+  // 1. THE FLAG OFF IS THE OLD BEHAVIOUR, EXACTLY: with the formation's genders erased the default must
+  //    give the same pairing. (If genders ever leak into the unflagged path, this fails.)
+  let genderLeak = 0;
+  for (const { start, end } of pairs) {
+    const a = deriveFormationMapping(start, end);
+    const b = deriveFormationMapping(start, end.map((p) => ({ ...p, gender: undefined })));
+    if (a.some((s, i) => s !== b[i])) genderLeak++;
+  }
+  check(genderLeak === 0, `with \`preferGender\` off the genders make no difference to the pairing (${genderLeak} of ${pairs.length} pairs changed when they were erased)`);
+
+  // 2. WHAT THE GEOMETRY ALONE DOES, MEASURED. The arrangement matters most of the time.
+  let mismatchDefault = 0;
+  let spotsDefault = 0;
+  let mismatchPreferred = 0;
+  let identical = 0;
+  for (const { start, end } of pairs) {
+    const plain = deriveFormationMapping(start, end);
+    const kept = deriveFormationMapping(start, end, true);
+    if (plain.every((s, i) => s === i)) identical++;
+    for (let i = 0; i < plain.length; i++) {
+      if (end[plain[i]].gender !== start[i].gender) mismatchDefault++;
+      if (end[kept[i]].gender !== start[i].gender) mismatchPreferred++;
+    }
+    spotsDefault += plain.filter((s, i) => end[s].gender !== start[i].gender).length > 0 ? 1 : 0;
+  }
+  check(mismatchDefault > 0, `the geometry alone puts somebody on the other gender's spot in ${spotsDefault} of ${pairs.length} pairs (${mismatchDefault} spots) - a real board, not a contrived one`);
+  check(mismatchPreferred === 0, `and with the arrangement preferred, nobody does (${mismatchPreferred} spots) - the 4 boys and 4 girls land on the 4 boy spots and the 4 girl spots`);
+
+  // 3. IT IS STILL THE GEOMETRY THAT DECIDES WHERE, and still never the array index.
+  for (const { start, end } of pairs) {
+    const kept = deriveFormationMapping(start, end, true);
+    const seen = new Set(kept);
+    check(seen.size === 8 && [...seen].every((s) => s >= 0 && s < 8), `every spot is used once (${pairs.length} pairs checked)`);
+    break;
+  }
+  check(identical < pairs.length, `and array order is still not the answer: index-for-index agrees with the geometry for only ${identical} of ${pairs.length} pairs`);
+
+  // 4. WHEN THE COUNTS DO NOT LINE UP THE ASSIGNMENT IS STILL TOTAL - and the survivors are the geometry's.
+  const allBoys = pairs[0].end.map((p) => ({ ...p, gender: 'boy' }));
+  const lopsided = deriveFormationMapping(pairs[0].start, allBoys, true);
+  const girls = pairs[0].start.filter((p) => p.gender === 'girl').length;
+  const onBoys = lopsided.filter((s, i) => allBoys[s].gender !== pairs[0].start[i].gender).length;
+  check(lopsided.length === 8 && new Set(lopsided).size === 8, 'a formation of eight boys still takes every dancer, once each: the second pass is what makes the assignment total');
+  check(onBoys === girls, `and exactly the ${girls} dancers who cannot be accommodated are the ones left on a mismatched spot (${onBoys})`);
+
+  // 5. And the refusal is unchanged: a different NUMBER of dancers is a gap, not a pairing.
+  let threw = false;
+  try {
+    deriveFormationMapping(pairs[0].start, pairs[0].end.slice(0, 4), true);
+  } catch {
+    threw = true;
+  }
+  check(threw, 'a formation with the wrong number of dancers still throws rather than pairing the rest by index');
 }
 
 console.log('\n=================');

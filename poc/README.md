@@ -803,15 +803,41 @@ faithful"; `poc/src/tam-xml.ts` only answers what a name resolves to here, and e
 resolving against a registered formation, the `No formation` guard, and the three fallbacks to the block)
 and by `poc/tools/formation-ref-probe.mjs` for the wiring.
 
-**Clone onto a different Start setup** — author a NEW setup for a call out of an existing one. A `<tam>` is authored for one start formation and its moves are written in *dancer-local*
+**Re-basing on a named formation, at either end** — author a NEW setup for a call out of an existing one. A `<tam>` is authored for one start formation and its moves are written in *dancer-local*
 coordinates, so re-posing the start re-frames the whole chain and the set stops finishing
-where the call finishes. The three controls are the three steps:
+where the call finishes. The controls are the steps, and the start and the end each get their own:
 
 | control | what it does |
 |---|---|
 | **Clone** | starts a NEW setup from this instance; Save/apply will ADD it rather than replace the one it came from |
 | **Start setup** | re-bases the clone's start onto a named formation, keeping every move. The track is now **incomplete**, and the panel says by how much (`track incomplete: 2.86 units / 90° from "Static Square"`) |
 | **Connect** | re-aims the **first move of every dancer** so it walks in from the new start to where the old track resumes. The end formation comes back exactly; no other move changes |
+| **End setup** | re-bases the END onto a named formation: the call should finish *there* instead. Nothing moves until **Connect end** |
+| **Connect end** | re-aims the **last move of every dancer** at its assigned spot of that formation. Beats and hands are held, so the call is not re-timed, and no earlier move changes |
+
+**A FORMATION'S SPOT NUMBER IS NOT A CORRESPONDENCE.** "Connect the end to `Ocean Waves`" needs an answer to
+*which of its eight spots does dancer 3 finish on*, and the answer cannot be "spot 3": a formation's spots are
+in ITS OWN authoring order, so `dancer 3 → spot 3` is a coincidence of two unrelated files. The pairing is
+**derived by geometry** with the engine's own `deriveFormationMapping` — the same call the Start setup's
+re-base uses: every multiple of 45° of whole-set rotation about the origin plus a centring translation, then
+the best 1:1 assignment on position and facing. MEASURED (`node poc/tools/end-pair-probe.mjs`, every call in
+the ms level × all 134 formations = 2278 pairings): index-for-index agrees with the geometry for **64 of them
+(2.8%)**, and where it disagrees it sends a dancer up to **11.57 units** from the spot the geometry assigns.
+The pairing is always a **bijection** — every spot used once — which is what "the call finishes on this
+formation" requires.
+
+**The arrangement is part of the correspondence.** A formation's genders are *which spots hold a boy and
+which a girl*, so putting a dancer on the other gender's spot gives the right shape and a different SETUP
+(measured: the geometry alone does that in **1770 of 2278** pairings, 8840 spots; `preferGender` on the
+engine's derivation leaves **0**, and it is the rule `setStartFormation` has always applied at the start).
+
+**And the pairing is editable, because the automatic one can be wrong.** Beneath the End setup row, one picker
+per dancer shows `dancer → spot` with the spot's own gender, coordinates and heading. Choosing a spot another
+dancer holds **swaps the two**, so the eight picks always use every spot once; **auto pairing** puts the
+derived one back. Everything is re-measured on every render — the gap to the end target is a **number on
+screen**, not a remembered "connected", because re-aiming the *first* move re-frames everything after it and
+would silently move an end that was already connected. When the ends differ from the catalogue's source
+*and* the call is on its end target, the note says **end re-based** rather than `track incomplete`.
 
 **A clone is announced, because it is not a mode.** The flag changes exactly one thing — what
 **Save** does, an ADDITION rather than a replacement — and everything else on the panel looks

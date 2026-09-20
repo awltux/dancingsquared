@@ -189,7 +189,15 @@
               <select id="edStartFormation" class="wide" title="Re-base the clone's START formation onto a named 8-dancer formation, keeping every move. The track will not end where the call ends - that is what Connect is for."></select>
               <button id="edConnect" title="Re-aim the FIRST move of every dancer so it connects the new start to the old track. The end formation comes back exactly; no other move changes.">Connect</button>
             </div>
+            <div class="row">
+              <label title="Where the dance should FINISH, named as an 8-dancer formation. Choosing one moves nothing on its own: Connect end re-aims each dancer's LAST move to reach it. Which SPOT of the formation each dancer finishes on is decided below, and can be changed.">End setup</label>
+              <select id="edEndFormation" class="wide" title="Finish the call on a named 8-dancer formation. The dancers are paired with its spots by GEOMETRY (the same correspondence the Start setup uses), never by the order the formation file happens to list them in - and the pairing is shown below, where any of it can be changed."></select>
+              <button id="edConnectEnd" title="Re-aim the LAST move of every dancer so the call finishes on the chosen end setup. Beats and hands are held, so the call is not re-timed, and no earlier move changes.">Connect end</button>
+              <button id="edEndAuto" hidden title="Put the automatically derived pairing back, undoing every spot changed by hand.">auto pairing</button>
+            </div>
             <div class="small" id="edCloneInfo"></div>
+            <div class="small" id="edEndInfo"></div>
+            <div id="edEndPair" class="ed-grid ed-endpair" hidden></div>
             <div class="small">
               <b>Formation</b> — the start pose of every dancer, and the pose each arrives at. The
               <i>gender</i> column is the ARRANGEMENT (which spots hold a boy and which a girl); <i>couple</i>

@@ -2063,6 +2063,12 @@ The panel needed this more than the other two screens did. Its three lists (edit
 catalogue — several thousand `<tam>` entries whose level was only a prefix in the label — and the panel
 therefore opened on whatever call happens to sort first, which is not a choice anybody made.
 
+**AND THE PREFIX WENT WITH IT.** "You can remove the level text from the start of the Edit Call name", the
+caller said next, and that is the other half of the same idea: `MS · Circle Left` existed to tell the levels
+apart while one list held all of them, and the selector now states the level once, above the list, instead
+of every entry repeating it. The entries carry the call TITLE alone; the `All levels` listing is still
+sorted by level, so the grouping is visible in the order even where it is no longer written down.
+
 **THE RULE THAT MAKES IT SAFE IS THE ONE THE FIND BOX ALREADY HAD.** The level is applied inside
 `fillCallSelect`, the single function that builds a call list and the only thing the three selects are
 filled from, so no list can be narrowed differently from another. It is a **view**: the call you already
@@ -2075,11 +2081,11 @@ level and the Find box AND together.
 GATED by `poc/tools/editor-level-probe.mjs`, which is labelled as what it is — a check on the SOURCE,
 because this is DOM code no engine harness can run and the sandbox cannot drive the browser: it checks the
 row under Mode, the MS default against the catalogue's own level order and asset directory, `All levels`,
-the filter living inside `fillCallSelect`, the pinned selection, all three lists being filled from that one
-function, and the handler that re-narrows without reloading — then runs the same analysis over four
-deliberately broken copies (the filter line removed, the default assignment removed, the handler reloading
-the instance, the pinned option dropped) and requires each to fail. `tsc -p poc --noEmit` clean, all
-eleven POC probes green.
+the filter living inside `fillCallSelect`, the title-only label, the pinned selection, all three lists being
+filled from that one function, and the handler that re-narrows without reloading — then runs the same
+analysis over five deliberately broken copies (the filter line removed, the default assignment removed, the
+handler reloading the instance, the pinned option dropped, the level prefix put back) and requires each to
+fail. `tsc -p poc --noEmit` clean, all eleven POC probes green.
 
 
 

@@ -53,6 +53,8 @@ function wiring(html, editor) {
     fromCatalogue: /for \(const lv of availableLevels\(\)\) this\.levelSel\.add/.test(editor),
     // The level filters INSIDE the one function that builds a call list...
     filtersInFill: /const level = this\.levelSel\.value;/.test(fill) && /if \(level && c\.level !== level\) continue;/.test(fill),
+    // ...and the entries carry the TITLE alone, the level having moved to the selector above them.
+    titleOnly: /const label = \(c: CallInfo\) => c\.title;/.test(fill),
     // ...and the selection is still kept when the level excludes it.
     keepsSelection: /const opt = new Option\(`▸ \$\{label\(keep\)\}`/.test(fill) && /sel\.insertBefore\(opt, sel\.firstChild\)/.test(fill),
     // All three lists are filled from that one function and nowhere else.
@@ -73,6 +75,7 @@ check(good.defaultsToMs, 'and it opens on MS, but only after checking the catalo
 check(good.allLevels, 'with "All levels" among the options: the level narrows what the lists OFFER, and without it every other level would be unreachable from the editor');
 check(good.fromCatalogue, 'the levels offered come from the loaded catalogue, the same rule the browse and sequence views use');
 check(good.filtersInFill, 'the level is applied INSIDE `fillCallSelect`, the one function that builds a call list');
+check(good.titleOnly, 'and the entries carry the call TITLE alone: the level is stated once by the selector above the list instead of being repeated at the start of every name');
 check(good.keepsSelection, 'and the selected call is still re-inserted when the level excludes it');
 check(good.fillsAllThree, 'all three lists (edit, post, pre) are filled through that one function, so no list can be narrowed differently');
 check(good.viewOnly, 'changing the level only re-narrows the lists: it does not reload the instance, which is what would silently discard an edit in progress');
@@ -103,6 +106,9 @@ console.log('\n== the check fails on the bugs it was written for ==');
 
   const unpinned = wiring(html, src['editor-ui.ts'].replace('sel.insertBefore(opt, sel.firstChild);', 'void keep;'));
   check(!unpinned.keepsSelection, 'and so is dropping the pinned option, which is what makes the filter a view rather than a way to change what you have selected');
+
+  const prefixed = wiring(html, src['editor-ui.ts'].replace('const label = (c: CallInfo) => c.title;', 'const label = (c: CallInfo) => `${c.level.toUpperCase()} · ${c.title}`;'));
+  check(!prefixed.titleOnly, 'and the level prefix is caught when it comes back at the start of every call name');
 }
 
 console.log('\n=================');

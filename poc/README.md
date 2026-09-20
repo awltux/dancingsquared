@@ -348,15 +348,17 @@ harnesses and the Vite app cannot run in this sandbox.
 **MS**. It sits directly under **Mode** and is the same control the browse and sequence panels
 carry: the options come from the loaded catalogue rather than a hard-coded list, and **All levels**
 is one of them, so the selector decides what the lists *offer* without ever putting the rest of the
-catalogue out of reach. The level and the **Find** box narrow the same lists and combine (a Find
-term naming a different level then matches nothing); the readout names the level whenever the level
-is doing any of the narrowing, so a short list always says why. Like Find, it is a **view**: the
-call you already have selected stays selected and the instance is not reloaded, because a selector
-that dropped the call would be a way to lose an edit in progress. `node tools/editor-level-probe.mjs`
-audits that wiring — the level filtering inside the one function that builds a call list, the pinned
-selection, the MS default checked against the catalogue's own level list, and the handler that
-re-narrows without reloading — and **requires the same analysis to fail** on four deliberately broken
-copies.
+catalogue out of reach. With the level stated once above the list, the entries themselves carry the
+call **title alone** (`Circle Left`, not `MS · Circle Left`); the `All levels` listing is still sorted
+by level, so the grouping survives in the order. The level and the **Find** box narrow the same lists
+and combine (a Find term naming a different level then matches nothing); the readout names the level
+whenever the level is doing any of the narrowing, so a short list always says why. Like Find, it is a
+**view**: the call you already have selected stays selected and the instance is not reloaded, because
+a selector that dropped the call would be a way to lose an edit in progress.
+`node tools/editor-level-probe.mjs` audits that wiring — the level filtering inside the one function
+that builds a call list, the title-only label, the pinned selection, the MS default checked against
+the catalogue's own level list, and the handler that re-narrows without reloading — and **requires the
+same analysis to fail** on five deliberately broken copies.
 
 **Find** narrows the call lists, because the catalogue is several hundred calls. Terms
 are ANDed substrings matched against the LEVEL, the TITLE, the file name and every

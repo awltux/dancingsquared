@@ -538,7 +538,11 @@ export class EditorController implements EditorUI {
   private fillCallSelect(sel: HTMLSelectElement, keepId: string): number {
     const terms = this.callQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
     const level = this.levelSel.value;
-    const label = (c: CallInfo) => `${c.level.toUpperCase()} · ${c.title}`;
+    // THE TITLE ALONE. The list used to lead every entry with its level (`MS · Circle Left`), which
+    // was the only way to tell the levels apart while one list held all of them - and it made every
+    // name longer for a fact the LEVEL selector now states once, above the list. `All levels` is the
+    // one case where the entry no longer carries its level; the order still groups them.
+    const label = (c: CallInfo) => c.title;
     sel.innerHTML = '';
     const keep = this.catalog.find((c) => c.id === keepId) ?? null;
     let kept = false;

@@ -2552,3 +2552,23 @@ and cost it 12% of its length. `RUN_FIT_MAX_DEV` bounds the worst deviation agai
 and the corpus separates cleanly: of 2253 accepted run fits the two bad ones sit at 29.9% and 14.7% of the path
 length and the worst that SHOULD be kept is 3.8%, so any threshold between them decides every run the same way.
 With it, the worst survivor keeps 98.6% instead of 87.6%.
+
+THE RUN-LEVEL CIRCLE NOW CARRIES A CENTRE. Reported after the collapse was fixed: "The Circle left call starting
+from Circle has a trace that is an offset circle. I want to select all the moves, create the circle and then put
+the center of the circle at the origin (or where i drag the circle center to)." The witness is ms/circle.xml's
+`Circle Left` from a `Circle` (tam #1): its dancers stand on a ring of radius 2.613 about the origin and walk an
+orbit of radius 2.595 whose centre is 1.013 units off it - a DIFFERENT direction for each dancer, because the
+authored offset lives in the dancer's own frame. A radius cannot correct that; the orbit is the right size in the
+wrong place.
+
+A NAMED CENTRE NEEDS NO RADIUS, and that is the point rather than a convenience: the run's START is pinned, so
+|start - centre| IS the radius - which means moving the centre while the start stays put can only resize, and
+"put the centre here" is therefore the right gesture for an orbit rather than a translation. The centre is
+SHARED across the selection (the radius is not: it follows from each dancer's own ends), and naming a radius
+clears a named centre and vice versa, because they are two ways to drive the same two degrees of freedom.
+
+MEASURED (`poc/tools/run-circle-probe.mjs` section 7), naming the origin on that call with no radius given:
+every orbit's centre goes from 1.013 off the origin to 1.7e-7, each radius lands on 2.613 - its own start
+distance, so nothing was chosen - no dancer's start moves at all (0.0), and the turn changes by 8.0e-8deg so it
+still closes. Panel: `centre x`, `centre y`, an `origin` button and a `clear`, in a group of their own so they
+wrap. A DRAG of the centre on the board is the intended next gesture and is NOT built yet.

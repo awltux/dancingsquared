@@ -55,6 +55,10 @@ has(/in-run/, 'the moves inside the run are drawn as part of the selection, so t
 // label+control pair is its own group now, and a regression to one group is a regression to the overflow.
 has(/grid\.appendChild\(runWrap\)/, 'the circle controls are SEPARATE groups rather than one nowrap row, which is what pushed the button off the pane');
 has(/grid\.appendChild\(goWrap\)/, 'and the buttons are in a group of their own, so they wrap like every other field');
+has(/this\.circleCentre = \{ x: 0, y: 0 \};/, 'the centre can be put at the ORIGIN with one press');
+has(/grid\.appendChild\(cWrap\)/, 'and the centre controls are their own group too, for the same reason');
+has(/this\.circleCentre = null;/, 'and a named centre can be given back to the run that owns it');
+has(/if \(!this\.circleCentre && \(radius === null/, 'a named centre needs no radius field, because the radius follows from the pinned start');
 has(/this\.statusEl\.textContent = `✗ \$\{why\[0\]/, 'a run that no dancer accepted is reported, not swallowed');
 // The refusal is the user's chosen rule, so its TEXT has to reach the screen rather than being replaced by a
 // generic "could not".
@@ -65,12 +69,19 @@ has(/why\.push\(`dancer \$\{d \+ 1\}: \$\{\(err as Error\)\.message\}`\)/, 'and 
 // The exact rule from `circleFor`, so what is measured is the panel's behaviour and not a convenient
 // simplification of it. A RUN THAT IS ALREADY A CIRCLE KEEPS ITS CENTRE and only its radius and turn move; a
 // run that is not takes the circle through its ENDS. Getting this backwards is what section 6 exists to catch.
-function circleFor(call, d, from, to, radius, side) {
+function circleFor(call, d, from, to, radius, side, centre) {
   const dancer = call.dancers[d];
   if (!dancer || to <= from || to >= dancer.path.length) return null;
   const p0 = engine.poseFor(dancer, from === 0 ? 0 : engine.moveBeatRange(dancer, from - 1).to);
   const p1 = engine.poseFor(dancer, engine.moveBeatRange(dancer, to).to);
   const own = engine.fitCircleRun(call, d, from, to);
+  const turn = own ? (side === 1 ? own.sweep : -own.sweep) : engine.runTurn(call, d, from, to);
+  if (centre) {
+    // A NAMED CENTRE FIXES THE RADIUS at |start - centre|, because the start is pinned.
+    const r = Math.hypot(p0.x - centre.x, p0.y - centre.y);
+    if (!(r > 1e-9)) return null;
+    return { cx: centre.x, cy: centre.y, r, sweep: turn };
+  }
   if (own) {
     const dist = Math.hypot(p0.x - own.cx, p0.y - own.cy);
     if (!(dist > 1e-9)) return null;
@@ -85,13 +96,13 @@ function circleFor(call, d, from, to, radius, side) {
   return engine.circleThrough(p0, p1, radius, side, engine.runTurn(call, d, from, to));
 }
 
-/** The panel's whole-call edit: ONE radius and ONE side, every selected dancer about its own ends. */
-function groupCircle(call, targets, from, to, radius, side) {
+/** The panel's whole-call edit: one radius, one side and optionally one CENTRE, each dancer about its own ends. */
+function groupCircle(call, targets, from, to, radius, side, centre = null) {
   let next = call;
   let done = 0;
   const why = [];
   for (const d of targets) {
-    const circle = circleFor(next, d, from, to, radius, side);
+    const circle = circleFor(next, d, from, to, radius, side, centre);
     if (!circle) { why.push(`dancer ${d + 1}: no circle of that radius joins this run's ends`); continue; }
     try { next = engine.setRunCircle(next, d, from, to, circle); done++; }
     catch (err) { why.push(`dancer ${d + 1}: ${err.message}`); }
@@ -207,7 +218,7 @@ if (!closed) {
   const p1 = engine.poseFor(closed.call.dancers[closed.d], engine.moveBeatRange(closed.call.dancers[closed.d], closed.to).to);
   check(engine.circleThrough(p0, p1, 3, 1) === null, 'the chord is a POINT and `circleThrough` correctly refuses it');
   const wanted = closed.fit.r * 2;
-  const circle = circleFor(closed.call, closed.d, cf, closed.to, wanted, 1);
+  const circle = circleFor(closed.call, closed.d, cf, closed.to, wanted, 1, null);
   check(!!circle, 'and the panel\'s closed-run branch still finds a circle to lay it on');
   // THE ENGINE REFUSES A FULL TURN OVER UNEVEN BEATS, and it is right to: a 360deg orbit spread over beats
   // [1.5, 3, 3, 1.5] asks the middle move for 120deg, and a move carries a quarter. So the widening is tested on
@@ -293,7 +304,7 @@ for (const [lvl, f] of files) {
           // The panel only has a default radius when the run already fits a circle, so that is the population
           // the button acts on without the caller typing anything.
           if (!own) continue;
-          const circle = circleFor(call, d, from, to, own.r, 1);
+          const circle = circleFor(call, d, from, to, own.r, 1, null);
           if (!circle) continue;
           let next;
           try { next = engine.setRunCircle(call, d, from, to, circle); } catch { continue; }
@@ -324,6 +335,66 @@ check(tested > 100, 'the sweep is every run the control would act on, not a witn
 check(destroyed === 0, `NO run is destroyed - none loses even a tenth of its length${losses.length ? ` (${losses.length} did: ${losses.slice(0, 3).join('; ')})` : ''}`);
 check(worstKeep > 0.9, `and the worst case keeps ${(worstKeep * 100).toFixed(1)}% of its path, so this is a re-lay and not a rewrite`);
 check(worstTurn < 1, 'and the run keeps the turn it had, so the call still goes as far round as it did');
+
+// ============================================================ 7. naming the CENTRE
+//
+// Asked for, after the panel was working: "The Circle left call starting from Circle has a trace that is an
+// offset circle. I want to select all the moves, create the circle and then put the center of the circle at the
+// origin (or where i drag the circle center to)."
+//
+// The witness is `ms/circle.xml` tam #1, `from="Circle"`: its dancers stand on a ring of radius 2.613 about the
+// origin and walk an orbit of radius 2.595 whose centre is 1.013 units off it - a DIFFERENT direction for each
+// dancer, because the offset is authored in the dancer's own frame. A radius cannot correct that; the orbit is
+// the right size and in the wrong place. Naming a centre can, and it needs no radius field at all: the run's
+// start is pinned, so |start - centre| IS the radius.
+console.log('\n== 7. Do the eight dancers\' orbits come back onto the ring they started on? ==');
+const circleTams = engine.parseCallXml(asset('ms/circle.xml'));
+let ring = null;
+for (const tam of circleTams) {
+  let call;
+  try { call = engine.normalizeInstance(engine.buildCall(tam, engine.parseFormations(formationsXml), engine.parseMoves(movesXml), true)); } catch { continue; }
+  if (call.dancers.length !== 8) continue;
+  if (!/^circle$/i.test((tam.formationAttr ?? '').trim())) continue;
+  ring = call;
+  break;
+}
+check(!!ring, 'ms/circle.xml has a `Circle Left` that starts FROM a Circle - the call the report names');
+if (ring) {
+  const starts = ring.dancers.map((d) => Math.hypot(d.x, d.y));
+  const spread = Math.max(...starts) - Math.min(...starts);
+  check(spread < 1e-9, `and its dancers really do stand on a ring about the origin (radius ${starts[0].toFixed(3)}, spread ${spread.toExponential(1)})`);
+  const to = ring.dancers[0].path.length - 1;
+  const before = ring.dancers.map((_, d) => engine.fitCircleRun(ring, d, 0, to));
+  check(before.every(Boolean), 'and every one of them already walks a circle - the size is right');
+  const offsets = before.map((f) => Math.hypot(f.cx, f.cy));
+  console.log(`    before: each orbit has radius ${before[0].r.toFixed(3)} and its centre ${offsets[0].toFixed(3)} from the origin`);
+  check(offsets.every((o) => o > 0.5), 'but every one of those orbits is OFFSET from the origin, which is the trace the caller described');
+  // These are REFIT readings, so the tolerances are the fit's own sampling error and not machine epsilon: the
+  // radius the engine was handed is exact by construction, but what `fitCircleRun` measures back carries the
+  // sampling of the polyline it reads.
+  check(Math.abs(Math.max(...offsets) - offsets[0]) < 1e-3 && offsets[0] > 0.5,
+    `and the offsets match in size (${offsets[0].toFixed(3)}) while differing in direction, because the authored offset is in each dancer's own frame`);
+  // The edit: select every move, name the origin.
+  const startsBefore = ring.dancers.map((d) => engine.poseFor(d, 0));
+  const { next, done, why } = groupCircle(ring, [0, 1, 2, 3, 4, 5, 6, 7], 0, to, null, 1, { x: 0, y: 0 });
+  check(done === 8, `all eight take a named centre with NO radius given${why.length ? ` (${why[0]})` : ''}`);
+  const after = next.dancers.map((_, d) => engine.fitCircleRun(next, d, 0, to));
+  check(after.every(Boolean), 'and every one of them is still a circle afterwards');
+  const afterCentre = Math.max(...after.map((f) => Math.hypot(f.cx, f.cy)));
+  console.log(`    after: every orbit is centred ${afterCentre.toExponential(1)} from the origin`);
+  check(afterCentre < 1e-4, 'so every orbit now goes round the MIDDLE OF THE SET, which is what was asked for');
+  const radii = after.map((f) => f.r);
+  const rSpread = Math.max(...radii) - Math.min(...radii);
+  check(rSpread < 1e-4 && Math.abs(radii[0] - starts[0]) < 1e-3,
+    `and each radius fell out of where that dancer starts (${radii[0].toFixed(3)} against the ring radius ${starts[0].toFixed(3)}), so no radius had to be given`);
+  const movedStart = Math.max(...next.dancers.map((d, i) => {
+    const p = engine.poseFor(d, 0);
+    return Math.hypot(p.x - startsBefore[i].x, p.y - startsBefore[i].y);
+  }));
+  check(movedStart < 1e-9, `no dancer's START moved (worst ${movedStart.toExponential(1)} units) - that is what makes the radius follow rather than be chosen`);
+  const sweepChange = Math.max(...after.map((f, d) => Math.abs(f.sweep - before[d].sweep) * DEG));
+  check(sweepChange < 1e-2, `and every orbit still goes as far round as it did (worst change ${sweepChange.toExponential(1)}deg), so it still closes`);
+}
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');
 process.exit(failures ? 1 : 0);

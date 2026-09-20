@@ -1207,6 +1207,29 @@ deviation against the run's **own length** as well, and the corpus separates cle
 fits the two bad ones sit at **29.9%** and **14.7%** of the path length and the worst that should be *kept* is
 **3.8%**, so any threshold between them decides every run in the corpus the same way.
 
+**A RADIUS IS THE WRONG HANDLE FOR THE THING THAT GOES WRONG.** An orbit can be the right *size* and in the
+wrong *place*, which is what a caller reported: *"The Circle left call starting from Circle has a trace that is
+an offset circle. I want to select all the moves, create the circle and then put the center of the circle at
+the origin."* The witness is `ms/circle.xml`'s `Circle Left` from a `Circle` - its dancers stand on a ring of
+radius **2.613** about the origin and walk an orbit of radius **2.595** whose centre is **1.013** units off it,
+a *different* direction for each dancer because the authored offset lives in the dancer's own frame.
+
+So the row carries a **centre**: `x` and `y`, an **origin** button, and a **clear**. And a named centre needs
+**no radius at all**, because the run's start is pinned - `|start - centre|` *is* the radius. That is exactly
+what makes this the right gesture rather than a translation: moving the centre while the start stays put can
+only resize. MEASURED (`poc/tools/run-circle-probe.mjs` section 7), naming the origin on that call:
+
+| | before | after |
+|---|---|---|
+| each orbit's centre, from the origin | **1.013** | **1.7e-7** |
+| radius | 2.595 | **2.613** - its own start distance, so nothing was chosen |
+| a dancer's **start** moved | - | **0.0** |
+| the turn | 361.2deg | changes by **8.0e-8deg**, so it still closes |
+
+The centre is **shared** across the selection (unlike the radius, which follows from each dancer's own ends),
+and naming a radius clears a named centre and vice versa - they are two ways to drive the same two degrees of
+freedom, not two independent numbers. A **drag** of the centre on the board is the intended next gesture and is
+not built yet.
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

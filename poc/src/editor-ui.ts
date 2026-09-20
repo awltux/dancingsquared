@@ -509,6 +509,16 @@ export class EditorController implements EditorUI {
   private circleTo: number | null = null;
   /** The radius asked for, or null to take the run's own. */
   private circleRadius: number | null = null;
+  /**
+   * A centre the caller has NAMED, or null to let each dancer's own run say where its centre is.
+   *
+   * Naming one is a different edit from naming a radius, and the difference is what makes it useful: the run's
+   * START is pinned, so the distance from the centre to that start IS the radius - which means moving the
+   * centre can only resize, and "put the centre here" re-centres an orbit on the thing it should have been
+   * going round. `ms/circle.xml`'s `Circle Left` from a `Circle` is the case: the dancers stand on a ring of
+   * radius 2.613 about the origin and walk an orbit of radius 2.595 centred 1.013 units off it.
+   */
+  private circleCentre: { x: number; y: number } | null = null;
   /** Which way round. The discrete half of the parameterisation - the radius is the continuous half. */
   private circleSide: 1 | -1 = 1;
   /** The editor's OWN playhead, in absolute beats. The animation is OFF while editing an instance,
@@ -725,9 +735,11 @@ export class EditorController implements EditorUI {
       this.instanceEdited = false;
       this.asClone = false;
       this.moveIndex = 0;
-      // The run and the radius belong to the track that was being edited, so a new one starts with neither.
+      // The run, the radius and the centre belong to the track that was being edited, so a new one starts
+      // with none of them.
       this.circleTo = null;
       this.circleRadius = null;
+      this.circleCentre = null;
       this.circleSide = 1;
       this.selectedDancers = new Set([0]);
       this.startFormationSel.value = '';
@@ -1085,28 +1097,42 @@ export class EditorController implements EditorUI {
    * A RUN THAT IS NOT A CIRCLE HAS NO CENTRE TO KEEP, so there the ENDS are the anchor and the radius and side
    * are what the caller supplies - which is the case the "both ends are kept exactly" property belongs to.
    */
-  private circleFor(call: CallBundle, d: number, from: number, to: number, radius: number, side: 1 | -1): RunCircle | null {
+  private circleFor(call: CallBundle, d: number, from: number, to: number, radius: number | null, side: 1 | -1, centre: { x: number; y: number } | null): RunCircle | null {
     const dancer = call.dancers[d];
     if (!dancer || to <= from || to >= dancer.path.length) return null;
     const p0 = poseFor(dancer, from === 0 ? 0 : moveBeatRange(dancer, from - 1).to);
     const p1 = poseFor(dancer, moveBeatRange(dancer, to).to);
     const own = fitCircleRun(call, d, from, to);
+    const turn = own ? (side === 1 ? own.sweep : -own.sweep) : runTurn(call, d, from, to);
+    // A CENTRE THE CALLER NAMES IS SHARED AND THE RADIUS FOLLOWS FROM WHERE EACH DANCER STARTS, and that is the
+    // whole reason a named centre needs no radius field: the start is pinned, so |start - centre| IS the radius.
+    // It is also what makes "put the centre here" the right gesture for an ORBIT rather than a translation -
+    // moving the centre while the start stays put can only resize, and for `ms/circle.xml`'s `Circle Left` that
+    // is exactly the correction wanted: its dancers stand on a ring of radius 2.613 about the origin and walk a
+    // circle of radius 2.595 offset 1.013 from it, so naming the origin re-centres each dancer's orbit on the
+    // ring it started from.
+    if (centre) {
+      const r = Math.hypot(p0.x - centre.x, p0.y - centre.y);
+      if (!(r > 1e-9)) return null;
+      return { cx: centre.x, cy: centre.y, r, sweep: turn };
+    }
     if (own) {
       // The centre is kept as a DIRECTION from the run's start, so the new radius is reached exactly and
       // `setRunCircle`'s own snap-to-the-start is a no-op rather than a fight. The turn is kept as it is -
       // including a 361deg one, which rounding to whole revolutions would quietly make 360.
       const dist = Math.hypot(p0.x - own.cx, p0.y - own.cy);
       if (!(dist > 1e-9)) return null;
-      const k = radius / dist;
+      const k = radius! / dist;
       return {
         cx: p0.x + (own.cx - p0.x) * k,
         cy: p0.y + (own.cy - p0.y) * k,
-        r: radius,
+        r: radius!,
         sweep: side === 1 ? own.sweep : -own.sweep,
       };
     }
     // No circle of its own: the run's own turn still says how much of one it covers, and passing it is what
     // stops the minor arc from being chosen when the run turns most of the way round.
+    if (radius === null) return null;
     return circleThrough(p0, p1, radius, side, runTurn(call, d, from, to));
   }
 
@@ -1141,11 +1167,12 @@ export class EditorController implements EditorUI {
     for (const d of targets) {
       const fit = fitCircleRun(next, d, from, to);
       const radius = this.circleRadius ?? fit?.r ?? null;
-      if (radius === null || !(radius > 0)) {
+      // A NAMED CENTRE NEEDS NO RADIUS, because the start is pinned and the radius follows from it.
+      if (!this.circleCentre && (radius === null || !(radius > 0))) {
         why.push(`dancer ${d + 1}: this run is not a circle, so it needs a radius`);
         continue;
       }
-      const circle = this.circleFor(next, d, from, to, radius, this.circleSide);
+      const circle = this.circleFor(next, d, from, to, radius, this.circleSide, this.circleCentre);
       if (!circle) {
         why.push(`dancer ${d + 1}: no circle of that radius joins this run's ends`);
         continue;
@@ -2039,15 +2066,17 @@ export class EditorController implements EditorUI {
       // the selected move, so extending backwards is the same gesture as extending forwards.
       this.circleTo = k;
       this.circleRadius = null;
+      this.circleCentre = null;
       this.renderMoveStrip();
       this.syncStageSelection();
       return;
     }
-    const changed = k !== this.moveIndex || this.circleTo !== null || this.circleRadius !== null;
+    const changed = k !== this.moveIndex || this.circleTo !== null || this.circleRadius !== null || this.circleCentre !== null;
     this.moveIndex = k;
     // A plain click is "just this move", which is also what collapses a run that was open.
     this.circleTo = null;
     this.circleRadius = null;
+    this.circleCentre = null;
     if (!changed) return;
     this.renderMoveStrip();
     this.syncStageSelection();
@@ -2465,10 +2494,69 @@ export class EditorController implements EditorUI {
       rInput.addEventListener('change', () => {
         const v = parseFloat(rInput.value);
         this.circleRadius = Number.isFinite(v) && v > 0 ? v : null;
+        // A RADIUS AND A CENTRE ARE TWO WAYS TO DRIVE THE SAME TWO DEGREES OF FREEDOM, so naming one releases
+        // the other rather than leaving a stale value to fight it.
+        if (this.circleRadius !== null) this.circleCentre = null;
         this.renderInstance(`m${i}:${k}:circle.r`);
       });
       rWrap.append(rLab, rInput);
       grid.appendChild(rWrap);
+
+      // ---- where the circle IS -------------------------------------------------
+      //
+      // A CENTRE, because a radius is the wrong handle for the thing that actually goes wrong. An orbit can be
+      // the right size and still be in the wrong PLACE, and because the run's start is pinned the two are not
+      // independent: naming a centre FIXES the radius at |start - centre|. That is what makes this the right
+      // gesture for `ms/circle.xml`'s `Circle Left` from a `Circle`, whose dancers stand on a ring of radius
+      // 2.613 about the origin and walk an orbit of radius 2.595 centred 1.013 units off it - naming the origin
+      // re-centres every dancer's orbit onto the ring it started from, and lets the radius fall where it may.
+      const cWrap = document.createElement('span');
+      cWrap.className = 'ed-group';
+      const cLab = document.createElement('label');
+      cLab.textContent = 'centre';
+      cLab.title =
+        'The point the run goes round. Unlike the radius this is SHARED by every selected dancer, and each dancer\'s own radius follows from where its run starts - so putting the centre at the origin puts every orbit round the middle of the set. Empty means "wherever each dancer\'s own run already has it".';
+      const centreInput = (axis: 'x' | 'y') => {
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.step = '0.25';
+        inp.value = this.circleCentre ? show(this.circleCentre[axis]) : '';
+        inp.placeholder = fit ? show(axis === 'x' ? fit.cx : fit.cy) : axis;
+        inp.dataset.key = `m${i}:${k}:circle.c${axis}`;
+        inp.title = axis === 'x' ? 'Centre X. Type both to name a centre, or press `origin`.' : 'Centre Y.';
+        inp.addEventListener('change', () => {
+          // BOTH NUMBERS ARE NEEDED, so one is completed from the run's own centre rather than treated as zero.
+          const base = this.circleCentre ?? { x: fit?.cx ?? 0, y: fit?.cy ?? 0 };
+          const v = parseFloat(inp.value);
+          const next = { ...base, [axis]: Number.isFinite(v) ? v : base[axis] };
+          this.circleCentre = inp.value.trim() === '' && axis === 'x' ? null : next;
+          this.circleRadius = null;
+          this.renderInstance(`m${i}:${k}:circle.c${axis}`);
+        });
+        return inp;
+      };
+      const originBtn = document.createElement('button');
+      originBtn.type = 'button';
+      originBtn.textContent = 'origin';
+      originBtn.dataset.key = `m${i}:${k}:circle.origin`;
+      originBtn.title = 'Put the centre of the run at the origin - the middle of the set - for every selected dancer. The radius of each follows from where that dancer starts.';
+      originBtn.addEventListener('click', () => {
+        this.circleCentre = { x: 0, y: 0 };
+        this.circleRadius = null;
+        this.renderInstance(`m${i}:${k}:circle.origin`);
+      });
+      const clearBtn = document.createElement('button');
+      clearBtn.type = 'button';
+      clearBtn.textContent = 'clear';
+      clearBtn.dataset.key = `m${i}:${k}:circle.clear`;
+      clearBtn.title = 'Forget the named centre and go back to letting each dancer\'s own run say where the centre is.';
+      clearBtn.addEventListener('click', () => {
+        this.circleCentre = null;
+        this.circleRadius = null;
+        this.renderInstance(`m${i}:${k}:circle.clear`);
+      });
+      cWrap.append(cLab, centreInput('x'), centreInput('y'), originBtn, clearBtn);
+      grid.appendChild(cWrap);
 
       const goWrap = document.createElement('span');
       goWrap.className = 'ed-group';
@@ -2494,8 +2582,18 @@ export class EditorController implements EditorUI {
       const note = document.createElement('div');
       note.className = 'small';
       const span = `moves ${k + 1}–${to + 1} (${show(beats)} beats)`;
-      if (radius === null) {
-        note.textContent = `${span}: this run is not on a circle, so give it a radius`;
+      if (this.circleCentre) {
+        // A NAMED CENTRE FIXES THE RADIUS, so the honest readout is the one the shown dancer gets and a note
+        // that the others follow from their own starts - not the radius field, which is per dancer here.
+        const at = `centre (${show(this.circleCentre.x)}, ${show(this.circleCentre.y)})`;
+        const shownDancer = this.instance?.dancers[i];
+        const shownStart = shownDancer ? poseFor(shownDancer, k === 0 ? 0 : moveBeatRange(shownDancer, k - 1).to) : null;
+        const shown = shownStart ? Math.hypot(shownStart.x - this.circleCentre.x, shownStart.y - this.circleCentre.y) : null;
+        note.textContent = `${span}: ${at} · this dancer's radius follows from where its run starts` +
+          (shown !== null && Number.isFinite(shown) ? ` (${show(shown)})` : '') +
+          (fit ? ` · a turn of ${((Math.abs(fit.sweep) * 180) / Math.PI).toFixed(1)}°` : '');
+      } else if (radius === null) {
+        note.textContent = `${span}: this run is not on a circle, so give it a radius or a centre`;
       } else {
         // THE TURN THE RADIUS IMPLIES, and whether the run is long enough to carry it. A move carries at most
         // a quarter, so the requirement is stated as a number of moves rather than discovered by a refusal.

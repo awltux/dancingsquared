@@ -123,6 +123,9 @@ html, body {
   border-color: #4d9fff; background: rgba(77, 159, 255, 0.08); box-shadow: 0 0 0 1px rgba(77, 159, 255, 0.35);
 }
 #editorPanel .ed-move.selected:hover { border-color: #4d9fff; }
+/* A move inside the open CIRCLE run. It is drawn as part of the selected tile rather than as a second
+   selection colour, because the run is not a second cursor - it always grows out of the selected move. */
+#editorPanel .ed-move.in-run { border-color: #4d9fff; background: rgba(77, 159, 255, 0.16); }
 #editorPanel .ed-move.selected .ed-move-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 2px; }
 #editorPanel .ed-move .ed-grid { gap: 3px 6px; }
 #editorPanel .ed-move .ed-grid label { color: var(--dim); }

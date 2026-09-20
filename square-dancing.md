@@ -2488,3 +2488,40 @@ alternative name for the 'formation' property." The engine agrees - `convert.ts:
 `tam.formationAttr` - so comparing a recognised name against `from` compares it against free text. Comparing
 against the attribute gives 2299 of 2299 (100.0%). A third limit: 2113 tams name a formation the picker does
 not carry, so the recogniser can only ever name the 134 eight-dancer formations it knows.
+
+THE RUN-LEVEL CIRCLE IS BUILT (fields first; the bulge drag is still to come). The engine gains
+`circleThrough(a, b, radius, side)` - the whole parameterisation, since a circular arc has five numbers and
+pinning both endpoints spends four, leaving ONE continuous choice (the radius) and ONE discrete one (which side
+of the chord the centre falls on), with both end headings DERIVED because an arc's tangent is perpendicular to
+its radius - plus `fitCircleRun`, `setRunCircle`, `runCircleCount`'s `runCircleMoveCount` and `RUN_ARC_MAX`.
+
+`setRunCircle` lays a run on the arc and keeps the run's move count, beats and hands. THE FRAMES MOVE WITH THE
+REWRITE, so they are recomputed as it is written: the frame's position is the sub-arc's own start, and its
+heading advances by the FACING channel's rule, so an authored turn survives and a missing facing curve keeps
+meaning "walk the way you are going". Facing curves are never written. THE RADIUS IS SNAPPED TO WHERE THE RUN
+STARTS, so the start does not move by construction - which is what lets a run be re-laid on its own
+least-squares fit, since a fit does not put the sampled points exactly on its circle (ms/circle.xml fits at
+radius 2.595 with its start 2.597 from the centre); the one thing it costs is the end.
+
+THE TURN IS SPREAD IN PROPORTION TO BEATS, so a 45deg Circle Left move stays a 45deg move. And a turn a move
+cannot carry in quarters is REFUSED, per the decision taken, naming the move and the angle: measured over the
+corpus, of 10884 circle-fitting travel curves NONE sweeps past 90.0deg, and past a quarter the cubic leaves the
+circle (2.7e-2 of the radius at a semicircle against 2.7e-4 at a quarter).
+
+Gated in `engine/test/editor.mjs` 25 - start moves 0.0, heading 0.0, the end by no more than the fit was
+already out, the re-fit 1.4e-5 of the radius against a 2e-2 tolerance, the turn spread by beats to 1.6e-15 rad,
+joints within 4.6e-2deg, everything outside the run bit-for-bit untouched, and 116 of 116 moves keeping whether
+they had a facing curve. Both refusals are built deliberately rather than hoped for. A real bug in the refusal
+message went with it: `DEG` is PI/180 in this engine, so `rad * DEG` reported a 120deg turn as "0.0deg".
+
+THE PANEL'S GROUP RULE IS NOT THE ENGINE'S: the engine takes one circle per dancer, the panel has ONE RADIUS TO
+SHARE, because eight dancers circling a centre start and finish in eight different places. Measured in
+`poc/tools/run-circle-probe.mjs`: 6 of 6 whole-call runs took a single shared radius for all eight, hit to
+3.8e-3 of itself, every start moving 0.0. The probe also covers the run that CLOSES ON ITSELF - the 360deg
+orbit, whose chord is a point so `circleThrough` has no answer and the CENTRE is the only thing left to keep -
+and finds a case where the engine must refuse: a full turn over beats [1.5, 3, 3, 1.5] asks the middle move for
+120deg.
+
+In the panel: a `to` move, a `radius`, a side toggle and "make circle" on the selected move's tile, with
+shift-click in the strip setting the run end and the run drawn as part of the selection so the range is visible
+before it is applied.

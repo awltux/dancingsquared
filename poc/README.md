@@ -1136,6 +1136,58 @@ everything, so the report was "10884 of 10884 agree" — a perfect agreement pro
 handing the instrument the wrong argument. The corrected reading is **0 of 10884**, and the probe
 now checks that the two tests *disagree*, so the same mistake cannot pass again.
 
+### `circle`: a RUN of moves laid on one arc
+
+**A move cannot turn more than a quarter, so a circle is never one curve** — it is a run of them. MEASURED
+(part 1 of the probe below): of the **10884** travel curves in the corpus that lie on a circle within 2% of its
+radius, sweeps run from 10.1° to **90.0°** and **not one** exceeds a quarter; a 360° `Circle Left` is authored
+as eight moves of 45°. Meanwhile **4589** runs of two or more consecutive moves lie on a single circle, median
+turn **270°**, longest **765°**. The quarter-arc lock above can only ever describe one *piece* of that; this
+control is the one that names the whole run.
+
+**The gesture is the fields, and the drag is not built yet.** In the selected move's tile: a `to` move (the run
+starts at the selected move, and **shift-click in the strip** sets the run end instead), a `radius`, a `↺/↻`
+side, and **make circle**. The run is drawn as part of the selection in the strip, because a range you cannot
+see is a range you cannot check before pressing the button. A bulge-drag on the board is the intended second
+gesture and is deliberately not here yet.
+
+**What it holds, and why each one is structural rather than lucky** (`engine/test/editor.mjs` 25):
+
+| | measured |
+|---|---|
+| the run's **start** does not move | **0.0** — the radius is snapped to it |
+| the heading it sets off on | **0.0°** |
+| the run's **end** | by no more than the fit was *already* out by |
+| the run's shape afterwards | **1.4e-5** of the radius, against a 2e-2 tolerance |
+| the turn, spread in proportion to **beats** | **1.6e-15 rad** |
+| joints inside the run | within **4.6e-2°** |
+| everything outside the run | **bit-for-bit**, and its beats and hands untouched |
+| each move keeps whether it had a **facing curve** | **116 of 116** |
+
+**The ends are what makes it safe.** A circular arc has five numbers and pinning **both** endpoints spends four,
+so what is left is **one continuous choice — the radius — and one discrete one, which way round**; both end
+headings then *follow* from the circle, because an arc's tangent is perpendicular to its radius. There is no way
+to ask for an arc that does not join up. The radius is then taken as the one that passes through where the run
+*starts*, which is what lets a run be re-laid on its own least-squares fit — a fit does not put the sampled
+points exactly on its circle (`ms/circle.xml` fits at radius 2.595 with its start 2.597 from the centre).
+
+**A turn a move cannot carry in quarters is REFUSED, not approximated** — the decision taken, and the reason is
+accuracy as well as convention: a cubic quarter misses its circle by 2.72e-4 of the radius and a single cubic
+*semicircle* by about 100× that, so past a quarter the curve visibly leaves the circle. The refusal names the
+move and the angle, e.g. *"move 2 would have to turn 180.0deg and a move carries at most 90deg — spread the
+turn over more moves, or over moves with more even beats"*, and the panel quotes the count it needs.
+
+**The panel's group rule is not the engine's.** The engine takes one circle per dancer; the panel has **one
+radius to share**, because eight dancers circling a centre start and finish in eight different places. So the
+radius and the side are what a group edit holds in common and the centre follows from each dancer's own run —
+measured (`poc/tools/run-circle-probe.mjs`): **6 of 6** whole-call runs accepted one shared radius for all
+eight, hit to **3.8e-3** of itself, with every start moving by **0.0**.
+
+**And a run that closes on itself is a different problem**, not an edge case — that is the 360° orbit. Its ends
+are the *same point*, so the chord is a point and defines no circle at all (`circleThrough` correctly returns
+null), and there is nothing left to keep but the **centre**: the new radius is taken along the direction the
+centre already lies in and the turn is the run's own, rounded to whole revolutions.
+
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

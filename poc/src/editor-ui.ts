@@ -49,8 +49,14 @@ import {
   arcBlocker,
   projectToArc,
   sameFacing,
+  // The RUN-level circle: a run of consecutive moves laid on ONE arc, both ends kept.
+  RUN_ARC_MAX,
+  runCircleMoveCount,
+  circleThrough,
+  fitCircleRun,
+  setRunCircle,
 } from 'dancing-squared-engine';
-import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, FormDancer, Gender, Hands, InstanceDancer, Seg } from 'dancing-squared-engine';
+import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, FormDancer, Gender, Hands, InstanceDancer, RunCircle, Seg } from 'dancing-squared-engine';
 
 import {
   availableCalls,
@@ -492,6 +498,18 @@ export class EditorController implements EditorUI {
   private arcKey = '';
   /** Which of the shown dancer's moves is selected in the strip. */
   private moveIndex = 0;
+  /**
+   * The other end of the CIRCLE run: the run is `moveIndex .. circleTo` inclusive, and null means "just the
+   * selected move", so the run-level controls are only offered once a user has asked for one.
+   *
+   * The run starts at the selected move rather than being a free range because the strip already says which
+   * move is being edited, and a second, unrelated cursor would be two answers to the same question.
+   */
+  private circleTo: number | null = null;
+  /** The radius asked for, or null to take the run's own. */
+  private circleRadius: number | null = null;
+  /** Which way round. The discrete half of the parameterisation - the radius is the continuous half. */
+  private circleSide: 1 | -1 = 1;
   /** The editor's OWN playhead, in absolute beats. The animation is OFF while editing an instance,
    *  so this is the only thing that moves the dancers - and it has to be remembered HERE because
    *  every edit re-shows the instance and re-showing parks the playhead at the lead-in. */
@@ -706,6 +724,10 @@ export class EditorController implements EditorUI {
       this.instanceEdited = false;
       this.asClone = false;
       this.moveIndex = 0;
+      // The run and the radius belong to the track that was being edited, so a new one starts with neither.
+      this.circleTo = null;
+      this.circleRadius = null;
+      this.circleSide = 1;
       this.selectedDancers = new Set([0]);
       this.startFormationSel.value = '';
       // A NEW instance starts with no end target: both re-bases belong to the setup that was loaded, so
@@ -1040,6 +1062,98 @@ export class EditorController implements EditorUI {
       changed = true;
     }
     return changed ? next : null;
+  }
+
+  /**
+   * The circle to lay ONE dancer's run on, from that dancer's own two ends - or null when there is none.
+   *
+   * THE ENDS ARE TAKEN FROM THE DANCER'S OWN PATH, not shared across the selection. Eight dancers circling one
+   * centre start and finish in eight different places, so what a group edit can hold in common is the RADIUS
+   * (and the side); the centre is whatever follows from each dancer's own run. That is also why this cannot be
+   * one `RunCircle` for the whole selection.
+   */
+  private circleFor(call: CallBundle, d: number, from: number, to: number, radius: number, side: 1 | -1): RunCircle | null {
+    const dancer = call.dancers[d];
+    if (!dancer || to <= from || to >= dancer.path.length) return null;
+    const p0 = poseFor(dancer, from === 0 ? 0 : moveBeatRange(dancer, from - 1).to);
+    const p1 = poseFor(dancer, moveBeatRange(dancer, to).to);
+    const through = circleThrough(p0, p1, radius, side);
+    if (through) return through;
+    // THE RUN CLOSES ON ITSELF, so the chord is a single point and defines no circle - and that is not an edge
+    // case here, it is the flagship one: `ms/circle.xml` is a 360deg `Circle Left`. When the ends are the same
+    // point the only thing left to keep is the CENTRE, so the new radius is taken along the direction the
+    // centre already lies in, and the turn is the run's own turn (rounded to whole revolutions, so a 360deg
+    // orbit stays one). `side` there reverses the direction of travel, which is the same choice the other
+    // branch makes with the chord - "the other way round".
+    const fit = fitCircleRun(call, d, from, to);
+    if (!fit) return null;
+    const dist = Math.hypot(p0.x - fit.cx, p0.y - fit.cy);
+    if (!(dist > 1e-9)) return null;
+    const k = radius / dist;
+    const turns = Math.max(1, Math.round(Math.abs(fit.sweep) / (2 * Math.PI)));
+    return {
+      cx: p0.x + (fit.cx - p0.x) * k,
+      cy: p0.y + (fit.cy - p0.y) * k,
+      r: radius,
+      sweep: (fit.sweep >= 0 ? 1 : -1) * side * turns * 2 * Math.PI,
+    };
+  }
+
+  /**
+   * Lay the selected dancers' run on a circle.
+   *
+   * THE RADIUS IS THE COMMON THING AND THE CENTRE IS PER DANCER, for the reason `circleFor` gives. Each dancer
+   * is edited against the bundle as it stands, which is sound because `setRunCircle` touches exactly one
+   * dancer's path and the run's frames depend on that dancer alone.
+   *
+   * A REFUSAL FROM THE ENGINE IS SHOWN, NOT SWALLOWED. The engine refuses a turn a move cannot carry in
+   * quarters, naming the move and the angle, and that message is the whole value of the refusal - so it goes
+   * to the status line rather than being turned into "nothing happened".
+   */
+  private doRunCircle() {
+    const call = this.instance;
+    if (!call) return;
+    const targets = this.selectedSorted();
+    if (targets.length === 0) {
+      this.statusEl.textContent = 'no dancers selected — pick dancers above the table, or the circle has nowhere to write';
+      return;
+    }
+    const from = this.moveIndex;
+    const to = this.circleTo ?? this.moveIndex;
+    if (to <= from) {
+      this.statusEl.textContent = 'a circle needs a RUN of moves — pick a second move with shift-click, or raise the "to" move';
+      return;
+    }
+    let next = call;
+    let done = 0;
+    const why: string[] = [];
+    for (const d of targets) {
+      const fit = fitCircleRun(next, d, from, to);
+      const radius = this.circleRadius ?? fit?.r ?? null;
+      if (radius === null || !(radius > 0)) {
+        why.push(`dancer ${d + 1}: this run is not a circle, so it needs a radius`);
+        continue;
+      }
+      const circle = this.circleFor(next, d, from, to, radius, this.circleSide);
+      if (!circle) {
+        why.push(`dancer ${d + 1}: no circle of that radius joins this run's ends`);
+        continue;
+      }
+      try {
+        next = setRunCircle(next, d, from, to, circle);
+        done++;
+      } catch (err) {
+        why.push(`dancer ${d + 1}: ${(err as Error).message}`);
+      }
+    }
+    if (done === 0) {
+      this.statusEl.textContent = `✗ ${why[0] ?? 'nothing to do'}`;
+      return;
+    }
+    this.commit(next, `run:${from}:${to}:circle`);
+    this.statusEl.textContent =
+      `✓ circle over moves ${from + 1}–${to + 1} for ${done} dancer${done === 1 ? '' : 's'}` +
+      (why.length ? ` · ${why.length} left alone — ${why[0]}` : '');
   }
 
   /**
@@ -1866,10 +1980,17 @@ export class EditorController implements EditorUI {
     // such shape - otherwise the tile would claim a selection the board is not drawing.
     if (this.moveKind === 'facing' && moves[this.moveIndex]?.rotate == null) this.moveKind = 'move';
     for (let k = 0; k < moves.length; k++) {
-      host.appendChild(k === this.moveIndex ? this.currentMoveTile(moves[k]) : this.compactMoveTile(moves[k], k));
+      const tile = k === this.moveIndex ? this.currentMoveTile(moves[k]) : this.compactMoveTile(moves[k], k);
+      // THE RUN IS VISIBLE IN THE STRIP, not only in the field that set it: a range that is invisible is a
+      // range the caller cannot check before pressing the button.
+      if (this.circleTo !== null && k >= this.moveIndex && k <= this.circleTo && k !== this.moveIndex) {
+        tile.classList.add('in-run');
+      }
+      host.appendChild(tile);
     }
     const cur = moves[this.moveIndex];
-    this.moveInfoEl.textContent = `move ${this.moveIndex + 1}/${moves.length} · ${show(cur.beats)}b · ${cur.hands}`;
+    const run = this.circleTo !== null && this.circleTo > this.moveIndex ? ` · run ${this.moveIndex + 1}–${Math.min(this.circleTo, moves.length - 1) + 1}` : '';
+    this.moveInfoEl.textContent = `move ${this.moveIndex + 1}/${moves.length} · ${show(cur.beats)}b · ${cur.hands}${run}`;
   }
 
   /** A move you are not editing: its number, its beats and its hands, and nothing else. */
@@ -1885,7 +2006,7 @@ export class EditorController implements EditorUI {
     const h = document.createElement('span');
     h.textContent = handsShort(seg.hands);
     tile.append(n, b, h);
-    tile.addEventListener('click', () => this.selectMove(k));
+    tile.addEventListener('click', (ev) => this.selectMove(k, ev.shiftKey));
     return tile;
   }
 
@@ -1900,9 +2021,23 @@ export class EditorController implements EditorUI {
    * highlight AND re-draws the handles, so the board shows the move that was just clicked. Without it
    * the highlight moved and the handles stayed behind on the previous move's control points.
    */
-  private selectMove(k: number) {
-    if (k === this.moveIndex) return;
+  private selectMove(k: number, extend = false) {
+    if (extend && k !== this.moveIndex) {
+      // SHIFT-CLICK EXTENDS THE RUN rather than moving the cursor, which is the standard range idiom and the
+      // only way to say "these moves" in a strip that otherwise selects exactly one. The run always STARTS at
+      // the selected move, so extending backwards is the same gesture as extending forwards.
+      this.circleTo = k;
+      this.circleRadius = null;
+      this.renderMoveStrip();
+      this.syncStageSelection();
+      return;
+    }
+    const changed = k !== this.moveIndex || this.circleTo !== null || this.circleRadius !== null;
     this.moveIndex = k;
+    // A plain click is "just this move", which is also what collapses a run that was open.
+    this.circleTo = null;
+    this.circleRadius = null;
+    if (!changed) return;
     this.renderMoveStrip();
     this.syncStageSelection();
   }
@@ -2258,6 +2393,103 @@ export class EditorController implements EditorUI {
       locked.textContent =
         'the coordinates are locked: the curve is a quarter arc, so its five numbers follow from these two handle lengths. The curve\'s directions are untouched - only the endpoint moved, to the conic\'s corner.';
       grid.appendChild(locked);
+    }
+
+    // ---- the RUN-level circle ------------------------------------------------
+    //
+    // A MOVE CANNOT TURN MORE THAN A QUARTER, so a circle is never one curve - it is a RUN of them. MEASURED
+    // over the corpus: of 10884 circular moves NOT ONE sweeps past 90deg, while 4589 runs of two or more
+    // consecutive moves lie on a single circle, with a median turn of 270deg and a longest of 765. The
+    // quarter-arc lock above can only ever describe one of those pieces; this control names the whole run.
+    //
+    // AND IT KEEPS BOTH ENDS. A circular arc has five numbers and pinning both endpoints spends four of them,
+    // so what is left is ONE continuous choice - the radius - and ONE discrete one, which way round. Both end
+    // headings then follow from the circle, which is why an arc built here cannot fail to join up.
+    const all = this.currentMoves();
+    if (all.length >= 2 && k < all.length - 1) {
+      const to = Math.min(this.circleTo ?? k + 1, all.length - 1);
+      const fit = this.instance ? fitCircleRun(this.instance, i, k, to) : null;
+      const beats = all.slice(k, to + 1).reduce((a, g) => a + g.beats, 0);
+      const radius = this.circleRadius ?? fit?.r ?? null;
+      const row = document.createElement('span');
+      row.className = 'ed-group';
+      const lab = document.createElement('label');
+      lab.textContent = 'circle';
+      lab.title =
+        'Lay a RUN of consecutive moves on one arc, keeping both ends where they are. The run keeps its move count, its beats and its hands; only the shape between its ends is rewritten, and the turn is spread in proportion to the beats. The radius is the continuous choice and the side is the discrete one - the end headings follow from the circle.';
+      const toInput = document.createElement('input');
+      toInput.type = 'number';
+      toInput.min = String(k + 2);
+      toInput.max = String(all.length);
+      toInput.step = '1';
+      toInput.value = String(to + 1);
+      toInput.dataset.key = `m${i}:${k}:circle.to`;
+      toInput.title = `The LAST move of the run, which starts at move ${k + 1}. Shift-click a move in the strip to set it there instead.`;
+      toInput.addEventListener('change', () => {
+        const v = Math.round(parseFloat(toInput.value));
+        this.circleTo = Number.isFinite(v) ? Math.min(Math.max(v - 1, k + 1), all.length - 1) : null;
+        this.circleRadius = null;
+        this.renderInstance(`m${i}:${k}:circle.to`);
+      });
+      row.append(lab, toInput);
+      const rLab = document.createElement('label');
+      rLab.textContent = 'radius';
+      const rInput = document.createElement('input');
+      rInput.type = 'number';
+      rInput.step = '0.25';
+      rInput.min = '0';
+      rInput.value = radius !== null ? show(radius) : '';
+      rInput.placeholder = fit ? show(fit.r) : 'needs one';
+      rInput.dataset.key = `m${i}:${k}:circle.r`;
+      rInput.title = fit
+        ? 'The radius to lay the run on. It follows each dancer\'s OWN ends, so it is the one thing a group edit can hold in common - the centre is whatever that dancer\'s run implies.'
+        : 'This run is not on a circle, so there is no radius to take from it and one has to be given.';
+      rInput.addEventListener('change', () => {
+        const v = parseFloat(rInput.value);
+        this.circleRadius = Number.isFinite(v) && v > 0 ? v : null;
+        this.renderInstance(`m${i}:${k}:circle.r`);
+      });
+      row.appendChild(rInput);
+      const sideBtn = document.createElement('button');
+      sideBtn.type = 'button';
+      sideBtn.textContent = this.circleSide === 1 ? '↺' : '↻';
+      sideBtn.dataset.key = `m${i}:${k}:circle.side`;
+      sideBtn.title =
+        'Which way round. In the usual case it is the side of the chord the centre falls on, and when a run starts and ends at the SAME point - a 360deg Circle Left - it is the direction of travel. It is the discrete half of the choice; the radius is the continuous half.';
+      sideBtn.addEventListener('click', () => {
+        this.circleSide = this.circleSide === 1 ? -1 : 1;
+        this.renderInstance(`m${i}:${k}:circle.side`);
+      });
+      const go = document.createElement('button');
+      go.type = 'button';
+      go.textContent = 'make circle';
+      go.dataset.key = `m${i}:${k}:circle.go`;
+      go.title = 'Lay this run on the circle for every selected dancer, each about its own ends.';
+      go.addEventListener('click', () => this.doRunCircle());
+      row.append(sideBtn, go);
+      grid.appendChild(row);
+
+      const note = document.createElement('div');
+      note.className = 'small';
+      const span = `moves ${k + 1}–${to + 1} (${show(beats)} beats)`;
+      if (radius === null) {
+        note.textContent = `${span}: this run is not on a circle, so give it a radius`;
+      } else {
+        // THE TURN THE RADIUS IMPLIES, and whether the run is long enough to carry it. A move carries at most
+        // a quarter, so the requirement is stated as a number of moves rather than discovered by a refusal.
+        const sweep = fit ? Math.abs(fit.sweep) : null;
+        const need = sweep !== null ? runCircleMoveCount(sweep) : null;
+        const bits = [`${span}: radius ${show(radius)}`];
+        if (sweep !== null) bits.push(`a turn of ${((sweep * 180) / Math.PI).toFixed(1)}°`);
+        if (need !== null) {
+          bits.push(need <= to - k + 1 ? `carried by ${need} of its ${to - k + 1} moves` : `but that needs ${need} moves and the run has ${to - k + 1}`);
+        }
+        // The whole point of the quarter rule: say how many moves a full turn takes rather than letting a
+        // refusal be the first the caller hears of it.
+        if (sweep !== null && sweep < Math.PI / 2) bits.push(`(a full circle needs ${runCircleMoveCount(2 * Math.PI)} moves)`);
+        note.textContent = bits.join(' · ');
+      }
+      grid.appendChild(note);
     }
 
     tile.appendChild(grid);

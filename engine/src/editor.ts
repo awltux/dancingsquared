@@ -353,6 +353,108 @@ export function fitCircle(b: BezierData, tolRel = 0.02): CircleFit | null {
   return best;
 }
 
+// ------------------------------------------------------------------ swinging an arc
+
+/**
+ * Rotate a curve's EXIT TANGENT by `theta`, holding its endpoint and its entry.
+ *
+ * The exit tangent of a cubic is the direction of `p3 - p2`, so the handle VECTOR is what turns - not `p2`
+ * itself, which would move the tangent by less than `theta` and leave the endpoint behind. `p1` is untouched,
+ * so the direction the move was entered with does not change: this re-aims where a move LEAVES from, and
+ * nothing else about it.
+ */
+/**
+ * Whether a curve HAS a departure direction to turn.
+ *
+ * `bezierAngle` reads the tangent at `t = 1` as the direction of `p3 - p2`, so a curve whose exit handle has
+ * collapsed onto its endpoint reports a direction of `atan2(0, 0) = 0` - a CONVENTION, not a direction. There
+ * is nothing there to rotate, and pretending otherwise either does nothing (rotating a zero vector) or
+ * invents geometry (giving a deliberately still move a bulge). MEASURED: 22 of the 134 arc-ish moves in the
+ * ms level have a previous move in exactly that state, and every one of them is why the rule below refuses to
+ * claim it turned a joint it cannot.
+ */
+export function hasExitDirection(b: BezierData): boolean {
+  return Math.hypot(b.x2 - b.cx2, b.y2 - b.cy2) > 0;
+}
+
+export function rotateCurveExit(b: BezierData, theta: number): BezierData {
+  const dx = b.x2 - b.cx2;
+  const dy = b.y2 - b.cy2;
+  const c = Math.cos(theta);
+  const s = Math.sin(theta);
+  const rx = dx * c - dy * s;
+  const ry = dx * s + dy * c;
+  return { ...b, cx2: b.x2 - rx, cy2: b.y2 - ry };
+}
+
+/** Rotate every control and the endpoint of a curve about its own start point: a rigid swing. */
+export function rotateCurveAboutStart(b: BezierData, theta: number): BezierData {
+  const c = Math.cos(theta);
+  const s = Math.sin(theta);
+  const rot = (x: number, y: number) => ({ x: x * c - y * s, y: x * s + y * c });
+  const p1 = rot(b.cx1, b.cy1);
+  const p2 = rot(b.cx2, b.cy2);
+  const p3 = rot(b.x2, b.y2);
+  return { ...b, cx1: p1.x, cy1: p1.y, cx2: p2.x, cy2: p2.y, x2: p3.x, y2: p3.y };
+}
+
+/**
+ * SWING AN ARC ABOUT ITS START POINT, KEEPING THE DANCE TANGENT-CONTINUOUS ACROSS THE JOINT.
+ *
+ * The caller drags the centre of a curve that is closely a circle, and the gesture is a rigid rotation of the
+ * whole curve about its start: the radius and the arc are preserved EXACTLY (a rigid motion cannot change
+ * either) and the end swings round the start at a fixed distance.
+ *
+ * A RIGID ROTATION TURNS THE JOINT WITH IT, and that is the thing worth getting right. The direction the
+ * dancer ARRIVES with is "perpendicular to the radius" on any arc, so it cannot be held while the arc
+ * rotates - holding it is what stops the curve being an arc at all. What CAN be held is the TRANSITION: the
+ * previous move's exit tangent is turned by the same `theta`, so the dancer leaves the previous move along the
+ * new entry direction instead of hitting a corner.
+ *
+ * AND THE FRAME AFTER THE PREVIOUS MOVE MUST NOT MOVE, or the swing would be undone: `poseFor` reads the
+ * heading change of a move as `bezierAngle(rotate ?? translate, 1)`, so re-aiming that move's travel would
+ * also rotate the frame this arc is played in - and rotating the arc in a rotated frame puts it back where it
+ * started, a gesture that visibly does nothing. So:
+ *
+ *   - if the previous move HAS a facing curve, its heading change is authored and re-aiming the travel does
+ *     not touch it - nothing more to do;
+ *   - if it has NONE, the travel curve WAS the facing, so one is written: a copy of the ORIGINAL travel
+ *     curve, which is exactly the heading profile the move already had ("face along travel"), frozen so that
+ *     re-aiming the path cannot turn the frame.
+ *
+ * `k` = 0 has no previous move: the call simply starts in a different direction, which is the honest answer
+ * for the first move of a call - there is no joint to keep.
+ */
+export function swingArcAboutStart(call: CallBundle, dancer: number, k: number, theta: number, tolRel = 0.02): CallBundle {
+  const base = normalizeInstance(call);
+  const d = base.dancers[dancer];
+  if (!d) throw new Error(`swingArcAboutStart: no dancer ${dancer}`);
+  const seg = d.path[k];
+  if (!seg) throw new Error(`swingArcAboutStart: dancer ${dancer} has no move ${k}`);
+  if (!fitCircle(seg.translate, tolRel)) {
+    throw new Error(`swingArcAboutStart: dancer ${dancer}'s move ${k} is not closely a circle, so it has no centre to swing about`);
+  }
+  const swung = setMove(base, dancer, k, { ...seg, translate: rotateCurveAboutStart(seg.translate, theta) });
+  if (k === 0) return swung;
+  const original = d.path[k - 1];
+  // A PREVIOUS MOVE WITH NO DEPARTURE DIRECTION CANNOT FOLLOW, and it is left alone rather than given one:
+  // its exit handle has collapsed onto its endpoint (a `Stand`, or any move that arrives with nothing left to
+  // travel), so there is no direction to turn - and inventing one would deform a move that was authored to
+  // sit still. The tangent the engine reports there is `atan2(0, 0)` either way, so the JOINT KEEPS WHATEVER
+  // ANGLE IT HAD and the panel says so; that is a measurement, not an oversight. It also means the frame
+  // does not rotate in that case, so no facing curve is needed and none is written.
+  if (!hasExitDirection(original.translate)) return swung;
+  const prev = swung.dancers[dancer].path[k - 1];
+  const reaimed: Seg = {
+    ...prev,
+    translate: rotateCurveExit(prev.translate, theta),
+    // A facing curve only where the move had none: then its travel WAS its facing, and freezing the ORIGINAL
+    // travel curve keeps the heading change - and therefore the frame - exactly what it was.
+    rotate: original.rotate ? prev.rotate : { ...original.translate },
+  };
+  return setMove(swung, dancer, k - 1, reaimed);
+}
+
 // ------------------------------------------------------------------ pad segments
 
 function rot(a: number, v: { x: number; y: number }): { x: number; y: number } {

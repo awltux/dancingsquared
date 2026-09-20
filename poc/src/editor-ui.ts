@@ -32,6 +32,8 @@ import {
   removeMove,
   moveCurveEnd,
   fitCircle,
+  swingArcAboutStart,
+  hasExitDirection,
   moveBeatRange,
   boardAtBeat,
   setStartFormation,
@@ -278,11 +280,7 @@ function rotatePoint(p: { x: number; y: number }, theta: number): { x: number; y
   return { x: p.x * c - p.y * s, y: p.x * s + p.y * c };
 }
 
-function rotateAboutStart(b: BezierData, theta: number): BezierData {
-  const p2 = rotatePoint({ x: b.cx2, y: b.cy2 }, theta);
-  const p3 = rotatePoint({ x: b.x2, y: b.y2 }, theta);
-  return { ...b, cx2: p2.x, cy2: p2.y, x2: p3.x, y2: p3.y };
-}
+
 
 const SNAP_CELL = 1;
 const SNAP_TOL = SNAP_CELL / 4;
@@ -1001,16 +999,23 @@ export class EditorController implements EditorUI {
       this.commit(next, focusKey);
       return;
     }
-    // THE DRAG PATH. Re-path only - no view rebuild, no DOM rebuild - because this runs on every
-    // pointer move; rebuilding eight dancer views and a hundred table inputs per move is the
-    // difference between a drag and a slideshow. The playhead is re-applied because it is parked.
+    this.applyLight(next);
+  }
+
+  /**
+   * THE DRAG PATH: new geometry, no view rebuild and no DOM rebuild - because this runs on every pointer
+   * move, and rebuilding eight dancer views and a hundred table inputs per move is the difference between a
+   * drag and a slideshow. The playhead is re-applied because it is parked.
+   *
+   * The numbers are the ONE part of the panel that must not wait for the gesture to end: they are what the
+   * caller is steering by. Writing them is eight field assignments, not a rebuild.
+   */
+  private applyLight(next: CallBundle) {
     this.instance = next;
     this.instanceEdited = true;
     this.host.updateCall(next);
     this.host.setPlayhead(this.editBeat);
     this.renderHandles();
-    // The numbers are the ONE part of the panel that must not wait for the gesture to end: they are
-    // what the caller is steering by. Writing them is eight field assignments, not a rebuild.
     this.refreshNumberFields();
   }
 
@@ -1197,7 +1202,7 @@ export class EditorController implements EditorUI {
    * moment the gesture began are kept, and each pointer move writes `rotate(base, theta)` for the current
    * theta. That is also why this is cleared on pointerup rather than left for the next gesture to inherit.
    */
-  private dragArcBase: { curve: BezierData; phi0: number; centre: { x: number; y: number }; theta: number } | null = null;
+  private dragArcBase: { call: CallBundle; phi0: number; centre: { x: number; y: number }; theta: number } | null = null;
 
   /**
    * Wire the canvas for handle dragging.
@@ -1220,9 +1225,12 @@ export class EditorController implements EditorUI {
         const dancer = this.instance?.dancers[parseInt(id.slice(1), 10)];
         const seg = dancer?.path[this.moveIndex];
         const circle = seg ? fitCircle(seg.translate, ARC_FIT_TOL) : null;
-        if (circle) {
+        if (circle && this.instance) {
+          // THE WHOLE CALL, not just the curve: swinging an arc also re-aims the PREVIOUS move's exit so the
+          // joint stays smooth, and every pointer move has to start from the same bundle or the two edits
+          // would compound (see the cc branch in `applyHandleDrag`).
           this.dragArcBase = {
-            curve: { ...seg!.translate },
+            call: this.instance,
             phi0: Math.atan2(circle.cy, circle.cx),
             centre: { x: circle.cx, y: circle.cy },
             theta: 0,
@@ -1318,6 +1326,33 @@ export class EditorController implements EditorUI {
     const lx = Math.cos(h) * dx + Math.sin(h) * dy;
     const ly = -Math.sin(h) * dx + Math.cos(h) * dy;
 
+    // THE ARC'S CENTRE IS NOT A COORDINATE EDIT: it swings the whole curve AND re-aims the previous move's
+    // exit, so it cannot go through the per-move patch chain below - that writes ONE move of every selected
+    // dancer. Everything it does is one engine operation, applied to the call captured at pointerdown so each
+    // pointer move is a rotation of a FIXED bundle rather than a compounding one.
+    if (which === 'cc') {
+      const base = this.dragArcBase;
+      if (!base || !this.coordinatesAgree('travel')) return;
+      base.theta = Math.atan2(ly, lx) - base.phi0;
+      let next = base.call;
+      try {
+        for (const dd of this.selectedSorted()) next = swingArcAboutStart(next, dd, this.moveIndex, base.theta);
+      } catch (err) {
+        this.statusEl.textContent = `✗ ${(err as Error).message}`;
+        return;
+      }
+      this.applyLight(next);
+      // AND SAY WHEN THE JOINT COULD NOT FOLLOW. The move before an arc has to turn its departure with the
+      // swing; a move that arrives with nothing left to travel has no departure direction to turn, so its
+      // joint keeps the angle it had and the caller is told rather than left to notice a corner.
+      const prevSeg = base.call.dancers[this.moveDancer]?.path[this.moveIndex - 1];
+      this.statusEl.textContent =
+        this.moveIndex > 0 && prevSeg && !hasExitDirection(prevSeg.translate)
+          ? 'swung the arc — the move before it has no departure direction to turn, so that joint keeps the angle it had'
+          : `swung the arc by ${(toDeg(base.theta)).toFixed(1)}° about its start`;
+      return;
+    }
+
     const facing = which.startsWith('r');
     const bez = facing ? seg.rotate : seg.translate;
     const arc = this.arcOn && bez ? arcOf(bez) : null;
@@ -1367,24 +1402,6 @@ export class EditorController implements EditorUI {
               ? (seg) => ({ ...seg, translate: { ...seg.translate, cx1: lx, cy1: ly } })
               : which === 'c2'
                 ? (seg) => ({ ...seg, translate: { ...seg.translate, cx2: lx, cy2: ly } })
-                : which === 'cc'
-                  ? // THE ARC'S CENTRE: swing the curve about its START POINT. The radius is kept because this
-                    // is a RIGID rotation of the curve's end and exit control - both stay the same distance
-                    // from the start - and the START HANDLE IS LEFT EXACTLY ALONE, which is what maintains the
-                    // dancer's direction coming out of the previous move: the entry tangent IS that handle.
-                    // The angle is measured from where the centre was when the gesture began, so a drag is a
-                    // rotation of a fixed curve rather than a compounding one.
-                    (seg) => {
-                      const base = this.dragArcBase;
-                      if (!base) return seg;
-                      // The angle is kept on the base so the handle can be drawn at the rotated centre WHILE
-                      // the gesture runs: past a wide swing the curve is no longer a circle - see the cost
-                      // measured in `poc/tools/arc-centre-probe.mjs` - and a dot that vanished from under the
-                      // pointer mid-drag would read as the gesture having failed rather than as the arc
-                      // having been swung past what a circle can describe.
-                      base.theta = Math.atan2(ly, lx) - base.phi0;
-                      return { ...seg, translate: rotateAboutStart(base.curve, base.theta) };
-                    }
                   : // THE END POINT, and the ONE handle that writes more than the point it is on: the exit
                   // handle goes with it, held as a vector, so the direction the dancer leaves on - and,
                   // with no facing curve, the heading the NEXT move is played in - does not change. The

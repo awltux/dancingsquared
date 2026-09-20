@@ -918,24 +918,35 @@ does not cover, like beats and hands — is refused with a status line rather th
 **In `ends` mode, an ARC also gets its CENTRE as a handle.** When the path is closely a circle — a fit the
 engine does in one linear solve, because a true arc's end tangents are perpendicular to their radii — a third
 dot appears at the centre, anchored on the move's **start** so its own line *is* the radius. Dragging it
-**swings the curve about its start point**: the end and the exit control rotate, the radius of the swing is
-held exactly, and **the start handle does not turn**, which is what holds the direction the dancer arrives
-with. MEASURED (`node poc/tools/arc-centre-probe.mjs`, every arc in the ms level × ten swing angles): the
-entry tangent changes by **0.0°**, the facing curve is **bit-identical**, the pose the move starts from does
-not move at all, and the end keeps its distance from the start to **8.9e-16**.
+**swings the whole curve rigidly about its start**: the arc and its radius are preserved **exactly** (a rigid
+motion cannot change either), the end swings round the start at a fixed distance, and the **start control
+point turns with it** — which is the point, since leaving it behind is what stops the swing being an arc.
+MEASURED (`node poc/tools/arc-centre-probe.mjs`, every arc in the ms level with a move before it × seven swing
+angles): the shape moves by **3.1e-16**, the radius by **2.0e-15** of itself, the start pose by **0.0**, and
+the end moves by exactly the chord of the swing.
 
-**One thing cannot hold, and it is worth stating plainly.** "Rotate about the start", "keep the radius" and
-"keep the arrival direction" cannot all be true at once: a fixed start with a fixed entry tangent already
-determines the centre, so turning the curve rigidly turns the joint with it. The rule keeps the **direction**
-(the caller's explicit concern) and the **radius of the swing**, and the **fitted circle** is what gives: past
-a wide swing the curve is no longer a circle (measured: up to 0.94 of the radius off its best fit at a
-half-turn, and the centre handle is drawn from the base circle while the gesture runs so it cannot vanish from
-under the pointer). The panel says which is which rather than implying all three.
+**And the JOINT is kept by turning the previous move's departure with it.** The direction the dancer arrives
+with *is* perpendicular to the radius, so the joint cannot be held by this curve — holding it is what stops
+the curve being an arc. Instead the previous move's **exit** turns by the same angle (so the dancer leaves it
+along the arc's new arrival direction — measured: the corner at the joint moves by **1e-10°** over the corpus,
+where without it the rigid swing leaves a corner of up to **137°**), and its **heading change is frozen** so
+the frame this arc is played in does not rotate. That last part is what makes the swing *visible*: if the
+facing alone absorbed the angle, the frame would rotate by the swing and the arc would land back exactly where
+it started — measured as a **no-op** across the whole corpus, which is why the rule is written the other way.
+A facing curve is written only where the previous move had none (a copy of its **original** travel curve,
+which is the heading profile it already had), and the previous move's own start and finish never move.
+
+**One case cannot follow, and the panel says so.** **22 of the 134** arc-ish moves in the ms level follow a
+move whose exit handle has collapsed onto its endpoint: the tangent the engine reports there is
+`atan2(0, 0) = 0`, a convention rather than a direction, so there is nothing to turn — and inventing a
+direction would deform a move authored to arrive with nothing left to travel. That previous move is left
+exactly alone and the status line says the joint kept the angle it had, rather than claiming a correction it
+did not make.
 
 **And the swing's effect on the NEXT move is the engine's documented one**, measured both ways: with a
-**facing curve** the heading is authored, so swinging holds the heading and carries the rest of the trace
-(98 of the 134 arcs have one); with **no facing curve** the exit tangent *is* the heading, so the swing
-re-aims it — which is what swinging an arc is for.
+**facing curve** on the arc the heading is authored, so the swing holds the heading it finishes on and carries
+the rest of the trace; with **no facing curve** the exit tangent *is* the heading, so the swing re-aims it —
+which is what swinging an arc is for.
 
 The tolerance for "closely a circle" is **2% of the radius**, and it sits in a measured **empty band**: over
 the 1016 travel curves in the ms level, **222** have a centre at all, the worst curve that *is* an arc deviates

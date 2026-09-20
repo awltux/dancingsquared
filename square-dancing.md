@@ -2362,3 +2362,30 @@ green.
 
 
 
+
+**THE SWING IS NOW A RIGID ROTATION, WHICH IS WHAT MAKES IT AN ARC.** The caller's next correction: "When
+dragging the center of the arc, the start control point isnt adjusted to maintain the arc shape." That is the
+right fix and it REPLACES the rule above, because the two messages cannot both be satisfied by this curve
+alone: the start control point IS the direction the dancer arrives with, and on an arc that direction is
+perpendicular to the radius - so turning the arc turns the joint, and holding the joint is exactly what stops
+the curve being an arc. `swingArcAboutStart` now rotates every control and the endpoint about the start, so
+the arc, its radius and its sweep are preserved EXACTLY (measured: shape 3.1e-16, radius 2.0e-15 of itself,
+start pose 0.0), and the end swings by exactly the chord of the angle.
+
+THE JOINT IS KEPT BY TURNING THE PREVIOUS MOVE'S DEPARTURE, and by freezing its HEADING CHANGE so the frame
+does not rotate. Both halves are load-bearing: turning the exit keeps the dancer's path tangent-continuous
+(the corner at the joint moves by 1e-10deg over the corpus, against 137deg without it), while freezing the
+heading keeps the swing VISIBLE - and that second half is measured as its own dead end, because the obvious
+version of "absorb the turn in the previous move's facing" is a gesture that does NOTHING: turn that move's
+facing by -theta and leave its path alone, and the frame rotates by the swing angle while the arc rotates
+back, leaving the arc's end within 1.3e-15 units of where it started, across the whole corpus. So the facing
+absorbs the FRAME rather than the arc: a facing curve is written only where the previous move had none, as a
+copy of its original travel curve - the heading profile it already had - and the previous move's own start and
+finish never move.
+
+AND ONE CASE CANNOT FOLLOW, reported rather than papered over: 22 of the 134 arc-ish moves in the ms level
+follow a move whose exit handle has collapsed onto its endpoint, where `bezierAngle` reads `atan2(0, 0) = 0` -
+a convention, not a direction. There is nothing to turn, and inventing a direction would deform a move
+authored to arrive with nothing left to travel (`hasExitDirection` is the engine's name for the test), so that
+move is left EXACTLY alone and the panel's status line says the joint kept the angle it had. `verify:light`
+green at 12 harnesses, `tsc` clean, all seventeen POC probes green.

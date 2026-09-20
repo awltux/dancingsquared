@@ -20,6 +20,9 @@ import {
   deriveFormationMapping,
   moveCurveEnd,
   fitCircle,
+  swingArcAboutStart,
+  rotateCurveAboutStart,
+  hasExitDirection,
   padSegment,
   synthesizeSetup,
   synthesizeSetupChain,
@@ -1557,6 +1560,169 @@ console.log('\n== the circle a curve follows, and the tolerance that decides "cl
     }
   }
   check(worstTurn < 1e-12, `and every arc's sweep IS the turn it makes (worst disagreement ${(worstTurn / DEG).toExponential(1)}deg over the corpus)`);
+}
+
+// ---------------------------------------------------------------------------
+// 24. swinging an arc about its start keeps the arc, the radius and the JOINT
+// ---------------------------------------------------------------------------
+//
+// The caller's two corrections on this gesture: "the start control point isnt adjusted to maintain the arc
+// shape" - so the swing is a RIGID rotation of the whole curve, which cannot change a radius or a shape - and
+// "care must be taken to maintain the dancers direction in transition from the previous curve, including the
+// facing curve" - which is the previous move's exit tangent, turned by the same angle, with its heading
+// change frozen so the frame this arc is played in does not rotate (a swing in a rotated frame is a gesture
+// that does nothing).
+console.log('\n== swinging an arc about its start (24) ==');
+{
+  const msDir = path.join(__dirname, '../../poc/src/assets/ms');
+  const witness = (wantFacingOnPrev) => {
+    for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+      let call;
+      try {
+        call = normalizeInstance(loadCallFromXml(read(`../../poc/src/assets/ms/${f}`), movesXml, formationsXml, 0));
+      } catch {
+        continue;
+      }
+      if (call.dancers.length !== 8) continue;
+      for (let i = 0; i < 8; i++) {
+        for (let k = 1; k < call.dancers[i].path.length; k++) {
+          if (!fitCircle(call.dancers[i].path[k].translate, 0.02)) continue;
+          if (!!call.dancers[i].path[k - 1].rotate === wantFacingOnPrev) return { file: f, call, i, k };
+        }
+      }
+    }
+    return null;
+  };
+  const THETA = 0.4;
+  const dir = (call, i, k, t) => {
+    const p = poseFor(call.dancers[i], moveBeatRange(call.dancers[i], k).from);
+    return normAngleSafe(bezierAngle(call.dancers[i].path[k].translate, t) + p.heading);
+  };
+  const at = (call, i, k, end) => {
+    const r = moveBeatRange(call.dancers[i], k);
+    return poseFor(call.dancers[i], end ? r.to : r.from);
+  };
+  const jointGap = (call, i, k) => Math.abs(normAngleSafe(dir(call, i, k - 1, 1) - dir(call, i, k, 0)));
+
+  for (const wantFacing of [true, false]) {
+    const w = witness(wantFacing);
+    check(!!w, `there is a witness whose previous move ${wantFacing ? 'HAS' : 'has NO'} facing curve (${w?.file} dancer ${(w?.i ?? 0) + 1} move ${(w?.k ?? 0) + 1})`);
+    const { call, i, k } = w;
+    const seg = call.dancers[i].path[k];
+    const before = fitCircle(seg.translate, 1);
+    const after = swingArcAboutStart(call, i, k, THETA);
+    const swung = after.dancers[i].path[k].translate;
+    const afterFit = fitCircle(swung, 1);
+
+    // 1. THE ARC IS THE SAME ARC: a rigid motion cannot change a radius or a shape.
+    check(Math.abs(afterFit.r - before.r) < 1e-12, `the radius is unchanged (${before.r.toFixed(6)} -> ${afterFit.r.toFixed(6)})`);
+    check(Math.abs(afterFit.relDev - before.relDev) < 1e-15, `and so is the shape: the deviation from its own circle is identical (${afterFit.relDev.toExponential(2)})`);
+    check(Math.abs(Math.abs(afterFit.sweep) - Math.abs(before.sweep)) < 1e-12, `and the sweep (${((Math.abs(before.sweep) * 180) / Math.PI).toFixed(2)}deg)`);
+
+    // 2. THE START DOES NOT MOVE, and the end swings about it at a FIXED DISTANCE - which is what the
+    //    caller asked the radius to mean.
+    const s0 = at(call, i, k, false);
+    const s1 = at(after, i, k, false);
+    check(Math.hypot(s1.x - s0.x, s1.y - s0.y) < 1e-12 && Math.abs(normAngleSafe(s1.heading - s0.heading)) < 1e-12, 'the pose the move starts from is untouched');
+    const e0 = at(call, i, k, true);
+    const e1 = at(after, i, k, true);
+    const r0 = Math.hypot(e0.x - s0.x, e0.y - s0.y);
+    const r1 = Math.hypot(e1.x - s1.x, e1.y - s1.y);
+    check(Math.abs(r1 - r0) < 1e-12, `the end keeps its distance from the start exactly (${r0.toFixed(6)} -> ${r1.toFixed(6)})`);
+    // ...and it really moved, by the chord of the swing.
+    const swungBy = Math.hypot(e1.x - e0.x, e1.y - e0.y);
+    const chord = 2 * r0 * Math.sin(THETA / 2);
+    check(Math.abs(swungBy - chord) < 1e-9, `and it moved by the chord of a ${(THETA / DEG).toFixed(1)}deg swing: ${swungBy.toFixed(4)} units (${chord.toFixed(4)} expected)`);
+
+    // 3. THE JOINT IS EXACTLY AS SMOOTH AS IT WAS - the whole point of turning the previous exit too.
+    const gapBefore = jointGap(call, i, k);
+    const gapAfter = jointGap(after, i, k);
+    check(Math.abs(gapAfter - gapBefore) < 1e-12, `the corner at the joint is the one it already had (${((gapBefore * 180) / Math.PI).toFixed(3)}deg -> ${((gapAfter * 180) / Math.PI).toFixed(3)}deg): the previous move's exit turned with the arc`);
+
+    // 4. AND THE FRAME DID NOT ROTATE, or the swing would be undone. The heading at the joint is the previous
+    //    move's own end heading, so it is the thing that has to stay put.
+    const h0 = poseFor(call.dancers[i], moveBeatRange(call.dancers[i], k).from).heading;
+    const h1 = poseFor(after.dancers[i], moveBeatRange(after.dancers[i], k).from).heading;
+    check(Math.abs(normAngleSafe(h1 - h0)) < 1e-12, `the frame the arc is played in is unmoved (${((normAngleSafe(h1 - h0)) / DEG).toExponential(1)}deg of heading), so the swing is not undone by a rotated frame`);
+    check(!!after.dancers[i].path[k - 1].rotate, `and the previous move's facing is what holds it${wantFacing ? ' (it already had one, untouched)' : ' (it had none, so one is written from its ORIGINAL travel curve, which is the heading profile it already had)'}`);
+
+    // 5. THE PREVIOUS MOVE'S PATH ONLY RE-AIMS: its start and its end are where they were.
+    const p0 = poseFor(call.dancers[i], moveBeatRange(call.dancers[i], k - 1).from);
+    const p1 = poseFor(after.dancers[i], moveBeatRange(after.dancers[i], k - 1).from);
+    const q0 = poseFor(call.dancers[i], moveBeatRange(call.dancers[i], k - 1).to);
+    const q1 = poseFor(after.dancers[i], moveBeatRange(after.dancers[i], k - 1).to);
+    check(Math.hypot(p1.x - p0.x, p1.y - p0.y) < 1e-12 && Math.hypot(q1.x - q0.x, q1.y - q0.y) < 1e-12, 'the previous move still starts and finishes where it did: only its departure direction turned');
+
+    // AND THE NEGATIVE CONTROL: without the re-aim, the arc swings and the joint takes the whole angle.
+    const swungOnly = setMove(call, i, k, { ...seg, translate: rotateCurveAboutStart(seg.translate, THETA) });
+    const kinkAfter = Math.abs(normAngleSafe(dir(swungOnly, i, k - 1, 1) - dir(swungOnly, i, k, 0)));
+    console.log(`    ${wantFacing ? 'facing' : 'no facing'} on the previous move: the joint goes ${((gapBefore * 180) / Math.PI).toFixed(2)}deg -> ${((kinkAfter * 180) / Math.PI).toFixed(2)}deg without the re-aim, and stays ${((gapAfter * 180) / Math.PI).toFixed(2)}deg with it`);
+    check(Math.abs(kinkAfter - gapBefore) > THETA / 2, 'the negative control really kinks: a rigid swing alone turns the joint by the swing angle, which is what the previous move\'s exit is turned to prevent');
+  }
+
+  // 6. A MOVE THAT IS NOT AN ARC IS REFUSED rather than swung into something else.
+  const notArc = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
+  let threw = false;
+  try {
+    swingArcAboutStart(notArc, 0, 0, 0.3);
+  } catch {
+    threw = true;
+  }
+  check(threw, 'a move whose curve is not closely a circle is refused: there is no centre to swing about');
+  // ...and a zero swing is the identity, so a drag that has not moved yet writes nothing.
+  const w = witness(true);
+  const same = swingArcAboutStart(w.call, w.i, w.k, 0);
+  let worstSame = 0;
+  for (let j = 0; j < w.call.dancers.length; j++) {
+    const a = poseFor(same.dancers[j], same.beats);
+    const b = poseFor(w.call.dancers[j], w.call.beats);
+    worstSame = Math.max(worstSame, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+  }
+  check(worstSame < 1e-12, 'and a zero-angle swing leaves the whole call exactly where it was');
+
+  // 7. A PREVIOUS MOVE WITH NO DEPARTURE DIRECTION IS LEFT ALONE, and the reason is measured rather than
+  //    asserted: its exit handle has collapsed onto its endpoint, so `bezierAngle` there is `atan2(0, 0)` -
+  //    a convention, not a direction - and turning a zero vector does nothing while inventing a length would
+  //    deform a move authored to arrive with nothing left to travel. The swing still happens; the joint
+  //    keeps the angle it had; the panel says so. 22 of the 134 arc-ish moves in the ms level are this case.
+  {
+    let deg = 0;
+    let degWitness = null;
+    for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+      let call;
+      try {
+        call = normalizeInstance(loadCallFromXml(read(`../../poc/src/assets/ms/${f}`), movesXml, formationsXml, 0));
+      } catch {
+        continue;
+      }
+      if (call.dancers.length !== 8) continue;
+      for (let i = 0; i < 8; i++) {
+        for (let k = 1; k < call.dancers[i].path.length; k++) {
+          if (!fitCircle(call.dancers[i].path[k].translate, 0.02)) continue;
+          if (hasExitDirection(call.dancers[i].path[k - 1].translate)) continue;
+          deg++;
+          if (!degWitness) degWitness = { file: f, call, i, k };
+        }
+      }
+    }
+    check(deg > 0, `${deg} of the arc-ish moves in the ms level follow a move with no departure direction, so this is a real case and not a hypothetical one`);
+    const w2 = degWitness;
+    const before = w2.call.dancers[w2.i].path[w2.k - 1].translate;
+    const after = swingArcAboutStart(w2.call, w2.i, w2.k, 0.4);
+    const prevAfter = after.dancers[w2.i].path[w2.k - 1];
+    // The numbers are compared rather than stringified: a second `normalizeInstance` is exact ALGEBRA and not
+    // exact bits, so the last ulp of a coordinate can move. What must not move is the geometry, and no facing
+    // curve may be written at all.
+    const worstPrev = Math.max(...['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2'].map((key) => Math.abs(prevAfter.translate[key] - before[key])));
+    // NO FACING IS *WRITTEN*: a move that already had one keeps it (that is not a write), and a move that had
+    // none must still have none - which is the case this rule is about.
+    check(worstPrev < 1e-12 && !!prevAfter.rotate === !!w2.call.dancers[w2.i].path[w2.k - 1].rotate,
+      `the move before is UNTOUCHED - no direction invented, no facing added (worst number moved ${worstPrev.toExponential(1)}; ${w2.file} dancer ${w2.i + 1} move ${w2.k})`);
+    const s0 = poseFor(w2.call.dancers[w2.i], moveBeatRange(w2.call.dancers[w2.i], w2.k).from);
+    const s1 = poseFor(after.dancers[w2.i], moveBeatRange(after.dancers[w2.i], w2.k).from);
+    check(Math.hypot(s1.x - s0.x, s1.y - s0.y) < 1e-12 && Math.abs(normAngleSafe(s1.heading - s0.heading)) < 1e-12,
+      'and the arc still swings exactly as it does everywhere else: the start and the frame are still what they were');
+  }
 }
 
 console.log('\n=================');

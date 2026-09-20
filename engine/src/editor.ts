@@ -13,7 +13,7 @@
 // Bezier convention taminations uses (`Movement.fromTransform`).
 
 import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Pose, Seg } from './types.js';
-import { DEG, bezierAngle, poseFor } from './core.js';
+import { DEG, bezierAngle, bezierPoint, poseFor } from './core.js';
 // The DERIVED identity of an edited start formation: `assignHomeIdentity` is the same
 // read the renderer colours by, so the editor's `couple` column cannot disagree with the
 // stage next to it.
@@ -272,6 +272,86 @@ function greedyAssignEditor(
 // geometrically at all. Rot 0 is tried first so equal-error (symmetric) cases
 // keep the unrotated alignment instead of spinning the set.
 const ORIGIN_ROTS = [0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI, (-3 * Math.PI) / 4, -Math.PI / 2, -Math.PI / 4];
+
+// ------------------------------------------------------------------ circle fit
+
+/** A cubic that follows a circle: the circle, how far the curve strays from it, and how far round it goes. */
+export interface CircleFit {
+  cx: number;
+  cy: number;
+  r: number;
+  /** The worst distance from the curve to the circle over 33 samples. */
+  maxDev: number;
+  /** `maxDev / r` - the number the caller's "closely" is about, since a big arc tolerates more absolute slop. */
+  relDev: number;
+  /** Signed turn from the curve's start to its end about the centre, in radians. A quarter arc is ±PI/2. */
+  sweep: number;
+}
+
+/**
+ * THE CIRCLE A CUBIC FOLLOWS, when it follows one - or null.
+ *
+ * A cubic Bezier does not have a centre, so "this curve is an arc" is a FIT, and the fit is exact where it
+ * matters: a curve that IS the standard circular-arc construction has its end tangents perpendicular to the
+ * radii at its ends, so the centre is where the two perpendiculars MEET - one linear solve, no search. Any
+ * other cubic is measured against that circle and refused if it strays too far.
+ *
+ * THE TWO END TANGENTS ARE THE WHOLE TEST, and that is why this is cheap and stable rather than a least
+ * squares over samples: for a true arc, `p0` and `p3` are both exactly `r` from the centre, and the tangent
+ * at each is exactly perpendicular to its radius. So the candidate centres are the intersections of the two
+ * perpendiculars - four sign combinations, of which the one that fits is kept. Parallel tangents (a straight
+ * walk) have no intersection at all and return null, which is the honest answer: a straight line is not a
+ * circle of infinite radius.
+ *
+ * `tolRel` is the caller's word "closely", as a fraction of the radius, and it is RELATIVE because the
+ * absolute error of the standard construction scales with the radius: the best cubic for a quarter circle
+ * misses by 2.73e-4 of the radius whatever the radius is (`engine/test/editor.mjs` 17 pins that number), so
+ * the tolerance has to be a ratio to mean anything. MEASURED over the corpus in
+ * `poc/tools/arc-centre-probe.mjs`, which is also where the default comes from.
+ */
+export function fitCircle(b: BezierData, tolRel = 0.02): CircleFit | null {
+  const p0 = { x: 0, y: 0 };
+  const p3 = { x: b.x2, y: b.y2 };
+  const chord = Math.hypot(p3.x - p0.x, p3.y - p0.y);
+  if (!(chord > 1e-9)) return null; // a closed or degenerate curve: not a single arc
+  const t0 = bezierAngle(b, 0);
+  const t1 = bezierAngle(b, 1);
+  const normals = [t0 + Math.PI / 2, t0 - Math.PI / 2];
+  const endNormals = [t1 + Math.PI / 2, t1 - Math.PI / 2];
+  let best: CircleFit | null = null;
+  for (const a0 of normals) {
+    for (const a1 of endNormals) {
+      const n0 = { x: Math.cos(a0), y: Math.sin(a0) };
+      const n1 = { x: Math.cos(a1), y: Math.sin(a1) };
+      // p0 + u*n0 = p3 + v*n1  ->  u*n0 - v*n1 = p3 - p0
+      const det = n0.x * -n1.y - n0.y * -n1.x;
+      if (Math.abs(det) < 1e-9) continue; // parallel perpendiculars: a straight walk
+      const rx = p3.x - p0.x;
+      const ry = p3.y - p0.y;
+      const u = (rx * -n1.y - ry * -n1.x) / det;
+      if (!(u > 0)) continue; // the centre is behind the start: the other sign combination owns it
+      const cx = p0.x + u * n0.x;
+      const cy = p0.y + u * n0.y;
+      const r = u;
+      let maxDev = 0;
+      for (let i = 0; i <= 32; i++) {
+        const p = bezierPoint(b, i / 32);
+        maxDev = Math.max(maxDev, Math.abs(Math.hypot(p.x - cx, p.y - cy) - r));
+      }
+      const relDev = maxDev / r;
+      if (best === null || relDev < best.relDev) {
+        const a = Math.atan2(p0.y - cy, p0.x - cx);
+        const c = Math.atan2(p3.y - cy, p3.x - cx);
+        let sweep = c - a;
+        while (sweep > Math.PI) sweep -= 2 * Math.PI;
+        while (sweep <= -Math.PI) sweep += 2 * Math.PI;
+        best = { cx, cy, r, maxDev, relDev, sweep };
+      }
+    }
+  }
+  if (!best || best.relDev > tolRel) return null;
+  return best;
+}
 
 // ------------------------------------------------------------------ pad segments
 

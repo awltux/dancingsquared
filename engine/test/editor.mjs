@@ -19,6 +19,8 @@ import {
   alignFormationToCore,
   deriveFormationMapping,
   moveCurveEnd,
+  fitCircle,
+  padSegment,
   synthesizeSetup,
   synthesizeSetupChain,
   setupToXml,
@@ -1448,6 +1450,113 @@ console.log('\n== moving an end point holds the direction the dancer leaves on (
     }
   }
   check(degenerate > 0, `${degenerate} of the ${moves} movable moves in the ms level have a zero-length exit handle, and every one of them keeps its heading because the zero vector is held too`);
+}
+
+// ---------------------------------------------------------------------------
+// 23. the CIRCLE a curve follows, and the tolerance that decides "closely"
+// ---------------------------------------------------------------------------
+//
+// The editor's end-drag mode offers a CENTRE handle when the curve in hand is closely an arc or a circle, so
+// that it can be swung about its start point. "Closely" needs a number, and `fitCircle` is where it lives: a
+// cubic has no centre, so the arc condition is a FIT - the end tangents of a true arc are perpendicular to
+// their radii, so the centre is where the two perpendiculars MEET (one linear solve), and any other cubic is
+// measured against that circle and refused if it strays too far.
+console.log('\n== the circle a curve follows, and the tolerance that decides "closely" (23) ==');
+{
+  // A CONSTRUCTED QUARTER ARC, and the number the engine already knows about it: the best cubic for a
+  // quarter circle misses by 2.73e-4 of the radius (section 17 pins that same constant), so the fit has to
+  // find that circle and report that deviation.
+  const quarter = arcBezier({ x: 1, y: 1, angle: Math.PI / 4 });
+  const fit = fitCircle(quarter, 1);
+  check(!!fit, 'a constructed quarter arc fits a circle at all');
+  check(Math.abs(fit.relDev - 2.72e-4) < 1e-5, `and the deviation is the construction's own ${fit.relDev.toExponential(2)} of the radius`);
+  check(Math.abs(Math.abs(fit.sweep) - Math.PI / 2) < 1e-9, `the sweep is a quarter turn (${((Math.abs(fit.sweep) * 180) / Math.PI).toFixed(2)}deg)`);
+  check(fit.r > 1 && fit.r < 3, `and the radius is ${fit.r.toFixed(4)} - a circle through the arc's own ends`);
+
+  // AN ELLIPTICAL QUARTER IS NOT A CIRCLE, and the fit must say so: same construction, handles of different
+  // lengths. This is also why `arcOf` (the quarter-arc lock) is not the same test - that one accepts the
+  // ellipse, because the LOCK is about both handles keeping their directions.
+  const ellipse = arcBezier({ x: 1, y: 0.5, angle: Math.PI / 4 });
+  check(fitCircle(ellipse, 1)?.relDev > 0.5, `an elliptical quarter is refused (deviation ${fitCircle(ellipse, 1)?.relDev.toFixed(2)} of the radius)`);
+  check(fitCircle(ellipse, 0.02) === null, 'and it is null at the tolerance the panel uses');
+
+  // A STRAIGHT WALK HAS NO CENTRE: the two perpendiculars are parallel and never meet, which is the honest
+  // answer - a line is not a circle of infinite radius.
+  const straight = padSegment({ x: 0, y: 0, heading: 0 }, { x: 2, y: 0, heading: 0 }, 2).translate;
+  check(fitCircle(straight, 1) === null, 'a straight walk has no centre at all (parallel perpendiculars)');
+  check(fitCircle({ cx1: 0, cy1: 0, cx2: 0, cy2: 0, x2: 0, y2: 0 }, 1) === null, 'and neither does a curve with no length');
+
+  // THE FIT IS THE GEOMETRY, NOT A FRAME: rotate the five numbers and the centre rotates with them while
+  // the radius and the deviation are untouched. A fit that depended on the dancer's heading would put the
+  // handle in the wrong place for half the corpus.
+  const ROT = 0.7;
+  const spun = (t) => {
+    const c = Math.cos(ROT);
+    const s = Math.sin(ROT);
+    const rot = (x, y) => ({ x: x * c - y * s, y: x * s + y * c });
+    const a = rot(t.cx1, t.cy1);
+    const b = rot(t.cx2, t.cy2);
+    const e = rot(t.x2, t.y2);
+    return { cx1: a.x, cy1: a.y, cx2: b.x, cy2: b.y, x2: e.x, y2: e.y };
+  };
+  const spunFit = fitCircle(spun(quarter), 1);
+  check(Math.abs(spunFit.r - fit.r) < 1e-12 && Math.abs(spunFit.relDev - fit.relDev) < 1e-15, 'rotating the curve leaves the radius and the deviation identical');
+  const wantCx = fit.cx * Math.cos(ROT) - fit.cy * Math.sin(ROT);
+  const wantCy = fit.cx * Math.sin(ROT) + fit.cy * Math.cos(ROT);
+  check(Math.hypot(spunFit.cx - wantCx, spunFit.cy - wantCy) < 1e-12, 'and rotates the centre with it, to 1e-12');
+
+  // THE TOLERANCE IS A GATE, not a label: the quarter arc is refused by a tolerance below its own error.
+  check(fitCircle(quarter, 1e-5) === null, 'the tolerance really refuses: the same arc is null at 1e-5 even though its error is only 2.72e-4');
+
+  // AND THE DEFAULT COMES FROM THE CORPUS, with the empty band the rest of this project picks windows from.
+  const msDir = path.join(__dirname, '../../poc/src/assets/ms');
+  const devs = [];
+  let totalCurves = 0;
+  for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+    let call;
+    try {
+      call = normalizeInstance(loadCallFromXml(read(`../../poc/src/assets/ms/${f}`), movesXml, formationsXml, 0));
+    } catch {
+      continue;
+    }
+    if (call.dancers.length !== 8) continue;
+    for (const dancer of call.dancers) {
+      for (const seg of dancer.path) {
+        totalCurves++;
+        const x = fitCircle(seg.translate, 1);
+        if (x) devs.push(x.relDev);
+      }
+    }
+  }
+  const under = (t) => devs.filter((d) => d <= t).length;
+  const arcs = under(0.02);
+  const worstArc = Math.max(...devs.filter((d) => d <= 0.05));
+  const bestStraightish = Math.min(...devs.filter((d) => d > 0.05));
+  console.log(`    of the ${totalCurves} corpus travel curves, ${devs.length} have a centre at all and ${arcs} are arcs by the panel's 2% (largest deviation ${worstArc.toExponential(2)}, and the next curve along deviates ${bestStraightish.toExponential(2)})`);
+  check(arcs > 50 && arcs < totalCurves / 2, `the feature applies to a real minority of the corpus (${arcs} of ${totalCurves} curves), not to everything and not to nothing`);
+  check(bestStraightish > 5 * worstArc, `and 2% sits in an EMPTY BAND: the worst real arc deviates ${worstArc.toExponential(2)} and the closest curve that is not one deviates ${bestStraightish.toExponential(2)}, ${(bestStraightish / worstArc).toFixed(0)}x further out, so the exact threshold does not matter`);
+
+  // THE FIT AGREES WITH THE CURVE'S OWN TURN, which is an independent read of the same geometry: a circular
+  // arc turns by exactly its sweep. Anything else means the fitted circle is not the one the curve follows.
+  let worstTurn = 0;
+  for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+    let call;
+    try {
+      call = normalizeInstance(loadCallFromXml(read(`../../poc/src/assets/ms/${f}`), movesXml, formationsXml, 0));
+    } catch {
+      continue;
+    }
+    if (call.dancers.length !== 8) continue;
+    for (const dancer of call.dancers) {
+      for (const seg of dancer.path) {
+        const x = fitCircle(seg.translate, 0.02);
+        if (!x) continue;
+        const turn = normAngleSafe(bezierAngle(seg.translate, 1) - bezierAngle(seg.translate, 0));
+        worstTurn = Math.max(worstTurn, Math.abs(turn - x.sweep));
+      }
+    }
+  }
+  check(worstTurn < 1e-12, `and every arc's sweep IS the turn it makes (worst disagreement ${(worstTurn / DEG).toExponential(1)}deg over the corpus)`);
 }
 
 console.log('\n=================');

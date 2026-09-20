@@ -31,6 +31,7 @@ import {
   addMove,
   removeMove,
   moveCurveEnd,
+  fitCircle,
   moveBeatRange,
   boardAtBeat,
   setStartFormation,
@@ -251,6 +252,38 @@ const toRad = (deg: number): number => (deg * Math.PI) / 180;
  * coordinates of a grid point, which are not round when the dancer is turned - the honest consequence of
  * snapping to a grid drawn in another frame, and the reason the panel does not pretend otherwise.
  */
+/**
+ * How closely a curve must follow a circle before the arc-centre handle is OFFERED, as a fraction of the
+ * radius - and the threshold is only a formality here, because the corpus leaves a wide empty band for it to
+ * sit in. MEASURED over the ms level's 1016 travel curves: 222 have a centre at all, the worst curve that IS
+ * an arc deviates **1.47e-2** of its radius and the closest curve that is NOT deviates **1.55e-1 - eleven
+ * times further out** - so 2% is inside the gap rather than a judgement call. 134 curves (13%) qualify.
+ * `engine/test/editor.mjs` 23 measures the band and `poc/tools/arc-centre-probe.mjs` measures the gesture.
+ */
+const ARC_FIT_TOL = 0.02;
+
+/**
+ * Rotate a curve about its OWN START POINT: the end and the exit control turn, the start handle does not.
+ *
+ * THAT ASYMMETRY IS THE WHOLE POINT, and it is the answer to the caller's own warning - "care must be taken
+ * to maintain the dancers direction in transition from the previous curve, including the facing curve": the
+ * direction the dancer arrives with IS the start handle's direction (`poseFor` reads the tangent at t=0), so
+ * rotating it would kink the move against the one before it. Leaving it alone holds that direction EXACTLY
+ * while the rest of the curve swings, which is the gesture. The facing curve is untouched for the same
+ * reason: it is authored in this move's own frame, so the heading profile does not move with the arc.
+ */
+function rotatePoint(p: { x: number; y: number }, theta: number): { x: number; y: number } {
+  const c = Math.cos(theta);
+  const s = Math.sin(theta);
+  return { x: p.x * c - p.y * s, y: p.x * s + p.y * c };
+}
+
+function rotateAboutStart(b: BezierData, theta: number): BezierData {
+  const p2 = rotatePoint({ x: b.cx2, y: b.cy2 }, theta);
+  const p3 = rotatePoint({ x: b.x2, y: b.y2 }, theta);
+  return { ...b, cx2: p2.x, cy2: p2.y, x2: p3.x, y2: p3.y };
+}
+
 const SNAP_CELL = 1;
 const SNAP_TOL = SNAP_CELL / 4;
 /**
@@ -1123,6 +1156,25 @@ export class EditorController implements EditorUI {
       // THE MOVE LEAVES ON - which is the direction a drag of this point holds (see `moveCurveEnd`), so
       // the picture says what the gesture does.
       handles.push({ id: `d${d}:c3`, anchor: world(t.cx2, t.cy2), point: world(t.x2, t.y2) });
+      // AND, WHEN THE CURVE IS CLOSELY AN ARC, ITS CENTRE - anchored on the move's START, so the handle's
+      // own line IS the radius and reads the fit at a glance. Dragging it swings the arc about that start
+      // (see `applyHandleDrag`), which is a gesture the end point alone cannot express.
+      // WHILE THE GESTURE RUNS the centre is the BASE circle's centre rotated by the angle applied so far,
+      // not a fresh fit: past a wide swing the curve is no longer a circle at all (the cost measured in
+      // `poc/tools/arc-centre-probe.mjs`), and a dot that vanished from under the pointer mid-drag would read
+      // as the gesture having failed rather than as the arc having been swung past what a circle describes.
+      const dragging = this.dragHandle?.endsWith(':cc') ? this.dragArcBase : null;
+      const fitted = dragging ? null : fitCircle(t, ARC_FIT_TOL);
+      const centreLocal = dragging ? rotatePoint(dragging.centre, dragging.theta) : fitted ? { x: fitted.cx, y: fitted.cy } : null;
+      if (centreLocal) {
+        // ANCHORED ON THE MOVE'S START, so the handle's own line IS the radius of the swing.
+        handles.push({
+          id: `d${d}:cc`,
+          anchor: { x: p0.x, y: p0.y },
+          point: world(centreLocal.x, centreLocal.y),
+          color: HANDLE_COLOR.facing,
+        });
+      }
     } else {
       handles.push({ id: `d${d}:c1`, anchor: { x: p0.x, y: p0.y }, point: world(t.cx1, t.cy1) });
       handles.push({ id: `d${d}:c2`, anchor: { x: p1.x, y: p1.y }, point: world(t.cx2, t.cy2) });
@@ -1132,8 +1184,20 @@ export class EditorController implements EditorUI {
 
   /** The handle being dragged, as `d<dancer>:c<1|2|3>` for travel or `d<dancer>:r<1|2|3>` for facing.
    *  `c3` is the move's END POINT and is drawn only in the `end` handle mode; `r3` is the facing's end
-   *  and is drawn in both (it is the only handle the facing curve has beyond its two controls). */
+   *  and is drawn in both (it is the only handle the facing curve has beyond its two controls). `cc` is the
+   *  fitted CIRCLE's centre, and it is the one drag whose result is a FUNCTION OF THE START OF THE GESTURE
+   *  rather than of the pointer alone. */
   private dragHandle: string | null = null;
+  /**
+   * WHAT THE ARC-CENTRE DRAG IS MEASURED FROM, captured at pointerdown.
+   *
+   * Every other handle writes the pointer's own local point, which makes it idempotent - the same pointer
+   * position always writes the same numbers. The centre drag cannot: it ROTATES the curve, and a rotation
+   * applied to the curve the last move produced compounds. So the curve and the angle of its centre at the
+   * moment the gesture began are kept, and each pointer move writes `rotate(base, theta)` for the current
+   * theta. That is also why this is cleared on pointerup rather than left for the next gesture to inherit.
+   */
+  private dragArcBase: { curve: BezierData; phi0: number; centre: { x: number; y: number }; theta: number } | null = null;
 
   /**
    * Wire the canvas for handle dragging.
@@ -1149,6 +1213,22 @@ export class EditorController implements EditorUI {
       const id = this.stage.pickHandle(e.clientX, e.clientY);
       if (!id) return;
       this.dragHandle = id;
+      // The arc-centre drag measures from HERE - see `dragArcBase` - so the fit and the centre's angle are
+      // taken once, before the first pointer move has changed anything.
+      this.dragArcBase = null;
+      if (id.endsWith(':cc')) {
+        const dancer = this.instance?.dancers[parseInt(id.slice(1), 10)];
+        const seg = dancer?.path[this.moveIndex];
+        const circle = seg ? fitCircle(seg.translate, ARC_FIT_TOL) : null;
+        if (circle) {
+          this.dragArcBase = {
+            curve: { ...seg!.translate },
+            phi0: Math.atan2(circle.cy, circle.cx),
+            centre: { x: circle.cx, y: circle.cy },
+            theta: 0,
+          };
+        }
+      }
       // The selected dancers are DELIBERATELY not re-ordered by grabbing a handle: the gadget on the
       // board is already `moveDancer`'s, and the drag writes the same LOCAL value to every selected
       // dancer, so the tile's numbers read the same either way. Touching the selection mid-gesture
@@ -1170,6 +1250,7 @@ export class EditorController implements EditorUI {
     const endDrag = (e: PointerEvent) => {
       if (!this.dragHandle) return;
       this.dragHandle = null;
+      this.dragArcBase = null;
       this.stage.setControlsEnabled(true);
       if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
       // A FULL re-render once, at the end. The tile's NUMBERS follow the drag live (see
@@ -1286,7 +1367,25 @@ export class EditorController implements EditorUI {
               ? (seg) => ({ ...seg, translate: { ...seg.translate, cx1: lx, cy1: ly } })
               : which === 'c2'
                 ? (seg) => ({ ...seg, translate: { ...seg.translate, cx2: lx, cy2: ly } })
-                : // THE END POINT, and the ONE handle that writes more than the point it is on: the exit
+                : which === 'cc'
+                  ? // THE ARC'S CENTRE: swing the curve about its START POINT. The radius is kept because this
+                    // is a RIGID rotation of the curve's end and exit control - both stay the same distance
+                    // from the start - and the START HANDLE IS LEFT EXACTLY ALONE, which is what maintains the
+                    // dancer's direction coming out of the previous move: the entry tangent IS that handle.
+                    // The angle is measured from where the centre was when the gesture began, so a drag is a
+                    // rotation of a fixed curve rather than a compounding one.
+                    (seg) => {
+                      const base = this.dragArcBase;
+                      if (!base) return seg;
+                      // The angle is kept on the base so the handle can be drawn at the rotated centre WHILE
+                      // the gesture runs: past a wide swing the curve is no longer a circle - see the cost
+                      // measured in `poc/tools/arc-centre-probe.mjs` - and a dot that vanished from under the
+                      // pointer mid-drag would read as the gesture having failed rather than as the arc
+                      // having been swung past what a circle can describe.
+                      base.theta = Math.atan2(ly, lx) - base.phi0;
+                      return { ...seg, translate: rotateAboutStart(base.curve, base.theta) };
+                    }
+                  : // THE END POINT, and the ONE handle that writes more than the point it is on: the exit
                   // handle goes with it, held as a vector, so the direction the dancer leaves on - and,
                   // with no facing curve, the heading the NEXT move is played in - does not change. The
                   // engine owns that rule (`moveCurveEnd`); the panel only says where the point went.
@@ -1879,10 +1978,17 @@ export class EditorController implements EditorUI {
     hbtn.type = 'button';
     hbtn.dataset.key = `m${i}:${k}:handles`;
     hbtn.textContent = this.handleMode === 'end' ? '⇄ ends' : '⇄ controls';
+    // AND WHEN THE PATH IS AN ARC, SAY SO - the centre handle is otherwise a dot in the middle of the floor
+    // with nothing on screen to explain it. The fit is asked here rather than remembered so the sentence and
+    // the handle cannot disagree.
+    const arc = this.moveKind === 'move' ? fitCircle(seg.translate, ARC_FIT_TOL) : null;
+    const arcNote = arc
+      ? ` This path is an ARC (radius ${show(arc.r)}, ${Math.abs(toDeg(arc.sweep)).toFixed(0)}deg), so its CENTRE is drawn too: drag that to swing the arc about its start, holding both the radius and the direction the dancer arrives with.`
+      : '';
     hbtn.title =
       this.handleMode === 'end'
-        ? 'The board is showing the END POINTS: where this move finishes, and (on the Facing tab) the heading it finishes on. Click for the curve\'s CONTROL POINTS.'
-        : 'The board is showing the curve\'s CONTROL POINTS. Click for the END POINTS - where the move finishes - because a control point can sit on top of the end point, and then only one of the two can be grabbed.';
+        ? `The board is showing the END POINTS: where this move finishes, and (on the Facing tab) the heading it finishes on. Click for the curve's CONTROL POINTS.${arcNote}`
+        : `The board is showing the curve's CONTROL POINTS. Click for the END POINTS - where the move finishes - because a control point can sit on top of the end point, and then only one of the two can be grabbed.${arcNote}`;
     hbtn.addEventListener('click', () => {
       this.handleMode = this.handleMode === 'end' ? 'control' : 'end';
       this.renderInstance();

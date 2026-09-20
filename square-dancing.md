@@ -2313,6 +2313,52 @@ the pairwise-gate sweep, the class-size measurement, seven wiring checks and two
 empty-selection guard removed from the write path, and the window widened until the classes stop agreeing).
 `tsc` clean, all sixteen POC probes green.
 
+**THE CENTRE OF AN ARC IS A HANDLE, AND THE THREE THINGS ASKED OF IT CANNOT ALL HOLD.** Asked for: "When in
+the end of curve drag mode, and the curve closely represents an arc or a circle, provide another drag point
+that represent the center of the circle. Dragging this will keep the radius the same and rotate around the
+curves start point. Care must be taken to maintain the dancers direction in transition from the previous
+curve, including the facing curve."
+
+THE GEOMETRY DECIDES THE ARGUMENT, and it is one line: a circular arc through a fixed start with a fixed
+ENTRY TANGENT has its centre already determined - `r` along the normal - so if the arc also rotates rigidly
+about its start, its entry tangent rotates with it. "Rotate about the start", "keep the radius" and "keep the
+arrival direction" are therefore three constraints on two freedoms. The caller's own sentence says which one
+matters ("care must be taken to maintain the dancers direction"), so that is the one the rule holds: the end
+and the exit control rotate about the start and THE START HANDLE DOES NOT TURN, because the direction the
+dancer arrives with IS that handle's direction.
+
+"CLOSELY AN ARC" IS A FIT, and the fit is exact where it matters: `fitCircle` takes the two end tangents and
+finds where their perpendiculars MEET - one linear solve, no search - then measures the curve against that
+circle and refuses it if it strays too far. A straight walk has parallel perpendiculars and no centre at all,
+which is the honest answer rather than a circle of infinite radius. MEASURED over the ms level's 1016 travel
+curves (`engine/test/editor.mjs` 23): 222 have a centre, 134 are arcs by the panel's 2%, the worst real arc
+deviates 1.47e-2 of its radius and the closest curve that is NOT one deviates 1.55e-1 - ELEVEN TIMES further
+out - so 2% sits in an empty band rather than being a judgement call. The fit is validated against the number
+the project already knew: a constructed quarter arc fits with relDev 2.72e-4, the same constant section 17
+pins for the best cubic through a quarter circle, and its sweep IS the turn it makes to 1.9e-14deg over the
+corpus. An ELLIPTICAL quarter is refused (relDev 1.00): this is a circle fit, and the quarter-arc lock
+(`arcOf`) is deliberately a different test, because the lock is about both handles keeping their directions.
+
+MEASURED, WHAT THE SWING HOLDS AND WHAT IT COSTS (`poc/tools/arc-centre-probe.mjs`, every arc x ten swing
+angles): the entry tangent changes by **0.0e+0deg**, the FACING curve is bit-identical (not merely close), the
+pose the move starts from does not move at all, and the END keeps its distance from the start to **8.9e-16** -
+the radius of the swing, held exactly, because the swing is a rigid rotation of the end about the start. The
+cost is measured too: the FITTED circle gives, up to 0.94 of the radius off its best fit at a half turn, and
+for wide swings the curve is not a circle at all any more. So the handle is drawn from the BASE circle rotated
+by the angle applied so far WHILE the gesture runs (the drag measures from the curve captured at pointerdown,
+so a drag is a rotation of a fixed curve rather than a compounding one) - a dot that vanished from under the
+pointer mid-drag would read as the gesture having failed rather than as the arc having been swung past what a
+circle describes.
+
+AND WHAT THE SWING DOES TO THE NEXT MOVE IS MEASURED BOTH WAYS, because the engine has two cases: with a
+facing curve the heading is AUTHORED, so the swing holds the heading the move finishes on and CARRIES the rest
+of the trace (all 98 arcs that have one), while with no facing curve the exit tangent IS the heading, so the
+swing re-aims it - up to 34.4deg at the angle measured - which is what swinging an arc is FOR. The negative
+control is the fault the request names: turning the start handle with the rest (a rigid rotation of the whole
+curve) breaks the joint by the whole swing angle, 34.4deg. GATED by `engine/test/editor.mjs` 23 and
+`poc/tools/arc-centre-probe.mjs`. `verify:light` green at 12 harnesses, `tsc` clean, all seventeen POC probes
+green.
+
 
 
 

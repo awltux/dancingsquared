@@ -2195,6 +2195,54 @@ flag off is the old behaviour bit for bit; the flag on leaves no mismatched spot
 bijection and stays TOTAL when the counts do not line up; a different dancer count still throws). `verify:light`
 green at 12 harnesses, `tsc` clean, all thirteen POC probes green.
 
+**THE END OF A CURVE IS NOW A HANDLE, AND IT HOLDS THE DIRECTION THE DANCER LEAVES ON.** Asked for: "Add a
+drag point for the end of a curve. This also requires adjusting the bezier controls to ensure the control for
+this curve is aligned with the next control to preserve dancer direction. If there is a facing override, this
+must also be managed to preserve the direction of travel to the next curve." And then: "I think there will
+need to be a button to flip between controls and end points as the control can sit on top of the end point
+making it difficult to use both at the same time."
+
+THE MECHANISM IS ONE LINE OF `poseFor`: the move's end point is `p3`, and the heading it ends on - the frame
+the NEXT move is played in - is `bezierAngle(rotate ?? translate, 1)`, the direction of the tangent at `t = 1`,
+which for a cubic is exactly `p3 - p2`. Moving `p3` alone therefore changes the destination AND the frame,
+and the rest of the track swings. `moveCurveEnd` holds the exit handle VECTOR - `p2` moves with `p3` - so the
+tangent is the same tangent and the frame is the same frame, translated.
+
+MEASURED OVER THE WHOLE ms LEVEL (884 moves with something after them, `poc/tools/move-end-probe.mjs`): a
+plain drag turns the exit direction by a MEDIAN of 26.9deg and by more than 1deg in ALL 884 (worst 138.8deg);
+with the hold, by at most 2.5e-14deg, and every later boundary is the old one CARRIED - same headings, same
+shape, moved by the distance the end point moved (worst error 1.9e-15). That is the whole request: the dancer
+lands where it was put and the rest of the dance keeps doing what it did.
+
+AND THE FACING OVERRIDE IS A DIFFERENT MECHANISM, which is why the request separates it. With a facing curve
+the heading comes from the ROTATION curve, so the tail is carried whether or not the handle is held - what the
+hold protects there is the DIRECTION OF TRAVEL, and all 622 of the moves that carry one would otherwise set
+off in a different direction. Without a facing curve the tangent IS the heading, so the hold is what stops the
+track turning at all (262 moves, worst 98.5deg without it). Both cases are pinned in `engine/test/editor.mjs`
+section 22, each with its own negative control, because a single "the tail moved" check would have been TRUE
+of the facing case for the wrong reason.
+
+THE FIRST VERSION OF THE RULE WAS WRONG AND THE SWEEP FOUND IT, not the eye. It skipped the hold when the exit
+handle was the zero vector, on the reasoning that there is no direction to preserve there. There IS something
+to preserve: `atan2(0, 0)` is 0, so the curve reports a heading, and leaving `p2` behind INVENTS a tangent
+where there was none. 144 of the 884 movable moves have a zero-length exit handle, and every one of them
+turned - up to 35deg of tail swing - under a guard that was supposed to be handling exactly that case. Holding
+the zero vector keeps the curve degenerate and the heading exactly as it was.
+
+THE HANDLE TOGGLE is the second half of the request, and the overlap it solves is measured rather than
+imagined: over all 9994 resolved segments of the 542 catalog calls, 5.5% have their two control points EXACTLY
+coincident (a `Stand`, or any curve whose controls collapse onto the dancer's own spot) and 24.8% have them
+distinct but closer than the pick radius, where the nearest-wins tie is meaningless and one dot cannot be
+grabbed (`poc/tools/handle-pick-probe.mjs`, which had already recorded that limitation). The tile's
+`controls / ends` button swaps which set the board draws - `c1`/`c2` or the end point `c3` on the Move tab,
+`r1`/`r2` or the end `r3` on Facing - so only one of the overlapping dots is ever live.
+
+GATED by `engine/test/editor.mjs` section 22 (both facing cases with their own negative controls, the carried
+tail, the degenerate exit, and the corpus count that makes the degenerate case impossible to dismiss) and by
+`poc/tools/move-end-probe.mjs` (the 884-move sweep, the facing split, the negative control, and the source
+wiring of the toggle and the drag). `verify:light` green at 12 harnesses, `tsc` clean, all fourteen POC probes
+green.
+
 
 
 

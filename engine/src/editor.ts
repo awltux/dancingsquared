@@ -279,6 +279,45 @@ function rot(a: number, v: { x: number; y: number }): { x: number; y: number } {
   return { x: v.x * Math.cos(a) - v.y * Math.sin(a), y: v.x * Math.sin(a) + v.y * Math.cos(a) };
 }
 
+/**
+ * Move a move's END POINT to `(x2, y2)`, holding the direction the dancer LEAVES on.
+ *
+ * WHAT "THE END POINT MOVES" MEANS, AND WHY THE DIRECTION HAS TO BE HELD WITH IT. A move's translation
+ * curve is authored in dancer-local coordinates, and `poseFor` composes the chain as
+ * `m = m * translateBy(p3); m = m * rotateBy(a)` with `a = bezierAngle(rotate ?? translate, 1)`. So the
+ * point the move ends on is `p3`, and the heading it ends on - which IS the frame the NEXT move is played
+ * in - is the angle of the curve's tangent at `t = 1`, which for a cubic is exactly the direction of
+ * `p3 - p2`. Moving `p3` alone therefore changes BOTH, and the second one is a side effect nobody asked
+ * for: the rest of the track swings.
+ *
+ * `bezierAngle` is `atan2` of that tangent, so only its DIRECTION matters - and preserving the exit handle
+ * VECTOR `p3 - p2` outright makes the tangent at `t = 1` bit-identical, which:
+ *
+ *   - leaves a move with NO facing curve ending on exactly the heading it ended on;
+ *   - leaves the travel direction at the end of the move unchanged when there IS one, where the heading
+ *     comes from the rotation curve instead (`bezierAngle(s.rotate ?? ...)`) and would otherwise be the
+ *     only thing holding the two together;
+ *   - and therefore leaves the frame the next move starts in ROTATED exactly as it was, so the whole
+ *     downstream track keeps its shape, its headings and its direction, and is merely carried to the new
+ *     end point. MEASURED in `editor.mjs` section 22, both with and without a facing curve.
+ *
+ * The handle vector is held rather than its length alone because it is the one quantity that fixes both
+ * the direction and the exit shape (the last span of the cubic), so the curve stays as close to what the
+ * caller authored as a change of destination can.
+ *
+ * THE HANDLE VECTOR IS PRESERVED, INCLUDING WHEN IT IS THE ZERO VECTOR: `p2` moves with `p3`, so a curve
+ * whose exit handle is degenerate STAYS degenerate and `atan2(0, 0)` goes on reporting the heading it
+ * reported before. Leaving `p2` behind instead INVENTS a tangent where there was none, and the tail swings -
+ * which is what the corpus sweep caught (`poc/tools/move-end-probe.mjs`): **144 of the 884** movable moves in
+ * the ms level have a zero-length exit handle, and every one of them turned by up to 35deg under the guard
+ * that was supposed to be handling that case.
+ */
+export function moveCurveEnd(b: BezierData, x2: number, y2: number): BezierData {
+  const dx = b.x2 - b.cx2;
+  const dy = b.y2 - b.cy2;
+  return { ...b, cx2: x2 - dx, cy2: y2 - dy, x2, y2 };
+}
+
 /** Build one padding segment that carries a dancer from `from` to `to`. */
 export function padSegment(from: { x: number; y: number; heading: number }, to: { x: number; y: number; heading: number }, beats: number): Seg {
   const d = rot(-from.heading, { x: to.x - from.x, y: to.y - from.y });

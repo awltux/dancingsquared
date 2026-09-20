@@ -30,6 +30,7 @@ import {
   setMove,
   addMove,
   removeMove,
+  moveCurveEnd,
   moveBeatRange,
   boardAtBeat,
   setStartFormation,
@@ -424,6 +425,22 @@ export class EditorController implements EditorUI {
   }
   /** WHICH OF THE MOVE'S TWO SHAPES is selected: the translation curve or the facing curve. */
   private moveKind: 'move' | 'facing' = 'move';
+  /**
+   * WHICH SET OF HANDLES THE BOARD OFFERS: the curve's CONTROL POINTS, or its END POINT.
+   *
+   * A toggle rather than both at once, and the reason is MEASURED rather than aesthetic: the handles of a
+   * curve routinely land on top of each other - over all 9994 resolved segments of the 542 catalog calls,
+   * **5.5% have their control points EXACTLY coincident** (a `Stand`, or any curve whose controls collapse
+   * onto the dancer's own spot) and a further **24.8% have them distinct but closer than the pick radius**
+   * (`poc/tools/handle-pick-probe.mjs`), where nearest-wins has no meaning and one dot is unreachable. An
+   * END POINT is the same problem one step further out: it is the point the curve finishes on, and a
+   * control point can sit exactly there.
+   *
+   * So the two sets are never drawn together, and the mode says which one the board is showing. The END is
+   * the last handle of the shape - `translate.x2/y2` for the move, `rotate.x2/y2` for the facing - which in
+   * both cases is exactly what the move's END means: where the dancer is, and which way it is facing.
+   */
+  private handleMode: 'control' | 'end' = 'control';
   /**
    * Whether the curve being edited is LOCKED to a quarter arc, and which curve that answer is about.
    *
@@ -988,9 +1005,14 @@ export class EditorController implements EditorUI {
       const c2 = world(r.cx2, r.cy2);
       const p3 = world(r.x2, r.y2);
       const origin = { x: p0.x, y: p0.y };
-      handles.push({ id: `d${d}:r1`, anchor: origin, point: c1, color: HANDLE_COLOR.facing });
-      handles.push({ id: `d${d}:r2`, anchor: c1, point: c2, color: HANDLE_COLOR.facing });
-      handles.push({ id: `d${d}:r3`, anchor: c2, point: p3, color: HANDLE_COLOR.facing });
+      // WHICH END OF THE SHAPE IS ON OFFER: the interior controls, or the point the move finishes on -
+      // which for a facing IS the heading it finishes on. See `handleMode`.
+      if (this.handleMode === 'end') {
+        handles.push({ id: `d${d}:r3`, anchor: c2, point: p3, color: HANDLE_COLOR.facing });
+      } else {
+        handles.push({ id: `d${d}:r1`, anchor: origin, point: c1, color: HANDLE_COLOR.facing });
+        handles.push({ id: `d${d}:r2`, anchor: c1, point: c2, color: HANDLE_COLOR.facing });
+      }
       // The cubic the engine evaluates, sampled in the same local frame as the dots and transformed by
       // the same `world`, so the curve, the dots and the tile's numbers are one picture of one thing.
       const curve: CurveSpec[] = [{ points: sampleBezier(r).map((p) => world(p.x, p.y)), color: HANDLE_COLOR.facing }];
@@ -1000,12 +1022,21 @@ export class EditorController implements EditorUI {
 
     const p1 = poseFor(dancer, range.to);
     const t = seg.translate;
-    handles.push({ id: `d${d}:c1`, anchor: { x: p0.x, y: p0.y }, point: world(t.cx1, t.cy1) });
-    handles.push({ id: `d${d}:c2`, anchor: { x: p1.x, y: p1.y }, point: world(t.cx2, t.cy2) });
+    if (this.handleMode === 'end') {
+      // THE END POINT, anchored on its own exit control so the LINE DRAWING THE HANDLE IS THE DIRECTION
+      // THE MOVE LEAVES ON - which is the direction a drag of this point holds (see `moveCurveEnd`), so
+      // the picture says what the gesture does.
+      handles.push({ id: `d${d}:c3`, anchor: world(t.cx2, t.cy2), point: world(t.x2, t.y2) });
+    } else {
+      handles.push({ id: `d${d}:c1`, anchor: { x: p0.x, y: p0.y }, point: world(t.cx1, t.cy1) });
+      handles.push({ id: `d${d}:c2`, anchor: { x: p1.x, y: p1.y }, point: world(t.cx2, t.cy2) });
+    }
     stage.setGizmo(handles);
   }
 
-  /** The handle being dragged, as `d<dancer>:c<1|2>` for travel or `d<dancer>:r<1|2|3>` for facing. */
+  /** The handle being dragged, as `d<dancer>:c<1|2|3>` for travel or `d<dancer>:r<1|2|3>` for facing.
+   *  `c3` is the move's END POINT and is drawn only in the `end` handle mode; `r3` is the facing's end
+   *  and is drawn in both (it is the only handle the facing curve has beyond its two controls). */
   private dragHandle: string | null = null;
 
   /**
@@ -1157,7 +1188,13 @@ export class EditorController implements EditorUI {
             ? (seg) => (seg.rotate ? { ...seg, rotate: { ...seg.rotate, x2: lx, y2: ly } } : seg)
             : which === 'c1'
               ? (seg) => ({ ...seg, translate: { ...seg.translate, cx1: lx, cy1: ly } })
-              : (seg) => ({ ...seg, translate: { ...seg.translate, cx2: lx, cy2: ly } });
+              : which === 'c2'
+                ? (seg) => ({ ...seg, translate: { ...seg.translate, cx2: lx, cy2: ly } })
+                : // THE END POINT, and the ONE handle that writes more than the point it is on: the exit
+                  // handle goes with it, held as a vector, so the direction the dancer leaves on - and,
+                  // with no facing curve, the heading the NEXT move is played in - does not change. The
+                  // engine owns that rule (`moveCurveEnd`); the panel only says where the point went.
+                  (seg) => ({ ...seg, translate: moveCurveEnd(seg.translate, lx, ly) });
     this.commitMoveChange(patch, `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`, true, facing ? 'facing' : 'travel');
   }
 
@@ -1728,6 +1765,27 @@ export class EditorController implements EditorUI {
       tabs.appendChild(b);
     }
     tile.appendChild(tabs);
+
+    // WHICH HANDLES THE BOARD OFFERS, as a button, because the two sets overlap often enough that one of
+    // them is unreachable when both are drawn (see `handleMode`: 5.5% of the corpus's curves have their
+    // controls EXACTLY coincident, and the end point is where a control can sit anyway).
+    const hbtn = document.createElement('button');
+    hbtn.type = 'button';
+    hbtn.dataset.key = `m${i}:${k}:handles`;
+    hbtn.textContent = this.handleMode === 'end' ? '⇄ ends' : '⇄ controls';
+    hbtn.title =
+      this.handleMode === 'end'
+        ? 'The board is showing the END POINTS: where this move finishes, and (on the Facing tab) the heading it finishes on. Click for the curve\'s CONTROL POINTS.'
+        : 'The board is showing the curve\'s CONTROL POINTS. Click for the END POINTS - where the move finishes - because a control point can sit on top of the end point, and then only one of the two can be grabbed.';
+    hbtn.addEventListener('click', () => {
+      this.handleMode = this.handleMode === 'end' ? 'control' : 'end';
+      this.renderInstance();
+      this.statusEl.textContent =
+        this.handleMode === 'end'
+          ? 'handles: the END points — dragging the move\'s end holds the direction the dancer leaves on'
+          : 'handles: the curve\'s control points';
+    });
+    tile.appendChild(hbtn);
 
     const grid = document.createElement('div');
     grid.className = 'ed-grid';

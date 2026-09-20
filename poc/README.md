@@ -851,6 +851,35 @@ reaches the one function that draws any of it, the Save label has that one write
 the MODE because the Save button is shared with Fix and Create), and it is **shown to fail** on
 `doClone`'s missing pass and on the mode handler's.
 
+**A HANDLE TOGGLE, because a control point can sit ON the end point.** The tile's **⇄ controls / ⇄ ends**
+button swaps which set of handles the board draws: the curve's **control points** (`c1`/`c2` on the Move tab,
+`r1`/`r2` on Facing), or its **end point** — where the move finishes (`c3`), or the heading it finishes on
+(`r3`). Never both, and the reason is measured rather than tidy: over all 9994 resolved segments of the 542
+catalog calls, **5.5% have their control points EXACTLY coincident** — a `Stand`, or any curve whose controls
+collapse onto the dancer's own spot — and a further **24.8%** have them distinct but closer than the pick
+radius, where nearest-wins has no meaning and one dot is unreachable (`node poc/tools/handle-pick-probe.mjs`).
+An end point is the same overlap one step further out, so the mode decides which one is grabbable.
+
+**Dragging the END of a move holds the direction the dancer LEAVES on, and that is what keeps the rest of the
+dance still.** The move's end point is `translate.x2/y2`, and the heading it ends on — which is the frame the
+NEXT move is played in — is the direction of the curve's tangent at `t = 1`, which for a cubic is exactly
+`p3 - p2`. So moving `p3` alone changes the destination *and* the frame, and the tail swings: MEASURED over
+the ms level (`node poc/tools/move-end-probe.mjs`, 884 moves with something after them), a plain drag turns
+the exit direction by a **median of 26.9°**, more than 1° in **all 884**, worst 138.8°. With the exit handle
+held (`moveCurveEnd`) the direction moves by at most **2.5e-14°** and every later boundary is the old one
+**carried** — same headings, same shape, moved by the distance the end point moved (worst error 1.9e-15).
+
+**And the facing override is a different mechanism with the same fix.** With a facing curve the heading comes
+from the *rotation* curve, so the tail is carried whether or not the handle is held — what the hold protects
+there is the **direction of travel** (622 of the 884 moves carry a facing curve, and without the hold every
+one of them would set off in a different direction). With no facing curve the tangent *is* the heading, so the
+hold is what stops the track turning (262 moves, worst 98.5° without it). MEASURED BOTH WAYS in
+`engine/test/editor.mjs` section 22 — including the case that first came out wrong: **144 of the 884 movable
+moves have a zero-length exit handle**, where there is no direction to read, and the zero vector is *held*
+(`p2` moves with `p3`) so the curve stays degenerate instead of being handed a tangent the drag invented.
+With the arc lock on, the end handle is the conic's corner, and the lock wins: the family's promise is that
+the curve stays a quarter arc, which cannot also be a promise about the exit direction.
+
 Only **eight-dancer** formations are offered, because `setStartFormation` refuses a count
 mismatch — re-basing eight dancers onto four spots is a gap, not a setup. `listFormations()`
 currently offers 134 formations and *every one of them is eight dancers*

@@ -18,6 +18,7 @@ import {
   rigidFit,
   alignFormationToCore,
   deriveFormationMapping,
+  moveCurveEnd,
   synthesizeSetup,
   synthesizeSetupChain,
   setupToXml,
@@ -1330,6 +1331,123 @@ console.log('\n== the correspondence can keep the formation\'s arrangement (21) 
     threw = true;
   }
   check(threw, 'a formation with the wrong number of dancers still throws rather than pairing the rest by index');
+}
+
+// ---------------------------------------------------------------------------
+// 22. moving a move's END POINT holds the direction the dancer leaves on
+// ---------------------------------------------------------------------------
+//
+// The editor's new endpoint handle. `poseFor` composes the chain as `m = m * translateBy(p3); m =
+// m * rotateBy(a)` with `a = bezierAngle(rotate ?? translate, 1)`, so `p3` is where the move ends AND,
+// through the tangent at t=1 (which is `3 * (p3 - p2)`), part of the heading it ends on - which is the frame
+// the NEXT move is played in. Moving `p3` alone therefore swings the rest of the track, which is a side
+// effect nobody asked for; `moveCurveEnd` holds the exit handle vector so it cannot.
+console.log('\n== moving an end point holds the direction the dancer leaves on (22) ==');
+{
+  const witness = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
+  const d = 0;
+  const boundaries = (call, i) => call.dancers[i].path.map((_, k) => poseFor(call.dancers[i], moveBeatRange(call.dancers[i], k).to));
+
+  // WHICH MOVES ARE WORTH MEASURING: one with a facing curve and one without, and both must have something
+  // after them (the claim is about the moves that FOLLOW).
+  const withFacing = witness.dancers[d].path.findIndex((s, i) => s.rotate && i < witness.dancers[d].path.length - 2);
+  const withoutFacing = witness.dancers[d].path.findIndex((s, i) => !s.rotate && i < witness.dancers[d].path.length - 2);
+  check(withFacing >= 0 && withoutFacing >= 0, `the witness has both cases to measure: move ${withFacing + 1} carries a facing curve, move ${withoutFacing + 1} does not`);
+
+  const DX = 1.25;
+  const DY = -0.75;
+  for (const k of [withFacing, withoutFacing]) {
+    const before = witness;
+    const seg = before.dancers[d].path[k];
+    const held = moveCurveEnd(seg.translate, seg.translate.x2 + DX, seg.translate.y2 + DY);
+    const after = setMove(before, d, k, { ...seg, translate: held });
+    const what = seg.rotate ? 'with a facing curve' : 'with no facing curve (the tangent IS the heading)';
+
+    // 1. THE END POINT IS WHERE IT WAS PUT, exactly.
+    check(held.x2 === seg.translate.x2 + DX && held.y2 === seg.translate.y2 + DY, `k = ${k + 1}, ${what}: the end point is exactly where it was put`);
+
+    // 2. AND THE DIRECTION IS HELD: the tangent at t = 1 keeps its direction, so the frame the next move
+    //    starts in is not rotated. NOT bit-identical, and the reason is worth stating: the handle vector is
+    //    re-derived from the stored numbers as `x2 - cx2`, so the cancellation costs one ulp of the tangent
+    //    (measured below). The HEADING is what the engine reads, and it comes out identical.
+    const a0 = bezierAngle(seg.translate, 1);
+    const a1 = bezierAngle(held, 1);
+    const dt = Math.abs(normAngleSafe(a1 - a0));
+    check(dt < 1e-15, `k = ${k + 1}, ${what}: the exit tangent keeps its direction to ${dt.toExponential(1)} rad (one ulp from the subtraction that re-derives the handle), so the frame the next move starts in is not rotated`);
+    const endBefore = poseFor(before.dancers[d], moveBeatRange(before.dancers[d], k).to);
+    const endAfter = poseFor(after.dancers[d], moveBeatRange(after.dancers[d], k).to);
+    check(Math.abs(normAngleSafe(endAfter.heading - endBefore.heading)) < 1e-15, `k = ${k + 1}: and the heading the move ends on is unchanged (${((normAngleSafe(endAfter.heading - endBefore.heading)) / DEG).toExponential(1)} deg)`);
+
+    // 3. THE WHOLE TAIL IS THE OLD TAIL, CARRIED. Every later boundary is the pose it was, translated by
+    //    exactly the distance the end point moved - same headings, same shape.
+    const shift = { x: endAfter.x - endBefore.x, y: endAfter.y - endBefore.y };
+    const b0 = boundaries(before, d);
+    const b1 = boundaries(after, d);
+    let worstPos = 0;
+    let worstHead = 0;
+    for (let j = k + 1; j < b0.length; j++) {
+      worstPos = Math.max(worstPos, Math.hypot(b1[j].x - b0[j].x - shift.x, b1[j].y - b0[j].y - shift.y));
+      worstHead = Math.max(worstHead, Math.abs(normAngleSafe(b1[j].heading - b0[j].heading)));
+    }
+    check(worstPos < 1e-12 && worstHead < 1e-12,
+      `k = ${k + 1}: all ${b0.length - k - 1} later boundaries are the old ones carried by (${shift.x.toFixed(3)}, ${shift.y.toFixed(3)}) - worst position error ${worstPos.toExponential(1)}, worst heading error ${worstHead.toExponential(1)}`);
+
+    // 4. THE NEGATIVE CONTROL, and it is TWO different claims depending on which heading is in charge -
+    //    which is the whole reason the request mentions a facing override separately.
+    const raw = setMove(before, d, k, { ...seg, translate: { ...seg.translate, x2: seg.translate.x2 + DX, y2: seg.translate.y2 + DY } });
+    const da = Math.abs(normAngleSafe(bezierAngle(raw.dancers[d].path[k].translate, 1) - a0));
+    let rawHead = 0;
+    const rb = boundaries(raw, d);
+    for (let j = k + 1; j < rb.length; j++) rawHead = Math.max(rawHead, Math.abs(normAngleSafe(rb[j].heading - b0[j].heading)));
+    console.log(`      k = ${k + 1} without the hold: the exit direction turns ${(da / DEG).toFixed(2)}deg; the tail's headings move by up to ${(rawHead / DEG).toFixed(2)}deg`);
+    check(da > 0.05, `k = ${k + 1}: without the hold the DIRECTION OF TRAVEL turns ${(da / DEG).toFixed(1)}deg, which is the side effect this operation exists to prevent`);
+    if (seg.rotate) {
+      // WITH A FACING CURVE THE TAIL IS CARRIED EITHER WAY, because the heading comes from the rotation
+      // curve and the frame's translation is the end point in both cases - so what the hold protects here
+      // is the direction the dancer is TRAVELLING as it leaves, which is exactly what was asked for.
+      check(rawHead < 1e-12, `k = ${k + 1}: with a facing curve the tail is carried either way (${(rawHead / DEG).toExponential(1)}deg), so the hold's job there is the direction of travel, not the track`);
+    } else {
+      check(rawHead > 0.05, `k = ${k + 1}: and with no facing curve the tangent IS the heading, so the tail turns with it (${(rawHead / DEG).toFixed(1)}deg) - the swing the hold prevents`);
+    }
+  }
+
+  // 5. A DEGENERATE EXIT STAYS DEGENERATE. `p2` moves with `p3`, so the handle vector is still the zero
+  //    vector and the heading the curve reports is not invented by the drag. THIS IS NOT A CORNER CASE: the
+  //    corpus count below is why the rule holds the zero vector rather than skipping it, and the first
+  //    version of `moveCurveEnd` skipped it - which turned every one of these.
+  const flat = { cx1: 1, cy1: 0, cx2: 3, cy2: 0, x2: 3, y2: 0 };
+  const movedFlat = moveCurveEnd(flat, 4, 1);
+  check(movedFlat.x2 === 4 && movedFlat.y2 === 1 && movedFlat.cx2 === 4 && movedFlat.cy2 === 1,
+    'a curve whose exit handle is degenerate stays degenerate - p2 moves with p3 - so no tangent is invented');
+  check(bezierAngle(movedFlat, 1) === bezierAngle(flat, 1), `and it goes on reporting the same heading (${bezierAngle(flat, 1)})`);
+  // And an ordinary move is not disturbed when the end point does not move.
+  const same = moveCurveEnd(flat, flat.x2, flat.y2);
+  check(same.cx2 === flat.cx2 && same.cy2 === flat.cy2, 'and moving an end point to where it already is changes nothing at all');
+
+  // THE CORPUS COUNT, so the degenerate case cannot be dismissed as rare - and so the sweep that found it is
+  // pinned rather than retold.
+  const msDir = path.join(__dirname, '../../poc/src/assets/ms');
+  let moves = 0;
+  let degenerate = 0;
+  for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+    let call;
+    try {
+      call = normalizeInstance(loadCallFromXml(read(`../../poc/src/assets/ms/${f}`), movesXml, formationsXml, 0));
+    } catch {
+      continue;
+    }
+    // THE SAME SAMPLE THE PROBE SWEEPS: whole-set calls only, so the two counts are the same number rather
+    // than two numbers that look like they disagree.
+    if (call.dancers.length !== 8) continue;
+    for (const dancer of call.dancers) {
+      dancer.path.forEach((seg, k) => {
+        if (k === dancer.path.length - 1) return;
+        moves++;
+        if (Math.hypot(seg.translate.x2 - seg.translate.cx2, seg.translate.y2 - seg.translate.cy2) === 0) degenerate++;
+      });
+    }
+  }
+  check(degenerate > 0, `${degenerate} of the ${moves} movable moves in the ms level have a zero-length exit handle, and every one of them keeps its heading because the zero vector is held too`);
 }
 
 console.log('\n=================');

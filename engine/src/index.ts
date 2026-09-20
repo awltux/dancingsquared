@@ -146,6 +146,7 @@ export {
   alignFormationToCore,
   deriveFormationMapping,
   padSegment,
+  moveCurveEnd,
   synthesizeSetup,
   synthesizeSetupChain,
   setupToXml,

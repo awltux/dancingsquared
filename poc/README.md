@@ -1107,6 +1107,28 @@ projecting moves the endpoint on **100%** of them — usually by a hair (**media
 chord, which is why it feels like a snap), but **1128** of them move by more than a whole unit, worst **8.85**.
 So the box always deforms, and the size of the deformation is not visible before ticking it.
 
+**And the "does this call pass through another formation?" flag is buildable, but only with a persistence
+rule.** `poc/tools/call-formations-probe.mjs` walks every call beat by beat and asks the engine's own
+recogniser what formation the eight dancers are in. The naive scan says **31.9%** of calls cross an interior
+formation — **3276 spans** — and that is useless, because **3238 of them are a single sample at a 0.5-beat
+step**: the recogniser catching a board that is momentarily *near* a formation while the dancers pass through
+it. Require the formation to be **HELD for 2 beats** and the population collapses to **31 spans in 17 calls
+(0.4%)**. That is checked rather than assumed: at a step **eight times finer** 19 of those 31 survive and the
+longest is 4.13 beats, while **40 control calls** that produced only transients produce **624 interior spans
+of which 0 are held**. Of the interior spans, **75.6% begin on a move boundary**, so most are joints a user can
+see. The held ones are a short, high-confidence list — `Alamo Wave`, `Ocean Waves`, `Thar RH/LH Boys`,
+`Circle`, `Columns`, `Diamonds`, `Normal Lines Compact` — each with its beat range, e.g. `b2/swing_thru.xml`
+holding `Alamo Wave` for beats 6.50–10.00 of 10.40.
+
+**Its control is the reason to trust it, and it took two bugs to get right.** The call's own start formation
+must be recognised at beat 0: by the real **`formation` attribute** it is named correctly in **2299 of 2299**
+calls. Two things had hidden that. A tam with no `from` carries a **run of spaces**, and a whitespace string is
+**truthy**, so every such call was counted as declaring one and then failed. And **`from` is not the formation
+at all** — it is a label for the user (`convert.ts:324` builds the dancers from `formationAttr`; `from` may
+label an *embedded* formation or give the attribute an alternative name), so comparing a recognised name
+against it compares it against free text. A third limit is worth stating: **2113** tams name a formation the
+picker does not carry, so the recogniser can only ever name the **134** eight-dancer formations it knows.
+
 **And the first draft of this probe was wrong in a way worth recording.** It asked `arcOf` whether
 the circle-fitting curves were quarter arcs by handing it the whole `Seg` rather than
 `seg.translate`; `arcOf` then read `undefined` for all six coordinates and returned a NaN object for

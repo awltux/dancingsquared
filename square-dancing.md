@@ -2460,3 +2460,31 @@ end with the exit handle collapsed onto the endpoint, so their departure has no 
 LOCK can never be a no-op: it is enabled for 22930 curves and projecting moves the endpoint on 100% of them -
 median 0.4% of the curve's own chord, which is why it feels like a snap, but 1128 of them move more than a
 whole unit, worst 8.85. So the box always deforms and the size of the deformation is not visible beforehand.
+
+THE "DOES THIS CALL CROSS ANOTHER FORMATION" FLAG IS BUILDABLE, BUT ONLY WITH A PERSISTENCE RULE - and that is
+the user's own suggestion, measured. Asked for: "more advanced calls are often a common combination of smaller
+calls, something like a module, and will therefore have points within the call that cross a formation... there
+might be a flag to say whether a call contains other formations and identify which beats it lands on (these
+could be automatically suggested by searching along the call for recognised formations)." It is, and the
+measurement says the naive version is unusable while the persistent one is precise.
+
+`poc/tools/call-formations-probe.mjs` walks every call beat by beat asking the engine's own recogniser what
+formation the eight dancers are in. The naive scan reports 31.9% of calls crossing an interior formation =
+3276 spans - and 3238 of those are a SINGLE SAMPLE at a 0.5-beat step, the recogniser catching a board
+momentarily near a formation while the dancers pass through it. Requiring the formation to be HELD for 2 beats
+collapses it to 31 spans in 17 calls (0.4% of the corpus). Checked rather than assumed: at a step EIGHT TIMES
+finer, 19 of those 31 survive and the longest is 4.13 beats, while 40 control calls that produced only
+transients produce 624 interior spans of which 0 are held. 75.6% of interior spans begin on a move boundary.
+The held list is short and specific - Alamo Wave, Ocean Waves, Thar RH/LH Boys, Circle, Columns, Diamonds,
+Normal Lines Compact - with beat ranges, e.g. b2/swing_thru.xml holds Alamo Wave for beats 6.50-10.00 of 10.40.
+
+TWO INSTRUMENT BUGS HAD TO BE FIXED FIRST, and both are recorded because each produced a confident wrong
+number. The control is "the call's own start formation must be recognised at beat 0", and it first read 27.8%.
+(1) A tam with no `from` carries a RUN OF SPACES, and a whitespace string is TRUTHY - so every such call was
+counted as declaring a from and then failed the comparison. (2) `from` IS NOT THE FORMATION. As the user put
+it: "the tam elements 'formation' property is the real formation a call uses and the 'from' property is more of
+a label for the user... the 'from' property is often used to label an embedded formation, or to provide an
+alternative name for the 'formation' property." The engine agrees - `convert.ts:324` builds the dancers from
+`tam.formationAttr` - so comparing a recognised name against `from` compares it against free text. Comparing
+against the attribute gives 2299 of 2299 (100.0%). A third limit: 2113 tams name a formation the picker does
+not carry, so the recogniser can only ever name the 134 eight-dancer formations it knows.

@@ -193,7 +193,10 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
 
   // Fixed top-down orthographic camera for the flat 2D view (north up = -z).
   const camera2d = new THREE.OrthographicCamera(-ORTHO_HALF_HEIGHT, ORTHO_HALF_HEIGHT, ORTHO_HALF_HEIGHT, -ORTHO_HALF_HEIGHT, 0.1, 200);
-  camera2d.position.set(0, 40, 0);
+  // Height above the floor. For an ORTHOGRAPHIC camera this is not a distance - the frustum does the
+  // scaling - it only has to be off the floor and inside the near/far planes.
+  const ORTHO_CAM_HEIGHT = 40;
+  camera2d.position.set(0, ORTHO_CAM_HEIGHT, 0);
   camera2d.up.set(0, 0, -1);
   camera2d.lookAt(0, 0, 0);
 
@@ -216,6 +219,10 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   controls2d.enableRotate = false;
   controls2d.enableDamping = true;
   controls2d.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+  // AND THE TOUCH MAPPINGS TOO, for the same reason the left button was re-mapped: one finger defaults to
+  // ROTATE, which is a dead gesture here (rotation is off) - so without this the flat view answers a
+  // one-finger drag with nothing at all, which is the "pan does not work in 2D" report over again.
+  controls2d.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
   // ZOOM IS BOUNDED, and not for taste: an orthographic frustum of zero width has no inverse, so an
   // unbounded dolly ends in a blank screen - and zooming out forever loses the board just as
   // thoroughly. 0.2 shows 5x the floor, 20 is close enough to place a control point by eye.
@@ -223,6 +230,30 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   controls2d.maxZoom = 20;
   controls2d.enabled = false; // the 3D view is the one on screen at startup (see `applyControlsEnabled`)
   controls2d.update();
+
+  /**
+   * THE FLAT VIEW'S ONE INVARIANT, ENFORCED RATHER THAN CONFIGURED.
+   *
+   * Reported: "in 2d mode, the drag board must not rotate on the x and y, only drag, keeping the board
+   * perpendicular to the camera. Currently the drag rotates the dance floor." The controls ARE built with
+   * `enableRotate = false` and a pan mapping on every button, so the configuration says this cannot happen -
+   * and a report that contradicts the configuration is the kind that should not be answered by re-reading
+   * it. "2D" is a statement about the CAMERA, so it is now enforced on the camera, once per frame, and the
+   * input mapping stops being the thing the guarantee rests on:
+   *
+   *   - the camera is put back DIRECTLY OVER THE TARGET, with the board's +y up the screen (`up = -z`),
+   *     so no gesture can leave it tilted, whichever control set is live or whatever a future handler does;
+   *   - the offset is taken from the TARGET rather than remembered, so panning still works: a pan moves the
+   *     target and the camera follows it at the same height, which is what a pan IS for a top-down view.
+   *
+   * It runs AFTER the controls have been updated, so it is the last word on the camera each frame.
+   */
+  const squareCamera2D = () => {
+    camera2d.up.set(0, 0, -1);
+    camera2d.position.set(controls2d.target.x, ORTHO_CAM_HEIGHT, controls2d.target.z);
+    camera2d.lookAt(controls2d.target);
+    camera2d.updateMatrixWorld();
+  };
 
   // HOW FAR THE FLAT VIEW MAY BE PANNED, as a function of the zoom rather than a constant: the whole
   // point of the limit is that the floor cannot be pushed off screen with no gesture that brings it
@@ -322,11 +353,8 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     const tx = Math.max(-limit.x, Math.min(limit.x, controls2d.target.x));
     const tz = Math.max(-limit.z, Math.min(limit.z, controls2d.target.z));
     if (tx === controls2d.target.x && tz === controls2d.target.z) return;
-    // The camera carries the same offset as the target, so moving one by a delta moves the other by
-    // the same delta and the view direction is untouched: this is a clamp on where you are looking,
-    // not a tilt.
-    camera2d.position.x += tx - controls2d.target.x;
-    camera2d.position.z += tz - controls2d.target.z;
+    // THE CLAMP IS ON WHERE YOU ARE LOOKING, so it moves the TARGET and lets the invariant put the camera
+    // back above it: one place decides where the flat camera is, and it is `squareCamera2D`.
     controls2d.target.x = tx;
     controls2d.target.z = tz;
   };
@@ -491,6 +519,9 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       // THE FRUSTUM IS RE-APPLIED ON EVERY SWITCH, not only on a resize: entering the flat view after
       // any layout change would otherwise draw one frame (or more) of floor at the wrong aspect.
       resize();
+      // ...and the flat camera is squared on the way IN as well as once a frame below, so the first frame
+      // of the flat view is overhead even if something tilted it while it was off screen.
+      if (on) squareCamera2D();
       // ...and this respects a suppression in force, so a view switch mid-drag cannot start a pan.
       applyControlsEnabled();
     },
@@ -505,6 +536,9 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       controls.update();
       controls2d.update();
       clampPan2D();
+      // THE LAST WORD ON THE FLAT CAMERA EACH FRAME. Everything above may move it; this decides where it
+      // is, and it is the reason the reported tilt cannot recur whatever the input does.
+      if (out.camera === camera2d) squareCamera2D();
     },
     setGizmo,
     pickHandle,

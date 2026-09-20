@@ -2243,6 +2243,32 @@ tail, the degenerate exit, and the corpus count that makes the degenerate case i
 wiring of the toggle and the drag). `verify:light` green at 12 harnesses, `tsc` clean, all fourteen POC probes
 green.
 
+**THE FLAT VIEW'S PERPENDICULARITY IS ENFORCED ON THE CAMERA, NOT CONFIGURED ON THE CONTROLS.** Reported: "in
+2d mode, the drag board must not rotate on the x and y, only drag, keeping the board perpendicular to the
+camera. Currently the drag rotates the dance floor."
+
+THE CONFIGURATION ALREADY SAID THIS COULD NOT HAPPEN, and that is why re-reading it was not the answer:
+`controls2d.enableRotate = false`, and every mouse button mapped to PAN or DOLLY, with a comment on each
+saying why. The report was not reproducible by reading, so the guarantee was moved off the input and onto the
+thing the claim is about - the CAMERA. `squareCamera2D` puts the flat camera directly over its target with the
+board's +y up the screen, and it runs (a) at the end of `updateControls`, i.e. after OrbitControls have had
+their say, so it is the LAST WORD on the camera each frame, and (b) on the way into the flat view, so the
+first frame of 2D is overhead too. The pan clamp was changed to move the TARGET rather than the camera - the
+comment there used to say "this is a clamp on where you are looking, not a tilt", and it is now structurally
+true: ONE function writes the flat camera's position.
+
+THE FAULT IS REPRODUCED RATHER THAN DESCRIBED. `poc/tools/view2d-probe.mjs` section 6 drives real
+OrbitControls through the fake canvas with rotation ALLOWED - the configuration the report implies - and
+measures the camera **49.49deg** off straight-down after a left drag; the same drag with the frame's squaring
+applied ends at **exactly 0.0e+0deg**, and the without-the-rule case is the negative control, so the check
+cannot be decoration. Five wiring checks pin the rule in the frame loop, the view switch, the pan clamp and
+the touch mapping.
+
+AND THE TOUCH MAPPING WAS A REAL GAP FOUND ON THE WAY: OrbitControls maps ONE finger to ROTATE by default, so
+with rotation disabled a one-finger drag in the flat view did NOTHING AT ALL - the "pan and zoom do nothing in
+2D" report over again, for anyone on a touchscreen. `touches = { ONE: PAN, TWO: DOLLY_PAN }` now, the same
+re-mapping the left button already had. `tsc` clean, all fifteen POC probes green.
+
 
 
 

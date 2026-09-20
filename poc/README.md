@@ -285,8 +285,21 @@ the 3D controls would not have fixed it either, since those drive the camera tha
 **In 2D: left-drag pans, the wheel zooms, and rotation is off.** Rotation is off because a top-down
 view that can be tilted is not a 2D view; left-drag is re-mapped to pan because OrbitControls maps the
 left button to *rotate*, which with rotation disabled would leave the first gesture anyone tries doing
-nothing. The Bezier-handle drag still wins where it applies — grabbing a handle switches the active
-controls off for the duration of the gesture, which is what `setControlsEnabled` exists for.
+nothing (and one-finger touch is re-mapped for the same reason — its default is *rotate*). The
+Bezier-handle drag still wins where it applies — grabbing a handle switches the active controls off for
+the duration of the gesture, which is what `setControlsEnabled` exists for.
+
+**And being perpendicular is now ENFORCED, not configured.** Reported: *"in 2d mode, the drag board
+must not rotate on the x and y, only drag, keeping the board perpendicular to the camera."* The
+configuration already said this could not happen — `enableRotate = false`, every button mapped to pan —
+so it was not re-read; *"2D"* is a statement about the **camera**, and it is now enforced **on the
+camera**: `squareCamera2D` puts it directly over the target with the board's +y up the screen, after the
+controls have been updated, so it is the last word on the camera each frame, and again on the way into
+the flat view. The pan clamp moves the **target** and lets that one function place the camera, so there
+is exactly one writer of the flat camera's position. Measured with real OrbitControls
+(`node tools/view2d-probe.mjs` section 6): a rotate gesture tilts the camera **49.49°** off straight-down
+when it is allowed, and the squaring rule takes it back to **exactly 0°** every frame — with the
+without-the-rule case measured as the negative control.
 
 **The zoom is bounded (0.2×–20×), and not for taste**: an orthographic frustum of zero width has no
 inverse, so an unbounded dolly ends in a blank screen. **The pan is bounded too**, at the floor's own

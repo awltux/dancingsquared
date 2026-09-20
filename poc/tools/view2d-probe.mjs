@@ -20,6 +20,7 @@
 //
 // Run: node tools/view2d-probe.mjs   (from poc/)
 import * as THREE from 'three';
+import fs from 'node:fs';
 
 const FLOOR_HALF = 10;
 const ORTHO_HALF_HEIGHT = 11;
@@ -398,6 +399,90 @@ console.log('\n== 5. a drag keeps the camera still, and the negative control sho
     console.log(`    with the OLD rule (a view switch re-enables): the view moved ${moved.toFixed(4)} units`);
     check(moved > 0.5, `and that is the reported fault - the board panned ${moved.toFixed(2)} units under the point being dragged`);
   }
+}
+
+// ---------------------------------------------------------------------------------------------
+// 6. THE FLAT CAMERA CANNOT BE TILTED, whoever is driving it
+// ---------------------------------------------------------------------------------------------
+//
+// Reported: "in 2d mode, the drag board must not rotate on the x and y, only drag, keeping the board
+// perpendicular to the camera. Currently the drag rotates the dance floor."
+//
+// The controls in `scene.ts` are built with `enableRotate = false` and a pan mapping on every button, so
+// the CONFIGURATION says this cannot happen. Rather than re-read the configuration, the flat camera is now
+// SQUARED once per frame (`squareCamera2D`: put it directly over the target, board +y up the screen), so
+// "2D" is a property of the camera instead of a hope about the input. This section measures both halves:
+//
+//   (a) what a ROTATE gesture does to a camera when it is allowed - the symptom, reproduced with real
+//       three.js, because a fix whose fault cannot be shown is a fix nobody can check;
+//   (b) that the squaring rule takes the tilt back to exactly zero, every frame of the drag;
+//   (c) and that WITHOUT it the tilt persists, which is the negative control that stops this being
+//       decoration.
+console.log('\n== 6. the flat camera is squared whatever the controls do ==');
+{
+  const { OrbitControls } = await import('three/examples/jsm/controls/OrbitControls.js');
+  const W = 1600;
+  const H = 900;
+  const el = new FakeCanvas(W, H);
+  const mouse = (x, y, extra = {}) => ({
+    pointerId: 1, pointerType: 'mouse', button: 0, buttons: 1, deltaMode: 0,
+    clientX: x, clientY: y, ctrlKey: false, metaKey: false, shiftKey: false,
+    preventDefault() {}, ...extra,
+  });
+  /** How far the camera is off straight-down, in degrees. 0 = perpendicular to the board. */
+  const tilt = (cam, target) => {
+    const d = cam.position.clone().sub(target).normalize();
+    return (Math.acos(Math.min(1, Math.abs(d.y))) * 180) / Math.PI;
+  };
+  /** `squareCamera2D` in scene.ts: the flat camera's one invariant, applied after the controls. */
+  const square = (cam, target) => {
+    cam.up.set(0, 0, -1);
+    cam.position.set(target.x, 40, target.z);
+    cam.lookAt(target);
+    cam.updateMatrixWorld();
+  };
+  /** A left drag, with the controls left able to ROTATE - which is the fault being reproduced. */
+  const rotateDrag = (cam, withSquare) => {
+    const c = new OrbitControls(cam, el);
+    c.target.set(0, 0, 0);
+    c.enableRotate = true;
+    c.enableDamping = false;
+    c.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+    c.enabled = true;
+    c.update();
+    const target = c.target;
+    const run = () => (withSquare ? square(cam, target) : undefined);
+    run();
+    el.dispatch('pointerdown', mouse(800, 450));
+    for (const [x, y] of [[820, 430], [860, 400], [900, 370]]) {
+      el.dispatch('pointermove', mouse(x, y));
+      c.update();
+      run();
+    }
+    el.dispatch('pointerup', mouse(900, 370));
+    c.update();
+    run();
+    return tilt(cam, target);
+  };
+  const tilted = rotateDrag(makeCamera2d(), false);
+  console.log(`    a rotate gesture tilts the camera ${tilted.toFixed(2)}deg off straight-down`);
+  check(tilted > 5, 'the fault is real when rotation is allowed: the board tips away from the camera, which is what was reported');
+
+  const squared = rotateDrag(makeCamera2d(), true);
+  console.log(`    with the frame's squaring applied: ${squared.toExponential(1)}deg`);
+  check(squared === 0, 'and with the flat view\'s invariant applied after the controls, the camera is EXACTLY straight down again');
+}
+
+// And the wiring, so the rule cannot be dropped from the frame loop without this failing.
+{
+  const sceneSrc = fs.readFileSync(new URL('../src/scene.ts', import.meta.url), 'utf8');
+  check(/const squareCamera2D = \(\) => \{/.test(sceneSrc), 'the stage has ONE place that decides where the flat camera is');
+  check(/updateControls:[\s\S]*?clampPan2D\(\);[\s\S]*?if \(out\.camera === camera2d\) squareCamera2D\(\);/.test(sceneSrc),
+    'and it runs after the controls have been updated, so it is the last word on the camera each frame');
+  check(/if \(on\) squareCamera2D\(\);/.test(sceneSrc), 'and on the way into the flat view, so its first frame is overhead too');
+  check(!/camera2d\.position\.[xz] \+=/.test(sceneSrc), 'with the pan clamp moving the TARGET rather than the camera: only `squareCamera2D` writes the camera\'s position');
+  check(/controls2d\.touches = \{ ONE: THREE\.TOUCH\.PAN, TWO: THREE\.TOUCH\.DOLLY_PAN \}/.test(sceneSrc),
+    'and a one-finger touch pans too, because the default is ROTATE - a dead gesture where rotation is off, which is the "pan does nothing in 2D" report over again');
 }
 
 console.log('\n=================');

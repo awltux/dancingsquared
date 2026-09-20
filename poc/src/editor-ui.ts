@@ -915,6 +915,41 @@ export class EditorController implements EditorUI {
     return out;
   }
 
+  /**
+   * MAKE ONE DANCER AGREE with the selected ones, by copying their coordinates into its move here.
+   *
+   * Asked for as: "Add a link symbol next to the dancers that dont match, that will correct the non-matching
+   * coordinates using the matching coodinates. Remove the link once they do match and select the now matching
+   * dancer."
+   *
+   * WHAT IS COPIED IS THE CURVE THE TAB EDITS, and nothing else - the beats and the hands are left alone, which
+   * is the same line the coordinate gate draws: it compares SHAPES, and unifying a timing across a selection is
+   * a legitimate separate edit.
+   *
+   * THE FACING TAB COPIES `rotate ?? translate`, AND THAT IS NOT THE SAME AS COPYING `rotate`. A dancer with no
+   * rotation curve faces along its own travel tangent - that is what `poseFor` implements and what
+   * `sameFacingCurve` compares - so copying a NULL would leave the dancer facing by its own path and it still
+   * would not match. Copying the EFFECTIVE facing as an explicit curve makes the two identical BY CONSTRUCTION,
+   * which is what "correct them using the matching coordinates" has to mean if the link is to disappear.
+   *
+   * MATCHING BY CONSTRUCTION RATHER THAN BY HOPE: afterwards `sameTravel` compares a curve with itself (gap 0)
+   * and `sameFacing` compares two identical profiles, so the link is guaranteed to go - and the caller's own
+   * gate has already decided the set was worth widening.
+   */
+  private matchDancer(i: number, curve: CurveKind) {
+    const call = this.instance;
+    if (!call) return;
+    const ref = call.dancers[this.moveDancer]?.path[this.moveIndex];
+    const seg = call.dancers[i]?.path[this.moveIndex];
+    if (!ref || !seg || i === this.moveDancer) return;
+    const source = curve === 'facing' ? ref.rotate ?? ref.translate : ref.translate;
+    const patched: Seg = curve === 'facing' ? { ...seg, rotate: { ...source } } : { ...seg, translate: { ...source } };
+    // THE SELECTION FIRST, so the re-render `commit` does shows the dancer both corrected and picked - the two
+    // halves of what was asked for arrive in one frame rather than one after the other.
+    this.selectedDancers.add(i);
+    this.commit(setMove(call, i, this.moveIndex, patched));
+    this.statusEl.textContent = `dancer ${i + 1} now ${curve === 'travel' ? 'moves' : 'faces'} with the selection`;
+  }
   /** The curve the tile is editing, which is the one `matching` and the lock are asked about. */
   private tabCurve(): CurveKind {
     return this.moveKind === 'facing' ? 'facing' : 'travel';
@@ -1867,6 +1902,28 @@ export class EditorController implements EditorUI {
 
     const num = document.createElement('td');
     num.textContent = String(i + 1);
+    // THE LINK, NEXT TO THE DANCERS THAT DO NOT MATCH. Asked for as: "Add a link symbol next to the dancers
+    // that dont match, that will correct the non-matching coordinates using the matching coodinates. Remove the
+    // link once they do match and select the now matching dancer."
+    //
+    // IT IS OFFERED EXACTLY WHEN THE CORRECTION IS DEFINED: the selection has to AGREE, because that agreement
+    // is what there is to copy and it is the same condition the `matching` button itself lights up on. That also
+    // makes the link appear the moment `matching` is pressed without needing a mode of its own - the set
+    // `matching` picks agrees by construction, so every dancer outside it gets one.
+    const linkCurve = this.tabCurve();
+    if (this.coordinatesAgree(linkCurve) && !this.matchingDancers(linkCurve).includes(i)) {
+      const link = document.createElement('button');
+      link.type = 'button';
+      link.className = 'ed-link';
+      link.textContent = '\u{1F517}';
+      link.dataset.key = `r${i}:match`;
+      link.title =
+        `Make dancer ${i + 1}'s ${linkCurve === 'travel' ? 'path' : 'facing'} through this move the SAME as the selected dancers': ` +
+        `the coordinates are copied from dancer ${this.moveDancer + 1}. The link goes as soon as they agree, ` +
+        'and the dancer joins the selection.';
+      link.addEventListener('click', () => this.matchDancer(i, linkCurve));
+      num.appendChild(link);
+    }
     tr.appendChild(num);
 
     // ARRANGEMENT: which spot holds a boy and which a girl.

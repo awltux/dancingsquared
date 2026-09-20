@@ -2686,3 +2686,25 @@ NOTHING CHECKED THE DRAWN ARMS, which is why it survived: `facing-handle-probe.m
 NUMBERS, and the numbers were always right. The picture was wrong and no probe looked at the picture. The probe
 now checks all three facing arms and both travel arms, that no handle anywhere is anchored on a control point,
 and carries a mutation putting the old anchor back to prove both facing checks go red.
+
+A MATCH LINK IN THE FORMATION TABLE. Asked for: "When Select: matching is pressed, the dancers that match are
+selected. Add a link symbol next to the dancers that dont match, that will correct the non-matching coordinates
+using the matching coodinates. Remove the link once they do match and select the now matching dancer."
+
+The link sits in the `#` cell of every dancer the selected move does not match, and is offered exactly when the
+correction is defined - the selection agrees and this dancer is not in the matching set - which is the same
+condition the `matching` button lights up on, so it appears the moment that button is pressed without a mode of
+its own. Pressing it copies the selection's curve for the current TAB into that dancer's move, adds the dancer
+to the selection, and the link goes. Beats and hands are untouched: the gate compares SHAPES, and unifying a
+timing is a separate edit.
+
+THE FACING TAB COPIES `rotate ?? translate`, NOT `rotate`, and that is the whole subtlety. A dancer with no
+rotation curve faces along its own travel tangent - what `poseFor` implements and what `sameFacingCurve`
+compares - so copying a NULL copies nothing and leaves the dancer facing by its own path, still not matching.
+Measured (`poc/tools/match-link-probe.mjs`, 4632 reference/move/dancer pairs over 233 files): the copy matches in
+4632 of 4632 for BOTH curves, while copying the rotation Bezier alone would leave 1254 of them (27.1%) still
+unmatched. The `?? translate` is that 27% rather than a preference.
+
+And the link is drawn on the gate's own `sameCurve`, so the comparison that decides whether to show it and the
+one that decides whether it worked are the same function - which is what makes "the link disappears once they
+match" true by construction.

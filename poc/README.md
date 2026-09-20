@@ -1298,6 +1298,30 @@ itself (it needs the tam *indices* as well as the labels) and built labels from 
 engine read said "1876 of 2657 changed" while the dropdown was untouched. The rule now lives in **one exported
 function**, `setupLabel`, that both call sites use, and `saved-label-probe.mjs` measures it on the tams the
 dropdown is actually built from: **1249 of 1879** setups over three levels read differently from their `from`.
+**A link symbol next to every dancer the selected move does NOT match, which corrects it.** Asked for as:
+*"When Select: matching is pressed, the dancers that match are selected. Add a link symbol next to the dancers
+that dont match, that will correct the non-matching coordinates using the matching coodinates. Remove the link
+once they do match and select the now matching dancer."*
+
+The link is offered **exactly when the correction is defined** — the selection agrees, and this dancer is not in
+the matching set — which is the same condition the `matching` button lights up on, so it appears the moment
+`matching` is pressed without needing a mode of its own. Pressing it copies the selection's curve for the
+current TAB into that dancer's move, adds the dancer to the selection, and the link goes.
+
+**What is copied is the curve the tab edits, and nothing else** — beats and hands are untouched, which is the
+line the coordinate gate already draws (it compares *shapes*, and unifying a timing is a separate, legitimate
+edit).
+
+**THE FACING TAB COPIES `rotate ?? translate`, AND THAT IS NOT THE SAME AS COPYING `rotate`.** A dancer with no
+rotation curve faces along its own travel tangent — that is what `poseFor` implements and what
+`sameFacingCurve` compares — so copying a **null** copies nothing and leaves the dancer facing by its own path,
+still not matching. MEASURED (`poc/tools/match-link-probe.mjs`, 4632 reference/move/dancer pairs over 233
+files): the copy matches in **4632 of 4632** for both curves, and copying the rotation Bézier **alone** would
+leave **1254 of them (27.1%)** still not matching. The `?? translate` is that 27%, not a preference.
+
+The link is drawn on the gate's own `sameCurve` rather than a second definition of "matches", so the comparison
+that decides whether to show it and the comparison that decides whether it worked are the same function — which
+is what makes "the link disappears once they match" true by construction rather than by hope.
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

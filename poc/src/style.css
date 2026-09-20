@@ -82,6 +82,11 @@ html, body {
 .ed-table input[type="number"] { width: 48px; padding: 2px 3px; font-size: 11px; }
 .ed-table select { padding: 1px 2px; font-size: 11px; flex: none; }
 .ed-table td.ed-derived { color: var(--dim); text-align: right; padding-right: 8px; }
+/* THE LINK, in the `#` cell of a dancer whose move here does not match the selection. A bare glyph rather than
+   a bordered button: it sits inside a 36px column beside the row number, and it is an ACTION on that row rather
+   than a control with a value, so it should read as part of the row and not as another field. */
+.ed-table .ed-link { padding: 0 0 0 3px; margin: 0; border: 0; background: none; font-size: 11px; line-height: 1; cursor: pointer; opacity: 0.75; }
+.ed-table .ed-link:hover { opacity: 1; background: none; color: var(--accent); }
 .ed-grid { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 11px; margin-top: 2px; }
 .ed-grid label { width: auto; }
 /* THE END TARGET'S PAIRING: one small picker per dancer, `# -> spot`. It is a wrapping grid rather than a

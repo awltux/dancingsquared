@@ -2072,6 +2072,44 @@ console.log('\n== 27. A full set of paths against a HALF-set formation ==');
   }
 }
 
+// --------------------------------------------------------------------------------
+// 28. a Setup is named by its FORMATION, not by the `from` label beside it
+//
+// Asked for as: "The dropdown for the Setup should only use the Formation name." `from` is free text FOR THE
+// USER - it labels an EMBEDDED formation or gives a named one an alternative name - and `buildCallImpl`
+// resolves the dancers from `formationAttr` and never from it. So a Setup list built on `from` names the setup
+// by something that need not be a formation at all.
+console.log('\n== 28. A setup is named by its formation ==');
+{
+  const read = (p) => fs.readFileSync(path.join(__dirname, '../../poc/src/assets', p), 'utf8');
+  // A witness where the two genuinely disagree, and one where `from` is empty and only `formation` speaks.
+  const allemande = callMeta(read('ms/allemande.xml')).setups;
+  const differing = allemande.filter((s) => s.from && s.label !== s.from);
+  check(differing.length > 0,
+    `ms/allemande.xml carries a setup whose \`from\` names something other than its formation: ${differing.map((s) => `"${s.label}" vs from "${s.from}"`).slice(0, 2).join(', ')}`);
+  check(allemande.every((s) => !s.from || s.label !== ''), 'and every setup still has a label');
+  // The blank-`from` tams: the corpus writes `from=""` for tams that name themselves entirely through
+  // `formation`, and those must NOT collapse to `(default)` now that `from` is only the fallback.
+  let blankNamed = 0;
+  let blankDefault = 0;
+  for (const lv of ['ms', 'b1', 'b2', 'a1', 'a2', 'c1', 'c2', 'plus']) {
+    const dir = path.join(__dirname, '../../poc/src/assets', lv);
+    if (!fs.existsSync(dir)) continue;
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith('.xml')) continue;
+      let meta;
+      try { meta = callMeta(fs.readFileSync(path.join(dir, f), 'utf8')); } catch { continue; }
+      for (const s of meta.setups) {
+        if (s.from.trim() !== '') continue;
+        if (s.label === '(default)') blankDefault++;
+        else blankNamed++;
+      }
+    }
+  }
+  console.log(`    ${blankNamed} setups with a BLANK \`from\` are named by their formation, ${blankDefault} have neither a \`from\` nor a \`formation\``);
+  check(blankNamed > 0, 'so a tam that carries only `formation` is named by it rather than falling to `(default)`');
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('EDITOR TEST PASSED');
 else {

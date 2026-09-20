@@ -3233,7 +3233,27 @@ export class EditorController implements EditorUI {
       row.className = 'setup' + (s.applied ? ' applied' : '');
       const label = document.createElement('b');
       const kind = s.kind === 'fix' ? 'fix' : s.kind === 'create' ? 'create' : s.kind === 'clone' ? 'clone' : 'instance';
-      label.textContent = `${kind} · ${s.name}${s.applied ? ' ✔' : ''}`;
+      // THREE PARTS, because one was not enough to tell them apart. Asked for as: "Currently they are only
+      // listed by the start formation. But this makes it difficult to understand what they are. In this list, it
+      // should read <start formation name> -> <call name> -> <end formation name>."
+      //
+      // The FIRST part is `s.name`, which is the setup's own identity and is what the list already showed - the
+      // name a caller gave a created formation, or the `from` a tam carries. THE END IS READ OFF THE CALL, not
+      // stored: the edit holds XML, and the formation it finishes in is a fact about that geometry, so it is
+      // asked of the same recogniser the browse and sequence views use (`nameBoard`) rather than duplicated into
+      // the record where it could go stale.
+      const built = (() => {
+        try { return rebuildEdit(s); } catch { return null; }
+      })();
+      const callName = built ? built.title : '?';
+      const endName = built ? this.host.nameBoard(boardAtBeat(built, built.totalBeats)) : null;
+      label.textContent = `${s.name} → ${callName} → ${endName ?? '?'}${s.applied ? ' ✔' : ''}`;
+      // The KIND said how the edit behaves (a create adds a setup, a clone re-bases one), and it is no longer in
+      // the text because the three parts are what the line is FOR - so it goes where the rest of the explanation
+      // lives.
+      row.title =
+        `${kind} · starts from ${s.name}, calls ${callName}${endName ? `, finishes in ${endName}` : ''}` +
+        (s.applied ? ' · applied to the live catalogue' : '');
       row.appendChild(label);
       const loadBtn = document.createElement('button');
       loadBtn.textContent = 'preview';

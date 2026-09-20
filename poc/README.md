@@ -1250,6 +1250,26 @@ negation would land on top of a start already placed. Round-tripped, both ways t
 | worst orbit difference | **4.7e-5** (the export's four decimals) |
 | dancers left carrying the mirror flag | **none** |
 | the corpus | **5943** tams, still exactly the same **2** pre-existing failures |
+**The saved list reads `<start formation> -> <call> -> <end formation>`, and a Setup is named by its FORMATION.**
+Asked for as: *"Currently they are only listed by the start formation. But this makes it difficult to understand
+what they are... The dropdown for the Setup should only use the Formation name."*
+
+**Two of the three parts were not in the record.** An edit stores its own `name` and its XML, and nothing else —
+so the call's title and the formation it finishes in are read back off the **rebuilt** call rather than copied
+into the record, where they would go stale the moment the path was edited again. The end goes through the same
+recogniser the browse and sequence views name formations with (`nameBoard`). MEASURED
+(`poc/tools/saved-label-probe.mjs`): **383** calls named at both ends, **73%** of them finishing in a *different*
+formation from the one they start in — so the third part says something the first one does not. The `kind`
+(`create` / `clone` / `fix` / `instance`) moved into the row's tooltip, since the three parts are what the line
+is for. A saved edit that will not rebuild leaves its row rather than taking the panel down.
+
+**And the Setup dropdown named setups by `from`, which is free text FOR THE USER.** `from` labels an *embedded*
+formation or gives a named one an alternative name, and `buildCallImpl` resolves the dancers from
+`formationAttr` and never from it — so the corpus writes `from="Lines"` for a tam whose formation is
+`Normal Lines`, and `from=""` for tams that name themselves entirely through `formation`. The preference is now
+reversed, with `from` as the **fallback** (an embedded formation has no `formation` attribute, so its `from` is
+the only name there is). MEASURED over four levels: **1876 of 2657** setups now read differently, and **847**
+setups with a blank `from` are named by their formation instead of collapsing to `(default)`.
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

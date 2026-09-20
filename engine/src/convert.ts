@@ -471,11 +471,21 @@ export function callMeta(xmlText: string): CallMeta {
   const tams = parseCallXmlImpl(xmlText);
   return {
     title: tams[0]?.title ?? '',
-    // Prefer the human `from` label; fall back to the named `formation` when it
-    // is empty (e.g. a tam authored as formation="T-Bone URLU" with no from), so
-    // every setup is still identified. Embedded-formation tams always carry a
-    // `from`, so this fallback only affects the attribute case.
-    setups: tams.map((t) => ({ label: t.from || t.formationAttr || '(default)', from: t.from })),
+    // THE LABEL IS THE FORMATION'S NAME, NOT THE `from` LABEL. Asked for as: "The dropdown for the Setup should
+    // only use the Formation name."
+    //
+    // `from` is free text FOR THE USER - it labels an EMBEDDED formation, or gives a named one an alternative
+    // name - and `buildCallImpl` resolves the dancers from `formationAttr` and never from it (see line 324). So
+    // a Setup list built on `from` names the setup by something that need not be a formation at all: the corpus
+    // writes `from="Lines"` for a tam whose formation is `Normal Lines`, and `from=""` for tams that name
+    // themselves entirely through `formation`.
+    //
+    // So the preference is reversed, and `from` is the FALLBACK rather than the first choice: an embedded
+    // formation has no `formation` attribute and its `from` is the only name there is.
+    //
+    // `from` is still carried beside it, because the call-name filter searches it and because a tam that has
+    // one is still identified by it in the corpus's own files.
+    setups: tams.map((t) => ({ label: t.formationAttr || t.from || '(default)', from: t.from })),
   };
 }
 

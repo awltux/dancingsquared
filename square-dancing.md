@@ -2618,3 +2618,27 @@ imported there. Gated in `poc/tools/editor-level-probe.mjs`, which already audit
 no `#facing` selector remains AND that nothing reads `facingSelect` AND that the preview poses with the authored
 reading - a control removed while something still reads a mode from it would be the same bug wearing a different
 face - plus two mutations proving the check trips when the control is put back or the mode is read again.
+
+THE SAVED LIST NOW READS `<start formation> -> <call> -> <end formation>`, AND A SETUP IS NAMED BY ITS FORMATION.
+Asked for: "Under the Save button is the list of created calls. Currently they are only listed by the start
+formation. But this makes it difficult to understand what they are. In this list, it should read <start
+formation name> -> <call name> -> <end formation name>. The dropdown for the Setup should only use the Formation
+name."
+
+TWO OF THE THREE PARTS WERE NOT IN THE RECORD. A `CallEdit` stores its own `name` and its XML and nothing else,
+so the call's title and the formation it finishes in are read back off the REBUILT call rather than copied into
+the record, where they would go stale the moment the path was edited again. The end is asked of the same
+recogniser the browse and sequence views name formations with (`nameBoard`, i.e. `knownFormation`). Measured
+(`poc/tools/saved-label-probe.mjs`): 383 calls named at BOTH ends, 73% of them finishing in a DIFFERENT formation
+from the one they start in - so the third part carries something the first one does not. The `kind`
+(create/clone/fix/instance) moved to the row's tooltip, since the three parts are what the line is for, and a
+saved edit that will not rebuild leaves its row rather than taking the panel down with it.
+
+THE SETUP DROPDOWN NAMED SETUPS BY `from`, WHICH IS FREE TEXT FOR THE USER. `from` labels an EMBEDDED formation
+or gives a named one an alternative name, and `buildCallImpl` resolves the dancers from `formationAttr` and never
+from it - so the corpus writes `from="Lines"` for a tam whose formation is `Normal Lines`, and `from=""` for tams
+that name themselves entirely through `formation`. `callMeta` now prefers the FORMATION with `from` as the
+fallback (an embedded formation has no `formation` attribute, so its `from` is the only name there is). Measured
+over ms/b1/a1/c2: 1876 of 2657 setups read differently, and 847 setups with a blank `from` are named by their
+formation instead of collapsing to `(default)`. This is the engine's shared `callMeta`, so the browse view's
+setup list changes with the editor's - which is the point, they are the same control.

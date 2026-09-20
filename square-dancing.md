@@ -2087,6 +2087,20 @@ analysis over five deliberately broken copies (the filter line removed, the defa
 handler reloading the instance, the pinned option dropped, the level prefix put back) and requires each to
 fail. `tsc -p poc --noEmit` clean, all eleven POC probes green.
 
+**A HUD LABEL IS 44px WIDE, WHICH IS A COLUMN FOR A FIELD NAME AND NOT FOR A SENTENCE.** Reported: the
+**Hide dancers** and **2D icons** text was reflowing although the row had room for it on one line. The cause
+is one rule — `#hud label { width: 44px }`, the fixed column that lines up the names of the controls beside
+them — applied to labels that are a checkbox and its own prose. A fixed width cannot do anything about a
+sentence except decide where it breaks, so both wrapped. The same rule was breaking **Full square (mirror)**
+in the browse panel, which nobody had reported.
+
+The labels that contain a checkbox now size to their content and are not allowed to break
+(`#hud label:has(input[type="checkbox"])`). `:has()` rather than a class on purpose: the rule is about what
+the label CONTAINS, so the next checkbox label added to the HUD inherits it instead of having to be told.
+Recorded honestly as the one change here that is NOT gated: a probe could assert that the rule's text is
+present, which is a different claim from "the sentence fits on one line", and this sandbox cannot render a
+page to check the second one. The instrument for that is the caller's eye.
+
 
 
 

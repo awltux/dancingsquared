@@ -24,6 +24,12 @@ html, body {
 #hud h1 span { color: var(--accent); font-weight: 600; }
 #hud .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
 #hud label { font-size: 12px; color: var(--dim); width: 44px; }
+/* A CHECKBOX LABEL IS PROSE, NOT A FIELD NAME. The 44px column is what lines up the NAMES of the
+   controls beside them; `Hide dancers`, `2D icons` and `Full square (mirror)` are sentences that sit
+   next to their OWN box, so a fixed width only decides where they break - at 44px each of them
+   wrapped onto two or three lines in a row with room to spare. `:has()` is the right selector rather
+   than a class: the rule is about what the label CONTAINS, so a new checkbox label inherits it. */
+#hud label:has(input[type="checkbox"]) { width: auto; white-space: nowrap; }
 #hud select, #hud button {
   background: #131a22; color: var(--text); border: 1px solid #2a3542;
   border-radius: 6px; padding: 5px 8px; font-size: 13px;

@@ -2599,3 +2599,22 @@ dancers, every start pose identical to 0.0, the orbit identical to 4.7e-5 (the e
 dancer left carrying the mirror flag. The corpus is untouched - 5943 tams, still exactly 2 failures, both the
 pre-existing "No formation T-Bone Couples" tams, and 4794 building to eight dancers. Gated in
 `engine/test/editor.mjs` 27, which round-trips the tam rather than reading its text.
+
+THE FACING DROPDOWN IN THE CALL EDITOR IS REMOVED. Asked for as: "The Facing selector is not required. It is
+always auto selected." It was `#facing`, a `<select>` in the editor panel's footer beside "Hide dancers" and "2D
+icons", offering "Rotation Bezier (data)" (the default) and "Along travel", read once by `Browser.render` and
+handed to `allPoses` as the `HeadingMode`.
+
+IT WAS REDUNDANT BECAUSE THE DATA ALREADY DECIDES, which is what "always auto selected" means: `poseFor` reads
+each move's authored rotation Bezier and falls back to the travel tangent only where that move has NONE, so the
+choice is made per move by the call itself and a global override could only contradict it. The `Along travel`
+option was worse than redundant - it forces EVERY move to follow its tangent, which erases the deliberate
+backwards walking in a `Wheel` (2.3% of the corpus's poses measured earlier) and is a different dance from the
+one the file describes.
+
+Only the control went: the engine still carries both modes (`HeadingMode`, `poseFor`'s third argument), so
+nothing else that reads it changed. `browser.ts` now poses with `'rotation'` and `HeadingMode` is no longer
+imported there. Gated in `poc/tools/editor-level-probe.mjs`, which already audits `index.html`: it checks that
+no `#facing` selector remains AND that nothing reads `facingSelect` AND that the preview poses with the authored
+reading - a control removed while something still reads a mode from it would be the same bug wearing a different
+face - plus two mutations proving the check trips when the control is put back or the mode is read again.

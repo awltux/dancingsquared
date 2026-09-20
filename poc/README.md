@@ -403,22 +403,18 @@ fires no `change` event, so a filter typed over the top of the chosen call would
 panel showing one call while the editor still held another. The filter can only change
 which calls you can *reach*, never which one you *have*.
 
-The **Facing** dropdown sits here because the editor is the view that needs it: it
-picks how the PREVIEWED dancers orient, and every editor action previews through
-the same renderer.
+**The Facing dropdown is GONE**, asked for as *"The Facing selector is not required. It is always auto
+selected."* It was: `poseFor` reads each move's authored rotation Bézier (`cx3/cx4/cy4/x4/y4`) and falls back
+to the travel tangent only where that move has **none**, so the DATA already chooses per move and a global
+override could only disagree with it.
 
-- **Rotation Bézier (data)** — the authoritative taminations facing, taken
-  from each movement's dedicated rotation Bézier (`cx3/cx4/cy4/x4/y4`, falling
-  back to the travel tangent when absent). This intentionally makes a dancer
-  walk **forward or backward** along the path — e.g. in a Wheel one partner
-  backs up while the other walks forward.
-- **Along travel** — always faces the instantaneous direction of motion (the
-  translation-tangent heading), i.e. "always walk forward".
-
-It is a property of the shared call renderer, so the BROWSE view honours whatever
-is set here (and uses the default, `Rotation Bézier (data)`, if you have not been
-to the editor). The sequencer does not use it - it draws from the engine's own
-board state, not from an authored call path.
+The option that was there — **Along travel**, which forced every move to follow its tangent — is a different
+dance from the one the file describes. It erases the deliberate backwards walking in a `Wheel`, where one
+partner backs up while the other walks forward, and that is 2.3% of the corpus's poses measured earlier. The
+engine still carries both modes (`HeadingMode`), so the capability is unchanged; only the control that could
+contradict the call is gone. `poc/tools/editor-level-probe.mjs` checks that it is gone **and** that the preview
+poses with the authored reading — a control removed while something still reads a mode from it would be the
+same bug wearing a different face.
 
 **Edit instance** — edit the `<tam>` itself: the START FORMATION (each dancer's x, y and
 heading), the ARRANGEMENT (the gender of every spot, which the `gender` column sets), the

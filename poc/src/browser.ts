@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 
 import { allPoses, sampleTrail, sampleTrailRange, poseFor, computeHandholds, assignHomeIdentity, boardAtBeat, formationToXml } from 'dancing-squared-engine';
-import type { HeadingMode, HoldMode, Board, CallBundle, CallStep, DancerSpec, Matchable, Pose } from 'dancing-squared-engine';
+import type { HoldMode, Board, CallBundle, CallStep, DancerSpec, Matchable, Pose } from 'dancing-squared-engine';
 import { availableCalls, loadCall } from './data';
 import type { CallInfo } from './data';
 import { addUserFormation, applyLabel, detachLabel, loadUserFormations, reattachLabel, removeUserFormation, setFormationInCorpus } from './formations';
@@ -45,7 +45,6 @@ export class CallBrowser {
   private callSelect = el<HTMLSelectElement>('callSelect');
   private tamSelect = el<HTMLSelectElement>('tamSelect');
   private mirrorCheck = el<HTMLInputElement>('mirror');
-  private facingSelect = el<HTMLSelectElement>('facing');
   private scrub = el<HTMLInputElement>('scrub');
   private beatReadout = el<HTMLSpanElement>('beatReadout');
   private partLabel = el<HTMLSpanElement>('partLabel');
@@ -628,8 +627,12 @@ export class CallBrowser {
   /** Render the current frame: pose the views, draw hand holds, update readouts. */
   render(beat: number, call: CallBundle) {
     const t = beat;
-    const facingMode = this.facingSelect.value as HeadingMode;
-    const poses = allPoses(call, t, facingMode);
+    // THE FACING IS THE CALL'S OWN, and there is no control for it: `poseFor` already reads each move's
+    // authored rotation curve and falls back to the travel tangent only where that move has none, so the DATA
+    // picks per move and a global override could only ever disagree with it. The `Along travel` option that
+    // used to sit here forced every move to follow its tangent, which is a different dance from the one the
+    // file describes - so the selector is gone and the authored reading is the only one.
+    const poses = allPoses(call, t, 'rotation');
     const { targets, lines } = this.computeGrips(poses, call, beat);
     const walkPhase = ((t + 1000) % 2) / 2;
     for (let i = 0; i < this.views.length; i++) {

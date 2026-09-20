@@ -80,6 +80,23 @@ check(good.keepsSelection, 'and the selected call is still re-inserted when the 
 check(good.fillsAllThree, 'all three lists (edit, post, pre) are filled through that one function, so no list can be narrowed differently');
 check(good.viewOnly, 'changing the level only re-narrows the lists: it does not reload the instance, which is what would silently discard an edit in progress');
 
+// ---------------------------------------------------------------------------
+// THE FACING OVERRIDE IS GONE, and this is what says so rather than leaving it to a diff.
+//
+// Asked for as: "The Facing selector is not required. It is always auto selected." It is: `poseFor` reads each
+// move's AUTHORED rotation curve and falls back to the travel tangent only where that move has none, so the
+// data already picks per move, and a selector over the top could only disagree with it. The option that WAS
+// there - "Along travel" - forced every move to follow its tangent, which is a different dance from the one the
+// file describes.
+console.log('\n== the Facing override is gone, and the authored reading is the only one ==');
+const browser = read('src/browser.ts');
+check(!/<select\s+id="facing"/.test(html), 'no `#facing` selector is left in the panel');
+check(!/facingSelect/.test(browser), 'and nothing reads one, so removing the control cannot leave a null behind');
+check(/allPoses\(call, t, 'rotation'\)/.test(browser), "and the preview poses the dancers with the call's OWN facing, which is what `poseFor` reads move by move");
+// THE CONTROL ON THE CONTROL: this removed a UI override, not an engine capability, and the engine side is
+// checked so that "the mode is gone everywhere" cannot be mistaken for the same thing.
+check(/'rotation' \| 'travel'/.test(read('../engine/src/core.ts')), 'the ENGINE still carries both heading modes - this removed a control, not a capability');
+
 // The default is a STRING, and a string that named a programme the catalogue does not carry would set
 // nothing (see `populateLevels`), so it is checked against the catalogue's own level list rather than
 // against the request that asked for it.
@@ -109,6 +126,13 @@ console.log('\n== the check fails on the bugs it was written for ==');
 
   const prefixed = wiring(html, src['editor-ui.ts'].replace('const label = (c: CallInfo) => c.title;', 'const label = (c: CallInfo) => `${c.level.toUpperCase()} · ${c.title}`;'));
   check(!prefixed.titleOnly, 'and the level prefix is caught when it comes back at the start of every call name');
+
+  // The Facing removal, checked against the two ways it could come back: put the control back in the panel, or
+  // read a mode from somewhere. A check that only looked for the missing element would pass on a panel whose
+  // selector had merely been RENAMED, and the read is the half that actually decides how the dancers pose.
+  const restored = html.replace('<label title="Look straight down', '<select id="facing"><option value="rotation">r</option></select><label title="Look straight down');
+  check(/<select\s+id="facing"/.test(restored) && !/<select\s+id="facing"/.test(html), 'the check catches the control being put BACK, and passes on the panel as it stands');
+  check(!/allPoses\(call, t, 'rotation'\)/.test(browser.replace("allPoses(call, t, 'rotation')", 'allPoses(call, t, this.facingSelect.value)')), 'and catches the mode being read from a control again, which is the half that would actually change the dance');
 }
 
 console.log('\n=================');

@@ -140,7 +140,11 @@ const bodyOf = (sig) => {
   const i = browserSrc.indexOf(sig);
   return i < 0 ? '' : browserSrc.slice(i, browserSrc.indexOf('\n  }\n', i));
 };
-const loadFn = bodyOf('private loadFormationCall(');
+// THE LOAD PATH AS A WHOLE. `loadFormationCall` delegates the three loads to `loadCatalogue` - one
+// implementation for the formation rows and the FSM tab alike - so the ordering rule is checked over BOTH
+// bodies. Reading only `loadFormationCall` is what turned four of these checks red when the extraction
+// happened, with the behaviour unchanged: a gate on where the code sits rather than on what it does.
+const loadFn = bodyOf('  loadCatalogue(callId') + bodyOf('private loadFormationCall(');
 check(/button\[data-load\]/.test(browserSrc) && /this\.loadFormationCall\(f\)/.test(browserSrc),
   'the load button calls one method');
 check(loadFn !== '', 'which exists');
@@ -150,8 +154,12 @@ check(/this\.refreshSetups\(\);[\s\S]{0,240}?this\.tamSelect\.value = idx;/.test
   'and the SETUP is chosen after the setups are rebuilt for that call');
 check(/this\.loadCurrent\(\);/.test(loadFn),
   'and it actually shows the call, through the same load the selectors use');
-check(/if \(this\.callSelect\.value !== callId\)/.test(loadFn),
-  'and a call the level does not offer is REPORTED rather than leaving the panel on whatever was there before');
+check(/if \(this\.callSelect\.value !== callId\) return false;/.test(loadFn),
+  'the load STOPS when the level does not offer the call, rather than continuing on whatever the list held');
+check(/is not offered under/.test(loadFn),
+  'and the caller of that stop REPORTS it instead of leaving the panel on whatever was there before');
+check((bodyOf('private loadFormationCall(').match(/this\.loadCatalogue\(/g) ?? []).length === 1,
+  'and the load path itself is ONE method, so the formation rows and the FSM tab cannot load a call differently');
 // ONE RULE FOR THE TARGET, so the two buttons cannot disagree about which call a formation row means.
 check((browserSrc.match(/this\.formationTarget\(f\)/g) ?? []).length === 2,
   'both `load` and `Edit` resolve their target through the one helper');

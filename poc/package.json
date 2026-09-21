@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "verify": "node verify.cjs"
+    "verify": "node verify.cjs",
+    "verify:probes": "node tools/verify-probes.mjs"
   },
   "dependencies": {
     "three": "^0.169.0",

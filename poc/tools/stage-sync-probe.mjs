@@ -157,9 +157,15 @@ check(!!selectMove && selectMove.syncs && selectMove.mutations > 0,
 console.log('\n== The check fails on the bug it was written for ==');
 {
   // `selectMove` exactly as it was: strip re-render, trail focus, no handles.
+  // EVERY sync call in the method, not just the first: `selectMove` now syncs on more than one path, so
+  // removing one occurrence left the method correctly synced and the control passing over a body that had not
+  // actually been broken - which is how a negative control quietly stops being one. The replacement is a
+  // COMMENT, which `stripLiterals` blanks, so it cannot be mistaken for the call it replaced.
   const broken = src.replace(
-    /(private selectMove\(k: number\) \{[\s\S]*?)this\.syncStageSelection\(\);/,
-    '$1this.host.focusTrail(this.moveDancer, null);',
+    // SIGNATURE-AGNOSTIC, on purpose: this pinned `selectMove(k: number)` and stopped applying the moment the
+    // method gained its `extend` parameter. This mutation is about the BODY, not the parameter list.
+    /(private selectMove\([^)]*\) \{)([\s\S]*?)\n  \}\n/,
+    (_all, head, body) => `${head}${body.split('this.syncStageSelection();').join('/* sync removed by the probe */')}\n  }\n`,
   );
   check(broken !== src, 'the negative control really is a different file (the edit applied)');
   const bad = audit('broken', broken);

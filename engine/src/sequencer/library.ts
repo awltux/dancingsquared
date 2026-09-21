@@ -38,6 +38,12 @@ const NON_COMPOSITIONAL_CALLS: string[] = [];
  * A shape that already CONTAINS its own antipodes is a whole set however few dancers it lists, and is left alone.
  */
 function toWholeSet(dancers: Matchable[]): Matchable[] {
+  // FOUR DOUBLES TO EIGHT, AND TWO DOES NOT - and the boundary is deliberate rather than an oversight. The rule
+  // is that a formation is half the set it represents, so TWO DOUBLES TO FOUR as well ("2 dancers in xml is
+  // displayed as 4 dancers, 4 dancers in xml is displayed as 8 dancers"). Doing that here alone turns
+  // `listFormations()` from 134 names into 164, THIRTY OF THEM FOUR-DANCER BOARDS - and the sequencer's own
+  // formation picker adds every name it is given with no size filter, into a board that is always eight. So the
+  // two-dancer case belongs with that picker's guard, in its own change, not bolted on here.
   if (dancers.length !== 4) return dancers;
   const mirror = dancers.map((d) => ({ x: -d.x, y: -d.y, heading: normAngle(d.heading + Math.PI), gender: d.gender }));
   const merged = dancers.concat(mirror);

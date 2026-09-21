@@ -228,7 +228,7 @@ export class FormationMatcher {
   // `knownFormation` (is the result known?) and `snapBoard` (snap it onto slots)
   // both scan the named formations, so each board is scanned once regardless of
   // how many callers probe it.
-  private formationMatchCache = new Map<string, { f: { name: string; dancers: Matchable[] }; m: FormationMatch } | null>();
+  private formationMatchCache = new Map<string, { f: { name: string; dancers: Matchable[] }; m: FormationMatch; second: number } | null>();
 
   /** How close two match errors must be to count as a TIE when deciding between a variant that
    * matches directly and one that needs a reflection. Exact equality is too brittle: an authored
@@ -386,13 +386,46 @@ export class FormationMatcher {
     return m.error <= rec.error + MATCH_TIE_EPS;
   }
 
-  /** The name of any formation in the FULL catalog that `board` matches, else
-   * null. Unlike `recognize` (restricted to a curated list for stable display
-   * labels), this is permissive: any standard formation the result lands in
-   * counts as "known". */
+  /**
+   * The name of any formation in the FULL catalog that `board` matches, else `null`.
+   *
+   * Unlike `recognize` (restricted to a curated list for stable display labels), the SCAN is
+   * permissive: any standard formation the result lands in counts. But a NAME is an identity, and
+   * three things disqualify one:
+   *
+   * 1. **Nothing is close enough.** The gate is `KNOWN_FORMATION_MAX + margin`.
+   * 2. **No single dancer is close enough.** `error` is a SUM over the dancers, so the scan's own
+   *    binding tolerance — the distance-signature filter at `maxError / 12`, i.e. ~0.625 per dancer
+   *    at the default gate — is only ever applied to POSITIONS. The heading half of the error is
+   *    unbounded by it. Measured: `Boys Turn Back` from `Stars RH` matched `Stars RH` at total error
+   *    3.14 with every position identical and ONE DANCER 180 DEGREES OUT. Applying the effective
+   *    allowance to each dancer's own error refuses it.
+   * 3. **The best is TIED.** A tied best match is not an identity — it is an artefact of which
+   *    candidate the library happened to hold first. This is the recorded case that made the FSM
+   *    asset move 76 edges under unrelated library changes: the board `Face In` leaves from a
+   *    squared set (four exact mini-waves) matches `O In` and `O Trade By` at EXACTLY the same error,
+   *    pi, and the winner was library scan order. `recognize` already returns null for it, so the two
+   *    namers disagreed about whether the board is named at all.
+   *
+   * MEASURED over 133 named FSM states x 273 ms calls = 2247 currently-admitted applications: the
+   * tie rule alone refuses 613, and only 7 of those tie at error 0 (all seven are genuine
+   * `T-Bone DRDR` / `T-Bone LULU` mirror ambiguities, which is what a tie means). The per-dancer
+   * rule refuses 761; the tie rule leaves 155 names whose worst dancer is 0.65..1.57 out. The union
+   * refuses 768, of which exactly TWO sit within 0.075 of the allowance boundary.
+   *
+   * REFUSING IS NOT DROPPING. `legalWithResults` admits an application with an unnamed end, so a call
+   * this refuses stays LEGAL and is recorded — with a null end — rather than vanishing. That pairing
+   * is the whole reason the two changes have to land together: refusing more names alone would have
+   * silently removed applications from the FSM.
+   */
   knownFormation(board: Board): string | null {
     const best = this.bestFormationMatch(board);
-    return best && best.m.error <= KNOWN_FORMATION_MAX + this.config.matchMargin ? best.f.name : null;
+    if (!best) return null;
+    const tol = KNOWN_FORMATION_MAX + this.config.matchMargin;
+    if (best.m.error > tol) return null;
+    if (best.m.maxDancerError > tol / 12) return null;
+    if (best.second - best.m.error <= MATCH_TIE_EPS) return null;
+    return best.f.name;
   }
 
   /** Clamp a computed end board onto the nearest recognized formation's canonical
@@ -410,17 +443,33 @@ export class FormationMatcher {
     return { dancers: snapped };
   }
 
-  private bestFormationMatch(board: Board): { f: { name: string; dancers: Matchable[] }; m: FormationMatch } | null {
+  /**
+   * The best-matching named formation for a board, plus the RUNNER-UP's error.
+   *
+   * `second` is the whole reason this returns a triple rather than a pair: `knownFormation` refuses a
+   * tied best match, and a tie cannot be seen from the winner alone. It is the smallest error among
+   * every other candidate that matched at all, so when the best is replaced the previous best becomes
+   * the candidate second.
+   */
+  private bestFormationMatch(board: Board): { f: { name: string; dancers: Matchable[] }; m: FormationMatch; second: number } | null {
     const sig = this.formationSig(board);
     const cached = this.formationMatchCache.get(sig);
     if (cached !== undefined) return cached;
     const src = this.matchables(board);
-    let best: { f: { name: string; dancers: Matchable[] }; m: FormationMatch } | null = null;
+    let best: { f: { name: string; dancers: Matchable[] }; m: FormationMatch; second: number } | null = null;
+    let second = Infinity;
     for (const f of this.library.getUniqueFormations()) {
       if (f.dancers.length !== src.length) continue;
       const m = matchFormations(src, f.dancers, this.snapMatchMax());
-      if (m && (best === null || m.error < best.m.error)) best = { f, m };
+      if (!m) continue;
+      if (best === null || m.error < best.m.error) {
+        if (best !== null) second = Math.min(second, best.m.error);
+        best = { f, m, second: Infinity };
+      } else {
+        second = Math.min(second, m.error);
+      }
     }
+    if (best !== null) best.second = second;
     this.formationMatchCache.set(sig, best);
     return best;
   }

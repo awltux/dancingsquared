@@ -11,25 +11,40 @@
 //   full-tiling   EVERY dancer is in a copy (the call was done by all eight through k-dancer boxes)
 //   partial       SOME boxes matched and the rest of the board stood still
 //
-// AND THE FSM DOES NOT RECORD IT. An edge is `{call, endFormation}` and its identity is the CALL
-// alone - one edge per (state, call) - so a partial reading is stored as though everyone did the
-// call, and a reading whose END BOARD THE RECOGNISER CANNOT NAME is not stored at all: `legalCalls`
-// admits a call only when `knownFormation(result) !== null` (`legality.ts`), so the application is
-// dropped before the FSM ever sees it. MEASURED for one such call: of the 10 boards where
-// `Step to a Wave` applies through a sub-eight shape, including the four-copy reading that moves all
-// eight dancers, only 2 were admitted - the rest were dropped for an unnameable end.
+// AND THE FSM NOW RECORDS THE READING, IF NOT THE PARTIALITY. An edge is `{call, endFormation}` and
+// its identity is the CALL alone - one edge per (state, call) - so a partial reading is stored as
+// though everyone did the call. What has CHANGED (the namer settlement) is the other half: an
+// application whose END THE NAMER REFUSES is no longer dropped from the list at all. `legalWithResults`
+// admits every application that applies, and the FSM stores the ones with no name as an edge with
+// `endFormation: null` - "the call applies and lands where the engine cannot name". MEASURED, over the
+// same 155 stored states x 274 ms calls = 4416 legal applications:
+//
+//   named end      1479   (whole 1025, full-tiling 169, partial 285)
+//   UNNAMED end    2937   (whole 989, full-tiling 1107, partial 841)  <- previously dropped entirely
+//
+// of which 1107 are sub-eight readings that covered ALL EIGHT dancers: the call was performed by
+// everyone and used to be recorded as nothing at all.
+//
+// WHY THE NAMER REFUSES MORE THAN IT USED TO (and why that used to be unsafe). `knownFormation` now
+// refuses a TIED best match (a tied best is not an identity - the `Face In` board ties `O In` with
+// `O Trade By` at exactly pi) and a board with any single dancer outside the effective allowance
+// (`maxError / 12`, the tolerance the match's own distance-signature filter already applies to
+// positions but not to facings). Refusing more names ALONE would have silently removed applications,
+// which is why it had to land with admitting unnamed ends.
 //
 // So this harness answers three questions with numbers, and PIN the answers:
-//   1. how many legal applications does `legalCalls` DROP for an unnameable end (invisible edges)?
+//   1. how many legal applications end on a board the namer refuses (recorded as a null-end edge)?
 //   2. how many readings are PARTIAL (the call was done by some of the board)?
 //   3. how many readings does a (state, call) pair have? Today it must be exactly one, because the
 //      edge identity is the call alone - that is the invariant a multi-reading FSM has to break, and
 //      the number is what sizes the work.
 //
 // It compares the live engine against the STORED asset (`poc/src/assets/fsm-ms.json`), because that
-// asset is the FSM's persisted record: "what is in the table" versus "what the engine does" is
-// precisely the missing-transition question. A missing asset is a FAILURE, not a skip - a harness
-// that cannot see its subject must say so.
+// asset is the FSM's persisted record. A missing asset is a FAILURE, not a skip - a harness that
+// cannot see its subject must say so. The comparison here is REPORTED rather than asserted; the
+// staleness ASSERTION lives in `test/fsm-asset.mjs`, which rebuilds the table and fails when the
+// stored asset disagrees (that is the gate that was missing, and its absence is how the asset went
+// stale in the first place).
 //
 // THE CATALOGUE IS BUILT THE WAY THE GENERATOR BUILDS IT (`poc-teacher/src/catalog.ts`): one entry
 // per call TITLE per file, from `ms/*.xml`, with `display="no"` tams skipped and the engine's own
@@ -148,21 +163,23 @@ console.log(`\n== the sweep: ${namedStates.length} named states x ${titles.lengt
   check(multi === 0, `readings per (state, call): ${Math.max(...perPair.values())} maximum (${multi} pair(s) with more than one)`);
 }
 
-console.log('\n== the missing transitions: legal, end unnamed, so `legalCalls` drops them ==');
+console.log('\n== the unnamed ends: the namer refuses them, the FSM records them as a null end ==');
 {
-  const dropped = rows.filter((r) => !r.admitted);
-  const byKind = dropped.reduce((m, r) => m.set(r.kind, (m.get(r.kind) ?? 0) + 1), new Map());
-  console.log(`  ${dropped.length} of ${rows.length} legal applications are dropped (${[...byKind].map(([k, v]) => `${k} ${v}`).join(', ')})`);
-  // The witness the FSM work is for: a TWO-DANCER call covering ALL EIGHT dancers, dropped because
-  // its result cannot be named. This is a single missing transition, not four.
-  const exhaustive = dropped.filter((r) => r.variantSize < 8 && r.cover >= 8);
+  const unnamed = rows.filter((r) => !r.admitted);
+  const byKind = unnamed.reduce((m, r) => m.set(r.kind, (m.get(r.kind) ?? 0) + 1), new Map());
+  console.log(`  ${unnamed.length} of ${rows.length} legal applications end on a board the namer refuses (${[...byKind].map(([k, v]) => `${k} ${v}`).join(', ')})`);
+  console.log(`  ${rows.length - unnamed.length} end on a named board, which is what the FSM's state key is built from`);
+  // The witness the FSM work is for: a TWO-DANCER call covering ALL EIGHT dancers. Before the namer
+  // settlement these were dropped from the list entirely; now each is one recorded edge with a null
+  // end, which is the honest record until the schema change gives the READING its own edge identity.
+  const exhaustive = unnamed.filter((r) => r.variantSize < 8 && r.cover >= 8);
   console.log(`  of those, SUB-EIGHT variants that covered all eight dancers: ${exhaustive.length}`);
   for (const r of exhaustive.slice(0, 8)) {
     console.log(`    ${r.state.padEnd(26)} ${r.title.padEnd(20)} ${r.variantSize}d x${r.groups} copies`);
   }
   check(exhaustive.length > 0,
     exhaustive.length > 0
-      ? `${exhaustive.length} exhaustively-tiled sub-eight reading(s) exist and are missing from the FSM`
+      ? `${exhaustive.length} exhaustively-tiled sub-eight reading(s) are recorded with a null end`
       : 'no sub-eight variant currently tiles a whole board');
 }
 
@@ -181,37 +198,26 @@ console.log('\n== the partial readings: the call was done by SOME of the board =
 
 console.log('\n== against the stored asset: REPORTED, not asserted (the asset is known stale) ==');
 {
-  // This comparison used to be a rule and it failed, which is how the finding below was made. It is
-  // REPORTED rather than asserted now, because the stored asset is STALE and the census's subject is
-  // the ENGINE: making the harness fail for a known-stale artefact would only teach readers to skip it.
+  // REPORTED rather than asserted here: the staleness ASSERTION is `test/fsm-asset.mjs`, which
+  // rebuilds the table and fails when the stored asset disagrees. Before that gate existed the asset
+  // went stale silently - 1961 stored edges against the 2205 the engine produced, with 76 edges
+  // landing somewhere else - and nothing could have noticed.
   //
-  // MEASURED: rebuilding the table from the current engine and the current assets
-  // (`node poc/scripts/build-fsm-asset.mjs`) gives 155 states - the same set - and 2205 edges against
-  // the stored 1961, with 76 edges landing on a DIFFERENT end formation. The generator is wired into no
-  // npm script and no harness, so nothing could have noticed.
+  // AND THE 76 WERE THE NAMER GIVING UP QUIETLY, which is the finding that settled it. `Face In` from
+  // a squared set looked wrong at first sight (positions unchanged, every dancer turned a quarter),
+  // but it is right: CALLERLAB defines it as "each individual turns 90 degrees, in place, TOWARD THE
+  // CENTER", the turn direction matches the reference (`face.dart`), and the RESULT is four exact
+  // mini-waves - measured, each wall's pair 2.00 apart and facing each other.
   //
-  // AND THE 76 ARE NOT A BUG IN THOSE CALLS - they are the NAMER giving up quietly, investigated and
-  // settled here. `Face In` from a squared set looks wrong at first sight (positions unchanged, every
-  // dancer turned a quarter), but it is right: CALLERLAB defines it as "each individual turns 90
-  // degrees, in place, TOWARD THE CENTER", the turn direction matches the reference (`face.dart`), and
-  // the RESULT is four exact mini-waves - measured, each wall's pair 2.00 apart and facing each other.
-  //
-  // The problem is what it gets CALLED. That board matches 11 formations within the naming tolerance
-  // (KNOWN_FORMATION_MAX 6.0 + margin 1.5) with a BEST error of 3.1416 - pi - and FOUR of them tie
-  // exactly at pi: `O In`, `O Trade By`, `O Eight Chain Thru`, `O Out`. `knownFormation` returns the
-  // first of the tied candidates in library scan order, so the name it reports is an artefact of the
-  // library's contents and order, and ANY change to either renames the edge - which is what moved
-  // those 76. `recognize` (curated, tighter) correctly returns null for the same board, so the two
-  // namers already disagree about whether it is named at all.
-  //
-  // THE FIX IS THEREFORE IN THE NAMER, not in `Face In`: a board this far from everything should be
-  // refused rather than named after whichever candidate happened to be scanned first. The note on
-  // `KNOWN_FORMATION_MAX` records that the tolerance that ACTUALLY binds is `maxError / 12` - about
-  // 0.5 per dancer - while the final gate uses the raw 6.0, so a pi-off board passes. TIGHTENING THAT
-  // GATE IS NOT SAFE ON ITS OWN: `legalCalls` admits a call only when `knownFormation(result) !==
-  // null`, so refusing more names DROPS more applications from the FSM. It has to be done in the same
-  // change as admitting unnameable ends (the FSM work's Stage 2), which is why the asset is left
-  // stale here rather than regenerated with tie-break names frozen into it.
+  // The problem was what it got CALLED. That board matches `O In` and `O Trade By` at EXACTLY the
+  // same error, pi, and `knownFormation` returned whichever the library happened to hold first - so
+  // the name was an artefact of the library's contents and order, and any change to either renamed
+  // the edge, which is what moved those 76. `knownFormation` now REFUSES a tied best match, and that
+  // board is recorded with a null end instead of a false name. The note on `KNOWN_FORMATION_MAX`
+  // already recorded that the tolerance that actually binds is `maxError / 12` - about 0.625 per
+  // dancer - while the final gate used the raw sum; the namer now applies that allowance to each
+  // dancer, which is what refuses `Boys Turn Back` from `Stars RH` being called `Stars RH` with one
+  // dancer 180 degrees out.
   const admitted = rows.filter((r) => r.admitted);
   const missing = admitted.filter((r) => !assetEdges(r.state).some((e) => e.call === r.title));
   console.log(`  ${admitted.length} admitted applications; ${missing.length} of them have NO edge in the stored asset`);

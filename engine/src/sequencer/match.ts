@@ -24,7 +24,19 @@ export interface Matchable {
 
 export interface FormationMatch {
   mapping: number[]; // mapping[boardIdx] = candidateIdx
-  error: number; // total offset (position + facing)
+  error: number; // total offset (position + facing), SUMMED over the dancers
+  /**
+   * The LARGEST single dancer's own offset in this alignment — the same quantity `error` sums.
+   *
+   * WHY IT IS CARRIED SEPARATELY. `error` is a sum, so it cannot say whether a board is a slightly
+   * loose match of the right shape or a tight match of the right shape with ONE dancer somewhere
+   * else entirely. The tolerance that actually binds is `maxError / 12` (see `sigTol` below), and
+   * that filter only sees POSITIONS — the heading half of the error is unbounded by it. Measured:
+   * `Boys Turn Back` from `Stars RH` matches `Stars RH` at total error 3.14 with one dancer 180
+   * degrees out, and every position identical, so the signature filter admits it and the sum looks
+   * small. A caller reading that board is told it is a star when it is not.
+   */
+  maxDancerError: number;
   rot: number; // the rotation applied to the target to overlay it on the source
   reflect: boolean; // whether a reflection (mirror) was applied to the target
   cSrc: { x: number; y: number }; // center of the source (board)
@@ -88,12 +100,13 @@ function greedyAssign(
   source: Matchable[],
   target: Matchable[],
   requireGender: boolean,
-): { mapping: number[]; error: number } {  const mapping = new Array(source.length).fill(-1);
+): { mapping: number[]; error: number; maxDancerError: number } {  const mapping = new Array(source.length).fill(-1);
   const used = new Array(target.length).fill(false);
   const order = source
     .map((_, i) => i)
     .sort((a, b) => (source[a].x ** 2 + source[a].y ** 2) - (source[b].x ** 2 + source[b].y ** 2));
   let error = 0;
+  let maxDancerError = 0;
   for (const i of order) {
     let best = -1;
     let bestD = Infinity;
@@ -108,12 +121,13 @@ function greedyAssign(
         best = j;
       }
     }
-    if (best === -1) return { mapping: [], error: Infinity }; // no gender-compatible slot
+    if (best === -1) return { mapping: [], error: Infinity, maxDancerError: Infinity }; // no gender-compatible slot
     used[best] = true;
     mapping[i] = best;
     error += bestD;
+    maxDancerError = Math.max(maxDancerError, bestD);
   }
-  return { mapping, error };
+  return { mapping, error, maxDancerError };
 }
 
 /**
@@ -187,7 +201,7 @@ function matchEqualLength(  source: Matchable[],
         res.error < best.error - TIE_EPS ||
         (Math.abs(res.error - best.error) <= TIE_EPS && ident > bestIdent)
       ) {
-        best = { mapping: res.mapping, error: res.error, rot, reflect, cSrc, cTgt };
+        best = { mapping: res.mapping, error: res.error, maxDancerError: res.maxDancerError, rot, reflect, cSrc, cTgt };
         bestIdent = ident;
       }
     }

@@ -704,24 +704,44 @@ export class Sequencer {
       for (const n of CODED_MOVE_NAMES) {
         if (have.has(n)) continue;
         const r = applyCodedMove(board, n);
-        if (r?.legal && this.matcher.knownFormation(r.board) !== null) out.push({ call: n, res: r });
+        if (r?.legal) out.push({ call: n, res: r });
       }
       return out;
     };
+    /**
+     * An edge's end is one of the table's states, or an EXPLICIT `null`.
+     *
+     * `legalCalls` admits a call whenever it APPLIES, so a legal application can end on a board the
+     * namer refuses (a tied best match, a dancer outside the effective allowance). `recognize` is the
+     * narrower, curated recogniser and returns null for many more boards. Two ways a curated name can
+     * fail to be a state, and both fall back: it can be null (the board is real but not one of the
+     * curated STANDARD_FORMATIONS), or it can name a formation the geometry DEDUPE above folded into
+     * another key.
+     *
+     * WHY THE END IS NOT CLOSED OVER AS A NEW STATE, with the measurement that settled it. The plan
+     * was a closure pass: add each unnamed end as a state and enumerate it in turn. MEASURED, that
+     * DIVERGES - the geometry of an eight-dancer board is continuous, and the successors of the
+     * off-grid setups never close. Taken faithfully to this function's own `addState` dedupe
+     * (`matchFormations(dancers, existing, 1.0)`), starting from this table's 155 states:
+     *
+     *     level 1 alone   1840 NEW geometries   (whole 585, full-tiling 743, partial 512)
+     *     closure         3005 states after enumerating 400, still growing
+     *
+     * A cap would only hide it, and a table of thousands of unnamed `#N` nodes is not a state machine
+     * a caller can read. So the END IS RECORDED, NOT INVENTED: `endFormation: null` says the call
+     * applies and leaves a board this engine cannot name. That is the honest reading, it keeps the
+     * state set at the formations the engine actually knows, and it is exactly what
+     * `reading-census.mjs` measured as missing -- those applications used to be dropped from the list
+     * altogether, so the FSM recorded NOTHING rather than recording "unnamed".
+     *
+     * The consumer side already tolerates it: `FsmTableEdge.endFormation` is `string | null` and the
+     * FSM view skips null ends when it builds the graph.
+     */
     const enumerate = (state: string): Omit<FsmTableEdge, 'source'>[] => {
       const geo = stateGeo.get(state);
       if (!geo) return [];
       const board = this.boardFromMatchables(geo);
       return enumerable(board).map(({ call, res }) => {
-        // An edge's end is ALWAYS one of the table's states. `legalCalls` admits a call only when
-        // `knownFormation` recognises the result, but `recognize` is the narrower, curated
-        // recogniser and returns null for many of those same boards. Labelling with `recognize`
-        // alone therefore stored `endFormation: null` for every one of them -- 935 of 1383 edges on
-        // the 274-call Mainstream catalog -- and every consumer silently DROPPED those edges, which
-        // is what made the FSM view look like a graph of dead ends. Two ways a curated name can fail
-        // to be a state, and both fall back: it can be null (the board is real but not one of the
-        // curated STANDARD_FORMATIONS), or it can name a formation the geometry DEDUPE above folded
-        // into another key. `knownFormation` scans the unique list, so it always yields a state.
         let end: string | null = null;
         if (res.legal) {
           const curated = this.matcher.recognize(res.board).name;

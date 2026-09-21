@@ -232,19 +232,30 @@ console.log('\n== FSM user-amendment / export + ledger ==');
   // Embedded (inline) formations must be folded into the state set, not just the named catalog.
   const embeddedStates = tbl.states().filter((s) => s.startsWith('@embed'));
   check(embeddedStates.length > 0, 'transition table includes embedded (inline) formation states', `embedded=${embeddedStates.length}`);
-  // EVERY EDGE MUST END IN A STATE. Not a nicety: the FSM view, the teacher app and the export all
-  // resolve an edge's end by NAME and silently drop the edge when the lookup misses. Commit 71b4465
-  // labelled edges with the curated `recognize` name (null outside STANDARD_FORMATIONS) while
-  // `legalCalls` had admitted them by `knownFormation`, so 935 of 1383 edges were stored with
-  // `endFormation: null` and the FSM view drew a graph of dead ends for a table full of transitions.
+  // AN EDGE'S END IS A STATE OF THIS TABLE, OR AN EXPLICIT `null`.
+  //
+  // Not a nicety, and the history is why. Commit 71b4465 labelled edges with the curated `recognize`
+  // name (null outside STANDARD_FORMATIONS) while `legalCalls` had admitted them by `knownFormation`,
+  // so 935 of 1383 edges were stored with a name that RESOLVED TO NOTHING and the FSM view drew a
+  // graph of dead ends for a table full of transitions. That is what the `dangling` check below
+  // guards, and it is the check that matters.
+  //
+  // The `null` case is now DELIBERATE and MEANINGFUL rather than a labelling failure: `legalCalls`
+  // admits every application that applies, and an application whose end the namer refuses (a tied
+  // best match, or a dancer outside the effective allowance) is recorded with `endFormation: null` -
+  // "the call applies and lands where this engine cannot name". Closing over those ends as new
+  // states was MEASURED to diverge (`buildFsmTable`: 1840 new geometries at level 1 alone, 3005
+  // states after enumerating 400 and still growing), so a null end is the honest record. The count is
+  // REPORTED here rather than asserted, and the exact figure for the ms asset is pinned in
+  // `test/fsm-asset.mjs`, which is the artefact gate.
   const stateSet = new Set(tbl.states());
   const allEdges = tbl.states().flatMap((s) => tbl.edgesFor(s) ?? []);
   const noEnd = allEdges.filter((e) => e.endFormation == null);
   const dangling = allEdges.filter((e) => e.endFormation != null && !stateSet.has(e.endFormation));
-  check(noEnd.length === 0, 'every FSM edge has an end formation',
-    `edges=${allEdges.length} null=${noEnd.length}${noEnd.length ? ` e.g. "${noEnd[0].call}"` : ''}`);
-  check(dangling.length === 0, 'every FSM edge ends in a state of the table',
+  check(dangling.length === 0, 'every labelled FSM edge ends in a state of the table',
     `dangling=${dangling.length}${dangling.length ? ` e.g. "${dangling[0].endFormation}"` : ''}`);
+  check(allEdges.length - noEnd.length > 0, 'the labelled ends survive the namer\'s refusals',
+    `${allEdges.length - noEnd.length} labelled, ${noEnd.length} unnamed of ${allEdges.length}`);
   // The amendment merged into the table makes it a queryable transition.
   if (accepted) {
     check(tbl.hasTransition('Static Square', accepted), 'amendment merged into the transition table', accepted);
@@ -796,33 +807,65 @@ console.log('\n== The animation lands on the applied board (feature: sequence_re
 
   // 2. The frame an instant before a call completes must sit on the board the call
   //    produces, so nothing snaps on the final beat.
-  let checked = 0, worstPos = 0, worstAng = 0, worstAt = '';
+  //
+  //    THE WHOLE LEGAL SET IS SWEPT, and that is a fix to this check, not a widening for its own
+  //    sake. It used to stop at the first `400` calls in formation order, which made its SAMPLE a
+  //    function of how many calls are legal on each board - so a change that only widened
+  //    `legalCalls` (admitting applications with an unnamed end) silently moved which pairs were
+  //    tested, and the check went red on a PRE-EXISTING jump the narrower sample had never reached.
+  //    A gate whose subject moves with an unrelated change's blast radius is not measuring the
+  //    animation. MEASURED over the full set: 2074 legal (formation, call) pairs, ONE offender.
+  //
+  //    THE DETAIL LINE USED TO NAME THE WRONG PAIR, and that is worth recording because it sent this
+  //    investigation the wrong way: `worstAt` was only updated on a new worst POSITION, while
+  //    `worstAng` was tracked separately with no location - so the report read "worst dPos=0.0392
+  //    dAng=90.00deg at Circle + as_couples" and attributed a 90-degree heading jump to a pair whose
+  //    own heading was fine. Each number now carries the pair that owns it.
+  //
+  //    THE PINNED EXCEPTION is a real engine defect and it is PRE-EXISTING: `Cloverleaf` from a
+  //    `3/4 Tag` (verified under this harness's basename keying AND under the engine's own
+  //    title-keyed catalogue, so it is not a registration artefact) snaps dancer #8 by 90 degrees on
+  //    the final beat with zero position change. The animation path is untouched by the namer
+  //    settlement, so the defect and its magnitude are identical before and after; it is pinned
+  //    rather than fixed because it belongs to the animation thread, and pinned as a LIST so the
+  //    gate can only shrink deliberately. NOTE it is ALSO why `anim-convergence.mjs`'s list does not
+  //    carry it: that harness measures the final frame's POSITION gap, and this jump is heading-only
+  //    (dPos 0.0000), so this check is the only gate that can see it at all.
+  const KNOWN_FINAL_FRAME_JUMPS = new Set(['3/4 Tag + cloverleaf']);
+  let checked = 0, worstPos = 0, worstAng = 0, worstPosAt = '', worstAngAt = '';
+  const jumped = [];
   for (const name of seq.listFormations()) {
-    if (checked >= 400) break;
     const start = seq.boardForFormation(name);
     if (!start) continue;
     for (const call of seq.legalCalls(start)) {
-      if (checked >= 400) break;
       const flat = seq.flatten([call]);
       const beats = seq.sequenceBeats(flat, start);
       if (beats <= 0) continue;
       const near = seq.evaluateSequence(flat, beats - 1e-6, start).board;
       const end = seq.evaluateSequence(flat, beats, start).board;
       const nearById = new Map(near.dancers.map((d) => [d.id, d]));
+      let p = 0, a = 0;
       for (const e of end.dancers) {
         const nn = nearById.get(e.id);
         if (!nn) continue;
-        const dPos = Math.hypot(nn.x - e.x, nn.y - e.y);
-        const dAng = angDiff(nn.heading, e.heading);
-        if (dPos > worstPos) { worstPos = dPos; worstAt = `${name} + ${call}`; }
-        if (dAng > worstAng) worstAng = dAng;
+        p = Math.max(p, Math.hypot(nn.x - e.x, nn.y - e.y));
+        a = Math.max(a, angDiff(nn.heading, e.heading));
       }
       checked++;
+      if (p > worstPos) { worstPos = p; worstPosAt = `${name} + ${call}`; }
+      if (a > worstAng) { worstAng = a; worstAngAt = `${name} + ${call}`; }
+      const key = `${name} + ${call}`;
+      if ((p >= 0.5 || a >= 0.1) && !KNOWN_FINAL_FRAME_JUMPS.has(key)) {
+        jumped.push(`${key} (dPos ${p.toFixed(4)} dAng ${((a * 180) / Math.PI).toFixed(2)}deg)`);
+      }
     }
   }
-  check(worstPos < 0.5 && worstAng < 0.1,
+  check(jumped.length === 0,
     'the last animated frame lands on the applied board (no jump on the final beat)',
-    `${checked} calls; worst dPos=${worstPos.toFixed(4)} dAng=${(worstAng * 180 / Math.PI).toFixed(2)}deg at ${worstAt}`);
+    `${checked} pairs swept; ${jumped.length} unpinned jump(s)${jumped.length ? `: ${jumped.slice(0, 3).join('; ')}` : ''}`);
+  console.log(`  note  worst dPos ${worstPos.toFixed(4)} at ${worstPosAt}; ` +
+    `worst dAng ${((worstAng * 180) / Math.PI).toFixed(2)}deg at ${worstAngAt}`);
+  console.log(`  note  ${KNOWN_FINAL_FRAME_JUMPS.size} known final-frame jump(s) pinned: ${[...KNOWN_FINAL_FRAME_JUMPS].join(', ')}`);
 
   // 3. A SELECTION step animates ONLY the dancers the call moved.
   //

@@ -26,18 +26,32 @@ export class LegalityChecker {
     return this.legalWithResults(board).map((x) => x.name);
   }
 
-  /** Calls legal from `board` for DISPLAY/enumeration. Uses the TIGHT interactive
-   * apply — the same path the UI runs — so it only lists calls that genuinely
-   * apply and end in a known formation. */
+  /**
+   * Calls legal from `board` for DISPLAY/enumeration. Uses the TIGHT interactive apply — the same
+   * path the UI runs — so it only lists calls that genuinely apply.
+   *
+   * AN UNNAMED END IS AN END. This used to also require `knownFormation(result) !== null`, which
+   * conflated LEGALITY with CONTINUITY: a call that applies and leaves a board the namer cannot
+   * identify was dropped from the list entirely, as though it had never been performable. Measured
+   * over the named FSM states, that dropped 2169 of 4416 legal applications (49%), including 1048
+   * where a sub-eight variant covered ALL EIGHT dancers — the call was performed by everyone and the
+   * engine recorded nothing at all.
+   *
+   * The two questions are now separate, and the separation is what makes the namer's refusal safe:
+   * `knownFormation` may refuse a board it cannot identify (a tied best match, or one with a dancer
+   * outside the effective allowance), and the application stays HERE, legal — its end simply has no
+   * name, which the FSM records as a null end rather than losing the edge. See `knownFormation` for
+   * the measurement behind the refusal.
+   */
   private legalWithResults(board: Board): { name: string; res: { board: Board; legal: boolean } }[] {
     const out: { name: string; res: { board: Board; legal: boolean } }[] = [];
     for (const name of this.library.callNames()) {
       const res = this.applicator.applyToBoard(board, name);
-      if (res.legal && this.matcher.knownFormation(res.board) !== null) out.push({ name, res });
+      if (res.legal) out.push({ name, res });
     }
     for (const mname of this.library.moduleNames()) {
       const res = this.applicator.applyToBoard(board, mname);
-      if (res.legal && this.matcher.knownFormation(res.board) !== null) out.push({ name: mname, res });
+      if (res.legal) out.push({ name: mname, res });
     }
     return out;
   }

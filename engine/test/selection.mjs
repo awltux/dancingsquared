@@ -691,6 +691,59 @@ console.log('\n== knownFormation\'s tolerance is ~0.5, not 6.0 (Phase 7) ==');
   else ok('translation, rotation and reflection all keep the board "known" (the match is centre-relative)');
 }
 
+console.log('\n== the namer refuses a TIED best match, and a dancer outside the allowance ==');
+// THE RECORDED DECISION, now implemented: "A board that matches nothing must be refused, not named. A
+// tied best match is not an identity." And its companion, which the tolerance note above sets up: the
+// effective per-dancer allowance (`maxError / 12`) is applied to the WHOLE of a dancer's own error,
+// not only to the positional half that `matchEqualLength`'s signature filter can see.
+//
+// MEASURED over 133 named FSM states x 273 ms calls = 2247 applications that used to be admitted:
+// the tie rule refuses 613; only 7 of those tie at error 0 (all seven are genuine
+// `T-Bone DRDR`/`T-Bone LULU` mirror ambiguities, which is exactly what a tie means). The per-dancer
+// rule refuses 761, and the tie rule alone leaves 155 names whose worst dancer is 0.65..1.57 out -
+// `Boys Turn Back` from `Stars RH` was called `Stars RH` with one dancer 180 degrees out and every
+// position identical, so the sum looked small and the signature filter saw nothing wrong. The union
+// refuses 768, of which exactly TWO sit within 0.075 of the allowance boundary.
+{
+  // (1) TIED. `Face In` from a squared set is FOUR EXACT MINI-WAVES - measured, each wall's pair 2.00
+  // apart and facing each other - and it is correct (CALLERLAB: "each individual turns 90 degrees, in
+  // place, toward the center"). What it is NOT is `O In`: the board matches `O In` and `O Trade By` at
+  // exactly the same error, pi, so the name was an artefact of library scan order. No name is the
+  // honest answer.
+  const home = seq.boardForFormation('Static Square');
+  const faceIn = home ? seq.applyToBoard(home, 'Face In') : null;
+  const faceInName = faceIn?.legal ? seq.knownFormation(faceIn.board) : 'NOT APPLIED';
+  const faceInCurated = faceIn?.legal ? seq.recognize(faceIn.board).name : null;
+  if (faceInName !== null) {
+    fail(`a board tied between two formations is still named "${faceInName}" - a tied best match is not an identity`);
+  } else if (faceInCurated !== null) {
+    fail(`the two namers disagree: knownFormation refuses the tied board while recognize calls it "${faceInCurated}"`);
+  } else {
+    ok('the `Face In` result (tied between `O In` and `O Trade By` at exactly pi) is refused, and `recognize` agrees');
+  }
+
+  // (2) A DANCER OUTSIDE THE ALLOWANCE. Positions identical, one dancer 180 degrees out: the sum is
+  // small and the signature filter cannot see a facing, so only a per-dancer bound refuses it.
+  const stars = seq.boardForFormation('Stars RH');
+  const turnBack = stars ? seq.applyToBoard(stars, 'Boys Turn Back') : null;
+  const turnBackName = turnBack?.legal ? seq.knownFormation(turnBack.board) : 'NOT APPLIED';
+  if (turnBackName !== null) {
+    fail(`a board with a dancer outside the effective allowance is still named "${turnBackName}"`);
+  } else {
+    ok('`Boys Turn Back` from `Stars RH` (one dancer 180 degrees out) is refused rather than called `Stars RH`');
+  }
+
+  // (3) THE CONTROL. An identified board must keep its name, or the two rules above are just a
+  // tighter tolerance wearing a different justification.
+  for (const name of ['Static Square', 'Normal Lines', 'Ocean Waves', 'Eight Chain Thru']) {
+    const b = seq.boardForFormation(name);
+    const got = b ? seq.knownFormation(b) : 'NO BOARD';
+    if (!b) fail(`${name}: no template board`);
+    else if (got === null) fail(`${name} is no longer named - the refusal rules are too broad`);
+    else ok(`${name} is still named (${got})`);
+  }
+}
+
 console.log('\n== FSM amendment policy: CORRECTION, and the API trap that fooled me (Phase 3/4) ==');
 // The plan's item: "`FsmStore.amend` requires a getout; the claim that step 5 reduced rejections is
 // UNMEASURED."

@@ -280,7 +280,11 @@
       </div>
     </div>
     <div id="fsmPanel" hidden>
-      <div class="fsm-toolbar"><span id="fsmTitle" class="part"></span></div>
+      <div class="fsm-toolbar">
+        <label for="fsmLevel" title="Which level's precomputed FSM to draw. The assets are built per level by `poc/scripts/build-fsm-asset.mjs`, so this lists the ones that have actually been built.">Level</label>
+        <select id="fsmLevel" title="Which level's precomputed FSM to draw."></select>
+        <span id="fsmTitle" class="part"></span>
+      </div>
       <iframe id="fsmFrame" title="FSM visual"></iframe>
     </div>
     <footer id="buildFooter" class="build-footer"></footer>

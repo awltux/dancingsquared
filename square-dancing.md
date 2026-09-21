@@ -2835,3 +2835,40 @@ editor for the same reason.
 
 Gated in poc/tools/editor-level-probe.mjs: the dialog's contents, that the panel row is emptied rather than
 duplicated, `[hidden]` being restated against `display`, and the gesture's two halves.
+
+THE FSM TAB PICKS ITS LEVEL, AND EVERY CALL IN A NODE'S TO AND FROM LISTS CAN BE OPENED. Asked for: "In the FSM
+tab, provide a dropdown filter for Level. And provide a Load and Edit buttons that open 'Browse Calls' and 'Call
+Editor' respectively", clarified as "This is for the list of to and from calls. Use a small icon", with an "all
+levels" item and "default to MS".
+
+The Level control used to be `Object.values(fsmAssets)[0]` - the first key the bundler happened to emit, which
+draws the wrong level the moment a second asset exists. It is now a dropdown of the assets that HAVE been built
+plus `All levels`, defaulting to MS, and All levels is the UNION of the tables rather than a concatenation: two
+levels that share a state share its calls, and the same call landing the same way is one edge.
+
+The two icons on a call row are small because there are up to 3922 of them: the FSM frame holds precomputed table
+data and no catalogue, so a click ASKS the app (`parent.postMessage`, answered only when the message comes from
+the FSM frame, since a `srcdoc` frame inherits this origin and any frame could post the same thing).
+
+THE RESOLUTION IS THE WHOLE CONTENT OF THE BUTTONS, and it is deliberately not clever. An FSM edge names a call
+TITLE and the FORMATION it leaves from; the app addresses a call by `(callId, setupIdx)`. MEASURED on the shipped
+asset: 242 of 1961 edges name one of the call's setups exactly, and matching the state's GEOMETRY against each
+setup's built start board instead reaches 447 of the 1408 edges that have a catalogue entry at all (32%), with the
+closest setup 7 to 21 units away on a six-unit square for most of the rest - the FSM enumerates calls through the
+applicator's tolerance and its coded moves, not through the catalogue's setups. So the setup is taken ONLY on an
+exact name, everything else falls back to the call's first setup, and the panel says which setup it landed on. A
+nearest-setup guess would have been wrong far more often than right, and silently so.
+
+136 of those edges name a call the catalogue does not hold - 133 `Face Half`, 3 `Promenade`, applied by rule
+rather than from a `<tam>` - and those report themselves in the FSM toolbar, which is the only thing visible over
+the browse legend, instead of loading an unrelated call of a similar name.
+
+Gated in poc/tools/fsm-open-probe.mjs: the resolution rule CALLED rather than read (node strips the types), every
+edge of the real asset resolved, every resolved `(entry, setup)` built to confirm the index names a tam of that
+call, the rendered document's own `nodedata` carrying the formation for all 3922 rows, the union and its dedupe,
+the default, and the bridge.
+
+One thing the probe measured on the way past, and did NOT change: 312 of the 1021 ms tams build to FOUR dancers,
+because they list a half set that already contains its own antipodes and `mirrorToFull` leaves such a set alone.
+That is the catalogue's own reading and the same whether a call is picked by hand or from the FSM - but a
+four-dancer board is what the Load button would otherwise be blamed for.

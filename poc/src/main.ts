@@ -8,7 +8,7 @@ import { Player } from './player';
 import { CallBrowser } from './browser';
 import { initSequencer } from './sequencer-ui';
 import { initEditor } from './editor-ui';
-import { renderFsmHtml } from './fsm-view';
+import { renderFsmHtml, mergeFsmTables } from './fsm-view';
 
 // Precomputed FSM table asset(s) written by `node poc/scripts/build-fsm-asset.mjs`.
 const fsmAssets = import.meta.glob<{
@@ -187,6 +187,26 @@ tamSelect.addEventListener('change', () => browser.onSetupChange());
 const fsmPanel = el<HTMLDivElement>('fsmPanel');
 const fsmFrame = el<HTMLIFrameElement>('fsmFrame');
 const fsmTitle = el<HTMLSpanElement>('fsmTitle');
+const fsmLevel = el<HTMLSelectElement>('fsmLevel');
+
+// THE ASSETS ARE PER LEVEL, AND ONE IS PICKED BY NAME. This used to take `Object.values(fsmAssets)[0]` - the
+// first key the bundler happened to emit - which is not a choice anybody made, and which silently draws the
+// wrong level the moment a second asset is built. The dropdown lists what exists, and nothing pretends to be
+// there that is not.
+//
+// ALL LEVELS IS THE UNION, and it is an ITEM rather than a checkbox because it answers the same question the
+// other options do: which tree is on screen. MS IS THE DEFAULT - the level whose asset is built and the one
+// the get-out work is done at - so the panel opens on the tree rather than on the union, which with a single
+// asset built would silently be the same picture under a name that claims more.
+const FSM_ALL = '';
+const fsmByLevel = new Map<string, (typeof fsmAssets)[string]>();
+for (const blob of Object.values(fsmAssets)) {
+  if (blob?.level) fsmByLevel.set(blob.level, blob);
+}
+fsmLevel.add(new Option('All levels', FSM_ALL));
+for (const lv of [...fsmByLevel.keys()].sort()) fsmLevel.add(new Option(lv.toUpperCase(), lv));
+if (fsmByLevel.has('ms')) fsmLevel.value = 'ms';
+else if (fsmByLevel.size > 0) fsmLevel.value = [...fsmByLevel.keys()].sort()[0];
 let fsmActive = false;
 /** The mode the app was in before this one. See `applyMode` and the editor's parked playhead. */
 let lastMode = '';
@@ -194,13 +214,64 @@ let lastMode = '';
 function showFsm() {
   fsmActive = true;
   fsmPanel.hidden = false;
-  const blob = Object.values(fsmAssets)[0];
-  if (blob && blob.table) {
-    fsmFrame.srcdoc = renderFsmHtml({ states: blob.table.states, edges: blob.table.edges }, `FSM · ${blob.level ?? 'ms'}`);
-    fsmTitle.textContent = `FSM (${blob.table.states?.length ?? 0} states, precomputed)`;
+  renderFsm();
+}
+
+/** Draw the selected level's precomputed FSM - or the union of all of them - or say there are none. */
+function renderFsm() {
+  const level = fsmLevel.value;
+  const chosen = level === FSM_ALL ? [...fsmByLevel.values()] : [fsmByLevel.get(level)].filter((b) => !!b);
+  if (chosen.length === 0) {
+    fsmTitle.textContent = `no precomputed FSM for ${level.toUpperCase() || '(none)'} — run poc/scripts/build-fsm-asset.mjs`;
+    fsmFrame.srcdoc = '<p>No FSM asset found for that level.</p>';
+    return;
+  }
+  const table = chosen.length === 1 ? chosen[0].table : mergeFsmTables(chosen.map((b) => b.table));
+  const states = table.states?.length ?? 0;
+  const edgeCount = Object.values(table.edges ?? {}).reduce((n, l) => n + l.length, 0);
+  fsmFrame.srcdoc = renderFsmHtml(table, `FSM · ${level || 'all levels'}`, level);
+  fsmTitle.textContent =
+    level === FSM_ALL
+      ? `ALL · ${states} states, ${edgeCount} edges over ${chosen.length} level${chosen.length === 1 ? '' : 's'}, precomputed`
+      : `${level.toUpperCase()} · ${states} states, precomputed`;
+}
+fsmLevel.addEventListener('change', renderFsm);
+
+/**
+ * A ROW IN THE FSM TAB CAN HAND ITS CALL BACK TO THE APP. The FSM view is a self-contained document in an
+ * iframe and holds precomputed table data, so it does not know what a catalogue entry is; its Load and Edit
+ * icons ask instead of acting, and this is the answer.
+ *
+ * ONLY THE FSM FRAME IS HEARD. A `srcdoc` frame inherits this page's origin, so any frame the page hosts
+ * could post the same message; the source check is what makes it the FSM's rather than anybody's.
+ *
+ * A CALL THE CATALOGUE DOES NOT HOLD IS REPORTED WHERE IT IS VISIBLE. The browse legend is behind this tab,
+ * so "Face Half" - a coded move the FSM applies by rule, 133 of its 1961 edges - would otherwise look like a
+ * button that does nothing.
+ */
+window.addEventListener('message', (ev: MessageEvent) => {
+  if (ev.source !== fsmFrame.contentWindow) return;
+  const d = ev.data as { type?: string; action?: string; call?: string; formation?: string | null; level?: string } | null;
+  if (!d || d.type !== 'fsm-open' || typeof d.call !== 'string') return;
+  openFsmCall(d.action === 'edit' ? 'edit' : 'load', d.call, d.formation ?? null, d.level || fsmLevel.value);
+});
+
+/** Open the call an FSM row names: `load` into the Browse tab, `edit` into the Call editor. */
+function openFsmCall(action: 'load' | 'edit', call: string, formation: string | null, level: string) {
+  const target = browser.resolveFsm(call, formation, level);
+  if (!target) {
+    fsmTitle.textContent = `${call}: not a ${level.toUpperCase() || 'catalogue'} call — the FSM applies it by rule, not from a <tam>`;
+    return;
+  }
+  // The mode first, then the call: the panel that shows it has to be the visible one when it does.
+  if (action === 'edit') {
+    modeSelect.value = 'editor';
+    applyMode();
+    editorUi.openCall(target.callId, target.setupIdx);
   } else {
-    fsmTitle.textContent = 'No precomputed FSM asset — run poc/scripts/build-fsm-asset.mjs';
-    fsmFrame.srcdoc = '<p>No FSM asset found.</p>';
+    modeSelect.value = 'browse';
+    applyMode();
+    browser.loadCatalogue(target.callId, target.setupIdx);
   }
 }
 

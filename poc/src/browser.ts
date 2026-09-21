@@ -11,6 +11,7 @@ import { availableCalls, loadCall } from './data';
 import type { CallInfo } from './data';
 import { addUserFormation, applyLabel, detachLabel, loadUserFormations, reattachLabel, removeUserFormation, setFormationInCorpus } from './formations';
 import type { UserFormation } from './formations';
+import { fsmTarget } from './fsm-target';
 import { modulesUsing, startsAwayFromHome } from './modules';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import type { Stage } from './scene';
@@ -380,7 +381,25 @@ export class CallBrowser {
    *
    * IT IS THE SAME THREE LOADS A CLICK ON THE LISTS MAKES - populate, refresh the setups, `loadCurrent` - so
    * this is not a second way to show a call, it is the way the panel already does it.
+   *
+   * Returns whether that call is the one now shown, so a caller with something of its own to say about WHY it
+   * could not be (the FSM panel, whose own toolbar is the only thing visible over this one) can say it.
    */
+  loadCatalogue(callId: string, setupIdx: number): boolean {
+    const entry = this.catalog.find((c) => c.id === callId);
+    if (!entry) return false;
+    this.levelSelect.value = entry.level;
+    this.populateCalls(callId);
+    if (this.callSelect.value !== callId) return false;
+    this.refreshSetups();
+    const idx = String(setupIdx);
+    if (Array.from(this.tamSelect.options).some((o) => o.value === idx)) this.tamSelect.value = idx;
+    this.renderUses();
+    this.loadCurrent();
+    return true;
+  }
+
+  /** A formation row's Load button: `loadCatalogue` plus what the panel says about it. */
   private loadFormationCall(f: UserFormation) {
     const { callId, setupIdx } = this.formationTarget(f);
     const entry = this.catalog.find((c) => c.id === callId);
@@ -388,21 +407,25 @@ export class CallBrowser {
       this.legend.innerHTML = `<b>${esc(callId)}</b> is not in the loaded catalogue`;
       return;
     }
-    this.levelSelect.value = entry.level;
-    this.populateCalls(callId);
-    if (this.callSelect.value !== callId) {
+    if (!this.loadCatalogue(callId, setupIdx)) {
       this.legend.innerHTML = `<b>${esc(entry.title)}</b> is not offered under <b>${esc(entry.level.toUpperCase())}</b>`;
       return;
     }
-    this.refreshSetups();
-    const idx = String(setupIdx);
-    if (Array.from(this.tamSelect.options).some((o) => o.value === idx)) this.tamSelect.value = idx;
-
-    this.renderUses();
-    this.loadCurrent();
     this.legend.innerHTML =
       `loaded <b>${esc(entry.title)}</b> — <i>${esc(this.tamSelect.selectedOptions[0]?.textContent ?? 'default')}</i>` +
       `<br><span class="small">from <b>${esc(f.name)}</b>: the Level, Call and Setup selectors are now on it</span>`;
+  }
+
+  /**
+   * The `(callId, setupIdx)` an FSM row names - a call TITLE plus the FORMATION its state leaves from.
+   *
+   * Null for a call the catalogue does not hold, which is a real answer rather than a failure: the FSM
+   * applies `Face Right`, `Promenade` and the rest of the coded moves by rule, and 531 of its 1961 edges
+   * name one of those. See `fsm-target.ts` for why nothing is GUESSED beyond an exact formation name.
+   */
+  resolveFsm(title: string, formation: string | null, level: string): { callId: string; setupIdx: number } | null {
+    const t = fsmTarget(this.catalog, title, formation, level);
+    return t ? { callId: t.entry.id, setupIdx: t.setupIdx } : null;
   }
 
   private populateLevels() {

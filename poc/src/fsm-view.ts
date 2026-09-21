@@ -9,8 +9,47 @@ const esc = (s: string) =>
 export interface FsmEdgeData { call: string; endFormation: string | null }
 export interface FsmGraphData { states: string[]; edges: Record<string, FsmEdgeData[]> }
 
-/** Render precomputed FSM data as a self-contained HTML string. */
-export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
+/**
+ * The union of several levels' precomputed tables, which is what "All levels" draws.
+ *
+ * THE LEVELS OVERLAP, so a union is not a concatenation. Each asset is the FSM of one level's catalogue,
+ * and a state - "Static Square", "Wave RH" - is the same geometry whatever level it was reached from, so a
+ * state that appears in two tables is ONE node whose calls are the calls either level can make from it. The
+ * edges are deduped by `(call, endFormation)` for the same reason: the same call landing the same way,
+ * authored again at a later level, is one edge and not two.
+ *
+ * A `null` endFormation is kept rather than dropped - the renderer already skips those edges when it builds
+ * the graph, and dropping them here would make this table disagree with the ones it is made of.
+ */
+export function mergeFsmTables(tables: FsmGraphData[]): FsmGraphData {
+  const states: string[] = [];
+  const seen = new Set<string>();
+  for (const t of tables) {
+    for (const s of t.states ?? []) {
+      if (seen.has(s)) continue;
+      seen.add(s);
+      states.push(s);
+    }
+  }
+  const edges: Record<string, FsmEdgeData[]> = {};
+  for (const t of tables) {
+    for (const [state, list] of Object.entries(t.edges ?? {})) {
+      const out = (edges[state] ??= []);
+      for (const e of list) {
+        if (out.some((x) => x.call === e.call && x.endFormation === e.endFormation)) continue;
+        out.push(e);
+      }
+    }
+  }
+  return { states, edges };
+}
+
+/** Render precomputed FSM data as a self-contained HTML string.
+ *
+ * `level` is carried into the document so a row's Load / Edit icon can say WHICH tree it was clicked in:
+ * the same call title is authored at several levels, and the app has to open the authoring the tree on
+ * screen was built from. */
+export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): string {
   const states = data.states ?? [];
   const edgesFor = (s: string): FsmEdgeData[] => data.edges?.[s] ?? [];
   const HOME = 'Static Square';
@@ -88,8 +127,10 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const nodeList = states.map((s, i) => ({
     name: label(s),
     status: status(i),
-    calls: edges.filter((e) => e.from === i).map((e) => ({ call: e.call, to: label(states[e.to]) })),
-    incoming: edges.filter((e) => e.to === i).map((e) => ({ call: e.call, from: label(states[e.from]) })),
+    // `fromFormation` is the RAW state key, not the display label: it is what the app resolves a setup
+    // against, and the display label rewrites the `@embed` keys that no setup can be named by anyway.
+    calls: edges.filter((e) => e.from === i).map((e) => ({ call: e.call, to: label(states[e.to]), fromFormation: s })),
+    incoming: edges.filter((e) => e.to === i).map((e) => ({ call: e.call, from: label(states[e.from]), fromFormation: states[e.from] })),
   }));
 
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — ${n} states</title><style>
@@ -104,6 +145,8 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   #nodedisp b{font-size:13px}
   #nodedisp ul{margin:4px 0;padding-left:16px}
   #nodedisp li{font-size:11px;color:#333}
+  #nodedisp button.mini{font-size:11px;line-height:1;padding:0 3px;margin-left:3px;border:1px solid #ccd2d8;border-radius:4px;background:#fff;color:#333;cursor:pointer;vertical-align:middle}
+  #nodedisp button.mini:hover{background:#eef2f7;border-color:#8fa8c0;color:#123}
   </style></head><body><div id="side"><h2>${esc(title)} — ${n} states, ${edges.length} edges</h2>
   <p><span class="dot" style="background:#0a7d33"></span>home<br><span class="dot" style="background:#3a9a5f"></span>route home<br><span class="dot" style="background:#e8950c"></span>no route home (approx) (${nohomeList.length})<br><span class="dot" style="background:#d63a3a"></span>dead-end (${deadList.length})</p>
   <button id="rst" title="Reset pan/zoom to show the whole graph">⟲ Reset view</button>
@@ -117,6 +160,7 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   <script type="application/json" id="topo">${JSON.stringify(pos.map((p) => [Math.round(p.x), Math.round(p.y)]))}</script>
   <script>
   const edges=[...document.querySelectorAll('.edge')];const f=document.getElementById('filter');
+  const LEVEL=${JSON.stringify(level)};
   const ECOL={out:'#2e9e4f',in:'#e68a00',both:'#9b5cf6'};
   let sel=-1;
   // Highlight a selected node's incident edges (incoming vs outgoing coloured);
@@ -140,7 +184,14 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM'): string {
   const disp=document.getElementById('nodedisp');
   const STC={home:'#0a7d33',ok:'#3a9a5f',nohome:'#e8950c',dead:'#d63a3a'};
   const stText={home:'home (squared set)',ok:'route home',nohome:'no route home',dead:'DEAD END — no call from here'};
-  const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);const sec=(h,items,arrow)=>{const hd=document.createElement('div');hd.textContent=h;hd.style.fontWeight='600';hd.style.marginTop='4px';disp.appendChild(hd);if(!items.length){const em=document.createElement('div');em.style.color='#888';em.textContent='(none)';disp.appendChild(em);return;}const ul=document.createElement('ul');items.forEach(c=>{const li=document.createElement('li');li.textContent=arrow?c.from+' → '+c.call: c.call+' → '+c.to;ul.appendChild(li);});disp.appendChild(ul);};sec('Calls from here ('+nd.calls.length+'):',nd.calls,false);sec('Calls that lead here ('+nd.incoming.length+'):',nd.incoming,true);};
+  // EACH CALL IN THE LISTS GETS A LOAD AND AN EDIT ICON, because a call named in this graph is the thing
+  // a caller wants next: which calls lead here, and where the one that leaves goes. The two icons ASK THE
+  // APP - this document holds precomputed table data and no catalogue, so it cannot open a call itself.
+  // The message carries the call TITLE, the formation the edge LEAVES FROM and the level of this tree;
+  // resolving those into a catalogue call is the app's job (see fsm-target.ts).
+  const addOpen=(li,call,from)=>{for(const [act,glyph,tip] of [['load','⤓','Load '+call+' into the Browse calls tab'],['edit','✎','Open '+call+' in the Call editor']]){const x=document.createElement('button');x.type='button';x.className='mini';x.textContent=glyph;x.title=tip;x.dataset.act=act;x.dataset.call=call;x.dataset.from=from;li.appendChild(x);}};
+  disp.addEventListener('click',e=>{const b=e.target.closest('button.mini');if(!b)return;e.stopPropagation();parent.postMessage({type:'fsm-open',action:b.dataset.act,call:b.dataset.call,formation:b.dataset.from||null,level:LEVEL},'*');});
+  const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);const sec=(h,items,arrow)=>{const hd=document.createElement('div');hd.textContent=h;hd.style.fontWeight='600';hd.style.marginTop='4px';disp.appendChild(hd);if(!items.length){const em=document.createElement('div');em.style.color='#888';em.textContent='(none)';disp.appendChild(em);return;}const ul=document.createElement('ul');items.forEach(c=>{const li=document.createElement('li');li.textContent=arrow?c.from+' → '+c.call: c.call+' → '+c.to;addOpen(li,c.call,c.fromFormation);ul.appendChild(li);});disp.appendChild(ul);};sec('Calls from here ('+nd.calls.length+'):',nd.calls,false);sec('Calls that lead here ('+nd.incoming.length+'):',nd.incoming,true);};
   function markSel(){document.querySelectorAll('.node').forEach(nd=>{const c=nd.querySelector('.nd');const on=sel>=0&&(+nd.dataset.i===sel);c.setAttribute('stroke',on?'#111':'#00000022');c.setAttribute('stroke-width',on?'3':'1.2');});}
   function select(i){sel=sel===i?-1:i;markSel();paint();if(sel>=0)showNode(sel);else disp.textContent='Click a node to see its calls.';}
   // Selection SET, not toggled: used when a drag ends, so a node that was already selected stays

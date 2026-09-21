@@ -179,6 +179,13 @@ dancers:
   one** — and because the completed copy carries the written dancer's gender, a lone `boy` completes
   to a pair of boys. So a two-dancer formation whose two dancers have different genders must be
   written with **both** dancers and `asymmetric="true"`, which is the only way to say it.
+- **A two-dancer SHAPE is applied to every copy on the board** (§7.2.2, §7.5), which is the answer to
+  "does the call also apply to the other group?". It never matches a whole eight-dancer board — a
+  smaller setup is a subset match, and a whole-board apply refuses one by construction — so the only
+  route is the parallel one: the board is tiled into two-dancer boxes and the pair runs in each.
+  Measured: four facing pairs are four copies, and a board with no such pair (a squared set, where
+  every dancer faces its corner six units away) is **refused** rather than force-fitted, which is what
+  keeps the reading from being a fitted one.
 - **What is measured.** `engine/test/shape-census.mjs` pins this over all 5963 shipped tams: the
   written sizes, `written × symmetry` against the size actually built, the one tam that disagrees
   (`Allemande Left` from `O Trade By`), the four one-dancer authorings that complete to same-gender

@@ -266,5 +266,49 @@ console.log('\n== what the formation registry holds: only the shapes whose decla
     `the drops are absent by name (${witnesses.filter((n) => !names.has(n)).join(', ')}), and whole-set shapes are present`);
 }
 
+console.log('\n== a TWO-DANCER pair: written with both dancers, applied to every copy ==');
+{
+  // THE CASE THAT MOTIVATED THE FIELD. A call between two dancers - a partner arm turn, a step to a
+  // wave between facing dancers - needs a shape whose set really is two dancers, and the two dancers
+  // may differ in gender. The ONE-DANCER authoring cannot express that: the completed copy carries the
+  // written dancer's gender, so a lone `boy` becomes a pair of boys (measured above). Writing BOTH
+  // dancers and declaring `asymmetric="true"` is the way to say it.
+  //
+  // AND IT IS NOT MERELY EXPRESSIBLE - it is APPLICABLE, which is the part worth pinning, because the
+  // reading is the whole question: a 2-dancer shape never matches a whole 8-dancer board (the matcher
+  // rejects a subset mapping for a whole-board apply by construction), so the only route is the
+  // PARALLEL one - the board is tiled into 2-dancer boxes and the pair call runs in every box. This
+  // measures that, and measures the refusal that makes it mean something.
+  const pairXml =
+    `<calls><tam title="Probe Pair" from="Facing Dancers" asymmetric="true"><formation>` +
+    `<dancer gender="boy" x="-1" y="0" angle="0"/>` +
+    `<dancer gender="girl" x="1" y="0" angle="180"/>` +
+    `</formation><path><move select="Extend Left" beats="2"/></path><path><move select="Extend Left" beats="2"/></path>` +
+    `</tam></calls>`;
+  seq.register('Probe Pair', pairXml);
+  const variants = seq.getVariants('Probe Pair') ?? [];
+  check(variants.length === 1 && variants[0].dancers.length === 2 && variants[0].symmetry === 1,
+    `the pair is held at TWO dancers with its own symmetry, not completed (${variants.map((v) => `${v.dancers.length}d symmetry=${v.symmetry}`).join(', ')})`);
+  check(variants[0]?.dancers.map((d) => d.gender[0]).join('') === 'bg',
+    `and BOTH genders survive, which is what the one-dancer authoring cannot do (${variants[0]?.dancers.map((d) => d.gender[0]).join('')})`);
+  // A board of four facing pairs. `Eight Chain Thru` is exactly that: every dancer faces a dancer of
+  // the adjacent couple, 2 apart.
+  const boxes = seq.boardForSetup('Eight Chain Thru');
+  const before = new Map(boxes.dancers.map((d) => [d.id, `${d.x.toFixed(2)},${d.y.toFixed(2)}`]));
+  const applied = seq.applyToBoard(boxes, 'Probe Pair');
+  const moved = applied.legal
+    ? applied.board.dancers.filter((d) => before.get(d.id) !== `${d.x.toFixed(2)},${d.y.toFixed(2)}`).length
+    : 0;
+  check(applied.legal && applied.board.dancers.length === 8 && moved === 8,
+    `applied to a four-facing-pair board it runs in FOUR copies, moving all eight dancers (legal=${applied.legal}, moved=${moved}/8)`);
+  // THE NEGATIVE CONTROL, without which the check above would pass for a call that force-fits anything.
+  // A squared set has no two facing dancers 2 apart - each dancer faces its corner, six units away - so
+  // there is no pair to tile and the call must be refused rather than applied to a made-up grouping.
+  const square = seq.boardForSetup('Static Square');
+  const refused = seq.applyToBoard(square, 'Probe Pair');
+  check(!refused.legal,
+    `and a board with no such pair is REFUSED rather than force-fitted (${refused.reason})`);
+}
+
 console.log(`\nshape-census: ${failures === 0 ? 'all green' : `${failures} FAILED`}`);
 process.exit(failures === 0 ? 0 : 1);

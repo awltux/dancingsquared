@@ -78,7 +78,7 @@ import { HANDLE_COLOR } from './scene';
 export interface EditorUI {
   setActive(a: boolean): void;
   /** Open the INSTANCE editor on one call and one setup, as if both had been chosen from the lists. */
-  openCall(callId: string, setupIdx: number, mirror: boolean): void;
+  openCall(callId: string, setupIdx: number): void;
 }
 
 /** What the editor needs from the rest of the app. */
@@ -501,16 +501,6 @@ export class EditorController implements EditorUI {
   private arcOn = false;
   private arcKey = '';
   /** Which of the shown dancer's moves is selected in the strip. */
-  /**
-   * Whether the instance is being read as the FULL SQUARE. The Browse tab's Full square (mirror) box decides
-   * whether a half-set <tam> is built as four dancers or mirrored to eight, and the Edit button hands that
-   * state over: without it a four-dancer user formation opened the EIGHT-dancer equivalent of its call, which is
-   * a different dance from the one the caller was looking at.
-   *
-   * Picking a call from this panel's own lists resets it to true, because that is what those lists have always
-   * meant - this field only ever carries the caller in from the Browse tab.
-   */
-  private instanceMirror = true;
   private moveIndex = 0;
   /**
    * The other end of the CIRCLE run: the run is `moveIndex .. circleTo` inclusive, and null means "just the
@@ -743,7 +733,7 @@ export class EditorController implements EditorUI {
     this.ensureStartFormations();
     try {
       // `source` is the REFERENCE TRACK: what a clone re-bases away from and reconnects to.
-      this.source = normalizeInstance(loadCall(id, tam, this.instanceMirror));
+      this.source = normalizeInstance(loadCall(id, tam, true));
       this.instance = this.source;
       this.instanceEdited = false;
       this.asClone = false;
@@ -3494,14 +3484,13 @@ export class EditorController implements EditorUI {
       }
     });
     this.editCallSel.addEventListener('change', () => {
-      // A call chosen HERE is the full square, whatever the Edit button last carried in.
-      this.instanceMirror = true;
+
       this.fillSetupSelect(this.editSetupSel, this.editCallSel.value);
       this.loadEditSetup();
       this.loadInstance();
     });
     this.editSetupSel.addEventListener('change', () => {
-      this.instanceMirror = true;
+
       this.loadEditSetup();
       this.loadInstance();
     });
@@ -3562,8 +3551,7 @@ export class EditorController implements EditorUI {
    * so a caller who only wanted to LOOK has changed nothing - and `instanceEdited` stays false, so Save is not
    * offered for a call nobody touched.
    */
-  openCall(callId: string, setupIdx: number, mirror: boolean) {
-    this.instanceMirror = mirror;
+  openCall(callId: string, setupIdx: number) {
     // THE INSTANCE TAB, because that is where a call's own `<tam>` is edited and the button says "edit the
     // call" rather than "open the editor on whatever tab was left showing".
     if (this.modeSel.value !== 'instance') {
@@ -3589,13 +3577,9 @@ export class EditorController implements EditorUI {
     // load an instance, it is the way the lists already do it.
     this.loadEditSetup();
     this.loadInstance();
-    // SAY WHICH READING THIS IS, because a four-row table is otherwise unexplained: the panel has no mirror
-    // control of its own, so the dancer count is the only sign of which half-set reading was opened.
-    const n = this.instance?.dancers.length ?? 0;
-    this.statusEl.textContent =
-      n === 8
-        ? `opened ${this.editCallSel.selectedOptions[0]?.textContent ?? callId} — the full square`
-        : `opened ${this.editCallSel.selectedOptions[0]?.textContent ?? callId} — ${n} dancers, the half-set reading (the Browse tab's mirror box was off)`;
+    // AND SAY WHAT WAS OPENED. The panel loads the full square and nothing else, so this is a plain confirmation
+    // rather than a warning about which of two readings is on screen.
+    this.statusEl.textContent = `opened ${this.editCallSel.selectedOptions[0]?.textContent ?? callId}`;
   }
 
   setActive(a: boolean) {

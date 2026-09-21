@@ -60,10 +60,10 @@ const browser = new CallBrowser(stage, player, {
   registerFormation: (name, dancers) => seqUi.registerFormation(name, dancers),
   // The browse list's Edit button. `editorUi` is declared BELOW this, which is fine for the same reason
   // `applyMode` is: this closure only runs on a click, long after both exist.
-  openEditor: (callId, setupIdx, mirror) => {
+  openEditor: (callId, setupIdx) => {
     modeSelect.value = 'editor';
     applyMode();
-    editorUi.openCall(callId, setupIdx, mirror);
+    editorUi.openCall(callId, setupIdx);
   },
 });
 // The editor drives the stage through the browse view: `preview` shows a bundle, and
@@ -103,7 +103,6 @@ const beatInput = el<HTMLInputElement>('beatInput');
 const levelSelect = el<HTMLSelectElement>('levelSelect');
 const callSelect = el<HTMLSelectElement>('callSelect');
 const tamSelect = el<HTMLSelectElement>('tamSelect');
-const mirrorCheck = el<HTMLInputElement>('mirror');
 
 const STEP = 0.25; // beats per step
 let lastTime = performance.now();
@@ -182,7 +181,6 @@ reflectPlayState();
 levelSelect.addEventListener('change', () => browser.onLevelChange());
 callSelect.addEventListener('change', () => browser.onCallChange());
 tamSelect.addEventListener('change', () => browser.onSetupChange());
-mirrorCheck.addEventListener('change', () => browser.onMirrorChange());
 
 // ---------------------------------------------------------------- mode switch
 

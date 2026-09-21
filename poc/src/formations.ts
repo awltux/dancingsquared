@@ -34,16 +34,6 @@ export interface UserFormation {
   callId?: string;
   setupIdx?: number;
   /**
-   * Whether the call was being shown FULL-SQUARE when this was stored.
-   *
-   * IT IS NOT DECORATION. The Browse tab's `Full square (mirror)` box decides whether a half-set `<tam>` is built
-   * as four dancers or mirrored to eight - and MEASURED, 1396 of the 1879 tams in ms/b1/a1 are authored as four
-   * and become eight under it. A formation made with the box OFF is a four-dancer shape, and it belongs to the
-   * FOUR-dancer reading of its call: opening the editor without this recorded showed the eight-dancer
-   * equivalent, which is a different dance from the one the caller was looking at.
-   */
-  mirror?: boolean;
-  /**
    * WHETHER THIS SHAPE HAS BEEN ADDED TO THE CORPUS - `poc/src/assets/formations.xml`.
    *
    * A browser cannot write that file, so this is the CALLER'S ASSERTION that the `<formation>` block

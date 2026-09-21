@@ -165,17 +165,18 @@ check(/#hud \.row\.ed-formation \.part \{ flex: 1 0 100%; \}/.test(read('src/sty
   'and the stylesheet gives it the whole first line, so the buttons really start on the next one rather than sharing it');
 // The handler resolves the target through the shared helper (checked below, where the ids and the fallback
 // live) and then goes through the host rather than reaching into the editor itself.
-check(/button\[data-edit\]/.test(browserSrc) && /this\.host\.openEditor\(t\.callId, t\.setupIdx, t\.mirror\)/.test(browserSrc),
+check(/button\[data-edit\]/.test(browserSrc) && /this\.host\.openEditor\(t\.callId, t\.setupIdx/.test(browserSrc),
   'and its handler goes through the host rather than reaching into the editor itself');
 check(/callId\?: string;[\s\S]{0,200}?setupIdx\?: number;/.test(formationsSrc),
   'which is why a formation now stores those ids: `origin` is display text and cannot be resolved back to a call');
 check(/callId: this\.callSelect\.value,[\s\S]{0,80}?setupIdx: parseInt\(this\.tamSelect\.value/.test(browserSrc),
   'and they are recorded at the moment it is created');
-check(/openEditor\(callId: string, setupIdx: number, mirror: boolean\): void;/.test(browserSrc), 'the host interface declares it');
-check(/openEditor: \(callId, setupIdx, mirror\) => \{[\s\S]{0,200}?modeSelect\.value = 'editor';[\s\S]{0,120}?applyMode\(\);[\s\S]{0,90}?editorUi\.openCall\(callId, setupIdx, mirror\);/.test(mainSrc),
+check(/openEditor\(callId: string, setupIdx: number/.test(browserSrc), 'the host interface declares it');
+check(/openEditor: \(callId, setupIdx[\s\S]{0,200}?modeSelect\.value = 'editor';[\s\S]{0,120}?applyMode\(\);[\s\S]{0,90}?editorUi\.openCall\(callId, setupIdx/.test(mainSrc),
   'and the app switches the MODE SELECTOR to the editor and applies it - a call that loaded without the panel being shown would look like nothing happened');
 // The IMPLEMENTATION, not the interface declaration, which indexOf finds first and which has no body.
-const oi = editorSrc.indexOf('openCall(callId: string, setupIdx: number, mirror: boolean) {');
+// The IMPLEMENTATION, not the interface declaration - indexOf finds the interface first and it has no body.
+const oi = editorSrc.indexOf('openCall(callId: string, setupIdx: number) {');
 const openCall = oi < 0 ? '' : editorSrc.slice(oi, editorSrc.indexOf('\n  }\n', oi));
 check(openCall !== '', 'the editor has an `openCall`');
 check(/this\.loadEditSetup\(\);\s*\n\s*this\.loadInstance\(\);/.test(openCall), 'and it loads the setup and the instance');
@@ -184,40 +185,27 @@ check(/this\.levelSel\.value = '';[\s\S]{0,160}?this\.callQuery = '';[\s\S]{0,60
 check(!/instanceEdited = true/.test(openCall) && !/setMove\(|commit\(|setDancer(Start|End|Gender)\(/.test(openCall),
   'and it EDITS NOTHING - choosing a call and loading it is what clicking the two lists does, so a caller who only wanted to look has changed nothing and Save is not offered');
 // ---------------------------------------------------------------------------
-// THE HALF-SET READING, which the Edit button used to lose.
+// THE FULL SQUARE, ALWAYS - the mirror checkbox is gone.
 //
-// Reported: "When editing a 4 dancer user defined formation, the Call Editor doesnt open the correct call, it
-// ends up being an 8 person equivalent" - pressing Edit on a user-defined formation row in the Browse tab.
-//
-// THE BROWSE TAB'S `Full square (mirror)` BOX DECIDES HOW MANY DANCERS A HALF-SET TAM HAS, and the editor had no
-// such control: `loadInstance` hardcoded `loadCall(id, tam, true)`, so a formation stored with the box OFF - a
-// FOUR-dancer shape - opened the EIGHT-dancer reading of its call. MEASURED over ms/b1/a1: 1396 of 1879 tams are
-// authored as four dancers and become eight under mirroring, so this is most of the corpus and not a corner.
-console.log('\n== the half-set reading survives the Edit button ==');
-const editorBody = (sig) => {
-  const i = editorSrc.indexOf(sig);
-  return i < 0 ? '' : editorSrc.slice(i, editorSrc.indexOf('\n  }\n', i));
-};
-check(/mirror\?: boolean;/.test(formationsSrc),
-  'a formation records whether it was made with the mirror box ON, which decides whether its call is four dancers or eight');
-check(/mirror: this\.mirrorCheck\.checked,/.test(browserSrc), 'and it is recorded at the moment it is created');
-check(/openEditor\(callId: string, setupIdx: number, mirror: boolean\): void;/.test(browserSrc),
-  'the host carries it, rather than the editor guessing');
-check(/this\.host\.openEditor\(t\.callId, t\.setupIdx, t\.mirror\);/.test(browserSrc), 'the Edit handler passes it');
-check(/mirror: f\.mirror \?\? true,/.test(browserSrc),
-  'and a formation stored before the flag existed means the box ON, which is the Browse tab own default');
-check(/openCall\(callId: string, setupIdx: number, mirror: boolean\) \{\s*\n\s*this\.instanceMirror = mirror;/.test(editorSrc),
-  'the editor takes it');
-check(/loadCall\(id, tam, this\.instanceMirror\)/.test(editorSrc),
-  'and `loadInstance` USES it - the hardcoded `true` was the whole defect');
-check(/instanceMirror = true;/.test(editorBody('this.editCallSel.addEventListener')) && /instanceMirror = true;/.test(editorBody('this.editSetupSel.addEventListener')),
-  'while a call picked from the editor own lists still means the full square, which is what those lists have always meant');
-// The load button restores the same state, because it is the same question: what was being looked at.
-check(/this\.mirrorCheck\.checked = mirror;/.test(browserSrc),
-  'and the `load` button puts the mirror box back, so the Browse tab is restored to the reading the formation was made in');
-// A four-row table has to SAY why, since the editor has no mirror control of its own.
-check(/the half-set reading \(the Browse tab's mirror box was off\)/.test(editorSrc),
-  'and opening a half-set instance says so, because four rows are otherwise unexplained in a panel with no mirror control');
+// Asked for as: "The full square (mirror) checkbox is not required as it should always be enabled." It decides
+// whether a half-set `<tam>` is built as four dancers or mirrored to eight, and a formation is half the set it
+// represents - so the whole set is the only reading there is. The control, the plumbing that carried its state
+// into the editor, and the field a formation stored it in are all removed rather than left switched on.
+console.log('\n== the full square is the only reading ==');
+// (`editorSrc`, `browserSrc`, `mainSrc` and `formationsSrc` are read once above, by the sections that check the
+// Edit button.)
+check(!/<input id="mirror"/.test(html), 'the checkbox is GONE from the panel');
+check(!/mirrorCheck/.test(mainSrc) && !/mirrorCheck/.test(browserSrc),
+  'and nothing reads or writes it - a control removed while something still reads it would be the same bug wearing a different face');
+check(!/onMirrorChange/.test(browserSrc), 'the handler that reloaded on it is gone too');
+check(/this\.showCall\(loadCall\(id, tamIndex, true\)\);/.test(browserSrc),
+  'the Browse tab loads the FULL SQUARE, which is the only reading there is');
+check(!/instanceMirror/.test(editorSrc) && /loadCall\(id, tam, true\)/.test(editorSrc),
+  'and the editor does the same, by the same rule rather than by a flag carried between panels');
+check(!/mirror\?: boolean;/.test(formationsSrc) && !/f\.mirror/.test(browserSrc),
+  'and a formation no longer stores a reading that cannot vary');
+check(/openEditor\(callId: string, setupIdx: number\): void;/.test(browserSrc) && /openCall\(callId: string, setupIdx: number\): void;/.test(editorSrc),
+  'so the Edit path carries the call and the setup and nothing else');
 console.log('\n== the check fails on the bugs it was written for ==');
 {
   const unfiltered = wiring(html, src['editor-ui.ts'].replace('const level = this.levelSel.value;', 'const level = \'\';'));

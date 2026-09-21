@@ -2792,3 +2792,25 @@ four rows in a panel with no mirror control are otherwise unexplained.
 Six of the probe's earlier checks had to be loosened for the widened signatures - they were pinned to the exact
 parameter list rather than to the call, and two of them then matched the INTERFACE declaration instead of the
 method body when `indexOf` found it first. Same trap as before: a gate on the text rather than the behaviour.
+
+THE Full square (mirror) CHECKBOX IS REMOVED. Asked for: "The full square (mirror) checkbox is not required as it
+should always be enabled."
+
+It decided whether a half-set <tam> is built as four dancers or mirrored to eight, and a formation is half the set
+it represents - so the whole set is the reading there is. The Browse tab loads the full square now, the editor
+does the same by the same rule rather than by a flag carried between panels, and the `mirror` field a formation
+stored is gone with it.
+
+That removes the contradiction the previous two commits were circling: the checkbox built a FOUR-dancer board out
+of a four-dancer tam, which is a shape the library never names (it holds whole sets) and a dance nobody asked for.
+So the half-set reading I added in 611e5a8 is reverted - it was the wrong direction, and the "not named" report
+was it showing through.
+
+Everything is REMOVED rather than left switched on: the control, the EditorHost/EditorUI parameter that carried
+its state, `onMirrorChange`, and the stored field.
+
+AND THE PROBE'S FOUR CROSS-PANEL CHECKS ARE NOW SIGNATURE-AGNOSTIC, because they broke on three consecutive
+commits by pinning the exact parameter list - `openEditor(t.callId, t.setupIdx, t.mirror)` and its friends. They
+now match the call and stop at the arguments, which is what they were always about. The one place that genuinely
+needs the signature is the body extraction, and that is anchored on the implementation rather than the interface
+(`indexOf` finds the interface first, and it has no body).

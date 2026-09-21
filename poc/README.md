@@ -1393,6 +1393,21 @@ too, since it restores the same thing.
 **And opening a half-set instance says so**, because the editor has no mirror control of its own and four rows are
 otherwise unexplained: *"opened Circle Left — 4 dancers, the half-set reading (the Browse tab's mirror box was
 off)"*.
+**The `Full square (mirror)` checkbox is GONE — the full square is the only reading.** Asked for as: *"The full
+square (mirror) checkbox is not required as it should always be enabled."*
+
+It decided whether a half-set `<tam>` is built as four dancers or mirrored to eight, and **a formation is half the
+set it represents** — so the whole set is the reading there is. The Browse tab now loads
+`loadCall(id, tamIndex, true)`, the editor loads `loadCall(id, tam, true)` by the same rule rather than by a flag
+carried between panels, and the `mirror` field a formation stored is gone with it.
+
+That also removes the contradiction the last two commits were circling: the checkbox built a *four*-dancer board
+out of a four-dancer `<tam>`, which is a shape the library never names (it holds whole sets) and a dance nobody
+asked for. Nothing in the panel offered a half-set reading that could be named, so the state it created could only
+ever look broken.
+
+The control, the `EditorHost`/`EditorUI` parameter that carried its state, `onMirrorChange`, and the stored field
+are all **removed rather than left switched on**.
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

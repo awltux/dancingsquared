@@ -121,8 +121,22 @@ check(align(b3, bv) < -0.9, `boy body points opposite his 3D orbit (backs up); c
 
 // ------------------------------------------------------------- pass thru
 console.log('== Pass Thru (Normal Lines) ==');
-const passHalf = loadCallFromXml(read('src/assets/ms/pass_thru.xml'), movesXml, formationsXml, 1, false);
-const pass = loadCallFromXml(read('src/assets/ms/pass_thru.xml'), movesXml, formationsXml, 1);
+// SELECTED BY ITS `from`, NOT BY AN INDEX, and that is the whole of this change.
+//
+// This read `tamIndex: 1`, which WAS the `Lines` authoring - until a hand-added `from="Facing
+// Couples"` variant was inserted at index 1 (the separation-2 tam the published get-outs need; the
+// asset carries its own comment). Inserting it silently moved this test onto a TWO-dancer
+// facing-couples PAIR, and the three checks below went red saying "Pass Thru half has 2 dancers" -
+// true of the tam it loaded, and wrong about the one it meant. The numbers here (4 half, 8 mirrored,
+// a line of four all holding hands) describe the `Normal Lines` authoring and nothing else, so the
+// lookup names it. A position into an authored list is not an identity: the pair authoring is a
+// legitimate 2-written shape (2 declares 4), so the tam was never the thing at fault.
+const passXml = read('src/assets/ms/pass_thru.xml');
+const passTams = parseCallXml(passXml);
+const linesIdx = passTams.findIndex((t) => t.from === 'Lines' && t.formationAttr === 'Normal Lines');
+check(linesIdx >= 0, `the Normal Lines authoring of Pass Thru exists (index ${linesIdx} of ${passTams.length})`);
+const passHalf = loadCallFromXml(passXml, movesXml, formationsXml, linesIdx, false);
+const pass = loadCallFromXml(passXml, movesXml, formationsXml, linesIdx);
 check(passHalf.dancers.length === 4, `Pass Thru half has ${passHalf.dancers.length} dancers (expect 4)`);
 check(pass.dancers.length === 8, `Pass Thru full (mirrored) has ${pass.dancers.length} dancers (expect 8)`);
 passHalf.dancers.forEach((d, i) => {

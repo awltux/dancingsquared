@@ -1832,7 +1832,7 @@ export interface CallXmlOptions {
 
 /** Serialize an arbitrary call bundle as a taminations-style `<tam>` XML string.
  *
- * EVERY DECLARATION THE BUNDLE CARRIES IS WRITTEN BACK OUT, and the two attributes that
+ * EVERY DECLARATION THE BUNDLE CARRIES IS WRITTEN BACK OUT, and the three attributes that
  * used to be dropped are the ones that change behaviour:
  *
  *  - `sequencer` decides whether the sequencer may MATCH this variant. A fix or a created
@@ -1842,6 +1842,10 @@ export interface CallXmlOptions {
  *  - `actives` says WHICH dancers the tam's paths describe, which is the whole reason
  *    `Centers Split Two` currently applies as a whole-board `Pass Thru`. An editor has no
  *    business erasing the attribute that records that.
+ *  - `asymmetric` says HOW MANY COPIES of the written dancers make the set. The output is
+ *    always a whole set (every dancer is written out), so this is always written, and
+ *    without it a whole set whose geometry has no antipodal pair came back DOUBLED by the
+ *    registration path. See the attribute's own note below for the measurement.
  *
  * The edit is written in EXPANDED form: named `<move select="…"/>` references come out as
  * explicit `<movement>` Beziers. The two are the same animation (`resolvePath` expands the
@@ -1881,6 +1885,27 @@ export function callToXml(call: CallBundle, name?: string, opts: CallXmlOptions 
     `parts="${esc(call.parts)}"`,
     call.sequencerMode ? `sequencer="${call.sequencerMode}"` : '',
     call.actives ? `actives="${esc(call.actives)}"` : '',
+    // THE EMITTED SHAPE IS ALWAYS A WHOLE SET - IN EMBED MODE, where every dancer is written out
+    // (a mirrored half-set dancer is serialized as the equivalent NON-mirror dancer, see above, so the
+    // text carries the full set and the completion must not add another). So that is the mode that
+    // says so.
+    //
+    // NOT IN REFERENCE MODE, and the distinction is not pedantry: there the dancers come from the
+    // NAMED formation, so the attribute would be describing a shape this writer did not write - and a
+    // name like `Facing Couples Compact` is authored as TWO dancers declaring FOUR. Writing
+    // `asymmetric="true"` beside such a name says "take the name's two dancers as the whole set",
+    // which is false. It happens to round-trip today, because a reference tam carries one path per
+    // COMPLETED dancer and `buildCallImpl`'s full-set branch places the missing half from the path
+    // count; the attribute would be a second, contradicting source of truth for the same fact.
+    //
+    // MEASURED, and it is a real defect this closes rather than a formality: an exported eight-dancer
+    // set whose geometry contains NO antipodal pair was re-read by the sequencer's registration path
+    // (`CallLibrary.loadVariants` -> `buildCall(..., mirror: true)`) as SIXTEEN dancers, because
+    // `mirrorToFull`'s antipode test could not tell it was already whole. `data.ts`'s `rebuildInstance`
+    // passes `mirror: false` and its comment says that is the protection - but `registrationXml`
+    // registers the SAME xml through `library.register`, where that flag does not apply, so the
+    // protection covered only half the readers. The declaration covers all of them.
+    reference ? '' : 'asymmetric="true"',
   ]
     .filter((a) => a !== '')
     .join(' ');

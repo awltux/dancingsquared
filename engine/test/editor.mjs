@@ -564,13 +564,19 @@ console.log('\n== the facing curve cannot express its first control point\'s y (
   }
 }
 
-// The one footgun the export carries, pinned rather than discovered later: the ENGINE's
-// own mirror rule is geometric ("mirror the half set unless a 180-degree partner already
-// exists"), so an 8-dancer instance whose edited formation has no origin-opposite pair is
-// DOUBLED when it is read back with mirror=true. The editor's own path is mirror=false,
-// which is why the round trip above is exact; anything that writes an edited tam into the
-// assets must know which of the two it is asking for.
-console.log('\n== the mirror-on-reparse footgun (14d) ==');
+// THE MIRROR-ON-REPARSE FOOTGUN, CLOSED BY THE DECLARATION RATHER THAN BY REMEMBERING A FLAG.
+//
+// The ENGINE's own mirror rule is geometric ("mirror the half set unless a 180-degree partner already
+// exists"), so a written-out eight-dancer instance whose edited formation has no origin-opposite pair
+// used to be DOUBLED when it was read back with mirror=true. That mattered because BOTH readings are
+// real: the editor's own path passes mirror=false, but `Catalog.registrationXml` registers the SAME
+// xml through `CallLibrary.loadVariants`, which passes mirror=true - so the sequencer could see a
+// 16-dancer variant of an edit that is eight dancers. `callToXml` now writes `asymmetric="true"`,
+// because its output is always a whole set (it un-mirrors every dancer and writes them all out).
+//
+// The hazard itself is NOT gone and is still checked below: a shape that declares nothing is mirrored
+// on its geometry, which is the reason the attribute has to be written at all.
+console.log('\n== the mirror-on-reparse footgun (14d), closed by declaration ==');
 {
   // A rigid move (translation, or rotation about the origin) PRESERVES every origin-opposite
   // pair, so it cannot demonstrate anything. Moving one dancer out of each pair can: the
@@ -581,11 +587,17 @@ console.log('\n== the mirror-on-reparse footgun (14d) ==');
     lopsided = setDancerStart(lopsided, i, { x: r.start.x + 2.5, y: r.start.y + 2.5, heading: r.start.heading });
   }
   const xml = callToXml(lopsided, lopsided.from);
-  const tam = parseCallXml(xml)[0];
-  const doubled = buildCall(tam, parseFormations(formationsXml), parseMoves(movesXml), true);
-  const plain = buildCall(tam, parseFormations(formationsXml), parseMoves(movesXml), false);
+  check(/asymmetric="true"/.test(xml), 'the export declares that it is a whole set');
+  const tm = parseCallXml(xml)[0];
+  const doubled = buildCall(tm, parseFormations(formationsXml), parseMoves(movesXml), true);
+  const plain = buildCall(tm, parseFormations(formationsXml), parseMoves(movesXml), false);
   check(plain.dancers.length === 8, `mirror=false reads the edited instance back as 8 dancers (${plain.dancers.length})`);
-  check(doubled.dancers.length === 16, `mirror=true DOUBLES a formation with no origin-opposite pair (${doubled.dancers.length}) - the editor must export/import with mirror=false`);
+  check(doubled.dancers.length === 8,
+    `and mirror=true AGREES now - the declaration, not the caller's flag, is what keeps a whole set whole (${doubled.dancers.length})`);
+  const stripped = parseCallXml(xml.replace(/\s*asymmetric="true"/, ''))[0];
+  const undeclared = buildCall(stripped, parseFormations(formationsXml), parseMoves(movesXml), true);
+  check(undeclared.dancers.length === 16,
+    `the same shape WITHOUT the declaration is still doubled (${undeclared.dancers.length}) - so the rule is the DATA's`);
   const symmetric = buildCall(parseCallXml(callToXml(inst, inst.from))[0], parseFormations(formationsXml), parseMoves(movesXml), true);
   check(symmetric.dancers.length === 8, `a symmetric formation is not doubled (${symmetric.dancers.length})`);
 }

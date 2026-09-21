@@ -164,6 +164,24 @@ console.log('\n== the rule has a DIRECTION: the declaration decides, not the geo
   // beats doubling it. This is why `mirrorToFull` keeps its antipode test under the declared rule.
   check(build(synthetic('', antipodal)) === 2,
     'a shape declaring nothing that already contains antipodes is left alone (the forgotten-attribute tolerance)');
+  // AND THE DECLARATION SURVIVES THE EXPORT, which is where it earns its keep: `callToXml` writes every
+  // dancer out explicitly, so its output is a whole set and must say so. Without the attribute a
+  // written-out set with no antipodal pair came back DOUBLED - and the reader that doubled it is the
+  // SEQUENCER's registration path (`loadVariants` passes `mirror: true`), not the editor's, so the
+  // `mirror: false` that `rebuildInstance` passes covered only half of them. The pair below is the
+  // witness: read back both ways, the same size either way.
+  const whole = synthetic('asymmetric="true"', [
+    { gender: 'boy', x: 1, y: 3 }, { gender: 'girl', x: 1, y: 1 },
+    { gender: 'girl', x: 3, y: 3 }, { gender: 'boy', x: 3, y: 1 },
+    { gender: 'boy', x: -3, y: 3 }, { gender: 'girl', x: -3, y: 1 },
+    { gender: 'girl', x: -1, y: 3 }, { gender: 'boy', x: -1, y: 1 },
+  ]);
+  const bundle = buildCall(whole, formations, moves, true);
+  const exported = callToXml(bundle, 'Probe');
+  const reread = parseCallXml(exported)[0];
+  check(/asymmetric="true"/.test(exported), 'callToXml declares the whole set it wrote out');
+  check(bundle.dancers.length === 8 && buildCall(reread, formations, moves, true).dancers.length === 8,
+    `an exported whole set with no antipodal pair re-reads at 8 either way (was 16 through the registration path)`);
 }
 
 console.log('\n== the authoring idiom: ONE PATH PER WRITTEN DANCER, and the completion duplicates it ==');

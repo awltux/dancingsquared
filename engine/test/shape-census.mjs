@@ -46,7 +46,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, buildCall, parseCallXml, parseFormations, parseMoves, setParser } from '../dist/index.js';
+import { Sequencer, buildCall, callToXml, parseCallXml, parseFormations, parseMoves, setParser } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
@@ -119,22 +119,51 @@ console.log('== the shipped tams, by authored (written) size ==');
 console.log('\n== symmetry: the declared rule is `written x symmetry`, and it is what the build does ==');
 {
   const built = rows.filter((r) => r.built !== null);
-  const declared = rows.filter((r) => r.built === r.written * r.symmetry);
   const mismatched = rows.filter((r) => r.built !== null && r.built !== r.written * r.symmetry);
-  console.log(`  ${built.length} of ${rows.length} tams build; ${declared.length} build at written x symmetry`);
+  console.log(`  ${built.length} of ${rows.length} tams build; ${built.length - mismatched.length} build at written x symmetry`);
   check(JSON.stringify(tally(built.map((r) => r.built))) === JSON.stringify([[2, 4], [4, 1081], [6, 19], [8, 4798], [12, 38], [16, 21]]),
     `built sizes are ${tally(built.map((r) => r.built)).map(([k, v]) => `${k}:${v}`).join(' ')}`);
-  // THE PIN THAT MATTERS. The declaration and the geometric guess agree everywhere but here, and this
-  // is the ONE tam whose row the switch to the declaration will move (8 -> 16). Asserted by NAME, so
-  // switching cannot quietly take a second case with it.
-  check(mismatched.length === 1 && mismatched[0].title === 'Allemande Left' && mismatched[0].from === 'O Trade By',
+  // NO SHIPPED TAM BUILDS AGAINST ITS DECLARATION. There was exactly one until the declaration became
+  // the rule: `Allemande Left` from `O Trade By` (ms/allemande.xml) writes all eight dancers and eight
+  // paths, and nothing said so, so `mirrorToFull`'s antipode test was what kept it at eight - right by
+  // luck. It now declares `asymmetric="true"`, which is what that comment block above the tam records.
+  // The list is printed IN FULL so a new disagreement names itself instead of only changing a count.
+  check(mismatched.length === 0,
     mismatched.length === 0
-      ? 'no tam builds against its declaration'
-      : `exactly one tam builds against its declaration: ${mismatched.map((r) => `${r.title} [${r.from}] written ${r.written} x ${r.symmetry} = ${r.written * r.symmetry}, built ${r.built}`).join('; ')}`);
+      ? 'no shipped tam builds against its declaration'
+      : `${mismatched.length} tam(s) build against their declaration: ${mismatched.map((r) => `${r.title} [${r.from}] written ${r.written} x ${r.symmetry} = ${r.written * r.symmetry}, built ${r.built}`).join('; ')}`);
   // The opt-out is rare, which is why the default has to be the convention rather than the attribute.
   const optOut = rows.filter((r) => r.symmetry === 1);
-  check(optOut.length === 18 && optOut.every((r) => r.built === r.written),
+  check(optOut.length === 19 && optOut.every((r) => r.built === r.written),
     `${optOut.length} tams declare asymmetric="true" and every one is taken as written`);
+}
+
+console.log('\n== the rule has a DIRECTION: the declaration decides, not the geometry ==');
+{
+  // A synthetic tam, because the shipped corpus cannot show this: all 19 tams that opt out happen to
+  // contain an antipodal pair, so on today's data "taken as written" and "left alone by the antipode
+  // test" are indistinguishable. The two shapes below differ ONLY in the attribute, and NEITHER
+  // contains an antipode - so geometry alone would complete both to four, and only a rule that reads
+  // the declaration can tell them apart. That is the difference between a correct answer and a lucky
+  // one, and it is what stops the field from being carried-but-unread.
+  const synthetic = (attrs, dancers) =>
+    parseCallXml(
+      `<tams><tam title="Probe" from="Probe" ${attrs}><formation>` +
+        dancers.map((d) => `<dancer gender="${d.gender}" x="${d.x}" y="${d.y}" angle="0"/>`).join('') +
+        `</formation>${dancers.map(() => '<path><move select="Extend Left" beats="2"/></path>').join('')}</tam></tams>`,
+    )[0];
+  const build = (t) => buildCall(t, formations, moves, true).dancers.length;
+  const couple = [{ gender: 'boy', x: 1, y: 1 }, { gender: 'girl', x: 1, y: -1 }];
+  const antipodal = [{ gender: 'boy', x: 1, y: 1 }, { gender: 'girl', x: -1, y: -1 }];
+  check(build(synthetic('asymmetric="true"', couple)) === 2,
+    'a 2-dancer unit declaring asymmetric="true" is taken as written (2)');
+  check(build(synthetic('', couple)) === 4,
+    'the SAME unit without it completes to 4 - so the declaration is what decided, not the geometry');
+  // AND THE TOLERANCE IS STILL THERE, deliberately: a shape that declares nothing but already contains
+  // its own 180-degree partners is a whole set whose attribute was forgotten, and leaving it alone
+  // beats doubling it. This is why `mirrorToFull` keeps its antipode test under the declared rule.
+  check(build(synthetic('', antipodal)) === 2,
+    'a shape declaring nothing that already contains antipodes is left alone (the forgotten-attribute tolerance)');
 }
 
 console.log('\n== the authoring idiom: ONE PATH PER WRITTEN DANCER, and the completion duplicates it ==');

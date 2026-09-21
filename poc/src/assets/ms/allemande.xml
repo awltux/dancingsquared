@@ -279,8 +279,14 @@
        the couples have PROGRESSED (`Four Ladies Chain` first, as `figm167`/`figm171` do - measured:
        six of the eight slots swap gender), and the allemande at a slot is fixed by the pose's
        geometry - who you face and which arm. Declaring genders here would need two copies of this
-       tam and would still gate on a fact that does not decide the motion. -->
-  <tam title="Allemande Left" from="O Trade By">
+       tam and would still gate on a fact that does not decide the motion.
+
+       WRITTEN OUT IN FULL, so it declares `asymmetric="true"` - the eight dancers are all here and
+       the completion must not supply eight more. That was already the answer, but by GEOMETRY: the
+       pose contains antipodal pairs, so `mirrorToFull` left it alone. The declaration is what makes
+       it the answer for the stated reason rather than by luck, and it is the ONE shipped tam that
+       `engine/test/shape-census.mjs` found building against its declared symmetry. -->
+  <tam title="Allemande Left" from="O Trade By" asymmetric="true">
     <formation>
       <dancer gender="boy" x="1" y="3" angle="180"/>
       <dancer gender="girl" x="-1" y="3" angle="0"/>

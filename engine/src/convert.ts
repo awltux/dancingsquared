@@ -421,14 +421,20 @@ function buildCallImpl(
   const leadin = 2;
   const leadout = 2;
 
-  // THE COMPLETION, APPLIED BY GEOMETRY RATHER THAN BY THE DECLARATION. `tam.symmetry` is the corpus's
-  // own answer (1 = take the written dancers as they stand, 2 = they are half the set) and is carried
-  // onto the bundle below, but the completion performed here is still `mirrorToFull`'s geometric
-  // proxy — duplicate unless some pair of the written dancers already sits 180 degrees apart. The two
-  // agree on every shipped tam but ONE (`Allemande Left` from `O Trade By`), and that case is pinned in
-  // `test/shape-census.mjs`, which is what makes switching to the declaration a bounded, reviewable
-  // change rather than a rewrite.
-  const dancers2 = mirror ? mirrorToFull(withPath) : withPath;
+  // THE COMPLETION, APPLIED BY THE DECLARATION. `tam.symmetry` is the corpus's own answer: 1 = take
+  // the written dancers as they stand, 2 = they are half the set and the completion supplies the other
+  // half. `mirror` is the caller's separate permission to complete at all (`false` when reading an
+  // already-expanded instance back).
+  //
+  // `mirrorToFull` STILL TESTS FOR AN ANTIPODE, and that is deliberately kept: a shape declaring
+  // symmetry 2 that already contains a pair of dancers 180 degrees apart is a whole set whose attribute
+  // was forgotten, and leaving it alone is a far better failure than doubling it. It is a TOLERANCE for
+  // bad data, not the rule - the rule is the declaration, which is what makes the 18 tams that ARE
+  // taken as written do so for the stated reason instead of because their geometry happened to say so.
+  // MEASURED after giving `Allemande Left` from `O Trade By` its attribute (it was the one shipped tam
+  // whose built size disagreed with its declaration): this changes NO shipped variant's size, and
+  // `test/shape-census.mjs` gates the rule on synthetic shapes in both directions.
+  const dancers2 = mirror && tam.symmetry === 2 ? mirrorToFull(withPath) : withPath;
 
   return {
     title: tam.title,

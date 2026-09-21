@@ -4285,6 +4285,17 @@ walk-through section - it is worse on collisions and peak speed and cannot meet 
     plus `Lead Right from Eight Chain Thru`. Small (worst 0.1476 units) but it is a teleport on the
     last beat, and it names one cause: the pose just before the end is not the pose `applyWholeBoard`
     stores. Start from `poseFor(t, dancerBeats(t))` versus `endPoses(variant)`.
+    **AND THERE IS AN EIGHTH THAT LIST CANNOT SEE, because it is HEADING-ONLY (round 41).** The seven
+    above are measured by `anim-convergence.mjs`'s POSITION gap, so a final-beat heading snap with no
+    movement is invisible to it. `behaviour-audit.mjs`'s check measures both, and sweeping the whole
+    legal set (2074 pairs) finds exactly one offender: **`Cloverleaf` from a `3/4 Tag` snaps dancer #8
+    by 90.00 degrees on the final beat with dPos 0.0000**. Verified under BOTH the harness's
+    basename-keyed catalogue and the engine's own title-keyed one, so it is a real engine defect and
+    not a registration artefact; pinned as `KNOWN_FINAL_FRAME_JUMPS` in `behaviour-audit.mjs` so it
+    can only shrink deliberately. It was ALWAYS there — the check used to stop at the first 400 calls
+    in formation order, so widening `legalCalls` moved its sample onto it. Two consequences worth
+    having: a final-frame check must compare HEADINGS as well as positions, and a gate whose sample is
+    a prefix of a set another change can grow is not measuring what it claims.
 13. **Phases F, G, H, I, J** — vocabulary, FSM/determinism, the solver index, decoder residue,
    tie-break sweeps; independent of each other and of the figure work.
 14. **Phase L** — the phrase tams. Last on purpose: it is the only route to the star and `Separate`

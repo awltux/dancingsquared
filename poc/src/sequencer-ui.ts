@@ -10,6 +10,7 @@ import type { Board, CallStep, FormDancer, Matchable, Module, Pose, SequenceStop
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
+import { parseStoredModules } from './stored-modules';
 import { loadUserFormations } from './formations';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import { el, esc } from './dom';
@@ -326,11 +327,10 @@ export class SequencerController implements SequencerUI {
   }
 
   private loadModules() {
-    try {
-      this.modules = JSON.parse(localStorage.getItem(MODULES_STORAGE_KEY) || '[]') as Module[];
-    } catch {
-      this.modules = [];
-    }
+    // THROUGH THE SHARED PARSER, which drops an entry that is not a module rather than trusting it: this runs
+    // from the constructor, and `refreshModulesList` maps over the result - so a stored `{}` used to throw
+    // during startup and take the whole app down.
+    this.modules = parseStoredModules(localStorage.getItem(MODULES_STORAGE_KEY));
   }
   /** Register the ceder-translated corpus modules that are fully replayable. */
   private registerCederModules() {

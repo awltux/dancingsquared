@@ -10,6 +10,7 @@
 import type { CallStep } from 'dancing-squared-engine';
 import { canonicalName, splitSelection } from 'dancing-squared-engine';
 import { validCederModules } from './ceder-modules';
+import { parseStoredModules } from './stored-modules';
 
 /** localStorage key for the caller's saved modules. */
 export const MODULES_STORAGE_KEY = 'dsModules';
@@ -34,26 +35,13 @@ export interface NamedSequence {
   endFormation?: string;
 }
 
-/** The shape the sequencer persists: `Module` from the engine, narrowed to what is read here. */
-interface StoredModule {
-  name?: unknown;
-  calls?: unknown;
-}
-
+/** The caller's saved modules, read through the one parser that validates them. */
 export function savedModules(): NamedSequence[] {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(localStorage.getItem(MODULES_STORAGE_KEY) || '[]');
-  } catch {
-    return []; // a corrupt entry must not take the whole browse view down
-  }
-  if (!Array.isArray(parsed)) return [];
-  const out: NamedSequence[] = [];
-  for (const m of parsed as StoredModule[]) {
-    if (!m || typeof m.name !== 'string' || !Array.isArray(m.calls)) continue;
-    out.push({ name: m.name, steps: m.calls as (string | CallStep)[], source: 'saved' });
-  }
-  return out;
+  return parseStoredModules(localStorage.getItem(MODULES_STORAGE_KEY)).map((m) => ({
+    name: m.name,
+    steps: m.calls,
+    source: 'saved' as const,
+  }));
 }
 
 /** Every named sequence the app knows, ceder corpus first then the caller's own. */

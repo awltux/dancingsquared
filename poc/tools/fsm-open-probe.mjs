@@ -190,6 +190,49 @@ check(/e\.target\.closest\('\.jump'\);if\(j\)\{e\.stopPropagation\(\);selectOnly
   'and a click on it goes through `selectOnly`, the SET-not-toggle selection a drag end already uses - so the node it names is the node selected');
 check(!/li\.textContent=arrow\?/.test(view), 'the row is no longer one text node: the name is an element that can be clicked');
 
+// ============================================================ 4c. the route home
+//
+// Asked for: "If there is a 'route home' for the currently selected node, highlight the calls from that support
+// it." The route is recomputed HERE, from the emitted rows themselves, and compared with the flags the renderer
+// put on them - so the highlight is checked against the graph rather than against the code that produces it.
+console.log('\n== 4c. The calls that lead home ==');
+const HOME = fsm.table.states.indexOf('Static Square');
+const outEdges = blob.map((nd) => nd.calls.map((c) => c.toIdx));
+const canHome = new Set([HOME]);
+for (let grew = true; grew;) {
+  grew = false;
+  for (let i = 0; i < outEdges.length; i++) {
+    if (canHome.has(i)) continue;
+    if (outEdges[i].some((t) => canHome.has(t))) { canHome.add(i); grew = true; }
+  }
+}
+let flagged = 0, wrongFlag = 0, homeRowsOnDeadEnds = 0, nodesWithRoute = 0, strict = 0, homed = 0;
+for (const nd of blob) {
+  const i = blob.indexOf(nd);
+  if (canHome.has(i)) nodesWithRoute++;
+  let marked = 0;
+  for (const c of nd.calls) {
+    const expect = canHome.has(c.toIdx);
+    if (c.home !== expect) wrongFlag++;
+    if (c.home) { flagged++; marked++; }
+    if (c.home && !canHome.has(i)) homeRowsOnDeadEnds++;
+  }
+  if (!canHome.has(i) && marked > 0) homeRowsOnDeadEnds++;
+  // A HIGHLIGHT THAT COVERS THE WHOLE LIST SAYS NOTHING. For the nodes with a route home, some of the calls
+  // from them must lead away from it - otherwise "highlighted" would just mean "listed".
+  if (canHome.has(i) && nd.calls.length > 1) { if (marked < nd.calls.length) strict++; else homed++; }
+}
+console.log(`    ${canHome.size} of ${blob.length} states have a route home; ${flagged} of ${blob.reduce((n, nd) => n + nd.calls.length, 0)} calls from the listed nodes lead home`);
+console.log(`    ${strict} nodes with a route home have calls that do NOT lead home, ${homed} where every call from the node leads home`);
+check(flagged > 0, 'there are calls to highlight at all');
+check(wrongFlag === 0, 'and every call the renderer flagged is exactly one whose end state can reach the squared set, and no other');
+check(homeRowsOnDeadEnds === 0, 'a node with NO route home has no highlighted call - the flag is a fact about the graph, not a decoration on every row');
+check(strict > 0, 'and on the nodes that have a route, the highlight is a SUBSET of the list, so it says which calls are the way home');
+check(!/\bhome\b/.test(JSON.stringify(blob[0].incoming)), 'the flag is on the calls FROM the node only: an incoming call is not the selected node\'s route');
+check(/li\.route-home\{background:rgba\(58,154,95,0\.18\)/.test(html) && /if\(!arrow&&c\.home\)\{li\.className='route-home'/.test(html),
+  'and a flagged row is marked on the element, with the style the legend describes');
+check(/call that leads home/.test(html), 'the legend says what the highlight means');
+
 // ============================================================ 5. the Level filter
 //
 // Asked for as: "provide a dropdown filter for Level", then "There should be an 'all levels' item in the

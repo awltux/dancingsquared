@@ -130,8 +130,9 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
     // `fromFormation` is the RAW state key, not the display label: it is what the app resolves a setup
     // against, and the display label rewrites the `@embed` keys that no setup can be named by anyway.
     // `toIdx` / `fromIdx` are the OTHER END of each edge - the formation a row's name can be clicked to
-    // select, which is the node the call leads to or comes from.
-    calls: edges.filter((e) => e.from === i).map((e) => ({ call: e.call, to: label(states[e.to]), toIdx: e.to, fromFormation: s })),
+    // select, which is the node the call leads to or comes from. `home` is whether that other end can
+    // still reach the squared set, which is what makes the call one that LEADS HOME.
+    calls: edges.filter((e) => e.from === i).map((e) => ({ call: e.call, to: label(states[e.to]), toIdx: e.to, home: canHome.has(e.to), fromFormation: s })),
     incoming: edges.filter((e) => e.to === i).map((e) => ({ call: e.call, from: label(states[e.from]), fromIdx: e.from, fromFormation: states[e.from] })),
   }));
 
@@ -150,9 +151,10 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   #nodedisp button.mini{font-size:11px;line-height:1;padding:0 3px;margin-left:3px;border:1px solid #ccd2d8;border-radius:4px;background:#fff;color:#333;cursor:pointer;vertical-align:middle}
   #nodedisp span.jump{cursor:pointer;color:#1558b0;border-bottom:1px dotted #7aa2d6}
   #nodedisp span.jump:hover{color:#0b3f8c;border-bottom-style:solid}
+  #nodedisp li.route-home{background:rgba(58,154,95,0.18);border-left:3px solid #3a9a5f;border-radius:3px;padding-left:4px}
   #nodedisp button.mini:hover{background:#eef2f7;border-color:#8fa8c0;color:#123}
   </style></head><body><div id="side"><h2>${esc(title)} — ${n} states, ${edges.length} edges</h2>
-  <p><span class="dot" style="background:#0a7d33"></span>home<br><span class="dot" style="background:#3a9a5f"></span>route home<br><span class="dot" style="background:#e8950c"></span>no route home (approx) (${nohomeList.length})<br><span class="dot" style="background:#d63a3a"></span>dead-end (${deadList.length})</p>
+  <p><span class="dot" style="background:#0a7d33"></span>home<br><span class="dot" style="background:#3a9a5f"></span>route home<br><span class="dot" style="background:#e8950c"></span>no route home (approx) (${nohomeList.length})<br><span class="dot" style="background:#d63a3a"></span>dead-end (${deadList.length})<br><span class="dot" style="background:rgba(58,154,95,0.25);box-shadow:inset 0 0 0 1px #3a9a5f"></span>call that leads home</p>
   <button id="rst" title="Reset pan/zoom to show the whole graph">⟲ Reset view</button>
   <input id="filter" placeholder="highlight edges by call…">
   <h3 style="font-size:13px;margin:10px 0 4px">Selected formation</h3>
@@ -199,7 +201,12 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   // "what is that board, and what else can be done from it". It is a plain span rather than a button because
   // it is the sentence's subject, not a control beside it.
   const jumpSpan=(text,idx)=>{const j=document.createElement('span');j.className='jump';j.textContent=text;j.dataset.node=idx;j.title='Select '+text;return j;};
-  const row=(li,arrow,c)=>{const j=jumpSpan(arrow?c.from:c.to,arrow?c.fromIdx:c.toIdx);if(arrow){li.appendChild(j);li.appendChild(document.createTextNode(' → '+c.call));}else{li.appendChild(document.createTextNode(c.call+' → '));li.appendChild(j);}addOpen(li,c.call,c.fromFormation);};
+  // AND WHEN THERE IS A ROUTE HOME, THE CALLS THAT KEEP IT ARE MARKED. A call from here LEADS HOME when the
+  // formation it reaches can still get back to the squared set - which is the whole question a caller stuck
+  // in an odd shape is asking, and the one thing the graph answers only by tracing edges by eye. It is a
+  // property of the call from THIS node, so only the outgoing list carries it; and a node with no route home
+  // has no such call by construction, because an edge to a formation that can home would BE a route home.
+  const row=(li,arrow,c)=>{if(!arrow&&c.home){li.className='route-home';li.title='this call leaves the set still able to reach home';}const j=jumpSpan(arrow?c.from:c.to,arrow?c.fromIdx:c.toIdx);if(arrow){li.appendChild(j);li.appendChild(document.createTextNode(' → '+c.call));}else{li.appendChild(document.createTextNode(c.call+' → '));li.appendChild(j);}addOpen(li,c.call,c.fromFormation);};
   disp.addEventListener('click',e=>{const j=e.target.closest('.jump');if(j){e.stopPropagation();selectOnly(+j.dataset.node);return;}const b=e.target.closest('button.mini');if(!b)return;e.stopPropagation();parent.postMessage({type:'fsm-open',action:b.dataset.act,call:b.dataset.call,formation:b.dataset.from||null,level:LEVEL},'*');});
   const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);const sec=(h,items,arrow)=>{const hd=document.createElement('div');hd.textContent=h;hd.style.fontWeight='600';hd.style.marginTop='4px';disp.appendChild(hd);if(!items.length){const em=document.createElement('div');em.style.color='#888';em.textContent='(none)';disp.appendChild(em);return;}const ul=document.createElement('ul');items.forEach(c=>{const li=document.createElement('li');row(li,arrow,c);ul.appendChild(li);});disp.appendChild(ul);};sec('Calls from here ('+nd.calls.length+'):',nd.calls,false);sec('Calls that lead here ('+nd.incoming.length+'):',nd.incoming,true);};
   function markSel(){document.querySelectorAll('.node').forEach(nd=>{const c=nd.querySelector('.nd');const on=sel>=0&&(+nd.dataset.i===sel);c.setAttribute('stroke',on?'#111':'#00000022');c.setAttribute('stroke-width',on?'3':'1.2');});}

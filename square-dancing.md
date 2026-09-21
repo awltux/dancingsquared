@@ -2896,3 +2896,22 @@ The toolbar is now laid out from the right, which is the only side the HUD is ne
 background and rule so it reads as a toolbar rather than as loose text over the graph. The arithmetic is gated in
 poc/tools/fsm-open-probe.mjs - that the HUD is above the panel and anchored left, and that the toolbar is
 right-aligned - because it is a property of two boxes rather than of any code path.
+
+THE CALLS THAT KEEP A ROUTE HOME ARE MARKED. Asked for: "If there is a 'route home' for the currently selected
+node, highlight the calls from that support it."
+
+A call FROM the selected node leads home when the formation it reaches can still get back to the squared set, and
+that is the whole definition - so only the outgoing list carries the mark, and a node with no route home has no
+marked call BY CONSTRUCTION rather than by a rule applied twice: an edge to a formation that can home would BE a
+route home, which is exactly how the node's own status is computed. The mark is the green the graph already uses
+for "route home", on the row's background and left edge, and the legend says what it means rather than a sentence
+in the panel.
+
+MEASURED, and it is the reason the mark is worth having: 93 of the 155 states have a route home, and of the 1961
+calls from the listed nodes, 1576 lead home. On 24 of those nodes the mark is a strict subset - some calls take
+the set somewhere with no way back - and on 69 every call leads home, where the mark covers the list and says
+nothing. So it is informative exactly where a caller is choosing between calls, which is where a choice exists.
+
+The probe rebuilds the route home from the emitted rows themselves and compares it with the flags the renderer put
+there, so the highlight is checked against the graph rather than against the code that produces it; it also checks
+that no incoming call carries the flag, and that the mark really is a subset where it should be.

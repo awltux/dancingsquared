@@ -637,53 +637,6 @@ function makeNumberLabel(text: string): THREE.Sprite {
   return sprite;
 }
 
-// Assign couple numbers 1..N by pairing each boy with his nearest girl, then
-// numbering the pairs by angular position around the set centre (couple 1 = the
-// pair nearest the "north" side). Dancers with no opposite-gender partner (e.g.
-// phantoms) get couple 0 (gray).
-export function assignCouples(dancers: DancerSpec[]): number[] {
-  const n = dancers.length;
-  const couple = new Array<number>(n).fill(0);
-  // A mirrored (half-set) dancer's base (x,y) is the authored half; its real
-  // full-set position is rotated 180° about the origin, so use that for pairing
-  // and compass numbering.
-  const pos = (d: DancerSpec) => (d.mirror ? { x: -d.x, y: -d.y } : { x: d.x, y: d.y });
-  const boys = dancers.map((d, i) => ({ i, d, p: pos(d) })).filter((x) => x.d.gender === 'boy');
-  const girls = dancers.map((d, i) => ({ i, d, p: pos(d) })).filter((x) => x.d.gender === 'girl');
-  if (boys.length === 0 || girls.length === 0) return couple;
-
-  const usedGirls = new Set<number>();
-  const pairs: { boy: number; girl: number }[] = [];
-  for (const b of boys) {
-    let best = -1;
-    let bestD = Infinity;
-    for (const g of girls) {
-      if (usedGirls.has(g.i)) continue;
-      const d = Math.hypot(b.p.x - g.p.x, b.p.y - g.p.y);
-      if (d < bestD) {
-        bestD = d;
-        best = g.i;
-      }
-    }
-    if (best >= 0) {
-      usedGirls.add(best);
-      pairs.push({ boy: b.i, girl: best });
-    }
-  }
-
-  const cx = dancers.reduce((s, d) => s + pos(d).x, 0) / n;
-  const cy = dancers.reduce((s, d) => s + pos(d).y, 0) / n;
-  // Number couples anti-clockwise, couple 1 nearest the viewer (the "bottom"):
-  // bottom=1, right=2, top=3, left=4. Ascending 2D angle from the -y (south)
-  // side gives couple 1 at the bottom, then east -> north -> west.
-  pairs.sort((a, b) => Math.atan2(pos(dancers[a.boy]).y - cy, pos(dancers[a.boy]).x - cx) - Math.atan2(pos(dancers[b.boy]).y - cy, pos(dancers[b.boy]).x - cx));
-  pairs.forEach((p, k) => {
-    couple[p.boy] = k + 1;
-    couple[p.girl] = k + 1;
-  });
-  return couple;
-}
-
 // Driving input for the walk cycle. `phase` is the fraction of a two-step cycle
 // in [0,1) (one full step = half a cycle = one beat, so a step lands every
 // beat). The caller advances `phase` with the call/sequence beat, so the legs

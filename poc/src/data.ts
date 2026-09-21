@@ -17,7 +17,6 @@ import {
   parseCallXml,
   buildCall,
   poseFor,
-  rigidFit,
   alignFormationToCore,
   correctEndTo,
   synthesizeSetup,
@@ -79,21 +78,6 @@ export interface CallEdit {
    *  full-set, exactly as `callToXml` emitted it. */
   xml?: string;
 }
-
-export interface ClosureCandidate {
-  id: string;
-  level: string;
-  title: string;
-  spreadDeg: number; // spread of per-dancer heading residuals (degrees)
-  posErr: number; // round-trip position error
-}
-
-const normDeg = (a: number) => {
-  let d = a % 360;
-  if (d > 180) d -= 360;
-  if (d < -180) d += 360;
-  return d;
-};
 
 function storageGet(key: string): string | null {
   try {
@@ -382,39 +366,6 @@ export class Catalog {
     return this.loadCallBase(id, Math.max(0, shippedCount - 1), mirror);
   }
 
-  // ---- closure scan ----
-
-  /** Scan the catalog for calls that don't "close cleanly". */
-  closureScan(): ClosureCandidate[] {
-    const out: ClosureCandidate[] = [];
-    for (const c of this.fullCatalog) {
-      if (c.isAlias) continue;
-      let call: CallBundle;
-      try {
-        call = this.loadCallBase(c.id, 0, true);
-      } catch {
-        continue;
-      }
-      const start = call.dancers.map((d) => {
-        const p = poseFor(d, 0);
-        return { x: p.x, y: p.y, heading: p.heading };
-      });
-      const end = call.dancers.map((d) => {
-        const p = poseFor(d, call.beats);
-        return { x: p.x, y: p.y, heading: p.heading };
-      });
-      const fit = rigidFit(start, end);
-      if (fit.error > 2.0) continue;
-      const resid = end.map((e, i) => normDeg((e.heading - start[i].heading) * 180 / Math.PI));
-      const spread = Math.max(...resid) - Math.min(...resid);
-      if (spread > 20 && spread < 80) {
-        out.push({ id: c.id, level: c.level, title: c.title, spreadDeg: +spread.toFixed(1), posErr: +fit.error.toFixed(2) });
-      }
-    }
-    out.sort((a, b) => b.spreadDeg - a.spreadDeg);
-    return out;
-  }
-
   // ---- sequencer registration ----
 
   private tamFromCall(call: CallBundle): string | null {
@@ -450,31 +401,6 @@ export class Catalog {
     }
     if (out.length === 0) return null;
     return '<calls>\n' + out.join('\n') + '\n</calls>';
-  }
-
-  /** The real (non-alias) call XMLs for a level, keyed by display title. */
-  levelCalls(level: string): { name: string; xml: string }[] {
-    const out: { name: string; xml: string }[] = [];
-    for (const c of this.fullCatalog) {
-      if (c.level !== level || c.isAlias) continue;
-      const xml = this.registrationXml(c);
-      if (xml != null) out.push({ name: c.title, xml });
-    }
-    return out;
-  }
-
-  /** All call XMLs for a level, INCLUDING alias levels, deduplicated by title. */
-  sequencerCalls(level: string): { name: string; xml: string }[] {
-    const seen = new Set<string>();
-    const out: { name: string; xml: string }[] = [];
-    for (const c of this.fullCatalog) {
-      if (c.level !== level) continue;
-      if (seen.has(c.title)) continue;
-      seen.add(c.title);
-      const xml = this.registrationXml(c);
-      if (xml != null) out.push({ name: c.title, xml });
-    }
-    return out;
   }
 
   /** Calls available to a sequencer for `level` and all earlier levels.
@@ -557,15 +483,6 @@ export function rebuildEdit(edit: CallEdit): CallBundle {
 }
 export function loadCall(id: string, tamIndex: number, mirror = true): CallBundle {
   return catalog.loadCall(id, tamIndex, mirror);
-}
-export function closureScan(): ClosureCandidate[] {
-  return catalog.closureScan();
-}
-export function levelCalls(level: string): { name: string; xml: string }[] {
-  return catalog.levelCalls(level);
-}
-export function sequencerCalls(level: string): { name: string; xml: string }[] {
-  return catalog.sequencerCalls(level);
 }
 export function sequencerCallsUpTo(level: string): { name: string; xml: string }[] {
   return catalog.sequencerCallsUpTo(level);

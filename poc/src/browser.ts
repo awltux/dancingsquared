@@ -504,11 +504,6 @@ export class CallBrowser {
     this.applyDisplay();
   }
 
-  /** Alias for `showCall` used as the editor's preview callback. */
-  preview(call: CallBundle | null) {
-    this.showCall(call);
-  }
-
   /**
    * Re-path the call being shown WITHOUT rebuilding the views: same dancers, new geometry.
    *

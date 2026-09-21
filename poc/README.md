@@ -1359,6 +1359,22 @@ fall back to whatever the Browse tab has selected now.
 and the Find box, and a formation can perfectly well have come from a call the editor is not currently offering
 — so the button would otherwise fail on a panel state the caller cannot see the connection to. Clearing both is
 the same as pressing Escape in the Find box.
+**A `load` button beside `Edit`, which loads the call back into the Browse tab itself.** Asked for as: *"Add a
+load before the edit button, the loads the call into the Browse Call tab and sets the Level, Call and Setup
+according to the setup for the load button."* The row now runs `xml · add to corpus · del · load · Edit`.
+
+**The order is the invariant, not a detail.** `populateCalls` only offers the calls of the level the selector
+names, so setting the **Call** before the **Level** would be choosing it from a list that does not contain it.
+The method sets Level → repopulates → picks the Call → rebuilds the setups → picks the Setup → shows the call,
+which is the same order `onLevelChange` uses for the same reason. A call the level does not offer is *reported*
+rather than leaving the panel on whatever was there before.
+
+It is also the same three loads a click on the lists makes (`populateCalls`, `refreshSetups`, `loadCurrent`), so
+this is not a second way to show a call — it is the way the panel already does it.
+
+**Both buttons resolve a row's target through one helper**, so `load` and `Edit` cannot disagree about which
+call a formation means: the ids it was made with, or the current selection for formations saved before those
+were recorded.
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

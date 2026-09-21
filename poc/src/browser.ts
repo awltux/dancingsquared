@@ -286,6 +286,7 @@ export class CallBrowser {
             `<button data-xml="${i}" title="Copy this formation's &lt;formation&gt; block for pasting into poc/src/assets/formations.xml">xml</button>` +
             `<button data-corpus="${i}" title="${f.inCorpus ? 'This formation is in the corpus: calls that start from it are exported as a name reference. Click to take it back out' : 'Add it to the corpus: the block goes on your clipboard to paste into poc/src/assets/formations.xml, and calls that start from it are then exported as a name reference rather than an embedded copy'}">${f.inCorpus ? 'in corpus ✓' : 'add to corpus'}</button>` +
             `<button data-del="${i}" title="Forget this label">del</button>` +
+            `<button data-load="${i}" title="Load this formation's call into the Browse tab: the Level, Call and Setup selectors are set to it and the call is shown. Nothing is edited.">load</button>` +
             `<button data-edit="${i}" title="Open this formation's call in the Call editor, on the setup it was made from. Switch to the editor's Edit instance tab, pick the call and setup there, and load it - the same thing as choosing them by hand, so nothing is edited until you change something.">Edit</button>` +
             `</div>`,
         )
@@ -335,18 +336,70 @@ export class CallBrowser {
         this.legend.innerHTML = `forgot <b>${esc(f.name)}</b><br><span class="small">the library keeps the name until the page is reloaded</span>`;
       });
     }
+    for (const btn of this.userFormationsEl.querySelectorAll<HTMLButtonElement>('button[data-load]')) {
+      btn.addEventListener('click', () => {
+        const f = list[Number(btn.dataset.load)];
+        if (f) this.loadFormationCall(f);
+      });
+    }
     for (const btn of this.userFormationsEl.querySelectorAll<HTMLButtonElement>('button[data-edit]')) {
       btn.addEventListener('click', () => {
         const f = list[Number(btn.dataset.edit)];
         if (!f) return;
-        // THE IDS THE FORMATION WAS MADE WITH, and the current selection only as a fallback: a formation made
-        // before those were recorded has an `origin` in prose and nothing resolvable, and the call the caller
-        // is looking at now is the only other thing the button could mean. The tooltip says which.
-        const callId = f.callId ?? this.callSelect.value;
-        const setupIdx = f.setupIdx ?? parseInt(this.tamSelect.value || '0', 10);
-        this.host.openEditor(callId, setupIdx);
+        const t = this.formationTarget(f);
+        this.host.openEditor(t.callId, t.setupIdx);
       });
     }
+  }
+
+  /**
+   * The (call, setup) a formation row acts on: the ids it was made with, or what is selected now.
+   *
+   * THE FALLBACK IS FOR FORMATIONS STORED BEFORE THE IDS WERE. `origin` is display text built from the two
+   * dropdowns' labels and cannot be resolved back to a catalogue entry, so the call the caller is looking at now
+   * is the only other thing the button could mean. Both buttons go through here so they cannot disagree.
+   */
+  private formationTarget(f: UserFormation): { callId: string; setupIdx: number } {
+    return {
+      callId: f.callId ?? this.callSelect.value,
+      setupIdx: f.setupIdx ?? parseInt(this.tamSelect.value || '0', 10),
+    };
+  }
+
+  /**
+   * LOAD one call into the Browse tab: the Level, the Call and the Setup, then the call itself.
+   *
+   * Asked for as: "Add a load before the edit button, the loads the call into the Browse Call tab and sets the
+   * Level, Call and Setup according to the setup for the load button."
+   *
+   * THE LEVEL IS SET FIRST, AND THAT IS NOT PEDANTRY: `populateCalls` only offers the calls of the level the
+   * selector names, so choosing the call before the level would be choosing it from a list that does not contain
+   * it. This is the same order `onLevelChange` uses, for the same reason.
+   *
+   * IT IS THE SAME THREE LOADS A CLICK ON THE LISTS MAKES - populate, refresh the setups, `loadCurrent` - so
+   * this is not a second way to show a call, it is the way the panel already does it.
+   */
+  private loadFormationCall(f: UserFormation) {
+    const { callId, setupIdx } = this.formationTarget(f);
+    const entry = this.catalog.find((c) => c.id === callId);
+    if (!entry) {
+      this.legend.innerHTML = `<b>${esc(callId)}</b> is not in the loaded catalogue`;
+      return;
+    }
+    this.levelSelect.value = entry.level;
+    this.populateCalls(callId);
+    if (this.callSelect.value !== callId) {
+      this.legend.innerHTML = `<b>${esc(entry.title)}</b> is not offered under <b>${esc(entry.level.toUpperCase())}</b>`;
+      return;
+    }
+    this.refreshSetups();
+    const idx = String(setupIdx);
+    if (Array.from(this.tamSelect.options).some((o) => o.value === idx)) this.tamSelect.value = idx;
+    this.renderUses();
+    this.loadCurrent();
+    this.legend.innerHTML =
+      `loaded <b>${esc(entry.title)}</b> — <i>${esc(this.tamSelect.selectedOptions[0]?.textContent ?? 'default')}</i>` +
+      `<br><span class="small">from <b>${esc(f.name)}</b>: the Level, Call and Setup selectors are now on it</span>`;
   }
 
   private populateLevels() {

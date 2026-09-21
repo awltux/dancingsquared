@@ -2749,3 +2749,22 @@ Gated in poc/tools/editor-level-probe.mjs, which checks the whole chain rather t
 button's position in the row, the handler going through the host, the ids being stored at creation, the host
 interface declaring the method, main.ts switching the MODE and not only calling through, and the editor loading
 the call the way its own lists do - including that openCall edits NOTHING.
+
+A load BUTTON BESIDE Edit ON EVERY USER-FORMATION ROW. Asked for: "Add a load before the edit button, the loads
+the call into the Browse Call tab and sets the Level, Call and Setup according to the setup for the load
+button." The row now runs xml / add to corpus / del / load / Edit.
+
+THE ORDER IS THE INVARIANT RATHER THAN A DETAIL: `populateCalls` only offers the calls of the level the selector
+names, so setting the Call before the Level would be choosing it from a list that does not contain it. The method
+sets Level, repopulates, picks the Call, rebuilds the setups, picks the Setup and shows the call - the same order
+`onLevelChange` uses, for the same reason - and a call the level does not offer is REPORTED rather than leaving
+the panel on whatever was there before.
+
+It is also the same three loads a click on the lists makes (`populateCalls`, `refreshSetups`, `loadCurrent`), so
+this is not a second way to show a call.
+
+AND THE TWO BUTTONS NOW SHARE ONE TARGET HELPER, so load and Edit cannot disagree about which call a formation
+row means: the ids it was made from, or the current selection for formations stored before those were recorded.
+Two of the probe's earlier checks had to be updated for that refactor - they were pinned to the inline expression
+rather than to the rule, which is the same "gate on the text instead of the behaviour" trap this repo keeps
+finding.

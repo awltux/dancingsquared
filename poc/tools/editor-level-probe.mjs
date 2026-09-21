@@ -125,18 +125,48 @@ const browserSrc = read('src/browser.ts');
 const formationsSrc = read('src/formations.ts');
 const mainSrc = read('src/main.ts');
 const editorSrc = read('src/editor-ui.ts');
-check(/data-del="\$\{i\}"[\s\S]{0,500}?data-edit="\$\{i\}"/.test(browserSrc),
-  'the Edit button is the FOURTH in the row, after `del`, which is where it was asked for');// AND THE NAME ABOVE THEM. Read the other way round the row is a toolbar with the name trailing off the end of
+check(/data-del="\$\{i\}"[\s\S]{0,500}?data-load="\$\{i\}"[\s\S]{0,700}?data-edit="\$\{i\}"/.test(browserSrc),
+  'the row runs ... del, LOAD, Edit - the load sits between them, which is where it was asked for');
+// ---------------------------------------------------------------------------
+// AND THE load BUTTON, which loads the call into the BROWSE tab itself.
+//
+// Asked for: "Add a load before the edit button, the loads the call into the Browse Call tab and sets the Level,
+// Call and Setup according to the setup for the load button."
+//
+// THE ORDER IS THE INVARIANT. `populateCalls` only offers the calls of the level the selector names, so setting
+// the Call before the Level would be choosing it from a list that does not contain it - the same trap the
+// editor's `openCall` has, and the same fix.
+const bodyOf = (sig) => {
+  const i = browserSrc.indexOf(sig);
+  return i < 0 ? '' : browserSrc.slice(i, browserSrc.indexOf('\n  }\n', i));
+};
+const loadFn = bodyOf('private loadFormationCall(');
+check(/button\[data-load\]/.test(browserSrc) && /this\.loadFormationCall\(f\)/.test(browserSrc),
+  'the load button calls one method');
+check(loadFn !== '', 'which exists');
+check(/this\.levelSelect\.value = entry\.level;[\s\S]{0,140}?this\.populateCalls\(callId\);/.test(loadFn),
+  'the LEVEL is set BEFORE the call is chosen, because the call list only offers that level');
+check(/this\.refreshSetups\(\);[\s\S]{0,240}?this\.tamSelect\.value = idx;/.test(loadFn),
+  'and the SETUP is chosen after the setups are rebuilt for that call');
+check(/this\.loadCurrent\(\);/.test(loadFn),
+  'and it actually shows the call, through the same load the selectors use');
+check(/if \(this\.callSelect\.value !== callId\)/.test(loadFn),
+  'and a call the level does not offer is REPORTED rather than leaving the panel on whatever was there before');
+// ONE RULE FOR THE TARGET, so the two buttons cannot disagree about which call a formation row means.
+check((browserSrc.match(/this\.formationTarget\(f\)/g) ?? []).length === 2,
+  'both `load` and `Edit` resolve their target through the one helper');
+check(/callId: f\.callId \?\? this\.callSelect\.value,[\s\S]{0,90}?setupIdx: f\.setupIdx \?\? parseInt/.test(browserSrc),
+  'which prefers the ids the formation was made with and falls back to the current selection for older ones');// AND THE NAME ABOVE THEM. Read the other way round the row is a toolbar with the name trailing off the end of
 // it - and with four buttons there is often no room left for the name at all. Asked for as: "I think the text
 // should be above the bottons, as it looks confusing the other way round."
 check(/ed-formation"><span class="part">[\s\S]{0,320}?data-xml="\$\{i\}"/.test(browserSrc),
   'the formation NAME comes first, before any of the buttons');
 check(/#hud \.row\.ed-formation \.part \{ flex: 1 0 100%; \}/.test(read('src/style.css')),
   'and the stylesheet gives it the whole first line, so the buttons really start on the next one rather than sharing it');
-check(/button\[data-edit\]/.test(browserSrc) && /this\.host\.openEditor\(callId, setupIdx\)/.test(browserSrc),
+// The handler resolves the target through the shared helper (checked below, where the ids and the fallback
+// live) and then goes through the host rather than reaching into the editor itself.
+check(/button\[data-edit\]/.test(browserSrc) && /this\.host\.openEditor\(t\.callId, t\.setupIdx\)/.test(browserSrc),
   'and its handler goes through the host rather than reaching into the editor itself');
-check(/const callId = f\.callId \?\? this\.callSelect\.value;/.test(browserSrc),
-  'it opens the call the FORMATION was made from, and the current selection only where that was never recorded');
 check(/callId\?: string;[\s\S]{0,200}?setupIdx\?: number;/.test(formationsSrc),
   'which is why a formation now stores those ids: `origin` is display text and cannot be resolved back to a call');
 check(/callId: this\.callSelect\.value,[\s\S]{0,80}?setupIdx: parseInt\(this\.tamSelect\.value/.test(browserSrc),

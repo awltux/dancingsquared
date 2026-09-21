@@ -2935,3 +2935,53 @@ a rule in two places agrees only until one of them changes. The renderer inlines
 source, so the document runs the function the probe tests: not narrower than 180px, not wider than 80% of the
 window, and a NON-FINITE width clamped to the minimum rather than left as `NaNpx`, which the browser ignores
 silently while the drag looks like it is working.
+
+AN AUDIT FOR CLEANER CODE, AND THE SIX REFACTORS IT PRODUCED. Asked for: "Analyse the codebase to see if there are
+any areas for refactoring to have cleaner code", then "make small changes with regular commits and validation."
+
+The audit was four passes (engine/src; poc/src; the verification code; cross-package duplication) plus metrics over
+4,230 text files. What was DONE, each its own commit with its own validation:
+
+  4e4d39f  one `el()` and one `esc()`, not four copies of each. `esc` is the rule that authored data cannot
+           become markup, and a rule written five times holds in four places the first time one copy changes.
+   c467216  seven engine exports nothing in the repo refers to - and the first pass got this WRONG by scanning
+           only engine/ and poc/: features/ binds `moveMatrix` and `UTurnLeft`, so the skipped tree is what made
+           a feature-bound symbol look dead.
+   ee91bc4  five sites that reached `innerHTML` with a call's title, a caller-typed module name or a thrown
+           error's message unescaped - while importing `esc` and using it three lines away.
+   3d9e2d8  the catalogue-scan machinery (`closureScan`, `levelCalls`, `sequencerCalls` and their types and
+           facades, 130 lines), `assignCouples` and `CallBrowser.preview`: the first three are a capability no
+           panel offers, the sequencer having moved to `sequencerCallsUpTo`.
+   3c5a7d4  ONE validating parser for the caller's saved modules. Two readers, one of which cast whatever it
+           parsed straight to `Module[]` and then mapped over it FROM THE CONSTRUCTOR - so a stored `{}` threw
+           during startup and took the app down while the other reader carried on.
+   6f2ef4e  the probes are RUN. Nothing executed poc/tools/*-probe.mjs at all, and two were red: one pinned
+           `selectMove(k: number)` (the signature had gained a parameter), and its negative control, once it
+           applied again, removed only the first of the method's two sync calls.
+
+THE FIRST DRAFT OF THE SCAN WAS ITSELF THE TRAP IT WAS LOOKING FOR. `escape-probe` matched ``innerHTML = `...`;``
+and found 20 sites; there are 54, and the ones it missed were the chained and `+=` forms. A scan that reads half
+a surface and reports "clean" is the "instrument's silence is not a pass" failure in a new place, so it now walks
+each assignment to its own terminating `;` and asserts it accounted for every one.
+
+WHAT THE AUDIT FOUND AND THIS WORK DID NOT TOUCH, in the order it deserves attention - each is a behaviour
+question rather than a tidy-up, and each is evidenced at file:line in the four reports:
+
+  - `ENGINE_TO_TOKEN` (all8-format.ts:381-392) inverts `TOKENS` first-wins, and three alias entries are declared
+    BEFORE their canonical spellings, so `formatAll8Call('Cloverleaf')` emits `--Clov`: a token All8 never
+    prints, on the sequence-export path, contradicting the invariant written directly above the function.
+  - The editor's synthesizers (editor.ts:902-921, 997-1011) rebuild a `CallBundle` field by field and never copy
+    `actives`, while `callToXml`'s own doc (editor.ts:1834-1836) says an editor has no business erasing it.
+  - The greedy dancer-to-spot assignment exists twice (editor.ts:226-267 vs 1418-1449) and the copies disagree
+    on sort order, on the gender guard and on pass gating: the same call can pair dancers two ways.
+  - `normAngle` is exported under that one name from two modules with different behaviour at exactly -pi
+    (moves.ts:23-28 wraps to (-pi,pi]; identity.ts:9-13 keeps -pi), and 7 modules import one, 3 the other.
+  - The Speed selector does nothing on the Sequencer tab: `main.ts:101-113` reads `#speed` only into the
+    Player's `speedMul`, while the sequencer advances its own playhead at `MS_PER_BEAT = 500`
+    (sequencer-ui.ts:56,635-653).
+  - The sequencer library is built in two places with DIFFERENT order (constructor sequencer-ui.ts:157-165 vs
+    rebuild :360-369) under a comment asserting they are the same.
+  - The verification suite is reachable only as `verify:engine`; root `verify` does not run it. `map-tips.mjs`
+    counts failures and can never exit non-zero, and several harnesses assert `check(true, ...)`.
+  - The engine's "dancers on top of each other" threshold is 1.0 in three files under three names, and the
+    comment claiming they cannot disagree is prose: neither constant is ever imported.

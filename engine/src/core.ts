@@ -122,11 +122,6 @@ export function dancerBeats(dancer: DancerSpec): number {
   return dancer.path.reduce((sum, s) => sum + s.beats, 0);
 }
 
-// ------------------------------------------------------------------ call
-
-export function callTotalBeats(call: CallBundle): number {
-  return call.totalBeats;
-}
 
 export function allPoses(call: CallBundle, t: number, headingMode: HeadingMode = 'rotation'): Pose[] {
   return call.dancers.map((d) => poseFor(d, t, headingMode));

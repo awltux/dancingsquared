@@ -56,18 +56,13 @@ export const Back = mv('Back', -1, 0, 0, 1);
 export const FaceLeft = mv('Face Left', 0, 0, +PI / 2, 1.5);
 export const FaceRight = mv('Face Right', 0, 0, -PI / 2, 1.5);
 export const FaceHalf = mv('Face Half (U-Turn Back)', 0, 0, PI, 2); // 180° turn in place
-export const FaceEighthLeft = mv('Face 1/8 Left', 0, 0, +PI / 4, 0.75);
-export const FaceEighthRight = mv('Face 1/8 Right', 0, 0, -PI / 4, 0.75);
-export const FaceEighthOfThreeLeft = mv('Face 3/8 Left', 0, 0, +3 * PI / 4, 2.25);
-export const FaceEighthOfThreeRight = mv('Face 3/8 Right', 0, 0, -3 * PI / 4, 2.25);
+
 
 // ------------------------------------------------------------------ turns
 
 /** U-turn left (180° CCW about own position). */
 export const UTurnLeft = FaceHalf;
-/** U-turn right (180° CW about own position) — geometrically identical to a
- * U-turn left for a pure 180° pivot, kept for caller/taminations parity. */
-export const UTurnRight = mv('U-Turn Right', 0, 0, -PI, 3);
+
 
 // ------------------------------------------------------------------ helpers
 

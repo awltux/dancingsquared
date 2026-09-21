@@ -309,7 +309,3 @@ export function matchFormationsAll(
   return results;
 }
 
-/** Position error of a single mapped pair (for the recognized-formation label). */
-export function pairError(a: Matchable, b: Matchable): number {
-  return Math.hypot(a.x - b.x, a.y - b.y) + angDiff(a.heading, b.heading) * 0.5;
-}

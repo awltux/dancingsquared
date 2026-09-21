@@ -51,6 +51,11 @@ const SUITE = [
   // parallel grouping the animator re-derived differently from the applicator, and the final-frame
   // jump were all found here.
   { h: 'anim-convergence', light: false, why: 'replays every corpus call on every named board' },
+  // Applies every ms call to every FSM state (about 30s) to measure which READING each application
+  // got - whole board, every dancer through k-dancer boxes, or only some boxes with the rest standing
+  // - and how many legal applications `legalCalls` drops for an unnameable end. The FSM stores one
+  // edge per (state, call) and no reading, so this is the only place that distinction is visible.
+  { h: 'reading-census', light: false, why: 'applies every ms call to all 155 FSM states' },
   { h: 'all8-formation-map', light: true },
   { h: 'promenade', light: false, why: 'corpus-scale sweep' },
   { h: 'getout-conformance', light: false, why: 'decodes all 553 published lines' },

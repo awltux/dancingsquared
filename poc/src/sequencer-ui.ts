@@ -12,7 +12,7 @@ import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
 import { loadUserFormations } from './formations';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
-import { el } from './dom';
+import { el, esc } from './dom';
 import type { Stage, WalkCycle } from './scene';
 
 export interface SequencerUI {
@@ -344,7 +344,7 @@ export class SequencerController implements SequencerUI {
   }
   private refreshModulesList() {
     this.modulesEl.innerHTML = this.modules.length
-      ? this.modules.map((m) => `<b>${m.name}:</b> ${m.calls.map(stepLabel).join(' · ')}`).join('<br>')
+      ? this.modules.map((m) => `<b>${esc(m.name)}:</b> ${esc(m.calls.map(stepLabel).join(' · '))}`).join('<br>')
       : '<i>(no modules saved yet)</i>';
   }
 
@@ -767,10 +767,10 @@ export class SequencerController implements SequencerUI {
         `<span class="small" title="${FASROO_ORIENTATION_NOTE}"> ·?</span>`
       : '';
     const fasrText =
-      `Formation: <b>${fasr.formation ?? '?'}</b> · ${fasr.arrangement}<br>` +
+      `Formation: <b>${esc(fasr.formation ?? '?')}</b> · ${fasr.arrangement}<br>` +
       `Sequence: <b>${fasr.sequence}</b>${rel}${codeText}`;
     const listText = this.history.length
-      ? this.history.map((c, i) => `<span class="seq-call" data-idx="${i}">${i + 1}. ${stepLabel(c)}</span>`).join('<br>')
+      ? this.history.map((c, i) => `<span class="seq-call" data-idx="${i}">${i + 1}. ${esc(stepLabel(c))}</span>`).join('<br>')
       : '<i>(no calls yet)</i>';
     const key = fasrText + '\u0000' + listText;
     if (key === this.lastReadout) return;

@@ -494,8 +494,8 @@ export class CallBrowser {
       this.stage.scene.add(this.markers[i]);
       this.views[i].setTrail(sampleTrail(dancers[i], 80));
     }
-    if (call.taminator) this.legend.innerHTML = `<b>${call.title}</b> — ${call.taminator}`;
-    else this.legend.innerHTML = `<b>${call.title}</b><br>from ${call.from || '(default setup)'}`;
+    if (call.taminator) this.legend.innerHTML = `<b>${esc(call.title)}</b> — ${esc(call.taminator)}`;
+    else this.legend.innerHTML = `<b>${esc(call.title)}</b><br>from ${esc(call.from || '(default setup)')}`;
     this.player.setCall(call);
     this.updateScrub(call);
     // The end-formation field describes the call that is now loaded.
@@ -543,7 +543,7 @@ export class CallBrowser {
       this.showCall(loadCall(id, tamIndex, true));
     } catch (err) {
       this.showCall(null);
-      this.legend.innerHTML = `<b>${id}</b><br><span style="color:#ff7a7a">failed to load: ${(err as Error).message}</span>`;
+      this.legend.innerHTML = `<b>${esc(id)}</b><br><span style="color:#ff7a7a">failed to load: ${esc((err as Error).message)}</span>`;
     }
   }
 

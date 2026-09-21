@@ -2814,3 +2814,24 @@ commits by pinning the exact parameter list - `openEditor(t.callId, t.setupIdx, 
 now match the call and stop at the arguments, which is what they were always about. The one place that genuinely
 needs the signature is the body extraction, and that is anchored on the implementation rather than the interface
 (`indexOf` finds the interface first, and it has no body).
+
+A CLICK ON THE BOARD OPENS THE VIEW OPTIONS AS A DIALOG. Asked for: "A click release on the dance board, opens a
+small dialog with the Hide Dancers checkbox and a 2D/3D selector (similar to 2d icons checkbox). Use Close button
+when finished."
+
+The two checkboxes moved out of the editor panel row and into a `position: fixed` dialog with a Close button. They
+are REMOVED from the row rather than duplicated into the dialog, and the same ids and tooltips are kept, so
+`applyViewOptions` is unchanged.
+
+A RELEASE, NOT A PRESS, and that is the whole gesture: the same canvas carries the orbit controls and the handle
+drags, so "opens on click" really means "does not open on a press that turned into a drag". The test is the
+pointer's own travel (4 px) plus whether a HANDLE was under it - and that second test is taken at the PRESS rather
+than read at the release, because the handle drag's own listener clears `dragHandle` on the same event and the
+order the two listeners run in is not something to depend on.
+
+It is EDITOR-SCOPED, like the options themselves: `applyViewOptions` releases them when another panel is on
+screen, so offering the dialog elsewhere would be offering two controls that do nothing. It closes on leaving the
+editor for the same reason.
+
+Gated in poc/tools/editor-level-probe.mjs: the dialog's contents, that the panel row is emptied rather than
+duplicated, `[hidden]` being restated against `display`, and the gesture's two halves.

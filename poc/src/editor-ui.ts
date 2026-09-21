@@ -376,6 +376,9 @@ export class EditorController implements EditorUI {
   private xmlEl = el<HTMLTextAreaElement>('edXml');
   private hideDancersChk = el<HTMLInputElement>('edHideDancers');
   private view2dChk = el<HTMLInputElement>('edView2d');
+  /** The dialog the two view options live in: opened by a click on the board, closed by its button. */
+  private viewDialogEl = el<HTMLDivElement>('viewDialog');
+  private viewDialogClose = el<HTMLButtonElement>('viewDialogClose');
 
   // ---- the instance editor ----
   private instPanel = el<HTMLDivElement>('edInstancePanel');
@@ -544,6 +547,7 @@ export class EditorController implements EditorUI {
 
     this.wireEvents();
     this.wireHandleDrag();
+    this.wireBoardClick();
     this.fillSetupSelect(this.editSetupSel, this.editCallSel.value);
     this.fillSetupSelect(this.postSetupSel, this.postCallSel.value);
     this.fillSetupSelect(this.preSetupSel, this.preCallSel.value);
@@ -1407,6 +1411,55 @@ export class EditorController implements EditorUI {
    * control takes the same gesture and the board rotates while the handle is being dragged, which is
    * the single most obvious way this could feel broken.
    */
+  /**
+   * A CLICK ON THE BOARD OPENS THE VIEW DIALOG; a DRAG does not.
+   *
+   * Asked for as: "A click release on the dance board, opens a small dialog with the Hide Dancers checkbox and
+   * a 2D/3D selector (similar to 2d icons checkbox). Use Close button when finished."
+   *
+   * A RELEASE, NOT A PRESS, and that is the whole of the gesture: the same canvas carries the orbit controls and
+   * the handle drags, so a press that turns into a drag must not leave a dialog behind. The test is the
+   * pointer's own travel - four pixels - plus whether a HANDLE was under it at the press, taken then rather than
+   * read at the release, because the handle drag's own listener clears `dragHandle` on the same event and the
+   * order the two listeners run in is not something to depend on.
+   *
+   * IT IS EDITOR-SCOPED, like the options themselves: `applyViewOptions` releases them when another panel is on
+   * screen ("a caller who hid the dancers in the editor would find them gone in the browse view too, with
+   * nothing on that panel to explain why"), so offering the dialog elsewhere would be offering controls that do
+   * nothing.
+   */
+  private wireBoardClick() {
+    const canvas = this.stage.renderer.domElement;
+    let down: { x: number; y: number; onHandle: boolean } | null = null;
+    canvas.addEventListener('pointerdown', (e) => {
+      down = { x: e.clientX, y: e.clientY, onHandle: this.stage.pickHandle(e.clientX, e.clientY) !== null };
+    });
+    canvas.addEventListener('pointerup', (e) => {
+      const from = down;
+      down = null;
+      if (!from || from.onHandle) return;
+      if (Math.hypot(e.clientX - from.x, e.clientY - from.y) > 4) return; // a camera move, not a click
+      if (!this.active || !this.isInstanceMode()) return;
+      this.showViewDialog(e.clientX, e.clientY);
+    });
+    // A pointer that leaves the canvas mid-gesture never releases here, so the next press starts clean.
+    canvas.addEventListener('pointercancel', () => { down = null; });
+  }
+
+  /** Show the view dialog with its top-left near the pointer, kept inside the window. */
+  private showViewDialog(clientX: number, clientY: number) {
+    this.viewDialogEl.hidden = false;
+    const box = this.viewDialogEl.getBoundingClientRect();
+    const x = Math.min(clientX + 10, Math.max(0, window.innerWidth - box.width - 8));
+    const y = Math.min(clientY + 10, Math.max(0, window.innerHeight - box.height - 8));
+    this.viewDialogEl.style.left = `${Math.max(0, x)}px`;
+    this.viewDialogEl.style.top = `${Math.max(0, y)}px`;
+  }
+
+  private hideViewDialog() {
+    this.viewDialogEl.hidden = true;
+  }
+
   private wireHandleDrag() {
     const canvas = this.stage.renderer.domElement;
     canvas.addEventListener('pointerdown', (e) => {
@@ -3470,6 +3523,7 @@ export class EditorController implements EditorUI {
     });
     this.hideDancersChk.addEventListener('change', () => this.applyViewOptions());
     this.view2dChk.addEventListener('change', () => this.applyViewOptions());
+    this.viewDialogClose.addEventListener('click', () => this.hideViewDialog());
     // The filter narrows the LISTS only, so it never reloads a call: the selected ids are
     // preserved by `fillCallSelect`, and reloading on every keystroke would fight the user.
     this.callFilterInput.addEventListener('input', () => {
@@ -3595,6 +3649,9 @@ export class EditorController implements EditorUI {
       // browse and sequence views cannot inherit a magenta dot from an edit that is not showing.
       this.host.focusTrail(null, null);
       this.stage.setGizmo(null);
+      // The dialog belongs to this panel: leaving it up over the browse view would be two controls that do
+      // nothing, on a board whose view options are released.
+      this.hideViewDialog();
     }
   }
 }

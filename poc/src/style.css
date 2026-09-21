@@ -39,6 +39,15 @@ html, body {
 #hud button:hover { border-color: var(--accent); }
 #hud input[type=range] { flex: 1; accent-color: var(--accent); }
 #hud .part { font-size: 12px; color: var(--accent); flex: 1 1 auto; min-width: 0; }
+/* THE VIEW DIALOG, opened by a click on the board. `position: fixed` so it can sit under the pointer wherever
+   the board is, rather than being laid out with the panel - and OUTSIDE `#hud`, which is why it does not take
+   the panel's rules. `[hidden]` is restated because a `display` here would otherwise win over it. */
+.view-dialog { position: fixed; z-index: 30; display: block; background: #0e141b; border: 1px solid #2a3542; border-radius: 6px; padding: 7px 9px; font-size: 11px; color: var(--text); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5); }
+.view-dialog[hidden] { display: none; }
+.view-dialog-line { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; white-space: nowrap; }
+.view-dialog-line:last-child { margin-bottom: 0; }
+.view-dialog-line label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.view-dialog-line button { width: 100%; }
 /* THE NAME ABOVE THE BUTTONS in the user-formation list. Read the other way round the row looks like a toolbar
    with the name trailing off the end of it - and with four buttons there is often no room left for the name at
    all. `flex: 1 0 100%` gives the name the whole first line, so the buttons start on the next one and the row

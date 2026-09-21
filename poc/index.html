@@ -16,6 +16,18 @@
     </div>
     <div id="app">
       <canvas id="stage"></canvas>
+      <!-- THE VIEW DIALOG: the editor's two view options, on a click of the board rather than in the panel.
+           It lives outside `#hud` and is `position: fixed`, so it can sit under the pointer wherever the
+           board is rather than being laid out with the panel. -->
+      <div id="viewDialog" class="view-dialog" hidden>
+        <div class="view-dialog-line">
+          <label title="Draw no dancers at all, in either view - the figures in 3D or the small icons in 2D. The dancers are still there, only their bodies are not, so the track, the handles and the floor grid read cleanly."><input id="edHideDancers" type="checkbox" /> Hide dancers</label>
+        </div>
+        <div class="view-dialog-line">
+          <label title="Look straight down, with small flat icons instead of the 3D figures. The trails and handles read best from above."><input id="edView2d" type="checkbox" /> 2D icons</label>
+        </div>
+        <div class="view-dialog-line"><button id="viewDialogClose">Close</button></div>
+      </div>
       <div id="hud">
         <h1>Dancing Squared <span>PoC</span></h1>
         <div class="row">
@@ -263,10 +275,7 @@
             <button id="edExportAll" title="Copy EVERY saved edit at once, grouped into &lt;tamination&gt; blocks the way the corpus files them: each block carries the file's own family title and the file path to update, and each &lt;tam&gt; carries a type of `clone` (a new setup to add) or `update` (a setup to replace).">Export All</button>
           </div>
           <textarea id="edXml" class="small" rows="6" readonly placeholder="Exported <tam> XML appears here."></textarea>
-          <div class="row">
-            <label title="Draw no dancers at all, in either view - the figures in 3D or the small icons in 2D. The dancers are still there, only their bodies are not, so the track, the handles and the floor grid read cleanly."><input id="edHideDancers" type="checkbox" /> Hide dancers</label>
-            <label title="Look straight down, with small flat icons instead of the 3D figures. The trails and handles read best from above."><input id="edView2d" type="checkbox" /> 2D icons</label>
-          </div>
+
         </div>
       </div>
     </div>

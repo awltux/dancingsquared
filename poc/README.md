@@ -1408,6 +1408,21 @@ ever look broken.
 
 The control, the `EditorHost`/`EditorUI` parameter that carried its state, `onMirrorChange`, and the stored field
 are all **removed rather than left switched on**.
+**A click on the board opens the view options as a small dialog.** Asked for as: *"A click release on the dance
+board, opens a small dialog with the Hide Dancers checkbox and a 2D/3D selector (similar to 2d icons checkbox).
+Use Close button when finished."* The two checkboxes moved out of the panel row and into a `position: fixed`
+dialog with a **Close** button.
+
+**A release, not a press** — and that is the whole gesture. The same canvas carries the orbit controls and the
+handle drags, so "opens on click" really means *does not open on a press that turned into a drag*. The test is the
+pointer's own travel (**4 px**), plus whether a **handle** was under it — and that second test is taken at the
+**press**, not read at the release, because the handle drag's own listener clears `dragHandle` on the same event
+and the order the two listeners run in is not something to depend on.
+
+**It is editor-scoped, like the options themselves.** `applyViewOptions` releases them when another panel is on
+screen — *"a caller who hid the dancers in the editor would find them gone in the browse view too, with nothing on
+that panel to explain why"* — so offering the dialog elsewhere would be offering two controls that do nothing. It
+is closed on leaving the editor for the same reason.
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

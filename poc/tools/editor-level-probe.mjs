@@ -206,6 +206,40 @@ check(!/mirror\?: boolean;/.test(formationsSrc) && !/f\.mirror/.test(browserSrc)
   'and a formation no longer stores a reading that cannot vary');
 check(/openEditor\(callId: string, setupIdx: number\): void;/.test(browserSrc) && /openCall\(callId: string, setupIdx: number\): void;/.test(editorSrc),
   'so the Edit path carries the call and the setup and nothing else');
+// ---------------------------------------------------------------------------
+// THE VIEW DIALOG, opened by a click on the board
+//
+// Asked for as: "A click release on the dance board, opens a small dialog with the Hide Dancers checkbox and a
+// 2D/3D selector (similar to 2d icons checkbox). Use Close button when finished."
+//
+// THE SAME CANVAS CARRIES THE ORBIT CONTROLS AND THE HANDLE DRAGS, so "opens on click" is really "does NOT open
+// on a press that turned into a drag" - and the handle test is taken at the PRESS rather than read at the
+// release, because the handle drag's own listener clears its state on the same event and the order the two
+// listeners run in is not something to depend on. Both halves are checked here.
+console.log('\n== the view dialog ==');
+const styles = read('src/style.css');
+const dialogBody = (() => {
+  const i = editorSrc.indexOf('private wireBoardClick()');
+  return i < 0 ? '' : editorSrc.slice(i, editorSrc.indexOf('\n  }\n', i));
+})();
+check(/<div id="viewDialog"/.test(html) && /id="edHideDancers"/.test(html) && /id="edView2d"/.test(html),
+  'the dialog carries the two view options');
+check(/<button id="viewDialogClose">Close<\/button>/.test(html), 'and a Close button, which is what was asked for');
+check(!/<div class="row">\s*<label[^>]*><input id="edHideDancers"/.test(html),
+  'and they are GONE from the panel row they used to sit in, not merely duplicated into the dialog');
+check(/\.view-dialog \{ position: fixed;/.test(styles) && /\.view-dialog\[hidden\] \{ display: none; \}/.test(styles),
+  'the dialog is positioned freely and restates `[hidden]`, which a `display` would otherwise win over');
+check(dialogBody !== '', 'and the board click is one method');
+check(/canvas\.addEventListener\('pointerup'/.test(dialogBody) && !/canvas\.addEventListener\('pointerdown', \(e\) => \{\s*this\.showViewDialog/.test(dialogBody),
+  'it opens on a RELEASE, never on a press');
+check(/Math\.hypot\(e\.clientX - from\.x, e\.clientY - from\.y\) > 4/.test(dialogBody),
+  'and only when the pointer barely moved - a camera drag must not leave a dialog behind');
+check(/onHandle: this\.stage\.pickHandle\(e\.clientX, e\.clientY\) !== null/.test(dialogBody) && /if \(!from \|\| from\.onHandle\) return;/.test(dialogBody),
+  'and not when a HANDLE was under the press, taken at the press rather than read at the release');
+check(/this\.viewDialogClose\.addEventListener\('click', \(\) => this\.hideViewDialog\(\)\)/.test(editorSrc),
+  'and the Close button closes it');
+check(/this\.hideViewDialog\(\);/.test(editorSrc.slice(editorSrc.indexOf('setActive(a: boolean)'))),
+  'and leaving the editor closes it too: the options it holds are released when another panel is on screen, so the dialog there would be controls that do nothing');
 console.log('\n== the check fails on the bugs it was written for ==');
 {
   const unfiltered = wiring(html, src['editor-ui.ts'].replace('const level = this.levelSel.value;', 'const level = \'\';'));

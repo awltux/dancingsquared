@@ -110,6 +110,42 @@ const offersLevel = (lv) => {
 check(def !== '' && offersLevel(def), `the default \`${def}\` is in the catalogue's level order and has calls under src/assets/${def}`);
 check(!offersLevel('mainstream') && !offersLevel(''), 'and a default naming a programme the catalogue does not carry is caught, as is an empty one');
 
+// ---------------------------------------------------------------------------
+// THE BROWSE LIST'S Edit BUTTON, and the whole chain it has to travel.
+//
+// Asked for: "On the Browse calls tab, add an Edit button ager the del button that opens the selected call in the
+// call Editor tab", placed at "the end of the row of buttons titled xml, In Corpus and del".
+//
+// IT IS A CROSS-PANEL JUMP, so every link is checked rather than the endpoints: the row has to grow a fourth
+// button in the right place, the handler has to pass IDs rather than the prose `origin`, the host interface has
+// to declare the method, `main.ts` has to switch the MODE and not just call through, and the editor has to load
+// the call the same way its own dropdowns do.
+console.log("\n== the Browse list's Edit button, end to end ==");
+const browserSrc = read('src/browser.ts');
+const formationsSrc = read('src/formations.ts');
+const mainSrc = read('src/main.ts');
+const editorSrc = read('src/editor-ui.ts');
+check(/data-del="\$\{i\}"[\s\S]{0,500}?data-edit="\$\{i\}"/.test(browserSrc),
+  'the Edit button is the FOURTH in the row, after `del`, which is where it was asked for');
+check(/button\[data-edit\]/.test(browserSrc) && /this\.host\.openEditor\(callId, setupIdx\)/.test(browserSrc),
+  'and its handler goes through the host rather than reaching into the editor itself');
+check(/const callId = f\.callId \?\? this\.callSelect\.value;/.test(browserSrc),
+  'it opens the call the FORMATION was made from, and the current selection only where that was never recorded');
+check(/callId\?: string;[\s\S]{0,200}?setupIdx\?: number;/.test(formationsSrc),
+  'which is why a formation now stores those ids: `origin` is display text and cannot be resolved back to a call');
+check(/callId: this\.callSelect\.value,[\s\S]{0,80}?setupIdx: parseInt\(this\.tamSelect\.value/.test(browserSrc),
+  'and they are recorded at the moment it is created');
+check(/openEditor\(callId: string, setupIdx: number\): void;/.test(browserSrc), 'the host interface declares it');
+check(/openEditor: \(callId, setupIdx\) => \{[\s\S]{0,200}?modeSelect\.value = 'editor';[\s\S]{0,120}?applyMode\(\);[\s\S]{0,80}?editorUi\.openCall\(callId, setupIdx\);/.test(mainSrc),
+  'and the app switches the MODE SELECTOR to the editor and applies it - a call that loaded without the panel being shown would look like nothing happened');
+const oi = editorSrc.indexOf('openCall(callId: string, setupIdx: number) {');
+const openCall = oi < 0 ? '' : editorSrc.slice(oi, editorSrc.indexOf('\n  }\n', oi));
+check(openCall !== '', 'the editor has an `openCall`');
+check(/this\.loadEditSetup\(\);\s*\n\s*this\.loadInstance\(\);/.test(openCall), 'and it loads the setup and the instance');
+check(/this\.levelSel\.value = '';[\s\S]{0,160}?this\.callQuery = '';[\s\S]{0,60}?this\.applyCallFilter\(\);/.test(openCall),
+  'and it clears the Level and the Find filter when the call would otherwise not be in the list');
+check(!/instanceEdited = true/.test(openCall) && !/setMove\(|commit\(|setDancer(Start|End|Gender)\(/.test(openCall),
+  'and it EDITS NOTHING - choosing a call and loading it is what clicking the two lists does, so a caller who only wanted to look has changed nothing and Save is not offered');
 console.log('\n== the check fails on the bugs it was written for ==');
 {
   const unfiltered = wiring(html, src['editor-ui.ts'].replace('const level = this.levelSel.value;', 'const level = \'\';'));

@@ -77,6 +77,8 @@ import { HANDLE_COLOR } from './scene';
 
 export interface EditorUI {
   setActive(a: boolean): void;
+  /** Open the INSTANCE editor on one call and one setup, as if both had been chosen from the lists. */
+  openCall(callId: string, setupIdx: number): void;
 }
 
 /** What the editor needs from the rest of the app. */
@@ -3531,6 +3533,48 @@ export class EditorController implements EditorUI {
     // re-draws it and re-derives the track highlight.
     this.moveAddBtn.addEventListener('click', () => this.addInstanceMove());
     this.moveDelBtn.addEventListener('click', () => this.deleteInstanceMove());
+  }
+
+  /**
+   * OPEN THE INSTANCE EDITOR on one call and one setup. This is the Browse list's Edit button.
+   *
+   * Asked for as: "add an Edit button ager the del button that opens the selected call in the call Editor tab."
+   *
+   * THE FILTER IS CLEARED IF IT HAS TO BE. The three call lists are narrowed by both the Level selector and the
+   * Find box, and a formation can perfectly well have come from a call the editor is not currently offering -
+   * so the button would otherwise fail on a panel state the caller cannot see the connection to. Clearing both
+   * is what makes the call reachable, and it is the same as pressing Escape in the Find box.
+   *
+   * IT EDITS NOTHING. Choosing the call and setup and loading them is exactly what clicking the two lists does,
+   * so a caller who only wanted to LOOK has changed nothing - and `instanceEdited` stays false, so Save is not
+   * offered for a call nobody touched.
+   */
+  openCall(callId: string, setupIdx: number) {
+    // THE INSTANCE TAB, because that is where a call's own `<tam>` is edited and the button says "edit the
+    // call" rather than "open the editor on whatever tab was left showing".
+    if (this.modeSel.value !== 'instance') {
+      this.modeSel.value = 'instance';
+      this.applyMode();
+    }
+    const offers = () => Array.from(this.editCallSel.options).some((o) => o.value === callId);
+    if (!offers()) {
+      this.levelSel.value = '';
+      this.callFilterInput.value = '';
+      this.callQuery = '';
+      this.applyCallFilter();
+    }
+    if (!offers()) {
+      this.statusEl.textContent = `✗ ${callId} is not in the loaded catalogue`;
+      return;
+    }
+    this.editCallSel.value = callId;
+    this.fillSetupSelect(this.editSetupSel, callId);
+    const idx = String(setupIdx);
+    if (Array.from(this.editSetupSel.options).some((o) => o.value === idx)) this.editSetupSel.value = idx;
+    // THE SAME THREE CALLS THE `change` HANDLERS MAKE, in the same order - so this is not a second way to
+    // load an instance, it is the way the lists already do it.
+    this.loadEditSetup();
+    this.loadInstance();
   }
 
   setActive(a: boolean) {

@@ -31,6 +31,8 @@ export interface BrowserHost {
    *  on - including the board the caller was just looking at, which the read cache would otherwise
    *  remember as unnamed. */
   registerFormation(name: string, dancers: Matchable[]): void;
+  /** Open the CALL EDITOR on one call and one setup, switching the mode selector to it. */
+  openEditor(callId: string, setupIdx: number): void;
 }
 
 /** How many "used by" entries the browse panel lists before summarising the rest. */
@@ -231,7 +233,16 @@ export class CallBrowser {
     if (!board) return;
     const dancers = board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender }));
     const origin = `${this.callSelect.selectedOptions[0]?.textContent ?? ''} (from ${this.tamSelect.selectedOptions[0]?.textContent ?? 'default'})`;
-    const formed: UserFormation = { name, dancers, created: new Date().toISOString(), origin };
+    // THE IDS BESIDE THE PROSE, so the list's Edit button can open this call again: `origin` is built from the
+    // two dropdowns' DISPLAY text and cannot be turned back into a catalogue entry.
+    const formed: UserFormation = {
+      name,
+      dancers,
+      created: new Date().toISOString(),
+      origin,
+      callId: this.callSelect.value,
+      setupIdx: parseInt(this.tamSelect.value || '0', 10),
+    };
     addUserFormation(formed);
     this.host.registerFormation(name, dancers);
     // LABELLING THIS CALL'S END WITH THE NAME IS ALSO A RE-ATTACH. Otherwise a formation that had
@@ -274,6 +285,7 @@ export class CallBrowser {
             `<div class="row"><button data-xml="${i}" title="Copy this formation's &lt;formation&gt; block for pasting into poc/src/assets/formations.xml">xml</button>` +
             `<button data-corpus="${i}" title="${f.inCorpus ? 'This formation is in the corpus: calls that start from it are exported as a name reference. Click to take it back out' : 'Add it to the corpus: the block goes on your clipboard to paste into poc/src/assets/formations.xml, and calls that start from it are then exported as a name reference rather than an embedded copy'}">${f.inCorpus ? 'in corpus ✓' : 'add to corpus'}</button>` +
             `<button data-del="${i}" title="Forget this label">del</button>` +
+            `<button data-edit="${i}" title="Open this formation's call in the Call editor, on the setup it was made from. Switch to the editor's Edit instance tab, pick the call and setup there, and load it - the same thing as choosing them by hand, so nothing is edited until you change something.">Edit</button>` +
             `<span class="part">${esc(f.name)} <i>(${f.dancers.length} dancers, from ${esc(f.origin)})</i></span></div>`,
         )
         .join('');
@@ -320,6 +332,18 @@ export class CallBrowser {
         // purpose (a registered shape is the load-bearing part, and removing it mid-session would
         // leave every cached read naming a formation the store no longer holds).
         this.legend.innerHTML = `forgot <b>${esc(f.name)}</b><br><span class="small">the library keeps the name until the page is reloaded</span>`;
+      });
+    }
+    for (const btn of this.userFormationsEl.querySelectorAll<HTMLButtonElement>('button[data-edit]')) {
+      btn.addEventListener('click', () => {
+        const f = list[Number(btn.dataset.edit)];
+        if (!f) return;
+        // THE IDS THE FORMATION WAS MADE WITH, and the current selection only as a fallback: a formation made
+        // before those were recorded has an `origin` in prose and nothing resolvable, and the call the caller
+        // is looking at now is the only other thing the button could mean. The tooltip says which.
+        const callId = f.callId ?? this.callSelect.value;
+        const setupIdx = f.setupIdx ?? parseInt(this.tamSelect.value || '0', 10);
+        this.host.openEditor(callId, setupIdx);
       });
     }
   }

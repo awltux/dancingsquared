@@ -25,6 +25,15 @@ export interface UserFormation {
   /** What it was created from, for the list: "Call (from Setup)". */
   origin: string;
   /**
+   * The CALL and SETUP it was created from - the ids, which `origin` only says in prose.
+   *
+   * Optional because every formation stored before this existed has none: `origin` is display text built from
+   * the two dropdowns' labels, so it cannot be resolved back to a catalogue entry. The browse list's Edit
+   * button needs the ids, and falls back to whatever is selected now when they are absent.
+   */
+  callId?: string;
+  setupIdx?: number;
+  /**
    * WHETHER THIS SHAPE HAS BEEN ADDED TO THE CORPUS - `poc/src/assets/formations.xml`.
    *
    * A browser cannot write that file, so this is the CALLER'S ASSERTION that the `<formation>` block

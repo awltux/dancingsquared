@@ -2726,3 +2726,26 @@ part of that file's data. A comment at the top of a document is legal; an invali
 appear inside a comment at all - so the probe checks the content contains none AND that a stamped export still
 parses back as the same single <tam>. (The first version of that check tested the whole string, including the
 `<!--` and `-->` delimiters, and failed on a perfectly good comment.)
+
+AN Edit BUTTON ON EVERY USER-FORMATION ROW IN THE BROWSE TAB. Asked for: "On the Browse calls tab, add an Edit
+button ager the del button that opens the selected call in the call Editor tab", clarified as being at "the end
+of the row of buttons titled xml, In Corpus and del".
+
+The request mixed a placement (that row) with a subject (the selected CALL, and a row is a FORMATION), so the
+placement was confirmed before anything was built. It switches the MODE SELECTOR to the editor, opens the Edit
+instance tab, and chooses the call and setup there - the same thing as clicking the two lists by hand, so a
+caller who only wanted to look has changed nothing and Save is not offered for a call nobody touched.
+
+A FORMATION NOW STORES THE callId AND setupIdx IT WAS MADE FROM, and it could not before: `origin` is display
+text built from the two dropdowns' labels ("Circle Left (from Circle)") and cannot be resolved back to a
+catalogue entry, so the button had nothing to open. Formations saved before this have no ids and fall back to
+whatever the Browse tab has selected now.
+
+And the editor CLEARS ITS OWN FILTER if it has to: its three lists are narrowed by the Level selector and the
+Find box, and a formation can have come from a call the editor is not currently offering - so the button would
+otherwise fail on a panel state the caller cannot see the connection to.
+
+Gated in poc/tools/editor-level-probe.mjs, which checks the whole chain rather than the endpoints: the fourth
+button's position in the row, the handler going through the host, the ids being stored at creation, the host
+interface declaring the method, main.ts switching the MODE and not only calling through, and the editor loading
+the call the way its own lists do - including that openCall edits NOTHING.

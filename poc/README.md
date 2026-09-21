@@ -1342,6 +1342,23 @@ changes"* when it is set.
 become part of that file's data. A comment at the top of a document is legal; an invalid one is not, and `--`
 may not appear inside a comment at all, so the probe checks the content contains none and that a stamped export
 still parses back as the same single `<tam>`.
+**An `Edit` button at the end of every user-formation row, opening that call in the Call editor.** Asked for as:
+*"add an Edit button ager the del button that opens the selected call in the call Editor tab"*, placed *"at the
+end of the row of buttons titled xml, In Corpus and del"*.
+
+It switches the MODE SELECTOR to the editor, opens the **Edit instance** tab, and chooses the call and setup
+there — the same thing as clicking the two lists by hand, so a caller who only wanted to look has **changed
+nothing** (`instanceEdited` stays false and Save is not offered for a call nobody touched).
+
+**A formation now stores the `callId` and `setupIdx` it was made from.** It could not before: `origin` is
+display text built from the two dropdowns' labels — *"Circle Left (from Circle)"* — and cannot be resolved back
+to a catalogue entry, so a row's Edit button had nothing to open. Formations saved before this have no ids and
+fall back to whatever the Browse tab has selected now.
+
+**And the editor clears its own filter if it has to.** Its three call lists are narrowed by the Level selector
+and the Find box, and a formation can perfectly well have come from a call the editor is not currently offering
+— so the button would otherwise fail on a panel state the caller cannot see the connection to. Clearing both is
+the same as pressing Escape in the Find box.
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

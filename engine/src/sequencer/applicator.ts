@@ -46,6 +46,113 @@ export interface ApplyResult {
  */
 const BODY_COLLISION_MIN = 1.0;
 
+/**
+ * How many dancers of each REAL couple the whole board holds. `UNKNOWN_COUPLE` is not a couple, so it
+ * is absent from the map and imposes no constraint rather than being treated as one.
+ */
+function coupleTotals(dancers: SeqDancer[]): Map<number, number> {
+  const totals = new Map<number, number>();
+  for (const d of dancers) if (isKnownCouple(d.couple)) totals.set(d.couple, (totals.get(d.couple) ?? 0) + 1);
+  return totals;
+}
+
+/**
+ * Whether `block` holds EVERY dancer of each real couple it touches — i.e. no couple is split.
+ *
+ * ONE IMPLEMENTATION, because it is the same rule in `partition` and in `partitionsFor`, and the two
+ * disagreeing about what "couple coherence" means is exactly the kind of drift this file has been
+ * bitten by. MEASURED as load-bearing rather than cosmetic: relaxing it for the Sweep took refusals
+ * 4 -> 0 and figures 98 -> 96, and it is what makes a tiling well posed.
+ */
+function blockKeepsCouples(block: SeqDancer[], totals: Map<number, number>): boolean {
+  const here = new Map<number, number>();
+  for (const d of block) if (isKnownCouple(d.couple)) here.set(d.couple, (here.get(d.couple) ?? 0) + 1);
+  for (const [c, k] of here) if (k !== (totals.get(c) ?? 0)) return false;
+  return true;
+}
+
+/**
+ * How many groupings `partitionsFor` will hand back before it gives up. Bell(8) = **4140** is the
+ * absolute bound on the set partitions of eight dancers, so this cap can only bite for a call whose
+ * variants span many sizes — but it is not decoration: it is the bound that makes enumerating
+ * groupings safe to call at all, and `truncated` is reported rather than swallowed.
+ */
+export const MIXED_PARTITION_CAP = 4096;
+
+/**
+ * Every way to split `dancers` into blocks whose sizes are ALL drawn from `sizes`, with no couple
+ * split across blocks — the enumeration a MIXED (multi-arity) reading would need.
+ *
+ * WHY IT EXISTS. `partition` tiles the board with copies of ONE setup, and `parallelApply` loops over
+ * a call's variants one at a time, so a call whose variants span sizes can only ever split the board
+ * into EQUAL groups. A call with a 4-dancer and a 2-dancer authoring could in principle act on two
+ * dancers in one place and four in another at once, and nothing could express that.
+ *
+ * AND THE MEASUREMENT THAT SAYS NOT TO WIRE IT UP, recorded here because this function exists for a
+ * reader who is about to try. Over the real ms catalogue and the FSM's own 1013 state boards
+ * (133 named + 880 embedded setups), the mixed pool is EMPTY of witnesses:
+ *
+ *   - of 273 titles, 107 have variants at more than one built size, and **104 of those are {4,8}** —
+ *     which admits no mixed shape at all, because 8 is the whole-board apply and [4,4] is already
+ *     reachable homogeneously. One is `{6,8}` (`Column Circulate`): 8 - 6 = 2, and it has no 2-dancer
+ *     authoring, so it admits nothing either.
+ *   - the remaining TWO are `{2,4,8}` — `Step to a Wave` and `Step to a Left-Hand Wave` — whose only
+ *     mixed shape is **4+2+2** (210 labelled partitions each).
+ *   - over all 1013 boards there are **9** where every block of some mixed partition matches a
+ *     variant of its own size, and the engine ALREADY APPLIES the call on all 9 by its ordinary
+ *     whole-board or homogeneous-parallel reading. **Zero would be new.**
+ *   - and couple coherence is not what refuses them: dropping the rule changes the count not at all
+ *     (9 before, 9 after), so the rule is not the blocker a future attempt should reach for.
+ *
+ * So this is the plan's own rule applied to the plan's own next step — "each new reading has to be
+ * justified against a witness before it is admitted" — and the witness does not exist. It is wired to
+ * `reading-census.mjs`'s reporter, which PINS the zero so a catalogue change that creates a mixed
+ * pool fails the gate and forces the decision rather than silently unblocking it.
+ *
+ * The homogeneous partitions are returned too (a caller can pick them out by block size); the cap and
+ * the couple rule are the only restrictions.
+ */
+export function partitionsFor(
+  dancers: SeqDancer[],
+  sizes: Iterable<number>,
+  cap: number = MIXED_PARTITION_CAP,
+): { partitions: SeqDancer[][][]; truncated: boolean } {
+  const allowed = new Set([...sizes].filter((k) => k >= 2));
+  const n = dancers.length;
+  const out: SeqDancer[][][] = [];
+  if (allowed.size === 0 || n === 0) return { partitions: out, truncated: false };
+  const maxK = Math.max(...allowed);
+  const totals = coupleTotals(dancers);
+  const blocks: number[][] = [];
+  let truncated = false;
+  const rec = (next: number): void => {
+    if (truncated) return;
+    if (next === n) {
+      if (!blocks.every((b) => allowed.has(b.length))) return;
+      const grouped = blocks.map((b) => b.map((i) => dancers[i]));
+      if (!grouped.every((g) => blockKeepsCouples(g, totals))) return;
+      if (out.length >= cap) { truncated = true; return; }
+      out.push(grouped);
+      return;
+    }
+    for (const b of blocks) {
+      // A block longer than the largest allowed size can never be completed validly, so prune it
+      // rather than discovering that at the end. Bell(8) bounds the search either way; this keeps it
+      // proportional to the answer rather than to the space.
+      if (b.length + 1 > maxK) continue;
+      b.push(next);
+      rec(next + 1);
+      b.pop();
+      if (truncated) return;
+    }
+    blocks.push([next]);
+    rec(next + 1);
+    blocks.pop();
+  };
+  rec(0);
+  return { partitions: out, truncated };
+}
+
 export class CallApplicator {
   /** How deep the scoped-tam fallback may nest. See the fallback in `applyToBoardInner`. */
   private static readonly MAX_SCOPED_DEPTH = 2;
@@ -602,21 +709,12 @@ export class CallApplicator {
   partition(setup: Matchable[], dancers: SeqDancer[], maxError: number): { groups: SeqDancer[][]; error: number } | null {
     const k = setup.length;    const n = dancers.length;
     if (n === 0 || n % k !== 0) return null;
-    const coupleCount = new Map<number, number>();
-    for (const d of dancers) {
-      if (isKnownCouple(d.couple)) coupleCount.set(d.couple, (coupleCount.get(d.couple) ?? 0) + 1);
-    }
     // A real couple must never be split across subsets. UNKNOWN_COUPLE is not a
     // couple, so it imposes no constraint rather than being treated as one
     // (treating it as a couple would wrongly forbid or force partitions).
-    const isCoupleCoherent = (group: SeqDancer[]): boolean => {
-      const couples = new Set(group.map((d) => d.couple).filter(isKnownCouple));
-      for (const c of couples) {
-        const need = coupleCount.get(c) ?? 0;
-        if (group.filter((d) => d.couple === c).length !== need) return false;
-      }
-      return true;
-    };
+    // The rule itself lives in `blockKeepsCouples`, shared with `partitionsFor`.
+    const totals = coupleTotals(dancers);
+    const isCoupleCoherent = (group: SeqDancer[]): boolean => blockKeepsCouples(group, totals);
     const used = new Array<boolean>(n).fill(false);
     const result: SeqDancer[][] = [];
     let totalError = 0;

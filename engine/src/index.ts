@@ -31,6 +31,9 @@ export { makeSquaredSet, cloneBoard, reorderLike, boardSig, boardAtBeat } from '
 export * from './sequencer/types.js';
 export { matchFormations, matchFormationsAll } from './sequencer/match.js';
 export type { FormationMatch, Matchable } from './sequencer/match.js';
+// The mixed-arity (multi-size) grouping enumeration. Exported for the REPORTER that pins its measured
+// yield — see `partitionsFor` for why it is deliberately wired to nothing else.
+export { partitionsFor, MIXED_PARTITION_CAP } from './sequencer/applicator.js';
 export { analyzeFasr } from './sequencer/fasr.js';
 // All8's call notation (abbreviation table, tokenizer, line decoder) - the shared vocabulary behind
 // both the get-out conformance harnesses and the All8 sequence import/export codec.

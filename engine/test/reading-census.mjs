@@ -32,12 +32,16 @@
 // positions but not to facings). Refusing more names ALONE would have silently removed applications,
 // which is why it had to land with admitting unnamed ends.
 //
-// So this harness answers three questions with numbers, and PIN the answers:
+// So this harness answers four questions with numbers, and PIN the answers:
 //   1. how many legal applications end on a board the namer refuses (recorded as a null-end edge)?
 //   2. how many readings are PARTIAL (the call was done by some of the board)?
 //   3. how many readings does a (state, call) pair have? Today it must be exactly one, because the
 //      edge identity is the call alone - that is the invariant a multi-reading FSM has to break, and
 //      the number is what sizes the work.
+//   4. what could a MIXED (multi-size) reading actually reach? MEASURED: nothing. The pool is two
+//      titles, one shape, and every board where it matches is already applied. The zero is PINNED,
+//      so a catalogue change that creates a witness fails here instead of silently unblocking a
+//      mechanism with no evidence behind it. See the section itself for the size-set breakdown.
 //
 // It compares the live engine against the STORED asset (`poc/src/assets/fsm-ms.json`), because that
 // asset is the FSM's persisted record. A missing asset is a FAILURE, not a skip - a harness that
@@ -58,7 +62,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser } from '../dist/index.js';
+import { Sequencer, setParser, matchFormations, partitionsFor } from '../dist/index.js';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -237,17 +241,99 @@ console.log('\n== against the stored asset: REPORTED, not asserted (the asset is
   console.log(`  edges with no reproduction in this sweep: ${readErrors}`);
 }
 
-console.log('\n== the multi-arity pool: the raw material for a MIXED reading ==');
+console.log('\n== the multi-arity pool: what a MIXED reading could actually reach ==');
 {
+  // The plan called this "the pool for a MIXED reading" on the strength of a title COUNT, and the
+  // count was misleading in a way that decides the next step. A mixed reading is a partition of the
+  // board into blocks of MORE THAN ONE distinct size; `parallelApply` can only tile with copies of
+  // ONE variant, so a call whose variants span sizes could in principle act on two dancers in one
+  // place and four in another at once. MEASURED, it cannot reach anything the engine does not
+  // already do, and the reason is the SIZE SETS rather than the boards:
+  //
+  //   {4,8}   104 titles  no mixed shape at all: 8 IS the whole-board apply, and [4,4] is already
+  //                       reachable homogeneously. This is 104 of the 107 "multi-arity" titles.
+  //   {6,8}     1 title   `Column Circulate`: 8 - 6 = 2 and it has no 2-dancer authoring.
+  //   {2,4,8}   2 titles  `Step to a Wave`, `Step to a Left-Hand Wave` - the ENTIRE mixed pool, whose
+  //                       only mixed shape is 4+2+2 (210 labelled partitions each).
+  //
+  // The yield is then a measurement rather than a hope: over the FSM's own boards, count the boards
+  // where EVERY block of some mixed partition matches a variant of its own size AND the engine does
+  // not already apply the call. It is ZERO, and the zero is pinned below - so a catalogue change that
+  // creates a mixed pool fails this gate and forces the decision instead of silently unblocking it.
+  // That is the plan's own rule ("each new reading has to be justified against a witness before it is
+  // admitted") applied to the plan's own next step.
   const sizesOf = new Map();
-  for (const t of titles) sizesOf.set(t, new Set(seq.getVariants(t).map((v) => v.dancers.length)));
-  const multi = titles.filter((t) => sizesOf.get(t).size > 1);
-  const multiLegal = new Set(rows.filter((r) => sizesOf.get(r.title).size > 1).map((r) => r.title));
+  for (const t of titles) sizesOf.set(t, [...new Set(seq.getVariants(t).map((v) => v.dancers.length))].sort((a, b) => a - b));
+  const multi = titles.filter((t) => sizesOf.get(t).length > 1);
+  const setCounts = new Map();
+  for (const t of multi) {
+    const s = sizesOf.get(t).join(',');
+    setCounts.set(s, (setCounts.get(s) ?? 0) + 1);
+  }
   console.log(`  ${multi.length} of ${titles.length} titles have variants at more than one built size`);
-  console.log(`  ${multiLegal.size} of those are legal on at least one named state`);
-  const example = [...multi].filter((t) => ['Pass Thru', 'Swing Thru', 'Turn Thru', 'Step to a Wave'].includes(t));
-  console.log(`  e.g. ${example.map((t) => `${t}[${[...sizesOf.get(t)].sort((a, b) => a - b).join(',')}]`).join('  ')}`);
-  check(multi.length > 0, `${multi.length} multi-arity titles: a call CAN be applied at more than one size`);
+  console.log(`  their size sets: ${[...setCounts].sort((a, b) => b[1] - a[1]).map(([s, n]) => `{${s}} x${n}`).join(', ')}`);
+  check(multi.length === 107 && [...setCounts].map(([s, n]) => `${s}:${n}`).sort().join(' ') === '2,4,8:2 4,8:104 6,8:1',
+    `the multi-arity pool is ${multi.length} titles in exactly the three measured size sets (104 of them a set that admits no mixed shape)`);
+
+  // A title is only in the MIXED pool if it has two or more usable (non-8) sizes - 8 is the
+  // whole-board apply and cannot share a partition with anything.
+  const mixedTitles = multi.filter((t) => sizesOf.get(t).filter((k) => k >= 2 && k < 8).length >= 2);
+  console.log(`  titles with two or more usable (non-8) sizes - the whole mixed pool: ${mixedTitles.join(', ') || 'none'}`);
+
+  // The boards: the named FSM states AND the embedded (inline) setups, so the zero is not an artefact
+  // of sweeping only the named half.
+  const mixedBoards = [];
+  for (const s of namedStates) {
+    const b = seq.boardForFormation(s);
+    if (b) mixedBoards.push(b);
+  }
+  for (const setup of seq.library.allVariantSetups()) {
+    mixedBoards.push({
+      dancers: setup.map((d, i) => ({ id: i + 1, couple: d.couple ?? 0, gender: d.gender ?? 'phantom', x: d.x, y: d.y, heading: d.heading })),
+    });
+  }
+  // `parallelApply`'s own tolerance: DEFAULT_MATCH_MAX + the generator's margin.
+  const tol = 1.5 + 1.5;
+  let matchingBoards = 0;
+  let newApplications = 0;
+  for (const title of mixedTitles) {
+    const bySize = new Map();
+    for (const v of seq.getVariants(title)) {
+      const k = v.dancers.length;
+      bySize.set(k, [...(bySize.get(k) ?? []), v]);
+    }
+    const usable = [...bySize.keys()].filter((k) => k >= 2 && k < 8);
+    for (const board of mixedBoards) {
+      const phys = board.dancers.filter((d) => !d.isGhost);
+      if (phys.length !== 8) continue;
+      const already = seq.applyToBoard(board, title).legal;
+      const { partitions } = partitionsFor(phys, usable);
+      for (const part of partitions) {
+        if (new Set(part.map((b) => b.length)).size < 2) continue; // homogeneous: `parallelApply`'s job
+        let all = true;
+        for (const group of part) {
+          const src = group.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender, couple: d.couple }));
+          let ok = false;
+          for (const v of bySize.get(group.length) ?? []) {
+            const m = matchFormations(src, v.dancers.map((d) => seq.library.variantMatchable(d)), tol);
+            if (m && !m.subset) { ok = true; break; }
+          }
+          if (!ok) { all = false; break; }
+        }
+        if (!all) continue;
+        matchingBoards++;
+        if (!already) newApplications++;
+        break; // one witness per board is enough
+      }
+    }
+  }
+  console.log(`  ${mixedBoards.length} boards swept (${namedStates.length} named + ${mixedBoards.length - namedStates.length} embedded setups)`);
+  console.log(`  boards where every block of a MIXED partition matches a variant of its own size: ${matchingBoards}`);
+  console.log(`  of those, boards the engine does NOT already apply the call on: ${newApplications}`);
+  check(matchingBoards > 0 && newApplications === 0,
+    newApplications === 0
+      ? `a mixed reading finds ${matchingBoards} matching board(s) and ZERO the engine does not already apply - the mechanism has no witness`
+      : `a mixed reading would add ${newApplications} application(s) - the pool is no longer empty, decide before admitting`);
 }
 
 console.log(`\nreading-census: ${failures === 0 ? 'all green' : `${failures} FAILED`}`);

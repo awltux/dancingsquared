@@ -228,6 +228,19 @@ html, body {
   display: flex; flex-direction: column;
 }
 #fsmPanel[hidden] { display: none; }
-.fsm-toolbar { display: flex; align-items: center; gap: 10px; padding: 6px 10px; }
+/* THE FSM TOOLBAR IS RIGHT-ALIGNED BECAUSE THE HUD IS NOT. `#fsmPanel` sits at z-index 5 UNDER `#hud`'s 10 -
+   deliberately, so the mode selector stays usable to leave the tab - and the HUD is anchored at the top LEFT.
+   A toolbar laid out from the left is therefore drawn underneath the HUD and is simply not there: the Level
+   filter was invisible for exactly this reason. The bar is given its own background and border so it reads as
+   a toolbar rather than as a line of text loose over the graph. */
+.fsm-toolbar {
+  display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 6px 10px;
+  background: #131a22; border-bottom: 1px solid #22303d;
+}
+.fsm-toolbar label { font-size: 12px; color: var(--dim); }
+.fsm-toolbar select {
+  background: #0e141b; color: var(--text); border: 1px solid #2a3542; border-radius: 6px;
+  padding: 4px 6px; font-size: 13px;
+}
 .fsm-toolbar .part { color: var(--dim); font-size: 13px; }
 #fsmFrame { flex: 1; border: 0; background: #fff; }

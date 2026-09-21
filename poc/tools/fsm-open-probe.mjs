@@ -213,5 +213,22 @@ check(/const table = chosen\.length === 1 \? chosen\[0\]\.table : mergeFsmTables
 check(/chosen\.length === 0[\s\S]{0,220}no precomputed FSM for/.test(main),
   'and a level with no asset still says so rather than drawing an empty graph');
 
+// AND THE TOOLBAR IS DRAWN WHERE THE HUD CANNOT COVER IT. It was not, and that is why the Level filter was
+// reported as missing: `#fsmPanel` is z-index 5 UNDER `#hud`'s 10 (deliberately - the mode selector has to
+// stay reachable to leave the tab), the HUD is anchored at the top LEFT, and a toolbar laid out from the
+// left is therefore painted underneath it. The arithmetic is checked here because nothing else can check it:
+// it is a property of the two boxes, not of any code path.
+const css = fs.readFileSync(path.join(POC_DIR, 'src', 'style.css'), 'utf8');
+const block = (sel) => (css.match(new RegExp(sel.replace(/[.#]/g, '\\$&') + '\\s*\\{([^}]*)\\}')) ?? [, ''])[1];
+const zOf = (s) => Number((s.match(/z-index:\s*(-?\d+)/) ?? [, '0'])[1]);
+const hud = block('#hud');
+const bar = block('.fsm-toolbar');
+check(zOf(hud) > zOf(block('#fsmPanel')), 'the HUD floats OVER the FSM panel, so the mode selector stays reachable from the FSM tab');
+check(/top:\s*12px/.test(hud) && /left:\s*12px/.test(hud), 'and it is anchored at the top LEFT of the viewport');
+check(/justify-content:\s*flex-end/.test(bar),
+  'so the FSM toolbar is laid out from the RIGHT, which is the only side the HUD cannot be covering');
+check(/min-width:\s*320px/.test(hud), 'and the HUD is at least 320px wide, which is wider than the toolbar\'s own left padding');
+check(/background:/.test(bar) && /border-bottom:/.test(bar), 'the bar has its own background and rule, so it reads as a toolbar rather than as loose text over the graph');
+
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');
 process.exit(failures ? 1 : 0);

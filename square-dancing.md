@@ -2884,3 +2884,15 @@ happened to be the selected one.
 The index it carries is checked in the probe against the name the row displays: every one of the 3922 rows names a
 state index whose label is the name in the sentence, or the link would select a different board from the one it
 says. The row is no longer one text node for the same reason - the name has to be an element to be clickable.
+
+AND IT WAS NOT THERE TO CLICK: "I dont see the Levels drop down filter that you built earlier." The filter was
+built, drawn, and INVISIBLE - `#fsmPanel` is z-index 5 UNDER `#hud`'s 10, deliberately, so the mode selector stays
+reachable from the FSM tab, and the HUD is anchored at the top LEFT of the viewport with a 320px minimum width.
+The FSM toolbar was laid out from the left, which puts it exactly underneath the HUD - the Level label, the select
+and the title, all painted behind a panel. Nothing in the app could have reported this: the DOM was right, the
+element had a size, and only the two boxes' positions made it invisible.
+
+The toolbar is now laid out from the right, which is the only side the HUD is never on, and it is given its own
+background and rule so it reads as a toolbar rather than as loose text over the graph. The arithmetic is gated in
+poc/tools/fsm-open-probe.mjs - that the HUD is above the panel and anchored left, and that the toolbar is
+right-aligned - because it is a property of two boxes rather than of any code path.

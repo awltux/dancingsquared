@@ -163,20 +163,32 @@ check(/resolveFsm\(title: string, formation: string \| null, level: string\)/.te
 console.log('\n== 4b. What the renderer actually emits ==');
 const html = renderFsmHtml({ states: fsm.table.states, edges: fsm.table.edges }, 'FSM · ms', 'ms');
 const blob = JSON.parse(html.match(/<script type="application\/json" id="nodedata">([\s\S]*?)<\/script>/)[1]);
-let rows = 0, missing = 0, dangling = 0;
+let rows = 0, missing = 0, dangling = 0, badJump = 0;
 const stateKeys = new Set(fsm.table.states);
+const labelOf = (s) => (s.startsWith('@embed') ? `embedded #${s.slice(7)}` : s);
 for (const nd of blob) {
   for (const c of [...nd.calls, ...nd.incoming]) {
     rows++;
     if (!('fromFormation' in c) || typeof c.fromFormation !== 'string') missing++;
     else if (!stateKeys.has(c.fromFormation)) dangling++;
+    // THE OTHER END OF THE EDGE, which the row's name is clicked to select: an index into the same state
+    // list, and one whose label is the name the row displays - or the click selects a different board from
+    // the one it names.
+    const idx = 'toIdx' in c ? c.toIdx : c.fromIdx;
+    const shown = 'toIdx' in c ? c.to : c.from;
+    if (!Number.isInteger(idx) || idx < 0 || idx >= fsm.table.states.length || labelOf(fsm.table.states[idx]) !== shown) badJump++;
   }
 }
-console.log(`    ${blob.length} nodes carry ${rows} call rows, each with the formation the edge leaves from`);
+console.log(`    ${blob.length} nodes carry ${rows} call rows, each with the formation the edge leaves from and the index of the node at the other end`);
 check(rows > 1500, 'every call row carries it - the icons need it and nothing else in the row has it');
 check(missing === 0 && dangling === 0, 'and it is always one of the table\'s own state keys, so the app is never asked to resolve a formation that does not exist');
+check(badJump === 0, 'every row also names the OTHER end as a state index, and that index is the node the row displays - so clicking a name selects the board it says');
 check(/const LEVEL="ms";/.test(html), 'the document is told which level it is, so a click cannot be attributed to another authoring');
 check(/parent\.postMessage/.test(html), 'and the bridge is in the emitted document rather than only in the renderer\'s source');
+check(/span\.jump\{cursor:pointer/.test(html), 'the clickable formation is styled as one, so a name that selects something is not silent about it');
+check(/e\.target\.closest\('\.jump'\);if\(j\)\{e\.stopPropagation\(\);selectOnly\(\+j\.dataset\.node\);return;\}/.test(html),
+  'and a click on it goes through `selectOnly`, the SET-not-toggle selection a drag end already uses - so the node it names is the node selected');
+check(!/li\.textContent=arrow\?/.test(view), 'the row is no longer one text node: the name is an element that can be clicked');
 
 // ============================================================ 5. the Level filter
 //

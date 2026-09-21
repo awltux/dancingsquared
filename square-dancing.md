@@ -2872,3 +2872,15 @@ One thing the probe measured on the way past, and did NOT change: 312 of the 102
 because they list a half set that already contains its own antipodes and `mirrorToFull` leaves such a set alone.
 That is the catalogue's own reading and the same whether a call is picked by hand or from the FSM - but a
 four-dancer board is what the Load button would otherwise be blamed for.
+
+THE FORMATION AT THE OTHER END OF AN FSM ROW IS NOW A LINK TO IT. Asked for: "make names of calls from and to the
+selected node clickable, so that it makes it the selected node."
+
+Each row is `call → <other end>` or `<other end> → call`, so the other end is the one name that is not the node
+already selected, and it is now a span that selects it. The click goes through `selectOnly` - the SET-not-toggle
+selection the drag release already uses - because a toggle would deselect the node that was just clicked when it
+happened to be the selected one.
+
+The index it carries is checked in the probe against the name the row displays: every one of the 3922 rows names a
+state index whose label is the name in the sentence, or the link would select a different board from the one it
+says. The row is no longer one text node for the same reason - the name has to be an element to be clickable.

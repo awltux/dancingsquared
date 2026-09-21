@@ -129,8 +129,10 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
     status: status(i),
     // `fromFormation` is the RAW state key, not the display label: it is what the app resolves a setup
     // against, and the display label rewrites the `@embed` keys that no setup can be named by anyway.
-    calls: edges.filter((e) => e.from === i).map((e) => ({ call: e.call, to: label(states[e.to]), fromFormation: s })),
-    incoming: edges.filter((e) => e.to === i).map((e) => ({ call: e.call, from: label(states[e.from]), fromFormation: states[e.from] })),
+    // `toIdx` / `fromIdx` are the OTHER END of each edge - the formation a row's name can be clicked to
+    // select, which is the node the call leads to or comes from.
+    calls: edges.filter((e) => e.from === i).map((e) => ({ call: e.call, to: label(states[e.to]), toIdx: e.to, fromFormation: s })),
+    incoming: edges.filter((e) => e.to === i).map((e) => ({ call: e.call, from: label(states[e.from]), fromIdx: e.from, fromFormation: states[e.from] })),
   }));
 
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — ${n} states</title><style>
@@ -146,6 +148,8 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   #nodedisp ul{margin:4px 0;padding-left:16px}
   #nodedisp li{font-size:11px;color:#333}
   #nodedisp button.mini{font-size:11px;line-height:1;padding:0 3px;margin-left:3px;border:1px solid #ccd2d8;border-radius:4px;background:#fff;color:#333;cursor:pointer;vertical-align:middle}
+  #nodedisp span.jump{cursor:pointer;color:#1558b0;border-bottom:1px dotted #7aa2d6}
+  #nodedisp span.jump:hover{color:#0b3f8c;border-bottom-style:solid}
   #nodedisp button.mini:hover{background:#eef2f7;border-color:#8fa8c0;color:#123}
   </style></head><body><div id="side"><h2>${esc(title)} — ${n} states, ${edges.length} edges</h2>
   <p><span class="dot" style="background:#0a7d33"></span>home<br><span class="dot" style="background:#3a9a5f"></span>route home<br><span class="dot" style="background:#e8950c"></span>no route home (approx) (${nohomeList.length})<br><span class="dot" style="background:#d63a3a"></span>dead-end (${deadList.length})</p>
@@ -190,8 +194,14 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   // The message carries the call TITLE, the formation the edge LEAVES FROM and the level of this tree;
   // resolving those into a catalogue call is the app's job (see fsm-target.ts).
   const addOpen=(li,call,from)=>{for(const [act,glyph,tip] of [['load','⤓','Load '+call+' into the Browse calls tab'],['edit','✎','Open '+call+' in the Call editor']]){const x=document.createElement('button');x.type='button';x.className='mini';x.textContent=glyph;x.title=tip;x.dataset.act=act;x.dataset.call=call;x.dataset.from=from;li.appendChild(x);}};
-  disp.addEventListener('click',e=>{const b=e.target.closest('button.mini');if(!b)return;e.stopPropagation();parent.postMessage({type:'fsm-open',action:b.dataset.act,call:b.dataset.call,formation:b.dataset.from||null,level:LEVEL},'*');});
-  const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);const sec=(h,items,arrow)=>{const hd=document.createElement('div');hd.textContent=h;hd.style.fontWeight='600';hd.style.marginTop='4px';disp.appendChild(hd);if(!items.length){const em=document.createElement('div');em.style.color='#888';em.textContent='(none)';disp.appendChild(em);return;}const ul=document.createElement('ul');items.forEach(c=>{const li=document.createElement('li');li.textContent=arrow?c.from+' → '+c.call: c.call+' → '+c.to;addOpen(li,c.call,c.fromFormation);ul.appendChild(li);});disp.appendChild(ul);};sec('Calls from here ('+nd.calls.length+'):',nd.calls,false);sec('Calls that lead here ('+nd.incoming.length+'):',nd.incoming,true);};
+  // AND THE FORMATION AT THE OTHER END OF A ROW IS THE WAY THERE: clicking it SELECTS that node, which is
+  // the question a reader of "Swing Thru → Ocean Waves RH" is actually asking - not "what is that call" but
+  // "what is that board, and what else can be done from it". It is a plain span rather than a button because
+  // it is the sentence's subject, not a control beside it.
+  const jumpSpan=(text,idx)=>{const j=document.createElement('span');j.className='jump';j.textContent=text;j.dataset.node=idx;j.title='Select '+text;return j;};
+  const row=(li,arrow,c)=>{const j=jumpSpan(arrow?c.from:c.to,arrow?c.fromIdx:c.toIdx);if(arrow){li.appendChild(j);li.appendChild(document.createTextNode(' → '+c.call));}else{li.appendChild(document.createTextNode(c.call+' → '));li.appendChild(j);}addOpen(li,c.call,c.fromFormation);};
+  disp.addEventListener('click',e=>{const j=e.target.closest('.jump');if(j){e.stopPropagation();selectOnly(+j.dataset.node);return;}const b=e.target.closest('button.mini');if(!b)return;e.stopPropagation();parent.postMessage({type:'fsm-open',action:b.dataset.act,call:b.dataset.call,formation:b.dataset.from||null,level:LEVEL},'*');});
+  const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);const sec=(h,items,arrow)=>{const hd=document.createElement('div');hd.textContent=h;hd.style.fontWeight='600';hd.style.marginTop='4px';disp.appendChild(hd);if(!items.length){const em=document.createElement('div');em.style.color='#888';em.textContent='(none)';disp.appendChild(em);return;}const ul=document.createElement('ul');items.forEach(c=>{const li=document.createElement('li');row(li,arrow,c);ul.appendChild(li);});disp.appendChild(ul);};sec('Calls from here ('+nd.calls.length+'):',nd.calls,false);sec('Calls that lead here ('+nd.incoming.length+'):',nd.incoming,true);};
   function markSel(){document.querySelectorAll('.node').forEach(nd=>{const c=nd.querySelector('.nd');const on=sel>=0&&(+nd.dataset.i===sel);c.setAttribute('stroke',on?'#111':'#00000022');c.setAttribute('stroke-width',on?'3':'1.2');});}
   function select(i){sel=sel===i?-1:i;markSel();paint();if(sel>=0)showNode(sel);else disp.textContent='Click a node to see its calls.';}
   // Selection SET, not toggled: used when a drag ends, so a node that was already selected stays

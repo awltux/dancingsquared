@@ -9,6 +9,7 @@ import { CallBrowser } from './browser';
 import { initSequencer } from './sequencer-ui';
 import { initEditor } from './editor-ui';
 import { renderFsmHtml, mergeFsmTables } from './fsm-view';
+import { el } from './dom';
 
 // Precomputed FSM table asset(s) written by `node poc/scripts/build-fsm-asset.mjs`.
 const fsmAssets = import.meta.glob<{
@@ -333,6 +334,4 @@ window.addEventListener('resize', onResize);
 requestAnimationFrame(tick);
 finishLoading();
 
-function el<T extends HTMLElement>(id: string): T {
-  return document.getElementById(id) as T;
-}
+

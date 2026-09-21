@@ -12,6 +12,7 @@ import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
 import { loadUserFormations } from './formations';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
+import { el } from './dom';
 import type { Stage, WalkCycle } from './scene';
 
 export interface SequencerUI {
@@ -1191,9 +1192,6 @@ export class SequencerController implements SequencerUI {
   }
 }
 
-function el<T extends HTMLElement>(id: string): T {
-  return document.getElementById(id) as T;
-}
 
 /** A step's human-readable call name (a CallStep's `.call`; otherwise the string). */
 function stepLabel(step: string | CallStep): string {

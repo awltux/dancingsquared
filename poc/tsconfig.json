@@ -12,6 +12,10 @@
     "forceConsistentCasingInFileNames": true,
     "useDefineForClassFields": true,
     "noEmit": true,
+    // `fsm-view.ts` names its one import with a `.ts` extension, because `poc/tools/fsm-open-probe.mjs` loads
+    // that module under node's type stripping and node does not guess extensions. Legal only because the
+    // project never emits - `tsc` is the typecheck here and Vite does the transpiling.
+    "allowImportingTsExtensions": true,
     "types": ["vite/client"]
   },
   "include": ["src"]

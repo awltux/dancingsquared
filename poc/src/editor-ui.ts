@@ -74,6 +74,7 @@ import type { CallEdit, CallInfo } from './data';
 import { callTamXml } from './tam-xml';
 import type { Stage, CurveSpec, HandleSpec } from './scene';
 import { HANDLE_COLOR } from './scene';
+import { el, esc } from './dom';
 
 export interface EditorUI {
   setActive(a: boolean): void;
@@ -3656,15 +3657,7 @@ export class EditorController implements EditorUI {
   }
 }
 
-function el<T extends HTMLElement>(id: string): T {
-  return document.getElementById(id) as T;
-}
 
-/** Escape text that goes into innerHTML. A call's `from` label is authored DATA, so a name
- *  containing `<` must not become markup - the same rule `browser.ts` applies to module names. */
-function esc(s: string): string {
-  return s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch] as string);
-}
 /**
  * The line every export carries at the top: WHICH BUILD OF THIS APP WROTE IT.
  *

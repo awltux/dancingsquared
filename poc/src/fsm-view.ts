@@ -3,8 +3,10 @@
 // usage, with a call filter. Purely data-driven — no Sequencer or live FSM
 // build needed, so the poc can render the precomputed asset instantly.
 
-const esc = (s: string) =>
-  String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+// THE EXTENSION IS PART OF THE SPECIFIER, and only here. This module is imported directly by
+// `poc/tools/fsm-open-probe.mjs` under node's type stripping - node does not guess extensions, so `./dom`
+// would resolve under Vite and fail under the probe. Everywhere else in `poc/src` the bare specifier is used.
+import { esc } from './dom.ts';
 
 export interface FsmEdgeData { call: string; endFormation: string | null }
 export interface FsmGraphData { states: string[]; edges: Record<string, FsmEdgeData[]> }

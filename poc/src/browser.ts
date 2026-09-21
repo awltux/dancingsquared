@@ -14,6 +14,7 @@ import type { CallInfo } from './data';
 import { addUserFormation, applyLabel, detachLabel, loadUserFormations, reattachLabel, removeUserFormation, setFormationInCorpus } from './formations';
 import type { UserFormation } from './formations';
 import { fsmTarget } from './fsm-target';
+import { filterCalls, matchCount } from './call-filter';
 import { modulesUsing, startsAwayFromHome } from './modules';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import type { Stage } from './scene';
@@ -60,6 +61,7 @@ export class CallBrowser {
   private formationNameInput = el<HTMLInputElement>('browseFormationName');
   private createFormationBtn = el<HTMLButtonElement>('browseCreateFormation');
   private userFormationsEl = el<HTMLDivElement>('browseUserFormations');
+  private callFilter = el<HTMLInputElement>('callFilter');
   /** The board the panel is currently describing: what a label would be created FROM. */
   private endBoard: Board | null = null;
 
@@ -97,6 +99,10 @@ export class CallBrowser {
     this.renderUses();
     this.loadCurrent();
     this.createFormationBtn.addEventListener('click', () => this.createFormationFromEndBoard());
+    // TYPING NARROWS THE LIST; IT DOES NOT LOAD. `onCallChange` (the select's handler) is what loads a call,
+    // and it stays there - a filter that reloaded the board on every keystroke would throw away the caller's
+    // place in the call they are looking at.
+    this.callFilter.addEventListener('input', () => this.renderCallOptions());
     this.renderUserFormations();
   }
 
@@ -439,25 +445,61 @@ export class CallBrowser {
     return this.levelSelect.value;
   }
 
+  /** The calls of the CURRENT level, before the filter - what the Call dropdown would offer unfiltered. */
+  private levelCalls: CallInfo[] = [];
+
   private populateCalls(keepFile?: string) {
     const level = this.currentLevel();
-    const calls = level ? this.catalog.filter((c) => c.level === level) : this.catalog;
+    this.levelCalls = level ? this.catalog.filter((c) => c.level === level) : this.catalog;
+    if (keepFile && this.levelCalls.some((c) => c.id === keepFile)) this.callSelect.value = keepFile;
+    this.renderCallOptions(keepFile);
+  }
+
+  /**
+   * Build the Call dropdown from the level's calls, narrowed by the filter box.
+   *
+   * THE SELECTED CALL IS ALWAYS IN THE LIST (`filterCalls` re-inserts it), because this control and the board
+   * have to agree about what is loaded: an option list that dropped the call on screen would move the select
+   * to whatever was left, and the panel would then name one call while showing another.
+   *
+   * The optgroups are kept when the level is "All levels", and a group with no matches is dropped with its
+   * calls - an empty group is a heading over nothing.
+   */
+  private renderCallOptions(keepFile?: string) {
+    const level = this.currentLevel();
+    const shown = filterCalls(this.levelCalls, this.callFilter.value, this.callSelect.value || keepFile || '');
+    const selected = keepFile ?? this.callSelect.value;
     this.callSelect.innerHTML = '';
     let lastLevel = '';
-    for (const c of calls) {
+    let group: HTMLOptGroupElement | null = null;
+    for (const c of shown) {
       if (level === '') {
         if (c.level !== lastLevel) {
-          const g = document.createElement('optgroup');
-          g.label = c.level.toUpperCase();
-          this.callSelect.add(g);
+          group = document.createElement('optgroup');
+          group.label = c.level.toUpperCase();
+          this.callSelect.add(group);
           lastLevel = c.level;
         }
-        this.callSelect.add(new Option(c.title, c.id));
+        group!.append(new Option(c.title, c.id));
       } else {
         this.callSelect.add(new Option(c.title, c.id));
       }
     }
-    if (keepFile && calls.some((c) => c.id === keepFile)) this.callSelect.value = keepFile;
+    if (shown.some((c) => c.id === selected)) this.callSelect.value = selected;
+    else if (shown.length > 0) this.callSelect.value = shown[0].id;
+    this.callFilter.title = this.callFilterStatus();
+  }
+
+  /** What the filter box says about itself: how many of the level's calls it is showing. */
+  private callFilterStatus(): string {
+    const q = this.callFilter.value.trim();
+    const base =
+      'Narrow the Call list to the calls whose name contains this text, case-insensitively. It is a view of the ' +
+      'list and not a load: the call that is already on the board stays in the list and stays selected, so the ' +
+      'dropdown and the board cannot disagree.';
+    if (q === '') return base;
+    const hits = matchCount(this.levelCalls, q);
+    return `${base}\n\n"${q}" matches ${hits} of the ${this.levelCalls.length} calls at this level${hits === 0 ? ' — the list is showing the call already loaded' : ''}.`;
   }
 
   private refreshSetups() {

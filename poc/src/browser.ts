@@ -282,11 +282,12 @@ export class CallBrowser {
       list
         .map(
           (f, i) =>
-            `<div class="row"><button data-xml="${i}" title="Copy this formation's &lt;formation&gt; block for pasting into poc/src/assets/formations.xml">xml</button>` +
+            `<div class="row ed-formation"><span class="part">${esc(f.name)} <i>(${f.dancers.length} dancers, from ${esc(f.origin)})</i></span>` +
+            `<button data-xml="${i}" title="Copy this formation's &lt;formation&gt; block for pasting into poc/src/assets/formations.xml">xml</button>` +
             `<button data-corpus="${i}" title="${f.inCorpus ? 'This formation is in the corpus: calls that start from it are exported as a name reference. Click to take it back out' : 'Add it to the corpus: the block goes on your clipboard to paste into poc/src/assets/formations.xml, and calls that start from it are then exported as a name reference rather than an embedded copy'}">${f.inCorpus ? 'in corpus ✓' : 'add to corpus'}</button>` +
             `<button data-del="${i}" title="Forget this label">del</button>` +
             `<button data-edit="${i}" title="Open this formation's call in the Call editor, on the setup it was made from. Switch to the editor's Edit instance tab, pick the call and setup there, and load it - the same thing as choosing them by hand, so nothing is edited until you change something.">Edit</button>` +
-            `<span class="part">${esc(f.name)} <i>(${f.dancers.length} dancers, from ${esc(f.origin)})</i></span></div>`,
+            `</div>`,
         )
         .join('');
     for (const btn of this.userFormationsEl.querySelectorAll<HTMLButtonElement>('button[data-xml]')) {

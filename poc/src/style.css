@@ -39,6 +39,11 @@ html, body {
 #hud button:hover { border-color: var(--accent); }
 #hud input[type=range] { flex: 1; accent-color: var(--accent); }
 #hud .part { font-size: 12px; color: var(--accent); flex: 1 1 auto; min-width: 0; }
+/* THE NAME ABOVE THE BUTTONS in the user-formation list. Read the other way round the row looks like a toolbar
+   with the name trailing off the end of it - and with four buttons there is often no room left for the name at
+   all. `flex: 1 0 100%` gives the name the whole first line, so the buttons start on the next one and the row
+   reads as a heading with its actions under it. */
+#hud .row.ed-formation .part { flex: 1 0 100%; }
 #hud .wide { flex: 2; }
 #hud .small { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 4px; }
 #hud .small b { color: var(--text); }

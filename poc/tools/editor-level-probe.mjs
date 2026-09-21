@@ -126,7 +126,13 @@ const formationsSrc = read('src/formations.ts');
 const mainSrc = read('src/main.ts');
 const editorSrc = read('src/editor-ui.ts');
 check(/data-del="\$\{i\}"[\s\S]{0,500}?data-edit="\$\{i\}"/.test(browserSrc),
-  'the Edit button is the FOURTH in the row, after `del`, which is where it was asked for');
+  'the Edit button is the FOURTH in the row, after `del`, which is where it was asked for');// AND THE NAME ABOVE THEM. Read the other way round the row is a toolbar with the name trailing off the end of
+// it - and with four buttons there is often no room left for the name at all. Asked for as: "I think the text
+// should be above the bottons, as it looks confusing the other way round."
+check(/ed-formation"><span class="part">[\s\S]{0,320}?data-xml="\$\{i\}"/.test(browserSrc),
+  'the formation NAME comes first, before any of the buttons');
+check(/#hud \.row\.ed-formation \.part \{ flex: 1 0 100%; \}/.test(read('src/style.css')),
+  'and the stylesheet gives it the whole first line, so the buttons really start on the next one rather than sharing it');
 check(/button\[data-edit\]/.test(browserSrc) && /this\.host\.openEditor\(callId, setupIdx\)/.test(browserSrc),
   'and its handler goes through the host rather than reaching into the editor itself');
 check(/const callId = f\.callId \?\? this\.callSelect\.value;/.test(browserSrc),

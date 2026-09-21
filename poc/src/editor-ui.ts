@@ -714,7 +714,7 @@ export class EditorController implements EditorUI {
     const tam = parseInt(this.editSetupSel.value || '0', 10);
     try {
       this.editSetup = loadCall(id, tam, true);
-      this.host.preview(this.staticCall(`edit setup start — ${this.editSetup.title}`, this.callStart(this.editSetup)));
+      this.show(this.staticCall(`edit setup start — ${this.editSetup.title}`, this.callStart(this.editSetup)));
       this.refreshFixInfo();
     } catch (err) {
       this.editSetup = null;
@@ -758,6 +758,7 @@ export class EditorController implements EditorUI {
       this.endOverride = null;
       // A NEW instance starts at its own first beat, with the animation off.
       this.editBeat = 0;
+      // The board is only borrowed while this panel is on screen; showInstance -> showAt is where that is decided.
       this.showInstance(this.instance);
       this.renderInstance();
     } catch (err) {
@@ -859,8 +860,29 @@ export class EditorController implements EditorUI {
    * useless for the one thing it is for.
    */
   private showInstance(call: CallBundle) {
-    this.host.previewAt(call, this.editBeat);
+    this.showAt(call, this.editBeat);
     this.renderScrub(call);
+  }
+
+  /**
+   * Show a call on the board - IF THIS PANEL IS THE ONE ON SCREEN.
+   *
+   * EVERY preview in this file goes through here, and that is the whole point. The board belongs to the BROWSE
+   * view: `host.preview` sets the player's call AND the browse panel's legend. This panel borrows it, and its
+   * constructor loads an instance, a fix setup and a mode before the editor has ever been visible - the app
+   * opens on Browse - so each of those paths painted the editor's call over the browse view, and the LAST
+   * writer won. MEASURED in a browser (a stack captured on the legend's `innerHTML` setter): the constructor
+   * previewed "edit setup start - ..." from `loadEditSetup` and then the raw instance from `applyMode`, leaving
+   * the board on the editor's call while the browse dropdown named its own. Guarding one of those paths fixed
+   * nothing; there are eight, and one place has to decide.
+   */
+  private show(call: CallBundle): void {
+    if (this.active) this.host.preview(call);
+  }
+
+  /** The same rule for a preview that also places the playhead. See `show`. */
+  private showAt(call: CallBundle, beat: number): void {
+    if (this.active) this.host.previewAt(call, beat);
   }
 
   /** The editor's own progress bar: its value IS the beat, and the animation is off. */
@@ -2837,7 +2859,7 @@ export class EditorController implements EditorUI {
     // already a formation name. "(fixed)" was a marker for the saved list, and the list already says
     // which kind it is (`fix · Static Square`), so the suffix carried nothing but the call name.
     this.generatedName = this.instanceName(this.editSetup);
-    this.host.preview(fixed);
+    this.show(fixed);
     this.fixInfoEl.textContent =
       `corrected: end formation now ${posErr.toFixed(2)} apart from post-call start` +
       (maxHead > 0.1 ? `, headings ${((maxHead * 180) / Math.PI).toFixed(0)}° apart` : '');
@@ -2860,7 +2882,7 @@ export class EditorController implements EditorUI {
       const created = synthesizeSetup(this.editSetup, { name, start, end, padBeats: beats });
       this.generated = created;
       this.generatedName = name;
-      this.host.preview(created);
+      this.show(created);
       this.statusEl.textContent = `✓ created "${name}" (${created.beats} beats)`;
     } catch (err) {
       this.statusEl.textContent = `✗ ${(err as Error).message}`;
@@ -2870,17 +2892,17 @@ export class EditorController implements EditorUI {
   private showTarget() {
     if (!this.postStart) return;
     const name = this.postCallSel.selectedOptions[0]?.textContent ?? this.postCallSel.value;
-    this.host.preview(this.staticCall(`post start — ${name}`, this.postStart));
+    this.show(this.staticCall(`post start — ${name}`, this.postStart));
   }
   private showEnd() {
     if (!this.editSetup) return;
     const name = this.editCallSel.selectedOptions[0]?.textContent ?? this.editCallSel.value;
-    this.host.preview(this.staticCall(`edit end — ${name}`, this.callEnd(this.editSetup)));
+    this.show(this.staticCall(`edit end — ${name}`, this.callEnd(this.editSetup)));
   }
   private showStart() {
     if (!this.preEnd) return;
     const name = this.preCallSel.selectedOptions[0]?.textContent ?? this.preCallSel.value;
-    this.host.preview(this.staticCall(`pre end — ${name}`, this.preEnd));
+    this.show(this.staticCall(`pre end — ${name}`, this.preEnd));
   }
 
   /** Throw the in-editor edits away and reload the instance from its source. NOTE what the
@@ -3458,7 +3480,7 @@ export class EditorController implements EditorUI {
       loadBtn.textContent = 'preview';
       loadBtn.addEventListener('click', () => {
         try {
-          this.host.preview(rebuildEdit(s));
+          this.show(rebuildEdit(s));
           this.statusEl.textContent = `✓ ${s.name}`;
         } catch (err) {
           this.statusEl.textContent = `✗ ${(err as Error).message}`;
@@ -3645,6 +3667,9 @@ export class EditorController implements EditorUI {
     if (a) {
       this.renderSaved();
       this.renderInstance();
+      // ...AND SHOW IT: the instance loaded by the constructor was not previewed, because the board belonged to
+      // the browse view at the time. This is the moment it becomes this panel's.
+      if (this.instance) this.showInstance(this.instance);
     } else {
       // The editor is off screen: give every dancer's track back, and drop the Bézier gizmo so the
       // browse and sequence views cannot inherit a magenta dot from an edit that is not showing.

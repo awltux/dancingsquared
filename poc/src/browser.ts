@@ -584,6 +584,18 @@ export class CallBrowser {
     }
   }
 
+  /**
+   * Show the call the panel's own selectors name, again.
+   *
+   * THE BROWSE VIEW'S BOARD IS BORROWED BY OTHER PANELS - the editor previews through it, the sequencer draws
+   * its own - so when the browse tab becomes the visible one again, the board has to be put back on the call
+   * this panel's dropdown is showing. Without that, coming back from the editor leaves the editor's call on
+   * the board under a dropdown naming a different one.
+   */
+  reload() {
+    this.loadCurrent();
+  }
+
   onLevelChange() {
     const prev = this.callSelect.value;
     this.populateCalls(prev);

@@ -2985,3 +2985,26 @@ question rather than a tidy-up, and each is evidenced at file:line in the four r
     counts failures and can never exit non-zero, and several harnesses assert `check(true, ...)`.
   - The engine's "dancers on top of each other" threshold is 1.0 in three files under three names, and the
     comment claiming they cannot disagree is prose: neither constant is ever imported.
+
+THE BOARD BELONGS TO THE PANEL THAT IS ON SCREEN. Found by driving the built app in a real browser - the first
+time this session could - and not by reading code: on first load the Browse tab (the default mode) showed the
+Call editor's call on the board AND in its legend, while its own Call dropdown named a different one
+("Flutterwheel" against `_Finish Line of 6 Half Tag`).
+
+The culprit named itself from a stack captured on the legend's `innerHTML` setter: `EditorController`'s
+constructor previews through `loadEditSetup` ("edit setup start - ...") and again through its own `applyMode`
+(the raw instance), and the LAST writer won. Every preview goes through `host.preview`/`previewAt` into the BROWSE
+view, which sets the player's call and the browse legend - so the editor was painting over a panel that owned the
+board.
+
+THE FIRST FIX WAS WRONG AND THE GATE CAUGHT IT. Guarding `loadInstance` fixed nothing (eight preview sites, not
+one), and the blanket rewrite of `this.host.preview(` -> `this.show(` also rewrote `show`'s OWN body into
+`if (this.active) this.show(call)` - infinite recursion, invisible at startup because `active` is false and fatal
+on the first editor click. Both are recorded here because both are the same lesson: the guard has to be in ONE
+place that nothing can route around, and a probe has to check the structure rather than the path that was blamed.
+
+The rule now: `show`/`showAt` are the only two callers of the host, each gated on `this.active`; `showInstance`
+inherits it; entering the editor paints the instance the constructor refused to; and `applyMode` in main.ts calls
+`browser.reload()` when the editor is left for the Browse tab, so the dropdown and the board cannot stay split.
+Gated in poc/tools/board-owner-probe.mjs - one writer, no bypass, and the two halves that make the guard safe.
+Verified in the browser: startup, in the editor, and back on Browse all agree with their own dropdown.

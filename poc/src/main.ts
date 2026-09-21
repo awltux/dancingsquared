@@ -282,7 +282,13 @@ function applyMode() {
   // animation OFF (only a manual scrub moves the dancers there), and nothing else in the app expects
   // to inherit that: the browse and sequence views behave exactly as they always did. Tracked by the
   // PREVIOUS mode rather than by "not editor", so a deliberate pause elsewhere is left alone.
-  if (lastMode === 'editor' && mode !== 'editor') player.setPlaying(true);
+  if (lastMode === 'editor' && mode !== 'editor') {
+    player.setPlaying(true);
+    // ...AND THE BOARD GOES BACK TO THE BROWSE VIEW'S OWN CALL. The editor borrowed it for its preview, so
+    // returning to the Browse tab with the editor's call still on the board would leave this panel's dropdown
+    // naming one call while the board shows another.
+    if (mode === 'browse') browser.reload();
+  }
   lastMode = mode;
   const browse = mode === 'browse';
   const seq = mode === 'sequence';

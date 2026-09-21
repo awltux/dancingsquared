@@ -918,6 +918,12 @@ export function synthesizeSetup(core: CallBundle, setup: NewSetup): CallBundle {
     sequencerMode: core.sequencerMode,
     forSequencer: core.forSequencer,
     genderSpecific: core.genderSpecific,
+    // A SYNTHESIZED SETUP IS A WHOLE SET, so its symmetry is 1 - take the eight dancers as written.
+    // This is the declaration of a fact the reader already had to know: `rebuildInstance` reads an
+    // exported instance back with `mirror: false` precisely because the eight dancers are explicit
+    // and completing them again would return sixteen. Stating it here means the datum travels with
+    // the bundle instead of living in the reader.
+    symmetry: 1,
   };
 }
 
@@ -1008,6 +1014,8 @@ export function synthesizeSetupChain(coreA: CallBundle, coreB: CallBundle, spec:
     sequencerMode: coreA.sequencerMode,
     forSequencer: coreA.forSequencer,
     genderSpecific: coreA.genderSpecific,
+    // Whole set, as with synthesizeSetup: the chain is written out dancer by dancer.
+    symmetry: 1,
   };
 }
 

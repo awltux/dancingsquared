@@ -1,0 +1,223 @@
+// ============================================================================================
+// WHAT IS A SHAPE OF FOUR DANCERS? - the authoring convention, measured, and pinned.
+//
+// WHY THIS EXISTS. A `<formation>` or a `<tam>`'s inline formation writes HALF the set: the written
+// dancers plus the same dancers turned 180 degrees about the origin (`square-dancing.md` §7.1). A
+// shape that is already complete says so with `asymmetric="true"`. So every authored shape carries a
+// SET SIZE that is not its written size, and until now nothing in the engine named that - it was
+// re-derived geometrically (`hasAntipode` in `convert.ts`: complete the shape unless some pair of its
+// dancers already sits 180 degrees apart).
+//
+// The reference declares it instead. `geometry.dart` gives `SQUARE = 2` and `ASYMMETRIC = 1`,
+// `call_context.dart:170-197` instantiates the written dancers `geometryType` times, and
+// `dance_model.dart:383` reads `mycall.formation.asymmetric ? 1 : _geometryType`. `tamination.dtd:38`
+// declares the attribute on `<tam>`, and `animated_call.dart:162` writes it back.
+//
+// THE RULE THIS HARNESS PINS is therefore:
+//
+//     built size  ==  written size  x  symmetry        (symmetry 1 if `asymmetric="true"`, else 2)
+//     a built bundle is `symmetry` COPIES of a `written`-dancer UNIT
+//
+// The second line is the one that answers "how is a two-dancer call written", and it is why the
+// written size is a UNIT size rather than merely a count:
+//
+//   1 written, 1 path   -> 2 copies of a ONE-dancer unit: a facing pair that moves as ONE
+//                          (`Step to a Wave` from `Facing Dancers`; the pair is gender-blind, and the
+//                          copy carries the written gender, which is why it prints `boy,boy`)
+//   2 written, 2 paths  -> 2 copies of a TWO-dancer unit: two copies of a 2-dancer call, each dancer
+//                          with its own motion (`Star Thru` from `Facing Couples`; `Turn Thru` from
+//                          `Right-Hand Wave`)
+//   4 written, 4 paths  -> 2 copies of a FOUR-dancer unit: the whole eight-dancer set, every dancer
+//                          with its own motion (`Turn Partner by the Right`)
+//
+// A two-dancer FORMATION - a shape whose set really is two dancers and whose two dancers may be of
+// different genders - is written as a 2-dancer unit with `asymmetric="true"` and so ONE copy. That is
+// the only way to give the pair two genders: completing a one-dancer authoring duplicates that dancer
+// WITH its gender, which is exactly the `boy,boy` above.
+//
+// WHAT IS PINNED AND WHY. Only the RULE is asserted as true-or-false; the numbers are shipped-data
+// facts pinned as literals, the same way `catalogue.mjs` pins the `actives` census. Every pin here is
+// a deliberate edit: a new tam that changes a count fails this harness until someone writes the new
+// number down, which is how a silent catalogue drift becomes a reviewed one.
+// ============================================================================================
+
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { DOMParser } from '@xmldom/xmldom';
+
+import { Sequencer, buildCall, parseCallXml, parseFormations, parseMoves, setParser } from '../dist/index.js';
+import { callsByTitle } from './lib/engine-calls.mjs';
+
+setParser(DOMParser);
+const here = path.dirname(fileURLToPath(import.meta.url));
+const assets = path.resolve(here, '..', '..', 'poc', 'src', 'assets');
+
+let failures = 0;
+const check = (cond, msg) => {
+  console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
+  if (!cond) failures++;
+};
+
+const formationsXml = readFileSync(path.join(assets, 'formations.xml'), 'utf8');
+const formations = parseFormations(formationsXml);
+const movesXml = readFileSync(path.join(assets, 'moves.xml'), 'utf8');
+// Parsed ONCE for all 5963 builds below; `buildCall` takes the registry as an argument.
+const moves = parseMoves(movesXml);
+const seq = new Sequencer(
+  movesXml,
+  formationsXml,
+  callsByTitle(assets),
+);
+
+const tally = (values) => [...values.reduce((m, v) => m.set(v, (m.get(v) ?? 0) + 1), new Map()).entries()]
+  .sort((a, b) => a[0] - b[0]);
+
+// ---------------------------------------------------------------- the tams, one row each
+//
+// `written` is the authored size: an inline <formation>'s dancers, or the named formation the tam
+// references. 0 means neither resolves, which is a build failure and not a shape at all.
+const rows = [];
+for (const { xml } of callsByTitle(assets)) {
+  let tams;
+  try {
+    tams = parseCallXml(xml);
+  } catch {
+    continue; // a file with no tams yet
+  }
+  for (const tam of tams) {
+    const written = tam.dancers.length || (tam.formationAttr ? (formations.get(tam.formationAttr)?.length ?? 0) : 0);
+    const symmetry = tam.symmetry;
+    let built = null;
+    let genders = '';
+    let error = null;
+    try {
+      const b = buildCall(tam, formations, moves, true);
+      built = b.dancers.length;
+      genders = b.dancers.map((d) => d.gender[0]).join('');
+    } catch (e) {
+      error = e instanceof Error ? e.message : String(e);
+    }
+    rows.push({ title: tam.title, from: tam.from, written, symmetry, paths: tam.paths.length, built, genders, error });
+  }
+}
+
+console.log('== the shipped tams, by authored (written) size ==');
+{
+  const got = tally(rows.map((r) => r.written));
+  const want = [[0, 2], [1, 4], [2, 1063], [3, 19], [4, 4815], [6, 38], [8, 22]];
+  check(JSON.stringify(got) === JSON.stringify(want),
+    `${rows.length} tams authored at ${got.map(([k, v]) => `${k}:${v}`).join(' ')}`);
+  if (JSON.stringify(got) !== JSON.stringify(want)) console.log(`        wanted ${JSON.stringify(want)}`);
+  // The two that name a formation the corpus does not ship. Named rather than counted, because the
+  // count alone cannot tell a fixed one from a newly broken one - `catalogue.mjs` pins the same pair.
+  const unresolvable = rows.filter((r) => r.written === 0);
+  check(unresolvable.length === 2 && unresolvable.every((r) => r.error !== null),
+    'the only tams with no resolvable formation are the two known ones (they fail to build, and say so)');
+}
+
+console.log('\n== symmetry: the declared rule is `written x symmetry`, and it is what the build does ==');
+{
+  const built = rows.filter((r) => r.built !== null);
+  const declared = rows.filter((r) => r.built === r.written * r.symmetry);
+  const mismatched = rows.filter((r) => r.built !== null && r.built !== r.written * r.symmetry);
+  console.log(`  ${built.length} of ${rows.length} tams build; ${declared.length} build at written x symmetry`);
+  check(JSON.stringify(tally(built.map((r) => r.built))) === JSON.stringify([[2, 4], [4, 1081], [6, 19], [8, 4798], [12, 38], [16, 21]]),
+    `built sizes are ${tally(built.map((r) => r.built)).map(([k, v]) => `${k}:${v}`).join(' ')}`);
+  // THE PIN THAT MATTERS. The declaration and the geometric guess agree everywhere but here, and this
+  // is the ONE tam whose row the switch to the declaration will move (8 -> 16). Asserted by NAME, so
+  // switching cannot quietly take a second case with it.
+  check(mismatched.length === 1 && mismatched[0].title === 'Allemande Left' && mismatched[0].from === 'O Trade By',
+    mismatched.length === 0
+      ? 'no tam builds against its declaration'
+      : `exactly one tam builds against its declaration: ${mismatched.map((r) => `${r.title} [${r.from}] written ${r.written} x ${r.symmetry} = ${r.written * r.symmetry}, built ${r.built}`).join('; ')}`);
+  // The opt-out is rare, which is why the default has to be the convention rather than the attribute.
+  const optOut = rows.filter((r) => r.symmetry === 1);
+  check(optOut.length === 18 && optOut.every((r) => r.built === r.written),
+    `${optOut.length} tams declare asymmetric="true" and every one is taken as written`);
+}
+
+console.log('\n== the authoring idiom: ONE PATH PER WRITTEN DANCER, and the completion duplicates it ==');
+{
+  // THE PATH COUNT IS RELATIVE TO THE WRITTEN SIZE, NOT THE BUILT ONE, and getting that wrong is easy
+  // because the completion hides it: a written-4 tam with 4 paths builds as 8 dancers with 4 distinct
+  // paths, so `paths * 2 == built` is true while the authoring is one path per written dancer. The
+  // three relations `buildCallImpl` distinguishes are therefore classified against `written`:
+  //
+  //   per-dancer  paths == written       each written dancer has its own motion, and the completion
+  //                                      gives its mirror the same motion.
+  //   per-pair    paths * 2 == written   the written list is a set of PAIRS and each pair moves as one.
+  //   full-set    paths == written * 2   a path per COMPLETED dancer against a half-written shape -
+  //                                      `convert.ts` places the duplicate half before pairing.
+  //
+  // MEASURED: the shipped corpus uses the FIRST of these and nothing else. Both other branches are
+  // real code with real callers - an editor-authored call is full-set, which is what `full-set` is for
+  // (`convert.ts`'s note on `formation="Circle"` carrying eight paths against a four-dancer shape) -
+  // but NO shipped tam reaches them, so a change to either cannot be validated from the catalogue and
+  // has to be gated from `editor.mjs`'s round-trips instead. That is worth stating rather than
+  // assuming: it is the difference between "the corpus covers this" and "only the editor does".
+  const relation = (r) =>
+    r.paths === r.written ? 'per-dancer'
+    : r.paths * 2 === r.written ? 'per-pair'
+    : r.paths === r.written * 2 ? 'full-set'
+    : 'other';
+  const built = rows.filter((r) => r.built !== null);
+  const kinds = tally(built.map(relation));
+  console.log(`  authored: ${built.filter((r) => relation(r) === 'per-dancer').length} per-dancer, ` +
+    `${built.filter((r) => relation(r) === 'per-pair').length} per-pair, ` +
+    `${built.filter((r) => relation(r) === 'full-set').length} full-set, ` +
+    `${built.filter((r) => relation(r) === 'other').length} unclassified`);
+  check(kinds.length === 1 && kinds[0][0] === 'per-dancer',
+    `every built tam authors one path per written dancer (${kinds.map(([k, v]) => `${k}:${v}`).join(' ')})`);
+  check(built.every((r) => r.paths === r.written),
+    'so no shipped tam reaches the per-pair or full-set pairing branch');
+  // A ONE-DANCER WRITTEN UNIT IS ONE PATH FOR TWO DANCERS, because the completion reuses it: the pair
+  // moves as one and the copy carries the written dancer's gender. Measured over the four shipped tams
+  // that do it, and it is why a two-dancer shape with TWO GENDERS needs `asymmetric="true"` with both
+  // dancers written - completing a lone dancer can only ever produce two of the same.
+  const oneWritten = rows.filter((r) => r.written === 1);
+  check(oneWritten.length === 4 && oneWritten.every((r) => r.built === 2 && r.genders[0] === r.genders[1]),
+    `the 4 one-dancer authorings all build as a SAME-GENDER pair (${[...new Set(oneWritten.map((r) => r.genders))].join(', ')})`);
+  // The two-dancer idiom, which is what a 2-dancer call IS here: two written dancers with their own
+  // motions, completed to two copies. Counted, because it is the largest authoring family after the
+  // whole-set ones and its size is what makes "a 2-dancer call on an 8-dancer board" mean four copies.
+  const twoWritten = rows.filter((r) => r.written === 2 && r.built === 4 && r.paths === 2);
+  check(twoWritten.length === 1063,
+    `${twoWritten.length} tams are authored as a 2-dancer unit with one path per dancer, completing to two copies`);
+}
+
+console.log('\n== what the formation registry holds: only the shapes whose declared set is eight ==');
+{
+  const named = seq.library.getNamedFormations();
+  const unique = seq.library.getUniqueFormations();
+  check(named.every((f) => f.dancers.length === 8) && named.length === 210,
+    `namedFormations is ${named.length} entries and every one is 8 dancers`);
+  check(unique.every((f) => f.dancers.length === 8) && unique.length === 134,
+    `uniqueFormations is ${unique.length} entries and every one is 8 dancers`);
+  // `formations.xml` cannot declare symmetry - `tamination.dtd`'s <formation> takes `name` only - so
+  // every entry there is a half by construction, and its declared set is written x 2.
+  const authored = [...formations.entries()].map(([name, ds]) => ({ name, written: ds.length, setSize: ds.length * 2 }));
+  check(JSON.stringify(tally(authored.map((f) => f.written))) === JSON.stringify([[2, 51], [3, 1], [4, 210], [6, 11]]),
+    `formations.xml authors ${authored.length} shapes at ${tally(authored.map((f) => f.written)).map(([k, v]) => `${k}:${v}`).join(' ')}`);
+  // A SHAPE WHOSE DECLARED SET IS NOT EIGHT IS DROPPED - it is neither a whole set nor, as a lookup
+  // target, a sub-formation of one. 63 of them, and the reason the 2-dancer family is unreachable as
+  // a NAME. `Facing Couples` is the one to watch: it is a 2-written shape declaring a FOUR-dancer set
+  // of two facing couples, which is what `Star Thru` is authored against, and it is not in the
+  // library. Naming the total AND a witness keeps a fix from being invisible and a regression from
+  // being a bare number.
+  const dropped = authored.filter((f) => f.setSize !== 8);
+  check(dropped.length === 63,
+    `${dropped.length} of ${authored.length} declared shapes are not an 8-dancer set and are absent from the library`);
+  // NAMED, not merely counted, and with a present witness for contrast: a total alone cannot tell a
+  // fixed entry from a newly broken one, and a bare "63" cannot tell which shapes a fix would add.
+  // `Facing Couples` is the one to watch - a 2-written shape declaring a FOUR-dancer set of two facing
+  // couples, which is the formation `Star Thru` is authored against by NAME, and it is not in the
+  // library. Its COMPACT spelling is a different entry (also 2-written, also absent).
+  const names = new Set(named.map((f) => f.name));
+  const witnesses = ['Facing Couples', 'Facing Couples Compact', 'Facing Dancers'];
+  check(witnesses.every((n) => !names.has(n)) && names.has('Eight Chain Thru') && names.has('Static Square'),
+    `the drops are absent by name (${witnesses.filter((n) => !names.has(n)).join(', ')}), and whole-set shapes are present`);
+}
+
+console.log(`\nshape-census: ${failures === 0 ? 'all green' : `${failures} FAILED`}`);
+process.exit(failures === 0 ? 0 : 1);

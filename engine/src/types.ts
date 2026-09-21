@@ -75,6 +75,45 @@ export interface DancerSpec {
  */
 export type SequencerMode = 'perimeter' | 'exact' | 'gender-specific' | 'no';
 
+/**
+ * HOW MANY COPIES OF A WRITTEN SHAPE MAKE THE SET - the corpus's own declaration, and the answer to
+ * "this shape lists four dancers, so what is it?".
+ *
+ * The authoring convention (Taminations, and `square-dancing.md` §7.1) is that a `<formation>` or a
+ * `<tam>`'s inline formation writes HALF the set and the other half is implied: the written dancers
+ * turned 180 degrees about the origin. So a shape of four stands for eight, and a shape of two stands
+ * for four. A shape that is NOT a half - one already written out in full - says so with
+ * `asymmetric="true"` (`tamination.dtd:38` declares the attribute on `<tam>`, and
+ * `animated_call.dart:161-162` writes it back), and is then taken exactly as written.
+ *
+ * The reference implements this as a declared multiplier rather than a guess: `geometry.dart` gives
+ * `SQUARE = 2` and `ASYMMETRIC = 1`, `CallContext.fromFormation` instantiates the written dancers
+ * `geometryType` times (`call_context.dart:170-197`), and `dance_model.dart:383` reads it as
+ * `mycall.formation.asymmetric ? 1 : _geometryType`. So 2 is the DEFAULT and 1 is the opt-out.
+ *
+ * WHY IT IS CARRIED BEFORE IT IS ACTED ON. The engine currently re-derives this geometrically - see
+ * `hasAntipode` in `convert.ts`, which completes a shape unless some pair of its dancers already sits
+ * 180 degrees apart - and MEASURED over the shipped tree the two rules agree everywhere but one case:
+ * of 5963 tams, 5961 build, 5942 at written x 2, 18 at written x 1 (all 18 of which declare it), and
+ * exactly ONE builds against its declaration (`Allemande Left` from `O Trade By`, written as a whole
+ * eight-dancer setup that the guess leaves at eight). The proxy therefore works, and is kept until
+ * this field is read - the point of carrying it is that the rule becomes the DATA's rather than a
+ * geometric accident, and that the disagreement is a pinned list instead of a silent one.
+ *
+ * `formations.xml` CANNOT DECLARE IT (`tamination.dtd`'s `<formation>` takes `name` only), so every
+ * registry entry is a half by construction and is symmetry 2. That is why the library holds exactly
+ * the shapes whose written size is 4 - see `CallLibrary`'s constructor for the 63 entries whose
+ * declared set is not eight and which it drops today.
+ *
+ * TWO DANCERS IS THE CASE THIS SETTLES. A pair is written with BOTH dancers and
+ * `asymmetric="true"`, which is the only way to give the two dancers different genders: completing a
+ * one-dancer authoring duplicates that dancer, and the copy carries the original's gender, so a lone
+ * `boy` becomes a pair of boys. Measured on the four shipped tams that do this
+ * (`Step to a Wave` and `Step to a Left-Hand Wave`, both from `Facing Dancers`): written 1, built 2,
+ * genders `boy,boy`.
+ */
+export type Symmetry = 1 | 2;
+
 export interface CallBundle {
   title: string;
   from: string;
@@ -97,6 +136,11 @@ export interface CallBundle {
   // arrangement matches the setup's gender slots (e.g. "Boys Turn Back"). Derived from
   // `sequencerMode`, which is the single source of truth for the attribute.
   genderSpecific?: boolean;
+  // How many copies of the WRITTEN shape make this variant's set: 2 (the default, the written shape
+  // is half the set) or 1 (the tam declares `asymmetric="true"`, take it as written). See `Symmetry`
+  // for the rule, the reference and the measurement. The engine still completes shapes geometrically;
+  // this is the declaration that will replace that guess.
+  symmetry: Symmetry;
   // The authored `actives` attribute, verbatim, or absent. WHICH DANCERS the tam's paths describe:
   // a tam that declares it is authored for a subset (or for "All"), and the engine currently
   // IGNORES it when it mirrors a four-dancer setup to eight. Carried so that mis-registration is

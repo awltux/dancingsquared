@@ -5,7 +5,7 @@
 // In the browser DOMParser is global. In Node, call `setParser` with
 // @xmldom/xmldom's DOMParser (as the test does).
 
-import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Seg, SequencerMode } from './types.js';
+import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Seg, SequencerMode, Symmetry } from './types.js';
 
 // ----------------------------------------------------------------- DOMParser
 
@@ -255,6 +255,13 @@ interface TamRaw {
   // attribute is read here so that the mis-registration is at least VISIBLE and pinnable; deciding
   // what to do with it at the apply path is a separate step (PLAN.md, Phase C).
   actives: string | null;
+  // How many copies of the WRITTEN dancers make the set, from `<tam asymmetric="true">`: 1 = take the
+  // written shape as it stands, 2 = it is half the set and the completion supplies the other half.
+  // The DEFAULT is 2 because that is the corpus's authoring convention, not because the attribute is
+  // usually present — it appears on 18 of the 5963 shipped tams. See `Symmetry` for the rule, the
+  // reference, and the measurement: the declaration and the geometric guess agree on every shipped tam
+  // but one. CARRIED, NOT YET ACTED ON: `buildCallImpl` still completes by geometry (`hasAntipode`).
+  symmetry: Symmetry;
 }
 
 /** Parse the `sequencer` attribute, keeping every value Taminations defines. */
@@ -263,6 +270,19 @@ function parseSequencerMode(raw: string | null): SequencerMode | null {
   // An unrecognised value is reported as absent rather than guessed at, so a new
   // attribute value in the assets surfaces as "no flag" instead of as a wrong flag.
   return null;
+}
+
+/**
+ * The symmetry a `<tam>` declares: `1` for `asymmetric="true"`, `2` otherwise.
+ *
+ * Only the exact string `true` opts out. Taminations' own writer emits `true` and nothing else
+ * (`animated_call.dart:162`), so a different spelling is a data error and is treated as absent —
+ * which is the safe direction, because the default is the convention the other 5945 tams are written
+ * under. The attribute is not declared on `<formation>` in `tamination.dtd`, so a `<tam>` carrying it
+ * is the only place it can appear.
+ */
+function parseSymmetry(raw: string | null): Symmetry {
+  return raw === 'true' ? 1 : 2;
 }
 
 function parseCallXmlImpl(xmlText: string): TamRaw[] {
@@ -291,6 +311,7 @@ function parseCallXmlImpl(xmlText: string): TamRaw[] {
       paths,
       sequencerMode: parseSequencerMode(tam.getAttribute('sequencer')),
       actives: tam.getAttribute('actives'),
+      symmetry: parseSymmetry(tam.getAttribute('asymmetric')),
     });
   }
   return tams;
@@ -400,6 +421,13 @@ function buildCallImpl(
   const leadin = 2;
   const leadout = 2;
 
+  // THE COMPLETION, APPLIED BY GEOMETRY RATHER THAN BY THE DECLARATION. `tam.symmetry` is the corpus's
+  // own answer (1 = take the written dancers as they stand, 2 = they are half the set) and is carried
+  // onto the bundle below, but the completion performed here is still `mirrorToFull`'s geometric
+  // proxy — duplicate unless some pair of the written dancers already sits 180 degrees apart. The two
+  // agree on every shipped tam but ONE (`Allemande Left` from `O Trade By`), and that case is pinned in
+  // `test/shape-census.mjs`, which is what makes switching to the declaration a bounded, reviewable
+  // change rather than a rewrite.
   const dancers2 = mirror ? mirrorToFull(withPath) : withPath;
 
   return {
@@ -415,6 +443,7 @@ function buildCallImpl(
     sequencerMode: tam.sequencerMode,
     forSequencer: tam.sequencerMode !== 'no',
     genderSpecific: tam.sequencerMode === 'gender-specific',
+    symmetry: tam.symmetry,
     actives: tam.actives,
   };
 }

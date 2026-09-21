@@ -599,6 +599,9 @@ export class EditorController implements EditorUI {
       totalBeats: 1,
       sequencerMode: null,
       forSequencer: true,
+      // A still frame is written out dancer by dancer, so it is a WHOLE set: symmetry 1, take the
+      // dancers as they stand. The alternative - completing them - would double a four-dancer form.
+      symmetry: 1,
     };
   }
 

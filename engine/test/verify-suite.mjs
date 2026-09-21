@@ -30,6 +30,11 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const SUITE = [
   { h: 'gender-audit', light: true },
   { h: 'catalogue', light: true },
+  // The authoring convention for a shape smaller than the set, measured over all 5963 shipped tams and
+  // pinned, plus what the formation registry keeps (210 of 273 declared shapes). In `light` because it
+  // is one pass over the assets, and it is the harness that makes "what does a shape of four dancers
+  // mean" a fact rather than a geometric guess.
+  { h: 'shape-census', light: true },
   { h: 'verify', light: true },
   { h: 'sequencer', light: true },
   { h: 'mainstream', light: true },

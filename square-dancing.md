@@ -153,9 +153,46 @@ Consequences of this symmetric, center-anchored model:
 - A half-set definition is *not* centered on its own — it sits offset from the center precisely so that its 180°-rotated duplicate completes the full, centered formation.
 - The full formation (the unit dancers actually occupy) is centered and symmetric; the half-set offset is an authoring convenience and does not describe where the dancers stand.
 
+#### 7.1.1 Declared Symmetry: three sizes that are easy to confuse
+
+Because a shape is written as half of itself, **three different sizes** are in play at once, and
+conflating any two of them is the source of most of the confusion around calls of fewer than eight
+dancers:
+
+| size | what it is | where it lives |
+|---|---|---|
+| **written** | the dancers a `<formation>` or a `<tam>`'s inline formation actually lists | the asset file |
+| **declared set** | `written × symmetry` — the set the shape represents | the asset, via `asymmetric` |
+| **board** | the dancers on the floor in the app, which is 8 in the POC | `Board` |
+
+- **The multiplier is DECLARED, not inferred.** The default is **2** — the written dancers plus the
+  same dancers turned 180° about the origin (the *completion reflection*, §7.3). A shape that is
+  already complete says so with **`asymmetric="true"`** and has symmetry **1**: take it as written.
+  Taminations implements exactly this as a declared multiplier (`geometry.dart`: `SQUARE = 2`,
+  `ASYMMETRIC = 1`; `call_context.dart` instantiates the written dancers `geometryType` times), and
+  `tamination.dtd` declares the attribute on `<tam>`. `formations.xml` cannot declare it, so every
+  entry there is a half by construction.
+- **A written shape is a UNIT, and a built bundle is `symmetry` copies of it.** This is what makes a
+  two-dancer call expressible. A 2-dancer call is a **two-dancer written unit** whose two dancers each
+  have their own motion; the completion makes **two copies** of it. A 4-dancer written unit is a
+  half-set authoring of a whole-set call. A **one**-dancer written unit is a pair that **moves as
+  one** — and because the completed copy carries the written dancer's gender, a lone `boy` completes
+  to a pair of boys. So a two-dancer formation whose two dancers have different genders must be
+  written with **both** dancers and `asymmetric="true"`, which is the only way to say it.
+- **What is measured.** `engine/test/shape-census.mjs` pins this over all 5963 shipped tams: the
+  written sizes, `written × symmetry` against the size actually built, the one tam that disagrees
+  (`Allemande Left` from `O Trade By`), the four one-dancer authorings that complete to same-gender
+  pairs, and the shape of the formation registry (210 of 273 declared shapes are kept; every kept one
+  declares eight).
+
+The practical rule for a reader: **a number of dancers is never "the formation's size" on its own** —
+ask which of the three it is.
+
 ### 7.2 Subset Formations
 
-Most formations describe the **full 8-dancer set**, but some describe a **subset** — a smaller group of dancers (e.g. Facing Couples with 2, a Box of 4 or a Wave of 4 with 4, a Tidal formation with 6). These subset formations exist for two reasons:
+Most formations describe the **full 8-dancer set**, but some describe a **subset** — a smaller group of dancers (e.g. a Box of 4 or a Wave of 4 with 4, a Tidal formation with 6). These subset formations exist for two reasons:
+
+**A subset of 2 is written differently from a formation of 2** (§7.1.1): the corpus's `Facing Couples` is *written* with two dancers and declares a **four**-dancer set (two facing couples), while the 2-dancer *pair* is `Facing Dancers`, written with **one** dancer and completed to a gender-blind pair. A two-dancer formation whose two dancers have different genders is written with both dancers and `asymmetric="true"`.
 
 - **Parallel execution:** the same call can be danced by several identical subsets **at the same time** (see §7.5). A 2-dancer Facing Couples formation describes the call *Circle Right* once, and when the set holds four separate facing couples, all four dance it concurrently.
 - **Named-group execution:** different calls are danced by **different named sets** of the dancers — e.g. Heads and Sides, Boys and Girls, Centers and Ends, or Couples 1–4. Each named group is itself a subset, so the subset formation is the unit the call acts on. (A named group like Heads/Sides selects dancers by **home identity**, fixed for the tip — see §7.2.3 — not by current position.)

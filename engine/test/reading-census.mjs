@@ -188,10 +188,30 @@ console.log('\n== against the stored asset: REPORTED, not asserted (the asset is
   // MEASURED: rebuilding the table from the current engine and the current assets
   // (`node poc/scripts/build-fsm-asset.mjs`) gives 155 states - the same set - and 2205 edges against
   // the stored 1961, with 76 edges landing on a DIFFERENT end formation. The generator is wired into no
-  // npm script and no harness, so nothing could have noticed. The regenerate is deliberately NOT done
-  // here: the 76 differences cluster on `Face In`/`Face Out`, and the correct answer for those is an
-  // open adjudication (see the commit that added this file), so regenerating would bake in whichever
-  // the engine currently says.
+  // npm script and no harness, so nothing could have noticed.
+  //
+  // AND THE 76 ARE NOT A BUG IN THOSE CALLS - they are the NAMER giving up quietly, investigated and
+  // settled here. `Face In` from a squared set looks wrong at first sight (positions unchanged, every
+  // dancer turned a quarter), but it is right: CALLERLAB defines it as "each individual turns 90
+  // degrees, in place, TOWARD THE CENTER", the turn direction matches the reference (`face.dart`), and
+  // the RESULT is four exact mini-waves - measured, each wall's pair 2.00 apart and facing each other.
+  //
+  // The problem is what it gets CALLED. That board matches 11 formations within the naming tolerance
+  // (KNOWN_FORMATION_MAX 6.0 + margin 1.5) with a BEST error of 3.1416 - pi - and FOUR of them tie
+  // exactly at pi: `O In`, `O Trade By`, `O Eight Chain Thru`, `O Out`. `knownFormation` returns the
+  // first of the tied candidates in library scan order, so the name it reports is an artefact of the
+  // library's contents and order, and ANY change to either renames the edge - which is what moved
+  // those 76. `recognize` (curated, tighter) correctly returns null for the same board, so the two
+  // namers already disagree about whether it is named at all.
+  //
+  // THE FIX IS THEREFORE IN THE NAMER, not in `Face In`: a board this far from everything should be
+  // refused rather than named after whichever candidate happened to be scanned first. The note on
+  // `KNOWN_FORMATION_MAX` records that the tolerance that ACTUALLY binds is `maxError / 12` - about
+  // 0.5 per dancer - while the final gate uses the raw 6.0, so a pi-off board passes. TIGHTENING THAT
+  // GATE IS NOT SAFE ON ITS OWN: `legalCalls` admits a call only when `knownFormation(result) !==
+  // null`, so refusing more names DROPS more applications from the FSM. It has to be done in the same
+  // change as admitting unnameable ends (the FSM work's Stage 2), which is why the asset is left
+  // stale here rather than regenerated with tie-break names frozen into it.
   const admitted = rows.filter((r) => r.admitted);
   const missing = admitted.filter((r) => !assetEdges(r.state).some((e) => e.call === r.title));
   console.log(`  ${admitted.length} admitted applications; ${missing.length} of them have NO edge in the stored asset`);

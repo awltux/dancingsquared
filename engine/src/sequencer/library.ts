@@ -23,6 +23,27 @@ const CURATED_MODULE_CALLS: string[] = ['Running Bear'];
 // one also cannot be collapsed. Extend this list as such calls are identified.
 const NON_COMPOSITIONAL_CALLS: string[] = [];
 
+/**
+ * A formation's dancers AS THE WHOLE SET - because a formation entry is only ever HALF of one.
+ *
+ * The corpus authors a named formation as the four dancers of a half-group (only `Squared Set` and the
+ * eight-dancer handful carry eight), and a board is eight. So a four-dancer entry REPRESENTS eight dancers and
+ * is stored as those eight: the authored half, plus the same dancers rotated 180 degrees about the origin, which
+ * keeps their genders.
+ *
+ * ONE PLACE, because it is the same rule for the corpus and for a caller's own formation - and having it in two
+ * places is what let `registerFormation` keep a four-dancer shape that no eight-dancer board could ever match
+ * (and that the dedupe then discarded anyway, by matching it as a SUBSET of an eight-dancer one).
+ *
+ * A shape that already CONTAINS its own antipodes is a whole set however few dancers it lists, and is left alone.
+ */
+function toWholeSet(dancers: Matchable[]): Matchable[] {
+  if (dancers.length !== 4) return dancers;
+  const mirror = dancers.map((d) => ({ x: -d.x, y: -d.y, heading: normAngle(d.heading + Math.PI), gender: d.gender }));
+  const merged = dancers.concat(mirror);
+  if (merged.some((a) => merged.some((b) => a !== b && Math.hypot(a.x - b.x, a.y - b.y) < 0.01))) return dancers;
+  return merged;
+}
 export class CallLibrary {
   private readonly variants: Map<string, CallBundle[]> = new Map();
   private readonly modules: Map<string, (string | CallStep)[]> = new Map(); // module name -> call steps
@@ -54,19 +75,12 @@ export class CallLibrary {
       name,
       dancers: ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })),
     }));
-    // Mirror 4-dancer (half-group) named formations to 8 so an 8-dancer board
-    // can be recognized against them (e.g. Squared Set, Normal Lines). The mirror is
-    // the same authored dancers rotated 180 degrees, so it keeps their genders.
+    // HALF A SET IS A WHOLE ONE HERE. A named formation is authored as the four dancers of a half-group, so it
+    // represents eight and is stored as eight, which is the size a board is. See `toWholeSet`.
     for (const fm of base) {
-      if (fm.dancers.length === 8) {
-        this.namedFormations.push(fm);
-      } else if (fm.dancers.length === 4) {
-        const mirror = fm.dancers.map((d) => ({ x: -d.x, y: -d.y, heading: normAngle(d.heading + Math.PI), gender: d.gender }));
-        const merged = fm.dancers.concat(mirror);
-        if (!merged.some((a) => merged.some((b) => a !== b && Math.hypot(a.x - b.x, a.y - b.y) < 0.01))) {
-          this.namedFormations.push({ name: fm.name, dancers: merged });
-        }
-      }
+      const whole = toWholeSet(fm.dancers);
+      if (whole.length === fm.dancers.length && fm.dancers.length !== 8) continue;
+      this.namedFormations.push({ name: fm.name, dancers: whole });
     }
     // Collapse the many differently-named formations that share an identical
     // dancer geometry (positions AND headings, up to rotation/reflection) into
@@ -119,8 +133,21 @@ export class CallLibrary {
    */
   registerFormation(name: string, dancers: Matchable[]): void {
     const canonical = canonicalName(name);
-    const fm = { name: canonical, dancers: dancers.map((d) => ({ ...d })) };
+    // A CALLER'S HALF-GROUP IS A WHOLE SET TOO, by the same rule the corpus is read with. Keeping it at four
+    // would file it in a size nothing is ever matched at - and the dedupe below would then discard it anyway,
+    // because an eight-dancer shape SUBSET-matches a four-dancer one whenever four of its dancers sit that way.
+    // MEASURED, against the real library: a four-dancer shape matched `Circle`, nothing of that size was added,
+    // and `knownFormation` answered null for the board it came from.
+    const fm = { name: canonical, dancers: toWholeSet(dancers.map((d) => ({ ...d }))) };
     if (!this.namedFormations.some((x) => x.name === canonical)) this.namedFormations.push(fm);
+    // SAME SIZE, OR IT IS NOT THE SAME SHAPE. matchFormations does SUBSET matching when the source is longer
+    // than the target, so an eight-dancer library shape matches a four-dancer one whenever four of its dancers
+    // happen to sit in that pattern - and the dedupe then drops the geometry that was being registered. MEASURED
+    // against the real library, which holds 210 formations and EVERY ONE OF THEM OF SIZE 8 (the corpus's
+    // four-dancer shapes are mirrored to eight at construction): registering a four-dancer shape matched
+    // Circle, so nothing of that size was added, and a four-dancer board could never be named again - which is
+    // what knownFormation returning null for it meant. Registering is how a caller closes the 	he engine
+    // cannot say what formation this is dead end, so losing it silently is the worst version of this bug.
     if (!this.uniqueFormations.some((u) => matchFormations(u.dancers, fm.dancers, 0.5) !== null)) {
       this.uniqueFormations.push(fm);
     }

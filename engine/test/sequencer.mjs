@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, buildCallVariants, boardAtBeat, formationToXml, parseFormations } from '../dist/index.js';
+import { setParser, Sequencer, buildCallVariants, boardAtBeat, formationToXml, parseFormations, parseCallXml, parseMoves, buildCall, normalizeInstance } from '../dist/index.js';
 import { roleUniformMotions, segsEqual } from '../dist/sequencer/matcher.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
@@ -1184,6 +1184,53 @@ console.log('\n== the end formation of a call instance, and user-defined formati
   }
 }
 
+// ---------------------------------------------------------------------------
+// A CALLER'S HALF-SET FORMATION IS A WHOLE SET, and registering one has to keep it
+//
+// Asked for, after a report that loading a user-defined formation left the call "not named": "remember
+// formations are only half the set of dancers it represents."
+//
+// THE CORPUS AUTHORS A NAMED FORMATION AS THE FOUR DANCERS OF A HALF-GROUP, and the library mirrors those to
+// eight at construction so that an eight-dancer board can be matched against them. `registerFormation` did NOT,
+// so a caller's four-dancer shape was filed at a size nothing is ever matched at - and the geometry dedupe then
+// discarded it outright, because `matchFormations` SUBSET-matches an eight-dancer source against a four-dancer
+// target. MEASURED against the real library: the caller's shape matched `Circle`, nothing was added, and
+// `knownFormation` answered `null` for the board it came from.
+console.log('\n== a registered half-set formation names a whole-set board ==');
+{
+  const tams = parseCallXml(read('../../poc/src/assets/ms/circle.xml'));
+  const tam = tams.find((t) => /^circle$/i.test((t.formationAttr ?? '').trim()));
+  check(!!tam, 'ms/circle.xml carries a tam whose formation the corpus authors as a half-group');
+  if (tam) {
+    const moves = parseMoves(movesXml);
+    const forms = parseFormations(formationsXml);
+    const full = normalizeInstance(buildCall(tam, forms, moves, true));
+    const half = normalizeInstance(buildCall(tam, forms, moves, false));
+    const b8 = boardAtBeat(full, full.beats);
+    const b4 = boardAtBeat(half, half.beats);
+    check(b4.dancers.length === 4 && b8.dancers.length === 8,
+      `and it reads as ${b4.dancers.length} or ${b8.dancers.length} dancers depending on the mirror, so the two sizes are the same call`);
+    const shape4 = b4.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender }));
+    const fresh = () => new Sequencer(movesXml, formationsXml, []);
+    // THE 8-DANCER BOARD IS NAMED BY THE CALLER'S NAME, which is the whole point: it was not named at all while
+    // the registration kept the shape at four.
+    const a = fresh();
+    const before = a.knownFormation(b8);
+    check(before !== null, `an eight-dancer board is named by the corpus as "${before}" before anything is registered`);
+    const b = fresh();
+    b.registerFormation('Caller Shape', shape4);
+    // A FRESH LIBRARY AND THE EIGHT-DANCER BOARD ASKED FIRST: the match cache is keyed on the board, and asking
+    // a shared instance for both sizes lets one answer for the other (measured - it reported the four-dancer
+    // board as named, which is not true of a fresh library).
+    check(b.knownFormation(b8) === 'Caller Shape',
+      `registering the FOUR-dancer shape names the EIGHT-dancer board "${b.knownFormation(b8)}" - it used to be discarded by the geometry dedupe`);
+    // AND A HALF-SET BOARD IS STILL NOT NAMED, which is the library's own rule rather than a defect: a board is
+    // matched only against formations of its own size, and this library holds whole sets. Recorded so the next
+    // reader does not mistake it for the bug that was just fixed.
+    check(fresh().knownFormation(b4) === null,
+      'and a four-dancer BOARD is still not named: the library holds whole sets, so a half-set board has nothing of its own size to match');
+  }
+}
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

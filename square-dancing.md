@@ -2915,3 +2915,23 @@ nothing. So it is informative exactly where a caller is choosing between calls, 
 The probe rebuilds the route home from the emitted rows themselves and compares it with the flags the renderer put
 there, so the highlight is checked against the graph rather than against the code that produces it; it also checks
 that no incoming call carries the flag, and that the mark really is a subset where it should be.
+
+THE FSM SIDEBAR IS DRAGGABLE, AND REMEMBERS ITS WIDTH. Asked for: "allow me to drag the width of the left hand
+pane."
+
+A 6px grip sits between the lists and the graph - the edge being dragged, rather than a handle floating in the
+graph - and the drag takes the width from the pointer's own x with the pane's left edge removed. The pointer is
+CAPTURED on the grip, so a fast drag that outruns the 6px bar does not stop resizing the moment the cursor
+leaves it.
+
+THE WIDTH IS STORED, and that is not a flourish: the frame is rebuilt whole on a level change and on every visit
+to the FSM tab, so a width that only lived in the document would snap back to 300px at exactly the moment the
+lists were the way the caller wanted them. It goes in localStorage, which a `srcdoc` frame shares with its parent
+origin, and a double-click on the grip restores the default.
+
+THE CLAMP IS ONE FUNCTION, INLINED INTO THE DOCUMENT. The emitted document cannot import from the app, so the
+rule would otherwise exist twice - once as the code the probe can call and once as a string in the template - and
+a rule in two places agrees only until one of them changes. The renderer inlines `clampSideWidth`'s own compiled
+source, so the document runs the function the probe tests: not narrower than 180px, not wider than 80% of the
+window, and a NON-FINITE width clamped to the minimum rather than left as `NaNpx`, which the browser ignores
+silently while the drag looks like it is working.

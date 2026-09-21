@@ -233,6 +233,27 @@ check(/li\.route-home\{background:rgba\(58,154,95,0\.18\)/.test(html) && /if\(!a
   'and a flagged row is marked on the element, with the style the legend describes');
 check(/call that leads home/.test(html), 'the legend says what the highlight means');
 
+// ============================================================ 4d. the draggable pane
+//
+// Asked for: "allow me to drag the width of the left hand pane". The clamp is the same function the document
+// runs - the renderer inlines its compiled source - so this tests the rule rather than a copy of it.
+console.log('\n== 4d. The draggable pane ==');
+const { clampSideWidth } = await import('./../src/fsm-view.ts');
+check(clampSideWidth(400, 1000) === 400, 'a drag width inside the range is taken as it is');
+check(clampSideWidth(10, 1000) === 180, 'narrower than the minimum becomes the minimum - the pane cannot be dragged away to nothing');
+check(clampSideWidth(950, 1000) === 800, 'and wider than 80% of the window becomes that, so the graph cannot be pushed off screen');
+check(clampSideWidth(NaN, 1000) === 180 && clampSideWidth(Infinity, 1000) === 180,
+  'a non-finite width is the minimum rather than NaNpx, which the browser would ignore silently while the drag looked like it worked');
+check(clampSideWidth(300, 100) === 180, 'a window narrower than the minimum still yields a usable pane');
+check(html.includes(clampSideWidth.toString()), 'and the emitted document runs THAT function, so the rule does not exist twice');
+check(/<div id="grip"[^>]*><\/div><div id="stage">/.test(html), 'the grip sits between the pane and the graph, which is the edge being dragged');
+check(/#grip\{width:6px;flex:0 0 auto;cursor:col-resize/.test(html), 'it is drawn as a resize bar');
+check(/grip\.setPointerCapture\(e\.pointerId\)/.test(html), 'the drag captures the pointer, so it keeps working once the cursor leaves the 6px bar');
+check(/localStorage\.setItem\(SIDE_KEY/.test(html) && /localStorage\.getItem\(SIDE_KEY/.test(html),
+  'and the width is remembered: the frame is rebuilt whole on a level change and on every visit to the tab, so a width living only in the document would snap back exactly when the lists were the way the caller wanted them');
+check(/grip\.addEventListener\('dblclick'/.test(html), 'double-clicking the bar restores the default width');
+check(/#side\{width:300px;flex:0 0 auto/.test(html), "and the pane cannot be shrunk by the flex layout behind the drag's back");
+
 // ============================================================ 5. the Level filter
 //
 // Asked for as: "provide a dropdown filter for Level", then "There should be an 'all levels' item in the

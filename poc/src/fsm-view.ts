@@ -44,6 +44,24 @@ export function mergeFsmTables(tables: FsmGraphData[]): FsmGraphData {
   return { states, edges };
 }
 
+/**
+ * The width a sidebar drag lands on: never narrower than `min`, never wider than 80% of the window.
+ *
+ * EXPORTED AND INJECTED, rather than written twice. The rule lives in the emitted document, which the app
+ * cannot call into, so the alternative is a second copy of it as a string in the template - and a clamp that
+ * exists twice is a clamp that disagrees the first time one of them is changed. The renderer inlines this
+ * function's own compiled source into the document it emits, and the probe calls the same function, so there
+ * is one rule and the document provably has it.
+ *
+ * A non-finite width returns the minimum rather than `NaN`: `style.width = "NaNpx"` is ignored by the browser,
+ * which would leave the pane at its previous width while the drag looked like it was doing something.
+ */
+export function clampSideWidth(px: number, viewport: number, min = 180): number {
+  if (!Number.isFinite(px)) return min;
+  const max = Math.max(min, Math.round(viewport * 0.8));
+  return Math.max(min, Math.min(max, Math.round(px)));
+}
+
 /** Render precomputed FSM data as a self-contained HTML string.
  *
  * `level` is carried into the document so a row's Load / Edit icon can say WHICH tree it was clicked in:
@@ -139,7 +157,10 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — ${n} states</title><style>
   html,body{height:100%;overflow:hidden;overscroll-behavior:none;margin:0}
   body{font-family:system-ui,Segoe UI,sans-serif;display:flex}
-  #side{width:300px;padding:12px;overflow:auto;background:#f6f7f9;border-right:1px solid #ddd;font-size:13px}
+  #side{width:300px;flex:0 0 auto;padding:12px;overflow:auto;background:#f6f7f9;border-right:1px solid #ddd;font-size:13px;box-sizing:border-box}
+  #grip{width:6px;flex:0 0 auto;cursor:col-resize;background:#e9edf1;border-right:1px solid #ddd}
+  #grip:hover,#grip.on{background:#c9d6e6}
+  body.sizing{cursor:col-resize;user-select:none}
   #stage{flex:1;overflow:hidden}svg{width:100%;height:100%;display:block}.edge{stroke:#cfd6dd;fill:none}
   #filter{width:96%;padding:4px}details{margin:3px 0}summary{cursor:pointer;font-weight:600}
   #rst{width:100%;margin:8px 0;padding:6px;cursor:pointer;background:#fff;border:1px solid #bbb;border-radius:6px;font-size:13px}
@@ -155,13 +176,14 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   #nodedisp button.mini:hover{background:#eef2f7;border-color:#8fa8c0;color:#123}
   </style></head><body><div id="side"><h2>${esc(title)} — ${n} states, ${edges.length} edges</h2>
   <p><span class="dot" style="background:#0a7d33"></span>home<br><span class="dot" style="background:#3a9a5f"></span>route home<br><span class="dot" style="background:#e8950c"></span>no route home (approx) (${nohomeList.length})<br><span class="dot" style="background:#d63a3a"></span>dead-end (${deadList.length})<br><span class="dot" style="background:rgba(58,154,95,0.25);box-shadow:inset 0 0 0 1px #3a9a5f"></span>call that leads home</p>
+
   <button id="rst" title="Reset pan/zoom to show the whole graph">⟲ Reset view</button>
   <input id="filter" placeholder="highlight edges by call…">
   <h3 style="font-size:13px;margin:10px 0 4px">Selected formation</h3>
   <div id="nodedisp"><i>Click a node to see its calls.</i></div>
   <details><summary>Dead-end formations (${deadList.length})</summary><div style="color:#a52828">${deadList.map(esc).join('<br>') || 'none'}</div></details>
   <details><summary>No route home (${nohomeList.length})</summary><div style="color:#b97608">${nohomeList.map(esc).join('<br>') || 'none'}</div></details>
-  </div><div id="stage"><svg viewBox="0 0 2000 2000">${edgeSvg}${nodeSvg}</svg></div>
+  </div><div id="grip" title="Drag to size this pane — double-click to reset it"></div><div id="stage"><svg viewBox="0 0 2000 2000">${edgeSvg}${nodeSvg}</svg></div>
   <script type="application/json" id="nodedata">${JSON.stringify(nodeList)}</script>
   <script type="application/json" id="topo">${JSON.stringify(pos.map((p) => [Math.round(p.x), Math.round(p.y)]))}</script>
   <script>
@@ -173,6 +195,23 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   // otherwise respect the call filter.
   function paint(){const q=f.value.trim().toLowerCase();edges.forEach(e=>{const a=+e.dataset.a,b=+e.dataset.b;const on=sel>=0&&(a===sel||b===sel);if(on){e.style.opacity=1;e.setAttribute('stroke',ECOL[a===sel&&b===sel?'both':a===sel?'out':'in']);}else{e.setAttribute('stroke','#cfd6dd');e.style.opacity=q&&!e.dataset.calls.toLowerCase().includes(q)?'0.04':'1';}});}
   f.addEventListener('input',paint);
+  // THE PANE BETWEEN THE LISTS AND THE GRAPH IS DRAGGABLE, and its width is REMEMBERED. Persistence is not a
+  // flourish here: the frame is re-rendered whole on a level change and on every visit to the tab, so a width
+  // that only lives in this document would snap back to 300px at exactly the moment the caller had the lists
+  // the way they wanted them. localStorage is per-origin and a srcdoc frame inherits the parent's, so it
+  // survives both. The clamp is the exported clampSideWidth, inlined below rather than copied.
+  const clampW=${clampSideWidth.toString()};
+  const side=document.getElementById('side'),grip=document.getElementById('grip');
+  const SIDE_DEFAULT=300,SIDE_KEY='dsFsmSideWidth';
+  const store=(w)=>{try{localStorage.setItem(SIDE_KEY,String(w));}catch{/* a blocked store is not a broken pane */}};
+  const setSide=(w)=>{const px=clampW(w,innerWidth);side.style.width=px+'px';return px;};
+  try{const w=parseFloat(localStorage.getItem(SIDE_KEY)||'');if(w>0)setSide(w);}catch{}
+  let sizing=false;
+  grip.addEventListener('pointerdown',e=>{sizing=true;grip.classList.add('on');document.body.classList.add('sizing');grip.setPointerCapture(e.pointerId);e.preventDefault();});
+  grip.addEventListener('pointermove',e=>{if(sizing)setSide(e.clientX-side.getBoundingClientRect().left);});
+  const endSize=()=>{if(!sizing)return;sizing=false;grip.classList.remove('on');document.body.classList.remove('sizing');store(parseInt(side.style.width,10));};
+  grip.addEventListener('pointerup',endSize);grip.addEventListener('pointercancel',endSize);
+  grip.addEventListener('dblclick',()=>store(setSide(SIDE_DEFAULT)));
   const svg=document.querySelector('svg'),st=document.getElementById('stage');let dragging=false,sx=0,sy=0,vb=svg.viewBox.baseVal;
   // Keep node icons/labels a constant SCREEN size as the viewBox zooms: the
   // viewBox scale factor is vb.width/2000, so counter-scale node geometry by it.

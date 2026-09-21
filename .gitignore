@@ -2,6 +2,9 @@ node_modules/
 dist/
 dist-test/
 .npm-cache/
+# Playwright's browser download: ~180 MB, needed only for a real-browser check of the POC UI, and never a
+# source artefact. See HANDOVER.md "The POC can be checked here".
+.pw-browsers/
 *.local
 # leftover diagnostic referencing the excluded dist-test build
 poc/diag.cjs

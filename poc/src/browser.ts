@@ -32,7 +32,7 @@ export interface BrowserHost {
    *  remember as unnamed. */
   registerFormation(name: string, dancers: Matchable[]): void;
   /** Open the CALL EDITOR on one call and one setup, switching the mode selector to it. */
-  openEditor(callId: string, setupIdx: number): void;
+  openEditor(callId: string, setupIdx: number, mirror: boolean): void;
 }
 
 /** How many "used by" entries the browse panel lists before summarising the rest. */
@@ -242,6 +242,7 @@ export class CallBrowser {
       origin,
       callId: this.callSelect.value,
       setupIdx: parseInt(this.tamSelect.value || '0', 10),
+      mirror: this.mirrorCheck.checked,
     };
     addUserFormation(formed);
     this.host.registerFormation(name, dancers);
@@ -347,7 +348,7 @@ export class CallBrowser {
         const f = list[Number(btn.dataset.edit)];
         if (!f) return;
         const t = this.formationTarget(f);
-        this.host.openEditor(t.callId, t.setupIdx);
+        this.host.openEditor(t.callId, t.setupIdx, t.mirror);
       });
     }
   }
@@ -359,10 +360,12 @@ export class CallBrowser {
    * dropdowns' labels and cannot be resolved back to a catalogue entry, so the call the caller is looking at now
    * is the only other thing the button could mean. Both buttons go through here so they cannot disagree.
    */
-  private formationTarget(f: UserFormation): { callId: string; setupIdx: number } {
+  private formationTarget(f: UserFormation): { callId: string; setupIdx: number; mirror: boolean } {
     return {
       callId: f.callId ?? this.callSelect.value,
       setupIdx: f.setupIdx ?? parseInt(this.tamSelect.value || '0', 10),
+      // Old formations have no flag: the Browse tab's own default is ON, so that is what they mean.
+      mirror: f.mirror ?? true,
     };
   }
 
@@ -380,7 +383,7 @@ export class CallBrowser {
    * this is not a second way to show a call, it is the way the panel already does it.
    */
   private loadFormationCall(f: UserFormation) {
-    const { callId, setupIdx } = this.formationTarget(f);
+    const { callId, setupIdx, mirror } = this.formationTarget(f);
     const entry = this.catalog.find((c) => c.id === callId);
     if (!entry) {
       this.legend.innerHTML = `<b>${esc(callId)}</b> is not in the loaded catalogue`;
@@ -395,6 +398,10 @@ export class CallBrowser {
     this.refreshSetups();
     const idx = String(setupIdx);
     if (Array.from(this.tamSelect.options).some((o) => o.value === idx)) this.tamSelect.value = idx;
+    // THE MIRROR BOX IS PART OF WHAT WAS BEING LOOKED AT, so `load` puts it back as well: it is what decides
+    // whether a half-set tam is built as four dancers or eight, and a formation stored with it OFF belongs to
+    // the FOUR-dancer reading of its call.
+    this.mirrorCheck.checked = mirror;
     this.renderUses();
     this.loadCurrent();
     this.legend.innerHTML =

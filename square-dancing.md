@@ -2768,3 +2768,27 @@ row means: the ids it was made from, or the current selection for formations sto
 Two of the probe's earlier checks had to be updated for that refactor - they were pinned to the inline expression
 rather than to the rule, which is the same "gate on the text instead of the behaviour" trap this repo keeps
 finding.
+
+THE EDIT BUTTON LOST THE HALF-SET READING. Reported: "When editing a 4 dancer user defined formation, the Call
+Editor doesnt open the correct call, it ends up being an 8 person equivalent" - pressing Edit on a user-defined
+formation row in the Browse tab.
+
+The Browse tab's `Full square (mirror)` box decides how many dancers a half-set <tam> has, and the editor had no
+such control: `loadInstance` hardcoded `loadCall(id, tam, true)`. So a formation stored with the box OFF - a
+FOUR-dancer shape - opened the EIGHT-dancer reading of its call, which is a different dance from the one the
+caller was looking at. Measured over ms/b1/a1: 1396 of 1879 tams are authored as four dancers and become eight
+under mirroring, so this is most of the corpus rather than a corner.
+
+Before changing anything the engine helpers the editor leans on were run against a four-dancer instance -
+instanceTable, endPoses, moveBeatRange, poseFor, analyzeFasr, deriveFormationMapping, callToXml, normalizeInstance
+twice, addMove, setDancerStart, setStartFormation, closureDiscrepancy - and all of them are generic over
+`call.dancers`, so the fix is to carry the state rather than to make the editor half-set aware.
+
+A formation records `mirror` now; `openEditor` and `openCall` carry it; `loadInstance` uses it. Picking a call from
+the editor's OWN lists still means the full square, which is what those lists have always meant. The `load` button
+restores the mirror box too, since it restores the same thing. And opening a half-set instance SAYS so, because
+four rows in a panel with no mirror control are otherwise unexplained.
+
+Six of the probe's earlier checks had to be loosened for the widened signatures - they were pinned to the exact
+parameter list rather than to the call, and two of them then matched the INTERFACE declaration instead of the
+method body when `indexOf` found it first. Same trap as before: a gate on the text rather than the behaviour.

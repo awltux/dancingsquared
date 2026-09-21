@@ -60,10 +60,10 @@ const browser = new CallBrowser(stage, player, {
   registerFormation: (name, dancers) => seqUi.registerFormation(name, dancers),
   // The browse list's Edit button. `editorUi` is declared BELOW this, which is fine for the same reason
   // `applyMode` is: this closure only runs on a click, long after both exist.
-  openEditor: (callId, setupIdx) => {
+  openEditor: (callId, setupIdx, mirror) => {
     modeSelect.value = 'editor';
     applyMode();
-    editorUi.openCall(callId, setupIdx);
+    editorUi.openCall(callId, setupIdx, mirror);
   },
 });
 // The editor drives the stage through the browse view: `preview` shows a bundle, and

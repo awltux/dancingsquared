@@ -1375,6 +1375,24 @@ this is not a second way to show a call — it is the way the panel already does
 **Both buttons resolve a row's target through one helper**, so `load` and `Edit` cannot disagree about which
 call a formation means: the ids it was made with, or the current selection for formations saved before those
 were recorded.
+**The Edit button carries the half-set reading, so a 4-dancer formation opens its 4-dancer call.** Reported as:
+*"When editing a 4 dancer user defined formation, the Call Editor doesnt open the correct call, it ends up being
+an 8 person equivalent"* — pressing Edit on a user-defined formation row in the Browse tab.
+
+**The Browse tab's `Full square (mirror)` box decides how many dancers a half-set `<tam>` has**, and the editor
+had no such control: `loadInstance` hardcoded `loadCall(id, tam, true)`. So a formation stored with the box
+**off** — a *four*-dancer shape — opened the *eight*-dancer reading of its call, which is a different dance from
+the one the caller was looking at. MEASURED over ms/b1/a1: **1396 of 1879** tams are authored as four dancers and
+become eight under mirroring, so this is most of the corpus, not a corner.
+
+A formation now records `mirror`, `openEditor` and `openCall` carry it, and `loadInstance` uses it instead of
+`true`. Picking a call from the editor's **own** lists still means the full square, which is what those lists have
+always meant — the field only carries a caller in from the Browse tab. The `load` button puts the mirror box back
+too, since it restores the same thing.
+
+**And opening a half-set instance says so**, because the editor has no mirror control of its own and four rows are
+otherwise unexplained: *"opened Circle Left — 4 dancers, the half-set reading (the Browse tab's mirror box was
+off)"*.
 ## Notes / current limitations
 
 - **Install caveat:** in this sandbox `npm install` used `--ignore-scripts`

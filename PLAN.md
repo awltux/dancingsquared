@@ -2063,6 +2063,75 @@ with the new fields silently absent — the same rule as before, and the reason 
 in the same change. The counts 65 / 2260 are UNCHANGED by it: the reading and the classification are facts
 about the edges, not new edges. Build time 17 s → 21 s.
 
+**STAGE 3 — RECONNAISSANCE FIRST, and two things came back that change what the stage is.**
+Stage 3 is "modules as FSM edges where start and end are both cells — the absorption mechanism that keeps a
+transient from ever becoming a node". Three measurements, before any code.
+
+**(1) THE MECHANISM ALREADY EXISTS, and Stage 2 is what switched it on.** `LegalityChecker.legalWithResults`
+already enumerates `library.moduleNames()` alongside the catalogue (`legality.ts`, second loop), so
+`buildFsmTable` records a module as an edge and classifies its end like any call's. MEASURED: registering
+one two-call module (`Swing Thru` then `Boys Run`) takes the ms table from 2260 to 2278 edges — **18 edges
+named after the module, and the state count unchanged at 65.** So the "keeps a transient from ever becoming
+a node" property is not something to build; it is already true BY CONSTRUCTION, because a module edge's end
+is resolved by the same rule as a call's and can only target an existing state or be recorded as a
+transient. And **most of those 18 edges land on `@embed#44`/`@embed#45`** — Stage 2's geometry fallback is
+what gives them targets at all, so module edges were previously recorded as targetless and are now real
+graph edges. Stage 2 was a prerequisite in a way its own plan did not say.
+
+**(2) THE SHIPPED CEDER CORPUS IS NOT THE MODULE SOURCE (measured).** The app registers 294 of them
+(126 `Static Square`, 97 `Zero Line`, 71 `Zero Box`). Applied the way the app applies them, each from ITS
+OWN declared start board:
+
+```
+294 modules, all 294 have a start board the engine can stand up
+ 89 replay all the way from that board          (30.3%)
+ 66 of those end on an FSM state
+ 43 distinct state->state pairs, from the 42 named states
+  0 end at Static Square
+```
+
+and asked the other way — do their paths cover the boards the graph cannot name? Over the 42 named states
+and all 294 modules: 163 legal (state, module) applications, 120 landing on a state; against the 469
+targetless call edges from those same states their paths cover **41 (8.7%)** and leave 428 outside every
+module. **The corpus is CHOREOGRAPHY (ceder get-out sequences), not an encoding of calls** — which is what
+the stage needs — and 70% of it does not replay on this catalogue at all. Adding all of it gains 43 edges
+and closes under a tenth of the gap.
+
+**(3) THE ARRANGEMENT BLOCKER, and it is structural rather than a data problem.** A module's start is a
+formation AND AN ARRANGEMENT — `Zero Box` is All8's `[B1c]`, the same GEOMETRY as an `Eight Chain Thru`
+with different couples — while the FSM's nodes are keyed by geometry alone, because `addState` dedupes with
+`matchFormations(dancers, existing, 1.0)` and a match is identity-blind. MEASURED: the `B1c` board
+`boardForFasrCode` builds and the `Eight Chain Thru` node's own board are **the same geometry at error
+0.0000**, so the FSM cannot tell them apart and an arrangement-keyed module cannot be attached to a
+geometry-keyed node faithfully. This is the SAME split Stage 0 measured from the other side (23 of the 129
+named geometries carry more than one gender pattern, max 4), and it is now the concrete architectural
+blocker rather than a footnote: **the cell vocabulary has the arrangement; the node set does not.**
+
+**WHAT THE ABSORPTION HAS TO BE, and how deep.** Since the corpus cannot supply it, it has to be DERIVED
+from the calls — `S --C--> X --D--> T`, `X` a board nothing names and `T` a state, the pair recorded as ONE
+edge so `X` never becomes a node. That is the user's own framing ("if all calls are encoded as modules")
+applied to the catalogue instead of to a separate corpus. MEASURED over the 315 distinct transient
+geometries the ms FSM's targetless edges reach (469 edges, deduped by geometry):
+
+```
+with at least one legal call             228   (87 have NONE - genuinely dead positions)
+closed by ONE MORE CALL (X --D--> state) 185   (58.7%)
+still open after one more call           130
+the calls that close the most: Face In 76, U-Turn Back 21, Boys Run 17, Box the Gnat 8
+```
+
+So **a composition depth of two closes 58.7% of the transients**, and the closers are the same
+pivot/fold class `cell-census` already identified as the novel-geometry minters. The remaining 130 are
+where a depth-3 search or a genuine vocabulary gap would live.
+
+**SO STAGE 3'S REMAINING WORK IS NOT "ADD MODULE EDGES".** It is: (a) a module source that encodes CALLS
+rather than choreography; (b) the ARRANGEMENT dimension on the node set, which is the real architectural
+piece and is what (a) needs to attach faithfully; (c) the "call wins" registration rule when a module and
+a call reach the same state; and (d) the demonstration that the node count stays flat under (a) — which
+this reconnaissance has already shown holds by construction. Recorded here so none of the three is
+re-litigated, and none of them is a reason to abandon the stage: they are reasons not to build it on the
+shipped corpus or on geometry-keyed nodes.
+
 ### Phase H — the solver side (the Phase 3 leftover)
 
 **Owner:** the search's remaining C term. `library.allVariantSetups()` is still the flat list that

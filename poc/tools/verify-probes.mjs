@@ -18,15 +18,40 @@
 // Output is held back and shown only for a probe that fails, so a green run is one line per probe.
 //
 // Run: node poc/tools/verify-probes.mjs   (from anywhere; a probe that needs the engine wants it built first)
+//      node poc/tools/verify-probes.mjs --all   (includes the SLOW tier below)
+//
+// TWO TIERS, the same shape `engine/test/verify-suite.mjs` uses and for the same reason: one probe costs more
+// than the other twenty-six together, and a suite nobody can afford to run is a suite nobody runs - which is
+// the staleness this file was written to fix. MEASURED before the split: 27 probes, 582 s, of which
+// `call-formations-probe.mjs` is 461 s. So `verify` runs the twenty-six (~121 s) and the banner says what is
+// being skipped rather than leaving the reader to diff the lists.
+//
+// WHY THAT PROBE IS SLOW, recorded here because it is the thing to fix if the split ever chafes:
+// `walkCall` compares every sampled board against ALL 134 catalogue formations by their 28 pairwise
+// distances, so one sample costs ~3750 comparisons - and it is called for every call in the corpus at a
+// 0.5-beat step, then again at 0.0625 beats for the held population and a 40-file control. Nothing about it
+// is wrong; it is a naive nearest-neighbour scan over a large sample.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+/** The probes too expensive for the default tier, each with the reason the banner prints. */
+const SLOW = {
+  'call-formations-probe.mjs': 'scans every call at 0.5 beats and again at 0.0625, against all 134 formations per sample',
+};
+
+const ALL = process.argv.includes('--all');
 const DIR = path.dirname(fileURLToPath(import.meta.url));
-const files = fs.readdirSync(DIR).filter((f) => f.endsWith('-probe.mjs')).sort();
-if (files.length === 0) {
+const all = fs.readdirSync(DIR).filter((f) => f.endsWith('-probe.mjs')).sort();
+const files = ALL ? all : all.filter((f) => !(f in SLOW));
+if (all.length === 0) {
   console.log('no probes found in ' + DIR);
   process.exit(1);
+}
+if (!ALL && files.length < all.length) {
+  console.log(`verify-probes: FAST tier - ${files.length} of ${all.length} probes. Run with --all before a release;`);
+  console.log('  the ones below are NOT checked by this run (each is a probe that still has to pass when asked):');
+  for (const f of all) if (f in SLOW) console.log(`    ${f.padEnd(32)} ${SLOW[f]}`);
 }
 
 /** Thrown in place of an exit, so the run can continue to the next probe. */
@@ -73,6 +98,12 @@ for (const r of bad) {
 }
 const onOutput = results.filter((r) => r.judgedOnOutput).map((r) => r.file);
 console.log(`\n${results.length} probe(s), ${bad.length} failed`);
+if (!ALL) {
+  // THE HEADLINE SAYS WHAT WAS SKIPPED, not just how many passed: a green "26 of 26" that silently omits the
+  // most expensive probe is the same class of silence as a generated asset with no gate.
+  const skipped = all.filter((f) => f in SLOW);
+  if (skipped.length) console.log(`SKIPPED (slow tier - run with --all to include): ${skipped.join(', ')}`);
+}
 if (onOutput.length) {
   console.log(`${onOutput.length} of them never call process.exit, so they were judged on their own FAIL lines: ${onOutput.join(', ')}`);
 }

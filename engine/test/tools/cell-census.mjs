@@ -32,7 +32,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, buildCellLattice, geometryKey, CELL_ROUND } from '../../dist/index.js';
+import { Sequencer, setParser, buildCellLattice, geometryKey, CELL_ROUND, boardForFasrCode, matchFormations } from '../../dist/index.js';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -200,13 +200,89 @@ console.log('\n== 4. which calls mint the novel geometries ==');
 // ---------------------------------------------------------------- 5. the pinned numbers
 //
 // PINNED EXACTLY, and re-pinned DELIBERATELY with a reason rather than absorbed. A movement in either
+// ---------------------------------------------------------------- 5. would ARRANGEMENT-keyed nodes help?
+//
+// REFUTED, AND THE NUMBERS ARE HERE SO IT IS NOT RE-PROPOSED. Stage 3's architectural piece was going to be
+// re-keying the FSM's nodes from GEOMETRY to CELL (geometry x gender pattern), on the reasoning that a ceder
+// module's start is a formation AND AN ARRANGEMENT - `Zero Box` being All8's `[B1c]` - so a geometry-keyed node
+// cannot represent where the module begins. The motivating pair says otherwise.
+//
+// WHAT SEPARATES `[B1c]` FROM THE `Eight Chain Thru` NODE IS IDENTITY, NOT ARRANGEMENT. The two boards are the
+// same geometry, at error 0.0000, AND carry the same gender pattern; their CELL KEYS differ only in `sequence`
+// and `relationship`, both of which are unreadable on the FSM's state boards because those boards carry no home
+// identity at all (every couple is UNKNOWN_COUPLE). So re-keying the states as they stand would mint nodes
+// distinguished only by "identity unknown" versus "identity known" - noise, not structure - and would not let a
+// single arrangement-specific module attach.
+//
+// AND IT WOULD COST: the scoped vocabulary declares 70 geometries and 105 cells, so nodes multiply 1.50x, and a
+// sixth of the edges that HAVE a target land on a gender pattern no declared shape realises - those become
+// transients under a cell key. The blocker is CANONICAL IDENTITY on the state boards, which is a different and
+// harder piece: a geometry admits four relabellings and only six All8 letter families have an authority-picked
+// canonical board (`CANONICAL_INDEX`, measured against 26 published diagrams), while `relationship` needs an
+// agreed reference pair that Callerlab records for `[L] [B] [F] [W]` only. That is the same limit this census
+// already reports - 22 of 396 cells are fully readable.
+console.log('\n== 5. would ARRANGEMENT-keyed nodes help? (REFUTED - see the comment) ==');
+{
+  // THE SCOPED LATTICE, not the declared one: the question is what re-keying the STATE SET would cost, and
+  // the state set is the scoped vocabulary (section 1 builds both). Using `lattice` here would answer a
+  // question about the corpus instead - 155 geometries -> 194 cells - which is not the change on the table.
+  const LETTER_TEMPLATE = { B: 'Eight Chain Thru', L: 'Normal Lines', W: 'Ocean Waves', P: 'Double Pass Thru', F: 'Two-Faced Lines', 'L.F': 'Two-Faced Lines LH', S: 'Static Square' };
+  const fasr = boardForFasrCode('B1c', (l) => (LETTER_TEMPLATE[l] ? seq.boardForFormation(LETTER_TEMPLATE[l]) : null)).board;
+  const node = seq.boardForFormation('Eight Chain Thru');
+  const cf = scoped.cellOf(fasr);
+  const cn = scoped.cellOf(node);
+  const m = matchFormations(fasr.dancers, node.dancers, 1.0);
+  console.log(`  [B1c] vs the Eight Chain Thru node: same geometry ${cf.geometryId === cn.geometryId}, ` +
+    `same pattern ${cf.pattern === cn.pattern}, geometry error ${m ? m.error.toFixed(4) : 'NULL'}`);
+  console.log(`    [B1c] cell key ${cf.key}`);
+  console.log(`    node  cell key ${cn.key}`);
+  console.log(`    couples: [B1c] ${fasr.dancers.map((d) => d.couple ?? 0).join(',')} vs node ${node.dancers.map((d) => d.couple ?? 0).join(',')}`);
+  check(cf.geometryId === cn.geometryId && cf.pattern === cn.pattern,
+    'the motivating pair shares BOTH its geometry and its gender pattern - ARRANGEMENT does not separate them');
+  check(cn.sequence === null && cf.sequence !== null,
+    'the FSM state reads no sequence (no home identity: couples all 0) while the corpus board reads one - so the keys differ in IDENTITY, not arrangement');
+  check(cf.key !== cn.key && cf.arrangement === cn.arrangement,
+    'their cell keys differ in sequence/relationship ONLY, which is exactly what IDENTITY would make readable');
+
+  const patternsPer = scoped.geometries.map((g) => g.patterns.length);
+  const cells = patternsPer.reduce((a, b) => a + b, 0);
+  const dist = patternsPer.reduce((mm, n) => mm.set(n, (mm.get(n) ?? 0) + 1), new Map());
+  console.log(`  re-keying would take ${scoped.geometries.length} geometries to ${cells} cells (${(cells / scoped.geometries.length).toFixed(2)}x): ` +
+    `${[...dist].sort((a, b) => a[0] - b[0]).map(([n, geos]) => `${n} pattern(s): ${geos}`).join(', ')}`);
+  // AND THE PRICE. Every targeted edge whose END pattern no declared shape realises becomes a transient under a
+  // cell key, so this is the count of edges the change would COST rather than gain.
+  let targeted = 0, declaredPattern = 0, newPattern = 0;
+  for (const state of namedStates) {
+    const board = seq.boardForFormation(state);
+    if (!board) continue;
+    const legal = new Set(seq.legalCalls(board));
+    for (const e of asset.table.edges?.[state] ?? []) {
+      if (e.endFormation === null) continue;
+      targeted++;
+      const res = legal.has(e.call) ? seq.applyToBoard(board, { call: e.call }) : seq.applyToBoard(board, e.call);
+      if (!res.legal) continue;
+      const cell = scoped.cellOf(res.board);
+      if (cell.geometryId === null) continue;
+      if (cell.arrangement !== null) declaredPattern++; else newPattern++;
+    }
+  }
+  console.log(`  and it would cost: of ${targeted} edges with a target, ${declaredPattern} end on a declared pattern and ` +
+    `${newPattern} (${((newPattern / targeted) * 100).toFixed(1)}%) on one no declared shape realises, so those become transients`);
+  check(scoped.geometries.length === 70 && cells === 105,
+    `the sizes are pinned (${scoped.geometries.length} geometries -> ${cells} cells, the SCOPED vocabulary)`);
+  check(newPattern === 219 && declaredPattern === 548,
+    `and so is the price (${declaredPattern} kept, ${newPattern} lost of ${targeted} targeted edges)`);
+}
+
+// ---------------------------------------------------------------- 6. the pinned numbers
+//
 // direction is a fact about the vocabulary and has to be decided, not noticed: if the LATTICE moves, a
 // state appeared or vanished; if the OFF-LATTICE count moves, a call started or stopped minting a
 // geometry nothing declares.
 //
 // The 155/155 agreement is the load-bearing one - it says the lattice IS the engine's state set made
 // explicit, which is what makes "a state exists because it is declared" true rather than aspirational.
-console.log('\n== 5. the pinned numbers (re-pin with the reason) ==');
+console.log('\n== 6. the pinned numbers (re-pin with the reason) ==');
 {
   // RE-PINNED FOR STAGE 0b, and every movement is the level scope rather than a change in behaviour.
   // The sweep starts from the FSM's named states, and there are now 42 of them, not 133: the named

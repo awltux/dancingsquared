@@ -434,6 +434,7 @@ Each of these was tried, measured, and reverted. The measurement is what settles
 | narrow `partition`'s couple coherence to couples actually standing as couples | `figm131`'s `Eight Chain Thru` (after `Wheel and Deal`) is refused by the Sweep because its stored pairs are FACING PAIRS — 2 apart, opposite headings — so requiring them to stay in one subset forbids EVERY tiling, even though the board divides cleanly into facing-couple boxes. Restricting the constraint to pairs that are together AND co-oriented (measured: gap ≤ 3.0 and headings within 0.2 rad) is principled and does let it tile — Sweep refusals **6 → 5** — and it measures **107 → 107 figures and 122 → 122 get-out lines**, with one figure moving from the Sweep bucket into `no setup`. Reverted: no gain, and `partition` is the tiling used by `parallelApply` for EVERY call, so a relaxation there needs a payoff to justify its blast radius. It is also a variant of the relaxation already refuted above, whose recorded reason is that the coherence rule "is what makes the decomposition well posed" |
 | **raise the MATCHING TOLERANCE to clear the `no setup` bucket** | the bucket looked like a threshold artefact because its stops' best setup error is **1.57** against `DEFAULT_MATCH_MAX = 1.5`, and the binding gate is `matchEqualLength`'s distance-signature reject at `sigTol = maxError / 12` (0.125 at the apply tolerance). Swept `setMatchMargin` over **0, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 4.5**: **110 figures at every margin up to 1.0** (tolerance 2.5, well past 1.57) — the error budget is not what refuses these boards — and at margin 2.0 the count goes **DOWN to 101**, gaining 5 and losing 14. Loosening is actively harmful; the bucket is a genuine body/shape gap |
 | **match up to uniform SCALE as well as translation/rotation/reflection** | measured: only **24 of the 43** `no setup` stops prefer a non-unit scale at all, and most of those keep a residual of 1.1–11.7 even at their best scale (`Slide Thru` on a `Tidal Wave` 3.17 at 0.34, `Trade By` on `Lines Facing Out` 11.71 at 0.75, `Sides Face, Grand Square` 11.14 at 1.0), so a scale-invariant matcher would not have unlocked them. The real shape of the bucket is the ROLE READING above and the four exact-match witnesses, not spacing |
+| **re-key the FSM's nodes from GEOMETRY to CELL (geometry × gender pattern)** — Stage 3's architectural piece, on the reasoning that a ceder module's start is a formation *and an arrangement* (`Zero Box` = `[B1c]`) so a geometry-keyed node cannot say where the module begins | **the motivating pair shares BOTH its geometry AND its gender pattern**: the `[B1c]` board `boardForFasrCode` builds and the `Eight Chain Thru` state's own board match at **error 0.0000** with pattern `BgBgBgBg` on both, and their CELL KEYS differ only in `sequence`/`relationship` (`26\|BgBgBgBg\|1\|c` vs `26\|BgBgBgBg\|?\|?`) — both unreadable because **the FSM's state boards carry no home identity at all** (couples `3,4,2,1,3,2,4,1` against `0,0,0,0,0,0,0,0`). So re-keying the states as they stand would mint nodes distinguished only by "identity unknown" vs "identity known" — noise, not structure — and would not let one arrangement-specific module attach. **The blocker is CANONICAL IDENTITY, not arrangement**, and identity is harder: a geometry admits four relabellings, only the six All8 letter families have an authority-picked canonical board, and `relationship` needs a reference pair Callerlab records for `[L] [B] [F] [W]` only — the same limit that leaves **22 of 396 cells fully readable**. And it would COST: the scoped vocabulary goes **70 geometries → 105 cells (1.50×)** while of the **1340** edges with a target only **548** end on a declared pattern — **219 (16.3%)** end on one nothing declares and become transients. Pinned in `cell-census.mjs` section 5 |
 | **`Star Thru` with a WEAKER board check (gender counts only)** | the first version of the role reading required only that the board's gender MULTISET match the setup's, which accepts a square of four same-gender couples (4 boys / 4 girls either way). Caught by the gate added with the change, not by the census: the reading now requires the board to preserve the authored gender multisets of the setup's own interacting PAIRS, and the same-gender square is refused again. **A gate written with a change is what found this, which is the reason the rule is "gate it in the same commit"** |
 | **loosen the Fold adjustment's tolerance to catch CALLERLAB's own flagship example** | CALLERLAB's illustration of the convention is "Girls Fold, Double Pass Thru", and `figm30` IS that example — its `Double Pass Thru` setup is **17.88** away, so the SEARCH tolerance (6.0) refuses the very case the rule was written for. Raising the adjustment to **24.0** measured **114 → 114 figures** (no gain at all) while `facing-audit.mjs`'s refusal list went **38 → 39**, moving `figm142` back into it. The reason is that a looser tolerance changes WHICH VARIANT wins (least error for the whole-board reading, first that tiles for the parallel one), so its effect is not monotonic, and the variant it picks at 24.0 is refused by the collision guard where the one picked at 6.0 is accepted. Reverted |
 | **a per-dancer DISPLACEMENT bound on the Fold adjustment** | considered as the alternative to the collision guard and rejected as an arbitrary threshold, on measurement: the case known to be WRONG (`figm83`, which left two dancers on one spot) moves dancers **2.00**, the case known to be right (`figm142`) **0.50**, and `figm71`/`figm136` sit at **2.00 / 2.06** — two cases a hair apart on opposite sides of any such number. Note also that the repeated binding constraint here is the same one round 15 found: `matchEqualLength`'s distance-signature reject at `sigTol = maxError / 12`, which is why the three post-Fold boards that failed at 6.0 are a SIGNATURE question, not a Fold question |
@@ -2125,12 +2126,41 @@ pivot/fold class `cell-census` already identified as the novel-geometry minters.
 where a depth-3 search or a genuine vocabulary gap would live.
 
 **SO STAGE 3'S REMAINING WORK IS NOT "ADD MODULE EDGES".** It is: (a) a module source that encodes CALLS
-rather than choreography; (b) the ARRANGEMENT dimension on the node set, which is the real architectural
-piece and is what (a) needs to attach faithfully; (c) the "call wins" registration rule when a module and
-a call reach the same state; and (d) the demonstration that the node count stays flat under (a) — which
-this reconnaissance has already shown holds by construction. Recorded here so none of the three is
-re-litigated, and none of them is a reason to abandon the stage: they are reasons not to build it on the
-shipped corpus or on geometry-keyed nodes.
+rather than choreography; (b) ~~the ARRANGEMENT dimension on the node set~~ — **REFUTED, see below**;
+(c) the "call wins" registration rule when a module and a call reach the same state; and (d) the
+demonstration that the node count stays flat under (a) — which this reconnaissance has already shown holds by
+construction.
+
+**THE ARRANGEMENT DIMENSION WAS THE NEXT STEP AND IT IS REFUTED (measured).** The plan was to re-key the FSM's
+nodes from GEOMETRY to CELL (geometry × gender pattern), because a ceder module's start is a formation **and an
+arrangement** (`Zero Box` is All8's `[B1c]`) and a geometry-keyed node cannot represent where the module begins.
+The motivating pair says otherwise, and `cell-census` section 5 now pins all of it:
+
+```
+[B1c] vs the Eight Chain Thru node: same geometry true, same pattern true, geometry error 0.0000
+  [B1c] cell key   26|BgBgBgBg|1|c
+  node  cell key   26|BgBgBgBg|?|?
+  couples: [B1c] 3,4,2,1,3,2,4,1  vs  node 0,0,0,0,0,0,0,0
+```
+
+**THE TWO BOARDS SHARE THEIR GEOMETRY *AND* THEIR GENDER PATTERN.** The only difference is the couple
+numbering: All8's board carries one, and the FSM's state board carries **none** — `boardFromMatchables` stamps
+home identity only when the geometry is home-like, which at ms is exactly one state in 65. So the keys differ in
+`sequence` and `relationship`, both of which are unreadable *because* identity is missing. Re-keying the states
+as they stand would mint nodes distinguished only by "identity unknown" versus "identity known" — noise, not
+structure — and would not let a single arrangement-specific module attach. **The blocker is CANONICAL IDENTITY
+on the state boards, which is a different and harder piece:** a geometry admits four relabellings and only six
+All8 letter families have an authority-picked canonical board (`CANONICAL_INDEX`, measured against the 26
+published diagrams), while `relationship` needs an agreed reference pair that Callerlab records for
+`[L] [B] [F] [W]` only. That is the same limit this census already reports — **22 of 396 cells are fully
+readable** — so the arrangement dimension cannot be the thing that lets modules attach, and building it would
+have been work in the wrong direction.
+
+**AND IT WOULD HAVE COST.** Even taken on its own terms, cell-keying is not free: the scoped vocabulary declares
+**70 geometries and 105 cells (1.50×)**, and of the **1340** edges that HAVE a target only **548** end on a
+gender pattern some declared shape realises — **219 (16.3%)** end on one nothing declares, and under a cell key
+those become transients. So the change buys a node count 1.5× larger and loses a sixth of its edges, to
+distinguish boards that are not distinguishable by arrangement in the first place.
 
 **THE FSM VIEW WAS CHECKED IN A REAL BROWSER FOR THE FIRST TIME, AND IT HAD TWO DEFECTS.** Both are
 consequences of Stage 2's edge changes and **neither was visible to any existing check** — `fsm-open-probe.mjs`

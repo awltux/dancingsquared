@@ -212,6 +212,89 @@ console.log('\n== 4c. the edges that leave the vocabulary ==');
   check(drawn > 0 && drawn <= totalEdges - leaves.length + 1,
     `the graph still draws only the ${totalEdges - leaves.length} edges that have a target (${drawn} distinct node pairs)`);
 }
+
+// ============================================================ 4d. the graph is inside its own frame
+//
+// FOUND IN A REAL BROWSER, GATED HERE. The force layout's fit used `S = 1800 / (maxX - minX)` on BOTH
+// axes, which fits only while the layout is wider than it is tall - and a force layout's aspect follows
+// the EDGE COUNT, which Stage 2 tripled. MEASURED: the asset before Stage 2 drew 164 node pairs with a
+// Y extent of 100..1814 (fits), the one after drew 516 with 100..2650 - 650 units OUTSIDE the
+// `viewBox="0 0 2000 2000"`. The SVG CLIPS what falls outside, so a quarter of the graph was silently not
+// drawn and the stage looked empty. Nothing in the emitted HTML is invalid - the positions are simply
+// outside the frame - which is why every string-level check here passed and only a browser could see it.
+//
+// The invariant is checkable from the document, so the gate does not need that browser.
+console.log('\n== 4d. every node is inside the 2000x2000 viewBox, and the drawing uses the frame ==');
+{
+  const box = html.match(/<svg viewBox="([^"]+)"/);
+  const vb = box ? box[1].trim().split(/\s+/).map(Number) : [NaN, NaN, NaN, NaN];
+  const pts = [...html.matchAll(/<g class="node"[^>]*transform="translate\(([-\d.]+),([-\d.]+)\)"/g)]
+    .map((m) => ({ x: +m[1], y: +m[2] }));
+  const xs = pts.map((p) => p.x); const ys = pts.map((p) => p.y);
+  const spanX = Math.max(...xs) - Math.min(...xs);
+  const spanY = Math.max(...ys) - Math.min(...ys);
+  console.log(`    viewBox ${vb.join(' ')}; ${pts.length} nodes at x ${Math.min(...xs).toFixed(0)}..${Math.max(...xs).toFixed(0)} ` +
+    `y ${Math.min(...ys).toFixed(0)}..${Math.max(...ys).toFixed(0)}`);
+  check(vb[2] === 2000 && vb[3] === 2000, `the viewBox is the 2000x2000 the fit targets (got ${vb[2]}x${vb[3]})`);
+  // Edge endpoints come from the same coordinate table, so checking the NODES checks the edges.
+  const out = pts.filter((p) => p.x < 0 || p.y < 0 || p.x > vb[2] || p.y > vb[3]);
+  check(out.length === 0,
+    out.length === 0
+      ? `all ${pts.length} nodes are inside the frame - the graph is not clipped`
+      : `${out.length} node(s) fall outside the viewBox, e.g. (${out[0].x.toFixed(0)}, ${out[0].y.toFixed(0)}) - the SVG silently clips them`);
+  // AND IT USES THE FRAME. A fit that clamps everything into a corner passes the check above and is still
+  // unreadable, so the drawing must span a real fraction of the box on its LONGER axis.
+  console.log(`    the drawing spans ${spanX.toFixed(0)} x ${spanY.toFixed(0)} of 2000 ` +
+    `(${((Math.max(spanX, spanY) / 2000) * 100).toFixed(0)}% of the frame on its longer axis)`);
+  check(Math.max(spanX, spanY) > 1500,
+    `the drawing uses the frame (${Math.max(spanX, spanY).toFixed(0)} of the 1800 usable units on its longer axis)`);
+}
+
+// ============================================================ 4e. the graph settles before it is read
+//
+// FOUND BY DRAGGING A NODE, and it is two layouts disagreeing. This document contains BOTH
+//
+//   a PRERENDER  400 FR iterations baked into each node's transform. It has NO centripetal term, so one node
+//                ejects to a large radius and the bbox fit - which normalises by those extremes - shrinks
+//                everything else. MEASURED on the ms asset: median nearest-neighbour 3.6 units against a
+//                13-20 unit node radius, 64 of 65 nodes overlapping, and the middle 90% of the mass in 7%
+//                of the frame. That is the blob a reader saw.
+//   a SIMULATION  the same repulsion and edge attraction PLUS a pull toward (1000,1000), so it spreads.
+//
+// and the simulation only started from a node's pointerdown - so the blob was what the reader saw UNTIL they
+// happened to touch a node. The fix auto-selects home and starts the simulation on load: MEASURED, median
+// nearest-neighbour 3.6 -> 57.3, overlapping 64 -> 5, middle-90% span 7% -> 62% of the frame.
+//
+// TWO CHECKS, and the second is the one that matters, because the FIRST attempt at the fix looked correct and
+// did nothing: it called `idx.get(HOME)`, which are the RENDERER's variables and do not exist in the emitted
+// page, so the page threw a silent ReferenceError, kept working, and stayed a blob. Nothing in this file -
+// which checks the emitted TEXT - could see that. What catches it is that the emitted document must not
+// reference the renderer's own scope at all.
+console.log('\n== 4e. the layout settles on load, and the document does not reach into the renderer ==');
+{
+  check(/data-status="home"/.test(html), 'the document marks the home node, which is what the auto-start selects');
+  check(/querySelector\('\.node\[data-status="home"\]'\)/.test(html),
+    'and the auto-start finds home IN THE DOCUMENT\'S OWN TERMS rather than through a renderer variable');
+  // THE SCOPE LEAK. `idx` and `HOME` are locals of `renderFsmHtml`; a reference to either inside the emitted
+  // script is a ReferenceError at runtime and invisible to every check that only looks for what the fix was
+  // supposed to ADD.
+  //
+  // A BLUNT "no idx/HOME anywhere" ASSERTION WAS TRIED FIRST AND IS WRONG, which is worth recording so it is
+  // not re-proposed: the document legitimately declares its own `jumpSpan=(text,idx)` parameter, and "HOME"
+  // appears in three prose comments ("A ROUTE HOME", "LEADS HOME", "AUTO-SELECT HOME..."). It failed on both.
+  // The precise signature of the bug is the renderer's index MAP being used from inside the page, so that is
+  // what is asserted - and the auto-start's own shape is constrained below.
+  check(!/idx\.get\(/.test(html),
+    'the emitted page never calls idx.get(...) - the renderer\'s index map is not reachable from the document');
+  check(!/\bkeys\s*\(\s*\)\s*\)\s*\.get\(/.test(html) && !/states\[/.test(html),
+    'and it never indexes the renderer\'s state array either (the page has its own node list)');
+  // And the auto-start must actually kick the SIMULATION, not merely select: `select` only paints and fills
+  // the sidebar, so a fix that stopped there would look right in this text and still show a blob.
+  const auto = /const homeEl = document\.querySelector[\s\S]{0,600}?requestAnimationFrame\(step\)/.test(html);
+  check(auto, 'the auto-start runs the simulation rather than only selecting the node (select alone does not reflow)');
+  check(/const homeEl = document\.querySelector[\s\S]{0,400}?select\(home\)/.test(html),
+    'and it SELECTS home, so the sidebar opens on the squared set instead of "Click a node to see its calls."');
+}
 check(badJump === 0, 'every row also names the OTHER end as a state index, and that index is the node the row displays - so clicking a name selects the board it says');
 check(/const LEVEL="ms";/.test(html), 'the document is told which level it is, so a click cannot be attributed to another authoring');
 check(/parent\.postMessage/.test(html), 'and the bridge is in the emitted document rather than only in the renderer\'s source');

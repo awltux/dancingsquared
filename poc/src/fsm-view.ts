@@ -147,8 +147,29 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   for (let it = 0; it < 400; it++) fr(300 * (1 - it / 400) + 1);
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const p of pos) { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); }
-  const S = 1800 / Math.max(1e-6, maxX - minX);
-  for (const p of pos) { p.x = 100 + (p.x - minX) * S; p.y = 100 + (p.y - minY) * S; }
+  // THE FIT USES THE LARGER EXTENT, and that is a defect fixed rather than a preference.
+  //
+  // It used to be `S = 1800 / (maxX - minX)` applied to BOTH axes, which fits only while the layout is
+  // wider than it is tall. A force layout's aspect is not a property anyone controls: it follows the EDGE
+  // COUNT, and MEASURED, adding edges turned the layout tall -
+  //
+  //     asset before Stage 2:  164 node pairs drawn,  x 100..1900  y 100..1814   (fits)
+  //     asset after  Stage 2:  516 node pairs drawn,  x 100..1900  y 100..2650   650 OUTSIDE the box
+  //
+  // - and the SVG's `viewBox="0 0 2000 2000"` CLIPS what falls outside, so a quarter of the graph was
+  // silently not drawn. Nothing in the harness could see it: the emitted positions are perfectly valid,
+  // they are just outside the frame, and only a real browser showed the empty stage. Stage 2 did not cause
+  // the bug, it EXERCISED it - which is the only reason it was found.
+  //
+  // The side that is not the larger extent is CENTRED rather than pinned at 100, so a wide-but-short
+  // layout is not shoved into a corner with three quarters of the frame empty.
+  const w = Math.max(1e-6, maxX - minX);
+  const h = Math.max(1e-6, maxY - minY);
+  const S = 1800 / Math.max(w, h);
+  for (const p of pos) {
+    p.x = 100 + (p.x - minX) * S + (1800 - w * S) / 2;
+    p.y = 100 + (p.y - minY) * S + (1800 - h * S) / 2;
+  }
 
   const FILL: Record<string, string> = { home: '#0a7d33', ok: '#3a9a5f', nohome: '#e8950c', dead: '#d63a3a' };
   const nodeSvg = states.map((s, i) => {
@@ -326,6 +347,45 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
     // a gesture that did not move was a click, and toggles as before.
     window.addEventListener('pointerup',()=>{if(pinned>=0){if(moved)selectOnly(pinned);else select(pinned);}pinned=-1;});
     apply();
+    // ---- AUTO-SELECT HOME AND SETTLE THE GRAPH BEFORE THE READER SEES IT ----
+    //
+    // WHY THIS IS NEEDED, and it is a real defect rather than a flourish. There are TWO layouts in this
+    // document and they do not agree:
+    //
+    //   the PRERENDER  400 Fruchterman-Reingold iterations, baked into each node's transform attribute. It
+    //                  has no centripetal term, so ONE node ejects to a large radius and the bounding-box fit
+    //                  (which normalises by those extremes) then SHRINKS everything else: MEASURED on the
+    //                  ms asset, the middle 90% of the mass lands in 130 of the 1800 usable units while an
+    //                  outlier sits at radius 2110. That is the blob.
+    //   the SIMULATION below  the same repulsion and edge attraction PLUS a pull toward (1000,1000), which
+    //                  bounds the layout and stops the ejection - so it spreads.
+    //
+    // The simulation only ever started from a node's pointerdown, so the blob was what a reader saw until
+    // they happened to drag or click a node - and then it reflowed, which reads as the view being broken
+    // until touched. Auto-starting it settles the layout on the FIRST paint instead, and selecting HOME
+    // does two things at once: it is the node a reader wants first, and its call list is what the sidebar
+    // should show on open rather than "Click a node to see its calls."
+    //
+    // The two-layout duplication is left as it is deliberately: merging them means deciding which force
+    // parameters are correct, and this change is about WHICH OF THE TWO THE READER SEES FIRST. Recorded in
+    // PLAN.md. (No backticks in here: this whole function is one template literal.)
+    {
+      // FOUND IN THE DOCUMENT'S OWN TERMS, because this code runs IN THE EMITTED PAGE, not in this function:
+      // the renderer's own index map and HOME constant do not exist here. The first attempt used them and
+      // threw a silent ReferenceError - the page kept working, the layout stayed a blob, and nothing said so.
+      // The data-status="home" marker is the document's own label for the squared set, and data-i is its index.
+      // (NO BACKTICKS ANYWHERE IN THIS FUNCTION: the whole thing is one template literal, so one in a
+      // comment ends the string and produces a syntax error hundreds of lines away. It has now happened
+      // three times in this file - see PLAN.md.)
+      const homeEl = document.querySelector('.node[data-status="home"]');
+      const home = homeEl ? Number(homeEl.dataset.i) : NaN;
+      if (Number.isInteger(home) && home >= 0) {
+        select(home);
+        running = true;
+        temp = Math.max(temp, 22);
+        requestAnimationFrame(step);
+      }
+    }
   })();
   </script></body></html>`;
 }

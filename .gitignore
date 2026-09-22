@@ -22,3 +22,6 @@ logs/
 # CALLERLAB's Mainstream definitions, extracted from docs/*.pdf by
 # test/tools/extract-pdf-text.mjs. Regenerated on demand, and not ours to redistribute by default.
 callerlab-ms.txt
+
+# The FSM view document, emitted for a real browser by poc/tools/emit-fsm-view.mjs (not source).
+poc/tools/_fsm-view*.html

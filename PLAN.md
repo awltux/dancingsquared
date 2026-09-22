@@ -1857,22 +1857,144 @@ CALLS — while `formations.xml` has **no level attribute** and is one flat list
 the vocabulary leaks:
 
 ```
-formations.xml declares                          273 names
-  referenced by some level's tam (from/formation) 238
-  referenced by NO level at all                    35
-first referenced at   b1:137 b2:64 ms:65 plus:133 a1:59 a2:41 c1:109 c2:51 c3a:21 c3b:16
-first seen ABOVE ms and not referenced by any ms tam: 116 declared names
-the engine's 210 kept named formations: 102 unavailable at ms
-the 134 unique geometries:               70 unavailable at ms
+formations.xml declares                                 273 names
+  referenced by some level's tam (formation="Name")     219
+  referenced by NO level at all                          54
+names each level's own tams introduce (owner counts)    b1 62  b2 51  ms 98  plus 95  a1 76
+                                                        a2 86  c1 144 c2 123 c3a 78 c3b 56
+first referenced at (declared names)                    b1 60  b2 16  ms 21  plus 33  a1 14
+                                                        a2 8   c1 41  c2 22  c3a 3   (c3b 0)
+the engine's 134 whole-set names: 100 are NOT states at ms
+the 129 named geometries: 88 are NOT states at ms (41 are)
 ```
 
-and the **ms FSM's 155 states are built from that flat list**, so roughly half of its nodes are
+**THESE NUMBERS REPLACE AN EARLIER, WRONG SET** (`238 referenced / 35 never`, `b1:137 b2:64 ms:65 …`,
+`116 above ms`, `102 of 210`, `70 of 134`), and the error is worth recording because of its shape: the
+first probe read `from="…"` as a formation reference and read it off the whole `<tam>` BLOCK, so it was
+matching `<path from=…>` and inline `<formation>` children as well. `from` is free text the engine never
+resolves a formation from (`buildCallImpl` uses `formation=`), and an inline `<formation>` child means
+the tam declared a SETUP, not a name. Only `formation=` on the tam, with inline tams skipped, gives the
+219/54 above. The qualitative finding was unchanged either way; every number was.
+
+and the **ms FSM's 155 states were built from that flat list**, so roughly half of its nodes were
 formations no ms call introduces. That is the node-bound thesis with its exception found: nodes are
 bounded by DECLARATION, so **the declaration has to be level-scoped**. The open design question Stage
-0b must settle by measurement, because the two answers differ a lot: is a formation "introduced" at the
-level whose tam NAMES it (strict — then `Face Out`'s own result is unnamed at ms), or at the lowest
+0b had to settle by measurement, because the two answers differ a lot: is a formation "introduced" at
+the level whose tam NAMES it (strict — then `Face Out`'s own result is unnamed at ms), or at the lowest
 level whose calls can REACH it (permissive — then ms keeps everything ms dancing can produce)? The
-second needs a per-level reachability sweep, which is what `cell-census.mjs` already does for one level.
+second needed a per-level reachability sweep, which is what `cell-census.mjs` already did for one level.
+
+**STAGE 0b DONE — STRICT, decided by measurement, and the state set is now derived from the call set.**
+(`engine/test/tools/level-census.mjs`, `tools`/`all` tier, ~35 s; the capability is
+`library.referencedFormations()` + `CallBundle.formation`.)
+
+**THE MEASUREMENT THAT DECIDED IT.** Seed the closure with the 42 named geometries ms declares, apply
+the 273 ms calls, keep every end ON the declared lattice:
+
+```
+3063 legal applications, 16 s
+PERMISSIVE closure                     78 of 131 declared named geometries   (was 131 flat)
+  of those, named only ABOVE ms        34     <- THE ESCAPE
+  reachable but NOT declared           36     <- the transient pool Stage 3 must absorb
+```
+
+and the escape is not exotic: **`Static MiniWaves RH` is reached by `Boys Run`, `T-Bone DRDR` by
+`All 8 Circulate`, `T-Bone RDRD` by `Face Left`, `3/4 Lines RH` by `Boys Run`** — all Mainstream calls.
+So "introduced at the lowest level whose calls can reach it" admits **34 formations no Mainstream call
+is authored from**, which is exactly the gate it was proposed to keep. 79/35 was measured first on the
+APP's pooled "ms" (`sequencerCallsUpTo('ms')` = 291 titles); the shipped asset is built from `ms/*.xml`
+alone (273 titles), which gives 78/34, and that is the set the gate pins. **Both readings agree on the
+decision; the difference is one geometry.**
+
+**WHAT SHIPPED.** `CallBundle.formation` records the name a `<tam>` declared its start formation by
+(`formation="Name"`, `null` when the setup was authored INLINE) — `buildCallImpl` resolved the name and
+then threw it away, so the engine could say what GEOMETRY a call starts from but not which DECLARED
+formation was asked for. `library.referencedFormations()` is the level-scoped counterpart of
+`getUniqueFormations()`: the named formations the REGISTERED CALLS actually start from, deduped the same
+way. `buildFsmTable` now takes its NAMED half from that instead of the whole corpus, so **the engine
+needs no level concept at all — the level IS the call set**, which is how `poc/src/data.ts` already
+models it. `getUniqueFormations()` is untouched and stays the NAMING vocabulary (`knownFormation`,
+`recognize`), because "what is this board called" is a question about the corpus and must not depend on
+a programme.
+
+**MEASURED, BOTH WAYS.**
+
+```
+                                    before        after
+ms FSM states                       155           65      (42 named + 23 @embed)
+  of which named                    133           42
+ms FSM edges                        4656          2260
+  unnamed ends                      2937 (63.1%)  1648 (72.9%)
+corpus whole-set names              134           134
+  not states at ms                  0             100
+named states / referenced names     133 / 133     42 / 98
+reading-census sweep                4416 apps     1885 apps  (42 named states x 273 calls)
+  unnamed end                       2937          996
+  sub-8 covering all eight          1107          386
+cell-census declared lattice        155 = 155     155 vs 70  (state set is now a strict subset)
+  applications on/off lattice       1414 / 3002   844 / 1041
+  the vocabulary gap                68.0%         55.2%
+  the level scope removes           n/a           54.8% of the declared lattice
+```
+
+The state list reads like Mainstream, which is the informal check: `Static Square`, `Promenade`,
+`Stars RH/LH`, `Normal Lines`, `Ocean Waves RH BGGB`, `Circle`, `Alamo Wave`, `Thar`, `Diamonds`,
+`3 and 1 lines #1..#6`, `Quarter Tag`, `3/4 Tag`, `Double Pass Thru`, `Eight Chain Thru`, `Trade By`,
+`Column RH GBGB`, `Tidal Wave`, `T-Bone ...`. **The named half adds NO geometry at all** — all 41
+referenced geometries are already registered start setups, so the states are precisely the setups of the
+calls registered and the named half only supplies human-readable KEYS. That is the clean statement of
+the rule, and the 23 setups with no in-scope name stay `@embed#N`.
+
+**EIGHT OF THE 42 NAMED STATES ARE RENAMED**, and that is the scoping working rather than a side
+effect. A geometry shared by several names is keyed by the FIRST in `formations.xml` order; when that
+name is out of scope the scoped dedupe keeps the first name that IS in scope — the level's own name for
+the shape: `Ocean Waves RH BGGB`, `Two-Faced Lines RH`, `Diamonds RH Girl Points`, `Column RH GBGB`,
+`Tidal Wave RH BGGB`, `Inverted Tidal Line RH`, `Facing Blocks Left`, `T-Bone URLU`.
+
+**THE VOCABULARY GROWS WITH THE LEVEL AND NEVER SHRINKS** (level-census section 1), which is the
+"later levels ADD" half of the rule, now a gate:
+
+```
+level      own-names  cum-names  cum-declared  cumulative-titles
+b1                62         62            61                150
+b2                51         78            77                206
+ms                98         99            98                291
+plus              95        132           131                466
+a2                86        154           153                764
+c1               144        195           194               1331
+c3a               78        220           219               1925
+c3b               56        220           219               2135
+```
+
+`formations.xml` declares 273 names; **219 are referenced by some level's tam and 54 by none**; the
+engine keeps 134 as whole sets. `ms/` tams reference 98 names and **all 98 are declared** (the app's
+pooled "ms" is 99 — the extra one, `T-Bone Couples`, is referenced at a level BELOW ms, not at ms).
+
+**ONE RECORDED INCONSISTENCY, NOT FIXED HERE.** The shipped `fsm-ms.json` is built from `ms/*.xml`
+alone (274 catalog entries), while the APP's own "Mainstream" is `sequencerCallsUpTo('ms')`, which pools
+every level at or below ms and is **18 titles more**. So the FSM view has never shown the sequencer's
+own Mainstream call set. `poc/scripts/build-fsm-asset.mjs` is left as it is deliberately — changing the
+call set inside Stage 0b would put two changes in one measurement — and it is recorded here as its own
+decision to take, with the number (18 titles, 273 → 291) already measured.
+
+**THE SCOPE HAD A HOLE, AND THE FULL GATE COULD NOT SEE IT.** `library.registerFormation`'s own
+documented purpose is that an unnameable board is a dead end *"the engine will not say what formation
+the dancers are in, so the FSM has no state for it"* and that labelling one *"is how that dead end gets
+closed"*. Scoping the state set to the formations the CALLS declare closed the `knownFormation` half of
+that dead end and left the FSM half open — and `test/sequencer.mjs`'s existing `registerFormation`
+section covered only `knownFormation`/`listFormations`, so **29 green harnesses did not notice**. The
+probe that found it was written because the doc comment was read rather than trusted.
+`referencedFormationNames()` now carries `userFormations` as well as the call-referenced names, the rule
+being *a formation is in scope because a call declares it **or because a person declared it***, and
+`sequencer.mjs` asserts both halves: the label is a state, AND the scope did not widen to the corpus
+(125 corpus formations stay out of scope in that small library).
+
+**WHAT DID NOT MOVE.** The FSM is not the solver (`HomeSolver` runs a live DFS over `searchLegalCalls`
+and never reads the table), so a node-set change cannot move figures or get-outs — and the full gate
+confirms it rather than assuming it. `map-tips.mjs` is NOT a gate and was already reporting 0
+fully-mapped tips before this change: it registers `ms,b1,b2,a1,a2,plus,c1,c2` ASCENDING into one
+library, so `register`'s last-wins overwrite hands most titles a lower level's authoring — the exact
+hazard `poc/src/data.ts::sequencerCallsUpTo` documents. Recorded, not fixed.
 
 ### Phase H — the solver side (the Phase 3 leftover)
 

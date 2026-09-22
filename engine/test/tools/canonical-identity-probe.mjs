@@ -181,13 +181,40 @@ console.log(`  ${nonZeroIds.length} measured NON-ZERO indices: ${nonZeroIds.join
 // PINS. This is a gate, not a report: every number below was measured, and a movement in EITHER
 // direction fails. An improvement is re-pinned deliberately, never absorbed.
 // =====================================================================
-console.log('\n=== 5. pins ===');
+console.log('\n=== 5. the FSM\'s named states, through the accessor the table enumerates from ===');
+console.log('    (`stateBoard`: the named template wearing its canonical identity where the registry covers it)');
 let failures = 0;
 const pin = (label, got, want) => {
   const ok = JSON.stringify(got) === JSON.stringify(want);
   if (!ok) failures++;
   console.log(`  ${ok ? 'ok  ' : 'FAIL'}  ${label}: ${JSON.stringify(got)}${ok ? '' : ` (expected ${JSON.stringify(want)})`}`);
 };
+const stateBoardPins = {};
+for (const name of Object.keys(FORMATION_SETUP_CODE)) {
+  const b = seq.stateBoard(name);
+  const anon = anonymous(name);
+  // IDENTITY AND NOTHING ELSE: the FSM enumerates from this board, so a moved position or heading would
+  // mean it is enumerating a different state than the one `stateGeo` holds under that name.
+  const samePose = !!b && !!anon && b.dancers.length === anon.dancers.length
+    && b.dancers.every((d, i) => d.x === anon.dancers[i].x && d.y === anon.dancers[i].y
+      && d.heading === anon.dancers[i].heading && d.gender === anon.dancers[i].gender);
+  stateBoardPins[name] = [identityOf(b), samePose];
+  console.log(`  ${name}: identity ${identityOf(b)}/8  ${readingOf(b, name)}  pose-and-gender-same=${samePose}`);
+}
+pin('stateBoard per registry key: [identity, same pose and genders as the anonymous board]', stateBoardPins, {
+  'Normal Lines': [8, true],
+  'Normal Lines Compact': [8, true],
+  'Eight Chain Thru': [8, true],
+  'Ocean Waves': [8, true],
+  'Two-Faced Lines': [8, true],
+  'Two-Faced Lines LH': [8, true],
+  'Two-Faced Lines RH Compact': [8, true],
+  'Ocean Waves RH BGGB Compact': [8, true],
+  'Static Square': [8, true],
+  'Squared Set': [8, true],
+});
+
+console.log('\n=== 6. pins ===');
 pin('registry keys', Object.keys(FORMATION_SETUP_CODE).length, 10);
 pin('keys the primitive identifies from the assignment alone', primOk, 10);
 // THE DEFECT THIS WAS WRITTEN FOR, and the number that says it is closed. It was 3: `boardForSetup`

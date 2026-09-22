@@ -147,7 +147,7 @@ let offLattice = 0;
 const cellParts = { full: 0, noRelationship: 0, noSequence: 0, noArrangement: 0 };
 const letteredCells = new Set();
 for (const state of namedStates) {
-  const board = seq.boardForFormation(state);
+  const board = seq.stateBoard(state);
   if (!board) continue;
   for (const title of TITLES) {
     const res = seq.applyToBoard(board, title);
@@ -228,7 +228,17 @@ console.log('\n== 5. would ARRANGEMENT-keyed nodes help? (REFUTED - see the comm
   // question about the corpus instead - 155 geometries -> 194 cells - which is not the change on the table.
   const LETTER_TEMPLATE = { B: 'Eight Chain Thru', L: 'Normal Lines', W: 'Ocean Waves', P: 'Double Pass Thru', F: 'Two-Faced Lines', 'L.F': 'Two-Faced Lines LH', S: 'Static Square' };
   const fasr = boardForFasrCode('B1c', (l) => (LETTER_TEMPLATE[l] ? seq.boardForFormation(LETTER_TEMPLATE[l]) : null)).board;
-  const node = seq.boardForFormation('Eight Chain Thru');
+  // THE FSM'S OWN BOARD (`stateBoard`), not the anonymous template. When this section was written the two
+  // were the same thing, and the difference between the keys was IDENTITY: the state carried couples all
+  // zero, so it read no sequence and its cell key was `26|BgBgBgBg|?|?` against the corpus board's
+  // `26|BgBgBgBg|1|c`. The named states have their canonical identity now, so the state board reads the
+  // same sequence and the same relationship - and the two keys are IDENTICAL.
+  //
+  // THAT IS THE REFUTATION IN ITS STRONGEST FORM. The pair shares its geometry and its pattern, and once
+  // identity is supplied it shares the whole cell: there is nothing left for an arrangement-keyed node to
+  // separate, because the one thing that ever separated them was a missing identity that no arrangement
+  // key would have supplied either.
+  const node = seq.stateBoard('Eight Chain Thru');
   const cf = scoped.cellOf(fasr);
   const cn = scoped.cellOf(node);
   const m = matchFormations(fasr.dancers, node.dancers, 1.0);
@@ -239,10 +249,8 @@ console.log('\n== 5. would ARRANGEMENT-keyed nodes help? (REFUTED - see the comm
   console.log(`    couples: [B1c] ${fasr.dancers.map((d) => d.couple ?? 0).join(',')} vs node ${node.dancers.map((d) => d.couple ?? 0).join(',')}`);
   check(cf.geometryId === cn.geometryId && cf.pattern === cn.pattern,
     'the motivating pair shares BOTH its geometry and its gender pattern - ARRANGEMENT does not separate them');
-  check(cn.sequence === null && cf.sequence !== null,
-    'the FSM state reads no sequence (no home identity: couples all 0) while the corpus board reads one - so the keys differ in IDENTITY, not arrangement');
-  check(cf.key !== cn.key && cf.arrangement === cn.arrangement,
-    'their cell keys differ in sequence/relationship ONLY, which is exactly what IDENTITY would make readable');
+  check(cn.sequence !== null && cf.sequence !== null && cf.key === cn.key && cf.arrangement === cn.arrangement,
+    'with canonical identity the two cell keys are IDENTICAL - the difference was the missing IDENTITY, and re-keying by arrangement would merge them rather than separate them');
 
   const patternsPer = scoped.geometries.map((g) => g.patterns.length);
   const cells = patternsPer.reduce((a, b) => a + b, 0);
@@ -253,7 +261,7 @@ console.log('\n== 5. would ARRANGEMENT-keyed nodes help? (REFUTED - see the comm
   // cell key, so this is the count of edges the change would COST rather than gain.
   let targeted = 0, declaredPattern = 0, newPattern = 0;
   for (const state of namedStates) {
-    const board = seq.boardForFormation(state);
+    const board = seq.stateBoard(state);
     if (!board) continue;
     const legal = new Set(seq.legalCalls(board));
     for (const e of asset.table.edges?.[state] ?? []) {
@@ -270,7 +278,12 @@ console.log('\n== 5. would ARRANGEMENT-keyed nodes help? (REFUTED - see the comm
     `${newPattern} (${((newPattern / targeted) * 100).toFixed(1)}%) on one no declared shape realises, so those become transients`);
   check(scoped.geometries.length === 70 && cells === 105,
     `the sizes are pinned (${scoped.geometries.length} geometries -> ${cells} cells, the SCOPED vocabulary)`);
-  check(newPattern === 219 && declaredPattern === 548,
+  // RE-PINNED at 1372 targeted: the canonical identity on the named states admitted 48 more edges, 32 of
+  // which have a target, so the pool this price is measured against grew. `declaredPattern` 548 -> 563 is
+  // the same change seen from the other side - a board that reads its sequence and relationship lands its
+  // ends on cells the vocabulary CAN name more often. `newPattern` is unchanged at 219, so the cost of
+  // re-keying is the same and the refutation is unaffected.
+  check(targeted === 1372 && newPattern === 219 && declaredPattern === 563,
     `and so is the price (${declaredPattern} kept, ${newPattern} lost of ${targeted} targeted edges)`);
 }
 
@@ -290,19 +303,37 @@ console.log('\n== 6. the pinned numbers (re-pin with the reason) ==');
   // and everything downstream with them. The RATIOS are the part that carries meaning and both hold:
   // 55.2% of legal applications still end on a geometry nothing declares (it was 68.0%), and the
   // novel-geometry class is still narrow (134 of 273 calls, against 141 of 273).
+  //
+  // RE-PINNED AGAIN FOR CANONICAL IDENTITY, and this one is worth reading because the movement is
+  // LARGE and entirely in the direction the change is for. The sweep now starts from `stateBoard`, the
+  // board `buildFsmTable` enumerates, instead of the anonymous `boardForFormation` - so the three named
+  // states the registry covers are swept WITH their couples.
+  //
+  //   applications 1885 -> 1933   (+48, the edges the FSM gained)
+  //   onLattice    844 -> 861     offLattice 1041 -> 1072
+  //   novelGeometries 643 -> 670
+  //   cells         216 -> 301    (+85)
+  //   letteredCells  50 -> 112    (+62)
+  //   fullCells      22 -> 103    (+81)
+  //
+  // `fullCells` is the one to look at: a cell is "full" only when its arrangement, sequence AND
+  // relationship all read, and relationship is exactly what needs two identified home couples. So
+  // identity takes the fully-readable cell vocabulary from 22 to 103 - better than quadrupling it - and
+  // the lettered cells from 50 to 112. That is the measured answer to "does the cell vocabulary have
+  // anything to key on": it had very little, and identity is what it was missing.
   const PINNED = {
     declaredGeometries: 155,
     stateSet: 70,
     namedGeometries: 129,
     setupOnlyGeometries: 26,
     letteredGeometries: 9,
-    applications: 1885,
-    onLattice: 844,
-    offLattice: 1041,
-    novelGeometries: 643,
-    cells: 216,
-    letteredCells: 50,
-    fullCells: 22,
+    applications: 1933,
+    onLattice: 861,
+    offLattice: 1072,
+    novelGeometries: 670,
+    cells: 301,
+    letteredCells: 112,
+    fullCells: 103,
   };
   const measured = {
     declaredGeometries: lattice.geometries.length,

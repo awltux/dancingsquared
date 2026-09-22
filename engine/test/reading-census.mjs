@@ -130,15 +130,20 @@ const embedded = table.states.filter((s) => s.startsWith('@embed#'));
 
 // ---------------------------------------------------------------- sweep every named state
 //
-// The state BOARD is rebuilt through `boardForFormation`, which is the same path `buildFsmTable`
-// uses (`boardFromMatchables` of the named formation's geometry). The `@embed#` states are unnamed
-// geometries with no name to rebuild from, so they are excluded - reported below rather than
-// silently skipped.
+// The state BOARD is rebuilt through `stateBoard`, which is the SAME board `buildFsmTable` enumerates
+// from. It used to be `boardForFormation` - geometrically identical, so it made no difference, until
+// the named states gained their canonical identity: identity is what the couple-dependent vocabulary
+// reads, so a `Heads ...` call is ILLEGAL from the anonymous board and legal from the real one, and
+// the 48 edges that change left the comparison below as "excluded". `stateBoard` is a Sequencer method
+// rather than a rule re-stated here precisely so the two cannot drift.
+//
+// The `@embed#` states are unnamed geometries with no name to rebuild from, so they are excluded -
+// reported below rather than silently skipped.
 const namedStates = table.states.filter((s) => !s.startsWith('@embed#'));
 const rows = [];
 const unrebuildable = [];
 for (const state of namedStates) {
-  const board = seq.boardForFormation(state);
+  const board = seq.stateBoard(state);
   if (!board) {
     unrebuildable.push(state);
     continue;
@@ -272,7 +277,7 @@ console.log('\n== against the stored asset: REPORTED, not asserted (the stalenes
     const codedNames = new Set(CODED_MOVE_NAMES);
     let codedOnly = 0;
     for (const state of namedStates) {
-      const board = seq.boardForFormation(state);
+      const board = seq.stateBoard(state);
       if (!board) continue;
       const legal = new Set(seq.legalCalls(board));
       for (const e of assetEdges(state)) {
@@ -305,6 +310,16 @@ console.log('\n== against the stored asset: REPORTED, not asserted (the stalenes
         : `${readingDiff} edge(s) disagree about the reading`);
     check(compared > 500,
       `${compared} edges were comparable - the cross-check is not vacuous`);
+    // AND THE EXCLUSION IS ASSERTED, which is the hole this harness walked through. `excluded` counts
+    // build edges the sweep could not reproduce, and it was REPORTED but never checked - so when the
+    // named states gained their canonical identity, the 48 edges that changed (`Heads ...`/`Sides ...`
+    // calls, illegal from a board with no couples) left the comparison without anything going red. A
+    // cross-check that silently shrinks is the instrument's silence, not a smaller cross-check. Nothing
+    // here builds amendment edges, so every build edge must be reproducible.
+    check(excluded === 0,
+      excluded === 0
+        ? 'every build edge on a named state was reproducible, so none left the comparison'
+        : `${excluded} build edge(s) were NOT reproducible and silently left the cross-check`);
     // And the reading is not vacuous either: the FSM must record MORE THAN the whole-board case, or the
     // field would be a constant and the cross-check would prove nothing.
     const storedReadings = new Map();
@@ -361,7 +376,7 @@ console.log('\n== the multi-arity pool: what a MIXED reading could actually reac
   // of sweeping only the named half.
   const mixedBoards = [];
   for (const s of namedStates) {
-    const b = seq.boardForFormation(s);
+    const b = seq.stateBoard(s);
     if (b) mixedBoards.push(b);
   }
   for (const setup of seq.library.allVariantSetups()) {

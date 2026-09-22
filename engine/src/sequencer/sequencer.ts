@@ -437,8 +437,8 @@ export class Sequencer {
   boardForSetup(name: string): Board | null {
     const anon = this.boardForFormation(name);
     if (!anon) return null;
-    const setup = setupForFormation(name, (n) => this.boardForFormation(n));
-    if (setup) return identifyByAssignment(anon, setup.assignment);
+    const identified = this.setupIdentifiedBoard(name, anon);
+    if (identified) return identified;
     const wanted = canonicalName(name) ?? name;
     const letter = Object.entries(FORMATION_LETTER)
       .find(([n]) => (canonicalName(n) ?? n) === wanted)?.[1];
@@ -464,6 +464,38 @@ export class Sequencer {
     this.matcher.clearCaches();
     this.solver.clearCaches();
     return true;
+  }
+
+  /**
+   * `board` wearing the canonical identity of `name`, or null when the engine has no authority-backed
+   * setup for that name - the ONE place the rule "the registry first, applied on top of the board the
+   * caller already has" is written.
+   *
+   * It takes the BOARD rather than a name alone because the two callers hold different boards: the
+   * setup path holds the named template, and the FSM holds the state's own geometry, which it must
+   * enumerate from unchanged. `identifyByAssignment` is all-or-nothing against the assignment's spot
+   * keys, so a board that is not the one the registry was measured on comes back untouched instead of
+   * half-identified - which is what lets the FSM pass its own board safely.
+   */
+  private setupIdentifiedBoard(name: string, board: Board): Board | null {
+    const setup = setupForFormation(name, (n) => this.boardForFormation(n));
+    return setup ? identifyByAssignment(board, setup.assignment) : null;
+  }
+
+  /**
+   * The board the FSM enumerates a NAMED state from: the named template carrying its canonical identity
+   * where the registry covers it, and the anonymous template otherwise.
+   *
+   * THIS EXISTS FOR THE HARNESSES. `buildFsmTable.enumerate` works from the state's own geometry, which
+   * it already holds, so it does not need this - but a harness that has to reproduce the table's
+   * applications by name (`reading-census.mjs` does, to cross-check every reading) would otherwise
+   * re-derive the rule and drift from it. That they agree is itself checked, because the readings of
+   * the two boards would differ.
+   */
+  stateBoard(name: string): Board | null {
+    const anon = this.boardForFormation(name);
+    if (!anon) return null;
+    return this.setupIdentifiedBoard(name, anon) ?? anon;
   }
 
   // ---- matcher introspection (passthroughs) ----
@@ -848,7 +880,29 @@ export class Sequencer {
     const enumerate = (state: string): Omit<FsmTableEdge, 'source'>[] => {
       const geo = stateGeo.get(state);
       if (!geo) return [];
-      const board = this.boardFromMatchables(geo);
+      // A NAMED STATE IS ENUMERATED FROM ITS CANONICAL BOARD, which is the same setup path the app
+      // uses - ONE rule deliberately, because the alternative is the divergence class this repo keeps
+      // paying for: the Set dropdown standing a caller on a zero line while the FSM enumerated the same
+      // formation anonymously, so the two disagreed about which calls are legal from it.
+      //
+      // MEASURED by `test/tools/canonical-identity-probe.mjs`, and it is the reason this is not a small
+      // change: identity is what the couple-dependent vocabulary READS, so an anonymous board REFUSES
+      // calls that are legal from the real formation. `Normal Lines` gains 56 legal calls (347 -> 403),
+      // `Normal Lines Compact` 48, `Eight Chain Thru` 50, `Ocean Waves` 27, `Two-Faced Lines` 9 - all
+      // gains, no losses, and every one of them a `Heads ...`/`Sides ...`/`Beaus`/`Belles`/`Couples`
+      // call that cannot be evaluated at all without couples. Enumerating the anonymous board was
+      // answering "this call is not legal here" for calls the engine simply could not read.
+      //
+      // ONLY A NAMED STATE THE REGISTRY COVERS IS AFFECTED. `@embed#N` has no name to look up and the
+      // other 38 named states have no authority-backed setup, so they stay anonymous - which is also
+      // what keeps this from being a vocabulary-wide change: it is four states.
+      //
+      // The identity is applied ON TOP of the state's OWN board, so the geometry, headings, declared
+      // genders and dancer order the enumeration was already using are untouched. If the assignment's
+      // spots do not match this geometry, `identifyByAssignment` returns the board UNCHANGED rather
+      // than half-identified, so a disagreement degrades to today's behaviour, not to a wrong board.
+      const anon = this.boardFromMatchables(geo);
+      const board = this.setupIdentifiedBoard(state, anon) ?? anon;
       return enumerable(board).map(({ call, res }) => {
         const reading = readingOf(res);
         if (!res.legal) {

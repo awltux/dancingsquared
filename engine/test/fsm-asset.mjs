@@ -58,8 +58,16 @@ const check = (cond, msg) => {
 // classification are FACTS ABOUT THE EDGES, not new edges. What moved is how many edges have a TARGET -
 // 612 before the geometry fallback, 1619 after - because an edge that lands on an unnamed node can now
 // name that node. See the "schema 2" section below for those numbers and for why the fallback was needed.
+//
+// 2260 -> 2308 IS THE CANONICAL IDENTITY OF THE NAMED STATES, and the STATE COUNT IS DELIBERATELY
+// UNCHANGED at 65. Identity changes no geometry and `enumerate` never invents a state, so a state-count
+// change here would falsify the premise rather than record a result. MEASURED, the 48 new edges come
+// from exactly THREE states - `Normal Lines` +17, `Normal Lines Compact` +15, `Eight Chain Thru` +16 -
+// and every one is a `Heads ...`/`Sides ...`/`Couples ...` call that cannot be evaluated at all without
+// couples, so the anonymous board was answering "not legal here" for calls the engine could not read.
+// That is also why the reading distribution moves only in `whole`: those calls have no partition path.
 const EXPECTED_STATES = 65;
-const EXPECTED_EDGES = 2260;
+const EXPECTED_EDGES = 2308;
 const EXPECTED_CATALOG = 274;
 
 const msFiles = {};
@@ -168,7 +176,12 @@ const freshEdges = fresh.edges ?? {};
     'every BUILD edge carries a reading (an amendment edge would be the only "(none)", and this asset has none)');
   // PINNED, and a movement in either direction is a decision: more `partial` means the fallback fires
   // more often, and more `state` means more of the graph is actually connected.
-  const PINNED = { whole: 1174, 'full-tiling': 665, partial: 421, state: 1619, 'out-of-scope': 17, novel: 624 };
+  //
+  // whole 1174 -> 1222, state 1619 -> 1651, novel 624 -> 640 are the canonical-identity change, and the
+  // three numbers together are +48 of which +32 land on a state and +16 do not. `full-tiling` (665),
+  // `partial` (421) and `out-of-scope` (17) do not move at all, which is the shape the change predicts:
+  // identity does not alter how much of a board a call moves, only WHICH calls are admitted.
+  const PINNED = { whole: 1222, 'full-tiling': 665, partial: 421, state: 1651, 'out-of-scope': 17, novel: 640 };
   let moved = 0;
   for (const [k, want] of Object.entries(PINNED)) {
     const got = reading[k] ?? kind[k];

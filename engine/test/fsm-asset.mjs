@@ -47,20 +47,17 @@ const check = (cond, msg) => {
 
 // PINNED: the state and edge counts this asset is expected to hold. Re-pin with the reason.
 //
-// 155 / 4656 was the shape before the level scope (Stage 0b). It is now 65 / 2260, and the shrink is
-// the point of the change rather than a side effect: the state set's NAMED half used to be all of
+// 155 / 4656 -> 65 / 2260 was the LEVEL SCOPE (Stage 0b): the state set's named half used to be all of
 // `formations.xml` (134 whole-set names), so 100 named formations no ms tam references were states -
-// `Static Facing Out`, `Right-Hand Zs`, `Single File Promenade`, `Star Promenade` and the rest. A
-// state is a formation a caller can be standing in, and a programme only lets a caller stand where
-// its own calls begin, so the named half is now the names the REGISTERED calls declare (42 names) and
-// the scope is the call set itself - which is where the level already lives (`poc/src/data.ts`
-// `sequencerCallsUpTo`). 41 of the 42 are also registered start setups, so the named half adds no
-// geometry at all; it supplies the human-readable KEYS for 42 of the 65 states, and the other 23 stay
-// `@embed#N`.
+// `Static Facing Out`, `Right-Hand Zs`, `Single File Promenade`, `Star Promenade` and the rest. A state is
+// a formation a caller can be standing in, and a programme only lets a caller stand where its own calls
+// begin, so the named half is now the names the REGISTERED calls declare (42 names) and the scope is the
+// call set itself, which is where the level already lives (`poc/src/data.ts::sequencerCallsUpTo`).
 //
-// The unnamed-end share rises with it, and that is arithmetic rather than a regression: 1648 of 2260
-// (72.9%) against 2937 of 4656 (63.1%). The edges that disappeared are the ones leaving the 100
-// out-of-scope states; the ones that remain land off the (now smaller) lattice more often.
+// 65 / 2260 IS UNCHANGED BY SCHEMA 2, and that is the point of the change: the reading and the end
+// classification are FACTS ABOUT THE EDGES, not new edges. What moved is how many edges have a TARGET -
+// 612 before the geometry fallback, 1619 after - because an edge that lands on an unnamed node can now
+// name that node. See the "schema 2" section below for those numbers and for why the fallback was needed.
 const EXPECTED_STATES = 65;
 const EXPECTED_EDGES = 2260;
 const EXPECTED_CATALOG = 274;
@@ -93,6 +90,10 @@ const freshEdges = fresh.edges ?? {};
   // REPORTED because it is the point of the namer settlement: an edge whose end the namer refuses is
   // RECORDED with `endFormation: null` instead of being dropped from the table. A silent count here
   // would be exactly the "instrument's silence" the repo keeps meeting.
+  //
+  // 1648 -> 641 at Stage 2, and the fall is the geometry fallback rather than fewer refusals: the namer
+  // refuses exactly as many boards, and 1007 of the edges it called unnamed were landing on a STATE whose
+  // geometry the table already held but whose name it could not look up.
   console.log(`  unnamed ends (recorded as null, not dropped): stored ${nullEnds(storedEdges)} of ${s.edges}, ` +
     `rebuilt ${nullEnds(freshEdges)} of ${f.edges}`);
   check(stored.catalogCount === catalog.length,
@@ -111,11 +112,16 @@ const freshEdges = fresh.edges ?? {};
   check(a.length === b.length && a.every((x, i) => x === b[i]),
     `the state list is identical, order included (${a.length})`);
 
-  // Per state, compare the edge set as `call -> endFormation` pairs, both directions.
+  // Per state, compare the edge set as `call -> (endFormation, reading, endKind)`, both directions.
+  //
+  // THE WHOLE EDGE IS COMPARED, not just the end. Schema 2 added `reading` and `endKind`, and a gate that
+  // only looked at `(call, endFormation)` would pass a rebuild that had lost them - which is exactly the
+  // class of staleness this file exists to catch.
   const diffs = [];
   for (const state of fresh.states) {
-    const sa = new Map((storedEdges[state] ?? []).map((e) => [e.call, e.endFormation ?? null]));
-    const sb = new Map((freshEdges[state] ?? []).map((e) => [e.call, e.endFormation ?? null]));
+    const key = (e) => JSON.stringify([e.call, e.endFormation ?? null, e.reading ?? null, e.endKind ?? null]);
+    const sa = new Map((storedEdges[state] ?? []).map((e) => [e.call, key(e)]));
+    const sb = new Map((freshEdges[state] ?? []).map((e) => [e.call, key(e)]));
     const onlyStored = [...sa.keys()].filter((k) => !sb.has(k));
     const onlyFresh = [...sb.keys()].filter((k) => !sa.has(k));
     const moved = [...sa.keys()].filter((k) => sb.has(k) && sa.get(k) !== sb.get(k));
@@ -123,16 +129,62 @@ const freshEdges = fresh.edges ?? {};
   }
   check(diffs.length === 0,
     diffs.length === 0
-      ? `every state's edges are identical (${Object.values(freshEdges).reduce((n, l) => n + l.length, 0)} edges)`
+      ? `every state's edges are identical, reading and endKind included (${Object.values(freshEdges).reduce((n, l) => n + l.length, 0)} edges)`
       : `${diffs.length} state(s) differ from the stored asset`);
   for (const d of diffs.slice(0, 8)) {
     if (d.onlyStored.length) console.log(`      ${d.state}: ${d.onlyStored.length} stored edge(s) not rebuilt, e.g. ${d.onlyStored.slice(0, 3).join(', ')}`);
     if (d.onlyFresh.length) console.log(`      ${d.state}: ${d.onlyFresh.length} rebuilt edge(s) not stored, e.g. ${d.onlyFresh.slice(0, 3).join(', ')}`);
     if (d.moved.length) {
-      console.log(`      ${d.state}: ${d.moved.length} edge(s) land elsewhere, e.g. ` +
+      console.log(`      ${d.state}: ${d.moved.length} edge(s) differ, e.g. ` +
         d.moved.slice(0, 3).map((c) => `${c}: ${d.sa.get(c) ?? '(none)'} -> ${d.sb.get(c) ?? '(none)'}`).join('; '));
     }
   }
+}
+
+// ---------------------------------------------------------------- schema 2: reading and endKind
+//
+// THE TWO NEW FACTS, pinned and invariantly checked. `reading` says how much of the board the application
+// moved; `endKind` says where it landed and, when there is no target, WHY. Both were computed but stored
+// nowhere before, and both are load-bearing downstream: the reading is what a partial application needs to
+// stop masquerading as a whole-board one, and `endKind` is what tells Stage 3 which transients a LEVEL BUMP
+// would close (`out-of-scope`) from those no level will (`novel`).
+{
+  const all = Object.values(freshEdges).flat();
+  const reading = {};
+  const kind = {};
+  for (const e of all) { reading[e.reading ?? '(none)'] = (reading[e.reading ?? '(none)'] ?? 0) + 1; kind[e.endKind] = (kind[e.endKind] ?? 0) + 1; }
+  console.log(`\n== schema 2: what the application did, and where it landed ==`);
+  console.log(`  reading : ${Object.entries(reading).map(([k, v]) => `${k} ${v}`).join(', ')}`);
+  console.log(`  endKind : ${Object.entries(kind).map(([k, v]) => `${k} ${v}`).join(', ')}`);
+  // THE INVARIANT, and it is the one that makes `endKind` trustworthy rather than decorative: a target
+  // exists exactly when the kind says so. A rebuild that resolved an end without setting the kind (or the
+  // reverse) would corrupt every downstream count.
+  const incoherent = all.filter((e) => (e.endFormation !== null) !== (e.endKind === 'state'));
+  check(incoherent.length === 0,
+    incoherent.length === 0
+      ? `endKind agrees with endFormation on every one of ${all.length} edges ("state" exactly when there is a target)`
+      : `${incoherent.length} edge(s) disagree: e.g. ${JSON.stringify(incoherent[0])}`);
+  check(reading['(none)'] === undefined,
+    'every BUILD edge carries a reading (an amendment edge would be the only "(none)", and this asset has none)');
+  // PINNED, and a movement in either direction is a decision: more `partial` means the fallback fires
+  // more often, and more `state` means more of the graph is actually connected.
+  const PINNED = { whole: 1174, 'full-tiling': 665, partial: 421, state: 1619, 'out-of-scope': 17, novel: 624 };
+  let moved = 0;
+  for (const [k, want] of Object.entries(PINNED)) {
+    const got = reading[k] ?? kind[k];
+    if (got !== want) { moved++; console.log(`    ${k}: pinned ${want}, measured ${got}`); }
+  }
+  check(moved === 0,
+    moved === 0
+      ? `all ${Object.keys(PINNED).length} new-fact counts hold (${kind.state} of ${all.length} edges land on a state)`
+      : `${moved} new-fact count(s) moved - decide and re-pin`);
+  // THE POINT OF THE GEOMETRY FALLBACK, stated as a share so it survives a catalogue change: before it,
+  // every end that the namer could not name was `novel` or `out-of-scope`, MEASURED at 612 targets. The
+  // scan recovered the edges that were landing on a node with no name - an `@embed#N` state.
+  const targeted = kind.state / all.length;
+  console.log(`  edges with a target: ${(targeted * 100).toFixed(1)}% (the geometry fallback is what makes an unnamed node reachable)`);
+  check(targeted > 0.5,
+    `more than half of the graph is connected (${(targeted * 100).toFixed(1)}%) - an unnamed node can be an edge's target`);
 }
 
 // ---------------------------------------------------------------- the level scope (Stage 0b)

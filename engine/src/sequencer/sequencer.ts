@@ -7,7 +7,7 @@
 import { SequencerConfig, emptySearchStats, type SearchStats } from './config.js';
 import { CallLibrary } from './library.js';
 import { FormationMatcher } from './matcher.js';
-import { CallApplicator } from './applicator.js';
+import { CallApplicator, type ApplyResult } from './applicator.js';
 import { LegalityChecker } from './legality.js';
 import { SequenceAnalyzer, type SequenceStop } from './sequence.js';
 import { HomeSolver } from './solver.js';
@@ -15,7 +15,14 @@ import { Grouping } from './grouping.js';
 import { splitSelection } from './selection.js';
 import { FsmStore, type FsmAmendment } from './fsm-store.js';
 import { type FsmExport } from './fsm-export.js';
-import { FsmTable, type FsmTableEdge, type FsmTableData, FSM_TABLE_SCHEMA_VERSION } from './fsm-table.js';
+import {
+  FsmTable,
+  type FsmTableEdge,
+  type FsmTableData,
+  type FsmEndKind,
+  type FsmReading,
+  FSM_TABLE_SCHEMA_VERSION,
+} from './fsm-table.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { HOME_DANCERS } from './identity.js';
 import { matchFormations } from './match.js';
@@ -732,15 +739,36 @@ export class Sequencer {
      * catalogue's authored tam lands in a state. That divergence is real and worth its own
      * investigation, but a table whose edge ends are unknown is not the place to discover it.
      */
-    const enumerable = (board: Board): { call: string; res: { board: Board; legal: boolean } }[] => {
-      const out = this.legalCalls(board).map((call) => ({ call, res: this.applicator.applyToBoard(board, call) }));
+    const enumerable = (board: Board): { call: string; res: ApplyResult }[] => {
+      const out: { call: string; res: ApplyResult }[] = this.legalCalls(board).map((call) => ({ call, res: this.applicator.applyToBoard(board, call) }));
       const have = new Set(out.map((x) => x.call));
       for (const n of CODED_MOVE_NAMES) {
         if (have.has(n)) continue;
         const r = applyCodedMove(board, n);
+        // A CODED MOVE HAS NO `parallel`, AND THAT IS THE ANSWER RATHER THAN A GAP. `coded-moves.ts` has
+        // no partition path at all - a coded pivot or resolve (Face Left, Promenade, ...) is a transform
+        // of the whole board, so its reading is `whole` by construction, which is what `readingOf` below
+        // reports for a result with no `parallel`.
         if (r?.legal) out.push({ call: n, res: r });
       }
       return out;
+    };
+    /**
+     * The READING of an application: how much of the board it actually moved.
+     *
+     * THE EXPRESSION IS `reading-census.mjs`'S, deliberately and to the character, because that harness
+     * has been computing the readings from the same `ApplyResult` since before the FSM recorded them and
+     * `test/reading-census.mjs` now cross-checks the two. Two independent computations that must agree is
+     * the point; a second, subtly different formula here would make the cross-check meaningless.
+     *
+     * `cover >= 8` is how a FULL TILING is told from a PARTIAL one: every dancer is inside some copy of
+     * the variant (`groups x variantSize` covers the whole board), as against the partial fallback that
+     * moves the boxes that matched and leaves the rest standing.
+     */
+    const readingOf = (res: ApplyResult): FsmReading => {
+      if (!res.parallel) return 'whole';
+      const cover = res.parallel.groups.length * res.parallel.variant.dancers.length;
+      return cover >= 8 ? 'full-tiling' : 'partial';
     };
     /**
      * An edge's end is one of the table's states, or an EXPLICIT `null`.
@@ -768,21 +796,55 @@ export class Sequencer {
      * `reading-census.mjs` measured as missing -- those applications used to be dropped from the list
      * altogether, so the FSM recorded NOTHING rather than recording "unnamed".
      *
-     * The consumer side already tolerates it: `FsmTableEdge.endFormation` is `string | null` and the
-     * FSM view skips null ends when it builds the graph.
+     * The consumer side used to tolerate it by SKIPPING: `FsmTableEdge.endFormation` is `string | null`
+     * and `poc/src/fsm-view.ts` dropped every null end when it built the graph. Schema 2 records WHY the
+     * end is null (`FsmEndKind`), which is what lets the view draw the transient rather than hide it and
+     * what tells Stage 3 which transients a level bump would close (`out-of-scope`) from those no level
+     * will (`novel`).
+     *
+     * AN END IS RESOLVED BY GEOMETRY WHEN THE NAME FAILS, and without that the new `endKind` field would
+     * have been WRONG ON MOST OF ITS EDGES. MEASURED over the 42 named ms states: of the 924 edges the
+     * name lookup could not resolve, **496 land on a state's own geometry** - 464 of them on an
+     * `@embed#N` state, a node with no name, and 32 on a named state whose namer answer was refused. A
+     * table whose nodes are geometries was answering "no target" for edges that end ON a node, because
+     * the only way it looked for one was by NAME.
+     *
+     * THE GEOMETRY MATCH IS UNAMBIGUOUS BY CONSTRUCTION, which is why it is a safe fallback rather than a
+     * second, competing naming rule. `addState` FOLDS a candidate into an existing state at exactly this
+     * tolerance (`matchFormations(dancers, existing, 1.0)`), so the surviving state geometries are
+     * pairwise more than 1.0 apart and a board can match at most one of them. The NAME still wins wherever
+     * there is one: it is the readable answer and the one the namer is curated for, and the scan is the
+     * fallback for the case the name path structurally CANNOT express - an unnamed node.
      */
+    const stateGeometries = [...stateGeo.entries()];
     const enumerate = (state: string): Omit<FsmTableEdge, 'source'>[] => {
       const geo = stateGeo.get(state);
       if (!geo) return [];
       const board = this.boardFromMatchables(geo);
       return enumerable(board).map(({ call, res }) => {
-        let end: string | null = null;
-        if (res.legal) {
-          const curated = this.matcher.recognize(res.board).name;
-          const name = curated !== null && keyOf.has(curated) ? curated : this.matcher.knownFormation(res.board);
-          end = name === null ? null : keyOf.get(name) ?? null;
+        const reading = readingOf(res);
+        if (!res.legal) {
+          // Unreachable through `enumerable`, which admits only applications that apply - kept as an
+          // explicit classification rather than an undefended `null`, so a future caller of this shape
+          // cannot silently lose the distinction.
+          return { call, endFormation: null, reading, endKind: 'novel' as const, orientationDelta: 0 };
         }
-        return { call, endFormation: end, orientationDelta: 0 };
+        const curated = this.matcher.recognize(res.board).name;
+        // `named` is what the CORPUS can call the board, `end` is a state of THIS table. Keeping them
+        // apart is the whole of `endKind`: a board the corpus names but this table does not model is
+        // 'out-of-scope' (the level scope removed it), and one the corpus cannot name either is 'novel'.
+        const named = curated !== null && keyOf.has(curated) ? curated : this.matcher.knownFormation(res.board);
+        let end: string | null = named === null ? null : keyOf.get(named) ?? null;
+        if (end === null) {
+          // A `SeqDancer` carries x, y and heading, which is what `matchFormations` reads - it is the
+          // same shape `boardFromMatchables` feeds the matcher.
+          const dancers = res.board.dancers as unknown as Matchable[];
+          for (const [key, g] of stateGeometries) {
+            if (matchFormations(dancers, g, 1.0) !== null) { end = key; break; }
+          }
+        }
+        const endKind: FsmEndKind = end !== null ? 'state' : named !== null ? 'out-of-scope' : 'novel';
+        return { call, endFormation: end, reading, endKind, orientationDelta: 0 };
       });
     };
     return FsmTable.build(states, enumerate, this.fsmStore.all());

@@ -8,7 +8,21 @@
 // would resolve under Vite and fail under the probe. Everywhere else in `poc/src` the bare specifier is used.
 import { esc } from './dom.ts';
 
-export interface FsmEdgeData { call: string; endFormation: string | null }
+/**
+ * One edge of a precomputed table, as far as the renderer cares.
+ *
+ * `endFormation` is null for a TRANSIENT - an edge that leaves the modelled graph - and `endKind` says
+ * which kind of leaving it is (schema 2, `FsmEndKind`): `out-of-scope` is a formation the corpus names but
+ * this level does not model, so a LEVEL BUMP would make it a node, while `novel` is a board no level names.
+ * `reading` says how much of the board the application moved. Both are optional so a v1-shaped object still
+ * typechecks; the shipped asset is schema 2 and carries them.
+ */
+export interface FsmEdgeData {
+  call: string;
+  endFormation: string | null;
+  reading?: 'whole' | 'full-tiling' | 'partial';
+  endKind?: 'state' | 'out-of-scope' | 'novel';
+}
 export interface FsmGraphData { states: string[]; edges: Record<string, FsmEdgeData[]> }
 
 /**
@@ -80,13 +94,23 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   const hasOutgoing = states.map((s) => edgesFor(s).length > 0);
   const graph: number[][] = states.map(() => []);
   const edges: { from: number; to: number; call: string }[] = [];
+  // THE TRANSIENTS, kept rather than dropped. The GRAPH still draws only edges with a target - drawing a
+  // stub per transient is separate work, recorded in PLAN.md - but the sidebar lists them per node and the
+  // header counts them, because an edge that LEAVES the modelled vocabulary is the thing Stage 3 has to
+  // absorb and a renderer that silently hid 28% of its own table would be the instrument failing to say so.
+  const leaves: { from: number; call: string; kind: string }[] = [];
   for (let i = 0; i < n; i++) {
     for (const e of edgesFor(states[i])) {
-      if (e.endFormation == null) continue;
+      if (e.endFormation == null) {
+        leaves.push({ from: i, call: e.call, kind: e.endKind ?? 'unknown' });
+        continue;
+      }
       const t = idx.get(e.endFormation);
       if (t !== undefined) { graph[i].push(t); edges.push({ from: i, to: t, call: e.call }); }
     }
   }
+  const leavesByKind = leaves.reduce((m, l) => m.set(l.kind, (m.get(l.kind) ?? 0) + 1), new Map<string, number>());
+  const totalEdges = edges.length + leaves.length;
   const canHome = new Set<number>([idx.get(HOME) as number]);
   {
     const q = [idx.get(HOME) as number];
@@ -154,10 +178,13 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
     // still reach the squared set, which is what makes the call one that LEADS HOME.
     calls: edges.filter((e) => e.from === i).map((e) => ({ call: e.call, to: label(states[e.to]), toIdx: e.to, home: canHome.has(e.to), fromFormation: s })),
     incoming: edges.filter((e) => e.to === i).map((e) => ({ call: e.call, from: label(states[e.from]), fromIdx: e.from, fromFormation: states[e.from] })),
+    // Calls from here that land where this table has no node. Listed with the kind, because the two kinds
+    // mean different things to a reader: `out-of-scope` is a formation a higher level DOES model, `novel` is
+    // one nothing names.
+    leaves: leaves.filter((l) => l.from === i).map((l) => ({ call: l.call, kind: l.kind })),
   }));
 
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — ${n} states</title><style>
-  html,body{height:100%;overflow:hidden;overscroll-behavior:none;margin:0}
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — ${n} states</title><style>  html,body{height:100%;overflow:hidden;overscroll-behavior:none;margin:0}
   body{font-family:system-ui,Segoe UI,sans-serif;display:flex}
   #side{width:300px;flex:0 0 auto;padding:12px;overflow:auto;background:#f6f7f9;border-right:1px solid #ddd;font-size:13px;box-sizing:border-box}
   #grip{width:6px;flex:0 0 auto;cursor:col-resize;background:#e9edf1;border-right:1px solid #ddd}
@@ -177,6 +204,9 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   #nodedisp li.route-home{background:rgba(58,154,95,0.18);border-left:3px solid #3a9a5f;border-radius:3px;padding-left:4px}
   #nodedisp button.mini:hover{background:#eef2f7;border-color:#8fa8c0;color:#123}
   </style></head><body><div id="side"><h2>${esc(title)} — ${n} states, ${edges.length} edges</h2>
+  <p style="font-size:11px;color:#555;margin:2px 0 6px">${leaves.length} of ${totalEdges} edges leave the vocabulary
+  (${[...leavesByKind].map(([k, v]) => `${k} ${v}`).join(', ') || 'none'}). They are listed per formation below;
+  drawing them as stubs in the graph is separate work.</p>
   <p><span class="dot" style="background:#0a7d33"></span>home<br><span class="dot" style="background:#3a9a5f"></span>route home<br><span class="dot" style="background:#e8950c"></span>no route home (approx) (${nohomeList.length})<br><span class="dot" style="background:#d63a3a"></span>dead-end (${deadList.length})<br><span class="dot" style="background:rgba(58,154,95,0.25);box-shadow:inset 0 0 0 1px #3a9a5f"></span>call that leads home</p>
 
   <button id="rst" title="Reset pan/zoom to show the whole graph">⟲ Reset view</button>
@@ -249,7 +279,15 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   // has no such call by construction, because an edge to a formation that can home would BE a route home.
   const row=(li,arrow,c)=>{if(!arrow&&c.home){li.className='route-home';li.title='this call leaves the set still able to reach home';}const j=jumpSpan(arrow?c.from:c.to,arrow?c.fromIdx:c.toIdx);if(arrow){li.appendChild(j);li.appendChild(document.createTextNode(' → '+c.call));}else{li.appendChild(document.createTextNode(c.call+' → '));li.appendChild(j);}addOpen(li,c.call,c.fromFormation);};
   disp.addEventListener('click',e=>{const j=e.target.closest('.jump');if(j){e.stopPropagation();selectOnly(+j.dataset.node);return;}const b=e.target.closest('button.mini');if(!b)return;e.stopPropagation();parent.postMessage({type:'fsm-open',action:b.dataset.act,call:b.dataset.call,formation:b.dataset.from||null,level:LEVEL},'*');});
-  const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);const sec=(h,items,arrow)=>{const hd=document.createElement('div');hd.textContent=h;hd.style.fontWeight='600';hd.style.marginTop='4px';disp.appendChild(hd);if(!items.length){const em=document.createElement('div');em.style.color='#888';em.textContent='(none)';disp.appendChild(em);return;}const ul=document.createElement('ul');items.forEach(c=>{const li=document.createElement('li');row(li,arrow,c);ul.appendChild(li);});disp.appendChild(ul);};sec('Calls from here ('+nd.calls.length+'):',nd.calls,false);sec('Calls that lead here ('+nd.incoming.length+'):',nd.incoming,true);};
+  const showNode=i=>{disp.textContent='';if(!NODEINFO[i])return;const nd=NODEINFO[i];const t=document.createElement('div');t.innerHTML='<b>'+nd.name+'</b>';disp.appendChild(t);const b=document.createElement('div');b.style.color=STC[nd.status]||'#333';b.textContent=stText[nd.status]||nd.status;disp.appendChild(b);const sec=(h,items,arrow)=>{const hd=document.createElement('div');hd.textContent=h;hd.style.fontWeight='600';hd.style.marginTop='4px';disp.appendChild(hd);if(!items.length){const em=document.createElement('div');em.style.color='#888';em.textContent='(none)';disp.appendChild(em);return;}const ul=document.createElement('ul');items.forEach(c=>{const li=document.createElement('li');row(li,arrow,c);ul.appendChild(li);});disp.appendChild(ul);};sec('Calls from here ('+nd.calls.length+'):',nd.calls,false);sec('Calls that lead here ('+nd.incoming.length+'):',nd.incoming,true);
+  // THE TRANSIENTS, and they are a third list rather than part of "calls from here" because they have no
+  // destination to click: the call applies and the table has nowhere to record where it went. The KIND is
+  // shown because the two mean different things - out-of-scope is a formation a HIGHER LEVEL models, so a
+  // level bump would make it a node, while novel is a board no level names and only a module edge can
+  // absorb. (No backticks in here: this whole function is one template literal.)
+  {const hd=document.createElement('div');hd.textContent='Leaves the vocabulary ('+nd.leaves.length+'):';hd.style.fontWeight='600';hd.style.marginTop='4px';disp.appendChild(hd);
+  if(!nd.leaves.length){const em=document.createElement('div');em.style.color='#888';em.textContent='(none — every call from here lands on a formation)';disp.appendChild(em);}
+  else{const ul=document.createElement('ul');nd.leaves.forEach(c=>{const li=document.createElement('li');li.title=c.kind==='out-of-scope'?'a formation this level does not model, but a higher level does':'a board no level names';li.appendChild(document.createTextNode(c.call+' '));const s=document.createElement('span');s.style.color='#9a6b1f';s.textContent='→ '+c.kind;li.appendChild(s);addOpen(li,c.call,nd.fromFormation);ul.appendChild(li);});disp.appendChild(ul);}}};
   function markSel(){document.querySelectorAll('.node').forEach(nd=>{const c=nd.querySelector('.nd');const on=sel>=0&&(+nd.dataset.i===sel);c.setAttribute('stroke',on?'#111':'#00000022');c.setAttribute('stroke-width',on?'3':'1.2');});}
   function select(i){sel=sel===i?-1:i;markSel();paint();if(sel>=0)showNode(sel);else disp.textContent='Click a node to see its calls.';}
   // Selection SET, not toggled: used when a drag ends, so a node that was already selected stays

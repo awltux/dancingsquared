@@ -256,6 +256,27 @@ console.log('\n== FSM user-amendment / export + ledger ==');
     `dangling=${dangling.length}${dangling.length ? ` e.g. "${dangling[0].endFormation}"` : ''}`);
   check(allEdges.length - noEnd.length > 0, 'the labelled ends survive the namer\'s refusals',
     `${allEdges.length - noEnd.length} labelled, ${noEnd.length} unnamed of ${allEdges.length}`);
+  // SCHEMA 2: the edge says what the application DID, and WHY it has no target when it has none.
+  //
+  // The invariant is the point, and it is what makes `endKind` load-bearing rather than decorative:
+  // `'state'` exactly when there is a target. A table that resolved an end without setting the kind (or the
+  // reverse) would corrupt every downstream count - `test/fsm-asset.mjs` pins the totals, and a build that
+  // disagreed with itself would still satisfy a pin.
+  const incoherent = allEdges.filter((e) => (e.endFormation != null) !== (e.endKind === 'state'));
+  check(incoherent.length === 0, 'every edge\'s endKind agrees with whether it has a target',
+    `incoherent=${incoherent.length}${incoherent.length ? ` e.g. ${JSON.stringify(incoherent[0])}` : ''}`);
+  const readings = new Map();
+  for (const e of allEdges) readings.set(e.reading ?? '(none)', (readings.get(e.reading ?? '(none)') ?? 0) + 1);
+  // EVERY BUILD EDGE CARRIES A READING; an amendment edge is the only one that may not, because a person
+  // asserting a transition does not consult an applicator result (see `FsmTable.build`).
+  const buildNoReading = allEdges.filter((e) => e.source === 'build' && e.reading == null);
+  check(buildNoReading.length === 0, 'every build edge records a reading',
+    `${[...readings].map(([k, v]) => `${k} ${v}`).join(', ')}`);
+  // The kinds are all exercised by a table this size, so none of them is dead vocabulary.
+  const kinds = new Map();
+  for (const e of allEdges) kinds.set(e.endKind, (kinds.get(e.endKind) ?? 0) + 1);
+  check(kinds.size >= 2, 'the end classification distinguishes at least two kinds',
+    [...kinds].map(([k, v]) => `${k} ${v}`).join(', '));
   // The amendment merged into the table makes it a queryable transition.
   if (accepted) {
     check(tbl.hasTransition('Static Square', accepted), 'amendment merged into the transition table', accepted);

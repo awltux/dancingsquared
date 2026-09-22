@@ -182,6 +182,36 @@ for (const nd of blob) {
 console.log(`    ${blob.length} nodes carry ${rows} call rows, each with the formation the edge leaves from and the index of the node at the other end`);
 check(rows > 1500, 'every call row carries it - the icons need it and nothing else in the row has it');
 check(missing === 0 && dangling === 0, 'and it is always one of the table\'s own state keys, so the app is never asked to resolve a formation that does not exist');
+
+// ============================================================ 4c. the edges that leave the vocabulary
+//
+// Schema 2 records WHY an edge has no target (`FsmEndKind`), and the renderer now SAYS SO instead of hiding
+// it. The graph layout still draws only edges with a target - drawing a stub per transient is separate work,
+// recorded in PLAN.md - but the count is in the header and every node lists its own.
+console.log('\n== 4c. the edges that leave the vocabulary ==');
+{
+  const leaves = (fsm.table.edges ? Object.values(fsm.table.edges).flat() : []).filter((e) => e.endFormation == null);
+  const byKind = leaves.reduce((m, e) => m.set(e.endKind ?? 'missing', (m.get(e.endKind ?? 'missing') ?? 0) + 1), new Map());
+  const totalEdges = Object.values(fsm.table.edges ?? {}).reduce((n, l) => n + l.length, 0);
+  console.log(`    the asset holds ${totalEdges} edges, ${leaves.length} of them without a target: ` +
+    `${[...byKind].map(([k, v]) => `${k} ${v}`).join(', ')}`);
+  check(byKind.size >= 2 && byKind.get('missing') === undefined,
+    'every targetless edge in the asset carries its kind (schema 2), so the view has something to say about it');
+  check(html.includes(`${leaves.length} of ${totalEdges} edges leave the vocabulary`),
+    `the header counts them (${leaves.length} of ${totalEdges}) - a renderer that hid 28% of its own table would be the instrument failing to say so`);
+  const listed = blob.reduce((n, nd) => n + (nd.leaves?.length ?? 0), 0);
+  console.log(`    ${listed} of them are listed per node in the sidebar`);
+  // EVERY targetless edge, exactly once: the renderer walks every state's edge list, so a leaf can only be
+  // missing if the graph loop dropped it on the floor - which is what the old `continue` did.
+  check(listed === leaves.length, `every targetless edge is listed on its source node (${listed} of ${leaves.length})`);
+  check(blob.every((nd) => Array.isArray(nd.leaves)), 'and every node carries the list, empty where it has none');
+  check(/Leaves the vocabulary \(/.test(html) || html.includes("'Leaves the vocabulary ('"),
+    'the sidebar has a section for them');
+  // The graph itself is unchanged: only edges WITH a target are drawn.
+  const drawn = (html.match(/class="edge"/g) ?? []).length;
+  check(drawn > 0 && drawn <= totalEdges - leaves.length + 1,
+    `the graph still draws only the ${totalEdges - leaves.length} edges that have a target (${drawn} distinct node pairs)`);
+}
 check(badJump === 0, 'every row also names the OTHER end as a state index, and that index is the node the row displays - so clicking a name selects the board it says');
 check(/const LEVEL="ms";/.test(html), 'the document is told which level it is, so a click cannot be attributed to another authoring');
 check(/parent\.postMessage/.test(html), 'and the bridge is in the emitted document rather than only in the renderer\'s source');

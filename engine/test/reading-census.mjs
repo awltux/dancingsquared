@@ -68,7 +68,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, matchFormations, partitionsFor } from '../dist/index.js';
+import { Sequencer, setParser, matchFormations, partitionsFor, CODED_MOVE_NAMES } from '../dist/index.js';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -245,6 +245,77 @@ console.log('\n== against the stored asset: REPORTED, not asserted (the stalenes
   }
   console.log(`  edges whose reading is now known: ${[...readings].map(([k, v]) => `${k} ${v}`).join(', ')}`);
   console.log(`  edges with no reproduction in this sweep: ${readErrors}`);
+
+  // ---------------------------------------------------------------- THE READING CROSS-CHECK
+  //
+  // THE STORED EDGE NOW SAYS WHAT THE APPLICATION DID, and this harness recomputes it. The join has to be
+  // on THE APPLICATION THE TABLE SAYS IT PERFORMED, and getting that wrong is instructive enough to record.
+  //
+  // `buildFsmTable` uses the APPLICATOR for any call `legalCalls` admits, and the CODED rule only for a
+  // name the catalogue does not have - deliberately, and its own comment says why. But `Sequencer.applyToBoard`
+  // is CODED-FIRST, and NINE coded moves are ALSO catalogue titles (`Swing Thru`, `Left Swing Thru`,
+  // `Fan the Top`, `Promenade`, `Run`, `Trade`, `Fold`, `Swing Your Partner`, `Do Sa Do`). So a sweep that
+  // applies every title through `applyToBoard` is measuring the CODED `Swing Thru` where the FSM recorded the
+  // CATALOGUE one. MEASURED before this was noticed: 38 readings disagreed, EVERY ONE of them "table says
+  // partial, sweep says whole" on `Stars RH` / `Stars LH`, and the cause is that the coded `Swing Thru`
+  // reports no `parallel` structure while the catalogue authoring applies a 4-dancer variant to a quarter of
+  // the board. Both readings are real; they are readings of DIFFERENT applications.
+  //
+  // So this file's own reading census above (whole 1032 / full-tiling 504 / partial 349) is the CODED-FIRST
+  // census, and the FSM's is the applicator's. That is worth knowing on its own, and it is why the
+  // comparison below dispatches the way the table did.
+  {
+    let compared = 0;
+    let excluded = 0;
+    let readingDiff = 0;
+    const examples = [];
+    const codedNames = new Set(CODED_MOVE_NAMES);
+    let codedOnly = 0;
+    for (const state of namedStates) {
+      const board = seq.boardForFormation(state);
+      if (!board) continue;
+      const legal = new Set(seq.legalCalls(board));
+      for (const e of assetEdges(state)) {
+        if (e.source !== 'build') { excluded++; continue; }
+        // THE SAME APPLICATION THE TABLE PERFORMED: the applicator route for a call `legalCalls` admits
+        // (`{call}` skips `tryCodedMove`), the coded route otherwise. `applyToBoard` with a bare string is
+        // coded-first, which is exactly right for the second case.
+        let res;
+        try {
+          res = legal.has(e.call) ? seq.applyToBoard(board, { call: e.call }) : seq.applyToBoard(board, e.call);
+        } catch { excluded++; continue; }
+        if (!res.legal) { excluded++; continue; }
+        if (!legal.has(e.call)) codedOnly++;
+        compared++;
+        const variantSize = res.parallel ? res.parallel.variant.dancers.length : 8;
+        const cover = res.parallel ? res.parallel.groups.length * variantSize : 8;
+        const kind = !res.parallel ? 'whole' : cover >= 8 ? 'full-tiling' : 'partial';
+        if (e.reading !== kind) {
+          readingDiff++;
+          if (examples.length < 5) examples.push(`${state} / ${e.call}: table says ${e.reading}, re-applied says ${kind}`);
+        }
+      }
+    }
+    console.log(`\n  the READING cross-check, re-applying each edge the way the table did:`);
+    console.log(`    compared ${compared} build edges (${codedOnly} of them through the coded route), excluded ${excluded}`);
+    for (const x of examples) console.log(`      MISMATCH ${x}`);
+    check(readingDiff === 0,
+      readingDiff === 0
+        ? `every stored reading is the one a fresh application produces (${compared} compared)`
+        : `${readingDiff} edge(s) disagree about the reading`);
+    check(compared > 500,
+      `${compared} edges were comparable - the cross-check is not vacuous`);
+    // And the reading is not vacuous either: the FSM must record MORE THAN the whole-board case, or the
+    // field would be a constant and the cross-check would prove nothing.
+    const storedReadings = new Map();
+    for (const state of namedStates) for (const e of assetEdges(state)) storedReadings.set(e.reading, (storedReadings.get(e.reading) ?? 0) + 1);
+    console.log(`    stored readings on the named states: ${[...storedReadings].map(([k, v]) => `${k} ${v}`).join(', ')}`);
+    check((storedReadings.get('partial') ?? 0) > 0 && (storedReadings.get('full-tiling') ?? 0) > 0,
+      'the stored reading distinguishes all three cases, so the field is a measurement rather than a constant');
+    // THE DIVERGENCE ITSELF, reported because it is a live fact about the engine and the reason this join
+    // needed explaining: nine coded moves are also catalogue titles, and the two authorings do not agree.
+    console.log(`    coded moves that are also catalogue titles: ${[...codedNames].filter((n) => titles.includes(n)).join(', ')}`);
+  }
 }
 
 console.log('\n== the multi-arity pool: what a MIXED reading could actually reach ==');

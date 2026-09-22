@@ -8,13 +8,17 @@ import { Player } from './player';
 import { CallBrowser } from './browser';
 import { initSequencer } from './sequencer-ui';
 import { initEditor } from './editor-ui';
-import { renderFsmHtml, mergeFsmTables } from './fsm-view';
+import { renderFsmHtml, mergeFsmTables, type FsmEdgeData } from './fsm-view';
 import { el } from './dom';
 
 // Precomputed FSM table asset(s) written by `node poc/scripts/build-fsm-asset.mjs`.
+//
+// The edge type is `FsmEdgeData` rather than a local copy: schema 2 added `reading` and `endKind`, and a
+// second, narrower declaration here would silently strip them before the renderer ever saw them - the
+// view would compile and quietly lose the new facts.
 const fsmAssets = import.meta.glob<{
   level?: string;
-  table: { states: string[]; edges: Record<string, { call: string; endFormation: string | null }[]> };
+  table: { states: string[]; edges: Record<string, FsmEdgeData[]> };
 }>('./assets/fsm-*.json', { eager: true, import: 'default' });
 
 // ---------------------------------------------------------------- loading bar

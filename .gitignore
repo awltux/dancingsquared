@@ -25,3 +25,7 @@ callerlab-ms.txt
 
 # The FSM view document, emitted for a real browser by poc/tools/emit-fsm-view.mjs (not source).
 poc/tools/_fsm-view*.html
+
+# A probe's stdout captured to a file so it can be read (PowerShell's `>` writes UTF-16, which the
+# read tool refuses, so these are re-captured through Out-File -Encoding utf8). Never source.
+engine/test/tools/_*.txt

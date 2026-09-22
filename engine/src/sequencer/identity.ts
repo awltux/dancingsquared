@@ -4,6 +4,8 @@
 
 import { DEG } from '../core.js';
 import { matchFormations, type Matchable } from './match.js';
+import { isKnownCouple } from './constants.js';
+import type { Board, SeqDancer } from './types.js';
 import type { DancerSpec } from '../types.js';
 
 export const normAngle = (a: number) => {
@@ -62,4 +64,57 @@ export function assignHomeIdentity(dancers: DancerSpec[]): DancerSpec[] {
     const h = HOME_DANCERS[m.mapping[i]];
     return { ...d, id: h.id, couple: h.couple };
   });
+}
+
+/**
+ * The key a COUPLE-TO-SPOT assignment is written against: a dancer's position, in the millimetre
+ * precision the assignment is built at.
+ *
+ * ONE definition, deliberately. `alignment.ts` builds an assignment and this reads it back, and the
+ * two have to agree to the character or every lookup silently misses and every dancer comes back
+ * anonymous - a failure mode that looks exactly like "this formation has no setup", which is a real
+ * and expected answer. So the producer and the consumer share this function rather than each
+ * spelling out the same `toFixed(3)`.
+ */
+export const spotKey = (x: number, y: number): string => `${x.toFixed(3)},${y.toFixed(3)}`;
+
+/**
+ * Stamp home identity onto a board from a COUPLE-TO-SPOT assignment - the anchor a FASR code cannot
+ * carry, because one code admits four boards that differ only in which couple stands where.
+ *
+ * WHY NOT `assignHomeIdentity`: that one MATCHES the board's geometry to the home square, so it can
+ * only identify a squared set or something a rotation/reflection carries home - which is why 129 of
+ * the 134 named formations come back anonymous. This one takes the assignment as DATA, so a formation
+ * far from home (a two-faced line, an ocean wave) can be identified from its published setup.
+ *
+ * DANCER ORDER IS PRESERVED and the result is a NEW board with the SAME coordinates. Both matter and
+ * neither is incidental: the POC binds avatars by array index, `applyToBoard` preserves order, and
+ * `collapseModule` keys its matrices by dancer `id`. Building the answer by relabelling in place -
+ * rather than returning the setup's own board, which `boardsForAlignment` emits boys-then-girls in
+ * LATTICE order - is what keeps this a change of identity and nothing else.
+ *
+ * ALL OR NOTHING. Every physical dancer must land on a spot the assignment names, and no two may
+ * claim the same home dancer. A partial result would be worse than none: half a board with couples is
+ * a board whose sequence and relationship read as something they are not, and `sequenceFor` would
+ * report a confident wrong answer rather than "identity missing". So any failure returns the board
+ * UNCHANGED, which is the same anonymous answer the caller would have got with no assignment at all.
+ */
+export function identifyByAssignment(board: Board, assignment: Record<string, number>): Board {
+  const out: SeqDancer[] = [];
+  const used = new Set<number>();
+  for (const d of board.dancers) {
+    // A ghost is a geometric reference, not a dancer: it has no home couple to be, so it is carried
+    // through untouched rather than being allowed to veto the assignment.
+    if (d.isGhost) { out.push(d); continue; }
+    const couple = assignment[spotKey(d.x, d.y)];
+    if (!isKnownCouple(couple)) return board;
+    // The GENDER picks which of the couple's two dancers this is. An undeclared gender ('phantom')
+    // therefore cannot be resolved, and guessing between the boy and the girl would be exactly the
+    // invented identity this module exists to avoid.
+    const home = HOME_DANCERS.find((h) => h.couple === couple && h.gender === d.gender);
+    if (!home || used.has(home.id)) return board;
+    used.add(home.id);
+    out.push({ ...d, id: home.id, couple: home.couple, gender: home.gender });
+  }
+  return { ...board, dancers: out };
 }

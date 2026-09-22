@@ -22,7 +22,7 @@
 // into that table's drawing frame first.
 
 import type { Board, SeqDancer } from './types.js';
-import { HOME_DANCERS } from './identity.js';
+import { HOME_DANCERS, spotKey } from './identity.js';
 import { isKnownCouple } from './constants.js';
 
 /** Callerlab/all8 arrangement number: 0 normal, 5 half-sashayed, 1-4 others. */
@@ -1274,7 +1274,7 @@ export type CoupleToSpot = Record<string, number>;
 export function coupleToSpot(board: Board): CoupleToSpot {
   const out: CoupleToSpot = {};
   for (const d of board.dancers) {
-    if (isKnownCouple(d.couple)) out[`${d.x.toFixed(3)},${d.y.toFixed(3)}`] = d.couple;
+    if (isKnownCouple(d.couple)) out[spotKey(d.x, d.y)] = d.couple;
   }
   return out;
 }
@@ -1290,7 +1290,7 @@ export function rotationBetweenBoards(from: Board, to: Board): number | null {
   for (let k = 0; k < 4; k++) {
     const moved: CoupleToSpot = {};
     for (const d of from.dancers) {
-      if (isKnownCouple(d.couple)) moved[`${d.x.toFixed(3)},${d.y.toFixed(3)}`] = ((d.couple - 1 + k) % 4) + 1;
+      if (isKnownCouple(d.couple)) moved[spotKey(d.x, d.y)] = ((d.couple - 1 + k) % 4) + 1;
     }
     if (Object.keys(target).length === Object.keys(moved).length
       && Object.entries(target).every(([spot, couple]) => moved[spot] === couple)) return k;

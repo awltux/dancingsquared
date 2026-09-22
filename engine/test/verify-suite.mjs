@@ -88,6 +88,13 @@ const SUITE = [
   // names, so "reachable" would admit formations no ms call is authored from. ~35s: it builds the ms
   // sequencer and runs the closure, which is the expensive half.
   { h: 'level-census', sub: 'tools', light: false, why: 'runs the permissive closure over the ms call set to re-decide strict-vs-permissive' },
+  // The gate for CANONICAL IDENTITY, and it exists because the setup registry was built, gated and
+  // then wired to NOTHING while the app used a different path that only agreed with it on 3 of its 10
+  // keys. It pins the two paths apart (`boardForSetup` stands `Normal Lines` up reading `0L1p`, the
+  // registry's zero line is `0L1o`), pins the primitive that closes the gap, and pins how much
+  // legality identity buys each named formation - which is the size of the FSM edge movement when the
+  // state boards get their identity. ~20s, all of it building the sequencer.
+  { h: 'canonical-identity-probe', sub: 'tools', light: false, why: 'measures both setup paths against the registry and pins the identity the primitive stamps' },
   { h: 'all8-formation-map', light: true },
   { h: 'promenade', light: false, why: 'corpus-scale sweep' },
   { h: 'getout-conformance', light: false, why: 'decodes all 553 published lines' },

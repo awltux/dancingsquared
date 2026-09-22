@@ -95,6 +95,14 @@ const SUITE = [
   // legality identity buys each named formation - which is the size of the FSM edge movement when the
   // state boards get their identity. ~20s, all of it building the sequencer.
   { h: 'canonical-identity-probe', sub: 'tools', light: false, why: 'measures both setup paths against the registry and pins the identity the primitive stamps' },
+  // "CAN THE SEQUENCER DO X" IS A MEASUREMENT, NOT A MEMORY. Asked whether it handles what a caller
+  // says as "girls center, boys sashay" - authored here as `Ladies In, Men Sashay`, and written
+  // `Ladies Center & Men Sashay` by the corpus. It does: legal from a Circle, an EXACT variant match,
+  // landing back on a Circle, and the FSM carries it as a self-loop. What it does NOT do is pinned
+  // beside it - the two authored directions differ only in `from` ("Circle Left"/"Circle Right"), which
+  // is not a formation the engine builds, so the first match always wins; and the Circle it stands up
+  // is anonymous. ~20s, all of it building the sequencer.
+  { h: 'ladies-sashay-probe', sub: 'tools', light: false, why: 'pins whether the Ladies In, Men Sashay figure can be danced, and what it cannot do' },
   { h: 'all8-formation-map', light: true },
   { h: 'promenade', light: false, why: 'corpus-scale sweep' },
   { h: 'getout-conformance', light: false, why: 'decodes all 553 published lines' },

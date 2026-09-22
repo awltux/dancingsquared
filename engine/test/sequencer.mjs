@@ -1170,6 +1170,27 @@ console.log('\n== the end formation of a call instance, and user-defined formati
     }
     check(worst < 1e-12, `and the geometry round-trips (worst offset ${worst.toExponential(2)})`);
 
+    // AND IT BECOMES AN FSM STATE, which is the OTHER half of closing the dead end and the half the
+    // LEVEL SCOPE (Stage 0b) could have broken silently. `buildFsmTable` now takes its named half from
+    // `library.referencedFormations()` - the formations the registered calls declare - so a labelled
+    // shape is in scope only because `referencedFormationNames()` also carries `userFormations`. The
+    // first cut did not, and this check is what caught it: the label appeared in `knownFormation` and
+    // in `listFormations`, and the FSM still had no state for the board.
+    {
+      const states = seq.transitionTable().states();
+      check(states.includes('Probe End Shape'),
+        states.includes('Probe End Shape')
+          ? `a labelled formation is an FSM state (${states.length} states)`
+          : `a labelled formation is NOT an FSM state (${states.length} states, e.g. ${states.slice(0, 4).join(', ')})`);
+      check(seq.library.referencedFormationNames().has('Probe End Shape'),
+        'a labelled formation is IN the state vocabulary, because a person declared it (not only the call set)');
+      // The scope still excludes what nobody declared: the corpus is bigger than either source.
+      const corpusOnly = seq.library.getUniqueFormations().map((f) => f.name)
+        .filter((n) => !seq.library.referencedFormationNames().has(n));
+      check(corpusOnly.length > 0,
+        `${corpusOnly.length} corpus formations are still out of scope - the user label did not widen the scope to the whole corpus`);
+    }
+
     // THE SIZE RULE, measured rather than asserted: a formation is matched only against a board of
     // the SAME dancer count (`bestFormationMatch` skips the rest), and the library holds
     // eight-dancer geometries only - the constructor MIRRORS a four-dancer entry to eight. So a

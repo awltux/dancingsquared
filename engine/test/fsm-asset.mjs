@@ -47,15 +47,22 @@ const check = (cond, msg) => {
 
 // PINNED: the state and edge counts this asset is expected to hold. Re-pin with the reason.
 //
-// 155 / 1961 was the shape before the namer settlement. It is now 155 / 4656, and the growth is the
-// point of the change rather than a side effect: `legalWithResults` admits every application that
-// applies, so the 2937 applications that used to be dropped for an unnameable end are recorded - as
-// edges whose `endFormation` is `null`, because the namer now REFUSES a tied best match and a board
-// with a dancer outside the effective allowance instead of naming it after whichever candidate the
-// library happened to hold first. `Face In` from a Static Square is the witness: it used to be
-// `Static Square -> Static Square`, which it is not; it is now `null`.
-const EXPECTED_STATES = 155;
-const EXPECTED_EDGES = 4656;
+// 155 / 4656 was the shape before the level scope (Stage 0b). It is now 65 / 2260, and the shrink is
+// the point of the change rather than a side effect: the state set's NAMED half used to be all of
+// `formations.xml` (134 whole-set names), so 100 named formations no ms tam references were states -
+// `Static Facing Out`, `Right-Hand Zs`, `Single File Promenade`, `Star Promenade` and the rest. A
+// state is a formation a caller can be standing in, and a programme only lets a caller stand where
+// its own calls begin, so the named half is now the names the REGISTERED calls declare (42 names) and
+// the scope is the call set itself - which is where the level already lives (`poc/src/data.ts`
+// `sequencerCallsUpTo`). 41 of the 42 are also registered start setups, so the named half adds no
+// geometry at all; it supplies the human-readable KEYS for 42 of the 65 states, and the other 23 stay
+// `@embed#N`.
+//
+// The unnamed-end share rises with it, and that is arithmetic rather than a regression: 1648 of 2260
+// (72.9%) against 2937 of 4656 (63.1%). The edges that disappeared are the ones leaving the 100
+// out-of-scope states; the ones that remain land off the (now smaller) lattice more often.
+const EXPECTED_STATES = 65;
+const EXPECTED_EDGES = 2260;
 const EXPECTED_CATALOG = 274;
 
 const msFiles = {};
@@ -126,6 +133,56 @@ const freshEdges = fresh.edges ?? {};
         d.moved.slice(0, 3).map((c) => `${c}: ${d.sa.get(c) ?? '(none)'} -> ${d.sb.get(c) ?? '(none)'}`).join('; '));
     }
   }
+}
+
+// ---------------------------------------------------------------- the level scope (Stage 0b)
+//
+// THE LEAK ASSERTION. A state is a formation a caller can be standing in, and the engine only lets a
+// caller stand where a registered call begins - so no state may be a NAMED formation that no
+// registered `<tam>` references through `formation="..."`. Before Stage 0b the named half was all of
+// `formations.xml` and 100 of its 134 whole-set names failed this.
+//
+// It is asserted on the LIVE library rather than on the asset's text because the asset is a
+// generated artefact and the question is about the generator. The `@embed#N` states are exempt by
+// construction: they are start setups, which is the other, already-scoped source.
+{
+  const referenced = seq.library.referencedFormationNames();
+  const whole = seq.library.getUniqueFormations().map((f) => f.name);
+  const outOfScope = whole.filter((n) => !referenced.has(n));
+  const states = fresh.states;
+  const named = states.filter((s) => !s.startsWith('@embed#'));
+  const leaked = named.filter((s) => !referenced.has(s));
+  console.log(`\n== the level scope ==`);
+  console.log(`  formations.xml whole-set names        : ${whole.length}`);
+  console.log(`  referenced by a registered ms tam     : ${referenced.size}`);
+  console.log(`  out of scope (no ms tam references it): ${outOfScope.length}`);
+  console.log(`  states: ${states.length} (${named.length} named, ${states.length - named.length} @embed)`);
+  // THE REPRESENTATIVE MOVES, and that is the scoping working rather than a side effect. A geometry
+  // shared by several names is keyed by the FIRST in `formations.xml` order, and when that name is
+  // out of scope the scoped dedupe keeps the first name that IS in scope - the level's own name for
+  // the shape. MEASURED: 8 of the 42 named states are renamed this way (`Ocean Waves RH BGGB`,
+  // `Two-Faced Lines RH`, `Diamonds RH Girl Points`, `Column RH GBGB`, `Tidal Wave RH BGGB` ...).
+  // Reported, not asserted, because the count is a property of the corpus's alias order.
+  const flatRep = new Map();
+  for (const f of seq.library.getUniqueFormations()) flatRep.set(f.name, f);
+  const renamed = named.filter((s) => !flatRep.has(s));
+  console.log(`  named states that are in-scope ALIASES rather than the flat key: ${renamed.length}`);
+  if (renamed.length) console.log(`    ${renamed.join(', ')}`);
+  check(leaked.length === 0,
+    leaked.length === 0
+      ? `no state is a formation no registered call can be used from (${named.length} named states, all referenced)`
+      : `${leaked.length} state(s) are out of scope, e.g. ${leaked.slice(0, 5).join(', ')}`);
+  check(named.length <= referenced.size,
+    `the named states (${named.length}) do not outnumber the referenced names (${referenced.size})`);
+  // The scope is a SUBSET of what the corpus declares, never a superset: scoping may only remove.
+  // Checked against ALL whole-set corpus names (`getNamedFormations`), not the flat dedupe, because
+  // an in-scope alias is a declared name that simply was not the flat representative.
+  const declared = new Set(seq.library.getNamedFormations().map((f) => f.name));
+  const invented = named.filter((s) => !declared.has(s));
+  check(invented.length === 0,
+    invented.length === 0
+      ? 'every named state is a formation the corpus declares (the scope removes, it does not invent)'
+      : `${invented.length} named state(s) are not declared formations: ${invented.slice(0, 5).join(', ')}`);
 }
 
 console.log(`\nfsm-asset: ${failures === 0 ? 'all green' : `${failures} FAILED`}`);

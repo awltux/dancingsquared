@@ -17,13 +17,19 @@
 // application whose END THE NAMER REFUSES is no longer dropped from the list at all. `legalWithResults`
 // admits every application that applies, and the FSM stores the ones with no name as an edge with
 // `endFormation: null` - "the call applies and lands where the engine cannot name". MEASURED, over the
-// same 155 stored states x 274 ms calls = 4416 legal applications:
+// 42 named states the scoped state set holds x 273 ms calls = 1885 legal applications:
 //
-//   named end      1479   (whole 1025, full-tiling 169, partial 285)
-//   UNNAMED end    2937   (whole 989, full-tiling 1107, partial 841)  <- previously dropped entirely
+//   named end       889   (whole 659, full-tiling 118, partial 112)
+//   UNNAMED end     996   (whole 373, full-tiling 386, partial 237)  <- previously dropped entirely
 //
-// of which 1107 are sub-eight readings that covered ALL EIGHT dancers: the call was performed by
+// of which 386 are sub-eight readings that covered ALL EIGHT dancers: the call was performed by
 // everyone and used to be recorded as nothing at all.
+//
+// THE STATE COUNT FELL FROM 133 TO 42, and that is Stage 0b rather than a change here: the named half
+// of the FSM's state set is now the formations a REGISTERED ms CALL is used from (`library
+// .referencedFormations()`), instead of the whole of `formations.xml`. The old sweep was 133 named
+// states x 273 calls = 4416 applications, 2169 of them unnamed. Both figures are quoted in
+// PLAN.md; this is the re-measurement after the scope.
 //
 // WHY THE NAMER REFUSES MORE THAN IT USED TO (and why that used to be unsafe). `knownFormation` now
 // refuses a TIED best match (a tied best is not an identity - the `Face In` board ties `O In` with
@@ -200,7 +206,7 @@ console.log('\n== the partial readings: the call was done by SOME of the board =
   console.log(`  by the variant size that tiled: ${[...tally].map(([k, v]) => `${k}-dancer ${v}`).join(', ')}`);
 }
 
-console.log('\n== against the stored asset: REPORTED, not asserted (the asset is known stale) ==');
+console.log('\n== against the stored asset: REPORTED, not asserted (the staleness ASSERTION is fsm-asset.mjs) ==');
 {
   // REPORTED rather than asserted here: the staleness ASSERTION is `test/fsm-asset.mjs`, which
   // rebuilds the table and fails when the stored asset disagrees. Before that gate existed the asset

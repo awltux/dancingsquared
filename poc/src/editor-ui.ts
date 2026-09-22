@@ -590,6 +590,10 @@ export class EditorController implements EditorUI {
     return {
       title: name,
       from: name,
+      // NULL: a still frame is authored INLINE, dancer by dancer, so it declares no formation NAME.
+      // It reaches the level-scoped state vocabulary the same way any inline setup does - through its
+      // GEOMETRY (`allVariantSetups()`), which is what `formation` being null means everywhere else.
+      formation: null,
       parts: '',
       taminator: '',
       dancers,

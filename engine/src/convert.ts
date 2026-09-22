@@ -439,6 +439,7 @@ function buildCallImpl(
   return {
     title: tam.title,
     from: tam.from,
+    formation: tam.dancers.length === 0 ? tam.formationAttr : null,
     parts: tam.parts,
     taminator: tam.taminator,
     dancers: dancers2,

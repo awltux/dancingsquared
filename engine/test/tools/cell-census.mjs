@@ -5,11 +5,12 @@
 // DECLARED node vocabulary would and would not cover. The question it answers is the one that decides
 // whether the FSM's node count is bounded or not:
 //
-//   - how many distinct GEOMETRIES does the lattice declare, and does that match the engine's own
-//     state set (`poc/src/assets/fsm-ms.json`)? If it does, the lattice is the state set made
-//     explicit rather than a second opinion about what a formation is.
-//   - of every legal application from the FSM's own named states, how many end ON the lattice and how
-//     many land on a geometry nothing declares (a NOVEL geometry)?
+//   - how many distinct GEOMETRIES does the corpus declare, and how many of them are STATES? Those
+//     used to be the same number (155 = 155), and Stage 0b is what separated them: the state set's
+//     named half is scoped to the formations a REGISTERED CALL is used from, so 100 corpus names are
+//     declared but are not states at Mainstream. The gap is the level leak, measured.
+//   - of every legal application from the FSM's own states, how many end ON the declared lattice and
+//     how many land on a geometry nothing declares (a NOVEL geometry)?
 //   - which CALLS mint the novel geometries? That is the transient classification: the allemande pose,
 //     the grand ring and a `Roll` pivot were already identified that way in PLAN.md section 5.
 //   - how many distinct CELLS (geometry + gender arrangement + sequence + relationship) are reached,
@@ -19,11 +20,11 @@
 // maps nine engine names to six letters, and FASROO cannot extend it (it refuses a formation with no
 // agreed reference pair). The census prints the coverage rather than asserting a hope.
 //
-// THE SWEEP IS THE NAMED STATES, deliberately. The FSM's state set also holds ~880 embedded (inline)
-// variant setups, but they dedupe into about 23 geometries beyond the named ones - sweeping all 880
-// as starting boards would cost ~240k applies to explore those 23, which is not what the census is
-// for. The lattice still DECLARES them (they are one of its two sources), so "declared but not
-// reached from a named state" is reported rather than hidden.
+// THE SWEEP IS THE NAMED STATES, deliberately. The state set also holds the registered start setups
+// that have no name (23 `@embed#N` states at ms), but a state with no name has no `boardForFormation`
+// to rebuild from, so they are excluded and REPORTED. The lattice still DECLARES every setup (it is
+// one of its two sources), so "declared but not reached from a named state" is reported rather than
+// hidden.
 // ============================================================================================
 
 import { readFileSync, readdirSync } from 'node:fs';
@@ -31,7 +32,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, buildCellLattice, geometryKey } from '../../dist/index.js';
+import { Sequencer, setParser, buildCellLattice, geometryKey, CELL_ROUND } from '../../dist/index.js';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -67,22 +68,57 @@ seq.setMatchMargin(1.5);
 const TITLES = [...seq.library.callNames()];
 
 // ---------------------------------------------------------------- 1. the declared lattice
-console.log('== 1. the declared lattice ==');
+// TWO VOCABULARIES, and Stage 0b is the reason they are now different.
+//
+//   DECLARED  every shape the corpus declares: all of `formations.xml` plus every registered start
+//             setup. This is the answer to "what IS this board", and it is what the namer reads.
+//   STATE SET the engine's FSM nodes: the same setups, but the NAMED half scoped to the formations a
+//             REGISTERED CALL is used from (`formation="..."`). This is the answer to "where may a
+//             caller be standing", and a programme only allows the places its own calls begin.
+//
+// They agreed exactly (155 = 155) before the scope was applied, and that agreement is what made the
+// lattice "the engine's state set made explicit" rather than a second opinion. They no longer agree,
+// and the DIFFERENCE is the measurement: 100 of the corpus's whole-set names are referenced by no ms
+// tam, so scoping removes them. The declared lattice is still what this census sweeps against - the
+// question it answers is "where do the states' legal ends land", and an end is off-lattice when
+// nothing in the corpus declares it, which must not depend on the scope.
+console.log('== 1. the declared lattice, and the state set the engine uses ==');
 const latticeEntries = [
   ...seq.library.getUniqueFormations().map((f) => ({ name: f.name, dancers: f.dancers })),
   ...seq.library.allVariantSetups().map((s, i) => ({ name: `@embed#${i}`, dancers: s })),
 ];
 const lattice = buildCellLattice(latticeEntries);
+const scopedEntries = [
+  ...seq.library.referencedFormations().map((f) => ({ name: f.name, dancers: f.dancers })),
+  ...seq.library.allVariantSetups().map((s, i) => ({ name: `@embed#${i}`, dancers: s })),
+];
+const scoped = buildCellLattice(scopedEntries);
 const asset = JSON.parse(read('fsm-ms.json'));
 const assetStates = asset.table.states.length;
-console.log(`  geometries declared              : ${lattice.geometries.length}`);
-console.log(`  the engine's own state set       : ${assetStates}`);
-console.log(`  built from                       : ${latticeEntries.length} declared shapes (named formations + variant setups)`);
+console.log(`  geometries DECLARED by the corpus  : ${lattice.geometries.length}`);
+console.log(`  the engine's own STATE SET (scoped): ${scoped.geometries.length}`);
+console.log(`  built from                        : ${latticeEntries.length} declared shapes (named formations + variant setups)`);
 const namedGeos = lattice.geometries.filter((g) => !g.name.startsWith('@embed'));
 const embedOnly = lattice.geometries.filter((g) => g.name.startsWith('@embed'));
 console.log(`  named geometries / setup-only     : ${namedGeos.length} / ${embedOnly.length}`);
-check(lattice.geometries.length >= assetStates,
-  `the declared lattice covers the engine's own state set (${lattice.geometries.length} >= ${assetStates}; the difference is the exact-key vs 1.0-dedupe tolerance)`);
+check(lattice.geometries.length >= scoped.geometries.length,
+  `the declared lattice covers the engine's state set (${lattice.geometries.length} >= ${scoped.geometries.length})`);
+check(scoped.geometries.length >= assetStates,
+  `the scoped lattice covers the engine's state set (${scoped.geometries.length} >= ${assetStates}; the ` +
+  `${scoped.geometries.length - assetStates} extra are where the lattice's ${CELL_ROUND} key is FINER than the ` +
+  `engine's 1.0 match dedupe - near-duplicate registered setups, e.g. a formation and its "Close" variant, that ` +
+  `the engine folds together)`);
+// THE LEVEL SCOPE, stated as the difference between the two vocabularies. Before Stage 0b the named
+// half was the whole corpus and the two numbers above were equal; the gap is the level leak.
+{
+  const referenced = seq.library.referencedFormationNames();
+  const whole = seq.library.getUniqueFormations().map((f) => f.name);
+  const outOfScope = whole.filter((n) => !referenced.has(n));
+  console.log(`  corpus whole-set names            : ${whole.length}, of which referenced by an ms tam: ${referenced.size}`);
+  console.log(`  OUT OF SCOPE for ms               : ${outOfScope.length} names, e.g. ${outOfScope.slice(0, 5).join(', ')}`);
+  check(outOfScope.length > 0,
+    `${outOfScope.length} declared formations are not states at ms - the level scope bites (it did NOT before Stage 0b)`);
+}
 
 // The two halves of an arrangement, and the annotation vocabulary.
 let withLetters = [];
@@ -172,21 +208,29 @@ console.log('\n== 4. which calls mint the novel geometries ==');
 // explicit, which is what makes "a state exists because it is declared" true rather than aspirational.
 console.log('\n== 5. the pinned numbers (re-pin with the reason) ==');
 {
+  // RE-PINNED FOR STAGE 0b, and every movement is the level scope rather than a change in behaviour.
+  // The sweep starts from the FSM's named states, and there are now 42 of them, not 133: the named
+  // half of the state set is the formations ms calls are used from. So applications fall 4416 -> 1885
+  // and everything downstream with them. The RATIOS are the part that carries meaning and both hold:
+  // 55.2% of legal applications still end on a geometry nothing declares (it was 68.0%), and the
+  // novel-geometry class is still narrow (134 of 273 calls, against 141 of 273).
   const PINNED = {
-    geometries: 155,
+    declaredGeometries: 155,
+    stateSet: 70,
     namedGeometries: 129,
     setupOnlyGeometries: 26,
     letteredGeometries: 9,
-    applications: 4416,
-    onLattice: 1414,
-    offLattice: 3002,
-    novelGeometries: 1923,
-    cells: 396,
-    letteredCells: 57,
+    applications: 1885,
+    onLattice: 844,
+    offLattice: 1041,
+    novelGeometries: 643,
+    cells: 216,
+    letteredCells: 50,
     fullCells: 22,
   };
   const measured = {
-    geometries: lattice.geometries.length,
+    declaredGeometries: lattice.geometries.length,
+    stateSet: scoped.geometries.length,
     namedGeometries: namedGeos.length,
     setupOnlyGeometries: embedOnly.length,
     letteredGeometries: withLetters.length,
@@ -205,13 +249,18 @@ console.log('\n== 5. the pinned numbers (re-pin with the reason) ==');
   }
   check(moved === 0,
     moved === 0
-      ? `all ${Object.keys(PINNED).length} pinned numbers hold (lattice ${PINNED.geometries} = the engine's own state set)`
+      ? `all ${Object.keys(PINNED).length} pinned numbers hold (declared lattice ${PINNED.declaredGeometries}, state set ${PINNED.stateSet})`
       : `${moved} pinned number(s) moved - decide and re-pin`);
-  // The structural claim, stated as a ratio so it survives a catalogue change without re-pinning.
+  // The structural claims, stated as ratios so they survive a catalogue or scope change without
+  // re-pinning.
   const offShare = offLattice / apps;
   console.log(`  the vocabulary gap: ${(offShare * 100).toFixed(1)}% of legal applications end on a geometry nothing declares`);
   check(offShare > 0.5,
     `more than half of every legal application ends OFF the declared lattice - the node set is bounded by DECLARATION, not by reachability`);
+  const scopeShare = 1 - scoped.geometries.length / lattice.geometries.length;
+  console.log(`  the level scope: ${(scopeShare * 100).toFixed(1)}% of the declared lattice is not a state at ms`);
+  check(scopeShare > 0.25,
+    `the level scope removes ${(scopeShare * 100).toFixed(1)}% of the declared lattice - a level-blind state set is most of its nodes`);
 }
 
 console.log(`\ncell-census: ${failures === 0 ? 'all green' : `${failures} FAILED`}`);

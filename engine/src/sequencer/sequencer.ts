@@ -686,8 +686,29 @@ export class Sequencer {
       keyOf.set(key, key);
       return dancers;
     };
-    // Named formations first (stable, human-readable keys).
-    for (const f of this.library.getUniqueFormations()) addState(f.name, f.dancers);
+    // THE NAMED HALF IS LEVEL-SCOPED, and that is the whole of Stage 0b. `getUniqueFormations()` is
+    // all of `formations.xml` - the right vocabulary for NAMING a board, and the wrong one for a STATE
+    // SET, because a programme only lets a caller stand where its own calls begin. MEASURED: the flat
+    // list hands the Mainstream FSM 129 named geometries where ms tams reference 42 names (41
+    // geometries), and 100 of its named formations are referenced by no ms tam at all.
+    //
+    // The scope is the CALL SET, so the engine needs no level concept: the level IS the calls
+    // registered, which is exactly how `poc/src/data.ts` models it (`sequencerCallsUpTo`).
+    //
+    // The alternative - "a formation is introduced at the lowest level whose calls can REACH it" - was
+    // MEASURED AND REFUSED. Seeding the closure with the 42 geometries ms declares and applying the
+    // 273 ms calls (3063 legal applications, 16 s) reaches **78 of the 131 declared named geometries,
+    // 34 of them named only ABOVE Mainstream**: `Static MiniWaves RH` via `Boys Run`, `T-Bone DRDR` via
+    // `All 8 Circulate`, `T-Bone RDRD` via `Face Left`, `3/4 Lines RH` via `Boys Run`. So "reachable"
+    // admits 34 formations no Mainstream call is authored from, and destroys the very gate it was
+    // proposed to keep. Reachability is still worth knowing - those 36 geometries (78 reached minus
+    // the 42 declared) are exactly the transients Stage 3's modules must ABSORB so they never become
+    // states - but it is not the declaration. `test/tools/level-census.mjs` keeps the measurement.
+    //
+    // WITH THE SCOPE APPLIED THE NAMED HALF ADDS NO GEOMETRY AT ALL: every referenced name is also a
+    // registered start setup, so the states are precisely the start setups of the calls registered and
+    // the named half only supplies human-readable KEYS. That is the clean statement of the rule.
+    for (const f of this.library.referencedFormations()) addState(f.name, f.dancers);
     // Then every call-variant start setup (embedded/inline formations).
     for (const setup of this.library.allVariantSetups()) {
       addState(`@embed#${stateGeo.size}`, setup);

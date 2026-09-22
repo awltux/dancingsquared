@@ -313,6 +313,65 @@ export class CallLibrary {
     return this.uniqueFormations;
   }
 
+  /**
+   * The named formations the REGISTERED CALLS actually start from, deduped by geometry the same way
+   * `uniqueFormations` is. This is the LEVEL-SCOPED counterpart of `getUniqueFormations()`.
+   *
+   * WHY THE TWO DIFFER, and why both are needed. `getUniqueFormations()` is the whole of
+   * `formations.xml`, so it answers "what is this board called" - a question about the corpus, and the
+   * right vocabulary for `knownFormation` and `recognize`, which should name any board they can.
+   * This answers "which formations may a call of THIS programme be used from" - a question about the
+   * call set, and the right vocabulary for the FSM's STATE SET, because a state is a formation the
+   * caller can be standing in and a programme only lets a caller stand where its own calls begin.
+   *
+   * MEASURED (Stage 0b). `formations.xml` declares 273 names and 219 of them are referenced by some
+   * tam's `formation=`; only **99** are referenced by a tam at or below Mainstream, and only 67 of
+   * those survive as whole sets. So the flat list hands the Mainstream FSM **131 named geometries**
+   * where its own calls declare **42** - the other 89 are formations no Mainstream call introduces,
+   * which is the level leak stated as a number. Deriving the state set from the calls registered is
+   * what closes it, and it needs no level concept in the engine: the level IS the call set.
+   *
+   * THE DEDUPE REPRESENTATIVE IS THE FIRST IN-SCOPE NAME IN `formations.xml` ORDER, matching the
+   * constructor's rule, so a state keeps a human-readable name rather than an alias chosen by
+   * whatever the reference order happened to be.
+   *
+   * THE SCOPE IS THE CALL SET **PLUS THE USER'S OWN LABELS** - see `referencedFormationNames` for why
+   * the second half is not optional.
+   */
+  referencedFormations(): { name: string; dancers: Matchable[] }[] {
+    const used = this.referencedFormationNames();
+    const out: { name: string; dancers: Matchable[] }[] = [];
+    for (const fm of this.namedFormations) {
+      if (!used.has(fm.name)) continue;
+      if (out.some((u) => matchFormations(u.dancers, fm.dancers, 0.5) !== null)) continue;
+      out.push(fm);
+    }
+    return out;
+  }
+
+  /**
+   * The names `referencedFormations()` is derived from, before the geometry dedupe. The scope, as a
+   * set a caller can report or compare without re-deriving it.
+   *
+   * TWO SOURCES, and the second is not an afterthought. A formation is in scope because a registered
+   * call declares it (`formation="Name"`), OR because a PERSON labelled it via `registerFormation`.
+   * The second half is load-bearing and was MISSING in the first cut of this method: that method's
+   * whole documented purpose is that "the engine will not say what formation the dancers are in, so
+   * the FSM has no state for it" is a dead end, and labelling one "is how that dead end gets closed".
+   * A scope that took only the calls would have closed the dead end for `knownFormation` and left it
+   * open for the FSM - silently, because no gate covered that half. `test/sequencer.mjs` now does.
+   *
+   * Both sides are compared as written: a corpus `<tam>` writes the name exactly as `formations.xml`
+   * declares it, and `registerFormation` canonicalises the name it stores in BOTH lists.
+   */
+  referencedFormationNames(): Set<string> {
+    const used = new Set<string>(this.userFormations);
+    for (const variants of this.variants.values()) {
+      for (const v of variants) if (v.formation) used.add(v.formation);
+    }
+    return used;
+  }
+
   /** Flatten a sequence, expanding user-defined modules (cycle-guarded). Returns
    * the flattened module steps, preserving any dancer selection.
    *

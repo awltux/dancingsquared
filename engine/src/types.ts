@@ -146,6 +146,21 @@ export interface CallBundle {
   // IGNORES it when it mirrors a four-dancer setup to eight. Carried so that mis-registration is
   // visible and pinnable; see `TamRaw.actives` in convert.ts and PLAN.md's Phase C.
   actives?: string | null;
+  /**
+   * The NAME this tam declared its start formation by (`formation="Name"` against `formations.xml`),
+   * or `null` when the tam carried the setup INLINE and named nothing.
+   *
+   * WHY IT IS KEPT. `buildCallImpl` resolves the dancers from that name and then dropped it, so the
+   * engine could say what GEOMETRY a call starts from but not which declared formation a CALLER
+   * asked for. Those are different questions and the second one is the level question: a programme
+   * restricts which formations a call may be used from, and that restriction is written in exactly
+   * this attribute. Adding it here is what lets the state vocabulary be derived from the calls
+   * actually registered instead of from the whole `formations.xml` (Stage 0b).
+   *
+   * `from="..."` is NOT this. `from` is free text for the user - `buildCallImpl` never reads it - so
+   * a tam whose only name is `from="Lines"` has declared its setup INLINE and this is `null`.
+   */
+  formation: string | null;
 }
 
 export interface Pose {

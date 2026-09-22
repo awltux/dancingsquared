@@ -902,6 +902,12 @@ export function synthesizeSetup(core: CallBundle, setup: NewSetup): CallBundle {
   return {
     title: core.title,
     from: setup.name,
+    // NULL, and it is the same answer the round trip gives: `setupToXml` writes this bundle in EMBED
+    // mode, where the dancers are inline and `callToXml` emits no `formation` attribute at all. So
+    // this setup reaches the state vocabulary through `allVariantSetups()` (its GEOMETRY), not through
+    // a declared name - which is right, because `setup.name` is a user's LABEL for a shape, not a
+    // reference into `formations.xml`.
+    formation: null,
     parts: core.parts,
     taminator: core.taminator,
     dancers: newDancers,
@@ -1003,6 +1009,8 @@ export function synthesizeSetupChain(coreA: CallBundle, coreB: CallBundle, spec:
   return {
     title: coreA.title,
     from: spec.name,
+    // NULL, for the same reason as `synthesizeSetup`: an EMBED-mode authoring with a user's label.
+    formation: null,
     parts: coreA.parts,
     taminator: coreA.taminator,
     dancers: newDancers,

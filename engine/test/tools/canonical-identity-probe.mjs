@@ -1,24 +1,26 @@
-// WHAT IDENTITY DOES EACH SETUP PATH PRODUCE TODAY?
+// WHAT IDENTITY DOES EACH SETUP PATH PRODUCE?
 //
-// The setup registry (`FORMATION_SETUP_CODE` + `setupForFormation`) is built and gated, but nothing in
-// production calls it. Two DIFFERENT paths stand dancers up for a formation NAME, and this measures
-// what each one actually yields:
+// The setup registry (`FORMATION_SETUP_CODE` + `setupForFormation`) is what makes a formation's zero
+// setup expressible at all, and it was built, gated, and then wired to NOTHING while the app used a
+// different path. This probe measured that gap, and it keeps the two paths pinned together now that
+// they are joined. Two DIFFERENT paths stand dancers up for a formation NAME:
 //
 //   - `boardForFormation(name)` - the ANONYMOUS template: geometry plus each slot's declared gender,
 //     and no home couple at all for 129 of the 134 offered formations. Roughly sixty probes and
 //     harnesses call this AS the anonymous path, on purpose (`zero-line-probe.mjs` says so in its
 //     header: "`boardForFormation('Normal Lines')` is `[L0]` by its GENDER pattern, but it carries NO
-//     identity"), so it is an instrument as much as a product.
+//     identity"), so it is an instrument as much as a product. It is NOT what the app sets up from.
 //   - `boardForSetup(name)` - what the app actually calls. The Set dropdown
 //     (`sequencer-ui.ts` `setBoardFormation` -> `setSetup`) and the module start
 //     (`replayModule` -> `boardForSetup`) both go here, and NOT through `boardForFormation`.
 //
-// `boardForSetup` builds the code `<letter>1`: arrangement 0, sequence 1, and NO RELATIONSHIP LETTER.
-// That omission is the thing worth measuring, because `canonicalBoard` selects on
+// `boardForSetup` used to build the code `<letter>1`: arrangement 0, sequence 1, and NO RELATIONSHIP
+// LETTER. That omission was the defect, because `canonicalBoard` selects on
 // (letter, sequence, relationship) - with no relationship in the spec its lookup is `undefined` and it
-// falls back to `boards[0]`, the enumeration's first board rather than All8's. The registry names the
-// relationship (`L1o`, `W1p`, `F1p`, `B1c`), so wherever `CANONICAL_INDEX` measured a NON-ZERO index
-// the two paths stand up different couples on the same geometry.
+// falls back to `boards[0]`, the enumeration's first board rather than All8's. MEASURED, it agreed with
+// the registry on THREE of ten keys and stood `Normal Lines` up reading `0L1p` where the zero line is
+// `0L1o` - which is the reported "very unusual setup", live. It consults the registry first now, and
+// the `<letter>1` derivation is the fallback for the five formations the registry has no entry for.
 //
 // Usage: node engine/test/tools/canonical-identity-probe.mjs
 
@@ -188,17 +190,23 @@ const pin = (label, got, want) => {
 };
 pin('registry keys', Object.keys(FORMATION_SETUP_CODE).length, 10);
 pin('keys the primitive identifies from the assignment alone', primOk, 10);
-// THE DEFECT THIS MEASURES, pinned at its measured value. Only three of the ten agree, and the three
-// are the ones where `boards[0]` HAPPENS to be All8's board. The number moves to 10 when
-// `boardForSetup` consults the registry - that is the commit that re-pins it, deliberately.
-pin('registry keys where the WIRED board already IS the registry board', agree, 3);
+// THE DEFECT THIS WAS WRITTEN FOR, and the number that says it is closed. It was 3: `boardForSetup`
+// derived the setup from the letter alone (`<letter>1`), which names no relationship, so
+// `canonicalBoard` fell back to `boards[0]` and only the three keys where `boards[0]` happens to be
+// All8's board agreed. It is 10 now that `boardForSetup` consults the registry, and this pin is why
+// the wiring cannot be quietly undone.
+pin('registry keys where the WIRED board already IS the registry board', agree, 10);
 pin('offered 8-dancer formations', offered, 134);
-pin('identified by boardForSetup', byWired, 10);
+// 13 = the registry's 8, plus the 5 the `<letter>1` FALLBACK still carries. That the fallback is still
+// load-bearing is the point of the pair of pins below.
+pin('identified by boardForSetup', byWired, 13);
 pin('identified by the registry', byRegistry, 8);
 pin('identified by the wired path but NOT the registry', wiredOnly,
   ['Double Pass Thru', 'O Eight Chain Thru', 'O In', 'O Out', 'O Trade By']);
-pin('identified by the registry but NOT the wired path', registryOnly,
-  ['Normal Lines Compact', 'Ocean Waves RH BGGB Compact', 'Two-Faced Lines RH Compact']);
+// WAS THREE - the compact variants the fallback left ANONYMOUS because the letter's code builds the
+// first template for that letter, not the compact one, and the same-formation test then rejected it.
+// The registry takes the NAME's own geometry as the template, so they are identified now.
+pin('identified by the registry but NOT the wired path', registryOnly, []);
 pin('measured non-zero canonical indices', nonZeroIds, [
   'B1p', 'B2p', 'L1p', 'L2p', 'L3c', 'L4r', 'W1p', 'W2p', 'F1p', 'F2p', 'L.F1p', 'L.F2p',
 ]);

@@ -25,6 +25,7 @@ import {
 } from './fsm-table.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { HOME_DANCERS } from './identity.js';
+import { identifyByAssignment } from './identity.js';
 import { matchFormations } from './match.js';
 import { mul5, dancerMatrix, type Mat5 } from '../matrix.js';
 import { DEFAULT_MATCH_MAX } from './constants.js';
@@ -33,7 +34,7 @@ import { CODED_MOVE_NAMES, applyCodedMove, codedMoveApplies, findCodedMove } fro
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
-import { boardForFasrCode, FORMATION_LETTER, FORMATIONS_FOR_LETTER } from './alignment.js';
+import { boardForFasrCode, setupForFormation, FORMATION_LETTER, FORMATIONS_FOR_LETTER } from './alignment.js';
 import type { Matchable } from './match.js';
 import type { Board, CallStep, Fasr, Module, ModuleStep, RecognizedFormation, SeqDancer, SeqStep, VariantMatch } from './types.js';
 import { isGroupStep, stepCall, stepLabel } from './types.js';
@@ -402,15 +403,42 @@ export class Sequencer {
    * `boardForFormation('Normal Lines')` is identity 0/8, and `boardForFasrCode('L1')` - arrangement 0
    * (All8's "normal"), sequence 1 (both in sequence) - is identity 8/8 on the same geometry.
    *
-   * "WHEN POSSIBLE" IS THE SAME-FORMATION TEST, and it is what keeps this from changing an answer: the
-   * code for a letter builds the letter's FIRST template, so `Normal Lines Compact` would come back as
-   * plain `Normal Lines`. The name wins there, because a caller who asked for the compact line and got
-   * the wide one has been silently overruled rather than helped.
+   * THE REGISTRY IS TRIED FIRST, and that is the difference a MEASUREMENT made. This used to derive the
+   * setup from the formation's letter alone (`<letter>1`), which is arrangement 0 and sequence 1 but
+   * names NO RELATIONSHIP - and a code with no relationship cannot pin the board, because one code's
+   * enumeration admits four boards that differ only in which couple stands where. `canonicalBoard`
+   * therefore found no index for the spec and fell back to `boards[0]`, the first board the ENUMERATION
+   * happened to produce. MEASURED by `test/tools/canonical-identity-probe.mjs`: of the registry's ten
+   * keys that path agreed with All8's board on THREE, and `Normal Lines` came back reading `0L1p` where
+   * the zero line is `0L1o` - so the app was standing a module up on a line that is not the one its
+   * label names. That is the reported symptom ("the sequencer seems to use a very unusual setup for some
+   * of the initial formations"), and it was live.
+   *
+   * `setupForFormation` carries the part a code cannot: the couple-to-spot ANCHOR, measured against
+   * All8's own published diagrams. Its assignment is applied to the anonymous board by
+   * `identifyByAssignment`, which OVERWRITES identity and nothing else - the positions, headings, dancer
+   * ORDER and declared genders all stay the template's, because the POC binds avatars by array index.
+   *
+   * THE OLD DERIVATION STAYS AS THE FALLBACK, deliberately: the registry covers ten names and the app
+   * offers 134, and five formations (`Double Pass Thru`, `O Eight Chain Thru`, `O In`, `O Out`,
+   * `O Trade By`) get a correct identity from the letter path that the registry has no entry for. So
+   * this is additive for them rather than a swap - nothing that has identity today loses it.
+   *
+   * "WHEN POSSIBLE" IS THE SAME-FORMATION TEST, and it is what keeps the fallback from changing an
+   * answer: the code for a letter builds the letter's FIRST template, so `Normal Lines Compact` would
+   * come back as plain `Normal Lines`. The name wins there, because a caller who asked for the compact
+   * line and got the wide one has been silently overruled rather than helped. The registry has no such
+   * problem - it takes the NAME's geometry as the template - which is why three compact variants that
+   * were ANONYMOUS on the fallback are identified now.
    *
    * `setFormation` is deliberately left as it is: it is the plain geometry/template path the harnesses
    * use to build anonymous boards ON PURPOSE (the Formation-tab tests), and this is the setup path.
    */
   boardForSetup(name: string): Board | null {
+    const anon = this.boardForFormation(name);
+    if (!anon) return null;
+    const setup = setupForFormation(name, (n) => this.boardForFormation(n));
+    if (setup) return identifyByAssignment(anon, setup.assignment);
     const wanted = canonicalName(name) ?? name;
     const letter = Object.entries(FORMATION_LETTER)
       .find(([n]) => (canonicalName(n) ?? n) === wanted)?.[1];
@@ -424,7 +452,7 @@ export class Sequencer {
       }).board;
       if (built && (canonicalName(this.knownFormation(built) ?? '') ?? '') === wanted) return built;
     }
-    return this.boardForFormation(name);
+    return anon;
   }
 
   /** Set the current board to the SETUP board for `name` (`boardForSetup`): the identified,

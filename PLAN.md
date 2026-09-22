@@ -2132,6 +2132,58 @@ this reconnaissance has already shown holds by construction. Recorded here so no
 re-litigated, and none of them is a reason to abandon the stage: they are reasons not to build it on the
 shipped corpus or on geometry-keyed nodes.
 
+**THE FSM VIEW WAS CHECKED IN A REAL BROWSER FOR THE FIRST TIME, AND IT HAD TWO DEFECTS.** Both are
+consequences of Stage 2's edge changes and **neither was visible to any existing check** — `fsm-open-probe.mjs`
+only ever regexed the emitted STRING, and both defects are invisible in the string: the fit is fine per-axis,
+and a blob is perfectly valid geometry. Recorded here because the lesson is the instrument, not the fixes.
+
+**1. THE FIT CLIPPED THE GRAPH.** `S = 1800 / (maxX - minX)` was applied to BOTH axes, so it fits only while
+the layout is wider than it is tall — and a force layout's aspect follows the EDGE COUNT. MEASURED:
+
+```
+asset before Stage 2   164 node pairs drawn   x 100..1900   y 100..1814    fits
+asset after  Stage 2   516 node pairs drawn   x 100..1900   y 100..2650    650 units OUTSIDE
+```
+
+against `viewBox="0 0 2000 2000"`, which the SVG silently CLIPS. The fit now uses the larger extent and
+centres the other axis. The bug predates Stage 2; Stage 2 EXERCISED it, which is the only reason it was found.
+
+**2. TWO LAYOUTS DISAGREED, AND THE READER SAW THE WRONG ONE.** The document contains BOTH a PRERENDER (400
+FR iterations baked into each node's transform) and a LIVE SIMULATION, and only the simulation has a
+centripetal pull toward (1000,1000). Without it one node ejects to a large radius and the bounding-box fit —
+which normalises by those extremes — SHRINKS everything else. MEASURED on the ms asset:
+
+```
+prerender   median nearest-neighbour  3.6   overlapping 64 of 65   mass in  7% of the frame
+settled     median nearest-neighbour 57.3   overlapping  5 of 65   mass in 62% of the frame
+```
+
+with a node radius of 13–20 units, so 3.6 is a blob and 57.3 clears the label box. The simulation only started
+from a node's `pointerdown`, so **the blob was what a reader saw UNTIL they happened to touch a node** — and
+then it reflowed, which reads as the view being broken until touched. REPORTED FROM THE APP and reproduced
+headless. Fixed by AUTO-SELECTING HOME AND STARTING THE SIMULATION ON LOAD, which also opens the sidebar on the
+squared set (94 calls) instead of "Click a node to see its calls." **`select` alone does NOT reflow** — it only
+paints and fills the sidebar — so the fix must kick the simulation, and the gate asserts both.
+
+**THE FIRST VERSION OF THAT FIX LOOKED RIGHT AND DID NOTHING**, and it is the most transferable thing in this
+entry. It called `idx.get(HOME)`: those are `renderFsmHtml`'s OWN variables and do not exist in the emitted
+page, so the page threw a **silent ReferenceError**, kept rendering, and stayed a blob. No string-level check
+could see it, because the text contained everything the fix was supposed to ADD. It was caught by measuring the
+document's own geometry **from inside the browser** — via `document.title`, because `browser_evaluate` is
+disabled in this environment, so the document has to report on itself. The gate now asserts the ABSENCE that
+would have caught it: **the page must never call `idx.get(...)`**. A blunt "no `idx` or `HOME` anywhere" check
+was tried first and is itself WRONG — the document legitimately declares `jumpSpan=(text,idx)` and says "HOME"
+in three prose comments — and that is recorded so it is not re-proposed.
+
+**TWO TOOLS, so this is repeatable rather than a one-off:** `poc/tools/emit-fsm-view.mjs` writes the document
+the app frames (`--probe` appends a diagnostics script), and `poc/tools/serve-view.mjs` gives it a loopback
+origin, because this environment's browser tool refuses `file://`. The generated documents are gitignored.
+
+**STILL OPEN, and deliberately not touched:** the two layouts duplicate each other, and merging them means
+deciding which force parameters are correct — a design change rather than a fix. The `fsm-view` module is also
+352 lines of one template literal, which is why a stray backtick in a comment has now produced a syntax error
+three times in this file; that is its own small item.
+
 ### Phase H — the solver side (the Phase 3 leftover)
 
 **Owner:** the search's remaining C term. `library.allVariantSetups()` is still the flat list that

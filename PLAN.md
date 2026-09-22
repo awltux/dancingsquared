@@ -1996,6 +1996,73 @@ fully-mapped tips before this change: it registers `ms,b1,b2,a1,a2,plus,c1,c2` A
 library, so `register`'s last-wins overwrite hands most titles a lower level's authoring — the exact
 hazard `poc/src/data.ts::sequencerCallsUpTo` documents. Recorded, not fixed.
 
+**STAGE 2 DONE — THE EDGE SAYS WHAT HAPPENED, AND WHY IT HAS NO TARGET (schema 2).**
+(`engine/src/sequencer/fsm-table.ts` — `FsmReading` + `FsmEndKind`; the enumeration is in
+`buildFsmTable`; gates in `fsm-asset.mjs`, `reading-census.mjs`, `behaviour-audit.mjs`; the view in
+`poc/src/fsm-view.ts`.)
+
+**TWO FACTS PER EDGE, and before this both were computed and thrown away.** `reading` is how much of the
+board the application actually moved — `whole` / `full-tiling` / `partial` — because `parallelApply` can
+tile the board into copies of a sub-board variant and `partitionPartial` leaves the rest STANDING, so a
+partial application was stored as though everyone did the call. `endKind` is where the edge lands and, when
+there is no target, WHY. MEASURED on the ms table (65 states, 2260 edges):
+
+```
+reading   whole 1174   full-tiling 665   partial 421
+endKind   state 1619   novel 624         out-of-scope 17
+```
+
+`endKind` is the axis Stage 0b CREATED and nothing could see. Before the level scope a null end meant one
+thing; after it there are two, and they call for opposite responses: **`out-of-scope`** is a formation the
+corpus NAMES but this table does not model as a state, so a LEVEL BUMP would make it a node (17 edges);
+**`novel`** is a board no level names, which only a module edge can absorb (624). The invariant that makes
+the field trustworthy is gated in two harnesses: `endKind === 'state'` EXACTLY when `endFormation` is set.
+
+**THE FIELD WAS WRONG ON MOST OF ITS EDGES UNTIL THE RESOLUTION RULE WAS FIXED, and that is the finding.**
+An end used to be resolved BY NAME only, so a node with no name could never be an edge's target. MEASURED
+over the 42 named ms states: of the 924 edges the name lookup could not resolve, **496 were landing on a
+state's own geometry** — 464 on an `@embed#N` state and 32 on a named state whose namer answer was refused.
+`buildFsmTable` now falls back to a geometry scan at the tolerance `addState` itself dedupes with
+(`matchFormations(dancers, g, 1.0)`), which is UNAMBIGUOUS BY CONSTRUCTION: `addState` folds candidates at
+exactly that tolerance, so the surviving state geometries are pairwise further apart than it and a board can
+match at most one. The name still wins wherever there is one — it is the readable answer — and the scan is
+the fallback for the case the name path structurally cannot express. **Edges with a target: 612 → 1619
+(27% → 72%).**
+
+**A MEASUREMENT TRAP WORTH KEEPING, because it nearly produced a false defect report.** A probe that
+re-applied each edge through `Sequence.applyToBoard` found 25 edges the table calls `novel` whose end
+matched a state geometry at error 0.000, which reads as the scan being broken. It is not: `applyToBoard` is
+CODED-FIRST (`tryCodedMove`, then the applicator) while `buildFsmTable` deliberately records the
+APPLICATOR's result for any call `legalCalls` admits and the coded rule only for a name the catalogue does
+not have. The two paths are different applications, and MEASURED they disagree about the end on **258 edges
+over 87 calls** (74 of them the derived/coded selection names — `Boys Run`, `Girls Trade`, `Centers Run`).
+So the probe was measuring one path and the table the other. That divergence is real and its own open item;
+it is NOT a defect in the scan, and the distinction only became visible because the disagreement was chased
+to the dispatch rather than assumed away.
+
+**AND THE SAME DISPATCH SPLIT MAKES `reading-census`'S OWN CENSUS A DIFFERENT CENSUS.** Nine coded moves are
+ALSO catalogue titles — `Swing Thru`, `Left Swing Thru`, `Fan the Top`, `Promenade`, `Run`, `Trade`, `Fold`,
+`Swing Your Partner`, `Do Sa Do` — so that harness's reading totals (whole 1032 / full-tiling 504 /
+partial 349) are the CODED-FIRST readings while the FSM's are the applicator's. Both are real, of different
+applications. The cross-check therefore dispatches the way the table did and re-applies each edge: **1809
+edges compared, 0 reading mismatches.** Its first version compared through `applyToBoard` and failed on 38
+edges, every one "table says partial, sweep says whole" on `Stars RH`/`Stars LH` — the coded `Swing Thru`
+reports no `parallel` structure where the catalogue authoring applies a 4-dancer variant to a quarter of the
+board. The failure was the instrument, and it is recorded rather than pinned around.
+
+**THE VIEW SAYS SO NOW RATHER THAN HIDING IT.** `poc/src/fsm-view.ts` dropped every null end when building
+the graph, so it silently declined to draw 28% of its own table. It now counts them in the header
+(`641 of 2260 edges leave the vocabulary (novel 624, out-of-scope 17)`) and lists them per formation in the
+sidebar with their kind, which is where a reader is already looking. **The GRAPH still draws only edges with
+a target** — a stub per transient is a layout change and remains separate work, recorded here as such.
+`poc/tools/fsm-open-probe.mjs` gains the section that checks this on the emitted document, and it is the
+only verification of the view available here (no browser).
+
+**SCHEMA 2, and `load` accepts only the current version**, so a stored v1 asset is refused rather than read
+with the new fields silently absent — the same rule as before, and the reason `fsm-ms.json` is regenerated
+in the same change. The counts 65 / 2260 are UNCHANGED by it: the reading and the classification are facts
+about the edges, not new edges. Build time 17 s → 21 s.
+
 ### Phase H — the solver side (the Phase 3 leftover)
 
 **Owner:** the search's remaining C term. `library.allVariantSetups()` is still the flat list that

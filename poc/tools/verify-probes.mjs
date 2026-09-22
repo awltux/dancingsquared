@@ -61,6 +61,12 @@ class ProbeExit {
 
 const realExit = process.exit;
 const realLog = console.log;
+// AND OUR OWN FLAGS MUST NOT REACH A PROBE. Probes are imported in-process, so they read OUR
+// `process.argv` - and several take a call name from `argv[2]`. Under `--all` they were therefore asked
+// for a call titled `--all`: `clone-refusal-probe.mjs` and `facing-chain-probe.mjs` both FAILED on
+// exactly that, so `--all` - the mode that is supposed to check MORE - was checking those two less than
+// the fast tier did. Each probe now sees the argv it would see run on its own.
+const realArgv = process.argv;
 const results = [];
 for (const file of files) {
   const lines = [];
@@ -69,6 +75,7 @@ for (const file of files) {
   let crashed = null;
   let judgedOnOutput = false;
   process.exit = (c) => { throw new ProbeExit(typeof c === 'number' ? c : 0); };
+  process.argv = [realArgv[0], path.join(DIR, file)];
   const started = Date.now();
   try {
     await import(pathToFileURL(path.join(DIR, file)).href);
@@ -85,6 +92,7 @@ for (const file of files) {
   } finally {
     process.exit = realExit;
     console.log = realLog;
+    process.argv = realArgv;
   }
   results.push({ file, code, lines, ms: Date.now() - started, crashed, judgedOnOutput });
   console.log(`${code === 0 ? 'ok  ' : 'FAIL'}  ${file.padEnd(32)} ${String(Date.now() - started).padStart(6)} ms`);

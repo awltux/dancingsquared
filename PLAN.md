@@ -2184,6 +2184,42 @@ deciding which force parameters are correct — a design change rather than a fi
 352 lines of one template literal, which is why a stray backtick in a comment has now produced a syntax error
 three times in this file; that is its own small item.
 
+**THE POC'S OWN PROBE SUITE IS NOW IN ITS GATE, WHICH IS WHAT ITS OWN RUNNER WAS WRITTEN FOR.** Recorded here
+because it is the same failure this repo keeps finding, one level up: `poc/tools/verify-probes.mjs` exists, is
+well designed, and DISCOVERS every `*-probe.mjs` by name so a new probe cannot forget to register itself — and
+its own header says *"Twenty-odd probes … and NOTHING RAN ANY OF THEM … A probe nobody runs is a probe that is
+already stale; it just has not been noticed yet."* But `poc/package.json` wired only `verify.cjs`, and the root
+`verify` runs that, so the suite was reachable only by a person who already knew to ask for it. MEASURED before
+touching anything: **27 probes, all green, 582 s** — so the mechanism worked and nothing was broken, which is
+exactly why it went unnoticed.
+
+**ONE PROBE COST MORE THAN THE OTHER TWENTY-SIX TOGETHER, and that is what the split is for.**
+`call-formations-probe.mjs` is **461 s of the 582**. It is not doing anything wrong: `walkCall` compares every
+sampled board against ALL 134 catalogue formations by their 28 pairwise distances (~3750 comparisons a sample),
+it samples every call in the corpus at 0.5 beats, and then samples the held population AND a 40-file control
+again at 0.0625 beats. A naive nearest-neighbour scan over a large sample, left as it is.
+
+So the tier split is the ENGINE suite's own convention rather than a new idea: `verify-probes.mjs` gains a
+`SLOW` map with a reason per entry and an `--all` flag, `verify` runs the fast tier, and **the banner names what
+was skipped and why** — a green "26 of 27" that silently omitted the most expensive probe would be the same
+class of silence as a generated asset with no gate. `poc/package.json`:
+
+```
+verify              node verify.cjs && node tools/verify-probes.mjs      (fast tier)
+verify:probes:all   node tools/verify-probes.mjs --all                   (everything)
+```
+
+MEASURED after: **26 probes, 139 s for the whole POC gate** (it was ~18 s for `verify.cjs` alone), with
+`fsm-open-probe.mjs` at 511 ms — so the Stage 2 view gates above, and 4d/4e, now actually run in a gate rather
+than only when someone remembers. The trade is a ~2-minute pre-commit step against 26 forgotten probes, and
+the slow one is still one flag away.
+
+**A SWEEP THE SUITE CANNOT JUDGE, recorded rather than fixed:** **16 of the 27 probes never call
+`process.exit`**, so the runner judges them on their own `FAIL` lines and says so. That is a weaker signal than
+an exit code — a probe that stops early, or one whose `check` helper prints something a regex does not
+recognise, passes. The runner prints the list every run, which is the honest place to leave it until the
+signal matters.
+
 ### Phase H — the solver side (the Phase 3 leftover)
 
 **Owner:** the search's remaining C term. `library.allVariantSetups()` is still the flat list that

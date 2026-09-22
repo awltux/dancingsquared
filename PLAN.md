@@ -3426,15 +3426,18 @@ Two things in this engine are also both called "arrangement" and they are not th
 field is a **prose count** (`"8 dancers (4 boys, 4 girls), 0 couples"`) that cannot tell `gBgB` from
 `BgBg`, while `alignment.ts`'s is the Callerlab number. Worth renaming the first.
 
-### A FASR SETUP PER FORMATION, AND A COMPLIANCE LEVEL PER MODULE (1 and 2 BUILT AND GATED, 3 not, the WIRING approved)
+### A FASR SETUP PER FORMATION, AND A COMPLIANCE LEVEL PER MODULE (THE WIRING IS BUILT AND GATED)
 
-**STATUS, corrected against the tree.** This section said "designed, not built" and that is now half wrong.
-Items 1 and 2 of the shape below **SHIPPED** — `FORMATION_SETUP_CODE` (10 keys), `setupForFormation(name,
+**STATUS. This is DONE for the setup path and the FSM, and `boardForFormation` was deliberately left
+alone.** Items 1 and 2 of the shape below **SHIPPED** — `FORMATION_SETUP_CODE` (10 keys), `setupForFormation(name,
 templateFor)`, `compliesWithSetup(board, setup, level)`, `coupleToSpot` — and they are gated by
 `test/tools/setup-registry-probe.mjs` (26/26 canonical, `L1o` a zero line by property, every entry reading back
-as its own code with 8/8 identity). **NOTHING IN PRODUCTION CALLS EITHER FUNCTION**: the only callers are that
-probe and `fasr-code-canonical-probe.mjs`. So the gap below is not a missing model, it is a missing WIRING, and
-`boardForFormation` still stands every formation up ANONYMOUS.
+as its own code with 8/8 identity).
+
+The gap was never the model, it was that **nothing in production called either function**. Commits
+`194414a` (the primitive + its gate), `cd06ef6` (the wiring) and `aa76148` (the FSM's state boards) close
+it. `compliesWithSetup` still has **no production caller** — that is item 2's *matching* half and it is the
+only piece of this section still outstanding (see "WHAT IS STILL OPEN" below).
 
 **THE APPROVED NEXT STEP: CANONICAL IDENTITY ON THE STATE BOARDS.** Where the engine can name a formation's
 zero setup by authority, the board it stands up for that name should carry the canonical couple numbering, so
@@ -3454,42 +3457,134 @@ FSM states                                     65 (42 named, 23 @embed)
 named states are covered, and the motivating pair shares its geometry *and* its pattern). It is a capability on
 the formations that HAVE an authority-backed setup, plus the wiring of a built-but-unused path.
 
-**THE FOUR DECISIONS, so the implementation makes none:**
+**D2 WAS WRONG AND THE TREE SAID SO BEFORE ANY CODE WAS WRITTEN.** The approved plan said to split
+`boardForFormation` into an anonymous body plus a registry-consulting wrapper. Measuring first showed the
+premise was false on two counts:
+
+1. **The app does not set up from `boardForFormation`.** The Set dropdown is
+   `sequencer-ui.ts::setBoardFormation -> seq.setSetup -> boardForSetup`, and the module start is
+   `replayModule -> boardForSetup`. A *sibling* for the identified path already existed and was already
+   wired; D2 would have built a third.
+2. **`boardForFormation` IS an instrument.** ~60 probes and harnesses call it as the anonymous path on
+   purpose — `zero-line-probe.mjs`'s header says *"`boardForFormation('Normal Lines')` is `[L0]` by its
+   GENDER pattern, but it carries NO identity"*, `view-gender-probe.mjs` calls it "the letter-L TEMPLATE",
+   and `setupForFormation`'s own `templateFor` must be anonymous or the membership test is self-referential.
+   Making it identified would have destroyed the contract a second time.
+
+So the target was corrected to where the wiring actually is, and **the failing path was measured before it
+was fixed**: `boardForSetup` derived the setup from the formation's letter alone (`<letter>1`), which is
+arrangement 0 and sequence 1 but names **no relationship** — and a code with no relationship cannot pin a
+board, because one code's enumeration admits four boards differing only in which couple stands where. So
+`canonicalBoard` found no index and fell back to `boards[0]`. **It agreed with the registry on 3 of its 10
+keys, and `boardForSetup('Normal Lines')` came back reading `0L1p` where the zero line is `0L1o`** — the
+reported symptom, live. It is 10 of 10 now.
+
+**THE THREE DECISIONS THAT SURVIVED, plus the one that replaced D2:**
 
 - **D1 — `setupForFormation` is the SINGLE SOURCE.** Not `letterForFormation(name) + '<letter>1'`: the registry
   carries the couple-to-spot assignment (which a code cannot), uses the deliberately chosen codes (`L1o`, not
   `L1`), and fails loudly when a named relationship was never measured. No entry ⇒ no identity.
-- **D2 — it applies ON TOP OF the anonymous board, so there is no recursion.** `setupForFormation` takes a
-  `templateFor` callback and the probes pass `boardForFormation` as it. If `boardForFormation` consulted the
-  registry that is an infinite cycle. So split it: `anonymousBoardFor(name)` is today's body, and
-  `boardForFormation(name)` = anonymous → registry → identified. **The probes' `templateFor` switches to the
-  anonymous accessor**; feeding them an already-identified board would make the enumeration's membership test
-  self-referential.
+- **D2 (as built) — `boardForSetup` consults the registry FIRST and keeps the letter derivation as the
+  FALLBACK, and `boardForFormation` is untouched.** The fallback is a measurement, not caution: the registry
+  covers 10 names and the app offers 134, and **five** formations (`Double Pass Thru`, `O Eight Chain Thru`,
+  `O In`, `O Out`, `O Trade By`) get a correct identity from the letter path that the registry has no entry
+  for. So the change is ADDITIVE — nothing that had identity lost it — and three compact variants that were
+  ANONYMOUS became identified (`Normal Lines Compact`, `Two-Faced Lines RH Compact`, `Ocean Waves RH BGGB
+  Compact`), because the registry takes the NAME's own geometry as the template instead of the letter's
+  first template. Wired-path identity count: **10 of 134 offered → 13**.
 - **D3 — DANCER ORDER IS PRESERVED.** `boardsForAlignment` returns boys-then-girls in LATTICE order, which is
   not the template's order; the POC binds avatars by array index, `applyToBoard` preserves order, and
-  `collapseModule` keys matrices by dancer `id`. So do NOT return `setup.board` — build the result by iterating
-  the ANONYMOUS board's dancers and overwriting `id`/`couple`/`gender` from `HOME_DANCERS` via
-  `setup.assignment`'s position key (`"x.toFixed(3),y.toFixed(3)"` → couple; the gender picks the boy or girl of
-  that couple). All-or-nothing: if any dancer cannot be identified the result is the anonymous board.
-- **D4 — ONE RULE FOR BOTH THE SETUP PATH AND THE FSM.** `buildFsmTable.enumerate` builds from
-  `boardFromMatchables(geo)` with NO name, so it would otherwise disagree with the Set dropdown about the same
-  formation — the divergence class this repo keeps paying for. Named state keys go through the identified path;
-  `@embed#N` has no name and stays anonymous, which keeps the refutation above intact.
+  `collapseModule` keys matrices by dancer `id`. So the registry's `board` is NOT returned: its assignment is
+  applied by `identifyByAssignment(board, assignment)`, which overwrites `id`/`couple`/`gender` and nothing
+  else, keyed on `spotKey` (now shared with `coupleToSpot`/`rotationBetweenBoards` so producer and consumer
+  cannot drift). **All-or-nothing**: a dancer it cannot resolve returns the board UNCHANGED, because half a
+  board with couples reads as a sequence it is not.
+- **D4 — ONE RULE FOR BOTH THE SETUP PATH AND THE FSM.** `buildFsmTable.enumerate` identifies the state's OWN
+  geometry (`setupIdentifiedBoard`) for named states the registry covers; `@embed#N` has no name and the other
+  38 named states have no authority-backed setup, so they stay anonymous — which is what keeps the refutation
+  above intact. It is **four states**, not a vocabulary.**
 
-**GATES TO RE-POINT, and all four happen to use a LETTERED formation — which is why they flip:**
-`alignment.mjs:550` (`Double Pass Thru` [P] refused an orientation), `behaviour-audit.mjs:562` and `:674`
-(`Two-Faced Lines` [F], no real couple / couple selections do not resolve), `promenade.mjs:174` (`Normal Lines`
-[L] template refused). Each re-points to an UNLETTERED formation (e.g. `T-Bone DLDL`) so the absence contract is
-still tested, and each GAINS the positive case. Plus `setup-path-probe.mjs`, whose `[arr/seq/rel error]` column
-**has been broken for every row** — it calls `seq.alignmentOf(b)`, which does not exist on `Sequencer` — and
-re-pins `129 anonymous` / `8 differ`.
+**THE MEASURED RESULT OF D4, and the state count is the gate rather than the outcome:**
 
-**ACCEPTANCE:** a new `setup-registry-probe.mjs` section (every registry key identified 8/8, SAME geometry and
-dancer order as the anonymous board, `sequenceFor` readable; and a formation with no entry still 0/8);
-`fsm-asset`/`reading-census`/`cell-census` re-pinned with measured deltas (the STATE count must stay 65 —
-identity does not change geometry and the dedupe is identity-blind — while the EDGE count moves for the ≤4
-identified states; a state-count change falsifies D4's premise and must be investigated, not absorbed);
-`npm run verify --prefix engine` and `npm run verify` green; `tsc -p poc --noEmit` clean.
+```
+states            65 -> 65     IDENTITY CHANGES NO GEOMETRY, and `enumerate` never invents a state.
+                               A state-count change here would FALSIFY the premise, not record a result.
+edges             2260 -> 2308  (+48, from exactly THREE states)
+  Normal Lines          +17     Normal Lines Compact  +15     Eight Chain Thru  +16
+readings  whole    1174 -> 1222   full-tiling 665 (same)   partial 421 (same)
+endKind   state    1619 -> 1651   novel 624 -> 640   out-of-scope 17 (same)
+targeted share     71.6% -> 71.5%
+```
+
+Every one of the 48 is a `Heads ...`/`Sides ...`/`Beaus`/`Belles`/`Couples` call — the couple-dependent
+vocabulary. **Identity is what it READS, so an anonymous board REFUSES calls that are legal from the real
+formation**: `Normal Lines` 347 → 403 legal calls, `Ocean Waves` 456 → 483, `Two-Faced Lines` 305 → 314,
+`Eight Chain Thru` 249 → 299. **All gains, no losses.** The FSM was answering *"this call is not legal here"*
+for calls the engine could not read.
+
+**TWO HARNESSES HAD GONE SILENT, and both are now instruments again rather than re-pins:**
+
+- **`reading-census` was rebuilding the state boards through `boardForFormation`**, so the 48 new edges were
+  not legal from *its* board and were counted `excluded` — **a number it REPORTED but never asserted**. The
+  cross-check it exists for shrank from 1857 to 1809 edges without anything going red. It uses `stateBoard`
+  now (compared **1857 = 1809 + 48, excluded 0**) **and asserts the exclusion**, because a cross-check that
+  silently shrinks is the instrument's silence, not a smaller cross-check.
+- **`cell-census` asserted the OPPOSITE of what is now true** — *"the FSM state reads no sequence (no home
+  identity: couples all 0)"*. It sweeps its own board now, and the refutation of arrangement-keying comes out
+  **stronger**: `[B1c]` and the `Eight Chain Thru` node have the IDENTICAL cell key `26|BgBgBgBg|1|c`, so an
+  arrangement key would **MERGE** them rather than separate them. The only thing that ever separated them was
+  the missing identity, and no arrangement key would have supplied that either. Its pins move with it and the
+  movement is itself the result: **fully-readable cells 22 → 103, lettered cells 50 → 112**, applications
+  1885 → 1933, geometries reached 643 → 670.
+
+**THE LESSON, since the same shape has now cost this repo three times.** `boardForSetup` and the FSM both
+derived the same named formation by different routes and disagreed; `reading-census` and `cell-census` both
+restated a rule the engine already had and went stale when it changed. The fix each time was to make ONE place
+own the rule (`setupIdentifiedBoard`) and let the consumers ask for it (`stateBoard`) — and to **assert the
+number that measures the silence**, not just print it.
+
+**WHAT IS STILL OPEN in this section:** item 2's *matching* half — `compliesWithSetup` is built, gated and
+called by nothing, so a module label like `Zero Line` is still resolved without checking the board complies.
+That is where item 3 (matching should be able to REQUIRE an arrangement) belongs, and it is the risky third.
+
+**A NEW, SEPARATE FINDING, unrelated to identity but found while gating this: the `Circle` state is an
+ISLAND.** Every edge into `Circle` in the ms FSM comes from `Circle` itself, and `Static Square` has zero
+edges to it — even `Circle Left` from a square ends on `Static Square`. So **"from Static Square, hold hands,
+ladies in, men sashay" is not a supported sequence**, and the blocker is not the figure: `Ladies In, Men
+Sashay` is legal from a Circle, matches a variant at error 0.0000, and the FSM records it as
+`Circle -- Ladies In, Men Sashay -> Circle`. The engine models `Circle` as its own geometry (8 points equally
+spaced on a radius-2.61 circle, rotated 22.5°) while the squared set is the square outline at radius 3.16, and
+joining hands moves nobody — so the board stays a squared set and never matches the `Circle` state. **In the
+dance the squared set IS the circle you circle left in.** Gated by `test/tools/ladies-sashay-probe.mjs`, with
+both answers pinned and its two limits recorded (the two tams differ only in `from`, which is not a formation
+the engine builds, so the first match always wins; and `Circle` is anonymous, so a circle has no sequence,
+relationship or partner — `Circle` has no All8 letter, so there is no FASR code to set it up by).
+
+**THE FOUR GATES THAT WERE EXPECTED TO FLIP DID NOT, AND THAT IS A CORRECTION WORTH KEEPING.** The
+approved plan named four harnesses as pinning identity's ABSENCE — `alignment.mjs:550` (`Double Pass Thru`
+[P] refused an orientation), `behaviour-audit.mjs:562` and `:674` (`Two-Faced Lines` [F]), `promenade.mjs:174`
+(`Normal Lines` [L] template refused) — on the reasoning that all four use a LETTERED formation and so would
+be identified once `boardForFormation` was. **They all still pass unchanged, because `boardForFormation` was
+never changed** (see D2 above). They pin the absence of identity on the ANONYMOUS template, which is exactly
+what those harnesses need, and re-pointing them to an unlettered formation would have been churn. **Do not
+re-litigate this:** the gates are correct as they stand, and the positive case they were to gain lives in
+`canonical-identity-probe.mjs` §1b/§5 and in `setup-registry-probe.mjs` instead.
+
+`setup-path-probe.mjs`'s `[arr/seq/rel]` column **had been broken for every row since it was written** — it
+called `seq.alignmentOf(b)`, which does not exist on `Sequencer`, inside a try/catch that turned the TypeError
+into the string `'error'`. Both sides of every comparison were `'error'`, so the column equalled itself and
+the `same`/`DIFFERS` verdicts beside it were decided by the identity count and the formation name alone.
+Rebuilt from the shipped readers and pinned at the measured **129 anonymous / 8 differ / 1 same**. (A missing
+method is a load-time error, not a runtime one — nothing failed loudly, which is the only reason it survived.)
+
+**ACCEPTANCE, met:** the registry keys are identified 8/8 with the anonymous board's pose and dancer ORDER
+preserved (`canonical-identity-probe.mjs` §1b and §5, `setup-registry-probe.mjs`); `fsm-asset` /
+`reading-census` / `cell-census` re-pinned with the measured deltas above and the **state count unchanged at
+65**; `npm run verify --prefix engine` green (31 harnesses) and `npm run verify` green; `tsc -p poc --noEmit`
+clean. The POC probe suite also had to be run with `--all` for this, which found a bug in the runner itself —
+it leaked its own `--all` flag into the probes' `argv`, so the two probes that take a call name from `argv[2]`
+were being asked for a call titled `--all` and the slow tier was checking them LESS than the fast tier
+(`ed7460c`).
 
 **The gap.** A corpus label like `Zero Line` names a formation **and an arrangement**, and the engine
 can only associate the first with a name. `boardForFormation('Normal Lines')` classifies as `[L0]` and

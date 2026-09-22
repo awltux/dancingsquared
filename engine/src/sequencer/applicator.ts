@@ -9,11 +9,12 @@ import { matchFormations, type Matchable } from './match.js';
 import { FormationMatcher, rebasedPose, localMotion } from './matcher.js';
 import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
-import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX, isKnownCouple } from './constants.js';
+import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX, canonicalName, isKnownCouple } from './constants.js';
 import { normAngle } from './identity.js';
 import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
 import { splitSelection } from './selection.js';
-import type { Board, CallStep, SeqDancer, VariantMatch } from './types.js';
+import type { Board, CallStep, GroupStep, ModuleStep, SeqDancer, VariantMatch } from './types.js';
+import { isGroupStep, stepLabel } from './types.js';
 import type { CallBundle, Pose } from '../types.js';
 
 const rot = (a: number, v: { x: number; y: number }) => ({
@@ -176,16 +177,16 @@ export class CallApplicator {
   /** Apply a call (or module) to a COPY of the given board (does not mutate).
    * The interactive apply re-bases the board onto the call's canonical start so
    * margin-based drift doesn't accumulate on the live sequence. Accepts a call
-   * title or a CallStep carrying an optional dancer selection. */
-  applyToBoard(board: Board, callName: string | CallStep): ApplyResult {
+   * title, a CallStep carrying an optional dancer selection, or a GroupStep. */
+  applyToBoard(board: Board, callName: string | CallStep | GroupStep): ApplyResult {
     return this.applyStepInner(board, callName, [], true);
   }
 
-  /** Apply a call using PURE relative motion ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â no drift re-base. Used by the
+  /** Apply a call using PURE relative motion - no drift re-base. Used by the
    * search operations (legalCalls, getout, fixIt) where re-basing would pin
    * dancers to their current (possibly permuted) positions and destroy the
    * identity information those searches need to un-permute home. */
-  applySearch(board: Board, callName: string | CallStep): ApplyResult {
+  applySearch(board: Board, callName: string | CallStep | GroupStep): ApplyResult {
     return this.applyStepInner(board, callName, [], false);
   }
 
@@ -205,7 +206,7 @@ export class CallApplicator {
       for (const sub of this.library.getModule(callName)!) {
         const r = this.applyStepInner(cur, sub, nextStack, rebase, allowParallel);
         if (!r.legal) {
-          const label = typeof sub === 'string' ? sub : sub.call;
+          const label = stepLabel(sub);
           return { board: cloneBoard(board), legal: false, reason: `Module ${callName}: "${label}" not legal here` };
         }
         cur = r.board;
@@ -219,7 +220,7 @@ export class CallApplicator {
     // must keep its whole-board behaviour).
     const sel = splitSelection(callName);
     if (sel.selection && !this.library.hasCall(callName) && !this.library.hasModule(callName)) {
-      return this.applySelected(board, sel.selection, sel.call, rebase);
+      return this.applySelected(board, sel.selection, sel.call, rebase, undefined, stack);
     }
 
     const matchTol = rebase ? DEFAULT_MATCH_MAX + this.config.matchMargin : SEARCH_MATCH_MAX + this.config.matchMargin;
@@ -279,7 +280,7 @@ export class CallApplicator {
         this.scopedDepth++;
         let scoped: ApplyResult;
         try {
-          scoped = this.applySelected(board, sel.selection, sel.call, rebase, callName);
+          scoped = this.applySelected(board, sel.selection, sel.call, rebase, callName, stack);
         } finally {
           this.scopedDepth--;
         }
@@ -305,20 +306,89 @@ export class CallApplicator {
   }
 
   /** Apply a single call step (string or {selection, call}) to a copy of `board`. */
-  applyStep(board: Board, step: string | CallStep): ApplyResult {
+  applyStep(board: Board, step: ModuleStep): ApplyResult {
     return this.applyStepInner(board, step, [], true);
   }
 
   private applyStepInner(
     board: Board,
-    step: string | CallStep,
+    step: ModuleStep,
     stack: string[],
     rebase: boolean,
     allowParallel = true,
   ): ApplyResult {
     if (typeof step === 'string') return this.applyToBoardInner(board, step, stack, rebase, allowParallel);
-    if (step.selection) return this.applySelected(board, step.selection, step.call, rebase);
+    if (isGroupStep(step)) return this.applyGroupStep(board, step, stack, rebase);
+    if (step.selection) return this.applySelected(board, step.selection, step.call, rebase, undefined, stack);
     return this.applyToBoardInner(board, step.call, stack, rebase, allowParallel);
+  }
+
+  /**
+   * THE "WHILE" STEP: several groups dance their own calls AT THE SAME TIME.
+   *
+   * CALLERLAB's `Centers Square Thru while Outsides Trade` is the shape, and the engine had no way to
+   * say it: the catalogue hand-authors the whole combination as one `<tam>`'s per-dancer paths (that
+   * is what `ms/running_bear.xml` is, all 248 lines of it, with the sub-calls named only in comments),
+   * so the STRUCTURE was invisible and could not be reused or composed.
+   *
+   * THE RULES ARE IN `GroupStep`'s doc comment; the two that shape this function:
+   *
+   * ATOMIC. Each group is applied with `applySelected`, which already owns the two readings a
+   * selection needs (the subset as its own formation, or the whole pattern with only the selected
+   * dancers kept) and already merges by dancer id. If ANY group refuses, the whole step refuses with
+   * that group's reason - a partially-danced "while" is not something a caller can call.
+   *
+   * DISJOINT, and checked BEFORE any work. The groups are computed from the same original board and
+   * merged by id, so an overlap would silently let one group's result overwrite the other's. It is
+   * refused with the dancer's id and the two selections rather than tolerated.
+   *
+   * WHY THE STACK IS THREADED. A group's call may be a call that reaches a module, and a module may
+   * in turn contain this step - the same cycle the sequential expansion guards against. `applySelected`
+   * already takes the stack; passing it here is what keeps the guard unbroken through the new form.
+   *
+   * THE RESULT PRESERVES THE BOARD'S ARRAY ORDER (`board.dancers.map`), because that order is the
+   * renderer's binding - see `reorderLike`.
+   */
+  private applyGroupStep(board: Board, step: GroupStep, stack: string[], rebase: boolean): ApplyResult {
+    if (step.groups.length === 0) {
+      return { board: cloneBoard(board), legal: false, reason: 'A "while" step needs at least one group.' };
+    }
+    const resolved: { selection: string; call: string; ids: number[] }[] = [];
+    const claimed = new Map<number, string>();
+    for (const g of step.groups) {
+      // A group names a CALL. See `GroupStep`: two composite routines of different lengths have no
+      // defined alignment, so a module here would invent a synchronisation rule the art does not have.
+      if (this.library.hasModule(g.call) || this.library.hasModule(canonicalName(g.call))) {
+        return { board: cloneBoard(board), legal: false, reason: `A "while" group must name a call, not the module "${g.call}" - two routines of different lengths have no defined alignment.` };
+      }
+      const ids = this.resolveSelection(board, g.selection);
+      if (!ids || ids.length === 0) {
+        return { board: cloneBoard(board), legal: false, reason: `Unresolvable selection in a "while" step: ${g.selection}` };
+      }
+      for (const id of ids) {
+        const other = claimed.get(id);
+        if (other !== undefined) {
+          const d = board.dancers.find((x) => x.id === id);
+          return {
+            board: cloneBoard(board),
+            legal: false,
+            reason: `A "while" step's groups must be disjoint: dancer ${id}${d ? ` (couple ${d.couple})` : ''} is in both "${other}" and "${g.selection}".`,
+          };
+        }
+        claimed.set(id, g.selection);
+      }
+      resolved.push({ selection: g.selection, call: g.call, ids });
+    }
+    const moved = new Map<number, SeqDancer>();
+    for (const g of resolved) {
+      const r = this.applySelected(board, g.selection, g.call, rebase, undefined, stack);
+      if (!r.legal) {
+        return { board: cloneBoard(board), legal: false, reason: `"${g.selection} ${g.call}" in a "while" step: ${r.reason ?? 'refused'}` };
+      }
+      const inGroup = new Set(g.ids);
+      for (const d of r.board.dancers) if (inGroup.has(d.id)) moved.set(d.id, d);
+    }
+    return { board: { dancers: board.dancers.map((d) => moved.get(d.id) ?? { ...d }) }, legal: true };
   }
 
   /**
@@ -450,7 +520,7 @@ export class CallApplicator {
    * where nobody is facing anyone).
    *
    * Returns legal=false if neither reading works. */
-  applySelected(board: Board, selection: string, callName: string, rebase: boolean, suppressScopedName?: string): ApplyResult {
+  applySelected(board: Board, selection: string, callName: string, rebase: boolean, suppressScopedName?: string, stack: string[] = []): ApplyResult {
     const byId = new Map(board.dancers.map((d) => [d.id, d]));
     const ids = this.resolveSelection(board, selection);
     if (!ids || ids.length === 0) {
@@ -462,7 +532,11 @@ export class CallApplicator {
     for (const d of selected) { cx += d.x; cy += d.y; }
     cx /= selected.length; cy /= selected.length;
     const subBoard: Board = { dancers: selected.map((d) => ({ ...d, x: d.x - cx, y: d.y - cy })) };
-    const r = this.applyToBoardInner(subBoard, callName, [], rebase, false);
+    // THE MODULE STACK IS THREADED, not reset. It used to be `[]` here, which meant the cycle guard
+    // did not survive a selection: a module whose step selects a group and calls a name that reaches
+    // the same module would recurse until the stack blew. A `GroupStep` raises the stakes, because it
+    // is a new way to re-enter, so the stack is passed in and handed on.
+    const r = this.applyToBoardInner(subBoard, callName, stack, rebase, false);
     if (r.legal) {
       // Merge moved subset dancers back by id; non-selected dancers unchanged.
       const moved = new Map(r.board.dancers.map((d) => [d.id, d]));
@@ -506,7 +580,7 @@ export class CallApplicator {
         if (!groupIds || groupIds.length !== ids.length) continue;
         const groupSet = new Set(groupIds);
         if (!ids.every((id) => groupSet.has(id))) continue;
-        const scoped = this.applyToBoardInner(board, scopedName, [], rebase, true);
+        const scoped = this.applyToBoardInner(board, scopedName, stack, rebase, true);
         if (scoped.legal) return scoped;
       }
     }
@@ -515,7 +589,7 @@ export class CallApplicator {
     // for many of these calls it is the only one that matches - an Eight Chain box
     // is not a "U-Turn Back" setup as a whole, but it is two facing couples, which
     // is. parallelApply disables parallel recursion internally, so this terminates.
-    const whole = this.applyToBoardInner(board, callName, [], rebase, true);
+    const whole = this.applyToBoardInner(board, callName, stack, rebase, true);
     if (whole.legal) {
       const moved = new Map(whole.board.dancers.map((d) => [d.id, d]));
       const picked = new Set(ids);

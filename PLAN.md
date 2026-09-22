@@ -1838,6 +1838,42 @@ it is hand-authored per-dancer at the move level); (2) the faithful FSM graph, w
 absorption mechanism that keeps a transient from ever becoming a node, and the stage that proves the
 node count stays flat; (4) the solver engine, **only against a witness**.
 
+**STAGE 1 DONE.** `GroupStep` (`types.ts`) + `applicator.applyGroupStep` + the animation and beats for
+it, with `engine/test/modules.mjs` (light tier) pinning the four rules the step promises — disjoint,
+atomic, calls-only, simultaneous — plus that a grouped result IS the two solo results merged by dancer
+id, that the animation lands exactly on the applied board, and that `collapseModule` still composes a
+per-dancer matrix across it. `stepsEqual`/`stepCall`/`stepLabel`/`isGroupStep` are exported so the POC
+stops re-implementing the step union (its local `stepLabel` would have printed `[object Object]`).
+**`Running Bear` could NOT be recomposed, and that is the measurement rather than a failure:** its
+sub-calls are named only in comments, the comments annotate chunks of ONE path rather than a shared
+timeline, and its own first named sub-call (`Ladies Chain`) is not legal on the board the tam starts
+from — so a composed "while" is a NEW capability, not a refactor of existing authoring.
+
+**STAGE 0b — THE LEVEL DIMENSION, and it is a real leak (measured).** A programme/level restricts which
+formations and arrangements a call may be used from; later levels ADD to that vocabulary and a lower
+level must not see the additions. MEASURED: the engine has **no level concept at all** — level lives in
+`poc/src/data.ts`, whose `sequencerCallsUpTo(level)` accumulates "level and all earlier levels" for
+CALLS — while `formations.xml` has **no level attribute** and is one flat list used by every level. So
+the vocabulary leaks:
+
+```
+formations.xml declares                          273 names
+  referenced by some level's tam (from/formation) 238
+  referenced by NO level at all                    35
+first referenced at   b1:137 b2:64 ms:65 plus:133 a1:59 a2:41 c1:109 c2:51 c3a:21 c3b:16
+first seen ABOVE ms and not referenced by any ms tam: 116 declared names
+the engine's 210 kept named formations: 102 unavailable at ms
+the 134 unique geometries:               70 unavailable at ms
+```
+
+and the **ms FSM's 155 states are built from that flat list**, so roughly half of its nodes are
+formations no ms call introduces. That is the node-bound thesis with its exception found: nodes are
+bounded by DECLARATION, so **the declaration has to be level-scoped**. The open design question Stage
+0b must settle by measurement, because the two answers differ a lot: is a formation "introduced" at the
+level whose tam NAMES it (strict — then `Face Out`'s own result is unnamed at ms), or at the lowest
+level whose calls can REACH it (permissive — then ms keeps everything ms dancing can produce)? The
+second needs a per-level reachability sweep, which is what `cell-census.mjs` already does for one level.
+
 ### Phase H — the solver side (the Phase 3 leftover)
 
 **Owner:** the search's remaining C term. `library.allVariantSetups()` is still the flat list that

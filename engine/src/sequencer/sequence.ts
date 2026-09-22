@@ -28,7 +28,8 @@ import { makeSquaredSet, cloneBoard } from './board.js';
 import { findCodedMove, codedMoveApplies, type CodedMove } from './coded-moves.js';
 import { promenadeTrip, promenadeLap } from './promenade.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
-import type { Board, CallStep, SeqDancer, VariantMatch } from './types.js';
+import type { Board, CallStep, GroupStep, ModuleStep, SeqDancer, VariantMatch } from './types.js';
+import { isGroupStep, stepCall, stepLabel } from './types.js';
 import type { CallBundle } from '../types.js';
 
 const rot = (a: number, v: { x: number; y: number }) => ({
@@ -43,11 +44,11 @@ const FACING_EPS = 1e-3;
 
 /** One flat step of a recorded replay. */
 interface ReplayStep {
-  /** The raw step, kept so the applicator can be handed the CallStep form. */
-  raw: string | CallStep;
+  /** The raw step, kept so the applicator can be handed the same step form. */
+  raw: ModuleStep;
   /** The call/selection label. */
   name: string;
-  /** The coded move this step is, or null when it is a catalogue call. */
+  /** The coded move this step is, or null when it is a catalogue call or a grouped step. */
   coded: CodedMove | null;
   /** The matched variant info for a catalogue step, or null when none matches. */
   info: { beats: number; variant: CallBundle | null } | null;
@@ -81,8 +82,8 @@ export interface SequenceStop {
 }
 
 /** The memo key: the CONTENT of the flat sequence and of the board the replay starts from. */
-function replayKey(flat: (string | CallStep)[], start: Board): string {
-  const f = flat.map((s) => (typeof s === 'string' ? s : `${s.call}@${s.selection ?? ''}`)).join('\u0000');
+function replayKey(flat: ModuleStep[], start: Board): string {
+  const f = flat.map((s) => stepLabel(s)).join('\u0000');
   // 3 decimals, the same scheme the matcher's own memo uses for a board's pose.
   const p = start.dancers
     .map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)},${d.gender ?? ''},${d.couple ?? ''},${d.isGhost ? 'g' : ''}`)
@@ -104,7 +105,15 @@ export class SequenceAnalyzer {
 
   /** Beats of the variant of `name` that matches `board` (0 if none). A coded
    * body-relative move always takes CODED_MOVE_BEATS. */
-  stepBeats(board: Board, name: string | CallStep): number {
+  stepBeats(board: Board, name: ModuleStep): number {
+    if (isGroupStep(name)) {
+      // SIMULTANEOUS, so the step costs the LONGEST group, not the sum. A "while" is over when its
+      // slowest part is over; charging the sum would report a caller's tip as twice as long as it
+      // dances.
+      let most = 0;
+      for (const g of name.groups) most = Math.max(most, this.stepBeats(board, { selection: g.selection, call: g.call }));
+      return most;
+    }
     const n = typeof name === 'string' ? name : name.call;
     const coded = findCodedMove(n);
     if (coded) return coded.beats;
@@ -347,7 +356,7 @@ export class SequenceAnalyzer {
    * overrides with `catalogueFallback` is recorded as an ordinary catalogue step instead, because
    * that is how the applicator reads it.
    */
-  private replayWalk(flat: (string | CallStep)[], startBoard?: Board): ReplayStep[] {
+  private replayWalk(flat: ModuleStep[], startBoard?: Board): ReplayStep[] {
     const start = this.replayStart(startBoard);
     const key = replayKey(flat, start);
     if (this.replayMemo && this.replayMemo.key === key) return this.replayMemo.steps;
@@ -355,6 +364,24 @@ export class SequenceAnalyzer {
     const steps: ReplayStep[] = [];
     let board = start;
     for (const raw of flat) {
+      // A GROUPED ("while") step is one atomic simultaneous step, not a call: it has no single variant
+      // and no coded move, so it takes its `after` from the applicator and its cost from the LONGEST
+      // group. It is walkable exactly when the applicator says it is, so the animation and the apply
+      // cannot disagree about whether the "while" happened - which is the invariant this whole walk
+      // exists to keep.
+      if (isGroupStep(raw)) {
+        const r = this.applicator.applyStep(board, raw);
+        const beats = r.legal ? this.stepBeats(board, raw) : 0;
+        steps.push({
+          raw, name: stepLabel(raw), coded: null, info: null, before: board,
+          after: r.legal ? r.board : board,
+          beats,
+          walkable: r.legal,
+          reason: r.legal ? undefined : r.reason ?? 'the "while" step does not apply here',
+        });
+        if (r.legal) board = r.board;
+        continue;
+      }
       const name = typeof raw === 'string' ? raw : raw.call;
       const coded = findCodedMove(name);
       if (coded) {
@@ -408,7 +435,7 @@ export class SequenceAnalyzer {
    * `board` is deliberately the step's own start board: it is what an evaluator returns and therefore
    * what the user is looking at when this happens.
    */
-  sequenceStop(flat: (string | CallStep)[], startBoard?: Board): SequenceStop | null {
+  sequenceStop(flat: ModuleStep[], startBoard?: Board): SequenceStop | null {
     const steps = this.replayWalk(flat, startBoard);
     for (let i = 0; i < steps.length; i++) {
       const s = steps[i];
@@ -424,7 +451,7 @@ export class SequenceAnalyzer {
 
   /** Total beats to play a flat sequence, starting from `startBoard` (default:
    * the home squared set). */
-  sequenceBeats(flat: (string | CallStep)[], startBoard?: Board): number {
+  sequenceBeats(flat: ModuleStep[], startBoard?: Board): number {
     let total = 0;
     for (const s of this.replayWalk(flat, startBoard)) {
       // A coded move that does not apply is not part of the sequence at all, so its cost must not
@@ -438,22 +465,61 @@ export class SequenceAnalyzer {
 
   /** Evaluate the board at a global beat of a flat sequence, starting from
    * `startBoard` (default: the home squared set). */
-  evaluateSequence(flat: (string | CallStep)[], beat: number, startBoard?: Board): { board: Board; beats: number } {
+  evaluateSequence(flat: ModuleStep[], beat: number, startBoard?: Board): { board: Board; beats: number } {
     let acc = 0;
     let board = this.replayStart(startBoard);
     for (const s of this.replayWalk(flat, startBoard)) {
       // Both stop kinds end the walk here, leaving the step's own start board.
       if (!s.walkable) return { board: s.before, beats: acc };
       if (beat < acc + s.beats) {
-        const evBoard = s.coded
-          ? this.evaluateCodedAt(s.before, s.coded, beat - acc)
-          : this.evaluateCallAt(s.before, s.raw, s.info!, beat - acc);
+        const evBoard = isGroupStep(s.raw)
+          ? this.evaluateGroupAt(s.before, s.raw, s.after, s.beats, beat - acc)
+          : s.coded
+            ? this.evaluateCodedAt(s.before, s.coded, beat - acc)
+            : this.evaluateCallAt(s.before, s.raw, s.info!, beat - acc);
         return { board: evBoard, beats: 0 };
       }
       board = s.after;
       acc += s.beats;
     }
     return { board, beats: acc };
+  }
+
+  /**
+   * The board part-way through a GROUPED ("while") step.
+   *
+   * THERE IS NO AUTHORED PATH TO FOLLOW, and that is not a shortcoming of this function: a "while" is
+   * a composition, and the catalogue's only way to express one today is to hand-author every dancer's
+   * full Bezier path (`ms/running_bear.xml` is 248 lines of exactly that). A composed step has no such
+   * path, so each dancer walks the STRAIGHT LINE from where it stood to where the applied step leaves
+   * it, at the step's own fraction.
+   *
+   * WHY THAT IS THE HONEST ANIMATION RATHER THAN A PLACEHOLDER. It is CORRECT BY CONSTRUCTION at both
+   * ends: at t = 0 every dancer is on `before` and at t = 1 on `after`, which is the board the
+   * applicator produced. So the final frame cannot disagree with the applied board - the class of
+   * defect `behaviour-audit`'s final-frame check exists to catch is structurally impossible here,
+   * rather than merely untested. What it does NOT do is route around collisions or take a hand; if a
+   * composed step is ever authored into the shipped corpus, this is the function that grows the
+   * leg/routing treatment `interpolateSegment` already has.
+   */
+  private evaluateGroupAt(before: Board, step: GroupStep, after: Board, beats: number, localBeat: number): Board {
+    const t = beats > 0 ? Math.max(0, Math.min(1, localBeat / beats)) : 1;
+    const from = new Map(before.dancers.map((d) => [d.id, d]));
+    return {
+      dancers: after.dancers.map((d) => {
+        const f = from.get(d.id);
+        if (!f) return d;
+        let dh = d.heading - f.heading;
+        dh = ((dh % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+        if (dh > Math.PI) dh -= 2 * Math.PI;
+        return {
+          ...d,
+          x: f.x + (d.x - f.x) * t,
+          y: f.y + (d.y - f.y) * t,
+          heading: f.heading + dh * t,
+        };
+      }),
+    };
   }
 
   /** Place the board at a local beat of a call.
@@ -630,7 +696,7 @@ export class SequenceAnalyzer {
   /** Which call in `flat` is playing at global `beat`, with its matched variant
    * and the board->variant mapping. Returns null past the end of the sequence.
    * Replays from `startBoard` (default: the home squared set). */
-  sequenceInfo(flat: (string | CallStep)[], beat: number, startBoard?: Board): { name: string; variant: CallBundle; mapping: number[] } | null {
+  sequenceInfo(flat: ModuleStep[], beat: number, startBoard?: Board): { name: string; variant: CallBundle; mapping: number[] } | null {
     let acc = 0;
     for (const s of this.replayWalk(flat, startBoard)) {
       if (!s.walkable) return null;
@@ -678,7 +744,7 @@ export class SequenceAnalyzer {
   }
 
   /** Validate that a flat call sequence sums to a 64-beat singing-call segment. */
-  validateSegment(flat: (string | CallStep)[]): { totalBeats: number; phrases: number; complete64: boolean; remainder: number } {
+  validateSegment(flat: ModuleStep[]): { totalBeats: number; phrases: number; complete64: boolean; remainder: number } {
     const totalBeats = this.sequenceBeats(flat);
     const phrases = this.phrasesForBeats(totalBeats);
     const remainder = totalBeats % 64;
@@ -693,12 +759,13 @@ export class SequenceAnalyzer {
    * in-place pivot as a zero even though the set no longer faces the way it
    * started. Every dancer must be back on its own facing, compared by identity.
    */
-  isZero(flat: (string | CallStep)[]): boolean {
+  isZero(flat: ModuleStep[]): boolean {
     const home = makeSquaredSet();
     let board = cloneBoard(home);
     for (const name of flat) {
-      const label = typeof name === 'string' ? name : name.call;
-      const coded = findCodedMove(label);
+      // A grouped ("while") step has no single call to look up, so it can never be a coded move and
+      // goes straight to the applicator - which is also what applies it in the walk.
+      const coded = isGroupStep(name) ? null : findCodedMove(stepCall(name)!);
       if (coded) {
         // A resolve that does not apply here is not a zero - reporting one would be
         // a false positive, so the replay fails loudly instead.
@@ -706,7 +773,7 @@ export class SequenceAnalyzer {
         board = coded.apply(board);
         continue;
       }
-      const r = this.applicator.applyToBoard(board, name);
+      const r = isGroupStep(name) ? this.applicator.applyStep(board, name) : this.applicator.applyToBoard(board, name);
       if (!r.legal) return false;
       board = r.board;
     }
@@ -731,10 +798,11 @@ export class SequenceAnalyzer {
    * segment structure. */
   buildTip(figures: string[][]): { calls: string[]; legal: boolean; totalBeats: number; phrases: number; complete64: boolean; reason?: string } {
     const flat = this.library.flatten(figures.flat());
+    const labels = flat.map((c) => stepLabel(c));
     if (!this.isZero(flat)) {
-      return { calls: flat.map((c) => (typeof c === 'string' ? c : c.call)), legal: false, totalBeats: 0, phrases: 0, complete64: false, reason: 'tip is not a zero (does not return home in-sequence)' };
+      return { calls: labels, legal: false, totalBeats: 0, phrases: 0, complete64: false, reason: 'tip is not a zero (does not return home in-sequence)' };
     }
     const seg = this.validateSegment(flat);
-    return { calls: flat.map((c) => (typeof c === 'string' ? c : c.call)), legal: true, totalBeats: seg.totalBeats, phrases: seg.phrases, complete64: seg.complete64 };
+    return { calls: labels, legal: true, totalBeats: seg.totalBeats, phrases: seg.phrases, complete64: seg.complete64 };
   }
 }

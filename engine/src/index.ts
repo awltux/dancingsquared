@@ -146,7 +146,8 @@ export {
   PROMENADE_COUPLE_MAX,
 } from './sequencer/promenade.js';
 export type { PromenadeResult } from './sequencer/promenade.js';
-export type { CallStep } from './sequencer/types.js';
+export type { CallStep, GroupStep, ModuleStep } from './sequencer/types.js';
+export { isGroupStep, stepCall, stepSelection, stepLabel } from './sequencer/types.js';
 
 // Call editor: synthesize missing setups by padding core moves.
 export {

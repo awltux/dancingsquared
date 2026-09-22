@@ -28,7 +28,8 @@ import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
 import { boardForFasrCode, FORMATION_LETTER, FORMATIONS_FOR_LETTER } from './alignment.js';
 import type { Matchable } from './match.js';
-import type { Board, CallStep, Fasr, Module, RecognizedFormation, SeqDancer, SeqStep, VariantMatch } from './types.js';
+import type { Board, CallStep, Fasr, Module, ModuleStep, RecognizedFormation, SeqDancer, SeqStep, VariantMatch } from './types.js';
+import { isGroupStep, stepCall, stepLabel } from './types.js';
 import type { CallBundle } from '../types.js';
 
 export { assignHomeIdentity } from './identity.js';
@@ -211,7 +212,7 @@ export class Sequencer {
     return [...this.library.registrationFailures(), ...this.registrationErrors];
   }
 
-  registerModule(name: string, calls: (string | CallStep)[]): void {
+  registerModule(name: string, calls: ModuleStep[]): void {
     this.library.registerModule(name, calls);
   }
 
@@ -227,7 +228,7 @@ export class Sequencer {
     return this.library.getModules();
   }
 
-  flatten(sequence: (string | CallStep)[]): (string | CallStep)[] {
+  flatten(sequence: ModuleStep[]): ModuleStep[] {
     return this.library.flatten(sequence);
   }
 
@@ -290,18 +291,17 @@ export class Sequencer {
     return { call: callName, legal: res.legal, reason: res.reason, board: res.board, formation: this.recognize(res.board) };
   }
 
-  /** Apply a call step (string or {selection, call}) to the current board. */
-  applyStep(step: string | CallStep): SeqStep {
+  /** Apply a call step (string, {selection, call}, or a grouped "while" step) to the current board. */
+  applyStep(step: ModuleStep): SeqStep {
     const coded = typeof step === 'string' ? this.tryCodedMove(this.board, step) : null;
     const res = coded ?? this.applicator.applyStep(this.board, step);
     this.board = res.board;
     this.matcher.clearCaches();
     this.solver.clearCaches();
-    const label = typeof step === 'string' ? step : step.call;
-    return { call: label, legal: res.legal, reason: res.reason, board: res.board, formation: this.recognize(res.board) };
+    return { call: stepLabel(step), legal: res.legal, reason: res.reason, board: res.board, formation: this.recognize(res.board) };
   }
 
-  applyToBoard(board: Board, callName: string | CallStep): { board: Board; legal: boolean; reason?: string } {
+  applyToBoard(board: Board, callName: ModuleStep): { board: Board; legal: boolean; reason?: string } {
     const coded = typeof callName === 'string' ? this.tryCodedMove(board, callName) : null;
     if (coded) return coded;
     return typeof callName === 'string'
@@ -490,6 +490,19 @@ export class Sequencer {
       return !move || codedMoveApplies(move, this.board);
     });
     return base.concat(derived);
+  }
+
+  /**
+   * The dancer ids a selection resolves to on `board`, or null when it does not resolve.
+   *
+   * Exposed because a `GroupStep` is defined in terms of selections, and a caller (and a gate) has to
+   * be able to ask WHICH dancers a group claims - to check the groups are disjoint, to know who is
+   * left standing, and to compare a grouped result against each group's own solo result. Without this
+   * the only way to know was to apply something and infer it from who moved, which is exactly the
+   * inference this repository keeps getting wrong.
+   */
+  selectionIds(board: Board, selection: string): number[] | null {
+    return this.grouping.resolveSelection(board, selection);
   }
 
   /** The acting-group selector strings that resolve to a proper (non-empty,
@@ -833,11 +846,16 @@ export class Sequencer {
 
   /** Whether a module can be collapsed into a single composed transformation for a
    * given start formation: the module must exist, its start must be a recognised
-   * formation, and NONE of its constituent calls may be non-compositional. */
+   * formation, and NONE of its constituent calls may be non-compositional.
+   *
+   * A GROUPED ("while") step contributes EVERY group's call to that check. It needs no other rule:
+   * each dancer follows exactly one call per step, so the per-dancer composition below is already the
+   * right shape for it - which is what keeps the matrix transform working across the new form. */
   moduleCollapsible(module: string, startFormation: string): boolean {
     const calls = this.library.getModule(module);
     if (!calls || calls.length === 0) return false;
-    if (calls.some((c) => this.library.isNonCompositional(typeof c === 'string' ? c : c.call))) return false;
+    const named = calls.flatMap((c) => (isGroupStep(c) ? c.groups.map((g) => g.call) : [stepCall(c) ?? '']));
+    if (named.some((n) => this.library.isNonCompositional(n))) return false;
     return this.syntheticBoard(startFormation) !== null;
   }
 
@@ -851,7 +869,7 @@ export class Sequencer {
     let board = this.syntheticBoard(startFormation)!;
     const startById = new Map(board.dancers.map((d) => [d.id, d]));
     for (const c of calls) {
-      const res = this.applicator.applyToBoard(board, c);
+      const res = typeof c === 'string' ? this.applicator.applyToBoard(board, c) : this.applicator.applyStep(board, c);
       if (!res.legal) return null;
       board = res.board;
     }
@@ -874,24 +892,24 @@ export class Sequencer {
   /** Total beats of a flat sequence replayed from `startBoard` (default: the
    * home squared set). Pass the board the sequence actually started from - e.g.
    * one jumped to with setFormation - so playback agrees with the live board. */
-  sequenceBeats(flat: (string | CallStep)[], startBoard?: Board): number {
+  sequenceBeats(flat: ModuleStep[], startBoard?: Board): number {
     return this.analyzer.sequenceBeats(flat, startBoard);
   }
 
   /** The board at a global beat of a flat sequence replayed from `startBoard`
    * (default: the home squared set). */
-  evaluateSequence(flat: (string | CallStep)[], beat: number, startBoard?: Board): { board: Board; beats: number } {
+  evaluateSequence(flat: ModuleStep[], beat: number, startBoard?: Board): { board: Board; beats: number } {
     return this.analyzer.evaluateSequence(flat, beat, startBoard);
   }
 
   /** Where a flat sequence stops being playable, or null when it plays all the way. A caller that
    * draws a sequence should say so rather than let the last frame silently render the board before
    * the call that could not be played - see `SequenceAnalyzer.sequenceStop`. */
-  sequenceStop(flat: (string | CallStep)[], startBoard?: Board): SequenceStop | null {
+  sequenceStop(flat: ModuleStep[], startBoard?: Board): SequenceStop | null {
     return this.analyzer.sequenceStop(flat, startBoard);
   }
 
-  sequenceInfo(flat: (string | CallStep)[], beat: number, startBoard?: Board): { name: string; variant: CallBundle; mapping: number[] } | null {
+  sequenceInfo(flat: ModuleStep[], beat: number, startBoard?: Board): { name: string; variant: CallBundle; mapping: number[] } | null {
     return this.analyzer.sequenceInfo(flat, beat, startBoard);
   }
 
@@ -899,7 +917,7 @@ export class Sequencer {
     return this.analyzer.phrasesForBeats(beats);
   }
 
-  validateSegment(flat: (string | CallStep)[]): { totalBeats: number; phrases: number; complete64: boolean; remainder: number } {
+  validateSegment(flat: ModuleStep[]): { totalBeats: number; phrases: number; complete64: boolean; remainder: number } {
     return this.analyzer.validateSegment(flat);
   }
 

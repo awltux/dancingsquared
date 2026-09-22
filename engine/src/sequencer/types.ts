@@ -76,11 +76,58 @@ export interface CallStep {
   call: string;
 }
 
+/**
+ * A step performed by SEVERAL GROUPS AT ONCE - CALLERLAB's "Centers Square Thru while Outsides
+ * Trade".
+ *
+ * WHY IT IS A STEP AND NOT A SEQUENCE. The construct is SIMULTANEOUS, so it cannot be expressed as
+ * one call (the engine would have to hand-author every combination as a `<tam>`'s per-dancer paths,
+ * which is what the catalogue does today and why the structure is invisible) and it cannot be
+ * expressed as a list (a list is sequential). It is one step whose groups each dance their own call.
+ *
+ * THE RULES, decided rather than discovered:
+ *   - groups must be pairwise DISJOINT; an overlap is refused with a reason, because one dancer cannot
+ *     be in two places in one step;
+ *   - the union need NOT cover the board; a dancer in no group stands, which mirrors
+ *     `partitionPartial`'s reading of "a call acts on everyone it applies to";
+ *   - the step is ATOMIC: if any group's call is illegal, the whole step refuses with that group's
+ *     reason. A partially-danced "while" is not a thing a caller can call;
+ *   - a group names a CALL, not a module. Two composite routines of different lengths have no defined
+ *     alignment, so allowing them would invent a synchronisation rule the art does not have.
+ */
+export interface GroupStep {
+  groups: { selection: string; call: string }[];
+}
+
+export type ModuleStep = string | CallStep | GroupStep;
+
+/** Whether a step is the simultaneous-group form. */
+export function isGroupStep(step: ModuleStep): step is GroupStep {
+  return typeof step !== 'string' && 'groups' in step;
+}
+
+/** The call a step names, or null for a grouped step (which names several). */
+export function stepCall(step: ModuleStep): string | null {
+  return typeof step === 'string' ? step : isGroupStep(step) ? null : step.call;
+}
+
+/** The selection a step carries, or null. */
+export function stepSelection(step: ModuleStep): string | null {
+  return typeof step === 'string' ? null : isGroupStep(step) ? null : step.selection ?? null;
+}
+
+/** A stable label for a step - for replay keys, stop reports and error messages. */
+export function stepLabel(step: ModuleStep): string {
+  if (typeof step === 'string') return step;
+  if (!isGroupStep(step)) return `${step.selection ? step.selection + ' ' : ''}${step.call}`;
+  return step.groups.map((g) => `${g.selection} ${g.call}`).join(' while ');
+}
+
 /** A user-defined module: a named sequence of calls used as a fix/getout. Each
  * call may carry an optional dancer selection. */
 export interface Module {
   name: string;
-  calls: (string | CallStep)[];
+  calls: ModuleStep[];
   level?: string;
   tags?: string[];
   notes?: string;

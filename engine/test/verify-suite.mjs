@@ -37,6 +37,13 @@ const SUITE = [
   { h: 'shape-census', light: true },
   { h: 'verify', light: true },
   { h: 'sequencer', light: true },
+  // The module model and the "while" step (`GroupStep`): CALLERLAB's "Centers Square Thru while
+  // Outsides Trade", which the catalogue could previously only express by hand-authoring every
+  // dancer's path inside one `<tam>`. Pins the four rules the step promises (disjoint, atomic,
+  // calls-only, simultaneous), that a grouped result IS the per-group solo results merged by id, that
+  // the animation lands exactly on the applied board, and that `collapseModule` composes a matrix
+  // across it. Fast: one board, a handful of applies.
+  { h: 'modules', light: true },
   { h: 'mainstream', light: true },
   { h: 'matrix', light: true },
   { h: 'matrix-getout', light: true },

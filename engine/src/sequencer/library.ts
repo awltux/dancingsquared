@@ -8,7 +8,8 @@ import { buildCall, parseCallXml, parseFormations, parseMoves } from '../convert
 import { matchFormations, type Matchable } from './match.js';
 import { assignHomeIdentity, normAngle } from './identity.js';
 import { canonicalName } from './constants.js';
-import type { CallStep, Module } from './types.js';
+import type { Module, ModuleStep } from './types.js';
+import { isGroupStep } from './types.js';
 import type { CallBundle, Gender } from '../types.js';
 
 // Calls that are conceptually sequences of multiple smaller calls (e.g. Running
@@ -52,7 +53,7 @@ function toWholeSet(dancers: Matchable[]): Matchable[] {
 }
 export class CallLibrary {
   private readonly variants: Map<string, CallBundle[]> = new Map();
-  private readonly modules: Map<string, (string | CallStep)[]> = new Map(); // module name -> call steps
+  private readonly modules: Map<string, ModuleStep[]> = new Map(); // module name -> module steps
   private readonly namedFormations: { name: string; dancers: Matchable[] }[] = [];
   private readonly uniqueFormations: { name: string; dancers: Matchable[] }[] = [];
   /** Names added by `registerFormation` rather than read from `formations.xml`. See its note. */
@@ -111,9 +112,10 @@ export class CallLibrary {
     if (variants.length) this.variants.set(canonicalName(name), variants);
   }
 
-  registerModule(name: string, calls: (string | CallStep)[]): void {
-    const norm = (c: string | CallStep): string | CallStep => {
+  registerModule(name: string, calls: ModuleStep[]): void {
+    const norm = (c: ModuleStep): ModuleStep => {
       if (typeof c === 'string') return canonicalName(c);
+      if (isGroupStep(c)) return { groups: c.groups.map((g) => ({ selection: g.selection, call: canonicalName(g.call) })) };
       return { ...(c.selection ? { selection: c.selection } : {}), call: canonicalName(c.call) };
     };
     this.modules.set(canonicalName(name), calls.map(norm));
@@ -299,7 +301,7 @@ export class CallLibrary {
     return this.modules.has(canonicalName(name));
   }
 
-  getModule(name: string): (string | CallStep)[] | undefined {
+  getModule(name: string): ModuleStep[] | undefined {
     return this.modules.get(canonicalName(name));
   }
 
@@ -312,11 +314,20 @@ export class CallLibrary {
   }
 
   /** Flatten a sequence, expanding user-defined modules (cycle-guarded). Returns
-   * the flattened call steps, preserving any dancer selection. */
-  flatten(sequence: (string | CallStep)[]): (string | CallStep)[] {
-    const out: (string | CallStep)[] = [];
-    const expand = (names: (string | CallStep)[], stack: string[]): void => {
+   * the flattened module steps, preserving any dancer selection.
+   *
+   * A GROUPED step is passed through WHOLE, because it is atomic and simultaneous: expanding it into
+   * a flat list would silently turn "Centers X while Outsides Y" into "X then Y". Its group calls are
+   * canonicalised but NOT module-expanded, for the same reason a group may not name a module at all
+   * (`GroupStep`): two composite routines of different lengths have no defined alignment. */
+  flatten(sequence: ModuleStep[]): ModuleStep[] {
+    const out: ModuleStep[] = [];
+    const expand = (names: ModuleStep[], stack: string[]): void => {
       for (const raw of names) {
+        if (isGroupStep(raw)) {
+          out.push({ groups: raw.groups.map((g) => ({ selection: g.selection, call: canonicalName(g.call) })) });
+          continue;
+        }
         const hasSelection = typeof raw !== 'string' && !!raw.selection;
         const name = typeof raw === 'string' ? raw : raw.call;
         const canonical = canonicalName(name);

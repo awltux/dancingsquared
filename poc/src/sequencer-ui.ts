@@ -6,7 +6,8 @@
 import * as THREE from 'three';
 
 import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf } from 'dancing-squared-engine';
-import type { Board, CallStep, FormDancer, Matchable, Module, Pose, SequenceStop } from 'dancing-squared-engine';
+import type { Board, CallStep, FormDancer, Matchable, Module, ModuleStep, Pose, SequenceStop } from 'dancing-squared-engine';
+import { stepLabel } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
@@ -20,7 +21,7 @@ export interface SequencerUI {
   setActive(active: boolean): void;
   render(): void;
   /** Load a named sequence whole and park the playhead at its first step that plays `atCall`. */
-  openSequence(steps: (string | CallStep)[], atCall?: string, startFormation?: string): void;
+  openSequence(steps: ModuleStep[], atCall?: string, startFormation?: string): void;
   /** The EIGHT-dancer named formations, as start poses, for the editor's clone Start setup. */
   startFormations(): { name: string; poses: FormDancer[] }[];
   /** Everything the library can say about a board: the name it recognizes, the curated label,
@@ -119,7 +120,7 @@ export class SequencerController implements SequencerUI {
   /** Flat 2D markers, one per dancer, shown when View = 2D. */
   private markers: THREE.Group[] = [];
   private connectors: ReturnType<typeof buildHandConnectors>;
-  private history: (string | CallStep)[] = [];
+  private history: ModuleStep[] = [];
   private modules: Module[] = [];
   private active = false;
   /** Display-only rotation (radians) applied about the set centre so the whole
@@ -130,7 +131,7 @@ export class SequencerController implements SequencerUI {
   private playing = false;
   private playhead = 0;
   private totalBeats = 0;
-  private flat: (string | CallStep)[] = [];
+  private flat: ModuleStep[] = [];
   /** The board the current sequence replays from. Undefined means the home
    * squared set; it is set to the board when a formation is jumped to with
    * "Set", so playback, trails and copy agree with the live board. */
@@ -856,7 +857,7 @@ export class SequencerController implements SequencerUI {
    * context before and after it, which is the point of opening it rather than jumping to a board -
    * and then `seekTo` moves the playhead to where that call starts, so the animation is already at
    * the right place to press Play. */
-  openSequence(steps: (string | CallStep)[], atCall?: string, startFormation?: string) {
+  openSequence(steps: ModuleStep[], atCall?: string, startFormation?: string) {
     this.playing = false;
     this.playBtn.textContent = '▶ Play';
 
@@ -1060,7 +1061,7 @@ export class SequencerController implements SequencerUI {
       this.all8InfoEl.textContent = 'nothing to export';
       return;
     }
-    const names = this.history.map((c) => (typeof c === 'string' ? c : c.call));
+    const names = this.history.map(stepLabel);
     const text = formatAll8Figures([names]);
     this.all8Text.value = text;
     const unmapped = (text.match(/\[[^\]]+\]/g) ?? []).length;
@@ -1193,10 +1194,9 @@ export class SequencerController implements SequencerUI {
 }
 
 
-/** A step's human-readable call name (a CallStep's `.call`; otherwise the string). */
-function stepLabel(step: string | CallStep): string {
-  return typeof step === 'string' ? step : step.call;
-}
+/** A step's human-readable label now comes from the ENGINE (`stepLabel`), which owns the step union
+ * and therefore the only correct reading of it. The local copy this replaced knew only
+ * `string | CallStep`, so it would have printed `[object Object]` for a grouped "while" step. */
 
 /**
  * Which board this is, for deciding whether the next-call list needs rebuilding.

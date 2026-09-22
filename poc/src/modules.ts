@@ -7,8 +7,8 @@
 // diverge (the sequencer's own list is what the user sees, so a mismatch would show as "the call
 // picker has a module the browse view cannot find").
 
-import type { CallStep } from 'dancing-squared-engine';
-import { canonicalName, splitSelection } from 'dancing-squared-engine';
+import type { CallStep, ModuleStep } from 'dancing-squared-engine';
+import { canonicalName, splitSelection, isGroupStep, stepLabel } from 'dancing-squared-engine';
 import { validCederModules } from './ceder-modules';
 import { parseStoredModules } from './stored-modules';
 
@@ -153,7 +153,11 @@ export function startsAwayFromHome(seq: NamedSequence): boolean {
  * nothing to do with it. Keeping it gives the 2 that genuinely use the scoped call. They are
  * different calls and the list should say so.
  */
-export const callKey = (s: string | CallStep): string => {
+export const callKey = (s: ModuleStep): string => {
+  // A GROUPED ("while") step names several calls at once, so it has no single selection+call to key
+  // on. Its whole label is the key, which also means it can never be mistaken for a bare call when
+  // the browse view asks "what uses this call?" - a "while" is not that call.
+  if (typeof s !== 'string' && isGroupStep(s)) return stepLabel(s).trim().toLowerCase();
   const sel = typeof s === 'string' ? splitSelection(s).selection : s.selection;
   const base = typeof s === 'string' ? splitSelection(s).call : s.call;
   return `${sel ?? ''} ${canonicalName(base)}`.trim().toLowerCase();

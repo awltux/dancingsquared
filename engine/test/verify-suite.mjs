@@ -64,6 +64,12 @@ const SUITE = [
   // the thing it guards) and fails when disk disagrees, in EITHER direction, with the state and edge
   // counts pinned separately. ~45s, all of it the table build, so it is not in `light`.
   { h: 'fsm-asset', light: false, why: 'rebuilds the whole transition table to compare against the stored asset' },
+  // Stage 0 of the modules/FSM plan: the declared CELL vocabulary and the reachable-vs-declared split.
+  // It measures that the declared lattice IS the engine's own state set (155 = 155), and that 68% of
+  // legal applications end on a geometry nothing declares - which is why the node set is bounded by
+  // DECLARATION and not by reachability. Lives in `tools/` and is reached through `sub`, like the
+  // determinism audit. ~23s, all of it the sweep.
+  { h: 'cell-census', sub: 'tools', light: false, why: 'sweeps every legal application to classify its end against the lattice' },
   { h: 'all8-formation-map', light: true },
   { h: 'promenade', light: false, why: 'corpus-scale sweep' },
   { h: 'getout-conformance', light: false, why: 'decodes all 553 published lines' },

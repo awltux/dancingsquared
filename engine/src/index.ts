@@ -34,6 +34,11 @@ export type { FormationMatch, Matchable } from './sequencer/match.js';
 // The mixed-arity (multi-size) grouping enumeration. Exported for the REPORTER that pins its measured
 // yield — see `partitionsFor` for why it is deliberately wired to nothing else.
 export { partitionsFor, MIXED_PARTITION_CAP } from './sequencer/applicator.js';
+// The CELL vocabulary: a board's identity as a cell of a finite DECLARED lattice. Exported for the
+// census that measures the reachable-vs-declared split; see `cells.ts` for why a declared lattice,
+// not All8's FASR letters, is what bounds the FSM's node set.
+export { geometryKey, buildCellLattice, boardMatchables, CELL_ROUND } from './sequencer/cells.js';
+export type { BoardCell, CellGeometry, CellLattice } from './sequencer/cells.js';
 export { analyzeFasr } from './sequencer/fasr.js';
 // All8's call notation (abbreviation table, tokenizer, line decoder) - the shared vocabulary behind
 // both the get-out conformance harnesses and the All8 sequence import/export codec.

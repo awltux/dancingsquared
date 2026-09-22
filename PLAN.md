@@ -1786,6 +1786,58 @@ this — the audit compares walk PROCEDURES, not the two application paths.
 touched. `transitionTable` costs **36.8 s / 155 states / 1961 edges** on the 274-call Mainstream
 catalog, and `legalCalls` is ~99% of it.
 
+### The modules / cell-vocabulary direction for the FSM — Stage 0 DONE, measured
+
+**The problem it answers.** The FSM's EDGES are quantised to named states, so a transition whose end
+the namer refuses (`endFormation: null`, 66% of them) has no target node, and closing over those ends
+as new states **DIVERGES** (recorded in `buildFsmTable`: 1840 new geometries at level 1, 3005 states
+after enumerating 400 and still growing). So the node set can only be bounded by DECLARATION.
+
+**THE PREMISE CORRECTED, and it matters for every stage that follows: the FSM is NOT the solver.**
+`HomeSolver` runs a live DFS over `searchLegalCalls` and never reads the table; the FSM feeds
+`poc/src/fsm-view.ts` and `fsm-getout-audit.mjs`. "It can no longer solve get-outs" is true of the
+route GRAPH, not of the search. Approved direction: make the graph faithful first, and promote it to
+the solver only if a stage produces a witness that the live DFS cannot afford (none exists today —
+Phase H records that there are **no failed searches**).
+
+**STAGE 0, MEASURED (`engine/test/tools/cell-census.mjs`, `all` tier, 23 s; vocabulary in
+`engine/src/sequencer/cells.ts`).** A cell is `geometry | gender-arrangement | sequence |
+relationship`:
+
+```
+geometries declared        155   <- EXACTLY the engine's own state set (155). The lattice IS the
+                                    state set made explicit, not a second opinion.
+  named / setup-only       129 / 26
+  geometries with >1 gender pattern   23  (max 4)  <- the arrangement half is real, not cosmetic
+  geometries All8 gives a LETTER       9  (B F L P S W)
+4416 legal applications over the 133 named states
+  end ON the lattice       1414  (32.0%)
+  end OFF it (NOVEL)       3002  (68.0%) in 1923 distinct geometries
+distinct CELLS reached      396   (57 carry a letter; only 22 are fully readable)
+141 of 273 calls mint a novel geometry
+```
+
+**TWO FINDINGS THAT SHAPED THE PLAN.**
+
+- **All8's FASR cannot be the node key.** `FORMATION_LETTER` maps nine engine names to six letters, so
+  FASR names only **9 of the 129** named geometries (and, over the full transition set, **17 of the
+  2052** distinct end geometries). FASROO cannot extend it — `fasrooOf` refuses a formation with no
+  agreed reference pair, and Callerlab records one for `[L] [B] [F] [W]` only. **So the vocabulary is
+  OURS to author**: `geometryId + arrangement` is a complete identity needing no authority's leave,
+  and All8's notation is kept as an ANNOTATION where it exists.
+- **The gap is a vocabulary gap, not a missing-formation gap.** The calls that mint novel geometries
+  are a narrow, recognisable class — `Face Out` 112, `Step to a Wave` 110, `Step to a Left-Hand Wave`
+  110, `Face Left`/`Face Right` 109, `Face In` 107, `Girls Fold` 100, `Boys Fold` 97 on down. Those
+  are the pivot/fold/quarter-turn transients PLAN §5 already names, plus the half-scale `Step to a
+  Wave` class Phase B records — not 1923 formations the catalogue forgot.
+
+**THE STAGES AFTER IT** (approved, in order): (1) module primitives including a GROUPED step — the
+"while" construct `Centers X while Outsides Y`, which is not expressible today (`Running Bear` proves
+it is hand-authored per-dancer at the move level); (2) the faithful FSM graph, with the reading and a
+`transient` marker on the edge; (3) **modules as FSM edges where start and end are both cells** — the
+absorption mechanism that keeps a transient from ever becoming a node, and the stage that proves the
+node count stays flat; (4) the solver engine, **only against a witness**.
+
 ### Phase H — the solver side (the Phase 3 leftover)
 
 **Owner:** the search's remaining C term. `library.allVariantSetups()` is still the flat list that

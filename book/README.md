@@ -400,7 +400,7 @@ wrong call), and a playable call that no page places.
 |---|---|
 | `animations-index.json` — which call each player loads and how it fits the floor | `01-start/`, `02-language/`, `03-rules/` |
 | every PNG in `formations/` | every call page in `04-calls/` |
-| every SVG in `diagrams/` — the squared-set pictures and the 2/4-against-4/4 phrase diagram | `05-course/`, `06-practice/`, `07-plus/` |
+| every SVG in `diagrams/` — the squared-set pictures, the four identifiers, and the 2/4-against-4/4 phrase diagram | `05-course/`, `06-practice/`, `07-plus/` |
 | `08-reference/call-index.md`, `formation-index.md`, `animations-index.md`, `programme-membership.md`, `moved-and-renamed.md` | `08-reference/glossary.md`, `sources-and-attribution.md`, `watching-the-animations.md` |
 
 Generated pages carry a `<!-- GENERATED … -->` header and are checked for it by the gate.

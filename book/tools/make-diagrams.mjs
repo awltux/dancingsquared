@@ -297,58 +297,93 @@ export function build() {
   );
   index.drawn.push({ slug: 'heads-and-sides', title: 'Heads and Sides', couples: 'Heads 1,3  Sides 2,4' });
 
-  // ---------------------------------------------------------------- Partner, Corner, Opposite
+  // ---------------------------------------------------------------- the four identifiers
   //
-  // The manual, "Opposite": "When squared up at home, a dancer's Diagonal Opposite is the dancer
-  // across the square of the same gender." And "Partner and Corner": "each dancer's Partner is the
-  // adjacent dancer, and each dancer's Corner is the next dancer 'around the nearest corner of the
-  // square' from them."
+  // The manual, "The Four Identifiers around the Square": "Within a Squared Set, the four Women as
+  // viewed from a Man's perspective looking CLOCKWISE around the square are: his Corner, his Opposite,
+  // his Right-Hand Lady, and his Partner."
   //
-  // Worked on the #1 Boy, at the south-west of the south couple: his Partner is the adjacent dancer
-  // in his own couple; the nearest corner of the square is the south-west one, so his Corner is the
-  // next dancer round it; and his Opposite is the same-gender dancer straight across.
+  // So the four are not picked out by name here: they are the four Women in clockwise order, and the
+  // manual's list is then ASSERTED against the geometry rather than trusted -- the walk must end on his
+  // own partner, and the second of the four must be the Girl of the couple facing him. Those are the two
+  // relations the names actually claim, and if the library ever moved a couple the build fails.
+  //
+  // The walk: the angle of each Woman around the centre is subtracted from the picked Boy's, and the
+  // positive remainder is how far clockwise she lies from him. Sorting by that gives the order the
+  // manual describes -- nearest clockwise is the Corner, nearest counter-clockwise is the Partner.
   const mine = cs.find((c) => c.couple === 1);
   const you = mine.boy;
-  const relative = (fn, why) => {
-    const p = people.find(fn);
-    if (!p) throw new Error(`no dancer found for ${why}`);
-    return p;
+  const angle = (d) => Math.atan2(d.y, d.x);
+  const clockwiseFrom = (d) => ((angle(you) - angle(d)) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+  const ranked = cs.map((c) => c.girl).sort((a, b) => clockwiseFrom(a) - clockwiseFrom(b));
+  const [corner, oppositeLady, rightHandLady, partner] = ranked;
+
+  if (ranked.length !== 4 || new Set(ranked.map((d) => d.number)).size !== 4) {
+    throw new Error('the four identifiers are not four distinct dancers');
+  }
+  if (partner.couple !== you.couple) {
+    throw new Error('walking clockwise from the Boy did not end on his own Partner');
+  }
+  const facing = (you.couple + 1) % 4 + 1; // the couple two sides away, which faces his
+  if (oppositeLady.couple !== facing) {
+    throw new Error(`the second identifier is in couple ${oppositeLady.couple}, not the facing couple ${facing}`);
+  }
+  if (corner.couple === you.couple || rightHandLady.couple === you.couple) {
+    throw new Error('a Corner or Right-Hand Lady landed in the Boy\'s own couple');
+  }
+
+  const four = [corner, oppositeLady, rightHandLady, partner];
+  const link = (from, to) => {
+    const x1 = px(from.x);
+    const y1 = py(from.y);
+    const x2 = px(to.x);
+    const y2 = py(to.y);
+    const a = Math.atan2(y2 - y1, x2 - x1);
+    const hx = x1 + (x2 - x1) * 0.62;
+    const hy = y1 + (y2 - y1) * 0.62;
+    const s = 6;
+    const head = [
+      [hx + Math.cos(a) * s, hy + Math.sin(a) * s],
+      [hx + Math.cos(a + 2.5) * s, hy + Math.sin(a + 2.5) * s],
+      [hx + Math.cos(a - 2.5) * s, hy + Math.sin(a - 2.5) * s],
+    ]
+      .map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`)
+      .join(' ');
+    return (
+      `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" ` +
+      `stroke="${COLOUR.axis}" stroke-width="1.6" stroke-dasharray="6 4" opacity="0.8"/>` +
+      `<polygon points="${head}" fill="${COLOUR.axis}"/>`
+    );
   };
-  const partner = relative((p) => p.couple === 1 && p !== you, 'the #1 Boy partner');
-  const corner = relative((p) => p.gender === 'girl' && p.side === 'west', 'the #1 Boy corner');
-  const opposite = relative((p) => p.gender === 'girl' && p.side === 'north', 'the #1 Boy opposite');
 
-  const line = (to) =>
-    `<line x1="${px(you.x)}" y1="${py(you.y)}" x2="${px(to.x)}" y2="${py(to.y)}" ` +
-    `stroke="${COLOUR.ink}" stroke-width="1.6" stroke-dasharray="6 4" opacity="0.75"/>`;
-
-  const relatives = new Set([partner, corner, opposite]);
   const relationBody = [
-    [line(corner), line(opposite), line(partner)].join('\n'),
+    // Arrows between the four, so the clockwise order is visible rather than just stated.
+    four.map((d, i) => link(d, four[(i + 1) % 4])).join('\n'),
     dancerLayer(people, {
-      fillOf: (p) => (p === you ? COLOUR.ink : relatives.has(p) ? COLOUR.couple[1] : COLOUR.muted),
+      fillOf: (p) => (p === you ? COLOUR.ink : four.includes(p) ? COLOUR.couple[p.couple] : COLOUR.muted),
     }),
-    label(px(-3) - 45, OY + 5, 'CORNER', { size: 13 }),
-    label(W / 2, py(3) - 40, 'OPPOSITE'),
-    label(px(1) + 46, py(-3) + 57, 'PARTNER', { size: 13, anchor: 'start' }),
-    label(px(-1), py(-3) + 57, 'YOU', { size: 13 }),
-    caller(W / 2, py(-3) + 116, 'CALLER'),
+    // The four labels sit outside the side their dancer stands on, which is the only place they can go.
+    label(px(-3) - 18, OY + 5, 'CORNER', { size: 12, anchor: 'end' }),
+    label(W / 2, py(3) - 42, 'OPPOSITE LADY', { size: 12 }),
+    label(px(3) + 18, OY - 6, 'RIGHT-HAND', { size: 11, anchor: 'start' }),
+    label(px(3) + 18, OY + 9, 'LADY', { size: 11, anchor: 'start' }),
+    label(px(1) + 34, py(-3) + 34, 'PARTNER', { size: 12, anchor: 'start' }),
+    label(px(you.x) - 20, py(you.y) + 4, 'YOU', { size: 12, anchor: 'end' }),
+    caller(W / 2, py(-3) + 66, 'CALLER'),
   ].join('\n');
   files.set(
-    'partner-corner-opposite.svg',
+    'four-identifiers.svg',
     svg(
-      'Partner, Corner and Opposite',
-      'A squared set with the number 1 Boy picked out. Dashed lines lead from him to his Partner beside him, his Corner round the nearest corner of the square, and his Opposite across the square.',
+      'The four identifiers around the square',
+      'A squared set with the number 1 Boy picked out in black. The four Women are in their couple colours, and arrows run between them clockwise: his Corner, his Opposite Lady, his Right-Hand Lady, and his Partner beside him.',
       relationBody,
     ),
   );
   index.drawn.push({
-    slug: 'partner-corner-opposite',
-    title: 'Partner, Corner and Opposite',
+    slug: 'four-identifiers',
+    title: 'The four identifiers around the square',
     from: `#${you.number} Boy`,
-    partner: `#${partner.number}`,
-    corner: `#${corner.number}`,
-    opposite: `#${opposite.number}`,
+    clockwise: four.map((d) => `#${d.number}`).join(' -> '),
   });
 
   // ---------------------------------------------------------------- the phrase, in 2/4 and in 4/4

@@ -11,12 +11,10 @@
       "couples": "Heads 1,3  Sides 2,4"
     },
     {
-      "slug": "partner-corner-opposite",
-      "title": "Partner, Corner and Opposite",
+      "slug": "four-identifiers",
+      "title": "The four identifiers around the square",
       "from": "#1 Boy",
-      "partner": "#2",
-      "corner": "#8",
-      "opposite": "#6"
+      "clockwise": "#8 -> #6 -> #4 -> #2"
     },
     {
       "slug": "phrase-bars",

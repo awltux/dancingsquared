@@ -119,6 +119,8 @@ Standing at home as a Boy and looking clockwise around the square, the four Girl
 
 **your Corner → your Opposite Lady → your Right-Hand Lady → your Partner.**
 
+![The four identifiers around the square: the number 1 Boy in black, and the four Women clockwise from him — his Corner, his Opposite Lady, his Right-Hand Lady and his Partner.](../diagrams/four-identifiers.svg)
+
 From a Girl's side it is the same names in the other direction — counter-clockwise around the square:
 **your Corner → your Opposite Gent → your Left-Hand Gent → your Partner.**
 

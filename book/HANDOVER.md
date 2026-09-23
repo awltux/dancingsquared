@@ -15,19 +15,20 @@
 > | Playable | **75 of 78** cards, from **118 curated start labels** in `tools/start-formations.json` — 64 wired to an authoring, 54 listed but not yet animatable. **5** cards have `"starts": {}` (`m03c`, `m12c`, `m14a`, `m15b`, `m15c`) because their manual wording is prose rather than a list |
 > | Withheld | **3** cards — `m04a`, `m14b`, `m32c` — each with a recorded reason (`noAnimation` in `tools/animations-index.json`) |
 > | Restrictions | stated on **54 of 78** cards |
-> | Diagrams | **19** formation PNGs and **4** annotated SVGs (`book/diagrams/`), of which **1** is used by a page |
+> | Diagrams | **19** formation PNGs and **4** annotated SVGs (`book/diagrams/`), of which **2** are used by a page |
 > | Online edition | `book/dancingsquared_book/` — 236 files, ~3.4 MB, a PWA with a service worker |
 > | Build stamp | every page footer ends with the build's short content hash in square brackets, and the Introduction's correction link asks for the same hash as `book_build_hash=<hash>` — stamped at the end of `build-site.mjs`, the same value the offline cache is versioned by, so a deployment can be identified from the page a reader is looking at |
 > | Gate | `npm run check:book` → exit 0: *109 pages, 50 teaching units, 75 playable calls; all links, anchors and coverage checks pass.* · *75 playable calls reproduce exactly.* · *75 playable calls verified (303 pose evaluations, 3 with a recorded reason).* |
 >
 > **Outstanding — found while updating this file, measured rather than suspected:**
 >
-> 1. **Three of the four diagrams in `book/diagrams/` are orphaned.** `make-diagrams.mjs` draws them
->    ("Couple numbers at home", "Heads and Sides", "Partner, Corner and Opposite") and `--check` says
->    they reproduce exactly — but **no page references them**, so they never reach the site: the build
->    copies only the diagrams a page actually renders (this is deliberate; see item 2).
+> 1. **Two of the four diagrams in `book/diagrams/` are orphaned.** `make-diagrams.mjs` draws them
+>    ("Couple numbers at home", "Heads and Sides") and `--check` says they reproduce exactly — but **no
+>    page references them**, so they never reach the site: the build copies only the diagrams a page
+>    actually renders (this is deliberate; see item 2).
 >    `02-language/couples-and-positions.md` is the page they were drawn for. Place them, or delete
->    them. The fourth, `phrase-bars.svg`, IS referenced, by `01-start/timing-and-music.md`.
+>    them. The other two are both referenced: `four-identifiers.svg` by
+>    `02-language/naming-the-dancers.md`, and `phrase-bars.svg` by `01-start/timing-and-music.md`.
 > 2. **`make-diagrams.mjs` is in `build:book` — the wiring this list used to ask for.** The build is
 >    make-animations → make-formations → **make-diagrams** → make-reference → make-nav → build-site.
 >    `build-site.mjs` copies the diagrams **a page renders** and no others, the same rule the call
@@ -61,6 +62,13 @@
 >    contains an em dash: `engine/src/sequencer/coded-moves.ts` and `library.ts` both looked damaged
 >    that way and are clean. This entry was wrong in its first draft — it named one file and blamed a
 >    single round-trip — because the console was believed instead of a probe.
+> 7. **A changed diagram can be served from a reader's cache after a deploy.** `style.css` and
+>    `assets/player.js` carry `?v=<content hash>` precisely so that new HTML cannot meet a stale asset,
+>    but the images in `formations/` and `diagrams/` are plain URLs and the deploy gives assets a
+>    one-hour cache header — so a figure that changed is up to an hour late for anyone who has seen it
+>    before. Found by rebuilding a diagram and being shown the OLD one in a browser: the file on disk and
+>    a cache-busted fetch were both correct, and only the cached copy was not. The fix is the one the
+>    stylesheet already uses, applied to images.
 >
 > What this file is still good for:
 >
@@ -529,7 +537,7 @@ book/
 
 | Planned | Built | Why |
 |---|---|---|
-| `figures/` — one SVG per call, 250–350 of them | `formations/` (19 PNGs) + `diagrams/` (4 SVGs) + the browser player | The engine-driven player replaced the per-call figure set, so only the small formation and annotated diagrams remain as images; the count is **23, not 250–350** (and three of the four diagrams are orphaned — see the banner) |
+| `figures/` — one SVG per call, 250–350 of them | `formations/` (19 PNGs) + `diagrams/` (4 SVGs) + the browser player | The engine-driven player replaced the per-call figure set, so only the small formation and annotated diagrams remain as images; the count is **23, not 250–350** (and two of the four diagrams are orphaned — see the banner) |
 | `CHECKPOINT-classification.md` | absent | The corpus-classification table was later deleted in the de-developer sweep; the reader-facing residue is `08-reference/programme-membership.md` and `moved-and-renamed.md` |
 | `figures-index.md`, `corpus-classification.md`, `definitions-reconciliation.md`, `using-the-dancing-squared-app.md` in `08-reference/` | `animations-index.md`, `watching-the-animations.md` instead | Developer-facing pages were removed by the same sweep; the animations index took the figure index's place |
 | `01-start/your-first-call.md` — a walkthrough of the first call | written, then **deleted** | It restated the M1a call card: the same walkthrough, the same fraction table, the Manual's styling quotation word for word, the same faults. That is exactly the duplication the book exists to avoid, and it was the only page doing it. Its one unique note — the grapevine step in an eight-dancer circle — moved to the M1a **Styling** section, and the flagpole centre it re-defined already lives in `02-language/directions.md`. The URL is gone and the book has no redirects, so a bookmark of it now 404s, as with the pages renamed in the front-matter swap |
@@ -787,7 +795,7 @@ From the root `HANDOVER.md`, all of which have paid off repeatedly:
   `book/tools/check-links.mjs` and the built site are what this file's numbers describe.
 - **The built site is gitignored** (`book/.gitignore`): reproducible with `npm run build:book`, so it
   is not part of what a commit needs to carry.
-- **Immediate next steps, in the order they matter:** place or delete the three orphaned diagrams in
+- **Immediate next steps, in the order they matter:** place or delete the two orphaned diagrams in
   `book/diagrams/` (`make-diagrams.mjs` is already in `build:book` and its `--check` in `check:book`);
   wire `make-formations.mjs --check` into `check:book`; decide whether the reference pages need a real
   `--check` mode (they are ungated today); then commit `book/`.

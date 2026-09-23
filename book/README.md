@@ -312,12 +312,24 @@ The book is served from S3, so the built site is uploaded with the AWS CLI by
 
 ```bash
 npm run build:book
-npm run deploy:book -- --bucket <bucket> [--distribution <cloudfront-id>]
+npm run deploy:book
 ```
 
-Bucket, prefix and distribution come from flags or from `BOOK_S3_BUCKET`, `BOOK_S3_PREFIX`
-(default `dancingsquared_book`) and `BOOK_CLOUDFRONT_DISTRIBUTION_ID`. `--dryrun` shows what
-would change without writing anything.
+Bucket, prefix and distribution are taken from a flag, then the environment
+(`BOOK_S3_BUCKET`, `BOOK_S3_PREFIX` — default `dancingsquared_book` — and
+`BOOK_CLOUDFRONT_DISTRIBUTION_ID`), then `book/deploy.txt`, which is where this repo keeps them:
+
+```
+# book/deploy.txt
+bucket = util.awltux.trade
+prefix = dancingsquared_book
+# distribution = E1234567890ABC
+```
+
+That file is the same idea as `book/site-base.txt`: `#` comments, one `key = value` per setting, one
+blank-line-free line each, committed so the ordinary deploy needs no arguments and the value's
+provenance is printed in the banner. Nothing in it is a secret — the AWS credentials come from the
+CLI's own configuration, never from here. `--dryrun` shows what would change without writing anything.
 
 Two details the script exists to get right, and which a plain file copy — or a *mounted*
 bucket — gets wrong:

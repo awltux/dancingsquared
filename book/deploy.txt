@@ -1,0 +1,22 @@
+# Where the built book is published, and how. Read by `scripts/deploy-book.mjs`
+# (`npm run deploy:book`), which uses these when no flag or environment variable says
+# otherwise -- so the ordinary deploy needs no arguments on this machine.
+#
+# Precedence, highest first:
+#   1. --bucket / --prefix / --distribution / --config on the command line
+#   2. $BOOK_S3_BUCKET / $BOOK_S3_PREFIX / $BOOK_CLOUDFRONT_DISTRIBUTION_ID
+#   3. this file
+#
+# Nothing here is a secret: the bucket name is in `book/HANDOVER.md` too, and a
+# CloudFront distribution id is an identifier rather than a credential. The AWS
+# credentials themselves come from the CLI's own configuration and never live here.
+#
+# `distribution` is optional. Without it the script skips the invalidation step,
+# which costs little: pages and sw.js are uploaded `no-cache`, so a reader always
+# gets the new build; only the hour-long asset cache is left to expire on its own.
+#
+# Lines starting with # are ignored, as are blank lines.
+
+bucket = util.awltux.trade
+prefix = dancingsquared_book
+distribution = E1A3YTJ09ZE0BD

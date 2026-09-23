@@ -27,16 +27,22 @@
      npm run deploy:book -- --bucket my-bucket [--prefix dancingsquared_book]
                                           [--distribution E123ABC] [--dryrun]
 
-   Configuration is taken from flags first, then the environment:
+   Configuration is taken from flags first, then the environment, then a config file:
      --bucket        BOOK_S3_BUCKET
      --prefix        BOOK_S3_PREFIX                 (default: dancingsquared_book)
      --distribution  BOOK_CLOUDFRONT_DISTRIBUTION_ID   (optional)
+     --config                                          (default: book/deploy.txt)
 
-   Nothing here is repo-specific: point it at a staging bucket just as easily.
+   The file is `key = value` lines -- `bucket`, `prefix`, `distribution` -- with `#`
+   comments and blank lines ignored, the same shape as `book/site-base.txt`. It is what
+   makes `npm run deploy:book` correct with no arguments once a repo has a home.
+
+   Nothing here is repo-specific beyond that default path: point it at a staging bucket
+   just as easily.
 */
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -86,6 +92,7 @@ Options:
   --prefix <key>           key prefix                      (env BOOK_S3_PREFIX, default dancingsquared_book)
   --distribution <id>      CloudFront distribution to invalidate
                                                            (env BOOK_CLOUDFRONT_DISTRIBUTION_ID)
+  --config <path>          settings file                   (default book/deploy.txt)
   --no-delete              keep objects in S3 that no longer exist in the build
   --dryrun                 pass --dryrun to every aws call (nothing is written)
   --allow-root             permit an empty --prefix (uploads to the bucket root)
@@ -95,6 +102,26 @@ Options:
 function fail(message) {
   console.error(`\n  error: ${message}\n`);
   process.exit(1);
+}
+
+/** The settings a repo can commit: `key = value` lines, `#` comments and blanks ignored. */
+const SETTINGS = ['bucket', 'prefix', 'distribution'];
+
+function readConfig(path) {
+  if (!existsSync(path)) return {};
+  const settings = {};
+  readFileSync(path, 'utf8')
+    .split('\n')
+    .forEach((raw, i) => {
+      const line = raw.trim();
+      if (!line || line.startsWith('#')) return;
+      const eq = line.indexOf('=');
+      if (eq < 1) fail(`${path}:${i + 1}: expected "key = value", got "${line}"`);
+      const key = line.slice(0, eq).trim();
+      if (!SETTINGS.includes(key)) fail(`${path}:${i + 1}: unknown setting "${key}" (${SETTINGS.join(', ')})`);
+      settings[key] = line.slice(eq + 1).trim();
+    });
+  return settings;
 }
 
 function aws(args, { dryrun }) {
@@ -117,14 +144,35 @@ function main() {
     return;
   }
 
-  const bucket = opts.bucket || process.env.BOOK_S3_BUCKET;
-  const prefix = (opts.prefix || process.env.BOOK_S3_PREFIX || 'dancingsquared_book')
-    .replace(/^\/+|\/+$/g, '');
-  const distribution = opts.distribution || process.env.BOOK_CLOUDFRONT_DISTRIBUTION_ID;
+  const configPath = opts.config ? resolve(opts.config) : resolve(ROOT, 'book', 'deploy.txt');
+  const settings = readConfig(configPath);
+
+  // Flag, then environment, then the committed file -- the same order `build-site.mjs` uses for the
+  // published base, so "where does this value come from?" has one answer in this repo.
+  const pick = (name, envName, fallback) => {
+    if (opts[name] !== undefined) return { value: opts[name], source: `--${name}` };
+    if (process.env[envName]?.trim()) return { value: process.env[envName].trim(), source: envName };
+    if (settings[name]) return { value: settings[name], source: configPath };
+    return { value: fallback, source: null };
+  };
+
+  const bucketPick = pick('bucket', 'BOOK_S3_BUCKET', '');
+  const bucket = bucketPick.value;
+  const prefixPick = pick('prefix', 'BOOK_S3_PREFIX', 'dancingsquared_book');
+  const prefix = (prefixPick.value || 'dancingsquared_book').replace(/^\/+|\/+$/g, '');
+  const distributionPick = pick('distribution', 'BOOK_CLOUDFRONT_DISTRIBUTION_ID', '');
+  const distribution = distributionPick.value;
   const dryrun = flags.has('dryrun');
   const del = !flags.has('no-delete');
 
-  if (!bucket) fail('no bucket given. Pass --bucket <name> or set BOOK_S3_BUCKET.');
+  const from = (p) => (p.source ? ` (from ${p.source === configPath ? 'book/deploy.txt' : p.source})` : '');
+
+  if (!bucket) {
+    fail(
+      'no bucket given. Pass --bucket <name>, set BOOK_S3_BUCKET, or put `bucket = <name>` in ' +
+        `${configPath}.`,
+    );
+  }
   if (!prefix && !flags.has('allow-root')) {
     fail('the prefix is empty, which would sync over the whole bucket root. Pass --allow-root to mean it.');
   }
@@ -139,10 +187,16 @@ function main() {
 
   console.log('\n  Dancing Squared - publish the book');
   console.log(`  from : ${SITE}`);
-  console.log(`  to   : ${dest}`);
-  console.log(`  sw   : ${prefix ? prefix + '/sw.js' : 'sw.js'}`);
-  console.log(`  cf   : ${distribution || '(no distribution - skipping invalidation)'}`);
-  console.log(`  mode : ${dryrun ? 'DRY RUN (nothing written)' : del ? 'sync with --delete' : 'sync (no delete)'}\n`);
+  console.log(`  to   : ${dest}${from(bucketPick)}`);
+  console.log(`  sw   : ${prefix ? prefix + '/sw.js' : 'sw.js'}${from(prefixPick)}`);
+  console.log(
+    `  cf   : ${distribution || '(no distribution - skipping invalidation)'}${distribution ? from(distributionPick) : ''}`,
+  );
+  console.log(`  mode : ${dryrun ? 'DRY RUN (nothing written)' : del ? 'sync with --delete' : 'sync (no delete)'}`);
+  if (!existsSync(configPath)) {
+    console.log(`  note : no settings file at ${configPath} (flags and environment only)`);
+  }
+  console.log('');
 
   // --- 1. authenticated? -----------------------------------------------------
   aws(['sts', 'get-caller-identity', '--output', 'text'], { dryrun: false });

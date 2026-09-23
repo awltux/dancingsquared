@@ -100,19 +100,27 @@ Leaders and Trailers define some calls — [Scoot Back](../04-calls/m47-scoot-ba
 for tandem couples and dancers. When a caller has a choice, "Boys", "Girls", "Centers" or "Ends"
 is usually the kinder word.
 
-## Adjacent, Couples, Opposite
+## Adjacent, Couples, Opposites
 
 - **Adjacent** — side by side, with nothing between you. Usually a couple or a mini-wave.
 - **Couple** — two adjacent dancers facing the same way. See
   [Arrangements and gender](arrangements-and-gender.md) for *Normal*, *Sashayed* and *Same-Gender* couples.
-- **Opposite** — in a squared set, the dancer across the square of the same gender.
+- **Diagonal Opposite** — in a squared set, the dancer across the square from you **of the same
+  gender**. The manual's own example: the two Side Women are Diagonal Opposites.
+- **Opposite Lady**, **Opposite Gent** — the dancer across the square of the **other** gender. A Boy's
+  Opposite Lady is the Girl in the couple facing him; a Girl's Opposite Gent is the Boy. This is the
+  "Opposite" the four identifiers below mean, and the manual gives it its own name because *Diagonal
+  Opposite* is a different dancer.
 - **Right-Hand Lady** — from a Boy's point of view, the Girl diagonally to his right.
 
 ## The four identifiers
 
 Standing at home as a Boy and looking clockwise around the square, the four Girls are, in order:
 
-**your Corner → your Opposite → your Right-Hand Lady → your Partner.**
+**your Corner → your Opposite Lady → your Right-Hand Lady → your Partner.**
+
+From a Girl's side it is the same names in the other direction — counter-clockwise around the square:
+**your Corner → your Opposite Gent → your Left-Hand Gent → your Partner.**
 
 That order is worth knowing, because it is the order an Allemande Left and a Grand Right and Left
 will send you round the square.

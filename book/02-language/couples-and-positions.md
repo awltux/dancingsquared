@@ -43,15 +43,21 @@ That is the 2026 manual's rule, and it is about position rather than people.
 Both dancers of a couple usually hold hands — a **couple handhold**. See
 [Hands and holds](hands-and-holds.md).
 
-## Partner, Corner, Opposite
+## Partner, Corner, Opposites
 
 Standing at home:
 
 - your **Partner** is the dancer beside you in your own couple
 - your **Corner** is the dancer diagonally adjacent, round the nearest corner
-- your **Opposite** is the dancer directly across the square from you
+- your **Diagonal Opposite** is the dancer directly across the square from you — always of your own
+  gender, because that is the dancer standing in the position diametrically opposite yours
+- your **Opposite Lady** (if you are a Boy) or **Opposite Gent** (if you are a Girl) is the dancer
+  across the square of the *other* gender
 
-All three change during a tip as dancers are sent round the square. Your **Original** partner and
+[Naming the dancers](naming-the-dancers.md) sets the whole set of names out, including the order the
+four of them come round the square.
+
+All of these change during a tip as dancers are sent round the square. Your **Original** partner and
 corner are the ones you started with, and callers say "original" when they mean those.
 
 ## Where this matters for a beginner

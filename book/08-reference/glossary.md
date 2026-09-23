@@ -15,7 +15,7 @@ follow the link rather than expecting the explanation to be repeated elsewhere.
 | **Heads and Sides** | [Naming the dancers](../02-language/naming-the-dancers.md) |
 | **Couple 1, 2, 3, 4** | [Couples and positions](../02-language/couples-and-positions.md) |
 | **Partner**, **Corner**, **Original Partner** | [Naming the dancers](../02-language/naming-the-dancers.md) |
-| **Opposite**, **Right-Hand Lady** | [Naming the dancers](../02-language/naming-the-dancers.md) |
+| **Diagonal Opposite**, **Opposite Lady**, **Opposite Gent**, **Right-Hand Lady** | [Naming the dancers](../02-language/naming-the-dancers.md) |
 | **Boys and Girls** (Men and Women, Gents and Ladies) | [Arrangements and gender](../02-language/arrangements-and-gender.md) |
 | **Centers and Ends**, **Very Centers** | [Naming the dancers](../02-language/naming-the-dancers.md) |
 | **Leaders and Trailers** | [Naming the dancers](../02-language/naming-the-dancers.md) |

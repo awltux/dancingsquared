@@ -776,22 +776,30 @@ From the root `HANDOVER.md`, all of which have paid off repeatedly:
 
 - **The book is built and the gate is green.** `book/` holds 109 files, 50 unit files, 78 call cards,
   19 formation PNGs, 3 position SVGs, the player, the generators, the gate and the built site.
-- **`book/` is tracked but uncommitted** (`git status` shows ~120 modified files, the two renames and a
-  handful of new ones). The reading-order change is among it: `01-start/how-this-book-is-organised.md`
-  moved to the root, the old `index.md` became `contents.md`, and a new `index.md` is the Introduction
-  and the landing page. `docs/` and `scripts/deploy-book.mjs` are untracked, and `package.json` plus
-  `poc/src/assets/ms/circle.xml` carry uncommitted modifications from earlier work.
-- **The book has been deployed to S3, and the working tree has moved on since.** Nothing has been
-  uploaded since the user's "don't auto deploy" instruction, so the bucket
-  (`util.awltux.trade`, prefix `dancingsquared_book`) is missing the navigation pin and text-size
-  controls, the contents-and-introduction swap, the contents reflow and the two new formation images.
-  Deploying is an explicit instruction, never a build step. The live bucket was not checked from here;
-  `book/tools/check-links.mjs` and the built site are what this file's numbers describe.
-- **The built site is gitignored** (`book/.gitignore`): reproducible with `npm run build:book`, so it
-  is not part of what a commit needs to carry.
+- **The book is deployed.** It was published to S3 at the user's instruction on build **9a0345a**,
+  which carried everything the bucket had been missing: the navigation pin and text-size controls, the
+  contents-and-introduction swap, the contents reflow, the six squared-set arrangements, the four
+  sequence states and the eight new formation figures. The upload was checked from S3 rather than
+  assumed — every new image is present with the right content-type and an hour's cache, pages are
+  `no-cache`, `sw.js` is `no-cache`, and the live page's footer reads `[9a0345a]`.
+- **The first upload of that day skipped CloudFront invalidation**, because no distribution was
+  configured then; the deploy was re-run once `book/deploy.txt` existed and invalidated
+  `/dancingsquared_book/*` on `E1A3YTJ09ZE0BD` (`util.awltux.trade` is one of that distribution's
+  aliases, so the book IS served through CloudFront — a deploy without the distribution still ships
+  correct pages, because HTML goes up `no-cache`, but it does not clear the edge for the assets).
+  Deploy settings now live in `book/deploy.txt` (flag > environment > file); deploying stays an
+  explicit instruction, never a build step.
+- **`book/` is committed and the tree is clean** — `git status` shows only the untracked `docs/` and a
+  handful of `poc/tools/*.png` probes. `book/` holds 110 markdown files, 29 formation PNGs (27
+  formation figures plus one six-panel arrangements figure and one four-panel sequence figure) and 6
+  diagram SVGs; the built site is 252 files. `docs/` and `scripts/deploy-book.mjs` are tracked; the
+  built site is gitignored (`book/.gitignore`), reproducible with `npm run build:book`.
 - **Immediate next steps, in the order they matter:** wire `make-formations.mjs --check` into
-  `check:book`; decide whether the reference pages need a real `--check` mode (they are ungated today);
-  then commit `book/`.
+  `check:book` (it now covers 27 formation diagrams, 6 arrangements and 4 sequence figures, and the
+  gate still does not run it); decide whether the reference pages need a real `--check` mode (they are
+  ungated today); then fix the swapped east/west Boy rows in `watching-the-animations.md`'s number
+  table, which contradicts both the couple-numbers figure and the ring direction the sequence page now
+  states.
 - **Corrected while updating this file, in `README.md`:** its start-label counts said 112 labels / 60
   wired / 52 waiting; the table is now 118 / 64 / 54. One claim in that same paragraph is still
   unverified rather than disproved — "up to 36 for Cast Off Three-Quarters" is true of M45, but the

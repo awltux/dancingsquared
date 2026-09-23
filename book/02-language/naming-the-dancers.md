@@ -27,6 +27,8 @@ dancers say "original" when they need to be clear.
 The two couples **facing toward or away from the caller** are the **Heads**. The two couples
 standing **perpendicular** to the caller are the **Sides**.
 
+![A squared set seen from above with the caller at the south. Couples 1 and 3 face toward and away from the caller and are the Heads, drawn in colour; couples 2 and 4 stand perpendicular to him and are the Sides, greyed out.](../diagrams/heads-and-sides.svg)
+
 You keep the identity you had when you first squared up — **but only the Boys do.** A Girl takes her
 Head or Side identity from the Boy she is dancing with, and his home position with it. When the
 figure of a singing call passes her to a new partner, she takes on *his* identity.

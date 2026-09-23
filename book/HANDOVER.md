@@ -15,38 +15,22 @@
 > | Playable | **75 of 78** cards, from **118 curated start labels** in `tools/start-formations.json` — 64 wired to an authoring, 54 listed but not yet animatable. **5** cards have `"starts": {}` (`m03c`, `m12c`, `m14a`, `m15b`, `m15c`) because their manual wording is prose rather than a list |
 > | Withheld | **3** cards — `m04a`, `m14b`, `m32c` — each with a recorded reason (`noAnimation` in `tools/animations-index.json`) |
 > | Restrictions | stated on **54 of 78** cards |
-> | Diagrams | **19** formation PNGs and **6** annotated SVGs (`book/diagrams/`), of which **5** are used by a page |
+> | Diagrams | **19** formation PNGs and **6** annotated SVGs (`book/diagrams/`), all of them used by a page |
 > | Online edition | `book/dancingsquared_book/` — 236 files, ~3.4 MB, a PWA with a service worker |
 > | Build stamp | every page footer ends with the build's short content hash in square brackets, and the Introduction's correction link asks for the same hash as `book_build_hash=<hash>` — stamped at the end of `build-site.mjs`, the same value the offline cache is versioned by, so a deployment can be identified from the page a reader is looking at |
 > | Gate | `npm run check:book` → exit 0: *109 pages, 50 teaching units, 75 playable calls; all links, anchors and coverage checks pass.* · *75 playable calls reproduce exactly.* · *75 playable calls verified (303 pose evaluations, 3 with a recorded reason).* |
 >
 > **Outstanding — found while updating this file, measured rather than suspected:**
 >
-> 1. **One of the six diagrams in `book/diagrams/` is orphaned.** `make-diagrams.mjs` draws "Heads
->    and Sides" and `--check` says it reproduces exactly — but **no page references it**, so it never
->    reaches the site: the build copies only the diagrams a page actually renders (this is deliberate;
->    see item 2). `02-language/naming-the-dancers.md` and `couples-and-positions.md` are the pages it
->    was drawn for. The other five are referenced: `couple-numbers.svg`,
->    `four-identifiers.svg`, `leaders-and-trailers.svg` and `centers-and-ends.svg` by
->    `02-language/naming-the-dancers.md`, and `phrase-bars.svg` by `01-start/timing-and-music.md`.
-> 2. **`make-diagrams.mjs` is in `build:book` — the wiring this list used to ask for.** The build is
->    make-animations → make-formations → **make-diagrams** → make-reference → make-nav → build-site.
->    `build-site.mjs` copies the diagrams **a page renders** and no others, the same rule the call
->    authorings follow, so an unreferenced diagram stays out of the deploy and out of the reader's
->    cache rather than shipping as an unreachable file. **The consequence to remember:** a diagram no
->    page references will not appear on the site, and nothing will say so except this note.
-> 3. **One `--check` mode is still wired to nothing.** `make-formations.mjs --check` passes, but
+> 1. **One `--check` mode is still wired to nothing.** `make-formations.mjs --check` passes, but
 >    `check:book` runs `check-links.mjs`, `make-animations.mjs --check`, `make-animations.mjs --verify`
 >    and `make-diagrams.mjs --check`. The formation gate exists; its wiring does not. That is §4 trap
 >    6, still live for that one artefact.
-> 4. **`make-reference.mjs`'s own header is wrong** (line 6): it says `check-links.mjs` re-runs its
+> 2. **`make-reference.mjs`'s own header is wrong** (line 6): it says `check-links.mjs` re-runs its
 >    `--check` mode. There is no such mode, and `check-links.mjs` only asserts that the `GENERATED`
 >    header is *present* on its five pages — so a reference page edited by hand keeps its header and
 >    nothing complains. The five generated reference pages are **ungated**.
-> 5. **`README.md` mentions `make-diagrams.mjs` and `diagrams/`** in the tools table, the "what is
->    generated" table and the regeneration sequence — this was gap 5 in an earlier draft of this
->    banner, and it is closed.
-> 6. **The engine workstream's tree carries mojibake in four files**, measured by reading the bytes:
+> 3. **The engine workstream's tree carries mojibake in four files**, measured by reading the bytes:
 >    `engine/src/sequencer/applicator.ts` (lines 668, 678, 860 — three comments holding ten mangled
 >    sequences: an em dash and two section signs, encoded so many times over that they now render as
 >    runs of accented characters), plus `engine/test/lib/getout-decode.mjs:69`,
@@ -62,7 +46,7 @@
 >    contains an em dash: `engine/src/sequencer/coded-moves.ts` and `library.ts` both looked damaged
 >    that way and are clean. This entry was wrong in its first draft — it named one file and blamed a
 >    single round-trip — because the console was believed instead of a probe.
-> 7. **A changed diagram can be served from a reader's cache after a deploy.** `style.css` and
+> 4. **A changed diagram can be served from a reader's cache after a deploy.** `style.css` and
 >    `assets/player.js` carry `?v=<content hash>` precisely so that new HTML cannot meet a stale asset,
 >    but the images in `formations/` and `diagrams/` are plain URLs and the deploy gives assets a
 >    one-hour cache header — so a figure that changed is up to an hour late for anyone who has seen it
@@ -70,6 +54,16 @@
 >    a cache-busted fetch were both correct, and only the cached copy was not. The fix is the one the
 >    stylesheet already uses, applied to images.
 >
+>
+> **Settled since an earlier draft of this list**, kept because the last line of each still matters:
+>
+> - **All six diagrams in `book/diagrams/` are now referenced by a page**, so the build copies all
+>   six, and `make-diagrams.mjs` is in `build:book` with its `--check` in `check:book`. The build
+>   copies only the diagrams a page renders, the rule the call authorings follow — so a diagram that
+>   no page references stays out of the deploy and out of the reader’s cache, and **nothing would
+>   say so except this note**.
+> - **`README.md` names `make-diagrams.mjs` and `diagrams/`** in the tools table, the "what is
+>   generated" table and the regeneration sequence.
 > What this file is still good for:
 >
 > - **§2 The authorities** — the two 2026 manuals, and the fact that the corpus is *not* the program.
@@ -795,10 +789,9 @@ From the root `HANDOVER.md`, all of which have paid off repeatedly:
   `book/tools/check-links.mjs` and the built site are what this file's numbers describe.
 - **The built site is gitignored** (`book/.gitignore`): reproducible with `npm run build:book`, so it
   is not part of what a commit needs to carry.
-- **Immediate next steps, in the order they matter:** place or delete the two orphaned diagrams in
-  `book/diagrams/` (`make-diagrams.mjs` is already in `build:book` and its `--check` in `check:book`);
-  wire `make-formations.mjs --check` into `check:book`; decide whether the reference pages need a real
-  `--check` mode (they are ungated today); then commit `book/`.
+- **Immediate next steps, in the order they matter:** wire `make-formations.mjs --check` into
+  `check:book`; decide whether the reference pages need a real `--check` mode (they are ungated today);
+  then commit `book/`.
 - **Corrected while updating this file, in `README.md`:** its start-label counts said 112 labels / 60
   wired / 52 waiting; the table is now 118 / 64 / 54. One claim in that same paragraph is still
   unverified rather than disproved — "up to 36 for Cast Off Three-Quarters" is true of M45, but the

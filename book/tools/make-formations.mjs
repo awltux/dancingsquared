@@ -639,11 +639,132 @@ function buildArrangements(eng, lib, files, index) {
   return numbers;
 }
 
+/**
+ * THE FOUR SEQUENCE STATES OF A SQUARED SET -- 1 both in sequence, 2 both out, 3 the Boys in and the
+ * Girls out, 4 the other way round.
+ *
+ * WHERE THE BOARDS COME FROM. The engine's own Sequencer stands a squared set up
+ * (`boardForFormation('Static Square')`), and `boardsForAlignment` enumerates every board that is in
+ * each sequence state at arrangement 0 -- 16 of them, which are the couple-relabelling variants. The
+ * one drawn is the first in the engine's own enumeration, and it is asserted to really be in the
+ * state it is drawn for: `sequenceFor` must read the code back, and `arrangementFor` must read 0, so
+ * the figure cannot show a board the engine would not classify that way.
+ *
+ * SEQUENCE IS READ OFF COUPLE NUMBERS, so that is what each marker carries: callers go round the ring
+ * counter-clockwise from the #1 Boy and note the couple numbers they meet. 1,2,3,4 means those dancers
+ * are in sequence; 1,4,3,2 means they are out. The same reading is taken for the Girls from the #1
+ * Girl, and the two answers make the code.
+ *
+ * THE HALF-AND-HALF STATES SEPARATE PARTNERS, AND THAT IS MEASURED, not asserted from theory: across
+ * EVERY board in each state (not only the drawn one) states 1 and 2 put each dancer beside their
+ * partner, and states 3 and 4 put nobody beside their partner. It is forced -- a girl standing beside
+ * her own partner means the Girls' ring order follows the Boys', so the two states agree -- but the
+ * figure is allowed to say so only because the enumeration was walked and counted.
+ */
+function buildSequences(eng, files, index) {
+  const sequencer = new eng.Sequencer(readAsset('moves.xml'), readAsset('formations.xml'), []);
+  const home = sequencer.boardForFormation('Static Square');
+  if (!home) throw new Error('the engine stands up no board for "Static Square"');
+
+  // The board's headings are radians and the library's are degrees; the rest is the same shape of
+  // record the other figures are drawn from, so the same `draw` renders it.
+  const asDancers = (board) =>
+    board.dancers
+      .filter((d) => !d.isGhost)
+      .map((d) => ({ gender: d.gender, x: d.x, y: d.y, angleDeg: (d.heading * 180) / Math.PI, couple: d.couple }));
+
+  const codes = [1, 2, 3, 4];
+  const reading = {};
+  const chosen = {};
+  const withPartner = {};
+
+  for (const code of codes) {
+    const built = eng.boardsForAlignment(home, { letter: 'S', arrangement: 0, sequence: code });
+    const boards = built.boards ?? [];
+    if (!boards.length) throw new Error(`no squared-set board in sequence ${code} (${built.reason ?? 'no reason given'})`);
+
+    // Every board in the state, walked for the partner claim below.
+    withPartner[code] = boards.filter((b) => {
+      const dancers = asDancers(b);
+      return dancers.every((d) => beside(d, dancers)?.couple === d.couple);
+    }).length;
+
+    const board = boards[0];
+    const read = eng.sequenceFor(board);
+    if (read.code !== code) throw new Error(`the board drawn for sequence ${code} reads back as ${read.code}`);
+    if (eng.arrangementFor(board, 'S').number !== 0) throw new Error(`the board drawn for sequence ${code} is not arrangement 0`);
+
+    // TWO CLAIMS, BOTH MEASURED. When the two halves disagree (states 3 and 4), NO board in the state
+    // can keep partners together: a girl beside her own partner makes the Girls' order follow the
+    // Boys', so the two halves would agree. When they agree (states 1 and 2) partners may or may not
+    // stand together -- only 4 of the 16 do -- so the figure draws one that does, which is the
+    // familiar square with whole couples in the wrong places, and says so.
+    if (code >= 3 && withPartner[code] !== 0) {
+      throw new Error(`sequence ${code}: ${withPartner[code]} of ${boards.length} boards stand partners together, which cannot happen`);
+    }
+    if (code <= 2) {
+      const dancers = asDancers(board);
+      if (!dancers.every((d) => beside(d, dancers)?.couple === d.couple)) {
+        throw new Error(`the board drawn for sequence ${code} does not keep whole couples together, so it is not the familiar case`);
+      }
+    }
+    reading[code] = { boys: read.boys.join(''), girls: read.girls.join(''), boards: boards.length };
+    chosen[code] = asDancers(board);
+  }
+
+  const PANEL = SIZE;
+  const GAP = 12;
+  const PAD = 12;
+  const COLS = 2;
+  const canvas = new Canvas(PAD * 2 + COLS * PANEL + GAP, PAD * 2 + 2 * PANEL + GAP, C.white);
+
+  codes.forEach((code, i) => {
+    const col = i % COLS;
+    const row = Math.floor(i / COLS);
+    const x = PAD + col * (PANEL + GAP);
+    const y = PAD + row * (PANEL + GAP);
+    const dancers = chosen[code];
+    const view = makeView(dancers);
+    const panelView = { ...view, ox: x + PANEL / 2, oy: y + PANEL / 2 };
+    draw(canvas, dancers, panelView, { x, y, w: PANEL, h: PANEL });
+
+    // The couple number each dancer is (their HOME couple), inside the marker: reading them round the
+    // ring is the whole point of the figure, so they are drawn after the markers, in white, at the
+    // same size the animation player uses.
+    const r = R_UNITS * view.scale;
+    const s = Math.max(1, Math.min(8, Math.round(r * 0.21)));
+    for (const d of dancers) {
+      const cx = panelView.ox + d.x * view.scale;
+      const cy = panelView.oy - d.y * view.scale;
+      canvas.digit(d.couple, Math.round(cx - 1.5 * s), Math.round(cy - 2.5 * s), s, C.white);
+    }
+
+    for (const [ax, ay, bx, by] of [
+      [x, y, x + PANEL, y],
+      [x + PANEL, y, x + PANEL, y + PANEL],
+      [x + PANEL, y + PANEL, x, y + PANEL],
+      [x, y + PANEL, x, y],
+    ]) {
+      canvas.strokeLine(ax, ay, bx, by, 1, C.gridMajor);
+    }
+    canvas.digit(code, x + 8, y + 8, 4, C.ink);
+  });
+
+  files.set('sequences.png', writePng(canvas, PALETTE));
+  index.sequences.push({
+    source: 'engine boardsForAlignment over the Static Square template, arrangement 0',
+    drawn: codes.length,
+    panels: codes.map((code) => ({ code, ...reading[code], partnersTogether: withPartner[code] })),
+    bytes: files.get('sequences.png').length,
+  });
+  return codes;
+}
+
 export function build() {
   const eng = loadEngine();
   const lib = eng.parseFormations(readAsset('formations.xml'));
   const files = new Map();
-  const index = { drawn: [], notDrawn: [], arrangements: [] };
+  const index = { drawn: [], notDrawn: [], arrangements: [], sequences: [] };
 
   // ------------------------------------------------- the two figures that pick dancers out
   // Everything they draw, they draw with the same floor, markers and ink as the rest of the family.
@@ -739,6 +860,7 @@ export function build() {
   }
 
   buildArrangements(eng, lib, files, index);
+  buildSequences(eng, files, index);
   return { files, index };
 }
 
@@ -767,8 +889,8 @@ export function main() {
     }
     const undrawn = index.notDrawn.length;
     console.log(
-      `${index.drawn.length} formation diagrams and ${index.arrangements[0]?.drawn ?? 0} squared-set ` +
-        `arrangements reproduce exactly${undrawn ? `; ${undrawn} with a recorded reason` : ''}.`,
+      `${index.drawn.length} formation diagrams, ${index.arrangements[0]?.drawn ?? 0} arrangements and ` +
+        `${index.sequences[0]?.drawn ?? 0} sequences reproduce exactly${undrawn ? `; ${undrawn} with a recorded reason` : ''}.`,
     );
     return 0;
   }
@@ -790,6 +912,12 @@ export function main() {
   for (const a of index.arrangements) {
     console.log(`  arrangements: ${a.drawn} panels -> arrangements.png (${a.source})`);
     for (const p of a.panels) console.log(`    ${p.number}: ${p.pattern}`);
+  }
+  for (const s of index.sequences) {
+    console.log(`  sequences: ${s.drawn} panels -> sequences.png (${s.source})`);
+    for (const p of s.panels) {
+      console.log(`    ${p.code}: boys ${p.boys} girls ${p.girls} (${p.partnersTogether}/${p.boards} boards keep partners together)`);
+    }
   }
   void CACHE;
   return 0;

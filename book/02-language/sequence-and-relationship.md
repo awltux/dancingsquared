@@ -10,14 +10,35 @@ and one that cannot.
 
 ## The circle order
 
-In a squared set, everyone is standing in a ring. That ring has an **order**: each dancer has a
-neighbour on their left and a neighbour on their right.
+In a squared set, everyone is standing in a ring, and the **couples** come round it in a fixed order:
+1, 2, 3, 4.
 
-When the ring is arranged as it was when you squared up — everyone has the same left and right
-neighbour they started with — the square is **in sequence**.
+When the ring still runs in that order — go round it and you meet the couples as 1, 2, 3, 4 — the
+square is **in sequence**.
 
-When it is not, it is **out of sequence**. The positions may all be filled and the shapes may all be
-right, but the dancers are in each other's places, and calls will start behaving strangely.
+When the couples come round in any other order, the square is **out of sequence**. The positions may
+all be filled and the shapes may all be right, but the couples have changed places, and calls will
+start behaving strangely.
+
+Callers read it by travelling round the ring **counter-clockwise, starting at the #1 Boy**, and
+noting the couple numbers as they pass them: 1, 2, 3, 4 means the Boys are in sequence, 1, 4, 3, 2
+means they are out. The same reading is taken for the Girls from the #1 Girl, and the two answers
+together give four states:
+
+| State | Boys | Girls |
+|---|---|---|
+| **1** | in sequence | in sequence |
+| **2** | out | out |
+| **3** | in sequence | out |
+| **4** | out | in sequence |
+
+![A squared set in each of the four sequence states, numbered. 1 is the square you started in, 2 has whole couples in one another's places, and 3 and 4 are half in, half out.](../formations/sequences.png)
+**Being in sequence does not mean standing beside your own partner.** Each half of the square has its
+own ring order, and the two halves can sit at different points in it, so a square can be in sequence
+with your partner across the square from you. In states 3 and 4 that is unavoidable — if a Girl stood
+beside her own partner the two halves would run the same way and could not disagree — so the dancers
+you see standing side by side in those two panels are not partners. Whole couples can be standing
+together only in states 1 and 2, and even there they need not be.
 
 ## Why it matters
 

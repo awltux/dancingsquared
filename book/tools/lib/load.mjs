@@ -28,10 +28,17 @@ const REQUIRED = [
   'assignHomeIdentity',
   // The squared-set arrangement figure is drawn from the engine's own arrangement table, so
   // that the six patterns are the ones the engine classifies boards into rather than a
-  // transcription of them.
+  // transcription of them. The sequence figure goes further and asks the engine to STAND THE
+  // BOARDS UP: the Sequencer builds the template, boardsForAlignment enumerates what is in each
+  // sequence state, and sequenceFor/arrangementFor read the answer back so the figure can check
+  // it drew what it claims.
   'ARRANGEMENT_TABLES',
   'ARRANGEMENT_NUMBER_ORDER',
   'EMPTY_CELL',
+  'Sequencer',
+  'boardsForAlignment',
+  'sequenceFor',
+  'arrangementFor',
 ];
 
 export function loadEngine() {

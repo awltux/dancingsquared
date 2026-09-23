@@ -269,5 +269,42 @@
       ],
       "bytes": 7114
     }
+  ],
+  "sequences": [
+    {
+      "source": "engine boardsForAlignment over the Static Square template, arrangement 0",
+      "drawn": 4,
+      "panels": [
+        {
+          "code": 1,
+          "boys": "1234",
+          "girls": "1234",
+          "boards": 16,
+          "partnersTogether": 4
+        },
+        {
+          "code": 2,
+          "boys": "1432",
+          "girls": "1432",
+          "boards": 16,
+          "partnersTogether": 4
+        },
+        {
+          "code": 3,
+          "boys": "1234",
+          "girls": "1432",
+          "boards": 16,
+          "partnersTogether": 0
+        },
+        {
+          "code": 4,
+          "boys": "1432",
+          "girls": "1234",
+          "boards": 16,
+          "partnersTogether": 0
+        }
+      ],
+      "bytes": 5159
+    }
   ]
 }

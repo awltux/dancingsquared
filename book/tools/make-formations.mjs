@@ -51,6 +51,30 @@ const DEG = Math.PI / 180;
  */
 export const FORMATIONS = [
   { slug: 'squared-set', title: 'Squared Set', as: 'Squared Set' },
+  {
+    slug: 'circle',
+    title: 'Circle',
+    as: 'Circle',
+    /**
+     * The manual's name for this is an "Infacing Circle of 8", and the page calls it "a ring of
+     * dancers all facing the centre". Both halves of that are measured: one radius for all eight (a
+     * ring, not a lumpy blob), and every nose pointing at the middle (which is the word "infacing",
+     * and is the one a reader is most likely to get wrong -- the Alamo is the same ring with the
+     * dancers facing alternate ways).
+     */
+    assert: (dancers) => {
+      const radii = dancers.map((d) => Math.hypot(d.x, d.y));
+      if (Math.max(...radii) - Math.min(...radii) > 0.01) {
+        throw new Error(`the library's Circle is not a ring: radii ${radii.join(', ')}`);
+      }
+      for (const d of dancers) {
+        const inward = (Math.cos(d.angleDeg * DEG) * -d.x + Math.sin(d.angleDeg * DEG) * -d.y) / Math.hypot(d.x, d.y);
+        if (inward < 0.999) {
+          throw new Error(`the dancer at (${d.x}, ${d.y}) faces ${d.angleDeg}, which is not the centre of the Circle`);
+        }
+      }
+    },
+  },
   // No separate diagram for a Static Square: it is the same geometry as the Squared Set, and the
   // page already says the difference between them is sequence, not shape. Two identical pictures
   // either side of that sentence would argue the opposite.
@@ -70,15 +94,12 @@ export const FORMATIONS = [
       if (!written?.length) throw new Error('the library has no "Facing Couples" to take a facing pair from');
       const { dancers } = completeSet(written);
       const boy = dancers.find((d) => d.gender === 'boy');
-      const girl = dancers.find((d) => d.gender === 'girl' && Math.abs(d.y - boy.y) < 0.01);
-      if (!boy || !girl) throw new Error('no Girl faces a Boy across the library\'s Facing Couples');
-      // Facing each other is a half turn between the two facings; on the same line is the other half
-      // of the definition. The library's Facing Couples holds four dancers who could pair up, and this
-      // rejects any other pairing.
-      const delta = (((boy.angleDeg - girl.angleDeg) % 360) + 360) % 360;
-      if (Math.abs(delta - 180) > 0.01) {
-        throw new Error(`the pair taken for Facing Dancers face ${delta} degrees apart, not each other`);
-      }
+      const girl = boy ? facingPartner(boy, dancers) : null;
+      // The page singles out "a Boy facing a Girl" for Star Thru, and the library's Facing Couples
+      // holds exactly that: each dancer stares at a dancer of the other gender. Both halves are
+      // asserted, so a library change that paired a Boy with a Boy would fail the build here.
+      if (!girl) throw new Error('nobody stares back at the first Boy in the library\'s Facing Couples');
+      if (girl.gender !== 'girl') throw new Error(`the dancer facing the first Boy is a ${girl.gender}, not a Girl`);
       return [boy, girl];
     },
   },
@@ -108,6 +129,95 @@ export const FORMATIONS = [
       return pair;
     },
   },
+  {
+    slug: 'eight-chain-thru',
+    title: 'Eight Chain Thru',
+    as: 'Eight Chain Thru',
+    /**
+     * The page's sentence is that in an Eight Chain Thru "each dancer looks at a dancer of the
+     * opposite role -- Boys at Girls -- instead of at their opposite number". That is a statement
+     * about the pairing, so it is measured: every dancer has somebody staring back, and that somebody
+     * is always the other gender. The library holds four such pairs, which is what makes it two
+     * facing couples and not some other arrangement of eight.
+     */
+    assert: (dancers) => {
+      const pairs = new Map();
+      for (const d of dancers) {
+        const other = facingPartner(d, dancers);
+        if (!other) throw new Error(`the dancer at (${d.x}, ${d.y}) faces nobody in the library's Eight Chain Thru`);
+        if (other.gender === d.gender) {
+          throw new Error(`the library's Eight Chain Thru has a ${d.gender} looking at a ${other.gender}`);
+        }
+        pairs.set([d, other].map((p) => `${p.x},${p.y}`).sort().join('|'), true);
+      }
+      if (pairs.size !== dancers.length / 2) {
+        throw new Error(`the library's Eight Chain Thru has ${pairs.size} facing pairs, not ${dancers.length / 2}`);
+      }
+    },
+  },
+  {
+    slug: 'tandem',
+    title: 'Tandem',
+    derivedFrom: 'one of the tandems the library\'s "Double Pass Thru" is made of',
+    /**
+     * A Tandem is not a named formation in the library either. It is not hand-placed: the manual says
+     * the eight-dancer Double Pass Thru IS two side-by-side Facing Tandems, so a tandem is already in
+     * that data, and `tandemBehind` measures one out -- same facing, two units back, which is single
+     * file rather than side by side. The pair taken is same-gender, because a Boy with a Girl in
+     * single file is the Tandem Couple the page's next paragraph is about.
+     */
+    from: (lib) => {
+      const written = lib.get('Double Pass Thru');
+      if (!written?.length) throw new Error('the library has no "Double Pass Thru" to take a Tandem from');
+      const { dancers } = completeSet(written);
+      for (const front of dancers) {
+        const back = tandemBehind(front, dancers);
+        if (back && back.gender === front.gender) return [front, back];
+      }
+      throw new Error('no same-gender pair in the library\'s Double Pass Thru stand one behind the other');
+    },
+  },
+  {
+    slug: 'double-pass-thru',
+    title: 'Double Pass Thru',
+    as: 'Double Pass Thru',
+    /**
+     * The manual's own words for the eight-dancer formation are "two side-by-side Facing Tandems", so
+     * that is what is checked: four tandems (every dancer with somebody in single file behind or in
+     * front), and each tandem's front dancer looking at another tandem's front dancer -- two facing
+     * pairs of tandems, side by side.
+     */
+    assert: (dancers) => {
+      const tandems = dancers.map((d) => ({ front: d, back: tandemBehind(d, dancers) })).filter((t) => t.back);
+      if (tandems.length !== dancers.length / 2) {
+        throw new Error(`the library's Double Pass Thru holds ${tandems.length} tandems, not ${dancers.length / 2}`);
+      }
+      for (const t of tandems) {
+        const other = facingPartner(t.front, dancers);
+        if (!other || !tandems.some((o) => o.front === other)) {
+          throw new Error(`the tandem led by the dancer at (${t.front.x}, ${t.front.y}) does not face another tandem`);
+        }
+      }
+    },
+  },
+  {
+    slug: 'completed-double-pass-thru',
+    title: 'Completed Double Pass Thru',
+    as: 'Completed Double Pass Thru',
+    // The same four tandems, and the one difference that gives the formation its name: they are back to
+    // back, so no front dancer has anybody staring back at them at all.
+    assert: (dancers) => {
+      const tandems = dancers.map((d) => ({ front: d, back: tandemBehind(d, dancers) })).filter((t) => t.back);
+      if (tandems.length !== dancers.length / 2) {
+        throw new Error(`the library's Completed Double Pass Thru holds ${tandems.length} tandems, not ${dancers.length / 2}`);
+      }
+      for (const t of tandems) {
+        if (facingPartner(t.front, dancers)) {
+          throw new Error(`the tandem led by the dancer at (${t.front.x}, ${t.front.y}) faces another tandem, so it is not back to back`);
+        }
+      }
+    },
+  },
   { slug: 'normal-lines', title: 'Normal Lines', as: 'Normal Lines' },
   { slug: 'lines-facing-out', title: 'Lines Facing Out', as: 'Lines Facing Out' },
   { slug: 'inverted-lines', title: 'Inverted Lines', as: 'Inverted Lines Ends Facing Out' },
@@ -130,6 +240,51 @@ export const FORMATIONS = [
 
 const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const sameSpot = (a, b) => Math.abs(a.x - b.x) < 0.05 && Math.abs(a.y - b.y) < 0.05;
+const sameFacing = (a, b) => Math.abs(Math.cos((a - b) * DEG) - 1) < 1e-6;
+const oppositeFacing = (a, b) => Math.abs(Math.cos((a - b) * DEG) + 1) < 1e-6;
+
+/**
+ * THE TWO-DANCER MEASURES. A facing pair and a tandem are the two ways two dancers line up, and both
+ * are used twice: to take a figure out of the library that has no entry of its own, and to check the
+ * structure of a figure that has one. They measure, so they can be wrong out loud.
+ *
+ * `facingPartner` is "the dancer staring back at me": the nearest dancer on the ray I face, on the
+ * line I am on, facing the other way. It does not insist on a distance, because the library spaces
+ * facing couples four units apart and an Eight Chain Thru two, and both are still a facing pair.
+ *
+ * `tandemBehind` is "the dancer whose nose is in my back": same facing, two units behind me. This one
+ * DOES insist on the two units, because that spacing is what makes it single file rather than a
+ * couple standing side by side.
+ */
+function facingPartner(d, dancers) {
+  const dx = Math.cos(d.angleDeg * DEG);
+  const dy = Math.sin(d.angleDeg * DEG);
+  let best = null;
+  for (const o of dancers) {
+    if (o === d) continue;
+    const ax = o.x - d.x;
+    const ay = o.y - d.y;
+    const ahead = ax * dx + ay * dy;
+    const across = Math.abs(ax * -dy + ay * dx);
+    if (ahead <= 0 || across > 0.01 || !oppositeFacing(o.angleDeg, d.angleDeg)) continue;
+    if (!best || ahead < best.ahead) best = { dancer: o, ahead };
+  }
+  return best?.dancer ?? null;
+}
+
+function tandemBehind(d, dancers) {
+  const dx = Math.cos(d.angleDeg * DEG);
+  const dy = Math.sin(d.angleDeg * DEG);
+  return (
+    dancers.find(
+      (o) =>
+        o !== d &&
+        sameFacing(o.angleDeg, d.angleDeg) &&
+        Math.abs(o.x - (d.x - 2 * dx)) < 0.01 &&
+        Math.abs(o.y - (d.y - 2 * dy)) < 0.01,
+    ) ?? null
+  );
+}
 
 /** The floor every diagram stands on: pale ground, a one-unit grid, and the two centre lines. */
 function drawFloor(canvas, view) {
@@ -373,6 +528,10 @@ export function build() {
         ? { dancers: found.map((d) => ({ ...d })), mirrored: false }
         : completeSet(found));
     }
+    // A figure that comes straight from a named library entry has no derivation to assert, but the
+    // page still says something about its shape; `assert` is where that claim gets measured, so a
+    // library change that contradicts the page fails the build instead of redrawing the picture.
+    if (spec.assert) spec.assert(dancers);
     const canvas = new Canvas(SIZE, SIZE, C.floor);
     draw(canvas, dancers, makeView(dancers));
     files.set(`${spec.slug}.png`, writePng(canvas, PALETTE));

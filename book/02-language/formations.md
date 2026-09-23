@@ -28,6 +28,7 @@ An **Infacing Circle of 8** is the eight of you standing in a ring, hands joined
 centre. From a squared set it takes one command — "Join hands, circle left" — and the ring then
 travels round the middle of the set, left or right.
 
+![An Infacing Circle of 8: eight dancers in a ring, every one of them facing the centre.](../formations/circle.png)
 The [Circle Rule](../03-rules/circle-rule.md) says what a call starting from Facing Couples means
 when it is given from a circle; the calls themselves are in
 [the circle family](../04-calls/m01-circle-family.md).
@@ -38,6 +39,7 @@ A **Promenade** is a couple walking round the centre of the set in promenade hol
 hand joined to the Girl's left hand in front of the pair. The whole set travels as one stream, all
 the same way round, and "Promenade Home" means stop where the Boy started.
 
+![A Promenade: the whole set in couples, each couple side by side and every couple facing the same way round.](../formations/promenade.png)
 The hold, the footwork and the timing are in
 [the Promenade family](../04-calls/m03-promenade-family.md); which way round is
 [promenade direction](directions.md).
@@ -71,6 +73,7 @@ pair. Because the couples are set that way rather than as mirror images, each da
 of the opposite role — Boys at Girls — instead of at their opposite number, and each pass across takes
 you on to the next couple round the square.
 
+![An Eight Chain Thru: two facing couples on each side of the square, the two pairs back to back in the middle, every dancer looking at a dancer of the other role.](../formations/eight-chain-thru.png)
 A [Lead Right](../04-calls/m16-lead-right-lead-left.md) makes one out of a squared set, and
 [Trade By](../04-calls/m39-trade-by.md) finishes in one. From there the next call is usually
 [Right and Left Thru](../04-calls/m10-right-and-left-thru.md) or a
@@ -100,6 +103,7 @@ Two tandems facing each other are **Facing Tandems**; two tandems back to back a
 Tandems**. The manual uses those names as the starting and ending formations of
 [Double Pass Thru](../04-calls/m24-double-pass-thru.md).
 
+![A Tandem: two dancers in single file, one directly behind the other, both facing the same way.](../formations/tandem.png)
 A couple in single file is a **Tandem Couple**, and is the shape [Zoom](../04-calls/m41-zoom.md) and
 [Dive Thru](../04-calls/m29-dive-thru.md) finish in.
 
@@ -210,6 +214,8 @@ arrangement with the dancers in a particular order. The names you will meet:
 Two side-by-side [Facing Tandems](#tandem) are a **Double Pass Thru**; two side-by-side
 [Back-to-Back Tandems](#tandem) are a **Completed Double Pass Thru**.
 
+![A Double Pass Thru: two tandems facing each other, Boys' tandem against Girls' tandem, and another such pair beside them.](../formations/double-pass-thru.png)
+![A Completed Double Pass Thru: the same four tandems back to back, each one facing out of the middle.](../formations/completed-double-pass-thru.png)
 These are the two ends of the tagging sequence above — the **Zero Tag** and the **Full Tag** — so a
 call that walks from one tagging formation to the next starts or finishes in one of them. See
 [Double Pass Thru](../04-calls/m24-double-pass-thru.md) for the call, and

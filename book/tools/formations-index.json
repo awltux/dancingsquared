@@ -28,6 +28,15 @@
       "bytes": 1344
     },
     {
+      "slug": "circle",
+      "title": "Circle",
+      "libraryName": "Circle",
+      "written": 4,
+      "mirrored": true,
+      "drawn": 8,
+      "bytes": 1921
+    },
+    {
       "slug": "facing-couples",
       "title": "Facing Couples",
       "libraryName": "Facing Couples",
@@ -49,6 +58,40 @@
       "derivedFrom": "the south couple of the library's \"Squared Set\", numbered by the manual's rule",
       "drawn": 2,
       "bytes": 959
+    },
+    {
+      "slug": "eight-chain-thru",
+      "title": "Eight Chain Thru",
+      "libraryName": "Eight Chain Thru",
+      "written": 4,
+      "mirrored": true,
+      "drawn": 8,
+      "bytes": 1227
+    },
+    {
+      "slug": "tandem",
+      "title": "Tandem",
+      "derivedFrom": "one of the tandems the library's \"Double Pass Thru\" is made of",
+      "drawn": 2,
+      "bytes": 868
+    },
+    {
+      "slug": "double-pass-thru",
+      "title": "Double Pass Thru",
+      "libraryName": "Double Pass Thru",
+      "written": 4,
+      "mirrored": true,
+      "drawn": 8,
+      "bytes": 1233
+    },
+    {
+      "slug": "completed-double-pass-thru",
+      "title": "Completed Double Pass Thru",
+      "libraryName": "Completed Double Pass Thru",
+      "written": 4,
+      "mirrored": true,
+      "drawn": 8,
+      "bytes": 1227
     },
     {
       "slug": "normal-lines",

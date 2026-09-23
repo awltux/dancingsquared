@@ -356,18 +356,32 @@ async function mount(host) {
   let startsNow = homeEntry ? tuples(homeEntry) : (starts ?? []);
   let formation = homeStart?.label ?? startsNow[0]?.[0] ?? null;
 
+  /**
+   * Build one chooser and hand back BOTH parts, rather than looking the select up afterwards.
+   *
+   * THAT IS NOT FASTIDIOUSNESS. The first cut put the label and its select in the same class and found
+   * the select with `querySelector('.dsq-call')` -- which returns the LABEL, because it comes first in
+   * the document. The options were then written into the label with `innerHTML`, replacing the select
+   * itself: the "chooser" was a heading with a list of call names under it, and nothing could be
+   * selected. The class is distinct now AND the reference is direct, so neither half of that mistake
+   * can come back quietly.
+   */
   const makeChooser = (className, selectClass, label, title) => {
     const pick = document.createElement('label');
     pick.className = `dsq-speed ${className}`;
-    pick.innerHTML = `${label} <select class="${selectClass}" title="${title}"></select>`;
+    pick.append(`${label} `);
+    const select = document.createElement('select');
+    select.className = selectClass;
+    select.title = title;
+    pick.append(select);
     bar.append(pick);
-    return pick;
+    return { label: pick, select };
   };
   // The start chooser is drawn whenever there is a choice to offer -- today, or after a switch to a
   // call that has one. The call chooser needs the catalogue, and is hidden while it would hold one
   // option: a selector with a single entry is noise.
-  const fromLabel = starts || catalogue.length ? makeChooser('dsq-start', 'dsq-from', 'start', 'Which formation the call starts from') : null;
-  const callLabel = catalogue.length ? makeChooser('dsq-call', 'dsq-call', 'call', 'Another call that starts from this formation') : null;
+  const fromPick = starts || catalogue.length ? makeChooser('dsq-start', 'dsq-from', 'start', 'Which formation the call starts from') : null;
+  const callPick = catalogue.length ? makeChooser('dsq-call', 'dsq-call-select', 'call', 'Another call that starts from this formation') : null;
 
   const cue = document.createElement('p');
   cue.className = 'dsq-showing';
@@ -378,8 +392,10 @@ async function mount(host) {
   const readout = bar.querySelector('.dsq-readout');
   const playBtn = bar.querySelector('[data-act="play"]');
   const speedSel = bar.querySelector('.dsq-rate');
-  const fromSel = bar.querySelector('.dsq-from');
-  const callSel = bar.querySelector('.dsq-call');
+  const fromLabel = fromPick?.label ?? null;
+  const callLabel = callPick?.label ?? null;
+  const fromSel = fromPick?.select ?? null;
+  const callSel = callPick?.select ?? null;
 
   let beat = 0;
   let playing = false;

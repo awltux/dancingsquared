@@ -243,6 +243,10 @@ figcaption { font-size: .84rem; color: var(--muted); margin-top: .45em; }
    line of its own, the same trick the slider uses, and it comes last in the DOM as well so the tab
    order still runs left to right, top to bottom. */
 .dsq-controls .dsq-start, .dsq-controls .dsq-call { flex: 1 0 100%; }
+/* The hidden attribute has to be said out loud: .dsq-speed sets display: inline-flex, and an author
+   rule beats the browser's own [hidden] { display: none }, so the attribute alone would leave a
+   one-option chooser on the screen -- the thing it is set to avoid. */
+.dsq-controls label[hidden] { display: none; }
 /* The cue line under the bar, shown only while the player is showing a call from another page. It
    says WHICH call is on screen, so a reader who has switched away from the page's own call can still
    tell what they are looking at -- and offers the two ways out: that call's page, or back. */

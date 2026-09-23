@@ -15,6 +15,11 @@
         "scale": 35.37,
         "units": 4.41
       },
+      "labels": [
+        "Static Square",
+        "Infacing Circle of 8",
+        "Facing Lines"
+      ],
       "starts": [
         {
           "label": "Static Square",
@@ -55,6 +60,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Couples"
+      ],
       "starts": [
         {
           "label": "Facing Couples",
@@ -84,6 +92,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Dancers"
+      ],
       "starts": [
         {
           "label": "Facing Dancers",
@@ -113,6 +124,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Dancers"
+      ],
       "starts": [
         {
           "label": "Facing Dancers",
@@ -142,6 +156,11 @@
         "scale": 34.984,
         "units": 4.459
       },
+      "labels": [
+        "Squared Set",
+        "Right and Left Grand Circle",
+        "Left-Hand Two-Faced Lines"
+      ],
       "starts": [
         {
           "label": "Squared Set",
@@ -171,6 +190,11 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Squared Set",
+        "Infacing Circle of 8",
+        "Left-Hand Columns"
+      ],
       "starts": [
         {
           "label": "Squared Set",
@@ -216,6 +240,11 @@
         "scale": 34.984,
         "units": 4.459
       },
+      "labels": [
+        "Squared Set",
+        "Right-Hand Two-Faced Lines",
+        "Right and Left Grand Circle"
+      ],
       "starts": [
         {
           "label": "Squared Set",
@@ -245,6 +274,17 @@
         "scale": 32.5,
         "units": 4.8
       },
+      "labels": [
+        "Eight Chain Thru",
+        "Left-Hand Ocean Waves",
+        "Right and Left Grand Circle",
+        "Trade By",
+        "Static Square",
+        "Left-Hand 3/4 Tag",
+        "Facing Lines",
+        "Infacing Circle of 8",
+        "Alamo Ring"
+      ],
       "starts": [
         {
           "label": "Eight Chain Thru",
@@ -362,6 +402,11 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Couples",
+        "Squared Set",
+        "Infacing Circle of 8"
+      ],
       "starts": [
         {
           "label": "Facing Couples",
@@ -391,6 +436,11 @@
         "scale": 30.917,
         "units": 5.046
       },
+      "labels": [
+        "Right and Left Grand Circle",
+        "Eight Chain Thru",
+        "Trade By"
+      ],
       "starts": [
         {
           "label": "Right and Left Grand Circle",
@@ -441,7 +491,10 @@
       "view": {
         "scale": 30.917,
         "units": 5.046
-      }
+      },
+      "labels": [
+        "Right and Left Grand Circle"
+      ]
     },
     {
       "id": "m06c",
@@ -458,6 +511,11 @@
         "scale": 30.612,
         "units": 5.096
       },
+      "labels": [
+        "Right and Left Grand Circle",
+        "Eight Chain Thru",
+        "Trade By"
+      ],
       "starts": [
         {
           "label": "Right and Left Grand Circle",
@@ -509,6 +567,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Dancers"
+      ],
       "starts": [
         {
           "label": "Facing Dancers",
@@ -538,9 +599,12 @@
         "scale": 41.055,
         "units": 3.8
       },
+      "labels": [
+        "Couple"
+      ],
       "starts": [
         {
-          "label": "Facing Couples",
+          "label": "Couple",
           "file": "ms/wheel_around.xml",
           "tamIndex": 0,
           "from": "Facing Couples",
@@ -567,9 +631,12 @@
         "scale": 39.296,
         "units": 3.97
       },
+      "labels": [
+        "Couple"
+      ],
       "starts": [
         {
-          "label": "Couples Facing Out",
+          "label": "Couple",
           "file": "ms/courtesy_turn.xml",
           "tamIndex": 0,
           "from": "Couples Facing Out",
@@ -596,6 +663,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Couples"
+      ],
       "starts": [
         {
           "label": "Facing Couples",
@@ -625,6 +695,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Dancers"
+      ],
       "starts": [
         {
           "label": "Facing Dancers",
@@ -654,6 +727,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Couples"
+      ],
       "starts": [
         {
           "label": "Facing Couples",
@@ -683,6 +759,9 @@
         "scale": 32.503,
         "units": 4.8
       },
+      "labels": [
+        "Static Square of Normal Couples"
+      ],
       "starts": [
         {
           "label": "Static Square of Normal Couples",
@@ -711,20 +790,7 @@
       "view": {
         "scale": 36.279,
         "units": 4.3
-      },
-      "starts": [
-        {
-          "label": "Two-Faced Line",
-          "file": "ms/ladies_chain.xml",
-          "tamIndex": 16,
-          "from": "Two-Faced Line",
-          "beats": 7.5,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
-        }
-      ]
+      }
     },
     {
       "id": "m13a",
@@ -741,9 +807,12 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Couple"
+      ],
       "starts": [
         {
-          "label": "Facing Couples",
+          "label": "Couple",
           "file": "ms/sashay.xml",
           "tamIndex": 0,
           "from": "Facing Couples",
@@ -770,9 +839,12 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Couple"
+      ],
       "starts": [
         {
-          "label": "Facing Couples",
+          "label": "Couple",
           "file": "ms/sashay.xml",
           "tamIndex": 7,
           "from": "Facing Couples",
@@ -799,9 +871,12 @@
         "scale": 39.971,
         "units": 3.903
       },
+      "labels": [
+        "Boys and Girls alternating"
+      ],
       "starts": [
         {
-          "label": "Circle Left",
+          "label": "Boys and Girls alternating",
           "file": "ms/sashay.xml",
           "tamIndex": 5,
           "from": "Circle Left",
@@ -827,20 +902,7 @@
       "view": {
         "scale": 43.333,
         "units": 3.6
-      },
-      "starts": [
-        {
-          "label": "Facing Couples",
-          "file": "ms/turn_back.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 3,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
-        }
-      ]
+      }
     },
     {
       "id": "m15a",
@@ -856,7 +918,10 @@
       "view": {
         "scale": 36.279,
         "units": 4.3
-      }
+      },
+      "labels": [
+        "Couple"
+      ]
     },
     {
       "id": "m15b",
@@ -905,9 +970,12 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Couple"
+      ],
       "starts": [
         {
-          "label": "Facing Couples",
+          "label": "Couple",
           "file": "ms/lead_right.xml",
           "tamIndex": 0,
           "from": "Facing Couples",
@@ -934,6 +1002,10 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Facing Couples",
+        "Two-Faced Line"
+      ],
       "starts": [
         {
           "label": "Facing Couples",
@@ -974,6 +1046,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Dancers"
+      ],
       "starts": [
         {
           "label": "Facing Dancers",
@@ -1003,6 +1078,9 @@
         "scale": 24.765,
         "units": 6.299
       },
+      "labels": [
+        "Two-Faced Lines"
+      ],
       "starts": [
         {
           "label": "Two-Faced Lines",
@@ -1032,6 +1110,10 @@
         "scale": 32.5,
         "units": 4.8
       },
+      "labels": [
+        "Lines",
+        "Columns"
+      ],
       "starts": [
         {
           "label": "Lines",
@@ -1061,6 +1143,10 @@
         "scale": 32.5,
         "units": 4.8
       },
+      "labels": [
+        "Lines",
+        "Columns"
+      ],
       "starts": [
         {
           "label": "Lines",
@@ -1090,6 +1176,9 @@
         "scale": 29.435,
         "units": 5.3
       },
+      "labels": [
+        "Columns"
+      ],
       "starts": [
         {
           "label": "Columns",
@@ -1119,9 +1208,14 @@
         "scale": 41.055,
         "units": 3.8
       },
+      "labels": [
+        "Box for Box Circulate",
+        "Lines",
+        "Columns for Split Circulate"
+      ],
       "starts": [
         {
-          "label": "Right-Hand Box",
+          "label": "Box for Box Circulate",
           "file": "ms/circulate.xml",
           "tamIndex": 0,
           "from": "Right-Hand Box",
@@ -1148,6 +1242,11 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Two-Faced Line of four",
+        "One-Faced",
+        "Tidal Line of eight"
+      ],
       "starts": [
         {
           "label": "Two-Faced Line of four",
@@ -1188,6 +1287,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Couples"
+      ],
       "starts": [
         {
           "label": "Facing Couples",
@@ -1216,7 +1318,10 @@
       "view": {
         "scale": 36.279,
         "units": 4.3
-      }
+      },
+      "labels": [
+        "Eight Chain Thru"
+      ]
     },
     {
       "id": "m23",
@@ -1233,9 +1338,12 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Static Square"
+      ],
       "starts": [
         {
-          "label": "Butterfly",
+          "label": "Static Square",
           "file": "ms/grand_square.xml",
           "tamIndex": 5,
           "from": "Butterfly",
@@ -1262,9 +1370,12 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Facing Tandems"
+      ],
       "starts": [
         {
-          "label": "Single Column",
+          "label": "Facing Tandems",
           "file": "ms/double_pass_thru.xml",
           "tamIndex": 0,
           "from": "Single Column",
@@ -1291,6 +1402,9 @@
         "scale": 28.944,
         "units": 5.39
       },
+      "labels": [
+        "Completed Double Pass Thru"
+      ],
       "starts": [
         {
           "label": "Completed Double Pass Thru",
@@ -1320,6 +1434,10 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Two-Faced Line",
+        "One-Faced Line"
+      ],
       "starts": [
         {
           "label": "Two-Faced Line",
@@ -1349,9 +1467,12 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Normal Couple"
+      ],
       "starts": [
         {
-          "label": "Facing Couples",
+          "label": "Normal Couple",
           "file": "ms/california_twirl.xml",
           "tamIndex": 0,
           "from": "Facing Couples",
@@ -1378,6 +1499,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Dancers"
+      ],
       "starts": [
         {
           "label": "Facing Dancers",
@@ -1406,7 +1530,10 @@
       "view": {
         "scale": 29.435,
         "units": 5.3
-      }
+      },
+      "labels": [
+        "Facing Couples"
+      ]
     },
     {
       "id": "m30",
@@ -1423,6 +1550,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Dancers"
+      ],
       "starts": [
         {
           "label": "Facing Dancers",
@@ -1452,9 +1582,12 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Allemande Left starting formation"
+      ],
       "starts": [
         {
-          "label": "Static Square",
+          "label": "Allemande Left starting formation",
           "file": "ms/alamo_style.xml",
           "tamIndex": 0,
           "from": "Static Square",
@@ -1481,6 +1614,9 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Mini-Wave"
+      ],
       "starts": [
         {
           "label": "Mini-Wave",
@@ -1510,6 +1646,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Dancers"
+      ],
       "starts": [
         {
           "label": "Facing Dancers",
@@ -1539,6 +1678,9 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Facing Dancers"
+      ],
       "starts": [
         {
           "label": "Facing Dancers",
@@ -1568,6 +1710,9 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Facing Dancers"
+      ],
       "starts": [
         {
           "label": "Facing Dancers",
@@ -1597,6 +1742,10 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Two-Faced Line",
+        "One-Faced Line"
+      ],
       "starts": [
         {
           "label": "Two-Faced Line",
@@ -1626,9 +1775,13 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Mini-Wave",
+        "Couple"
+      ],
       "starts": [
         {
-          "label": "Right-Hand Wave, Boys Center",
+          "label": "Mini-Wave",
           "file": "ms/trade.xml",
           "tamIndex": 0,
           "from": "Right-Hand Wave, Boys Center",
@@ -1655,9 +1808,12 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Couple"
+      ],
       "starts": [
         {
-          "label": "Facing Couples",
+          "label": "Couple",
           "file": "ms/trade.xml",
           "tamIndex": 34,
           "from": "Facing Couples",
@@ -1684,6 +1840,10 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Ocean Wave",
+        "Alamo Ring"
+      ],
       "starts": [
         {
           "label": "Ocean Wave",
@@ -1713,9 +1873,13 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Run: Mini-Wave",
+        "Couple. Cross Run: General Line"
+      ],
       "starts": [
         {
-          "label": "Facing Couples",
+          "label": "Run: Mini-Wave",
           "file": "ms/run.xml",
           "tamIndex": 0,
           "from": "Facing Couples",
@@ -1742,6 +1906,9 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Facing Couples"
+      ],
       "starts": [
         {
           "label": "Facing Couples",
@@ -1771,6 +1938,11 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "1/4 Tag",
+        "Ocean Waves",
+        "3/4 Tag"
+      ],
       "starts": [
         {
           "label": "1/4 Tag",
@@ -1822,6 +1994,9 @@
         "scale": 41.108,
         "units": 3.795
       },
+      "labels": [
+        "Facing Couples"
+      ],
       "starts": [
         {
           "label": "Facing Couples",
@@ -1851,6 +2026,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Couples"
+      ],
       "starts": [
         {
           "label": "Facing Couples",
@@ -1880,9 +2058,12 @@
         "scale": 29.435,
         "units": 5.3
       },
+      "labels": [
+        "Trade By formation"
+      ],
       "starts": [
         {
-          "label": "Trade By",
+          "label": "Trade By formation",
           "file": "ms/trade_by.xml",
           "tamIndex": 0,
           "from": "Trade By",
@@ -1909,6 +2090,9 @@
         "scale": 26.586,
         "units": 5.868
       },
+      "labels": [
+        "Two-Faced Lines"
+      ],
       "starts": [
         {
           "label": "Two-Faced Lines",
@@ -1938,9 +2122,12 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Tandem and a centre point"
+      ],
       "starts": [
         {
-          "label": "Right-Hand Box",
+          "label": "Tandem and a centre point",
           "file": "ms/zoom.xml",
           "tamIndex": 0,
           "from": "Right-Hand Box",
@@ -1967,6 +2154,9 @@
         "scale": 43.333,
         "units": 3.6
       },
+      "labels": [
+        "Facing Dancers"
+      ],
       "starts": [
         {
           "label": "Facing Dancers",
@@ -1996,6 +2186,9 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Mini-Wave"
+      ],
       "starts": [
         {
           "label": "Mini-Wave",
@@ -2025,9 +2218,12 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "One-Faced Line and Two-Faced Line"
+      ],
       "starts": [
         {
-          "label": "Right-Hand Two-Faced Line",
+          "label": "One-Faced Line and Two-Faced Line",
           "file": "ms/hinge.xml",
           "tamIndex": 29,
           "from": "Right-Hand Two-Faced Line",
@@ -2054,6 +2250,10 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Completed Double Pass Thru",
+        "Eight Chain Thru"
+      ],
       "starts": [
         {
           "label": "Completed Double Pass Thru",
@@ -2094,6 +2294,9 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Mini-Wave"
+      ],
       "starts": [
         {
           "label": "Mini-Wave",
@@ -2123,6 +2326,9 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Ocean Wave"
+      ],
       "starts": [
         {
           "label": "Ocean Wave",
@@ -2152,9 +2358,14 @@
         "scale": 36.281,
         "units": 4.3
       },
+      "labels": [
+        "Box Circulate",
+        "1/4 Tag",
+        "Single 1/4 Tag"
+      ],
       "starts": [
         {
-          "label": "Right-Hand Box",
+          "label": "Box Circulate",
           "file": "ms/scoot_back.xml",
           "tamIndex": 0,
           "from": "Right-Hand Box",
@@ -2181,9 +2392,14 @@
         "scale": 26.752,
         "units": 5.831
       },
+      "labels": [
+        "Couple",
+        "Mini-Wave",
+        "General Line"
+      ],
       "starts": [
         {
-          "label": "Lines Facing Out",
+          "label": "Couple",
           "file": "ms/fold.xml",
           "tamIndex": 0,
           "from": "Lines Facing Out",
@@ -2210,6 +2426,9 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Line"
+      ],
       "starts": [
         {
           "label": "Line",
@@ -2239,9 +2458,12 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Line"
+      ],
       "starts": [
         {
-          "label": "Right-Hand Two-Faced Line",
+          "label": "Line",
           "file": "ms/fraction_tag.xml",
           "tamIndex": 6,
           "from": "Right-Hand Two-Faced Line",
@@ -2268,6 +2490,9 @@
         "scale": 36.279,
         "units": 4.3
       },
+      "labels": [
+        "Ocean Wave"
+      ],
       "starts": [
         {
           "label": "Ocean Wave",

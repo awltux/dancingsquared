@@ -30,8 +30,13 @@ formation you are looking at — so from a circle you can find everything else t
 circle, without going back to the index. The two choosers rebuild each other: change the formation and
 the list of calls is redrawn for it, change the call and the formation list becomes that call's own.
 While the player is showing a call from another page, a line under it names that call and offers two
-ways out — that call's own page, or back to the call this page is about. The list holds what this book
-can animate from that formation; 75 calls are in the catalogue altogether.
+ways out — that call's own page, or back to the call this page is about.
+
+Which calls appear is **the manual's list, not a name this book made up**: a call is offered under
+every start formation the manual gives it, named in the manual's own words for that formation
+(*Facing Couples*, *a Couple*, *Mini-Wave*, *Right and Left Grand Circle*). One or two of them are
+drawn from a formation the manual does not list for them, as above — the list says where the manual
+starts the call, and the picture shows the version this book can draw.
 
 Between the buttons is a **slider** carrying the whole call. Drag it and the dancers move with your
 hand: the picture is worked out for the exact point you have dragged to, so there is no smearing and

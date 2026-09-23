@@ -354,7 +354,10 @@ async function mount(host) {
 
   let showing = homeEntry;
   let startsNow = homeEntry ? tuples(homeEntry) : (starts ?? []);
-  let formation = homeStart?.label ?? startsNow[0]?.[0] ?? null;
+  // WHICH FORMATION IS ON SCREEN: the label of the authoring being drawn when one matches, and
+  // otherwise the first formation the manual lists -- which is the label the call is filed under in
+  // the catalogue, so the two choosers agree even for a call drawn from a stand-in formation.
+  let formation = homeStart?.label ?? homeEntry?.labels?.[0] ?? startsNow[0]?.[0] ?? null;
 
   /**
    * Build one chooser and hand back BOTH parts, rather than looking the select up afterwards.
@@ -458,8 +461,12 @@ async function mount(host) {
   callSel?.addEventListener('change', () => {
     const entry = catalogue.find((c) => c.id === callSel.value);
     if (!entry) return;
+    // The authoring for this formation when the call can be drawn from it, and its own otherwise --
+    // a call the manual lists here but the corpus cannot animate is still offered, drawn from the
+    // authoring there is, which is the substitution the page warns about.
     const own = tuples(entry);
-    void switchTo(entry, own.find((t) => t[0] === formation) ?? own[0]);
+    const start = own.find((t) => t[0] === formation) ?? own[0];
+    if (start) void switchTo(entry, start);
   });
   cue.addEventListener('click', (ev) => {
     if (ev.target.closest('button')?.dataset.act !== 'home' || !homeEntry || !homeTuple) return;
@@ -467,7 +474,8 @@ async function mount(host) {
   });
 
   /** The calls the catalogue can offer from the formation on screen, in catalogue (teaching) order. */
-  const callsHere = () => (formation ? catalogue.filter((c) => (c.starts ?? []).some((s) => s.label === formation)) : []);
+  const callsHere = () =>
+    formation ? catalogue.filter((c) => (c.labels ?? []).includes(formation)) : [];
 
   /** Rebuild both choosers and the cue from the current state. They are never edited in place. */
   const renderChoosers = () => {

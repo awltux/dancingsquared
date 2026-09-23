@@ -406,27 +406,29 @@ export function build({ gifs = false } = {}) {
       const view = viewFor(eng, bundle);
       const [level, ...rest] = site.file.split('/');
       /**
-       * ALWAYS RECORDED, EVEN WHEN THE MANUAL LISTS ONE START -- and when the manual's labels resolve
-       * to nothing at all, the authoring actually on screen lends its own formation name.
+       * THE MANUAL'S OWN START LABELS ARE RECORDED, ALL OF THEM, and they are what the player groups
+       * calls by. `starts` below is the subset this book can actually DRAW (one per label whose
+       * authoring builds); `labels` is the manual's list, including labels nothing can be animated
+       * from yet. Two different questions, and the page needs both:
        *
-       * The page's start picker still needs a choice before it is worth showing (build-site keeps that
-       * rule), but the LABEL is what lets the player offer the other calls that begin from the same
-       * formation, and both of those were the missing cases: a one-start call carried no label, and
-       * the calls the manual lists a different formation for -- Half Sashay is published from a Couple
-       * and animated here from Facing Couples -- carried none either.
+       *   - "what can I watch this call from?"  -> `starts`, the start chooser.
+       *   - "what else starts from here?"       -> `labels`, which groups calls by the book's
+       *                                            vocabulary rather than the corpus's.
        *
-       * The name used for those is the corpus's own for the authoring being shown, because that is
-       * the formation the reader is actually looking at. It coincides with the manual's label where
-       * the two agree (both call it Facing Couples), so those calls group together, and where it does
-       * not (a circle for Ladies In, Men Sashay) the call simply groups alone.
+       * A label of the corpus's making would be wrong even where it is recognisable: the corpus calls
+       * a ring "Circle Left", which is this book's call name, not the name of a formation. Where the
+       * manual lists a formation whose authoring cannot be built -- Half Sashay is published from a
+       * Couple and animated here from Facing Couples -- the call keeps the manual's label and is drawn
+       * from the authoring there is, which is the substitution the page already warns about.
        */
+      const curatedLabels = Object.keys(curated?.starts ?? {});
       const shownStart =
         starts && starts.length
           ? starts
-          : bundle.from
+          : curatedLabels.length && bundle.from
             ? [
                 {
-                  label: bundle.from,
+                  label: curatedLabels[0],
                   file: site.file,
                   tamIndex: site.tamIndex,
                   from: bundle.from,
@@ -447,6 +449,7 @@ export function build({ gifs = false } = {}) {
         beats: bundle.beats,
         frames: frameCount,
         view: { scale: Number(view.scale.toFixed(3)), units: Number(view.units.toFixed(3)) },
+        ...(curatedLabels.length ? { labels: curatedLabels } : {}),
         ...(shownStart ? { starts: shownStart } : {}),
       });
     }

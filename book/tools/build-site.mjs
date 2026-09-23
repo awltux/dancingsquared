@@ -1016,6 +1016,9 @@ export function main() {
     beats: f.beats,
     view: { scale: f.view?.scale ?? 20, units: f.view?.units ?? 6 },
     page: figurePage.get(f.id) ?? null,
+    // The formations the MANUAL lists for this call, which is what the player groups by -- a call is
+    // offered under every one of them, whether or not this book can yet animate it from there.
+    labels: f.labels ?? [],
     starts: (f.starts ?? []).map((s) => ({
       label: s.label,
       file: s.file,

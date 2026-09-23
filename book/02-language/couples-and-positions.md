@@ -4,63 +4,44 @@
 
 # Couples and positions
 
-## The four positions
+Two things are easy to run together: **who you are** and **where you stand**. Who you are is a name —
+Couple 3, a Head, a Boy — and it is fixed for the tip. Where you stand changes with every call.
+[Naming the dancers](naming-the-dancers.md) has the names. This page is about the standing.
 
-A square has four **positions**, at the four sides of the square. Each is home to one couple for the
-whole tip.
+## The four positions of a square
 
-Numbered from the caller's point of view in the manual's convention:
+A square has four **positions**, one at each side, and each is home to one couple. At the start of a tip,
+before anybody has moved:
 
-- **Couple 1** — the couple with their back to the caller
-- **Couple 2** — to Couple 1's right
-- **Couple 3** — opposite Couple 1
-- **Couple 4** — to Couple 3's right
+| Position | The couple at home there |
+|---|---|
+| the side **nearest the caller** | Couple **1** — the couple with their backs to the caller |
+| to Couple 1's right | Couple **2** |
+| the far side, opposite Couple 1 | Couple **3** |
+| to Couple 3's right | Couple **4** |
 
-Couple numbers are *identity*, not location. In a Static Square, Couple 3 is standing in the
-position nearest the caller — but they are still Couple 3. See
-[Naming the dancers](naming-the-dancers.md).
+The couple numbers run **anticlockwise** as you look down at the square from above: 1 at the near side,
+then 2, 3 and 4. [Naming the dancers](naming-the-dancers.md) draws them on the square, with each couple
+in its own colour.
 
-## Heads and Sides
+## A number is identity, not location
 
-The same four couples, grouped the other way:
+Once the tip starts the couples move, and a caller may rotate the whole square before the singing call
+to change which couple leads. The couple standing nearest the caller after that is not necessarily
+Couple 1 — the number belongs to the dancers, not to the side of the square.
 
-- **Heads** — the two couples facing toward or away from the caller (Couples 1 and 3)
-- **Sides** — the two couples perpendicular to the caller (Couples 2 and 4)
-
-Heads and Sides is the grouping callers use most, because it is the easiest to see. From the
-dancers' point of view it is also the most natural: you can tell at a glance whether you are a Head
-or a Side without counting anything.
+The same is true of **Heads and Sides**: those are names too, and
+[Naming the dancers](naming-the-dancers.md) explains what a caller means when they want the position
+rather than the name.
 
 ## Who stands where in a couple
 
-A couple is two dancers **side by side, facing the same way**. Within the couple:
+Which side of your couple you are on is what makes you a **Boy** or a **Girl**; your Partner is the
+dancer beside you, and the two of you usually take a **couple handhold** —
+[Hands and holds](hands-and-holds.md). All of those rules are on
+[Naming the dancers](naming-the-dancers.md), which is the page for who is who.
 
-- the dancer who squared up on the **left** is a **Boy**
-- the dancer who squared up on the **right** is a **Girl**
-
-That is the 2026 manual's rule, and it is about position rather than people.
-
-Both dancers of a couple usually hold hands — a **couple handhold**. See
-[Hands and holds](hands-and-holds.md).
-
-## Partner, Corner, Opposites
-
-Standing at home:
-
-- your **Partner** is the dancer beside you in your own couple
-- your **Corner** is the dancer diagonally adjacent, round the nearest corner
-- your **Diagonal Opposite** is the dancer directly across the square from you — always of your own
-  gender, because that is the dancer standing in the position diametrically opposite yours
-- your **Opposite Lady** (if you are a Boy) or **Opposite Gent** (if you are a Girl) is the dancer
-  across the square of the *other* gender
-
-[Naming the dancers](naming-the-dancers.md) sets the whole set of names out, including the order the
-four of them come round the square.
-
-All of these change during a tip as dancers are sent round the square. Your **Original** partner and
-corner are the ones you started with, and callers say "original" when they mean those.
-
-## Where this matters for a beginner
+## What a beginner actually needs
 
 Almost none of it, at first. You need to know:
 

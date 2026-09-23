@@ -405,6 +405,36 @@ export function build({ gifs = false } = {}) {
       // The site needs to know WHICH authoring to load in the browser, and at what fit.
       const view = viewFor(eng, bundle);
       const [level, ...rest] = site.file.split('/');
+      /**
+       * ALWAYS RECORDED, EVEN WHEN THE MANUAL LISTS ONE START -- and when the manual's labels resolve
+       * to nothing at all, the authoring actually on screen lends its own formation name.
+       *
+       * The page's start picker still needs a choice before it is worth showing (build-site keeps that
+       * rule), but the LABEL is what lets the player offer the other calls that begin from the same
+       * formation, and both of those were the missing cases: a one-start call carried no label, and
+       * the calls the manual lists a different formation for -- Half Sashay is published from a Couple
+       * and animated here from Facing Couples -- carried none either.
+       *
+       * The name used for those is the corpus's own for the authoring being shown, because that is
+       * the formation the reader is actually looking at. It coincides with the manual's label where
+       * the two agree (both call it Facing Couples), so those calls group together, and where it does
+       * not (a circle for Ladies In, Men Sashay) the call simply groups alone.
+       */
+      const shownStart =
+        starts && starts.length
+          ? starts
+          : bundle.from
+            ? [
+                {
+                  label: bundle.from,
+                  file: site.file,
+                  tamIndex: site.tamIndex,
+                  from: bundle.from,
+                  beats: bundle.beats,
+                  view: { scale: Number(view.scale.toFixed(3)), units: Number(view.units.toFixed(3)) },
+                },
+              ]
+            : null;
       index.figures.push({
         id,
         call: e.title,
@@ -417,7 +447,7 @@ export function build({ gifs = false } = {}) {
         beats: bundle.beats,
         frames: frameCount,
         view: { scale: Number(view.scale.toFixed(3)), units: Number(view.units.toFixed(3)) },
-        ...(starts && starts.length > 1 ? { starts } : {}),
+        ...(shownStart ? { starts: shownStart } : {}),
       });
     }
   }

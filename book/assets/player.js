@@ -255,6 +255,23 @@ async function mount(host) {
     starts = null;
   }
 
+  /**
+   * THE CATALOGUE, shipped beside this file by build-site.mjs: every call that can be watched, the
+   * formations each can start from, and the page each belongs to.
+   *
+   * It is what lets the player answer the question a reader actually has in front of a formation --
+   * "what else begins from here?" -- so the two choosers point at each other: the formation decides
+   * which calls are offered, and a call decides which formations it can start from. A failed fetch
+   * costs the reader the second chooser and nothing else, so it is not an error worth shouting about.
+   */
+  let catalogue = [];
+  try {
+    const res = await fetch(new URL('./calls-index.json', import.meta.url).href);
+    if (res.ok) catalogue = (await res.json()).calls ?? [];
+  } catch {
+    catalogue = [];
+  }
+
   const { moves, formations } = await engineInputs();
   const xmlCache = new Map();
   const bundleFor = async (file, tamIndex) => {
@@ -310,28 +327,59 @@ async function mount(host) {
       </select>
     </label>`;
 
-  // The start-formation selector, when there is a choice to make. It is APPENDED, after the speed
-  // control, and the stylesheet gives it a whole line to itself: the readout and the speed are the
-  // controls a reader touches while watching one call, where the start selector chooses WHICH
-  // animation is being watched and is set once. Appending rather than inserting also keeps the tab
-  // order the same as the order they appear on screen.
-  if (starts) {
-    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-    const pick = document.createElement('label');
-    pick.className = 'dsq-speed dsq-start';
-    pick.innerHTML =
-      `start <select class="dsq-from" title="Which formation the call starts from">` +
-      starts.map((s, i) => `<option value="${i}"${i === 0 ? ' selected' : ''}>${esc(s[0])}</option>`).join('') +
-      `</select>`;
-    bar.append(pick);
-  }
+  // ---- the two choosers, and the state they read.
+  //
+  // THE START CHOOSER and THE CALL CHOOSER point at each other. The start chooser says which formation
+  // the call is drawn from; the call chooser lists the other calls that begin from THAT formation, and
+  // is repopulated whenever the formation changes. Choosing a call repopulates the start chooser with
+  // that call's own formations in turn, so the reader can walk the whole catalogue either way round.
+  //
+  // The page's own call is remembered, because the player is embedded in a page whose text is about
+  // one call: when it is showing another one, the cue under the bar says which, and offers the way
+  // back to the page's call and the way to the call's own page.
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const tuples = (entry) =>
+    (entry?.starts ?? []).map((s) => [s.label, s.file, s.tamIndex ?? 0, s.view?.scale, s.view?.units, s.beats]);
+  const fitOf = (t) =>
+    Number.isFinite(Number(t[3])) && Number.isFinite(Number(t[4]))
+      ? { scale: Number(t[3]), units: Number(t[4]) }
+      : null;
+  const startOf = (entry, file, tam) =>
+    entry?.starts?.find((s) => s.file === file && (s.tamIndex ?? 0) === tam) ?? entry?.starts?.[0] ?? null;
 
-  host.append(canvas, bar);
+  const homeEntry = catalogue.find((c) => c.file === firstFile && (c.tamIndex ?? 0) === firstTam) ?? null;
+  const homeStart = startOf(homeEntry, firstFile, firstTam);
+  const homeCall = homeEntry?.call ?? null;
+  const homeTuple = homeEntry ? tuples(homeEntry).find((t) => t[0] === homeStart?.label) ?? tuples(homeEntry)[0] : null;
+
+  let showing = homeEntry;
+  let startsNow = homeEntry ? tuples(homeEntry) : (starts ?? []);
+  let formation = homeStart?.label ?? startsNow[0]?.[0] ?? null;
+
+  const makeChooser = (className, selectClass, label, title) => {
+    const pick = document.createElement('label');
+    pick.className = `dsq-speed ${className}`;
+    pick.innerHTML = `${label} <select class="${selectClass}" title="${title}"></select>`;
+    bar.append(pick);
+    return pick;
+  };
+  // The start chooser is drawn whenever there is a choice to offer -- today, or after a switch to a
+  // call that has one. The call chooser needs the catalogue, and is hidden while it would hold one
+  // option: a selector with a single entry is noise.
+  const fromLabel = starts || catalogue.length ? makeChooser('dsq-start', 'dsq-from', 'start', 'Which formation the call starts from') : null;
+  const callLabel = catalogue.length ? makeChooser('dsq-call', 'dsq-call', 'call', 'Another call that starts from this formation') : null;
+
+  const cue = document.createElement('p');
+  cue.className = 'dsq-showing';
+  cue.hidden = true;
+
+  host.append(canvas, bar, cue);
   const slider = bar.querySelector('input');
   const readout = bar.querySelector('.dsq-readout');
   const playBtn = bar.querySelector('[data-act="play"]');
   const speedSel = bar.querySelector('.dsq-rate');
   const fromSel = bar.querySelector('.dsq-from');
+  const callSel = bar.querySelector('.dsq-call');
 
   let beat = 0;
   let playing = false;
@@ -387,24 +435,75 @@ async function mount(host) {
   speedSel.addEventListener('change', () => {
     last = performance.now();
   });
-  fromSel?.addEventListener('change', async () => {
-    const entry = starts[Number(fromSel.value)];
+  fromSel?.addEventListener('change', () => {
+    const start = startsNow[Number(fromSel.value)];
+    if (start) void switchTo(showing, start);
+  });
+  callSel?.addEventListener('change', () => {
+    const entry = catalogue.find((c) => c.id === callSel.value);
     if (!entry) return;
-    const [, file, tam, scale, units] = entry;
+    const own = tuples(entry);
+    void switchTo(entry, own.find((t) => t[0] === formation) ?? own[0]);
+  });
+  cue.addEventListener('click', (ev) => {
+    if (ev.target.closest('button')?.dataset.act !== 'home' || !homeEntry || !homeTuple) return;
+    void switchTo(homeEntry, homeTuple);
+  });
+
+  /** The calls the catalogue can offer from the formation on screen, in catalogue (teaching) order. */
+  const callsHere = () => (formation ? catalogue.filter((c) => (c.starts ?? []).some((s) => s.label === formation)) : []);
+
+  /** Rebuild both choosers and the cue from the current state. They are never edited in place. */
+  const renderChoosers = () => {
+    if (fromLabel) {
+      fromLabel.hidden = startsNow.length < 2;
+      fromSel.innerHTML = startsNow
+        .map((s, i) => `<option value="${i}"${s[0] === formation ? ' selected' : ''}>${esc(s[0])}</option>`)
+        .join('');
+    }
+    if (callLabel) {
+      const here = callsHere();
+      callLabel.hidden = here.length < 2;
+      callSel.innerHTML = here
+        .map((c) => `<option value="${esc(c.id)}"${c === showing ? ' selected' : ''}>${esc(c.call)}</option>`)
+        .join('');
+    }
+
+    // The cue only earns its line while the player is showing a call that is not the page's own.
+    const away = Boolean(homeCall) && Boolean(showing) && showing.call !== homeCall;
+    cue.hidden = !away;
+    if (!away) {
+      cue.innerHTML = '';
+      return;
+    }
+    const href = showing.page ? new URL(`../${showing.page}`, import.meta.url).href : null;
+    cue.innerHTML =
+      `showing <strong>${esc(showing.call)}</strong>` +
+      (href ? ` — <a href="${esc(href)}" target="_blank" rel="noopener">open its page</a>` : '') +
+      (homeTuple ? ` · <button type="button" data-act="home">back to ${esc(homeCall)}</button>` : '');
+  };
+
+  /** Make another call, or another formation of the same call, the thing on screen. */
+  const switchTo = async (entry, start) => {
     setPlaying(false);
     try {
-      await use(file, Number(tam), { scale: Number(scale), units: Number(units) });
+      await use(start[1], Number(start[2]), fitOf(start));
     } catch (err) {
       // Say so in the page rather than leaving the old animation under a new label.
-      host.innerHTML = `<p class="dsq-error">Could not load the animation from ${entry[0]}: ${String(err.message ?? err)}</p>`;
+      host.innerHTML = `<p class="dsq-error">Could not load the animation from ${esc(start[0])}: ${String(err.message ?? err)}</p>`;
       console.error(err);
       return;
     }
+    showing = entry;
+    startsNow = entry ? tuples(entry) : startsNow;
+    formation = start[0];
     slider.max = String(beats);
+    renderChoosers();
     show(0);
-  });
+  };
 
   show(0);
+  renderChoosers();
 }
 
 for (const host of document.querySelectorAll('.dsq-player')) {

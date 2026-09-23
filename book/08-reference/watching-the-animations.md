@@ -19,11 +19,19 @@ There is **one animation per call**, and it is this one — nothing is repeated 
 | **⏩** | step forward a quarter of a beat |
 | **⏭** | jump to the **ending setup** — where everyone should finish |
 
-Some calls also carry a **start** chooser, to the right of the buttons. Most calls start from one
+Some calls also carry a **start** chooser, on its own line under the buttons. Most calls start from one
 formation, so most pages have no chooser at all. Where the manual gives several, the chooser lists
 them and the call is re-drawn from the one you pick — the dancers start standing differently, and a
 call that travels further is drawn a little smaller to fit. One or two calls are shown from a
 formation the manual does not list for them, under the name that arrangement goes by here.
+
+Under that is a **call** chooser, which lists the other calls in this book that begin from the
+formation you are looking at — so from a circle you can find everything else that starts from a
+circle, without going back to the index. The two choosers rebuild each other: change the formation and
+the list of calls is redrawn for it, change the call and the formation list becomes that call's own.
+While the player is showing a call from another page, a line under it names that call and offers two
+ways out — that call's own page, or back to the call this page is about. The list holds what this book
+can animate from that formation; 75 calls are in the catalogue altogether.
 
 Between the buttons is a **slider** carrying the whole call. Drag it and the dancers move with your
 hand: the picture is worked out for the exact point you have dragged to, so there is no smearing and

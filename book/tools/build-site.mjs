@@ -242,7 +242,16 @@ figcaption { font-size: .84rem; color: var(--muted); margin-top: .45em; }
    that chooses WHICH animation is being watched sits on the next. A 100% basis is what puts it on a
    line of its own, the same trick the slider uses, and it comes last in the DOM as well so the tab
    order still runs left to right, top to bottom. */
-.dsq-controls .dsq-start { flex: 1 0 100%; }
+.dsq-controls .dsq-start, .dsq-controls .dsq-call { flex: 1 0 100%; }
+/* The cue line under the bar, shown only while the player is showing a call from another page. It
+   says WHICH call is on screen, so a reader who has switched away from the page's own call can still
+   tell what they are looking at -- and offers the two ways out: that call's page, or back. */
+.dsq-showing { margin: .45em 0 0; font-size: .84rem; color: var(--muted); text-align: center; }
+.dsq-showing strong { color: inherit; }
+.dsq-showing button {
+  font: inherit; color: var(--accent); background: none; border: 0; padding: 0 .15rem;
+  cursor: pointer; text-decoration: underline;
+}
 .dsq-error { color: #b2182b; }
 details.dsq-share { margin: 0 0 1.2em; font-size: .9rem; }
 details.dsq-share summary { cursor: pointer; color: var(--muted); }
@@ -841,6 +850,8 @@ export function main() {
   }
   const callMap = JSON.parse(readFileSync(join(toolsDir, 'call-map.json'), 'utf8'));
   const unitByNumber = new Map(callMap.units.map((u) => [String(u.n).padStart(2, '0'), u]));
+  /** figure id -> the page it is played on, filled in as the pages are rendered below. */
+  const figurePage = new Map();
 
   writeFileSync(join(SITE, 'style.css'), CSS, 'utf8');
   // Both files are on disk now, so the URLs the pages will name can carry their contents' hash.
@@ -875,6 +886,7 @@ export function main() {
         if (meta) {
           animated++;
           injected.add(id);
+          figurePage.set(id, page.path.replace(/\.md$/, '.html'));
         }
         return animationFigure(id, meta);
       },
@@ -984,6 +996,39 @@ export function main() {
   );
   writeFileSync(join(SITE, 'offline.html'), offlineHtml({ css: cssUrl }), 'utf8');
 
+  // THE CATALOGUE THE PLAYER SWITCHES CALLS WITH. A reader looking at a call can ask what else begins
+  // from the formation in front of them, and that question is answered from here: every animatable
+  // call, the formations it can start from, and the page it belongs to.
+  //
+  // The page is the one field the player could not work out for itself -- `animations-index.json` is
+  // built from the corpus and knows nothing about which page a call is taught on -- so it is filled in
+  // from the pages as they were rendered above, and the build REFUSES to ship a catalogue with a
+  // dangling call rather than letting the player offer a link that goes nowhere.
+  const callCatalogue = [...animMeta.values()].map((f) => ({
+    id: f.id,
+    call: f.call,
+    file: f.file,
+    tamIndex: f.tamIndex ?? 0,
+    beats: f.beats,
+    view: { scale: f.view?.scale ?? 20, units: f.view?.units ?? 6 },
+    page: figurePage.get(f.id) ?? null,
+    starts: (f.starts ?? []).map((s) => ({
+      label: s.label,
+      file: s.file,
+      tamIndex: s.tamIndex ?? 0,
+      beats: s.beats,
+      view: { scale: s.view?.scale ?? 20, units: s.view?.units ?? 6 },
+    })),
+  }));
+  for (const entry of callCatalogue) {
+    if (!entry.page) problems.push(`the catalogue has no page for ${entry.id} (${entry.call})`);
+  }
+  writeFileSync(
+    join(SITE, 'assets', 'calls-index.json'),
+    JSON.stringify({ generated: 'by book/tools/build-site.mjs', calls: callCatalogue }),
+    'utf8',
+  );
+
   // Precache what a reader needs to OPEN the book offline: every page, the stylesheet, the player,
   // the engine and the dance data. Figures and animations are NOT precached -- they are 11 MB, and
   // they are cached on first view instead, so a reader who never opens a call page does not pay for
@@ -997,6 +1042,9 @@ export function main() {
     `./${playerUrl}`,
     './assets/moves.xml',
     './assets/formations.xml',
+    // The calls catalogue is precached although it is not needed to READ a page: switching calls is
+    // part of watching an animation, and a reader on a train should be able to do it.
+    './assets/calls-index.json',
     ...[...animMeta.values()].map((f) => `./assets/calls/${f.file}`),
     ...listFiles(join(SITE, 'lib')).map((f) => `./lib/${f}`),
     ...listFiles(join(SITE, 'formations')).map((f) => `./formations/${f}`),

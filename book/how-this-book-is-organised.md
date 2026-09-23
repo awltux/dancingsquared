@@ -17,9 +17,11 @@ without reading it in order.
 | **Practice pages** | [06-practice](06-practice/how-to-practise.md) | drills and whole-tip practice |
 | **Reference** | [08-reference](08-reference/glossary.md) | glossary, indexes and sources |
 
-The rule that holds it together: **a word is explained in exactly one place**, and every other page
-*links* to that place instead of repeating it. When a call page says "from
-[Facing Dancers](02-language/formations.md#facing-dancers)", that link is where Facing Dancers is defined.
+The rule that holds it together: **a word is explained in exactly one place**, and no page explains it
+again. Where a page needs you to have the definition, it *links* to the place that holds it — when a
+call page says "from [Facing Dancers](02-language/formations.md#facing-dancers)", that link is where
+Facing Dancers is defined. Every term is listed in the [glossary](08-reference/glossary.md) with the
+page that defines it, so a word you cannot place is one lookup away.
 
 This is why the call pages are short. They are not trying to be a self-contained encyclopaedia;
 they are trying to tell you how to *dance* one call, and hand you the vocabulary to do it.

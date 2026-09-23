@@ -109,10 +109,12 @@ A couple in single file is a **Tandem Couple**, and is the shape [Zoom](../04-ca
 
 ## Back-to-Back Couples
 
-**Back-to-Back Couples** are two couples standing back to back, each couple facing the couple in
-front of it. [Veer Left / Veer Right](../04-calls/m17-veer-left-veer-right.md) finishes there from a
-Two-Faced Line, and it is where a [Square Thru](../04-calls/m21-square-thru.md) ends.
+**Back-to-Back Couples** are two couples standing back to back — each couple's back is towards the
+other, so each couple faces away from the other one.
+[Veer Left / Veer Right](../04-calls/m17-veer-left-veer-right.md) finishes there from a Two-Faced
+Line, and it is where a [Square Thru](../04-calls/m21-square-thru.md) ends.
 
+![Back-to-Back Couples: two couples back to back, each one facing away from the other.](../formations/back-to-back-couples.png)
 Two dancers can be back to back in the same way, each facing away from the other — that is what you
 are after a Pass Thru in [Pass the Ocean](../04-calls/m35-pass-the-ocean.md).
 

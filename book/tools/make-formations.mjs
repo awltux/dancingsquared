@@ -178,6 +178,58 @@ export const FORMATIONS = [
     },
   },
   {
+    slug: 'back-to-back-couples',
+    title: 'Back-to-Back Couples',
+    derivedFrom: 'the two middle couples of the library\'s "Completed Double Pass Thru"',
+    /**
+     * Not a named formation in the library, but a named SHAPE in the manual: from a Two-Faced Line a
+     * Veer Left or Veer Right finishes "in Back-to-Back Couples", and a Lead Right from Facing Couples
+     * ends there too -- two couples that have turned away from each other.
+     *
+     * The Completed Double Pass Thru holds four couples, and the two middle ones ARE that shape, so
+     * this measures them out rather than inventing anything: `beside` pairs each dancer with the
+     * dancer alongside (a couple), and the pair taken is the two couples facing opposite ways whose
+     * backs are to each other -- the CLOSEST such pair, because the outer couple of that formation is
+     * also back to back with the far one, twice as far away, and is not what the page means.
+     */
+    from: (lib) => {
+      const written = lib.get('Completed Double Pass Thru');
+      if (!written?.length) {
+        throw new Error('the library has no "Completed Double Pass Thru" to take Back-to-Back Couples from');
+      }
+      const { dancers } = completeSet(written);
+      const couples = [];
+      for (const d of dancers) {
+        const mate = beside(d, dancers);
+        if (!mate || couples.some((c) => c.people.includes(d))) continue;
+        couples.push({ people: [d, mate], x: (d.x + mate.x) / 2, y: (d.y + mate.y) / 2, facing: d.angleDeg });
+      }
+      if (couples.length !== dancers.length / 2) {
+        throw new Error(
+          `the library's Completed Double Pass Thru does not pair up into couples: ${couples.length} found, ${dancers.length / 2} expected`,
+        );
+      }
+      let best = null;
+      for (const a of couples) {
+        for (const b of couples) {
+          if (a === b || !oppositeFacing(a.facing, b.facing)) continue;
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const dist = Math.hypot(dx, dy);
+          // Back to back means each couple faces AWAY from the other: the line joining the two
+          // couples runs opposite to the way they are looking.
+          const away = (dx * Math.cos(a.facing * DEG) + dy * Math.sin(a.facing * DEG)) / dist;
+          if (away > -0.99) continue;
+          if (!best || dist < best.dist) best = { dist, people: [...a.people, ...b.people] };
+        }
+      }
+      if (!best) {
+        throw new Error('no two couples in the library\'s Completed Double Pass Thru stand back to back');
+      }
+      return best.people;
+    },
+  },
+  {
     slug: 'double-pass-thru',
     title: 'Double Pass Thru',
     as: 'Double Pass Thru',
@@ -284,6 +336,24 @@ function tandemBehind(d, dancers) {
         Math.abs(o.y - (d.y - 2 * dy)) < 0.01,
     ) ?? null
   );
+}
+
+/**
+ * The third two-dancer measure: "the dancer beside me" -- same facing, nothing along the facing
+ * between us, two units across it. That is a COUPLE, and it is how a formation built out of couples
+ * (rather than out of tandems) can be taken apart to see which couples are in it.
+ */
+function beside(d, dancers) {
+  const dx = Math.cos(d.angleDeg * DEG);
+  const dy = Math.sin(d.angleDeg * DEG);
+  const found = dancers.find(
+    (o) =>
+      o !== d &&
+      sameFacing(o.angleDeg, d.angleDeg) &&
+      Math.abs((o.x - d.x) * dx + (o.y - d.y) * dy) < 0.01 &&
+      Math.abs(Math.abs((o.x - d.x) * -dy + (o.y - d.y) * dx) - 2) < 0.01,
+  );
+  return found ?? null;
 }
 
 /** The floor every diagram stands on: pale ground, a one-unit grid, and the two centre lines. */

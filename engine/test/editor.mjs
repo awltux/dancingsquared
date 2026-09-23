@@ -28,6 +28,7 @@ import {
   synthesizeSetupChain,
   setupToXml,
   callToXml,
+  halfSetReport,
   startsFromFormation,
   callToXmlNamed,
   endPoses,
@@ -2120,6 +2121,110 @@ console.log('\n== 28. A setup is named by its formation ==');
   }
   console.log(`    ${blankNamed} setups with a BLANK \`from\` are named by their formation, ${blankDefault} have neither a \`from\` nor a \`formation\``);
   check(blankNamed > 0, 'so a tam that carries only `formation` is named by it rather than falling to `(default)`');
+}
+
+// ---------------------------------------------------------------------------
+// 29. THE HALF-SET FORM: `tam.asymmetric` READ BACKWARDS.
+// ---------------------------------------------------------------------------
+// `callToXml` has always written the WHOLE set out and declared `asymmetric="true"`, because that is
+// always correct. The corpus's own convention is the other one: a tam writes HALF the set and the reader
+// supplies the rest by rotating it 180 degrees about the board centre, and `asymmetric="true"` is the
+// opt-out. The editor now offers both, so both have to be gated - and the case that matters is the one
+// that would otherwise write a call that reads back WRONG.
+console.log('\n== 29. writing the HALF set instead of the whole one (29) ==');
+{
+  // `inst` is tam 0 of `ms/circle.xml` - `Circle Left`, whose `Circle` the corpus authors with FOUR
+  // dancers - so its second half is the engine's own 180-degree completion and the two halves pair up
+  // exactly, paths included. That is precisely the case the half-set form exists for.
+  const wholeSet = normalizeInstance(inst);
+  const rep = halfSetReport(wholeSet);
+  check(rep.ok, `a mirror-completed call IS a half set: ${rep.ok ? `a half of ${rep.half}` : rep.reason}`);
+
+  const whole = callToXml(wholeSet, wholeSet.from);
+  const halfXml = callToXml(wholeSet, wholeSet.from, { symmetry: 2 });
+  check(/asymmetric="true"/.test(whole) && (whole.match(/<dancer/g) ?? []).length === 8,
+    'the DEFAULT is unchanged: the whole set written out and declared');
+  check(!/asymmetric=/.test(halfXml),
+    'the half-set form declares NOTHING - the absence of the attribute IS the declaration (symmetry 2 is the format default)');
+  const hd = (halfXml.match(/<dancer/g) ?? []).length;
+  const hp = (halfXml.match(/<path/g) ?? []).length;
+  check(hd === 4 && hp === 4, `and it carries half the dancers, each with a path of its own (${hd} dancers, ${hp} paths)`);
+
+  // THE ROUND TRIP, through the reader the app uses. `mirror: true` is the caller's PERMISSION to
+  // complete; whether the completion happens is `buildCallImpl`'s `tam.symmetry === 2` test, i.e. the
+  // declaration's. So these two calls differ only in whether the reader was allowed to.
+  const back = normalizeInstance(loadCallFromXml(`<calls>\n${halfXml}\n</calls>`, movesXml, formationsXml, 0, true));
+  check(back.dancers.length === 8, `it reads back as a whole set of ${back.dancers.length} dancers`);
+  let worstBack = 0;
+  for (let d = 0; d < 8; d++) {
+    const a = poseFor(wholeSet.dancers[d], 0);
+    const b = poseFor(back.dancers[d], 0);
+    worstBack = Math.max(worstBack, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+  }
+  check(worstBack < 1e-3, `and every dancer stands where it did (worst ${worstBack.toExponential(1)}, the export's own rounding)`);
+  const plain = loadCallFromXml(`<calls>\n${halfXml}\n</calls>`, movesXml, formationsXml, 0, false);
+  check(plain.dancers.length === 4,
+    `a reader that is not allowed to complete gets the half it was given (${plain.dancers.length}), so the FLAG decides the size and not the text`);
+
+  // THE REFUSAL, and it is total rather than a warning. Moving one dancer of each pair breaks the
+  // pairing, and a half-set text would then have the reader INVENT the second half - a call that reads
+  // back as a different call, silently.
+  let lopsided = wholeSet;
+  for (let i = 0; i < 4; i++) {
+    const r = instanceTable(lopsided)[i];
+    lopsided = setDancerStart(lopsided, i, { x: r.start.x + 2.5, y: r.start.y + 2.5, heading: r.start.heading });
+  }
+  const bad = halfSetReport(lopsided);
+  check(!bad.ok, `a set whose halves no longer pair up is NOT a half: ${bad.reason}`);
+  const fellBack = callToXml(lopsided, lopsided.from, { symmetry: 2 });
+  check(/asymmetric="true"/.test(fellBack) && (fellBack.match(/<dancer/g) ?? []).length === 8,
+    'so asking for the half anyway writes the WHOLE set, rather than four dancers the reader would complete into a different call');
+  const backBad = normalizeInstance(loadCallFromXml(`<calls>\n${fellBack}\n</calls>`, movesXml, formationsXml, 0, true));
+  let worstBad = 0;
+  for (let d = 0; d < 8; d++) {
+    const a = poseFor(lopsided.dancers[d], 0);
+    const b = poseFor(backBad.dancers[d], 0);
+    worstBad = Math.max(worstBad, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+  }
+  check(worstBad < 1e-3, `and THAT fallback reads back intact anyway (worst ${worstBad.toExponential(1)}) - the refusal costs the caller nothing but the size of the text`);
+
+  // THE SIX-DANCER CASE, and it is the one that pins what "half the set" MEANS for genders. Asked for:
+  // "half the number of girls and half the number of boys. This covers calls that have 6 dancers all
+  // together. So if the board has 4 boys and 2 girls, it will create a half set of 2 boys and 1 girl."
+  //
+  // So the precondition is NOT `boys === girls` - that was the first version of this check and it
+  // refused exactly the sets the half-set form is for. It is that EACH gender's count be EVEN, because
+  // the pairing pairs a dancer with another dancer of its own gender.
+  //
+  // Built by dropping one PAIR (indices 3 and 7, both girls) from the 8-dancer witness, which leaves
+  // 4 boys and 2 girls with the pairing intact at the new half-way point of three.
+  const six = { ...wholeSet, dancers: wholeSet.dancers.filter((_, i) => i !== 3 && i !== 7) };
+  const g6 = (b) => b.dancers.reduce((m, d) => m.set(d.gender, (m.get(d.gender) ?? 0) + 1), new Map());
+  const counts6 = g6(six);
+  check(six.dancers.length === 6 && counts6.get('boy') === 4 && counts6.get('girl') === 2,
+    `the six-dancer witness is 4 boys and 2 girls (${six.dancers.length} dancers: ${counts6.get('boy')}B ${counts6.get('girl')}G)`);
+  const sixRep = halfSetReport(six);
+  check(sixRep.ok && sixRep.half === 3,
+    `and it IS writable as a half set: ${sixRep.ok ? `a half of ${sixRep.half}` : sixRep.reason}`);
+  const sixXml = callToXml(six, six.from, { symmetry: 2 });
+  const g6h = [...sixXml.matchAll(/<dancer gender="(\w+)"/g)].map((m) => m[1]);
+  check(g6h.length === 3 && g6h.filter((x) => x === 'boy').length === 2 && g6h.filter((x) => x === 'girl').length === 1,
+    `and it writes 3 dancers - 2 boys and 1 girl (${g6h.join(',')}) - which is the half, not an equal split`);
+  const sixBack = normalizeInstance(loadCallFromXml(`<calls>\n${sixXml}\n</calls>`, movesXml, formationsXml, 0, true));
+  let worstSix = 0;
+  for (let d = 0; d < 6; d++) {
+    const a = poseFor(six.dancers[d], 0);
+    const b = poseFor(sixBack.dancers[d], 0);
+    worstSix = Math.max(worstSix, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+  }
+  check(sixBack.dancers.length === 6 && worstSix < 1e-3,
+    `and the six come back where they were (${sixBack.dancers.length} dancers, worst ${worstSix.toExponential(1)})`);
+
+  // AND AN ODD COUNT IS THE ONE THING THAT GENUINELY CANNOT BE WRITTEN, because the pairing pairs a
+  // dancer with ANOTHER DANCER of its own gender. Changing one boy to a girl makes it 3 and 5.
+  const oddGenders = { ...wholeSet, dancers: wholeSet.dancers.map((d, i) => (i === 0 ? { ...d, gender: 'girl' } : d)) };
+  const odd = halfSetReport(oddGenders);
+  check(!odd.ok, `an odd number of one gender is refused: ${odd.reason}`);
 }
 
 console.log('\n=================');

@@ -216,6 +216,10 @@
               <i>gender</i> column is the ARRANGEMENT (which spots hold a boy and which a girl); <i>couple</i>
               is a read of the start formation, not a field of the format, so it follows the positions.
             </div>
+            <div class="row" id="edAsymRow">
+              <label title="How the exported &lt;tam&gt; declares its dancers. With the box UNTICKED, half the set is written and the reader reconstitutes the other half by turning it 180 degrees about the board centre - the corpus's own convention. It needs each gender's count to be EVEN, so that each half holds half of them (a six-dancer set of 4 boys and 2 girls writes 2 boys and 1 girl), and it needs the halves to pair up exactly, paths and all. With it TICKED, every dancer is written out and the tam declares asymmetric=&quot;true&quot;. Inert when the export NAMES its formation instead of embedding it, because then no dancers are written at all."><input type="checkbox" id="edAsym" /> Asymmetric</label>
+              <span id="edAsymInfo" class="part"></span>
+            </div>
             <div class="row" id="edSelectRow">
               <label title="Bulk ways to pick the dancers an edit applies to. The tick boxes in the table below do one dancer at a time; these do the sets a caller usually wants, and `matching` is the one that answers 'who else is doing this same move here'.">Select</label>
               <button id="edSelNone" title="Select nobody. The panel then has nowhere to write, and says so instead of showing numbers no edit will reach.">none</button>

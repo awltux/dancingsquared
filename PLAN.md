@@ -4964,3 +4964,65 @@ remaining refusals are STACKED.** A coverage fix at call N generally reveals a d
 call N+1 rather than completing the figure, so the figure count moves less than the number of defects
 fixed. Treat it as a **lagging indicator**; the leading indicators are the cause table, the
 poisoned-chain count and `facing-audit.mjs`.
+
+### THE `asymmetric` SELECTOR ON THE CALL: HALF THE SET, OR EVERY DANCER (BUILT AND GATED)
+
+Asked for: *"a tam.asymmetric selector added to the call. This decides if the dancers are exported explicitly or as a
+taminations half set ... If the asymmetric flag is set, then this must be included in the exported tam properties. Put
+the asymmetric checkbox before the tables Select label. Default to unselected."*
+
+**THE FORMAT ALREADY SAID THIS, AND THE ENGINE ALREADY READ IT.** `<tam asymmetric="true">` means "take the written
+dancers as the whole set" (symmetry 1); with the attribute ABSENT the written shape is the HALF and the reader
+completes it by rotating 180 degrees about the board centre (symmetry 2, the default). `tam.symmetry` carries it and
+`buildCallImpl` already gates its completion on `mirror && tam.symmetry === 2`, so what was missing was only a
+WRITER that could emit the half form and a control to choose it. Until now `callToXml` always wrote every dancer out
+and declared `asymmetric="true"`, because that is always correct.
+
+**WHAT WAS BUILT.**
+
+- `callToXml(call, name, { symmetry })` - `1` (the DEFAULT, unchanged) writes the whole set and the attribute; `2`
+  writes the half set and NO attribute, which is the corpus's own convention.
+- `halfSetReport(call)` is the precondition, public so the UI can explain a refusal rather than silently do something
+  else. It checks the two halves pair by INDEX (`i` with `i + n/2`, the pairing `mirrorToFull` creates - the only one
+  a half-set text can reproduce): each pair is the 180-degree rotation in POSITION and HEADING, the same GENDER, and
+  the **same path** - because a half-set tam writes one path per written dancer and the reader replays it for both
+  halves, so a hand-edited second half fails even when its start poses still pair up.
+- A refusal is TOTAL and silent-free: `callToXml` with `symmetry: 2` on a set that is not a half writes the WHOLE set
+  with the attribute, and the panel says why before the export.
+- The checkbox is `#edAsym`, placed immediately before the tables' `Select` row, UNTICKED by default, and it opens on
+  what the loaded call itself declares (`symmetry === 1`), so a call that is already explicit shows as explicit.
+- `poc/src/data.ts`'s `rebuildInstance` now passes `mirror: true` instead of `false`. This is the load-bearing half:
+  a half-set export is FOUR dancers in the text, and `false` would read it back as four. Passing `true` is safe for a
+  whole-set export because the DECLARATION refuses (`symmetry === 1`), which is the rule the attribute exists for.
+
+**THE GENDER PRECONDITION WAS WRONG TWICE, AND THE SECOND TIME WAS A REAL DEFECT.**
+
+1. `boys === girls` was the first rule, from reading "equal numbers of boys and girls". It refuses exactly the sets
+   the half-set form is for. **CORRECTED by the requester:** *"What I mean is half the number of girls and half the
+   number of boys. This covers calls that have 6 dancers all together. So if the board has 4 boys and 2 girls, it will
+   create a half set of 2 boys and 1 girl."* So the rule is that **each gender's count must be EVEN**, since the
+   pairing pairs a dancer with another dancer of its own gender - and a six-dancer set of 4B+2G writes **2B+1G**.
+   Pinned on that exact case in `editor.mjs` §29.
+2. The panel reported **"writes all 8 dancers"** as a literal, on a six-dancer board. Reported from the running app;
+   the count is the board's now, and pinned so the literal cannot come back.
+
+**A THIRD REPORT FROM THE APP, AND IT WAS A CSS CONTRACT RATHER THAN THIS FEATURE.** *"The asymmetric checkbox
+obscures the end of its label."* `#hud label` is a 44px column, and the stylesheet widens a checkbox label back to
+`auto` with `label:has(input[type="checkbox"])` - a selector that only matches a **NESTED** input. The row was
+written `<label for=...>Asymmetric</label><input>` with the input a SIBLING, so the rule did not match, the label
+stayed 44px wide, and the box covered the end of the word. It is nested now, which is the app's own convention
+(`<label><input/> Hide dancers</label>`), and the probe pins the nesting rather than the appearance.
+
+**GATES.** `poc/tools/asymmetric-export-probe.mjs` (new, auto-discovered by the POC runner) reads the control's
+placement and the path the value takes through `editor-ui.ts` / `tam-xml.ts` / `data.ts` - and MEASURES the format on
+a mirror-completed call: both written forms, the gender split of the half, the round trip through a reader that is
+allowed to complete and one that is not, and the refusal. `engine/test/editor.mjs` §29 does the same from the engine
+side, including the six-dancer case. Engine suite: 31 harnesses green. `poc/verify.cjs`: all checks passed.
+
+**AND ONE POC PROBE IS RED AT HEAD FOR A REASON THAT IS NOT THIS WORK, REPORTED RATHER THAN RE-PINNED.**
+`run-circle-probe.mjs` fails 2 assertions that pin OFFSET orbits (`offsets.every(o => o > 0.5)`) and now measures
+`0.000`, i.e. the symptom it describes is gone. It is not this change: every hunk in `engine/src/editor.ts` is at line
+1839 or later while `fitCircleRun` is at 672 and `setRunCircle` at 752, and the probe's only asset input,
+`poc/src/assets/ms/circle.xml`, was last changed by the BOOK commit `3781730` (15 insertions, 21 deletions). The
+probe reads its symptom from that file, so re-authoring the asset is what invalidated the pin. Left red deliberately:
+re-pinning another workstream's symptom probe would hide the consequence of their change rather than record it.

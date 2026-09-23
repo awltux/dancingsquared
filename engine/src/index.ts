@@ -216,8 +216,9 @@ export {
   sameFacing,
   startsFromFormation,
   callToXmlNamed,
+  halfSetReport,
 } from './editor.js';
-export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef, RunCircle } from './editor.js';
+export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef, RunCircle, HalfSetReport } from './editor.js';
 
 export {
   setParser,

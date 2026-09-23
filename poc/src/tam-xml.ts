@@ -22,7 +22,7 @@
 
 import formationsXmlText from './assets/formations.xml?raw';
 import { DEG, callToXmlNamed, canonicalName, parseFormations } from 'dancing-squared-engine';
-import type { CallBundle, FormDancer, Gender } from 'dancing-squared-engine';
+import type { CallBundle, FormDancer, Gender, Symmetry } from 'dancing-squared-engine';
 import { findUserFormation } from './formations';
 
 /** The corpus's own formations, parsed once. Keyed by name, holding the AUTHORED dancers in degrees. */
@@ -79,8 +79,15 @@ export function corpusFormationPoses(name: string): FormDancer[] | null {
  *
  * `name` is the label to write (the editor's generated setup name); it is also the name looked up, which
  * is the same thing for a created setup - the name IS the new formation.
+ *
+ * `symmetry` is the caller's `asymmetric` choice, read the format's way round: `1` writes the whole set
+ * out and declares `asymmetric="true"`, `2` writes the half set and declares nothing. It is passed
+ * through rather than decided here because the DECISION is the editor's (the checkbox) and the FORMAT is
+ * the engine's; all this module adds is which names resolve. It is also inert in reference mode, where
+ * the tam names its formation and writes no dancers at all - the editor says so rather than letting the
+ * checkbox look as though it did something.
  */
-export function callTamXml(call: CallBundle, name?: string): string {
+export function callTamXml(call: CallBundle, name?: string, symmetry?: Symmetry): string {
   const label = name ?? (call.from || call.title);
-  return callToXmlNamed(call, label, corpusFormationPoses);
+  return callToXmlNamed(call, label, corpusFormationPoses, symmetry ? { symmetry } : {});
 }

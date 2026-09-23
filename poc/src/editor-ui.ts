@@ -56,8 +56,12 @@ import {
   fitCircleRun,
   runTurn,
   setRunCircle,
+  // The `asymmetric` declaration read backwards: what a half-set tam needs, and whether this
+  // call can be written as one.
+  halfSetReport,
+  startsFromFormation,
 } from 'dancing-squared-engine';
-import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, FormDancer, Gender, Hands, InstanceDancer, RunCircle, Seg } from 'dancing-squared-engine';
+import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, FormDancer, Gender, Hands, InstanceDancer, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
 import {
   availableCalls,
@@ -71,7 +75,7 @@ import {
 } from './data';
 import type { CallEdit, CallInfo } from './data';
 // The one place that decides whether an exported `<tam>` embeds its start formation or NAMES it.
-import { callTamXml } from './tam-xml';
+import { callTamXml, corpusFormationPoses } from './tam-xml';
 import type { Stage, CurveSpec, HandleSpec } from './scene';
 import { HANDLE_COLOR } from './scene';
 import { el, esc } from './dom';
@@ -413,6 +417,9 @@ export class EditorController implements EditorUI {
   private moveInfoEl = el<HTMLSpanElement>('edMoveInfo');
   private moveAddBtn = el<HTMLButtonElement>('edMoveAdd');
   private moveDelBtn = el<HTMLButtonElement>('edMoveDel');
+  /** The `asymmetric` selector, and the line that says what the export will ACTUALLY do with it. */
+  private asymCb = el<HTMLInputElement>('edAsym');
+  private asymInfoEl = el<HTMLSpanElement>('edAsymInfo');
 
   private catalog = availableCalls();
   private saved: CallEdit[] = loadEdits();
@@ -749,6 +756,11 @@ export class EditorController implements EditorUI {
       this.instance = this.source;
       this.instanceEdited = false;
       this.asClone = false;
+      // THE SELECTOR OPENS ON WHAT THE LOADED CALL DECLARES, which is `symmetry === 1`, i.e. the tam
+      // saying `asymmetric="true"`. So a call that IS explicit opens ticked, and the corpus's own
+      // half-set tams and every created call open UNTICKED - the default.
+      this.asymCb.checked = this.instance.symmetry === 1;
+      this.renderAsymInfo();
       this.moveIndex = 0;
       // The run, the radius and the centre belong to the track that was being edited, so a new one starts
       // with none of them.
@@ -1735,6 +1747,9 @@ export class EditorController implements EditorUI {
   private renderInstance(focusKey?: string | null) {
     if (focusKey !== undefined) this.focusKey = focusKey;
     this.renderFormation();
+    // Every edit changes the geometry the half-set test reads, so the line that reports it is redrawn
+    // with the rest of the panel rather than only when the checkbox moves.
+    this.renderAsymInfo();
     this.renderScrub(this.instance);
     this.renderDancerPicks();
     this.renderMoveStrip();
@@ -3298,7 +3313,7 @@ export class EditorController implements EditorUI {
         padBeats: 1,
         // The whole edited instance, exactly as exported: expanded, full-set, and carrying
         // the declarations the apply path registers with.
-        xml: callTamXml(this.instance, this.instance.from),
+        xml: callTamXml(this.instance, this.instance.from, this.declaredSymmetry()),
       };
     }
     const base: CallEdit = {
@@ -3342,10 +3357,52 @@ export class EditorController implements EditorUI {
     this.statusEl.textContent = `saved "${spec.name}"`;
   }
 
+  /** The `asymmetric` declaration to write for the call on screen, the format's way round. */
+  private declaredSymmetry(): Symmetry {
+    return this.asymCb.checked ? 1 : 2;
+  }
+
+  /**
+   * WHAT THE SELECTOR WILL ACTUALLY DO, said rather than implied.
+   *
+   * A control that silently cannot be honoured is worse than no control: a HALF SET only describes the
+   * call when the second half really is the first half turned 180 degrees about the board centre, paths
+   * included, and when it is not, `callToXml` writes the whole set instead. So this line reports which of
+   * the three things the export will be, and the reason whenever it is not the one that was asked for.
+   *
+   * It reports the case where the choice does not apply at all, too: when the call starts from a
+   * formation the corpus carries AND really starts from it, the export writes `formation="Name"` with no
+   * dancers at all, and there is no set to declare the symmetry of.
+   */
+  private renderAsymInfo() {
+    const call = this.isInstanceMode() ? this.instance : this.generated;
+    if (!call) {
+      this.asymInfoEl.textContent = '';
+      return;
+    }
+    const name = this.isInstanceMode() ? this.instance?.from : (this.generatedName || call.from || call.title);
+    const poses = name ? corpusFormationPoses(name) : null;
+    if (poses && startsFromFormation(call, poses)) {
+      this.asymInfoEl.textContent = `the export names "${name}", so no dancers are written and this choice does not apply`;
+      return;
+    }
+    if (this.asymCb.checked) {
+      // THE COUNT IS THE BOARD'S, not a hardcoded eight. A six-dancer call is a real case (the corpus's
+      // `_Finish Line of 6 ...` setups), and saying "all 8 dancers" about one is exactly the kind of
+      // wrong number this line exists to prevent.
+      this.asymInfoEl.textContent = `writes all ${call.dancers.length} dancers and declares asymmetric="true"`;
+      return;
+    }
+    const rep = halfSetReport(call);
+    this.asymInfoEl.textContent = rep.ok
+      ? `writes the HALF set (${rep.half} dancers); the reader turns it 180 degrees to complete the group`
+      : `cannot write a half set - ${rep.reason}. The WHOLE set will be written instead.`;
+  }
+
   /** The XML an export should produce for the CURRENT mode. */
   private exportXml(): string | null {
     if (this.isInstanceMode()) {
-      return this.instance ? callTamXml(this.instance, this.instance.from) : null;
+      return this.instance ? callTamXml(this.instance, this.instance.from, this.declaredSymmetry()) : null;
     }
     const call = this.generated ?? (() => {
       const spec = this.currentSpec();
@@ -3353,7 +3410,7 @@ export class EditorController implements EditorUI {
       return rebuildEdit(spec);
     })();
     if (!call) return null;
-    return callTamXml(call, this.generatedName || call.from || call.title);
+    return callTamXml(call, this.generatedName || call.from || call.title, this.declaredSymmetry());
   }
 
   private doExport() {
@@ -3411,7 +3468,11 @@ export class EditorController implements EditorUI {
         problems.push(`${s.name}: ${(err as Error).message}`);
         continue;
       }
-      const tamXml = callTamXml(built, s.name).match(/<tam\b[\s\S]*?<\/tam>/)?.[0];
+      // EACH SAVED EDIT KEEPS ITS OWN DECLARATION rather than taking the selector's current position:
+      // an instance carries it in the XML it was saved as, and a fix or a create is synthesized whole-set
+      // (`synthesizeSetup` declares symmetry 1), so export-all re-emits what was saved and 'Export All'
+      // cannot restyle the whole library from one checkbox.
+      const tamXml = callTamXml(built, s.name, built.symmetry).match(/<tam\b[\s\S]*?<\/tam>/)?.[0];
       if (!tamXml) {
         problems.push(`${s.name}: no <tam> in the export`);
         continue;
@@ -3535,6 +3596,9 @@ export class EditorController implements EditorUI {
     // THE BULK PICKS. `matching` is the one that asks the data a question - see `matchingDancers` - and the
     // others are the sets a caller reaches for: nothing, everything, the boys, the girls.
     this.selNoneBtn.addEventListener('click', () => this.setDancerSelection([], 'none'));
+    // The selector decides what the NEXT export writes, so moving it only has to refresh the line that
+    // says what that will be.
+    this.asymCb.addEventListener('change', () => this.renderAsymInfo());
     this.selAllBtn.addEventListener('click', () => {
       const call = this.instance;
       if (call) this.setDancerSelection(call.dancers.map((_, i) => i), 'all');

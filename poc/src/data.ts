@@ -325,19 +325,25 @@ export class Catalog {
   /**
    * Rebuild an EDITED INSTANCE from the `<tam>` XML it was saved as.
    *
-   * `mirror: false`, ALWAYS, and that is not a preference. An exported instance is explicit
-   * about all eight dancers, and the engine's mirror rule is geometric - it duplicates a
-   * formation only while SOME 180-degree partner exists - so reading an edited formation
-   * with no origin-opposite pair back with `mirror: true` returns SIXTEEN dancers.
-   * `engine/test/editor.mjs` pins that measurement, and the whole reason the editor's export
-   * is full-set is so that this path is unambiguous.
+   * THE DECLARATION DECIDES THE SIZE, and that is the change the `asymmetric` selector forced. This
+   * used to pass `mirror: false` unconditionally, because the editor's export was ALWAYS a whole set
+   * and the engine's completion rule was geometric - it duplicates a formation only while SOME
+   * 180-degree partner exists - so reading a whole set with no origin-opposite pair back with
+   * `mirror: true` returned SIXTEEN dancers. `engine/test/editor.mjs` pinned that.
+   *
+   * `mirror` is now the caller's PERMISSION to complete, and whether the completion happens is the
+   * tam's own `asymmetric` declaration: `buildCallImpl` completes only when `mirror && symmetry === 2`.
+   * So passing `true` is safe for a whole-set export (it declares `asymmetric="true"`, symmetry 1, and
+   * the guard refuses) and NECESSARY for a half-set one, which is four dancers in the text and eight in
+   * the call. Passing `false` here would now read a half-set export back as four dancers and silently
+   * break the edit.
    */
   private rebuildInstance(edit: CallEdit): CallBundle {
     const xml = edit.xml;
     if (!xml) throw new Error(`instance edit "${edit.name}" carries no XML`);
     const tam = parseCallXml('<calls>\n' + xml + '\n</calls>')[0];
     if (!tam) throw new Error(`instance edit "${edit.name}" has no <tam>`);
-    return buildCall(tam, this.formationsMap, this.movesMap, false);
+    return buildCall(tam, this.formationsMap, this.movesMap, true);
   }
 
   /** Rebuild an edit's call bundle from its SHIP definitions (no override recursion). */

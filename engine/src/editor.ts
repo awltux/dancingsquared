@@ -12,7 +12,7 @@
 // Each pad segment is a straight-line translate plus a turn, built with the same
 // Bezier convention taminations uses (`Movement.fromTransform`).
 
-import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Pose, Seg } from './types.js';
+import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Pose, Seg, Symmetry } from './types.js';
 import { DEG, bezierAngle, bezierPoint, poseFor } from './core.js';
 // The DERIVED identity of an edited start formation: `assignHomeIdentity` is the same
 // read the renderer colours by, so the editor's `couple` column cannot disagree with the
@@ -1836,6 +1836,110 @@ export type FormationRef = 'embed' | 'reference';
 
 export interface CallXmlOptions {
   formation?: FormationRef;
+  /**
+   * How many copies of the WRITTEN dancers make the set - the format's own `asymmetric` declaration read
+   * backwards, and the same `Symmetry` the parser carries.
+   *
+   *   `1` (the DEFAULT, and what this writer has always produced) writes every dancer out and declares
+   *       `asymmetric="true"`, so the text is self-contained whatever the geometry is.
+   *   `2` writes the HALF set and no attribute, which is the corpus's own convention: the reader
+   *       supplies the second half by rotating the written dancers 180 degrees about the board centre.
+   *
+   * `2` IS ONLY HONOURED WHEN THE CALL REALLY IS A HALF, because a half-set text for a set that is not
+   * one reads back as a DIFFERENT CALL - the second half would be invented rather than described. Ask
+   * `halfSetReport` first if the reason matters to the caller; without asking, the whole-set form is
+   * written instead, which is always correct.
+   */
+  symmetry?: Symmetry;
+}
+
+/** Whether a call can be written as a HALF set, and what stops it when it cannot. */
+export interface HalfSetReport {
+  ok: boolean;
+  /** How many dancers the half-set text would carry, when `ok`. */
+  half: number;
+  /** Why it cannot be, when it cannot - written to be shown to a caller as-is. */
+  reason?: string;
+}
+
+/** Rotate a pose 180 degrees about the board centre: the transform the format's second half IS. */
+const antipode = (p: { x: number; y: number; heading: number }) =>
+  ({ x: -p.x, y: -p.y, heading: p.heading + Math.PI });
+
+/** Whether two Beziers are the same curve, to `tol`. */
+function sameBezier(a: BezierData | null | undefined, b: BezierData | null | undefined, tol: number): boolean {
+  if (a == null || b == null) return (a ?? null) === (b ?? null);
+  return Math.abs(a.cx1 - b.cx1) <= tol && Math.abs(a.cy1 - b.cy1) <= tol
+    && Math.abs(a.cx2 - b.cx2) <= tol && Math.abs(a.cy2 - b.cy2) <= tol
+    && Math.abs(a.x2 - b.x2) <= tol && Math.abs(a.y2 - b.y2) <= tol;
+}
+
+/**
+ * Whether `call` is a HALF SET: whether the second half of its dancers, and of their paths, is exactly
+ * the first half turned 180 degrees about the board centre.
+ *
+ * THIS IS THE WHOLE PRECONDITION FOR DROPPING `asymmetric="true"`, and it has to be checked rather than
+ * assumed because the format cannot say "the second half is not derivable" - it can only say "here is
+ * the whole set". Both parts matter and neither implies the other:
+ *
+ *   - THE POSES. Dancer `i + n/2` must stand at `-dancer i`'s position, facing 180 degrees round, with
+ *     the same gender (a rotation preserves gender, so a pair that crosses genders is not a rotation of
+ *     anything). The gender half of this is also what makes the written half carry HALF of each gender
+ *     rather than an equal number of boys and girls - a six-dancer set of four boys and two girls writes
+ *     a half of two boys and one girl - which is what `half` means here.
+ *   - THE PATHS. A half-set tam writes ONE path per written dancer and the reader replays that path for
+ *     both halves, so the second half's path must already BE the first half's path rotated - which for a
+ *     dancer-local Bezier means the IDENTICAL control points, because the rotation is applied to the
+ *     dancer rather than to the curve. An edited call whose second half was moved by hand fails here
+ *     even though its start poses may still pair up.
+ *
+ * The pairing is by INDEX (`i` with `i + n/2`), which is not an arbitrary choice: it is the pairing
+ * `mirrorToFull` creates, so it is the only pairing a half-set text can reproduce. A call whose halves
+ * pair up in some OTHER order is not one this writer can describe, and saying so is the point.
+ */
+export function halfSetReport(call: CallBundle, tol = 1e-3): HalfSetReport {
+  const n = call.dancers.length;
+  if (n === 0 || n % 2 !== 0) return { ok: false, half: 0, reason: `the set has ${n} dancers, which is not an even number of them` };
+  const half = n / 2;
+  const boys = call.dancers.filter((d) => d.gender === 'boy').length;
+  const girls = call.dancers.filter((d) => d.gender === 'girl').length;
+  // HALF OF EACH GENDER, WHICH IS NOT THE SAME AS EQUAL NUMBERS OF BOYS AND GIRLS. A six-dancer set of
+  // four boys and two girls writes a half of two boys and ONE girl; what the rotation requires is that
+  // each gender's count be EVEN, because the pairing pairs a dancer with another dancer of its own
+  // gender, so an odd count could not be divided between the halves at all. Requiring `boys === girls`
+  // was the first version of this and it refused exactly the sets the half-set form is FOR.
+  if (boys % 2 !== 0 || girls % 2 !== 0) {
+    return { ok: false, half, reason: `the set has ${boys} boys and ${girls} girls, and a half set splits each gender in two, so both counts have to be even` };
+  }
+  for (let i = 0; i < half; i++) {
+    const a = call.dancers[i];
+    const b = call.dancers[i + half];
+    // The base half has to be the one that is written out, so a mirrored entry cannot be written
+    // verbatim: its stored coordinates are the AUTHORED half-set numbers, not the placed pose.
+    if (a.mirror) return { ok: false, half, reason: `dancer ${i + 1} is stored as a mirrored half-set entry, so its coordinates are not the whole-set ones a half-set text would need` };
+    const pa = poseFor(a, 0);
+    const want = antipode(pa);
+    const pb = poseFor(b, 0);
+    const gap = Math.max(Math.abs(pb.x - want.x), Math.abs(pb.y - want.y), Math.abs(normAngleSafe(pb.heading - want.heading)));
+    if (gap > tol) {
+      return { ok: false, half, reason: `dancer ${i + half + 1} is not dancer ${i + 1} turned 180 degrees about the centre (it is ${gap.toFixed(2)} off)` };
+    }
+    if (a.gender !== b.gender) {
+      return { ok: false, half, reason: `dancer ${i + 1} is a ${a.gender} and dancer ${i + half + 1} is a ${b.gender}, and turning a dancer 180 degrees does not change that` };
+    }
+    if (a.path.length !== b.path.length) {
+      return { ok: false, half, reason: `dancer ${i + 1} has ${a.path.length} move(s) and dancer ${i + half + 1} has ${b.path.length}, so the second half is not the first half's path` };
+    }
+    for (let k = 0; k < a.path.length; k++) {
+      const sa = a.path[k];
+      const sb = b.path[k];
+      if (sa.hands !== sb.hands || Math.abs(sa.beats - sb.beats) > tol
+        || !sameBezier(sa.translate, sb.translate, tol) || !sameBezier(sa.rotate, sb.rotate, tol)) {
+        return { ok: false, half, reason: `dancer ${i + half + 1}'s move ${k + 1} is not dancer ${i + 1}'s, and a half-set tam replays the written half's paths for both` };
+      }
+    }
+  }
+  return { ok: true, half };
 }
 
 /** Serialize an arbitrary call bundle as a taminations-style `<tam>` XML string.
@@ -1861,12 +1965,18 @@ export interface CallXmlOptions {
 export function callToXml(call: CallBundle, name?: string, opts: CallXmlOptions = {}): string {
   const from = name ?? (call.from || call.title);
   const reference = opts.formation === 'reference';
+  // THE HALF-SET FORM, and it is only taken when the call really is a half - see `CallXmlOptions.symmetry`.
+  // The written dancers are then the FIRST HALF and the written paths are theirs, one per dancer, which is
+  // what the corpus's own half-set tams carry (the `formation="Normal Lines"` tams in `ms/sashay.xml`).
+  const halfReport = opts.symmetry === 2 ? halfSetReport(call) : null;
+  const halfSet = halfReport?.ok === true;
+  const written = halfSet ? call.dancers.slice(0, halfReport.half) : call.dancers;
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   // A mirrored (half-set) dancer is authored at base (x,y,a) and rendered 180deg
   // about the origin. The XML format has no `mirror` attribute, so serialize it
   // as the equivalent NON-mirror dancer (base -x,-y,a+180 with the same path) so
   // re-parsing reproduces the full-set motion.
-  const dancers = call.dancers
+  const dancers = written
     .map((d) => {
       const x = d.mirror ? -d.x : d.x;
       const y = d.mirror ? -d.y : d.y;
@@ -1874,7 +1984,7 @@ export function callToXml(call: CallBundle, name?: string, opts: CallXmlOptions 
       return `        <dancer gender="${d.gender}" x="${rf(x)}" y="${rf(y)}" angle="${rf(a)}"/>`;
     })
     .join('\n');
-  const paths = call.dancers
+  const paths = written
     .map(
       (d) =>
         `    <path>\n` +
@@ -1893,10 +2003,16 @@ export function callToXml(call: CallBundle, name?: string, opts: CallXmlOptions 
     `parts="${esc(call.parts)}"`,
     call.sequencerMode ? `sequencer="${call.sequencerMode}"` : '',
     call.actives ? `actives="${esc(call.actives)}"` : '',
-    // THE EMITTED SHAPE IS ALWAYS A WHOLE SET - IN EMBED MODE, where every dancer is written out
+    // THE EMITTED SHAPE IS A WHOLE SET BY DEFAULT - IN EMBED MODE, where every dancer is written out
     // (a mirrored half-set dancer is serialized as the equivalent NON-mirror dancer, see above, so the
     // text carries the full set and the completion must not add another). So that is the mode that
     // says so.
+    //
+    // A HALF SET SAYS NOTHING, because saying nothing is what declares it: the reader's rule is
+    // "symmetry 2 unless the tam declares otherwise", so the ABSENCE of the attribute is the HALF, and
+    // writing `asymmetric="true"` beside four dancers would ask the reader to take four dancers as the
+    // whole set. Which of the two is written is `opts.symmetry`, and the half is only written when
+    // `halfSetReport` has confirmed the geometry supports it.
     //
     // NOT IN REFERENCE MODE, and the distinction is not pedantry: there the dancers come from the
     // NAMED formation, so the attribute would be describing a shape this writer did not write - and a
@@ -1912,8 +2028,11 @@ export function callToXml(call: CallBundle, name?: string, opts: CallXmlOptions 
     // `mirrorToFull`'s antipode test could not tell it was already whole. `data.ts`'s `rebuildInstance`
     // passes `mirror: false` and its comment says that is the protection - but `registrationXml`
     // registers the SAME xml through `library.register`, where that flag does not apply, so the
-    // protection covered only half the readers. The declaration covers all of them.
-    reference ? '' : 'asymmetric="true"',
+    // protection covered only half the readers. The declaration covers all of them. A HALF set needs no
+    // such protection, and that is not luck: its eight dancers come from a completion the reader is
+    // being TOLD to perform, so `mirror: true` and `mirror: false` agree about it only once the text
+    // says which - which is why `data.ts` now reads the declaration instead of passing `false`.
+    reference || halfSet ? '' : 'asymmetric="true"',
   ]
     .filter((a) => a !== '')
     .join(' ');
@@ -1962,9 +2081,12 @@ export function startsFromFormation(call: CallBundle, poses: FormDancer[], tol =
  * outcome than a repeated `<formation>` block. `startsFromFormation` is the other half: the name must
  * also describe the shape the call starts from, dancer for dancer.
  */
-export function callToXmlNamed(call: CallBundle, name: string, posesOf: (n: string) => FormDancer[] | null): string {
+export function callToXmlNamed(call: CallBundle, name: string, posesOf: (n: string) => FormDancer[] | null, opts: CallXmlOptions = {}): string {
   const poses = posesOf(name);
-  return callToXml(call, name, { formation: poses != null && startsFromFormation(call, poses) ? 'reference' : 'embed' });
+  return callToXml(call, name, {
+    ...opts,
+    formation: poses != null && startsFromFormation(call, poses) ? 'reference' : 'embed',
+  });
 }
 
 /** Export a synthesized setup as a taminations-style `<tam>` XML string. */

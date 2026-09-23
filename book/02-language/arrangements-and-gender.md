@@ -28,8 +28,8 @@ restricted too.
 
 The Plus manual records exactly this when it says which Mainstream restrictions are removed at Plus:
 
-> "Courtesy Turn: In the Mainstream Program, Courtesy Turn can start only from a Normal Couple. At
-> Plus this restriction is removed."
+> "Courtesy Turn: In the Mainstream Program, Courtesy Turn can start only from a Normal Couple.
+>  At Plus this restriction is removed."
 
 This is one of the most useful facts in this book for a beginner, because it explains a whole class
 of "why did that go wrong?" — you were not in a Normal Couple.

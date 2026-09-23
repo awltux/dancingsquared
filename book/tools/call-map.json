@@ -1,0 +1,3954 @@
+{
+  "source": "docs/New_Mainstream_Definitions_26-03-29.pdf",
+  "units": [
+    {
+      "n": 1,
+      "title": "Circle Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Circle Left/Right (1/4, 1/2, 3/4, Full)",
+          "corpusTitle": "Circle Left",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/circle.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/circle.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/circle.xml",
+              "tamIndex": 0
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)",
+          "corpusTitle": "Circle Four Left Full",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/circle.xml",
+              "tamIndex": 30
+            },
+            {
+              "file": "ms/circle.xml",
+              "tamIndex": 31
+            },
+            {
+              "file": "ms/circle.xml",
+              "tamIndex": 32
+            }
+          ]
+        },
+        {
+          "letter": "c",
+          "title": "Single Circle Left/Right (1/4, 1/2, 3/4, Full)",
+          "corpusTitle": "Single Circle Left Full",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/circle.xml",
+              "tamIndex": 45
+            },
+            {
+              "file": "ms/circle.xml",
+              "tamIndex": 46
+            },
+            {
+              "file": "ms/circle.xml",
+              "tamIndex": 47
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "title": "Dosado",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Dosado",
+          "corpusTitle": "Dosado",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/dosado.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/dosado.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/dosado.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/dosado.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/dosado.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/dosado.xml",
+              "tamIndex": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "title": "Promenade Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Couples Promenade",
+          "corpusTitle": "All 4 Couples Promenade Full",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/promenade.xml",
+              "tamIndex": 11
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "Single File Promenade",
+          "corpusTitle": "Single File Promenade",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/promenade.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "b1/promenade.xml",
+              "tamIndex": 10
+            }
+          ]
+        },
+        {
+          "letter": "c",
+          "title": "Star Promenade",
+          "corpusTitle": "Star Promenade",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/promenade.xml",
+              "tamIndex": 15
+            },
+            {
+              "file": "b1/promenade.xml",
+              "tamIndex": 11
+            }
+          ]
+        },
+        {
+          "letter": "d",
+          "title": "Wrong Way Promenade",
+          "corpusTitle": "All 4 Couples Wrong Way Promenade Full",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/promenade.xml",
+              "tamIndex": 27
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "title": "Arm Turn Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Right/Left Arm Turn",
+          "corpusTitle": null,
+          "how": "unresolved",
+          "sites": []
+        },
+        {
+          "letter": "b",
+          "title": "Allemande Left/Right",
+          "corpusTitle": "Allemande Left",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "ms/allemande.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "b1/allemande.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/allemande.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/allemande.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/allemande.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b1/allemande.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b1/allemande.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b1/allemande.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b1/allemande.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "b1/allemande.xml",
+              "tamIndex": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "title": "Star Right/Left",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Star Right/Left",
+          "corpusTitle": "Right Hand Star",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/star.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/star.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/star.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/star.xml",
+              "tamIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "title": "Right and Left Grand Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Right and Left Grand",
+          "corpusTitle": "Right and Left Grand",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 8
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "Weave the Ring",
+          "corpusTitle": "Weave the Ring",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 9
+            }
+          ]
+        },
+        {
+          "letter": "c",
+          "title": "Wrong Way Grand",
+          "corpusTitle": "Wrong Way Grand",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 15
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 17
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 18
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 19
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 20
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 21
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 22
+            },
+            {
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 23
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 15
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "b1/right_and_left_grand.xml",
+              "tamIndex": 17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 7,
+      "title": "Pass Thru",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Pass Thru",
+          "corpusTitle": "Pass Thru",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/pass_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/pass_thru.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/pass_thru.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/pass_thru.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/pass_thru.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b1/pass_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/pass_thru.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/pass_thru.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/pass_thru.xml",
+              "tamIndex": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 8,
+      "title": "Wheel Around / Reverse Wheel Ar.",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Wheel Around / Reverse Wheel Ar.",
+          "corpusTitle": "Wheel Around",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/wheel_around.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/wheel_around.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/wheel_around.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/wheel_around.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b2/wheel_around.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/wheel_around.xml",
+              "tamIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 9,
+      "title": "Courtesy Turn",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Courtesy Turn",
+          "corpusTitle": "Courtesy Turn",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/courtesy_turn.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/courtesy_turn.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/courtesy_turn.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/courtesy_turn.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/courtesy_turn.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/courtesy_turn.xml",
+              "tamIndex": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 10,
+      "title": "Right and Left Thru",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Right and Left Thru",
+          "corpusTitle": "Right and Left Thru",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/right_and_left_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/right_and_left_thru.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/right_and_left_thru.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/right_and_left_thru.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/right_and_left_thru.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/right_and_left_thru.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/right_and_left_thru.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/right_and_left_thru.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "b1/right_and_left_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/right_and_left_thru.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/right_and_left_thru.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/right_and_left_thru.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b1/right_and_left_thru.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b1/right_and_left_thru.xml",
+              "tamIndex": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 11,
+      "title": "Swing",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Swing",
+          "corpusTitle": "Swing Your Partner",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/swing.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/swing.xml",
+              "tamIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 12,
+      "title": "Ladies Chain Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Ladies Chain, (Ladies Chain 3/4)",
+          "corpusTitle": "Ladies Chain",
+          "how": "normalised",
+          "sites": [
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 3
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "Four Ladies Chain, (Chain 3/4)",
+          "corpusTitle": "Four Ladies Chain",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 13
+            }
+          ]
+        },
+        {
+          "letter": "c",
+          "title": "Chain Down the Line",
+          "corpusTitle": "Chain Down the Line",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 17
+            },
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 18
+            },
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 19
+            },
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 20
+            },
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 21
+            },
+            {
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 22
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 17
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 18
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 19
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 20
+            },
+            {
+              "file": "b1/ladies_chain.xml",
+              "tamIndex": 21
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 13,
+      "title": "Half Sashay Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Half Sashay",
+          "corpusTitle": "Half Sashay",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/sashay.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/sashay.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/sashay.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/sashay.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/sashay.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/sashay.xml",
+              "tamIndex": 2
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "Rollaway",
+          "corpusTitle": "Rollaway",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/sashay.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/sashay.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/sashay.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/sashay.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/sashay.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "b1/sashay.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "b1/sashay.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "b1/sashay.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "b1/sashay.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "b1/sashay.xml",
+              "tamIndex": 11
+            }
+          ]
+        },
+        {
+          "letter": "c",
+          "title": "Ladies In, Men Sashay",
+          "corpusTitle": "Ladies In, Men Sashay",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/sashay.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/sashay.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b1/sashay.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b1/sashay.xml",
+              "tamIndex": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 14,
+      "title": "Turn Back Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "U-Turn Back",
+          "corpusTitle": "U-Turn Back",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/turn_back.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/turn_back.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/turn_back.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/turn_back.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/turn_back.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/turn_back.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/turn_back.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b1/turn_back.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/turn_back.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/turn_back.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/turn_back.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b1/turn_back.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b1/turn_back.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b1/turn_back.xml",
+              "tamIndex": 6
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "Backtrack",
+          "corpusTitle": null,
+          "how": "unresolved",
+          "sites": []
+        }
+      ]
+    },
+    {
+      "n": 15,
+      "title": "Separate Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Separate",
+          "corpusTitle": "Heads Separate",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/separate.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/separate.xml",
+              "tamIndex": 0
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "Separate Around 1 or 2 to a Line",
+          "corpusTitle": "Around One to a Line",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/separate.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "b1/separate.xml",
+              "tamIndex": 10
+            }
+          ]
+        },
+        {
+          "letter": "c",
+          "title": "Separate Around 1 or 2 into the middle",
+          "corpusTitle": "Around One and Come Into the Middle",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/separate.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "b1/separate.xml",
+              "tamIndex": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 16,
+      "title": "Lead Right / Lead Left",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Lead Right / Lead Left",
+          "corpusTitle": "Lead Right",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/lead_right.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/lead_right.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/lead_right.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/lead_right.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/lead_right.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/lead_right.xml",
+              "tamIndex": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 17,
+      "title": "Veer Left / Veer Right",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Veer Left / Veer Right",
+          "corpusTitle": "Veer Left",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/veer.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/veer.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/veer.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/veer.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/veer.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/veer.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b1/veer.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/veer.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/veer.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/veer.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b1/veer.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b1/veer.xml",
+              "tamIndex": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 18,
+      "title": "Star Thru",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Star Thru",
+          "corpusTitle": "Star Thru",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/star_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/star_thru.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/star_thru.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/star_thru.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/star_thru.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b1/star_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/star_thru.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/star_thru.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/star_thru.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b1/star_thru.xml",
+              "tamIndex": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 19,
+      "title": "Circulate Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Couples Circulate",
+          "corpusTitle": "Couples Circulate",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 48
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 49
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 50
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 41
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 42
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 43
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "(Named Dancers) Circulate",
+          "corpusTitle": "Circulate",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 32
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 33
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 34
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 35
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 36
+            }
+          ]
+        },
+        {
+          "letter": "c",
+          "title": "All Eight Circulate",
+          "corpusTitle": "All 8 Circulate",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 17
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 18
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 19
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 20
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 21
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 22
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 23
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 24
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 25
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 26
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 27
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 28
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 29
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 30
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 31
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 17
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 18
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 19
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 20
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 21
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 22
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 23
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 24
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 25
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 26
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 27
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 28
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 29
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 30
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 31
+            }
+          ]
+        },
+        {
+          "letter": "d",
+          "title": "Single File (Column) Circulate",
+          "corpusTitle": "Column Circulate",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 51
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 52
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 53
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 54
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 44
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 45
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 46
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 47
+            }
+          ]
+        },
+        {
+          "letter": "e",
+          "title": "Box/Split Circulate",
+          "corpusTitle": "Box Circulate",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/circulate.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "b1/circulate.xml",
+              "tamIndex": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 20,
+      "title": "Bend the Line",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Bend the Line",
+          "corpusTitle": "Bend the Line",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "b1/bend_the_line.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/bend_the_line.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/bend_the_line.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/bend_the_line.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b1/bend_the_line.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b1/bend_the_line.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b1/bend_the_line.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b1/bend_the_line.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "b1/bend_the_line.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "b1/bend_the_line.xml",
+              "tamIndex": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 21,
+      "title": "Square Thru / Left Square Thru",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Square Thru / Left Square Thru",
+          "corpusTitle": "Square Thru 4",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/square_thru.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "ms/square_thru.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "ms/square_thru.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "ms/square_thru.xml",
+              "tamIndex": 15
+            },
+            {
+              "file": "ms/square_thru.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "ms/square_thru.xml",
+              "tamIndex": 17
+            },
+            {
+              "file": "ms/square_thru.xml",
+              "tamIndex": 18
+            },
+            {
+              "file": "b1/square_thru.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "b1/square_thru.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "b1/square_thru.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "b1/square_thru.xml",
+              "tamIndex": 15
+            },
+            {
+              "file": "b1/square_thru.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "b1/square_thru.xml",
+              "tamIndex": 17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 22,
+      "title": "Split Two",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Split Two",
+          "corpusTitle": "Split Two",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "b1/split_the_outside_couple.xml",
+              "tamIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 23,
+      "title": "Grand Square",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Grand Square",
+          "corpusTitle": "Grand Square",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/grand_square.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/grand_square.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b1/grand_square.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b1/grand_square.xml",
+              "tamIndex": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 24,
+      "title": "Double Pass Thru",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Double Pass Thru",
+          "corpusTitle": "Double Pass Thru",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/double_pass_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/double_pass_thru.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/double_pass_thru.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/double_pass_thru.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/double_pass_thru.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b2/double_pass_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/double_pass_thru.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/double_pass_thru.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b2/double_pass_thru.xml",
+              "tamIndex": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 25,
+      "title": "First Couple Go Left/Right, Next Couple Go Right/Left",
+      "entries": [
+        {
+          "letter": null,
+          "title": "First Couple Go Left/Right, Next Couple Go Right/Left",
+          "corpusTitle": "First Couple Go Left, Next Couple Go Right",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/first_couple_go.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/first_couple_go.xml",
+              "tamIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 26,
+      "title": "Wheel and Deal",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Wheel and Deal",
+          "corpusTitle": "Wheel and Deal",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "b2/wheel_and_deal.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/wheel_and_deal.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/wheel_and_deal.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b2/wheel_and_deal.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b2/wheel_and_deal.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b2/wheel_and_deal.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b2/wheel_and_deal.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b2/wheel_and_deal.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "b2/wheel_and_deal.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "b2/wheel_and_deal.xml",
+              "tamIndex": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 27,
+      "title": "California Twirl",
+      "entries": [
+        {
+          "letter": null,
+          "title": "California Twirl",
+          "corpusTitle": "California Twirl",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/california_twirl.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/california_twirl.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/california_twirl.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/california_twirl.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b1/california_twirl.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/california_twirl.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b1/california_twirl.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b1/california_twirl.xml",
+              "tamIndex": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 28,
+      "title": "Slide Thru",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Slide Thru",
+          "corpusTitle": "Slide Thru",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/slide_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/slide_thru.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/slide_thru.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/slide_thru.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/slide_thru.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/slide_thru.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/slide_thru.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/slide_thru.xml",
+              "tamIndex": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 29,
+      "title": "Dive Thru",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Dive Thru",
+          "corpusTitle": "Dive Thru",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/dive_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b1/dive_thru.xml",
+              "tamIndex": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 30,
+      "title": "Box the Gnat",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Box the Gnat",
+          "corpusTitle": "Box the Gnat",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/box_the_gnat.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/box_the_gnat.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/box_the_gnat.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/box_the_gnat.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b2/box_the_gnat.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/box_the_gnat.xml",
+              "tamIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 31,
+      "title": "Ocean Wave Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Alamo Style",
+          "corpusTitle": "Allemande Left in the Alamo Style",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/alamo_style.xml",
+              "tamIndex": 0
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "Balance",
+          "corpusTitle": "Balance",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 10
+            }
+          ]
+        },
+        {
+          "letter": "c",
+          "title": "Step to a Wave",
+          "corpusTitle": "Step to a Wave",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b2/ocean_wave.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/ocean_wave.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/ocean_wave.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b2/ocean_wave.xml",
+              "tamIndex": 3
+            }
+          ]
+        },
+        {
+          "letter": "d",
+          "title": "Dosado to a Wave",
+          "corpusTitle": "Dosado to a Wave",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/dosado.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/dosado.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/dosado.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b1/dosado.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b1/dosado.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b1/dosado.xml",
+              "tamIndex": 5
+            }
+          ]
+        },
+        {
+          "letter": "e",
+          "title": "Single Circle to a Wave",
+          "corpusTitle": "Single Circle to a Wave",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/single_circle_to_a_wave.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/single_circle_to_a_wave.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/single_circle_to_a_wave.xml",
+              "tamIndex": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 32,
+      "title": "Trade Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Couples Trade",
+          "corpusTitle": "Couples Trade",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 46
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 47
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 48
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 49
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 50
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 51
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 52
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 53
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 54
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 55
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 56
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 57
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 43
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 44
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 45
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 46
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 47
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 48
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 49
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 50
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 51
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 52
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 53
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "(Named Dancers) Trade",
+          "corpusTitle": "Boys Trade",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 11
+            }
+          ]
+        },
+        {
+          "letter": "c",
+          "title": "Right/Left Hand Trade",
+          "corpusTitle": null,
+          "how": "unresolved",
+          "sites": []
+        },
+        {
+          "letter": "d",
+          "title": "Partner Trade",
+          "corpusTitle": "Partner Trade",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 34
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 35
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 36
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 37
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 38
+            },
+            {
+              "file": "ms/trade.xml",
+              "tamIndex": 39
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 31
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 32
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 33
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 34
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 35
+            },
+            {
+              "file": "b2/trade.xml",
+              "tamIndex": 36
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 33,
+      "title": "Swing Thru / Left Swing Thru",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Swing Thru / Left Swing Thru",
+          "corpusTitle": "Swing Thru",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "b2/swing_thru.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/swing_thru.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/swing_thru.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b2/swing_thru.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b2/swing_thru.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b2/swing_thru.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b2/swing_thru.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b2/swing_thru.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "b2/swing_thru.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "b2/swing_thru.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "b2/swing_thru.xml",
+              "tamIndex": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 34,
+      "title": "Run / Cross Run",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Run / Cross Run",
+          "corpusTitle": "Boys Run",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "ms/run.xml",
+              "tamIndex": 15
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "b2/run.xml",
+              "tamIndex": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 35,
+      "title": "Pass the Ocean",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Pass the Ocean",
+          "corpusTitle": "Pass the Ocean",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/pass_the_ocean.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/pass_the_ocean.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/pass_the_ocean.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/pass_the_ocean.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/pass_the_ocean.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/pass_the_ocean.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b2/pass_the_ocean.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/pass_the_ocean.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/pass_the_ocean.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b2/pass_the_ocean.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b2/pass_the_ocean.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b2/pass_the_ocean.xml",
+              "tamIndex": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 36,
+      "title": "Extend",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Extend",
+          "corpusTitle": "Extend",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 15
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 17
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 18
+            },
+            {
+              "file": "ms/extend.xml",
+              "tamIndex": 19
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 15
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 17
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 18
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 19
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 20
+            },
+            {
+              "file": "b2/extend.xml",
+              "tamIndex": 21
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 37,
+      "title": "Flutterwheel / Reverse Flutterwheel",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Flutterwheel / Reverse Flutterwheel",
+          "corpusTitle": "Flutterwheel",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/flutterwheel.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/flutterwheel.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/flutterwheel.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/flutterwheel.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/flutterwheel.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b2/flutterwheel.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/flutterwheel.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/flutterwheel.xml",
+              "tamIndex": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 38,
+      "title": "Sweep a Quarter",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Sweep a Quarter",
+          "corpusTitle": "Sweep a Quarter Right",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/sweep_a_quarter.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "ms/sweep_a_quarter.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "ms/sweep_a_quarter.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "b2/sweep_a_quarter.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "b2/sweep_a_quarter.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "b2/sweep_a_quarter.xml",
+              "tamIndex": 13
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 39,
+      "title": "Trade By",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Trade By",
+          "corpusTitle": "Trade By",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/trade_by.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/trade_by.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/trade_by.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b2/trade_by.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/trade_by.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/trade_by.xml",
+              "tamIndex": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 40,
+      "title": "Ferris Wheel",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Ferris Wheel",
+          "corpusTitle": "Ferris Wheel",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/ferris_wheel.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/ferris_wheel.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/ferris_wheel.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/ferris_wheel.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/ferris_wheel.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b2/ferris_wheel.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/ferris_wheel.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/ferris_wheel.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b2/ferris_wheel.xml",
+              "tamIndex": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 41,
+      "title": "Zoom",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Zoom",
+          "corpusTitle": "Zoom",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/zoom.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/zoom.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/zoom.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/zoom.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/zoom.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/zoom.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/zoom.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "b2/zoom.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/zoom.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/zoom.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "b2/zoom.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b2/zoom.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "b2/zoom.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "b2/zoom.xml",
+              "tamIndex": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 42,
+      "title": "Touch a Quarter",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Touch a Quarter",
+          "corpusTitle": "Touch a Quarter",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/touch_a_quarter.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/touch_a_quarter.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/touch_a_quarter.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/touch_a_quarter.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "b2/touch_a_quarter.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "b2/touch_a_quarter.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "b2/touch_a_quarter.xml",
+              "tamIndex": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 43,
+      "title": "Hinge Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Single Hinge",
+          "corpusTitle": "Hinge",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 13
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "Couples Hinge",
+          "corpusTitle": "Couples Hinge",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 29
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 30
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 31
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 32
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 33
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 34
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 35
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 36
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 37
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 38
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 39
+            },
+            {
+              "file": "ms/hinge.xml",
+              "tamIndex": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 44,
+      "title": "Centers In",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Centers In",
+          "corpusTitle": "Centers In",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/centers_in.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/centers_in.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/centers_in.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/centers_in.xml",
+              "tamIndex": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 45,
+      "title": "Cast Off Three-Quarters",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Cast Off Three-Quarters",
+          "corpusTitle": "Cast Off Three Quarters",
+          "how": "normalised",
+          "sites": [
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 15
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 17
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 18
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 19
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 20
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 21
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 22
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 23
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 24
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 25
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 26
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 27
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 28
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 29
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 30
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 31
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 32
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 33
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 34
+            },
+            {
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 35
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 46,
+      "title": "Spin the Top",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Spin the Top",
+          "corpusTitle": "Spin the Top",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 47,
+      "title": "Scoot Back",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Scoot Back",
+          "corpusTitle": "Scoot Back",
+          "how": "exact",
+          "sites": [
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 48,
+      "title": "Fold / Cross Fold",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Fold / Cross Fold",
+          "corpusTitle": "Boys Fold",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/fold.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/fold.xml",
+              "tamIndex": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 49,
+      "title": "Tag the Line Family",
+      "entries": [
+        {
+          "letter": "a",
+          "title": "Tag the Line (In / Out / Left / Right)",
+          "corpusTitle": "Tag the Line",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/tag.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/tag.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/tag.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/tag.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/tag.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/tag.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/tag.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/tag.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/tag.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/tag.xml",
+              "tamIndex": 9
+            }
+          ]
+        },
+        {
+          "letter": "b",
+          "title": "Fraction (1/4, 1/2, 3/4) Tag",
+          "corpusTitle": "Half Tag",
+          "how": "alias",
+          "sites": [
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 8
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 9
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 11
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 15
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 17
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 18
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 19
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 20
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 21
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 22
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 23
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 24
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 25
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 26
+            },
+            {
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 27
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 50,
+      "title": "Recycle (from Waves only)",
+      "entries": [
+        {
+          "letter": null,
+          "title": "Recycle (from Waves only)",
+          "corpusTitle": "Recycle",
+          "how": "normalised",
+          "sites": [
+            {
+              "file": "ms/recycle.xml",
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/recycle.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/recycle.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/recycle.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/recycle.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/recycle.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/recycle.xml",
+              "tamIndex": 6
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

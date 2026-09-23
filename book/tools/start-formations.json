@@ -1,0 +1,2062 @@
+{
+  "$comment": [
+    "The start formations the call animation offers, one entry per call card the manual teaches.",
+    "",
+    "SCHEMA. Each card is { \"name\", \"citation\", \"starts\" }. `name` is the manual's call title -- the",
+    "entry is keyed by a code like m01a, which says nothing on its own. `starts` is keyed by the START",
+    "FORMATION as the manual names it (its own wording, e.g. \"Infacing Circle of 8\"), and each value is",
+    "{ \"formation\": <engine name that wording maps to>, \"calls\": [ { \"file\", \"tam_xml_queries\" } ] }.",
+    "",
+    "A tam matches a query when every attribute the query names matches that <tam> in the corpus XML.",
+    "`from` is the start formation the engine reports; `title` picks the call instance, because one",
+    "manual title covers many tams (Circle Left/Right (1/4, 1/2, 3/4, Full) is ten of them). A start",
+    "with \"calls\": [] is one the manual lists but no authoring can animate.",
+    "",
+    "ORDER MATTERS. The first start resolved must be the authoring the page already showed, or",
+    "make-animations.mjs refuses to build: the selector may not change the default animation.",
+    "",
+    "CARDS WITH NOTHING VERIFIED YET have \"starts\": {} -- scaffolding, filled in later. They are",
+    "deliberately not guessed at: an automatic pass over the manual offered California Twirl",
+    "\"Lines Facing Out\" where the manual says Normal Couple only, and read the Centers In card out of",
+    "the \"Centers and Ends\" terminology block.",
+    "",
+    "Written without a BOM: JSON.parse refuses one."
+  ],
+  "m01a": {
+    "name": "Circle Left/Right (1/4, 1/2, 3/4, Full)",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 24–25: Circle Left/Right (1/4, 1/2, 3/4, Full) — \"Starting formations: Static Square, Infacing Circle of 8, Facing Lines\"",
+    "starts": {
+      "Static Square": {
+        "formation": "Static Square",
+        "calls": [
+          {
+            "file": "ms/circle.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Circle Left",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Left 1/8",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Left 1/4",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Left 1/2",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Left 3/4",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Right",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Right 1/8",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Right 1/4",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Right 1/2",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Right 3/4",
+                "from": "Static Square",
+                "formation": "Static Square"
+              }
+            ]
+          }
+        ]
+      },
+      "Infacing Circle of 8": {
+        "formation": "Circle",
+        "calls": [
+          {
+            "file": "ms/circle.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Circle Left",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Right",
+                "from": "Circle",
+                "formation": "Circle"
+              }
+            ]
+          }
+        ]
+      },
+      "Facing Lines": {
+        "formation": "Lines",
+        "calls": []
+      }
+    }
+  },
+  "m01b": {
+    "name": "Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 24–25: Circle of 4 Left/Right (1/4, 1/2, 3/4, Full) — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Couples": {
+        "calls": [
+          {
+            "file": "ms/circle.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Circle Four Left Full",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Circle Four Left 1/4",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Circle Four Right 1/4",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Circle Four Left 1/2",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Circle Four Right 1/2",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Circle Four Left 3/4",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Circle Four Right 3/4",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Circle Four Right Full",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m01c": {
+    "name": "Single Circle Left/Right (1/4, 1/2, 3/4, Full)",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 24–25: Single Circle Left/Right (1/4, 1/2, 3/4, Full) — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": [
+          {
+            "file": "ms/circle.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Single Circle Left Full",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Single Circle Left 1/4",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Single Circle Left 1/2",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Single Circle Left 3/4",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Single Circle Right 1/4",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Single Circle Right 1/2",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Single Circle Right 3/4",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Single Circle Right Full",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m02": {
+    "name": "Dosado",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 30: Dosado — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": [
+          {
+            "file": "ms/dosado.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Dosado",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Dosado to a Wave",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m03a": {
+    "name": "Couples Promenade",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 45–48: Couples Promenade — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Squared Set": {
+        "calls": [
+          {
+            "file": "ms/promenade.xml",
+            "tam_xml_queries": [
+              {
+                "title": "All 4 Couples Promenade Full",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "All 4 Couples Promenade 1/4",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "All 4 Couples Promenade 1/2",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "All 4 Couples Promenade 3/4",
+                "from": "Static Square",
+                "formation": "Static Square"
+              }
+            ]
+          }
+        ]
+      },
+      "Right and Left Grand Circle": {
+        "calls": []
+      },
+      "Left-Hand Two-Faced Lines": {
+        "calls": []
+      }
+    }
+  },
+  "m03b": {
+    "name": "Single File Promenade",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 45–48: Single File Promenade — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Squared Set": {
+        "calls": [
+          {
+            "file": "ms/promenade.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Single File Promenade",
+                "from": "Static Square",
+                "formation": "Static Square"
+              }
+            ]
+          }
+        ]
+      },
+      "Infacing Circle of 8": {
+        "calls": []
+      },
+      "Left-Hand Columns": {
+        "calls": []
+      }
+    }
+  },
+  "m03c": {
+    "name": "Star Promenade",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 45–48: Star Promenade — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {}
+  },
+  "m03d": {
+    "name": "Wrong Way Promenade",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 45–48: Wrong Way Promenade — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Squared Set": {
+        "calls": [
+          {
+            "file": "ms/promenade.xml",
+            "tam_xml_queries": [
+              {
+                "title": "All 4 Couples Wrong Way Promenade Full",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "All 4 Couples Wrong Way Promenade 1/4",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "All 4 Couples Wrong Way Promenade 1/2",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "All 4 Couples Wrong Way Promenade 3/4",
+                "from": "Static Square",
+                "formation": "Static Square"
+              }
+            ]
+          }
+        ]
+      },
+      "Right-Hand Two-Faced Lines": {
+        "calls": []
+      },
+      "Right and Left Grand Circle": {
+        "calls": []
+      }
+    }
+  },
+  "m04a": {
+    "name": "Right/Left Arm Turn",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 19: Right/Left Arm Turn — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": []
+      },
+      "Mini-Wave": {
+        "calls": []
+      }
+    }
+  },
+  "m04b": {
+    "name": "Allemande Left/Right",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 19: Allemande Left, Case 1 — \"Starting formations: Eight Chain Thru, Left-Hand Ocean Waves, Right and Left Grand Circle, Alamo Ring (men facing in), Trade By plus Ends face each other\"; Case 2 — \"Static Square, Infacing Circle of 8, Trade By, Left-Hand 3/4 Tag, Facing Lines, Lines Back-To-Back, Inverted Lines with Ends Facing\"",
+    "starts": {
+      "Eight Chain Thru": {
+        "formation": "Eight Chain Thru",
+        "calls": [
+          {
+            "file": "ms/allemande.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Allemande Left",
+                "from": "Eight Chain Thru"
+              }
+            ]
+          }
+        ]
+      },
+      "Left-Hand Ocean Waves": {
+        "formation": "Left-Hand Waves",
+        "calls": [
+          {
+            "file": "ms/allemande.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Allemande Left",
+                "from": "Left-Hand Waves"
+              }
+            ]
+          }
+        ]
+      },
+      "Right and Left Grand Circle": {
+        "formation": "Grand Circle",
+        "calls": [
+          {
+            "file": "ms/allemande.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Allemande Left",
+                "from": "Grand Circle"
+              }
+            ]
+          }
+        ]
+      },
+      "Trade By": {
+        "formation": "Trade By",
+        "calls": [
+          {
+            "file": "ms/allemande.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Allemande Left",
+                "from": "Trade By"
+              }
+            ]
+          }
+        ]
+      },
+      "Static Square": {
+        "formation": "Static Square",
+        "calls": [
+          {
+            "file": "ms/allemande.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Allemande Left",
+                "from": "Static Square",
+                "formation": "Static Square"
+              }
+            ]
+          }
+        ]
+      },
+      "Left-Hand 3/4 Tag": {
+        "formation": "Left-Hand 3/4 Tag",
+        "calls": [
+          {
+            "file": "ms/allemande.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Allemande Left",
+                "from": "Left-Hand 3/4 Tag"
+              }
+            ]
+          }
+        ]
+      },
+      "Facing Lines": {
+        "formation": "Normal Lines",
+        "calls": [
+          {
+            "file": "ms/allemande.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Allemande Left",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              }
+            ]
+          }
+        ]
+      },
+      "Infacing Circle of 8": {
+        "formation": "Circle Left",
+        "calls": [
+          {
+            "file": "ms/allemande.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Allemande Left",
+                "from": "Circle Left",
+                "formation": "Circle"
+              }
+            ]
+          }
+        ]
+      },
+      "Alamo Ring": {
+        "formation": "Thar",
+        "calls": [
+          {
+            "file": "ms/allemande.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Allemande Left",
+                "from": "Thar"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m05": {
+    "name": "Star Right/Left",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 57: Star Right/Left — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Couples": {
+        "calls": [
+          {
+            "file": "ms/star.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Right Hand Star",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Left Hand Star",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Right-Hand Star 1/4",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Right-Hand Star 1/4 and Roll",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Right-Hand Star 1/2",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Right-Hand Star 1/2 and Roll",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Right-Hand Star 3/4",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Right-Hand Star 3/4 and Roll",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Right-Hand Star a Full Turn",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Right-Hand Star a Full Turn and Roll",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Left-Hand Star 1/4",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Left-Hand Star 1/4 and Roll",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Left-Hand Star 1/2",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Left-Hand Star 1/2 and Roll",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Left-Hand Star 3/4",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Left-Hand Star 3/4 and Roll",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Left-Hand Star a Full Turn",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Left-Hand Star a Full Turn and Roll",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      },
+      "Squared Set": {
+        "calls": []
+      },
+      "Infacing Circle of 8": {
+        "calls": []
+      }
+    }
+  },
+  "m06a": {
+    "name": "Right and Left Grand",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 49: right and left grand family, item a. Right and Left Grand — \"Starting formations: Right and Left Grand Circle, Eight Chain Thru, Trade By plus the ends Face In\"",
+    "starts": {
+      "Right and Left Grand Circle": {
+        "formation": "Grand Circle",
+        "calls": [
+          {
+            "file": "ms/right_and_left_grand.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Right and Left Grand",
+                "from": "Grand Circle"
+              },
+              {
+                "title": "Right and Left Grand",
+                "from": "Grand Circle 2"
+              }
+            ]
+          }
+        ]
+      },
+      "Eight Chain Thru": {
+        "formation": "Eight Chain Thru",
+        "calls": [
+          {
+            "file": "ms/right_and_left_grand.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Right and Left Grand",
+                "from": "Eight Chain Thru"
+              }
+            ]
+          }
+        ]
+      },
+      "Trade By": {
+        "formation": "Trade By",
+        "calls": [
+          {
+            "file": "ms/right_and_left_grand.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Right and Left Grand",
+                "from": "Trade By"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m06b": {
+    "name": "Weave the Ring",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 49: Weave the Ring — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Right and Left Grand Circle": {
+        "calls": []
+      }
+    }
+  },
+  "m06c": {
+    "name": "Wrong Way Grand",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 49: Wrong Way Grand — \"Dance action: Same as for Right and Left Grand (item a. above)\", so it inherits that item's starting formations",
+    "starts": {
+      "Right and Left Grand Circle": {
+        "formation": "Grand Circle",
+        "calls": [
+          {
+            "file": "ms/right_and_left_grand.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Wrong Way Grand",
+                "from": "Grand Circle"
+              },
+              {
+                "title": "Wrong Way Grand",
+                "from": "Grand Circle 2"
+              }
+            ]
+          }
+        ]
+      },
+      "Eight Chain Thru": {
+        "formation": "Eight Chain Thru",
+        "calls": [
+          {
+            "file": "ms/right_and_left_grand.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Wrong Way Grand",
+                "from": "Eight Chain Thru"
+              }
+            ]
+          }
+        ]
+      },
+      "Trade By": {
+        "formation": "Trade By",
+        "calls": [
+          {
+            "file": "ms/right_and_left_grand.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Wrong Way Grand",
+                "from": "Trade By"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m07": {
+    "name": "Pass Thru",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 45: Pass Thru — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": [
+          {
+            "file": "ms/pass_thru.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Pass Thru",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Pass Thru",
+                "from": "Facing Couples"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m08": {
+    "name": "Wheel Around / Reverse Wheel Ar.",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 67: Wheel Around / Reverse Wheel Ar. — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Couple": {
+        "calls": []
+      }
+    }
+  },
+  "m09": {
+    "name": "Courtesy Turn",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 29: Courtesy Turn — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Couple": {
+        "calls": []
+      }
+    }
+  },
+  "m10": {
+    "name": "Right and Left Thru",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 50: Right and Left Thru — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Couples": {
+        "calls": [
+          {
+            "file": "ms/right_and_left_thru.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Right and Left Thru",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Right and Left Thru",
+                "from": "Facing Couples"
+              },
+              {
+                "title": "Right and Left Thru",
+                "from": "Facing Couples"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m11": {
+    "name": "Swing",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 58: Swing — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": [
+          {
+            "file": "ms/swing.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Swing Your Partner",
+                "from": "Facing Couples",
+                "formation": "Facing Couples"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m12a": {
+    "name": "Ladies Chain, (Ladies Chain 3/4)",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 40: Ladies Chain, (Ladies Chain 3/4) — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Couples": {
+        "calls": [
+          {
+            "file": "ms/ladies_chain.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Ladies Chain",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m12b": {
+    "name": "Four Ladies Chain, (Chain 3/4)",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 40: Four Ladies Chain, (Chain 3/4) — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Static Square of Normal Couples": {
+        "calls": [
+          {
+            "file": "ms/ladies_chain.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Four Ladies Chain",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Four Ladies Chain 3/4",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Four Ladies Chain 1/4",
+                "from": "Static Square",
+                "formation": "Static Square"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m12c": {
+    "name": "Chain Down the Line",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 40: Chain Down the Line — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {}
+  },
+  "m13a": {
+    "name": "Half Sashay",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 37: Half Sashay — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Couple": {
+        "calls": []
+      }
+    }
+  },
+  "m13b": {
+    "name": "Rollaway",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 37: Rollaway — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Couple": {
+        "calls": []
+      }
+    }
+  },
+  "m13c": {
+    "name": "Ladies In, Men Sashay",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 37: Ladies In, Men Sashay — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Boys and Girls alternating": {
+        "calls": []
+      }
+    }
+  },
+  "m14a": {
+    "name": "U-Turn Back",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 64: U-Turn Back — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {}
+  },
+  "m14b": {
+    "name": "Backtrack",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 64: Backtrack — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Promenade": {
+        "calls": []
+      },
+      "Star Promenade": {
+        "calls": []
+      },
+      "Single File Promenade": {
+        "calls": []
+      },
+      "Wrong Way Promenade": {
+        "calls": []
+      }
+    }
+  },
+  "m15a": {
+    "name": "Separate",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 52: Separate — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Couple": {
+        "calls": []
+      }
+    }
+  },
+  "m15b": {
+    "name": "Separate Around 1 or 2 to a Line",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 52: Separate Around 1 or 2 to a Line — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {}
+  },
+  "m15c": {
+    "name": "Separate Around 1 or 2 into the middle",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 52: Separate Around 1 or 2 into the middle — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {}
+  },
+  "m16": {
+    "name": "Lead Right / Lead Left",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 41: Lead Right / Lead Left — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Couple": {
+        "calls": []
+      }
+    }
+  },
+  "m17": {
+    "name": "Veer Left / Veer Right",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 65: Veer Left / Veer Right — \"Starting formations: Facing Couples, Two-Faced Line\"",
+    "starts": {
+      "Facing Couples": {
+        "formation": "Facing Couples",
+        "calls": [
+          {
+            "file": "ms/veer.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Veer Left",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Veer Right",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      },
+      "Two-Faced Line": {
+        "formation": "Two-Faced Line",
+        "calls": [
+          {
+            "file": "ms/veer.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Veer Left",
+                "from": "Left-Hand Two-Faced Line",
+                "formation": "Two-Faced Line LH"
+              },
+              {
+                "title": "Veer Right",
+                "from": "Right-Hand Two-Faced Line",
+                "formation": "Two-Faced Line RH"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m18": {
+    "name": "Star Thru",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 57: Star Thru — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": [
+          {
+            "file": "ms/star_thru.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Star Thru",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m19a": {
+    "name": "Couples Circulate",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 25: Couples Circulate — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Two-Faced Lines": {
+        "calls": [
+          {
+            "file": "ms/circulate.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Couples Circulate",
+                "from": "Right-Hand Two-Faced Lines",
+                "formation": "Two-Faced Lines RH"
+              },
+              {
+                "title": "Couples Circulate",
+                "from": "Left-Hand Two-Faced Lines",
+                "formation": "Two-Faced Lines LH"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m19b": {
+    "name": "(Named Dancers) Circulate",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 25: (Named Dancers) Circulate — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Lines": {
+        "calls": [
+          {
+            "file": "ms/circulate.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Circulate",
+                "from": "Lines Facing In",
+                "formation": "Normal Lines"
+              }
+            ]
+          }
+        ]
+      },
+      "Columns": {
+        "calls": []
+      }
+    }
+  },
+  "m19c": {
+    "name": "All Eight Circulate",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 25: All Eight Circulate — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Lines": {
+        "calls": [
+          {
+            "file": "ms/circulate.xml",
+            "tam_xml_queries": [
+              {
+                "title": "All 8 Circulate",
+                "from": "Lines Facing In",
+                "formation": "Normal Lines"
+              }
+            ]
+          }
+        ]
+      },
+      "Columns": {
+        "calls": []
+      }
+    }
+  },
+  "m19d": {
+    "name": "Single File (Column) Circulate",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 25: Single File (Column) Circulate — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Columns": {
+        "calls": [
+          {
+            "file": "ms/circulate.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Column Circulate",
+                "from": "Right-Hand Columns",
+                "formation": "Column RH GBGB"
+              },
+              {
+                "title": "Column Circulate",
+                "from": "Left-Hand Columns",
+                "formation": "Column LH GBGB"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m19e": {
+    "name": "Box/Split Circulate",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 25: Box/Split Circulate — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Box for Box Circulate": {
+        "calls": []
+      },
+      "Lines": {
+        "calls": []
+      },
+      "Columns for Split Circulate": {
+        "calls": []
+      }
+    }
+  },
+  "m20": {
+    "name": "Bend the Line",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 21: Bend the Line — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Two-Faced Line of four": {
+        "calls": [
+          {
+            "file": "ms/bend_the_line.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Bend the Line",
+                "from": "Right-Hand Two-Faced Line",
+                "formation": "Two-Faced Line RH"
+              },
+              {
+                "title": "Bend the Line",
+                "from": "Left-Hand Two-Faced Line",
+                "formation": "Two-Faced Line LH"
+              },
+              {
+                "title": "Bend the Line",
+                "from": "Right-Hand Two-Faced Lines",
+                "formation": "Two-Faced Lines RH"
+              },
+              {
+                "title": "Bend the Line",
+                "from": "Left-Hand Two-Faced Lines",
+                "formation": "Two-Faced Lines LH"
+              }
+            ]
+          }
+        ]
+      },
+      "One-Faced": {
+        "calls": []
+      },
+      "Tidal Line of eight": {
+        "calls": [
+          {
+            "file": "ms/bend_the_line.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Bend the Line",
+                "from": "Right-Hand Tidal Line",
+                "formation": "Tidal Line RH"
+              },
+              {
+                "title": "Bend the Line",
+                "from": "Left-Hand Tidal Line",
+                "formation": "Tidal Line LH"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m21": {
+    "name": "Square Thru / Left Square Thru",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 55: Square Thru / Left Square Thru — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Couples": {
+        "calls": [
+          {
+            "file": "ms/square_thru.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Square Thru 4",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Square Thru 4",
+                "from": "Facing Couples"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m22": {
+    "name": "Split Two",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 54: Split Two — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Eight Chain Thru": {
+        "calls": []
+      }
+    }
+  },
+  "m23": {
+    "name": "Grand Square",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 36: Grand Square — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Static Square": {
+        "calls": []
+      }
+    }
+  },
+  "m24": {
+    "name": "Double Pass Thru",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 30: Double Pass Thru — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Tandems": {
+        "calls": []
+      }
+    }
+  },
+  "m25": {
+    "name": "First Couple Go Left/Right, Next Couple Go Right/Left",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 33: First Couple Go Left/Right, Next Couple Go Right/Left — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Completed Double Pass Thru": {
+        "calls": [
+          {
+            "file": "ms/first_couple_go.xml",
+            "tam_xml_queries": [
+              {
+                "title": "First Couple Go Left, Next Couple Go Right",
+                "formation": "Completed Double Pass Thru"
+              },
+              {
+                "title": "First Couple Go Left, Next Couple Go Left",
+                "formation": "Completed Double Pass Thru"
+              },
+              {
+                "title": "First Couple Go Right, Next Couple Go Right",
+                "formation": "Completed Double Pass Thru"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m26": {
+    "name": "Wheel and Deal",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 65: Wheel and Deal — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Two-Faced Line": {
+        "calls": [
+          {
+            "file": "ms/wheel_and_deal.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Wheel and Deal",
+                "from": "Right-Hand Two-Faced Line",
+                "formation": "Two-Faced Line RH"
+              },
+              {
+                "title": "Wheel and Deal",
+                "from": "Compact Right-Hand Two-Faced Line",
+                "formation": "Compact Two-Faced Line RH"
+              },
+              {
+                "title": "Wheel and Deal",
+                "from": "Left-Hand Two-Faced Line",
+                "formation": "Two-Faced Line LH"
+              },
+              {
+                "title": "Wheel and Deal",
+                "from": "Compact Left-Hand Two-Faced Line",
+                "formation": "Compact Two-Faced Line LH"
+              },
+              {
+                "title": "Wheel and Deal",
+                "from": "Right-Hand Two-Faced Lines",
+                "formation": "Two-Faced Lines RH"
+              },
+              {
+                "title": "Wheel and Deal",
+                "from": "Left-Hand Two-Faced Lines",
+                "formation": "Two-Faced Lines LH"
+              }
+            ]
+          }
+        ]
+      },
+      "One-Faced Line": {
+        "calls": []
+      }
+    }
+  },
+  "m27": {
+    "name": "California Twirl",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 21: California Twirl — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Normal Couple": {
+        "calls": []
+      }
+    }
+  },
+  "m28": {
+    "name": "Slide Thru",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 53: Slide Thru — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": [
+          {
+            "file": "ms/slide_thru.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Slide Thru",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Slide Thru",
+                "from": "Facing Couples"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m29": {
+    "name": "Dive Thru",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 29: Dive Thru — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Couples": {
+        "calls": []
+      }
+    }
+  },
+  "m30": {
+    "name": "Box the Gnat",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 21: Box the Gnat — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": [
+          {
+            "file": "ms/box_the_gnat.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Box the Gnat",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Box the Gnat",
+                "from": "Facing Couples"
+              },
+              {
+                "title": "Box the Gnat",
+                "from": "Facing Couples"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m31a": {
+    "name": "Alamo Style",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 41: Alamo Style — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Allemande Left starting formation": {
+        "calls": []
+      }
+    }
+  },
+  "m31b": {
+    "name": "Balance",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 41: Balance — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Mini-Wave": {
+        "calls": [
+          {
+            "file": "ms/ocean_wave.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Balance",
+                "from": "Right-Hand Waves",
+                "formation": "Ocean Waves RH BGGB"
+              },
+              {
+                "title": "Balance",
+                "from": "Left-Hand Waves",
+                "formation": "Ocean Waves LH BGGB"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m31c": {
+    "name": "Step to a Wave",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 41: Step to a Wave — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": [
+          {
+            "file": "ms/ocean_wave.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Step to a Wave",
+                "from": "Facing Dancers"
+              },
+              {
+                "title": "Step to a Wave",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m31d": {
+    "name": "Dosado to a Wave",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 41: Dosado to a Wave — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": [
+          {
+            "file": "ms/dosado.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Dosado to a Wave",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Dosado",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m31e": {
+    "name": "Single Circle to a Wave",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 41: Single Circle to a Wave — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": [
+          {
+            "file": "ms/single_circle_to_a_wave.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Single Circle to a Wave",
+                "from": "Facing Couples",
+                "formation": "Facing Couples"
+              },
+              {
+                "title": "Single Circle 3/4 to a Wave",
+                "from": "Facing Couples",
+                "formation": "Facing Couples"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m32a": {
+    "name": "Couples Trade",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 61: Couples Trade — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Two-Faced Line": {
+        "calls": [
+          {
+            "file": "ms/trade.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Couples Trade",
+                "from": "Right-Hand Two-Faced Line",
+                "formation": "Two-Faced Line RH"
+              },
+              {
+                "title": "Couples Trade",
+                "from": "Compact Right-Hand Two-Faced Line",
+                "formation": "Compact Two-Faced Line RH"
+              },
+              {
+                "title": "Couples Trade",
+                "from": "Left-Hand Two-Faced Line",
+                "formation": "Two-Faced Line LH"
+              },
+              {
+                "title": "Couples Trade",
+                "from": "Compact Left-Hand Two-Faced Line",
+                "formation": "Compact Two-Faced Line LH"
+              },
+              {
+                "title": "Couples Trade",
+                "from": "Right-Hand Two-Faced Lines",
+                "formation": "Two-Faced Lines RH"
+              },
+              {
+                "title": "Couples Trade",
+                "from": "Left-Hand Two-Faced Lines",
+                "formation": "Two-Faced Lines LH"
+              }
+            ]
+          }
+        ]
+      },
+      "One-Faced Line": {
+        "calls": []
+      }
+    }
+  },
+  "m32b": {
+    "name": "(Named Dancers) Trade",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 61: (Named Dancers) Trade — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Mini-Wave": {
+        "calls": []
+      },
+      "Couple": {
+        "calls": []
+      }
+    }
+  },
+  "m32c": {
+    "name": "Right/Left Hand Trade",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 61: Right/Left Hand Trade — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Mini-Wave": {
+        "calls": []
+      }
+    }
+  },
+  "m32d": {
+    "name": "Partner Trade",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 61: Partner Trade — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Couple": {
+        "calls": []
+      }
+    }
+  },
+  "m33": {
+    "name": "Swing Thru / Left Swing Thru",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 59: Swing Thru / Left Swing Thru — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Ocean Wave": {
+        "calls": [
+          {
+            "file": "ms/swing_thru.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Swing Thru",
+                "from": "Right-Hand Wave",
+                "formation": "Wave RH"
+              },
+              {
+                "title": "Swing Thru",
+                "from": "Compact Right-Hand Wave",
+                "formation": "Compact Wave RH"
+              },
+              {
+                "title": "Swing Thru",
+                "from": "Left-Hand Wave",
+                "formation": "Wave LH"
+              },
+              {
+                "title": "Swing Thru",
+                "from": "Compact Left-Hand Wave",
+                "formation": "Compact Wave LH"
+              },
+              {
+                "title": "Swing Thru",
+                "from": "Right-Hand Waves",
+                "formation": "Ocean Waves RH BGGB"
+              },
+              {
+                "title": "Swing Thru",
+                "from": "Left-Hand Waves",
+                "formation": "Ocean Waves LH BGGB"
+              }
+            ]
+          }
+        ]
+      },
+      "Alamo Ring": {
+        "calls": []
+      }
+    }
+  },
+  "m34": {
+    "name": "Run / Cross Run",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 49: Run / Cross Run — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Run: Mini-Wave": {
+        "calls": []
+      },
+      "Couple. Cross Run: General Line": {
+        "calls": []
+      }
+    }
+  },
+  "m35": {
+    "name": "Pass the Ocean",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 43: Pass the Ocean — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Couples": {
+        "calls": [
+          {
+            "file": "ms/pass_the_ocean.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Pass the Ocean",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m36": {
+    "name": "Extend",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 30: Extend — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "1/4 Tag": {
+        "calls": [
+          {
+            "file": "ms/extend.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Extend",
+                "from": "Right-Hand 1/4 Tag",
+                "formation": "Quarter Tag"
+              },
+              {
+                "title": "Extend",
+                "from": "Left-Hand 1/4 Tag",
+                "formation": "Quarter Tag LH"
+              }
+            ]
+          }
+        ]
+      },
+      "Ocean Waves": {
+        "calls": [
+          {
+            "file": "ms/extend.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Extend",
+                "from": "Right-Hand Waves",
+                "formation": "Ocean Waves RH BGGB"
+              },
+              {
+                "title": "Extend",
+                "from": "Left-Hand Waves",
+                "formation": "Ocean Waves LH BGGB"
+              }
+            ]
+          }
+        ]
+      },
+      "3/4 Tag": {
+        "calls": [
+          {
+            "file": "ms/extend.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Extend",
+                "from": "3/4 Tag",
+                "formation": "3/4 Tag"
+              },
+              {
+                "title": "Extend",
+                "from": "Left-Hand 3/4 Tag",
+                "formation": "3/4 Tag LH"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m37": {
+    "name": "Flutterwheel / Reverse Flutterwheel",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 33: Flutterwheel / Reverse Flutterwheel — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Couples": {
+        "calls": [
+          {
+            "file": "ms/flutterwheel.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Flutterwheel",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Flutterwheel",
+                "from": "Facing Couples"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m38": {
+    "name": "Sweep a Quarter",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 57: Sweep a Quarter — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Couples": {
+        "calls": [
+          {
+            "file": "ms/sweep_a_quarter.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Sweep a Quarter Right",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Sweep a Quarter Left",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m39": {
+    "name": "Trade By",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 63: Trade By — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Trade By formation": {
+        "calls": []
+      }
+    }
+  },
+  "m40": {
+    "name": "Ferris Wheel",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 32: Ferris Wheel — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Two-Faced Lines": {
+        "calls": [
+          {
+            "file": "ms/ferris_wheel.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Ferris Wheel",
+                "from": "Right-Handed Two-Faced Lines",
+                "formation": "Two-Faced Lines RH"
+              },
+              {
+                "title": "Ferris Wheel",
+                "from": "Left-Handed Two-Faced Lines",
+                "formation": "Two-Faced Lines LH"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m41": {
+    "name": "Zoom",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 66: Zoom — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Tandem and a centre point": {
+        "calls": []
+      }
+    }
+  },
+  "m42": {
+    "name": "Touch a Quarter",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 61: Touch a Quarter — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Facing Dancers": {
+        "calls": [
+          {
+            "file": "ms/touch_a_quarter.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Touch a Quarter",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              },
+              {
+                "title": "Touch a Quarter",
+                "from": "Facing Couples"
+              },
+              {
+                "title": "Touch a Half",
+                "from": "Facing Couples",
+                "formation": "Facing Couples Compact"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m43a": {
+    "name": "Single Hinge",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 38–39: Single Hinge — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Mini-Wave": {
+        "calls": [
+          {
+            "file": "ms/hinge.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Hinge",
+                "from": "Right-Hand Wave",
+                "formation": "Wave RH"
+              },
+              {
+                "title": "Hinge",
+                "from": "Left-Hand Wave",
+                "formation": "Wave LH"
+              },
+              {
+                "title": "Hinge",
+                "from": "Right-Hand Waves"
+              },
+              {
+                "title": "Hinge",
+                "from": "Left-Hand Waves",
+                "formation": "Ocean Waves LH BGGB"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m43b": {
+    "name": "Couples Hinge",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 38–39: Couples Hinge — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "One-Faced Line and Two-Faced Line": {
+        "calls": []
+      }
+    }
+  },
+  "m44": {
+    "name": "Centers In",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 22: Centers In — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Completed Double Pass Thru": {
+        "calls": [
+          {
+            "file": "ms/centers_in.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Centers In",
+                "from": "Completed Double Pass Thru",
+                "formation": "Completed Double Pass Thru"
+              }
+            ]
+          }
+        ]
+      },
+      "Eight Chain Thru": {
+        "calls": [
+          {
+            "file": "ms/centers_in.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Centers In",
+                "from": "Eight Chain Thru",
+                "formation": "Eight Chain Thru"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m45": {
+    "name": "Cast Off Three-Quarters",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 22: Cast Off Three-Quarters — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Mini-Wave": {
+        "calls": [
+          {
+            "file": "ms/cast_off_three_quarters.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Cast Off Three Quarters",
+                "from": "Right-Hand Wave",
+                "formation": "Wave RH"
+              },
+              {
+                "title": "Cast Off Three Quarters",
+                "from": "Left-Hand Wave",
+                "formation": "Wave LH"
+              },
+              {
+                "title": "Cast Off Three Quarters",
+                "from": "Right-Hand Waves",
+                "formation": "Ocean Waves RH BGGB"
+              },
+              {
+                "title": "Cast Off Three Quarters",
+                "from": "Left-Hand Waves",
+                "formation": "Ocean Waves LH BGGB"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m46": {
+    "name": "Spin the Top",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 54: Spin the Top — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Ocean Wave": {
+        "calls": [
+          {
+            "file": "ms/spin_the_top.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Spin the Top",
+                "from": "Right-Hand Wave",
+                "formation": "Wave RH GBBG"
+              },
+              {
+                "title": "Spin the Top",
+                "from": "Left-Hand Wave",
+                "formation": "Wave LH GBBG"
+              },
+              {
+                "title": "Spin the Top",
+                "from": "Right-Hand Waves",
+                "formation": "Ocean Waves RH GBBG"
+              },
+              {
+                "title": "Spin the Top",
+                "from": "Left-Hand Waves",
+                "formation": "Ocean Waves LH GBBG"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m47": {
+    "name": "Scoot Back",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 51: Scoot Back — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Box Circulate": {
+        "calls": []
+      },
+      "1/4 Tag": {
+        "calls": []
+      },
+      "Single 1/4 Tag": {
+        "calls": []
+      }
+    }
+  },
+  "m48": {
+    "name": "Fold / Cross Fold",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 34–35: Fold / Cross Fold — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Couple": {
+        "calls": []
+      },
+      "Mini-Wave": {
+        "calls": []
+      },
+      "General Line": {
+        "calls": []
+      }
+    }
+  },
+  "m49a": {
+    "name": "Tag the Line (In / Out / Left / Right)",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 60–61: Tag the Line (In / Out / Left / Right) — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Line": {
+        "calls": [
+          {
+            "file": "ms/tag.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Tag the Line",
+                "from": "Lines Facing In",
+                "formation": "Normal Lines"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "m49b": {
+    "name": "Fraction (1/4, 1/2, 3/4) Tag",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, pages 60–61: Fraction (1/4, 1/2, 3/4) Tag — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Line": {
+        "calls": []
+      }
+    }
+  },
+  "m50": {
+    "name": "Recycle (from Waves only)",
+    "citation": "Mainstream Dance Program Definitions, revised 29 March 2026, page 47: Recycle (from Waves only) — start labels transcribed from this card's At a glance table; the manual's own list is not quoted here yet.",
+    "starts": {
+      "Ocean Wave": {
+        "calls": [
+          {
+            "file": "ms/recycle.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Recycle",
+                "from": "Right-Hand Wave",
+                "formation": "Wave RH"
+              },
+              {
+                "title": "Recycle",
+                "from": "Left-Hand Wave",
+                "formation": "Wave LH Boys Center"
+              },
+              {
+                "title": "Recycle",
+                "from": "Right-Hand Waves",
+                "formation": "Ocean Waves RH BGGB"
+              },
+              {
+                "title": "Recycle",
+                "from": "Left-Hand Waves",
+                "formation": "Ocean Waves LH GBBG"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

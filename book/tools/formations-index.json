@@ -1,0 +1,169 @@
+{
+  "drawn": [
+    {
+      "slug": "squared-set",
+      "title": "Squared Set",
+      "libraryName": "Squared Set",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1344
+    },
+    {
+      "slug": "facing-couples",
+      "title": "Facing Couples",
+      "libraryName": "Facing Couples",
+      "written": 2,
+      "drawn": 4,
+      "mirrored": true,
+      "bytes": 1156
+    },
+    {
+      "slug": "normal-lines",
+      "title": "Normal Lines",
+      "libraryName": "Normal Lines",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1255
+    },
+    {
+      "slug": "lines-facing-out",
+      "title": "Lines Facing Out",
+      "libraryName": "Lines Facing Out",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1237
+    },
+    {
+      "slug": "inverted-lines",
+      "title": "Inverted Lines",
+      "libraryName": "Inverted Lines Ends Facing Out",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1270
+    },
+    {
+      "slug": "two-faced-lines",
+      "title": "Two-Faced Lines",
+      "libraryName": "Two-Faced Lines",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1195
+    },
+    {
+      "slug": "tidal-wave",
+      "title": "Tidal Wave",
+      "libraryName": "Tidal Wave",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1210
+    },
+    {
+      "slug": "mini-wave",
+      "title": "Mini-Wave (right-hand)",
+      "libraryName": "Wave RH",
+      "written": 2,
+      "drawn": 2,
+      "mirrored": false,
+      "bytes": 932
+    },
+    {
+      "slug": "ocean-wave",
+      "title": "Ocean Wave (right-hand)",
+      "libraryName": "Ocean Waves RH BGGB",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1206
+    },
+    {
+      "slug": "column",
+      "title": "Column",
+      "libraryName": "Column RH GBGB",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1247
+    },
+    {
+      "slug": "box",
+      "title": "Box",
+      "libraryName": "Box RH",
+      "written": 2,
+      "drawn": 4,
+      "mirrored": true,
+      "bytes": 1155
+    },
+    {
+      "slug": "diamond",
+      "title": "Diamond",
+      "libraryName": "Diamond RH",
+      "written": 2,
+      "drawn": 4,
+      "mirrored": true,
+      "bytes": 1056
+    },
+    {
+      "slug": "alamo",
+      "title": "Alamo Style",
+      "libraryName": "Alamo Wave",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1934
+    },
+    {
+      "slug": "thar",
+      "title": "Thar",
+      "libraryName": "Thar RH Boys",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1284
+    },
+    {
+      "slug": "quarter-tag",
+      "title": "Quarter Tag",
+      "libraryName": "Quarter Tag",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1268
+    },
+    {
+      "slug": "three-quarter-tag",
+      "title": "3/4 Tag",
+      "libraryName": "3/4 Tag",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1274
+    },
+    {
+      "slug": "promenade",
+      "title": "Promenade",
+      "libraryName": "Promenade",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1817
+    }
+  ],
+  "notDrawn": [
+    {
+      "slug": "facing-dancers",
+      "title": "Facing Dancers",
+      "reason": "not a named formation in formations.xml (it is a shape the manual describes in words)"
+    },
+    {
+      "slug": "couple",
+      "title": "Couple",
+      "reason": "not a named formation in formations.xml (it is a shape the manual describes in words)"
+    }
+  ]
+}

@@ -22,9 +22,8 @@
 -->
 <tamination title="Circle Family">
 
-  <tam title="Circle Left"
-       from="Static Square" group=" "
-       formation="Static Square">
+  <tam title="Circle Left" from="Static Square" formation="Static Square"
+    group=" ">
     <path>
       <move select="Forward" hands="both" scaleX=".59" scaleY=".59" />
       <move select="cl" />
@@ -79,7 +78,8 @@
     </taminator>
   </tam>
 
-  <tam title="Circle Left" from="Circle" formation="Circle" sequencer="gender-specific">
+  <tam title="Circle Left" from="Circle" formation="Circle"
+    sequencer="gender-specific">
     <path>
       <move select="cl" />
       <move select="cl" />
@@ -125,9 +125,8 @@
     </taminator>
   </tam>
 
-  <tam title="Circle Left 1/8"
-       from="Static Square" group=" " display="no"
-       formation="Static Square">
+  <tam title="Circle Left 1/8" from="Static Square" formation="Static Square"
+    group=" " display="no">
     <path>
       <move select="Forward" hands="both" scaleX=".59" scaleY=".59" />
       <move select="cl" />
@@ -150,9 +149,8 @@
     </path>
   </tam>
 
-  <tam title="Circle Left 1/4"
-       from="Static Square" group=" "
-       formation="Static Square">
+  <tam title="Circle Left 1/4" from="Static Square" formation="Static Square"
+    group=" ">
     <path>
       <move select="Forward" hands="both" scaleX=".59" scaleY=".59" />
       <move select="cl" />
@@ -179,9 +177,8 @@
     </path>
   </tam>
 
-  <tam title="Circle Left 1/2"
-       from="Static Square" group=" "
-       formation="Static Square">
+  <tam title="Circle Left 1/2" from="Static Square" formation="Static Square"
+    group=" " >
     <path>
       <move select="Forward" hands="both" scaleX=".59" scaleY=".59" />
       <move select="cl" />
@@ -216,9 +213,8 @@
     </path>
   </tam>
 
-  <tam title="Circle Left 3/4"
-       from="Static Square" group=" "
-       formation="Static Square">
+  <tam title="Circle Left 3/4" from="Static Square" formation="Static Square"
+    group=" ">
     <path>
       <move select="Forward" hands="both" scaleX=".59" scaleY=".59" />
       <move select="cl" />
@@ -262,9 +258,8 @@
   </tam>
 
 
-  <tam title="Circle Right"
-       from="Static Square" group=" "
-       formation="Static Square">
+  <tam title="Circle Right" from="Static Square" formation="Static Square"
+    group=" ">
     <path>
       <move select="Eighth Right" beats="1" hands="gripboth" offsetX="0.59"/>
       <move select="cr" />
@@ -501,8 +496,7 @@
     </path>
   </tam>
 
-  <tam title="Circle Four Left 1/4" from="Facing Couples"
-       formation="Facing Couples Compact">
+  <tam title="Circle Four Left 1/4" from="Facing Couples" formation="Facing Couples Compact">
     <path>
       <move select="Eighth Right" hands="right" offsetX=".5"/>
       <move select="Circle Left Quarter" scaleX="2" scaleY="2"/>

@@ -1,0 +1,14 @@
+# Generated reading copies of the CALLERLAB manuals. Never committed: the extract
+# is not ours to redistribute (see tools/clean-extract.mjs and the root .gitignore,
+# which gitignores the same extraction under the name callerlab-ms.txt).
+tools/.cache/
+
+# Build output: the online edition (HTML, the dance library copy, the call authorings it plays).
+# Reproducible with `npm run build:book`. Remove this line if you would rather commit the built
+# site for publishing. (This directory was named `site/` until the rename; the ignore entry follows
+# the directory, so both the builder's SITE constant and this line name the same folder.)
+dancingsquared_book/
+
+# Optional GIFs (`make-animations.mjs --gifs`). They are not part of the book: a call page carries
+# one animation, the interactive player, so anything here is a shareable extra rather than content.
+animations/

@@ -1,0 +1,264 @@
+// The gate that keeps a cross-referenced book honest.
+//
+// WHAT IT CHECKS
+//   1. every relative link in every Markdown file resolves to a file that exists;
+//   2. every `#fragment` resolves to a heading in the target file;
+//   3. a link that NAMES a formation on the Formations page lands on that formation's heading,
+//      not on the top of the page;
+//   4. every teaching unit M1..M50 has a call page;
+//   5. no call page exists for a call that is NOT in the 2026 programme;
+//   6. every figure is referenced by some page, and every referenced figure exists.
+//
+// A book whose whole design is "define it once and link to it" fails quietly when a link
+// rots: the reader gets a dead end and no way to tell whether the page or the anchor is
+// wrong. So this is a gate, not a report.
+//
+//   node book/tools/check-links.mjs
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
+import { toolsDir } from './lib/load.mjs';
+
+const BOOK = join(toolsDir, '..');
+const problems = [];
+
+function walk(dir) {
+  const out = [];
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    if (name === '.cache' || name === 'node_modules') continue;
+    if (statSync(p).isDirectory()) out.push(...walk(p));
+    else out.push(p);
+  }
+  return out;
+}
+
+/** GitHub's heading anchor: lower-case, punctuation dropped, spaces to hyphens. */
+function anchors(text) {
+  const set = new Set();
+  for (const line of text.split('\n')) {
+    const m = /^#{1,6}\s+(.+?)\s*$/.exec(line);
+    if (!m) continue;
+    set.add(
+      m[1]
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-'),
+    );
+  }
+  return set;
+}
+
+const files = walk(BOOK).filter((f) => f.endsWith('.md'));
+const markdown = new Map();
+const anchorCache = new Map();
+for (const f of files) {
+  const text = readFileSync(f, 'utf8');
+  markdown.set(f, text);
+  anchorCache.set(f, anchors(text));
+}
+
+const referencedDiagrams = new Set();
+/** The formations the Formations page defines, spelled the way a link names them. A link carrying
+ *  one of these names must carry that formation's fragment: `[Ocean Wave](formations.md)` drops the
+ *  reader at the top of a long page and leaves them to hunt, which is the failure this gate exists
+ *  for. Generic links (`[Formations]`, `[formation diagrams]`) are not in the set and stay on the
+ *  page top, which is where they belong. */
+const FORMATION_NAMES = new Set(
+  [
+    'Squared Set',
+    'Static Square',
+    'Circle',
+    'Infacing Circle of 8',
+    'Promenade',
+    'Facing Dancers',
+    'Facing Couples',
+    'facing couple',
+    'Eight Chain Thru',
+    'Couple',
+    'Tandem',
+    'Tandem Couple',
+    'Tandem Couples',
+    'Facing Tandems',
+    'facing tandem',
+    'Back-to-Back Tandems',
+    'Back-to-Back Couples',
+    'back-to-back',
+    'Lines',
+    'line',
+    'General Line',
+    'Facing Lines',
+    'Tidal Line',
+    'One-Faced Line',
+    'Two-Faced Line',
+    'Two-Faced Lines',
+    'One-Faced or Two-Faced Line',
+    'Wave',
+    'Waves',
+    'Ocean Wave',
+    'Mini-Wave',
+    'Columns',
+    'Column',
+    'Box',
+    'Box Circulate',
+    'Diamond',
+    'Alamo Style',
+    'Alamo Ring',
+    'Thar',
+    'Tag formations',
+    'tagging formations',
+    'Double Pass Thru',
+    'Completed Double Pass Thru',
+  ].map((s) => s.toLowerCase()),
+);
+/** How many calls the site can play, for the summary line. Filled by the animation check below. */
+let playableCalls = 0;
+/** Always compare with FORWARD slashes: `path.relative` returns backslashes on Windows, and
+ *  the orphan check silently reported every figure as unreferenced because of it. */
+const slashed = (p) => p.split('\\').join('/');
+
+for (const [file, text] of markdown) {
+  const rel = relative(BOOK, file);
+  // Markdown links and images. Ignore absolute URLs, mailto and bare anchors on the same page.
+  const re = /(!?)\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+  let m;
+  while ((m = re.exec(text))) {
+    const [, bang, label, target] = m;
+    if (/^(https?:|mailto:)/.test(target)) continue;
+    // A bare `#anchor` points into THIS page -- the "on this page" section links. They are
+    // checked too, because an anchor the generator computed wrongly is exactly the kind of
+    // dead end a reader cannot diagnose.
+    if (target.startsWith('#')) {
+      const frag = decodeURIComponent(target.slice(1)).toLowerCase();
+      if (frag && !(anchorCache.get(file) ?? anchors(text)).has(frag)) {
+        problems.push(`${rel}: dead in-page anchor -> ${target}`);
+      }
+      continue;
+    }
+    const [pathPart, frag] = target.split('#');
+    const abs = pathPart ? resolve(dirname(file), decodeURIComponent(pathPart)) : file;
+    if (!existsSync(abs)) {
+      problems.push(`${rel}: dead link -> ${target}`);
+      continue;
+    }
+    if (pathPart.endsWith('.png') && slashed(relative(BOOK, abs)).startsWith('formations/')) {
+      referencedDiagrams.add(slashed(relative(BOOK, abs)));
+    }
+    if (frag && abs.endsWith('.md')) {
+      const set = anchorCache.get(abs) ?? anchors(readFileSync(abs, 'utf8'));
+      anchorCache.set(abs, set);
+      if (!set.has(decodeURIComponent(frag).toLowerCase())) {
+        problems.push(`${rel}: dead anchor -> ${target}`);
+      }
+    }
+    // A link that names a formation must reach that formation's heading.
+    if (/formations\.md$/.test(pathPart) && !frag && FORMATION_NAMES.has(label.trim().replace(/\s+/g, ' ').toLowerCase())) {
+      problems.push(`${rel}: "…${label.trim()}…" links to the Formations page top, not its heading -> ${target}`);
+    }
+    void bang;
+  }
+}
+
+// ---- coverage: every teaching unit has a page, and no non-member has one
+const mapPath = join(toolsDir, 'call-map.json');
+let expected = 0;
+if (existsSync(mapPath)) {
+  const map = JSON.parse(readFileSync(mapPath, 'utf8'));
+  const callDir = join(BOOK, '04-calls');
+  const present = new Set(existsSync(callDir) ? readdirSync(callDir).filter((f) => f.endsWith('.md')) : []);
+  for (const u of map.units) {
+    expected++;
+    const nn = String(u.n).padStart(2, '0');
+    const hit = [...present].some((f) => f.startsWith(`m${nn}-`));
+    if (!hit) problems.push(`04-calls: no page for unit M${u.n} (${u.title})`);
+  }
+  const strays = [...present].filter((f) => {
+    const n = Number(/^m(\d\d)/.exec(f)?.[1]);
+    return !Number.isFinite(n) || n < 1 || n > map.units.length;
+  });
+  for (const s of strays) problems.push(`04-calls: ${s} does not correspond to a teaching unit`);
+}
+
+// ---- formation diagrams: nothing orphaned, nothing missing
+const formDir = join(BOOK, 'formations');
+if (existsSync(formDir)) {
+  const onDisk = new Set(readdirSync(formDir).filter((f) => f.endsWith('.png')).map((f) => `formations/${f}`));
+  for (const f of onDisk) {
+    if (!referencedDiagrams.has(f)) problems.push(`formations: ${f} is never referenced by any page`);
+  }
+  for (const f of referencedDiagrams) {
+    if (!onDisk.has(f)) problems.push(`formations: ${f} is referenced but does not exist`);
+  }
+}
+
+// ---- the animations, matched to the call cards they belong to
+//
+// The book carries ONE animation per call: the interactive player, which the site builder injects
+// under the page's `### Animation` heading. So there is no per-call image to orphan-check any more --
+// what can go wrong instead is the PAIRING. The builder gives each call card a slot in teaching
+// order and fills it with that card's animation or a null, which means the page must carry exactly
+// one `### Animation` heading per card or every later player slides onto the wrong call. That is a
+// silent, plausible-looking failure, so it is a gate.
+const animIndex = join(toolsDir, 'animations-index.json');
+if (existsSync(mapPath) && existsSync(animIndex)) {
+  const units = JSON.parse(readFileSync(mapPath, 'utf8')).units;
+  const playable = new Set(JSON.parse(readFileSync(animIndex, 'utf8')).figures.map((f) => f.id));
+  playableCalls = playable.size;
+  const callDir = join(BOOK, '04-calls');
+  const present = existsSync(callDir) ? readdirSync(callDir).filter((f) => f.endsWith('.md')) : [];
+  const placed = new Set();
+
+  for (const u of units) {
+    const nn = String(u.n).padStart(2, '0');
+    const file = present.find((f) => f.startsWith(`m${nn}-`));
+    if (!file) continue; // the coverage check above already reported the missing page
+    const text = readFileSync(join(callDir, file), 'utf8');
+    const headings = (text.match(/^###\s+(Animation|Figure)\s*$/gim) ?? []).length;
+    if (headings !== u.entries.length) {
+      problems.push(
+        `04-calls/${file}: ${headings} animation heading(s) for ${u.entries.length} call card(s) — ` +
+          'a player would be injected under the wrong call',
+      );
+    }
+    for (const e of u.entries) {
+      const id = `m${nn}${e.letter ?? ''}`;
+      if (playable.has(id)) placed.add(id);
+    }
+  }
+  for (const id of playable) {
+    if (!placed.has(id)) problems.push(`animations-index: ${id} is playable but sits on no call card`);
+  }
+}
+
+// ---- every navigable page carries its navigation bar
+// This is not decoration: `make-reference.mjs` rewrites its pages from scratch, so a nav bar
+// it did not write is destroyed by it. Requiring the sentinel here turns that into a failed
+// gate instead of pages that quietly lose their navigation.
+for (const [file, text] of markdown) {
+  const rel = slashed(relative(BOOK, file));
+  if (rel === 'HANDOVER.md' || rel === 'README.md') continue;
+  if (!text.includes('<!-- nav:start -->')) {
+    problems.push(`${rel}: no navigation bar (run book/tools/make-nav.mjs)`);
+  }
+}
+
+// ---- generated reference pages must not be edited by hand
+for (const f of ['call-index', 'formation-index', 'animations-index', 'programme-membership', 'moved-and-renamed']) {
+  const p = join(BOOK, '08-reference', `${f}.md`);
+  if (!existsSync(p)) {
+    problems.push(`08-reference: ${f}.md is missing (run book/tools/make-reference.mjs)`);
+    continue;
+  }
+  if (!readFileSync(p, 'utf8').includes('GENERATED by book/tools/make-reference.mjs')) {
+    problems.push(`08-reference: ${f}.md is missing its generated header`);
+  }
+}
+
+if (problems.length) {
+  for (const p of problems) console.error(`  ${p}`);
+  console.error(`\n${problems.length} problem(s).`);
+  process.exit(1);
+}
+console.log(
+  `${files.length} pages, ${expected} teaching units, ${playableCalls} playable calls; all links, anchors and coverage checks pass.`,
+);

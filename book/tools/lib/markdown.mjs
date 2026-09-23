@@ -1,0 +1,208 @@
+// Markdown -> HTML for the online edition.
+//
+// Only the subset this book uses, which is a feature rather than a limitation: the converter and
+// the book are written together, so nothing has to be guessed. The one thing it must get right is
+// ANCHORS -- the book is built on internal links, so heading ids are generated with the same
+// algorithm the link gate uses, or every cross-reference lands nowhere.
+
+/** Heading id, matching the anchors `check-links.mjs` validates. */
+export function anchorOf(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-');
+}
+
+const escapeHtml = (s) =>
+  String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+/** A .md link becomes a .html one; everything else is left alone. */
+export function rewriteHref(href) {
+  if (/^(https?:|mailto:|#)/.test(href)) return href;
+  const [path, frag] = href.split('#');
+  const html = path.replace(/\.md$/, '.html');
+  return frag ? `${html}#${frag}` : html;
+}
+
+/** Inline Markdown (bold, italic, code, links) to HTML. */
+export function inline(text) {
+  // LINKS GO FIRST, into placeholders. Escaping the text first destroys the `"` characters that
+  // separate a link's URL from its title, after which the link syntax cannot be matched at all --
+  // which is exactly how the whole navigation bar arrived on the site as raw Markdown.
+  const links = [];
+  let s = String(text).replace(/\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, (_, label, href, title) => {
+    const target = rewriteHref(href);
+    const external = /^https?:/.test(target);
+    links.push(
+      `<a href="${escapeHtml(target)}"${title ? ` title="${escapeHtml(title)}"` : ''}${external ? ' rel="noopener"' : ''}>${escapeHtml(label)}</a>`,
+    );
+    return `\u0001${links.length - 1}\u0001`;
+  });
+
+  s = escapeHtml(s);
+  s = s.replace(/`([^`]+)`/g, (_, c) => `<code>${c}</code>`);
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>');
+  // Strikethrough marks a DISABLED navigation direction in the Markdown; carrying it through as
+  // <del> lets the site builder style it as a greyed-out button rather than a live link.
+  s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+
+  return s.replace(/\u0001(\d+)\u0001/g, (_, i) => links[Number(i)] ?? '');
+}
+
+/** Parse the book's Markdown into block objects. */
+export function parseBlocks(md) {
+  const lines = md.replace(/\r/g, '').split('\n');
+  const blocks = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (!line.trim()) { i++; continue; }
+
+    const heading = /^(#{1,6})\s+(.*)$/.exec(line);
+    if (heading) {
+      blocks.push({ type: 'heading', level: heading[1].length, text: heading[2].trim() });
+      i++;
+      continue;
+    }
+    if (/^(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
+      blocks.push({ type: 'hr' });
+      i++;
+      continue;
+    }
+    if (/^```/.test(line)) {
+      const code = [];
+      i++;
+      while (i < lines.length && !/^```/.test(lines[i])) code.push(lines[i++]);
+      i++;
+      blocks.push({ type: 'code', lines: code });
+      continue;
+    }
+    const img = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)\s*$/.exec(line.trim());
+    if (img) {
+      blocks.push({ type: 'image', alt: img[1], src: img[2] });
+      i++;
+      continue;
+    }
+    const comment = /^<!--(.*)-->\s*$/.exec(line.trim());
+    if (comment) {
+      i++; // figure metadata and generated-file markers are notes to the tools, not to a reader
+      continue;
+    }
+    if (/^\|/.test(line.trim())) {
+      const rows = [];
+      while (i < lines.length && /^\|/.test(lines[i].trim())) rows.push(lines[i++]);
+      const cells = (l) => l.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
+      blocks.push({
+        type: 'table',
+        header: cells(rows[0]),
+        rows: rows.slice(1).filter((r) => !/^\|[\s:|-]+\|$/.test(r.trim())).map(cells),
+      });
+      continue;
+    }
+    if (/^>\s?/.test(line)) {
+      const quote = [];
+      while (i < lines.length && /^>\s?/.test(lines[i])) quote.push(lines[i++].replace(/^>\s?/, ''));
+      blocks.push({ type: 'quote', lines: quote });
+      continue;
+    }
+    const listMatch = /^\s*([-*]|\d+\.)\s+(.*)$/.exec(line);
+    if (listMatch) {
+      const ordered = /\d/.test(listMatch[1]);
+      const items = [];
+      while (i < lines.length) {
+        const m = /^\s*([-*]|\d+\.)\s+(.*)$/.exec(lines[i]);
+        if (!m) break;
+        let text = m[2];
+        i++;
+        while (i < lines.length && lines[i].trim() && !/^\s*([-*]|\d+\.)\s+/.test(lines[i]) && !/^#/.test(lines[i]) && !/^\|/.test(lines[i]) && !/^>/.test(lines[i]) && !/^```/.test(lines[i])) {
+          text += ` ${lines[i].trim()}`;
+          i++;
+        }
+        items.push(text.trim());
+      }
+      blocks.push({ type: 'list', ordered, items });
+      continue;
+    }
+    const para = [line.trim()];
+    i++;
+    while (
+      i < lines.length &&
+      lines[i].trim() &&
+      !/^(#{1,6})\s/.test(lines[i]) &&
+      !/^\|/.test(lines[i].trim()) &&
+      !/^>\s?/.test(lines[i]) &&
+      !/^\s*([-*]|\d+\.)\s+/.test(lines[i]) &&
+      !/^```/.test(lines[i]) &&
+      !/^(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i]) &&
+      !/^!\[/.test(lines[i].trim()) &&
+      !/^<!--/.test(lines[i].trim())
+    ) {
+      para.push(lines[i].trim());
+      i++;
+    }
+    blocks.push({ type: 'paragraph', text: para.join(' ') });
+  }
+  return blocks;
+}
+
+/**
+ * Render blocks to HTML.
+ *
+ * `onFigureSection` is called for each `### Figure` heading with the paragraph that follows it, so
+ * the site builder can put the ANIMATION ahead of the static boards without this module having to
+ * know anything about animations.
+ */
+export function render(blocks, { figures = true, onFigureHeading = null, figureId = null } = {}) {
+  const out = [];
+  blocks.forEach((block, index) => {
+    if (block.type === 'heading') {
+      const level = Math.min(6, block.level);
+      out.push(`<h${level} id="${anchorOf(block.text)}">${inline(block.text)}</h${level}>`);
+      if (block.level === 3 && /^(Figure|Animation)$/i.test(block.text.trim()) && onFigureHeading && figureId) {
+        out.push(onFigureHeading(figureId));
+      }
+      return;
+    }
+    if (block.type === 'paragraph') {
+      out.push(`<p>${inline(block.text)}</p>`);
+      return;
+    }
+    if (block.type === 'quote') {
+      out.push(`<blockquote>${block.lines.map((l) => (l.trim() ? `<p>${inline(l)}</p>` : '')).join('')}</blockquote>`);
+      return;
+    }
+    if (block.type === 'list') {
+      const tag = block.ordered ? 'ol' : 'ul';
+      out.push(`<${tag}>${block.items.map((it) => `<li>${inline(it)}</li>`).join('')}</${tag}>`);
+      return;
+    }
+    if (block.type === 'code') {
+      out.push(`<pre><code>${escapeHtml(block.lines.join('\n'))}</code></pre>`);
+      return;
+    }
+    if (block.type === 'hr') {
+      out.push('<hr>');
+      return;
+    }
+    if (block.type === 'table') {
+      const head = block.header.map((h) => `<th>${inline(h)}</th>`).join('');
+      const body = block.rows
+        .map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`)
+        .join('');
+      out.push(`<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`);
+      return;
+    }
+    if (block.type === 'image') {
+      if (!figures) return;
+      const src = block.src.replace(/^\.\.\//, '../');
+      out.push(
+        `<figure><img src="${src}" alt="${escapeHtml(block.alt)}" loading="lazy"><figcaption>${inline(block.alt)}</figcaption></figure>`,
+      );
+      return;
+    }
+    void index;
+  });
+  return out.join('\n');
+}

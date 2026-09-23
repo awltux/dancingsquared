@@ -1,0 +1,7 @@
+# Where this book is published. `build-site.mjs` reads it for every canonical URL, og:url,
+# og:image, robots.txt and sitemap.xml, so the ordinary `npm run build:book` is correct without
+# anyone passing a flag. Change this line when the book moves; nothing else needs editing.
+#
+# Precedence: `--base <url>` beats $DSH_BOOK_BASE beats this file beats the placeholder.
+# Keep the trailing slash.
+https://util.awltux.trade/dancingsquared_book/

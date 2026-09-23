@@ -148,7 +148,7 @@ right hands. Dancers in a wave are **Centers** and **Ends** regardless of facing
 | **Mini-Wave** | a wave of two — the simplest case, two dancers facing opposite ways |
 | **Ocean Wave** | a wave of four or more |
 | **Tidal Wave** | a wave of eight |
-| **Alamo Ring** | a ring of dancers all facing the centre, in Alamo Style |
+| **Alamo Ring** | a ring of dancers facing alternately into the centre and out of it, in Alamo Style |
 
 Waves are where the [Facing Couples Rule](../03-rules/facing-couples-rule.md) and the
 [Ocean Wave Rule](../03-rules/ocean-wave-rule.md) earn their keep: they let certain calls start from
@@ -179,15 +179,18 @@ them in the Mainstream circulate family descriptions.
 ![A Diamond: four dancers on the four points.](../formations/diamond.png)
 ## Alamo and Thar
 
-- **Alamo Style** — dancers in a circle, all facing the centre, holding hands in a ring. The
-  starting formation for [Allemande Left in the Alamo Style](../04-calls/m31-ocean-wave-family.md).
-- **Alamo Ring** — the ring formed in Alamo Style. Several calls may start from it (Swing Thru is
-  one), which is why the Alamo appears in the Mainstream restrictions.
+- **Alamo Style** — dancers start an Allemande Left and keep the arm turn going until the **Boys are
+  looking at the centre and the Girls are looking out**, then join right hands with the dancer beside
+  them to close the ring. The starting formation for
+  [Allemande Left in the Alamo Style](../04-calls/m31-ocean-wave-family.md).
+- **Alamo Ring** — the ring that makes: a **wave closed into a circle**, so the dancers face
+  alternately in and out rather than all one way. Several calls may start from it (Swing Thru is one),
+  which is why the Alamo appears in the Mainstream restrictions.
 - **Thar** — an Alamo Ring with the dancers' arms crossed in the centre, so that each dancer holds a
   left forearm with one dancer and a right forearm with another. Mainly a Plus formation, but it is
   the reason a wrong-way star exists.
 
-![Alamo Style: a ring of dancers all facing the centre.](../formations/alamo.png)
+![Alamo Style: a ring of dancers facing alternately in and out, the Boys looking at the centre and the Girls out.](../formations/alamo.png)
 ![A Thar: an Alamo Ring with the arms crossed in the middle.](../formations/thar.png)
 ## Tag formations
 

@@ -79,6 +79,7 @@ follow the link rather than expecting the explanation to be repeated elsewhere.
 
 | Term | Where it is defined |
 |---|---|
+| **Caller** — the one person at the microphone | [What square dancing is](../01-start/what-is-square-dancing.md) |
 | **Call** | [How a call works](../01-start/how-a-call-works.md) |
 | **Tip**, **patter** (or **hash**, **hoedown**), **singing call** | [Tips, the unit of the dance](../01-start/tips-and-figures.md) |
 | **Record** — one piece of music, however it is played | [Tips, the unit of the dance](../01-start/tips-and-figures.md) |
@@ -119,6 +120,13 @@ follow the link rather than expecting the explanation to be repeated elsewhere.
 | **Plus** | [Where Mainstream leads](../07-plus/where-mainstream-leads.md) |
 | **Teaching order** (`M1` … `M50`) | [Course overview](../05-course/course-overview.md) |
 | **Basic**, **SSD** (the former programs) | [What square dancing is](../01-start/what-is-square-dancing.md) |
+
+## Reading the pictures
+
+| Term | Where it is defined |
+|---|---|
+| **Grid** — the floor the pictures are drawn on, one unit per square | [Conventions](../conventions.md) |
+| **Trail** — where a dancer has already been during the call | [Watching the animations](watching-the-animations.md) |
 
 ## Reference
 

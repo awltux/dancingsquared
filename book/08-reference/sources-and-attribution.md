@@ -62,3 +62,14 @@ with no animation are listed in the [animations index](animations-index.md).
 The definitions are CALLERLAB's, but the names you hear in a hall are the dancers'. Where a call has
 older or regional names, the call page lists them under **Also called / formerly**, so that the word
 someone sings out at you and the word in this book can be recognised as the same thing.
+
+## The callers' shorthand
+
+[Sequence and relationship](../02-language/sequence-and-relationship.md) uses the framework callers
+work in — **F**ormation, **A**rrangement, **S**equence, **R**elationship — and the relationship
+letters **p**, **c**, **o** and **r**. That is callers' terminology rather than part of the definitions
+document, and it follows **Rich Reel's "FASR and other Caller Terminology"** on all8.com
+([fasr.htm](https://www.all8.com/sd/calling/fasr.htm)), whose arrangement tables also supply the six
+squared-set arrangements drawn on
+[Arrangements and gender](../02-language/arrangements-and-gender.md). Credit for that material is
+Rich Reel's; where it and the definitions document disagree about a call, the document still wins.

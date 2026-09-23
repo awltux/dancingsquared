@@ -33,10 +33,8 @@ together give four states:
 | **4** | out | in sequence |
 
 ![A squared set in each of the four sequence states, numbered. 1 is the square you started in, 2 has whole couples in one another's places, and 3 and 4 are half in, half out.](../formations/sequences.png)
-**Being in sequence does not necessarily mean standing beside your own partner.** The two halves are
-read separately and can sit at different points in the ring, so you can be in sequence with your
-partner across the square. In states 3 and 4 that is forced — the pairs you see side by side there
-are not partners — and even in states 1 and 2 whole couples need not be together.
+The dancers standing side by side in those last two panels are not partners — who is actually beside
+you is [Relationship](#relationship).
 
 ## Why it matters
 
@@ -54,12 +52,22 @@ For a dancer, the practical consequences are:
 
 ## Relationship
 
-**Relationship** is the local version of the same idea: who is beside you, who is opposite you, who
-is your partner and corner *right now*.
+**Being in sequence does not necessarily mean standing beside your own partner.** Sequence gives the
+order the couples come round the ring; it does not say **whose hand you are holding**. That is a
+fourth question, and callers call it **relationship**: which of the four Girls is beside a given Boy.
+The answers are the four dancers you already know from home —
+[partner, corner, opposite and right-hand Lady](naming-the-dancers.md) — written **p**, **c**, **o**
+and **r**.
 
-A dancer's relationship to the others can change many times in a tip, especially through Allemande
-Left, Swing and Promenade, each of which establishes a **new** partner. That is why the manual has
-the phrase "current partner" — to distinguish it from your original one.
+Circle Left and every Boy has his partner on his right. Call
+[Ladies In, Men Sashay](../04-calls/m13-half-sashay-family.md#ladies-in-men-sashay) and the ring, the
+alternating Boys and Girls, and the sequence are all unchanged — but every Boy now has somebody else
+on his right. Only the relationship moved.
+
+Relationship changes constantly: Allemande Left, Swing and Promenade each establish a **new** partner,
+which is why the manual says "current partner". It is also the least settled to read — callers read it
+from one reference pair rather than the whole square — so in a hall you will hear "everyone with
+partner" far more often than a letter.
 
 ## In sequence, at home
 

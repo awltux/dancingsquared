@@ -33,12 +33,10 @@ together give four states:
 | **4** | out | in sequence |
 
 ![A squared set in each of the four sequence states, numbered. 1 is the square you started in, 2 has whole couples in one another's places, and 3 and 4 are half in, half out.](../formations/sequences.png)
-**Being in sequence does not mean standing beside your own partner.** Each half of the square has its
-own ring order, and the two halves can sit at different points in it, so a square can be in sequence
-with your partner across the square from you. In states 3 and 4 that is unavoidable — if a Girl stood
-beside her own partner the two halves would run the same way and could not disagree — so the dancers
-you see standing side by side in those two panels are not partners. Whole couples can be standing
-together only in states 1 and 2, and even there they need not be.
+**Being in sequence does not necessarily mean standing beside your own partner.** The two halves are
+read separately and can sit at different points in the ring, so you can be in sequence with your
+partner across the square. In states 3 and 4 that is forced — the pairs you see side by side there
+are not partners — and even in states 1 and 2 whole couples need not be together.
 
 ## Why it matters
 

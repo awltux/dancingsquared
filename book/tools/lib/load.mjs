@@ -26,6 +26,12 @@ const REQUIRED = [
   'dancerBeats',
   'computeHandholds',
   'assignHomeIdentity',
+  // The squared-set arrangement figure is drawn from the engine's own arrangement table, so
+  // that the six patterns are the ones the engine classifies boards into rather than a
+  // transcription of them.
+  'ARRANGEMENT_TABLES',
+  'ARRANGEMENT_NUMBER_ORDER',
+  'EMPTY_CELL',
 ];
 
 export function loadEngine() {

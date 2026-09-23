@@ -357,27 +357,37 @@ function beside(d, dancers) {
 }
 
 /** The floor every diagram stands on: pale ground, a one-unit grid, and the two centre lines. */
-function drawFloor(canvas, view) {
+function drawFloor(canvas, view, bounds = null) {
   const px = (v) => view.ox + v * view.scale;
   const py = (v) => view.oy - v * view.scale;
 
-  canvas.fillRect(0, 0, canvas.width, canvas.height, C.floor);
+  // A PANEL IS A RECTANGLE OF THE CANVAS. Every figure in this family is one square to a canvas, so
+  // with no bounds this draws the whole of it -- byte for byte as it always has. The panel form is
+  // for the one figure that is six squares at once (the arrangements of a squared set): there the
+  // floor, the grid and the axes must stop at the panel's edge instead of running across its
+  // neighbours.
+  const x0 = bounds ? bounds.x : 0;
+  const y0 = bounds ? bounds.y : 0;
+  const x1 = bounds ? bounds.x + bounds.w : canvas.width;
+  const y1 = bounds ? bounds.y + bounds.h : canvas.height;
+
+  canvas.fillRect(x0, y0, x1 - x0, y1 - y0, C.floor);
   const n = Math.ceil(view.units) + 1;
   for (let i = -n; i <= n; i++) {
     if (i === 0) continue;
     const colour = i % 2 === 0 ? C.gridMajor : C.gridMinor;
-    canvas.strokeLine(px(i), 0, px(i), canvas.height, 1, colour);
-    canvas.strokeLine(0, py(i), canvas.width, py(i), 1, colour);
+    if (px(i) >= x0 && px(i) <= x1) canvas.strokeLine(px(i), y0, px(i), y1, 1, colour);
+    if (py(i) >= y0 && py(i) <= y1) canvas.strokeLine(x0, py(i), x1, py(i), 1, colour);
   }
-  canvas.strokeLine(px(0), 0, px(0), canvas.height, 1, C.axis);
-  canvas.strokeLine(0, py(0), canvas.width, py(0), 1, C.axis);
+  if (px(0) >= x0 && px(0) <= x1) canvas.strokeLine(px(0), y0, px(0), y1, 1, C.axis);
+  if (py(0) >= y0 && py(0) <= y1) canvas.strokeLine(x0, py(0), x1, py(0), 1, C.axis);
 }
 
-function draw(canvas, dancers, view) {
+function draw(canvas, dancers, view, bounds = null) {
   const px = (v) => view.ox + v * view.scale;
   const py = (v) => view.oy - v * view.scale;
 
-  drawFloor(canvas, view);
+  drawFloor(canvas, view, bounds);
   
   const r = R_UNITS * view.scale;
   const ink = Math.max(1, Math.min(1.2, r / 11));
@@ -517,11 +527,123 @@ function drawAnnotated(canvas, people, view, { fillOf, ring = [], caller = null 
   }
 }
 
+/**
+ * THE SIX ARRANGEMENTS OF A SQUARED SET -- the one figure here that is more than one square.
+ *
+ * WHERE THE SIX PATTERNS COME FROM. Not from this file and not from a transcription: the engine's own
+ * `ARRANGEMENT_TABLES.S` is the table `arrangementFor()` classifies a board against, and it is the
+ * thing that says which of the six numbers a squared set is in. The table is four rows of four columns
+ * with a hole at the middle of every row and column (a squared set is a ring), so a cell becomes a
+ * dancer at `x = -3 + 2*column`, `y = 3 - 2*row`, facing the way the cell's facing character says.
+ *
+ * THAT MAPPING IS THE ONE THING THAT COULD BE WRONG, SO IT IS CHECKED rather than assumed: the engine's
+ * arrangement 0 has to come out as the library's own "Squared Set", dancer for dancer. It does -- and
+ * arrangement 0 is home, which is why a reader can recognise it.
+ *
+ * SIX, AND DISTINCT. Each of the six numbers is drawn, and no two of them may produce the same
+ * pattern of genders round the ring: that is what makes "there are six arrangements of a squared set"
+ * a measurement instead of a claim, and it is asserted before anything is drawn.
+ *
+ * ONE FIGURE, SIX PANELS. `draw` is the same function every other formation picture uses, called once
+ * per panel with the panel's own view and bounds, so the panels are at the same scale and in the same
+ * style as the single-square figures -- a reader can hold `squared-set.png` next to arrangement 0 and
+ * see the same picture.
+ */
+function buildArrangements(eng, lib, files, index) {
+  const table = eng.ARRANGEMENT_TABLES?.S;
+  if (!table) throw new Error('engine/dist has no arrangement table for [S] (the squared set)');
+  const numbers = [...eng.ARRANGEMENT_NUMBER_ORDER].sort((a, b) => a - b);
+  if (numbers.join(',') !== '0,1,2,3,4,5') {
+    throw new Error(`the engine's squared-set arrangements are numbered ${numbers.join(', ')}, not 0-5`);
+  }
+
+  const FACING = { '>': 0, '^': 90, '<': 180, v: 270 };
+  const dancersFor = (number) => {
+    const k = eng.ARRANGEMENT_NUMBER_ORDER.indexOf(number);
+    if (k < 0) throw new Error(`the engine's squared-set table has no arrangement ${number} column`);
+    const dancers = [];
+    for (let r = 0; r < table.length; r++) {
+      const genders = table[r].genders[k];
+      const facing = table[r].facing;
+      if (genders.length !== facing.length) {
+        throw new Error(`[S] arrangement ${number} row ${r}: ${genders.length} genders for ${facing.length} columns`);
+      }
+      for (let c = 0; c < facing.length; c++) {
+        const g = genders[c];
+        const f = facing[c];
+        if (g === eng.EMPTY_CELL || f === eng.EMPTY_CELL) continue;
+        if (g !== 'B' && g !== 'g') throw new Error(`[S] arrangement ${number} row ${r}: unreadable gender "${g}"`);
+        if (FACING[f] === undefined) throw new Error(`[S] arrangement ${number} row ${r}: unreadable facing "${f}"`);
+        dancers.push({ gender: g === 'B' ? 'boy' : 'girl', x: -3 + 2 * c, y: 3 - 2 * r, angleDeg: FACING[f] });
+      }
+    }
+    if (dancers.length !== 8) throw new Error(`[S] arrangement ${number} holds ${dancers.length} dancers, not 8`);
+    return dancers;
+  };
+
+  const spotKey = (d) => `${d.gender}@${d.x},${d.y}`;
+  const patternOf = (dancers) => dancers.map(spotKey).sort().join(' ');
+  const home = patternOf(dancersFor(0));
+
+  if (patternOf(completeSet(lib.get('Squared Set')).dancers) !== home) {
+    throw new Error('the engine\'s arrangement 0 of [S] is not the library\'s own Squared Set');
+  }
+
+  const byPattern = new Map();
+  for (const n of numbers) {
+    const pattern = patternOf(dancersFor(n));
+    if (byPattern.has(pattern)) {
+      throw new Error(`[S] arrangements ${byPattern.get(pattern)} and ${n} are the same pattern, so there are not six`);
+    }
+    byPattern.set(pattern, n);
+  }
+
+  // A 3 x 2 grid of panels. PANEL is the size of a whole single-square figure, so each panel is drawn
+  // at exactly the scale of the standalone squared set; the gap carries the canvas background and a
+  // thin border, which is what keeps six squares from reading as one wide grid.
+  const PANEL = SIZE;
+  const GAP = 12;
+  const PAD = 12;
+  const COLS = 3;
+  const canvas = new Canvas(PAD * 2 + COLS * PANEL + (COLS - 1) * GAP, PAD * 2 + 2 * PANEL + GAP, C.white);
+
+  numbers.forEach((number, i) => {
+    const col = i % COLS;
+    const row = Math.floor(i / COLS);
+    const x = PAD + col * (PANEL + GAP);
+    const y = PAD + row * (PANEL + GAP);
+    const bounds = { x, y, w: PANEL, h: PANEL };
+    const dancers = dancersFor(number);
+    const view = makeView(dancers);
+    draw(canvas, dancers, { ...view, ox: x + PANEL / 2, oy: y + PANEL / 2 }, bounds);
+    for (const [ax, ay, bx, by] of [
+      [x, y, x + PANEL, y],
+      [x + PANEL, y, x + PANEL, y + PANEL],
+      [x + PANEL, y + PANEL, x, y + PANEL],
+      [x, y + PANEL, x, y],
+    ]) {
+      canvas.strokeLine(ax, ay, bx, by, 1, C.gridMajor);
+    }
+    // The panel's own number, so a reader matches a square to the page without counting panels.
+    canvas.digit(number, x + 8, y + 8, 4, C.ink);
+  });
+
+  files.set('arrangements.png', writePng(canvas, PALETTE));
+  index.arrangements.push({
+    source: 'engine arrangement table for [S] (All8 arrangement diagrams, 6 states)',
+    drawn: numbers.length,
+    // The pattern each panel shows, so the index says what was drawn and not only how many.
+    panels: numbers.map((n) => ({ number: n, pattern: patternOf(dancersFor(n)) })),
+    bytes: files.get('arrangements.png').length,
+  });
+  return numbers;
+}
+
 export function build() {
   const eng = loadEngine();
   const lib = eng.parseFormations(readAsset('formations.xml'));
   const files = new Map();
-  const index = { drawn: [], notDrawn: [] };
+  const index = { drawn: [], notDrawn: [], arrangements: [] };
 
   // ------------------------------------------------- the two figures that pick dancers out
   // Everything they draw, they draw with the same floor, markers and ink as the rest of the family.
@@ -615,6 +737,8 @@ export function build() {
       bytes: files.get(`${spec.slug}.png`).length,
     });
   }
+
+  buildArrangements(eng, lib, files, index);
   return { files, index };
 }
 
@@ -643,7 +767,8 @@ export function main() {
     }
     const undrawn = index.notDrawn.length;
     console.log(
-      `${files.size} formation diagrams reproduce exactly${undrawn ? `; ${undrawn} with a recorded reason` : ''}.`,
+      `${index.drawn.length} formation diagrams and ${index.arrangements[0]?.drawn ?? 0} squared-set ` +
+        `arrangements reproduce exactly${undrawn ? `; ${undrawn} with a recorded reason` : ''}.`,
     );
     return 0;
   }
@@ -653,7 +778,7 @@ export function main() {
   for (const [name, buf] of [...files.entries()].sort()) writeFileSync(join(OUT_DIR, name), buf);
   writeFileSync(INDEX, JSON.stringify(index, null, 2), 'utf8');
 
-  console.log(`${files.size} formation diagrams -> ${OUT_DIR}`);
+  console.log(`${index.drawn.length} formation diagrams -> ${OUT_DIR}`);
   for (const d of index.drawn) {
     console.log(
       d.derivedFrom
@@ -662,6 +787,10 @@ export function main() {
     );
   }
   for (const n of index.notDrawn) console.log(`  no diagram: ${n.title} (${n.reason})`);
+  for (const a of index.arrangements) {
+    console.log(`  arrangements: ${a.drawn} panels -> arrangements.png (${a.source})`);
+    for (const p of a.panels) console.log(`    ${p.number}: ${p.pattern}`);
+  }
   void CACHE;
   return 0;
 }

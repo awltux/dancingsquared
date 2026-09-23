@@ -40,6 +40,27 @@ An arrangement is a property of the whole set, not just of one couple. In a squa
 couple is Normal, the square is "in proper arrangement". After a few calls the couples may be
 mixed — one Normal, one Sashayed — and the caller chooses calls that work with what is actually there.
 
+A squared set can be in **six** arrangements, and callers number them 0 to 5:
+
+| Number | The four couples |
+|---|---|
+| **0** | every couple Normal — home |
+| **1** | the Heads all Boys, the Sides all Girls |
+| **2** | the Heads all Girls, the Sides all Boys |
+| **3** | the Heads Normal, the Sides Half-Sashayed |
+| **4** | the Heads Half-Sashayed, the Sides Normal |
+| **5** | every couple Half-Sashayed |
+
+![A squared set in each of its six arrangements, numbered: 0 is every couple Normal, 5 is every couple Half-Sashayed, and 1-4 mix the two.](../formations/arrangements.png)
+Two of the six leave the square with no Boy-Girl couple in it at all — numbers 1 and 2, where every
+couple is a [same-gender couple](#the-three-couple-arrangements) — and the other four mix the two
+kinds of couple.
+
+The numbers are the callers' own, and an arrangement number is worked out **per formation**: the same
+six numbers name different patterns in a wave or a line, so these six belong to the squared set.
+*Heads* and *Sides* in the table are the names from [Naming the dancers](naming-the-dancers.md): the
+Heads are the two couples in line with the caller.
+
 ## Gender is a role
 
 The 2026 manual is careful about this, and so is this book:

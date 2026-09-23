@@ -17,7 +17,7 @@ circulates in halls, the page says so rather than pretending it does not exist.
 | **[how-this-book-is-organised.md](how-this-book-is-organised.md)** | the kinds of page, and the call card |
 | **[contents.md](contents.md)** | the map, and three reading paths (dancer / teacher / first-timer) |
 | **[conventions.md](conventions.md)** | how the pages are laid out, what the pictures show, and how to read them |
-| **[01-start/](01-start/what-is-square-dancing.md)** | what square dancing is, the square itself, and your first call |
+| **[01-start/](01-start/what-is-square-dancing.md)** | what square dancing is, the square itself, and how a call is put together |
 | **[02-language/](02-language/naming-the-dancers.md)** | the words: who is who, what a formation is, how people are named |
 | **[03-rules/](03-rules/passing-rule.md)** | the conventions that settle what a call means when it is ambiguous |
 | **[04-calls/](04-calls/m01-circle-family.md)** | the call reference — one file per teaching unit |
@@ -224,8 +224,8 @@ The site is a **PWA**: `manifest.webmanifest`, a service worker, and a set of dr
   launcher and an iOS home screen label, and it is short on purpose — a launcher needs a name, not the
   book's descriptive title. The manifest's long `name`, and so the install dialog and the Android app-info
   page, keep the full descriptive title.
-- **Works offline** — the service worker precaches what a reader needs to *open* the book: all 108
-  pages, the stylesheet, the player, the dance library, the dance data and the icons (256 entries).
+- **Works offline** — the service worker precaches what a reader needs to *open* the book: all 107
+  pages, the stylesheet, the player, the dance library, the dance data and the icons (255 entries).
   The whole book is playable offline; only the icons are fetched lazily.
 - **Pages are network-first, assets cache-first.** A reader online gets the newest build; a reader
   offline gets the cached page, or `offline.html`, which explains itself rather than failing.

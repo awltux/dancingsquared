@@ -8,7 +8,8 @@
 //   4. every teaching unit M1..M50 has a call page;
 //   5. no call page exists for a call that is NOT in the 2026 programme;
 //   6. every figure is referenced by some page, and every referenced figure exists.
-//   7. no file has been corrupted by a single-byte encoding round-trip.
+//   7. no file has been corrupted by a single-byte encoding round-trip;
+//   8. no reader-facing page speaks in the tools' language.
 //
 // A book whose whole design is "define it once and link to it" fails quietly when a link
 // rots: the reader gets a dead end and no way to tell whether the page or the anchor is
@@ -145,6 +146,33 @@ for (const f of walk(BOOK).filter((f) => TEXT_FILE.test(f))) {
     const line = text.slice(0, m.index).split('\n').length;
     problems.push(
       `${rel}:${line}: mojibake (${JSON.stringify(m[0])}) — the file was round-tripped through a single-byte encoding`,
+    );
+  }
+}
+
+// ---- a page is read by dancers, so it must not speak in the tools' language
+//
+// The rule is §7's, and it is older than this check: `book/*.md` is read by dancers, so no page may
+// describe how the book is made. What makes it worth a gate is how the words get in -- they are the
+// words whoever built the page was looking at. "If the board does not meet its precondition the call
+// refuses rather than guessing" is the engine's own account of a geometry call, and to a dancer it is
+// nonsense; the hand-over asked for it to be said from the caller's side instead. Four such sentences
+// were found by hand in one afternoon (three of them the word "board", one a picture-axis "+y"), which
+// is the argument for a list rather than an eye.
+//
+// Every word here has no honest reader-facing use in this book. "engine" is deliberately NOT in the
+// list: the Introduction tells the reader, in so many words, that an experimental engine draws the
+// animations, so the word has a legitimate place. Nor is `README.md` or `HANDOVER.md` checked -- those
+// two are workspace files, and they are supposed to talk about corpora and toolchains.
+const JARGON =
+  /\b(boards?|preconditions?|corpus|corpora|sequencers?|rasterisers?|rasterizers?|metadata|authorings?|XML|JSON)\b|\+y\b/;
+for (const [file, text] of markdown) {
+  const rel = slashed(relative(BOOK, file));
+  if (rel === 'README.md' || rel === 'HANDOVER.md') continue;
+  for (const m of text.matchAll(new RegExp(JARGON, 'g'))) {
+    const line = text.slice(0, m.index).split('\n').length;
+    problems.push(
+      `${rel}:${line}: tools' language in a reader-facing page (${JSON.stringify(m[0])}) — say it from the dancer's or caller's side`,
     );
   }
 }

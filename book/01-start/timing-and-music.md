@@ -65,6 +65,10 @@ use the beats they have.
 The numbers for every call in this book are collected in
 [the call index](../08-reference/call-index.md).
 
+None of it works without music that keeps its phrases in the same places: a record that drifts, or
+drops a bar, cannot be called to however carefully the figures are timed. What to look for in a record,
+and where square dance music comes from, is [Finding music](../06-practice/finding-music.md).
+
 ## Next
 
 - how calls are combined into a whole dance → [Tips, the unit of the dance](tips-and-figures.md)

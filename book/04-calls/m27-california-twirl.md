@@ -52,9 +52,8 @@ of the same circle.
 ### Timing
 
 **4 beats** — two bars of music, the same as [Star Thru](m18-star-thru.md). Enough time to walk round
-each other comfortably, not enough time to think about it. The animation runs in 3 beats, so if
-you are practising from the tracks, do not be surprised that it looks a shade quicker than the
-caller's figure.
+each other comfortably, not enough time to think about it. The animation runs in 3 beats, so it looks a
+shade quicker than the 4 you will dance it to.
 
 ### Styling
 

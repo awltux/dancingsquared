@@ -22,7 +22,6 @@ dancing, so they are numbered **0** and the dance itself starts at **01**.
 |---|---|
 | [What square dancing is](01-start/what-is-square-dancing.md) | the dance, the evening, and what changed in 2026 |
 | [The square](01-start/the-square.md) | eight dancers, four couples, and the words for them |
-| [Your first call](01-start/your-first-call.md) | Circle Left, walked through |
 | [How a call works](01-start/how-a-call-works.md) | start formation → dance action → end formation |
 | [Timing and music](01-start/timing-and-music.md) | beats, phrases, and why 64 matters |
 | [Tips, the unit of the dance](01-start/tips-and-figures.md) | opener, figure, break, closer, finale |

@@ -61,5 +61,5 @@ Two consequences you will notice:
 ## Where to go next
 
 - the eight positions, and the words for them → [The square](the-square.md)
-- your first call, right now → [Your first call](your-first-call.md)
+- your first call, right now → [Circle Left](../04-calls/m01-circle-family.md)
 - how a call is put together → [How a call works](how-a-call-works.md)

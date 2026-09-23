@@ -34,10 +34,11 @@ A call with no animation says **why** instead — see below.
 ## Reading the animations
 
 Every animation is drawn **looking straight down at the floor**, with the walls of the square square
-to the page. Board **+y is up the page**. The faint grid behind the dancers is the floor, drawn **one
-unit per square**, and **a dancer is one square wide** — so the spacing between dancers can be read off
-the grid rather than guessed. Dancers stand two squares apart in a squared set or a wave, and one
-square apart in a tidal wave or a promenade.
+to the page: the bottom of the picture is the side of the square **nearest you**, and the top is the
+far side. The faint grid behind the dancers is the floor, drawn **one unit per square**, and **a
+dancer is one square wide** — so the spacing between dancers can be read off the grid rather than
+guessed. Dancers stand two squares apart in a squared set or a wave, and one square apart in a tidal
+wave or a promenade.
 
 | Symbol | Meaning |
 |---|---|

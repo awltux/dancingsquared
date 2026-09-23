@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../index.md "Previous section: Front matter") [◀](what-is-square-dancing.md "Previous page: What square dancing is") [☰](../contents.md "Contents") [▶](your-first-call.md "Next page: Your first call — Circle Left") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
+**[⏮](../index.md "Previous section: Front matter") [◀](what-is-square-dancing.md "Previous page: What square dancing is") [☰](../contents.md "Contents") [▶](how-a-call-works.md "Next page: How a call works") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
 <!-- nav:end -->
 
 # The square
@@ -72,4 +72,4 @@ The distinction between "a Static Square" (the arrangement) and "Squared Set" (t
 
 - why anyone cares which way the square is facing → [Directions](../02-language/directions.md)
 - the shapes the eight of you make → [Formations](../02-language/formations.md)
-- a call to try → [Your first call](your-first-call.md)
+- a call to try → [Circle Left](../04-calls/m01-circle-family.md)

@@ -49,7 +49,6 @@ const ORDER = {
   '01-start': [
     'what-is-square-dancing.md',
     'the-square.md',
-    'your-first-call.md',
     'how-a-call-works.md',
     'timing-and-music.md',
     'tips-and-figures.md',

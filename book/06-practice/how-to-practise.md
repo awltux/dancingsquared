@@ -19,10 +19,11 @@ Practise the calls you cannot yet do without reading them:
 4. **Check the shape you finish in** against the call page's ending formation. If you are standing
    somewhere else, the mistake is in the middle of the call, not at the end.
 
-The **tracks** figure on each call page is the best way to check a call you are unsure of. It shows
-where each dancer travels, from the starting board to the ending board, with small dots marking equal
-fractions of the call. Run your finger along the track that belongs to the dancer you are learning,
-and walk it. If your feet do not go where the track goes, you have found your error.
+The **animation** on each call page is the best way to check a call you are unsure of. Drag the slider
+to the middle of the call, then step it with **⏪** and **⏩** and watch the dancer whose part you are
+learning: the picture is worked out for the exact point you stop at, so nothing is smeared or guessed.
+If your feet would not be where that dancer's are, you have found your error. The controls are set out
+in [Watching the animations](../08-reference/watching-the-animations.md).
 
 Two calls a week is enough to keep up with the course. Five minutes each, four times a week, beats an
 hour on the night before class.

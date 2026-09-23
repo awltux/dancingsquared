@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../index.md "Previous section: Front matter") [◀](your-first-call.md "Previous page: Your first call — Circle Left") [☰](../contents.md "Contents") [▶](timing-and-music.md "Next page: Timing and music") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
+**[⏮](../index.md "Previous section: Front matter") [◀](the-square.md "Previous page: The square") [☰](../contents.md "Contents") [▶](timing-and-music.md "Next page: Timing and music") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
 <!-- nav:end -->
 
 # How a call works
@@ -52,8 +52,8 @@ three ways you will meet:
 
 - **Geometry calls** — the end state is defined by *identity* rather than by a path. **Promenade
   Home** is the standard example: you are not told which way to walk; the call is defined as
-  finishing on your own home spot, facing in. If the board does not meet its precondition the call
-  refuses rather than guessing.
+  finishing on your own home spot, facing in. It works from any set the dancers can walk home from,
+  and from nowhere else — which is why a caller sets a promenade up rather than calling it cold.
 - **Suffix calls** — the action depends on the call before it. **Sweep a Quarter** is one: it
   circles a quarter in whichever direction continues the motion that just finished.
 - **Rules that adjust a call to where you are** — the [Facing Couples Rule](../03-rules/facing-couples-rule.md)

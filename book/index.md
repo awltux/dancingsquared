@@ -27,10 +27,10 @@ nothing on that page concerns you yet.
 ## Three ways to read it
 
 - **From the beginning, in order.** [What square dancing is](01-start/what-is-square-dancing.md) →
-  [The square](01-start/the-square.md) → [Your first call](01-start/your-first-call.md) →
-  [Naming the dancers](02-language/naming-the-dancers.md), then the classes in
-  [the course](05-course/course-overview.md), with [the calls](04-calls/m01-circle-family.md) as the
-  reference beside you. This is the path a class follows.
+  [The square](01-start/the-square.md) → [Naming the dancers](02-language/naming-the-dancers.md), then
+  the classes in [the course](05-course/course-overview.md), with
+  [the calls](04-calls/m01-circle-family.md) as the reference beside you. This is the path a class
+  follows.
 - **One call at a time.** [The call index](08-reference/call-index.md) lists every call. Each page
   stands on its own and links to the pages that explain the words it uses.
 - **To teach.** [Teaching a class](05-course/teaching-a-class.md), with the
@@ -56,7 +56,7 @@ And it is only Mainstream. What comes after it is in
 
 - how the pages are laid out → [How this book is organised](how-this-book-is-organised.md)
 - the map of the whole book → [Contents](contents.md)
-- straight into it → [Your first call](01-start/your-first-call.md)
+- straight into it → [Your first call — Circle Left](04-calls/m01-circle-family.md)
 
 > [!WARNING]
 > **This book was written by an AI, so it may contain mistakes and hallucinations.** Every page was
@@ -70,8 +70,10 @@ And it is only Mainstream. What comes after it is in
 > **The animations are drawn by an experimental engine.** It is a square dance engine still under test,
 > working from **Taminations** call data. Because Taminations does not author every call this book
 > teaches, that data carries extensions for the rest — and those extended calls do not all work as
-> expected yet, so an animation can be wrong while looking entirely plausible. Where an animation and
-> the definition disagree, **believe the definition**.
+> expected yet, so an animation can be wrong while looking entirely plausible. The **handholds** are the
+> worst of it: which hand is holding which is what the engine gets wrong most often, so a picture can
+> join two dancers who are not touching, or join the wrong hands. Where an animation and the definition
+> disagree, **believe the definition**.
 >
 > **Corrections are always welcome.** If something here is wrong,
 > [log in to GitHub and raise an issue, mentioning 'book_build_hash={{build-hash}}'](https://github.com/awltux/dancingsquared/issues).

@@ -63,6 +63,11 @@ will use a quarter or a half.
 Lean very slightly into the circle so the ring holds its shape, but keep your own weight — nobody
 should be hanging on the dancers either side. Elbows stay soft.
 
+Two habits of step are accepted in an eight-dancer circle: a plain walking step, or a *grapevine* step,
+where the body and arms turn left and right in time with the feet, so that you catch eyes with your
+corner and your partner in turn. Both are danced. The manual rules the grapevine out for the small
+circle — see the quote on the Circle of 4 card below.
+
 ### Common faults
 
 | What happens | Why | The fix |

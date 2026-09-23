@@ -10,13 +10,13 @@
 >
 > | | |
 > |---|---|
-> | Pages | **108** pages of book across **110** Markdown files (`README.md` and this file are workspace files, not pages) |
+> | Pages | **107** pages of book across **109** Markdown files (`README.md` and this file are workspace files, not pages) |
 > | Call reference | **50** unit files in `04-calls/` carrying **78 call cards** |
 > | Playable | **75 of 78** cards, from **118 curated start labels** in `tools/start-formations.json` — 64 wired to an authoring, 54 listed but not yet animatable. **5** cards have `"starts": {}` (`m03c`, `m12c`, `m14a`, `m15b`, `m15c`) because their manual wording is prose rather than a list |
 > | Withheld | **3** cards — `m04a`, `m14b`, `m32c` — each with a recorded reason (`noAnimation` in `tools/animations-index.json`) |
 > | Restrictions | stated on **54 of 78** cards |
 > | Diagrams | **19** formation PNGs and **3** annotated position SVGs |
-> | Online edition | `book/dancingsquared_book/` — 237 files, ~3.4 MB, a PWA with a service worker |
+> | Online edition | `book/dancingsquared_book/` — 236 files, ~3.4 MB, a PWA with a service worker |
 > | Build stamp | every page footer ends with the build's short content hash in square brackets, and the Introduction's correction link asks for the same hash as `book_build_hash=<hash>` — stamped at the end of `build-site.mjs`, the same value the offline cache is versioned by, so a deployment can be identified from the page a reader is looking at |
 > | Gate | `npm run check:book` → exit 0: *109 pages, 50 teaching units, 75 playable calls; all links, anchors and coverage checks pass.* · *75 playable calls reproduce exactly.* · *75 playable calls verified (303 pose evaluations, 3 with a recorded reason).* |
 >
@@ -519,13 +519,14 @@ book/
   tools/        generators and gates
 ```
 
-**What was built** — the same skeleton with three differences:
+**What was built** — the same skeleton with four differences:
 
 | Planned | Built | Why |
 |---|---|---|
-| `figures/` — one SVG per call, 250–350 of them | `formations/` (17 PNGs) + `positions/` (3 SVGs) + the browser player | The engine-driven player replaced the per-call figure set, so only the small formation and position diagrams remain as images; the count is **20, not 250–350** |
+| `figures/` — one SVG per call, 250–350 of them | `formations/` (19 PNGs) + `positions/` (3 SVGs) + the browser player | The engine-driven player replaced the per-call figure set, so only the small formation and position diagrams remain as images; the count is **22, not 250–350** (and the three position SVGs are orphaned — see the banner) |
 | `CHECKPOINT-classification.md` | absent | The corpus-classification table was later deleted in the de-developer sweep; the reader-facing residue is `08-reference/programme-membership.md` and `moved-and-renamed.md` |
 | `figures-index.md`, `corpus-classification.md`, `definitions-reconciliation.md`, `using-the-dancing-squared-app.md` in `08-reference/` | `animations-index.md`, `watching-the-animations.md` instead | Developer-facing pages were removed by the same sweep; the animations index took the figure index's place |
+| `01-start/your-first-call.md` — a walkthrough of the first call | written, then **deleted** | It restated the M1a call card: the same walkthrough, the same fraction table, the Manual's styling quotation word for word, the same faults. That is exactly the duplication the book exists to avoid, and it was the only page doing it. Its one unique note — the grapevine step in an eight-dancer circle — moved to the M1a **Styling** section, and the flagpole centre it re-defined already lives in `02-language/directions.md`. The URL is gone and the book has no redirects, so a bookmark of it now 404s, as with the pages renamed in the front-matter swap |
 
 `02-language/` is built from the manual's **Ways of Naming Dancers** (Partner & Corner, Heads & Sides,
 Couple #1–#4, Boys & Girls, Centers & Ends, Leaders & Trailers, Adjacent, Couples, Opposite,
@@ -549,7 +550,8 @@ plus the corpus files classed `terminology`. `03-rules/` is built from its **Con
 6. **`check-links.mjs`** — links and fragments resolve; every unit `M1`–`M50` has a call file; every
    programme entry has a figure or a recorded reason; no orphan figures; one definition site per
    glossary term; **no call page for a non-call**; the contents links every page in the reading order;
-   **no file has been through a single-byte encoding round-trip**.
+   **no file has been through a single-byte encoding round-trip**; **no reader-facing page speaks in
+   the tools' language** (`board`, `corpus`, `precondition`, `+y` and the like).
 
 **What was built** — two of the six planned gates were never written, one split into two tools, and the
 `--check` modes that exist are not all wired in (see the banner):
@@ -561,7 +563,7 @@ plus the corpus files classed `terminology`. `03-rules/` is built from its **Con
 | `resolve-programme.mjs` | — | same: the three-way membership is computed in `make-reference.mjs` |
 | `reconcile-definitions.mjs` | — | never written; the deletions noted in §6.1 removed the page it fed. **The reconciliation it described is therefore not running** — nothing today compares a card's stated start/end formation and timing against the corpus, and nothing compares the cards against the manual's pages |
 | `make-figures.mjs` | `make-formations.mjs` + `make-positions.mjs` | both deterministic with `--check`; **neither is run by `check:book`** |
-| `check-links.mjs` | `check-links.mjs` | as planned, plus: `### Animation` heading count vs call-card count, nav-bar sentinels, `GENERATED` headers, formation-diagram orphan checking, the contents page linking every page in the reading order, and mojibake in any source or tool file |
+| `check-links.mjs` | `check-links.mjs` | as planned, plus: `### Animation` heading count vs call-card count, nav-bar sentinels, `GENERATED` headers, formation-diagram orphan checking, the contents page linking every page in the reading order, mojibake in any source or tool file, and the tools' own vocabulary in a reader-facing page |
 
 The live gate is `npm run check:book`:
 

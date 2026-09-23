@@ -77,9 +77,15 @@ You may also hear **"the #1 Boy"** and **"the #1 Girl"** — the two dancers of 
 **Centers** are the dancers near the centre of the formation. **Ends** are the dancers on the
 outside. This has nothing to do with which way anyone is facing.
 
-In an eight-dancer line, "Centers" is ambiguous — there are two possible centre pairs — so the
-manual asks callers to say **"Each Side, Centers"** or **"Center Four"** instead. In a box or a
-wave, "Centers" and "Ends" are unambiguous.
+With eight dancers it depends on the formation. In two lines of four, each line has its own centre
+pair, so "Centers" on its own is ambiguous — the caller has to say **"Each Side, Centers"**, which names
+both pairs, or **"Center Four"**, which names the middle four. In a box or a wave, "Centers" and
+"Ends" are unambiguous.
+
+![Eight dancers in two lines of four facing each other, seen from above. The four nearest the middle are marked C for Centers, and the four on the outside E for Ends, whichever way they are facing.](../diagrams/centers-and-ends.svg)
+
+C and E are the manual's own letters. Note that the two lines face each other and it makes no
+difference: Centers and Ends are about where you are standing, not about which way you are looking.
 
 You will also meet **Very Centers** (the two dancers nearest the middle of a 1×8 line) and
 **Outside Four**, **Center 6** and **Outside 6** in tag formations. These are explained on

@@ -27,6 +27,12 @@
       "title": "Leaders and Trailers in a box",
       "leaders": "girl at (-2,-1), girl at (2,1)",
       "trailers": "boy at (-2,1), boy at (2,-1)"
+    },
+    {
+      "slug": "centers-and-ends",
+      "title": "Centers and Ends in two facing lines",
+      "centres": "girl at (-2,1), boy at (-2,-1), girl at (2,-1), boy at (2,1)",
+      "ends": "boy at (-2,3), girl at (-2,-3), boy at (2,-3), girl at (2,3)"
     }
   ]
 }

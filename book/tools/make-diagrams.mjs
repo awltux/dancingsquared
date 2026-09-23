@@ -460,6 +460,61 @@ export function build() {
     trailers: trailers.map((d) => `${d.gender} at (${d.x},${d.y})`).join(', '),
   });
 
+  // ---------------------------------------------------------------- Centers and Ends
+  //
+  // The manual, "Centers and Ends": "Dancers near the center of the square (or formation) are called
+  // Centers. Dancers on the outside of the square (or formation) are called Ends. The identification of
+  // Centers or Ends is independent of facing direction." Its own diagrams mark them "C" and "E", which
+  // is what this follows.
+  //
+  // Drawn on "Normal Lines" -- two lines of four facing each other -- because that is the case the page
+  // calls ambiguous: each line has its own centre pair, which is why the caller has to say "Each Side,
+  // Centers". The classification is by distance from the formation's own centre, and the build asserts
+  // the four nearest are strictly nearer than the four furthest: if the two groups ran together,
+  // "Centers" would be a guess rather than a reading.
+  const linesWritten = lib.get('Normal Lines');
+  if (!linesWritten) throw new Error('formations.xml has no "Normal Lines"');
+  const lines = completeSet(linesWritten).dancers;
+  if (lines.length !== 8) throw new Error(`Normal Lines has ${lines.length} dancers, expected 8`);
+  const lineCentre = {
+    x: lines.reduce((s, d) => s + d.x, 0) / lines.length,
+    y: lines.reduce((s, d) => s + d.y, 0) / lines.length,
+  };
+  const distance = (d) => Math.hypot(d.x - lineCentre.x, d.y - lineCentre.y);
+  const byDistance = [...lines].sort((a, b) => distance(a) - distance(b));
+  const centres = byDistance.slice(0, 4);
+  const ends = byDistance.slice(4);
+  if (Math.max(...centres.map(distance)) >= Math.min(...ends.map(distance))) {
+    throw new Error('the Centers and the Ends do not separate by distance from the centre');
+  }
+
+  const letter = (d) => {
+    const west = d.x < lineCentre.x;
+    return label(west ? px(d.x) - 26 : px(d.x) + 26, py(d.y) + 4, centres.includes(d) ? 'C' : 'E', {
+      size: 14,
+      anchor: west ? 'end' : 'start',
+      fill: COLOUR.ink,
+    });
+  };
+  const centresBody = [
+    dancerLayer(lines, { fillOf: (d) => COLOUR.plain[d.gender] ?? COLOUR.muted }),
+    ...lines.map(letter),
+  ].join('\n');
+  files.set(
+    'centers-and-ends.svg',
+    svg(
+      'Centers and Ends in two facing lines',
+      'Eight dancers in two lines of four facing each other, seen from above. The four dancers nearest the middle of the whole formation are marked C for Centers, and the four on the outside E for Ends -- whichever way any of them is facing.',
+      centresBody,
+    ),
+  );
+  index.drawn.push({
+    slug: 'centers-and-ends',
+    title: 'Centers and Ends in two facing lines',
+    centres: centres.map((d) => `${d.gender} at (${d.x},${d.y})`).join(', '),
+    ends: ends.map((d) => `${d.gender} at (${d.x},${d.y})`).join(', '),
+  });
+
   return { files, index };
 }
 

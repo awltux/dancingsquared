@@ -340,7 +340,9 @@ node book/tools/make-animations.mjs    # the player catalogue: animations-index.
 node book/tools/make-animations.mjs --verify   # every call loads and poses cleanly, start to end
 node book/tools/make-animations.mjs --check    # the committed catalogue is not stale
 node book/tools/make-animations.mjs --gifs     # optional: also encode a GIF of each call
-node book/tools/make-formations.mjs    # the small formation diagrams
+node book/tools/make-formations.mjs    # the small formation diagrams (PNG, from the rasteriser)
+node book/tools/make-diagrams.mjs      # the annotated diagrams (SVG, because they carry words)
+node book/tools/make-diagrams.mjs --check      # they reproduce exactly  (run by check:book)
 node book/tools/make-reference.mjs     # the generated tables in 08-reference/
 node book/tools/make-nav.mjs           # the navigation bar at the head of every page  <-- RUN LAST
 node book/tools/fix-links.mjs          # repair sibling links to the real filenames
@@ -398,6 +400,7 @@ wrong call), and a playable call that no page places.
 |---|---|
 | `animations-index.json` — which call each player loads and how it fits the floor | `01-start/`, `02-language/`, `03-rules/` |
 | every PNG in `formations/` | every call page in `04-calls/` |
-| `08-reference/call-index.md`, `formation-index.md`, `animations-index.md`, `programme-membership.md`, `moved-and-renamed.md` | `05-course/`, `06-practice/`, `07-plus/`, and `08-reference/glossary.md`, `sources-and-attribution.md`, `watching-the-animations.md` |
+| every SVG in `diagrams/` — the squared-set pictures and the 2/4-against-4/4 phrase diagram | `05-course/`, `06-practice/`, `07-plus/` |
+| `08-reference/call-index.md`, `formation-index.md`, `animations-index.md`, `programme-membership.md`, `moved-and-renamed.md` | `08-reference/glossary.md`, `sources-and-attribution.md`, `watching-the-animations.md` |
 
 Generated pages carry a `<!-- GENERATED … -->` header and are checked for it by the gate.

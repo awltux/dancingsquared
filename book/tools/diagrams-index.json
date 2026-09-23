@@ -17,6 +17,12 @@
       "partner": "#2",
       "corner": "#8",
       "opposite": "#6"
+    },
+    {
+      "slug": "phrase-bars",
+      "title": "The phrase in 2/4 and in 4/4",
+      "beats": 8,
+      "bars": "2/4 -> 4 bars, 4/4 -> 2 bars"
     }
   ]
 }

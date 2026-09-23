@@ -17,7 +17,7 @@
 |---|---|
 | **Starting formation** | [Static Square](../01-start/the-square.md), after the caller names who faces |
 | **Ending formation** | [Static Square](../01-start/the-square.md) |
-| **Timing** | 32 beats — eight phrases of four |
+| **Timing** | 32 beats — eight groups of four counts |
 | **Unit** | M23 of 50 |
 
 ### Animation
@@ -45,27 +45,27 @@ more. Do it by counting.
 1. **Listen for who faces.** The caller says "Sides Face, Grand Square" or "Heads Face, Grand
    Square". If you are named, **turn where you stand to face your partner**. If you are not named,
    keep facing across the square, towards the dancer opposite you.
-2. **Dance eight phrases of four counts.** Each phrase is the same: **step (1), step (2), step (3),
+2. **Dance eight groups of four counts.** Each group is the same: **step (1), step (2), step (3),
    step and turn a quarter turn in place (4)**.
 3. **Know which way you travel.** If you are nose to nose with someone, those four steps go
    **backwards**, away from each other. If you are facing across the square, they go **forwards**
    until you are nose to nose.
 4. **On count 4, turn a quarter turn in place.** You are now facing the next dancer, either nose to
-   nose or across the square. Who is nose to nose swaps over each phrase.
+   nose or across the square. Who is nose to nose swaps over each group of four.
 5. **On count 16, do not turn.** You step and pause. That is exactly halfway, and the caller may say
    "Reverse". From here you **retrace the whole thing backwards**.
 6. **On count 32 you are home.** The dancers who faced at the start turn back in to make the square
    again; the others take their last step and stand still.
 
 The manual is emphatic about one thing: "these are square dancing steps and NOT just walking". Three
-steps and a turn, in time, for eight phrases. If you walk it, you will be out of position long before
-the end. See [Timing and music](../01-start/timing-and-music.md).
+steps and a turn, in time, for eight groups of four. If you walk it, you will be out of position long
+before the end. See [Timing and music](../01-start/timing-and-music.md).
 
 ### Timing
 
 **32 beats**, and it must not be rushed: one Step and one Step-Turn In per beat of music, so that
 everybody arrives home on the same beat. The manual also asks callers to start Grand Square on beat 1
-of an 8-beat phrase, preferably beat 1 of a 32-beat phrase, so the eight four-count phrases line up
+of an 8-beat phrase, preferably beat 1 of a 32-beat phrase, so the eight four-count groups line up
 with the music.
 
 ### Styling

@@ -1,13 +1,18 @@
-// Annotated position diagrams for the book's language pages, drawn from the engine's own squared set.
+// Annotated diagrams for the book's prose pages: the squared-set pictures the language pages use, and
+// the phrase diagram that explains how long a phrase is.
 //
-//   node book/tools/make-positions.mjs [--check]
+//   node book/tools/make-diagrams.mjs [--check]
 //
 // WHY SVG HERE, WHEN THE FORMATION DIAGRAMS ARE PNG. These pictures carry words -- "Couple 1",
-// "Heads", "Partner", "Corner", "Opposite" -- and the rasteriser has no font engine beyond a
-// hand-written 3x5 bitmap for the digits 1-8. Inventing a 26-glyph alphabet at 3x5 would be both
-// ugly and a liability; SVG text uses the reader's own font, stays crisp at any size, and the file
-// is a few kilobytes of deterministic markup. The FORMATION diagrams stay PNG because they are pure
-// geometry and share the animation's rasteriser.
+// "Heads", "Partner", "Corner", "Opposite", and the labels on the phrase diagram -- and the rasteriser
+// has no font engine beyond a hand-written 3x5 bitmap for the digits 1-8. Inventing a 26-glyph alphabet
+// at 3x5 would be both ugly and a liability; SVG text uses the reader's own font, stays crisp at any
+// size (including the larger text setting), and the file is a few kilobytes of deterministic markup.
+// The FORMATION diagrams stay PNG because they are pure geometry and share the animation's rasteriser.
+//
+// THE DIRECTORY IS `diagrams/`, NOT `positions/`. It was `positions/` while every picture in it was a
+// position; the phrase diagram is not one, and a folder whose name no longer describes its contents
+// makes the inventory wrong for whoever reads it next.
 //
 // WHERE THE NUMBERS COME FROM. Not invented here. The manual, "Couple #1, #2, #3, #4":
 //
@@ -31,8 +36,8 @@ import { pathToFileURL } from 'node:url';
 import { toolsDir } from './lib/load.mjs';
 import { couples } from './lib/squared-set.mjs';
 
-const OUT_DIR = join(toolsDir, '..', 'positions');
-const INDEX = join(toolsDir, 'positions-index.json');
+const OUT_DIR = join(toolsDir, '..', 'diagrams');
+const INDEX = join(toolsDir, 'diagrams-index.json');
 
 const COLOUR = {
   floor: '#f7f9fa',
@@ -162,6 +167,93 @@ const OUTWARD = {
   east: (t) => label(px(3) + 45, OY + 5, t, { size: 13 }),
 };
 
+/** The phrase diagram's own canvas: wide and short, and with no floor grid, because it is not a floor. */
+function phraseSvg(title, describe, body, w, h) {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" ` +
+    `role="img" aria-label="${describe}">\n` +
+    `<title>${title}</title>\n` +
+    `<rect width="${w}" height="${h}" fill="${COLOUR.floor}"/>\n` +
+    `${body}\n</svg>\n`
+  );
+}
+
+/**
+ * The phrase, counted two ways.
+ *
+ * The two rows are the SAME eight beats, numbered once at the top because both rows share them. What
+ * changes is where the bars fall: 2/4 puts a bar line every two beats -- the boom-chuck the bulk of
+ * square dance music is written in -- and 4/4 every four, the march music CALLERLAB also names. The
+ * reader can count the beat ticks in either row and see four bars against two.
+ *
+ * Beats 1 and 5 are drawn larger and darker: CALLERLAB's timing material gives them as the primary
+ * anchors, which is why a call usually starts on one of them.
+ */
+function phraseBarsSvg() {
+  const FW = 460;
+  const FH = 148;
+  const LEFT = 96;
+  const RIGHT = 20;
+  const TOP = 36;
+  const ROW_H = 38;
+  const GAP = 16;
+  const BEATS = 8;
+  const x0 = LEFT;
+  const span = FW - RIGHT - x0;
+  const beat = span / BEATS;
+  const parts = [];
+
+  parts.push(label(16, 24, 'BEATS', { size: 11, anchor: 'start', fill: COLOUR.axis }));
+  for (let b = 1; b <= BEATS; b++) {
+    const anchor = b === 1 || b === 5;
+    parts.push(
+      label(x0 + (b - 0.5) * beat, 24, String(b), {
+        size: anchor ? 16 : 13,
+        fill: anchor ? COLOUR.ink : COLOUR.axis,
+      }),
+    );
+  }
+
+  const rows = [
+    { time: '2/4', note: '2 beats a bar', per: 2 },
+    { time: '4/4', note: '4 beats a bar', per: 4 },
+  ];
+  rows.forEach((row, i) => {
+    const y = TOP + i * (ROW_H + GAP);
+    const bars = BEATS / row.per;
+    const barW = span / bars;
+
+    parts.push(label(16, y + ROW_H / 2 + 2, row.time, { size: 22, weight: 700, anchor: 'start' }));
+    parts.push(label(16, y + ROW_H / 2 + 20, row.note, { size: 11.5, anchor: 'start', fill: COLOUR.axis }));
+
+    for (let bar = 0; bar < bars; bar++) {
+      const bx = x0 + bar * barW;
+      parts.push(
+        `<rect x="${bx.toFixed(1)}" y="${y}" width="${barW.toFixed(1)}" height="${ROW_H}" ` +
+          `fill="${bar % 2 ? COLOUR.gridMinor : COLOUR.white}" stroke="${COLOUR.ink}" stroke-width="1.2"/>`,
+      );
+      parts.push(label(bx + barW / 2, y + ROW_H / 2 + 6, `bar ${bar + 1}`, { size: 13 }));
+      // Beat ticks inside the bar only: the bar lines are the rects' own edges, so the two can never
+      // be mistaken for each other.
+      for (let t = 1; t < row.per; t++) {
+        const tx = bx + t * beat;
+        parts.push(
+          `<line x1="${tx.toFixed(1)}" y1="${y}" x2="${tx.toFixed(1)}" y2="${y + 9}" ` +
+            `stroke="${COLOUR.axis}" stroke-width="1.2"/>`,
+        );
+      }
+    }
+  });
+
+  return phraseSvg(
+    'How long a phrase is',
+    'Eight beats counted two ways. In the top row the music is 2/4, so a bar is two beats and the phrase is four bars. In the bottom row it is 4/4, so a bar is four beats and the same eight beats are two bars. Beats 1 and 5 are the strong ones.',
+    parts.join('\n'),
+    FW,
+    FH,
+  );
+}
+
 export function build() {
   const cs = couples();
   const people = all(cs);
@@ -259,6 +351,15 @@ export function build() {
     opposite: `#${opposite.number}`,
   });
 
+  // ---------------------------------------------------------------- the phrase, in 2/4 and in 4/4
+  files.set('phrase-bars.svg', phraseBarsSvg());
+  index.drawn.push({
+    slug: 'phrase-bars',
+    title: 'The phrase in 2/4 and in 4/4',
+    beats: 8,
+    bars: '2/4 -> 4 bars, 4/4 -> 2 bars',
+  });
+
   return { files, index };
 }
 
@@ -276,10 +377,10 @@ export function main() {
       }
     }
     if (drift) {
-      console.error(`\n${drift} position diagram(s) differ. Re-run without --check.`);
+      console.error(`\n${drift} diagram(s) differ. Re-run without --check.`);
       return 1;
     }
-    console.log(`${files.size} position diagrams reproduce exactly.`);
+    console.log(`${files.size} diagram(s) reproduce exactly.`);
     return 0;
   }
 
@@ -287,7 +388,7 @@ export function main() {
   mkdirSync(OUT_DIR, { recursive: true });
   for (const [name, text] of [...files.entries()].sort()) writeFileSync(join(OUT_DIR, name), text);
   writeFileSync(INDEX, JSON.stringify(index, null, 2), 'utf8');
-  console.log(`${files.size} position diagrams -> ${OUT_DIR}`);
+  console.log(`${files.size} diagram(s) -> ${OUT_DIR}`);
   for (const d of index.drawn) console.log(`  ${d.slug}: ${d.title}`);
   return 0;
 }

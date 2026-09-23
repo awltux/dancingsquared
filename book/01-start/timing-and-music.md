@@ -29,16 +29,21 @@ because everyone does four separate parts.
 
 ## Phrases
 
-Music comes in **phrases**, and the phrase the dancers feel is **16 beats** long — four 8-beat
-lines.
+Music comes in **phrases**, and a phrase is **8 beats**, with the strong beats on 1 and 5. Count it in
+beats rather than in bars: most square dance music is written in 2/4, where a bar is two beats and a
+phrase is four of them, but 4/4 marches are used as well — and some hoedowns with them — where the same
+8 beats are two bars. The phrase is the unit a caller counts in either way.
 
-A singing call's figure is built from 16-beat phrases, which is why callers can slip a 4-beat Star
-Thru into a phrase without disturbing anyone's feet: it *fits*.
+![The same eight beats barred two ways: in 2/4 a bar is two beats, so the phrase is four bars; in 4/4 a bar is four beats, so it is two. Beats 1 and 5 are the strong ones.](../diagrams/phrase-bars.svg)
+
+A [Star Thru](../04-calls/m18-star-thru.md) takes 4 beats — half a phrase — which is why a caller can
+slip one in without disturbing anyone's feet: it *fits*. A 32-beat call needs four phrases, so where it
+begins matters; [Grand Square](../04-calls/m23-grand-square.md) is the manual's own worked example.
 
 ## The 64-beat segment
 
-A standard singing-call segment is **64 beats**: four 16-beat phrases. Dancers feel this as the
-shape of a verse.
+A standard singing-call segment is **64 beats**: eight 8-beat phrases. Dancers feel this as the shape of
+a verse.
 
 This matters to callers rather than to dancers, but it is worth knowing because it explains why a
 figure is danced **four times** in a singing call — once with each couple leading — and why the

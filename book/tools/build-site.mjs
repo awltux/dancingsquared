@@ -791,6 +791,13 @@ export function main() {
   // concept page, so a reader who opens Formations offline should see them.
   cpSync(join(BOOK, 'formations'), join(SITE, 'formations'), { recursive: true });
 
+  // The annotated diagrams (`book/diagrams/`, SVG, because they carry words). ONLY THE ONES A PAGE
+  // USES are copied, the same rule the call authorings follow: `diagrams/` also holds three position
+  // pictures that no page references yet, and shipping those would put files in the deploy and in the
+  // reader's cache that nothing can reach. Which ones are used is not guessed -- the page loop below
+  // records every `diagrams/` source it renders, and this copies exactly that set.
+  const usedDiagrams = new Set();
+
   // The dance library the player needs, so it can evaluate poses in the browser exactly as the POC
   // does. `engine/dist` has no external imports, so the directory copies over and runs as an ES
   // module. It is published as `lib/` rather than `engine/`: the site is read by dancers, and
@@ -845,6 +852,8 @@ export function main() {
   let animated = 0;
   const injected = new Set();
   const layout = [];
+  /** Diagrams a page asked for that are not on disk; reported with the other problems after the loop. */
+  const diagramProblems = [];
   let hasPlayer = false;
   for (const page of pages) {
     const navMatch = /<!-- nav:start -->([\s\S]*?)<!-- nav:end -->/.exec(page.text);
@@ -871,10 +880,13 @@ export function main() {
       },
     });
 
+    // Every `diagrams/` picture this page renders. Collecting them from the rendered body rather than
+    // by scanning the Markdown means the set is whatever the reader is actually sent.
+    for (const m of body.matchAll(/src="[^"]*?diagrams\/([^"]+)"/g)) usedDiagrams.add(m[1]);
+
     // One `### Animation` heading per call card, or a player lands on the wrong call.
     if (headings !== ids.length) {
-      layout.push(`${page.path}: ${headings} animation heading(s) for ${ids.length} call card(s)`);
-    }
+      layout.push(`${page.path}: ${headings} animation heading(s) for ${ids.length} call card(s)`);    }
 
     const rel = page.path.includes('/') ? '../' : '';
     // The player module is added ONLY to the pages that have one: it pulls in the whole engine,
@@ -912,6 +924,21 @@ export function main() {
     const out = join(SITE, page.path.replace(/\.md$/, '.html'));
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, html, 'utf8');
+  }
+
+  // Copy the annotated diagrams those pages asked for. A page that names one that does not exist is a
+  // gap the reader would see as a broken picture, so it is recorded here and fails the build with the
+  // other problems rather than being skipped.
+  if (usedDiagrams.size) {
+    mkdirSync(join(SITE, 'diagrams'), { recursive: true });
+    for (const name of [...usedDiagrams].sort()) {
+      const src = join(BOOK, 'diagrams', name);
+      if (!existsSync(src)) {
+        diagramProblems.push(`diagrams/${name} is used by a page but is not in book/diagrams`);
+        continue;
+      }
+      cpSync(src, join(SITE, 'diagrams', name));
+    }
   }
 
   // ---- the stand-alone app: icons, manifest, service worker, offline page
@@ -973,6 +1000,7 @@ export function main() {
     ...[...animMeta.values()].map((f) => `./assets/calls/${f.file}`),
     ...listFiles(join(SITE, 'lib')).map((f) => `./lib/${f}`),
     ...listFiles(join(SITE, 'formations')).map((f) => `./formations/${f}`),
+    ...(existsSync(join(SITE, 'diagrams')) ? listFiles(join(SITE, 'diagrams')).map((f) => `./diagrams/${f}`) : []),
     ...icons.map(([name]) => `./icons/${name}`),
   ];
   // THE VERSION IS A HASH OF WHAT IS IN THE CACHE, not of the names in it. Hashing the names alone
@@ -1073,6 +1101,7 @@ export function main() {
     for (const id of orphans) problems.push(`the player for ${id} is never placed on a page`);
   }
   for (const l of layout) problems.push(l);
+  for (const d of diagramProblems) problems.push(d);
 
   const htmlCount = pages.length;
   console.log(`${htmlCount} pages -> ${SITE}`);

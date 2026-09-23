@@ -51,7 +51,7 @@ about two seconds.
 ### Timing
 
 **4 beats** — two bars of music at a walking pace. In a singing call that is half of one 8-beat
-line of the tune, which is why callers can slip a Star Thru into a phrase without disturbing the
+phrase, which is why callers can slip a Star Thru into a phrase without disturbing the
 dancers' feet.
 
 ### Styling

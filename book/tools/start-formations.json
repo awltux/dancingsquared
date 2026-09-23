@@ -98,7 +98,47 @@
                 "formation": "Circle"
               },
               {
+                "title": "Circle Left 1/8",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Left 1/4",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Left 1/2",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Left 3/4",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
                 "title": "Circle Right",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Right 1/8",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Right 1/4",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Right 1/2",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Right 3/4",
                 "from": "Circle",
                 "formation": "Circle"
               }

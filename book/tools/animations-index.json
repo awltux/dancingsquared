@@ -146,11 +146,99 @@
               }
             },
             {
+              "title": "Circle Left 1/8",
+              "file": "ms/circle.xml",
+              "tamIndex": 6,
+              "from": "Circle",
+              "beats": 1,
+              "view": {
+                "scale": 39.868,
+                "units": 3.913
+              }
+            },
+            {
+              "title": "Circle Left 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 7,
+              "from": "Circle",
+              "beats": 2,
+              "view": {
+                "scale": 39.87,
+                "units": 3.913
+              }
+            },
+            {
+              "title": "Circle Left 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 8,
+              "from": "Circle",
+              "beats": 4,
+              "view": {
+                "scale": 39.872,
+                "units": 3.913
+              }
+            },
+            {
+              "title": "Circle Left 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 9,
+              "from": "Circle",
+              "beats": 6,
+              "view": {
+                "scale": 39.868,
+                "units": 3.913
+              }
+            },
+            {
               "title": "Circle Right",
               "file": "ms/circle.xml",
               "tamIndex": 15,
               "from": "Circle",
               "beats": 8,
+              "view": {
+                "scale": 39.868,
+                "units": 3.913
+              }
+            },
+            {
+              "title": "Circle Right 1/8",
+              "file": "ms/circle.xml",
+              "tamIndex": 16,
+              "from": "Circle",
+              "beats": 1,
+              "view": {
+                "scale": 39.868,
+                "units": 3.913
+              }
+            },
+            {
+              "title": "Circle Right 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 17,
+              "from": "Circle",
+              "beats": 2,
+              "view": {
+                "scale": 39.867,
+                "units": 3.913
+              }
+            },
+            {
+              "title": "Circle Right 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 18,
+              "from": "Circle",
+              "beats": 4,
+              "view": {
+                "scale": 39.872,
+                "units": 3.913
+              }
+            },
+            {
+              "title": "Circle Right 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 19,
+              "from": "Circle",
+              "beats": 6,
               "view": {
                 "scale": 39.868,
                 "units": 3.913

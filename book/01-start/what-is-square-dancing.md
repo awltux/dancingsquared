@@ -11,6 +11,14 @@ another. The dance continues until the figures bring everyone back to where they
 
 That is the whole idea. Everything else in this book is detail.
 
+## The caller
+
+One person runs the evening from the microphone. The caller chooses the calls as the music plays, which
+is why nothing in this book is a routine to learn: the sequence is made up on the spot, out of the
+vocabulary the programme defines. The caller is the teacher as well — in a class, the same person walks
+a call through slowly, explains it, and then calls it at speed — and decides how long each tip runs and
+what goes into it.
+
 ## What it is not
 
 It is not a dance you learn as a fixed routine. There is no sequence to memorise, because the

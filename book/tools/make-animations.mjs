@@ -54,18 +54,26 @@ function findTam(tams, query) {
 }
 
 /**
- * The start formations for one card, as the flat list the index and the player use:
- * `[{ label, file, tamIndex, from, beats, view }]`, in the table's own order.
+ * The start formations for one card, as the index and the player use them:
+ * `[{ label, calls: [{ title, file, tamIndex, from, beats, view }] }]`, in the table's own order.
  *
- * A label resolves to the first query that both matches a tam AND builds. A label whose formations
- * the corpus cannot animate is dropped -- the table keeps it for the next person to fill in, but the
- * player is not offered a start it cannot draw.
+ * EVERY CALL THE TABLE LISTS FOR A LABEL IS RESOLVED, not just the first. The table is the manual's
+ * own list of what starts from each formation, and for a card like Circle Left/Right that list is
+ * where the variants live -- Circle Left, Circle Left 1/8, 1/4, 1/2, 3/4, Circle Right, ... -- which
+ * are different calls to watch from the same formation. Resolving only the first threw all of them
+ * away and left the player offering one animation under a formation that has ten.
+ *
+ * A query whose authoring does not build is skipped, and a label with no building call at all is
+ * dropped: the table keeps it for the next person to fill in, but the player is not offered a start
+ * it cannot draw. (The caller of this function keeps that label as the call's home formation, so a
+ * card animated from a stand-in formation is still filed under the manual's name for it.)
  */
 function resolveStarts(eng, id, curated, cache) {
   if (!curated?.starts) return null;
   const out = [];
   for (const [label, spec] of Object.entries(curated.starts)) {
-    let found = null;
+    const calls = [];
+    const seen = new Set();
     for (const call of spec.calls ?? []) {
       const tams = cache.get(call.file) ?? tamsOf(call.file);
       cache.set(call.file, tams);
@@ -75,26 +83,28 @@ function resolveStarts(eng, id, curated, cache) {
         }
         const tamIndex = findTam(tams, query);
         if (tamIndex < 0) continue;
+        const key = `${call.file}#${tamIndex}`;
+        if (seen.has(key)) continue; // two queries can land on the same authoring
         let bundle;
         try {
           bundle = loadCall(eng, { file: call.file, tamIndex });
         } catch {
           continue; // this authoring does not build; try the next query
         }
+        seen.add(key);
         const view = viewFor(eng, bundle);
-        found = {
-          label,
+        calls.push({
+          // The manual's name for what is being watched, which is what the chooser shows.
+          title: tams[tamIndex]?.title ?? query.title ?? '',
           file: call.file,
           tamIndex,
           from: bundle.from ?? null,
           beats: bundle.beats,
           view: { scale: Number(view.scale.toFixed(3)), units: Number(view.units.toFixed(3)) },
-        };
-        break;
+        });
       }
-      if (found) break;
     }
-    if (found) out.push(found);
+    if (calls.length) out.push({ label, calls });
   }
   return out.length ? out : null;
 }
@@ -377,7 +387,7 @@ export function build({ gifs = false } = {}) {
       // screen before anyone touches it. A card with no start list is unchanged: e.sites[0].
       const curated = startTable[id];
       const starts = curated ? resolveStarts(eng, id, curated, tamCache) : null;
-      const site = starts ? { file: starts[0].file, tamIndex: starts[0].tamIndex } : e.sites[0];
+      const site = starts ? { file: starts[0].calls[0].file, tamIndex: starts[0].calls[0].tamIndex } : e.sites[0];
 
       let bundle = null;
       const failures = [];
@@ -406,20 +416,17 @@ export function build({ gifs = false } = {}) {
       const view = viewFor(eng, bundle);
       const [level, ...rest] = site.file.split('/');
       /**
-       * THE MANUAL'S OWN START LABELS ARE RECORDED, ALL OF THEM, and they are what the player groups
-       * calls by. `starts` below is the subset this book can actually DRAW (one per label whose
-       * authoring builds); `labels` is the manual's list, including labels nothing can be animated
-       * from yet. Two different questions, and the page needs both:
+       * THE MANUAL'S OWN START TABLE IS CARRIED THROUGH, per formation and with its calls.
        *
-       *   - "what can I watch this call from?"  -> `starts`, the start chooser.
-       *   - "what else starts from here?"       -> `labels`, which groups calls by the book's
-       *                                            vocabulary rather than the corpus's.
+       * `starts` is `[{ label, calls: [...] }]` from the manual's table: which formations the manual
+       * starts this call from, and which of its calls it lists from each -- Circle Left, Circle Left
+       * 1/8, 1/2, 3/4, Circle Right, ... for a ring. The player shows one formation chooser and one
+       * call chooser from it, so the reader can watch any of the calls the manual names from any of
+       * the formations it names, which is the whole of what the table knows.
        *
-       * A label of the corpus's making would be wrong even where it is recognisable: the corpus calls
-       * a ring "Circle Left", which is this book's call name, not the name of a formation. Where the
-       * manual lists a formation whose authoring cannot be built -- Half Sashay is published from a
-       * Couple and animated here from Facing Couples -- the call keeps the manual's label and is drawn
-       * from the authoring there is, which is the substitution the page already warns about.
+       * WHERE NOTHING CAN BE DRAWN. A label whose calls the corpus cannot animate is kept as the
+       * card's home formation with the authoring there is, so a card shown from a stand-in formation
+       * is still filed under the manual's name for it -- the substitution the page warns about.
        */
       const curatedLabels = Object.keys(curated?.starts ?? {});
       const shownStart =
@@ -429,11 +436,16 @@ export function build({ gifs = false } = {}) {
             ? [
                 {
                   label: curatedLabels[0],
-                  file: site.file,
-                  tamIndex: site.tamIndex,
-                  from: bundle.from,
-                  beats: bundle.beats,
-                  view: { scale: Number(view.scale.toFixed(3)), units: Number(view.units.toFixed(3)) },
+                  calls: [
+                    {
+                      title: e.title,
+                      file: site.file,
+                      tamIndex: site.tamIndex,
+                      from: bundle.from,
+                      beats: bundle.beats,
+                      view: { scale: Number(view.scale.toFixed(3)), units: Number(view.units.toFixed(3)) },
+                    },
+                  ],
                 },
               ]
             : null;
@@ -449,7 +461,6 @@ export function build({ gifs = false } = {}) {
         beats: bundle.beats,
         frames: frameCount,
         view: { scale: Number(view.scale.toFixed(3)), units: Number(view.units.toFixed(3)) },
-        ...(curatedLabels.length ? { labels: curatedLabels } : {}),
         ...(shownStart ? { starts: shownStart } : {}),
       });
     }
@@ -513,35 +524,42 @@ function verifyCatalogue() {
     }
     if (!(f.view?.scale > 0) || !(f.view?.units > 0)) problems.push(`${f.id}: the index carries no usable view`);
 
-    // The alternative start formations are shipped too, so each one has to load and pose like the
+    // EVERY call the start table lists is shipped too, so each one has to load and pose like the
     // default -- a selector entry that throws in the browser is invisible to a link check.
     for (const [i, s] of (f.starts ?? []).entries()) {
-      if (i === 0 && (s.file !== f.file || s.tamIndex !== f.tamIndex)) {
-        problems.push(`${f.id}: the first start formation is not the default authoring`);
+      const first = s.calls?.[0];
+      if (i === 0 && first && (first.file !== f.file || first.tamIndex !== f.tamIndex)) {
+        problems.push(`${f.id}: the first call of the first start formation is not the default authoring`);
       }
-      let alt;
-      try {
-        alt = loadCall(eng, { file: s.file, tamIndex: s.tamIndex });
-      } catch (err) {
-        problems.push(`${f.id}: start "${s.label}" cannot load ${s.file}#${s.tamIndex}: ${err.message}`);
-        continue;
-      }
-      const b = alt.beats > 0 ? alt.beats : 1;
-      for (const t of [0, b / 2, b]) {
-        let ps = null;
+      for (const c of s.calls ?? []) {
+        let alt;
         try {
-          ps = eng.allPoses(alt, t);
+          alt = loadCall(eng, { file: c.file, tamIndex: c.tamIndex });
         } catch (err) {
-          problems.push(`${f.id}: start "${s.label}" allPoses(${t}) threw: ${err.message}`);
-          break;
+          problems.push(`${f.id}: start "${s.label}" / "${c.title}" cannot load ${c.file}#${c.tamIndex}: ${err.message}`);
+          continue;
         }
-        if (!ps || ps.length !== alt.dancers.length) {
-          problems.push(`${f.id}: start "${s.label}" gave ${ps ? ps.length : 'nothing'} poses for ${alt.dancers.length} dancers`);
-          break;
+        const b = alt.beats > 0 ? alt.beats : 1;
+        for (const t of [0, b / 2, b]) {
+          let ps = null;
+          try {
+            ps = eng.allPoses(alt, t);
+          } catch (err) {
+            problems.push(`${f.id}: start "${s.label}" / "${c.title}" allPoses(${t}) threw: ${err.message}`);
+            break;
+          }
+          if (!ps || ps.length !== alt.dancers.length) {
+            problems.push(
+              `${f.id}: start "${s.label}" / "${c.title}" gave ${ps ? ps.length : 'nothing'} poses for ${alt.dancers.length} dancers`,
+            );
+            break;
+          }
+          poses++;
         }
-        poses++;
+        if (!(c.view?.scale > 0) || !(c.view?.units > 0)) {
+          problems.push(`${f.id}: start "${s.label}" / "${c.title}" carries no usable view`);
+        }
       }
-      if (!(s.view?.scale > 0) || !(s.view?.units > 0)) problems.push(`${f.id}: start "${s.label}" carries no usable view`);
     }
   }
 

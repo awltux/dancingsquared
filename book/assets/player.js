@@ -241,35 +241,21 @@ async function mount(host) {
   let view = { scale: Number(host.dataset.scale), units: Number(host.dataset.units) };
 
   /**
-   * The alternative start formations, as `[label, file, tamIndex, scale, units, beats]`. Absent for
-   * most calls: only where the manual lists more than one start formation AND the corpus can animate
-   * it. Switching reloads the call from the chosen authoring -- each start formation is a different
-   * authoring of the same call, not a different pose of the same animation -- and re-fits the floor,
-   * because an authoring that travels further is drawn on a wider view.
-   */
-  let starts = null;
-  try {
-    const list = host.dataset.starts ? JSON.parse(host.dataset.starts) : null;
-    if (Array.isArray(list) && list.length > 1) starts = list;
-  } catch {
-    starts = null;
-  }
-
-  /**
-   * THE CATALOGUE, shipped beside this file by build-site.mjs: every call that can be watched, the
-   * formations each can start from, and the page each belongs to.
+   * THE START TABLE, as the manual gives it for this card: which formations the call starts from, and
+   * which of its calls the manual lists from each -- for a ring, `Static Square` with Circle Left,
+   * Circle Left 1/8, 1/4, 1/2, 3/4, Circle Right, and so on.
    *
-   * It is what lets the player answer the question a reader actually has in front of a formation --
-   * "what else begins from here?" -- so the two choosers point at each other: the formation decides
-   * which calls are offered, and a call decides which formations it can start from. A failed fetch
-   * costs the reader the second chooser and nothing else, so it is not an error worth shouting about.
+   * `[{ label, calls: [[title, file, tamIndex, scale, units, beats]] }]`, written by build-site.mjs
+   * from `book/tools/start-formations.json`. Switching reloads the call from the chosen authoring --
+   * each entry is a different call or a different fraction of it, not another pose of the same
+   * animation -- and re-fits the floor, because one that travels further is drawn on a wider view.
    */
-  let catalogue = [];
+  let table = [];
   try {
-    const res = await fetch(new URL('./calls-index.json', import.meta.url).href);
-    if (res.ok) catalogue = (await res.json()).calls ?? [];
+    const list = host.dataset.formations ? JSON.parse(host.dataset.formations) : null;
+    if (Array.isArray(list)) table = list.filter((f) => f?.label && (f.calls ?? []).length);
   } catch {
-    catalogue = [];
+    table = [];
   }
 
   const { moves, formations } = await engineInputs();
@@ -329,35 +315,26 @@ async function mount(host) {
 
   // ---- the two choosers, and the state they read.
   //
-  // THE START CHOOSER and THE CALL CHOOSER point at each other. The start chooser says which formation
-  // the call is drawn from; the call chooser lists the other calls that begin from THAT formation, and
-  // is repopulated whenever the formation changes. Choosing a call repopulates the start chooser with
-  // that call's own formations in turn, so the reader can walk the whole catalogue either way round.
+  // THE FORMATION CHOOSER says which of the formations the manual lists the call is being drawn from.
+  // THE CALL CHOOSER then lists the calls the manual lists from THAT formation -- for a ring, Circle
+  // Left, Circle Left 1/8, 1/4, 1/2, 3/4, Circle Right -- and choosing one draws it. Both come from
+  // the card's own start table, so the page's text and the controls are about the same call.
   //
-  // The page's own call is remembered, because the player is embedded in a page whose text is about
-  // one call: when it is showing another one, the cue under the bar says which, and offers the way
-  // back to the page's call and the way to the call's own page.
+  // Built as a pair and referenced directly, never looked up afterwards: the first cut gave a chooser's
+  // label and its select the same class, so `querySelector` found the LABEL and the options were
+  // written into it with `innerHTML`, replacing the select. See makeChooser below.
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-  const tuples = (entry) =>
-    (entry?.starts ?? []).map((s) => [s.label, s.file, s.tamIndex ?? 0, s.view?.scale, s.view?.units, s.beats]);
-  const fitOf = (t) =>
-    Number.isFinite(Number(t[3])) && Number.isFinite(Number(t[4]))
-      ? { scale: Number(t[3]), units: Number(t[4]) }
+  const fitOf = (call) =>
+    Number.isFinite(Number(call[3])) && Number.isFinite(Number(call[4]))
+      ? { scale: Number(call[3]), units: Number(call[4]) }
       : null;
-  const startOf = (entry, file, tam) =>
-    entry?.starts?.find((s) => s.file === file && (s.tamIndex ?? 0) === tam) ?? entry?.starts?.[0] ?? null;
 
-  const homeEntry = catalogue.find((c) => c.file === firstFile && (c.tamIndex ?? 0) === firstTam) ?? null;
-  const homeStart = startOf(homeEntry, firstFile, firstTam);
-  const homeCall = homeEntry?.call ?? null;
-  const homeTuple = homeEntry ? tuples(homeEntry).find((t) => t[0] === homeStart?.label) ?? tuples(homeEntry)[0] : null;
-
-  let showing = homeEntry;
-  let startsNow = homeEntry ? tuples(homeEntry) : (starts ?? []);
-  // WHICH FORMATION IS ON SCREEN: the label of the authoring being drawn when one matches, and
-  // otherwise the first formation the manual lists -- which is the label the call is filed under in
-  // the catalogue, so the two choosers agree even for a call drawn from a stand-in formation.
-  let formation = homeStart?.label ?? homeEntry?.labels?.[0] ?? startsNow[0]?.[0] ?? null;
+  // WHICH ENTRY THE PAGE IS SHOWING, found by the authoring rather than assumed to be the first: a
+  // card whose own animation is the second call of the second formation must open on that one.
+  let fIndex = table.findIndex((f) => (f.calls ?? []).some((c) => c[1] === firstFile && Number(c[2] ?? 0) === firstTam));
+  if (fIndex < 0) fIndex = 0;
+  const callsIn = (i) => table[i]?.calls ?? [];
+  let cIndex = Math.max(0, callsIn(fIndex).findIndex((c) => c[1] === firstFile && Number(c[2] ?? 0) === firstTam));
 
   /**
    * Build one chooser and hand back BOTH parts, rather than looking the select up afterwards.
@@ -380,17 +357,13 @@ async function mount(host) {
     bar.append(pick);
     return { label: pick, select };
   };
-  // The start chooser is drawn whenever there is a choice to offer -- today, or after a switch to a
-  // call that has one. The call chooser needs the catalogue, and is hidden while it would hold one
-  // option: a selector with a single entry is noise.
-  const fromPick = starts || catalogue.length ? makeChooser('dsq-start', 'dsq-from', 'start', 'Which formation the call starts from') : null;
-  const callPick = catalogue.length ? makeChooser('dsq-call', 'dsq-call-select', 'call', 'Another call that starts from this formation') : null;
+  // Both are built whenever the table has anything at all, and each is HIDDEN while it would hold one
+  // option: a selector with a single entry is noise. A card with one formation and eight calls still
+  // needs the second chooser, which is why neither is conditional on the number of formations.
+  const fromPick = table.length ? makeChooser('dsq-start', 'dsq-from', 'start', 'Which formation the call starts from') : null;
+  const callPick = table.length ? makeChooser('dsq-call', 'dsq-call-select', 'call', 'Which call to watch from that formation') : null;
 
-  const cue = document.createElement('p');
-  cue.className = 'dsq-showing';
-  cue.hidden = true;
-
-  host.append(canvas, bar, cue);
+  host.append(canvas, bar);
   const slider = bar.querySelector('input');
   const readout = bar.querySelector('.dsq-readout');
   const playBtn = bar.querySelector('[data-act="play"]');
@@ -455,72 +428,45 @@ async function mount(host) {
     last = performance.now();
   });
   fromSel?.addEventListener('change', () => {
-    const start = startsNow[Number(fromSel.value)];
-    if (start) void switchTo(showing, start);
+    fIndex = Number(fromSel.value);
+    cIndex = 0; // the first call the manual lists from the newly chosen formation
+    void switchTo();
   });
   callSel?.addEventListener('change', () => {
-    const entry = catalogue.find((c) => c.id === callSel.value);
-    if (!entry) return;
-    // The authoring for this formation when the call can be drawn from it, and its own otherwise --
-    // a call the manual lists here but the corpus cannot animate is still offered, drawn from the
-    // authoring there is, which is the substitution the page warns about.
-    const own = tuples(entry);
-    const start = own.find((t) => t[0] === formation) ?? own[0];
-    if (start) void switchTo(entry, start);
-  });
-  cue.addEventListener('click', (ev) => {
-    if (ev.target.closest('button')?.dataset.act !== 'home' || !homeEntry || !homeTuple) return;
-    void switchTo(homeEntry, homeTuple);
+    cIndex = Number(callSel.value);
+    void switchTo();
   });
 
-  /** The calls the catalogue can offer from the formation on screen, in catalogue (teaching) order. */
-  const callsHere = () =>
-    formation ? catalogue.filter((c) => (c.labels ?? []).includes(formation)) : [];
-
-  /** Rebuild both choosers and the cue from the current state. They are never edited in place. */
+  /** Rebuild both choosers from the current state. They are never edited in place. */
   const renderChoosers = () => {
     if (fromLabel) {
-      fromLabel.hidden = startsNow.length < 2;
-      fromSel.innerHTML = startsNow
-        .map((s, i) => `<option value="${i}"${s[0] === formation ? ' selected' : ''}>${esc(s[0])}</option>`)
+      fromLabel.hidden = table.length < 2;
+      fromSel.innerHTML = table
+        .map((f, i) => `<option value="${i}"${i === fIndex ? ' selected' : ''}>${esc(f.label)}</option>`)
         .join('');
     }
     if (callLabel) {
-      const here = callsHere();
-      callLabel.hidden = here.length < 2;
-      callSel.innerHTML = here
-        .map((c) => `<option value="${esc(c.id)}"${c === showing ? ' selected' : ''}>${esc(c.call)}</option>`)
+      const calls = callsIn(fIndex);
+      callLabel.hidden = calls.length < 2;
+      callSel.innerHTML = calls
+        .map((c, i) => `<option value="${i}"${i === cIndex ? ' selected' : ''}>${esc(c[0])}</option>`)
         .join('');
     }
-
-    // The cue only earns its line while the player is showing a call that is not the page's own.
-    const away = Boolean(homeCall) && Boolean(showing) && showing.call !== homeCall;
-    cue.hidden = !away;
-    if (!away) {
-      cue.innerHTML = '';
-      return;
-    }
-    const href = showing.page ? new URL(`../${showing.page}`, import.meta.url).href : null;
-    cue.innerHTML =
-      `showing <strong>${esc(showing.call)}</strong>` +
-      (href ? ` — <a href="${esc(href)}" target="_blank" rel="noopener">open its page</a>` : '') +
-      (homeTuple ? ` · <button type="button" data-act="home">back to ${esc(homeCall)}</button>` : '');
   };
 
-  /** Make another call, or another formation of the same call, the thing on screen. */
-  const switchTo = async (entry, start) => {
+  /** Make the call now selected the thing on screen. */
+  const switchTo = async () => {
+    const call = callsIn(fIndex)[cIndex];
+    if (!call) return;
     setPlaying(false);
     try {
-      await use(start[1], Number(start[2]), fitOf(start));
+      await use(call[1], Number(call[2] ?? 0), fitOf(call));
     } catch (err) {
       // Say so in the page rather than leaving the old animation under a new label.
-      host.innerHTML = `<p class="dsq-error">Could not load the animation from ${esc(start[0])}: ${String(err.message ?? err)}</p>`;
+      host.innerHTML = `<p class="dsq-error">Could not load ${esc(call[0])}: ${String(err.message ?? err)}</p>`;
       console.error(err);
       return;
     }
-    showing = entry;
-    startsNow = entry ? tuples(entry) : startsNow;
-    formation = start[0];
     slider.max = String(beats);
     renderChoosers();
     show(0);

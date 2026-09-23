@@ -247,15 +247,6 @@ figcaption { font-size: .84rem; color: var(--muted); margin-top: .45em; }
    rule beats the browser's own [hidden] { display: none }, so the attribute alone would leave a
    one-option chooser on the screen -- the thing it is set to avoid. */
 .dsq-controls label[hidden] { display: none; }
-/* The cue line under the bar, shown only while the player is showing a call from another page. It
-   says WHICH call is on screen, so a reader who has switched away from the page's own call can still
-   tell what they are looking at -- and offers the two ways out: that call's page, or back. */
-.dsq-showing { margin: .45em 0 0; font-size: .84rem; color: var(--muted); text-align: center; }
-.dsq-showing strong { color: inherit; }
-.dsq-showing button {
-  font: inherit; color: var(--accent); background: none; border: 0; padding: 0 .15rem;
-  cursor: pointer; text-decoration: underline;
-}
 .dsq-error { color: #b2182b; }
 details.dsq-share { margin: 0 0 1.2em; font-size: .9rem; }
 details.dsq-share summary { cursor: pointer; color: var(--muted); }
@@ -741,17 +732,25 @@ function animationFigure(id, meta) {
   // ONLY THE PLAYER IS INJECTED, and only once. It is the call's animation: a second, control-less
   // copy underneath it read as a mistake rather than as a second view of the call.
   void id;
-  // The alternative start formations travel as one JSON attribute rather than as a fistful of data
-  // attributes, because each carries four fields and the player has to be able to read them as a
-  // list. Absent when the call has only one, which is most of them: a one-item selector is noise.
-  const starts =
-    (meta.starts?.length ?? 0) > 1
-      ? ` data-starts="${esc(JSON.stringify(meta.starts.map((s) => [s.label, s.file, s.tamIndex, s.view?.scale, s.view?.units, s.beats])))}"`
-      : '';
+  // The start formations and the calls the manual lists from each, as ONE JSON attribute rather than
+  // a fistful of data attributes: every formation carries its own list of calls (Circle Left, Circle
+  // Left 1/8, 1/2, 3/4, Circle Right, ... for a ring), and the player builds both its choosers from
+  // this. Present whenever the manual's table has a start for the call -- a single formation can
+  // still list eight calls, so it is not conditional on there being more than one formation.
+  const formations = meta.starts?.length
+    ? ` data-formations="${esc(
+        JSON.stringify(
+          meta.starts.map((s) => ({
+            label: s.label,
+            calls: (s.calls ?? []).map((c) => [c.title, c.file, c.tamIndex, c.view?.scale, c.view?.units, c.beats]),
+          })),
+        ),
+      )}"`
+    : '';
   return (
     `<div class="dsq-player" data-file="${meta.file}" data-tam="${meta.tamIndex ?? 0}" ` +
     `data-scale="${meta.view?.scale ?? 20}" data-units="${meta.view?.units ?? 6}" ` +
-    `data-beats="${meta.beats}" data-size="340"${starts}></div>`
+    `data-beats="${meta.beats}" data-size="340"${formations}></div>`
   );
 }
 
@@ -844,7 +843,7 @@ export function main() {
     const needed = new Map();
     for (const f of animMeta.values()) {
       needed.set(f.file, true);
-      for (const s of f.starts ?? []) needed.set(s.file, true);
+      for (const s of f.starts ?? []) for (const c of s.calls ?? []) needed.set(c.file, true);
     }
     for (const file of needed.keys()) {
       const dest = join(SITE, 'assets', 'calls', file);
@@ -854,8 +853,6 @@ export function main() {
   }
   const callMap = JSON.parse(readFileSync(join(toolsDir, 'call-map.json'), 'utf8'));
   const unitByNumber = new Map(callMap.units.map((u) => [String(u.n).padStart(2, '0'), u]));
-  /** figure id -> the page it is played on, filled in as the pages are rendered below. */
-  const figurePage = new Map();
 
   writeFileSync(join(SITE, 'style.css'), CSS, 'utf8');
   // Both files are on disk now, so the URLs the pages will name can carry their contents' hash.
@@ -890,7 +887,6 @@ export function main() {
         if (meta) {
           animated++;
           injected.add(id);
-          figurePage.set(id, page.path.replace(/\.md$/, '.html'));
         }
         return animationFigure(id, meta);
       },
@@ -1000,42 +996,6 @@ export function main() {
   );
   writeFileSync(join(SITE, 'offline.html'), offlineHtml({ css: cssUrl }), 'utf8');
 
-  // THE CATALOGUE THE PLAYER SWITCHES CALLS WITH. A reader looking at a call can ask what else begins
-  // from the formation in front of them, and that question is answered from here: every animatable
-  // call, the formations it can start from, and the page it belongs to.
-  //
-  // The page is the one field the player could not work out for itself -- `animations-index.json` is
-  // built from the corpus and knows nothing about which page a call is taught on -- so it is filled in
-  // from the pages as they were rendered above, and the build REFUSES to ship a catalogue with a
-  // dangling call rather than letting the player offer a link that goes nowhere.
-  const callCatalogue = [...animMeta.values()].map((f) => ({
-    id: f.id,
-    call: f.call,
-    file: f.file,
-    tamIndex: f.tamIndex ?? 0,
-    beats: f.beats,
-    view: { scale: f.view?.scale ?? 20, units: f.view?.units ?? 6 },
-    page: figurePage.get(f.id) ?? null,
-    // The formations the MANUAL lists for this call, which is what the player groups by -- a call is
-    // offered under every one of them, whether or not this book can yet animate it from there.
-    labels: f.labels ?? [],
-    starts: (f.starts ?? []).map((s) => ({
-      label: s.label,
-      file: s.file,
-      tamIndex: s.tamIndex ?? 0,
-      beats: s.beats,
-      view: { scale: s.view?.scale ?? 20, units: s.view?.units ?? 6 },
-    })),
-  }));
-  for (const entry of callCatalogue) {
-    if (!entry.page) problems.push(`the catalogue has no page for ${entry.id} (${entry.call})`);
-  }
-  writeFileSync(
-    join(SITE, 'assets', 'calls-index.json'),
-    JSON.stringify({ generated: 'by book/tools/build-site.mjs', calls: callCatalogue }),
-    'utf8',
-  );
-
   // Precache what a reader needs to OPEN the book offline: every page, the stylesheet, the player,
   // the engine and the dance data. Figures and animations are NOT precached -- they are 11 MB, and
   // they are cached on first view instead, so a reader who never opens a call page does not pay for
@@ -1049,9 +1009,6 @@ export function main() {
     `./${playerUrl}`,
     './assets/moves.xml',
     './assets/formations.xml',
-    // The calls catalogue is precached although it is not needed to READ a page: switching calls is
-    // part of watching an animation, and a reader on a train should be able to do it.
-    './assets/calls-index.json',
     ...[...animMeta.values()].map((f) => `./assets/calls/${f.file}`),
     ...listFiles(join(SITE, 'lib')).map((f) => `./lib/${f}`),
     ...listFiles(join(SITE, 'formations')).map((f) => `./formations/${f}`),

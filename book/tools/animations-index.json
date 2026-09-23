@@ -15,33 +15,148 @@
         "scale": 35.37,
         "units": 4.41
       },
-      "labels": [
-        "Static Square",
-        "Infacing Circle of 8",
-        "Facing Lines"
-      ],
       "starts": [
         {
           "label": "Static Square",
-          "file": "ms/circle.xml",
-          "tamIndex": 0,
-          "from": "Static Square",
-          "beats": 10,
-          "view": {
-            "scale": 35.37,
-            "units": 4.41
-          }
+          "calls": [
+            {
+              "title": "Circle Left",
+              "file": "ms/circle.xml",
+              "tamIndex": 0,
+              "from": "Static Square",
+              "beats": 10,
+              "view": {
+                "scale": 35.37,
+                "units": 4.41
+              }
+            },
+            {
+              "title": "Circle Left 1/8",
+              "file": "ms/circle.xml",
+              "tamIndex": 2,
+              "from": "Static Square",
+              "beats": 3,
+              "view": {
+                "scale": 35.492,
+                "units": 4.395
+              }
+            },
+            {
+              "title": "Circle Left 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 3,
+              "from": "Static Square",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 4,
+              "from": "Static Square",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 5,
+              "from": "Static Square",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right",
+              "file": "ms/circle.xml",
+              "tamIndex": 6,
+              "from": "Static Square",
+              "beats": 10,
+              "view": {
+                "scale": 36.107,
+                "units": 4.32
+              }
+            },
+            {
+              "title": "Circle Right 1/8",
+              "file": "ms/circle.xml",
+              "tamIndex": 8,
+              "from": "Static Square",
+              "beats": 3,
+              "view": {
+                "scale": 36.234,
+                "units": 4.305
+              }
+            },
+            {
+              "title": "Circle Right 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 9,
+              "from": "Static Square",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 10,
+              "from": "Static Square",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 11,
+              "from": "Static Square",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         },
         {
           "label": "Infacing Circle of 8",
-          "file": "ms/circle.xml",
-          "tamIndex": 1,
-          "from": "Circle",
-          "beats": 8,
-          "view": {
-            "scale": 31.881,
-            "units": 4.893
-          }
+          "calls": [
+            {
+              "title": "Circle Left",
+              "file": "ms/circle.xml",
+              "tamIndex": 1,
+              "from": "Circle",
+              "beats": 8,
+              "view": {
+                "scale": 31.881,
+                "units": 4.893
+              }
+            },
+            {
+              "title": "Circle Right",
+              "file": "ms/circle.xml",
+              "tamIndex": 7,
+              "from": "Circle",
+              "beats": 8,
+              "view": {
+                "scale": 31.881,
+                "units": 4.893
+              }
+            }
+          ]
         }
       ]
     },
@@ -60,20 +175,99 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Couples"
-      ],
       "starts": [
         {
           "label": "Facing Couples",
-          "file": "ms/circle.xml",
-          "tamIndex": 30,
-          "from": "Facing Couples",
-          "beats": 7.5,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Circle Four Left Full",
+              "file": "ms/circle.xml",
+              "tamIndex": 30,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Left 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 12,
+              "from": "Facing Couples",
+              "beats": 3,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Right 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 15,
+              "from": "Facing Couples",
+              "beats": 3,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Left 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 18,
+              "from": "Facing Couples",
+              "beats": 4.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Right 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 21,
+              "from": "Facing Couples",
+              "beats": 4.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Left 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 24,
+              "from": "Facing Couples",
+              "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Right 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 27,
+              "from": "Facing Couples",
+              "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Right Full",
+              "file": "ms/circle.xml",
+              "tamIndex": 33,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -92,20 +286,99 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Dancers"
-      ],
       "starts": [
         {
           "label": "Facing Dancers",
-          "file": "ms/circle.xml",
-          "tamIndex": 45,
-          "from": "Facing Couples",
-          "beats": 5,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Single Circle Left Full",
+              "file": "ms/circle.xml",
+              "tamIndex": 45,
+              "from": "Facing Couples",
+              "beats": 5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Single Circle Left 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 36,
+              "from": "Facing Couples",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Single Circle Left 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 39,
+              "from": "Facing Couples",
+              "beats": 3,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Single Circle Left 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 42,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Single Circle Right 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 48,
+              "from": "Facing Couples",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Single Circle Right 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 51,
+              "from": "Facing Couples",
+              "beats": 3,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Single Circle Right 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 54,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Single Circle Right Full",
+              "file": "ms/circle.xml",
+              "tamIndex": 57,
+              "from": "Facing Couples",
+              "beats": 5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -124,20 +397,33 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Dancers"
-      ],
       "starts": [
         {
           "label": "Facing Dancers",
-          "file": "ms/dosado.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 4,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Dosado",
+              "file": "ms/dosado.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Dosado to a Wave",
+              "file": "ms/dosado.xml",
+              "tamIndex": 3,
+              "from": "Facing Couples",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -156,22 +442,55 @@
         "scale": 34.984,
         "units": 4.459
       },
-      "labels": [
-        "Squared Set",
-        "Right and Left Grand Circle",
-        "Left-Hand Two-Faced Lines"
-      ],
       "starts": [
         {
           "label": "Squared Set",
-          "file": "ms/promenade.xml",
-          "tamIndex": 11,
-          "from": "Static Square",
-          "beats": 12,
-          "view": {
-            "scale": 34.984,
-            "units": 4.459
-          }
+          "calls": [
+            {
+              "title": "All 4 Couples Promenade Full",
+              "file": "ms/promenade.xml",
+              "tamIndex": 11,
+              "from": "Static Square",
+              "beats": 12,
+              "view": {
+                "scale": 34.984,
+                "units": 4.459
+              }
+            },
+            {
+              "title": "All 4 Couples Promenade 1/4",
+              "file": "ms/promenade.xml",
+              "tamIndex": 8,
+              "from": "Static Square",
+              "beats": 6,
+              "view": {
+                "scale": 34.984,
+                "units": 4.459
+              }
+            },
+            {
+              "title": "All 4 Couples Promenade 1/2",
+              "file": "ms/promenade.xml",
+              "tamIndex": 9,
+              "from": "Static Square",
+              "beats": 8,
+              "view": {
+                "scale": 34.984,
+                "units": 4.459
+              }
+            },
+            {
+              "title": "All 4 Couples Promenade 3/4",
+              "file": "ms/promenade.xml",
+              "tamIndex": 10,
+              "from": "Static Square",
+              "beats": 10,
+              "view": {
+                "scale": 35.025,
+                "units": 4.454
+              }
+            }
+          ]
         }
       ]
     },
@@ -190,22 +509,22 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Squared Set",
-        "Infacing Circle of 8",
-        "Left-Hand Columns"
-      ],
       "starts": [
         {
           "label": "Squared Set",
-          "file": "ms/promenade.xml",
-          "tamIndex": 14,
-          "from": "Static Square",
-          "beats": 13,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Single File Promenade",
+              "file": "ms/promenade.xml",
+              "tamIndex": 14,
+              "from": "Static Square",
+              "beats": 13,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -240,22 +559,55 @@
         "scale": 34.984,
         "units": 4.459
       },
-      "labels": [
-        "Squared Set",
-        "Right-Hand Two-Faced Lines",
-        "Right and Left Grand Circle"
-      ],
       "starts": [
         {
           "label": "Squared Set",
-          "file": "ms/promenade.xml",
-          "tamIndex": 27,
-          "from": "Static Square",
-          "beats": 12,
-          "view": {
-            "scale": 34.984,
-            "units": 4.459
-          }
+          "calls": [
+            {
+              "title": "All 4 Couples Wrong Way Promenade Full",
+              "file": "ms/promenade.xml",
+              "tamIndex": 27,
+              "from": "Static Square",
+              "beats": 12,
+              "view": {
+                "scale": 34.984,
+                "units": 4.459
+              }
+            },
+            {
+              "title": "All 4 Couples Wrong Way Promenade 1/4",
+              "file": "ms/promenade.xml",
+              "tamIndex": 24,
+              "from": "Static Square",
+              "beats": 6,
+              "view": {
+                "scale": 34.984,
+                "units": 4.459
+              }
+            },
+            {
+              "title": "All 4 Couples Wrong Way Promenade 1/2",
+              "file": "ms/promenade.xml",
+              "tamIndex": 25,
+              "from": "Static Square",
+              "beats": 8,
+              "view": {
+                "scale": 34.984,
+                "units": 4.459
+              }
+            },
+            {
+              "title": "All 4 Couples Wrong Way Promenade 3/4",
+              "file": "ms/promenade.xml",
+              "tamIndex": 26,
+              "from": "Static Square",
+              "beats": 10,
+              "view": {
+                "scale": 35.025,
+                "units": 4.454
+              }
+            }
+          ]
         }
       ]
     },
@@ -274,116 +626,150 @@
         "scale": 32.5,
         "units": 4.8
       },
-      "labels": [
-        "Eight Chain Thru",
-        "Left-Hand Ocean Waves",
-        "Right and Left Grand Circle",
-        "Trade By",
-        "Static Square",
-        "Left-Hand 3/4 Tag",
-        "Facing Lines",
-        "Infacing Circle of 8",
-        "Alamo Ring"
-      ],
       "starts": [
         {
           "label": "Eight Chain Thru",
-          "file": "ms/allemande.xml",
-          "tamIndex": 1,
-          "from": "Eight Chain Thru",
-          "beats": 6,
-          "view": {
-            "scale": 32.5,
-            "units": 4.8
-          }
+          "calls": [
+            {
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml",
+              "tamIndex": 1,
+              "from": "Eight Chain Thru",
+              "beats": 6,
+              "view": {
+                "scale": 32.5,
+                "units": 4.8
+              }
+            }
+          ]
         },
         {
           "label": "Left-Hand Ocean Waves",
-          "file": "ms/allemande.xml",
-          "tamIndex": 6,
-          "from": "Left-Hand Waves",
-          "beats": 4.5,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml",
+              "tamIndex": 6,
+              "from": "Left-Hand Waves",
+              "beats": 4.5,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         },
         {
           "label": "Right and Left Grand Circle",
-          "file": "ms/allemande.xml",
-          "tamIndex": 12,
-          "from": "Grand Circle",
-          "beats": 4.75,
-          "view": {
-            "scale": 32.502,
-            "units": 4.8
-          }
+          "calls": [
+            {
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml",
+              "tamIndex": 12,
+              "from": "Grand Circle",
+              "beats": 4.75,
+              "view": {
+                "scale": 32.502,
+                "units": 4.8
+              }
+            }
+          ]
         },
         {
           "label": "Trade By",
-          "file": "ms/allemande.xml",
-          "tamIndex": 3,
-          "from": "Trade By",
-          "beats": 6,
-          "view": {
-            "scale": 29.434,
-            "units": 5.3
-          }
+          "calls": [
+            {
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml",
+              "tamIndex": 3,
+              "from": "Trade By",
+              "beats": 6,
+              "view": {
+                "scale": 29.434,
+                "units": 5.3
+              }
+            }
+          ]
         },
         {
           "label": "Static Square",
-          "file": "ms/allemande.xml",
-          "tamIndex": 8,
-          "from": "Static Square",
-          "beats": 8,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml",
+              "tamIndex": 8,
+              "from": "Static Square",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         },
         {
           "label": "Left-Hand 3/4 Tag",
-          "file": "ms/allemande.xml",
-          "tamIndex": 7,
-          "from": "Left-Hand 3/4 Tag",
-          "beats": 5.25,
-          "view": {
-            "scale": 32.501,
-            "units": 4.8
-          }
+          "calls": [
+            {
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml",
+              "tamIndex": 7,
+              "from": "Left-Hand 3/4 Tag",
+              "beats": 5.25,
+              "view": {
+                "scale": 32.501,
+                "units": 4.8
+              }
+            }
+          ]
         },
         {
           "label": "Facing Lines",
-          "file": "ms/allemande.xml",
-          "tamIndex": 4,
-          "from": "Normal Lines",
-          "beats": 6.5,
-          "view": {
-            "scale": 32.501,
-            "units": 4.8
-          }
+          "calls": [
+            {
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml",
+              "tamIndex": 4,
+              "from": "Normal Lines",
+              "beats": 6.5,
+              "view": {
+                "scale": 32.501,
+                "units": 4.8
+              }
+            }
+          ]
         },
         {
           "label": "Infacing Circle of 8",
-          "file": "ms/allemande.xml",
-          "tamIndex": 10,
-          "from": "Circle Left",
-          "beats": 6.75,
-          "view": {
-            "scale": 36.805,
-            "units": 4.239
-          }
+          "calls": [
+            {
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml",
+              "tamIndex": 10,
+              "from": "Circle Left",
+              "beats": 6.75,
+              "view": {
+                "scale": 36.805,
+                "units": 4.239
+              }
+            }
+          ]
         },
         {
           "label": "Alamo Ring",
-          "file": "ms/allemande.xml",
-          "tamIndex": 11,
-          "from": "Thar",
-          "beats": 5,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml",
+              "tamIndex": 11,
+              "from": "Thar",
+              "beats": 5,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -402,22 +788,209 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Couples",
-        "Squared Set",
-        "Infacing Circle of 8"
-      ],
       "starts": [
         {
           "label": "Facing Couples",
-          "file": "ms/star.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 7.5,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Right Hand Star",
+              "file": "ms/star.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Left Hand Star",
+              "file": "ms/star.xml",
+              "tamIndex": 2,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Right-Hand Star 1/4",
+              "file": "ms/star.xml",
+              "tamIndex": 14,
+              "from": "",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Right-Hand Star 1/4 and Roll",
+              "file": "ms/star.xml",
+              "tamIndex": 15,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Right-Hand Star 1/2",
+              "file": "ms/star.xml",
+              "tamIndex": 16,
+              "from": "",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Right-Hand Star 1/2 and Roll",
+              "file": "ms/star.xml",
+              "tamIndex": 17,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Right-Hand Star 3/4",
+              "file": "ms/star.xml",
+              "tamIndex": 18,
+              "from": "",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Right-Hand Star 3/4 and Roll",
+              "file": "ms/star.xml",
+              "tamIndex": 19,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Right-Hand Star a Full Turn",
+              "file": "ms/star.xml",
+              "tamIndex": 20,
+              "from": "",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Right-Hand Star a Full Turn and Roll",
+              "file": "ms/star.xml",
+              "tamIndex": 21,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Left-Hand Star 1/4",
+              "file": "ms/star.xml",
+              "tamIndex": 22,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Left-Hand Star 1/4 and Roll",
+              "file": "ms/star.xml",
+              "tamIndex": 23,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Left-Hand Star 1/2",
+              "file": "ms/star.xml",
+              "tamIndex": 24,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Left-Hand Star 1/2 and Roll",
+              "file": "ms/star.xml",
+              "tamIndex": 25,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Left-Hand Star 3/4",
+              "file": "ms/star.xml",
+              "tamIndex": 26,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Left-Hand Star 3/4 and Roll",
+              "file": "ms/star.xml",
+              "tamIndex": 27,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Left-Hand Star a Full Turn",
+              "file": "ms/star.xml",
+              "tamIndex": 28,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Left-Hand Star a Full Turn and Roll",
+              "file": "ms/star.xml",
+              "tamIndex": 29,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -436,44 +1009,65 @@
         "scale": 30.917,
         "units": 5.046
       },
-      "labels": [
-        "Right and Left Grand Circle",
-        "Eight Chain Thru",
-        "Trade By"
-      ],
       "starts": [
         {
           "label": "Right and Left Grand Circle",
-          "file": "ms/right_and_left_grand.xml",
-          "tamIndex": 0,
-          "from": "Grand Circle",
-          "beats": 13,
-          "view": {
-            "scale": 30.917,
-            "units": 5.046
-          }
+          "calls": [
+            {
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 0,
+              "from": "Grand Circle",
+              "beats": 13,
+              "view": {
+                "scale": 30.917,
+                "units": 5.046
+              }
+            },
+            {
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 1,
+              "from": "Grand Circle 2",
+              "beats": 12,
+              "view": {
+                "scale": 30.891,
+                "units": 5.05
+              }
+            }
+          ]
         },
         {
           "label": "Eight Chain Thru",
-          "file": "ms/right_and_left_grand.xml",
-          "tamIndex": 2,
-          "from": "Eight Chain Thru",
-          "beats": 12,
-          "view": {
-            "scale": 30.891,
-            "units": 5.05
-          }
+          "calls": [
+            {
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 2,
+              "from": "Eight Chain Thru",
+              "beats": 12,
+              "view": {
+                "scale": 30.891,
+                "units": 5.05
+              }
+            }
+          ]
         },
         {
           "label": "Trade By",
-          "file": "ms/right_and_left_grand.xml",
-          "tamIndex": 4,
-          "from": "Trade By",
-          "beats": 13.5,
-          "view": {
-            "scale": 29.456,
-            "units": 5.296
-          }
+          "calls": [
+            {
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 4,
+              "from": "Trade By",
+              "beats": 13.5,
+              "view": {
+                "scale": 29.456,
+                "units": 5.296
+              }
+            }
+          ]
         }
       ]
     },
@@ -491,10 +1085,7 @@
       "view": {
         "scale": 30.917,
         "units": 5.046
-      },
-      "labels": [
-        "Right and Left Grand Circle"
-      ]
+      }
     },
     {
       "id": "m06c",
@@ -511,44 +1102,65 @@
         "scale": 30.612,
         "units": 5.096
       },
-      "labels": [
-        "Right and Left Grand Circle",
-        "Eight Chain Thru",
-        "Trade By"
-      ],
       "starts": [
         {
           "label": "Right and Left Grand Circle",
-          "file": "ms/right_and_left_grand.xml",
-          "tamIndex": 14,
-          "from": "Grand Circle",
-          "beats": 13,
-          "view": {
-            "scale": 30.612,
-            "units": 5.096
-          }
+          "calls": [
+            {
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 14,
+              "from": "Grand Circle",
+              "beats": 13,
+              "view": {
+                "scale": 30.612,
+                "units": 5.096
+              }
+            },
+            {
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 15,
+              "from": "Grand Circle 2",
+              "beats": 12,
+              "view": {
+                "scale": 30.891,
+                "units": 5.05
+              }
+            }
+          ]
         },
         {
           "label": "Eight Chain Thru",
-          "file": "ms/right_and_left_grand.xml",
-          "tamIndex": 16,
-          "from": "Eight Chain Thru",
-          "beats": 12,
-          "view": {
-            "scale": 30.891,
-            "units": 5.05
-          }
+          "calls": [
+            {
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 16,
+              "from": "Eight Chain Thru",
+              "beats": 12,
+              "view": {
+                "scale": 30.891,
+                "units": 5.05
+              }
+            }
+          ]
         },
         {
           "label": "Trade By",
-          "file": "ms/right_and_left_grand.xml",
-          "tamIndex": 18,
-          "from": "Trade By",
-          "beats": 13.5,
-          "view": {
-            "scale": 29.456,
-            "units": 5.296
-          }
+          "calls": [
+            {
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml",
+              "tamIndex": 18,
+              "from": "Trade By",
+              "beats": 13.5,
+              "view": {
+                "scale": 29.456,
+                "units": 5.296
+              }
+            }
+          ]
         }
       ]
     },
@@ -567,20 +1179,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Dancers"
-      ],
       "starts": [
         {
           "label": "Facing Dancers",
-          "file": "ms/pass_thru.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 2,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Pass Thru",
+              "file": "ms/pass_thru.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 2,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -599,20 +1213,22 @@
         "scale": 41.055,
         "units": 3.8
       },
-      "labels": [
-        "Couple"
-      ],
       "starts": [
         {
           "label": "Couple",
-          "file": "ms/wheel_around.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 3,
-          "view": {
-            "scale": 41.055,
-            "units": 3.8
-          }
+          "calls": [
+            {
+              "title": "Wheel Around / Reverse Wheel Ar.",
+              "file": "ms/wheel_around.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 3,
+              "view": {
+                "scale": 41.055,
+                "units": 3.8
+              }
+            }
+          ]
         }
       ]
     },
@@ -631,20 +1247,22 @@
         "scale": 39.296,
         "units": 3.97
       },
-      "labels": [
-        "Couple"
-      ],
       "starts": [
         {
           "label": "Couple",
-          "file": "ms/courtesy_turn.xml",
-          "tamIndex": 0,
-          "from": "Couples Facing Out",
-          "beats": 3,
-          "view": {
-            "scale": 39.296,
-            "units": 3.97
-          }
+          "calls": [
+            {
+              "title": "Courtesy Turn",
+              "file": "ms/courtesy_turn.xml",
+              "tamIndex": 0,
+              "from": "Couples Facing Out",
+              "beats": 3,
+              "view": {
+                "scale": 39.296,
+                "units": 3.97
+              }
+            }
+          ]
         }
       ]
     },
@@ -663,20 +1281,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Couples"
-      ],
       "starts": [
         {
           "label": "Facing Couples",
-          "file": "ms/right_and_left_thru.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 6,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Right and Left Thru",
+              "file": "ms/right_and_left_thru.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -695,20 +1315,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Dancers"
-      ],
       "starts": [
         {
           "label": "Facing Dancers",
-          "file": "ms/swing.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 9,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Swing Your Partner",
+              "file": "ms/swing.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 9,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -727,20 +1349,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Couples"
-      ],
       "starts": [
         {
           "label": "Facing Couples",
-          "file": "ms/ladies_chain.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 8,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Ladies Chain",
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 8,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -759,20 +1383,44 @@
         "scale": 32.503,
         "units": 4.8
       },
-      "labels": [
-        "Static Square of Normal Couples"
-      ],
       "starts": [
         {
           "label": "Static Square of Normal Couples",
-          "file": "ms/ladies_chain.xml",
-          "tamIndex": 12,
-          "from": "Static Square",
-          "beats": 8,
-          "view": {
-            "scale": 32.503,
-            "units": 4.8
-          }
+          "calls": [
+            {
+              "title": "Four Ladies Chain",
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 12,
+              "from": "Static Square",
+              "beats": 8,
+              "view": {
+                "scale": 32.503,
+                "units": 4.8
+              }
+            },
+            {
+              "title": "Four Ladies Chain 3/4",
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 14,
+              "from": "Static Square",
+              "beats": 9.5,
+              "view": {
+                "scale": 29.449,
+                "units": 5.297
+              }
+            },
+            {
+              "title": "Four Ladies Chain 1/4",
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 15,
+              "from": "Static Square",
+              "beats": 7,
+              "view": {
+                "scale": 29.436,
+                "units": 5.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -807,20 +1455,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Couple"
-      ],
       "starts": [
         {
           "label": "Couple",
-          "file": "ms/sashay.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 4,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Half Sashay",
+              "file": "ms/sashay.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -839,20 +1489,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Couple"
-      ],
       "starts": [
         {
           "label": "Couple",
-          "file": "ms/sashay.xml",
-          "tamIndex": 7,
-          "from": "Facing Couples",
-          "beats": 3,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Rollaway",
+              "file": "ms/sashay.xml",
+              "tamIndex": 7,
+              "from": "Facing Couples",
+              "beats": 3,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -871,20 +1523,22 @@
         "scale": 39.971,
         "units": 3.903
       },
-      "labels": [
-        "Boys and Girls alternating"
-      ],
       "starts": [
         {
           "label": "Boys and Girls alternating",
-          "file": "ms/sashay.xml",
-          "tamIndex": 5,
-          "from": "Circle Left",
-          "beats": 4.199999999999999,
-          "view": {
-            "scale": 39.971,
-            "units": 3.903
-          }
+          "calls": [
+            {
+              "title": "Ladies In, Men Sashay",
+              "file": "ms/sashay.xml",
+              "tamIndex": 5,
+              "from": "Circle Left",
+              "beats": 4.199999999999999,
+              "view": {
+                "scale": 39.971,
+                "units": 3.903
+              }
+            }
+          ]
         }
       ]
     },
@@ -918,10 +1572,7 @@
       "view": {
         "scale": 36.279,
         "units": 4.3
-      },
-      "labels": [
-        "Couple"
-      ]
+      }
     },
     {
       "id": "m15b",
@@ -970,20 +1621,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Couple"
-      ],
       "starts": [
         {
           "label": "Couple",
-          "file": "ms/lead_right.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 4,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Lead Right / Lead Left",
+              "file": "ms/lead_right.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -1002,32 +1655,60 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Facing Couples",
-        "Two-Faced Line"
-      ],
       "starts": [
         {
           "label": "Facing Couples",
-          "file": "ms/veer.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 2,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Veer Left",
+              "file": "ms/veer.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Veer Right",
+              "file": "ms/veer.xml",
+              "tamIndex": 6,
+              "from": "Facing Couples",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         },
         {
           "label": "Two-Faced Line",
-          "file": "ms/veer.xml",
-          "tamIndex": 1,
-          "from": "Left-Hand Two-Faced Line",
-          "beats": 2,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Veer Left",
+              "file": "ms/veer.xml",
+              "tamIndex": 1,
+              "from": "Left-Hand Two-Faced Line",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Veer Right",
+              "file": "ms/veer.xml",
+              "tamIndex": 7,
+              "from": "Right-Hand Two-Faced Line",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1046,20 +1727,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Dancers"
-      ],
       "starts": [
         {
           "label": "Facing Dancers",
-          "file": "ms/star_thru.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 4,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Star Thru",
+              "file": "ms/star_thru.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -1078,20 +1761,33 @@
         "scale": 24.765,
         "units": 6.299
       },
-      "labels": [
-        "Two-Faced Lines"
-      ],
       "starts": [
         {
           "label": "Two-Faced Lines",
-          "file": "ms/circulate.xml",
-          "tamIndex": 48,
-          "from": "Right-Hand Two-Faced Lines",
-          "beats": 4,
-          "view": {
-            "scale": 24.765,
-            "units": 6.299
-          }
+          "calls": [
+            {
+              "title": "Couples Circulate",
+              "file": "ms/circulate.xml",
+              "tamIndex": 48,
+              "from": "Right-Hand Two-Faced Lines",
+              "beats": 4,
+              "view": {
+                "scale": 24.765,
+                "units": 6.299
+              }
+            },
+            {
+              "title": "Couples Circulate",
+              "file": "ms/circulate.xml",
+              "tamIndex": 49,
+              "from": "Left-Hand Two-Faced Lines",
+              "beats": 4,
+              "view": {
+                "scale": 24.765,
+                "units": 6.299
+              }
+            }
+          ]
         }
       ]
     },
@@ -1110,21 +1806,22 @@
         "scale": 32.5,
         "units": 4.8
       },
-      "labels": [
-        "Lines",
-        "Columns"
-      ],
       "starts": [
         {
           "label": "Lines",
-          "file": "ms/circulate.xml",
-          "tamIndex": 33,
-          "from": "Lines Facing In",
-          "beats": 4,
-          "view": {
-            "scale": 32.5,
-            "units": 4.8
-          }
+          "calls": [
+            {
+              "title": "Circulate",
+              "file": "ms/circulate.xml",
+              "tamIndex": 33,
+              "from": "Lines Facing In",
+              "beats": 4,
+              "view": {
+                "scale": 32.5,
+                "units": 4.8
+              }
+            }
+          ]
         }
       ]
     },
@@ -1143,21 +1840,22 @@
         "scale": 32.5,
         "units": 4.8
       },
-      "labels": [
-        "Lines",
-        "Columns"
-      ],
       "starts": [
         {
           "label": "Lines",
-          "file": "ms/circulate.xml",
-          "tamIndex": 29,
-          "from": "Lines Facing In",
-          "beats": 4,
-          "view": {
-            "scale": 32.5,
-            "units": 4.8
-          }
+          "calls": [
+            {
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml",
+              "tamIndex": 29,
+              "from": "Lines Facing In",
+              "beats": 4,
+              "view": {
+                "scale": 32.5,
+                "units": 4.8
+              }
+            }
+          ]
         }
       ]
     },
@@ -1176,20 +1874,33 @@
         "scale": 29.435,
         "units": 5.3
       },
-      "labels": [
-        "Columns"
-      ],
       "starts": [
         {
           "label": "Columns",
-          "file": "ms/circulate.xml",
-          "tamIndex": 51,
-          "from": "Right-Hand Columns",
-          "beats": 3,
-          "view": {
-            "scale": 29.435,
-            "units": 5.3
-          }
+          "calls": [
+            {
+              "title": "Column Circulate",
+              "file": "ms/circulate.xml",
+              "tamIndex": 51,
+              "from": "Right-Hand Columns",
+              "beats": 3,
+              "view": {
+                "scale": 29.435,
+                "units": 5.3
+              }
+            },
+            {
+              "title": "Column Circulate",
+              "file": "ms/circulate.xml",
+              "tamIndex": 52,
+              "from": "Left-Hand Columns",
+              "beats": 3,
+              "view": {
+                "scale": 29.435,
+                "units": 5.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1208,22 +1919,22 @@
         "scale": 41.055,
         "units": 3.8
       },
-      "labels": [
-        "Box for Box Circulate",
-        "Lines",
-        "Columns for Split Circulate"
-      ],
       "starts": [
         {
           "label": "Box for Box Circulate",
-          "file": "ms/circulate.xml",
-          "tamIndex": 0,
-          "from": "Right-Hand Box",
-          "beats": 4,
-          "view": {
-            "scale": 41.055,
-            "units": 3.8
-          }
+          "calls": [
+            {
+              "title": "Box/Split Circulate",
+              "file": "ms/circulate.xml",
+              "tamIndex": 0,
+              "from": "Right-Hand Box",
+              "beats": 4,
+              "view": {
+                "scale": 41.055,
+                "units": 3.8
+              }
+            }
+          ]
         }
       ]
     },
@@ -1242,33 +1953,82 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Two-Faced Line of four",
-        "One-Faced",
-        "Tidal Line of eight"
-      ],
       "starts": [
         {
           "label": "Two-Faced Line of four",
-          "file": "ms/bend_the_line.xml",
-          "tamIndex": 0,
-          "from": "Right-Hand Two-Faced Line",
-          "beats": 4,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 0,
+              "from": "Right-Hand Two-Faced Line",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 1,
+              "from": "Left-Hand Two-Faced Line",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 4,
+              "from": "Right-Hand Two-Faced Lines",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 5,
+              "from": "Left-Hand Two-Faced Lines",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         },
         {
           "label": "Tidal Line of eight",
-          "file": "ms/bend_the_line.xml",
-          "tamIndex": 8,
-          "from": "Right-Hand Tidal Line",
-          "beats": 4,
-          "view": {
-            "scale": 32.5,
-            "units": 4.8
-          }
+          "calls": [
+            {
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 8,
+              "from": "Right-Hand Tidal Line",
+              "beats": 4,
+              "view": {
+                "scale": 32.5,
+                "units": 4.8
+              }
+            },
+            {
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml",
+              "tamIndex": 9,
+              "from": "Left-Hand Tidal Line",
+              "beats": 4,
+              "view": {
+                "scale": 32.5,
+                "units": 4.8
+              }
+            }
+          ]
         }
       ]
     },
@@ -1287,20 +2047,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Couples"
-      ],
       "starts": [
         {
           "label": "Facing Couples",
-          "file": "ms/square_thru.xml",
-          "tamIndex": 12,
-          "from": "Facing Couples",
-          "beats": 10,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Square Thru 4",
+              "file": "ms/square_thru.xml",
+              "tamIndex": 12,
+              "from": "Facing Couples",
+              "beats": 10,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -1318,10 +2080,7 @@
       "view": {
         "scale": 36.279,
         "units": 4.3
-      },
-      "labels": [
-        "Eight Chain Thru"
-      ]
+      }
     },
     {
       "id": "m23",
@@ -1338,20 +2097,22 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Static Square"
-      ],
       "starts": [
         {
           "label": "Static Square",
-          "file": "ms/grand_square.xml",
-          "tamIndex": 5,
-          "from": "Butterfly",
-          "beats": 32,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Grand Square",
+              "file": "ms/grand_square.xml",
+              "tamIndex": 5,
+              "from": "Butterfly",
+              "beats": 32,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1370,20 +2131,22 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Facing Tandems"
-      ],
       "starts": [
         {
           "label": "Facing Tandems",
-          "file": "ms/double_pass_thru.xml",
-          "tamIndex": 0,
-          "from": "Single Column",
-          "beats": 4,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Double Pass Thru",
+              "file": "ms/double_pass_thru.xml",
+              "tamIndex": 0,
+              "from": "Single Column",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1402,20 +2165,44 @@
         "scale": 28.944,
         "units": 5.39
       },
-      "labels": [
-        "Completed Double Pass Thru"
-      ],
       "starts": [
         {
           "label": "Completed Double Pass Thru",
-          "file": "ms/first_couple_go.xml",
-          "tamIndex": 0,
-          "from": "",
-          "beats": 4,
-          "view": {
-            "scale": 28.944,
-            "units": 5.39
-          }
+          "calls": [
+            {
+              "title": "First Couple Go Left, Next Couple Go Right",
+              "file": "ms/first_couple_go.xml",
+              "tamIndex": 0,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 28.944,
+                "units": 5.39
+              }
+            },
+            {
+              "title": "First Couple Go Left, Next Couple Go Left",
+              "file": "ms/first_couple_go.xml",
+              "tamIndex": 2,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 29.434,
+                "units": 5.3
+              }
+            },
+            {
+              "title": "First Couple Go Right, Next Couple Go Right",
+              "file": "ms/first_couple_go.xml",
+              "tamIndex": 3,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 29.434,
+                "units": 5.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1434,21 +2221,77 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Two-Faced Line",
-        "One-Faced Line"
-      ],
       "starts": [
         {
           "label": "Two-Faced Line",
-          "file": "ms/wheel_and_deal.xml",
-          "tamIndex": 0,
-          "from": "Right-Hand Two-Faced Line",
-          "beats": 4,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 0,
+              "from": "Right-Hand Two-Faced Line",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 1,
+              "from": "Compact Right-Hand Two-Faced Line",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 2,
+              "from": "Left-Hand Two-Faced Line",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 3,
+              "from": "Compact Left-Hand Two-Faced Line",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 5,
+              "from": "Right-Hand Two-Faced Lines",
+              "beats": 4,
+              "view": {
+                "scale": 26.586,
+                "units": 5.868
+              }
+            },
+            {
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml",
+              "tamIndex": 6,
+              "from": "Left-Hand Two-Faced Lines",
+              "beats": 4,
+              "view": {
+                "scale": 26.586,
+                "units": 5.868
+              }
+            }
+          ]
         }
       ]
     },
@@ -1467,20 +2310,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Normal Couple"
-      ],
       "starts": [
         {
           "label": "Normal Couple",
-          "file": "ms/california_twirl.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 3,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "California Twirl",
+              "file": "ms/california_twirl.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 3,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -1499,20 +2344,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Dancers"
-      ],
       "starts": [
         {
           "label": "Facing Dancers",
-          "file": "ms/slide_thru.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 4,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Slide Thru",
+              "file": "ms/slide_thru.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -1530,10 +2377,7 @@
       "view": {
         "scale": 29.435,
         "units": 5.3
-      },
-      "labels": [
-        "Facing Couples"
-      ]
+      }
     },
     {
       "id": "m30",
@@ -1550,20 +2394,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Dancers"
-      ],
       "starts": [
         {
           "label": "Facing Dancers",
-          "file": "ms/box_the_gnat.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 4,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Box the Gnat",
+              "file": "ms/box_the_gnat.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -1582,20 +2428,22 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Allemande Left starting formation"
-      ],
       "starts": [
         {
           "label": "Allemande Left starting formation",
-          "file": "ms/alamo_style.xml",
-          "tamIndex": 0,
-          "from": "Static Square",
-          "beats": 6.85,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Alamo Style",
+              "file": "ms/alamo_style.xml",
+              "tamIndex": 0,
+              "from": "Static Square",
+              "beats": 6.85,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1614,20 +2462,33 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Mini-Wave"
-      ],
       "starts": [
         {
           "label": "Mini-Wave",
-          "file": "ms/ocean_wave.xml",
-          "tamIndex": 8,
-          "from": "Right-Hand Waves",
-          "beats": 4,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Balance",
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 8,
+              "from": "Right-Hand Waves",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Balance",
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 9,
+              "from": "Left-Hand Waves",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1646,20 +2507,33 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Dancers"
-      ],
       "starts": [
         {
           "label": "Facing Dancers",
-          "file": "ms/ocean_wave.xml",
-          "tamIndex": 0,
-          "from": "Facing Dancers",
-          "beats": 2,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Step to a Wave",
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 0,
+              "from": "Facing Dancers",
+              "beats": 2,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Step to a Wave",
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 1,
+              "from": "Facing Couples",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1678,20 +2552,33 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Facing Dancers"
-      ],
       "starts": [
         {
           "label": "Facing Dancers",
-          "file": "ms/dosado.xml",
-          "tamIndex": 3,
-          "from": "Facing Couples",
-          "beats": 6,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Dosado to a Wave",
+              "file": "ms/dosado.xml",
+              "tamIndex": 3,
+              "from": "Facing Couples",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Dosado",
+              "file": "ms/dosado.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -1710,20 +2597,33 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Facing Dancers"
-      ],
       "starts": [
         {
           "label": "Facing Dancers",
-          "file": "ms/single_circle_to_a_wave.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 4,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Single Circle to a Wave",
+              "file": "ms/single_circle_to_a_wave.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Single Circle 3/4 to a Wave",
+              "file": "ms/single_circle_to_a_wave.xml",
+              "tamIndex": 3,
+              "from": "Facing Couples",
+              "beats": 5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -1742,21 +2642,77 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Two-Faced Line",
-        "One-Faced Line"
-      ],
       "starts": [
         {
           "label": "Two-Faced Line",
-          "file": "ms/trade.xml",
-          "tamIndex": 46,
-          "from": "Right-Hand Two-Faced Line",
-          "beats": 6,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Couples Trade",
+              "file": "ms/trade.xml",
+              "tamIndex": 46,
+              "from": "Right-Hand Two-Faced Line",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Couples Trade",
+              "file": "ms/trade.xml",
+              "tamIndex": 47,
+              "from": "Compact Right-Hand Two-Faced Line",
+              "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Couples Trade",
+              "file": "ms/trade.xml",
+              "tamIndex": 48,
+              "from": "Left-Hand Two-Faced Line",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Couples Trade",
+              "file": "ms/trade.xml",
+              "tamIndex": 49,
+              "from": "Compact Left-Hand Two-Faced Line",
+              "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Couples Trade",
+              "file": "ms/trade.xml",
+              "tamIndex": 52,
+              "from": "Right-Hand Two-Faced Lines",
+              "beats": 6,
+              "view": {
+                "scale": 32.503,
+                "units": 4.8
+              }
+            },
+            {
+              "title": "Couples Trade",
+              "file": "ms/trade.xml",
+              "tamIndex": 53,
+              "from": "Left-Hand Two-Faced Lines",
+              "beats": 6,
+              "view": {
+                "scale": 32.503,
+                "units": 4.8
+              }
+            }
+          ]
         }
       ]
     },
@@ -1775,21 +2731,22 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Mini-Wave",
-        "Couple"
-      ],
       "starts": [
         {
           "label": "Mini-Wave",
-          "file": "ms/trade.xml",
-          "tamIndex": 0,
-          "from": "Right-Hand Wave, Boys Center",
-          "beats": 4,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "(Named Dancers) Trade",
+              "file": "ms/trade.xml",
+              "tamIndex": 0,
+              "from": "Right-Hand Wave, Boys Center",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1808,20 +2765,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Couple"
-      ],
       "starts": [
         {
           "label": "Couple",
-          "file": "ms/trade.xml",
-          "tamIndex": 34,
-          "from": "Facing Couples",
-          "beats": 3,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Partner Trade",
+              "file": "ms/trade.xml",
+              "tamIndex": 34,
+              "from": "Facing Couples",
+              "beats": 3,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -1840,21 +2799,77 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Ocean Wave",
-        "Alamo Ring"
-      ],
       "starts": [
         {
           "label": "Ocean Wave",
-          "file": "ms/swing_thru.xml",
-          "tamIndex": 0,
-          "from": "Right-Hand Wave",
-          "beats": 6,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 0,
+              "from": "Right-Hand Wave",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 1,
+              "from": "Compact Right-Hand Wave",
+              "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 2,
+              "from": "Left-Hand Wave",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 3,
+              "from": "Compact Left-Hand Wave",
+              "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 5,
+              "from": "Right-Hand Waves",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 6,
+              "from": "Left-Hand Waves",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1873,21 +2888,22 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Run: Mini-Wave",
-        "Couple. Cross Run: General Line"
-      ],
       "starts": [
         {
           "label": "Run: Mini-Wave",
-          "file": "ms/run.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 4,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Run / Cross Run",
+              "file": "ms/run.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -1906,20 +2922,22 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Facing Couples"
-      ],
       "starts": [
         {
           "label": "Facing Couples",
-          "file": "ms/pass_the_ocean.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 4,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Pass the Ocean",
+              "file": "ms/pass_the_ocean.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1938,44 +2956,87 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "1/4 Tag",
-        "Ocean Waves",
-        "3/4 Tag"
-      ],
       "starts": [
         {
           "label": "1/4 Tag",
-          "file": "ms/extend.xml",
-          "tamIndex": 7,
-          "from": "Right-Hand 1/4 Tag",
-          "beats": 2,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Extend",
+              "file": "ms/extend.xml",
+              "tamIndex": 7,
+              "from": "Right-Hand 1/4 Tag",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Extend",
+              "file": "ms/extend.xml",
+              "tamIndex": 8,
+              "from": "Left-Hand 1/4 Tag",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         },
         {
           "label": "Ocean Waves",
-          "file": "ms/extend.xml",
-          "tamIndex": 10,
-          "from": "Right-Hand Waves",
-          "beats": 2,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Extend",
+              "file": "ms/extend.xml",
+              "tamIndex": 10,
+              "from": "Right-Hand Waves",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Extend",
+              "file": "ms/extend.xml",
+              "tamIndex": 11,
+              "from": "Left-Hand Waves",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         },
         {
           "label": "3/4 Tag",
-          "file": "ms/extend.xml",
-          "tamIndex": 12,
-          "from": "3/4 Tag",
-          "beats": 2,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Extend",
+              "file": "ms/extend.xml",
+              "tamIndex": 12,
+              "from": "3/4 Tag",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Extend",
+              "file": "ms/extend.xml",
+              "tamIndex": 13,
+              "from": "Left-Hand 3/4 Tag",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -1994,20 +3055,22 @@
         "scale": 41.108,
         "units": 3.795
       },
-      "labels": [
-        "Facing Couples"
-      ],
       "starts": [
         {
           "label": "Facing Couples",
-          "file": "ms/flutterwheel.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 8,
-          "view": {
-            "scale": 41.108,
-            "units": 3.795
-          }
+          "calls": [
+            {
+              "title": "Flutterwheel",
+              "file": "ms/flutterwheel.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 8,
+              "view": {
+                "scale": 41.108,
+                "units": 3.795
+              }
+            }
+          ]
         }
       ]
     },
@@ -2026,20 +3089,33 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Couples"
-      ],
       "starts": [
         {
           "label": "Facing Couples",
-          "file": "ms/sweep_a_quarter.xml",
-          "tamIndex": 11,
-          "from": "Facing Couples",
-          "beats": 2,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Sweep a Quarter Right",
+              "file": "ms/sweep_a_quarter.xml",
+              "tamIndex": 11,
+              "from": "Facing Couples",
+              "beats": 2,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Sweep a Quarter Left",
+              "file": "ms/sweep_a_quarter.xml",
+              "tamIndex": 8,
+              "from": "Facing Couples",
+              "beats": 2,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
         }
       ]
     },
@@ -2058,20 +3134,22 @@
         "scale": 29.435,
         "units": 5.3
       },
-      "labels": [
-        "Trade By formation"
-      ],
       "starts": [
         {
           "label": "Trade By formation",
-          "file": "ms/trade_by.xml",
-          "tamIndex": 0,
-          "from": "Trade By",
-          "beats": 4,
-          "view": {
-            "scale": 29.435,
-            "units": 5.3
-          }
+          "calls": [
+            {
+              "title": "Trade By",
+              "file": "ms/trade_by.xml",
+              "tamIndex": 0,
+              "from": "Trade By",
+              "beats": 4,
+              "view": {
+                "scale": 29.435,
+                "units": 5.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -2090,20 +3168,33 @@
         "scale": 26.586,
         "units": 5.868
       },
-      "labels": [
-        "Two-Faced Lines"
-      ],
       "starts": [
         {
           "label": "Two-Faced Lines",
-          "file": "ms/ferris_wheel.xml",
-          "tamIndex": 1,
-          "from": "Right-Handed Two-Faced Lines",
-          "beats": 4,
-          "view": {
-            "scale": 26.586,
-            "units": 5.868
-          }
+          "calls": [
+            {
+              "title": "Ferris Wheel",
+              "file": "ms/ferris_wheel.xml",
+              "tamIndex": 1,
+              "from": "Right-Handed Two-Faced Lines",
+              "beats": 4,
+              "view": {
+                "scale": 26.586,
+                "units": 5.868
+              }
+            },
+            {
+              "title": "Ferris Wheel",
+              "file": "ms/ferris_wheel.xml",
+              "tamIndex": 2,
+              "from": "Left-Handed Two-Faced Lines",
+              "beats": 4,
+              "view": {
+                "scale": 26.586,
+                "units": 5.868
+              }
+            }
+          ]
         }
       ]
     },
@@ -2122,20 +3213,22 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Tandem and a centre point"
-      ],
       "starts": [
         {
           "label": "Tandem and a centre point",
-          "file": "ms/zoom.xml",
-          "tamIndex": 0,
-          "from": "Right-Hand Box",
-          "beats": 6,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Zoom",
+              "file": "ms/zoom.xml",
+              "tamIndex": 0,
+              "from": "Right-Hand Box",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -2154,20 +3247,33 @@
         "scale": 43.333,
         "units": 3.6
       },
-      "labels": [
-        "Facing Dancers"
-      ],
       "starts": [
         {
           "label": "Facing Dancers",
-          "file": "ms/touch_a_quarter.xml",
-          "tamIndex": 0,
-          "from": "Facing Couples",
-          "beats": 2,
-          "view": {
-            "scale": 43.333,
-            "units": 3.6
-          }
+          "calls": [
+            {
+              "title": "Touch a Quarter",
+              "file": "ms/touch_a_quarter.xml",
+              "tamIndex": 0,
+              "from": "Facing Couples",
+              "beats": 2,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Touch a Half",
+              "file": "ms/touch_a_quarter.xml",
+              "tamIndex": 7,
+              "from": "Facing Couples",
+              "beats": 6,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -2186,20 +3292,55 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Mini-Wave"
-      ],
       "starts": [
         {
           "label": "Mini-Wave",
-          "file": "ms/hinge.xml",
-          "tamIndex": 2,
-          "from": "Right-Hand Wave",
-          "beats": 2,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Hinge",
+              "file": "ms/hinge.xml",
+              "tamIndex": 2,
+              "from": "Right-Hand Wave",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Hinge",
+              "file": "ms/hinge.xml",
+              "tamIndex": 3,
+              "from": "Left-Hand Wave",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Hinge",
+              "file": "ms/hinge.xml",
+              "tamIndex": 4,
+              "from": "Right-Hand Waves",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Hinge",
+              "file": "ms/hinge.xml",
+              "tamIndex": 5,
+              "from": "Left-Hand Waves",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -2218,20 +3359,22 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "One-Faced Line and Two-Faced Line"
-      ],
       "starts": [
         {
           "label": "One-Faced Line and Two-Faced Line",
-          "file": "ms/hinge.xml",
-          "tamIndex": 29,
-          "from": "Right-Hand Two-Faced Line",
-          "beats": 3,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml",
+              "tamIndex": 29,
+              "from": "Right-Hand Two-Faced Line",
+              "beats": 3,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -2250,32 +3393,38 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Completed Double Pass Thru",
-        "Eight Chain Thru"
-      ],
       "starts": [
         {
           "label": "Completed Double Pass Thru",
-          "file": "ms/centers_in.xml",
-          "tamIndex": 0,
-          "from": "Completed Double Pass Thru",
-          "beats": 2,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Centers In",
+              "file": "ms/centers_in.xml",
+              "tamIndex": 0,
+              "from": "Completed Double Pass Thru",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         },
         {
           "label": "Eight Chain Thru",
-          "file": "ms/centers_in.xml",
-          "tamIndex": 1,
-          "from": "Eight Chain Thru",
-          "beats": 2,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Centers In",
+              "file": "ms/centers_in.xml",
+              "tamIndex": 1,
+              "from": "Eight Chain Thru",
+              "beats": 2,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -2294,20 +3443,55 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Mini-Wave"
-      ],
       "starts": [
         {
           "label": "Mini-Wave",
-          "file": "ms/cast_off_three_quarters.xml",
-          "tamIndex": 2,
-          "from": "Right-Hand Wave",
-          "beats": 4.5,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 2,
+              "from": "Right-Hand Wave",
+              "beats": 4.5,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 3,
+              "from": "Left-Hand Wave",
+              "beats": 4.5,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 10,
+              "from": "Right-Hand Waves",
+              "beats": 4.5,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml",
+              "tamIndex": 11,
+              "from": "Left-Hand Waves",
+              "beats": 4.5,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -2326,20 +3510,55 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Ocean Wave"
-      ],
       "starts": [
         {
           "label": "Ocean Wave",
-          "file": "ms/spin_the_top.xml",
-          "tamIndex": 0,
-          "from": "Right-Hand Wave",
-          "beats": 7.5,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 0,
+              "from": "Right-Hand Wave",
+              "beats": 7.5,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 1,
+              "from": "Left-Hand Wave",
+              "beats": 7.5,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 4,
+              "from": "Right-Hand Waves",
+              "beats": 7.5,
+              "view": {
+                "scale": 32.5,
+                "units": 4.8
+              }
+            },
+            {
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml",
+              "tamIndex": 5,
+              "from": "Left-Hand Waves",
+              "beats": 7.5,
+              "view": {
+                "scale": 32.5,
+                "units": 4.8
+              }
+            }
+          ]
         }
       ]
     },
@@ -2358,22 +3577,22 @@
         "scale": 36.281,
         "units": 4.3
       },
-      "labels": [
-        "Box Circulate",
-        "1/4 Tag",
-        "Single 1/4 Tag"
-      ],
       "starts": [
         {
           "label": "Box Circulate",
-          "file": "ms/scoot_back.xml",
-          "tamIndex": 0,
-          "from": "Right-Hand Box",
-          "beats": 6,
-          "view": {
-            "scale": 36.281,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml",
+              "tamIndex": 0,
+              "from": "Right-Hand Box",
+              "beats": 6,
+              "view": {
+                "scale": 36.281,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -2392,22 +3611,22 @@
         "scale": 26.752,
         "units": 5.831
       },
-      "labels": [
-        "Couple",
-        "Mini-Wave",
-        "General Line"
-      ],
       "starts": [
         {
           "label": "Couple",
-          "file": "ms/fold.xml",
-          "tamIndex": 0,
-          "from": "Lines Facing Out",
-          "beats": 2,
-          "view": {
-            "scale": 26.752,
-            "units": 5.831
-          }
+          "calls": [
+            {
+              "title": "Fold / Cross Fold",
+              "file": "ms/fold.xml",
+              "tamIndex": 0,
+              "from": "Lines Facing Out",
+              "beats": 2,
+              "view": {
+                "scale": 26.752,
+                "units": 5.831
+              }
+            }
+          ]
         }
       ]
     },
@@ -2426,20 +3645,22 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Line"
-      ],
       "starts": [
         {
           "label": "Line",
-          "file": "ms/tag.xml",
-          "tamIndex": 4,
-          "from": "Lines Facing In",
-          "beats": 5.5,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Tag the Line",
+              "file": "ms/tag.xml",
+              "tamIndex": 4,
+              "from": "Lines Facing In",
+              "beats": 5.5,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -2458,20 +3679,22 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Line"
-      ],
       "starts": [
         {
           "label": "Line",
-          "file": "ms/fraction_tag.xml",
-          "tamIndex": 6,
-          "from": "Right-Hand Two-Faced Line",
-          "beats": 3.5,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Fraction (1/4, 1/2, 3/4) Tag",
+              "file": "ms/fraction_tag.xml",
+              "tamIndex": 6,
+              "from": "Right-Hand Two-Faced Line",
+              "beats": 3.5,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
         }
       ]
     },
@@ -2490,20 +3713,55 @@
         "scale": 36.279,
         "units": 4.3
       },
-      "labels": [
-        "Ocean Wave"
-      ],
       "starts": [
         {
           "label": "Ocean Wave",
-          "file": "ms/recycle.xml",
-          "tamIndex": 0,
-          "from": "Right-Hand Wave",
-          "beats": 4,
-          "view": {
-            "scale": 36.279,
-            "units": 4.3
-          }
+          "calls": [
+            {
+              "title": "Recycle",
+              "file": "ms/recycle.xml",
+              "tamIndex": 0,
+              "from": "Right-Hand Wave",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Recycle",
+              "file": "ms/recycle.xml",
+              "tamIndex": 1,
+              "from": "Left-Hand Wave",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Recycle",
+              "file": "ms/recycle.xml",
+              "tamIndex": 2,
+              "from": "Right-Hand Waves",
+              "beats": 4,
+              "view": {
+                "scale": 31.647,
+                "units": 4.929
+              }
+            },
+            {
+              "title": "Recycle",
+              "file": "ms/recycle.xml",
+              "tamIndex": 3,
+              "from": "Left-Hand Waves",
+              "beats": 4,
+              "view": {
+                "scale": 31.647,
+                "units": 4.929
+              }
+            }
+          ]
         }
       ]
     }

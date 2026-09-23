@@ -42,11 +42,10 @@ because that is the only way to find out whether you really do.
 
 ## The floor
 
-The faint grid behind the dancers is the floor, drawn **one unit per square**. Dancers stand about
-**two units apart** in a squared set or a wave, and one unit apart in a tidal wave or a promenade —
-and a dancer is drawn **one square wide**, so the spacing can be read off the grid itself. The same
-grid is used on the small [formation diagrams](../02-language/formations.md), so a formation there and
-the same formation mid-call here are drawn to the same measure.
+The floor, its grid and what the spacing on it means are set out on [Conventions](../conventions.md),
+which is the page for reading any picture in this book. One thing belongs here: the small
+[formation diagrams](../02-language/formations.md) are drawn on the same grid as the player, so a
+formation there and the same formation mid-call are drawn to the same measure.
 
 ## The colours
 

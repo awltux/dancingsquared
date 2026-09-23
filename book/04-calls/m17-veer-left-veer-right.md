@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m16-lead-right-lead-left.md "Previous page: M16 — Lead Right / Lead Left") [☰](../index.md "Contents") [▶](m18-star-thru.md "Next page: M18 — Star Thru") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m16-lead-right-lead-left.md "Previous page: M16 — Lead Right / Lead Left") [☰](../contents.md "Contents") [▶](m18-star-thru.md "Next page: M18 — Star Thru") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M17 — Veer Left / Veer Right

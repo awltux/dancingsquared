@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m46-spin-the-top.md "Previous page: M46 — Spin the Top") [☰](../index.md "Contents") [▶](m48-fold-cross-fold.md "Next page: M48 — Fold / Cross Fold") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m46-spin-the-top.md "Previous page: M46 — Spin the Top") [☰](../contents.md "Contents") [▶](m48-fold-cross-fold.md "Next page: M48 — Fold / Cross Fold") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M47 — Scoot Back

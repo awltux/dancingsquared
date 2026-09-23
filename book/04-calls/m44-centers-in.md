@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m43-hinge-family.md "Previous page: M43 — Hinge Family") [☰](../index.md "Contents") [▶](m45-cast-off-three-quarters.md "Next page: M45 — Cast Off Three-Quarters") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m43-hinge-family.md "Previous page: M43 — Hinge Family") [☰](../contents.md "Contents") [▶](m45-cast-off-three-quarters.md "Next page: M45 — Cast Off Three-Quarters") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M44 — Centers In

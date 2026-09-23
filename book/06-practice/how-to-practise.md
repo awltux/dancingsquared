@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../05-course/course-overview.md "Previous section: The course") [◀](../05-course/teaching-a-class.md "Previous page: Teaching a class") [☰](../index.md "Contents") [▶](drills.md "Next page: Drills") [⏭](../07-plus/where-mainstream-leads.md "Next section: Beyond Mainstream")**
+**[⏮](../05-course/course-overview.md "Previous section: The course") [◀](../05-course/teaching-a-class.md "Previous page: Teaching a class") [☰](../contents.md "Contents") [▶](drills.md "Next page: Drills") [⏭](../07-plus/where-mainstream-leads.md "Next section: Beyond Mainstream")**
 <!-- nav:end -->
 
 # How to practise

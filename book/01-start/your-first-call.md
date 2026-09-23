@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../index.md "Previous section: Front matter") [◀](the-square.md "Previous page: The square") [☰](../index.md "Contents") [▶](how-a-call-works.md "Next page: How a call works") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
+**[⏮](../index.md "Previous section: Front matter") [◀](the-square.md "Previous page: The square") [☰](../contents.md "Contents") [▶](how-a-call-works.md "Next page: How a call works") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
 <!-- nav:end -->
 
 # Your first call — Circle Left

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m44-centers-in.md "Previous page: M44 — Centers In") [☰](../index.md "Contents") [▶](m46-spin-the-top.md "Next page: M46 — Spin the Top") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m44-centers-in.md "Previous page: M44 — Centers In") [☰](../contents.md "Contents") [▶](m46-spin-the-top.md "Next page: M46 — Spin the Top") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M45 — Cast Off Three-Quarters

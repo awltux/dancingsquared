@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m25-first-couple-go.md "Previous page: M25 — First Couple Go Left/Right, Next Couple Go Right/Left") [☰](../index.md "Contents") [▶](m27-california-twirl.md "Next page: M27 — California Twirl") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m25-first-couple-go.md "Previous page: M25 — First Couple Go Left/Right, Next Couple Go Right/Left") [☰](../contents.md "Contents") [▶](m27-california-twirl.md "Next page: M27 — California Twirl") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M26 — Wheel and Deal

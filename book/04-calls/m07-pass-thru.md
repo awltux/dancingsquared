@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m06-right-and-left-grand-family.md "Previous page: M6 — Right and Left Grand Family") [☰](../index.md "Contents") [▶](m08-wheel-around.md "Next page: M8 — Wheel Around / Reverse Wheel Around") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m06-right-and-left-grand-family.md "Previous page: M6 — Right and Left Grand Family") [☰](../contents.md "Contents") [▶](m08-wheel-around.md "Next page: M8 — Wheel Around / Reverse Wheel Around") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M7 — Pass Thru

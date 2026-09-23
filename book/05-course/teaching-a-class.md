@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](class-12.md "Previous page: Class 12 — The Last Calls") [☰](../index.md "Contents") [▶](../06-practice/how-to-practise.md "Next page: How to practise") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
+**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](class-12.md "Previous page: Class 12 — The Last Calls") [☰](../contents.md "Contents") [▶](../06-practice/how-to-practise.md "Next page: How to practise") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
 <!-- nav:end -->
 
 # Teaching a class

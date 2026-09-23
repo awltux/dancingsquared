@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](hands-and-holds.md "Previous page: Hands and holds") [☰](../index.md "Contents") [▶](concepts-and-modifiers.md "Next page: Concepts and modifiers") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
+**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](hands-and-holds.md "Previous page: Hands and holds") [☰](../contents.md "Contents") [▶](concepts-and-modifiers.md "Next page: Concepts and modifiers") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
 <!-- nav:end -->
 
 # Fractions

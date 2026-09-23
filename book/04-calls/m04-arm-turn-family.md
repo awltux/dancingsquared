@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m03-promenade-family.md "Previous page: M3 — Promenade Family") [☰](../index.md "Contents") [▶](m05-star-right-left.md "Next page: M5 — Star Right/Left") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m03-promenade-family.md "Previous page: M3 — Promenade Family") [☰](../contents.md "Contents") [▶](m05-star-right-left.md "Next page: M5 — Star Right/Left") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M4 — Arm Turn Family

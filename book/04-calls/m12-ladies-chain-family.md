@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m11-swing.md "Previous page: M11 — Swing") [☰](../index.md "Contents") [▶](m13-half-sashay-family.md "Next page: M13 — Half Sashay Family") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m11-swing.md "Previous page: M11 — Swing") [☰](../contents.md "Contents") [▶](m13-half-sashay-family.md "Next page: M13 — Half Sashay Family") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M12 — Ladies Chain Family

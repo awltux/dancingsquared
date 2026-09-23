@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../index.md "Previous section: Front matter") [◀](tips-and-figures.md "Previous page: Tips, the unit of the dance") [☰](../index.md "Contents") [▶](how-this-book-is-organised.md "Next page: How this book is organised") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
+**[⏮](../index.md "Previous section: Front matter") [◀](tips-and-figures.md "Previous page: Tips, the unit of the dance") [☰](../contents.md "Contents") [▶](../02-language/naming-the-dancers.md "Next page: Naming the dancers") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
 <!-- nav:end -->
 
 # Zeroes, get-outs and modules

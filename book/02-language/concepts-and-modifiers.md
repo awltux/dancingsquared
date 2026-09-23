@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](fractions.md "Previous page: Fractions") [☰](../index.md "Contents") [▶](../03-rules/passing-rule.md "Next page: Passing Rule") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
+**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](fractions.md "Previous page: Fractions") [☰](../contents.md "Contents") [▶](../03-rules/passing-rule.md "Next page: Passing Rule") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
 <!-- nav:end -->
 
 # Concepts and modifiers

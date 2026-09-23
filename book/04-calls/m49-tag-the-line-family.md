@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m48-fold-cross-fold.md "Previous page: M48 — Fold / Cross Fold") [☰](../index.md "Contents") [▶](m50-recycle.md "Next page: M50 — Recycle (from Waves only)") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m48-fold-cross-fold.md "Previous page: M48 — Fold / Cross Fold") [☰](../contents.md "Contents") [▶](m50-recycle.md "Next page: M50 — Recycle (from Waves only)") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M49 — Tag the Line Family

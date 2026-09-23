@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](../03-rules/mainstream-restrictions.md "Previous page: Mainstream restrictions") [☰](../index.md "Contents") [▶](m02-dosado.md "Next page: M2 — Dosado") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](../03-rules/mainstream-restrictions.md "Previous page: Mainstream restrictions") [☰](../contents.md "Contents") [▶](m02-dosado.md "Next page: M2 — Dosado") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M1 — Circle Family

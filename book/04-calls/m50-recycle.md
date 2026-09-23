@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m49-tag-the-line-family.md "Previous page: M49 — Tag the Line Family") [☰](../index.md "Contents") [▶](../05-course/course-overview.md "Next page: Course overview") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m49-tag-the-line-family.md "Previous page: M49 — Tag the Line Family") [☰](../contents.md "Contents") [▶](../05-course/course-overview.md "Next page: Course overview") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M50 — Recycle (from Waves only)

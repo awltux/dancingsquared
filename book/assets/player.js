@@ -310,8 +310,11 @@ async function mount(host) {
       </select>
     </label>`;
 
-  // The start-formation selector, when there is a choice to make. It leads the speed control because
-  // it changes WHAT is being watched, where speed changes only how fast.
+  // The start-formation selector, when there is a choice to make. It is APPENDED, after the speed
+  // control, and the stylesheet gives it a whole line to itself: the readout and the speed are the
+  // controls a reader touches while watching one call, where the start selector chooses WHICH
+  // animation is being watched and is set once. Appending rather than inserting also keeps the tab
+  // order the same as the order they appear on screen.
   if (starts) {
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
     const pick = document.createElement('label');
@@ -320,7 +323,7 @@ async function mount(host) {
       `start <select class="dsq-from" title="Which formation the call starts from">` +
       starts.map((s, i) => `<option value="${i}"${i === 0 ? ' selected' : ''}>${esc(s[0])}</option>`).join('') +
       `</select>`;
-    bar.insertBefore(pick, bar.querySelector('.dsq-speed'));
+    bar.append(pick);
   }
 
   host.append(canvas, bar);

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](directions.md "Previous page: Directions") [☰](../index.md "Contents") [▶](arrangements-and-gender.md "Next page: Arrangements and gender") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
+**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](directions.md "Previous page: Directions") [☰](../contents.md "Contents") [▶](arrangements-and-gender.md "Next page: Arrangements and gender") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
 <!-- nav:end -->
 
 # Formations

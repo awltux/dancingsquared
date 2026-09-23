@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m35-pass-the-ocean.md "Previous page: M35 — Pass the Ocean") [☰](../index.md "Contents") [▶](m37-flutterwheel-reverse-flutterwheel.md "Next page: M37 — Flutterwheel / Reverse Flutterwheel") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m35-pass-the-ocean.md "Previous page: M35 — Pass the Ocean") [☰](../contents.md "Contents") [▶](m37-flutterwheel-reverse-flutterwheel.md "Next page: M37 — Flutterwheel / Reverse Flutterwheel") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M36 — Extend

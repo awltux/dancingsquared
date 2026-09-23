@@ -34,8 +34,12 @@ export function inline(text) {
   let s = String(text).replace(/\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, (_, label, href, title) => {
     const target = rewriteHref(href);
     const external = /^https?:/.test(target);
+    // AN EXTERNAL LINK OPENS IN A NEW TAB, and that is not a preference: the site is installable and
+    // is meant to be read in its own window, where there is no back button to return from GitHub
+    // Issues with. `rel="noopener"` was already being written here, which only means anything
+    // alongside the target this adds.
     links.push(
-      `<a href="${escapeHtml(target)}"${title ? ` title="${escapeHtml(title)}"` : ''}${external ? ' rel="noopener"' : ''}>${escapeHtml(label)}</a>`,
+      `<a href="${escapeHtml(target)}"${title ? ` title="${escapeHtml(title)}"` : ''}${external ? ' target="_blank" rel="noopener"' : ''}>${escapeHtml(label)}</a>`,
     );
     return `\u0001${links.length - 1}\u0001`;
   });
@@ -104,7 +108,13 @@ export function parseBlocks(md) {
     if (/^>\s?/.test(line)) {
       const quote = [];
       while (i < lines.length && /^>\s?/.test(lines[i])) quote.push(lines[i++].replace(/^>\s?/, ''));
-      blocks.push({ type: 'quote', lines: quote });
+      // A CALLOUT, marked `> [!WARNING]` on the quote's first line. The accent bar on a plain quote is
+      // this book's mark for CALLERLAB's own words, so a passage the book is saying in its OWN voice
+      // has to be a different thing -- a warning that wore the quotation's styling would read as
+      // something the manual said. The marker line is dropped; the type becomes a CSS class.
+      const alert = /^\[!([A-Za-z]+)\]\s*$/.exec((quote[0] ?? '').trim());
+      if (alert) quote.shift();
+      blocks.push({ type: 'quote', lines: quote, alert: alert ? alert[1].toLowerCase() : null });
       continue;
     }
     const listMatch = /^\s*([-*]|\d+\.)\s+(.*)$/.exec(line);
@@ -170,6 +180,20 @@ export function render(blocks, { figures = true, onFigureHeading = null, figureI
       return;
     }
     if (block.type === 'quote') {
+      // A CALLOUT IS THE BOOK'S OWN PROSE, so its wrapped lines reflow like prose and a blank `>`
+      // starts a new paragraph. A plain quote is left line-by-line: the call pages stack a
+      // teaching-unit line and the manual's quoted passages in ONE quote block, and joining them
+      // would run the book's own words into CALLERLAB's.
+      if (block.alert) {
+        const paras = block.lines.join('\n').split(/\n\s*\n/);
+        const html = paras
+          .map((p) => p.split('\n').map((l) => l.trim()).filter(Boolean).join(' ').trim())
+          .filter(Boolean)
+          .map((p) => `<p>${inline(p)}</p>`)
+          .join('');
+        out.push(`<blockquote class="callout ${block.alert}">${html}</blockquote>`);
+        return;
+      }
       out.push(`<blockquote>${block.lines.map((l) => (l.trim() ? `<p>${inline(l)}</p>` : '')).join('')}</blockquote>`);
       return;
     }

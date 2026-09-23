@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../07-plus/where-mainstream-leads.md "Previous section: Beyond Mainstream") [◀](formation-index.md "Previous page: Formation index") [☰](../index.md "Contents") [▶](watching-the-animations.md "Next page: Watching the animations") ~~⏭~~**
+**[⏮](../07-plus/where-mainstream-leads.md "Previous section: Beyond Mainstream") [◀](formation-index.md "Previous page: Formation index") [☰](../contents.md "Contents") [▶](watching-the-animations.md "Next page: Watching the animations") ~~⏭~~**
 <!-- nav:end -->
 
 # Animations index

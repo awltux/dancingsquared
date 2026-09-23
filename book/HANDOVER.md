@@ -10,14 +10,14 @@
 >
 > | | |
 > |---|---|
-> | Pages | **106** pages of book across **108** Markdown files (`README.md` and this file are workspace files, not pages) |
+> | Pages | **107** pages of book across **109** Markdown files (`README.md` and this file are workspace files, not pages) |
 > | Call reference | **50** unit files in `04-calls/` carrying **78 call cards** |
 > | Playable | **75 of 78** cards, from **118 curated start labels** in `tools/start-formations.json` — 64 wired to an authoring, 54 listed but not yet animatable. **5** cards have `"starts": {}` (`m03c`, `m12c`, `m14a`, `m15b`, `m15c`) because their manual wording is prose rather than a list |
 > | Withheld | **3** cards — `m04a`, `m14b`, `m32c` — each with a recorded reason (`noAnimation` in `tools/animations-index.json`) |
 > | Restrictions | stated on **54 of 78** cards |
-> | Diagrams | **17** formation PNGs and **3** annotated position SVGs |
+> | Diagrams | **19** formation PNGs and **3** annotated position SVGs |
 > | Online edition | `book/dancingsquared_book/` — 233 files, ~3 MB, a PWA with a service worker |
-> | Gate | `npm run check:book` → exit 0: *108 pages, 50 teaching units, 75 playable calls; all links, anchors and coverage checks pass.* · *75 playable calls reproduce exactly.* · *75 playable calls verified (303 pose evaluations, 3 with a recorded reason).* |
+> | Gate | `npm run check:book` → exit 0: *109 pages, 50 teaching units, 75 playable calls; all links, anchors and coverage checks pass.* · *75 playable calls reproduce exactly.* · *75 playable calls verified (303 pose evaluations, 3 with a recorded reason).* |
 >
 > **Outstanding — found while updating this file, measured rather than suspected:**
 >
@@ -39,6 +39,22 @@
 >    nothing complains. The five generated reference pages are **ungated**.
 > 5. **`README.md` never mentions `make-positions.mjs`** or `book/positions/`, in either the
 >    "what is generated" table or the regeneration sequence.
+> 6. **The engine workstream's tree carries mojibake in four files**, measured by reading the bytes:
+>    `engine/src/sequencer/applicator.ts` (lines 668, 678, 860 — three comments holding ten mangled
+>    sequences: an em dash and two section signs, encoded so many times over that they now render as
+>    runs of accented characters), plus `engine/test/lib/getout-decode.mjs:69`,
+>    `engine/test/tools/figure-census.mjs:120` and `engine/test/tools/setup-split.mjs:187`, where the
+>    damage is inside `console.log` strings rather than comments. Nothing here changes engine
+>    behaviour, but `build-site.mjs` publishes `engine/dist` as the site's `lib/`, so applicator.ts's
+>    damaged text ships in `dancingsquared_book/lib/sequencer/applicator.js` (lines 639, 650, 841).
+>    The repair belongs in `engine/src` followed by an `engine/dist` rebuild; neither is the book's to
+>    edit by hand. `engine/test/tools/callerlab-diff.mjs` is the exception and **not** a defect: it
+>    repairs extraction artefacts, so it quotes these sequences on purpose.
+>    **Read the bytes, never the console, when checking this.** `Get-Content` decodes UTF-8 as
+>    windows-1252 and prints a genuine `—` as `â€”`, so it invents corruption in every engine file that
+>    contains an em dash: `engine/src/sequencer/coded-moves.ts` and `library.ts` both looked damaged
+>    that way and are clean. This entry was wrong in its first draft — it named one file and blamed a
+>    single round-trip — because the console was believed instead of a probe.
 >
 > What this file is still good for:
 >
@@ -399,6 +415,8 @@ Key APIs, from `engine/src/core.ts` and `engine/src/types.ts`:
 The extracts contain three mechanical, **decodable** artefact classes. Repair them and **report anything
 that could not be repaired** with page and line ranges — do not silently smooth.
 
+<!-- mojibake-check:allow — this section quotes the corruption on purpose, as its signature. -->
+
 | Artefact | Signature | Example | Repair |
 |---|---|---|---|
 | Font glyph runs **shifted by exactly +29**, space-interleaved | single chars separated by spaces, in the shifted range | `+ D Q G V` → `Hands`; `7 K H  Z R U G` → `The word` | strip interleaving, subtract 29 |
@@ -529,7 +547,8 @@ plus the corpus files classed `terminology`. `03-rules/` is built from its **Con
    fixed rounding, sorted iteration, no timestamps); `--check` regenerates and fails on drift.
 6. **`check-links.mjs`** — links and fragments resolve; every unit `M1`–`M50` has a call file; every
    programme entry has a figure or a recorded reason; no orphan figures; one definition site per
-   glossary term; **no call page for a non-call**.
+   glossary term; **no call page for a non-call**; the contents links every page in the reading order;
+   **no file has been through a single-byte encoding round-trip**.
 
 **What was built** — two of the six planned gates were never written, one split into two tools, and the
 `--check` modes that exist are not all wired in (see the banner):
@@ -541,7 +560,7 @@ plus the corpus files classed `terminology`. `03-rules/` is built from its **Con
 | `resolve-programme.mjs` | — | same: the three-way membership is computed in `make-reference.mjs` |
 | `reconcile-definitions.mjs` | — | never written; the deletions noted in §6.1 removed the page it fed. **The reconciliation it described is therefore not running** — nothing today compares a card's stated start/end formation and timing against the corpus, and nothing compares the cards against the manual's pages |
 | `make-figures.mjs` | `make-formations.mjs` + `make-positions.mjs` | both deterministic with `--check`; **neither is run by `check:book`** |
-| `check-links.mjs` | `check-links.mjs` | as planned, plus: `### Animation` heading count vs call-card count, nav-bar sentinels, `GENERATED` headers, and formation-diagram orphan checking |
+| `check-links.mjs` | `check-links.mjs` | as planned, plus: `### Animation` heading count vs call-card count, nav-bar sentinels, `GENERATED` headers, formation-diagram orphan checking, the contents page linking every page in the reading order, and mojibake in any source or tool file |
 
 The live gate is `npm run check:book`:
 
@@ -681,11 +700,11 @@ node book/tools/check-links.mjs           # exit 0: links, anchors, coverage, no
 
 ```
 npm run check:book                          # the gate: the three below, in order
-node book/tools/check-links.mjs             # 108 pages, 50 teaching units, 75 playable calls
+node book/tools/check-links.mjs             # 109 pages, 50 teaching units, 75 playable calls
 node book/tools/make-animations.mjs --check # 75 playable calls reproduce exactly
 node book/tools/make-animations.mjs --verify # 75 verified, 303 pose evaluations, 3 with a reason
 
-node book/tools/make-formations.mjs --check # 17 formation diagrams reproduce exactly  (NOT in check:book)
+node book/tools/make-formations.mjs --check # 19 formation diagrams reproduce exactly, 2 with a reason  (NOT in check:book)
 node book/tools/make-positions.mjs --check  # 3 position diagrams reproduce exactly    (NOT in check:book)
 node book/tools/clean-extract.mjs           # not a gate: regenerates the reading copies on demand
 ```
@@ -727,6 +746,11 @@ From the root `HANDOVER.md`, all of which have paid off repeatedly:
   harness or a throwaway probe. This session's own corrections (`grand_spin`/`running_bear` are not calls;
   `sequencer="no"` is not a membership signal) came from reading, not from thinking.
 - **Write probes as `.mjs` files**, never `node -e` — PowerShell quoting mangles them.
+- **Never round-trip a text file through PowerShell.** `Get-Content` in PowerShell 5.1 decodes UTF-8 as
+  windows-1252 and `Set-Content -Encoding UTF8` writes the rubbish back, so a move-and-edit becomes a
+  silent corruption of every non-ASCII character in the file. Move with `git mv`/`Move-Item` (byte-exact)
+  and edit with the editor or Node's `readFileSync(…, 'utf8')`. This cost one page fourteen em dashes
+  before anyone read it; `check-links.mjs` now fails on the sequences it leaves behind.
 - **Never rebuild `engine/dist` while a suite is running.**
 - **Gate it in the same commit**, or say why the gate has to land in the next one.
 - **An instrument's silence is the bug.** A zero must say whether it is a coverage gap or a genuine
@@ -739,12 +763,19 @@ From the root `HANDOVER.md`, all of which have paid off repeatedly:
 
 ## 9. State of the workspace
 
-- **The book is built and the gate is green.** `book/` holds 106 pages, 50 unit files, 78 call cards,
-  17 formation PNGs, 3 position SVGs, the player, the generators, the gate and the built site.
-- **Everything under `book/` is untracked** (`git status` shows `?? book/`). It has never been
-  committed, so nothing in it is recoverable from git yet. `docs/` and `scripts/deploy-book.mjs` are
-  untracked for the same reason, and `package.json` plus `poc/src/assets/ms/circle.xml` carry
-  uncommitted modifications from earlier work.
+- **The book is built and the gate is green.** `book/` holds 109 files, 50 unit files, 78 call cards,
+  19 formation PNGs, 3 position SVGs, the player, the generators, the gate and the built site.
+- **`book/` is tracked but uncommitted** (`git status` shows ~120 modified files, the two renames and a
+  handful of new ones). The reading-order change is among it: `01-start/how-this-book-is-organised.md`
+  moved to the root, the old `index.md` became `contents.md`, and a new `index.md` is the Introduction
+  and the landing page. `docs/` and `scripts/deploy-book.mjs` are untracked, and `package.json` plus
+  `poc/src/assets/ms/circle.xml` carry uncommitted modifications from earlier work.
+- **The book has been deployed to S3, and the working tree has moved on since.** Nothing has been
+  uploaded since the user's "don't auto deploy" instruction, so the bucket
+  (`util.awltux.trade`, prefix `dancingsquared_book`) is missing the navigation pin and text-size
+  controls, the contents-and-introduction swap, the contents reflow and the two new formation images.
+  Deploying is an explicit instruction, never a build step. The live bucket was not checked from here;
+  `book/tools/check-links.mjs` and the built site are what this file's numbers describe.
 - **The built site is gitignored** (`book/.gitignore`): reproducible with `npm run build:book`, so it
   is not part of what a commit needs to carry.
 - **Immediate next steps, in the order they matter:** place or delete the orphaned position diagrams;

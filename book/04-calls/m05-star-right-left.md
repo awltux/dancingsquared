@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m04-arm-turn-family.md "Previous page: M4 — Arm Turn Family") [☰](../index.md "Contents") [▶](m06-right-and-left-grand-family.md "Next page: M6 — Right and Left Grand Family") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m04-arm-turn-family.md "Previous page: M4 — Arm Turn Family") [☰](../contents.md "Contents") [▶](m06-right-and-left-grand-family.md "Next page: M6 — Right and Left Grand Family") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M5 — Star Right/Left

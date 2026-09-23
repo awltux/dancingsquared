@@ -240,22 +240,22 @@ Sitemap: ${base}sitemap.xml
 `;
 }
 
-export function offlineHtml({ rel = './' } = {}) {
+export function offlineHtml({ rel = './', css = 'style.css' } = {}) {
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Offline — Dancing Squared</title>
-<link rel="stylesheet" href="${rel}style.css">
+<link rel="stylesheet" href="${rel}${css}">
 </head>
 <body>
 <main>
-<nav class="nav">${homeButton()}<a href="${rel}index.html" title="Contents">&#9776;</a></nav>
+<nav class="nav">${homeButton()}<a href="${rel}contents.html" title="Contents">&#9776;</a></nav>
 <h1>Offline</h1>
 <p>This page has not been stored on your device yet, and there is no connection to fetch it.</p>
 <p>Pages you have already read work offline, and so do the figures, animations and the interactive
-player once they have been loaded. Open the <a href="${rel}index.html">contents</a> and pick a page
+player once they have been loaded. Open the <a href="${rel}contents.html">contents</a> and pick a page
 you have visited before, or reconnect and try again.</p>
 </main>
 </body>

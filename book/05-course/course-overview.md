@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](../04-calls/m50-recycle.md "Previous page: M50 — Recycle (from Waves only)") [☰](../index.md "Contents") [▶](class-01.md "Next page: Class 1 — The First Evening") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
+**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](../04-calls/m50-recycle.md "Previous page: M50 — Recycle (from Waves only)") [☰](../contents.md "Contents") [▶](class-01.md "Next page: Class 1 — The First Evening") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
 <!-- nav:end -->
 
 # Course overview

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](circle-rule.md "Previous page: Circle Rule") [☰](../index.md "Contents") [▶](mainstream-restrictions.md "Next page: Mainstream restrictions") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
+**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](circle-rule.md "Previous page: Circle Rule") [☰](../contents.md "Contents") [▶](mainstream-restrictions.md "Next page: Mainstream restrictions") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
 <!-- nav:end -->
 
 # Proper versus improper

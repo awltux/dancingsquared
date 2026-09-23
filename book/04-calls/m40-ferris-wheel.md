@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m39-trade-by.md "Previous page: M39 — Trade By") [☰](../index.md "Contents") [▶](m41-zoom.md "Next page: M41 — Zoom") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m39-trade-by.md "Previous page: M39 — Trade By") [☰](../contents.md "Contents") [▶](m41-zoom.md "Next page: M41 — Zoom") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M40 — Ferris Wheel

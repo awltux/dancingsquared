@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](formations.md "Previous page: Formations") [☰](../index.md "Contents") [▶](sequence-and-relationship.md "Next page: Sequence and relationship") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
+**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](formations.md "Previous page: Formations") [☰](../contents.md "Contents") [▶](sequence-and-relationship.md "Next page: Sequence and relationship") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
 <!-- nav:end -->
 
 # Arrangements and gender

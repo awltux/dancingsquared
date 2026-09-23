@@ -28,8 +28,8 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { toolsDir, readAsset, loadEngine } from './lib/load.mjs';
-import { completeSet } from './make-formations.mjs';
+import { toolsDir } from './lib/load.mjs';
+import { couples } from './lib/squared-set.mjs';
 
 const OUT_DIR = join(toolsDir, '..', 'positions');
 const INDEX = join(toolsDir, 'positions-index.json');
@@ -55,71 +55,6 @@ const MARKER_UNITS = 0.48;
 
 const px = (x) => OX + x * SCALE;
 const py = (y) => OY - y * SCALE;
-
-/** Which side of the square a position stands on. */
-function sideOf(x, y) {
-  if (Math.abs(y) > Math.abs(x)) return y > 0 ? 'north' : 'south';
-  return x > 0 ? 'east' : 'west';
-}
-
-/**
- * The squared set, as couples carrying the manual's numbers.
- *
- * The side-to-number map is the manual's rule with the caller at the south; the Boy of each couple
- * is derived from the couple's own facing and then checked against the library's gender.
- */
-function couples() {
-  const eng = loadEngine();
-  const lib = eng.parseFormations(readAsset('formations.xml'));
-  const written = lib.get('Squared Set');
-  if (!written || !written.length) throw new Error('formations.xml has no "Squared Set"');
-
-  const { dancers } = completeSet(written);
-  if (dancers.length !== 8) throw new Error(`Squared Set has ${dancers.length} dancers, expected 8`);
-
-  const NUMBER_OF_SIDE = { south: 1, east: 2, north: 3, west: 4 };
-  const grouped = new Map();
-  for (const d of dancers) {
-    const side = sideOf(d.x, d.y);
-    if (!grouped.has(side)) grouped.set(side, []);
-    grouped.get(side).push({ ...d, side });
-  }
-  if (grouped.size !== 4) throw new Error(`found ${grouped.size} sides, expected 4`);
-
-  const out = [];
-  for (const [side, pair] of grouped) {
-    if (pair.length !== 2) throw new Error(`${side} has ${pair.length} dancers, expected 2`);
-    const couple = NUMBER_OF_SIDE[side];
-    const [a, b] = pair;
-    if (a.angleDeg !== b.angleDeg) throw new Error(`${side}: the couple does not share a facing`);
-
-    // LEFT of the couple's facing. Board +y is north, so a heading h faces (cos h, sin h) and left is
-    // that turned a quarter turn anticlockwise, (-sin h, cos h).
-    const h = ((a.angleDeg ?? 0) * Math.PI) / 180;
-    const left = { x: -Math.sin(h), y: Math.cos(h) };
-    const score = (d) => (d.x - a.x) * left.x + (d.y - a.y) * left.y;
-    const boy = score(a) > score(b) ? a : b;
-    const girl = boy === a ? b : a;
-
-    // The rule and the data must agree, or the picture would be drawing a fiction.
-    if (boy.gender !== 'boy' || girl.gender !== 'girl') {
-      throw new Error(
-        `${side}: the dancer on the couple's left is recorded as ${boy.gender}, not a Boy — ` +
-          'the "Boy on the left" rule and the formation library disagree',
-      );
-    }
-    const number = (d) => (couple - 1) * 2 + (d === boy ? 1 : 2);
-    out.push({
-      couple,
-      side,
-      facing: a.angleDeg,
-      boy: { ...boy, couple, number: number(boy) },
-      girl: { ...girl, couple, number: number(girl) },
-    });
-  }
-  out.sort((a, b) => a.couple - b.couple);
-  return out;
-}
 
 function grid() {
   const out = [];

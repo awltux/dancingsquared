@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](same-position-rule.md "Previous page: Same Position Rule") [☰](../index.md "Contents") [▶](ocean-wave-rule.md "Next page: Ocean Wave Rule") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
+**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](same-position-rule.md "Previous page: Same Position Rule") [☰](../contents.md "Contents") [▶](ocean-wave-rule.md "Next page: Ocean Wave Rule") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
 <!-- nav:end -->
 
 # Facing Couples Rule

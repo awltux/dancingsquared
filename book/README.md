@@ -13,9 +13,11 @@ circulates in halls, the page says so rather than pretending it does not exist.
 
 | | |
 |---|---|
-| **[index.md](index.md)** | the map, and three reading paths (dancer / teacher / first-timer) |
+| **[index.md](index.md)** | the introduction — what the book is, who it is for, and the three ways to read it |
+| **[how-this-book-is-organised.md](how-this-book-is-organised.md)** | the kinds of page, and the call card |
+| **[contents.md](contents.md)** | the map, and three reading paths (dancer / teacher / first-timer) |
 | **[conventions.md](conventions.md)** | how the pages are laid out, what the pictures show, and how to read them |
-| **[01-start/](01-start/how-this-book-is-organised.md)** | what square dancing is, the square itself, and your first call |
+| **[01-start/](01-start/what-is-square-dancing.md)** | what square dancing is, the square itself, and your first call |
 | **[02-language/](02-language/naming-the-dancers.md)** | the words: who is who, what a formation is, how people are named |
 | **[03-rules/](03-rules/passing-rule.md)** | the conventions that settle what a call means when it is ambiguous |
 | **[04-calls/](04-calls/m01-circle-family.md)** | the call reference — one file per teaching unit |
@@ -198,7 +200,7 @@ Nothing here can write an image, so the writers are written from scratch:
 | `book/assets/player.js` | the browser player: canvas, controls, engine, the marker geometry |
 | `book/tools/lib/gif.mjs` | GIF89a encoder and decoder — used only by `make-animations.mjs --gifs`, and to read back the GIFs if any are written |
 | `book/tools/lib/raster.mjs` | the rasteriser: flat shapes, a hand-written 3×5 bitmap for the dancer numbers, and a PNG dump for looking at a frame |
-| `book/tools/lib/markdown.mjs` | Markdown → HTML, the subset this book uses |
+| `book/tools/lib/markdown.mjs` | Markdown → HTML, the subset this book uses: headings, paragraphs, lists, tables, images, `> ` quotations (line by line, as the call pages stack them) and `> [!WARNING]` callouts (reflowed as prose, styled as the book's own voice rather than a quotation). An **external** link opens in a new tab — the site is installable and is read in its own window, where there is no back button to return from GitHub with |
 | `book/tools/build-site.mjs` | the site: pages, navigation buttons, stylesheet, the player's assets, and checks that every link, image and player asset resolves |
 | `book/site-base.txt` | the address the site is published at, read by `build-site.mjs` for every canonical, `og:url`, `og:image`, `robots.txt` and `sitemap.xml` |
 
@@ -278,9 +280,10 @@ node book/tools/build-site.mjs --base https://example.org/dancing-squared/   # o
 **The words a link is shared with are separate from its H1.** `<title>`, `og:title`, `twitter:title`
 and the JSON-LD name come from the page's own H1 plus the site name — right for a page you arrive at
 by reading, wrong for the page you paste into a chat, where the recipient sees the H1 out of context.
-`index.md` is the case that matters: its H1 is "Index — the map of this book", which is an inside
-label. `SHARE_META` in `build-site.mjs` overrides this **per page, by path**, verbatim and with no
-site-name suffix appended:
+`index.md` is the case that matters: it is the book's front door and its H1 is "Introduction", which
+tells a stranger nothing about the book they have just been handed. `SHARE_META` in
+`build-site.mjs` overrides this **per page, by path**, verbatim and with no site-name suffix
+appended:
 
 | Page | What a chat card now says |
 |---|---|
@@ -344,7 +347,7 @@ Every page carries a navigation bar above its title:
 
 - **⏮ / ⏭** step by **section** — the previous and next numbered chapter;
 - **◀ / ▶** step by **page** in the reading order;
-- **☰ Contents** returns to the [index](index.md);
+- **☰ Contents** returns to the [contents page](contents.md), which links every page in the book;
 - **A A** (a small A beside a large one) — the reading size, as a **toggle** rather than a selector:
   pressed is large, and it is one button because two sizes are a state, not a list. Large raises the
   root font size from 16px to 20px, and because every length in the stylesheet is in rem the type,
@@ -354,9 +357,11 @@ Every page carries a navigation bar above its title:
   arrive small and grow — and the glyph needs no label, because a reader who cannot read the words
   "small" and "large" has no use for a label that names them;
 - **📌 Pin** (right-hand end) pins the bar to the top of the screen, so it stays in reach while you
-  read down a long call page. Off on every page load; turning it off lets the bar scroll away with
-  the page again. The state rides `aria-pressed` and the pressing is CSS, so the button's look and
-  what a screen reader announces cannot disagree.
+  read down a long call page. Turning it off lets the bar scroll away with the page again. The state
+  rides `aria-pressed` and the pressing is CSS, so the button's look and what a screen reader
+  announces cannot disagree — and, like the text size, the choice is remembered from page to page in
+  `localStorage` (`dsq-nav-pinned`) and applied by the script in the `<head>`, so a reader who pinned
+  the bar does not watch it jump on every page they open.
 
 Those two are the reader's tools: one `aria-pressed` toggle pattern, grouped together at the
 right-hand end of the row so they read as page chrome rather than as more places to navigate to.

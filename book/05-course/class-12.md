@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](class-11.md "Previous page: Class 11 — Quarters and Centres") [☰](../index.md "Contents") [▶](teaching-a-class.md "Next page: Teaching a class") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
+**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](class-11.md "Previous page: Class 11 — Quarters and Centres") [☰](../contents.md "Contents") [▶](teaching-a-class.md "Next page: Teaching a class") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
 <!-- nav:end -->
 
 # Class 12 — The Last Calls

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](squared-set-convention.md "Previous page: Squared Set Convention") [☰](../index.md "Contents") [▶](proper-versus-improper.md "Next page: Proper versus improper") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
+**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](squared-set-convention.md "Previous page: Squared Set Convention") [☰](../contents.md "Contents") [▶](proper-versus-improper.md "Next page: Proper versus improper") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
 <!-- nav:end -->
 
 # Circle Rule

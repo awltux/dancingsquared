@@ -99,9 +99,9 @@ function resolveBase() {
  * A link to this book is usually pasted into a chat or a timeline, and the card that appears is
  * built from `<title>`/`og:title` and `og:description` -- never from the H1, which the recipient
  * cannot see yet. Everywhere else the page's H1 plus the site name is exactly right, because the
- * reader has already arrived and knows where they are. The front page is the exception: "Index —
- * the map of this book" is an inside label, telling a reader who is already in the book where they
- * are and telling a stranger nothing.
+ * reader has already arrived and knows where they are. The contents page is the exception:
+ * "Contents" is an inside label, telling a reader who is already in the book where they are and
+ * telling a stranger nothing.
  *
  * KEYED BY PAGE PATH. An entry overrides the derived values for that page only:
  *   title       -- replaces the whole `<title>`/`og:title`/`twitter:title` and the JSON-LD name,
@@ -163,6 +163,14 @@ pre { background: var(--wash); border: 1px solid var(--rule); border-radius: 6px
 pre code { background: none; padding: 0; }
 blockquote { margin-left: 0; padding: .1em 0 .1em 1em; border-left: 3px solid var(--accent); color: #33424a; }
 blockquote p { margin: .35em 0; }
+/* A CALLOUT IS A BLOCKQUOTE THAT IS NOT A QUOTATION. The plain accent bar is this book's mark for
+   CALLERLAB's words, so a passage the book says in its own voice -- the warning that the book itself
+   was machine-written -- cannot wear it. A tinted panel and a red rule mark it as an aside to read
+   before trusting the page, without copying the quotation styling anywhere else. */
+blockquote.callout { background: #fdf5f6; border-left-color: #b2182b; border-radius: 0 5px 5px 0;
+                     padding: .8em 1.05em .8em 1.1em; color: var(--ink); }
+blockquote.callout p:first-child { margin-top: 0; }
+blockquote.callout p:last-child { margin-bottom: 0; }
 table { border-collapse: collapse; width: 100%; font-size: .93rem; }
 th, td { text-align: left; padding: .42em .6em; border-bottom: 1px solid var(--rule); vertical-align: top; }
 th { border-bottom: 1.5px solid #9aa7ae; background: var(--wash); }
@@ -228,6 +236,13 @@ figcaption { font-size: .84rem; color: var(--muted); margin-top: .45em; }
 .dsq-readout { margin-right: auto; font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
 .dsq-speed { display: inline-flex; align-items: center; gap: .25rem; color: var(--muted); }
 .dsq-speed select { border: 1px solid var(--rule); border-radius: 6px; padding: .15rem; background: #fff; }
+/* THE START SELECTOR GETS THE LINE BELOW THE READOUT AND THE SPEED. It is set once before watching
+   and then left alone, where the readout, the speed and the slider are touched continuously -- so
+   the two controls a reader's thumb keeps coming back to stay together on one line, and the one
+   that chooses WHICH animation is being watched sits on the next. A 100% basis is what puts it on a
+   line of its own, the same trick the slider uses, and it comes last in the DOM as well so the tab
+   order still runs left to right, top to bottom. */
+.dsq-controls .dsq-start { flex: 1 0 100%; }
 .dsq-error { color: #b2182b; }
 details.dsq-share { margin: 0 0 1.2em; font-size: .9rem; }
 details.dsq-share summary { cursor: pointer; color: var(--muted); }
@@ -273,8 +288,14 @@ nav.nav button.pin[aria-pressed="true"] { background: var(--accent); border-colo
    and nothing is hidden when it is off. The board is white and the shadow is what makes a bar
    sitting over text read as floating above it rather than as another line of the page.
    Nothing may trap scrolling between the bar and the viewport: no ancestor of the nav sets
-   overflow, which is exactly the condition sticky needs. */
-nav.nav.pinned {
+   overflow, which is exactly the condition sticky needs.
+
+   THE STATE LIVES ON THE ROOT ELEMENT, not on the bar. The choice is remembered from page to page,
+   so it has to be applied by the script in the head -- before the bar exists to put a class on, and
+   before the first paint, so a reader who pinned the bar does not watch it sit at the top of the
+   page and then jump to the top of the screen. It is also one value in one place, which is what the
+   button's aria-pressed and this rule both read. */
+html.nav-pinned nav.nav {
   position: sticky; top: 0; z-index: 5;
   background: var(--paper);
   box-shadow: 0 .45rem .6rem -.45rem rgba(29, 38, 44, .45);
@@ -283,10 +304,9 @@ nav.nav.pinned {
    related call, a formation link, a glossary link) comes to rest behind the pinned navigation, so
    the thing they asked for is the thing they cannot see. The bar's own height is 2.3rem of buttons
    plus 1.4rem of padding; 3.9rem clears it with a little air. Guarded on the bar actually being
-   pinned, so an unpinned page lands exactly where it always did, and a browser without :has just
-   keeps the old behaviour rather than losing the jump. */
-html:has(nav.nav.pinned) h2,
-html:has(nav.nav.pinned) h3 { scroll-margin-top: 3.9rem; }
+   pinned, so an unpinned page lands exactly where it always did. */
+html.nav-pinned h2,
+html.nav-pinned h3 { scroll-margin-top: 3.9rem; }
 footer.page { margin-top: 3rem; padding-top: .9rem; border-top: 1px solid var(--rule);
               font-size: .82rem; color: var(--muted); }
 @media print {
@@ -311,6 +331,26 @@ const esc = (s) =>
  * manifest, which is UTF-8.
  */
 const APP_NAME = 'Dancing² Mainstream';
+
+/**
+ * THE TWO ASSET URLS A PAGE NAMES, WITH THEIR CONTENT'S HASH IN THE QUERY.
+ *
+ * This is what makes a deploy take effect on the FIRST load for a reader who has the service worker.
+ * Pages are network-first, so a returning reader always gets the newest HTML -- but everything else
+ * is cache-first, keyed by URL, so `style.css` came out of the old cache and the new markup was
+ * drawn with the old stylesheet: the new nav buttons rendered as grey boxes and the player controls
+ * kept their old widths, while S3 and CloudFront were both serving the new file. A reload fixed it,
+ * but a reload is not something a reader should have to know to do.
+ *
+ * Changing the URL changes the cache key, so the old cache cannot answer: the request misses, goes to
+ * the network, and the page and its stylesheet are always the same build. The hash is of the file's
+ * CONTENTS, so an unchanged asset keeps its URL and stays cached.
+ *
+ * They are assigned during the build, once the files are on disk (`writeFileSync` of style.css and
+ * the copy of player.js), so the default value here only applies if a page is rendered before them.
+ */
+let cssUrl = 'style.css';
+let playerUrl = 'assets/player.js';
 
 const PAGE = ({ title, cardTitle = null, description, rel, navHtml, body, script = '', canonical = null, jsonLd, ogImage = null }) => {
   // A page's own H1 plus the site name is right for a page you arrive at by reading. It is wrong for
@@ -346,16 +386,23 @@ ${ogImage ? `<meta name="twitter:image" content="${esc(ogImage)}">` : ''}
 <link rel="apple-touch-icon" href="${rel}icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="${rel}icons/icon-192.png">
 <link rel="icon" type="image/svg+xml" href="${rel}icons/icon.svg">
-<link rel="stylesheet" href="${rel}style.css">
+<link rel="stylesheet" href="${rel}${cssUrl}">
 <script>
-// THE CHOSEN TEXT SIZE, APPLIED BEFORE THE FIRST PAINT. A reader who picked large text should not
-// watch every page arrive small and grow -- the flash is worse than the delay it saves. Every page
-// in the book is served from the same origin, so the choice carries from one page to the next; a
-// browser that refuses storage (private mode, a locked-down profile) simply gets the default, and
-// nothing else on the page depends on this having worked.
+// THE READER'S TWO CHOICES, APPLIED BEFORE THE FIRST PAINT: the text size, and whether the
+// navigation bar is pinned. A reader who picked large text should not watch every page arrive small
+// and grow, and one who pinned the bar should not watch it sit at the top of the page and then jump
+// to the top of the screen. Both are put on the ROOT element rather than on the things they affect,
+// so they can be set here -- before the bar exists to carry a class.
+//
+// Both are remembered in localStorage under this origin, so they carry from page to page. A browser
+// that refuses storage (private mode, a locked-down profile) simply gets the defaults, and nothing
+// else on the page depends on this having worked.
 try {
   if (localStorage.getItem('dsq-text-size') === 'large') {
     document.documentElement.classList.add('text-large');
+  }
+  if (localStorage.getItem('dsq-nav-pinned') === 'yes') {
+    document.documentElement.classList.add('nav-pinned');
   }
 } catch (e) {}
 </script>
@@ -379,22 +426,35 @@ Definitions, revised 25 August 2026. Definitions quoted with permission; see
 // does is move one class and mirror it into aria-pressed -- the sticking itself is CSS, so the
 // control cannot leave the bar in a state the stylesheet does not describe.
 (function () {
+  var root = document.documentElement;
   var bar = document.querySelector('nav.nav');
+  // THE PIN. The head script has already applied the reader's last choice to the root element and
+  // the stylesheet has already drawn the page with it, so this only reads that state back into the
+  // button and writes a new choice to both -- the sticking itself is CSS, so the control cannot
+  // leave the bar in a state the stylesheet does not describe.
   var pin = bar && bar.querySelector('button.pin');
   if (pin) {
-    pin.addEventListener('click', function () {
-      var on = bar.classList.toggle('pinned');
+    var showPin = function (on) {
+      root.classList.toggle('nav-pinned', on);
       pin.setAttribute('aria-pressed', on ? 'true' : 'false');
       pin.title = on
         ? 'Unpin the navigation bar and let it scroll away'
         : 'Pin the navigation bar to the top of the screen';
+    };
+    // Reflecting the state is not the same as choosing it: a page load shows what was chosen and
+    // writes nothing, so a reader who never touches this control never has an opinion stored for
+    // them.
+    showPin(root.classList.contains('nav-pinned'));
+    pin.addEventListener('click', function () {
+      var on = !root.classList.contains('nav-pinned');
+      showPin(on);
+      try {
+        localStorage.setItem('dsq-nav-pinned', on ? 'yes' : 'no');
+      } catch (e) {}
     });
   }
-  // THE TEXT SIZE. The head script has already put the reader's last choice on the root element and
-  // the stylesheet has already drawn the page with it; all this does is read that state back into the
-  // button and write a new choice to both. Small is the absence of the class, so the default page
-  // has one thing less to go wrong.
-  var root = document.documentElement;
+  // THE TEXT SIZE. As above: read the state back into the button, write a new choice to both. Small
+  // is the absence of the class, so the default page has one thing less to go wrong.
   var sizeBtn = bar && bar.querySelector('button.textsize');
   if (sizeBtn) {
     var showSize = function (large) {
@@ -751,6 +811,11 @@ export function main() {
   const unitByNumber = new Map(callMap.units.map((u) => [String(u.n).padStart(2, '0'), u]));
 
   writeFileSync(join(SITE, 'style.css'), CSS, 'utf8');
+  // Both files are on disk now, so the URLs the pages will name can carry their contents' hash.
+  const contentHash = (p) =>
+    createHash('sha256').update(readFileSync(join(SITE, p))).digest('hex').slice(0, 10);
+  cssUrl = `style.css?v=${contentHash('style.css')}`;
+  playerUrl = `assets/player.js?v=${contentHash('assets/player.js')}`;
 
   let animated = 0;
   const injected = new Set();
@@ -791,7 +856,7 @@ export function main() {
     // and no reader should download 1.5 MB of it to read a glossary.
     const hasPlayerHere = body.includes('dsq-player');
     if (hasPlayerHere) hasPlayer = true;
-    const script = hasPlayerHere ? `\n<script type="module" src="${rel}assets/player.js"></script>` : '';
+    const script = hasPlayerHere ? `\n<script type="module" src="${rel}${playerUrl}"></script>` : '';
     const url = `${base}${page.path.replace(/\.md$/, '.html')}`;
     const share = SHARE_META[page.path] ?? {};
     const description = share.description ?? describe(
@@ -865,7 +930,7 @@ export function main() {
     ),
     'utf8',
   );
-  writeFileSync(join(SITE, 'offline.html'), offlineHtml(), 'utf8');
+  writeFileSync(join(SITE, 'offline.html'), offlineHtml({ css: cssUrl }), 'utf8');
 
   // Precache what a reader needs to OPEN the book offline: every page, the stylesheet, the player,
   // the engine and the dance data. Figures and animations are NOT precached -- they are 11 MB, and
@@ -873,11 +938,11 @@ export function main() {
   // them.
   const precache = [
     './index.html',
-    './style.css',
+    `./${cssUrl}`,
     './offline.html',
     './manifest.webmanifest',
     ...pages.map((p) => `./${p.path.replace(/\.md$/, '.html')}`),
-    './assets/player.js',
+    `./${playerUrl}`,
     './assets/moves.xml',
     './assets/formations.xml',
     ...[...animMeta.values()].map((f) => `./assets/calls/${f.file}`),
@@ -923,7 +988,11 @@ export function main() {
         // owns, so there is nothing here to resolve it against. Everything else must exist on disk.
         if (/^(https?:|mailto:|#|\/)/.test(target)) continue;
         checked++;
-        const [path] = target.split('#');
+        // A QUERY IS NOT PART OF THE PATH ON DISK. The stylesheet and the player are named with a
+        // content hash in the query (`style.css?v=8562dd85ba`), which is what makes a deploy take
+        // effect on the first load for a reader with a warm service worker -- so the fragment and the
+        // query are both stripped before the file is looked for.
+        const [path] = target.split(/[?#]/);
         if (!existsSync(join(dirname(p), decodeURIComponent(path)))) {
           problems.push(`${relative(SITE, p)}: dead ${target}`);
         }

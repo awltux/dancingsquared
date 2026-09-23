@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m24-double-pass-thru.md "Previous page: M24 — Double Pass Thru") [☰](../index.md "Contents") [▶](m26-wheel-and-deal.md "Next page: M26 — Wheel and Deal") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m24-double-pass-thru.md "Previous page: M24 — Double Pass Thru") [☰](../contents.md "Contents") [▶](m26-wheel-and-deal.md "Next page: M26 — Wheel and Deal") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M25 — First Couple Go Left/Right, Next Couple Go Right/Left

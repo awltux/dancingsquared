@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m33-swing-thru.md "Previous page: M33 — Swing Thru / Left Swing Thru") [☰](../index.md "Contents") [▶](m35-pass-the-ocean.md "Next page: M35 — Pass the Ocean") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m33-swing-thru.md "Previous page: M33 — Swing Thru / Left Swing Thru") [☰](../contents.md "Contents") [▶](m35-pass-the-ocean.md "Next page: M35 — Pass the Ocean") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M34 — Run / Cross Run

@@ -1,6 +1,24 @@
 {
   "drawn": [
     {
+      "slug": "heads-and-sides",
+      "title": "Heads and Sides",
+      "libraryName": "Squared Set (couple numbers from the manual, asserted against the library)",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1291
+    },
+    {
+      "slug": "partner-and-corner",
+      "title": "Partner and Corner",
+      "libraryName": "Squared Set (couple numbers from the manual, asserted against the library)",
+      "written": 4,
+      "drawn": 8,
+      "mirrored": true,
+      "bytes": 1411
+    },
+    {
       "slug": "squared-set",
       "title": "Squared Set",
       "libraryName": "Squared Set",

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../index.md "Previous section: Front matter") [◀](what-is-square-dancing.md "Previous page: What square dancing is") [☰](../index.md "Contents") [▶](your-first-call.md "Next page: Your first call — Circle Left") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
+**[⏮](../index.md "Previous section: Front matter") [◀](what-is-square-dancing.md "Previous page: What square dancing is") [☰](../contents.md "Contents") [▶](your-first-call.md "Next page: Your first call — Circle Left") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
 <!-- nav:end -->
 
 # The square
@@ -27,17 +27,7 @@ numbers then run to Couple 1's right: 2, 3, 4, all the way round. See
 The two couples facing toward or away from the caller are the **Heads**. The two couples standing
 perpendicular — across the hall — are the **Sides**.
 
-C = Caller, H = Heads, S = Sides:
-
-```
-        H  H
-        H  H
-   S S          S S
-   S S          S S
-        H  H
-        H  H
-             C
-```
+![The squared set seen from above with the caller at the south, drawn as an arrowhead pointing at the square. The two couples in line with the caller are the Heads, drawn in colour; the two couples standing across the hall are the Sides, drawn lighter.](../formations/heads-and-sides.png)
 
 Heads and Sides is the oldest way of saying "these four dancers" and it is still the most common
 one. The identity is carried by the **Boys**: a Boy keeps the one he squared up with all the way

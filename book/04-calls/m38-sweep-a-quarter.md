@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m37-flutterwheel-reverse-flutterwheel.md "Previous page: M37 — Flutterwheel / Reverse Flutterwheel") [☰](../index.md "Contents") [▶](m39-trade-by.md "Next page: M39 — Trade By") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m37-flutterwheel-reverse-flutterwheel.md "Previous page: M37 — Flutterwheel / Reverse Flutterwheel") [☰](../contents.md "Contents") [▶](m39-trade-by.md "Next page: M39 — Trade By") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M38 — Sweep a Quarter

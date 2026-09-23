@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](../01-start/how-this-book-is-organised.md "Previous page: How this book is organised") [☰](../index.md "Contents") [▶](couples-and-positions.md "Next page: Couples and positions") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
+**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](../01-start/zeroes-getouts-and-modules.md "Previous page: Zeroes, get-outs and modules") [☰](../contents.md "Contents") [▶](couples-and-positions.md "Next page: Couples and positions") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
 <!-- nav:end -->
 
 # Naming the dancers
@@ -12,11 +12,7 @@ manual lists every way of doing it. These are the ones you will meet as a beginn
 In a squared set, your **Partner** is the dancer beside you. Your **Corner** is the next dancer
 round the nearest corner of the square.
 
-```
-              Corner   Partner
-                 (you)
-              Partner  Corner
-```
+![A squared set seen from above, with one dancer ringed in black. The dancer beside him is his Partner; the dancer round the nearest corner of the square is his Corner. The rest of the square is greyed out.](../formations/partner-and-corner.png)
 
 - **"Face your partner"** — turn to the dancer beside you.
 - **"Face your corner"** — turn to the dancer diagonally adjacent.

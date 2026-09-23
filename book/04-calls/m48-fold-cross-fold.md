@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m47-scoot-back.md "Previous page: M47 — Scoot Back") [☰](../index.md "Contents") [▶](m49-tag-the-line-family.md "Next page: M49 — Tag the Line Family") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m47-scoot-back.md "Previous page: M47 — Scoot Back") [☰](../contents.md "Contents") [▶](m49-tag-the-line-family.md "Next page: M49 — Tag the Line Family") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M48 — Fold / Cross Fold

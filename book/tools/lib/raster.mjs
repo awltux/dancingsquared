@@ -27,6 +27,8 @@ export const PALETTE = [
   [0xb8, 0xd0, 0xe2], // 13 trail, couple 2
   [0xba, 0xd9, 0xc0], // 14 trail, couple 3
   [0xde, 0xd2, 0xac], // 15 trail, couple 4
+  [0xc3, 0xcc, 0xd2], // 16 muted -- a dancer the figure is NOT about, the same grey the
+  //                       annotated position diagrams use for the couples they are not asking about
 ];
 
 export const C = {
@@ -36,7 +38,9 @@ export const C = {
   axis: 3,
   ink: 10,
   white: 11,
+  muted: 16,
   trail: { 1: 12, 2: 13, 3: 14, 4: 15 },
+  couple: { 1: 4, 2: 5, 3: 6, 4: 7 },
 };
 
 const GLYPHS = {

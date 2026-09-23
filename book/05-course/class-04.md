@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](class-03.md "Previous page: Class 3 — The Couple Calls") [☰](../index.md "Contents") [▶](class-05.md "Next page: Class 5 — Veer, Star Thru and the Circulate") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
+**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](class-03.md "Previous page: Class 3 — The Couple Calls") [☰](../contents.md "Contents") [▶](class-05.md "Next page: Class 5 — Veer, Star Thru and the Circulate") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
 <!-- nav:end -->
 
 # Class 4 — Passing and Leading

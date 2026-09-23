@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m40-ferris-wheel.md "Previous page: M40 — Ferris Wheel") [☰](../index.md "Contents") [▶](m42-touch-a-quarter.md "Next page: M42 — Touch a Quarter") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m40-ferris-wheel.md "Previous page: M40 — Ferris Wheel") [☰](../contents.md "Contents") [▶](m42-touch-a-quarter.md "Next page: M42 — Touch a Quarter") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M41 — Zoom

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](ocean-wave-rule.md "Previous page: Ocean Wave Rule") [☰](../index.md "Contents") [▶](circle-rule.md "Next page: Circle Rule") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
+**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](ocean-wave-rule.md "Previous page: Ocean Wave Rule") [☰](../contents.md "Contents") [▶](circle-rule.md "Next page: Circle Rule") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
 <!-- nav:end -->
 
 # Squared Set Convention

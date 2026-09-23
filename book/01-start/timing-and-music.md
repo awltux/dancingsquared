@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../index.md "Previous section: Front matter") [◀](how-a-call-works.md "Previous page: How a call works") [☰](../index.md "Contents") [▶](tips-and-figures.md "Next page: Tips, the unit of the dance") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
+**[⏮](../index.md "Previous section: Front matter") [◀](how-a-call-works.md "Previous page: How a call works") [☰](../contents.md "Contents") [▶](tips-and-figures.md "Next page: Tips, the unit of the dance") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
 <!-- nav:end -->
 
 # Timing and music

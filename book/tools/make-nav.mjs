@@ -38,9 +38,14 @@ const EXCLUDED = new Set(['HANDOVER.md', 'README.md']);
 
 /**
  * The reading order, chapter by chapter. `front` is the material before the numbered chapters.
+ *
+ * `index.md` IS THE BOOK'S FRONT DOOR AND ITS FIRST PAGE: it is the introduction, so a reader who
+ * arrives at the site's root starts at the beginning rather than at a list of what is in the book.
+ * The contents page lives at `contents.md` -- naming it `introduction.md` would have been a lie
+ * about what it is.
  */
 const ORDER = {
-  front: ['index.md', 'conventions.md'],
+  front: ['index.md', 'how-this-book-is-organised.md', 'contents.md', 'conventions.md'],
   '01-start': [
     'what-is-square-dancing.md',
     'the-square.md',
@@ -49,7 +54,6 @@ const ORDER = {
     'timing-and-music.md',
     'tips-and-figures.md',
     'zeroes-getouts-and-modules.md',
-    'how-this-book-is-organised.md',
   ],
   '02-language': [
     'naming-the-dancers.md',
@@ -164,15 +168,18 @@ export function buildOrder() {
     }
   }
 
-  // Every navigable page must be declared, or it would silently have no navigation at all.
+  // Every navigable page must be declared, or it would silently have no navigation at all. The
+  // root is scanned rather than listed: a page added straight to the front of the book (the
+  // introduction, say) would otherwise escape this check and ship with no bar and no complaint.
   const declared = new Set(pages.map((p) => p.path.split('\\').join('/')));
-  const onDisk = [];
+  const onDisk = readdirSync(BOOK)
+    .filter((f) => f.endsWith('.md'))
+    .map((f) => f);
   for (const dir of readdirSync(BOOK)) {
     const p = join(BOOK, dir);
     if (!statSync(p).isDirectory() || dir === 'tools' || dir === 'figures') continue;
     for (const f of readdirSync(p)) if (f.endsWith('.md')) onDisk.push(`${dir}/${f}`);
   }
-  for (const f of ['README.md', 'HANDOVER.md', 'index.md', 'conventions.md']) onDisk.push(f);
   for (const f of onDisk) {
     if (!declared.has(f) && !EXCLUDED.has(f)) throw new Error(`page exists but is not in the reading order: ${f}`);
   }
@@ -207,7 +214,7 @@ function navBlock(page, index, pages) {
   const bits = [
     prevChapterPage ? icon(ARROW.first, link(prevChapterPage.path), `Previous section: ${prevChapterPage.label}`) : off(ARROW.first),
     prev ? icon(ARROW.prev, link(prev.path), `Previous page: ${prev.title}`) : off(ARROW.prev),
-    icon('☰', link('index.md'), 'Contents'),
+    icon('☰', link('contents.md'), 'Contents'),
     next ? icon(ARROW.next, link(next.path), `Next page: ${next.title}`) : off(ARROW.next),
     nextChapterPage ? icon(ARROW.last, link(nextChapterPage.path), `Next section: ${nextChapterPage.label}`) : off(ARROW.last),
   ];

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../07-plus/where-mainstream-leads.md "Previous section: Beyond Mainstream") [◀](../07-plus/plus-call-index.md "Previous page: Plus call index") [☰](../index.md "Contents") [▶](call-index.md "Next page: Call index") ~~⏭~~**
+**[⏮](../07-plus/where-mainstream-leads.md "Previous section: Beyond Mainstream") [◀](../07-plus/plus-call-index.md "Previous page: Plus call index") [☰](../contents.md "Contents") [▶](call-index.md "Next page: Call index") ~~⏭~~**
 <!-- nav:end -->
 
 # Glossary

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m09-courtesy-turn.md "Previous page: M9 — Courtesy Turn") [☰](../index.md "Contents") [▶](m11-swing.md "Next page: M11 — Swing") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m09-courtesy-turn.md "Previous page: M9 — Courtesy Turn") [☰](../contents.md "Contents") [▶](m11-swing.md "Next page: M11 — Swing") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M10 — Right and Left Thru

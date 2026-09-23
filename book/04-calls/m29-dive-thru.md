@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m28-slide-thru.md "Previous page: M28 — Slide Thru") [☰](../index.md "Contents") [▶](m30-box-the-gnat.md "Next page: M30 — Box the Gnat") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m28-slide-thru.md "Previous page: M28 — Slide Thru") [☰](../contents.md "Contents") [▶](m30-box-the-gnat.md "Next page: M30 — Box the Gnat") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M29 — Dive Thru

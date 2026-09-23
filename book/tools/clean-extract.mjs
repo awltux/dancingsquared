@@ -1,5 +1,8 @@
 // Produce a CLEAN, READABLE copy of each CALLERLAB manual for authoring.
 //
+// mojibake-check:allow — class 1 below is written out as the literal sequence this tool repairs, so
+// this file legitimately contains mojibake; see the gate in check-links.mjs.
+//
 // WHY THIS EXISTS. The book's content is the March-2026 Mainstream manual and the
 // August-2026 Plus manual, and both are PDFs. The repo already has a dependency-free
 // extractor for them (`engine/test/tools/extract-pdf-text.mjs`); this tool INVOKES it

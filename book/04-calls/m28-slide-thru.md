@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m27-california-twirl.md "Previous page: M27 — California Twirl") [☰](../index.md "Contents") [▶](m29-dive-thru.md "Next page: M29 — Dive Thru") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m27-california-twirl.md "Previous page: M27 — California Twirl") [☰](../contents.md "Contents") [▶](m29-dive-thru.md "Next page: M29 — Dive Thru") [⏭](../05-course/course-overview.md "Next section: The course")**
 <!-- nav:end -->
 
 # M28 — Slide Thru

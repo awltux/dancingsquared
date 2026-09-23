@@ -55,8 +55,59 @@ export const FORMATIONS = [
   // page already says the difference between them is sequence, not shape. Two identical pictures
   // either side of that sentence would argue the opposite.
   { slug: 'facing-couples', title: 'Facing Couples', as: 'Facing Couples' },
-  { slug: 'facing-dancers', title: 'Facing Dancers', as: null },
-  { slug: 'couple', title: 'Couple', as: null },
+  {
+    slug: 'facing-dancers',
+    title: 'Facing Dancers',
+    derivedFrom: 'one dancer from each side of the library\'s "Facing Couples"',
+    /**
+     * NOT A NAMED FORMATION in `formations.xml` -- the manual draws it in its pictograms and the library
+     * has no entry -- so it is TAKEN FROM ONE THAT IS NAMED rather than hand-placed. The page singles out
+     * "a Boy facing a Girl" for Star Thru, so that is the pair drawn, and the two things a facing pair
+     * must be are asserted: facing each other, and on the same line.
+     */
+    from: (lib) => {
+      const written = lib.get('Facing Couples');
+      if (!written?.length) throw new Error('the library has no "Facing Couples" to take a facing pair from');
+      const { dancers } = completeSet(written);
+      const boy = dancers.find((d) => d.gender === 'boy');
+      const girl = dancers.find((d) => d.gender === 'girl' && Math.abs(d.y - boy.y) < 0.01);
+      if (!boy || !girl) throw new Error('no Girl faces a Boy across the library\'s Facing Couples');
+      // Facing each other is a half turn between the two facings; on the same line is the other half
+      // of the definition. The library's Facing Couples holds four dancers who could pair up, and this
+      // rejects any other pairing.
+      const delta = (((boy.angleDeg - girl.angleDeg) % 360) + 360) % 360;
+      if (Math.abs(delta - 180) > 0.01) {
+        throw new Error(`the pair taken for Facing Dancers face ${delta} degrees apart, not each other`);
+      }
+      return [boy, girl];
+    },
+  },
+  {
+    slug: 'couple',
+    title: 'Couple',
+    derivedFrom: 'the south couple of the library\'s "Squared Set", numbered by the manual\'s rule',
+    /**
+     * Also not a named formation in the library. A couple is "two adjacent dancers facing the same way",
+     * and the library's Squared Set contains four of them: this takes the one the manual calls Couple 1.
+     * `couples()` has already asserted that its Boy is the dancer on the couple's own left, against the
+     * gender the library records; the two remaining properties are checked here.
+     */
+    from: () => {
+      const south = couples().find((c) => c.couple === 1);
+      if (!south) throw new Error('couples() gave no Couple 1');
+      const pair = [south.boy, south.girl].map((d) => ({
+        gender: d.gender,
+        x: d.x,
+        y: d.y,
+        angleDeg: d.angleDeg,
+      }));
+      if (Math.abs(pair[0].y - pair[1].y) > 0.01 || Math.abs(Math.abs(pair[0].x - pair[1].x) - 2) > 0.01) {
+        throw new Error('the couple taken from the Squared Set is not two dancers side by side');
+      }
+      if (pair[0].angleDeg !== pair[1].angleDeg) throw new Error('the couple does not share a facing');
+      return pair;
+    },
+  },
   { slug: 'normal-lines', title: 'Normal Lines', as: 'Normal Lines' },
   { slug: 'lines-facing-out', title: 'Lines Facing Out', as: 'Lines Facing Out' },
   { slug: 'inverted-lines', title: 'Inverted Lines', as: 'Inverted Lines Ends Facing Out' },
@@ -295,32 +346,43 @@ export function build() {
   });
 
   for (const spec of FORMATIONS) {
-    if (!spec.as) {
-      index.notDrawn.push({
-        slug: spec.slug,
-        title: spec.title,
-        reason: 'not a named formation in formations.xml (it is a shape the manual describes in words)',
-      });
-      continue;
+    let dancers;
+    let mirrored = false;
+    let written = 0;
+    if (spec.from) {
+      // A shape the manual draws but the library does not name: taken from a formation that IS named,
+      // by a derivation that asserts the properties the page claims for it.
+      dancers = spec.from(lib);
+      if (!dancers || !dancers.length) throw new Error(`${spec.slug}: the derivation produced no dancers`);
+    } else {
+      if (!spec.as) {
+        index.notDrawn.push({
+          slug: spec.slug,
+          title: spec.title,
+          reason: 'not a named formation in formations.xml (it is a shape the manual describes in words)',
+        });
+        continue;
+      }
+      const found = lib.get(spec.as);
+      if (!found || !found.length) {
+        index.notDrawn.push({ slug: spec.slug, title: spec.title, reason: `no library formation named "${spec.as}"` });
+        continue;
+      }
+      written = found.length;
+      ({ dancers, mirrored } = spec.noMirror
+        ? { dancers: found.map((d) => ({ ...d })), mirrored: false }
+        : completeSet(found));
     }
-    const written = lib.get(spec.as);
-    if (!written || !written.length) {
-      index.notDrawn.push({ slug: spec.slug, title: spec.title, reason: `no library formation named "${spec.as}"` });
-      continue;
-    }
-    const { dancers, mirrored } = spec.noMirror
-      ? { dancers: written.map((d) => ({ ...d })), mirrored: false }
-      : completeSet(written);
     const canvas = new Canvas(SIZE, SIZE, C.floor);
     draw(canvas, dancers, makeView(dancers));
     files.set(`${spec.slug}.png`, writePng(canvas, PALETTE));
     index.drawn.push({
       slug: spec.slug,
       title: spec.title,
-      libraryName: spec.as,
-      written: written.length,
+      ...(spec.from
+        ? { derivedFrom: spec.derivedFrom }
+        : { libraryName: spec.as, written, mirrored }),
       drawn: dancers.length,
-      mirrored,
       bytes: files.get(`${spec.slug}.png`).length,
     });
   }
@@ -350,7 +412,10 @@ export function main() {
       console.error(`\n${drift} formation diagram(s) differ. Re-run without --check.`);
       return 1;
     }
-    console.log(`${files.size} formation diagrams reproduce exactly; ${index.notDrawn.length} with a recorded reason.`);
+    const undrawn = index.notDrawn.length;
+    console.log(
+      `${files.size} formation diagrams reproduce exactly${undrawn ? `; ${undrawn} with a recorded reason` : ''}.`,
+    );
     return 0;
   }
 
@@ -361,7 +426,11 @@ export function main() {
 
   console.log(`${files.size} formation diagrams -> ${OUT_DIR}`);
   for (const d of index.drawn) {
-    console.log(`  ${d.slug}: ${d.libraryName} -> ${d.drawn} dancers (written ${d.written}${d.mirrored ? ', completed by rotation' : ', already whole'})`);
+    console.log(
+      d.derivedFrom
+        ? `  ${d.slug}: derived from ${d.derivedFrom} -> ${d.drawn} dancers`
+        : `  ${d.slug}: ${d.libraryName} -> ${d.drawn} dancers (written ${d.written}${d.mirrored ? ', completed by rotation' : ', already whole'})`,
+    );
   }
   for (const n of index.notDrawn) console.log(`  no diagram: ${n.title} (${n.reason})`);
   void CACHE;

@@ -23,8 +23,8 @@
       "title": "Squared Set",
       "libraryName": "Squared Set",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1344
     },
     {
@@ -32,17 +32,31 @@
       "title": "Facing Couples",
       "libraryName": "Facing Couples",
       "written": 2,
-      "drawn": 4,
       "mirrored": true,
+      "drawn": 4,
       "bytes": 1156
+    },
+    {
+      "slug": "facing-dancers",
+      "title": "Facing Dancers",
+      "derivedFrom": "one dancer from each side of the library's \"Facing Couples\"",
+      "drawn": 2,
+      "bytes": 1003
+    },
+    {
+      "slug": "couple",
+      "title": "Couple",
+      "derivedFrom": "the south couple of the library's \"Squared Set\", numbered by the manual's rule",
+      "drawn": 2,
+      "bytes": 959
     },
     {
       "slug": "normal-lines",
       "title": "Normal Lines",
       "libraryName": "Normal Lines",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1255
     },
     {
@@ -50,8 +64,8 @@
       "title": "Lines Facing Out",
       "libraryName": "Lines Facing Out",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1237
     },
     {
@@ -59,8 +73,8 @@
       "title": "Inverted Lines",
       "libraryName": "Inverted Lines Ends Facing Out",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1270
     },
     {
@@ -68,8 +82,8 @@
       "title": "Two-Faced Lines",
       "libraryName": "Two-Faced Lines",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1195
     },
     {
@@ -77,8 +91,8 @@
       "title": "Tidal Wave",
       "libraryName": "Tidal Wave",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1210
     },
     {
@@ -86,8 +100,8 @@
       "title": "Mini-Wave (right-hand)",
       "libraryName": "Wave RH",
       "written": 2,
-      "drawn": 2,
       "mirrored": false,
+      "drawn": 2,
       "bytes": 932
     },
     {
@@ -95,8 +109,8 @@
       "title": "Ocean Wave (right-hand)",
       "libraryName": "Ocean Waves RH BGGB",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1206
     },
     {
@@ -104,8 +118,8 @@
       "title": "Column",
       "libraryName": "Column RH GBGB",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1247
     },
     {
@@ -113,8 +127,8 @@
       "title": "Box",
       "libraryName": "Box RH",
       "written": 2,
-      "drawn": 4,
       "mirrored": true,
+      "drawn": 4,
       "bytes": 1155
     },
     {
@@ -122,8 +136,8 @@
       "title": "Diamond",
       "libraryName": "Diamond RH",
       "written": 2,
-      "drawn": 4,
       "mirrored": true,
+      "drawn": 4,
       "bytes": 1056
     },
     {
@@ -131,8 +145,8 @@
       "title": "Alamo Style",
       "libraryName": "Alamo Wave",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1934
     },
     {
@@ -140,8 +154,8 @@
       "title": "Thar",
       "libraryName": "Thar RH Boys",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1284
     },
     {
@@ -149,8 +163,8 @@
       "title": "Quarter Tag",
       "libraryName": "Quarter Tag",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1268
     },
     {
@@ -158,8 +172,8 @@
       "title": "3/4 Tag",
       "libraryName": "3/4 Tag",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1274
     },
     {
@@ -167,21 +181,10 @@
       "title": "Promenade",
       "libraryName": "Promenade",
       "written": 4,
-      "drawn": 8,
       "mirrored": true,
+      "drawn": 8,
       "bytes": 1817
     }
   ],
-  "notDrawn": [
-    {
-      "slug": "facing-dancers",
-      "title": "Facing Dancers",
-      "reason": "not a named formation in formations.xml (it is a shape the manual describes in words)"
-    },
-    {
-      "slug": "couple",
-      "title": "Couple",
-      "reason": "not a named formation in formations.xml (it is a shape the manual describes in words)"
-    }
-  ]
+  "notDrawn": []
 }

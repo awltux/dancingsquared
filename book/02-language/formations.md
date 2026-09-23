@@ -46,6 +46,7 @@ The hold, the footwork and the timing are in
 
 **Two dancers directly facing each other.** That is all it means, unless the call says otherwise.
 
+![Facing Dancers: two dancers facing each other — here a Boy facing a Girl.](../formations/facing-dancers.png)
 Facing Dancers is the starting formation for calls like [Pass Thru](../04-calls/m07-pass-thru.md),
 [Dosado](../04-calls/m02-dosado.md) and [Star Thru](../04-calls/m18-star-thru.md).
 
@@ -80,6 +81,7 @@ A [Lead Right](../04-calls/m16-lead-right-lead-left.md) makes one out of a squar
 **Two adjacent dancers facing the same way.** Not a formation you dance *from* so much as a shape
 you finish in — Star Thru ends in a couple.
 
+![A Couple: two dancers side by side facing the same way — this one is Normal, Boy on the left.](../formations/couple.png)
 Variants, which matter because calls depend on them:
 
 | Name | What it is |

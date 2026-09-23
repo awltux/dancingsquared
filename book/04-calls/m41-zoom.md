@@ -48,7 +48,7 @@ put you both facing exactly the way you were at the start. Only the two of you h
 **4 beats** — two bars of music at a walking pace. This is exactly the timing of one
 [Circulate](m19-circulate-family.md), which is why Zoom slips easily into the same phrase.
 
-The animation runs over six beats, so its track is drawn a little longer than the manual
+The animation runs over six beats, so it is drawn a little longer than the manual
 asks for.
 
 ### Styling

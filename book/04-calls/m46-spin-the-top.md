@@ -49,7 +49,7 @@ started in a wave running left to right, you finish in a wave running toward and
 
 **8 beats** — four bars of music. It is the longest call in this group, because it is really two
 turns and a walk packed into one command. The animation runs over seven and a half beats,
-which is why the track stops just short of the fourth bar.
+which is why it stops just short of the fourth bar.
 
 ### Styling
 

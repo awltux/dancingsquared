@@ -80,7 +80,8 @@ follow the link rather than expecting the explanation to be repeated elsewhere.
 | Term | Where it is defined |
 |---|---|
 | **Call** | [How a call works](../01-start/how-a-call-works.md) |
-| **Tip**, **patter tip**, **singing call** | [Tips, the unit of the dance](../01-start/tips-and-figures.md) |
+| **Tip**, **patter** (or **hash**, **hoedown**), **singing call** | [Tips, the unit of the dance](../01-start/tips-and-figures.md) |
+| **Record** — one piece of music, however it is played | [Tips, the unit of the dance](../01-start/tips-and-figures.md) |
 | **Opener**, **figure**, **break**, **closer**, **finale** | [Tips, the unit of the dance](../01-start/tips-and-figures.md) |
 | **Zero** | [Zeroes, get-outs and modules](../01-start/zeroes-getouts-and-modules.md) |
 | **Get-out** | [Zeroes, get-outs and modules](../01-start/zeroes-getouts-and-modules.md) |

@@ -4,8 +4,9 @@
 
 # Dancing a tip
 
-A tip is the unit of dancing: one record's worth, or one continuous stretch of live calling. Knowing
-what is coming makes it much less alarming, so here is a tip from the inside.
+A tip is the unit of dancing: ten minutes or so with the same square, from the first call of the patter
+to the last note of the singing call. Knowing what is coming makes it much less alarming, so here is a
+tip from the inside.
 
 [Tips, the unit of the dance](../01-start/tips-and-figures.md) explains what the parts are called and
 why a tip comes home. This page is about what it feels like to be standing in the square while one

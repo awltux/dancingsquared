@@ -56,8 +56,8 @@ the set; **"Out"** means away from it.
 
 ### Timing
 
-**6 beats** — three bars of music. The animation runs over five and a half beats, so the
-track finishes a little inside the third bar.
+**6 beats** — three bars of music. The animation runs over five and a half beats, so it
+finishes a little inside the third bar.
 
 ### Styling
 

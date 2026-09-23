@@ -23,7 +23,7 @@ beats, phrases and why 64 beats matters.
 | **Even 8-beat phrases** | Calls are fitted into phrases, not into whatever is left over. Music that adds or drops a bar every so often cannot be called to, because there is no longer a place where a figure lands |
 | **A downbeat you can hear** | Beat one has to be audible under everything else — a bass line, or a drum. If it is buried, the dancers are counting instead of dancing, and only the caller is holding the square together |
 | **Room for the caller's voice** | Somebody is talking over this music. A vocal sitting in the same range as the caller, or a busy mix with the melody in the middle, fights the thing that makes the dance work. This is why patter music is instrumental, and why a singing call is written to leave gaps |
-| **Long enough for a tip** | A tip is a few minutes of dancing to one piece of music: an opener, a figure, a break and a get-out. A two-minute track has no room for all four, however good it is |
+| **Long enough for a tip** | A tip is ten minutes or so of dancing: an opener, a figure, a break and a get-out on the patter side, then the singing call. One two-minute record cannot cover it, so what you are choosing is a set of music rather than a song |
 | **A repeating 64-beat shape, for singing calls** | The figure is danced four times, once with each couple leading. The music has to give you that shape — and it should end deliberately, with a proper ending, rather than fade out under the last figure |
 
 ## Two kinds of music
@@ -58,13 +58,13 @@ A newer caller does not have to buy a library to start: the [CALLERLAB Music Pro
 Playlist](https://callerlab.org/playlist/) is put together by the association's Music Producers
 Committee to sell digital square dance music to new callers at a reduced price.
 
-## Before you dance to a track
+## Before you dance to a record
 
-- **Tap along for half a minute.** If your finger and the music disagree by the end, the track is out.
+- **Tap along for half a minute.** If your finger and the music disagree by the end, the record is out.
 - **Count to eight, four times.** You are checking that every phrase is the same length. If the count
   goes wrong, so will the figure.
 - **Time it.** Long enough for the tip you are planning, with an ending rather than a fade.
-- **Read the terms it came with.** Music made for square dancing is sold to be called to; a track bought
+- **Read the terms it came with.** Music made for square dancing is sold to be called to; a record bought
   for listening is not. What you may then do with it in front of a room is a second question, and it is
   the one the warning below is about.
 - **Then try it on the floor.** If the class is fighting the music, the music is usually the problem.
@@ -74,7 +74,7 @@ Committee to sell digital square dance music to new callers at a reduced price.
 > [!WARNING]
 > **Playing music where the public can hear it is licensed, and buying the music is not the licence.**
 > Every recording carries two separate rights: the **composition** (the song) and the **recording** (the
-> performance of it). Buying a track, or subscribing to a streaming service, buys you the right to
+> performance of it). Buying a record, or subscribing to a streaming service, buys you the right to
 > listen to it. It does not buy the right to play it to a room — a club night, a hired hall, a party that
 > is open to anyone who turns up. In most countries that is a licensed activity, and the licence is
 > usually held by the **venue** or by the **club**, because the same one already covers whatever is
@@ -88,7 +88,7 @@ Committee to sell digital square dance music to new callers at a reduced price.
 >
 > Two cautions. This is not legal advice, and it is no substitute for asking the people who know: the
 > licensing body, or whoever books the hall. And what the music was **sold** to you for is a separate
-> question again — a track sold for calling is sold for a purpose, which is not automatically the same
+> question again — a record sold for calling is sold for a purpose, which is not automatically the same
 > thing as permission to perform it in public. Read both.
 
 ## Next

@@ -31,10 +31,10 @@ that removes ambiguity when a word could mean two things.
 
 ## What an evening is like
 
-An evening is a series of **tips** — see [Tips, the unit of the dance](tips-and-figures.md). Each
-tip is a few minutes of dancing to one piece of music, and there are usually six to ten tips in a
-night. Between tips you find a new square, and it does not matter who you get: the calls work from
-any arrangement of the eight positions.
+An evening is a series of **tips** — see [Tips, the unit of the dance](tips-and-figures.md). Each tip
+is ten minutes or so of dancing: a patter half for the caller to work in, then a singing call. There are
+usually six to ten tips in a night. Between tips you find a new square, and it does not matter who you
+get: the calls work from any arrangement of the eight positions.
 
 You will dance with strangers and friends, you will swap partners many times inside a single tip,
 and you will finish the evening tired and, usually, laughing.

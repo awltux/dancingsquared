@@ -4,21 +4,30 @@
 
 # Tips, the unit of the dance
 
-A **tip** is one piece of music's worth of dancing — the block of dancing between two records, or
-between two pauses in a live call. A tip lasts roughly **10 to 15 minutes**, and an evening is
-usually **6 to 10** of them.
+A **tip** is one round of dancing. You keep the same partner and the same square, and you dance until
+the caller stops and the squares break up. Between one tip and the next you find a new square, and often
+a new partner.
+
+A tip is **two dances in one**, in this order:
+
+1. **Patter** — also called *hash*, or a *hoedown*. Instrumental music, no singing: the caller speaks
+   the calls in time and fills the gaps with rhythmic talk. This is the longer half, and the caller's
+   workshop — with no words to fit, figures can go wherever the music allows, so it is where the new
+   work gets tried out.
+2. **The singing call.** A song, with the calls sung in place of some of the words. Shorter, and the
+   tighter job: the figure has to land on the phrases of a tune the dancers already know.
+
+Both halves are built from the same figures, and the caller calls every one of them.
+
+So a tip is **not one record**. It is a run of them: usually **10 to 15 minutes** of dancing. An evening
+is **6 to 10** tips. A club can agree to dance one half rather than the other, and at the higher levels
+an evening of patter alone is common — but in a Mainstream class you will meet both, every tip.
+
+**A record** is one piece of music, however the caller plays it — a disc, a CD, or a file on a laptop.
+The word has outlived the plastic it came from, and callers still use it: "between two records" means
+between one dance and the next.
 
 This is the unit dancers actually experience. You do not dance "a dance"; you dance tips.
-
-## Patter and singing calls
-
-Tips alternate between two kinds:
-
-- **Patter tips** — instrumental music, no singing. The caller calls figures and fills the gaps with
-  rhythmic talk (*patter*, hence the name).
-- **Singing call tips** — a familiar tune with the calls sung in place of some of the lyrics.
-
-Both are built from the same figures. A singing call is simply a tip whose figure is fitted to a song.
 
 ## Every tip comes home
 

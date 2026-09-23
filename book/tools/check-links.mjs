@@ -9,7 +9,8 @@
 //   5. no call page exists for a call that is NOT in the 2026 programme;
 //   6. every figure is referenced by some page, and every referenced figure exists.
 //   7. no file has been corrupted by a single-byte encoding round-trip;
-//   8. no reader-facing page speaks in the tools' language.
+//   8. no reader-facing page speaks in the tools' language;
+//   9. every glossary row links to the page that defines its term.
 //
 // A book whose whole design is "define it once and link to it" fails quietly when a link
 // rots: the reader gets a dead end and no way to tell whether the page or the anchor is
@@ -337,11 +338,40 @@ if (!existsSync(contentsPath)) {
   }
 }
 
+// ---- every glossary row must name the page that defines its term
+//
+// The glossary is the book's answer to "where is this word defined?" -- the Introduction promises that
+// any word a reader cannot place is in it. A row with an empty second cell, or one holding plain text,
+// breaks that promise silently: the term is listed, the reader has nowhere to follow, and no other check
+// here notices, because a cell with no link cannot be a broken link.
+//
+// The row COUNT is asserted as well. A table whose shape changed would parse as zero rows, and zero
+// problems from zero rows is the failure mode this file exists to refuse -- the same reason the corpus
+// checks fail on unreviewed rather than skipping.
+const glossaryPath = join(BOOK, '08-reference', 'glossary.md');
+let glossaryEntries = 0;
+if (!existsSync(glossaryPath)) {
+  problems.push('08-reference/glossary.md is missing');
+} else {
+  for (const line of readFileSync(glossaryPath, 'utf8').split('\n')) {
+    const m = /^\|\s*(.+?)\s*\|\s*(.*?)\s*\|\s*$/.exec(line);
+    if (!m) continue;
+    if (/^[-: ]+$/.test(m[1]) || m[1] === 'Term') continue; // the header row and its rule
+    glossaryEntries++;
+    if (!/\]\(/.test(m[2])) {
+      problems.push(`08-reference/glossary.md: "${m[1]}" has no link to the page that defines it`);
+    }
+  }
+  if (glossaryEntries < 50) {
+    problems.push(`08-reference/glossary.md: only ${glossaryEntries} entries parsed — the table shape changed`);
+  }
+}
+
 if (problems.length) {
   for (const p of problems) console.error(`  ${p}`);
   console.error(`\n${problems.length} problem(s).`);
   process.exit(1);
 }
 console.log(
-  `${files.length} pages, ${expected} teaching units, ${playableCalls} playable calls; all links, anchors and coverage checks pass.`,
+  `${files.length} pages, ${expected} teaching units, ${playableCalls} playable calls, ${glossaryEntries} glossary entries; all links, anchors and coverage checks pass.`,
 );

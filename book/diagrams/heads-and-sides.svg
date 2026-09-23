@@ -51,6 +51,6 @@
 <text x="363" y="185" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" letter-spacing="0.6" fill="#22303a">SIDES</text>
 <text x="210" y="32" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">HEADS</text>
 <text x="57" y="185" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" letter-spacing="0.6" fill="#22303a">SIDES</text>
-<polygon points="201,416 219,416 210,404" fill="#22303a"/>
-<text x="210" y="435" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">CALLER</text>
+<polygon points="201,366 219,366 210,354" fill="#22303a"/>
+<text x="210" y="385" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">CALLER</text>
 </svg>

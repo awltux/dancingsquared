@@ -269,7 +269,7 @@ export function build() {
   const coupleBody = [
     dancerLayer(people, { fillOf: (p) => COLOUR.couple[p.couple] }),
     ...cs.map((c) => OUTWARD[c.side](`COUPLE ${c.couple}`)),
-    caller(W / 2, py(-3) + 116, 'CALLER'),
+    caller(W / 2, py(-3) + 66, 'CALLER'),
   ].join('\n');
   files.set(
     'couple-numbers.svg',
@@ -290,7 +290,7 @@ export function build() {
   const headsBody = [
     dancerLayer(people, { fillOf: (p) => (isHead(p) ? COLOUR.couple[p.couple] : COLOUR.muted) }),
     ...cs.map((c) => OUTWARD[c.side](isHead(c) ? 'HEADS' : 'SIDES')),
-    caller(W / 2, py(-3) + 116, 'CALLER'),
+    caller(W / 2, py(-3) + 66, 'CALLER'),
   ].join('\n');
   files.set(
     'heads-and-sides.svg',

@@ -47,6 +47,8 @@ to be standing in a Head position.
 
 Couple **1** is the couple whose back is to the caller. The numbers then run to their right: 2, 3, 4.
 
+![A squared set seen from above with the caller at the south. Couple 1 stands beside the caller, and the couples are numbered to their right — 2, 3 and 4 — each drawn in its own colour.](../diagrams/couple-numbers.svg)
+
 Like Heads and Sides, the number is carried by the Boys. A Boy keeps his number for the tip; a Girl
 takes the number — and the home position — of the Boy she is with, so she can change number several
 times in a tip. "Couples 1 and 3" means the same four dancers as "Heads"; "Couples 2 and 4" means

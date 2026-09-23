@@ -92,6 +92,11 @@ In a box-shaped formation:
 - **Leaders** are the dancers facing **out** of the box
 - **Trailers** are the dancers facing **into** it
 
+![Four dancers in a Box seen from above, each with a wedge showing which way they face. The two facing out of the box are the Leaders; the two facing into it are the Trailers.](../diagrams/leaders-and-trailers.svg)
+
+In that picture the Leaders happen to be the Girls, which is an accident of the arrangement rather than
+a rule: Leader and Trailer are about which way you are facing, not about who you are.
+
 In other two-dancer formations, the dancer facing away from the centre of their own two-dancer group
 is the Leader, and the one facing towards it is the Trailer. Anyone facing neither way is neither.
 

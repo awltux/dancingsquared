@@ -21,6 +21,12 @@
       "title": "The phrase in 2/4 and in 4/4",
       "beats": 8,
       "bars": "2/4 -> 4 bars, 4/4 -> 2 bars"
+    },
+    {
+      "slug": "leaders-and-trailers",
+      "title": "Leaders and Trailers in a box",
+      "leaders": "girl at (-2,-1), girl at (2,1)",
+      "trailers": "boy at (-2,1), boy at (2,-1)"
     }
   ]
 }

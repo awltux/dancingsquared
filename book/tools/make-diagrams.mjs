@@ -33,8 +33,8 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { toolsDir } from './lib/load.mjs';
-import { couples } from './lib/squared-set.mjs';
+import { toolsDir, readAsset, loadEngine } from './lib/load.mjs';
+import { couples, completeSet } from './lib/squared-set.mjs';
 
 const OUT_DIR = join(toolsDir, '..', 'diagrams');
 const INDEX = join(toolsDir, 'diagrams-index.json');
@@ -48,6 +48,9 @@ const COLOUR = {
   white: '#ffffff',
   muted: '#c3ccd2',
   couple: { 1: '#b2182b', 2: '#2166ac', 3: '#1b7837', 4: '#8c6d1f' },
+  // The same two "nobody in particular" colours the formation diagrams use: in a box there are no
+  // couples, so a dancer is drawn by gender and nothing else.
+  plain: { boy: '#1f6f8b', girl: '#8a3f6b' },
 };
 
 const W = 420;
@@ -255,6 +258,8 @@ function phraseBarsSvg() {
 }
 
 export function build() {
+  const eng = loadEngine();
+  const lib = eng.parseFormations(readAsset('formations.xml'));
   const cs = couples();
   const people = all(cs);
   const files = new Map();
@@ -393,6 +398,66 @@ export function build() {
     title: 'The phrase in 2/4 and in 4/4',
     beats: 8,
     bars: '2/4 -> 4 bars, 4/4 -> 2 bars',
+  });
+
+  // ---------------------------------------------------------------- Leaders and Trailers
+  //
+  // The manual, "Leaders and Trailers": "In any box-type formation ... those facing out of the Box are
+  // Leaders and those facing into the Box are Trailers." And, usefully for a diagram: "the dancers
+  // marked 'L' are Leaders and the dancers marked 'T' are Trailers".
+  //
+  // A Box is drawn from the library, and the classification is not asserted from the side a dancer is
+  // standing on but computed -- each dancer's facing is dotted with the vector outwards from the
+  // formation's own centre. The count is checked as well: a box that did not come out as two of each
+  // would mean the rule and the geometry disagree, and the picture would be teaching the disagreement.
+  const boxWritten = lib.get('Box RH');
+  if (!boxWritten) throw new Error('formations.xml has no "Box RH"');
+  const box = completeSet(boxWritten).dancers;
+  const boxCentre = {
+    x: box.reduce((s, d) => s + d.x, 0) / box.length,
+    y: box.reduce((s, d) => s + d.y, 0) / box.length,
+  };
+  const outward = (d) => {
+    const h = ((d.angleDeg ?? 0) * Math.PI) / 180;
+    const face = { x: Math.cos(h), y: Math.sin(h) };
+    const out = { x: d.x - boxCentre.x, y: d.y - boxCentre.y };
+    return face.x * out.x + face.y * out.y;
+  };
+  const leaders = box.filter((d) => outward(d) > 0.1);
+  const trailers = box.filter((d) => outward(d) < -0.1);
+  if (leaders.length !== 2 || trailers.length !== 2 || leaders.length + trailers.length !== box.length) {
+    throw new Error(`the Box gave ${leaders.length} Leaders and ${trailers.length} Trailers, expected 2 and 2`);
+  }
+
+  // Each label goes on the outside of the pair it belongs to, on the side that dancer is standing. The
+  // gap has to clear the marker, which is MARKER_UNITS * SCALE = 17px across at this scale: at 16px the
+  // text overlapped the body it was naming.
+  const LABEL_GAP = 28;
+  const sideLabel = (d, text) => {
+    const west = d.x < boxCentre.x;
+    return label(west ? px(d.x) - LABEL_GAP : px(d.x) + LABEL_GAP, py(d.y) + 4, text, {
+      size: 12,
+      anchor: west ? 'end' : 'start',
+      fill: COLOUR.ink,
+    });
+  };
+  const boxBody = [
+    dancerLayer(box, { fillOf: (d) => COLOUR.plain[d.gender] ?? COLOUR.muted }),
+    ...[...leaders, ...trailers].map((d) => sideLabel(d, outward(d) > 0 ? 'LEADER' : 'TRAILER')),
+  ].join('\n');
+  files.set(
+    'leaders-and-trailers.svg',
+    svg(
+      'Leaders and Trailers in a box',
+      'Four dancers in a Box, seen from above, each with a wedge showing which way they face. The two facing out of the box are the Leaders and the two facing into it are the Trailers.',
+      boxBody,
+    ),
+  );
+  index.drawn.push({
+    slug: 'leaders-and-trailers',
+    title: 'Leaders and Trailers in a box',
+    leaders: leaders.map((d) => `${d.gender} at (${d.x},${d.y})`).join(', '),
+    trailers: trailers.map((d) => `${d.gender} at (${d.x},${d.y})`).join(', '),
   });
 
   return { files, index };

@@ -74,4 +74,4 @@ And it is only Mainstream. What comes after it is in
 > the definition disagree, **believe the definition**.
 >
 > **Corrections are always welcome.** If something here is wrong,
-> [say so](https://github.com/awltux/dancingsquared/issues).
+> [log in to GitHub and raise an issue, mentioning 'book_build_hash={{build-hash}}'](https://github.com/awltux/dancingsquared/issues).

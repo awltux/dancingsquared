@@ -122,6 +122,7 @@ formations and timing beside it.
 | [Drills](06-practice/drills.md) | figure-by-figure exercises |
 | [Dancing a tip](06-practice/dancing-a-tip.md) | what a whole tip actually feels like |
 | [Caller and teacher notes](06-practice/caller-and-teacher-notes.md) | what to plan, what to track, and what to do about the calls that keep failing |
+| [Finding music](06-practice/finding-music.md) | what makes a record danceable, and where square dance music comes from |
 | [Where Mainstream leads](07-plus/where-mainstream-leads.md) | the Plus program, and what moves |
 | [The Plus program](07-plus/plus-programme.md) | the Plus calls |
 | [Plus call index](07-plus/plus-call-index.md) | one line each |

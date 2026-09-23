@@ -10,13 +10,14 @@
 >
 > | | |
 > |---|---|
-> | Pages | **107** pages of book across **109** Markdown files (`README.md` and this file are workspace files, not pages) |
+> | Pages | **108** pages of book across **110** Markdown files (`README.md` and this file are workspace files, not pages) |
 > | Call reference | **50** unit files in `04-calls/` carrying **78 call cards** |
 > | Playable | **75 of 78** cards, from **118 curated start labels** in `tools/start-formations.json` — 64 wired to an authoring, 54 listed but not yet animatable. **5** cards have `"starts": {}` (`m03c`, `m12c`, `m14a`, `m15b`, `m15c`) because their manual wording is prose rather than a list |
 > | Withheld | **3** cards — `m04a`, `m14b`, `m32c` — each with a recorded reason (`noAnimation` in `tools/animations-index.json`) |
 > | Restrictions | stated on **54 of 78** cards |
 > | Diagrams | **19** formation PNGs and **3** annotated position SVGs |
-> | Online edition | `book/dancingsquared_book/` — 233 files, ~3 MB, a PWA with a service worker |
+> | Online edition | `book/dancingsquared_book/` — 237 files, ~3.4 MB, a PWA with a service worker |
+> | Build stamp | every page footer ends with the build's short content hash in square brackets, and the Introduction's correction link asks for the same hash as `book_build_hash=<hash>` — stamped at the end of `build-site.mjs`, the same value the offline cache is versioned by, so a deployment can be identified from the page a reader is looking at |
 > | Gate | `npm run check:book` → exit 0: *109 pages, 50 teaching units, 75 playable calls; all links, anchors and coverage checks pass.* · *75 playable calls reproduce exactly.* · *75 playable calls verified (303 pose evaluations, 3 with a recorded reason).* |
 >
 > **Outstanding — found while updating this file, measured rather than suspected:**
@@ -509,7 +510,7 @@ book/
                 squared-set-convention · circle-rule · proper-versus-improper · mainstream-restrictions
   04-calls/     m01-circle-family … m50-recycle            (50 unit files, ~78 call cards)
   05-course/    course-overview · class-01 … class-12 · teaching-a-class
-  06-practice/  how-to-practise · drills · dancing-a-tip · caller-and-teacher-notes
+  06-practice/  how-to-practise · drills · dancing-a-tip · caller-and-teacher-notes · finding-music
   07-plus/      where-mainstream-leads · plus-programme · plus-call-index
   08-reference/ glossary · call-index · formation-index · figures-index ·
                 programme-membership · corpus-classification · definitions-reconciliation ·

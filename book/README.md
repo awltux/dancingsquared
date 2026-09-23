@@ -22,7 +22,7 @@ circulates in halls, the page says so rather than pretending it does not exist.
 | **[03-rules/](03-rules/passing-rule.md)** | the conventions that settle what a call means when it is ambiguous |
 | **[04-calls/](04-calls/m01-circle-family.md)** | the call reference — one file per teaching unit |
 | **[05-course/](05-course/course-overview.md)** | the taught path: the official teaching order, in classes |
-| **[06-practice/](06-practice/how-to-practise.md)** | drills, and how to dance a whole tip |
+| **[06-practice/](06-practice/how-to-practise.md)** | drills, how to dance a whole tip, and where the music comes from |
 | **[07-plus/](07-plus/where-mainstream-leads.md)** | where Mainstream leads next |
 | **[08-reference/](08-reference/glossary.md)** | glossary, indexes, sources and attribution |
 
@@ -224,13 +224,23 @@ The site is a **PWA**: `manifest.webmanifest`, a service worker, and a set of dr
   launcher and an iOS home screen label, and it is short on purpose — a launcher needs a name, not the
   book's descriptive title. The manifest's long `name`, and so the install dialog and the Android app-info
   page, keep the full descriptive title.
-- **Works offline** — the service worker precaches what a reader needs to *open* the book: all 106
-  pages, the stylesheet, the player, the dance library, the dance data and the icons (252 entries).
+- **Works offline** — the service worker precaches what a reader needs to *open* the book: all 108
+  pages, the stylesheet, the player, the dance library, the dance data and the icons (256 entries).
   The whole book is playable offline; only the icons are fetched lazily.
 - **Pages are network-first, assets cache-first.** A reader online gets the newest build; a reader
   offline gets the cached page, or `offline.html`, which explains itself rather than failing.
 - The cache is versioned by a hash of its own contents, so a new build replaces the old one instead
   of serving a mixture.
+- **The pages name their own build.** Every footer ends with the build's short content hash in square
+  brackets, and the Introduction's correction link asks the reader to mention
+  `book_build_hash=<hash>` in the issue — so a bug report identifies the build it came from without
+  anyone having to ask. It is stamped at the END of the
+  build, after the hash is taken, because a hash cannot contain itself: the pages are written with
+  `{{build-hash}}`, the whole site is hashed, and only then is the token replaced. So an unchanged book
+  always builds to the same stamp, any change to any page or asset moves it, and "which build is this?"
+  can be answered from the page rather than from the deploy log. One consequence worth knowing: the
+  token is visible in `index.md` when the raw Markdown is read on GitHub, the one place it is not
+  substituted.
 
 Service workers need a secure context, so they run over `https:` or `localhost` — **not** from
 `file://`. Opened from the filesystem the site still works; it simply is not installable or offline.

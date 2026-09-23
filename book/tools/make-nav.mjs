@@ -93,7 +93,13 @@ const ORDER = {
     'class-12.md',
     'teaching-a-class.md',
   ],
-  '06-practice': ['how-to-practise.md', 'drills.md', 'dancing-a-tip.md', 'caller-and-teacher-notes.md'],
+  '06-practice': [
+    'how-to-practise.md',
+    'drills.md',
+    'dancing-a-tip.md',
+    'caller-and-teacher-notes.md',
+    'finding-music.md',
+  ],
   '07-plus': ['where-mainstream-leads.md', 'plus-programme.md', 'plus-call-index.md'],
   '08-reference': [
     'glossary.md',

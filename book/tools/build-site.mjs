@@ -309,6 +309,11 @@ html.nav-pinned h2,
 html.nav-pinned h3 { scroll-margin-top: 3.9rem; }
 footer.page { margin-top: 3rem; padding-top: .9rem; border-top: 1px solid var(--rule);
               font-size: .82rem; color: var(--muted); }
+/* The build stamp: the smallest type on the page, in square brackets at the end of the notice, and the
+   only monospace in the reader's view. It is there to be read out on request, not to be noticed, so it
+   takes the quietest colour the palette has. */
+footer.page .stamp { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+                     font-size: .76rem; color: #9aa7ae; letter-spacing: .04em; white-space: nowrap; }
 @media print {
   body { background: #fff; } main { box-shadow: none; max-width: none; }
   nav.nav { display: none; }
@@ -351,6 +356,26 @@ const APP_NAME = 'Dancing² Mainstream';
  */
 let cssUrl = 'style.css';
 let playerUrl = 'assets/player.js';
+
+/**
+ * THE BUILD STAMP, before the hash it will carry exists.
+ *
+ * A hash cannot contain itself: if the pages were written with the hash already in them, the hash would
+ * have to be known first. So every page is written with this token where the stamp goes, the whole site
+ * is hashed, and only then is the token replaced -- which is why an unchanged book always builds to the
+ * same stamp, and why any change to any page, the stylesheet, the player or the dance data moves it.
+ * The value stamped is the same one the service worker uses as its cache version, so a reader can be
+ * asked which build they are looking at and the answer compared with what is deployed.
+ *
+ * The token has to survive the Markdown renderer, because the Introduction names the build in the text
+ * of its correction link as well as in the footer. `inline()` escapes `& < > "` -- so an HTML comment
+ * would arrive as escaped text and never be replaced -- and a comment on a line of its own is dropped
+ * outright as a note to the tools. Braces pass through both the escaper and the link-label pattern
+ * untouched, and read as a placeholder if a page is ever viewed without being stamped.
+ */
+const BUILD_TOKEN = '{{build-hash}}';
+/** How much of the hash a reader sees. Seven characters: the short-revision length people know. */
+const BUILD_SHORT = 7;
 
 const PAGE = ({ title, cardTitle = null, description, rel, navHtml, body, script = '', canonical = null, jsonLd, ogImage = null }) => {
   // A page's own H1 plus the site name is right for a page you arrive at by reading. It is wrong for
@@ -417,7 +442,7 @@ ${body}
 <p>Dancing Squared — a beginner's book for Mainstream Square Dancing. Written from the CALLERLAB
 Mainstream Dance Program Definitions, revised 29 March 2026, and the CALLERLAB Plus Program
 Definitions, revised 25 August 2026. Definitions quoted with permission; see
-<a href="${rel}08-reference/sources-and-attribution.html">sources and attribution</a>.</p>
+<a href="${rel}08-reference/sources-and-attribution.html">sources and attribution</a>. <span class="stamp" title="The content hash of this build. The offline cache is keyed to the same value.">[${BUILD_TOKEN}]</span></p>
 </footer>
 </article>
 </main>${script}
@@ -971,6 +996,30 @@ export function main() {
 
   // ---- verify the site rather than assume it: every internal link and image must resolve
   const problems = [];
+
+  // ---- stamp every page footer with the short hash of the build
+  //
+  // This runs AFTER the cache version above, deliberately: that version is the hash of the pages as they
+  // were written, still carrying the token, so the stamp a reader sees is not part of its own hash and a
+  // rebuild of unchanged content stamps the same value every time. Stamping before the link check means
+  // the verified site is the site that ships.
+  const buildHash = version.replace(/^v/, '');
+  const stamp = buildHash.slice(0, BUILD_SHORT);
+  // The stamp must actually land. A page rendered without the token would keep a placeholder where the
+  // hash belongs and nothing else here would notice, which is the silent-failure shape this file is
+  // built to refuse.
+  let stamped = 0;
+  for (const page of pages) {
+    const file = join(SITE, page.path.replace(/\.md$/, '.html'));
+    const html = readFileSync(file, 'utf8');
+    if (!html.includes(BUILD_TOKEN)) {
+      problems.push(`${page.path.replace(/\.md$/, '.html')}: footer carries no build stamp token`);
+      continue;
+    }
+    writeFileSync(file, html.replaceAll(BUILD_TOKEN, stamp), 'utf8');
+    stamped++;
+  }
+
   let checked = 0;
   const walk = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -1034,6 +1083,9 @@ export function main() {
     return 1;
   }
   console.log('every link and image in the site resolves.');
+  // The build ends by naming itself. Everything above is about the content; this is the one line that
+  // answers "which build is deployed?", and it is the same string stamped into the page footers.
+  console.log(`build ${stamp} -- in every page footer (${stamped} pages), and the offline cache version (${version}).`);
   return 0;
 }
 

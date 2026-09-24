@@ -5106,3 +5106,83 @@ failures appear at HEAD engine + HEAD harness. All four read `poc/src/assets/ms/
 re-authored (`3781730`, `67e9ab9`, and an in-flight edit). Deciding whether the committed or the dirty asset is
 responsible would mean temporarily stashing somebody else's uncommitted file, which was deliberately not done.
 They are the book work's to re-pin.
+
+### A REVERT BUTTON THAT PUTS BACK THE LAST 50 CHANGES (BUILT AND GATED)
+
+Asked for: "Add a revert feature to the poc call editor so I can undo the last 50 UI changes."
+
+**ONE PLACE PUSHES THE SNAPSHOT, BECAUSE THERE ARE EIGHT WAYS TO EDIT AND ONE WAY TO DRAW THEM.** The tile's
+fields, the four kinds of drag, the tabs, the `explicit` and `arc` toggles and the run-circle edit all end in
+`renderInstance`, so `noteState()` is called at the END of that one method. It keys on `stateKey()` - the instance
+and its flags, NOT the selected move or the visible tab - so a snapshot pushed by each editing path could not
+have missed whichever path was added next, and merely CLICKING a tile does not push a step, because that is not a
+change to the call. Snapshots hold the bundle BY REFERENCE, which is safe because every engine operation returns a
+new bundle rather than mutating one: MEASURED, 61 retained states are byte-identical after 60 later editor
+operations. A DRAG IS ONE STEP, not one per pointer move, because only the pointerup renders. `clearUndo()` runs
+in `loadInstance`, and `doRevert()` calls `resetNoteState()` BEFORE it renders so it cannot push its own undo.
+Ctrl/Cmd+Z is wired and is ignored while an `input`, `textarea`, `select` or `contentEditable` holds focus.
+NOT COVERED, deliberately: the saved-edit list, the mode, the level, and the Start/End setup selects - those are
+commands and settings rather than edits to the call. `poc/tools/revert-probe.mjs` is the gate: the retained-state
+sweep, the walk back to the 50 cap, and the structural pins on the wiring.
+
+### THE SINGLE `<tam>` EXPORT IS NOT WRAPPED IN `<calls>` (BUILT AND GATED)
+
+Asked for: "When exporting an individual tam from the POC - Call Editor, there is no need to wrap it in the
+`<calls>` element". One `<tam>` is already a whole file, and the `<calls>` wrapper belongs to the multi-call
+export that writes several of them, so `doExport` writes the stamp and that one element. `export-all-probe.mjs`
+pins both halves: the unwrapped text parses as its own document, and the multi-call path still groups.
+
+### THE CURVE'S NUMBERS, RELATIVE AND ABSOLUTE, ON ONE ROW EACH (BUILT AND GATED)
+
+Asked for: "display absolute coordinates alongside the existing relative coordinates. Both can be edited,
+updating the other." Then, on seeing the first cut: "Its inserted a lot of unnecessary text. Put the absolute
+coordinates to the right or the relative ones. Add a simple heading to make it clear what they are. No need to
+have increment decrement controls", and "remove this text too: cyan curve: ...".
+
+**THE TWO SETS ARE ONE POINT SEEN FROM TWO PLACES, AND NEITHER IS A READOUT OF THE OTHER.** The local numbers are
+the tangent-space description the FORMAT stores - measured from the dancer when the move begins, `+X` along their
+own facing - and the absolute pair is where that same point sits on the floor. The map between them is an
+ISOMETRY, so placing a point and reading it back is the identity and an edit made in either set is exact in the
+other. MEASURED over 1364 moves in 62 calls, 498 of them in a TURNED frame where the two pairs genuinely differ:
+the local origin is the pose `poseFor` starts the move from to 0.0e+0 units, the local endpoint is the pose it
+ends at to 1.6e-15, and a board edit round-trips through the relative pair to 9.5e-16, with 30 of 60 edits moving
+BOTH local numbers.
+
+**ONE MAP, THREE CALLERS.** `localToFloor` / `floorToLocal` are module-level, and the DRAWN handles, the DRAG
+that reads a pointer off the board, and these fields all go through them. They were two copies of the same
+rotation before; a drag and a field that disagreed about the frame would move a point somewhere neither of them
+named.
+
+**LAYOUT, ASKED FOR TWICE, AND THE SECOND TIME IS THE ONE THAT SHIPPED.** The first cut printed a paragraph and
+then a second block of six fields below the relative ones. The request was to have the pairs read ACROSS under a
+simple heading, with no spinner arrows and none of the prose. So each coordinate is now ONE ROW of a three-cell
+grid - the field's name in the XML's own words, the relative field, the absolute field - under a two-word heading
+`relative | absolute`, and what the prose was for is on the two headings' and the fields' `title`s. Both inputs
+in the table carry `.no-step`, which hides the number spinner in both engines (`appearance: textfield` plus the
+`::-webkit-outer/inner-spin-button` pair); `step` is still set, so the arrow keys and the wheel still nudge.
+The facing tab's long `cyan curve:` paragraph was removed for the same reason, and what a caller actually needed
+from it is on the fields and in the panel's existing notes.
+
+**A GROUP EDIT KEEPS THE SHAPE, NOT THE SPOT.** The frame is the SHOWN dancer's, and the local value a board
+number converts to is what every SELECTED dancer receives - exactly the drag's rule, so both ways of moving a
+point do the same thing to a selection rather than there being a second, quieter rule.
+
+**THE ONE RAIL IS A NUMBER, NOT A ROW.** `tamination.dtd` declares the rotate as `cx3, cx4, cy4, x4, y4` and
+there is no `cy3`, so the facing curve's first control has no local Y to pair with and its board Y is a readout.
+It is locked PER AXIS. The first cut locked the whole row, which would have taken away the edit of `cx3` that the
+panel has always allowed - the Y is what the format cannot carry, not the point. Both gates still apply to both
+columns: the group-agreement gate, because one set of numbers cannot describe several shapes, and the arc lock,
+because a quarter arc's five numbers are not independent.
+
+**CHECKED IN THE REAL PANEL, NOT ONLY IN THE PROBE.** The built POC was loaded and driven in a browser. On the
+Move tab the table reads `cx1 [0.0000][3.0000]`, `cy1 [0][-0.5]`, `cx2 [1.0000][2.5000]`, `cy2 [0.5][-1]`,
+`x2 [1.75][2]`, `y2 [0.5][-1]`. Setting the ABSOLUTE `C1x` to `1` and committing fired `change`, the panel
+re-rendered as `edited` with Revert armed, and the RELATIVE `cx1` came back `2.5` - which is `1 - (-1.5)`, the
+frame of a dancer starting at `(-1.5, -1)` facing 0. On the Facing tab the same table labels its rows `cx3`, `—`,
+`cx4`, `cy4`, `x4`, `y4`: the `—` row's absolute field is DISABLED and carries the rail reason, and `cx3`'s pair
+is live in both columns. `absolute-coords-probe.mjs` is the gate - the engine-frame cross-check, the round-trip
+identity, and the structural pins on the layout, the single map, the rail, and the hidden spinners.
+
+**THIS WORK ALSO FIXED DRIFT IN THIS FILE.** The Revert button and the `<tam>` unwrapping each shipped without a
+section here, because PLAN.md is written at the end of a piece and those two were committed straight after the
+facing work. Both are written up above, from the commits rather than from memory.

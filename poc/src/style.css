@@ -122,6 +122,25 @@ html, body {
    is a nowrap row by default, and six controls in one group (the circle row: label, two fields, two buttons)
    was a row that could not break - the make-circle button fell off the end of the panel. */
 .ed-grid .ed-group { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+/* THE CURVE'S NUMBERS, RELATIVE AND ABSOLUTE, ON ONE ROW EACH. Three cells - the coordinate's name, the
+   field the FORMAT stores, and the same point on the floor - under a two-word heading, so the second set
+   reads ACROSS from the first instead of arriving as a block of its own below it. It takes a whole line of
+   the wrapping grid, because it is a table and not another field. */
+.ed-grid .ed-coords { flex: 0 0 100%; width: 100%; display: flex; flex-direction: column; gap: 3px; }
+.ed-grid .ed-coords-head, .ed-grid .ed-coords-row { display: grid; grid-template-columns: 26px 1fr 1fr; gap: 4px; align-items: center; }
+.ed-grid .ed-coords-head span { color: var(--dim); font-size: 10px; }
+.ed-grid .ed-coords-row label { color: var(--dim); }
+/* The 72px above is sized for a spinner too; these fields have none and they SHARE the row, so they take a
+   share of it instead. `min-width: 0` so the grid cell is actually allowed to be narrower than the digits. */
+.ed-grid .ed-coords input[type="number"] { width: 100%; min-width: 0; box-sizing: border-box; padding: 2px 3px; font-size: 11px; }
+/* NO SPINNERS. Asked for: a coordinate is typed or dragged, and the up/down arrows are two targets beside
+   every number taking the width the fourth decimal needs. `step` is still set, so the arrow keys still
+   nudge the value. */
+.ed-grid .ed-coords input.no-step { -moz-appearance: textfield; appearance: textfield; }
+.ed-grid .ed-coords input.no-step::-webkit-outer-spin-button,
+.ed-grid .ed-coords input.no-step::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+/* The cell for a coordinate the row does not have - the facing curve has no cy3. */
+.ed-grid .ed-coords .ed-coord-none { color: var(--dim); text-align: center; }
 /* The moves strip: every move of the chosen track in order, so the whole path is visible at
    once. The CURRENT move is tripled in width and carries its numbers; the rest are compact
    tiles that select on click - which is also what moves the track highlight.

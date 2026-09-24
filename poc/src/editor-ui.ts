@@ -384,6 +384,56 @@ interface EditorSnapshot {
 /** How many changes the editor can put back. Asked for as "the last 50 UI changes". */
 const UNDO_LIMIT = 50;
 
+/**
+ * A MOVE'S OWN FRAME: where the dancer stands when the move begins, and which way they face. The origin of
+ * the curve's local coordinates, and `+X` is the facing there - see `BezierData`.
+ */
+interface MoveFrame {
+  x: number;
+  y: number;
+  heading: number;
+}
+
+/** A point of a move's curve, in BOARD coordinates. */
+const localToFloor = (f: MoveFrame, lx: number, ly: number): { x: number; y: number } => ({
+  x: f.x + Math.cos(f.heading) * lx - Math.sin(f.heading) * ly,
+  y: f.y + Math.sin(f.heading) * lx + Math.cos(f.heading) * ly,
+});
+
+/**
+ * THE INVERSE, and it is an isometry - so placing a point and reading it back is the identity, and an edit
+ * made in either set of coordinates is exact in the other.
+ *
+ * ONE DEFINITION, because three things need it: the handles that are DRAWN on the board, the drag that
+ * reads a pointer off it, and the tile's board-coordinate fields. They were two copies of the same rotation
+ * before this (a note in `facing-handle-probe.mjs` says so, and says it is the reason the drag rules are not
+ * under test), and a drag and a field that disagreed about the frame would move a point somewhere neither
+ * of them named.
+ */
+const floorToLocal = (f: MoveFrame, x: number, y: number): { lx: number; ly: number } => {
+  const dx = x - f.x;
+  const dy = y - f.y;
+  return {
+    lx: Math.cos(f.heading) * dx + Math.sin(f.heading) * dy,
+    ly: -Math.sin(f.heading) * dx + Math.cos(f.heading) * dy,
+  };
+};
+
+/**
+ * THE THREE POINTS A CURVE IS DRAWN FROM, and the local fields each one owns.
+ *
+ * P0 is the dancer's own spot at the move's start and is not a handle, so the points are the two controls
+ * and the endpoint - the vocabulary the panel, the probes and the engine's own comments already use.
+ * `ly` is null for a point whose Y the FORMAT CANNOT CARRY, which is the first control of a FACING curve:
+ * `tamination.dtd` declares the rotate as `cx3, cx4, cy4, x4, y4`, there is no `cy3`, so that point is
+ * pinned to the dancer's forward axis and its board pair is a readout rather than an edit.
+ */
+const CURVE_POINTS: { point: string; lx: 'cx1' | 'cx2' | 'x2'; ly: 'cy1' | 'cy2' | 'y2' | null }[] = [
+  { point: 'C1', lx: 'cx1', ly: 'cy1' },
+  { point: 'C2', lx: 'cx2', ly: 'cy2' },
+  { point: 'P3', lx: 'x2', ly: 'y2' },
+];
+
 export class EditorController implements EditorUI {
   private stage: Stage;
   private host: EditorHost;
@@ -1422,10 +1472,7 @@ export class EditorController implements EditorUI {
     }
     const range = moveBeatRange(dancer, this.moveIndex);
     const p0 = poseFor(dancer, range.from);
-    const world = (lx: number, ly: number) => ({
-      x: p0.x + Math.cos(p0.heading) * lx - Math.sin(p0.heading) * ly,
-      y: p0.y + Math.sin(p0.heading) * lx + Math.cos(p0.heading) * ly,
-    });
+    const world = (lx: number, ly: number) => localToFloor(p0, lx, ly);
     const handles: HandleSpec[] = [];
 
     if (this.moveKind === 'facing') {
@@ -1685,11 +1732,7 @@ export class EditorController implements EditorUI {
     const snapped = snap ? { x: snapTo(board.x), y: snapTo(board.y) } : board;
     // The INVERSE of the placement in `renderHandles`: the pointer's floor point -> the LOCAL frame
     // of the move as the DRAGGED dancer performs it.
-    const dx = snapped.x - p0.x;
-    const dy = snapped.y - p0.y;
-    const h = p0.heading;
-    const lx = Math.cos(h) * dx + Math.sin(h) * dy;
-    const ly = -Math.sin(h) * dx + Math.cos(h) * dy;
+    const { lx, ly } = floorToLocal(p0, snapped.x, snapped.y);
 
     // THE ARC'S CENTRE IS NOT A COORDINATE EDIT: it swings the whole curve AND re-aims the previous move's
     // exit, so it cannot go through the per-move patch chain below - that writes ONE move of every selected
@@ -1816,6 +1859,16 @@ export class EditorController implements EditorUI {
     for (const key of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2'] as const) values.push([`m${i}:${k}:t.${key}`, seg.translate[key]]);
     if (seg.rotate) for (const key of ['cx1', 'cx2', 'cy2', 'x2', 'y2'] as const) values.push([`m${i}:${k}:r.${key}`, seg.rotate[key]]);
     values.push([`m${i}:${k}:beats`, seg.beats]);
+    // AND THE BOARD PAIR, which moves with them: a drag rewrites the local numbers on every pointer move,
+    // so a floor readout that waited for the pointer to come up would be describing the previous frame.
+    const frame = poseFor(call.dancers[i], moveBeatRange(call.dancers[i], k).from);
+    const displayed = this.moveKind === 'facing' ? seg.rotate : seg.translate;
+    if (displayed) {
+      for (const p of CURVE_POINTS) {
+        const at = localToFloor(frame, displayed[p.lx], p.ly ? displayed[p.ly] : 0);
+        values.push([`m${i}:${k}:a.${p.point}x`, at.x], [`m${i}:${k}:a.${p.point}y`, at.y]);
+      }
+    }
     for (const [key, v] of values) {
       const el = this.instPanel.querySelector<HTMLInputElement>(`input[data-key="${key}"]`);
       if (el && el !== document.activeElement) el.value = show(v);
@@ -2600,83 +2653,155 @@ export class EditorController implements EditorUI {
     const blocker: ArcBlocker | null = cur ? arcBlocker(cur, allowBackwards) : 'no-handle-length';
     const arcParams = this.arcOn && cur ? (arcOf(cur) ?? projectToArc(cur, allowBackwards)) : null;
 
-    if (this.moveKind === 'facing' && seg.rotate) {
-      const r = seg.rotate;
-      const rKeys: [keyof typeof r, string, number][] = [
-        ['cx1', 'cx3', 0.25],
-        ['cx2', 'cx4', 0.25],
-        ['cy2', 'cy4', 0.25],
-        ['x2', 'x4', 0.25],
-        ['y2', 'y4', 0.25],
-      ];
-      for (const [key, label, step] of rKeys) {
-        // From the DANCER'S OWN rotate curve (or its translation, when it has none yet) - so the
-        // same field means the same thing on every selected dancer without copying one dancer's
-        // other control points onto the rest.
-        //
-        // THE LABEL IS THE XML ATTRIBUTE ALONE - `cx3`, not `r.cx3`. Only one curve's fields are ever on
-        // screen (the tab selects which), so the prefix said nothing the tab had not already said, and it
-        // cost the row the width a second field needed.
-        grid.appendChild(
-          this.field(
-            `m${i}:${k}:r.${key}`,
-            label,
-            r[key],
-            step,
-            (v) => write((s) => ({ ...s, rotate: { ...(s.rotate ?? s.translate), [key]: v } }), `r.${key}`, 'facing'),
-            // LOCKED BY EITHER GATE, and the two read the same on purpose: the group gate locks the
-            // fields because one set of numbers cannot describe several shapes, and the ARC locks them
-            // because the five numbers are no longer independent - they follow from the two lengths.
-            !coordsOk || this.arcOn,
-          ),
-        );
-      }
-      // THE CURVE IS THE POINT OF THIS TAB, and the tile says what it means rather than leaving the
-      // reader to guess why a second cyan shape is on the board: the facing curve is read with
-      // `bezierAngle`, so the DIRECTION of the curve at each point is the heading the dancer has at
-      // that instant. Its length means nothing - scaling the whole curve leaves every tangent, and so
-      // every facing, exactly as it was.
-      const note = document.createElement('div');
-      note.className = 'small';
-      note.textContent =
-        'cyan curve: the facing Bezier itself, drawn from the dancer\'s spot at the move\'s start, with its own control points as the draggable dots. The DIRECTION of the curve at a point is the heading the dancer has there - the same headings as the cyan ticks on the amber trail - not its distance from the dancer. r1 slides on the dancer\'s forward axis (the format has no cy3), r2 and r3 are free, and r3 sets the heading the move ends on. THAT HEADING IS THE FRAME THE NEXT MOVE IS PLAYED IN, as the format composes a dancer\'s moves, so turning it turns every later heading of the call AND SWINGS THE REST OF THE TRACE ROUND THE FLOOR - which is what the move means, not a drawing error: the end formation turns with it.';
-      grid.appendChild(note);
-    } else {
-      grid.appendChild(this.field(`m${i}:${k}:beats`, 'beats', seg.beats, 0.5, (v) => write((s) => ({ ...s, beats: v }), 'beats')));
+    // ---- THE CURVE'S NUMBERS: RELATIVE AND ABSOLUTE, ONE ROW PER COORDINATE --
+    //
+    // Asked for: "display absolute coordinates alongside the existing relative coordinates. Both can be
+    // edited, updating the other."
+    //
+    // THE TWO SETS ARE ONE POINT SEEN FROM TWO PLACES, and the round trip is an isometry, so neither is a
+    // derived readout of the other - edit either and the other follows exactly. The RELATIVE number is the
+    // tangent-space description the FORMAT stores, measured from the dancer when the move begins with +X
+    // along their own facing; the ABSOLUTE pair is where that same point sits on the floor. ONE ROW PER
+    // COORDINATE, so the pair reads across instead of the second set arriving as a block of its own.
+    //
+    // WHAT AN ABSOLUTE EDIT MEANS FOR A GROUP. The frame is the SHOWN dancer's, so the numbers are theirs -
+    // and the relative value they convert to is what every selected dancer receives, which is exactly the
+    // drag's rule: everyone lands on the same SHAPE rather than on the same spot (`applyHandleDrag`). One
+    // rule for both ways of moving a point, rather than a second, quieter one.
+    {
+      // `facing` is the BRANCH, not the tab: a move with no rotation curve has no facing shape to show and
+      // the tab that would open on it is disabled, so a stale `moveKind` falls back to the path - as it did
+      // when these were two blocks.
+      const facing = this.moveKind === 'facing' && !!seg.rotate;
+      const shown = facing ? seg.rotate : seg.translate;
+      const dancer = this.instance?.dancers[i];
+      // WHERE THE ABSOLUTE PAIR IS READ: the pose the shown dancer starts the move from. Doubt about the
+      // dancer costs the second column and never the first - the relative fields are the format's own
+      // numbers and need no frame at all.
+      const frame = dancer && shown ? poseFor(dancer, moveBeatRange(dancer, k).from) : null;
 
-      const hands = document.createElement('span');
-      hands.className = 'ed-group';
-      const hl = document.createElement('label');
-      hl.textContent = 'hands';
-      const hsel = document.createElement('select');
-      hsel.dataset.key = `m${i}:${k}:hands`;
-      for (const h of HANDS) hsel.add(new Option(h, h, false, h === seg.hands));
-      hsel.addEventListener('change', () => write((s) => ({ ...s, hands: hsel.value as Hands }), 'hands'));
-      hands.append(hl, hsel);
-      grid.appendChild(hands);
+      // THE RELATIVE FIELD BEHIND EACH ABSOLUTE ONE. The two names differ because the XML's do: a facing
+      // curve's first control is `cx3` where the path's is `cx1`. It is `null` where the FORMAT CANNOT CARRY
+      // the coordinate at all - `tamination.dtd` declares the rotate as `cx3, cx4, cy4, x4, y4`, so there is
+      // no `cy3` - and that row has no relative field to sit beside its absolute pair.
+      type Slot = 'cx1' | 'cy1' | 'cx2' | 'cy2' | 'x2' | 'y2';
+      const relative: Record<string, { key: Slot; label: string } | null> = facing
+        ? { C1x: { key: 'cx1', label: 'cx3' }, C1y: null, C2x: { key: 'cx2', label: 'cx4' }, C2y: { key: 'cy2', label: 'cy4' }, P3x: { key: 'x2', label: 'x4' }, P3y: { key: 'y2', label: 'y4' } }
+        : { C1x: { key: 'cx1', label: 'cx1' }, C1y: { key: 'cy1', label: 'cy1' }, C2x: { key: 'cx2', label: 'cx2' }, C2y: { key: 'cy2', label: 'cy2' }, P3x: { key: 'x2', label: 'x2' }, P3y: { key: 'y2', label: 'y2' } };
+      const relLocked = !coordsOk || this.arcOn;
+      const REL_HINT = 'in the DANCER\'s own frame when the move begins: +X is the way they face';
+      const ABS_HINT = 'the same point on the FLOOR - edit either column and the other follows';
 
-      const tKeys: [keyof typeof t, string, number][] = [
-        ['cx1', 'cx1', 0.25],
-        ['cy1', 'cy1', 0.25],
-        ['cx2', 'cx2', 0.25],
-        ['cy2', 'cy2', 0.25],
-        ['x2', 'x2', 0.25],
-        ['y2', 'y2', 0.25],
-      ];
-      for (const [key, label, step] of tKeys) {
-        // The bare coordinate name, for the same reason as the facing fields above: the tab already
-        // says which curve these belong to, and the width is what the numbers need.
-        grid.appendChild(
-          this.field(
-            `m${i}:${k}:t.${key}`,
-            label,
-            t[key],
-            step,
-            (v) => write((s) => ({ ...s, translate: { ...s.translate, [key]: v } }), `t.${key}`, 'travel'),
-            !coordsOk || this.arcOn,
-          ),
-        );
+      const table = document.createElement('div');
+      table.className = 'ed-coords';
+      const heading = document.createElement('div');
+      heading.className = 'ed-coords-head';
+      const hRel = document.createElement('span');
+      hRel.textContent = 'relative';
+      hRel.title = REL_HINT;
+      const hAbs = document.createElement('span');
+      hAbs.textContent = 'absolute';
+      hAbs.title = ABS_HINT;
+      heading.append(document.createElement('span'), hRel, hAbs);
+      table.appendChild(heading);
+
+      // A DASH RATHER THAN A DEAD FIELD, where there is no such number to show at all.
+      const none = (title?: string) => {
+        const g = document.createElement('span');
+        g.className = 'ed-coord-none';
+        g.textContent = '\u2014';
+        if (title) g.title = title;
+        return g;
+      };
+
+      for (const p of CURVE_POINTS) {
+        // THE FACING CURVE'S FIRST CONTROL IS ON THE RAIL: the format has no `cy3`, so its Y is 0 by
+        // construction and its absolute pair is a readout of where that dot sits rather than a second way
+        // to move it.
+        const railedY = facing && p.ly === 'cy1';
+        const lyKey = railedY ? null : p.ly;
+        const lx = shown ? (shown[p.lx] as number) : 0;
+        const ly = lyKey && shown ? (shown[lyKey] as number) : 0;
+        const at = frame ? localToFloor(frame, lx, ly) : null;
+        for (const axis of ['x', 'y'] as const) {
+          // THE RAIL IS THE POINT'S *Y*, NOT THE POINT. The format has no `cy3`, so that one number is a
+          // readout - but the first control's X IS carried (`cx3`, named in the DTD's own list) and the panel
+          // let it be edited long before this table existed. Locking the whole row would take that away.
+          const railedAxis = railedY && axis === 'y';
+          const point = `${p.point}${axis}`;
+          const rel = relative[point];
+          const row = document.createElement('div');
+          row.className = 'ed-coords-row';
+          const name = document.createElement('label');
+          name.textContent = rel ? rel.label : '\u2014';
+          if (!rel) name.title = 'the format has no cy3: this control of a facing curve is pinned to the dancer\'s forward axis';
+          row.appendChild(name);
+
+          // ---- the RELATIVE field: the number the FORMAT stores
+          if (rel && shown) {
+            row.appendChild(
+              this.numberInput(
+                facing ? `m${i}:${k}:r.${rel.key}` : `m${i}:${k}:t.${rel.key}`,
+                shown[rel.key] as number,
+                0.25,
+                (v) => write(
+                  (s) => (facing
+                    ? { ...s, rotate: { ...(s.rotate ?? s.translate), [rel.key]: v } }
+                    : { ...s, translate: { ...s.translate, [rel.key]: v } }),
+                  facing ? `r.${rel.key}` : `t.${rel.key}`,
+                  facing ? 'facing' : 'travel',
+                ),
+                // LOCKED BY EITHER GATE, and the two read the same on purpose: the group gate locks the
+                // fields because one set of numbers cannot describe several shapes, and the ARC locks them
+                // because the five numbers are no longer independent - they follow from the two lengths.
+                relLocked,
+                relLocked ? undefined : REL_HINT,
+                true,
+              ),
+            );
+          } else {
+            row.appendChild(none(rel ? 'no dancer is selected, so there is no frame to read this in' : 'the format carries no cy3 for this control'));
+          }
+
+          // ---- the ABSOLUTE field: the same point on the floor
+          if (at) {
+            const key = `m${i}:${k}:a.${point}`;
+            row.appendChild(
+              this.numberInput(
+                key,
+                axis === 'x' ? at.x : at.y,
+                0.25,
+                (v) => {
+                  // THE OTHER AXIS IS WHATEVER IT IS NOW, so naming an X does not silently reset the Y - and
+                  // on the railed point there is no other LOCAL axis to keep: the format's own zero for the Y
+                  // is left where it is and only `lx` is written.
+                  if (railedAxis) return;
+                  const want = axis === 'x' ? { x: v, y: at.y } : { x: at.x, y: v };
+                  const local = floorToLocal(frame as MoveFrame, want.x, want.y);
+                  write((s) => {
+                    const c = facing ? s.rotate : s.translate;
+                    if (!c) return s;
+                    const next = lyKey ? { ...c, [p.lx]: local.lx, [lyKey]: local.ly } : { ...c, [p.lx]: local.lx };
+                    return facing ? { ...s, rotate: next } : { ...s, translate: next };
+                  }, key, facing ? 'facing' : 'travel');
+                },
+                // LOCKED BY THE SAME TWO GATES as the field beside it - one set of numbers cannot describe
+                // several shapes, and an arc's five numbers are not independent - plus the rail, which is
+                // the format's own constraint rather than this gadget's choice.
+                relLocked || railedAxis,
+                railedAxis
+                  ? 'this control is pinned to the dancer\'s forward axis - the format has no cy3 - so its board position is a readout rather than an edit. Drag the dot, or edit cx3 above.'
+                  : relLocked ? undefined : ABS_HINT,
+                true,
+              ),
+            );
+          } else {
+            row.appendChild(none());
+          }
+          table.appendChild(row);
+        }
       }
+      grid.appendChild(table);
     }
 
     if (!coordsOk) {
@@ -3032,31 +3157,49 @@ export class EditorController implements EditorUI {
     return tile;
   }
 
-  private field(key: string, label: string, value: number, step: number, onCommit: (v: number) => void, locked = false): HTMLSpanElement {
+  private field(key: string, label: string, value: number, step: number, onCommit: (v: number) => void, locked = false, lockReason?: string): HTMLSpanElement {
     const wrap = document.createElement('span');
     wrap.className = 'ed-group';
     const l = document.createElement('label');
     l.textContent = label;
+    const input = this.numberInput(key, value, step, onCommit, locked, lockReason);
+    if (locked) wrap.classList.add('locked');
+    wrap.appendChild(l);
+    wrap.appendChild(input);
+    return wrap;
+  }
+
+  /**
+   * ONE NUMBER FIELD, and the only place an input of this kind is built: `field` wraps it in a
+   * label-and-input group for the panels, and the coordinate table puts it in a row of its own.
+   *
+   * `noStep` HIDES THE SPINNER. Asked for: a coordinate is typed or dragged, and the little up/down arrows
+   * are two targets beside every number that take the width the fourth decimal needs. The `step` is still
+   * set, so the arrow keys and the wheel still nudge the value.
+   */
+  private numberInput(key: string, value: number, step: number, onCommit: (v: number) => void, locked = false, reason?: string, noStep = false): HTMLInputElement {
     const input = document.createElement('input');
     input.type = 'number';
     input.step = String(step);
     input.value = show(value);
     input.dataset.key = key;
+    if (noStep) input.classList.add('no-step');
     if (locked) {
       // LOCKED, NOT HIDDEN. The value shown is the first selected dancer's, so it stays readable - and
       // the reason it cannot be edited is what the caller needs to know, not that the field is gone.
       input.disabled = true;
-      input.title = 'the selected dancers differ here, and one field cannot describe several shapes - select one dancer, or make them agree';
-      wrap.classList.add('locked');
+      input.title = reason ?? 'the selected dancers differ here, and one field cannot describe several shapes - select one dancer, or make them agree';
+    } else if (reason) {
+      // A HINT ON A LIVE FIELD, which the coordinate table uses to say what the two columns are without
+      // printing a paragraph above them.
+      input.title = reason;
     }
     input.addEventListener('change', () => {
       const v = parseFloat(input.value);
       if (!Number.isFinite(v)) this.renderInstance();
       else onCommit(v);
     });
-    wrap.appendChild(l);
-    wrap.appendChild(input);
-    return wrap;
+    return input;
   }
 
   // =================================================================== fix / create

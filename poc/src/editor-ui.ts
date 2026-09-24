@@ -352,6 +352,38 @@ function sampleBezier(b: BezierData, segments = CURVE_SEGMENTS): { x: number; y:
   return pts;
 }
 
+/**
+ * ONE STEP OF THE EDITOR'S OWN HISTORY: everything a change to the instance can move, so the last 50 of them
+ * can be put back.
+ *
+ * WHAT IS IN IT, AND WHY ONLY THIS. A change writes `this.instance` and sometimes the flags that go with it -
+ * a re-based START carries the end pairing, a circle run carries its parameters, a clone carries `asClone`.
+ * Those are the things an undo has to put back or the panel would show a state the data is not in. What is NOT
+ * in it is a deliberate line: the SAVED EDIT LIST (a global list of edits applied to the catalogue, not a
+ * change to the call on screen), the mode, and the level - undoing a move should not silently switch tabs.
+ *
+ * THE INSTANCE IS RETAINED BY REFERENCE, not copied, and that is safe rather than optimistic: every editor
+ * operation in the engine RETURNS a new bundle (`setMove` maps to new arrays and new dancers) and never writes
+ * through the one it was given, so a snapshot cannot be changed by anything that happens afterwards. It is
+ * also what makes 50 of them cheap: the snapshots share all the structure they have not touched.
+ */
+interface EditorSnapshot {
+  instance: CallBundle | null;
+  instanceEdited: boolean;
+  asClone: boolean;
+  endTarget: { name: string; poses: FormDancer[] } | null;
+  endOverride: number[] | null;
+  circleTo: number | null;
+  circleRadius: number | null;
+  circleCentre: { x: number; y: number } | null;
+  circleSide: 1 | -1;
+  moveIndex: number;
+  selected: number[];
+}
+
+/** How many changes the editor can put back. Asked for as "the last 50 UI changes". */
+const UNDO_LIMIT = 50;
+
 export class EditorController implements EditorUI {
   private stage: Stage;
   private host: EditorHost;
@@ -425,6 +457,20 @@ export class EditorController implements EditorUI {
   /** The `asymmetric` selector, and the line that says what the export will ACTUALLY do with it. */
   private asymCb = el<HTMLInputElement>('edAsym');
   private asymInfoEl = el<HTMLSpanElement>('edAsymInfo');
+  private revertBtn = el<HTMLButtonElement>('edRevert');
+
+  /**
+   * THE LAST 50 CHANGES, newest last, each holding the state as it was BEFORE that change.
+   *
+   * PUSHED BY THE CHANGE, NOT BY THE GESTURE THAT CAUSES IT. `commit` is the discrete path - every field, every
+   * select, every button - and `applyLight` is the drag path, where a single gesture fires once per pointer
+   * move. So the drag pushes ONCE, on its first move (`dragPushed`), and a fifty-move drag costs one step
+   * rather than filling the history with the frames of one gesture.
+   */
+  private undoStack: EditorSnapshot[] = [];
+  /** The state the last render left behind, and its key. See `noteState`. */
+  private lastSnapshot: EditorSnapshot | null = null;
+  private lastKey: unknown[] | null = null;
 
   private catalog = availableCalls();
   private saved: CallEdit[] = loadEdits();
@@ -757,6 +803,9 @@ export class EditorController implements EditorUI {
     this.ensureStartFormations();
     try {
       // `source` is the REFERENCE TRACK: what a clone re-bases away from and reconnects to.
+      // A NEW CALL HAS NO HISTORY: the steps in the stack describe a different call, so putting one back
+      // would swap the instance out from under the lists that name it.
+      this.clearUndo();
       this.source = normalizeInstance(loadCall(id, tam, true));
       this.instance = this.source;
       this.instanceEdited = false;
@@ -1788,6 +1837,129 @@ export class EditorController implements EditorUI {
     this.renderInstance(focusKey);
   }
 
+  /** The state a change is about to replace. See `EditorSnapshot`. */
+  private snapshot(): EditorSnapshot {
+    return {
+      instance: this.instance,
+      instanceEdited: this.instanceEdited,
+      asClone: this.asClone,
+      endTarget: this.endTarget,
+      endOverride: this.endOverride,
+      circleTo: this.circleTo,
+      circleRadius: this.circleRadius,
+      circleCentre: this.circleCentre,
+      circleSide: this.circleSide,
+      moveIndex: this.moveIndex,
+      selected: this.selectedSorted(),
+    };
+  }
+
+  /**
+   * WHAT COUNTS AS A CHANGE, as the values a change moves. Deliberately NOT the move index or the selection:
+   * those are where the caller is LOOKING, and stepping through moves does not put a step in the history.
+   * They are still captured by `snapshot`, so an undo puts the caller back on the move it changed.
+   */
+  private stateKey(): unknown[] {
+    return [
+      this.instance, this.instanceEdited, this.asClone,
+      this.endTarget, this.endOverride,
+      this.circleTo, this.circleRadius, this.circleCentre, this.circleSide,
+    ];
+  }
+
+  /**
+   * TAKE A STEP IF THE STATE HAS MOVED, called by the render that follows a change.
+   *
+   * ONE PLACE, SO NONE CAN BE MISSED. Every edit in this panel - a field, a select, a button, a re-base, a
+   * connect, the end pairing, a drag when it finishes - ends in `renderInstance`, and the edits that do NOT
+   * go through `commit` (there are eight of those) would each have needed their own push. Keyed on the state
+   * instead, a change is recorded because it HAPPENED rather than because whoever wrote the handler
+   * remembered to say so.
+   *
+   * IT ALSO MAKES A DRAG ONE STEP. `applyLight` deliberately does not render - a pointer move must not
+   * rebuild the table - so the gesture is recorded by the ONE render at pointerup, and the snapshot pushed
+   * there is the state from before the drag began. Nothing needs to know a drag is in progress.
+   *
+   * `lastKey === null` MEANS "NO HISTORY YET", which is how a load starts a fresh one without pushing the
+   * call it replaced.
+   */
+  private noteState() {
+    const key = this.stateKey();
+    const changed = this.lastKey !== null && !key.every((v, i) => v === this.lastKey![i]);
+    if (changed && this.lastSnapshot) {
+      this.undoStack.push(this.lastSnapshot);
+      if (this.undoStack.length > UNDO_LIMIT) this.undoStack.shift();
+      this.updateRevertBtn();
+    }
+    this.lastKey = key;
+    this.lastSnapshot = this.snapshot();
+  }
+
+  /** Re-baseline without recording anything, for the states that are not a change of the caller's making. */
+  private resetNoteState() {
+    this.lastKey = this.stateKey();
+    this.lastSnapshot = this.snapshot();
+  }
+
+  /** Forget the history: a new call has been loaded, so there is nothing of it to put back. */
+  private clearUndo() {
+    this.undoStack.length = 0;
+    this.lastKey = null;
+    this.lastSnapshot = null;
+    this.updateRevertBtn();
+  }
+
+  private updateRevertBtn() {
+    const n = this.undoStack.length;
+    this.revertBtn.disabled = n === 0;
+    this.revertBtn.title = n === 0
+      ? 'Nothing to revert: every edit made in this tab has already been undone, or none has been made. Loading another call starts a fresh history.'
+      : `Put back the state before the last change (${n} of up to ${UNDO_LIMIT} step${n === 1 ? '' : 's'} available). A drag counts as ONE step, not one per pointer move.`;
+  }
+
+  /**
+   * PUT THE LAST CHANGE BACK.
+   *
+   * The instance and the flags that travel with it are restored, and the panel re-renders from them - which is
+   * the whole of it, because the editor holds no other copy of what it is editing. The MOVE INDEX is put back
+   * too (clamped to the restored path, since undoing an `addMove` shortens it) so the caller is shown the move
+   * the change was made on rather than wherever the strip happened to be left.
+   *
+   * NOTHING IS RE-APPLIED TO THE CATALOGUE and nothing is saved: this is the same class of action as Reset,
+   * which also only moves the tab's own copy. An edit already APPLIED to the live catalogue is a different
+   * thing and is undone by unapplying it, as Reset's own note says.
+   */
+  private doRevert() {
+    const previous = this.undoStack.pop();
+    if (!previous) {
+      this.updateRevertBtn();
+      this.statusEl.textContent = 'nothing to revert';
+      return;
+    }
+    this.instance = previous.instance;
+    this.instanceEdited = previous.instanceEdited;
+    this.asClone = previous.asClone;
+    this.endTarget = previous.endTarget;
+    this.endOverride = previous.endOverride;
+    this.circleTo = previous.circleTo;
+    this.circleRadius = previous.circleRadius;
+    this.circleCentre = previous.circleCentre;
+    this.circleSide = previous.circleSide;
+    this.selectedDancers = new Set(previous.selected);
+    const path = this.instance?.dancers[0]?.path.length ?? 0;
+    this.moveIndex = path > 0 ? Math.max(0, Math.min(previous.moveIndex, path - 1)) : 0;
+    this.arcKey = '';
+    if (this.instance) this.showInstance(this.instance);
+    // RE-BASELINE FIRST, so the render below does not record the undo as a change - which would make the
+    // next press put it straight back instead of walking further back.
+    this.resetNoteState();
+    this.updateRevertBtn();
+    this.renderInstance();
+    this.statusEl.textContent = this.undoStack.length === 0
+      ? 'reverted - the history is empty now'
+      : `reverted ${this.undoStack.length} change${this.undoStack.length === 1 ? '' : 's'} still to put back`;
+  }
+
   private renderInstance(focusKey?: string | null) {
     if (focusKey !== undefined) this.focusKey = focusKey;
     this.renderFormation();
@@ -1803,6 +1975,8 @@ export class EditorController implements EditorUI {
     this.renderEndTarget();
     this.refreshCloneInfo();
     this.syncStageSelection();
+    // LAST, and it must stay last: the step describes the state this render is SHOWING.
+    this.noteState();
     if (this.focusKey) {
       const el2 = this.instPanel.querySelector<HTMLElement>(`[data-key="${this.focusKey}"]`);
       el2?.focus();
@@ -3743,6 +3917,20 @@ export class EditorController implements EditorUI {
 
     // Instance editor.
     this.instResetBtn.addEventListener('click', () => this.doResetInstance());
+    this.revertBtn.addEventListener('click', () => this.doRevert());
+    this.updateRevertBtn();
+    // CTRL/CMD+Z, because that is what undo is. It is NOT taken from a field: a text or number input has its
+    // own undo, and stealing the keystroke there would replace the caller's typing history with the panel's.
+    window.addEventListener('keydown', (e) => {
+      if (!this.active || !this.isInstanceMode()) return;
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey) return;
+      if (e.key.toLowerCase() !== 'z') return;
+      const t = e.target as HTMLElement | null;
+      const tag = t?.tagName.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select' || t?.isContentEditable) return;
+      e.preventDefault();
+      this.doRevert();
+    });
     this.cloneBtn.addEventListener('click', () => this.doClone());
     this.instExportBtn.addEventListener('click', () => this.doExport());
     this.startFormationSel.addEventListener('change', () => this.doStartFormation());

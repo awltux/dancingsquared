@@ -399,6 +399,27 @@ export function rotateCurveAboutStart(b: BezierData, theta: number): BezierData 
 }
 
 /**
+ * A move's "face along travel" heading profile, written as a FACING CURVE THE FORMAT CAN CARRY.
+ *
+ * A travel curve's tangent starts at `bezierAngle(t, 0) = atan2(cy1, cx1)`, which is off the dancer's
+ * forward axis whenever the path departs at an angle - and a facing curve's FIRST control has no `y` in
+ * the format at all (`tamination.dtd` declares the rotate as `cx3, cx4, cy4, x4, y4`; `bezRotAttr` emits
+ * those five and never `sel.cy1`). So a facing curve copied straight from a travel curve - which is what
+ * `swingArcAboutStart` used to write - loses its first span the moment the file is re-read, and the corpus
+ * contains no such facing for exactly that reason (`poc/tools/facing-handle-probe.mjs` section 1 pins
+ * `cy1 === 0` over every one of them).
+ *
+ * The construction keeps BOTH ends: turn the whole curve so its start lies on the forward axis (which is
+ * what drives `cy1` to 0), then turn its exit tangent back so the heading change it ENDS on is the one it
+ * started with. The end matters more than the middle here - the heading a move ends on is the frame the
+ * next move is played in, which is the thing `swingArcAboutStart` is holding.
+ */
+function facingFromTravel(t: BezierData): BezierData {
+  const a0 = bezierAngle(t, 0);
+  return rotateCurveExit(rotateCurveAboutStart(t, -a0), a0);
+}
+
+/**
  * SWING AN ARC ABOUT ITS START POINT, KEEPING THE DANCE TANGENT-CONTINUOUS ACROSS THE JOINT.
  *
  * The caller drags the centre of a curve that is closely a circle, and the gesture is a rigid rotation of the
@@ -449,8 +470,10 @@ export function swingArcAboutStart(call: CallBundle, dancer: number, k: number, 
     ...prev,
     translate: rotateCurveExit(prev.translate, theta),
     // A facing curve only where the move had none: then its travel WAS its facing, and freezing the ORIGINAL
-    // travel curve keeps the heading change - and therefore the frame - exactly what it was.
-    rotate: original.rotate ? prev.rotate : { ...original.translate },
+    // travel curve keeps the heading change - and therefore the frame - exactly what it was. Written through
+    // `facingFromTravel` rather than as a copy, because the FIRST control of a facing curve has no `y` in
+    // the format: a copy survived only until the file was re-read, at which point its first span was gone.
+    rotate: original.rotate ? prev.rotate : facingFromTravel(original.translate),
   };
   return setMove(swung, dancer, k - 1, reaimed);
 }
@@ -498,6 +521,41 @@ export function moveCurveEnd(b: BezierData, x2: number, y2: number): BezierData 
   const dx = b.x2 - b.cx2;
   const dy = b.y2 - b.cy2;
   return { ...b, cx2: x2 - dx, cy2: y2 - dy, x2, y2 };
+}
+
+/**
+ * HOLD THE FOLLOWING TRACE: rotate every move after `k` about its own start by `-delta`, so that a facing
+ * edit at `k` changes the HEADINGS and leaves the following paths' floor placement bit-identical.
+ *
+ * WHY THIS IS NEEDED, and it is a defect of the GESTURE rather than of the format. `poseFor` places each
+ * move's local curve in the frame the move STARTS in (`m = m * translateBy(p); m = m * rotateBy(a)`), so
+ * turning the heading a move ends on by `delta` rotates every later local curve by `delta` on the floor.
+ * That is the composition working, but it means a facing drag changes the facing AND the following path by
+ * the SAME angle - so the angle between the dancer's facing and the direction they leave on is a constant
+ * of the data, and the one relationship a facing expresses is the one thing the control cannot set.
+ * MEASURED (`poc/tools/facing-chain-probe.mjs`): a 10.000deg edit to `Circle Left`'s move 2 moves every
+ * later drawn direction by 10.00deg and every later heading by 10.000deg.
+ *
+ * THE COMPENSATION IS EXACT AND IS A RIGID ROTATION. A later move's floor point is
+ * `p0 + R(theta) * local`; the edit takes `theta` to `theta + delta`, so taking `local` to `R(-delta) *
+ * local` leaves the product unchanged - same start, same shape, same floor direction, same end point. Note
+ * what is NOT touched: the `rotate` curve, so the same turnaround happens; and the frame beyond, because a
+ * later move with no facing curve has its heading contribution fall by `delta` while the incoming frame
+ * rises by `delta`, and one WITH a facing curve contributes the same as before. So no cascade is needed -
+ * one pass over the tail is the whole operation.
+ *
+ * `delta = 0` is the IDENTITY, so a drag that has not moved writes byte-identical XML.
+ */
+export function holdFollowingTrace(call: CallBundle, dancer: number, k: number, delta: number): CallBundle {
+  const d = call.dancers[dancer];
+  if (!d || delta === 0) return call;
+  let next = call;
+  for (let j = k + 1; j < d.path.length; j++) {
+    const seg = next.dancers[dancer].path[j];
+    if (!seg) break;
+    next = setMove(next, dancer, j, { ...seg, translate: rotateCurveAboutStart(seg.translate, -delta) });
+  }
+  return next;
 }
 
 // ------------------------------------------------------------------ the run-level circle

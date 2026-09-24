@@ -28,6 +28,7 @@ import {
   synthesizeSetupChain,
   setupToXml,
   callToXml,
+  holdFollowingTrace,
   halfSetReport,
   startsFromFormation,
   callToXmlNamed,
@@ -2225,6 +2226,111 @@ console.log('\n== 29. writing the HALF set instead of the whole one (29) ==');
   const oddGenders = { ...wholeSet, dancers: wholeSet.dancers.map((d, i) => (i === 0 ? { ...d, gender: 'girl' } : d)) };
   const odd = halfSetReport(oddGenders);
   check(!odd.ok, `an odd number of one gender is refused: ${odd.reason}`);
+}
+
+// ---------------------------------------------------------------------------
+// 30. a facing edit changes the ROTATION and holds the following trace
+// ---------------------------------------------------------------------------
+//
+// Reported: "The end facing control is affecting the placement angle of the next follow path. ... It should
+// only affect the rotation of the dancer, not its follow direction." The COMPOSITION is the format's - a
+// move is authored in the dancer's own frame, so a turn legitimately re-places what follows - but the
+// GESTURE was changing both at once, and that made the facing controls unable to set the one relationship a
+// facing expresses. MEASURED: a 10deg facing edit swings every later drawn direction by the same 10deg and
+// every later heading by the same 10deg, so the facing-versus-follow-direction angle was a CONSTANT of the
+// data. `holdFollowingTrace` compensates, and both halves are pinned here.
+console.log('\n== a facing edit holds the following trace (30) ==');
+{
+  const src = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
+  const d = 0;
+  const k = src.dancers[d].path.findIndex((s, i) => s.rotate && i < src.dancers[d].path.length - 2);
+  check(k >= 0, `the witness has a move with a facing curve and at least one move after it (move ${k + 1})`);
+  const path0 = src.dancers[d].path;
+  const r0 = path0[k].rotate;
+  const DELTA = 10 * DEG;
+  const spin = (x, y) => ({ x: x * Math.cos(DELTA) - y * Math.sin(DELTA), y: x * Math.sin(DELTA) + y * Math.cos(DELTA) });
+  const c2 = spin(r0.cx2, r0.cy2);
+  const p3 = spin(r0.x2, r0.y2);
+  const spun = { ...r0, cx2: c2.x, cy2: c2.y, x2: p3.x, y2: p3.y };
+  const edited = setMove(src, d, k, { ...path0[k], rotate: spun });
+  const held = holdFollowingTrace(edited, d, k, DELTA);
+  const q = (call, j) => poseFor(call.dancers[d], moveBeatRange(call.dancers[d], j).to);
+
+  // 1. THE FLOOR GEOMETRY IS UNTOUCHED: every later boundary is the pose it already was.
+  let worstPos = 0;
+  let worstHead = 0;
+  for (let j = k + 1; j < path0.length; j++) {
+    const a = q(src, j);
+    const b = q(held, j);
+    worstPos = Math.max(worstPos, Math.hypot(b.x - a.x, b.y - a.y));
+    worstHead = Math.max(worstHead, Math.abs(normAngleSafe(b.heading - a.heading - DELTA)));
+  }
+  check(worstPos < 1e-9,
+    `every later boundary stands exactly where it did (worst ${worstPos.toExponential(1)} units), so the call's floor geometry - and its end formation - is unchanged`);
+  check(worstHead < 1e-9,
+    `and every later heading moved by exactly the edit's ${(DELTA / DEG).toFixed(2)}deg (worst error ${worstHead.toExponential(1)}deg)`);
+
+  // 2. THE NEGATIVE CONTROL, so the two checks above are not measuring the identity: without the hold the
+  //    tail really does rotate, which is the report.
+  let swung = 0;
+  for (let j = k + 1; j < path0.length; j++) {
+    const a = q(src, j);
+    const b = q(edited, j);
+    swung = Math.max(swung, Math.hypot(b.x - a.x, b.y - a.y));
+  }
+  check(swung > 0.05, `without the hold the tail really does move (${swung.toFixed(3)} units, the swing the report is about)`);
+
+  // 3. THE QUANTITY THAT WAS INVARIANT IS NOW SETTABLE, which is the whole point of the change: the angle
+  //    between the dancer's facing and the direction their next path leaves on. `poseFor` reads the
+  //    departure direction as `heading + bezierAngle(translate, 0)`, so that is what this uses.
+  const dirOf = (call, j) => poseFor(call.dancers[d], moveBeatRange(call.dancers[d], j).from).heading
+    + bezierAngle(call.dancers[d].path[j].translate, 0);
+  const gap = (call) => normAngleSafe(q(call, k + 1).heading - dirOf(call, k + 1));
+  const g0 = gap(src);
+  check(Math.abs(normAngleSafe(gap(held) - g0) - DELTA) < 1e-9,
+    `the facing-versus-follow-direction angle moves by the edit when the trace is held (${((g0 / DEG)).toFixed(2)}deg -> ${((gap(held) / DEG)).toFixed(2)}deg)`);
+  check(Math.abs(normAngleSafe(gap(edited) - g0)) < 1e-9,
+    `and does NOT move at all without the hold (${((gap(edited) / DEG)).toFixed(2)}deg) - which is why the facing controls could not author it`);
+
+  // 4. A ZERO EDIT IS THE IDENTITY, so a drag that has not moved cannot dirty a call.
+  check(callToXml(holdFollowingTrace(src, d, k, 0), src.from) === callToXml(src, src.from),
+    'a zero edit writes byte-identical XML');
+
+  // 5. AND THE FACING `swingArcAboutStart` WRITES SURVIVES EXPORT. It used to be a straight copy of the
+  //    travel curve, whose first control has a y the FORMAT HAS NO SLOT FOR (`cy3` is not in the DTD and
+  //    `bezRotAttr` emits only cx3/cx4/cy4/x4/y4), so the frozen joint was lost the moment the file was
+  //    re-read - while `poc/tools/facing-handle-probe.mjs` asserts every facing in the corpus has cy1 === 0.
+  {
+    const msDir = path.join(__dirname, '../../poc/src/assets/ms');
+    let w = null;
+    for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+      let call;
+      try { call = normalizeInstance(loadCallFromXml(read(`../../poc/src/assets/ms/${f}`), movesXml, formationsXml, 0)); } catch { continue; }
+      if (call.dancers.length !== 8) continue;
+      for (let i = 0; i < 8 && !w; i++) {
+        for (let kk = 1; kk < call.dancers[i].path.length; kk++) {
+          const prev = call.dancers[i].path[kk - 1];
+          if (fitCircle(call.dancers[i].path[kk].translate, 0.02) && !prev.rotate && hasExitDirection(prev.translate)) {
+            w = { call, i, k: kk, f };
+            break;
+          }
+        }
+      }
+      if (w) break;
+    }
+    check(!!w, `a witness whose arc move's previous move has NO facing curve to freeze (${w?.f} dancer ${(w?.i ?? 0) + 1} move ${(w?.k ?? 0) + 1})`);
+    if (w) {
+      const after = swingArcAboutStart(w.call, w.i, w.k, 0.4);
+      const written = after.dancers[w.i].path[w.k - 1].rotate;
+      check(written.cy1 === 0,
+        `the facing it writes has cy1 = ${written.cy1} exactly - the format has no cy3, so anything else is dropped on export`);
+      const hBefore = poseFor(after.dancers[w.i], moveBeatRange(after.dancers[w.i], w.k).from).heading;
+      const back = normalizeInstance(loadCallFromXml(`<calls>\n${callToXml(after, after.from)}\n</calls>`, movesXml, formationsXml, 0));
+      const hAfter = poseFor(back.dancers[w.i], moveBeatRange(back.dancers[w.i], w.k).from).heading;
+      check(Math.abs(normAngleSafe(hAfter - hBefore)) < 1e-3,
+        `and the frame the arc is played in SURVIVES the export (${((normAngleSafe(hAfter - hBefore)) / DEG).toExponential(1)}deg), which it did not before`);
+    }
+  }
 }
 
 console.log('\n=================');

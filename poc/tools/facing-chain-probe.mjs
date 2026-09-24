@@ -142,6 +142,115 @@ console.log(`\n== the drawn trace ==`);
   }
 }
 
+// ---------------------------------------------------------------- the HOLD
+//
+// THE DEFECT THIS CLOSES. A facing edit at move `k` changes the heading the move ends on, and `poseFor`
+// places every later local curve in that frame - so the SAME 10deg that turns the dancer turns every later
+// path's floor direction, and the angle between the dancer's facing and the direction they leave on becomes
+// a CONSTANT of the data. The section above measures it: `swung 10.00deg` against `heading shifted
+// 10.000deg`, which is why the facing controls could not set the one relationship a facing expresses.
+//
+// `holdFollowingTrace` rotates each later path about its own start by the same angle, leaving the floor
+// trace bit-identical and moving only the headings. This is the measurement that says it does.
+console.log(`\n== the following trace, HELD (a facing edit changes the rotation and nothing else) ==`);
+{
+  const deg = (r) => r * DEG;
+  const normDeg = (a) => Math.atan2(Math.sin(a / DEG), Math.cos(a / DEG)) * DEG;
+  const held = engine.holdFollowingTrace(edited, d, k, DELTA);
+  // The floor direction the dancer leaves each move on: its own local curve, placed in the frame the move
+  // starts in - the same construction the drawn-trace section above uses.
+  const dirOf = (call, j) => {
+    const s = call.dancers[d].path[j].translate;
+    const a = engine.poseFor(call.dancers[d], engine.moveBeatRange(call.dancers[d], j).from);
+    const q0 = engine.bezierPoint(s, 0);
+    const q1 = engine.bezierPoint(s, 1);
+    const w0 = { x: a.x + Math.cos(a.heading) * q0.x - Math.sin(a.heading) * q0.y, y: a.y + Math.sin(a.heading) * q0.x + Math.cos(a.heading) * q0.y };
+    const w1 = { x: a.x + Math.cos(a.heading) * q1.x - Math.sin(a.heading) * q1.y, y: a.y + Math.sin(a.heading) * q1.x + Math.cos(a.heading) * q1.y };
+    return deg(Math.atan2(w1.y - w0.y, w1.x - w0.x));
+  };
+  let worstPos = 0;
+  let worstDir = 0;
+  let worstHead = 0;
+  let headMoved = 0;
+  for (let j = k + 1; j < path0.length; j++) {
+    const p0 = boundary(base, j);
+    const p1 = boundary(held, j);
+    worstPos = Math.max(worstPos, Math.hypot(p1.x - p0.x, p1.y - p0.y));
+    worstDir = Math.max(worstDir, Math.abs(normDeg(dirOf(held, j) - dirOf(base, j))));
+    const shift = normDeg(deg(p1.heading) - deg(p0.heading));
+    worstHead = Math.max(worstHead, Math.abs(shift - deg(DELTA)));
+    headMoved = Math.max(headMoved, Math.abs(shift));
+  }
+  console.log(`   every later boundary stands where it did (worst ${worstPos.toExponential(1)} units)`);
+  console.log(`   every later path still points where it did (worst ${worstDir.toExponential(1)}deg)`);
+  console.log(`   every later heading moved by ${headMoved.toFixed(3)}deg (worst error against the edit ${worstHead.toExponential(1)}deg)`);
+  check(worstPos < 1e-9,
+    'THE FOLLOWING TRACE IS HELD: every later boundary keeps its position, so the floor geometry of the whole call is unchanged');
+  check(worstDir < 1e-9, 'and every later path keeps its floor DIRECTION - the follow direction is not affected by the facing edit');
+  check(worstHead < 1e-9 && Math.abs(headMoved - deg(DELTA)) < 1e-9,
+    `and every later heading turns by exactly the edit's ${deg(DELTA).toFixed(3)}deg, which is the only thing the edit changes`);
+  // THE QUANTITY THAT WAS INVARIANT, and is now settable: the angle between the dancer and the way they go.
+  const gapOf = (call, j) => normDeg(deg(boundary(call, j).heading) - dirOf(call, j));
+  const gapBase = gapOf(base, k + 1);
+  const gapHeld = gapOf(held, k + 1);
+  const gapUnheld = gapOf(edited, k + 1);
+  console.log(`   the angle between the dancer and the next path: ${gapBase.toFixed(3)}deg -> ${gapHeld.toFixed(3)}deg held, against ${gapUnheld.toFixed(3)}deg UNHELD`);
+  check(Math.abs(normDeg(gapHeld - gapBase) - deg(DELTA)) < 1e-6 && Math.abs(normDeg(gapUnheld - gapBase)) < 1e-6,
+    'so the facing-versus-follow-direction angle IS settable: it moves by the edit when held, and NOT AT ALL without the hold - which is the defect');
+  // And a zero edit writes nothing, so a drag that has not moved cannot dirty a call.
+  check(engine.callToXml(engine.holdFollowingTrace(base, d, k, 0), base.from) === engine.callToXml(base, base.from),
+    'and a zero edit is the identity: a drag that has not moved writes byte-identical XML');
+}
+
+// AND IT COMPOUNDS THROUGH A DRAG, which is the path a caller actually uses. A handle drag writes the
+// facing ABSOLUTELY on every pointer move (`applyHandleDrag` sets the control point to the pointer), and the
+// panel applies the hold for the step that move just made - so the accumulated hold must be the whole of the
+// edit, not a sum of squares and not a drift, or the trace would creep away under the pointer.
+console.log(`\n== a three-step drag leaves the trace where it started ==`);
+{
+  const drag = (cur, x2, y2) => {
+    const s = cur.dancers[d].path[k];
+    const before = engine.bezierAngle(s.rotate ?? s.translate, 1);
+    const patched = { ...s, rotate: { ...s.rotate, x2, y2 } };
+    const next = engine.setMove(cur, d, k, patched);
+    const delta = norm(engine.bezierAngle(patched.rotate, 1) - before);
+    return delta === 0 ? next : engine.holdFollowingTrace(next, d, k, delta);
+  };
+  let cur = base;
+  for (const [x2, y2] of [[r0.x2 + 0.4, r0.y2 - 0.6], [r0.x2 + 0.1, r0.y2 - 1.1], [r0.x2 - 0.5, r0.y2 - 0.9]]) {
+    cur = drag(cur, x2, y2);
+  }
+  let worstPos = 0;
+  for (let j = k + 1; j < path0.length; j++) {
+    const a = boundary(base, j);
+    const b = boundary(cur, j);
+    worstPos = Math.max(worstPos, Math.hypot(b.x - a.x, b.y - a.y));
+  }
+  console.log(`   after three pointer moves the tail is ${worstPos.toExponential(1)} units from where it began`);
+  check(worstPos < 1e-9, 'so the hold accumulates to exactly the whole edit, and the trace does not creep away under the pointer');
+}
+
+// ---------------------------------------------------------------- the WIRING
+//
+// THE ENGINE FUNCTION IS NOT THE FIX ON ITS OWN: the panel has to CALL it, and on a facing write only - a
+// travel write already holds its own tail through `moveCurveEnd` (`engine/test/editor.mjs` section 22) and
+// must not be compensated twice. That is a fact about the app's source, which cannot be executed here
+// (`editor-ui.ts` is TypeScript inside Vite), so it is read - the same limit, and the same answer, as
+// `facing-handle-probe.mjs` records for the drag write rules themselves.
+console.log(`\n== the panel calls it, on a facing write and not on a travel one ==`);
+{
+  const ui = fs.readFileSync(path.join(POC_DIR, 'src', 'editor-ui.ts'), 'utf8');
+  check(/this\.foldMoveChange\(f, curve\)/.test(ui), 'the write path passes the curve kind down to the fold');
+  check(/curve === 'facing'\)[\s\S]{0,500}?holdFollowingTrace\(next, d, this\.moveIndex, delta\)/.test(ui),
+    'and a FACING fold holds the following trace by the per-dancer delta');
+  check(/const before = bezierAngle\(seg\.rotate \?\? seg\.translate, 1\)/.test(ui),
+    'measuring that delta as the change in the heading the move ENDS on, which is the frame that swings the tail');
+  check(/if \(facing\) this\.noteFacingHold\(seg\)/.test(ui),
+    'and the drag SAYS the trace was held, so the new behaviour is visible rather than merely absent');
+  check(/const stepInto = \(j: number\)[\s\S]{0,240}?bezierAngle\(s\.rotate \?\? s\.translate, 0\)/.test(ui),
+    'and the tile reports the one joint the hold CANNOT smooth, as a measured step rather than prose');
+}
+
 // ---------------------------------------------------------------- the answer
 //
 // There is nothing to fix: this is the format, and the trail agrees with the animation because they are

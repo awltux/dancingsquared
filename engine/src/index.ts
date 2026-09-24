@@ -163,6 +163,7 @@ export {
   deriveFormationMapping,
   padSegment,
   moveCurveEnd,
+  holdFollowingTrace,
   fitCircle,
   rotateCurveExit,
   hasExitDirection,

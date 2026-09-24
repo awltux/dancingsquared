@@ -5026,3 +5026,83 @@ side, including the six-dancer case. Engine suite: 31 harnesses green. `poc/veri
 `poc/src/assets/ms/circle.xml`, was last changed by the BOOK commit `3781730` (15 insertions, 21 deletions). The
 probe reads its symptom from that file, so re-authoring the asset is what invalidated the pin. Left red deliberately:
 re-pinning another workstream's symptom probe would hide the consequence of their change rather than record it.
+### A FACING EDIT HOLDS THE FOLLOWING TRACE (BUILT AND GATED)
+
+Reported twice, and the second report is the one that identified the real defect: *"The end facing control is
+affecting the placement angle of the next follow path. I dont think this should be the case. It should only
+affect the rotation of the dancer, not its follow direction."* and then *"this prevents me using the facing
+controls i.e. I cannot face the dancer without corrupting the next follow path. Many of the existing facing
+paths are impossible to create with this interaction."*
+
+**FIRST, WHAT IS *NOT* THE BUG, because the earlier answer got this far and no further.** A move is authored in
+the dancer's own frame at the move's start (`types.ts`), and `poseFor` composes `m = m * translateBy(p); m =
+m * rotateBy(a)` per move (`core.ts:98-110`), so the heading a move ends on IS the frame the next move is played
+in. A turn therefore re-places what follows - `Veer Left` from a different facing goes to a different spot - and
+that is the format, measured by `poc/tools/facing-chain-probe.mjs` and pinned by `engine/test/editor.mjs` 19,
+which warns that *"anyone tempted to fix the swing has to come here and delete a measurement first."* Nothing
+about that changed.
+
+**THE DEFECT IS THE GESTURE, AND IT IS AN INVARIANCE.** Because the same angle turns the facing AND the
+following path, the angle BETWEEN them is a constant of the data - so the facing control could not set the one
+relationship a facing expresses. MEASURED (`Circle Left`, move 2, +10.000deg on the end facing):
+
+```
+the heading move 2 ends on: -45.153deg -> -35.153deg (a change of 10.000deg)
+move 3: (-2.4047, 1.0128) @ -0.31deg -> (-2.7527, 0.9840) @ 9.69deg   (heading shifted 10.000deg)
+move 3: drawn from 89.74deg to 99.74deg (swung 10.00deg), same length 2.0034 -> 2.0034
+```
+
+The facing change and the path's swing are the same 10.000deg, so the facing-versus-follow-direction angle did
+not move AT ALL - -90.042deg before and after. That is why the controls were unusable, and it is pinned as such
+in the probe's held/unheld comparison.
+
+**THE FIX: COMPENSATE THE EDIT, NOT THE COMPOSITION.** `holdFollowingTrace(call, dancer, k, delta)` rotates every
+move AFTER `k` about its own start by `-delta`. A later move's floor point is `p0 + R(theta) * local`; the edit
+takes `theta` to `theta + delta`, so `local` to `R(-delta) * local` leaves the product unchanged - same start,
+same shape, same floor direction, same end point. MEASURED: every later boundary stands where it did (worst
+2.4e-15 units), every later path still points where it did (worst 2.8e-14deg), every later heading moves by
+exactly the edit (worst 4.7e-16deg), and the call's end formation does not move. The facing-versus-follow angle
+becomes settable: -112.62deg to -102.62deg held, against -112.62deg unheld.
+
+`delta = 0` is the identity. No cascade is needed: a later move with no facing curve has its heading
+contribution fall by `delta` while the incoming frame rises by `delta`, and one WITH a facing curve contributes
+what it did before.
+
+**WIRED IN ONE PLACE.** `commitMoveChange` already knows the curve kind, so `foldMoveChange` takes it and holds
+the trace on a `facing` write only - a TRAVEL write already holds its own tail through `moveCurveEnd` (section
+22) and must not be compensated twice. That one point covers the Facing tab's coordinate fields and the drag.
+The delta is PER DANCER (the selection shares local numbers, not the frames they land in), and it compounds
+through a drag because each pointer move writes the facing absolutely and holds the step since the last one:
+MEASURED, three successive pointer moves leave the tail 1.8e-15 units from where it began.
+
+**A SECOND DEFECT IN THE SAME FAMILY, FOUND WHILE CHECKING.** `swingArcAboutStart` wrote a facing as
+`{ ...original.translate }` - a copy of a travel curve - whose first control has a `y` the FORMAT HAS NO SLOT
+FOR. `tamination.dtd` declares the rotate as `cx3, cx4, cy4, x4, y4`, `bezRotAttr` emits those five and never
+`sel.cy1`, and `facing-handle-probe.mjs` asserts every facing in the corpus has `cy1 === 0` for exactly this
+reason. So the frozen joint was lost the moment the file was re-read. It is written through `facingFromTravel`
+now: turn the curve so its start lies on the forward axis (`cy1` goes to 0), then turn its exit tangent back so
+the heading change it ENDS on is the one it started with - both ends held, and section 24's "the frame the arc
+is played in is unmoved" still passes. Section 30 adds the round trip section 24 lacked.
+
+**AND THE ONE CASE THE HOLD CANNOT SMOOTH, REPORTED RATHER THAN REWRITTEN.** A following move with NO facing
+curve faces along its own path, so holding its path holds its heading and the joint steps by `delta - a0`; the
+facing IS the path there, so compensating would undo the edit. The panel now prints a measured `facing joint:`
+line - silent when both joints are smooth, and otherwise naming the cause and the size - and a facing drag sets
+a status line saying what turned and that the trace was held, so the new behaviour is visible rather than merely
+absent.
+
+**TWO EARLIER REQUESTS WERE MOOT, AND THE REQUESTER SAID SO.** Making the start facing control free, and syncing
+a move's start facing with the previous move's end facing, both presume a start facing that does not exist:
+`poseFor` breaks out of the segment loop at `t = 0`, so `poseFor(d, 0).heading === d.angleDeg` - the FIRST
+move's facing is the FORMATION's declared one, and every later move's is the previous move's end heading. So the
+`r1` rail stays and there is nothing to sync. The rail reason and the swing are both already stated in the panel
+(`editor-ui.ts` note); that they were read as a bug is why the joint line is a number rather than more prose.
+
+**TWO PRE-EXISTING REDS, PROVEN NOT TO BE THIS WORK, NOT RE-PINNED.** `engine/test/editor.mjs` section 16b fails
+2 checks - `the track is now invalid` (1.99 against a `> 2` threshold) and `a dancer whose first move has ZERO
+beats` (2.44 against `> 3`) - and `poc/tools/run-circle-probe.mjs` fails 2 more pinning OFFSET orbits it now
+measures at `0.000`. PROVEN pre-existing by stashing every file of this change and re-running: the same four
+failures appear at HEAD engine + HEAD harness. All four read `poc/src/assets/ms/circle.xml`, which the book work
+re-authored (`3781730`, `67e9ab9`, and an in-flight edit). Deciding whether the committed or the dirty asset is
+responsible would mean temporarily stashing somebody else's uncommitted file, which was deliberately not done.
+They are the book work's to re-pin.

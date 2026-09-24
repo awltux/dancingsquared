@@ -31,6 +31,8 @@ import {
   addMove,
   removeMove,
   moveCurveEnd,
+  // A facing edit holds the following trace: see `foldMoveChange`.
+  holdFollowingTrace,
   fitCircle,
   swingArcAboutStart,
   hasExitDirection,
@@ -244,6 +246,9 @@ function sameCurve(a: Seg, b: Seg, curve: CurveKind): boolean {
  *  back in is the same number rather than a 15-digit float. */
 const show = (n: number): string => (Math.round(n * 1e4) / 1e4).toString();
 const toDeg = (rad: number): number => (rad * 180) / Math.PI;
+/** The shortest signed angle equal to `a`, in (-PI, PI]. The engine's own is private to `editor.ts`, and
+ *  a facing delta that wrapped would hold the trace by a whole turn. */
+const normAngle = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
 const toRad = (deg: number): number => (deg * Math.PI) / 180;
 
 /**
@@ -1112,7 +1117,7 @@ export class EditorController implements EditorUI {
     // without going through them: a coordinate change on a selection whose curve differs would collapse
     // them into one shape, which is the whole thing `coordinatesAgree` exists to prevent.
     if (curve && !this.coordinatesAgree(curve)) return;
-    const next = this.foldMoveChange(f);
+    const next = this.foldMoveChange(f, curve);
     if (!next) return;
     if (!light) {
       this.commit(next, focusKey);
@@ -1146,8 +1151,20 @@ export class EditorController implements EditorUI {
    *  heading AND swings every later segment round the floor. MEASURED (`poc/tools/facing-chain-probe.mjs`):
    *  10deg of extra end heading rotates every later boundary pose rigidly about the pose the move ends on
    *  and carries the call's end 0.42 units across the board. That is what the dance means, and the Facing
-   *  tab says so rather than pretending otherwise; `engine/test/editor.mjs` 19 pins it. */
-  private foldMoveChange(f: (seg: Seg) => Seg): CallBundle | null {
+   *  tab says so rather than pretending otherwise; `engine/test/editor.mjs` 19 pins it.
+   *
+   *  THE COMPOSITION IS THE FORMAT'S, BUT THE GESTURE MUST NOT EXPOSE IT THAT WAY. Because the same angle
+   *  turns the facing and the following path, the angle BETWEEN them is a constant of the data - so the
+   *  facing controls could not set the one relationship a facing expresses, reported as "I cannot face the
+   *  dancer without corrupting the next follow path". A facing write therefore HOLDS THE FOLLOWING TRACE:
+   *  `holdFollowingTrace` turns each later path about its own start by the same angle, leaving every later
+   *  position and floor direction exactly as they were and moving only the headings. The facing rotates and
+   *  the follow direction does not, which is what the control says it does.
+   *
+   *  The delta is PER DANCER, because the selection shares the local numbers and not the frame they land
+   *  in. It compounds correctly through a drag: each pointer move writes the facing ABSOLUTELY and holds
+   *  the tail by the step since the last one, so the accumulated hold is the whole of the edit. */
+  private foldMoveChange(f: (seg: Seg) => Seg, curve: CurveKind | null = null): CallBundle | null {
     const call = this.instance;
     if (!call) return null;
     let next = call;
@@ -1155,8 +1172,16 @@ export class EditorController implements EditorUI {
     for (const d of this.selectedSorted()) {
       const seg = next.dancers[d]?.path[this.moveIndex];
       if (!seg) continue;
-      next = setMove(next, d, this.moveIndex, f(seg));
+      const before = bezierAngle(seg.rotate ?? seg.translate, 1);
+      const patched = f(seg);
+      next = setMove(next, d, this.moveIndex, patched);
       changed = true;
+      // A change to the heading the move ends on is the whole of what swings the tail. A `cx1` drag does
+      // not move it, so that gesture is left exactly as it was.
+      if (curve === 'facing') {
+        const delta = normAngle(bezierAngle(patched.rotate ?? patched.translate, 1) - before);
+        if (delta !== 0) next = holdFollowingTrace(next, d, this.moveIndex, delta);
+      }
     }
     return changed ? next : null;
   }
@@ -1677,6 +1702,7 @@ export class EditorController implements EditorUI {
         true,
         facing ? 'facing' : 'travel',
       );
+      if (facing) this.noteFacingHold(seg);
       return;
     }
 
@@ -1699,6 +1725,24 @@ export class EditorController implements EditorUI {
                   // engine owns that rule (`moveCurveEnd`); the panel only says where the point went.
                   (seg) => ({ ...seg, translate: moveCurveEnd(seg.translate, lx, ly) });
     this.commitMoveChange(patch, `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`, true, facing ? 'facing' : 'travel');
+    if (facing) this.noteFacingHold(seg);
+  }
+
+  /**
+   * Say what a FACING drag did, and say that the trace did NOT move with it.
+   *
+   * The old behaviour was reported as a bug twice - "adjusting the end of the facing curve alters the
+   * direction of the rest of the trace" - and the honest fix leaves the panel silent, so a caller cannot
+   * tell the new behaviour from the old one except by watching the floor. This is the sentence that says
+   * which one they have, and the number is the rotation, which is now the only thing that changed.
+   */
+  private noteFacingHold(before: Seg) {
+    const after = this.instance?.dancers[this.moveDancer]?.path[this.moveIndex];
+    if (!after) return;
+    const turned = toDeg(normAngle(bezierAngle(after.rotate ?? after.translate, 1) - bezierAngle(before.rotate ?? before.translate, 1)));
+    if (Math.abs(turned) > 0.05) {
+      this.statusEl.textContent = `turned the end facing ${turned.toFixed(1)}Â° - the following trace is held where it was`;
+    }
   }
 
   /**
@@ -2774,6 +2818,40 @@ export class EditorController implements EditorUI {
         note.textContent = bits.join(' · ');
       }
       grid.appendChild(note);
+    }
+
+    // ---- the FACING JOINT -------------------------------------------------
+    //
+    // THE ONE DISCONTINUITY THE HOLD CANNOT SMOOTH, said where it applies. A move with NO facing curve
+    // faces along its own path - `poseFor` reads `bezierAngle(rotate ?? translate)` - so its heading at the
+    // instant the move begins is the path's departure direction, `atan2(cy1, cx1)` off the forward axis,
+    // and that is a STEP away from the heading the previous move left the dancer on. Holding the following
+    // trace cannot remove it: the facing IS the path there, so the compensation would simply undo the edit.
+    // So it is reported, and the number is the whole point - the panel otherwise gives no signal at all that
+    // a joint is not smooth. Silent when both joints are, because the tile is already dense.
+    {
+      const stepInto = (j: number): { deg: number; facing: boolean } | null => {
+        const s = this.instance?.dancers[i]?.path[j];
+        if (!s) return null;
+        return { deg: toDeg(normAngle(bezierAngle(s.rotate ?? s.translate, 0))), facing: !!s.rotate };
+      };
+      const sentence = (st: { deg: number; facing: boolean }, subject: string) => {
+        const n = Math.abs(st.deg).toFixed(1);
+        return st.facing
+          ? `${subject} starts ${n}deg off the forward axis: its facing curve's start handle points that way, so the dancer snaps round as the move begins.`
+          : `${subject} starts ${n}deg round from the way the dancer already faces, because it has no facing curve: the dancer faces along its path, and the path leaves that joint that far off.`;
+      };
+      const says: string[] = [];
+      const here = stepInto(k);
+      const after = stepInto(k + 1);
+      if (here && Math.abs(here.deg) > 0.05) says.push(sentence(here, 'this move'));
+      if (after && Math.abs(after.deg) > 0.05) says.push(sentence(after, 'the NEXT move'));
+      if (says.length) {
+        const joint = document.createElement('div');
+        joint.className = 'small';
+        joint.textContent = `facing joint: ${says.join(' ')}`;
+        grid.appendChild(joint);
+      }
     }
 
     tile.appendChild(grid);

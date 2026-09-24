@@ -9,11 +9,11 @@
       "fileName": "circle.xml",
       "tamIndex": 0,
       "from": "Static Square",
-      "beats": 10,
+      "beats": 8,
       "frames": 0,
       "view": {
-        "scale": 35.37,
-        "units": 4.41
+        "scale": 36.279,
+        "units": 4.3
       },
       "starts": [
         {
@@ -23,105 +23,6 @@
               "title": "Circle Left",
               "file": "ms/circle.xml",
               "tamIndex": 0,
-              "from": "Static Square",
-              "beats": 10,
-              "view": {
-                "scale": 35.37,
-                "units": 4.41
-              }
-            },
-            {
-              "title": "Circle Left 1/8",
-              "file": "ms/circle.xml",
-              "tamIndex": 1,
-              "from": "Static Square",
-              "beats": 3,
-              "view": {
-                "scale": 35.492,
-                "units": 4.395
-              }
-            },
-            {
-              "title": "Circle Left 1/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 2,
-              "from": "Static Square",
-              "beats": 4,
-              "view": {
-                "scale": 36.279,
-                "units": 4.3
-              }
-            },
-            {
-              "title": "Circle Left 1/2",
-              "file": "ms/circle.xml",
-              "tamIndex": 3,
-              "from": "Static Square",
-              "beats": 6,
-              "view": {
-                "scale": 36.279,
-                "units": 4.3
-              }
-            },
-            {
-              "title": "Circle Left 3/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 4,
-              "from": "Static Square",
-              "beats": 8,
-              "view": {
-                "scale": 36.279,
-                "units": 4.3
-              }
-            },
-            {
-              "title": "Circle Right",
-              "file": "ms/circle.xml",
-              "tamIndex": 10,
-              "from": "Static Square",
-              "beats": 10,
-              "view": {
-                "scale": 36.107,
-                "units": 4.32
-              }
-            },
-            {
-              "title": "Circle Right 1/8",
-              "file": "ms/circle.xml",
-              "tamIndex": 11,
-              "from": "Static Square",
-              "beats": 3,
-              "view": {
-                "scale": 36.234,
-                "units": 4.305
-              }
-            },
-            {
-              "title": "Circle Right 1/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 12,
-              "from": "Static Square",
-              "beats": 4,
-              "view": {
-                "scale": 36.279,
-                "units": 4.3
-              }
-            },
-            {
-              "title": "Circle Right 1/2",
-              "file": "ms/circle.xml",
-              "tamIndex": 13,
-              "from": "Static Square",
-              "beats": 6,
-              "view": {
-                "scale": 36.279,
-                "units": 4.3
-              }
-            },
-            {
-              "title": "Circle Right 3/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 14,
               "from": "Static Square",
               "beats": 8,
               "view": {
@@ -137,29 +38,18 @@
             {
               "title": "Circle Left",
               "file": "ms/circle.xml",
-              "tamIndex": 5,
+              "tamIndex": 8,
               "from": "Circle",
               "beats": 8,
               "view": {
-                "scale": 39.868,
-                "units": 3.913
-              }
-            },
-            {
-              "title": "Circle Left 1/8",
-              "file": "ms/circle.xml",
-              "tamIndex": 6,
-              "from": "Circle",
-              "beats": 1,
-              "view": {
-                "scale": 39.868,
-                "units": 3.913
+                "scale": 39.862,
+                "units": 3.914
               }
             },
             {
               "title": "Circle Left 1/4",
               "file": "ms/circle.xml",
-              "tamIndex": 7,
+              "tamIndex": 9,
               "from": "Circle",
               "beats": 2,
               "view": {
@@ -170,7 +60,7 @@
             {
               "title": "Circle Left 1/2",
               "file": "ms/circle.xml",
-              "tamIndex": 8,
+              "tamIndex": 10,
               "from": "Circle",
               "beats": 4,
               "view": {
@@ -181,7 +71,7 @@
             {
               "title": "Circle Left 3/4",
               "file": "ms/circle.xml",
-              "tamIndex": 9,
+              "tamIndex": 11,
               "from": "Circle",
               "beats": 6,
               "view": {
@@ -192,7 +82,7 @@
             {
               "title": "Circle Right",
               "file": "ms/circle.xml",
-              "tamIndex": 15,
+              "tamIndex": 17,
               "from": "Circle",
               "beats": 8,
               "view": {
@@ -203,7 +93,7 @@
             {
               "title": "Circle Right 1/8",
               "file": "ms/circle.xml",
-              "tamIndex": 16,
+              "tamIndex": 18,
               "from": "Circle",
               "beats": 1,
               "view": {
@@ -214,7 +104,7 @@
             {
               "title": "Circle Right 1/4",
               "file": "ms/circle.xml",
-              "tamIndex": 17,
+              "tamIndex": 19,
               "from": "Circle",
               "beats": 2,
               "view": {
@@ -225,7 +115,7 @@
             {
               "title": "Circle Right 1/2",
               "file": "ms/circle.xml",
-              "tamIndex": 18,
+              "tamIndex": 20,
               "from": "Circle",
               "beats": 4,
               "view": {
@@ -236,7 +126,7 @@
             {
               "title": "Circle Right 3/4",
               "file": "ms/circle.xml",
-              "tamIndex": 19,
+              "tamIndex": 21,
               "from": "Circle",
               "beats": 6,
               "view": {
@@ -255,7 +145,7 @@
       "file": "ms/circle.xml",
       "level": "ms",
       "fileName": "circle.xml",
-      "tamIndex": 38,
+      "tamIndex": 40,
       "from": "Facing Couples",
       "beats": 7.5,
       "frames": 0,
@@ -270,7 +160,7 @@
             {
               "title": "Circle Four Left Full",
               "file": "ms/circle.xml",
-              "tamIndex": 38,
+              "tamIndex": 40,
               "from": "Facing Couples",
               "beats": 7.5,
               "view": {
@@ -281,7 +171,7 @@
             {
               "title": "Circle Four Left 1/4",
               "file": "ms/circle.xml",
-              "tamIndex": 20,
+              "tamIndex": 22,
               "from": "Facing Couples",
               "beats": 3,
               "view": {
@@ -292,7 +182,7 @@
             {
               "title": "Circle Four Right 1/4",
               "file": "ms/circle.xml",
-              "tamIndex": 23,
+              "tamIndex": 25,
               "from": "Facing Couples",
               "beats": 3,
               "view": {
@@ -303,7 +193,7 @@
             {
               "title": "Circle Four Left 1/2",
               "file": "ms/circle.xml",
-              "tamIndex": 26,
+              "tamIndex": 28,
               "from": "Facing Couples",
               "beats": 4.5,
               "view": {
@@ -314,7 +204,7 @@
             {
               "title": "Circle Four Right 1/2",
               "file": "ms/circle.xml",
-              "tamIndex": 29,
+              "tamIndex": 31,
               "from": "Facing Couples",
               "beats": 4.5,
               "view": {
@@ -325,7 +215,7 @@
             {
               "title": "Circle Four Left 3/4",
               "file": "ms/circle.xml",
-              "tamIndex": 32,
+              "tamIndex": 34,
               "from": "Facing Couples",
               "beats": 6,
               "view": {
@@ -336,7 +226,7 @@
             {
               "title": "Circle Four Right 3/4",
               "file": "ms/circle.xml",
-              "tamIndex": 35,
+              "tamIndex": 37,
               "from": "Facing Couples",
               "beats": 6,
               "view": {
@@ -347,7 +237,7 @@
             {
               "title": "Circle Four Right Full",
               "file": "ms/circle.xml",
-              "tamIndex": 41,
+              "tamIndex": 43,
               "from": "Facing Couples",
               "beats": 7.5,
               "view": {
@@ -366,7 +256,7 @@
       "file": "ms/circle.xml",
       "level": "ms",
       "fileName": "circle.xml",
-      "tamIndex": 53,
+      "tamIndex": 55,
       "from": "Facing Couples",
       "beats": 5,
       "frames": 0,
@@ -381,7 +271,7 @@
             {
               "title": "Single Circle Left Full",
               "file": "ms/circle.xml",
-              "tamIndex": 53,
+              "tamIndex": 55,
               "from": "Facing Couples",
               "beats": 5,
               "view": {
@@ -392,7 +282,7 @@
             {
               "title": "Single Circle Left 1/4",
               "file": "ms/circle.xml",
-              "tamIndex": 44,
+              "tamIndex": 46,
               "from": "Facing Couples",
               "beats": 2,
               "view": {
@@ -403,7 +293,7 @@
             {
               "title": "Single Circle Left 1/2",
               "file": "ms/circle.xml",
-              "tamIndex": 47,
+              "tamIndex": 49,
               "from": "Facing Couples",
               "beats": 3,
               "view": {
@@ -414,7 +304,7 @@
             {
               "title": "Single Circle Left 3/4",
               "file": "ms/circle.xml",
-              "tamIndex": 50,
+              "tamIndex": 52,
               "from": "Facing Couples",
               "beats": 4,
               "view": {
@@ -425,7 +315,7 @@
             {
               "title": "Single Circle Right 1/4",
               "file": "ms/circle.xml",
-              "tamIndex": 56,
+              "tamIndex": 58,
               "from": "Facing Couples",
               "beats": 2,
               "view": {
@@ -436,7 +326,7 @@
             {
               "title": "Single Circle Right 1/2",
               "file": "ms/circle.xml",
-              "tamIndex": 59,
+              "tamIndex": 61,
               "from": "Facing Couples",
               "beats": 3,
               "view": {
@@ -447,7 +337,7 @@
             {
               "title": "Single Circle Right 3/4",
               "file": "ms/circle.xml",
-              "tamIndex": 62,
+              "tamIndex": 64,
               "from": "Facing Couples",
               "beats": 4,
               "view": {
@@ -458,7 +348,7 @@
             {
               "title": "Single Circle Right Full",
               "file": "ms/circle.xml",
-              "tamIndex": 65,
+              "tamIndex": 67,
               "from": "Facing Couples",
               "beats": 5,
               "view": {

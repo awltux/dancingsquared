@@ -3491,6 +3491,16 @@ export class EditorController implements EditorUI {
     return callTamXml(call, this.generatedName || call.from || call.title, this.declaredSymmetry());
   }
 
+  /**
+   * Export the ONE `<tam>` on screen, stamped.
+   *
+   * NO `<calls>` WRAPPER. There was one, because the parser wants a document root and `<calls>` is what the
+   * shipped corpus files carry - but that is the parser's business, not the export's: a lone `<tam>` with a
+   * comment in front of it IS a well-formed document (an XML prolog may hold comments), and the caller who
+   * copies this is pasting one tam into a corpus file, where a `<calls>` element would be a second root
+   * inside a file that already has one. Export All groups into `<tamination>` blocks for the same reason and
+   * has never written `<calls>`.
+   */
   private doExport() {
     try {
       const xml = this.exportXml();
@@ -3498,7 +3508,7 @@ export class EditorController implements EditorUI {
         this.statusEl.textContent = 'nothing to export yet';
         return;
       }
-      this.xmlEl.value = buildStamp() + '\n' + '<calls>\n' + xml + '\n</calls>';
+      this.xmlEl.value = buildStamp() + '\n' + xml;
       void navigator.clipboard?.writeText(this.xmlEl.value);
       this.statusEl.textContent = 'exported <tam> XML (copied)';
     } catch (err) {

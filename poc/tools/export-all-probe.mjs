@@ -126,7 +126,11 @@ check(built > 0 && roundTripped === built, 'every block is a real `<tamination>`
 // is legal, but an invalid one is not, and `--` may not appear inside a comment at all.
 console.log('\n== 4. The build stamp at the top ==');
 check(/function buildStamp\(\): string \{/.test(ui), 'there is one function that writes the stamp');
-check(/buildStamp\(\) \+ '\\n' \+ '<calls>/.test(ui), 'the single export puts it at the very top');
+check(/this\.xmlEl\.value = buildStamp\(\) \+ '\\n' \+ xml;/.test(ui), 'the single export puts it at the very top of the <tam>');
+// AND WRAPS IT IN NOTHING. A lone `<tam>` with a comment in front of it is a well-formed document - an XML
+// prolog may hold comments - so a `<calls>` root would be a SECOND root inside the corpus file the caller is
+// pasting into. Export All groups into `<tamination>` blocks and has never written `<calls>`.
+check(!/'<calls>'/.test(ui), 'and the single export does NOT wrap the tam in a <calls> element: one tam IS the document');
 check(/const out = buildStamp\(\) \+ '\\n' \+ /.test(ui), 'and so does Export All');
 check(/__GIT_COMMIT_SHORT__/.test(ui), 'it names the commit the app was BUILT FROM');
 check(/__GIT_DIRTY__ === 'dirty'/.test(ui), 'and says when that build had UNCOMMITTED CHANGES, which a bare hash would state as if it were a commit');
@@ -137,15 +141,17 @@ const stamp = `<!-- exported by the dancing-squared web app: commit ${'a1b2c3d'}
 // `--` fails on a perfectly good comment. (It did, on the first run of this check.)
 const content = stamp.slice(4, -3);
 check(!content.includes('--'), 'nothing INSIDE the stamp forms a `--`, so the comment cannot terminate early');
-// AND THE EXPORT STILL PARSES with the stamp in front of it, which is the property that actually matters.
+// AND THE EXPORT STILL PARSES with the stamp in front of it, which is the property that actually matters. It
+// is built HERE in the shape the panel now writes - a stamped bare `<tam>`, no wrapper - so this is the check
+// that would catch a stamp that turned the export into something no parser accepts.
 {
   const xml = asset('ms/arm_turns.xml');
   const tams = engine.parseCallXml(xml);
   const call = engine.normalizeInstance(engine.buildCall(tams[0], engine.parseFormations(formationsXml), engine.parseMoves(movesXml), true));
   const tam = engine.callToXmlNamed(call, call.from || call.title, () => null).match(/<tam\b[\s\S]*?<\/tam>/)[0];
-  const stamped = `${stamp}\n<calls>\n${tam}\n</calls>`;
+  const stamped = `${stamp}\n${tam}`;
   const back = engine.parseCallXml(stamped);
-  check(back.length === 1 && back[0].title === tams[0].title, 'and a stamped export parses back as the same single <tam> - the comment does not become data');
+  check(back.length === 1 && back[0].title === tams[0].title, 'and a stamped UNWRAPPED export parses back as the same single <tam> - the comment does not become data');
 }
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');
 process.exit(failures ? 1 : 0);

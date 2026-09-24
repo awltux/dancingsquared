@@ -42,7 +42,7 @@ check(count(editor, /host\.preview(At)?\(/g) === 2, 'no other site reaches the h
 console.log('\n== and the guard is the only thing that decides ==');
 check(!/if \(this\.active\) this\.showInstance/.test(editor),
   'the ad-hoc guard on `loadInstance` is GONE - one rule in one place, not two that can disagree');
-check(/private showInstance\(call: CallBundle\) \{\s*\n\s*this\.showAt\(call, this\.editBeat\);/.test(editor),
+check(/private showInstance\(call: CallBundle\) \{\s*\n\s*this\.showAt\(call, this\.editBeat \+ call\.leadin\);/.test(editor),
   '`showInstance` goes through `showAt`, so it inherits the rule rather than restating it');
 check(/if \(a\) \{[\s\S]{0,400}if \(this\.instance\) this\.showInstance\(this\.instance\);/.test(editor),
   'and ENTERING the editor paints its instance, which is the half that makes the guard safe: the call the constructor refused to show while inactive is shown the moment the panel is');

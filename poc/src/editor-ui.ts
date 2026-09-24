@@ -683,10 +683,25 @@ export class EditorController implements EditorUI {
    * A WeakMap, because a move that is deleted should take its point with it rather than leak.
    */
   private moveClips = new WeakMap<Seg, MoveClip>();
-  /** The editor's OWN playhead, in absolute beats. The animation is OFF while editing an instance,
-   *  so this is the only thing that moves the dancers - and it has to be remembered HERE because
-   *  every edit re-shows the instance and re-showing parks the playhead at the lead-in. */
+  /**
+   * The editor's OWN playhead, in THE CALL'S OWN BEATS - 0 at the first move of the first dancer, `beats` at
+   * the end of the last one. The animation is OFF while editing an instance, so this is the only thing that
+   * moves the dancers - and it has to be remembered HERE because every edit re-shows the instance and
+   * re-showing parks the playhead at the lead-in.
+   *
+   * THE CALL'S CLOCK, NOT THE TIMELINE'S. A `<tam>` declares a `leadin` and a `leadout` - two beats each in
+   * the whole corpus - which the player draws as dead time before the first move and after the last, and
+   * `moveBeatRange` measures the moves from ZERO regardless of them. Asked for: "the call edit scrub progress
+   * bar has a 2 second intro and outro that dont actually exist in the call Moves. Can these fictitious dead
+   * beats be removed." So the scrub spans `[0, beats]` and this field is in the same units the moves are,
+   * and `+ leadin` is applied only where the STAGE is told where to stand - see `absoluteEditBeat`.
+   */
   private editBeat = 0;
+
+  /** The editor's playhead in the PLAYER's absolute beats (0 = the start of the lead-in, as `seekAbsolute` says). */
+  private absoluteEditBeat(call: CallBundle | null): number {
+    return this.editBeat + (call?.leadin ?? 0);
+  }
   /** The `data-key` of the field being edited, so re-rendering after a commit can put the
    *  focus back where it was (a `change` on a number input fires on blur, but it also fires
    *  on every spin-button click). */
@@ -1034,7 +1049,7 @@ export class EditorController implements EditorUI {
    * useless for the one thing it is for.
    */
   private showInstance(call: CallBundle) {
-    this.showAt(call, this.editBeat);
+    this.showAt(call, this.editBeat + call.leadin);
     this.renderScrub(call);
   }
 
@@ -1065,7 +1080,10 @@ export class EditorController implements EditorUI {
       this.beatReadoutEl.textContent = '';
       return;
     }
-    const total = call.totalBeats || 1;
+    // THE CALL'S OWN BEATS, NOT `totalBeats`. `totalBeats` is `leadin + beats + leadout`, so a bar over it
+    // spends its first and last two beats on time in which no move happens - the dead intro and outro the
+    // caller asked to be rid of. The moves run from 0 to `beats` on the call's own clock.
+    const total = call.beats || 1;
     this.scrubEl.max = String(total);
     // A HUNDREDTH OF A BEAT. The bar was in quarter beats, which is coarse for the job it does here -
     // placing a dancer while shaping a curve needs fine adjustment, and at this step a drag across
@@ -1079,11 +1097,11 @@ export class EditorController implements EditorUI {
     const parts = call.parts ? call.parts.split(';') : [];
     let acc = 0;
     let idx = -1;
-    // The call's own beat, not the absolute one: `parts` is authored against the call's clock.
-    const callBeat = b - call.leadin;
+    // `parts` is authored against the call's own clock, which is what `b` is now - the subtraction that used
+    // to be here is gone with the dead beats.
     for (let k = 0; k < parts.length; k++) {
       acc += parseFloat(parts[k]);
-      if (callBeat >= acc) idx = k + 1;
+      if (b >= acc) idx = k + 1;
     }
     this.beatReadoutEl.textContent = `beat ${b.toFixed(2)} / ${total.toFixed(2)}` + (idx >= 0 ? ` · part ${idx + 1}/${parts.length}` : '');
   }
@@ -1291,7 +1309,7 @@ export class EditorController implements EditorUI {
     this.instance = next;
     this.instanceEdited = true;
     this.host.updateCall(next);
-    this.host.setPlayhead(this.editBeat);
+    this.host.setPlayhead(this.absoluteEditBeat(this.instance));
     this.renderHandles();
     this.refreshNumberFields();
   }
@@ -4419,8 +4437,9 @@ export class EditorController implements EditorUI {
     this.scrubEl.addEventListener('input', () => {
       const b = parseFloat(this.scrubEl.value);
       if (!Number.isFinite(b)) return;
+      // The bar is in the call's own beats; the player wants the timeline's.
       this.editBeat = b;
-      this.host.setPlayhead(b);
+      this.host.setPlayhead(this.absoluteEditBeat(this.instance));
       this.renderScrub(this.instance);
     });
     // There is no dancer dropdown and no "all" button any more: the chips ARE the selector

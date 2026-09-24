@@ -5263,3 +5263,30 @@ change to the call, so a revert must not clear it or put an older one back.
 The run is the strip's only multi-move selection, so it is normalised (`min`/`max` of `moveIndex` and `circleTo`)
 and the strip's highlight uses the same range the copy covers, or the caller would be checking a range the button
 will not use. `move-clipboard-probe.mjs` is the gate.
+
+### THE EDITOR'S SCRUB SPANS THE CALL, NOT THE TIMELINE (BUILT AND GATED)
+
+Reported: "Currently, the call edit scrub progress bar has a 2 second intro and outro that dont actually exist in
+the call Moves. Can these fictitious dead beats be removed."
+
+**THEY ARE REAL, THEY ARE IN THE DATA, AND THE MOVES DO NOT USE THEM.** A `<tam>` declares a `leadin` and a
+`leadout` - two beats each, on all 547 calls of the corpus, 2188 dead beats between them - and the engine carries
+them as `leadin`, `beats` and `leadout` with `totalBeats = leadin + beats + leadout`. MEASURED: `moveBeatRange`
+puts every dancer's FIRST move at beat **0** and no dancer's last move past `beats`, so the moves live on the
+call's own clock and the lead-in and lead-out are time outside them. A bar drawn over `totalBeats` therefore
+spends its first two beats and its last two on nothing.
+
+**TWO CLOCKS, AND THE CONVERSION IS IN ONE PLACE.** `player.ts` keeps `beat` starting at `-leadin`, and
+`seekAbsolute` takes a beat where 0 is the start of the lead-in - so the panel's playhead is now in THE CALL'S
+OWN BEATS and `absoluteEditBeat` adds the lead-in at the two places the stage is told where to stand (the parked
+playhead after an edit, and the manual scrub). `renderScrub` takes its maximum from `call.beats`, clamps to it,
+and reads out `beat x / beats`; the part index is read straight off that beat, so the `- leadin` that used to be
+there is gone with the dead beats. The bar's end is where the CALL ends: a shorter dancer simply stops when it is
+done, which is `instanceBeats` taking the max and is unchanged.
+
+**THE BROWSE VIEW IS DELIBERATELY LEFT ALONE.** Its scrub still spans `totalBeats`, because it is showing the
+whole timeline the player runs - a different question from the one that was asked about the editor's bar - and
+the probe pins that it was not changed rather than leaving it to be discovered.
+
+`scrub-beats-probe.mjs` is the gate: the two clocks measured over every level, and the panel's use of them read
+from the source. `board-owner-probe.mjs` needed one line, because it pins `showInstance`'s `showAt` call.

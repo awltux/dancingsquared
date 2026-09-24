@@ -241,7 +241,7 @@ console.log(`\n== the panel calls it, on a facing write and not on a travel one 
 {
   const ui = fs.readFileSync(path.join(POC_DIR, 'src', 'editor-ui.ts'), 'utf8');
   check(/this\.foldMoveChange\(f, curve\)/.test(ui), 'the write path passes the curve kind down to the fold');
-  check(/curve === 'facing'\)[\s\S]{0,500}?holdFollowingTrace\(next, d, this\.moveIndex, delta\)/.test(ui),
+  check(/curve === 'facing'\)[\s\S]{0,500}?holdFollowingTrace\(next, d, at, delta\)/.test(ui),
     'and a FACING fold holds the following trace by the per-dancer delta');
   check(/const before = bezierAngle\(seg\.rotate \?\? seg\.translate, 1\)/.test(ui),
     'measuring that delta as the change in the heading the move ENDS on, which is the frame that swings the tail');

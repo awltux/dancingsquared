@@ -141,6 +141,25 @@ html, body {
 .ed-grid .ed-coords input.no-step::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
 /* The cell for a coordinate the row does not have - the facing curve has no cy3. */
 .ed-grid .ed-coords .ed-coord-none { color: var(--dim); text-align: center; }
+/* THE COPY/PASTE GROUP: three one- and two-letter buttons beside the arc box. The names are the request's own
+   (`C`, `Pa`, `Pr`), so the meaning lives on the hover - and `C` is LIT while it is holding a point, which is
+   the one thing the caller has to see at a glance. Prefixed with #editorPanel for the same reason the strip
+   tiles are: `#hud button` is (1,0,1) and would otherwise win the padding and the font size.
+   THEY ARE DELIBERATELY LOUD, AND THE FIRST CUT WAS NOT. Drawn like the panel's other buttons - dim grey on
+   near-black - they were reported as hard to see against the dark background. So they are now the brightest
+   thing in the tile: full-strength text, a raised background, a visible edge, and the letter or two IS the
+   whole label. */
+#editorPanel .ed-clip { gap: 4px; }
+#editorPanel .ed-clip button {
+  padding: 3px 8px; min-width: 26px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; line-height: 1.2;
+  border-radius: 5px; border: 1px solid #4a5f77; background: #1e2a38; color: var(--text); font-family: inherit;
+}
+#editorPanel .ed-clip button:hover:not(:disabled) { background: #27374a; border-color: var(--text); }
+#editorPanel .ed-clip button.on {
+  background: #2f6fbf; border-color: #7cb6ff; color: #fff;
+  box-shadow: 0 0 0 1px rgba(124, 182, 255, 0.5);
+}
+#editorPanel .ed-clip button:disabled { opacity: 0.35; cursor: not-allowed; }
 /* The moves strip: every move of the chosen track in order, so the whole path is visible at
    once. The CURRENT move is tripled in width and carries its numbers; the rest are compact
    tiles that select on click - which is also what moves the track highlight.

@@ -434,6 +434,14 @@ const CURVE_POINTS: { point: string; lx: 'cx1' | 'cx2' | 'x2'; ly: 'cy1' | 'cy2'
   { point: 'P3', lx: 'x2', ly: 'y2' },
 ];
 
+/**
+ * ONE MOVE'S OWN COPIED END POINT, in both of the frames the tile shows it in.
+ *
+ * `curve` is the shape it was taken from, because the Move and Facing tabs edit different curves and a point
+ * from one is nonsense in the other.
+ */
+type MoveClip = { curve: CurveKind; rel: { x: number; y: number }; abs: { x: number; y: number } };
+
 export class EditorController implements EditorUI {
   private stage: Stage;
   private host: EditorHost;
@@ -636,6 +644,45 @@ export class EditorController implements EditorUI {
   private circleCentre: { x: number; y: number } | null = null;
   /** Which way round. The discrete half of the parameterisation - the radius is the continuous half. */
   private circleSide: 1 | -1 = 1;
+  /**
+   * THE COPIED END POINTS, or null when nothing has been copied.
+   *
+   * Asked for: "Add [C]opy/[Pa]PasteAbsolute/[Pr]PasteRelative buttons to each Move pane, beside the 'arc'
+   * checkbox, that keeps a local copy of the move x/y end coordinates and can paste them back at a later date
+   * (if it was changed by deleting/adding other Moves)."
+   *
+   * BOTH PAIRS ARE STORED, and that is the whole reason there are two paste buttons rather than one. Deleting
+   * or adding a move earlier in the track leaves every later move's LOCAL numbers alone and moves where they
+   * land on the FLOOR; re-aiming a move, or re-basing a clone, moves the local numbers under a floor position
+   * that has not changed. One stored pair cannot answer both, so the copy holds the relative pair AND the
+   * board pair as they were, and each paste button puts one of them back.
+   *
+   * ONE ENTRY PER MOVE IN THE RUN, in strip order, so a run can be taken and put back as a run.
+   *
+   * IT IS NOT PART OF THE UNDO STATE. It is not a change to the call - it is a thing the caller is holding -
+   * so a revert must not clear it or put an older one back.
+   */
+  /**
+   * THE POINT EACH COPIED MOVE IS HOLDING, KEYED ON THE MOVE ITSELF.
+   *
+   * Asked for: "each Users Move has it's own copy of the coordinates. If multiple Dancers and Moves are enabled,
+   * they copy their own specific coordinates. These copied coordinates are only available to that specific
+   * move." So this is not a clipboard the panel owns - there is no list, and there is nothing to pair up: a
+   * move either is holding a point or is not, and only that move can paste it.
+   *
+   * THE KEY IS THE `Seg` OBJECT, and the engine makes that free: `setMove` clones ONLY the move it writes
+   * (`moves.map((s, k) => k === i ? cloneSegs([seg])[0] : s)`), `addMove` splices one in and `removeMove`
+   * splices one out, and all three end in a SHALLOW `retime` - so a move that was not the one written keeps its
+   * object identity across a delete, an insert and an edit of any other move. Which is the whole answer to
+   * "will the copy cope with deleting a Move": deleting a move in front of a copied one shifts every INDEX down
+   * by one and changes no object, so the copy is still on the move it was taken from. An index cannot do that.
+   *
+   * THE ONE HOLE IS THE MOVE BEING WRITTEN, whose object `setMove` replaces by design, and `carryMoveClips`
+   * closes it by re-registering the replaced move's point on the object that replaced it.
+   *
+   * A WeakMap, because a move that is deleted should take its point with it rather than leak.
+   */
+  private moveClips = new WeakMap<Seg, MoveClip>();
   /** The editor's OWN playhead, in absolute beats. The animation is OFF while editing an instance,
    *  so this is the only thing that moves the dancers - and it has to be remembered HERE because
    *  every edit re-shows the instance and re-showing parks the playhead at the lead-in. */
@@ -856,6 +903,10 @@ export class EditorController implements EditorUI {
       // A NEW CALL HAS NO HISTORY: the steps in the stack describe a different call, so putting one back
       // would swap the instance out from under the lists that name it.
       this.clearUndo();
+      // AND NO COPIED POINTS: a copy describes a move of the call it was taken from, in that call's frames, so
+      // pasting it into a different call would put a point on the floor that nobody chose. A fresh WeakMap is
+      // both the clear and the tidy-up - the old call's segments become unreachable with it.
+      this.moveClips = new WeakMap<Seg, MoveClip>();
       this.source = normalizeInstance(loadCall(id, tam, true));
       this.instance = this.source;
       this.instanceEdited = false;
@@ -1234,6 +1285,9 @@ export class EditorController implements EditorUI {
    * caller is steering by. Writing them is eight field assignments, not a rebuild.
    */
   private applyLight(next: CallBundle) {
+    // THE DRAG WRITES HERE, so it needs the same carry: a drag that moves the copied end point would otherwise
+    // drop the copy on the first pointer move.
+    this.carryMoveClips(this.instance, next);
     this.instance = next;
     this.instanceEdited = true;
     this.host.updateCall(next);
@@ -1263,23 +1317,25 @@ export class EditorController implements EditorUI {
    *  The delta is PER DANCER, because the selection shares the local numbers and not the frame they land
    *  in. It compounds correctly through a drag: each pointer move writes the facing ABSOLUTELY and holds
    *  the tail by the step since the last one, so the accumulated hold is the whole of the edit. */
-  private foldMoveChange(f: (seg: Seg) => Seg, curve: CurveKind | null = null): CallBundle | null {
-    const call = this.instance;
+  private foldMoveChange(f: (seg: Seg, dancer: number) => Seg, curve: CurveKind | null = null, at = this.moveIndex, base = this.instance): CallBundle | null {
+    const call = base;
     if (!call) return null;
     let next = call;
     let changed = false;
     for (const d of this.selectedSorted()) {
-      const seg = next.dancers[d]?.path[this.moveIndex];
+      const seg = next.dancers[d]?.path[at];
       if (!seg) continue;
       const before = bezierAngle(seg.rotate ?? seg.translate, 1);
-      const patched = f(seg);
-      next = setMove(next, d, this.moveIndex, patched);
+      // THE DANCER COMES WITH THE SEGMENT, because an absolute write is per-dancer: the selection shares a
+      // LOCAL end point, not the frame it lands in, so the conversion has to be done inside this loop.
+      const patched = f(seg, d);
+      next = setMove(next, d, at, patched);
       changed = true;
       // A change to the heading the move ends on is the whole of what swings the tail. A `cx1` drag does
       // not move it, so that gesture is left exactly as it was.
       if (curve === 'facing') {
         const delta = normAngle(bezierAngle(patched.rotate ?? patched.translate, 1) - before);
-        if (delta !== 0) next = holdFollowingTrace(next, d, this.moveIndex, delta);
+        if (delta !== 0) next = holdFollowingTrace(next, d, at, delta);
       }
     }
     return changed ? next : null;
@@ -1883,7 +1939,34 @@ export class EditorController implements EditorUI {
    * `focusKey` puts the focus back for the case where the value was committed with the
    * spin buttons or Enter without leaving the field.
    */
+  /**
+   * MOVE THE COPIED POINTS ONTO THE OBJECTS THAT REPLACED THEM.
+   *
+   * `setMove` replaces the segment it writes - that is the one place identity is broken - and it does so for
+   * EVERY write: a field, the drag, the arc, the explicit box, a facing edit's held trace (which writes every
+   * later move), and a paste. Without this, copying a move and then editing that same move would lose the copy,
+   * which is the single most likely thing to do with it.
+   *
+   * THE COMPARISON IS POSITIONAL AND THE LENGTHS ALWAYS MATCH, because none of these writes adds or removes a
+   * move - they rewrite one or more of them in place. A move that IS added or removed keeps its object, so it
+   * needs nothing.
+   */
+  private carryMoveClips(from: CallBundle | null, to: CallBundle) {
+    if (!from) return;
+    const dancers = Math.min(from.dancers.length, to.dancers.length);
+    for (let d = 0; d < dancers; d++) {
+      const before = from.dancers[d]?.path ?? [];
+      const after = to.dancers[d]?.path ?? [];
+      for (let j = 0; j < Math.min(before.length, after.length); j++) {
+        if (before[j] === after[j]) continue;
+        const carried = this.moveClips.get(before[j]);
+        if (carried) this.moveClips.set(after[j], carried);
+      }
+    }
+  }
+
   private commit(next: CallBundle, focusKey?: string) {
+    this.carryMoveClips(this.instance, next);
     this.instance = next;
     this.instanceEdited = true;
     this.showInstance(next);
@@ -2381,6 +2464,204 @@ export class EditorController implements EditorUI {
   }
 
   /**
+   * WHERE A MOVE IS PLAYED FROM: the dancer's own pose at the move's first beat. Both of a move's Beziers are
+   * authored in that frame, so it is also the frame an absolute end point is read - and written - through.
+   */
+  private moveFrame(call: CallBundle, d: number, j: number): MoveFrame | null {
+    const dancer = call.dancers[d];
+    if (!dancer || j < 0 || j >= dancer.path.length) return null;
+    return poseFor(dancer, moveBeatRange(dancer, j).from);
+  }
+
+  /**
+   * THE MOVES THE RUN COVERS, ascending, and never empty.
+   *
+   * The run is the strip's only multi-move selection, and it is stored as the two ENDS of the gesture
+   * (`moveIndex`, `circleTo`) rather than as a list, so it is normalised here: shift-clicking BACKWARDS is the
+   * same gesture as shift-clicking forwards, and the copy below must not care which way the caller dragged.
+   * Clamped to the strip, so a run that outlives a deletion still names moves that exist.
+   */
+  private selectedMoveRange(): number[] {
+    const last = Math.max(0, this.currentMoves().length - 1);
+    const a = Math.max(0, Math.min(this.moveIndex, last));
+    const b = this.circleTo === null ? a : Math.max(0, Math.min(this.circleTo, last));
+    const out: number[] = [];
+    for (let j = Math.min(a, b); j <= Math.max(a, b); j++) out.push(j);
+    return out;
+  }
+
+  /** The curve the tile is showing, which is the curve C/Pa/Pr act on - like every other control in the tile. */
+  private shownCurve(): CurveKind {
+    return this.moveKind === 'facing' ? 'facing' : 'travel';
+  }
+
+  /** What the move at `j`, as the tile shows it, is holding - or undefined when it holds nothing. */
+  private heldBy(j: number): MoveClip | undefined {
+    const seg = this.instance?.dancers[this.moveDancer]?.path[j];
+    return seg ? this.moveClips.get(seg) : undefined;
+  }
+
+  /**
+   * THE `C` BUTTON: take the end point each selected move is holding, and keep it ON THAT MOVE.
+   *
+   * Asked for, after a first cut kept one list for the whole panel: "After the copy for one Move is activated,
+   * all moves seem to be activated with the same copy data. This was not the intention... each Users Move has
+   * it's own copy of the coordinates. If multiple Dancers and Moves are enabled, they copy their own specific
+   * coordinates. These copied coordinates are only available to that specific move." So a copy is a property of
+   * the move: pressing C on a run fills in each move of the run, and lights ONLY those moves' buttons.
+   *
+   * IT IS A READ, SO IT IS NOT GATED by the coordinate lock - the buttons in the tile say so too. This is also
+   * the second press the request names: pressing C again replaces what a move is holding with its values now.
+   */
+  private copyMoveEnds() {
+    const call = this.instance;
+    const dancer = call?.dancers[this.moveDancer];
+    if (!call || !dancer) {
+      this.statusEl.textContent = 'nothing to copy - there is no call loaded';
+      return;
+    }
+    const curve = this.shownCurve();
+    const what = curve === 'facing' ? 'facing' : 'path';
+    const range = this.selectedMoveRange();
+    // EVERY SELECTED DANCER AND EVERY MOVE OF THE RUN, EACH TAKING ITS OWN NUMBERS. The dancer the tile shows is
+    // included even when nothing is ticked, because the tile is showing its numbers - and the dancers of a call
+    // need not agree about where a move goes, so each one's own pair is what gets kept.
+    const dancers = new Set([this.moveDancer, ...this.selectedSorted()]);
+    let stored = 0;
+    let skipped = 0;
+    const filled = new Set<number>();
+    for (const j of range) {
+      for (const d of dancers) {
+        const one = call.dancers[d];
+        const seg = one?.path[j];
+        if (!one || !seg) continue;
+        const c = curve === 'facing' ? seg.rotate : seg.translate;
+        const frame = this.moveFrame(call, d, j);
+        if (!c || !frame) { skipped++; continue; }
+        // THE BUNDLE'S OWN SEGMENT, not the copy `currentMoves()` hands the panel: `instanceTable` clones the
+        // moves it reports, so a table move is a different object on every render and would key nothing.
+        this.moveClips.set(seg, { curve, rel: { x: c.x2, y: c.y2 }, abs: localToFloor(frame, c.x2, c.y2) });
+        stored++;
+        filled.add(j);
+      }
+    }
+    if (stored === 0) {
+      this.statusEl.textContent = `nothing to copy - no move in the run has a ${what} to take an end point from`;
+      return;
+    }
+    // THE BUTTONS ARE IN THE TILE, so the strip is rebuilt to light the copied moves and to put each one's values
+    // on its own hover. NOT a change to the call, so no undo step is taken: `renderMoveStrip` does not push one,
+    // and only the render that follows a change does (`noteState`). The stage is re-pointed because the strip was
+    // rebuilt - `stage-sync-probe.mjs` requires that of anything that rebuilds the strip, and it is idempotent.
+    this.renderMoveStrip();
+    this.syncStageSelection();
+    this.statusEl.textContent =
+      `copied the ${what} end point of ${filled.size === 1 ? `move ${range[0] + 1}` : `${filled.size} moves`}` +
+      (skipped ? ` (${skipped} skipped, no ${what})` : '') +
+      ' - each move keeps its own, and only that move can paste it';
+  }
+
+  /**
+   * THE `Pa` AND `Pr` BUTTONS: put back what the moves in the run are HOLDING, each move taking its own.
+   *
+   * `absolute` reads the stored BOARD pair and converts it through the frame the move has NOW, so the point
+   * returns to where it was on the floor whatever the moves before it now do; `Pr` writes the stored RELATIVE
+   * pair straight back. A move that is holding nothing, or is holding a point taken on the OTHER tab, is LEFT
+   * ALONE - which is what "these copied coordinates are only available to that specific move" means - and the
+   * count of what was written and what was left is said out loud, because a paste that did nothing looks
+   * exactly like a paste that worked.
+   *
+   * ONE COMMIT, so a paste over a run is ONE undo step rather than one per move.
+   */
+  private pasteMoveEnds(absolute: boolean) {
+    const call = this.instance;
+    const curve = this.shownCurve();
+    const board = absolute ? 'BOARD' : 'RELATIVE';
+    const tab = curve === 'facing' ? 'FACING' : 'MOVE';
+    if (!call) return;
+    if (this.arcOn) {
+      this.statusEl.textContent = 'the arc lock is on, so these numbers are not independent - untick arc to paste';
+      return;
+    }
+    // NOWHERE TO WRITE IS REFUSED FIRST, because `coordinatesAgree` is false for an empty selection as well and
+    // the two want different sentences.
+    if (this.selectedDancers.size === 0) {
+      this.statusEl.textContent = 'no dancers selected - pick dancers above the table, or the paste has nowhere to go';
+      return;
+    }
+    if (!this.coordinatesAgree(curve)) {
+      this.statusEl.textContent = `coordinates locked: the selected dancers do not share this move's ${curve === 'travel' ? 'path' : 'facing'}, and one set of numbers cannot describe several - select one dancer to paste`;
+      return;
+    }
+    const range = this.selectedMoveRange();
+    let next = call;
+    let done = 0;
+    let empty = 0;
+    let wrongTab = 0;
+    for (const j of range) {
+      // EVERY SELECTED DANCER AND EVERY MOVE OF THE RUN, EACH FROM ITS OWN COPY - the same spread the copy
+      // takes, which is what was asked for: "Just as the copy works with selected Dancers and Moves, so does
+      // the Paste (but the data is local to the Move)". So the decision is made PER DANCER AND MOVE inside the
+      // fold below, and NOT up front from the move the tile happens to show: a dancer whose move holds nothing
+      // is left exactly as it is while its neighbour's is written.
+      let touched = false;
+      // THE FRAME IS READ FROM THE BUNDLE BEING BUILT, not from the one it started as: pasting an earlier move
+      // moves where the later ones begin, and an absolute paste has to land on the floor position it was
+      // copied from - which is only true of the frame the move has AFTER the earlier pastes.
+      const step = this.foldMoveChange((seg: Seg, d: number) => {
+        const c = curve === 'facing' ? seg.rotate : seg.translate;
+        if (!c) return seg;
+        // THIS DANCER'S OWN MOVE, by its own object: a dancer whose move holds nothing is left exactly as it is.
+        const own = this.moveClips.get(seg);
+        if (!own) return seg;
+        if (own.curve !== curve) { wrongTab++; return seg; }
+        let want = own.rel;
+        if (absolute) {
+          const frame = this.moveFrame(next, d, j);
+          if (!frame) return seg;
+          const local = floorToLocal(frame, own.abs.x, own.abs.y);
+          want = { x: local.lx, y: local.ly };
+        }
+        const moved = { ...c, x2: want.x, y2: want.y };
+        touched = true;
+        return curve === 'facing' ? { ...seg, rotate: moved } : { ...seg, translate: moved };
+      }, curve, j, next);
+      if (step && touched) { next = step; done++; }
+      else if (!touched) empty++;
+    }
+    if (done === 0) {
+      this.statusEl.textContent = wrongTab > 0 && empty === 0
+        ? `nothing pasted - what these moves hold was taken on the ${tab === 'MOVE' ? 'FACING' : 'MOVE'} tab, and this tab edits the ${tab}`
+        : `nothing pasted - ${empty} move${empty === 1 ? '' : 's'} in the run ${empty === 1 ? 'is' : 'are'} holding nothing; press C on a move to take its end point`;
+      return;
+    }
+    // THE COPY IS KEPT, NOT CLEARED. The request first said "C will clear when Pa/Pr is pressed"; after using
+    // it, the caller asked for the opposite - "dont clear the memory after a paste... it's more useful to keep
+    // it" - so one copy can be pasted as BOARD and then as RELATIVE without taking it again. `C` stays lit
+    // because the move is still holding the same point.
+    this.commit(next, `m${this.moveDancer}:${this.moveIndex}:${absolute ? 'pasteAbs' : 'pasteRel'}`);
+    this.statusEl.textContent =
+      `pasted ${done} move${done === 1 ? '' : 's'} as ${board} coordinates` +
+      (empty ? ` - ${empty} left alone, holding nothing` : '') +
+      '; the points are kept, so they can be pasted again or as the other pair';
+  }
+
+  /**
+   * WHAT THIS MOVE'S `C` IS HOLDING, for the hover. Asked for: "Hovering over C button will show current values
+   * stored, if there are any." A highlight says that something is held; only the values say WHICH point.
+   */
+  private clipTitle(held: MoveClip | undefined): string {
+    if (!held) {
+      return 'Copy THIS move\'s end point - relative and board - and keep it on this move, so it can be pasted back after deleting or adding moves has shifted where it lands. Shift-click a second move to copy a run. This move is holding nothing.';
+    }
+    const what = held.curve === 'facing' ? 'facing' : 'move';
+    return `HOLDING this move's ${what} end point:` + '\n' +
+      `  relative ${show(held.rel.x)}, ${show(held.rel.y)}` + '\n' +
+      `  board    ${show(held.abs.x)}, ${show(held.abs.y)}` + '\n' +
+      'Pressing C again replaces it with the values on screen now. Pa pastes the board pair, Pr the relative one.';
+  }
+
+  /**
    * THE DANCER SELECTOR: one toggle per dancer.
    *
    * It replaced an "all" button, which was near-useless - very few calls have every dancer doing
@@ -2452,18 +2733,21 @@ export class EditorController implements EditorUI {
     // while editing facings should keep you in facing mode, but not on a move where there is no
     // such shape - otherwise the tile would claim a selection the board is not drawing.
     if (this.moveKind === 'facing' && moves[this.moveIndex]?.rotate == null) this.moveKind = 'move';
+    // THE SAME RANGE THE COPY BUTTON COVERS, asked for once: the highlight below has to show exactly the moves
+    // a copy would take, or the caller is checking a range the button will not use.
+    const run = this.selectedMoveRange();
     for (let k = 0; k < moves.length; k++) {
       const tile = k === this.moveIndex ? this.currentMoveTile(moves[k]) : this.compactMoveTile(moves[k], k);
       // THE RUN IS VISIBLE IN THE STRIP, not only in the field that set it: a range that is invisible is a
       // range the caller cannot check before pressing the button.
-      if (this.circleTo !== null && k >= this.moveIndex && k <= this.circleTo && k !== this.moveIndex) {
+      if (k !== this.moveIndex && run.includes(k)) {
         tile.classList.add('in-run');
       }
       host.appendChild(tile);
     }
     const cur = moves[this.moveIndex];
-    const run = this.circleTo !== null && this.circleTo > this.moveIndex ? ` · run ${this.moveIndex + 1}–${Math.min(this.circleTo, moves.length - 1) + 1}` : '';
-    this.moveInfoEl.textContent = `move ${this.moveIndex + 1}/${moves.length} · ${show(cur.beats)}b · ${cur.hands}${run}`;
+    const runLabel = run.length > 1 ? ` \u00b7 run ${run[0] + 1}\u2013${run[run.length - 1] + 1}` : '';
+    this.moveInfoEl.textContent = `move ${this.moveIndex + 1}/${moves.length} · ${show(cur.beats)}b · ${cur.hands}${runLabel}`;
   }
 
   /** A move you are not editing: its number, its beats and its hands, and nothing else. */
@@ -2880,6 +3164,50 @@ export class EditorController implements EditorUI {
     });
     arcRow.append(achk, alab);
     grid.appendChild(arcRow);
+
+    // ---- COPY / PASTE THE END POINT, asked for as three buttons beside the arc box ----
+    //
+    // The names are the request's own: C copies, Pa pastes the point back as BOARD coordinates and Pr as
+    // RELATIVE ones. Those are different edits the moment the moves before this one have moved, which is the
+    // whole reason there are two of them: deleting or adding a move leaves a later move's local numbers alone
+    // and shifts where they land on the floor, while re-aiming a move moves the local numbers under a floor
+    // position that did not change. Each move keeps BOTH pairs, and only that move can paste them.
+    //
+    // C IS LIT WHILE THIS MOVE HOLDS SOMETHING, and its hover is the numbers: a highlight says that something is
+    // held, and only the values say WHICH point. Asked for: "each Users Move has it's own copy of the
+    // coordinates... These copied coordinates are only available to that specific move" - so a move that holds
+    // nothing shows a dim C and disabled pastes, and copying a run lights each move of it rather than all of them.
+    const clipRow = document.createElement('span');
+    clipRow.className = 'ed-group ed-clip';
+    const held = this.heldBy(k);
+    const cbtn = document.createElement('button');
+    cbtn.type = 'button';
+    cbtn.dataset.key = `m${i}:${k}:copy`;
+    cbtn.textContent = 'C';
+    cbtn.title = this.clipTitle(held);
+    if (held) cbtn.classList.add('on');
+    cbtn.addEventListener('click', () => this.copyMoveEnds());
+    // THE PASTES WRITE, so they carry the same two locks the fields beside them do: one set of numbers cannot
+    // describe several shapes, and an arc's five numbers are not independent. COPYING DOES NOT - it is a read,
+    // and taking a point off a locked move before narrowing the selection is exactly when it is wanted.
+    const pasteBtn = (label: string, absolute: boolean, key: string) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.key = key;
+      b.textContent = label;
+      b.disabled = !held || !coordsOk || this.arcOn;
+      b.title = !held
+        ? 'This move is holding nothing - press C to take its end point first. A copy belongs to the move it was taken from, so another move\'s copy cannot be pasted here.'
+        : `Paste THIS move's copied end point as ${absolute ? 'BOARD' : 'RELATIVE'} coordinates: ` +
+          (absolute
+            ? 'it goes back to where it was on the FLOOR, whatever the moves before it now do.'
+            : 'it goes back to the same place in the DANCER\'s own frame, whatever the moves before it now do.') +
+          ' Every move of the run takes its own, and a move holding nothing is left alone.';
+      b.addEventListener('click', () => this.pasteMoveEnds(absolute));
+      return b;
+    };
+    clipRow.append(cbtn, pasteBtn('Pa', true, `m${i}:${k}:pasteAbs`), pasteBtn('Pr', false, `m${i}:${k}:pasteRel`));
+    grid.appendChild(clipRow);
     if (blocker) {
       // SAY WHY, NUMBERED. A disabled control with no explanation is indistinguishable from a broken
       // one, and the angle is the number that tells the caller what to fix about the handles.

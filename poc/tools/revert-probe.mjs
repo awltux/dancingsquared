@@ -136,7 +136,7 @@ console.log('\n== 2. the panel keeps it, and the button is offered ==');
     '`renderInstance` calls it, so a change is recorded by the render that follows it');
   check(/private clearUndo\(\)[\s\S]{0,200}?this\.lastKey = null;/.test(ui),
     'a load starts a fresh history, and the null baseline is what stops the call being replaced from being pushed');
-  check(/this\.clearUndo\(\);[\s\S]{0,200}?this\.source = normalizeInstance\(loadCall/.test(ui),
+  check(/this\.clearUndo\(\);[\s\S]{0,700}?this\.source = normalizeInstance\(loadCall/.test(ui),
     'and it is cleared by `loadInstance` itself, before the new call is in place');
   check(/this\.resetNoteState\(\);[\s\S]{0,200}?this\.renderInstance\(\);/.test(ui),
     'and an UNDO re-baselines before it renders, or the next press would put back what it just undid');

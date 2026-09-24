@@ -5186,3 +5186,80 @@ identity, and the structural pins on the layout, the single map, the rail, and t
 **THIS WORK ALSO FIXED DRIFT IN THIS FILE.** The Revert button and the `<tam>` unwrapping each shipped without a
 section here, because PLAN.md is written at the end of a piece and those two were committed straight after the
 facing work. Both are written up above, from the commits rather than from memory.
+
+### COPY / PASTE A MOVE'S END POINT: `C`, `Pa`, `Pr` (BUILT AND GATED)
+
+Asked for: "Add [C]opy/[Pa]PasteAbsolute/[Pr]PasteRelative buttons to each Move pane, beside the 'arc' checkbox,
+that keeps a local copy of the move x/y end coordinates and can paste them back at a later date (if it was
+changed by deleting/adding other Moves). The C button will be highlighted if it is currently holding a value. C
+will clear when Pa/Pr is pressed. Pressing C a second time will replace the copied coordinates with the latest
+values. Hovering over C button will show current values stored, if there are any. If multiple moves are selected,
+the C applies to all selected Moves."
+
+**TWO PAIRS ARE STORED, AND THAT IS WHY THERE ARE TWO PASTE BUTTONS.** A move's numbers are authored in the frame
+the move is PLAYED FROM, so `Pa` and `Pr` would be one button twice unless the ground under the move can move -
+and it can: deleting or adding an earlier move leaves a later move's LOCAL numbers alone and moves where they
+land on the FLOOR, while re-aiming a move moves the local numbers under a floor position that did not change. So
+the copy holds the relative pair AND the board pair, `Pr` writes the relative one straight back and `Pa`
+converts the board one through the frame the move has NOW. MEASURED over the corpus: 1056 moves that have a move
+before them, 1012 of them with the ground actually moved under them (by up to 4.175 units). `Pa` puts the point
+back on the floor position it was copied from to **1.14e-15**; `Pr` misses by at least **0.209 units on every
+single moved frame**; and with nothing moved the two agree to 6.3e-16, which is the control.
+
+**THE COPY BELONGS TO THE MOVE OBJECT, NOT TO ITS INDEX** - and that was the interesting part. It was asked
+twice: "If multiple Moves were selected when Copy pressed, pasting seems to always paste the first index, rather
+than the Move specific index", then "Will the copy index cope with deleting a Move?", then the answer itself:
+"Sounds like the copy data needs to belong to the Move object." An index does NOT cope: deleting a move in front
+of a copied run shifts every index down by one, and no rule inferred from indices can tell that from a different
+move having been copied. A `WeakMap` keyed on the `Seg` object can, and the engine makes it free - `setMove`
+clones ONLY the move it writes (`moves.map((s, k) => k === i ? cloneSegs([seg])[0] : s)`), `addMove` splices one
+in and `removeMove` splices one out, and all three end in a SHALLOW `retime`, so every move that was not the one
+written keeps its object identity. MEASURED over EVERY level, 547 calls and 1864 copied moves carried through a
+real delete, a real insert and a real rewrite: **0 lost to a delete, 0 to an insert, 0 disturbed by a rewrite of
+another move**, and a write replaces **exactly one** object every time.
+
+**THE ONE HOLE, AND WHERE IT IS CLOSED.** The move that IS written loses its object by design, so its copy has
+to be moved onto the object that replaced it. `carryMoveClips` does that by comparing the old and new bundles
+positionally - the lengths always match, because none of these writes adds or removes a move - and it is called
+from BOTH write paths, `commit` and `applyLight`, because the drag writes through the second one and a drag that
+moved the copied end point would otherwise drop the copy on its first pointer move. THERE IS NO OTHER FALLBACK
+AND NO LIST: a move either is holding a point or is not, and only that move can paste it.
+
+**EACH MOVE KEEPS ITS OWN, AND THE PASTE SPANS THE SELECTION EXACTLY AS THE COPY DOES.** That took two
+corrections and both were reported from use. First: "After the copy for one Move is activated, all moves seem to
+be activated with the same copy data. This was not the intention... each Users Move has it's own copy of the
+coordinates. If multiple Dancers and Moves are enabled, they copy their own specific coordinates. These copied
+coordinates are only available to that specific move." - so the store is per `Seg` and there is no shared list:
+`C` fills in every move of the run for every selected dancer, EACH TAKING ITS OWN numbers, and only those moves'
+buttons light up. Then: "Just as the copy works with selected Dancers and Moves, so does the Paste (but the data
+is local to the Move)." - so the paste is decided PER DANCER AND MOVE inside the fold rather than up front from
+the move the tile happens to show, and a dancer or move holding nothing is left exactly as it is. MEASURED over
+every level, 932 dancers across 547 calls: a copy is invisible to every other move of the same dancer and to the
+same-numbered move of every other dancer - **0 leaks** both ways - and 1864 copied moves survive a real delete, a
+real insert and a real rewrite with **0 lost, 0 disturbed**.
+
+**THE ONE THING THAT IS NOT SHARED IS THE CURVE.** A point taken on the Move tab is a position and one taken on
+the Facing tab is a heading pair, so a move holding the wrong one for the tab in front of it is skipped and
+counted rather than pasted into nonsense. What was written, what was left holding nothing, and what was taken on
+the other tab are all said on the status line, because a paste that did nothing looks exactly like a paste that
+worked.
+
+**LAYOUT, AND A REAL CSS BUG THE STYLING REQUEST UNCOVERED.** Three one- and two-letter buttons beside the `arc`
+box, in the tile's grid, with `C` lit while it holds anything and the values on its hover (a highlight says
+something is held; only the numbers say WHICH point). Asked to "make the buttons a bit more prominent, they are
+hard to see against the dark background" - and the reason they were invisible was not the colours: an earlier
+edit of the CSS block had DELETED ITS COMMENT TERMINATOR, so every `.ed-clip` rule was inside an unterminated
+comment and the buttons were being drawn by the panel's dim default. The rules were rewritten loud (full-strength
+text, a raised background, an edge, a bold label), and the probe now STRIPS CSS COMMENTS before checking any
+style, which is the check that would have caught it.
+
+**KEPT, NOT CLEARED, AFTER A PASTE.** The request said "C will clear when Pa/Pr is pressed"; after using it the
+caller asked for the opposite - "dont clear the memory after a paste... it's more useful to keep it" - so one copy
+can be pasted as BOARD and then as RELATIVE, or onto a second run, without taking it again. `C` stays lit, the
+status line says it still holds it, and the value is cleared in exactly ONE place: loading another call, where the
+moves it describes no longer exist. It is deliberately NOT part of the undo state - holding a point is not a
+change to the call, so a revert must not clear it or put an older one back.
+
+The run is the strip's only multi-move selection, so it is normalised (`min`/`max` of `moveIndex` and `circleTo`)
+and the strip's highlight uses the same range the copy covers, or the caller would be checking a range the button
+will not use. `move-clipboard-probe.mjs` is the gate.

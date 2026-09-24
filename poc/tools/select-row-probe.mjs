@@ -149,7 +149,7 @@ check(!/selInfoEl/.test(src) && !/edSelInfo/.test(html) && !/id="edSelInfo"/.tes
 console.log('\n== the checks fail on the faults they were written for ==');
 {
   const emptyGuard = src.replace(
-    /if \(this\.selectedDancers\.size === 0\) \{\s*this\.statusEl\.textContent = 'no dancers selected/,
+    /if \(this\.selectedDancers\.size === 0\) \{\s*this\.statusEl\.textContent = 'no dancers selected/g,
     "if (false) {\n      this.statusEl.textContent = 'no dancers selected",
   );
   check(emptyGuard !== src, 'the negative control really is a different file (the edit applied)');

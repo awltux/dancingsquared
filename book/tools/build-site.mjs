@@ -28,6 +28,7 @@ import {
   ogImagePng,
   ICON_SVG,
   homeButton,
+  navIcon,
   manifestJson,
   serviceWorkerSource,
   sitemapXml,
@@ -656,10 +657,8 @@ function textSizeButton() {
   return (
     '<button type="button" class="textsize" aria-pressed="false" aria-label="Larger text" ' +
     'title="Show the text at the larger size">' +
-    '<svg viewBox="0 0 32 22" aria-hidden="true" focusable="false">' +
-    '<text x="3" y="20" font-size="13" font-weight="700" fill="currentColor">A</text>' +
-    '<text x="16" y="20" font-size="19" font-weight="700" fill="currentColor">A</text>' +
-    '</svg></button>'
+    navIcon('size') +
+    '</button>'
   );
 }
 
@@ -677,9 +676,8 @@ function pinButton() {
   return (
     '<button type="button" class="pin" aria-pressed="false" aria-label="Pin the navigation bar" ' +
     'title="Pin the navigation bar to the top of the screen">' +
-    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-    '<path fill="currentColor" d="M9.2 3.2H14.8V8.3L17 10.5V12.1H12.9V19.2L12 20.8L11.1 19.2V12.1H7V10.5L9.2 8.3Z"/>' +
-    '</svg></button>'
+    navIcon('pin') +
+    '</button>'
   );
 }
 
@@ -699,9 +697,8 @@ function backButton() {
   return (
     '<button type="button" class="back" aria-label="Back to the page you came from" ' +
     'title="Back to the page you came from">' +
-    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-    '<path fill="currentColor" d="M10 5.5 3.5 12 10 18.5V14h4.2c2.6 0 4.3 1.6 4.3 4.4V20h2v-1.6c0-4-2.5-6.4-6.3-6.4H10Z"/>' +
-    '</svg></button>'
+    navIcon('back') +
+    '</button>'
   );
 }
 
@@ -1100,6 +1097,13 @@ export function main() {
   ];
   for (const [name, buf] of icons) writeFileSync(join(SITE, 'icons', name), buf);
   writeFileSync(join(SITE, 'icons', 'icon.svg'), ICON_SVG);
+  // The nav bar's icons travel to the site as files as well, because a page that describes the bar
+  // shows the same artwork rather than a lookalike: the buttons INLINE these files, and the pages
+  // reference them. They are copied, never redrawn, so the two cannot drift apart. `navIcon` reads
+  // them from `book/icons/`, which is also where the gate looks for the images the pages name.
+  for (const name of ['home', 'back', 'size', 'pin']) {
+    writeFileSync(join(SITE, 'icons', `nav-${name}.svg`), `${navIcon(name)}\n`, 'utf8');
+  }
 
   writeFileSync(
     join(SITE, 'manifest.webmanifest'),

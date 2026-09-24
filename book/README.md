@@ -369,14 +369,14 @@ is how that gets caught rather than shipped.
 
 Every page carries a navigation bar above its title:
 
-- **⌂ Home** (left-hand end) leaves the book for the **Awltux Utilities** hub at the host root —
+- **Home** (left-hand end, `book/icons/nav-home.svg`) leaves the book for the **Awltux Utilities** hub at the host root —
   `util.awltux.trade/index.html`, which lists this book among the other tools. It is a root-relative
   path (`HOME_URL` in `lib/app.mjs`), so the same build is correct on a staging host or on a laptop,
   and it is host-agnostic by construction. Note it is **not** the book's front door: that is
   `index.html` inside the book, which is what the installed app opens and what the resume logic
   redirects from, and the back-trail reads the book's directory from the Contents link rather than
   from this button;
-- **↩ Back** — retraces the reader's own path, which is the commonest movement in this book: follow a
+- **Back** (`book/icons/nav-back.svg`) — retraces the reader's own path, which is the commonest movement in this book: follow a
   link from the glossary into a call and you want the glossary back, not the page before this one in
   the reading order. It is a **button**, not a link, because it does not go to a fixed place. The trail
   is remembered in `sessionStorage` (`dsq-path`) — per tab, and dropped when the tab closes, since it
@@ -387,7 +387,7 @@ Every page carries a navigation bar above its title:
   Entries outside the book's own directory are dropped, so a trail cannot lead off the site;
 - **◀ / ▶** step by **page** in the reading order;
 - **☰ Contents** returns to the [contents page](contents.md), which links every page in the book;
-- **A A** (a small A beside a large one) — the reading size, as a **toggle** rather than a selector:
+- **The reading size** (`book/icons/nav-size.svg`, a small A beside a large one) — as a **toggle** rather than a selector:
   pressed is large, and it is one button because two sizes are a state, not a list. Large raises the
   root font size from 16px to 20px, and because every length in the stylesheet is in rem the type,
   the spacing, the column width and the controls all grow together, so the number of words per line
@@ -395,7 +395,7 @@ Every page carries a navigation bar above its title:
   applied by a script in the `<head>`, so a reader who needs large text does not watch every page
   arrive small and grow — and the glyph needs no label, because a reader who cannot read the words
   "small" and "large" has no use for a label that names them;
-- **📌 Pin** (right-hand end) pins the bar to the top of the screen, so it stays in reach while you
+- **The pin** (right-hand end, `book/icons/nav-pin.svg`) pins the bar to the top of the screen, so it stays in reach while you
   read down a long call page. Turning it off lets the bar scroll away with the page again. The state
   rides `aria-pressed` and the pressing is CSS, so the button's look and what a screen reader
   announces cannot disagree — and, like the text size, the choice is remembered from page to page in

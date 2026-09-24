@@ -25,13 +25,23 @@ export function rewriteHref(href) {
   return frag ? `${html}#${frag}` : html;
 }
 
-/** Inline Markdown (bold, italic, code, links) to HTML. */
+/** Inline Markdown (bold, italic, code, links, images) to HTML. */
 export function inline(text) {
-  // LINKS GO FIRST, into placeholders. Escaping the text first destroys the `"` characters that
-  // separate a link's URL from its title, after which the link syntax cannot be matched at all --
-  // which is exactly how the whole navigation bar arrived on the site as raw Markdown.
+  // IMAGES BEFORE LINKS, and that order is the whole trick: `![alt](src)` CONTAINS `[alt](src)`, so
+  // matching links first turns an inline image into a link with a stray `!` in front of it. Both take
+  // the same placeholder route, so the two passes share one list.
+  //
+  // AN IMAGE IN THE MIDDLE OF A SENTENCE is what this is for. A paragraph that is nothing but an image
+  // is a figure, and the block parser takes that case first; this is for the ones that are inline --
+  // the nav bar's own icons, shown in a table describing the bar, where a picture of the button is
+  // worth more than a name for it.
   const links = [];
-  let s = String(text).replace(/\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, (_, label, href, title) => {
+  let s = String(text).replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, alt, src) => {
+    links.push(`<img src="${escapeHtml(rewriteHref(src))}" alt="${escapeHtml(alt)}" loading="lazy">`);
+    return `\u0001${links.length - 1}\u0001`;
+  });
+
+  s = s.replace(/\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, (_, label, href, title) => {
     const target = rewriteHref(href);
     const external = /^https?:/.test(target);
     // AN EXTERNAL LINK OPENS IN A NEW TAB, and that is not a preference: the site is installable and

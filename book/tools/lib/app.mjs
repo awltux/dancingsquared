@@ -4,7 +4,35 @@
 // ICONS ARE DRAWN, NOT SHIPPED AS ARTWORK. The motif is a squared set -- eight dancers in four
 // couple colours -- rendered by the same rasteriser that draws the animations, so the app icon is
 // made from the same vocabulary as everything else and cannot be a stale copy of a logo.
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Canvas, PALETTE, writePng } from './raster.mjs';
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * THE NAV BAR'S ICONS ARE FILES, and the bar inlines them.
+ *
+ * They were markup written into the button functions, which meant a page describing the bar had to
+ * draw its own approximations of them -- a house glyph and a return glyph that were not the bar's
+ * house and return. Reading them from `book/icons/nav-*.svg` gives one source: the button inlines the
+ * file, and a page can reference the same file as an image, so the picture in the prose is the picture
+ * in the bar and cannot drift from it.
+ *
+ * `currentColor` is deliberate: inlined in the bar these take the button's colour, and the files carry
+ * no colour of their own. Served as an `<img>` they fall back to the page's text colour, which is what
+ * a figure in the prose wants anyway.
+ */
+const ICON_CACHE = new Map();
+export function navIcon(name) {
+  if (!ICON_CACHE.has(name)) {
+    const svg = readFileSync(join(HERE, '..', '..', 'icons', `nav-${name}.svg`), 'utf8').trim();
+    if (!svg.startsWith('<svg')) throw new Error(`book/icons/nav-${name}.svg does not start with <svg`);
+    ICON_CACHE.set(name, svg);
+  }
+  return ICON_CACHE.get(name);
+}
 
 const ACCENT = 8; // #1f6f8b in the shared palette, so the icon and the book agree on the colour
 const FLOOR = 0;
@@ -126,11 +154,8 @@ export function homeButton() {
   return (
     `<a class="home" href="${HOME_URL}" aria-label="Awltux Utilities" ` +
     'title="Awltux Utilities — the other tools on this site">' +
-    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-    '<path d="M3.3 11.3 12 4.4l8.7 6.9" fill="none" stroke="currentColor" stroke-width="1.9" ' +
-    'stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M5.7 10v8.9a1 1 0 0 0 1 1h10.6a1 1 0 0 0 1-1V10" fill="none" stroke="currentColor" ' +
-    'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></a>'
+    navIcon('home') +
+    '</a>'
   );
 }
 

@@ -10,12 +10,12 @@ Read this once and every page afterwards looks familiar.
 
 | Button | What it does |
 |---|---|
-| **⌂** | leaves the book and opens **Awltux Utilities**, the page this book is published alongside, where the other tools live. Every other button keeps you in the book |
-| **↩** | goes back to the page you were reading before this one — and keeps going back if you press it again. It follows **your** trail, not the book's order: after a jump from the glossary into a call, this is the way home. Greyed out while there is nothing behind you |
+| ![Home: a house](icons/nav-home.svg) | leaves the book and opens **Awltux Utilities**, the page this book is published alongside, where the other tools live. Every other button keeps you in the book |
+| ![Back: a left-turning arrow](icons/nav-back.svg) | goes back to the page you were reading before this one — and keeps going back if you press it again. It follows **your** trail, not the book's order: after a jump from the glossary into a call, this is the way home. Greyed out while there is nothing behind you |
 | **◀ / ▶** | the previous and next page in the book's reading order |
 | **☰** | the [contents](contents.md) — every page in the book, in order |
-| **A A** | the reading size. Pressed, the type, the spacing and the pictures all grow together, so the words per line stay about the same; press it again for the normal size |
-| **📌** | holds the bar at the top of the screen while you read down a long call page; press it again to let the bar scroll away |
+| ![Larger text: a small A beside a large one](icons/nav-size.svg) | the reading size. Pressed, the type, the spacing and the pictures all grow together, so the words per line stay about the same; press it again for the normal size |
+| ![Pin: a drawing pin](icons/nav-pin.svg) | holds the bar at the top of the screen while you read down a long call page; press it again to let the bar scroll away |
 
 The reading size and the pin are remembered from page to page, so you choose them once.
 

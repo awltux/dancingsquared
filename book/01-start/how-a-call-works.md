@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../index.md "Previous section: Front matter") [◀](the-square.md "Previous page: The square") [☰](../contents.md "Contents") [▶](timing-and-music.md "Next page: Timing and music") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
+**[◀](the-square.md "Previous page: The square") [☰](../contents.md "Contents") [▶](timing-and-music.md "Next page: Timing and music")**
 <!-- nav:end -->
 
 # How a call works

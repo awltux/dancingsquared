@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m45-cast-off-three-quarters.md "Previous page: M45 — Cast Off Three-Quarters") [☰](../contents.md "Contents") [▶](m47-scoot-back.md "Next page: M47 — Scoot Back") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m45-cast-off-three-quarters.md "Previous page: M45 — Cast Off Three-Quarters") [☰](../contents.md "Contents") [▶](m47-scoot-back.md "Next page: M47 — Scoot Back")**
 <!-- nav:end -->
 
 # M46 — Spin the Top

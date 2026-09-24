@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../06-practice/how-to-practise.md "Previous section: Practice") [◀](plus-programme.md "Previous page: The Plus program") [☰](../contents.md "Contents") [▶](../08-reference/glossary.md "Next page: Glossary") [⏭](../08-reference/glossary.md "Next section: Reference")**
+**[◀](plus-programme.md "Previous page: The Plus program") [☰](../contents.md "Contents") [▶](../08-reference/glossary.md "Next page: Glossary")**
 <!-- nav:end -->
 
 # Plus call index

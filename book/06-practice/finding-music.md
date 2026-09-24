@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../05-course/course-overview.md "Previous section: The course") [◀](caller-and-teacher-notes.md "Previous page: Caller and teacher notes") [☰](../contents.md "Contents") [▶](../07-plus/where-mainstream-leads.md "Next page: Where Mainstream leads") [⏭](../07-plus/where-mainstream-leads.md "Next section: Beyond Mainstream")**
+**[◀](caller-and-teacher-notes.md "Previous page: Caller and teacher notes") [☰](../contents.md "Contents") [▶](../07-plus/where-mainstream-leads.md "Next page: Where Mainstream leads")**
 <!-- nav:end -->
 
 # Finding music

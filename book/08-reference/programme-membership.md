@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../07-plus/where-mainstream-leads.md "Previous section: Beyond Mainstream") [◀](watching-the-animations.md "Previous page: Watching the animations") [☰](../contents.md "Contents") [▶](moved-and-renamed.md "Next page: Moved and renamed") ~~⏭~~**
+**[◀](watching-the-animations.md "Previous page: Watching the animations") [☰](../contents.md "Contents") [▶](moved-and-renamed.md "Next page: Moved and renamed")**
 <!-- nav:end -->
 
 # About this programme

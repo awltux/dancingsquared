@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m36-extend.md "Previous page: M36 — Extend") [☰](../contents.md "Contents") [▶](m38-sweep-a-quarter.md "Next page: M38 — Sweep a Quarter") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m36-extend.md "Previous page: M36 — Extend") [☰](../contents.md "Contents") [▶](m38-sweep-a-quarter.md "Next page: M38 — Sweep a Quarter")**
 <!-- nav:end -->
 
 # M37 — Flutterwheel / Reverse Flutterwheel

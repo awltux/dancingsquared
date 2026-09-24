@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m21-square-thru.md "Previous page: M21 — Square Thru / Left Square Thru") [☰](../contents.md "Contents") [▶](m23-grand-square.md "Next page: M23 — Grand Square") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m21-square-thru.md "Previous page: M21 — Square Thru / Left Square Thru") [☰](../contents.md "Contents") [▶](m23-grand-square.md "Next page: M23 — Grand Square")**
 <!-- nav:end -->
 
 # M22 — Split Two

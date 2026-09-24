@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../05-course/course-overview.md "Previous section: The course") [◀](how-to-practise.md "Previous page: How to practise") [☰](../contents.md "Contents") [▶](dancing-a-tip.md "Next page: Dancing a tip") [⏭](../07-plus/where-mainstream-leads.md "Next section: Beyond Mainstream")**
+**[◀](how-to-practise.md "Previous page: How to practise") [☰](../contents.md "Contents") [▶](dancing-a-tip.md "Next page: Dancing a tip")**
 <!-- nav:end -->
 
 # Drills

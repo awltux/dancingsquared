@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../index.md "Previous section: Front matter") [◀](what-is-square-dancing.md "Previous page: What square dancing is") [☰](../contents.md "Contents") [▶](how-a-call-works.md "Next page: How a call works") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
+**[◀](what-is-square-dancing.md "Previous page: What square dancing is") [☰](../contents.md "Contents") [▶](how-a-call-works.md "Next page: How a call works")**
 <!-- nav:end -->
 
 # The square

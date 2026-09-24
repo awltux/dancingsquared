@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](proper-versus-improper.md "Previous page: Proper versus improper") [☰](../contents.md "Contents") [▶](../04-calls/m01-circle-family.md "Next page: M1 — Circle Family") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
+**[◀](proper-versus-improper.md "Previous page: Proper versus improper") [☰](../contents.md "Contents") [▶](../04-calls/m01-circle-family.md "Next page: M1 — Circle Family")**
 <!-- nav:end -->
 
 # Mainstream restrictions

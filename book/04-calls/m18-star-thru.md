@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m17-veer-left-veer-right.md "Previous page: M17 — Veer Left / Veer Right") [☰](../contents.md "Contents") [▶](m19-circulate-family.md "Next page: M19 — Circulate Family") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m17-veer-left-veer-right.md "Previous page: M17 — Veer Left / Veer Right") [☰](../contents.md "Contents") [▶](m19-circulate-family.md "Next page: M19 — Circulate Family")**
 <!-- nav:end -->
 
 # M18 — Star Thru

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m10-right-and-left-thru.md "Previous page: M10 — Right and Left Thru") [☰](../contents.md "Contents") [▶](m12-ladies-chain-family.md "Next page: M12 — Ladies Chain Family") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m10-right-and-left-thru.md "Previous page: M10 — Right and Left Thru") [☰](../contents.md "Contents") [▶](m12-ladies-chain-family.md "Next page: M12 — Ladies Chain Family")**
 <!-- nav:end -->
 
 # M11 — Swing

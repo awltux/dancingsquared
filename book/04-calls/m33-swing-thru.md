@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m32-trade-family.md "Previous page: M32 — Trade Family") [☰](../contents.md "Contents") [▶](m34-run-cross-run.md "Next page: M34 — Run / Cross Run") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m32-trade-family.md "Previous page: M32 — Trade Family") [☰](../contents.md "Contents") [▶](m34-run-cross-run.md "Next page: M34 — Run / Cross Run")**
 <!-- nav:end -->
 
 # M33 — Swing Thru / Left Swing Thru

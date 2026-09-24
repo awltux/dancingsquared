@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../06-practice/how-to-practise.md "Previous section: Practice") [◀](../06-practice/finding-music.md "Previous page: Finding music") [☰](../contents.md "Contents") [▶](plus-programme.md "Next page: The Plus program") [⏭](../08-reference/glossary.md "Next section: Reference")**
+**[◀](../06-practice/finding-music.md "Previous page: Finding music") [☰](../contents.md "Contents") [▶](plus-programme.md "Next page: The Plus program")**
 <!-- nav:end -->
 
 # Where Mainstream leads

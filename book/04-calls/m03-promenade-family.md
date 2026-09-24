@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m02-dosado.md "Previous page: M2 — Dosado") [☰](../contents.md "Contents") [▶](m04-arm-turn-family.md "Next page: M4 — Arm Turn Family") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m02-dosado.md "Previous page: M2 — Dosado") [☰](../contents.md "Contents") [▶](m04-arm-turn-family.md "Next page: M4 — Arm Turn Family")**
 <!-- nav:end -->
 
 # M3 — Promenade Family

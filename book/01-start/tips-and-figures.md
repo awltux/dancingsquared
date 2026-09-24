@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../index.md "Previous section: Front matter") [◀](timing-and-music.md "Previous page: Timing and music") [☰](../contents.md "Contents") [▶](zeroes-getouts-and-modules.md "Next page: Zeroes, get-outs and modules") [⏭](../02-language/naming-the-dancers.md "Next section: The language")**
+**[◀](timing-and-music.md "Previous page: Timing and music") [☰](../contents.md "Contents") [▶](zeroes-getouts-and-modules.md "Next page: Zeroes, get-outs and modules")**
 <!-- nav:end -->
 
 # Tips, the unit of the dance

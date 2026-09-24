@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](../01-start/zeroes-getouts-and-modules.md "Previous page: Zeroes, get-outs and modules") [☰](../contents.md "Contents") [▶](couples-and-positions.md "Next page: Couples and positions") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
+**[◀](../01-start/zeroes-getouts-and-modules.md "Previous page: Zeroes, get-outs and modules") [☰](../contents.md "Contents") [▶](couples-and-positions.md "Next page: Couples and positions")**
 <!-- nav:end -->
 
 # Naming the dancers

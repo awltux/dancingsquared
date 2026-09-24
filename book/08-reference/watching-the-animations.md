@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../07-plus/where-mainstream-leads.md "Previous section: Beyond Mainstream") [◀](animations-index.md "Previous page: Animations index") [☰](../contents.md "Contents") [▶](programme-membership.md "Next page: About this programme") ~~⏭~~**
+**[◀](animations-index.md "Previous page: Animations index") [☰](../contents.md "Contents") [▶](programme-membership.md "Next page: About this programme")**
 <!-- nav:end -->
 
 # Watching the animations

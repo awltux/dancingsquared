@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](../02-language/concepts-and-modifiers.md "Previous page: Concepts and modifiers") [☰](../contents.md "Contents") [▶](same-position-rule.md "Next page: Same Position Rule") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
+**[◀](../02-language/concepts-and-modifiers.md "Previous page: Concepts and modifiers") [☰](../contents.md "Contents") [▶](same-position-rule.md "Next page: Same Position Rule")**
 <!-- nav:end -->
 
 # Passing Rule

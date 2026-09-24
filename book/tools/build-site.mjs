@@ -256,7 +256,7 @@ nav.nav {
   padding: .5rem 0 .9rem; margin-bottom: 1.1rem; border-bottom: 1px solid var(--rule);
   font-size: 1rem;
 }
-nav.nav a, nav.nav span.off, nav.nav button.pin, nav.nav button.textsize {
+nav.nav a, nav.nav span.off, nav.nav button.pin, nav.nav button.textsize, nav.nav button.back {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 2.3rem; height: 2.3rem; padding: 0 .55rem;
   border: 1px solid var(--rule); border-radius: 8px; background: #fff; text-decoration: none;
@@ -272,6 +272,13 @@ nav.nav .where { margin-left: auto; font-size: .82rem; color: var(--muted); font
    cannot push the navigation links around, and the pair reads as page chrome rather than as two more
    places to navigate to. */
 nav.nav .nav-tools { margin-left: auto; display: inline-flex; align-items: center; gap: .4rem; }
+/* THE BACK BUTTON. The same button styling as the pin and the text size, and one state the others do
+   not have: with nothing behind the reader in this tab it is DISABLED rather than hidden, so the row
+   keeps its shape and the reader can see that the trail starts here. */
+nav.nav button.back { cursor: pointer; }
+nav.nav button.back svg { display: block; width: 1.15rem; height: 1.15rem; }
+nav.nav button.back:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+nav.nav button.back:disabled { color: #c2cbd1; background: var(--wash); cursor: default; }
 /* The text-size button matches the nav buttons in size and carries the standard two-A glyph: a small
    A and a large A side by side, which is the shape every reader already reads as "make the text
    bigger". It is a toggle like the pin, so its state rides aria-pressed and the CSS fills it the
@@ -482,6 +489,69 @@ Definitions, revised 25 August 2026. Definitions quoted with permission; see
       } catch (e) {}
     });
   }
+  // THE BACK BUTTON. It retraces the reader's own path, which the bar cannot know from the reading
+  // order -- so the path is remembered as they walk it, in sessionStorage, which is per TAB and
+  // cleared when the tab closes. Nothing here is a preference to keep: this is where the reader has
+  // been, not what they like.
+  //
+  // PUSH ON ARRIVAL, POP ON PRESS. Every page a reader lands on is pushed, unless it is already on
+  // top (a reload, or the same page reached again), so the stack is exactly the trail. Pressing Back
+  // drops the page being left and goes to the one below, which is what makes repeated presses retrace
+  // the whole path rather than bounce between two pages. A reader who goes back and then follows a new
+  // link pushes onto the shortened trail, which is the same thing every browser does with its own
+  // history: what was ahead is gone.
+  //
+  // The trail is capped, so a long session in one tab cannot grow it without limit.
+  (function () {
+    var bar = document.querySelector('nav.nav');
+    var back = bar && bar.querySelector('button.back');
+    if (!back) return;
+    var KEY = 'dsq-path';
+    var CAP = 60;
+    // THE BOOK'S OWN DIRECTORY, taken from the Home button rather than guessed from this page's URL:
+    // a page three directories deep and one at the root would otherwise disagree about where the book
+    // begins. Entries outside it are dropped, so a trail cannot lead off the site or survive the book
+    // moving to another path.
+    var home = bar.querySelector('a.home');
+    var root = home ? new URL(home.getAttribute('href'), location.href).pathname.replace(/[^/]*$/, '') : '/';
+    var inBook = function (u) { return u.indexOf(root) === 0; };
+    var read = function () {
+      try {
+        var raw = JSON.parse(sessionStorage.getItem(KEY) || '[]');
+        return Array.isArray(raw) ? raw.filter(function (u) { return typeof u === 'string' && inBook(u); }) : [];
+      } catch (e) {
+        return [];
+      }
+    };
+    var write = function (path) {
+      try {
+        sessionStorage.setItem(KEY, JSON.stringify(path.slice(-CAP)));
+      } catch (e) {}
+    };
+    var here = location.pathname + location.search;
+    var path = read();
+    if (inBook(here) && path[path.length - 1] !== here) {
+      path.push(here);
+      write(path);
+    }
+    var showState = function () {
+      var on = path.length > 1;
+      back.disabled = !on;
+      back.title = on ? 'Back to the page you came from' : 'Nothing behind you yet in this tab';
+    };
+    showState();
+    back.addEventListener('click', function () {
+      var trail = read();
+      if (trail.length < 2) {
+        showState();
+        return;
+      }
+      trail.pop();
+      var target = trail[trail.length - 1];
+      write(trail);
+      location.href = target;
+    });
+  })();
   // THE TEXT SIZE. As above: read the state back into the button, write a new choice to both. Small
   // is the absence of the class, so the default page has one thing less to go wrong.
   var sizeBtn = bar && bar.querySelector('button.textsize');
@@ -574,6 +644,28 @@ function pinButton() {
   );
 }
 
+/**
+ * The Back button, at the left of the nav row.
+ *
+ * NOT A LINK, because it does not go to a fixed place: it retraces the reader's own path. Following
+ * a link from the glossary to a call and then wanting the glossary back is the commonest movement in
+ * this book, and [◀] is the wrong answer -- it is the PREVIOUS PAGE IN THE READING ORDER, which is
+ * rarely where the reader came from. The browser's own Back button does the right thing, but on an
+ * installed PWA there is no browser chrome, and inside the page the bar is the only navigation there is.
+ *
+ * The glyph is a return arrow rather than a browser-style left arrow, so it is not read as "previous
+ * page" beside the two arrows that mean exactly that.
+ */
+function backButton() {
+  return (
+    '<button type="button" class="back" aria-label="Back to the page you came from" ' +
+    'title="Back to the page you came from">' +
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+    '<path fill="currentColor" d="M10 5.5 3.5 12 10 18.5V14h4.2c2.6 0 4.3 1.6 4.3 4.4V20h2v-1.6c0-4-2.5-6.4-6.3-6.4H10Z"/>' +
+    '</svg></button>'
+  );
+}
+
 /** The Markdown nav line, re-rendered as buttons. It is already a list of links, so this is a
  *  re-wrap rather than a re-derivation: the destinations come from the one place that knows them. */
 function navHtmlFrom(block) {
@@ -590,11 +682,11 @@ function navHtmlFrom(block) {
   let html = inline(buttonLine);
   html = html.replace(/<del>(.*?)<\/del>/g, '<span class="off">$1</span>');
   const note = m ? `<span class="where">${chapter ? `${chapter} · ` : ''}page ${m[1]} of ${m[2]}</span>` : '';
-  // The Home button leads the row, so it sits at the top left of every page. It comes from
-  // `lib/app.mjs` so the offline page cannot drift from the pages that carry the nav bar. The
-  // reader's tools -- text size and the pin -- are grouped last, so they sit at the top right.
+  // The Home button leads the row, then Back -- the reader's own trail -- then the page step, the
+  // contents and the next page. The reader's tools (text size and the pin) are grouped last, so they
+  // sit at the top right.
   return (
-    `<nav class="nav">${homeButton()}${html}` +
+    `<nav class="nav">${homeButton()}${backButton()}${html}` +
     `<span class="nav-tools">${textSizeButton()}${pinButton()}</span>${note}</nav>`
   );
 }

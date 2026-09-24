@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**~~⏮~~ [◀](contents.md "Previous page: Contents") [☰](contents.md "Contents") [▶](01-start/what-is-square-dancing.md "Next page: What square dancing is") [⏭](01-start/what-is-square-dancing.md "Next section: Start here")**
+**[◀](contents.md "Previous page: Contents") [☰](contents.md "Contents") [▶](01-start/what-is-square-dancing.md "Next page: What square dancing is")**
 <!-- nav:end -->
 
 # Conventions — how this book is laid out

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m26-wheel-and-deal.md "Previous page: M26 — Wheel and Deal") [☰](../contents.md "Contents") [▶](m28-slide-thru.md "Next page: M28 — Slide Thru") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m26-wheel-and-deal.md "Previous page: M26 — Wheel and Deal") [☰](../contents.md "Contents") [▶](m28-slide-thru.md "Next page: M28 — Slide Thru")**
 <!-- nav:end -->
 
 # M27 — California Twirl

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m15-separate-family.md "Previous page: M15 — Separate Family") [☰](../contents.md "Contents") [▶](m17-veer-left-veer-right.md "Next page: M17 — Veer Left / Veer Right") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m15-separate-family.md "Previous page: M15 — Separate Family") [☰](../contents.md "Contents") [▶](m17-veer-left-veer-right.md "Next page: M17 — Veer Left / Veer Right")**
 <!-- nav:end -->
 
 # M16 — Lead Right / Lead Left

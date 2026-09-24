@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](passing-rule.md "Previous page: Passing Rule") [☰](../contents.md "Contents") [▶](facing-couples-rule.md "Next page: Facing Couples Rule") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
+**[◀](passing-rule.md "Previous page: Passing Rule") [☰](../contents.md "Contents") [▶](facing-couples-rule.md "Next page: Facing Couples Rule")**
 <!-- nav:end -->
 
 # Same Position Rule

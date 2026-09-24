@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](class-07.md "Previous page: Class 7 — Lines and Turns") [☰](../contents.md "Contents") [▶](class-09.md "Next page: Class 9 — Waves in Motion") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
+**[◀](class-07.md "Previous page: Class 7 — Lines and Turns") [☰](../contents.md "Contents") [▶](class-09.md "Next page: Class 9 — Waves in Motion")**
 <!-- nav:end -->
 
 # Class 8 — Waves and the Box

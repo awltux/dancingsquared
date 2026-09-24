@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../02-language/naming-the-dancers.md "Previous section: The language") [◀](facing-couples-rule.md "Previous page: Facing Couples Rule") [☰](../contents.md "Contents") [▶](squared-set-convention.md "Next page: Squared Set Convention") [⏭](../04-calls/m01-circle-family.md "Next section: The calls")**
+**[◀](facing-couples-rule.md "Previous page: Facing Couples Rule") [☰](../contents.md "Contents") [▶](squared-set-convention.md "Next page: Squared Set Convention")**
 <!-- nav:end -->
 
 # Ocean Wave Rule

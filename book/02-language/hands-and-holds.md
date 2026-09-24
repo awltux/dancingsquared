@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../01-start/what-is-square-dancing.md "Previous section: Start here") [◀](sequence-and-relationship.md "Previous page: Sequence and relationship") [☰](../contents.md "Contents") [▶](fractions.md "Next page: Fractions") [⏭](../03-rules/passing-rule.md "Next section: The rules")**
+**[◀](sequence-and-relationship.md "Previous page: Sequence and relationship") [☰](../contents.md "Contents") [▶](fractions.md "Next page: Fractions")**
 <!-- nav:end -->
 
 # Hands and holds

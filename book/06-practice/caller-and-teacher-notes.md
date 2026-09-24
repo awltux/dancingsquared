@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../05-course/course-overview.md "Previous section: The course") [◀](dancing-a-tip.md "Previous page: Dancing a tip") [☰](../contents.md "Contents") [▶](finding-music.md "Next page: Finding music") [⏭](../07-plus/where-mainstream-leads.md "Next section: Beyond Mainstream")**
+**[◀](dancing-a-tip.md "Previous page: Dancing a tip") [☰](../contents.md "Contents") [▶](finding-music.md "Next page: Finding music")**
 <!-- nav:end -->
 
 # Caller and teacher notes

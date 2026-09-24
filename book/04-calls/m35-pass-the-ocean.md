@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m34-run-cross-run.md "Previous page: M34 — Run / Cross Run") [☰](../contents.md "Contents") [▶](m36-extend.md "Next page: M36 — Extend") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m34-run-cross-run.md "Previous page: M34 — Run / Cross Run") [☰](../contents.md "Contents") [▶](m36-extend.md "Next page: M36 — Extend")**
 <!-- nav:end -->
 
 # M35 — Pass the Ocean

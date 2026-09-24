@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m38-sweep-a-quarter.md "Previous page: M38 — Sweep a Quarter") [☰](../contents.md "Contents") [▶](m40-ferris-wheel.md "Next page: M40 — Ferris Wheel") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m38-sweep-a-quarter.md "Previous page: M38 — Sweep a Quarter") [☰](../contents.md "Contents") [▶](m40-ferris-wheel.md "Next page: M40 — Ferris Wheel")**
 <!-- nav:end -->
 
 # M39 — Trade By

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m05-star-right-left.md "Previous page: M5 — Star Right/Left") [☰](../contents.md "Contents") [▶](m07-pass-thru.md "Next page: M7 — Pass Thru") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m05-star-right-left.md "Previous page: M5 — Star Right/Left") [☰](../contents.md "Contents") [▶](m07-pass-thru.md "Next page: M7 — Pass Thru")**
 <!-- nav:end -->
 
 # M6 — Right and Left Grand Family

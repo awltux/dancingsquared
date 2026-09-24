@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](course-overview.md "Previous page: Course overview") [☰](../contents.md "Contents") [▶](class-02.md "Next page: Class 2 — Stars, Grands and Wheels") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
+**[◀](course-overview.md "Previous page: Course overview") [☰](../contents.md "Contents") [▶](class-02.md "Next page: Class 2 — Stars, Grands and Wheels")**
 <!-- nav:end -->
 
 # Class 1 — The First Evening

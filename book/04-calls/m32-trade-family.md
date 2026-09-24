@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m31-ocean-wave-family.md "Previous page: M31 — Ocean Wave Family") [☰](../contents.md "Contents") [▶](m33-swing-thru.md "Next page: M33 — Swing Thru / Left Swing Thru") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m31-ocean-wave-family.md "Previous page: M31 — Ocean Wave Family") [☰](../contents.md "Contents") [▶](m33-swing-thru.md "Next page: M33 — Swing Thru / Left Swing Thru")**
 <!-- nav:end -->
 
 # M32 — Trade Family

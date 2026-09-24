@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m23-grand-square.md "Previous page: M23 — Grand Square") [☰](../contents.md "Contents") [▶](m25-first-couple-go.md "Next page: M25 — First Couple Go Left/Right, Next Couple Go Right/Left") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m23-grand-square.md "Previous page: M23 — Grand Square") [☰](../contents.md "Contents") [▶](m25-first-couple-go.md "Next page: M25 — First Couple Go Left/Right, Next Couple Go Right/Left")**
 <!-- nav:end -->
 
 # M24 — Double Pass Thru

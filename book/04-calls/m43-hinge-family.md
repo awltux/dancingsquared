@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m42-touch-a-quarter.md "Previous page: M42 — Touch a Quarter") [☰](../contents.md "Contents") [▶](m44-centers-in.md "Next page: M44 — Centers In") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m42-touch-a-quarter.md "Previous page: M42 — Touch a Quarter") [☰](../contents.md "Contents") [▶](m44-centers-in.md "Next page: M44 — Centers In")**
 <!-- nav:end -->
 
 # M43 — Hinge Family

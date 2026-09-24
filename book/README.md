@@ -369,7 +369,15 @@ is how that gets caught rather than shipped.
 
 Every page carries a navigation bar above its title:
 
-- **⏮ / ⏭** step by **section** — the previous and next numbered chapter;
+- **↩ Back** — retraces the reader's own path, which is the commonest movement in this book: follow a
+  link from the glossary into a call and you want the glossary back, not the page before this one in
+  the reading order. It is a **button**, not a link, because it does not go to a fixed place. The trail
+  is remembered in `sessionStorage` (`dsq-path`) — per tab, and dropped when the tab closes, since it
+  is where the reader has been rather than what they prefer. Every page a reader lands on is pushed
+  unless it is already on top, so a reload does not lengthen the trail; pressing Back drops the page
+  being left and goes to the one below, so repeated presses walk the whole path back. The button is
+  **disabled** rather than hidden when there is nothing behind the reader, so the row keeps its shape.
+  Entries outside the book's own directory are dropped, so a trail cannot lead off the site;
 - **◀ / ▶** step by **page** in the reading order;
 - **☰ Contents** returns to the [contents page](contents.md), which links every page in the book;
 - **A A** (a small A beside a large one) — the reading size, as a **toggle** rather than a selector:
@@ -387,8 +395,14 @@ Every page carries a navigation bar above its title:
   `localStorage` (`dsq-nav-pinned`) and applied by the script in the `<head>`, so a reader who pinned
   the bar does not watch it jump on every page they open.
 
-Those two are the reader's tools: one `aria-pressed` toggle pattern, grouped together at the
-right-hand end of the row so they read as page chrome rather than as more places to navigate to.
+**The section arrows are gone.** There were two more, **⏮ / ⏭**, jumping to the first page of the
+previous or next numbered chapter. They said what **◀ / ▶** already say at the boundary pages, and
+between those pages they were a way of leaving a chapter at a keystroke rather than a way of reaching
+anything; the contents page is the map, and Back is what a reader reaching for them usually wanted.
+
+Those two at the right-hand end are the reader's tools: one `aria-pressed` toggle pattern, grouped
+together so they read as page chrome rather than as more places to navigate to. Back is not one of
+them — it is navigation, and it sits with the other navigation buttons at the left.
 
 The build can also render a chapter-and-progress line and an **On this page** list, but it reads them
 from lines the Markdown nav blocks do not currently carry, so no page shows either today.

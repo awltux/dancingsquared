@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m29-dive-thru.md "Previous page: M29 — Dive Thru") [☰](../contents.md "Contents") [▶](m31-ocean-wave-family.md "Next page: M31 — Ocean Wave Family") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m29-dive-thru.md "Previous page: M29 — Dive Thru") [☰](../contents.md "Contents") [▶](m31-ocean-wave-family.md "Next page: M31 — Ocean Wave Family")**
 <!-- nav:end -->
 
 # M30 — Box the Gnat

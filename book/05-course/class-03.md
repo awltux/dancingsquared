@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](class-02.md "Previous page: Class 2 — Stars, Grands and Wheels") [☰](../contents.md "Contents") [▶](class-04.md "Next page: Class 4 — Passing and Leading") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
+**[◀](class-02.md "Previous page: Class 2 — Stars, Grands and Wheels") [☰](../contents.md "Contents") [▶](class-04.md "Next page: Class 4 — Passing and Leading")**
 <!-- nav:end -->
 
 # Class 3 — The Couple Calls

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m08-wheel-around.md "Previous page: M8 — Wheel Around / Reverse Wheel Around") [☰](../contents.md "Contents") [▶](m10-right-and-left-thru.md "Next page: M10 — Right and Left Thru") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m08-wheel-around.md "Previous page: M8 — Wheel Around / Reverse Wheel Around") [☰](../contents.md "Contents") [▶](m10-right-and-left-thru.md "Next page: M10 — Right and Left Thru")**
 <!-- nav:end -->
 
 # M9 — Courtesy Turn

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../07-plus/where-mainstream-leads.md "Previous section: Beyond Mainstream") [◀](programme-membership.md "Previous page: About this programme") [☰](../contents.md "Contents") [▶](sources-and-attribution.md "Next page: Sources and attribution") ~~⏭~~**
+**[◀](programme-membership.md "Previous page: About this programme") [☰](../contents.md "Contents") [▶](sources-and-attribution.md "Next page: Sources and attribution")**
 <!-- nav:end -->
 
 # Moved and renamed

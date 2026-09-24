@@ -2,13 +2,15 @@
 //
 // WHAT THE BUTTONS ARE
 //   * page by page    -- previous / next page in the book's reading order;
-//   * section by section -- previous / next SECTION, where a section is one of the numbered
-//     chapters (01-start, 02-language, ... 08-reference). The book was specified as "one
-//     Markdown file per section", so a page is a section and a chapter is the grouping above
-//     it; both steps are offered because both are useful and neither is a substitute for the
-//     other.
-//   * plus an in-page list of the page's own `##` sections, which is what "section by section"
-//     means inside a call page carrying several call cards.
+//   * the contents page, which is the map of the whole book;
+//   * and, beside them in the rendered bar, a BACK button that retraces the reader's own path
+//     through the book -- see `navHtmlFrom` in build-site.mjs, since that one is a control rather
+//     than a destination and so cannot be written as a link here.
+//
+// THE SECTION ARROWS ARE GONE, deliberately. [⏮] and [⏭] jumped to the first page of the previous or
+// next numbered chapter, which is a second way of saying what [◀] and [▶] already say at the
+// boundary pages and a way of SKIPPING the rest of the chapter in between. A reader who wants the
+// map has the contents page; a reader who wants the page after this one has [▶].
 //
 // THE ORDER IS DECLARED HERE, not derived from the filesystem. Sorting would put
 // `arrangements-and-gender` before `formations` and `concepts-and-modifiers` before
@@ -124,7 +126,7 @@ const LABEL = {
   '08-reference': 'Reference',
 };
 
-const ARROW = { first: '⏮', prev: '◀', next: '▶', last: '⏭' };
+const ARROW = { prev: '◀', next: '▶' };
 
 function titleOf(text, fallback) {
   const m = /^#\s+(.+?)\s*$/m.exec(text);
@@ -191,20 +193,12 @@ export function buildOrder() {
   return pages;
 }
 
-function firstOfChapter(pages, chapter) {
-  return pages.find((p) => p.chapter === chapter);
-}
-
 function navBlock(page, index, pages) {
   const dir = dirname(page.path.split('/').join('\\'));
   const link = (target) => {
     const rel = relative(dir === '.' ? BOOK : join(BOOK, dir), join(BOOK, target.split('/').join('\\')));
     return rel.split('\\').join('/');
   };
-  const chapters = [...new Set(pages.map((p) => p.chapter))];
-  const ci = chapters.indexOf(page.chapter);
-  const prevChapterPage = ci > 0 ? firstOfChapter(pages, chapters[ci - 1]) : null;
-  const nextChapterPage = ci < chapters.length - 1 ? firstOfChapter(pages, chapters[ci + 1]) : null;
   const prev = index > 0 ? pages[index - 1] : null;
   const next = index < pages.length - 1 ? pages[index + 1] : null;
 
@@ -217,11 +211,9 @@ function navBlock(page, index, pages) {
   const off = (glyph) => `~~${glyph}~~`;
 
   const bits = [
-    prevChapterPage ? icon(ARROW.first, link(prevChapterPage.path), `Previous section: ${prevChapterPage.label}`) : off(ARROW.first),
     prev ? icon(ARROW.prev, link(prev.path), `Previous page: ${prev.title}`) : off(ARROW.prev),
     icon('☰', link('contents.md'), 'Contents'),
     next ? icon(ARROW.next, link(next.path), `Next page: ${next.title}`) : off(ARROW.next),
-    nextChapterPage ? icon(ARROW.last, link(nextChapterPage.path), `Next section: ${nextChapterPage.label}`) : off(ARROW.last),
   ];
 
   return `${START}\n**${bits.join(' ')}**\n${END}\n`;

@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m19-circulate-family.md "Previous page: M19 — Circulate Family") [☰](../contents.md "Contents") [▶](m21-square-thru.md "Next page: M21 — Square Thru / Left Square Thru") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m19-circulate-family.md "Previous page: M19 — Circulate Family") [☰](../contents.md "Contents") [▶](m21-square-thru.md "Next page: M21 — Square Thru / Left Square Thru")**
 <!-- nav:end -->
 
 # M20 — Bend the Line

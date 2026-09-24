@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../04-calls/m01-circle-family.md "Previous section: The calls") [◀](class-05.md "Previous page: Class 5 — Veer, Star Thru and the Circulate") [☰](../contents.md "Contents") [▶](class-07.md "Next page: Class 7 — Lines and Turns") [⏭](../06-practice/how-to-practise.md "Next section: Practice")**
+**[◀](class-05.md "Previous page: Class 5 — Veer, Star Thru and the Circulate") [☰](../contents.md "Contents") [▶](class-07.md "Next page: Class 7 — Lines and Turns")**
 <!-- nav:end -->
 
 # Class 6 — Across and Back

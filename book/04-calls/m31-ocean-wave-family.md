@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m30-box-the-gnat.md "Previous page: M30 — Box the Gnat") [☰](../contents.md "Contents") [▶](m32-trade-family.md "Next page: M32 — Trade Family") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m30-box-the-gnat.md "Previous page: M30 — Box the Gnat") [☰](../contents.md "Contents") [▶](m32-trade-family.md "Next page: M32 — Trade Family")**
 <!-- nav:end -->
 
 # M31 — Ocean Wave Family

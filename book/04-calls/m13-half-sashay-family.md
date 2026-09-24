@@ -1,5 +1,5 @@
 <!-- nav:start -->
-**[⏮](../03-rules/passing-rule.md "Previous section: The rules") [◀](m12-ladies-chain-family.md "Previous page: M12 — Ladies Chain Family") [☰](../contents.md "Contents") [▶](m14-turn-back-family.md "Next page: M14 — Turn Back Family") [⏭](../05-course/course-overview.md "Next section: The course")**
+**[◀](m12-ladies-chain-family.md "Previous page: M12 — Ladies Chain Family") [☰](../contents.md "Contents") [▶](m14-turn-back-family.md "Next page: M14 — Turn Back Family")**
 <!-- nav:end -->
 
 # M13 — Half Sashay Family

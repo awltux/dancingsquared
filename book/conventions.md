@@ -6,6 +6,24 @@
 
 Read this once and every page afterwards looks familiar.
 
+## The bar at the top of every page
+
+| Button | What it does |
+|---|---|
+| **↩** | goes back to the page you were reading before this one — and keeps going back if you press it again. It follows **your** trail, not the book's order: after a jump from the glossary into a call, this is the way home. Greyed out while there is nothing behind you |
+| **◀ / ▶** | the previous and next page in the book's reading order |
+| **☰** | the [contents](contents.md) — every page in the book, in order |
+| **A A** | the reading size. Pressed, the type, the spacing and the pictures all grow together, so the words per line stay about the same; press it again for the normal size |
+| **📌** | holds the bar at the top of the screen while you read down a long call page; press it again to let the bar scroll away |
+
+The reading size and the pin are remembered from page to page, so you choose them once.
+
+**The book also remembers where you were.** Come back to it later — from a bookmark, or from the
+[copy installed on your phone](08-reference/watching-the-animations.md#taking-it-with-you) — and it
+opens on the last page you read rather than at the beginning. Asking for a page always wins: pressing
+**☰**, or following any link, goes exactly where you asked, and the remembering only happens when you
+arrive at the [front door](index.md) without asking for anything in particular.
+
 ## One definition, one place
 
 Every term is **defined once**, on the page named in the [glossary](08-reference/glossary.md), and

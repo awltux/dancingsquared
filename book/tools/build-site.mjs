@@ -449,14 +449,16 @@ try {
 //
 // IT RESOLVES AT THE FRONT DOOR ONLY, and only when the reader arrived from outside the book. Both
 // limits are load-bearing. Redirecting on every page would hijack every link into the book -- a
-// shared call page, a search result, the glossary -- and redirecting when the reader pressed Home
-// would make that button unusable, since Home goes to the door and the door would send them back.
-// A link from inside the book gives itself away in the referrer, so that is what is checked.
+// shared call page, a search result, the glossary -- and redirecting on an internal referrer would
+// make the front door unreachable from inside the book, since the nav's own ◀/▶ walk over it, as does
+// any link back to the introduction. A link from inside the book gives itself away in the referrer,
+// which is what is checked. (The Home button is a fourth case again: it leaves the book for the
+// Awltux Utilities hub, which is a different page served by the host, not this book's first page.)
 //
 // A hash or a query on the front door is a REQUEST for the front door -- a shared link, or an anchor
 // someone meant to land on -- and is honoured as one. The book's own directory is taken from this
-// page's URL, which is only valid because this IS the front door: those are the only two places this
-// script can run.
+// page's URL, which is only valid because this IS the front door: that is the one page this script
+// can redirect from.
 try {
   var here = location.pathname + location.search + location.hash;
   var KEY = 'dsq-last-page';
@@ -543,12 +545,15 @@ Definitions, revised 25 August 2026. Definitions quoted with permission; see
     if (!back) return;
     var KEY = 'dsq-path';
     var CAP = 60;
-    // THE BOOK'S OWN DIRECTORY, taken from the Home button rather than guessed from this page's URL:
-    // a page three directories deep and one at the root would otherwise disagree about where the book
-    // begins. Entries outside it are dropped, so a trail cannot lead off the site or survive the book
-    // moving to another path.
-    var home = bar.querySelector('a.home');
-    var root = home ? new URL(home.getAttribute('href'), location.href).pathname.replace(/[^/]*$/, '') : '/';
+    // THE BOOK'S OWN DIRECTORY, taken from the CONTENTS link: it is the one destination every page
+    // carries at the book's root. NOT from the Home button, which leaves the book for the Awltux
+    // Utilities hub at the host root -- reading the root from that gave the host's own root, which
+    // accepts every path on the host. Entries outside the book are dropped, so a trail cannot lead
+    // off it or outlive the book moving to another path.
+    var contents = bar.querySelector('a[href$="contents.html"]');
+    var root = contents
+      ? new URL(contents.getAttribute('href'), location.href).pathname.replace(/[^/]*$/, '')
+      : '/';
     var inBook = function (u) { return u.indexOf(root) === 0; };
     var read = function () {
       try {
@@ -634,7 +639,6 @@ addEventListener('load', function () {
 </html>
 `;
 };
-
 /**
  * The text-size button, in the nav's tool group.
  *

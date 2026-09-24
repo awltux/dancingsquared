@@ -105,10 +105,17 @@ export const ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5 -5 
  * on util.awltux.trade, on a staging host, and on a laptop's `serve:book` address -- and it is one
  * less thing that has to be changed when the book moves. The book is published in a subdirectory
  * (`dancingsquared_book/`), which is what makes `/index.html` the HOST's home page rather than the
- * book's own contents page.
+ * book's own contents page: on util.awltux.trade that is the Awltux Utilities hub, which lists this
+ * book among the other tools. The button says so, because a reader deep in a call page cannot guess
+ * that a house glyph leaves the book.
+ *
+ * IT IS NOT THE BOOK'S FRONT DOOR, and nothing should treat it as one: the book's own first page is
+ * `/dancingsquared_book/index.html`, which is what the installed app opens and what the resume logic
+ * redirects from. The back-trail reads the book's directory from the CONTENTS link instead.
  *
  * THE ONE PLACE THIS DOES NOT RESOLVE is a browser opening the built HTML straight from disk: under
- * `file:` a root-relative path means the filesystem root. The site is meant to be served, and the
+ * `file:` a root-relative path means the filesystem root, and a local `serve:book` has no hub at all,
+ * so there the button lands on the book's own front page. The site is meant to be served, and the
  * README says so, but this is the button that would break if it were not.
  */
 export const HOME_URL = '/index.html';
@@ -117,7 +124,8 @@ export const HOME_URL = '/index.html';
  *  accessible name has to come from `aria-label`; without it a screen reader hears only "link". */
 export function homeButton() {
   return (
-    `<a class="home" href="${HOME_URL}" aria-label="Home" title="Home">` +
+    `<a class="home" href="${HOME_URL}" aria-label="Awltux Utilities" ` +
+    'title="Awltux Utilities — the other tools on this site">' +
     '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
     '<path d="M3.3 11.3 12 4.4l8.7 6.9" fill="none" stroke="currentColor" stroke-width="1.9" ' +
     'stroke-linecap="round" stroke-linejoin="round"/>' +

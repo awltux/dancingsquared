@@ -369,6 +369,13 @@ is how that gets caught rather than shipped.
 
 Every page carries a navigation bar above its title:
 
+- **⌂ Home** (left-hand end) leaves the book for the **Awltux Utilities** hub at the host root —
+  `util.awltux.trade/index.html`, which lists this book among the other tools. It is a root-relative
+  path (`HOME_URL` in `lib/app.mjs`), so the same build is correct on a staging host or on a laptop,
+  and it is host-agnostic by construction. Note it is **not** the book's front door: that is
+  `index.html` inside the book, which is what the installed app opens and what the resume logic
+  redirects from, and the back-trail reads the book's directory from the Contents link rather than
+  from this button;
 - **↩ Back** — retraces the reader's own path, which is the commonest movement in this book: follow a
   link from the glossary into a call and you want the glossary back, not the page before this one in
   the reading order. It is a **button**, not a link, because it does not go to a fixed place. The trail
@@ -408,8 +415,10 @@ each is a case the build's own decision-table probe covers:
 
 - **only the front door redirects.** Any other page is left alone, or a shared call page, a search
   result or a glossary link would bounce the reader to wherever they happened to be last;
-- **not when the reader got there from inside the book.** Home goes to the front door, so redirecting
-  on an internal referrer would make Home unusable — that is exactly what the referrer check is for;
+- **not when the reader got there from inside the book.** The nav's own ◀/▶ walk over the front door,
+  as does any link back to the introduction, so redirecting on an internal referrer would make it
+  unreachable from inside the book — that is exactly what the referrer check is for. (Home is a
+  different case again: it leaves the book for the Awltux Utilities hub.)
 - **not when the front door is asked for by name**, with an anchor (`index.html#contents`) or a query
   (a shared `?v=2` link). Those are requests for the door and are honoured as such.
 

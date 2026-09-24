@@ -5290,3 +5290,56 @@ the probe pins that it was not changed rather than leaving it to be discovered.
 
 `scrub-beats-probe.mjs` is the gate: the two clocks measured over every level, and the panel's use of them read
 from the source. `board-owner-probe.mjs` needed one line, because it pins `showInstance`'s `showAt` call.
+
+### THE `asymmetric` SELECTOR CANNOT LIE ABOUT THE EXPORT ANY MORE (BUILT AND GATED)
+
+Reported: "The XML export is exporting all 8 dancers with the asymetric paramter = true. But the UI is showing the
+checkbox unchecked." Asked what should happen about it, the answer was **"Refuse the export and say why"**; asked
+what the line beside the box had said, the answer was **"I didn't notice / the line was empty"**.
+
+**THE MECHANISM, MEASURED.** Unticked means the half set, and with it unticked the writer really does write **4
+dancers and no `asymmetric`** - checked on `circle.xml`, `sashay.xml`, `arm_turns.xml` and
+`right_and_left_grand.xml`. It writes all 8 with `asymmetric="true"` only when the call's halves no longer pair up
+exactly, and that fallback is not pedantry: a half-set tam REPLAYS the written half's paths for the second half, so
+writing four dancers there would silently change the dance. `halfSetReport` is the test. MEASURED over every level
+and every setup: of **3279 call/setup combinations exactly ONE fails it on load**
+(`a2/box_counter_rotate.xml`, setup 5) - so in practice the fallback arrives after an EDIT, usually one that
+touches some dancers and not others, or a re-base that moves the halves out of antipodal step.
+
+**THE FALLBACK IS GONE FROM THE PANEL, AND THE NOTICE IS NO LONGER A STATUS LINE.** Every tam-writing site -
+the single export, the xml a saved edit stores, and (through that) Export All - now goes through one
+`exportSymmetry`, which returns the whole set when the box is ticked and otherwise REFUSES with the reason
+`halfSetReport` gave, naming the dancers and the move it stopped on, plus what to do about it. A refused export
+also CLEARS the pane, because an old `<tam>` left sitting there reads as the result of the button just pressed -
+which is half of how the mismatch looked in the first place. The line beside the box is flagged (`warn`) and turns
+the panel's amber, and its sentence leads with "will NOT export", because the previous wording was read past.
+The one case that is NOT refused is an export that NAMES its formation: no dancers are written, the choice is
+inert, and the panel uses the SAME predicate `tam-xml` uses to decide that, so the notice and the export cannot
+disagree about it either.
+
+**THE ENGINE STILL FALLS BACK, AND THAT IS NOW DELIBERATE.** `callToXml` handed `symmetry: 2` for a call that is
+not a half set still writes the whole set: it has no caller to ask and no screen to report on, so the refusal
+belongs in the panel. The probe pins both, so nobody "fixes" the engine into throwing for readers that have no
+choice to offer.
+
+**CHECKED IN THE PANEL.** `a2/box_counter_rotate.xml` at `T-Bone 2` - the one setup that fails the test on load -
+loaded with the box ticked (the tam declares it), and UNTICKING it turned the row amber with
+`will NOT export: the half set cannot be written - dancer 3's move 1 is not dancer 1's ...`, and pressing
+`Export <tam>` reported the refusal on the status line and left the pane empty.
+
+`asymmetric-export-probe.mjs` grew a section 4 for the refusal; its section 3 assertion that the ENGINE falls back
+had to be re-worded rather than deleted, and its count of export sites now counts `exportSymmetry` - three of them.
+
+**A NOTE FOR WHOEVER EDITS THESE FILES FROM A SCRIPT.** TWO traps, and both were hit here. A patch script reads
+as ANSI when PowerShell 5.1 parses it without a BOM, so a non-ASCII character in an ANCHOR never matches the file
+it was copied from - which made one replacement silently fail on the marker the status line already carries; that
+marker is now written as an escape in the one new place that needs it, and anchors avoid non-ASCII.
+
+AND A WHOLE-FILE REWRITE CAN SILENTLY CHANGE THE LINE ENDINGS. `core.autocrlf` is `true` here and there is no
+`.gitattributes`, so git stores LF and hands back CRLF - which means a file that has been LF all session can come
+back CRLF without `git status` saying a word. `stage-sync-probe`, `clone-chrome-probe` and `editor-level-probe`
+anchor their NEGATIVE CONTROLS on an LF-only `}` boundary, which cannot match a CRLF file, and all three failed
+with "the negative control really is a different file" while nothing in the code had changed. PROVEN not to be
+this work by checking out the PREVIOUS commit's `editor-ui.ts` and re-running: the same three fail. They now
+normalise `\r\n` on read, so the gate gives the same answer on either checkout - which is the least a gate owes.
+`\u2717` in the one new place that needs it, and anchors avoid non-ASCII.

@@ -4054,7 +4054,7 @@ export class EditorController implements EditorUI {
         padBeats: 1,
         // The whole edited instance, exactly as exported: expanded, full-set, and carrying
         // the declarations the apply path registers with.
-        xml: callTamXml(this.instance, this.instance.from, this.declaredSymmetry()),
+        xml: callTamXml(this.instance, this.instance.from, this.exportSymmetry(this.instance, this.instance.from)),
       };
     }
     const base: CallEdit = {
@@ -4076,7 +4076,15 @@ export class EditorController implements EditorUI {
   }
 
   private doSave() {
-    const spec = this.currentSpec();
+    let spec: CallEdit | null;
+    try {
+      spec = this.currentSpec();
+    } catch (err) {
+      // THE SAME REFUSAL AS THE EXPORT, because this is the SAME xml: an edit SAVED as a whole set while the
+      // selector says half would be the reported defect one step later, in the file the corpus is updated from.
+      this.refusal((err as Error).message);
+      return;
+    }
     if (!spec) return;
     // WHAT IDENTIFIES A SAVED EDIT DEPENDS ON WHAT IT DOES TO THE CALL.
     //
@@ -4098,9 +4106,57 @@ export class EditorController implements EditorUI {
     this.statusEl.textContent = `saved "${spec.name}"`;
   }
 
-  /** The `asymmetric` declaration to write for the call on screen, the format's way round. */
+  /** The `asymmetric` declaration the SELECTOR asks for, the format's way round. */
   private declaredSymmetry(): Symmetry {
     return this.asymCb.checked ? 1 : 2;
+  }
+
+  /** Say a refusal the way the rest of this panel does: the marker, then the engine's own words. The marker is
+   *  written as an escape because the file that builds this string has to stay plain ASCII. */
+  private refusal(message: string) {
+    this.statusEl.textContent = '\u2717 ' + message;
+  }
+
+  /**
+   * WHETHER THE EXPORT WILL NAME ITS FORMATION INSTEAD OF WRITING DANCERS.
+   *
+   * `tam-xml.ts` decides it (`callToXmlNamed`) and this is the same predicate on purpose: with no dancers
+   * written there is no set for the declaration to describe, so the choice is INERT - and a refusal based on
+   * the half-set test would then be refusing something that is never going to be written.
+   */
+  private willNameFormation(call: CallBundle, name?: string): boolean {
+    const label = name ?? (call.from || call.title);
+    const poses = label ? corpusFormationPoses(label) : null;
+    return !!poses && startsFromFormation(call, poses);
+  }
+
+  /**
+   * THE DECLARATION THE EXPORT WILL ACTUALLY WRITE - and the refusal when the selector cannot be honoured.
+   *
+   * Reported: "The XML export is exporting all 8 dancers with the asymetric paramter = true. But the UI is
+   * showing the checkbox unchecked." UNTICKED MEANS THE HALF SET, and a half set is only a description of the
+   * call when the second half really is the first half turned 180 degrees about the board centre, paths
+   * included - `halfSetReport` is that test. When it fails, the old behaviour wrote the WHOLE set and declared
+   * `asymmetric="true"` instead: correct XML, and the wrong answer. The caller asked for a half set, the panel
+   * said otherwise only in a line of small text, and the output disagreed with the control that produced it.
+   *
+   * SO IT REFUSES, which is what was asked for when the choice was put: "Refuse the export and say why". The
+   * reason names the dancers and the move the test stopped on, and it goes to the status line like every other
+   * refusal in this panel.
+   *
+   * TICKED IS ALWAYS WRITABLE, and so is an export that NAMES its formation: neither asks for a half set.
+   */
+  private exportSymmetry(call: CallBundle, name?: string): Symmetry {
+    if (this.asymCb.checked) return 1;
+    if (this.willNameFormation(call, name)) return 2;
+    const rep = halfSetReport(call);
+    if (!rep.ok) {
+      throw new Error(
+        `the half set cannot be written, so nothing was exported - ${rep.reason}. ` +
+        'Tick "Asymmetric" to write the whole set with asymmetric="true" instead.',
+      );
+    }
+    return 2;
   }
 
   /**
@@ -4117,13 +4173,14 @@ export class EditorController implements EditorUI {
    */
   private renderAsymInfo() {
     const call = this.isInstanceMode() ? this.instance : this.generated;
+    // THE COLOUR IS DECIDED IN ONE PLACE, so a warning cannot be left standing on a line that is no longer one.
+    this.asymInfoEl.classList.remove('warn');
     if (!call) {
       this.asymInfoEl.textContent = '';
       return;
     }
     const name = this.isInstanceMode() ? this.instance?.from : (this.generatedName || call.from || call.title);
-    const poses = name ? corpusFormationPoses(name) : null;
-    if (poses && startsFromFormation(call, poses)) {
+    if (this.willNameFormation(call, name)) {
       this.asymInfoEl.textContent = `the export names "${name}", so no dancers are written and this choice does not apply`;
       return;
     }
@@ -4135,15 +4192,24 @@ export class EditorController implements EditorUI {
       return;
     }
     const rep = halfSetReport(call);
-    this.asymInfoEl.textContent = rep.ok
-      ? `writes the HALF set (${rep.half} dancers); the reader turns it 180 degrees to complete the group`
-      : `cannot write a half set - ${rep.reason}. The WHOLE set will be written instead.`;
+    if (rep.ok) {
+      this.asymInfoEl.textContent = `writes the HALF set (${rep.half} dancers); the reader turns it 180 degrees to complete the group`;
+      return;
+    }
+    // A REFUSAL IS NOT A STATUS LINE. The first cut put this reason in the panel's ordinary small text and it was
+    // not read - asked what the line had said, the caller answered "I didn't notice / the line was empty". So the
+    // row goes amber, in the `#ffb454` that "track incomplete" and "cannot pair" already use for the same kind of
+    // news, and the sentence leads with what will NOT happen.
+    this.asymInfoEl.classList.add('warn');
+    this.asymInfoEl.textContent =
+      `will NOT export: the half set cannot be written - ${rep.reason}. Tick Asymmetric to write the whole set instead.`;
   }
 
-  /** The XML an export should produce for the CURRENT mode. */
+  /** The XML an export should produce for the CURRENT mode, or a thrown refusal. See `exportSymmetry`. */
   private exportXml(): string | null {
     if (this.isInstanceMode()) {
-      return this.instance ? callTamXml(this.instance, this.instance.from, this.declaredSymmetry()) : null;
+      if (!this.instance) return null;
+      return callTamXml(this.instance, this.instance.from, this.exportSymmetry(this.instance, this.instance.from));
     }
     const call = this.generated ?? (() => {
       const spec = this.currentSpec();
@@ -4151,7 +4217,8 @@ export class EditorController implements EditorUI {
       return rebuildEdit(spec);
     })();
     if (!call) return null;
-    return callTamXml(call, this.generatedName || call.from || call.title, this.declaredSymmetry());
+    const label = this.generatedName || call.from || call.title;
+    return callTamXml(call, label, this.exportSymmetry(call, label));
   }
 
   /**
@@ -4175,6 +4242,10 @@ export class EditorController implements EditorUI {
       void navigator.clipboard?.writeText(this.xmlEl.value);
       this.statusEl.textContent = 'exported <tam> XML (copied)';
     } catch (err) {
+      // A REFUSAL LEAVES NO XML BEHIND. The pane must not keep showing the LAST export: an old <tam> sitting
+      // there reads as the result of the button that was just pressed, which is half of how the reported
+      // mismatch looked in the first place.
+      this.xmlEl.value = '';
       this.statusEl.textContent = `✗ ${(err as Error).message}`;
     }
   }

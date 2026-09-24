@@ -4,6 +4,7 @@
   --accent: #39d98a;
   --text: #dce6ef;
   --dim: #7c8b99;
+  --warn: #ffb454;
 }
 * { box-sizing: border-box; }
 html, body {
@@ -54,6 +55,10 @@ html, body {
    reads as a heading with its actions under it. */
 #hud .row.ed-formation .part { flex: 1 0 100%; }
 #hud .wide { flex: 2; }
+/* A CONTROL THAT CANNOT BE HONOURED IS NOT A STATUS LINE. The `asymmetric` selector's reason for refusing an
+   export used to be written here in the panel's ordinary text and it was not read; it is now amber, bold, and
+   in the same `--warn` that "track incomplete" and "cannot pair" already use for the same kind of news. */
+#hud .part.warn { color: var(--warn); font-weight: 600; }
 #hud .small { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 4px; }
 #hud .small b { color: var(--text); }
 #hud .seq-call { cursor: pointer; display: inline-block; }

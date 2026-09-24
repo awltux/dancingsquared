@@ -130,7 +130,7 @@ const audit = (label, src) => {
 
 // ---------------------------------------------------------------- the audit
 console.log("== Does the board follow the selection? (source audit of editor-ui.ts) ==");
-const src = fs.readFileSync(SRC, 'utf8');
+const src = fs.readFileSync(SRC, 'utf8').replace(/\r\n/g, '\n');
 const { rows, problems, methodCount } = audit('editor-ui.ts', src);
 console.log(`    ${methodCount} methods with bodies parsed; ${rows.length} touch the move/dancer selection or re-render the strip:`);
 for (const r of rows) {

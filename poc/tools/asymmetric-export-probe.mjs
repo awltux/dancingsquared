@@ -85,8 +85,8 @@ console.log('\n== 2. the value reaches the exporter ==');
     'and maps it to the format\'s own vocabulary: 1 = whole set + `asymmetric="true"`, 2 = the half set');
   check(/this\.instance\.symmetry === 1/.test(ui),
     'and opens on what the loaded call DECLARES, so a call that is already explicit shows as explicit');
-  const passed = (ui.match(/callTamXml\([^)]*declaredSymmetry\(\)/g) ?? []).length;
-  check(passed >= 3, `every export site passes it through (${passed} of them)`);
+  const passed = (ui.match(/callTamXml\([^)]*exportSymmetry\(/g) ?? []).length;
+  check(passed >= 3, `every export site goes through the one decision (${passed} of them)`);
   check(/callTamXml\(built, s\.name, built\.symmetry\)/.test(ui),
     'and Export All re-emits each SAVED edit\'s own declaration rather than the open call\'s selector');
   // THE REPORTED COUNT IS THE BOARD'S. This line said "writes all 8 dancers" as a literal, which is wrong
@@ -145,8 +145,63 @@ console.log('\n== 3. the two forms, measured on a mirror-completed call ==');
   const lopsided = { ...call, dancers: call.dancers.map((d, i) => (i < 4 ? { ...d, x: d.x + 2.5 } : d)) };
   const bad = halfSetReport(lopsided);
   check(!bad.ok, `a set whose halves do not pair up is refused: ${bad.reason}`);
+  // THE ENGINE STILL FALLS BACK, because it has no caller to ask and no screen to report on: handed `symmetry: 2`
+  // for a call that is not a half set, `callToXml` writes the whole set. That is now a fact about the ENGINE only
+  // - section 4 pins that the PANEL never lets it happen, because "correct XML, wrong answer" is exactly what was
+  // reported: the box said half and the file said `asymmetric="true"`.
   check(/asymmetric="true"/.test(callToXml(lopsided, lopsided.from, { symmetry: 2 })),
-    'and asking for the half anyway writes the whole set, so the refusal costs only the size of the text');
+    'the engine itself still falls back to the whole set - which is why the refusal has to live in the panel');
+}
+
+// ---------------------------------------------------------------- 4. and the panel REFUSES
+console.log('\n== 4. the panel refuses an export it cannot honour, and says why ==');
+{
+  const ui = read('src/editor-ui.ts');
+  const css = read('src/style.css').replace(/\/\*[\s\S]*?\*\//g, ' ');
+
+  // THE ONE DECISION, and the refusal in it.
+  check(/private exportSymmetry\(call: CallBundle, name\?: string\): Symmetry \{/.test(ui),
+    'the export asks ONE place what declaration to write');
+  check(/if \(this\.asymCb\.checked\) return 1;/.test(ui) && /if \(!rep\.ok\) \{[\s\S]{0,400}?throw new Error\(/.test(ui),
+    'a TICKED box is always writable, and an unticked one is REFUSED rather than quietly written whole');
+  check(/the half set cannot be written, so nothing was exported - \$\{rep\.reason\}/.test(ui),
+    'and the refusal carries the reason `halfSetReport` gave, which names the dancers and the move it stopped on');
+  check(/Tick "Asymmetric" to write the whole set with asymmetric="true" instead\./.test(ui),
+    'and says what the caller can do about it, rather than only that it will not happen');
+
+  // EVERY site that writes a tam takes it, or one of them can still lie.
+  check(/callTamXml\(this\.instance, this\.instance\.from, this\.exportSymmetry\(this\.instance, this\.instance\.from\)\)/.test(ui) &&
+    /callTamXml\(call, label, this\.exportSymmetry\(call, label\)\)/.test(ui) &&
+    /xml: callTamXml\(this\.instance, this\.instance\.from, this\.exportSymmetry\(this\.instance, this\.instance\.from\)\),/.test(ui),
+    'the single export AND the xml a saved edit stores both take it, so a save cannot store the lie either');
+  check(!/callTamXml\([^)]*declaredSymmetry\(\)/.test(ui),
+    'and no write site is left on the raw selector, which is what produced the reported mismatch');
+
+  // THE REFUSAL REACHES THE SCREEN, both of the surfaces that asked.
+  check(/this\.xmlEl\.value = '';/.test(ui),
+    'a refused export CLEARS the pane, so an old tam cannot sit there looking like the result');
+  check(/private doSave\(\) \{\s*\n\s*let spec: CallEdit \| null;\s*\n\s*try \{/.test(ui) &&
+    /this\.refusal\(\(err as Error\)\.message\);/.test(ui),
+    'and the save reports the same refusal through `refusal` instead of throwing out of a click handler');
+  check(/private refusal\(message: string\) \{\s*\n\s*this\.statusEl\.textContent = '\\u2717 ' \+ message;/.test(ui),
+    '`refusal` is the one place the marker is written, as an escape so the source stays plain ASCII');
+
+  // AND THE NOTICE IS NOT A STATUS LINE. Asked what the old message had said, the answer was "I didn't notice /
+  // the line was empty" - so the row is flagged and the CSS turns that flag into the panel's amber.
+  check(/this\.asymInfoEl\.classList\.add\('warn'\);/.test(ui) && /this\.asymInfoEl\.classList\.remove\('warn'\);/.test(ui),
+    'the selector s line is FLAGGED when the export will refuse, and un-flagged in every other case');
+  check(/#hud \.part\.warn \{ color: var\(--warn\); font-weight: 600; \}/.test(css) && /--warn: #ffb454;/.test(css),
+    'and the flag is the amber the panel already uses for "track incomplete" and "cannot pair"');
+  check(/will NOT export: the half set cannot be written - \$\{rep\.reason\}/.test(ui),
+    'the sentence leads with what will NOT happen, rather than with the geometry');
+
+  // THE INERT CASE IS NOT REFUSED: when the export names its formation no dancers are written, so a half-set test
+  // would be refusing something that never gets emitted.
+  check(/private willNameFormation\(call: CallBundle, name\?: string\): boolean \{[\s\S]{0,240}?startsFromFormation\(call, poses\)/.test(ui) &&
+    /if \(this\.willNameFormation\(call, name\)\) return 2;/.test(ui),
+    'and an export that NAMES its formation is not refused: the choice is inert there, and the test is the same one `tam-xml` uses');
+  check(/if \(this\.willNameFormation\(call, name\)\) \{\s*\n\s*this\.asymInfoEl\.textContent = `the export names/.test(ui),
+    'the on-screen line uses that same predicate, so the notice and the export cannot disagree about it');
 }
 
 console.log(failures === 0 ? '\nasymmetric-export-probe: all green' : `\nasymmetric-export-probe: ${failures} FAILED`);

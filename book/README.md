@@ -400,6 +400,22 @@ previous or next numbered chapter. They said what **◀ / ▶** already say at t
 between those pages they were a way of leaving a chapter at a keystroke rather than a way of reaching
 anything; the contents page is the map, and Back is what a reader reaching for them usually wanted.
 
+**Coming back later.** The book remembers the last page read — `localStorage`, `dsq-last-page`, since
+"at a later date" is the whole point, where the back-trail is `sessionStorage` and per tab — and opens
+there when the reader reaches the front door from outside: a bookmark, a search result, or the
+installed app, whose `start_url` is `index.html`. Three limits keep that from being a nuisance, and
+each is a case the build's own decision-table probe covers:
+
+- **only the front door redirects.** Any other page is left alone, or a shared call page, a search
+  result or a glossary link would bounce the reader to wherever they happened to be last;
+- **not when the reader got there from inside the book.** Home goes to the front door, so redirecting
+  on an internal referrer would make Home unusable — that is exactly what the referrer check is for;
+- **not when the front door is asked for by name**, with an anchor (`index.html#contents`) or a query
+  (a shared `?v=2` link). Those are requests for the door and are honoured as such.
+
+A remembered path outside the book's own directory — the book having moved since — is ignored, and the
+front door takes its place, so a stale entry heals itself rather than 404ing.
+
 Those two at the right-hand end are the reader's tools: one `aria-pressed` toggle pattern, grouped
 together so they read as page chrome rather than as more places to navigate to. Back is not one of
 them — it is navigation, and it sits with the other navigation buttons at the left.

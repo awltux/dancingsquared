@@ -388,13 +388,13 @@ const BUILD_TOKEN = '{{build-hash}}';
 /** How much of the hash a reader sees. Seven characters: the short-revision length people know. */
 const BUILD_SHORT = 7;
 
-const PAGE = ({ title, cardTitle = null, description, rel, navHtml, body, script = '', canonical = null, jsonLd, ogImage = null }) => {
+const PAGE = ({ title, cardTitle = null, description, rel, navHtml, body, script = '', canonical = null, jsonLd, ogImage = null, home = false }) => {
   // A page's own H1 plus the site name is right for a page you arrive at by reading. It is wrong for
   // the page people SHARE, which is named from outside the book rather than from inside it, so a
   // page may carry a `cardTitle` that is used verbatim.
   const full = cardTitle ?? `${title} — Dancing Squared`;
   return `<!doctype html>
-<html lang="en">
+<html lang="en"${home ? ' data-book-home' : ''}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -439,6 +439,41 @@ try {
   }
   if (localStorage.getItem('dsq-nav-pinned') === 'yes') {
     document.documentElement.classList.add('nav-pinned');
+  }
+} catch (e) {}
+</script>
+<script>
+// WHERE THE READER LEFT OFF, and it is a different question from the back-trail above. The trail is
+// where this TAB has been, kept in sessionStorage and dropped when the tab closes; this is the last
+// page read, kept in localStorage because "at a later date" is the whole point of it.
+//
+// IT RESOLVES AT THE FRONT DOOR ONLY, and only when the reader arrived from outside the book. Both
+// limits are load-bearing. Redirecting on every page would hijack every link into the book -- a
+// shared call page, a search result, the glossary -- and redirecting when the reader pressed Home
+// would make that button unusable, since Home goes to the door and the door would send them back.
+// A link from inside the book gives itself away in the referrer, so that is what is checked.
+//
+// A hash or a query on the front door is a REQUEST for the front door -- a shared link, or an anchor
+// someone meant to land on -- and is honoured as one. The book's own directory is taken from this
+// page's URL, which is only valid because this IS the front door: those are the only two places this
+// script can run.
+try {
+  var here = location.pathname + location.search + location.hash;
+  var KEY = 'dsq-last-page';
+  var last = localStorage.getItem(KEY);
+  if (document.documentElement.hasAttribute('data-book-home')) {
+    var root = location.pathname.replace(/[^/]*$/, '');
+    var fromInside = document.referrer.indexOf(location.origin) === 0 && document.referrer !== '';
+    var asked = location.hash || location.search;
+    if (last && last.indexOf(root) === 0 && last !== here && !fromInside && !asked) {
+      location.replace(last);
+    } else {
+      // Not resuming, so this visit IS where the reader is: record it, which also clears a stale
+      // entry from a path the book no longer lives at.
+      localStorage.setItem(KEY, here);
+    }
+  } else {
+    localStorage.setItem(KEY, here);
   }
 } catch (e) {}
 </script>
@@ -1011,6 +1046,10 @@ export function main() {
       description,
       rel,
       navHtml: navHtmlFrom(navMatch?.[1]),
+      // The front door is the one page the resume script may redirect FROM, so it has to say which
+      // page it is. `index.md` is the introduction and the landing page, and the only page the site
+      // is ever entered at cold.
+      home: page.path === 'index.md',
       body,
       script,
       canonical: url,

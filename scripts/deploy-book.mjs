@@ -51,7 +51,15 @@ const ROOT = resolve(__dirname, '..');
 const SITE = resolve(ROOT, 'book', 'dancingsquared_book');
 
 // Files that must never be served from a long-lived cache.
-const VOLATILE = ['*.html', 'sw.js'];
+//
+// `download.json` IS ONE OF THEM, and not for the usual reason. It is the list of contents a reader's
+// download works from AND the version a reader compares against to learn that a new edition exists. An
+// hour-old copy of it is not merely stale news: a reader who checks while the CDN still holds the old
+// manifest is told to fetch the OLD file list from a site that has already been replaced, and the
+// result is a MIXTURE of two editions stored under the old version's name. The invalidation below
+// closes most of that window; `no-cache` closes the rest, and it costs one small file being
+// revalidated per check.
+const VOLATILE = ['*.html', 'sw.js', 'download.json'];
 
 // Everything not in VOLATILE. Kept modest (1 hour) rather than `immutable`,
 // because the book's filenames are not content-hashed: a changed lib/*.js or
@@ -124,7 +132,16 @@ function readConfig(path) {
   return settings;
 }
 
-function aws(args, { dryrun }) {
+function aws(args, { dryrun, supportsDryrun = true }) {
+  // NOT EVERY AWS COMMAND HAS `--dryrun`. `s3 sync` and `s3 cp` do, and theirs is a REAL dry run --
+  // it does the listing and prints every object it would write -- so it is used. `cloudfront
+  // create-invalidation` does not, and passing it made the whole dry run exit 1 with a usage error
+  // after a clean listing, which reads as "the deploy is broken" at the worst moment. For those the
+  // command is PRINTED and not run, which is what a dry run is for.
+  if (dryrun && !supportsDryrun) {
+    console.log(`(dryrun) would run: aws ${args.join(' ')}`);
+    return;
+  }
   const full = dryrun ? [...args, '--dryrun'] : args;
   const r = spawnSync('aws', full, { stdio: 'inherit' });
   if (r.error) {
@@ -235,13 +252,16 @@ function main() {
   // --- 5. CloudFront ---------------------------------------------------------
   if (distribution) {
     console.log('\n  [4/4] invalidating CloudFront ...');
+    // A PURGE OF THE WHOLE PREFIX IS LOAD-BEARING, not a nicety: see `book/deploy.txt`. Assets carry a
+    // one-hour cache and their names are not content-hashed, so an un-invalidated deploy can hand a
+    // reader a mixture of two editions -- which their download then keeps offline.
     aws(
       [
         'cloudfront', 'create-invalidation',
         '--distribution-id', distribution,
         '--paths', prefix ? `/${prefix}/*` : '/*',
       ],
-      { dryrun }
+      { dryrun, supportsDryrun: false }
     );
   } else {
     console.log('\n  [4/4] no CloudFront distribution configured - skipped.');

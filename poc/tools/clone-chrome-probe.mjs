@@ -81,7 +81,9 @@ const audit = (src) => {
     // `renderInstance` counts as reaching it: it calls the chrome, and `renderCloneChrome` itself
     // writes no flag, so there is no cycle for the exemption to hide behind.
     const direct = /this\.renderCloneChrome\(/.test(body);
-    const viaRender = /this\.renderInstance\(/.test(body);
+    // `swapInstance` is the OTHER way into `renderInstance` - it assigns the instance, shows it and renders - so
+    // a method that writes the flag and hands the swap to it has re-written the chrome just the same.
+    const viaRender = /this\.renderInstance\(/.test(body) || /this\.swapInstance\(/.test(body);
     rows.push({ name, writes, direct, viaRender, ok: direct || viaRender });
     if (!(direct || viaRender)) problems.push(name);
   }
@@ -102,7 +104,7 @@ const good = audit(src);
 
 console.log('== Every write of `asClone` reaches the clone chrome ==');
 for (const r of good.rows) {
-  const how = r.direct ? 'reaches renderCloneChrome directly' : r.viaRender ? 'reaches it through renderInstance' : 'NO clone chrome';
+  const how = r.direct ? 'reaches renderCloneChrome directly' : r.viaRender ? 'reaches it through renderInstance/swapInstance' : 'NO clone chrome';
   console.log(`      ${r.ok ? 'ok  ' : 'BAD '} ${r.name.padEnd(18)} ${r.writes} write(s), ${how}`);
 }
 check(good.rows.length >= 3, `the audit found the methods that set the flag at all (${good.rows.length}; an empty result would be a broken parser, not a clean file)`);

@@ -234,6 +234,22 @@ console.log('\n== 2. the tile: three buttons, C lit only where it holds, Pa/Pr g
     /private commit\(next: CallBundle[\s\S]{0,200}?this\.carryMoveClips\(this\.instance, next\);/.test(ui) &&
     /private applyLight\(next: CallBundle\) \{[\s\S]{0,400}?this\.carryMoveClips\(this\.instance, next\);/.test(ui),
     'and a move that a write REPLACES keeps its copy: the carry-over is reached from both write paths, the commit and the drag');
+  // ---- AND EVERY SWAP OF THE INSTANCE CARRIES, not just `commit`. A re-base and a connect REWRITE EVERY MOVE
+  // ---- (`setStartFormation` re-frames the whole path, `connectStart` re-aims each dancer's first), so every
+  // ---- segment is a new object and every copy keyed on one is dropped. Reported: "If I [C]opy the move
+  // ---- coordinates, then set the start setup, the copy contents are cleared. I need them to persist after
+  // ---- applying a new start and end setup."
+  check(/private swapInstance\(next: CallBundle\) \{\s*\n\s*this\.carryMoveClips\(this\.instance, next\);/.test(ui),
+    'ONE method puts a new bundle on screen and carries the copies with it, so the carry belongs to the SWAP rather than to whichever handler remembered it');
+  const startBody = bodyOf('private doStartFormation() {') ?? '';
+  const connectBody = bodyOf('private doConnect() {') ?? '';
+  check(startBody.includes('this.swapInstance(') && !startBody.includes('this.instance = '),
+    'the START SETUP goes through it - a new start keeps every copied point');
+  check(connectBody.includes('this.swapInstance(') && !connectBody.includes('this.instance = '),
+    'and so does Connect, which re-frames every move after the first for the same reason');
+  check(/this\.commit\(out\);/.test(ui) && !/private doConnectEnd\(\)[\s\S]{0,900}?this\.instance = /.test(ui),
+    'while the END setup already went through `commit`, which carries - which is why only the start was reported');
+
   const snap = bodyOf('private snapshot(): EditorSnapshot {') ?? '';
   const key = bodyOf('private stateKey(): unknown[] {') ?? '';
   check(snap.length > 0 && key.length > 0 && !/moveClips/.test(snap) && !/moveClips/.test(key),
@@ -260,6 +276,9 @@ console.log('\n== 3. a copy belongs to the move it was taken from, and only that
   let shiftCases = 0;
   let shiftKeptItsOwn = 0;
   let shiftStoleByPosition = 0;
+  let rebaseCases = 0;
+  let rebaseKept = 0;
+  let rebaseRewroteEveryMove = 0;
   for (const level of LEVELS) for (const f of fs.readdirSync(path.join(POC_DIR, 'src/assets', level)).filter((x) => x.endsWith('.xml'))) {
     const call = callAt(level, f);
     if (!call) continue;
@@ -316,6 +335,44 @@ console.log('\n== 3. a copy belongs to the move it was taken from, and only that
         if (survivor(carry(false)) === 11) shiftStoleByPosition++;      // no guard: it takes the DELETED one's
       }
 
+      // ---- A NEW START SETUP. `setStartFormation` RE-FRAMES EVERY MOVE into the new start's coordinates, so
+      // ---- every segment is a new object and the whole clipboard goes with them unless the carry-over follows.
+      // ---- That is the reported case: "If I [C]opy the move coordinates, then set the start setup, the copy
+      // ---- contents are cleared." The path keeps its LENGTH, so the positional carry is the right rule here.
+      {
+        const marks3 = new Map();
+        for (let k = 0; k < path0.length; k++) marks3.set(path0[k], { rel: { x: 100 + k, y: 0 } });
+        // a real new start: the same spots, half a unit across, so the re-base has something to do
+        const poses = call.dancers.map((d) => {
+          const p = engine.poseFor(d, 0);
+          return { x: p.x + 0.5, y: p.y, heading: p.heading, gender: d.gender };
+        });
+        let rebased;
+        try {
+          rebased = engine.setStartFormation(call, poses);
+        } catch {
+          rebased = null;
+        }
+        if (rebased) {
+          const beforePath = path0;
+          const afterPath = rebased.dancers[i].path;
+          let rewritten = 0;
+          for (let k = 0; k < beforePath.length; k++) if (beforePath[k] !== afterPath[k]) rewritten++;
+          if (rewritten === beforePath.length) rebaseRewroteEveryMove++;
+          // the editor's rule: same length, so pair by position
+          const m = new Map(marks3);
+          if (beforePath.length === afterPath.length) {
+            for (let k = 0; k < beforePath.length; k++) {
+              if (beforePath[k] === afterPath[k]) continue;
+              const e = m.get(beforePath[k]);
+              if (e) m.set(afterPath[k], e);
+            }
+          }
+          rebaseCases++;
+          if (afterPath.every((s, k) => m.get(s)?.rel.x === 100 + k)) rebaseKept++;
+        }
+      }
+
       // ---- REWRITE a copied move. `setMove` replaces THAT object, which is the one hole in the identity, and
       // ---- the comparison below is the editor's `carryMoveClips`, mirrored.
       const later = engine.setMove(call, i, 2, { ...path0[2] });
@@ -343,6 +400,10 @@ console.log('\n== 3. a copy belongs to the move it was taken from, and only that
   check(badCarry === 0, `and the move that IS rewritten keeps its copy: the editor's carry-over recovers it (${badCarry} lost)`);
   check(shiftCases > 0 && shiftKeptItsOwn === shiftCases,
     `DELETING the move in front of a copied one leaves the survivor holding ITS OWN point, not the deleted one's (${shiftKeptItsOwn} of ${shiftCases})`);
+  check(rebaseCases > 0 && rebaseRewroteEveryMove === rebaseCases,
+    `a new START SETUP really does replace every move's object, which is what used to drop the whole clipboard (${rebaseRewroteEveryMove} of ${rebaseCases})`);
+  check(rebaseKept === rebaseCases,
+    `and the carry-over keeps every copied point on the move it came from (${rebaseKept} of ${rebaseCases})`);
   check(shiftStoleByPosition === shiftCases,
     `and without the length guard it would hold the DELETED move's - which is the reported bug, so the guard is the fix (${shiftStoleByPosition} of ${shiftCases})`);
 }

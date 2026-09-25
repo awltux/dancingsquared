@@ -1992,6 +1992,28 @@ export class EditorController implements EditorUI {
     }
   }
 
+  /**
+   * PUT A NEW BUNDLE ON SCREEN WITHOUT LOSING WHAT THE MOVES ARE HOLDING.
+   *
+   * `commit` and `applyLight` carry the copied points themselves, and EVERY OTHER path that swaps the instance
+   * has to do the same - because a swap REPLACES THE SEGMENTS. The start setup and `Connect` are the two that
+   * rewrite EVERY move (`setStartFormation` re-frames the whole path into the new start's coordinates,
+   * `connectStart` re-aims each dancer's first move), so every object is new and every copy keyed on one is
+   * dropped. Reported: "If I [C]opy the move coordinates, then set the start setup, the copy contents are
+   * cleared. I need them to persist after applying a new start and end setup."
+   *
+   * THE END SETUP ALREADY SURVIVED, and by accident rather than by design: `doConnectEnd` goes through
+   * `commit`, which carries. That is exactly why this is a METHOD rather than one more `carryMoveClips` call
+   * in one more handler - the carry belongs to the swap, not to the caller.
+   */
+  private swapInstance(next: CallBundle) {
+    this.carryMoveClips(this.instance, next);
+    this.instance = next;
+    this.instanceEdited = true;
+    this.showInstance(next);
+    this.renderInstance();
+  }
+
   private commit(next: CallBundle, focusKey?: string) {
     this.carryMoveClips(this.instance, next);
     this.instance = next;
@@ -3743,11 +3765,8 @@ export class EditorController implements EditorUI {
       // The setup's LABEL is the formation's name: a tam is identified by its `from`, and this
       // is the new setup, so the name is not decoration - it is what the export and the
       // catalogue index will carry.
-      this.instance = { ...rebased, from: name };
       this.asClone = true;
-      this.instanceEdited = true;
-      this.showInstance(this.instance);
-      this.renderInstance();
+      this.swapInstance({ ...rebased, from: name });
       this.statusEl.textContent = `re-based the start onto "${name}" — the track no longer closes`;
     } catch (err) {
       this.statusEl.textContent = `✗ ${(err as Error).message}`;
@@ -3761,10 +3780,7 @@ export class EditorController implements EditorUI {
       return;
     }
     try {
-      this.instance = connectStart(this.instance, this.source);
-      this.instanceEdited = true;
-      this.showInstance(this.instance);
-      this.renderInstance();
+      this.swapInstance(connectStart(this.instance, this.source));
       this.statusEl.textContent =
         'connected the first moves' +
         // A later start connect RE-FRAMES every move after the first, so an end that was already

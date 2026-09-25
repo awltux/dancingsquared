@@ -5351,6 +5351,28 @@ which is the pair `move-clipboard-probe.mjs` now asserts.
 then `Pa` - asked for as "switch the Pa, Pr buttons to reflect the column order". Each paste button now sits over
 the column it writes, with `C` still in front of both.
 
+### THE START SETUP SWAPPED THE INSTANCE WITHOUT CARRYING THE COPIES (BUILT AND GATED)
+
+Reported: "If I [C]opy the move coordinates, then set the start setup, the copy contents are cleared. I need them
+to persist after applying a new start and end setup."
+
+**THE END SETUP ALREADY SURVIVED, THE START DID NOT - and by accident, not by design.** The copied points are
+keyed on the move's own segment, and a swap of the instance REPLACES THE SEGMENTS, so something has to carry them
+onto the objects that replaced them. `commit` and `applyLight` do that themselves, and `doConnectEnd` goes
+through `commit` - which is why the end setup was fine. But `doStartFormation` and `doConnect` assigned
+`this.instance` DIRECTLY and then called `showInstance`/`renderInstance` themselves, so the carry never ran; and
+these are exactly the two paths that rewrite EVERY move (`setStartFormation` re-frames the whole path into the new
+start's coordinates, `connectStart` re-aims each dancer's first move), so every object is new and the entire
+clipboard went with them.
+
+**ONE METHOD NOW OWNS THE SWAP.** `swapInstance(next)` carries, assigns, marks the edit and re-renders, and both
+paths go through it - the carry belongs to the SWAP rather than to whichever handler remembered it, which is the
+lesson of the previous section arriving a second time. MEASURED on a real `setStartFormation` over every level:
+the re-base replaces **932 of 932** dancers' every move objects - so this really did drop the whole clipboard -
+and the carry-over keeps **932 of 932** copied points on the move they came from.
+`move-clipboard-probe.mjs` now asserts both, and that no instance swap outside `commit`/`applyLight`/`swapInstance`
+exists.
+
 `asymmetric-export-probe.mjs` grew a section 4 for the refusal; its section 3 assertion that the ENGINE falls back
 had to be re-worded rather than deleted, and its count of export sites now counts `exportSymmetry` - three of them.
 

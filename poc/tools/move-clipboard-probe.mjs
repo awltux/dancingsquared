@@ -161,6 +161,9 @@ console.log('\n== 2. the tile: three buttons, C lit only where it holds, Pa/Pr g
     /pasteBtn\('Pa', true, `m\$\{i\}:\$\{k\}:pasteAbs`\)/.test(ui) &&
     /pasteBtn\('Pr', false, `m\$\{i\}:\$\{k\}:pasteRel`\)/.test(ui),
     'C, Pa and Pr are three buttons with their own keys to hang a test or a style on');
+  check(
+    /clipRow\.append\(cbtn, pasteBtn\('Pr', false, `m\$\{i\}:\$\{k\}:pasteRel`\), pasteBtn\('Pa', true, `m\$\{i\}:\$\{k\}:pasteAbs`\)\);/.test(ui),
+    'and the pastes are appended in COLUMN order - Pr then Pa, the order the relative and absolute columns are read in');
 
   // ---- C: lit only where it holds, hovered for the values, and NOT gated (it is a read)
   check(/const held = this\.heldBy\(k\);/.test(ui) && /if \(held\) cbtn\.classList\.add\('on'\);/.test(ui) &&
@@ -254,6 +257,9 @@ console.log('\n== 3. a copy belongs to the move it was taken from, and only that
   let leaksToAnotherMove = 0;
   let leaksToAnotherDancer = 0;
   let replacedAlwaysOne = 0;
+  let shiftCases = 0;
+  let shiftKeptItsOwn = 0;
+  let shiftStoleByPosition = 0;
   for (const level of LEVELS) for (const f of fs.readdirSync(path.join(POC_DIR, 'src/assets', level)).filter((x) => x.endsWith('.xml'))) {
     const call = callAt(level, f);
     if (!call) continue;
@@ -282,6 +288,34 @@ console.log('\n== 3. a copy belongs to the move it was taken from, and only that
       // ---- REWRITE a move outside the run: nothing copied may move
       if (!mine(engine.setMove(call, i, 0, { ...path0[0] }), 1)) badOther++;
 
+      // ---- THE SHIFT, AND THE CARRY-OVER THAT MUST LEAVE IT ALONE. `commit` is also the path `- Move` takes,
+      // ---- and the carry-over puts a REWRITTEN move's copy on the object that replaced it by comparing the two
+      // ---- paths BY POSITION. A delete shifts every later move, so that comparison is between different moves:
+      // ---- reported from use as "select two moves, press C to copy x,y, delete the first move, then Pa the
+      // ---- remaining Move - it pastes the deleted move's coordinates". Both rules are run on the real delete.
+      {
+        const marks2 = new Map();
+        marks2.set(path0[0], { rel: { x: 11, y: 0 } });
+        marks2.set(path0[1], { rel: { x: 12, y: 0 } });
+        const cut = engine.removeMove(call, i, 0);
+        const beforePath = path0;
+        const afterPath = cut.dancers[i].path;
+        const carry = (guard) => {
+          const m = new Map(marks2);
+          if (guard && beforePath.length !== afterPath.length) return m;
+          for (let k = 0; k < Math.min(beforePath.length, afterPath.length); k++) {
+            if (beforePath[k] === afterPath[k]) continue;
+            const e = m.get(beforePath[k]);
+            if (e) m.set(afterPath[k], e);
+          }
+          return m;
+        };
+        const survivor = (m) => m.get(afterPath[0])?.rel.x ?? null;
+        shiftCases++;
+        if (survivor(carry(true)) === 12) shiftKeptItsOwn++;            // the guard: the survivor keeps ITS OWN
+        if (survivor(carry(false)) === 11) shiftStoleByPosition++;      // no guard: it takes the DELETED one's
+      }
+
       // ---- REWRITE a copied move. `setMove` replaces THAT object, which is the one hole in the identity, and
       // ---- the comparison below is the editor's `carryMoveClips`, mirrored.
       const later = engine.setMove(call, i, 2, { ...path0[2] });
@@ -307,6 +341,10 @@ console.log('\n== 3. a copy belongs to the move it was taken from, and only that
   check(badOther === 0, `and a rewrite of some OTHER move does not disturb any of them (${badOther} disturbed)`);
   check(replacedAlwaysOne === 0, `because a write replaces exactly the one move it writes and leaves every other object alone (${replacedAlwaysOne} exceptions)`);
   check(badCarry === 0, `and the move that IS rewritten keeps its copy: the editor's carry-over recovers it (${badCarry} lost)`);
+  check(shiftCases > 0 && shiftKeptItsOwn === shiftCases,
+    `DELETING the move in front of a copied one leaves the survivor holding ITS OWN point, not the deleted one's (${shiftKeptItsOwn} of ${shiftCases})`);
+  check(shiftStoleByPosition === shiftCases,
+    `and without the length guard it would hold the DELETED move's - which is the reported bug, so the guard is the fix (${shiftStoleByPosition} of ${shiftCases})`);
 }
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nALL CHECKS PASSED');

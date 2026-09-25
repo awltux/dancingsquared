@@ -5327,6 +5327,30 @@ loaded with the box ticked (the tam declares it), and UNTICKING it turned the ro
 `will NOT export: the half set cannot be written - dancer 3's move 1 is not dancer 1's ...`, and pressing
 `Export <tam>` reported the refusal on the status line and left the pane empty.
 
+### A DELETE SHIFTED THE MOVES, AND THE CARRY-OVER PAIRED THEM BY POSITION (BUILT AND GATED)
+
+Reported: "select two moves, press C to copy x,y, delete the first move, then Pa the remaining Move - it pastes
+the deleted move's coordinates. This suggests the coordinate copies aren't embedded in a Move object." The copies
+ARE embedded in the move object; the fault was in the one place that maintains that embedding.
+
+**THE BUG, EXACTLY.** `carryMoveClips` moves a copied point onto the object that replaced a rewritten move, by
+comparing the old and new paths BY POSITION - which is right for a field, a drag, an arc or a paste, because
+those rewrite a move in place. But it is called from `commit`, and `commit` is also how `+ Move` and `- Move`
+land. A delete SHIFTS every later move down one, so the old and new paths at the same index are DIFFERENT MOVES:
+copy moves 0 and 1, delete move 0, and it saw `before[0]` (the deleted move) differ from `after[0]` (the
+survivor) and copied the DELETED move's point onto the survivor. The comment even claimed "the lengths always
+match, because none of these writes adds or removes a move", which was simply not true of `commit`.
+
+**THE FIX IS ONE GUARD: same length or nothing.** A move that is added or removed KEEPS THE OBJECT IT HAD, so its
+copy is already keyed correctly and there is nothing to carry; only an in-place rewrite needs the carry at all.
+MEASURED over every level, on a real `removeMove`: with the guard, **932 of 932** survivors keep their OWN point;
+with the old rule, **932 of 932** take the deleted move's - so the guard is the fix and the control is real,
+which is the pair `move-clipboard-probe.mjs` now asserts.
+
+**AND THE PASTES ARE IN COLUMN ORDER.** The table reads `relative` then `absolute`, and the buttons read `Pr`
+then `Pa` - asked for as "switch the Pa, Pr buttons to reflect the column order". Each paste button now sits over
+the column it writes, with `C` still in front of both.
+
 `asymmetric-export-probe.mjs` grew a section 4 for the refusal; its section 3 assertion that the ENGINE falls back
 had to be re-worded rather than deleted, and its count of export sites now counts `exportSymmetry` - three of them.
 

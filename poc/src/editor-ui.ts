@@ -1965,9 +1965,15 @@ export class EditorController implements EditorUI {
    * later move), and a paste. Without this, copying a move and then editing that same move would lose the copy,
    * which is the single most likely thing to do with it.
    *
-   * THE COMPARISON IS POSITIONAL AND THE LENGTHS ALWAYS MATCH, because none of these writes adds or removes a
-   * move - they rewrite one or more of them in place. A move that IS added or removed keeps its object, so it
-   * needs nothing.
+   * ONLY WHEN THE PATH DID NOT CHANGE LENGTH, and that guard is a BUG FIX rather than a formality. `commit` is
+   * also the path `+ Move` and `- Move` take, and a delete or an insert SHIFTS every later move down or up by
+   * one - so comparing the two paths by position compares DIFFERENT MOVES. The old code did exactly that, which
+   * copied the DELETED move's point onto the move that took its index. Reported from use: "select two moves,
+   * press C to copy x,y, delete the first move, then Pa the remaining Move - it pastes the deleted move's
+   * coordinates."
+   *
+   * A move that is added or removed KEEPS THE OBJECT IT HAD, so its copy is already keyed correctly and there is
+   * nothing to carry; only an in-place rewrite needs this at all.
    */
   private carryMoveClips(from: CallBundle | null, to: CallBundle) {
     if (!from) return;
@@ -1975,7 +1981,10 @@ export class EditorController implements EditorUI {
     for (let d = 0; d < dancers; d++) {
       const before = from.dancers[d]?.path ?? [];
       const after = to.dancers[d]?.path ?? [];
-      for (let j = 0; j < Math.min(before.length, after.length); j++) {
+      // SAME LENGTH OR NOTHING: a shifted path is not a rewritten one, and pairing it by position would take
+      // one move's point and leave it on another.
+      if (before.length !== after.length) continue;
+      for (let j = 0; j < before.length; j++) {
         if (before[j] === after[j]) continue;
         const carried = this.moveClips.get(before[j]);
         if (carried) this.moveClips.set(after[j], carried);
@@ -3185,8 +3194,8 @@ export class EditorController implements EditorUI {
 
     // ---- COPY / PASTE THE END POINT, asked for as three buttons beside the arc box ----
     //
-    // The names are the request's own: C copies, Pa pastes the point back as BOARD coordinates and Pr as
-    // RELATIVE ones. Those are different edits the moment the moves before this one have moved, which is the
+    // The names are the request's own: C copies, Pr pastes the point back as RELATIVE coordinates and Pa as
+    // BOARD ones - left to right, the order the two columns are read in. Those are different edits the moment the moves before this one have moved, which is the
     // whole reason there are two of them: deleting or adding a move leaves a later move's local numbers alone
     // and shifts where they land on the floor, while re-aiming a move moves the local numbers under a floor
     // position that did not change. Each move keeps BOTH pairs, and only that move can paste them.
@@ -3224,7 +3233,10 @@ export class EditorController implements EditorUI {
       b.addEventListener('click', () => this.pasteMoveEnds(absolute));
       return b;
     };
-    clipRow.append(cbtn, pasteBtn('Pa', true, `m${i}:${k}:pasteAbs`), pasteBtn('Pr', false, `m${i}:${k}:pasteRel`));
+    // THE PASTES COME IN COLUMN ORDER. The table under the tile reads `relative` then `absolute`, so the buttons
+    // read Pr then Pa - asked for as "switch the Pa, Pr buttons to reflect the column order" - and each one is
+    // over the column it writes.
+    clipRow.append(cbtn, pasteBtn('Pr', false, `m${i}:${k}:pasteRel`), pasteBtn('Pa', true, `m${i}:${k}:pasteAbs`));
     grid.appendChild(clipRow);
     if (blocker) {
       // SAY WHY, NUMBERED. A disabled control with no explanation is indistinguishable from a broken

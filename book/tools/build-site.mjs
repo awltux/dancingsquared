@@ -17,7 +17,7 @@
 // NOTHING READER-VISIBLE DESCRIBES HOW THE BOOK IS MADE. The site is read by dancers, so no engine,
 // repository, corpus or toolchain vocabulary is emitted into a page, and the shipped library is
 // published as `lib/` rather than `engine/`.
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join, relative } from 'node:path';
 import { toolsDir } from './lib/load.mjs';
@@ -129,6 +129,13 @@ const CSS = `:root {
   --accent: #1f6f8b;
   --paper: #ffffff;
   --wash: #f5f8f9;
+  /* THE ONE STATE THAT ASKS THE READER TO DO SOMETHING -- a newer edition of the book is published and
+     is waiting to be downloaded. It is the only colour here that is not the accent or a grey, so that
+     "there is something for you to do" looks like nothing else on the page. The wash is the same
+     colour at a tint light enough to read the glyph on, which is what keeps the button legible in the
+     state that has to be noticed. */
+  --warn: #a35a00;
+  --warn-wash: #fdf4e7;
   /* THE READING SIZE, AND THE ONE KNOB THE TEXT-SIZE SELECTOR TURNS. Every length in this file is
      in rem, which is measured from the root font size, so moving this one value moves the type, the
      spacing, the width of the column and the size of the nav buttons together and nothing can drift
@@ -295,6 +302,81 @@ nav.nav button.pin { cursor: pointer; }
 nav.nav button.pin svg { display: block; width: 1.15rem; height: 1.15rem; }
 nav.nav button.pin:hover { border-color: var(--accent); color: var(--accent); }
 nav.nav button.pin[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+/* THE SAVE-FOR-OFFLINE BUTTON. Sized and shaped like the two beside it, with three things of its own.
+
+   A PROGRESS BAR DRAWN ALONG ITS BOTTOM EDGE, because the reader asked for the progress to be visible
+   where they pressed rather than in a place they would have to go and find. It is a child element
+   whose width is the fraction done, so the bar is one style change per tick and no layout.
+
+   TWO GLYPHS, ONE SHOWING. The arrow means "there is something to fetch", the tick means "this device
+   has the book". Which one is visible follows data-state, which is the same attribute the colours
+   follow, so the picture and the state cannot disagree.
+
+   THE PENDING EDITION IS THE ONE THING THAT SHOUTS. It is the only state that a reader has to act on
+   -- everything else is either fine or already happening -- so it is the only one that takes the
+   warning colour, and it also carries a dot in the corner. Colour alone is not an answer: the dot
+   gives it a shape for anyone who cannot tell the two apart. */
+nav.nav button.offline { position: relative; cursor: pointer; overflow: hidden; }
+nav.nav button.offline[hidden] { display: none; }
+nav.nav button.offline .glyph { display: block; }
+nav.nav button.offline .glyph svg { display: block; width: 1.15rem; height: 1.15rem; }
+nav.nav button.offline .glyph.here { display: none; }
+nav.nav button.offline[data-state="current"] .glyph.here { display: block; }
+nav.nav button.offline[data-state="current"] .glyph.down { display: none; }
+/* A SAVED BOOK WHOSE CHECK DID NOT ANSWER IS STILL A SAVED BOOK, so it keeps the tick and only loses
+   the accent: the difference between "up to date" and "could not ask" is the difference between a
+   claim and no claim, and it is carried by the colour and the words rather than by the picture. */
+nav.nav button.offline[data-state="saved"] .glyph.here { display: block; }
+nav.nav button.offline[data-state="saved"] .glyph.down { display: none; }
+nav.nav button.offline[data-state="saved"] { color: var(--muted); }
+nav.nav button.offline[data-state="current"] { border-color: var(--accent); color: var(--accent); }
+nav.nav button.offline:hover { border-color: var(--accent); color: var(--accent); }
+nav.nav button.offline .bar {
+  position: absolute; left: 0; bottom: 0; height: 3px; width: 0; background: var(--accent);
+}
+nav.nav button.offline[data-state="busy"] { border-color: var(--accent); cursor: default; }
+nav.nav button.offline[data-state="busy"] .bar { background: var(--accent); }
+nav.nav button.offline[data-state="stale"] { border-color: var(--warn); color: var(--warn); background: var(--warn-wash); }
+nav.nav button.offline[data-state="stale"] .bar { background: var(--warn); }
+nav.nav button.offline[data-state="stale"]::after {
+  content: ''; position: absolute; top: 4px; right: 4px; width: 7px; height: 7px;
+  border-radius: 50%; background: var(--warn); box-shadow: 0 0 0 1.5px #fff;
+}
+nav.nav button.offline[data-state="failed"], nav.nav button.offline[data-state="offline"] { color: var(--muted); }
+nav.nav button.offline:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* THE PANEL. It hangs under the button rather than being part of the row, so opening it cannot push
+   the navigation links around. It is created by the downloader, not by the page, because a page with
+   no script has nothing to say here -- and it is positioned from the button's own box each time it
+   opens, so it follows the bar when the line wraps or the page is scrolled with the bar pinned. */
+.dsq-dl {
+  position: fixed; z-index: 40; width: min(23rem, calc(100vw - 1.6rem));
+  padding: .8rem .9rem .75rem; border: 1px solid var(--rule); border-radius: 10px;
+  background: #fff; color: var(--ink); box-shadow: 0 8px 26px rgba(20, 32, 40, .18);
+  font-size: .9rem; line-height: 1.4;
+}
+.dsq-dl[hidden] { display: none; }
+.dsq-dl p { margin: 0 0 .5rem; }
+.dsq-dl .dsq-dl-head { font-weight: 600; }
+.dsq-dl[data-state="stale"] .dsq-dl-head { color: var(--warn); }
+.dsq-dl .dsq-dl-detail { color: var(--muted); overflow-wrap: anywhere; }
+.dsq-dl .dsq-dl-detail:empty { display: none; }
+.dsq-dl .dsq-dl-track {
+  height: 7px; border-radius: 4px; background: var(--wash); overflow: hidden; margin: 0 0 .55rem;
+}
+.dsq-dl .dsq-dl-track[hidden] { display: none; }
+.dsq-dl .dsq-dl-fill { display: block; height: 100%; width: 0; background: var(--accent); transition: width .18s linear; }
+.dsq-dl[data-state="stale"] .dsq-dl-fill { background: var(--warn); }
+.dsq-dl .dsq-dl-actions { display: flex; gap: .4rem; justify-content: flex-end; }
+.dsq-dl .dsq-dl-actions button {
+  padding: .3rem .7rem; border: 1px solid var(--rule); border-radius: 7px; background: #fff;
+  color: var(--ink); font: inherit; font-weight: 600; cursor: pointer;
+}
+.dsq-dl .dsq-dl-actions button:hover { border-color: var(--accent); color: var(--accent); }
+.dsq-dl .dsq-dl-actions button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.dsq-dl .dsq-dl-actions button.primary:hover { background: #1a5f78; color: #fff; }
+@media (max-width: 30rem) {
+  nav.nav button.offline .glyph svg { width: 1.05rem; height: 1.05rem; }
+}
 /* THE PINNED HEADER. position: sticky keeps the bar where it is in the flow and holds it at the top
    of the viewport from the moment the page scrolls past it, so nothing moves when it is turned on
    and nothing is hidden when it is off. The board is white and the shadow is what makes a bar
@@ -368,6 +450,7 @@ const APP_NAME = 'Dancing² Mainstream';
  */
 let cssUrl = 'style.css';
 let playerUrl = 'assets/player.js';
+let offlineUrl = 'assets/offline.js';
 
 /**
  * THE BUILD STAMP, before the hash it will carry exists.
@@ -636,6 +719,7 @@ addEventListener('load', function () {
   }, 900);
 });
 </script>
+<script defer data-dsq-offline src="${rel}${offlineUrl}" data-root="${rel}" data-manifest="download.json"></script>
 </body>
 </html>
 `;
@@ -702,6 +786,38 @@ function backButton() {
   );
 }
 
+/**
+ * The Save-for-offline button, first in the nav's tool group.
+ *
+ * IT STARTS HIDDEN, AND STAYS HIDDEN IF IT CANNOT WORK. `assets/offline.js` reveals it once it has
+ * looked at the device and asked the server what the current edition is -- so the reader never sees a
+ * state that was guessed, and a browser without Cache Storage (`file://`, an old engine, a locked-down
+ * profile) shows no control at all rather than one that fails when pressed. That is the same rule the
+ * Pin follows two functions down, and the reason it is hidden rather than disabled: there is nothing
+ * a reader could do about it.
+ *
+ * TWO GLYPHS, ONE VISIBLE, chosen by `data-state` in the stylesheet: an arrow into a tray while there
+ * is something to fetch, and a tick once the book is saved. The bar drawn along the bottom edge is
+ * the progress bar, and it carries the progressbar role rather than the button: a button that also
+ * announced itself as a progress bar would be announcing two things at once, and the one a reader
+ * needs from a button is that it can be pressed.
+ *
+ * A NOTE ON WHY THE WORDS ARE NOT HERE. The nav is a row of icons at every width, and the sentence
+ * that explains the state lives in the panel this button opens. The button itself carries the state in
+ * `aria-label` and `title`, which is where a reader looks when they hover or tab to it.
+ */
+function offlineButton() {
+  return (
+    '<button type="button" class="offline" data-state="checking" hidden ' +
+    'aria-label="Checking for a saved copy of this book">' +
+    `<span class="glyph down">${navIcon('download')}</span>` +
+    `<span class="glyph here">${navIcon('saved')}</span>` +
+    '<span class="bar" role="progressbar" aria-label="Saving the book" aria-valuemin="0" aria-valuemax="100" ' +
+    'aria-valuenow="0"></span>' +
+    '</button>'
+  );
+}
+
 /** The Markdown nav line, re-rendered as buttons. It is already a list of links, so this is a
  *  re-wrap rather than a re-derivation: the destinations come from the one place that knows them. */
 function navHtmlFrom(block) {
@@ -719,11 +835,12 @@ function navHtmlFrom(block) {
   html = html.replace(/<del>(.*?)<\/del>/g, '<span class="off">$1</span>');
   const note = m ? `<span class="where">${chapter ? `${chapter} · ` : ''}page ${m[1]} of ${m[2]}</span>` : '';
   // The Home button leads the row, then Back -- the reader's own trail -- then the page step, the
-  // contents and the next page. The reader's tools (text size and the pin) are grouped last, so they
-  // sit at the top right.
+  // contents and the next page. The reader's tools (saving the book for offline, text size and the
+  // pin) are grouped last, so they sit at the top right. The offline button leads that group because
+  // it is the only one that changes what the book IS on this device rather than how it looks.
   return (
     `<nav class="nav">${homeButton()}${backButton()}${html}` +
-    `<span class="nav-tools">${textSizeButton()}${pinButton()}</span>${note}</nav>`
+    `<span class="nav-tools">${offlineButton()}${textSizeButton()}${pinButton()}</span>${note}</nav>`
   );
 }
 
@@ -958,6 +1075,10 @@ export function main() {
   }
   mkdirSync(join(SITE, 'assets'), { recursive: true });
   cpSync(join(BOOK, 'assets', 'player.js'), join(SITE, 'assets', 'player.js'));
+  // The offline downloader travels with every page, unlike the player: the front door is where a
+  // reader decides to save the book, and the one page that must never be missing it is the one they
+  // arrive on.
+  cpSync(join(BOOK, 'assets', 'offline.js'), join(SITE, 'assets', 'offline.js'));
   for (const name of ['moves.xml', 'formations.xml']) {
     cpSync(join(BOOK, '..', 'poc', 'src', 'assets', name), join(SITE, 'assets', name));
   }
@@ -988,6 +1109,7 @@ export function main() {
     createHash('sha256').update(readFileSync(join(SITE, p))).digest('hex').slice(0, 10);
   cssUrl = `style.css?v=${contentHash('style.css')}`;
   playerUrl = `assets/player.js?v=${contentHash('assets/player.js')}`;
+  offlineUrl = `assets/offline.js?v=${contentHash('assets/offline.js')}`;
 
   let animated = 0;
   const injected = new Set();
@@ -1135,43 +1257,33 @@ export function main() {
   );
   writeFileSync(join(SITE, 'offline.html'), offlineHtml({ css: cssUrl }), 'utf8');
 
-  // Precache what a reader needs to OPEN the book offline: every page, the stylesheet, the player,
-  // the engine and the dance data. Figures and animations are NOT precached -- they are 11 MB, and
-  // they are cached on first view instead, so a reader who never opens a call page does not pay for
-  // them.
-  const precache = [
-    './index.html',
-    `./${cssUrl}`,
-    './offline.html',
-    './manifest.webmanifest',
-    ...pages.map((p) => `./${p.path.replace(/\.md$/, '.html')}`),
-    `./${playerUrl}`,
-    './assets/moves.xml',
-    './assets/formations.xml',
-    ...[...animMeta.values()].map((f) => `./assets/calls/${f.file}`),
-    ...listFiles(join(SITE, 'lib')).map((f) => `./lib/${f}`),
-    ...listFiles(join(SITE, 'formations')).map((f) => `./formations/${f}`),
-    ...(existsSync(join(SITE, 'diagrams')) ? listFiles(join(SITE, 'diagrams')).map((f) => `./diagrams/${f}`) : []),
-    ...icons.map(([name]) => `./icons/${name}`),
-  ];
-  // THE VERSION IS A HASH OF WHAT IS IN THE CACHE, not of the names in it. Hashing the names alone
-  // meant a change to the stylesheet -- or to any page, or to the dance library -- rebuilt the site
-  // without rotating the cache, so a reader who had visited before kept the old copy. Pages are
-  // network-first and everything else is cache-first, so the new HTML would arrive wearing the old
-  // CSS: a control ships, renders unstyled, and does nothing when pressed. Reading the contents is
-  // what makes a new build replace the old one instead of serving a mixture.
+  // ---- WHAT THE BOOK IS MADE OF, AND WHICH BUILD IT IS
+  //
+  // THE LIST IS THE WHOLE SITE, not a shell of it. The old precache held only what a reader needed to
+  // OPEN the book, and left the figures and animations -- the bulk of it -- to be cached if and when
+  // they were viewed. That was the whole complaint: a reader who had not opened every call page held a
+  // book with holes in it, and one updating from a previous edition held a book whose pages were new
+  // and whose pictures were old. `download.json` names every file, and the reader's download fetches
+  // all of it in one pass, so a saved book is the book.
+  //
+  // TWO FILES ARE NOT IN THE LIST, and both for the same reason: they are derived from it.
+  //   - `download.json` cannot describe itself.
+  //   - `sw.js` carries no content any more, and including it would make the version depend on a file
+  //     that does not change when the content does.
+  const DERIVED = new Set(['download.json', 'sw.js']);
+  const siteFiles = listFiles(SITE).filter((f) => !DERIVED.has(f)).sort();
+
+  // THE VERSION IS A HASH OF EVERY BYTE THE READER WILL HOLD. It names the store the download fills,
+  // so it has to move whenever any part of the book moves; a version that lagged its contents would
+  // let an update be skipped, or serve last edition's page beside this edition's stylesheet, which is
+  // the mixture this whole change exists to make impossible.
   const digest = createHash('sha256');
-  for (const entry of [...precache].sort()) {
+  for (const entry of siteFiles) {
     digest.update(entry);
-    try {
-      digest.update(readFileSync(join(SITE, entry.replace(/^\.\//, ''))));
-    } catch {
-      // An entry that is not on disk still has to move the version, so its name goes in alone and
-      // `cache.addAll` reports it at install time.
-    }
+    digest.update(readFileSync(join(SITE, entry)));
   }
   const version = `v${digest.digest('hex').slice(0, 12)}`;
-  writeFileSync(join(SITE, 'sw.js'), serviceWorkerSource({ version, precache }), 'utf8');
+  writeFileSync(join(SITE, 'sw.js'), serviceWorkerSource(), 'utf8');
 
   // ---- verify the site rather than assume it: every internal link and image must resolve
   const problems = [];
@@ -1197,6 +1309,53 @@ export function main() {
     }
     writeFileSync(file, html.replaceAll(BUILD_TOKEN, stamp), 'utf8');
     stamped++;
+  }
+
+  // ---- the list of contents, written LAST and measured from the files as they now are
+  //
+  // AFTER THE STAMP, because the stamp is bytes: a size recorded before it would be a few bytes short
+  // of what the reader actually fetches, and a progress bar measured against wrong totals is a bar
+  // that ends early or never reaches the end. The version was taken from the UNSTAMPED pages on
+  // purpose (a hash cannot contain itself), so the sizes here and the version above are read at
+  // different moments and that is correct rather than an oversight: the size is a fact about a file,
+  // the version is a fact about the content.
+  const manifestFiles = [];
+  for (const entry of siteFiles) manifestFiles.push({ path: entry, size: statSync(join(SITE, entry)).size });
+  const manifest = {
+    version,
+    total: manifestFiles.reduce((a, f) => a + f.size, 0),
+    count: manifestFiles.length,
+    files: manifestFiles,
+  };
+  writeFileSync(join(SITE, 'download.json'), `${JSON.stringify(manifest, null, 1)}\n`, 'utf8');
+
+  // ---- THE LIST IS THE SITE. A manifest that named a subset would silently ship a book with holes;
+  // ---- a file the reader is never told about is a page that fails only when they are offline, which
+  // ---- is the worst possible moment to find out. So the list is re-derived from disk and compared.
+  const listed = new Set(manifestFiles.map((f) => f.path));
+  for (const entry of listFiles(SITE)) {
+    if (DERIVED.has(entry)) continue;
+    if (!listed.has(entry)) problems.push(`download.json does not list ${entry}`);
+  }
+  for (const f of manifestFiles) {
+    if (!existsSync(join(SITE, f.path))) problems.push(`download.json lists ${f.path}, which is not on disk`);
+    else if (statSync(join(SITE, f.path)).size !== f.size) problems.push(`download.json has the wrong size for ${f.path}`);
+  }
+  // THE DOWNLOADER MUST BE ON EVERY PAGE, and this is the check that says so rather than trusting a
+  // template. A page without it is a page whose reader cannot save the book -- and the manifest would
+  // still list the page, so nothing else here would notice.
+  for (const page of pages) {
+    const file = join(SITE, page.path.replace(/\.md$/, '.html'));
+    if (!readFileSync(file, 'utf8').includes('data-dsq-offline')) {
+      problems.push(`${page.path.replace(/\.md$/, '.html')}: no downloader, so this page cannot save the book`);
+    }
+  }
+  const swSource = readFileSync(join(SITE, 'sw.js'), 'utf8');
+  if (/\bcaches\.open\([^)]*\)[\s\S]{0,80}?\.put\(/.test(swSource)) {
+    problems.push('sw.js writes to a cache, which is how a reader ends up with a mixture of two editions');
+  }
+  if (/addAll|precache/i.test(swSource)) {
+    problems.push('sw.js precaches, which assembles the book in stages');
   }
 
   let checked = 0;
@@ -1264,8 +1423,13 @@ export function main() {
   }
   console.log('every link and image in the site resolves.');
   // The build ends by naming itself. Everything above is about the content; this is the one line that
-  // answers "which build is deployed?", and it is the same string stamped into the page footers.
-  console.log(`build ${stamp} -- in every page footer (${stamped} pages), and the offline cache version (${version}).`);
+  // answers "which build is deployed?", and it is the same string stamped into the page footers. The
+  // version names the store a reader's download fills, so it is the number to compare when a reader
+  // says they are still on the previous edition.
+  console.log(`build ${stamp} -- in every page footer (${stamped} pages).`);
+  console.log(
+    `${version} is the offline edition: ${manifest.count} files, ${(manifest.total / 1048576).toFixed(1)} MB, listed in download.json.`,
+  );
   return 0;
 }
 

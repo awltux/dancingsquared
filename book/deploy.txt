@@ -11,9 +11,14 @@
 # CloudFront distribution id is an identifier rather than a credential. The AWS
 # credentials themselves come from the CLI's own configuration and never live here.
 #
-# `distribution` is optional. Without it the script skips the invalidation step,
-# which costs little: pages and sw.js are uploaded `no-cache`, so a reader always
-# gets the new build; only the hour-long asset cache is left to expire on its own.
+# `distribution` is no longer optional, though it used to be. The note that stood here said skipping
+# the invalidation "costs little" -- pages and sw.js go up `no-cache`, and only the hour-long asset
+# cache was left to expire on its own. THAT IS NO LONGER TRUE. Assets are still uploaded with a
+# one-hour cache and their filenames are still NOT content-hashed, but a reader now SAVES the whole
+# book in one pass. Someone who downloads a new edition within the hour after a deploy would take the
+# pages from the new build and the figures, formations and engine from the CDN's copy of the old one --
+# and would then keep that mixture offline, where nothing can correct it. Uploading sw.js `no-cache`
+# does not help: the files that go stale are the assets. Purge the prefix on every deploy.
 #
 # Lines starting with # are ignored, as are blank lines.
 

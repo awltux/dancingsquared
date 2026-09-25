@@ -5443,3 +5443,94 @@ without the aid before believing anything about this row's layout.
 Verified in the browser: the right button takes the call from 2 to 4 beats, leaves the tile on move 1 and adds
 one tile to the strip; the left button leaves the tile on move 2 (the copy) with the original behind it; both
 messages name the side; and one press is one revert step.
+
+### THE WHOLE BOOK DOWNLOADED IN ONE GO, WITH A NAV BUTTON THAT SAYS WHEN (BUILT AND VERIFIED)
+
+Reported: "Last time I deployed to S3, the book didn't refresh as a whole, and there were many
+inconsistencies in the interface. I want to use the book offline, so download all the contents in one go.
+Use a progress bar to keep the reader informed of download progress. When connected, test for new versions
+and highlight a pending download button in the nav menu. Press the button to do the download." Then, as a
+correction to the diagnosis: "The deploy worked fine, it was the browser that caused problems, downloading
+the updates in stages."
+
+**THE DEPLOY WAS FINE; THE BROWSER WAS ASSEMBLING THE BOOK IN STAGES, AND THERE WERE TWO SEPARATE CAUSES.**
+The service worker precached only what a reader needed to OPEN the book -- pages, stylesheet, player,
+engine, XML -- and left the 11 MB of figures and animations to be cached IF AND WHEN they were viewed. It
+then served pages network-first and everything else cache-first, and activated with `skipWaiting` plus
+`clients.claim` so the caches swapped mid-session. A reader therefore read the new HTML wearing last
+build's assets, and a reader who had not opened every call page held a book with holes in it. That is the
+staged download, and it is why the same book looked different depending on which pages had been opened.
+
+**SO NOTHING ENTERS THE OFFLINE STORE BY ACCIDENT ANY MORE.** `assets/offline.js` is the only thing that
+writes it, on the reader's own instruction; `sw.js` only reads it. The worker has no precache and no
+cache-as-you-view, and the round trip is verified rather than assumed -- `build-site.mjs` now REFUSES the
+build if `sw.js` writes to a cache at all (`caches.open(...).put(` or `addAll`/`precache` anywhere in it).
+
+**THE LIST OF CONTENTS IS THE WHOLE SITE, AND THE BUILD PROVES IT.** `download.json` names every file with
+its size (256 files, 4.4 MB here; the real site is larger because the local build has no CALLERLAB extract
+and so no full set of animations). Two files are excluded because they are DERIVED from the list:
+`download.json` cannot describe itself, and `sw.js` carries no content, so including it would make the
+version depend on a file that does not move when the content does. The version is a hash of every byte
+the reader will hold, so it moves whenever any part of the book moves. The sizes are read AFTER the build
+stamp is written, because the stamp is bytes and a total taken before it would be short. And the list is
+then RE-DERIVED from disk and compared, both directions: a file the manifest omits would be a page that
+fails only when the reader is offline, which is the worst possible moment to find out. Verified on the
+built site: 256 listed, 256 on disk, no difference either way, sum of sizes equal to `total`.
+
+**ALL OR NOTHING, WITHOUT A RENAME CACHE STORAGE DOES NOT HAVE.** The store is named for the build and a
+marker file is written into it LAST. The worker serves a store only if it holds the marker, so an
+interrupted download is invisible -- the reader keeps the edition they had -- and the old complete store is
+deleted only after the marker lands, so there is no moment with no usable copy. A file already in the
+store is not fetched again, so pressing the button after an interruption RESUMES; that is sound only
+because the store is named after the build, so its contents cannot be superseded without the name moving
+too. A store that is neither the complete copy nor the build now on offer is deleted as wreckage.
+
+**THREE FIXES CAME OUT OF TESTING IT IN A REAL BROWSER, AND EVERY ONE OF THEM WAS INVISIBLE TO REASONING.**
+
+1. THE `no-store` BYPASS WAS TOO BROAD. The manifest must never be answered from a cache, so the worker
+   passed `no-store` and `reload` through to the network -- including for NAVIGATIONS. A reader who
+   pressed reload offline therefore got the network and a failure page instead of the book they had
+   saved. It is now narrowed to subresources: a navigation comes from the store whenever the store has it.
+   This alone was the difference between the saved copy opening on a train and not opening at all.
+
+2. THE WORKER REMEMBERED AN EMPTY ANSWER. `active()` memoised its lookup, so a worker started by the
+   reader's FIRST visit -- before any store exists -- remembered "no store" for the rest of its life and
+   sent every request to the network. The download would appear to do nothing, and going offline then
+   failed to open the saved book: exactly the failure the feature exists to prevent. It showed up as an
+   intermittent difference between two ports in testing (one worker had been evicted and restarted, the
+   other had not), which is the shape this bug would have had in the field. Only a FOUND store is
+   remembered now, and a remembered store is re-checked each request because a download REPLACES it and a
+   handle on a deleted cache does not merely go stale, it throws.
+
+3. A FAILED CHECK IS NOT A FAILED DOWNLOAD. With a book already saved and no way to reach the server, the
+   button said "The download did not finish", which is untrue and alarming for a reader who is reading
+   their saved copy perfectly well. There is now a `saved` state, distinct from `current`: same tick,
+   muted colour, and words that say the only thing actually lost is the news. Whether a store exists is
+   what decides which of the two a failed check means.
+
+**THE BUTTON, AND WHY THE PANEL IS NOT IN THE WAY.** It lives in the nav's tool group, starts HIDDEN, and
+is revealed only once the device has been looked at -- so a browser without Cache Storage shows no control
+rather than one that fails when pressed, the same rule the Pin follows. It carries the download glyph
+while there is something to fetch and a tick once the book is saved; the pending edition is the ONLY state
+that takes the warning colour, and it also carries a corner dot, because colour alone is not an answer.
+Pressing it downloads -- one press, as asked -- and the bar is drawn along the button's own bottom edge,
+with the detail in a panel anchored under it. The bar, not the button, carries the `progressbar` role: a
+button that also announced itself as a progress bar would be announcing two things at once.
+
+**VERIFIED END TO END IN A REAL BROWSER, against `serve-site.mjs`**:
+  - not saved -> "Save the whole book on this device" -> one press -> progress -> "Saved on this device,
+    and up to date", with the Reload offered because the open page is still the edition it was loaded from;
+  - a rebuild -> the button turns AMBER with the corner dot, "A newer edition of this book is ready to
+    download" -> one press -> the new edition saved and the old store replaced;
+  - server stopped -> a page NEVER VISITED in that session loads in full, and so do the ANIMATION PLAYERS,
+    which pull `player.js`, the whole engine from `lib/` and the call authorings out of the saved copy;
+  - server stopped with the book saved -> "Saved on this device. The server could not be reached to check
+    for a newer edition."
+
+**ONE THING THE DEPLOY MUST NOW DO THAT IT DID NOT HAVE TO.** Assets are uploaded with a one-hour cache and
+their filenames are NOT content-hashed, so the CloudFront invalidation is load-bearing rather than a
+nicety: a reader downloading a new edition inside the hour after a deploy could take the pages from the new
+build and the figures, formations and engine from the CDN's copy of the old one -- and would then keep that
+mixture OFFLINE, where nothing can correct it. `book/deploy.txt` used to call the invalidation optional and
+say skipping it "costs little"; that is no longer true and the file now says so. Uploading `sw.js`
+`no-cache` does not help, because the files that go stale are the assets.

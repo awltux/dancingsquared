@@ -2873,7 +2873,16 @@ export class EditorController implements EditorUI {
     head.className = 'ed-move-head';
     const name = document.createElement('b');
     name.textContent = `move ${k + 1}`;
-    head.appendChild(name);
+    // THE TWO ADD-A-COPY BUTTONS BRACKET THE HEADER, each inserting the copy on ITS side: `<A` sits immediately
+    // left of the title and `A>` is pushed to the far right of the row, past the facing control. Asked for as
+    // "add a [D]uplicate button at the top to the left and right of the current move header", then as "Perhaps
+    // [<A] and [A>] might be better text", then "Move the [A>] to the far right" - so the pair reads as the two
+    // ENDS of the header rather than as a cluster around the title, and the middle of the row stays the move's
+    // own name and facing control.
+    const title = document.createElement('span');
+    title.className = 'ed-move-title';
+    title.append(this.duplicateButton(k, 'left'), name);
+    head.appendChild(title);
 
     const rchk = document.createElement('input');
     rchk.type = 'checkbox';
@@ -2891,8 +2900,13 @@ export class EditorController implements EditorUI {
       // keeps each dancer's facing curve its own rather than the focused dancer's.
       write((s) => ({ ...s, rotate: rchk.checked ? { ...s.translate } : null }), 'rot');
     });
-    head.appendChild(rchk);
-    head.appendChild(rc);
+    // THE EXPLICIT BOX KEEPS ITS OWN GROUP, so the facing control does not get pushed around by the width the
+    // buttons take. It sits between the title and `A>`, which the row's own `space-between` then pins to the
+    // right-hand edge.
+    const explicit = document.createElement('span');
+    explicit.className = 'ed-move-explicit';
+    explicit.append(rchk, rc);
+    head.append(explicit, this.duplicateButton(k, 'right'));
     tile.appendChild(head);
 
     // PER-DANCER PATCHES, and that is not a detail: a patch built from THIS dancer's segment
@@ -4027,6 +4041,84 @@ export class EditorController implements EditorUI {
       ? `<span style="color:#ffb454">track incomplete</span>: the ends are ${err.pos.toFixed(2)} units / ` +
         `${deg.toFixed(0)}° from "${esc(ref.from || 'the source')}" — <b>Connect</b> re-aims the first move of every dancer to close it`
       : `ends differ from the catalogue's by ${err.pos.toFixed(2)} units / ${deg.toFixed(0)}°`;
+  }
+
+  /**
+   * One of the two ADD-A-COPY buttons in the tile's own header. `side` is the side the COPY goes on.
+   *
+   * THE ARROW IS THE LABEL, and it points the way the copy goes: `<A` immediately left of the move's title,
+   * `A>` alone at the far right of the header row.
+   * Asked for after a first cut labelled both of them `D`, when two identical letters around the title left
+   * which-is-which to position alone. It joins `C`/`Pa`/`Pr` beside the arc box, where a letter or two is the
+   * whole label and the hover carries the meaning.
+   */
+  private duplicateButton(k: number, side: 'left' | 'right'): HTMLButtonElement {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.key = `m${this.moveDancer}:${k}:dup.${side}`;
+    b.className = 'ed-dup';
+    b.textContent = side === 'left' ? '<A' : 'A>';
+    b.title =
+      `Add a copy of this move to the ${side.toUpperCase()} of it (the arrow points the way it goes). ` +
+      'ONLY this move is copied, even when a run is selected, and every SELECTED dancer gets a copy of its OWN move.';
+    b.addEventListener('click', () => this.duplicateInstanceMove(side));
+    return b;
+  }
+
+  /**
+   * DUPLICATE THE SELECTED MOVE, inserting the copy on the side whose button was pressed.
+   *
+   * Asked for: "This duplicates the Move and inserts it to the left or right of the current move, depending on
+   * which button was pressed. It should copy only the selected Move (even if multiple moves are selected), but
+   * across multiple dancers if they are selected."
+   *
+   * ONLY THE SELECTED MOVE, so the RUN IS IGNORED - a run is a range for the circle and for the clipboard, and
+   * eight copies from one press would be a different feature with a different question (where does each copy go?).
+   * The run is CLEARED as well, because inserting shifts every later index and a run left naming them would
+   * silently point at different moves.
+   *
+   * THE DANCERS ARE A GROUP, like every other move edit, and each dancer's copy is ITS OWN move - the rule
+   * `commitMoveChange` and the clipboard already follow - so a selection that does not share one path keeps its
+   * differences instead of being handed the shown dancer's.
+   *
+   * THE TILE STAYS ON THE MOVE THAT WAS DUPLICATED. The caller is shaping that move and is asking for another one
+   * like it; putting the copy on screen instead would take the numbers they are working on away from them.
+   * Inserting on the LEFT moves that move one place along, so the cursor moves with it.
+   *
+   * THE COPY HOLDS NOTHING until `C` is pressed on it, because a copied point belongs to the move it was taken
+   * from. `carryMoveClips` also skips an insert on purpose - the paths changed LENGTH, so pairing them by
+   * position would mis-key every copy after the insertion point.
+   */
+  private duplicateInstanceMove(side: 'left' | 'right') {
+    const call = this.instance;
+    if (!call) return;
+    const from = this.moveIndex;
+    const at = side === 'left' ? from : from + 1;
+    const targets = this.selectedSorted();
+    if (targets.length === 0) {
+      this.statusEl.textContent = 'no dancers selected â€” pick dancers above the table, or the copy has nowhere to go';
+      return;
+    }
+    let next = call;
+    let done = 0;
+    for (const d of targets) {
+      // EACH DANCER'S OWN MOVE. A dancer with no move at this index is SKIPPED rather than given one - the same
+      // rule the delete follows, and the reason a call whose tracks differ in length stays intact.
+      const seg = next.dancers[d]?.path[from];
+      if (!seg) continue;
+      next = addMove(next, d, seg, at);
+      done++;
+    }
+    if (done === 0) {
+      this.statusEl.textContent = `nothing to duplicate â€” no selected dancer has a move ${from + 1}`;
+      return;
+    }
+    this.moveIndex = side === 'left' ? from + 1 : from;
+    this.circleTo = null;
+    this.commit(next, `m${this.moveDancer}:${this.moveIndex}:dup.${side}`);
+    this.statusEl.textContent =
+      `duplicated move ${from + 1} to the ${side} for ${done} dancer${done === 1 ? '' : 's'}` +
+      ' â€” the copy is a new move, so it holds no copied point until C is pressed on it';
   }
 
   private addInstanceMove() {

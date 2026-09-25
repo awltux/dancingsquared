@@ -165,7 +165,16 @@ html, body {
   box-shadow: 0 0 0 1px rgba(124, 182, 255, 0.5);
 }
 #editorPanel .ed-clip button:disabled { opacity: 0.35; cursor: not-allowed; }
-/* The moves strip: every move of the chosen track in order, so the whole path is visible at
+/* THE TWO DUPLICATE BUTTONS IN THE TILE'S HEADER, one either side of the move's own title. Small, because the
+   header is one line and the title has to fit beside them, but lit like the clipboard group so they do not read
+   as decoration. The explicit box keeps its own group on the right of the same row. */
+#editorPanel .ed-move-title { display: inline-flex; align-items: center; gap: 4px; }
+#editorPanel .ed-move-explicit { display: inline-flex; align-items: center; gap: 4px; }
+#editorPanel .ed-dup {
+  padding: 0 5px; font-size: 10px; font-weight: 700; line-height: 1.5; border-radius: 4px;
+  border: 1px solid #4a5f77; background: #1e2a38; color: var(--text); font-family: inherit; cursor: pointer;
+}
+#editorPanel .ed-dup:hover { background: #27374a; border-color: var(--text); }/* The moves strip: every move of the chosen track in order, so the whole path is visible at
    once. The CURRENT move is tripled in width and carries its numbers; the rest are compact
    tiles that select on click - which is also what moves the track highlight.
    PREFIXED WITH #editorPanel ON PURPOSE: `#hud button` is (1,0,1) and would otherwise win

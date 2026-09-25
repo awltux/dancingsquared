@@ -5389,3 +5389,57 @@ with "the negative control really is a different file" while nothing in the code
 this work by checking out the PREVIOUS commit's `editor-ui.ts` and re-running: the same three fail. They now
 normalise `\r\n` on read, so the gate gives the same answer on either checkout - which is the least a gate owes.
 `\u2717` in the one new place that needs it, and anchors avoid non-ASCII.
+
+### ADDING A COPY OF A MOVE, EITHER SIDE OF IT (BUILT AND GATED)
+
+Asked for: "On the selected Move add a [D]uplicate button at the top to the left and right of the current move
+header. This duplicates the Move and inserts it to the left or right of the current move, depending on which
+button was pressed. It should copy only the selected Move (even if multiple moves are selected), but across
+multiple dancers if they are selected." Then, in the same breath: "Perhaps [<A] and [A>] might be better text for
+the buttons", and then "Move the [A>] to the far right."
+
+**THE WHOLE FEATURE IS ONE ENGINE CALL.** The tile builds no segment of its own: it hands `addMove` a move it
+already has, plus an index, and every claim the button makes is `addMove`'s behaviour rather than the tile's. So
+`duplicate-move-probe.mjs` measures that behaviour over all 542 calls rather than assuming it.
+
+**THE CLAIM THAT NEEDED MEASURING is the one the status line makes: "the copy is a new move, so it holds no copied
+point until C is pressed on it."** The clipboard is a `WeakMap` keyed on the move's own segment, so if `addMove`
+spliced the segment it was handed, the copy and the original would be ONE OBJECT and the copy would silently
+inherit the original's clipboard entry - a move that looks like it is holding a point nobody copied onto it. It
+CLONES. Measured at every index over every call: the inserted move is a new object **542/542** at the head, the
+middle and the tail; it carries the original's numbers exactly **542/542**; the original keeps its own object
+**542/542**, so a copied point already on it stays on it; every OTHER move on that dancer keeps its object
+**542/542**, so their own copied points survive an insert in front of them; the other dancers are the same objects
+they were **542/542**; and the instance passed in is untouched **542/542**, which is what makes the press
+undoable. A second sweep of every move of every dancer - 9988 pairs, both sides - confirms the same six things
+plus the one the request actually asks about: LEFT puts the copy at the original's index and slides the original
+right (9988/9988), RIGHT leaves the original and puts the copy after it (9988/9988).
+
+**ONLY THE SELECTED MOVE, so the RUN IS IGNORED - and then CLEARED.** A run is a range for the circle and for the
+clipboard, and eight copies from one press would be a different feature with a different question (where does each
+copy go?). It is cleared as well because inserting shifts every later index, and a run left naming them would name
+the wrong moves. The probe asserts both the ignoring and the clearing, so the clearing cannot be mistaken for the
+ignoring.
+
+**THE CURSOR FOLLOWS THE COPY, WHICH IS WHY THE TWO SIDES DIFFER.** A left insert puts the copy at `from`, so the
+tile moves to `from + 1`; a right insert leaves the original at `from`, so the tile stays. The probe's third
+sweep checks that the move under the cursor is the one on the pressed side, 9988/9988. It also skips a dancer with
+no move at that index rather than giving it one - the same rule the delete follows.
+
+**THE LABELS, AND WHERE THEY SIT.** A first cut labelled both buttons `D`, which left which-is-which to position
+alone; the arrows were asked for instead and they now carry the direction themselves: `<A` appended immediately
+left of the move's own title, `A>` appended after the facing control so the header's own `space-between` pins it
+to the far right. The probe asserts the two appends, the `space-between` in comment-stripped CSS, and that
+`.ed-dup` is live CSS - a rule inside an unterminated comment is not a rule, which is exactly how the clipboard
+buttons once rendered as the dim default and were reported as hard to see.
+
+**A WARNING ABOUT THE BROWSER-AID CSS, SINCE IT COST A ROUND TRIP.** The panel's call list is ~300 options, so
+the tile sits past the snapshot cap; the aid appended to the built CSS hides those lists. It also carried
+`.ed-move{flex:0 0 auto}` so the tile would size to its content - which OVERRODE the selected tile's own width and
+made the header far wider than the pane, pushing `A>` off the visible edge and making the far-right placement look
+broken. It was not: removing the override showed `[<A] move 1 [ ] explicit [A>]` exactly as asked. Rebuild `dist`
+without the aid before believing anything about this row's layout.
+
+Verified in the browser: the right button takes the call from 2 to 4 beats, leaves the tile on move 1 and adds
+one tile to the strip; the left button leaves the tile on move 2 (the copy) with the original behind it; both
+messages name the side; and one press is one revert step.

@@ -284,6 +284,27 @@ const toRad = (deg: number): number => (deg * Math.PI) / 180;
 const ARC_FIT_TOL = 0.02;
 
 /**
+ * HOW LONG A MOVE MAY LAST, and the step its field nudges by.
+ *
+ * THE ENGINE WILL NOT REFUSE A NONSENSE DURATION, so the panel has to. MEASURED: `setMove` stores
+ * `beats: 0` and `beats: -2` without complaint, and a move of no length or of negative length is what
+ * the scrub, `moveBeatRange` and `poseAt` all divide by. The corpus never goes near it - its 9988
+ * segments run from 0.1 to 9.5 beats and every one is positive - so a zero here is a typo rather than
+ * an authoring choice, and refusing it is the difference between a typo and a broken track.
+ *
+ * 64 IS THE PHRASE, not an arbitrary ceiling: square dance music is counted in 64-beat phrases and a
+ * whole call fits inside one, so a SINGLE move longer than that is a slipped digit rather than a
+ * duration anyone meant. It is a long way above the corpus's own maximum of 9.5.
+ *
+ * THE STEP IS A QUARTER BEAT, which is the granularity the scrub bar already works in and the finest
+ * subdivision the corpus uses often (0.75 and 1.25 are common). It is only what the spinner and the
+ * arrow keys move by: a typed value is taken exactly as typed, which it has to be, because the corpus
+ * also carries 0.1, 0.375, 1.125, 1.33 and 2.67 - values no single step would ever produce.
+ */
+const MAX_MOVE_BEATS = 64;
+const BEAT_STEP = 0.25;
+
+/**
  * Rotate a curve about its OWN START POINT: the end and the exit control turn, the start handle does not.
  *
  * THAT ASYMMETRY IS THE WHOLE POINT, and it is the answer to the caller's own warning - "care must be taken
@@ -2850,6 +2871,71 @@ export class EditorController implements EditorUI {
     this.syncStageSelection();
   }
 
+  /**
+   * What the SELECTED dancers' same-numbered move lasts, and whether they agree.
+   *
+   * ASKED BEFORE THE FIELD IS DRAWN, because the answer changes what the field has to say. MEASURED
+   * (`poc/tools/move-beats-probe.mjs`): 285 of the corpus's 547 calls have a move whose beats DIFFER
+   * between dancers - `c3a/spin_the_pulley.xml` opens on 3, 3, 7.5, 9.5 across its eight - so a
+   * selection of several dancers routinely spans several timings at once. A field showing one of them
+   * and saying nothing would invite a caller to flatten a difference they never saw.
+   *
+   * A dancer with no move at this index is left out of `values` rather than counted as zero, the same
+   * rule every other group edit follows.
+   */
+  private selectedBeats(): { mine: number; values: number[]; varies: boolean } | null {
+    const call = this.instance;
+    if (!call) return null;
+    const mine = call.dancers[this.moveDancer]?.path[this.moveIndex]?.beats;
+    if (mine === undefined) return null;
+    const values: number[] = [];
+    for (const d of this.selectedSorted()) {
+      const seg = call.dancers[d]?.path[this.moveIndex];
+      if (seg) values.push(seg.beats);
+    }
+    return { mine, values, varies: new Set(values).size > 1 };
+  }
+
+  /**
+   * SET THIS MOVE'S DURATION, on every selected dancer.
+   *
+   * THE TWO REFUSALS ARE THE WHOLE REASON THIS IS A METHOD. `commitMoveChange` will write whatever it
+   * is handed, and the engine will keep it, so a zero, a negative or a slipped digit would reach the
+   * track and break the scrub rather than being caught here. Nothing is written on refusal, and the
+   * field is rebuilt so it goes back to showing the duration the move actually has.
+   *
+   * IT SAYS WHEN IT HAS FLATTENED A DIFFERENCE. Unifying a timing across a selection is a legitimate
+   * group edit - the same choice `commitMoveChange` records for beats and hands - but it is not always
+   * the one the caller meant, and the panel is the only thing that knows the dancers disagreed before
+   * the write. Afterwards there is nothing left to notice.
+   */
+  private setMoveBeats(v: number) {
+    const key = `m${this.moveDancer}:${this.moveIndex}:beats`;
+    if (!(v > 0)) {
+      this.refusal(`a move has to last some time: ${show(v)} beats is not a duration, so nothing was written`);
+      this.renderInstance(key);
+      return;
+    }
+    if (v > MAX_MOVE_BEATS) {
+      this.refusal(
+        `${show(v)} beats is longer than a whole ${MAX_MOVE_BEATS}-beat phrase, and a single move cannot be, so nothing was written - check for a slipped digit`,
+      );
+      this.renderInstance(key);
+      return;
+    }
+    const before = this.selectedBeats();
+    const was = this.instance;
+    this.commitMoveChange((s) => ({ ...s, beats: v }), key);
+    // DID IT LAND? A successful write replaces the instance object - that is the engine's own identity
+    // guarantee - so this is the honest test, and it keeps the refusal `commitMoveChange` may have made
+    // for an empty selection instead of talking over it.
+    if (this.instance === was) return;
+    const n = before?.values.length ?? 0;
+    this.statusEl.textContent =
+      `move ${this.moveIndex + 1} now lasts ${show(v)} beats for ${n} dancer${n === 1 ? '' : 's'}` +
+      (before?.varies ? ' — that is ONE timing for all of them, and they did not all have the same before' : '');
+  }
+
   /** The move being edited: TRIPLE width, with its beats, hands, travel and facing.
    *
    * A MOVE HAS TWO SHAPES AND THEY ARE SELECTED SEPARATELY. The translation Bezier is where the
@@ -2944,6 +3030,32 @@ export class EditorController implements EditorUI {
       tabs.appendChild(b);
     }
     tile.appendChild(tabs);
+
+    // THE MOVE'S OWN DURATION, on its own line between the shape tabs and the handles toggle.
+    //
+    // NOT IN THE GRID, and that is where it belongs rather than a matter of taste: the grid's two
+    // columns are the two SPACES a point can be written in - the dancer's own frame and the floor - and
+    // a duration is in neither. It is also not per-curve: the Move and Facing tabs are two shapes of
+    // one move, and the move lasts as long as it lasts whichever shape is on screen.
+    //
+    // MARKED, NOT LOCKED, when the selected dancers disagree. A coordinate field LOCKS on a difference,
+    // because one number cannot describe several shapes. One TIMING for several dancers is a real edit,
+    // so this field stays live and only wears the warning - and the warning is on the field rather than
+    // in the status line, so the caller sees the difference BEFORE they flatten it.
+    const beats = this.selectedBeats();
+    const beatsField = this.field(
+      `m${i}:${k}:beats`,
+      'beats',
+      seg.beats,
+      BEAT_STEP,
+      (v) => this.setMoveBeats(v),
+      false,
+      beats?.varies
+        ? `The selected dancers do NOT all last the same here: ${beats.values.map(show).join(', ')} beats. Typing a number gives every one of them that number.`
+        : 'How long this move lasts, in beats. Written to every selected dancer.',
+    );
+    if (beats?.varies) beatsField.classList.add('mixed');
+    tile.appendChild(beatsField);
 
     // WHICH HANDLES THE BOARD OFFERS, as a button, because the two sets overlap often enough that one of
     // them is unreachable when both are drawn (see `handleMode`: 5.5% of the corpus's curves have their

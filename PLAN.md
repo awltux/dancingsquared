@@ -5534,3 +5534,55 @@ build and the figures, formations and engine from the CDN's copy of the old one 
 mixture OFFLINE, where nothing can correct it. `book/deploy.txt` used to call the invalidation optional and
 say skipping it "costs little"; that is no longer true and the file now says so. Uploading `sw.js`
 `no-cache` does not help, because the files that go stale are the assets.
+
+### THE MOVE'S DURATION, EDITABLE IN THE TILE (BUILT AND GATED)
+
+Asked for: "Add a beats edit field to the Move."
+
+**A MOVE'S `beats` IS NOT LIKE ITS COORDINATES, and the three differences decided the design.** It is
+written in neither of the two spaces the tile's grid has columns for, so it does not belong in the grid;
+it is not per-curve, because the Move and Facing tabs are two shapes of ONE move and the move lasts as
+long as it lasts whichever shape is on screen; and THE ENGINE DOES NOT VALIDATE IT. MEASURED
+(`poc/tools/move-beats-probe.mjs`, section 2): `setMove` stores `beats: 0` and `beats: -2` without
+complaint, and a move of no length or of negative length is what the scrub, `moveBeatRange` and the pose
+sampling all divide by. The panel is therefore the only thing between a slipped keystroke and a broken
+track, so the field refuses two things out loud and writes nothing: a duration of zero or less, and one
+beyond a whole 64-beat phrase (which is a slipped digit rather than a duration - the corpus's own maximum
+is 9.5). The field is rebuilt on refusal, so it goes back to showing the duration the move actually has.
+
+**FRACTIONAL BEATS ARE ORDINARY, so the step could not be 1.** MEASURED over the corpus's 9988 segments:
+**2260 are not whole numbers** - 0.75, 1.5, 4.5 and 2.5 are as much part of the corpus as 2 and 3, and
+`0.1`, `0.375`, `1.125`, `1.33`, `1.7` and `2.67` appear too. So the spinner steps by a quarter beat
+(the granularity the scrub already works in, and the finest subdivision that is common) while a TYPED
+value is taken exactly as typed, which it has to be, because no single step produces those last six. Every
+one of the 9988 segments is positive, which is what makes a zero here a typo rather than an authoring
+choice, and the whole corpus sits between **0.1 and 9.5** beats - a long way inside the ceiling.
+
+**THE FIELD HAS TO NOTICE A DIFFERENCE RATHER THAN CREATE ONE UNSEEN.** A coordinate field LOCKS when the
+selected dancers disagree, because one number cannot describe several shapes. One TIMING for several
+dancers is a legitimate group edit - the choice `commitMoveChange` already records for beats and hands -
+so this field stays live. But MEASURED: **285 of the 547 calls hold a move whose beats differ between
+dancers** (675 indices), the widest being `c3a/spin_the_pulley.xml`, which opens on 3, 3, 7.5, 9.5 across
+its eight. A multi-dancer selection therefore routinely spans several timings, so a field showing one of
+them and saying nothing would invite a caller to flatten a difference they never saw. It is MARKED, not
+locked: the group takes the warning colour and the hover names the values themselves (`5, 2, 2, 2, 2, 2
+beats`), so the difference is visible BEFORE the write - and the status line afterwards says the write
+flattened something, because after the write there is nothing left to notice.
+
+**THE FIELD WENT ON THE KEY THE PANEL ALREADY USED.** `refreshNumberFields` has carried
+`m${i}:${k}:beats` since the drag path was built, so a beats input keyed the same way is kept live while
+a handle is dragged and has its focus restored through the rebuild by `focusKey` - both for free, and the
+probe asserts the two keys are the same string rather than assuming it.
+
+**THE CALL'S LENGTH IS ITS LONGEST DANCER.** MEASURED: `call.beats` equals the longest dancer's total
+track in **547 of 547** calls. That is why lengthening a move on the dancer who is already longest
+lengthens the call, and on a shorter one may not - and the move's own span grows while every LATER move
+is pushed along by the same amount, so the rest of the track keeps its own durations.
+
+Verified in the browser: the field shows `beats 2` between the shape tabs and the handles toggle; 2 -> 5
+takes the call from 2 to 5 beats, updating the info line, the strip and the scrub, in ONE undo step; `0`
+is refused with `a move has to last some time: 0 beats is not a duration, so nothing was written`, the
+call is untouched and no undo step is added; and with a selection that disagrees the field goes amber and
+names the values while the coordinate fields beside it are disabled - then writing 3 across all six
+reports `move 1 now lasts 3 beats for 6 dancers - that is ONE timing for all of them, and they did not
+all have the same before` and the marker clears.

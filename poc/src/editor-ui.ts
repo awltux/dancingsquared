@@ -110,10 +110,10 @@ export interface EditorHost {
    *  edited decides whose track is shown, and which move decides which stretch of it. `kind` says
    *  WHICH OF THE MOVE'S TWO SHAPES to draw over that stretch - the path, or the facings. */
   focusTrail(index: number | null, range: { from: number; to: number } | null, kind?: 'move' | 'facing'): void;
-  /** The 8-dancer named formations a clone's start can be re-based onto, as start poses.
-   *  Sourced from the sequencer's formation library - building a second one here would
-   *  double the catalogue registration the app already pays for at startup. */
-  startFormations(): { name: string; poses: FormDancer[] }[];
+  /** The named formations a call of THIS SIZE can be re-based onto, as start poses. The size is an
+   *  argument because the two pickers are filled from it and must only ever offer formations the
+   *  call's own dancer count can actually be re-based onto - see `ensureStartFormations`. */
+  startFormations(dancers: number): { name: string; poses: FormDancer[] }[];
   /** The library's name for a board, or null. Used to NAME a generated setup after the formation it
    *  starts from, which is what every other setup's label is - see `instanceName`. */
   nameBoard(board: Board): string | null;
@@ -588,7 +588,14 @@ export class EditorController implements EditorUI {
    */
   private endTarget: { name: string; poses: FormDancer[] } | null = null;
   private endOverride: number[] | null = null;
-  private startFormationsLoaded = false;
+  /** WHICH SIZE the two formation pickers currently hold, or null before they are filled. The count
+   *  rather than a flag, because the list is only still correct while the instance's size has not
+   *  moved - see `ensureStartFormations`. */
+  private startFormationsLoaded: number | null = null;
+  /** The pickers' own titles, as `index.html` wrote them, kept so an empty list can say why and then
+   *  hand the original wording back when the size changes to one that has formations. */
+  private startFormationTitle = '';
+  private endFormationTitle = '';
   /**
    * WHICH DANCERS AN EDIT APPLIES TO, and the answer to "whose values am I looking at".
    *
@@ -933,7 +940,6 @@ export class EditorController implements EditorUI {
   private loadInstance() {
     const id = this.editCallSel.value;
     const tam = parseInt(this.editSetupSel.value || '0', 10);
-    this.ensureStartFormations();
     try {
       // `source` is the REFERENCE TRACK: what a clone re-bases away from and reconnects to.
       // A NEW CALL HAS NO HISTORY: the steps in the stack describe a different call, so putting one back
@@ -960,6 +966,10 @@ export class EditorController implements EditorUI {
       this.circleCentre = null;
       this.circleSide = 1;
       this.selectedDancers = new Set([0]);
+      // THE PICKERS ARE FILLED FROM THE INSTANCE'S OWN SIZE, and only after it is loaded: they offer
+      // formations this call can actually be re-based onto, so the list is a question about the
+      // instance rather than about the app. See `ensureStartFormations`.
+      this.ensureStartFormations(this.instance.dancers.length);
       this.startFormationSel.value = '';
       // A NEW instance starts with no end target: both re-bases belong to the setup that was loaded, so
       // loading another one must not leave a stale target (or a stale pairing) behind.
@@ -3839,23 +3849,46 @@ export class EditorController implements EditorUI {
   // ---- re-basing on a named formation: the start, and the end ----
 
   /**
-   * The formation list is asked for once, lazily: it comes from the sequencer's library.
+   * The formation list, rebuilt whenever the INSTANCE'S DANCER COUNT changes.
    *
-   * THE SAME LIST FILLS BOTH PICKERS. A start and an end are both "a named 8-dancer formation", and the
-   * correspondence between a call's dancers and a formation's spots is derived the same way for either
-   * end of the track (`setStartFormation` / `deriveFormationMapping`), so there is nothing end-specific to
-   * build a second list from - and two lists that could disagree would be a bug waiting to happen.
+   * THE COUNT IS THE WHOLE REASON THIS IS NOT BUILT ONCE. `setStartFormation` re-frames the existing
+   * path into the new start's coordinates and refuses a formation whose dancer count differs, and
+   * `doEndFormation` refuses the same mismatch out loud - so a list that offered eight-dancer
+   * formations to a four-dancer call could only ever be refused. MEASURED: 212 of the catalogue's 547
+   * calls have four dancers, so this was most of the catalogue rather than an edge case. The host
+   * answers for a size rather than for the app, and this only asks again when the size actually moves.
+   *
+   * THE SAME LIST FILLS BOTH PICKERS, and it should: a start and an end are both "a named formation of
+   * this call's size", and the correspondence between a call's dancers and a formation's spots is
+   * derived the same way for either end of the track (`setStartFormation` / `deriveFormationMapping`),
+   * so there is nothing end-specific to build a second list from - and two lists that could disagree
+   * would be a bug waiting to happen.
    */
-  private ensureStartFormations() {
-    if (this.startFormationsLoaded) return;
-    this.startFormationsLoaded = true;
-    const formations = this.host.startFormations();
+  private ensureStartFormations(dancers: number) {
+    if (this.startFormationsLoaded === dancers) return;
+    this.startFormationsLoaded = dancers;
+    // Captured before this can overwrite them, so the wording stays in `index.html` where the rest of
+    // the panel's help lives rather than being copied into the code.
+    if (!this.startFormationTitle) this.startFormationTitle = this.startFormationSel.title;
+    if (!this.endFormationTitle) this.endFormationTitle = this.endFormationSel.title;
+    const formations = this.host.startFormations(dancers);
     this.startFormationSel.innerHTML = '';
     this.startFormationSel.add(new Option('— keep the current start —', ''));
     for (const f of formations) this.startFormationSel.add(new Option(f.name, f.name));
     this.endFormationSel.innerHTML = '';
     this.endFormationSel.add(new Option('— keep the current end —', ''));
     for (const f of formations) this.endFormationSel.add(new Option(f.name, f.name));
+    // AN EMPTY LIST SAYS SO. Four calls in the catalogue have sixteen dancers and `formations.xml`
+    // cannot stand one up, so the picker would otherwise be a lone "keep the current" with no
+    // explanation - which reads as a bug rather than as "there is nothing to offer here".
+    const none = formations.length === 0;
+    this.startFormationSel.disabled = none;
+    this.endFormationSel.disabled = none;
+    const why = none
+      ? `no named ${dancers}-dancer formation is in the corpus, so this call cannot be re-based onto one`
+      : '';
+    this.startFormationSel.title = why || this.startFormationTitle;
+    this.endFormationSel.title = why || this.endFormationTitle;
   }
 
   /** Start a NEW setup from the catalogue instance, rather than editing the existing one. */
@@ -3881,7 +3914,7 @@ export class EditorController implements EditorUI {
     // track, and it is what makes the end invariant.
     const base = this.instance ?? this.source;
     if (!base) return;
-    const formation = this.host.startFormations().find((f) => f.name === name);
+    const formation = this.host.startFormations(base.dancers.length).find((f) => f.name === name);
     if (!formation) {
       this.statusEl.textContent = `✗ unknown formation "${name}"`;
       return;
@@ -3991,7 +4024,7 @@ export class EditorController implements EditorUI {
       this.statusEl.textContent = inst ? 'end target cleared' : '';
       return;
     }
-    const formation = this.host.startFormations().find((f) => f.name === name);
+    const formation = this.host.startFormations(inst?.dancers.length ?? 8).find((f) => f.name === name);
     if (!formation) {
       this.endTarget = null;
       this.renderInstance();

@@ -89,7 +89,7 @@ const editorUi = initEditor(stage, {
   // view rebuild - same dancers, new geometry.
   updateCall: (c) => browser.updateCall(c),
   focusTrail: (index, range, kind) => browser.setTrailFocus(index, range, kind),
-  startFormations: () => seqUi.startFormations(),
+  startFormations: (dancers) => seqUi.startFormations(dancers),
   // Naming a generated setup means naming the FORMATION it starts from; the library is the only
   // thing that can do that, and it lives in the sequencer.
   nameBoard: (board) => seqUi.readBoard(board).name,

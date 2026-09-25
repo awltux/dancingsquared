@@ -13,6 +13,7 @@ import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
 import { parseStoredModules } from './stored-modules';
 import { loadUserFormations } from './formations';
+import { corpusFormationsOfSize } from './tam-xml';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import { el, esc } from './dom';
 import type { Stage, WalkCycle } from './scene';
@@ -22,8 +23,9 @@ export interface SequencerUI {
   render(): void;
   /** Load a named sequence whole and park the playhead at its first step that plays `atCall`. */
   openSequence(steps: ModuleStep[], atCall?: string, startFormation?: string): void;
-  /** The EIGHT-dancer named formations, as start poses, for the editor's clone Start setup. */
-  startFormations(): { name: string; poses: FormDancer[] }[];
+  /** The named formations a call of `dancers` dancers can be re-based onto, as start poses, for the
+   *  editor's Start setup and End setup pickers. See the implementation for why the size matters. */
+  startFormations(dancers: number): { name: string; poses: FormDancer[] }[];
   /** Everything the library can say about a board: the name it recognizes, the curated label,
    *  the FASR/OO notation, the arrangement number, and the raw gender pattern. Used by the browse
    *  panel's end-formation field, and deliberately returned as plain data so the panel formats it
@@ -192,21 +194,41 @@ export class SequencerController implements SequencerUI {
   }
 
   /**
-   * The named formations an EIGHT-DANCER call can be re-based onto, as start poses: what the
-   * editor's "clone onto a different Start setup" picker is built from.
+   * The named formations a call of `dancers` dancers can be re-based onto, as start poses: what the
+   * editor's "Start setup" and "End setup" pickers are built from.
    *
-   * EIGHT DANCERS ONLY, and that is a requirement rather than a tidy-up: `setStartFormation`
-   * refuses a formation whose dancer count differs from the call's, because re-basing eight
-   * dancers onto four spots is not a setup, it is a gap. MEASURED
-   * (`node engine/test/tools/editor-clone-probe.mjs`, over the whole pooled catalogue):
-   * `listFormations()` currently offers **134 formations and every one of them is eight
-   * dancers**, so this filter removes nothing today and is here so that the day one is not,
-   * the picker cannot offer it.
+   * THE SIZE IS THE WHOLE POINT OF THE ARGUMENT. Both pickers used to be filled from the sequencer's
+   * formation library, which is eight dancers only, so a FOUR-dancer call - and 212 of the catalogue's
+   * 547 calls are four-dancer - was offered a list of formations every one of which is refused: by
+   * `setStartFormation` for a start, and out loud by `doEndFormation` for an end. The picker could not
+   * express the call's own start, which is the one thing it is for.
    *
-   * Memoized: building 134 boards is cheap but this is read once per editor construction and
-   * the catalogue cannot change while the app runs.
+   * TWO SOURCES, ONE PER SIZE, and the split is deliberate rather than an oversight:
+   *
+   *   - EIGHT DANCERS keeps the library, unchanged. Its 134 names are the ones the editor has always
+   *     offered, they are geometrically deduped (shapes equal up to rotation and reflection collapse to
+   *     one name), and widening them is an engine change pinned by `engine/test/shape-census.mjs` and
+   *     walked by four engine harnesses - far too much blast radius for a picker's contents.
+   *   - EVERY OTHER SIZE comes from the corpus itself, completed by the same half-set rule the library
+   *     uses, and NOT geometrically deduped: a caller choosing a start is choosing a name the corpus
+   *     uses, so `Box RH` and `Box RH Compact` are two useful entries rather than one shape twice.
+   *     MEASURED: 51 names at four dancers, and 212 catalogue calls that can now be answered.
+   *
+   * A size with no formations - sixteen dancers, which four calls have and `formations.xml` cannot
+   * stand up - returns an empty list, and the picker then offers only "keep the current" and says so
+   * rather than offering something that would be refused.
+   *
+   * Memoized per size: building a board is cheap but this is read on every instance load, and the
+   * catalogue cannot change while the app runs.
    */
-  startFormations(): { name: string; poses: FormDancer[] }[] {
+  startFormations(dancers: number): { name: string; poses: FormDancer[] }[] {
+    if (dancers !== 8) return corpusFormationsOfSize(dancers);
+    return this.eightDancerFormations();
+  }
+
+  /** The library's own list, filtered to the eight-dancer boards it is entirely made of. See
+   *  `startFormations` for why this half is not shared with the other sizes. */
+  private eightDancerFormations(): { name: string; poses: FormDancer[] }[] {
     if (!this.startFormationCache) {
       const out: { name: string; poses: FormDancer[] }[] = [];
       for (const name of this.formationNames) {

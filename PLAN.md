@@ -5586,3 +5586,62 @@ call is untouched and no undo step is added; and with a selection that disagrees
 names the values while the coordinate fields beside it are disabled - then writing 3 across all six
 reports `move 1 now lasts 3 beats for 6 dancers - that is ONE timing for all of them, and they did not
 all have the same before` and the marker clears.
+
+### THE START AND END SETUP LISTS, RESTRICTED TO THE CALL'S OWN SIZE (BUILT AND GATED)
+
+Reported: "When the start setup is 4 dancers, the start and end setup override lists should be restricted to
+4 dancer formations", then "currently it only shows 8 dancer setups", and the answer to where the four-dancer
+ones are: "I can see them in formations.xml. The 51 with 2 are the 4 dancer formations."
+
+**WHAT WAS WRONG.** Both pickers were filled from the sequencer's formation library, which is eight dancers
+only - `startFormations()` filtered `boardForSetup(name).dancers.length !== 8` and its own comment recorded
+that all 134 names are eight. MEASURED over the catalogue: **212 of 547 calls are four-dancer**, so this was
+most of the catalogue rather than an edge case, and every one of them was offered a list of formations
+`setStartFormation` refuses and `doEndFormation` refuses out loud. The picker could not express the call's
+own start, which is the one thing it is for.
+
+**THE CORPUS AUTHORS HALF A SET, which is where the 51 come from.** "2 dancers in xml is displayed as 4
+dancers, 4 dancers in xml is displayed as 8 dancers" (`engine/src/sequencer/library.ts`, `toWholeSet`), so
+the played shape is the written dancers plus the same dancers rotated 180 degrees. MEASURED over
+`formations.xml`'s 274 entries: 51 write two, 210 write four, 11 write six - and **no entry of any size is
+already whole**, so the doubling is the rule rather than a special case, and it yields 51 formations at four
+dancers, 209 at eight (two names collapse canonically) and 11 at twelve.
+
+**THE LIBRARY WAS NOT WIDENED, AND THE PROBE PINS THAT.** Doubling the two-written shapes inside
+`toWholeSet` is the change the engine's own note says is coming ("TWO DOUBLES TO FOUR as well ... the
+two-dancer case belongs with that picker's guard, in its own change") - and its blast radius is why it is
+not this change: `listFormations()` would go from 134 to 164 names, `engine/test/shape-census.mjs` pins the
+134-and-all-eight invariant, and four engine harnesses plus several probes walk that list. A picker's
+contents do not justify that. So the POC reads the same file the library does, applies the same rule, and
+leaves the library at 134 - which `formation-size-probe.mjs` asserts, so the decision cannot be undone by
+accident.
+
+**SIZE IS NOW AN ARGUMENT, ALL THE WAY DOWN.** `startFormations(dancers)` answers with the corpus for
+anything but eight and the library for eight; `ensureStartFormations(dancers)` rebuilds both pickers when
+the INSTANCE's size moves (it was memoized with a boolean, now with the count, so it is not rebuilt on every
+render); the two change handlers look a chosen name up at the same size, so a name cannot be found at one
+size and applied at another; and a size the corpus cannot stand up - sixteen dancers, which four calls have
+- disables both pickers with the reason rather than leaving a lone "keep the current" that reads as a bug.
+
+**THE USEFULNESS MEASUREMENT, and it took two goes to be honest about it.** Comparing the picker's names to
+a call's `from` reported 95 of 200, because the corpus names one shape two ways - a call says
+`from="Right-Hand Box"` where `formations.xml` says `Box RH`, and thirteen such names cover 105 calls.
+Comparing with `startsFromFormation` reported **ZERO**, which is the more interesting failure: the engine's
+comparison is exact to 1e-3 because it answers whether a tam may REFERENCE a formation by name, and
+`Cross Trail Thru` starts from "Facing Couples" drawn at x = +/-1.5 while the corpus entry is drawn at
+x = +/-2.0 - the same formation at a different scale. So the probe uses a shape fingerprint - the multiset
+of pairwise distances normalised by their mean, plus the relative headings - which is rigid-motion AND
+scale invariant, and reports **197 of 200** four-dancer calls with their own start shape in the new list.
+The three that miss are "Right-Hand Outfacing Z", "Left-Hand Z" and "Center 4 Dancers", shapes the corpus
+names but does not draw at four.
+
+**THE SAME ONE LIST FILLS BOTH PICKERS**, unchanged: a start and an end are both "a named formation of this
+call's size", and the correspondence between a call's dancers and a formation's spots is derived the same
+way for either end (`setStartFormation` / `deriveFormationMapping`), so two lists that could disagree would
+be a bug waiting to happen. The probe asserts both are filled from the one size-filtered list.
+
+Verified in the browser: the SIX-dancer call the editor opens on now offers exactly one formation
+("Compact Wave of 6"); "Cross Trail Thru" (4 dancers) offers **51 four-dancer formations** in both pickers -
+Facing Couples, Box RH/LH, Wave RH/LH, Diamond RH/LH, Star RH/LH, Single Double Pass Thru - where it used to
+offer 134 eight-dancer ones, with the Asymmetric line correctly reading "the HALF set (2 dancers)"; and
+"Circle Left" (8 dancers) still offers the library's 134 eight-dancer names, unchanged.

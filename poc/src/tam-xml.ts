@@ -70,6 +70,63 @@ export function corpusFormationPoses(name: string): FormDancer[] | null {
 }
 
 /**
+ * THE CORPUS'S HALF-SET RULE, in the one place the POC applies it.
+ *
+ * A named formation is authored as HALF the set it represents: "2 dancers in xml is displayed as 4
+ * dancers, 4 dancers in xml is displayed as 8 dancers" (`engine/src/sequencer/library.ts`,
+ * `toWholeSet`). So the played shape is the written dancers plus the same dancers rotated 180 degrees
+ * about the origin, which keeps their genders - unless the written shape ALREADY contains its own
+ * antipodes, in which case it is the whole set however few it lists.
+ *
+ * MEASURED over `formations.xml` (`poc/tools/formation-size-probe.mjs`): **no entry of any size is
+ * already whole** - all 274 complete by rotation - so the check below is inert on today's data and is
+ * here because the rule is the engine's, not because a case needs it.
+ */
+function completeHalfSet(poses: FormDancer[]): FormDancer[] {
+  const mirror = poses.map((p) => ({ x: -p.x, y: -p.y, heading: p.heading + Math.PI, gender: p.gender }));
+  const merged = poses.concat(mirror);
+  // COINCIDENT POINTS MEAN IT WAS ALREADY WHOLE, and doubling would stack two dancers on one spot.
+  const stacked = merged.some((a, i) => merged.some((b, j) => i !== j && Math.hypot(a.x - b.x, a.y - b.y) < 0.01));
+  return stacked ? poses : merged;
+}
+
+/**
+ * EVERY NAMED FORMATION THE CORPUS CAN STAND UP AT A GIVEN SIZE, as start poses.
+ *
+ * WHY THIS EXISTS RATHER THAN THE LIBRARY. The editor's Start and End pickers were filled from the
+ * sequencer's formation library, which is EIGHT dancers only (`listFormations()` is 134 names and
+ * `toWholeSet` completes a four-written shape to eight). MEASURED: **212 of the catalogue's 547 calls
+ * have four dancers**, and their `from` names - "Facing Couples", "Right-Hand Box", "Right-Hand Wave" -
+ * are exactly the corpus's TWO-written entries. So a four-dancer call was offered a list of eight-dancer
+ * formations, every one of which `setStartFormation` refuses and `doEndFormation` refuses out loud: the
+ * picker could not express the call's own start.
+ *
+ * The library is NOT widened to cover this. Its 134 names and their all-eight invariant are pinned by
+ * `engine/test/shape-census.mjs` and walked by four engine harnesses and several probes, so doubling the
+ * two-written shapes there is an engine-wide behaviour change with a blast radius far beyond a picker's
+ * contents. This reads the same file the library does and applies the same rule, at the sizes the
+ * library cannot reach.
+ *
+ * NOT GEOMETRICALLY DEDUPED, unlike the library's names, and that is the one difference worth knowing:
+ * the library collapses shapes that are equal up to rotation and reflection because the SEQUENCER
+ * matches boards by geometry, whereas a caller choosing a start is choosing a NAME the corpus uses.
+ * Every name here is one a call in the catalogue actually starts from.
+ */
+export function corpusFormationsOfSize(dancers: number): { name: string; poses: FormDancer[] }[] {
+  corpusFormations ??= parseFormations(formationsXmlText);
+  const byName = new Map<string, { name: string; poses: FormDancer[] }>();
+  for (const [name, ds] of corpusFormations) {
+    const poses = completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
+    if (poses.length !== dancers) continue;
+    // KEYED BY CANONICAL NAME because the corpus carries the same shape under several spellings
+    // ("Squared Set" and "Static Square"), which is the same comparison the library makes.
+    const key = canonicalName(name);
+    if (!byName.has(key)) byName.set(key, { name, poses });
+  }
+  return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
  * The `<tam>` for a call, as a REFERENCE when the call's own `from` names a formation the corpus carries
  * and the call really starts from it, and as an embedded block otherwise.
  *

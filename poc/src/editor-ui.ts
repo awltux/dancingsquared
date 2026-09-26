@@ -369,6 +369,17 @@ const snapTo = (v: number): number => {
 };
 
 /**
+ * HOW FAR THE HEADING HANDLE SITS FROM THE DANCER IT BELONGS TO, in board units.
+ *
+ * A GRAB RADIUS AND NOTHING ELSE. The heading a drag asks for is read from the DIRECTION from the dancer's
+ * start to the pointer, so the arm's own length carries no information and a longer or shorter one changes
+ * nothing but how far the hand has to reach. It is not zero because a handle sitting exactly on top of the
+ * thing it describes cannot be told apart from it, and the position handle - which is drawn at the dancer's
+ * own start, on the other axis - is the thing it must not be confused with.
+ */
+const DANCER_ARM = 1.4;
+
+/**
  * A Bezier as a polyline, using the ENGINE'S OWN `bezierPoint`.
  *
  * The curve is drawn from the same function the engine evaluates the dance with, so the picture cannot
@@ -545,6 +556,12 @@ export class EditorController implements EditorUI {
   private selBoysBtn = el<HTMLButtonElement>('edSelBoys');
   private selGirlsBtn = el<HTMLButtonElement>('edSelGirls');
   private selMatchBtn = el<HTMLButtonElement>('edSelMatch');
+  /** The board scope pair, the axis pair that belongs to the Dancer scope, and the pair's own container. */
+  private scopeMoveBtn = el<HTMLButtonElement>('edScopeMove');
+  private scopeDancerBtn = el<HTMLButtonElement>('edScopeDancer');
+  private axisTabsEl = el<HTMLSpanElement>('edAxisTabs');
+  private axisPosBtn = el<HTMLButtonElement>('edAxisPos');
+  private axisHeadBtn = el<HTMLButtonElement>('edAxisHead');
   private moveStripEl = el<HTMLDivElement>('edMoveStrip');
   private moveInfoEl = el<HTMLSpanElement>('edMoveInfo');
   private moveAddBtn = el<HTMLButtonElement>('edMoveAdd');
@@ -635,6 +652,21 @@ export class EditorController implements EditorUI {
   }
   /** WHICH OF THE MOVE'S TWO SHAPES is selected: the translation curve or the facing curve. */
   private moveKind: 'move' | 'facing' = 'move';
+  /**
+   * WHAT THE BOARD'S HANDLES ARE FOR: the selected move's curves, or the dancers' START POSES.
+   *
+   * A SCOPE RATHER THAN A THIRD TAB, because the two are not alternatives alongside each other - `moveKind`
+   * picks which of ONE move's shapes is editable, and this picks whether the board is editing a move at all.
+   * The tile's tabs belong to the tile, which only exists once a move is selected; a dancer's start pose is
+   * a property of the dancer and is editable with no move involved.
+   *
+   * NOT IN `EditorSnapshot` and NOT IN `stateKey`, for the same reason `moveKind` and `handleMode` are in
+   * neither: this is where the caller is LOOKING, not a change to the call, so toggling it is not an undo
+   * step. `Moves` is the default so a fresh load behaves exactly as it did before this existed.
+   */
+  private scope: 'dancer' | 'move' = 'move';
+  /** With `scope` on Dancer: drag the start POSITION or the start HEADING. Never drawn together. */
+  private dancerAxis: 'position' | 'rotation' = 'position';
   /**
    * WHICH SET OF HANDLES THE BOARD OFFERS: the curve's CONTROL POINTS, or its END POINT.
    *
@@ -1524,6 +1556,88 @@ export class EditorController implements EditorUI {
   }
 
   /**
+   * Put the board in one scope, and on one axis, AND RE-DRAW WHAT THE BOARD OFFERS.
+   *
+   * Both assignments end in `syncStageSelection`, which is the one place the stage's focus and the gizmo are
+   * chosen together - so a scope change cannot leave the board highlighting a move it is no longer editing.
+   *
+   * THE AXIS PAIR IS HIDDEN RATHER THAN DISABLED IN THE MOVE SCOPE. It has no meaning there: the move
+   * handles are a curve's control points whatever this says. A lit control that cannot act is the same
+   * fault as a draggable-looking dot that does nothing, which is the reason `handleMode` exists.
+   */
+  private setScope(scope: 'dancer' | 'move', axis?: 'position' | 'rotation') {
+    this.scope = scope;
+    if (axis) this.dancerAxis = axis;
+    const dancers = scope === 'dancer';
+    this.scopeMoveBtn.className = dancers ? '' : 'on';
+    this.scopeDancerBtn.className = dancers ? 'on' : '';
+    this.axisTabsEl.hidden = !dancers;
+    this.axisPosBtn.className = dancers && this.dancerAxis === 'position' ? 'on' : '';
+    this.axisHeadBtn.className = dancers && this.dancerAxis === 'rotation' ? 'on' : '';
+    this.syncStageSelection();
+  }
+
+  /**
+   * THE DANCER SCOPE'S GIZMO: one handle on the FOCUSED dancer's start pose, on one axis only.
+   *
+   * ONE DANCER'S HANDLES, LIKE THE MOVE SCOPE'S. The handle belongs to `moveDancer` - the lowest-numbered
+   * selected dancer, the one the panel's numbers already describe - and the drag writes EVERY selected
+   * dancer by the same delta. Drawing one per dancer would say each could be dragged on its own, which is
+   * exactly what "the first in the list modifies all" is not.
+   *
+   * THE TWO AXES ARE NEVER DRAWN TOGETHER, for the reason `handleMode` exists: a dot you can see and cannot
+   * reach is worse than no dot. Here they would very nearly coincide - the position handle sits on the start
+   * itself and the heading handle on a short arm from it - so they would be one target, and the tie would go
+   * to whichever happened to be drawn first.
+   *
+   * `x`, `y` and `angleDeg` ARE THE WHOLE START POSE, and `poseFor` composes this dancer's entire track from
+   * them: the moves are authored in the dancer's own frame, so re-posing the start TRANSLATES every later
+   * position and ROTATES every later heading. That is what makes this an edit of the instance rather than of
+   * a move, and it is why the anchor is worth drawing - a drag here moves the whole track, not a dot.
+   */
+  private drawDancerHandles() {
+    const stage = this.stage;
+    const call = this.instance;
+    if (!call || this.selectedDancers.size === 0) {
+      stage.setGizmo(null);
+      return;
+    }
+    const d = this.moveDancer;
+    const dancer = call.dancers[d];
+    if (!dancer) {
+      stage.setGizmo(null);
+      return;
+    }
+    const heading = toRad(dancer.angleDeg);
+    const handles: HandleSpec[] =
+      this.dancerAxis === 'position'
+        ? [
+            {
+              id: `d${d}:dp`,
+              // FROM THE BOARD'S CENTRE, so the line reads as where in the SET this dancer stands - the thing
+              // the drag is choosing. It is a picture and not a measurement: the delta comes from the drag.
+              anchor: { x: 0, y: 0 },
+              point: { x: dancer.x, y: dancer.y },
+              color: HANDLE_COLOR.dancer,
+            },
+          ]
+        : [
+            {
+              id: `d${d}:dh`,
+              anchor: { x: dancer.x, y: dancer.y },
+              // THE LINE IS THE HEADING: a dot out along the direction the dancer faces, so what the drag
+              // turns is exactly what the arm points at. See `DANCER_ARM`.
+              point: {
+                x: dancer.x + DANCER_ARM * Math.cos(heading),
+                y: dancer.y + DANCER_ARM * Math.sin(heading),
+              },
+              color: HANDLE_COLOR.dancer,
+            },
+          ];
+    stage.setGizmo(handles);
+  }
+
+  /**
    * The control points of the move's SELECTED curve, as draggable handles on the floor - drawn for
    * `moveDancer`, the first selected dancer.
    *
@@ -1573,6 +1687,14 @@ export class EditorController implements EditorUI {
     const stage = this.stage;
     if (!call || !this.active || !this.isInstanceMode()) {
       stage.setGizmo(null);
+      return;
+    }
+    // THE DANCER SCOPE TAKES THE BOARD FIRST, and ABOVE the coordinate gate on purpose: that gate asks
+    // whether the selected dancers' CURVES are the same shape, so that one coordinate edit can reach all
+    // of them. A start pose is not a curve, and the delta a drag here produces is well defined whatever
+    // the paths do - so the gate would refuse an edit that has nothing to do with the thing it guards.
+    if (this.scope === 'dancer') {
+      this.drawDancerHandles();
       return;
     }
     // NO HANDLES WHEN THE CURVE ON SCREEN DIFFERS, because a handle drag is a coordinate edit of THAT
@@ -1687,6 +1809,22 @@ export class EditorController implements EditorUI {
    * theta. That is also why this is cleared on pointerup rather than left for the next gesture to inherit.
    */
   private dragArcBase: { call: CallBundle; phi0: number; centre: { x: number; y: number }; theta: number } | null = null;
+  /**
+   * WHAT A START-POSE DRAG IS MEASURED FROM, captured at pointerdown - the second drag that is a function of
+   * the START of the gesture rather than of the pointer alone.
+   *
+   * The delta a group edit needs is "how far the focus dancer has moved", so the pose it had when the gesture
+   * began has to be kept: read from the live call instead and each pointer move's delta would be applied on
+   * top of the last one's, which compounds into a runaway. Every selected dancer's start is held because the
+   * whole selection receives the SAME delta and each one needs its own original to add it to.
+   *
+   * IN ASCENDING INDEX ORDER, so `starts[0]` is the FOCUS dancer - the same one `moveDancer` names and the
+   * same one the board drew the handle on. Cleared on pointerup rather than left for the next gesture.
+   */
+  private dragDancerBase: {
+    call: CallBundle;
+    starts: { i: number; x: number; y: number; heading: number }[];
+  } | null = null;
 
   /**
    * Wire the canvas for handle dragging.
@@ -1754,6 +1892,17 @@ export class EditorController implements EditorUI {
       // The arc-centre drag measures from HERE - see `dragArcBase` - so the fit and the centre's angle are
       // taken once, before the first pointer move has changed anything.
       this.dragArcBase = null;
+      // AND THE DANCER SCOPE'S BASE, on the same principle: the pose every selected dancer had HERE, so that
+      // each pointer move writes the same absolute numbers from the base rather than piling delta on delta.
+      this.dragDancerBase = null;
+      if (this.scope === 'dancer' && this.instance) {
+        const starts: { i: number; x: number; y: number; heading: number }[] = [];
+        for (const i of this.selectedSorted()) {
+          const s = this.instance.dancers[i];
+          if (s) starts.push({ i, x: s.x, y: s.y, heading: toRad(s.angleDeg) });
+        }
+        if (starts.length > 0) this.dragDancerBase = { call: this.instance, starts };
+      }
       if (id.endsWith(':cc')) {
         const dancer = this.instance?.dancers[parseInt(id.slice(1), 10)];
         const seg = dancer?.path[this.moveIndex];
@@ -1792,6 +1941,7 @@ export class EditorController implements EditorUI {
       if (!this.dragHandle) return;
       this.dragHandle = null;
       this.dragArcBase = null;
+      this.dragDancerBase = null;
       this.stage.setControlsEnabled(true);
       if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
       // A FULL re-render once, at the end. The tile's NUMBERS follow the drag live (see
@@ -1832,7 +1982,69 @@ export class EditorController implements EditorUI {
    * - sets both lengths at once. That is what "locks out manual editing" means here: not that the
    * handles stop working, but that nothing they can do takes the curve off the family.
    */
+  /**
+   * ONE STEP OF A START-POSE DRAG: the SAME DELTA on every selected dancer's own start pose.
+   *
+   * THE DELTA, NOT THE POINTER'S POSITION. What the focus dancer receives is measured against where it stood
+   * when the gesture began, and that same shift is handed to every other selected dancer unchanged - so the
+   * set keeps the arrangement it is standing in. Writing the pointer's absolute position to all of them
+   * would collapse the selection onto one spot, which is a different edit and not this one.
+   *
+   * WHICH AXIS IS WHICH. `position` adds the floor shift to each dancer's start and turns nobody. `rotation`
+   * adds the angle to each dancer's start heading and moves nobody. Because the moves are authored in the
+   * dancer's own frame, a heading change turns that dancer's WHOLE TRACK about its own start, so the second
+   * one is a bigger edit than it sounds - the probe prints how big rather than leaving it to be discovered.
+   *
+   * THE BASE IS READ EVERY TIME, never the live call, so a hundred pointer moves land exactly where one does.
+   */
+  private applyDancerStartDrag(handle: string, board: { x: number; y: number }, snap: boolean) {
+    const base = this.dragDancerBase;
+    if (!base) return;
+    // DISPATCHED ON THE SCOPE AND THEN CHECKED EXACTLY. The move chain below keys off the id's prefix and
+    // falls through to an `else` that MEANS the travel endpoint, so anything unknown reaching it would be
+    // silently misapplied. Here nothing unknown gets past the check.
+    const which = handle.slice(handle.indexOf(':') + 1);
+    if (which !== 'dp' && which !== 'dh') return;
+    const focus = base.starts[0];
+    if (!focus) return;
+    let next = base.call;
+    if (which === 'dp') {
+      // THE SNAP GOES ON THE DRAGGED POINT, in the frame the grid is drawn in - the rule the move handles
+      // already follow - and the DELTA is taken from the snapped point, so the focus dancer lands on a grid
+      // line while every other selected dancer keeps its offset from it exactly.
+      const at = snap ? { x: snapTo(board.x), y: snapTo(board.y) } : board;
+      const dx = at.x - focus.x;
+      const dy = at.y - focus.y;
+      for (const s of base.starts) {
+        if (base.call.dancers[s.i]) next = setDancerStart(next, s.i, { x: s.x + dx, y: s.y + dy, heading: s.heading });
+      }
+    } else {
+      // A GRID HAS NO MEANING FOR AN ANGLE, so Ctrl does nothing here rather than quantising a heading to a
+      // place. `normAngle` keeps the delta to the SHORT way round: without it, a drag past the far side of
+      // the dancer would take the long way and spin the set by nearly a full turn.
+      const theta = normAngle(Math.atan2(board.y - focus.y, board.x - focus.x) - focus.heading);
+      for (const s of base.starts) {
+        if (base.call.dancers[s.i]) next = setDancerStart(next, s.i, { x: s.x, y: s.y, heading: normAngle(s.heading + theta) });
+      }
+    }
+    if (next === base.call) return;
+    // NO RESYNC CALL, and that is not an omission. This gesture moves the whole track, so the highlighted
+    // trail does have to be re-made on the new geometry - but it already is: `applyLight` goes through
+    // `host.updateCall`, which re-samples every trail and then re-derives the highlight FROM ITS STORED FOCUS
+    // (`browser.ts` `updateCall` -> `applyDisplay` -> `setTrailHighlight(sampleTrailRange(...))`). And the
+    // gizmo is right too, because `applyLight`'s `renderHandles` dispatches to `drawDancerHandles` while the
+    // scope is Dancer. Adding a `syncStageSelection` here as well would rebuild the gizmo twice per pointer
+    // move and change nothing.
+    this.applyLight(next);
+  }
+
   private applyHandleDrag(handle: string, board: { x: number; y: number }, snap = false) {
+    // THE DANCER SCOPE HAS ITS OWN WRITE RULE, and it is checked on the SCOPE rather than on the handle's
+    // name so that no id can be read as a move control by mistake. See `applyDancerStartDrag`.
+    if (this.scope === 'dancer') {
+      this.applyDancerStartDrag(handle, board, snap);
+      return;
+    }
     const call = this.instance;
     if (!call) return;
     const d = parseInt(handle.slice(1), 10);
@@ -1979,6 +2191,37 @@ export class EditorController implements EditorUI {
   }
 
   /**
+   * THE DANCER SCOPE'S LIVE NUMBERS: the formation table's START columns, `x`, `y` and `head`.
+   *
+   * THE SAME SOURCE THE TABLE IS BUILT FROM. `renderFormation` walks `instanceTable(call)` and reads
+   * `r.start`, so reading it here too means a refresh cannot disagree with a rebuild about where a dancer
+   * stands - a hand-rolled conversion of `x`, `y` and `angleDeg` would be a second answer to a question the
+   * engine already answers, and the two would drift.
+   *
+   * A START-POSE DRAG CHANGES THESE ON EVERY POINTER MOVE, which is the whole reason this exists: the
+   * gesture is steered by the numbers, so a table that waited for the pointer to come up would be showing
+   * the frame before the one being dragged. Writing them is a handful of field assignments, not a rebuild.
+   *
+   * ONLY THE SELECTED DANCERS: those are the ones the drag writes, and the rest are deliberately untouched
+   * by it, so their cells already hold the right numbers.
+   *
+   * The focused field is skipped, for the reason `refreshNumberFields` gives - a value written under a caret
+   * is a real way to lose an edit, and the check is one comparison.
+   */
+  private refreshDancerNumbers(call: CallBundle) {
+    const rows = instanceTable(call);
+    const live: [string, number][] = [];
+    for (const n of this.selectedSorted()) {
+      const r = rows[n];
+      if (r) live.push([`r${n}:sx`, r.start.x], [`r${n}:sy`, r.start.y], [`r${n}:sh`, toDeg(r.start.heading)]);
+    }
+    for (const [key, v] of live) {
+      const el = this.instPanel.querySelector<HTMLInputElement>(`input[data-key="${key}"]`);
+      if (el && el !== document.activeElement) el.value = show(v);
+    }
+  }
+
+  /**
    * Put the live instance's numbers into the tile's fields, without rebuilding anything.
    *
    * THE DRAG PATH NEEDS THIS. `applyHandleDrag` deliberately skips `renderInstance` per pointer move -
@@ -1992,6 +2235,10 @@ export class EditorController implements EditorUI {
   private refreshNumberFields() {
     const call = this.instance;
     if (!call) return;
+    // THE DANCER SCOPE HAS NUMBERS OF ITS OWN, and they are the TABLE's, not this method's: the tile
+    // describes a move, and a start pose is not one. Answered in its own method so that this one keeps
+    // describing exactly one thing - the selected move - and returns early either way.
+    if (this.scope === 'dancer') return this.refreshDancerNumbers(call);
     const i = this.moveDancer;
     const k = this.moveIndex;
     const seg = call.dancers[i]?.path[k];
@@ -2254,6 +2501,15 @@ export class EditorController implements EditorUI {
   private syncStageSelection() {
     if (!this.active || !this.isInstanceMode() || !this.instance || this.selectedDancers.size === 0) {
       this.host.focusTrail(null, null);
+      this.renderHandles();
+      return;
+    }
+    // THE DANCER SCOPE FOCUSES THE WHOLE TRACK of the focused dancer and no move's stretch: a start pose
+    // re-frames EVERY move it has, so highlighting one of them would point at the part of the edit that is
+    // not being made. `focusTrail(dancer, null)` is the whole-track form, and it is deliberately not the
+    // `seg` branch below - that branch is about a move, which this scope does not touch.
+    if (this.scope === 'dancer') {
+      this.host.focusTrail(this.moveDancer, null);
       this.renderHandles();
       return;
     }
@@ -4814,6 +5070,17 @@ export class EditorController implements EditorUI {
     // progress. (Reloading the instance here would also have been the one way for a VIEW to
     // destroy work.)
     this.levelSel.addEventListener('change', () => this.applyCallFilter());
+    // THE BOARD'S SCOPE, and the axis that belongs to it. Two pairs of buttons rather than one four-way
+    // control, because these are two questions: `Moves | Dancers` says WHAT a handle drag is for, and
+    // `position | rotation` only has a meaning once the answer is Dancers - which is why the second pair is
+    // hidden rather than merely disabled in the move scope.
+    this.scopeMoveBtn.addEventListener('click', () => this.setScope('move'));
+    this.scopeDancerBtn.addEventListener('click', () => this.setScope('dancer'));
+    this.axisPosBtn.addEventListener('click', () => this.setScope('dancer', 'position'));
+    this.axisHeadBtn.addEventListener('click', () => this.setScope('dancer', 'rotation'));
+    // THE INITIAL STATE IS TAKEN FROM THE FIELD rather than from a class written into the markup, so the
+    // buttons and `scope` cannot be made to say different things by editing one of them.
+    this.setScope(this.scope);
     // THE BULK PICKS. `matching` is the one that asks the data a question - see `matchingDancers` - and the
     // others are the sets a caller reaches for: nothing, everything, the boys, the girls.
     this.selNoneBtn.addEventListener('click', () => this.setDancerSelection([], 'none'));

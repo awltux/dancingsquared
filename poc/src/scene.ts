@@ -42,14 +42,19 @@ export interface Stage {
 }
 
 /**
- * The two handle colours, so the palette lives in one place and the panel can name them.
+ * The handle colours, so the palette lives in one place and the panel can name them.
  *
  * THEY ARE DIFFERENT COLOURS BECAUSE THEY ARE DIFFERENT KINDS OF CURVE. Magenta is the TRAVEL curve -
  * a path on the floor, where the dancer goes. Cyan is the FACING curve - a curve drawn in the mover's
  * own frame at the move's start whose DIRECTION at each point is the heading the dancer has at that
  * instant. One colour for both would invite reading the second as a place the dancer goes.
+ *
+ * AMBER IS A THIRD KIND AGAIN, not a shade of either: a dancer's START POSE, which is not a curve at
+ * all but the frame the whole track is authored in - see `drawDancerHandles`. In magenta it would read
+ * as the first control point of the move, and in cyan as a facing, both of which are things you edit
+ * one move at a time rather than once per dancer.
  */
-export const HANDLE_COLOR = { travel: 0xff6fd0, facing: 0x3fd0ff } as const;
+export const HANDLE_COLOR = { travel: 0xff6fd0, facing: 0x3fd0ff, dancer: 0xffd23f } as const;
 
 /** A Bezier curve to draw, already sampled into board coordinates by the caller. */
 export interface CurveSpec {

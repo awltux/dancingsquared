@@ -106,6 +106,11 @@ const MUTATORS = [
   // different move - the same fault this audit exists for, one field over.
   /this\.arcOn\s*=\s*[^=]/g,
   /this\.arcKey\s*=\s*[^=]/g,
+  // THE BOARD'S SCOPE is the same kind of state one level out: it decides whether the gizmo is a move's
+  // control points or a dancer's start pose, so a method that flips it without resyncing would leave the
+  // board drawing handles for the scope it just left.
+  /this\.scope\s*=\s*[^=]/g,
+  /this\.dancerAxis\s*=\s*[^=]/g,
 ];
 const REACHES_STAGE = [/this\.syncStageSelection\(/, /this\.renderInstance\(/, /this\.commit\(/];
 

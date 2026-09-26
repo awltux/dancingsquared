@@ -244,6 +244,17 @@
               <span id="edBeatReadout" class="part"></span>
               <input id="edScrub" type="range" min="0" max="1" step="0.01" value="0" title="Drag to move the dancers along the call by hand. The animation is off here, so this is the only thing that moves them. Arrow keys nudge by 0.01 beat; Page Up/Down by 0.1." />
             </div>
+            <div class="row" id="edScopeRow">
+              <label title="WHAT THE BOARD'S HANDLES ARE FOR. `Moves` puts the gizmo on the selected move's control points, the way it has always worked. `Dancers` puts it on the FIRST selected dancer's start pose instead, and a drag there writes every selected dancer by the same delta - so a set can be placed and turned without touching a single move.">Edit</label>
+              <span class="ed-tabs">
+                <button id="edScopeMove" type="button" title="Drag the selected move's control points (the usual gizmo).">Moves</button>
+                <button id="edScopeDancer" type="button" title="Drag the first selected dancer's START POSE. Every selected dancer gets the same DELTA, so the arrangement is preserved.">Dancers</button>
+              </span>
+              <span class="ed-tabs" id="edAxisTabs" hidden>
+                <button id="edAxisPos" type="button" title="Drag the start POSITION: the same floor shift is added to every selected dancer, and nothing turns.">position</button>
+                <button id="edAxisHead" type="button" title="Drag the start HEADING: the same angle is added to every selected dancer's heading, and nobody moves. The path is authored in the dancer's own frame, so each dancer's whole track turns with them, about their own start.">rotation</button>
+              </span>
+            </div>
             <div class="row">
               <label title="Which dancers an edit applies to. The LOWEST-numbered one selected is the one whose values the tile shows, and its move is the one the strip lists.">Dancers</label>
               <span id="edDancerPicks" class="ed-picks"></span>

@@ -54,7 +54,7 @@ console.log('== 1. both buttons exist, are wired, and are guarded the same way =
 check(/<button id="edDancerAdd"/.test(htmlSrc), 'index.html carries the `+ dancer` button');
 check(/<button id="edDancerRemove"/.test(htmlSrc), 'and the `- selected` button');
 check(/<div class="row" id="edDancerCountRow" hidden>/.test(htmlSrc),
-  'inside a row of their own, which starts HIDDEN - the feature is clone-only by construction');
+  'inside a row of their own, `hidden` in the markup as the pre-script default only');
 check(/this\.dancerAddBtn\.addEventListener\('click', \(\) => this\.addInstanceDancer\(\)\);/.test(uiSrc),
   'and `+ dancer` is wired to `addInstanceDancer`');
 check(/this\.dancerRemoveBtn\.addEventListener\('click', \(\) => this\.removeInstanceDancers\(\)\);/.test(uiSrc),
@@ -62,14 +62,28 @@ check(/this\.dancerRemoveBtn\.addEventListener\('click', \(\) => this\.removeIns
 check(/private dancerCountRowEl = el<HTMLDivElement>\('edDancerCountRow'\);/.test(uiSrc),
   'the controller holds the row, so it can be shown and hidden');
 
-// ------------------------------------------------------------------ 2. the clone-only gate
-console.log('\n== 2. the ONE expression that decides whether the feature is visible at all ==');
+// ------------------------------------------------------------------ 2. the clone-only gate, as the caller SEES it
+console.log('\n== 2. the ONE expression that decides whether the buttons can do anything ==');
 check(/const cloning = this\.asClone && this\.isInstanceMode\(\);/.test(uiSrc),
   '`renderCloneChrome` derives "cloning" from the clone flag AND the editor mode');
-check(/this\.dancerCountRowEl\.hidden = !cloning;/.test(uiSrc),
-  'and the Set row follows it - so a change to that one line removes the whole feature from the panel');
+check(/this\.dancerAddBtn\.disabled = !cloning;/.test(uiSrc) && /this\.dancerRemoveBtn\.disabled = !cloning;/.test(uiSrc),
+  'and BOTH size buttons are DISABLED unless a clone is being built - that flag is the whole gate');
+// THE ROW WAS ONCE HIDDEN INSTEAD, and that is what this file was written for: the feature was working the
+// whole time and there was nothing on screen to say it was clone-only, so its absence read as breakage.
+check(/this\.dancerCountRowEl\.hidden = false;/.test(uiSrc) && !/this\.dancerCountRowEl\.hidden = !cloning;/.test(uiSrc),
+  'the ROW is no longer hidden for it - a control that is absent cannot explain itself');
+check(/const SIZE_LOCKED_TITLE =/.test(uiSrc),
+  'the explanation is a named message rather than a sentence in the middle of the render');
+check(/this\.dancerAddBtn\.title = cloning \? this\.dancerAddTitle : SIZE_LOCKED_TITLE;/.test(uiSrc) &&
+  /this\.dancerRemoveBtn\.title = cloning \? this\.dancerRemoveTitle : SIZE_LOCKED_TITLE;/.test(uiSrc),
+  'and it is swapped in on hover: the locked message while greyed, the markup\'s own wording while live');
+check(/if \(!this\.dancerAddTitle\) this\.dancerAddTitle = this\.dancerAddBtn\.title;/.test(uiSrc) &&
+  /if \(!this\.dancerRemoveTitle\) this\.dancerRemoveTitle = this\.dancerRemoveBtn\.title;/.test(uiSrc),
+  'the live wording is captured OFF THE MARKUP before it can be overwritten, so it survives every pass');
+check(/Only a CLONE can have dancers added or removed/.test(uiSrc),
+  'and the locked message states the RULE rather than merely refusing');
 check(/private addInstanceDancer\(\) \{[\s\S]{0,200}?if \(!call \|\| !this\.asClone\) return;/.test(uiSrc),
-  '`addInstanceDancer` refuses outside a clone rather than editing a shipped call in place');
+  '`addInstanceDancer` still refuses outside a clone, so the greyed button is not the only guard');
 check(/private removeInstanceDancers\(\) \{[\s\S]{0,200}?if \(!call \|\| !this\.asClone\) return;/.test(uiSrc),
   'and so does `removeInstanceDancers`');
 check(/const MAX_DANCERS = 16;/.test(uiSrc) && /const MIN_DANCERS = 2;/.test(uiSrc),
@@ -182,9 +196,18 @@ console.log('\n== 4. the new dancer gets its OWN segments, or it shares every co
 // ------------------------------------------------------------------ 5. and it fails on the faults it guards
 console.log('\n== 5. the checks fail on the faults they were written for ==');
 {
-  const noRow = uiSrc.replace('this.dancerCountRowEl.hidden = !cloning;', 'this.dancerCountRowEl.hidden = true;');
-  check(noRow !== uiSrc && !/this\.dancerCountRowEl\.hidden = !cloning;/.test(noRow),
-    'pinning the Set row hidden - the way a tidy-up would - fails the gate that notices');
+  const notGreyed = uiSrc.replace('this.dancerAddBtn.disabled = !cloning;', 'this.dancerAddBtn.disabled = false;');
+  check(notGreyed !== uiSrc && !/this\.dancerAddBtn\.disabled = !cloning;/.test(notGreyed),
+    'leaving the size buttons live outside a clone fails the gate that notices');
+  const reHidden = uiSrc.replace('this.dancerCountRowEl.hidden = false;', 'this.dancerCountRowEl.hidden = !cloning;');
+  check(reHidden !== uiSrc && !/this\.dancerCountRowEl\.hidden = false;/.test(reHidden),
+    'and going back to HIDING the row - the fault that was reported as "it no longer works" - fails the check that it stays on screen');
+  const noReason = uiSrc.replace(/const SIZE_LOCKED_TITLE =[\s\S]*?Press Clone above to start one\.';/, 'const SIZE_LOCKED_TITLE = \'\';');
+  check(noReason !== uiSrc && !/Only a CLONE can have dancers added or removed/.test(noReason),
+    'an empty locked message - a greyed button with nothing to say - fails too');
+  const noCapture = uiSrc.replace('if (!this.dancerAddTitle) this.dancerAddTitle = this.dancerAddBtn.title;', '');
+  check(noCapture !== uiSrc && !/if \(!this\.dancerAddTitle\)/.test(noCapture),
+    'and without the capture the locked tooltip would overwrite the live one for good, which also fails');
   const shallow = uiSrc.replace(
     'path: donor.path.map((s) => ({ ...s, translate: { ...s.translate }, rotate: s.rotate ? { ...s.rotate } : null })),',
     'path: donor.path,',

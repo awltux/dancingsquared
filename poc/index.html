@@ -232,7 +232,9 @@
             <div id="edFormation"></div>
       <!-- THE SIZE OF THE SET, and it is CLONE-ONLY: the number of dancers IS the setup, so adding a
            ninth to a shipped eight-dancer call would be a different call rather than an edit of this
-           one. Hidden until a clone is being built, by `renderCloneChrome`. -->
+           one. The two buttons are GREYED OUT while no clone is being built, with the reason on hover,
+           rather than the row being hidden - it lives inside `edInstancePanel`, so it is only on screen
+           while the panel is editing an instance at all. See `renderCloneChrome`. -->
       <div class="row" id="edDancerCountRow" hidden>
         <label title="How many dancers the set holds. A clone may grow to sixteen or shrink to two: below two there is no group left for a formation, an arrangement or the half-set rule to describe.">Set</label>
         <button id="edDancerAdd" title="Append one more dancer, copied from the selected dancer - or from the last one when the selection is not exactly one. The new dancer becomes the selected one, so pressing again copies it.">+ dancer</button>

@@ -132,6 +132,19 @@ const DEFAULT_LEVEL = 'ms';
 const CLONE_BUSY_TITLE =
   'A clone is already being built. Clone would RE-LOAD the catalogue instance and throw away the re-based start and every move edit made since, so it is off until you Reset back to that setup.';
 
+/**
+ * What the two size controls say while the call being edited is NOT a clone.
+ *
+ * THE CONTROLS ARE GREYED OUT, NOT HIDDEN, and that difference is the whole point of this string. The number
+ * of dancers IS the setup, so growing or shrinking a shipped call is authoring a DIFFERENT call rather than
+ * editing this one - which is why the size controls are clone-only. But a control that is simply ABSENT
+ * cannot say that, and a caller who has watched the row work before reads its absence as the feature having
+ * broken. A button that is there, greyed, and explains itself on hover is the same information without the
+ * mystery.
+ */
+const SIZE_LOCKED_TITLE =
+  'Only a CLONE can have dancers added or removed: the number of dancers IS the setup, so growing or shrinking a shipped call would be authoring a different call rather than editing this one. Press Clone above to start one.';
+
 const HANDS: Hands[] = ['none', 'left', 'right', 'both', 'gripleft', 'gripright', 'gripboth'];
 const GENDERS: Gender[] = ['boy', 'girl', 'phantom'];
 
@@ -551,6 +564,13 @@ export class EditorController implements EditorUI {
   private dancerCountInfoEl = el<HTMLSpanElement>('edDancerCountInfo');
   private dancerAddBtn = el<HTMLButtonElement>('edDancerAdd');
   private dancerRemoveBtn = el<HTMLButtonElement>('edDancerRemove');
+  /**
+   * The two buttons' OWN wording, captured before `renderCloneChrome` can replace it - the same arrangement
+   * `startFormationTitle` uses, so the help lives in `index.html` with the rest of the panel's rather than
+   * being copied into the code twice.
+   */
+  private dancerAddTitle = '';
+  private dancerRemoveTitle = '';
   private selNoneBtn = el<HTMLButtonElement>('edSelNone');
   private selAllBtn = el<HTMLButtonElement>('edSelAll');
   private selBoysBtn = el<HTMLButtonElement>('edSelBoys');
@@ -4510,14 +4530,27 @@ export class EditorController implements EditorUI {
   }
   private renderCloneChrome() {
     const cloning = this.asClone && this.isInstanceMode();
-    this.cloneBarEl.hidden = !cloning;    // THE SIZE CONTROLS ARE CLONE-ONLY, like the clone bar itself, and they follow the SAME flag rather
-    // than a second copy of "is a clone being built".
-    this.dancerCountRowEl.hidden = !cloning;
-    if (cloning) {
-      const n = this.instance?.dancers.length ?? 0;
-      this.dancerCountInfoEl.textContent =
-        `${n} of ${MAX_DANCERS}` + (this.selectedDancers.size ? ` · ${this.selectedDancers.size} selected` : '');
-    }
+    this.cloneBarEl.hidden = !cloning; // THE CLONE BAR IS THE ONE THING THAT IS HIDDEN WHILE NO CLONE IS BEING BUILT: it
+    // narrates a state that does not exist yet, so there is nothing to read.
+    //
+    // THE SIZE CONTROLS ARE NOT HIDDEN OUTSIDE A CLONE, THEY ARE GREYED - see `SIZE_LOCKED_TITLE`. They follow
+    // the SAME `cloning` flag the bar does rather than a second copy of "is a clone being built", and the row
+    // needs no visibility rule of its own: it lives inside `edInstancePanel`, which `applyMode` already hides
+    // whenever the panel is not editing an instance.
+    this.dancerCountRowEl.hidden = false;
+    // THE COUNT IS WORTH SHOWING IN BOTH STATES. It is what says the row is about THIS call - "8 of 16" reads
+    // as the range the size may move within, which is the question a greyed control raises.
+    const n = this.instance?.dancers.length ?? 0;
+    this.dancerCountInfoEl.textContent =
+      `${n} of ${MAX_DANCERS}` + (this.selectedDancers.size ? ` · ${this.selectedDancers.size} selected` : '');
+    // CAPTURED BEFORE IT IS OVERWRITTEN, so the enabled wording is the markup's and survives any number of
+    // passes through here.
+    if (!this.dancerAddTitle) this.dancerAddTitle = this.dancerAddBtn.title;
+    if (!this.dancerRemoveTitle) this.dancerRemoveTitle = this.dancerRemoveBtn.title;
+    this.dancerAddBtn.disabled = !cloning;
+    this.dancerRemoveBtn.disabled = !cloning;
+    this.dancerAddBtn.title = cloning ? this.dancerAddTitle : SIZE_LOCKED_TITLE;
+    this.dancerRemoveBtn.title = cloning ? this.dancerRemoveTitle : SIZE_LOCKED_TITLE;
     this.cloneBtn.disabled = cloning;
     this.cloneBtn.title = cloning ? CLONE_BUSY_TITLE : this.cloneTitle;
     this.saveBtn.textContent = cloning ? 'Save as new setup' : 'Save';

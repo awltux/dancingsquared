@@ -20,6 +20,29 @@
 -->
 <formations>
 
+  <!-- USE ASYMETRIC IN TAM ELEMENT TO USE THESE -->
+  <formation name="Facing Dancers">
+    <dancer gender="boy" x="-2" y="0" angle="0"/>
+    <dancer gender="girl" x="2" y="0" angle="180"/>
+  </formation>
+
+  <formation name="Facing Dancers Compact">
+    <dancer gender="boy" x="-1.5" y="0" angle="0"/>
+    <dancer gender="girl" x="1.5" y="0" angle="180"/>
+  </formation>
+
+  <formation name="Facing Dancers Close">
+    <dancer gender="boy" x="-1" y="0" angle="0"/>
+    <dancer gender="girl" x="1" y="0" angle="180"/>
+  </formation>
+
+  <formation name="Facing Dancers Far">
+    <dancer gender="boy" x="-3" y="0" angle="0"/>
+    <dancer gender="girl" x="3" y="0" angle="180"/>
+  </formation>
+
+
+
   <!--  Two-couple formations  -->
   <formation name="Facing Couples">
     <dancer gender="boy" x="-2" y="1" angle="0" />

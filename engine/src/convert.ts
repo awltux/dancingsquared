@@ -394,7 +394,13 @@ function buildCallImpl(
   // Mirroring is attempted and the counts are re-checked rather than assumed: a formation that already
   // CONTAINS its own antipodes is a whole set however few dancers it lists, and `mirrorToFull` leaves it alone.
   if (resolvedPaths.length === dancers.length * 2) {
-    const full = materialiseFull(dancers);
+    // THE TAM'S OWN `asymmetric` DECLARATION DECIDES, NOT THE GEOMETRY. `mirrorToFull`/`materialiseFull`
+    // guess by looking for an antipode, and the guess and the declaration agree on every shipped tam but
+    // one - which is why carrying `tam.symmetry` and never acting on it went unnoticed. The paths have
+    // honoured it since they were written (`mirror && tam.symmetry === 2` below); the FORMATION did not, so
+    // a tam declaring `asymmetric="true"` beside two written dancers had its formation completed to four
+    // while its paths stayed at two - the same tam read two different ways by the two loaders.
+    const full = mirror && tam.symmetry === 2 ? materialiseFull(dancers) : dancers;
     if (full.length === resolvedPaths.length) dancers = full;
   }
 

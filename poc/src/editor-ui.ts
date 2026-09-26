@@ -1909,9 +1909,29 @@ export class EditorController implements EditorUI {
           // the dancer's forward axis even momentarily mid-drag.
           (seg) => (seg.rotate ? { ...seg, rotate: { ...seg.rotate, cx1: lx } } : seg)
         : which === 'r2'
-          ? (seg) => (seg.rotate ? { ...seg, rotate: { ...seg.rotate, cx2: lx, cy2: ly } } : seg)
+          ? // THE FACING'S EXIT CONTROL, and it moves ALONE: `p3` stays exactly where it is, so the line
+            // drawn from this control to the end point PIVOTS about that point, which is what turns the
+            // heading the move finishes on. Reported as the other half of the rule: "when c2 is moved, p3
+            // stays fixed".
+            (seg) => (seg.rotate ? { ...seg, rotate: { ...seg.rotate, cx2: lx, cy2: ly } } : seg)
           : which === 'r3'
-            ? (seg) => (seg.rotate ? { ...seg, rotate: { ...seg.rotate, x2: lx, y2: ly } } : seg)
+            ? // THE FACING'S END POINT CARRIES ITS EXIT CONTROL, through the same engine call the travel end
+              // point uses and for the same reason. `poseFor` accumulates the heading from
+              // `bezierAngle(rotate, t)`, and at `t = 1` that is the DIRECTION OF `p3 - p2` - the very line
+              // drawn from the control to the end point. Moving `p3` alone leaves that line pivoting about a
+              // control that stays where it was on the floor, so its direction AND its length change at
+              // once and the tail of the cubic warps by an amount the caller cannot predict from the
+              // gesture. Moving the two together holds the line rigid: the ramp RELOCATES and the heading
+              // it finishes on is HELD - exactly, in exact arithmetic, and to 5.1e-14deg on the corpus
+              // (measured; the residue is `x2 - (x2 - dx)` rounding). Reported as: "when dragging a facing end point, the
+              // end control point stays at its absolute position, which warps the curve in unpredictable
+              // ways", with the rule given as "when p3 is moved, c2 keeps its relative position from p3".
+              //
+              // SO THE TWO HANDLES DIVIDE THE WORK, one axis each, and neither disturbs the other: the
+              // CONTROL sets the finish heading by pivoting the line about the point, and the END POINT
+              // relocates the tail while holding it. `noteFacingHold` therefore stays silent on this drag
+              // and speaks on the other, which is the honest report of which of the two happened.
+              (seg) => (seg.rotate ? { ...seg, rotate: moveCurveEnd(seg.rotate, lx, ly) } : seg)
             : which === 'c1'
               ? (seg) => ({ ...seg, translate: { ...seg.translate, cx1: lx, cy1: ly } })
               : which === 'c2'

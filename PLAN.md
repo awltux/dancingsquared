@@ -5645,3 +5645,56 @@ Verified in the browser: the SIX-dancer call the editor opens on now offers exac
 Facing Couples, Box RH/LH, Wave RH/LH, Diamond RH/LH, Star RH/LH, Single Double Pass Thru - where it used to
 offer 134 eight-dancer ones, with the Asymmetric line correctly reading "the HALF set (2 dancers)"; and
 "Circle Left" (8 dancers) still offers the library's 134 eight-dancer names, unchanged.
+
+### THE FACING END POINT NOW CARRIES ITS CONTROL (BUILT AND GATED)
+
+Reported: "when dragging a facing end point, the end control point stays at its absolute position, which
+warps the curve in unpredictable ways. FIX: When dragging a facing end point, drag the end control point
+with it, keeping its relative position." Clarified as a rule with two halves: "When p3 is moved, c2 keeps
+its relative position from p3. When c2 is moved, p3 stays fixed."
+
+**WHY THAT IS THE WHOLE GESTURE, and it had to be established rather than assumed.** `poseFor` accumulates
+a move's heading from `bezierAngle(rotate, t)` (`engine/src/core.ts`), and the tangent of a cubic at `t = 1`
+is the direction of `p3 - p2` - the line drawn from the end control to the end point. So moving the CONTROL
+alone pivots that line about a fixed end point, which TURNS the finish heading; moving the END POINT with
+the control in tow holds the line rigid, which RELOCATES the ramp and leaves the heading where it was. The
+probe first had to rule out the other reading - that the heading is the direction of the end point itself -
+and MEASURED that it is not: over the corpus's **4128** facing curves the two agree on only **3.3%**, and
+differ by up to **90 degrees**. That measurement is what made the requested rule coherent instead of
+self-defeating, and it is section 1 of `facing-end-drag-probe.mjs`.
+
+**THE BUG, AS A NUMBER.** Dragging the end point alone left the control where it was on the floor, so the
+line pivoted about it AND changed length at the same time. MEASURED: a normal end-point drag moved the
+finish heading on **4128 of 4128** curves (worst 142.2deg), and the control-to-end distance moved by up to
+1.42 units. At the far end of the gesture - the end dot dragged onto the control - the distance **collapses
+to zero on 4116 of 4128** curves, where the tail of the cubic has no tangent of its own and the whole curve
+is all that is left: the "unpredictable" warp, exactly.
+
+**THE FIX IS THE ENGINE'S OWN RULE, NOT A SECOND COPY OF IT.** The facing end point now goes through
+`moveCurveEnd(seg.rotate, lx, ly)`, the same call the travel end point has always used. It holds
+`p3 - p2` as a vector, so the ramp relocates and the heading it finishes on is HELD - exactly in exact
+arithmetic, **bit-identical on 3892 of 4128** curves and within **5.1e-14deg** on the rest (the residue is
+`x2 - (x2 - dx)` rounding). Verified across the corpus: the end point lands exactly where it was dragged
+(12384 of 12384), the control-to-end distance is preserved to within rounding (12384 of 12384), and
+dragging the CONTROL still moves nothing but `cx2`/`cy2`, leaving the end point exactly where it was
+(4128 of 4128).
+
+**THE TWO HANDLES DIVIDE THE WORK, one axis each, and neither disturbs the other - which is what the rule
+asks for.** The CONTROL sets the finish heading by pivoting the line about the point; the END POINT
+relocates the tail and holds it. `noteFacingHold` therefore stays silent on an end-point drag and speaks on
+a control drag, which is the honest report of which of the two happened. The Facing tab keeps full heading
+control - through the other handle - and the probe asserts the control still turns the heading on 4128 of
+4128 curves.
+
+**WHAT WAS NOT CHANGED.** The arc branch is untouched: an arc is rebuilt from its parameters
+(`arcBezier`) so its control point is DERIVED, and there is no control to carry. The rail still writes
+`cx1` alone, which the format requires (no `cy3`). And the tile's NUMBER FIELDS still write one number
+each - typing `x4` leaves `cx4` where it is - because that is what a per-number field means and it is the
+contract every field in the tile is built on; the carry is the DRAG's rule, which is how it was reported.
+
+Verified: `tsc` clean, 35 probes (the 3 pre-existing failures stand), `vite build` clean, and the Facing
+tab checked in the browser - it renders the format's own five fields (cx3, the pinned control with no cy3,
+cx4/cy4/x4/y4) with the heading ticks on the board. THE POINTER GESTURE ITSELF COULD NOT BE DRIVEN: the
+browser tooling here has no drag primitive, so the drag is verified by the probe - which mirrors the exact
+patch the drag applies, against the engine's own `moveCurveEnd` - and by reading the patch chain from the
+source, not by a hand drag.

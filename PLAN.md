@@ -5748,3 +5748,43 @@ but none has been made. What HAS been checked is that the new loud error breaks 
 the POC gates still show exactly the same three probe failures and no selector error fires anywhere, and the
 two engine harnesses that load calls (`editor`, `behaviour-audit`) fail only on `Circle Left` checks - the
 same data, not the lookup.
+
+### 2D ICONS BY DEFAULT, AND THE SESSION REMEMBERED ACROSS A RELOAD (BUILT AND VERIFIED)
+
+Asked for: "Make the default board '2d icons'. Add a feature to remember the last tab, level, call and setup
+to make working with auto reloads easier. The repeated board setups only takes a few seconds, but it eats
+into development time."
+
+**THE DEFAULT BOARD IS 2D ICONS, AND IT TOOK THREE PLACES RATHER THAN ONE.** The choice lived in three
+independent defaults, and changing any one of them alone leaves the board 3D: `browser.use2d` was `false`;
+`edView2d` opened unticked; and - the one that actually decides what most sessions see - `applyViewOptions`
+RELEASES the board to a hardcoded `{ use2d: false }` whenever the editor is not the active panel, so the
+browse and sequence views were forced back to 3D no matter what the other two said. All three now say 2D
+icons. The release still exists and still matters: it is what stops the EDITOR's choice leaking into the
+other panels, which is a different job from having a default.
+
+**THE SESSION IS REMEMBERED IN `poc/src/remember.ts`**, a short named list rather than every input on the
+page. A blanket "remember everything" would also restore the transient things - a half-typed coordinate, a
+selected run, a move index - and those are EDITS, not navigation; quietly bringing back an edit nobody asked
+to keep is worse than losing it. The list is navigation and display only: the three levels, the three call
+pickers, the three setup pickers, the two view checkboxes, and the tab.
+
+**THE ORDER IS A DEPENDENCY ORDER, NOT A PREFERENCE.** Each list is filled from the choice above it, so the
+level is restored before the call and the call before the setup; restoring a call first would set a value
+against the wrong list and then have the level's own change handler rebuild the options and discard it. The
+tab goes LAST, because switching tabs is what shows and hides the panels every list belongs to.
+
+**A RESTORE IS A CHANGE, AND IT HAS TO SAY SO.** These controls do their work in their own change handlers -
+setting `edCall.value` on its own loads nothing - so each restore dispatches a real `change` event. Without
+it every dropdown would name one call while the board showed another. The restore also happens AFTER the
+app's own `applyMode()`, because the listeners it fires live in panel constructors that must have run.
+
+**EVERY RESTORE IS BEST-EFFORT, WHICH IS THE POINT RATHER THAN A NICETY.** The reason a reload is worth
+surviving is that the data underneath is being edited, so a remembered call or setup may simply not exist
+any more. A value the control cannot represent is DROPPED SILENTLY and the app opens on its own default,
+because a stale fragment of yesterday's session is not something to interrupt the caller about. Corrupt or
+hand-edited storage is treated as empty rather than throwing on every page load.
+
+Verified in the browser: a fresh load opens on the 2D icons board; switching to the Call editor, choosing
+level A1 and the call "Cross Trail Thru" (setup "Facing Couples Compact"), and RELOADING brings all four
+back - tab, level, call and setup.

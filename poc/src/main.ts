@@ -10,6 +10,7 @@ import { initSequencer } from './sequencer-ui';
 import { initEditor } from './editor-ui';
 import { renderFsmHtml, mergeFsmTables, type FsmEdgeData } from './fsm-view';
 import { el } from './dom';
+import { rememberLastSession } from './remember';
 
 // Precomputed FSM table asset(s) written by `node poc/scripts/build-fsm-asset.mjs`.
 //
@@ -316,6 +317,12 @@ function applyMode() {
 }
 modeSelect.addEventListener('change', applyMode);
 applyMode();
+
+// PICK UP WHERE YOU LEFT OFF. AFTER `applyMode` above, because a restore is a CHANGE and every listener
+// it fires lives in a panel constructor that has now run - restoring `edCall` LOADS the call it names, so
+// the editor has to exist, not merely be built. The restore order is a dependency order; see the module.
+const resumed = rememberLastSession();
+if (resumed.length) console.log('[dsq] resumed: ' + resumed.join(', '));
 
 // ---------------------------------------------------------------- frame loop
 

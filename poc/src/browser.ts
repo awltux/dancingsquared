@@ -79,7 +79,7 @@ export class CallBrowser {
    *  are drawn AT ALL, in either representation, because an editor measuring a track wants the track
    *  and not a body standing on it. Both are the editor's options and are scoped to it (see
    *  `EditorController.applyViewOptions`). */
-  private use2d = false;
+  private use2d = true;
   private showDancers = true;
   /** Flat markers, one per dancer, shown in the 2D view. Parallel to `views`. */
   private markers: THREE.Group[] = [];

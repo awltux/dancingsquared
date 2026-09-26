@@ -3787,7 +3787,12 @@ export class EditorController implements EditorUI {
    */
   private applyViewOptions() {
     if (!this.active) {
-      this.host.setDisplayMode({ use2d: false, showDancers: true });
+      // THE DEFAULT THE BOARD FALLS BACK TO when the editor is not the panel in charge. It is 2D icons
+      // rather than 3D because that is the board this app is read on - the trails, the handles and the
+      // move boundaries all read better from straight above - and it is the same choice `edView2d` opens
+      // with and `CallBrowser`'s own default makes. The RELEASE still exists: it is what stops the
+      // editor's choice leaking into the other panels.
+      this.host.setDisplayMode({ use2d: true, showDancers: true });
       return;
     }
     this.host.setDisplayMode({ use2d: this.view2dChk.checked, showDancers: !this.hideDancersChk.checked });

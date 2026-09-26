@@ -5788,3 +5788,53 @@ hand-edited storage is treated as empty rather than throwing on every page load.
 Verified in the browser: a fresh load opens on the 2D icons board; switching to the Call editor, choosing
 level A1 and the call "Cross Trail Thru" (setup "Facing Couples Compact"), and RELOADING brings all four
 back - tab, level, call and setup.
+
+### THE SIZE OF THE SET, IN THE CALL EDITOR (BUILT; VERIFIED IN PART)
+
+Asked for, for a clone: "a) add new dancers to the end of the list, up to a maximum of 16. If a single dancer is
+currently selected, use them to clone the new dancer. b) remove selected dancers to a minimum of two
+dancers. Refuse to delete if removing selected dancers would leave the remaining count less than two.
+Update the Start and End Setups with available formations that match the current dancer count, if any."
+
+**A `Set` ROW ABOVE THE DANCER LIST, SHOWN ONLY WHILE A CLONE IS BEING BUILT.** The number of dancers IS
+the setup, so adding a ninth to a shipped eight-dancer call is authoring a different call rather than
+editing this one - which is what a clone is for. The row follows the SAME `asClone` flag the clone bar
+does, through `renderCloneChrome`, so the two cannot disagree about whether a clone is in progress.
+
+**THE DONOR IS THE ONLY SELECTED DANCER, OR ELSE THE LAST ONE.** The new dancer is appended, so "another
+like the one at the end" is the copy that needs no explaining, and a caller who wants a particular dancer
+copied selects it first. The new dancer becomes the SELECTED one, so pressing again copies it and the
+caller can go straight on editing what was just added.
+
+**THE PATH IS DEEP-COPIED, and that is not tidiness.** A `Seg` carries its clipboard entry as a key in
+`moveClips`, a WeakMap on the segment itself, so a cloned dancer SHARING the donor's segments would share
+every copied point with it - pressing C on one would light C on the other and a paste would write into
+both. New objects give the new dancer its own, empty, clipboard, which is what "a copy belongs to the move
+it was taken from" has to mean. `carryMoveClips` needs nothing from this: it already iterates
+`Math.min(before, after)` dancers and skips a path whose length changed.
+
+**CLEARING THE END TARGET HAPPENS BEFORE THE COMMIT, NOT AFTER.** `endTarget` is part of the state the undo
+history is keyed on, so clearing it afterwards would be a SECOND change and one press would cost two undo
+steps. Verified: one press is one step.
+
+**THE FLOOR OF TWO IS REFUSED OUT LOUD, WITH THE NUMBERS.** A set of one is not a set - the formation
+lists, the arrangement, the half-set rule and the board's geometry all describe a GROUP - and "why will it
+not delete" is the question the caller actually has, so the buttons stay enabled and the refusal is a
+sentence: `✗ a call keeps at least 2 dancers: removing 7 of 7 would leave 0`.
+
+**THE START AND END PICKERS ARE REBUILT FOR THE COUNT THAT REMAINS**, through the size argument
+`ensureStartFormations(dancers)` gained when those lists were restricted to the call's own size. "If any"
+is the load-bearing half of the request: the corpus can stand up 2, 4, 6, 8 and 12 dancers, so a set of
+seven has none and both pickers are disabled with the reason rather than offering something that would be
+refused.
+
+VERIFIED IN THE BROWSER: the row is absent on the shipped call and appears on Clone; `+ dancer` took the
+set 6 -> 7, appended the new dancer, made it the focused one, reported `added dancer 7, copied from dancer
+1`, and cost ONE undo step; the readout tracks `7 of 16 · 7 selected`; and removing all seven was refused
+with the sentence above and left the call untouched.
+
+NOT VERIFIED: a SUCCESSFUL removal (the guard and the count arithmetic are exercised by the refusal, but
+the filter and the picker rebuild that follow it were not driven in the browser), and the picker rebuild
+was not seen for a count that HAS formations. The probe suite also did not finish in the time available -
+it was still running after fifteen minutes, against a usual three, which is worth a look on its own and is
+NOT attributable to this change (no probe exercises these controls).

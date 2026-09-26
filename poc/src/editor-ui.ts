@@ -63,7 +63,7 @@ import {
   halfSetReport,
   startsFromFormation,
 } from 'dancing-squared-engine';
-import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, FormDancer, Gender, Hands, InstanceDancer, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
+import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
 import {
   availableCalls,
@@ -302,6 +302,17 @@ const ARC_FIT_TOL = 0.02;
  * also carries 0.1, 0.375, 1.125, 1.33 and 2.67 - values no single step would ever produce.
  */
 const MAX_MOVE_BEATS = 64;
+
+/**
+ * THE SIZE A SET MAY BE, and the floor is the more interesting of the two.
+ *
+ * SIXTEEN is the ceiling the board and the format both draw comfortably, and the corpus's own largest.
+ * TWO is the FLOOR because a set of one is not a set: the formation lists, the arrangement, the half-set
+ * rule and the board's own geometry all describe a GROUP, and every one of them would have nothing to
+ * say about a single dancer.
+ */
+const MIN_DANCERS = 2;
+const MAX_DANCERS = 16;
 const BEAT_STEP = 0.25;
 
 /**
@@ -524,6 +535,11 @@ export class EditorController implements EditorUI {
   private scrubEl = el<HTMLInputElement>('edScrub');
   private beatReadoutEl = el<HTMLSpanElement>('edBeatReadout');
   private moveDancerSel = el<HTMLSpanElement>('edDancerPicks');
+  // ---- the size of the set: clone-only chrome (see `addInstanceDancer`) ----
+  private dancerCountRowEl = el<HTMLDivElement>('edDancerCountRow');
+  private dancerCountInfoEl = el<HTMLSpanElement>('edDancerCountInfo');
+  private dancerAddBtn = el<HTMLButtonElement>('edDancerAdd');
+  private dancerRemoveBtn = el<HTMLButtonElement>('edDancerRemove');
   private selNoneBtn = el<HTMLButtonElement>('edSelNone');
   private selAllBtn = el<HTMLButtonElement>('edSelAll');
   private selBoysBtn = el<HTMLButtonElement>('edSelBoys');
@@ -4150,9 +4166,102 @@ export class EditorController implements EditorUI {
    * RELOADS the catalogue instance, so pressing it mid-clone would silently discard the re-based start and
    * every move edit made since - a destructive button that looks like it is offering to help.
    */
+  /**
+   * ADD ONE DANCER TO THE END OF THE SET. CLONE-ONLY, because the NUMBER of dancers IS the setup:
+   * adding a ninth to a shipped eight-dancer call is authoring a different call, which is what a clone
+   * is for.
+   *
+   * THE DONOR IS THE ONLY SELECTED DANCER WHEN THERE IS EXACTLY ONE, and otherwise the LAST one - the
+   * new dancer is appended, so "another like the one at the end" is the copy that needs no explaining,
+   * and a caller who wants a particular dancer copied selects it first. Asked for as "If a single dancer
+   * is currently selected, use them to clone the new dancer".
+   *
+   * THE PATH IS DEEP-COPIED, and that is not tidiness. A `Seg` carries its clipboard entry as a key in
+   * `moveClips`, a WeakMap on the segment itself, so a cloned dancer SHARING the donor's segments would
+   * share every copied point with it - pressing C on one would light C on the other, and a paste would
+   * write into both. New objects give the new dancer its own, empty, clipboard, which is what "a copy
+   * belongs to the move it was taken from" has to mean.
+   */
+  private addInstanceDancer() {
+    const call = this.instance;
+    if (!call || !this.asClone) return;
+    if (call.dancers.length >= MAX_DANCERS) {
+      this.refusal(`a set holds at most ${MAX_DANCERS} dancers, and this one already has ${call.dancers.length}`);
+      return;
+    }
+    const selected = this.selectedSorted();
+    const donorIndex = selected.length === 1 ? selected[0] : call.dancers.length - 1;
+    const donor = call.dancers[donorIndex];
+    if (!donor) return;
+    const copy: DancerSpec = {
+      ...donor,
+      path: donor.path.map((s) => ({ ...s, translate: { ...s.translate }, rotate: s.rotate ? { ...s.rotate } : null })),
+    };
+    const next: CallBundle = { ...call, dancers: [...call.dancers, copy] };
+    const at = next.dancers.length - 1;
+    // THE NEW DANCER BECOMES THE SELECTED ONE, so the next press clones IT and the caller can go straight
+    // on to editing what was just added.
+    this.selectedDancers = new Set([at]);
+    // AN END TARGET IS DROPPED WITH THE COUNT IT DESCRIBED, and it is cleared HERE rather than after the
+    // commit: `endTarget` is part of the state the undo history is keyed on, so clearing it afterwards
+    // would be a second change and one press would cost two undo steps.
+    this.endTarget = null;
+    this.endOverride = null;
+    this.commit(next, `m${at}:0:add`);
+    // THE SHAPE OF THE SET DECIDES WHICH FORMATIONS CAN BE ITS START OR END, so the two pickers are
+    // rebuilt for the count that is now on screen - see `ensureStartFormations`.
+    this.ensureStartFormations(next.dancers.length);
+    this.renderInstance();
+    this.statusEl.textContent =
+      `added dancer ${at + 1}, copied from dancer ${donorIndex + 1} — the set now holds ${next.dancers.length}`;
+  }
+
+  /**
+   * REMOVE THE SELECTED DANCERS, DOWN TO A FLOOR OF TWO.
+   *
+   * THE REFUSAL NAMES THE NUMBERS rather than the button being disabled, because "why will it not
+   * delete" is the question the caller actually has, and a control that silently does nothing teaches
+   * nobody anything. Asked for as "Refuse to delete if removing selected dancers would leave the
+   * remaining count less than two."
+   */
+  private removeInstanceDancers() {
+    const call = this.instance;
+    if (!call || !this.asClone) return;
+    const selected = this.selectedSorted();
+    if (selected.length === 0) {
+      this.refusal('no dancers are selected — tick the ones to remove, or use the Select buttons above');
+      return;
+    }
+    const remaining = call.dancers.length - selected.length;
+    if (remaining < MIN_DANCERS) {
+      this.refusal(
+        `a call keeps at least ${MIN_DANCERS} dancers: removing ${selected.length} of ${call.dancers.length} would leave ${remaining}`,
+      );
+      return;
+    }
+    const drop = new Set(selected);
+    const next: CallBundle = { ...call, dancers: call.dancers.filter((_, i) => !drop.has(i)) };
+    // THE FOCUSED DANCER MAY BE GONE, and the selection is not a fact the undo history tracks, so it is
+    // set here rather than left pointing at an index that no longer exists.
+    this.selectedDancers = new Set([0]);
+    this.endTarget = null;
+    this.endOverride = null;
+    this.commit(next, 'm0:0:remove');
+    this.ensureStartFormations(next.dancers.length);
+    this.renderInstance();
+    this.statusEl.textContent =
+      `removed ${selected.length} dancer${selected.length === 1 ? '' : 's'} — the set now holds ${next.dancers.length}`;
+  }
   private renderCloneChrome() {
     const cloning = this.asClone && this.isInstanceMode();
-    this.cloneBarEl.hidden = !cloning;
+    this.cloneBarEl.hidden = !cloning;    // THE SIZE CONTROLS ARE CLONE-ONLY, like the clone bar itself, and they follow the SAME flag rather
+    // than a second copy of "is a clone being built".
+    this.dancerCountRowEl.hidden = !cloning;
+    if (cloning) {
+      const n = this.instance?.dancers.length ?? 0;
+      this.dancerCountInfoEl.textContent =
+        `${n} of ${MAX_DANCERS}` + (this.selectedDancers.size ? ` · ${this.selectedDancers.size} selected` : '');
+    }
     this.cloneBtn.disabled = cloning;
     this.cloneBtn.title = cloning ? CLONE_BUSY_TITLE : this.cloneTitle;
     this.saveBtn.textContent = cloning ? 'Save as new setup' : 'Save';
@@ -4729,6 +4838,9 @@ export class EditorController implements EditorUI {
     });
     this.hideDancersChk.addEventListener('change', () => this.applyViewOptions());
     this.view2dChk.addEventListener('change', () => this.applyViewOptions());
+    // THE SIZE OF THE SET. Both refuse out loud rather than being disabled, so the reason is readable.
+    this.dancerAddBtn.addEventListener('click', () => this.addInstanceDancer());
+    this.dancerRemoveBtn.addEventListener('click', () => this.removeInstanceDancers());
     this.viewDialogClose.addEventListener('click', () => this.hideViewDialog());
     // The filter narrows the LISTS only, so it never reloads a call: the selected ids are
     // preserved by `fillCallSelect`, and reloading on every keystroke would fight the user.

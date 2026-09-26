@@ -641,17 +641,36 @@ export class SequenceAnalyzer {
       }
     }
 
-    // A DANCER THE CALL DID NOT MOVE DOES NOT MOVE, and this has to come AFTER the groups: the groups
-    // come from the board's TILING, not from what the call touched, so a group the call leaves standing
-    // is animated along the authored path and dragged back out and in by the residual - the "spun and
-    // dragged" this method's grouping comment records for `Right and Left Thru`. Writing the pin first
-    // was tried and MEASURED useless: the group loop simply overwrote it (unselected dancers still moved
-    // 3.16 units on `Heads Right and Left Thru`, see `engine/test/tools/selection-witness-probe.mjs`).
+    // A DANCER THE CALL DID NOT TOUCH DOES NOT MOVE, AND `groups` IS WHAT SAYS WHICH THOSE ARE.
     //
-    // Pinning is exact - the applied pose IS the current pose - and it is what makes a SELECTION step
-    // animate ONLY the dancers the selection moved, since `applySelected` leaves everyone else exactly
-    // where they stood.
+    // `partitionPartial` only puts a box in `groups` when it MATCHED - an anchor that cannot form a
+    // matching group is left unmatched and is in no group at all - so a dancer in no group is a dancer
+    // the call never reached. The pin is exact (the applied pose IS the current pose) and it is what
+    // makes a SELECTION step animate ONLY the dancers the selection moved, since `applySelected` leaves
+    // everyone else exactly where they stood.
+    //
+    // IT MUST COME AFTER THE GROUPS, because a dancer outside every group is animated by nothing else -
+    // and writing it FIRST was tried and MEASURED useless, the group loop simply overwrote it
+    // (unselected dancers still moved 3.16 units on `Heads Right and Left Thru`, see
+    // `engine/test/tools/selection-witness-probe.mjs`). What it must not do, and used to, is overwrite a
+    // group's OWN pose.
+    //
+    // THE TEST THAT USED TO STAND HERE WAS "THE APPLIED POSE EQUALS THE POSE IT STARTED FROM", and it
+    // cannot tell a dancer the call never touched from a dancer the call RETURNS HOME. Every dancer in a
+    // full-turn call is the second: a `Circle Four Left Full` from `Normal Lines` applies legally as two
+    // groups of four and ends exactly where it began - which is what a full circle does - so it was
+    // pinned, and the step animated as a STANDSTILL while the timeline kept its 8 beats. Reported as
+    // "it looks like it's applied, but the dancers don't move when I scrub across the 8 beats it's
+    // reserved". This file already had that reading written down, one function up, for the promenade:
+    // "the dancers don't move, but the sequencer counts 8 beats".
+    //
+    // AND THE FALLBACK KEEPS THE OLD TEST, because it is the honest answer when the apply did NOT go
+    // through the parallel path and so could not report a grouping: there is nothing to compare against
+    // beyond the two boards.
+    const touched = new Set<number>();
+    if (applied) for (const g of applied.groups) for (const gd of g) touched.add(gd.id);
     for (const d of board.dancers) {
+      if (touched.has(d.id)) continue;
       const e = endById.get(d.id);
       if (e && Math.hypot(e.x - d.x, e.y - d.y) < 1e-6 && Math.abs(normAngle(e.heading - d.heading)) < 1e-6) {
         posed.set(d.id, { x: d.x, y: d.y, heading: d.heading });

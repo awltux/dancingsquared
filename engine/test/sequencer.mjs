@@ -1252,6 +1252,53 @@ console.log('\n== a registered half-set formation names a whole-set board ==');
       'and a four-dancer BOARD is still not named: the library holds whole sets, so a half-set board has nothing of its own size to match');
   }
 }
+// ---------------------------------------------------------------------------
+//  A 4-DANCER CALL APPLIED TWICE WHOSE TURN IS A FULL ONE STILL ANIMATES
+// ---------------------------------------------------------------------------
+//
+// Reported: "in sequencer, set Normal Lines and select Circle Four Left Full. This should be a 4 dancer call
+// applied twice to the set. It looks like it's applied, but the dancers dont move when I scrub across the 8
+// beats it's reserved."
+//
+// IT APPLIED PERFECTLY AND ANIMATED NOTHING, and the two are not contradictory: a FULL circle ends exactly
+// where it began, so the apply's result board IS the board it started from. The animator's "a dancer the call
+// did not move does not move" pin tested exactly that - `appliedPose == startPose` - which cannot tell a
+// dancer the call never TOUCHED from a dancer the call RETURNS HOME. Every dancer in a full-turn call is the
+// second, so the pin overwrote the per-group path animation for all eight and the step stood still while the
+// timeline kept its beats. The pin now asks the apply which dancers it touched (the union of
+// `ApplyResult.parallel.groups`), so a group that matched is never pinned.
+console.log('\n== a 4-dancer call applied twice whose turn is a FULL one still animates ==');
+{
+  const s = new Sequencer(movesXml, formationsXml, callsByTitle(path.resolve(__dirname, '../../poc/src/assets')));
+  const lines = s.boardForSetup('Normal Lines');
+  check(!!lines, 'the start board "Normal Lines" is in the library');
+  const flat = ['Circle Four Left Full'];
+  const beats = s.sequenceBeats(flat, lines);
+  check(beats > 0, `the call is charged its beats rather than 0 (${beats})`);
+
+  // The APPLY, which has to stay legal and has to tile into two groups of four - that half was never wrong.
+  const res = s.applicator.applyToBoard(lines, 'Circle Four Left Full');
+  check(res.legal && !!res.parallel && res.parallel.groups.length === 2,
+    `it applies legally as ${res.parallel ? res.parallel.groups.map((g) => g.length).join(' + ') : 'no groups'} - the 4-dancer call is applied to the set twice`);
+
+  // THE END REALLY IS HOME, which is why the old predicate was satisfied by every dancer at once.
+  const endBoard = s.evaluateSequence(flat, beats, lines).board;
+  const home = Math.max(...endBoard.dancers.map((d, i) => Math.hypot(d.x - lines.dancers[i].x, d.y - lines.dancers[i].y)));
+  check(home < 1e-6,
+    `and it finishes where it began (worst ${home.toExponential(1)} units) - which is exactly why "the applied pose equals the start" could not be the test`);
+
+  // THE ANIMATION, which is the thing that was broken: a full turn is still a journey.
+  let worst = 0;
+  for (let b = 0; b <= beats; b += 0.25) {
+    const bb = s.evaluateSequence(flat, b, lines).board;
+    bb.dancers.forEach((d, i) => {
+      worst = Math.max(worst, Math.hypot(d.x - lines.dancers[i].x, d.y - lines.dancers[i].y));
+    });
+  }
+  check(worst > 0.5,
+    `AND THE DANCERS MOVE the whole way round (worst ${worst.toFixed(3)} units off their own start), so the 8 beats it reserves are not a standstill`);
+}
+
 console.log('\n=================');
 if (failures === 0) console.log('SEQUENCER TEST PASSED');
 else {

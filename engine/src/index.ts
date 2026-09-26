@@ -231,6 +231,8 @@ export {
   callMeta,
   formationToXml,
   loadCallFromXml,
+  selectTam,
+  tamName,
 } from './convert.js';
 export type { CallMeta } from './convert.js';
 export { setupLabel, parseTaminationTitle } from './convert.js';

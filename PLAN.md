@@ -5698,3 +5698,53 @@ cx4/cy4/x4/y4) with the heading ticks on the board. THE POINTER GESTURE ITSELF C
 browser tooling here has no drag primitive, so the drag is verified by the probe - which mirrors the exact
 patch the drag applies, against the engine's own `moveCurveEnd` - and by reading the patch chain from the
 source, not by a hand drag.
+
+### LOADING A CALL BY NAME INSTEAD OF BY POSITION (ENGINE API + verify.cjs; CONVERSION INCOMPLETE)
+
+Reported after a data change broke five checks: "It should load by XML search, not index. Index is too
+fragile", then "I'm going to be making many changes to the xml data over the coming days, so convert tests
+and lookups to xml search rather than index to prevent this happening again."
+
+**THE FAILURES THAT PROMPTED IT WERE NOT INDEX FRAGILITY, and that had to be separated out first.**
+MEASURED across revisions with the file swapped in place, byte-fidelity checked by hashing each revision's
+blob, and judged on EXIT CODES rather than on grepping for FAIL lines (a distinction that mattered - see
+below): every one of the five checks passes at `b83c305~1` and fails at `b83c305` "New circle calls." and
+with the in-flight working tree alike. So the committed data change broke them, the uncommitted one did
+not, and one of them - `Circle Left derives 0 holds` - is not a lookup problem at all: the check now
+resolves the tam NAMED `Circle Left [Static Square]` and it still derives 0 holds, while a sweep of the
+whole call shows the ring DOES form (8 holds at other beats) and the closest any two dancers ever come is
+1.900 units. The check samples at exactly `beats * 0.5`, which is a stronger claim than "Circle Left is a
+ring".
+
+**A CORRECTION.** The first revision comparison I ran was an artifact and I reported its conclusion before
+catching it: `Set-Content -Encoding UTF8` writes a BOM, the BOM made the XML unparseable, and I read the
+resulting crashed run as "0 FAIL lines" - a pass. Counting FAIL lines is not a pass/fail signal; the exit
+code is, and a byte-fidelity hash is the only thing that proves the swap happened.
+
+**THE ENGINE NOW TAKES A NAME, AND AN AMBIGUOUS NAME IS AN ERROR.** `loadCallFromXml`'s tam argument
+accepts a position, a title, or `{ title, formation?, from?, nth? }`, resolved by the exported `selectTam`.
+The identity is the title PLUS the formation the tam starts from - the `formation` attribute when the tam
+references a named formation, `from` when the formation is embedded - which is the key the user specified
+and which MEASURES as the right one over the corpus's 547 files and 5963 tams (811 of them carrying no
+`formation` attribute at all):
+
+    duplicate title alone                      398 files (72.8%)   - the title CANNOT be the key
+    duplicate title + from                      39 files ( 7.1%)
+    duplicate title + (formation ?? from)       19 files ( 3.5%)   - so that is the key
+
+The remaining 19 need an `nth`, which is why it is there. A name that matches nothing, or matches several,
+THROWS and prints what the file actually holds. And the silent `tams[index] ?? tams[0]` fallback is gone: an
+out-of-range index used to load the FIRST tam and report nothing, which is the same invisible swap by
+position that started all this - it now throws, naming the file's size and its tams.
+
+**CONVERTED SO FAR: `poc/verify.cjs`**, all five of its call lookups - `Brace Thru [Lines, Boys Ends]`,
+`Pass Thru [Normal Lines] from Lines` (which had hand-rolled exactly this search with a `findIndex` and then
+passed an index on, so a later insertion could still move it), `Circle Left [Static Square]`,
+`Allemande Left` by `from`, and `Wheel Around [Lines]`. The now-unused `parseCallXml` import is dropped.
+
+**NOT YET CONVERTED, and this is the honest state: 22 sites in `poc/tools/*.mjs` and 31 in `engine/test/*.mjs`
+still load by position.** The engine API they need is in place and tested, so each is now a one-token change,
+but none has been made. What HAS been checked is that the new loud error breaks nothing that was working:
+the POC gates still show exactly the same three probe failures and no selector error fires anywhere, and the
+two engine harnesses that load calls (`editor`, `behaviour-audit`) fail only on `Circle Left` checks - the
+same data, not the lookup.

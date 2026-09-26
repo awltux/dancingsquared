@@ -233,7 +233,7 @@ function parseFormationsImpl(xmlText: string): Map<string, DancerBase[]> {
 
 // ----------------------------------------------------------------- calls
 
-interface TamRaw {
+export interface TamRaw {
   title: string;
   from: string;
   parts: string;
@@ -542,19 +542,117 @@ export function callMeta(xmlText: string): CallMeta {
   };
 }
 
+/**
+ * WHICH TAM OF A FILE TO LOAD: by position, or by NAME.
+ *
+ * A POSITION IS NOT A NAME, and the difference matters more than it looks. `circle.xml` holds eighty
+ * tams and the order they are written in is an authoring decision that changes whenever the data is
+ * reworked - MEASURED, `b83c305` moved `Circle Left - Stop at Home` to the front of that file, and every
+ * caller that meant "Circle Left" by loading index 0 silently got the Stop-at-Home variant instead.
+ * Nothing failed; the callers simply started testing a different call. Naming the call is what makes a
+ * harness survive a data change, which is the whole reason this selector exists.
+ *
+ * A TITLE ALONE IS NOT THE NAME. The name is the title PLUS the formation the tam starts from - the
+ * `formation` attribute when the tam references a named formation, and `from` when the formation is
+ * embedded. MEASURED over the corpus's 547 files and 5963 tams, 811 of which carry no `formation`
+ * attribute at all:
+ *
+ *   - a duplicate `title` alone                       398 files (72.8%) - so the title cannot be the key;
+ *   - a duplicate `title` + `from`                     39 files ( 7.1%);
+ *   - a duplicate `title` + `(formation ?? from)`      19 files ( 3.5%) - so that is the key.
+ *
+ * The remaining 19 need an `nth` (1-based), which is why it is here. AND AN AMBIGUOUS NAME IS AN ERROR,
+ * never a silent first match: a wrong pick reintroduces exactly the invisible drift this exists to
+ * remove. Every failure names what the file actually holds, so a call site can be fixed without opening
+ * the data.
+ */
+export type TamSelector =
+  | number
+  | string
+  | { title: string; formation?: string; from?: string; nth?: number };
+
+/** A tam's NAME, the way a call site should write it: title plus the formation it starts from. */
+export function tamName(tam: TamRaw): string {
+  const start = tam.formationAttr ?? tam.from;
+  return start ? `${tam.title} [${start}]` : tam.title;
+}
+
+function availableTams(tams: TamRaw[]): string {
+  const seen: string[] = [];
+  for (const t of tams) {
+    const d = tamName(t);
+    if (!seen.includes(d)) seen.push(d);
+  }
+  const head = seen.slice(0, 8).join('; ');
+  return `${seen.length} tam(s): ${head}${seen.length > 8 ? '; ...' : ''}`;
+}
+
+/**
+ * Resolve a TamSelector against a file's tams, or explain exactly why it could not.
+ *
+ * Exported because a caller that already holds the parsed tams should not have to re-parse the file to
+ * find one, and because a harness asserting "this name resolves to that call" needs the same resolution
+ * the loader uses.
+ */
+export function selectTam(tams: TamRaw[], selector: TamSelector): TamRaw {
+  if (tams.length === 0) throw new Error('No <tam> in call XML');
+
+  if (typeof selector === 'number') {
+    const tam = tams[selector];
+    // NO SILENT FALLBACK. This used to be `tams[index] ?? tams[0]`, so an index that had drifted past
+    // the end loaded the FIRST tam and reported no problem at all - the same invisible swap by name.
+    if (!tam) {
+      throw new Error(
+        `tam index ${selector} is out of range: the file holds ${tams.length} tam(s) (0..${tams.length - 1}). ` +
+          `Load by name instead. It holds ${availableTams(tams)}`,
+      );
+    }
+    return tam;
+  }
+
+  const want = typeof selector === 'string' ? { title: selector } : selector;
+  const matching =
+    `"${want.title}"` +
+    (want.formation !== undefined ? ` [${want.formation}]` : '') +
+    (want.from !== undefined ? ` from "${want.from}"` : '');
+  const matches = tams.filter(
+    (t) =>
+      t.title === want.title &&
+      (want.formation === undefined || t.formationAttr === want.formation) &&
+      (want.from === undefined || t.from === want.from),
+  );
+
+  if (want.nth !== undefined) {
+    const nth = matches[want.nth - 1];
+    if (!nth) {
+      throw new Error(
+        `${matches.length} tam(s) match ${matching}, so there is no #${want.nth}. Fix the call site, or use one of: ${availableTams(tams)}`,
+      );
+    }
+    return nth;
+  }
+  if (matches.length === 0) {
+    throw new Error(`no tam matches ${matching}. The file holds ${availableTams(tams)}`);
+  }
+  if (matches.length > 1) {
+    throw new Error(
+      `${matches.length} tams match ${matching}, so the name is NOT unique and cannot say which to load. ` +
+        `Add a \`formation\` or \`nth\` (1-based). The file holds ${availableTams(tams)}`,
+    );
+  }
+  return matches[0];
+}
 export function loadCallFromXml(
   callXml: string,
   movesXml: string,
   formationsXml: string,
-  tamIndex = 0,
+  tam: TamSelector = 0,
   mirror = true,
 ): CallBundle {
   const moves = parseMovesImpl(movesXml);
   const formations = parseFormationsImpl(formationsXml);
   const tams = parseCallXmlImpl(callXml);
-  const tam = tams[tamIndex] ?? tams[0];
-  if (!tam) throw new Error('No <tam> in call XML');
-  return buildCallImpl(tam, formations, moves, mirror);
+  return buildCallImpl(selectTam(tams, tam), formations, moves, mirror);
 }
 
 /** Build every <tam> variant of a call (each is a start formation + paths). */

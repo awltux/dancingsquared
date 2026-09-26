@@ -8,7 +8,7 @@ const { DOMParser } = require('@xmldom/xmldom');
 const eng = require('../engine/dist/index.js');
 eng.setParser(DOMParser);
 
-const { loadCallFromXml, callMeta, parseMoves, parseCallXml } = eng;
+const { loadCallFromXml, callMeta, parseMoves } = eng;
 const { poseFor, dancerBeats, allPoses, computeHandholds } = eng;
 
 const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
@@ -29,8 +29,8 @@ check(moves.size > 50, `moves registry has ${moves.size} named paths`);
 
 // Half-group call: Brace Thru "Lines, Boys Ends" is authored for ONE line of 4.
 // With mirroring ON it should expand to the full two-line setup (8 dancers).
-const beau = loadCallFromXml(read('src/assets/a1/brace_thru.xml'), movesXml, formationsXml, 0); // mirror default ON
-const beauHalf = loadCallFromXml(read('src/assets/a1/brace_thru.xml'), movesXml, formationsXml, 0, false);
+const beau = loadCallFromXml(read('src/assets/a1/brace_thru.xml'), movesXml, formationsXml, { title: 'Brace Thru', from: 'Lines, Boys Ends' }); // mirror default ON
+const beauHalf = loadCallFromXml(read('src/assets/a1/brace_thru.xml'), movesXml, formationsXml, { title: 'Brace Thru', from: 'Lines, Boys Ends' }, false);
 
 console.log('== Brace Thru (Lines, Boys Ends) ==');
 check(beauHalf.dancers.length === 4, `Brace Thru half has ${beauHalf.dancers.length} dancers (expect 4)`);
@@ -132,11 +132,12 @@ console.log('== Pass Thru (Normal Lines) ==');
 // lookup names it. A position into an authored list is not an identity: the pair authoring is a
 // legitimate 2-written shape (2 declares 4), so the tam was never the thing at fault.
 const passXml = read('src/assets/ms/pass_thru.xml');
-const passTams = parseCallXml(passXml);
-const linesIdx = passTams.findIndex((t) => t.from === 'Lines' && t.formationAttr === 'Normal Lines');
-check(linesIdx >= 0, `the Normal Lines authoring of Pass Thru exists (index ${linesIdx} of ${passTams.length})`);
-const passHalf = loadCallFromXml(passXml, movesXml, formationsXml, linesIdx, false);
-const pass = loadCallFromXml(passXml, movesXml, formationsXml, linesIdx);
+// NAMED, NOT NUMBERED, and the loader is what enforces it now: the selector resolves title + formation +
+// from together and THROWS if that authoring is gone, which is stricter than the findIndex it replaces -
+// the old code checked an index and then passed it on, so a later insertion could still move it.
+const passName = { title: 'Pass Thru', from: 'Lines', formation: 'Normal Lines' };
+const passHalf = loadCallFromXml(passXml, movesXml, formationsXml, passName, false);
+const pass = loadCallFromXml(passXml, movesXml, formationsXml, passName);
 check(passHalf.dancers.length === 4, `Pass Thru half has ${passHalf.dancers.length} dancers (expect 4)`);
 check(pass.dancers.length === 8, `Pass Thru full (mirrored) has ${pass.dancers.length} dancers (expect 8)`);
 passHalf.dancers.forEach((d, i) => {
@@ -156,7 +157,7 @@ check(passStartHolds.length === 3 && new Set(passStartHolds.flatMap((h) => [h.i,
 
 // Circle Left: all 8 dancers hold hands in a ring as they circle.
 console.log('== Circle Left ring (deduced from data) ==');
-const circle = loadCallFromXml(read('src/assets/ms/circle.xml'), movesXml, formationsXml, 0); // Circle Left, mirrored
+const circle = loadCallFromXml(read('src/assets/ms/circle.xml'), movesXml, formationsXml, { title: 'Circle Left', formation: 'Static Square' }); // Circle Left, mirrored
 const cposes = circle.dancers.map((d) => poseFor(d, circle.beats * 0.5));
 const cholds = computeHandholds(cposes, 'active');
 const cdeg = new Array(circle.dancers.length).fill(0);
@@ -169,10 +170,9 @@ check(cdeg.every((d) => d === 2), 'every dancer holds exactly 2 neighbours (a ri
 // no cross-group connections (regression: wide side-tolerance used to over-connect).
 console.log('== Allemande Left (no cross-group holds) ==');
 const allemandeXml = read('src/assets/ms/allemande.xml');
-const alTams = parseCallXml(allemandeXml);
 for (const from of ['Left-Hand 3/4 Tag', 'Left-Hand Waves', 'Static Square']) {
-  const idx = alTams.findIndex((t) => t.from === from);
-  const al = loadCallFromXml(allemandeXml, movesXml, formationsXml, idx, true);
+  // BY NAME: rom is what tells these thirteen Allemande Left tams apart, so it is the identity here.
+  const al = loadCallFromXml(allemandeXml, movesXml, formationsXml, { title: 'Allemande Left', from }, true);
   const aposes = al.dancers.map((d) => poseFor(d, al.beats * 0.55));
   const aholds = computeHandholds(aposes, 'active');
   const adeg = new Array(al.dancers.length).fill(0);
@@ -185,7 +185,7 @@ for (const from of ['Left-Hand 3/4 Tag', 'Left-Hand Waves', 'Static Square']) {
 // couple. Throughout the move each dancer holds only its wheel partner (so the
 // partner pairs stay constant and every dancer's degree is 1).
 console.log('== Wheel Around (couples stay paired) ==');
-const wheel = loadCallFromXml(read('src/assets/ms/wheel_around.xml'), movesXml, formationsXml, 2, true); // Lines, mirrored
+const wheel = loadCallFromXml(read('src/assets/ms/wheel_around.xml'), movesXml, formationsXml, { title: 'Wheel Around', from: 'Lines' }, true); // Lines, mirrored
 const wheelPairs = ['0-1', '2-3', '4-5', '6-7'];
 let wheelOk = true;
 for (let k = 0; k <= 20; k++) {

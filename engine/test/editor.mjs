@@ -1365,10 +1365,10 @@ console.log('\n== the correspondence can keep the formation\'s arrangement (21) 
 // ---------------------------------------------------------------------------
 //
 // The editor's new endpoint handle. `poseFor` composes the chain as `m = m * translateBy(p3); m =
-// m * rotateBy(a)` with `a = bezierAngle(rotate ?? translate, 1)`, so `p3` is where the move ends AND,
-// through the tangent at t=1 (which is `3 * (p3 - p2)`), part of the heading it ends on - which is the frame
-// the NEXT move is played in. Moving `p3` alone therefore swings the rest of the track, which is a side
-// effect nobody asked for; `moveCurveEnd` holds the exit handle vector so it cannot.
+// m * rotateBy(a)` with `a` the facing curve's own angle at t=1 less its own angle at t=0, so `p3` is where
+// the move ends AND, through the tangent at t=1 (which is `3 * (p3 - p2)`), part of the heading it ends on -
+// which is the frame the NEXT move is played in. Moving `p3` alone therefore swings the rest of the track,
+// which is a side effect nobody asked for; `moveCurveEnd` holds the exit handle vector so it cannot.
 console.log('\n== moving an end point holds the direction the dancer leaves on (22) ==');
 {
   const witness = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));

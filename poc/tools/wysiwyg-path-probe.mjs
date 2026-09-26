@@ -372,10 +372,17 @@ check(backward + sideways > 0, 'a dancer really does travel while NOT facing the
 //
 // THE PREDICTION, stated so it can fail: for move k, with (pk, hk) the pose where the move starts,
 //     world position at t = pk + R(hk) . translate_k(t)
-//     world heading  at t = hk + bezierAngle(rotate_k ?? translate_k, t)
+//     world heading  at t = hk + bezierAngle(b_k, t) - bezierAngle(b_k, 0),   b_k = rotate_k ?? translate_k
 // This is not how `poseFor` is written - it composes transforms - so agreement is a real check of the model,
 // not a restatement of the code. The heading side is the one that matters, because it is where the facing
 // channel and the path tangent meet.
+//
+// THE SECOND TERM IS ZERO FOR EVERY SHIPPED CURVE - all 4128 facing curves and all 5860 moves with no facing
+// start at exactly 0 (`tools/start-facing-probe.mjs`) - so it costs this probe nothing and the corpus cannot
+// say whether it is there. It is there because the two channels are read the same way and MEAN different
+// things: a `rotate` curve is the turn the move makes, a `translate` curve is the direction it departs in,
+// and only the first of those starts at zero. Without it a move with no facing SNAPS to face its own
+// departure direction - 180 degrees for a back-up - instead of continuing the heading it arrived with.
 console.log('\n== 6. Is the local (stored) form an exact restatement of the world path? ==');
 let worstPos = 0;
 let worstHead = 0;
@@ -395,8 +402,10 @@ for (const { level, file, call } of calls) {
         const lp = engine.bezierPoint(seg.translate, t);
         const pred = { x: start.x + cos * lp.x - sin * lp.y, y: start.y + sin * lp.x + cos * lp.y };
         const dp = Math.hypot(pred.x - truth.x, pred.y - truth.y);
-        // The predicted heading is the frame's heading plus the local angle profile of the FACING curve.
-        const predHead = norm(start.heading + engine.bezierAngle(seg.rotate ?? seg.translate, t));
+        // The predicted heading is the frame's heading plus the local angle profile of the FACING curve,
+        // read as a TURN - see the note above on why its own angle at t=0 is subtracted.
+        const b = seg.rotate ?? seg.translate;
+        const predHead = norm(start.heading + engine.bezierAngle(b, t) - engine.bezierAngle(b, 0));
         const dh = Math.abs(norm(predHead - truth.heading));
         samples++;
         if (dp > worstPos) worstPos = dp;

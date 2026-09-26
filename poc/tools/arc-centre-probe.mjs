@@ -154,24 +154,42 @@ console.log('\n== 2. The transition from the previous move: no new corner, and n
 }
 
 // ---------------------------------------------------------------- 3. why the absorb is on the exit
-console.log('\n== 3. The other version of the absorb is a gesture that does nothing ==');
+console.log('\n== 3. The other version of the absorb cannot do anything (see `poseFor`) ==');
 {
   // "Absorb the turn in the previous move's facing" read literally: turn that move's FACING by -theta and
-  // leave its travel alone. The frame then rotates by the same amount the arc did, and the arc lands back
-  // exactly where it started - measured, because it is the reason the rule is not written that way.
-  let worstWorld = 0;
-  for (const a of arcs) {
+  // leave its travel alone. It was rejected as a world-space NO-OP - the frame rotates by the swing and the
+  // arc rotates back - and THAT MEASUREMENT WAS A CONSEQUENCE OF READING A FACING CURVE AS AN ABSOLUTE
+  // HEADING. `poseFor` now reads one as a TURN (`bezierAngle(c, t) - bezierAngle(c, 0)`, `engine/src/core.ts`),
+  // and a turn is what the curve's SHAPE says: turning the whole curve about its start leaves every angle it
+  // reports as a turn EXACTLY untouched. So the frame does not rotate, nothing gives the swing back, and the
+  // gesture cannot be the absorb it was meant to be. The rule is unchanged and its reason is stronger, which
+  // is why this is re-stated rather than deleted.
+  //
+  // ONLY THE ARCS WHOSE PREVIOUS MOVE ALREADY HAS A FACING, because that is the gesture being described.
+  // Writing one where there was none would be a different edit - it replaces "face along the travel tangent"
+  // with a fixed profile, which changes the turn for reasons that have nothing to do with this measurement.
+  const withFacing = arcs.filter((a) => a.call.dancers[a.i].path[a.k - 1].rotate);
+  let worstTurn = 0;  // how much the previous move's own turn changes
+  let worstWorld = 0; // and how far the arc's end moves as a result
+  for (const a of withFacing) {
     const theta = 0.5;
     let out = engine.setMove(a.call, a.i, a.k, { ...a.seg, translate: engine.rotateCurveAboutStart(a.seg.translate, theta) });
     const prev = out.dancers[a.i].path[a.k - 1];
-    const base = prev.rotate ?? { ...a.call.dancers[a.i].path[a.k - 1].translate };
-    out = engine.setMove(out, a.i, a.k - 1, { ...prev, rotate: engine.rotateCurveAboutStart(base, -theta) });
+    out = engine.setMove(out, a.i, a.k - 1, { ...prev, rotate: engine.rotateCurveAboutStart(prev.rotate, -theta) });
+    // The turn the previous move carries, read the way `poseFor` reads it.
+    const turnOf = (call) => {
+      const c = call.dancers[a.i].path[a.k - 1].rotate;
+      return c ? engine.bezierAngle(c, 1) - engine.bezierAngle(c, 0) : 0;
+    };
+    worstTurn = Math.max(worstTurn, Math.abs(norm(turnOf(out) - turnOf(a.call))));
     const before = pose(a.call, a.i, a.k, true);
     const after = pose(out, a.i, a.k, true);
     worstWorld = Math.max(worstWorld, Math.hypot(after.x - before.x, after.y - before.y));
   }
-  console.log(`    turning the previous FACING by -theta and leaving its path alone moves the arc's end by at most ${worstWorld.toExponential(1)} units across the whole corpus`);
-  check(worstWorld < 1e-9, 'so that version is a NO-OP in world space: the frame rotates by the swing and the arc rotates back, which is why the rule freezes the heading change and turns the EXIT instead');
+  check(withFacing.length > 50, `there are ${withFacing.length} arcs whose previous move has a facing to turn - the whole population, not a witness`);
+  console.log(`    turning the previous FACING by -theta changes the turn it carries by at most ${worstTurn.toExponential(1)} rad, and moves the arc's end by up to ${worstWorld.toFixed(3)} units`);
+  check(worstTurn < 1e-12, 'the turn the previous move carries is EXACTLY unchanged by turning its facing curve about its start: a turn profile does not care where the curve sits');
+  check(worstWorld > 0.01, 'so the frame does not rotate, nothing gives the swing back, and this version of the absorb is the one that does nothing - which is why the rule freezes the heading change and turns the EXIT instead');
 }
 
 // ---------------------------------------------------------------- 4. the wiring

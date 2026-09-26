@@ -87,8 +87,13 @@ export type HeadingMode = 'rotation' | 'travel';
 //    falling back to the translation tangent when absent. This is what
 //    taminations uses and is authoritative (it intentionally makes a dancer
 //    walk forward OR backward along the path, e.g. in a Wheel).
+//    EITHER WAY IT IS READ AS A TURN - the angle the move is played in, less
+//    the angle the curve itself starts at. See the note at `const a` below:
+//    without that, a curve that does not begin along the dancer's own +X
+//    snaps the facing at the move's start rather than continuing it.
 //  - 'travel': always face along the instantaneous direction of motion
-//    (the translation-tangent heading). Simpler, "always walk forward" look.
+//    (the translation-tangent heading, absolutely - that IS what this mode
+//    means). Simpler, "always walk forward" look.
 export function poseFor(dancer: DancerSpec, t: number, headingMode: HeadingMode = 'rotation'): Pose {
   const start = fromPosAngle(dancer.x, dancer.y, dancer.angleDeg * DEG);
   let m = start;
@@ -103,7 +108,26 @@ export function poseFor(dancer: DancerSpec, t: number, headingMode: HeadingMode 
     travelHeading = segStartHeading + bezierAngle(s.translate, tt);
     const pt = bezierPoint(s.translate, tt);
     m = mul(m, translateBy(pt.x, pt.y));
-    const a = bezierAngle(s.rotate ?? s.translate, tt);
+    // A FACING CURVE IS A TURN, AND A TURN STARTS AT ZERO.
+    //
+    // Both channels are read with `bezierAngle`, which is `atan2` of the derivative - but they MEAN
+    // different things. A `rotate` curve expresses the heading the move turns through, so its angle at
+    // t=0 is where the dancer already is; a `translate` curve expresses where the move goes, so its angle
+    // at t=0 is the direction the path DEPARTS in. Read as a turn, only the first of those starts at zero.
+    //
+    // THE CORPUS CANNOT TELL THEM APART, which is why this went unnoticed: measured over every shipped
+    // curve, all 4128 `rotate` curves and all 5860 moves with no facing have an angle of EXACTLY 0 at
+    // t=0 (`poc/tools/start-facing-probe.mjs`). A dancer walks forward along +X in its own frame, so the
+    // departure direction is the facing it already had, and the two readings agree.
+    //
+    // AN AUTHORED MOVE BREAKS THAT. A sidestep departs across the dancer's facing and a back-up departs
+    // behind it, so the raw travel tangent is 90 or 180 degrees at t=0 - and the dancer SNAPPED to face
+    // it at the move's start, then turned back. Subtracting the curve's own start makes the profile a
+    // turn: the heading continues from where the previous move left it, and the dancer turns only as much
+    // as the path itself turns. For a straight back-up that is a turn of zero - the dancer backs up still
+    // facing forward, which is the dance.
+    const facing = s.rotate ?? s.translate;
+    const a = bezierAngle(facing, tt) - bezierAngle(facing, 0);
     m = mul(m, rotateBy(a));
     heading = Math.atan2(m.sin, m.cos);
     rem -= local;

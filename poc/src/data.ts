@@ -381,7 +381,13 @@ export class Catalog {
   private registrationXml(entry: CallInfo): string | null {
     const xml = this.levelXml.get(`./assets/${entry.file}.xml`);
     if (xml == null) return null;
-    const blocks = xml.match(/<tam\b[\s\S]*?<\/tam>/g) || [];
+    // COMMENTS OUT, BEFORE INDEXING. `entry.tamIndices` is computed by `parseCatalogFile` with a DOM
+    // walk, which does NOT return a `<tam>` inside `<!-- -->`; this regex reads the RAW TEXT and does.
+    // So the moment a tam ahead of a title is commented out the two lists drift by one and this hands
+    // the library the WRONG tam for the title - reported as the sequencer using "Facing Dancers Far"
+    // for `Single Circle Left Full` from a board that is plain `Facing Dancers`. Stripping the comments
+    // first makes these `blocks` the same list, in the same order, that the indices were built against.
+    const blocks = xml.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) || [];
     const edits = this.appliedEdits().filter((e) => e.callId === entry.id);
     const out: string[] = [];
     for (let si = 0; si < entry.tamIndices.length; si++) {

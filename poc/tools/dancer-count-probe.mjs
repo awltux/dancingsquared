@@ -39,6 +39,7 @@ const movesXml = fs.readFileSync(path.join(POC_DIR, 'src/assets/moves.xml'), 'ut
 const formationsXml = fs.readFileSync(path.join(POC_DIR, 'src/assets/formations.xml'), 'utf8');
 const uiSrc = fs.readFileSync(path.join(POC_DIR, 'src/editor-ui.ts'), 'utf8');
 const htmlSrc = fs.readFileSync(path.join(POC_DIR, 'index.html'), 'utf8');
+const cssSrc = fs.readFileSync(path.join(POC_DIR, 'src/style.css'), 'utf8');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -68,6 +69,13 @@ check(/const cloning = this\.asClone && this\.isInstanceMode\(\);/.test(uiSrc),
   '`renderCloneChrome` derives "cloning" from the clone flag AND the editor mode');
 check(/this\.dancerAddBtn\.disabled = !cloning;/.test(uiSrc) && /this\.dancerRemoveBtn\.disabled = !cloning;/.test(uiSrc),
   'and BOTH size buttons are DISABLED unless a clone is being built - that flag is the whole gate');
+// A GREYED CONTROL STILL HAS TO LOOK GREYED, and it did not: `:hover` MATCHES A DISABLED BUTTON - CSS will
+// style one, it is only the pointer EVENTS that stop - so `#hud button:hover`'s accent border lit these up
+// GREEN under the pointer while they did nothing, which reads as live.
+check(/#editorPanel button:disabled:hover \{ border-color: #2a3542; \}/.test(cssSrc),
+  'the accent hover is NEUTRALISED for a disabled panel button, so a greyed control cannot light up green');
+check(/#editorPanel button:disabled \{ opacity: 0\.4; cursor: not-allowed; \}/.test(cssSrc),
+  'and it dims with a not-allowed cursor - the treatment the panel already gives its disabled clip and tab groups');
 // THE ROW WAS ONCE HIDDEN INSTEAD, and that is what this file was written for: the feature was working the
 // whole time and there was nothing on screen to say it was clone-only, so its absence read as breakage.
 check(/this\.dancerCountRowEl\.hidden = false;/.test(uiSrc) && !/this\.dancerCountRowEl\.hidden = !cloning;/.test(uiSrc),
@@ -205,6 +213,12 @@ console.log('\n== 5. the checks fail on the faults they were written for ==');
   const noReason = uiSrc.replace(/const SIZE_LOCKED_TITLE =[\s\S]*?Press Clone above to start one\.';/, 'const SIZE_LOCKED_TITLE = \'\';');
   check(noReason !== uiSrc && !/Only a CLONE can have dancers added or removed/.test(noReason),
     'an empty locked message - a greyed button with nothing to say - fails too');
+  const stillGreen = cssSrc.replace(
+    '#editorPanel button:disabled:hover { border-color: #2a3542; }',
+    '#editorPanel button:disabled:hover { border-color: var(--accent); }',
+  );
+  check(stillGreen !== cssSrc && !/#editorPanel button:disabled:hover \{ border-color: #2a3542; \}/.test(stillGreen),
+    "and letting the accent back onto a disabled button's hover - the green outline that was reported - fails the check that stops it");
   const noCapture = uiSrc.replace('if (!this.dancerAddTitle) this.dancerAddTitle = this.dancerAddBtn.title;', '');
   check(noCapture !== uiSrc && !/if \(!this\.dancerAddTitle\)/.test(noCapture),
     'and without the capture the locked tooltip would overwrite the live one for good, which also fails');

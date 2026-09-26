@@ -38,6 +38,15 @@ html, body {
 #hud select { flex: 1; min-width: 0; }
 #hud button { cursor: pointer; }
 #hud button:hover { border-color: var(--accent); }
+/* A GREYED BUTTON IS NOT AN INVITATION. The rule above turns the border green under the pointer, and
+   `:hover` MATCHES A DISABLED BUTTON - CSS will style one, it is only the pointer EVENTS that stop - so a
+   disabled control lit up as though it were live while doing nothing at all. The editor's Set row is where
+   this was reported: its size controls are greyed outside a clone, and the green outline said otherwise.
+   Scoped to the panel rather than to the two buttons, because `Revert` and `Connect end` are disabled in the
+   same panel and had the same fault. The clip and tab groups carry their own opacity already and are more
+   specific, so they are untouched by this. */
+#editorPanel button:disabled { opacity: 0.4; cursor: not-allowed; }
+#editorPanel button:disabled:hover { border-color: #2a3542; }
 #hud input[type=range] { flex: 1; accent-color: var(--accent); }
 #hud .part { font-size: 12px; color: var(--accent); flex: 1 1 auto; min-width: 0; }
 /* THE VIEW DIALOG, opened by a click on the board. `position: fixed` so it can sit under the pointer wherever

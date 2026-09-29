@@ -38,11 +38,6 @@
                 "formation": "Static Square"
               },
               {
-                "title": "Circle Left 1/8",
-                "from": "Static Square",
-                "formation": "Static Square"
-              },
-              {
                 "title": "Circle Left 1/4",
                 "from": "Static Square",
                 "formation": "Static Square"
@@ -57,13 +52,35 @@
                 "from": "Static Square",
                 "formation": "Static Square"
               },
+              
+
+
               {
-                "title": "Circle Right",
+                "title": "Circle Left - Stop at Home",
                 "from": "Static Square",
                 "formation": "Static Square"
               },
               {
-                "title": "Circle Right 1/8",
+                "title": "Circle Left 1/4 - Stop at Home",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Left 1/2 - Stop at Home",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Left 3/4 - Stop at Home",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+
+
+
+
+              {
+                "title": "Circle Right",
                 "from": "Static Square",
                 "formation": "Static Square"
               },
@@ -79,6 +96,29 @@
               },
               {
                 "title": "Circle Right 3/4",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+
+
+
+              {
+                "title": "Circle Right - Stop at Home",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Right 1/4 - Stop at Home",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Right 1/2 - Stop at Home",
+                "from": "Static Square",
+                "formation": "Static Square"
+              },
+              {
+                "title": "Circle Right 3/4 - Stop at Home",
                 "from": "Static Square",
                 "formation": "Static Square"
               }
@@ -98,11 +138,6 @@
                 "formation": "Circle"
               },
               {
-                "title": "Circle Left 1/8",
-                "from": "Circle",
-                "formation": "Circle"
-              },
-              {
                 "title": "Circle Left 1/4",
                 "from": "Circle",
                 "formation": "Circle"
@@ -117,13 +152,32 @@
                 "from": "Circle",
                 "formation": "Circle"
               },
+
+
               {
-                "title": "Circle Right",
+                "title": "Circle Left - Stop at Home",
                 "from": "Circle",
                 "formation": "Circle"
               },
               {
-                "title": "Circle Right 1/8",
+                "title": "Circle Left 1/4 - Stop at Home",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Left 1/2 - Stop at Home",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Left 3/4 - Stop at Home",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+
+
+              {
+                "title": "Circle Right",
                 "from": "Circle",
                 "formation": "Circle"
               },
@@ -141,14 +195,125 @@
                 "title": "Circle Right 3/4",
                 "from": "Circle",
                 "formation": "Circle"
+              },
+
+
+              {
+                "title": "Circle Right - Stop at Home",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Right 1/4 - Stop at Home",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Right 1/2 - Stop at Home",
+                "from": "Circle",
+                "formation": "Circle"
+              },
+              {
+                "title": "Circle Right 3/4 - Stop at Home",
+                "from": "Circle",
+                "formation": "Circle"
               }
             ]
           }
         ]
       },
       "Facing Lines": {
-        "formation": "Lines",
-        "calls": []
+        "formation": "Normal Lines",
+        "calls": [
+          {
+            "file": "ms/circle.xml",
+            "tam_xml_queries": [
+              {
+                "title": "Circle Left",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Left 3/4",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Left 1/2",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Left 1/4",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Left - Stop at Home",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Left 3/4 - Stop at Home",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Left 1/2 - Stop at Home",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Left 1/4 - Stop at Home",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+
+
+              {
+                "title": "Circle Right",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Right 3/4",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Right 1/2",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Right 1/4",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Right - Stop at Home",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Right 3/4 - Stop at Home",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Right 1/2 - Stop at Home",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              },
+              {
+                "title": "Circle Right 1/4 - Stop at Home",
+                "from": "Normal Lines",
+                "formation": "Normal Lines"
+              }
+
+            ]
+          }
+        ]
       }
     }
   },
@@ -219,42 +384,42 @@
               {
                 "title": "Single Circle Left Full",
                 "from": "Facing Couples",
-                "formation": "Facing Couples Compact"
+                "formation": "Facing Couples"
               },
               {
                 "title": "Single Circle Left 1/4",
                 "from": "Facing Couples",
-                "formation": "Facing Couples Compact"
+                "formation": "Facing Couples"
               },
               {
                 "title": "Single Circle Left 1/2",
                 "from": "Facing Couples",
-                "formation": "Facing Couples Compact"
+                "formation": "Facing Couples"
               },
               {
                 "title": "Single Circle Left 3/4",
                 "from": "Facing Couples",
-                "formation": "Facing Couples Compact"
+                "formation": "Facing Couples"
               },
               {
                 "title": "Single Circle Right 1/4",
                 "from": "Facing Couples",
-                "formation": "Facing Couples Compact"
+                "formation": "Facing Couples"
               },
               {
                 "title": "Single Circle Right 1/2",
                 "from": "Facing Couples",
-                "formation": "Facing Couples Compact"
+                "formation": "Facing Couples"
               },
               {
                 "title": "Single Circle Right 3/4",
                 "from": "Facing Couples",
-                "formation": "Facing Couples Compact"
+                "formation": "Facing Couples"
               },
               {
                 "title": "Single Circle Right Full",
                 "from": "Facing Couples",
-                "formation": "Facing Couples Compact"
+                "formation": "Facing Couples"
               }
             ]
           }

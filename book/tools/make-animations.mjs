@@ -48,9 +48,33 @@ function tamsOf(file) {
  * A query matches when EVERY attribute it carries matches; a query that carries neither `from` nor
  * `formation` is rejected by the caller, because `title` alone spans every formation the authoring
  * was written for and would pin nothing.
+ *
+ * THE TWO FORMATION ATTRIBUTES ARE ONE QUESTION. A tam declares the formation it is written for in
+ * `from`, in `formation`, or -- as every tam in `ms/circle.xml` now does -- in `formation` alone, with
+ * `from` left empty. A query naming `from` therefore finds nothing even though the authoring is
+ * plainly written for that formation. Both keys are matched against either declaration, and the
+ * caller COUNTS how often the fallback was needed, so a corpus that has quietly dropped an attribute
+ * shows up in the build output instead of being absorbed in silence. (`tamsOf` reads the raw XML, so
+ * the field here is `formation`; `formationAttr` is the name the engine's own parser gives it, and is
+ * checked too so this holds whichever shape it is handed.)
  */
-function findTam(tams, query) {
-  return tams.findIndex((t) => Object.entries(query).every(([k, v]) => (t[k] ?? '') === v));
+const FORMATION_KEYS = new Set(['from', 'formation']);
+const DECLARED_FORMATION_FIELDS = ['formation', 'formationAttr'];
+
+function findTam(tams, query, tally = null) {
+  return tams.findIndex((t) =>
+    Object.entries(query).every(([k, v]) => {
+      if ((t[k] ?? '') === v) return true;
+      if (!FORMATION_KEYS.has(k)) return false;
+      for (const field of DECLARED_FORMATION_FIELDS) {
+        if ((t[field] ?? '') === v) {
+          if (tally) tally.declared++;
+          return true;
+        }
+      }
+      return false;
+    }),
+  );
 }
 
 /**
@@ -68,7 +92,7 @@ function findTam(tams, query) {
  * it cannot draw. (The caller of this function keeps that label as the call's home formation, so a
  * card animated from a stand-in formation is still filed under the manual's name for it.)
  */
-function resolveStarts(eng, id, curated, cache) {
+function resolveStarts(eng, id, curated, cache, tally = { declared: 0, unresolved: 0 }) {
   if (!curated?.starts) return null;
   const out = [];
   for (const [label, spec] of Object.entries(curated.starts)) {
@@ -81,8 +105,11 @@ function resolveStarts(eng, id, curated, cache) {
         if (!query.from && !query.formation) {
           throw new Error(`${id} / ${label}: a tam query names neither "from" nor "formation"`);
         }
-        const tamIndex = findTam(tams, query);
-        if (tamIndex < 0) continue;
+        const tamIndex = findTam(tams, query, tally);
+        if (tamIndex < 0) {
+          tally.unresolved++;
+          continue;
+        }
         const key = `${call.file}#${tamIndex}`;
         if (seen.has(key)) continue; // two queries can land on the same authoring
         let bundle;
@@ -368,6 +395,13 @@ export function build({ gifs = false } = {}) {
     if (!v?.name) throw new Error(`start-formations.json: "${k}" has no "name"`);
   }
   const tamCache = new Map();
+  /**
+   * HOW THE START QUERIES FARED, reported at the end of the build rather than left to be inferred from
+   * a shorter list of animations. A corpus that has dropped an attribute, or a table that has drifted
+   * from one, shows up as a start list that has quietly gone empty -- which is a page with no chooser
+   * on it and nothing anywhere saying why.
+   */
+  const startTally = { declared: 0, unresolved: 0 };
   const eng = loadEngine();
   const files = new Map();
   const index = { figures: [], noAnimation: [] };
@@ -386,7 +420,7 @@ export function build({ gifs = false } = {}) {
       // to list first, the page plays the manual's -- so the picker always agrees with what is on
       // screen before anyone touches it. A card with no start list is unchanged: e.sites[0].
       const curated = startTable[id];
-      const starts = curated ? resolveStarts(eng, id, curated, tamCache) : null;
+      const starts = curated ? resolveStarts(eng, id, curated, tamCache, startTally) : null;
       const site = starts ? { file: starts[0].calls[0].file, tamIndex: starts[0].calls[0].tamIndex } : e.sites[0];
 
       let bundle = null;
@@ -467,6 +501,12 @@ export function build({ gifs = false } = {}) {
   }
   index.figures.sort((a, b) => a.id.localeCompare(b.id));
   index.noAnimation.sort((a, b) => a.id.localeCompare(b.id));
+  if (startTally.declared || startTally.unresolved) {
+    console.log(
+      `  start queries: ${startTally.declared} matched on a tam's own declared formation (its "from" is empty)` +
+        `${startTally.unresolved ? `; ${startTally.unresolved} resolved to nothing` : ''}`,
+    );
+  }
   return { files, index };
 }
 

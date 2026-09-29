@@ -7,9 +7,9 @@
       "file": "ms/circle.xml",
       "level": "ms",
       "fileName": "circle.xml",
-      "tamIndex": 0,
-      "from": "Static Square",
-      "beats": 8,
+      "tamIndex": 8,
+      "from": "",
+      "beats": 16,
       "frames": 0,
       "view": {
         "scale": 36.279,
@@ -22,12 +22,177 @@
             {
               "title": "Circle Left",
               "file": "ms/circle.xml",
-              "tamIndex": 0,
-              "from": "Static Square",
+              "tamIndex": 8,
+              "from": "",
+              "beats": 16,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 9,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 10,
+              "from": "",
               "beats": 8,
               "view": {
                 "scale": 36.279,
                 "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 11,
+              "from": "",
+              "beats": 12,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 0,
+              "from": "",
+              "beats": 16,
+              "view": {
+                "scale": 36.278,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 1/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 1,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 1/2 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 2,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.278,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 3/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 3,
+              "from": "",
+              "beats": 12,
+              "view": {
+                "scale": 36.067,
+                "units": 4.325
+              }
+            },
+            {
+              "title": "Circle Right",
+              "file": "ms/circle.xml",
+              "tamIndex": 40,
+              "from": "",
+              "beats": 16,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 41,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 42,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 43,
+              "from": "",
+              "beats": 12,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 32,
+              "from": "",
+              "beats": 16,
+              "view": {
+                "scale": 36.278,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right 1/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 33,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 36.147,
+                "units": 4.316
+              }
+            },
+            {
+              "title": "Circle Right 1/2 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 34,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.19,
+                "units": 4.311
+              }
+            },
+            {
+              "title": "Circle Right 3/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 35,
+              "from": "",
+              "beats": 12,
+              "view": {
+                "scale": 36.234,
+                "units": 4.305
               }
             }
           ]
@@ -38,20 +203,20 @@
             {
               "title": "Circle Left",
               "file": "ms/circle.xml",
-              "tamIndex": 8,
-              "from": "Circle",
-              "beats": 8,
+              "tamIndex": 12,
+              "from": "",
+              "beats": 16,
               "view": {
-                "scale": 39.862,
-                "units": 3.914
+                "scale": 39.868,
+                "units": 3.913
               }
             },
             {
               "title": "Circle Left 1/4",
               "file": "ms/circle.xml",
-              "tamIndex": 9,
-              "from": "Circle",
-              "beats": 2,
+              "tamIndex": 13,
+              "from": "",
+              "beats": 4,
               "view": {
                 "scale": 39.87,
                 "units": 3.913
@@ -60,42 +225,75 @@
             {
               "title": "Circle Left 1/2",
               "file": "ms/circle.xml",
-              "tamIndex": 10,
-              "from": "Circle",
-              "beats": 4,
+              "tamIndex": 14,
+              "from": "",
+              "beats": 8,
               "view": {
-                "scale": 39.872,
-                "units": 3.913
+                "scale": 39.875,
+                "units": 3.912
               }
             },
             {
               "title": "Circle Left 3/4",
               "file": "ms/circle.xml",
-              "tamIndex": 11,
-              "from": "Circle",
-              "beats": 6,
+              "tamIndex": 15,
+              "from": "",
+              "beats": 12,
               "view": {
                 "scale": 39.868,
                 "units": 3.913
+              }
+            },
+            {
+              "title": "Circle Left - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 4,
+              "from": "",
+              "beats": 16,
+              "view": {
+                "scale": 36.274,
+                "units": 4.301
+              }
+            },
+            {
+              "title": "Circle Left 1/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 5,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 36.281,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 1/2 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 6,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.332,
+                "units": 4.294
+              }
+            },
+            {
+              "title": "Circle Left 3/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 7,
+              "from": "",
+              "beats": 14,
+              "view": {
+                "scale": 36.269,
+                "units": 4.301
               }
             },
             {
               "title": "Circle Right",
               "file": "ms/circle.xml",
-              "tamIndex": 17,
-              "from": "Circle",
-              "beats": 8,
-              "view": {
-                "scale": 39.868,
-                "units": 3.913
-              }
-            },
-            {
-              "title": "Circle Right 1/8",
-              "file": "ms/circle.xml",
-              "tamIndex": 18,
-              "from": "Circle",
-              "beats": 1,
+              "tamIndex": 44,
+              "from": "",
+              "beats": 16,
               "view": {
                 "scale": 39.868,
                 "units": 3.913
@@ -104,9 +302,9 @@
             {
               "title": "Circle Right 1/4",
               "file": "ms/circle.xml",
-              "tamIndex": 19,
-              "from": "Circle",
-              "beats": 2,
+              "tamIndex": 45,
+              "from": "",
+              "beats": 4,
               "view": {
                 "scale": 39.867,
                 "units": 3.913
@@ -115,9 +313,9 @@
             {
               "title": "Circle Right 1/2",
               "file": "ms/circle.xml",
-              "tamIndex": 20,
-              "from": "Circle",
-              "beats": 4,
+              "tamIndex": 46,
+              "from": "",
+              "beats": 8,
               "view": {
                 "scale": 39.872,
                 "units": 3.913
@@ -126,12 +324,237 @@
             {
               "title": "Circle Right 3/4",
               "file": "ms/circle.xml",
-              "tamIndex": 21,
-              "from": "Circle",
-              "beats": 6,
+              "tamIndex": 47,
+              "from": "",
+              "beats": 12,
               "view": {
                 "scale": 39.868,
                 "units": 3.913
+              }
+            },
+            {
+              "title": "Circle Right - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 36,
+              "from": "",
+              "beats": 16,
+              "view": {
+                "scale": 36.28,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right 1/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 37,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 36.19,
+                "units": 4.311
+              }
+            },
+            {
+              "title": "Circle Right 1/2 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 38,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.233,
+                "units": 4.305
+              }
+            },
+            {
+              "title": "Circle Right 3/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 39,
+              "from": "",
+              "beats": 12,
+              "view": {
+                "scale": 36.278,
+                "units": 4.3
+              }
+            }
+          ]
+        },
+        {
+          "label": "Facing Lines",
+          "calls": [
+            {
+              "title": "Circle Left",
+              "file": "ms/circle.xml",
+              "tamIndex": 24,
+              "from": "",
+              "beats": 16,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 27,
+              "from": "",
+              "beats": 12,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 26,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 25,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 28,
+              "from": "",
+              "beats": 16,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Left 3/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 31,
+              "from": "",
+              "beats": 12,
+              "view": {
+                "scale": 36.234,
+                "units": 4.305
+              }
+            },
+            {
+              "title": "Circle Left 1/2 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 30,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.191,
+                "units": 4.31
+              }
+            },
+            {
+              "title": "Circle Left 1/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 29,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 36.149,
+                "units": 4.316
+              }
+            },
+            {
+              "title": "Circle Right",
+              "file": "ms/circle.xml",
+              "tamIndex": 56,
+              "from": "",
+              "beats": 16,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 59,
+              "from": "",
+              "beats": 12,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 58,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 57,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Circle Right - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 60,
+              "from": "",
+              "beats": 16,
+              "view": {
+                "scale": 35.601,
+                "units": 4.382
+              }
+            },
+            {
+              "title": "Circle Right 3/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 63,
+              "from": "",
+              "beats": 12,
+              "view": {
+                "scale": 35.561,
+                "units": 4.387
+              }
+            },
+            {
+              "title": "Circle Right 1/2 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 62,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 35.524,
+                "units": 4.391
+              }
+            },
+            {
+              "title": "Circle Right 1/4 - Stop at Home",
+              "file": "ms/circle.xml",
+              "tamIndex": 61,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 35.482,
+                "units": 4.397
               }
             }
           ]
@@ -145,109 +568,14 @@
       "file": "ms/circle.xml",
       "level": "ms",
       "fileName": "circle.xml",
-      "tamIndex": 40,
-      "from": "Facing Couples",
-      "beats": 7.5,
+      "tamIndex": 30,
+      "from": "",
+      "beats": 8,
       "frames": 0,
       "view": {
-        "scale": 43.333,
-        "units": 3.6
-      },
-      "starts": [
-        {
-          "label": "Facing Couples",
-          "calls": [
-            {
-              "title": "Circle Four Left Full",
-              "file": "ms/circle.xml",
-              "tamIndex": 40,
-              "from": "Facing Couples",
-              "beats": 7.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Circle Four Left 1/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 22,
-              "from": "Facing Couples",
-              "beats": 3,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Circle Four Right 1/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 25,
-              "from": "Facing Couples",
-              "beats": 3,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Circle Four Left 1/2",
-              "file": "ms/circle.xml",
-              "tamIndex": 28,
-              "from": "Facing Couples",
-              "beats": 4.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Circle Four Right 1/2",
-              "file": "ms/circle.xml",
-              "tamIndex": 31,
-              "from": "Facing Couples",
-              "beats": 4.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Circle Four Left 3/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 34,
-              "from": "Facing Couples",
-              "beats": 6,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Circle Four Right 3/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 37,
-              "from": "Facing Couples",
-              "beats": 6,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Circle Four Right Full",
-              "file": "ms/circle.xml",
-              "tamIndex": 43,
-              "from": "Facing Couples",
-              "beats": 7.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            }
-          ]
-        }
-      ]
+        "scale": 36.191,
+        "units": 4.31
+      }
     },
     {
       "id": "m01c",
@@ -256,109 +584,14 @@
       "file": "ms/circle.xml",
       "level": "ms",
       "fileName": "circle.xml",
-      "tamIndex": 55,
-      "from": "Facing Couples",
-      "beats": 5,
+      "tamIndex": 45,
+      "from": "",
+      "beats": 4,
       "frames": 0,
       "view": {
-        "scale": 43.333,
-        "units": 3.6
-      },
-      "starts": [
-        {
-          "label": "Facing Dancers",
-          "calls": [
-            {
-              "title": "Single Circle Left Full",
-              "file": "ms/circle.xml",
-              "tamIndex": 55,
-              "from": "Facing Couples",
-              "beats": 5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Single Circle Left 1/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 46,
-              "from": "Facing Couples",
-              "beats": 2,
-              "view": {
-                "scale": 36.279,
-                "units": 4.3
-              }
-            },
-            {
-              "title": "Single Circle Left 1/2",
-              "file": "ms/circle.xml",
-              "tamIndex": 49,
-              "from": "Facing Couples",
-              "beats": 3,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Single Circle Left 3/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 52,
-              "from": "Facing Couples",
-              "beats": 4,
-              "view": {
-                "scale": 36.279,
-                "units": 4.3
-              }
-            },
-            {
-              "title": "Single Circle Right 1/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 58,
-              "from": "Facing Couples",
-              "beats": 2,
-              "view": {
-                "scale": 36.279,
-                "units": 4.3
-              }
-            },
-            {
-              "title": "Single Circle Right 1/2",
-              "file": "ms/circle.xml",
-              "tamIndex": 61,
-              "from": "Facing Couples",
-              "beats": 3,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Single Circle Right 3/4",
-              "file": "ms/circle.xml",
-              "tamIndex": 64,
-              "from": "Facing Couples",
-              "beats": 4,
-              "view": {
-                "scale": 36.279,
-                "units": 4.3
-              }
-            },
-            {
-              "title": "Single Circle Right Full",
-              "file": "ms/circle.xml",
-              "tamIndex": 67,
-              "from": "Facing Couples",
-              "beats": 5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            }
-          ]
-        }
-      ]
+        "scale": 39.867,
+        "units": 3.913
+      }
     },
     {
       "id": "m02",
@@ -878,94 +1111,6 @@
               "view": {
                 "scale": 36.279,
                 "units": 4.3
-              }
-            },
-            {
-              "title": "Left-Hand Star 1/4",
-              "file": "ms/star.xml",
-              "tamIndex": 22,
-              "from": "Facing Couples",
-              "beats": 7.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Left-Hand Star 1/4 and Roll",
-              "file": "ms/star.xml",
-              "tamIndex": 23,
-              "from": "Facing Couples",
-              "beats": 7.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Left-Hand Star 1/2",
-              "file": "ms/star.xml",
-              "tamIndex": 24,
-              "from": "Facing Couples",
-              "beats": 7.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Left-Hand Star 1/2 and Roll",
-              "file": "ms/star.xml",
-              "tamIndex": 25,
-              "from": "Facing Couples",
-              "beats": 7.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Left-Hand Star 3/4",
-              "file": "ms/star.xml",
-              "tamIndex": 26,
-              "from": "Facing Couples",
-              "beats": 7.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Left-Hand Star 3/4 and Roll",
-              "file": "ms/star.xml",
-              "tamIndex": 27,
-              "from": "Facing Couples",
-              "beats": 7.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Left-Hand Star a Full Turn",
-              "file": "ms/star.xml",
-              "tamIndex": 28,
-              "from": "Facing Couples",
-              "beats": 7.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            },
-            {
-              "title": "Left-Hand Star a Full Turn and Roll",
-              "file": "ms/star.xml",
-              "tamIndex": 29,
-              "from": "Facing Couples",
-              "beats": 7.5,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
               }
             }
           ]

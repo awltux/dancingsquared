@@ -11,6 +11,7 @@ import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX, canonicalName, isKnownCouple } from './constants.js';
 import { normAngle } from './identity.js';
+import { bodyGap, type BodyPair } from './bodies.js';
 import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
 import { splitSelection } from './selection.js';
 import type { Board, CallStep, GroupStep, ModuleStep, SeqDancer, VariantMatch } from './types.js';
@@ -37,15 +38,115 @@ export interface ApplyResult {
    * grouping removes the second implementation rather than trying to keep the two in step.
    */
   parallel?: { variant: CallBundle; groups: SeqDancer[][] };
+  /**
+   * The worst body overlap found anywhere along the call's motion, when the path guard ran and found
+   * one. `gap` is negative and its magnitude is the penetration depth.
+   *
+   * PRESENT IN BOTH MODES. `'report'` records this and applies the call anyway; `'guard'` additionally
+   * refuses the tiling that produced it. So a caller can always ask "was this call clean?" without
+   * having to switch behaviour on, which is what makes the count trackable before the guard is enabled.
+   */
+  bodyCollision?: BodyPair;
 }
 
 /**
- * The gap below which a board has "dancers on top of each other" — the SAME 1.0 the Sweep's
- * `SWEEP_COLLISION_MIN` and `facing-audit.mjs`'s COLLISION class use, so the engine and the
- * instrument cannot disagree about when a body has fallen apart. Used by the implicit adjustment
+ * The gap below which a board has "dancers on top of each other" — used by the implicit adjustment
  * (`adjustToSetup`), which is the one place in the engine that deliberately moves dancers a long way.
+ *
+ * WHY `0.6` AND NOT `1.0`. This was 1.0, "the SAME 1.0 the Sweep's `SWEEP_COLLISION_MIN` and
+ * `facing-audit.mjs`'s COLLISION class use", and the shared number is exactly the problem: 1.0 is the
+ * CLEARANCE a legitimate two-dancer `Dosado` maintains, not a collision. MEASURED, every tiled
+ * `Dosado` variant's authored pair passes at `min 1.000` — `Facing Dancers Far` 1.000, `Facing
+ * Dancers` 1.000, `Compact` 1.000, `Close` 1.000, `Opposite Boy`/`Opposite Girl` 1.000 — so a
+ * threshold sitting ON that value flags the calls it is meant to protect. Reported as "if
+ * `BODY_COLLISION_MIN=1.0` is the distance between bodies for it to be considered a collision, then
+ * most Dosado calls will be invalidated, since they intentionally pass at a distance of 1".
+ *
+ * THE CORPUS PUTS THE NATURAL CUT LOWER STILL, and this is worth recording so the next reader does not
+ * have to re-derive it. Sweeping the 1580-module corpus for the closest pair over each whole motion —
+ * these figures are CENTRE DISTANCES, the measure this constant used to use:
+ *
+ *     1.0  refuses 704 (44.6%)      0.6  refuses 98 (6.2%)      0.15  refuses 41 (2.6%)
+ *
+ * and that distribution is bimodal with an EMPTY band at `[0.1, 0.2)`: 45 modules are real
+ * degeneracies (41 of them below 0.1) and the rest are legitimate walks, 401 of which pass at
+ * `0.9-1.0` precisely because a Dosado is SUPPOSED to. So 0.6 is a conservative improvement rather
+ * than the sharpest choice. It is kept at 0.6 because this constant guards the IMPLICIT ADJUSTMENT,
+ * which moves dancers a long way on purpose and deserves the looser tolerance.
+ *
+ * DO NOT READ THAT EMPTY BAND AS A THRESHOLD TO REUSE. It belongs to the centre-distance distribution
+ * alone and it DISAPPEARS once bodies are measured as bodies — the oriented model's own distribution
+ * is a long tail with no clean cut, which is why `BODY_PATH_CLEARANCE` is contact (zero) rather than a
+ * number lifted from this histogram. The two constants answer different questions and their units are
+ * not interchangeable.
+ *
+ * NOTE THIS DOES NOT FIX THE SQUARED-SET DOSADO. That call's endpoint gap is a clean 2.000, so it is
+ * refused at neither 1.0 nor 0.6; its body overlap (-0.390) exists only mid-motion and is invisible to
+ * an endpoint check at ANY threshold. See `BODY_PATH_CLEARANCE`.
  */
-const BODY_COLLISION_MIN = 1.0;
+const BODY_COLLISION_MIN = 0.6;
+export { BODY_COLLISION_MIN };
+
+/**
+ * The clearance a tiled call must keep BETWEEN its endpoints, for the path-level guard.
+ *
+ * ZERO, AND THE MEANING IS EXACT: bodies may touch, they may not occupy the same space. A gap of 0 is
+ * contact, anything below it is two volumes intersecting.
+ *
+ * WHY NOT A LOOSER NUMBER, WHICH IS WHAT WAS TRIED FIRST. The draft used 0.15, justified by an EMPTY
+ * band at `[0.1, 0.2)` in the corpus distribution. That band is real but it belongs to the
+ * CENTRE-DISTANCE distribution — the very measure this work replaced — and it VANISHES once bodies are
+ * measured as bodies. MEASURED under the oriented model, the 1580-module corpus buckets as:
+ *
+ *     [-0.1, 0.0)  497      [0.0, 0.1)  180      [0.1, 0.2)  1      [0.2, 0.3)  27 ...
+ *
+ * which is a long tail with NO clean separation anywhere, so there is no defensible non-zero cut to
+ * find. 0.15 would have refused 904 modules, and leaving a comment claiming a band that only exists
+ * under the superseded model would have been worse than picking no number at all.
+ *
+ * WHY A SEPARATE NUMBER FROM `BODY_COLLISION_MIN` AT ALL. The two ask different questions.
+ * `BODY_COLLISION_MIN` tolerates a long deliberate GLIDE during an implicit adjustment, where the
+ * caller has accepted that dancers are being moved a long way. This one asks only "does this call walk
+ * two bodies through each other while it plays", and there the honest answer is zero.
+ *
+ * THE COST, STATED PLAINLY, because it is the reason `'guard'` is not the default: 723 of 1580 corpus
+ * modules (45.8%) overlap their bodies somewhere in their motion, so a guard at 0 refuses all of them.
+ * That is a correct verdict on the current corpus — it is not a reason to loosen the threshold.
+ *
+ * MEASURED, the reported defect and its neighbours are caught: the squared-set `Dosado` reaches -0.390,
+ * `Right and Left Thru` -0.283, `Touch a Quarter` -0.750; while a legitimate two-dancer `Dosado` stays
+ * at +1.000 and is untouched.
+ */
+const BODY_PATH_CLEARANCE = 0.0;
+export { BODY_PATH_CLEARANCE };
+
+/**
+ * The genders a set of dancers carries, as a comparable key. Used to prefer a group that reproduces
+ * the genders the authored setup declares.
+ */
+function genderKey(ds: { gender?: string }[]): string {
+  return ds.map((d) => d.gender ?? '?').sort().join(',');
+}
+
+/**
+ * Whether `group` reproduces the AUTHORS' genders for the setup it matched — the same multiset, so a
+ * `{boy, girl}` setup wants a boy and a girl, and a `{girl, girl}` setup wants two girls.
+ *
+ * WHY THIS IS A PREFERENCE RATHER THAN A CONSTRAINT. Both tilings can be geometrically valid: a
+ * `Facing Dancers` setup is satisfied by two boys standing the same way as by a boy and a girl, and
+ * at a loose tolerance the search finds the same-gender one FIRST purely because it branches on the
+ * lowest dancer index. MEASURED, and this is the reported defect: `Single Circle Right Full` from a
+ * `Static Square` produced the pairs `#5b+#7b #6g+#8g #1b+#3b #2g+#4g` — four same-gender pairs
+ * where the call is a couple's call. The authored setup for that variant is `(boy, girl)`, so the
+ * boy-girl tiling is the one the corpus asked for.
+ *
+ * A CONSTRAINT WOULD BE WRONG, because a same-gender GROUP is legitimate for some calls ("Boys Run"
+ * selects two boys; the corpus authors same-gender setups). So the multiset is compared, not the
+ * dancers: where the setup itself declares two of a gender, two of that gender is a match.
+ */
+function respectsAuthoredGenders(group: SeqDancer[], setup: Matchable[]): boolean {
+  return genderKey(group) === genderKey(setup);
+}
 
 /**
  * How many dancers of each REAL couple the whole board holds. `UNKNOWN_COUPLE` is not a couple, so it
@@ -152,6 +253,164 @@ export function partitionsFor(
   };
   rec(0);
   return { partitions: out, truncated };
+}
+
+/**
+ * The backtracking search behind `CallApplicator.partition`, as a class with NAMED STEPS.
+ *
+ * WHY A CLASS. The rule it implements is one sentence - "cut the board into disjoint copies of the
+ * setup, keeping couples together, and take the first tiling found" - but the search is genuinely
+ * recursive, and it was written as three nested arrow functions that called each other through
+ * captured `used`/`result`/`totalError`. Debuggers step through closures badly: the body has no
+ * breakpointable name of its own, and the captured state is not inspectable. Here every step is a
+ * method and every piece of state is a field, so `nextAnchoredGroup` -> `searchCombos` -> `tryGroup`
+ * can each be breakpointed and the recursion walked in and out.
+ *
+ * STATE, and why each is what it is:
+ *   `used`    the board slots already placed in a group. The search ALWAYS expands the lowest
+ *             unplaced index (`firstUnused`), which is what makes it complete: any tiling must place
+ *             that dancer somewhere, so branching on its group covers the space.
+ *   `result`  the groups placed so far, in placement order - the answer when the search completes.
+ *   `totalError`  the running sum, saved/restored around each branch.
+ *
+ * THE SEARCH ORDER IS BEHAVIOUR, NOT STYLE. `partition` returns the FIRST tiling it finds, so the
+ * order candidates are tried decides which of several valid tilings comes back. Everything here -
+ * expanding the lowest unplaced index, `remaining` in ascending index order, the combos taken in that
+ * order - is what the closure version did, and `test/tools/partition-capture.mjs` was captured
+ * against it so a drift shows up as a diff.
+ */
+class PartitionSearch {
+  private readonly k: number;
+  private readonly n: number;
+  private readonly coupleTotals: ReturnType<typeof coupleTotals>;
+  private readonly used: boolean[];
+  private readonly result: SeqDancer[][] = [];
+  private totalError = 0;
+  /** Scratch for the current combination. Allocated once, exactly as the closure version did. */
+  private readonly combo: number[];
+
+  constructor(
+    private readonly setup: Matchable[],
+    private readonly dancers: SeqDancer[],
+    private readonly maxError: number,
+    /**
+     * Whether a group must reproduce the setup's GENDERS, not merely its geometry.
+     *
+     * This is the tam's own `sequencer="gender-specific"` declaration (`convert.ts`), which the
+     * whole-board matcher has always honoured (`matcher.ts`) and this path never did - so a
+     * gender-specific call could be TILED in a way the same call could not be applied whole. A
+     * `{boy, girl}` setup then matches only a boy and a girl, which is what makes a circle a
+     * couple's call rather than any two dancers standing the same way.
+     */
+    private readonly requireGender = false,
+  ) {
+    this.k = setup.length;
+    this.n = dancers.length;
+    this.combo = new Array<number>(Math.max(0, this.k - 1));
+    this.coupleTotals = coupleTotals(dancers);
+    this.used = new Array<boolean>(this.n).fill(false);
+  }
+
+  /** The tiling, or null when the board cannot be cut into copies of the setup. */
+  run(): { groups: SeqDancer[][]; error: number } | null {
+    if (this.n === 0 || this.n % this.k !== 0) return null;
+    return this.next() ? { groups: this.result, error: this.totalError } : null;
+  }
+
+  /** Place one more group, anchored on the lowest unplaced dancer. True once everything is placed. */
+  private next(): boolean {
+    const anchor = this.firstUnused();
+    if (anchor === -1) return true;
+    return this.nextAnchoredGroup(anchor);
+  }
+
+  /** The lowest board index not yet placed, or -1 when none is left. */
+  private firstUnused(): number {
+    for (let i = 0; i < this.n; i++) if (!this.used[i]) return i;
+    return -1;
+  }
+
+  /**
+   * Every way to complete a group containing `anchorIdx`, tried in index order; true if one of them
+   * leads to a complete tiling.
+   *
+   * `remaining` is recomputed on entry rather than carried, because `used` changes underneath this
+   * call during the recursion below.
+   */
+  private nextAnchoredGroup(anchorIdx: number): boolean {
+    const remaining: number[] = [];
+    for (let i = 0; i < this.n; i++) if (!this.used[i] && i !== anchorIdx) remaining.push(i);
+    if (remaining.length < this.k - 1) return false;
+    this.searchCombos(remaining, anchorIdx, 0, 0);
+    return this.placed;
+  }
+
+  /**
+   * Depth-first over the combinations of `remaining` taken `k - 1` at a time.
+   *
+   * IT RETURNS NOTHING AND IS READ FROM `placed`, which is the one structural change from the closure
+   * version and is deliberate: the old version threaded a `boolean` back up through three levels, and
+   * a debugger following that return value jumps out of the recursion and lands in the caller with no
+   * obvious reason. Success is recorded in `placed` instead - set by `tryGroup` when a complete
+   * tiling is reached, and every level simply stops early once it sees it - so the value is visible
+   * on the instance at any breakpoint and the control flow needs no unwinding to explain.
+   */
+  private searchCombos(remaining: number[], anchorIdx: number, start: number, depth: number): void {
+    if (this.placed) return;
+    if (depth === this.k - 1) {
+      const combo = new Array<number>(this.k - 1);
+      for (let i = 0; i < this.k - 1; i++) combo[i] = this.combo[i];
+      this.tryGroup([anchorIdx, ...combo]);
+      return;
+    }
+    for (let i = start; i < remaining.length && !this.placed; i++) {
+      this.combo[depth] = remaining[i];
+      this.searchCombos(remaining, anchorIdx, i + 1, depth + 1);
+    }
+  }
+
+  /**
+   * Place `idx` as a group if it forms a match and keeps couples together, then recurse into the rest
+   * of the board; true when that produced a complete tiling.
+   *
+   * The undo block is the backtrack: the group is popped, its error taken back off the total, and the
+   * slots released before the caller tries the next combination.
+   */
+  private tryGroup(idx: number[]): boolean {
+    const group = idx.map((i) => this.dancers[i]);
+    const m = matchFormations(
+      group.map((d) => ({ x: d.x, y: d.y, heading: d.heading })),
+      this.setup,
+      this.maxError,
+      this.requireGender,
+    );
+    if (!m || !this.keepsCouplesWhole(group)) return false;
+    for (const i of idx) this.used[i] = true;
+    this.result.push(group);
+    const saved = this.totalError;
+    this.totalError += m.error;
+    if (this.next()) {
+      this.placed = true;
+      return true;
+    }
+    this.totalError = saved;
+    this.result.pop();
+    for (const i of idx) this.used[i] = false;
+    return false;
+  }
+
+  /** Set once a complete tiling exists. See `searchCombos` for why success is recorded here. */
+  private placed = false;
+
+  /**
+   * Whether `group` may stand as a subset: a real couple must never be split across groups.
+   * `UNKNOWN_COUPLE` is not a couple, so it imposes no constraint - treating it as one would wrongly
+   * forbid or force partitions. The rule itself lives in `blockKeepsCouples`, shared with
+   * `partitionsFor`.
+   */
+  private keepsCouplesWhole(group: SeqDancer[]): boolean {
+    return blockKeepsCouples(group, this.coupleTotals);
+  }
 }
 
 export class CallApplicator {
@@ -423,6 +682,15 @@ export class CallApplicator {
    * **0.50**, and `figm71` and `figm136` sit at 2.00 and 2.06 — two cases a hair apart on opposite
    * sides of any such number. What separates good from bad here is the RESULT
    * (`BODY_COLLISION_MIN`), not the distance.
+   *
+   * THE RESULT IS NOW MEASURED AS A BODY GAP, NOT A CENTRE DISTANCE. This used to be
+   * `Math.hypot(dx, dy) < BODY_COLLISION_MIN`, which cannot distinguish two dancers `0.5` apart facing
+   * the same way (no overlap) from two `0.5` apart facing each other (overlap by 0.25) — see
+   * `bodies.ts`. The threshold is unchanged in spirit; only the measure behind it is now the right one.
+   *
+   * STILL AN ENDPOINT CHECK. This function asks about the board the adjustment produced, and nothing
+   * here looks between the endpoints — that is `BODY_PATH_CLEARANCE`'s job, and keeping the two
+   * questions apart is deliberate: a single threshold cannot serve both, which is why they were split.
    */
   private adjustToSetup(board: Board, callName: string): (ApplyResult & { error: number }) | null {
     const tol = SEARCH_MATCH_MAX + this.config.matchMargin;
@@ -430,7 +698,7 @@ export class CallApplicator {
       const phys = r.board.dancers.filter((d) => !d.isGhost);
       for (let i = 0; i < phys.length; i++) {
         for (let j = i + 1; j < phys.length; j++) {
-          if (Math.hypot(phys[i].x - phys[j].x, phys[i].y - phys[j].y) < BODY_COLLISION_MIN) return null;
+          if (bodyGap(phys[i], phys[j]) < BODY_COLLISION_MIN) return null;
         }
       }
       return r;
@@ -659,6 +927,74 @@ export class CallApplicator {
 
   // ------------------------------------------------------------ parallel action
 
+  /**
+   * The worst body gap anywhere on the board along a whole tiled call's motion, or null when nothing
+   * comes close.
+   *
+   * BOARD-WIDE, NOT PER GROUP, and that distinction is the difference between catching the reported
+   * defect and missing it entirely. MEASURED on the squared-set `Dosado`: the worst pair WITHIN any
+   * single group is `-0.053` (`6+1`), while the worst pair on the BOARD is `-0.390` on `1+4` — two
+   * dancers in DIFFERENT groups. Tiling decides who dances with whom; it does not stop two groups from
+   * sweeping through each other, and a per-group test is blind to exactly that.
+   *
+   * So the groups are posed independently (each along its own authored path, exactly as
+   * `evaluateParallelAt` animates them) and then compared against EACH OTHER as one board.
+   *
+   * THE TRANSFORM IS `evaluateVariantAt`'s, deliberately duplicated rather than approximated. That
+   * method (in `sequence.ts`) computes each dancer's displacement in the VARIANT's own frame and then
+   * rotates it into the board's, using `rebasedPose` for the reference pose and `localMotion` for the
+   * displacement. Running a different interpolation here would mean the guard judges a path the
+   * animator never plays — the guard and the animation have to agree by construction, not by luck.
+   *
+   * SAMPLED ON THE SAME 0.5-BEAT GRID the corpus scan uses, so a threshold measured with the scan is
+   * the threshold the guard enforces. The grid runs to the LONGEST group's beat count, so a short
+   * group holds its final pose while a longer one finishes — the same reading `durationBeats` gives a
+   * parallel step.
+   */
+  private authoredPathGap(groups: SeqDancer[][], callName: string, step = 0.5): BodyPair | null {
+    // Each dancer's own pose source in the variant that tiled it, plus that group's match.
+    const sources: { d: SeqDancer; v: CallBundle['dancers'][number]; m: VariantMatch }[] = [];
+    let total = 0;
+    for (const group of groups) {
+      const gb: Board = { dancers: group.map((d) => ({ ...d })) };
+      const m = this.matcher.findMatchingVariant(gb, callName, SEARCH_MATCH_MAX + this.config.matchMargin);
+      if (!m) continue;
+      const { variant, mapping } = m;
+      for (let i = 0; i < group.length; i++) {
+        const v = variant.dancers[mapping[i]];
+        sources.push({ d: group[i], v, m });
+        total = Math.max(total, dancerBeats(v));
+      }
+    }
+    if (sources.length === 0 || !(total > 0)) return null;
+
+    let worst: BodyPair | null = null;
+    for (let t = 0; t <= total + 1e-9; t += step) {
+      const all = sources.map(({ d, v, m }) => {
+        const start = poseFor(v, 0);
+        const cur = poseFor(v, Math.min(t, dancerBeats(v)));
+        const localDisp = localMotion(start, cur, m.reflect);
+        const base = rebasedPose(start, m);
+        const disp = rot(base.heading, localDisp);
+        return {
+          ...d,
+          x: base.x + disp.x,
+          y: base.y + disp.y,
+          heading: normAngle(base.heading + normAngle(cur.heading - start.heading)),
+        };
+      });
+      // GHOSTS EXCLUDED, matching `worstBodyGap`: a ghost occupies no collision space.
+      const phys = all.filter((d) => !d.isGhost);
+      for (let i = 0; i < phys.length; i++) {
+        for (let j = i + 1; j < phys.length; j++) {
+          const gap = bodyGap(phys[i], phys[j]);
+          if (!worst || gap < worst.gap) worst = { id1: phys[i].id, id2: phys[j].id, gap };
+        }
+      }
+    }
+    return worst;
+  }
+
   parallelApply(
     board: Board,
     callName: string,
@@ -672,23 +1008,53 @@ export class CallApplicator {
     const phys = board.dancers.filter((d) => !d.isGhost);
     const n = phys.length;
     const ghosts = board.dancers.filter((d) => d.isGhost);
-    for (const v of variants) {
+    // ---- EVERY variant that tiles, with its error, BEFORE any of them is applied. --------------
+    //
+    // IT USED TO RETURN ON THE FIRST VARIANT THAT TILED. `part.error` was computed and then thrown
+    // away for the choice, so the authored setup that happened to sit EARLIER IN THE FILE won
+    // whatever its fit - which is not "first fit is as good as it gets", it is "document order
+    // decides which of two readings of the same call is danced". The format's identity for a setup
+    // is `(title, formation xor from)`, and picking by position discards exactly that.
+    //
+    // WHY IT GENERALLY DOES NOT SHOW. `partition` only hands back a tiling inside `matchTol`, and
+    // two authored setups of one title are usually far enough apart in shape that a board clears the
+    // tolerance for AT MOST ONE of them, so there is no competition to resolve. It is also not what
+    // makes `Single Circle Left Full` wrong from `Normal Lines`: there only the plain setup tiles at
+    // the interactive tolerance (error 0, against Far refused outright), so first-fit and
+    // lowest-error agree. At 6.0 BOTH tile (Far 4.5142, plain 6.2832) and the ordering is what
+    // decides. This change removes the ordering as a factor; it does not by itself explain any
+    // reported wrong instance.
+    //
+    // The candidate list keeps the board's EVEN division rule - `square-dancing.md` section 7.2.1:
+    // "a board that cannot be split evenly into equal subsets (e.g. 6 dancers for a 4-dancer
+    // subset) has no clean partition and must not force one". A full tiling is still preferred over
+    // a partial one FOR THE SAME VARIANT, so nothing that worked before changes shape.
+    const candidates: { v: CallBundle; groups: SeqDancer[][]; error: number; index: number }[] = [];
+    variants.forEach((v, index) => {
       const setup = v.dancers.map((d) => this.library.variantMatchable(d));
       const k = setup.length;
-      // The board must still divide EVENLY into setup-sized boxes - `square-dancing.md` Ãƒâ€šÃ‚Â§7.2.1:
-      // "a board that cannot be split evenly into equal subsets (e.g. 6 dancers for a 4-dancer
-      // subset) has no clean partition and must not force one". So a 6-dancer board with a
-      // 4-dancer setup is refused here, exactly as before. What the partial reading below adds is
-      // only the case where the division IS even and some boxes match while others do not, which
-      // is what a Trade By or a Double Pass Thru is.
-      if (k <= 1 || k >= n || n % k !== 0) continue;
-      // A full tiling first, exactly as before. Only when the board CANNOT be tiled does the
-      // partial reading below get a chance, so nothing that works today changes.
-      const part = this.partition(setup, phys, matchTol)
-        ?? this.partitionPartial(setup, phys, matchTol);
-      if (!part) continue;
-      const { groups, error } = part;
-      if (groups.length === 0) continue;
+      if (k <= 1 || k >= n || n % k !== 0) return;
+      // THE VARIANT'S OWN DECLARATION, so a tam marked `sequencer="gender-specific"` is tiled under
+      // the same gender rule it is applied under whole-board. Unmarked tams partition gender-blind,
+      // exactly as before - the preference below is what keeps the reported same-gender grouping from
+      // winning when a boy-girl tiling exists.
+      const gendered = !!v.genderSpecific;
+      const part = this.partition(setup, phys, matchTol, gendered)
+        ?? this.partitionPartial(setup, phys, matchTol, gendered);
+      if (!part || part.groups.length === 0) return;
+      candidates.push({ v, groups: part.groups, error: part.error, index });
+    });
+    if (candidates.length === 0) return null;
+    // ERROR ASCENDING, THEN DOCUMENT ORDER. The second key is not decoration: two variants can fit a
+    // board at the SAME total error, and the tie has to be broken by something stable rather than by
+    // whatever order the Map happened to iterate in. Registration order is that thing, and it is what
+    // the old code used - so a tie resolves exactly as before and only a STRICT improvement moves.
+    candidates.sort((a, b) => (a.error - b.error) || (a.index - b.index));
+    // Apply best-fit-first, keeping the old "first one whose sub-applies are all legal wins" rule: a
+    // lower-error tiling whose per-group call does not apply is not a better answer, it is not an
+    // answer at all.
+    for (const cand of candidates) {
+      const { v, groups, error } = cand;
       // Apply the call to each subset independently (disable parallel recursion).
       // Use rebase=false (PURE RELATIVE motion) so the parallel result preserves
       // every group's movement.
@@ -700,21 +1066,37 @@ export class CallApplicator {
         if (!r.legal) { ok = false; break; }
         merged.push(...r.board.dancers);
       }
-      if (ok) {
-        // Restore the board's OWN dancer order. The groups were concatenated in
-        // partition order, which permuted the array; callers pair dancers by array
-        // position (the renderer draws view[i] from poses[i]), so a permuted board
-        // made the dancers appear to swap places once a subset call completed.
-        const movedById = new Map(merged.map((d) => [d.id, d]));
-        return {
-          board: { dancers: board.dancers.map((d) => movedById.get(d.id) ?? d) },
-          legal: true,
-          error,
-          // Carry the grouping out so the animator follows the tiling that was APPLIED rather than
-          // re-deriving one. See `ApplyResult.parallel`.
-          parallel: { variant: v, groups },
-        };
+      if (!ok) continue;
+      // ---- THE PATH GUARD. Last of the candidate filters, and the only one that looks BETWEEN the
+      // endpoints. `keepsCouplesWhole` and the per-group legality check above both judge the board a
+      // candidate PRODUCES; this judges the motion it plays to get there.
+      //
+      // WHY IT FALLS THROUGH rather than throwing: a refused candidate is simply a worse answer, not
+      // an error, and the loop is already written to advance to the next-best tiling. Only when no
+      // candidate survives does the call become illegal — which is the honest answer for a call the
+      // engine cannot dance without two bodies occupying the same space.
+      let bodyCollision: BodyPair | null = null;
+      if (this.config.bodyCollisionMode !== 'off') {
+        bodyCollision = this.authoredPathGap(groups, callName);
+        const interpenetrates = !!bodyCollision && bodyCollision.gap < BODY_PATH_CLEARANCE;
+        if (interpenetrates && this.config.bodyCollisionMode === 'guard') continue;
       }
+      // Restore the board's OWN dancer order. The groups were concatenated in
+      // partition order, which permuted the array; callers pair dancers by array
+      // position (the renderer draws view[i] from poses[i]), so a permuted board
+      // made the dancers appear to swap places once a subset call completed.
+      const movedById = new Map(merged.map((d) => [d.id, d]));
+      return {
+        board: { dancers: board.dancers.map((d) => movedById.get(d.id) ?? d) },
+        legal: true,
+        error,
+        // Carry the grouping out so the animator follows the tiling that was APPLIED rather than
+        // re-deriving one. See `ApplyResult.parallel`.
+        parallel: { variant: v, groups },
+        // And carry the collision out, so `'report'` mode can surface what `'guard'` mode would
+        // refuse — that is the number that has to be tracked before the guard is switched on.
+        ...(bodyCollision ? { bodyCollision } : {}),
+      };
     }
     return null;
   }
@@ -780,60 +1162,25 @@ export class CallApplicator {
     return null;
   }
 
-  partition(setup: Matchable[], dancers: SeqDancer[], maxError: number): { groups: SeqDancer[][]; error: number } | null {
-    const k = setup.length;    const n = dancers.length;
-    if (n === 0 || n % k !== 0) return null;
-    // A real couple must never be split across subsets. UNKNOWN_COUPLE is not a
-    // couple, so it imposes no constraint rather than being treated as one
-    // (treating it as a couple would wrongly forbid or force partitions).
-    // The rule itself lives in `blockKeepsCouples`, shared with `partitionsFor`.
-    const totals = coupleTotals(dancers);
-    const isCoupleCoherent = (group: SeqDancer[]): boolean => blockKeepsCouples(group, totals);
-    const used = new Array<boolean>(n).fill(false);
-    const result: SeqDancer[][] = [];
-    let totalError = 0;
-
-    const canComplete = (anchorIdx: number): boolean => {
-      const remaining: number[] = [];
-      for (let i = 0; i < n; i++) if (!used[i] && i !== anchorIdx) remaining.push(i);
-      if (remaining.length < k - 1) return false;
-      const combo = new Array<number>(k - 1);
-      const searchCombos = (start: number, depth: number): boolean => {
-        if (depth === k - 1) {
-          const idx = [anchorIdx, ...combo];
-          const group = idx.map((i) => dancers[i]);
-          const m = matchFormations(
-            group.map((d) => ({ x: d.x, y: d.y, heading: d.heading })),
-            setup,
-            maxError,
-          );
-          if (!m || !isCoupleCoherent(group)) return false;
-          for (const i of idx) used[i] = true;
-          result.push(group);
-          const saved = totalError;
-          totalError += m.error;
-          if (next()) return true;
-          totalError = saved;
-          result.pop();
-          for (const i of idx) used[i] = false;
-          return false;
-        }
-        for (let i = start; i < remaining.length; i++) {
-          combo[depth] = remaining[i];
-          if (searchCombos(i + 1, depth + 1)) return true;
-        }
-        return false;
-      };
-      return searchCombos(0, 0);
-    };
-
-    const next = (): boolean => {
-      const a = used.findIndex((u) => !u);
-      if (a === -1) return true;
-      return canComplete(a);
-    };
-
-    return next() ? { groups: result, error: totalError } : null;
+  /**
+   * Split `dancers` into disjoint `setup`-sized groups that each match `setup`, and report the total
+   * error. Returns null when no such tiling exists.
+   *
+   * THE SEARCH IS A SEPARATE OBJECT RATHER THAN THREE NESTED CLOSURES, and that is for the DEBUGGER.
+   * This was one method holding `canComplete`, which held `searchCombos`, which called back into
+   * `next` - three arrow functions capturing `used`, `result` and `totalError` by reference. A
+   * stepper cannot place a breakpoint on a closure's body or inspect the captured state reliably, so
+   * stepping "into" the recursion showed the call site and then left. `PartitionSearch` below gives
+   * every step of the search a NAME and puts its state in FIELDS, so a debugger can breakpoint
+   * `nextAnchoredGroup`, `searchCombos` and `tryGroup` individually, read `used`/`result`/`totalError`
+   * on the instance, and walk in and out of the recursion.
+   *
+   * The algorithm is UNCHANGED, including the order in which candidate groups are tried - that order
+   * decides WHICH valid tiling is returned, so it is behaviour, not style. Pinned by
+   * `test/tools/partition-capture.mjs` before and after the rewrite.
+   */
+  partition(setup: Matchable[], dancers: SeqDancer[], maxError: number, requireGender = false): { groups: SeqDancer[][]; error: number } | null {
+    return new PartitionSearch(setup, dancers, maxError, requireGender).run();
   }
 
   /** Whether `dancers` can be partitioned into disjoint copies of `setup` (used
@@ -863,7 +1210,7 @@ export class CallApplicator {
    * falls back to this, so a board that tiles today behaves exactly as before, and this can only
    * turn a REFUSAL into an application.
    */
-  partitionPartial(setup: Matchable[], dancers: SeqDancer[], maxError: number): { groups: SeqDancer[][]; error: number } | null {
+  partitionPartial(setup: Matchable[], dancers: SeqDancer[], maxError: number, requireGender = false): { groups: SeqDancer[][]; error: number } | null {
     const k = setup.length;
     const n = dancers.length;
     if (k < 2 || k > n) return null;
@@ -875,33 +1222,44 @@ export class CallApplicator {
       const rest: number[] = [];
       for (let i = 0; i < n; i++) if (!used[i] && i !== anchor) rest.push(i);
       if (rest.length < k - 1) break;
-      // The best group of k containing this anchor that still matches; null when none does, in
-      // which case the anchor is simply left unmatched and we move on to the next dancer.
-      let best: { idx: number[]; error: number } | null = null;
+      // EVERY group of k containing this anchor that still matches, best (lowest error) first; null
+      // when none does, in which case the anchor is simply left unmatched and we move on.
+      //
+      // IT USED TO TAKE THE FIRST MATCH IN COMBINATION ORDER, which is why a same-gender pair could
+      // win: the groups are geometrically interchangeable, so index order decided, and the choice at
+      // one anchor then FORCED the rest of the tiling. MEASURED on `Facing Dancers Far` from a
+      // `Static Square`: four boy-girl pairs exist at error 0.0000, but taking `#8g+#3b` first used
+      // up `#3b`'s only partner and the run fell through to a same-gender pair at error 2.0.
+      const found: { idx: number[]; error: number; gendered: boolean }[] = [];
       const combo = new Array<number>(k - 1);
       const search = (start: number, depth: number): void => {
         if (depth === k - 1) {
           const idx = [anchor, ...combo];
+          const group = idx.map((i) => dancers[i]);
           const m = matchFormations(
-            idx.map((i) => ({ x: dancers[i].x, y: dancers[i].y, heading: dancers[i].heading })),
+            group.map((d) => ({ x: d.x, y: d.y, heading: d.heading })),
             setup,
             maxError,
+            requireGender,
           );
-          if (m && !best) best = { idx, error: m.error };
+          if (m) found.push({ idx, error: m.error, gendered: respectsAuthoredGenders(group, setup) });
           return;
         }
         for (let i = start; i < rest.length; i++) {
           combo[depth] = rest[i];
           search(i + 1, depth + 1);
-          if (best) return;
         }
       };
       search(0, 0);
-      if (!best) continue;
-      const found = best as { idx: number[]; error: number };
-      for (const i of found.idx) used[i] = true;
-      groups.push(found.idx.map((i) => dancers[i]));
-      totalError += found.error;
+      if (found.length === 0) continue;
+      // THE AUTHORS' GENDERS FIRST, then the fit. A group that reproduces the setup's gender multiset
+      // is what the corpus asked for; a same-gender one is a FALLBACK, kept for the calls whose
+      // setups are legitimately same-gender and for boards where nothing else matches.
+      found.sort((a, b) => (Number(b.gendered) - Number(a.gendered)) || (a.error - b.error));
+      const best = found[0];
+      for (const i of best.idx) used[i] = true;
+      groups.push(best.idx.map((i) => dancers[i]));
+      totalError += best.error;
     }
     return groups.length > 0 ? { groups, error: totalError } : null;
   }

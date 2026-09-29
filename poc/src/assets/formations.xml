@@ -21,24 +21,35 @@
 <formations>
 
   <!-- USE ASYMETRIC IN TAM ELEMENT TO USE THESE -->
-  <formation name="Facing Dancers">
+  <formation name="Facing Dancers" asymmetric="true">
     <dancer gender="boy" x="-2" y="0" angle="0"/>
     <dancer gender="girl" x="2" y="0" angle="180"/>
   </formation>
 
-  <formation name="Facing Dancers Compact">
+  <formation name="Facing Dancers Compact" asymmetric="true">
     <dancer gender="boy" x="-1.5" y="0" angle="0"/>
     <dancer gender="girl" x="1.5" y="0" angle="180"/>
   </formation>
 
-  <formation name="Facing Dancers Close">
+  <formation name="Facing Dancers Close" asymmetric="true">
     <dancer gender="boy" x="-1" y="0" angle="0"/>
     <dancer gender="girl" x="1" y="0" angle="180"/>
   </formation>
 
-  <formation name="Facing Dancers Far">
+  <formation name="Facing Dancers Far" asymmetric="true">
     <dancer gender="boy" x="-3" y="0" angle="0"/>
     <dancer gender="girl" x="3" y="0" angle="180"/>
+  </formation>
+
+  <!-- Across a Squared Set -->
+  <formation name="Opposite Boy" asymmetric="true">
+    <dancer gender="boy" x="-3" y="1" angle="0"/>
+    <dancer gender="boy" x="3" y="-1" angle="180"/>
+  </formation>
+
+  <formation name="Opposite Girl" asymmetric="true">
+    <dancer gender="girl" x="-3" y="-1" angle="0"/>
+    <dancer gender="girl" x="3" y="1" angle="180"/>
   </formation>
 
 

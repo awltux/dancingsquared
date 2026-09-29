@@ -70,11 +70,34 @@ export interface FsmTableEdge {
 /**
  * Version of the persisted table format. Bump when the shape changes.
  *
- * 2 adds `reading` and `endKind` to every edge. `load` accepts ONLY the current version, so a stored v1
- * asset is refused rather than read with the new fields silently absent - the same rule as before, and
- * the reason `poc/src/assets/fsm-ms.json` is regenerated in the same change.
+ * 2 adds `reading` and `endKind` to every edge. 3 adds `stateInfo` (what an embedded state came from).
+ * `load` accepts ONLY the current version, so a stored v2 asset is refused rather than read with the
+ * new fields silently absent - the same rule as before, and the reason `poc/src/assets/fsm-ms.json` is
+ * regenerated in the same change.
  */
-export const FSM_TABLE_SCHEMA_VERSION = 2;
+export const FSM_TABLE_SCHEMA_VERSION = 3;
+
+/**
+ * WHAT AN EMBEDDED STATE IS, beyond being a geometry.
+ *
+ * A named state's key IS its identity, so there is nothing to add. An embedded one is a formation the
+ * corpus never declared - it is the start setup of some `<tam>` - and its key is `@embed#N` with N a
+ * COUNT of the states registered so far, not an index into any list. So a reader looking at "embedded
+ * #44" had no way to learn which call authored it.
+ *
+ * This is that answer, and it is the call's own identity rather than a new identifier: `title` and
+ * `from` are the fields the format uses everywhere else (the pair `register` keys variants on). Kept
+ * deliberately small - the point is to find the `<tam>`, and a caller can look up anything else from
+ * there.
+ */
+export interface FsmStateInfo {
+  /** Always true today; explicit so a named state can never be mistaken for an embedded one. */
+  embedded: boolean;
+  /** The source `<tam>`'s title. */
+  title: string;
+  /** The source `<tam>`'s `from` attribute, which may be empty. */
+  from: string;
+}
 
 /** The persisted (serialised) form of an FsmTable. */
 export interface FsmTableData {
@@ -83,6 +106,11 @@ export interface FsmTableData {
   edges: Record<string, FsmTableEdge[]>;
   amendments: FsmAmendment[];
   builtAt: string;
+  /**
+   * Optional per-state identity for states whose key is not their identity - the embedded ones.
+   * ABSENT on a table that has none, so a table of purely named states serialises as before.
+   */
+  stateInfo?: Record<string, FsmStateInfo>;
 }
 
 /**
@@ -95,6 +123,8 @@ export class FsmTable {
     private readonly stateOrder: string[],
     private readonly amendments: Map<string, FsmAmendment>,
     private readonly adjacency: Map<string, FsmTableEdge[]>,
+    /** Identity for the states whose KEY is not their identity. See `FsmStateInfo`. */
+    private readonly stateInfo: Map<string, FsmStateInfo> = new Map(),
   ) {}
 
   /** Build the table from a full enumeration of build-time edges. */
@@ -102,8 +132,9 @@ export class FsmTable {
     states: string[],
     enumerate: (state: string) => Omit<FsmTableEdge, 'source'>[],
     amendments: FsmAmendment[] = [],
+    stateInfo: Map<string, FsmStateInfo> = new Map(),
   ): FsmTable {
-    const table = new FsmTable(states, new Map(amendments.map((a) => [`${a.formation}|${a.call}`, a])), new Map());
+    const table = new FsmTable(states, new Map(amendments.map((a) => [`${a.formation}|${a.call}`, a])), new Map(), stateInfo);
     for (const state of states) {
       const build = enumerate(state);
       const amends = amendments.filter((a) => a.formation === state);
@@ -146,7 +177,8 @@ export class FsmTable {
     for (const s of d.states) adjacency.set(s, (d.edges?.[s] ?? []).map((e) => ({ ...e })));
     const amendments = new Map<string, FsmAmendment>();
     for (const a of d.amendments ?? []) amendments.set(`${a.formation}|${a.call}`, a);
-    return new FsmTable([...d.states], amendments, adjacency);
+    const stateInfo = new Map<string, FsmStateInfo>(Object.entries(d.stateInfo ?? {}));
+    return new FsmTable([...d.states], amendments, adjacency, stateInfo);
   }
 
   /** The persisted (serialised) form of this table. */
@@ -159,6 +191,9 @@ export class FsmTable {
       edges,
       amendments: [...this.amendments.values()],
       builtAt: new Date().toISOString(),
+      // ABSENT rather than `{}` when there is nothing to say, so a table whose states are all named
+      // serialises byte-for-byte as it did before this field existed.
+      ...(this.stateInfo.size ? { stateInfo: Object.fromEntries(this.stateInfo) } : {}),
     };
   }
 
@@ -191,6 +226,25 @@ export class FsmTable {
   /** All states in the table. */
   states(): string[] {
     return this.stateOrder;
+  }
+
+  /**
+   * What a state IS, when its key does not say. Undefined for a named state, whose key is its identity.
+   *
+   * This is the answer to "which call authored `embedded #44`" - see `FsmStateInfo`.
+   */
+  stateInfoFor(state: string): FsmStateInfo | undefined {
+    return this.stateInfo.get(state);
+  }
+
+  /** The embedded states and the calls that authored them, in state order. */
+  embeddedStates(): { state: string; info: FsmStateInfo }[] {
+    const out: { state: string; info: FsmStateInfo }[] = [];
+    for (const s of this.stateOrder) {
+      const info = this.stateInfo.get(s);
+      if (info) out.push({ state: s, info });
+    }
+    return out;
   }
 
   /** The outgoing edges for a state (build-time + merged amendments). */

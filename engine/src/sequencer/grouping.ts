@@ -4,9 +4,10 @@
 
 import { CallApplicator } from './applicator.js';
 import { isKnownCouple } from './constants.js';
+import { currentCoupleNumbers } from './couples.js';
 import { normAngle } from '../moves.js';
 import type { Board, SeqDancer } from './types.js';
-import { normalizeSelection, selectionGroup } from './selection.js';
+import { normalizeSelection, selectionGroup, parseGroupExpression, type GroupExpression } from './selection.js';
 
 export class Grouping {
   constructor(private readonly applicator: CallApplicator) {}
@@ -65,10 +66,14 @@ export class Grouping {
   }
 
   /** Resolve a dancer-selection string to the set of acting dancer ids on a board.
-   * Supports the simple groups via subsetOf plus the parametric selectors
+   * Supports the simple groups via subsetOf, the parametric selectors
    * (specific couples, "same 4", head/side position, N boys/girls with a partner
-   * on a given side). Returns null when unrecognized or unresolvable. */
+   * on a given side), and COMBINATIONS of them. Returns null when unrecognized or unresolvable. */
   resolveSelection(board: Board, selection: string): number[] | null {
+    // A COMBINATION FIRST: tokens intersected within a side, sides unioned, negated sides subtracted.
+    // See `parseGroupExpression` for the grammar and why it is the reference's.
+    const expr = parseGroupExpression(selection);
+    if (expr) return this.resolveExpression(board, expr);
     const ds = board.dancers.filter((d) => !d.isGhost);
     const sortIds = (arr: SeqDancer[]): number[] => arr.map((d) => d.id).sort((a, b) => a - b);
     const n = normalizeSelection(selection);
@@ -134,20 +139,55 @@ export class Grouping {
     return null;
   }
 
+  /**
+   * Resolve a COMBINATION: each term's keys INTERSECTED in order, the positive terms UNIONED, then
+   * every negated term SUBTRACTED.
+   *
+   * A key is resolved through `resolveSelection`, so the combination layer adds composition without
+   * re-implementing any group - `very centers`, `outside 6`, `couple #2` and the rest all keep the
+   * one resolver that already knows what they mean. A key that does not resolve makes the whole
+   * expression unresolvable rather than silently contributing nothing.
+   */
+  private resolveExpression(board: Board, expr: GroupExpression): number[] | null {
+    const positive = new Set<number>();
+    const negative = new Set<number>();
+    for (const term of expr.terms) {
+      // INTERSECTION within a term. The first key seeds it; each later key must also contain the id.
+      let ids: number[] | null = null;
+      for (const key of term.keys) {
+        const part = this.resolveSelection(board, key);
+        if (!part) return null;
+        ids = ids === null ? part : ids.filter((id) => part.includes(id));
+        if (ids.length === 0) break;
+      }
+      if (ids === null) continue;
+      for (const id of ids) (term.negated ? negative : positive).add(id);
+    }
+    if (negative.size === 0) return [...positive].sort((a, b) => a - b);
+    return [...positive].filter((id) => !negative.has(id)).sort((a, b) => a - b);
+  }
+
   /** Positional role within each couple: the dancer on the LEFT relative to the
    * couple's shared facing is the beau; the dancer on the RIGHT is the belle.
-   * Couples are found by home couple (id grouping). Recomputed from current
-   * position/facing, independent of gender. */
+   *
+   * PAIRED BY THE CURRENT PARTNERSHIP, not by home couple. The ROLE was already recomputed from
+   * position and facing — that part was always right — but the two dancers it was computed BETWEEN
+   * were the home partners, so once partners change the role was being read off a pair that is no
+   * longer standing together. The couple the role belongs to is the one on the floor now
+   * (`couples.ts`); a dancer with no current partner falls back to its home couple, so a board whose
+   * dancers are not standing as couples behaves exactly as before. */
   private beauBelle(
     ds: SeqDancer[],
     role: 'beaus' | 'belles',
   ): number[][] | null {
-    // Only REAL home couples define a beau/belle pair; UNKNOWN_COUPLE is not a
-    // couple, so a geometry-only board yields no positional role here.
-    const coupleNos = [...new Set(ds.map((d) => d.couple))].filter(isKnownCouple);
+    const current = currentCoupleNumbers({ dancers: ds });
+    const coupleNoOf = (d: SeqDancer): number => current.get(d.id) ?? d.couple;
+    // Only REAL couples define a beau/belle pair; UNKNOWN_COUPLE is not a couple, so a
+    // geometry-only board yields no positional role here.
+    const coupleNos = [...new Set(ds.map(coupleNoOf))].filter(isKnownCouple);
     const out: number[] = [];
     for (const c of coupleNos) {
-      const pair = ds.filter((d) => d.couple === c);
+      const pair = ds.filter((d) => coupleNoOf(d) === c);
       if (pair.length !== 2) continue;
       const [a, b] = pair;
       // Left direction in the dancer's frame: rotate heading 90deg CW.

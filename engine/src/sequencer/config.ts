@@ -33,6 +33,26 @@ export class SequencerConfig {
    * is rigid and self-inverse from home returns home in one step). */
   useCollapsedModules = true;
 
+  /**
+   * What to do when a call's motion would walk two dancers' bodies through each other.
+   *
+   * `'report'` (default) detects the overlap and records it on the apply result WITHOUT refusing the
+   * call. This is the deliberate first stage, because the corpus measurement is stark: 723 of 1580
+   * modules (45.8%) currently produce overlapping bodies. Refusing by default would stop nearly half
+   * the corpus, including calls the app ships today, so the count has to become visible — and the
+   * underlying tilings fixed — before the switch is flipped.
+   *
+   * `'guard'` refuses a parallel tiling whose authored path brings two bodies into interpenetration
+   * (`BODY_PATH_CLEARANCE`, which is contact: a body gap below zero), falling through to the next
+   * candidate tiling exactly as the existing `keepsCouplesWhole` filter does. A call with no candidate
+   * left is then illegal, which is the intended meaning: the engine declines to animate a call it
+   * cannot dance without a collision. Expect it to refuse a LOT — 723 of the 1580 corpus modules
+   * overlap somewhere — which is a correct verdict on the corpus, not a mis-tuned threshold.
+   *
+   * `'off'` skips the check entirely, for callers that need the old cost profile.
+   */
+  bodyCollisionMode: 'report' | 'guard' | 'off' = 'report';
+
   /** Injectable random source for the probabilistic selection (tests). */
   rand: () => number = Math.random;
 }

@@ -26,6 +26,7 @@ import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
 import { normAngle } from './identity.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { findCodedMove, codedMoveApplies, type CodedMove } from './coded-moves.js';
+import { splitSelection } from './selection.js';
 import { promenadeTrip, promenadeLap } from './promenade.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, CallStep, GroupStep, ModuleStep, SeqDancer, VariantMatch } from './types.js';
@@ -103,6 +104,19 @@ export class SequenceAnalyzer {
     private readonly config: SequencerConfig,
   ) {}
 
+  /**
+   * How a dancer-selection string resolves on a board, injected by `Sequencer` exactly as
+   * `CallApplicator.setSelectionResolver` is - and for the same reason: the analyzer needs to know
+   * WHICH DANCERS a scoped step acts on, and the `Grouping` that answers it is built from the
+   * applicator, so holding one here would close a cycle.
+   */
+  private resolveSelection: (board: Board, selection: string) => number[] | null = () => null;
+
+  /** Set the selection resolver. Called by `Sequencer` after construction. */
+  setSelectionResolver(fn: (board: Board, selection: string) => number[] | null): void {
+    this.resolveSelection = fn;
+  }
+
   /** Beats of the variant of `name` that matches `board` (0 if none). A coded
    * body-relative move always takes CODED_MOVE_BEATS. */
   stepBeats(board: Board, name: ModuleStep): number {
@@ -115,10 +129,18 @@ export class SequenceAnalyzer {
       return most;
     }
     const n = typeof name === 'string' ? name : name.call;
-    const coded = findCodedMove(n);
+    const spec = splitSelection(n);
+    // THE SELECTION GOES TO BOTH LOOKUPS, because both are keyed on the BASE call: a step stored as
+    // the composed string `"Head Boys Dosado"` missed the coded `Do Sa Do` AND the catalogue variant,
+    // and was charged ZERO BEATS. MEASURED: `stepBeats(board, "Head Boys Dosado") = 0` while
+    // `stepBeats(board, {selection:"Head Boys", call:"Dosado"}) = 4` - the same step, two shapes, two
+    // answers, and the zero is the one the sequencer stored.
+    const coded = findCodedMove(spec.call);
+    if (coded && !spec.selection) return coded.beats;
+    const v = this.matchingVariantInfo(board, spec.call, spec.selection);
+    if (v) return v.beats;
     if (coded) return coded.beats;
-    const v = this.matchingVariantInfo(board, n);
-    return v ? v.beats : 0;
+    return 0;
   }
 
   /**
@@ -303,7 +325,34 @@ export class SequenceAnalyzer {
   private matchingVariantInfo(
     board: Board,
     name: string,
+    selection?: string,
   ): { beats: number; variant: CallBundle | null } | null {
+    // A SCOPED STEP IS LOOKED UP AGAINST ITS OWN SUBSET, and without this a scoped call has no
+    // variant at all: the walk charged it ZERO BEATS and skipped it, so `evaluateSequence` returned
+    // the start board on every frame. MEASURED on `Head Boys Dosado` from a squared set -
+    // `sequenceBeats` was 0 while `stepBeats` said 4, and nothing animated.
+    //
+    // WHY THE SUBSET AND NOT A CODED RULE. `Do Sa Do` is derived with the IDENTITY transform (step
+    // around your partner and back to your own spot), so applying it moves nobody and there is no
+    // path to animate - while the AUTHORED tams carry real motion (`Opposite Boy`: 2 dancers, 8
+    // beats, 8 per path). Reading the variant the way `applySelected` does - select, centre on the
+    // subset's own origin, match - is what reaches that motion.
+    if (selection) {
+      const ids = this.resolveSelection(board, selection);
+      if (ids && ids.length > 0) {
+        const byId = new Map(board.dancers.map((d) => [d.id, d]));
+        const selected = ids.map((id) => byId.get(id)).filter((d): d is SeqDancer => !!d);
+        let cx = 0, cy = 0;
+        for (const d of selected) { cx += d.x; cy += d.y; }
+        cx /= selected.length;
+        cy /= selected.length;
+        const subBoard: Board = { dancers: selected.map((d) => ({ ...d, x: d.x - cx, y: d.y - cy })) };
+        // `findMatchingVariant` is the applicator's own whole-board predicate, run on the sub-board -
+        // which is exactly the first reading `applySelected` tries.
+        const sub = this.matcher.findMatchingVariant(subBoard, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
+        if (sub) return { beats: Math.max(...sub.variant.dancers.map((d) => dancerBeats(d))), variant: sub.variant };
+      }
+    }
     const m = this.matcher.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
     if (m) return { beats: Math.max(...m.variant.dancers.map((d) => dancerBeats(d))), variant: m.variant };
     // THE SAME PREDICATE `parallelApply` USES, because the two disagreeing is what makes a call
@@ -383,8 +432,17 @@ export class SequenceAnalyzer {
         continue;
       }
       const name = typeof raw === 'string' ? raw : raw.call;
-      const coded = findCodedMove(name);
-      if (coded) {
+      // THE BASE CALL, so a SCOPED step reaches the coded rule and the catalogue variant alike.
+      // `findCodedMove("Head Boys Dosado")` is null - the table is keyed on `Do Sa Do` - so a scoped
+      // step used to fall straight through to `matchingVariantInfo`, which also could not see a
+      // two-dancer subset, and the step was recorded unwalkable with 0 beats.
+      const spec = splitSelection(name);
+      const coded = findCodedMove(spec.call);
+      // A SELECTION IS HANDLED BY THE CATALOGUE, not by the coded rule: the coded rule is a
+      // board-wide transform and would move the whole set, whereas `applySelected` moves only the
+      // named dancers. So a scoped step skips the coded branch entirely and goes to the variant
+      // lookup below, which resolves it against its own subset.
+      if (coded && !spec.selection) {
         const ok = codedMoveApplies(coded, board);
         if (ok) {
           const after = coded.apply(board);
@@ -405,7 +463,7 @@ export class SequenceAnalyzer {
         // `Normal Lines`, which real choreography calls. So fall through to the catalogue step below,
         // with `coded: null`, and let it read the same variant the applicator did.
       }
-      const info = this.matchingVariantInfo(board, name);
+      const info = this.matchingVariantInfo(board, spec.call, spec.selection);
       const r = this.applicator.applyToBoard(board, raw);
       const after = r.legal ? r.board : board;
       steps.push({
@@ -472,11 +530,20 @@ export class SequenceAnalyzer {
       // Both stop kinds end the walk here, leaving the step's own start board.
       if (!s.walkable) return { board: s.before, beats: acc };
       if (beat < acc + s.beats) {
+        // THE SELECTION IS CARRIED, not just the raw string. A scoped step stored as
+        // `"Head Boys Dosado"` reaches `evaluateCallAt` as one string, where `selection` is null - so
+        // the scoped path below never ran and a closing call animated nothing. Splitting it here is
+        // what hands the evaluator the step the walk already understood.
+        const stepForEval: string | CallStep = (() => {
+          if (isGroupStep(s.raw) || s.coded) return s.raw as string;
+          const spec = splitSelection(typeof s.raw === 'string' ? s.raw : s.raw.call);
+          return spec.selection ? { selection: spec.selection, call: spec.call } : s.raw;
+        })();
         const evBoard = isGroupStep(s.raw)
           ? this.evaluateGroupAt(s.before, s.raw, s.after, s.beats, beat - acc)
           : s.coded
             ? this.evaluateCodedAt(s.before, s.coded, beat - acc)
-            : this.evaluateCallAt(s.before, s.raw, s.info!, beat - acc);
+            : this.evaluateCallAt(s.before, stepForEval, s.info!, beat - acc);
         return { board: evBoard, beats: 0 };
       }
       board = s.after;
@@ -547,10 +614,57 @@ export class SequenceAnalyzer {
   private evaluateCallAt(board: Board, step: string | CallStep, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
     const name = typeof step === 'string' ? step : step.call;
     const selection = typeof step === 'string' ? null : step.selection ?? null;
-    if (selection) return this.evaluateParallelAt(board, step, info, localBeat);
+    if (selection && !this.selectedSubBoard(board, selection)) return this.evaluateParallelAt(board, step, info, localBeat);
     const whole = this.matcher.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
     if (whole) return this.evaluateVariantAt(board, whole, localBeat);
+    // A SCOPED STEP WHOSE CALL THE CATALOGUE AUTHORED FOR THE SUBSET, animated along that path.
+    //
+    // `evaluateParallelAt` below animates each group along the variant it tiled with, but it only gets
+    // there through `res.parallel`, and a step the APPLICATOR handled as a SELECTION reports no parallel
+    // grouping - so the group loop is skipped and the pose falls through to a straight blend against the
+    // APPLIED board. For a call whose authored motion CLOSES that blend is a no-op: `Head Boys Dosado`
+    // (variant `Opposite Boy`) traces a circular path of radius ~0.7 and total travel 2.36, and ends
+    // where it started, so the board was applied, charged its 8 beats, and NOTHING MOVED.
+    //
+    // The subset is built exactly as `applySelected` builds it - select, centre on the subset's own
+    // origin - so the variant that matches here is the one the applicator matched.
+    if (typeof step !== 'string' && step.selection) {
+      const sub = this.selectedSubBoard(board, step.selection);
+      if (sub) {
+        const m = this.matcher.findMatchingVariant(sub.board, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
+        if (m) {
+          const posed = this.evaluateVariantAt(sub.board, m, localBeat);
+          // Put the subset back where it stands: the centring is an artefact of the lookup, not part of
+          // the animation, and the dancers NOT in the selection keep their own pose.
+          const byId = new Map(posed.dancers.map((d) => [d.id, d]));
+          return {
+            dancers: board.dancers.map((d) => {
+              const p = byId.get(d.id);
+              return p ? { ...p, x: p.x + sub.cx, y: p.y + sub.cy } : d;
+            }),
+          };
+        }
+      }
+    }
     return this.evaluateParallelAt(board, step, info, localBeat);
+  }
+
+  /**
+   * The dancers a selection names, centred on their own origin - the sub-board `applySelected` builds,
+   * so a variant matched against it is the one the applicator matched. Null when the selection does not
+   * resolve.
+   */
+  private selectedSubBoard(board: Board, selection: string): { board: Board; cx: number; cy: number } | null {
+    const ids = this.resolveSelection(board, selection);
+    if (!ids || ids.length === 0) return null;
+    const byId = new Map(board.dancers.map((d) => [d.id, d]));
+    const selected = ids.map((id) => byId.get(id)).filter((d): d is SeqDancer => !!d);
+    if (selected.length === 0) return null;
+    let cx = 0, cy = 0;
+    for (const d of selected) { cx += d.x; cy += d.y; }
+    cx /= selected.length;
+    cy /= selected.length;
+    return { board: { dancers: selected.map((d) => ({ ...d, x: d.x - cx, y: d.y - cy })) }, cx, cy };
   }
 
   /**

@@ -21,9 +21,11 @@ import {
   type FsmTableData,
   type FsmEndKind,
   type FsmReading,
+  type FsmStateInfo,
   FSM_TABLE_SCHEMA_VERSION,
 } from './fsm-table.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
+import { bodyGap, worstBodyGap, BODY_OVERLAP_EPS, type BodyPair } from './bodies.js';
 import { HOME_DANCERS } from './identity.js';
 import { identifyByAssignment } from './identity.js';
 import { matchFormations } from './match.js';
@@ -67,6 +69,10 @@ export class Sequencer {
     this.applicator.setSelectionResolver((board, selection) => this.grouping.resolveSelection(board, selection));
     this.legality = new LegalityChecker(this.library, this.matcher, this.applicator, this.config);
     this.analyzer = new SequenceAnalyzer(this.library, this.matcher, this.applicator, this.config);
+    // The analyzer resolves a SCOPED step against its own subset (see `matchingVariantInfo`), and the
+    // Grouping that answers it is built from the applicator - hence the injection rather than a
+    // direct reference, the same shape as `setSelectionResolver` above.
+    this.analyzer.setSelectionResolver((board, selection) => this.grouping.resolveSelection(board, selection));
     this.solver = new HomeSolver(this.library, this.matcher, this.applicator, this.legality, this.config);
     this.fsmStore = new FsmStore(this.applicator, this.matcher, this.solver);
     this.board = makeSquaredSet();
@@ -268,6 +274,17 @@ export class Sequencer {
 
   setUseCollapsedModules(on: boolean): void {
     this.config.useCollapsedModules = on;
+  }
+
+  /**
+   * How the engine treats a call whose motion walks two dancers' bodies through each other.
+   *
+   * `'report'` (the default) detects it and records `bodyCollision` on the apply result without
+   * refusing; `'guard'` also refuses the offending tiling; `'off'` skips the check. See
+   * `SequencerConfig.bodyCollisionMode` for why `'report'` is the default rather than `'guard'`.
+   */
+  setBodyCollisionMode(mode: 'report' | 'guard' | 'off'): void {
+    this.config.bodyCollisionMode = mode;
   }
 
   // ---- board state ----
@@ -547,6 +564,26 @@ export class Sequencer {
     return this.legality.legalCalls(board);
   }
 
+  /**
+   * Whether `group` can actually perform `call` from `board` — the group prefixed onto the bare call
+   * and applied.
+   *
+   * WHY THIS EXISTS. A picker with a group chosen needs to know what THAT GROUP can do, and whole-board
+   * legality does not answer it: measured on a `Static Square` with `Head Boys`, whole-board legality
+   * listed `Promenade`, `Promenade 1/2` and `Swing Your Partner` as available, and the group cannot do
+   * any of the three. Offering a call and then refusing it is the picker disagreeing with itself.
+   *
+   * The reverse can also happen — a call legal for the group and not whole-board — so a group list built
+   * by filtering `legalNext` cannot be right in either direction. This asks the question the picker
+   * actually has.
+   */
+  groupCanPerform(board: Board, group: string, call: string): boolean {
+    const spec = splitSelection(call);
+    // A call that already names its own dancers is not the group's to perform ("Heads Square Thru 4").
+    if (spec.selection && spec.call) return false;
+    return this.applicator.applyToBoard(board, `${group} ${spec.call || call}`).legal;
+  }
+
   legalNext(): string[] {
     const base = this.legality.legalCalls(this.board);
     // A coded move is listed only when it actually applies: the pivots always do,
@@ -572,6 +609,49 @@ export class Sequencer {
     return this.grouping.resolveSelection(board, selection);
   }
 
+  /**
+   * The COMBINED selectors that resolve to a proper subset on `board` — the same rule
+   * `subsetGroups` applies, over combinations rather than single groups.
+   *
+   * WHY A FIXED OFFERED LIST RATHER THAN EVERY POSSIBLE COMBINATION. The grammar is general (any tokens
+   * intersect, any term unions, a negator subtracts — see `parseGroupExpression`), so the space is
+   * thousands of strings and most are nonsense ("Girls and Trailer Boys"). What a caller actually says
+   * is a short, well-known list, so this offers that and filters it by the board: a combination whose
+   * parts do not resolve where the dancers are standing is simply absent, exactly as `subsetGroups`
+   * omits `Centers` on a squared set.
+   *
+   * The order is the caller's own: the four named dancers a caller reaches for first, then the
+   * position/role pairs that depend on the formation, then the unions.
+   */
+  combinedGroups(board: Board): string[] {
+    const names: string[] = [];
+    // THE FOUR THE CALLER NAMES. "Head Boys" is two dancers, not the four heads.
+    for (const side of ['Head', 'Side']) {
+      for (const role of ['Boys', 'Girls', 'Men', 'Women', 'Beaus', 'Belles']) names.push(`${side} ${role}`);
+    }
+    // POSITION AND ROLE, which exist only in the formations that have them.
+    for (const pos of ['Center', 'End', 'Leader', 'Trailer', 'Very Center']) {
+      for (const role of ['Boys', 'Girls']) names.push(`${pos} ${role}`);
+    }
+    // UNIONS - the reference's `DoubleSelector`, e.g. the two diagonal pairs.
+    names.push(
+      'Head Boys and Side Girls',
+      'Head Girls and Side Boys',
+      'Head Boys and Head Girls',
+      'Side Boys and Side Girls',
+    );
+    return this.keepProperSubsets(board, names);
+  }
+
+  /** Keep the selectors that resolve to a non-empty group smaller than the whole board. */
+  private keepProperSubsets(board: Board, names: string[]): string[] {
+    const n = board.dancers.filter((d) => !d.isGhost).length;
+    return names.filter((s) => {
+      const ids = this.grouping.resolveSelection(board, s);
+      return !!ids && ids.length > 0 && ids.length < n;
+    });
+  }
+
   /** The acting-group selector strings that resolve to a proper (non-empty,
    * not-everyone) subset on `board`. */
   subsetGroups(board: Board): string[] {
@@ -580,11 +660,7 @@ export class Sequencer {
       'Ends', 'Couples', 'Leaders', 'Trailers', 'Beaus', 'Belles',
       'Couple #1', 'Couple #2', 'Couple #3', 'Couple #4',
     ];
-    const n = board.dancers.filter((d) => !d.isGhost).length;
-    return names.filter((s) => {
-      const ids = this.grouping.resolveSelection(board, s);
-      return !!ids && ids.length > 0 && ids.length < n;
-    });
+    return this.keepProperSubsets(board, names);
   }
 
 
@@ -745,12 +821,22 @@ export class Sequencer {
     // only the FIRST name of each geometry, so a name can be a recognised formation without being a
     // state; an edge labelled with it would dangle and be dropped by every consumer.
     const keyOf = new Map<string, string>();
-    const addState = (key: string, dancers: Matchable[]) => {
+    /**
+     * State key -> what authored it, for the states whose key is NOT their identity (the embedded
+     * ones). A named state needs nothing here. See `FsmStateInfo`.
+     */
+    const embeddedInfo = new Map<string, FsmStateInfo>();
+    const addState = (key: string, dancers: Matchable[], info?: FsmStateInfo) => {
       for (const [existingKey, existing] of stateGeo) {
         if (matchFormations(dancers, existing, 1.0) !== null) { keyOf.set(key, existingKey); return existing; }
       }
       stateGeo.set(key, dancers);
       keyOf.set(key, key);
+      // ONLY ON A NEW STATE, and only when there is something to record. A setup that folds into a
+      // state already registered (a named formation, or an earlier embedded setup with the same
+      // geometry) adds no state, so it has no node to label - the surviving node keeps the identity
+      // of whatever created IT.
+      if (info) embeddedInfo.set(key, info);
       return dancers;
     };
     // THE NAMED HALF IS LEVEL-SCOPED, and that is the whole of Stage 0b. `getUniqueFormations()` is
@@ -777,8 +863,12 @@ export class Sequencer {
     // the named half only supplies human-readable KEYS. That is the clean statement of the rule.
     for (const f of this.library.referencedFormations()) addState(f.name, f.dancers);
     // Then every call-variant start setup (embedded/inline formations).
-    for (const setup of this.library.allVariantSetups()) {
-      addState(`@embed#${stateGeo.size}`, setup);
+    //
+    // THE SOURCE CALL TRAVELS WITH EACH ONE. An embedded node's key is `@embed#N` where N is a COUNT of
+    // the states registered so far, so it points at nothing a reader can look up; recording the `<tam>`
+    // that authored the setup is what makes the node traceable back to a call. See `FsmStateInfo`.
+    for (const { dancers, title, from } of this.library.allVariantSetupsWithSource()) {
+      addState(`@embed#${stateGeo.size}`, dancers, { embedded: true, title, from });
     }
     const states = [...stateGeo.keys()];
     /**
@@ -929,7 +1019,7 @@ export class Sequencer {
         return { call, endFormation: end, reading, endKind, orientationDelta: 0 };
       });
     };
-    return FsmTable.build(states, enumerate, this.fsmStore.all());
+    return FsmTable.build(states, enumerate, this.fsmStore.all(), embeddedInfo);
   }
 
   // ---- transition table persistence ----
@@ -1155,16 +1245,62 @@ export class Sequencer {
     return out;
   }
 
-  collisions(board: Board, eps = 1e-3): { id1: number; id2: number }[] {
+  /**
+   * Pairs of dancers whose BODIES overlap on this board.
+   *
+   * WAS A CENTRE-DISTANCE TEST and that was the wrong measure — the repository recorded the 1.0-versus-
+   * 1e-3 disagreement between this and `BODY_COLLISION_MIN` without noticing that neither could be
+   * right, because a dancer is not round. `bodies.ts` owns the argument; the short version is that
+   * partners stand 2.0 apart facing the SAME way (clear) while two dancers 0.5 apart FACING EACH OTHER
+   * overlap, and no threshold on centre distance separates those two cases.
+   *
+   * `eps` is retained as the slack callers can pass; the body model supplies the actual extents. The
+   * default is `BODY_OVERLAP_EPS`, which is the tolerance the model itself uses, so the default reading
+   * matches `bodyOverlap`.
+   */
+  collisions(board: Board, eps = BODY_OVERLAP_EPS): { id1: number; id2: number }[] {
     const ds = board.dancers.filter((d) => !d.isGhost);
     const out: { id1: number; id2: number }[] = [];
     for (let i = 0; i < ds.length; i++) {
       for (let j = i + 1; j < ds.length; j++) {
-        if (Math.hypot(ds[i].x - ds[j].x, ds[i].y - ds[j].y) < eps) {
-          out.push({ id1: ds[i].id, id2: ds[j].id });
-        }
+        // Deliberately the SAME predicate as `bodyOverlap`, not a second copy of the geometry.
+        if (bodyGap(ds[i], ds[j]) < -eps) out.push({ id1: ds[i].id, id2: ds[j].id });
       }
     }
     return out;
+  }
+
+  /**
+   * The closest body pair on a board, or null when there is nothing to compare. The REPORTING form of
+   * `collisions`: a caller that wants the worst offender and how bad it is, not a boolean.
+   */
+  closestBodies(board: Board): BodyPair | null {
+    return worstBodyGap(board);
+  }
+
+  /**
+   * Body collisions anywhere in a whole sequence's ANIMATION, which is the question the per-board
+   * `collisions` cannot answer.
+   *
+   * WHY THIS EXISTS. `collisions` inspects ONE board — in practice an endpoint — and an endpoint is
+   * exactly where a call that walks two dancers through each other is LEAST likely to look wrong. The
+   * squared-set `Dosado` is the worked example: its endpoint is a clean 2.000, while mid-motion two
+   * bodies reach -0.390 of penetration. Nothing in the engine looked between the endpoints.
+   *
+   * Samples on a fixed beat grid (the `STEP = 0.5` convention `sequence-anim-collision-scan.mjs` uses,
+   * so the tool and the guard agree by construction) and returns the worst pair found, or null when the
+   * walk is clear throughout.
+   */
+  bodyCollisionsAt(flat: ModuleStep[], startBoard?: Board, step = 0.5): BodyPair | null {
+    const start = startBoard ?? this.board;
+    const beats = this.sequenceBeats(flat, start);
+    if (beats <= 0) return null;
+    let worst: BodyPair | null = null;
+    for (let b = 0; b <= beats + 1e-9; b += step) {
+      const board = this.evaluateSequence(flat, Math.min(b, beats), start).board;
+      const found = worstBodyGap(board);
+      if (found && (!worst || found.gap < worst.gap)) worst = found;
+    }
+    return worst;
   }
 }

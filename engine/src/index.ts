@@ -27,6 +27,36 @@ export type { HeadingMode } from './core.js';
 export { Sequencer } from './sequencer/sequencer.js';
 export type { SequenceStop } from './sequencer/sequence.js';
 export { assignHomeIdentity, identifyByAssignment, spotKey } from './sequencer/identity.js';
+// The CURRENT partner relation, which is NOT the home couple on `SeqDancer.couple`. See `couples.ts`
+// for why the two notions are separate and which consumers want which.
+export {
+  findCouplePairs,
+  currentCoupleNumbers,
+  currentCoupleOf,
+  areCurrentPartners,
+  currentHeadSide,
+  COUPLE_WIDTH,
+  COUPLE_WIDTH_TOL,
+  COUPLE_FACING_TOL,
+  FACING_COUPLE_MAX,
+} from './sequencer/couples.js';
+export type { CouplePair } from './sequencer/couples.js';
+// The ORIENTED body model: how much room is between two dancers, which is NOT the distance between
+// their centres. See `bodies.ts` for why a centre-distance test cannot answer this.
+export {
+  bodyGap,
+  bodyOverlap,
+  bodyAxes,
+  worstBodyGap,
+  overlappingDancers,
+  DANCER_HALF_FRONT_BACK,
+  DANCER_HALF_SIDE_SIDE,
+  BODY_OVERLAP_EPS,
+} from './sequencer/bodies.js';
+export type { BodyPair } from './sequencer/bodies.js';
+// The constants that decide when motion is refused, exported so an instrument cannot report a threshold
+// the engine does not enforce. `body-collision-scan.mjs` reads them rather than restating them.
+export { BODY_PATH_CLEARANCE, BODY_COLLISION_MIN } from './sequencer/applicator.js';
 export { makeSquaredSet, cloneBoard, reorderLike, boardSig, boardAtBeat } from './sequencer/board.js';
 export * from './sequencer/types.js';
 export { matchFormations, matchFormationsAll } from './sequencer/match.js';

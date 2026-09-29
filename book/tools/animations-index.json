@@ -568,14 +568,109 @@
       "file": "ms/circle.xml",
       "level": "ms",
       "fileName": "circle.xml",
-      "tamIndex": 30,
+      "tamIndex": 64,
       "from": "",
       "beats": 8,
       "frames": 0,
       "view": {
-        "scale": 36.191,
-        "units": 4.31
-      }
+        "scale": 43.333,
+        "units": 3.6
+      },
+      "starts": [
+        {
+          "label": "Facing Couples",
+          "calls": [
+            {
+              "title": "Circle Four Left Full",
+              "file": "ms/circle.xml",
+              "tamIndex": 64,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Left 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 67,
+              "from": "",
+              "beats": 2,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Left 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 66,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Left 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 65,
+              "from": "",
+              "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Right Full",
+              "file": "ms/circle.xml",
+              "tamIndex": 68,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Right 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 69,
+              "from": "",
+              "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Right 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 70,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Circle Four Right 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 71,
+              "from": "",
+              "beats": 2,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "m01c",
@@ -584,14 +679,109 @@
       "file": "ms/circle.xml",
       "level": "ms",
       "fileName": "circle.xml",
-      "tamIndex": 45,
+      "tamIndex": 92,
       "from": "",
-      "beats": 4,
+      "beats": 8,
       "frames": 0,
       "view": {
-        "scale": 39.867,
-        "units": 3.913
-      }
+        "scale": 43.333,
+        "units": 3.6
+      },
+      "starts": [
+        {
+          "label": "Facing Dancers",
+          "calls": [
+            {
+              "title": "Single Circle Left Full",
+              "file": "ms/circle.xml",
+              "tamIndex": 92,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Single Circle Left 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 93,
+              "from": "",
+              "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Single Circle Left 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 94,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Single Circle Left 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 95,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Single Circle Right Full",
+              "file": "ms/circle.xml",
+              "tamIndex": 100,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Single Circle Right 3/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 101,
+              "from": "",
+              "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Single Circle Right 1/2",
+              "file": "ms/circle.xml",
+              "tamIndex": 102,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Single Circle Right 1/4",
+              "file": "ms/circle.xml",
+              "tamIndex": 103,
+              "from": "",
+              "beats": 4,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "m02",
@@ -600,9 +790,9 @@
       "file": "ms/dosado.xml",
       "level": "ms",
       "fileName": "dosado.xml",
-      "tamIndex": 0,
-      "from": "Facing Couples",
-      "beats": 4,
+      "tamIndex": 2,
+      "from": "",
+      "beats": 6,
       "frames": 0,
       "view": {
         "scale": 43.333,
@@ -615,20 +805,101 @@
             {
               "title": "Dosado",
               "file": "ms/dosado.xml",
-              "tamIndex": 0,
-              "from": "Facing Couples",
-              "beats": 4,
+              "tamIndex": 2,
+              "from": "",
+              "beats": 6,
               "view": {
                 "scale": 43.333,
                 "units": 3.6
               }
             },
             {
-              "title": "Dosado to a Wave",
+              "title": "Left Dosado",
               "file": "ms/dosado.xml",
               "tamIndex": 3,
-              "from": "Facing Couples",
+              "from": "",
               "beats": 6,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            }
+          ]
+        },
+        {
+          "label": "Designated dancers from a Static Square",
+          "calls": [
+            {
+              "title": "Dosado",
+              "file": "ms/dosado.xml",
+              "tamIndex": 0,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Left Dosado",
+              "file": "ms/dosado.xml",
+              "tamIndex": 1,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
+        },
+        {
+          "label": "Opposite Boy",
+          "calls": [
+            {
+              "title": "Dosado",
+              "file": "ms/dosado.xml",
+              "tamIndex": 8,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Left Dosado",
+              "file": "ms/dosado.xml",
+              "tamIndex": 9,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            }
+          ]
+        },
+        {
+          "label": "Opposite Girl",
+          "calls": [
+            {
+              "title": "Dosado",
+              "file": "ms/dosado.xml",
+              "tamIndex": 10,
+              "from": "",
+              "beats": 8,
+              "view": {
+                "scale": 36.279,
+                "units": 4.3
+              }
+            },
+            {
+              "title": "Left Dosado",
+              "file": "ms/dosado.xml",
+              "tamIndex": 11,
+              "from": "",
+              "beats": 8,
               "view": {
                 "scale": 36.279,
                 "units": 4.3
@@ -2667,7 +2938,7 @@
       "file": "ms/dosado.xml",
       "level": "ms",
       "fileName": "dosado.xml",
-      "tamIndex": 3,
+      "tamIndex": 15,
       "from": "Facing Couples",
       "beats": 6,
       "frames": 0,
@@ -2682,7 +2953,7 @@
             {
               "title": "Dosado to a Wave",
               "file": "ms/dosado.xml",
-              "tamIndex": 3,
+              "tamIndex": 15,
               "from": "Facing Couples",
               "beats": 6,
               "view": {
@@ -2693,7 +2964,7 @@
             {
               "title": "Dosado",
               "file": "ms/dosado.xml",
-              "tamIndex": 0,
+              "tamIndex": 12,
               "from": "Facing Couples",
               "beats": 4,
               "view": {

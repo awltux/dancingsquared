@@ -37,6 +37,49 @@ const SUITE = [
   { h: 'shape-census', light: true },
   { h: 'verify', light: true },
   { h: 'sequencer', light: true },
+  // The CURRENT partner relation, which is not the home couple on `SeqDancer.couple`. Pins that a
+  // couple's number follows the dancers as they change partners (`Square Thru 2` from a squared set
+  // is the witness), that an unpaired dancer keeps its home couple, and that no number is invented
+  // from an array index. ~1s, corpus-driven, and the only coverage of the relation at all.
+  { h: 'couples', light: true },
+  // A DANCER IS NOT A ROUND POINT. `bodies.ts` replaces centre distance with an oriented box (1.0
+  // side-to-side by 0.5 front-to-back), and this pins the values the spec fixes by hand (partners at
+  // the standard 2.0 width have exactly 1.000 of air), the orientation cases a centre-distance test
+  // cannot separate, and that the four-axis separating-axis answer is exact rather than an axis-aligned
+  // approximation (which overstates clearance by 0.596 in the case pinned). Pure arithmetic, ~0s.
+  { h: 'bodies', light: true },
+  // THE PATH GUARD. Pins that the reported squared-set `Dosado` is DETECTED as an interpenetration
+  // (-0.390 on 1+4) while its ENDPOINT stays clean at 2.000 — which is why no endpoint threshold could
+  // have caught it — that a legitimate two-dancer `Dosado` is NOT flagged, and that the three modes
+  // (report/guard/off) behave. Corpus-driven but one board: ~2s.
+  { h: 'body-collision', light: true },
+  // Combined dancer groups — `Head Boys`, `Center Girls`, `Head Boys and Side Girls`, `All Except X`.
+  // The grammar is the reference's (tokens intersect within a side, sides union, a negator subtracts),
+  // and this is the only coverage of it. It also pins that a call TITLE beginning with a group word
+  // (`Boys Trade`) still reaches the whole-board reading, which is the collision the splitter could
+  // introduce. ~1s, corpus-driven.
+  { h: 'combined-groups', light: true },
+  // What a CHOSEN GROUP can actually perform, which is the question the Sequencer's call picker has.
+  // Pins the two measured defects: the picker showing "no calls, just Modules" (every whole-set call
+  // dropped by a bad guard) and its list offering `Promenade`/`Swing Your Partner` to `Head Boys`,
+  // which the group cannot do. ~1s.
+  { h: 'group-calls', light: true },
+  // A SCOPED call must charge its beats AND move. `Head Boys Dosado` used to be applied, charged zero
+  // beats, and animate nothing - the walk could not find a variant for a scoped step, and the authored
+  // motion (`Opposite Boy`, a closing circular path) was never followed. ~1s.
+  { h: 'scoped-animation', light: true },
+  // A title authored TWICE, with the WRONG stance first in the file - `Single Circle Left Full` in
+  // `ms/circle.xml`. `parallelApply` used to return on the first setup that tiled and discard its
+  // error, so document order decided which of two readings of the same call was danced. In `light`
+  // because it is one call on one board: ~1s, and it is the only coverage of the variant-selection
+  // order at all.
+  { h: 'scircle-instance', light: true },
+  // `CallLibrary.register` used to `set` the title's variant list, so a SECOND registration for one
+  // title silently replaced the first instead of adding to it - and the format's identity for a setup
+  // is `(title, formation xor from)`, which a title-only key discards. This pins that two authorings
+  // survive two `register` calls, that one call carrying both still keeps both, and that
+  // re-registering the identical setup does not inflate the list. ~1s, corpus-driven.
+  { h: 'scircle-register', light: true },
   // The module model and the "while" step (`GroupStep`): CALLERLAB's "Centers Square Thru while
   // Outsides Trade", which the catalogue could previously only express by hand-authoring every
   // dancer's path inside one `<tam>`. Pins the four rules the step promises (disjoint, atomic,

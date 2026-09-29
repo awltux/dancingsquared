@@ -23,7 +23,27 @@ export interface FsmEdgeData {
   reading?: 'whole' | 'full-tiling' | 'partial';
   endKind?: 'state' | 'out-of-scope' | 'novel';
 }
-export interface FsmGraphData { states: string[]; edges: Record<string, FsmEdgeData[]> }
+/**
+ * WHAT AN EMBEDDED STATE IS. A named state's key IS its identity; an embedded one is a formation the
+ * corpus never declared - it is the start setup of some `<tam>` - and its key is `@embed#N` with N a
+ * COUNT of the states registered so far, so it points at nothing a reader can look up.
+ *
+ * Schema 3 records the authoring call instead. `title`/`from` are the fields the format uses for a
+ * call's identity everywhere else, and they are enough to FIND the `<tam>`: the pair is unique per
+ * authoring, which is exactly why `register` keys variants on it.
+ */
+export interface FsmStateInfoData {
+  embedded: boolean;
+  title: string;
+  from: string;
+}
+
+export interface FsmGraphData {
+  states: string[];
+  edges: Record<string, FsmEdgeData[]>;
+  /** Per-state identity for the states whose key does not say it. Absent on a schema <3 asset. */
+  stateInfo?: Record<string, FsmStateInfoData>;
+}
 
 /**
  * The union of several levels' precomputed tables, which is what "All levels" draws.
@@ -48,7 +68,11 @@ export function mergeFsmTables(tables: FsmGraphData[]): FsmGraphData {
     }
   }
   const edges: Record<string, FsmEdgeData[]> = {};
+  const stateInfo: Record<string, FsmStateInfoData> = {};
   for (const t of tables) {
+    // The identity travels with the state, so the union keeps whichever table knows it. A state two
+    // levels both call embedded is the SAME geometry, and the first table to name it names it.
+    for (const [s, i] of Object.entries(t.stateInfo ?? {})) if (!(s in stateInfo)) stateInfo[s] = i;
     for (const [state, list] of Object.entries(t.edges ?? {})) {
       const out = (edges[state] ??= []);
       for (const e of list) {
@@ -57,7 +81,7 @@ export function mergeFsmTables(tables: FsmGraphData[]): FsmGraphData {
       }
     }
   }
-  return { states, edges };
+  return { states, edges, ...(Object.keys(stateInfo).length ? { stateInfo } : {}) };
 }
 
 /**
@@ -88,7 +112,22 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   const edgesFor = (s: string): FsmEdgeData[] => data.edges?.[s] ?? [];
   const HOME = 'Static Square';
   const idx = new Map(states.map((s, i) => [s, i]));
-  const label = (s: string) => (s.startsWith('@embed') ? `embedded #${s.slice(7)}` : s);
+  /**
+   * THE KEY's OWN NUMBER, kept as the bare `#44`. The sidebar and edge lists identify a node by it, and
+   * it is the thing a lockstep reader matches against the asset - so the NUMBER must not move.
+   */
+  const embedNumber = (s: string) => `#${s.slice(7)}`;
+  /**
+   * The full name, which now names the AUTHORING CALL. `@embed#N` alone is a count with nothing behind
+   * it, so before schema 3 an embedded node could not be traced to the `<tam>` that produced it; the
+   * recorded `title`/`from` is that trace. A state with no recorded info falls back to the bare number,
+   * which is what a schema <3 asset has.
+   */
+  const label = (s: string): string => {
+    if (!s.startsWith('@embed')) return s;
+    const info = data.stateInfo?.[s];
+    return info ? `embedded ${embedNumber(s)} · ${info.title}${info.from ? ` (${info.from})` : ''}` : `embedded ${embedNumber(s)}`;
+  };
   const n = states.length;
 
   const hasOutgoing = states.map((s) => edgesFor(s).length > 0);
@@ -174,7 +213,7 @@ export function renderFsmHtml(data: FsmGraphData, title = 'FSM', level = ''): st
   const FILL: Record<string, string> = { home: '#0a7d33', ok: '#3a9a5f', nohome: '#e8950c', dead: '#d63a3a' };
   const nodeSvg = states.map((s, i) => {
     const st = status(i); const p = pos[i]; const r = st === 'home' ? 20 : 13;
-    return `<g class="node" data-status="${st}" data-i="${i}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})"><title>${esc(label(s))}${st === 'dead' ? ' — DEAD END (no call)' : st === 'nohome' ? ' — no route home' : ''}</title><circle class="nhit" r="${r + 7}" fill="transparent" pointer-events="all"/><circle class="nd" data-r="${r}" r="${r}" fill="${FILL[st]}" stroke="#00000022" stroke-width="1.2" vector-effect="non-scaling-stroke"/><text class="ndt" pointer-events="none" data-r="${r}" y="${r + 20}" text-anchor="middle" font-size="16">${esc(s.startsWith('@embed') ? '#' + s.slice(7) : s)}</text></g>`;
+    return `<g class="node" data-status="${st}" data-i="${i}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})"><title>${esc(label(s))}${st === 'dead' ? ' — DEAD END (no call)' : st === 'nohome' ? ' — no route home' : ''}</title><circle class="nhit" r="${r + 7}" fill="transparent" pointer-events="all"/><circle class="nd" data-r="${r}" r="${r}" fill="${FILL[st]}" stroke="#00000022" stroke-width="1.2" vector-effect="non-scaling-stroke"/><text class="ndt" pointer-events="none" data-r="${r}" y="${r + 20}" text-anchor="middle" font-size="16">${esc(s.startsWith('@embed') ? embedNumber(s) : s)}</text></g>`;
   }).join('');
   const eg = new Map<string, string[]>();
   for (const e of edges) { const key = `${e.from}|${e.to}`; (eg.get(key) ?? eg.set(key, []).get(key)!).push(e.call); }

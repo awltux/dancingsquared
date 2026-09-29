@@ -203,11 +203,21 @@ refused('dancers on the same spot', {
 //
 // MEASURED on the board `figm` #31/#83 reaches (the chain `... Pass Thru | Trade By | Swing Your
 // Partner | Promenade`): an Eight Chain Thru whose physical couples are (#1B,#6G), (#2G,#5B),
-// (#3B,#4G), (#7B,#8G) — every one a man and a woman two apart — while the stored identity pairs #1
-// with #2 and #5 with #6, putting those two "couples" six apart across the set. Without the
-// convention Promenade anchors couple 1 north and couple 2 east, calls the ring out of sequence and
-// refuses; with it the four physical couples anchor two-to-a-side, the ring does not exist yet, and
-// the call proceeds — which is right, because forming the ring is part of the call.
+// (#3B,#4G), (#7B,#8G) — every one a man and a woman two apart.
+//
+// THE STALE CASE THIS GATE WAS WRITTEN FOR IS GONE, and that is a fix rather than a loss. The chain
+// used to end with the stored identity pairing #1 with #2 and #5 with #6, six apart across the set,
+// because the `Boys Run` inside it picked its partner from the HOME couple: at that point `#1` faced
+// south and `#8` faced north, so no pair was standing as a couple and the fallback named `#6` - who
+// was FOUR units away, and not beside the runner at all. `Run` now reads the current pairing
+// (`couples.ts`), `#1` and `#8` are co-facing and two apart at that moment, and the run takes the
+// dancer beside it. The chain therefore arrives at a board whose physical couples and stored couples
+// AGREE, so `Promenade` no longer needs the convention to resolve THIS board.
+//
+// The convention itself is still exercised, and still must not weaken the in-sequence refusal below.
+// What this block pins now is the property the chain can still witness: the physical couples are the
+// side-by-side pairs, and `Promenade` is legal there. If a future change makes the chain stale again,
+// the assertions still hold — and the note above says what to look for.
 {
   console.log('\n== 3b. CALLERLAB\'s temporary couple number, read where identity is used ==');
   // The exact board, built by replaying the published chain rather than by hardcoding coordinates.
@@ -228,15 +238,18 @@ refused('dancers on the same spot', {
       byId.get(a).heading === byId.get(c).heading;
     if (!(side(1, 6) && side(2, 5) && side(3, 4) && side(7, 8))) {
       fail('figm31 witness: the physical couples are not two apart side by side');
-    } else if (!(byId.get(1).couple !== byId.get(6).couple)) {
-      fail('figm31 witness: the physical pair (#1,#6) already shares a stored couple, so it proves nothing');
-    } else if (Math.abs(Math.hypot(byId.get(1).x - byId.get(2).x, byId.get(1).y - byId.get(2).y) - 6) > 0.35) {
-      fail('figm31 witness: the STORED couple (#1,#2) is not six apart, so it is not the stale case');
     } else {
-      ok('the witness really is an Eight Chain Thru whose physical pairs have progressed past their stored couples');
+      // The physical pairs are the side-by-side pairs, which is the fact `Promenade` anchors the ring
+      // from. Whether the STORED couples disagree is reported rather than required: the chain used to
+      // end stale (see the note above) and now ends consistent, and both are valid boards for the
+      // property under test. Requiring the stale shape would make the gate fail on the fix.
+      ok('the witness is an Eight Chain Thru whose physical pairs are the side-by-side pairs');
+      const spread = Math.hypot(byId.get(1).x - byId.get(2).x, byId.get(1).y - byId.get(2).y);
+      console.log(`  (#1,#2) separation: ${spread.toFixed(2)}` +
+        ` - ${spread > 2.35 ? 'STALE, the case this gate was written for' : 'the chain now ends with the stored couples together'}`);
       const r = seq.applyToBoard(b, 'Promenade');
-      if (!r.legal) fail(`Promenade must be legal once the temporary couple number is read: ${r.reason}`);
-      else ok('Promenade is legal there: the progressed couples anchor two-to-a-side, so the ring is not yet formed');
+      if (!r.legal) fail(`Promenade must be legal on the chain's own board: ${r.reason}`);
+      else ok('Promenade is legal there: the physical couples anchor two-to-a-side');
     }
   }
   // ...and the convention must NOT weaken the genuine in-sequence refusal: a set whose rings are

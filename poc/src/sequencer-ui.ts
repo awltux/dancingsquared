@@ -81,6 +81,7 @@ export class SequencerController implements SequencerUI {
   // DOM elements.
   private levelSelect = el<HTMLSelectElement>('seqLevel');
   private marginInput = el<HTMLInputElement>('seqMargin');
+  private groupSelect = el<HTMLSelectElement>('seqGroup');
   private callSelect = el<HTMLSelectElement>('seqCallSelect');
   private applyBtn = el<HTMLButtonElement>('seqApply');
   private undoBtn = el<HTMLButtonElement>('seqUndo');
@@ -412,12 +413,60 @@ export class SequencerController implements SequencerUI {
     this.render();
   }
 
+  /**
+   * Rebuild the DANCER GROUP picker for the board the sequence is standing in.
+   *
+   * The list is the engine's own: `subsetGroups` for single groups and `combinedGroups` for
+   * combinations such as `Head Boys` (the two dancers, not the four heads), `Center Girls`,
+   * `Head Boys and Side Girls`. Both resolve each candidate against the board and keep only those that
+   * are a proper subset of it — so `Centers`/`Leaders` combos appear where they exist and are absent
+   * where they do not, rather than being offered and then refused. `All 8` is prepended as the default:
+   * it is not a selection at all, it is the whole-board reading.
+   *
+   * THE COMBINATIONS ARE A SEPARATE optgroup, because a single group is the common case and a list
+   * where `Heads` sits between `Head Boys` and `Head Girls` is harder to scan than one grouped by kind.
+   *
+   * THE OPTIONS ARE ONLY REBUILT WHEN THEY CHANGE, and the value is re-applied in the same step. This
+   * runs on every board change, and resetting the value on each one would silently drop the caller's
+   * group the moment the board moved - which is exactly when they least want to re-pick it.
+   */
+  private refreshGroupSelect() {
+    const singles = this.seq.subsetGroups(this.seq.board);
+    const combined = this.seq.combinedGroups(this.seq.board);
+    const prev = this.groupSelect.value || 'All 8';
+    const all = ['All 8', ...singles, ...combined];
+    const same = this.groupSelect.options.length === all.length
+      && all.every((g, i) => this.groupSelect.options[i]?.value === g);
+    if (!same) {
+      this.groupSelect.innerHTML = '';
+      this.groupSelect.add(new Option('All 8', 'All 8'));
+      const addAll = (label: string, names: string[]) => {
+        if (!names.length) return;
+        const og = document.createElement('optgroup');
+        og.label = label;
+        for (const n of names) og.appendChild(new Option(n, n));
+        this.groupSelect.appendChild(og);
+      };
+      addAll('Groups', singles);
+      addAll('Combinations', combined);
+    }
+    this.groupSelect.value = all.includes(prev) ? prev : 'All 8';
+  }
+
+  /** The group the caller has chosen, as it will be prefixed onto a call. Null for `All 8`. */
+  private chosenGroup(): string | null {
+    const g = this.groupSelect.value;
+    return !g || g === 'All 8' ? null : g;
+  }
+
   /** The call picker shows ONLY calls (and modules) legal from the current board.
    * Calls that act on a dancer subset are grouped under their selector so they
    * are visually distinct from whole-board calls. */
   private refreshCallSelect() {
+    this.refreshGroupSelect();
     const prev = this.callSelect.value;
     const legal = this.seq.legalNext().sort((a, b) => a.localeCompare(b));
+    const group = this.chosenGroup();
     const modules = legal.filter((n) => this.seq.isModule(n));
     const calls = legal.filter((n) => !this.seq.isModule(n));
     const whole: string[] = [];
@@ -425,26 +474,50 @@ export class SequencerController implements SequencerUI {
     for (const n of calls) {
       const s = splitSelection(n).selection;
       if (s && !['all', 'everybody', 'everyone', 'all 8', 'all 4 couples'].includes(s.toLowerCase())) {
-        const arr = bySel.get(s) ?? [];
-        arr.push(n);
-        bySel.set(s, arr);
-      } else {
-        whole.push(n);
+        // WITH A GROUP CHOSEN, THE GROUP PICKER IS THE ONE SOURCE OF WHO ACTS. A call the engine only
+        // offers as a fixed selection ("Heads Square Thru 4") is shown by its BARE name here, and the
+        // chosen group is prefixed back on at Apply - so the list never reads "Heads ..." while the
+        // group picker says Sides, which is what two competing selectors would do.
+        if (group) {
+          if (s.toLowerCase() === group.toLowerCase()) whole.push(splitSelection(n).call);
+        } else {
+          const arr = bySel.get(s) ?? [];
+          arr.push(n);
+          bySel.set(s, arr);
+        }
+      } else if (!s) {
+        // A WHOLE-SET CALL IS POSSIBLE FOR A GROUP, so it is offered - but only when the GROUP can
+        // actually perform it. Asking whole-board legality here was wrong in BOTH directions: measured
+        // on a Static Square with `Head Boys`, it offered `Promenade`, `Promenade 1/2` and `Swing Your
+        // Partner` (which the group cannot do) and could never surface a call legal for the group and
+        // not whole-board. `groupCanPerform` composes the group and applies it, which is the question
+        // the picker actually has.
+        //
+        // THIS IS ALSO WHERE THE EMPTY-PICKER BUG WAS. The guard used to read `else if (!group || s)`
+        // with an inner `if (!group || !s)`, so for an unprefixed call with a group chosen BOTH were
+        // false and EVERY whole-set call was dropped - the picker showed "no calls, just Modules".
+        // MEASURED on a Static Square with `Head Boys`: 53 whole-set calls including `Dosado`, all
+        // discarded, which is the reported "Dosado is not offered".
+        const bare = splitSelection(n).call;
+        if (!group || this.seq.groupCanPerform(this.seq.board, group, bare)) whole.push(bare);
       }
     }
     this.callSelect.innerHTML = '';
-    this.callSelect.add(new Option('— valid next call —', ''));
-    const group = (label: string, names: string[]) => {
+    this.callSelect.add(new Option(group ? `— call for ${group} —` : '— valid next call —', ''));
+    const addGroup = (label: string, names: string[]) => {
       if (!names.length) return;
       const og = document.createElement('optgroup');
       og.label = label;
-      for (const n of names) og.appendChild(new Option(n, n));
+      for (const n of [...new Set(names)].sort((a, b) => a.localeCompare(b))) og.appendChild(new Option(n, n));
       this.callSelect.appendChild(og);
     };
-    group('Whole-set calls', whole);
-    for (const sel of [...bySel.keys()].sort()) group(`Subset: ${sel}`, bySel.get(sel)!);
-    group('Modules', modules);
-    if (prev && legal.includes(prev)) this.callSelect.value = prev;
+    addGroup(group ? `Whole-set or ${group}` : 'Whole-set calls', whole);
+    for (const sel of [...bySel.keys()].sort()) addGroup(`Subset: ${sel}`, bySel.get(sel)!);
+    addGroup('Modules', modules);
+    // Keep the previous pick only when THIS list actually offers it - the values are bare names now,
+    // so asking `legal` (which carries prefixes) would compare against a different vocabulary.
+    const offered = [...this.callSelect.options].map((o) => o.value);
+    if (prev && offered.includes(prev)) this.callSelect.value = prev;
     // Remember which board this list answers for, so `settlePlayhead` can skip a redundant rebuild.
     this.listBoardKey = boardKey(this.seq.board);
     this.updateFormationSelect();
@@ -840,8 +913,14 @@ export class SequencerController implements SequencerUI {
   }
 
   private applySelected() {
-    const name = this.callSelect.value;
-    if (!name) return;
+    const picked = this.callSelect.value;
+    if (!picked) return;
+    // THE CHOSEN GROUP IS PREFIXED HERE, and this is the one place it is applied. The picker offers
+    // BARE call names whenever a group is selected (see `refreshCallSelect`), so the group is added
+    // once, at the point of use - and what goes into `history` is the composed name, which is what
+    // `replayHistory` re-applies and what the sequence/All8 views show.
+    const group = this.chosenGroup();
+    const name = group ? `${group} ${picked}` : picked;
     this.replayHistory();
     const step = this.seq.apply(name);
     if (!step.legal) {
@@ -1152,6 +1231,12 @@ export class SequencerController implements SequencerUI {
   private wireEvents() {
     this.applyBtn.addEventListener('click', () => this.applySelected());
     this.callSelect.addEventListener('change', () => (this.statusEl.textContent = ''));
+    // Changing the GROUP re-reads the call list for that group - the picker offers the calls that group
+    // can actually do, so the two selectors cannot disagree about who acts.
+    this.groupSelect.addEventListener('change', () => {
+      this.statusEl.textContent = '';
+      this.refreshCallSelect();
+    });
     this.undoBtn.addEventListener('click', () => this.undo());
     this.resetBtn.addEventListener('click', () => this.reset());
     this.getoutBtn.addEventListener('click', () => this.showGetout());

@@ -36,6 +36,7 @@
 //     not modelled, because our board carries no hand state into a derived apply.
 
 import { normAngle } from '../moves.js';
+import { areCurrentPartners } from './couples.js';
 import type { Board } from './types.js';
 
 /** A board dancer, narrowed to what these rules read. */
@@ -62,9 +63,18 @@ function relative(a: D, b: D): { forward: number; lateral: number } {
   return { forward: dx * c + dy * s, lateral: -dx * s + dy * c };
 }
 
-/** Whether `a` and `b` are declared partners (same known home couple, different dancers). */
-function arePartners(a: D, b: D): boolean {
-  return !!a.couple && a.couple === b.couple && a.id !== b.id;
+/**
+ * Whether `a` and `b` are partners — the dancers standing together NOW.
+ *
+ * THIS USED TO COMPARE HOME COUPLES (`a.couple === b.couple`), and that is the defect `fold.ts`
+ * records: `couple` is the dancer's HOME couple, so after any call that changes partners the two
+ * dancers it names are no longer beside each other — a boy in a wave ended up with his "partner" six
+ * units away at the other end. A Run's partner preference is about who is standing next to you.
+ *
+ * Read from the board rather than from a stored pairing, so it follows the dancers as they move.
+ */
+function arePartners(board: Board, a: D, b: D): boolean {
+  return areCurrentPartners(board, a.id, b.id);
 }
 
 /** How far off the lateral axis a dancer may stand and still count as being BESIDE the
@@ -140,9 +150,10 @@ function exchange(board: Board, pairs: [D, D][], flipRunner: boolean): Board {
  * Side selection follows `run.dart`: a dancer can only run around someone on a side that has a
  * non-designated dancer on it, and when BOTH sides are open the reference runs around the
  * PARTNER (a Run past your partner is the common reading; the `usePartner` pass in `run.dart`
- * only fires once the unambiguous assignments have been made). Identity is real data - a board
- * with unknown couples simply has no partner preference, which is why `arePartners` requires a
- * known couple rather than falling back to array position.
+ * only fires once the unambiguous assignments have been made). That preference is read from the board
+ * (`couples.ts`), so it names the dancer standing next to you NOW - see `arePartners`. A board whose
+ * dancers are not standing as couples simply has no partner preference, and the spatial search
+ * decides instead of falling back to array position.
  */
 export function runRule(board: Board, selectedIds: number[], dir?: 'left' | 'right'): { board: Board } | { reason: string } {
   const phys = physical(board);
@@ -181,7 +192,7 @@ export function runRule(board: Board, selectedIds: number[], dir?: 'left' | 'rig
     const side = dir === 'left' ? left
       : dir === 'right' ? right
       : (left.length > 0 && right.length > 0
-        ? (left.some((w) => arePartners(runner, w)) ? left : right)
+        ? (left.some((w) => arePartners(board, runner, w)) ? left : right)
         : (left.length > 0 ? left : right));
     if (side.length === 0) {
       return {

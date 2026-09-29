@@ -21,6 +21,7 @@
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf, normAngle } from '../moves.js';
 import { promenadeApplies, promenadeFraction, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS } from './promenade.js';
 import { isKnownCouple } from './constants.js';
+import { findCouplePairs, type CouplePair } from './couples.js';
 import { runRule, tradeRule } from './trade-run.js';
 import { foldRule } from './fold.js';
 import { sweepBox, sweepProblem, sweepCollision } from './sweep.js';
@@ -90,18 +91,24 @@ export const SWING_THRU_BEATS = 6;
  * says `Swing  Swing (your partner or your corner, etc.)`, the Mainstream call — is emitted as
  * `Swing Your Partner` by the token table instead, leaving the A2 family untouched.
  */
+/**
+ * The current pairs, grouped by the number the pair carries (the boy's). Shaped as a Map so it can be
+ * checked by the same rule the home grouping is checked by.
+ */
+function pairUp(pairs: CouplePair[]): Map<number, Board['dancers'][number][]> {
+  const out = new Map<number, Board['dancers'][number][]>();
+  for (const { boy, girl } of pairs) {
+    const list = out.get(boy.couple) ?? [];
+    list.push(boy, girl);
+    out.set(boy.couple, list);
+  }
+  return out;
+}
+
 function swingProblem(board: Board): string | null {
   const phys = board.dancers.filter((d) => !d.isGhost);
   if (phys.length === 0) return 'Swing needs dancers to swing';
-  const couples = new Map<number, Board['dancers'][number][]>();
-  for (const d of phys) {
-    if (!isKnownCouple(d.couple)) {
-      return 'Swing needs dancers with a known home couple: you swing your PARTNER, and this board carries no identity';
-    }
-    const list = couples.get(d.couple) ?? [];
-    list.push(d);
-    couples.set(d.couple, list);
-  }
+
   // THE PAIRING IS THE PRECONDITION; THE SEPARATION IS NOT.
   //
   // A swing brings you and your partner TOGETHER, so where the two of you are standing when the call
@@ -112,22 +119,61 @@ function swingProblem(board: Board): string | null {
   // an Eight Chain Thru (11) or an unnamed board (4) - i.e. it refused the call's most common use,
   // because in a wave nobody is holding their partner.
   //
-  // The transform below is still the identity, which means the couple's END POSE is not modelled -
-  // only the pairing is. That is the fidelity gap 9e-1 recorded, and it is why this call is now
-  // paired with `Promenade`: every one of the 48 figures calls Promenade next, and Promenade forms
-  // the ring and normalises the square, so the pairing is enough to get them there. A figure that
-  // swings and then continues elsewhere would still see the pre-swing board, and that is recorded in
-  // PLAN.md rather than hidden here.
-  for (const [couple, list] of couples) {
-    if (list.length !== 2) return `couple ${couple} does not have exactly two dancers, so there is no partner to swing`;
-    if (list[0].gender === list[1].gender) {
-      return `couple ${couple} is not a man and a woman, so there is no partner to swing`;
+  // The transform is still the identity, which means the couple's END POSE is not modelled - only the
+  // pairing is. That is the fidelity gap 9e-1 recorded, and it is why this call is paired with
+  // `Promenade`: every one of the 48 figures calls Promenade next, and Promenade forms the ring and
+  // normalises the square, so the pairing is enough to get them there. A figure that swings and then
+  // continues elsewhere would still see the pre-swing board, and that is recorded in PLAN.md rather
+  // than hidden here.
+
+  // WHICH PAIRING? THE CURRENT ONE, and this is a correction. The pairs used to be collected by
+  // `d.couple`, which is the dancer's HOME couple - so after any call that changes partners the
+  // precondition was asking about a partnership that no longer stands. `Square Thru 2` from a squared
+  // set is the measured witness: `#6` ends beside `#1` and `#2` beside `#5`, so the current couples
+  // are (5,2) (1,6) (3,4) (7,8) while the home couples still read (5,6) (1,2) (3,4) (7,8). "You swing
+  // your PARTNER" is a fact about the dancers who are standing together NOW.
+  //
+  // THE HOME READING IS KEPT AS A FALLBACK, which makes this strictly more permissive and never less:
+  // wherever the home pairing was usable it still is, and a board whose current pairing does not
+  // resolve (a wave, where nobody is holding a partner) falls back rather than refusing.
+  const current = pairUp(findCouplePairs(board));
+  const byIdentity = new Map<number, Board['dancers'][number][]>();
+  for (const d of phys) {
+    if (!isKnownCouple(d.couple)) {
+      return 'Swing needs dancers with a known home couple: you swing your PARTNER, and this board carries no identity';
     }
+    const list = byIdentity.get(d.couple) ?? [];
+    list.push(d);
+    byIdentity.set(d.couple, list);
   }
-  return null;
+  // A pairing is usable when every pair is exactly two dancers, a man and a woman. The current
+  // pairing is preferred and the home pairing is the fallback, BUT ONLY WHERE THE CURRENT PAIRING
+  // ACTUALLY COVERS THE BOARD: `findCouplePairs` leaves a same-gender pair out entirely, so a square
+  // of two-girl couples would otherwise report "no pairs" and slip through as legal. An incomplete
+  // pairing is not a permissive answer, it is an unresolved one - fall back and let the home reading
+  // report the real problem.
+  const problems = (pairs: Iterable<Board['dancers'][number][]>): string[] => {
+    const out: string[] = [];
+    for (const list of pairs) {
+      if (list.length !== 2) out.push(`a pair does not have exactly two dancers, so there is no partner to swing (${list.length})`);
+      else if (list[0].gender === list[1].gender) out.push(`a pair is not a man and a woman, so there is no partner to swing (${list[0].gender}/${list[1].gender})`);
+    }
+    return out;
+  };
+  const currentCovered = [...current.values()].reduce((n, list) => n + list.length, 0);
+  if (currentCovered === phys.length) {
+    const currentProblems = problems(current.values());
+    if (currentProblems.length === 0) return null;
+    // The current pairing covers everyone and is still not swingable: say why, rather than falling
+    // back to a home pairing that no longer describes who is standing together.
+    return currentProblems[0];
+  }
+  const homeProblems = problems(byIdentity.values());
+  return homeProblems.length === 0 ? null : homeProblems[0];
 }
 
-/** The swing itself: the identity transform, because the authored motion returns every dancer to
+/**
+ * The swing itself: the identity transform, because the authored motion returns every dancer to
  * its own spot and facing (see `swingProblem`).
  *
  * A FIRST ATTEMPT AT MODELLING THE CLOSURE IS REFUTED, and the measurement is worth keeping so it is

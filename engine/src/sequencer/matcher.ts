@@ -8,6 +8,7 @@ import { matchFormations, type FormationMatch, type Matchable } from './match.js
 import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, KNOWN_FORMATION_MAX, STANDARD_FORMATIONS, canonicalName } from './constants.js';
+import { findCouplePairs, COUPLE_WIDTH, COUPLE_WIDTH_TOL } from './couples.js';
 import { DEG } from '../core.js';
 import type { CallBundle, DancerSpec, Seg } from '../types.js';
 import type { Board, RecognizedFormation, VariantMatch } from './types.js';
@@ -45,39 +46,26 @@ const MATCH_TIE_EPS = 1e-9;
  */
 export const PAIR_GENDER_CALLS = new Set(['allemande left']);
 
-/** How far apart the two dancers of a couple stand. */
-const COUPLE_WIDTH = 2.0;
-const COUPLE_WIDTH_TOL = 0.35;
+/** The standard couple separation is owned by `couples.ts`, which is the ONE definition of "standing
+ *  as a couple". Re-exported so existing readers keep working. */
+export { COUPLE_WIDTH, COUPLE_WIDTH_TOL } from './couples.js';
 
 /**
  * Whether every physical dancer is part of a couple — two dancers `COUPLE_WIDTH` apart, side by
  * side, facing the same way — and every one of those couples is a man and a woman. A board that is
  * not a couple arrangement at all (a wave, a line, facing couples, a broken body) is NOT eligible:
  * this is a relaxation of the gender gate only, never of the geometry.
+ *
+ * THE PAIRING ITSELF LIVES IN `couples.ts`, which is the ONE definition of "standing as a couple"
+ * (`findCouplePairs`). This asks the same question the partner relation does, so the two cannot drift
+ * into disagreeing about what a couple is - which is exactly how `boardHasCoupleGenderPairs` and the
+ * partner logic came to be two implementations of one rule.
  */
 export function boardHasCoupleGenderPairs(board: Board): boolean {
   const phys = board.dancers.filter((d) => !d.isGhost);
   if (phys.length === 0 || phys.length % 2 !== 0) return false;
-  const used = new Set<number>();
-  let pairs = 0;
-  for (const d of phys) {
-    if (used.has(d.id)) continue;
-    let mate: (typeof phys)[number] | null = null;
-    for (const o of phys) {
-      if (o.id === d.id || used.has(o.id)) continue;
-      const dist = Math.hypot(o.x - d.x, o.y - d.y);
-      if (Math.abs(dist - COUPLE_WIDTH) > COUPLE_WIDTH_TOL) continue;
-      if (Math.abs(Math.atan2(Math.sin(o.heading - d.heading), Math.cos(o.heading - d.heading))) > 0.2) continue;
-      mate = o;
-      break;
-    }
-    if (!mate) return false;
-    if (d.gender === 'phantom' || mate.gender === 'phantom' || d.gender === mate.gender) return false;
-    used.add(d.id);
-    used.add(mate.id);
-    pairs++;
-  }
-  return pairs * 2 === phys.length;
+  const pairs = findCouplePairs(board);
+  return pairs.length * 2 === phys.length;
 }
 
 /**

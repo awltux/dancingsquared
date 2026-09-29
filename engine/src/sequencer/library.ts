@@ -51,6 +51,62 @@ function toWholeSet(dancers: Matchable[]): Matchable[] {
   if (merged.some((a) => merged.some((b) => a !== b && Math.hypot(a.x - b.x, a.y - b.y) < 0.01))) return dancers;
   return merged;
 }
+
+/**
+ * The IDENTITY of one authored setup: `(from, formation)` PLUS the whole built bundle.
+ *
+ * THE IDENTITY PART ANSWERS THE REPORTED QUESTION. That pair is the format's own identity for a
+ * setup, and keying by it is what stops two authorings of one call from being confused - the title
+ * alone cannot tell `Facing Dancers Far` from `Facing Dancers`.
+ *
+ * THE WHOLE BUNDLE IS WHAT MAKES THE MERGE SAFE. Deduping on identity alone was MEASURED WRONG on
+ * the shipped corpus: `test/tools/_merge-equivalence.mjs` registers every title two ways (one call
+ * carrying all its tams, and one call per tam) and compares the results. Keyed on identity, **209
+ * titles lost a variant** - `Centers Cross Kick Off` went from 12 to 6, `Drop Right` from 4 to 2 -
+ * because those titles author the SAME setup TWICE with DIFFERENT MOVEMENT, and the two are not
+ * duplicates at all: a call can legitimately have two ways of dancing the same start, and picking
+ * between them is the matcher's job, not this function's. So the path is part of the identity too,
+ * and only a bundle that is identical in EVERY respect collapses.
+ *
+ * ONE CONSEQUENCE, DELIBERATE. Re-registering the identical tam is a no-op (pinned by
+ * `test/scircle-register.mjs`), but the same SETUP authored twice with different movement is kept
+ * twice - which is the same thing the one-call path already did, so the merge matches it exactly.
+ */
+function variantIdentity(v: CallBundle): string {
+  const setup = v.dancers
+    .map((d) => {
+      // THE SAME MIRROR-AWARE POSITION THE MATCHER USES, not the stored one: a mirrored
+      // (duplicate-half) dancer keeps the base `x`/`y` and has the 180-degree rotation applied at
+      // pose time, so two setups that differ only in where their duplicate half sits would look
+      // identical if this read `d.x`/`d.y` directly. See `variantMatchable`, this rule's other reader.
+      const p = d.mirror
+        ? { x: -d.x, y: -d.y, heading: normAngle(d.angleDeg * DEG + Math.PI) }
+        : { x: d.x, y: d.y, heading: normAngle(d.angleDeg * DEG) };
+      return `${p.x.toFixed(4)},${p.y.toFixed(4)},${p.heading.toFixed(4)}${d.gender ? ',' + d.gender : ''}`;
+    })
+    .join('|');
+  return `${v.from ?? ''}\u0001${v.formation ?? ''}\u0001${setup}\u0001${canonicalJson(v)}`;
+}
+
+/**
+ * A canonical JSON rendering of a built bundle, with object keys sorted at every depth.
+ *
+ * The point is not readability - it is that two bundles built from the identical `<tam>` serialize
+ * identically whatever order their fields were constructed in, so the dedupe compares CONTENT rather
+ * than object identity. `dancer.path` holds the move objects, which is where the movement lives.
+ */
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value && typeof value === 'object') {
+    const o = value as Record<string, unknown>;
+    return `{${Object.keys(o)
+      .sort()
+      .map((k) => `${JSON.stringify(k)}:${canonicalJson(o[k])}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value) ?? 'null';
+}
+
 export class CallLibrary {
   private readonly variants: Map<string, CallBundle[]> = new Map();
   private readonly modules: Map<string, ModuleStep[]> = new Map(); // module name -> module steps
@@ -109,7 +165,43 @@ export class CallLibrary {
     // all-or-nothing throw produced. The difference is that it is now visible in
     // `registrationFailures()`. A PARTIALLY buildable call IS registered, which is the fix: it
     // becomes usable from the setups that do resolve.
-    if (variants.length) this.variants.set(canonicalName(name), variants);
+    if (variants.length === 0) return;
+    // MERGE, NEVER REPLACE. This was `variants.set(canonicalName(name), variants)`, which stores the
+    // keyed TITLE alone and therefore silently discards every setup the previous registration for
+    // that title contributed. A second `register` for a title is not a correction of the first, it is
+    // another AUTHORING of the same call, and the format's identity for a setup is
+    // `(title, formation xor from)` - exactly the part a title-only key throws away.
+    //
+    // IT IS NOT HYPOTHETICAL FOR THE CALLER EITHER. One `register` call can carry several setups,
+    // because that is what `loadVariants` returns and what `poc/src/data.ts` `sequencerCallsUpTo`
+    // pools a title's tams into - but that makes keeping them all the CALLER's responsibility, and
+    // `Sequencer.register` is a public method reachable more than once for one title (`sequencer-ui.ts`
+    // calls it from two places, and never clears the library in between). MEASURED, and pinned by
+    // `test/scircle-register.mjs`: with `Single Circle Left Full` authored twice,
+    // `register(far); register(plain)` left ONE variant ("Facing Dancers") where two authorings exist.
+    //
+    // The key stays the title, because that is what every reader (`matchableVariants`,
+    // `sequencerVariants`, `hasCall`) looks up by. What changes is that the VALUE is appended to
+    // rather than overwritten, with a per-setting dedupe so re-registering the same tam is a no-op
+    // and cannot inflate the variant list.
+    const key = canonicalName(name);
+    const kept = this.variants.get(key);
+    if (!kept) {
+      // A COPY, not the caller's array: `loadVariants` builds a fresh one today, but holding a
+      // reference the caller could still mutate is the kind of coupling this library has been bitten
+      // by before (see `toWholeSet`).
+      this.variants.set(key, variants.slice());
+      return;
+    }
+    const seen = new Set(kept.map((v) => variantIdentity(v)));
+    const added: CallBundle[] = [];
+    for (const v of variants) {
+      const id = variantIdentity(v);
+      if (seen.has(id)) continue;
+      seen.add(id);
+      added.push(v);
+    }
+    if (added.length) this.variants.set(key, kept.concat(added));
   }
 
   registerModule(name: string, calls: ModuleStep[]): void {
@@ -468,10 +560,29 @@ export class CallLibrary {
    * the many EMBEDDED (inline) formations authored inside <tam> blocks that are
    * not in the named-formation catalog. Used to build the full FSM state set. */
   allVariantSetups(): Matchable[][] {
-    const out: Matchable[][] = [];
+    return this.allVariantSetupsWithSource().map((s) => s.dancers);
+  }
+
+  /**
+   * The same setups, each with the CALL it was authored by: the `<tam>`'s `title` and `from`.
+   *
+   * WHY THE IDENTITY TRAVELS WITH THE GEOMETRY. An embedded formation is not declared anywhere - it is
+   * the start setup of some `<tam>` - so a state built from one has no name to be found by, and the
+   * FSM's `@embed#N` key is a COUNT (`stateGeo.size`, the number of states already registered), not an
+   * index into this list. So the number is not traceable back to anything, and a caller reading
+   * "embedded #44" has no way to learn which call it came from. Carrying the source here is what makes
+   * that traceable, and `title`/`from` are the fields the format already uses for a call's identity
+   * (the same pair `register` keys on - see `variantIdentity`).
+   */
+  allVariantSetupsWithSource(): { dancers: Matchable[]; title: string; from: string }[] {
+    const out: { dancers: Matchable[]; title: string; from: string }[] = [];
     for (const variants of this.variants.values()) {
       for (const v of variants) {
-        out.push(v.dancers.map((d) => this.variantMatchable(d)));
+        out.push({
+          dancers: v.dancers.map((d) => this.variantMatchable(d)),
+          title: v.title,
+          from: v.from,
+        });
       }
     }
     return out;

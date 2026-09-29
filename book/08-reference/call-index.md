@@ -14,8 +14,8 @@ Every call in the 2026 Mainstream program, in the order this book teaches them, 
 |---|---|---|---|
 | M1a | [Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | 16 |
 | M1b | [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | 8 |
-| M1c | [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | 4 |
-| M2 | [Dosado](../04-calls/m02-dosado.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
+| M1c | [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | 8 |
+| M2 | [Dosado](../04-calls/m02-dosado.md) | — | 6 |
 | M3a | [Couples Promenade](../04-calls/m03-promenade-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 12 |
 | M3b | [Single File Promenade](../04-calls/m03-promenade-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 13 |
 | M3c | [Star Promenade](../04-calls/m03-promenade-family.md) | — | 12 |

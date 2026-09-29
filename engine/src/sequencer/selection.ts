@@ -21,14 +21,30 @@ const SELECTION_GROUP: Record<string, string> = {
   'ends': 'ends', 'couples': 'couples', 'all': 'all', 'everybody': 'all',
   'everyone': 'all', 'leaders': 'leaders', 'trailers': 'trailers',
   'beaus': 'beaus', 'belles': 'belles',
+  // THE SINGULAR TOKEN FORMS, because the combination grammar is built from TOKENS and the reference
+  // spells them singular: `coded_call.dart`'s `specifier` is `Boys?|Girls?|Beaus?|Belles?|Center\d?|
+  // Ends?|Lead(er)?s?|Trail(er)?s?|Heads?|Sides?|...`, and its test corpus writes "Head Boys",
+  // "Head Girls", "Side Boys", "End Girl". Without these, "Head Boys" has no token for "Head" and the
+  // expression never parses at all. They are aliases of the plural keys above - one group each, not a
+  // second vocabulary.
+  'head': 'heads', 'side': 'sides', 'boy': 'boys', 'girl': 'girls',
+  'man': 'men', 'woman': 'women', 'lady': 'girls', 'center': 'centers',
+  'end': 'ends', 'couple': 'couples', 'leader': 'leaders', 'trailer': 'trailers',
+  'beau': 'beaus', 'belle': 'belles',
 };
 
 // Multi-word selectors recognized as a fixed phrase -> (groupKey | special).
+//
+// `head ladies` AND `side ladies` USED TO BE HERE, mapping to `heads`/`sides`, and that was WRONG in a
+// way the combination grammar fixes: "Head Ladies" names the GIRLS of the head couples, and the
+// mapping handed back ALL FOUR head dancers. With tokens intersected it resolves through the general
+// rule instead (`heads` ∩ `girls`), which is the two dancers the phrase actually means.
+// `head couples`/`side couples` STAY, because there "couples" means the whole couple rather than the
+// couples' boys or girls, which is not an intersection of anything.
 const PHRASE_SELECTION: Record<string, string> = {
   'same 4': 'same4', 'same four': 'same4',
   'head position': 'headposition', 'side position': 'sideposition',
-  'head ladies': 'heads', 'side ladies': 'sides', 'head couples': 'heads',
-  'side couples': 'sides', 'very centers': 'verycenters',
+  'head couples': 'heads', 'side couples': 'sides', 'very centers': 'verycenters',
   'outside 6': 'outside6', 'outer 6': 'outside6',
   'four ladies': 'girls', 'all 4 couples': 'all', 'all four couples': 'all',
 };
@@ -72,14 +88,128 @@ export function splitSelection(raw: string): { selection?: string; call: string 
   const s = raw.trim();
   if (!s) return { call: s };
   const words = s.split(/\s+/);
-  // Try progressively longer leading selection phrases (up to 6 words), longest first.
-  const max = Math.min(6, words.length);
+  // Try progressively longer leading selection phrases (up to 8 words), longest first. 8 rather than
+  // 6 because a COMBINATION is longer than any single phrase: "Head Girls and Side Boys" is five
+  // words of selection before the call even starts.
+  const max = Math.min(8, words.length);
   for (let len = max; len >= 1; len--) {
     const sel = words.slice(0, len).join(' ');
-    if (selectionGroup(sel) !== null) {
-      const rest = words.slice(len).join(' ');
-      if (rest) return { selection: sel, call: rest };
+    // `parseGroupExpression` is GREEDY and stops at the first word that is not a token, so it can
+    // consume FEWER words than this slice - `expr.words` is what it actually took, and the call text
+    // must start after THAT or the seam lands inside the selection.
+    let taken = 0;
+    if (selectionGroup(sel) !== null) taken = len;
+    else {
+      const expr = parseGroupExpression(sel);
+      if (expr && expr.words === len) taken = len;
     }
+    if (taken === 0) continue;
+    const rest = words.slice(taken).join(' ');
+    if (rest) return { selection: sel, call: rest };
   }
   return { call: s };
+}
+
+// ------------------------------------------------------------------ combinations
+
+/**
+ * A combined selection: TERMS, each a list of group keys that are INTERSECTED, and unioned together —
+ * with a term able to be NEGATED, which subtracts it.
+ *
+ * THE GRAMMAR IS THE REFERENCE'S, not an invention. `taminations-flutter`'s `coded_call.dart` defines
+ * the token vocabulary (`specifier`) and `common/double_selector.dart` composes it:
+ *
+ *     ($specifier)+ and ($specifier)+        tokens within a side INTERSECT, sides UNION
+ *
+ * so "Head Boys" is `heads ∩ boys` — the two dancers — and "Head Boys and Side Girls" is
+ * `(heads ∩ boys) ∪ (sides ∩ girls)`. MEASURED before this existed: every one of those phrases
+ * resolved to `null`, and "Head Ladies" resolved to ALL FOUR heads because it was a phrase mapping.
+ */
+export interface GroupTerm {
+  /** Group keys, intersected in order. */
+  keys: string[];
+  /** A negated term is SUBTRACTED from the union of the positive ones. */
+  negated: boolean;
+}
+
+export interface GroupExpression {
+  terms: GroupTerm[];
+  /** How many leading words of the input the expression consumed. */
+  words: number;
+}
+
+/** Words that SEPARATE terms rather than naming one. */
+const TERM_BREAK = 'and';
+/** Words that introduce a NEGATED term. */
+const NEGATORS = new Set(['except', 'ignore', 'prefer', 'no']);
+
+/**
+ * Parse a leading group expression, or null when the text is not one.
+ *
+ * GREEDY AND PREFIX-ONLY, which is what the reference's usage is: every compound selector in its test
+ * corpus sits at the FRONT of a call name ("Head Boys Kick Off", "Side Girls Cross Run"). So this
+ * consumes words from the left until one cannot be part of the expression, and reports how many it
+ * took - `splitSelection` is what decides whether the remainder is a call.
+ */
+export function parseGroupExpression(raw: string): GroupExpression | null {
+  const words = normalizeSelection(raw).split(' ').filter(Boolean);
+  if (words.length === 0) return null;
+  const terms: GroupTerm[] = [{ keys: [], negated: false }];
+  let consumed = 0;
+  let i = 0;
+  // STICKY NEGATION. Once a negator is seen, everything after it is subtracted - the reference's
+  // `Except` takes the WHOLE remainder (`name.replaceFirst('except( the)?')` then resolves it as one
+  // selector in its own context), so "All Except Head Boys and Side Girls" removes the UNION of the
+  // two, not just "Head Boys".
+  let negated = false;
+  while (i < words.length) {
+    const w = words[i];
+    if (w === TERM_BREAK) {
+      // " and " starts a NEW term. Its sign follows the section it is in - positive normally,
+      // NEGATED once a negator has appeared. A trailing "and" names nothing, so it ends the expression
+      // and lets `splitSelection` treat the remainder as call text.
+      if (terms[terms.length - 1].keys.length === 0) break;
+      terms.push({ keys: [], negated });
+      i++;
+      continue;
+    }
+    if (NEGATORS.has(w)) {
+      // A negator both starts a new term and flips the section to negative: "All Except Head Boys".
+      if (terms[terms.length - 1].keys.length === 0) break;
+      negated = true;
+      terms.push({ keys: [], negated: true });
+      i++;
+      continue;
+    }
+    // Longest phrase first, so "very centers" and "couple #2" match before their parts do. A phrase
+    // is a token in its own right ("Head Couples" is the whole couple, NOT `heads ∩ couples`), so it
+    // must be matched here rather than by the per-word rules below.
+    let matched = 0;
+    let key: string | null = null;
+    for (let len = Math.min(3, words.length - i); len >= 1; len--) {
+      const phrase = words.slice(i, i + len).join(' ');
+      const k = PHRASE_SELECTION[phrase] ?? SELECTION_GROUP[phrase] ?? null;
+      if (k !== null) { matched = len; key = k; break; }
+    }
+    if (key === null) break; // not a token: the expression ends here
+    terms[terms.length - 1].keys.push(key);
+    i += matched;
+    consumed = i;
+  }
+  // An EMPTY trailing term is a separator with nothing after it ("Head Boys and") - drop it rather
+  // than fail, because the words before it are still a usable expression.
+  const usable = terms.filter((t) => t.keys.length > 0);
+  // There must be at least one POSITIVE term: "Except Head Boys" alone has nothing to subtract from.
+  if (usable.length === 0 || !usable.some((t) => !t.negated)) return null;
+  // A SINGLE KEY IS NOT A COMBINATION - it is the plain selection `selectionGroup` already resolves,
+  // and routing it here would bypass the special resolvers ("same 4", "couple #1"). But an
+  // INTERSECTION of several keys IS one, even though it is a single term: "Head Boys" is
+  // `heads ∩ boys`. So this counts KEYS, not terms.
+  if (usable.length === 1 && usable[0].keys.length < 2) return null;
+  return { terms: usable, words: consumed };
+}
+
+/** Whether a selection string is a COMBINATION (more than one group involved). */
+export function isCombinedSelection(sel: string): boolean {
+  return parseGroupExpression(sel) !== null;
 }

@@ -9,7 +9,7 @@ import { matchFormations, type Matchable } from './match.js';
 import { assignHomeIdentity, normAngle } from './identity.js';
 import { canonicalName } from './constants.js';
 import type { Module, ModuleStep } from './types.js';
-import { isGroupStep } from './types.js';
+import { groupCalls, isGroupStep } from './types.js';
 import type { CallBundle, Gender } from '../types.js';
 
 // Calls that are conceptually sequences of multiple smaller calls (e.g. Running
@@ -207,7 +207,7 @@ export class CallLibrary {
   registerModule(name: string, calls: ModuleStep[]): void {
     const norm = (c: ModuleStep): ModuleStep => {
       if (typeof c === 'string') return canonicalName(c);
-      if (isGroupStep(c)) return { groups: c.groups.map((g) => ({ selection: g.selection, call: canonicalName(g.call) })) };
+      if (isGroupStep(c)) return { groups: c.groups.map((g) => ({ selection: g.selection, calls: groupCalls(g).map(canonicalName) })) };
       return { ...(c.selection ? { selection: c.selection } : {}), call: canonicalName(c.call) };
     };
     this.modules.set(canonicalName(name), calls.map(norm));
@@ -470,13 +470,15 @@ export class CallLibrary {
    * A GROUPED step is passed through WHOLE, because it is atomic and simultaneous: expanding it into
    * a flat list would silently turn "Centers X while Outsides Y" into "X then Y". Its group calls are
    * canonicalised but NOT module-expanded, for the same reason a group may not name a module at all
-   * (`GroupStep`): two composite routines of different lengths have no defined alignment. */
+   * (`GroupStep`) - and a lane is likewise kept as one group's list rather than flattened into the
+   * step list, because the calls in the MIDDLE of a lane start at a board that does not exist
+   * sequentially: a lane is simultaneous with the other groups, not with itself. */
   flatten(sequence: ModuleStep[]): ModuleStep[] {
     const out: ModuleStep[] = [];
     const expand = (names: ModuleStep[], stack: string[]): void => {
       for (const raw of names) {
         if (isGroupStep(raw)) {
-          out.push({ groups: raw.groups.map((g) => ({ selection: g.selection, call: canonicalName(g.call) })) });
+          out.push({ groups: raw.groups.map((g) => ({ selection: g.selection, calls: groupCalls(g).map(canonicalName) })) });
           continue;
         }
         const hasSelection = typeof raw !== 'string' && !!raw.selection;

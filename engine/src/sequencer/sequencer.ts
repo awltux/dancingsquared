@@ -47,7 +47,8 @@ import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.
 import { boardForFasrCode, setupForFormation, FORMATION_LETTER, FORMATIONS_FOR_LETTER } from './alignment.js';
 import type { Matchable } from './match.js';
 import type { Board, CallStep, Fasr, Module, ModuleStep, RecognizedFormation, SeqDancer, SeqStep, VariantMatch } from './types.js';
-import { isGroupStep, stepCall, stepLabel } from './types.js';
+import { groupCalls, isGroupStep, stepCall, stepLabel } from './types.js';
+import type { LaneRun } from './types.js';
 import type { CallBundle } from '../types.js';
 
 export { assignHomeIdentity } from './identity.js';
@@ -312,17 +313,24 @@ export class Sequencer {
     return { call: callName, legal: res.legal, reason: res.reason, board: res.board, formation: this.recognize(res.board) };
   }
 
-  /** Apply a call step (string, {selection, call}, or a grouped "while" step) to the current board. */
+  /** Apply a call step (string, {selection, call}, or a grouped "while" step) to the current board.
+   *
+   *  The "while" path's LANES are carried out with it, so a caller building a step group by group can ask
+   *  the apply where each group's next call starts instead of applying the same calls a second time. */
   applyStep(step: ModuleStep): SeqStep {
     const coded = typeof step === 'string' ? this.tryCodedMove(this.board, step) : null;
-    const res = coded ?? this.applicator.applyStep(this.board, step);
+    const res: ApplyResult = coded ?? this.applicator.applyStep(this.board, step);
     this.board = res.board;
     this.matcher.clearCaches();
     this.solver.clearCaches();
-    return { call: stepLabel(step), legal: res.legal, reason: res.reason, board: res.board, formation: this.recognize(res.board) };
+    return { call: stepLabel(step), legal: res.legal, reason: res.reason, board: res.board, formation: this.recognize(res.board), lanes: res.lanes };
   }
 
-  applyToBoard(board: Board, callName: ModuleStep): { board: Board; legal: boolean; reason?: string } {
+  /** Apply a step to a BOARD without touching the live one, for a caller that only wants the answer.
+   *
+   *  A "while" step's LANES come back with it, so a panel building a lane one call at a time can ask where
+   *  the next call starts without applying the step again to a board it has already been applied to. */
+  applyToBoard(board: Board, callName: ModuleStep): { board: Board; legal: boolean; reason?: string; lanes?: LaneRun[] } {
     const coded = typeof callName === 'string' ? this.tryCodedMove(board, callName) : null;
     if (coded) return coded;
     return typeof callName === 'string'
@@ -1205,13 +1213,15 @@ export class Sequencer {
    * given start formation: the module must exist, its start must be a recognised
    * formation, and NONE of its constituent calls may be non-compositional.
    *
-   * A GROUPED ("while") step contributes EVERY group's call to that check. It needs no other rule:
-   * each dancer follows exactly one call per step, so the per-dancer composition below is already the
-   * right shape for it - which is what keeps the matrix transform working across the new form. */
+   * A GROUPED ("while") step contributes EVERY group's call to that check - every call of every LANE,
+   * since a lane's calls run one after another for the same dancers and each is part of the composed
+   * transform. It needs no other rule: each dancer follows exactly one lane per step, so the per-dancer
+   * composition below is already the right shape for it - which is what keeps the matrix transform
+   * working across the form. */
   moduleCollapsible(module: string, startFormation: string): boolean {
     const calls = this.library.getModule(module);
     if (!calls || calls.length === 0) return false;
-    const named = calls.flatMap((c) => (isGroupStep(c) ? c.groups.map((g) => g.call) : [stepCall(c) ?? '']));
+    const named = calls.flatMap((c) => (isGroupStep(c) ? c.groups.flatMap((g) => groupCalls(g)) : [stepCall(c) ?? '']));
     if (named.some((n) => this.library.isNonCompositional(n))) return false;
     return this.syntheticBoard(startFormation) !== null;
   }

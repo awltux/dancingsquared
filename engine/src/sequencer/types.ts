@@ -52,6 +52,26 @@ export interface SeqStep {
   reason?: string;
   board: Board;
   formation: RecognizedFormation;
+  /**
+   * Set for a "while" step that applied: one run per group, carrying the boards each group's calls passed
+   * through (`boards[0]` is the step's own start board). A UI that builds a lane needs the board its NEXT
+   * call starts on, and this is the apply's own answer rather than a second application of the same calls.
+   */
+  lanes?: LaneRun[];
+}
+
+/**
+ * ONE GROUP'S RUN through a "while" step: the dancers it claims, the calls they dance back to back, and the
+ * boards between them.
+ *
+ * `boards.length === calls.length + 1`; `boards[0]` is the step's own start board. A DEFERRED call's lane has
+ * two boards beyond the start - the forward half and the resolved one - because that call IS two moves.
+ */
+export interface LaneRun {
+  selection: string;
+  ids: number[];
+  calls: string[];
+  boards: Board[];
 }
 
 /** Per-dancer FASR relationship info (by dancer id). */
@@ -83,7 +103,7 @@ export interface CallStep {
  * WHY IT IS A STEP AND NOT A SEQUENCE. The construct is SIMULTANEOUS, so it cannot be expressed as
  * one call (the engine would have to hand-author every combination as a `<tam>`'s per-dancer paths,
  * which is what the catalogue does today and why the structure is invisible) and it cannot be
- * expressed as a list (a list is sequential). It is one step whose groups each dance their own call.
+ * expressed as a list (a list is sequential). It is one step whose groups each dance their own calls.
  *
  * THE RULES, decided rather than discovered:
  *   - groups must be pairwise DISJOINT; an overlap is refused with a reason, because one dancer cannot
@@ -92,11 +112,62 @@ export interface CallStep {
  *     `partitionPartial`'s reading of "a call acts on everyone it applies to";
  *   - the step is ATOMIC: if any group's call is illegal, the whole step refuses with that group's
  *     reason. A partially-danced "while" is not a thing a caller can call;
- *   - a group names a CALL, not a module. Two composite routines of different lengths have no defined
- *     alignment, so allowing them would invent a synchronisation rule the art does not have.
+ *   - a lane names CALLS, not a module (see below).
+ *
+ * A GROUP IS A LANE: the calls it dances BACK TO BACK, from the step's start. Asked for as: "how
+ * difficult would it be to allow multiple calls in a parallel set. If heads take 16 beats to do one
+ * call, the sides could do two 4-beat calls."
+ *
+ * AND THAT IS THE SYNCHRONISATION RULE, which this construct used to refuse outright - its comment
+ * said "two composite routines of different lengths have no defined alignment, so allowing them would
+ * invent a synchronisation rule the art does not have." The rule the art does have is this one:
+ *
+ *   - every lane starts at beat 0, so the lanes are simultaneous;
+ *   - a lane's calls run consecutively, each starting where the one before it left the group;
+ *   - the step costs the LONGEST lane, and a lane that finishes early STANDS at its own end pose until
+ *     the step is over - the same reading `stepBeats` and `evaluateGroupAt` already give a group
+ *     inside a longer "while";
+ *   - there are NO synchronisation points BETWEEN lanes. Nothing can make one lane's call start at
+ *     beat 6 of another lane's call, and nothing can make the lanes' totals agree: the engine reports
+ *     the difference, it does not remove it. A caller who wants a call to land at a particular moment
+ *     has to express that as beats, not as an alignment.
+ *
+ * A LANE STILL NAMES CALLS AND NOT A MODULE, which is the half of the old rule that survives: a module
+ * is a second kind of sequence object with its own expansion, its own cycle guard and its own start
+ * formation, and a lane would need all three again. A lane can say everything a module would say about
+ * this step by listing the calls.
  */
+export interface GroupLane {
+  selection: string;
+  /** The calls this group dances, in order. A lane of one is the ordinary "while" group. */
+  calls: string[];
+}
+
+/** A group's lane as it was stored before lanes existed (and as a caller's saved module may still hold). */
+export interface LegacyGroupLane {
+  selection: string;
+  call: string;
+}
+
 export interface GroupStep {
-  groups: { selection: string; call: string }[];
+  groups: (GroupLane | LegacyGroupLane)[];
+}
+
+/**
+ * THE CALLS A LANE NAMES, in order - reading the LEGACY single-`call` lane as a one-call lane.
+ *
+ * WHY THE LEGACY FORM IS READ AT ALL, and not migrated away: a "while" step can be SAVED as a module
+ * (`sequencer-ui.saveModule` stores the raw history in localStorage), so `{selection, call}` lanes are
+ * already in callers' browsers. One reader for both shapes is cheaper and safer than a migration, and
+ * the canonical writer never produces the old form again.
+ */
+export function groupCalls(lane: GroupLane | LegacyGroupLane): string[] {
+  return 'calls' in lane ? lane.calls : [lane.call];
+}
+
+/** The canonical shape of a lane: one place the legacy form is upgraded, so nothing downstream sees it. */
+export function normalizeGroupLane(lane: GroupLane | LegacyGroupLane): GroupLane {
+  return { selection: lane.selection, calls: groupCalls(lane) };
 }
 
 export type ModuleStep = string | CallStep | GroupStep;
@@ -116,11 +187,18 @@ export function stepSelection(step: ModuleStep): string | null {
   return typeof step === 'string' ? null : isGroupStep(step) ? null : step.selection ?? null;
 }
 
-/** A stable label for a step - for replay keys, stop reports and error messages. */
+/** A stable label for a step - for replay keys, stop reports and error messages.
+ *
+ *  A lane's selection is stated ONCE and its calls are joined with "then", which is the reference's own
+ *  word for it (All8's punctuation table gives `;` = "then", beside `,` = "while"). So
+ *  `Heads Promenade Full` beside `Sides Trade then Pass Thru` labels as
+ *  "Heads Promenade Full while Sides Trade then Pass Thru". */
 export function stepLabel(step: ModuleStep): string {
   if (typeof step === 'string') return step;
   if (!isGroupStep(step)) return `${step.selection ? step.selection + ' ' : ''}${step.call}`;
-  return step.groups.map((g) => `${g.selection} ${g.call}`).join(' while ');
+  return step.groups
+    .map((g) => `${g.selection} ${groupCalls(g).join(' then ')}`)
+    .join(' while ');
 }
 
 /** A user-defined module: a named sequence of calls used as a fix/getout. Each

@@ -14,8 +14,8 @@ import { normAngle } from './identity.js';
 import { bodyGap, type BodyPair } from './bodies.js';
 import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
 import { splitSelection } from './selection.js';
-import type { Board, CallStep, GroupStep, ModuleStep, SeqDancer, VariantMatch } from './types.js';
-import { isGroupStep, stepLabel } from './types.js';
+import type { Board, CallStep, GroupStep, LaneRun, ModuleStep, SeqDancer, VariantMatch } from './types.js';
+import { isGroupStep, normalizeGroupLane, stepLabel } from './types.js';
 import { applyCodedToSelection, findCodedMove, isDeferredCall } from './coded-moves.js';
 import { resolveStepForward } from './step-forward.js';
 import type { CallBundle, Pose } from '../types.js';
@@ -40,6 +40,19 @@ export interface ApplyResult {
    * grouping removes the second implementation rather than trying to keep the two in step.
    */
   parallel?: { variant: CallBundle; groups: SeqDancer[][] };
+  /**
+   * Set only by the "while" path: one run per GROUP, in the order the groups were given, carrying the
+   * boards the lane passed through - `boards[0]` is the step's own start board and `boards[i + 1]` is
+   * the board after `calls[i]`.
+   *
+   * WHY THE BOARDS ARE REPORTED rather than re-derived by the animator. A lane of several calls is
+   * sequential INSIDE a simultaneous step, so its second call starts from where its first left the
+   * group - a board that exists nowhere in the step's `before`/`after` pair. The walk-through animator
+   * could apply the lane again to find it, which would be a second implementation of the apply (the
+   * exact mistake `ApplyResult.parallel` was added to remove) and would run once per frame. Reporting
+   * the boards makes the animation read the apply that actually happened.
+   */
+  lanes?: LaneRun[];
   /**
    * The worst body overlap found anywhere along the call's motion, when the path guard ran and found
    * one. `gap` is negative and its magnitude is the penetration depth.
@@ -592,7 +605,7 @@ export class CallApplicator {
    * is what `ms/running_bear.xml` is, all 248 lines of it, with the sub-calls named only in comments),
    * so the STRUCTURE was invisible and could not be reused or composed.
    *
-   * THE RULES ARE IN `GroupStep`'s doc comment; the two that shape this function:
+   * THE RULES ARE IN `GroupStep`'s doc comment; the three that shape this function:
    *
    * ATOMIC. Each group is applied with `applySelected`, which already owns the two readings a
    * selection needs (the subset as its own formation, or the whole pattern with only the selected
@@ -602,6 +615,12 @@ export class CallApplicator {
    * DISJOINT, and checked BEFORE any work. The groups are computed from the same original board and
    * merged by id, so an overlap would silently let one group's result overwrite the other's. It is
    * refused with the dancer's id and the two selections rather than tolerated.
+   *
+   * A LANE'S CALLS RUN ONE AFTER ANOTHER, from the board the call before it left. Every lane still
+   * STARTS from the step's own board, which is what keeps the lanes simultaneous, and each lane's
+   * intermediate boards are reported on the result so the animator can follow the same path without
+   * applying anything again (`ApplyResult.lanes`). A failure names the lane AND which call in it
+   * refused, because "Sides Trade then Hinge" has two places to look and the caller chose both.
    *
    * WHY THE STACK IS THREADED. A group's call may be a call that reaches a module, and a module may
    * in turn contain this step - the same cycle the sequential expansion guards against. `applySelected`
@@ -614,13 +633,19 @@ export class CallApplicator {
     if (step.groups.length === 0) {
       return { board: cloneBoard(board), legal: false, reason: 'A "while" step needs at least one group.' };
     }
-    const resolved: { selection: string; call: string; ids: number[] }[] = [];
+    const resolved: { selection: string; calls: string[]; ids: number[] }[] = [];
     const claimed = new Map<number, string>();
-    for (const g of step.groups) {
-      // A group names a CALL. See `GroupStep`: two composite routines of different lengths have no
-      // defined alignment, so a module here would invent a synchronisation rule the art does not have.
-      if (this.library.hasModule(g.call) || this.library.hasModule(canonicalName(g.call))) {
-        return { board: cloneBoard(board), legal: false, reason: `A "while" group must name a call, not the module "${g.call}" - two routines of different lengths have no defined alignment.` };
+    for (const raw of step.groups) {
+      const g = normalizeGroupLane(raw);
+      if (g.calls.length === 0) {
+        return { board: cloneBoard(board), legal: false, reason: `A "while" group needs at least one call: "${g.selection}" names none.` };
+      }
+      // A group names CALLS, not a module. See `GroupStep`: a lane can say everything a module would say by
+      // listing the calls, and a module would bring a second expansion, cycle guard and start formation.
+      for (const call of g.calls) {
+        if (this.library.hasModule(call) || this.library.hasModule(canonicalName(call))) {
+          return { board: cloneBoard(board), legal: false, reason: `A "while" group must name calls, not the module "${call}" - list the calls the module holds instead.` };
+        }
       }
       const ids = this.resolveSelection(board, g.selection);
       if (!ids || ids.length === 0) {
@@ -638,7 +663,22 @@ export class CallApplicator {
         }
         claimed.set(id, g.selection);
       }
-      resolved.push({ selection: g.selection, call: g.call, ids });
+      resolved.push({ selection: g.selection, calls: g.calls, ids });
+    }
+    // A DEPENDENT CALL LIVES IN A LANE OF ITS OWN. `Step Forward and Back if Possible` asks whether the spot its
+    // dancers left is still free, and the answer comes from the OTHER groups' end poses - which exist at the end
+    // of the step and nowhere in the middle of a lane. So a deferred call may be a lane's only call (today's
+    // shape) and nothing else; a lane that would put it mid-sequence is refused rather than resolved against a
+    // board nobody has reached.
+    for (const g of resolved) {
+      const dependent = g.calls.filter((c) => isDeferredCall(c));
+      if (dependent.length > 0 && g.calls.length > 1) {
+        return {
+          board: cloneBoard(board),
+          legal: false,
+          reason: `"${g.selection} ${g.calls.join(' then ')}": "${dependent[0]}" resolves against the other groups' END poses, so it cannot sit in the middle of a lane - give it a lane of its own, or put it last and alone.`,
+        };
+      }
     }
     const moved = new Map<number, SeqDancer>();
     // ---- THE DEFERRED GROUP IS APPLIED LAST, AGAINST WHAT THE OTHERS LEFT ON THE FLOOR. -----------
@@ -653,9 +693,9 @@ export class CallApplicator {
     // TWO DEPENDENT GROUPS HAVE NO ANSWER, and neither does a deferred group with nothing to depend on, so
     // both are refused with the reason rather than resolved in some arbitrary order. The rules are stated on
     // `CodedMove.deferred`; this is where they are enforced.
-    const deferred = resolved.filter((g) => isDeferredCall(g.call));
+    const deferred = resolved.filter((g) => g.calls.length === 1 && isDeferredCall(g.calls[0]));
     if (deferred.length > 1) {
-      const names = deferred.map((g) => `"${g.selection} ${g.call}"`).join(' and ');
+      const names = deferred.map((g) => `"${g.selection} ${g.calls.join(' then ')}"`).join(' and ');
       return {
         board: cloneBoard(board),
         legal: false,
@@ -667,30 +707,44 @@ export class CallApplicator {
       return {
         board: cloneBoard(board),
         legal: false,
-        reason: `"${g.selection} ${g.call}" resolves against the other dancers' end poses, so it needs a partner call in the same "while" step - on its own there is nothing to resolve against.`,
+        reason: `"${g.selection} ${g.calls.join(' then ')}" resolves against the other dancers' end poses, so it needs a partner call in the same "while" step - on its own there is nothing to resolve against.`,
       };
     }
+    const lanes: LaneRun[] = [];
     for (const g of resolved) {
-      if (isDeferredCall(g.call)) continue;
-      const r = this.applySelected(board, g.selection, g.call, rebase, undefined, stack);
-      if (!r.legal) {
-        return { board: cloneBoard(board), legal: false, reason: `"${g.selection} ${g.call}" in a "while" step: ${r.reason ?? 'refused'}` };
+      if (g.calls.length === 1 && isDeferredCall(g.calls[0])) continue;
+      // THE LANE RUNS FROM THE STEP'S OWN BOARD, one call after another, and the boards between them are
+      // kept: that is the whole of "a lane" - each call starts where the one before it left the group, and
+      // every lane still starts at beat 0 of the step, which is what keeps the lanes simultaneous.
+      const boards: Board[] = [board];
+      let running = board;
+      for (let i = 0; i < g.calls.length; i++) {
+        const call = g.calls[i];
+        const r = this.applySelected(running, g.selection, call, rebase, undefined, stack);
+        if (!r.legal) {
+          const which = g.calls.length > 1 ? `call ${i + 1} of ${g.calls.length} (${call})` : call;
+          return { board: cloneBoard(board), legal: false, reason: `"${g.selection} ${g.calls.join(' then ')}" in a "while" step: ${which} refused - ${r.reason ?? 'refused'}` };
+        }
+        running = r.board;
+        boards.push(running);
       }
+      lanes.push({ selection: g.selection, ids: g.ids, calls: [...g.calls], boards });
       const inGroup = new Set(g.ids);
-      for (const d of r.board.dancers) if (inGroup.has(d.id)) moved.set(d.id, d);
+      for (const d of running.dancers) if (inGroup.has(d.id)) moved.set(d.id, d);
     }
     if (deferred.length === 1) {
       const g = deferred[0];
+      const call = g.calls[0];
       // THE HALF-WAY BOARD COMES FROM THE MOVE, not from applying its call. `Step Forward and Back if Possible`
       // is a whole call whose answer IS the decision, so `applySelected` would hand this an already-RESOLVED
       // board and the question would be asked about the wrong start. `deferredHalf` is the forward motion on its
       // own (see `CodedMove.deferredHalf`); a deferred call without one falls back to its ordinary apply.
-      const half = findCodedMove(g.call)?.deferredHalf;
+      const half = findCodedMove(call)?.deferredHalf;
       const stepped: ApplyResult = half
         ? { board: half(board, g.ids), legal: true }
-        : this.applySelected(board, g.selection, g.call, rebase, undefined, stack);
+        : this.applySelected(board, g.selection, call, rebase, undefined, stack);
       if (!stepped.legal) {
-        return { board: cloneBoard(board), legal: false, reason: `"${g.selection} ${g.call}" in a "while" step: ${stepped.reason ?? 'refused'}` };
+        return { board: cloneBoard(board), legal: false, reason: `"${g.selection} ${call}" in a "while" step: ${stepped.reason ?? 'refused'}` };
       }
       // Everyone else's END pose: the groups merged above, and every dancer no group claims (they never moved).
       // The deferred dancers are left out of this board rather than included at their start poses - see
@@ -706,8 +760,11 @@ export class CallApplicator {
         const d = settled.board.dancers.find((x) => x.id === id);
         if (d) moved.set(id, d);
       }
+      // THE TWO LEGS ITS MOVE IS MADE OF, so the animator can draw the round trip without applying anything:
+      // the forward board (which is where the dancers are while they are out) and the resolved one.
+      lanes.push({ selection: g.selection, ids: g.ids, calls: [call], boards: [board, stepped.board, settled.board] });
     }
-    return { board: { dancers: board.dancers.map((d) => moved.get(d.id) ?? { ...d }) }, legal: true };
+    return { board: { dancers: board.dancers.map((d) => moved.get(d.id) ?? { ...d }) }, legal: true, lanes };
   }
 
   /**

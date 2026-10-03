@@ -30,7 +30,7 @@ import { splitSelection } from './selection.js';
 import { promenadeTrip, promenadeLap } from './promenade.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, CallStep, GroupStep, ModuleStep, SeqDancer, VariantMatch } from './types.js';
-import { isGroupStep, stepCall, stepLabel } from './types.js';
+import { groupCalls, isGroupStep, stepCall, stepLabel } from './types.js';
 import type { CallBundle } from '../types.js';
 
 const rot = (a: number, v: { x: number; y: number }) => ({
@@ -68,6 +68,35 @@ interface ReplayStep {
    * sequence end on the board BEFORE a call with nothing saying so, which reads as "the last frame
    * jumps back". See `sequenceStop`. */
   reason?: string;
+  /**
+   * A "while" step's LANES, as the apply left them: who each group is, the calls it dances back to
+   * back, the beats of each, and the boards between them. Null for every other kind of step.
+   *
+   * IT IS THE APPLICATOR'S OWN RUN, stored by the walk rather than re-derived, which is the invariant
+   * this file keeps everywhere ("the walk must agree with the applicator"): a lane's second call starts
+   * on a board that is neither the step's `before` nor its `after`, so an animator that tried to find
+   * it again would be a second implementation of the apply - and this one runs once per WALK, not once
+   * per frame.
+   */
+  lanes?: ReplayLane[] | null;
+}
+
+/**
+ * ONE GROUP'S RUN through a "while" step, as the animation needs it.
+ *
+ * `beats[i]` is what call `i` is charged (`stepBeats` against the board it starts from). The variant info the
+ * walk matched each call with is NOT kept: `evaluateCallAt` finds it again for a selected call, and passing the
+ * walk's own copy makes it tile the whole board with a subset variant and animate nothing (see
+ * `evaluateGroupAt`). `deferred` is the deferred lane's alone: it is the one shape whose two legs are drawn
+ * rather than interpolated.
+ */
+interface ReplayLane {
+  selection: string;
+  ids: number[];
+  calls: string[];
+  beats: number[];
+  boards: Board[];
+  deferred: CodedMove | null;
 }
 
 /** Where a flat sequence stops being playable. */
@@ -125,14 +154,34 @@ export class SequenceAnalyzer {
       // slowest part is over; charging the sum would report a caller's tip as twice as long as it
       // dances.
       //
+      // A LANE SUMS ITS OWN CALLS, because inside a group the calls are SEQUENTIAL - that is the whole of
+      // the lane rule. The calls after the first start on boards this function does not have, so the lane
+      // is walked the way the applicator walks it (each call applied to what the one before it left) and
+      // the boards are shared with the caller when they are needed for real (see `replayWalk`, which reads
+      // the APPLY's own `lanes` and never comes through here for a group step). This path is the cold one:
+      // a caller asking what a "while" step costs without applying it.
+      //
       // A DEFERRED GROUP COSTS NOTHING, and that is the request rather than an optimisation: `Step Forward`
       // "takes on the duration of the other call", so charging it its own two beats would let the filler
       // lengthen the step it was written to fill. Read from the same `isDeferredCall` the applicator uses, so
       // the timing and the board cannot disagree about which groups are dependent.
       let most = 0;
       for (const g of name.groups) {
-        if (isDeferredCall(g.call)) continue;
-        most = Math.max(most, this.stepBeats(board, { selection: g.selection, call: g.call }));
+        const calls = groupCalls(g);
+        if (calls.length === 1 && isDeferredCall(calls[0])) continue;
+        // THE BOARDS THE CALLS START ON, applied the way the applicator applies them. A lane that the
+        // applicator will refuse anyway (`boards.length` short) contributes nothing here; the refusal is
+        // the apply's to report, not the timing's.
+        const boards: Board[] = [board];
+        let running = board;
+        for (const call of calls) {
+          const a = this.applicator.applySelected(running, g.selection, call, false);
+          if (!a.legal) break;
+          running = a.board;
+          boards.push(running);
+        }
+        if (boards.length !== calls.length + 1) continue;
+        most = Math.max(most, this.laneCalls(boards, g.selection, calls).beats.reduce((a, b) => a + b, 0));
       }
       return most;
     }
@@ -149,6 +198,40 @@ export class SequenceAnalyzer {
     if (v) return v.beats;
     if (coded) return coded.beats;
     return 0;
+  }
+
+  /**
+   * WHAT EACH CALL OF ONE LANE COSTS, AND WHETHER IT CAN BE WALKED AT ALL - given the board each call
+   * starts on.
+   *
+   * ONE IMPLEMENTATION FOR TWO CALLERS, which is why the boards are a parameter: `replayWalk` has the
+   * boards from the APPLY (the lane's own intermediate boards, reported by `ApplyResult.lanes`) and
+   * `stepBeats` has to derive them. Both then ask the same two questions per call - is there a variant
+   * for this subset on this board, and how many beats does it take - so the timing, the scrub and the
+   * apply cannot drift apart about a lane.
+   *
+   * A CALL THAT CANNOT BE WALKED stops the lane with a reason naming WHICH call it was, because a lane
+   * has several places to look and the caller chose all of them: this is the `Step Forward` shape (a
+   * coded call whose subset the catalogue has no variant for, walkable through the `scopedCoded` path)
+   * and the `display="none"` scoped authorings, either of which applies but would animate as a straight
+   * blend if it were let through.
+   */
+  private laneCalls(
+    boards: Board[],
+    selection: string,
+    calls: string[],
+  ): { beats: number[]; walkable: boolean; reason?: string } {
+    const beats: number[] = [];
+    for (let i = 0; i < calls.length; i++) {
+      const info = this.matchingVariantInfo(boards[i], calls[i], selection);
+      const coded = findCodedMove(calls[i]);
+      if (!info && !coded) {
+        const which = calls.length === 1 ? calls[i] : `call ${i + 1} of ${calls.length} (${calls[i]})`;
+        return { beats, walkable: false, reason: `"${selection} ${calls.join(' then ')}" in a "while" step: ${which} cannot be walked from the board it starts on` };
+      }
+      beats.push(info ? info.beats : this.stepBeats(boards[i], { selection, call: calls[i] }));
+    }
+    return { beats, walkable: true };
   }
 
   /**
@@ -428,13 +511,46 @@ export class SequenceAnalyzer {
       // exists to keep.
       if (isGroupStep(raw)) {
         const r = this.applicator.applyStep(board, raw);
-        const beats = r.legal ? this.stepBeats(board, raw) : 0;
+        // THE LANES COME FROM THE APPLY, and each call in one is walked exactly as a lone scoped step is:
+        // `matchingVariantInfo` against the board that call starts from, with the `scopedCoded` fallback for a
+        // coded call whose subset the catalogue has no variant for. A call that can be APPLIED but not WALKED
+        // (`Step Forward`'s shape, and the catalogue's `display="none"` scoped authorings) makes the whole step
+        // unwalkable rather than being drawn as a blend - the same rule the single-call branch below applies,
+        // and the reason this walk exists: a step the animation cannot follow is a scrub that lies.
+        const lanes: ReplayLane[] = [];
+        let walkable = r.legal;
+        let reason = r.legal ? undefined : r.reason ?? 'the "while" step does not apply here';
+        let beats = 0;
+        // A LEGAL APPLY WITH NO GROUPS REPORTED cannot be animated, so it is not walkable either: saying it is
+        // would charge the step 0 beats and draw no motion, which is exactly the silent scrub this walk exists
+        // to prevent. `applyGroupStep` reports its lanes for every apply that succeeds, so this is a guard on
+        // that promise rather than a case anything reaches today.
+        if (r.legal && !r.lanes) {
+          walkable = false;
+          reason = 'the "while" step applied without reporting its groups, so there is nothing to animate';
+        }
+        if (r.legal && r.lanes) {
+          for (const lane of r.lanes) {
+            const deferred = lane.calls.length === 1 && isDeferredCall(lane.calls[0]) ? findCodedMove(lane.calls[0]) ?? null : null;
+            const w = this.laneCalls(lane.boards, lane.selection, lane.calls);
+            if (!w.walkable) {
+              walkable = false;
+              reason = w.reason;
+              break;
+            }
+            lanes.push({ selection: lane.selection, ids: lane.ids, calls: lane.calls, beats: w.beats, boards: lane.boards, deferred });
+            // THE STEP COSTS THE LONGEST LANE, and a deferred lane costs nothing (its duration is the partner's).
+            const laneBeats = deferred ? 0 : w.beats.reduce((a, b) => a + b, 0);
+            beats = Math.max(beats, laneBeats);
+          }
+        }
         steps.push({
           raw, name: stepLabel(raw), coded: null, info: null, before: board,
           after: r.legal ? r.board : board,
-          beats,
-          walkable: r.legal,
-          reason: r.legal ? undefined : r.reason ?? 'the "while" step does not apply here',
+          beats: walkable ? beats : 0,
+          walkable,
+          reason,
+          lanes: r.legal ? lanes : null,
         });
         if (r.legal) board = r.board;
         continue;
@@ -569,7 +685,7 @@ export class SequenceAnalyzer {
           return spec.selection ? { selection: spec.selection, call: spec.call } : s.raw;
         })();
         const evBoard = isGroupStep(s.raw)
-          ? this.evaluateGroupAt(s.before, s.raw, s.after, s.beats, beat - acc)
+          ? this.evaluateGroupAt(s, beat - acc)
           : s.coded
             ? this.evaluateCodedAt(s.before, s.coded, beat - acc)
             : this.evaluateCallAt(s.before, stepForEval, s.info, s.after, s.beats, beat - acc);
@@ -649,52 +765,79 @@ export class SequenceAnalyzer {
    * at local beat 0 every dancer is on `before`, and at the step's own cost (>= every group's beats) each
    * group is at its own applied result, so the last frame is the board the applicator produced. What it does
    * not do, still, is route a group around a collision - that treatment lives in each call's own animation.
+   *
+   * A LANE IS THE SAME RULE, TWICE: the group's clock runs through its calls in order, and the call the beat
+   * falls in is posed by `evaluateCallAt` from THE BOARD THAT CALL STARTS ON - the lane's own intermediate
+   * board, reported by the apply - with everyone else frozen. A lane that has finished its own total HOLDS at
+   * its end pose (`min(localBeat, total)`), which is the existing rule with the lane's sum in place of one
+   * call's beats. There is no second implementation of the apply here: the boards are the applier's.
    */
-  private evaluateGroupAt(before: Board, step: GroupStep, after: Board, beats: number, localBeat: number): Board {
+  private evaluateGroupAt(step: ReplayStep, localBeat: number): Board {
+    const before = step.before;
+    const after = step.after;
+    const beats = step.beats;
+    const lanes = step.lanes;
     const afterById = new Map(after.dancers.map((d) => [d.id, d]));
     const merged = new Map<number, SeqDancer>();
-    for (const g of step.groups) {
-      const ids = this.resolveSelection(before, g.selection);
-      if (!ids || ids.length === 0) continue;
-      const picked = new Set(ids);
-      // The group's own end board: its dancers at the applied pose, everyone else where they stand. Passing
-      // the whole composed board here would let one group's motion be read as another's (an exchange pair
-      // spanning two groups), which is exactly the coupling a per-group animation must not have.
-      const groupEnd: Board = {
+    // NO LANES MEANS NOTHING TO WALK: the walk records them for every apply that succeeded, and an unwalkable
+    // step never reaches here (`evaluateSequence` returns the step's own start board). Leaving the board alone
+    // is the honest reading of a step with no recorded motion.
+    if (!lanes) return { dancers: before.dancers.map((d) => ({ ...d })) };
+    for (const lane of lanes) {
+      const picked = new Set(lane.ids);
+      if (picked.size === 0) continue;
+      // The lane's own end board: its dancers at the applied pose, everyone else where they stand. Passing the
+      // whole composed board here would let one group's motion be read as another's (an exchange pair spanning
+      // two groups), which is exactly the coupling a per-group animation must not have.
+      const laneEnd: Board = {
         dancers: before.dancers.map((d) => (picked.has(d.id) ? afterById.get(d.id) ?? d : d)),
       };
-      const groupBeats = this.stepBeats(before, { selection: g.selection, call: g.call });
-      // A DEFERRED GROUP HAS TWO MOVES IN IT, AND THE SECOND ONE IS AT THE END OF THE CALL.
+      // A DEFERRED LANE HAS TWO MOVES IN IT, AND THE SECOND ONE IS AT THE END OF THE CALL.
       //
       // Its dancers step forward, and then decide whether to step BACK to the spot they left - and when they
-      // do, the group's start and end boards are the SAME BOARD, so a two-point interpolation draws nothing at
+      // do, the lane's start and end boards are the SAME BOARD, so a two-point interpolation draws nothing at
       // all. Reported from use: "if I apply Sides Promenade 1/2 to Home in parallel with Step Forward, the
       // sequencer suggests they have been applied, but the step forward dancers dont move. I suspect it is
       // because they start an end that the same place." The guess is right, and the cure is that the call has
       // TWO moves: the request puts the step at the start and the step BACK "at the end of the call", and the
       // pacing asked for later ("2 beats to move the two steps, the rest stand still") is what happens in
-      // between. So the group walks forward over its own half, HOLDS, and walks back over the last of it.
-      if (isDeferredCall(g.call)) {
-        const move = findCodedMove(g.call);
-        const forwardBoard = move?.deferredHalf ? move.deferredHalf(before, ids) : null;
-        if (forwardBoard) {
-          const posed = this.deferredRoundTrip(before, forwardBoard, groupEnd, ids, groupBeats, beats, localBeat);
-          for (const d of posed.dancers) if (picked.has(d.id)) merged.set(d.id, d);
-          continue;
-        }
+      // between. So the lane walks forward over its own half, HOLDS, and walks back over the last of it - and
+      // the two boards are the apply's own (forward on `boards[1]`, resolved on the last).
+      if (lane.deferred) {
+        const forward = lane.boards[1] ?? before;
+        const settled = lane.boards[lane.boards.length - 1] ?? laneEnd;
+        const posed = this.deferredRoundTrip(before, forward, settled, lane.ids, lane.beats[0] ?? 0, beats, localBeat);
+        for (const d of posed.dancers) if (picked.has(d.id)) merged.set(d.id, d);
+        continue;
       }
-      const local = groupBeats > 0 ? Math.min(localBeat, groupBeats) : localBeat;
+      const total = lane.beats.reduce((a, b) => a + b, 0);
+      // WHICH CALL THE BEAT IS IN. Clamped to the lane's own total, so a lane that finishes early holds at its
+      // end pose while the longest lane is still moving; a zero-beat call takes no time and is stepped over
+      // rather than divided by.
+      const local = total > 0 ? Math.min(localBeat, total) : 0;
+      let i = 0;
+      let acc = 0;
+      while (i < lane.calls.length - 1 && acc + lane.beats[i] <= local) {
+        acc += lane.beats[i];
+        i++;
+      }
       const posed = this.evaluateCallAt(
-        before,
-        { selection: g.selection, call: g.call },
+        lane.boards[i],
+        { selection: lane.selection, call: lane.calls[i] },
+        // NULL, NOT THE WALK'S OWN `info`, and that is a measured trap rather than a style choice: `evaluateCallAt`
+        // finds the variant for a SELECTED call itself (it builds the centred subset and matches there), and
+        // handing it a variant that was matched against the whole board makes it try to TILE the board with a
+        // subset variant - no group matches, nothing is posed, and the dancers HOLD at the sub-call's start
+        // until the step's last frame. MEASURED on `Sides Trade then Pass Thru`: with `info` the sides sat at
+        // the Trade's end from beat 4 to 15.9 and jumped at 16; with `null` they walk the Pass Thru. Every
+        // group call before lanes existed passed `null` here for the same reason.
         null,
-        groupEnd,
-        groupBeats,
-        local,
+        lane.boards[i + 1] ?? laneEnd,
+        lane.beats[i] ?? 0,
+        local - acc,
       );
       for (const d of posed.dancers) if (picked.has(d.id)) merged.set(d.id, d);
     }
-    void beats;
     return { dancers: before.dancers.map((d) => merged.get(d.id) ?? d) };
   }
 

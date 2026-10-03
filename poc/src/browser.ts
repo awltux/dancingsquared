@@ -86,6 +86,16 @@ export class CallBrowser {
   /** Which dancer's track is being edited, which stretch of it, and WHICH OF THE MOVE'S TWO SHAPES
    *  is selected (`kind`). `null` = show every track in full, which is the browse view's behaviour. */
   private trailFocus: { index: number; range: { from: number; to: number } | null; kind: 'move' | 'facing' } | null = null;
+  /**
+   * WHICH DANCERS AN EDIT APPLIES TO, and which of their curves DISAGREE with the rest of the selection.
+   *
+   * Two sets rather than one because they are two different statements on the board: the first is drawn as a
+   * ring around the dancer (whose edits these are), the second as a red track (this is the path that does not
+   * match). They are set TOGETHER, from one place in the editor, so the rings and the reds can never describe
+   * two different selections.
+   */
+  private selectedDancers = new Set<number>();
+  private mismatchedDancers = new Set<number>();
 
   constructor(stage: Stage, player: Player, host: BrowserHost) {
     this.stage = stage;
@@ -515,6 +525,7 @@ export class CallBrowser {
       this.stage.scene.remove(v.trail);
       this.stage.scene.remove(v.trailHighlight);
       this.stage.scene.remove(v.facingTicks);
+      this.stage.scene.remove(v.selectionRing);
     }
     for (const m of this.markers) this.stage.scene.remove(m);
     this.views = [];
@@ -533,6 +544,7 @@ export class CallBrowser {
       this.stage.scene.add(this.views[i].trail);
       this.stage.scene.add(this.views[i].trailHighlight);
       this.stage.scene.add(this.views[i].facingTicks);
+      this.stage.scene.add(this.views[i].selectionRing);
       this.stage.scene.add(this.markers[i]);
       this.views[i].setTrail(sampleTrail(dancers[i], 80));
     }
@@ -679,6 +691,20 @@ export class CallBrowser {
   }
 
   /**
+   * MARK THE SELECTION ON THE BOARD: a ring around every dancer an edit applies to, and a red track for every
+   * one whose curve at the move being edited does NOT match the selection's.
+   *
+   * ONE CALL FOR BOTH, and that is the point of it: the rings and the reds answer two halves of one question -
+   * who is being edited, and who disagrees - so they are handed over together and applied together. A second
+   * setter would be a way for the two to describe different selections.
+   */
+  setSelection(selected: number[], mismatched: number[]) {
+    this.selectedDancers = new Set(selected);
+    this.mismatchedDancers = new Set(mismatched);
+    this.applyDisplay();
+  }
+
+  /**
    * How the dancers are drawn: `use2d` swaps the 3D wireframes for small flat icons seen from
    * above, and `showDancers: false` draws NO dancers at all - in EITHER representation, which is the
    * point of it: "hide the dancers" is a statement about the dancers, not about the wireframes, and
@@ -710,18 +736,31 @@ export class CallBrowser {
     for (let i = 0; i < this.views.length; i++) {
       const v = this.views[i];
       const focused = this.trailFocus?.index === i;
+      const marked = on && this.selectedDancers.has(i);
+      const mismatch = this.mismatchedDancers.has(i);
       v.group.visible = on && !flat && this.showDancers;
+      // THE RING IS NOT TIED TO `showDancers`. "Hide dancers" is about the BODIES - the point is to get them
+      // off the track being measured - and the ring is a mark on the FLOOR saying which spots the edits apply
+      // to, which is exactly what a caller looking at bare tracks still needs to know.
+      v.setSelected(marked);
+      // AND A WARNED TRACK IS KEPT ON SCREEN even when one dancer is focused: a mismatch is the reason the
+      // caller is looking at the board, so hiding the other tracks must not hide the answer.
+      v.setTrailWarning(mismatch);
       const marker = this.markers[i];
       // THE SAME SWITCH IN BOTH REPRESENTATIONS. A flat icon is a dancer, so "hide the dancers" hides
       // it too - otherwise the option would mean "hide the 3D ones", which is not what it says and
       // not what it is for: the point is to get bodies off the track being measured.
       if (marker) marker.visible = on && flat && this.showDancers;
-      // The focused dancer's WHOLE track is low brightness; every other track is hidden outright.
-      v.trail.visible = on && (this.trailFocus == null || focused);
+      // The focused dancer's WHOLE track is low brightness; every other track is hidden outright - except a
+      // track that DISAGREES, which is kept on screen for the reason above.
+      v.trail.visible = on && (this.trailFocus == null || focused || mismatch);
       const range = focused ? this.trailFocus?.range ?? null : null;
       // The highlight is a stretch of the SAME curve, sampled from the dancer's own beat
       // clock - `moveBeatRange` says which beats, this says where that is on the floor.
       v.setTrailHighlight(range && this.dancers[i] ? sampleTrailRange(this.dancers[i], range.from, range.to, 48) : null);
+      // ...AND THE WARNING GOES BACK ON AFTER IT, because setting a highlight DIMS the trail underneath: a
+      // warned track is the brightest thing on the floor, and the highlight must not take that away.
+      v.setTrailWarning(mismatch);
       v.trailHighlight.visible = v.trailHighlight.visible && on;
       // AND THE SECOND SHAPE. A move's facing is a direction, not a path, so the Facing selection
       // draws headings over the same beats instead of a line - which is what makes the two

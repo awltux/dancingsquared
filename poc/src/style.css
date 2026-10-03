@@ -115,6 +115,17 @@ html, body {
    than a control with a value, so it should read as part of the row and not as another field. */
 .ed-table .ed-link { padding: 0 0 0 3px; margin: 0; border: 0; background: none; font-size: 11px; line-height: 1; cursor: pointer; opacity: 0.75; }
 .ed-table .ed-link:hover { opacity: 1; background: none; color: var(--accent); }
+/* THE SWAP, in the header cell over the tick column. A small square icon button, the same weight as the tick
+   boxes it acts on rather than a full-size control: it is a two-operand action that is disabled most of the
+   time, so it should sit quiet in the header and only read as pressable once two dancers are ticked.
+   THE DISABLED LOOK IS NOT RESTATED HERE - `#editorPanel button:disabled` above already greys it out and says
+   not-allowed, and one rule for "a disabled button in this panel" is the point of having it.
+   `#editorPanel` is prefixed because `#hud button` is (1,0,1) and would otherwise win the padding and the size -
+   the same specificity trap the tab strip and the end-pair buttons hit. */
+#editorPanel .ed-table .ed-swap {
+  padding: 0; margin: 0; width: 18px; height: 16px; min-width: 0; font-size: 11px; line-height: 1;
+  font-family: inherit; border-radius: 3px; cursor: pointer;
+}
 .ed-grid { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 11px; margin-top: 2px; }
 .ed-grid label { width: auto; }
 /* THE END TARGET'S PAIRING: one small picker per dancer, `# -> spot`. It is a wrapping grid rather than a

@@ -20,6 +20,7 @@ import {
   poseFor,
   bezierPoint,
   bezierAngle,
+  arcBezierAbout,
   endPoses,
   rigidFit,
   normalizeInstance,
@@ -30,6 +31,10 @@ import {
   setMove,
   addMove,
   removeMove,
+  // The whole-trace copy the paperclip makes: every move at once, rather than one curve of one move.
+  setDancerPath,
+  // Switching two dancers: the whole entry at the other's index, which is what the button over the tick column does.
+  swapDancers,
   moveCurveEnd,
   // A facing edit holds the following trace: see `foldMoveChange`.
   holdFollowingTrace,
@@ -79,13 +84,29 @@ import type { CallEdit, CallInfo } from './data';
 // The one place that decides whether an exported `<tam>` embeds its start formation or NAMES it.
 import { callTamXml, corpusFormationPoses } from './tam-xml';
 import type { Stage, CurveSpec, HandleSpec } from './scene';
-import { HANDLE_COLOR } from './scene';
+import { FLOOR_HALF, HANDLE_COLOR } from './scene';
 import { el, esc } from './dom';
+// THE MAGNET LIVES IN ITS OWN MODULE so a probe can import the rule rather than mirror it - see
+// `grid-magnet.ts`. The board has two grids, and this file owns neither: it only asks which one is showing.
+import type { GridMode } from './grid-magnet';
+import { radialArcFit, radialCircleRadii, snapBoard } from './grid-magnet';
+// THE KEYBOARD IS ONE TABLE, owned by `main.ts` and installed once (`keys.ts`). A panel hands over the
+// bindings it wants rather than owning a listener, so the four decisions every global key handler has to
+// make - modifiers, a field being typed into, auto-repeat, and whether this panel is on screen - are made
+// once for all of them.
+import type { KeyBinding } from './keys';
 
 export interface EditorUI {
   setActive(a: boolean): void;
   /** Open the INSTANCE editor on one call and one setup, as if both had been chosen from the lists. */
   openCall(callId: string, setupIdx: number): void;
+  /** WHICH FLOOR GRID IS SHOWING. The board's grid is the STAGE's business (`scene.ts`), but the
+   *  CTRL-drag magnet is this panel's, and the two must never disagree - so the one value is handed to
+   *  both from the same change handler rather than read twice out of the DOM. See `grid-magnet.ts`. */
+  setGridMode(mode: GridMode): void;
+  /** THE SHORTCUTS THIS PANEL OWNS, for the app's one keyboard table (`keys.ts`). Each carries its own
+   *  `when`, so a panel says WHERE its shortcuts are live without owning a listener of its own. */
+  keyBindings(): KeyBinding[];
 }
 
 /** What the editor needs from the rest of the app. */
@@ -110,6 +131,10 @@ export interface EditorHost {
    *  edited decides whose track is shown, and which move decides which stretch of it. `kind` says
    *  WHICH OF THE MOVE'S TWO SHAPES to draw over that stretch - the path, or the facings. */
   focusTrail(index: number | null, range: { from: number; to: number } | null, kind?: 'move' | 'facing'): void;
+  /** MARK THE SELECTION ON THE BOARD: a ring around every dancer an edit applies to, and the paths that
+   *  DISAGREE with the rest in the warning colour. One call, so the rings and the reds cannot describe two
+   *  different selections - see `Browser.setSelection`. */
+  selectionMarks(selected: number[], mismatched: number[]): void;
   /** The named formations a call of THIS SIZE can be re-based onto, as start poses. The size is an
    *  argument because the two pickers are filled from it and must only ever offer formations the
    *  call's own dancer count can actually be re-based onto - see `ensureStartFormations`. */
@@ -255,6 +280,33 @@ function sameCurve(a: Seg, b: Seg, curve: CurveKind): boolean {
   return curve === 'travel' ? sameTravel(a, b) : sameFacingCurve(a, b);
 }
 
+/**
+ * WHETHER TWO DANCERS ARE DOING THE SAME THING, move for move.
+ *
+ * This is the paperclip's question, and it is the GATE'S OWN comparison asked over a whole PATH instead of
+ * at one index: the same travel shape, the same turn, the same duration and the same hands, with the same
+ * number of moves. Built out of `sameTravel`/`sameFacingCurve` rather than a second notion of "the same",
+ * because a link that stopped being offered while the traces still differed (or the reverse) is exactly
+ * the fault a second definition produces.
+ *
+ * THE START POSE IS NOT PART OF IT, deliberately. It is where the dancer stands and which way its own frame
+ * points - the frame every move of the path is authored in - so it belongs to the FORMATION. A link that
+ * "made two dancers the same" by moving one of them onto the other's spot would be rewriting the set, not
+ * the trace, and the Dancer scope is where that edit lives.
+ *
+ * BEATS AND HANDS ARE PART OF IT, and they are the half the old per-curve copy deliberately left out. The
+ * caller asked for "the Moves and settings", and a trace that keeps its own timing against a different
+ * donor's is two dancers doing the same shape at different times.
+ */
+function sameTrace(a: Seg[], b: Seg[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let k = 0; k < a.length; k++) {
+    if (!sameTravel(a[k], b[k]) || !sameFacingCurve(a[k], b[k])) return false;
+    if (a[k].beats !== b[k].beats || a[k].hands !== b[k].hands) return false;
+  }
+  return true;
+}
+
 /** Round the way the engine's XML export does, so a value read out of the table and typed
  *  back in is the same number rather than a 15-digit float. */
 const show = (n: number): string => (Math.round(n * 1e4) / 1e4).toString();
@@ -264,28 +316,6 @@ const toDeg = (rad: number): number => (rad * 180) / Math.PI;
 const normAngle = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
 const toRad = (deg: number): number => (deg * Math.PI) / 180;
 
-/**
- * The grid a CTRL-drag snaps to, and how close the pointer must come before it is pulled in.
- *
- * THE CELL IS THE FLOOR'S OWN, and the authority is the format's own header rather than a preference:
- * "The scale is in dancer units, same as shown when the grid is on", and the floor this app draws is 20
- * units in 20 divisions. So a whole unit is a drawn cell, a `Forward` (x2 = 1) is one cell of travel,
- * and MEASURED (`tools/snap-grid-probe.mjs`) the couples of a squared set stand 2 units apart. Only
- * 46% of the corpus's authored coordinates are on the unit grid, so this is a new convention rather
- * than a restoration of one - which is why it is behind a modifier.
- *
- * IT IS A MAGNET AND NOT A LOCK: the point is pulled onto a line only when it is already within a
- * quarter of a cell of one, and is left exactly where the pointer is otherwise. Rounding from anywhere
- * in the cell would make the drag quantised - every position a grid position - which is a different
- * gesture from "help me land on the line". The quarter cell is about 10 px in the flat view at 1080p
- * (the probe measures 40.9 px per unit there), so the pull is felt but the drag stays smooth.
- *
- * AND IT IS THE BOARD'S GRID, not a grid turned with the dancer's frame: the point is snapped in the
- * coordinates the floor is drawn in, before it is taken into the local frame at all. So a snapped
- * control point lands on a line the caller can SEE. The tile's numbers are then the dancer-local
- * coordinates of a grid point, which are not round when the dancer is turned - the honest consequence of
- * snapping to a grid drawn in another frame, and the reason the panel does not pretend otherwise.
- */
 /**
  * How closely a curve must follow a circle before the arc-centre handle is OFFERED, as a fraction of the
  * radius - and the threshold is only a formality here, because the corpus leaves a wide empty band for it to
@@ -328,6 +358,25 @@ const MIN_DANCERS = 2;
 const MAX_DANCERS = 16;
 const BEAT_STEP = 0.25;
 
+/** What the two PHASED halves of a gender are called: odd positions, then even ones. See `genderPicks`. */
+const PHASE_LABEL = ['', '1·3', '2·4'] as const;
+/** The same two phases said in words, for the button's tooltip. */
+const PHASE_DESC = ['all of them', 'the ODD positions (1st, 3rd, …)', 'the EVEN positions (2nd, 4th, …)'] as const;
+
+/**
+ * THE THREE EDIT STATES, in the order the `E` key rotates through them.
+ *
+ * The Edit row is TWO questions - WHO the board's gizmo belongs to (the scope) and WHAT it changes (the axis
+ * pair) - and this is the three answers that row can show: `Moves`, `Dancers + position`, `Dancers + rotation`.
+ * The axis is named for the move state too, where the axis pair is HIDDEN, so the cycle is deterministic:
+ * leaving `Moves` has to land on `Dancers + position`, not on whichever axis happened to be left behind.
+ */
+const EDIT_STATES: readonly { scope: 'move' | 'dancer'; axis: 'position' | 'rotation' }[] = [
+  { scope: 'move', axis: 'position' },
+  { scope: 'dancer', axis: 'position' },
+  { scope: 'dancer', axis: 'rotation' },
+];
+
 /**
  * Rotate a curve about its OWN START POINT: the end and the exit control turn, the start handle does not.
  *
@@ -344,42 +393,10 @@ function rotatePoint(p: { x: number; y: number }, theta: number): { x: number; y
   return { x: p.x * c - p.y * s, y: p.x * s + p.y * c };
 }
 
-
-
-const SNAP_CELL = 1;
-const SNAP_TOL = SNAP_CELL / 4;
-/**
- * The HALF grid's pull, and it is deliberately weaker than the whole grid's.
- *
- * HALF POSITIONS ARE WHERE THIS DANCE'S OWN COORDINATES LIVE. MEASURED over the move registry
- * (`tools/snap-grid-probe.mjs`): 61% of the authored coordinates sit on half units against 46% on whole
- * ones - a half-slot step is an ordinary thing to author - so a magnet that only knew the drawn lines
- * would refuse the position the assets use most.
- *
- * Two tiers rather than one finer grid, so the DRAWN lines keep their precedence: a whole unit wins
- * whenever both are in range, which is why this pull is half as wide. A point a quarter of a unit from
- * both lands on the drawn line.
- *
- * NOTE THAT NOTHING IS DRAWN AT THE HALF POSITIONS - the floor draws 1-unit cells and a 2-unit overlay -
- * so a half-snapped control point sits midway between two lines. That is a real place in this dance's
- * vocabulary rather than an arbitrary point, but it is not a place the grid shows, and the two tiers are
- * the honest way to say both things at once.
- */
-const SNAP_HALF_TOL = SNAP_CELL / 8;
-/**
- * Pull a coordinate onto the nearest grid line, or leave it exactly where it is.
- *
- * BOTH AXES ARE HANDLED INDEPENDENTLY, so a point can land on a line in x and stay free in y - which is
- * what "on the grid" means for a control point, and it avoids rounding a coordinate the caller did not
- * put near anything.
- */
-const snapTo = (v: number): number => {
-  const whole = Math.round(v / SNAP_CELL) * SNAP_CELL;
-  if (Math.abs(v - whole) <= SNAP_TOL) return whole;
-  const half = Math.round(v / (SNAP_CELL / 2)) * (SNAP_CELL / 2);
-  if (Math.abs(v - half) <= SNAP_HALF_TOL) return half;
-  return v;
-};
+// THE MAGNET'S NUMBERS AND BOTH GRIDS' RULES LIVE IN `grid-magnet.ts`, which is pure - no DOM, no three -
+// so `poc/tools/snap-grid-probe.mjs` and `poc/tools/radial-grid-probe.mjs` IMPORT the rule instead of
+// mirroring it, and a copy of it cannot drift from the one the drags use. What is left here is one call,
+// `snapBoard(board, mode)`, at each of the two drag sites.
 
 /**
  * HOW FAR THE HEADING HANDLE SITS FROM THE DANCER IT BELONGS TO, in board units.
@@ -502,6 +519,9 @@ export class EditorController implements EditorUI {
   private stage: Stage;
   private host: EditorHost;
   private active = false;
+  /** Which grid the board is showing, and therefore which magnet `snapBoard` is asked for. Defaults to
+   *  the square grid, which is what the board opens on and what it did before there was a choice. */
+  private gridMode: GridMode = 'square';
 
   private modeSel = el<HTMLSelectElement>('edMode');
   private levelSel = el<HTMLSelectElement>('edLevel');
@@ -703,6 +723,16 @@ export class EditorController implements EditorUI {
    * both cases is exactly what the move's END means: where the dancer is, and which way it is facing.
    */
   private handleMode: 'control' | 'end' = 'control';
+  /**
+   * WHICH PHASE of the boys (and of the girls) the bulk pick is showing.
+   *
+   * 0 = everyone of that gender, 1 = the ODD positions in the list (1st, 3rd, …), 2 = the EVEN ones (2nd,
+   * 4th, …). It is the BUTTON's own state and not the selection's, so the ticks can be changed by hand
+   * between clicks without losing the caller's place in the cycle; `loadInstance` puts it back to 0, because
+   * a new call is a different set of dancers to count through.
+   */
+  private boyPhase = 0;
+  private girlPhase = 0;
   /**
    * Whether the curve being edited is LOCKED to a quarter arc, and which curve that answer is about.
    *
@@ -1034,6 +1064,9 @@ export class EditorController implements EditorUI {
       this.circleCentre = null;
       this.circleSide = 1;
       this.selectedDancers = new Set([0]);
+      // AND THE PHASED PICKS START OVER: the phases index into THIS call's boys and girls.
+      this.boyPhase = 0;
+      this.girlPhase = 0;
       // THE PICKERS ARE FILLED FROM THE INSTANCE'S OWN SIZE, and only after it is loaded: they offer
       // formations this call can actually be re-based onto, so the list is a question about the
       // instance rather than about the app. See `ensureStartFormations`.
@@ -1236,39 +1269,48 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * MAKE ONE DANCER AGREE with the selected ones, by copying their coordinates into its move here.
+   * CLONE ONE DANCER'S WHOLE TRACE ONTO ANOTHER.
    *
-   * Asked for as: "Add a link symbol next to the dancers that dont match, that will correct the non-matching
-   * coordinates using the matching coodinates. Remove the link once they do match and select the now matching
-   * dancer."
+   * Asked for as: "If I select one, I'd expect the paperclip symbol for the another dancer to copy the
+   * correct dancers Moves and settings, with appropriate transforms, to the paper-clip trace. It should
+   * clone a good trace to another dancer."
    *
-   * WHAT IS COPIED IS THE CURVE THE TAB EDITS, and nothing else - the beats and the hands are left alone, which
-   * is the same line the coordinate gate draws: it compares SHAPES, and unifying a timing across a selection is
-   * a legitimate separate edit.
+   * WHAT IS COPIED IS THE PATH - every move, with its facing, its beats and its hands - and what is NOT is
+   * the start pose, the gender and the home identity, which are the formation's rather than the trace's.
+   * "Appropriate transforms" needs no arithmetic here: a path is authored in the dancer's OWN frame, so the
+   * local frame IS the transform, and the receiving dancer gets the donor's motion relative to its own
+   * start. That is also why the whole path goes at once rather than a curve at a time - the moves that
+   * FOLLOW the one being edited are then the donor's too, so nothing downstream is left swinging.
    *
-   * THE FACING TAB COPIES `rotate ?? translate`, AND THAT IS NOT THE SAME AS COPYING `rotate`. A dancer with no
-   * rotation curve faces along its own travel tangent - that is what `poseFor` implements and what
-   * `sameFacingCurve` compares - so copying a NULL would leave the dancer facing by its own path and it still
-   * would not match. Copying the EFFECTIVE facing as an explicit curve makes the two identical BY CONSTRUCTION,
-   * which is what "correct them using the matching coordinates" has to mean if the link is to disappear.
-   *
-   * MATCHING BY CONSTRUCTION RATHER THAN BY HOPE: afterwards `sameTravel` compares a curve with itself (gap 0)
-   * and `sameFacing` compares two identical profiles, so the link is guaranteed to go - and the caller's own
-   * gate has already decided the set was worth widening.
+   * IT GOES THROUGH THE ENGINE'S `setDancerPath`, not a loop of `setMove`s: that is what re-times the call
+   * when the two paths differ in length, normalises a mirrored instance, and gives the new segments their
+   * own objects. The last of those matters more than it looks - a `Seg` carries its copied point as a key in
+   * `moveClips`, so shared moves would light up on both dancers at once.
    */
-  private matchDancer(i: number, curve: CurveKind) {
+  private matchDancer(i: number) {
     const call = this.instance;
     if (!call) return;
-    const ref = call.dancers[this.moveDancer]?.path[this.moveIndex];
-    const seg = call.dancers[i]?.path[this.moveIndex];
-    if (!ref || !seg || i === this.moveDancer) return;
-    const source = curve === 'facing' ? ref.rotate ?? ref.translate : ref.translate;
-    const patched: Seg = curve === 'facing' ? { ...seg, rotate: { ...source } } : { ...seg, translate: { ...source } };
-    // THE SELECTION FIRST, so the re-render `commit` does shows the dancer both corrected and picked - the two
-    // halves of what was asked for arrive in one frame rather than one after the other.
+    const donor = call.dancers[this.moveDancer];
+    const target = call.dancers[i];
+    if (!donor || !target || i === this.moveDancer) return;
+    if (donor.path.length === 0) {
+      this.refusal(`dancer ${this.moveDancer + 1} has no moves to clone`);
+      return;
+    }
+    const before = target.path.length;
+    // THE SELECTION FIRST, so the re-render `commit` does shows the dancer both corrected and picked - the
+    // two halves of what was asked for arrive in one frame rather than one after the other.
     this.selectedDancers.add(i);
-    this.commit(setMove(call, i, this.moveIndex, patched));
-    this.statusEl.textContent = `dancer ${i + 1} now ${curve === 'travel' ? 'moves' : 'faces'} with the selection`;
+    this.commit(setDancerPath(call, i, donor.path));
+    // THE TARGET'S OLD COPIED POINTS ARE DROPPED, and that is the documented rule rather than tidiness: a
+    // copy belongs to the move it was taken from, and these moves are now the DONOR's. `carryMoveClips`
+    // pairs by position whenever the path length is unchanged, so without this a point copied from the
+    // dancer's own old move would survive onto a move it was never taken from - the same class of fault as
+    // the delete that used to carry the removed move's point onto the move that took its index.
+    for (const s of this.instance?.dancers[i]?.path ?? []) this.moveClips.delete(s);
+    this.statusEl.textContent =
+      `dancer ${i + 1} now dances dancer ${this.moveDancer + 1}'s ${donor.path.length} move${donor.path.length === 1 ? '' : 's'}` +
+      (before === donor.path.length ? '' : ` (it had ${before})`);
   }
   /** The curve the tile is editing, which is the one `matching` and the lock are asked about. */
   private tabCurve(): CurveKind {
@@ -1291,6 +1333,102 @@ export class EditorController implements EditorUI {
     this.statusEl.textContent = n === 0 ? 'no dancers selected — edits have nowhere to go' : `${what}: ${n} dancer${n === 1 ? '' : 's'} selected`;
   }
 
+  /**
+   * THE BOYS OR THE GIRLS, ONE PHASE OF THEM.
+   *
+   * Asked for as: "Add new phase to the boys and girls Select buttons so that it first selects all boys, then
+   * the first and third, then the second and fourth. These tend to match the matching transformed paths in
+   * the different formations."
+   *
+   * Phase 0 is everyone of that gender; phase 1 is the ODD positions among them (the 1st, 3rd, …) and phase 2
+   * the EVEN ones (2nd, 4th, …).
+   *
+   * THE ORDER IS THE TABLE'S OWN `#` COLUMN - the dancer array, which is what the caller can count on screen -
+   * so "the first and third" means the first and third of that gender AS LISTED. That is deliberately not the
+   * formation's own identity: array position is the renderer's binding rather than an identity
+   * (`assignHomeIdentity` says so), and the number the caller is looking at is the one the phase has to agree
+   * with.
+   */
+  private genderPicks(gender: Gender, phase: number): number[] {
+    const call = this.instance;
+    if (!call) return [];
+    const all = call.dancers.map((d, i) => (d.gender === gender ? i : -1)).filter((i) => i >= 0);
+    if (phase === 0) return all;
+    return all.filter((_, k) => k % 2 === (phase === 1 ? 0 : 1));
+  }
+
+  /**
+   * IS THERE ANYBODY OF THAT GENDER TO PICK?
+   *
+   * The ONE test for it: the button's own `disabled` and the `G`/`B` bindings' `when` both read this, so a key
+   * can never select a set the button would have refused to click. (The cycle itself already skips a phase that
+   * would select nobody, so a call with one boy keeps selecting him rather than clearing the ticks.)
+   */
+  private hasGender(gender: Gender): boolean {
+    return !!this.instance && this.genderPicks(gender, 0).length > 0;
+  }
+
+  /**
+   * ADVANCE ONE GENDER'S PHASE AND SELECT IT.
+   *
+   * A PHASE THAT WOULD SELECT NOBODY IS SKIPPED, and that is not a nicety: a call with one boy has nothing at
+   * "the second and fourth", and landing on an empty set would clear every tick and leave the panel saying
+   * edits have nowhere to go. So the cycle runs over the phases that DO have a pick - for that call, `all` and
+   * the single boy - rather than over the numbers 0, 1, 2.
+   */
+  private cycleGenderPicks(gender: Gender): void {
+    const options = [0, 1, 2]
+      .map((phase) => ({ phase, picks: this.genderPicks(gender, phase) }))
+      .filter((o) => o.picks.length > 0);
+    if (options.length === 0) return;
+    const current = gender === 'boy' ? this.boyPhase : this.girlPhase;
+    // A PHASE THAT IS NO LONGER OFFERED - a different call, fewer of that gender - falls back to the FIRST,
+    // so the next click always selects somebody rather than landing nowhere.
+    const at = options.findIndex((o) => o.phase === current);
+    const next = options[(at + 1) % options.length];
+    if (gender === 'boy') this.boyPhase = next.phase;
+    else this.girlPhase = next.phase;
+    const noun = gender === 'boy' ? 'boys' : 'girls';
+    this.setDancerSelection(next.picks, next.phase === 0 ? noun : `${noun} ${PHASE_LABEL[next.phase]}`);
+  }
+
+  /**
+   * The label and the tooltip of a phased gender button, FROM THE PHASE IT IS ACTUALLY ON.
+   *
+   * The label carries the phase (`boys`, `boys 1·3`, `boys 2·4`) because that is the one thing a three-phase
+   * button has to say, and the tooltip names BOTH halves with their dancer numbers - the two sets the caller
+   * is comparing against the paths on the board - and says where in the cycle the button currently is.
+   *
+   * `key` is the letter that cycles it, and it is a parameter rather than something this function works out,
+   * because the tooltip is the only place the shortcut is written down in the app: the letter IS the button's
+   * own word, and saying so is how the caller finds out that `G` and `B` do anything at all.
+   */
+  private renderGenderButton(gender: Gender, btn: HTMLButtonElement, count: number, key: string): void {
+    const noun = gender === 'boy' ? 'boys' : 'girls';
+    const phase = gender === 'boy' ? this.boyPhase : this.girlPhase;
+    const all = this.genderPicks(gender, 0);
+    const odd = this.genderPicks(gender, 1);
+    const even = this.genderPicks(gender, 2);
+    const nums = (list: number[]) => list.map((i) => i + 1).join(', ');
+    btn.textContent = phase === 0 ? noun : `${noun} ${PHASE_LABEL[phase]}`;
+    if (!this.instance || count === 0) {
+      btn.title = `This call has no ${noun}.`;
+      return;
+    }
+    // THE ONE THAT CANNOT CYCLE ALL THE WAY, said rather than left to be discovered: one boy has no second
+    // half, and the click simply stays on him.
+    if (even.length === 0) {
+      btn.title =
+        `Select the ${count === 1 ? `only ${gender}` : `${count} ${noun}`} (${nums(all)}). There is no second half to cycle to - ` +
+        `a phase that would select nobody is skipped - so this button keeps selecting the same dancer. The ${key} key cycles it.`;
+      return;
+    }
+    btn.title =
+      `Select all ${count} ${noun} (${nums(all)}), then the ODD positions among them - the 1st, 3rd, … (${nums(odd)}) - ` +
+      `then the EVEN ones (${nums(even)}). Those two halves tend to be the dancers whose paths MATCH under a formation transform, ` +
+      `which is what makes the cycle worth having. This button is showing ${PHASE_DESC[phase]}. The ${key} key cycles it.`;
+  }
+
   /** The bulk picks, and what each of them can currently do. */
   private renderSelectRow() {
     const call = this.instance;
@@ -1306,8 +1444,13 @@ export class EditorController implements EditorUI {
     this.moveDelBtn.disabled = !call || sel.length === 0;
     this.selMatchBtn.disabled = !agrees;
     this.selAllBtn.disabled = !call;
-    this.selBoysBtn.disabled = !call || boys === 0;
-    this.selGirlsBtn.disabled = !call || girls === 0;
+    this.selBoysBtn.disabled = !this.hasGender('boy');
+    this.selGirlsBtn.disabled = !this.hasGender('girl');
+    // AND THEY SAY WHICH PHASE THEY ARE ON, which is the one thing a three-phase button has to say: the label
+    // carries it and the tooltip explains the cycle. Both are derived from the phase and the data, so the
+    // words and the ticks cannot disagree.
+    this.renderGenderButton('boy', this.selBoysBtn, boys, 'B');
+    this.renderGenderButton('girl', this.selGirlsBtn, girls, 'G');
     this.selNoneBtn.disabled = !call || sel.length === 0;
     // THE EXPLANATION IS A HOVER, NOT A LINE OF TEXT. The row used to print a sentence about what matching
     // was looking at, which is one line of prose between the buttons and the table - and a sentence a caller
@@ -1358,6 +1501,30 @@ export class EditorController implements EditorUI {
       if (!seg || !sameCurve(first, seg, curve)) return false;
     }
     return true;
+  }
+
+  /**
+   * THE SELECTED DANCERS WHOSE CURVE AT THIS MOVE DIFFERS FROM THE SELECTION'S OWN - the paths the board has to
+   * point at when a selection disagrees.
+   *
+   * THE REFERENCE IS `moveDancer`, the same dancer the tile's numbers and the amber highlight are about, so
+   * what is marked as wrong is wrong RELATIVE TO WHAT THE PANEL IS SHOWING. A selection of one has nothing to
+   * disagree with and an empty one has no reference at all, so both mark nothing.
+   *
+   * IT IS THE SAME COMPARISON THE GATE MAKES (`sameCurve`), which is what makes the red tracks and the locked
+   * fields two readings of ONE fact rather than two opinions: the coordinate fields lock exactly when this
+   * returns a non-empty list, so "the paths that differ" and "the fields that are greyed out" cannot disagree.
+   */
+  private mismatchedDancers(curve: CurveKind): number[] {
+    const call = this.instance;
+    const sel = this.selectedSorted();
+    if (!call || sel.length < 2) return [];
+    const ref = call.dancers[sel[0]]?.path[this.moveIndex];
+    if (!ref) return [];
+    return sel.slice(1).filter((d) => {
+      const seg = call.dancers[d]?.path[this.moveIndex];
+      return !seg || !sameCurve(ref, seg, curve);
+    });
   }
 
   /**
@@ -1598,6 +1765,32 @@ export class EditorController implements EditorUI {
   }
 
   /**
+   * ROTATE THE EDIT STATE, asked for as: "Add the E keyboard shortcut that rotates through Edit Button state
+   * between `Moves`, `Dancers + Position` and `Dancers + Rotation`."
+   *
+   * IT GOES THROUGH `setScope`, the same call the row's own buttons make, and that is the whole of the wiring:
+   * `setScope` is what writes the three buttons' `on` classes, shows or hides the axis pair, and re-draws the
+   * board. A cycle that set the fields itself would have to re-do all four, and would be a second place for the
+   * buttons and the state to disagree.
+   *
+   * THE CURRENT STATE IS MATCHED ON BOTH HALVES - scope AND axis - so the next press is predictable from what
+   * the row is showing. An unmatched pair (which cannot arise from the row) falls back to the first state.
+   */
+  private cycleEditScope(): void {
+    const at = EDIT_STATES.findIndex(
+      (s) => s.scope === this.scope && (s.scope === 'move' || s.axis === this.dancerAxis),
+    );
+    const next = EDIT_STATES[(at + 1) % EDIT_STATES.length];
+    this.setScope(next.scope, next.axis);
+    this.statusEl.textContent =
+      next.scope === 'move'
+        ? 'Edit: Moves — the gizmo is on the selected move\'s control points'
+        : next.axis === 'position'
+          ? 'Edit: Dancers + Position — a drag moves every selected dancer by the same delta'
+          : 'Edit: Dancers + Rotation — a drag turns every selected dancer by the same angle';
+  }
+
+  /**
    * THE DANCER SCOPE'S GIZMO: one handle on the FOCUSED dancer's start pose, on one axis only.
    *
    * ONE DANCER'S HANDLES, LIKE THE MOVE SCOPE'S. The handle belongs to `moveDancer` - the lowest-numbered
@@ -1810,6 +2003,35 @@ export class EditorController implements EditorUI {
       handles.push({ id: `d${d}:c1`, anchor: { x: p0.x, y: p0.y }, point: world(t.cx1, t.cy1) });
       handles.push({ id: `d${d}:c2`, anchor: { x: p1.x, y: p1.y }, point: world(t.cx2, t.cy2) });
     }
+    // THE RADIAL ARC FIT, offered only when the grid can actually answer the question.
+    //
+    // Asked for as: "call editor: if radial grid and start and end points of the current curve are on the same
+    // radial circumference and the distance between the ends is less than half, offer a mid point control that
+    // when clicked calibrates the bezier controls best fit of the curve to the radial line it's connected to.
+    // This makes accurate fitting to radial circles so much easier than manually adjusting the controls."
+    //
+    // THE CONDITION IS `radialArcFit`'s, not this file's: the radial grid must be the one on the floor (a
+    // caller on the square grid has no circle to fit), the two ends must be on the same DRAWN circle, and the
+    // chord between them must be under half a cell. The chord test is why the control is worth having - over a
+    // chord that short the arc and the straight line differ by a hundredth of a unit, so nobody places the
+    // controls by eye - and it is also why the control cannot get in the way on a long move.
+    //
+    // IT IS DRAWN IN THE GRID'S OWN GREEN, and offered in BOTH handle modes: it is a property of the CURVE
+    // rather than of the two controls or the end point, which is what the mode switches between.
+    const circles = radialCircleRadii(FLOOR_HALF);
+    const fit = this.gridMode === 'radial'
+      ? radialArcFit({ x: p0.x, y: p0.y }, world(t.x2, t.y2), circles.fine.concat(circles.halves))
+      : null;
+    if (fit) {
+      handles.push({
+        id: `d${d}:arc`,
+        // ANCHORED ON THE MOVE'S START, like the first control: the line then runs from the point the chord
+        // begins at to the dot on the circle, so the dot reads as "this chord, fitted".
+        anchor: { x: p0.x, y: p0.y },
+        point: fit.mid,
+        color: HANDLE_COLOR.arc,
+      });
+    }
     stage.setGizmo(handles);
   }
 
@@ -1908,6 +2130,14 @@ export class EditorController implements EditorUI {
       if (!this.active || !this.isInstanceMode()) return;
       const id = this.stage.pickHandle(e.clientX, e.clientY);
       if (!id) return;
+      // THE ARC FIT IS A PRESS, NOT A DRAG. It is the one control in the gadget that does something on being
+      // hit rather than on being moved - there is nothing to drag it TO, since the circle it fits is already
+      // drawn on the floor - so it is answered here and the gesture ends.
+      if (id.endsWith(':arc')) {
+        this.fitRadialArc();
+        e.preventDefault();
+        return;
+      }
       this.dragHandle = id;
       // The arc-centre drag measures from HERE - see `dragArcBase` - so the fit and the centre's angle are
       // taken once, before the first pointer move has changed anything.
@@ -2032,7 +2262,7 @@ export class EditorController implements EditorUI {
       // THE SNAP GOES ON THE DRAGGED POINT, in the frame the grid is drawn in - the rule the move handles
       // already follow - and the DELTA is taken from the snapped point, so the focus dancer lands on a grid
       // line while every other selected dancer keeps its offset from it exactly.
-      const at = snap ? { x: snapTo(board.x), y: snapTo(board.y) } : board;
+      const at = snap ? snapBoard(board, this.gridMode) : board;
       const dx = at.x - focus.x;
       const dy = at.y - focus.y;
       for (const s of base.starts) {
@@ -2056,6 +2286,53 @@ export class EditorController implements EditorUI {
     // scope is Dancer. Adding a `syncStageSelection` here as well would rebuild the gizmo twice per pointer
     // move and change nothing.
     this.applyLight(next);
+  }
+
+  /**
+   * FIT THE CURRENT TRAVEL CURVE TO THE RADIAL CIRCLE ITS ENDS SIT ON - the press behind the green dot.
+   *
+   * THE END POINTS DO NOT MOVE. The fit is a cubic that passes through both of them and follows the circle
+   * between them (`arcBezierAbout`), so the chain the curve is part of - the move before it, the move after it,
+   * the joint's continuity - is untouched and only the two CONTROL points change. That is the difference
+   * between this and re-placing the move: the caller has said where the move ends, and this answers how it gets
+   * there.
+   *
+   * COMPUTED IN BOARD COORDINATES AND WRITTEN IN LOCAL ONES, which is the split every other handle edit uses:
+   * the circle is a fact about the floor and the curve is authored in the dancer's own frame, so the cubic is
+   * fitted on the board (about the set centre) and then converted through the same `floorToLocal` the tile's
+   * absolute fields use. The gate above `renderHandles` has already refused the case where the selected
+   * dancers' curves differ, so the one set of local numbers written here is the same SHAPE for all of them -
+   * exactly as a control-point drag writes it.
+   */
+  private fitRadialArc(): void {
+    const call = this.instance;
+    const dancer = call?.dancers[this.moveDancer];
+    const seg = dancer?.path[this.moveIndex];
+    if (!call || !dancer || !seg) return;
+    const range = moveBeatRange(dancer, this.moveIndex);
+    const p0 = poseFor(dancer, range.from);
+    const from = { x: p0.x, y: p0.y };
+    const to = localToFloor(p0, seg.translate.x2, seg.translate.y2);
+    const circles = radialCircleRadii(FLOOR_HALF);
+    const fit = radialArcFit(from, to, circles.fine.concat(circles.halves));
+    if (!fit) {
+      this.statusEl.textContent = 'no radial arc to fit here: the ends must be on the same drawn circle, less than half a unit apart';
+      return;
+    }
+    // THE FIT IS BUILT AT THE TOLERANCE THE RULE OFFERED IT UNDER, which is not a detail: the engine's own default is a
+    // stricter 5% than the magnet's tier, so passing nothing here drew the control for pairs the fit then refused.
+    const cubic = arcBezierAbout({ x: 0, y: 0 }, from, to, fit.tolRel);
+    if (!cubic) {
+      this.statusEl.textContent = 'the two ends are not on one circle, so no arc fits them';
+      return;
+    }
+    const c1 = floorToLocal(p0, cubic.cx1, cubic.cy1);
+    const c2 = floorToLocal(p0, cubic.cx2, cubic.cy2);
+    this.commitMoveChange(
+      (s) => ({ ...s, translate: { ...s.translate, cx1: c1.lx, cy1: c1.ly, cx2: c2.lx, cy2: c2.ly } }),
+      `d${this.moveDancer}:arc`,
+    );
+    this.statusEl.textContent = `curve fitted to the r = ${fit.radius} circle (${((Math.abs(fit.sweep) * 180) / Math.PI).toFixed(1)}deg of arc)`;
   }
 
   private applyHandleDrag(handle: string, board: { x: number; y: number }, snap = false) {
@@ -2082,7 +2359,7 @@ export class EditorController implements EditorUI {
     // help. The cost is on the other side and is worth stating plainly - the numbers left in the tile
     // are whatever a grid point's dancer-local coordinates are, so they are not round when the dancer is
     // turned. "Snap to the grid" means the grid you can see.
-    const snapped = snap ? { x: snapTo(board.x), y: snapTo(board.y) } : board;
+    const snapped = snap ? snapBoard(board, this.gridMode) : board;
     // The INVERSE of the placement in `renderHandles`: the pointer's floor point -> the LOCAL frame
     // of the move as the DRAGGED dancer performs it.
     const { lx, ly } = floorToLocal(p0, snapped.x, snapped.y);
@@ -2519,6 +2796,12 @@ export class EditorController implements EditorUI {
    * say "this is the move being edited", and either alone is a board that disagrees with the panel.
    */
   private syncStageSelection() {
+    // THE SELECTION IS MARKED FIRST, before every early return below, because the rings and the reds are about
+    // the SELECTION rather than about which track is focused - and every way out of this method has to leave
+    // them right, including the ones that show nothing else. The mismatched set is asked on the TAB's curve,
+    // which is the curve the fields are locked on.
+    const live = this.active && this.isInstanceMode() && !!this.instance;
+    this.host.selectionMarks(live ? this.selectedSorted() : [], live ? this.mismatchedDancers(this.tabCurve()) : []);
     if (!this.active || !this.isInstanceMode() || !this.instance || this.selectedDancers.size === 0) {
       this.host.focusTrail(null, null);
       this.renderHandles();
@@ -2692,6 +2975,54 @@ export class EditorController implements EditorUI {
     this.endPairEl.hidden = false;
   }
 
+  /**
+   * THE SWAP BUTTON, over the tick column it acts on.
+   *
+   * Asked for as: "Add a small button above the dancer select column that is normally greyed out and disabled
+   * unless two dancers are selected. With two dancers selected, the button will switch the selected dancers.
+   * Use a button icon something like a double ended arrow to indicate switch or swap."
+   *
+   * DISABLED UNLESS EXACTLY TWO, and that is the whole of its safety rather than a nicety: a swap is symmetric
+   * and needs two operands, and any other count has no defined answer - one dancer has nothing to swap with, and
+   * three would need an order the ticks do not carry. GREYED OUT RATHER THAN HIDDEN, so the column says what the
+   * ticks are for before there are enough of them to use.
+   *
+   * THE ICON IS `⇄`, the double-ended arrow that was asked for, and the tooltip carries the two dancer numbers
+   * it would switch - "which two" being the one thing a button with nothing written on it cannot say for itself.
+   */
+  private swapDancersBtn(): HTMLButtonElement {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ed-swap';
+    // A FOCUS KEY, so pressing it twice in a row does not lose the keyboard: the render below replaces this
+    // button, and `renderInstance` puts the focus back by key.
+    btn.dataset.key = 'swap';
+    btn.textContent = '⇄';
+    const pair = this.selectedSorted();
+    const ready = pair.length === 2;
+    btn.disabled = !ready;
+    btn.title = ready
+      ? `Switch dancer ${pair[0] + 1} and dancer ${pair[1] + 1} - their start poses, their whole paths and their genders trade places.`
+      : 'Switch two dancers. Tick exactly two boxes in this column, then press this: their start poses, their whole paths and their genders trade places. ' +
+        (pair.length === 1 ? 'One dancer is ticked.' : `${pair.length} are ticked.`);
+    btn.addEventListener('click', () => this.doSwapDancers());
+    return btn;
+  }
+
+  /**
+   * SWITCH THE TWO TICKED DANCERS - see `swapDancersBtn` for why it takes exactly two.
+   *
+   * The whole edit is `swapDancers`, so the panel does not restate which fields move; and it goes through
+   * `commit`, which is what carries the copied points onto the swapped moves and records the one undo step.
+   */
+  private doSwapDancers() {
+    const pair = this.selectedSorted();
+    if (!this.instance || pair.length !== 2) return;
+    const [a, b] = pair;
+    this.commit(swapDancers(this.instance, a, b), 'swap');
+    this.statusEl.textContent = `dancer ${a + 1} and dancer ${b + 1} switched`;
+  }
+
   /** The formation table: a start pose and an end pose per dancer, plus the reads. */
   private renderFormation() {
     const host = this.formationEl;
@@ -2707,6 +3038,9 @@ export class EditorController implements EditorUI {
       '<th></th><th></th><th colspan="4" class="ed-side">START</th>' +
       '<th colspan="3" class="ed-side">END (last move re-aimed)</th>' +
       '<th colspan="3" class="ed-side">READ</th>';
+    // THE SWAP BUTTON GOES IN THE FIRST CELL OF THAT ROW, the one sitting directly above the tick column: it
+    // acts on the ticks below it, so it belongs over them rather than on a row of its own.
+    r1.firstElementChild?.appendChild(this.swapDancersBtn());
     const r2 = document.createElement('tr');
     r2.innerHTML =
       '<th title="Tick the dancers an edit applies to. Most calls give every dancer the same movement rotated into its own position, so one move change usually belongs on all of them.">sel</th>' +
@@ -2748,26 +3082,31 @@ export class EditorController implements EditorUI {
 
     const num = document.createElement('td');
     num.textContent = String(i + 1);
-    // THE LINK, NEXT TO THE DANCERS THAT DO NOT MATCH. Asked for as: "Add a link symbol next to the dancers
-    // that dont match, that will correct the non-matching coordinates using the matching coodinates. Remove the
-    // link once they do match and select the now matching dancer."
+    // THE LINK, NEXT TO THE DANCERS WHOSE TRACE IS NOT THE SELECTED ONE'S.
     //
-    // IT IS OFFERED EXACTLY WHEN THE CORRECTION IS DEFINED: the selection has to AGREE, because that agreement
-    // is what there is to copy and it is the same condition the `matching` button itself lights up on. That also
-    // makes the link appear the moment `matching` is pressed without needing a mode of its own - the set
-    // `matching` picks agrees by construction, so every dancer outside it gets one.
-    const linkCurve = this.tabCurve();
-    if (this.coordinatesAgree(linkCurve) && !this.matchingDancers(linkCurve).includes(i)) {
+    // Asked for as: "Add a link symbol next to the dancers that dont match, that will correct the non-matching
+    // coordinates using the matching coodinates. Remove the link once they do match and select the now matching
+    // dancer." It is offered exactly when the correction is defined - the selection dances ONE trace, and this
+    // dancer does not - and the question is about the WHOLE TRACE rather than about the move on screen.
+    //
+    // IT DOES NOT READ THE TAB, AND THAT IS A FIX RATHER THAN A SIMPLIFICATION. `renderInstance` draws this
+    // table BEFORE `renderMoveStrip` normalises a stale `moveKind` to a move that has no facing, so a link
+    // drawn from the tab used to be offered - and pressed - for a FACING curve the panel was about to stop
+    // editing, while the `matching` button in the same frame used the corrected one. A whole-trace question
+    // has no move index to go stale in the first place.
+    const donorPath = this.instance?.dancers[this.moveDancer]?.path;
+    if (donorPath && !sameTrace(donorPath, r.moves)) {
       const link = document.createElement('button');
       link.type = 'button';
       link.className = 'ed-link';
       link.textContent = '\u{1F517}';
       link.dataset.key = `r${i}:match`;
       link.title =
-        `Make dancer ${i + 1}'s ${linkCurve === 'travel' ? 'path' : 'facing'} through this move the SAME as the selected dancers': ` +
-        `the coordinates are copied from dancer ${this.moveDancer + 1}. The link goes as soon as they agree, ` +
-        'and the dancer joins the selection.';
-      link.addEventListener('click', () => this.matchDancer(i, linkCurve));
+        `Make dancer ${i + 1} dance dancer ${this.moveDancer + 1}'s WHOLE TRACE: all ${donorPath.length} ` +
+        `move${donorPath.length === 1 ? '' : 's'}, with their facings, timings and hands, copied into this ` +
+        "dancer's own frame. The start pose, the gender and the home identity are left alone - those are the " +
+        'formation\'s. The link goes as soon as the traces agree, and the dancer joins the selection.';
+      link.addEventListener('click', () => this.matchDancer(i));
       num.appendChild(link);
     }
     tr.appendChild(num);
@@ -3397,14 +3736,8 @@ export class EditorController implements EditorUI {
       this.handleMode === 'end'
         ? `The board is showing the END POINTS: where this move finishes, and (on the Facing tab) the heading it finishes on. Click for the curve's CONTROL POINTS.${arcNote}`
         : `The board is showing the curve's CONTROL POINTS. Click for the END POINTS - where the move finishes - because a control point can sit on top of the end point, and then only one of the two can be grabbed.${arcNote}`;
-    hbtn.addEventListener('click', () => {
-      this.handleMode = this.handleMode === 'end' ? 'control' : 'end';
-      this.renderInstance();
-      this.statusEl.textContent =
-        this.handleMode === 'end'
-          ? 'handles: the END points — dragging the move\'s end holds the direction the dancer leaves on'
-          : 'handles: the curve\'s control points';
-    });
+    hbtn.title += ' The S key flips this too.';
+    hbtn.addEventListener('click', () => this.toggleHandleMode());
     tile.appendChild(hbtn);
 
     const grid = document.createElement('div');
@@ -3600,6 +3933,12 @@ export class EditorController implements EditorUI {
       // turn), so a refusal is always about a difference a caller could see. The branch was reachable only
       // while the gate compared raw numbers, where a difference of 1e-16 refused two identical curves.
       const diff = this.coordsDisagreement(curve);
+      // THE WAY OUT IS NAMED, BOTH WAYS. The caller has just been told the fields are locked - and can now SEE
+      // the tracks that disagree marked in red - so the two things that RESOLVE it are worth a sentence: the 🔗
+      // beside a dancer (which clones the reference's whole trace onto it) and picking one dancer (which is what
+      // the lock is FOR: one set of numbers cannot describe several curves).
+      const wayOut =
+        ' The paths that disagree are marked in RED on the board, and the dancers the edits apply to are ringed: press the 🔗 beside a dancer to give it this whole trace, or select one dancer to edit its curve alone.';
       const note = document.createElement('div');
       note.className = 'small';
       const what = curve === 'travel' ? 'move alike' : 'turn alike';
@@ -3608,18 +3947,18 @@ export class EditorController implements EditorUI {
       note.textContent = this.selectedSorted().length === 0
         ? 'no dancers selected — this tile has nowhere to write. Pick dancers with the buttons above the table.'
         : diff
-          ? `coordinates locked: dancer ${this.moveDancer + 1} and dancer ${diff.dancer + 1} do not ${what} here - their ${curve === 'travel' ? 'curves are' : 'facings are'} ${size}. The ${tab} tab edits ${curve === 'travel' ? 'the path' : 'the facing'} alone, so select one dancer to edit it.`
-        : `coordinates locked: the ${this.selectedSorted().length} selected dancers do not share this move's ${curve === 'travel' ? 'path' : 'facing'}, and one set of numbers cannot describe several - select one dancer to edit it`;
+          ? `coordinates locked: dancer ${this.moveDancer + 1} and dancer ${diff.dancer + 1} do not ${what} here - their ${curve === 'travel' ? 'curves are' : 'facings are'} ${size}. The ${tab} tab edits ${curve === 'travel' ? 'the path' : 'the facing'} alone, so select one dancer to edit it.` + wayOut
+        : `coordinates locked: the ${this.selectedSorted().length} selected dancers do not share this move's ${curve === 'travel' ? 'path' : 'facing'}, and one set of numbers cannot describe several - select one dancer to edit it` + wayOut;
       grid.appendChild(note);
     }
 
     // ---- the quarter-arc lock -------------------------------------------------
     //
     // A CHECKBOX ON EACH TAB, as asked for, and it is disabled - with the reason on screen - wherever a
-    // quarter arc is not possible. MEASURED over b1/ms/a1 (`engine/test/editor.mjs`, section 17h):
-    // 71.5% of the corpus's curves have handles that are not at a right angle, 11.9% have no handle
-    // length to size from, and none of them is a quarter arc - so the disabled state is the COMMON one
-    // and a dead checkbox with no explanation would be the normal experience.
+    // quarter arc is not possible. MEASURED over ms/a1 (`engine/test/editor.mjs`, section 17h): 71.5% of
+    // the corpus's curves have handles that are not at a right angle, 11.9% have no handle length to
+    // size from, and none of them is a quarter arc - so the disabled state is the COMMON one and a dead
+    // checkbox with no explanation would be the normal experience.
     const arcRow = document.createElement('span');
     arcRow.className = 'ed-group';
     const achk = document.createElement('input');
@@ -5124,14 +5463,8 @@ export class EditorController implements EditorUI {
       const call = this.instance;
       if (call) this.setDancerSelection(call.dancers.map((_, i) => i), 'all');
     });
-    this.selBoysBtn.addEventListener('click', () => {
-      const call = this.instance;
-      if (call) this.setDancerSelection(call.dancers.map((d, i) => (d.gender === 'boy' ? i : -1)).filter((i) => i >= 0), 'boys');
-    });
-    this.selGirlsBtn.addEventListener('click', () => {
-      const call = this.instance;
-      if (call) this.setDancerSelection(call.dancers.map((d, i) => (d.gender === 'girl' ? i : -1)).filter((i) => i >= 0), 'girls');
-    });
+    this.selBoysBtn.addEventListener('click', () => this.cycleGenderPicks('boy'));
+    this.selGirlsBtn.addEventListener('click', () => this.cycleGenderPicks('girl'));
     this.selMatchBtn.addEventListener('click', () => {
       if (this.selMatchBtn.disabled) return;
       this.setDancerSelection(this.matchingDancers(this.tabCurve()), `matching ${this.tabCurve() === 'travel' ? 'paths' : 'turns'}`);
@@ -5181,18 +5514,6 @@ export class EditorController implements EditorUI {
     this.instResetBtn.addEventListener('click', () => this.doResetInstance());
     this.revertBtn.addEventListener('click', () => this.doRevert());
     this.updateRevertBtn();
-    // CTRL/CMD+Z, because that is what undo is. It is NOT taken from a field: a text or number input has its
-    // own undo, and stealing the keystroke there would replace the caller's typing history with the panel's.
-    window.addEventListener('keydown', (e) => {
-      if (!this.active || !this.isInstanceMode()) return;
-      if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey) return;
-      if (e.key.toLowerCase() !== 'z') return;
-      const t = e.target as HTMLElement | null;
-      const tag = t?.tagName.toLowerCase();
-      if (tag === 'input' || tag === 'textarea' || tag === 'select' || t?.isContentEditable) return;
-      e.preventDefault();
-      this.doRevert();
-    });
     this.cloneBtn.addEventListener('click', () => this.doClone());
     this.instExportBtn.addEventListener('click', () => this.doExport());
     this.startFormationSel.addEventListener('change', () => this.doStartFormation());
@@ -5269,6 +5590,105 @@ export class EditorController implements EditorUI {
     this.statusEl.textContent = `opened ${this.editCallSel.selectedOptions[0]?.textContent ?? callId}`;
   }
 
+  /**
+   * THE GRID SWITCH'S HALF OF THE STORY. The stage draws the grid; this panel does the snapping, and the
+   * two have to agree about which one is on the floor. `main.ts` owns the one control and calls both, so
+   * there is no second reader of the DOM that could see a different value.
+   *
+   * IT IS NOT EDITOR-SCOPED, unlike the two view options. The grid is on every board in every panel, so it
+   * is a property of the board rather than of this panel - which is also why `applyViewOptions` does not
+   * touch it and why leaving the editor does not put the square grid back.
+   */
+  setGridMode(mode: GridMode) {
+    this.gridMode = mode;
+  }
+
+  /**
+   * FLIP THE BOARD BETWEEN THE TWO SETS OF HANDLES, whoever asked - the tile's `⇄` button or the S key.
+   *
+   * ONE METHOD RATHER THAN A CLICK HANDLER, so the key and the button cannot drift apart: the same field, the
+   * same re-render, the same sentence in the status line. `handleMode` is ONE value for the panel (see the
+   * field), so "the currently selected move" is whichever move the tile is showing, and the S key needs no
+   * move index of its own.
+   */
+  private toggleHandleMode(): void {
+    this.handleMode = this.handleMode === 'end' ? 'control' : 'end';
+    this.renderInstance();
+    this.statusEl.textContent =
+      this.handleMode === 'end'
+        ? 'handles: the END points — dragging the move\'s end holds the direction the dancer leaves on'
+        : 'handles: the curve\'s control points';
+  }
+
+  /**
+   * Whether there is a MOVE on screen for a shortcut to act on.
+   *
+   * THE MOVE TILE EXISTS EXACTLY WHEN THIS IS TRUE - the editor is the panel on screen, it is editing an
+   * instance, a dancer is selected, and that dancer has a move at the selected index - so a shortcut that
+   * asks this is live exactly when its control is. Without the last two, `S` would flip a handle mode for a
+   * tile nobody is looking at.
+   */
+  private hasSelectedMove(): boolean {
+    if (!this.active || !this.isInstanceMode() || this.selectedDancers.size === 0) return false;
+    const d = this.instance?.dancers[this.moveDancer];
+    return !!d && this.moveIndex < d.path.length;
+  }
+
+  /**
+   * THE SHORTCUTS THIS PANEL OWNS, handed to the app's one table rather than installed here.
+   *
+   * CTRL/CMD+Z, because that is what undo is. Two of the four decisions are already made for it by
+   * `keys.ts`: a modifier that is not mentioned must not be held (so a bare `z` is never undo, and
+   * Shift+Ctrl+Z is left to the browser), and it is not taken from a field - a text or number input has its
+   * own undo, and stealing the keystroke there would replace the caller's typing history with the panel's.
+   * What is left is this panel's own business, and it is `when`: the shortcut is live only while the editor
+   * is the panel on screen AND is editing an instance.
+   *
+   * `S` FLIPS THE HANDLES, on the move the tile is showing. A bare key is safe here for the reason the whole
+   * table exists: it fires only with no modifier held and never while a field is being typed into, so an `s`
+   * in the call filter or a formation name is not a shortcut. Its `when` is narrower than undo's, because a
+   * handle mode is only meaningful when there is a tile showing one.
+   */
+  keyBindings(): KeyBinding[] {
+    return [
+      {
+        id: 'editor-undo',
+        key: 'z',
+        mod: true,
+        when: () => this.active && this.isInstanceMode(),
+        run: () => this.doRevert(),
+      },
+      {
+        id: 'editor-handle-mode',
+        key: 's',
+        when: () => this.hasSelectedMove(),
+        run: () => this.toggleHandleMode(),
+      },
+      {
+        id: 'editor-edit-scope',
+        key: 'e',
+        when: () => this.active && this.isInstanceMode(),
+        run: () => this.cycleEditScope(),
+      },
+      // THE TWO GENDER SELECTS, ON THE LETTERS THE BUTTONS CARRY - G for the girls, B for the boys - so the key
+      // and the control it drives are the same word rather than a mnemonic to remember. They run the SAME
+      // method a click runs, so the ticks, the button's label and the tooltip cannot disagree about what the
+      // key did, and they are live by the same test the button's own `disabled` uses (`hasGender`).
+      {
+        id: 'editor-select-girls',
+        key: 'g',
+        when: () => this.active && this.hasGender('girl'),
+        run: () => this.cycleGenderPicks('girl'),
+      },
+      {
+        id: 'editor-select-boys',
+        key: 'b',
+        when: () => this.active && this.hasGender('boy'),
+        run: () => this.cycleGenderPicks('boy'),
+      },
+    ];
+  }
+
   setActive(a: boolean) {
     this.active = a;
     this.setHudWide();
@@ -5284,6 +5704,11 @@ export class EditorController implements EditorUI {
       // The editor is off screen: give every dancer's track back, and drop the Bézier gizmo so the
       // browse and sequence views cannot inherit a magenta dot from an edit that is not showing.
       this.host.focusTrail(null, null);
+      // AND THE MARKS COME OFF WITH IT. The rings and the reds are the EDITOR's statement about ITS selection,
+      // so leaving them on would tell the browse and sequencer views that these dancers are selected - on a
+      // board whose ticks, fields and handles have all gone. `setActive` is the one place that knows the panel
+      // is leaving, and `syncStageSelection` is not called on the way out.
+      this.host.selectionMarks([], []);
       this.stage.setGizmo(null);
       // The dialog belongs to this panel: leaving it up over the browse view would be two controls that do
       // nothing, on a board whose view options are released.

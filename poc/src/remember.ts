@@ -41,6 +41,10 @@ export const REMEMBER_ORDER: readonly string[] = [
   // The board itself - a display choice, but one that is re-made on every reload otherwise.
   'edView2d',
   'edHideDancers',
+  // THE FLOOR GRID, which belongs to the board rather than to any panel: it is drawn on every board, so it
+  // is restored with the other display choices and NOT with the editor's two, which are released whenever
+  // another panel is on screen. `main.ts` is its one owner.
+  'gridMode',
   // The tab LAST: switching tabs is what shows and hides the panels, and every list above belongs to a
   // panel that has to exist first.
   'modeSelect',
@@ -76,8 +80,19 @@ function save(id: string, value: string): void {
   }
 }
 
+/**
+ * WHAT CAN BE REMEMBERED: an input, a select, or a BUTTON.
+ *
+ * A BUTTON IS IN THE LIST because some of these controls are state-driven rather than value-driven - the
+ * floor grid is one of two references with no "off", so it is a button whose label IS the state. Its
+ * `value` carries that state and is kept in step by whichever setter owns it, which is why the generic
+ * branch below works for it unchanged; the `change` event the restore dispatches is what its own handler
+ * listens for.
+ */
+type Remembered = HTMLInputElement | HTMLSelectElement | HTMLButtonElement;
+
 /** The value a control should come up with, or null when nothing usable was stored. */
-function storedValue(el: HTMLInputElement | HTMLSelectElement): string | null {
+function storedValue(el: Remembered): string | null {
   const saved = read()[el.id];
   if (saved === undefined) return null;
   if (el instanceof HTMLSelectElement) {
@@ -91,7 +106,7 @@ function storedValue(el: HTMLInputElement | HTMLSelectElement): string | null {
 
 /** Start remembering a control: one listener per element, idempotent. */
 export function remember(id: string): void {
-  const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+  const el = document.getElementById(id) as Remembered | null;
   if (!el || el.dataset.remembered === 'yes') return;
   el.dataset.remembered = 'yes';
   el.addEventListener('change', () => {
@@ -109,7 +124,7 @@ export function remember(id: string): void {
  * Returns whether anything was restored, so a caller can tell "resumed your session" from "nothing to do".
  */
 export function restore(id: string): boolean {
-  const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+  const el = document.getElementById(id) as Remembered | null;
   if (!el) return false;
   const saved = storedValue(el);
   if (saved === null) return false;

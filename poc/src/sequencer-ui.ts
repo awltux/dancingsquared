@@ -7,7 +7,7 @@ import * as THREE from 'three';
 
 import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf } from 'dancing-squared-engine';
 import type { Board, CallStep, FormDancer, Matchable, Module, ModuleStep, Pose, SequenceStop } from 'dancing-squared-engine';
-import { stepLabel } from 'dancing-squared-engine';
+import { stepLabel, CODED_MOVES } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
@@ -92,6 +92,9 @@ export class SequencerController implements SequencerUI {
   private getinBtn = el<HTMLButtonElement>('seqGetin');
   private fixBtn = el<HTMLButtonElement>('seqFixIt');
   private statusEl = el<HTMLSpanElement>('seqStatus');
+  // Off until a subset call leaves somebody: `refreshCallSelect` is the only place that turns it on, and
+  // it runs before the first paint.
+  private parallelBtn = el<HTMLButtonElement>('seqParallel');
   private matrixInfoEl = el<HTMLDivElement>('seqMatrixInfo');
   private seqListEl = el<HTMLDivElement>('seqSequence');
   private fasrEl = el<HTMLDivElement>('seqFasr');
@@ -114,8 +117,6 @@ export class SequencerController implements SequencerUI {
   private view2dEl = el<HTMLSelectElement>('seqView2d');
   private subsetInfoEl = el<HTMLDivElement>('seqSubsetInfo');
   private formationNames: string[] = [];
-  /** See `startFormations`. */
-  private startFormationCache: { name: string; poses: FormDancer[] }[] | null = null;
 
   // State.
   private seq: Sequencer;
@@ -124,6 +125,17 @@ export class SequencerController implements SequencerUI {
   private markers: THREE.Group[] = [];
   private connectors: ReturnType<typeof buildHandConnectors>;
   private history: ModuleStep[] = [];
+  /**
+   * PARALLEL-CALL MODE. Set when the caller is giving the dancers the last call did NOT move their own
+   * call in the SAME time slot. Holds everything the offer needs, captured when the mode was entered:
+   *   - `board`   the board the first call was applied FROM, which is the board the remainder must be
+   *               resolved on. The live board is already after the first call, so resolving there would
+   *               name whoever is still standing rather than whoever was left over.
+   *   - `index`   the history entry to replace, so the pair becomes ONE step rather than two.
+   *   - `first`   the first group, kept so the composed step can be rebuilt.
+   *   - `remaining` the selector for the dancers the first call left behind.
+   */
+  private parallel: { board: Board; index: number; first: { selection: string; call: string }; remaining: string } | null = null;
   private modules: Module[] = [];
   private active = false;
   /** Display-only rotation (radians) applied about the set centre so the whole
@@ -171,6 +183,10 @@ export class SequencerController implements SequencerUI {
 
     for (const lv of availableLevels()) this.levelSelect.add(new Option(lv.toUpperCase(), lv));
     this.levelSelect.value = 'ms';
+    // THE LEVEL DECIDES WHICH PERMISSION RULES ARE IN FORCE, not just which calls are registered. A rule
+    // from a level above this one is not consulted: `sequencerCallsUpTo` has not registered those calls,
+    // so it could not apply them anyway. See `engine/src/sequencer/permissions.ts`.
+    this.seq.setActiveLevel(this.levelSelect.value);
     this.seq.setMatchMargin(parseFloat(this.marginInput.value) || 0);
 
     this.wireEvents();
@@ -204,45 +220,34 @@ export class SequencerController implements SequencerUI {
    * `setStartFormation` for a start, and out loud by `doEndFormation` for an end. The picker could not
    * express the call's own start, which is the one thing it is for.
    *
-   * TWO SOURCES, ONE PER SIZE, and the split is deliberate rather than an oversight:
+   * ONE SOURCE, EVERY SIZE, AND IT LISTS ARRANGEMENTS. The 8-dancer case used to keep the library's
+   * own `listFormations()`, on the reasoning that widening it is an engine change pinned by
+   * `engine/test/shape-census.mjs` and walked by four engine harnesses. That reasoning about the ENGINE
+   * is still right, and the engine's lists are still untouched - `getUniqueFormations()` is where
+   * `knownFormation`, the matcher's snap scan and the FSM's state vocabulary read from, and it is NOT
+   * this function. What was wrong was filling a PICKER from it. The library's key is GEOMETRY UP TO
+   * CONGRUENCE, which is right for recognising a board and wrong for choosing a name, and it hid the
+   * corpus's own arrangements. MEASURED on the corpus's columns - each authored as four, completed to
+   * eight by the half-set rule - `Columns`, `Column RH GBGB`, `Columns LH` and `Column LH GBGB` all stand
+   * on the same four spots, and they are THREE arrangements, not one: the first two are identical spot
+   * for spot, `Columns LH` is the 180-degree ROTATION of them (every dancer at the antipode of the
+   * other's spot, facing the other way), and `Column LH GBGB` is `Columns LH` with the genders swapped.
+   * Reported as "I need to see Arrangements, not Formations".
    *
-   *   - EIGHT DANCERS keeps the library, unchanged. Its 134 names are the ones the editor has always
-   *     offered, they are geometrically deduped (shapes equal up to rotation and reflection collapse to
-   *     one name), and widening them is an engine change pinned by `engine/test/shape-census.mjs` and
-   *     walked by four engine harnesses - far too much blast radius for a picker's contents.
-   *   - EVERY OTHER SIZE comes from the corpus itself, completed by the same half-set rule the library
-   *     uses, and NOT geometrically deduped: a caller choosing a start is choosing a name the corpus
-   *     uses, so `Box RH` and `Box RH Compact` are two useful entries rather than one shape twice.
-   *     MEASURED: 51 names at four dancers, and 212 catalogue calls that can now be answered.
+   * `corpusFormationsOfSize` keys on the POSITION, HEADING AND GENDER AT THE SAME SPOT, so it keeps all
+   * three, and it filters by `dancers` - so a call is never offered a formation whose count differs from
+   * its own. MEASURED over `formations.xml`: of the corpus's 211 eight-dancer names it keeps 201
+   * arrangements, against 176 under the congruence key; at four dancers, 48 of 51 against 38. The 134
+   * names the library knows are all represented - each is either offered or folded onto an identical
+   * board under the other spelling ("Static Square" and "Squared Set" are the same board spot for spot),
+   * and `engine/test/arrangement-picker.mjs` pins both halves of that.
    *
    * A size with no formations - sixteen dancers, which four calls have and `formations.xml` cannot
    * stand up - returns an empty list, and the picker then offers only "keep the current" and says so
    * rather than offering something that would be refused.
-   *
-   * Memoized per size: building a board is cheap but this is read on every instance load, and the
-   * catalogue cannot change while the app runs.
    */
   startFormations(dancers: number): { name: string; poses: FormDancer[] }[] {
-    if (dancers !== 8) return corpusFormationsOfSize(dancers);
-    return this.eightDancerFormations();
-  }
-
-  /** The library's own list, filtered to the eight-dancer boards it is entirely made of. See
-   *  `startFormations` for why this half is not shared with the other sizes. */
-  private eightDancerFormations(): { name: string; poses: FormDancer[] }[] {
-    if (!this.startFormationCache) {
-      const out: { name: string; poses: FormDancer[] }[] = [];
-      for (const name of this.formationNames) {
-        const b = this.seq.boardForSetup(name);
-        if (!b || b.dancers.length !== 8) continue;
-        out.push({
-          name,
-          poses: b.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender })),
-        });
-      }
-      this.startFormationCache = out;
-    }
-    return this.startFormationCache;
+    return corpusFormationsOfSize(dancers);
   }
 
   /**
@@ -290,7 +295,6 @@ export class SequencerController implements SequencerUI {
     for (const f of stored) this.seq.registerFormation(f.name, f.dancers);
     // A rebuilt library invalidates what the editor's clone picker was offered, and a newly
     // registered shape belongs in the formation dropdown.
-    this.startFormationCache = null;
     if (stored.length > 0) this.populateFormations();
   }
 
@@ -298,7 +302,6 @@ export class SequencerController implements SequencerUI {
   registerFormation(name: string, dancers: Matchable[]): void {
     this.seq.registerFormation(name, dancers);
     // A newly named shape can change what the formation dropdowns hold.
-    this.startFormationCache = null;
     this.populateFormations();
   }
 
@@ -344,6 +347,15 @@ export class SequencerController implements SequencerUI {
 
   /** Show which dancer subsets resolve on the current board. */
   private renderSubsetInfo() {
+    // IN PARALLEL MODE THE PANEL SAYS WHO IS STILL WAITING FOR A CALL, because that is the question the
+    // picker is answering - the "subsets present" list is about the group selector, which the pair's
+    // second call does not go through.
+    if (this.parallel) {
+      this.subsetInfoEl.innerHTML =
+        `Parallel call: <b>${esc(this.parallel.first.selection)} ${esc(this.parallel.first.call)}</b> is dancing · ` +
+        `<b>${esc(this.parallel.remaining)}</b> have no call yet — the list below offers theirs, and Apply joins them in the SAME slot.`;
+      return;
+    }
     const groups = this.seq.subsetGroups(this.seq.board);
     this.subsetInfoEl.innerHTML = groups.length
       ? `Subsets present: <b>${groups.join(' · ')}</b> — their calls are grouped under each selector below.`
@@ -391,6 +403,9 @@ export class SequencerController implements SequencerUI {
     // from. Anything this library holds that the user added has to be re-added on a rebuild.
     this.registerUserFormations();
     for (const c of sequencerCallsUpTo(this.levelSelect.value)) this.seq.register(c.name, c.xml);
+    // AFTER the registration, because `register` resets the sequencer and `reset` clears any extra
+    // permission rules. The level is where the picker's rules come from, so it is set last.
+    this.seq.setActiveLevel(this.levelSelect.value);
     this.history.length = 0;
     this.playing = false;
     this.playhead = 0;
@@ -466,7 +481,11 @@ export class SequencerController implements SequencerUI {
     this.refreshGroupSelect();
     const prev = this.callSelect.value;
     const legal = this.seq.legalNext().sort((a, b) => a.localeCompare(b));
-    const group = this.chosenGroup();
+    // IN PARALLEL MODE THE LIST ANSWERS A DIFFERENT QUESTION: not "what can the chosen group do", but
+    // "what can the dancers that group LEFT BEHIND do". The remainder is resolved on the board the first
+    // call started from, and the offer is narrowed by composing that selector and applying it - so a
+    // call only the whole board can perform is absent rather than offered and then refused.
+    const group = this.parallel ? this.parallel.remaining : this.chosenGroup();
     const modules = legal.filter((n) => this.seq.isModule(n));
     const calls = legal.filter((n) => !this.seq.isModule(n));
     const whole: string[] = [];
@@ -498,8 +517,27 @@ export class SequencerController implements SequencerUI {
         // false and EVERY whole-set call was dropped - the picker showed "no calls, just Modules".
         // MEASURED on a Static Square with `Head Boys`: 53 whole-set calls including `Dosado`, all
         // discarded, which is the reported "Dosado is not offered".
+        // ...AND ON THE BOARD THE OFFER IS ABOUT. In parallel mode the group is the REMAINDER, which
+        // only resolves on the board the first call started from - the live board has already moved the
+        // dancers the call took. Composing it there would name whoever is still standing, which is the
+        // opposite of the question.
         const bare = splitSelection(n).call;
-        if (!group || this.seq.groupCanPerform(this.seq.board, group, bare)) whole.push(bare);
+        const on = this.parallel ? this.parallel.board : this.seq.board;
+        if (!group || this.seq.groupCanPerform(on, group, bare)) whole.push(bare);
+      }
+    }
+    // GROUP-NAMED CODED CALLS, WHICH `legalNext` CANNOT OFFER. `Fold`, `Cross Fold`, `Trade`, `Run` and
+    // `Step Forward` all refuse their BARE name by design - their precondition says a group must be named -
+    // and `legalNext` is the whole-board reading, with an invariant this repo pins (`features.mjs`: every
+    // listed call applies interactively). MEASURED on a Static Square: all five were absent from the list, so
+    // `Boys Trade` and `Heads Step Forward` could not be sequenced from the picker AT ALL. With a GROUP chosen
+    // the group IS the subject, and `groupCanPerform` is the engine's own question for it - the same question
+    // the whole-set branch above asks - so they are offered here.
+    if (group) {
+      const on = this.parallel ? this.parallel.board : this.seq.board;
+      for (const m of CODED_MOVES) {
+        if (!m.applyToSelection || whole.includes(m.name)) continue;
+        if (this.seq.groupCanPerform(on, group, m.name)) whole.push(m.name);
       }
     }
     this.callSelect.innerHTML = '';
@@ -520,6 +558,11 @@ export class SequencerController implements SequencerUI {
     if (prev && offered.includes(prev)) this.callSelect.value = prev;
     // Remember which board this list answers for, so `settlePlayhead` can skip a redundant rebuild.
     this.listBoardKey = boardKey(this.seq.board);
+    // The parallel button is only live when a subset call has left dancers with no call of their own.
+    this.parallelBtn.disabled = !this.parallel;
+    this.parallelBtn.title = this.parallel
+      ? `${this.parallel.remaining} have no call yet — pick one from the list and Apply to dance it in the SAME slot as ${this.parallel.first.selection} ${this.parallel.first.call}.`
+      : 'Give the dancers the current call did NOT move their own call in the SAME time slot. Enabled only when the last call acted on a subset, e.g. Sides promenade while the Heads step into the middle.';
     this.updateFormationSelect();
     this.renderSubsetInfo();
   }
@@ -913,6 +956,9 @@ export class SequencerController implements SequencerUI {
   }
 
   private applySelected() {
+    // PARALLEL MODE ROUTES HERE FIRST: the picker is then offering the REMAINDER's calls, so Apply
+    // composes the pair instead of applying a second sequential call.
+    if (this.parallel) { this.applyParallel(); return; }
     const picked = this.callSelect.value;
     if (!picked) return;
     // THE CHOSEN GROUP IS PREFIXED HERE, and this is the one place it is applied. The picker offers
@@ -922,6 +968,10 @@ export class SequencerController implements SequencerUI {
     const group = this.chosenGroup();
     const name = group ? `${group} ${picked}` : picked;
     this.replayHistory();
+    // THE BOARD THE STEP STARTS FROM, captured before the apply mutates it. A parallel call's remainder
+    // must be resolved HERE rather than on the live board, which after the apply already shows the
+    // dancers the call moved - see `parallel`.
+    const from = this.seq.startBoard();
     const step = this.seq.apply(name);
     if (!step.legal) {
       this.statusEl.textContent = `✗ ${name}${step.reason ? ` — ${step.reason}` : ''}`;
@@ -929,7 +979,91 @@ export class SequencerController implements SequencerUI {
     }
     const expanded = this.seq.flatten([name]);
     this.history.push(...expanded);
-    this.statusEl.textContent = `✓ ${name}${expanded.length > 1 ? ` (${expanded.length} calls)` : ''}`;
+    // PARALLEL MODE CANNOT SURVIVE A NEW CALL: its remainder and its history index both belong to the
+    // step that has just been superseded.
+    this.parallel = null;
+    // WHO ACTED, FROM EITHER SOURCE. The GROUP SELECTOR is only one of the two ways a call can name a
+    // subset: a call the catalogue publishes with its own designator ("Sides Forward and Back", which
+    // the picker offers as a NAME) carries its selection in the call itself, and `chosenGroup()` is null
+    // for it. Taking the group from the selector alone measured `remaining` as null for every such call,
+    // so the button stayed dead on exactly the calls the report is about. The composed name's own
+    // selection is the fallback, and it is the same string the applicator split off.
+    const who = group ?? splitSelection(name).selection ?? null;
+    // A whole-set call leaves nobody, so the button stays off; a subset call leaves the rest of the
+    // board, which is exactly when a "while" partner can be offered. Only a PLAIN single step can take
+    // one - a call that flattened into several is several sequential steps, not one slot.
+    const remaining = who ? this.seq.remainingSelection(from, who) : null;
+    if (remaining && expanded.length === 1 && typeof expanded[0] === 'string') {
+      this.parallel = {
+        board: from,
+        index: this.history.length - 1,
+        first: { selection: who!, call: splitSelection(name).call || picked },
+        remaining,
+      };
+      this.statusEl.textContent = `✓ ${name} · ${remaining} left — "+ Parallel call" gives them their own call in the same slot`;
+    } else {
+      this.statusEl.textContent = `✓ ${name}${expanded.length > 1 ? ` (${expanded.length} calls)` : ''}`;
+    }
+    this.render();
+    this.refreshCallSelect();
+    this.syncAnimation();
+  }
+
+  /**
+   * Leave parallel mode, restoring the ordinary picker.
+   *
+   * ONE EXIT PATH, because the mode changes what the CALL LIST answers: leaving it without rebuilding
+   * the list would leave the remainder's calls on screen under the chosen group's heading.
+   */
+  private exitParallel(message?: string) {
+    if (!this.parallel) return;
+    this.parallel = null;
+    this.statusEl.textContent = message ?? '';
+    this.refreshCallSelect();
+  }
+
+  /**
+   * Give the dancers the last call did NOT move their OWN call, in the SAME time slot, as one step.
+   *
+   * THE TWO CALLS RUN SIMULTANEOUSLY, NOT IN SEQUENCE - the step becomes a `GroupStep`, which the engine
+   * applies from one board and charges the LONGEST group's beats. That is the whole point: a caller
+   * saying "sides promenade while the heads step into the middle" is ONE figure, not two in a row.
+   *
+   * The second call is taken from the picker, which is offering only what the REMAINDER can do
+   * (`refreshCallSelect` narrows it by `groupCanPerform` against `remaining`), so the pair cannot be
+   * built from a call only the whole board can perform.
+   */
+  private applyParallel() {
+    const p = this.parallel;
+    if (!p) return;
+    const second = this.callSelect.value;
+    if (!second) {
+      this.statusEl.textContent = `pick ${p.remaining}'s own call first`;
+      return;
+    }
+    const step: ModuleStep = { groups: [p.first, { selection: p.remaining, call: second }] };
+    // REPLACE the first call's entry rather than appending: the pair is ONE step, so Undo removes both
+    // and the sequence list shows one numbered row.
+    const withStep = [...this.history];
+    withStep[p.index] = step;
+    this.history = withStep;
+    this.replayHistory();
+    const applied = this.seq.applyStep(step);
+    if (!applied.legal) {
+      // A refused pair must not leave a half-built step in the list: put the single call back.
+      const back = [...this.history];
+      back[p.index] = `${p.first.selection} ${p.first.call}`;
+      this.history = back;
+      this.replayHistory();
+      this.parallel = p;
+      this.statusEl.textContent = `✗ ${stepLabel(step)}${applied.reason ? ` — ${applied.reason}` : ''}`;
+      this.render();
+      this.refreshCallSelect();
+      this.syncAnimation();
+      return;
+    }
+    this.parallel = null;
+    this.statusEl.textContent = `✓ ${stepLabel(step)} — one step; Undo removes both`;
     this.render();
     this.refreshCallSelect();
     this.syncAnimation();
@@ -945,6 +1079,8 @@ export class SequencerController implements SequencerUI {
   private undo() {
     if (this.history.length === 0) return;
     this.history.pop();
+    // THE PENDING PAIRING IS VOID: its history index was the entry just removed.
+    this.parallel = null;
     this.replayHistory();
     this.statusEl.textContent = '';
     this.render();
@@ -1068,6 +1204,7 @@ export class SequencerController implements SequencerUI {
 
   private reset() {
     this.history.length = 0;
+    this.parallel = null;
     // Reset returns the set to the home square, so the sequence starts from home
     // again (any formation jumped to with "Set" is forgotten).
     this.startBoard = undefined;
@@ -1230,11 +1367,40 @@ export class SequencerController implements SequencerUI {
 
   private wireEvents() {
     this.applyBtn.addEventListener('click', () => this.applySelected());
+    // THE PARALLEL BUTTON DOES NOT APPLY ANYTHING ON ITS OWN. It puts the picker into the mode where the
+    // list offers the REMAINDER's calls; Apply then composes the pair. Clicking it again leaves the mode.
+    this.parallelBtn.addEventListener('click', () => {
+      if (!this.parallel) {
+        // THE BUTTON IS DISABLED WHEN THERE IS NO REMAINDER, so reaching here means the last step could
+        // not take a partner. Say which, rather than appearing to do nothing - which is how a no-op read
+        // in the report that this button "doesn't seem to do anything".
+        this.statusEl.textContent =
+          'nothing to pair: the last step must be a SINGLE call that leaves some dancers standing. '
+          + 'Apply a subset call (e.g. Heads Promenade Full) first.';
+        return;
+      }
+      this.statusEl.textContent = `${this.parallel.remaining} left — pick their call, then Apply`;
+      // THE FIRST CALL IS CLEARED OUT OF THE PICKER, so "pick their call" is literally true. The list keeps the
+      // previous selection when it is still offered (`refreshCallSelect`), and in parallel mode the previous
+      // selection is the call that was just applied - which is very often still legal for the remainder.
+      // MEASURED on `Sides Step Forward`: press Parallel, press Apply without touching the picker, and the pair
+      // composed itself as "Sides Step Forward while All Except Sides Step Forward" - refused by the engine (two
+      // dependent groups), leaving the first call alone in the history and a 2-beat scrub, which reads as "the
+      // parallel call only lasts as long as the Step Forward". A refusal the caller caused by not touching a
+      // control is the kind this panel refuses elsewhere.
+      this.callSelect.value = '';
+      this.refreshCallSelect();
+      this.callSelect.focus();
+    });
     this.callSelect.addEventListener('change', () => (this.statusEl.textContent = ''));
     // Changing the GROUP re-reads the call list for that group - the picker offers the calls that group
     // can actually do, so the two selectors cannot disagree about who acts.
     this.groupSelect.addEventListener('change', () => {
       this.statusEl.textContent = '';
+      // A DIFFERENT GROUP IS A DIFFERENT STEP, so any pending parallel pairing is void: its remainder was
+      // computed for the group that has just been replaced. Leaving it would compose a step whose groups
+      // silently overlap, which the engine refuses - a loud failure, but one the caller did not cause.
+      this.parallel = null;
       this.refreshCallSelect();
     });
     this.undoBtn.addEventListener('click', () => this.undo());
@@ -1312,6 +1478,9 @@ export class SequencerController implements SequencerUI {
  * position-only signature is exactly the trap the engine records for `boardSig`. Rounded, because the
  * evaluated frames are interpolations and only a materially different board should cost a rebuild.
  */
+const PARALLEL_PREFIX = '↔ ';
+const isParallelPick = (v: string): boolean => v.startsWith(PARALLEL_PREFIX);
+
 function boardKey(board: Board): string {
   return board.dancers
     .map((d) => `${d.id}:${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(4)}`)

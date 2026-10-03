@@ -1,5 +1,5 @@
 // Browser data layer: discovers every per-level call XML via Vite `?raw` glob,
-// plus b1/b2/ssd level aliases from calls.xml, and exposes the level-grouped
+// plus `ssd` level aliases from calls.xml, and exposes the level-grouped
 // catalog + loader. Keeps convert.ts bundler agnostic.
 //
 // Many files bundle several distinct calls (e.g. circle.xml contains "Circle
@@ -24,6 +24,8 @@ import {
   // here and `callMeta` cannot drift apart.
   setupLabel,
   parseTaminationTitle,
+  // The single source for the programme order. See `permissions.ts` for why the engine owns it.
+  PERMISSION_LEVELS,
 } from 'dancing-squared-engine';
 import type { CallBundle, FormDancer } from 'dancing-squared-engine';
 
@@ -42,15 +44,15 @@ const levelLoaders = import.meta.glob<string>('./assets/*/*.xml', {
 });
 
 export interface CallInfo {
-  id: string; // unique key shown in the UI (e.g. "b1/circle::Circle Right")
-  level: string; // display level ("b1" | "ms" | ...)
-  file: string; // asset file actually loaded (e.g. "b1/circle")
+  id: string; // unique key shown in the UI (e.g. "ms/circle::Circle Right")
+  level: string; // display level ("ms" | "plus" | ...)
+  file: string; // asset file actually loaded (e.g. "ms/circle")
   title: string; // the specific call's <tam> title
   /** The `<tamination title>` of the file this call lives in - the FAMILY. `Export All` groups tams under it. */
   family: string | null;
   setups: { label: string; from: string }[];
   tamIndices: number[]; // indices into the file's <tam> list for this title
-  isAlias?: boolean; // true for b1/b2/ssd level aliases
+  isAlias?: boolean; // true for the synthesized `ssd` level aliases
 }
 
 // A user-authored call edit (from the call editor). `applied` means it is
@@ -97,7 +99,10 @@ function storageSet(key: string, value: string) {
 /** Browser call catalog: owns the level-grouped catalog, the call XML map, and
  * edit-override persistence. A single shared instance is created at module load. */
 export class Catalog {
-  private readonly levelOrder = ['discovered', 'b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
+  // THE ENGINE OWNS THE LEVEL ORDER, so the selector here and the permission layer's override order
+  // cannot drift. `ssd` is listed even though it has no asset directory: it is a synthesized alias
+  // level, ordered between Basic and Mainstream by `calls.xml`.
+  private readonly levelOrder: readonly string[] = PERMISSION_LEVELS;
   // Bump whenever the bundled call data changes: applied edit override flags
   // are cleared so the live catalog returns to the shipped version.
   private readonly dataVersion = '5';
@@ -160,12 +165,23 @@ export class Catalog {
     return out;
   }
 
+  /**
+   * Synthesize the `ssd` level from `calls.xml`'s own links.
+   *
+   * WHY ONLY `ssd`. `ssd` is the one level the corpus carries no directory for: it is a VIEW of calls
+   * that are authored under `ms`/`plus`/`a1`, and `calls.xml` says which basename each of its entries
+   * comes from. `b1` and `b2` used to be synthesized here the same way; both directories were removed
+   * when the Basic levels were retired in favour of `ms` 2026, and their `calls.xml` links are upstream
+   * history that must no longer conjure the levels back. Measured before dropping them: every `b1`/`b2`
+   * basename resolves at `ms`/`plus`/`a1`, so nothing is lost - and the four calls that existed ONLY
+   * under `b1`/`b2` were migrated into `ms/` first.
+   */
   private buildAliases(catalog: CallInfo[], xmlMap: Map<string, string>): CallInfo[] {
     const aliases: CallInfo[] = [];
     const doc = new DOMParser().parseFromString(callsXml, 'application/xml');
     for (const call of Array.from(doc.getElementsByTagName('call'))) {
       const link = call.getAttribute('link') || '';
-      const m = /^(b1|b2|ssd)\/([^?]+)/.exec(link);
+      const m = /^(ssd)\/([^?]+)/.exec(link);
       if (!m) continue;
       const level = m[1];
       const base = m[2];

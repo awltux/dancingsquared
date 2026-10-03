@@ -26,8 +26,8 @@ Equivalently, inside `poc/`: `npm install`, then `npm run dev` (after the
 engine is built).
 
 Open the URL Vite prints (default `http://localhost:5173`). Use the HUD to
-pick a **level** (B1, B2, SSD, MS, Plus, A1, A2, C1, C2, C3A, C3B, or "All
-levels"), which filters the **Call** dropdown (~630 call entries), choose a
+pick a **level** (SSD, MS, Plus, A1, A2, C1, C2, C3A, C3B, or "All
+levels"), which filters the **Call** dropdown, choose a
 setup, and play/pause, scrub, and change speed. Drag to orbit the camera. Each
 avatar has a small yellow **"nose" cone** marking its facing direction so
 orientation is visible. Dancers are **colour-coded by couple** (1=red, 2=yellow,
@@ -74,13 +74,15 @@ Switch the **Mode** dropdown to **Sequencer** to build and validate a call
 sequence on the 8-dancer board:
 
 - Pick a **level** (SSD, MS, Plus, A1, …) to restrict which calls are available.
-  Levels are **cumulative** (each builds on the earlier ones — e.g. B2 includes
-  B1, MS includes B1/B2/SSD), unlike the browse mode, which shows only the calls
+  Levels are **cumulative** (each builds on the earlier ones — e.g. MS includes
+  SSD), unlike the browse mode, which shows only the calls
   specific to the selected level. Then pick a call and **Apply** — the board
   advances, illegal calls are rejected with a reason. The call picker shows
   **only calls legal from the current formation** (refreshed after every
-  apply/undo/reset).
-- **Undo** / **Reset** to step back or start over.
+  apply/undo/reset). A **group-named coded call** — `Fold`, `Trade`, `Run`, `Heads Step Forward` (and its round-trip sibling `Heads Step Forward and Back if Possible`) — is offered
+  as well whenever the engine says the chosen group can dance it: those calls refuse their bare name by
+  design, so the whole-board list can never carry them, and without this the picker could not sequence
+  `Boys Trade` at all.- **Undo** / **Reset** to step back or start over.
 - **Getout** searches (bounded) for a sequence back to a Squared Set.
 - **Fix it** lists the calls that keep a getout alive.
 - **Save module** names the current sequence as a reusable fix/getout module; modules
@@ -154,12 +156,12 @@ only contains the browser/renderer layer:
 
 | Path | Purpose |
 |------|---------|
-| `src/data.ts` | Browser layer: `?raw`-imports the XML assets (via `import.meta.glob`), **splits multi-call files** so every distinct `<tam>` title is its own call, builds the level-grouped catalog (incl. b1/b2/ssd aliases), exposes `availableCalls()` / `loadCall()`. |
+| `src/data.ts` | Browser layer: `?raw`-imports the XML assets (via `import.meta.glob`), **splits multi-call files** so every distinct `<tam>` title is its own call, builds the level-grouped catalog (incl. the `ssd` synthesized aliases), exposes `availableCalls()` / `loadCall()`. |
 | `src/scene.ts` | Three.js adapter: floor grid, low-poly **wireframe** humanoids (torso/head/2-seg arm IK/legs with a beat-synced **walk cycle** via `WalkCycle`), hand-hold connectors, path trails. |
 | `src/main.ts` | Playhead (beats → ms), HUD wiring, play/pause/step/scrub, level filter, mode switch, frame loop. |
 | `src/sequencer-ui.ts` | Sequencer panel: apply calls on the board, FASR readout, getout + fix-it buttons. |
 | `src/editor-ui.ts` | Call editor: edit a taminations call INSTANCE (its start formation and arrangement, its end formation and its moves), fix a setup's closure, or generate a missing setup (padding core moves); preview, save to `localStorage`, export `<tam>` XML. |
-| `src/assets/*.xml` | taminations data per level (`b1, b2, ms, plus, a1, a2, c1, c2, c3a, c3b`), plus `moves.xml` / `formations.xml` / `calls.xml` (GPL/A-GPL data; license headers preserved). |
+| `src/assets/*.xml` | taminations data per level (`ms, plus, a1, a2, c1, c2, c3a, c3b`), plus `moves.xml` / `formations.xml` / `calls.xml` (GPL/A-GPL data; license headers preserved). |
 | `verify.cjs` | Headless assertions over the engine + a full-catalog scan. |
 
 ## Browse mode: moving the dancers by hand
@@ -330,6 +332,35 @@ tall** until the first window resize snapped it square, which is exactly what a 
 now resized once as the stage is built, again on every 3D↔2D switch, and by a **`ResizeObserver`** on
 the canvas, so a device-pixel-ratio change or a fullscreen toggle cannot leave the frame a layout
 behind either. `resize()` never touches `camera.zoom`, so panning and zooming survive it.
+**And the frame is the VISIBLE box, not the canvas.** The panels are DOM overlays floating *on top of*
+the canvas, so an 8-unit floor centred on the canvas is centred **under the HUD**. Reported from use:
+*"the board seems to be centralised to the screen, but it hasn't taken into account that the left hand
+dialog changes the visible board to the right hand side."* `scene.ts` frames the floor inside the canvas
+**minus the strips the panels cover** and centres it on the middle of what is left, on **both** cameras:
+
+* the flat view gets an **asymmetric frustum** — its centre is moved by the visible box's own offset -
+  and it is **fitted to the visible box**, so a panel narrows the board on a canvas where the width is
+  the tighter axis. On 1600×900 with a 432 px panel the floor's centre lands at 1016 px, the middle of
+  the 1160 px that is left, instead of the canvas's 800 px: the old framing left **216 px of the board's
+  middle under the panel**, which is the negative control in `node tools/view2d-probe.mjs` section 4;
+* the 3D view — the one on screen at startup - is moved by a **lens shift** (`camera.setViewOffset`),
+  which shifts the *projection* and leaves the camera where it is. That is not a stylistic choice: a
+  moved camera and target would be re-applied on every resize and would throw away whatever the caller
+  had orbited to, while a view offset can simply be recomputed. The same rule also fits the 3D
+  **distance** to the tighter axis, which the old fixed `9.84` did not — it cropped **0.8 units off each
+  side** of the floor on a canvas taller than it is wide. The distance is only recomputed until the
+  caller first touches the 3D view; the shift is not gated that way, because it does not move anything
+  the caller owns.
+
+The panel's width is **measured, not assumed** (`main.ts` reads `#hud`'s own box, and a `ResizeObserver`
+re-reads it when the mode changes the panel's shape), because the HUD is content-sized — 320 px at its
+narrowest and 780 px in the instance editor - and a constant would be right in one mode and wrong in the
+next. The inset is **capped at 45% of the canvas**: past that the panel is most of the window, there is
+no visible region left to centre in, and a frame that kept shrinking would draw the floor a few pixels
+wide. The **axis labels are sized as a fraction of the floor's half-width** (`AXIS_LABEL_FRAC`) for the
+same reason the floor's own numbers are derived rather than repeated: they were a constant written for a
+20-unit floor, and on the 8-unit one they read as a headline — *"The axis text is much larger than it
+needs to be."*
 
 Measured by `node tools/view2d-probe.mjs`, which drives three.js's real OrbitControls through a fake
 canvas: the construction-time frustum stretches the floor by exactly the canvas aspect (1.7778 on
@@ -584,9 +615,11 @@ back on its own value exports **byte-identically**, so touching one is not an ed
 ### CTRL snaps to the grid — as a magnet, not a lock
 
 **The cell is the floor's own**, and the authority is the format's header rather than a preference:
-*"The scale is in dancer units, same as shown when the grid is on."* The floor this app draws is 20
-units in 20 divisions, a `Forward` (`x2 = 1`) is one cell of travel, and the couples of a squared set
-stand **2** units apart (`node tools/snap-grid-probe.mjs`). Only **46%** of the corpus's authored
+*"The scale is in dancer units, same as shown when the grid is on."* The floor this app draws is **10 units
+in 10 divisions** — half-width 5, so with the half lines at 0.5 … 4.5 it is the 20 × 20 grid the caller counts
+— a `Forward` (`x2 = 1`) is one cell of travel, and the couples of a squared set stand **2** units apart
+(`node tools/snap-grid-probe.mjs`). The frame FITS that floor to the canvas on whichever axis is tighter
+(`scene.ts`: `frame`), so the grid fills and centres rather than sitting in a fixed 11-unit frame. Only **46%** of the corpus's authored
 coordinates are on the unit grid — the rest are ⅓s, 4/3s and 1/√2s, what a Bézier approximation of an arc
 produces — so this is a new convention rather than a restoration of one, which is why it is behind a
 modifier.
@@ -596,14 +629,17 @@ leaves it exactly where the pointer is otherwise. That is a *magnet*: rounding f
 would quantise the drag, so every position would be a grid position and the gesture would stop being
 "help me land on the line".
 
-**There are two tiers.** The drawn grid pulls from a quarter of a cell (**10.2 px** in the flat view at
-1080p, where a whole cell is 40.9 px), and the **half positions** pull from half that (**5.1 px**) — a
+**There are two tiers.** The drawn grid pulls from a quarter of a cell (**20.1 px** in the flat view on a
+1600 × 900 canvas with the floor fitted, where a whole cell is 80.4 px), and the **half positions** pull
+from half that (**10.0 px**) — a
 weaker tier, so a drawn line wins wherever they compete. Half positions are worth a tier because they are
 where this dance's own coordinates live: **61%** of the corpus's authored coordinates sit on half units
-against **46%** on whole ones. Nothing is *drawn* at the half positions — the floor draws 1-unit cells and
-a 2-unit overlay — so a half-snapped point sits midway between two lines. That is a real place in this
-dance's vocabulary rather than an arbitrary point, but it is not a place the grid shows, and two tiers is
-the honest way to say both things at once.
+against **46%** on whole ones. **Both grids now DRAW the half positions** — the square one as half *lines* and
+the radial one as half *rings*, at the same offsets (0.5 … 3.5) and in the same material, so a half-snapped
+point lands on a line the caller can see rather than midway between two. It is drawn as the weaker family:
+the divisions are the blue-grey at hue 212 and the half mark is a violet-grey at hue 270, at a lower alpha.
+Two tiers of PULL is still the honest way to describe the magnet — a drawn line wins wherever they compete —
+but the second tier is no longer a position the floor declines to show.
 
 Measured: of 1000 positions across two cells, **496** are pulled to a drawn line, **248** to a half
 position and **256** left free — sticky enough to help, free enough over a quarter of the cell to still
@@ -641,6 +677,156 @@ coordinates of a grid point**, so they are not round when the dancer is turned (
 leaves 4.2132 rather than 4.25). That is the honest consequence of snapping to a grid drawn in another
 frame, and the panel does not pretend otherwise.
 
+### Two floor grids: square, and radial
+
+**The board draws one of two references**, switched by a **state-driven button on the editor's Reset/Revert
+row**: the **square** grid the app has always drawn, or a **radial** one. The label *is* the state
+(`Grid: Square` / `Grid: Radial`) and pressing it flips to the other one — there is no "off", because a board
+with neither would have no reference at all. The grid itself is drawn on **every** board in every tab; only
+the switch sits with the editor's board state. Both are the same ruler — a division every whole unit out to
+the floor's edge, with every second one overlaid at the coarser weight — so switching changes the *shape* of
+the reference and not its scale. One press, one session restore and the startup call all reach the floor
+through the same setter, which writes the label, the `value` `remember.ts` stores and both consumers at once.
+
+**THE `W` KEY TOGGLES IT TOO, on every board and in every tab**, because the button is one control inside the
+editor's panel and a shortcut bound to it would only work while that panel happened to be on screen.
+
+### The keyboard: one table, one listener
+
+**Every shortcut in the app is a line in one table**, installed by `installKeys` in `poc/src/main.ts`.
+There are six:
+
+- **`W`** — the floor grid, on every board in every tab.
+- **Ctrl/Cmd+Z** — undo, in the editor while it is editing an instance.
+- **`S`** — flip the board's handles between the curve's **control points** and the move's **end points**, in
+  the editor, on the move the tile is showing. Asked for as *"Add an S keyboard shortcut in Call Editor tab
+  that switches between ends and controls on currently selected Move."* `handleMode` is one value for the
+  panel and the tile's `⇄` button is its control, so the key and the button call **one** `toggleHandleMode`
+  and cannot flip different state; its `when` asks `hasSelectedMove()`, which is the same four things the tile
+  needs (this panel, an instance, a dancer selected, a move at the selected index), so `S` is live exactly when
+  its button is visible rather than flipping a mode for a tile nobody is looking at.
+- **`E`** — rotate the board's **Edit** state: `Moves` → `Dancers + position` → `Dancers + rotation`. Asked for
+  as *"Add the E keyboard shortcut that rotates through Edit Button state between 'Moves', 'Dancers + Position'
+  and 'Dancers + Rotation'."* The Edit row is two questions — **who** the gizmo belongs to (the scope) and
+  **what** it changes (the axis pair) — and the three answers are named in one list (`EDIT_STATES`), with the
+  axis named for the `Moves` state too, so leaving it always lands on `Dancers + position` rather than on
+  whichever axis was left behind. The cycle goes through **`setScope`**, the same call the row's own buttons
+  make — which is what writes the buttons' `on` classes, shows or hides the axis pair and re-draws the board —
+  so the row and the board cannot describe three different states.
+- **`G`** and **`B`** — cycle the editor's **girls** and **boys** selects, on the letters those buttons carry.
+  Asked for as *"Now use the G to cycle Girls Select button and B to cycle the Boys Select button."* They run
+  **`cycleGenderPicks`**, the same method the buttons' own clicks run, so the ticks, the button's label
+  (`girls`, `girls 1·3`, `girls 2·4`) and its tooltip cannot disagree about what the key did — and they are
+  live by the **same test the button's `disabled` reads** (`hasGender`), so a key can never select a set the
+  button would have refused to click. The tooltips name the key, because that is the only place in the app
+  the shortcut is written down.
+
+  **They are why the grid toggle moved from `G` to `W`**, and the move is not cosmetic: the table is
+  first-match-wins with the grid binding ahead of every panel's, so `G` on both would have left the girls
+  select **unreachable** and silently grid-toggling instead. `keys-probe.mjs` drives that collision through
+  the real dispatcher rather than arguing about it, because a shortcut that quietly stops working is exactly
+  the failure a text assertion would wave through.
+`poc/src/keys.ts` is the system: it takes the bindings and the listener target as arguments, so it is pure
+enough that `poc/tools/keys-probe.mjs` **installs it on a fake target and dispatches synthetic events through
+it** rather than reading the source with a regex. **VERIFIED IN THE BROWSER** (Chromium against `poc/dist`):
+in the Call editor, `S` flips `⇄ controls` → `⇄ ends` → back, with the status line following; an `s` typed into
+the call filter lands in the filter and does not flip anything; and Ctrl+S is left to the browser.
+
+**Four decisions are made once, for all of them**, which is the whole reason it is a table:
+
+- **A modifier that is not mentioned must not be held.** `{ key: 'w' }` fires on `w` and never on Cmd+W,
+  Ctrl+W, Alt+W or Shift+W — which matters more for `W` than it did for `G`, since Ctrl+W closes a browser tab — so a bare key cannot swallow the browser's own chords, and a modded one cannot
+  fire on a stray letter. `mod` is Ctrl *or* Cmd, because that is what "undo" means on both platforms; a
+  chord that wants one and specifically not the other has no use here.
+- **A field being typed into keeps its keys.** Input, textarea, select and contenteditable all opt out by
+  default, because a text box has its own undo and a bare letter that changed the floor while someone typed
+  `g` into the call filter would cost more than the shortcut saves. A binding that wants the keystroke anyway
+  — an Escape that closes a dialog — says `whileTyping: true`.
+- **Holding a key down fires once.** Auto-repeat is off unless a binding asks for it, so holding `W` toggles
+  the floor instead of flickering between the two grids.
+- **A panel says where its shortcuts are live** with `when`, rather than owning a listener that checks. The
+  editor's Ctrl+Z is live only while the editor is on screen and editing an instance; it hands the binding to
+  the table through `editorUi.keyBindings()`.
+
+**The first matching binding wins**, and a key no binding owns is left entirely alone — nothing runs and the
+default is not cancelled, so a shortcut never costs the browser a keystroke it did not claim. `preventDefault`
+is called exactly when something ran. The table is validated on install: two bindings sharing an `id`, or one
+with no key, are refused with the reason, because a duplicate id is a copy-paste that silently shadows a
+shortcut.
+
+**WHY NOT A LIBRARY** (mousetrap, hotkeys-js, tinykeys): the four decisions above are the whole of what this
+app needs, and they are the part a library cannot make for you — what counts as "typing", what an unmentioned
+modifier means, whether a held key repeats. What a library *would* add is a dependency to a package whose only
+runtime dependency is `three`, and a matcher that cannot be driven without a DOM. The ~110 lines in `keys.ts`
+keep `matchKey` and `dispatchKey` as the shape to preserve if that ever changes.
+
+**The radial grid is 16 spokes** (one every 22.5°, the four cardinals in the bright centre-line colour the
+square grid gives `x = 0` and `y = 0`) **and a circle at every whole unit** from 1 to 4, with the even radii
+overlaid — **plus a mark at every half unit between them** (0.5 … 3.5). The half positions are where **61%** of
+this dance's authored coordinates live, so the mark between two divisions is a real reading — but it is not a
+division, so it is drawn to be *seen without being read as one*.
+
+**AND THE SQUARE GRID DRAWS THE SAME MARK.** Asked for as: *"Add the same subtle half-grid line used by the
+radial grid to the square grid."* The square grid's half *lines* stand at exactly the offsets the radial grid
+puts its half *rings* (`squareHalfOffsets` against `radialCircleRadii(...).halves`), and **both draw from ONE
+material** — `halfMat` — so "the same" is literal rather than two values that happen to agree today. The lines
+are a `LineSegments` rather than a second `GridHelper`: a `GridHelper` divides its span evenly, so 40 divisions
+would put a line at *every* half unit and overdraw the divisions the grid already has, where the half mark is
+only the positions *between* them. `radial-grid-probe.mjs` checks the two offset lists agree, that both grids
+draw from the shared material, and — from the material itself — that the half mark stays dimmer than the
+divisions and clear of the cardinal spokes' teal.
+
+**AND "TOO SUBTLE" IS A NUMBER, WHICH IS HOW IT GOT FIXED.** The first cut drew the half rings in the unit
+colour at **0.4**, which composites to `0x202a35` — a contrast of **1.27** against the `0x0e141b` floor,
+*dimmer than the 2-unit overlay already on that floor* (**1.43**) and only a quarter brighter than the floor
+itself. Reported from use: *"I cannot see the half circles on the radial grid, they are too subtle."*
+
+**Brightness alone was not enough to tell the two families apart**, and the measurement says why: the floor,
+the unit circles and the overlay are all **one hue** (212, blue), so a half ring that differs only in alpha is
+the same colour seen more faintly. Asked for as *"add subtle colours to differentiate the unit and half unit
+circles"*, the half rings now take a **violet-grey** (`0x5c5068` at 0.6) — **hue 270, 58° away** from the
+divisions, still subtle at that saturation, and deliberately clear of the cardinal spokes' teal (hue 159) so
+the three families on this floor read as three. It composites to `0x3d3849`, a contrast of **1.64**: above the
+overlay's 1.43 so the half ring is not the faintest line in the picture, below the unit circles' 1.95 so it is
+still the weaker family.
+
+`radial-grid-probe.mjs` recomputes the contrast **and the hue gap** from the materials and the floor — the
+order, an absolute 1.5:1 under them, and at least **30°** of hue between the two families — rather than
+trusting the figures in the comment. **VERIFIED IN THE BROWSER** (Chromium against `poc/dist`, the flat view,
+via the `W` key): the half rings are visible and read as lavender between the blue-grey divisions.
+
+It is drawn by `scene.ts` **from the same spec the magnet pulls to** (`src/grid-magnet.ts`, which is pure —
+no DOM and no `three`), so what is on the floor and what a CTRL-drag snaps to are one definition rather than
+two that happen to agree today. Both magnet probes (`snap-grid-probe.mjs` and `radial-grid-probe.mjs`) import
+that module instead of restating the rule.
+
+**Exactly one grid is ever visible.** `setGridMode` sets both flags from one boolean, so there is no state
+in which the caller has to turn one off before turning the other on, and none in which the floor has no
+reference at all.
+
+**The magnet follows the grid, and along the spokes and circles it is the same rule read in polar form.**
+The *radius* goes through the square magnet's own two tiers — whole circle first, then the half positions
+the assets are full of — and the *angle* is pulled onto the nearest spoke **only when the point is already
+close to it**. Measured by `node tools/radial-grid-probe.mjs`:
+
+- **The spoke's closeness is a DISTANCE, not an angle**, and that is the one design decision in it. A
+  fixed angular window behaves differently at every radius: the same **3°** off a spoke is **0.052** units
+  across at r = 1 and **0.523** at r = 10, so an angular window would pull both while a distance window
+  pulls the first and refuses the second. A point a fixed **0.2** units across is pulled by 0.2 at r = 2, 5
+  and 10, over angles from 5.7° down to 1.1°.
+- **It lands on the grid, never beside it**: every one of the **359,687** points the magnet moves in a
+  sweep of the floor comes back exactly on a circle of a snapped radius, and exactly on a spoke whenever
+  the angle is what moved.
+- **It is a magnet, not a lock**: idempotent over 4000 swept points, so a held CTRL-drag cannot creep; no
+  pull is worth half a cell (worst **0.3614** units against the square magnet's **0.3531** — the same size,
+  and the same **20.1 px** at that scale, because it is the same constant); and a point outside the pull is left
+  **bit-identically** where it was, which is why the rule hands the point back untouched rather than
+  rebuilding it from its own polar form.
+- **No half-spoke tier.** The square grid's half tier exists because **61%** of the corpus's authored
+  coordinates sit on half units; nothing in this corpus authors an angle on the floor, so a 32-spoke tier
+  would be a magnet for a position the grid does not draw. Recorded rather than glossed: the spokes crowd
+  together near the origin, so **inside r = 1.281** every angle is within a pull of some spoke.
+
 ### `arc`: locking a curve to a quarter of a circle or an ellipse
 
 Each tab has an **`arc`** checkbox. Ticking it **locks the curve to a quarter arc**, which means its five
@@ -667,7 +853,7 @@ There are two such situations, and they are separated because they call for diff
 
 - **The handles are not at a right angle.** A quadrant's end tangents *are* perpendicular by definition,
   so locking such a curve would have to turn the dancer, and the lock refuses rather than doing it in
-  silence. The tile prints the angle it measured. This is the common case: over b1/ms/a1, **71.5%** of
+  silence. The tile prints the angle it measured. This is the common case: over ms/a1, **71.5%** of
   the corpus's curves have non-perpendicular handles — a straight walk's two handles are *parallel* and a
   U-turn's are *anti-parallel*, and neither is a quadrant of anything.
 - **There is no handle length at all to size an arc from.** A `Stand` has every coordinate zero, so there
@@ -678,15 +864,36 @@ A third refusal, for a facing curve whose start handle points backwards, never f
 authored facing curve starts by turning 180°) and is recorded as a guard.
 
 Measured (`engine/test/editor.mjs`, section 17; `node poc/tools/snap-grid-probe.mjs`): of **4150** curves
-in b1/ms/a1, **0** are already quarter arcs, **690 (16.6%)** could take the lock, and the rest are
+in ms/a1, **0** are already quarter arcs, **690 (16.6%)** could take the lock, and the rest are
 blocked — **2968 (71.5%)** by the angle and **492 (11.9%)** by having no handle length. The projection is
 checked to keep both handle lengths and both directions exactly while moving only the corner; a rotated
 arc is the unrotated one turned by its angle (worst **4.6e-16**); a projected arc sets off and finishes
 facing exactly as the original curve did; a facing arc turns the dancer **exactly** a quarter turn; and
 the arc survives export and re-parse, with re-exporting byte-identical.
 
-**A curve with no handle length is not reported as an arc** — and that took a definition to get right.
-The first version called the degenerate all-zero member of the family an arc and counted **138** corpus
+### The radial grid fits a curve to its own circles
+
+**When the RADIAL grid is on and the selected move's curve has both ends on one of the circles the grid draws,
+the gadget grows one more dot** — green, the colour the grid draws its circles in, at the point halfway along the
+arc. Pressing it rewrites the curve's two CONTROL points to the cubic that follows that circle
+(`arcBezierAbout`) and leaves both END POINTS exactly where they were, so the move before it, the move after it
+and the joint are untouched. It is the one control in the gadget that acts on a **press** rather than a drag:
+there is nothing to drag it to, because the circle it fits is already drawn on the floor.
+
+**The working range is a QUARTER TURN, not a length.** The first version required the chord to be under half a
+cell, which turned out to refuse every arc in the corpus — of the ms level's **976** moves, **354** have both ends
+on one drawn circle and none was that short, because the corpus's arcs are quarter and eighth turns. The limit is
+now the sweep, at a right angle: the fit's worst radial error is **2.7e-4** of the radius over a quarter turn,
+**1.5e-3** at 120° and **1.8e-2** at 180°, so a quarter is where it stops being exact to the four decimals the XML
+exports. That offers the fit on **74** of those 354 curves (median **45.1°**, widest exactly **90°**) and refuses
+the 280 that sweep further. The two ends must also be on the SAME circumference, and it must be one the grid
+**draws** — within the magnet's own half tier, so **CTRL-drag the ends onto a ring and then press the dot**.
+
+Gated by `node poc/tools/radial-arc-fit-probe.mjs`: the rule, each refusal on its own, the fit's accuracy at the
+limit and past it, the agreement with the engine's own `ARC_K` quarter-arc constant, and — the invariant a first
+version broke in the field — that everything **offered** can be **fitted** (1990 swept pairs), because the rule's
+tolerance and the engine's default were two rules at r = 1.5 and the dot appeared for a pair the fit refused.
+**A curve with no handle length is not reported as an arc** — and that took a definition to get right.The first version called the degenerate all-zero member of the family an arc and counted **138** corpus
 `Stand`s as "already arcs"; with the shape refused, that number is zero.
 
 **The dancer selector is one toggle per dancer** — the numbered chips in the moves row, and the `sel`
@@ -904,6 +1111,73 @@ gate, and it is worth having — **every** group has a class bigger than the dan
 The measurement's own control: widen the travel window from 0.025 to 4 units and **72 pairs** inside a class
 would be refused by the gate, so the safety claim is a property of the gate's window and not of the grouping.
 
+**`boys` and `girls` are PHASED.** Asked for as: *"Add new phase to the boys and girls Select buttons so that
+it first selects all boys, then the first and third, then the second and fourth. These tend to match the
+matching transformed paths in the different formations."* Each click advances its own button through **all of
+that gender → the ODD positions among them (1st, 3rd, …) → the EVEN ones (2nd, 4th, …)**, and the label carries
+the phase it is on (`boys`, `boys 1·3`, `boys 2·4`) with the cycle explained in the tooltip. The order is the
+table's own `#` column — the dancer array the caller can count on screen — not the formation's identity, since
+array position is the renderer's binding rather than an identity.
+**And the ticks have a two-dancer action: `⇄` in the header cell directly over them.** Asked for as: *"Add a
+small button above the dancer select column that is normally greyed out and disabled unless two dancers are
+selected. With two dancers selected, the button will switch the selected dancers. Use a button icon something
+like a double ended arrow to indicate switch or swap."* It is **disabled unless exactly two are ticked** —
+greyed out rather than hidden, so the column says what the ticks are for before there are enough of them — and
+the tooltip names the two it would switch, because "which two" is the one thing a button with nothing written
+on it cannot say for itself. The press is **one engine call**, `swapDancers`, so the panel does not restate
+which fields move.
+
+**What moves is decided by how a path is stored, not by taste.** A path is authored in the dancer's **own**
+frame (`+X` is the dancer's initial facing, P0 its own origin), so the version that leaves a coherent board is
+the whole **entry** trading places — start pose, path, gender, mirror flag. MEASURED over every pair of every
+ms-level call that builds (`node tools/swap-dancers-probe.mjs`, **448 pairs**): the **multiset of world tracks
+is identical before and after**, so the swap is a relabelling of the same dance rather than a redrawing of it;
+it is an **involution** (swapping back restores the call exactly) and **commutative**; the beat clock is
+untouched; a dancer swapped with itself is the identity; and an index outside the set is refused out loud. The
+probe's negative control is the cheaper edit this could have been — **swapping the PATHS ALONE**, one
+`setDancerPath` per side: at **308 of the 448** pairs that draws a *different* board, the worst pose moving
+**12.008 units**, because each path is then re-framed by the other dancer's start pose. That measurement is
+why the start pose travels with the path.
+
+**A phase that would select NOBODY is skipped**, which is not a nicety: a call with one boy has nothing at
+"the second and fourth", and landing on an empty set would clear every tick and leave the panel saying edits
+have nowhere to go. So the cycle runs over the phases that *have* a pick — for that call, `all` and the single
+boy — rather than over the numbers 0, 1, 2. The phase is the button's own state, not the selection's, so hand
+ticks between clicks do not lose the caller's place; `loadInstance` puts it back to 0.
+
+**AND THE CALLER'S REASON FOR WANTING IT HOLDS UP.** MEASURED (`node tools/select-row-probe.mjs`, 76
+`(call, gender)` sets over 38 eight-dancer calls of the ms level, move 1's travel curve, each list measured
+against **its own** first dancer exactly as `matching` does): the whole gender shares that path in **49 of
+76**, while the odd half does in **75 of 76** and the even half in **75 of 76** — and of the **27** sets whose
+whole gender does *not* share it, **26 have a half that does**. So the phase picks a set the fields will accept
+where "all boys" would have been refused. The probe also pins that the two phases are a **partition** of that
+gender in all 76 sets — nobody dropped, nobody counted twice.
+
+**AND THE SELECTION IS MARKED ON THE BOARD.** Asked for as: *"Highlight mismatched paths after selection"* and
+*"Outline the dancers currently selected... on the board."* Two marks, drawn by `scene.ts` and driven from the
+editor in **one** call (`Browser.setSelection`), so they cannot be showing two different selections:
+
+- **A RING around every dancer an edit applies to** — a circle on the floor, 0.7 units of radius (couples stand
+  2 apart). It is a SCENE child placed from the pose rather than a child of the avatar group, and that is what
+  makes it work in **both** representations: a 3D avatar is a figure and a 2D marker is a flat shape, and their
+  only shared property is where the dancer is standing. It is deliberately **not** tied to "Hide dancers" — that
+  option is about the BODIES, and the ring is a mark on the floor saying which spots the edits reach.
+- **A RED TRACK for every dancer whose curve at the move being edited does NOT match the selection's.** The set is
+  built with `sameCurve` — *the gate itself* — so the reds and the locked fields are two readings of one fact
+  rather than two opinions. A warned track is drawn at **full opacity** (the normal trail is 0.55, a dimmed one
+  0.45), which is what keeps it distinguishable from couple 1's own red, and it is **kept on screen when another
+  dancer is focused**: the mismatch is the reason the caller is looking at the board, so the focus must not hide
+  the answer. `setTrailWarning` is reversible — it puts the couple colour and brightness back — and `setActive`
+  clears both marks when the editor leaves the screen, so the browse and sequencer views are never told that
+  dancers are selected.
+
+**AND THE LOCK NAMES ITS OWN WAY OUT.** The coordinate fields already lock when the selection disagrees; the note
+under them now says the paths are marked **in red**, that the dancers the edits apply to are **ringed**, and the
+two things that resolve it: the **🔗** beside a dancer (which clones the reference's whole trace onto it) or
+**selecting one dancer** (which is what the lock is for). The 🔗 was itself RELAXED to make that route real — it
+used to require the whole selection to already agree, which is exactly the state in which a caller cannot use it;
+it is now offered on **every dancer whose trace is not the reference's**, including a selected one that disagrees.
+
 **`none` is a real state, and the panel refuses to write into it.** An empty selection is how a caller clears
 eight ticks before picking two, so the ticks and the table's checkboxes can now leave nobody selected — and
 everything that would otherwise become a silent no-op says so instead: the strip shows *no dancers selected*
@@ -990,7 +1264,9 @@ segment written as an ease-in and as a constant-speed line was refused although 
 
 **The one-pixel figure is measured, not chosen.** `node poc/tools/clone-refusal-probe.mjs --sweep` walks
 every call in a sample against every formation the picker offers (12248 refused walk-in pairs) and bands
-the gap between the two curves at the flat view's 40.91 px per unit: **232 refusals rest on a difference
+the gap between the two curves at the probe's own 40.91 px per unit - a scale for the counts rather than a claim
+about the frame, because the window it bands against is in BOARD UNITS and does not move when the floor resizes:
+**232 refusals rest on a difference
 under half a pixel, and the next smallest is 2 px** — with nothing at all in between. So the window may sit
 anywhere in that empty band and the same refusals are made; at one pixel it opens the 232 and the reported
 witness and refuses nothing else in the corpus. The facing window stays at half a degree, where the
@@ -1056,7 +1332,7 @@ move turns more than 90°, a dancer going round is *necessarily* several moves �
 two or more consecutive moves lie on ONE circle to within 2% of its radius, across **207** variants
 (**4.4%** of the corpus). Their sweeps: median **270.3°**, max **765.1°**; **4141** sweep more than
 a quarter, **3503** more than half, **2814** more than three quarters, and **652** more than a full
-turn. **1162** runs span three or more moves. The densest are `ms/circle.xml` and `b1/circle.xml`
+turn. **1162** runs span three or more moves. The densest are in `ms/circle.xml`
 (a whole 360° `Circle Left` as **8** moves of 45°, radius 2.59) and
 `plus/spin_chain_and_exchange_the_gears.xml`. This is the gap the quarter lock leaves: a user who
 means *"that is a circle"* can only say it one quarter at a time, and nothing in the panel holds the
@@ -1113,7 +1389,7 @@ it. Require the formation to be **HELD for 2 beats** and the population collapse
 longest is 4.13 beats, while **40 control calls** that produced only transients produce **624 interior spans
 of which 0 are held**. Of the interior spans, **75.6% begin on a move boundary**, so most are joints a user can
 see. The held ones are a short, high-confidence list — `Alamo Wave`, `Ocean Waves`, `Thar RH/LH Boys`,
-`Circle`, `Columns`, `Diamonds`, `Normal Lines Compact` — each with its beat range, e.g. `b2/swing_thru.xml`
+`Circle`, `Columns`, `Diamonds`, `Normal Lines Compact` — each with its beat range, e.g. `ms/swing_thru.xml`
 holding `Alamo Wave` for beats 6.50–10.00 of 10.40.
 
 **Its control is the reason to trust it, and it took two bugs to get right.** The call's own start formation
@@ -1298,30 +1574,57 @@ itself (it needs the tam *indices* as well as the labels) and built labels from 
 engine read said "1876 of 2657 changed" while the dropdown was untouched. The rule now lives in **one exported
 function**, `setupLabel`, that both call sites use, and `saved-label-probe.mjs` measures it on the tams the
 dropdown is actually built from: **1249 of 1879** setups over three levels read differently from their `from`.
-**A link symbol next to every dancer the selected move does NOT match, which corrects it.** Asked for as:
-*"When Select: matching is pressed, the dancers that match are selected. Add a link symbol next to the dancers
-that dont match, that will correct the non-matching coordinates using the matching coodinates. Remove the link
-once they do match and select the now matching dancer."*
+**A link symbol next to every dancer whose TRACE is not the selected one's, which clones it.** Asked for as:
+*"Add a link symbol next to the dancers that dont match, that will correct the non-matching coordinates using
+the matching coodinates. Remove the link once they do match and select the now matching dancer"* — and then,
+after using it, as: *"If I select one, I'd expect the paperclip symbol for the another dancer to copy the
+correct dancers Moves and settings, with appropriate transforms, to the paper-clip trace. It should clone a
+good trace to another dancer."*
 
-The link is offered **exactly when the correction is defined** — the selection agrees, and this dancer is not in
-the matching set — which is the same condition the `matching` button lights up on, so it appears the moment
-`matching` is pressed without needing a mode of its own. Pressing it copies the selection's curve for the
-current TAB into that dancer's move, adds the dancer to the selection, and the link goes.
+**THE FIRST VERSION COPIED ONE CURVE OF ONE MOVE, AND THE PROBE THAT GATED IT COULD NOT FAIL.** It copied the
+curve the tab edits at the move on screen, and `match-link-probe.mjs` compared the result *against the very
+curve it was copied from* — so "the copy matches in 4632 of 4632" was a statement about a value being equal to
+itself. Three real faults sat behind that green light:
 
-**What is copied is the curve the tab edits, and nothing else** — beats and hands are untouched, which is the
-line the coordinate gate already draws (it compares *shapes*, and unifying a timing is a separate, legitimate
-edit).
+- **the following trace was left swinging.** The write went straight to `setMove`, bypassing `foldMoveChange`,
+  so a Facing-tab copy never reached `holdFollowingTrace` — the one fix every other facing write in this panel
+  routes through. The dancer's headings changed *and* everything after the move swung with them.
+- **a facing could be written as a travel curve.** With no explicit facing on the reference, `rotate ?? translate`
+  copied the translation Bézier into the `rotate` slot, whose `cy1` the format has no attribute for
+  (`bezRotAttr` writes only `cx3/cx4/cy4/x4/y4`). It survived on screen and not in the file.
+- **the link read the tab, and the tab could be stale.** `renderInstance` draws the formation table BEFORE
+  `renderMoveStrip` normalises a stale `moveKind`, so for one frame the link was offered — and pressable — for a
+  FACING curve the panel was about to stop editing, while the `matching` button in the same frame used the
+  corrected one.
 
-**THE FACING TAB COPIES `rotate ?? translate`, AND THAT IS NOT THE SAME AS COPYING `rotate`.** A dancer with no
-rotation curve faces along its own travel tangent — that is what `poseFor` implements and what
-`sameFacingCurve` compares — so copying a **null** copies nothing and leaves the dancer facing by its own path,
-still not matching. MEASURED (`poc/tools/match-link-probe.mjs`, 4632 reference/move/dancer pairs over 233
-files): the copy matches in **4632 of 4632** for both curves, and copying the rotation Bézier **alone** would
-leave **1254 of them (27.1%)** still not matching. The `?? translate` is that 27%, not a preference.
+**IT NOW CLONES THE WHOLE PATH, AND EVERYTHING ABOVE FALLS OUT OF THAT.** `matchDancer` calls the engine's
+`setDancerPath` — every move at once, with its facing, its beats and its hands — and the link is offered on
+`donor && !sameTrace(donor, this dancer)`, which reads neither the tab nor the move index. There is no
+"following trace" left to hold, because the moves after the one being edited are the donor's too; no curve is
+converted from one kind to another, so nothing is written that the format cannot carry; and a whole-trace
+question has no stale move index to be asked at.
 
-The link is drawn on the gate's own `sameCurve` rather than a second definition of "matches", so the comparison
-that decides whether to show it and the comparison that decides whether it worked are the same function — which
-is what makes "the link disappears once they match" true by construction rather than by hope.
+**NO COORDINATE TRANSFORM IS NEEDED, and that is what "appropriate transforms" means here.** A path is authored
+in the dancer's OWN frame (`types.ts`), so the local frame *is* the transform: the receiving dancer gets the
+donor's motion relative to its own start pose. **The start pose, the gender and the home identity are
+deliberately NOT copied** — those are the formation's, and a link that "made two dancers the same" by moving one
+onto the other's spot would be rewriting the set, which is the Dancer scope's edit (`setDancerStart`).
+
+**MEASURED (`node poc/tools/match-link-probe.mjs`, 861 donor/target pairs over 178 files):** the clone makes the
+two traces the same in **861 of 861**, and the target's path is **value-equal** to the donor's in all of them —
+not merely within the window, which is what "clone" has to mean. The mutation isolates the old gesture: one
+curve of the move on screen leaves **568 of 861 (66%)** still not the same trace. A third leg exports each
+cloned call and reads it back, where the two traces are **still identical in 33 of 33** — the leg that would
+catch a copy the format cannot carry, and the one the old probe had no equivalent of. The probe's own control
+refuses genuinely different traces (20 of the first 40 files), so "the same" is not a function that always
+returns true.
+
+**A copied point does not travel with the clone.** A `Seg` carries its copied coordinate as a key in the
+editor's `moveClips`, and `carryMoveClips` pairs by position whenever the path length is unchanged — so without
+an explicit drop, a point copied from the dancer's own OLD move would survive onto a move it was never taken
+from. `matchDancer` deletes the target's entries for the new segments, the same rule that stopped a delete
+carrying the removed move's point onto the move that took its index.
+
 **Every export carries the BUILD it came from, as an XML comment at the top.** Asked for as: *"add an xml
 comment at the top of the export containing the web apps buildhash. This should give basic version control when
 importing them."*
@@ -1382,7 +1685,7 @@ an 8 person equivalent"* — pressing Edit on a user-defined formation row in th
 **The Browse tab's `Full square (mirror)` box decides how many dancers a half-set `<tam>` has**, and the editor
 had no such control: `loadInstance` hardcoded `loadCall(id, tam, true)`. So a formation stored with the box
 **off** — a *four*-dancer shape — opened the *eight*-dancer reading of its call, which is a different dance from
-the one the caller was looking at. MEASURED over ms/b1/a1: **1396 of 1879** tams are authored as four dancers and
+the one the caller was looking at. MEASURED over ms/a1: **1396 of 1879** tams are authored as four dancers and
 become eight under mirroring, so this is most of the corpus, not a corner.
 
 A formation now records `mirror`, `openEditor` and `openCall` carry it, and `loadInstance` uses it instead of
@@ -1455,12 +1758,14 @@ is closed on leaving the editor for the same reason.
   the dancers hold the wrong (crossed) hands. `npm run verify` includes a check
   asserting the body points along (or opposite) the orbit correctly.
 - **The full catalog is wired in** (`src/data.ts` uses `import.meta.glob` over
-  the per-level XML folders): real calls across **B1, B2**, MS, Plus, A1, A2,
+  the per-level XML folders): real calls across **MS**, Plus, A1, A2,
   C1, C2, C3A, C3B load through the same converter, plus **SSD level aliases**
   (Standard Square Dance) derived from `src/calls.xml`. `npm run verify` runs a
   full-catalog scan and confirms every call loads. Non-call files (moves
   definitions and rule references without a `<tam>`) are excluded.
-- **B1/B2 are the real animation files** fetched from the web
-  `taminations-multiplatform` repo (`Taminations/src/assets/{b1,b2}`). **SSD**
+- **The per-level XML folders ARE the animations** fetched from the web
+  `taminations-multiplatform` repo (`Taminations/src/assets/*`). `b1` and `b2` were
+  retired in favour of `ms` 2026; the four calls that existed only there were migrated
+  into `ms/`. **SSD**
   has no directory in that data and groups the same calls as MS, so SSD entries
   are aliases that load the shared ms/plus animation.

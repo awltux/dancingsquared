@@ -84,4 +84,49 @@
     </path>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Split Two" formation="Eight Chain Thru" group=" ">
+    <path>
+      <move select="Extend Left" scaleY=".5"/>
+      <move select="Extend Right" scaleY=".5"/>
+    </path>
+    <path>
+      <move select="Extend Right" scaleY=".5"/>
+      <move select="Extend Left" scaleY=".5"/>
+    </path>
+    <path>
+      <move select="Extend Right" scaleY=".5"/>
+      <move select="Extend Left" scaleY=".5"/>
+    </path>
+    <path>
+      <move select="Extend Left" scaleY=".5"/>
+      <move select="Extend Right" scaleY=".5"/>
+    </path>
+  </tam>
+
+<tam title="Split the Outside Couple, Separate, Go Around One to a Line"
+       from="Pass Thru" group=" "
+       formation="Eight Chain Thru"
+       fractions="" >
+    <path>
+      <move select="Dodge Left" beats="1" scaleX=".25" scaleY=".25" offsetX=".5" />
+      <move select="Dodge Right" beats="1" scaleX=".25" scaleY=".25" offsetX=".5" />
+    </path>
+    <path>
+      <move select="Dodge Right" beats="1" scaleX=".25" scaleY=".25" offsetX=".5" />
+      <move select="Dodge Left" beats="1" scaleX=".25" scaleY=".25" offsetX=".5" />
+    </path>
+    <path>
+      <move select="Extend Right" offsetX=".5" offsetY=".5" />
+      <move select="Run Left" offsetX="-.5" offsetY=".5" />
+    </path>
+    <path>
+      <move select="Extend Left" offsetX=".5" offsetY="-.5" />
+      <move select="Run Right" offsetX="-.5" offsetY="-.5" />
+    </path>
+  </tam>
+
 </tamination>

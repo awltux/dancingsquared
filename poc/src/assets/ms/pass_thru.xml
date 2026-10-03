@@ -130,4 +130,40 @@
     </taminator>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Heads Pass Thru" group=" " display="none"
+       formation="Static Square">
+    <path>
+      <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+    </path>
+    <path>
+    </path>
+    <path>
+    </path>
+  </tam>
+
+<tam title="Sides Pass Thru" group=" " display="none"
+       formation="Static Square">
+    <path>
+    </path>
+    <path>
+    </path>
+    <path>
+      <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+    </path>
+  </tam>
+
 </tamination>

@@ -129,4 +129,21 @@
     <path/><path/>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Star Thru"
+       from="Facing Couples"
+       formation="Facing Couples" sequencer="gender-specific">
+    <path>
+      <move select="Extend Left" hands="gripright" beats="2" scaleX="2" scaleY=".5" />
+      <move select="Quarter Right" hands="gripright" beats="2" offsetX="1" offsetY=".5" />
+    </path>
+    <path>
+      <move select="Extend Left" hands="gripright" beats="2" scaleX="2" scaleY=".5" />
+      <move select="Quarter Left" hands="gripright" offsetX="1" offsetY="-1.5" />
+    </path>
+  </tam>
+
 </tamination>

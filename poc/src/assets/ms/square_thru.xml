@@ -1899,4 +1899,182 @@
     </taminator>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Square Thru 2"
+       from="Facing Couples"
+       formation="Facing Couples"
+       difficulty="1">
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
+    </path>
+  </tam>
+
+<tam title="Square Thru 3"
+       from="Facing Couples"
+       formation="Facing Couples"
+       difficulty="1">
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Right" offsetX=".5" offsetY=".5" />
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Lead Left" scaleX=".5" scaleY="1.5" />
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
+    </path>
+  </tam>
+
+<tam title="Square Thru 4"
+       from="Facing Couples"
+       formation="Facing Couples"
+       difficulty="1">
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Right" offsetX=".5" offsetY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Lead Left" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
+    </path>
+  </tam>
+
+<tam title="Left Square Thru 4"
+       from="Facing Couples"
+       formation="Facing Couples"
+       difficulty="1">
+    <path>
+      <move select="Forward" />
+      <move select="Pull Right" scaleY=".5" />
+      <move select="Lead Right" offsetX=".5" offsetY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Right" offsetX=".5" offsetY=".5" />
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
+    </path>
+    <path>
+      <move select="Forward" />
+      <move select="Pull Right" scaleY=".5" />
+      <move select="Lead Left" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Lead Left" scaleX=".5" scaleY="1.5" />
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
+    </path>
+  </tam>
+
+<tam title="Square Thru 1 1/2" group="  "
+       formation="Facing Couples" difficulty="2">
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+    </path>
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+    </path>
+  </tam>
+
+<tam title="Square Thru 2 1/2" group="  "
+       formation="Facing Couples" difficulty="2">
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Right" offsetX=".5" offsetY=".5" />
+    </path>
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Lead Left" scaleX=".5" scaleY="1.5" />
+    </path>
+  </tam>
+
+<tam title="Square Thru 3 1/2" group="  "
+       formation="Facing Couples" difficulty="2">
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Right" offsetX=".5" offsetY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+    </path>
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Lead Left" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+    </path>
+  </tam>
+
+<tam title="Square Thru, on the Third Hand Touch 1/4" group="   "
+       formation="Facing Couples" difficulty="2">
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Right" offsetX=".5" offsetY=".5" />
+      <move select="Quarter Right" hands="right" offsetX="1"/>
+    </path>
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Lead Left" scaleX=".5" scaleY="1.5" />
+      <move select="Hinge Right"/>
+    </path>
+    <taminator>
+      Touch a Quarter is in Basic 2.
+    </taminator>
+  </tam>
+
+<tam title="Square Thru, on the Fourth Hand Left Touch 1/4" group="   "
+       formation="Facing Couples" difficulty="2">
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Right" offsetX=".5" offsetY=".5" />
+      <move select="Lead Right" scaleX=".5" scaleY="1.5" />
+      <move select="Hinge Left"/>
+    </path>
+    <path>
+      <move select="Forward" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Lead Left" scaleX=".5" scaleY="1.5" />
+      <move select="Lead Left" offsetX=".5" offsetY="-.5" />
+      <move select="Quarter Left" hands="left" offsetX="1"/>
+    </path>
+    <taminator>
+      Touch a Quarter is in Basic 2.
+    </taminator>
+  </tam>
+
 </tamination>

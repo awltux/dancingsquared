@@ -729,4 +729,38 @@
     </path>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Right Hand Star"
+       from="Facing Couples"
+       formation="Facing Couples">
+    <path>
+      <move select="Forward" beats="1.5" scaleX="2" />
+      <move select="Swing Right" />
+      <move select="Swing Right" />
+    </path>
+    <path>
+      <move select="Lead Left" beats="1.5" />
+      <move select="Swing Right" />
+      <move select="Swing Right" />
+    </path>
+  </tam>
+
+<tam title="Left Hand Star"
+       from="Facing Couples"
+       formation="Facing Couples">
+    <path>
+      <move select="Lead Right" beats="1.5" />
+      <move select="Swing Left" />
+      <move select="Swing Left" />
+    </path>
+    <path>
+      <move select="Forward" beats="1.5" scaleX="2" />
+      <move select="Swing Left" />
+      <move select="Swing Left" />
+    </path>
+  </tam>
+
 </tamination>

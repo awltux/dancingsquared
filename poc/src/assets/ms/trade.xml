@@ -788,4 +788,20 @@
     </path>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Partner Trade"
+       from="Facing Couples"
+       formation="Facing Couples"
+       difficulty="2">
+    <path>
+      <move select="Run Right" />
+    </path>
+    <path>
+      <move select="Flip Left" />
+    </path>
+  </tam>
+
 </tamination>

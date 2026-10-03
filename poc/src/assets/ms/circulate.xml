@@ -1049,4 +1049,40 @@
     </path>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Box Circulate"
+       from="Facing Couples"
+       formation="Facing Couples" difficulty="3" fractions="2">
+    <path>
+      <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
+    </path>
+    <path>
+      <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
+    </path>
+  </tam>
+
+<tam title="Couples Circulate"
+       from="T-Bone Couples"
+       formation="T-Bone Couples"
+       fractions="" difficulty="2">
+    <path>
+      <move select="Extend Right" beats="2" hands="right" scaleX="2" />
+      <move select="Extend Left" beats="2" hands="right" scaleX="2" />
+    </path>
+    <path>
+      <move select="Forward 4" hands="left" />
+    </path>
+    <path>
+      <move select="Run Left" beats="4" scaleX="3" scaleY="3" hands="left" />
+    </path>
+    <path>
+      <move select="Run Left" beats="4" hands="right" />
+    </path>
+  </tam>
+
 </tamination>

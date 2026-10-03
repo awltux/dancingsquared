@@ -187,4 +187,38 @@
     </taminator>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="U-Turn Back"
+       from="Facing Couples"
+       formation="Facing Couples"
+       fractions="1.5" >
+    <path>
+      <move select="U-Turn Right" />
+    </path>
+    <path>
+      <move select="U-Turn Left" />
+    </path>
+  </tam>
+
+<tam title="Boys Turn Back" from="Facing Couples"
+       formation="Facing Couples" sequencer="no">
+    <path>
+      <move select="U-Turn Right" />
+    </path>
+    <path>
+    </path>
+  </tam>
+
+<tam title="Girls Turn Back" from="Facing Couples"
+       sequencer="no" formation="Facing Couples">
+    <path>
+    </path>
+    <path>
+      <move select="U-Turn Left" />
+    </path>
+  </tam>
+
 </tamination>

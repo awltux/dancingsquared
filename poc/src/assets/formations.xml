@@ -1009,11 +1009,19 @@
   </formation>
 
   <formation name="Columns">
-    <dancer gender="girl" x="-3" y="-1" angle="180"/>
-    <dancer gender="boy" x="-1" y="-1" angle="180"/>
-    <dancer gender="girl" x="1" y="-1" angle="180"/>
-    <dancer gender="boy" x="3" y="-1" angle="180"/>
+    <dancer gender="boy" x="-3" y="-1" angle="180"/>
+    <dancer gender="girl" x="-1" y="-1" angle="180"/>
+    <dancer gender="boy" x="1" y="-1" angle="180"/>
+    <dancer gender="girl" x="3" y="-1" angle="180"/>
   </formation>
+  
+  <formation name="Columns LH BGBG">
+    <dancer gender="girl" x="-3" y="-1" angle="0"/>
+    <dancer gender="boy" x="-1" y="-1" angle="0"/>
+    <dancer gender="girl" x="1" y="-1" angle="0"/>
+    <dancer gender="boy" x="3" y="-1" angle="0"/>
+  </formation>
+  
   <formation name="Column RH GBGB">
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>

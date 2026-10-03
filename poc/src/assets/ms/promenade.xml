@@ -22,417 +22,440 @@
 -->
 <tamination title="Promenade Family">
 
-  <tam title="Heads Promenade 1/2"
-       from="Static Square" group=" "
-       formation="Static Square">
+  <tam title="Promenade Full to Home" formation="Facing Couples Far">
     <path>
-      <move select="Extend Right" hands="gripright" beats="3" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" />
-      <move select="Run Left" hands="gripright" beats="3" offsetX="2" />
+      <movement hands="gripright" beats="2" cx1="1" cy1="0" cx2="0.9858" cy2="-1.6002" x2="0.9858" y2="-2.6002" cx3="2" cx4="2.4571" cy4="-0.8257" x4="3.3572" y4="-1.9401"/>
+      <movement hands="right" beats="2" cx1="0.7089" cy1="-0.5544" cx2="1.6514" cy2="0.6125" x2="1.9656" y2="1.0015" cx3="0.7089" cx4="1.9308" cy4="0.8594" x4="2.2163" y4="1.1951"/>
+      <movement hands="gripright" beats="4" cx1="1.4995" cy1="0.0384" cx2="2.4736" cy2="1.0637" x2="2.4352" y2="2.5632"/>
+      <movement hands="right" beats="4" cx1="1.4995" cy1="0.0384" cx2="2.4736" cy2="1.0637" x2="2.4351" y2="2.5632"/>
+      <movement hands="gripright" beats="3" cx1="1.4995" cy1="0.0384" cx2="2.2381" cy2="1.0622" x2="2.2253" y2="1.562"/>
+      <movement hands="none" beats="1" cx1="0.3143" cy1="-0.0367" cx2="-0.0089" cy2="-0.5261" x2="0.0144" y2="-0.7353" cx3="0.6266" cx4="1.3151" cy4="0.8974" x4="1.2874" y4="1.7338"/>
     </path>
     <path>
-      <move select="Extend Right" hands="gripleft" beats="3" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" />
-      <move select="Run Left" hands="gripleft" beats="3" scaleX="3" scaleY="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="right" />
-      <move select="Stand" beats="3" />
-      <move select="Back 2" hands="right" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="left" />
-      <move select="Stand" beats="3" />
-      <move select="Back 2" hands="left" />
+      <movement hands="gripleft" beats="2" cx1="0.5" cy1="0" cx2="-0.4487" cy2="-0.7245" x2="0.0142" y2="-1.3157" cx3="1.0723" cx4="1.786" cy4="-0.5626" x4="2.5406" y4="-1.6854"/>
+      <movement hands="left" beats="2" cx1="1.0455" cy1="0.0503" cx2="1.8118" cy2="0.5726" x2="2.6485" y2="1.8175"/>
+      <movement hands="gripleft" beats="4" cx1="1.9977" cy1="0.0961" cx2="3.4239" cy2="1.6664" x2="3.3279" y2="3.6641"/>
+      <movement hands="left" beats="4" cx1="1.9977" cy1="0.0961" cx2="3.4239" cy2="1.6664" x2="3.3279" y2="3.6641"/>
+      <movement hands="gripleft" beats="3" cx1="1.9977" cy1="0.0961" cx2="3.3807" cy2="1.6731" x2="3.3423" y2="2.937"/>
+      <movement hands="none" beats="1" cx1="0.4994" cy1="0.024" cx2="1.7157" cy2="0.0925" x2="1.6917" y2="0.5919" cx3="0.4994" cx4="0.7162" cy4="0.361" x4="0.6631" y4="0.8283"/>
     </path>
   </tam>
 
-  <tam title="Sides Promenade 1/2"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Promenade 3/4 to Home" formation="Facing Couples Far">
     <path>
-      <move select="Forward 2" hands="right" />
-      <move select="Stand" beats="3" />
-      <move select="Back 2" hands="right" />
+      <movement hands="gripright" beats="2" cx1="1" cy1="0" cx2="0.9858" cy2="-1.6002" x2="0.9858" y2="-2.6002" cx3="2" cx4="2.4571" cy4="-0.8257" x4="3.3572" y4="-1.9401"/>
+      <movement hands="right" beats="2" cx1="0.7089" cy1="-0.5544" cx2="1.6514" cy2="0.6125" x2="1.9656" y2="1.0015" cx3="0.7089" cx4="1.9308" cy4="0.8594" x4="2.2163" y4="1.1951"/>
+      <movement hands="gripright" beats="4" cx1="1.4995" cy1="0.0384" cx2="2.4736" cy2="1.0637" x2="2.4352" y2="2.5632"/>
+      <movement hands="gripright" beats="3" cx1="1.4995" cy1="0.0384" cx2="2.2381" cy2="1.0622" x2="2.2253" y2="1.562"/>
+      <movement hands="none" beats="1" cx1="0.3143" cy1="-0.0367" cx2="-0.0089" cy2="-0.5261" x2="0.0144" y2="-0.7353" cx3="0.6266" cx4="1.3151" cy4="0.8974" x4="1.2874" y4="1.7338"/>
     </path>
     <path>
-      <move select="Forward 2" hands="left" />
-      <move select="Stand" beats="3" />
-      <move select="Back 2" hands="left" />
-    </path>
-    <path>
-      <move select="Extend Right" hands="gripright" beats="3" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" />
-      <move select="Run Left" hands="gripright" beats="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Extend Right" hands="gripleft" beats="3" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" />
-      <move select="Run Left" hands="gripleft" beats="3" scaleX="3" scaleY="3" offsetX="2" />
+      <movement hands="gripleft" beats="2" cx1="0.5" cy1="0" cx2="-0.4487" cy2="-0.7245" x2="0.0142" y2="-1.3157" cx3="1.0723" cx4="1.786" cy4="-0.5626" x4="2.5406" y4="-1.6854"/>
+      <movement hands="left" beats="2" cx1="1.0455" cy1="0.0503" cx2="1.8118" cy2="0.5726" x2="2.6485" y2="1.8175"/>
+      <movement hands="gripleft" beats="4" cx1="1.9977" cy1="0.0961" cx2="3.4239" cy2="1.6664" x2="3.3279" y2="3.6641"/>
+      <movement hands="gripleft" beats="3" cx1="1.9977" cy1="0.0961" cx2="3.3807" cy2="1.6731" x2="3.3423" y2="2.937"/>
+      <movement hands="none" beats="1" cx1="0.4994" cy1="0.024" cx2="1.7157" cy2="0.0925" x2="1.6917" y2="0.5919" cx3="0.4994" cx4="0.7162" cy4="0.361" x4="0.6631" y4="0.8283"/>
     </path>
   </tam>
 
-  <tam title="Heads Promenade 3/4"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Promenade 1/2 to Home" formation="Facing Couples Far">
+    <formation>
+        <dancer gender="boy" x="-3" y="1" angle="0"/>
+        <dancer gender="girl" x="-3" y="-1" angle="0"/>
+    </formation>
     <path>
-      <move select="Extend Right" hands="gripright" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" beats="1.5"/>
-      <move select="Lead Left" hands="gripright" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="right" />
-      <move select="Run Left" hands="gripright" beats="3" offsetX="2" />
+      <movement hands="gripright" beats="2" cx1="1" cy1="0" cx2="0.9858" cy2="-1.6002" x2="0.9858" y2="-2.6002" cx3="2" cx4="2.4571" cy4="-0.8257" x4="3.3572" y4="-1.9401"/>
+      <movement hands="right" beats="2" cx1="0.7089" cy1="-0.5544" cx2="1.6514" cy2="0.6125" x2="1.9656" y2="1.0015" cx3="0.7089" cx4="1.9308" cy4="0.8594" x4="2.2163" y4="1.1951"/>
+      <movement hands="gripright" beats="3" cx1="1.4995" cy1="0.0384" cx2="2.2381" cy2="1.0622" x2="2.2253" y2="1.562"/>
+      <movement hands="none" beats="1" cx1="0.3143" cy1="-0.0367" cx2="-0.0089" cy2="-0.5261" x2="0.0144" y2="-0.7353" cx3="0.6266" cx4="1.3151" cy4="0.8974" x4="1.2874" y4="1.7338"/>
     </path>
     <path>
-      <move select="Extend Right" hands="gripleft" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" beats="1.5"/>
-      <move select="Lead Left" hands="gripleft" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="left" />
-      <move select="Run Left" hands="gripleft" beats="3" scaleX="3" scaleY="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="right" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="left" />
+      <movement hands="gripleft" beats="2" cx1="0.5" cy1="0" cx2="-0.4487" cy2="-0.7245" x2="0.0142" y2="-1.3157" cx3="1.0723" cx4="1.786" cy4="-0.5626" x4="2.5406" y4="-1.6854"/>
+      <movement hands="left" beats="2" cx1="1.0455" cy1="0.0503" cx2="1.8118" cy2="0.5726" x2="2.6485" y2="1.8175"/>
+      <movement hands="gripleft" beats="3" cx1="1.9977" cy1="0.0961" cx2="3.3807" cy2="1.6731" x2="3.3423" y2="2.937"/>
+      <movement hands="none" beats="1" cx1="0.4994" cy1="0.024" cx2="1.7157" cy2="0.0925" x2="1.6917" y2="0.5919" cx3="0.4994" cx4="0.7162" cy4="0.361" x4="0.6631" y4="0.8283"/>
     </path>
   </tam>
 
-  <tam title="Sides Promenade 3/4"
-       from="Static Square" group=" "
-       formation="Static Square">
+
+
+
+
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Promenade Full" formation="Facing Couples Far" parts="">
     <path>
-      <move select="Forward 2" hands="right" />
+      <movement hands="gripright" beats="4" cx1="1" cy1="0" cx2="-0.1097" cy2="-1.3787" x2="1.2322" y2="-2.7678" cx3="2" cx4="2.2807" cy4="-0.8927" x4="3.3572" y4="-1.9401"/>
+      <movement hands="right" beats="4" cx1="1.4536" cy1="0.013" cx2="2.5313" cy2="1.0193" x2="2.534" y2="2.4655"/>
+      <movement hands="gripright" beats="4" cx1="1.3989" cy1="-0.0021" cx2="2.5186" cy2="1.1112" x2="2.5071" y2="2.4929"/>
+      <movement hands="right" beats="4" cx1="1.3785" cy1="-0.0593" cx2="2.5175" cy2="1.0339" x2="2.5316" y2="2.468"/>
     </path>
     <path>
-      <move select="Forward 2" hands="left" />
-    </path>
-    <path>
-      <move select="Extend Right" hands="gripright" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" beats="1.5"/>
-      <move select="Lead Left" hands="gripright" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="right" beats="2"/>
-      <move select="Run Left" hands="gripright" beats="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Extend Right" hands="gripleft" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" beats="1.5"/>
-      <move select="Lead Left" hands="gripleft" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="left" beats="2"/>
-      <move select="Run Left" hands="gripleft" beats="3" scaleX="3" scaleY="3" offsetX="2" />
+      <movement hands="gripleft" beats="4" cx1="0.5" cy1="0" cx2="-0.0819" cy2="-0.8545" x2="0.5251" y2="-1.4749" cx3="1.0723" cx4="1.4112" cy4="-0.7933" x4="2.5406" y4="-1.6854"/>
+      <movement hands="left" beats="4" cx1="1.991" cy1="-0.182" cx2="3.6115" cy2="1.1534" x2="3.8842" y2="3.0681"/>
+      <movement hands="gripleft" beats="4" cx1="1.9147" cy1="-0.1236" cx2="3.5834" cy2="1.3202" x2="3.7249" y2="3.2596"/>
+      <movement hands="left" beats="4" cx1="1.8937" cy1="-0.1014" cx2="3.5442" cy2="1.2763" x2="3.6975" y2="3.2906"/>
     </path>
   </tam>
 
-  <tam title="Heads Promenade Full"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Promenade 3/4" formation="Facing Couples Far" parts="">
     <path>
-      <move select="Extend Right" hands="gripright" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" beats="1.5"/>
-      <move select="Lead Left" hands="gripright" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="right" beats="2"/>
-      <move select="Lead Left" hands="gripright" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="right" beats="2"/>
-      <move select="Run Left" hands="gripright" beats="3" offsetX="2" />
+      <movement hands="gripright" beats="4" cx1="1" cy1="0" cx2="-0.1097" cy2="-1.3787" x2="1.2322" y2="-2.7678" cx3="2" cx4="2.2807" cy4="-0.8927" x4="3.3572" y4="-1.9401"/>
+      <movement hands="right" beats="4" cx1="1.4536" cy1="0.013" cx2="2.5313" cy2="1.0193" x2="2.534" y2="2.4655"/>
+      <movement hands="right" beats="4" cx1="1.3785" cy1="-0.0593" cx2="2.5175" cy2="1.0339" x2="2.5316" y2="2.468"/>
     </path>
     <path>
-      <move select="Extend Right" hands="gripleft" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" beats="1.5"/>
-      <move select="Lead Left" hands="gripleft" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="left" beats="2"/>
-      <move select="Lead Left" hands="gripleft" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="left" beats="2"/>
-      <move select="Run Left" hands="gripleft" beats="3" scaleX="3" scaleY="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="right" />
-      <move select="Stand" beats="11" />
-      <move select="Back 2" hands="right" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="left" />
-      <move select="Stand" beats="11" />
-      <move select="Back 2" hands="left" />
+      <movement hands="gripleft" beats="4" cx1="0.5" cy1="0" cx2="-0.0819" cy2="-0.8545" x2="0.5251" y2="-1.4749" cx3="1.0723" cx4="1.4112" cy4="-0.7933" x4="2.5406" y4="-1.6854"/>
+      <movement hands="left" beats="4" cx1="1.991" cy1="-0.182" cx2="3.6115" cy2="1.1534" x2="3.8842" y2="3.0681"/>
+      <movement hands="left" beats="4" cx1="1.8937" cy1="-0.1014" cx2="3.5442" cy2="1.2763" x2="3.6975" y2="3.2906"/>
     </path>
   </tam>
 
-  <tam title="Sides Promenade Full"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Promenade 1/2" formation="Facing Couples Far" parts="">
     <path>
-      <move select="Forward 2" hands="right" />
-      <move select="Stand" beats="11" />
-      <move select="Back 2" hands="right" />
+      <movement hands="gripright" beats="4" cx1="1" cy1="0" cx2="-0.1097" cy2="-1.3787" x2="1.2322" y2="-2.7678" cx3="2" cx4="2.2807" cy4="-0.8927" x4="3.3572" y4="-1.9401"/>
+      <movement hands="right" beats="4" cx1="1.4536" cy1="0.013" cx2="2.5313" cy2="1.0193" x2="2.534" y2="2.4655"/>
     </path>
     <path>
-      <move select="Forward 2" hands="left" />
-      <move select="Stand" beats="11" />
-      <move select="Back 2" hands="left" />
-    </path>
-    <path>
-      <move select="Extend Right" hands="gripright" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" beats="1.5"/>
-      <move select="Lead Left" hands="gripright" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="right" beats="2"/>
-      <move select="Lead Left" hands="gripright" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="right" beats="2"/>
-      <move select="Run Left" hands="gripright" beats="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Extend Right" hands="gripleft" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" beats="1.5"/>
-      <move select="Lead Left" hands="gripleft" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="left" beats="2"/>
-      <move select="Lead Left" hands="gripleft" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="left" beats="2"/>
-      <move select="Run Left" hands="gripleft" beats="3" scaleX="3" scaleY="3" offsetX="2" />
+      <movement hands="gripleft" beats="4" cx1="0.5" cy1="0" cx2="-0.0819" cy2="-0.8545" x2="0.5251" y2="-1.4749" cx3="1.0723" cx4="1.4112" cy4="-0.7933" x4="2.5406" y4="-1.6854"/>
+      <movement hands="left" beats="4" cx1="1.991" cy1="-0.182" cx2="3.6115" cy2="1.1534" x2="3.8842" y2="3.0681"/>
     </path>
   </tam>
 
-  <tam title="Heads Promenade 1/4"
-       from="Static Square" group=" "
-       formation="Static Square">
+
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-02 20:26Z -->
+  <tam title="Promenade Full" formation="Two-Faced Lines LH" parts="">
     <path>
-      <move select="Extend Right" hands="gripright" beats="2" scaleX="2" scaleY="4" />
-      <move select="Quarter Left" hands="right" beats="2"/>
+      <movement hands="gripright" beats="2" cx1="0.4193" cy1="-0.0208" cx2="1.3294" cy2="1.2985" x2="1.5" y2="3" cx3="2" cx4="2.7058" cy4="1.5056" x4="2.6977" y4="2.0751"/>
+      <movement hands="right" beats="4" cx1="1.9168" cy1="0.0044" cx2="3.5248" cy2="1.5261" x2="3.5491" y2="3.4502"/>
+      <movement hands="gripright" beats="4" cx1="1.9625" cy1="0.0347" cx2="3.4447" cy2="1.5641" x2="3.4973" y2="3.5027"/>
+      <movement hands="right" beats="4" cx1="1.8803" cy1="0.0555" cx2="3.4235" cy2="1.718" x2="3.3369" y2="3.6558"/>
+      <movement hands="gripright" beats="2" cx1="1.0174" cy1="0.069" cx2="1.7641" cy2="0.4034" x2="2.4425" y2="1.1"/>
     </path>
     <path>
-      <move select="Extend Right" hands="gripleft" beats="2" scaleX="2" scaleY="4" />
-      <move select="Lead Left" hands="left" beats="2" scaleX="2" scaleY="2"/>
+      <movement hands="gripleft" beats="2" cx1="0.4282" cy1="0.0157" cx2="0.532" cy2="0.3866" x2="0.5" y2="1" cx3="1.0723" cx4="1.0155" cy4="1.4201" x4="1.0067" y4="2.3896"/>
+      <movement hands="left" beats="4" cx1="1.4045" cy1="-0.0003" cx2="2.4827" cy2="1.0877" x2="2.5226" y2="2.4772"/>
+      <movement hands="gripleft" beats="4" cx1="1.4731" cy1="0.0114" cx2="2.446" cy2="1.0988" x2="2.4509" y2="2.5481"/>
+      <movement hands="left" beats="4" cx1="1.4291" cy1="0.0323" cx2="2.408" cy2="1.0269" x2="2.4224" y2="2.5753"/>
+      <movement hands="gripleft" beats="2" cx1="0.6773" cy1="0.0299" cx2="1.238" cy2="0.3325" x2="1.7186" y2="0.8412"/>
     </path>
     <path>
-      <move select="Forward 2" hands="right" />
+      <movement hands="gripright" beats="2" cx1="0.5348" cy1="-0.026" cx2="-0.2025" cy2="-1.3618" x2="2" y2="-1.5" cx3="2" cx4="2.0194" cy4="-0.7605" x4="3.2209" y4="-0.8347"/>
+      <movement hands="right" beats="4" cx1="1.347" cy1="0.0129" cx2="2.4865" cy2="1.2948" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="4" cx1="1.3514" cy1="-0.0771" cx2="2.5961" cy2="1.0724" x2="2.5875" y2="2.4093"/>
+      <movement hands="right" beats="4" cx1="1.4083" cy1="-0.0917" cx2="2.5629" cy2="0.8025" x2="2.7349" y2="2.2406"/>
+      <movement hands="gripright" beats="2" cx1="0.75" cy1="-0.0048" cx2="1.2608" cy2="0.1808" x2="1.7989" y2="0.652"/>
     </path>
     <path>
-      <move select="Forward 2" hands="left" />
+      <movement hands="gripleft" beats="2" cx1="0.5399" cy1="-0.0376" cx2="0.6573" cy2="-0.4683" x2="2" y2="-0.5" cx3="1.0723" cx4="1.3201" cy4="-0.3906" x4="2.672" y4="-0.4074"/>
+      <movement hands="left" beats="4" cx1="1.9061" cy1="0.0293" cx2="3.4784" cy2="1.6152" x2="3.4562" y2="3.5433"/>
+      <movement hands="gripleft" beats="4" cx1="1.9113" cy1="0.0174" cx2="3.4521" cy2="1.5495" x2="3.4424" y2="3.5566"/>
+      <movement hands="left" beats="4" cx1="2.0278" cy1="0.0948" cx2="3.4536" cy2="1.61" x2="3.4271" y2="3.5714"/>
+      <movement hands="gripleft" beats="2" cx1="0.9726" cy1="0.0562" cx2="1.6966" cy2="0.4072" x2="2.4161" y2="1.1568"/>
     </path>
   </tam>
 
-  <tam title="Sides Promenade 1/4"
-       from="Static Square" group=" "
-       formation="Static Square">
+
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-02 20:26Z -->
+  <tam title="Promenade 3/4" formation="Two-Faced Lines LH" parts="">
     <path>
-      <move select="Forward 2" hands="right" />
+      <movement hands="gripright" beats="2" cx1="0.4193" cy1="-0.0208" cx2="1.3294" cy2="1.2985" x2="1.5" y2="3" cx3="2" cx4="2.7058" cy4="1.5056" x4="2.6977" y4="2.0751"/>
+      <movement hands="right" beats="4" cx1="1.9168" cy1="0.0044" cx2="3.5248" cy2="1.5261" x2="3.5491" y2="3.4502"/>
+      <movement hands="gripright" beats="4" cx1="1.9625" cy1="0.0347" cx2="3.4447" cy2="1.5641" x2="3.4973" y2="3.5027"/>
+      <movement hands="gripright" beats="2" cx1="1.0174" cy1="0.069" cx2="1.7467" cy2="0.4401" x2="2.4251" y2="1.1367"/>
     </path>
     <path>
-      <move select="Forward 2" hands="left" />
+      <movement hands="gripleft" beats="2" cx1="0.4282" cy1="0.0157" cx2="0.532" cy2="0.3866" x2="0.5" y2="1" cx3="1.0723" cx4="1.0155" cy4="1.4201" x4="1.0067" y4="2.3896"/>
+      <movement hands="left" beats="4" cx1="1.4045" cy1="-0.0003" cx2="2.4827" cy2="1.0877" x2="2.5226" y2="2.4772"/>
+      <movement hands="gripleft" beats="4" cx1="1.4731" cy1="0.0114" cx2="2.446" cy2="1.0988" x2="2.4509" y2="2.5481"/>
+      <movement hands="gripleft" beats="2" cx1="0.6773" cy1="0.0299" cx2="1.264" cy2="0.2771" x2="1.7446" y2="0.7858"/>
     </path>
     <path>
-      <move select="Extend Right" hands="gripright" beats="2" scaleX="2" scaleY="4" />
-      <move select="Quarter Left" hands="right" beats="2"/>
+      <movement hands="gripright" beats="2" cx1="0.5348" cy1="-0.026" cx2="-0.2025" cy2="-1.3618" x2="2" y2="-1.5" cx3="2" cx4="2.0194" cy4="-0.7605" x4="3.2209" y4="-0.8347"/>
+      <movement hands="right" beats="4" cx1="1.347" cy1="0.0129" cx2="2.4865" cy2="1.2948" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="4" cx1="1.3514" cy1="-0.0771" cx2="2.5961" cy2="1.0724" x2="2.5875" y2="2.4093"/>
+      <movement hands="gripright" beats="2" cx1="0.75" cy1="-0.0048" cx2="1.2936" cy2="0.0827" x2="1.8317" y2="0.5539"/>
     </path>
     <path>
-      <move select="Extend Right" hands="gripleft" beats="2" scaleX="2" scaleY="4" />
-      <move select="Lead Left" hands="left" beats="2" scaleX="2" scaleY="2"/>
+      <movement hands="gripleft" beats="2" cx1="0.5399" cy1="-0.0376" cx2="0.6573" cy2="-0.4683" x2="2" y2="-0.5" cx3="1.0723" cx4="1.3201" cy4="-0.3906" x4="2.672" y4="-0.4074"/>
+      <movement hands="left" beats="4" cx1="1.9061" cy1="0.0293" cx2="3.4784" cy2="1.6152" x2="3.4562" y2="3.5433"/>
+      <movement hands="gripleft" beats="4" cx1="1.9113" cy1="0.0174" cx2="3.4521" cy2="1.5495" x2="3.4424" y2="3.5566"/>
+      <movement hands="gripleft" beats="2" cx1="0.9726" cy1="0.0562" cx2="1.7337" cy2="0.3261" x2="2.4532" y2="1.0757"/>
     </path>
   </tam>
 
-  <tam title="All 4 Couples Promenade 1/4"
-       from="Static Square" group=" "
-       formation="Static Square">
+
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-02 20:26Z -->
+  <tam title="Promenade 1/2" formation="Two-Faced Lines LH" parts="">
     <path>
-      <move select="Hinge Right" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX=".5"/>
-      <move select="BackHinge Right" beats="2" offsetY="-.5"/>
+      <movement hands="gripright" beats="2" cx1="0.4193" cy1="-0.0208" cx2="1.3294" cy2="1.2985" x2="1.5" y2="3" cx3="2" cx4="2.7058" cy4="1.5056" x4="2.6977" y4="2.0751"/>
+      <movement hands="right" beats="4" cx1="1.9168" cy1="0.0044" cx2="3.5248" cy2="1.5261" x2="3.5491" y2="3.4502"/>
+      <movement hands="gripright" beats="2" cx1="1.0174" cy1="0.069" cx2="1.7954" cy2="0.3299" x2="2.4738" y2="1.0265"/>
     </path>
     <path>
-      <move select="Quarter Right" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Hinge Left" beats="2" offsetY="-1.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.4282" cy1="0.0157" cx2="0.532" cy2="0.3866" x2="0.5" y2="1" cx3="1.0723" cx4="1.0155" cy4="1.4201" x4="1.0067" y4="2.3896"/>
+      <movement hands="left" beats="4" cx1="1.4045" cy1="-0.0003" cx2="2.4827" cy2="1.0877" x2="2.5226" y2="2.4772"/>
+      <movement hands="gripleft" beats="2" cx1="0.6773" cy1="0.0299" cx2="1.2726" cy2="0.2577" x2="1.7532" y2="0.7664"/>
     </path>
     <path>
-      <move select="Hinge Right" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX=".5"/>
-      <move select="BackHinge Right" beats="2" offsetY="-.5"/>
+      <movement hands="gripright" beats="2" cx1="0.5348" cy1="-0.026" cx2="-0.2025" cy2="-1.3618" x2="2" y2="-1.5" cx3="2" cx4="2.0194" cy4="-0.7605" x4="3.2209" y4="-0.8347"/>
+      <movement hands="right" beats="4" cx1="1.347" cy1="0.0129" cx2="2.4865" cy2="1.2948" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="2" cx1="0.75" cy1="-0.0048" cx2="1.2547" cy2="0.1977" x2="1.7928" y2="0.6689"/>
     </path>
     <path>
-      <move select="Quarter Right" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Hinge Left" beats="2" offsetY="-1.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.5399" cy1="-0.0376" cx2="0.6573" cy2="-0.4683" x2="2" y2="-0.5" cx3="1.0723" cx4="1.3201" cy4="-0.3906" x4="2.672" y4="-0.4074"/>
+      <movement hands="left" beats="4" cx1="1.926" cy1="0.0239" cx2="3.4707" cy2="1.5996" x2="3.4564" y2="3.5257"/>
+      <movement hands="gripleft" beats="2" cx1="0.9252" cy1="0" cx2="1.8128" cy2="0.3663" x2="2.4687" y2="1.0189"/>
     </path>
   </tam>
 
-  <tam title="All 4 Couples Promenade 1/2"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-02 20:26Z -->
+  <tam title="Promenade 1/4" formation="Two-Faced Lines LH" parts="">
     <path>
-      <move select="Hinge Right" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Right" beats="2" offsetY="-.5"/>
+      <movement hands="gripright" beats="2" cx1="0.4193" cy1="-0.0208" cx2="1.3294" cy2="1.2985" x2="1.5" y2="3" cx3="2" cx4="2.7058" cy4="1.5056" x4="2.6977" y4="2.0751"/>
+      <movement hands="gripright" beats="2" cx1="0.9248" cy1="0" cx2="1.8334" cy2="0.3378" x2="2.4892" y2="0.9898"/>
     </path>
     <path>
-      <move select="Quarter Right" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Left" beats="2" offsetY="-1.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.4282" cy1="0.0157" cx2="0.532" cy2="0.3866" x2="0.5" y2="1" cx3="1.0723" cx4="1.0155" cy4="1.4201" x4="1.0067" y4="2.3896"/>
+      <movement hands="gripleft" beats="2" cx1="0.661" cy1="0" cx2="1.2692" cy2="0.1966" x2="1.7743" y2="0.7162"/>
     </path>
     <path>
-      <move select="Hinge Right" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Right" beats="2" offsetY="-.5"/>
+      <movement hands="gripright" beats="2" cx1="0.5348" cy1="-0.026" cx2="-0.2025" cy2="-1.3618" x2="2" y2="-1.5" cx3="2" cx4="2.0194" cy4="-0.7605" x4="3.2209" y4="-0.8347"/>
+      <movement hands="gripright" beats="2" cx1="0.7552" cy1="0.0573" cx2="1.188" cy2="0.256" x2="1.7193" y2="0.8398"/>
     </path>
     <path>
-      <move select="Quarter Right" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Left" beats="2" offsetY="-1.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.5399" cy1="-0.0376" cx2="0.6573" cy2="-0.4683" x2="2" y2="-0.5" cx3="1.0723" cx4="1.3201" cy4="-0.3906" x4="2.672" y4="-0.4074"/>
+      <movement hands="gripleft" beats="2" cx1="0.9998" cy1="-0.007" cx2="1.7537" cy2="0.265" x2="2.4619" y2="1.0558"/>
+    </path>
+  </tam>  
+
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Single File Promenade to Home" formation="Opposite Boy" parts="" sequencer="gender-specific" symmetrical="true">
+    <path>
+      <movement hands="none" beats="0.5" cx1="0.825" cy1="0" cx2="1.5" cy2="-0.45" x2="1.5" y2="-1"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="1.5" cx1="1.1" cy1="0" cx2="3" cy2="0.225" x2="3" y2="0.5" cx3="0.6823" cx4="2.0157" cy4="2.5211" x4="1" y4="2.5"/>
+    </path>
+    <path>
+      <movement hands="none" beats="0.5" cx1="0.825" cy1="0" cx2="1.5" cy2="-0.45" x2="1.5" y2="-1"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="1.5" cx1="1.1" cy1="0" cx2="3" cy2="0.225" x2="3" y2="0.5" cx3="0.6823" cx4="2.0157" cy4="2.5211" x4="1" y4="2.5"/>
     </path>
   </tam>
 
-  <tam title="All 4 Couples Promenade 3/4"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Single File Promenade to Home" formation="Opposite Girl" parts="" sequencer="gender-specific" symmetrical="true">
     <path>
-      <move select="Hinge Right" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Right" beats="2" offsetY="-.5"/>
+      <movement hands="none" beats="0.5" cx1="1.5" cy1="0" cx2="1.5" cy2="-0.5" x2="3" y2="-0.5" cx3="3" cx4="3" cy4="-0.2" x4="6" y4="-0.2"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="1.5" cx1="1" cy1="0" cx2="1" cy2="-1.5" x2="1" y2="-1.5" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
     </path>
     <path>
-      <move select="Quarter Right" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Left" beats="2" offsetY="-1.5"/>
-    </path>
-    <path>
-      <move select="Hinge Right" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Right" beats="2" offsetY="-.5"/>
-    </path>
-    <path>
-      <move select="Quarter Right" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Left" beats="2" offsetY="-1.5"/>
+      <movement hands="none" beats="0.5" cx1="1.5" cy1="0" cx2="1.5" cy2="-0.5" x2="3" y2="-0.5" cx3="3" cx4="3" cy4="-0.2" x4="6" y4="-0.2"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="2" cx1="0.825" cy1="0" cx2="1.5" cy2="0.675" x2="1.5" y2="1.5"/>
+      <movement hands="none" beats="1.5" cx1="1" cy1="0" cx2="1" cy2="-1.5" x2="1" y2="-1.5" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
     </path>
   </tam>
 
-  <tam title="All 4 Couples Promenade Full"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Single File Promenade to Home" formation="Static Square" parts="">
     <path>
-      <move select="Hinge Right" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Right" beats="2" offsetY="-.5"/>
+      <movement hands="none" beats="1" cx1="0.1017" cy1="0.0003" cx2="0.1931" cy2="-0.6392" x2="0.1716" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="2" cx1="0.7494" cy1="0" cx2="1.4706" cy2="0.2969" x2="1.9994" y2="0.8286"/>
+      <movement hands="none" beats="1" cx1="0" cy1="0" cx2="1.2503" cy2="0.1649" x2="1.414" y2="0" cx3="0.55" cx4="1.2851" cy4="0.7251" x4="1" y4="1"/>
     </path>
     <path>
-      <move select="Quarter Right" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Left" beats="2" offsetY="-1.5"/>
+      <movement hands="none" beats="1" cx1="0.2565" cy1="0.0034" cx2="1" cy2="-1" x2="1" y2="-1" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="2" cx1="0.7494" cy1="0" cx2="1.4706" cy2="0.2969" x2="1.9994" y2="0.8286"/>
+      <movement hands="none" beats="1" cx1="0" cy1="0" cx2="1" cy2="-0.1716" x2="1" y2="-0.1716" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
     </path>
     <path>
-      <move select="Hinge Right" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Left" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Right" beats="2" offsetY="-.5"/>
+      <movement hands="none" beats="1" cx1="0.1017" cy1="0.0003" cx2="0.1931" cy2="-0.6392" x2="0.1716" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="2" cx1="0.7494" cy1="0" cx2="1.4706" cy2="0.2969" x2="1.9994" y2="0.8286"/>
+      <movement hands="none" beats="1" cx1="0" cy1="0" cx2="1.2503" cy2="0.1649" x2="1.414" y2="0" cx3="0.55" cx4="1.2851" cy4="0.7251" x4="1" y4="1"/>
     </path>
     <path>
-      <move select="Quarter Right" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Left" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Left" beats="2" offsetY="-1.5"/>
-    </path>
-  </tam>
-
-  <tam title="Four Boys Promenade"
-       from="Static Square" sequencer="gender-specific" group=" "
-       formation="Static Square">
-    <path>
-      <move select="Lead Right" scaleX="1.5" />
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Lead Left" scaleX="2" scaleY=".5" />
-      <move select="Quarter Left" offsetY="-1" />
-    </path>
-    <path>
-    </path>
-    <path>
-      <move select="Lead Right" scaleX="1.5" />
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Lead Left" scaleX="2" scaleY=".5" />
-      <move select="Quarter Left" offsetY="-1" />
-    </path>
-    <path>
+      <movement hands="none" beats="1" cx1="0.2565" cy1="0.0034" cx2="1" cy2="-1" x2="1" y2="-1" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="2" cx1="0.7494" cy1="0" cx2="1.4706" cy2="0.2969" x2="1.9994" y2="0.8286"/>
+      <movement hands="none" beats="1" cx1="0" cy1="0" cx2="1" cy2="-0.1716" x2="1" y2="-0.1716" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
     </path>
   </tam>
 
-  <tam title="Four Girls Promenade"
-       from="Static Square" sequencer="gender-specific" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Single File Promenade" formation="Static Square" parts="">
     <path>
+      <movement hands="none" beats="1" cx1="0.1017" cy1="0.0003" cx2="0.1931" cy2="-0.6392" x2="0.1716" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="none" beats="3" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.4941" cy1="0.0177" cx2="2.3971" cy2="1.2258" x2="2.6388" y2="1.8361"/>
     </path>
     <path>
-      <move select="Extend Right" beats="3" scaleX="3" scaleY=".5"/>
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Quarter Left" beats="2" offsetX="1" offsetY="-1.5"/>
+      <movement hands="none" beats="1" cx1="0.2565" cy1="0.0034" cx2="1" cy2="-1" x2="1" y2="-1" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="none" beats="3" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.4815" cy2="1.2126" x2="2.5881" y2="1.6805"/>
     </path>
     <path>
+      <movement hands="none" beats="1" cx1="0.1017" cy1="0.0003" cx2="0.1931" cy2="-0.6392" x2="0.1716" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="none" beats="3" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.4941" cy1="0.0177" cx2="2.3971" cy2="1.2258" x2="2.6388" y2="1.8361"/>
     </path>
     <path>
-      <move select="Extend Right" beats="3" scaleX="3" scaleY=".5"/>
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Lead Left" scaleX="1.5" scaleY="1.5" />
-      <move select="Quarter Left" beats="2" offsetX="1" offsetY="-1.5"/>
+      <movement hands="none" beats="1" cx1="0.2565" cy1="0.0034" cx2="1" cy2="-1" x2="1" y2="-1" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="none" beats="3" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.828" cy2="1.2726" x2="2.828" y2="2.828"/>
+      <movement hands="none" beats="4" cx1="1.5554" cy1="0" cx2="2.4815" cy2="1.2126" x2="2.5881" y2="1.6805"/>
     </path>
   </tam>
 
-  <tam title="Single File Promenade" from="Static Square"
-       formation="Static Square" group=" ">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Single File Promenade" formation="Circle" parts="">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
     <path>
-      <move select="Quarter Right" offsetX="0.1716" offsetY="-1" beats="1"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left 1/2" beats="1.5" scaleX="2.828" scaleY="2.828"/>
-      <move select="Quarter Left" beats="1" offsetX="1.414"/>
-      <move select="Eighth Left" beats=".5"/>
+      <movement hands="none" beats="4" cx1="0.0736" cy1="-1.4677" cx2="1.1356" cy2="-2.7095" x2="2.6218" y2="-2.6069" cx3="1.1022" cx4="5.9997" cy4="-1.4244" x4="7.059" y4="-1.2932"/>
+      <movement hands="none" beats="4" cx1="1.6649" cy1="-0.051" cx2="2.6868" cy2="0.8267" x2="2.8932" y2="2.284"/>
+      <movement hands="none" beats="4" cx1="1.6775" cy1="0.1688" cx2="2.4462" cy2="1.0913" x2="2.6351" y2="2.5752"/>
+      <movement hands="none" beats="4" cx1="1.2984" cy1="0.2495" cx2="2.3318" cy2="1.5178" x2="1.9841" y2="3.1085" cx3="1.4327" cx4="2.45" cy4="1.8697" x4="1.9841" y4="3.1085"/>
     </path>
     <path>
-      <move select="Eighth Right" offsetX="1" offsetY="-1" beats="1"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left 1/2" beats="1.5" scaleX="2.828" scaleY="2.828"/>
-      <move select="Quarter Left" beats="1.5" offsetX="1" offsetY="-0.1716"/>
+      <movement hands="none" beats="4" cx1="0.0736" cy1="-1.4677" cx2="1.1356" cy2="-2.7095" x2="2.6218" y2="-2.6069" cx3="1.1022" cx4="5.9997" cy4="-1.4244" x4="7.059" y4="-1.2932"/>
+      <movement hands="none" beats="4" cx1="1.6649" cy1="-0.051" cx2="2.6868" cy2="0.8267" x2="2.8932" y2="2.284"/>
+      <movement hands="none" beats="4" cx1="1.6775" cy1="0.1688" cx2="2.4462" cy2="1.0913" x2="2.6351" y2="2.5752"/>
+      <movement hands="none" beats="4" cx1="1.2984" cy1="0.2495" cx2="2.3318" cy2="1.5178" x2="1.9841" y2="3.1085" cx3="1.4327" cx4="2.45" cy4="1.8697" x4="1.9841" y4="3.1085"/>
     </path>
     <path>
-      <move select="Quarter Right" offsetX="0.1716" offsetY="-1" beats="1"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left 1/2" beats="1.5" scaleX="2.828" scaleY="2.828"/>
-      <move select="Quarter Left" beats="1" offsetX="1.414"/>
-      <move select="Eighth Left" beats=".5"/>
+      <movement hands="none" beats="4" cx1="0.0736" cy1="-1.4677" cx2="1.1356" cy2="-2.7095" x2="2.6218" y2="-2.6069" cx3="1.1022" cx4="5.9997" cy4="-1.4244" x4="7.059" y4="-1.2932"/>
+      <movement hands="none" beats="4" cx1="1.6649" cy1="-0.051" cx2="2.6868" cy2="0.8267" x2="2.8932" y2="2.284"/>
+      <movement hands="none" beats="4" cx1="1.6775" cy1="0.1688" cx2="2.4462" cy2="1.0913" x2="2.6351" y2="2.5752"/>
+      <movement hands="none" beats="4" cx1="1.2984" cy1="0.2495" cx2="2.3318" cy2="1.5178" x2="1.9841" y2="3.1085" cx3="1.4327" cx4="2.45" cy4="1.8697" x4="1.9841" y4="3.1085"/>
     </path>
     <path>
-      <move select="Eighth Right" offsetX="1" offsetY="-1" beats="1"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left" beats="3" scaleX="2.828" scaleY="2.828"/>
-      <move select="Lead Left 1/2" beats="1.5" scaleX="2.828" scaleY="2.828"/>
-      <move select="Quarter Left" beats="1.5" offsetX="1" offsetY="-0.1716"/>
+      <movement hands="none" beats="4" cx1="0.0736" cy1="-1.4677" cx2="1.1356" cy2="-2.7095" x2="2.6218" y2="-2.6069" cx3="1.1022" cx4="5.9997" cy4="-1.4244" x4="7.059" y4="-1.2932"/>
+      <movement hands="none" beats="4" cx1="1.6649" cy1="-0.051" cx2="2.6868" cy2="0.8267" x2="2.8932" y2="2.284"/>
+      <movement hands="none" beats="4" cx1="1.6775" cy1="0.1688" cx2="2.4462" cy2="1.0913" x2="2.6351" y2="2.5752"/>
+      <movement hands="none" beats="4" cx1="1.2984" cy1="0.2495" cx2="2.3318" cy2="1.5178" x2="1.9841" y2="3.1085" cx3="1.4327" cx4="2.45" cy4="1.8697" x4="1.9841" y4="3.1085"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Single File Promenade to Home" formation="Circle" parts="">
+    <path>
+      <movement hands="none" beats="4" cx1="0.0286" cy1="-1.631" cx2="0.8615" cy2="-2.6045" x2="2.6158" y2="-2.6017" cx3="0.0286" cx4="1.092" cy4="-0.1155" x4="3.3479" y4="0.0366"/>
+      <movement hands="none" beats="4" cx1="1.4389" cy1="-0.0761" cx2="2.4875" cy2="0.705" x2="2.7556" y2="2.3519"/>
+      <movement hands="none" beats="4" cx1="1.5419" cy1="0.0773" cx2="2.6148" cy2="1.1322" x2="2.5499" y2="2.6476"/>
+      <movement hands="none" beats="4" cx1="2.9248" cy1="0.3741" cx2="2.1638" cy2="2.5369" x2="3.068" y2="2.964" cx3="1.6564" cx4="0.8325" cy4="2.536" x4="-0.7307" y4="1.8079"/>
+    </path>
+    <path>
+      <movement hands="none" beats="4" cx1="0.0914" cy1="-1.4769" cx2="0.8505" cy2="-2.4017" x2="2.6091" y2="-2.6137" cx3="0.0286" cx4="1.092" cy4="-0.1155" x4="3.3479" y4="0.0366"/>
+      <movement hands="none" beats="4" cx1="1.4389" cy1="-0.0761" cx2="2.5097" cy2="0.7688" x2="2.7779" y2="2.4158"/>
+      <movement hands="none" beats="4" cx1="1.5419" cy1="0.0773" cx2="2.5696" cy2="1.1999" x2="2.5048" y2="2.7153"/>
+      <movement hands="none" beats="4" cx1="2.6007" cy1="0.3582" cx2="2.1268" cy2="2.0969" x2="3.031" y2="2.524" cx3="1.6564" cx4="2.6571" cy4="2.8723" x4="1.9123" y4="3.1205"/>
+    </path>
+    <path>
+      <movement hands="none" beats="4" cx1="0.0286" cy1="-1.631" cx2="0.8615" cy2="-2.6045" x2="2.6158" y2="-2.6017" cx3="0.0286" cx4="1.092" cy4="-0.1155" x4="3.3479" y4="0.0366"/>
+      <movement hands="none" beats="4" cx1="1.4389" cy1="-0.0761" cx2="2.4875" cy2="0.705" x2="2.7556" y2="2.3519"/>
+      <movement hands="none" beats="4" cx1="1.5419" cy1="0.0773" cx2="2.6148" cy2="1.1322" x2="2.5499" y2="2.6476"/>
+      <movement hands="none" beats="4" cx1="2.9248" cy1="0.3741" cx2="2.1638" cy2="2.5369" x2="3.068" y2="2.964" cx3="1.6564" cx4="0.8325" cy4="2.536" x4="-0.7307" y4="1.8079"/>
+    </path>
+    <path>
+      <movement hands="none" beats="4" cx1="0.0914" cy1="-1.4769" cx2="0.8505" cy2="-2.4017" x2="2.6091" y2="-2.6137" cx3="0.0286" cx4="1.092" cy4="-0.1155" x4="3.3479" y4="0.0366"/>
+      <movement hands="none" beats="4" cx1="1.4389" cy1="-0.0761" cx2="2.5097" cy2="0.7688" x2="2.7779" y2="2.4158"/>
+      <movement hands="none" beats="4" cx1="1.5419" cy1="0.0773" cx2="2.5696" cy2="1.1999" x2="2.5048" y2="2.7153"/>
+      <movement hands="none" beats="4" cx1="2.6007" cy1="0.3582" cx2="2.1268" cy2="2.0969" x2="3.031" y2="2.524" cx3="1.6564" cx4="2.6571" cy4="2.8723" x4="1.9123" y4="3.1205"/>
+    </path>
+  </tam>
+
+
+
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Single File Promenade" formation="Column LH GBGB" parts="">
+    <path>
+      <movement hands="none" beats="1" cx1="1" cy1="0" cx2="0.7064" cy2="-0.3315" x2="1.2322" y2="-0.7678" cx3="0.0898" cx4="0.0619" cy4="-0.0576" x4="0.3466" y4="-0.2882"/>
+      <movement hands="none" beats="3.75" cx1="1.4364" cy1="-0.1077" cx2="2.5746" cy2="0.8582" x2="2.7474" y2="2.2253"/>
+      <movement hands="none" beats="3.75" cx1="1.2636" cy1="-0.1384" cx2="2.6752" cy2="1.0028" x2="2.6307" y2="2.3621"/>
+      <movement hands="none" beats="3.75" cx1="1.314" cy1="-0.2885" cx2="2.5018" cy2="0.4202" x2="2.9381" y2="1.9666"/>
+      <movement hands="none" beats="3.75" cx1="0.9255" cy1="-0.2118" cx2="2.0964" cy2="0.3828" x2="2.4985" y2="1.2141" cx3="0.9255" cx4="1.9157" cy4="0.5931" x4="2.4985" y4="1.2141"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="1" cy1="0" cx2="-0.0089" cy2="-1.4502" x2="1" y2="-1.5" cx3="0.172" cx4="0.0357" cy4="-0.7745" x4="0.7193" y4="-0.695"/>
+      <movement hands="none" beats="3.75" cx1="1.2112" cy1="-0.2174" cx2="2.7064" cy2="0.9734" x2="2.7721" y2="2.1945"/>
+      <movement hands="none" beats="3.75" cx1="1.2284" cy1="-0.386" cx2="2.8133" cy2="0.6141" x2="3.0219" y2="1.8353"/>
+      <movement hands="none" beats="3.75" cx1="1.108" cy1="-0.546" cx2="2.8229" cy2="0.236" x2="3.2417" y2="1.4111"/>
+      <movement hands="none" beats="3.75" cx1="0.794" cy1="-0.5047" cx2="2.0891" cy2="-0.3704" x2="2.7642" y2="0.2735" cx3="0.794" cx4="1.6026" cy4="-0.6373" x4="2.3469" y4="-0.5411"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.3758" cy1="0.01" cx2="0.3357" cy2="-1.1632" x2="0.7678" y2="-0.7678" cx3="0.4338" cx4="1.4851" cy4="-1.9426" x4="1.8365" y4="-1.5697"/>
+      <movement hands="none" beats="3.75" cx1="1.2455" cy1="-0.1458" cx2="2.6265" cy2="1.1869" x2="2.6058" y2="2.4551"/>
+      <movement hands="none" beats="3.75" cx1="1.2408" cy1="-0.2408" cx2="2.7365" cy2="0.796" x2="2.8458" y2="2.099"/>
+      <movement hands="none" beats="3.75" cx1="1.1815" cy1="-0.4119" cx2="2.8062" cy2="0.4899" x2="3.0772" y2="1.741"/>
+      <movement hands="none" beats="3.75" cx1="0.8353" cy1="-0.4139" cx2="2.0961" cy2="-0.1389" x2="2.7244" y2="0.5421" cx3="0.8353" cx4="1.8195" cy4="-0.5779" x4="2.9028" y4="-0.1535"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.502" cy1="0.0102" cx2="-0.4864" cy2="0.5931" x2="-0.5" y2="1" cx3="0.6956" cx4="0.5427" cy4="0.9052" x4="0.502" y4="1.2578"/>
+      <movement hands="none" beats="3.75" cx1="1.2349" cy1="-0.2418" cx2="2.6875" cy2="0.8929" x2="2.7702" y2="2.1968"/>
+      <movement hands="none" beats="3.75" cx1="1.1946" cy1="-0.3822" cx2="2.7448" cy2="0.5198" x2="3.0316" y2="1.8191"/>
+      <movement hands="none" beats="3.75" cx1="1.1629" cy1="-0.4541" cx2="2.8397" cy2="0.2979" x2="3.1865" y2="1.5318"/>
+      <movement hands="none" beats="3.75" cx1="0.9713" cy1="-0.4354" cx2="2.002" cy2="-0.2403" x2="2.7452" y2="0.4246" cx3="0.9713" cx4="1.9617" cy4="-0.5096" x4="2.9435" y4="-0.1743"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-02 14:52Z -->
+  <tam title="Single File Promenade to Home" formation="Column LH GBGB" parts="">
+    <path>
+      <movement hands="none" beats="1" cx1="1" cy1="0" cx2="0.7064" cy2="-0.3315" x2="1.2322" y2="-0.7678" cx3="0.0898" cx4="0.0619" cy4="-0.0576" x4="0.3466" y4="-0.2882"/>
+      <movement hands="none" beats="3.75" cx1="1.4364" cy1="-0.1077" cx2="2.5746" cy2="0.8582" x2="2.7474" y2="2.2253"/>
+      <movement hands="none" beats="3.75" cx1="1.2636" cy1="-0.1384" cx2="2.6752" cy2="1.0028" x2="2.6307" y2="2.3621"/>
+      <movement hands="none" beats="3.75" cx1="1.314" cy1="-0.2885" cx2="2.5018" cy2="0.4202" x2="2.9381" y2="1.9666"/>
+      <movement hands="none" beats="3.75" cx1="1.5463" cy1="-0.2584" cx2="2.3941" cy2="1.3981" x2="2.9501" y2="0.6902" cx3="0.7398" cx4="0.8919" cy4="0.306" x4="0.4449" y4="0.8956"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="1" cy1="0" cx2="-0.0089" cy2="-1.4502" x2="1" y2="-1.5" cx3="0.172" cx4="0.0357" cy4="-0.7745" x4="0.7193" y4="-0.695"/>
+      <movement hands="none" beats="3.75" cx1="1.2112" cy1="-0.2174" cx2="2.7064" cy2="0.9734" x2="2.7721" y2="2.1945"/>
+      <movement hands="none" beats="3.75" cx1="1.2284" cy1="-0.386" cx2="2.8133" cy2="0.6141" x2="3.0219" y2="1.8353"/>
+      <movement hands="none" beats="3.75" cx1="1.108" cy1="-0.546" cx2="2.8229" cy2="0.236" x2="3.2417" y2="1.4111"/>
+      <movement hands="none" beats="3.75" cx1="1.5703" cy1="-0.843" cx2="2.4706" cy2="0.3812" x2="3.3527" y2="-0.0898" cx3="0.8837" cx4="1.0223" cy4="0.5539" x4="0.2427" y4="0.9701"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.3758" cy1="0.01" cx2="0.3357" cy2="-1.1632" x2="0.7678" y2="-0.7678" cx3="0.4338" cx4="1.4851" cy4="-1.9426" x4="1.8365" y4="-1.5697"/>
+      <movement hands="none" beats="3.75" cx1="1.2455" cy1="-0.1458" cx2="2.6265" cy2="1.1869" x2="2.6058" y2="2.4551"/>
+      <movement hands="none" beats="3.75" cx1="1.2408" cy1="-0.2408" cx2="2.7365" cy2="0.796" x2="2.8458" y2="2.099"/>
+      <movement hands="none" beats="3.75" cx1="1.1815" cy1="-0.4119" cx2="2.8062" cy2="0.4899" x2="3.0772" y2="1.741"/>
+      <movement hands="none" beats="3.75" cx1="1.494" cy1="-0.6758" cx2="2.6459" cy2="0.8448" x2="3.0286" y2="-0.0791" cx3="0.6545" cx4="0.806" cy4="0.2268" x4="0.5556" y4="0.8315"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.502" cy1="0.0102" cx2="-0.4864" cy2="0.5931" x2="-0.5" y2="1" cx3="0.6956" cx4="0.5427" cy4="0.9052" x4="0.502" y4="1.2578"/>
+      <movement hands="none" beats="3.75" cx1="1.2349" cy1="-0.2418" cx2="2.6875" cy2="0.8929" x2="2.7702" y2="2.1968"/>
+      <movement hands="none" beats="3.75" cx1="1.1946" cy1="-0.3822" cx2="2.7448" cy2="0.5198" x2="3.0316" y2="1.8191"/>
+      <movement hands="none" beats="3.75" cx1="1.1629" cy1="-0.4541" cx2="2.8397" cy2="0.2979" x2="3.1865" y2="1.5318"/>
+      <movement hands="none" beats="3.75" cx1="1.461" cy1="-0.713" cx2="2.446" cy2="0.5159" x2="3.3526" y2="0.0939" cx3="0.902" cx4="1.0338" cy4="0.5958" x4="0.2161" y4="0.9764"/>
     </path>
   </tam>
 
@@ -477,332 +500,114 @@
   </tam>
 
 
-  <tam title="Heads Wrong Way Promenade 1/4"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Wrong Way Promenade Full to Home" formation="Facing Couples Far" parts="">
     <path>
-      <move select="Extend Left" hands="gripright" beats="2" scaleX="2" scaleY="4" />
-      <move select="Lead Right" hands="right" beats="2" scaleX="2" scaleY="2"/>
+      <movement hands="gripright" beats="2.5" cx1="0.5" cy1="0" cx2="-0.399" cy2="0.6879" x2="0.0184" y2="1.1889" cx3="2" cx4="2.7752" cy4="0.6585" x4="3.3936" y4="1.6541"/>
+      <movement hands="right" beats="1.5" cx1="1.1819" cy1="-0.0943" cx2="1.8955" cy2="-0.5669" x2="2.6869" y2="-1.8411"/>
+      <movement hands="gripright" beats="2" cx1="1.9937" cy1="-0.159" cx2="3.3697" cy2="-1.7735" x2="3.2107" y2="-3.7671"/>
+      <movement hands="right" beats="2" cx1="1.9937" cy1="-0.159" cx2="3.3697" cy2="-1.7735" x2="3.2107" y2="-3.7671"/>
+      <movement hands="gripright" beats="2" cx1="1.9937" cy1="-0.159" cx2="3.3697" cy2="-1.7735" x2="3.3267" y2="-2.9925"/>
+      <movement hands="right" beats="2" cx1="0.5564" cy1="-0.0693" cx2="1.7611" cy2="-0.2738" x2="1.6993" y2="-0.77" cx3="0.5564" cx4="0.4312" cy4="-0.0829" x4="0.348" y4="-0.6803"/>
     </path>
     <path>
-      <move select="Extend Left" hands="gripleft" beats="2" scaleX="2" scaleY="4" />
-      <move select="Quarter Right" hands="left" beats="2"/>
-    </path>
-    <path>
-      <move select="Forward 2" hands="right" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="left" />
-    </path>
-  </tam>
-
-  <tam title="Sides Wrong Way Promenade 1/4"
-       from="Static Square" group=" "
-       formation="Static Square">
-    <path>
-      <move select="Forward 2" hands="right" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="left" />
-    </path>
-    <path>
-      <move select="Extend Left" hands="gripright" beats="2" scaleX="2" scaleY="4" />
-      <move select="Lead Right" hands="right" beats="2" scaleX="2" scaleY="2"/>
-    </path>
-    <path>
-      <move select="Extend Left" hands="gripleft" beats="2" scaleX="2" scaleY="4" />
-      <move select="Quarter Right" hands="left" beats="2"/>
+      <movement hands="gripleft" beats="2.5" cx1="1" cy1="0" cx2="1.0119" cy2="1.4424" x2="1.0202" y2="2.5567" cx3="2" cx4="2.4752" cy4="0.7912" x4="3.322" y4="1.9125"/>
+      <movement hands="left" beats="1.5" cx1="0.7406" cy1="0.5846" cx2="1.6446" cy2="-0.6124" x2="1.9459" y2="-1.0114" cx3="0.6984" cx4="2.4549" cy4="-0.6402" x4="2.7427" y4="-1.0138"/>
+      <movement hands="gripleft" beats="2" cx1="1.4999" cy1="-0.0141" cx2="2.4905" cy2="-1.0234" x2="2.4764" y2="-2.5234"/>
+      <movement hands="left" beats="2" cx1="1.4999" cy1="-0.0141" cx2="2.4905" cy2="-1.0235" x2="2.4764" y2="-2.5234"/>
+      <movement hands="gripleft" beats="2" cx1="1.4999" cy1="-0.0141" cx2="2.225" cy2="-1.0234" x2="2.2307" y2="-1.5376"/>
+      <movement hands="left" beats="2" cx1="0.2333" cy1="0.077" cx2="-0.0034" cy2="0.4409" x2="0.0059" y2="0.7551" cx3="0.2297" cx4="0.7555" cy4="-0.012" x4="0.742" y4="-0.4875"/>
     </path>
   </tam>
 
-  <tam title="Heads Wrong Way Promenade 1/2"
-       from="Static Square" group=" "
-       formation="Static Square">
+  <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Wrong Way Promenade 3/4 to Home"  formation="Facing Couples Far" parts="">
     <path>
-      <move select="Extend Left" hands="gripright" beats="3" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" />
-      <move select="Run Right" hands="gripright" beats="3" scaleX="3" scaleY="3" offsetX="2" />
+      <movement hands="gripright" beats="2.5" cx1="0.5" cy1="0" cx2="-0.399" cy2="0.6879" x2="0.0184" y2="1.1889" cx3="2" cx4="2.7752" cy4="0.6585" x4="3.3936" y4="1.6541"/>
+      <movement hands="right" beats="1.5" cx1="1.1819" cy1="-0.0943" cx2="1.8955" cy2="-0.5669" x2="2.6869" y2="-1.8411"/>
+      <movement hands="gripright" beats="2" cx1="1.9937" cy1="-0.159" cx2="3.3697" cy2="-1.7735" x2="3.2107" y2="-3.7671"/>
+      <movement hands="gripright" beats="2" cx1="1.9937" cy1="-0.159" cx2="3.3697" cy2="-1.7735" x2="3.3267" y2="-2.9925"/>
+      <movement hands="right" beats="2" cx1="0.5564" cy1="-0.0693" cx2="1.7611" cy2="-0.2738" x2="1.6993" y2="-0.77" cx3="0.5564" cx4="0.4312" cy4="-0.0829" x4="0.348" y4="-0.6803"/>
     </path>
     <path>
-      <move select="Extend Left" hands="gripleft" beats="3" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" />
-      <move select="Run Right" hands="gripleft" beats="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="right" />
-      <move select="Stand" beats="3" />
-      <move select="Back 2" hands="right" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="left" />
-      <move select="Stand" beats="3" />
-      <move select="Back 2" hands="left" />
+      <movement hands="gripleft" beats="2.5" cx1="1" cy1="0" cx2="1.0119" cy2="1.4424" x2="1.0202" y2="2.5567" cx3="2" cx4="2.4752" cy4="0.7912" x4="3.322" y4="1.9125"/>
+      <movement hands="left" beats="1.5" cx1="0.7406" cy1="0.5846" cx2="1.6446" cy2="-0.6124" x2="1.9459" y2="-1.0114" cx3="0.6984" cx4="2.4549" cy4="-0.6402" x4="2.7427" y4="-1.0138"/>
+      <movement hands="gripleft" beats="2" cx1="1.4999" cy1="-0.0141" cx2="2.4905" cy2="-1.0234" x2="2.4764" y2="-2.5234"/>
+      <movement hands="gripleft" beats="2" cx1="1.4999" cy1="-0.0141" cx2="2.225" cy2="-1.0234" x2="2.2307" y2="-1.5376"/>
+      <movement hands="left" beats="2" cx1="0.2333" cy1="0.077" cx2="-0.0034" cy2="0.4409" x2="0.0059" y2="0.7551" cx3="0.2297" cx4="0.7555" cy4="-0.012" x4="0.742" y4="-0.4875"/>
     </path>
   </tam>
 
-  <tam title="Sides Wrong Way Promenade 1/2"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Wrong Way Promenade 1/2 to Home" formation="Facing Couples Far" parts="">
     <path>
-      <move select="Forward 2" hands="right" />
-      <move select="Stand" beats="3" />
-      <move select="Back 2" hands="right" />
+      <movement hands="gripright" beats="2.5" cx1="0.5" cy1="0" cx2="-0.399" cy2="0.6879" x2="0.0184" y2="1.1889" cx3="2" cx4="2.7752" cy4="0.6585" x4="3.3936" y4="1.6541"/>
+      <movement hands="right" beats="1.5" cx1="1.1819" cy1="-0.0943" cx2="1.8955" cy2="-0.5669" x2="2.6869" y2="-1.8411"/>
+      <movement hands="gripright" beats="2" cx1="1.9937" cy1="-0.159" cx2="3.3697" cy2="-1.7735" x2="3.3267" y2="-2.9925"/>
+      <movement hands="right" beats="2" cx1="0.5564" cy1="-0.0693" cx2="1.7611" cy2="-0.2738" x2="1.6993" y2="-0.77" cx3="0.5564" cx4="0.4312" cy4="-0.0829" x4="0.348" y4="-0.6803"/>
     </path>
     <path>
-      <move select="Forward 2" hands="left" />
-      <move select="Stand" beats="3" />
-      <move select="Back 2" hands="left" />
-    </path>
-    <path>
-      <move select="Extend Left" hands="gripright" beats="3" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" />
-      <move select="Run Right" hands="gripright" beats="3" scaleX="3" scaleY="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Extend Left" hands="gripleft" beats="3" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" />
-      <move select="Run Right" hands="gripleft" beats="3" offsetX="2" />
+      <movement hands="gripleft" beats="2.5" cx1="1" cy1="0" cx2="1.0119" cy2="1.4424" x2="1.0202" y2="2.5567" cx3="2" cx4="2.4752" cy4="0.7912" x4="3.322" y4="1.9125"/>
+      <movement hands="left" beats="1.5" cx1="0.7406" cy1="0.5846" cx2="1.6446" cy2="-0.6124" x2="1.9459" y2="-1.0114" cx3="0.6984" cx4="2.4549" cy4="-0.6402" x4="2.7427" y4="-1.0138"/>
+      <movement hands="gripleft" beats="2" cx1="1.4999" cy1="-0.0141" cx2="2.225" cy2="-1.0234" x2="2.2307" y2="-1.5376"/>
+      <movement hands="left" beats="2" cx1="0.2333" cy1="0.077" cx2="-0.0034" cy2="0.4409" x2="0.0059" y2="0.7551" cx3="0.2297" cx4="0.7555" cy4="-0.012" x4="0.742" y4="-0.4875"/>
     </path>
   </tam>
 
-  <tam title="Heads Wrong Way Promenade 3/4"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Wrong Way Promenade Full" formation="Facing Couples Far" parts="">
     <path>
-      <move select="Extend Left" hands="gripright" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" beats="1.5"/>
-      <move select="Lead Right" hands="gripright" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="right" />
-      <move select="Run Right" hands="gripright" beats="3" scaleX="3" scaleY="3" offsetX="2" />
+      <movement hands="gripright" beats="2.5" cx1="0.5" cy1="0" cx2="-0.399" cy2="0.6879" x2="0.0184" y2="1.1889" cx3="2" cx4="2.7752" cy4="0.6585" x4="3.3936" y4="1.6541"/>
+      <movement hands="right" beats="1.5" cx1="1.1819" cy1="-0.0943" cx2="1.8955" cy2="-0.5669" x2="2.6869" y2="-1.8411"/>
+      <movement hands="gripright" beats="2" cx1="1.9937" cy1="-0.159" cx2="3.3697" cy2="-1.7735" x2="3.2107" y2="-3.7671"/>
+      <movement hands="right" beats="2" cx1="1.9937" cy1="-0.159" cx2="3.3697" cy2="-1.7735" x2="3.2107" y2="-3.7671"/>
+      <movement hands="gripright" beats="2" cx1="0.997" cy1="-0.0795" cx2="1.9156" cy2="-0.3249" x2="2.4862" y2="-1.1897"/>
     </path>
     <path>
-      <move select="Extend Left" hands="gripleft" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" beats="1.5"/>
-      <move select="Lead Right" hands="gripleft" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="left" />
-      <move select="Run Right" hands="gripleft" beats="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="right" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="left" />
+      <movement hands="gripleft" beats="2.5" cx1="1" cy1="0" cx2="1.0119" cy2="1.4424" x2="1.0202" y2="2.5567" cx3="2" cx4="2.4752" cy4="0.7912" x4="3.322" y4="1.9125"/>
+      <movement hands="left" beats="1.5" cx1="0.7406" cy1="0.5846" cx2="1.6446" cy2="-0.6124" x2="1.9459" y2="-1.0114" cx3="0.6984" cx4="2.4549" cy4="-0.6402" x4="2.7427" y4="-1.0138"/>
+      <movement hands="gripleft" beats="2" cx1="1.4999" cy1="-0.0141" cx2="2.4905" cy2="-1.0234" x2="2.4764" y2="-2.5234"/>
+      <movement hands="left" beats="2" cx1="1.4999" cy1="-0.0141" cx2="2.4905" cy2="-1.0235" x2="2.4764" y2="-2.5234"/>
+      <movement hands="gripleft" beats="2" cx1="1.0008" cy1="-0.0096" cx2="1.4193" cy2="-0.2368" x2="1.7948" y2="-0.7327"/>
     </path>
   </tam>
 
-  <tam title="Sides Wrong Way Promenade 3/4"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Wrong Way Promenade 3/4" formation="Facing Couples Far" parts="">
+    <formation>
+        <dancer gender="boy" x="-3" y="1" angle="0"/>
+        <dancer gender="girl" x="-3" y="-1" angle="0"/>
+    </formation>
     <path>
-      <move select="Forward 2" hands="right" />
+      <movement hands="gripright" beats="2.5" cx1="0.5" cy1="0" cx2="-0.399" cy2="0.6879" x2="0.0184" y2="1.1889" cx3="2" cx4="2.7752" cy4="0.6585" x4="3.3936" y4="1.6541"/>
+      <movement hands="right" beats="1.5" cx1="1.1819" cy1="-0.0943" cx2="1.8955" cy2="-0.5669" x2="2.6869" y2="-1.8411"/>
+      <movement hands="gripright" beats="2" cx1="1.9937" cy1="-0.159" cx2="3.3697" cy2="-1.7735" x2="3.2107" y2="-3.7671"/>
+      <movement hands="gripright" beats="2" cx1="0.997" cy1="-0.0795" cx2="1.9156" cy2="-0.3249" x2="2.4862" y2="-1.1897"/>
     </path>
     <path>
-      <move select="Forward 2" hands="left" />
-    </path>
-    <path>
-      <move select="Extend Left" hands="gripright" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" beats="1.5"/>
-      <move select="Lead Right" hands="gripright" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="right" />
-      <move select="Run Right" hands="gripright" beats="3" scaleX="3" scaleY="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Extend Left" hands="gripleft" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" beats="1.5"/>
-      <move select="Lead Right" hands="gripleft" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="left" />
-      <move select="Run Right" hands="gripleft" beats="3" offsetX="2" />
+      <movement hands="gripleft" beats="2.5" cx1="1" cy1="0" cx2="1.0119" cy2="1.4424" x2="1.0202" y2="2.5567" cx3="2" cx4="2.4752" cy4="0.7912" x4="3.322" y4="1.9125"/>
+      <movement hands="left" beats="1.5" cx1="0.7406" cy1="0.5846" cx2="1.6446" cy2="-0.6124" x2="1.9459" y2="-1.0114" cx3="0.6984" cx4="2.4549" cy4="-0.6402" x4="2.7427" y4="-1.0138"/>
+      <movement hands="gripleft" beats="2" cx1="1.4999" cy1="-0.0141" cx2="2.4905" cy2="-1.0234" x2="2.4764" y2="-2.5234"/>
+      <movement hands="gripleft" beats="2" cx1="1.0008" cy1="-0.0096" cx2="1.4193" cy2="-0.2368" x2="1.7948" y2="-0.7327"/>
     </path>
   </tam>
 
-  <tam title="Heads Wrong Way Promenade Full"
-       from="Static Square" group=" "
-       formation="Static Square">
+<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
+  <tam title="Wrong Way Promenade 1/2" formation="Facing Couples Far" parts="">
+    <formation>
+        <dancer gender="boy" x="-3" y="1" angle="0"/>
+        <dancer gender="girl" x="-3" y="-1" angle="0"/>
+    </formation>
     <path>
-      <move select="Extend Left" hands="gripright" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" beats="1.5"/>
-      <move select="Lead Right" hands="gripright" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="right" beats="2"/>
-      <move select="Lead Right" hands="gripright" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="right" beats="2"/>
-      <move select="Run Right" hands="gripright" beats="3" scaleX="3" scaleY="3" offsetX="2" />
+      <movement hands="gripright" beats="2.5" cx1="0.5" cy1="0" cx2="-0.399" cy2="0.6879" x2="0.0184" y2="1.1889" cx3="2" cx4="2.7752" cy4="0.6585" x4="3.3936" y4="1.6541"/>
+      <movement hands="right" beats="1.5" cx1="1.1819" cy1="-0.0943" cx2="1.8955" cy2="-0.5669" x2="2.6869" y2="-1.8411"/>
+      <movement hands="gripright" beats="2" cx1="0.997" cy1="-0.0795" cx2="1.9156" cy2="-0.3249" x2="2.4862" y2="-1.1897"/>
     </path>
     <path>
-      <move select="Extend Left" hands="gripleft" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" beats="1.5"/>
-      <move select="Lead Right" hands="gripleft" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="left" beats="2"/>
-      <move select="Lead Right" hands="gripleft" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="left" beats="2"/>
-      <move select="Run Right" hands="gripleft" beats="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="right" />
-      <move select="Stand" beats="11" />
-      <move select="Back 2" hands="right" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="left" />
-      <move select="Stand" beats="11" />
-      <move select="Back 2" hands="left" />
+      <movement hands="gripleft" beats="2.5" cx1="1" cy1="0" cx2="1.0119" cy2="1.4424" x2="1.0202" y2="2.5567" cx3="2" cx4="2.4752" cy4="0.7912" x4="3.322" y4="1.9125"/>
+      <movement hands="left" beats="1.5" cx1="0.7406" cy1="0.5846" cx2="1.6446" cy2="-0.6124" x2="1.9459" y2="-1.0114" cx3="0.6984" cx4="2.4549" cy4="-0.6402" x4="2.7427" y4="-1.0138"/>
+      <movement hands="gripleft" beats="2" cx1="1.0008" cy1="-0.0096" cx2="1.4193" cy2="-0.2368" x2="1.7948" y2="-0.7327"/>
     </path>
   </tam>
 
-  <tam title="Sides Wrong Way Promenade Full"
-       from="Static Square" group=" "
-       formation="Static Square">
-    <path>
-      <move select="Forward 2" hands="right" />
-      <move select="Stand" beats="11" />
-      <move select="Back 2" hands="right" />
-    </path>
-    <path>
-      <move select="Forward 2" hands="left" />
-      <move select="Stand" beats="11" />
-      <move select="Back 2" hands="left" />
-    </path>
-    <path>
-      <move select="Extend Left" hands="gripright" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="right" beats="1.5"/>
-      <move select="Lead Right" hands="gripright" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="right" beats="2"/>
-      <move select="Lead Right" hands="gripright" beats="2" scaleX="3" scaleY="3" offsetX="1" />
-      <move select="Forward 3" hands="right" beats="2"/>
-      <move select="Run Right" hands="gripright" beats="3" scaleX="3" scaleY="3" offsetX="2" />
-    </path>
-    <path>
-      <move select="Extend Left" hands="gripleft" beats="2.5" scaleX="2" scaleY="4" />
-      <move select="Forward 2" hands="left" beats="1.5"/>
-      <move select="Lead Right" hands="gripleft" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="left" beats="2"/>
-      <move select="Lead Right" hands="gripleft" beats="2" offsetX="1" />
-      <move select="Forward 3" hands="left" beats="2"/>
-      <move select="Run Right" hands="gripleft" beats="3" offsetX="2" />
-    </path>
-  </tam>
-
-  <tam title="All 4 Couples Wrong Way Promenade 1/4"
-       from="Static Square" group=" "
-       formation="Static Square">
-    <path>
-      <move select="Quarter Left" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Hinge Right" beats="2" offsetY="1.5"/>
-    </path>
-    <path>
-      <move select="Hinge Left" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX=".5"/>
-      <move select="BackHinge Left" beats="2" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Quarter Left" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Hinge Right" beats="2" offsetY="1.5"/>
-    </path>
-    <path>
-      <move select="Hinge Left" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX=".5"/>
-      <move select="BackHinge Left" beats="2" offsetY=".5"/>
-    </path>
-  </tam>
-
-  <tam title="All 4 Couples Wrong Way Promenade 1/2"
-       from="Static Square" group=" "
-       formation="Static Square">
-    <path>
-      <move select="Quarter Left" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Right" beats="2" offsetY="1.5"/>
-    </path>
-    <path>
-      <move select="Hinge Left" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Left" beats="2" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Quarter Left" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Right" beats="2" offsetY="1.5"/>
-    </path>
-    <path>
-      <move select="Hinge Left" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Left" beats="2" offsetY=".5"/>
-    </path>
-  </tam>
-
-  <tam title="All 4 Couples Wrong Way Promenade 3/4"
-       from="Static Square" group=" "
-       formation="Static Square">
-    <path>
-      <move select="Quarter Left" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Right" beats="2" offsetY="1.5"/>
-    </path>
-    <path>
-      <move select="Hinge Left" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Left" beats="2" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Quarter Left" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Right" beats="2" offsetY="1.5"/>
-    </path>
-    <path>
-      <move select="Hinge Left" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Left" beats="2" offsetY=".5"/>
-    </path>
-  </tam>
-
-  <tam title="All 4 Couples Wrong Way Promenade Full"
-       from="Static Square" group=" "
-       formation="Static Square">
-    <path>
-      <move select="Quarter Left" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Right" beats="2" offsetY="1.5"/>
-    </path>
-    <path>
-      <move select="Hinge Left" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Left" beats="2" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Quarter Left" beats="2" hands="left" offsetX="1"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="1.5" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Lead Right" beats="2" hands="left" scaleX="2.5" scaleY="2.5"/>
-      <move select="Hinge Right" beats="2" offsetY="1.5"/>
-    </path>
-    <path>
-      <move select="Hinge Left" beats="2" scaleX="2" scaleY="2"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX=".5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="Lead Right" beats="2" hands="right" scaleX="1.5" scaleY="1.5"/>
-      <move select="BackHinge Left" beats="2" offsetY=".5"/>
-    </path>
-  </tam>
-
-</tamination>
+  </tamination>

@@ -214,4 +214,32 @@
     </path>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Veer Left"
+       from="Facing Couples"
+       formation="Facing Couples"
+       fractions="" difficulty="1">
+    <path>
+      <move select="Extend Left" beats="2" hands="right" scaleX="2" scaleY="2" />
+    </path>
+    <path>
+      <move select="Extend Left" beats="2" hands="left" scaleX="2" scaleY="2" />
+    </path>
+  </tam>
+
+<tam title="Veer Right"
+       from="Facing Couples"
+       formation="Facing Couples"
+       fractions="" difficulty="1">
+    <path>
+      <move select="Extend Right" beats="2" hands="right" scaleX="2" scaleY="2" />
+    </path>
+    <path>
+      <move select="Extend Right" beats="2" hands="left" scaleX="2" scaleY="2" />
+    </path>
+  </tam>
+
 </tamination>

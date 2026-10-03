@@ -270,4 +270,32 @@
     </path>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Step to a Wave"
+       from="Facing Couples"
+       formation="Facing Couples"
+       difficulty="1">
+    <path>
+      <move select="Extend Left" beats="2" scaleX="2" scaleY="2" />
+    </path>
+    <path>
+      <move select="Forward 2" />
+    </path>
+  </tam>
+
+<tam title="Step to a Left-Hand Wave"
+       from="Facing Couples"
+       formation="Facing Couples"
+       difficulty="2">
+    <path>
+      <move select="Forward 2" />
+    </path>
+    <path>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY="2" />
+    </path>
+  </tam>
+
 </tamination>

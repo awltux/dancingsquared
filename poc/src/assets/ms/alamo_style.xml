@@ -55,4 +55,76 @@
   </tam>
 
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Allemande Left to an Alamo Ring"
+       from="Static Square"
+       formation="Static Square"
+       difficulty="1">
+    <path>
+      <move select="Lead Left" beats="3" offsetX=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="HalfHinge Left" scaleX=".5" scaleY=".5" offsetX=".646" offsetY="-.061" />
+      <move select="Sxtnth Left" hands="gripboth" />
+    </path>
+    <path>
+      <move select="Lead Right" offsetX="-.5" />
+      <move select="Hinge Left" scaleX=".5" scaleY=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="HalfHinge Left" scaleX=".5" scaleY=".5" offsetX=".061" offsetY="-.646" />
+      <move select="Sxtnth Right" hands="gripboth" />
+    </path>
+    <path>
+      <move select="Lead Left" beats="3" offsetX=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="HalfHinge Left" scaleX=".5" scaleY=".5" offsetX=".646" offsetY="-.061" />
+      <move select="Sxtnth Left" hands="gripboth" />
+    </path>
+    <path>
+      <move select="Lead Right" offsetX="-.5" />
+      <move select="Hinge Left" scaleX=".5" scaleY=".5" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
+      <move select="HalfHinge Left" scaleX=".5" scaleY=".5" offsetX=".061" offsetY="-.646" />
+      <move select="Sxtnth Right" hands="gripboth" />
+    </path>
+  </tam>
+
+<tam title="Adjust to an Alamo" display="none"
+       from="Static Miniwaves"
+       formation="Static MiniWaves RH"
+       difficulty="1">
+    <path>
+      <move select="Sxtnth Right" beats="1" offsetX="0.586"/>
+    </path>
+    <path>
+      <move select="Sxtnth Left"  beats="1" offsetX="-0.586"/>
+    </path>
+    <path>
+      <move select="Sxtnth Right" beats="1" offsetX="0.586"/>
+    </path>
+    <path>
+      <move select="Sxtnth Left" beats="1" offsetX="-0.586"/>
+    </path>
+  </tam>
+
+<tam title="Adjust to an Alamo" display="none"
+       from="Static Left-Hand Miniwaves"
+       formation="Static MiniWaves LH"
+       difficulty="1">
+    <path>
+      <move select="Sxtnth Right" beats="1" offsetX="-0.586"/>
+    </path>
+    <path>
+      <move select="Sxtnth Left" beats="1" offsetX="0.586"/>
+    </path>
+    <path>
+      <move select="Sxtnth Right" beats="1" offsetX="-0.586"/>
+    </path>
+    <path>
+      <move select="Sxtnth Left" beats="1" offsetX="0.586"/>
+    </path>
+  </tam>
+
 </tamination>

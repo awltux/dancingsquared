@@ -155,4 +155,32 @@
     </path>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Wheel Around"
+       from="Facing Couples"
+       formation="Facing Couples"
+       fractions="" >
+    <path>
+      <move select="Beau Wheel" />
+    </path>
+    <path>
+      <move select="Belle Wheel" />
+    </path>
+  </tam>
+
+<tam title="Reverse Wheel Around"
+       from="Facing Couples"
+       formation="Facing Couples"
+       fractions="" >
+    <path>
+      <move select="Belle Wheel" reflect="1" />
+    </path>
+    <path>
+      <move select="Beau Wheel" reflect="1" />
+    </path>
+  </tam>
+
 </tamination>

@@ -181,4 +181,26 @@
     </path>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Lead Right" from="Facing Couples" formation="Facing Couples" difficulty="2">
+    <path>
+      <move select="Hinge Right" beats="4" scaleX=".5" scaleY=".5" offsetX="2.5" offsetY="-2.5" />
+    </path>
+    <path>
+      <move select="Quarter Right" beats="4" hands="left" offsetX="1" offsetY="-1"/>
+    </path>
+  </tam>
+
+<tam title="Lead Left" from="Facing Couples" formation="Facing Couples" difficulty="2">
+    <path>
+      <move select="Quarter Left" beats="4" hands="right" offsetX="1" offsetY="1"/>
+    </path>
+    <path>
+      <move select="Hinge Left" beats="4" scaleX=".5" scaleY=".5" offsetX="2.5" offsetY="2.5" />
+    </path>
+  </tam>
+
 </tamination>

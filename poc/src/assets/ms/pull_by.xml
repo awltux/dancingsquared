@@ -87,4 +87,30 @@
     </path>
   </tam>
 
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Right Pull By" formation="Facing Couples" group=" ">
+    <path>
+      <move select="Pull Left" scaleX="2" scaleY=".5" beats="2"/>
+      <move select="Extend Right" scaleX="2" scaleY=".5" beats="2"/>
+    </path>
+    <path>
+      <move select="Pull Left" scaleX="2" scaleY=".5" beats="2"/>
+      <move select="Extend Right" scaleX="2" scaleY=".5" beats="2"/>
+    </path>
+  </tam>
+
+<tam title="Left Pull By" formation="Facing Couples" group=" ">
+    <path>
+      <move select="Pull Right" scaleX="2" scaleY=".5" beats="2"/>
+      <move select="Extend Left" scaleX="2" scaleY=".5" beats="2"/>
+    </path>
+    <path>
+      <move select="Pull Right" scaleX="2" scaleY=".5" beats="2"/>
+      <move select="Extend Left" scaleX="2" scaleY=".5" beats="2"/>
+    </path>
+  </tam>
+
 </tamination>

@@ -1047,4 +1047,31 @@
       <move select="Run Left" beats="4" />
     </path>
   </tam>
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Boys Run"
+       from="Facing Couples"
+       formation="Facing Couples" sequencer="no">
+    <path>
+      <move select="Run Right" beats="4" />
+    </path>
+    <path>
+      <move select="Dodge Left" beats="4" />
+    </path>
+  </tam>
+
+<tam title="Girls Run"
+       from="Facing Couples"
+       formation="Facing Couples" sequencer="no"
+       fractions="" >
+    <path>
+      <move select="Dodge Right" beats="4" />
+    </path>
+    <path>
+      <move select="Run Left" beats="4" />
+    </path>
+  </tam>
+
 </tamination>

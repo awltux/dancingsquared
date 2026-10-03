@@ -178,4 +178,50 @@
       <move select="Swing Right" />
     </path>
   </tam>
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Touch a Quarter"
+       from="Facing Couples"
+       formation="Facing Couples"
+       difficulty="1" sequencer="no">
+    <path>
+      <move select="Extend Left" scaleX="2" />
+      <move select="Quarter Right" hands="right" beats="1" offsetX="1" />
+    </path>
+    <path>
+      <move select="Extend Left" scaleX="2" scaleY=".5" />
+      <move select="Hinge Right" beats="1" scaleY="1.5" />
+    </path>
+  </tam>
+
+<tam title="Left Touch a Quarter"
+       from="Facing Couples"
+       formation="Facing Couples"
+       difficulty="2" sequencer="no">
+    <path>
+      <move select="Extend Right" scaleX="2" scaleY=".5" />
+      <move select="Hinge Left" beats="1" scaleY="1.5" />
+    </path>
+    <path>
+      <move select="Extend Right" scaleX="2" />
+      <move select="Quarter Left" hands="left" beats="1" offsetX="1" />
+    </path>
+  </tam>
+
+<tam title="Touch a Half"
+       from="Facing Couples"
+       formation="Facing Couples"
+       difficulty="2">
+    <path>
+      <move select="Extend Left" beats="3" scaleX="2" scaleY="2" />
+      <move select="Swing Right" />
+    </path>
+    <path>
+      <move select="Forward 2" beats="3" />
+      <move select="Swing Right" />
+    </path>
+  </tam>
+
 </tamination>

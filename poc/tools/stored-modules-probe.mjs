@@ -53,6 +53,24 @@ const extra = parseStoredModules('[{"name":"a","calls":[],"level":"ms","tags":["
 check(extra.length === 1 && !('level' in extra[0]) && !('tags' in extra[0]),
   'unknown fields are dropped rather than carried forward as a schema this module would then own');
 
+console.log('\n== a "while" step, in both the stored shapes ==');
+// THE SEQUENCER SAVES THE RAW HISTORY, so a "while" step saved before lanes existed is
+// `{groups:[{selection, call}]}` in a caller's browser, while the canonical write is now a LANE
+// (`{selection, calls:[...]}`). The upgrade happens in THIS parser - the one both readers share - so
+// nothing downstream has to know the old shape exists.
+const legacy = parseStoredModules('[{"name":"w","calls":[{"groups":[{"selection":"Centers","call":"Square Thru"},{"selection":"Outsides","call":"Trade"}]}]}]');
+check(legacy.length === 1, 'a stored "while" step survives the parse rather than being dropped as an unknown step');
+check(legacy[0]?.calls[0]?.groups?.[0]?.calls?.length === 1 && legacy[0].calls[0].groups[0].calls[0] === 'Square Thru',
+  'and its LEGACY single-`call` lane is upgraded to the canonical `calls` list, so one shape reaches the app');
+const lane = parseStoredModules('[{"name":"w","calls":[{"groups":[{"selection":"Sides","calls":["Trade","Pass Thru"]}]}]}]');
+check(lane.length === 1 && lane[0].calls[0].groups[0].calls.length === 2,
+  'a canonical LANE keeps every call, in order');
+const broken = parseStoredModules('[{"name":"w","calls":[{"groups":[{"selection":"Sides"}]}]},{"name":"ok","calls":["Pass Thru"]}]');
+check(broken.length === 1 && broken[0].name === 'ok',
+  'a group with NO call loses its whole module rather than silently shortening the sequence, and the next entry still loads');
+const stringLane = parseStoredModules('[{"name":"w","calls":[{"groups":[{"selection":"Sides","calls":"Trade"}]}]}]');
+check(stringLane.length === 0, 'and a lane whose calls are not a list is refused rather than read as one call');
+
 console.log('\n== and both readers are the same reader ==');
 const seq = fs.readFileSync(path.join(POC, 'src', 'sequencer-ui.ts'), 'utf8');
 const mods = fs.readFileSync(path.join(POC, 'src', 'modules.ts'), 'utf8');

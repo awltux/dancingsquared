@@ -827,7 +827,7 @@
           ]
         },
         {
-          "label": "Designated dancers from a Static Square",
+          "label": "Opposite dancers from a Static Square",
           "calls": [
             {
               "title": "Dosado",
@@ -854,7 +854,7 @@
           ]
         },
         {
-          "label": "Opposite Boy",
+          "label": "Opposite Boy from a Static Square",
           "calls": [
             {
               "title": "Dosado",
@@ -881,7 +881,7 @@
           ]
         },
         {
-          "label": "Opposite Girl",
+          "label": "Opposite Girl from a Static Square",
           "calls": [
             {
               "title": "Dosado",
@@ -1382,6 +1382,28 @@
               "view": {
                 "scale": 36.279,
                 "units": 4.3
+              }
+            },
+            {
+              "title": "Left-Hand Star 1/4",
+              "file": "ms/star.xml",
+              "tamIndex": 22,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
+              }
+            },
+            {
+              "title": "Left-Hand Star 1/4 and Roll",
+              "file": "ms/star.xml",
+              "tamIndex": 23,
+              "from": "Facing Couples",
+              "beats": 7.5,
+              "view": {
+                "scale": 43.333,
+                "units": 3.6
               }
             }
           ]
@@ -2464,10 +2486,10 @@
       "id": "m22",
       "call": "Split Two",
       "corpusTitle": "Split Two",
-      "file": "b1/split_the_outside_couple.xml",
-      "level": "b1",
+      "file": "ms/split_the_outside_couple.xml",
+      "level": "ms",
       "fileName": "split_the_outside_couple.xml",
-      "tamIndex": 0,
+      "tamIndex": 3,
       "from": "",
       "beats": 2,
       "frames": 0,

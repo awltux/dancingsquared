@@ -13,15 +13,23 @@
           "sites": [
             {
               "file": "ms/circle.xml",
-              "tamIndex": 0
+              "tamIndex": 8
             },
             {
               "file": "ms/circle.xml",
-              "tamIndex": 1
+              "tamIndex": 12
             },
             {
-              "file": "b1/circle.xml",
-              "tamIndex": 0
+              "file": "ms/circle.xml",
+              "tamIndex": 16
+            },
+            {
+              "file": "ms/circle.xml",
+              "tamIndex": 24
+            },
+            {
+              "file": "ms/circle.xml",
+              "tamIndex": 104
             }
           ]
         },
@@ -33,15 +41,15 @@
           "sites": [
             {
               "file": "ms/circle.xml",
-              "tamIndex": 30
+              "tamIndex": 64
             },
             {
               "file": "ms/circle.xml",
-              "tamIndex": 31
+              "tamIndex": 72
             },
             {
               "file": "ms/circle.xml",
-              "tamIndex": 32
+              "tamIndex": 76
             }
           ]
         },
@@ -53,15 +61,11 @@
           "sites": [
             {
               "file": "ms/circle.xml",
-              "tamIndex": 45
+              "tamIndex": 88
             },
             {
               "file": "ms/circle.xml",
-              "tamIndex": 46
-            },
-            {
-              "file": "ms/circle.xml",
-              "tamIndex": 47
+              "tamIndex": 92
             }
           ]
         }
@@ -83,23 +87,39 @@
             },
             {
               "file": "ms/dosado.xml",
-              "tamIndex": 1
+              "tamIndex": 2
             },
             {
               "file": "ms/dosado.xml",
-              "tamIndex": 2
+              "tamIndex": 4
             },
             {
-              "file": "b1/dosado.xml",
-              "tamIndex": 0
+              "file": "ms/dosado.xml",
+              "tamIndex": 6
             },
             {
-              "file": "b1/dosado.xml",
-              "tamIndex": 1
+              "file": "ms/dosado.xml",
+              "tamIndex": 8
             },
             {
-              "file": "b1/dosado.xml",
-              "tamIndex": 2
+              "file": "ms/dosado.xml",
+              "tamIndex": 10
+            },
+            {
+              "file": "ms/dosado.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "ms/dosado.xml",
+              "tamIndex": 13
+            },
+            {
+              "file": "ms/dosado.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "ms/dosado.xml",
+              "tamIndex": 18
             }
           ]
         }
@@ -130,10 +150,6 @@
             {
               "file": "ms/promenade.xml",
               "tamIndex": 14
-            },
-            {
-              "file": "b1/promenade.xml",
-              "tamIndex": 10
             }
           ]
         },
@@ -146,10 +162,6 @@
             {
               "file": "ms/promenade.xml",
               "tamIndex": 15
-            },
-            {
-              "file": "b1/promenade.xml",
-              "tamIndex": 11
             }
           ]
         },
@@ -237,40 +249,20 @@
               "tamIndex": 12
             },
             {
-              "file": "b1/allemande.xml",
-              "tamIndex": 0
+              "file": "ms/allemande.xml",
+              "tamIndex": 13
             },
             {
-              "file": "b1/allemande.xml",
-              "tamIndex": 1
+              "file": "ms/allemande.xml",
+              "tamIndex": 14
             },
             {
-              "file": "b1/allemande.xml",
-              "tamIndex": 2
+              "file": "ms/allemande.xml",
+              "tamIndex": 15
             },
             {
-              "file": "b1/allemande.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b1/allemande.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b1/allemande.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b1/allemande.xml",
-              "tamIndex": 6
-            },
-            {
-              "file": "b1/allemande.xml",
-              "tamIndex": 7
-            },
-            {
-              "file": "b1/allemande.xml",
-              "tamIndex": 8
+              "file": "ms/allemande.xml",
+              "tamIndex": 16
             }
           ]
         }
@@ -295,12 +287,8 @@
               "tamIndex": 1
             },
             {
-              "file": "b1/star.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/star.xml",
-              "tamIndex": 1
+              "file": "ms/star.xml",
+              "tamIndex": 22
             }
           ]
         }
@@ -367,42 +355,6 @@
             {
               "file": "ms/right_and_left_grand.xml",
               "tamIndex": 12
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 6
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 7
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 8
             }
           ]
         },
@@ -415,10 +367,6 @@
             {
               "file": "ms/right_and_left_grand.xml",
               "tamIndex": 13
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 9
             }
           ]
         },
@@ -467,38 +415,6 @@
             {
               "file": "ms/right_and_left_grand.xml",
               "tamIndex": 23
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 10
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 11
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 12
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 13
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 14
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 15
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 16
-            },
-            {
-              "file": "b1/right_and_left_grand.xml",
-              "tamIndex": 17
             }
           ]
         }
@@ -533,22 +449,6 @@
             {
               "file": "ms/pass_thru.xml",
               "tamIndex": 4
-            },
-            {
-              "file": "b1/pass_thru.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/pass_thru.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/pass_thru.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b1/pass_thru.xml",
-              "tamIndex": 3
             }
           ]
         }
@@ -581,12 +481,8 @@
               "tamIndex": 3
             },
             {
-              "file": "b2/wheel_around.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/wheel_around.xml",
-              "tamIndex": 1
+              "file": "ms/wheel_around.xml",
+              "tamIndex": 9
             }
           ]
         }
@@ -612,18 +508,6 @@
             },
             {
               "file": "ms/courtesy_turn.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b1/courtesy_turn.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/courtesy_turn.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/courtesy_turn.xml",
               "tamIndex": 2
             }
           ]
@@ -673,28 +557,8 @@
               "tamIndex": 7
             },
             {
-              "file": "b1/right_and_left_thru.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/right_and_left_thru.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/right_and_left_thru.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b1/right_and_left_thru.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b1/right_and_left_thru.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b1/right_and_left_thru.xml",
-              "tamIndex": 5
+              "file": "ms/right_and_left_thru.xml",
+              "tamIndex": 13
             }
           ]
         }
@@ -712,10 +576,6 @@
           "sites": [
             {
               "file": "ms/swing.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/swing.xml",
               "tamIndex": 0
             }
           ]
@@ -745,20 +605,12 @@
               "tamIndex": 2
             },
             {
-              "file": "b1/ladies_chain.xml",
-              "tamIndex": 0
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 23
             },
             {
-              "file": "b1/ladies_chain.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/ladies_chain.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b1/ladies_chain.xml",
-              "tamIndex": 3
+              "file": "ms/ladies_chain.xml",
+              "tamIndex": 24
             }
           ]
         },
@@ -774,14 +626,6 @@
             },
             {
               "file": "ms/ladies_chain.xml",
-              "tamIndex": 13
-            },
-            {
-              "file": "b1/ladies_chain.xml",
-              "tamIndex": 12
-            },
-            {
-              "file": "b1/ladies_chain.xml",
               "tamIndex": 13
             }
           ]
@@ -819,30 +663,6 @@
             {
               "file": "ms/ladies_chain.xml",
               "tamIndex": 22
-            },
-            {
-              "file": "b1/ladies_chain.xml",
-              "tamIndex": 16
-            },
-            {
-              "file": "b1/ladies_chain.xml",
-              "tamIndex": 17
-            },
-            {
-              "file": "b1/ladies_chain.xml",
-              "tamIndex": 18
-            },
-            {
-              "file": "b1/ladies_chain.xml",
-              "tamIndex": 19
-            },
-            {
-              "file": "b1/ladies_chain.xml",
-              "tamIndex": 20
-            },
-            {
-              "file": "b1/ladies_chain.xml",
-              "tamIndex": 21
             }
           ]
         }
@@ -871,16 +691,8 @@
               "tamIndex": 2
             },
             {
-              "file": "b1/sashay.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/sashay.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/sashay.xml",
-              "tamIndex": 2
+              "file": "ms/sashay.xml",
+              "tamIndex": 12
             }
           ]
         },
@@ -911,24 +723,8 @@
               "tamIndex": 11
             },
             {
-              "file": "b1/sashay.xml",
-              "tamIndex": 7
-            },
-            {
-              "file": "b1/sashay.xml",
-              "tamIndex": 8
-            },
-            {
-              "file": "b1/sashay.xml",
-              "tamIndex": 9
-            },
-            {
-              "file": "b1/sashay.xml",
-              "tamIndex": 10
-            },
-            {
-              "file": "b1/sashay.xml",
-              "tamIndex": 11
+              "file": "ms/sashay.xml",
+              "tamIndex": 13
             }
           ]
         },
@@ -944,14 +740,6 @@
             },
             {
               "file": "ms/sashay.xml",
-              "tamIndex": 6
-            },
-            {
-              "file": "b1/sashay.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b1/sashay.xml",
               "tamIndex": 6
             }
           ]
@@ -997,32 +785,8 @@
               "tamIndex": 6
             },
             {
-              "file": "b1/turn_back.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/turn_back.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/turn_back.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b1/turn_back.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b1/turn_back.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b1/turn_back.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b1/turn_back.xml",
-              "tamIndex": 6
+              "file": "ms/turn_back.xml",
+              "tamIndex": 12
             }
           ]
         },
@@ -1048,10 +812,6 @@
             {
               "file": "ms/separate.xml",
               "tamIndex": 0
-            },
-            {
-              "file": "b1/separate.xml",
-              "tamIndex": 0
             }
           ]
         },
@@ -1064,10 +824,6 @@
             {
               "file": "ms/separate.xml",
               "tamIndex": 10
-            },
-            {
-              "file": "b1/separate.xml",
-              "tamIndex": 10
             }
           ]
         },
@@ -1079,10 +835,6 @@
           "sites": [
             {
               "file": "ms/separate.xml",
-              "tamIndex": 12
-            },
-            {
-              "file": "b1/separate.xml",
               "tamIndex": 12
             }
           ]
@@ -1112,16 +864,8 @@
               "tamIndex": 2
             },
             {
-              "file": "b1/lead_right.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/lead_right.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/lead_right.xml",
-              "tamIndex": 2
+              "file": "ms/lead_right.xml",
+              "tamIndex": 10
             }
           ]
         }
@@ -1162,28 +906,8 @@
               "tamIndex": 5
             },
             {
-              "file": "b1/veer.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/veer.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/veer.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b1/veer.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b1/veer.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b1/veer.xml",
-              "tamIndex": 5
+              "file": "ms/veer.xml",
+              "tamIndex": 12
             }
           ]
         }
@@ -1220,24 +944,8 @@
               "tamIndex": 4
             },
             {
-              "file": "b1/star_thru.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/star_thru.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/star_thru.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b1/star_thru.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b1/star_thru.xml",
-              "tamIndex": 4
+              "file": "ms/star_thru.xml",
+              "tamIndex": 6
             }
           ]
         }
@@ -1266,16 +974,8 @@
               "tamIndex": 50
             },
             {
-              "file": "b1/circulate.xml",
-              "tamIndex": 41
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 42
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 43
+              "file": "ms/circulate.xml",
+              "tamIndex": 58
             }
           ]
         },
@@ -1376,70 +1076,6 @@
             {
               "file": "ms/circulate.xml",
               "tamIndex": 31
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 16
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 17
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 18
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 19
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 20
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 21
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 22
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 23
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 24
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 25
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 26
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 27
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 28
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 29
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 30
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 31
             }
           ]
         },
@@ -1464,22 +1100,6 @@
             {
               "file": "ms/circulate.xml",
               "tamIndex": 54
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 44
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 45
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 46
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 47
             }
           ]
         },
@@ -1530,44 +1150,8 @@
               "tamIndex": 9
             },
             {
-              "file": "b1/circulate.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 6
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 7
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 8
-            },
-            {
-              "file": "b1/circulate.xml",
-              "tamIndex": 9
+              "file": "ms/circulate.xml",
+              "tamIndex": 57
             }
           ]
         }
@@ -1622,46 +1206,6 @@
             {
               "file": "ms/bend_the_line.xml",
               "tamIndex": 9
-            },
-            {
-              "file": "b1/bend_the_line.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/bend_the_line.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/bend_the_line.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b1/bend_the_line.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b1/bend_the_line.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b1/bend_the_line.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b1/bend_the_line.xml",
-              "tamIndex": 6
-            },
-            {
-              "file": "b1/bend_the_line.xml",
-              "tamIndex": 7
-            },
-            {
-              "file": "b1/bend_the_line.xml",
-              "tamIndex": 8
-            },
-            {
-              "file": "b1/bend_the_line.xml",
-              "tamIndex": 9
             }
           ]
         }
@@ -1706,28 +1250,8 @@
               "tamIndex": 18
             },
             {
-              "file": "b1/square_thru.xml",
-              "tamIndex": 12
-            },
-            {
-              "file": "b1/square_thru.xml",
-              "tamIndex": 13
-            },
-            {
-              "file": "b1/square_thru.xml",
-              "tamIndex": 14
-            },
-            {
-              "file": "b1/square_thru.xml",
-              "tamIndex": 15
-            },
-            {
-              "file": "b1/square_thru.xml",
-              "tamIndex": 16
-            },
-            {
-              "file": "b1/square_thru.xml",
-              "tamIndex": 17
+              "file": "ms/square_thru.xml",
+              "tamIndex": 78
             }
           ]
         }
@@ -1744,8 +1268,8 @@
           "how": "exact",
           "sites": [
             {
-              "file": "b1/split_the_outside_couple.xml",
-              "tamIndex": 0
+              "file": "ms/split_the_outside_couple.xml",
+              "tamIndex": 3
             }
           ]
         }
@@ -1767,14 +1291,6 @@
             },
             {
               "file": "ms/grand_square.xml",
-              "tamIndex": 6
-            },
-            {
-              "file": "b1/grand_square.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b1/grand_square.xml",
               "tamIndex": 6
             }
           ]
@@ -1810,22 +1326,6 @@
             {
               "file": "ms/double_pass_thru.xml",
               "tamIndex": 4
-            },
-            {
-              "file": "b2/double_pass_thru.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/double_pass_thru.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/double_pass_thru.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b2/double_pass_thru.xml",
-              "tamIndex": 3
             }
           ]
         }
@@ -1846,8 +1346,8 @@
               "tamIndex": 0
             },
             {
-              "file": "b2/first_couple_go.xml",
-              "tamIndex": 0
+              "file": "ms/first_couple_go.xml",
+              "tamIndex": 4
             }
           ]
         }
@@ -1910,46 +1410,6 @@
             {
               "file": "ms/wheel_and_deal.xml",
               "tamIndex": 11
-            },
-            {
-              "file": "b2/wheel_and_deal.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/wheel_and_deal.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/wheel_and_deal.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b2/wheel_and_deal.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b2/wheel_and_deal.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b2/wheel_and_deal.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b2/wheel_and_deal.xml",
-              "tamIndex": 6
-            },
-            {
-              "file": "b2/wheel_and_deal.xml",
-              "tamIndex": 7
-            },
-            {
-              "file": "b2/wheel_and_deal.xml",
-              "tamIndex": 8
-            },
-            {
-              "file": "b2/wheel_and_deal.xml",
-              "tamIndex": 9
             }
           ]
         }
@@ -1979,22 +1439,6 @@
             },
             {
               "file": "ms/california_twirl.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b1/california_twirl.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b1/california_twirl.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b1/california_twirl.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b1/california_twirl.xml",
               "tamIndex": 3
             }
           ]
@@ -2060,10 +1504,6 @@
             {
               "file": "ms/dive_thru.xml",
               "tamIndex": 0
-            },
-            {
-              "file": "b1/dive_thru.xml",
-              "tamIndex": 0
             }
           ]
         }
@@ -2096,12 +1536,8 @@
               "tamIndex": 3
             },
             {
-              "file": "b2/box_the_gnat.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/box_the_gnat.xml",
-              "tamIndex": 1
+              "file": "ms/box_the_gnat.xml",
+              "tamIndex": 4
             }
           ]
         }
@@ -2166,20 +1602,8 @@
               "tamIndex": 3
             },
             {
-              "file": "b2/ocean_wave.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/ocean_wave.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/ocean_wave.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b2/ocean_wave.xml",
-              "tamIndex": 3
+              "file": "ms/ocean_wave.xml",
+              "tamIndex": 16
             }
           ]
         },
@@ -2191,27 +1615,19 @@
           "sites": [
             {
               "file": "ms/dosado.xml",
-              "tamIndex": 3
+              "tamIndex": 15
             },
             {
               "file": "ms/dosado.xml",
-              "tamIndex": 4
+              "tamIndex": 16
             },
             {
               "file": "ms/dosado.xml",
-              "tamIndex": 5
+              "tamIndex": 17
             },
             {
-              "file": "b1/dosado.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b1/dosado.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b1/dosado.xml",
-              "tamIndex": 5
+              "file": "ms/dosado.xml",
+              "tamIndex": 19
             }
           ]
         },
@@ -2294,50 +1710,6 @@
             {
               "file": "ms/trade.xml",
               "tamIndex": 57
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 43
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 44
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 45
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 46
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 47
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 48
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 49
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 50
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 51
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 52
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 53
             }
           ]
         },
@@ -2394,54 +1766,6 @@
             {
               "file": "ms/trade.xml",
               "tamIndex": 11
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 6
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 7
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 8
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 9
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 10
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 11
             }
           ]
         },
@@ -2483,28 +1807,8 @@
               "tamIndex": 39
             },
             {
-              "file": "b2/trade.xml",
-              "tamIndex": 31
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 32
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 33
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 34
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 35
-            },
-            {
-              "file": "b2/trade.xml",
-              "tamIndex": 36
+              "file": "ms/trade.xml",
+              "tamIndex": 58
             }
           ]
         }
@@ -2573,48 +1877,8 @@
               "tamIndex": 12
             },
             {
-              "file": "b2/swing_thru.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/swing_thru.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/swing_thru.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b2/swing_thru.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b2/swing_thru.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b2/swing_thru.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b2/swing_thru.xml",
-              "tamIndex": 6
-            },
-            {
-              "file": "b2/swing_thru.xml",
-              "tamIndex": 7
-            },
-            {
-              "file": "b2/swing_thru.xml",
-              "tamIndex": 8
-            },
-            {
-              "file": "b2/swing_thru.xml",
-              "tamIndex": 9
-            },
-            {
-              "file": "b2/swing_thru.xml",
-              "tamIndex": 10
+              "file": "ms/swing_thru.xml",
+              "tamIndex": 26
             }
           ]
         }
@@ -2695,68 +1959,8 @@
               "tamIndex": 15
             },
             {
-              "file": "b2/run.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 6
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 7
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 8
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 9
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 10
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 11
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 12
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 13
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 14
-            },
-            {
-              "file": "b2/run.xml",
-              "tamIndex": 15
+              "file": "ms/run.xml",
+              "tamIndex": 71
             }
           ]
         }
@@ -2797,28 +2001,8 @@
               "tamIndex": 5
             },
             {
-              "file": "b2/pass_the_ocean.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/pass_the_ocean.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/pass_the_ocean.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b2/pass_the_ocean.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b2/pass_the_ocean.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b2/pass_the_ocean.xml",
-              "tamIndex": 5
+              "file": "ms/pass_the_ocean.xml",
+              "tamIndex": 8
             }
           ]
         }
@@ -2915,91 +2099,11 @@
               "tamIndex": 19
             },
             {
-              "file": "b2/extend.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 6
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 7
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 8
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 9
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 10
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 11
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 12
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 13
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 14
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 15
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 16
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 17
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 18
-            },
-            {
-              "file": "b2/extend.xml",
-              "tamIndex": 19
-            },
-            {
-              "file": "b2/extend.xml",
+              "file": "ms/extend.xml",
               "tamIndex": 20
             },
             {
-              "file": "b2/extend.xml",
+              "file": "ms/extend.xml",
               "tamIndex": 21
             }
           ]
@@ -3037,16 +2141,8 @@
               "tamIndex": 4
             },
             {
-              "file": "b2/flutterwheel.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/flutterwheel.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/flutterwheel.xml",
-              "tamIndex": 2
+              "file": "ms/flutterwheel.xml",
+              "tamIndex": 11
             }
           ]
         }
@@ -3073,18 +2169,6 @@
             {
               "file": "ms/sweep_a_quarter.xml",
               "tamIndex": 13
-            },
-            {
-              "file": "b2/sweep_a_quarter.xml",
-              "tamIndex": 11
-            },
-            {
-              "file": "b2/sweep_a_quarter.xml",
-              "tamIndex": 12
-            },
-            {
-              "file": "b2/sweep_a_quarter.xml",
-              "tamIndex": 13
             }
           ]
         }
@@ -3110,18 +2194,6 @@
             },
             {
               "file": "ms/trade_by.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b2/trade_by.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/trade_by.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/trade_by.xml",
               "tamIndex": 2
             }
           ]
@@ -3159,20 +2231,8 @@
               "tamIndex": 4
             },
             {
-              "file": "b2/ferris_wheel.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/ferris_wheel.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/ferris_wheel.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b2/ferris_wheel.xml",
-              "tamIndex": 3
+              "file": "ms/ferris_wheel.xml",
+              "tamIndex": 5
             }
           ]
         }
@@ -3215,34 +2275,6 @@
             {
               "file": "ms/zoom.xml",
               "tamIndex": 6
-            },
-            {
-              "file": "b2/zoom.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/zoom.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/zoom.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "b2/zoom.xml",
-              "tamIndex": 3
-            },
-            {
-              "file": "b2/zoom.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "b2/zoom.xml",
-              "tamIndex": 5
-            },
-            {
-              "file": "b2/zoom.xml",
-              "tamIndex": 6
             }
           ]
         }
@@ -3275,16 +2307,8 @@
               "tamIndex": 3
             },
             {
-              "file": "b2/touch_a_quarter.xml",
-              "tamIndex": 0
-            },
-            {
-              "file": "b2/touch_a_quarter.xml",
-              "tamIndex": 1
-            },
-            {
-              "file": "b2/touch_a_quarter.xml",
-              "tamIndex": 2
+              "file": "ms/touch_a_quarter.xml",
+              "tamIndex": 8
             }
           ]
         }

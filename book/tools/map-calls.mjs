@@ -6,7 +6,7 @@
 //                    corpus's own level tag is ignored where it disagrees.
 //   * ANIMATION   -- which corpus file can draw it? That is a data question, and the answer
 //                    may live at ANY level, because a call that moved into Mainstream from
-//                    Basic may have its only authoring under b1/.
+//                    a call taught at several levels may be authored under any of them.
 //
 // MATCHING IS EXACT (plus a hand-written alias table), never fuzzy. A fuzzy match was tried
 // and produced WRONG answers -- "(Named Dancers) Circulate" resolved to "Ping Pong

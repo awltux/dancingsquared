@@ -77,7 +77,7 @@ export function readAsset(...parts) {
  * where animation data may be found, and a call that moved into Mainstream from Basic may
  * have its only authoring under `b1/`, so all of these are searched.
  */
-export const SOURCE_LEVELS = ['ms', 'b1', 'b2', 'plus'];
+export const SOURCE_LEVELS = ['ms', 'plus'];
 
 /** Load `moves.xml` + `formations.xml` once and build an Engine. */
 export function makeEngine(eng) {

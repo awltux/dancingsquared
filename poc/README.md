@@ -885,14 +885,43 @@ cell, which turned out to refuse every arc in the corpus — of the ms level's *
 on one drawn circle and none was that short, because the corpus's arcs are quarter and eighth turns. The limit is
 now the sweep, at a right angle: the fit's worst radial error is **2.7e-4** of the radius over a quarter turn,
 **1.5e-3** at 120° and **1.8e-2** at 180°, so a quarter is where it stops being exact to the four decimals the XML
-exports. That offers the fit on **74** of those 354 curves (median **45.1°**, widest exactly **90°**) and refuses
-the 280 that sweep further. The two ends must also be on the SAME circumference, and it must be one the grid
-**draws** — within the magnet's own half tier, so **CTRL-drag the ends onto a ring and then press the dot**.
+exports. The two ends must also be on the SAME circumference, and it must be one the grid **draws** — within the
+magnet's own half tier, so **CTRL-drag the ends onto a ring and then press the dot**.
+
+**And a quarter turn AS THE ASSETS AUTHOR ONE is a hair PAST a right angle**, which is why the limit carries a
+**2° slack** rather than being a knife edge. Reported as *"The central control to fit to radial curve only seems to
+appear on the first full curve of Promenade Full. It should appear on all four of the quarter moves"*, and then,
+from the board, *"I just saw the first and last curves with the control, but missing on the middle curve"*:
+`ms/promenade.xml`'s own quarter turns measure **90.0003° … 90.0158°**, so a bare `> 90°` offered whichever of a
+call's quarters happened to round the right way. Swept over **every tam of all nine levels** (**98038** moves):
+**16120** have both ends on one drawn circle within the magnet's tier, **986** of those measure past a right angle
+and the worst is **90.708°**, while the narrowest arc that is genuinely wider than a quarter is **100.389°** —
+nothing lives between those two numbers. So the slack sits in an empty 9.7° band (1.3° clear of the authoring's
+noise, 8.4° clear of the shapes) and costs the fit **7%** of an error that was never inside four decimals anyway
+(**2.9e-4** of the radius at 91° against **2.7e-4** at 90°). With it, every one of the promenade's ring moves is
+offered the fit — 62 of 62 dancer-moves across its three authorings, against **34** under the bare limit — while
+the moves that ENTER and LEAVE the ring are still refused, because their two ends are not on one circle at all
+(the first move of the Facing Couples Far path runs from r = **3.162** at the formation's corner to r = **2.500**
+on the ring).
+
+**AND A FIT PINS THE REST OF THE TRACE.** The fit rewrites the curve's DEPARTURE tangent as well as its arrival
+one, and a move's own curve IS the frame the next move is played in — so the fit on its own swung every later move
+round the floor and carried the next curve off the ring it was being fitted to: **0.49 units** on `Promenade
+Full`, caught by the same report as the condition *"unless fixing one has thrown out the end points of the other
+curves ... this should be prevented by pinning the subsequent end point while adjusting the controls."* The write
+path now holds the following trace by the turn of `frameTurn` — the angle `poseFor` actually advances the frame
+by, read off the move's facing when it has one and its travel when it has not — so every later end point stays
+within **2.8e-15** units of where it was. It is the same `holdFollowingTrace` the Facing tab has always used, and
+the guard is the ANGLE rather than the tab, so a control-point drag holds the tail too; an END-POINT drag needs no
+compensation at all, because `moveCurveEnd` carries the exit handle as a vector and leaves that angle within
+**2.2e-16** (measured, not assumed).
 
 Gated by `node poc/tools/radial-arc-fit-probe.mjs`: the rule, each refusal on its own, the fit's accuracy at the
-limit and past it, the agreement with the engine's own `ARC_K` quarter-arc constant, and — the invariant a first
-version broke in the field — that everything **offered** can be **fitted** (1990 swept pairs), because the rule's
-tolerance and the engine's default were two rules at r = 1.5 and the dot appeared for a pair the fit refused.
+limit and past it, the agreement with the engine's own `ARC_K` quarter-arc constant, the empty band the slack sits
+in, the promenade's own moves curve by curve, and that a fit pins every later end point — and, the invariant a
+first version broke in the field, that everything **offered** can be **fitted** (2130 swept pairs), because the
+rule's tolerance and the engine's default were two rules at r = 1.5 and the dot appeared for a pair the fit
+refused.
 **A curve with no handle length is not reported as an arc** — and that took a definition to get right.The first version called the degenerate all-zero member of the family an arc and counted **138** corpus
 `Stand`s as "already arcs"; with the shape refused, that number is zero.
 
@@ -1587,8 +1616,9 @@ curve it was copied from* — so "the copy matches in 4632 of 4632" was a statem
 itself. Three real faults sat behind that green light:
 
 - **the following trace was left swinging.** The write went straight to `setMove`, bypassing `foldMoveChange`,
-  so a Facing-tab copy never reached `holdFollowingTrace` — the one fix every other facing write in this panel
-  routes through. The dancer's headings changed *and* everything after the move swung with them.
+  so a copy never reached `holdFollowingTrace` — the one fix every other curve write in this panel routes through
+  (and the guard is now the FRAME TURN rather than the Facing tab, so travel writes are covered too — see the
+  arc-fit section). The dancer's headings changed *and* everything after the move swung with them.
 - **a facing could be written as a travel curve.** With no explicit facing on the reference, `rotate ?? translate`
   copied the translation Bézier into the `rotate` slot, whose `cy1` the format has no attribute for
   (`bezRotAttr` writes only `cx3/cx4/cy4/x4/y4`). It survived on screen and not in the file.

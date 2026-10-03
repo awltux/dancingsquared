@@ -3542,3 +3542,56 @@ VERIFIED IN THE BROWSER (Chromium against poc/dist): `ms/grand_spin.xml` "Sides 
 2, radial grid, flat view - the dot appears where the arithmetic says (the predicted screen point hit it first
 try), and pressing it reports "curve fitted to the r = 1.5 circle (45.0deg of arc)" with the move's numbers going
 from cx1 0.5, cy1 0, cx2 0.5, cy2 0.5 to cx1 0.2733, cy1 0.2733, cx2 0.6136, cy2 0.5 and x2/y2 UNCHANGED.
+THE ARC FIT'S QUARTER TURN WAS AN EXACT RIGHT ANGLE, AND THE CORPUS'S QUARTER TURNS ARE NOT. Reported as: "The
+central control to fit to radial curve only seems to appear on the first full curve of Promenade Full. It should
+appear on all four of the quarter moves, unless fixing one has thrown out the end points of the other curves, so
+they no longer align with the radius. If so, this should be prevented by pinning the subsequent end point while
+adjusting the controls." - and then, looking again: "I just saw the first and last curves with the control, but
+missing on the middle curve."
+
+IT WAS TWO FAULTS, AND THE SECOND READING NAMED THE FIRST ONE EXACTLY. Both were measured before anything changed.
+
+1. WHICH QUARTER WAS OFFERED TURNED ON THE LAST DECIMAL OF ITS COORDINATES. `radialArcFit` compared the sweep with
+`PI/2` exactly, and the corpus writes its arcs in four decimals. MEASURED on the three authorings of the call in
+`ms/promenade.xml` (rings r = 2.5 and 3.5), the quarter turns come out at 90.0003, 90.0049, 90.0053, 90.0152 and
+90.0158deg - every one of them a hair PAST a right angle. Under the bare comparison, `Promenade Full to Home` was
+offered the fit on moves 1 and 4 and refused it on 2 and 3, which is exactly "the first and the last, but not the
+middle"; `Promenade Full` (Facing Couples Far) was offered it on move 1 alone. The slack is now
+`RADIAL_ARC_SWEEP_TOL` = 2deg, and it is not a round number somebody liked: swept over EVERY TAM OF ALL NINE LEVELS
+(98038 moves), 16120 pairs have both ends on one drawn circle within the magnet's tier, 986 of those measure past a
+right angle (worst 90.708deg), and the narrowest arc that is genuinely wider than a quarter is 100.389deg - nothing
+at all lives between those two numbers. The 2deg sits 1.3deg clear of the noise and 8.4deg clear of the shapes, and
+it costs the fit 7% of an error that was never inside four decimals anyway (2.912e-4 of the radius at 91deg against
+2.725e-4 at 90). It is an ANGLE and not the magnet's tier converted at the radius: the tier says how far a placed
+point may be from where the caller meant it, while this bounds the SHAPE - whether the cubic is still the circle.
+
+WITH IT, every dancer-move of every promenade path that is ON a ring is offered the fit: 62 of 62 across the three
+authorings, against 34 under the bare `> PI/2`.
+The moves that ENTER and LEAVE the ring are refused and should be - the first move
+of the Facing Couples Far path runs from r = 3.1623 at the formation's corner to r = 2.500 on the ring, which is
+not an arc about the centre at all. So "all four of the quarter moves" is three of that authoring's four moves;
+the fourth is the transition onto the ring, and no circle through its two ends exists.
+
+2. THE FIT DID THROW THE OTHER CURVES OUT, WHICH WAS THE REPORT'S OWN HYPOTHESIS. `poseFor` composes each move in
+the frame turned by `bezierAngle(facing, 1) - bezierAngle(facing, 0)`, read off the move's FACING when it has one
+and its TRAVEL when it has not. The panel compensated that turn only for a FACING write (the guard was
+`curve === 'facing'`), on the belief recorded in a comment - that a travel write "already holds its own tail
+through `moveCurveEnd`". That is true of an END POINT drag, which carries the exit handle as a vector, and false of
+the FIT, which rewrites the departure tangent as well as the arrival one. MEASURED over the promenade's three
+authorings (62 fits, 3936 end points re-evaluated): the fit alone moves a later end point by up to 4.86e-1 units,
+and 44 of the 62 fits move something - which is the next quarter being pushed off its circle.
+
+THE GUARD IS NOW THE ANGLE ITSELF (`frameTurn` in `editor-ui.ts`), for facings and travel curves alike, so
+`holdFollowingTrace` fires for exactly the writes that turn the frame. Every later end point then moves 2.75e-15
+units - the rounding of the rotation, eleven orders below the fourth decimal the assets are written in - and the
+END POINT drag is untouched by the change: over the same 80 moves, `moveCurveEnd` leaves the frame turn within
+2.22e-16, so the delta is 0 and the hold is the identity there. That is why the guard can be the angle rather than
+a flag naming the tab, and why nothing is compensated twice. The status line follows: `noteTraceHold` speaks on
+either tab (it reports the turn of the frame rather than of the facing), and the fit's own message says the trace
+was held when it was.
+
+GATES: `npx tsc -p poc --noEmit`; `node poc/tools/radial-arc-fit-probe.mjs`, whose sections 7-9 are new - the band
+the slack sits in, the promenade's own moves curve by curve, and the two drifts side by side; and the wiring checks
+in `facing-chain-probe.mjs` and `facing-end-drag-probe.mjs` were re-stated, because the guard they read for is the
+thing that changed. THE ENGINE WAS NOT TOUCHED AT ALL: `holdFollowingTrace` and `poseFor` already did this. The
+panel was simply not calling the first one for a travel write.

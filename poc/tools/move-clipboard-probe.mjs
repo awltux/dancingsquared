@@ -217,8 +217,9 @@ console.log('\n== 2. the tile: three buttons, C lit only where it holds, Pa/Pr g
     'a paste over a run is ONE commit, so it is one step in the revert history rather than one per move');
   check(!/moveClips\s*=\s*null/.test(pasteBody) && /the points are kept/.test(pasteBody),
     'and the copy is KEPT after a paste - "dont clear the memory after a paste... it\'s more useful to keep it" - which the status line says');
-  check(/const frame = this\.moveFrame\(next, d, j\);/.test(ui) && /, curve, j, next\);/.test(ui),
-    'the frame an absolute paste converts through is the bundle being built, so an earlier paste moves the later ones');
+  check(/const frame = this\.moveFrame\(next, d, j\);/.test(ui) &&
+    /const step = this\.foldMoveChange\(\(seg: Seg, d: number\) => \{[\s\S]{0,1400}?\}, j, next\);/.test(ui),
+    'the frame an absolute paste converts through is the bundle being built, so an earlier paste moves the later ones - each paste is folded at move j over `next`, the bundle as it stands');
 
   // ---- the run: one range, normalised, and the strip shows exactly it
   check(/const b = this\.circleTo === null \? a : Math\.max\(0, Math\.min\(this\.circleTo, last\)\);/.test(ui) &&

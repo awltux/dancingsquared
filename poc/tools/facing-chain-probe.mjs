@@ -232,21 +232,26 @@ console.log(`\n== a three-step drag leaves the trace where it started ==`);
 
 // ---------------------------------------------------------------- the WIRING
 //
-// THE ENGINE FUNCTION IS NOT THE FIX ON ITS OWN: the panel has to CALL it, and on a facing write only - a
-// travel write already holds its own tail through `moveCurveEnd` (`engine/test/editor.mjs` section 22) and
-// must not be compensated twice. That is a fact about the app's source, which cannot be executed here
-// (`editor-ui.ts` is TypeScript inside Vite), so it is read - the same limit, and the same answer, as
-// `facing-handle-probe.mjs` records for the drag write rules themselves.
-console.log(`\n== the panel calls it, on a facing write and not on a travel one ==`);
+// THE ENGINE FUNCTION IS NOT THE FIX ON ITS OWN: the panel has to CALL it, and the guard it calls it under is
+// worth stating because it was once the FACING TAB's alone. A travel write does NOT automatically hold its own
+// tail: `moveCurveEnd` does, by carrying the exit handle as a vector so the angle cannot change, but a write
+// that moves a CONTROL does not - and the arc fit, which rewrites both of a travel curve's tangents, carried a
+// later end point of `Promenade Full` **0.49 units** off the ring it was being fitted to. The guard is now
+// `frameTurn`, the angle `poseFor` actually advances the frame by, so it fires for exactly the writes that turn
+// that angle and is the identity for the ones that do not (`radial-arc-fit-probe.mjs` section 9 measures both).
+// That is a fact about the app's source, which cannot be executed here (`editor-ui.ts` is TypeScript inside
+// Vite), so it is read - the same limit, and the same answer, as `facing-handle-probe.mjs` records for the drag
+// write rules themselves.
+console.log(`\n== the panel calls it, for every write that turns the frame ==`);
 {
   const ui = fs.readFileSync(path.join(POC_DIR, 'src', 'editor-ui.ts'), 'utf8');
-  check(/this\.foldMoveChange\(f, curve\)/.test(ui), 'the write path passes the curve kind down to the fold');
-  check(/curve === 'facing'\)[\s\S]{0,500}?holdFollowingTrace\(next, d, at, delta\)/.test(ui),
-    'and a FACING fold holds the following trace by the per-dancer delta');
-  check(/const before = bezierAngle\(seg\.rotate \?\? seg\.translate, 1\)/.test(ui),
-    'measuring that delta as the change in the heading the move ENDS on, which is the frame that swings the tail');
-  check(/if \(facing\) this\.noteFacingHold\(seg\)/.test(ui),
-    'and the drag SAYS the trace was held, so the new behaviour is visible rather than merely absent');
+  check(/const before = frameTurn\(seg\);/.test(ui), 'the fold reads the frame the next move starts in, before the write');
+  check(/const delta = normAngle\(frameTurn\(patched\) - before\);[\s\S]{0,120}?holdFollowingTrace\(next, d, at, delta\)/.test(ui),
+    'and holds the following trace by the turn of THAT angle - on either tab, since a move with no facing reads its heading off its own travel curve');
+  check(/function frameTurn\(seg: Seg\): number \{[\s\S]{0,200}?bezierAngle\(facing, 1\) - bezierAngle\(facing, 0\)/.test(ui),
+    'the angle is `poseFor`\'s own: the CHANGE in the curve\'s direction rather than the direction it ends on, which is the difference that made a control-point drag look harmless');
+  check(/this\.noteTraceHold\(seg, facing\);/.test(ui),
+    'and the drag SAYS the trace was held, on either tab, so the behaviour is visible rather than merely absent');
   check(/const stepInto = \(j: number\)[\s\S]{0,240}?bezierAngle\(s\.rotate \?\? s\.translate, 0\)/.test(ui),
     'and the tile reports the one joint the hold CANNOT smooth, as a measured step rather than prose');
 }

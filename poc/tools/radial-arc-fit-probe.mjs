@@ -17,13 +17,23 @@
 // WHAT IS MEASURED, in the order the feature runs:
 //
 //   1. it FIRES where it should, and says which circle;
-//   2. it REFUSES each of the three conditions separately - a chord of half or more, two radii that disagree,
-//      and a circle the grid does not draw - because a control that appeared for "a circle through these two
-//      points" would be offering a fit to something the caller cannot see;
+//   2. it REFUSES each condition separately - a sweep past a quarter (plus the slack an AUTHORED quarter turn
+//      needs), two radii that disagree, a circle the grid does not draw, and a degenerate pair - because a
+//      control that appeared for "a circle through these two points" would be offering a fit to something the
+//      caller cannot see;
 //   3. the FIT keeps the END POINTS exactly and puts the curve's midpoint ON the circle, where the straight
 //      line between them misses it by the sagitta - which is the whole reason the control is worth having;
 //   4. and the cubic it produces is the same one the engine's own quarter-arc constant describes, so the fit and
-//      the arc fields cannot disagree about what an arc is.
+//      the arc fields cannot disagree about what an arc is;
+//   5. the panel offers it, and only where the grid can answer - the pure rule and the engine's fit, joined;
+//   6. THE REPORTED MISS: the middle curve of `Promenade Full`. Reported as "the first and last curves with the
+//      control, but missing on the middle curve", and it is the corpus's own authoring losing to an exact
+//      quarter-turn limit - `ms/promenade.xml`'s quarter turns measure a hair PAST a right angle;
+//   7. and that a fit leaves every LATER end point where it was, which is the property a caller fitting one
+//      curve of a chain is relying on. The same report offered it as a hypothesis - "unless fixing one has
+//      thrown out the end points of the other curves ... this should be prevented by pinning the subsequent end
+//      point" - and it was right: the fit alone carries a later end point 0.49 units off the ring, and the
+//      write path's hold is what pins it.
 //
 // Run: node poc/tools/radial-arc-fit-probe.mjs   (from anywhere; build the engine first)
 import path from 'node:path';
@@ -31,7 +41,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const grid = await import(pathToFileURL(path.join(POC_DIR, 'src', 'grid-magnet.ts')).href);
-const { radialArcFit, radialCircleRadii, SNAP_HALF_TOL, RADIAL_ARC_MAX_SWEEP } = grid;
+const { radialArcFit, radialCircleRadii, SNAP_HALF_TOL, RADIAL_ARC_MAX_SWEEP, RADIAL_ARC_SWEEP_TOL } = grid;
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { arcBezierAbout, bezierPoint, ARC_K } = engine;
 
@@ -89,6 +99,17 @@ console.log('\n== 2. and refuses each condition on its own ==');
   check(past === null, 'a 110deg sweep is refused - past a quarter the cubic is no longer the circle');
   check(Math.abs(RADIAL_ARC_MAX_SWEEP - Math.PI / 2) < 1e-12,
     'the limit is exactly a right angle, and it is named rather than a literal in a comparison');
+  // AND A QUARTER TURN AS THE ASSETS ACTUALLY AUTHOR ONE IS OFFERED, which is the whole of `RADIAL_ARC_SWEEP_TOL`
+  // and the miss section 8 reproduces: a four-decimal file cannot write an exact right angle, so `Promenade
+  // Full`'s own quarters measure 90.0003…90.0158deg and a bare `> PI/2` refused them. The pair here is the worst
+  // overshoot measured over the corpus (section 8), so this is the boundary the slack was chosen against.
+  const authored = radialArcFit(at(2, 0), at(2, 90.708), DRAWN);
+  check(!!authored, 'a 90.708deg sweep IS offered - the worst overshoot an authored quarter turn measures');
+  const justOver = radialArcFit(at(2, 0), at(2, 90.708 + (RADIAL_ARC_SWEEP_TOL * 180) / Math.PI + 0.1), DRAWN);
+  check(justOver === null,
+    `and a sweep past a quarter plus the slack (${((RADIAL_ARC_MAX_SWEEP + RADIAL_ARC_SWEEP_TOL) * 180 / Math.PI).toFixed(1)}deg) is still refused - the slack is bounded, not removed`);
+  check(Math.abs(RADIAL_ARC_SWEEP_TOL * (180 / Math.PI) - 2) < 1e-9,
+    'the slack is 2deg, which section 8 measures lying inside an empty band rather than at a round number somebody liked');
   // (b) THE SAME CIRCUMFERENCE. Two ends on different circles are not an arc of either.
   const mixed = radialArcFit(at(2, 10), at(2.4, 20), DRAWN);
   check(mixed === null, 'two ends at radii 2 and 2.4 are refused - they are not on one circumference');
@@ -160,10 +181,16 @@ console.log('\n== 3. the fit keeps the ends and puts the curve ON the circle =='
     return w;
   };
   const q90 = worstAt(90);
+  const q91 = worstAt(91);
   const q120 = worstAt(120);
   const q180 = worstAt(180);
-  console.log(`    worst error over the arc: ${(q90 / 2).toExponential(2)} of the radius at 90deg, ${(q120 / 2).toExponential(2)} at 120deg, ${(q180 / 2).toExponential(2)} at 180deg`);
+  console.log(`    worst error over the arc: ${(q90 / 2).toExponential(2)} of the radius at 90deg, ${(q91 / 2).toExponential(2)} at 91deg, ${(q120 / 2).toExponential(2)} at 120deg, ${(q180 / 2).toExponential(2)} at 180deg`);
   check(q90 / 2 < 3e-4, `at a quarter turn the cubic is within ${(q90 / 2).toExponential(2)} of the radius - under the four decimals the XML exports, which is why a quarter is the limit`);
+  // WHAT THE SLACK COSTS, measured rather than asserted: the widest sweep the rule now offers beyond a quarter
+  // buys 7% more error than the exact quarter did, which is nothing next to the quarter's own - so the tolerance
+  // is not being paid for in fidelity.
+  check(q91 < q90 * 1.1,
+    `and the widest sweep the slack admits, 91deg, is ${(q91 / q90).toFixed(3)}x the exact quarter's error - the slack is free`);
   check(q120 > q90 * 4 && q180 > q90 * 50,
     `and it climbs steadily past it - ${(q120 / q90).toFixed(1)}x worse at 120deg and ${(q180 / q90).toFixed(0)}x at 180deg - so the refusal past a quarter is where the fit stops being exact to the exported decimals rather than a round number`);
 }
@@ -245,12 +272,18 @@ console.log('\n== 6. the two halves agree: everything OFFERED can be FITTED ==')
     `and every one of them can be fitted - offered implies fittable, with the rule's own tolerance carried into the engine rather than the engine's default`);
 }
 
-console.log('\n== 7. and how often the corpus itself offers it ==');
+console.log('\n== 7. how often the corpus offers it, and the band the slack sits in ==');
 {
   // A REAL SWEEP, because the first version of this rule fired on NOTHING: with the chord limit it offered the
-  // fit on 0 of the ms level's 976 moves - the corpus's arcs are quarter and eighth turns, not slivers, and it
-  // is the SWEEP that says whether a cubic can follow them. The ends are taken from the engine itself
-  // (`poseFor` at each end of the move), so what is measured is the curve the engine evaluates.
+  // fit on 0 of the ms level's 976 moves - the corpus's arcs are quarter and eighth turns, not slivers, and it is
+  // the SWEEP that says whether a cubic can follow them. The ends are taken from the engine itself (`poseFor` at
+  // each end of the move), so what is measured is the curve the engine evaluates.
+  //
+  // EVERY LEVEL AND EVERY TAM, because the sweep limit needs a statement about the ARC the corpus writes, and
+  // the ms level's own level is the wrong place to make it: `b1`/`b2` are retired but `plus`, `a1`, `a2`, `c1`,
+  // `c2`, `c3a`, `c3b` and `discovered` are not, and the narrowest genuine arc past the quarter turns out to
+  // live above ms. This is the heavy section of the probe (~10 s of its run); the numbers it prints are the ones
+  // `RADIAL_ARC_SWEEP_TOL` is chosen against.
   const fs = await import('node:fs');
   // The engine parses XML through an injected parser, so the sweep needs one - the same `@xmldom/xmldom` every
   // other corpus-driven probe uses.
@@ -263,41 +296,285 @@ console.log('\n== 7. and how often the corpus itself offers it ==');
   let onOneCircle = 0;
   let offered = 0;
   const sweeps = [];
-  for (const f of fs.readdirSync(path.join(path0, 'ms')).filter((x) => x.endsWith('.xml'))) {
-    let call = null;
-    try {
-      call = engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(path0, 'ms', f), 'utf8'), movesXml, formationsXml, 0));
-    } catch { continue; }
-    if (!call || call.dancers.length !== 8) continue;
-    for (const d of call.dancers) {
-      for (let k = 0; k < d.path.length; k++) {
-        moves++;
-        const range = engine.moveBeatRange(d, k);
-        const a = engine.poseFor(d, range.from);
-        const b = engine.poseFor(d, range.to);
-        const from = { x: a.x, y: a.y };
-        const to = { x: b.x, y: b.y };
-        const r0 = radiusOf(from);
-        const r1 = radiusOf(to);
-        // The two ends on ONE circled the grid draws, before the sweep is considered.
-        const near = (r) => DRAWN.some((x) => Math.abs(r - x) <= SNAP_HALF_TOL);
-        if (!near(r0) || !near(r1)) continue;
-        onOneCircle++;
-        const fit = radialArcFit(from, to, DRAWN);
-        if (!fit) continue;
-        offered++;
-        sweeps.push((Math.abs(fit.sweep) * 180) / Math.PI);
+  const levels = fs.readdirSync(path0, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && e.name !== 'src').map((e) => e.name);
+  for (const level of levels) {
+    for (const f of fs.readdirSync(path.join(path0, level)).filter((x) => x.endsWith('.xml'))) {
+      let variants = [];
+      try {
+        variants = engine.buildCallVariants(fs.readFileSync(path.join(path0, level, f), 'utf8'), movesXml, formationsXml);
+      } catch { continue; }
+      for (const variant of variants) {
+        let call = null;
+        try { call = engine.normalizeInstance(variant); } catch { continue; }
+        for (const d of call.dancers) {
+          for (let k = 0; k < d.path.length; k++) {
+            moves++;
+            const range = engine.moveBeatRange(d, k);
+            const a = engine.poseFor(d, range.from);
+            const b = engine.poseFor(d, range.to);
+            const from = { x: a.x, y: a.y };
+            const to = { x: b.x, y: b.y };
+            const r0 = radiusOf(from);
+            const r1 = radiusOf(to);
+            // The two ends on ONE circle the grid draws, and on one circumference: the rule's own two
+            // conditions, taken before the sweep is considered so the sweep is what is being measured.
+            const near = (r) => DRAWN.some((x) => Math.abs(r - x) <= SNAP_HALF_TOL);
+            if (!near(r0) || !near(r1) || Math.abs(r0 - r1) > SNAP_HALF_TOL) continue;
+            onOneCircle++;
+            const fit = radialArcFit(from, to, DRAWN);
+            let sweep = (Math.atan2(to.y, to.x) - Math.atan2(from.y, from.x)) / Math.PI * 180;
+            while (sweep > 180) sweep -= 360;
+            while (sweep < -180) sweep += 360;
+            sweeps.push(Math.abs(sweep));
+            if (fit) offered++;
+          }
+        }
       }
     }
   }
   sweeps.sort((a, b) => a - b);
-  const pct = (q) => sweeps[Math.min(sweeps.length - 1, Math.floor(sweeps.length * q))];
-  console.log(`    ${moves} moves: ${onOneCircle} have both ends on one drawn circle, and ${offered} of those are offered the fit`);
-  if (offered) console.log(`    the arcs it is offered on: median ${pct(0.5).toFixed(1)}deg, 90th ${pct(0.9).toFixed(1)}deg, widest ${sweeps[sweeps.length - 1].toFixed(1)}deg`);
-  check(offered > 50, `the control is offered on ${offered} curves of the corpus, so it is a working tool rather than a rule nothing reaches`);
+  const limit = ((RADIAL_ARC_MAX_SWEEP + RADIAL_ARC_SWEEP_TOL) * 180) / Math.PI;
+  // THE BAND. "Past a right angle" is two populations, not one: the authoring's noise (a quarter turn written in
+  // four decimals, which lands a hair over) and the arcs that are genuinely wider than a quarter. The slack has
+  // to cover the first and stay clear of the second, so the gap between them is what it is chosen in.
+  const noise = sweeps.filter((s) => s > 90 && s <= limit);
+  const over = sweeps.filter((s) => s > limit);
+  const worstNoise = noise[noise.length - 1] ?? 0;
+  const narrowestOver = over[0] ?? Infinity;
+  console.log(`    ${moves} moves over ${levels.length} levels: ${onOneCircle} have both ends on one drawn circle within the tier, and ${offered} of those are offered the fit`);
+  console.log(`    past a right angle: ${noise.length} are authoring noise (up to ${worstNoise.toFixed(3)}deg - a quarter turn the assets cannot write exactly), and ${over.length} are genuinely wider (from ${narrowestOver.toFixed(3)}deg)`);
+  console.log(`    the empty band between them is ${(narrowestOver - worstNoise).toFixed(2)}deg wide, and the limit of ${limit.toFixed(0)}deg sits ${(limit - worstNoise).toFixed(2)}deg above the noise and ${(narrowestOver - limit).toFixed(2)}deg below the shapes`);
+  check(offered > 1000, `the control is offered on ${offered} curves of the corpus, so it is a working tool rather than a rule nothing reaches`);
   check(onOneCircle > offered,
-    `and the quarter-turn limit is what refuses the rest (${onOneCircle - offered} arcs sweep further than a right angle, where the fit stops being exact)`);
-  check(sweeps.length === 0 || sweeps[sweeps.length - 1] <= 90 + 1e-9, 'every arc it IS offered on is within a quarter turn');
+    `and some are still refused (${onOneCircle - offered} of ${onOneCircle} on-circle pairs sweep past a quarter turn plus the slack)`);
+  check(noise.length > 100 && worstNoise > 90,
+    `the population the slack exists for is real: ${noise.length} authored quarter turns measure past an exact right angle`);
+  check(worstNoise <= limit, `and every one of them is inside the limit now (worst ${worstNoise.toFixed(3)}deg of ${limit.toFixed(0)}deg)`);
+  check(narrowestOver > limit,
+    `while the narrowest arc that is genuinely wider than a quarter (${narrowestOver.toFixed(3)}deg) is outside it - a slack and a shape limit are still two different things`);
+  check((narrowestOver - worstNoise) > 2 * ((limit - 90)),
+    `and the limit sits in an EMPTY band wider than the slack itself (${(narrowestOver - worstNoise).toFixed(1)}deg against ${(limit - 90).toFixed(1)}deg of slack), so it is not a boundary anything real is near`);
+  check(sweeps.length === 0 || Math.abs(sweeps.find((s) => s > limit) ?? Infinity) === narrowestOver,
+    'the corpus agrees with the rule about which side of the limit every one of those pairs falls on');
+}
+
+console.log('\n== 8. the reported miss: the middle curve of `Promenade Full` ==');
+{
+  // THE WITNESS. Reported as: "The central control to fit to radial curve only seems to appear on the first full
+  // curve of Promenade Full. It should appear on all four of the quarter moves", and then "I just saw the first
+  // and last curves with the control, but missing on the middle curve." Both readings are of the SAME authoring,
+  // and the corpus is what settles it: `ms/promenade.xml` writes the promenade's quarter turns in four decimals,
+  // and every one of them measures a hair PAST a right angle, so an exact quarter-turn limit offered whichever
+  // of a call's quarters happened to round the right way - which is exactly "the first and the last, but not the
+  // middle".
+  const fs = await import('node:fs');
+  const { DOMParser } = await import('@xmldom/xmldom');
+  engine.setParser(DOMParser);
+  const path0 = path.join(POC_DIR, 'src', 'assets');
+  const movesXml = fs.readFileSync(path.join(path0, 'moves.xml'), 'utf8');
+  const formationsXml = fs.readFileSync(path.join(path0, 'formations.xml'), 'utf8');
+  const variants = engine.buildCallVariants(
+    fs.readFileSync(path.join(path0, 'ms', 'promenade.xml'), 'utf8'), movesXml, formationsXml,
+  ).filter((v) => v.title.startsWith('Promenade Full'));
+  console.log(`    ${variants.length} authorings of the call: ${variants.map((v) => `"${v.title}" (${v.formationName ?? v.formation})`).join(', ')}`);
+  let ringMoves = 0;
+  let ringOffered = 0;
+  let offRingRefused = 0;
+  const overNinety = [];
+  for (const variant of variants) {
+    const call = engine.normalizeInstance(variant);
+    // PER MOVE INDEX, ONE LINE, carrying the DISTINCT answers the dancers gave - because a promenade's dancers
+    // do not all walk the same circle (the outer couple is on r = 3.5 and the inner one on 2.5), so a move's
+    // verdict is a set rather than a value and printing one dancer's would be printing one dancer's.
+    const rows = [];
+    for (let d = 0; d < call.dancers.length; d++) {
+      const dancer = call.dancers[d];
+      for (let k = 0; k < dancer.path.length; k++) {
+        const range = engine.moveBeatRange(dancer, k);
+        const a = engine.poseFor(dancer, range.from);
+        const b = engine.poseFor(dancer, range.to);
+        const from = { x: a.x, y: a.y };
+        const to = { x: b.x, y: b.y };
+        const r0 = radiusOf(from);
+        const r1 = radiusOf(to);
+        let sweep = (Math.atan2(to.y, to.x) - Math.atan2(from.y, from.x)) * 180 / Math.PI;
+        while (sweep > 180) sweep -= 360;
+        while (sweep < -180) sweep += 360;
+        sweep = Math.abs(sweep);
+        const fit = radialArcFit(from, to, DRAWN);
+        // ON A RING means both ends on one DRAWN circle within the tier, which is the rule's own two conditions.
+        const onRing = r0 > 0 && r1 > 0 && Math.abs(r0 - r1) <= SNAP_HALF_TOL
+          && DRAWN.some((x) => Math.abs(r0 - x) <= SNAP_HALF_TOL);
+        while (rows.length <= k) rows.push({ total: 0, offered: 0, onRing: 0, kinds: [] });
+        const row = rows[k];
+        row.total++;
+        if (fit) row.offered++;
+        if (onRing) row.onRing++;
+        const kind = `r ${r0.toFixed(3)}->${r1.toFixed(3)} sweep ${sweep.toFixed(4)}deg ${fit ? 'OFFERED' : 'refused'}`;
+        const seen = row.kinds.find((x) => x.kind === kind);
+        if (seen) seen.n++; else row.kinds.push({ kind, n: 1 });
+        if (onRing) {
+          ringMoves++;
+          if (fit) ringOffered++;
+          if (sweep > 90) overNinety.push(sweep);
+        } else if (!fit) offRingRefused++;
+      }
+    }
+    console.log(`    "${variant.title}" / ${variant.formationName ?? variant.formation}`);
+    rows.forEach((row, k) => console.log(
+      `      move ${k}: ${row.offered}/${row.total} dancers offered, ${row.onRing} on a ring - ${row.kinds.map((x) => `${x.n}x ${x.kind}`).join('; ')}`,
+    ));
+  }
+  overNinety.sort((a, b) => a - b);
+  console.log(`    over the three authorings: ${ringMoves} dancer-moves are ON a ring, ${ringOffered} of them are offered the fit, ${overNinety.length} measure past an exact right angle (worst ${overNinety[overNinety.length - 1]?.toFixed(4)}deg), and ${offRingRefused} off-ring moves are refused`);
+  // WHAT THE EXACT LIMIT OFFERED, counted rather than remembered: every over-90 pair here is inside the slack, so
+  // the difference IS the old rule's answer - the "first and the last, but not the middle" the report saw.
+  console.log(`      under the bare \`> PI/2\` the same call was offered ${ringMoves - overNinety.length} of them`);
+  check(overNinety.length >= 5,
+    `the corpus's own quarter turns DO measure past an exact right angle (${overNinety.length} of them here), which is the whole of the miss`);
+  check(ringOffered === ringMoves,
+    `and every dancer-move on a ring is offered the fit (${ringOffered} of ${ringMoves}) - the "middle curve" is no longer the odd one out`);
+  check(offRingRefused > 0,
+    `while the moves that enter and leave the ring are still refused (${offRingRefused} of them): their two ends are not on one circle, so no fit exists - the first move of the Facing Couples Far path runs from r = 3.162 out at the formation's corner to r = 2.500 on the ring`);
+}
+
+console.log('\n== 9. and a fit leaves every later end point exactly where it was ==');
+{
+  // THE HYPOTHESIS THE REPORT OFFERED: "unless fixing one has thrown out the end points of the other curves, so
+  // they no longer align with the radius. If so, this should be prevented by pinning the subsequent end point
+  // while adjusting the controls." It was RIGHT, and this is the measurement of it. A move's end IS the next
+  // move's start, and `poseFor` composes each move in the frame `angle(facing, 1) - angle(facing, 0)` turns -
+  // read off the move's FACING if it has one and its TRAVEL if it has not. The fit rewrites both of a travel
+  // curve's tangents, so the frame turns, so the rest of the track rotates with it and the next curve leaves the
+  // ring the caller is fitting to.
+  //
+  // SO BOTH ARE MEASURED, in the order they happened: the write WITHOUT the hold, which is what the panel did
+  // and what the report caught, and the write WITH it, which is what `foldMoveChange` does now. The hold is the
+  // engine's own `holdFollowingTrace`, so this is the real compensation and not a second implementation of it.
+  const fs = await import('node:fs');
+  const { DOMParser } = await import('@xmldom/xmldom');
+  engine.setParser(DOMParser);
+  const path0 = path.join(POC_DIR, 'src', 'assets');
+  const movesXml = fs.readFileSync(path.join(path0, 'moves.xml'), 'utf8');
+  const formationsXml = fs.readFileSync(path.join(path0, 'formations.xml'), 'utf8');
+  const variants = engine.buildCallVariants(
+    fs.readFileSync(path.join(path0, 'ms', 'promenade.xml'), 'utf8'), movesXml, formationsXml,
+  ).filter((v) => v.title.startsWith('Promenade Full'));
+  // THE PANEL'S OWN TWO CONVERSIONS, from `editor-ui.ts`: a board point into a move's local frame and back. The
+  // probe repeats them because they are the arithmetic the fit goes through on its way to the tile's numbers.
+  const localToFloor = (f, lx, ly) => ({
+    x: f.x + Math.cos(f.heading) * lx - Math.sin(f.heading) * ly,
+    y: f.y + Math.sin(f.heading) * lx + Math.cos(f.heading) * ly,
+  });
+  const floorToLocal = (f, x, y) => {
+    const dx = x - f.x;
+    const dy = y - f.y;
+    return {
+      lx: Math.cos(f.heading) * dx + Math.sin(f.heading) * dy,
+      ly: -Math.sin(f.heading) * dx + Math.cos(f.heading) * dy,
+    };
+  };
+  /** Every dancer's every end point, in board coordinates - the whole chain, not just the fitted move's. */
+  const endsOf = (call) => call.dancers.flatMap((d) => d.path.flatMap((_, k) => {
+    const range = engine.moveBeatRange(d, k);
+    const p0 = engine.poseFor(d, range.from);
+    const p1 = engine.poseFor(d, range.to);
+    return [p0.x, p0.y, p1.x, p1.y];
+  }));
+  /** How far the farthest end point moved, over every end of the call, after `step` wrote one curve. */
+  const driftOf = (call, before, step) => {
+    const after = step(call);
+    let worst = 0;
+    for (let i = 0; i * 2 + 1 < before.length; i++) {
+      worst = Math.max(worst, Math.hypot(after[i * 2] - before[i * 2], after[i * 2 + 1] - before[i * 2 + 1]));
+    }
+    return { worst, ends: before.length / 2 };
+  };
+  let fitted = 0;
+  let endsChecked = 0;
+  let heldWrong = 0;
+  let unheldWorst = 0;
+  let heldWorst = 0;
+  let unheldMoved = 0;
+  for (const variant of variants) {
+    const call = engine.normalizeInstance(variant);
+    for (let d = 0; d < call.dancers.length; d++) {
+      for (let k = 0; k < call.dancers[d].path.length; k++) {
+        const dancer = call.dancers[d];
+        const seg = dancer.path[k];
+        const range = engine.moveBeatRange(dancer, k);
+        const p0 = engine.poseFor(dancer, range.from);
+        const from = { x: p0.x, y: p0.y };
+        const to = localToFloor(p0, seg.translate.x2, seg.translate.y2);
+        const fit = radialArcFit(from, to, DRAWN);
+        if (!fit) continue;
+        const cubic = arcBezierAbout({ x: 0, y: 0 }, from, to, fit.tolRel);
+        if (!cubic) continue;
+        const c1 = floorToLocal(p0, cubic.cx1, cubic.cy1);
+        const c2 = floorToLocal(p0, cubic.cx2, cubic.cy2);
+        // The panel's patch, in the panel's order: the two CONTROL points and nothing else.
+        const patch = (s) => ({ ...s, translate: { ...s.translate, cx1: c1.lx, cy1: c1.ly, cx2: c2.lx, cy2: c2.ly } });
+        // THE FRAME TURN THE FIT CAUSES, which is what the panel's guard reads and what the hold is built from.
+        const turnOf = (s) => {
+          const facing = s.rotate ?? s.translate;
+          return engine.bezierAngle(facing, 1) - engine.bezierAngle(facing, 0);
+        };
+        const delta = Math.atan2(Math.sin(turnOf(patch(seg)) - turnOf(seg)), Math.cos(turnOf(patch(seg)) - turnOf(seg)));
+        const before = endsOf(call);
+        // (a) THE WRITE AS IT WAS: the patch alone, which is the reported defect.
+        const asWas = driftOf(call, before, (c) => {
+          c.dancers[d].path[k] = patch(c.dancers[d].path[k]);
+          const ends = endsOf(c);
+          c.dancers[d].path[k] = seg;
+          return ends;
+        });
+        // (b) THE WRITE AS IT IS: the same patch, and the following trace held by the frame turn it caused.
+        const withHold = driftOf(call, before, (c) => {
+          c.dancers[d].path[k] = patch(c.dancers[d].path[k]);
+          const held = delta === 0 ? c : engine.holdFollowingTrace(c, d, k, delta);
+          const ends = endsOf(held);
+          c.dancers[d].path[k] = seg;
+          return ends;
+        });
+        fitted++;
+        endsChecked += asWas.ends;
+        if (asWas.worst > 1e-9) unheldMoved++;
+        if (withHold.worst > 1e-12) heldWrong++;
+        unheldWorst = Math.max(unheldWorst, asWas.worst);
+        heldWorst = Math.max(heldWorst, withHold.worst);
+      }
+    }
+  }
+  console.log(`    ${fitted} fits over the promenade's three authorings, each measured against every end point of its call (${endsChecked} end points in all):`);
+  console.log(`      with the fit alone (what the panel did):          the farthest end point moves ${unheldWorst.toExponential(2)} units, and ${unheldMoved} of ${fitted} fits move something`);
+  console.log(`      with the following trace held (what it does now): the farthest end point moves ${heldWorst.toExponential(2)} units, and ${heldWrong} of ${fitted} fits move anything`);
+  check(fitted >= 10, `the sweep is real: ${fitted} fitted curves, each one then measured against the whole chain`);
+  check(endsChecked > 500, `and the comparison is a real one: ${endsChecked} end points re-evaluated`);
+  check(unheldMoved > 10 && unheldWorst > 1e-2,
+    `THE REPORT WAS RIGHT: the fit on its own DOES throw the later end points out - ${unheldMoved} of ${fitted} carry one up to ${unheldWorst.toFixed(4)} units, which is what took the next curve off its ring`);
+  check(heldWrong === 0 && heldWorst < 1e-12,
+    `and holding the trace by the frame turn the fit caused pins every one of them: the worst of ${endsChecked} end points moves ${heldWorst.toExponential(2)} units, which is the rounding of the rotation itself (11 orders below the 4th decimal the assets are written in), against ${unheldWorst.toFixed(4)} unheld - so fitting one quarter of a promenade leaves the other three on their circle`);
+  // AND THE WRITE THAT MUST NOT BE COMPENSATED TWICE HOLDS ITSELF. Dragging an END POINT goes through
+  // `moveCurveEnd`, which carries the exit handle as a vector, so the frame turn cannot change: the fold's delta
+  // is 0 there and the hold is the identity, which is why the guard can be the angle rather than a flag saying
+  // which tab the caller is on. Measured rather than argued, because "this gesture is already safe" is exactly
+  // the claim that was wrong about the arc fit.
+  const turnOf = (t) => engine.bezierAngle(t, 1) - engine.bezierAngle(t, 0);
+  let dragged = 0;
+  let worstTurn = 0;
+  for (const variant of variants) {
+    const call = engine.normalizeInstance(variant);
+    for (const dancer of call.dancers) {
+      for (const seg of dancer.path) {
+        const moved = engine.moveCurveEnd(seg.translate, seg.translate.x2 + 0.37, seg.translate.y2 - 0.21);
+        worstTurn = Math.max(worstTurn, Math.abs(turnOf(moved) - turnOf(seg.translate)));
+        dragged++;
+      }
+    }
+  }
+  check(dragged > 20 && worstTurn < 1e-12,
+    `while an END POINT drag needs no compensation at all: over ${dragged} moves of the same call, \`moveCurveEnd\` leaves the frame turn within ${worstTurn.toExponential(2)} of what it was, so the fold's delta is 0 and the hold is the identity there`);
 }
 
 console.log('\n=================');

@@ -82,7 +82,19 @@ sequence on the 8-dancer board:
   apply/undo/reset). A **group-named coded call** — `Fold`, `Trade`, `Run`, `Heads Step Forward` (and its round-trip sibling `Heads Step Forward and Back if Possible`) — is offered
   as well whenever the engine says the chosen group can dance it: those calls refuse their bare name by
   design, so the whole-board list can never carry them, and without this the picker could not sequence
-  `Boys Trade` at all.- **Undo** / **Reset** to step back or start over.
+  `Boys Trade` at all.
+- **Undo** / **Reset** to step back or start over.
+- **`+ Parallel call`** gives the dancers a subset call did NOT move their own call in the **same time
+  slot** (CALLERLAB's "Centers Square Thru while Outsides Trade", which the engine models as one
+  `GroupStep`). Press it after a subset call, pick from the list — which now offers only what the
+  REMAINDER can do — and **Apply**. **Apply again to add another call to the same lane**, and press the
+  button once more to finish: a 16-beat `Heads Promenade Full` can be filled by `Sides Trade then Touch a
+  Quarter`, and the status line reports the balance (`= 6 of 16 beats — 10 beats standing`). Each group's
+  calls run back to back from the step's start, the step costs the **longest** lane, and a lane that
+  finishes early **stands** on its end pose; there are no synchronisation points between lanes (nothing can
+  start one group's call part-way through another's). Undo removes the whole step. A deferred call
+  (`Step Forward and Back if Possible`) may only be a lane of its own, and a lane names calls rather than a
+  saved module.
 - **Getout** searches (bounded) for a sequence back to a Squared Set.
 - **Fix it** lists the calls that keep a getout alive.
 - **Save module** names the current sequence as a reusable fix/getout module; modules

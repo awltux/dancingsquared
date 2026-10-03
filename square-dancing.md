@@ -3595,3 +3595,68 @@ the slack sits in, the promenade's own moves curve by curve, and the two drifts 
 in `facing-chain-probe.mjs` and `facing-end-drag-probe.mjs` were re-stated, because the guard they read for is the
 thing that changed. THE ENGINE WAS NOT TOUCHED AT ALL: `holdFollowingTrace` and `poseFor` already did this. The
 panel was simply not calling the first one for a travel write.
+
+A "WHILE" GROUP MAY DANCE SEVERAL CALLS - THE LANE. Asked for as: "how difficult would it be to allow
+multiple calls in a parallel set. If heads take 16 beats to do one call, the sides could do two 4-beat
+calls."
+
+THE RULE THIS CHANGES WAS WRITTEN DOWN AS A REFUSAL. `GroupStep` said "a group names a CALL, not a module.
+Two composite routines of different lengths have no defined alignment, so allowing them would invent a
+synchronisation rule the art does not have." The rule the art does have is the one the request describes,
+and it is now stated on `GroupStep`:
+
+  - every lane starts at beat 0, so the groups are still simultaneous;
+  - a lane's calls run consecutively, each starting where the one before it left the group;
+  - the step costs the LONGEST lane, and a lane that finishes early STANDS at its own end pose - which is
+    the reading `stepBeats` and `evaluateGroupAt` already gave a group inside a longer "while";
+  - there are NO synchronisation points BETWEEN lanes: nothing can start one lane's call at beat 6 of
+    another's, and the engine reports the imbalance rather than removing it.
+
+WHAT A LANE IS, IN THE DATA. `GroupStep.groups` went from `{selection, call}` to `{selection, calls[]}`,
+with `groupCalls`/`normalizeGroupLane` reading the LEGACY single-`call` form everywhere - because a "while"
+step can be SAVED as a module, so callers' browsers already hold `{selection, call}` and a migration would
+buy nothing. `ApplyResult.lanes` and `SeqStep.lanes` report each group's calls AND the boards between them,
+so the animator and the picker read the apply that actually happened instead of applying the lane again.
+`stepLabel` joins a lane with "then" (All8's own punctuation gives `;` = "then" beside `,` = "while"), and
+`Library.registerModule`/`flatten`/`moduleCollapsible` canonicalise and count every lane call.
+
+MEASURED, on the report's own shape (`Heads Promenade Full` = 16 beats; `Sides Trade` = 4 and
+`Sides Pass Thru` = 4 after it, both legal): the step costs 16 rather than 16 + 8, each lane ends exactly
+where its own calls put it (worst 0.0e+0 units against applying them one at a time), and the lane labels
+"Heads Promenade Full while Sides Trade then Pass Thru". The PACING is pinned on
+`Sides Trade then Touch a Quarter` (4 + 2): the sides are still dancing at beat 5 and hold on their end pose
+from beat 6 to the step's end at 16, exactly (drift 0.0e+0), while the heads keep promenading - a lane that
+finishes early stands still.
+
+TWO THINGS THE WORK TURNED UP, both recorded rather than papered over:
+
+  - `evaluateCallAt` must be handed `null` for the variant info, NOT the walk's own `info`. A variant
+    matched against the whole board makes it try to TILE the board with a subset variant, no group matches,
+    nothing is posed, and the dancers HOLD at the sub-call's start until the step's last frame. MEASURED on
+    `Sides Trade then Pass Thru`: with `info`, the sides sat at the Trade's end from beat 4 to 15.9 and
+    jumped at 16. Every group call before lanes existed passed `null` here for the same reason.
+  - THE PANEL APPLIED THE COMPOSED STEP TWICE, and a lane is what exposed it. `applyParallel` rebuilt the
+    step, replayed the history (which, once the step is in the list, leaves the live board at the board the
+    step PRODUCED) and then applied the step again - so the second application ran from a board the first
+    one had left. That is harmless for the ordinary pair and stops being so the moment a lane can grow:
+    MEASURED in the browser, `Heads Promenade Full while All Except Heads Trade` applied, and appending
+    `Touch a Quarter` was then refused with `"Heads Promenade Full" in a "while" step: Promenade Full ...` -
+    the HEADS' own call failing from a board the heads had already left. The step is now CHECKED once, on
+    the board it starts from (`applyToBoard(p.start, step)`, a pure call that does not move the live board),
+    and a refused append restores the lane as it was rather than collapsing the step back to the bare first
+    call. Verified in the browser afterwards: two appends, one history row, `16.0 / 16.0 b`, and the
+    sequence count still 1.  - A PRE-EXISTING ANIMATOR WART, found while choosing that witness and NOT fixed here: a scoped group call
+    whose BARE name also matches the whole board takes the whole-board branch in `evaluateCallAt`, so
+    `Sides Pass Thru` alone (or after `Sides Trade`) animates as nothing mid-call - measured mid-call motion
+    0.00 units against 1.41 for `Sides Trade` and 3.16 for `Sides Touch a Quarter`. The harness uses
+    `Touch a Quarter` for its pacing witness and says why.
+
+GATES: `npm run build --prefix engine`; `npx tsc -p poc --noEmit`; `node engine/test/parallel-calls.mjs`
+(section 8 is the lane: the beats, the per-lane boards, the early lane holding, a lane whose SECOND call
+refuses being named as "call 2 of 2", the deferred-in-lane refusal, and the legacy `{selection, call}`
+form); `modules.mjs` (the "then" label, the flatten pass-through with both calls intact, and
+`collapseModule` across a lane) and `step-forward.mjs` (the same refusal from the deferred call's side).
+On the POC side, `stored-modules-probe.mjs` checks the legacy lane is upgraded by the one parser,
+`parallel-lane-probe.mjs` is new and reads the picker (Apply appends, the button finishes, the board the
+list answers for advances with the lane, the balance is in the status line), and
+`poc/tools/verify-probes.mjs` reports the same 13 pre-existing reds and no others (43 probes).

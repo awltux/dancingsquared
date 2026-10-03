@@ -61,7 +61,7 @@ const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'en
 const seq = new engine.Sequencer(movesXml, formationsXml, callsByTitle(assets));
 const rows = [];
 let unnamed = 0;
-for (const lvl of ['ms', 'b1', 'b2', 'a1', 'plus']) {
+for (const lvl of ['ms', 'a1', 'plus']) {
   for (const f of fs.readdirSync(path.join(assets, lvl)).filter((x) => x.endsWith('.xml'))) {
     let tams = [];
     try { tams = engine.parseCallXml(asset(`${lvl}/${f}`)); } catch { continue; }
@@ -116,7 +116,7 @@ check(/label: setupLabel\(t\.formationAttr, t\.from\)/.test(engineSrc),
 let labeled = 0;
 let sameAsFrom = 0;
 let fromBlank = 0;
-for (const lvl of ['ms', 'b1', 'a1']) {
+for (const lvl of ['ms', 'a1']) {
   for (const f of fs.readdirSync(path.join(assets, lvl)).filter((x) => x.endsWith('.xml'))) {
     let tams = [];
     try { tams = engine.parseCallXml(asset(`${lvl}/${f}`)); } catch { continue; }

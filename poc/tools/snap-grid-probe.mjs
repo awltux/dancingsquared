@@ -32,15 +32,14 @@ const check = (cond, msg) => {
   else { failures++; console.log('  FAIL ' + msg); }
 };
 
-// The panel's own two constants (`poc/src/editor-ui.ts`), repeated here so the measurements below are
-// about the numbers the code uses. They cannot be imported: that module is TypeScript inside a Vite
-// app, and it builds DOM. What is measured with them is what they MEAN - the cell is the format's own
-// unit, and the tolerance is a distance on screen.
-const SNAP_CELL = 1;
-const SNAP_TOL = SNAP_CELL / 4;
-// The HALF tier: 61% of the corpus's coordinates are on half units against 46% on whole ones, so the
-// magnet has to know them - see `SNAP_HALF_TOL` in the panel for why the pull is half as wide.
-const SNAP_HALF_TOL = SNAP_CELL / 8;
+// The panel's own two constants, IMPORTED rather than repeated.
+//
+// THE RULE LIVES IN A PURE MODULE NOW (`poc/src/grid-magnet.ts`): no DOM, no `three`, so node's type
+// stripping loads it and this probe measures the rule the drags actually run. It used to restate the numbers
+// and the expression, which is one edit away from checking a copy - and now that the board has a second grid
+// (`radial-grid-probe.mjs`) there would be two copies of a rule that is meant to have one definition.
+const grid = await import(pathToFileURL(path.join(POC_DIR, 'src', 'grid-magnet.ts')).href);
+const { SNAP_CELL, SNAP_TOL, SNAP_HALF_TOL, snapToAxis } = grid;
 
 // ---------------------------------------------------------------- the home square
 console.log('== The home square, in engine units ==');
@@ -125,30 +124,29 @@ console.log('\n== How big is "a quarter of a cell" on screen? ==');
   //
   // The flat camera shows ORTHO_HALF_HEIGHT units above and below the centre; `view2d-probe.mjs`
   // measures the framing, and this uses the same numbers.
-  const ORTHO_HALF_HEIGHT = 11;
+  // THE FLAT VIEW FITS THE FLOOR NOW, so the scale is the CANVAS's rather than a constant: `scene.ts` frames
+  // `FLOOR_HALF + FRAME_PAD` units on the tighter axis, and at 1600x900 the tighter axis is the height.
+  const FLOOR_HALF = 5;
+  const FRAME_PAD = 0.6;
   const W = 1600;
   const H = 900;
-  const pxPerUnit = H / (2 * ORTHO_HALF_HEIGHT);
-  // No parameter here: naming one `SNAP_TOL` would SHADOW the constant, and calling it with no argument
-  // then silently measures `undefined * pxPerUnit` and reports NaN px - which is exactly what the first
-  // version of this did, and why the check below reads a number rather than a truthy NaN comparison.
+  const halfH = Math.max(FLOOR_HALF + FRAME_PAD, (FLOOR_HALF + FRAME_PAD) / (W / H));
+  const pxPerUnit = H / (2 * halfH);
   const tolerancePx = SNAP_TOL * pxPerUnit;
   const halfPx = SNAP_HALF_TOL * pxPerUnit;
   console.log(`    the flat view at ${W}x${H}: ${pxPerUnit.toFixed(2)} px per unit`);
   console.log(`    pull: ${tolerancePx.toFixed(1)} px around a drawn line, ${halfPx.toFixed(1)} px around a half position; the whole cell is ${pxPerUnit.toFixed(1)} px`);
   check(SNAP_TOL < SNAP_CELL / 2 && SNAP_HALF_TOL < SNAP_CELL / 4,
     `each tier is a magnet and not a lock: the whole grid pulls from ${SNAP_TOL} of a cell and the half grid from ${SNAP_HALF_TOL}, so neither covers the gap between its own lines`);
-  check(tolerancePx >= 5 && tolerancePx <= 20,
-    `and that is ${tolerancePx.toFixed(1)} px at 1080p - enough to feel, small enough not to fight the pointer`);
-  // The rule itself, restated as arithmetic on the things that decide it. The panel's own lines are the
-  // same expression; this pins the BEHAVIOUR they must have.
-  const snap = (v) => {
-    const whole = Math.round(v / SNAP_CELL) * SNAP_CELL;
-    if (Math.abs(v - whole) <= SNAP_TOL) return whole;
-    const half = Math.round(v / (SNAP_CELL / 2)) * (SNAP_CELL / 2);
-    if (Math.abs(v - half) <= SNAP_HALF_TOL) return half;
-    return v;
-  };
+  // THE PULL IS A QUARTER OF A CELL, WHICH IS SCALE-INVARIANT, and that is the check now that the framing
+  // FITS the floor: a fixed band in pixels would have been a statement about the OLD fixed frame (11 units,
+  // 40.9 px per unit) and pinning it would refuse the fitted one for no reason. The one absolute bound left is
+  // that a quarter of a cell is big enough to hit.
+  check(tolerancePx >= 5 && Math.abs(tolerancePx / (SNAP_CELL * pxPerUnit) - 0.25) < 1e-12,
+    `and that is ${tolerancePx.toFixed(1)} px on the ${W}x${H} canvas above, a quarter of the CELL on screen - so it scales with the frame rather than being a fixed number of pixels`);
+  // The rule itself, now the IMPORTED one: the panel's own lines are the same expression, and this is that
+  // expression rather than a restatement of it.
+  const snap = snapToAxis;
   check(snap(0.9) === 1 && snap(1.2) === 1 && snap(-1.2) === -1, 'a point within the magnet is pulled exactly onto the line');
   check(snap(0.5) === 0.5 && snap(0.74) === 0.74, 'a point outside it is left EXACTLY where it was, with no rounding');
   check(snap(0) === 0 && snap(2.0) === 2.0, 'and a point already on a line is unchanged');
@@ -182,7 +180,9 @@ console.log('\n== The grid the caller can SEE, and which frame the snap is in ==
   // FIRST THE PREMISE: the drawn floor grid really is 1-unit lines at WHOLE coordinates. If it were not,
   // "snap to the visible grid" would mean something else entirely - so this reads the geometry three's
   // GridHelper actually builds rather than trusting the constructor arguments.
-  const g = new THREE.GridHelper(20, 20);
+  // THE APP'S OWN GRID: `FLOOR_HALF * 2` units in as many divisions (see `scene.ts`), so this reads the
+  // geometry three's GridHelper actually builds for the board as it is now - 8 units across, 8 divisions.
+  const g = new THREE.GridHelper(8, 8);
   const pos = g.geometry.attributes.position;
   const xs = new Set();
   const zs = new Set();
@@ -194,8 +194,8 @@ console.log('\n== The grid the caller can SEE, and which frame the snap is in ==
   const spacing = [];
   for (let i = 1; i < lines.length; i++) spacing.push(Math.round((lines[i] - lines[i - 1]) * 1e6) / 1e6);
   console.log(`    the floor grid: ${lines.length} distinct line coordinates from ${lines[0]} to ${lines[lines.length - 1]}, spacing ${[...new Set(spacing)].join(',')}`);
-  check(lines.every((v) => Number.isInteger(v)) && lines[0] === -10 && lines[lines.length - 1] === 10,
-    'the drawn grid is whole coordinates from -10 to 10');
+  check(lines.every((v) => Number.isInteger(v)) && lines[0] === -4 && lines[lines.length - 1] === 4,
+    'the drawn grid is whole coordinates from -4 to 4: eight cells, which with the half lines at 0.5 … 3.5 is the 16 x 16 grid');
   check(new Set(spacing).size === 1 && spacing[0] === SNAP_CELL,
     `so a ${SNAP_CELL}-unit cell IS the drawn cell, and a whole coordinate IS a drawn line`);
 
@@ -218,6 +218,10 @@ console.log('\n== The grid the caller can SEE, and which frame the snap is in ==
     x: pose.x + Math.cos(pose.heading) * l.x - Math.sin(pose.heading) * l.y,
     y: pose.y + Math.sin(pose.heading) * l.x + Math.cos(pose.heading) * l.y,
   });
+  // THE WHOLE-UNIT TIER ON ITS OWN, which is what this section asks about: the drawn lines are the whole
+  // units, so a snap that also knew the half positions could land a point between two of them and the
+  // question "is the board snap on a drawn line" would be unanswerable. (The full rule, both tiers, is the
+  // imported `snapToAxis` used in the section above.)
   const magnet = (v) => {
     const near = Math.round(v / SNAP_CELL) * SNAP_CELL;
     return Math.abs(v - near) <= SNAP_TOL ? near : v;

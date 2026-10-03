@@ -31,7 +31,7 @@ engine.setParser(DOMParser);
 
 const asset = (p) => fs.readFileSync(path.join(POC_DIR, 'src/assets', p), 'utf8');
 // Half the floor grid, so "the drawn curve stays on the board" is a number rather than an impression.
-const FLOOR_HALF_ASSUMED = 10;
+const FLOOR_HALF_ASSUMED = 5;
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 const moves = engine.parseMoves(movesXml);
@@ -52,7 +52,7 @@ for (const [name, items] of moves) {
     if (it.kind === 'movement' && it.seg.rotate) registry.push([`moves.xml/${name}`, it.seg.rotate]);
   }
 }
-const levels = ['b1', 'b2', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
+const levels = ['ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 let calls = 0;
 let explicitSegs = 0;
 let totalSegs = 0;
@@ -434,7 +434,7 @@ console.log(`\n== 7. the curve the panel draws, and what its direction means ==`
   reaches.sort((a, b) => a - b);
   const pct = (q) => reaches[Math.min(reaches.length - 1, Math.floor(reaches.length * q))];
   const overFloor = reaches.filter((v) => v > FLOOR_HALF_ASSUMED).length;
-  console.log(`    reach from the dancer: median ${pct(0.5).toFixed(2)} units, 90th ${pct(0.9).toFixed(2)}, 99th ${pct(0.99).toFixed(2)}, worst ${reaches[reaches.length - 1].toFixed(2)} (floor is 20 across, dancers about 2.5 apart)`);
+  console.log(`    reach from the dancer: median ${pct(0.5).toFixed(2)} units, 90th ${pct(0.9).toFixed(2)}, 99th ${pct(0.99).toFixed(2)}, worst ${reaches[reaches.length - 1].toFixed(2)} (floor is 10 across, dancers about 2.5 apart)`);
   check(pct(0.9) < 7,
     `nine in ten curves are a LOCAL annotation: within ${pct(0.9).toFixed(2)} units of the dancer, a couple of dancer-spacings`);
   // THE TAIL IS REPORTED RATHER THAN ASSERTED AWAY: the first version of this check demanded that every

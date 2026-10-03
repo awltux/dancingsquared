@@ -43,7 +43,12 @@ const check = (cond, msg) => {
  * or a `//` inside a string would otherwise move a method boundary.
  */
 function stripLiterals(src) {
-  const out = [...src];
+  // UTF-16, NOT CODE POINTS: `[...src]` splits by CODE POINT, so an astral character (an emoji, or any
+  // U+1F… in a message) makes this array SHORTER than `src`, the `while (i < src.length)` walk runs off its
+  // end, and every character after the first such character is blanked MISALIGNED - which silently merges
+  // method bodies and turned "one place writes the Save label" into two. `split('')` is the same mutable
+  // copy with the same indices as `src`.
+  const out = src.split('');
   const blank = (from, to) => { for (let i = from; i < to && i < out.length; i++) if (out[i] !== '\n') out[i] = ' '; };
   let i = 0;
   while (i < src.length) {
@@ -158,7 +163,59 @@ const selectMove = rows.find((r) => r.name === 'selectMove');
 check(!!selectMove && selectMove.syncs && selectMove.mutations > 0,
   'selectMove (the reported bug) writes the selection AND syncs the stage');
 
+// ---------------------------------------------------------------- the marks on the board
+console.log('\n== The SELECTION is marked on the board: a ring per selected dancer, red per mismatch ==');
+{
+  const read = (rel) => fs.readFileSync(path.join(POC_DIR, 'src', rel), 'utf8').replace(/\r\n/g, '\n');
+  const uiSrc = read('editor-ui.ts');
+  const browserSrc = read('browser.ts');
+  const sceneSrc = read('scene.ts');
+  const mainSrc = read('main.ts');
+
+  check(/selectionMarks\(selected: number\[\], mismatched: number\[\]\): void;/.test(uiSrc),
+    'the editor asks the board to mark the selection, and names the dancers that DISAGREE in the same call');
+  check(/private mismatchedDancers\(curve: CurveKind\): number\[\] \{[\s\S]{0,700}?!sameCurve\(ref, seg, curve\)/.test(uiSrc),
+    'the mismatched set is built with `sameCurve` - the SAME comparison the coordinate gate locks the fields on - so the red tracks and the locked fields cannot be two opinions');
+  check(/this\.host\.selectionMarks\(live \? this\.selectedSorted\(\) : \[\], live \? this\.mismatchedDancers\(this\.tabCurve\(\)\) : \[\]\);/.test(uiSrc),
+    'and it is marked at the TOP of `syncStageSelection`, before every early return, so an empty selection clears the marks');
+  check(/this\.host\.selectionMarks\(\[\], \[\]\);/.test(uiSrc),
+    'with the marks taken OFF when the editor stops being the panel on screen, so the browse and sequencer views are not told that dancers are selected');
+  check(/selectionMarks: \(selected, mismatched\) => browser\.setSelection\(selected, mismatched\)/.test(mainSrc),
+    'main.ts hands both to ONE browser call');
+  check(/setSelection\(selected: number\[\], mismatched: number\[\]\) \{[\s\S]{0,200}?this\.mismatchedDancers = new Set\(mismatched\);/.test(browserSrc),
+    'which sets the two sets together, so the rings and the reds cannot describe two different selections');
+  check(/v\.setSelected\(marked\);/.test(browserSrc) && /v\.setTrailWarning\(mismatch\);/.test(browserSrc),
+    'and `applyDisplay` draws both: a ring per selected dancer and a warned track per mismatch');
+  check(/v\.trail\.visible = on && \(this\.trailFocus == null \|\| focused \|\| mismatch\);/.test(browserSrc),
+    'a warned track is KEPT ON SCREEN even when another dancer is focused, so the focus cannot hide the answer');
+  {
+    // ORDER, not presence: `setTrailHighlight` DIMS the trail underneath, so a warning applied before it would
+    // be undone. Read as positions in the method rather than as a regex across it.
+    const from = browserSrc.indexOf('private applyDisplay()');
+    const to = browserSrc.indexOf('Show/hide the dancer views', from);
+    const body = from >= 0 && to > from ? browserSrc.slice(from, to) : '';
+    const atHighlight = body.indexOf('v.setTrailHighlight(');
+    const atWarning = body.lastIndexOf('v.setTrailWarning(mismatch);');
+    check(body.length > 0 && atHighlight >= 0 && atWarning > atHighlight,
+      'and the warning is re-applied AFTER the highlight, which dims the trail underneath it');
+  }
+  check(/setTrailWarning\(on: boolean\): void \{[\s\S]{0,200}?setHex\(on \? TRAIL_MISMATCH_COLOR : this\.trailColor\)/.test(sceneSrc),
+    'the warning is a REVERSIBLE state: it puts the couple colour back rather than restraining the track for good');
+  check(/selectionRing: THREE\.Line;/.test(sceneSrc) && /this\.selectionRing\.position\.set\(pose\.x, 0\.02, -pose\.y\);/.test(sceneSrc),
+    'the ring is a SCENE child placed from the pose, flat on the floor - so it is drawn in the 3D view AND the flat one, where the avatar group is hidden');
+  check(/this\.stage\.scene\.add\(this\.views\[i\]\.selectionRing\);/.test(browserSrc) && /this\.stage\.scene\.remove\(v\.selectionRing\);/.test(browserSrc),
+    'and it is added and removed with the views it belongs to');
+}
 // ---------------------------------------------------------------- the negative control
+console.log('\n== The EDIT state rotates through the row\'s own three states ==');
+{
+  const uiSrc = fs.readFileSync(SRC, 'utf8').replace(/\r\n/g, '\n');
+  check(/const EDIT_STATES: readonly \{ scope: 'move' \| 'dancer'; axis: 'position' \| 'rotation' \}\[\] = \[[\s\S]{0,240}?\{ scope: 'dancer', axis: 'rotation' \},\n\];/.test(uiSrc),
+    'the three EDIT states are named in ONE list: Moves, Dancers + position, Dancers + rotation');
+  check(/private cycleEditScope\(\): void \{[\s\S]{0,700}?this\.setScope\(next\.scope, next\.axis\);/.test(uiSrc),
+    'and the E key rotates through them BY CALLING `setScope` - the same call the row\'s buttons make - so the buttons, the axis pair and the board cannot describe three different states');
+}
+
 console.log('\n== The check fails on the bug it was written for ==');
 {
   // `selectMove` exactly as it was: strip re-render, trail focus, no handles.

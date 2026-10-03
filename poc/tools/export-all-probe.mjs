@@ -89,7 +89,9 @@ const seq = new engine.Sequencer(movesXml, formationsXml, callsByTitle(assets));
 const corpus = engine.parseFormations(formationsXml);
 let built = 0;
 let roundTripped = 0;
-for (const [lvl, file] of [['ms', 'circle'], ['ms', 'arm_turns'], ['b1', 'circulate'], ['a1', 'fractional_tops']]) {
+// `b1/circulate` was here until the Basic levels were retired; the case only needs a call whose file
+// holds several `<tam>` titles, and `ms/circulate` is that same file.
+for (const [lvl, file] of [['ms', 'circle'], ['ms', 'arm_turns'], ['ms', 'circulate'], ['a1', 'fractional_tops']]) {
   const full = `${lvl}/${file}.xml`;
   let xml = '';
   try { xml = asset(full); } catch { continue; }

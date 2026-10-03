@@ -150,8 +150,17 @@ console.log('\n== 2. the panel keeps it, and the button is offered ==');
   check(/this\.revertBtn\.disabled = n === 0;/.test(ui), 'it is disabled exactly when the history is empty');
   check(/UNDO_LIMIT\} step/.test(ui), 'and its tooltip says how many steps are available, so the cap is visible rather than a surprise');
   // Ctrl+Z, and the one guard that matters: not while a field has the caret.
-  check(/e\.key\.toLowerCase\(\) !== 'z'/.test(ui) && /tag === 'input' \|\| tag === 'textarea'/.test(ui),
-    'Ctrl+Z reverts too, and does NOT steal the keystroke from a field - a number input has its own undo');
+  //
+  // THE BINDING MOVED to the app's one keyboard table (`poc/src/keys.ts`), so what is pinned here is that it
+  // is REGISTERED there with the platform command key and its own scope. The field guard is now the table's,
+  // for every shortcut at once, and `keys-probe.mjs` measures it behaviourally - by dispatching a synthetic
+  // keydown with an input as its target - rather than by reading the panel for the word "input". This check
+  // used to pin the inline handler's own arithmetic, which is a shape rather than a behaviour: when the
+  // handler moved, the gate went red and the FEATURE was still correct.
+  check(/id: 'editor-undo',[\s\S]{0,160}?key: 'z',[\s\S]{0,160}?mod: true,/.test(ui),
+    'Ctrl/Cmd+Z reverts too, as a binding in the keyboard table with `mod` for the platform command key');
+  check(/when: \(\) => this\.active && this\.isInstanceMode\(\)/.test(ui),
+    'and it says where it is live with `when`, so it does not revert from another panel');
 }
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nALL CHECKS PASSED');

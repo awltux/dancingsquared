@@ -34,7 +34,12 @@ const check = (cond, msg) => {
 
 /** Replace comments and string/template contents with spaces, so the statement scan sees only code. */
 function stripLiterals(src) {
-  const out = [...src];
+  // UTF-16, NOT CODE POINTS: `[...src]` splits by CODE POINT, so an astral character (an emoji, or any
+  // U+1F… in a message) makes this array SHORTER than `src`, the `while (i < src.length)` walk runs off its
+  // end, and every character after the first such character is blanked MISALIGNED - which silently merges
+  // method bodies and turned "one place writes the Save label" into two. `split('')` is the same mutable
+  // copy with the same indices as `src`.
+  const out = src.split('');
   const blank = (from, to) => { for (let i = from; i < to && i < out.length; i++) if (out[i] !== '\n') out[i] = ' '; };
   let i = 0;
   while (i < src.length) {

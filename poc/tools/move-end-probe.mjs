@@ -175,6 +175,11 @@ check(/if \(this\.handleMode === 'end'\) \{\s*handles\.push\(\{ id: `d\$\{d\}:r3
   'and the facing curve as its end (the heading the move finishes on), which is the same rule one shape over');
 check(/translate: moveCurveEnd\(seg\.translate, lx, ly\)/.test(src), 'and the drag writes the end point through the engine\'s `moveCurveEnd`, so the hold has one definition');
 check(/dataset\.key = `m\$\{i\}:\$\{k\}:handles`/.test(src), 'with a button in the tile to flip between the two sets');
+// AND THE BUTTON AND THE `S` KEY ARE THE SAME FLIP. One method, so the two cannot end up toggling different
+// state or disagreeing about the sentence in the status line; `keys-probe.mjs` measures the binding itself.
+check(/private toggleHandleMode\(\): void \{/.test(src) && /hbtn\.addEventListener\('click', \(\) => this\.toggleHandleMode\(\)\)/.test(src),
+  'and the tile button calls ONE `toggleHandleMode`, which is what the `S` key is bound to as well');
+check(/hbtn\.title \+= ' The S key flips this too\.'/.test(src), 'with the shortcut named in the button\'s own tooltip');
 
 console.log('\n=================');
 if (failures === 0) console.log('ALL CHECKS PASSED');

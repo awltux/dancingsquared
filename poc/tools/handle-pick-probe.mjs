@@ -138,7 +138,7 @@ const allSegs = [];
 for (const [name, items] of moves) {
   for (const it of items) if (it.kind === 'movement') allSegs.push([name, it.seg]);
 }
-const levels = ['b1', 'b2', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
+const levels = ['ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 let calls = 0;
 for (const lv of levels) {
   const dir = path.join(POC_DIR, 'src/assets', lv);

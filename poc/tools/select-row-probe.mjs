@@ -123,6 +123,91 @@ for (const curve of ['travel', 'facing']) {
 }
 check(useful > groups / 4, 'the pick is worth having: for a large share of the corpus it selects a set rather than a dancer');
 
+// ---------------------------------------------------------------- 2b. the phased gender picks
+console.log('\n== 2b. The boys and girls cycle: all -> odd positions -> even positions ==');
+{
+  // Asked for as: "Add new phase to the boys and girls Select buttons so that it first selects all boys, then
+  // the first and third, then the second and fourth. These tend to match the matching transformed paths in
+  // the different formations."
+  //
+  // THE PANEL'S RULE, mirrored (see `genderPicks`): the list is one gender in the TABLE'S order - the dancer
+  // array, the `#` column the caller counts on - with phase 1 the ODD positions and phase 2 the EVEN ones.
+  const genderPicks = (call, gender, phase) => {
+    const all = call.dancers.map((d, i) => (d.gender === gender ? i : -1)).filter((i) => i >= 0);
+    if (phase === 0) return all;
+    return all.filter((_, k) => k % 2 === (phase === 1 ? 0 : 1));
+  };
+
+  // A WIDER SAMPLE FOR THIS SECTION ONLY. The sweep above reads setup 0 of each file, which for most of them
+  // is not an eight-dancer call, so it lands on 16 calls; this asks the first three setups and takes the first
+  // that loads as a full set. The section above is left exactly as it was, so its published numbers stand.
+  const phaseCalls = [];
+  for (const f of fs.readdirSync(path.join(assets, 'ms')).filter((x) => x.endsWith('.xml'))) {
+    const xml = fs.readFileSync(path.join(assets, 'ms', f), 'utf8');
+    for (let idx = 0; idx < 3; idx++) {
+      try {
+        const call = engine.normalizeInstance(engine.loadCallFromXml(xml, movesXml, formationsXml, idx));
+        if (call.dancers.length === 8) {
+          phaseCalls.push({ file: f, call });
+          break;
+        }
+      } catch {
+        /* that setup is not a full set */
+      }
+    }
+  }
+
+  let sets = 0;
+  let partition = 0;
+  let withBothHalves = 0;
+  // AND THE REASON THE PHASE IS WORTH HAVING, measured against the panel's own `matching` comparison: how
+  // often a half is a set that can be edited together where the whole gender is not.
+  let notWhole = 0;
+  let halfRescues = 0;
+  const homo = { all: [0, 0], odd: [0, 0], even: [0, 0] };
+  for (const { call } of phaseCalls) {
+    for (const gender of ['boy', 'girl']) {
+      const all = genderPicks(call, gender, 0);
+      if (all.length === 0) continue;
+      const odd = genderPicks(call, gender, 1);
+      const even = genderPicks(call, gender, 2);
+      sets++;
+      const union = [...odd, ...even].sort((a, b) => a - b);
+      if (union.length === all.length && union.every((v, i) => v === all[i])) partition++;
+      if (odd.length > 0 && even.length > 0) withBothHalves++;
+      // MOVE 1's travel curve, every dancer measured against ITS OWN list's first - which is how the panel's
+      // `matching` builds a set (the reference is the lowest SELECTED dancer). Measuring the even half against
+      // the odd half's first dancer would be asking the wrong question and would flatter the odd half.
+      const shares = (list) => {
+        if (list.length <= 1) return false;
+        const ref = call.dancers[list[0]]?.path[0];
+        if (!ref) return false;
+        return list.every((j) => {
+          const seg = call.dancers[j]?.path[0];
+          return seg && sameCurve(ref, seg, 'travel');
+        });
+      };
+      for (const [name, list] of [['all', all], ['odd', odd], ['even', even]]) {
+        if (list.length > 1) {
+          homo[name][1]++;
+          if (shares(list)) homo[name][0]++;
+        }
+      }
+      if (all.length > 1 && !shares(all)) {
+        notWhole++;
+        if (shares(odd) || shares(even)) halfRescues++;
+      }
+    }
+  }
+  console.log(`    ${sets} (call, gender) sets over ${phaseCalls.length} calls`);
+  console.log(`    move 1's travel curve shared by the whole list: all ${homo.all[0]}/${homo.all[1]}, odd ${homo.odd[0]}/${homo.odd[1]}, even ${homo.even[0]}/${homo.even[1]}`);
+  check(partition === sets,
+    `the odd and even phases PARTITION that gender in all ${partition} of ${sets} sets - nobody is dropped and nobody is counted twice`);
+  check(withBothHalves > 0, `and both halves exist in ${withBothHalves} of them, which is what the third phase needs`);
+  check(notWhole > 0 && halfRescues > 0,
+    `and it is worth having: of the ${notWhole} sets whose whole gender does NOT share move 1's path, ${halfRescues} have a half that does - so the phase picks a set that can be edited together where "all boys" could not`);
+}
+
 // ---------------------------------------------------------------- 3. the wiring
 console.log('\n== 3. The panel asks the gate, refuses the disagreement, and refuses the empty set ==');
 const src = fs.readFileSync(path.join(POC_DIR, 'src', 'editor-ui.ts'), 'utf8');
@@ -144,6 +229,21 @@ const html = fs.readFileSync(path.join(POC_DIR, 'index.html'), 'utf8');
 check(/this\.selMatchBtn\.title = /.test(src), 'what `matching` would pick is written into the button\'s TOOLTIP');
 check(!/selInfoEl/.test(src) && !/edSelInfo/.test(html) && !/id="edSelInfo"/.test(html),
   'and the row carries no prose element of its own: the span the sentence used to live in is gone, not hidden');
+// THE PHASED GENDER PICKS: all -> the odd positions -> the even ones, which are the sets that tend to share a
+// transformed path in another formation. The arithmetic is measured above; this is the wiring that reaches it.
+check(/private genderPicks\(gender: Gender, phase: number\): number\[\]/.test(src) &&
+  /return all\.filter\(\(_, k\) => k % 2 === \(phase === 1 \? 0 : 1\)\);/.test(src),
+  'the boys and girls picks have a PHASE, and the two phases are the ODD and EVEN positions of that gender');
+check(/private cycleGenderPicks\(gender: Gender\): void \{[\s\S]{0,600}?\.filter\(\(o\) => o\.picks\.length > 0\)/.test(src),
+  'and the cycle SKIPS a phase that would select nobody, so a one-boy call cannot land on an empty set');
+check(/this\.selBoysBtn\.addEventListener\('click', \(\) => this\.cycleGenderPicks\('boy'\)\)/.test(src) &&
+  /this\.selGirlsBtn\.addEventListener\('click', \(\) => this\.cycleGenderPicks\('girl'\)\)/.test(src),
+  'both buttons advance their own phase');
+check(/this\.renderGenderButton\('boy', this\.selBoysBtn, boys, 'B'\);/.test(src) &&
+  /this\.renderGenderButton\('girl', this\.selGirlsBtn, girls, 'G'\);/.test(src),
+  'and each SAYS which phase it is on, in its label and its tooltip - with the KEY that cycles it, since the tooltip is where the shortcut is written down');
+check(/this\.boyPhase = 0;[\s\S]{0,60}?this\.girlPhase = 0;/.test(src),
+  'with both phases reset by `loadInstance`, because they index into THAT call\'s dancers');
 
 // SHOWN TO FAIL, or it is decoration.
 console.log('\n== the checks fail on the faults they were written for ==');

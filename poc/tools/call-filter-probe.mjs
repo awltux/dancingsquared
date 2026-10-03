@@ -32,7 +32,7 @@ const calls = [
   { id: 'ms/circle::Circle Left', title: 'Circle Left', level: 'ms' },
   { id: 'ms/circle::Circle Right', title: 'Circle Right', level: 'ms' },
   { id: 'ms/swing::Swing Thru', title: 'Swing Thru', level: 'ms' },
-  { id: 'b1/pass::Pass Thru', title: 'Pass Thru', level: 'b1' },
+  { id: 'ssd/pass::Pass Thru', title: 'Pass Thru', level: 'ssd' },
 ];
 check(filterCalls(calls, '', 'ms/swing::Swing Thru').length === 4, 'an empty filter offers every call');
 check(filterCalls(calls, 'circle', '').length === 2, 'a query matches on a case-insensitive substring of the title');

@@ -1747,7 +1747,8 @@ convention rather than a restoration of one, which is why it sits behind a modif
 
 The first version ROUNDED from anywhere in the cell, which quantises the drag: every position becomes a
 grid position and the gesture stops being "help me land on the line". It is now a magnet — it pulls only
-within a quarter of a cell (**10.2 px** in the flat view at 1080p, where a whole cell is 40.9 px) and
+within a quarter of a cell (**20.1 px** in the flat view on a 1600 × 900 canvas with the floor fitted, where
+a whole cell is 80.4 px) and
 leaves the point EXACTLY where the pointer is otherwise, which the probe checks as a measurement of the
 tolerance rather than an assertion about it.
 
@@ -1756,7 +1757,7 @@ Snapping the LOCAL coordinates put the control point on a grid rotated AND offse
 lined up with the lines the caller can SEE only when the dancer was square to the floor *and* standing on
 a whole coordinate. The point is now snapped in the coordinates the floor is drawn in, before it is taken
 into the local frame at all. MEASURED (`poc/tools/snap-grid-probe.mjs`, which also reads three's own
-GridHelper geometry to pin the premise that the drawn grid is 21 whole coordinates from -10 to 10 at a
+GridHelper geometry to pin the premise that the drawn grid is 9 whole coordinates from -4 to 4 at a
 spacing of 1): across **384** pose/pointer combinations the board snap lands exactly on a drawn line in
 EVERY case, while the local one misses by up to **0.196** units — about 8 px, a control point visibly
 beside the line it claims to be on — and agrees with the board snap only in the **64** cases where the
@@ -1775,10 +1776,139 @@ coordinates sit on half units against 46% on whole ones, so a magnet that only k
 refuse the position the assets use most. The whole grid pulls from a quarter of a cell and the half grid
 from half that — so a DRAWN line wins wherever they compete — and of 1000 positions across two cells 496
 are pulled to a drawn line, 248 to a half position and 256 are left free: sticky enough to help, and free
-over a quarter of the cell. Recorded rather than glossed: NOTHING IS DRAWN at the half positions, so a
-half-snapped point sits midway between two lines. That is a real place in the dance's vocabulary rather
-than an arbitrary point, but it is not a place the grid shows, and two tiers is the honest way to say both
-things at once.
+over a quarter of the cell. And BOTH GRIDS NOW DRAW THE HALF POSITIONS - the square one as half LINES and the
+radial one as half RINGS, at the same offsets and in the same material - so a half-snapped point lands on a
+mark the caller can see rather than midway between two. Two tiers of PULL is still the honest description of
+the magnet, since a drawn line wins wherever they compete, but the second tier is no longer a position the
+floor declines to show.
+
+**A SECOND FLOOR GRID, RADIAL, AND THE MAGNET FOLLOWS IT.** Asked for: "Add an alternative radial 'grid'
+to all boards. The user can switch between radial and square grid. It should have 16 spokes and circles
+along each of the existing x/y divisions. The Magnet feature should work in a similar way, but along the
+spokes and circles." The switch is a STATE-DRIVEN BUTTON on the editor's Reset/Revert row — its label is
+the state it is in ("Grid: Square" / "Grid: Radial") and pressing it flips to the other one, because there
+are two references and no "off". The grid ITSELF is still drawn on every board in every tab; only the switch
+lives there. It is deliberately NOT one of the editor's two view options, so `applyViewOptions` does not
+release it, and `remember.ts` learned that a BUTTON can be a remembered control (its `value` carries the
+state). One press, one session restore and the startup call all reach the floor through the same setter,
+which writes the label, the value and both consumers at once.
+
+THE GRID TOGGLE IS A KEY TOO - asked for as "Add a keyboard shortcut that maps the G key to toggle the Grid
+type state that works globally for all boards." It is bound on the document rather than on the button, because
+the button is one control inside the editor's panel and a shortcut bound to it would only work while that
+panel happened to be on screen. THE KEY IS `W` NOW, NOT `G`, because `G` and `B` were asked for as the two
+gender selects ("Now use the G to cycle Girls Select button and B to cycle the Boys Select button") and the
+table is FIRST-MATCH-WINS with the grid binding ahead of every panel's - so `G` on both would have left the
+girls select UNREACHABLE, still toggling the grid instead. A bare `W` is safe for the same reason any bare key
+is: a modifier that is not asked for must not be held, so Ctrl/Cmd+W (close tab) stays with the browser.
+
+AND THE SHORTCUT IS A LINE IN A TABLE, asked for as "Add a keyboard shortcut system, as i'll add others in the
+future / or use a library." `poc/src/keys.ts` takes the bindings AND the listener target as arguments, so
+`poc/tools/keys-probe.mjs` installs it on a FAKE target and dispatches synthetic events through it - the policy
+is measured rather than read with a regex, which is what a `keydown` handler buried in a module cannot offer.
+Four decisions are made once for every shortcut: A MODIFIER THAT IS NOT MENTIONED MUST NOT BE HELD (`{ key: 'w' }`
+fires on `w` and never on Cmd+W, so a bare key cannot swallow the browser's chords - which matters most for the
+letter whose chord closes a tab; `mod` is Ctrl-or-Cmd because
+that is what undo means on both platforms); A FIELD BEING TYPED INTO KEEPS ITS KEYS (input/textarea/select/
+contenteditable opt out unless a binding says `whileTyping`); HOLDING A KEY DOWN FIRES ONCE unless it says
+`repeat`; and A PANEL SAYS WHERE ITS SHORTCUTS ARE LIVE with `when`, which is how the editor's Ctrl/Cmd+Z undo
+moved onto the same table through `editorUi.keyBindings()` instead of owning a `window.addEventListener`.
+The first matching binding wins, a key nothing owns is left entirely alone, and the table is validated on
+install: a duplicate `id` is refused because it silently shadows a shortcut.
+
+NOT A LIBRARY (mousetrap, hotkeys-js, tinykeys), and that is the judgement rather than an omission. The four
+decisions above are the whole of what this app needs and are exactly the part a library cannot make for you -
+what counts as "typing", what an unmentioned modifier means, whether a held key repeats. A library would add a
+dependency to a package whose only runtime dependency is `three`, and a matcher that cannot be driven without a
+DOM. `matchKey` and `dispatchKey` are the shape to keep if the table ever outgrows ~110 lines.
+
+THE TABLE HAS SIX BINDINGS NOW, which is what it was built for. `W` is the floor grid, on every board in
+every tab. Ctrl/Cmd+Z is undo, in the editor while it is editing an instance. And `S` - asked for as "Add an S
+keyboard shortcut in Call Editor tab that switches between ends and controls on currently selected Move" -
+flips the board's handles between the curve's CONTROL points and the move's END points, on the move the tile is
+showing. `handleMode` is one value for the panel and the tile's `⇄` button is its control, so the key and the
+button call ONE `toggleHandleMode` and cannot flip different state; its `when` asks `hasSelectedMove()`, the
+same four things the tile needs (this panel, an instance, a dancer selected, a move at the selected index), so
+`S` is live exactly when its button is visible rather than flipping a mode for a tile nobody is looking at.
+VERIFIED IN THE BROWSER (Chromium against poc/dist): in the Call editor `S` flips `⇄ controls` -> `⇄ ends` ->
+back with the status line following, an `s` typed into the call filter lands in the filter and flips nothing,
+and Ctrl+S is left to the browser.
+
+AND `E` ROTATES THE EDIT STATE - asked for as "Add the E keyboard shortcut that rotates through Edit Button
+state between `Moves`, `Dancers + Position` and `Dancers + Rotation`." The Edit row asks two questions at once:
+WHO the board's gizmo belongs to (the scope, `Moves` or `Dancers`) and WHAT it changes (the axis pair, position
+or rotation). The three states it can show are named in ONE list, with the axis carried even for `Moves` - where
+the pair is hidden - so that leaving `Moves` always lands on `Dancers + position` rather than on whichever axis
+was left behind. The cycle calls `setScope`, the same method the row's own buttons call, and that is the whole of
+the wiring: `setScope` is what writes the three buttons' `on` classes, shows or hides the axis pair and re-draws
+the board, so a cycle that set the fields itself would be a second place for the row and the board to disagree.
+AND `G` AND `B` CYCLE THE TWO GENDER SELECTS - asked for as "Now use the G to cycle Girls Select button and B to
+cycle the Boys Select button." Each key runs `cycleGenderPicks`, the SAME method the button's own click handler
+runs, and each is live by the SAME test the button's `disabled` reads (`hasGender`: this panel, an instance, and
+somebody of that gender in it) - so the key cannot select a set the button would have refused, and the ticks, the
+label ("girls", "girls 1·3", "girls 2·4") and the tooltip cannot disagree about what the key did. The tooltips
+name their key, because that is the only place in the app the shortcut is written down. THE COLLISION THAT MADE
+`W` NECESSARY is driven through the real dispatcher in `poc/tools/keys-probe.mjs` rather than argued about: two
+bindings on one letter do not both run - the first wins and the second is dead - so a silent second binding is
+exactly the failure a text assertion would wave through.
+
+THE TWO GRIDS ARE THE SAME RULER. The radial one is 16 spokes (one every 22.5°, the four cardinals in the
+bright centre-line colour the square grid gives x = 0 and y = 0) and a circle at every whole unit out to
+the floor's edge, with the even radii overlaid exactly as the square grid overlays its 2-unit lines.
+`scene.ts` draws it FROM the spec in `poc/src/grid-magnet.ts`, which is pure — no DOM, no `three` — so what
+is drawn and what a CTRL-drag snaps to cannot drift apart, and BOTH magnet probes now import that module
+instead of restating the rule. Exactly one grid is ever visible: `setGridMode` sets both visibility flags
+from one boolean, so there is no state in which the caller has to turn one off before the other on.
+
+AND BOTH GRIDS DRAW THEIR HALF POSITIONS - the radial half rings were asked for first ("Add a half grid line for
+the circles. Make this more subtle than the unit circles.") and the square half lines second ("Add the same
+subtle half-grid line used by the radial grid to the square grid."). A mark at every half unit (0.5 … 3.5, one
+between each pair of divisions) is a real reading, because 61% of this dance's authored coordinates sit on half
+units; it is still not a DIVISION, so it is drawn to be seen without being read as one.
+
+SAME POSITIONS, SAME MATERIAL, AND THE SECOND IS LITERAL. `squareHalfOffsets` returns exactly the offsets
+`radialCircleRadii(...).halves` returns - computed separately, because an offset on an axis and a radius are
+different shapes, and `radial-grid-probe.mjs` CHECKS that they agree rather than deriving one from the other -
+and both grids draw from ONE `halfMat`, so "the same" is one object rather than two values that agree today.
+The square half lines are a `LineSegments` and not a second `GridHelper`, and that is not a style choice: a
+`GridHelper` divides its span evenly, so 40 divisions would put a line at EVERY half unit and overdraw the
+divisions the grid already has, where the half mark is only the positions BETWEEN them. The probe also reads
+the material itself and requires the half mark to stay dimmer than the divisions and clear of the cardinal
+spokes' teal.
+
+AND "TOO SUBTLE" TURNED OUT TO BE A NUMBER, which is how it got fixed rather than guessed at. The first cut
+drew the half rings in the unit colour at 0.4, which composites to 0x202a35 - a contrast of 1.27 against the
+0x0e141b floor, DIMMER than the 2-unit overlay already on that floor (1.43) and only a quarter brighter than
+the floor itself. Reported from use: "I cannot see the half circles on the radial grid, they are too subtle."
+`radial-grid-probe.mjs` recomputes all of it from the materials and the floor - the order, plus an absolute
+1.5:1 under them - instead of reading the figures out of a comment.
+
+AND BRIGHTNESS ALONE COULD NOT TELL THE TWO FAMILIES APART, asked for as "Can you add subtle colours to
+differentiate the unit and half unit circles." The measurement says why it could not: the floor, the unit
+circles and the overlay are all ONE HUE (212, blue), so a half ring differing only in alpha is the same colour
+seen more faintly. The half rings now take a VIOLET-GREY (0x5c5068 at 0.6) - hue 270, 58 degrees away from the
+divisions, still subtle at that saturation, and deliberately clear of the cardinal spokes' teal (hue 159) so
+the three families on this floor read as three. It composites to 0x3d3849, a contrast of 1.64: above the
+overlay's 1.43 so the half ring is not the faintest line in the picture, below the unit circles' 1.95 so it is
+still the weaker family. The probe recomputes the contrast AND the hue gap from the materials - the order, an
+absolute 1.5:1, and at least 30 degrees of hue between the two families - so neither "too faint" nor "the same
+colour again" can return quietly. VERIFIED IN THE BROWSER (Chromium against poc/dist, the flat view, switched
+with the W key): the half rings are visible and read as lavender between the blue-grey divisions.
+
+THE MAGNET IS THE SAME RULE READ IN POLAR FORM: the radius through the square magnet's own two tiers, and
+the angle onto the nearest of the 16 spokes. THE SPOKE'S TOLERANCE IS A DISTANCE, NOT AN ANGLE, and that is
+the one decision in it — the same 3° off a spoke is 0.052 units across at r = 1 and 0.523 at r = 10, so an
+angular window would pull both while a distance window pulls the first and refuses the second, and a point
+a fixed 0.2 units across is pulled by 0.2 at r = 2, 5 and 10, over angles from 5.7° down to 1.1°. MEASURED
+(`poc/tools/radial-grid-probe.mjs`): of the **359,687** moved points in a sweep of the floor every one
+lands exactly on a circle of a snapped radius and exactly on a spoke whenever the angle moved; the magnet
+is idempotent over 4000 swept points; the worst pull is **0.3614** units against the square magnet's
+**0.3531** — the same **20.1 px** at that scale, because it is the same constant; and a point outside the pull
+comes back BIT-IDENTICALLY unchanged, which is why the rule hands the point back untouched rather than
+rebuilding it from its own polar form. NO HALF-SPOKE TIER is offered: the square grid's half tier exists
+because 61% of authored coordinates sit on half units, and nothing in this corpus authors an angle on the
+floor. Recorded rather than glossed: the spokes crowd together near the origin, so inside r = 1.281 every
+angle is within a pull of some spoke.
 
 **THE GROUP GATE WAS COMPARING THE WRONG THING, WHICH IS WHY A COMPLETED CLONE COULD NOT BE EDITED AS A
 GROUP.** A caller reported that after "connect" cloned a start onto a new formation, selecting several
@@ -1895,13 +2025,40 @@ scaled"*. The orthographic camera is CONSTRUCTED with a square frustum (±11 on 
 — the one place that recomputes `left`/`right` from the canvas ASPECT — was only ever called from the
 window's `resize` listener. The app never called it at startup, so on a 16:9 window the floor grid was
 drawn stretched until the first window resize snapped it square. MEASURED, and the stretch is not
-approximately the aspect but EXACTLY it: **72.7273 px per world unit across against 40.9091 up, ratio
-1.777778** on 1600×900.
+approximately the aspect but EXACTLY it: **142.8571 px per world unit across against 80.3571 up, ratio
+1.777778** on 1600×900. (Those are the figures for the square frustum `createStage` builds from `FLOOR_HALF` - the
+floor is 10 units across now, so they are smaller than they were at 8 and they move again if it moves.)
 
 The fix is one implementation called from three places: `createStage` frames both cameras as it builds,
 `setView2D` re-frames on every switch, and a `ResizeObserver` on the canvas catches a device-pixel-ratio
 change or a fullscreen toggle. `resize()` deliberately does not touch `camera.zoom`, so a resize cannot
 throw away the caller's view — which is what makes framing on every switch safe rather than annoying.
+**AND THE FRAME IS THE VISIBLE BOX, NOT THE CANVAS.** The panels are DOM overlays floating ON TOP of the
+canvas, so a floor centred on the canvas is centred UNDER the HUD. Reported from use: *"the board seems to
+be centralised to the screen, but it hasn't taken into account that the left hand dialog changes the
+visible board to the right hand side."* The frame is now computed from the canvas MINUS the strips the
+panels cover (`scene.ts`: `visibleBox` then `frame`), and the floor is centred on the middle of what is
+left, on BOTH cameras. The flat view gets an asymmetric frustum whose centre carries the visible box's own
+offset, and it is fitted to that box, so a panel can be what decides the SCALE on a canvas where the width
+is the tighter axis. The 3D view — the one on screen at startup — is moved by a LENS SHIFT
+(`camera.setViewOffset`), which shifts the projection and leaves the camera exactly where it is: a moved
+camera and target would be re-applied on every resize and would throw away whatever the caller had orbited
+to, while a view offset can simply be recomputed. The same rule fits the 3D DISTANCE to the tighter axis,
+which the old fixed `9.84` did not — it cropped **0.8 units off each side** of the floor on a canvas taller
+than it is wide. The distance is only recomputed until the caller first touches the 3D view; the shift is
+not gated that way, because it moves nothing the caller owns.
+
+MEASURED in section 4 of `poc/tools/view2d-probe.mjs`, with the negative control being the old framing: on
+1600×900 behind a 432 px panel the floor's centre lands at **1016.0 px**, the middle of the 1160 px that is
+left, where framing against the canvas alone puts it at **800.0 px** — **216 px of the board's middle under
+the panel**. The 3D camera's lens shift moves the picture by exactly that offset (1016.0 − 800.0 = 216.0 px
+to 1e-6) and moves the camera not at all. The panel's width is MEASURED rather than assumed (`main.ts` reads
+`#hud`'s own box, with a `ResizeObserver` on it, because the HUD is content-sized — 320 px at its narrowest
+and 780 px in the instance editor), and the inset is capped at 45% of the canvas: past that the panel is most
+of the window, there is no visible region left to centre in, and a frame that kept shrinking would draw the
+floor a few pixels wide. The **axis labels are sized as a fraction of the floor's half-width**
+(`AXIS_LABEL_FRAC`) — they were a constant written for a 20-unit floor and on the 8-unit one read as a
+headline, reported as *"The axis text is much larger than it needs to be."*
 
 **PAN AND ZOOM DID NOTHING IN 2D BECAUSE THE FLAT VIEW HAD NO CONTROLS AT ALL.** OrbitControls binds to
 ONE camera object for its whole life, so `setView2D` had been switching the single control set OFF — and
@@ -1992,7 +2149,8 @@ fault, by a hair.
 
 SO THE WINDOW IS NOW ONE PIXEL, AND THE FIGURE IS MEASURED RATHER THAN ARGUED. `clone-refusal-probe.mjs
 --sweep` walks every call in a sample against every formation the picker offers - 12248 refused walk-in pairs
-- and bands the gap between the two curves at the flat view's 40.91 px per unit: **232 refusals rest on a
+- and bands the gap between the two curves at the probe's own 40.91 px per unit (a scale for the counts: the
+window it bands against is in BOARD UNITS and does not move when the floor resizes): **232 refusals rest on a
 difference under half a pixel, and the next smallest is 2 px**, with NOTHING at all between 0.5 and 2 px. The
 window may sit anywhere in that empty band and the same refusals are made; at one pixel (0.025 units) it
 opens the 232 and the witness and refuses nothing else in the corpus. It is also measured **along the curves**
@@ -2318,6 +2476,76 @@ re-mapping the left button already had. `tsc` clean, all fifteen POC probes gree
 dancers more efficient. The matching selector will select all dancers that match the currently selected
 Move(s) that can be edited together, if the currently selected Moves are already editable."
 
+AND `boys` AND `girls` ARE PHASED. Asked for as: "Add new phase to the boys and girls Select buttons so that it
+first selects all boys, then the first and third, then the second and fourth. These tend to match the matching
+transformed paths in the different formations." Each click advances its own button through ALL of that gender,
+then the ODD positions among them (1st, 3rd, ...), then the EVEN ones (2nd, 4th, ...); the label carries the
+phase (`boys`, `boys 1·3`, `boys 2·4`) and the tooltip names both halves with their dancer numbers. The order is
+the table's own `#` column - the dancer array the caller counts on screen - NOT the formation's identity, since
+array position is the renderer's binding rather than an identity. A PHASE THAT WOULD SELECT NOBODY IS SKIPPED,
+because a call with one boy has nothing at "the second and fourth" and landing on an empty set would clear
+every tick and leave the panel saying edits have nowhere to go; the cycle therefore runs over the phases that
+HAVE a pick rather than over the numbers 0, 1, 2. The phase is the button's own state rather than the
+selection's, so hand ticks between clicks do not lose the caller's place, and `loadInstance` puts it back to 0.
+
+AND THE REASON FOR WANTING IT HOLDS UP, which is why it was worth building. MEASURED
+(`poc/tools/select-row-probe.mjs`, 76 (call, gender) sets over 38 eight-dancer calls of the ms level, move 1's
+travel curve, each list measured against its OWN first dancer exactly as `matching` does): the whole gender
+shares that path in 49 of 76, while the odd half does in 75 of 76 and the even half in 75 of 76 - and of the 27
+sets whose whole gender does NOT share it, 26 have a half that does. So the phase selects a set the fields will
+accept where "all boys" would have been refused. The probe also pins that the two phases PARTITION that gender
+in all 76 sets: nobody dropped, nobody counted twice. VERIFIED IN THE BROWSER (Chromium against poc/dist, a
+6-dancer call whose boys are rows 1, 3, 4, 6): `boys` -> `boys 1·3` -> `boys 2·4` -> `boys` selected [1,4],
+[3,6], [1,3,4,6], and the girls cycled [2], [5], [2,5].
+AND THE TICKS HAVE A TWO-DANCER ACTION: `⇄`, in the header cell of the formation table directly over the tick
+column. Asked for as "Add a small button above the dancer select column that is normally greyed out and disabled
+unless two dancers are selected. With two dancers selected, the button will switch the selected dancers. Use a
+button icon something like a double ended arrow to indicate switch or swap." DISABLED UNLESS EXACTLY TWO, and
+that is the whole of its safety rather than a nicety: a swap is symmetric and needs two operands, and any other
+count has no defined answer - one dancer has nothing to swap with, and three would need an order the ticks do not
+carry. Greyed out rather than hidden, so the column says what the ticks are for before there are enough of them;
+the tooltip names the two dancers it would switch, since "which two" is the one thing a button with nothing
+written on it cannot say for itself.
+
+WHAT MOVES IS DECIDED BY HOW A PATH IS STORED. A path is authored in the dancer's OWN frame (+X is its initial
+facing, P0 its own origin - `setDancerStart`), so the version that leaves a coherent board is the whole ENTRY
+trading places: start pose, path, gender and the half-set mirror flag, in one engine call (`swapDancers`), with
+the panel not restating which fields move. MEASURED (`poc/tools/swap-dancers-probe.mjs`, every pair of every
+ms-level call that builds, 448 pairs): the two entries trade field for field and nobody else moves; the MULTISET
+OF WORLD TRACKS is identical before and after, so the board is the same dance relabelled rather than redrawn; the
+genders travel with their tracks; it is an INVOLUTION (swapping back restores the call exactly to the byte) and
+COMMUTATIVE; the beat clock is untouched, the multiset of paths being the same; swapping a dancer with itself is
+the identity, and an index outside the set is refused out loud. `id`/`couple` are deliberately NOT copied across:
+`assignHomeIdentity` DERIVES the home identity from where a dancer stands, so swapping the poses swaps them.
+
+THE NEGATIVE CONTROL IS THE CHEAPER EDIT THIS COULD HAVE BEEN: swapping the PATHS ALONE, one `setDancerPath` per
+side. At 308 of the 448 pairs that draws a DIFFERENT board - the worst pose moving 12.008 units - because each
+path is then re-framed by the other dancer's start pose. Without that measurement, "move the whole entry" would
+be a preference rather than a finding. VERIFIED IN THE BROWSER (Chromium against poc/dist, ms _Finish Line of 6
+Half Tag): the button is disabled with one dancer ticked and with three, enabled with exactly two, and its
+tooltip names them; pressing it swapped dancers 3 and 6 (0.75,-0.5,180 <-> -0.75,0.5,0) with the status line
+"dancer 3 and dancer 6 switched", left every other row alone, kept the keyboard focus on the button through the
+re-render, and pressing it again put every dancer back exactly as it was.
+AND THE SELECTION IS MARKED ON THE BOARD, asked for as "Highlight mismatched paths after selection" and "Outline
+the dancers currently selected ... on the board." TWO MARKS, DRAWN FROM ONE CALL (`Browser.setSelection`, so they
+cannot describe two different selections). A RING around every dancer an edit applies to - a circle on the floor,
+0.7 units of radius against couples that stand 2 apart - drawn as a SCENE child placed from the pose rather than a
+child of the avatar group, which is what makes it work in BOTH representations: a 3D avatar is a figure and a 2D
+marker is a flat shape, and their only shared property is where the dancer is standing. It is deliberately NOT tied
+to "Hide dancers", which is about the BODIES, while the ring is a mark on the floor saying which spots the edits
+reach. And a RED TRACK for every dancer whose curve at the move being edited does NOT match the selection's, built
+with `sameCurve` - the gate itself - so the reds and the locked fields are two readings of one fact rather than two
+opinions. A warned track is drawn at FULL OPACITY (the normal trail is 0.55 and a dimmed one 0.45), which is what
+keeps it distinguishable from couple 1's own red, and it is KEPT ON SCREEN WHEN ANOTHER DANCER IS FOCUSED, because
+the mismatch is the reason the caller is looking at the board and the focus must not hide the answer.
+`setTrailWarning` is reversible, and `setActive` clears both marks when the editor leaves the screen.
+
+AND THE LOCK NAMES ITS OWN WAY OUT. The coordinate fields already lock when the selection disagrees; the note
+under them now says the paths are marked in red, that the dancers the edits apply to are ringed, and the two things
+that resolve it: the link beside a dancer (which clones the reference's whole trace onto it) or selecting one
+dancer, which is what the lock is for. THE LINK WAS RELAXED TO MAKE THAT ROUTE REAL - it used to require the whole
+selection to already agree, which is exactly the state in which a caller cannot use it, and it is now offered on
+every dancer whose trace is not the reference's, including a selected one that disagrees.
 A row of five buttons - `none`, `all`, `boys`, `girls`, `matching` - sits above the table, next to the
 per-dancer ticks in its first column. `all`/`boys`/`girls` read the data and are the sets a caller reaches for;
 `matching` is the one with a question in it, and it is answered with THE GATE'S OWN COMPARISON rather than a
@@ -2731,27 +2959,42 @@ NUMBERS, and the numbers were always right. The picture was wrong and no probe l
 now checks all three facing arms and both travel arms, that no handle anywhere is anchored on a control point,
 and carries a mutation putting the old anchor back to prove both facing checks go red.
 
-A MATCH LINK IN THE FORMATION TABLE. Asked for: "When Select: matching is pressed, the dancers that match are
-selected. Add a link symbol next to the dancers that dont match, that will correct the non-matching coordinates
-using the matching coodinates. Remove the link once they do match and select the now matching dancer."
+A MATCH LINK IN THE FORMATION TABLE, WHICH CLONES A WHOLE TRACE. Asked for: "When Select: matching is pressed,
+the dancers that match are selected. Add a link symbol next to the dancers that dont match, that will correct the
+non-matching coordinates using the matching coodinates. Remove the link once they do match and select the now
+matching dancer." - and then, after using it, as: "If I select one, I'd expect the paperclip symbol for the
+another dancer to copy the correct dancers Moves and settings, with appropriate transforms, to the paper-clip
+trace. It should clone a good trace to another dancer."
 
-The link sits in the `#` cell of every dancer the selected move does not match, and is offered exactly when the
-correction is defined - the selection agrees and this dancer is not in the matching set - which is the same
-condition the `matching` button lights up on, so it appears the moment that button is pressed without a mode of
-its own. Pressing it copies the selection's curve for the current TAB into that dancer's move, adds the dancer
-to the selection, and the link goes. Beats and hands are untouched: the gate compares SHAPES, and unifying a
-timing is a separate edit.
+THE FIRST VERSION COPIED ONE CURVE OF ONE MOVE, AND THE PROBE THAT GATED IT COULD NOT FAIL. It copied the curve
+the tab edits at the move on screen, and `match-link-probe.mjs` compared the result against the very curve it
+was copied from - "the copy matches in 4632 of 4632" was a value being equal to itself. Three real faults sat
+behind that green light: the write went straight to `setMove` and so bypassed `holdFollowingTrace`, leaving the
+following trace swinging (the one fix every other facing write in the panel routes through); a reference with no
+explicit facing had its TRANSLATION Bezier copied into the `rotate` slot, whose `cy1` the format has no
+attribute for (`bezRotAttr` writes only cx3/cx4/cy4/x4/y4), so it survived on screen and not in the file; and
+the link read the tab, which `renderInstance` can be one frame stale in - the table is drawn BEFORE
+`renderMoveStrip` normalises a stale `moveKind`, so the link was offered for a FACING curve the panel was about
+to stop editing while the `matching` button in the same frame used the corrected one.
 
-THE FACING TAB COPIES `rotate ?? translate`, NOT `rotate`, and that is the whole subtlety. A dancer with no
-rotation curve faces along its own travel tangent - what `poseFor` implements and what `sameFacingCurve`
-compares - so copying a NULL copies nothing and leaves the dancer facing by its own path, still not matching.
-Measured (`poc/tools/match-link-probe.mjs`, 4632 reference/move/dancer pairs over 233 files): the copy matches in
-4632 of 4632 for BOTH curves, while copying the rotation Bezier alone would leave 1254 of them (27.1%) still
-unmatched. The `?? translate` is that 27% rather than a preference.
+IT NOW CLONES THE WHOLE PATH, AND ALL THREE FALL OUT OF THAT. `matchDancer` calls the engine's new
+`setDancerPath` - every move at once, with its facing, its beats and its hands - and the link is offered on
+`donor && !sameTrace(donor, this dancer)`, which reads neither the tab nor the move index. Nothing is
+left downstream to swing, no curve is converted from one kind into another, and a whole-trace question has no
+move index to be asked at. NO COORDINATE TRANSFORM IS NEEDED, which is what "appropriate transforms" means here:
+a path is authored in the dancer's OWN frame, so the local frame IS the transform and the receiving dancer gets
+the donor's motion relative to its own start. The start pose, the gender and the home identity are NOT copied -
+those are the formation's, and moving one dancer onto another's spot is the Dancer scope's edit, not this one.
 
-And the link is drawn on the gate's own `sameCurve`, so the comparison that decides whether to show it and the
-one that decides whether it worked are the same function - which is what makes "the link disappears once they
-match" true by construction.
+MEASURED (`poc/tools/match-link-probe.mjs`, 861 donor/target pairs over 178 files): the clone makes the traces
+the same in 861 of 861, and the target's path is VALUE-EQUAL to the donor's in all of them. The mutation isolates
+the old gesture: one curve of the move on screen leaves 568 of 861 (66%) still not the same trace. A third leg
+exports each cloned call and reads it back, where the two traces are still identical in 33 of 33 - the leg that
+catches a copy the format cannot carry, and one the old probe had no equivalent of. A copied coordinate does not
+travel with the clone either: a `Seg` carries its copy as a key in the editor's `moveClips`, and `carryMoveClips`
+pairs by position when the path length is unchanged, so `matchDancer` drops the target's entries for its new
+segments - the same rule that stopped a delete carrying the removed move's point onto the move that took its
+index.
 
 EVERY EXPORT NOW CARRIES THE BUILD IT CAME FROM. Asked for: "add an xml comment at the top of the export
 containing the web apps buildhash. This should give basic version control when importing them."
@@ -3052,3 +3295,250 @@ inherits it; entering the editor paints the instance the constructor refused to;
 `browser.reload()` when the editor is left for the Browse tab, so the dropdown and the board cannot stay split.
 Gated in poc/tools/board-owner-probe.mjs - one writer, no bypass, and the two halves that make the guard safe.
 Verified in the browser: startup, in the editor, and back on Browse all agree with their own dropdown.
+
+`STEP FORWARD`, AND THE ONE "WHILE" GROUP THAT DEPENDS ON THE OTHERS. Asked for as: "Create a Coded Call for
+'Step In'. The named dancers step forward 2 dimensions. This is intended to work in parallel with another Call.
+It takes on the duration of the other call and if at the end of the call nobody is in their original position,
+they step back 2 dimensions. If there is someone in their original position, they remain where they are." Four
+things that wording left open were asked and answered before any code was written: the unit is 2 BOARD UNITS (the
+cell the magnets, the spans and the moves editor all use, where a `Forward` is 1); "forward" is the DANCER'S OWN
+FACING, not towards the set centre; the call is `Step Forward`, not "Step In" (a separate `Step Forward and Back`
+is coming); and CALLED ON ITS OWN it is legal and simply stays where it stepped.
+
+IT IS DERIVED GEOMETRY AND NOT A CATALOGUE MATCH. There is no such title anywhere in the corpus - no tam, no call
+index entry - so there is nothing to match a board against. Like `Fold` and `Trade` it NAMES A GROUP ("Heads Step
+Forward"), which is why the bare name is refused with that reason: a step that displaces some dancers and leaves
+the others exactly where they stand has no whole-set reading to fall back on.
+
+THE RETURN IS NOT PART OF THE CALL, AND THAT IS THE WHOLE DESIGN. `Step Forward` on its own has one answer -
+step, and stay. The return depends on a fact the call cannot see: whether somebody has MOVED ONTO the spot it
+left. In a "while" step that fact only exists once the other groups have been applied, so the call is registered
+as the registry's one DEFERRED move (`CodedMove.deferred`) and `Applicator.applyGroupStep` splits the groups: the
+independent ones are applied to the original board and merged by dancer id exactly as before, and the deferred
+group is resolved LAST, against the board that leaves. Two rules follow from the dependency and are enforced with
+their own reasons rather than guessed at: AT MOST ONE deferred group per step (two would each depend on the
+other, which has no answer) and IT NEEDS A PARTNER CALL (deferred on its own would resolve to a silent no-op).
+
+"IS MY SPOT TAKEN" IS THE BODY MODEL, not a second tolerance to tune. The question is whether there is room to
+stand where the dancer came from, and this engine already answers exactly that question: `bodyOverlap`, the same
+oriented 0.95 x 0.45 body the contact rules and the collision guard measure. A dancer standing on the spot
+overlaps it by construction; a dancer on the NEXT spot does not (0.05 of air at the tightest facing pass), so the
+two cases the caller cares about are separated without inventing a radius. A GHOST does not block the return, for
+the reason `bodies.ts` excludes ghosts everywhere: it is a geometric reference, not a dancer.
+
+THE TIMING IS THE OTHER CALL'S, which the request says outright ("it takes on the duration of the other call").
+A "while" step costs its longest group, so a deferred group simply contributes NO BEATS - read through the same
+`isDeferredCall` the applicator uses, so the clock and the board cannot disagree about which groups are
+dependent. Measured: with a ONE-beat partner (`Face Right`) the step costs one beat, where leaving the step in
+the fold would have charged its own two.
+
+A CODED CALL COULD NOT BE A "WHILE" GROUP AT ALL UNTIL THIS, and that was found by trying it: the coded table
+lives in the Sequencer, so a group whose call is coded died in the applicator's catalogue path with `"Step
+Forward" not legal for selected dancers`. The reading is now ONE function, `applyCodedToSelection` in
+`coded-moves.ts` - the three cases (a rule that computes the whole board itself, a whole-set resolve allowed only
+for "All X", and a plain transform with the designated dancers kept) - used by both `Sequencer.tryCodedMove` for
+the one-name form and the applicator for a group, so `Heads Step Forward` cannot mean one thing as a step and
+another as a group.
+
+MEASURED by `engine/test/step-forward.mjs` (in the light suite), on the corpus's own formations:
+
+  - the call: four heads on a squared set move EXACTLY 2.000 units, each along ITS OWN facing (the heads face
+    north/south and the sides east/west, so a fixed direction cannot pass), turning nobody, and the four dancers
+    nobody designated do not move at all;
+  - STAY: `Girls Step Forward while All Except Girls Wheel Around` on a Double Pass Thru - all four girls stay
+    where they stepped, because the boys' own call takes the spots they left;
+  - RETURN: `Heads Step Forward while All Except Heads Right and Left Thru` on a squared set - all four heads
+    come back, and the other group ends exactly where its own call alone put it;
+  - PER DANCER, not all-or-nothing: `Girls Step Forward while All Except Girls Swing Thru` on a Double Pass Thru
+    leaves two girls stepped and brings two back, and each of the four agrees with its OWN spot being occupied.
+    This is the measurement that separates the two readings of the request;
+  - the refusals: two dependent groups, and a dependent group with no partner, both refused with the reason;
+  - the NEGATIVE CONTROL: the plain INDEPENDENT merge - what every other "while" step still does, and the "nobody
+    ever steps back" reading of this one - agrees with the rule on 0 of 8 dancers where no spot is taken, differs
+    by EXACTLY the four dancers that come back where one is, and leaves 4 OVERLAPPING BODIES where the rule
+    leaves none. Without that last number, "the spot was taken" would be a story rather than a measurement.
+AND IT IS REACHABLE FROM THE PICKER, WHICH TOOK A SECOND FIX AND A REVERTED FIRST ONE. A group-named coded
+call is invisible to `legalNext`: that list is the WHOLE-BOARD reading, and `Fold`, `Cross Fold`, `Trade`, `Run`
+and `Step Forward` all refuse the bare name by design. The first fix was to let them into `legalNext` anyway
+(when some group can perform them) and it was REVERTED, because `features.mjs` pins the invariant that matters -
+"every listed call applies interactively" - and the change made exactly that fail (measured: 20 listed, 6
+invalid). The right place is the APP, which is where the group prefix is applied at all: `refreshCallSelect`
+offers a group-named coded call when the engine's own `groupCanPerform` says the chosen group can do it, in the
+same branch that already asks that question for whole-set calls. VERIFIED IN THE BROWSER (Chromium against
+poc/dist): with `Heads` chosen, `Step Forward` is in the list (148 entries); after `Heads Right and Left Thru`
+the Parallel button enables, the remainder's list offers `Step Forward` (128 entries), and applying composes ONE
+step - "Heads Right and Left Thru while All Except Heads Step Forward — one step; Undo removes both".
+AND IT ANIMATES UNDER THE SCRUB, WHICH IT DID NOT AT FIRST. Reported from use, after the call applied
+correctly: "When adding this Step forward call as a separate call, It isnt animated using the scrub." The cause
+was the WALK and not the geometry. `replayWalk` decides a scoped step's walkability from the CATALOGUE variant,
+and `Step Forward` has no tams at all, so the step was recorded UNWALKABLE with 0 beats - and
+`evaluateSequence` returns `s.before` for any unwalkable step, so the board never moved at any beat. The walk has
+one documented job (the module says it in as many words): it must agree with the APPLICATOR, because the failure
+to avoid is "the call is legal, moves the dancers, and animates nothing". It now does: a scoped step whose call
+is coded and whose catalogue has no variant is WALKABLE, charged `stepBeats` (the call's own 2), and animated by
+`interpolateSegment` straight to the end board the WALK produced - handed in rather than re-derived, so the
+animation cannot describe a different destination from the one the apply and the walk agreed on. The
+catalogue-with-no-variant case is untouched: `coded` is null there, so it keeps its 0 beats and its refusal.
+
+A SECOND DROP, FOUND BY THE GATE WHILE FIXING THE FIRST: the walk read only `raw.call`, so a step carrying its
+selection as a FIELD (`CallStep { selection, call }`) had no selection, took the WHOLE-BOARD coded branch, was
+refused by the rule that says a group must be named, and was recorded unwalkable - the same freeze, one form
+over. The selection is now read from whichever form carries it, and the gate checks that `"Heads Step Forward"`
+and `{selection:"Heads", call:"Step Forward"}` walk IDENTICALLY.
+
+MEASURED by `engine/test/step-forward.mjs` section 7: the step is not a stop, it is charged 2 beats, at beat 1
+of 2 each designated dancer is EXACTLY half way (1.000 units), at beat 2 the full 2.000, the non-designated
+dancers do not move at all, and the board the SCRUB ends on is the board the APPLY produces. VERIFIED IN THE
+BROWSER (Chromium against poc/dist, on the app's own exported board at the playhead): "Heads Step Forward" from
+a Static Square reads heads at y=+/-3.00 at beat 0, +/-2.00 at beat 1 and +/-1.00 at beat 2, with the sides
+unmoved throughout - which is the scrub showing the step rather than freezing on its start board.
+AND A "WHILE" STEP ANIMATES EACH GROUP ALONG ITS OWN PATH, AT ITS OWN PACE. Reported from use, on the pair this
+call made worth composing: "When I apply Sides Promenade 3/4 to Home in parallel with Step Forward, the dancers
+move in parallel, but the sides seem to take a direct shortcut between the start and end formation and the
+parallel call only lasts as long as the Step Forward." Then, on the pacing: "A Step forward should take 2 beats
+to move the two steps. The rest of it should be stand still." Both were ONE defect, in `evaluateGroupAt`: it
+blended every dancer STRAIGHT from `before` to `after` over the step's own beats, so the promenade group walked a
+chord through the middle of the set - MEASURED in the app, (3,-1) to (-1,-3), a constant 1/3 and 1/6 of a unit
+per beat - and every group was drawn at the same pace, the short call stretched to fill the long one.
+
+EACH GROUP WALKS ITS OWN PATH. `evaluateGroupAt` now poses each group with `evaluateCallAt`, the SAME function a
+lone scoped step uses, with the other groups FROZEN where they stand so the exchange detection inside
+`interpolateSegment` cannot pair a dancer with somebody the group does not own. The invariant is worth stating on
+its own: A GROUP IN A "WHILE" STEP ANIMATES EXACTLY AS IT WOULD ALONE. Measured: over all 13 beats of the pair,
+a promenading dancer is at the pose it would be at dancing the call alone, worst difference 0.00e+0 units, and at
+the halfway beat the group is 5.70 units OFF the straight line between its start and end formations, which is the
+reported shortcut gone rather than merely moved.
+
+AND EACH GROUP RUNS ON ITS OWN CLOCK, holding at its end pose once its own call is over: a group is evaluated at
+`min(localBeat, its own beats)`. The pair still COSTS the longest call (12 beats for the promenade), and inside
+it the stepping dancers travel 1.000 unit at beat 1 and the full 2.000 at beat 2, then do not move again for the
+remaining ten - the request's "2 beats to move the two steps, the rest stand still" - while the promenade is
+still travelling at beat 6 (5.57 units along its own path). The last frame is still the board the step APPLIED,
+which is what the old blend was built to guarantee and this keeps.
+
+A SECOND TRAP IN THE SAME FLOW, found while measuring it. `refreshCallSelect` keeps the previous selection when
+the list still offers it, and in parallel mode the previous selection is the call that was just applied - so
+pressing "+ Parallel call" and then Apply composed `Sides Step Forward while All Except Sides Step Forward`,
+refused by the engine (two dependent groups) and leaving the first call alone in the history with a 2-beat
+scrub. A refusal the caller caused by not touching a control is the kind this panel refuses elsewhere, so
+entering parallel mode now CLEARS the picker: "pick their call, then Apply" is literally true. VERIFIED IN THE
+BROWSER (Chromium against poc/dist): pressing "+ Parallel call" leaves the picker empty; choosing `Step Forward`
+composes "Sides Promenade 3/4 to Home while All Except Sides Step Forward" at 12 beats on the scrub, with the
+sides wheeling (3,-1) -> (2.13,-0.07) -> (2.01,1.60) -> (1.19,2.39) -> (-1.81,1.81) -> (-2.22,-1.25) -> (-1,-3)
+and the four heads stepping 2 units over the first two beats and then standing still.
+AND A DEFERRED GROUP THAT RETURNS IS SHOWN STEPPING IN AND BACK OUT. Reported from use, one fraction later:
+"if I apply Sides Promenade 1/2 to Home in parallel with Step Forward, the sequencer suggests they have been
+applied, but the step forward dancers dont move. I suspect it is because they start an end that the same place."
+The guess is exactly right, and the RULE is right too: `Promenade 1/2 to Home` brings the sides back to their own
+four spots, so nobody is standing on the spots the heads left, so the heads step back - the pair nets to the
+promenade alone, which is what the request asks for ("if nobody is in their original position, they step back").
+
+WHAT WAS WRONG WAS THE ANIMATION. The group's start and end boards were the SAME board, and a two-point
+interpolation between identical boards draws nothing, so the caller could not see that the step had happened at
+all. The call has TWO moves in it and the request says where they go - the step at the start, and the step BACK
+"at the end of the call" - so `evaluateGroupAt` now walks a deferred group FORWARD over its own beats, HOLDS, and
+BACK over the last of them, with the leg capped at half the step so the round trip always fits (a two-beat step
+inside a two-beat partner has half a beat each way rather than losing the return and disagreeing with the applied
+board). A dancer that STAYED has `after === forward`, so its second leg is a no-op and the same formula serves
+both outcomes.
+
+MEASURED by `engine/test/step-forward.mjs` section 9, on `Sides Promenade 1/2 to Home while All Except Sides Step
+Forward` (8 beats): the stepping dancer's distance from its start reads 0.00, 1.00, 2.00, 2.00, 2.00, 2.00,
+2.00, 1.00, 0.00 across the nine beats - out over its own two beats, standing still for the five in the middle,
+and back over the last two, which is the "at the end of the call" the request named. VERIFIED IN THE BROWSER
+(Chromium against poc/dist) on the same pair: 8 beats on the scrub and head 1 at (1,3) -> (1,2) -> (1,1), holding
+(1,1) through beat 6, then (1,2) -> (1,3).
+RENAMED, AND SPLIT IN TWO. Asked for as: "Rename 'Step forward' to 'Step Forward and Back if Possible'". The call
+described above under the name `Step Forward` is now `Step Forward and Back if Possible`, because that is what it
+is: it steps out and decides whether the way back is clear. The rename also settled the one thing the old name got
+wrong, in the words of the answer to "what should it do when called on its own?" - "Make it step back too - one
+rule everywhere". So a lone `Heads Step Forward and Back if Possible` now steps out and back (4 beats: 1.00 at
+beat 1, 2.00 at 2, 1.00 at 3, home at 4) instead of the special case that left it standing where it stepped. The
+deferred machinery, the body-model test for "is my spot taken" and the applicator's late resolution are all
+unchanged - only the standalone answer moved.
+
+AND A NEW `Step Forward` WAS ASKED FOR IN THE SAME BREATH: "create another Coded call named 'Step Forward', that
+just steps forward over 2 beats. If its part of parallel calls, it stands still for the remainder of the other
+call." It is the same forward motion with no decision in it, and it is NOT deferred, so a "while" step treats it
+as an ordinary group: its own two beats are charged (the step still costs the longer call), and the per-group
+pacing holds it at its stepped pose for the rest - measured in the app as `Sides Promenade 1/2 to Home while All
+Except Sides Step Forward` over 8 beats with the stepping dancer at 0.00, 1.00, 2.00, then 2.00 for every
+remaining beat. `engine/test/step-forward.mjs` section 0 pins the pair of them: exactly one coded move is
+deferred, the plain step costs 2 and the round trip 4, and both refuse the bare name.
+
+THE FORWARD HALF IS ONE DEFINITION (`stepForwardSteps`), which is what keeps the two calls from disagreeing about
+what a step is, and it is also what the APPLICATOR resolves the deferred group from - a deferred call declares its
+own `deferredHalf`, because `applyToSelection` is now the WHOLE call (the decision included) and applying it to
+get the half-way board would ask "is my spot taken" about the wrong start. The same field is what the lone-call
+animation walks out and back over, so the round trip is drawn by one function (`deferredRoundTrip`) whichever way
+the call is danced.
+
+THE OLD NAME STILL RESOLVES, to the plain step: `Step Forward` is the new call's name, so a saved module or an
+All8 line that says `Heads Step Forward` now means "step out and stay" rather than the round trip. That is the
+rename as asked for; a sequence that wants the old behaviour says `Step Forward and Back if Possible`.
+AND THE FLOOR IS 10 UNITS ACROSS NOW, FROM -5 TO +5. Asked for as: "Expand the board's square and radial background
+grids from -4/+4 to -5/+5." It is ONE constant (`scene.ts`: `FLOOR_HALF`), because everything that has an opinion
+about the floor's size derives from it rather than repeating it: the two `GridHelper`s (10 units in 10 divisions,
+with the brighter overlay every 2), the square half lines (0.5 … 4.5), the radial spokes (which stop at the floor's
+own edge), the unit circles (1 … 5) and their half rings (0.5 … 4.5), the floor plane, the axes and their labels,
+the pan limit, and the camera framing in both views. The 8-unit floor could only be changed in one place and neither
+grid nor the frame needed an edit - which is the point of the axis labels being a fraction of the half-width and of
+`frame()` taking the canvas rather than a constant.
+
+WHAT DID NEED EDITING IS EVERY CLAIM ABOUT THE SIZE. The floor is described as "8 units in 8 divisions" in the
+probes and the docs; the half marks are at 0.5 … 3.5, not 0.5 … 4.5; and the flat view's pixel scale moves with
+the frame, from 97.83 px per unit at 1600×900 to 80.36, so a drawn line's magnet band is 20.1 px and a half
+position's is 10.0. `radial-grid-probe.mjs`, `snap-grid-probe.mjs`, `view2d-probe.mjs` and
+`facing-handle-probe.mjs` all carry a MIRRORED `FLOOR_HALF` (that is what a mirror is for - it has to be updated
+with the thing it mirrors), and the radial probe's count of the even circles is `Math.floor(half / 2)`, because on
+an ODD half the outermost even circle is r = 4 while the floor edge is 5: the count is a consequence of the radius
+rather than a rule of its own, and `half / 2` was only ever right at 4.
+
+MEASURED after the change: `radial-grid-probe.mjs` (5 circles, 2 even, 5 half rings, none past the floor),
+`snap-grid-probe.mjs` (80.36 px per unit, the magnet still a quarter of a cell in both tiers), `view2d-probe.mjs`
+(the frame fits 5.6 units plus the pad on the tighter axis, the pan limit lands on the floor's own edge, and the
+construction-time frustum still stretches the floor by exactly 1.777778) and the nine probes that read the grid
+for other reasons are all green. VERIFIED IN THE BROWSER (Chromium against poc/dist, 1600×900): the square grid
+draws 10 cells across with the brighter overlay every 2 and the half lines between; `W` switches to the radial
+one, whose spokes and unit circles reach 5 with the faint half rings at 0.5 … 4.5; the floor and its pad still fit
+the frame with the HUD's inset honoured, and the axis labels sit just outside the grid.
+AND THE RADIAL GRID CAN FIT A CURVE TO ITS OWN CIRCLES, one press at a time. Asked for as: "call editor: if
+radial grid and start and end points of the current curve are on the same radial circumference and the distance
+between the ends is less than half, offer a mid point control that when clicked calibrates the bezier controls best
+fit of the curve to the radial line it's connected to. This makes accurate fitting to radial circles so much
+easier than manually adjusting the controls."
+
+WHAT IT IS. When the radial grid is the one on the floor and the selected move's travel curve has both ends on one
+of the CIRCLES THE GRID DRAWS, the gadget grows one more dot - green, the colour the grid draws its circles in -
+at the point halfway along the arc. Pressing it (it is the one control in the gadget that acts on a PRESS rather
+than a drag, since there is nothing to drag it to) rewrites the move's two CONTROL points to the cubic that
+follows that circle, leaving both END POINTS exactly where they were. So the chain the curve is part of - the move
+before, the move after, the joint - is untouched, and only the shape between its own ends changes.
+
+THE LIMIT IS A QUARTER TURN, AND THE FIRST VERSION'S CHORD LIMIT WAS WITHDRAWN. The request's "the distance
+between the ends is less than half [a cell]" was taken literally at first, and that turned out to refuse
+everything real: MEASURED over the ms level's 976 moves, 354 have both ends on one drawn circle and NONE was under
+half a cell - the corpus's arcs are quarter and eighth turns, not slivers - so the control could never appear.
+Withdrawn for "I think a radius of quarter or less is more workable with bezier", which is the standard fact about
+cubics: `radial-arc-fit-probe.mjs` measures the fit's worst radial error at 2.7e-4 of the radius over a quarter
+turn, 1.5e-3 at 120deg and 1.8e-2 at 180deg - so a quarter is where the fit stops being exact to the four decimals
+the XML exports. With the sweep limit instead of the chord limit, 74 of those 354 curves are offered the fit
+(median 45.1deg, widest exactly 90deg) and the 280 that sweep further are refused.
+
+THE OTHER TWO CONDITIONS are refusals: the two ends must be on the SAME circumference, and that circumference must
+be one the grid DRAWS. The tolerance is the magnet's own half tier (0.125 units), which is what makes the workflow
+work - CTRL-drag the ends onto a ring, then press the dot - and `radialArcFit` (pure, in `grid-magnet.ts`) is the
+one place it is stated.
+
+ONE TOLERANCE, AND THE FIRST VERSION DID NOT HAVE THAT. The rule accepted a radius mismatch up to the magnet's
+tier while the engine's `arcBezierAbout` refused anything past its own 5% relative default, so at r = 1.5 the dot
+appeared for a pair the fit then refused. MEASURED in the browser on `ms/grand_spin.xml` move 2 - the dot was drawn
+and pressing it said "the two ends are not on one circle" - which is exactly the "I pressed it and nothing
+happened" the caller would report. The rule now carries the tolerance it accepted at (`RadialArcFit.tolRel`) and
+the panel hands that to the engine, and the probe sweeps 1990 offered pairs to check the invariant that would have
+caught it: everything OFFERED can be FITTED.
+
+VERIFIED IN THE BROWSER (Chromium against poc/dist): `ms/grand_spin.xml` "Sides Face, Grand Spin", dancer 1's move
+2, radial grid, flat view - the dot appears where the arithmetic says (the predicted screen point hit it first
+try), and pressing it reports "curve fitted to the r = 1.5 circle (45.0deg of arc)" with the move's numbers going
+from cx1 0.5, cy1 0, cx2 0.5, cy2 0.5 to cx1 0.2733, cy1 0.2733, cx2 0.6136, cy2 0.5 and x2/y2 UNCHANGED.

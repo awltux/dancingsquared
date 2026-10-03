@@ -3313,8 +3313,8 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     case; the local one misses by up to **0.196** units (about 8 px at the flat view's 40.9 px/unit) and
     agrees with the board snap only in the 64 cases where the dancer is square to the floor on a whole
     coordinate — the usual stance at the start of a move, and the only one where it was not misleading.
-    The probe also reads three's own GridHelper geometry to pin the premise: the drawn grid is 21 whole
-    coordinates from -10 to 10 at a spacing of 1, so a 1-unit cell IS the drawn cell and a whole
+    The probe also reads three's own GridHelper geometry to pin the premise: the drawn grid is 11 whole
+    coordinates from -5 to 5 at a spacing of 1, so a 1-unit cell IS the drawn cell and a whole
     coordinate IS a drawn line. AND THE TRADE IS STATED RATHER THAN HIDDEN: the numbers left in the tile
     are then the dancer-local coordinates of a grid point, so they are not round when the dancer is
     turned (a dancer facing 34deg leaves 4.2132 rather than 4.25). Two of the probe's own claims were

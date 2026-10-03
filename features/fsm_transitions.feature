@@ -112,8 +112,8 @@ Feature: FSM Transitions Between Formation Matrices
         Circle to a Line, Chain Reaction, Cross By, and the Concentric family
     # Data: moves.xml defines Eighth Left/Right (45deg turn in place), HalfHinge and
     #       HalfBackHinge (45deg of a hinge). Calls that compose these, e.g.
-    #       a1/reverse.xml, b2/wheel_around.xml, b2/alamo_style.xml, b1/circle_by.xml,
-    #       b1/circle_to_a_line.xml, c1/chain_reaction.xml, c1/cross_by.xml, and
+    #       a1/reverse.xml, ms/wheel_around.xml, ms/alamo_style.xml, c1/circle_by.xml,
+    #       plus/circle_to_a_line.xml, c1/chain_reaction.xml, c1/cross_by.xml, and
     #       c1/concentric_concept.xml, are the concrete 1/8-rotation examples.
 
   @bind:formationState

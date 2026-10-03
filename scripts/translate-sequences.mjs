@@ -28,7 +28,7 @@ function loadCatalogTitles() {
   const isHidden = (b) => /display="(no|none)"/.test(b.slice(0, b.indexOf('>') + 1));
   const titles = [];
   const seen = new Set();
-  for (const level of ['ms', 'b1', 'b2', 'a1', 'a2', 'plus']) {
+  for (const level of ['ms', 'a1', 'a2', 'plus']) {
     const dir = path.join(root, `poc/src/assets/${level}`);
     let fs = [];
     try { fs = readdirSync(dir).filter((f) => f.endsWith('.xml')); } catch { continue; }

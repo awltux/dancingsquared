@@ -19,12 +19,16 @@ const tamBlocks = (xml) => xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
 const attr = (b, n) => (b.match(new RegExp(`${n}="([^"]*)"`)) || [])[1] ?? '';
 
 // plain call name -> { file, homeVariantTitle }
+// `b1` and `b2` were retired in favour of `ms` 2026; the four calls that existed only there were
+// migrated into `ms/` first, so every entry below reads the same corpus from its new home. `All 8
+// Flutterwheel` was never in `ms/flutterwheel.xml` - it lives in the `All 4 / All 8` family file, which
+// is where `b2/flutterwheel.xml` got it from.
 const SPEC = {
-  'Pass Thru': { file: 'b1/pass_thru.xml', homeVariant: 'Heads Pass Thru' },
-  'Square Thru 2': { file: 'b1/square_thru.xml', homeVariant: 'Heads Square Thru 2' },
-  'Square Thru 3': { file: 'b1/square_thru.xml', homeVariant: 'Heads Square Thru 3' },
-  'Square Thru 4': { file: 'b1/square_thru.xml', homeVariant: 'Heads Square Thru 4' },
-  'Flutterwheel': { file: 'b2/flutterwheel.xml', homeVariant: 'All 8 Flutterwheel' },
+  'Pass Thru': { file: 'ms/pass_thru.xml', homeVariant: 'Heads Pass Thru' },
+  'Square Thru 2': { file: 'ms/square_thru.xml', homeVariant: 'Heads Square Thru 2' },
+  'Square Thru 3': { file: 'ms/square_thru.xml', homeVariant: 'Heads Square Thru 3' },
+  'Square Thru 4': { file: 'ms/square_thru.xml', homeVariant: 'Heads Square Thru 4' },
+  'Flutterwheel': { file: 'a2/all_4_all_8.xml', homeVariant: 'All 8 Flutterwheel' },
   'Recycle': { file: 'a2/recycle.xml', homeVariant: 'All 8 Recycle' },
 };
 

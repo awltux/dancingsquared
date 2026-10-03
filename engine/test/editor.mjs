@@ -50,6 +50,7 @@ import {
   setMove,
   addMove,
   removeMove,
+  setDancerPath,
   sampleTrail,
   sampleTrailRange,
   DEG,
@@ -228,7 +229,9 @@ console.log('== synthesizeSetupChain ==');{
 // set rotated ~44deg.
 console.log('== closure correction (correctEndTo) ==');
 {
-  const circleXml = read('../../poc/src/assets/b1/circle.xml');
+  // `b1/circle.xml` held this witness until the Basic levels were retired; `ms/circle.xml`'s first tam
+  // is `Circle Left - Stop at Home`, which is the same full-circle reading.
+  const circleXml = read('../../poc/src/assets/ms/circle.xml');
   const circleLeft = loadCallFromXml(circleXml, movesXml, formationsXml, 0, true); // Circle Left (mirrored)
   // Intended end = each dancer's OWN start pose (a full circle returns home).
   const target = circleLeft.dancers.map((d) => {
@@ -255,7 +258,7 @@ console.log('== closure correction (correctEndTo) ==');
 // formation must match the original (so the sequencer can register it).
 console.log('== callToXml mirror round-trip ==');
 {
-  const circleXml = read('../../poc/src/assets/b1/circle.xml');
+  const circleXml = read('../../poc/src/assets/ms/circle.xml');
   const cl = loadCallFromXml(circleXml, movesXml, formationsXml, 0, true);
   const xml = callToXml(cl, cl.title);
   const rt = buildCall(parseCallXml(xml)[0], parseFormations(formationsXml), parseMoves(movesXml), true);
@@ -276,7 +279,11 @@ console.log('== callToXml mirror round-trip ==');
 // read; the sections after it pin each edit and the XML round trip.
 console.log('\n== call-instance table (11) ==');
 const circleMs = read('../../poc/src/assets/ms/circle.xml');
-const circleB1 = read('../../poc/src/assets/b1/circle.xml');
+// THE HALF-SET WITNESS MOVED INTO `ms/circle.xml`. It used to be `b1/circle.xml`, removed with the
+// Basic levels; `ms/circle.xml` carries 15 `asymmetric="true"` tams of its own (the `Single Circle
+// Left …` family), so the half-set read keeps its coverage rather than being reduced to the same tam
+// twice. `HALF_SET_TAM` is the first of them.
+const HALF_SET_TAM = 88;
 const inst = loadCallFromXml(circleMs, movesXml, formationsXml, 0, true);
 const instRows = instanceTable(inst);
 check(instRows.length === 8, `instance table has one row per dancer (${instRows.length})`);
@@ -329,8 +336,8 @@ console.log('\n== normalizeInstance is pose-exact (12) ==');
     }
     return m;
   };
-  for (const [label, xml] of [['ms/circle', circleMs], ['b1/circle', circleB1]]) {
-    const call = loadCallFromXml(xml, movesXml, formationsXml, 0, true);
+  for (const [label, xml, tamIndex] of [['ms/circle full set', circleMs, 0], ['ms/circle half set', circleMs, HALF_SET_TAM]]) {
+    const call = loadCallFromXml(xml, movesXml, formationsXml, tamIndex, true);
     const norm = normalizeInstance(call);
     const mirrored = call.dancers.filter((d) => d.mirror).length;
     let m = 0;
@@ -536,7 +543,7 @@ console.log('\n== the facing curve cannot express its first control point\'s y (
   // Measured on a real call rather than argued: a cy1 of 0.5 turns the dancer 331deg mid-move and
   // re-parses as the authored curve exactly. The heading change at t=1 is NOT the place to measure
   // it - that is atan2 of the last derivative span, (x2 - cx2, y2 - cy2), which contains no C1.
-  const witness = buildCall(parseCallXml(read('../../poc/src/assets/b1/allemande.xml'))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
+  const witness = buildCall(parseCallXml(read('../../poc/src/assets/ms/allemande.xml'))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
   let d = -1;
   let k = -1;
   for (let i = 0; i < witness.dancers.length && d < 0; i++) {
@@ -1018,7 +1025,7 @@ console.log('\n== the quarter arc (17) ==');
 
   // 17h. How much of the corpus could take the lock, and how much of it is already an arc?
   {
-    const levels = ['b1', 'ms', 'a1'];
+    const levels = ['ms', 'a1'];
     let curves = 0;
     let arcs = 0;
     let lockable = 0;
@@ -2106,7 +2113,7 @@ console.log('\n== 28. A setup is named by its formation ==');
   // `formation`, and those must NOT collapse to `(default)` now that `from` is only the fallback.
   let blankNamed = 0;
   let blankDefault = 0;
-  for (const lv of ['ms', 'b1', 'b2', 'a1', 'a2', 'c1', 'c2', 'plus']) {
+  for (const lv of ['ms', 'a1', 'a2', 'c1', 'c2', 'plus']) {
     const dir = path.join(__dirname, '../../poc/src/assets', lv);
     if (!fs.existsSync(dir)) continue;
     for (const f of fs.readdirSync(dir)) {
@@ -2331,6 +2338,75 @@ console.log('\n== a facing edit holds the following trace (30) ==');
         `and the frame the arc is played in SURVIVES the export (${((normAngleSafe(hAfter - hBefore)) / DEG).toExponential(1)}deg), which it did not before`);
     }
   }
+}
+
+console.log('\n== 31. copying a whole trace between two dancers ==');
+{
+  const src = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
+  const donor = 0;
+  const target = 3;
+  const donorPath = src.dancers[donor].path;
+  const targetBefore = src.dancers[target].path;
+  check(donorPath.length > 1 && targetBefore.length > 1,
+    `the witness has two dancers with a path (${donorPath.length} and ${targetBefore.length} moves)`);
+
+  const next = setDancerPath(src, target, donorPath);
+  const a = next.dancers[donor].path;
+  const b = next.dancers[target].path;
+
+  // 1. THE SAME TRACE, MOVE FOR MOVE - the whole thing, not one curve of one move.
+  let mismatches = 0;
+  if (a.length !== b.length) mismatches++;
+  for (let k = 0; k < Math.min(a.length, b.length); k++) {
+    if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) mismatches++;
+  }
+  check(mismatches === 0,
+    `every move of dancer ${target + 1}'s path is now dancer ${donor + 1}'s, value for value (${a.length} moves: travel, facing, beats and hands)`);
+
+  // 2. IT IS A COPY, NOT A SHARE. The editor keys a copied coordinate on the SEGMENT object, so two dancers
+  //    holding one would light up together - and a facing BEZIER shared would do the same one level down.
+  check(a[0] !== b[0] && a[0].translate !== b[0].translate && (!a[0].rotate || a[0].rotate !== b[0].rotate),
+    'and the segments - and their curves - are NEW objects, so the two dancers cannot share a copied coordinate');
+
+  // 3. IMMUTABILITY: the bundle it was handed is untouched, including the target's own old path.
+  check(src.dancers[target].path === targetBefore && src.dancers[target].path.length === targetBefore.length,
+    'the call it was given is unchanged - the target still has the path it had');
+
+  // 4. A DIFFERENT LENGTH IS EXPRESSIBLE, and the call is re-timed with the delta rather than left with a
+  //    pause. `retime` carries an authored pause as a DELTA, so shortening every dancer has to move `beats`
+  //    by exactly the beats that left.
+  const L = a.length;
+  const removedBeats = a[L - 1].beats;
+  const short = removeMove(next, donor, L - 1);
+  const shortBeats = instanceBeats(short);
+  const beatsBefore = short.beats;
+  let all = short;
+  for (let d = 0; d < short.dancers.length; d++) all = setDancerPath(all, d, short.dancers[donor].path);
+  check(all.dancers.every((d) => d.path.length === L - 1),
+    `a path can be SHORTER than the one it replaces: every dancer is now on ${L - 1} moves`);
+  check(Math.abs(instanceBeats(all) - (shortBeats - removedBeats)) < 1e-9,
+    `and the longest path lost exactly the move that was dropped (${shortBeats} -> ${instanceBeats(all)} beats)`);
+  check(Math.abs((beatsBefore - all.beats) - removedBeats) < 1e-9,
+    `with the call's own \`beats\` following it by the same ${removedBeats} - the pause is carried by the delta, not silently cut`);
+
+  // 5. REFUSALS ARE LOUD, as every other instance edit's are.
+  let threw = false;
+  try { setDancerPath(next, 99, donorPath); } catch { threw = true; }
+  check(threw, 'a dancer the instance does not have is refused rather than silently ignored');
+
+  // 6. THE FORMAT INVARIANT. `bezRotAttr` writes only cx3/cx4/cy4/x4/y4, so a facing curve with a non-zero
+  //    `cy1` cannot survive an export - and a clone must not be the thing that invents one. Copying the
+  //    donor's own segments cannot, and this pins it.
+  const badCy1 = b.filter((s) => s.rotate && Math.abs(s.rotate.cy1) > 1e-12).length;
+  const donorBad = donorPath.filter((s) => s.rotate && Math.abs(s.rotate.cy1) > 1e-12).length;
+  check(badCy1 === donorBad,
+    `the clone carries the donor's own facing curves and invents none (${badCy1} with a non-zero cy1, against the donor's ${donorBad})`);
+
+  // 7. AND IT SURVIVES THE EXPORT: whatever the format does to a curve, it now does it to BOTH dancers - the
+  //    old per-move copy wrote a TRAVEL curve into a FACING slot and the two drifted apart on the re-read.
+  const back = normalizeInstance(loadCallFromXml(`<calls>\n${callToXml(all, all.from)}\n</calls>`, movesXml, formationsXml, 0));
+  check(JSON.stringify(back.dancers[donor].path) === JSON.stringify(back.dancers[target].path),
+    'and the two traces are still identical after an export and a re-read, which is what a copy the format cannot carry would break');
 }
 
 console.log('\n=================');

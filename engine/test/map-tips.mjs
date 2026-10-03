@@ -26,7 +26,7 @@ const catalog = [];
 const tamBlocks = (xml) => xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
 const attr = (b, n) => (b.match(new RegExp(`${n}="([^"]*)"`)) || [])[1] ?? '';
 const isHidden = (b) => /display="(no|none)"/.test(b.slice(0, b.indexOf('>') + 1));
-for (const level of ['ms', 'b1', 'b2', 'a1', 'a2', 'plus', 'c1', 'c2']) {
+for (const level of ['ms', 'a1', 'a2', 'plus', 'c1', 'c2']) {
   const dir = path.join(root, `poc/src/assets/${level}`);
   let files = [];
   try { files = readdirSync(dir).filter((f) => f.endsWith('.xml')); } catch { continue; }

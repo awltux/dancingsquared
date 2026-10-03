@@ -25,7 +25,7 @@ import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
 import { normAngle } from './identity.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
-import { findCodedMove, codedMoveApplies, type CodedMove } from './coded-moves.js';
+import { findCodedMove, codedMoveApplies, isDeferredCall, type CodedMove } from './coded-moves.js';
 import { splitSelection } from './selection.js';
 import { promenadeTrip, promenadeLap } from './promenade.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
@@ -124,8 +124,16 @@ export class SequenceAnalyzer {
       // SIMULTANEOUS, so the step costs the LONGEST group, not the sum. A "while" is over when its
       // slowest part is over; charging the sum would report a caller's tip as twice as long as it
       // dances.
+      //
+      // A DEFERRED GROUP COSTS NOTHING, and that is the request rather than an optimisation: `Step Forward`
+      // "takes on the duration of the other call", so charging it its own two beats would let the filler
+      // lengthen the step it was written to fill. Read from the same `isDeferredCall` the applicator uses, so
+      // the timing and the board cannot disagree about which groups are dependent.
       let most = 0;
-      for (const g of name.groups) most = Math.max(most, this.stepBeats(board, { selection: g.selection, call: g.call }));
+      for (const g of name.groups) {
+        if (isDeferredCall(g.call)) continue;
+        most = Math.max(most, this.stepBeats(board, { selection: g.selection, call: g.call }));
+      }
       return most;
     }
     const n = typeof name === 'string' ? name : name.call;
@@ -437,12 +445,19 @@ export class SequenceAnalyzer {
       // step used to fall straight through to `matchingVariantInfo`, which also could not see a
       // two-dancer subset, and the step was recorded unwalkable with 0 beats.
       const spec = splitSelection(name);
+      // AND THE SELECTION MAY BE A FIELD RATHER THAN PART OF THE NAME. A `CallStep` carries
+      // `{ selection, call }`, and this walk read only `raw.call` - so `Heads Step Forward` written that way
+      // had no selection here, took the WHOLE-BOARD coded branch below, was refused by the rule (which says a
+      // group must be named) and was recorded UNWALKABLE: the apply moved the dancers and the scrub froze.
+      // Both forms are the same step, so the selection is read from whichever one carries it. (Measured: the
+      // two forms now produce the same walk, and `step-forward.mjs` section 7 checks both.)
+      const selection = spec.selection ?? (typeof raw === 'string' ? null : raw.selection ?? null);
       const coded = findCodedMove(spec.call);
       // A SELECTION IS HANDLED BY THE CATALOGUE, not by the coded rule: the coded rule is a
       // board-wide transform and would move the whole set, whereas `applySelected` moves only the
       // named dancers. So a scoped step skips the coded branch entirely and goes to the variant
       // lookup below, which resolves it against its own subset.
-      if (coded && !spec.selection) {
+      if (coded && !selection) {
         const ok = codedMoveApplies(coded, board);
         if (ok) {
           const after = coded.apply(board);
@@ -463,14 +478,28 @@ export class SequenceAnalyzer {
         // `Normal Lines`, which real choreography calls. So fall through to the catalogue step below,
         // with `coded: null`, and let it read the same variant the applicator did.
       }
-      const info = this.matchingVariantInfo(board, spec.call, spec.selection);
+      const info = this.matchingVariantInfo(board, spec.call, selection ?? undefined);
       const r = this.applicator.applyToBoard(board, raw);
       const after = r.legal ? r.board : board;
+      // A SCOPED STEP WHOSE CALL IS CODED AND WHOSE CATALOGUE HAS NO VARIANT FOR IT. The applicator resolves
+      // it through the coded rule for the named group (`applySelected` -> `applyCodedToSelection`), which is
+      // the only reading it has - `Step Forward` has no tams at all, and a bare `Heads Step Forward` therefore
+      // has no variant to match. The walk used to record that as UNWALKABLE with 0 beats, which applied the
+      // call, charged nothing and FROZE the scrub on the step's own start board (`evaluateSequence` returns
+      // `s.before` for an unwalkable step). Reported from use: "When adding this Step forward call as a
+      // separate call, It isnt animated using the scrub."
+      //
+      // THE WALK MUST AGREE WITH THE APPLICATOR, which is the rule this whole method is built around: the
+      // applicator said legal and produced `after`, so the step IS walkable and its cost is whatever
+      // `stepBeats` charges - which for a coded call is the call's own beats (2 for `Step Forward`). The
+      // catalogue-with-no-variant case is untouched: `coded` is null there, so `scopedCoded` is false and that
+      // step keeps its 0 beats and its refusal.
+      const scopedCoded = info === null && r.legal && !!coded && !!selection;
       steps.push({
         raw, name, coded: null, info, before: board, after,
-        beats: info ? info.beats : 0,
-        walkable: info !== null,
-        reason: info === null ? r.reason ?? `no setup in "${name}" matches the board it is asked to run on` : undefined,
+        beats: info ? info.beats : scopedCoded ? this.stepBeats(board, raw) : 0,
+        walkable: info !== null || scopedCoded,
+        reason: info === null && !scopedCoded ? r.reason ?? `no setup in "${name}" matches the board it is asked to run on` : undefined,
       });
       board = after;
     }
@@ -543,7 +572,7 @@ export class SequenceAnalyzer {
           ? this.evaluateGroupAt(s.before, s.raw, s.after, s.beats, beat - acc)
           : s.coded
             ? this.evaluateCodedAt(s.before, s.coded, beat - acc)
-            : this.evaluateCallAt(s.before, stepForEval, s.info!, beat - acc);
+            : this.evaluateCallAt(s.before, stepForEval, s.info, s.after, s.beats, beat - acc);
         return { board: evBoard, beats: 0 };
       }
       board = s.after;
@@ -553,40 +582,120 @@ export class SequenceAnalyzer {
   }
 
   /**
+   * A DEFERRED CALL'S ROUND TRIP: OUT over its own beats, STILL, and BACK over its own beats.
+   *
+   * The ONE place this shape is drawn, because both ways the call can be danced need it and a two-point
+   * interpolation cannot express either: a "while" group's start and end boards are the same board when its
+   * dancers came back (`evaluateGroupAt`), and so are a lone call's (`evaluateCallAt`). See `evaluateGroupAt`
+   * for the report that forced it.
+   *
+   * `ownBeats` is the CALL's own length and `available` is the time the step has - the same thing when the call
+   * is danced alone, and the whole "while" step when it is not. The legs are `ownBeats / 2` each (the call IS
+   * two legs), capped at half of `available` so the round trip always fits: a two-beat step inside a two-beat
+   * partner has half a beat each way rather than losing the return and disagreeing with the applied board. A
+   * dancer that STAYED has `end === forward`, so its back leg is a no-op and one formula serves both outcomes.
+   */
+  private deferredRoundTrip(
+    board: Board,
+    forward: Board,
+    end: Board,
+    ids: number[],
+    ownBeats: number,
+    available: number,
+    localBeat: number,
+  ): Board {
+    const leg = Math.min(ownBeats / 2, available / 2);
+    const endById = new Map(end.dancers.map((d) => [d.id, d]));
+    const moved = new Map<number, SeqDancer>();
+    for (const id of ids) {
+      const p0 = board.dancers.find((d) => d.id === id);
+      const p1 = forward.dancers.find((d) => d.id === id);
+      const p2 = endById.get(id) ?? p1;
+      if (!p0 || !p1 || !p2) continue;
+      if (leg <= 0) { moved.set(id, p2); continue; }
+      const back = localBeat > available - leg;
+      const f = Math.max(0, Math.min(1, back ? (localBeat - (available - leg)) / leg : localBeat / leg));
+      const from = back ? p1 : p0;
+      const to = back ? p2 : p1;
+      moved.set(id, { ...to, x: from.x + (to.x - from.x) * f, y: from.y + (to.y - from.y) * f, heading: from.heading });
+    }
+    return { dancers: board.dancers.map((d) => moved.get(d.id) ?? d) };
+  }
+
+  /**
    * The board part-way through a GROUPED ("while") step.
    *
-   * THERE IS NO AUTHORED PATH TO FOLLOW, and that is not a shortcoming of this function: a "while" is
-   * a composition, and the catalogue's only way to express one today is to hand-author every dancer's
-   * full Bezier path (`ms/running_bear.xml` is 248 lines of exactly that). A composed step has no such
-   * path, so each dancer walks the STRAIGHT LINE from where it stood to where the applied step leaves
-   * it, at the step's own fraction.
+   * EACH GROUP WALKS ITS OWN PATH AT ITS OWN PACE, and the two halves of that are the whole of this function.
    *
-   * WHY THAT IS THE HONEST ANIMATION RATHER THAN A PLACEHOLDER. It is CORRECT BY CONSTRUCTION at both
-   * ends: at t = 0 every dancer is on `before` and at t = 1 on `after`, which is the board the
-   * applicator produced. So the final frame cannot disagree with the applied board - the class of
-   * defect `behaviour-audit`'s final-frame check exists to catch is structurally impossible here,
-   * rather than merely untested. What it does NOT do is route around collisions or take a hand; if a
-   * composed step is ever authored into the shipped corpus, this is the function that grows the
-   * leg/routing treatment `interpolateSegment` already has.
+   * EACH GROUP'S OWN PATH, because a "while" is a composition of two ordinary calls and each of them has an
+   * animation of its own. The first version of this function blended every dancer STRAIGHT from `before` to
+   * `after`, which is fine for a step and wrong for anything with a curve in it: reported from use, "When I
+   * apply Sides Promenade 3/4 to Home in parallel with Step Forward ... the sides seem to take a direct
+   * shortcut between the start and end formation". MEASURED on that witness, the promenade's dancers ran a
+   * straight chord from (3,-1) to (-1,-3) - 4.47 units through the middle of the set - where the call alone
+   * wheels them round the ring. So each group is animated by `evaluateCallAt`, the SAME function a lone scoped
+   * step uses, which is the invariant worth stating: A GROUP IN A "WHILE" STEP ANIMATES EXACTLY AS IT WOULD
+   * ALONE. Each group is posed with the others FROZEN where they stand, so the exchange detection inside
+   * `interpolateSegment` cannot pair a dancer with somebody the group does not own.
+   *
+   * ITS OWN PACE, because the groups do not take the same time and the step costs the LONGEST of them. Asked
+   * for in as many words: "A Step forward should take 2 beats to move the two steps. The rest of it should be
+   * stand still." So a group is evaluated at `min(localBeat, its own beats)` and therefore HOLDS at its end
+   * pose once its own call is over - a two-beat step inside a twelve-beat promenade is done at beat 2 and
+   * stands for the other ten, instead of the pair being drawn at the shorter call's pace or the longer one
+   * being stretched to fill.
+   *
+   * STILL CORRECT AT BOTH ENDS, which is what the previous version was built to guarantee and this one keeps:
+   * at local beat 0 every dancer is on `before`, and at the step's own cost (>= every group's beats) each
+   * group is at its own applied result, so the last frame is the board the applicator produced. What it does
+   * not do, still, is route a group around a collision - that treatment lives in each call's own animation.
    */
   private evaluateGroupAt(before: Board, step: GroupStep, after: Board, beats: number, localBeat: number): Board {
-    const t = beats > 0 ? Math.max(0, Math.min(1, localBeat / beats)) : 1;
-    const from = new Map(before.dancers.map((d) => [d.id, d]));
-    return {
-      dancers: after.dancers.map((d) => {
-        const f = from.get(d.id);
-        if (!f) return d;
-        let dh = d.heading - f.heading;
-        dh = ((dh % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        if (dh > Math.PI) dh -= 2 * Math.PI;
-        return {
-          ...d,
-          x: f.x + (d.x - f.x) * t,
-          y: f.y + (d.y - f.y) * t,
-          heading: f.heading + dh * t,
-        };
-      }),
-    };
+    const afterById = new Map(after.dancers.map((d) => [d.id, d]));
+    const merged = new Map<number, SeqDancer>();
+    for (const g of step.groups) {
+      const ids = this.resolveSelection(before, g.selection);
+      if (!ids || ids.length === 0) continue;
+      const picked = new Set(ids);
+      // The group's own end board: its dancers at the applied pose, everyone else where they stand. Passing
+      // the whole composed board here would let one group's motion be read as another's (an exchange pair
+      // spanning two groups), which is exactly the coupling a per-group animation must not have.
+      const groupEnd: Board = {
+        dancers: before.dancers.map((d) => (picked.has(d.id) ? afterById.get(d.id) ?? d : d)),
+      };
+      const groupBeats = this.stepBeats(before, { selection: g.selection, call: g.call });
+      // A DEFERRED GROUP HAS TWO MOVES IN IT, AND THE SECOND ONE IS AT THE END OF THE CALL.
+      //
+      // Its dancers step forward, and then decide whether to step BACK to the spot they left - and when they
+      // do, the group's start and end boards are the SAME BOARD, so a two-point interpolation draws nothing at
+      // all. Reported from use: "if I apply Sides Promenade 1/2 to Home in parallel with Step Forward, the
+      // sequencer suggests they have been applied, but the step forward dancers dont move. I suspect it is
+      // because they start an end that the same place." The guess is right, and the cure is that the call has
+      // TWO moves: the request puts the step at the start and the step BACK "at the end of the call", and the
+      // pacing asked for later ("2 beats to move the two steps, the rest stand still") is what happens in
+      // between. So the group walks forward over its own half, HOLDS, and walks back over the last of it.
+      if (isDeferredCall(g.call)) {
+        const move = findCodedMove(g.call);
+        const forwardBoard = move?.deferredHalf ? move.deferredHalf(before, ids) : null;
+        if (forwardBoard) {
+          const posed = this.deferredRoundTrip(before, forwardBoard, groupEnd, ids, groupBeats, beats, localBeat);
+          for (const d of posed.dancers) if (picked.has(d.id)) merged.set(d.id, d);
+          continue;
+        }
+      }
+      const local = groupBeats > 0 ? Math.min(localBeat, groupBeats) : localBeat;
+      const posed = this.evaluateCallAt(
+        before,
+        { selection: g.selection, call: g.call },
+        null,
+        groupEnd,
+        groupBeats,
+        local,
+      );
+      for (const d of posed.dancers) if (picked.has(d.id)) merged.set(d.id, d);
+    }
+    void beats;
+    return { dancers: before.dancers.map((d) => merged.get(d.id) ?? d) };
   }
 
   /** Place the board at a local beat of a call.
@@ -611,10 +720,17 @@ export class SequenceAnalyzer {
    * dancers the call never moved. It goes to `evaluateParallelAt`, whose per-group motion already has
    * the right shape - the groups it cannot match fall back to a blend against the APPLIED board, which
    * for an unselected dancer is the pose they are already in, so they do not move at all. */
-  private evaluateCallAt(board: Board, step: string | CallStep, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
+  private evaluateCallAt(
+    board: Board,
+    step: string | CallStep,
+    info: { beats: number; variant: CallBundle | null } | null,
+    after: Board,
+    beats: number,
+    localBeat: number,
+  ): Board {
     const name = typeof step === 'string' ? step : step.call;
     const selection = typeof step === 'string' ? null : step.selection ?? null;
-    if (selection && !this.selectedSubBoard(board, selection)) return this.evaluateParallelAt(board, step, info, localBeat);
+    if (selection && !this.selectedSubBoard(board, selection)) return this.evaluateParallelAt(board, step, info ?? { beats, variant: null }, localBeat);
     const whole = this.matcher.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
     if (whole) return this.evaluateVariantAt(board, whole, localBeat);
     // A SCOPED STEP WHOSE CALL THE CATALOGUE AUTHORED FOR THE SUBSET, animated along that path.
@@ -644,9 +760,32 @@ export class SequenceAnalyzer {
             }),
           };
         }
+        // A CODED CALL FOR THE NAMED GROUP, WHICH THE CATALOGUE HAS NO VARIANT FOR - the step calls are the
+        // case, and they have no tams at all, so there is no authored path to follow. The designated dancers
+        // walk STRAIGHT to the end board the WALK produced (`after` is handed in rather than re-derived, so
+        // the animation cannot describe a different destination from the one the apply and the walk agreed
+        // on). `interpolateSegment` is the interpolator every other coded move uses, and it is exactly right
+        // for this shape: a dancer the rule does not move has `after === before` and therefore stands still,
+        // and only the designated ones travel.
+        const coded = findCodedMove(name);
+        if (coded) {
+          const ids = this.resolveSelection(board, step.selection);
+          // A DEFERRED CALL DANCED ALONE IS STILL A ROUND TRIP, and its two ends are the SAME board whenever
+          // the way back was clear - so the straight interpolation above would draw nothing at all, which is
+          // exactly the "the step forward dancers dont move" report. See `deferredRoundTrip`.
+          if (coded.deferred && coded.deferredHalf && ids) {
+            return this.deferredRoundTrip(board, coded.deferredHalf(board, ids), after, ids, beats, beats, localBeat);
+          }
+          const t = beats > 0 ? Math.max(0, Math.min(1, localBeat / beats)) : 1;
+          return this.interpolateSegment(board, after, t, null);
+        }
       }
     }
-    return this.evaluateParallelAt(board, step, info, localBeat);
+    // NO CATALOGUE INFO IS NOT MISSING INFORMATION HERE: a coded call for a named group has no variant and no
+    // authored path to time, so the step's own cost is what the blend below runs over. (`Step Forward` never
+    // reaches that blend anyway - the coded branch above returns first - but a future rule with no variant
+    // should not silently animate at zero beats.)
+    return this.evaluateParallelAt(board, step, info ?? { beats, variant: null }, localBeat);
   }
 
   /**
@@ -706,6 +845,46 @@ export class SequenceAnalyzer {
    * between. The correction is a residual, so it cannot dominate the path the way a full blend did.
    */
   private evaluateParallelAt(board: Board, step: string | CallStep, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
+    const name = typeof step === 'string' ? step : step.call;
+    // A SCOPED STEP IS ANIMATED ON ITS SUBSET, NEVER BOARD-WIDE.
+    //
+    // This fell through to the whole-board path below, which poses EVERY dancer in `board` - so a
+    // selection whose call the catalogue does not author for that subset moved the dancers the call
+    // never touched. MEASURED: `Heads Dosado` from a `Static Square` moved all eight by 3.50, while
+    // `Head Boys Dosado` (whose call IS authored for two dancers, `Opposite Boy`) correctly moved only
+    // #1 and #5. The difference is not the selection machinery, it is that the 4-dancer subset finds no
+    // variant, so `evaluateCallAt` reaches here.
+    //
+    // The subset is built and animated EXACTLY as `applySelected` applies it - same `resolveSelection`,
+    // same centring on the subset's own origin, and `applyToBoardInner` on the sub-board, which is the
+    // very call the applicator made - so the pose converges on the board the call actually produced.
+    // Dancers outside the selection are pinned to the pose they already hold.
+    if (typeof step !== 'string' && step.selection) {
+      const sub = this.selectedSubBoard(board, step.selection);
+      if (sub) {
+        const subStep = { selection: undefined, call: name } as unknown as CallStep;
+        const posed = this.animateParallelBoard(sub.board, subStep, { beats: info.beats, variant: null }, localBeat);
+        const byId = new Map(posed.dancers.map((d) => [d.id, d]));
+        return {
+          dancers: board.dancers.map((d) => {
+            const p = byId.get(d.id);
+            // Put the subset back where it stands: the centring is an artefact of the lookup, not
+            // part of the animation.
+            return p ? { ...p, x: p.x + sub.cx, y: p.y + sub.cy } : d;
+          }),
+        };
+      }
+    }
+    return this.animateParallelBoard(board, step, info, localBeat);
+  }
+
+  /**
+   * Follow each tiled group's own authored path for a whole-board apply of `step`.
+   *
+   * Split out of `evaluateParallelAt` so a SCOPED step can reuse it on its centred subset - the same
+   * motion, on a different board. It reads the grouping from the apply rather than re-deriving one.
+   */
+  private animateParallelBoard(board: Board, step: string | CallStep, info: { beats: number; variant: CallBundle | null }, localBeat: number): Board {
     const name = typeof step === 'string' ? step : step.call;
     // THE STEP, not the name: a selection must be applied here exactly as `replayWalk` applied it, or
     // the animation targets a board the sequence never reached. See `evaluateCallAt`.

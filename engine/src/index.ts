@@ -51,9 +51,26 @@ export {
   overlappingDancers,
   DANCER_HALF_FRONT_BACK,
   DANCER_HALF_SIDE_SIDE,
+  DANCER_WIDTH,
+  DANCER_DEPTH,
   BODY_OVERLAP_EPS,
 } from './sequencer/bodies.js';
 export type { BodyPair } from './sequencer/bodies.js';
+// The PICKER-ONLY permission layer: what the call chooser may offer, level-scoped so a later programme
+// can override an earlier one. See `permissions.ts`; the engine's own legality check is untouched.
+export {
+  evaluatePermissions,
+  levelRank,
+  PERMISSION_LEVELS,
+  PERMISSION_RULES,
+} from './sequencer/permissions.js';
+export type {
+  PermissionDecision,
+  PermissionLevel,
+  PermissionRequest,
+  PermissionResult,
+  PermissionRule,
+} from './sequencer/permissions.js';
 // The constants that decide when motion is refused, exported so an instrument cannot report a threshold
 // the engine does not enforce. `body-collision-scan.mjs` reads them rather than restating them.
 export { BODY_PATH_CLEARANCE, BODY_COLLISION_MIN } from './sequencer/applicator.js';
@@ -170,8 +187,12 @@ export {
   type FsmEndKind,
 } from './sequencer/fsm-table.js';
 export { normalizeSelection, selectionGroup, splitSelection } from './sequencer/selection.js';
-export { findCodedMove, codedMoveApplies, CODED_MOVES, CODED_MOVE_NAMES, CODED_MOVE_BEATS, RUN_TRADE_BEATS } from './sequencer/coded-moves.js';
+export { findCodedMove, codedMoveApplies, CODED_MOVES, CODED_MOVE_NAMES, CODED_MOVE_BEATS, RUN_TRADE_BEATS, isDeferredCall } from './sequencer/coded-moves.js';
 export type { CodedMove } from './sequencer/coded-moves.js';
+// `Step Forward` and the return-or-stay rule a parallel step resolves it with. Exported so a caller
+// (and the gate) can ask the RULE a question rather than infer it from a board.
+export { stepForwardRule, stepForwardAndBackRule, stepForwardSteps, resolveStepForward, STEP_FORWARD_UNITS, STEP_FORWARD_BEATS, STEP_FORWARD_AND_BACK_BEATS } from './sequencer/step-forward.js';
+export type { StepForwardResolution } from './sequencer/step-forward.js';
 export {
   promenadeHome,
   promenadeApplies,
@@ -226,10 +247,13 @@ export {
   setMove,
   addMove,
   removeMove,
+  setDancerPath,
+  swapDancers,
   ARC_K,
   ARC_TOL,
   ARC_ANGLE_TOL,
   arcBezier,
+  arcBezierAbout,
   arcOf,
   arcIsCircle,
   arcCorner,

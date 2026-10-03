@@ -342,7 +342,7 @@ export class CallLibrary {
    * `no` variants registered as ordinary setups. On the published assets that is 271 `no`
    * variants across 61 titles, 32 of them with no eligible variant at all, concentrated in
    * the families the get-out corpus is stuck on. `Boys Trade` carries 24 variants — 12
-   * eligible in `b2/trade.xml`, all `gender-specific`, and 12 `sequencer="no"` in
+   * eligible in `ms/trade.xml`, all `gender-specific`, and 12 `sequencer="no"` in
    * `ms/trade.xml` — with IDENTICAL `from` strings, and least-error matching picked a demo
    * at `error=0.000` on the Ocean Waves template and on the corpus's `[W1p]` board.
    *

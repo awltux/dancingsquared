@@ -35,6 +35,14 @@ const SUITE = [
   // is one pass over the assets, and it is the harness that makes "what does a shape of four dancers
   // mean" a fact rather than a geometric guess.
   { h: 'shape-census', light: true },
+  // WHAT THE EDITOR'S START/END SETUP PICKERS OFFER, which is NOT the library's formation list. The
+  // library's key is geometry up to congruence, so keyed on it the picker folded `Columns`, `Columns LH`
+  // and `Column RH GBGB` - same spots, but `Columns LH` is the 180-degree rotation - onto one entry, and
+  // did the same to the four `Tidal 3 and 1 Line #5-#8` and `Promenade 2` against `Promenade`. This pins
+  // the positional key's counts (201 arrangements at eight dancers, 176 under the congruence key), that
+  // every entry has the size the picker asked for, and that the editor accepts all 201. One pass over
+  // `formations.xml`, ~1s.
+  { h: 'arrangement-picker', light: true },
   { h: 'verify', light: true },
   { h: 'sequencer', light: true },
   // The CURRENT partner relation, which is not the home couple on `SeqDancer.couple`. Pins that a
@@ -53,6 +61,34 @@ const SUITE = [
   // have caught it — that a legitimate two-dancer `Dosado` is NOT flagged, and that the three modes
   // (report/guard/off) behave. Corpus-driven but one board: ~2s.
   { h: 'body-collision', light: true },
+  // A SCOPED STEP MOVES ONLY THE DANCERS IT SELECTS. `Heads Dosado` and `Sides Dosado` moved all eight,
+  // because a 4-dancer subset finds no catalogue variant and execution fell through to the whole-board
+  // animator - while `Head Boys Dosado` (a 2-dancer subset, which DOES match `Opposite Boy`) was right.
+  // Pins that only the selected move, that the call is still applied rather than silently refused, that
+  // the already-correct scopes do not regress, and that the last frame still converges. ~2s.
+  { h: 'scoped-dosado', light: true },
+  // THE PICKER'S PERMISSION LAYER. `permissions.ts` decides what the call chooser may OFFER, level-scoped
+  // so a later programme overrides an earlier one. Pins the reported case (all-8 `Dosado` from a square is
+  // not offered at MS), that the match is exact so `Left Dosado` is untouched, that scoped forms survive,
+  // that an MS deny PLUS contradicts is lifted at PLUS, and that this is PICKER-ONLY - `applyToBoard`
+  // still applies the suppressed call. Pure logic plus one board: <1s.
+  { h: 'permissions', light: true },
+  // PARALLEL CALLS FOR THE REMAINING DANCERS. The `GroupStep` construct already existed and `modules.mjs`
+  // pins its rules; this pins what was missing for the reported case ("Sides Promenade Home" with the
+  // heads in the path): that the remainder is NAMEABLE (`remainingSelection` derives `All Except X` from
+  // the resolved ids, because a complement often has no vocabulary entry), that a composed step moves
+  // BOTH groups (with a witness where both demonstrably move - the `modules.mjs` witness would not catch
+  // a dropped group, since `Star Thru` closes and reads as a no-op to a position-only check), that it is
+  // ONE undo, and that it still converges. ~2s.
+  { h: 'parallel-calls', light: true },
+  // `STEP FORWARD` AND THE DEPENDENT "while" GROUP. The one shape a composed step could not express: a group
+  // whose result depends on what the OTHER groups did, because its dancers step forward and then each decides
+  // whether the spot it left is free. Pins the call (2 units along the dancer's own facing, nobody else
+  // moving), both outcomes on named witnesses (four girls stay on a Double Pass Thru, four heads return on a
+  // squared set), that the decision is PER DANCER, that the step costs the PARTNER's beats rather than its own,
+  // the two refusals a dependency needs, and - as the negative control - that the plain independent merge is
+  // the board a collision-free rule must differ from exactly where a spot was taken. ~1s.
+  { h: 'step-forward', light: true },
   // Combined dancer groups — `Head Boys`, `Center Girls`, `Head Boys and Side Girls`, `All Except X`.
   // The grammar is the reference's (tokens intersect within a side, sides union, a negator subtracts),
   // and this is the only coverage of it. It also pins that a call TITLE beginning with a group word

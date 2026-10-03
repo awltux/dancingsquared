@@ -239,8 +239,10 @@ console.log('\n== the `sequencer` attribute: parsed faithfully, and NOT yet acte
   else ok(`every variant of ${CALLS.length} calls carries a consistent sequencerMode (${checked} variants)`);
 
   // 2. The tie that least-error matching cannot break, and why filtering cannot fix it.
-  //    `Boys Trade` carries 12 eligible setups in b2/trade.xml and 12 `sequencer="no"`
-  //    demos in ms/trade.xml under IDENTICAL `from` strings.
+  //    `Boys Trade` carries 12 eligible setups in ms/trade.xml. (Before the Basic levels were retired
+  //    this case ALSO had 12 `sequencer="no"` demos in the same file under IDENTICAL `from` strings;
+  //    those came from the `b2` corpus, whose tams are no longer loaded, so the eligible set now stands
+  //    alone and the ambiguity is pinned by the 12 setups below.)
   const bt = seq.getVariants('Boys Trade') ?? [];
   const eligible = seq.sequencerVariants('Boys Trade');
   const demos = bt.filter((v) => !v.forSequencer);

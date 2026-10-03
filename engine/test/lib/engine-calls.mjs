@@ -27,7 +27,7 @@ import path from 'node:path';
 
 import { CODED_MOVES, CALL_SYNONYMS } from '../../dist/index.js';
 
-export const ASSET_LEVELS = ['discovered', 'b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
+export const ASSET_LEVELS = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 
 /**
  * Every call XML under the assets tree: the level folders plus assets/src, in the order

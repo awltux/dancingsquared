@@ -56,7 +56,7 @@ const boxes = files.filter((f) => {
 
 /** Every title the catalogue registers, for the "same words, different order" hunt. */
 const implementedTitles = (assetDir) => {
-  const levels = ['ms', 'b1', 'b2', 'ssd', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b', 'discovered'];
+  const levels = ['ms', 'ssd', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b', 'discovered'];
   const out = [];
   for (const lv of levels) {
     const d = path.join(assetDir, lv);

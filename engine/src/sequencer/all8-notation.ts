@@ -385,7 +385,7 @@ export const TOKENS: Record<string, string> = {
                           // tracking. The CALL is not in doubt; only its scoping is approximated.
   // `1L.2R` and friends are All8's older "First Couple Go ... Next Go ..." notation, and `FLNR` is
   // his own note that it is an OLD SPELLING of `1L.2R`. Both spellings expand to catalogue TITLES
-  // (`b2/first_couple_go.xml` ships all four), so these are pure reading gains with no gap.
+  // (`ms/first_couple_go.xml` ships all four), so these are pure reading gains with no gap.
   '1L.2R': 'First Couple Go Left, Next Couple Go Right',
   '1L.2L': 'First Couple Go Left, Next Couple Go Left',
   '1R.2L': 'First Couple Go Right, Next Couple Go Left',

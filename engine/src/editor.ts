@@ -1418,6 +1418,69 @@ export function removeMove(call: CallBundle, index: number, moveIndex: number): 
   return retime({ ...base, dancers }, beforeMax);
 }
 
+/**
+ * Replace ALL of dancer `index`'s moves with `path` - the whole trace, in one edit.
+ *
+ * THIS IS THE COPY A "MAKE THIS DANCER DO WHAT THAT ONE DOES" GESTURE NEEDS, and it is deliberately a
+ * PATH-level edit rather than a loop of `setMove`s. The caller's question is about the TRACE, and a trace
+ * assembled move by move is a second implementation of "the same" that can disagree with the first at every
+ * boundary - including where the two paths differ in LENGTH, which a loop cannot express at all. Beats are
+ * re-timed by `retime`, exactly as the per-move edits are, so a donor with a longer or shorter path carries
+ * the call's own clock with it rather than leaving a pause behind.
+ *
+ * A PATH IS AUTHORED IN THE DANCER'S OWN FRAME (`types.ts`: +X is the dancer's initial facing and P0 is its
+ * own origin), so copying one dancer's path onto another needs NO coordinate transform - the local frame IS
+ * the transform, and what the receiving dancer gets is the donor's motion relative to ITS OWN start pose.
+ * Moving the start pose is a different edit (`setDancerStart`) and is not done here; neither is the gender
+ * or the home identity, which are the formation's rather than the trace's.
+ *
+ * The segments are CLONED, so the two dancers never share a `Seg` object: the editor keys a copied
+ * coordinate on the segment itself, and a shared move would light up on both dancers at once.
+ */
+export function setDancerPath(call: CallBundle, index: number, path: Seg[]): CallBundle {
+  const base = requireDancer(call, index);
+  const beforeMax = instanceBeats(base);
+  const next = cloneSegs(path);
+  const dancers = base.dancers.map((d, j) => (j === index ? { ...d, path: next } : d));
+  return retime({ ...base, dancers }, beforeMax);
+}
+
+/**
+ * SWITCH TWO DANCERS: everything each one is, at the other one's index.
+ *
+ * Asked for as: "With two dancers selected, the button will switch the selected dancers." The two ENTRIES trade
+ * places outright - start pose (x, y, heading), the whole path, the gender, and the half-set mirror flag - so
+ * after the swap index `a` holds exactly what index `b` held. That is the operation the phrase names, and it is
+ * also the only version of it that leaves a coherent track: a path is authored in the dancer's OWN frame
+ * (`+X` is the dancer's initial facing and P0 is its own origin, see `setDancerStart`), so moving a path WITHOUT
+ * its start pose re-frames every move into a frame it was not written in, and the first move stops meeting the
+ * pose it departs from. Moving the whole entry re-frames nothing: the world path at `a` afterwards is the world
+ * path `b` had before, exactly.
+ *
+ * WHAT DOES NOT MOVE, and it is the one thing a reader might expect to. `id`/`couple` are the HOME-SQUARE
+ * identity, and `assignHomeIdentity` DERIVES them from where a dancer stands - they are not independent state,
+ * which is why swapping the poses swaps them too and why nothing here copies them across by hand. `beats` needs
+ * no attention either: the multiset of paths is unchanged, so the instance's own length is unchanged and
+ * `retime` has nothing to do.
+ *
+ * THE SEGMENTS ARE SHARED WITH THE BUNDLE THEY CAME FROM rather than cloned. `setDancerPath` clones because a
+ * COPIED move has to be a new object - the editor keys the clipboard and the highlighted coordinate on the `Seg`
+ * itself, and a shared one would light up on two dancers at once. A swap is the opposite case: the objects move
+ * to a different index and are still one move each, so the copies keyed on them follow the move to its new
+ * dancer, which is what the caller means by swapping it.
+ *
+ * Swapping a dancer with itself is the identity, and it is answered rather than refused: the UI can only reach
+ * this with two distinct ticks, and a caller that dedupes nothing should not get an exception for asking for
+ * nothing.
+ */
+export function swapDancers(call: CallBundle, a: number, b: number): CallBundle {
+  const base = requireDancer(call, a);
+  if (a === b) return base;
+  const full = requireDancer(base, b);
+  const dancers = full.dancers.map((d, j) => (j === a ? full.dancers[b] : j === b ? full.dancers[a] : d));
+  return { ...full, dancers };
+}
+
 // ------------------------------------------------------------------ cloning a start
 //
 // CLONING A CALL ONTO A DIFFERENT START SETUP. A `<tam>` is authored for ONE start formation,
@@ -1640,6 +1703,65 @@ export const ARC_ANGLE_TOL = (0.5 * Math.PI) / 180;
 
 /** A length below which a handle has no direction and no size to speak of. */
 const ARC_EPS = 1e-9;
+
+/**
+ * THE CUBIC THAT TRACES A CIRCULAR ARC about `centre`, from `from` to `to`, in whatever coordinate
+ * system the three are given in.
+ *
+ * WHY THIS IS NOT `arcBezier`. `arcBezier` builds ONE QUARTER of a circle from two handle LENGTHS and a
+ * start direction - the canonical conic, in the dancer-local frame, which is what the panel's arc fields
+ * read and write. This is the other question: given two points and the centre of the circle they stand
+ * on, what cubic follows that circle between them? It answers for ANY sweep, not only a quarter, and it
+ * keeps the END POINTS FIXED (the caller has already placed them), which is what a fit into an existing
+ * chain has to do.
+ *
+ * THE CONSTRUCTION is the standard one, and it is a fit rather than a solution: a cubic cannot trace a
+ * circle exactly, so the control points are placed at `(4/3) * tan(sweep / 4)` of the radius along each
+ * end's TANGENT. That is exact to four decimals for a quarter turn and far better than that for the
+ * short chords this exists for - and it is the SAME constant the rest of this module uses, since
+ * `(4/3) * tan(PI/8)` IS `ARC_K`. A caller working in the dancer-local frame can therefore hand the
+ * result to the same export path as any other curve, and the two ways of stating an arc agree.
+ *
+ * WORKED, for a quarter turn: from `(r, 0)` to `(0, r)` about the origin, the start tangent is `(0, 1)`
+ * and the finish tangent `(-1, 0)`, so the controls are `(r, r * ARC_K)` and `(r * ARC_K, r)` - the
+ * textbook quarter-circle cubic. `radial-grid-probe.mjs` checks exactly that against `ARC_K`.
+ *
+ * Null when the arc cannot be described: a point ON the centre (no radius, no tangent), a degenerate
+ * sweep, or a radius that differs between the two ends by more than `tolRel` - the ends of an arc lie on
+ * ONE circle, and a pair that does not is a caller error rather than a curve to fit.
+ */
+export function arcBezierAbout(
+  centre: { x: number; y: number },
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  tolRel = 0.05,
+): { cx1: number; cy1: number; cx2: number; cy2: number } | null {
+  const r0 = Math.hypot(from.x - centre.x, from.y - centre.y);
+  const r1 = Math.hypot(to.x - centre.x, to.y - centre.y);
+  if (r0 < ARC_EPS || r1 < ARC_EPS) return null;
+  const r = (r0 + r1) / 2;
+  if (Math.abs(r0 - r1) > tolRel * r) return null;
+  const a0 = Math.atan2(from.y - centre.y, from.x - centre.x);
+  const a1 = Math.atan2(to.y - centre.y, to.x - centre.x);
+  // THE SHORT WAY ROUND, because that is the arc a caller means between two close points - and the
+  // long one would be the rest of the circle.
+  let sweep = a1 - a0;
+  while (sweep > Math.PI) sweep -= 2 * Math.PI;
+  while (sweep < -Math.PI) sweep += 2 * Math.PI;
+  if (Math.abs(sweep) < ARC_EPS) return null;
+  const reach = r * (4 / 3) * Math.tan(Math.abs(sweep) / 4);
+  // The tangent at each end, in the direction of travel: for a POSITIVE (anticlockwise) sweep the
+  // tangent is the radius turned +90 degrees.
+  const s = sweep > 0 ? 1 : -1;
+  const t0 = { x: -s * Math.sin(a0), y: s * Math.cos(a0) };
+  const t1 = { x: -s * Math.sin(a1), y: s * Math.cos(a1) };
+  return {
+    cx1: from.x + reach * t0.x,
+    cy1: from.y + reach * t0.y,
+    cx2: to.x - reach * t1.x,
+    cy2: to.y - reach * t1.y,
+  };
+}
 
 /**
  * A quarter arc, described by its two HANDLE LENGTHS and the direction of the first - which is what

@@ -148,9 +148,10 @@ console.log('\n== a call defined at several LEVELS: the pool is highest-first, a
     return x;
   };
 
-  // Witness 1 — ORDER. `b1/circle.xml` authors `Forward .59` + 8x `cl` and stops, so the dancer
-  // never steps back out of the circle: that authoring ends at radius 2.61 with a 43.8 degree
-  // heading error. `ms/circle.xml` authors the round trip and ends exactly where it started.
+  // Witness 1 — ORDER. The retired `b1/circle.xml` authored `Forward .59` + 8x `cl` and stopped, so the
+  // dancer never stepped back out of the circle: that authoring ended at radius 2.61 with a 43.8 degree
+  // heading error. `ms/circle.xml` authors the round trip and ends exactly where it started, which is
+  // the ordering this pins.
   const square = seq.boardForFormation('Static Square');
   const cl = seq.applyToBoard(square, 'Circle Left');
   check(cl.legal, 'Circle Left is legal from a Static Square');

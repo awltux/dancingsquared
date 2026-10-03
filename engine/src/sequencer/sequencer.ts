@@ -26,13 +26,21 @@ import {
 } from './fsm-table.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { bodyGap, worstBodyGap, BODY_OVERLAP_EPS, type BodyPair } from './bodies.js';
+import {
+  evaluatePermissions,
+  PERMISSION_RULES,
+  type PermissionLevel,
+  type PermissionRequest,
+  type PermissionResult,
+  type PermissionRule,
+} from './permissions.js';
 import { HOME_DANCERS } from './identity.js';
 import { identifyByAssignment } from './identity.js';
 import { matchFormations } from './match.js';
 import { mul5, dancerMatrix, type Mat5 } from '../matrix.js';
 import { DEFAULT_MATCH_MAX } from './constants.js';
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
-import { CODED_MOVE_NAMES, applyCodedMove, codedMoveApplies, findCodedMove } from './coded-moves.js';
+import { CODED_MOVE_NAMES, applyCodedMove, applyCodedToSelection, codedMoveApplies, findCodedMove } from './coded-moves.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
@@ -187,26 +195,12 @@ export class Sequencer {
     // A move that moves NON-designated dancers as well (a Run's walker, a Trade's intervening
     // dancers) has to compute the whole board itself — the whole-board-transform-then-filter
     // trick below would discard the walker's motion and leave two dancers on one spot.
-    if (base.applyToSelection) {
-      const r = base.applyToSelection(board, ids);
-      return 'reason' in r ? { board, legal: false, reason: r.reason } : { board: r.board, legal: true };
-    }
-    if (base.precondition) {
-      // A whole-set resolve has no half-set reading, so a genuine subset is left to
-      // the applicator to refuse - EXCEPT that "All <resolve>" is just the resolve:
-      // All8 writes `A-Prom`, and "all" is the whole set already, so the group prefix
-      // adds nothing and the call must not fail on account of it.
-      const everyone = board.dancers.filter((d) => !d.isGhost).map((d) => d.id);
-      return ids.length === everyone.length ? applyCodedMove(board, sel.call) : null;
-    }
-    const byId = new Map(base.apply(board).dancers.map((d) => [d.id, d]));
-    const picked = new Set(ids);
-    return {
-      legal: true,
-      board: {
-        dancers: board.dancers.map((d) => (d.isGhost || !picked.has(d.id) ? d : byId.get(d.id) ?? d)),
-      },
-    };
+    //
+    // THE READING IS `applyCodedToSelection` RATHER THAN WRITTEN OUT HERE, because the applicator's
+    // "while" path needs exactly the same three cases for a group whose call is coded, and two copies of
+    // "what a coded call means for a named group" would be a way for `Heads Step Forward` to work as a
+    // step and not as a group. See there for the three readings.
+    return applyCodedToSelection(board, sel2.call, ids);
   }
 
   // ---- registration & modules ----
@@ -293,6 +287,8 @@ export class Sequencer {
     this.board = makeSquaredSet();
     this.matcher.clearCaches();
     this.solver.clearCaches();
+    // A level registration rebuilds the call set, so rules added for the old one must not survive it.
+    this.permissionRules = [];
   }
 
   startBoard(): Board {
@@ -581,19 +577,101 @@ export class Sequencer {
     const spec = splitSelection(call);
     // A call that already names its own dancers is not the group's to perform ("Heads Square Thru 4").
     if (spec.selection && spec.call) return false;
+    // PERMISSION FIRST, because asking the applicator is the more expensive question and the answer
+    // cannot change it. A call the picker may not offer is not offered whatever it would do.
+    if (!this.mayOffer(call, group, board).allowed) return false;
     return this.applicator.applyToBoard(board, `${group} ${spec.call || call}`).legal;
   }
 
+  // ---- permissions (what the PICKER may offer) ----
+
+  /** Extra rules layered on the built-in set. Cleared by `reset`. */
+  private permissionRules: PermissionRule[] = [];
+  /** The level the picker is working at. Rules above it are not consulted. */
+  private activeLevel: PermissionLevel = 'ms';
+
+  /**
+   * The level whose programme the picker is offering. A rule from a level ABOVE this one is not
+   * consulted: the app has not registered those calls, so it could not apply them anyway, and honouring
+   * it would let an unloaded programme forbid a call the loaded one allows.
+   */
+  setActiveLevel(level: PermissionLevel): void {
+    this.activeLevel = level;
+  }
+
+  /** Replace the extra rules. The built-ins in `PERMISSION_RULES` are always consulted too. */
+  setPermissionRules(rules: readonly PermissionRule[]): void {
+    this.permissionRules = [...rules];
+  }
+
+  /**
+   * Whether the picker may OFFER `call` for `group` here. Picker-only: this does not gate `apply`, so a
+   * caller who names the call directly still gets it.
+   *
+   * The group is normalised so the picker's own vocabulary works: its whole-board entry is `All 8`, and
+   * `null`/absent means the same thing.
+   *
+   * `board` is what a FORMATION-SCOPED rule is checked against. It defaults to the current board, which
+   * is what the picker is offering from.
+   */
+  mayOffer(call: string, group?: string | null, board?: Board): PermissionResult {
+    const b = board ?? this.board;
+    const req: PermissionRequest = {
+      call: splitSelection(call).call,
+      group: group && group !== 'All 8' ? group : 'All 8',
+      // The RECOGNISED name, not the caller's label for the board: a rule that says "Static Square"
+      // has to match the geometry, and a board built from a formation is named the same way by
+      // `recognize` wherever it came from.
+      board: b ? this.recognize(b).name : null,
+      level: this.activeLevel,
+    };
+    return evaluatePermissions([...PERMISSION_RULES, ...this.permissionRules], req);
+  }
+
+  /** The reason the picker is not offering `call` for `group`, or null when it is. For a status line. */
+  permissionReason(call: string, group?: string | null): string | null {
+    const r = this.mayOffer(call, group);
+    return r.allowed ? null : r.reason ?? `not offered at ${this.activeLevel.toUpperCase()}`;
+  }
+
+  /**
+   * The calls legal from the current board that the picker may still offer in SOME reading.
+   *
+   * THIS LIST IS PRE-GROUP, which is what the permission filter has to respect. It is not "what to show
+   * when nothing is chosen" - the picker takes it and then narrows by the chosen group with
+   * `groupCanPerform`. So dropping a call merely because the WHOLE-BOARD reading is forbidden removes it
+   * from every group too: measured, that emptied `Head Boys Dosado` out of the picker, which is the very
+   * symptom `group-calls.mjs` pins. `Dosado` IS offered for `Head Boys`.
+   *
+   * A call is kept when its own reading is permitted, or when any group the board offers could perform
+   * it. The group probe runs only for calls the whole-board rule refused, so the common case still costs
+   * one cheap permission check.
+   */
   legalNext(): string[] {
     const base = this.legality.legalCalls(this.board);
     // A coded move is listed only when it actually applies: the pivots always do,
     // but a whole-set resolve such as Promenade has preconditions.
+    //
+    // A GROUP-NAMED CODED CALL IS NOT LISTED HERE, AND CANNOT BE. `Fold`, `Cross Fold`, `Trade`, `Run` and
+    // `Step Forward` all refuse the BARE name by design (their `precondition` says a group must be named), and
+    // this list is the whole-board reading: `features.mjs` pins the invariant that matters - "every listed call
+    // applies interactively" - and adding them here made exactly that fail (measured: 20 listed, 6 invalid).
+    // They are reached with a GROUP, so the group-aware list is the app's (see `refreshCallSelect`, which
+    // prefixes the chosen group) and the engine's own group question is `groupCanPerform`.
     const derived = CODED_MOVE_NAMES.filter((n) => {
       if (base.includes(n)) return false;
       const move = findCodedMove(n);
       return !move || codedMoveApplies(move, this.board);
     });
-    return base.concat(derived);
+    const groups = this.subsetGroups(this.board);
+    return base.concat(derived).filter((n) => {
+      const spec = splitSelection(n);
+      const call = spec.call || n;
+      // Its own reading - the authored selection, or the whole board.
+      if (this.mayOffer(call, spec.selection ?? 'All 8').allowed) return true;
+      // Refused for that reading: still offerable if some group can do it.
+      return groups.some((g) => this.groupCanPerform(this.board, g, call));
+    });
   }
 
   /**
@@ -607,6 +685,30 @@ export class Sequencer {
    */
   selectionIds(board: Board, selection: string): number[] | null {
     return this.grouping.resolveSelection(board, selection);
+  }
+
+  /**
+   * The selector naming the dancers `selection` does NOT cover, or null when it covers everyone.
+   *
+   * WHY THIS IS DERIVED AND NOT LOOKED UP. The complement of a named group is often not itself a named
+   * group: `Heads` leaves `Sides`, which is in the vocabulary, but `Head Boys` leaves SIX dancers in no
+   * rectangular arrangement and there is no word for them. MEASURED, `All Except Head Boys` resolves to
+   * exactly those six, and `All Except Heads` to exactly `Sides` - so the existing negator grammar
+   * already names any complement, and this needs no new syntax.
+   *
+   * THE COMPLEMENT IS COMPUTED FROM THE IDS, not from the selector text, so it cannot disagree with
+   * what the selection actually claims - the failure mode `selectionIds`'s own comment warns about.
+   *
+   * Null means the selection covered every dancer, which is the case where a "while" partner has nobody
+   * left to act on.
+   */
+  remainingSelection(board: Board, selection: string): string | null {
+    const ids = this.grouping.resolveSelection(board, selection);
+    if (!ids || ids.length === 0) return null;
+    const claimed = new Set(ids);
+    const rest = board.dancers.filter((d) => !d.isGhost && !claimed.has(d.id));
+    if (rest.length === 0) return null;
+    return `All Except ${selection}`;
   }
 
   /**

@@ -76,7 +76,7 @@ const assets = path.join(root, 'poc/src/assets');
 // named calls to constructed boards. All variants of a title are pooled so a call
 // with several setups can be matched from any of them.
 const byTitle = new Map();
-for (const lv of ['discovered', 'b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b']) {
+for (const lv of ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b']) {
   const dir = path.join(assets, lv);
   if (!existsSync(dir)) continue;
   for (const f of readdirSync(dir).filter((x) => x.endsWith('.xml'))) {

@@ -81,7 +81,7 @@ for (const [name, ds] of formations) judge('formation', name, ds.map((d) => d.ge
 console.log(`  ${formations.size} formations checked`);
 
 console.log('\n== Call setups (every <tam> with <dancer> elements) ==');
-const levels = ['discovered', 'b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
+const levels = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 let tams = 0;
 for (const lv of levels) {
   const dir = path.join(root, assets, lv);

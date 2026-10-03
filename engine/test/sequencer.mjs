@@ -45,7 +45,7 @@ const seq = new Sequencer(movesXml, formationsXml, [
   { name: 'Circle Left', xml: ms('circle') },
   { name: 'Heads Spin the Top', xml: ms('spin_the_top') },
   { name: 'Double Pass Thru', xml: ms('double_pass_thru') },
-  { name: 'Heads Pass Thru', xml: filterTam('../../poc/src/assets/b1/pass_thru.xml', 'Heads Pass Thru') },
+  { name: 'Heads Pass Thru', xml: filterTam('../../poc/src/assets/ms/pass_thru.xml', 'Heads Pass Thru') },
 ]);
 
 console.log('== Sequencer: start ==');
@@ -613,7 +613,7 @@ console.log('== Sequencer: a Sweep whose boxes would COLLIDE is refused, not for
 }
 
 console.log('== Sequencer: Rollaway swaps each couple, at every authored separation ==');
-// The separation-2 authoring in `b1/sashay.xml` was ADDED because the corpus reaches `Rollaway` from
+// The separation-2 authoring in `ms/sashay.xml` was ADDED because the corpus reaches `Rollaway` from
 // boards whose couples stand two apart (an Eight Chain Thru, a Quarter Tag) while the only
 // `Facing Couples` authoring placed them four apart — four figures and a get-out line refused with
 // "no setup in this call matches". A Rollaway is a per-couple HALF SASHAY, so the displacement is the

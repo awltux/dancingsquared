@@ -33,7 +33,7 @@ const read = (p) => readFileSync(path.join(root, p), 'utf8');
 
 const movesXml = read('poc/src/assets/moves.xml');
 const formationsXml = read('poc/src/assets/formations.xml');
-const levels = ['ms', 'b1', 'b2', 'a1', 'a2', 'plus'];
+const levels = ['ms', 'a1', 'a2', 'plus'];
 
 const calls = [];
 for (const level of levels) {
@@ -576,7 +576,7 @@ console.log('\n== Identity on geometry-only formation boards (feature: heads_sid
 
 console.log('\n== One variant per authored setup (feature: formation_states) ==');
 {
-  const wdXml = read('poc/src/assets/b2/wheel_and_deal.xml');
+  const wdXml = read('poc/src/assets/ms/wheel_and_deal.xml');
   const blocks = wdXml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
   const seqW = new Sequencer(movesXml, formationsXml, [{ name: 'Wheel and Deal', xml: wdXml }]);
   check((seqW.getVariants('Wheel and Deal')?.length ?? 0) === blocks.length,
@@ -715,7 +715,7 @@ console.log('\n== Index independence: index-derived placeholder is not identity 
   // Matching must not depend on the placeholder: flattening identity to unknown
   // must leave the result of a call applied to that board unchanged.
   const seqWd = new Sequencer(movesXml, formationsXml, [
-    { name: 'Wheel and Deal', xml: read('poc/src/assets/b2/wheel_and_deal.xml') },
+    { name: 'Wheel and Deal', xml: read('poc/src/assets/ms/wheel_and_deal.xml') },
   ]);
   seqWd.setFormation('Two-Faced Lines');
   const asIs = seqWd.applyToBoard(seqWd.board, 'Wheel and Deal');

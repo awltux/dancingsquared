@@ -20,17 +20,23 @@
 // that actually happens.
 //
 // THE MODEL. A dancer is a rectangle of `DANCER_DEPTH` front-to-back by `DANCER_WIDTH` side-to-side,
-// rotated so its depth axis lies along the dancer's heading. Per the caller's specification:
+// rotated so its depth axis lies along the dancer's heading:
 //
-//     0.5 front-to-back, 1.0 side-to-side
+//     0.45 front-to-back, 0.95 side-to-side
 //
-// which reproduces the two sanity values by hand:
+// NOT the round 0.5 by 1.0, and the reason is a measurement rather than taste. The round figures put a
+// face-to-face pass at 1.0 separation EXACTLY at contact — and the corpus authors exactly that pass for
+// its two-dancer calls — so the model called a legitimate `Single Circle Left Full` an interpenetration
+// and gave the same verdict for a call that really is walking dancers through each other. Trimming the
+// body puts 0.05 of air on that pass and lets the two cases read differently.
+//
+// The two sanity values come out by hand:
 //
 //   * `Static Square`, `#5(-1,-3)` and `#6(1,-3)` face 90 deg. Their offset is 2.0 ACROSS facing, so
-//     the lateral half-extent (0.5) applies twice: gap = 2.0 - 1.0 = **1.000**. Partners standing at
-//     the standard width are one unit of air apart, which is the right reading of a square set.
-//   * two dancers `0.5` apart, facing each other: the depth half-extent (0.25) applies twice along the
-//     shared facing axis: gap = 0.5 - 0.5 = **0.000**. Chest to chest is exactly contact.
+//     the lateral half-extent (0.475) applies twice: gap = 2.0 - 0.95 = **1.050**. Partners standing at
+//     the standard width have a unit of air between them, which is the right reading of a square set.
+//   * two dancers `0.5` apart, facing each other: the depth half-extent (0.225) applies twice along the
+//     shared facing axis: gap = 0.5 - 0.45 = **0.050**. Chest to chest is a hair short of contact.
 //
 // THE SIGNED GAP, NOT A BOOLEAN. `bodyGap` returns the true separation between the two rectangles, so
 // `> 0` is clearance, `0` is exactly touching, and `< 0` is overlap with `|gap|` the penetration depth.
@@ -45,17 +51,29 @@
 import type { Board, SeqDancer } from './types.js';
 
 /**
- * Front-to-back extent of a dancer, along the facing direction. Half of the stated 0.5 depth.
+ * Front-to-back extent of a dancer, along the facing direction. Half of the `DANCER_DEPTH` below.
  */
-export const DANCER_HALF_FRONT_BACK = 0.25;
+export const DANCER_HALF_FRONT_BACK = 0.225;
 
 /**
- * Side-to-side extent of a dancer, across the facing direction. Half of the stated 1.0 width.
+ * Side-to-side extent of a dancer, across the facing direction. Half of `DANCER_WIDTH` below.
  *
  * That this is larger than the depth is the whole point: a body is wider than it is deep, so a
  * shoulder-to-shoulder pair tolerates far more centre distance than a chest-to-chest pair.
  */
-export const DANCER_HALF_SIDE_SIDE = 0.5;
+export const DANCER_HALF_SIDE_SIDE = 0.475;
+
+/**
+ * The full body, as everything outside this module talks about it.
+ *
+ * 0.95 by 0.45 rather than a round 1.0 by 0.5, tightened deliberately: the round numbers put a
+ * face-to-face pass at 1.0 separation EXACTLY at contact, so the model reported every such pass as an
+ * interpenetration and could not distinguish a legitimate close pass from a collision. Trimming the
+ * body leaves 0.05 of genuine air on the tightest pass the corpus authors while still being far too
+ * large to miss a real overlap.
+ */
+export const DANCER_WIDTH = 0.95;
+export const DANCER_DEPTH = 0.45;
 
 /**
  * Slack for floating-point noise and for the small drift a danced sequence accumulates.

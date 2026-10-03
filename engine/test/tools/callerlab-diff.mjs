@@ -158,7 +158,7 @@ for (const { name, xml } of callsByTitle(assets)) {
 }
 const norm = (s) => s.toLowerCase().replace(/[-â€“]/g, ' ').replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
 const knownFormations = new Set();
-for (const lv of ['ms', 'plus', 'b1', 'b2', 'ssd', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b', 'src']) {
+for (const lv of ['ms', 'plus', 'ssd', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b', 'src']) {
   const p = path.join(assets, lv);
   try {
     for (const m of readFileSync(path.join(p, '..', 'formations.xml'), 'utf8').matchAll(/<formation\b[^>]*\bname="([^"]*)"/g)) knownFormations.add(norm(m[1]));

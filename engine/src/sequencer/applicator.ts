@@ -16,6 +16,8 @@ import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
 import { splitSelection } from './selection.js';
 import type { Board, CallStep, GroupStep, ModuleStep, SeqDancer, VariantMatch } from './types.js';
 import { isGroupStep, stepLabel } from './types.js';
+import { applyCodedToSelection, findCodedMove, isDeferredCall } from './coded-moves.js';
+import { resolveStepForward } from './step-forward.js';
 import type { CallBundle, Pose } from '../types.js';
 
 const rot = (a: number, v: { x: number; y: number }) => ({
@@ -639,13 +641,71 @@ export class CallApplicator {
       resolved.push({ selection: g.selection, call: g.call, ids });
     }
     const moved = new Map<number, SeqDancer>();
+    // ---- THE DEFERRED GROUP IS APPLIED LAST, AGAINST WHAT THE OTHERS LEFT ON THE FLOOR. -----------
+    //
+    // Every other group here is INDEPENDENT: it is applied to the same original board and its dancers are
+    // merged by id, which is what makes the step simultaneous. A deferred group (`CodedMove.deferred`, which
+    // today is `Step Forward`) is the one shape that cannot work that way - its dancers step forward and then
+    // each decides whether to step BACK to the spot it left, and that depends on whether somebody has since
+    // moved onto it. So the groups are split: the others are applied and merged first, and the deferred group
+    // is resolved against the board that leaves.
+    //
+    // TWO DEPENDENT GROUPS HAVE NO ANSWER, and neither does a deferred group with nothing to depend on, so
+    // both are refused with the reason rather than resolved in some arbitrary order. The rules are stated on
+    // `CodedMove.deferred`; this is where they are enforced.
+    const deferred = resolved.filter((g) => isDeferredCall(g.call));
+    if (deferred.length > 1) {
+      const names = deferred.map((g) => `"${g.selection} ${g.call}"`).join(' and ');
+      return {
+        board: cloneBoard(board),
+        legal: false,
+        reason: `A "while" step may have at most ONE group that depends on the others, and this one has ${deferred.length} (${names}) - each would have to be resolved after the other.`,
+      };
+    }
+    if (deferred.length === 1 && resolved.length === 1) {
+      const g = deferred[0];
+      return {
+        board: cloneBoard(board),
+        legal: false,
+        reason: `"${g.selection} ${g.call}" resolves against the other dancers' end poses, so it needs a partner call in the same "while" step - on its own there is nothing to resolve against.`,
+      };
+    }
     for (const g of resolved) {
+      if (isDeferredCall(g.call)) continue;
       const r = this.applySelected(board, g.selection, g.call, rebase, undefined, stack);
       if (!r.legal) {
         return { board: cloneBoard(board), legal: false, reason: `"${g.selection} ${g.call}" in a "while" step: ${r.reason ?? 'refused'}` };
       }
       const inGroup = new Set(g.ids);
       for (const d of r.board.dancers) if (inGroup.has(d.id)) moved.set(d.id, d);
+    }
+    if (deferred.length === 1) {
+      const g = deferred[0];
+      // THE HALF-WAY BOARD COMES FROM THE MOVE, not from applying its call. `Step Forward and Back if Possible`
+      // is a whole call whose answer IS the decision, so `applySelected` would hand this an already-RESOLVED
+      // board and the question would be asked about the wrong start. `deferredHalf` is the forward motion on its
+      // own (see `CodedMove.deferredHalf`); a deferred call without one falls back to its ordinary apply.
+      const half = findCodedMove(g.call)?.deferredHalf;
+      const stepped: ApplyResult = half
+        ? { board: half(board, g.ids), legal: true }
+        : this.applySelected(board, g.selection, g.call, rebase, undefined, stack);
+      if (!stepped.legal) {
+        return { board: cloneBoard(board), legal: false, reason: `"${g.selection} ${g.call}" in a "while" step: ${stepped.reason ?? 'refused'}` };
+      }
+      // Everyone else's END pose: the groups merged above, and every dancer no group claims (they never moved).
+      // The deferred dancers are left out of this board rather than included at their start poses - see
+      // `resolveStepForward`, which ignores their entries anyway and is asked about SOMEBODY ELSE'S body.
+      const inGroup = new Set(g.ids);
+      const others: Board = {
+        dancers: board.dancers
+          .filter((d) => !inGroup.has(d.id))
+          .map((d) => moved.get(d.id) ?? { ...d }),
+      };
+      const settled = resolveStepForward(board, stepped.board, others, g.ids);
+      for (const id of g.ids) {
+        const d = settled.board.dancers.find((x) => x.id === id);
+        if (d) moved.set(id, d);
+      }
     }
     return { board: { dancers: board.dancers.map((d) => moved.get(d.id) ?? { ...d }) }, legal: true };
   }
@@ -795,6 +855,22 @@ export class CallApplicator {
       return { board: cloneBoard(board), legal: false, reason: `Unresolvable selection: ${selection}` };
     }
     const selected = ids.map((id) => byId.get(id)).filter((d): d is SeqDancer => !!d);
+    // A CODED CALL FOR A NAMED GROUP IS ANSWERED FROM THE REGISTRY FIRST, and it is answered HERE rather than
+    // at each of the callers that need it, because they all had the same hole: the coded table lives in the
+    // Sequencer, so a selection plus a coded call reached this method, went to the catalogue, and died with
+    // `"... not legal for selected dancers"`. Who needs it:
+    //
+    //   - `Sequencer.groupCanPerform`, which is the question the CALL PICKER asks - measured, `Heads Step
+    //     Forward` was allowed by the permission layer and then dropped from `legalNext` because this said no,
+    //     so the call existed and could not be chosen;
+    //   - `Applicator.applyGroupStep`, for a "while" group, whose selection and call are carried SEPARATELY.
+    //
+    // THE READINGS ARE `applyCodedToSelection`'s three - the same function `Sequencer.tryCodedMove` uses for the
+    // one-name form - so a coded call cannot mean one thing written as `Heads Step Forward` and another as a
+    // group. It returns null for anything that is not a coded move, so the catalogue path below runs exactly as
+    // it did before: strictly additive, and it can only turn a refusal into an application.
+    const coded = applyCodedToSelection(board, callName, ids);
+    if (coded) return coded;
     // Center the subset about its own origin so the call's canonical setup applies.
     let cx = 0, cy = 0;
     for (const d of selected) { cx += d.x; cy += d.y; }
@@ -838,6 +914,37 @@ export class CallApplicator {
     // only reached when the bare name is unknown AND the scoped name is a real
     // catalogue call AND the selection is exactly that group, so nothing that
     // matches today changes interpretation.
+    // THE SELECTION'S OWN SCOPE, alongside `Centers`/`Ends`.
+    //
+    // That loop was written for the calls the catalogue publishes ONLY in their scoped form (`Cross
+    // Run`), so it is guarded by "the base name is UNKNOWN" and hardcodes the two groups. A call can
+    // equally have BOTH a generic authoring and a scoped one, and then neither guard helps. MEASURED,
+    // `ms/forward_and_back.xml` carries `tam title="Sides Forward and Back" display="none"`, yet
+    //   applySelected(board, 'Sides', 'Forward and Back')  -> REFUSED
+    //   applyToBoardInner(board, 'Sides Forward and Back') -> APPLIES (it finds that tam by name)
+    // so the same step has two readings and only one works. A "while" group carries the DECOMPOSED form,
+    // so a group step could refuse a pair that `groupCanPerform` - the picker's own filter - reports as
+    // legal, which is how the parallel-call button came to do nothing.
+    //
+    // The same exact-cover test applies, and `suppressScopedName`/`MAX_SCOPED_DEPTH` remain the
+    // termination guarantee.
+    {
+      const own = `${selection} ${callName}`;
+      if (own !== suppressScopedName && this.scopedDepth < CallApplicator.MAX_SCOPED_DEPTH
+        && this.library.hasCall(own)) {
+        const ownIds = this.resolveSelection(board, selection);
+        if (ownIds && ownIds.length === ids.length && ids.every((id) => ownIds.includes(id))) {
+          this.scopedDepth++;
+          let scoped: ApplyResult;
+          try {
+            scoped = this.applyToBoardInner(board, own, stack, rebase, true);
+          } finally {
+            this.scopedDepth--;
+          }
+          if (scoped.legal) return scoped;
+        }
+      }
+    }
     if (!this.library.hasCall(callName)) {
       for (const group of ['Centers', 'Ends'] as const) {
         const scopedName = `${group} ${callName}`;

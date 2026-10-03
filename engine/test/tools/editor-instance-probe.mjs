@@ -66,7 +66,9 @@ function poseGap(a, b, t) {
   return worst;
 }
 
-for (const [label, file] of [['full set', '../../../poc/src/assets/ms/circle.xml'], ['half set', '../../../poc/src/assets/b1/circle.xml'], ['sashay', '../../../poc/src/assets/ms/sashay.xml']]) {
+// The "half set" witness was `b1/circle.xml`, removed with the Basic levels; `ms/circle.xml` carries
+// asymmetric tams of its own (the `Single Circle Left/Right …` family), so the case stays reachable.
+for (const [label, file] of [['full set', '../../../poc/src/assets/ms/circle.xml'], ['half set', '../../../poc/src/assets/ms/circle.xml'], ['sashay', '../../../poc/src/assets/ms/sashay.xml']]) {
   const call = loadCallFromXml(read(file), movesXml, formationsXml, 0, true);
   dump(label, call);
   const norm = normalizeInstance(call);

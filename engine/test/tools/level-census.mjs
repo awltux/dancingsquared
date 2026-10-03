@@ -72,7 +72,7 @@ const isHidden = (tam) => { const d = tam.getAttribute('display'); return d === 
 
 // The level ORDER is `poc/src/data.ts`'s own `levelOrder`, copied rather than imported: that file is
 // browser code (Vite `import.meta.glob`) and cannot be loaded here.
-const ORDER = ['discovered', 'b1', 'b2', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
+const ORDER = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 const msFiles = {};
 const perLevelFiles = new Map();
 const perLevelNames = new Map();

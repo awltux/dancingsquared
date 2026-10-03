@@ -24,6 +24,7 @@ import { isKnownCouple } from './constants.js';
 import { findCouplePairs, type CouplePair } from './couples.js';
 import { runRule, tradeRule } from './trade-run.js';
 import { foldRule } from './fold.js';
+import { STEP_FORWARD_AND_BACK_BEATS, STEP_FORWARD_BEATS, stepForwardAndBackRule, stepForwardRule, stepForwardSteps } from './step-forward.js';
 import { sweepBox, sweepProblem, sweepCollision } from './sweep.js';
 import { swingThru, swingThruLegs } from './swing-thru.js';
 import { fanTheTop, fanTheTopProblem } from './fan-the-top.js';
@@ -376,6 +377,35 @@ export interface CodedMove {
    * does not apply. Returning null must leave the animation no worse than before.
    */
   legs?: (b: Board) => Board[] | null;
+  /**
+   * A call whose result depends on the OTHER groups of the "while" step it is danced in, so it cannot be
+   * applied in the same pass as they are.
+   *
+   * `Step Forward` is the whole of this idea so far. Everything else in a "while" step is INDEPENDENT: each
+   * group is applied to the same original board and the results are merged by dancer id, which is what makes
+   * `Heads Right and Left Thru while Sides Touch a Quarter` one step. A deferred group is the opposite - its
+   * dancers step forward and then decide, one at a time, whether to step back to the spot they LEFT, which is
+   * only knowable once the other groups have finished moving onto or off it.
+   *
+   * THE RULES THE APPLICATOR ENFORCES FOR IT (see `Applicator.applyGroupStep`), because a dependency is not
+   * something to guess at:
+   *
+   *   - AT MOST ONE deferred group per step. Two would each depend on the other, which has no answer;
+   *   - it needs at least one OTHER group. Deferred on its own is refused rather than silently resolving to a
+   *     no-op, because "the call it works in parallel with" is the thing that decides the outcome;
+   *   - it contributes NO beats: the step costs the other groups' call, which is the request's "it takes on
+   *     the duration of the other call".
+   */
+  deferred?: boolean;
+  /**
+   * For a DEFERRED call: the board after its own motion and BEFORE the decision that depends on the others.
+   *
+   * The applicator has to resolve the deferred group from the STEPPED board - the dancers are out, and the
+   * question is who is on the spot they left - so it needs that half on its own. It cannot get it from
+   * pplyToSelection, because that IS the whole call: for Step Forward and Back if Possible its answer is
+   * the already-decided board, and resolving from that would ask the question about the wrong start.
+   */
+  deferredHalf?: (b: Board, ids: number[]) => Board;
 }
 
 const DEFS: {
@@ -390,6 +420,8 @@ const DEFS: {
   ringMove?: boolean;
   ringHome?: boolean;
   legs?: (b: Board) => Board[] | null;
+  deferred?: boolean;
+  deferredHalf?: (b: Board, ids: number[]) => Board;
 }[] = [
   // `Join Hands` IS NOT A CALL WITH A BODY, and implementing it as one would be wrong. CALLERLAB
   // uses it only as a PROMPT inside command examples - "From a Squared Set: 'Join Hands, Circle
@@ -589,6 +621,33 @@ const DEFS: {
     fn: (b) => fanTheTop(b).board,
     catalogueFallback: true,
   },
+  // The two STEP calls, and they are deliberately a pair rather than a flag.
+  //
+  // `Step Forward` IS THE SIMPLE ONE: a named group walks two board units along its own facing and stays. Asked
+  // for as its own call: "create another Coded call named 'Step Forward', that just steps forward over 2 beats.
+  // If its part of parallel calls, it stands still for the remainder of the other call." The standing still is
+  // not in this rule - the "while" step gives every group its own beats and holds it once they are up.
+  {
+    aliases: ['Step Forward'],
+    beats: STEP_FORWARD_BEATS,
+    precondition: () => 'Step Forward names a group to step forward ("Heads Step Forward"); it has no whole-set reading',
+    applyToSelection: (b, ids) => stepForwardRule(b, ids),
+  },
+  // ...AND `Step Forward and Back if Possible` IS THE ONE THAT DECIDES SOMETHING, which is why only it is
+  // DEFERRED: whether its dancers stay out depends on what the other groups of the same "while" step did, and
+  // `Applicator.applyGroupStep` resolves it against the board they leave. Danced alone it is the same rule with
+  // the same answer whenever the way back is clear (nobody else has moved), so it steps out and back.
+  //
+  // `deferredHalf` is the forward half on its own: the applicator needs the board the group is on BEFORE the
+  // decision, and calling this call's own `applyToSelection` would hand it the already-decided one.
+  {
+    aliases: ['Step Forward and Back if Possible'],
+    beats: STEP_FORWARD_AND_BACK_BEATS,
+    precondition: () => 'Step Forward and Back if Possible names a group to step ("Heads Step Forward and Back if Possible"); it has no whole-set reading',
+    applyToSelection: (b, ids) => stepForwardAndBackRule(b, ids),
+    deferred: true,
+    deferredHalf: (b, ids) => stepForwardSteps(b, ids),
+  },
 ];
 
 export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
@@ -604,6 +663,8 @@ export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   ...(d.ringMove ? { ringMove: true } : {}),
   ...(d.ringHome ? { ringHome: true } : {}),
   ...(d.legs ? { legs: d.legs } : {}),
+  ...(d.deferred ? { deferred: true } : {}),
+  ...(d.deferredHalf ? { deferredHalf: d.deferredHalf } : {}),
 })) as CodedMove[];
 
 /** Canonical display names of the coded moves, in registration order. */
@@ -626,6 +687,18 @@ export function codedMoveApplies(move: CodedMove, board: Board): boolean {
 }
 
 /**
+ * Whether `name` is a DEFERRED coded call - one whose result depends on the other groups of the "while" step
+ * it is danced in (`CodedMove.deferred`).
+ *
+ * ONE definition, read by the two places that have to agree about it: `Applicator.applyGroupStep`, which
+ * applies such a group last, and `SequenceAnalyzer.stepBeats`, which must not charge the step for it. A second
+ * test of "is this deferred" would be a way for the timing to disagree with the board.
+ */
+export function isDeferredCall(name: string): boolean {
+  return findCodedMove(name)?.deferred === true;
+}
+
+/**
  * Apply the coded move named `name` to `board`: its result when it applies, the
  * board unchanged plus the reason when it does not, and null when `name` is not a
  * coded move at all (so the catalogue must handle it).
@@ -639,5 +712,52 @@ export function applyCodedMove(board: Board, name: string): { board: Board; lega
   if (!move) return null;
   const problem = move.precondition?.(board) ?? null;
   return problem ? { board, legal: false, reason: problem } : { board: move.apply(board), legal: true };
+}
+
+/**
+ * Apply a coded move to a DESIGNATED GROUP of `board`, or null when `call` is not a coded move at all.
+ *
+ * ONE READING, TWO CALLERS, which is why it is here and not written out twice:
+ *
+ *   - `Sequencer.tryCodedMove`, for a name that carries its own selection (`"Heads Step Forward"`,
+ *     `"Girls U-Turn Back"`) - where the Sequencer has already resolved the ids;
+ *   - `Applicator.applyGroupStep`, for a "while" group, which carries the selection and the call
+ *     SEPARATELY and could not otherwise reach the registry at all. That is not a detail: the coded
+ *     table lives in the Sequencer, so a group whose call is coded used to die in the applicator's
+ *     catalogue path with `"... not legal for selected dancers"`, which is exactly what happened to
+ *     `Heads Step Forward while ...` the first time it was tried.
+ *
+ * The three readings, in the order the registry's own semantics require:
+ *
+ *   1. `applyToSelection` - the move computes the whole board itself, because it also moves dancers the
+ *      selection does not name (a Run's walker, a Trade's intervening dancers). The transform-then-filter
+ *      reading below would discard that motion and leave two dancers on one spot.
+ *   2. a `precondition` with no `applyToSelection` - a whole-set resolve, which has no half-set reading.
+ *      It is allowed only when the designated group IS everybody ("All Promenade" is just Promenade).
+ *   3. the plain whole-board transform, with only the designated dancers kept.
+ */
+export function applyCodedToSelection(
+  board: Board,
+  call: string,
+  ids: number[],
+): { board: Board; legal: boolean; reason?: string } | null {
+  const base = findCodedMove(call);
+  if (!base || ids.length === 0) return null;
+  if (base.applyToSelection) {
+    const r = base.applyToSelection(board, ids);
+    return 'reason' in r ? { board, legal: false, reason: r.reason } : { board: r.board, legal: true };
+  }
+  if (base.precondition) {
+    const everyone = board.dancers.filter((d) => !d.isGhost).map((d) => d.id);
+    return ids.length === everyone.length ? applyCodedMove(board, call) : null;
+  }
+  const byId = new Map(base.apply(board).dancers.map((d) => [d.id, d]));
+  const picked = new Set(ids);
+  return {
+    legal: true,
+    board: {
+      dancers: board.dancers.map((d) => (d.isGhost || !picked.has(d.id) ? d : byId.get(d.id) ?? d)),
+    },
+  };
 }
 

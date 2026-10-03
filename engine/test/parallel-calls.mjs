@@ -299,5 +299,139 @@ console.log('\n== 7. a call carrying its own selection still leaves a nameable r
   }
 }
 
+// ---------------------------------------------------------------- 8. a lane: several calls, one slot
+console.log('\n== 8. a group may dance SEVERAL calls in the same slot ==');
+{
+  // ASKED FOR AS: "how difficult would it be to allow multiple calls in a parallel set. If heads take 16
+  // beats to do one call, the sides could do two 4-beat calls."
+  //
+  // THE ALIGNMENT RULE, which is what this section pins: every lane starts at beat 0; a lane's calls run
+  // back to back from the board the one before left; the step costs the LONGEST lane; a lane that finishes
+  // early STANDS at its own end pose. MEASURED, so the witness is real: `Heads Promenade Full` is 16 beats
+  // and `Sides Trade` + `Sides Pass Thru` are 4 + 4 (4 beats each from a square, both legal in that order).
+  const groups = [
+    { selection: 'Heads', call: 'Promenade Full' },
+    { selection: 'Sides', calls: ['Trade', 'Pass Thru'] },
+  ];
+  const step = { groups };
+  atSquare();
+  const headsAlone = seq.stepBeats(square, 'Heads Promenade Full');
+  const trade = seq.stepBeats(square, 'Sides Trade');
+  const passed = seq.applyToBoard(square, 'Sides Trade');
+  const passThru = passed.legal ? seq.stepBeats(passed.board, 'Sides Pass Thru') : -1;
+  console.log(`    beats: Heads Promenade Full ${headsAlone}, Sides Trade ${trade}, then Sides Pass Thru ${passThru}`);
+  check(headsAlone === 16 && trade === 4 && passThru === 4,
+    `the witness is the report's own shape: a ${headsAlone}-beat call beside ${trade} + ${passThru} beats`);
+  check(stepLabel(step) === 'Heads Promenade Full while Sides Trade then Pass Thru',
+    `the lane labels with "then": "${stepLabel(step)}"`);
+  atSquare();
+  const applied = seq.applyStep(step);
+  check(applied.legal, `the lane step applies (${applied.reason ?? 'legal'})`);
+  // THE COST IS THE LONGEST LANE, not the sum: the step is over when the promenade is.
+  const beats = seq.sequenceBeats([step], square);
+  check(beats === 16, `the step costs the LONGEST lane (${beats} beats, against 16 + 8 summed)`);
+  if (applied.legal) {
+    // EACH LANE IS ITS OWN CALLS, ONE AFTER ANOTHER, from the step's start board: the sides' end pose is
+    // what `Trade` then `Pass Thru` produce, which is NOT what either produces alone.
+    let sides = square;
+    for (const call of ['Sides Trade', 'Sides Pass Thru']) {
+      const r = seq.applyToBoard(sides, call);
+      if (r.legal) sides = r.board;
+    }
+    const sideIds = new Set(seq.selectionIds(square, 'Sides') ?? []);
+    let worstSides = 0;
+    let worstHeads = 0;
+    for (const d of applied.board.dancers) {
+      const isSide = sideIds.has(d.id);
+      const want = isSide ? sides.dancers.find((x) => x.id === d.id) : null;
+      const heads = seq.applyToBoard(square, 'Heads Promenade Full');
+      const wantHeads = heads.legal ? heads.board.dancers.find((x) => x.id === d.id) : null;
+      const target = isSide ? want : wantHeads;
+      if (!target) continue;
+      const err = Math.hypot(d.x - target.x, d.y - target.y);
+      if (isSide) worstSides = Math.max(worstSides, err);
+      else worstHeads = Math.max(worstHeads, err);
+    }
+    check(worstSides < 1e-9, `the sides end where their TWO calls put them (worst ${worstSides.toExponential(1)} units)`);
+    check(worstHeads < 1e-9, `...and the heads where their ONE call puts them (worst ${worstHeads.toExponential(1)})`);
+    // THE APPLY REPORTS ITS OWN LANES, so a caller building a lane can ask where the next call starts.
+    const lane = applied.lanes?.find((l) => l.selection === 'Sides');
+    check(!!lane && lane.calls.length === 2 && lane.boards.length === 3,
+      `the apply reports the lane's boards (${lane ? `${lane.calls.length} calls, ${lane.boards.length} boards` : 'none'})`);
+  }
+  // ------------------------------------------------------------------ the pacing, on a witness that moves
+  //
+  // `Sides Trade then Touch a Quarter` is 4 + 2 beats, and BOTH of its calls animate. The report's own pair
+  // is used above for the beat arithmetic and the applied board, and NOT for this, for a measured reason:
+  // `Sides Pass Thru` on the board `Sides Trade` leaves is one of the subset calls whose BARE name also
+  // matches the whole board, and `evaluateCallAt` takes that whole-board branch - a pre-existing animator
+  // wart (`Sides Pass Thru` alone shows the same 0.00 mid-call motion), not something a lane introduces.
+  // Pinning "the early lane holds" against it would be pinning that wart.
+  const movingGroups = [
+    { selection: 'Heads', call: 'Promenade Full' },
+    { selection: 'Sides', calls: ['Trade', 'Touch a Quarter'] },
+  ];
+  const movingStep = { groups: movingGroups };
+  atSquare();
+  const moving = seq.applyStep(movingStep);
+  check(moving.legal, `the pacing witness applies (${moving.reason ?? 'legal'})`);
+  if (moving.legal) {
+    const beats2 = seq.sequenceBeats([movingStep], square);
+    const sideIds = new Set(seq.selectionIds(square, 'Sides') ?? []);
+    const driftAt = (t) => {
+      const board = seq.evaluateSequence([movingStep], t, square).board;
+      let worst = 0;
+      for (const id of sideIds) {
+        const a = board.dancers.find((d) => d.id === id);
+        const b = moving.board.dancers.find((d) => d.id === id);
+        worst = Math.max(worst, Math.hypot(a.x - b.x, a.y - b.y));
+      }
+      return worst;
+    };
+    // mid-lane the sides are BETWEEN the two calls, so they are nowhere near the lane's end...
+    check(driftAt(2) > 1 && driftAt(5) > 0.1,
+      `mid-lane the sides are still dancing (beat 2 ${driftAt(2).toFixed(2)} units from their end, beat 5 ${driftAt(5).toFixed(2)})`);
+    // ...and at their own total (6) and for the other ten beats they STAND there, which is the whole point.
+    check(driftAt(6) < 1e-9 && driftAt(10) < 1e-9 && driftAt(12) < 1e-9,
+      `a lane that finishes early STANDS on its end pose (drift ${driftAt(6).toExponential(1)} at its own beat 6, ${driftAt(12).toExponential(1)} at beat 12)`);
+    // ...and the last frame is still the board the applicator produced.
+    const last = seq.evaluateSequence([movingStep], beats2, square).board;
+    let worst = 0;
+    for (const d of last.dancers) {
+      const e = moving.board.dancers.find((x) => x.id === d.id);
+      worst = Math.max(worst, Math.hypot(d.x - e.x, d.y - e.y));
+    }
+    check(worst < 1e-6, `the last animated frame IS the applied board (worst ${worst.toExponential(1)})`);
+  }
+  // ONE ACCOUNTING OF THE BEATS: a lane is charged its own sum, which is what the walk records too.
+  atSquare();
+  const laneOnly = { groups: [{ selection: 'Sides', calls: ['Trade', 'Pass Thru'] }] };
+  check(seq.stepBeats(square, laneOnly) === 8, `a lane of two 4-beat calls costs 8 (${seq.stepBeats(square, laneOnly)})`);
+  // ATOMIC, WITH THE OFFENDING CALL NAMED. `Sides Hinge` after `Sides Trade` is illegal (measured), so the
+  // refusal has to say WHICH call of the lane refused - a lane has several places to look.
+  atSquare();
+  const bad = seq.applyStep({ groups: [{ selection: 'Heads', call: 'Promenade Full' }, { selection: 'Sides', calls: ['Trade', 'Hinge'] }] });
+  check(!bad.legal && /call 2 of 2 \(Hinge\)/.test(bad.reason ?? ''),
+    `a lane whose SECOND call refuses says so: "${bad.reason ?? 'legal'}"`);
+  // A DEFERRED CALL CANNOT SIT MID-LANE: its answer depends on the other groups' END poses, which do not
+  // exist half way through a lane. A lane of its own is still exactly what it was.
+  atSquare();
+  const midDeferred = seq.applyStep({
+    groups: [
+      { selection: 'Heads', call: 'Right and Left Thru' },
+      { selection: 'Sides', calls: ['Step Forward and Back if Possible', 'Trade'] },
+    ],
+  });
+  check(!midDeferred.legal && /END poses/.test(midDeferred.reason ?? ''),
+    `a deferred call in the middle of a lane is refused: "${midDeferred.reason ?? 'legal'}"`);
+  // THE LEGACY SHAPE STILL WORKS, byte for byte: a module saved before lanes existed holds
+  // `{selection, call}`, and it must apply and label exactly as it did.
+  const legacy = { groups: [{ selection: 'Heads', call: 'Right and Left Thru' }, { selection: 'All Except Heads', call: 'Touch a Quarter' }] };
+  atSquare();
+  const legacyApplied = seq.applyStep(legacy);
+  check(legacyApplied.legal && stepLabel(legacy) === 'Heads Right and Left Thru while All Except Heads Touch a Quarter',
+    `the legacy lane - a group with a single call field - still applies and labels ("${stepLabel(legacy)}")`);
+}
+
 console.log(failures === 0 ? '\nparallel-calls: all green.' : `\nparallel-calls: ${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

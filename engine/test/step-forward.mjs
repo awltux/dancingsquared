@@ -236,6 +236,27 @@ console.log('\n== 5. a dependency that cannot be resolved is refused, with the r
     `and a dependent group with no partner call is refused rather than resolving to a no-op ("${r1.reason}")`);
   check(isDeferredCall('Step Forward and Back if Possible') && !isDeferredCall('Trade') && !isDeferredCall('Not A Call At All'),
     'the flag is read from the registry: Step Forward is deferred, Trade is not, and an unknown name is not');
+  // A DEFERRED CALL CANNOT SIT IN THE MIDDLE OF A LANE. Its answer comes from the other groups' END poses, and
+  // half way through a lane nobody has reached them - so the lane is refused with that reason rather than
+  // resolved against a board the step never visits. A lane of its own is untouched (the two checks above).
+  seq.setBoard(square);
+  const midLane = seq.applyStep({
+    groups: [
+      { selection: 'Heads', call: 'Right and Left Thru' },
+      { selection: 'Sides', calls: ['Trade', 'Step Forward and Back if Possible'] },
+    ],
+  });
+  check(!midLane.legal && /END poses/.test(midLane.reason ?? '') && /Step Forward and Back if Possible/.test(midLane.reason ?? ''),
+    `a deferred call inside a LANE is refused with the reason ("${midLane.reason}")`);
+  seq.setBoard(square);
+  const soleLane = seq.applyStep({
+    groups: [
+      { selection: 'Heads', call: 'Right and Left Thru' },
+      { selection: 'Sides', calls: ['Step Forward and Back if Possible'] },
+    ],
+  });
+  check(soleLane.legal,
+    `while the same call as a lane OF ONE still applies, which is the shape it was written for (${soleLane.reason ?? 'legal'})`);
 }
 
 // ------------------------------------------------------------------ 6. SHOWN TO FAIL

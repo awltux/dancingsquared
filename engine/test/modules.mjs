@@ -25,7 +25,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, stepLabel, stepCall, isGroupStep, boardSig } from '../dist/index.js';
+import { setParser, Sequencer, stepLabel, stepCall, stepSelection, isGroupStep, groupCalls, boardSig } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
@@ -118,7 +118,7 @@ console.log('\n== the rules, each refused with a reason ==');
 
   seq.registerModule('while-audit-module', ['Pass Thru']);
   const moduleGroup = seq.applyToBoard(board, { groups: [{ selection: 'Heads', call: 'while-audit-module' }, { selection: 'Sides', call: 'Trade' }] });
-  check(!moduleGroup.legal && /must name a call, not the module/.test(moduleGroup.reason ?? ''),
+  check(!moduleGroup.legal && /must name calls, not the module/.test(moduleGroup.reason ?? ''),
     `a group naming a MODULE refuses (${moduleGroup.reason ?? 'NO REASON'})`);
 
   const atomic = seq.applyToBoard(board, { groups: [{ selection: 'Heads', call: 'Pass Thru' }, { selection: 'Sides', call: 'This Is Not A Call' }] });
@@ -160,6 +160,27 @@ console.log('\n== beats, animation, flatten and the matrix transform ==');
   check(collapsible, 'moduleCollapsible accepts a module containing a "while" step');
   check(collapsed !== null && collapsed.matrices.size === 8,
     `collapseModule composes a per-dancer matrix ACROSS the grouped step (n=${collapsed?.matrices.size ?? 'null'}) - the matrix transform survives the new form`);
+
+  // ---------------------------------------------------------------- and a LANE inside it
+  //
+  // A group may dance SEVERAL calls back to back (`GroupLane`), which is how a long call is filled by two
+  // short ones. The rules that matter here are the ones the module machinery reads: the label, the flatten
+  // pass-through, and the collapse - which must count EVERY lane call, since each dancer dances them all.
+  const laneStep = { groups: [{ selection: 'Centers', calls: ['Box the Gnat', 'Trade'] }, { selection: 'Ends', calls: ['California Twirl', 'Trade'] }] };
+  check(stepLabel(laneStep) === 'Centers Box the Gnat then Trade while Ends California Twirl then Trade',
+    `a lane labels with "then", selection once: "${stepLabel(laneStep)}"`);
+  check(isGroupStep(laneStep) && stepCall(laneStep) === null && stepSelection(laneStep) === null,
+    'and it is still the GROUPED form, naming no single call or selection');
+  const laneFlat = seq.flatten([laneStep]);
+  check(laneFlat.length === 1 && isGroupStep(laneFlat[0]) && groupCalls(laneFlat[0].groups[0]).length === 2,
+    'flatten passes a lane through WHOLE, with both of its calls intact - linearising it would turn the lane\'s "then" into the step\'s "while"');
+  seq.registerModule('while-audit-lane', [laneStep]);
+  const laneCollapsible = seq.moduleCollapsible('while-audit-lane', WITNESS.board);
+  const laneCollapsed = seq.collapseModule('while-audit-lane', WITNESS.board);
+  check(laneCollapsible === collapsible,
+    `moduleCollapsible reads every lane call (${laneCollapsible} against ${collapsible} for the single-call form)`);
+  check(laneCollapsed !== null && laneCollapsed.matrices.size === 8,
+    `and collapseModule composes across a lane too (n=${laneCollapsed?.matrices.size ?? 'null'})`);
 }
 
 // ---------------------------------------------------------------- Running Bear, measured not assumed

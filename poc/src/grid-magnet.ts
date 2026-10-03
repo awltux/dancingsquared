@@ -216,6 +216,36 @@ export function snapBoard(p: Point, mode: GridMode): Point {
  */
 export const RADIAL_ARC_MAX_SWEEP = Math.PI / 2;
 
+/**
+ * THE SLACK AN AUTHORED QUARTER TURN NEEDS - the authoring's own noise, not a second shape limit, because a
+ * quarter turn that came out of a four-decimal file is not the exact right angle this rule was stated as.
+ *
+ * REPORTED TWICE, both times as a MISSING control rather than a wrong fit: "The central control to fit to radial
+ * curve only seems to appear on the first full curve of Promenade Full. It should appear on all four of the
+ * quarter moves", and then, from the board, "I just saw the first and last curves with the control, but missing
+ * on the middle curve." That second reading is the diagnosis: which of a call's quarters is offered was turning
+ * on the last decimal of its coordinates. MEASURED on the three authorings of that call (`ms/promenade.xml`,
+ * whose rings are r = 2.5 and 3.5): their quarter turns come out at **90.0003deg, 90.0049deg, 90.0053deg,
+ * 90.0152deg, 90.0158deg** - every one of them a hair PAST a right angle - and under a bare `> PI/2` the
+ * `Promenade Full to Home` path is offered the fit on moves 1 and 4 and refused it on 2 and 3, which is exactly
+ * "the first and the last, but not the middle".
+ *
+ * WHY A SLACK HERE IS SAFE, measured over all nine levels of the corpus: **98038** moves, **16120** with both
+ * ends on one drawn circle within the magnet's tier, of which **986** measure past a right angle - and the worst
+ * of those is **90.708deg**, while the NARROWEST arc that is genuinely wider than a quarter measures
+ * **100.389deg**. Nothing at all lives between those two numbers, so the whole 9.7deg band separates the
+ * authoring's noise from the shapes. 2deg sits 1.3deg clear of the worst overshoot and 8.4deg clear of the
+ * narrowest real arc, and it costs the fit almost nothing: the cubic traces the circle to **2.91e-4** of the
+ * radius at 91deg against **2.73e-4** at 90 (`radial-arc-fit-probe.mjs` measures the ladder), where neither
+ * number is inside the four decimals the assets are written in anyway.
+ *
+ * IT IS AN ANGLE AND NOT THE TIER CONVERTED AT THE RADIUS, and that is the one judgement in the constant: the
+ * tier says how far a placed point may be from where the caller meant it, while what is bounded here is the
+ * SHAPE - whether the cubic is still the circle - and that depends on the sweep alone, so a small ring would
+ * otherwise earn itself a slack large enough to reach the arcs this rule exists to refuse.
+ */
+export const RADIAL_ARC_SWEEP_TOL = (2 * Math.PI) / 180;
+
 export interface RadialArcFit {
   /** The DRAWN radius the two ends are on, which is the circle the fit will follow. */
   radius: number;
@@ -258,7 +288,9 @@ export function radialArcFit(
   while (sweep > Math.PI) sweep -= 2 * Math.PI;
   while (sweep < -Math.PI) sweep += 2 * Math.PI;
   if (!(Math.abs(sweep) > 0)) return null;
-  if (Math.abs(sweep) > RADIAL_ARC_MAX_SWEEP) return null;
+  // A QUARTER TURN AS AUTHORED, which is a quarter turn to four decimals and so is never exactly one - see
+  // `RADIAL_ARC_SWEEP_TOL` for the two reports this answers and the empty band the slack sits in.
+  if (Math.abs(sweep) > RADIAL_ARC_MAX_SWEEP + RADIAL_ARC_SWEEP_TOL) return null;
   // THE GRID'S OWN CIRCLES, nearest first: the fit follows a line the caller can see.
   const mean = (r0 + r1) / 2;
   let drawn: number | null = null;

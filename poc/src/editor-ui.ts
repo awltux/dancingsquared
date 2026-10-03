@@ -493,6 +493,28 @@ const floorToLocal = (f: MoveFrame, x: number, y: number): { lx: number; ly: num
 };
 
 /**
+ * THE ANGLE A MOVE TURNS THE FRAME THE NEXT MOVE STARTS IN - `poseFor`'s own `a`, and the exact quantity that
+ * swings a dancer's tail when a curve is edited.
+ *
+ * IT IS NOT THE EXIT HEADING, which is the quantity this panel used to guard on and the reason a travel edit
+ * was left unguarded. `poseFor` advances the frame by `bezierAngle(facing, 1) - bezierAngle(facing, 0)`
+ * (`engine/src/core.ts`), read off the move's FACING when it has one and off its TRAVEL when it has not: a
+ * departure direction is where the dancer is already facing, so the turn the move contributes is the CHANGE in
+ * its own curve's direction, not the direction itself. For an authored `<rotate>` curve the two readings agree
+ * (the format has no `cy3`, so the start tangent is the +X axis and the `0` term is identically 0) - which is
+ * why the facing guard was right about facings and wrong about everything else. For a travel curve they do NOT:
+ * the arc fit rewrites the departure tangent as well as the arrival one, so it changes this angle, rotates every
+ * later move's local curve on the floor, and carries the rest of the track off the circle the caller is fitting
+ * to. MEASURED (`poc/tools/radial-arc-fit-probe.mjs` section 9): fitting one curve of `Promenade Full` moves a
+ * later end point by up to **4.9e-1** units, and holding the tail takes the worst of 3936 end points to
+ * **2.8e-15** - the rounding of the rotation, eleven orders below the 4th decimal the assets are written in.
+ */
+function frameTurn(seg: Seg): number {
+  const facing = seg.rotate ?? seg.translate;
+  return bezierAngle(facing, 1) - bezierAngle(facing, 0);
+}
+
+/**
  * THE THREE POINTS A CURVE IS DRAWN FROM, and the local fields each one owns.
  *
  * P0 is the dancer's own spot at the move's start and is not a handle, so the points are the two controls
@@ -1551,7 +1573,7 @@ export class EditorController implements EditorUI {
     // without going through them: a coordinate change on a selection whose curve differs would collapse
     // them into one shape, which is the whole thing `coordinatesAgree` exists to prevent.
     if (curve && !this.coordinatesAgree(curve)) return;
-    const next = this.foldMoveChange(f, curve);
+    const next = this.foldMoveChange(f);
     if (!next) return;
     if (!light) {
       this.commit(next, focusKey);
@@ -1582,26 +1604,34 @@ export class EditorController implements EditorUI {
 
   /** The selected dancers' move, each changed by `f` in its OWN frame. Null when nothing applies.
    *
-   *  A FACING write goes through here like any other. It cannot be "just the facing": the heading a move
-   *  ends on IS the frame the next move is played in - the format composes `tx * translate * rotate` per
-   *  move (`taminations-flutter/lib/math/path.dart`, `Path.recalculate`) - so turning it turns every later
-   *  heading AND swings every later segment round the floor. MEASURED (`poc/tools/facing-chain-probe.mjs`):
-   *  10deg of extra end heading rotates every later boundary pose rigidly about the pose the move ends on
-   *  and carries the call's end 0.42 units across the board. That is what the dance means, and the Facing
-   *  tab says so rather than pretending otherwise; `engine/test/editor.mjs` 19 pins it.
+   *  A CURVE write goes through here like any other, and it cannot be "just the curve". The move's own curve IS
+   *  the frame the next move is played in - the format composes `tx * translate * rotate` per move
+   *  (`taminations-flutter/lib/math/path.dart`, `Path.recalculate`) - so turning it turns every later heading
+   *  AND swings every later segment round the floor. MEASURED (`poc/tools/facing-chain-probe.mjs`): 10deg of
+   *  extra end heading rotates every later boundary pose rigidly about the pose the move ends on and carries the
+   *  call's end 0.42 units across the board. That is what the dance means, and the Facing tab says so rather
+   *  than pretending otherwise; `engine/test/editor.mjs` 19 pins it.
    *
-   *  THE COMPOSITION IS THE FORMAT'S, BUT THE GESTURE MUST NOT EXPOSE IT THAT WAY. Because the same angle
-   *  turns the facing and the following path, the angle BETWEEN them is a constant of the data - so the
-   *  facing controls could not set the one relationship a facing expresses, reported as "I cannot face the
-   *  dancer without corrupting the next follow path". A facing write therefore HOLDS THE FOLLOWING TRACE:
+   *  THE COMPOSITION IS THE FORMAT'S, BUT THE GESTURE MUST NOT EXPOSE IT THAT WAY. Because the same angle turns
+   *  the facing and the following path, the angle BETWEEN them is a constant of the data - so the facing
+   *  controls could not set the one relationship a facing expresses, reported as "I cannot face the dancer
+   *  without corrupting the next follow path". A write that turns the frame therefore HOLDS THE FOLLOWING TRACE:
    *  `holdFollowingTrace` turns each later path about its own start by the same angle, leaving every later
-   *  position and floor direction exactly as they were and moving only the headings. The facing rotates and
-   *  the follow direction does not, which is what the control says it does.
+   *  position and floor direction exactly as they were and moving only the headings. The facing rotates and the
+   *  follow direction does not, which is what the control says it does.
    *
-   *  The delta is PER DANCER, because the selection shares the local numbers and not the frame they land
-   *  in. It compounds correctly through a drag: each pointer move writes the facing ABSOLUTELY and holds
-   *  the tail by the step since the last one, so the accumulated hold is the whole of the edit. */
-  private foldMoveChange(f: (seg: Seg, dancer: number) => Seg, curve: CurveKind | null = null, at = this.moveIndex, base = this.instance): CallBundle | null {
+   *  AND THAT INCLUDES A TRAVEL WRITE, which is the correction this panel took from the arc fit: reported as
+   *  "It should appear on all four of the quarter moves, unless fixing one has thrown out the end points of the
+   *  other curves ... If so, this should be prevented by pinning the subsequent end point while adjusting the
+   *  controls." It did throw them out - fitting one curve of `Promenade Full` carried a later end point 0.49
+   *  units off the ring - because `frameTurn` reads the TRAVEL curve when the move has no facing, and the fit
+   *  rewrites both of that curve's tangents. `frameTurn` is the guard now, for facings and travel alike; see it
+   *  for the algebra and section 9 of `radial-arc-fit-probe.mjs` for the measurement.
+   *
+   *  The delta is PER DANCER, because the selection shares the local numbers and not the frame they land in. It
+   *  compounds correctly through a drag: each pointer move writes the curve ABSOLUTELY and holds the tail by the
+   *  step since the last one, so the accumulated hold is the whole of the edit. */
+  private foldMoveChange(f: (seg: Seg, dancer: number) => Seg, at = this.moveIndex, base = this.instance): CallBundle | null {
     const call = base;
     if (!call) return null;
     let next = call;
@@ -1609,18 +1639,19 @@ export class EditorController implements EditorUI {
     for (const d of this.selectedSorted()) {
       const seg = next.dancers[d]?.path[at];
       if (!seg) continue;
-      const before = bezierAngle(seg.rotate ?? seg.translate, 1);
+      const before = frameTurn(seg);
       // THE DANCER COMES WITH THE SEGMENT, because an absolute write is per-dancer: the selection shares a
       // LOCAL end point, not the frame it lands in, so the conversion has to be done inside this loop.
       const patched = f(seg, d);
       next = setMove(next, d, at, patched);
       changed = true;
-      // A change to the heading the move ends on is the whole of what swings the tail. A `cx1` drag does
-      // not move it, so that gesture is left exactly as it was.
-      if (curve === 'facing') {
-        const delta = normAngle(bezierAngle(patched.rotate ?? patched.translate, 1) - before);
-        if (delta !== 0) next = holdFollowingTrace(next, d, at, delta);
-      }
+      // ANY WRITE THAT TURNS THE FRAME HOLDS THE TAIL, whichever curve it wrote - see `frameTurn` for why the
+      // guard is that angle rather than the FACING TAB. The two gestures that must NOT be compensated twice
+      // hold themselves: an END POINT drag goes through `moveCurveEnd`, which carries the exit handle as a
+      // vector, so it leaves this angle exactly unchanged and the delta here is 0 (`radial-arc-fit-probe.mjs`
+      // section 9 checks that on the corpus rather than taking it on trust).
+      const delta = normAngle(frameTurn(patched) - before);
+      if (delta !== 0) next = holdFollowingTrace(next, d, at, delta);
     }
     return changed ? next : null;
   }
@@ -2316,7 +2347,10 @@ export class EditorController implements EditorUI {
     const circles = radialCircleRadii(FLOOR_HALF);
     const fit = radialArcFit(from, to, circles.fine.concat(circles.halves));
     if (!fit) {
-      this.statusEl.textContent = 'no radial arc to fit here: the ends must be on the same drawn circle, less than half a unit apart';
+      // THE REFUSAL SAYS WHAT THE RULE ACTUALLY ASKS, which the first version of this message did not: it still
+      // described the withdrawn chord limit ("less than half a unit apart"), so a caller whose ends sat on two
+      // different rings was told to bring them closer together.
+      this.statusEl.textContent = 'no radial arc to fit here: both ends must sit on one of the drawn circles, within a quarter turn of each other';
       return;
     }
     // THE FIT IS BUILT AT THE TOLERANCE THE RULE OFFERED IT UNDER, which is not a detail: the engine's own default is a
@@ -2328,11 +2362,17 @@ export class EditorController implements EditorUI {
     }
     const c1 = floorToLocal(p0, cubic.cx1, cubic.cy1);
     const c2 = floorToLocal(p0, cubic.cx2, cubic.cy2);
+    // WHAT THE FIT WILL DO TO THE REST OF THE TRACK, taken before the write because after it there is nothing to
+    // compare against: the fit rewrites the curve's DEPARTURE tangent as well as its arrival one, so the frame
+    // the next move is played in turns and the tail would swing OFF THE CIRCLE the caller is fitting to. The
+    // write path holds it (`foldMoveChange`, via `frameTurn`), and this is the number the message reports.
+    const turned = toDeg(normAngle(frameTurn({ ...seg, translate: { ...seg.translate, cx1: c1.lx, cy1: c1.ly, cx2: c2.lx, cy2: c2.ly } }) - frameTurn(seg)));
     this.commitMoveChange(
       (s) => ({ ...s, translate: { ...s.translate, cx1: c1.lx, cy1: c1.ly, cx2: c2.lx, cy2: c2.ly } }),
       `d${this.moveDancer}:arc`,
     );
-    this.statusEl.textContent = `curve fitted to the r = ${fit.radius} circle (${((Math.abs(fit.sweep) * 180) / Math.PI).toFixed(1)}deg of arc)`;
+    this.statusEl.textContent = `curve fitted to the r = ${fit.radius} circle (${((Math.abs(fit.sweep) * 180) / Math.PI).toFixed(1)}deg of arc)`
+      + (Math.abs(turned) > 0.05 ? `, and the following trace is held where it was (the fit turns the joint ${turned.toFixed(1)}deg)` : '');
   }
 
   private applyHandleDrag(handle: string, board: { x: number; y: number }, snap = false) {
@@ -2424,7 +2464,7 @@ export class EditorController implements EditorUI {
         true,
         facing ? 'facing' : 'travel',
       );
-      if (facing) this.noteFacingHold(seg);
+      if (facing) this.noteTraceHold(seg, true);
       return;
     }
 
@@ -2454,7 +2494,7 @@ export class EditorController implements EditorUI {
               //
               // SO THE TWO HANDLES DIVIDE THE WORK, one axis each, and neither disturbs the other: the
               // CONTROL sets the finish heading by pivoting the line about the point, and the END POINT
-              // relocates the tail while holding it. `noteFacingHold` therefore stays silent on this drag
+              // relocates the tail while holding it. `noteTraceHold` therefore stays silent on this drag
               // and speaks on the other, which is the honest report of which of the two happened.
               (seg) => (seg.rotate ? { ...seg, rotate: moveCurveEnd(seg.rotate, lx, ly) } : seg)
             : which === 'c1'
@@ -2467,23 +2507,29 @@ export class EditorController implements EditorUI {
                   // engine owns that rule (`moveCurveEnd`); the panel only says where the point went.
                   (seg) => ({ ...seg, translate: moveCurveEnd(seg.translate, lx, ly) });
     this.commitMoveChange(patch, `m${this.moveDancer}:${this.moveIndex}:tab:${this.moveKind}`, true, facing ? 'facing' : 'travel');
-    if (facing) this.noteFacingHold(seg);
+    this.noteTraceHold(seg, facing);
   }
 
   /**
-   * Say what a FACING drag did, and say that the trace did NOT move with it.
+   * Say what a curve drag did, and say that the trace did NOT move with it.
    *
    * The old behaviour was reported as a bug twice - "adjusting the end of the facing curve alters the
    * direction of the rest of the trace" - and the honest fix leaves the panel silent, so a caller cannot
    * tell the new behaviour from the old one except by watching the floor. This is the sentence that says
-   * which one they have, and the number is the rotation, which is now the only thing that changed.
+   * which one they have, and the number is the turn of the frame, which is now the only thing that changed.
+   *
+   * IT SPEAKS FOR A TRAVEL DRAG TOO, since the hold is no longer the facing tab's alone (see `frameTurn`): a
+   * control point that turns a move the dancer has no facing curve for swings the tail exactly the same way,
+   * and the caller is told in the terms of the curve they were dragging rather than of a facing they never set.
    */
-  private noteFacingHold(before: Seg) {
+  private noteTraceHold(before: Seg, facing: boolean) {
     const after = this.instance?.dancers[this.moveDancer]?.path[this.moveIndex];
     if (!after) return;
-    const turned = toDeg(normAngle(bezierAngle(after.rotate ?? after.translate, 1) - bezierAngle(before.rotate ?? before.translate, 1)));
+    const turned = toDeg(normAngle(frameTurn(after) - frameTurn(before)));
     if (Math.abs(turned) > 0.05) {
-      this.statusEl.textContent = `turned the end facing ${turned.toFixed(1)}Â° - the following trace is held where it was`;
+      this.statusEl.textContent = facing
+        ? `turned the end facing ${turned.toFixed(1)}° - the following trace is held where it was`
+        : `the curve turns the dancer ${turned.toFixed(1)}° at the joint - the following trace is held where it was`;
     }
   }
 
@@ -3356,7 +3402,7 @@ export class EditorController implements EditorUI {
         const moved = { ...c, x2: want.x, y2: want.y };
         touched = true;
         return curve === 'facing' ? { ...seg, rotate: moved } : { ...seg, translate: moved };
-      }, curve, j, next);
+      }, j, next);
       if (step && touched) { next = step; done++; }
       else if (!touched) empty++;
     }

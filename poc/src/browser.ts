@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { el, esc } from './dom';
 
 import { allPoses, sampleTrail, sampleTrailRange, poseFor, computeHandholds, assignHomeIdentity, boardAtBeat, formationToXml } from 'dancing-squared-engine';
-import type { HoldMode, Board, CallBundle, CallStep, DancerSpec, Matchable, Pose } from 'dancing-squared-engine';
+import type { HoldMode, Board, CallBundle, CallStep, DancerSpec, Matchable, ModuleStep, Pose } from 'dancing-squared-engine';
 import { availableCalls, loadCall } from './data';
 import type { CallInfo } from './data';
 import { addUserFormation, applyLabel, detachLabel, loadUserFormations, reattachLabel, removeUserFormation, setFormationInCorpus } from './formations';
@@ -25,8 +25,9 @@ import type { BoardRead } from './sequencer-ui';
 export interface BrowserHost {
   /** Open the SEQUENCE view with `steps` loaded, the playhead at the first step playing `atCall`,
    * and `startFormation` naming where the corpus says the module begins when that is not home (so
-   * the sequence view can say its replay is an approximation). */
-  openSequence(steps: (string | CallStep)[], atCall: string, startFormation?: string): void;
+   * the sequence view can say its replay is an approximation). A saved module can hold a "while" step,
+   * so the steps are the engine's whole union rather than the two forms the ceder corpus uses. */
+  openSequence(steps: ModuleStep[], atCall: string, startFormation?: string): void;
   /** Name the board and say what the library can read about it. The FORMATION LIBRARY lives in the
    *  sequencer (it is built from the registered catalogue), so the browse view asks rather than
    *  building a second one. */

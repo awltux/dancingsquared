@@ -17,7 +17,12 @@ export const MODULES_STORAGE_KEY = 'dsModules';
 
 export interface NamedSequence {
   name: string;
-  steps: (string | CallStep)[];
+  /**
+   * The steps of the sequence. A saved module can hold a "while" step (`GroupStep`) because the sequencer
+   * saves the raw history, so the type is the engine's whole step union rather than the two forms the ceder
+   * corpus happens to use.
+   */
+  steps: ModuleStep[];
   source: 'ceder' | 'saved';
   /**
    * The formation the CORPUS says this module was written for, when it is not home.

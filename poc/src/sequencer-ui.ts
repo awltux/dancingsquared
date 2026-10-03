@@ -127,15 +127,31 @@ export class SequencerController implements SequencerUI {
   private history: ModuleStep[] = [];
   /**
    * PARALLEL-CALL MODE. Set when the caller is giving the dancers the last call did NOT move their own
-   * call in the SAME time slot. Holds everything the offer needs, captured when the mode was entered:
-   *   - `board`   the board the first call was applied FROM, which is the board the remainder must be
-   *               resolved on. The live board is already after the first call, so resolving there would
-   *               name whoever is still standing rather than whoever was left over.
+   * call in the SAME time slot. Holds everything the offer needs:
+   *   - `board`   the board the LANE'S NEXT CALL starts on. It begins as the board the first call was
+   *               applied FROM - which is the board the remainder must be resolved on, because the live
+   *               board is already after the first call - and advances by one call each time the caller
+   *               appends to the lane, so the picker always asks `groupCanPerform` the question that
+   *               matches the call about to be picked.
+   *   - `start`   the board the STEP starts from - the board the first call was applied FROM. It never
+   *               moves, and it is the board the composed step is CHECKED on: the live board has already
+   *               been replayed past the step, so applying the step there would apply it twice.
    *   - `index`   the history entry to replace, so the pair becomes ONE step rather than two.
    *   - `first`   the first group, kept so the composed step can be rebuilt.
    *   - `remaining` the selector for the dancers the first call left behind.
+   *   - `calls`   the calls the remainder has been given SO FAR, in order. One call is the ordinary
+   *               "while" partner; two or more is a LANE - the remainder dances them back to back in the
+   *               same slot, which is how a 16-beat call is filled by two 4-beat ones. Apply APPENDS while
+   *               the mode is on, and clicking the button again finishes the step.
    */
-  private parallel: { board: Board; index: number; first: { selection: string; call: string }; remaining: string } | null = null;
+  private parallel: {
+    start: Board;
+    board: Board;
+    index: number;
+    first: { selection: string; call: string };
+    remaining: string;
+    calls: { selection: string; call: string }[];
+  } | null = null;
   private modules: Module[] = [];
   private active = false;
   /** Display-only rotation (radians) applied about the set centre so the whole
@@ -560,8 +576,12 @@ export class SequencerController implements SequencerUI {
     this.listBoardKey = boardKey(this.seq.board);
     // The parallel button is only live when a subset call has left dancers with no call of their own.
     this.parallelBtn.disabled = !this.parallel;
+    const lane = this.parallel?.calls ?? [];
     this.parallelBtn.title = this.parallel
-      ? `${this.parallel.remaining} have no call yet — pick one from the list and Apply to dance it in the SAME slot as ${this.parallel.first.selection} ${this.parallel.first.call}.`
+      ? `${this.parallel.remaining} dance in the SAME slot as ${this.parallel.first.selection} ${this.parallel.first.call}`
+        + (lane.length
+          ? ` — their lane is ${lane.map((c) => c.call).join(' then ')}, so Apply ADDS another call to it and pressing this finishes the step.`
+          : ' — pick a call from the list and Apply; Apply again adds a second call to the same lane, which is how one long call is filled by two short ones.')
       : 'Give the dancers the current call did NOT move their own call in the SAME time slot. Enabled only when the last call acted on a subset, e.g. Sides promenade while the Heads step into the middle.';
     this.updateFormationSelect();
     this.renderSubsetInfo();
@@ -995,12 +1015,14 @@ export class SequencerController implements SequencerUI {
     const remaining = who ? this.seq.remainingSelection(from, who) : null;
     if (remaining && expanded.length === 1 && typeof expanded[0] === 'string') {
       this.parallel = {
+        start: from,
         board: from,
         index: this.history.length - 1,
         first: { selection: who!, call: splitSelection(name).call || picked },
         remaining,
+        calls: [],
       };
-      this.statusEl.textContent = `✓ ${name} · ${remaining} left — "+ Parallel call" gives them their own call in the same slot`;
+      this.statusEl.textContent = `✓ ${name} · ${remaining} left — "+ Parallel call" gives them their own call in the same slot, and Apply again fills that slot with more than one`;
     } else {
       this.statusEl.textContent = `✓ ${name}${expanded.length > 1 ? ` (${expanded.length} calls)` : ''}`;
     }
@@ -1025,13 +1047,19 @@ export class SequencerController implements SequencerUI {
   /**
    * Give the dancers the last call did NOT move their OWN call, in the SAME time slot, as one step.
    *
-   * THE TWO CALLS RUN SIMULTANEOUSLY, NOT IN SEQUENCE - the step becomes a `GroupStep`, which the engine
+   * THE TWO GROUPS RUN SIMULTANEOUSLY, NOT IN SEQUENCE - the step becomes a `GroupStep`, which the engine
    * applies from one board and charges the LONGEST group's beats. That is the whole point: a caller
    * saying "sides promenade while the heads step into the middle" is ONE figure, not two in a row.
    *
-   * The second call is taken from the picker, which is offering only what the REMAINDER can do
-   * (`refreshCallSelect` narrows it by `groupCanPerform` against `remaining`), so the pair cannot be
-   * built from a call only the whole board can perform.
+   * AND THE REMAINDER'S GROUP MAY TAKE SEVERAL CALLS, which is the lane: APPLY APPENDS while the mode is on,
+   * so a 16-beat call for the heads can be filled by "Sides Trade then Pass Thru". Each Apply rebuilds the
+   * step from the lane so far plus the call just picked, and applies it - so a lane that the engine refuses
+   * never lands in the history, and the status line says which call refused.
+   *
+   * The call is taken from the picker, which is offering only what the REMAINDER can do FROM THE BOARD ITS
+   * NEXT CALL STARTS ON (`refreshCallSelect` narrows it by `groupCanPerform` against `parallel.board`, which
+   * advances by one call per append), so the lane cannot be built from calls the group cannot perform in
+   * order.
    */
   private applyParallel() {
     const p = this.parallel;
@@ -1041,18 +1069,25 @@ export class SequencerController implements SequencerUI {
       this.statusEl.textContent = `pick ${p.remaining}'s own call first`;
       return;
     }
-    const step: ModuleStep = { groups: [p.first, { selection: p.remaining, call: second }] };
-    // REPLACE the first call's entry rather than appending: the pair is ONE step, so Undo removes both
-    // and the sequence list shows one numbered row.
-    const withStep = [...this.history];
-    withStep[p.index] = step;
-    this.history = withStep;
-    this.replayHistory();
-    const applied = this.seq.applyStep(step);
+    const lane = [...p.calls, { selection: p.remaining, call: second }];
+    const step: ModuleStep = { groups: [p.first, { selection: p.remaining, calls: lane.map((c) => c.call) }] };
+    // THE STEP IS CHECKED ON THE BOARD IT STARTS FROM, ONCE. `replayHistory` has already put the live board
+    // at the END of the sequence - which, once this entry is in the list, is the board the step PRODUCED - so
+    // applying the step there applies it TWICE. That was harmless for the ordinary pair and stopped being so
+    // as soon as a lane could be built up: MEASURED in the browser, `Heads Promenade Full while All Except
+    // Heads Trade` applied, and adding `Touch a Quarter` to the lane was then refused with
+    // `"Heads Promenade Full" in a "while" step: Promenade Full ...` - the heads' own call, failing from a
+    // board the heads had already left. A pure check against `p.start` cannot do that, and it does not move
+    // the live board either (the replay is what places it).
+    const applied = this.seq.applyToBoard(p.start, step);
     if (!applied.legal) {
-      // A refused pair must not leave a half-built step in the list: put the single call back.
+      // A refused append must not leave a half-built step in the list: RESTORE THE LANE AS IT WAS (which is
+      // the single call when nothing has been appended yet), and KEEP THE MODE ON so the caller can pick a
+      // different call instead of starting the lane again.
       const back = [...this.history];
-      back[p.index] = `${p.first.selection} ${p.first.call}`;
+      back[p.index] = p.calls.length > 0
+        ? { groups: [p.first, { selection: p.remaining, calls: p.calls.map((c) => c.call) }] }
+        : `${p.first.selection} ${p.first.call}`;
       this.history = back;
       this.replayHistory();
       this.parallel = p;
@@ -1062,8 +1097,34 @@ export class SequencerController implements SequencerUI {
       this.syncAnimation();
       return;
     }
-    this.parallel = null;
-    this.statusEl.textContent = `✓ ${stepLabel(step)} — one step; Undo removes both`;
+    // REPLACE the first call's entry rather than appending: the pair is ONE step, so Undo removes both
+    // and the sequence list shows one numbered row.
+    const withStep = [...this.history];
+    withStep[p.index] = step;
+    this.history = withStep;
+    this.replayHistory();
+    // THE BOARD THE LANE'S NEXT CALL STARTS ON. Read from the apply rather than re-applying: `lanes` carries
+    // the boards the applicator itself passed through (`ApplyResult.lanes`), which is the same board the
+    // engine will charge the next call its beats against.
+    const laneRun = applied.lanes?.find((l) => l.selection === p.remaining);
+    const nextBoard = laneRun?.boards[laneRun.boards.length - 1] ?? p.board;
+    this.parallel = { ...p, board: nextBoard, calls: lane };
+    // THE BALANCE IS THE POINT OF THE FEATURE: two 4-beat calls against a 16-beat partner is only useful if
+    // the caller can see it. Beats are read from the engine, per group, on the boards those groups start on.
+    const firstBeats = this.seq.stepBeats(p.board, `${p.first.selection} ${p.first.call}`);
+    const laneBeats = lane.reduce((sum, c, i) => {
+      const on = i === 0 ? p.board : laneRun?.boards[i] ?? p.board;
+      return sum + this.seq.stepBeats(on, `${c.selection} ${c.call}`);
+    }, 0);
+    const filled = Math.min(laneBeats, firstBeats);
+    this.statusEl.textContent =
+      `✓ ${stepLabel(step)} — one step; Undo removes both`
+      + ` · ${p.remaining} lane: ${lane.map((c) => c.call).join(' then ')} = ${laneBeats} of ${firstBeats} beats`
+      + (laneBeats < firstBeats
+        ? ` — ${firstBeats - laneBeats} beats standing; Apply again to fill it, or press "+ Parallel call" to finish`
+        : laneBeats > firstBeats
+          ? ` — the lane is ${laneBeats - firstBeats} beats LONGER, so ${p.first.call} stands for that long`
+          : (filled ? ' — the times match' : ''));
     this.render();
     this.refreshCallSelect();
     this.syncAnimation();
@@ -1368,7 +1429,10 @@ export class SequencerController implements SequencerUI {
   private wireEvents() {
     this.applyBtn.addEventListener('click', () => this.applySelected());
     // THE PARALLEL BUTTON DOES NOT APPLY ANYTHING ON ITS OWN. It puts the picker into the mode where the
-    // list offers the REMAINDER's calls; Apply then composes the pair. Clicking it again leaves the mode.
+    // list offers the REMAINDER's calls; Apply then composes the pair - and APPENDS to the remainder's LANE
+    // once the pair exists, so a long call can be filled by several short ones. THE BUTTON IS THEREFORE ALSO
+    // THE WAY OUT: with nothing applied yet it seeds the picker, and with a lane already started it FINISHES
+    // the step and leaves the mode.
     this.parallelBtn.addEventListener('click', () => {
       if (!this.parallel) {
         // THE BUTTON IS DISABLED WHEN THERE IS NO REMAINDER, so reaching here means the last step could
@@ -1379,7 +1443,15 @@ export class SequencerController implements SequencerUI {
           + 'Apply a subset call (e.g. Heads Promenade Full) first.';
         return;
       }
-      this.statusEl.textContent = `${this.parallel.remaining} left — pick their call, then Apply`;
+      if (this.parallel.calls.length > 0) {
+        const done = this.history[this.parallel.index];
+        this.exitParallel(`${done ? stepLabel(done) : 'the step'} is finished — ${this.parallel.remaining} keep the lane it has`);
+        this.render();
+        this.syncAnimation();
+        return;
+      }
+      this.statusEl.textContent = `${this.parallel.remaining} left — pick their call, then Apply`
+        + ' · Apply again to add a call to the same lane, and press this button again to finish';
       // THE FIRST CALL IS CLEARED OUT OF THE PICKER, so "pick their call" is literally true. The list keeps the
       // previous selection when it is still offered (`refreshCallSelect`), and in parallel mode the previous
       // selection is the call that was just applied - which is very often still legal for the remainder.

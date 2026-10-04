@@ -3660,3 +3660,22 @@ On the POC side, `stored-modules-probe.mjs` checks the legacy lane is upgraded b
 `parallel-lane-probe.mjs` is new and reads the picker (Apply appends, the button finishes, the board the
 list answers for advances with the lane, the balance is in the status line), and
 `poc/tools/verify-probes.mjs` reports the same 13 pre-existing reds and no others (43 probes).
+THE CALL PICKER SHOWS EACH CALL'S BEATS. Asked for as: "Sequencer: Display the beats for each call in the
+Call selection e.g. '16 - Call name'."
+
+WHAT THE NUMBER IS. Every entry in the Call list is labelled `${beats} - ${name}` - "16 - Promenade Full" -
+read from the ENGINE and not estimated: `stepBeats` on THE BOARD THE CALL WOULD RUN ON (the lane's board in
+parallel mode, which is where the next call would go) and for THE NAME APPLY WILL USE, the chosen group's
+prefix included, since that is the step the sequencer charges. A MODULE is a whole sequence rather than a
+call, so its number is `sequenceBeats` of its flattened steps - the same call the scrub uses - from the live
+board, where a module is applied; a call lookup on a module name would have read 0. THE OPTION'S VALUE STAYS
+THE BARE CALL NAME, because Apply, the previous-pick restore and the parallel lane all read
+`callSelect.value` back, so the beats are presentation only. Asked for straight after the lane work, where
+the balance of two short calls against a long one is the whole question and the number was only in the
+status line AFTER something had been applied.
+
+MEASURED: the probe checks against the built engine that the number shown is the number the step is
+CHARGED - 16 for `Heads Promenade Full`, 4 for `Heads Trade`, 2 for `Heads Touch a Quarter`, each equal to
+`sequenceBeats` of the same step - and reads the panel for the wiring (the label, the value, the board, the
+prefix, and that the two places options are built are the only two). VERIFIED IN THE BROWSER (Chromium
+against `poc/dist`, MS level, no group chosen): the Call control reads "16 - Promenade Full".

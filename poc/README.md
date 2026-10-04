@@ -79,7 +79,10 @@ sequence on the 8-dancer board:
   specific to the selected level. Then pick a call and **Apply** — the board
   advances, illegal calls are rejected with a reason. The call picker shows
   **only calls legal from the current formation** (refreshed after every
-  apply/undo/reset). A **group-named coded call** — `Fold`, `Trade`, `Run`, `Heads Step Forward` (and its round-trip sibling `Heads Step Forward and Back if Possible`) — is offered
+  apply/undo/reset), and **each entry carries the beats it would cost** — `16 - Promenade Full` — read from
+  the engine for the board the call would run on and the name Apply will use (the chosen group's prefix
+  included), so the number shown is the number the step is charged; a module shows its whole sequence's
+  beats. The option's value stays the bare call name. A **group-named coded call** — `Fold`, `Trade`, `Run`, `Heads Step Forward` (and its round-trip sibling `Heads Step Forward and Back if Possible`) — is offered
   as well whenever the engine says the chosen group can dance it: those calls refuse their bare name by
   design, so the whole-board list can never carry them, and without this the picker could not sequence
   `Boys Trade` at all.

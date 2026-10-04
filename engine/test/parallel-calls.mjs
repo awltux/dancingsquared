@@ -110,7 +110,7 @@ console.log('\n== 2. a composed step moves both groups ==');
   check(solo.every((r) => r.legal), `each group is legal alone (${solo.map((r, i) => `${groups[i].selection}:${r.legal}`).join(', ')})`);
   check(grouped.legal, `the composed step applies (${grouped.reason ?? 'legal'})`);
   check(isGroupStep(step), 'and it IS the grouped form, not two sequential calls');
-  check(stepLabel(step) === 'Heads Right and Left Thru while All Except Heads Touch a Quarter',
+  check(stepLabel(step) === 'Heads Right and Left Thru || All Except Heads Touch a Quarter',
     `it labels as one "while" step: "${stepLabel(step)}"`);
   if (grouped.legal) {
     const t = touched(square, grouped.board);
@@ -195,7 +195,7 @@ console.log('\n== 5. the reported case: Sides promenade while the heads do somet
     check(t.face.some((id) => heads.has(id)), '...and the HEADS are touched at the same time');
     const beats = seq.sequenceBeats([{ groups }], square);
     check(beats >= 8, `the step is charged the promenade's own length, in ONE slot (${beats} beats)`);
-    check(stepLabel({ groups }) === 'Sides Promenade Full while Heads Star Thru',
+    check(stepLabel({ groups }) === 'Sides Promenade Full || Heads Star Thru',
       `one sequence entry reads as one step: "${stepLabel({ groups })}"`);
   }
 }
@@ -294,7 +294,7 @@ console.log('\n== 7. a call carrying its own selection still leaves a nameable r
     const both = new Set([...t.pos, ...t.face]);
     const heads = new Set(seq.selectionIds(square, 'All Except Sides') ?? []);
     check([...both].some((id) => heads.has(id)), 'the remainder group is danced in the same slot');
-    check(stepLabel({ groups }) === 'Sides Forward and Back while All Except Sides Right and Left Thru',
+    check(stepLabel({ groups }) === 'Sides Forward and Back || All Except Sides Right and Left Thru',
       `one step: "${stepLabel({ groups })}"`);
   }
 }
@@ -322,7 +322,7 @@ console.log('\n== 8. a group may dance SEVERAL calls in the same slot ==');
   console.log(`    beats: Heads Promenade Full ${headsAlone}, Sides Trade ${trade}, then Sides Pass Thru ${passThru}`);
   check(headsAlone === 16 && trade === 4 && passThru === 4,
     `the witness is the report's own shape: a ${headsAlone}-beat call beside ${trade} + ${passThru} beats`);
-  check(stepLabel(step) === 'Heads Promenade Full while Sides Trade then Pass Thru',
+  check(stepLabel(step) === 'Heads Promenade Full || Sides ( Trade + Pass Thru )',
     `the lane labels with "then": "${stepLabel(step)}"`);
   atSquare();
   const applied = seq.applyStep(step);
@@ -429,7 +429,7 @@ console.log('\n== 8. a group may dance SEVERAL calls in the same slot ==');
   const legacy = { groups: [{ selection: 'Heads', call: 'Right and Left Thru' }, { selection: 'All Except Heads', call: 'Touch a Quarter' }] };
   atSquare();
   const legacyApplied = seq.applyStep(legacy);
-  check(legacyApplied.legal && stepLabel(legacy) === 'Heads Right and Left Thru while All Except Heads Touch a Quarter',
+  check(legacyApplied.legal && stepLabel(legacy) === 'Heads Right and Left Thru || All Except Heads Touch a Quarter',
     `the legacy lane - a group with a single call field - still applies and labels ("${stepLabel(legacy)}")`);
 }
 

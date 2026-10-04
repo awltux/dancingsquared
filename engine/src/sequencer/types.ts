@@ -189,16 +189,31 @@ export function stepSelection(step: ModuleStep): string | null {
 
 /** A stable label for a step - for replay keys, stop reports and error messages.
  *
- *  A lane's selection is stated ONCE and its calls are joined with "then", which is the reference's own
- *  word for it (All8's punctuation table gives `;` = "then", beside `,` = "while"). So
- *  `Heads Promenade Full` beside `Sides Trade then Pass Thru` labels as
- *  "Heads Promenade Full while Sides Trade then Pass Thru". */
+ *  A LANE'S CALLS COMBINE WITH "+", GROUPS WITH "||", AND A GROUP'S SCOPE IS BRACKETED. Asked for in as
+ *  many words: "Display the parallel lines of the calls list using symbols '||' for parallel, '+' for
+ *  sequential combine, brackets to indicate scope e.g. `call 1 || ( call 2 + call 3 ) || (call 4 + call 5)`".
+ *  So a group of one call is written bare (`Sides Trade`) and a group of several is bracketed
+ *  (`Sides ( Trade + Pass Thru )`), which is what makes the SCOPE of the brackets visible: they wrap
+ *  exactly the calls that run one after another, and everything between two `||` happens at the same time.
+ *  The group's own selection stays in front of its bracket, so the grammar says WHO as well as WHEN:
+ *
+ *    `Heads Promenade Full || Sides ( Trade + Touch a Quarter )`
+ *
+ *  THE SELECTION IS STATED ONCE PER GROUP, which is the rule the previous "then"/"while" wording kept
+ *  ("Sides Trade then Pass Thru"), and the words were replaced rather than added to: a label that spells
+ *  the same thing two ways is one more thing for the pane to disagree about. Every consumer of this
+ *  function treats it as opaque text (a message, or a replay cache key joined on NUL), so the punctuation
+ *  is free to change. */
 export function stepLabel(step: ModuleStep): string {
   if (typeof step === 'string') return step;
   if (!isGroupStep(step)) return `${step.selection ? step.selection + ' ' : ''}${step.call}`;
   return step.groups
-    .map((g) => `${g.selection} ${groupCalls(g).join(' then ')}`)
-    .join(' while ');
+    .map((g) => {
+      const calls = groupCalls(g);
+      const body = calls.length > 1 ? `( ${calls.join(' + ')} )` : calls[0] ?? '(no call)';
+      return `${g.selection} ${body}`;
+    })
+    .join(' || ');
 }
 
 /** A user-defined module: a named sequence of calls used as a fix/getout. Each

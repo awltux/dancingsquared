@@ -50,7 +50,23 @@ console.log('== the step forms ==');
   check(stepLabel('Pass Thru') === 'Pass Thru', 'a bare string labels as itself');
   check(stepLabel({ selection: 'Heads', call: 'Pass Thru' }) === 'Heads Pass Thru', 'a CallStep labels with its selection');
   check(stepLabel({ groups: [{ selection: 'Centers', call: 'Square Thru' }, { selection: 'Outsides', call: 'Trade' }] })
-    === 'Centers Square Thru while Outsides Trade', 'a GroupStep labels as a "while"');
+    === 'Centers Square Thru || Outsides Trade', 'a GroupStep labels its groups with "||"');
+  // THE SCOPE BRACKETS, asked for in as many words: "Display the parallel lines of the calls list using symbols
+  // '||' for parallel, '+' for sequential combine, brackets to indicate scope e.g.
+  // `call 1 || ( call 2 + call 3 ) || (call 4 + call 5)`". A lane of one is bare; a lane of several is
+  // bracketed, which is what makes the scope visible - everything between two `||` happens at once, and
+  // everything inside one bracket pair happens in order.
+  check(stepLabel({ groups: [
+    { selection: 'Heads', call: 'Promenade Full' },
+    { selection: 'Sides', calls: ['Trade', 'Touch a Quarter'] },
+    { selection: 'All Except Heads and Sides', calls: ['Walk and Dodge', 'Dosado'] },
+  ] }) === 'Heads Promenade Full || Sides ( Trade + Touch a Quarter ) || All Except Heads and Sides ( Walk and Dodge + Dosado )',
+    'a three-group figure brackets each multi-call lane and leaves a single call bare');
+  check(stepLabel({ groups: [{ selection: 'Sides', calls: ['Trade'] }] }) === 'Sides Trade',
+    'a lane of ONE call is not bracketed - the brackets mark a scope of several, and one call has no scope to mark');
+  check(stepLabel({ groups: [{ selection: 'Sides', call: 'Trade' }, { selection: 'Boys', calls: ['Run', 'Hinge'] }] })
+    === 'Sides Trade || Boys ( Run + Hinge )',
+    'and the legacy one-call lane form labels exactly like the calls-list form (the engine reads both)');
   check(isGroupStep({ groups: [] }) && !isGroupStep({ selection: 'Heads', call: 'X' }) && !isGroupStep('X'),
     'isGroupStep separates the three forms');
   check(stepCall('Pass Thru') === 'Pass Thru' && stepCall({ selection: 'H', call: 'C' }) === 'C' && stepCall({ groups: [] }) === null,
@@ -167,8 +183,8 @@ console.log('\n== beats, animation, flatten and the matrix transform ==');
   // short ones. The rules that matter here are the ones the module machinery reads: the label, the flatten
   // pass-through, and the collapse - which must count EVERY lane call, since each dancer dances them all.
   const laneStep = { groups: [{ selection: 'Centers', calls: ['Box the Gnat', 'Trade'] }, { selection: 'Ends', calls: ['California Twirl', 'Trade'] }] };
-  check(stepLabel(laneStep) === 'Centers Box the Gnat then Trade while Ends California Twirl then Trade',
-    `a lane labels with "then", selection once: "${stepLabel(laneStep)}"`);
+  check(stepLabel(laneStep) === 'Centers ( Box the Gnat + Trade ) || Ends ( California Twirl + Trade )',
+    `a lane labels with "+" inside its brackets, selection once: "${stepLabel(laneStep)}"`);
   check(isGroupStep(laneStep) && stepCall(laneStep) === null && stepSelection(laneStep) === null,
     'and it is still the GROUPED form, naming no single call or selection');
   const laneFlat = seq.flatten([laneStep]);

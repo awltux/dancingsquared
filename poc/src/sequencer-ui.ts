@@ -558,16 +558,31 @@ export class SequencerController implements SequencerUI {
     }
     this.callSelect.innerHTML = '';
     this.callSelect.add(new Option(group ? `— call for ${group} —` : '— valid next call —', ''));
-    const addGroup = (label: string, names: string[]) => {
-      if (!names.length) return;
+    // THE BEATS EACH ENTRY WOULD COST, IN THE PICKER'S OWN LABEL: "16 - Promenade Full". Asked for after
+    // using the lane, where the whole question is whether two short calls fill a long one and the number was
+    // only in the status line AFTER something had been applied. It is read from the ENGINE and not estimated:
+    // `stepBeats` on THE BOARD THE CALL WOULD RUN ON, for THE NAME APPLY WILL USE - the chosen group's prefix
+    // included, since that is the step the sequencer charges. A MODULE is a whole sequence, so its number is
+    // `sequenceBeats` of its flattened steps (the same call the scrub uses) from the live board, which is
+    // where a module is applied.
+    //
+    // THE OPTION'S VALUE STAYS THE BARE NAME. Every reader of this list - Apply, the previous-pick restore
+    // below, the parallel lane - takes `callSelect.value` as a call name, so the label is presentation only.
+    const board = this.parallel ? this.parallel.board : this.seq.board;
+    const addGroup = (groupLabel: string, names: string[], display: (n: string) => string) => {
+      const uniq = [...new Set(names)].sort((a, b) => a.localeCompare(b));
+      if (uniq.length === 0) return;
       const og = document.createElement('optgroup');
-      og.label = label;
-      for (const n of [...new Set(names)].sort((a, b) => a.localeCompare(b))) og.appendChild(new Option(n, n));
+      og.label = groupLabel;
+      for (const n of uniq) og.appendChild(new Option(display(n), n));
       this.callSelect.appendChild(og);
     };
-    addGroup(group ? `Whole-set or ${group}` : 'Whole-set calls', whole);
-    for (const sel of [...bySel.keys()].sort()) addGroup(`Subset: ${sel}`, bySel.get(sel)!);
-    addGroup('Modules', modules);
+    addGroup(group ? `Whole-set or ${group}` : 'Whole-set calls', whole,
+      (n) => `${this.seq.stepBeats(board, group ? `${group} ${n}` : n)} - ${n}`);
+    for (const sel of [...bySel.keys()].sort()) {
+      addGroup(`Subset: ${sel}`, bySel.get(sel)!, (n) => `${this.seq.stepBeats(board, n)} - ${n}`);
+    }
+    addGroup('Modules', modules, (n) => `${this.seq.sequenceBeats(this.seq.flatten([n]), this.seq.board)} - ${n}`);
     // Keep the previous pick only when THIS list actually offers it - the values are bare names now,
     // so asking `legal` (which carries prefixes) would compare against a different vocabulary.
     const offered = [...this.callSelect.options].map((o) => o.value);

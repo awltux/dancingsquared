@@ -910,6 +910,29 @@ export class SequenceAnalyzer {
         // on). `interpolateSegment` is the interpolator every other coded move uses, and it is exactly right
         // for this shape: a dancer the rule does not move has `after === before` and therefore stands still,
         // and only the designated ones travel.
+        //
+        // A STRAIGHT LINE BETWEEN TWO IDENTICAL BOARDS DRAWS NOTHING, and that is the whole of a second real
+        // defect rather than a preference. It is invisible in the boards - a call that comes back ends where
+        // it started - so the step charged its full beats with every dancer still: the reported "it looks
+        // applied but the dancers don't move when I scrub".
+        //
+        // MEASURED - `engine/test/tools/scoped-coded-animation-probe.mjs`, every coded move x the 6 whole-set
+        // selections from a `Static Square`, 138 rows of which 51 apply: **28 legal steps animated as a
+        // standstill**. 24 of those are the heading-only `Face *` family (0 travel by construction - they
+        // pivot in place, and their boards DO differ, so they keep this branch) and `Join Hands` (0 beats),
+        // leaving the four `Do Sa Do` rows - 8 beats, 0.000 travel - as the real ones. That probe IS the gate
+        // for the sentence this branch is about: run against the pre-fix source it reports exactly those four,
+        // and with this branch in place it is green (51 apply, 0 standstills, worst last-frame drift 0.00e+0).
+        // So the fall-through below is taken exactly when this branch cannot draw the call, and the subset
+        // machinery it reaches animates each matched group along its OWN authored path: for `Heads Do Sa Do`,
+        // two 2-dancer variants, 3.5 units of travel where there was previously none. It still converges on
+        // the applied board, because its last term is `(end - variantEnd) * t`.
+        //
+        // THE FALL-THROUGH MUST STAY NARROW. Making it unconditional was tried and MEASURED to break the
+        // text of this very comment's first paragraph: `Trade` IS coded, its two boards differ, and its
+        // straight line is what draws it. Inside a lane (`Sides Trade then Touch a Quarter then Trade`) the
+        // subset machinery draws NOTHING for it - the bare call does not apply to the 4-dancer side subset -
+        // so the third sub-call stood still for its 4 beats and snapped to the applied pose at the end.
         const coded = findCodedMove(name);
         if (coded) {
           const ids = this.resolveSelection(board, step.selection);
@@ -919,8 +942,14 @@ export class SequenceAnalyzer {
           if (coded.deferred && coded.deferredHalf && ids) {
             return this.deferredRoundTrip(board, coded.deferredHalf(board, ids), after, ids, beats, beats, localBeat);
           }
-          const t = beats > 0 ? Math.max(0, Math.min(1, localBeat / beats)) : 1;
-          return this.interpolateSegment(board, after, t, null);
+          const movesSomeone = board.dancers.some((d) => {
+            const e = after.dancers.find((x) => x.id === d.id);
+            return !!e && Math.hypot(e.x - d.x, e.y - d.y) > 1e-9;
+          });
+          if (movesSomeone) {
+            const t = beats > 0 ? Math.max(0, Math.min(1, localBeat / beats)) : 1;
+            return this.interpolateSegment(board, after, t, null);
+          }
         }
       }
     }

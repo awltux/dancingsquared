@@ -3679,3 +3679,90 @@ CHARGED - 16 for `Heads Promenade Full`, 4 for `Heads Trade`, 2 for `Heads Touch
 `sequenceBeats` of the same step - and reads the panel for the wiring (the label, the value, the board, the
 prefix, and that the two places options are built are the only two). VERIFIED IN THE BROWSER (Chromium
 against `poc/dist`, MS level, no group chosen): the Call control reads "16 - Promenade Full".
+
+THE SEQUENCE LIST SPELLS OUT THE PARALLEL STRUCTURE, AND A THIRD GROUP IS BUILDABLE. Asked for as: "When I
+add a third call to a parallel call it doesnt seem to animate and it seem to be added to the call list as a
+new call. Display the parallel lines of the calls list using symbols '||' for parallel, '+' for sequential
+combine, brackets to indicate scope e.g. call 1 || ( call 2 + call 3 ) || (call 4 + call 5)".
+
+THE TWO HALVES HAVE ONE CAUSE. `+ Parallel call` meant two things: with nothing applied it seeded the
+remainder's lane, and with a lane already started it FINISHED the step. A caller reaching for a THIRD
+parallel group therefore had the figure end under them, and the call they applied next landed as a NEW entry
+in the list - both reported symptoms at once, and the example's three groups cannot be built at all while
+the button ends the figure. So the button now only ever OPENS A LANE, a separate **Done** button finishes,
+and the mode holds `groups: {selection, calls[]}[]` plus the `active` lane that Apply appends to.
+
+THE GROUP SELECTOR IS REBUILT IN PARALLEL MODE, and that is what makes a third group possible: a lane is
+given the complement of everything claimed so far, so a lane holding ALL of it leaves nobody behind. While
+the mode is on, the selector lists the groups that resolve INSIDE the unclaimed dancers. MEASURED IN THE
+BROWSER on a squared set after `Heads Promenade Full`: `All Except Heads · Side Boys · Side Girls · Side
+Men · Side Women · Side Beaus · Side Belles`, so the remainder can be SPLIT - `Sides Trade` for the Side
+Boys and a different call for the Side Girls. An empty open lane is narrowed by the same press: it starts as
+"everyone unclaimed" and the caller says "this lane is only the Side Boys". The complement is named with the
+grammar that already subtracts a union (`All Except A and B`), MEASURED: `All Except Heads and Sides`
+resolves to nobody, i.e. it is the subtraction of all eight.
+
+A BUG THE BROWSER FOUND AND NO PROBE WOULD HAVE. The complement of an ALREADY-COVERING union is a
+WELL-FORMED selector for nobody - `All Except Heads and All Except Heads`, the union of an ordinary pair -
+so testing the selector for null was not enough: the panel offered a lane to an empty set of dancers and
+printed that string as though it named a group. The emptiness is now measured ON THE IDS (`unclaimedIds`).
+
+THE LABEL IS THE ENGINE'S, ONE FUNCTION, because the pane, the All8 view and the module list all read
+`stepLabel`. A group of one call is bare; a group of several is bracketed and joined with `+`; the groups
+are joined with `||`: `Heads Promenade Full || Sides ( Trade + Touch a Quarter ) || Side Boys Recycle`. The
+selection stays in front of its bracket, so the grammar says WHO as well as WHEN, and the old "then"/"while"
+wording was REPLACED rather than added to - a label that spells the same thing two ways is one more thing
+for a pane to disagree about. Nothing parses the label (it is a message, and a replay cache key joined on
+NUL), so the punctuation was free to change; the three harnesses that pinned the old words were updated
+with it.
+
+A STEP THAT APPLIES MUST ANIMATE SOMETHING, and this is the second real defect the request turned up.
+`Heads Do Sa Do` applied legally, charged its full 8 beats and drew NOTHING: a scoped CODED call was drawn
+as `interpolateSegment(board, after)`, and a call that RETURNS HOME has `after === board` for every dancer,
+so the "straight line" was a point. Reported from use long before as "it looks applied but the dancers don't
+move when I scrub". The fall-through is now taken only when that line cannot draw the call (the two boards
+are equal for every dancer), which keeps the calls it was written for - MEASURED: making it unconditional
+broke `Trade`, which IS coded and whose boards DO differ, and inside a lane the subset machinery draws
+nothing for it (the bare call does not apply to the 4-dancer side subset), so the third sub-call stood still
+for its 4 beats and snapped at the end. The new gate is
+`engine/test/tools/scoped-coded-animation-probe.mjs`: every coded move x the 6 whole-set selections from a
+`Static Square`, 138 rows of which 51 apply. Run against the PRE-FIX source it reports exactly the four
+`Do Sa Do` rows as standstills (8 beats, 0.000 travel, while the 24 heading-only `Face *` rows and the
+0-beat `Join Hands` are not standstills in this sense); with the fix it is green - 51 apply, 0 standstills,
+worst last-frame drift 0.00e+0, and `Heads Do Sa Do` travels 3.5 units where it previously moved nobody.
+
+ALSO FIXED BY THE SAME CHANGE, a harness that had been red: `engine/test/scoped-dosado.mjs` (2 failures at
+HEAD, "Heads Dosado moves exactly 1,2,5,6 (got none)") is now ALL GREEN - the same degenerate straight line
+is why a scoped dosado charged its beats and moved nobody.
+
+GATES: `npm run build --prefix engine`; `npx tsc -p poc --noEmit`;
+`node engine/test/tools/scoped-coded-animation-probe.mjs` (green with the fix, exactly 4 reds without it);
+`node engine/test/scoped-dosado.mjs` (all green); `parallel-calls.mjs`, `modules.mjs`, `step-forward.mjs`,
+`scoped-animation.mjs` and `selection.mjs` (all green, with the label expectations updated to `||`/`+`);
+`behaviour-audit.mjs` at PASS 149 / FAIL 2 on BOTH revisions (the two reds are pre-existing and named);
+`node poc/tools/verify-probes.mjs` reports the same 13 pre-existing reds and no others (44 probes), with
+`parallel-lane-probe.mjs` rewritten for the new flow (the button never finishes, the lanes accumulate, the
+active lane is narrowable, the unclaimed set is measured as ids, Done finishes).
+VERIFIED IN THE BROWSER (Chromium against `poc/dist`, MS level, Static Square): a subset call applied as ONE
+list row; `+ Parallel call` opened the remainder's lane, and the group selector then offered exactly the
+narrowing list measured above; **Done** was enabled with the figure's own label in its title; Apply appended
+to the active lane and the list stayed ONE row reading `Heads Promenade Full to Home || All Except Heads
+Recycle`, with the balance sentence naming the step's own cost. The two refinements made after that build
+(the ids-based emptiness and the narrowable empty lane) are covered by the probe and the type check only:
+`vite 5.4.21` has no `--configLoader` (that is a Vite 6 option) and a Vite build in this sandbox needs
+esbuild's piped-stdio service spawn, which the sandbox denies with EPERM, so the bundle was not rebuilt.
+
+TWO THINGS THIS LEFT OPEN, recorded rather than papered over:
+
+  - A scoped group call whose BARE name also matches the whole board still takes the whole-board branch in
+    `evaluateCallAt`, and the comment above that branch claims the rule it does not implement ("A STEP WITH
+    A SELECTION never takes the whole-board branch"). MEASURED in a lane: `Sides Pass Thru` as a lane call
+    matches the whole board and animates the sides as nothing. Guarding the branch was tried and REJECTED by
+    measurement: `Heads Pass Thru` animates correctly today only BECAUSE of that branch - its 4-dancer
+    subset has no matching variant and the bare call does not apply to the centred sub-board, so the subset
+    machinery draws nothing and the guard would turn a working call into a standstill. Fixing it properly
+    means teaching the subset machinery that call, not switching the branch off.
+  - A lane sub-call whose geometry the catalogue has no path for (`Dosado` mid-lane) still stands still
+    while its beats are charged. Its end board IS its start board, so no two-point interpolation can draw
+    it, and the coded rule for `Do Sa Do` is the identity (`fn: (b) => b`) with no `legs` to animate. The
+    honest fix is a rule-level path for the call, not another interpolation.

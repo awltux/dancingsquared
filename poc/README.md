@@ -89,15 +89,26 @@ sequence on the 8-dancer board:
 - **Undo** / **Reset** to step back or start over.
 - **`+ Parallel call`** gives the dancers a subset call did NOT move their own call in the **same time
   slot** (CALLERLAB's "Centers Square Thru while Outsides Trade", which the engine models as one
-  `GroupStep`). Press it after a subset call, pick from the list — which now offers only what the
-  REMAINDER can do — and **Apply**. **Apply again to add another call to the same lane**, and press the
-  button once more to finish: a 16-beat `Heads Promenade Full` can be filled by `Sides Trade then Touch a
-  Quarter`, and the status line reports the balance (`= 6 of 16 beats — 10 beats standing`). Each group's
+  `GroupStep`). Press it after a subset call, pick from the list — which offers only what the active lane's
+  group can do — and **Apply**. **Apply again to add another call to the same lane**, and press **Done** to
+  finish: a 16-beat `Heads Promenade Full` can be filled by `Sides Trade then Touch a Quarter`, and the
+  status line reports the balance (`= 6 of 16 beats — 10 beats standing`). Each group's
   calls run back to back from the step's start, the step costs the **longest** lane, and a lane that
   finishes early **stands** on its end pose; there are no synchronisation points between lanes (nothing can
   start one group's call part-way through another's). Undo removes the whole step. A deferred call
   (`Step Forward and Back if Possible`) may only be a lane of its own, and a lane names calls rather than a
   saved module.
+- **Three or more parallel groups.** `+ Parallel call` never finishes the figure — it opens **another lane**
+  for the dancers no lane has claimed, and **Done** is the way out. The **Group** selector is rebuilt for
+  that: while the mode is on it lists the groups that resolve *inside* the unclaimed dancers (`All Except
+  Heads`, `Side Boys`, `Side Girls`, …), so a lane can be given to **part** of the remainder — which is
+  the only way a third group can exist, since a lane given all of it leaves nobody. That is the shape the
+  sequence list shows as `Heads Promenade Full || Sides ( Trade + Touch a Quarter ) || Side Boys Recycle`: a
+  group of one call is bare, a group of several is bracketed, `+` joins the calls that run in order and `||`
+  joins the groups that run at once. *(The button used to mean "finish" once the lane had a call, so a caller
+  reaching for a third group had the step end under them and their next call land as a separate entry in the
+  list — reported as "when I add a third call to a parallel call … it seem to be added to the call list as a
+  new call".)*
 - **Getout** searches (bounded) for a sequence back to a Squared Set.
 - **Fix it** lists the calls that keep a getout alive.
 - **Save module** names the current sequence as a reusable fix/getout module; modules

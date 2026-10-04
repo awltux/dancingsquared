@@ -87,80 +87,137 @@
         <div id="browseUses" class="small"></div>
         <div id="legend"></div>
         </div>
+        <!-- THE SEQUENCER, IN FOUR ZONES AND FOUR DRAWERS.
+             The panel used to be one flat stack of rows and text blocks, and the order inverted its own
+             importance: Margin first, the board-view row between the picker and its button, the transport
+             below six search buttons, and the SEQUENCE - the document this panel exists to build - last and
+             smallest. It is now:
+               session    what the panel is about, and the Level that scopes everything below it
+               composer   Who / Call / Add, with ONE status line under it
+               timeline   the sequence itself, the only scrolling region, with its own Undo/Redo/Clear
+               transport  play, beat, scrub and speed - always on screen, never scrolled away
+             plus Solve / Board / Library / Advanced as native `<details>`, closed by default. See
+             `poc/README.md` § "Sequencer mode" and the record in `square-dancing.md`. -->
         <div id="seqPanel" hidden>
-          <div class="row">
-            <label>Margin</label>
-            <input id="seqMargin" type="number" min="0" max="6" step="0.5" value="4" class="small" title="Extra matching tolerance for viable next calls" />
-          </div>
-          <div class="row">
-            <label>Level</label>
+          <div class="row seq-session">
+            <label for="seqLevel">Level</label>
             <select id="seqLevel"></select>
+            <span id="seqBoardChip" class="part seq-chip"></span>
+          </div>
+          <!-- A FIGURE IS A MODE, SO IT IS BADGED. It shows the lanes, which one is open, and the one way out
+               that is not Apply - the same job `.ed-clone-bar` does for the editor's clone. -->
+          <div id="seqFigureBar" class="seq-bar" hidden>
+            <span class="seq-bar-tag">WHILE</span>
+            <span id="seqFigureWhat"></span>
+            <button id="seqParallelDone" disabled title="Finish the parallel figure and leave the mode. Enabled only while one is being built.">Finish figure</button>
           </div>
           <div class="row">
-            <label title="WHICH DANCERS perform the call. `All 8` is the whole-board reading; any other group restricts the call to that subset, e.g. Heads Right and Left Thru. The list is the groups that actually resolve on the board you are standing in, so Centers/Ends/Leaders/Trailers appear only where they exist.">Group</label>
+            <label for="seqGroup" title="WHICH DANCERS perform the call. `All 8` is the whole-board reading; any other group restricts the call to that subset, e.g. Heads Right and Left Thru. The list is the groups that actually resolve on the board you are standing in, so Centers/Ends/Leaders/Trailers appear only where they exist. While a figure is being built it instead lists the groups that resolve INSIDE the dancers no lane has claimed, so a lane can be given to part of them.">Who</label>
             <select id="seqGroup" title="Which dancers perform the next call (default All 8)"></select>
           </div>
           <div class="row">
-            <label>Call</label>
+            <label for="seqCallFilter" title="Narrow the Call list to the calls whose name contains this text, case-insensitively. A VIEW of the list, not a load: the call already selected stays in it, so the dropdown and the board cannot disagree.">Filter</label>
+            <input id="seqCallFilter" class="wide" type="text" placeholder="filter calls by name…" title="Narrow the Call list to the calls whose name contains this text, case-insensitively. A VIEW of the list, not a load: the call already selected stays in it, so the dropdown and the board cannot disagree." />
+          </div>
+          <div class="row">
+            <label for="seqCallSelect">Call</label>
             <select id="seqCallSelect" class="wide"></select>
           </div>
-          <div class="row">
-            <label>Formation</label>
-            <select id="seqFormation" class="wide"></select>
-            <button id="seqSetFormation" title="Jump the board to the chosen formation">Set</button>
-            <label title="Rotate the displayed board (degrees)">Rot</label>
-            <input id="seqBoardRot" type="number" step="15" value="0" class="small" style="width:52px" title="Rotate the displayed board by degrees (e.g. 45)" />
-            <label title="Dancer rendering">View</label>
-            <select id="seqView2d" title="3D avatars or 2D markers">
-              <option value="3d">3D</option>
-              <option value="2d">2D</option>
-            </select>
+          <div class="row seq-actions">
+            <button id="seqApply" class="primary" title="Apply the picked call as the next step of the sequence">Add to sequence</button>
+            <button id="seqParallel" disabled title="Give the dancers the current call did NOT move their own call in the SAME time slot. Enabled only when the last call acted on a subset, e.g. Sides promenade while the Heads step into the middle.">While…</button>
           </div>
-          <div class="row">
-            <button id="seqApply">Apply</button>
-            <button id="seqParallel" disabled title="Give the dancers the current call did NOT move their own call in the SAME time slot. Enabled only when the last call acted on a subset, e.g. Sides promenade while the Heads step into the middle.">+ Parallel call</button>
-            <button id="seqParallelDone" disabled title="Finish the parallel figure and leave parallel mode. Enabled only while one is being built.">Done</button>
-            <button id="seqUndo">Undo</button>
-            <button id="seqReset">Reset</button>
+          <div id="seqStatus" class="seq-status" role="status" aria-live="polite"></div>
+          <div id="seqSubsetInfo" class="seq-hint"></div>
+          <div class="row seq-timeline-head">
+            <span class="seq-head">Timeline</span>
+            <span id="seqTotals" class="part"></span>
+            <button id="seqUndo" title="Undo the last change to the sequence (Ctrl+Z)">Undo</button>
+            <button id="seqRedo" title="Redo the change that was just undone (Ctrl+Shift+Z)">Redo</button>
+            <button id="seqReset" title="Empty the sequence and return the set to the square it started from">Clear</button>
           </div>
-          <div class="row">
-            <button id="seqGetout">Getout</button>
-            <button id="seqMatrixGetout" title="Rigid self-inverse single-call getout via the matrix fast-path (O(1), exact)">Matrix getout</button>
-            <button id="seqApplyGetout">Apply getout</button>
-            <button id="seqGetin" title="Search from home into the current formation (getin)">Getin</button>
-            <button id="seqFixIt">Fix it</button>
-            <button id="seqCopyPos" title="Copy all dancers' positions to the clipboard (for debug reports)">Copy positions</button>
-            <span id="seqStatus" class="part"></span>
+          <div id="seqSequence" class="seq-timeline" role="list"></div>
+          <div class="seq-transport">
+            <div class="row">
+              <button id="seqPlay" title="Play / pause the sequence (Space)">▶ Play</button>
+              <button id="seqStepBack" title="Back one beat (←)">⏪</button>
+              <button id="seqStepFwd" title="Forward one beat (→)">⏩</button>
+              <label for="seqBeatInput">Beat</label>
+              <input id="seqBeatInput" type="number" min="0" step="0.1" value="0" class="small" title="Jump the playback to a specific beat" />
+              <span id="seqBeat" class="part"></span>
+              <label for="seqSpeed" title="How fast the SEQUENCE plays. The browse view has its own Speed for the call it previews, because the two playbacks are different things: that one runs a single call through the shared player, this one walks the whole sequence on its own clock.">Speed</label>
+              <select id="seqSpeed" title="Sequence playback speed">
+                <option value="0.25">¼×</option>
+                <option value="0.5">½×</option>
+                <option value="1" selected>1×</option>
+                <option value="2">2×</option>
+                <option value="4">4×</option>
+              </select>
+            </div>
+            <div class="row">
+              <input id="seqScrub" type="range" min="0" max="100" step="0.1" value="100" style="flex:1" title="Drag to move the dancers along the sequence; the row under the playhead is highlighted in the timeline." />
+            </div>
           </div>
-          <div id="seqMatrixInfo" class="small"></div>
-          <div class="row">
-            <button id="seqPlay">▶ Play</button>
-            <label>Beat</label>
-            <input id="seqBeatInput" type="number" min="0" step="0.1" value="0" class="small" title="Jump the playback to a specific beat" />
-            <span id="seqBeat" class="part"></span>
-          </div>
-          <div class="row">
-            <input id="seqScrub" type="range" min="0" max="100" step="0.1" value="100" style="flex:1" />
-          </div>
-          <div id="seqSequence" class="small"></div>
-          <div id="seqFasr" class="small"></div>
-          <div id="seqSubsetInfo" class="small"></div>
-          <div id="seqFixList" class="small"></div>
-          <div class="row">
-            <input id="seqModuleName" class="wide" placeholder="Module name (fix/getout)" />
-            <button id="seqSaveModule">Save module</button>
-          </div>
-          <div id="seqModules" class="small"></div>
-          <div class="row">
-            <label title="All8 call-format text: 2+5 abbreviations, optional [FASR] setup, call sharing by indentation">All8</label>
-            <button id="seqAll8Import" title="Parse the text below as All8 figures and load the first one as a sequence">Import</button>
-            <button id="seqAll8Export" title="Render the current sequence as All8 call-format text">Export</button>
-            <span id="seqAll8Info" class="part"></span>
-          </div>
-          <div class="row">
-            <textarea id="seqAll8Text" class="wide" rows="3"
-              placeholder="Paste All8 figures, e.g.  H-SqTh4 --DoSaD --SwThr B-RunR --Cpl.C --ChDTL --PsOcn --A8Cir --Sw&Pr"></textarea>
-          </div>
+          <details class="seq-drawer" id="seqSolve">
+            <summary>Solve — getout · getin · fix it</summary>
+            <div class="row seq-tabs">
+              <button id="seqTabGetout" type="button">Getout</button>
+              <button id="seqTabGetin" type="button">Getin</button>
+              <button id="seqTabFix" type="button">Fix it</button>
+              <button id="seqSolveRun" title="Search for the selected question">Search</button>
+              <button id="seqSolveApply" disabled title="Apply the selected result to the sequence">Apply</button>
+            </div>
+            <div class="row">
+              <label for="seqMatrixFirst" title="Try the RIGID self-inverse single-call getout first (the matrix fast-path, O(1) and exact). It is offered on the Getout question as a one-call answer rather than as a separate button, because it is the same question."><input id="seqMatrixFirst" type="checkbox" /> rigid first</label>
+              <span id="seqSolveInfo" class="part"></span>
+            </div>
+            <div id="seqFixList" class="seq-lines" role="listbox" aria-label="Solve results"></div>
+            <div id="seqMatrixInfo" class="small"></div>
+          </details>
+          <details class="seq-drawer" id="seqBoard">
+            <summary>Board — formation, rotation, view, FASR</summary>
+            <div class="row">
+              <label for="seqFormation">Formation</label>
+              <select id="seqFormation" class="wide"></select>
+              <button id="seqSetFormation" title="Jump the board to the chosen formation">Set</button>
+            </div>
+            <div class="row">
+              <label for="seqBoardRot" title="Rotate the displayed board (degrees)">Rot</label>
+              <input id="seqBoardRot" type="number" step="15" value="0" class="small" style="width:52px" title="Rotate the displayed board by degrees (e.g. 45)" />
+              <label for="seqView2d" title="Dancer rendering">View</label>
+              <select id="seqView2d" title="3D avatars or 2D markers">
+                <option value="3d">3D</option>
+                <option value="2d">2D</option>
+              </select>
+            </div>
+            <div id="seqFasr" class="small"></div>
+          </details>
+          <details class="seq-drawer" id="seqLibrary">
+            <summary>Library — modules and All8</summary>
+            <div class="row">
+              <input id="seqModuleName" class="wide" placeholder="Module name (fix/getout)" />
+              <button id="seqSaveModule">Save module</button>
+            </div>
+            <div id="seqModules" class="small"></div>
+            <div class="row">
+              <label title="All8 call-format text: 2+5 abbreviations, optional [FASR] setup, call sharing by indentation">All8</label>
+              <button id="seqAll8Import" title="Parse the text below as All8 figures and load the first one as a sequence">Import</button>
+              <button id="seqAll8Export" title="Render the current sequence as All8 call-format text">Export</button>
+              <span id="seqAll8Info" class="part"></span>
+            </div>
+            <div class="row">
+              <textarea id="seqAll8Text" class="wide" rows="3"
+                placeholder="Paste All8 figures, e.g.  H-SqTh4 --DoSaD --SwThr B-RunR --Cpl.C --ChDTL --PsOcn --A8Cir --Sw&Pr"></textarea>
+            </div>
+          </details>
+          <details class="seq-drawer" id="seqAdvanced">
+            <summary>Advanced — matching tolerance and diagnostics</summary>
+            <div class="row">
+              <label for="seqMargin">Margin</label>
+              <input id="seqMargin" type="number" min="0" max="6" step="0.5" value="4" class="small" title="Extra matching tolerance for viable next calls" />
+              <button id="seqCopyPos" title="Copy all dancers' positions to the clipboard (for debug reports)">Copy positions</button>
+            </div>
+          </details>
         </div>
         <div id="editorPanel" hidden>
           <div class="row">

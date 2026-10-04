@@ -334,6 +334,11 @@ function applyMode() {
   seqPanel.hidden = !seq;
   editorPanel.hidden = !ed;
   fsmPanel.hidden = !fsm;
+  // THE PANEL'S OWN BOX CARRIES THE SEQUENCER'S LAYOUT, and the figure mode's edge. `#hud.seq` is what makes
+  // the panel a NON-scrolling flex column so the timeline is the only thing that scrolls - see `style.css`.
+  // It mirrors the editor's `ed-instance`/`ed-clone` classes, which `EditorController` sets on the same
+  // element from the same reasoning.
+  hudEl?.classList.toggle('seq', seq);
   fsmActive = fsm;
   const showDancers = (browse || ed) && !fsm;
   browser.setVisible(showDancers);
@@ -419,8 +424,10 @@ installKeys([
     key: 'w',
     run: toggleGridMode,
   },
-  // ...and everything the panels own.
+  // ...and everything the panels own. THE SEQUENCER'S ARE PANEL-SCOPED TOO (`when: () => this.active`), so
+  // Space plays the sequence only while the sequencer is the panel on screen.
   ...editorUi.keyBindings(),
+  ...seqUi.keyBindings(),
 ]);
 
 // PICK UP WHERE YOU LEFT OFF. AFTER `applyMode` above, because a restore is a CHANGE and every listener

@@ -36,3 +36,21 @@ export function matchCount<T extends FilterableCall>(calls: T[], query: string):
   if (q === '') return calls.length;
   return calls.filter((c) => c.title.toLowerCase().includes(q)).length;
 }
+
+/**
+ * The same rule for a plain list of call NAMES, which is what the SEQUENCER's picker holds.
+ *
+ * The sequencer offers bare names - `legalNext()` plus the group-named coded calls plus modules - so there is
+ * no `id`/`title`/`level` to filter on and `filterCalls` cannot be reused as it stands. The RULE is reused
+ * rather than re-written, because the two pickers must narrow the same way: a case-insensitive substring of
+ * the name, order preserved, and `keep` always present so the control cannot silently move off the call the
+ * board is showing.
+ *
+ * It is pure and exported for the same reason as `filterCalls`: a probe can call it with the real list
+ * instead of reading the panel's source.
+ */
+export function filterNames(names: string[], query: string, keep: string): string[] {
+  const q = query.trim().toLowerCase();
+  if (q === '') return names.slice();
+  return names.filter((n) => n.toLowerCase().includes(q) || n === keep);
+}

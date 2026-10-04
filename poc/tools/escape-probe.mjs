@@ -144,8 +144,11 @@ check(/innerHTML = `<b>\$\{esc\(call\.title\)\}<\/b>[^`]*\$\{esc\(call\.taminato
 check(/innerHTML = `<b>\$\{esc\(call\.title\)\}<\/b><br>from \$\{esc\(call\.from/.test(browser), "and the `from` label the corpus authored");
 check(/failed to load: \$\{esc\(\(err as Error\)\.message\)\}/.test(browser), 'and the message of a load that threw');
 check(/textContent = `end formation unavailable: \$\{\(err as Error\)\.message\}`/.test(browser), 'while the SAME expression in a textContent is left alone, where escaping would print &amp; to the caller');
-check(/<b>\$\{esc\(m\.name\)\}:<\/b> \$\{esc\(m\.calls\.map\(stepLabel\)\.join\(/.test(seq), 'the module list escapes the name the caller typed and the call names in it');
-check(/\$\{i \+ 1\}\. \$\{esc\(stepLabel\(c\)\)\}/.test(seq), 'and so does the saved history list');
+// THE TIMELINE is the saved history list now, one row per step, and it is where a MODULE's name and every
+// call name reach markup. Both are escaped; the row's own numbers are not text at all.
+check(/<b>\$\{esc\(m\.name\)\}<\/b><\/span>: \$\{esc\(m\.calls\.map\(stepLabel\)\.join\(/.test(seq), 'the module list escapes the name the caller typed and the call names in it');
+check(/<span class="seq-name">\$\{esc\(stepLabel\(step\)\)\}<\/span>/.test(seq), 'and so does the timeline row for every step in the saved history');
+check(/\$\{esc\(title\)\}/.test(seq), 'including the row\'s tooltip, which carries the engine\'s own refusal reason');
 check(/Formation: <b>\$\{esc\(fasr\.formation/.test(seq), 'and the FASR readout, whose formation can be one the caller defined');
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');

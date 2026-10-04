@@ -23,7 +23,7 @@ const check = (cond, msg) => {
   else { failures++; console.log('  FAIL ' + msg); }
 };
 
-const { filterCalls, matchCount } = await import('./../src/call-filter.ts');
+const { filterCalls, matchCount, filterNames } = await import('./../src/call-filter.ts');
 const assets = path.join(POC, 'src', 'assets');
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 
@@ -60,6 +60,25 @@ check(JSON.stringify(filterCalls(interleaved, 'circle', 'b').map((c) => c.id)) =
 check(calls.length === 4 && filterCalls(calls, 'circle', '').length === 2, 'the input list is not mutated');
 check(matchCount(calls, 'circle') === 2 && matchCount(calls, 'zzz') === 0 && matchCount(calls, '') === 4,
   'the count the box reports is the number of real matches, not the size of the list it keeps');
+
+console.log('\n== the same rule over plain call NAMES, which is what the sequencer\'s picker holds ==');
+// The sequencer offers bare names (no id/title/level), so it filters with `filterNames` - and the two pickers
+// must narrow the same way, or the panel has two answers to "what does typing do".
+const names = ['Circle Left', 'Circle Right', 'Swing Thru', 'Pass Thru', "Heads Promenade Full"];
+check(JSON.stringify(filterNames(names, '', 'X')) === JSON.stringify(names), 'an empty query offers every name');
+check(JSON.stringify(filterNames(names, 'circle', 'X')) === JSON.stringify(['Circle Left', 'Circle Right']),
+  'a query matches a case-insensitive substring of the name');
+check(JSON.stringify(filterNames(names, 'CIRCLE', 'X')) === JSON.stringify(['Circle Left', 'Circle Right']),
+  'and the case does not matter');
+check(JSON.stringify(filterNames(names, 'zzz', 'Swing Thru')) === JSON.stringify(['Swing Thru']),
+  'but the name the picker is SHOWING is always kept, so the control cannot leave the call the board has');
+check(JSON.stringify(filterNames(names, 'zzz', 'not in the list')) === JSON.stringify([]),
+  'and a query matching nothing offers nothing when nothing needs keeping');
+check(names.length === 5 && filterNames(names, 'circle', '').length === 2, 'the input list is not mutated');
+// THE ORDER IS THE ENGINE'S, which is what makes the beats label beside each name readable: a filter that
+// re-sorted would move every entry the caller had just learned the position of.
+check(JSON.stringify(filterNames(names, 'thru', '')) === JSON.stringify(['Swing Thru', 'Pass Thru']),
+  'and the order is preserved, so the list reads the same filtered or not');
 
 console.log('\n== against the real catalogue ==');
 // The same walk `data.ts` does, so the sample is the catalogue rather than four invented rows.
@@ -106,6 +125,17 @@ check(/private levelCalls: CallInfo\[\] = \[\];/.test(browser) && /this\.levelCa
   'the LEVEL\'s calls are held once, so the filter narrows the level rather than re-deriving the catalogue');
 check(/this\.callSelect\.value = shown\[0\]\.id;/.test(browser),
   'and when the loaded call is not in the list at all the first match is selected, rather than the select keeping a value no option carries');
+// THE SEQUENCER'S OWN FILTER, on the same rule. Its box sits above its Call element for the same reason, and
+// typing re-renders the options and touches nothing else - the picker is the only thing a filter may change.
+const seq = fs.readFileSync(path.join(POC, 'src', 'sequencer-ui.ts'), 'utf8');
+check(html.indexOf('id="seqCallFilter"') > 0 && html.indexOf('id="seqCallFilter"') < html.indexOf('id="seqCallSelect"'),
+  'the sequencer has a filter box too, ABOVE its Call element');
+check(/this\.callFilterInput\.addEventListener\('input', \(\) => this\.refreshCallSelect\(\)\);/.test(seq),
+  'and typing rebuilds the picker and nothing else');
+check(/const wholeShown = filterNames\(whole, query, keep\);/.test(seq)
+  && /filterNames\(bySel\.get\(k\)!, query, keep\)/.test(seq)
+  && /const modulesShown = filterNames\(modules, query, keep\);/.test(seq),
+  'every list the picker offers is narrowed by the one shared rule, including the kept selection');
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');
 process.exit(failures ? 1 : 0);

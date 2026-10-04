@@ -70,8 +70,9 @@ html, body {
 #hud .part.warn { color: var(--warn); font-weight: 600; }
 #hud .small { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 4px; }
 #hud .small b { color: var(--text); }
-#hud .seq-call { cursor: pointer; display: inline-block; }
-#hud .seq-call:hover { color: var(--text); text-decoration: underline; }
+/* `.seq-call` USED TO LIVE HERE, one rule per clickable step in the sequencer's plain-text list. The list is
+   the timeline now, whose rows are `.seq-row` (see the sequencer block at the end of this file), so the rule
+   went with it rather than being left as a second, dead spelling of the same idea. */
 #editorPanel input[type="text"], #editorPanel input[type="number"], #editorPanel select {
   background: #0e141b; color: #dbe4ef; border: 1px solid #2a3542; border-radius: 4px; padding: 3px 5px;
 }
@@ -323,3 +324,131 @@ html, body {
 }
 .fsm-toolbar .part { color: var(--dim); font-size: 13px; }
 #fsmFrame { flex: 1; border: 0; background: #fff; }
+
+/* ================================================================ the sequencer HUD
+   FOUR ZONES AND FOUR DRAWERS, and the two rules that make the layout work are both about SCROLLING.
+   The panel used to be one flat stack that scrolled as a whole, so the transport and the call list drifted
+   off screen together and the sequence - the thing this panel builds - was the last, smallest text on it.
+   Now the panel is a flex column that does NOT scroll, the TIMELINE is the only region that does, and the
+   transport is pinned under it. `#hud.seq` is set by `applyMode`, the same way the editor sets
+   `ed-instance`/`ed-clone`; `[hidden]` is restated on `#seqPanel` because `display: flex` would otherwise
+   beat the attribute's own `display: none`. */
+#hud.seq { display: flex; flex-direction: column; overflow: hidden; }
+#hud.seq #seqPanel { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+#seqPanel[hidden] { display: none; }
+/* A SECTION HEADING: 10px, letter-spaced, dim, and never wider than the word itself - the one thing the old
+   panel had none of, and the reason 20 controls read as an undifferentiated stack. */
+#seqPanel .seq-head {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--dim); font-weight: 600;
+}
+/* THE SESSION LINE: Level scopes everything below it, and the board chip says where the sequence is
+   standing. Both are READ-ONLY state, so they sit on one line above the composer rather than in a row of
+   their own. */
+#seqPanel .seq-session { margin-bottom: 6px; }
+#seqPanel .seq-chip {
+  font-size: 11px; color: var(--dim); text-align: right; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis;
+}
+#seqPanel .seq-chip b { color: var(--text); font-weight: 500; }
+/* A FIGURE IS A MODE, SO IT IS BADGED - the clone bar's own visual language (blue = a state the user
+   entered, the tag chip, the panel edge), because that is what this panel already uses for "you are in the
+   middle of something and Save/Add means something different". Amber stays reserved for "cannot be
+   honoured". */
+#seqPanel .seq-bar {
+  display: flex; align-items: center; gap: 8px; font-size: 11px; line-height: 1.4; color: var(--dim);
+  background: rgba(77, 159, 255, 0.10); border: 1px solid #4d9fff; border-radius: 6px;
+  padding: 5px 8px; margin-bottom: 8px;
+}
+#seqPanel .seq-bar[hidden] { display: none; }
+#seqPanel .seq-bar .seq-bar-tag {
+  color: #0b0f14; background: #4d9fff; border-radius: 4px; padding: 1px 6px;
+  font-size: 10px; letter-spacing: 0.6px;
+}
+#seqPanel .seq-bar #seqFigureWhat { flex: 1 1 auto; min-width: 0; }
+#seqPanel .seq-bar b { color: var(--text); }
+#hud.seq-figure { border-color: #4d9fff; box-shadow: 0 0 0 1px rgba(77, 159, 255, 0.35), 0 8px 30px rgba(0, 0, 0, 0.4); }
+/* ONE STATUS LINE, UNDER THE ROW THAT PRODUCED IT. It is the panel's only feedback channel: it was in the
+   search-button row, which put the answer to Add beside "Copy positions". `role="status"` gives it a live
+   region so the answer is announced rather than only drawn. */
+#seqPanel .seq-status { font-size: 12px; line-height: 1.45; min-height: 17px; margin: 2px 0 4px; color: var(--accent); }
+#seqPanel .seq-status.warn { color: var(--warn); }
+#seqPanel .seq-status.error { color: var(--warn); font-weight: 600; }
+#seqPanel .seq-hint { font-size: 11px; color: var(--dim); line-height: 1.45; margin-bottom: 6px; }
+#seqPanel .seq-hint b { color: var(--text); }
+/* THE PRIMARY ACTION. Add is the one thing this panel is for, and it is the only button in the panel that
+   is drawn as the accent rather than as the panel grey. */
+#seqPanel button.primary { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+#seqPanel button.primary:hover { background: rgba(57, 217, 138, 0.12); }
+/* THE TIMELINE: the only scrolling region in the panel, and the only place body text is 12px `--text`
+   rather than 11px `--dim`. */
+#seqPanel .seq-timeline-head { gap: 6px; margin-bottom: 4px; }
+#seqPanel .seq-timeline-head .part { font-size: 11px; }
+#seqPanel .seq-timeline {
+  flex: 1 1 auto; min-height: 150px; overflow-y: auto; margin-bottom: 6px;
+  border: 1px solid #22303d; border-radius: 6px; background: rgba(9, 13, 18, 0.5); padding: 3px;
+}
+#seqPanel .seq-row {
+  display: flex; align-items: baseline; gap: 7px; padding: 4px 6px; border-radius: 5px;
+  font-size: 12px; color: var(--text); cursor: pointer; border: 1px solid transparent;
+}
+#seqPanel .seq-row:hover { background: rgba(255, 255, 255, 0.04); }
+#seqPanel .seq-row.on { background: rgba(57, 217, 138, 0.10); border-color: rgba(57, 217, 138, 0.45); }
+#seqPanel .seq-row.bad .seq-beats { color: var(--warn); font-weight: 600; }
+#seqPanel .seq-row .seq-idx { color: var(--dim); font-size: 11px; min-width: 16px; text-align: right; }
+#seqPanel .seq-row .seq-name { flex: 1 1 auto; min-width: 0; }
+#seqPanel .seq-row .seq-beats { color: var(--dim); font-size: 11px; white-space: nowrap; }
+#seqPanel .seq-row .seq-bar-track {
+  flex: 0 0 44px; height: 5px; border-radius: 3px; background: #131a22; border: 1px solid #22303d;
+  align-self: center;
+}
+#seqPanel .seq-row .seq-bar-fill { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+#seqPanel .seq-row.bad .seq-bar-fill { background: var(--warn); }
+#seqPanel .seq-row .seq-del {
+  flex: 0 0 auto; padding: 0 5px; margin: 0; border: 0; background: none; color: var(--dim);
+  font-size: 13px; line-height: 1.1; align-self: center;
+}
+#seqPanel .seq-row .seq-del:hover { color: var(--warn); background: none; border: 0; }
+#seqPanel .seq-row.on .seq-del { color: var(--dim); }
+#seqPanel .seq-empty { font-size: 11px; color: var(--dim); padding: 6px; line-height: 1.5; }
+#seqPanel .seq-empty b { color: var(--text); }
+/* THE TRANSPORT IS PINNED, so play, position and speed are reachable from anywhere in the timeline - the
+   old panel put them between the search buttons and the list, where a long sequence pushed them off the
+   panel. */
+#seqPanel .seq-transport { flex: 0 0 auto; border-top: 1px solid #22303d; padding-top: 6px; }
+#seqPanel .seq-transport .row { margin-bottom: 4px; }
+#seqPanel .seq-transport #seqSpeed { flex: 0 0 auto; }
+/* THE DRAWERS: native `<details>`, closed by default, so the primary flow fits without scrolling and the
+   secondary tools are one click away rather than always present. */
+#seqPanel .seq-drawer { flex: 0 0 auto; border-top: 1px solid #22303d; }
+#seqPanel .seq-drawer > summary {
+  cursor: pointer; font-size: 11px; color: var(--dim); padding: 6px 2px; list-style: none;
+}
+#seqPanel .seq-drawer > summary::-webkit-details-marker { display: none; }
+#seqPanel .seq-drawer > summary::before { content: '▸ '; }
+#seqPanel .seq-drawer[open] > summary::before { content: '▾ '; }
+#seqPanel .seq-drawer > summary:hover { color: var(--text); }
+#seqPanel .seq-drawer[open] { padding-bottom: 4px; }
+/* The Solve results: one clickable line per candidate, because the whole job of that drawer is to choose
+   one. The selected line is the accent's own tint - the same "this is what Apply will act on" the timeline's
+   current row uses. */
+#seqPanel .seq-lines { margin: 2px 0 6px; }
+#seqPanel .seq-line {
+  display: block; width: 100%; text-align: left; font-size: 11px; line-height: 1.5; padding: 3px 6px;
+  background: none; border: 1px solid transparent; border-radius: 5px; color: var(--text); cursor: pointer;
+}
+#seqPanel .seq-line:hover { background: rgba(255, 255, 255, 0.04); border-color: #2a3542; }
+#seqPanel .seq-line.on { background: rgba(57, 217, 138, 0.10); border-color: rgba(57, 217, 138, 0.45); }
+#seqPanel .seq-line .seq-line-note { color: var(--dim); }
+/* The tabs are the editor's own segmented control, un-prefixed here because `#editorPanel .ed-tabs` does not
+   reach this panel; the look is copied rather than shared so the editor's rules stay scoped to the editor. */
+#seqPanel .seq-tabs { gap: 0; margin: 4px 0 2px; }
+#seqPanel .seq-tabs button {
+  padding: 2px 7px; font-size: 10px; line-height: 1.5; border-radius: 0; border-color: #2a3542;
+  background: #0b1118; color: var(--dim);
+}
+#seqPanel .seq-tabs #seqTabGetout { border-radius: 4px 0 0 4px; }
+#seqPanel .seq-tabs #seqTabFix { border-radius: 0 4px 4px 0; }
+#seqPanel .seq-tabs button.on { background: rgba(77, 159, 255, 0.22); color: var(--text); border-color: #4d9fff; }
+/* THE ONLY FOCUS STYLE IN THE APP, and the panel needed one: with a keyboard-driven transport and a
+   tabbable timeline, "where the focus is" is now a real question. */
+#hud :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }

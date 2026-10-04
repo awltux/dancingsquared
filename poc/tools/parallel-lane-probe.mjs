@@ -109,12 +109,20 @@ console.log('\n== the caller can SEE the figure and its balance ==');
     'the status line says how many of the STEP\'s beats the lane fills');
   check(/they stand for the other \$\{total - laneBeats\}/.test(apply),
     'and, when the lane is short, that the rest stands still and how to add to it');
-  check(/or "\+ Parallel call" for another group/.test(apply),
+  check(/or While… for another group/.test(apply),
     'while the way to a further parallel group is named in the same sentence');
   check(/const total = this\.seq\.sequenceBeats\(\[step\], p\.start\);/.test(apply),
     'the step\'s own cost is read from the ENGINE, which is what makes the balance true for three or more lanes');
+  // THE FIGURE IS ON SCREEN THE WHOLE TIME IT IS BEING BUILT: a banner naming the lanes and the open one, and
+  // the composer's own hint line. Both read the mode's own state, so neither can describe a figure the panel
+  // is not in.
+  const bar = bodyOf('private renderFigureBar()');
+  check(/this\.figureBarEl\.hidden = !p;/.test(bar) && /groups/.test(bar) && /map\(\(g\) =>/.test(bar),
+    'the figure banner is shown exactly while a figure is being built, and names every lane');
+  check(/this\.hudEl\.classList\.toggle\('seq-figure', !!p\);/.test(bar),
+    'and the panel\'s edge carries the mode too, so it is visible from anywhere in the timeline');
   const info = bodyOf('private renderSubsetInfo()');
-  check(/Parallel step: <b>\$\{esc\(stepLabel\(this\.parallelEntry\(this\.parallel\)\)\)\}<\/b>/.test(info),
+  check(/Figure: <b>\$\{esc\(stepLabel\(this\.parallelEntry\(this\.parallel\)\)\)\}<\/b>/.test(info),
     'the panel shows the whole figure by its label, so the lanes and their scope are visible while it is built');
   const picker = bodyOf('private refreshCallSelect()');
   check(/const group = this\.parallel \? this\.activeLane\(\)\?\.selection \?\? null : this\.chosenGroup\(\)/.test(picker),

@@ -40,8 +40,14 @@ console.log('== the picker labels each option with its beats ==');
     'the number is `stepBeats` on THE BOARD the offer is about, for THE NAME APPLY WILL USE - the chosen group\'s prefix included');
   check(/const board = this\.parallel \? this\.parallel\.board : this\.seq\.board;/.test(picker),
     'and that board is the parallel mode\'s lane board when the mode is on, which is where the next call would run');
-  check(/addGroup\(`Subset: \$\{sel\}`, bySel\.get\(sel\)!, \(n\) => `\$\{this\.seq\.stepBeats\(board, n\)\} - \$\{n\}`\)/.test(picker),
+  check(/addGroup\(`Subset: \$\{sel\}`, names, \(n\) => `\$\{this\.seq\.stepBeats\(board, n\)\} - \$\{n\}`\)/.test(picker),
     'a subset entry (offered only with no group chosen) shows its own full name\'s beats, which is the name Apply uses there');
+  // THE FILTER IS A VIEW OVER THE SAME LISTS: it narrows the names that reach `addGroup`, and it can never
+  // drop the call the control is showing (`filterNames` keeps it), so the beats a caller reads are still the
+  // beats of the step Apply would charge.
+  check(/const wholeShown = filterNames\(whole, query, keep\)/.test(picker)
+    && /const modulesShown = filterNames\(modules, query, keep\)/.test(picker),
+    'the Filter narrows the offered names with the shared rule, keeping the selected call in the list');
   check(/\$\{this\.seq\.sequenceBeats\(this\.seq\.flatten\(\[n\]\), this\.seq\.board\)\} - \$\{n\}/.test(picker),
     'a MODULE is offered with its whole sequence\'s beats (`sequenceBeats` of its flattened steps), not a call lookup that would read 0');
   // THE GROUP-LABEL FUNCTION IS THE ONLY PLACE OPTIONS ARE MADE, so no entry can bypass the label.

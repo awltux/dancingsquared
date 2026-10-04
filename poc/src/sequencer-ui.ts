@@ -16,6 +16,8 @@ import { loadUserFormations } from './formations';
 import { corpusFormationsOfSize } from './tam-xml';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import { el, esc } from './dom';
+import { filterNames } from './call-filter';
+import type { KeyBinding } from './keys';
 import type { Stage, WalkCycle } from './scene';
 
 export interface SequencerUI {
@@ -23,6 +25,12 @@ export interface SequencerUI {
   render(): void;
   /** Load a named sequence whole and park the playhead at its first step that plays `atCall`. */
   openSequence(steps: ModuleStep[], atCall?: string, startFormation?: string): void;
+  /**
+   * The keyboard this panel owns, for `main.ts`'s one table. Panel-scoped by `when`, exactly as the editor's
+   * are: a Space that pauses the sequence while the editor is on screen would be a shortcut for the wrong
+   * panel. See `SequencerController.keyBindings`.
+   */
+  keyBindings(): KeyBinding[];
   /** The named formations a call of `dancers` dancers can be re-based onto, as start poses, for the
    *  editor's Start setup and End setup pickers. See the implementation for why the size matters. */
   startFormations(dancers: number): { name: string; poses: FormDancer[] }[];
@@ -33,6 +41,12 @@ export interface SequencerUI {
   readBoard(board: Board): BoardRead;
   /** Add a user-defined formation to the live library, so boards like it are named from now on. */
   registerFormation(name: string, dancers: Matchable[]): void;
+}
+
+/** One undo/redo point: the whole sequence, and the board it replays from. See `pushUndo`. */
+interface HistorySnapshot {
+  steps: ModuleStep[];
+  startBoard?: Board;
 }
 
 /** What the library can say about a board. `name` is the permissive read (`knownFormation`), which
@@ -80,22 +94,45 @@ export class SequencerController implements SequencerUI {
 
   // DOM elements.
   private levelSelect = el<HTMLSelectElement>('seqLevel');
+  /** Where the sequence is standing: the formation the replay starts from, plus the All8 code for it. */
+  private boardChipEl = el<HTMLSpanElement>('seqBoardChip');
+  /** The figure ("while") banner - only on screen while a figure is being built. */
+  private figureBarEl = el<HTMLDivElement>('seqFigureBar');
+  private figureWhatEl = el<HTMLSpanElement>('seqFigureWhat');
   private marginInput = el<HTMLInputElement>('seqMargin');
   private groupSelect = el<HTMLSelectElement>('seqGroup');
   private callSelect = el<HTMLSelectElement>('seqCallSelect');
+  /** Narrows the picker's offered names. See `filterNames` in `call-filter.ts`. */
+  private callFilterInput = el<HTMLInputElement>('seqCallFilter');
   private applyBtn = el<HTMLButtonElement>('seqApply');
   private undoBtn = el<HTMLButtonElement>('seqUndo');
+  private redoBtn = el<HTMLButtonElement>('seqRedo');
   private resetBtn = el<HTMLButtonElement>('seqReset');
-  private getoutBtn = el<HTMLButtonElement>('seqGetout');
-  private matrixGetoutBtn = el<HTMLButtonElement>('seqMatrixGetout');
-  private applyGetoutBtn = el<HTMLButtonElement>('seqApplyGetout');
-  private getinBtn = el<HTMLButtonElement>('seqGetin');
-  private fixBtn = el<HTMLButtonElement>('seqFixIt');
-  private statusEl = el<HTMLSpanElement>('seqStatus');
-  // Off until a subset call leaves somebody: `refreshCallSelect` is the only place that turns it on, and
-  // it runs before the first paint.
+  private totalsEl = el<HTMLSpanElement>('seqTotals');
+  private statusEl = el<HTMLDivElement>('seqStatus');
+  // The Solve drawer: three questions, one Search, one Apply, and the results as clickable lines.
+  private tabGetoutBtn = el<HTMLButtonElement>('seqTabGetout');
+  private tabGetinBtn = el<HTMLButtonElement>('seqTabGetin');
+  private tabFixBtn = el<HTMLButtonElement>('seqTabFix');
+  private solveRunBtn = el<HTMLButtonElement>('seqSolveRun');
+  private solveApplyBtn = el<HTMLButtonElement>('seqSolveApply');
+  private matrixFirstInput = el<HTMLInputElement>('seqMatrixFirst');
+  private solveInfoEl = el<HTMLSpanElement>('seqSolveInfo');
+  // The transport: play, step, beat, scrub, speed - pinned under the timeline.
+  private playBtn = el<HTMLButtonElement>('seqPlay');
+  private stepBackBtn = el<HTMLButtonElement>('seqStepBack');
+  private stepFwdBtn = el<HTMLButtonElement>('seqStepFwd');
+  private scrub = el<HTMLInputElement>('seqScrub');
+  private beatInput = el<HTMLInputElement>('seqBeatInput');
+  private speedSelect = el<HTMLSelectElement>('seqSpeed');
+  private copyPosBtn = el<HTMLButtonElement>('seqCopyPos');
+  private beatEl = el<HTMLSpanElement>('seqBeat');
+  // The Board drawer, and the Library drawer.
+  private formationSelect = el<HTMLSelectElement>('seqFormation');
+  private setFormationBtn = el<HTMLButtonElement>('seqSetFormation');
+  private boardRotInput = el<HTMLInputElement>('seqBoardRot');
+  private view2dEl = el<HTMLSelectElement>('seqView2d');
   private parallelBtn = el<HTMLButtonElement>('seqParallel');
-  // The explicit way OUT of parallel mode - see `parallel`. Off unless the mode is on.
   private parallelDoneBtn = el<HTMLButtonElement>('seqParallelDone');
   private matrixInfoEl = el<HTMLDivElement>('seqMatrixInfo');
   private seqListEl = el<HTMLDivElement>('seqSequence');
@@ -108,20 +145,13 @@ export class SequencerController implements SequencerUI {
   private all8ImportBtn = el<HTMLButtonElement>('seqAll8Import');
   private all8ExportBtn = el<HTMLButtonElement>('seqAll8Export');
   private all8InfoEl = el<HTMLSpanElement>('seqAll8Info');
-  private playBtn = el<HTMLButtonElement>('seqPlay');
-  private scrub = el<HTMLInputElement>('seqScrub');
-  private beatInput = el<HTMLInputElement>('seqBeatInput');
-  private copyPosBtn = el<HTMLButtonElement>('seqCopyPos');
-  private beatEl = el<HTMLSpanElement>('seqBeat');
-  private formationSelect = el<HTMLSelectElement>('seqFormation');
-  private setFormationBtn = el<HTMLButtonElement>('seqSetFormation');
-  private boardRotInput = el<HTMLInputElement>('seqBoardRot');
-  private view2dEl = el<HTMLSelectElement>('seqView2d');
   private subsetInfoEl = el<HTMLDivElement>('seqSubsetInfo');
   private formationNames: string[] = [];
 
   // State.
   private seq: Sequencer;
+  /** The panel's own box, for the `seq-figure` mode edge. */
+  private hudEl = el<HTMLDivElement>('hud');
   private views: DancerView[] = [];
   /** Flat 2D markers, one per dancer, shown when View = 2D. */
   private markers: THREE.Group[] = [];
@@ -180,11 +210,34 @@ export class SequencerController implements SequencerUI {
   private stop: SequenceStop | null = null;
   /** The board the next-call list was last built for. See `settlePlayhead`. */
   private listBoardKey = '';
+  /** What the picker last offered, for the composer's hint: how many of how many, and under what query. */
+  private pickerCounts = { shown: 0, total: 0, query: '' };
+  /** The start beat of every timeline row, computed once per rebuild and reused PER FRAME by
+   *  `stepAtPlayhead` - a `sequenceBeats` call per frame would be a replay of the whole sequence 60 times a
+   *  second. */
+  private stepStarts: number[] = [];
+  private lastActiveStep = -1;
   private lastFrame = performance.now();
   private lastTraceKey = '';
   /** The identity the dancer VIEWS were built for. See `viewKeyOf` and `renderBoard`. */
   private viewKey = '';
   private lastReadout = '';
+  /**
+   * UNDO/REDO AS SNAPSHOTS OF `history`, not as a stack of inverse operations.
+   *
+   * The history is the whole of the sequence and every edit path already rebuilds it, so a snapshot is both
+   * the smallest code and the only correct answer for the operations that are NOT one step: `Apply getout`
+   * used to push one entry per call and an All8 import replaces the lot, so "undo" peeled them off one at a
+   * time. Each of those is now ONE undo because each takes ONE snapshot.
+   */
+  private undoStack: HistorySnapshot[] = [];
+  private redoStack: HistorySnapshot[] = [];
+  /** The timeline row the keyboard acts on: `Delete` removes it. */
+  private selectedStep = 0;
+  /** The Solve drawer's state: which question, its results, and which result Apply acts on. */
+  private solveTab: 'getout' | 'getin' | 'fix' = 'getout';
+  private solveLines: { label: string; calls: string[] }[] = [];
+  private solveChosen = 0;
 
   constructor(stage: Stage) {
     this.stage = stage;
@@ -333,7 +386,7 @@ export class SequencerController implements SequencerUI {
     const name = this.formationSelect.value;
     if (!name) return;
     if (!this.seq.setSetup(name)) {
-      this.statusEl.textContent = `✗ unknown formation "${name}"`;
+      this.setStatus('error', `✗ unknown formation "${name}"`);
       return;
     }
     this.history.length = 0;
@@ -368,27 +421,35 @@ export class SequencerController implements SequencerUI {
     this.formationSelect.value = name && this.formationNames.includes(name) ? name : '';
   }
 
-  /** Show which dancer subsets resolve on the current board. */
+  /** THE COMPOSER'S HINT LINE: what the picker is offering, and - while a figure is being built - which
+   *  lane it is offering it to. It replaces the old "Subsets present" block, which said the same thing in
+   *  three wrapped lines at the bottom of the panel. */
   private renderSubsetInfo() {
-    // IN PARALLEL MODE THE PANEL SAYS WHO IS STILL WAITING FOR A CALL, because that is the question the
-    // picker is answering - the "subsets present" list is about the group selector, which the pair's
-    // second call does not go through.
+    // A FILTERED PICKER SAYS SO. A silent shorter list would leave the caller wondering which calls are in
+    // the level at all, and it is also where "nothing matched" has to be visible.
+    const c = this.pickerCounts;
+    const filterNote = c.query
+      ? (c.shown === 0
+        ? `<b class="warn">nothing matches “${esc(c.query)}”</b> — clear the Filter to see all ${c.total}`
+        : `${c.shown} of ${c.total} calls match “${esc(c.query)}”`)
+      : '';
     if (this.parallel) {
       const un = this.unassignedLane();
       const lanes = this.parallel.groups.filter((g) => g.calls.length > 0);
       this.subsetInfoEl.innerHTML =
-        `Parallel step: <b>${esc(stepLabel(this.parallelEntry(this.parallel)))}</b> — Apply adds the picked call to ` +
+        `Figure: <b>${esc(stepLabel(this.parallelEntry(this.parallel)))}</b> — Add puts the picked call in ` +
         `<b>${esc(this.activeLane()?.selection ?? '')}</b>'s lane` +
-        (lanes.length > 1 ? `, so the figure is <b>${lanes.length}</b> groups at once` : '') +
-        (un
-          ? `; "+ Parallel call" gives <b>${esc(un)}</b> a lane of their own, and Done finishes the figure.`
-          : '; every dancer has a call — Done finishes the figure.');
+        (lanes.length > 1 ? `, so <b>${lanes.length}</b> groups dance at once` : '') +
+        (un ? `; <b>While…</b> opens a lane for <b>${esc(un)}</b>.` : '; every dancer has a lane.')
+        + (filterNote ? ` · ${filterNote}` : '');
       return;
     }
     const groups = this.seq.subsetGroups(this.seq.board);
-    this.subsetInfoEl.innerHTML = groups.length
-      ? `Subsets present: <b>${groups.join(' · ')}</b> — their calls are grouped under each selector below.`
-      : 'No dancer subsets resolve on this board (whole-board calls only).';
+    this.subsetInfoEl.innerHTML = filterNote
+      ? filterNote
+      : (groups.length
+        ? `Subsets present: <b>${groups.join(' · ')}</b>.`
+        : 'No dancer subsets resolve on this board (whole-board calls only).');
   }
 
   private loadModules() {
@@ -407,10 +468,19 @@ export class SequencerController implements SequencerUI {
   private restoreModules() {
     for (const m of this.modules) this.seq.registerModule(m.name, m.calls);
   }
+  /**
+   * The saved modules, each one CLICKABLE to load it.
+   *
+   * A module could only be reached through the picker before, which lists it among 2206 calls; the library
+   * drawer is where a caller looks for their own saved sequences, so the name is the action. Loading goes
+   * through `openSequence`, the same entry point the browse view uses, so a module loaded from here and one
+   * loaded from a call's "used by" list behave identically - including the start-formation handling.
+   */
   private refreshModulesList() {
     this.modulesEl.innerHTML = this.modules.length
-      ? this.modules.map((m) => `<b>${esc(m.name)}:</b> ${esc(m.calls.map(stepLabel).join(' · '))}`).join('<br>')
-      : '<i>(no modules saved yet)</i>';
+      ? this.modules.map((m, i) => `<span class="seq-module" data-mod="${i}" title="Load this module into the sequence">`
+        + `<b>${esc(m.name)}</b></span>: ${esc(m.calls.map(stepLabel).join(' · '))}`).join('<br>')
+      : '<i>(no modules saved yet — Add calls and press Save module)</i>';
   }
 
   private applyMargin() {
@@ -588,6 +658,19 @@ export class SequencerController implements SequencerUI {
         if (this.seq.groupCanPerform(on, group, m.name)) whole.push(m.name);
       }
     }
+    // THE FILTER NARROWS WHAT IS OFFERED, AND NEVER MOVES THE SELECTION. There are 2206 calls in the
+    // catalogue and the picker is the control a caller uses over and over, so the type-ahead Browse has was
+    // missing exactly where it is worth most. The RULE is Browse's own (`filterNames` in `call-filter.ts`),
+    // including "the selected call is always present": a filter that could empty the list would leave the
+    // control naming one call while the board shows another.
+    const query = this.callFilterInput.value;
+    const keep = this.callSelect.value;
+    const wholeShown = filterNames(whole, query, keep);
+    const bySelShown = new Map([...bySel.keys()].sort().map((k) => [k, filterNames(bySel.get(k)!, query, keep)] as const));
+    const modulesShown = filterNames(modules, query, keep);
+    const shownTotal = wholeShown.length + [...bySelShown.values()].reduce((n, a) => n + a.length, 0) + modulesShown.length;
+    const offerTotal = whole.length + [...bySel.values()].reduce((n, a) => n + a.length, 0) + modules.length;
+    this.pickerCounts = { shown: shownTotal, total: offerTotal, query: query.trim() };
     this.callSelect.innerHTML = '';
     this.callSelect.add(new Option(group ? `— call for ${group} —` : '— valid next call —', ''));
     // THE BEATS EACH ENTRY WOULD COST, IN THE PICKER'S OWN LABEL: "16 - Promenade Full". Asked for after
@@ -609,32 +692,35 @@ export class SequencerController implements SequencerUI {
       for (const n of uniq) og.appendChild(new Option(display(n), n));
       this.callSelect.appendChild(og);
     };
-    addGroup(group ? `Whole-set or ${group}` : 'Whole-set calls', whole,
+    addGroup(group ? `Whole-set or ${group}` : 'Whole-set calls', wholeShown,
       (n) => `${this.seq.stepBeats(board, group ? `${group} ${n}` : n)} - ${n}`);
-    for (const sel of [...bySel.keys()].sort()) {
-      addGroup(`Subset: ${sel}`, bySel.get(sel)!, (n) => `${this.seq.stepBeats(board, n)} - ${n}`);
+    for (const [sel, names] of bySelShown) {
+      addGroup(`Subset: ${sel}`, names, (n) => `${this.seq.stepBeats(board, n)} - ${n}`);
     }
-    addGroup('Modules', modules, (n) => `${this.seq.sequenceBeats(this.seq.flatten([n]), this.seq.board)} - ${n}`);
+    addGroup('Modules', modulesShown, (n) => `${this.seq.sequenceBeats(this.seq.flatten([n]), this.seq.board)} - ${n}`);
     // Keep the previous pick only when THIS list actually offers it - the values are bare names now,
     // so asking `legal` (which carries prefixes) would compare against a different vocabulary.
     const offered = [...this.callSelect.options].map((o) => o.value);
     if (prev && offered.includes(prev)) this.callSelect.value = prev;
     // Remember which board this list answers for, so `settlePlayhead` can skip a redundant rebuild.
     this.listBoardKey = boardKey(this.seq.board);
-    // The parallel button is live whenever the mode is on: it opens a lane for whoever has none. Done is what
-    // finishes the figure, and it is live exactly when the mode is.
+    // WHILE… IS LIVE WHENEVER THE MODE IS ON: it opens a lane for whoever has none. "Finish figure" is what
+    // ends the figure, and it is live exactly when the mode is.
     this.parallelBtn.disabled = !this.parallel;
     this.parallelDoneBtn.disabled = !this.parallel;
     const lane = this.activeLane();
     this.parallelBtn.title = this.parallel
       ? (lane && lane.calls.length === 0
-        ? `${lane.selection} left — pick their call from the list and Apply; Apply again adds a SECOND call to the same lane.`
+        ? `${lane.selection} left — pick their call from the list and Add; Add again adds a SECOND call to the same lane.`
         : `Give the dancers no lane has claimed their own call in the SAME slot`
-          + (lane ? ` — Apply adds the picked call to ${lane.selection}'s lane (${lane.calls.join(' then ')}), and this button opens ANOTHER lane.` : '.'))
+          + (lane ? ` — Add puts the picked call in ${lane.selection}'s lane (${lane.calls.join(' then ')}), and this button opens ANOTHER lane.` : '.'))
       : 'Give the dancers the current call did NOT move their own call in the SAME time slot. Enabled only when the last call acted on a subset, e.g. Sides promenade while the Heads step into the middle.';
     this.parallelDoneBtn.title = this.parallel
-      ? `Finish ${stepLabel(this.parallelEntry(this.parallel))} and leave parallel mode, so the picker offers the next figure's calls again.`
+      ? `Finish ${stepLabel(this.parallelEntry(this.parallel))} and leave the figure, so the picker offers the next call again.`
       : 'Finish the parallel figure. Enabled only while one is being built.';
+    // THE PRIMARY BUTTON SAYS WHAT IT DOES IN THE MODE IT IS IN: in a figure it appends to the open lane.
+    this.applyBtn.textContent = this.parallel ? 'Add to lane' : 'Add to sequence';
+    this.undoBtn.title = 'Undo the last change to the sequence (Ctrl+Z)';
     this.updateFormationSelect();
     this.renderSubsetInfo();
   }
@@ -642,11 +728,11 @@ export class SequencerController implements SequencerUI {
   private saveModule() {
     const name = this.moduleNameInput.value.trim();
     if (!name) {
-      this.statusEl.textContent = 'Enter a module name first';
+      this.setStatus('warn', 'Enter a module name first');
       return;
     }
     if (this.history.length === 0) {
-      this.statusEl.textContent = 'Nothing to save — add calls first';
+      this.setStatus('warn', 'Nothing to save — add calls first');
       return;
     }
     this.seq.registerModule(name, [...this.history]);
@@ -654,7 +740,7 @@ export class SequencerController implements SequencerUI {
     this.persistModules();
     this.refreshModulesList();
     this.refreshCallSelect();
-    this.statusEl.textContent = `Saved module "${name}"`;
+    this.setStatus('ok', `Saved module "${name}"`);
     this.moduleNameInput.value = '';
   }
 
@@ -769,21 +855,54 @@ export class SequencerController implements SequencerUI {
 
   render() {
     if (!this.active) return;
+    // THE STATUS LINE'S COLOUR BELONGS TO THE MESSAGE THAT SET IT, so it is reset with the paint. A write
+    // that is followed by `render()` may assign `textContent` directly; a write that is NOT - a search
+    // result, a refusal that returns early - goes through `setStatus`, or it would wear the previous
+    // message's colour.
+    this.statusEl.className = 'seq-status';
+    // THE TIMELINE IS PAINTED FROM THE SEQUENCE IN FRONT OF IT, whatever order the caller wrote the tail of
+    // its edit path in: `refreshWalk` derives the flat steps, the totals and the stop, and does NOT move the
+    // playhead (that is `syncAnimation`'s other half, and a repaint must not jump the scrub).
+    this.refreshWalk();
     this.renderBoard(this.seq.board);
+    this.renderFigureBar();
+    this.renderBoardChip();
     this.updateReadout();
+    this.renderTimeline();
+    this.renderSolve();
+  }
+
+  /** The ONE status line, in the colour that matches the news. See `render`. */
+  private setStatus(kind: 'ok' | 'warn' | 'error', text: string) {
+    this.statusEl.className = `seq-status ${kind}`;
+    this.statusEl.textContent = text;
   }
 
   private syncAnimation() {
+    this.refreshWalk();
+    this.playhead = this.totalBeats;
+    this.scrub.value = String(this.playhead);
+    this.updateBeatLabel();
+  }
+
+  /**
+   * The WALK's own view of the sequence: the flat steps, the total beats, the scrub's range, and where the
+   * sequence stops being playable.
+   *
+   * SPLIT OUT OF `syncAnimation` BECAUSE `render` NEEDS IT AND MUST NOT MOVE THE PLAYHEAD. Every edit path
+   * ends `render(); refreshCallSelect(); syncAnimation();`, so the timeline used to be painted from the
+   * PREVIOUS walk - rows for the calls but beats, totals and the stop marker from before the edit. Deriving
+   * here instead makes the order irrelevant, and it is cheap: both engine calls are memoised by content, and
+   * this runs on an ACTION, never in the frame loop.
+   */
+  private refreshWalk() {
     this.flat = this.seq.flatten(this.history);
     this.totalBeats = this.seq.sequenceBeats(this.flat, this.startBoard);
     // WHERE THE SEQUENCE STOPS BEING PLAYABLE. A call the walk cannot walk is charged 0 beats and
     // `evaluateSequence` returns the board BEFORE it, so the end of a sequence that stops early is
     // that call's start board. Without this the panel looks like it played the whole thing.
     this.stop = this.seq.sequenceStop(this.flat, this.startBoard);
-    this.playhead = this.totalBeats;
     this.scrub.max = String(Math.max(1, this.totalBeats));
-    this.scrub.value = String(this.playhead);
-    this.updateBeatLabel();
   }
 
   private updateBeatLabel() {
@@ -813,6 +932,9 @@ export class SequencerController implements SequencerUI {
       this.seq.setBoard(res.board);
       this.updateReadout();
     }
+    // THE TIMELINE FOLLOWS THE PLAYHEAD, and it costs two class names: `markTimelineCurrent` only touches the
+    // DOM when the ROW changes, so playing a sequence does not rebuild the list 60 times a second.
+    this.markTimelineCurrent(this.stepAtPlayhead());
     this.updateCurrentTrace();
   }
 
@@ -849,7 +971,12 @@ export class SequencerController implements SequencerUI {
       const dt = now - this.lastFrame;
       this.lastFrame = now;
       if (this.playing) {
-        this.playhead += dt / MS_PER_BEAT;
+        // THE SEQUENCER'S OWN CLOCK, INCLUDING ITS SPEED. The browse view previews one call through the
+        // shared `player`, so its Speed control is that player's; this walks the whole sequence and has its
+        // own multiplier, which is why the panel can slow a sequence down without touching the browse view's
+        // setting. Read per frame, so changing it takes effect mid-playback.
+        const speed = parseFloat(this.speedSelect.value) || 1;
+        this.playhead += (dt / MS_PER_BEAT) * speed;
         if (this.playhead >= this.totalBeats) {
           this.playhead = this.totalBeats;
           this.playing = false;
@@ -957,8 +1084,8 @@ export class SequencerController implements SequencerUI {
     };
     const text = JSON.stringify(payload, null, 2);
     navigator.clipboard.writeText(text).then(
-      () => { this.statusEl.textContent = '✓ dancer positions copied (JSON)'; },
-      () => { this.statusEl.textContent = '✗ clipboard unavailable — positions are in the console'; console.log(text); },
+      () => { this.setStatus('ok', '✓ dancer positions copied (JSON)'); },
+      () => { this.setStatus('error', '✗ clipboard unavailable — positions are in the console'); console.log(text); },
     );
   }
 
@@ -980,14 +1107,143 @@ export class SequencerController implements SequencerUI {
     const fasrText =
       `Formation: <b>${esc(fasr.formation ?? '?')}</b> · ${fasr.arrangement}<br>` +
       `Sequence: <b>${fasr.sequence}</b>${rel}${codeText}`;
-    const listText = this.history.length
-      ? this.history.map((c, i) => `<span class="seq-call" data-idx="${i}">${i + 1}. ${esc(stepLabel(c))}</span>`).join('<br>')
-      : '<i>(no calls yet)</i>';
-    const key = fasrText + '\u0000' + listText;
-    if (key === this.lastReadout) return;
-    this.lastReadout = key;
+    // THE SEQUENCE ITSELF IS NO LONGER PART OF THIS BLOCK. It has its own zone (`renderTimeline`), which is
+    // the point of the redesign: the FASR reading is state, the sequence is the document.
+    if (fasrText === this.lastReadout) return;
+    this.lastReadout = fasrText;
     this.fasrEl.innerHTML = fasrText;
-    this.seqListEl.innerHTML = listText;
+  }
+
+  /**
+   * THE TIMELINE: the one surface this panel exists to build.
+   *
+   * A row per history entry - an ordinal, the step's own label (which already states WHO acts, so a second
+   * "who" chip would only restate it), the beats it costs, a bar whose width is its share of the LONGEST
+   * step, and a `×` that removes it. The row under the playhead is marked `aria-current="step"` and tinted,
+   * and the first step that cannot be played is flagged from the walk's own `stop` - the engine already
+   * knows where a sequence stops being playable, and the panel used to say so only in a sentence beside the
+   * transport.
+   */
+  private renderTimeline() {
+    const n = this.history.length;
+    this.totalsEl.textContent = n
+      ? `${n} step${n === 1 ? '' : 's'} · ${this.totalBeats.toFixed(1)} b`
+      : '';
+    this.undoBtn.disabled = this.undoStack.length === 0;
+    this.redoBtn.disabled = this.redoStack.length === 0;
+    this.resetBtn.disabled = n === 0 && !this.startBoard;
+    if (n === 0) {
+      this.stepStarts = [];
+      this.lastActiveStep = -1;
+      this.seqListEl.innerHTML =
+        '<div class="seq-empty">No calls yet — pick a <b>Who</b>, a <b>Call</b> and press '
+        + '<b>Add to sequence</b>. <b>While…</b> adds a second group dancing at the same time.</div>';
+      return;
+    }
+    // THE START BEAT OF EVERY STEP, computed once: it is what the row's own beats are a difference of, what
+    // the playhead's row is found from (per FRAME - so it must not be a `sequenceBeats` call), and what the
+    // bars are scaled by.
+    const starts = this.history.map((_, i) => this.beatAtStep(i));
+    this.stepStarts = starts;
+    const perStep = this.history.map((_, i) => Math.max(0, (i + 1 < starts.length ? starts[i + 1] : this.totalBeats) - starts[i]));
+    // The longest step sets the scale, so the bars compare steps with each other rather than with the whole
+    // sequence - a 16-beat promenade beside two 4-beat trades has to LOOK three times as long.
+    const scale = Math.max(1, ...perStep);
+    const active = this.stepAtPlayhead();
+    this.lastActiveStep = active;
+    const badFlat = this.stop ? this.stop.index : -1;
+    const badAt = badFlat < 0 ? -1 : this.historyRowOfFlat(badFlat);
+    const rows = this.history.map((step, i) => {
+      const cls = [
+        'seq-row',
+        i === active ? 'on' : '',
+        i === badAt ? 'bad' : '',
+      ].filter(Boolean).join(' ');
+      const bar = Math.max(2, Math.round((perStep[i] / scale) * 100));
+      const title = i === badAt && this.stop
+        ? `Cannot be played: ${this.stop.reason}`
+        : 'Click to move the playhead to this step';
+      return `<div class="${cls}" role="listitem" tabindex="0" data-idx="${i}"${i === active ? ' aria-current="step"' : ''} title="${esc(title)}">`
+        + `<span class="seq-idx">${i + 1}</span>`
+        + `<span class="seq-name">${esc(stepLabel(step))}</span>`
+        + `<span class="seq-beats">${perStep[i] > 0 ? `${perStep[i].toFixed(1)} b` : '—'}</span>`
+        + `<span class="seq-bar-track"><span class="seq-bar-fill" style="width:${bar}%"></span></span>`
+        + `<button class="seq-del" data-del="${i}" title="Remove this step" aria-label="Remove step ${i + 1}">×</button>`
+        + '</div>';
+    });
+    this.seqListEl.innerHTML = rows.join('');
+    if (this.selectedStep >= n) this.selectedStep = n - 1;
+  }
+
+  /**
+   * Move the playhead's mark in the timeline. Called from `renderPlayhead`, which runs EVERY FRAME, so it
+   * touches two class names and nothing else - rebuilding the rows per frame would rebuild the DOM 60 times
+   * a second while the sequence plays.
+   */
+  private markTimelineCurrent(active: number) {
+    if (active === this.lastActiveStep) return;
+    this.lastActiveStep = active;
+    const rows = this.seqListEl.querySelectorAll<HTMLElement>('.seq-row');
+    rows.forEach((row) => {
+      const on = Number(row.dataset.idx) === active;
+      row.classList.toggle('on', on);
+      if (on) row.setAttribute('aria-current', 'step');
+      else row.removeAttribute('aria-current');
+    });
+  }
+
+  /**
+   * Which history row the flat index `k` belongs to. `SequenceStop.index` counts FLAT steps (a module is
+   * several of them), so it cannot index `history` directly - the same conversion `beatAtStep` makes, run
+   * the other way.
+   */
+  private historyRowOfFlat(k: number): number {
+    let flat = 0;
+    for (let i = 0; i < this.history.length; i++) {
+      flat += this.seq.flatten([this.history[i]]).length;
+      if (k < flat) return i;
+    }
+    return this.history.length - 1;
+  }
+
+  /** The history row the playhead is inside, or -1 when the sequence is empty. Reads the start beats the
+   *  timeline already computed, because this runs once per frame. */
+  private stepAtPlayhead(): number {
+    if (this.history.length === 0) return -1;
+    const starts = this.stepStarts;
+    if (starts.length !== this.history.length) return this.history.length - 1;
+    let row = 0;
+    for (let i = 0; i < starts.length; i++) if (this.playhead >= starts[i] - 1e-9) row = i;
+    return row;
+  }
+
+  /** THE FIGURE BANNER: which lanes exist, which one is open, and the one way out that is not Apply. */
+  private renderFigureBar() {
+    const p = this.parallel;
+    this.figureBarEl.hidden = !p;
+    // THE PANEL'S EDGE CARRIES THE MODE TOO, the way `ed-clone` does for the editor: a caller scrolled to the
+    // bottom of a long timeline should still be able to see that they are inside a figure.
+    this.hudEl.classList.toggle('seq-figure', !!p);
+    if (!p) {
+      this.parallelDoneBtn.disabled = true;
+      return;
+    }
+    const lanes = p.groups
+      .map((g) => (g.calls.length ? `${g.selection} (${g.calls.join(' + ')})` : `${g.selection} (open)`));
+    const un = this.unassignedLane();
+    this.figureWhatEl.innerHTML =
+      lanes.map((l) => esc(l)).join(' <b>||</b> ')
+      + (un ? ` · <b>${esc(un)}</b> still unclaimed` : ' · every dancer has a lane');
+    this.parallelDoneBtn.disabled = false;
+  }
+
+  /** WHERE THE SEQUENCE IS STANDING: the formation the replay starts from, and its All8 setup code. */
+  private renderBoardChip() {
+    const from = this.startBoard ?? this.seq.startBoard();
+    const name = this.seq.recognize(from)?.name ?? 'Static Square';
+    const code = this.fasrooCode(from);
+    this.boardChipEl.innerHTML =
+      `<b>${esc(name)}</b>${code ? ` · ${esc(code.code)}` : ''}`;
   }
 
   /**
@@ -1046,9 +1302,10 @@ export class SequencerController implements SequencerUI {
     const from = this.seq.startBoard();
     const step = this.seq.apply(name);
     if (!step.legal) {
-      this.statusEl.textContent = `✗ ${name}${step.reason ? ` — ${step.reason}` : ''}`;
+      this.setStatus('error', `✗ ${name}${step.reason ? ` — ${step.reason}` : ''}`);
       return;
     }
+    this.pushUndo();
     const expanded = this.seq.flatten([name]);
     this.history.push(...expanded);
     // PARALLEL MODE CANNOT SURVIVE A NEW CALL: its remainder and its history index both belong to the
@@ -1078,7 +1335,7 @@ export class SequencerController implements SequencerUI {
         ],
         active: 1,
       };
-      this.statusEl.textContent = `✓ ${name} · ${remaining} left — "+ Parallel call" gives them their own call in the same slot, and Apply again fills that slot with more than one`;
+      this.statusEl.textContent = `✓ ${name} · ${remaining} left — press While… to give them their own call in the same slot (or Add again later to put several in one lane)`;
     } else {
       this.statusEl.textContent = `✓ ${name}${expanded.length > 1 ? ` (${expanded.length} calls)` : ''}`;
     }
@@ -1240,7 +1497,7 @@ export class SequencerController implements SequencerUI {
     if (!lane) return;
     const second = this.callSelect.value;
     if (!second) {
-      this.statusEl.textContent = `pick ${lane.selection}'s own call first`;
+      this.setStatus('warn', `pick ${lane.selection}'s own call first`);
       return;
     }
     // THE PICKED CALL JOINS THE ACTIVE LANE, and every other lane is carried through untouched - so a third
@@ -1273,7 +1530,9 @@ export class SequencerController implements SequencerUI {
       return;
     }
     // REPLACE this figure's entry rather than appending: it is ONE step, so Undo removes the whole thing
-    // and the sequence list shows one numbered row.
+    // and the sequence list shows one numbered row. The snapshot is taken HERE, after the legality check and
+    // before the write, so a refused append is not an undoable non-event.
+    this.pushUndo();
     const withStep = [...this.history];
     withStep[p.index] = step;
     this.history = withStep;
@@ -1294,11 +1553,12 @@ export class SequencerController implements SequencerUI {
       return sum + this.seq.stepBeats(on, `${lane.selection} ${c}`);
     }, 0);
     const total = this.seq.sequenceBeats([step], p.start);
+    // `render()` follows, which is what resets the status class - see `render`.
     this.statusEl.textContent =
       `✓ ${stepLabel(step)} — one step; Undo removes it`
       + ` · ${lane.selection} lane: ${calls.join(' then ')} = ${laneBeats} of ${total} beats`
       + (laneBeats < total
-        ? ` — they stand for the other ${total - laneBeats}; Apply again to fill it, or "+ Parallel call" for another group`
+        ? ` — they stand for the other ${total - laneBeats}; Add again to fill it, or While… for another group`
         : ' — the times match');
     this.render();
     this.refreshCallSelect();
@@ -1312,16 +1572,84 @@ export class SequencerController implements SequencerUI {
     else this.seq.reset();
   }
 
-  private undo() {
-    if (this.history.length === 0) return;
-    this.history.pop();
-    // THE PENDING PAIRING IS VOID: its history index was the entry just removed.
+  /**
+   * TAKE AN UNDO SNAPSHOT, BEFORE the change. One snapshot per USER ACTION, which is what makes an applied
+   * getout or an All8 import one Undo rather than one per call. `redoStack` is cleared because a new change
+   * makes the undone future unreachable.
+   *
+   * A SNAPSHOT HOLDS THE START BOARD AS WELL AS THE CALLS, because `Clear` resets both: undoing a Clear that
+   * restored only the calls would replay them from the home square and quietly rewrite the whole figure.
+   * The entries are copied but never deep-copied - a step is never mutated in place, every edit path
+   * replaces the array or an element - so the array itself is the snapshot.
+   */
+  private pushUndo() {
+    this.undoStack.push({ steps: [...this.history], startBoard: this.startBoard });
+    if (this.undoStack.length > 50) this.undoStack.shift();
+    this.redoStack.length = 0;
+  }
+
+  /** Put a snapshot back on screen: board, trace, list, picker. */
+  private setHistory(snap: HistorySnapshot, message: string, kind: 'ok' | 'warn' | 'error' = 'ok') {
+    this.history = [...snap.steps];
+    this.startBoard = snap.startBoard;
     this.parallel = null;
     this.replayHistory();
-    this.statusEl.textContent = '';
+    this.setStatus(kind, message);
     this.render();
     this.refreshCallSelect();
     this.syncAnimation();
+  }
+
+  private undo() {
+    if (this.undoStack.length === 0) {
+      this.setStatus('warn', 'nothing to undo');
+      return;
+    }
+    this.redoStack.push({ steps: [...this.history], startBoard: this.startBoard });
+    this.setHistory(this.undoStack.pop()!, 'undone');
+  }
+
+  private redo() {
+    if (this.redoStack.length === 0) {
+      this.setStatus('warn', 'nothing to redo');
+      return;
+    }
+    this.undoStack.push({ steps: [...this.history], startBoard: this.startBoard });
+    this.setHistory(this.redoStack.pop()!, 'redone');
+  }
+
+  /**
+   * REMOVE ONE STEP FROM THE SEQUENCE, from its own row in the timeline.
+   *
+   * The sequence is replayed from the start, so a step that later ones depended on can leave them unable to
+   * play - and that is REPORTED rather than silently dropped: the rest is kept, the first row that no longer
+   * plays is flagged from the walk's own `stop`, and the status line names it. Deleting the tail of a
+   * sequence is therefore always safe, and deleting from the middle tells the caller exactly what it cost.
+   */
+  private deleteStep(idx: number) {
+    if (idx < 0 || idx >= this.history.length) return;
+    const label = stepLabel(this.history[idx]);
+    this.pushUndo();
+    const next = [...this.history];
+    next.splice(idx, 1);
+    this.setHistory({ steps: next, startBoard: this.startBoard }, `removed ${label}`);
+    // `syncAnimation` (inside `setHistory`) has just re-derived `stop` for the shorter sequence.
+    if (this.stop) {
+      this.setStatus('warn', `removed ${label} — the sequence now stops before "${this.stop.call}": ${this.stop.reason}`);
+    }
+  }
+
+  /** Move the playhead by `d` beats, clamped to the sequence. The keyboard and the ⏪/⏩ buttons share it. */
+  private nudgePlayhead(d: number) {
+    if (this.totalBeats <= 0) return;
+    this.playing = false;
+    this.playBtn.textContent = '▶ Play';
+    this.playhead = Math.max(0, Math.min(this.totalBeats, this.playhead + d));
+    this.scrub.value = String(this.playhead);
+    this.lastTraceKey = '';
+    this.renderPlayhead();
+    this.updateBeatLabel();
+    this.settlePlayhead();
   }
 
   /** Load a named sequence whole and park the playhead at the first step that plays `atCall`.
@@ -1365,14 +1693,18 @@ export class SequencerController implements SequencerUI {
       this.lastTraceKey = '';
       this.refreshCallSelect();
       this.syncAnimation();
-      this.statusEl.textContent = spec
+      this.setStatus('error', spec
         ? `cannot load: starts from a "${declared}", which resolves to ${spec.code} - but the engine could not build that board.`
-        : `cannot load: starts from a "${declared}", and this engine cannot put the dancers into that formation in the RIGHT arrangement. Replaying it from home would dance different calls, so it is refused rather than approximated.`;
+        : `cannot load: starts from a "${declared}", and this engine cannot put the dancers into that formation in the RIGHT arrangement. Replaying it from home would dance different calls, so it is refused rather than approximated.`);
       return;
     }
     this.startBoard = startBoard ?? undefined;
     const startLabel = spec?.code ?? spec?.formation ?? '';
 
+    // A LOAD IS A NEW DOCUMENT: the undo history belongs to the sequence being replaced, so both stacks are
+    // dropped rather than left to undo an edit into a sequence the caller has navigated away from.
+    this.undoStack.length = 0;
+    this.redoStack.length = 0;
     this.history = this.seq.flatten(steps);
     this.rewindToStart();
     let refused = 0;
@@ -1389,14 +1721,14 @@ export class SequencerController implements SequencerUI {
     this.settlePlayhead();
     const idx = atCall === undefined ? -1 : this.history.findIndex((s) => callKey(s) === callKey(atCall));
     if (idx >= 0) this.seekTo(idx);
-    this.statusEl.textContent = [
+    this.setStatus(this.stop ? 'warn' : 'ok', [
       `loaded ${this.history.length} call(s)`,
       startLabel ? `from ${startLabel}` : '',
       refused ? `${refused} refused` : '',
       // The walk's own verdict, which is the one that decides where the ANIMATION ends. Named
       // because a count does not tell the user that the last frame is the board before that call.
       this.stop ? `stops at "${this.stop.call}" - ${this.stop.reason}` : '',
-    ].filter(Boolean).join(', ');
+    ].filter(Boolean).join(', '));
   }
 
   /** Move the playhead to the START of history step `idx`.
@@ -1439,6 +1771,7 @@ export class SequencerController implements SequencerUI {
   }
 
   private reset() {
+    if (this.history.length > 0) this.pushUndo();
     this.history.length = 0;
     this.parallel = null;
     // Reset returns the set to the home square, so the sequence starts from home
@@ -1543,10 +1876,117 @@ export class SequencerController implements SequencerUI {
       + (unmapped > 0 ? ` · ${unmapped} with no All8 abbreviation (in brackets)` : '');
   }
 
-  private showGetout() {
-    const path = this.seq.getout({ target: 'Static Square', maxCalls: 5 });
-    this.statusEl.textContent = path ? `getout: ${path.join(' > ')}` : 'no getout found (≤5 calls)';
-    this.updateMatrixInfo();
+  /**
+   * THE SOLVE DRAWER: three questions, one Search, one Apply.
+   *
+   * It replaces five buttons that wrote into three different blocks - `Getout` and `Getin` and
+   * `Matrix getout` each put a SENTENCE in the one status line (so the answer to Add lived beside
+   * "Copy positions"), `Fix it` wrote into a block of its own, and `Apply getout` silently appended a whole
+   * path one call at a time. The questions are now a tab, the answers are LINES you can click, and Apply
+   * acts on the line you chose. Nothing about the searches themselves changed: the same
+   * `getout`/`getin`/`fixIt`/`matrixGetout` calls, the same targets and bounds.
+   */
+  private runSolve() {
+    this.solveChosen = 0;
+    if (this.solveTab === 'getout') {
+      // THE RIGID PATH IS THE SAME QUESTION, not a separate button: a one-call self-inverse getout is the
+      // best possible answer to "how do I get home from here", so when the caller asks for it first it is
+      // offered as the first line.
+      const lines: { label: string; calls: string[] }[] = [];
+      if (this.matrixFirstInput.checked) {
+        const rigid = this.seq.matrixGetout();
+        if (rigid && rigid.length) lines.push({ label: `${rigid.join(' > ')} — rigid, self-inverse (one call)`, calls: rigid });
+      }
+      const path = this.seq.getout({ target: 'Static Square', maxCalls: 5 });
+      if (path && path.length) lines.push({ label: path.join(' > '), calls: path });
+      this.solveLines = lines;
+      this.solveInfoEl.textContent = lines.length
+        ? `${lines.length} answer${lines.length === 1 ? '' : 's'}`
+        : 'no getout found (≤5 calls)';
+      this.updateMatrixInfo();
+    } else if (this.solveTab === 'getin') {
+      const target = this.seq.recognize(this.seq.board).name ?? 'Static Square';
+      const gi = this.seq.getin({ target, maxCalls: 5, budget: 400 });
+      this.solveLines = gi && gi.length ? [{ label: gi.join(' > '), calls: gi }] : [];
+      this.solveInfoEl.textContent = gi && gi.length
+        ? `→ ${target}`
+        : `no getin found → ${target} (≤5 calls)`;
+    } else {
+      // FIX IT answers with single CALLS rather than a path, so each line is one call to add.
+      const fixes = this.seq.fixIt({ target: 'Static Square', depth: 3 });
+      this.solveLines = fixes.map((name) => ({ label: name, calls: [name] }));
+      this.solveInfoEl.textContent = fixes.length
+        ? `${fixes.length} call${fixes.length === 1 ? '' : 's'} keep a getout alive`
+        : 'no fix-it move keeps a getout alive';
+    }
+    this.renderSolve();
+  }
+
+  private renderSolve() {
+    this.tabGetoutBtn.className = this.solveTab === 'getout' ? 'on' : '';
+    this.tabGetinBtn.className = this.solveTab === 'getin' ? 'on' : '';
+    this.tabFixBtn.className = this.solveTab === 'fix' ? 'on' : '';
+    this.solveApplyBtn.disabled = this.solveLines.length === 0;
+    if (this.solveLines.length === 0) {
+      this.fixListEl.innerHTML = '';
+      return;
+    }
+    if (this.solveChosen >= this.solveLines.length) this.solveChosen = 0;
+    this.fixListEl.innerHTML = this.solveLines
+      .map((l, i) => `<button type="button" class="seq-line${i === this.solveChosen ? ' on' : ''}" `
+        + `data-solve="${i}" role="option" aria-selected="${i === this.solveChosen}">`
+        + `${esc(l.label)} <span class="seq-line-note">· ${l.calls.length} call${l.calls.length === 1 ? '' : 's'}</span>`
+        + '</button>')
+      .join('');
+  }
+
+  private setSolveTab(tab: 'getout' | 'getin' | 'fix') {
+    this.solveTab = tab;
+    this.solveLines = [];
+    this.solveChosen = 0;
+    this.solveInfoEl.textContent = '';
+    this.renderSolve();
+  }
+
+  /**
+   * APPLY THE CHOSEN LINE, AS ONE STEP AND ONE UNDO.
+   *
+   * The old `Apply getout` pushed one history entry per call, so undoing a five-call getout took five
+   * presses; it is one snapshot here. Every call is still applied through `seq.apply` in order and a
+   * refusal still stops with the failing call named - the difference is only what the panel reports and how
+   * much of it one Undo takes back.
+   */
+  private applySolve() {
+    const line = this.solveLines[this.solveChosen];
+    if (!line) return;
+    // THE REDO STACK IS CAPTURED FIRST, because `pushUndo` clears it and a REFUSED apply changes nothing -
+    // so a caller who had undone something would otherwise lose that future to a refusal.
+    const redoBefore = [...this.redoStack];
+    this.pushUndo();
+    this.replayHistory();
+    const added: ModuleStep[] = [];
+    for (const name of line.calls) {
+      const step = this.seq.apply(name);
+      if (!step.legal) {
+        // A HALF-APPLIED PATH IS NOT LEFT IN THE SEQUENCE: the snapshot is restored, so a refusal is a
+        // refusal rather than a partly-built line the caller has to unpick.
+        this.undoStack.pop();
+        this.redoStack = redoBefore;
+        this.replayHistory();
+        this.setStatus('error', `✗ ${name} refused — ${step.reason ?? 'cannot be danced from here'}`);
+        this.render();
+        this.refreshCallSelect();
+        this.syncAnimation();
+        return;
+      }
+      added.push(...this.seq.flatten([name]));
+    }
+    this.history.push(...added);
+    this.parallel = null;
+    this.setStatus('ok', `✓ applied ${line.label} — one step; Undo removes it`);
+    this.render();
+    this.refreshCallSelect();
+    this.syncAnimation();
   }
 
   private updateMatrixInfo() {
@@ -1555,50 +1995,6 @@ export class SequencerController implements SequencerUI {
     this.matrixInfoEl.innerHTML =
       `closeness-to-home: <b>${closeness.toFixed(2)}</b> · ` +
       `matrix rigid getout: <b>${rigid ? rigid.join(' > ') : '—'}</b>`;
-  }
-
-  private showMatrixGetout() {
-    const rigid = this.seq.matrixGetout();
-    this.statusEl.textContent = rigid
-      ? `matrix getout (rigid, self-inverse): ${rigid.join(' > ')}`
-      : 'no rigid single-call matrix getout (falls back to search)';
-    this.updateMatrixInfo();
-  }
-
-  private showGetin() {
-    const target = this.seq.recognize(this.seq.board).name ?? 'Static Square';
-    const gi = this.seq.getin({ target, maxCalls: 5, budget: 400 });
-    this.statusEl.textContent = gi
-      ? `getin → ${target}: ${gi.join(' > ')}`
-      : `no getin found → ${target} (≤5 calls)`;
-  }
-
-  private applyGetout() {
-    const path = this.seq.getout({ target: 'Static Square', maxCalls: 5 });
-    if (!path || path.length === 0) {
-      this.statusEl.textContent = 'no getout found (≤5 calls)';
-      return;
-    }
-    for (const name of path) {
-      const step = this.seq.apply(name);
-      if (!step.legal) {
-        this.statusEl.textContent = `✗ getout failed at "${name}"`;
-        return;
-      }
-      this.history.push(...this.seq.flatten([name]));
-    }
-    this.statusEl.textContent = `✓ applied getout: ${path.join(' > ')}`;
-    this.render();
-    this.refreshCallSelect();
-    this.syncAnimation();
-    this.updateMatrixInfo();
-  }
-
-  private showFixIt() {
-    const fixes = this.seq.fixIt({ target: 'Static Square', depth: 3 });
-    this.fixListEl.innerHTML = fixes.length
-      ? `keep a getout: <b>${fixes.join(', ')}</b>`
-      : 'no fix-it move keeps a getout alive';
   }
 
   private wireEvents() {
@@ -1615,9 +2011,9 @@ export class SequencerController implements SequencerUI {
         // THE BUTTON IS DISABLED WHEN THERE IS NO REMAINDER, so reaching here means the last step could
         // not take a partner. Say which, rather than appearing to do nothing - which is how a no-op read
         // in the report that this button "doesn't seem to do anything".
-        this.statusEl.textContent =
+        this.setStatus('warn',
           'nothing to pair: the last step must be a SINGLE call that leaves some dancers standing. '
-          + 'Apply a subset call (e.g. Heads Promenade Full) first.';
+          + 'Add a subset call (e.g. Heads Promenade Full) first.');
         return;
       }
       const lane = this.activeLane()!;
@@ -1635,23 +2031,23 @@ export class SequencerController implements SequencerUI {
         if (chosen && chosen !== lane.selection) {
           const groups = p.groups.map((g, i) => (i === p.active ? { ...g, selection: chosen } : g));
           this.parallel = { ...p, groups, board: p.start };
-          this.statusEl.textContent = `${chosen} left — pick their call, then Apply`
-            + ' · "+ Parallel call" then opens a lane for whoever is still unclaimed, and Done finishes the figure';
+          this.setStatus('ok', `${chosen} left — pick their call, then Add`
+            + ' · While… then opens a lane for whoever is still unclaimed, and Finish figure ends it');
           this.callSelect.value = '';
           this.refreshCallSelect();
           this.callSelect.focus();
           return;
         }
-        this.statusEl.textContent = `${lane.selection} still have no call — pick theirs in the list and press Apply`
-          + ` · Apply again adds a SECOND call to the same lane, and Done finishes the figure`;
+        this.setStatus('warn', `${lane.selection} still have no call — pick theirs in the list and press Add`
+          + ` · Add again adds a SECOND call to the same lane, and Finish figure ends the figure`);
         this.callSelect.focus();
         return;
       }
       const left = this.unassignedLane();
       if (!left) {
         // EVERY DANCER IS IN A LANE: the honest answer is that the figure is complete, not a silent no-op.
-        this.statusEl.textContent = `every dancer has a call in ${stepLabel(this.parallelEntry(p))}`
-          + ' — Apply adds another call to a lane, and Done finishes the figure';
+        this.setStatus('warn', `every dancer has a call in ${stepLabel(this.parallelEntry(p))}`
+          + ' — Add adds another call to a lane, and Finish figure ends the figure');
         return;
       }
       // ANOTHER LANE, FOR THE DANCERS NO LANE HAS CLAIMED, and it starts back on the board the STEP starts
@@ -1660,8 +2056,8 @@ export class SequencerController implements SequencerUI {
       const forLane = chosen ?? choices[0] ?? left;
       const groups = [...p.groups, { selection: forLane, calls: [] }];
       this.parallel = { ...p, groups, active: groups.length - 1, board: p.start };
-      this.statusEl.textContent = `${forLane} left — pick their call, then Apply`
-        + ' · Apply again adds a second call to their lane, and Done finishes the figure';
+      this.setStatus('ok', `${forLane} left — pick their call, then Add`
+        + ' · Add again adds a second call to their lane, and Finish figure ends the figure');
       // THE FIRST CALL IS CLEARED OUT OF THE PICKER, so "pick their call" is literally true. The list keeps the
       // previous selection when it is still offered (`refreshCallSelect`), and in parallel mode the previous
       // selection is the call that was just applied - which is very often still legal for the remainder.
@@ -1687,12 +2083,21 @@ export class SequencerController implements SequencerUI {
       this.refreshCallSelect();
     });
     this.undoBtn.addEventListener('click', () => this.undo());
+    this.redoBtn.addEventListener('click', () => this.redo());
     this.resetBtn.addEventListener('click', () => this.reset());
-    this.getoutBtn.addEventListener('click', () => this.showGetout());
-    this.matrixGetoutBtn.addEventListener('click', () => this.showMatrixGetout());
-    this.applyGetoutBtn.addEventListener('click', () => this.applyGetout());
-    this.getinBtn.addEventListener('click', () => this.showGetin());
-    this.fixBtn.addEventListener('click', () => this.showFixIt());
+    // THE SOLVE DRAWER: one Search per question, one Apply on the chosen answer.
+    this.tabGetoutBtn.addEventListener('click', () => this.setSolveTab('getout'));
+    this.tabGetinBtn.addEventListener('click', () => this.setSolveTab('getin'));
+    this.tabFixBtn.addEventListener('click', () => this.setSolveTab('fix'));
+    this.solveRunBtn.addEventListener('click', () => this.runSolve());
+    this.solveApplyBtn.addEventListener('click', () => this.applySolve());
+    this.fixListEl.addEventListener('click', (e) => {
+      const t = (e.target as HTMLElement).closest('.seq-line') as HTMLElement | null;
+      if (t?.dataset.solve != null) {
+        this.solveChosen = Number(t.dataset.solve);
+        this.renderSolve();
+      }
+    });
     this.saveModuleBtn.addEventListener('click', () => this.saveModule());
     this.all8ImportBtn.addEventListener('click', () => this.importAll8());
     this.all8ExportBtn.addEventListener('click', () => this.exportAll8());
@@ -1711,16 +2116,113 @@ export class SequencerController implements SequencerUI {
     this.levelSelect.addEventListener('change', () => this.rebuildSeq());
     this.marginInput.addEventListener('input', () => this.applyMargin());
     this.playBtn.addEventListener('click', () => this.togglePlay());
+    this.stepBackBtn.addEventListener('click', () => this.nudgePlayhead(-1));
+    this.stepFwdBtn.addEventListener('click', () => this.nudgePlayhead(1));
     this.scrub.addEventListener('input', () => this.onScrub());
     // `input` fires continuously while dragging, and each settle costs a catalogue scan, so the
     // live board (and with it the next-call list) is only re-derived when the drag RELEASES.
     this.scrub.addEventListener('change', () => this.settlePlayhead());
     this.beatInput.addEventListener('change', () => this.onBeatInput());
     this.copyPosBtn.addEventListener('click', () => this.copyPositions());
-    this.seqListEl.addEventListener('click', (e) => {
-      const t = (e.target as HTMLElement).closest('.seq-call') as HTMLElement | null;
-      if (t && t.dataset.idx != null) this.seekTo(Number(t.dataset.idx));
+    // THE FILTER IS A VIEW, so it rebuilds the picker and nothing else - no board change, no apply.
+    this.callFilterInput.addEventListener('input', () => this.refreshCallSelect());
+    // A module in the library drawer is a LOAD, and it goes through the same `openSequence` the browse view
+    // uses - so there is one definition of what loading a stored sequence means.
+    this.modulesEl.addEventListener('click', (e) => {
+      const t = (e.target as HTMLElement).closest('.seq-module') as HTMLElement | null;
+      if (t?.dataset.mod == null) return;
+      const m = this.modules[Number(t.dataset.mod)];
+      if (m) this.openSequence(m.calls);
     });
+    // The timeline: a click on a ROW seeks, a click on its `×` removes the step, and the row is a tab stop
+    // with Enter/Space/Delete on it - a sequencer's two most common actions after Add.
+    this.seqListEl.addEventListener('click', (e) => {
+      const del = (e.target as HTMLElement).closest('.seq-del') as HTMLElement | null;
+      if (del?.dataset.del != null) { this.deleteStep(Number(del.dataset.del)); return; }
+      const row = (e.target as HTMLElement).closest('.seq-row') as HTMLElement | null;
+      if (row?.dataset.idx != null) {
+        this.selectedStep = Number(row.dataset.idx);
+        this.seekTo(this.selectedStep);
+      }
+    });
+    this.seqListEl.addEventListener('keydown', (e) => {
+      const row = (e.target as HTMLElement).closest('.seq-row') as HTMLElement | null;
+      if (row?.dataset.idx == null) return;
+      const idx = Number(row.dataset.idx);
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.selectedStep = idx; this.seekTo(idx); }
+      else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); this.deleteStep(idx); }
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        // THE ARROW KEYS WALK THE SEQUENCE, which is what a focused list should do - and they are also the
+        // transport's keys, so the row's own handler takes them first and moves the focus with the playhead.
+        e.preventDefault();
+        const next = Math.max(0, Math.min(this.history.length - 1, idx + (e.key === 'ArrowDown' ? 1 : -1)));
+        this.selectedStep = next;
+        this.seekTo(next);
+        const el2 = this.seqListEl.querySelector(`.seq-row[data-idx="${next}"]`) as HTMLElement | null;
+        el2?.focus();
+      }
+    });
+  }
+
+  /**
+   * THE SEQUENCER'S KEYBOARD, for `main.ts`'s one table.
+   *
+   * Panel-scoped through `when`, exactly as the editor's are: Space must not pause a sequence while the
+   * editor is on screen. Every binding is the action the button beside it performs, so there is one
+   * implementation per action - `nudgePlayhead`, `togglePlay`, `undo`, `redo`, `deleteStep`, `applySelected`.
+   *
+   * ENTER IS ADD, and it is the one binding that can surprise: the guards in `keys.ts` keep every one of
+   * these out of a field being typed into, and `select` counts as a field there, so a picker that has the
+   * focus keeps its own Enter.
+   */
+  keyBindings(): KeyBinding[] {
+    const live = () => this.active;
+    return [
+      { id: 'seq-play', key: ' ', run: () => this.togglePlay(), when: live },
+      { id: 'seq-beat-back', key: 'ArrowLeft', run: () => this.nudgePlayhead(-1), when: live },
+      { id: 'seq-beat-fwd', key: 'ArrowRight', run: () => this.nudgePlayhead(1), when: live },
+      {
+        id: 'seq-step-back',
+        key: 'ArrowLeft',
+        shift: true,
+        run: () => this.stepBy(-1),
+        when: live,
+      },
+      {
+        id: 'seq-step-fwd',
+        key: 'ArrowRight',
+        shift: true,
+        run: () => this.stepBy(1),
+        when: live,
+      },
+      { id: 'seq-undo', key: 'z', mod: true, run: () => this.undo(), when: live },
+      { id: 'seq-redo', key: 'z', mod: true, shift: true, run: () => this.redo(), when: live },
+      { id: 'seq-add', key: 'Enter', run: () => this.applySelected(), when: live },
+      {
+        id: 'seq-delete',
+        key: 'Delete',
+        run: () => this.deleteStep(this.selectedStep),
+        when: live,
+      },
+      {
+        id: 'seq-escape',
+        key: 'Escape',
+        // Escape leaves the figure being built - the same thing the banner's own button does one level up.
+        run: () => { if (this.parallel) this.finishParallel(); },
+        when: live,
+        whileTyping: true,
+      },
+    ];
+  }
+
+  /** Move the playhead to the START of the step `d` steps away, which is what Shift+Arrow means in a
+   *  sequencer: a beat at a time with the arrows, a step at a time with Shift. */
+  private stepBy(d: number) {
+    if (this.history.length === 0) return;
+    const current = this.stepAtPlayhead();
+    const next = Math.max(0, Math.min(this.history.length - 1, current + d));
+    this.selectedStep = next;
+    this.seekTo(next);
   }
 
   setActive(a: boolean) {

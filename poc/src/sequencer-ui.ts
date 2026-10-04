@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 
 import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf } from 'dancing-squared-engine';
-import type { Board, CallStep, FormDancer, Matchable, Module, ModuleStep, Pose, SequenceStop } from 'dancing-squared-engine';
+import type { Board, CallStep, FormDancer, GroupStep, Matchable, Module, ModuleStep, Pose, SequenceStop } from 'dancing-squared-engine';
 import { stepLabel, CODED_MOVES } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
 import { validCederModules } from './ceder-modules';
@@ -95,6 +95,8 @@ export class SequencerController implements SequencerUI {
   // Off until a subset call leaves somebody: `refreshCallSelect` is the only place that turns it on, and
   // it runs before the first paint.
   private parallelBtn = el<HTMLButtonElement>('seqParallel');
+  // The explicit way OUT of parallel mode - see `parallel`. Off unless the mode is on.
+  private parallelDoneBtn = el<HTMLButtonElement>('seqParallelDone');
   private matrixInfoEl = el<HTMLDivElement>('seqMatrixInfo');
   private seqListEl = el<HTMLDivElement>('seqSequence');
   private fasrEl = el<HTMLDivElement>('seqFasr');
@@ -128,29 +130,34 @@ export class SequencerController implements SequencerUI {
   /**
    * PARALLEL-CALL MODE. Set when the caller is giving the dancers the last call did NOT move their own
    * call in the SAME time slot. Holds everything the offer needs:
-   *   - `board`   the board the LANE'S NEXT CALL starts on. It begins as the board the first call was
+   *   - `board`   the board the ACTIVE lane's next call starts on. It begins as the board the first call was
    *               applied FROM - which is the board the remainder must be resolved on, because the live
    *               board is already after the first call - and advances by one call each time the caller
-   *               appends to the lane, so the picker always asks `groupCanPerform` the question that
-   *               matches the call about to be picked.
+   *               appends to that lane, so the picker always asks `groupCanPerform` the question that
+   *               matches the call about to be picked. A NEW lane starts back on `start`.
    *   - `start`   the board the STEP starts from - the board the first call was applied FROM. It never
    *               moves, and it is the board the composed step is CHECKED on: the live board has already
    *               been replayed past the step, so applying the step there would apply it twice.
-   *   - `index`   the history entry to replace, so the pair becomes ONE step rather than two.
-   *   - `first`   the first group, kept so the composed step can be rebuilt.
-   *   - `remaining` the selector for the dancers the first call left behind.
-   *   - `calls`   the calls the remainder has been given SO FAR, in order. One call is the ordinary
-   *               "while" partner; two or more is a LANE - the remainder dances them back to back in the
-   *               same slot, which is how a 16-beat call is filled by two 4-beat ones. Apply APPENDS while
-   *               the mode is on, and clicking the button again finishes the step.
+   *   - `index`   the history entry to replace, so the whole figure is ONE step rather than several.
+   *   - `groups`  the lanes, in order: each is a selection and the calls that selection has been given.
+   *               The first is the call the caller applied; the rest are the remainder's lanes. ONE CALL is
+   *               the ordinary "while" partner; TWO OR MORE is a lane - that group dances them back to back
+   *               in the same slot, which is how a 16-beat call is filled by two 4-beat ones. A lane with
+   *               an empty `calls` is one the caller has just opened and not yet filled.
+   *   - `active`  which lane Apply appends to.
+   *
+   * THREE OR MORE LANES, asked for with a five-call example (`call 1 || ( call 2 + call 3 ) || ( call 4 +
+   * call 5 )`). The button used to mean "finish the step" once the lane had a call, so a caller starting a
+   * THIRD group had the step silently rewritten and their next call landed as a NEW entry in the list -
+   * reported as "when I add a third call to a parallel call ... it seem to be added to the call list as a
+   * new call". It now opens another lane and Done is the way out.
    */
   private parallel: {
     start: Board;
     board: Board;
     index: number;
-    first: { selection: string; call: string };
-    remaining: string;
-    calls: { selection: string; call: string }[];
+    groups: { selection: string; calls: string[] }[];
+    active: number;
   } | null = null;
   private modules: Module[] = [];
   private active = false;
@@ -367,9 +374,15 @@ export class SequencerController implements SequencerUI {
     // picker is answering - the "subsets present" list is about the group selector, which the pair's
     // second call does not go through.
     if (this.parallel) {
+      const un = this.unassignedLane();
+      const lanes = this.parallel.groups.filter((g) => g.calls.length > 0);
       this.subsetInfoEl.innerHTML =
-        `Parallel call: <b>${esc(this.parallel.first.selection)} ${esc(this.parallel.first.call)}</b> is dancing · ` +
-        `<b>${esc(this.parallel.remaining)}</b> have no call yet — the list below offers theirs, and Apply joins them in the SAME slot.`;
+        `Parallel step: <b>${esc(stepLabel(this.parallelEntry(this.parallel)))}</b> — Apply adds the picked call to ` +
+        `<b>${esc(this.activeLane()?.selection ?? '')}</b>'s lane` +
+        (lanes.length > 1 ? `, so the figure is <b>${lanes.length}</b> groups at once` : '') +
+        (un
+          ? `; "+ Parallel call" gives <b>${esc(un)}</b> a lane of their own, and Done finishes the figure.`
+          : '; every dancer has a call — Done finishes the figure.');
       return;
     }
     const groups = this.seq.subsetGroups(this.seq.board);
@@ -462,6 +475,25 @@ export class SequencerController implements SequencerUI {
    * group the moment the board moved - which is exactly when they least want to re-pick it.
    */
   private refreshGroupSelect() {
+    // IN PARALLEL MODE THE GROUP SELECTOR ANSWERS A DIFFERENT QUESTION: WHO THE NEXT LANE GETS.
+    //
+    // The ordinary meaning - who performs the next call - is already answered by the mode itself, which is
+    // why it was ignored here. But the remainder is the complement of EVERYTHING claimed so far, so a lane
+    // given the whole remainder leaves nobody for a third group - and `call 1 || ( call 2 + call 3 ) ||
+    // ( call 4 + call 5 )` is a THREE-group figure. Naming a group that sits inside the unclaimed dancers is
+    // what splits them, so the selector lists exactly those.
+    if (this.parallel) {
+      const choices = this.laneGroups();
+      const prev = this.groupSelect.value;
+      const same = this.groupSelect.options.length === choices.length
+        && choices.every((g, i) => this.groupSelect.options[i]?.value === g);
+      if (!same) {
+        this.groupSelect.innerHTML = '';
+        for (const g of choices) this.groupSelect.appendChild(new Option(g, g));
+      }
+      this.groupSelect.value = choices.includes(prev) ? prev : choices[0] ?? '';
+      return;
+    }
     const singles = this.seq.subsetGroups(this.seq.board);
     const combined = this.seq.combinedGroups(this.seq.board);
     const prev = this.groupSelect.value || 'All 8';
@@ -501,7 +533,7 @@ export class SequencerController implements SequencerUI {
     // "what can the dancers that group LEFT BEHIND do". The remainder is resolved on the board the first
     // call started from, and the offer is narrowed by composing that selector and applying it - so a
     // call only the whole board can perform is absent rather than offered and then refused.
-    const group = this.parallel ? this.parallel.remaining : this.chosenGroup();
+    const group = this.parallel ? this.activeLane()?.selection ?? null : this.chosenGroup();
     const modules = legal.filter((n) => this.seq.isModule(n));
     const calls = legal.filter((n) => !this.seq.isModule(n));
     const whole: string[] = [];
@@ -589,15 +621,20 @@ export class SequencerController implements SequencerUI {
     if (prev && offered.includes(prev)) this.callSelect.value = prev;
     // Remember which board this list answers for, so `settlePlayhead` can skip a redundant rebuild.
     this.listBoardKey = boardKey(this.seq.board);
-    // The parallel button is only live when a subset call has left dancers with no call of their own.
+    // The parallel button is live whenever the mode is on: it opens a lane for whoever has none. Done is what
+    // finishes the figure, and it is live exactly when the mode is.
     this.parallelBtn.disabled = !this.parallel;
-    const lane = this.parallel?.calls ?? [];
+    this.parallelDoneBtn.disabled = !this.parallel;
+    const lane = this.activeLane();
     this.parallelBtn.title = this.parallel
-      ? `${this.parallel.remaining} dance in the SAME slot as ${this.parallel.first.selection} ${this.parallel.first.call}`
-        + (lane.length
-          ? ` — their lane is ${lane.map((c) => c.call).join(' then ')}, so Apply ADDS another call to it and pressing this finishes the step.`
-          : ' — pick a call from the list and Apply; Apply again adds a second call to the same lane, which is how one long call is filled by two short ones.')
+      ? (lane && lane.calls.length === 0
+        ? `${lane.selection} left — pick their call from the list and Apply; Apply again adds a SECOND call to the same lane.`
+        : `Give the dancers no lane has claimed their own call in the SAME slot`
+          + (lane ? ` — Apply adds the picked call to ${lane.selection}'s lane (${lane.calls.join(' then ')}), and this button opens ANOTHER lane.` : '.'))
       : 'Give the dancers the current call did NOT move their own call in the SAME time slot. Enabled only when the last call acted on a subset, e.g. Sides promenade while the Heads step into the middle.';
+    this.parallelDoneBtn.title = this.parallel
+      ? `Finish ${stepLabel(this.parallelEntry(this.parallel))} and leave parallel mode, so the picker offers the next figure's calls again.`
+      : 'Finish the parallel figure. Enabled only while one is being built.';
     this.updateFormationSelect();
     this.renderSubsetInfo();
   }
@@ -1033,9 +1070,13 @@ export class SequencerController implements SequencerUI {
         start: from,
         board: from,
         index: this.history.length - 1,
-        first: { selection: who!, call: splitSelection(name).call || picked },
-        remaining,
-        calls: [],
+        // THE FIRST LANE HOLDS THE CALL JUST APPLIED and the second is the remainder's, OPENED AND EMPTY:
+        // one group is not a figure, so the composed step is only sent once a lane has a call in it.
+        groups: [
+          { selection: who!, calls: [splitSelection(name).call || picked] },
+          { selection: remaining, calls: [] },
+        ],
+        active: 1,
       };
       this.statusEl.textContent = `✓ ${name} · ${remaining} left — "+ Parallel call" gives them their own call in the same slot, and Apply again fills that slot with more than one`;
     } else {
@@ -1044,6 +1085,100 @@ export class SequencerController implements SequencerUI {
     this.render();
     this.refreshCallSelect();
     this.syncAnimation();
+  }
+
+  /** The lane the picker is offering calls to and Apply appends to. */
+  private activeLane() {
+    const p = this.parallel;
+    return p ? p.groups[p.active] : null;
+  }
+
+  /**
+   * The composed step as it stands: a `GroupStep` once a SECOND lane has a call, and the plain composed
+   * name while there is only one - which is exactly what `applySelected` put in the history, so a refused
+   * append can restore the entry it replaced without knowing how it was built.
+   *
+   * A lane with no calls yet is DROPPED rather than sent to the engine: it is a group the caller has opened
+   * and not filled, and the step it would compose is not a figure. `parallelStep` is what Apply sends.
+   */
+  private parallelEntry(p: { groups: { selection: string; calls: string[] }[] }): ModuleStep {
+    const lanes = p.groups.filter((g) => g.calls.length > 0);
+    if (lanes.length === 0) return '';
+    if (lanes.length === 1) return `${lanes[0].selection} ${lanes[0].calls[0]}`;
+    return this.parallelStep(p);
+  }
+
+  /** The composed `GroupStep`, one lane per group: a single call uses the plain `{selection, call}` form,
+   *  several use the lane form - which is the shape the sequence list labels with `||` and `+`. */
+  private parallelStep(p: { groups: { selection: string; calls: string[] }[] }): GroupStep {
+    return {
+      groups: p.groups
+        .filter((g) => g.calls.length > 0)
+        .map((g) => (g.calls.length > 1
+          ? { selection: g.selection, calls: [...g.calls] }
+          : { selection: g.selection, call: g.calls[0] })),
+    };
+  }
+
+  /**
+   * The dancers that still have no call in the figure, as IDS, on the board the step starts from.
+   *
+   * BY IDS, NOT BY SELECTOR, and that distinction is a bug the browser found rather than a style choice. The
+   * complement of the union is named `All Except A and B`, and once the union already covers everybody that
+   * selector resolves to NOBODY - `All Except Heads and All Except Heads` (the union of the two lanes of an
+   * ordinary pair) is a perfectly well-formed selector for an empty set. So the emptiness has to be measured
+   * here, where the ids are, and not inferred from the selector being non-null.
+   */
+  private unclaimedIds(): number[] {
+    const p = this.parallel;
+    if (!p) return [];
+    const claimed = new Set<number>();
+    for (const g of p.groups.filter((g) => g.calls.length > 0)) {
+      for (const id of this.seq.selectionIds(p.start, g.selection) ?? []) claimed.add(id);
+    }
+    return p.start.dancers.filter((d) => !d.isGhost && !claimed.has(d.id)).map((d) => d.id);
+  }
+
+  /**
+   * The selector naming the dancers no lane has claimed, or null once every dancer has one.
+   *
+   * ONE SELECTOR FOR THE UNION, because the selection grammar already subtracts a union: `All Except A and
+   * B` resolves to the dancers in neither, MEASURED on a squared set (`All Except Heads and Sides` ->
+   * nobody, which is what subtracting all eight means). So no new syntax is needed to name what is left
+   * after two or three lanes.
+   */
+  private unassignedLane(): string | null {
+    const p = this.parallel;
+    if (!p || this.unclaimedIds().length === 0) return null;
+    const claimed = p.groups.filter((g) => g.calls.length > 0).map((g) => g.selection);
+    return claimed.length ? `All Except ${claimed.join(' and ')}` : null;
+  }
+
+  /**
+   * The groups the NEXT lane can be given, resolved on the board the step starts from: all of the dancers no
+   * lane has claimed, first, then every named group that sits strictly INSIDE them.
+   *
+   * THE NARROWING IS THE WHOLE POINT, and it is what makes a third group reachable: the remainder is the
+   * complement of everything claimed so far, so a lane that takes all of it leaves nobody behind. MEASURED in
+   * the browser - `Heads Promenade Full` leaves `All Except Heads` (the four sides), and the choices for the
+   * next lane are that and the groups inside it (`Side Boys`, `Side Girls`, `Side Men`, `Side Women`, `Side
+   * Beaus`, `Side Belles`), so `Sides Trade` can be given to two of them instead of all four.
+   */
+  private laneGroups(): string[] {
+    const p = this.parallel;
+    if (!p) return [];
+    const left = this.unassignedLane();
+    if (!left) return [];
+    const leftIds = new Set(this.unclaimedIds());
+    if (leftIds.size === 0) return [];
+    const out = [left];
+    for (const g of [...this.seq.subsetGroups(p.start), ...this.seq.combinedGroups(p.start)]) {
+      if (g === left || out.includes(g)) continue;
+      const ids = this.seq.selectionIds(p.start, g);
+      if (!ids || ids.length === 0 || ids.length >= leftIds.size) continue;
+      if (ids.every((id) => leftIds.has(id))) out.push(g);
+    }
+    return out;
   }
 
   /**
@@ -1060,18 +1195,40 @@ export class SequencerController implements SequencerUI {
   }
 
   /**
+   * FINISH THE FIGURE, which is a button of its own rather than a second meaning for "+ Parallel call".
+   *
+   * The two readings of that one button were the defect: with a lane already started it FINISHED the step,
+   * so a caller reaching for a third parallel group had the figure end under them and their next call land
+   * as a new entry in the list. Reported as "when I add a third call to a parallel call it doesnt seem to
+   * animate and it seem to be added to the call list as a new call".
+   */
+  private finishParallel() {
+    const p = this.parallel;
+    if (!p) return;
+    const left = this.unassignedLane();
+    const step = this.parallelEntry(p);
+    const lanes = p.groups.filter((g) => g.calls.length > 0).length;
+    this.exitParallel(
+      `${stepLabel(step)} is finished — ${lanes > 1 ? `${lanes} parallel groups; ` : ''}`
+      + (left ? `${left} keep the lane they have` : 'every dancer has a call'),
+    );
+    this.render();
+    this.syncAnimation();
+  }
+
+  /**
    * Give the dancers the last call did NOT move their OWN call, in the SAME time slot, as one step.
    *
-   * THE TWO GROUPS RUN SIMULTANEOUSLY, NOT IN SEQUENCE - the step becomes a `GroupStep`, which the engine
+   * THE GROUPS RUN SIMULTANEOUSLY, NOT IN SEQUENCE - the step becomes a `GroupStep`, which the engine
    * applies from one board and charges the LONGEST group's beats. That is the whole point: a caller
    * saying "sides promenade while the heads step into the middle" is ONE figure, not two in a row.
    *
-   * AND THE REMAINDER'S GROUP MAY TAKE SEVERAL CALLS, which is the lane: APPLY APPENDS while the mode is on,
+   * AND A GROUP MAY TAKE SEVERAL CALLS, which is the lane: APPLY APPENDS while the mode is on,
    * so a 16-beat call for the heads can be filled by "Sides Trade then Pass Thru". Each Apply rebuilds the
-   * step from the lane so far plus the call just picked, and applies it - so a lane that the engine refuses
+   * step from the lanes so far plus the call just picked, and applies it - so a lane that the engine refuses
    * never lands in the history, and the status line says which call refused.
    *
-   * The call is taken from the picker, which is offering only what the REMAINDER can do FROM THE BOARD ITS
+   * The call is taken from the picker, which is offering only what the ACTIVE LANE can do FROM THE BOARD ITS
    * NEXT CALL STARTS ON (`refreshCallSelect` narrows it by `groupCanPerform` against `parallel.board`, which
    * advances by one call per append), so the lane cannot be built from calls the group cannot perform in
    * order.
@@ -1079,13 +1236,18 @@ export class SequencerController implements SequencerUI {
   private applyParallel() {
     const p = this.parallel;
     if (!p) return;
+    const lane = this.activeLane();
+    if (!lane) return;
     const second = this.callSelect.value;
     if (!second) {
-      this.statusEl.textContent = `pick ${p.remaining}'s own call first`;
+      this.statusEl.textContent = `pick ${lane.selection}'s own call first`;
       return;
     }
-    const lane = [...p.calls, { selection: p.remaining, call: second }];
-    const step: ModuleStep = { groups: [p.first, { selection: p.remaining, calls: lane.map((c) => c.call) }] };
+    // THE PICKED CALL JOINS THE ACTIVE LANE, and every other lane is carried through untouched - so a third
+    // group is a third lane rather than a new entry in the list.
+    const calls = [...lane.calls, second];
+    const groups = p.groups.map((g, i) => (i === p.active ? { ...g, calls } : g));
+    const step = this.parallelStep({ groups });
     // THE STEP IS CHECKED ON THE BOARD IT STARTS FROM, ONCE. `replayHistory` has already put the live board
     // at the END of the sequence - which, once this entry is in the list, is the board the step PRODUCED - so
     // applying the step there applies it TWICE. That was harmless for the ordinary pair and stopped being so
@@ -1096,13 +1258,11 @@ export class SequencerController implements SequencerUI {
     // the live board either (the replay is what places it).
     const applied = this.seq.applyToBoard(p.start, step);
     if (!applied.legal) {
-      // A refused append must not leave a half-built step in the list: RESTORE THE LANE AS IT WAS (which is
+      // A refused append must not leave a half-built step in the list: RESTORE THE STEP AS IT WAS (which is
       // the single call when nothing has been appended yet), and KEEP THE MODE ON so the caller can pick a
       // different call instead of starting the lane again.
       const back = [...this.history];
-      back[p.index] = p.calls.length > 0
-        ? { groups: [p.first, { selection: p.remaining, calls: p.calls.map((c) => c.call) }] }
-        : `${p.first.selection} ${p.first.call}`;
+      back[p.index] = this.parallelEntry(p);
       this.history = back;
       this.replayHistory();
       this.parallel = p;
@@ -1112,7 +1272,7 @@ export class SequencerController implements SequencerUI {
       this.syncAnimation();
       return;
     }
-    // REPLACE the first call's entry rather than appending: the pair is ONE step, so Undo removes both
+    // REPLACE this figure's entry rather than appending: it is ONE step, so Undo removes the whole thing
     // and the sequence list shows one numbered row.
     const withStep = [...this.history];
     withStep[p.index] = step;
@@ -1121,25 +1281,25 @@ export class SequencerController implements SequencerUI {
     // THE BOARD THE LANE'S NEXT CALL STARTS ON. Read from the apply rather than re-applying: `lanes` carries
     // the boards the applicator itself passed through (`ApplyResult.lanes`), which is the same board the
     // engine will charge the next call its beats against.
-    const laneRun = applied.lanes?.find((l) => l.selection === p.remaining);
+    const laneRun = applied.lanes?.find((l) => l.selection === lane.selection);
     const nextBoard = laneRun?.boards[laneRun.boards.length - 1] ?? p.board;
-    this.parallel = { ...p, board: nextBoard, calls: lane };
+    this.parallel = { ...p, groups, board: nextBoard };
     // THE BALANCE IS THE POINT OF THE FEATURE: two 4-beat calls against a 16-beat partner is only useful if
-    // the caller can see it. Beats are read from the engine, per group, on the boards those groups start on.
-    const firstBeats = this.seq.stepBeats(p.board, `${p.first.selection} ${p.first.call}`);
-    const laneBeats = lane.reduce((sum, c, i) => {
+    // the caller can see it. Beats are read from the engine, per group, on the boards those groups start on,
+    // and the step's own cost is the LONGEST lane - so the shortfall is exactly the beats this lane spends
+    // standing. It is stated against the STEP rather than against one named partner, which is what makes it
+    // true for a figure with three or more lanes.
+    const laneBeats = calls.reduce((sum, c, i) => {
       const on = i === 0 ? p.board : laneRun?.boards[i] ?? p.board;
-      return sum + this.seq.stepBeats(on, `${c.selection} ${c.call}`);
+      return sum + this.seq.stepBeats(on, `${lane.selection} ${c}`);
     }, 0);
-    const filled = Math.min(laneBeats, firstBeats);
+    const total = this.seq.sequenceBeats([step], p.start);
     this.statusEl.textContent =
-      `✓ ${stepLabel(step)} — one step; Undo removes both`
-      + ` · ${p.remaining} lane: ${lane.map((c) => c.call).join(' then ')} = ${laneBeats} of ${firstBeats} beats`
-      + (laneBeats < firstBeats
-        ? ` — ${firstBeats - laneBeats} beats standing; Apply again to fill it, or press "+ Parallel call" to finish`
-        : laneBeats > firstBeats
-          ? ` — the lane is ${laneBeats - firstBeats} beats LONGER, so ${p.first.call} stands for that long`
-          : (filled ? ' — the times match' : ''));
+      `✓ ${stepLabel(step)} — one step; Undo removes it`
+      + ` · ${lane.selection} lane: ${calls.join(' then ')} = ${laneBeats} of ${total} beats`
+      + (laneBeats < total
+        ? ` — they stand for the other ${total - laneBeats}; Apply again to fill it, or "+ Parallel call" for another group`
+        : ' — the times match');
     this.render();
     this.refreshCallSelect();
     this.syncAnimation();
@@ -1444,12 +1604,14 @@ export class SequencerController implements SequencerUI {
   private wireEvents() {
     this.applyBtn.addEventListener('click', () => this.applySelected());
     // THE PARALLEL BUTTON DOES NOT APPLY ANYTHING ON ITS OWN. It puts the picker into the mode where the
-    // list offers the REMAINDER's calls; Apply then composes the pair - and APPENDS to the remainder's LANE
-    // once the pair exists, so a long call can be filled by several short ones. THE BUTTON IS THEREFORE ALSO
-    // THE WAY OUT: with nothing applied yet it seeds the picker, and with a lane already started it FINISHES
-    // the step and leaves the mode.
+    // list offers the calls for whoever has no lane; Apply then composes the step - and APPENDS to the ACTIVE
+    // lane, so a long call can be filled by several short ones.
+    // THE BUTTON OPENS ANOTHER LANE, AND NEVER FINISHES THE FIGURE - `Done` does that. It used to mean both,
+    // and the second meaning is the reported defect: a caller reaching for a THIRD parallel group had the
+    // step end under them, and the call they then applied landed as a new entry in the list.
     this.parallelBtn.addEventListener('click', () => {
-      if (!this.parallel) {
+      const p = this.parallel;
+      if (!p) {
         // THE BUTTON IS DISABLED WHEN THERE IS NO REMAINDER, so reaching here means the last step could
         // not take a partner. Say which, rather than appearing to do nothing - which is how a no-op read
         // in the report that this button "doesn't seem to do anything".
@@ -1458,15 +1620,48 @@ export class SequencerController implements SequencerUI {
           + 'Apply a subset call (e.g. Heads Promenade Full) first.';
         return;
       }
-      if (this.parallel.calls.length > 0) {
-        const done = this.history[this.parallel.index];
-        this.exitParallel(`${done ? stepLabel(done) : 'the step'} is finished — ${this.parallel.remaining} keep the lane it has`);
-        this.render();
-        this.syncAnimation();
+      const lane = this.activeLane()!;
+      // WHO THE NEXT LANE GETS comes from the group selector, which in parallel mode lists the groups that
+      // resolve inside the unclaimed dancers. Leaving it on the whole remainder is the ordinary two-group
+      // figure; narrowing it is what SPLITS the dancers, and therefore what builds a THIRD group.
+      const choices = this.laneGroups();
+      const picked = this.chosenGroup();
+      const chosen = picked && choices.includes(picked) ? picked : null;
+      if (lane.calls.length === 0) {
+        // THE LANE ALREADY OPEN IS EMPTY, so this press has one useful thing left to do: NARROW it. That is
+        // the whole of splitting a group - the remainder's lane starts as everyone no lane has claimed, and
+        // the caller says "actually, this lane is only the Side Boys", which leaves the Side Girls for
+        // another. A press that narrows nothing says what is missing instead of opening a second empty lane.
+        if (chosen && chosen !== lane.selection) {
+          const groups = p.groups.map((g, i) => (i === p.active ? { ...g, selection: chosen } : g));
+          this.parallel = { ...p, groups, board: p.start };
+          this.statusEl.textContent = `${chosen} left — pick their call, then Apply`
+            + ' · "+ Parallel call" then opens a lane for whoever is still unclaimed, and Done finishes the figure';
+          this.callSelect.value = '';
+          this.refreshCallSelect();
+          this.callSelect.focus();
+          return;
+        }
+        this.statusEl.textContent = `${lane.selection} still have no call — pick theirs in the list and press Apply`
+          + ` · Apply again adds a SECOND call to the same lane, and Done finishes the figure`;
+        this.callSelect.focus();
         return;
       }
-      this.statusEl.textContent = `${this.parallel.remaining} left — pick their call, then Apply`
-        + ' · Apply again to add a call to the same lane, and press this button again to finish';
+      const left = this.unassignedLane();
+      if (!left) {
+        // EVERY DANCER IS IN A LANE: the honest answer is that the figure is complete, not a silent no-op.
+        this.statusEl.textContent = `every dancer has a call in ${stepLabel(this.parallelEntry(p))}`
+          + ' — Apply adds another call to a lane, and Done finishes the figure';
+        return;
+      }
+      // ANOTHER LANE, FOR THE DANCERS NO LANE HAS CLAIMED, and it starts back on the board the STEP starts
+      // from - a lane begins at beat 0, however long the others are. The group is the one chosen above, or the
+      // whole remainder when the caller left the selector alone.
+      const forLane = chosen ?? choices[0] ?? left;
+      const groups = [...p.groups, { selection: forLane, calls: [] }];
+      this.parallel = { ...p, groups, active: groups.length - 1, board: p.start };
+      this.statusEl.textContent = `${forLane} left — pick their call, then Apply`
+        + ' · Apply again adds a second call to their lane, and Done finishes the figure';
       // THE FIRST CALL IS CLEARED OUT OF THE PICKER, so "pick their call" is literally true. The list keeps the
       // previous selection when it is still offered (`refreshCallSelect`), and in parallel mode the previous
       // selection is the call that was just applied - which is very often still legal for the remainder.
@@ -1479,6 +1674,7 @@ export class SequencerController implements SequencerUI {
       this.refreshCallSelect();
       this.callSelect.focus();
     });
+    this.parallelDoneBtn.addEventListener('click', () => this.finishParallel());
     this.callSelect.addEventListener('change', () => (this.statusEl.textContent = ''));
     // Changing the GROUP re-reads the call list for that group - the picker offers the calls that group
     // can actually do, so the two selectors cannot disagree about who acts.

@@ -3766,3 +3766,90 @@ TWO THINGS THIS LEFT OPEN, recorded rather than papered over:
     while its beats are charged. Its end board IS its start board, so no two-point interpolation can draw
     it, and the coded rule for `Do Sa Do` is the identity (`fn: (b) => b`) with no `legs` to animate. The
     honest fix is a rule-level path for the call, not another interpolation.
+
+THE SEQUENCER HUD IS REORGANISED AS A SEQUENCER. Asked for as: "The sequencer HUD has become quite
+unintuitive and incoherent. Use best design practices for sequencers to redesign the HUD and possibly some
+of the workflow to ensure it is intuitive and beautifully designed."
+
+WHAT WAS MEASURED BEFORE ANYTHING MOVED. The panel was one flat stack of twelve rows and five text blocks
+with no headings, and its ORDER inverted its own importance: `Margin` - an expert matching tolerance - was
+the first control; the board-view row (Formation/Set/Rot/View) sat BETWEEN the call picker and the button
+that applies it; the transport was below six search buttons and above the list it describes; the status line
+that answers Add lived in the SEARCH row, beside "Copy positions"; the sequence itself - the thing the panel
+exists to build - was last-but-four and set in the 11px `--dim` style reserved for footnotes while buttons
+were 13px; nine readouts were written into nine blocks in DOM order; the panel's own `max-height:
+calc(100vh - 24px); overflow-y: auto` scrolled everything together, so the transport and the list drifted off
+screen; the sequencer had NO keyboard bindings at all (`installKeys` carried the grid plus
+`editorUi.keyBindings()` only) while being the one panel with a playhead to drive; and 2206 calls were offered
+with no filter box, though the Browse tab has had one throughout.
+
+THE SHAPE NOW, and the four zones are the whole of the design: a SESSION line (Level, and a chip naming the
+formation the sequence stands on), a FIGURE banner that appears only while a `while` figure is being built, a
+COMPOSER (Who, Filter, Call, Add to sequence, While…, and the ONE status line under them), a TIMELINE (a row
+per step with its label, its beats, a bar scaled to the LONGEST step, a `×`, and Undo/Redo/Clear), a pinned
+TRANSPORT (play, ⏪/⏩ one beat, beat box, Speed, scrub), and four `<details>` drawers - Solve (getout ·
+getin · fix it), Board, Library, Advanced - closed by default. The panel is now `display: flex` and does NOT
+scroll; the TIMELINE is the only scrolling region. The readouts that mattered were promoted and the ones that
+did not were demoted: the sequence went from 11px dim to 12px `--text` with beats and totals, while the FASR
+reading moved into a drawer.
+
+WORKFLOW CHANGES, each following from a measured incoherence rather than from taste:
+
+  - ONE VOCABULARY. `Apply` is `Add to sequence` (and `Add to lane` inside a figure, from the same button),
+    `+ Parallel call`/`Done` are `While…`/`Finish figure` with a badged banner and the panel's own edge
+    tinted - the clone bar's language, because a figure IS a mode - and the five search buttons
+    (`Getout`, `Matrix getout`, `Apply getout`, `Getin`, `Fix it`, which wrote into three different blocks)
+    are ONE Solve drawer: three questions, one Search, results as CLICKABLE LINES, and one Apply that acts on
+    the chosen line.
+  - THE RIGID GETOUT IS THE SAME QUESTION, so it is a `rigid first` toggle that puts the one-call self-inverse
+    answer at the top of the getout list, not a second button beside a preview button.
+  - UNDO IS ONE SNAPSHOT PER ACTION, and it had to be: `Apply getout` pushed one history entry PER CALL, so
+    undoing a five-call getout took five presses, and an All8 import replaced the sequence with no way back.
+    A snapshot carries the START BOARD as well as the calls, because `Clear` resets both and undoing a Clear
+    that restored only the calls would replay them from the wrong square.
+  - A STEP CAN BE DELETED FROM ITS OWN ROW, and the sequence is replayed afterwards - so a step the later
+    ones depended on can leave them unplayable, which is REPORTED (the row is flagged from the walk's own
+    `stop`, the status line names the call) rather than silently dropped.
+  - THE FILTER IS THE BROWSE TAB'S RULE, exported as `filterNames` beside `filterCalls` and applied to every
+    list the picker offers (whole-set, subset, modules), keeping the selected call present - a view, never a
+    load.
+  - THE SEQUENCER HAS A KEYBOARD (Space, ←/→, Shift+←/→, Enter, Ctrl+Z/Ctrl+Shift+Z, Delete, Esc), installed
+    in the app's ONE table and scoped by `when` exactly as the editor's are.
+  - The sequencer gained the SPEED control it never had. It is its own, not the browse view's: that one runs
+    a single call through the shared player, this one walks the whole sequence in its own frame loop.
+  - Accessibility came with the layout: `role="status" aria-live="polite"` on the one status line,
+    `aria-current="step"` on the playing row, tab-focusable timeline rows, `for`/`id` on the composer labels,
+    and the app's first `:focus-visible` rule.
+
+THE PLAYMARK MUST NOT REBUILD THE LIST. The row under the playhead is updated from `renderPlayhead`, which
+runs once per FRAME, so it toggles two class names and nothing else (`markTimelineCurrent`), and the beat a
+row starts on is read from starts computed once per rebuild (`stepStarts`) rather than from a
+`sequenceBeats` call per frame - which would replay the whole sequence sixty times a second.
+
+TWO REGRESSIONS THE GATES CAUGHT, both in probes that pin the panel's markup:
+`escape-probe.mjs` failed because the timeline and the module list are new `innerHTML` sites (both escape, and
+the probe's two checks were updated to the new markup rather than the escape being loosened), and
+`call-beats-probe.mjs` failed because the picker's subset loop became `for (const [sel, names] of bySelShown)`
+- updated, with a new check that the Filter narrows through the SHARED rule. Both were caught by
+`verify-probes.mjs` reporting 14 failed where the baseline is 13.
+
+GATES: `npx tsc -p poc --noEmit`; `node poc/tools/sequencer-hud-probe.mjs` (new: the zones, the drawers and
+that they are closed, one status line/transport/undo pair, the timeline's data and its per-frame mark, the
+vocabulary, the snapshot-per-action rule, the bindings and their scoping, and the four CSS rules the layout
+depends on); `node poc/tools/call-filter-probe.mjs` (now also runs `filterNames` over real lists and checks
+the sequencer's wiring); `node poc/tools/parallel-lane-probe.mjs` (updated for the new labels, with the
+figure-banner checks added); `node poc/tools/verify-probes.mjs` reports the SAME 13 pre-existing reds and no
+others (45 probes, from 44); `node engine/test/verify-suite.mjs all` unchanged - NO ENGINE FILE WAS TOUCHED
+by this work.
+
+THE BROWSER PASS IS OUTSTANDING, and the reason is the build rather than the design. A fresh bundle could not
+be produced in this environment: `vite 5.4.21` has no `--configLoader` (it is a Vite 6 option - tried, and
+the CLI rejects the flag), and a Vite build here needs esbuild's piped-stdio service spawn, which the sandbox
+denies with EPERM. Serving the existing `poc/dist` would show the OLD panel, so nothing was gained by it. In
+its place the structural gates carry what they can: every `el()` id is cross-checked against `index.html` (48
+of them - the one failure mode `tsc` cannot see, since `el()` casts `null` to the element type and a renamed
+id becomes a crash on first paint), the tag pairs are balanced, and the zones, drawers, timeline data, one-of-
+each rule, bindings and CSS are all asserted by `sequencer-hud-probe.mjs`. What has NOT been seen is the
+panel rendered: the layout at a real viewport, the timeline's own scroll against a 40-beat sequence, and the
+keyboard against a focused control. The first person to run `npm run build --prefix poc` should check those
+three.

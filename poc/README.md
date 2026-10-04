@@ -71,50 +71,87 @@ the board actually used: `loaded 5 call(s), from L1o`.
 ## Sequencer mode
 
 Switch the **Mode** dropdown to **Sequencer** to build and validate a call
-sequence on the 8-dancer board:
+sequence on the 8-dancer board.
+
+### The HUD: four zones and four drawers
+
+The panel used to be one flat stack of rows and text blocks, and its order inverted its own importance — an
+expert matching tolerance first, a board-view row between the picker and its button, the transport below six
+search buttons, and the **sequence itself last and smallest**, at 11px. It is now laid out as a sequencer:
+
+| Zone | Holds | Why there |
+|---|---|---|
+| **Session line** | Mode, **Level**, and a chip naming the formation the sequence stands on | Level scopes everything below it; the board chip is the one piece of standing state |
+| **Figure banner** | The `WHILE` badge, the lanes, and **Finish figure** | A figure is a mode, so it is badged rather than implied — the same job the editor's clone bar does |
+| **Composer** | **Who**, **Filter**, **Call**, **Add to sequence**, **While…**, and the one status line | The primary flow, in the order a caller thinks it, with the feedback under the button that produced it |
+| **Timeline** | One row per step (ordinal, label, beats, a duration bar, `×`), the totals, **Undo/Redo/Clear** | The document this panel exists to build — the only scrolling region, and the only 12px body text |
+| **Transport** | Play, ⏪/⏩ one beat, the beat box, **Speed**, the scrub | Pinned, so position and playback are reachable from anywhere in a long sequence |
+| **Drawers** (`<details>`, closed) | **Solve** (getout · getin · fix it), **Board** (formation, rotation, view, FASR), **Library** (modules, All8), **Advanced** (margin, diagnostics) | Secondary tools one click away instead of always present |
+
+The timeline row under the playhead is tinted and marked `aria-current="step"`; a step the walk cannot play
+is flagged amber with the engine's own reason in its tooltip. The status line is a `role="status"` live
+region, so the answer to Add is announced rather than only drawn. `poc/tools/sequencer-hud-probe.mjs` is the
+gate on this shape.
+
+### Composing
 
 - Pick a **level** (SSD, MS, Plus, A1, …) to restrict which calls are available.
   Levels are **cumulative** (each builds on the earlier ones — e.g. MS includes
   SSD), unlike the browse mode, which shows only the calls
-  specific to the selected level. Then pick a call and **Apply** — the board
+  specific to the selected level. Choose **Who** acts (default `All 8`), pick a call and press
+  **Add to sequence** — the board
   advances, illegal calls are rejected with a reason. The call picker shows
   **only calls legal from the current formation** (refreshed after every
   apply/undo/reset), and **each entry carries the beats it would cost** — `16 - Promenade Full` — read from
-  the engine for the board the call would run on and the name Apply will use (the chosen group's prefix
+  the engine for the board the call would run on and the name Add will use (the chosen group's prefix
   included), so the number shown is the number the step is charged; a module shows its whole sequence's
   beats. The option's value stays the bare call name. A **group-named coded call** — `Fold`, `Trade`, `Run`, `Heads Step Forward` (and its round-trip sibling `Heads Step Forward and Back if Possible`) — is offered
   as well whenever the engine says the chosen group can dance it: those calls refuse their bare name by
   design, so the whole-board list can never carry them, and without this the picker could not sequence
   `Boys Trade` at all.
-- **Undo** / **Reset** to step back or start over.
-- **`+ Parallel call`** gives the dancers a subset call did NOT move their own call in the **same time
+- **Filter** narrows the picker to the calls whose name contains what you type, case-insensitively. It is the
+  same rule the Browse tab's own filter applies (`filterNames` in `call-filter.ts`) and the same promise: it
+  is a **view**, so the call the board is showing always stays in the list and cannot silently move to
+  another option. The hint under the composer says how many of how many match, and says so when none do.
+- **Undo / Redo / Clear** act on the whole sequence. One undo point is one *action*, so an applied getout or
+  an All8 import comes back in one press rather than one per call, and a snapshot carries the **start board**
+  as well as the calls — undoing a Clear replays them from the formation they were built on.
+- **`While…`** gives the dancers a subset call did NOT move their own call in the **same time
   slot** (CALLERLAB's "Centers Square Thru while Outsides Trade", which the engine models as one
   `GroupStep`). Press it after a subset call, pick from the list — which offers only what the active lane's
-  group can do — and **Apply**. **Apply again to add another call to the same lane**, and press **Done** to
-  finish: a 16-beat `Heads Promenade Full` can be filled by `Sides Trade then Touch a Quarter`, and the
+  group can do — and press **Add**. **Add again adds another call to the same lane**, and **Finish figure**
+  ends it: a 16-beat `Heads Promenade Full` can be filled by `Sides Trade then Touch a Quarter`, and the
   status line reports the balance (`= 6 of 16 beats — 10 beats standing`). Each group's
   calls run back to back from the step's start, the step costs the **longest** lane, and a lane that
   finishes early **stands** on its end pose; there are no synchronisation points between lanes (nothing can
   start one group's call part-way through another's). Undo removes the whole step. A deferred call
   (`Step Forward and Back if Possible`) may only be a lane of its own, and a lane names calls rather than a
   saved module.
-- **Three or more parallel groups.** `+ Parallel call` never finishes the figure — it opens **another lane**
-  for the dancers no lane has claimed, and **Done** is the way out. The **Group** selector is rebuilt for
-  that: while the mode is on it lists the groups that resolve *inside* the unclaimed dancers (`All Except
-  Heads`, `Side Boys`, `Side Girls`, …), so a lane can be given to **part** of the remainder — which is
-  the only way a third group can exist, since a lane given all of it leaves nobody. That is the shape the
-  sequence list shows as `Heads Promenade Full || Sides ( Trade + Touch a Quarter ) || Side Boys Recycle`: a
+- **Three or more parallel groups.** `While…` never finishes the figure — it opens **another lane**
+  for the dancers no lane has claimed, and **Finish figure** (or `Esc`) is the way out. The **Who**
+  selector is rebuilt for that: while the mode is on it lists the groups that resolve *inside* the unclaimed
+  dancers (`All Except Heads`, `Side Boys`, `Side Girls`, …), so a lane can be given to **part** of the
+  remainder — which is the only way a third group can exist, since a lane given all of it leaves nobody. That
+  is the shape the timeline shows as `Heads Promenade Full || Sides ( Trade + Touch a Quarter ) || Side Boys
+  Recycle`: a
   group of one call is bare, a group of several is bracketed, `+` joins the calls that run in order and `||`
   joins the groups that run at once. *(The button used to mean "finish" once the lane had a call, so a caller
   reaching for a third group had the step end under them and their next call land as a separate entry in the
   list — reported as "when I add a third call to a parallel call … it seem to be added to the call list as a
   new call".)*
-- **Getout** searches (bounded) for a sequence back to a Squared Set.
-- **Fix it** lists the calls that keep a getout alive.
-- **Save module** names the current sequence as a reusable fix/getout module; modules
-  behave like single calls, appear in the call picker (tagged "module"), are
-  persisted in `localStorage`, and are considered by Getout/Fix it.
-- The readout shows the recognized formation, arrangement, sequence parity, and
+- **Solve** (a drawer) asks one of three questions and shows the answers as **lines you can click**:
+  *Getout* — with **rigid first** to try the O(1) self-inverse matrix path as a one-call answer — *Getin*, and
+  *Fix it*, which answers with single calls that keep a getout alive. **Search** fills the list, clicking a
+  line chooses it, and **Apply** adds the chosen answer as **one step and one undo**. This replaces five
+  buttons that wrote into three different blocks, and an `Apply getout` that appended a whole path one call at
+  a time.
+- **Library** (a drawer) saves the current sequence as a reusable module, lists the saved ones — click a name
+  to load it into the timeline — and imports/exports All8 call-format text. Modules behave like single calls,
+  appear in the call picker (tagged "module"), are persisted in `localStorage`, and are considered by Getout
+  and Fix it.
+- **Board** (a drawer) holds the formation jump, the board rotation, the 2D/3D view and the FASR/FASROO
+  readout; **Advanced** holds the matching tolerance and the position dump. The readout shows the recognized
+  formation, arrangement, sequence parity, and
   dancer 1's partner/corner (FASR).
 - It also shows the board's **All8 FASROO code** — `[0L1pH+]` — whenever the board is
   a setup all8 has a name for. **FASROO, not FASR**, because a plain FASR code names
@@ -135,6 +172,31 @@ sequence on the 8-dancer board:
   instead. The four boards do separate cleanly, one per orientation, so the structure
   holds — but treat the letter as indicative. Hover the marker for it.
   `engine/test/tools/fasroo-probe.mjs` shows the whole reading.
+
+### Editing a sequence, and the keyboard
+
+Click a timeline row to move the playhead to it; click its `×` (or focus the row and press `Delete`) to
+remove that step. The sequence is replayed from the start afterwards, so a step that later ones depended on
+can leave them unable to play — and that is **reported rather than silently dropped**: the rest is kept, the
+first row that no longer plays is flagged from the walk's own verdict, and the status line names it. Deleting
+the last step is therefore always safe, and deleting from the middle tells you exactly what it cost.
+
+| Key | Action |
+|---|---|
+| `Space` | play / pause |
+| `←` `→` | one beat back / forward |
+| `Shift`+`←`/`→` | previous / next step |
+| `Enter` | Add the picked call |
+| `Ctrl+Z` / `Ctrl+Shift+Z` | undo / redo |
+| `Delete` | remove the selected step |
+| `Esc` | end the figure being built |
+
+They are installed in the app's one keyboard table (`main.ts`, beside the editor's) and scoped to the panel:
+`Space` must not pause a sequence while the Call editor is on screen.
+
+**Speed** is the sequencer's own, beside the transport. The browse view has its own Speed for the call it
+previews, because the two playbacks are different things — that one runs a single call through the shared
+player, this one walks the whole sequence on its own clock.
 
 The board uses the same 3D avatars (colored by gender; identity is tracked as 4
 couples internally and reported in the FASR readout).

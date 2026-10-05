@@ -3853,3 +3853,47 @@ each rule, bindings and CSS are all asserted by `sequencer-hud-probe.mjs`. What 
 panel rendered: the layout at a real viewport, the timeline's own scroll against a 40-beat sequence, and the
 keyboard against a focused control. The first person to run `npm run build --prefix poc` should check those
 three.
+
+A SQUARED-SET DOSADO IS PAIRED WITH THE DANCER YOU FACE, SO IT IS DRAWN AS A TREK TO THE MIDDLE. Reported:
+"the Dosado has the 'All Except Heads' dancers flipping from infacing to facing the home positions. This is
+some sort of incompatible end to start transition."
+
+IT IS NOT THE TRANSITION, and the measurement is what says so. The reported step is
+`Heads Promenade 3/4 to Home || All Except Heads ( Step Forward + Dosado )`, whose lane the walk charges
+`[2, 8]` beats. Sweeping the animation at 0.01-beat resolution across those 10 beats: the worst heading
+change in one sample is **0.29deg** and the worst position change **0.011 units**, so there is no
+discontinuity anywhere - and the pose at the `Step Forward` -> `Dosado` boundary is exactly `lane.boards[1]`,
+the board the APPLICATOR produced. The sub-calls agree with each other; nothing is incompatible.
+
+IT IS THE PAIRING. `Dosado` / `Do Sa Do` has no usable authored path for a squared set: the corpus's
+8-dancer `Dosado` variant only matches a `Static Square` at a tolerance above **8** (its setup is a different
+formation - `findMatchingVariant` returns NONE at 1e-3, 0.5, 1, 2, 4 and 8), and the coded rule REFUSES a
+squared set because `DOSADO_MAX_FACING_DIST` is **4.5** while the dancer you FACE on a squared set stands
+**6** away (`3` faces `8`, `4` faces `7`; each couple stands side by side facing the centre, so the partners
+are the ones 2 apart and the facing partners are the ones across the set). With no variant and no rule, the
+animator falls back to the applicator's tiling, which pairs by FACING: `5+2 | 6+1 | 7+4 | 8+3` on the whole
+board, and `3<->8`, `4<->7` in the sides lane - every pair 6 units apart. The pair's loop is drawn about the
+pair's MIDPOINT, which for a pair 6 apart IS THE CENTRE OF THE SQUARE: each side dancer walks **3.5 units**
+to the middle, orbits at radius ~1 and walks back, turning as they go. That is the flip, and it is the same
+drawing a bare whole-board `Dosado` has always used - the lane only made it visible, because the scoped-coded
+animation is what the previous record's fall-through fix made move at all.
+
+WHAT IT SHOULD BE, and this is a DANCE decision rather than a rendering one: on a squared set a dosado is
+danced with your PARTNER - beside you, same facing, 2 units away. Measured from the board AFTER
+`Step Forward`, where the tiles DO come out 2 apart, the SAME machinery draws a compact loop: worst travel
+**1.50** units instead of 3.50, closest pair 1.00 either way. So the tiling loop is sound; it is the choice of
+pair that is wrong. `findCouplePairs` (couples.ts) already reads the partners from the floor, so the cheap
+fix is in the ANIMATOR: when a call's own rule refuses the geometry - i.e. the motion is the fallback pairing
+anyway - tile by partner rather than by facing, starting with the `Do Sa Do` family. The alternatives are to
+honour the rule's own 4.5 limit and let `Dosado` be illegal from a squared set, or to leave the drawing and
+mark the step as fallback-drawn.
+
+DEFERRED BY THE CALLER - "leave it for now" - so nothing in the engine changed for it. It is the third member
+of the open family recorded above (a scoped call taking the whole-board branch, a lane sub-call with no
+authored path, and now a call whose fallback pairing is geometrically wrong).
+
+ONE NUMBER THAT DID NOT REPRODUCE, recorded because it was in the same report: the status line read
+`= 6 of 12 beats` for that lane, and this tree answers **10 of 12** - `Step Forward` 2 + `Dosado` 8, which is
+the walk's own `[2, 8]` - and every `Dosado` / `Do Sa Do` / `All Except Heads Dosado` measurement returns 8,
+never 4. The panel takes the per-call boards from the apply's own lanes, which is what makes it agree with
+the walk here; the 6 was not reproduced and the caller chose not to chase it.

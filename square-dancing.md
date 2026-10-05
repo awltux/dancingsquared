@@ -3888,13 +3888,40 @@ and both are drawn about the pair's own midpoint: 1.50 units of travel in the mi
 The corpus's own `Facing Dancers Far / Facing Dancers / Facing Dancers Compact / Facing Dancers Close` are
 four DISTANCE CLASSES of the same call, and the matcher separates them properly.
 
-SO THE PAIRING AND THE TAM ARE RIGHT, and the two things actually left in this call are:
-  - the FACING curve. The tam authors no turn, so a dosado is drawn as two dancers sliding around each other
-    without ever turning to face - which is the reported flip. A fix belongs in the corpus's `x4/y4` facing
-    targets (`poc/src/assets/ms/dosado.xml`) and/or in the engine turning the pair toward each other during a
-    dosado; it is NOT in the pairing, the lane, or the animator's loop, all three of which are behaving.
-  - the BEAT MATCH: the matched `Facing Dancers Close` tam carries 6 beats of movement inside a call charged
-    8, so the last two beats are a HOLD (measured: every dancer STILL from t=6.5 to 8.0).
+SO THE PAIRING AND THE TAM ARE RIGHT, and what is actually wrong is the FACING the tams carry. Measured, as
+shipped, over the lane's dosado: the angle between each dancer's heading and the bearing to its partner has
+mean **49deg** and worst **180deg** - at the middle of the call the pair is exactly BACK TO BACK, each dancer
+facing its own home side. That is the reported flip, quantified.
+
+WHY THE TAMS CARRY NO TURN, by construction rather than by accident. The rotate Bezier is
+`(0,0) -> (cx3,0) -> (cx4,cy4) -> (x4,y4)` (`engine/src/convert.ts:89-95`; `cy3` is always 0, as the DTD
+says), and `poseFor` reads it as a TURN: `a = angle(1) - angle(0)` (`engine/src/core.ts:111-131`). The
+direction at t=0 is therefore ALWAYS +x, and the whole turn is carried by the last segment, `(x4,y4) -
+(cx4,cy4)`. EVERY movement of every `Facing Dancers *` Dosado tam has `y4 == cy4`, so every one of them
+encodes a turn of EXACTLY 0 - four zeros per path, both paths. The editor can author a turn only through that
+last segment because its export writes `cx3=cx1 cx4=cx2 cy4=cy2 x4=x2 y4=y2` and drops the editor Bezier's own
+`cy1` (`poc/src/editor.ts:2281`), so the y of the FIRST control point never reaches the file.
+
+THE REFERENCE TAMS CANNOT BE PUT BACK IN THEIR PLACE, which was the first thing tried. `ms/dosado.xml` holds
+both our editor's exports (the `Facing Dancers *` tams, which the matcher picks) and the tams the reference
+authored with named moves (`<move select="Extend Left" .../>` - the four-move do-si-do). Loading ONLY the
+reference tams makes the sides' 4-dancer sub-board produce NO groups and 0 beats: they do not place on these
+boards at all, so deleting our exports would regress a scoped dosado to the standstill the previous record's
+fall-through fix removed.
+
+THE FIX IS A CORPUS RE-AUTHORING, AND THE FITTER HAS TO WORK AGAINST THE DRAWN POSES. The turn each movement
+needs is the change in the bearing to the partner, and because `poseFor` applies a movement's translation in
+the frame as it stands at that movement's START and only THEN turns the frame, adding turns bends the drawn
+path - so each movement's translation has to be counter-rotated by the accumulated turn to leave the path
+where it is. A first attempt that computed the boundary positions by composing the tam's own translations came
+out with 0deg turns everywhere and changed nothing: the tam's own frame is NOT the frame the drawn motion uses,
+because the matched variant is RE-BASED onto the board (`evaluateVariantAt`'s `rebaseFactor`). The profile
+therefore has to be fitted against the drawn poses (`evaluateVariantAt` on the matched group), per movement,
+and verified on the two metrics that already exist - heading vs bearing-to-partner, and the last frame against
+the applied board. It is left unimplemented rather than half-editing the corpus.
+
+  - the BEAT MATCH, the smaller of the two: the matched `Facing Dancers Close` tam carries 6 beats of movement
+    inside a call charged 8, so the last two beats are a HOLD (measured: every dancer STILL from t=6.5 to 8.0).
 
 DEFERRED BY THE CALLER - "leave it for now" - so nothing in the engine or the corpus changed for it.
 

@@ -201,6 +201,16 @@ player, this one walks the whole sequence on its own clock.
 The board uses the same 3D avatars (colored by gender; identity is tracked as 4
 couples internally and reported in the FASR readout).
 
+**A call's facing comes from the corpus's rotate curves, and a tam that carries none is drawn facing the way it
+started.** The `Dosado` tams our editor exported were in exactly that state: a two-dancer dosado rotates the
+pair about its midpoint, and with no turn in the data the pair slid past each other and ended up **back to
+back** half way through — reported as "the dancers flipping from infacing to facing the home positions". They
+have been re-authored (`poc/tools/dosado-facing-fit.mjs`) so each dancer keeps facing its partner: the angle
+between heading and bearing-to-partner fell from mean 49° / worst 180° to mean 9° / worst 29°, with the drawn
+path unchanged to float precision (4.97e-16 units). The engine was not changed — see `square-dancing.md` for
+why the turn belongs in the data (`rotate` is read as a turn, `a = angle(1) − angle(0)`, and the editor's
+export can only express one through the curve's last segment).
+
 **Full square (duplicate half)** — taminations authors many calls for only
 **one half** of the set (e.g. Brace Thru "Lines, Boys Ends" is a single line of
 4). When checked, the engine adds the duplicate half by rotating the base

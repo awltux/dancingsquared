@@ -3909,21 +3909,49 @@ reference tams makes the sides' 4-dancer sub-board produce NO groups and 0 beats
 boards at all, so deleting our exports would regress a scoped dosado to the standstill the previous record's
 fall-through fix removed.
 
-THE FIX IS A CORPUS RE-AUTHORING, AND THE FITTER HAS TO WORK AGAINST THE DRAWN POSES. The turn each movement
-needs is the change in the bearing to the partner, and because `poseFor` applies a movement's translation in
-the frame as it stands at that movement's START and only THEN turns the frame, adding turns bends the drawn
-path - so each movement's translation has to be counter-rotated by the accumulated turn to leave the path
-where it is. A first attempt that computed the boundary positions by composing the tam's own translations came
-out with 0deg turns everywhere and changed nothing: the tam's own frame is NOT the frame the drawn motion uses,
-because the matched variant is RE-BASED onto the board (`evaluateVariantAt`'s `rebaseFactor`). The profile
-therefore has to be fitted against the drawn poses (`evaluateVariantAt` on the matched group), per movement,
-and verified on the two metrics that already exist - heading vs bearing-to-partner, and the last frame against
-the applied board. It is left unimplemented rather than half-editing the corpus.
+THE FIX IS A CORPUS RE-AUTHORING, AND THE FITTER HAS TO WORK AGAINST THE DRAWN POSES - which is what it now
+does, and the corpus has been re-authored with it (`poc/tools/dosado-facing-fit.mjs`, run 2026-10-04). The turn
+each movement needs is the change in the bearing to the partner, sampled on the DRAWN poses
+(`evaluateVariantAt` with `rebase = false`, exactly as `animateParallelBoard` matches a group - a first attempt
+composed the tam's own translations instead, came out with 0deg turns everywhere, and changed nothing, because
+the matched variant is RE-BASED onto the board and the tam's frame is not the drawn one). Because `poseFor`
+applies a movement's translation in the frame as it stands at that movement's START and only THEN turns the
+frame, each movement's translation controls are rotated BACK by the accumulated turn, which leaves the drawn
+path where it was.
 
-  - the BEAT MATCH, the smaller of the two: the matched `Facing Dancers Close` tam carries 6 beats of movement
-    inside a call charged 8, so the last two beats are a HOLD (measured: every dancer STILL from t=6.5 to 8.0).
+MEASURED RESULT - 8 tams (the three `Facing Dancers *` classes x `Dosado` and `Left Dosado`), 64 movement
+lines, every one of them a `y4`/`cy4` pair that had been equal:
 
-DEFERRED BY THE CALLER - "leave it for now" - so nothing in the engine or the corpus changed for it.
+  heading vs bearing-to-partner   middle pairs (2 apart)   mean 49deg -> **9deg**,  worst 180deg -> **29deg**
+                                  squared set (6 apart)    mean 55deg -> **13deg**, worst 180deg -> **37deg**
+  drawn PATH, shipped vs fitted                            worst **4.97e-16** units - float precision, unchanged
+  last animated frame vs the applied board                  **0.0e+0** in both, and 8 beats still
+  `scoped-dosado` / `parallel-calls` / `modules` / `step-forward` / `scoped-animation` / `selection`   all green
+  `behaviour-audit`                                        PASS 149 / FAIL 2, the two pre-existing reds, the
+                                                           same values as before the data change
+  `verify-probes.mjs`                                      45 probes, the same 13 pre-existing reds
+
+The residual 29-37deg is TIMING rather than geometry: the bearing turns at the pair's own pace while the
+encoding turns with the rotate curve's own angle profile, so the facing lags by up to a quarter of a 90deg
+movement - a tighter follow than a dancer could dance, and removable by fitting the curve's control points to
+the bearing profile.
+
+TWO THINGS ABOUT THE TOOL ITSELF, both worth keeping:
+  - IT IS NOT IDEMPOTENT AND GUARDS AGAINST THAT. The counter-rotation is absolute, so a second run would
+    rotate every path a second time; the shipped signature (every movement with `y4 == cy4`) is checked and
+    anything else refuses unless `--force` is given. A re-export from the editor can therefore be re-fitted,
+    but a fitted file cannot be double-fitted by accident.
+  - IT COST A SILENT BUG TO GET RIGHT, and the bug is worth remembering: `cy4="0.2"` CONTAINS `y4="0.2"`, and
+    so `cx4` contains `x4` and `cx2` contains `x2`. Every unanchored read and write of `x4`/`y4`/`x2`/`y2`
+    landed on the neighbouring CONTROL point - so the first version that produced a real change wrote the turn
+    into `cx4`/`cy4`, which turned the pair by 135deg instead of 360 and bent the path by 2.59 units. Anchoring
+    the attribute names with a lookbehind is the whole fix, and the path deviation number is what caught it.
+
+  - ONE SMALLER DEFECT, left alone: the matched `Facing Dancers Close` tam carries 6 beats of movement inside a
+    call charged 8, so the last two beats are a HOLD (measured: every dancer STILL from t=6.5 to 8.0).
+
+DEFERRED BY THE CALLER ONCE, THEN ASKED FOR: the diagnosis was recorded first ("leave it for now") and the
+data was re-authored after "go for it". No engine change was needed, and none was made.
 
 ONE NUMBER THAT DID NOT REPRODUCE, recorded because it was in the same report: the status line read
 `= 6 of 12 beats` for that lane, and this tree answers **10 of 12** - `Step Forward` 2 + `Dosado` 8, which is

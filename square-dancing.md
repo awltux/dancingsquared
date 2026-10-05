@@ -3854,7 +3854,7 @@ panel rendered: the layout at a real viewport, the timeline's own scroll against
 keyboard against a focused control. The first person to run `npm run build --prefix poc` should check those
 three.
 
-A SQUARED-SET DOSADO IS PAIRED WITH THE DANCER YOU FACE, SO IT IS DRAWN AS A TREK TO THE MIDDLE. Reported:
+A DOSADO IS DRAWN WITH NO TURN IN IT, SO THE PAIR SLIDES PAST EACH OTHER FACING THEIR HOMES. Reported:
 "the Dosado has the 'All Except Heads' dancers flipping from infacing to facing the home positions. This is
 some sort of incompatible end to start transition."
 
@@ -3865,32 +3865,38 @@ change in one sample is **0.29deg** and the worst position change **0.011 units*
 discontinuity anywhere - and the pose at the `Step Forward` -> `Dosado` boundary is exactly `lane.boards[1]`,
 the board the APPLICATOR produced. The sub-calls agree with each other; nothing is incompatible.
 
-IT IS THE PAIRING. `Dosado` / `Do Sa Do` has no usable authored path for a squared set: the corpus's
-8-dancer `Dosado` variant only matches a `Static Square` at a tolerance above **8** (its setup is a different
-formation - `findMatchingVariant` returns NONE at 1e-3, 0.5, 1, 2, 4 and 8), and the coded rule REFUSES a
-squared set because `DOSADO_MAX_FACING_DIST` is **4.5** while the dancer you FACE on a squared set stands
-**6** away (`3` faces `8`, `4` faces `7`; each couple stands side by side facing the centre, so the partners
-are the ones 2 apart and the facing partners are the ones across the set). With no variant and no rule, the
-animator falls back to the applicator's tiling, which pairs by FACING: `5+2 | 6+1 | 7+4 | 8+3` on the whole
-board, and `3<->8`, `4<->7` in the sides lane - every pair 6 units apart. The pair's loop is drawn about the
-pair's MIDPOINT, which for a pair 6 apart IS THE CENTRE OF THE SQUARE: each side dancer walks **3.5 units**
-to the middle, orbits at radius ~1 and walks back, turning as they go. That is the flip, and it is the same
-drawing a bare whole-board `Dosado` has always used - the lane only made it visible, because the scoped-coded
-animation is what the previous record's fall-through fix made move at all.
+WHAT ITS FACINGS SAY, corrected after the caller pushed back - see the WITHDRAWN note below. `Dosado` on this
+corpus keeps every dancer facing the way it STARTED, while its position orbits the partner: the matched tam's
+own facing targets are ~(3,0.2)/(2,-0.2), i.e. "carry on facing your own way", and the engine applies them
+faithfully (the t=0/4/8 headings are 180/0/180 for `#3` and 0/0/0 for `#8`, and the whole-call sweep is a
+few degrees of wobble). So as the orbit carries a dancer past its partner its FIXED facing ends up pointing at
+its own home side and the pair is briefly side-on rather than facing each other - the "flip from infacing to
+facing the home positions". A dosado keeps the pair facing each other as they circle, so what is missing is a
+TURN, not a pairing.
 
-WHAT IT SHOULD BE, and this is a DANCE decision rather than a rendering one: on a squared set a dosado is
-danced with your PARTNER - beside you, same facing, 2 units away. Measured from the board AFTER
-`Step Forward`, where the tiles DO come out 2 apart, the SAME machinery draws a compact loop: worst travel
-**1.50** units instead of 3.50, closest pair 1.00 either way. So the tiling loop is sound; it is the choice of
-pair that is wrong. `findCouplePairs` (couples.ts) already reads the partners from the floor, so the cheap
-fix is in the ANIMATOR: when a call's own rule refuses the geometry - i.e. the motion is the fallback pairing
-anyway - tile by partner rather than by facing, starting with the `Do Sa Do` family. The alternatives are to
-honour the rule's own 4.5 limit and let `Dosado` be illegal from a squared set, or to leave the drawing and
-mark the step as fallback-drawn.
+THE WITHDRAWN EXPLANATION, recorded because it was committed and was wrong. This entry first claimed that
+`Dosado` "has no usable authored variant for a squared set", that the coded rule refuses the board, and that
+the animator therefore fell back to a tiling that invented a cross-set pairing - and on that basis proposed
+pairing the dosado with the PARTNER beside you. EVERY PART OF THAT IS WRONG, and the caller was right to
+challenge it. The measurement I had made was `findMatchingVariant` against the WHOLE 8-DANCER BOARD, which is
+not how the animator looks for a path at all: `animateParallelBoard` partitions the board into groups and
+matches EACH GROUP, where the corpus's 2-dancer `Dosado` tams live. Measured properly, the engine picks
+exactly the tam the caller named - for the sides in the MIDDLE (2 apart, after `Step Forward`) the groups are
+`3+8 | 4+7` and each matches `Dosado` / **`Facing Dancers Close`**; on a SQUARED SET (6 apart) the same pairs
+match `Dosado` / **`Facing Dancers Far`**. Both are correct, both are `mapping=[1,0]` with `reflect=false`,
+and both are drawn about the pair's own midpoint: 1.50 units of travel in the middle, 3.50 on the squared set.
+The corpus's own `Facing Dancers Far / Facing Dancers / Facing Dancers Compact / Facing Dancers Close` are
+four DISTANCE CLASSES of the same call, and the matcher separates them properly.
 
-DEFERRED BY THE CALLER - "leave it for now" - so nothing in the engine changed for it. It is the third member
-of the open family recorded above (a scoped call taking the whole-board branch, a lane sub-call with no
-authored path, and now a call whose fallback pairing is geometrically wrong).
+SO THE PAIRING AND THE TAM ARE RIGHT, and the two things actually left in this call are:
+  - the FACING curve. The tam authors no turn, so a dosado is drawn as two dancers sliding around each other
+    without ever turning to face - which is the reported flip. A fix belongs in the corpus's `x4/y4` facing
+    targets (`poc/src/assets/ms/dosado.xml`) and/or in the engine turning the pair toward each other during a
+    dosado; it is NOT in the pairing, the lane, or the animator's loop, all three of which are behaving.
+  - the BEAT MATCH: the matched `Facing Dancers Close` tam carries 6 beats of movement inside a call charged
+    8, so the last two beats are a HOLD (measured: every dancer STILL from t=6.5 to 8.0).
+
+DEFERRED BY THE CALLER - "leave it for now" - so nothing in the engine or the corpus changed for it.
 
 ONE NUMBER THAT DID NOT REPRODUCE, recorded because it was in the same report: the status line read
 `= 6 of 12 beats` for that lane, and this tree answers **10 of 12** - `Step Forward` 2 + `Dosado` 8, which is

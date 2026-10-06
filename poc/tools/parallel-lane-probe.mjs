@@ -89,8 +89,9 @@ console.log('\n== "+ Parallel call" OPENS ANOTHER LANE, and Done is the way out 
     && /groups\.map\(\(g, i\) => \(i === p\.active \? \{ \.\.\.g, selection: chosen \} : g\)\)/.test(handler),
     'and an empty open lane is narrowed in place, so the remainder can be split between two lanes');
   check(/IN PARALLEL MODE THE GROUP SELECTOR ANSWERS A DIFFERENT QUESTION: WHO THE NEXT LANE GETS/.test(ui)
-    && /this\.groupSelect\.value = choices\.includes\(prev\) \? prev : choices\[0\] \?\? '';/.test(ui),
-    'and the group selector is rebuilt for the mode, so the choice is made in the control that already means "who"');
+    && /this\.groupSelect\.value = list\.includes\(prev\) \? prev : list\[0\] \?\? '';/.test(ui)
+    && /const list = choices\.length \? choices : \[this\.activeLane\(\)\?\.selection \?\? ''\]\.filter\(Boolean\);/.test(ui),
+    'and the group selector is rebuilt for the mode, so the choice is made in the control that already means "who" (falling back to the ACTIVE lane when no lane can be opened, so it is never empty)');
   check(/const left = this.unassignedLane\(\);/.test(handler) && /if \(!left\) \{/.test(handler),
     'and when every dancer has a lane the button says so instead of opening an empty one');
   const done = bodyOf('private finishParallel()');
@@ -129,6 +130,44 @@ console.log('\n== the caller can SEE the figure and its balance ==');
     'the picker narrows to the ACTIVE lane');
   check(/const on = this\.parallel \? this\.parallel\.board : this\.seq\.board;/.test(picker),
     'and asks `groupCanPerform` on the mode\'s board - which the active lane advances - so call 2 is offered only where its lane has left the group');
+}
+
+// A FIGURE ROW RE-OPENS THE FIGURE, so its FREE BEATS can still be filled. Asked for as: "when I click on a
+// parallel slot in the sequencer, reload the parallel system so I can add more calls to the free beats in the
+// slot." Every way out of the mode clears `parallel`, so before this the row was only a seek.
+console.log('\n== clicking a figure row re-opens it, on the lane with the most free beats ==');
+{
+  const resume = bodyOf('private resumeFigure(idx: number): boolean {');
+  check(/if \(!step \|\| !isGroupStep\(step\)\) return false;/.test(resume),
+    'only a GROUP step re-opens - a plain row is still just a seek');
+  check(/const groups = step\.groups\.map\(\(g\) => \(\{ selection: g\.selection, calls: groupCalls\(g\) \}\)\);/.test(resume),
+    'the lanes come from the step ITSELF, so the banner and the picker describe the figure that is really in the list');
+  check(/const start = this\.seq\.startBoard\(\);/.test(resume)
+    && /const applied = this\.seq\.applyToBoard\(start, step\);/.test(resume)
+    && !/this\.seq\.applyStep\(step\)/.test(resume),
+    'and it is re-applied PURELY on the board the step starts from, which is where `seekTo` has just left the live board');
+  check(/if \(f\.free > bestFree\) \{ bestFree = f\.free; active = i; \}/.test(resume),
+    'the ACTIVE lane is the one with the most free beats - which is what was clicked for');
+  check(/this\.parallel = \{[\s\S]{0,120}?board: run\?\.boards\[run\.boards\.length - 1\] \?\? start,/.test(resume),
+    'and the mode is rebuilt with the apply\'s own board for that lane, exactly as an append does');
+  check(/this\.render\(\);\s*\n\s*this\.refreshCallSelect\(\);\s*\n\s*this\.setStatus\(/.test(resume),
+    'it paints before it speaks, so the message keeps the colour it was given');
+  const activate = bodyOf('private activateStep(idx: number) {');
+  check(/this\.selectedStep = idx;/.test(activate) && /this\.seekTo\(idx\);/.test(activate)
+    && /if \(!this\.resumeFigure\(idx\) && this\.parallel\) \{/.test(activate),
+    'the row action seeks and then re-opens, and clears the mode when the row is not a figure');
+  check(/if \(row\?\.dataset\.idx != null\) this\.activateStep\(Number\(row\.dataset\.idx\)\);/.test(ui)
+    && /if \(e\.key === 'Enter' \|\| e\.key === ' '\) \{ e\.preventDefault\(\); this\.activateStep\(idx\); \}/.test(ui),
+    'both the click and Enter/Space go through it, so the mouse and the keyboard cannot disagree');
+  check(/seq-fig-mark/.test(ui) && /Click to re-open this figure and add calls to its free beats/.test(ui),
+    'and a figure row is MARKED, because it is the one row whose click does more than seek');
+  // THE FILL IS ONE FUNCTION, so the banner, the resume message and the status line cannot disagree.
+  const fill = bodyOf('private laneFill(');
+  check(/const applied = this\.seq\.applyToBoard\(p\.start, step\);/.test(fill)
+    && /free: Math\.max\(0, total - beats\)/.test(fill),
+    'the per-lane fill is read from the engine (its own apply, plus per-call `stepBeats`), not estimated');
+  check(/const fill = this\.laneFill\(p\);/.test(ui) && /seq-fig-fill/.test(ui),
+    'and the figure banner shows each lane\'s beats and free time beside the lane they belong to');
 }
 
 console.log('\n== the step forms are the engine\'s, and the single-call path is unchanged ==');

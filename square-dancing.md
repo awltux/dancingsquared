@@ -3953,6 +3953,42 @@ TWO THINGS ABOUT THE TOOL ITSELF, both worth keeping:
 DEFERRED BY THE CALLER ONCE, THEN ASKED FOR: the diagnosis was recorded first ("leave it for now") and the
 data was re-authored after "go for it". No engine change was needed, and none was made.
 
+A FIGURE CAN BE RE-OPENED FROM ITS OWN ROW, so a slot's free beats can still be filled. Asked for as: "when I
+click on a parallel slot in the sequencer, reload the parallel system so I can add more calls to the free
+beats in the slot." A figure is ONE history step (`GroupStep`), and EVERY way out of the mode - `Finish
+figure`, a new call, Undo, a group change - clears `parallel`, so after that the row was only a seek and the
+lane it built could never be extended. Clicking it now rebuilds the mode from the STEP ITSELF
+(`resumeFigure`):
+
+  - the lanes are the step's own groups, so the banner and the picker describe the figure that is really in
+    the list rather than a rebuilt guess;
+  - the start board is the one `seekTo` has just put the LIVE board on, and the step is re-applied there
+    PURELY (`applyToBoard`, which does not move the live board - the same call `applyParallel` uses). The
+    assumption was measured rather than assumed: for a sequence `[call, figure, call]`, the board at
+    `beatAtStep(idx)` IS the board step `idx` starts on, for every index;
+  - the ACTIVE lane is the one with the MOST FREE BEATS, which is what was clicked for (ties leave the last
+    lane active). MEASURED on the reported figure (`Heads Promenade 3/4 to Home` beside `Step Forward +
+    Dosado`): the heads lane is 12 of 12 beats and the sides lane 10 of 12, so the resume opens on the sides
+    lane with its 2 free beats.
+
+TWO SUPPORTING CHANGES, both so the free beats are VISIBLE rather than only reported after an Add:
+`laneFill` reads each lane's beats from the engine (its own apply, plus per-call `stepBeats` on the boards
+that apply passed through) and the figure banner prints them beside the lane they belong to -
+`Sides ( Trade + Touch a Quarter ) 6.0/16.0 b · 10.0 free`; and the group selector, which in the mode means
+"who the next lane gets", now falls back to the ACTIVE lane when no lane can be opened, instead of going
+empty on exactly the figures that claim every dancer.
+
+A FIGURE ROW IS MARKED, because it is the one row whose click does more than seek: `⇄` in the row and the
+sentence "Click to re-open this figure and add calls to its free beats" in its tooltip. `Enter`/`Space`
+activate the focused row exactly as a click does, and the arrow keys only WALK the list - navigation is not
+activation, and a figure is not re-opened because the focus passed over it.
+
+GATES: `npx tsc -p poc --noEmit` clean; `poc/tools/parallel-lane-probe.mjs` grew a section for the resume
+(only a group step re-opens, the lanes come from the step, the apply is pure, the active lane is the freest,
+the mode is rebuilt from the apply's own board, the paint happens before the message, both click and keyboard
+go through `activateStep`, the row marker, and that the fill comes from the engine); the HUD probe pins the
+figure row's mark and tooltip; `verify-probes.mjs` reports the same 13 pre-existing reds and no others.
+
 ONE NUMBER THAT DID NOT REPRODUCE, recorded because it was in the same report: the status line read
 `= 6 of 12 beats` for that lane, and this tree answers **10 of 12** - `Step Forward` 2 + `Dosado` 8, which is
 the walk's own `[2, 8]` - and every `Dosado` / `Do Sa Do` / `All Except Heads Dosado` measurement returns 8,

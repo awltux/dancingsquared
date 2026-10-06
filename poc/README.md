@@ -131,7 +131,8 @@ gate on this shape.
   for the dancers no lane has claimed, and **Finish figure** (or `Esc`) is the way out. The **Who**
   selector is rebuilt for that: while the mode is on it lists the groups that resolve *inside* the unclaimed
   dancers (`All Except Heads`, `Side Boys`, `Side Girls`, …), so a lane can be given to **part** of the
-  remainder — which is the only way a third group can exist, since a lane given all of it leaves nobody. That
+  remainder — which is the only way a third group can exist, since a lane given all of it leaves nobody (and
+  when no lane can be opened it carries the **active** lane instead, so it is never empty). That
   is the shape the timeline shows as `Heads Promenade Full || Sides ( Trade + Touch a Quarter ) || Side Boys
   Recycle`: a
   group of one call is bare, a group of several is bracketed, `+` joins the calls that run in order and `||`
@@ -180,6 +181,13 @@ remove that step. The sequence is replayed from the start afterwards, so a step 
 can leave them unable to play — and that is **reported rather than silently dropped**: the rest is kept, the
 first row that no longer plays is flagged from the walk's own verdict, and the status line names it. Deleting
 the last step is therefore always safe, and deleting from the middle tells you exactly what it cost.
+
+**Clicking a FIGURE row re-opens the figure** (it is marked `⇄`), so calls can still be added to whatever beats
+are free: the mode is rebuilt from the step itself, and the lane it opens on is the one with the **most free
+beats**. The figure banner shows each lane's fill beside it — `Sides ( Trade + Touch a Quarter ) 6.0/16.0 b ·
+10.0 free` — and the status line repeats it for the lane that is active. A plain row is still just a seek, and
+clicking one leaves the figure mode (it belongs to the row it was opened from). `Enter`/`Space` activate the
+focused row exactly as a click does; the arrow keys only walk the list.
 
 | Key | Action |
 |---|---|

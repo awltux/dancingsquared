@@ -395,6 +395,11 @@ html, body {
 #seqPanel .seq-row.on { background: rgba(57, 217, 138, 0.10); border-color: rgba(57, 217, 138, 0.45); }
 #seqPanel .seq-row.bad .seq-beats { color: var(--warn); font-weight: 600; }
 #seqPanel .seq-row .seq-idx { color: var(--dim); font-size: 11px; min-width: 16px; text-align: right; }
+/* A FIGURE ROW IS THE ONE ROW WHOSE CLICK DOES MORE THAN SEEK, so it carries a mark: `⇄` for a step that is
+   several groups dancing at once, which is also what the banner badges while it is being edited. */
+#seqPanel .seq-row .seq-fig-mark { flex: 0 0 auto; color: #4d9fff; font-size: 11px; align-self: center; }
+/* How full each lane of the figure in progress is, beside the lane it belongs to: `6.0/16.0 b · 10.0 free`. */
+#seqPanel .seq-bar .seq-fig-fill { color: var(--dim); }
 #seqPanel .seq-row .seq-name { flex: 1 1 auto; min-width: 0; }
 #seqPanel .seq-row .seq-beats { color: var(--dim); font-size: 11px; white-space: nowrap; }
 #seqPanel .seq-row .seq-bar-track {

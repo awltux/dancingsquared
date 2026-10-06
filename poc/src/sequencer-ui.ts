@@ -5,7 +5,7 @@
 
 import * as THREE from 'three';
 
-import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf } from 'dancing-squared-engine';
+import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf, isGroupStep, groupCalls } from 'dancing-squared-engine';
 import type { Board, CallStep, FormDancer, GroupStep, Matchable, Module, ModuleStep, Pose, SequenceStop } from 'dancing-squared-engine';
 import { stepLabel, CODED_MOVES } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
@@ -552,16 +552,20 @@ export class SequencerController implements SequencerUI {
     // given the whole remainder leaves nobody for a third group - and `call 1 || ( call 2 + call 3 ) ||
     // ( call 4 + call 5 )` is a THREE-group figure. Naming a group that sits inside the unclaimed dancers is
     // what splits them, so the selector lists exactly those.
+    // IN PARALLEL MODE THE GROUP SELECTOR MEANS WHO THE NEXT LANE GETS - and when every dancer is claimed
+    // there is no next lane to open, so it would otherwise be EMPTY. Showing the ACTIVE lane instead keeps the
+    // control meaningful: its value is who Add acts on, which is exactly what the label beside it says.
     if (this.parallel) {
       const choices = this.laneGroups();
+      const list = choices.length ? choices : [this.activeLane()?.selection ?? ''].filter(Boolean);
       const prev = this.groupSelect.value;
-      const same = this.groupSelect.options.length === choices.length
-        && choices.every((g, i) => this.groupSelect.options[i]?.value === g);
+      const same = this.groupSelect.options.length === list.length
+        && list.every((g, i) => this.groupSelect.options[i]?.value === g);
       if (!same) {
         this.groupSelect.innerHTML = '';
-        for (const g of choices) this.groupSelect.appendChild(new Option(g, g));
+        for (const g of list) this.groupSelect.appendChild(new Option(g, g));
       }
-      this.groupSelect.value = choices.includes(prev) ? prev : choices[0] ?? '';
+      this.groupSelect.value = list.includes(prev) ? prev : list[0] ?? '';
       return;
     }
     const singles = this.seq.subsetGroups(this.seq.board);
@@ -1160,11 +1164,18 @@ export class SequencerController implements SequencerUI {
         i === badAt ? 'bad' : '',
       ].filter(Boolean).join(' ');
       const bar = Math.max(2, Math.round((perStep[i] / scale) * 100));
+      // A FIGURE ROW SAYS SO, because it is the one row whose click does something beyond seeking: it
+      // re-opens the figure for editing (`resumeFigure`). The tooltip is the sentence; the marker is what
+      // makes it visible in a list of plain rows.
+      const figure = isGroupStep(step);
       const title = i === badAt && this.stop
         ? `Cannot be played: ${this.stop.reason}`
-        : 'Click to move the playhead to this step';
+        : figure
+          ? 'Click to re-open this figure and add calls to its free beats'
+          : 'Click to move the playhead to this step';
       return `<div class="${cls}" role="listitem" tabindex="0" data-idx="${i}"${i === active ? ' aria-current="step"' : ''} title="${esc(title)}">`
         + `<span class="seq-idx">${i + 1}</span>`
+        + (figure ? '<span class="seq-fig-mark" aria-label="figure">⇄</span>' : '')
         + `<span class="seq-name">${esc(stepLabel(step))}</span>`
         + `<span class="seq-beats">${perStep[i] > 0 ? `${perStep[i].toFixed(1)} b` : '—'}</span>`
         + `<span class="seq-bar-track"><span class="seq-bar-fill" style="width:${bar}%"></span></span>`
@@ -1231,10 +1242,41 @@ export class SequencerController implements SequencerUI {
     const lanes = p.groups
       .map((g) => (g.calls.length ? `${g.selection} (${g.calls.join(' + ')})` : `${g.selection} (open)`));
     const un = this.unassignedLane();
-    this.figureWhatEl.innerHTML =
-      lanes.map((l) => esc(l)).join(' <b>||</b> ')
+    // EACH LANE'S FILL, because "how much of the slot is still free" is the question this banner is asked.
+    // The step's cost is the LONGEST lane, so the free beats are only meaningful per lane - which is where
+    // they now sit, next to the lane they belong to, instead of only in the status line after an Add.
+    const fill = this.laneFill(p);
+    const lanesText = lanes.map((l, i) => {
+      const f = fill[i];
+      if (!f || f.calls === 0) return esc(l);
+      return `${esc(l)} <span class="seq-fig-fill">${f.beats.toFixed(1)}/${f.total.toFixed(1)} b`
+        + (f.free > 0 ? ` · ${f.free.toFixed(1)} free` : '') + '</span>';
+    }).join(' <b>||</b> ');
+    this.figureWhatEl.innerHTML = lanesText
       + (un ? ` · <b>${esc(un)}</b> still unclaimed` : ' · every dancer has a lane');
     this.parallelDoneBtn.disabled = false;
+  }
+
+  /**
+   * HOW FULL EACH LANE OF THE FIGURE IN PROGRESS IS, per lane: `beats` it dances, `free` beats of the slot it
+   * leaves standing, and the step's own cost (`total`, the longest lane).
+   *
+   * The same arithmetic the status line reports after an Add, so the banner and the status can never disagree;
+   * the beats come from the ENGINE, per call, on the board that call starts on (`ApplyResult.lanes`), not from
+   * an estimate. A lane with no calls yet reports 0 and no free figure - it has not started.
+   */
+  private laneFill(p: { start: Board; groups: { selection: string; calls: string[] }[] }): { calls: number; beats: number; free: number; total: number }[] {
+    const step = this.parallelStep(p);
+    const applied = this.seq.applyToBoard(p.start, step);
+    const total = applied.legal ? this.seq.sequenceBeats([step], p.start) : 0;
+    return p.groups.map((g) => {
+      const run = applied.lanes?.find((l) => l.selection === g.selection);
+      const beats = g.calls.reduce(
+        (n, c, k) => n + this.seq.stepBeats(k === 0 ? p.start : run?.boards[k] ?? p.start, `${g.selection} ${c}`),
+        0,
+      );
+      return { calls: g.calls.length, beats, free: Math.max(0, total - beats), total };
+    });
   }
 
   /** WHERE THE SEQUENCE IS STANDING: the formation the replay starts from, and its All8 setup code. */
@@ -1742,6 +1784,62 @@ export class SequencerController implements SequencerUI {
    * therefore just a parse of where that call begins. The LIVE board is moved too, so the
    * formation readout and the call picker agree with what is drawn - which means `applySelected`
    * has to put the board back at the end before it appends (see there). */
+  /**
+   * RE-OPEN A FIGURE FROM ITS OWN TIMELINE ROW, so its FREE BEATS can still be filled.
+   *
+   * Asked for as: "when I click on a parallel slot in the sequencer, reload the parallel system so I can add
+   * more calls to the free beats in the slot." A figure is ONE history step (`GroupStep`), and every way out of
+   * the mode - `Finish figure`, a new call, Undo, a group change - clears `parallel`; after that the row was
+   * only a seek, and the lane it built could never be extended. Clicking it now rebuilds the mode from the
+   * STEP ITSELF:
+   *
+   *   - the start board is the one `seekTo` has just put the live board on (the playhead at the step's first
+   *     beat evaluates to the board BEFORE it), so the step is re-applied there purely - the live board is not
+   *     touched, exactly as `applyParallel` does it;
+   *   - the lanes are the step's own groups, so the banner and the picker describe the figure that is really in
+   *     the list, not a rebuilt guess;
+   *   - the ACTIVE lane is the one with the MOST FREE BEATS, which is what was clicked for. A figure whose
+   *     lanes all finish together leaves the LAST lane active, which is the one a further call would extend.
+   *
+   * Returns false for a row that is not a figure, so the caller can leave the mode alone (or clear it).
+   */
+  private resumeFigure(idx: number): boolean {
+    const step = this.history[idx];
+    if (!step || !isGroupStep(step)) return false;
+    const groups = step.groups.map((g) => ({ selection: g.selection, calls: groupCalls(g) }));
+    if (groups.length === 0) return false;
+    const start = this.seq.startBoard();
+    const applied = this.seq.applyToBoard(start, step);
+    if (!applied.legal) {
+      this.setStatus('error', `${stepLabel(step)} cannot be re-opened — ${applied.reason ?? 'it does not apply from its own start board'}`);
+      return false;
+    }
+    const fill = this.laneFill({ start, groups });
+    let active = groups.length - 1;
+    let bestFree = -1;
+    fill.forEach((f, i) => { if (f.free > bestFree) { bestFree = f.free; active = i; } });
+    const lane = groups[active];
+    const run = applied.lanes?.find((l) => l.selection === lane.selection);
+    this.parallel = {
+      start,
+      board: run?.boards[run.boards.length - 1] ?? start,
+      index: idx,
+      groups,
+      active,
+    };
+    // PAINT BEFORE THE MESSAGE: `render` resets the status line's colour, so the message goes last or it
+    // would wear the default one.
+    this.render();
+    this.refreshCallSelect();
+    this.setStatus('ok', bestFree > 0
+      ? `editing ${stepLabel(step)} — ${lane.selection} lane: ${lane.calls.join(' then ')} = `
+        + `${fill[active].beats.toFixed(1)} of ${fill[active].total.toFixed(1)} beats, `
+        + `${bestFree.toFixed(1)} free. Add fills it, While… opens another lane, Finish figure ends it.`
+      : `editing ${stepLabel(step)} — every lane is full (${fill[active].total.toFixed(1)} beats). `
+        + `Add LENGTHENS ${lane.selection}'s lane, While… opens another lane, Finish figure ends it.`);
+    return true;
+  }
+
   private seekTo(idx: number) {
     if (idx < 0 || idx >= this.history.length) return;
     this.playing = false;
@@ -2134,34 +2232,49 @@ export class SequencerController implements SequencerUI {
       const m = this.modules[Number(t.dataset.mod)];
       if (m) this.openSequence(m.calls);
     });
-    // The timeline: a click on a ROW seeks, a click on its `×` removes the step, and the row is a tab stop
-    // with Enter/Space/Delete on it - a sequencer's two most common actions after Add.
+    // The timeline: a click on a ROW seeks and, for a FIGURE, re-opens it; a click on its `×` removes the
+    // step; the row is a tab stop with Enter/Space/Delete on it - a sequencer's two most common actions after
+    // Add, plus the one the figure rows need.
     this.seqListEl.addEventListener('click', (e) => {
       const del = (e.target as HTMLElement).closest('.seq-del') as HTMLElement | null;
       if (del?.dataset.del != null) { this.deleteStep(Number(del.dataset.del)); return; }
       const row = (e.target as HTMLElement).closest('.seq-row') as HTMLElement | null;
-      if (row?.dataset.idx != null) {
-        this.selectedStep = Number(row.dataset.idx);
-        this.seekTo(this.selectedStep);
-      }
+      if (row?.dataset.idx != null) this.activateStep(Number(row.dataset.idx));
     });
     this.seqListEl.addEventListener('keydown', (e) => {
       const row = (e.target as HTMLElement).closest('.seq-row') as HTMLElement | null;
       if (row?.dataset.idx == null) return;
       const idx = Number(row.dataset.idx);
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.selectedStep = idx; this.seekTo(idx); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.activateStep(idx); }
       else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); this.deleteStep(idx); }
       else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         // THE ARROW KEYS WALK THE SEQUENCE, which is what a focused list should do - and they are also the
         // transport's keys, so the row's own handler takes them first and moves the focus with the playhead.
+        // Walking is NAVIGATION, not activation: a figure is not re-opened just because the focus passed it.
         e.preventDefault();
         const next = Math.max(0, Math.min(this.history.length - 1, idx + (e.key === 'ArrowDown' ? 1 : -1)));
         this.selectedStep = next;
         this.seekTo(next);
+        if (this.parallel) { this.parallel = null; this.refreshCallSelect(); }
         const el2 = this.seqListEl.querySelector(`.seq-row[data-idx="${next}"]`) as HTMLElement | null;
         el2?.focus();
       }
     });
+  }
+
+  /**
+   * ACTIVATE A TIMELINE ROW: seek to it and, if it is a FIGURE, re-open the figure so its free beats can be
+   * filled (see `resumeFigure`). Any other row is just a seek, and the mode is cleared - it belongs to the row
+   * it was opened from, and leaving it on while a different row is under the playhead would have the picker
+   * offering one step's remainder while the caller looks at another.
+   */
+  private activateStep(idx: number) {
+    this.selectedStep = idx;
+    this.seekTo(idx);
+    if (!this.resumeFigure(idx) && this.parallel) {
+      this.parallel = null;
+      this.refreshCallSelect();
+    }
   }
 
   /**

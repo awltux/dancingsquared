@@ -120,6 +120,11 @@ check(/\$\{perStep\[i\]\.toFixed\(1\)\} b/.test(timelineFn), 'each row shows the
 check(/seq-bar-fill" style="width:\$\{bar\}%"/.test(timelineFn), 'and a bar whose width is its share of the longest step');
 check(/class="seq-del" data-del="\$\{i\}"/.test(timelineFn), 'with the delete on the row itself');
 check(/esc\(stepLabel\(step\)\)/.test(timelineFn), 'the label is escaped - it carries authored call names');
+// A FIGURE ROW IS MARKED, because it is the one row whose click does more than seek: it re-opens the figure
+// (`resumeFigure`) so calls can be added to whatever beats are still free.
+check(/const figure = isGroupStep\(step\);/.test(timelineFn) && /seq-fig-mark/.test(timelineFn)
+  && /Click to re-open this figure and add calls to its free beats/.test(timelineFn),
+  'a FIGURE row is marked, and says in its tooltip that the click re-opens the figure');
 check(/const scale = Math\.max\(1, \.\.\.perStep\);/.test(timelineFn),
   'the bars are scaled by the LONGEST step, so a 16-beat call looks three times a 4-beat one');
 check(/this\.stop \? this\.stop\.index : -1/.test(timelineFn) && /historyRowOfFlat\(badFlat\)/.test(timelineFn),

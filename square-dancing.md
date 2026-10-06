@@ -3989,6 +3989,67 @@ the mode is rebuilt from the apply's own board, the paint happens before the mes
 go through `activateStep`, the row marker, and that the fill comes from the engine); the HUD probe pins the
 figure row's mark and tooltip; `verify-probes.mjs` reports the same 13 pre-existing reds and no others.
 
+`Circle Four N/4` IS A TURN OF THE RING THE ACTING FOUR STAND ON, DERIVED. Reported: "the Circle Four Left 3/4
+seems to assign the wrong dancer from the correct group to each path in the call. They also seem to rotate 90
+degrees at the start of the call. This suggests that there are some invalid dancer id mappings and an invalid
+rotation comes with that." The slot was
+`Heads Promenade 3/4 to Home || All Except Heads ( Step Forward + Circle Four Left 3/4 )`.
+
+WHAT WAS MEASURED, and the report is right about the geometry being wrong - the cause is just not the lane.
+`Step Forward` leaves the sides at `(1,-1),(1,1),(-1,1),(-1,-1)`, a 2x2 RING of four. The corpus's tams for
+this call (`ms/circle.xml`) are three HALF-SET 2-path tams - `Facing Couples` at x=-2, `Facing Couples Compact`
+at -1.5, `Facing Couples Far` at -3, each doubled to four dancers by the 180-degree mirror - plus 4-path
+`Lines` and `Eight Chain Thru` tams. The match error is a SUM over dancers (`DEFAULT_MATCH_MAX = 1.5`), so the
+nearest half-set (`Compact`: 0.5 per dancer = 2.0) MISSED: the sub-board matched NOTHING at any tolerance to 8,
+the bare apply on it was refused ("No setup in this call matches the current formation"), the call is not
+coded, and the lane charged 6 beats and drew 0.00 motion for the whole window. Scoped to the HEADS instead the
+same call DID match - the doubled `Facing Couples Far` - with `mapping=[2,3,0,1]`, `reflect=false`, turning
+22.1 degrees in the first frame and ~80 by the first beat and walking the heads onto the SIDE positions by
+t=6: that fit is the wrong-dancer-and-rotation the caller saw, and it is the branch their build drew.
+
+THE CORPUS'S OWN ANSWER IS THE AUTHORITY FOR THE FIX. Apply `Circle Four Left 3/4` to a Static Square and it
+applies as TWO PARALLEL GROUPS OF FOUR (`5+6+1+2 | 7+8+3+4`), each ending 90 degrees counter-clockwise from
+its start in BOTH position and heading - which is 3/4 of a circle clockwise, the same thing on a four-point
+ring. So `Left N/4` is a turn of `-N*90` degrees, `Right N/4` of `+N*90`, heading carried round with it.
+
+THE RULE, therefore, is the ring itself (`circleFourDef` in `coded-moves.ts`, all eight corpus titles): the
+acting dancers must be four on one ring - a common centre, equal radii within 25%, distinct bearings - and the
+call turns that ring. It needs `applyToSelection` as well as `fn`, because `applyCodedToSelection` SKIPS a
+coded rule that has a precondition when the selection is not everybody, and the reported case is exactly a
+selection. A ring of EIGHT declines (the whole board), so the catalogue's two-circles-of-four reading keeps
+handling the squared set, which is what `catalogueFallback` is for.
+
+THE ANIMATION WALKS THE LEGS, and that was the second half of the fix. A scoped coded call was drawn by
+`interpolateSegment(board, after, t)` - a straight line, which for a 3/4 circle is a CHORD across the middle of
+the square. The scoped coded branch now walks the rule's own `legs` on the CENTRED SUBSET (the rule's
+precondition asks for the acting four, never the board) and puts the subset back where it stands.
+
+MEASURED RESULT (`engine/test/circle-four.mjs`, 30 checks, all green):
+  - the reported slot applies, and the sides' board CHANGES: `(1,-1),(1,1),(-1,1),(-1,-1)` with headings
+    180/180/0/0 becomes `(1,1),(-1,1),(-1,-1),(1,-1)` with -90/-90/90/90 - a 90-degree turn of the ring in
+    position (worst 5.0e-16) AND heading (0.0e+0);
+  - the drawn path goes ROUND: furthest 2.828 units from the start, against 2.000 for the chord, on a ring of
+    radius sqrt(2) - i.e. 270 degrees of arc;
+  - the last frame IS the applied board (0.0e+0) and the heads keep promenading (the rule turns only the four);
+  - the squared set still applies as TWO groups of four, and their turn is the +90 the rule derives (worst
+    0.008 units, 0.69 degrees - the corpus's own authored wobble, #5 ending at 3.00,-0.99 heading -179);
+  - a line of four is refused, and the rule's own precondition says why ("their distances from the centre vary
+    by 1.00").
+
+GATES: `npm run build --prefix engine`; `engine/test/circle-four.mjs` (new, all green); `scoped-dosado`,
+`parallel-calls`, `modules`, `step-forward`, `scoped-animation` and `selection` all green; `sequencer.mjs` at
+its SEVEN pre-existing reds on both revisions (measured by stashing the three engine files and re-running);
+`poc/tools/verify-probes.mjs` at the same 13 pre-existing reds and no others (45 probes).
+
+ONE PIECE OF THE PLAN WAS NOT DONE, and is recorded rather than quietly dropped: the plan's item A - refusing a
+scoped apply that returns LEGAL BUT CHANGES NOTHING. The mechanism is now known exactly: `applySelected`'s last
+fallback applies the call "as the WHOLE formation performs it" and keeps only the selected dancers' poses, so
+when the whole-board reading's parallel groups hold OTHER dancers (`Circle Four Left 3/4` on the lane board
+grouped `5+6+1+2`, the heads) every selected dancer is left exactly where they were and the step is accepted as
+a 6-beat no-op. The guard is one condition - refuse when `whole.parallel` exists and no group contains a
+selected dancer - and it was left unshipped because the ring rule fixes the reported case and the guard changes
+engine behaviour broadly enough to want its own full gate run, which the remaining budget did not cover.
+
 ONE NUMBER THAT DID NOT REPRODUCE, recorded because it was in the same report: the status line read
 `= 6 of 12 beats` for that lane, and this tree answers **10 of 12** - `Step Forward` 2 + `Dosado` 8, which is
 the walk's own `[2, 8]` - and every `Dosado` / `Do Sa Do` / `All Except Heads Dosado` measurement returns 8,

@@ -408,6 +408,105 @@ export interface CodedMove {
   deferredHalf?: (b: Board, ids: number[]) => Board;
 }
 
+/**
+ * `Circle Four N/4` IS A TURN OF THE RING THE ACTING FOUR ARE STANDING ON, and it is derived rather than left
+ * to the catalogue.
+ *
+ * THE DEFECT. Reported from use: in the slot `Heads Promenade 3/4 to Home || All Except Heads ( Step Forward +
+ * Circle Four Left 3/4 )` the call "seems to assign the wrong dancer from the correct group to each path" and
+ * the dancers "rotate 90 degrees at the start". MEASURED: `Step Forward` leaves the sides at
+ * (1,-1),(1,1),(-1,1),(-1,-1) - a 2x2 RING of four - while `ms/circle.xml`'s tams for this call are three
+ * HALF-SET 2-path tams (`Facing Couples` at x=-2, `Facing Couples Compact` at -1.5, `Facing Couples Far` at
+ * -3, each doubled to four dancers by the 180-degree mirror) plus 4-path `Lines`/`Eight Chain Thru` tams. The
+ * match tolerance is a SUM over dancers (`DEFAULT_MATCH_MAX = 1.5`), so the nearest half-set (`Compact`, 0.5
+ * per dancer = 2.0) misses: the sub-board matches NOTHING at any tolerance to 8, the bare apply on it is
+ * refused, and the lane drew a 6-beat step with 0.00 motion. Scoped to the HEADS instead, the same call DID
+ * match - the doubled `Facing Couples Far` - with `mapping=[2,3,0,1]`, turning ~22 degrees in the first frame
+ * and walking the heads onto the SIDE positions: the wrong-dancer-and-rotation report is that fit.
+ *
+ * WHAT THE CORPUS DOES, which is the authority for the answer: apply `Circle Four Left 3/4` to a Static Square
+ * and it comes out as TWO PARALLEL GROUPS OF FOUR (`5+6+1+2 | 7+8+3+4`), each turning 90 degrees
+ * counter-clockwise in BOTH position and heading - which is 3/4 of a circle clockwise, the two being the same
+ * thing on a four-point ring. `Left N/4` is therefore a turn of `-N * 90` degrees, `Right N/4` of `+N * 90`,
+ * with each heading carried round by the same amount.
+ *
+ * SO THE RULE IS THE RING ITSELF: four acting dancers, one common centre, equal radii, distinct bearings - and
+ * the call turns that ring. It reproduces the corpus's own answer for the heads exactly, and it answers where
+ * the corpus has nothing, which is why the reported slot now dances instead of charging beats for nothing. A
+ * ring of EIGHT (the whole board) is DECLINED here so the catalogue's two-circles-of-four reading keeps
+ * handling it, which is what `catalogueFallback` is for.
+ */
+const RING_RADIUS_TOL = 0.25;
+
+/** CALLERLAB's timing: a quarter of a circle is 2 beats, so `Circle Four N/4` costs 2N. */
+export const CIRCLE_FOUR_QUARTER_BEATS = 2;
+
+interface Ring { cx: number; cy: number; r: number }
+
+/** The acting dancers as ONE ring, or the reason they are not one. */
+function ringOf(board: Board): Ring | string {
+  const ds = board.dancers.filter((d) => !d.isGhost);
+  if (ds.length !== 4) return `Circle Four is danced by four dancers, and ${ds.length} would be dancing it`;
+  let cx = 0, cy = 0;
+  for (const d of ds) { cx += d.x; cy += d.y; }
+  cx /= ds.length; cy /= ds.length;
+  const radii = ds.map((d) => Math.hypot(d.x - cx, d.y - cy));
+  const r = radii.reduce((a, b) => a + b, 0) / radii.length;
+  if (r < 0.5) return 'the dancers are not spread around a ring';
+  const worst = Math.max(...radii.map((x) => Math.abs(x - r)));
+  if (worst > RING_RADIUS_TOL * r) {
+    return `the dancers are not on one ring: their distances from the centre vary by ${worst.toFixed(2)}`;
+  }
+  const bearings = ds.map((d) => Math.atan2(d.y - cy, d.x - cx)).sort((a, b) => a - b);
+  for (let i = 1; i < bearings.length; i++) {
+    if (bearings[i] - bearings[i - 1] < 0.2) return 'two of the dancers are on the same bearing from the centre, so this is not a ring';
+  }
+  return { cx, cy, r };
+}
+
+/** The board after `quarters` quarters of a circle, `left` or right, about the acting dancers' own centre. */
+function circleFourTurn(board: Board, quarters: number, left: boolean): Board {
+  const ring = ringOf(board);
+  if (typeof ring === 'string') return board;
+  const turn = (left ? -1 : 1) * quarters * (Math.PI / 2);
+  return {
+    dancers: board.dancers.map((d) => {
+      if (d.isGhost) return d;
+      const a = Math.atan2(d.y - ring.cy, d.x - ring.cx) + turn;
+      const heading = Math.atan2(Math.sin(d.heading + turn), Math.cos(d.heading + turn));
+      return { ...d, x: ring.cx + ring.r * Math.cos(a), y: ring.cy + ring.r * Math.sin(a), heading };
+    }),
+  };
+}
+
+/** One arc of the family: the precondition, the whole-board transform (used on a four-dancer board and by the
+ *  LEGS), the SELECTION form (the same turn of the named four, in place - a scoped apply otherwise skips a
+ *  coded rule that has a precondition, see `applyCodedToSelection`), and the quarter-by-quarter legs the
+ *  animation walks so the ring is drawn as an ARC rather than as the chord a straight interpolation gives. */
+function circleFourDef(quarters: number, left: boolean) {
+  return {
+    precondition: (b: Board) => {
+      const r = ringOf(b);
+      return typeof r === 'string' ? r : null;
+    },
+    fn: (b: Board) => circleFourTurn(b, quarters, left),
+    applyToSelection: (b: Board, ids: number[]) => {
+      const acting: Board = { dancers: b.dancers.filter((d) => ids.includes(d.id)) };
+      const r = ringOf(acting);
+      if (typeof r === 'string') return { reason: r };
+      const turned = new Map(circleFourTurn(acting, quarters, left).dancers.map((d) => [d.id, d]));
+      return { board: { dancers: b.dancers.map((d) => turned.get(d.id) ?? d) } };
+    },
+    legs: (b: Board) => {
+      if (typeof ringOf(b) === 'string') return null;
+      const out: Board[] = [];
+      for (let k = 1; k <= quarters; k++) out.push(circleFourTurn(b, k, left));
+      return out;
+    },
+    catalogueFallback: true,
+  };
+}
+
 const DEFS: {
   aliases: string[];
   fn?: (b: Board) => Board;
@@ -648,6 +747,17 @@ const DEFS: {
     deferred: true,
     deferredHalf: (b, ids) => stepForwardSteps(b, ids),
   },
+  // THE `Circle Four` FAMILY, all eight titles the corpus ships: a turn of the ring the acting four stand on.
+  // See `circleFourDef` for the measurements behind it, the corpus's own end poses it reproduces, and why a
+  // ring of eight is declined here so the catalogue keeps handling the two-circles reading.
+  { aliases: ['Circle Four Left 1/4'], beats: CIRCLE_FOUR_QUARTER_BEATS, ...circleFourDef(1, true) },
+  { aliases: ['Circle Four Left 1/2'], beats: CIRCLE_FOUR_QUARTER_BEATS * 2, ...circleFourDef(2, true) },
+  { aliases: ['Circle Four Left 3/4'], beats: CIRCLE_FOUR_QUARTER_BEATS * 3, ...circleFourDef(3, true) },
+  { aliases: ['Circle Four Left Full'], beats: CIRCLE_FOUR_QUARTER_BEATS * 4, ...circleFourDef(4, true) },
+  { aliases: ['Circle Four Right 1/4'], beats: CIRCLE_FOUR_QUARTER_BEATS, ...circleFourDef(1, false) },
+  { aliases: ['Circle Four Right 1/2'], beats: CIRCLE_FOUR_QUARTER_BEATS * 2, ...circleFourDef(2, false) },
+  { aliases: ['Circle Four Right 3/4'], beats: CIRCLE_FOUR_QUARTER_BEATS * 3, ...circleFourDef(3, false) },
+  { aliases: ['Circle Four Right Full'], beats: CIRCLE_FOUR_QUARTER_BEATS * 4, ...circleFourDef(4, false) },
 ];
 
 export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({

@@ -187,7 +187,7 @@ export {
   type FsmEndKind,
 } from './sequencer/fsm-table.js';
 export { normalizeSelection, selectionGroup, splitSelection } from './sequencer/selection.js';
-export { findCodedMove, codedMoveApplies, CODED_MOVES, CODED_MOVE_NAMES, CODED_MOVE_BEATS, RUN_TRADE_BEATS, isDeferredCall } from './sequencer/coded-moves.js';
+export { findCodedMove, codedMoveApplies, CODED_MOVES, CODED_MOVE_NAMES, CODED_MOVE_BEATS, RUN_TRADE_BEATS, CIRCLE_FOUR_QUARTER_BEATS, isDeferredCall } from './sequencer/coded-moves.js';
 export type { CodedMove } from './sequencer/coded-moves.js';
 // `Step Forward` and the return-or-stay rule a parallel step resolves it with. Exported so a caller
 // (and the gate) can ask the RULE a question rather than infer it from a board.

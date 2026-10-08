@@ -4055,3 +4055,108 @@ ONE NUMBER THAT DID NOT REPRODUCE, recorded because it was in the same report: t
 the walk's own `[2, 8]` - and every `Dosado` / `Do Sa Do` / `All Except Heads Dosado` measurement returns 8,
 never 4. The panel takes the per-call boards from the apply's own lanes, which is what makes it agree with
 the walk here; the 6 was not reproduced and the caller chose not to chase it.
+
+A START-POSE DRAG NOW TRANSFORMS THE SELECTION AS ONE BOARD, RATHER THAN SHIFTING IT. Reported: "When multiple
+dancers are selected and I've selected Edit: Dancers: Position, when I move the highlighted dancer all the
+other dancers move in lock step rather than using a board transform e.g. If I move a dancer towards the center
+of the board, all dancers should move towards the center of the board. Currently they move using global
+coordinates."
+
+THE OLD RULE WAS DELIBERATE AND PINNED, which is why this is a REDESIGN and not a bug fix.
+`poc/tools/start-pose-drag-probe.mjs` pinned "the same floor shift on every selected dancer" and measured two
+rejected alternatives against it, and the Edit row's own tooltip promised that a drag "writes every selected
+dancer by the same delta - so a set can be placed and turned without touching a single move". The report says
+what that could not do: a drag that goes IN should move the set in, and a shift cannot, because it has no idea
+where the board's centre is.
+
+THE RULE, chosen by the caller from three candidates (scale + translate, full similarity, centroid pivot) and
+one question about scope (start poses only, not the authored tracks):
+
+    scale   = |p1| / |p0|          the focus's distance from the BOARD CENTRE, after over before
+    (dx,dy) = p1 - scale * p0      whatever motion is left over
+    p_i    -> scale * p_i + (dx,dy)
+
+It is the only decomposition in which the dragged dancer lands EXACTLY where the pointer is AND the old
+behaviour survives as a slice of it. WHY BOTH MATTER: the first is what keeps grid snapping meaning what it
+says, since the snapped point is what the transform is taken from, so a Ctrl-drag still lands the dancer on
+the line or the ring; the second is that a CONSTANT-RADIUS drag has `scale == 1` and `(dx,dy) == p1 - p0`,
+which is the old rule - so sliding a set across the floor is still a drag at a constant radius, and nothing
+that used to be possible was lost. A pure radial drag has `(dx,dy) == 0`, which is the report's example
+exactly: everyone moves along their own radius by the same factor, and a dancer standing on the centre is the
+pivot and stays.
+
+A FULL SIMILARITY (scale + rotation) WAS OFFERED AND REFUSED, and the arithmetic is why the offer was wrong
+for this report: a rigid turn about the centre moves the other dancers TANGENTIALLY, not towards the centre,
+so it answers a different request. Rotating the positions is also the one thing this axis must not do - the
+headings are the `rotation` axis's own business, and a second way to turn the set would leave two controls
+disagreeing about one edit.
+
+THE TRACKS ARE NOT SCALED, the second decision. The write stays `setDancerStart`, whose documented semantics
+are that a start translation carries the whole path and a start heading turns it about its own start (pinned
+by `features/call_editor.feature` and `engine/test/editor.mjs`). There is no primitive that scales an authored
+curve, and inventing one would stop the axis being "a set can be placed, sized and slid without touching a
+single move".
+
+WHERE IT LIVES. The arithmetic is a new pure module, `poc/src/board-transform.ts`, for the reason
+`grid-magnet.ts` gives for existing: a rule that has to be measured cannot live in `editor-ui.ts`, which builds
+DOM and cannot be imported by a probe - and this probe used to MIRROR the write rules, which is one edit away
+from measuring a copy of the rule rather than the rule. `start-pose-drag-probe.mjs` now imports what the panel
+imports, and section 5 pins that the panel imports it, so the arithmetic cannot drift back into the pointer
+handler unnoticed.
+
+MEASURED RESULT (`poc/tools/start-pose-drag-probe.mjs`, re-based, ALL CHECKS PASSED - every worst error prints
+as 0; the tolerances are 1e-9 to 1e-12):
+  - 495 constant-radius drags: the board transform agrees with the old same-delta rule (worst 0), each track
+    keeps its shape in that slice (0), and no heading moves (0 deg);
+  - 3288 selected dancers and 4380 pairs over factors 0.6 and 2.0: every dancer's distance from the centre is
+    multiplied by the factor (worst 0), every pair's distance scales by it (0), the scale IS the ratio asked
+    for (0), and a selected dancer on the centre stays there (0);
+  - 495 general drags: the focus lands exactly on the pointer (worst 0) and no unselected dancer moves (0);
+  - the degenerate drags: a focus ON the centre has no ratio, so the drag is the plain translation, scale 1
+    (worst 0 against the old rule) rather than a division by zero; a pointer dragged onto the centre means
+    scale 0 and collapses the selection there, reachable only by an explicit drag on the origin and
+    recomputed from the base each move, so dragging back out restores it inside the same gesture;
+  - the rejected controls: copying the focus pose onto everyone breaks the new shape check by 12.5 units;
+    orbiting the centroid preserves shape exactly and is caught only by the rotation axis's "moves nobody";
+    and SCALING ABOUT THE DRAGGED DANCER - the plausible accident, since the dragged dancer is the pivot in
+    the caller's hand - preserves the shape up to the same factor too (worst 0) and is caught only by the new
+    radius check, which it breaks by 2.14 units.
+
+FOUR PRE-EXISTING REDS IN THAT PROBE ARE FIXED BY THE SAME EDIT, recorded because they were not obvious: the
+app's TypeScript and HTML are checked in with CRLF while the probes are LF, and four of the probe's section 5
+structural checks were written with a literal `\n` inside a regex or a `replace`, so they could never match
+and had been failing on their own. Measured by normalising the line endings with nothing else changed, all
+four pass - which is why `verify-probes.mjs` reports one FEWER failed probe than the baseline below.
+
+THREE USER-FACING STRINGS ARE PART OF THE RULE and were restated with it: the `position` axis's tooltip ("the
+same floor shift is added to every selected dancer"), the `Dancers` button's ("Every selected dancer gets the
+same DELTA, so the arrangement is preserved") and the Edit row's ("writes every selected dancer by the same
+delta"). The probe pins both directions - the new wording is present, and none of the three still describes the
+old rule.
+
+GATES: `npx tsc -p poc --noEmit` clean; `start-pose-drag-probe.mjs` all green; `stage-sync-probe.mjs` green and
+unchanged (this adds no new stage-sync state); `verify-probes.mjs` 45 probes and **12 failed**, against the 13
+this file recorded for the previous revision. MEASURED, the 12 are `clone-refusal`, `connect-assign`,
+`coords-gate`, `editor-level`, `facing-end-drag`, `facing-handle`, `formation-ref`, `formation-size`,
+`move-beats`, `run-circle`, `start-facing` and `wysiwyg-path` - so the probe this work changed is NOT among
+them and no new red was introduced; the count is one LOWER because that probe used to be one of the 13 (it is
+the only probe file this work touched, and it is green). `poc/src/assets/formations.xml` and
+`poc/src/assets/ms/dosado.xml` are modified in this tree by other work, so a strict before/after of the whole
+probe suite would want those set aside. NO ENGINE FILE WAS TOUCHED and no data format changed.
+
+OUTSTANDING: the drag has not been seen on the board. A Vite build in this sandbox needs esbuild's piped-stdio
+service spawn, which the file sandbox denies, so the visual check is the reporter's, on the dev server already
+running.
+
+REVERTED ON REQUEST: THE ROTATION AXIS IS UNCHANGED. A board-turn rotation drag was built on top of the entry
+above - the same centre pivot, each selected start orbited and its heading turned by
+`bearing(focus -> pointer) - focus.heading` - and it was rejected on sight: "Undo that fix as it now rotates
+dancers around the board center, Let me reassess the problem with the original version." The POSITION axis is
+kept; only the rotation half is undone, and nothing had been committed, so the undo puts the tracked code back
+exactly: `src/board-transform.ts` exports the two position functions and no rotation helpers,
+`applyDancerStartDrag`'s `dh` branch is the original heading-only rule again, `index.html`'s rotation tooltip is
+the original, section 2 of `poc/tools/start-pose-drag-probe.mjs` pins "a rotation drag moves nobody: every start
+is exactly where it was" again with the centroid orbit as its negative control, and section 5 pins the two-name
+import. THE ROTATION PROBLEM IS OPEN AND NOT YET CHARACTERISED: the reporter's point is that the obvious pivot -
+the board's centre - is not what they want, so the axis needs its actual behaviour pinned down before another
+rule is chosen.

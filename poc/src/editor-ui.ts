@@ -90,6 +90,10 @@ import { el, esc } from './dom';
 // `grid-magnet.ts`. The board has two grids, and this file owns neither: it only asks which one is showing.
 import type { GridMode } from './grid-magnet';
 import { radialArcFit, radialCircleRadii, snapBoard } from './grid-magnet';
+// AND THE START-POSE DRAG'S OWN ARITHMETIC, for the same reason and by the same split: what a drag does to
+// the rest of the selection is a rule a probe has to measure, so it is a pure module rather than a few lines
+// inside the pointer handler. See `board-transform.ts` for the rule and for why it is scale + translation.
+import { applyBoardTransform, boardTransformOf } from './board-transform';
 // THE KEYBOARD IS ONE TABLE, owned by `main.ts` and installed once (`keys.ts`). A panel hands over the
 // bindings it wants rather than owning a listener, so the four decisions every global key handler has to
 // make - modifiers, a field being typed into, auto-repeat, and whether this panel is on screen - are made
@@ -2086,10 +2090,11 @@ export class EditorController implements EditorUI {
    * WHAT A START-POSE DRAG IS MEASURED FROM, captured at pointerdown - the second drag that is a function of
    * the START of the gesture rather than of the pointer alone.
    *
-   * The delta a group edit needs is "how far the focus dancer has moved", so the pose it had when the gesture
-   * began has to be kept: read from the live call instead and each pointer move's delta would be applied on
-   * top of the last one's, which compounds into a runaway. Every selected dancer's start is held because the
-   * whole selection receives the SAME delta and each one needs its own original to add it to.
+   * The transform a group edit needs is "how the focus dancer has moved", so the pose it had when the
+   * gesture began has to be kept: read from the live call instead and each pointer move's transform would be
+   * applied on top of the last one's, which compounds into a runaway (a scale especially - two scales of 0.5
+   * are a quarter). Every selected dancer's start is held because the whole selection is transformed by the
+   * SAME board transform, and each one needs its own original to transform.
    *
    * IN ASCENDING INDEX ORDER, so `starts[0]` is the FOCUS dancer - the same one `moveDancer` names and the
    * same one the board drew the handle on. Cleared on pointerup rather than left for the next gesture.
@@ -2264,19 +2269,28 @@ export class EditorController implements EditorUI {
    * handles stop working, but that nothing they can do takes the curve off the family.
    */
   /**
-   * ONE STEP OF A START-POSE DRAG: the SAME DELTA on every selected dancer's own start pose.
+   * ONE STEP OF A START-POSE DRAG: ONE BOARD TRANSFORM applied to every selected dancer's own start pose.
    *
-   * THE DELTA, NOT THE POINTER'S POSITION. What the focus dancer receives is measured against where it stood
-   * when the gesture began, and that same shift is handed to every other selected dancer unchanged - so the
-   * set keeps the arrangement it is standing in. Writing the pointer's absolute position to all of them
-   * would collapse the selection onto one spot, which is a different edit and not this one.
+   * THE TRANSFORM, NOT THE POINTER'S POSITION. What the focus dancer receives is read off where it stood when
+   * the gesture began, and the same transform is handed to every other selected dancer - so the set keeps its
+   * shape and its place in the set. Writing the pointer's absolute position to all of them would collapse the
+   * selection onto one spot, which is a different edit and not this one.
    *
-   * WHICH AXIS IS WHICH. `position` adds the floor shift to each dancer's start and turns nobody. `rotation`
-   * adds the angle to each dancer's start heading and moves nobody. Because the moves are authored in the
-   * dancer's own frame, a heading change turns that dancer's WHOLE TRACK about its own start, so the second
-   * one is a bigger edit than it sounds - the probe prints how big rather than leaving it to be discovered.
+   * THE TRANSFORM ITSELF IS A PURE MODULE (`board-transform.ts`), because it is a rule worth measuring and
+   * this file cannot be imported by a probe. In one line: the scale is the ratio of the focus's distance from
+   * the board centre, before and after, and whatever motion is left over is a floor shift - so dragging the
+   * handle in along the line it is drawn on scales the whole selection about the centre, and a drag that keeps
+   * the focus on its own circle is EXACTLY the same-delta slide this axis used to be.
+   *
+   * WHICH AXIS IS WHICH. `position` applies the board transform to each dancer's start and turns nobody.
+   * `rotation` adds the angle to each dancer's start heading and moves nobody. Because the moves are authored
+   * in the dancer's own frame, a heading change turns that dancer's WHOLE TRACK about its own start, so the
+   * second one is a bigger edit than it sounds - the probe prints how big rather than leaving it to be
+   * discovered.
    *
    * THE BASE IS READ EVERY TIME, never the live call, so a hundred pointer moves land exactly where one does.
+   * That is what makes the scale safe to recompute: each move derives the transform from the ORIGINAL radius,
+   * so scales cannot compound.
    */
   private applyDancerStartDrag(handle: string, board: { x: number; y: number }, snap: boolean) {
     const base = this.dragDancerBase;
@@ -2291,13 +2305,16 @@ export class EditorController implements EditorUI {
     let next = base.call;
     if (which === 'dp') {
       // THE SNAP GOES ON THE DRAGGED POINT, in the frame the grid is drawn in - the rule the move handles
-      // already follow - and the DELTA is taken from the snapped point, so the focus dancer lands on a grid
-      // line while every other selected dancer keeps its offset from it exactly.
+      // already follow - and the TRANSFORM IS TAKEN FROM THE SNAPPED POINT, so the focus dancer lands on a
+      // grid line while every other selected dancer is carried to where that transform puts it. Under the
+      // RADIAL grid this reads particularly well: the ring the magnet pulls to IS the scale, and because a
+      // position drag never turns anybody, the spoke the magnet may also pull to changes nothing.
       const at = snap ? snapBoard(board, this.gridMode) : board;
-      const dx = at.x - focus.x;
-      const dy = at.y - focus.y;
+      const t = boardTransformOf(focus, at);
       for (const s of base.starts) {
-        if (base.call.dancers[s.i]) next = setDancerStart(next, s.i, { x: s.x + dx, y: s.y + dy, heading: s.heading });
+        if (!base.call.dancers[s.i]) continue;
+        const p = applyBoardTransform(s, t);
+        next = setDancerStart(next, s.i, { x: p.x, y: p.y, heading: s.heading });
       }
     } else {
       // A GRID HAS NO MEANING FOR AN ANGLE, so Ctrl does nothing here rather than quantising a heading to a

@@ -322,13 +322,13 @@
               <input id="edScrub" type="range" min="0" max="1" step="0.01" value="0" title="Drag to move the dancers along the call by hand. The animation is off here, so this is the only thing that moves them. Arrow keys nudge by 0.01 beat; Page Up/Down by 0.1." />
             </div>
             <div class="row" id="edScopeRow">
-              <label title="WHAT THE BOARD'S HANDLES ARE FOR. `Moves` puts the gizmo on the selected move's control points, the way it has always worked. `Dancers` puts it on the FIRST selected dancer's start pose instead, and a drag there writes every selected dancer by the same delta - so a set can be placed and turned without touching a single move. THE E KEY ROTATES THROUGH THE THREE STATES: `Moves`, `Dancers + position`, `Dancers + rotation`.">Edit</label>
+              <label title="WHAT THE BOARD'S HANDLES ARE FOR. `Moves` puts the gizmo on the selected move's control points, the way it has always worked. `Dancers` puts it on the FIRST selected dancer's start pose instead, and a drag there transforms every selected dancer as ONE BOARD - dragging in or out along the line the handle is drawn on scales the whole set about the centre, dragging across it slides the set - so a set can be placed, sized and slid without touching a single move. THE E KEY ROTATES THROUGH THE THREE STATES: `Moves`, `Dancers + position`, `Dancers + rotation`.">Edit</label>
               <span class="ed-tabs">
                 <button id="edScopeMove" type="button" title="Drag the selected move's control points (the usual gizmo).">Moves</button>
-                <button id="edScopeDancer" type="button" title="Drag the first selected dancer's START POSE. Every selected dancer gets the same DELTA, so the arrangement is preserved.">Dancers</button>
+                <button id="edScopeDancer" type="button" title="Drag the first selected dancer's START POSE. Every selected dancer is carried by the same BOARD TRANSFORM, so the set keeps its shape.">Dancers</button>
               </span>
               <span class="ed-tabs" id="edAxisTabs" hidden>
-                <button id="edAxisPos" type="button" title="Drag the start POSITION: the same floor shift is added to every selected dancer, and nothing turns.">position</button>
+                <button id="edAxisPos" type="button" title="Drag the start POSITION: dragging in or out from the centre scales every selected dancer about the centre, dragging across slides them, and nothing turns.">position</button>
                 <button id="edAxisHead" type="button" title="Drag the start HEADING: the same angle is added to every selected dancer's heading, and nobody moves. The path is authored in the dancer's own frame, so each dancer's whole track turns with them, about their own start.">rotation</button>
               </span>
             </div>

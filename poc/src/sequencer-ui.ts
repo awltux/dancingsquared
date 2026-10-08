@@ -194,8 +194,16 @@ export class SequencerController implements SequencerUI {
   /** Display-only rotation (radians) applied about the set centre so the whole
    * board can be aligned against the reference grid (e.g. 45°). */
   private boardRot = 0;
-  /** True = draw 2D markers on the overlay canvas instead of 3D avatars. */
-  private use2d = false;
+  /**
+   * True = draw 2D markers on the overlay canvas instead of 3D avatars.
+   *
+   * READ OFF THE CONTROL rather than hardcoded, so the sequencer cannot open drawing one thing while
+   * `seqView2d` names another: the select carries the default (`2d` is the `selected` option) and NO
+   * `change` event fires at startup, so a literal here would only be corrected the first time the caller
+   * touched the select. It is the same opening pose as the other two views - the browse view opens 2D
+   * (`browser.ts`'s `use2d = true`) and so does the editor (`edView2d` is `checked` in `index.html`).
+   */
+  private use2d = this.view2dEl.value === '2d';
   private playing = false;
   private playhead = 0;
   private totalBeats = 0;

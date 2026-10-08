@@ -153,6 +153,16 @@ export class SequencerController implements SequencerUI {
    */
   private litSubsets = new Set<string>();
   /**
+   * THE SUBSET NAMES THE LINE DOES NOT OFFER, because they mean the dancers an entry above already offers:
+   * "Men", "Women" and "Ladies" resolve to exactly the dancers "Boys" and "Girls" do, so three of the nine
+   * links were three more ways of saying what the first two said.
+   *
+   * A DISPLAY FILTER, NOT A VOCABULARY CHANGE, and the difference is load-bearing: the ENGINE keeps these
+   * names because CALLS name them - "Ladies Chain" is a Ladies selection - and `refreshCallSelect` offers
+   * grouped calls through the same `subsetGroups`, so dropping them there would take the call with them.
+   */
+  private static readonly SYNONYM_SUBSETS = new Set(['Men', 'Women', 'Ladies']);
+  /**
    * The DANCER IDS those names resolve to, kept because `applyView` runs on every mode and tab change and
    * has to gate the rings without re-resolving the selections - see `applySubsetMarks`.
    */
@@ -463,7 +473,7 @@ export class SequencerController implements SequencerUI {
         + (filterNote ? ` · ${filterNote}` : '');
       return;
     }
-    const groups = this.seq.subsetGroups(this.seq.board);
+    const groups = this.seq.subsetGroups(this.seq.board).filter((g) => !SequencerController.SYNONYM_SUBSETS.has(g));
     // A SUBSET THAT NO LONGER RESOLVES LOSES ITS LIGHT, because the panel must not go on claiming a
     // highlight for a group the board has moved out of - the name can survive a board change while the
     // dancers it meant do not.

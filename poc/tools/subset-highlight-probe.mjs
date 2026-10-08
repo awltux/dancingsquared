@@ -30,6 +30,11 @@
 // link's own hover state, not a ring). This is what the scene-child fix bought: before it, those two smaller
 // numbers were all three the same picture.
 //
+// AND THE SYNONYM FILTER SEEN RUNNING: the line offers "Heads · Sides · Boys · Girls · Beaus · Belles",
+// while the call picker's group list still carries Men, Women and Ladies among its 28 entries - which is the
+// property that matters, because a call names them ("Ladies Chain") and the picker builds its list from the
+// same `subsetGroups`.
+//
 // Run: node tools/subset-highlight-probe.mjs   (from poc/; the engine must be built)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -126,6 +131,29 @@ check(/selectionIds\(board: Board, selection: string\): number\[\] \| null \{[\s
   'and it delegates to the grouping resolver rather than to a copy of the vocabulary');
 
 // ------------------------------------------------------------------ 5. the styles, so it reads as a link
+// ------------------------------------------------------------------ 4b. the three synonyms are not offered
+console.log('\n== 4b. Men, Women and Ladies are not offered - the same dancers as Boys and Girls ==');
+
+check(/private static readonly SYNONYM_SUBSETS = new Set\(\['Men', 'Women', 'Ladies'\]\);/.test(ui),
+  'the three synonym names are named in ONE place, with the reason they are the same dancers');
+check(/const groups = this\.seq\.subsetGroups\(this\.seq\.board\)\.filter\(\(g\) => !SequencerController\.SYNONYM_SUBSETS\.has\(g\)\)/.test(ui),
+  'and the composer line filters them out of what it offers');
+// AND THE FILTER MUST NOT REACH THE ENGINE OR THE PICKER, which is the way this change could do real damage:
+// a CALL names these ("Ladies Chain"), and `refreshCallSelect` offers grouped calls through the same list.
+check(/const singles = this\.seq\.subsetGroups\(this\.seq\.board\);/.test(ui),
+  'the call picker still takes the FULL list, unfiltered');
+check(!/SYNONYM_SUBSETS/.test(readSource('../engine/src/sequencer/sequencer.ts')),
+  'and the engine\'s vocabulary is untouched, so a call may still name a Ladies selection');
+{
+  const unfiltered = ui.replace('.filter((g) => !SequencerController.SYNONYM_SUBSETS.has(g))', '');
+  check(unfiltered !== ui && !/SYNONYM_SUBSETS\.has\(g\)\)/.test(unfiltered),
+    'offering all nine again fails the filter check');
+  const filteredPicker = ui.replace('const singles = this.seq.subsetGroups(this.seq.board);',
+    'const singles = this.seq.subsetGroups(this.seq.board).filter((g) => !SequencerController.SYNONYM_SUBSETS.has(g));');
+  check(filteredPicker !== ui && !/const singles = this\.seq\.subsetGroups\(this\.seq\.board\);/.test(filteredPicker),
+    'and filtering the PICKER - which would drop "Ladies Chain" with it - fails the check that it is not');
+}
+
 console.log('\n== 5. the styles make it a link, and the lit state is visible ==');
 check(/#seqSubsetInfo \.subset-link \{/.test(css), 'the link has a style of its own');
 check(/#seqSubsetInfo \.subset-link\.on \{/.test(css), 'and so does the lit state');

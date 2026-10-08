@@ -5066,7 +5066,7 @@ export class EditorController implements EditorUI {
     const at = side === 'left' ? from : from + 1;
     const targets = this.selectedSorted();
     if (targets.length === 0) {
-      this.statusEl.textContent = 'no dancers selected â€” pick dancers above the table, or the copy has nowhere to go';
+      this.statusEl.textContent = 'no dancers selected — pick dancers above the table, or the copy has nowhere to go';
       return;
     }
     let next = call;
@@ -5080,7 +5080,7 @@ export class EditorController implements EditorUI {
       done++;
     }
     if (done === 0) {
-      this.statusEl.textContent = `nothing to duplicate â€” no selected dancer has a move ${from + 1}`;
+      this.statusEl.textContent = `nothing to duplicate — no selected dancer has a move ${from + 1}`;
       return;
     }
     this.moveIndex = side === 'left' ? from + 1 : from;
@@ -5088,7 +5088,7 @@ export class EditorController implements EditorUI {
     this.commit(next, `m${this.moveDancer}:${this.moveIndex}:dup.${side}`);
     this.statusEl.textContent =
       `duplicated move ${from + 1} to the ${side} for ${done} dancer${done === 1 ? '' : 's'}` +
-      ' â€” the copy is a new move, so it holds no copied point until C is pressed on it';
+      ' — the copy is a new move, so it holds no copied point until C is pressed on it';
   }
 
   private addInstanceMove() {

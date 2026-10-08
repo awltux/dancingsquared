@@ -59,7 +59,7 @@ has(/this\.circleCentre = \{ x: 0, y: 0 \};/, 'the centre can be put at the ORIG
 has(/grid\.appendChild\(cWrap\)/, 'and the centre controls are their own group too, for the same reason');
 has(/this\.circleCentre = null;/, 'and a named centre can be given back to the run that owns it');
 has(/if \(!this\.circleCentre && \(radius === null/, 'a named centre needs no radius field, because the radius follows from the pinned start');
-has(/this\.statusEl\.textContent = `âœ— \$\{why\[0\]/, 'a run that no dancer accepted is reported, not swallowed');
+has(/this\.statusEl\.textContent = `✗ \$\{why\[0\]/, 'a run that no dancer accepted is reported, not swallowed');
 // The refusal is the user's chosen rule, so its TEXT has to reach the screen rather than being replaced by a
 // generic "could not".
 has(/why\.push\(`dancer \$\{d \+ 1\}: \$\{\(err as Error\)\.message\}`\)/, 'and an engine refusal is carried to the status line with the engine\'s own words, which name the move and the angle');
@@ -212,7 +212,7 @@ if (!closed) {
   check(false, 'a run whose ends COINCIDE was found in the corpus - without one, the closed branch is untested');
 } else {
   const cf = closed.from;
-  console.log(`    ${closed.lvl}/${closed.f} dancer ${closed.d + 1} moves ${cf + 1}â€“${closed.to + 1}: radius ${closed.fit.r.toFixed(3)}, one full turn`);
+  console.log(`    ${closed.lvl}/${closed.f} dancer ${closed.d + 1} moves ${cf + 1}–${closed.to + 1}: radius ${closed.fit.r.toFixed(3)}, one full turn`);
   // `circleThrough` has no answer here, which is the whole reason the branch exists.
   const p0 = engine.poseFor(closed.call.dancers[closed.d], cf === 0 ? 0 : engine.moveBeatRange(closed.call.dancers[closed.d], cf - 1).to);
   const p1 = engine.poseFor(closed.call.dancers[closed.d], engine.moveBeatRange(closed.call.dancers[closed.d], closed.to).to);

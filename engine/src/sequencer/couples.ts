@@ -106,6 +106,14 @@ function inFrame(from: SeqDancer, to: SeqDancer): { forward: number; lateral: nu
  * Greedy and deterministic: boys in ascending id, each taking the nearest eligible girl. A dancer
  * with no eligible partner is left unpaired and keeps its home couple — this NEVER invents one.
  * `isGhost` dancers are excluded: a ghost is a geometric reference, not a dancer.
+ *
+ * THE SIDE-BY-SIDE PASS ALSO ADMITS A CO-FACING TANDEM, because it tests only distance and heading: two
+ * dancers 2.0 apart facing the SAME way, one directly BEHIND the other, satisfy both. MEASURED over the
+ * 187 boards reached from a squared set: 680 pairs stand side by side, 30 face each other, and 38 are
+ * tandems spread over 12 boards — and 0 of those 38 renumber a girl off her home couple, so for the
+ * couple NUMBER this function feeds the admission is inert. Left as it is ON PURPOSE: a tandem really is
+ * "who is your partner", and only the ROLE readings need left/right — see `Grouping.beauBelle`, where a
+ * pair standing front-to-back projects to 0 and the designation is undefined rather than guessed.
  */
 export function findCouplePairs(board: Board): CouplePair[] {
   const phys = board.dancers.filter((d) => !d.isGhost);

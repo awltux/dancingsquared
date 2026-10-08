@@ -290,6 +290,18 @@ export class Grouping {
    * (`[2,3,4,5,7,8]`) where the call has four (`[1,4,5,8]`), and the refusal it produced named the
    * wrong dancer - "no other designated dancer is beside (-1.0,1.0), so it has no one to trade
    * with". Four figures stop there.
+   *
+   * ON A BOARD WITH NO LINES EVERY DANCER COMES OUT A TRAILER, and that is the REFERENCE'S OWN answer
+   * rather than a transcription slip: its `isInFrontOf` is purely ANGULAR (`dancer.dart` -
+   * `angleToDancer(this).isAround(0)`, with `extensions.dart` defaulting `delta` to 0.1) and has NO
+   * distance bound, and the parity test above is `call_context.dart:1681-1684` verbatim. MEASURED on a
+   * Static Square: every dancer has frontcount 1 and backcount 0 - the facing counterpart across the set
+   * is directly in line - so `Trailers` resolves to all eight and `Leaders` to none, and
+   * `combinedGroups` consequently offers `Trailer Boys` / `Trailer Girls` on a board with no lines at all.
+   *
+   * CALLERLAB defines leader/trailer INSIDE A TANDEM, so by that authority neither should resolve on a
+   * squared set; `PLAN.md` records no decision on this, and `subsetOf`/`resolveSelection` is shared with
+   * matching, so changing it moves what calls may be applied. LEFT AS-IS DELIBERATELY, pending that call.
    */
   private leadersTrailers(
     ds: SeqDancer[],

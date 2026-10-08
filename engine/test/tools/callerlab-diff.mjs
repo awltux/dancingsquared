@@ -1,5 +1,8 @@
 // PHASE C ANALYSIS TOOL (not a harness): the CALLERLAB Mainstream definitions against the engine.
 //
+// mojibake-check:allow — the repair patterns further down are written as the literal sequences the PDF
+// extraction produces, so this file legitimately contains them. See the gate in book/tools/check-links.mjs.
+//
 // The PDF is the AUTHORITY on which calls are Mainstream and what each one may start from
 // (`docs/New_Mainstream_Definitions_26-03-29.pdf`, read with test/tools/extract-pdf-text.mjs). This
 // compares three things:

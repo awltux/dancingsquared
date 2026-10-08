@@ -8,7 +8,7 @@
 //   4. every teaching unit M1..M50 has a call page;
 //   5. no call page exists for a call that is NOT in the 2026 programme;
 //   6. every figure is referenced by some page, and every referenced figure exists.
-//   7. no file has been corrupted by a single-byte encoding round-trip;
+//   7. no text file IN THE REPO has been corrupted by a single-byte encoding round-trip;
 //   8. no reader-facing page speaks in the tools' language;
 //   9. every glossary row links to the page that defines its term.
 //
@@ -23,14 +23,37 @@ import { toolsDir } from './lib/load.mjs';
 import { buildOrder } from './make-nav.mjs';
 
 const BOOK = join(toolsDir, '..');
+
+// THE TEXT-CORRUPTION CHECK IS NOT A BOOK CHECK, so it walks the repo rather than this directory. It was
+// written here, for the book, because the book is where the damage was first noticed - fourteen em dashes
+// shipped to a built page - and its walk went no further than `book/` as an accident of where it was
+// written. MEASURED when it was widened: the same corruption was sitting in `engine/src/sequencer/`,
+// `engine/test/`, `poc/src/` and `poc/tools/` the whole time, invisible to it. An engine file was the
+// reason to widen it, and one rule in one place is the reason to widen THIS one rather than add a second
+// checker with its own copy of the pattern.
+const REPO = join(BOOK, '..');
+/** Vendored, generated or cached: no text this repo maintains. `.cache`/`node_modules` are skipped always. */
+const WALK_SKIP = new Set(['.git', '.npm-cache', '.pw-browsers', 'dist', 'dist-test', 'taminations-flutter']);
+/**
+ * Generated extracts, by repo-relative path. `callerlab-ms.txt` is not checked in (see `.gitignore`) and is
+ * regenerated from CALLERLAB's PDF on demand, so it is not this repo's text to keep clean - and MEASURED,
+ * it must not be "repaired": its line 3409 is the same run of symbol pairs whose second column decodes
+ * cleanly to a string of Hebrew and Arabic letters, i.e. a table of glyphs in the manual, not corruption.
+ * The `book/tools/.cache/` copies of the same extract carry thirty more of those, which is why that
+ * directory has always been skipped. A generated artefact is skipped BY PATH here; a hand-written file
+ * whose subject is the corruption opts out with the sentinel instead.
+ */
+const SKIP_FILE = new Set(['callerlab-ms.txt']);
+
 const problems = [];
 
-function walk(dir) {
+function walk(dir, extraSkip = null) {
   const out = [];
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (name === '.cache' || name === 'node_modules') continue;
-    if (statSync(p).isDirectory()) out.push(...walk(p));
+    if (extraSkip !== null && extraSkip.has(name)) continue;
+    if (statSync(p).isDirectory()) out.push(...walk(p, extraSkip));
     else out.push(p);
   }
   return out;
@@ -133,14 +156,25 @@ const slashed = (p) => p.split('\\').join('/');
 // the ghost of a UTF-8 character that was misunderstood.
 //
 // A file whose SUBJECT is this corruption has to be able to write it down -- `clean-extract.mjs`
-// repairs it, `HANDOVER.md` documents it -- so those files, and only those, opt out with the sentinel
-// below. The opt-out is a visible line in the file, not a name hidden in a list here.
+// repairs it, `HANDOVER.md` and `AGENTS.md` document it, and `callerlab-diff.mjs` repairs extraction
+// artefacts with it -- so those files, and only those, opt out with the sentinel below. The opt-out is a
+// visible line in the file, not a name hidden in a list here.
+//
+// WHY THE PATTERN IS THIS AND NOT A GENERAL ROUND-TRIP TEST. The corruption is reversible: map each
+// character back through CP1252 to its byte and decode as UTF-8 again, repeatedly, and the original
+// character comes out. That reversal was used to repair the files this widening found, and it is a good
+// SURVEY tool - but it is a bad gate, MEASURED: it reports every adjacent pair that happens to form a
+// valid UTF-8 sequence, and honest text does that. `poc/README.md`'s "(0.2x-20x)" zoom range is U+00D7
+// U+2013, which decodes cleanly to a Hebrew letter and is not corruption at all; a generated extract under
+// `book/tools/.cache/` throws thirty more of them from a table of symbol pairs. A gate that cries wolf is a
+// gate people learn to skip, so the criterion stays narrow: these sequences cannot occur in honest text.
 const MOJIBAKE_ALLOW = 'mojibake-check:allow';
 const MOJIBAKE = /\u00e2\u20ac|\u00e2\u2020|\u00c3[\u0080-\u00bf]|\u00c2[\u0080-\u00bf]/;
 const TEXT_FILE = /\.(md|mjs|js|json|css|html|txt)$/;
-for (const f of walk(BOOK).filter((f) => TEXT_FILE.test(f))) {
-  const rel = slashed(relative(BOOK, f));
-  if (rel.startsWith('dancingsquared_book/')) continue; // generated from the sources checked here
+for (const f of walk(REPO, WALK_SKIP).filter((f) => TEXT_FILE.test(f))) {
+  const rel = slashed(relative(REPO, f));
+  if (SKIP_FILE.has(rel)) continue; // a generated extract, not this repo's text - see SKIP_FILE
+  if (rel.startsWith('book/dancingsquared_book/')) continue; // generated from the sources checked here
   const text = markdown.get(f) ?? readFileSync(f, 'utf8');
   if (text.includes(MOJIBAKE_ALLOW)) continue;
   for (const m of text.matchAll(new RegExp(MOJIBAKE, 'g'))) {

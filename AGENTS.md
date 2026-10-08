@@ -1,5 +1,7 @@
 # AGENTS.md — how to change this repo
 
+<!-- mojibake-check:allow — §8 trap 1 quotes the corruption on purpose, as its signature. -->
+
 **What this file is.** The durable rules for working here: the loop, the gates, the house style, and the
 traps that have already cost hours. It is deliberately **not** the state of the work — that is `PLAN.md` §2
 (the scoreboard) and `HANDOVER.md` (the orientation a session regenerates). A rule here should still be
@@ -97,6 +99,11 @@ Rules that go with the table:
   gate before assuming the fix is wrong.
 - **A census that fails for a knowingly-stale artefact trains people to skip it.** Report the divergence;
   keep the rules about the engine.
+- **The text-encoding gate is repo-wide.** `npm run check:book`'s item 7 walks every `.md`/`.ts`/`.mjs`/
+  `.json`/`.html`/`.css`/`.txt` file in the repo — skipping vendored, generated and cached trees — for text
+  that has been round-tripped through a single-byte encoding, and it takes seconds. Run it after touching
+  any prose or code containing a non-ASCII character. A file whose SUBJECT is that corruption opts out with
+  an in-file `mojibake-check:allow` sentinel, never by a name hidden in a list.
 - **Do not add a gate whose fix is in another commit** (§0).
 
 ---

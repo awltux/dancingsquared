@@ -187,5 +187,53 @@ console.log('\n== (5) a facing couple pairs; a wave does not ==');
     `an Ocean Waves board yields no couple (got ${findCouplePairs(ow).length}) - the front-on test`);
 }
 
+// ---- (6) the couple READINGS --------------------------------------------------------------------
+//
+// `Couple #N` has to name the pair standing together NOW - and it has to reach the derivation at all.
+// `selectionGroup` maps every `Couple #N` spelling to the `couples` key, so a resolver that lets the
+// generic group branch go first answers the whole key and returns ALL FOUR couples. MEASURED before
+// this was fixed, on exactly the witness below: `Couple #1` resolved to `[1,2,3,4,5,6,7,8]`.
+//
+// The home reading is the negative control, and it is not a straw man - it is what the stored field
+// says: on this board the home couples are `c1=[5,6]` and `c3=[1,2]`, while the pairs actually
+// standing together are `c1=[5,2]` and `c3=[6,1]` (#2 has adopted boy #5's number, #6 boy #1's).
+// So each check below fails BOTH on the shipped bug (all eight) and on "just read `d.couple`".
+console.log('\n== (6) `Couple #N` names the pair standing together; `Heads` still names the heads ==');
+{
+  const start = seq.boardForFormation('Static Square');
+  const r = seq.applyToBoard(start, 'Square Thru 2');
+  check(r.legal, `the partner-change witness applies (${r.reason ?? 'ok'})`);
+  if (r.legal) {
+    const b = r.board;
+    const ids = (sel) => seq.selectionIds(b, sel);
+    const fmt = (a) => (a === null ? 'null' : `[${a.join(',')}]`);
+    console.log(`  home couples c1=[5,6] c3=[1,2]   standing pairs c1=[5,2] c3=[6,1]`);
+    console.log(`  Couple #1 -> ${fmt(ids('Couple #1'))}   Couple #3 -> ${fmt(ids('Couple #3'))}`);
+    check(JSON.stringify(ids('Couple #1')) === '[2,5]',
+      `Couple #1 is boy #5 and the girl beside him, not his home partner (got ${fmt(ids('Couple #1'))})`);
+    check(JSON.stringify(ids('Couple #3')) === '[1,6]',
+      `Couple #3 is boy #1 and the girl beside him, not his home partner (got ${fmt(ids('Couple #3'))})`);
+    check(JSON.stringify(ids('Couple #1 and #2')) === '[2,3,4,5]',
+      `Couple #1 and #2 is the union of the two standing pairs (got ${fmt(ids('Couple #1 and #2'))})`);
+    // HEADS/SIDES ARE AN IDENTITY AND DO NOT FOLLOW THE PARTNERS: the girl's home number is her memory
+    // of the couple she STARTED in, which is exactly what these two must keep reading.
+    check(JSON.stringify(ids('Heads')) === '[1,2,5,6]',
+      `Heads is still the HOME head couples after the partner change (got ${fmt(ids('Heads'))})`);
+    check(JSON.stringify(ids('Sides')) === '[3,4,7,8]',
+      `and Sides is still the home side couples (got ${fmt(ids('Sides'))})`);
+    // THE NAMES REACH THE PANEL, which reads them off `subsetGroups` for the line and the picker.
+    const groups = seq.subsetGroups(b);
+    check(groups.includes('Couple #1') && groups.includes('Couple #4'),
+      `all four Couple #N are offered on this board (got ${groups.filter((g) => g.startsWith('Couple')).join(', ') || 'none'})`);
+    check(!groups.includes('Couples'),
+      '`Couples` is NOT offered - all four is the whole board, which is not a proper subset');
+    // AND NOTHING IS INVENTED WHERE THERE IS NO IDENTITY. `Normal Lines` carries no home couples, so
+    // there is no boy number to take; an empty answer is reported as null, not as an invented pair.
+    const nl = seq.boardForFormation('Normal Lines');
+    check(seq.selectionIds(nl, 'Couple #1') === null,
+      'a board with no home identity resolves Couple #1 to null rather than inventing one');
+  }
+}
+
 console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}`);
 process.exit(failures === 0 ? 0 : 1);

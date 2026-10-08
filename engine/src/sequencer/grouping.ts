@@ -28,16 +28,22 @@ export class Grouping {
     const ds = board.dancers.filter((d) => !d.isGhost);
     const byId = new Map(ds.map((d) => [d.id, d]));
     const sortIds = (arr: SeqDancer[]): number[] => arr.map((d) => d.id).sort((a, b) => a - b);
-    const couples = (coupleNos: number[]): number[][] =>
+    // THE HOME-COUPLE groups, keyed on `SeqDancer.couple`. That field is the IDENTITY anchor and is the
+    // right answer for `heads`/`sides`, which name who a dancer IS rather than who they are standing
+    // with: a head couple stays "the heads" wherever it has moved to. `couples.ts` keeps the two
+    // notions apart on purpose - see `coupleGroups` for the other one.
+    const homeCouples = (coupleNos: number[]): number[][] =>
       coupleNos.map((c) => sortIds(ds.filter((d) => d.couple === c))).filter((s) => s.length > 0);
 
     switch (group) {
-      case 'heads': return couples([1, 3]);
-      case 'sides': return couples([2, 4]);
+      case 'heads': return homeCouples([1, 3]);
+      case 'sides': return homeCouples([2, 4]);
       case 'boys': case 'men': return [sortIds(ds.filter((d) => d.gender === 'boy'))];
       case 'girls': case 'women': case 'ladies': return [sortIds(ds.filter((d) => d.gender === 'girl'))];
       case 'all': case 'everybody': case 'everyone': return [sortIds(ds)];
-      case 'couples': return couples([1, 2, 3, 4]);
+      // NOT `homeCouples`: "Couples" asks who is standing as a couple NOW, which is a different
+      // question with a different answer the moment partners change. See `coupleGroups`.
+      case 'couples': return this.coupleGroups(board, [1, 2, 3, 4]);
       // Centers/Ends of two 4-dancer lines (or columns): the middle two and the
       // outer two of *each* line, giving 4 dancers per group. Callerlab "Centers
       // Pass Thru" from Facing Lines moves all four inner dancers; the previous
@@ -79,6 +85,25 @@ export class Grouping {
     const n = normalizeSelection(selection);
     const group = selectionGroup(n);
 
+    // COUPLE #N COMES FIRST, BEFORE the generic group branch below. `selectionGroup` maps every one of
+    // these spellings to the `couples` key, so that branch answers them with ALL FOUR couples rather
+    // than the one that was asked for - and the two parametric branches that used to sit further down
+    // this method were UNREACHABLE for exactly that reason. MEASURED on a squared set after
+    // `Square Thru 2`, both ways: keyed on the stored field instead, `Couple #1` answered `#5+#6` (the
+    // HOME pair, who after the call face each other across the set); with this block absent,
+    // `Couple #1` answered all eight dancers.
+    const coupleIds = (numbers: number[]): number[] | null => {
+      const ids = this.coupleGroups(board, numbers).flat().sort((a, b) => a - b);
+      // NULL RATHER THAN `[]` WHEN THE COUPLES ASKED FOR ARE NOT ON THE BOARD: an empty answer means
+      // "unresolvable here", and `subsetOf` promises callers ONE signal for that rather than a mix of
+      // null, [] and [[]].
+      return ids.length ? ids : null;
+    };
+    const coupleMatch = /^couple #(\d+)$/.exec(n) || /^those in couple #(\d+) spot$/.exec(n);
+    if (coupleMatch) return coupleIds([+coupleMatch[1]]);
+    const couplePair = /^couple #(\d+) and #(\d+)$/.exec(n);
+    if (couplePair) return coupleIds([+couplePair[1], +couplePair[2]]);
+
     if (group && group !== 'same4' && group !== 'headposition' && group !== 'sideposition' &&
         group !== 'verycenters' && group !== 'outside6' && group !== 'boys-girl-right' &&
         group !== 'gender-count') {
@@ -107,18 +132,6 @@ export class Grouping {
       const centers = this.subsetOf(board, 'verycenters');
       const centerIds = centers ? new Set(centers.flat()) : new Set<number>();
       return ds.filter((d) => !centerIds.has(d.id)).map((d) => d.id).sort((a, b) => a - b);
-    }
-
-    // Couple #N (specific couple(s)).
-    const coupleMatch = /^couple #(\d+)$/.exec(n) || /^those in couple #(\d+) spot$/.exec(n);
-    if (coupleMatch) {
-      const c = +coupleMatch[1];
-      return sortIds(ds.filter((d) => d.couple === c));
-    }
-    const couplePair = /^couple #(\d+) and #(\d+)$/.exec(n);
-    if (couplePair) {
-      const a = +couplePair[1], b = +couplePair[2];
-      return sortIds(ds.filter((d) => d.couple === a || d.couple === b));
     }
 
     // N boys/girls have partner on a side — approximate by gender + position.
@@ -165,6 +178,39 @@ export class Grouping {
     }
     if (negative.size === 0) return [...positive].sort((a, b) => a - b);
     return [...positive].filter((id) => !negative.has(id)).sort((a, b) => a - b);
+  }
+
+  /**
+   * The dancer ids standing as the couples numbered `numbers`, grouped one array per number.
+   *
+   * THE NUMBER IS THE BOY'S AND THE PAIR IS HIS CURRENT ONE. `SeqDancer.couple` is the HOME couple -
+   * assigned once from the start formation and never changed - so it is the wrong answer here the
+   * moment partners change, and the girl's copy of it is her memory of the couple she STARTED in,
+   * which is what `Heads`/`Sides`/FASR want and what this deliberately does not use.
+   *
+   * MEASURED, and why this exists: after `Square Thru 2` from a squared set the home couples are
+   * `c1=[5,6] c2=[3,4] c3=[1,2] c4=[7,8]` while the pairs actually standing together are
+   * `c1=[5,2] c3=[6,1]` - the girl `#2` (home couple 3) has adopted boy `#5`'s number 1, and `#6` boy
+   * `#1`'s number 3. Reading the stored field alone would have named `#5+#6`, who after the call FACE
+   * each other across the set rather than standing as a couple. And the resolver answered `Couple #1`
+   * with ALL EIGHT dancers, because the name never reached the parametric branch at all.
+   * `couples.ts` owns the current-partnership derivation; this only groups by it.
+   *
+   * A dancer the derivation pairs with nobody keeps its home number (see `currentCoupleNumbers`), so a
+   * board where no pairing is recognised reads exactly as the home couples did.
+   */
+  private coupleGroups(board: Board, numbers: number[]): number[][] {
+    const current = currentCoupleNumbers(board);
+    const ds = board.dancers.filter((d) => !d.isGhost);
+    const out: number[][] = [];
+    for (const n of numbers) {
+      const ids = ds
+        .filter((d) => (current.get(d.id) ?? d.couple) === n)
+        .map((d) => d.id)
+        .sort((a, b) => a - b);
+      if (ids.length) out.push(ids);
+    }
+    return out;
   }
 
   /** Positional role within each couple: the dancer on the LEFT relative to the

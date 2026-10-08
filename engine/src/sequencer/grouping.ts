@@ -236,14 +236,33 @@ export class Grouping {
       const pair = ds.filter((d) => coupleNoOf(d) === c);
       if (pair.length !== 2) continue;
       const [a, b] = pair;
-      // Left direction in the dancer's frame: rotate heading 90deg CW.
-      const h = a.heading;
-      const leftX = Math.sin(h);
-      const leftY = -Math.cos(h);
-      // Which of a,b lies to the left of the other.
-      const va = { x: a.x - b.x, y: a.y - b.y };
-      const cross = va.x * leftY - va.y * leftX;
-      const beau = cross >= 0 ? a : b;
+      // WHICH OF THE TWO IS ON THE COUPLE'S LEFT — a PROJECTION onto the left direction, NOT a cross
+      // product. THE CROSS PRODUCT WAS STRUCTURALLY ZERO: the two dancers of a couple stand side by
+      // side, so the vector between them is parallel to the lateral axis, and the `left` vector is that
+      // same axis — the cross product of two parallel vectors is zero, so the test carried NO geometric
+      // information and its sign was decided by floating-point residue. MEASURED on a Static Square, the
+      // four couples gave cross = -1.22e-16, +2.45e-16, +1.22e-16 and 0.00, every one of them at
+      // 180.00 degrees to the `left` vector, so `cross >= 0 ? a : b` fell through to the board's ARRAY
+      // ORDER and picked a dancer by position in the array. Over the 187 boards reached from a squared
+      // set, 227 of the 680 SIDE-BY-SIDE pairs got the wrong dancer (33%) — reverted and measured, which
+      // is the control `engine/test/couples.mjs` §7 keeps.
+      //
+      // THE RULE IS THE REFERENCE'S A-1 DEFINITION — "dancers with partner on the right are Beaus"
+      // (`taminations-flutter/assets/info/designators.md`) — so the beau is the dancer on the couple's
+      // LEFT, and a projection onto that direction is the test that answers it directly.
+      //
+      // LEFT IS THE HEADING ROTATED 90 DEGREES COUNTER-CLOCKWISE, (-sin h, cos h) in this y-up frame.
+      // The previous code rotated CLOCKWISE and called the result left, which is the RIGHT direction; it
+      // was invisible only because the degenerate test ignored the sign anyway.
+      //
+      // A pair standing FRONT-TO-BACK — a facing couple, or a tandem, where the partner is straight in
+      // FRONT or BEHIND — projects to exactly 0 and has no left/right partner at all. It keeps the
+      // pair's order: that designation is undefined there rather than merely wrong, and this does not
+      // invent one. (`findCouplePairs`'s side-by-side pass admits a co-facing tandem at 2.0 as a
+      // "couple", so this case is reachable, not theoretical: 68 of the 748 pairs in that sweep.)
+      const leftX = -Math.sin(a.heading);
+      const leftY = Math.cos(a.heading);
+      const beau = (a.x - b.x) * leftX + (a.y - b.y) * leftY >= 0 ? a : b;
       const belle = beau === a ? b : a;
       out.push(role === 'beaus' ? beau.id : belle.id);
     }

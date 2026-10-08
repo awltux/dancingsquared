@@ -18,6 +18,11 @@
 // each couple rotates 180 degrees about its OWN centre, so it never splits a home couple and would
 // have proved nothing.
 //
+// COST: §6 and §7 together add ~4.7 s (of ~5 s total). §7's sweep applies every catalogue title from a
+// squared set - 2207 titles - to reach the 187 boards that carry four identified couples. It stays in
+// the `light` tier because ONE board cannot pin the beau/belle defect: a squared set exposes a single
+// flipped couple where the sweep exposes 227.
+//
 // Usage: node engine/test/couples.mjs
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -233,6 +238,77 @@ console.log('\n== (6) `Couple #N` names the pair standing together; `Heads` stil
     check(seq.selectionIds(nl, 'Couple #1') === null,
       'a board with no home identity resolves Couple #1 to null rather than inventing one');
   }
+}
+
+// ---- (7) BEAUS AND BELLES: the dancer on the couple's LEFT ---------------------------------------
+//
+// REPORTED: "Beaus and Bells seem to select the wrong dancers in half the set."
+//
+// THE RULE IS THE A-1 DEFINITION - "dancers with partner on the right are Beaus"
+// (`taminations-flutter/assets/info/designators.md`) - so the BEAU is the dancer on the couple's LEFT.
+//
+// WHAT WAS WRONG, AND WHY THE OLD TEST COULD NOT WORK: it took a CROSS PRODUCT of the vector between
+// the two dancers against the `left` vector. Those two are PARALLEL whenever the pair stands side by
+// side - the offset between them IS the lateral axis, and `left` is that same axis - so the cross
+// product is structurally ZERO and the sign came from floating-point residue. MEASURED on the squared
+// set below, the four couples gave cross = -1.22e-16, +2.45e-16, +1.22e-16 and 0.00, every one of them
+// at 180.00 degrees to `left`, so the decision fell through to `cross >= 0 ? a : b`, which is the
+// pair's position in the BOARD ARRAY. Reverted and re-measured over the 187 boards swept below: 227 of
+// the 680 SIDE-BY-SIDE pairs (33%) got the wrong dancer. The fix projects the offset onto the left
+// direction instead.
+//
+// WHICH CHECK CATCHES IT: the FIRST one. The old rule put `#2` in Beaus and `#1` in Belles here, so
+// `beaus === [1,3,5,7]` fails on it. The partition and count checks do NOT catch it - the old rule still
+// returned four dancers and still partitioned the eight - which is why the sweep below asserts the
+// side, not the count.
+console.log('\n== (7) Beaus/Belles: the dancer on the couple\'s left, over every board danced to ==');
+{
+  const home = seq.boardForFormation('Static Square');
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const beaus = seq.selectionIds(home, 'Beaus');
+  const belles = seq.selectionIds(home, 'Belles');
+  console.log(`  squared set beaus=[${beaus}] belles=[${belles}]`);
+  check(same(beaus, [1, 3, 5, 7]), `every boy on a squared set is a BEAU (got [${beaus}])`);
+  check(same(belles, [2, 4, 6, 8]), `every girl on a squared set is a BELLE (got [${belles}])`);
+
+  // THE SWEEP IS THE REAL TEST. The squared set exposes exactly ONE flipped couple; the old rule was
+  // wrong on 33% of the side-by-side pairs across the boards below, so a single board cannot pin it.
+  //
+  // TRUTH IS INDEPENDENT OF THE ENGINE'S ARITHMETIC: LEFT is the boy's heading rotated +90 degrees
+  // COUNTER-clockwise in this y-up frame, and a SIDE-BY-SIDE pair is one whose boy sits ~1.0 to the
+  // side of the pair's midpoint. A pair standing FRONT-TO-BACK (a facing pair, or a tandem) projects to
+  // 0 and has no left/right partner at all, so it is skipped rather than asserted either way.
+  let boards = 0, sidePairs = 0, wrong = 0;
+  const bad = [];
+  for (const title of callsByTitle(assets).map((c) => c.name)) {
+    let r;
+    try { r = seq.applyToBoard(home, title); } catch { continue; }
+    if (!r || !r.legal || !r.board) continue;
+    const found = findCouplePairs(r.board);
+    if (found.length !== 4) continue; // only the boards where all four couples are identified
+    const ids = seq.selectionIds(r.board, 'Beaus');
+    if (!ids || !ids.length) continue;
+    boards++;
+    const asBeau = new Set(ids);
+    for (const { boy, girl } of found) {
+      const lx = -Math.sin(boy.heading), ly = Math.cos(boy.heading);
+      const mx = (boy.x + girl.x) / 2, my = (boy.y + girl.y) / 2;
+      const proj = (boy.x - mx) * lx + (boy.y - my) * ly;
+      if (Math.abs(proj) <= 0.5) continue; // front-to-back: no left/right partner exists
+      sidePairs++;
+      const truth = proj > 0 ? boy.id : girl.id;
+      const engineBeau = asBeau.has(boy.id) ? boy.id : asBeau.has(girl.id) ? girl.id : null;
+      if (engineBeau !== truth) {
+        wrong++;
+        if (bad.length < 5) bad.push(`${title}: ${boy.id}+${girl.id} (engine #${engineBeau}, is #${truth})`);
+      }
+    }
+  }
+  console.log(`  swept ${boards} board(s) with four identified couples, ${sidePairs} side-by-side pair(s)`);
+  check(boards > 100 && sidePairs > 400,
+    `the sweep is not vacuous: ${boards} board(s) and ${sidePairs} side-by-side pair(s) were measured`);
+  check(wrong === 0,
+    `no side-by-side pair gets the wrong beau on any board reached from a squared set (${wrong} of ${sidePairs}${bad.length ? ' - ' + bad.join('; ') : ''})`);
 }
 
 console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}`);

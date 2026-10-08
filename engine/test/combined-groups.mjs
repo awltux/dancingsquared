@@ -51,8 +51,14 @@ const CASES = [
   // The phrase that used to return ALL FOUR heads, because it was a phrase mapping to `heads`.
   ['Head Ladies', '#2,#6'],
   ['Side Ladies', '#4,#8'],
-  ['Head Beaus', '#2,#5'],
-  ['Head Belles', '#1,#6'],
+  // ON A SQUARED SET THE BEAUS *ARE* THE BOYS. The rule is the A-1 definition - "dancers with partner
+  // on the right are Beaus" (`taminations-flutter/assets/info/designators.md`) - and in a squared set
+  // every boy has his partner on his right. These two cases USED TO PIN `#2,#5` / `#1,#6`, one boy and
+  // one girl each, which was the DEGENERATE beau/belle test's answer: it crossed two parallel vectors,
+  // so the sign fell through to the board's array order. See `couples.mjs` §7 for the measurement and
+  // the reverted control.
+  ['Head Beaus', '#1,#5'],
+  ['Head Belles', '#2,#6'],
 ];
 for (const [sel, want] of CASES) {
   const got = ids(home, sel);

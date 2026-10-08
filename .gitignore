@@ -23,8 +23,14 @@ logs/
 # test/tools/extract-pdf-text.mjs. Regenerated on demand, and not ours to redistribute by default.
 callerlab-ms.txt
 
-# The FSM view document, emitted for a real browser by poc/tools/emit-fsm-view.mjs (not source).
-poc/tools/_fsm-view*.html
+# PROBE SCRATCH: a `_` prefix means "not source" in `poc/tools`, which is also the convention
+# `verify-probes.mjs` uses to skip `_*.mjs`. This covers the FSM view document `emit-fsm-view.mjs` writes
+# for a real browser, the screenshots taken while checking the UI by hand, and any other one-off capture -
+# all of it re-made on demand, and none of it input to a gate or to a build. The rule is the DIRECTORY-WIDE
+# prefix rather than a line per artefact, because a line per artefact is how the next capture gets swept in
+# by `git add -A`: three screenshots (195 + 94 + 64 KB) had been committed that way, and `book/HANDOVER.md`
+# records them as untracked, which is what this restores.
+poc/tools/_*
 
 # A probe's stdout captured to a file so it can be read (PowerShell's `>` writes UTF-16, which the
 # read tool refuses, so these are re-captured through Out-File -Encoding utf8). Never source.

@@ -184,7 +184,7 @@ console.log('\n=== P16a WORK ORDER: the first unnamed board over all 188 figures
 const ranked = [...corpusSuspect.entries()].sort((a, b) => b[1].length - a[1].length);
 console.log(`  ${String(corpusClean).padStart(3)} of ${data.figures.length} figures walk their whole chain with every board named`);
 console.log(`  ${String(ranked.reduce((s, [, v]) => s + v.length, 0)).padStart(3)} figures are POISONED by a body somewhere in the chain, by first offender:`);
-for (const [call, figs] of ranked) console.log(`      ${String(figs.length).padStart(3)}  after ${call.padEnd(24)} ${figs.slice(0, 8).join(' ')}${figs.length > 8 ? ' â€¦' : ''}`);
+for (const [call, figs] of ranked) console.log(`      ${String(figs.length).padStart(3)}  after ${call.padEnd(24)} ${figs.slice(0, 8).join(' ')}${figs.length > 8 ? ' …' : ''}`);
 
 console.log('\n=== the SETUP GAP cases (these are the ones a setup can fix) ===');
 for (const r of gaps) console.log(`  ${r.fig}  ${r.call.padEnd(24)} ${r.verdict.padEnd(20)} ${r.known.padEnd(22)} ${r.detail}`);

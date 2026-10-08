@@ -66,7 +66,7 @@ export function decodeStats(lines) {
   return { total: lines.length, decoded, undecoded, firstFail, allOcc };
 }
 
-/** `token(count) token(count) â€¦`, most frequent first, ties broken by token so a report is
+/** `token(count) token(count) …`, most frequent first, ties broken by token so a report is
  * stable between runs. */
 export function formatRanking(counts, limit) {
   return [...counts.entries()]

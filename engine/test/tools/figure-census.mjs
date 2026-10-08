@@ -117,7 +117,7 @@ for (const target of ['Swing Your Partner', 'Promenade', 'Trade', 'Swing Thru', 
     const key = String(r.failed.reason).replace(/\d+(\.\d+)?/g, 'N').slice(0, 110);
     reasons.set(key, (reasons.get(key) ?? 0) + 1);
   }
-  console.log(`  ${target} â€” ${rs.length} figure(s):`);
+  console.log(`  ${target} — ${rs.length} figure(s):`);
   for (const [k, n] of [...reasons.entries()].sort((a, b) => b[1] - a[1])) {
     console.log(`      ${String(n).padStart(3)}  ${k}`);
   }

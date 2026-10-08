@@ -1165,7 +1165,7 @@ export class CallApplicator {
     rebase: boolean,
     matchTol: number,
   ): (ApplyResult & { error: number }) | null {
-    // Every authored variant, `sequencer="no"` ones included ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â see
+    // Every authored variant, `sequencer="no"` ones included — see
     // CallLibrary.matchableVariants for the measurement that keeps this unfiltered.
     const variants = this.library.matchableVariants(callName);
     if (variants.length === 0) return null;
@@ -1368,7 +1368,7 @@ export class CallApplicator {
    *     four-dancer SUBSET matches at 0.000.
    *   - `Slide Thru`, `Recycle` and others reached on boards with no recognised formation.
    *
-   * `square-dancing.md` Ãƒâ€šÃ‚Â§7.5 is explicit that "a call acts on everyone it applies to", so applying
+   * `square-dancing.md` §7.5 is explicit that "a call acts on everyone it applies to", so applying
    * to the boxes that qualify and leaving the rest is the documented reading rather than a
    * loosening. It is also STRICTLY ADDITIVE here: `parallelApply` tries `partition` first and only
    * falls back to this, so a board that tiles today behaves exactly as before, and this can only

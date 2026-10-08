@@ -146,6 +146,12 @@ export class SequencerController implements SequencerUI {
   private all8ExportBtn = el<HTMLButtonElement>('seqAll8Export');
   private all8InfoEl = el<HTMLSpanElement>('seqAll8Info');
   private subsetInfoEl = el<HTMLDivElement>('seqSubsetInfo');
+  /**
+   * THE SUBSETS THE CALLER HAS LIT UP, by the name the engine resolves them with. A SET rather than one
+   * name, because "Subsets present" lists several and the question it answers is "who are these dancers?" -
+   * so pressing two entries shows the union, and pressing one twice puts it out again.
+   */
+  private litSubsets = new Set<string>();
   private formationNames: string[] = [];
 
   // State.
@@ -453,11 +459,45 @@ export class SequencerController implements SequencerUI {
       return;
     }
     const groups = this.seq.subsetGroups(this.seq.board);
+    // A SUBSET THAT NO LONGER RESOLVES LOSES ITS LIGHT, because the panel must not go on claiming a
+    // highlight for a group the board has moved out of - the name can survive a board change while the
+    // dancers it meant do not.
+    for (const n of [...this.litSubsets]) if (!groups.includes(n)) this.litSubsets.delete(n);
     this.subsetInfoEl.innerHTML = filterNote
       ? filterNote
       : (groups.length
-        ? `Subsets present: <b>${groups.join(' · ')}</b>.`
+        ? 'Subsets present: ' + groups.map((g) => this.subsetLink(g)).join(' · ') + '.'
         : 'No dancer subsets resolve on this board (whole-board calls only).');
+  }
+
+  /** ONE SUBSET AS A LINK, lit while it is showing. See `applySubsetMarks` for what pressing it does. */
+  private subsetLink(name: string): string {
+    const on = this.litSubsets.has(name);
+    return (
+      `<button type="button" class="subset-link${on ? ' on' : ''}" data-subset="${esc(name)}" ` +
+      `title="${on ? 'Stop showing' : 'Show'} these dancers on the board">${esc(name)}</button>`
+    );
+  }
+
+  /**
+   * LIGHT THE DANCERS THE CHOSEN SUBSETS CLAIM, with the SAME ring the call editor draws around an edit's
+   * selection (`DancerView.setSelected`: an amber circle on the floor, and NOT tied to whether the bodies
+   * are drawn).
+   *
+   * THE SEQUENCER'S OWN VIEWS rather than the browse view's. `CallBrowser.setSelection` marks ITS dancers,
+   * and in this mode those are not the ones on screen - routing the highlight through the browser would
+   * set state on an invisible board and draw nothing. The sequencer already holds a `DancerView` per
+   * dancer, so a lit subset is one call on each of them and the two modes stay identical by construction.
+   *
+   * THE IDS COME FROM THE ENGINE. `selectionIds` is the engine's own answer to "which dancers does this
+   * selection claim", and an engine id is NOT an array position (`boardFromMatchables` stamps `id: i + 1`
+   * for a board with no home identity), so the way back to a view is the board's own `id`.
+   */
+  private applySubsetMarks() {
+    const board = this.seq.board;
+    const lit = new Set<number>();
+    for (const name of this.litSubsets) for (const id of this.seq.selectionIds(board, name) ?? []) lit.add(id);
+    board.dancers.forEach((d, i) => this.views[i]?.setSelected(lit.has(d.id)));
   }
 
   private loadModules() {
@@ -801,6 +841,9 @@ export class SequencerController implements SequencerUI {
       this.stage.scene.add(m);
     }
     this.lastTraceKey = '';
+    // A REBUILD MAKES FRESH VIEWS, so any lit subset is re-applied here or the rings vanish with the old
+    // ones. The names are re-resolved against the board that just arrived - see `applySubsetMarks`.
+    this.applySubsetMarks();
     this.viewKey = SequencerController.viewKeyOf(board);
   }
 
@@ -2221,6 +2264,19 @@ export class SequencerController implements SequencerUI {
     });
     this.levelSelect.addEventListener('change', () => this.rebuildSeq());
     this.marginInput.addEventListener('input', () => this.applyMargin());
+    // THE SUBSET LINKS. DELEGATED, because the line is re-rendered on every board change and per-link
+    // listeners would have to be re-attached each time (and leaked whenever that was forgotten). A second
+    // press takes the subset back out, which is the whole interaction: press to see who they are, press
+    // again to stop seeing it.
+    this.subsetInfoEl.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement | null)?.closest<HTMLButtonElement>('button[data-subset]');
+      const name = btn?.dataset.subset;
+      if (!name) return;
+      if (this.litSubsets.has(name)) this.litSubsets.delete(name);
+      else this.litSubsets.add(name);
+      this.applySubsetMarks();
+      this.renderSubsetInfo();
+    });
     this.playBtn.addEventListener('click', () => this.togglePlay());
     this.stepBackBtn.addEventListener('click', () => this.nudgePlayhead(-1));
     this.stepFwdBtn.addEventListener('click', () => this.nudgePlayhead(1));

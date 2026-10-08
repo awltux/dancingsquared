@@ -344,6 +344,19 @@ html, body {
 /* THE SESSION LINE: Level scopes everything below it, and the board chip says where the sequence is
    standing. Both are READ-ONLY state, so they sit on one line above the composer rather than in a row of
    their own. */
+/* THE SUBSET LINKS: the names in the composer's hint line, each one a press that rings those dancers on the
+   floor. A LINK rather than a button, so the line still reads as the sentence it is - the panel's own text
+   colour with a dotted underline - and `.on` takes the blue this panel already uses for "a state the user
+   entered", which is exactly what a lit subset is. */
+#seqSubsetInfo .subset-link {
+  font: inherit; color: var(--text); background: none; border: 0; padding: 0 1px; cursor: pointer;
+  text-decoration: underline dotted; text-underline-offset: 2px;
+}
+#seqSubsetInfo .subset-link:hover { color: #4d9fff; }
+#seqSubsetInfo .subset-link.on {
+  color: var(--text); background: rgba(77, 159, 255, 0.22); border-radius: 4px; text-decoration: none;
+  box-shadow: inset 0 0 0 1px #4d9fff;
+}
 #seqPanel .seq-session { margin-bottom: 6px; }
 #seqPanel .seq-chip {
   font-size: 11px; color: var(--dim); text-align: right; white-space: nowrap; overflow: hidden;

@@ -7,7 +7,7 @@ left off. There is no need to maintain it — it is completely regenerated when 
 
 1. `README.md` — the workspace in five lines.
 2. **`AGENTS.md`** — THE RULES: the change loop, the gate matrix, the code and test standards, security, and
-   the trap list. It is new this session and it is the authority for *how to work*; do not duplicate it here.
+   the trap list. It is the authority for *how to work*; do not duplicate it here.
 3. **this file** — the orientation: §1 the map, §2 what is measured, §3 how to work, §4 the live threads,
    §5 decisions, §6 traps, §7 the next steps.
 4. `PLAN.md` — the state: §2 the scoreboard, **§3 what is refuted**, §5 what is blocked. Read §3 before
@@ -18,13 +18,18 @@ left off. There is no need to maintain it — it is completely regenerated when 
 Numbers below are facts about a **closed measurement** or about an authority, and each names the command
 that produced it.
 
+> **A WARNING ABOUT THE PREVIOUS REVISION OF THIS FILE.** Its §4.1 sent the session after "nine subset names
+> that are never offered" and gave two hypotheses and a "smoking gun" for it. **All three were refuted by
+> measurement** — see §4.1. If a future §4.1 reads like a confident causal story with no command behind it,
+> re-measure it first. This is the second recorded case of that file being wrong about its own live thread.
+
 ---
 
 ## 1. What the repo is
 
 | Path | What it is |
 |---|---|
-| `engine/` | **The thing under test.** TypeScript library. `src/sequencer/` holds matcher, applicator, legality, solver, analyser, FSM, alignment, `grouping.ts` + `selection.ts` (the dancer-selection vocabulary). |
+| `engine/` | **The thing under test.** TypeScript library. `src/sequencer/` holds matcher, applicator, legality, solver, analyser, FSM, alignment, `grouping.ts` + `selection.ts` (the dancer-selection vocabulary), `couples.ts` (who is whose partner NOW). |
 | `poc/` | Three.js app **and the canonical corpus** (`src/assets/`). Sequencer panel (`src/sequencer-ui.ts`), call editor, FSM view, browse view. Probes in `tools/*-probe.mjs`. |
 | `poc-teacher/` | Teacher / session-tracker app. |
 | `poc-matrix/` | Earlier matrix experiments. **No gate.** |
@@ -32,7 +37,7 @@ that produced it.
 | `modules/`, `sequences/` | The ceder corpus, tracked. |
 | `docs/` | The CALLERLAB PDF and downloaded pages — an oracle **outside git**. |
 | `taminations-flutter/` | **Reference only** — read, never port. |
-| `book/` | The published book + its tools. **`book/tools/check-links.mjs` item 7 is now the REPO-WIDE text-corruption gate.** |
+| `book/` | The published book + its tools. **`book/tools/check-links.mjs` item 7 is the REPO-WIDE text-corruption gate.** |
 | `AGENTS.md` | The rules. `HANDOVER.md` (this file) + `PLAN.md` are the pair: orientation and state. |
 
 ## 2. Where it stands — measured, each with its command
@@ -40,18 +45,20 @@ that produced it.
 | Entry point | State |
 |---|---|
 | `npx tsc -p poc --noEmit` | **clean** (exit 0) |
-| `node poc/tools/verify-probes.mjs` | **47 probes, 13 failed** (full run ≈ 11 min). The 13 are the long-standing twelve (`clone-refusal`, `connect-assign`, `coords-gate`, `editor-level`, `facing-end-drag`, `facing-handle`, `formation-ref`, `formation-size`, `move-beats`, `run-circle`, `start-facing`, `wysiwyg-path`) **plus `radial-arc-fit`** |
-| `radial-arc-fit-probe.mjs` alone | **PASSES with `poc/src/assets` stashed to HEAD** and fails with the in-flight corpus edits present — the pending corpus work is what turned it red |
-| `node poc/verify.cjs` | **exit 1.** Crashes in `selectTam` for `title: 'Circle Left', formation: 'Static Square'`; identical with `poc/src/assets` stashed, so it is pre-existing and NOT the pending corpus work |
-| `npm run verify:light --prefix engine` | 27 harnesses, 114.8 s, **FAILED at `catalogue`** (3 checks). PROVEN pre-existing by stashing the changed files: identical 5 FAIL lines and "3 CHECK(S) FAILED" both ways |
-| `node book/tools/check-links.mjs` | **GREEN** — 109 pages, links/anchors/coverage pass, and the widened item 7 |
-| `npm run check:book` | **exit 1** at `make-animations.mjs --check`: `DRIFT animations-index.json`. Not the changed files (`make-animations` reads none of them — the only name match under `book/tools` is a comment) and unchanged with the assets stashed: `engine/dist` was rebuilt to match HEAD's engine source while the committed index came from the older build. **Do not regenerate it while the corpus is mid-edit** |
-| `npm run build -w dancing-squared-poc` | works, ~25 s → `poc/dist` |
+| `node engine/test/couples.mjs` | **ALL CHECKS PASSED**, ~4.7 s |
+| `node engine/test/combined-groups.mjs` | **ALL CHECKS PASSED**, ~2.5 s |
+| `node poc/tools/verify-probes.mjs` | **47 probes, 13 failed** — the long-standing twelve (`clone-refusal`, `connect-assign`, `coords-gate`, `editor-level`, `facing-end-drag`, `facing-handle`, `formation-ref`, `formation-size`, `move-beats`, `run-circle`, `start-facing`, `wysiwyg-path`) **plus `radial-arc-fit`**. UNCHANGED by this session's engine work |
+| `npm run verify:light --prefix engine` | **FAILED at catalogue (exit 1)** — 27 of 45 harnesses, ~117 s. **PROVEN pre-existing**: a run against `b4452f1` gives the identical **50 `FAIL` lines**, the identical four-five section counts (`3,1,7,1,4,5,3`), and the same verdict. Nothing in it is caused by this session |
+| `npm run verify --prefix engine` (the `all` tier) | **not green, and was not before** — `shape-census`, `reading-census`, `fsm-asset`, `anim-convergence`, `cell-census`, `level-census`, `arrangement-picker` and more are red. Much of it is driven by the in-flight corpus below |
+| `node poc/verify.cjs` | **exit 1.** Crashes in `selectTam` for `Circle Left` / `Static Square`; pre-existing |
+| `node book/tools/check-links.mjs` | **GREEN** — the repo-wide text-corruption gate |
+| `npm run check:book` | **exit 1** at `make-animations.mjs --check`: `DRIFT animations-index.json`. `engine/dist` was rebuilt while the committed index came from an older build. **Do not regenerate it while the corpus is mid-edit** |
 
-**`git status` carries four files that are NOT mine and must not be committed:** `poc/src/assets/formations.xml`,
-`poc/src/assets/ms/dosado.xml`, `poc/src/assets/ms/promenade.xml`, `poc/src/assets/ms/swing.xml` (the user's
-in-flight corpus work). Also untracked by design: `docs/`, `poc/pnpm-lock.yaml`, `poc/pnpm-workspace.yaml`,
-`poc/tools/guard-exclusions-broken.md`.
+**`git status` carries four files that are NOT the session's and must not be committed:**
+`poc/src/assets/formations.xml`, `poc/src/assets/ms/dosado.xml`, `poc/src/assets/ms/promenade.xml`,
+`poc/src/assets/ms/swing.xml` (the user's in-flight corpus work — it is what makes `shape-census` red).
+Also untracked by design: `docs/`, `poc/pnpm-lock.yaml`, `poc/pnpm-workspace.yaml`,
+`poc/tools/guard-exclusions-broken.md`, `verify*.log`, `poc/tools/_*.mjs`.
 
 ## 3. How to work here
 
@@ -60,95 +67,94 @@ npm run build --prefix engine                 # tsc, from the REPO ROOT
 npm run verify:light --prefix engine          # the fast subset while iterating
 npm run verify --prefix engine                # the whole engine gate: PRE-COMMIT, background
 npx tsc -p poc --noEmit                       # the POC typecheck
+node engine/test/couples.mjs                  # the couple/partner/role rules (~5 s)
 node poc/verify.cjs                           # headless POC checks (red, above)
 node poc/tools/verify-probes.mjs              # the POC probes (~11 min)
 node poc/tools/<name>-probe.mjs               # one probe
 node book/tools/check-links.mjs               # the text-corruption gate, seconds
 ```
 
-**THE UI CAN BE OBSERVED — the sandbox is `danger-full-access` now, and this was used to good effect.**
-The recipe is in the old handover and it works: `npm run build -w dancing-squared-poc`, serve `poc/dist`
-from a few lines of `node:http` (**not** `vite preview`, which spawns esbuild), then
-`PLAYWRIGHT_BROWSERS_PATH=<repo>/.pw-browsers` and `chromium.launch({ args: ['--no-sandbox',
-'--enable-unsafe-swiftshader'] })`. Playwright and chromium 1243 are already installed. Screenshots come
-back readable.
+**THE UI CAN BE OBSERVED.** Build `poc/dist`, serve it from a few lines of `node:http` (**not**
+`vite preview`, which spawns esbuild), then chromium with `--no-sandbox --enable-unsafe-swiftshader`.
+This session used the harness's own browser rather than Playwright and it worked; screenshots come back
+readable. Two things about the panel to know before driving it: the **formation picker lives in a collapsed
+`<details>`** (open it first), and typing in the **Filter replaces the subset line** and stops the Call
+select populating.
 
 ## 4. The live threads
 
-### 4.1 THE SUBSET LIGHTS, and the group vocabulary (this session's main thread)
+### 4.1 THE COUPLE VOCABULARY — DONE, and the previous §4.1 was wrong
 
-**Reported:** "'Subsets present' entries should be links that use the dancer highlight circles from Call
-Editor … Pressing a second time disables the highlighted dancers." Then: "Drop the Men, Women and Ladies
-links as these are represented by Boy and Girl." Then: "Can you add leaders, trailers and other unique
-groups and ids" — answered **(a) the ones already listed, (b) only lights on board**.
+The previous revision said nine subset names were never offered, blamed a missing `couples` switch arm
+and a `number[][]` misread, and called `Leaders` on a Completed Double Pass Thru its "smoking gun".
 
-**DONE AND VERIFIED IN A BROWSER** (four commits, `c4a08eb`, `ea78dd8`, `8b7c933`, `ba7b170`):
+**Refuted, by measurement, in a browser as well as in the engine:**
 
-- each name in the composer line is a link; pressing it rings those dancers with the CALL EDITOR's ring
-  (`DancerView.setSelected`), a second press takes them out; a SET, so several can be lit at once;
-- **the ring is a SCENE CHILD** (`DancerView.selectionRing`), NOT part of `v.group` — so `rebuildViews` must
-  `scene.add` it by hand, exactly as `browser.ts:529/548` does. That was the "I don't see the rings" fault:
-  `setSelected(true)` was setting `visible` on an object that was never in the scene;
-- the ring is gated on `active` alone, **not** on `use2d` — the sequencer OPENS in 2D, so a ring wired to the
-  avatar/track gate is invisible exactly when it is wanted;
-- **OBSERVED**: the line offers `Heads · Sides · Boys · Girls · Beaus · Belles`; pressing HEADS draws four
-  rings on the floor (top and bottom pairs, none on the sides) in the 2D view; canvas 82,721 bytes before,
-  89,692 with the rings up, 83,030 after the second press. The Who picker still lists its 28 groups including
-  Men/Women/Ladies.
+- **`Centers`, `Ends`, `Leaders`, `Trailers` were always offered where they exist.** On Completed Double
+  Pass Thru the line reads `Boys · Girls · Centers · Ends · Leaders · Trailers` — `Leaders` resolves to
+  `[1,2,5,6]`. On Two-Faced Lines the line offers **ten** names including `Centers · Ends · Leaders ·
+  Trailers`. The "six, never anything else" was the **Static Square** reading (the panel's opening board)
+  generalised to thirteen boards.
+- The `couples` switch arm **exists**; it was the bug, not its absence.
+- `keepProperSubsets` **cannot** misread a `number[][]`: `resolveSelection` flattens before it sees one.
 
-**OPEN — the nine names that are never offered.** `Sequencer.subsetGroups` (`engine/src/sequencer/sequencer.ts`
-~767) asks for 18 names: the six above plus `Centers`, `Ends`, `Couples`, `Leaders`, `Trailers`,
-`Couple #1`–`#4`, and filters them through `keepProperSubsets(board)` (non-empty, not-everyone, on this
-board). MEASURED in the running app across **13 boards** from the panel's own picker — Ocean Waves, Alamo
-Wave, Two-Faced Lines, 3/4 Tag, Eight Chain Thru, Completed Double Pass Thru, "3 and 1 lines #1", Columns,
-Static Square and more — **not one offered anything beyond the six**.
+**THE ONE REAL DEFECT was `Couple #N`, and it is fixed** (`0c769aa`). `selectionGroup` maps every
+`Couple #N` spelling to the `couples` key, so the generic group branch answered it with **all four couples**
+and the two parametric branches below it were dead code. MEASURED on a squared set after `Square Thru 2`:
+`Couple #1 -> [1,2,3,4,5,6,7,8]`; now `Couple #1 -> [2,5]`, `Couple #3 -> [1,6]`. The reading now goes
+through `Grouping.coupleGroups` and `couples.ts`, so a couple is **the Boy and his current Girl partner** —
+the stored `SeqDancer.couple` is the Girl's memory of her ORIGINAL couple, which `Heads`/`Sides`/FASR keep
+reading and which is the wrong answer for "who is a couple now".
 
-RULED OUT: the names are spelled correctly and recognised. `selection.ts`'s `SELECTION_GROUP` maps
-`'centers'`, `'ends'`, `'couples'`, `'leaders'`, `'trailers'` (plus singular aliases) and `COUPLE_RE =
-/^couple #(\d+)$/` matches `Couple #N`.
+**`Beaus`/`Belles` were also wrong, and reported by the user mid-session** (`ceaf632`). The test crossed the
+vector between two dancers with a `left` vector — and those two are **parallel** for a side-by-side pair, so
+the cross product was **structurally zero** and the sign came from floating-point residue, falling through
+to the board's ARRAY ORDER. MEASURED: `cross` = -1.22e-16 / +2.45e-16 / +1.22e-16 / 0.00 on the squared
+set's four couples, every one at 180.00°; **227 of 680 side-by-side pairs (33%) named the wrong dancer**
+over 187 boards. Now a projection onto the true left: **0 of 680**. See §6 trap 1 — that lesson
+generalises.
 
-TWO REMAINING CANDIDATES:
+### 4.2 The in-flight corpus, and what it makes red
 
-1. **`couples` may have no switch arm.** `grouping.ts`'s switch was read as `centers/ends`, `verycenters`,
-   `beaus/belles`, `leaders/trailers`, `default: return null` — no `case 'couples'` was seen. Confirm the
-   head of that switch.
-2. **`centers`/`ends`/`leaders`/`trailers` are arrangement-gated** by `splitLine(board)` and
-   `leadersTrailers(ds, role)` — and the SMOKING GUN is that `grouping.ts:222` documents its own measured
-   case as "`Leaders Trade` from a Completed Double Pass Thru", yet `Leaders` was not offered on exactly that
-   board. Either those preconditions are stricter than the boards tried, or `keepProperSubsets` drops the
-   answer. A shape hypothesis worth testing first: `leadersTrailers` returns `number[][]` (a LIST of groups)
-   where the others return `number[]`, and `keepProperSubsets` compares `ids.length` against the board size.
+`poc/src/assets/formations.xml`, `ms/dosado.xml`, `ms/promenade.xml`, `ms/swing.xml` are mid-edit and
+belong to the user. They are the reason `shape-census` reports `5498 tams authored at ...` against a
+pinned `wanted` list, and the reason `radial-arc-fit-probe.mjs` fails. `HANDOVER.md` §2 and every doc
+number that counts tams/formations is therefore **stale by an unknown amount** until that work lands.
+Do not commit them; do not "fix" a census that fails because of them.
 
-**THE NEXT COMMAND (do this first):** a throwaway probe that builds a `Sequencer`, loads Completed Double
-Pass Thru / Alamo Wave / Two-Faced Lines, and prints `this.grouping.resolveSelection(board, name)` **raw** for
-all 18 names — `null` vs `[]` vs ids. That separates "unresolvable here" (arrangement) from "resolved but
-dropped" (`keepProperSubsets`). `engine/test/couples.mjs` and `poc/tools/clone-refusal-probe.mjs` have the
-shortest preambles for building a board (`new engine.Sequencer(movesXml, formationsXml, callsByTitle(assets))`).
+### 4.3 OPEN — should `Leaders`/`Trailers` resolve at all on a board with no lines?
 
-**THE DOMAIN RULE, from the user, verbatim in substance:** the couple id is carried by the **Boy and his
-current Girl partner**. The Girl keeps a memory of her **original** couple — to check whether original couples
-are back together after a tip, how far round they are, or whether the board is in FASR sequence — **but for
-this purpose we need the Boy and his current Girl partner.** The engine already implements exactly that:
-`engine/test/couples.mjs` pins "a couple is a boy and a girl standing as a couple (2.0 apart, co-facing), the
-couple's NUMBER is the boy's, and a girl adopts the number of the boy she is beside", with `SeqDancer.couple`
-being the **HOME** couple ("assigned once … never changed"), and a geometry-only board staying
-`UNKNOWN_COUPLE` rather than acquiring a number from an index. So `Couples`/`Couple #N` lights must come from
-`couples.ts`'s board derivation, **never** from the stored home field — that field is the wrong answer the
-moment anyone changes partners.
+`leadersTrailers` marks **every dancer a trailer** on a Static Square. MEASURED: every dancer has
+`frontcount 1, backcount 0` (the facing counterpart across the set is directly in line), so `Trailers`
+resolves to all eight, `Leaders` to none, and `combinedGroups` offers **`Trailer Boys` / `Trailer Girls`**
+on a board with no lines.
 
-**SCOPE, decided by the user:** lights on the board only. The vocabulary the ENGINE accepts must not be
-widened for calls — the resolver is shared with matching, so a name that stops resolving changes what may be
-applied. The same reasoning is why the Men/Women/Ladies filter is a **display filter** in the panel
-(`SYNONYM_SUBSETS`) and nowhere else. And: "All of these terms will be needed in the sequencer at some point
-as they are valid identities and roles" — keep them first-class names, not panel-local strings.
+**It is the REFERENCE'S OWN answer, not a transcription slip** — its `isInFrontOf` is purely angular
+(`taminations-flutter/lib/dancer.dart`, no distance bound; `extensions.dart` defaults `delta` to 0.1, which
+is the tolerance the engine uses) and the parity test is `call_context.dart:1681-1684` verbatim. But
+**CALLERLAB defines leader/trailer inside a TANDEM**, and this repo takes CALLERLAB as the authority for
+definitions — so by that authority neither should resolve on a squared set. `PLAN.md` records no decision.
+Changing it moves a resolver shared with matching. **This is the next deliberate decision**; the
+measurement and both citations are in the `leadersTrailers` doc comment.
 
-### 4.2 The shape / symmetry thread, and the FSM reading thread
+### 4.4 RECORDED, NOT FIXED — two measurements that justify leaving things alone
 
-Unchanged this session. `PLAN.md` §2 is the scoreboard and §4.2 of the previous revision records the
-ordering constraint for the FSM work: the namer must refuse a π-off/tied board, `legalWithResults` must admit
-an unnamed end, `buildFsmTable` must close over those ends, and **then** `poc/src/assets/fsm-ms.json` is
-regenerated with the gate that fails when the asset no longer matches a rebuild. Do not regenerate a
-generated artefact while the thing it encodes is being adjudicated.
+Both are in the source next to the rule they are about (`1f8d8d7`), so they are not re-litigated:
+
+- **`findCouplePairs` admits a co-facing TANDEM as a couple** (its side-by-side pass tests only distance
+  and heading). MEASURED: 680 side-by-side, 30 facing, **38 tandems on 12 boards** — and **0 of 38
+  renumber a girl off her home couple**, so it is inert for the couple number. Left alone: a tandem really
+  is "who is your partner", and only the ROLE readings need left/right.
+- **`Beaus`/`Belles` on a pair standing FRONT-TO-BACK** keeps the pair's order, because the projection is
+  exactly 0. That designation is **undefined** there, not wrong, and this does not invent one.
+
+### 4.5 The shape / symmetry thread, and the FSM reading thread
+
+Unchanged. `PLAN.md` §2 is the scoreboard and its §4.2 records the ordering constraint for the FSM work:
+the namer must refuse a π-off/tied board, `legalWithResults` must admit an unnamed end, `buildFsmTable`
+must close over those ends, and **then** `poc/src/assets/fsm-ms.json` is regenerated with the gate that
+fails when the asset no longer matches a rebuild. Do not regenerate a generated artefact while the thing it
+encodes is being adjudicated.
 
 ## 5. Decisions already made — do not relitigate without new evidence
 
@@ -159,72 +165,75 @@ a two-dancer pair is authored with both dancers and `asymmetric="true"`; `format
 symmetry; an exported tam declares the whole set it wrote — **in EMBED mode only**; a board that matches
 nothing must be refused, not named; `KNOWN_FORMATION_MAX`'s binding tolerance is `maxError / 12`, not 6.0;
 `DEFAULT_MATCH_MAX = 1.5` interactive vs `SEARCH_MATCH_MAX = 6.0` search; All8 is the authority over
-Taminations for notation and FASR, CALLERLAB over All8 for definitions.
+Taminations for notation and FASR, **CALLERLAB over All8 for definitions**.
 
-**New this session:**
+**From the couple-vocabulary session:**
 
-- **The text-corruption gate is REPO-WIDE** (`book/tools/check-links.mjs` item 7), with an in-file
-  `mojibake-check:allow` sentinel for a file whose SUBJECT is the corruption. The pattern stays narrow on
-  purpose: a general CP1252 round-trip test cries wolf (`poc/README.md`'s "(0.2x–20x)" zoom range decodes
-  cleanly to Hebrew).
-- **A call's export names the setup it starts from** — `formation="<name>"` and no `<formation>` element when
-  the name describes the call; the half-set rule completes the named formation at EVERY authored size (a
-  2-dancer formation plays as 4), and the name chain consults `call.formation`.
-- **The subset-line synonym filter is display-only.** Men/Women/Ladies are the same dancers as Boys/Girls, but
-  the engine keeps them because calls name them ("Ladies Chain").
+- **The couple id is the Boy's and the pair is his CURRENT Girl partner** (`couples.ts`). The Girl's stored
+  `SeqDancer.couple` is her memory of her original couple — for tip-end checks, how far round she is, FASR
+  sequence — and is NOT the answer for "who is a couple now".
+- **`Heads`/`Sides` are an IDENTITY and key on the stored home couple**; `Couples`/`Couple #N` are a
+  CURRENT reading. They deliberately disagree after a partner change, and `coupleGroups` vs the renamed
+  `homeCouples` is where that lives.
+- **A name that resolves to everyone is not a proper subset.** `Couples` is therefore correctly absent
+  from `subsetGroups` on an eight-dancer board while `Couple #N` are present.
+- **The A-1 beau/belle rule is "partner on the right", i.e. the dancer on the couple's LEFT** — the
+  reference's own definition. A front-to-back pair has no left/right partner and is undefined.
+- **The subset-line synonym filter (Men/Women/Ladies) is DISPLAY-ONLY.** The engine keeps them because
+  calls name them ("Ladies Chain").
 - **The selection ring is a scene child**, gated on `active`, shown in BOTH views.
-- **The couple id for anything "now" is the boy's + his current girl's** (`couples.ts`), not
-  `SeqDancer.couple`.
 
 ## 6. Traps that have already bitten
 
-1. **A source-level probe can be green while the feature draws NOTHING.** Every check passed for the subset
-   ring while `visible` was being set on an object never added to the scene. **Run the UI.**
-2. **`git stash push -- <path>` with an UNTRACKED path fails and stashes NOTHING**, printing only a
-   "did not match any file(s) known to git" line — so a "before" measurement silently runs the "after" tree.
-   Check `git stash list` after stashing, or stash tracked paths only.
-3. **The formation picker lives in a collapsed `<details>`**, and a `<select>` inside a closed one is not
-   visible to Playwright: open it (`el.closest('details').open = true`) before `selectOption`.
-4. **Two copies of one table drift.** `applyView` and `setActive` each carried the per-view visibility; the
-   ring gate had to go in both. It is now ONE method (`applyViewVisibility`) and the probe COUNTS the copies.
-5. **`write`/`edit` intermittently fail with `ReplaceFileW EIO (Win32 32)`** — pause ~2 s and retry the
-   identical edit; it is not a bad match.
-6. **A gate can pin a defect.** `run-circle-probe` asserted the MOJIBAKE form of a string the source had
-   right, so the check could never pass; and a probe can assert "no such loop remains" where the unified
-   method legitimately contains one. Read the gate before assuming the fix is wrong.
-7. **Read BYTES, not the console.** `Get-Content` decodes UTF-8 as windows-1252 and invents corruption in
-   every file containing an em dash. Use `git grep` or a byte count.
-8. **CRLF.** The app's `.ts`/`.html` are CRLF in the working tree, so a multi-line literal match in a probe
-   needs `.replace(/\r\n/g, '\n')` — including for reads of `engine/src`.
-9. **Piped stdio is refused under the file sandbox** (`spawnSync git EPERM`) — a probe must not shell out;
-   and PowerShell's `>` writes UTF-16 while `Out-File -Encoding utf8` does not.
-10. **`... | Select-Object -First N` can make a successful command report exit 1.**
-11. **Select a tam by `from`/`formation`, never by index; register calls by TITLE, not file basename.**
-12. **An engine id is NOT an array position** — `boardFromMatchables` stamps `id: i + 1` for a board with no
-    home identity. Map back through the board's own `id`.
-13. **`parallel.groups` holds dancer OBJECTS, not ids.**
-14. **`knownFormation` will name a board that matches nothing**, and on a tie the winner is library scan
+1. **A TEST CAN BE STRUCTURALLY DEGENERATE AND STILL LOOK RIGHT.** The beau/belle test crossed the vector
+   between two dancers with the lateral axis — two PARALLEL vectors, so the cross product was **identically
+   zero** and the sign came from rounding noise, falling through to array order. It read as a plausible
+   geometric test and was wrong on 33% of pairs. **When a test compares two vectors, ask whether they can
+   be parallel by construction** — and check `angle(u,v)` is near 90°, not 0 or 180.
+2. **`npm run build --prefix engine` FROM INSIDE `poc/` RESOLVES TO `poc/engine` AND FAILS ENOENT** — and
+   because the error is at the end of a piped command it is easy to miss, so the next command silently
+   measures the OLD `dist`. I lost a measurement to this. Run it from the repo root and read the exit.
+3. **REBUILDING `dist` WHILE A SUITE RUNS INVALIDATES THE WHOLE RUN** (AGENTS.md says so; I did it anyway).
+   The harnesses then test different builds, and the results are worthless rather than merely stale.
+4. **`verify-suite`'s terminal verdict names only ONE failing harness** — `FAILED at catalogue` tells you
+   nothing about the other failing sections. To attribute anything, capture the run to a log and **diff the
+   `FAIL` lines** against a baseline run on the previous commit.
+5. **A gate can pin a defect.** `combined-groups.mjs` pinned `Head Beaus -> #2,#5` — one boy and one girl —
+   which was the degenerate rule's answer. Read the gate, then fix it *in the same commit* as the code.
+6. **`git checkout -- <file>` restores CRLF**, so a multi-line literal match must normalise line endings.
+7. **Under the file sandbox a Node child spawned with piped stdio fails with `EPERM`** (esbuild/vite). The
+   browser/Playwright recipe and `npm run build -w dancing-squared-poc` need wider access; escalate after
+   the real denial, once.
+8. **`... | Select-Object -First N` can make a successful command report exit 1.**
+9. **A position into an authored list is not an identity.** Select a tam by `from`/`formation`, never by
+   index. Register calls by **title**, not file basename.
+10. **`knownFormation` will name a board that matches nothing**, and on a tie the winner is library scan
     order; `recognize` refuses the same board.
-15. **A generated artefact with no gate goes stale silently** — and must not be regenerated while its subject
-    is being adjudicated (the animations index, the FSM asset).
-16. **The corpus XML in the tree is the user's in-flight work.** Never commit it, and remember it changes
-    probe results (`radial-arc-fit`).
-17. **A fabricated number in a doc is a defect.** `0.419` was invented as an illustration in `AGENTS.md` and
-    had to be removed; `config.now` and "`strict` is on in every package" were the same class of error.
+11. **`boardSig` is positions-only**; anything facing-dependent must key on the full pose.
+12. **`parallel.groups` holds dancer OBJECTS, not ids.**
+13. **`Sequencer.getout()`/`fixIt()` search the Sequencer's OWN board** — call `setBoard(board)` first.
+14. **A module's last flat step is often charged 0 beats** — identify the owner as the last step whose own
+    beats are non-zero.
+15. **The corpus XML in the tree is the user's in-flight work.** Never commit it, and remember it changes
+    probe results.
+16. **A fabricated number in a doc is a defect.** `AGENTS.md` §4.1 says so and it has happened here.
+17. **A confident causal story in `HANDOVER.md` with no command behind it is a defect** — the previous
+    revision's §4.1 was one, and it cost a session. Measure before you narrate.
+18. **The panel's Filter replaces the "Subsets present" line** (`renderSubsetInfo` returns early on a filter
+    note), and the Call select does not populate while a Filter is set. Screenshot-driving the subset links
+    means clearing the Filter first.
 
 ## 7. If you have one afternoon
 
 In the order the evidence supports:
 
-1. **The one measurement** in §4.1: print `resolveSelection` raw for the 18 names on Completed Double Pass
-   Thru, Alamo Wave and Two-Faced Lines. It costs one throwaway probe and it decides everything below.
-2. **Fix what it shows, lights only** — a missing `case 'couples'` arm and/or how `keepProperSubsets` reads a
-   `number[][]` answer. Do NOT widen what calls may be applied to.
-3. **Re-run the sweep in the browser** (Ends/Centers on two facing lines, Leaders/Trailers on a Completed
-   Double Pass Thru, Couples on a squared set), plus `npx tsc -p poc --noEmit` and
-   `node poc/tools/verify-probes.mjs` (baseline: 47 probes, the same 13).
-4. **Extend `poc/tools/subset-highlight-probe.mjs`** with the new checks and their negative controls, and
-   record the observation in its header the way the last three commits did.
-5. **Then `Couples`/`Couple #N`**, if the sequencer's board turns out to carry no couple identity: resolve
-   from `couples.ts`'s derivation — the boy's number and the girl beside him — and add a witness with a real
-   partner change, never `SeqDancer.couple`.
+1. **Take the `Leaders`/`Trailers` decision** in §4.3. It is measured, both authorities are cited, and
+   `PLAN.md` has no answer. Either record "faithful to the reference, leave it" as a decision, or bound the
+   front/back test to an actual tandem — and if you do the latter, measure what it moves: a probe over the
+   boards reached from a squared set, plus `verify:light`, since the resolver is shared with matching.
+2. **Add a probe for the front-to-back role case** if you touch `beauBelle` again: the sweep in
+   `couples.mjs` §7 skips front-to-back pairs deliberately, and 68 of 748 pairs are that shape.
+3. **Regenerate the stale numbers** once the corpus work lands: `shape-census`, the tam counts in the docs,
+   and `book`'s animations index (which must not be regenerated before then).
+4. **`poc/verify.cjs` is red** and has been for several sessions (the `selectTam` crash). Nobody has
+   attributed it.

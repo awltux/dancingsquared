@@ -152,6 +152,11 @@ export class SequencerController implements SequencerUI {
    * so pressing two entries shows the union, and pressing one twice puts it out again.
    */
   private litSubsets = new Set<string>();
+  /**
+   * The DANCER IDS those names resolve to, kept because `applyView` runs on every mode and tab change and
+   * has to gate the rings without re-resolving the selections - see `applySubsetMarks`.
+   */
+  private litIds = new Set<number>();
   private formationNames: string[] = [];
 
   // State.
@@ -495,9 +500,9 @@ export class SequencerController implements SequencerUI {
    */
   private applySubsetMarks() {
     const board = this.seq.board;
-    const lit = new Set<number>();
-    for (const name of this.litSubsets) for (const id of this.seq.selectionIds(board, name) ?? []) lit.add(id);
-    board.dancers.forEach((d, i) => this.views[i]?.setSelected(lit.has(d.id)));
+    this.litIds = new Set<number>();
+    for (const name of this.litSubsets) for (const id of this.seq.selectionIds(board, name) ?? []) this.litIds.add(id);
+    board.dancers.forEach((d, i) => this.views[i]?.setSelected(this.active && this.litIds.has(d.id)));
   }
 
   private loadModules() {
@@ -817,6 +822,12 @@ export class SequencerController implements SequencerUI {
     for (const v of this.views) {
       this.stage.scene.remove(v.group);
       this.stage.scene.remove(v.trail);
+      // THE RING IS A SCENE CHILD, not part of `group` - which is what lets it stay on the floor while the
+      // bodies are hidden (`DancerView.setSelected` says so at the field). So it is added and removed HERE,
+      // by hand, exactly as `browser.ts` does for the same view class: forgetting it is why the subset links
+      // lit up and drew nothing - `setSelected(true)` was setting `visible` on an object that was never in
+      // the scene.
+      this.stage.scene.remove(v.selectionRing);
     }
     for (const m of this.markers) this.stage.scene.remove(m);
     // DISPLAY-ONLY couple colour. A synthesised (Set) formation has no real home
@@ -834,6 +845,8 @@ export class SequencerController implements SequencerUI {
       v.group.visible = this.active && !this.use2d;
       this.stage.scene.add(v.group);
       this.stage.scene.add(v.trail);
+      // ...AND ITS RING, which is a scene child of its own - see the removal loop above.
+      this.stage.scene.add(v.selectionRing);
       v.trail.visible = this.active && !this.use2d;
     }
     for (const m of this.markers) {
@@ -889,21 +902,38 @@ export class SequencerController implements SequencerUI {
   /** Enforce the current 3D/2D view: switch the camera, toggle avatar vs flat
    * markers, and position markers at the (display-rotated) poses. */
   private applyView(poses?: Pose[]) {
+    this.stage.setView2D(this.active && this.use2d);
+    this.applyViewVisibility(poses);
+  }
+
+  /**
+   * WHAT EVERY VIEW SHOWS, given the mode and whether this panel is doing the showing - AND ONE COPY OF IT.
+   * The tab switch and `applyView` each used to carry their own copy of these lines, which is what made the
+   * subset links' ring gate want writing twice; two copies of a table is how a row drifts, and the ring row
+   * was already missing from one of them.
+   *
+   * The flat marker's POSITION is only set when the caller has poses to give: a tab switch has none, and a
+   * switch that parked every icon at the origin would flicker on its way to the render that follows.
+   */
+  private applyViewVisibility(poses?: Pose[]) {
     const show2d = this.active && this.use2d;
-    this.stage.setView2D(show2d);
     this.connectors.group.visible = this.active && !this.use2d;
     for (let i = 0; i < this.views.length; i++) {
       const v = this.views[i];
       v.group.visible = this.active && !this.use2d;
       v.trail.visible = this.active && !this.use2d;
+      // THE RING IS A MARK ON THE FLOOR, NOT A BODY. It is a scene child of its own (see `rebuildViews`), so
+      // it is NOT gated on the 3D/2D switch the way the avatar and the track are - the sequencer OPENS in 2D,
+      // and a highlight that only existed in 3D would look exactly like no highlight at all. It is gated on
+      // `active` alone, so another tab's board cannot be left wearing this panel's rings.
+      const ringId = this.seq.board.dancers[i]?.id;
+      v.selectionRing.visible = this.active && ringId !== undefined && this.litIds.has(ringId);
       const m = this.markers[i];
-      if (m) {
-        m.visible = show2d;
-        if (show2d && poses && poses[i]) {
-          const p = poses[i];
-          m.position.set(p.x, 0, -p.y);
-          m.rotation.y = p.heading;
-        }
+      if (!m) continue;
+      m.visible = show2d;
+      if (show2d && poses?.[i]) {
+        m.position.set(poses[i].x, 0, -poses[i].y);
+        m.rotation.y = poses[i].heading;
       }
     }
   }
@@ -2412,13 +2442,8 @@ export class SequencerController implements SequencerUI {
     // one on screen, and `main.ts` calls the browse view first so the editor's choice is in place
     // before this runs.
     if (a) this.stage.setView2D(this.use2d);
-    this.connectors.group.visible = this.active && !this.use2d;
-    for (let i = 0; i < this.views.length; i++) {
-      const v = this.views[i];
-      v.group.visible = this.active && !this.use2d;
-      v.trail.visible = this.active && !this.use2d;
-      if (this.markers[i]) this.markers[i].visible = this.active && this.use2d;
-    }
+    // ONE COPY OF WHAT A VIEW SHOWS - see `applyViewVisibility`, which this used to duplicate.
+    this.applyViewVisibility();
     if (this.active) {
       if (this.views.length !== this.seq.board.dancers.length) this.rebuildViews();
       this.syncAnimation();

@@ -72,8 +72,28 @@ check(/this\.subsetInfoEl\.addEventListener\('click'/.test(ui),
 console.log('\n== 3. the ring is the call editor\'s, drawn on the sequencer\'s own views ==');
 
 check(/private applySubsetMarks\(\)/.test(ui), 'one method applies the marks');
-check(/board\.dancers\.forEach\(\(d, i\) => this\.views\[i\]\?\.setSelected\(lit\.has\(d\.id\)\)\);/.test(ui),
+check(/board\.dancers\.forEach\(\(d, i\) => this\.views\[i\]\?\.setSelected\(this\.active && this\.litIds\.has\(d\.id\)\)\);/.test(ui),
   'every dancer is marked through `DancerView.setSelected` - the ring the Call Editor draws');
+// THE RING IS A SCENE CHILD, so it is added and removed BY HAND and the panel has to do both. This is the
+// fault that shipped: the mark was set (`visible = true`) on an object that was never in the scene, so the
+// links lit up and nothing appeared on the floor.
+check(/this\.stage\.scene\.remove\(v\.selectionRing\);/.test(ui), 'a rebuild REMOVES the ring with the views it belonged to');
+check(/this\.stage\.scene\.add\(v\.selectionRing\);/.test(ui), 'and ADDS the new one, without which `setSelected` marks nothing');
+// AND IT IS NOT GATED ON THE 3D/2D SWITCH: the sequencer OPENS in 2D, so a ring tied to the 3D view would be
+// invisible exactly when the report was filed.
+check(/v\.selectionRing\.visible = this\.active && ringId !== undefined && this\.litIds\.has\(ringId\);/.test(ui),
+  'the ring is gated on `active` alone, not on `use2d`, so it shows in the 2D view the panel opens in');
+check(!/v\.selectionRing\.visible = this\.active && !this\.use2d/.test(ui),
+  'and is NOT tied to the avatar/track gate, which is what would hide it in 2D');
+check(/private applyViewVisibility\(poses\?: Pose\[\]\)/.test(ui) && /this\.applyViewVisibility\(\);/.test(ui),
+  'the per-view visibility has ONE implementation, called by the tab switch as well as by `applyView`');
+{
+  // ONE COPY, counted rather than assumed - the unified method must contain the loop, so "there is no such
+  // loop" is not the assertion; "there is exactly one" is, and a second copy sent this gate red once already.
+  const loops = ui.match(/for \(let i = 0; i < this\.views\.length; i\+\+\) \{\n      const v = this\.views\[i\];\n      v\.group\.visible/g) ?? [];
+  check(loops.length === 1,
+    `the per-view visibility loop exists ONCE, in the method that owns it (found ${loops.length})`);
+}
 check(!/\browser\.setSelection\(/.test(ui),
   'and NOT through the browse view, whose dancers are not the ones on screen in this mode');
 check(/this\.seq\.selectionIds\(board, name\)/.test(ui),
@@ -111,9 +131,13 @@ console.log('\n== 6. the checks fail on the bugs they were written for ==');
   const noToggle = ui.replace("if (this.litSubsets.has(name)) this.litSubsets.delete(name);", 'this.litSubsets.add(name);');
   check(noToggle !== ui && !/this\.litSubsets\.has\(name\)\) this\.litSubsets\.delete\(name\);/.test(noToggle),
     'dropping the second-press branch fails the toggle check');
-  const browsed = ui.replace('this.views[i]?.setSelected(lit.has(d.id))', 'browser.setSelection([...lit], [])');
+  const browsed = ui.replace('this.views[i]?.setSelected(this.active && this.litIds.has(d.id))', 'browser.setSelection([...lit], [])');
   check(browsed !== ui && /browser\.setSelection/.test(browsed),
     'marking the browse view instead fails the check that keeps the ring on the dancers on screen');
+  // THE FAULT THAT SHIPPED, injected: the mark is set but the object is never put in the scene.
+  const orphaned = ui.replace('      this.stage.scene.add(v.selectionRing);\n', '');
+  check(orphaned !== ui && !/this\.stage\.scene\.add\(v\.selectionRing\);/.test(orphaned),
+    'leaving the ring out of the scene fails the check that it is added - the reported "no rings" fault');
   const noRebuild = ui.replace('    this.applySubsetMarks();\n    this.viewKey', '    this.viewKey');
   check(noRebuild !== ui && !/this\.applySubsetMarks\(\);\n    this\.viewKey/.test(noRebuild),
     'dropping the rebuild re-application fails the check that keeps the rings alive');

@@ -221,7 +221,11 @@ This codebase's comments are load-bearing and are the reason a stranger can chan
   GPL/AGPL. Do not relicense, do not copy code from `taminations-flutter/` into this repo, and keep
   attribution intact. `docs/` (the CALLERLAB PDF and downloaded pages) and the extracted
   `callerlab-ms.txt` are **deliberately untracked** because they are not ours to redistribute — never add
-  them, and never make a gate depend on a file that is not in git.
+  them. **One gate already depends on them, and that is the exception rather than the pattern:**
+  `callerlab-diff` (registered in the `all` tier) `readFileSync`s `callerlab-ms.txt` with no fallback, so
+  it throws rather than skipping when the file is absent, and the `all` tier cannot be green on a fresh
+  clone until `engine/test/tools/extract-pdf-text.mjs` has been re-run over `docs/`. Do not add a second
+  such dependency; a gate that can report a coverage gap is always better than one that cannot run.
 - **The sandbox is not the enemy of the work.** Escalate only after a real denial, with a one-line
   justification, for the exact command that was denied. Do not reach for wider access speculatively, and do
   not "work around" a denial by another route.

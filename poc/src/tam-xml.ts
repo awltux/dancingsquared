@@ -24,6 +24,7 @@ import formationsXmlText from './assets/formations.xml?raw';
 import { DEG, callToXmlNamed, canonicalName, parseFormations } from 'dancing-squared-engine';
 import type { CallBundle, FormDancer, Gender, Symmetry } from 'dancing-squared-engine';
 import { findUserFormation } from './formations';
+import { completeHalfSet } from './half-set';
 
 /** The corpus's own formations, parsed once. Keyed by name, holding the AUTHORED dancers in degrees. */
 let corpusFormations: Map<string, { x: number; y: number; angleDeg: number; gender?: Gender }[]> | null = null;
@@ -38,12 +39,19 @@ function corpusOf(name: string): { x: number; y: number; angleDeg: number; gende
 }
 
 /**
- * The 8-dancer poses a `formation="Name"` reference resolves to, or null when the corpus does not carry
- * that name.
+ * The poses a `formation="Name"` reference resolves to, or null when the corpus does not carry that name.
  *
- * MIRRORED TO EIGHT when the corpus authors four dancers, because that is what `buildCallImpl` does with
- * a four-dancer formation before pairing paths: a created call is always full-set, so the comparison has
- * to be against the shape the parser will actually build.
+ * COMPLETED BY THE CORPUS'S OWN HALF-SET RULE at whatever size the corpus authored, because that is what
+ * `buildCallImpl` does before pairing paths: the comparison has to be against the shape the parser will
+ * actually build, and the parser completes a written shape by rotating it 180 degrees about the origin
+ * whenever it is not already whole.
+ *
+ * IT USED TO COMPLETE ONLY THE 4-DANCER CASE - four was mirrored to eight and every other size was left as
+ * authored. MEASURED: `Facing Couples Far`, the setup `ms/promenade.xml`'s `Promenade Full to Home` names,
+ * is authored as TWO dancers, so the comparison was four built dancers against two posed ones and
+ * `startsFromFormation` refused on the size mismatch however exactly the shapes agreed. Every call starting
+ * from a two-dancer formation was therefore exported with its `<formation>` block written out - which is
+ * what "the export has no `formation` property" looks like from the editor.
  *
  * THAT SENTENCE USED TO BE FALSE AND THE REFERENCE IT JUSTIFIED WAS UNREADABLE. `buildCallImpl` paired paths
  * against the AUTHORED four and mirrored later, so a four-dancer formation carrying eight paths threw "Path
@@ -56,11 +64,7 @@ export function corpusFormationPoses(name: string): FormDancer[] | null {
   const authored = corpusOf(name);
   if (authored) {
     const asPoses = authored.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender }));
-    if (asPoses.length === 8) return asPoses;
-    if (asPoses.length === 4) {
-      return asPoses.concat(asPoses.map((p) => ({ x: -p.x, y: -p.y, heading: p.heading + Math.PI, gender: p.gender })));
-    }
-    return asPoses;
+    return completeHalfSet(asPoses);
   }
   // A USER FORMATION ONLY COUNTS ONCE THE CALLER HAS ADDED IT TO THE CORPUS - see the note above: a
   // reference to a shape that lives in one browser's storage is a call nobody else can load.
@@ -69,26 +73,8 @@ export function corpusFormationPoses(name: string): FormDancer[] | null {
   return null;
 }
 
-/**
- * THE CORPUS'S HALF-SET RULE, in the one place the POC applies it.
- *
- * A named formation is authored as HALF the set it represents: "2 dancers in xml is displayed as 4
- * dancers, 4 dancers in xml is displayed as 8 dancers" (`engine/src/sequencer/library.ts`,
- * `toWholeSet`). So the played shape is the written dancers plus the same dancers rotated 180 degrees
- * about the origin, which keeps their genders - unless the written shape ALREADY contains its own
- * antipodes, in which case it is the whole set however few it lists.
- *
- * MEASURED over `formations.xml` (`poc/tools/formation-size-probe.mjs`): **no entry of any size is
- * already whole** - all 274 complete by rotation - so the check below is inert on today's data and is
- * here because the rule is the engine's, not because a case needs it.
- */
-function completeHalfSet(poses: FormDancer[]): FormDancer[] {
-  const mirror = poses.map((p) => ({ x: -p.x, y: -p.y, heading: p.heading + Math.PI, gender: p.gender }));
-  const merged = poses.concat(mirror);
-  // COINCIDENT POINTS MEAN IT WAS ALREADY WHOLE, and doubling would stack two dancers on one spot.
-  const stacked = merged.some((a, i) => merged.some((b, j) => i !== j && Math.hypot(a.x - b.x, a.y - b.y) < 0.01));
-  return stacked ? poses : merged;
-}
+// The half-set rule itself now lives in `half-set.ts`, so that a probe can import it rather than restate
+// it: this module cannot be imported by anything but the bundler (it pulls `formations.xml?raw`).
 
 /**
  * EVERY NAMED FORMATION THE CORPUS CAN STAND UP AT A GIVEN SIZE, as start poses.
@@ -208,6 +194,14 @@ function sameArrangement(a: FormDancer[], b: FormDancer[]): boolean {
  * checkbox look as though it did something.
  */
 export function callTamXml(call: CallBundle, name?: string, symmetry?: Symmetry): string {
-  const label = name ?? (call.from || call.title);
+  // THE CALL'S OWN SETUP IS THE NAME TO USE, and `call.formation` is where the parser keeps it: the tam's
+  // `formation="Name"` attribute, carried through when the tam embedded no block of its own. It was missing
+  // from this chain, which is why an edited corpus call exported as `from=""` with its starting shape
+  // written out inline while the corpus's own tam named it.
+  //
+  // `||` RATHER THAN `??`, and that is the second half of the bug rather than a style choice: the app passes
+  // `this.instance.from`, which is the EMPTY STRING for exactly the tams that name their setup through the
+  // `formation` attribute, so `'' ?? x` is `''` and every fallback below it was dead.
+  const label = name || call.formation || call.from || call.title;
   return callToXmlNamed(call, label, corpusFormationPoses, symmetry ? { symmetry } : {});
 }

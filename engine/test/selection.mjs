@@ -989,28 +989,24 @@ console.log('\n== the SAME geometry, SIX authored pairings: an identity-blind ma
 
     // (3) the tail's OTHER half is now fixed, and this is where that is asserted. When this gate was
     // written no form of `Swing` applied from any of the six [B] boards, which made the tail an
-    // applicability gap independent of the pairing defect above. The derived Mainstream swing
-    // (Phase 9e-1) applies from all six, so what remains blocking the tail is the pairing defect
-    // alone - which is why the two are recorded as the two halves of one problem.
+    // applicability gap independent of the pairing defect above. A form of `Swing` applies from all
+    // six now, through the catalogue: `Swing Your Partner` is declared by the authored tams in
+    // `ms/swing.xml` and `Swing Your Corner` by its own, so what remains blocking the tail is the
+    // pairing defect alone - which is why the two are recorded as the two halves of one problem.
     const anySwing = ids.filter((id) => ['Swing', 'Swing Your Partner', 'Swing Your Corner'].some((c) => seq.applyToBoard(boards[id], c).legal));
     if (anySwing.length === ids.length) {
-      ok(`a Swing now applies from ALL SIX [B] boards (the partner swing is derived) - so the tail's remaining blocker is the pairing defect above, not Swing`);
+      ok(`a Swing now applies from ALL SIX [B] boards through the catalogue - so the tail's remaining blocker is the pairing defect above, not Swing`);
     } else {
       fail(`a Swing applies from only ${anySwing.join(',') || 'none'} of the six [B] boards - the tail is blocked on applicability again`);
     }
   }
 }
 
-console.log('\n== the Mainstream swing is DERIVED, because its authored motion is the IDENTITY ==');
-// Phase 9e-1. `Swing Your Partner` stops 65 of All8's 188 published figures at the end of a singing
-// call, and the catalogue authors it from `Facing Couples` alone - so the engine could not swing
-// from a squared set, the allemande-left pose, or any of the boards `--Sw&Pr` is actually reached
-// from. It is now a coded move whose precondition is the call's OWN definition ("you can only swing
-// your PARTNER if your partner is standing with you") and whose transform is the identity.
-//
-// The premise - that the authored motion IS the identity - was measured on the shipped tam before
-// the move was written: 0 of 8 dancers moved and 0 of 8 facings changed. The assertions below gate
-// the behaviour that premise buys, so a change that breaks it has to be deliberate.
+console.log('\n== `Swing Your Partner` is a catalogue call, declared by tams in `ms/swing.xml` ==');
+// The call is NOT a coded move, and this block no longer pretends otherwise. The engine used to
+// DERIVE it with an identity transform because the authored motion measured as one; that derivation
+// was removed once the owner began authoring explicit catalogue tams. What is kept here is only what
+// the CALL's own usability still means without it.
 {
   const faceOf = (h) => ((Math.round((h * 180) / Math.PI / 90) * 90 % 360) + 360) % 360;
   const delta = (a, b) => {
@@ -1022,164 +1018,17 @@ console.log('\n== the Mainstream swing is DERIVED, because its authored motion i
     return { moved, turned };
   };
 
-  // (1) it applies where it is really called, and is a no-op there. The boards used are All8's own
-  // alignments, NOT the engine's formation templates: a template carries no home identity
-  // (`couple=0`), and refusing there is CORRECT - "your partner" is a fact about identity, not
-  // about geometry - so a template would test the refusal, not the transform.
-  const fixture = JSON.parse(readFileSync(path.join(__dirname, 'fixtures', 'all8-getouts.json'), 'utf8'));
-  const swingBoards = { 'Static Square': seq.boardForFormation('Static Square') };
-  for (const id of ['B1c', 'B4c', 'L1p', 'W1p', 'F1p']) {
-    const a = (fixture.alignments ?? []).find((x) => x.id === id);
-    const s = a ? startBoardFor(seq, a) : { board: null };
-    if (s.board) swingBoards[id] = s.board;
-  }
-  const applied = [];
-  for (const [label, b] of Object.entries(swingBoards)) {
-    if (!b) continue;
-    const r = seq.applyToBoard(b, 'Swing Your Partner');
-    if (!r.legal) { fail(`Swing Your Partner refused from ${label} (${r.reason}) - the tail cannot be danced`); continue; }
-    const d = delta(b, r.board);
-    if (d.moved === 0 && d.turned === 0) applied.push(label);
-    else fail(`Swing Your Partner from ${label}: not the identity (moved=${d.moved} turned=${d.turned})`);
-  }
-  if (applied.length < 3) fail(`Swing Your Partner applied from only ${applied.length} identity-carrying boards - the derivation is not doing its job`);
-  else ok(`Swing Your Partner applies from ${applied.length} identity-carrying boards and is the IDENTITY on each (0 moved, 0 turned): ${applied.join(', ')}`);
-
-  // (1b) and it still refuses a board with no identity, exactly as Promenade does.
-  {
-    const tpl = seq.boardForFormation('Eight Chain Thru');
-    const r = seq.applyToBoard(tpl, 'Swing Your Partner');
-    if (r.legal) fail('Swing Your Partner applied to an identity-less formation template - "your partner" must be real data');
-    else ok(`an identity-less board refuses, as Promenade does: ${r.reason.slice(0, 60)}...`);
-  }
-
-  // (1c) AND IT IS NO LONGER A STILL PICTURE. The identity is the right NET - a swing really does end
-  // where it started - but motion read off the end board leaves NOTHING TO DRAW, which is the reported
-  // "the call animation does nothing" over nine counted beats. `CodedMove.swingMove` routes each current
-  // pair through a FULL TURN about its own midpoint instead. MEASURED before that routing existed, over
-  // all 8 dancers and 5 sampled frames: worst change 0.00e+0 units of position, 1.40e-14 degrees of
-  // heading.
-  //
-  // WHICH CHECK CATCHES IT, measured by reverting (`swingMove: true` deleted): the ANIMATES check turns
-  // red - "0 of 8 dancers move at halfway" - and the other TWO HERE STAY GREEN, because a still picture
-  // satisfies them trivially: they pin the NET and the RIGIDITY, which are exactly the properties the
-  // routing must not break rather than the motion it adds. The two checks in (1) do not catch it
-  // either, for the same reason - they only ever look at the end board.
-  {
-    const sq = seq.boardForFormation('Static Square');
-    const flat = seq.flatten(['Swing Your Partner']);
-    const total = seq.sequenceBeats(flat, sq);
-    const at = (t) => seq.evaluateSequence(flat, t, sq).board;
-    const movedAt = (t) =>
-      at(t).dancers.filter((d, i) => Math.hypot(d.x - sq.dancers[i].x, d.y - sq.dancers[i].y) > 1e-9).length;
-    const minSep = (b) => {
-      let m = Infinity;
-      for (let i = 0; i < b.dancers.length; i++)
-        for (let j = i + 1; j < b.dancers.length; j++)
-          m = Math.min(m, Math.hypot(b.dancers[i].x - b.dancers[j].x, b.dancers[i].y - b.dancers[j].y));
-      return m;
-    };
-    let travel = 0, worstMin = Infinity;
-    for (let i = 0; i <= 16; i++) {
-      const b = at((total * i) / 16);
-      for (let k = 0; k < sq.dancers.length; k++) {
-        travel = Math.max(travel, Math.hypot(b.dancers[k].x - sq.dancers[k].x, b.dancers[k].y - sq.dancers[k].y));
-      }
-      worstMin = Math.min(worstMin, minSep(b));
-    }
-    const half = total > 0 ? movedAt(total / 2) : 0;
-    if (!(total > 0)) fail('Swing Your Partner is charged no beats, so there is no timeline to animate over');
-    else if (!(half > 0)) fail(`Swing Your Partner does not animate: 0 of 8 dancers move at halfway (beats=${total})`);
-    else ok(`Swing Your Partner ANIMATES: ${half} of 8 dancers move at halfway, worst travel ${travel.toFixed(3)} units over ${total} beats`);
-    // AND IT STILL RETURNS TO THE IDENTITY, which is the whole reason the NET is not touched: the
-    // routing supplies the PATH only.
-    if (movedAt(total) !== 0) fail(`Swing Your Partner no longer ends where it started (${movedAt(total)} of 8 moved) - the routing must not change the net`);
-    else ok('and it still ends exactly where it started - the routing supplies the path, not the net');
-    // AND THE TURN CANNOT COLLAPSE A COUPLE: the two dancers stay DIAMETRICALLY OPPOSITE about the
-    // midpoint, so their separation is constant and no pair can be driven through another. This is the
-    // property that makes the routing safe to add at all.
-    if (worstMin < minSep(sq) - 1e-9) {
-      fail(`a swinging pair is NOT rigid: closest pair ${worstMin.toFixed(3)} is inside the start board's ${minSep(sq).toFixed(3)}`);
-    } else {
-      ok(`a swinging pair stays rigid: every frame's closest pair (${worstMin.toFixed(3)}) is no closer than the start board's (${minSep(sq).toFixed(3)})`);
-    }
-    // AND IT TURNS CLOCKWISE, WHICH IS CALLERLAB'S DIRECTION AND NOT A CONVENTION OF OURS: "rotate
-    // clockwise as a unit" (`taminations-flutter/assets/ms/swing.md:18-19`). Measured as the angle about
-    // the pair's midpoint DECREASING - a quarter of the way through, a dancer has swept a quarter turn
-    // clockwise. THE FIRST DRAFT USED THE EXCHANGE BRANCH'S "both dancers walk forward" RULE, which
-    // TIES for a co-facing couple (the partner is 180 degrees across the midpoint, so the two terms are
-    // `s` and `-s`) and its `>=` fallback silently settled on ANTI-clockwise. This check is what caught
-    // that; the three above cannot, because a wrong-way turn still animates, still ends on the identity
-    // and still keeps the pair rigid.
-    {
-      const d0 = sq.dancers[0];
-      const mate = sq.dancers.find((x) => x.id !== d0.id && x.couple === d0.couple);
-      const b0 = at(0), bq = at(total / 4);
-      const a0 = b0.dancers.find((x) => x.id === d0.id), p0 = b0.dancers.find((x) => x.id === mate.id);
-      const aq = bq.dancers.find((x) => x.id === d0.id), pq = bq.dancers.find((x) => x.id === mate.id);
-      const m0 = { x: (a0.x + p0.x) / 2, y: (a0.y + p0.y) / 2 };
-      const mq = { x: (aq.x + pq.x) / 2, y: (aq.y + pq.y) / 2 };
-      const ang0 = Math.atan2(a0.y - m0.y, a0.x - m0.x);
-      const angq = Math.atan2(aq.y - mq.y, aq.x - mq.x);
-      const sweep = Math.atan2(Math.sin(angq - ang0), Math.cos(angq - ang0));
-      if (Math.abs(sweep + Math.PI / 2) > 0.05) {
-        fail(`a swing must turn CLOCKWISE: a quarter of the way through, dancer #${d0.id} swept ${((sweep * 180) / Math.PI).toFixed(1)}deg about its partner, not -90deg`);
-      } else {
-        ok(`a swing turns CLOCKWISE, as CALLERLAB defines it: dancer #${d0.id} swept ${((sweep * 180) / Math.PI).toFixed(1)}deg of the first quarter`);
-      }
-    }
-    // (1d) THE END POSE IS DELIBERATELY STILL THE IDENTITY, and this is the check that says so rather
-    // than leaving it to be re-litigated. CALLERLAB pins the CONSTRAINT - the woman ends "facing the same
-    // direction as the man" - but leaves the ABSOLUTE DIRECTION to the caller: "The man leads the end of
-    // the swing at the proper time, so that the couple faces in the PROPER DIRECTION FOR THE NEXT CALL"
-    // (`taminations-flutter/assets/ms/swing.md:68-69`). A TRANSFORM THAT SEES ONLY THE BOARD CANNOT KNOW
-    // THE NEXT CALL, so preserving the man's current heading is all it can do - a choice the reference
-    // does not make. MEASURED over the 263 boards reached by one call from a squared set where the swing
-    // is legal: such a pose is the identity on 237, changes something on 26, and LOSES `Promenade` on
-    // NONE of those 26. So this is scope rather than doubt - headings feed the matcher, so what may be
-    // applied AFTER a swing is the measurement to take before landing it.
-    //
-    // `Walk Around the Corner` IS THE WITNESS: it is legal from a squared set, the swing is legal on it,
-    // and a board-only co-facing pose would turn four of the eight by 180 degrees there. LANDING SUCH A
-    // POSE TURNS THIS CHECK RED, which is the point - it has to be landed deliberately, with the
-    // measurement re-taken. (`Static Facing` cannot serve: it is a template with no home identity, so
-    // `swingProblem` refuses the call there and the pose is unreachable.)
-    {
-      const w = seq.applyToBoard(sq, 'Walk Around the Corner');
-      if (!w.legal) {
-        fail(`Walk Around the Corner is no longer legal from a squared set (${w.reason}) - the pose witness is gone`);
-      } else {
-        const r = seq.applyToBoard(w.board, 'Swing Your Partner');
-        if (!r.legal) {
-          fail(`Swing Your Partner refused from the Walk Around the Corner board (${r.reason})`);
-        } else {
-          const turned = w.board.dancers.filter((d, i) => faceOf(d.heading) !== faceOf(r.board.dancers[i].heading)).length;
-          const moved = w.board.dancers.filter((d, i) => Math.hypot(d.x - r.board.dancers[i].x, d.y - r.board.dancers[i].y) > 1e-9).length;
-          if (moved !== 0 || turned !== 0) {
-            fail(`the swing's end pose is no longer the identity on the Walk Around the Corner board (${moved} moved, ${turned} turned) - if that is deliberate, re-take the measurement above, which is why it was left alone`);
-          } else {
-            ok('the swing still ends where it started on the Walk Around the Corner board, where a board-only co-facing pose would turn 4 of the 8 - the end direction belongs to the NEXT call, not the board');
-          }
-        }
-      }
-    }
-  }
-
-  // (2) and it is OFFERED from a squared set, which is where a caller says it. This is the whole
-  // point: it used to refuse everywhere it is really called.
+  // (1) it is OFFERED from a squared set, which is where a caller says it. This is the whole point of
+  // keeping the check: the call has to be reachable through the catalogue from the board a caller is
+  // standing on, or the singing-call tail cannot be danced at all.
   seq.reset();
   const home = seq.startBoard();
   const offered = seq.legalNext();
   if (!offered.includes('Swing Your Partner')) fail('Swing Your Partner is not offered from a squared set - the tail cannot be danced');
-  else ok('Swing Your Partner is offered by legalNext from a squared set (it used to refuse there)');
+  else ok('Swing Your Partner is offered by legalNext from a squared set');
 
-  // (3) THE PRECONDITION IS THE PAIRING, NOT THE SEPARATION. A swing is what brings you and your
-  // partner together, so a couple standing apart is the case it must ACCEPT - and this gate is the
-  // exact board that used to be refused. Measured before the change: the 1.0..3.0 band refused 48 of
-  // All8's 188 published figures, every one of them from an Ocean Wave (18), Lines Facing Out (15),
-  // an Eight Chain Thru (11) or an unnamed board (4), i.e. the call's commonest use. What it still
-  // refuses is a board where "your partner" is not real data (gate 1b) or where the couple is not a
-  // man and a woman, which is the next gate.
+  // (2) a couple standing 6.0 apart is ACCEPTED, which is the spread-out board the call is most often
+  // reached from. The authored tams are what answer it now.
   const apart = {
     dancers: home.dancers.map((d) => (d.couple === 1 && d.gender === 'girl' ? { ...d, x: d.x + 4 } : d)),
   };
@@ -1187,17 +1036,7 @@ console.log('\n== the Mainstream swing is DERIVED, because its authored motion i
   if (!r.legal) fail(`Swing Your Partner refused a couple standing 6.0 apart (${r.reason}) - that is a wave, the call's commonest use`);
   else ok('Swing Your Partner accepts a couple standing 6.0 apart - a swing is what brings them together');
 
-  // (3b) a "couple" that is not a man and a woman is not a partner to swing (CALLERLAB: Swing starts
-  // from Facing Dancers, one Man and one Woman).
-  {
-    const sameGender = { dancers: home.dancers.map((d) => (d.couple === 1 ? { ...d, gender: 'girl' } : d)) };
-    const rs = seq.applyToBoard(sameGender, 'Swing Your Partner');
-    if (rs.legal) fail('Swing Your Partner applied to a couple of two girls');
-    else if (!/man and a woman/.test(rs.reason ?? '')) fail(`Swing Your Partner refused for the wrong reason: ${rs.reason}`);
-    else ok(`a couple that is not a man and a woman refuses: ${rs.reason}`);
-  }
-
-  // (4) `Swing` itself is a DIFFERENT call and is untouched - the A2 family from a2/slip.xml. This is
+  // (3) `Swing` itself is a DIFFERENT call and is untouched - the A2 family from a2/slip.xml. This is
   // why the bridge lives in the token table and not in CALL_SYNONYMS: a synonym would collide.
   const codedSwing = findCodedMove('Swing');
   const a2 = seq.getVariants('Swing') ?? [];
@@ -1205,21 +1044,21 @@ console.log('\n== the Mainstream swing is DERIVED, because its authored motion i
   else if (a2.length === 0) fail('getVariants("Swing") is empty - the A2 family was lost');
   else ok(`the A2 call named "Swing" is untouched (${a2.length} variants: ${[...new Set(a2.map((v) => v.from))].join(', ')})`);
 
-  // (5) `Swing Your Corner` is deliberately NOT derived: it really does go somewhere (8 of 8 moved),
-  // so it stays an ordinary authored tam.
-  if (findCodedMove('Swing Your Corner')) fail('Swing Your Corner was made a coded move - it is not the identity');
+  // (4) `Swing Your Corner` is a separate authored tam that really does go somewhere (8 of 8 moved),
+  // so it is an ordinary catalogue call rather than a coded move.
+  if (findCodedMove('Swing Your Corner')) fail('Swing Your Corner was made a coded move - it is an authored call');
   else {
     const fc = formationBoard('Normal Lines');
     const rc = fc ? seq.applyToBoard(fc, 'Swing Your Corner') : { legal: false };
-    if (!rc.legal) ok('Swing Your Corner is left to the catalogue (not derived)');
+    if (!rc.legal) ok('Swing Your Corner is left to the catalogue');
     else {
       const d = delta(fc, rc.board);
-      if (d.moved === 0) fail('Swing Your Corner is the identity after all - re-derive, the premise was only checked for the partner swing');
-      else ok(`Swing Your Corner stays authored and really moves (${d.moved} of 8 moved) - only the partner swing is the identity`);
+      if (d.moved === 0) fail('Swing Your Corner applies as the identity - a corner swing should move someone');
+      else ok(`Swing Your Corner stays authored and really moves (${d.moved} of 8 moved)`);
     }
   }
 
-  // (6) and All8's reading maps to it, so `--Sw&Pr` means what All8 means.
+  // (5) and All8's reading maps to it, so `--Sw&Pr` means what All8 means.
   const decoded = decodeLine('! H-RLT --Sw&Pr');
   const names = decoded.calls.map((c) => c.name);
   if (!names.includes('Swing Your Partner') || !names.includes('Promenade')) {

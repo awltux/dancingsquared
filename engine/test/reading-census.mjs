@@ -258,8 +258,8 @@ console.log('\n== against the stored asset: REPORTED, not asserted (the stalenes
   //
   // `buildFsmTable` uses the APPLICATOR for any call `legalCalls` admits, and the CODED rule only for a
   // name the catalogue does not have - deliberately, and its own comment says why. But `Sequencer.applyToBoard`
-  // is CODED-FIRST, and NINE coded moves are ALSO catalogue titles (`Swing Thru`, `Left Swing Thru`,
-  // `Fan the Top`, `Promenade`, `Run`, `Trade`, `Fold`, `Swing Your Partner`, `Do Sa Do`). So a sweep that
+  // is CODED-FIRST, and SEVERAL coded moves are ALSO catalogue titles - the line below names the ones
+  // shipped today. So a sweep that
   // applies every title through `applyToBoard` is measuring the CODED `Swing Thru` where the FSM recorded the
   // CATALOGUE one. MEASURED before this was noticed: 38 readings disagreed, EVERY ONE of them "table says
   // partial, sweep says whole" on `Stars RH` / `Stars LH`, and the cause is that the coded `Swing Thru`
@@ -328,7 +328,7 @@ console.log('\n== against the stored asset: REPORTED, not asserted (the stalenes
     check((storedReadings.get('partial') ?? 0) > 0 && (storedReadings.get('full-tiling') ?? 0) > 0,
       'the stored reading distinguishes all three cases, so the field is a measurement rather than a constant');
     // THE DIVERGENCE ITSELF, reported because it is a live fact about the engine and the reason this join
-    // needed explaining: nine coded moves are also catalogue titles, and the two authorings do not agree.
+    // needed explaining: several coded moves are also catalogue titles, and the two authorings do not agree.
     console.log(`    coded moves that are also catalogue titles: ${[...codedNames].filter((n) => titles.includes(n)).join(', ')}`);
   }
 }

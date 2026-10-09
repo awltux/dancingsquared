@@ -218,8 +218,8 @@ export const TOKENS: Record<string, string> = {
   // make the two collide in the registry - one would silently overwrite the other. The catalogue
   // spells the Mainstream call by WHICH dancer you swing (`Swing Your Partner`, `Swing Your
   // Corner`); All8's bare `Swing` is the partner reading by context, which is the same documented
-  // kind of approximation as `-BRun`'s active-dancer scoping. `Swing Your Partner` is now a
-  // DERIVED call (coded-moves.ts), because its authored motion is the identity transform.
+  // kind of approximation as `-BRun`'s active-dancer scoping. The name is the catalogue's own
+  // (`ms/swing.xml`), so this is the call the authored tams declare.
   Swing: 'Swing Your Partner',
   DPT: 'Double Pass Thru',
   VeerR: 'Veer Right',

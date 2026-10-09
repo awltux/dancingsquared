@@ -192,9 +192,9 @@ export function currentCoupleOf(board: Board, dancerId: number): number {
 /**
  * Whether two dancers are currently partners: a pair on this board, in either order.
  *
- * This replaces "same home couple" at the call sites that mean the CURRENT partner — `Run`'s "run
- * around your partner when both sides are open" preference, and the Swing precondition. Comparing
- * home couples there is the defect `fold.ts` records.
+ * This replaces "same home couple" at the call site that means the CURRENT partner — `Run`'s "run
+ * around your partner when both sides are open" preference. Comparing home couples there is the
+ * defect `fold.ts` records.
  */
 export function areCurrentPartners(board: Board, a: number, b: number): boolean {
   return findCouplePairs(board).some(

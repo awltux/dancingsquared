@@ -20,8 +20,6 @@
 
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf, normAngle } from '../moves.js';
 import { promenadeApplies, promenadeFraction, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS } from './promenade.js';
-import { isKnownCouple } from './constants.js';
-import { findCouplePairs, type CouplePair } from './couples.js';
 import { runRule, tradeRule } from './trade-run.js';
 import { foldRule } from './fold.js';
 import { STEP_FORWARD_AND_BACK_BEATS, STEP_FORWARD_BEATS, stepForwardAndBackRule, stepForwardRule, stepForwardSteps } from './step-forward.js';
@@ -53,214 +51,13 @@ export const FAN_THE_TOP_BEATS = 4;
  * `beats: 1.5` (`moves.dart:56-58`), and `Roll` is exactly that move chosen per dancer. */
 export const ROLL_BEATS = 1.5;
 
-/** Timeline length of the Mainstream `Swing Your Partner`, in beats: the value the authored
- * `ms/swing.xml` tam carries, so the timeline does not shift when the derived call replaces it —
- * the same reason `RUN_TRADE_BEATS` copies the authored Run/Trade tams. */
-export const SWING_BEATS = 9;
-
 /** Timeline length of `Swing Thru`, in beats: CALLERLAB's own `Timing: 6` for the call, and the
  * authored tams agree closely enough that the timeline does not shift materially. */
 export const SWING_THRU_BEATS = 6;
 
 /**
- * `Swing Your Partner` — the Mainstream swing — as a DERIVED call, because its authored motion is
- * the IDENTITY TRANSFORM. Measured on the shipped `ms/swing.xml` tam from `Facing Couples`:
- * **0 of 8 dancers moved and 0 of 8 facings changed**. A partner swing is a full turn taken around
- * your partner, so every dancer finishes on its own spot facing its own way, which in this engine's
- * net model (a position and a heading) is a no-op. `Swing Your Corner` is NOT this call — it moves
- * 8 of 8 — and stays an ordinary authored tam.
- *
- * WHY IT IS DERIVED RATHER THAN AUTHORED PER FORMATION. The Mainstream `Swing` is the singing-call
- * ending ("Swing and Promenade") and stops **65 of All8's 188 published figures** at the tail, but
- * the catalogue authors it from `Facing Couples` alone — so the engine cannot swing from a squared
- * set, the allemande-left pose, `Eight Chain Thru`, `Trade By` or `Lines Facing Out`, which is
- * where it is actually called. The net effect being the identity makes the call formation-
- * INDEPENDENT, so no per-formation authoring is needed and none is invented.
- *
- * THE PRECONDITION IS THE CALL'S OWN DEFINITION, not a heuristic: you can only swing your PARTNER,
- * so the board has to carry identity (home couples) and each couple has to be a man and a woman.
- * What it is NOT is a requirement that the two are already standing together — a swing is what brings
- * them together. Until Phase 11 it required the pair to be 1.0..3.0 apart (`Promenade`'s own
- * "standing as a couple" band), which refused 48 of the 188 published figures, every one of them from
- * a wave, a line or an Eight Chain Thru. A board with no home identity still refuses, exactly as
- * Promenade does: "your partner" is a fact about identity, not about geometry (§8.2).
- *
- * WHERE THE NAME LIVES, and why the bridge is here rather than in `CALL_SYNONYMS`: the engine's
- * call named `Swing` is a DIFFERENT call — the A2 `Swing` from `a2/slip.xml` (waves, tidals,
- * inverted lines, `Swing Left`/`Swing Right`). A `CALL_SYNONYMS` entry would collide in the
- * registry (one of the two would silently overwrite the other), so All8's own reading — its key
- * says `Swing  Swing (your partner or your corner, etc.)`, the Mainstream call — is emitted as
- * `Swing Your Partner` by the token table instead, leaving the A2 family untouched.
- */
-/**
- * The current pairs, grouped by the number the pair carries (the boy's). Shaped as a Map so it can be
- * checked by the same rule the home grouping is checked by.
- */
-function pairUp(pairs: CouplePair[]): Map<number, Board['dancers'][number][]> {
-  const out = new Map<number, Board['dancers'][number][]>();
-  for (const { boy, girl } of pairs) {
-    const list = out.get(boy.couple) ?? [];
-    list.push(boy, girl);
-    out.set(boy.couple, list);
-  }
-  return out;
-}
-
-function swingProblem(board: Board): string | null {
-  const phys = board.dancers.filter((d) => !d.isGhost);
-  if (phys.length === 0) return 'Swing needs dancers to swing';
-
-  // THE PAIRING IS THE PRECONDITION; THE SEPARATION IS NOT.
-  //
-  // A swing brings you and your partner TOGETHER, so where the two of you are standing when the call
-  // is made cannot be a requirement of making it. CALLERLAB starts `Swing` from Facing Dancers (Man
-  // and Woman), ends it in a Normal Couple, and applies the Ocean Wave Rule; `Swing your Partner` is
-  // shorthand for "Face Your Partner; Swing". The old band here (partners 1.0..3.0 apart) refused 48
-  // of the 188 published figures, every one of them from an Ocean Wave (18), Lines Facing Out (15),
-  // an Eight Chain Thru (11) or an unnamed board (4) - i.e. it refused the call's most common use,
-  // because in a wave nobody is holding their partner.
-  //
-  // The transform is still the identity, which means the couple's END POSE is not modelled - only the
-  // pairing is. That is the fidelity gap 9e-1 recorded, and it is why this call is paired with
-  // `Promenade`: every one of the 48 figures calls Promenade next, and Promenade forms the ring and
-  // normalises the square, so the pairing is enough to get them there. A figure that swings and then
-  // continues elsewhere would still see the pre-swing board, and that is recorded in PLAN.md rather
-  // than hidden here.
-
-  // WHICH PAIRING? THE CURRENT ONE, and this is a correction. The pairs used to be collected by
-  // `d.couple`, which is the dancer's HOME couple - so after any call that changes partners the
-  // precondition was asking about a partnership that no longer stands. `Square Thru 2` from a squared
-  // set is the measured witness: `#6` ends beside `#1` and `#2` beside `#5`, so the current couples
-  // are (5,2) (1,6) (3,4) (7,8) while the home couples still read (5,6) (1,2) (3,4) (7,8). "You swing
-  // your PARTNER" is a fact about the dancers who are standing together NOW.
-  //
-  // THE HOME READING IS KEPT AS A FALLBACK, which makes this strictly more permissive and never less:
-  // wherever the home pairing was usable it still is, and a board whose current pairing does not
-  // resolve (a wave, where nobody is holding a partner) falls back rather than refusing.
-  //
-  // MEASURED, AND THE FALLBACK IS NOT MERELY PERMISSIVE - IT PAIRS THE WRONG DANCERS IN A LINE OR A
-  // WAVE, so an END POSE built on it would face the wrong dancer. `findCouplePairs` returns ZERO pairs
-  // for an Ocean Wave (nobody is standing side by side), so `[W1p]` takes this fallback; a CO-FACING
-  // end pose then turns two of the eight dancers 180 degrees to face a partner six units away across
-  // the set. The reference says the opposite in as many words: from Lines Facing or `Square Thru 3`,
-  // "they Swing the dancer BESIDE them, not the one they are facing across the square"
-  // (`taminations-flutter/assets/ms/swing.md:111-119`). The pairing the swing wants in a line or a wave
-  // is therefore "the dancer beside you", which the home fallback is not. This is a PRECONDITION
-  // question as much as an end-pose one, and it is recorded here rather than guessed at.
-  //
-  // WHAT IS MEASURED AND SAFE: a CO-FACING end pose (the woman taking the man's heading, positions
-  // untouched) changes NOTHING on five of the six boards `selection.mjs` asserts on - Static Square,
-  // B1c, B4c, L1p, F1p all stay position- AND facing-identical - and leaves `Promenade` legal on all
-  // six, so the "swing and promenade home" tail survives either way. Only `[W1p]` moves, and only
-  // because of the pairing above.
-  const current = pairUp(findCouplePairs(board));
-  const byIdentity = new Map<number, Board['dancers'][number][]>();
-  for (const d of phys) {
-    if (!isKnownCouple(d.couple)) {
-      return 'Swing needs dancers with a known home couple: you swing your PARTNER, and this board carries no identity';
-    }
-    const list = byIdentity.get(d.couple) ?? [];
-    list.push(d);
-    byIdentity.set(d.couple, list);
-  }
-  // A pairing is usable when every pair is exactly two dancers, a man and a woman. The current
-  // pairing is preferred and the home pairing is the fallback, BUT ONLY WHERE THE CURRENT PAIRING
-  // ACTUALLY COVERS THE BOARD: `findCouplePairs` leaves a same-gender pair out entirely, so a square
-  // of two-girl couples would otherwise report "no pairs" and slip through as legal. An incomplete
-  // pairing is not a permissive answer, it is an unresolved one - fall back and let the home reading
-  // report the real problem.
-  const problems = (pairs: Iterable<Board['dancers'][number][]>): string[] => {
-    const out: string[] = [];
-    for (const list of pairs) {
-      if (list.length !== 2) out.push(`a pair does not have exactly two dancers, so there is no partner to swing (${list.length})`);
-      else if (list[0].gender === list[1].gender) out.push(`a pair is not a man and a woman, so there is no partner to swing (${list[0].gender}/${list[1].gender})`);
-    }
-    return out;
-  };
-  const currentCovered = [...current.values()].reduce((n, list) => n + list.length, 0);
-  if (currentCovered === phys.length) {
-    const currentProblems = problems(current.values());
-    if (currentProblems.length === 0) return null;
-    // The current pairing covers everyone and is still not swingable: say why, rather than falling
-    // back to a home pairing that no longer describes who is standing together.
-    return currentProblems[0];
-  }
-  const homeProblems = problems(byIdentity.values());
-  return homeProblems.length === 0 ? null : homeProblems[0];
-}
-
-/**
- * The swing itself: the identity transform, because the authored motion returns every dancer to
- * its own spot and facing (see `swingProblem`).
- *
- * A FIRST ATTEMPT AT MODELLING THE CLOSURE IS REFUTED, and the measurement is worth keeping so it is
- * not retried: closing every co-oriented couple up to the standard two-unit separation about its own
- * midpoint — the one case CALLERLAB's silence still leaves unambiguous — measures **103 → 95
- * figures**, while the get-out corpus gains one line. The end pose is therefore NOT derivable from
- * the local pairing: moving the pairs changes the anchors `Promenade` reads, and eight figures that
- * used to reach a legal promenade no longer do. A correct model has to be pinned by the corpus (or
- * by the reference), not by a local closure rule; until then the identity stands, which is right
- * wherever the partners already stand together.
- *
- * THE REFERENCE'S ANCHOR FOR A NON-IDENTITY MODEL EXISTS, and the risk in it is MEASURED CLEAR.
- * `taminations-flutter/assets/ms/swing.md:107-119` says "Swing Your Partner" is a shorthand for
- * "Face Your Partner; Swing", and gives the squared-set case explicitly: the designated dancers "face
- * and Swing ... the dancer close to them, not the one they are facing across the square". Read
- * literally that fixes the END POSE to "positions unchanged, every dancer FACING its partner" - a
- * FACING rule, not the POSITION closure refuted above, so it leaves the pairs where they stand and
- * cannot disturb the anchors `Promenade` reads.
- *
- * THE END POSE IS STILL THE IDENTITY, AND HERE IS EXACTLY WHAT A BOARD-ONLY POSE WOULD DO - measured,
- * because the first two versions of this paragraph got it wrong. A co-facing pose (the woman taking the
- * man's heading, positions untouched, the CURRENT pairing only) was modelled over the 263 boards reached
- * by ONE call from a squared set on which `Swing Your Partner` is LEGAL:
- *
- *   - it is the IDENTITY on 237 of them;
- *   - it changes something on 26 (Walk Around the Corner, Heads/Sides Quarter In, Circle Four Left 1/2
- *     and 3/4, Heads Star Thru and Spread, Allemande Left, ...), turning 2 to 4 dancers by 180 degrees;
- *   - and on those 26 `Promenade` is LOST ON NONE - 23 keep it, 3 had already lost it before the pose.
- *
- * SO THE TAIL IS NOT THE OBSTACLE, and an earlier claim here that "10 of the 11 formations lose
- * Promenade" was an ARTEFACT worth recording: those "formations" are `boardForFormation` TEMPLATES with
- * no home identity (`couple=0`), where `swingProblem` REFUSES the call outright - so the pose is
- * unreachable there and that figure measured nothing. Counting only boards where the call is legal is
- * what produced 26 / 0 / 3, and `Allemande Left | Swing Your Partner | Promenade` runs either way.
- *
- * WHAT STILL MAKES THIS THE IDENTITY. CALLERLAB pins the CONSTRAINT and leaves the ABSOLUTE DIRECTION to
- * the caller: "The man leads the end of the swing at the proper time, so that the couple faces in the
- * PROPER DIRECTION FOR THE NEXT CALL" (`swing.md:68-69`), the ending formation being "facing
- * appropriately for the next call (such as Promenade)" (:22-27). A transform that sees only the board
- * cannot know the next call, so preserving the man's current heading is all it can do - a CHOICE the
- * reference does not make. And `[W1p]` is the other horn: there the pairing is the HOME fallback, and a
- * pose built on it would turn two dancers to face a partner across the set, which the reference
- * contradicts ("they Swing the dancer BESIDE them", :111-119). Only the CURRENT pairing is therefore
- * modelled above; a board that falls back stays the identity.
- *
- * NOT LANDED, AND THE SCOPE IS NOW MEASURED RATHER THAN SUSPECTED. Headings feed the MATCHER, so what
- * matters is not only whether `Promenade` survives but WHAT MAY BE CALLED NEXT. Comparing the app's own
- * `legalNext()` on the board a swing leaves, before and after the posed board, over the same 26 boards:
- *
- *   - the post-swing legal-call list is UNCHANGED on 16;
- *   - it CHANGES on 10, and not marginally: `Heads Star Thru and Spread` loses 232 calls and gains 11;
- *     `Walk Around the Corner`, `Allemande Left` and `Face In` each lose 19 AND GAIN NONE; `Heads/Sides
- *     Start Split Grand Chain Eight` trade 4 for 4 (losing Swing Thru, Do Sa Do, All 4 Couples Swing Thru
- *     and gaining Beaus Trade, Belles Trade, Promenade).
- *
- * `Allemande Left` is the one that settles it, because it is a REAL sequence - "Allemande Left | Swing
- * Your Partner | Promenade" - and the pose would REMOVE 19 calls from what may follow the swing there
- * while adding nothing. So this is not a fidelity gain with a cosmetic blast radius; it is a change to
- * the matching surface, and it is REJECTED ON THAT MEASUREMENT rather than deferred.
- *
- * `selection.mjs` (1d) pins the identity on a board where the pose WOULD fire, so landing it turns that
- * check red and forces the measurement to be re-taken.
- */
-function swingRule(board: Board): Board {
-  return board;
-}
-
-/**
- * `Do Sa Do` / `Dosado` — a DERIVED call whose net motion is the IDENTITY, for the same reason and by
- * the same measurement as the swing above, except that here the authored tams AGREE.
+ * `Do Sa Do` / `Dosado` — a DERIVED call whose net motion is the IDENTITY: every dancer steps around
+ * the other and back to its own spot, so the authored tams agree with that exactly.
  *
  * CALLERLAB: "Starting formation - Facing Dancers. Each dancer steps forward, around the other
  * dancer, and back to their own position, ending facing the other dancer." So every dancer finishes
@@ -401,10 +198,9 @@ export interface CodedMove {
    * arm lands (CALLERLAB generalizes the Facing Couples Rule to "Facing Lines step to a
    * Right-Hand Tidal Wave").
    *
-   * A move WITHOUT this flag refuses as before, which is the right default: `Swing Your Partner`
-   * declining is a real answer about the call, not a missing arm. The gate for this is
-   * `selection.mjs`, which lists exactly which formations still fall through, so removing an arm
-   * from the list is a deliberate edit. */
+   * A move WITHOUT this flag refuses as before, which is the right default: `Roll` declining
+   * because nothing has turned the dancers yet is a real answer about the call, not a missing arm.
+   * `sequencer.mjs` pins the refusal shape when the catalogue has no setup behind it. */
   catalogueFallback?: boolean;
   /** A call that acts on each BOX of a named call's 4-dancer setup rather than on the whole board.
    *
@@ -433,22 +229,6 @@ export interface CodedMove {
    * quarter turn or less - the case that matters, because from home the trip is zero and the end
    * board is the start board. */
   ringHome?: boolean;
-  /**
-   * A move whose END BOARD IS ITS START BOARD and which is therefore INVISIBLE unless the routing
-   * gives it the arc itself: `Swing Your Partner`, whose net is the identity because a full turn
-   * about your partner finishes on your own spot facing your own way.
-   *
-   * THE SAME SHAPE OF DEFECT `ringHome` EXISTS FOR. There, a sweep read off the start->end difference
-   * is zero for all eight dancers while the timeline counts eight beats, reported as "the dancers
-   * don't move, but the sequencer counts 8 beats". MEASURED for the swing over its whole 9 beats:
-   * worst change across all 8 dancers and 5 sampled frames is 0.00e+0 units of position and 1.40e-14
-   * degrees of heading - the animation is a still picture, because neither the exchange routing (no
-   * dancer ends where another started) nor the straight line (start == end) has anything to draw.
-   *
-   * Such a move is animated as a FULL TURN of each current pair about its own midpoint, which is
-   * exactly the shape the exchange routing already uses for half a turn. See `interpolateSegment`.
-   */
-  swingMove?: boolean;
   /**
    * The INTERMEDIATE boards a multi-part coded move passes through, for the ANIMATION only.
    *
@@ -603,7 +383,6 @@ const DEFS: {
   collisionCheck?: (b: Board) => string | null;
   ringMove?: boolean;
   ringHome?: boolean;
-  swingMove?: boolean;
   legs?: (b: Board) => Board[] | null;
   deferred?: boolean;
   deferredHalf?: (b: Board, ids: number[]) => Board;
@@ -745,17 +524,6 @@ const DEFS: {
     precondition: rollProblem,
     fn: rollRule,
   },
-  // The Mainstream swing: derived because its authored motion is the identity transform, which
-  // makes it formation-independent (see `swingProblem` for the measurement and the precondition).
-  // `swingMove` is what stops that identity being drawn as a still picture - the END BOARD is
-  // unchanged by it, and only the path is supplied.
-  {
-    aliases: ['Swing Your Partner'],
-    beats: SWING_BEATS,
-    precondition: swingProblem,
-    fn: swingRule,
-    swingMove: true,
-  },
   // `Do Sa Do`: derived for the same reason — the authored motion IS the identity (measured 0.000
   // position and 0.00 degrees of heading change) — so the call is formation-independent and the
   // authored setups were only ever limiting WHICH boards it could be reached from. See
@@ -861,7 +629,6 @@ export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   ...(d.collisionCheck ? { collisionCheck: d.collisionCheck } : {}),
   ...(d.ringMove ? { ringMove: true } : {}),
   ...(d.ringHome ? { ringHome: true } : {}),
-  ...(d.swingMove ? { swingMove: true } : {}),
   ...(d.legs ? { legs: d.legs } : {}),
   ...(d.deferred ? { deferred: true } : {}),
   ...(d.deferredHalf ? { deferredHalf: d.deferredHalf } : {}),

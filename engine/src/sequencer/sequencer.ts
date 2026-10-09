@@ -574,8 +574,9 @@ export class Sequencer {
    *
    * WHY THIS EXISTS. A picker with a group chosen needs to know what THAT GROUP can do, and whole-board
    * legality does not answer it: measured on a `Static Square` with `Head Boys`, whole-board legality
-   * listed `Promenade`, `Promenade 1/2` and `Swing Your Partner` as available, and the group cannot do
-   * any of the three. Offering a call and then refusing it is the picker disagreeing with itself.
+   * listed `Promenade`, `Promenade 1/2` and `Swing Your Partner` as available, while the group can
+   * perform only the last of those - it cannot do either promenade. Offering a call and then refusing it
+   * is the picker disagreeing with itself.
    *
    * The reverse can also happen — a call legal for the group and not whole-board — so a group list built
    * by filtering `legalNext` cannot be right in either direction. This asks the question the picker

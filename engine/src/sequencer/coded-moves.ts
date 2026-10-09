@@ -236,10 +236,23 @@ function swingProblem(board: Board): string | null {
  * contradicts ("they Swing the dancer BESIDE them", :111-119). Only the CURRENT pairing is therefore
  * modelled above; a board that falls back stays the identity.
  *
- * NOT LANDED, AND THE REASON IS SCOPE RATHER THAN DOUBT: the pose changes HEADINGS, and headings feed the
- * matcher, so its effect on what may be applied AFTER a swing is wider than the `Promenade` check above.
- * That corpus measurement is what to take before landing it. `selection.mjs` (1d) pins the identity on a
- * board where the pose WOULD fire, so landing it without re-taking the measurement goes red.
+ * NOT LANDED, AND THE SCOPE IS NOW MEASURED RATHER THAN SUSPECTED. Headings feed the MATCHER, so what
+ * matters is not only whether `Promenade` survives but WHAT MAY BE CALLED NEXT. Comparing the app's own
+ * `legalNext()` on the board a swing leaves, before and after the posed board, over the same 26 boards:
+ *
+ *   - the post-swing legal-call list is UNCHANGED on 16;
+ *   - it CHANGES on 10, and not marginally: `Heads Star Thru and Spread` loses 232 calls and gains 11;
+ *     `Walk Around the Corner`, `Allemande Left` and `Face In` each lose 19 AND GAIN NONE; `Heads/Sides
+ *     Start Split Grand Chain Eight` trade 4 for 4 (losing Swing Thru, Do Sa Do, All 4 Couples Swing Thru
+ *     and gaining Beaus Trade, Belles Trade, Promenade).
+ *
+ * `Allemande Left` is the one that settles it, because it is a REAL sequence - "Allemande Left | Swing
+ * Your Partner | Promenade" - and the pose would REMOVE 19 calls from what may follow the swing there
+ * while adding nothing. So this is not a fidelity gain with a cosmetic blast radius; it is a change to
+ * the matching surface, and it is REJECTED ON THAT MEASUREMENT rather than deferred.
+ *
+ * `selection.mjs` (1d) pins the identity on a board where the pose WOULD fire, so landing it turns that
+ * check red and forces the measurement to be re-taken.
  */
 function swingRule(board: Board): Board {
   return board;

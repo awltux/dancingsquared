@@ -137,6 +137,22 @@ function swingProblem(board: Board): string | null {
   // THE HOME READING IS KEPT AS A FALLBACK, which makes this strictly more permissive and never less:
   // wherever the home pairing was usable it still is, and a board whose current pairing does not
   // resolve (a wave, where nobody is holding a partner) falls back rather than refusing.
+  //
+  // MEASURED, AND THE FALLBACK IS NOT MERELY PERMISSIVE - IT PAIRS THE WRONG DANCERS IN A LINE OR A
+  // WAVE, so an END POSE built on it would face the wrong dancer. `findCouplePairs` returns ZERO pairs
+  // for an Ocean Wave (nobody is standing side by side), so `[W1p]` takes this fallback; a CO-FACING
+  // end pose then turns two of the eight dancers 180 degrees to face a partner six units away across
+  // the set. The reference says the opposite in as many words: from Lines Facing or `Square Thru 3`,
+  // "they Swing the dancer BESIDE them, not the one they are facing across the square"
+  // (`taminations-flutter/assets/ms/swing.md:111-119`). The pairing the swing wants in a line or a wave
+  // is therefore "the dancer beside you", which the home fallback is not. This is a PRECONDITION
+  // question as much as an end-pose one, and it is recorded here rather than guessed at.
+  //
+  // WHAT IS MEASURED AND SAFE: a CO-FACING end pose (the woman taking the man's heading, positions
+  // untouched) changes NOTHING on five of the six boards `selection.mjs` asserts on - Static Square,
+  // B1c, B4c, L1p, F1p all stay position- AND facing-identical - and leaves `Promenade` legal on all
+  // six, so the "swing and promenade home" tail survives either way. Only `[W1p]` moves, and only
+  // because of the pairing above.
   const current = pairUp(findCouplePairs(board));
   const byIdentity = new Map<number, Board['dancers'][number][]>();
   for (const d of phys) {

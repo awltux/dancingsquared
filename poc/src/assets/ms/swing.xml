@@ -22,6 +22,29 @@
 -->
 <tamination title="Swing">
 
+
+<!-- exported by the dancing-squared web app: commit fd0bc8b, with uncommitted changes, built 2026-10-09 15:01Z -->
+  <tam title="Swing Your Partner" formation="Adjacent Dancers Close" parts="" asymmetric="true">
+    <path>
+      <movement hands="none" beats="1" cx1="0" cy1="0" cx2="0" cy2="0" x2="0" y2="0" cx3="0.463" cx4="0.3914" cy4="-0.3915" x4="0.4009" y4="-0.692"/>
+      <movement hands="none" beats="1" cx1="0.3944" cy1="-0.0147" cx2="0.4244" cy2="0.1252" x2="0.6574" y2="0.3327" cx3="0.463" cx4="0.6502" cy4="0.0173" x4="0.9138" y4="0.0426"/>
+      <movement hands="none" beats="0.5" cx1="0.2185" cy1="0.1688" cx2="0.5325" cy2="0.1285" x2="0.7014" y2="-0.09"/>
+      <movement hands="none" beats="0.5" cx1="0.2185" cy1="0.1688" cx2="0.5325" cy2="0.1285" x2="0.7014" y2="-0.09"/>
+      <movement hands="none" beats="0.5" cx1="0.2185" cy1="0.1688" cx2="0.5325" cy2="0.1285" x2="0.7014" y2="-0.09"/>
+      <movement hands="none" beats="0.5" cx1="0.2185" cy1="0.1688" cx2="0.5325" cy2="0.1285" x2="0.7014" y2="-0.09"/>
+      <movement hands="right" beats="1" cx1="0.1049" cy1="0.0811" cx2="0.2378" cy2="0.1171" x2="0.3693" y2="0.1003" cx3="0.0319" cx4="0.9671" cy4="-0.0448" x4="0.9989" y4="-0.0478"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0" cy1="0" cx2="0" cy2="0" x2="0" y2="0" cx3="0.463" cx4="0.7101" cy4="0.2741" x4="0.7112" y4="0.5405"/>
+      <movement hands="none" beats="1" cx1="0.2239" cy1="-0.0034" cx2="0.4219" cy2="0.0678" x2="0.645" y2="0.3562" cx3="0.463" cx4="0.6502" cy4="0.0173" x4="0.9138" y4="0.0426"/>
+      <movement hands="none" beats="0.5" cx1="0.2123" cy1="0.1766" cx2="0.5276" cy2="0.1477" x2="0.7041" y2="-0.0646"/>
+      <movement hands="none" beats="0.5" cx1="0.2123" cy1="0.1766" cx2="0.5276" cy2="0.1477" x2="0.7041" y2="-0.0646"/>
+      <movement hands="none" beats="0.5" cx1="0.2123" cy1="0.1766" cx2="0.5276" cy2="0.1477" x2="0.7041" y2="-0.0646"/>
+      <movement hands="none" beats="0.5" cx1="0.2123" cy1="0.1766" cx2="0.5276" cy2="0.1477" x2="0.7041" y2="-0.0646"/>
+      <movement hands="right" beats="1" cx1="0.1019" cy1="0.0848" cx2="0.2334" cy2="0.1256" x2="0.3655" y2="0.1135" cx3="1.0153" cx4="1.0585" cy4="0.9019" x4="0.0478" y4="0.9989"/>
+    </path>
+  </tam>
+
 <!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
   <tam title="Swing Your Partner" formation="Facing Dancers Close" parts="" asymetrical="true">
     <path>

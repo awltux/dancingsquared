@@ -71,6 +71,21 @@ export interface BoardRead {
   genderPattern: string;
 }
 
+/**
+ * ONE FIGURE IN PROGRESS: the boards it replays on, the history entry it replaces, and its lanes.
+ *
+ * Every field is documented where the mode is held (`SequencerController.parallel`), and the value is
+ * written in ONE place (`setParallel`) - because the panel's mode edge, its primary button and its group
+ * selector are three separate readings of it, and a second writer of the state is a second writer of those.
+ */
+interface ParallelEntry {
+  start: Board;
+  board: Board;
+  index: number;
+  groups: { selection: string; calls: string[] }[];
+  active: number;
+}
+
 const MS_PER_BEAT = 500;
 
 /**
@@ -206,13 +221,7 @@ export class SequencerController implements SequencerUI {
    * reported as "when I add a third call to a parallel call ... it seem to be added to the call list as a
    * new call". It now opens another lane and Done is the way out.
    */
-  private parallel: {
-    start: Board;
-    board: Board;
-    index: number;
-    groups: { selection: string; calls: string[] }[];
-    active: number;
-  } | null = null;
+  private parallel: ParallelEntry | null = null;
   private modules: Module[] = [];
   private active = false;
   /** Display-only rotation (radians) applied about the set centre so the whole
@@ -621,29 +630,6 @@ export class SequencerController implements SequencerUI {
    * group the moment the board moved - which is exactly when they least want to re-pick it.
    */
   private refreshGroupSelect() {
-    // IN PARALLEL MODE THE GROUP SELECTOR ANSWERS A DIFFERENT QUESTION: WHO THE NEXT LANE GETS.
-    //
-    // The ordinary meaning - who performs the next call - is already answered by the mode itself, which is
-    // why it was ignored here. But the remainder is the complement of EVERYTHING claimed so far, so a lane
-    // given the whole remainder leaves nobody for a third group - and `call 1 || ( call 2 + call 3 ) ||
-    // ( call 4 + call 5 )` is a THREE-group figure. Naming a group that sits inside the unclaimed dancers is
-    // what splits them, so the selector lists exactly those.
-    // IN PARALLEL MODE THE GROUP SELECTOR MEANS WHO THE NEXT LANE GETS - and when every dancer is claimed
-    // there is no next lane to open, so it would otherwise be EMPTY. Showing the ACTIVE lane instead keeps the
-    // control meaningful: its value is who Add acts on, which is exactly what the label beside it says.
-    if (this.parallel) {
-      const choices = this.laneGroups();
-      const list = choices.length ? choices : [this.activeLane()?.selection ?? ''].filter(Boolean);
-      const prev = this.groupSelect.value;
-      const same = this.groupSelect.options.length === list.length
-        && list.every((g, i) => this.groupSelect.options[i]?.value === g);
-      if (!same) {
-        this.groupSelect.innerHTML = '';
-        for (const g of list) this.groupSelect.appendChild(new Option(g, g));
-      }
-      this.groupSelect.value = list.includes(prev) ? prev : list[0] ?? '';
-      return;
-    }
     const singles = this.seq.subsetGroups(this.seq.board);
     const combined = this.seq.combinedGroups(this.seq.board);
     const prev = this.groupSelect.value || 'All 8';
@@ -666,6 +652,89 @@ export class SequencerController implements SequencerUI {
     this.groupSelect.value = all.includes(prev) ? prev : 'All 8';
   }
 
+  /**
+   * THE ONE WRITER OF `parallel`, so the mode's state and the chrome that reads it cannot drift.
+   *
+   * Every edit path goes through here - entering a figure, appending to a lane, a refused append that keeps
+   * the mode, re-opening a timeline row, Undo, Clear, a group change - and `applyParallelChrome` runs in the
+   * same step. The alternative, and the defect this replaces, is an assignment at each site: the timeline-slot
+   * click cleared the state and rebuilt only the PICKER, so the panel edge stayed lit while the group selector
+   * and the primary button had already gone back to the ordinary reading.
+   */
+  private setParallel(p: ParallelEntry | null) {
+    this.parallel = p;
+    this.applyParallelChrome();
+  }
+
+  /**
+   * THE FIGURE MODE'S CHROME, DERIVED IN ONE PLACE FROM `this.parallel`.
+   *
+   * WHY ONE PLACE. The mode is STATE; what the caller sees of it is this. Two windows used to read the state
+   * separately - `renderFigureBar` painted the edge and the banner, `refreshCallSelect` painted the buttons and
+   * the group list - so a clear that ran through the picker's window alone left the box on screen over an
+   * `All 8` selector and an "Add to sequence" button, and `While…` then read the state that window had left
+   * and could not reopen the figure. REPORTED in those words. `parallel-owner-probe.mjs` COUNTS the writers,
+   * because a second writer of any one of these is invisible until it is.
+   */
+  private applyParallelChrome() {
+    const p = this.parallel;
+    // THE PANEL'S EDGE CARRIES THE MODE, the way `ed-clone` does for the editor: a caller scrolled to the
+    // bottom of a long timeline should still be able to see that they are inside a figure.
+    this.hudEl.classList.toggle('seq-figure', !!p);
+    // THE BANNER IS SHOWN EXACTLY WHILE A FIGURE IS BEING BUILT, so clearing the mode takes it down with the
+    // edge rather than leaving a stale set of lanes to read.
+    this.figureBarEl.hidden = !p;
+    // WHILE… IS LIVE WHENEVER THE MODE IS ON: it opens a lane for whoever has none. "Finish figure" is what
+    // ends the figure, and it is live exactly when the mode is.
+    this.parallelBtn.disabled = !p;
+    this.parallelDoneBtn.disabled = !p;
+    const lane = this.activeLane();
+    this.parallelBtn.title = p
+      ? (lane && lane.calls.length === 0
+        ? `${lane.selection} left — pick their call from the list and Add; Add again adds a SECOND call to the same lane.`
+        : `Give the dancers no lane has claimed their own call in the SAME slot`
+          + (lane ? ` — Add puts the picked call in ${lane.selection}'s lane (${lane.calls.join(' then ')}), and this button opens ANOTHER lane.` : '.'))
+      : 'Give the dancers the current call did NOT move their own call in the SAME time slot. Enabled only when the last call acted on a subset, e.g. Sides promenade while the Heads step into the middle.';
+    this.parallelDoneBtn.title = p
+      ? `Finish ${stepLabel(this.parallelEntry(p))} and leave the figure, so the picker offers the next call again.`
+      : 'Finish the parallel figure. Enabled only while one is being built.';
+    // THE PRIMARY BUTTON SAYS WHAT IT DOES IN THE MODE IT IS IN: in a figure it appends to the open lane.
+    // Read `this.parallel` and not the local `p`: `sequencer-hud-probe.mjs` pins this exact expression, and a
+    // tidier spelling would redden it without changing a thing.
+    this.applyBtn.textContent = this.parallel ? 'Add to lane' : 'Add to sequence';
+    // THE GROUP SELECTOR IS THE MODE'S TOO, and inside a figure it asks a different question - see
+    // `fillParallelGroupSelect`.
+    if (p) this.fillParallelGroupSelect();
+    else this.refreshGroupSelect();
+  }
+
+  /**
+   * THE GROUP SELECTOR INSIDE A FIGURE.
+   *
+   * IN PARALLEL MODE THE GROUP SELECTOR ANSWERS A DIFFERENT QUESTION: WHO THE NEXT LANE GETS. The ordinary
+   * meaning - who performs the next call - is already answered by the mode itself, which is why it was ignored
+   * here. But the remainder is the complement of EVERYTHING claimed so far, so a lane given the whole
+   * remainder leaves nobody for a third group - and `call 1 || ( call 2 + call 3 ) || ( call 4 + call 5 )` is
+   * a THREE-group figure. Naming a group that sits inside the unclaimed dancers is what splits them, so the
+   * selector lists exactly those.
+   *
+   * AND WHEN EVERY DANCER IS CLAIMED there is no next lane to open, so the list would be EMPTY. Showing the
+   * ACTIVE lane instead keeps the control meaningful: its value is who Add acts on, which is exactly what the
+   * label beside it says.
+   */
+  private fillParallelGroupSelect() {
+    const choices = this.laneGroups();
+    const list = choices.length ? choices : [this.activeLane()?.selection ?? ''].filter(Boolean);
+    const prev = this.groupSelect.value;
+    const same = this.groupSelect.options.length === list.length
+      && list.every((g, i) => this.groupSelect.options[i]?.value === g);
+    if (!same) {
+      this.groupSelect.innerHTML = '';
+      for (const g of list) this.groupSelect.appendChild(new Option(g, g));
+    }
+    this.groupSelect.value = list.includes(prev) ? prev : list[0] ?? '';
+  }
+
   /** The group the caller has chosen, as it will be prefixed onto a call. Null for `All 8`. */
   private chosenGroup(): string | null {
     const g = this.groupSelect.value;
@@ -676,7 +745,9 @@ export class SequencerController implements SequencerUI {
    * Calls that act on a dancer subset are grouped under their selector so they
    * are visually distinct from whole-board calls. */
   private refreshCallSelect() {
-    this.refreshGroupSelect();
+    // THE MODE'S CHROME IS DERIVED FIRST, in the ONE method that owns it, so this rebuild can never
+    // leave the button or the group selector describing a mode the state has left.
+    this.applyParallelChrome();
     const prev = this.callSelect.value;
     const legal = this.seq.legalNext().sort((a, b) => a.localeCompare(b));
     // IN PARALLEL MODE THE LIST ANSWERS A DIFFERENT QUESTION: not "what can the chosen group do", but
@@ -784,22 +855,6 @@ export class SequencerController implements SequencerUI {
     if (prev && offered.includes(prev)) this.callSelect.value = prev;
     // Remember which board this list answers for, so `settlePlayhead` can skip a redundant rebuild.
     this.listBoardKey = boardKey(this.seq.board);
-    // WHILE… IS LIVE WHENEVER THE MODE IS ON: it opens a lane for whoever has none. "Finish figure" is what
-    // ends the figure, and it is live exactly when the mode is.
-    this.parallelBtn.disabled = !this.parallel;
-    this.parallelDoneBtn.disabled = !this.parallel;
-    const lane = this.activeLane();
-    this.parallelBtn.title = this.parallel
-      ? (lane && lane.calls.length === 0
-        ? `${lane.selection} left — pick their call from the list and Add; Add again adds a SECOND call to the same lane.`
-        : `Give the dancers no lane has claimed their own call in the SAME slot`
-          + (lane ? ` — Add puts the picked call in ${lane.selection}'s lane (${lane.calls.join(' then ')}), and this button opens ANOTHER lane.` : '.'))
-      : 'Give the dancers the current call did NOT move their own call in the SAME time slot. Enabled only when the last call acted on a subset, e.g. Sides promenade while the Heads step into the middle.';
-    this.parallelDoneBtn.title = this.parallel
-      ? `Finish ${stepLabel(this.parallelEntry(this.parallel))} and leave the figure, so the picker offers the next call again.`
-      : 'Finish the parallel figure. Enabled only while one is being built.';
-    // THE PRIMARY BUTTON SAYS WHAT IT DOES IN THE MODE IT IS IN: in a figure it appends to the open lane.
-    this.applyBtn.textContent = this.parallel ? 'Add to lane' : 'Add to sequence';
     this.undoBtn.title = 'Undo the last change to the sequence (Ctrl+Z)';
     this.updateFormationSelect();
     this.renderSubsetInfo();
@@ -973,6 +1028,11 @@ export class SequencerController implements SequencerUI {
     // playhead (that is `syncAnimation`'s other half, and a repaint must not jump the scrub).
     this.refreshWalk();
     this.renderBoard(this.seq.board);
+    // THE MODE'S CHROME FOLLOWS ITS STATE, in the ONE method that reads it - see `applyParallelChrome`.
+    // `refreshCallSelect` routes through the same method, which is what stops a picker-only refresh
+    // (the timeline-slot click) from clearing the state and leaving the box, the button and the group
+    // half-done.
+    this.applyParallelChrome();
     this.renderFigureBar();
     this.renderBoardChip();
     this.updateReadout();
@@ -1408,14 +1468,9 @@ export class SequencerController implements SequencerUI {
   /** THE FIGURE BANNER: which lanes exist, which one is open, and the one way out that is not Apply. */
   private renderFigureBar() {
     const p = this.parallel;
-    this.figureBarEl.hidden = !p;
-    // THE PANEL'S EDGE CARRIES THE MODE TOO, the way `ed-clone` does for the editor: a caller scrolled to the
-    // bottom of a long timeline should still be able to see that they are inside a figure.
-    this.hudEl.classList.toggle('seq-figure', !!p);
-    if (!p) {
-      this.parallelDoneBtn.disabled = true;
-      return;
-    }
+    // THE BANNER'S VISIBILITY IS PART OF THE MODE'S CHROME and is set by `applyParallelChrome`; what is
+    // left here is its CONTENT, which only a figure has.
+    if (!p) return;
     const lanes = p.groups
       .map((g) => (g.calls.length ? `${g.selection} (${g.calls.join(' + ')})` : `${g.selection} (open)`));
     const un = this.unassignedLane();
@@ -1431,7 +1486,6 @@ export class SequencerController implements SequencerUI {
     }).join(' <b>||</b> ');
     this.figureWhatEl.innerHTML = lanesText
       + (un ? ` · <b>${esc(un)}</b> still unclaimed` : ' · every dancer has a lane');
-    this.parallelDoneBtn.disabled = false;
   }
 
   /**
@@ -1530,7 +1584,7 @@ export class SequencerController implements SequencerUI {
       this.history.push(...expanded);
       // PARALLEL MODE CANNOT SURVIVE A NEW CALL: its remainder and its history index both belong to the
       // step that has just been superseded.
-      this.parallel = null;
+      this.setParallel(null);
       // WHO ACTED, FROM EITHER SOURCE. The GROUP SELECTOR is only one of the two ways a call can name a
       // subset: a call the catalogue publishes with its own designator ("Sides Forward and Back", which
       // the picker offers as a NAME) carries its selection in the call itself, and `chosenGroup()` is null
@@ -1543,7 +1597,7 @@ export class SequencerController implements SequencerUI {
       // one - a call that flattened into several is several sequential steps, not one slot.
       const remaining = who ? this.seq.remainingSelection(from, who) : null;
       if (remaining && expanded.length === 1 && typeof expanded[0] === 'string') {
-        this.parallel = {
+        this.setParallel({
           start: from,
           board: from,
           index: this.history.length - 1,
@@ -1554,7 +1608,7 @@ export class SequencerController implements SequencerUI {
             { selection: remaining, calls: [] },
           ],
           active: 1,
-        };
+        });
         this.statusEl.textContent = `✓ ${name} · ${remaining} left — press While… to give them their own call in the same slot (or Add again later to put several in one lane)`;
       } else {
         this.statusEl.textContent = `✓ ${name}${expanded.length > 1 ? ` (${expanded.length} calls)` : ''}`;
@@ -1667,7 +1721,7 @@ export class SequencerController implements SequencerUI {
    */
   private exitParallel(message?: string) {
     if (!this.parallel) return;
-    this.parallel = null;
+    this.setParallel(null);
     this.statusEl.textContent = message ?? '';
     this.refreshCallSelect();
   }
@@ -1743,7 +1797,7 @@ export class SequencerController implements SequencerUI {
       back[p.index] = this.parallelEntry(p);
       this.history = back;
       this.replayHistory();
-      this.parallel = p;
+      this.setParallel(p);
       this.statusEl.textContent = `✗ ${stepLabel(step)}${applied.reason ? ` — ${applied.reason}` : ''}`;
       this.render();
       this.refreshCallSelect();
@@ -1763,7 +1817,7 @@ export class SequencerController implements SequencerUI {
     // engine will charge the next call its beats against.
     const laneRun = applied.lanes?.find((l) => l.selection === lane.selection);
     const nextBoard = laneRun?.boards[laneRun.boards.length - 1] ?? p.board;
-    this.parallel = { ...p, groups, board: nextBoard };
+    this.setParallel({ ...p, groups, board: nextBoard });
     // THE BALANCE IS THE POINT OF THE FEATURE: two 4-beat calls against a 16-beat partner is only useful if
     // the caller can see it. Beats are read from the engine, per group, on the boards those groups start on,
     // and the step's own cost is the LONGEST lane - so the shortfall is exactly the beats this lane spends
@@ -1813,7 +1867,7 @@ export class SequencerController implements SequencerUI {
   private setHistory(snap: HistorySnapshot, message: string, kind: 'ok' | 'warn' | 'error' = 'ok') {
     this.history = [...snap.steps];
     this.startBoard = snap.startBoard;
-    this.parallel = null;
+    this.setParallel(null);
     this.replayHistory();
     this.setStatus(kind, message);
     this.render();
@@ -2007,13 +2061,13 @@ export class SequencerController implements SequencerUI {
     fill.forEach((f, i) => { if (f.free > bestFree) { bestFree = f.free; active = i; } });
     const lane = groups[active];
     const run = applied.lanes?.find((l) => l.selection === lane.selection);
-    this.parallel = {
+    this.setParallel({
       start,
       board: run?.boards[run.boards.length - 1] ?? start,
       index: idx,
       groups,
       active,
-    };
+    });
     // PAINT BEFORE THE MESSAGE: `render` resets the status line's colour, so the message goes last or it
     // would wear the default one.
     this.render();
@@ -2059,7 +2113,7 @@ export class SequencerController implements SequencerUI {
     this.runBusy(() => {
       if (this.history.length > 0) this.pushUndo();
       this.history.length = 0;
-      this.parallel = null;
+      this.setParallel(null);
       // Reset returns the set to the home square, so the sequence starts from home
       // again (any formation jumped to with "Set" is forgotten).
       this.startBoard = undefined;
@@ -2274,7 +2328,7 @@ export class SequencerController implements SequencerUI {
         added.push(...this.seq.flatten([name]));
       }
       this.history.push(...added);
-      this.parallel = null;
+      this.setParallel(null);
       this.setStatus('ok', `✓ applied ${line.label} — one step; Undo removes it`);
       this.render();
       this.refreshCallSelect();
@@ -2323,7 +2377,7 @@ export class SequencerController implements SequencerUI {
         // another. A press that narrows nothing says what is missing instead of opening a second empty lane.
         if (chosen && chosen !== lane.selection) {
           const groups = p.groups.map((g, i) => (i === p.active ? { ...g, selection: chosen } : g));
-          this.parallel = { ...p, groups, board: p.start };
+          this.setParallel({ ...p, groups, board: p.start });
           this.setStatus('ok', `${chosen} left — pick their call, then Add`
             + ' · While… then opens a lane for whoever is still unclaimed, and Finish figure ends it');
           this.callSelect.value = '';
@@ -2348,7 +2402,7 @@ export class SequencerController implements SequencerUI {
       // whole remainder when the caller left the selector alone.
       const forLane = chosen ?? choices[0] ?? left;
       const groups = [...p.groups, { selection: forLane, calls: [] }];
-      this.parallel = { ...p, groups, active: groups.length - 1, board: p.start };
+      this.setParallel({ ...p, groups, active: groups.length - 1, board: p.start });
       this.setStatus('ok', `${forLane} left — pick their call, then Add`
         + ' · Add again adds a second call to their lane, and Finish figure ends the figure');
       // THE FIRST CALL IS CLEARED OUT OF THE PICKER, so "pick their call" is literally true. The list keeps the
@@ -2372,7 +2426,7 @@ export class SequencerController implements SequencerUI {
       // A DIFFERENT GROUP IS A DIFFERENT STEP, so any pending parallel pairing is void: its remainder was
       // computed for the group that has just been replaced. Leaving it would compose a step whose groups
       // silently overlap, which the engine refuses - a loud failure, but one the caller did not cause.
-      this.parallel = null;
+      this.setParallel(null);
       this.refreshCallSelect();
     }, 'Reading the calls for this group…'));
     this.undoBtn.addEventListener('click', () => this.undo());
@@ -2463,7 +2517,7 @@ export class SequencerController implements SequencerUI {
         const next = Math.max(0, Math.min(this.history.length - 1, idx + (e.key === 'ArrowDown' ? 1 : -1)));
         this.selectedStep = next;
         this.seekTo(next);
-        if (this.parallel) { this.parallel = null; this.refreshCallSelect(); }
+        if (this.parallel) { this.setParallel(null); this.refreshCallSelect(); }
         const el2 = this.seqListEl.querySelector(`.seq-row[data-idx="${next}"]`) as HTMLElement | null;
         el2?.focus();
       }
@@ -2481,7 +2535,7 @@ export class SequencerController implements SequencerUI {
       this.selectedStep = idx;
       this.seekTo(idx);
       if (!this.resumeFigure(idx) && this.parallel) {
-        this.parallel = null;
+        this.setParallel(null);
         this.refreshCallSelect();
       }
     }, 'Opening the step…');

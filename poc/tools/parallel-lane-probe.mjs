@@ -54,12 +54,20 @@ console.log('\n== Apply APPENDS to the ACTIVE lane, and a refusal keeps the mode
     'and every OTHER lane is carried through untouched - a third group is a third lane, not a new entry in the list');
   check(/const applied = this\.seq\.applyToBoard\(p\.start, step\);/.test(apply) && !/this\.seq\.applyStep\(step\)/.test(ui),
     'the composed step is checked once, on the board it starts from, and never applied a second time on the replayed board');
-  check(/this\.parallel = p;/.test(apply) && !/this\.parallel = null;/.test(apply),
+  // THE STATE HAS ONE OWNER NOW (`setParallel`, which writes `this.parallel` and runs the chrome with it), so
+  // the refused branch holds by asking WHO was written: the mode kept is `p` ITSELF, the entry handed in at
+  // the top of Apply. `this.parallel = p;` here would fail the owner probe's one-writer count, and the
+  // behaviour - a refused lane leaves the mode on - is what this has to go red on.
+  check(/this\.setParallel\(p\);/.test(apply) && !/this\.setParallel\(null\)/.test(apply) && !/this\.parallel\s*=/.test(apply),
     'a refused lane keeps the mode on, so the caller picks a different call instead of starting again');
   check(/back\[p\.index\] = this\.parallelEntry\(p\);/.test(apply),
     'and a REFUSED append restores the step as it was, however many lanes it had');
+  // The two statements are the SAME as before the refactor apart from the write itself, which now goes
+  // through `setParallel` - so this still asserts the board's SOURCE (`applied.lanes`), not just the setter's
+  // name: dropping `laneRun` and re-applying the lane reddens it exactly as it did.
   const laneRun = /const laneRun = applied\.lanes\?\.find\(\(l\) => l\.selection === lane\.selection\)/.test(apply);
-  check(laneRun && /this\.parallel = \{ \.\.\.p, groups, board: nextBoard \};/.test(apply),
+  check(laneRun && /const nextBoard = laneRun\?\.boards\[laneRun\.boards\.length - 1\] \?\? p\.board;/.test(apply)
+    && /this\.setParallel\(\{ \.\.\.p, groups, board: nextBoard \}\);/.test(apply),
     'a successful one advances the mode\'s board from the APPLY\'s own report (`ApplyResult.lanes`), not by re-applying the lane');
   check(/const on = i === 0 \? p\.board : laneRun\?\.boards\[i\] \?\? p\.board;/.test(apply),
     'and the beat balance is read per call, against the board each call starts on');
@@ -72,7 +80,9 @@ console.log('\n== "+ Parallel call" OPENS ANOTHER LANE, and Done is the way out 
   const handler = bodyOf('this.parallelBtn.addEventListener');
   check(/const groups = \[\.\.\.p\.groups, \{ selection: forLane, calls: \[\] \}\];/.test(handler),
     'the button opens a lane for the dancers no lane has claimed');
-  check(/this\.parallel = \{ \.\.\.p, groups, active: groups\.length - 1, board: p\.start \};/.test(handler),
+  // Re-pointed at the setter; the entry it is handed is the assertion - a fresh lane made active (the last
+  // one) and boarded on `p.start` rather than on the active lane's advanced board.
+  check(/this\.setParallel\(\{ \.\.\.p, groups, active: groups\.length - 1, board: p\.start \}\);/.test(handler),
     'which becomes the active lane, starting back on the board the STEP starts from - a lane begins at beat 0');
   check(!/exitParallel/.test(handler),
     'and it NEVER finishes the figure, which is what used to turn a third call into a new entry in the list');
@@ -117,10 +127,15 @@ console.log('\n== the caller can SEE the figure and its balance ==');
   // THE FIGURE IS ON SCREEN THE WHOLE TIME IT IS BEING BUILT: a banner naming the lanes and the open one, and
   // the composer's own hint line. Both read the mode's own state, so neither can describe a figure the panel
   // is not in.
+  //
+  // THE MODE'S VISIBILITY NOW HAS ONE OWNER: `applyParallelChrome` sets the banner's `hidden` and the panel
+  // edge from `this.parallel`, and `renderFigureBar` keeps only the CONTENT (the lanes). So the visibility
+  // half is asserted where it is written, and the naming half where the lanes still are.
   const bar = bodyOf('private renderFigureBar()');
-  check(/this\.figureBarEl\.hidden = !p;/.test(bar) && /groups/.test(bar) && /map\(\(g\) =>/.test(bar),
+  const chrome = bodyOf('private applyParallelChrome()');
+  check(/this\.figureBarEl\.hidden = !p;/.test(chrome) && /groups/.test(bar) && /map\(\(g\) =>/.test(bar),
     'the figure banner is shown exactly while a figure is being built, and names every lane');
-  check(/this\.hudEl\.classList\.toggle\('seq-figure', !!p\);/.test(bar),
+  check(/this\.hudEl\.classList\.toggle\('seq-figure', !!p\);/.test(chrome),
     'and the panel\'s edge carries the mode too, so it is visible from anywhere in the timeline');
   const info = bodyOf('private renderSubsetInfo()');
   check(/Figure: <b>\$\{esc\(stepLabel\(this\.parallelEntry\(this\.parallel\)\)\)\}<\/b>/.test(info),
@@ -148,7 +163,8 @@ console.log('\n== clicking a figure row re-opens it, on the lane with the most f
     'and it is re-applied PURELY on the board the step starts from, which is where `seekTo` has just left the live board');
   check(/if \(f\.free > bestFree\) \{ bestFree = f\.free; active = i; \}/.test(resume),
     'the ACTIVE lane is the one with the most free beats - which is what was clicked for');
-  check(/this\.parallel = \{[\s\S]{0,120}?board: run\?\.boards\[run\.boards\.length - 1\] \?\? start,/.test(resume),
+  // Re-pointed at the setter; what it is handed is still the apply's own last board for that lane.
+  check(/this\.setParallel\(\{[\s\S]{0,120}?board: run\?\.boards\[run\.boards\.length - 1\] \?\? start,/.test(resume),
     'and the mode is rebuilt with the apply\'s own board for that lane, exactly as an append does');
   check(/this\.render\(\);\s*\n\s*this\.refreshCallSelect\(\);\s*\n\s*this\.setStatus\(/.test(resume),
     'it paints before it speaks, so the message keeps the colour it was given');

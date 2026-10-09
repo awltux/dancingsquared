@@ -1103,6 +1103,31 @@ console.log('\n== the Mainstream swing is DERIVED, because its authored motion i
     } else {
       ok(`a swinging pair stays rigid: every frame's closest pair (${worstMin.toFixed(3)}) is no closer than the start board's (${minSep(sq).toFixed(3)})`);
     }
+    // AND IT TURNS CLOCKWISE, WHICH IS CALLERLAB'S DIRECTION AND NOT A CONVENTION OF OURS: "rotate
+    // clockwise as a unit" (`taminations-flutter/assets/ms/swing.md:18-19`). Measured as the angle about
+    // the pair's midpoint DECREASING - a quarter of the way through, a dancer has swept a quarter turn
+    // clockwise. THE FIRST DRAFT USED THE EXCHANGE BRANCH'S "both dancers walk forward" RULE, which
+    // TIES for a co-facing couple (the partner is 180 degrees across the midpoint, so the two terms are
+    // `s` and `-s`) and its `>=` fallback silently settled on ANTI-clockwise. This check is what caught
+    // that; the three above cannot, because a wrong-way turn still animates, still ends on the identity
+    // and still keeps the pair rigid.
+    {
+      const d0 = sq.dancers[0];
+      const mate = sq.dancers.find((x) => x.id !== d0.id && x.couple === d0.couple);
+      const b0 = at(0), bq = at(total / 4);
+      const a0 = b0.dancers.find((x) => x.id === d0.id), p0 = b0.dancers.find((x) => x.id === mate.id);
+      const aq = bq.dancers.find((x) => x.id === d0.id), pq = bq.dancers.find((x) => x.id === mate.id);
+      const m0 = { x: (a0.x + p0.x) / 2, y: (a0.y + p0.y) / 2 };
+      const mq = { x: (aq.x + pq.x) / 2, y: (aq.y + pq.y) / 2 };
+      const ang0 = Math.atan2(a0.y - m0.y, a0.x - m0.x);
+      const angq = Math.atan2(aq.y - mq.y, aq.x - mq.x);
+      const sweep = Math.atan2(Math.sin(angq - ang0), Math.cos(angq - ang0));
+      if (Math.abs(sweep + Math.PI / 2) > 0.05) {
+        fail(`a swing must turn CLOCKWISE: a quarter of the way through, dancer #${d0.id} swept ${((sweep * 180) / Math.PI).toFixed(1)}deg about its partner, not -90deg`);
+      } else {
+        ok(`a swing turns CLOCKWISE, as CALLERLAB defines it: dancer #${d0.id} swept ${((sweep * 180) / Math.PI).toFixed(1)}deg of the first quarter`);
+      }
+    }
   }
 
   // (2) and it is OFFERED from a squared set, which is where a caller says it. This is the whole

@@ -365,15 +365,24 @@ export class SequenceAnalyzer {
         // A SWING IS A FULL TURN OF THE PAIR ABOUT ITS OWN MIDPOINT - the one routing whose NET is the
         // identity, so it cannot be read off the end board at all (see `CodedMove.swingMove` for the
         // measurement: 0.00e+0 units of position and 1.40e-14 degrees of heading over the whole 9
-        // beats, from a squared set). Reusing the exchange routing's shape at 2*PI instead of PI, and
-        // its "both dancers walk forward" direction rule, keeps the two dancers DIAMETRICALLY OPPOSITE
-        // about the midpoint for the whole segment - so their separation never changes and this cannot
-        // introduce a collision the start board did not already have.
+        // beats, from a squared set). It keeps the two dancers DIAMETRICALLY OPPOSITE about the midpoint
+        // for the whole segment - so their separation never changes and this cannot introduce a
+        // collision the start board did not already have.
         //
-        // A CO-FACING PAIR TIES ON THAT RULE and is settled deterministically by `>=` to one sense,
-        // counter-clockwise; CALLERLAB specifies no direction for a swing, and either way the pair
-        // returns to the identity. A dancer with no current partner, or standing exactly on the
-        // midpoint, is left where it is - there is nothing to turn about.
+        // CLOCKWISE, AND THE DIRECTION IS CALLERLAB'S RATHER THAN A TIE-BREAK: "rotate clockwise as a
+        // unit" (`taminations-flutter/assets/ms/swing.md:18-19`), and "short walking steps clockwise
+        // around the CENTRAL PIVOT POINT BETWEEN THE TWO DANCERS" (:61-62) - which is the midpoint this
+        // turns about. In this y-up frame clockwise is a DECREASING angle.
+        //
+        // THE FIRST DRAFT USED THE EXCHANGE BRANCH'S "both dancers walk forward" RULE, AND THAT WAS
+        // WRONG - recorded because the rule reads as obviously applicable. It is about two dancers
+        // TRADING PLACES, and for a co-facing couple standing side by side it TIES: the partner is 180
+        // degrees across the midpoint, so the two terms are `s` and `-s`, the minimum is `-|s|` either
+        // way, and `>=` then settled the tie by picking ANTI-clockwise. So the rule could not answer the
+        // question and its fallback silently chose the opposite of the definition.
+        //
+        // A dancer with no current partner, or standing exactly on the midpoint, is left where it is -
+        // there is nothing to turn about.
         if (swing) {
           const p = pairOf.get(d.id);
           if (!p) return { ...d, x: d.x, y: d.y, heading };
@@ -382,10 +391,7 @@ export class SequenceAnalyzer {
           const r = Math.hypot(d.x - mx, d.y - my);
           if (r < 1e-6) return { ...d, x: d.x, y: d.y, heading };
           const as = Math.atan2(d.y - my, d.x - mx);
-          const ap = Math.atan2(p.y - my, p.x - mx);
-          const fwd = (dir: number) => Math.min(dir * Math.sin(d.heading - as), dir * Math.sin(p.heading - ap));
-          const dir = fwd(1) >= fwd(-1) ? 1 : -1;
-          const a = as + dir * 2 * Math.PI * t;
+          const a = as - 2 * Math.PI * t;
           return { ...d, x: mx + r * Math.cos(a), y: my + r * Math.sin(a), heading };
         }
 

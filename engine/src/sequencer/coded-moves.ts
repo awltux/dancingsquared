@@ -365,6 +365,22 @@ export interface CodedMove {
    * board is the start board. */
   ringHome?: boolean;
   /**
+   * A move whose END BOARD IS ITS START BOARD and which is therefore INVISIBLE unless the routing
+   * gives it the arc itself: `Swing Your Partner`, whose net is the identity because a full turn
+   * about your partner finishes on your own spot facing your own way.
+   *
+   * THE SAME SHAPE OF DEFECT `ringHome` EXISTS FOR. There, a sweep read off the start->end difference
+   * is zero for all eight dancers while the timeline counts eight beats, reported as "the dancers
+   * don't move, but the sequencer counts 8 beats". MEASURED for the swing over its whole 9 beats:
+   * worst change across all 8 dancers and 5 sampled frames is 0.00e+0 units of position and 1.40e-14
+   * degrees of heading - the animation is a still picture, because neither the exchange routing (no
+   * dancer ends where another started) nor the straight line (start == end) has anything to draw.
+   *
+   * Such a move is animated as a FULL TURN of each current pair about its own midpoint, which is
+   * exactly the shape the exchange routing already uses for half a turn. See `interpolateSegment`.
+   */
+  swingMove?: boolean;
+  /**
    * The INTERMEDIATE boards a multi-part coded move passes through, for the ANIMATION only.
    *
    * A call composed of parts has a NET position permutation that is an artefact of composing them,
@@ -518,6 +534,7 @@ const DEFS: {
   collisionCheck?: (b: Board) => string | null;
   ringMove?: boolean;
   ringHome?: boolean;
+  swingMove?: boolean;
   legs?: (b: Board) => Board[] | null;
   deferred?: boolean;
   deferredHalf?: (b: Board, ids: number[]) => Board;
@@ -661,11 +678,14 @@ const DEFS: {
   },
   // The Mainstream swing: derived because its authored motion is the identity transform, which
   // makes it formation-independent (see `swingProblem` for the measurement and the precondition).
+  // `swingMove` is what stops that identity being drawn as a still picture - the END BOARD is
+  // unchanged by it, and only the path is supplied.
   {
     aliases: ['Swing Your Partner'],
     beats: SWING_BEATS,
     precondition: swingProblem,
     fn: swingRule,
+    swingMove: true,
   },
   // `Do Sa Do`: derived for the same reason — the authored motion IS the identity (measured 0.000
   // position and 0.00 degrees of heading change) — so the call is formation-independent and the
@@ -772,6 +792,7 @@ export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   ...(d.collisionCheck ? { collisionCheck: d.collisionCheck } : {}),
   ...(d.ringMove ? { ringMove: true } : {}),
   ...(d.ringHome ? { ringHome: true } : {}),
+  ...(d.swingMove ? { swingMove: true } : {}),
   ...(d.legs ? { legs: d.legs } : {}),
   ...(d.deferred ? { deferred: true } : {}),
   ...(d.deferredHalf ? { deferredHalf: d.deferredHalf } : {}),

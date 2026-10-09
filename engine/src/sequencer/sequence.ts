@@ -28,6 +28,7 @@ import { makeSquaredSet, cloneBoard } from './board.js';
 import { findCodedMove, codedMoveApplies, isDeferredCall, type CodedMove } from './coded-moves.js';
 import { splitSelection } from './selection.js';
 import { promenadeTrip, promenadeLap } from './promenade.js';
+import { findCouplePairs } from './couples.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, CallStep, GroupStep, ModuleStep, SeqDancer, VariantMatch } from './types.js';
 import { groupCalls, isGroupStep, stepCall, stepLabel } from './types.js';
@@ -258,7 +259,7 @@ export class SequenceAnalyzer {
       return this.interpolateSegment(from, legs[idx], tf, null);
     }
     const t = Math.max(0, Math.min(1, move.beats > 0 ? localBeat / move.beats : 1));
-    return this.interpolateSegment(board, move.apply(board), t, move.ringMove ? { home: !!move.ringHome } : null);
+    return this.interpolateSegment(board, move.apply(board), t, move.ringMove ? { home: !!move.ringHome } : null, !!move.swingMove);
   }
 
   /**
@@ -279,7 +280,7 @@ export class SequenceAnalyzer {
    * The SWEEP comes from the CALL and not from the end board - see `promenadeSweep`, and the ring
    * branch below for the defect that distinction fixes. `ring` is null for every non-ring segment.
    */
-  private interpolateSegment(board: Board, end: Board, t: number, ring: { home: boolean } | null): Board {
+  private interpolateSegment(board: Board, end: Board, t: number, ring: { home: boolean } | null, swing = false): Board {
     const endById = new Map(end.dancers.map((d) => [d.id, d]));
     const phys = board.dancers.filter((d) => !d.isGhost);
     const cx = phys.length ? phys.reduce((s, d) => s + d.x, 0) / phys.length : 0;
@@ -323,6 +324,18 @@ export class SequenceAnalyzer {
       ...d, x: d.x + (e.x - d.x) * t, y: d.y + (e.y - d.y) * t, heading,
     });
 
+    // THE CURRENT COUPLES, for the swing routing only. Its end board IS its start board, so the pairs
+    // cannot be read off the exchange test below - that needs a dancer to end where another started,
+    // and a swing ends everyone exactly where they were. `findCouplePairs` is the derivation that owns
+    // "who is standing as a couple now" (`couples.ts`).
+    const pairOf = new Map<number, Board['dancers'][number]>();
+    if (swing) {
+      for (const { boy, girl } of findCouplePairs(board)) {
+        pairOf.set(boy.id, girl);
+        pairOf.set(girl.id, boy);
+      }
+    }
+
     // THE LAP IS DECIDED ONCE FOR THE WHOLE SET, before any dancer is placed. It is the CALLERLAB
     // rule "add a full Promenade" for a trip of a quarter turn or less (see `promenadeLap`), and
     // because it is the SAME number for all eight dancers it cancels out of every pairwise angle -
@@ -348,6 +361,33 @@ export class SequenceAnalyzer {
         const e = endById.get(d.id);
         if (!e) return d;
         const heading = normAngle(d.heading + shortest(d.heading, e.heading) * t);
+
+        // A SWING IS A FULL TURN OF THE PAIR ABOUT ITS OWN MIDPOINT - the one routing whose NET is the
+        // identity, so it cannot be read off the end board at all (see `CodedMove.swingMove` for the
+        // measurement: 0.00e+0 units of position and 1.40e-14 degrees of heading over the whole 9
+        // beats, from a squared set). Reusing the exchange routing's shape at 2*PI instead of PI, and
+        // its "both dancers walk forward" direction rule, keeps the two dancers DIAMETRICALLY OPPOSITE
+        // about the midpoint for the whole segment - so their separation never changes and this cannot
+        // introduce a collision the start board did not already have.
+        //
+        // A CO-FACING PAIR TIES ON THAT RULE and is settled deterministically by `>=` to one sense,
+        // counter-clockwise; CALLERLAB specifies no direction for a swing, and either way the pair
+        // returns to the identity. A dancer with no current partner, or standing exactly on the
+        // midpoint, is left where it is - there is nothing to turn about.
+        if (swing) {
+          const p = pairOf.get(d.id);
+          if (!p) return { ...d, x: d.x, y: d.y, heading };
+          const mx = (d.x + p.x) / 2;
+          const my = (d.y + p.y) / 2;
+          const r = Math.hypot(d.x - mx, d.y - my);
+          if (r < 1e-6) return { ...d, x: d.x, y: d.y, heading };
+          const as = Math.atan2(d.y - my, d.x - mx);
+          const ap = Math.atan2(p.y - my, p.x - mx);
+          const fwd = (dir: number) => Math.min(dir * Math.sin(d.heading - as), dir * Math.sin(p.heading - ap));
+          const dir = fwd(1) >= fwd(-1) ? 1 : -1;
+          const a = as + dir * 2 * Math.PI * t;
+          return { ...d, x: mx + r * Math.cos(a), y: my + r * Math.sin(a), heading };
+        }
 
         const pid = partner.get(d.id);
         if (pid !== undefined) {

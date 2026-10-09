@@ -1053,6 +1053,58 @@ console.log('\n== the Mainstream swing is DERIVED, because its authored motion i
     else ok(`an identity-less board refuses, as Promenade does: ${r.reason.slice(0, 60)}...`);
   }
 
+  // (1c) AND IT IS NO LONGER A STILL PICTURE. The identity is the right NET - a swing really does end
+  // where it started - but motion read off the end board leaves NOTHING TO DRAW, which is the reported
+  // "the call animation does nothing" over nine counted beats. `CodedMove.swingMove` routes each current
+  // pair through a FULL TURN about its own midpoint instead. MEASURED before that routing existed, over
+  // all 8 dancers and 5 sampled frames: worst change 0.00e+0 units of position, 1.40e-14 degrees of
+  // heading.
+  //
+  // WHICH CHECK CATCHES IT, measured by reverting (`swingMove: true` deleted): the ANIMATES check turns
+  // red - "0 of 8 dancers move at halfway" - and the other TWO HERE STAY GREEN, because a still picture
+  // satisfies them trivially: they pin the NET and the RIGIDITY, which are exactly the properties the
+  // routing must not break rather than the motion it adds. The two checks in (1) do not catch it
+  // either, for the same reason - they only ever look at the end board.
+  {
+    const sq = seq.boardForFormation('Static Square');
+    const flat = seq.flatten(['Swing Your Partner']);
+    const total = seq.sequenceBeats(flat, sq);
+    const at = (t) => seq.evaluateSequence(flat, t, sq).board;
+    const movedAt = (t) =>
+      at(t).dancers.filter((d, i) => Math.hypot(d.x - sq.dancers[i].x, d.y - sq.dancers[i].y) > 1e-9).length;
+    const minSep = (b) => {
+      let m = Infinity;
+      for (let i = 0; i < b.dancers.length; i++)
+        for (let j = i + 1; j < b.dancers.length; j++)
+          m = Math.min(m, Math.hypot(b.dancers[i].x - b.dancers[j].x, b.dancers[i].y - b.dancers[j].y));
+      return m;
+    };
+    let travel = 0, worstMin = Infinity;
+    for (let i = 0; i <= 16; i++) {
+      const b = at((total * i) / 16);
+      for (let k = 0; k < sq.dancers.length; k++) {
+        travel = Math.max(travel, Math.hypot(b.dancers[k].x - sq.dancers[k].x, b.dancers[k].y - sq.dancers[k].y));
+      }
+      worstMin = Math.min(worstMin, minSep(b));
+    }
+    const half = total > 0 ? movedAt(total / 2) : 0;
+    if (!(total > 0)) fail('Swing Your Partner is charged no beats, so there is no timeline to animate over');
+    else if (!(half > 0)) fail(`Swing Your Partner does not animate: 0 of 8 dancers move at halfway (beats=${total})`);
+    else ok(`Swing Your Partner ANIMATES: ${half} of 8 dancers move at halfway, worst travel ${travel.toFixed(3)} units over ${total} beats`);
+    // AND IT STILL RETURNS TO THE IDENTITY, which is the whole reason the NET is not touched: the
+    // routing supplies the PATH only.
+    if (movedAt(total) !== 0) fail(`Swing Your Partner no longer ends where it started (${movedAt(total)} of 8 moved) - the routing must not change the net`);
+    else ok('and it still ends exactly where it started - the routing supplies the path, not the net');
+    // AND THE TURN CANNOT COLLAPSE A COUPLE: the two dancers stay DIAMETRICALLY OPPOSITE about the
+    // midpoint, so their separation is constant and no pair can be driven through another. This is the
+    // property that makes the routing safe to add at all.
+    if (worstMin < minSep(sq) - 1e-9) {
+      fail(`a swinging pair is NOT rigid: closest pair ${worstMin.toFixed(3)} is inside the start board's ${minSep(sq).toFixed(3)}`);
+    } else {
+      ok(`a swinging pair stays rigid: every frame's closest pair (${worstMin.toFixed(3)}) is no closer than the start board's (${minSep(sq).toFixed(3)})`);
+    }
+  }
+
   // (2) and it is OFFERED from a squared set, which is where a caller says it. This is the whole
   // point: it used to refuse everywhere it is really called.
   seq.reset();

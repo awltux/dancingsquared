@@ -210,12 +210,36 @@ function swingProblem(board: Board): string | null {
  * FACING rule, not the POSITION closure refuted above, so it leaves the pairs where they stand and
  * cannot disturb the anchors `Promenade` reads.
  *
- * THE RISK WAS THE TAIL: a singing call is "swing your partner AND PROMENADE HOME", so a swing ending
- * with the partners facing each other could break the commonest ending in square dancing. MEASURED on
- * a squared set with every dancer turned to face its partner: `Promenade`, `Promenade 1/2` and
- * `Swing Your Partner` are ALL still legal, and `findCouplePairs` still finds all four couples (its
- * facing pass accepts a facing pair). So the model is viable and is NOT yet implemented - the end pose
- * is still the identity.
+ * THE END POSE IS STILL THE IDENTITY, AND HERE IS EXACTLY WHAT A BOARD-ONLY POSE WOULD DO - measured,
+ * because the first two versions of this paragraph got it wrong. A co-facing pose (the woman taking the
+ * man's heading, positions untouched, the CURRENT pairing only) was modelled over the 263 boards reached
+ * by ONE call from a squared set on which `Swing Your Partner` is LEGAL:
+ *
+ *   - it is the IDENTITY on 237 of them;
+ *   - it changes something on 26 (Walk Around the Corner, Heads/Sides Quarter In, Circle Four Left 1/2
+ *     and 3/4, Heads Star Thru and Spread, Allemande Left, ...), turning 2 to 4 dancers by 180 degrees;
+ *   - and on those 26 `Promenade` is LOST ON NONE - 23 keep it, 3 had already lost it before the pose.
+ *
+ * SO THE TAIL IS NOT THE OBSTACLE, and an earlier claim here that "10 of the 11 formations lose
+ * Promenade" was an ARTEFACT worth recording: those "formations" are `boardForFormation` TEMPLATES with
+ * no home identity (`couple=0`), where `swingProblem` REFUSES the call outright - so the pose is
+ * unreachable there and that figure measured nothing. Counting only boards where the call is legal is
+ * what produced 26 / 0 / 3, and `Allemande Left | Swing Your Partner | Promenade` runs either way.
+ *
+ * WHAT STILL MAKES THIS THE IDENTITY. CALLERLAB pins the CONSTRAINT and leaves the ABSOLUTE DIRECTION to
+ * the caller: "The man leads the end of the swing at the proper time, so that the couple faces in the
+ * PROPER DIRECTION FOR THE NEXT CALL" (`swing.md:68-69`), the ending formation being "facing
+ * appropriately for the next call (such as Promenade)" (:22-27). A transform that sees only the board
+ * cannot know the next call, so preserving the man's current heading is all it can do - a CHOICE the
+ * reference does not make. And `[W1p]` is the other horn: there the pairing is the HOME fallback, and a
+ * pose built on it would turn two dancers to face a partner across the set, which the reference
+ * contradicts ("they Swing the dancer BESIDE them", :111-119). Only the CURRENT pairing is therefore
+ * modelled above; a board that falls back stays the identity.
+ *
+ * NOT LANDED, AND THE REASON IS SCOPE RATHER THAN DOUBT: the pose changes HEADINGS, and headings feed the
+ * matcher, so its effect on what may be applied AFTER a swing is wider than the `Promenade` check above.
+ * That corpus measurement is what to take before landing it. `selection.mjs` (1d) pins the identity on a
+ * board where the pose WOULD fire, so landing it without re-taking the measurement goes red.
  */
 function swingRule(board: Board): Board {
   return board;

@@ -1128,6 +1128,41 @@ console.log('\n== the Mainstream swing is DERIVED, because its authored motion i
         ok(`a swing turns CLOCKWISE, as CALLERLAB defines it: dancer #${d0.id} swept ${((sweep * 180) / Math.PI).toFixed(1)}deg of the first quarter`);
       }
     }
+    // (1d) THE END POSE IS DELIBERATELY STILL THE IDENTITY, and this is the check that says so rather
+    // than leaving it to be re-litigated. CALLERLAB pins the CONSTRAINT - the woman ends "facing the same
+    // direction as the man" - but leaves the ABSOLUTE DIRECTION to the caller: "The man leads the end of
+    // the swing at the proper time, so that the couple faces in the PROPER DIRECTION FOR THE NEXT CALL"
+    // (`taminations-flutter/assets/ms/swing.md:68-69`). A TRANSFORM THAT SEES ONLY THE BOARD CANNOT KNOW
+    // THE NEXT CALL, so preserving the man's current heading is all it can do - a choice the reference
+    // does not make. MEASURED over the 263 boards reached by one call from a squared set where the swing
+    // is legal: such a pose is the identity on 237, changes something on 26, and LOSES `Promenade` on
+    // NONE of those 26. So this is scope rather than doubt - headings feed the matcher, so what may be
+    // applied AFTER a swing is the measurement to take before landing it.
+    //
+    // `Walk Around the Corner` IS THE WITNESS: it is legal from a squared set, the swing is legal on it,
+    // and a board-only co-facing pose would turn four of the eight by 180 degrees there. LANDING SUCH A
+    // POSE TURNS THIS CHECK RED, which is the point - it has to be landed deliberately, with the
+    // measurement re-taken. (`Static Facing` cannot serve: it is a template with no home identity, so
+    // `swingProblem` refuses the call there and the pose is unreachable.)
+    {
+      const w = seq.applyToBoard(sq, 'Walk Around the Corner');
+      if (!w.legal) {
+        fail(`Walk Around the Corner is no longer legal from a squared set (${w.reason}) - the pose witness is gone`);
+      } else {
+        const r = seq.applyToBoard(w.board, 'Swing Your Partner');
+        if (!r.legal) {
+          fail(`Swing Your Partner refused from the Walk Around the Corner board (${r.reason})`);
+        } else {
+          const turned = w.board.dancers.filter((d, i) => faceOf(d.heading) !== faceOf(r.board.dancers[i].heading)).length;
+          const moved = w.board.dancers.filter((d, i) => Math.hypot(d.x - r.board.dancers[i].x, d.y - r.board.dancers[i].y) > 1e-9).length;
+          if (moved !== 0 || turned !== 0) {
+            fail(`the swing's end pose is no longer the identity on the Walk Around the Corner board (${moved} moved, ${turned} turned) - if that is deliberate, re-take the measurement above, which is why it was left alone`);
+          } else {
+            ok('the swing still ends where it started on the Walk Around the Corner board, where a board-only co-facing pose would turn 4 of the 8 - the end direction belongs to the NEXT call, not the board');
+          }
+        }
+      }
+    }
   }
 
   // (2) and it is OFFERED from a squared set, which is where a caller says it. This is the whole

@@ -184,7 +184,23 @@ function swingProblem(board: Board): string | null {
  * the local pairing: moving the pairs changes the anchors `Promenade` reads, and eight figures that
  * used to reach a legal promenade no longer do. A correct model has to be pinned by the corpus (or
  * by the reference), not by a local closure rule; until then the identity stands, which is right
- * wherever the partners already stand together. */
+ * wherever the partners already stand together.
+ *
+ * THE REFERENCE'S ANCHOR FOR A NON-IDENTITY MODEL EXISTS, and the risk in it is MEASURED CLEAR.
+ * `taminations-flutter/assets/ms/swing.md:107-119` says "Swing Your Partner" is a shorthand for
+ * "Face Your Partner; Swing", and gives the squared-set case explicitly: the designated dancers "face
+ * and Swing ... the dancer close to them, not the one they are facing across the square". Read
+ * literally that fixes the END POSE to "positions unchanged, every dancer FACING its partner" - a
+ * FACING rule, not the POSITION closure refuted above, so it leaves the pairs where they stand and
+ * cannot disturb the anchors `Promenade` reads.
+ *
+ * THE RISK WAS THE TAIL: a singing call is "swing your partner AND PROMENADE HOME", so a swing ending
+ * with the partners facing each other could break the commonest ending in square dancing. MEASURED on
+ * a squared set with every dancer turned to face its partner: `Promenade`, `Promenade 1/2` and
+ * `Swing Your Partner` are ALL still legal, and `findCouplePairs` still finds all four couples (its
+ * facing pass accepts a facing pair). So the model is viable and is NOT yet implemented - the end pose
+ * is still the identity.
+ */
 function swingRule(board: Board): Board {
   return board;
 }

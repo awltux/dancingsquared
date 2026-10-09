@@ -219,6 +219,20 @@
             </div>
           </details>
         </div>
+        <!-- THE BUSY LOCK. A picker rebuild or a getout search is SYNCHRONOUS engine work on the main thread,
+             so the panel cannot repaint while it runs: the caller got a frozen panel with nothing saying it
+             was working, and clicked again. `beginBusy` sets `#hud.seq-busy`, which takes the pointer away,
+             and shows this over the HUD for the duration. THE BAR IS INDETERMINATE because none of the wrapped
+             operations reports a countable step - a percentage would be invented. It sits after `#seqPanel`
+             rather than inside it so it covers the WHOLE HUD, which is what the lock is on. -->
+        <div id="seqBusy" class="seq-busy" hidden>
+          <div class="seq-busy-card">
+            <span id="seqBusyLabel" class="seq-busy-label">Processing…</span>
+            <div class="seq-busy-track" role="progressbar" aria-labelledby="seqBusyLabel">
+              <div class="seq-busy-fill"></div>
+            </div>
+          </div>
+        </div>
         <div id="editorPanel" hidden>
           <div class="row">
             <label>Mode</label>

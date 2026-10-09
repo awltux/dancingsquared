@@ -470,3 +470,43 @@ html, body {
 /* THE ONLY FOCUS STYLE IN THE APP, and the panel needed one: with a keyboard-driven transport and a
    tabbable timeline, "where the focus is" is now a real question. */
 #hud :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ================================================================ the sequencer's busy lock
+   THE HUD LOCKS, FUNCTIONALLY AND VISIBLY, while synchronous engine work runs. The work is a picker rebuild
+   or a getout search on the main thread, so the browser cannot repaint during it: without a lock the caller
+   sees a frozen panel and no indication at all, and clicks again - which is the defect this answers.
+   `pointer-events: none` ON THE HUD ROOT is the functional half (it inherits to every control, so a second
+   click cannot even be delivered), and the overlay is the visible one. `#hud` is `position: absolute`, so
+   the overlay's `inset: 0` needs no change here and covers the panel, its padding included.
+   THE BAR IS INDETERMINATE: no wrapped operation reports a countable step, so `role="progressbar"` with no
+   `aria-valuenow` is the honest reading and a percentage would be invented. */
+#hud.seq-busy { pointer-events: none; cursor: progress; }
+#hud .seq-busy {
+  position: absolute; inset: 0; z-index: 1;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(11, 15, 20, 0.78); border-radius: 10px;
+}
+#hud .seq-busy[hidden] { display: none; }
+#hud .seq-busy .seq-busy-card {
+  width: 78%; max-width: 300px; padding: 14px 16px; text-align: center;
+  background: var(--panel); border: 1px solid #2a3542; border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+}
+#hud .seq-busy .seq-busy-label { display: block; font-size: 12px; color: var(--text); margin-bottom: 10px; }
+#hud .seq-busy .seq-busy-track {
+  height: 8px; border-radius: 4px; overflow: hidden; background: #131a22; border: 1px solid #2a3542;
+}
+/* THE FILL IS ANIMATED WITH `transform`, NOT WITH `left` or `width`, AND THAT IS THE WHOLE REASON IT KEEPS
+   MOVING: a transform animation runs on the compositor, so it survives the main thread being blocked by the
+   very work the bar is reporting. A geometry animation would freeze with the rest of the page - which is
+   exactly the frame the caller is waiting through. */
+#hud .seq-busy .seq-busy-fill {
+  height: 100%; width: 35%; border-radius: 4px;
+  background: linear-gradient(90deg, #22b576, var(--accent));
+  box-shadow: 0 0 10px rgba(57, 217, 138, 0.6);
+  animation: seq-busy-slide 1.1s ease-in-out infinite;
+}
+@keyframes seq-busy-slide {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(320%); }
+}

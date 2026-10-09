@@ -232,6 +232,356 @@
     </path>
   </tam>  
 
+<!-- exported by the dancing-squared web app: commit b1edee8, with uncommitted changes, built 2026-10-08 10:40Z -->
+  <tam title="Promenade Full" formation="Right and Left Grand Circle" parts="">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6534" cy2="0.0647" x2="0.9567" y2="0.1903" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2712" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6494"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6494"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6493"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7923" cy2="0.5141" x2="1.3394" y2="0.7336" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0524" cx2="3.5412" cy2="1.4716" x2="3.5935" y2="3.4039" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6534" cy2="0.0647" x2="0.9567" y2="0.1903" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2712" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6494"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6494"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6493"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7923" cy2="0.5141" x2="1.3394" y2="0.7336" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0524" cx2="3.5412" cy2="1.4716" x2="3.5935" y2="3.4039" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit b1edee8, with uncommitted changes, built 2026-10-08 10:40Z -->
+  <tam title="Promenade 3/4" formation="Right and Left Grand Circle" parts="">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6534" cy2="0.0647" x2="0.9567" y2="0.1903" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2712" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6494"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6493"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7923" cy2="0.5141" x2="1.3394" y2="0.7336" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0524" cx2="3.5412" cy2="1.4716" x2="3.5935" y2="3.4039" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6534" cy2="0.0647" x2="0.9567" y2="0.1903" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2712" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6494"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6493"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7923" cy2="0.5141" x2="1.3394" y2="0.7336" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0524" cx2="3.5412" cy2="1.4716" x2="3.5935" y2="3.4039" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit b1edee8, with uncommitted changes, built 2026-10-08 10:40Z -->
+  <tam title="Promenade 1/2" formation="Right and Left Grand Circle" parts="">
+    <formation>
+        <dancer gender="boy" x="-0.9567" y="-2.3097" angle="-22.5"/>
+        <dancer gender="girl" x="0.9567" y="-2.3097" angle="-157.5"/>
+        <dancer gender="boy" x="2.3097" y="-0.9568" angle="67.5"/>
+        <dancer gender="girl" x="2.3096" y="0.9568" angle="-67.5"/>
+    </formation>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6534" cy2="0.0647" x2="0.9567" y2="0.1903" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2712" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6493"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7923" cy2="0.5141" x2="1.3394" y2="0.7336" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0524" cx2="3.5412" cy2="1.4716" x2="3.5935" y2="3.4039" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6534" cy2="0.0647" x2="0.9567" y2="0.1903" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2712" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2713" x2="2.3411" y2="2.6493"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7923" cy2="0.5141" x2="1.3394" y2="0.7336" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0524" cx2="3.5412" cy2="1.4716" x2="3.5935" y2="3.4039" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit b1edee8, with uncommitted changes, built 2026-10-08 10:40Z -->
+  <tam title="Promenade 1/4" formation="Right and Left Grand Circle" parts="">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6534" cy2="0.0647" x2="0.9567" y2="0.1903" cx3="0.1103" cx4="0.6937" cy4="0.1542" x4="0.9696" y4="0.2816"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3796" cy1="-0.0552" cx2="2.5427" cy2="1.0185" x2="2.5979" y2="2.3981"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7923" cy2="0.5141" x2="1.3394" y2="0.7336" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="gripright" beats="3.5" cx1="1.9323" cy1="-0.0524" cx2="3.5412" cy2="1.4716" x2="3.5935" y2="3.4039"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6534" cy2="0.0647" x2="0.9567" y2="0.1903" cx3="0.1103" cx4="0.6937" cy4="0.1542" x4="0.9696" y4="0.2816"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3796" cy1="-0.0552" cx2="2.5427" cy2="1.0185" x2="2.5979" y2="2.3981"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7923" cy2="0.5141" x2="1.3394" y2="0.7336" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="gripright" beats="3.5" cx1="1.9323" cy1="-0.0524" cx2="3.5412" cy2="1.4716" x2="3.5935" y2="3.4039"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
+  <tam title="Promenade Full to Home" formation="Right and Left Grand Circle" parts="">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="3.5" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="3.5" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7924" cy2="0.4011" x2="1.3395" y2="0.6206" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="3.5" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="3.5" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="3.5" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7924" cy2="0.4011" x2="1.3395" y2="0.6206" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="3.5" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
+  <tam title="Promenade 3/4 to Home" formation="Right and Left Grand Circle" parts="">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="3.5" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="3.5" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7924" cy2="0.4011" x2="1.3395" y2="0.6206" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="3.5" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="3.5" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="3.5" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7924" cy2="0.4011" x2="1.3395" y2="0.6206" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="3.5" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
+  <tam title="Promenade 1/2 to Home" formation="Right and Left Grand Circle" parts="">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="3.5" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7924" cy2="0.4011" x2="1.3395" y2="0.6206" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="3.5" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="right" beats="3.5" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.5" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="3.5" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7924" cy2="0.4011" x2="1.3395" y2="0.6206" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="right" beats="3.5" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.5" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="3.5" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
+  <tam title="Promenade 1/4 to Home" formation="Right and Left Grand Circle" parts="">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="gripright" beats="3.5" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="3.5" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7924" cy2="0.4011" x2="1.3395" y2="0.6206" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="gripright" beats="3.5" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="3.5" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
+      <movement hands="gripright" beats="3.5" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="3.5" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.8145" cy1="-0.0617" cx2="1.7924" cy2="0.4011" x2="1.3395" y2="0.6206" cx3="0.6498" cx4="0.7003" cy4="0.647" x4="0.1043" y4="0.8751"/>
+      <movement hands="gripright" beats="3.5" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="3.5" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
+  <tam title="Promenade Full to Home" formation="Right and Left Grand Static Square" parts="">
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
+      <movement hands="right" beats="3.6" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.6" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="3.6" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="1.8" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="1.8" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0.5" cy1="0" cx2="1.5" cy2="0.5" x2="1" y2="0.5" cx3="1.0381" cx4="1.0513" cy4="-0.9717" x4="0.0136" y4="-0.9999"/>
+      <movement hands="right" beats="3.6" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.6" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.6" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="1.8" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="1.8" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
+      <movement hands="right" beats="3.6" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.6" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="3.6" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="1.8" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="1.8" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0.5" cy1="0" cx2="1.5" cy2="0.5" x2="1" y2="0.5" cx3="1.0381" cx4="1.0513" cy4="-0.9717" x4="0.0136" y4="-0.9999"/>
+      <movement hands="right" beats="3.6" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.6" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.6" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="1.8" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="1.8" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
+  <tam title="Promenade 3/4 to Home" formation="Right and Left Grand Static Square" parts="">
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
+      <movement hands="right" beats="3.6" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.6" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="1.8" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="1.8" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0.5" cy1="0" cx2="1.5" cy2="0.5" x2="1" y2="0.5" cx3="1.0381" cx4="1.0513" cy4="-0.9717" x4="0.0136" y4="-0.9999"/>
+      <movement hands="right" beats="3.6" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.6" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="1.8" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="1.8" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
+      <movement hands="right" beats="3.6" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="3.6" cx1="1.3781" cy1="0.0845" cx2="2.4269" cy2="1.2702" x2="2.3423" y2="2.6483"/>
+      <movement hands="gripright" beats="1.8" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="1.8" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0.5" cy1="0" cx2="1.5" cy2="0.5" x2="1" y2="0.5" cx3="1.0381" cx4="1.0513" cy4="-0.9717" x4="0.0136" y4="-0.9999"/>
+      <movement hands="right" beats="3.6" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="3.6" cx1="1.933" cy1="0" cx2="3.5" cy2="1.567" x2="3.5" y2="3.5" cx3="1.933" cx4="3.5" cy4="1.567" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="1.8" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="1.8" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
+  <tam title="Promenade Full to Home" formation="Right and Left Grand Static Square" parts="">
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
+      <movement hands="right" beats="3.6" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="1.8" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="1.8" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0.5" cy1="0" cx2="1.5" cy2="0.5" x2="1" y2="0.5" cx3="1.0381" cx4="1.0513" cy4="-0.9717" x4="0.0136" y4="-0.9999"/>
+      <movement hands="right" beats="3.6" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="1.8" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="1.8" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
+      <movement hands="right" beats="3.6" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
+      <movement hands="gripright" beats="1.8" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="1.8" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0.5" cy1="0" cx2="1.5" cy2="0.5" x2="1" y2="0.5" cx3="1.0381" cx4="1.0513" cy4="-0.9717" x4="0.0136" y4="-0.9999"/>
+      <movement hands="right" beats="3.6" cx1="1.9323" cy1="-0.0525" cx2="3.5413" cy2="1.4713" x2="3.5938" y2="3.4036" cx3="1.933" cx4="3.4476" cy4="1.5677" x4="3.5" y4="3.5"/>
+      <movement hands="gripright" beats="1.8" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="1.8" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
+  <tam title="Promenade 1/4 to Home" formation="Right and Left Grand Static Square" parts="">
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
+      <movement hands="gripright" beats="1.8" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="1.8" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0.5" cy1="0" cx2="1.5" cy2="0.5" x2="1" y2="0.5" cx3="1.0381" cx4="1.0513" cy4="-0.9717" x4="0.0136" y4="-0.9999"/>
+      <movement hands="gripright" beats="1.8" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="1.8" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
+      <movement hands="gripright" beats="1.8" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
+      <movement hands="gripright" beats="1.8" cx1="0.3096" cy1="-0.0048" cx2="1.0599" cy2="-0.0467" x2="1.3887" y2="-0.4234" cx3="0.9705" cx4="0.8171" cy4="0.9469" x4="0.3391" y4="1.5165"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.6" cx1="0.5" cy1="0" cx2="1.5" cy2="0.5" x2="1" y2="0.5" cx3="1.0381" cx4="1.0513" cy4="-0.9717" x4="0.0136" y4="-0.9999"/>
+      <movement hands="gripright" beats="1.8" cx1="0.9281" cy1="0.0001" cx2="1.8182" cy2="0.3687" x2="2.4745" y2="1.025"/>
+      <movement hands="gripright" beats="1.8" cx1="1.4142" cy1="-0.0354" cx2="2.4747" cy2="2.4395" x2="2.8283" y2="2.086" cx3="1.2045" cx4="0.2778" cy4="1.8697" x4="-0.4614" y4="2.6088"/>
+    </path>
+  </tam>
+
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
   <tam title="Single File Promenade to Home" formation="Opposite Boy" parts="" sequencer="gender-specific" symmetrical="true">
     <path>

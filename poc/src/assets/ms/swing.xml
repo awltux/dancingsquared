@@ -22,6 +22,27 @@
 -->
 <tamination title="Swing">
 
+<!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
+  <tam title="Swing Your Partner" formation="Facing Dancers Close" parts="" asymetrical="true">
+    <path>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.3879" cy2="0.1178" x2="0.6464" y2="0.3536" cx3="0.463" cx4="0.6502" cy4="0.0173" x4="0.9138" y4="0.0426"/>
+      <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
+      <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
+      <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
+      <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
+      <movement hands="right" beats="1" cx1="0.1023" cy1="0.0844" cx2="0.234" cy2="0.1246" x2="0.366" y2="0.1119" cx3="0.2328" cx4="0.6228" cy4="0.0045" x4="0.8531" y4="-0.0177"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.3879" cy2="0.1178" x2="0.6464" y2="0.3536" cx3="0.463" cx4="0.6502" cy4="0.0173" x4="0.9138" y4="0.0426"/>
+      <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
+      <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
+      <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
+      <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
+      <movement hands="right" beats="1" cx1="0.1023" cy1="0.0844" cx2="0.234" cy2="0.1246" x2="0.366" y2="0.1119" cx3="0.6119" cx4="0.6567" cy4="-0.6508" x4="0.1577" y4="-0.5994"/>
+    </path>
+  </tam>
+
+
   <tam title="Swing Your Partner" from="Facing Couples" formation="Facing Couples">
     <path>
       <move select="Lead Right" scaleX=".75" scaleY=".5"/>

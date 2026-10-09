@@ -35,3 +35,4 @@ poc/tools/_*
 # A probe's stdout captured to a file so it can be read (PowerShell's `>` writes UTF-16, which the
 # read tool refuses, so these are re-captured through Out-File -Encoding utf8). Never source.
 engine/test/tools/_*.txt
+/docs/downloads/*

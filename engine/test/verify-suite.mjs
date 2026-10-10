@@ -45,6 +45,13 @@ const SUITE = [
   { h: 'arrangement-picker', light: true },
   { h: 'verify', light: true },
   { h: 'sequencer', light: true },
+  // `Circle Four` IS A CATALOGUE CALL, and this is the negative control against the engine DERIVING it again.
+  // The family's ring turn was derived (`circleFourDef` in coded-moves.ts) until the owner asked for it
+  // removed and began authoring explicit tams for the eight titles. The harness pins that none of them is a
+  // coded move, that all eight still apply from the boards where a tam matches, and CALLERLAB's 2N beats from
+  // a squared set; it REPORTS rather than asserts the one thing the removal costs (the reported 2x2-ring
+  // slot's circle lane no longer moves, the gap the authored tams still have to close). ~2s, one sequencer.
+  { h: 'circle-four', light: true },
   // The CURRENT partner relation, which is not the home couple on `SeqDancer.couple`. Pins that a
   // couple's number follows the dancers as they change partners (`Square Thru 2` from a squared set
   // is the witness), that an unpaired dancer keeps its home couple, and that no number is invented

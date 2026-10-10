@@ -3989,11 +3989,16 @@ the mode is rebuilt from the apply's own board, the paint happens before the mes
 go through `activateStep`, the row marker, and that the fill comes from the engine); the HUD probe pins the
 figure row's mark and tooltip; `verify-probes.mjs` reports the same 13 pre-existing reds and no others.
 
-`Circle Four N/4` IS A TURN OF THE RING THE ACTING FOUR STAND ON, DERIVED. Reported: "the Circle Four Left 3/4
+`Circle Four N/4` WAS A TURN OF THE RING THE ACTING FOUR STAND ON, DERIVED - AND THE DERIVATION IS NOW GONE.
+Reported: "the Circle Four Left 3/4
 seems to assign the wrong dancer from the correct group to each path in the call. They also seem to rotate 90
 degrees at the start of the call. This suggests that there are some invalid dancer id mappings and an invalid
 rotation comes with that." The slot was
 `Heads Promenade 3/4 to Home || All Except Heads ( Step Forward + Circle Four Left 3/4 )`.
+REMOVED at the owner's request ("I only want to remove the codedMove circleFourDef"): all eight titles are
+catalogue calls, declared by the tams in `ms/circle.xml`, and he is authoring explicit tams for the boards the
+rule used to answer. `engine/test/circle-four.mjs` pins the catalogue-backed state and REPORTS the one gap that
+leaves; the paragraphs below are the record of why the rule existed and what it measured.
 
 WHAT WAS MEASURED, and the report is right about the geometry being wrong - the cause is just not the lane.
 `Step Forward` leaves the sides at `(1,-1),(1,1),(-1,1),(-1,-1)`, a 2x2 RING of four. The corpus's tams for
@@ -4012,19 +4017,20 @@ applies as TWO PARALLEL GROUPS OF FOUR (`5+6+1+2 | 7+8+3+4`), each ending 90 deg
 its start in BOTH position and heading - which is 3/4 of a circle clockwise, the same thing on a four-point
 ring. So `Left N/4` is a turn of `-N*90` degrees, `Right N/4` of `+N*90`, heading carried round with it.
 
-THE RULE, therefore, is the ring itself (`circleFourDef` in `coded-moves.ts`, all eight corpus titles): the
-acting dancers must be four on one ring - a common centre, equal radii within 25%, distinct bearings - and the
-call turns that ring. It needs `applyToSelection` as well as `fn`, because `applyCodedToSelection` SKIPS a
+THE RULE, therefore, WAS the ring itself (`circleFourDef` in `coded-moves.ts`, all eight corpus titles): the
+acting dancers had to be four on one ring - a common centre, equal radii within 25%, distinct bearings - and the
+call turned that ring. It needed `applyToSelection` as well as `fn`, because `applyCodedToSelection` SKIPS a
 coded rule that has a precondition when the selection is not everybody, and the reported case is exactly a
-selection. A ring of EIGHT declines (the whole board), so the catalogue's two-circles-of-four reading keeps
-handling the squared set, which is what `catalogueFallback` is for.
+selection. A ring of EIGHT declined (the whole board), so the catalogue's two-circles-of-four reading kept
+handling the squared set, which is what `catalogueFallback` was for. None of this is in the engine any more.
 
 THE ANIMATION WALKS THE LEGS, and that was the second half of the fix. A scoped coded call was drawn by
 `interpolateSegment(board, after, t)` - a straight line, which for a 3/4 circle is a CHORD across the middle of
-the square. The scoped coded branch now walks the rule's own `legs` on the CENTRED SUBSET (the rule's
-precondition asks for the acting four, never the board) and puts the subset back where it stands.
+the square. The scoped coded branch was changed to walk the rule's own `legs` on the CENTRED SUBSET (its
+precondition asked for the acting four, never the board) and to put the subset back where it stands. The `legs`
+mechanism itself stays: the `Swing Thru`s still use it.
 
-MEASURED RESULT (`engine/test/circle-four.mjs`, 30 checks, all green):
+MEASURED RESULT BEFORE THE REMOVAL (`engine/test/circle-four.mjs`, 30 checks, all green then):
   - the reported slot applies, and the sides' board CHANGES: `(1,-1),(1,1),(-1,1),(-1,-1)` with headings
     180/180/0/0 becomes `(1,1),(-1,1),(-1,-1),(1,-1)` with -90/-90/90/90 - a 90-degree turn of the ring in
     position (worst 5.0e-16) AND heading (0.0e+0);
@@ -4036,7 +4042,14 @@ MEASURED RESULT (`engine/test/circle-four.mjs`, 30 checks, all green):
   - a line of four is refused, and the rule's own precondition says why ("their distances from the centre vary
     by 1.00").
 
-GATES: `npm run build --prefix engine`; `engine/test/circle-four.mjs` (new, all green); `scoped-dosado`,
+AFTER THE REMOVAL, measured from the repo root: `findCodedMove` is undefined for all eight titles; the catalogue
+applies all eight from `Static Square`, `Normal Lines` and `Eight Chain Thru` (8/8 legal each), at CALLERLAB's 2N
+beats from a squared set; the squared set still tiles as two groups of four and the `Left 3/4` tam still turns
+the heads a +90 quarter (worst 0.008 units, 0.69 degrees); a line of four is still refused by the catalogue; and
+the reported 2x2-ring slot still applies and still costs its 12 beats but its circle lane does NOT move - the ring
+`Step Forward` leaves matches no tam, which is the gap the owner's tams have yet to close.
+
+GATES BEFORE THE REMOVAL: `npm run build --prefix engine`; `engine/test/circle-four.mjs` (new, all green); `scoped-dosado`,
 `parallel-calls`, `modules`, `step-forward`, `scoped-animation` and `selection` all green; `sequencer.mjs` at
 its SEVEN pre-existing reds on both revisions (measured by stashing the three engine files and re-running);
 `poc/tools/verify-probes.mjs` at the same 13 pre-existing reds and no others (45 probes).

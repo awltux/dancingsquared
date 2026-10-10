@@ -1,21 +1,24 @@
-// `Circle Four` IS A TURN OF THE RING THE ACTING FOUR STAND ON, pinned.
+// `Circle Four` IS A CATALOGUE CALL, declared by the tams in `ms/circle.xml`, pinned.
 //
-// Reported from use: "the Circle Four Left 3/4 seems to assign the wrong dancer from the correct group to each
-// path in the call. They also seem to rotate 90 degrees at the start of the call." The slot was
-// `Heads Promenade 3/4 to Home || All Except Heads ( Step Forward + Circle Four Left 3/4 )`.
+// HISTORY, because this family's geometry was once derived in the engine. `coded-moves.ts` used to carry
+// `circleFourDef`: the acting four had to be ONE RING - a common centre, equal radii, distinct bearings - and
+// the call turned that ring by `-N*90` (Left) or `+N*90` (Right), heading included. It was written for a real
+// report ("the Circle Four Left 3/4 seems to assign the wrong dancer from the correct group to each path...
+// they also seem to rotate 90 degrees at the start") in the slot
+// `Heads Promenade 3/4 to Home || All Except Heads ( Step Forward + Circle Four Left 3/4 )`: `Step Forward`
+// leaves the sides on a 2x2 RING of four that NONE of the authored tams matched, so the scoped apply was
+// refused and the lane drew 0.00 motion. The owner removed the derivation at request and is authoring explicit
+// catalogue tams for the eight titles instead. This file now pins what survives that removal.
 //
-// MEASURED MECHANISM, because the cause is not where the report looks. `Step Forward` leaves the sides on a 2x2
-// RING of four, and `ms/circle.xml`'s tams for this call are three HALF-SET 2-path tams (`Facing Couples` at
-// x=-2, `Compact` at -1.5, `Far` at -3, doubled to four dancers by the 180-degree mirror) plus 4-path
-// `Lines`/`Eight Chain Thru` tams. The match error is a SUM over dancers, so the nearest half-set (`Compact`,
-// 0.5 per dancer = 2.0) missed the 1.5 tolerance: the sub-board matched NOTHING to a tolerance of 8, the bare
-// apply on it was refused, and the lane charged 6 beats and drew 0.00 motion. Scoped to the HEADS the same
-// call DID match - the doubled `Facing Couples Far` - with `mapping=[2,3,0,1]`, turning ~22 degrees in the
-// first frame and walking the heads onto the SIDE positions: that fit is the wrong-dancer-and-rotation report.
-//
-// The rule now derives the turn from the ring itself (`circleFourDef` in coded-moves.ts): `Left N/4` is -N*90
-// degrees and `Right N/4` +N*90, position AND heading, which is exactly what the corpus's own whole-board apply
-// answers for its two groups of four.
+// MEASURED after the removal, from this file:
+//   - `findCodedMove` is UNDEFINED for all eight titles. That is the negative control against re-introducing
+//     the derivation, and it is the check a revert turns red.
+//   - the catalogue answers all eight from `Static Square`, `Normal Lines` and `Eight Chain Thru` (8/8 each) at
+//     CALLERLAB's 2N beats from a squared set - the timing the derived rule also used, now read from the tams'
+//     own parts. The GROUPING differs per board and is measured below rather than generalised.
+//   - the reported 2x2-ring SLOT IS STILL NOT COVERED: the group step applies and still costs its 12 beats,
+//     but the circle lane does not move. That is the gap the removed rule filled and it is REPORTED below
+//     rather than asserted - a gate must not turn red when the owner's tams close it.
 //
 // Usage: node engine/test/circle-four.mjs   (wants `npm run build --prefix engine`)
 import { readFileSync } from 'node:fs';
@@ -23,7 +26,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, findCodedMove, CIRCLE_FOUR_QUARTER_BEATS } from '../dist/index.js';
+import { Sequencer, setParser, findCodedMove } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
@@ -38,7 +41,6 @@ const check = (cond, msg) => {
 };
 const deg = (r) => (r * 180) / Math.PI;
 const norm = (d) => { let x = ((d + 180) % 360 + 360) % 360 - 180; return x; };
-const sig = (b) => b.dancers.map((d) => `${d.id}:${d.x.toFixed(4)},${d.y.toFixed(4)},${d.heading.toFixed(4)}`).join('|');
 
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
@@ -46,89 +48,53 @@ const seq = new Sequencer(
   callsByTitle(assets),
 );
 const square = seq.boardForFormation('Static Square');
-const SIDES = [3, 4, 7, 8];
 const HEADS = [5, 6, 1, 2];
-const show = (b, ids) => ids.map((id) => { const d = b.dancers.find((x) => x.id === id); return `#${id}(${d.x.toFixed(2)},${d.y.toFixed(2)},${deg(d.heading).toFixed(0)})`; }).join(' ');
+const NAMES = ['Circle Four Left 1/4', 'Circle Four Left 1/2', 'Circle Four Left 3/4', 'Circle Four Left Full',
+  'Circle Four Right 1/4', 'Circle Four Right 1/2', 'Circle Four Right 3/4', 'Circle Four Right Full'];
 
-console.log('== the family is derived, at the corpus\'s own timing ==');
-for (const name of ['Circle Four Left 1/4', 'Circle Four Left 1/2', 'Circle Four Left 3/4', 'Circle Four Left Full',
-  'Circle Four Right 1/4', 'Circle Four Right 1/2', 'Circle Four Right 3/4', 'Circle Four Right Full']) {
-  const move = findCodedMove(name);
+console.log('== the family is catalogue, not derived ==');
+for (const name of NAMES) {
   // The corpus spells the halves `1/2`, so the arc is a lookup rather than a number in the title.
   const arc = { '1/4': 1, '1/2': 2, '3/4': 3, Full: 4 }[name.split(' ').pop()];
-  const want = CIRCLE_FOUR_QUARTER_BEATS * arc;
-  check(!!move, `${name} is a derived rule`);
-  if (move) check(move.beats === want, `...charging ${want} beats (got ${move.beats})`);
+  check(findCodedMove(name) === undefined, `${name} is NOT a coded move (the derivation is gone)`);
+  check(seq.getVariants(name).length > 0, `...and the catalogue registers it (${seq.getVariants(name).length} variant(s))`);
+  const beats = seq.sequenceBeats([name], square);
+  check(beats === 2 * arc, `...charging CALLERLAB's ${2 * arc} beats from a squared set (got ${beats})`);
 }
 
-console.log('\n== the reported slot: the sides\' 2x2 ring now turns instead of standing still ==');
+console.log('\n== where a tam matches, the call still applies ==');
+for (const boardName of ['Static Square', 'Normal Lines', 'Eight Chain Thru']) {
+  const board = seq.boardForFormation(boardName);
+  check(!!board, `the start board "${boardName}" is in the library`);
+  if (!board) continue;
+  const legal = NAMES.filter((n) => seq.applyToBoard(board, n).legal).length;
+  check(legal === NAMES.length, `all ${NAMES.length} titles apply from ${boardName} (${legal} legal)`);
+}
+// THE GROUPING IS MEASURED PER BOARD RATHER THAN GENERALISED. From a squared set the corpus's whole-board
+// reading is TWO groups of four, for every title - the reading the removed rule was derived to match. On the
+// 4-path authorings it is not: the partial turns match the whole board (`parallel` is absent), `Normal Lines`
+// tiles the FULL turns as 4+4, and `Eight Chain Thru` applies a FULL turn to the whole board as ONE group of
+// four. Assuming the squared-set shape everywhere would read those as failures of a rule nobody stated.
 {
-  const step = { groups: [
-    { selection: 'Heads', call: 'Promenade 3/4 to Home' },
-    { selection: 'All Except Heads', calls: ['Step Forward', 'Circle Four Left 3/4'] },
-  ] };
-  const applied = seq.applyToBoard(square, step);
-  check(applied.legal, 'the reported figure applies');
-  const lane = applied.lanes.find((l) => l.selection !== 'Heads');
-  const before = lane.boards[1];
-  const after = lane.boards[2];
-  check(sig(before) !== sig(after), 'and the Circle MOVES the sides (the apply is no longer a no-op)');
-  // A 3/4 LEFT circle is -270 degrees, which on a four-point ring is the same place as +90: position AND
-  // heading, which is what the corpus's own whole-board apply answers.
-  let worstPos = 0, worstHead = 0;
-  for (const id of SIDES) {
-    const a = before.dancers.find((d) => d.id === id);
-    const b = after.dancers.find((d) => d.id === id);
-    // rotate the start about the ring centre by +90 and compare
-    const want = { x: -a.y, y: a.x };
-    worstPos = Math.max(worstPos, Math.hypot(b.x - want.x, b.y - want.y));
-    worstHead = Math.max(worstHead, Math.abs(norm(deg(b.heading) - (deg(a.heading) + 90))));
-  }
-  check(worstPos < 1e-9, `each side lands where a 90-degree turn of the ring puts it (worst ${worstPos.toExponential(1)})`);
-  check(worstHead < 1e-9, `and faces the same 90 degrees round (worst ${worstHead.toExponential(1)}deg)`);
-  console.log(`    before: ${show(before, SIDES)}`);
-  console.log(`    after : ${show(after, SIDES)}`);
-
-  // THE ANIMATION IS AN ARC, NOT A CHORD. The ring's radius is sqrt(2), so a 270-degree journey reaches
-  // 2r = 2.828 units from the start at its furthest; the straight chord to the end board is 2.0.
-  const beats = seq.sequenceBeats([step], square);
-  check(beats === 12, `the step costs 12 beats - the heads' promenade (got ${beats})`);
-  let far = 0, startOfCall = null;
-  for (let t = 2; t <= 8 + 1e-9; t += 0.1) {
-    const b = seq.evaluateSequence([step], t, square).board;
-    if (startOfCall === null) startOfCall = b;
-    for (const id of SIDES) {
-      const s = before.dancers.find((d) => d.id === id);
-      const d = b.dancers.find((x) => x.id === id);
-      far = Math.max(far, Math.hypot(d.x - s.x, d.y - s.y));
-    }
-  }
-  check(far > 2.5, `the dancers go ROUND the ring (furthest ${far.toFixed(3)} units, against a 2.000 chord)`);
-  const last = seq.evaluateSequence([step], beats, square).board;
-  let drift = 0;
-  for (const d of last.dancers) { const e = applied.board.dancers.find((x) => x.id === d.id); drift = Math.max(drift, Math.hypot(d.x - e.x, d.y - e.y)); }
-  check(drift < 1e-9, `and the last frame IS the applied board (worst ${drift.toExponential(1)})`);
-  // The heads' promenade is untouched by the rule.
-  const headBefore = lane.boards[0];
-  let headMoved = 0;
-  for (const id of HEADS) {
-    const s = headBefore.dancers.find((d) => d.id === id);
-    const d = seq.evaluateSequence([step], 5, square).board.dancers.find((x) => x.id === id);
-    headMoved = Math.max(headMoved, Math.hypot(d.x - s.x, d.y - s.y));
-  }
-  check(headMoved > 0.1, 'while the heads keep promenading (the rule only turns the acting four)');
+  const grouped = NAMES.filter((n) => {
+    const r = seq.applyToBoard(square, n);
+    return r.legal && r.parallel && r.parallel.groups.length === 2;
+  }).length;
+  check(grouped === NAMES.length, `from a squared set every title tiles as two groups of four (${grouped} of ${NAMES.length})`);
+  const ln = seq.boardForFormation('Normal Lines');
+  const lnFull = seq.applyToBoard(ln, 'Circle Four Left Full');
+  check(!!lnFull.parallel && lnFull.parallel.groups.map((g) => g.length).join('+') === '4+4',
+    `and \`Normal Lines\` tiles the full turn as ${lnFull.parallel ? lnFull.parallel.groups.map((g) => g.length).join('+') : 'no groups'}`);
 }
 
-console.log('\n== the corpus\'s own answer is reproduced, not replaced ==');
+// THE CORPUS'S OWN ANSWER, and the authority the removed rule was derived to match: a `Left N/4` tam turns the
+// group a quarter counter-clockwise per quarter, in BOTH position and heading, so `Left 3/4` ends a +90 turn of
+// the heads' own ring - the same thing on a four-point ring. The comparison is not exact: the tam's authored end
+// poses carry a ~0.01-unit and ~1-degree wobble (MEASURED: #5 ends at 3.00,-0.99 heading -179), which is the
+// corpus's rounding rather than a disagreement.
 {
-  // The whole board is EIGHT dancers, so the rule declines (a ring of eight is two circles of four) and the
-  // catalogue's own two-group reading still applies. Its end poses are the authority for the turn direction.
   const r = seq.applyToBoard(square, 'Circle Four Left 3/4');
-  check(r.legal, 'the whole board still applies `Circle Four Left 3/4`');
-  check(!!r.parallel && r.parallel.groups.length === 2, `...as TWO groups of four (got ${r.parallel ? r.parallel.groups.length : 0})`);
-  // The heads' group, by the catalogue, is a +90 turn of the heads' own ring - the same answer the rule gives.
-  // The comparison is not exact: the tam's own authored end poses carry a ~0.01-unit and ~1-degree wobble
-  // (MEASURED: #5 ends at 3.00,-0.99 heading -179), which is the corpus's rounding rather than a disagreement.
+  check(r.legal, 'the whole squared set applies `Circle Four Left 3/4`');
   let worstPos = 0, worstHead = 0;
   for (const id of HEADS) {
     const a = square.dancers.find((d) => d.id === id);
@@ -138,13 +104,36 @@ console.log('\n== the corpus\'s own answer is reproduced, not replaced ==');
     worstHead = Math.max(worstHead, Math.abs(norm(deg(b.heading) - (deg(a.heading) + 90))));
   }
   check(worstPos < 0.05 && worstHead < 2,
-    `and its turn is the +90 the rule derives (worst ${worstPos.toFixed(3)} units, ${worstHead.toFixed(2)}deg)`);
+    `and the authored tam turns the heads a +90 quarter, position and heading (worst ${worstPos.toFixed(3)} units, ${worstHead.toFixed(2)}deg)`);
 }
 
-console.log('\n== four dancers who are NOT on a ring are refused ==');
+console.log('\n== the reported 2x2-ring slot: the gap the removed rule filled, REPORTED ==');
+// NOT asserted, on purpose. The slot applies and still costs its beats, so the step does not silently break -
+// but the sides' circle lane does not move, because no tam matches the ring `Step Forward` leaves them on, and
+// that is the owner's to close in the corpus. Asserting the standstill would make the gate turn red when the
+// tams land; asserting the motion would make it red today.
 {
-  // A straight line of four: no common centre, so the rule declines. The catalogue has no setup for it either,
-  // so the scoped apply refuses rather than silently doing nothing.
+  const step = { groups: [
+    { selection: 'Heads', call: 'Promenade 3/4 to Home' },
+    { selection: 'All Except Heads', calls: ['Step Forward', 'Circle Four Left 3/4'] },
+  ] };
+  const applied = seq.applyToBoard(square, step);
+  check(applied.legal, 'the reported figure still applies (the catalogue does not refuse the step)');
+  const beats = seq.sequenceBeats([step], square);
+  check(beats === 12, `and still costs 12 beats - the heads' promenade (got ${beats})`);
+  const lane = applied.lanes.find((l) => l.selection !== 'Heads');
+  const before = lane.boards[1];
+  const after = lane.boards[2];
+  const moved = lane.boards[1].dancers.some((d) => {
+    const e = after.dancers.find((x) => x.id === d.id);
+    return Math.hypot(e.x - d.x, e.y - d.y) > 1e-6 || Math.abs(e.heading - d.heading) > 1e-6;
+  });
+  console.log(`  NOTE  the sides' circle lane ${moved ? 'MOVES - the gap is closed' : 'does NOT move - no tam matches the ring Step Forward leaves, and the owner is authoring tams for these calls'}`);
+}
+
+console.log('\n== a board no tam matches is refused, not silently accepted ==');
+{
+  // A straight line of four: the corpus has no setup for it, so the apply refuses rather than doing nothing.
   const line = { dancers: [
     { id: 1, x: -3, y: 0, heading: 0, gender: 'boy' },
     { id: 2, x: -1, y: 0, heading: 0, gender: 'girl' },
@@ -153,10 +142,6 @@ console.log('\n== four dancers who are NOT on a ring are refused ==');
   ] };
   const r = seq.applyToBoard(line, 'Circle Four Left 3/4');
   check(!r.legal, `a line of four is refused (${r.reason ?? 'legal'})`);
-  // AND THE RULE SAYS WHY. `catalogueFallback` lets the catalogue answer a board the rule declines (the
-  // corpus's own `Lines` tams are a legal start for this call), so the rule's reason is asked for directly.
-  const pre = findCodedMove('Circle Four Left 3/4').precondition(line);
-  check(typeof pre === 'string' && /ring/i.test(pre), `...and the rule's own precondition says why: "${pre}"`);
 }
 
 console.log(failures === 0 ? '\ncircle-four: all green.' : `\ncircle-four: ${failures} FAILURE(S)`);

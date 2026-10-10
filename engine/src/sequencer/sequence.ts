@@ -942,11 +942,12 @@ export class SequenceAnalyzer {
           if (coded.deferred && coded.deferredHalf && ids) {
             return this.deferredRoundTrip(board, coded.deferredHalf(board, ids), after, ids, beats, beats, localBeat);
           }
-          // A CODED CALL WITH PARTS IS WALKED THROUGH THEM, so a ring turn is drawn as an ARC. The straight
-          // line below is a chord, which for `Circle Four Left 3/4` cuts across the middle of the square
-          // instead of going round it. The legs are the rule's own boards, built on the CENTRED SUBSET (the
-          // rule's precondition asks for the acting four, and never the whole board), and the subset is put
-          // back where it stands exactly as the coded branch above does.
+          // A CODED CALL WITH PARTS IS WALKED THROUGH THEM, so the animation is given each part as its own
+          // segment instead of one straight line from the start board to the end. `Swing Thru` is the case:
+          // its net on a wave is two 4-CYCLES, so the exchange routing never fires and two dancers walk the
+          // same segment in opposite directions (measured closest pair 0.000; see `CodedMove.legs`). The legs
+          // are the rule's own boards, built on the CENTRED SUBSET, and the subset is put back where it stands
+          // exactly as the coded branch above does.
           if (coded.legs) {
             const sub = this.selectedSubBoard(board, step.selection);
             const legs = sub ? coded.legs(sub.board) : null;

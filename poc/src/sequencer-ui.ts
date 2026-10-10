@@ -684,9 +684,17 @@ export class SequencerController implements SequencerUI {
     // THE BANNER IS SHOWN EXACTLY WHILE A FIGURE IS BEING BUILT, so clearing the mode takes it down with the
     // edge rather than leaving a stale set of lanes to read.
     this.figureBarEl.hidden = !p;
-    // WHILE… IS LIVE WHENEVER THE MODE IS ON: it opens a lane for whoever has none. "Finish figure" is what
-    // ends the figure, and it is live exactly when the mode is.
-    this.parallelBtn.disabled = !p;
+    // WHILE… IS LIVE WHENEVER THERE IS A LANE TO OPEN, which is EITHER while a figure is being built - so
+    // the press adds another group to it - OR on a SELECTED STEP whose own call left dancers unclaimed, so
+    // the press opens that figure's first lane. IT HAS TO BE LIVE WITH NO FIGURE OPEN, and the reading this
+    // replaces (`!p`) made that impossible: "Finish figure", a timeline click and a group change all clear
+    // `parallel`, so the one control that can start the other group died with the mode, the press did
+    // nothing, and the caller's next call landed in the NEXT SLOT. REPORTED in exactly those words.
+    // THE CONDITION IS THE HANDLER'S OWN REMAINDER (`unassignedLane`) AND NOT A SECOND COPY OF IT: the press
+    // consumes this very reading, so the button and the code behind it cannot disagree - the drift between
+    // them is what `41ba359` had just removed and what a re-derived condition would put back.
+    this.parallelBtn.disabled = !p && !this.unassignedLane();
+    // FINISH IS THE OTHER WAY ROUND: it ends a figure, so it is live exactly while one is being built.
     this.parallelDoneBtn.disabled = !p;
     const lane = this.activeLane();
     this.parallelBtn.title = p
@@ -1653,6 +1661,50 @@ export class SequencerController implements SequencerUI {
   }
 
   /**
+   * THE FIGURE `While…` ACTS ON, WHICH OUTLIVES THE MODE: the open one, or the one the SELECTED step still
+   * describes.
+   *
+   * WHY THE SELECTED STEP COUNTS. `Finish figure`, a timeline click and a group change all clear
+   * `this.parallel`, and while the button's enable condition was `!p` it died with the mode - so a caller
+   * who had just finished `Heads Promenade 3/4 to Home`, clicked the row it left behind and pressed
+   * `While…` to give the sides their own call in the same slot got nothing at all, and the call they then
+   * added became a SECOND ENTRY in the next slot. REPORTED in those words, and the second half of it is
+   * what makes the button's condition a REMAINDER rather than a flag: there is a figure to open precisely
+   * when the selected step's own call left dancers unclaimed.
+   *
+   * THE CANDIDATE IS THE ENTRY `applySelected` BUILDS when a subset call is applied: lane 0 already holds
+   * the call the step has, the remainder's lane is OPEN AND EMPTY, and it is the active one - so the press
+   * re-opens the figure that step belonged to rather than inventing one. Nothing is written to the history
+   * here; `index` names the row the mode would replace, exactly as `resumeFigure` does for a figure row.
+   *
+   * THE BOARD IS `this.seq.startBoard()`, the live board, which `activateStep`'s seek has just left at the
+   * step being opened - the same reading `resumeFigure` takes, and the same one `applySelected` took when
+   * this figure was first entered. ONLY A PLAIN SINGLE CALL QUALIFIES: a figure row is re-opened from its
+   * own lanes by `resumeFigure`, and a step that names no selection (or names everybody) leaves no
+   * remainder, so neither gets a candidate.
+   */
+  private figureForWhile(): ParallelEntry | null {
+    if (this.parallel) return this.parallel;
+    const step = this.history[this.selectedStep];
+    if (!step || isGroupStep(step)) return null;
+    const spec = typeof step === 'string' ? splitSelection(step) : { selection: step.selection, call: step.call };
+    if (!spec.selection) return null;
+    const start = this.seq.startBoard();
+    const remaining = this.seq.remainingSelection(start, spec.selection);
+    if (!remaining) return null;
+    return {
+      start,
+      board: start,
+      index: this.selectedStep,
+      groups: [
+        { selection: spec.selection, calls: [spec.call] },
+        { selection: remaining, calls: [] },
+      ],
+      active: 1,
+    };
+  }
+
+  /**
    * The dancers that still have no call in the figure, as IDS, on the board the step starts from.
    *
    * BY IDS, NOT BY SELECTOR, and that distinction is a bug the browser found rather than a style choice. The
@@ -1660,9 +1712,12 @@ export class SequencerController implements SequencerUI {
    * selector resolves to NOBODY - `All Except Heads and All Except Heads` (the union of the two lanes of an
    * ordinary pair) is a perfectly well-formed selector for an empty set. So the emptiness has to be measured
    * here, where the ids are, and not inferred from the selector being non-null.
+   *
+   * THE FIGURE IS HANDED IN rather than read from `this.parallel`, because `unassignedLane` and `laneGroups`
+   * already hold it and `figureForWhile` rebuilds a candidate when no figure is open - reading the state
+   * again here would build that candidate twice for one answer.
    */
-  private unclaimedIds(): number[] {
-    const p = this.parallel;
+  private unclaimedIds(p: ParallelEntry | null): number[] {
     if (!p) return [];
     const claimed = new Set<number>();
     for (const g of p.groups.filter((g) => g.calls.length > 0)) {
@@ -1678,10 +1733,13 @@ export class SequencerController implements SequencerUI {
    * B` resolves to the dancers in neither, MEASURED on a squared set (`All Except Heads and Sides` ->
    * nobody, which is what subtracting all eight means). So no new syntax is needed to name what is left
    * after two or three lanes.
+   *
+   * IT READS `figureForWhile`, SO IT ANSWERS WHILE NO FIGURE IS OPEN TOO - which is what makes it usable as
+   * the enable condition of the button that opens one. See that method for the reported defect.
    */
   private unassignedLane(): string | null {
-    const p = this.parallel;
-    if (!p || this.unclaimedIds().length === 0) return null;
+    const p = this.figureForWhile();
+    if (!p || this.unclaimedIds(p).length === 0) return null;
     const claimed = p.groups.filter((g) => g.calls.length > 0).map((g) => g.selection);
     return claimed.length ? `All Except ${claimed.join(' and ')}` : null;
   }
@@ -1701,7 +1759,7 @@ export class SequencerController implements SequencerUI {
     if (!p) return [];
     const left = this.unassignedLane();
     if (!left) return [];
-    const leftIds = new Set(this.unclaimedIds());
+    const leftIds = new Set(this.unclaimedIds(p));
     if (leftIds.size === 0) return [];
     const out = [left];
     for (const g of [...this.seq.subsetGroups(p.start), ...this.seq.combinedGroups(p.start)]) {
@@ -2353,11 +2411,33 @@ export class SequencerController implements SequencerUI {
     // and the second meaning is the reported defect: a caller reaching for a THIRD parallel group had the
     // step end under them, and the call they then applied landed as a new entry in the list.
     this.parallelBtn.addEventListener('click', () => this.runBusy(() => {
+      // RE-OPEN THE FIGURE THE SELECTED STEP STILL DESCRIBES, when `Finish figure`, a timeline click or a
+      // group change has closed it. This is the reported press: `Heads Promenade 3/4 to Home` in the list,
+      // "Finish figure", the row clicked, and then "I want to add a new call for the sides so I press While
+      // button, but it doesn't seem to do anything." The button's enable condition is derived from this same
+      // figure, so the press and the condition cannot disagree about whether there is one to open.
+      if (!this.parallel) {
+        const reopened = this.figureForWhile();
+        if (reopened) {
+          // READ THE REMAINDER BEFORE THE MODE OWNS IT, from the same `unassignedLane` the button's own
+          // enable condition reads - one computation, so the message cannot name a different group.
+          const left = this.unassignedLane() ?? '';
+          this.setParallel(reopened);
+          // THE PICKER ANSWERS A DIFFERENT QUESTION INSIDE A FIGURE - the remainder's calls - so it is
+          // rebuilt with the mode, exactly as `resumeFigure` does for a figure row.
+          this.refreshCallSelect();
+          this.setStatus('ok', `${left} left — pick their call, then Add`
+            + ' · While… again narrows their lane to a smaller group, and Finish figure ends the figure');
+          this.callSelect.focus();
+          return;
+        }
+      }
       const p = this.parallel;
       if (!p) {
-        // THE BUTTON IS DISABLED WHEN THERE IS NO REMAINDER, so reaching here means the last step could
-        // not take a partner. Say which, rather than appearing to do nothing - which is how a no-op read
-        // in the report that this button "doesn't seem to do anything".
+        // NO FIGURE TO RE-OPEN AND NO REMAINDER TO GIVE ONE: `figureForWhile` is the button's own enable
+        // condition, so a press that gets here is one whose selected step took everybody. Say which, rather
+        // than appearing to do nothing - which is how a no-op read in the report that this button "doesn't
+        // seem to do anything".
         this.setStatus('warn',
           'nothing to pair: the last step must be a SINGLE call that leaves some dancers standing. '
           + 'Add a subset call (e.g. Heads Promenade Full) first.');

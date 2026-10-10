@@ -90,7 +90,11 @@ check(/this\.applyBtn\.textContent = this\.parallel \? 'Add to lane' : 'Add to s
   'and the primary button is captioned from the same state');
 check(chromeWriters(ui) === 5,
   `the banner, the two figure buttons and their titles are written ONCE each (found ${chromeWriters(ui)}, expected 5)`);
-for (const w of ['this.figureBarEl.hidden = !p;', 'this.parallelBtn.disabled = !p;', 'this.parallelDoneBtn.disabled = !p;']) {
+// The three expressions are pinned as they are written TODAY; the point of each check is WHERE it lives, so
+// the `While…` one was re-pointed when its condition became a remainder (`!p && !this.unassignedLane()`,
+// pinned in full by `parallel-while-enable-probe.mjs`) instead of the mode flag `!p`. The strength is
+// unchanged: a second window on any of them still fails, because the count above stays at five.
+for (const w of ['this.figureBarEl.hidden = !p;', 'this.parallelBtn.disabled = !p && !this.unassignedLane();', 'this.parallelDoneBtn.disabled = !p;']) {
   check(chromeBody.includes(w), `\`${w}\` lives in \`applyParallelChrome\`, not in the caller`);
 }
 check(/if \(p\) this\.fillParallelGroupSelect\(\);\n    else this\.refreshGroupSelect\(\);/.test(chromeBody),

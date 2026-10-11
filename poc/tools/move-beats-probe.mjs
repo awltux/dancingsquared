@@ -11,9 +11,11 @@
 //
 // THE FIELD ALSO HAS TO NOTICE A DIFFERENCE RATHER THAN CREATE ONE UNSEEN. A coordinate field LOCKS
 // when the selected dancers disagree, because one number cannot describe several shapes. One TIMING for
-// several dancers is a real edit, so the beats field stays live - but 285 of the corpus's 547 calls
+// several dancers is a real edit, so the beats field stays live - but 271 of the corpus's 495 calls
 // hold a move whose beats differ between dancers, so a multi-dancer selection routinely spans several
-// timings, and section 1 measures how routine that is.
+// timings, and section 1 measures how routine that is. (Those two numbers are MEASURED by section 1 and
+// were 285 of 547 before `50d3e95` retired the `b1`/`b2` duplicates; they are restated here because the
+// header is what a reader sees first, and a stale count in it is worse than none.)
 //
 // The tile lives in `editor-ui.ts`, which is TypeScript inside Vite with a DOM and cannot run in this
 // sandbox - the same limit `move-clipboard-probe.mjs` and `absolute-coords-probe.mjs` record. So the
@@ -35,6 +37,14 @@ const asset = (p) => fs.readFileSync(path.join(POC_DIR, 'src/assets', p), 'utf8'
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 const LEVELS = fs.readdirSync(path.join(POC_DIR, 'src/assets')).filter((d) => !d.includes('.') && d !== 'src');
+// THE FOUR `.xml` FILES UNDER THE LEVEL DIRECTORIES THAT ARE NOT CALLS: the moves registry and three rule
+// tables. They sit in a level directory because that is where the loader looks, so a coverage check that
+// merely counts `*.xml` is always four short - and a check with a magic floor cannot say WHICH four.
+// Naming them is what lets the check below be an EQUALITY on call files. MEASURED: 499 `.xml` files, of
+// which 495 build, and the difference is exactly these four.
+const NOT_CALLS = new Set(['moves.xml', 'facing_couples_rule.xml', 'ocean_wave_rule.xml', 'passing_rule.xml']);
+const CALL_FILES = LEVELS.reduce((n, level) => n
+  + fs.readdirSync(path.join(POC_DIR, 'src/assets', level)).filter((f) => f.endsWith('.xml') && !NOT_CALLS.has(f)).length, 0);
 const callAt = (level, f) => {
   try {
     return engine.normalizeInstance(engine.loadCallFromXml(
@@ -97,7 +107,12 @@ console.log('\n== 1. the corpus: beats are fractional, positive, and often diffe
   console.log(`    histogram: ${[...hist].sort((a, b) => a[0] - b[0]).map(([b, n]) => `${b}:${n}`).join(' ')}`);
   console.log(`    ${callsWithDisagreement} calls hold such a move (${disagreeIndices} indices); widest spread ${largestSpread}`);
   if (widest) console.log(`    ${widest}`);
-  check(calls > 500, `the sweep is every call in the corpus (${calls})`);
+  // EVERY CALL FILE, COUNTED RATHER THAN GUESSED AT. This was `calls > 500`, a floor that went stale the
+  // moment `50d3e95` retired about 52 calls - and a floor cannot say whether a shortfall means files were
+  // skipped or calls stopped building. An equality against the enumerated call files says both, and it
+  // fails if a NEW call file is added without being swept, which the floor could never notice.
+  check(calls === CALL_FILES,
+    `the sweep is every call in the corpus (${calls} of ${CALL_FILES} call files; the ${NOT_CALLS.size} non-call .xml files - the moves registry and three rule tables - are excluded by name)`);
   check(nonPositive === 0, `NO segment has a duration of zero or less (${nonPositive}), so a zero typed here is a typo rather than an authoring choice`);
   check(fractional > 1000, `FRACTIONAL beats are ordinary rather than a rounding error to be tidied away (${fractional} of ${segments})`);
   check(min >= 0.1 && max <= 9.5, `and the whole corpus sits between ${min} and ${max} beats, a long way inside the 64-beat phrase the field refuses beyond`);

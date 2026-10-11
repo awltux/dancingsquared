@@ -2284,8 +2284,28 @@
 
 
 
-  <!-- [CALLERLAB 2026] CIRCLE FOUR LEFT FAMILY FROM FACING COUPLES COMPACT TO FACING COUPLES COMPACT -->
+  <!-- [CALLERLAB 2026] CIRCLE FOUR LEFT FAMILY FROM FACING COUPLES CLOSE TO FACING COUPLES CLOSE -->
 
+<!-- exported by the dancing-squared web app: commit d285865, with uncommitted changes, built 2026-10-10 14:32Z -->
+  <tam title="Circle Four Left Full" formation="Facing Couples Close" parts="">
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5523" cy1="0.5523" cx2="1.4477" cy2="0.5523" x2="2" y2="0" cx3="0.5236" cx4="0.4817" cy4="-0.961" x4="0.1519" y4="-1.2889"/>
+      <movement hands="gripboth" beats="2" cx1="-0.0003" cy1="0.7787" cx2="0.6308" cy2="1.4103" x2="1.4095" y2="1.4107"/>
+      <movement hands="gripboth" beats="2" cx1="-0.0003" cy1="0.7787" cx2="0.6308" cy2="1.4103" x2="1.4095" y2="1.4107"/>
+      <movement hands="gripboth" beats="2" cx1="0.0017" cy1="0.7763" cx2="0.6266" cy2="1.4093" x2="1.4028" y2="1.4112" cx3="1.1" cx4="1.6095" cy4="-0.4988" x4="2.3697" y4="-1.2306"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="-0.5523" cy1="0.5523" cx2="-0.5523" cy2="1.4477" x2="0" y2="2" cx3="0.1982" cx4="0.7919" cy4="-0.1819" x4="0.9561" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1461" cy1="0.7691" cx2="0.888" cy2="1.2743" x2="1.6572" y2="1.1283" cx3="1.1" cx4="2" cy4="-0.9" x4="2" y4="-2"/>
+      <movement hands="gripboth" beats="2" cx1="0.1459" cy1="0.7692" cx2="0.8877" cy2="1.2745" x2="1.6569" y2="1.1287" cx3="1.1" cx4="2" cy4="-0.9" x4="2" y4="-2"/>
+      <movement hands="gripboth" beats="2" cx1="0.1442" cy1="0.7732" cx2="0.893" cy2="1.277" x2="1.6653" y2="1.128" cx3="0.7176" cx4="0.9646" cy4="-0.2153" x4="0.6083" y4="-0.4564"/>
+    </path>
+  </tam>
+
+
+
+
+  <!-- [CALLERLAB 2026] CIRCLE FOUR LEFT FAMILY FROM FACING COUPLES COMPACT TO FACING COUPLES COMPACT -->
 
   <tam title="Circle Four Left Full"  formation="Facing Couples Compact" parts="">
     <path>
@@ -2725,7 +2745,7 @@
   <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
        `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
        Basic levels; every other Basic tam is already re-authored here. -->
-<tam title="Circle Left"
+<!--tam title="Circle Left"
        from="Static Square"
        formation="Static Square"
        fractions="" >
@@ -2773,7 +2793,7 @@
       <move select="cl" />
       <move select="cl" />
     </path>
-  </tam>
+  </tam-->
 
 <tam title="Circle Right"
        from="Static Square"

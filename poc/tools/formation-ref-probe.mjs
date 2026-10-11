@@ -18,7 +18,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const read = (p) => fs.readFileSync(path.join(POC_DIR, 'src', p), 'utf8');
+// LINE ENDINGS ARE NORMALISED ON THE WAY IN, and that is load-bearing rather than tidy. The app's
+// TypeScript is checked in with CRLF while these probes are LF, so a regex or a `replace` written with a
+// literal `\n` cannot match it - AGENTS.md §8 trap 2. THE POSITIVE CHECKS BELOW SURVIVED BY ACCIDENT,
+// because they spell their line break `\s*\n\s*` and `\s` eats the `\r`; the negative control at the foot
+// of this file spells it `\n` and therefore replaced NOTHING, so `backwards` was the real source and the
+// control could never pass. A control that cannot pass demonstrates nothing, and this one had been failing
+// for that reason alone. `square-dancing.md:4265` fixed four reds of this exact class in another probe.
+const read = (p) => fs.readFileSync(path.join(POC_DIR, 'src', p), 'utf8').replace(/\r\n/g, '\n');
 
 let failures = 0;
 const check = (cond, msg) => {

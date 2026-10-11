@@ -222,12 +222,43 @@ console.log('\n== What the connect wrote into the first move ==');
   // differed. (The first version of this check assumed EVERY later move is identical, and the corpus
   // refused it: `ms/circle.xml` ends on a move its dancers do not share either.)
   const moves = connected.dancers[0].path.length;
-  const differing = [];
-  for (let k2 = 1; k2 < moves; k2++) {
-    if (!sameCoords(connected.dancers[0].path[k2], connected.dancers[1].path[k2])) differing.push(k2 + 1);
-  }
-  check(differing.length === 0 || differing.every((k2) => k2 === moves),
-    `every move the connect did NOT re-aim is either identical across dancers or was already different in the ancestor - here: ${differing.length ? `move(s) ${differing.join(', ')}` : 'none'} - so the refusal is confined to what was already unshared`);
+  // THE RULE IS ABOUT THE ANCESTOR, SO IT NOW READS IT. This message has always said "either identical
+  // across dancers OR was already different in the ancestor", but the predicate only ever implemented the
+  // FIRST half: it collected the later moves that DIFFER between the two dancers and then tolerated them
+  // only if every one of them was the LAST move (`differing.every((k2) => k2 === moves)` - and `differing`
+  // holds `k2 + 1`, so that was a check on a single index). The words "already different in the ancestor"
+  // were never tested by anything. THE DEFECT THIS EXISTS FOR - a connect that spreads its re-aim into a
+  // move it did not touch - was therefore NOT caught, while the check reported a false positive on the
+  // corpus. `src` is the ancestor the connect was built from; both halves are measured against it now.
+  const sharedThen = (k2) => sameCoords(src.dancers[0].path[k2], src.dancers[1].path[k2]);
+  const leakedFrom = (call, ancestor) => {
+    const out = [];
+    for (let k2 = 1; k2 < moves; k2++) {
+      const differsNow = !sameCoords(call.dancers[0].path[k2], call.dancers[1].path[k2]);
+      const differedThen = !sameCoords(ancestor.dancers[0].path[k2], ancestor.dancers[1].path[k2]);
+      if (differsNow && !differedThen) out.push(k2 + 1);
+    }
+    return out;
+  };
+  const sharedInAncestor = [];
+  for (let k2 = 1; k2 < moves; k2++) if (sharedThen(k2)) sharedInAncestor.push(k2 + 1);
+  const leaked = leakedFrom(connected, src);
+  // A ZERO HAS TO SAY WHICH IT IS. MEASURED on this witness: the ancestor shares 0 of the 7 later moves
+  // between these two dancers - they already differ on every one of them - so the rule above has an EMPTY
+  // FIELD here and passes for that reason rather than because the connect was tidy. Saying so in the
+  // message is the difference between an instrument reporting a gap and one reporting an absence; making it
+  // a FAIL would be inventing a red for a rule that is simply not exercised by the reported witness, which
+  // is why the proof that it BITES is carried by the control below instead.
+  check(leaked.length === 0,
+    `every move the connect did NOT re-aim is either identical across dancers or was already different in the ancestor - here: ${leaked.length ? `move(s) ${leaked.join(', ')}` : 'none'} - so the refusal is confined to what was already unshared (the ancestor shares ${sharedInAncestor.length} of these ${moves - 1} later moves, so on THIS witness the rule had ${sharedInAncestor.length ? 'something' : 'NOTHING'} to catch)`);
+  // AND THE CHECK BITES, ON A PAIR BUILT FOR IT rather than borrowed: two calls that agree on every move
+  // from 1 on, with move 2 spoilt in the candidate - which is exactly what a spreading re-aim looks like.
+  // Without this the predicate could be satisfied by a rule that caught nothing, which is what the version
+  // it replaces had become.
+  const sharedPair = { ...connected, dancers: connected.dancers.map((d, i) => (i === 0 ? d : { ...d, path: d.path.map((g, k) => (k === 0 ? g : { ...g, translate: { ...connected.dancers[0].path[k].translate } })) })) };
+  const spoilt = { ...sharedPair, dancers: sharedPair.dancers.map((d, i) => (i === 1 ? { ...d, path: d.path.map((g, k) => (k === 1 ? { ...g, translate: { ...g.translate, x2: g.translate.x2 + 0.5 } } : g)) } : d)) };
+  check(leakedFrom(spoilt, sharedPair).length === 1,
+    'and a difference put into a move the connect did NOT touch IS caught, on a pair built for it - which is the defect this check exists for');
 }
 
 // ---------------------------------------------------------------- does the window ever bite?

@@ -199,7 +199,25 @@ function matchEqualLength(  source: Matchable[],
       if (
         best === null ||
         res.error < best.error - TIE_EPS ||
-        (Math.abs(res.error - best.error) <= TIE_EPS && ident > bestIdent)
+        // A DIRECT READING WINS A TIE ACROSS ROTATIONS, NOT JUST ACROSS VARIANTS.
+        //
+        // `matcher.ts` already prefers an unreflected VARIANT on an equal error (see its note on
+        // `Left Swing Thru` on a right-hand wave), and this loop is where the same choice is actually
+        // made for a single variant: `(rot, reflect)` are enumerated here, and the FIRST candidate
+        // within `TIE_EPS` used to win outright. For a setup that is symmetric under the reflection
+        // there are TWO exact readings - one direct at some rotation, one reflected at another - and
+        // whether the reflected one was seen first was pure enumeration order.
+        //
+        // MEASURED on the 2-dancer `Adjacent Dancers Close` unit (`Lead Right`, from a squared set):
+        // `(rot = 0, reflect = true)` and `(rot = pi, reflect = false)` are both exact (errors 0 and
+        // 2.4e-16), `identityScore` is 0 for both because the setup carries no couple, so the reflected
+        // candidate examined first won. The motion is then applied MIRRORED, which splays a couple whose
+        // two dancers move differently: `Heads Lead Right` left the south head couple 2.00 apart and the
+        // north one 4.47, and the dance was correct in two of the four orientations and broken in the
+        // other two. A dancer whose path is purely along its own local +x does not show it, which is why
+        // only one of the pair looked wrong.
+        (Math.abs(res.error - best.error) <= TIE_EPS && best.reflect && !reflect) ||
+        (Math.abs(res.error - best.error) <= TIE_EPS && best.reflect === reflect && ident > bestIdent)
       ) {
         best = { mapping: res.mapping, error: res.error, maxDancerError: res.maxDancerError, rot, reflect, cSrc, cTgt };
         bestIdent = ident;

@@ -434,6 +434,58 @@ console.log('\n== a reflection must not decide a call when a direct reading is a
   }
 }
 
+console.log('\n== ...and a reflection must not decide which ROTATION of one variant applies ==');
+// THE SAME RULE ONE LEVEL DOWN, which is where it was actually being broken. The `Left Swing Thru` case
+// above is decided across VARIANTS in `matcher.ts`; a single variant is placed by enumerating
+// `(rot, reflect)` inside `matchEqualLength`, and there the FIRST candidate within `TIE_EPS` used to win
+// outright - so for a setup that is symmetric under the reflection there are two exact readings and
+// enumeration order decided between them.
+//
+// MEASURED on the 2-dancer `Adjacent Dancers Close` unit, which is what the app-authored `Lead Right`
+// tams are written on: `(rot = 0, reflect = true)` and `(rot = pi, reflect = false)` are both exact
+// (errors 0 and 2.4e-16) and `identityScore` is 0 for both - the setup carries no couple, so nothing
+// could break the tie but the order. The motion is then applied MIRRORED, which splays a couple whose
+// two dancers move differently: `Heads Lead Right` from a squared set left the SOUTH head couple 2.00
+// apart and the NORTH one 4.47, correct in two of the four orientations and broken in the other two.
+// The dancer whose path is purely along its own local +x does not show it - only one of the pair looked
+// wrong, which is how it was reported.
+//
+// THE WITNESS IS SYNTHETIC ON PURPOSE. The rule is the matcher's, and a gate built on a call the app is
+// still authoring would go red for the wrong reason the next time that tam is edited.
+{
+  const pair = [
+    { x: -1, y: 0, heading: Math.PI / 2, gender: 'boy', couple: 0 },
+    { x: 1, y: 0, heading: Math.PI / 2, gender: 'girl', couple: 0 },
+  ];
+  const turned = pair.map((d) => ({ ...d, x: -d.x, y: -d.y, heading: d.heading + Math.PI }));
+  for (const [label, src] of [['as authored', pair], ['rotated 180 degrees', turned]]) {
+    const m = matchFormations(src, pair, 1.5, false);
+    if (!m) fail(`the 2-dancer unit does not match ${label} at all`);
+    else if (m.reflect) fail(`a 2-dancer unit ${label} matches by REFLECTION at error ${m.error.toExponential(1)} although a direct reading exists at the same error`);
+    else ok(`a 2-dancer unit ${label} matches DIRECTLY (error ${m.error.toExponential(1)})`);
+  }
+  // THE NEGATIVE CONTROL, for the plausible wrong fix: "never reflect". A mirrored arrangement is
+  // still how some calls are read - `matcher.ts` records `Left Swing Thru`'s mirrored variant and the
+  // mirror map below pins that handedness is real - so a preference must not become a ban.
+  //
+  // CAPPED, because the full sweep is every call against every named formation and it measured as
+  // +10s on this harness's own 60. Nothing here needs the exact total: the claim is "reflections are
+  // still used", and stopping at 50 answers it. MEASURED, the sweep passes 50 long before the cap
+  // matters, and the count over the whole library is 207 either side of this change.
+  let reflected = 0;
+  const CAP = 50;
+  outer: for (const call of seq.library.callNames()) {
+    for (const name of seq.listFormations()) {
+      const b = formationBoard(name);
+      if (!b) continue;
+      const m = seq.findMatchingVariant(b, call, 1.5);
+      if (m && m.reflect && ++reflected >= CAP) break outer;
+    }
+  }
+  if (reflected === 0) fail('NO (call, board) pair matches by reflection any more - the preference has become a ban');
+  else ok(`and a reflection is still how at least ${reflected} (call, named board) pairs are read, so it remains available`);
+}
+
 console.log('\n== the wave circulate: the crossing is real, and the group reading collides ==');
 // The standing open item said the wave circulate "may be wrong" and asked for an independent read
 // before changing both calls together. The read is done, and it says the following, all MEASURED.

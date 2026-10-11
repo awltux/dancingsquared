@@ -1,5 +1,5 @@
-// Probe: THE REPORTED WITNESS, end to end - "All 4 Couples Promenade Full" | Clone | Start From
-// "Grand Circle 3" | Connect | select dancers 1 and 3 | the coordinate fields are locked.
+// Probe: THE REPORTED WITNESS, end to end - "<call>" | Clone | Start From a user-labelled formation |
+// Connect | select dancers 1 and 3 | the coordinate fields are locked.
 //
 // The panel's clone path, exactly as the panel does it: the call instance as loaded, `setStartFormation`
 // onto the poses `startFormations()` hands the picker (from `boardForSetup`), then `connectStart`. Then the
@@ -8,9 +8,16 @@
 //
 // Run: node tools/clone-refusal-probe.mjs [call title] [formation | call:<title>#<n>] [--sweep]
 //
-// The defaults are the reported witness: "Grand Circle 3" is a USER-LABELLED formation (kept in the
-// browser's localStorage, so a headless probe cannot look it up by name), made from the END of `Right and
-// Left Grand`, which is what `call:Right and Left Grand#1` reproduces.
+// THE CALL THE REPORT NAMED IS GONE, SO THE DEFAULT IS NOT THE ORIGINAL ONE. "All 4 Couples Promenade
+// Full" was retired by 50d3e95, when `b1`/`b2` were folded into `ms` 2026; the surviving promenade tams
+// (`Promenade Full`, `... 3/4`, `... 1/2`, `... 1/4`, `... to Home`) are all TWO- or FOUR-dancer, and this
+// probe needs an EIGHT-dancer call because the formation it is cloned onto is an eight-dancer one.
+// `Circle Left` replaces it: the same property is under test (dancers 1 and 3 must be EDITABLE, because
+// their walk-ins agree inside the windows), it is a current corpus call, and it was MEASURED to pass with
+// `call:Right and Left Grand#1`. What is NOT substituted is the mechanism - "Grand Circle 3" was a
+// USER-LABELLED formation (kept in the browser's localStorage, so a headless probe cannot look it up by
+// name), made from the END of `Right and Left Grand`, and `call:Right and Left Grand#1` is still exactly
+// that.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -21,8 +28,15 @@ const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
 
-const CALL = process.argv[2] ?? 'All 4 Couples Promenade Full';
-const FORMATION = process.argv[3] ?? 'call:Right and Left Grand#1';
+// FLAGS ARE NOT POSITIONALS. Both arguments used to be read straight out of `argv[2]`/`argv[3]`, so
+// `node tools/clone-refusal-probe.mjs --sweep` asked the catalogue for a call titled "--sweep" and exited
+// with `✗ no call titled "--sweep"` instead of sweeping. The runner never saw it, because
+// `verify-probes.mjs` hands every probe an argv with no extra flags on it (`--all` once leaked into a
+// probe the same way) - so this only ever bit a human running the probe by hand, which is exactly how the
+// default above is meant to be used.
+const positional = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+const CALL = positional[0] ?? 'Circle Left';
+const FORMATION = positional[1] ?? 'call:Right and Left Grand#1';
 
 const assets = path.join(POC_DIR, 'src', 'assets');
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
@@ -79,6 +93,14 @@ if (FORMATION.startsWith('call:')) {
     process.exit(1);
   }
   poses = board.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender }));
+}
+// A CALL OF THE WRONG SIZE IS REFUSED, NOT ALLOWED TO THROW. `setStartFormation` throws when the call and
+// the formation disagree on dancer count, and an uncaught throw here kills the probe before a single check
+// runs - the same silent-nothing the missing-TITLE guard above exists for. MEASURED: `Pass Thru` is a
+// four-dancer call and the probe exited 1 printing no checks at all.
+if (src.dancers.length !== poses.length) {
+  console.log(`✗ "${CALL}" has ${src.dancers.length} dancers and ${formationLabel} has ${poses.length} - this probe clones onto an eight-dancer formation, so it needs an eight-dancer call`);
+  process.exit(1);
 }
 const rebased = engine.setStartFormation(src, poses);
 const connected = engine.connectStart(rebased, src);
@@ -223,16 +245,21 @@ if (process.argv.includes('--sweep')) {
   let opens2px = 0;
   let largestUnder2px = 0;
   let callsUsed = 0;
+  const dropped = [];
+  const tooFew = [];
   for (const [title, idx] of CALLS) {
     const e = callsByTitle(assets).find((c) => c.name === title);
-    if (!e) continue;
+    if (!e) { dropped.push(title); continue; }
     let bundle;
     try {
       bundle = engine.normalizeInstance(engine.loadCallFromXml(e.xml, movesXml, formationsXml, idx));
     } catch {
       continue;
     }
-    if (bundle.dancers.length !== 8) continue;
+    // AND NEITHER IS A CALL THESE FORMATIONS CANNOT CARRY. The sweep clones onto EIGHT-dancer formations,
+    // so a four-dancer call is skipped - silently, which let "12 calls" read as coverage when it is
+    // MEASURED at four. The count was printed; which calls went missing was not.
+    if (bundle.dancers.length !== 8) { tooFew.push(`${title} (${bundle.dancers.length})`); continue; }
     callsUsed++;
     for (const name of seq.listFormations()) {
       const b = seq.boardForSetup(name);
@@ -273,6 +300,11 @@ if (process.argv.includes('--sweep')) {
     }
   }
   console.log(`\n== how big are the walk-in refusals a caller actually hits? ==`);
+  // A TITLE THE CATALOGUE DOES NOT CARRY IS SAID OUT LOUD. This loop used to `continue` in silence, so the
+  // sweep quietly swept one fewer call than its own list claimed - which is how a dead default went
+  // unnoticed here for so long (AGENTS.md §4.1: an instrument's silence is itself a bug).
+  if (dropped.length) console.log(`   NOTE: ${dropped.length} title(s) in this list are NOT in the catalogue and were not swept: ${dropped.join(', ')}`);
+  if (tooFew.length) console.log(`   NOTE: ${tooFew.length} title(s) are not eight-dancer calls and were not swept: ${tooFew.join(', ')}`);
   console.log(`   ${callsUsed} calls x ${seq.listFormations().length} formations = ${refused} refused pairs`);
   console.log(`   by the gap between the two curves, at the flat view's ${WINDOW_PX} px per unit:`);
   for (const [k, v] of Object.entries(bands)) console.log(`     ${k.padEnd(12)}: ${v}`);

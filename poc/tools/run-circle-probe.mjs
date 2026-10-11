@@ -14,6 +14,11 @@
 // The panel's rule is MIRRORED here rather than imported - it is private to the controller and the controller
 // needs a DOM - so section 1 audits the source to make sure the mirror is of the rule that is actually there.
 //
+// COST, recorded because it CHANGED and AGENTS.md §4.4 asks for it: 24.4 s before section 7's witness was
+// named, 44.6 s after - the crash used to kill the run at line 369, so this is the 20.2 s the last eight
+// checks cost rather than a new expense. It stays in the fast tier: this probe is one of the slower ones
+// but it is not in the same class as `call-formations-probe.mjs` (461 s), which is the tier's only member.
+//
 // Run: node tools/run-circle-probe.mjs   (from anywhere; reads engine/dist, so build the engine first)
 import fs from 'node:fs';
 import path from 'node:path';

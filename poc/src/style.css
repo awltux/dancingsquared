@@ -15,16 +15,23 @@ html, body {
 #app { position: relative; width: 100vw; height: 100vh; }
 #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 #hud {
+  /* THE PANEL'S OWN DIM, BRIGHTER THAN THE APP'S. The app's `--dim` (#7c8b99) measures **5.17:1** against
+     the panel's own composited background (#11171e) - which clears AA and is still uncomfortable at 11-12px on
+     a near-black panel. Reported as "the text in the Sequencer HUD is too small for me to read comfortably".
+     The substitution is SCOPED TO THE PANEL, so the editor, the browse view and the FSM keep their own grey.
+     MEASURED, same background: `#9aa9b8` is **7.52:1** on the panel body and **7.83:1** inside the timeline,
+     against 5.17 and 5.39 for the old value. `--text` is left alone at 14.29:1. */
+  --dim: #9aa9b8;
   position: absolute; top: 12px; left: 12px; z-index: 10;
   background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px; padding: 12px 14px; min-width: 320px; max-width: 420px;
   max-height: calc(100vh - 24px); overflow-y: auto;
   backdrop-filter: blur(6px); box-shadow: 0 8px 30px rgba(0,0,0,0.4);
 }
-#hud h1 { font-size: 15px; margin: 0 0 10px; letter-spacing: 0.4px; }
+#hud h1 { font-size: 16px; margin: 0 0 10px; letter-spacing: 0.4px; }
 #hud h1 span { color: var(--accent); font-weight: 600; }
 #hud .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
-#hud label { font-size: 12px; color: var(--dim); width: 44px; }
+#hud label { font-size: 13px; color: var(--dim); width: 48px; }
 /* A CHECKBOX LABEL IS PROSE, NOT A FIELD NAME. The 44px column is what lines up the NAMES of the
    controls beside them; `Hide dancers`, `2D icons` and `Full square (mirror)` are sentences that sit
    next to their OWN box, so a fixed width only decides where they break - at 44px each of them
@@ -33,7 +40,7 @@ html, body {
 #hud label:has(input[type="checkbox"]) { width: auto; white-space: nowrap; }
 #hud select, #hud button {
   background: #131a22; color: var(--text); border: 1px solid #2a3542;
-  border-radius: 6px; padding: 5px 8px; font-size: 13px;
+  border-radius: 6px; padding: 5px 8px; font-size: 14px;
 }
 #hud select { flex: 1; min-width: 0; }
 #hud button { cursor: pointer; }
@@ -48,7 +55,7 @@ html, body {
 #editorPanel button:disabled { opacity: 0.4; cursor: not-allowed; }
 #editorPanel button:disabled:hover { border-color: #2a3542; }
 #hud input[type=range] { flex: 1; accent-color: var(--accent); }
-#hud .part { font-size: 12px; color: var(--accent); flex: 1 1 auto; min-width: 0; }
+#hud .part { font-size: 13px; color: var(--accent); flex: 1 1 auto; min-width: 0; }
 /* THE VIEW DIALOG, opened by a click on the board. `position: fixed` so it can sit under the pointer wherever
    the board is, rather than being laid out with the panel - and OUTSIDE `#hud`, which is why it does not take
    the panel's rules. `[hidden]` is restated because a `display` here would otherwise win over it. */
@@ -68,7 +75,7 @@ html, body {
    export used to be written here in the panel's ordinary text and it was not read; it is now amber, bold, and
    in the same `--warn` that "track incomplete" and "cannot pair" already use for the same kind of news. */
 #hud .part.warn { color: var(--warn); font-weight: 600; }
-#hud .small { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 4px; }
+#hud .small { font-size: 12px; color: var(--dim); line-height: 1.5; margin-top: 4px; }
 #hud .small b { color: var(--text); }
 /* `.seq-call` USED TO LIVE HERE, one rule per clickable step in the sequencer's plain-text list. The list is
    the timeline now, whose rows are `.seq-row` (see the sequencer block at the end of this file), so the rule
@@ -263,7 +270,7 @@ html, body {
    has to see it BEFORE the write: afterwards the difference is gone and nothing is left to notice. */
 #editorPanel .ed-group.mixed input { border-color: var(--warn); }
 #editorPanel .ed-group.mixed label { color: var(--warn); }
-#legend { font-size: 11px; color: var(--dim); line-height: 1.5; margin-top: 2px; }
+#legend { font-size: 12px; color: var(--dim); line-height: 1.5; margin-top: 2px; }
 #legend b { color: var(--text); }
 .build-footer {
   position: absolute; right: 12px; bottom: 10px; z-index: 10;
@@ -336,10 +343,11 @@ html, body {
 #hud.seq { display: flex; flex-direction: column; overflow: hidden; }
 #hud.seq #seqPanel { display: flex; flex-direction: column; min-height: 0; flex: 1; }
 #seqPanel[hidden] { display: none; }
-/* A SECTION HEADING: 10px, letter-spaced, dim, and never wider than the word itself - the one thing the old
-   panel had none of, and the reason 20 controls read as an undifferentiated stack. */
+/* A SECTION HEADING: 11px, letter-spaced, dim, and never wider than the word itself - the one thing the old
+   panel had none of, and the reason 20 controls read as an undifferentiated stack. It is the smallest type in
+   the panel, and the floor is deliberate: nothing in the HUD is under 11px any more. */
 #seqPanel .seq-head {
-  font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--dim); font-weight: 600;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--dim); font-weight: 600;
 }
 /* THE SESSION LINE: Level scopes everything below it, and the board chip says where the sequence is
    standing. Both are READ-ONLY state, so they sit on one line above the composer rather than in a row of
@@ -368,14 +376,14 @@ html, body {
    middle of something and Save/Add means something different". Amber stays reserved for "cannot be
    honoured". */
 #seqPanel .seq-bar {
-  display: flex; align-items: center; gap: 8px; font-size: 11px; line-height: 1.4; color: var(--dim);
+  display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 1.4; color: var(--dim);
   background: rgba(77, 159, 255, 0.10); border: 1px solid #4d9fff; border-radius: 6px;
   padding: 5px 8px; margin-bottom: 8px;
 }
 #seqPanel .seq-bar[hidden] { display: none; }
 #seqPanel .seq-bar .seq-bar-tag {
   color: #0b0f14; background: #4d9fff; border-radius: 4px; padding: 1px 6px;
-  font-size: 10px; letter-spacing: 0.6px;
+  font-size: 11px; letter-spacing: 0.6px;
 }
 #seqPanel .seq-bar #seqFigureWhat { flex: 1 1 auto; min-width: 0; }
 #seqPanel .seq-bar b { color: var(--text); }
@@ -383,10 +391,10 @@ html, body {
 /* ONE STATUS LINE, UNDER THE ROW THAT PRODUCED IT. It is the panel's only feedback channel: it was in the
    search-button row, which put the answer to Add beside "Copy positions". `role="status"` gives it a live
    region so the answer is announced rather than only drawn. */
-#seqPanel .seq-status { font-size: 12px; line-height: 1.45; min-height: 17px; margin: 2px 0 4px; color: var(--accent); }
+#seqPanel .seq-status { font-size: 13px; line-height: 1.45; min-height: 18px; margin: 2px 0 4px; color: var(--accent); }
 #seqPanel .seq-status.warn { color: var(--warn); }
 #seqPanel .seq-status.error { color: var(--warn); font-weight: 600; }
-#seqPanel .seq-hint { font-size: 11px; color: var(--dim); line-height: 1.45; margin-bottom: 6px; }
+#seqPanel .seq-hint { font-size: 12px; color: var(--dim); line-height: 1.45; margin-bottom: 6px; }
 #seqPanel .seq-hint b { color: var(--text); }
 /* THE PRIMARY ACTION. Add is the one thing this panel is for, and it is the only button in the panel that
    is drawn as the accent rather than as the panel grey. */
@@ -395,39 +403,41 @@ html, body {
 /* THE TIMELINE: the only scrolling region in the panel, and the only place body text is 12px `--text`
    rather than 11px `--dim`. */
 #seqPanel .seq-timeline-head { gap: 6px; margin-bottom: 4px; }
-#seqPanel .seq-timeline-head .part { font-size: 11px; }
+#seqPanel .seq-timeline-head .part { font-size: 12px; }
 #seqPanel .seq-timeline {
   flex: 1 1 auto; min-height: 150px; overflow-y: auto; margin-bottom: 6px;
   border: 1px solid #22303d; border-radius: 6px; background: rgba(9, 13, 18, 0.5); padding: 3px;
 }
 #seqPanel .seq-row {
-  display: flex; align-items: baseline; gap: 7px; padding: 4px 6px; border-radius: 5px;
-  font-size: 12px; color: var(--text); cursor: pointer; border: 1px solid transparent;
+  display: flex; align-items: baseline; gap: 7px; padding: 5px 6px; border-radius: 5px;
+  font-size: 13px; color: var(--text); cursor: pointer; border: 1px solid transparent;
 }
 #seqPanel .seq-row:hover { background: rgba(255, 255, 255, 0.04); }
 #seqPanel .seq-row.on { background: rgba(57, 217, 138, 0.10); border-color: rgba(57, 217, 138, 0.45); }
 #seqPanel .seq-row.bad .seq-beats { color: var(--warn); font-weight: 600; }
-#seqPanel .seq-row .seq-idx { color: var(--dim); font-size: 11px; min-width: 16px; text-align: right; }
+#seqPanel .seq-row .seq-idx { color: var(--dim); font-size: 12px; min-width: 18px; text-align: right; }
 /* A FIGURE ROW IS THE ONE ROW WHOSE CLICK DOES MORE THAN SEEK, so it carries a mark: `⇄` for a step that is
    several groups dancing at once, which is also what the banner badges while it is being edited. */
-#seqPanel .seq-row .seq-fig-mark { flex: 0 0 auto; color: #4d9fff; font-size: 11px; align-self: center; }
+#seqPanel .seq-row .seq-fig-mark { flex: 0 0 auto; color: #7ab8ff; font-size: 12px; align-self: center; }
 /* WHERE THE CALL COMES FROM. `D` is a rule in the engine, `C` an authored tam, `D/C` a rule that declines to
    the catalogue on a board it cannot read, `M` a stored module and `±` a "while" whose calls disagree. The
    LETTER carries the meaning, so the badge still reads without colour; the colour is a second cue. */
 #seqPanel .seq-row .seq-src {
-  flex: 0 0 auto; align-self: center; font-size: 9px; line-height: 1; letter-spacing: 0.02em;
-  padding: 1px 3px; border-radius: 3px; border: 1px solid currentColor; opacity: 0.7;
+  flex: 0 0 auto; align-self: center; font-size: 11px; line-height: 1.1; letter-spacing: 0.02em;
+  padding: 1px 4px; border-radius: 3px; border: 1px solid currentColor;
 }
-#seqPanel .seq-row .seq-src.src-derived { color: #4d9fff; }
-/* THE SAME HUE, DIMMER: `D/C` is the same rule with a condition on it, not a third kind of thing. */
-#seqPanel .seq-row .seq-src.src-both { color: #4d9fff; opacity: 0.45; }
+#seqPanel .seq-row .seq-src.src-derived { color: #7ab8ff; }
+/* `D/C` IS THE SAME BADGE WITH ITS CONDITION SPELLED OUT IN THE LETTERS, NOT A DIMMED ONE. It used to be the
+   derived colour at `opacity: 0.45`, which MEASURED **2.33:1** against the timeline - a fail - while the
+   difference it was carrying was already in the text. */
+#seqPanel .seq-row .seq-src.src-both { color: #7ab8ff; }
 #seqPanel .seq-row .seq-src.src-cat { color: var(--dim); }
 #seqPanel .seq-row .seq-src.src-mixed { color: var(--warn); }
 #seqPanel .seq-row .seq-src.src-module { color: var(--dim); border-style: dashed; }
 /* How full each lane of the figure in progress is, beside the lane it belongs to: `6.0/16.0 b · 10.0 free`. */
 #seqPanel .seq-bar .seq-fig-fill { color: var(--dim); }
 #seqPanel .seq-row .seq-name { flex: 1 1 auto; min-width: 0; }
-#seqPanel .seq-row .seq-beats { color: var(--dim); font-size: 11px; white-space: nowrap; }
+#seqPanel .seq-row .seq-beats { color: var(--dim); font-size: 12px; white-space: nowrap; }
 #seqPanel .seq-row .seq-bar-track {
   flex: 0 0 44px; height: 5px; border-radius: 3px; background: #131a22; border: 1px solid #22303d;
   align-self: center;
@@ -436,11 +446,11 @@ html, body {
 #seqPanel .seq-row.bad .seq-bar-fill { background: var(--warn); }
 #seqPanel .seq-row .seq-del {
   flex: 0 0 auto; padding: 0 5px; margin: 0; border: 0; background: none; color: var(--dim);
-  font-size: 13px; line-height: 1.1; align-self: center;
+  font-size: 14px; line-height: 1.1; align-self: center;
 }
 #seqPanel .seq-row .seq-del:hover { color: var(--warn); background: none; border: 0; }
 #seqPanel .seq-row.on .seq-del { color: var(--dim); }
-#seqPanel .seq-empty { font-size: 11px; color: var(--dim); padding: 6px; line-height: 1.5; }
+#seqPanel .seq-empty { font-size: 12px; color: var(--dim); padding: 6px; line-height: 1.5; }
 #seqPanel .seq-empty b { color: var(--text); }
 /* THE TRANSPORT IS PINNED, so play, position and speed are reachable from anywhere in the timeline - the
    old panel put them between the search buttons and the list, where a long sequence pushed them off the
@@ -452,7 +462,7 @@ html, body {
    secondary tools are one click away rather than always present. */
 #seqPanel .seq-drawer { flex: 0 0 auto; border-top: 1px solid #22303d; }
 #seqPanel .seq-drawer > summary {
-  cursor: pointer; font-size: 11px; color: var(--dim); padding: 6px 2px; list-style: none;
+  cursor: pointer; font-size: 12px; color: var(--dim); padding: 6px 2px; list-style: none;
 }
 #seqPanel .seq-drawer > summary::-webkit-details-marker { display: none; }
 #seqPanel .seq-drawer > summary::before { content: '▸ '; }
@@ -464,7 +474,7 @@ html, body {
    current row uses. */
 #seqPanel .seq-lines { margin: 2px 0 6px; }
 #seqPanel .seq-line {
-  display: block; width: 100%; text-align: left; font-size: 11px; line-height: 1.5; padding: 3px 6px;
+  display: block; width: 100%; text-align: left; font-size: 12px; line-height: 1.5; padding: 3px 6px;
   background: none; border: 1px solid transparent; border-radius: 5px; color: var(--text); cursor: pointer;
 }
 #seqPanel .seq-line:hover { background: rgba(255, 255, 255, 0.04); border-color: #2a3542; }
@@ -474,7 +484,7 @@ html, body {
    reach this panel; the look is copied rather than shared so the editor's rules stay scoped to the editor. */
 #seqPanel .seq-tabs { gap: 0; margin: 4px 0 2px; }
 #seqPanel .seq-tabs button {
-  padding: 2px 7px; font-size: 10px; line-height: 1.5; border-radius: 0; border-color: #2a3542;
+  padding: 3px 8px; font-size: 11px; line-height: 1.5; border-radius: 0; border-color: #2a3542;
   background: #0b1118; color: var(--dim);
 }
 #seqPanel .seq-tabs #seqTabGetout { border-radius: 4px 0 0 4px; }
@@ -505,7 +515,7 @@ html, body {
   background: var(--panel); border: 1px solid #2a3542; border-radius: 10px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
 }
-#hud .seq-busy .seq-busy-label { display: block; font-size: 12px; color: var(--text); margin-bottom: 10px; }
+#hud .seq-busy .seq-busy-label { display: block; font-size: 13px; color: var(--text); margin-bottom: 10px; }
 #hud .seq-busy .seq-busy-track {
   height: 8px; border-radius: 4px; overflow: hidden; background: #131a22; border: 1px solid #2a3542;
 }

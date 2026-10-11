@@ -3768,6 +3768,38 @@ for a pane to disagree about. Nothing parses the label (it is a message, and a r
 NUL), so the punctuation was free to change; the three harnesses that pinned the old words were updated
 with it.
 
+THE HUD'S TYPE IS A STEP BIGGER AND ITS DIM TEXT IS BRIGHTER. Asked for as: "The text in the Sequencer HUD
+is too small for me to read comfortably. Make it a bit bigger with better overall contrast." MEASURED with one
+instrument over the committed file and the working copy (`poc/tools/_hud-before-after.mjs`, deleted before the
+commit), as WCAG contrast ratios against the panel's own COMPOSITED background (#11171e - `--panel` is
+`rgba(18,24,32,0.85)` over `--bg`, and the timeline adds `rgba(9,13,18,0.5)` on top of that):
+
+```
+                       before                    after
+font sizes in the HUD  9 x1, 10 x3, 11 x12,      11 x5, 12 x11, 13 x5,
+                       12 x5, 13 x2, 15 x1       14 x2, 16 x1   (24 either side)
+under 11px             4 declarations            0
+--dim on the panel     5.17:1                    7.52:1
+--dim in the timeline  5.39:1                    7.83:1
+D/C badge in the tl.   2.33:1 (a FAIL)           9.08:1
+```
+
+The `--dim` fix is ONE LINE rather than twenty restyled rules, because there is one dim in the app and the
+panel wanted a different one: `#hud { --dim: #9aa9b8 }` redefines the custom property for its own subtree, so
+the editor, browse and FSM views keep the app's grey. The type step is per rule (11 -> 12, 12 -> 13, 13 -> 14,
+15 -> 16, the 9px source badge to 11 and the 10px section heading to 11), which leaves NOTHING in the panel
+under 11px where four declarations were.
+AND THE MEASUREMENT FOUND TWO FAILURES OF OUR OWN from the previous round: the timeline badge distinguished
+`D/C` from `D` with `opacity: 0.45`, which is **2.33:1** - a fail, on the one badge whose whole job is to be
+read - and the base badge carried `opacity: 0.7` (3.24:1). Both opacities are gone; the blue is `#7ab8ff` and
+`D/C` is distinguished by its LETTERS, which is where that difference always was.
+VERIFIED IN A BROWSER (Chromium against a fresh `poc/dist` served from `node:http`, MS, Static Square, a
+five-call All8 figure loaded through the panel's own Import button): the timeline draws `C`, `D/C`, `D/C`, `D`,
+`C` on rows 1-5 with the beats and the refusal line legible, the top of the panel keeps its rows on one line,
+and nothing wrapped or overflowed in the 320-420px column.
+GATES: `npx tsc -p poc --noEmit` clean; the POC probe suite reports the same 13 pre-existing reds and no
+others.
+
 THE TIMELINE ROW SAYS WHERE ITS CALL COMES FROM. Asked for as: "add a small marker to indicate if a call
 used in a sequence is a CodedMove or from the catalogue." The badge is two or three characters, and it is
 THREE-WAY rather than two-way because the registry is: MEASURED, of the 23 coded moves **11 also have catalogue

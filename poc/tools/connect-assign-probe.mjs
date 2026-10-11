@@ -431,10 +431,19 @@ console.log('\n== the refused pads, number by number ==');
   if (turnGaps.length) {
     console.log(`     their turns differ by: smallest ${turnGaps[0].toFixed(2)}deg, largest ${turnGaps[turnGaps.length - 1].toFixed(2)}deg`);
   }
-  check(identicalLine.length > 0, `the report's family exists: ${identicalLine.length} refused pairs walk the IDENTICAL line and are refused on the rotate curve alone`);
-  check(sameTurnRefused.length === 0,
-    `and every one of them is a REAL difference of turn (${turnGaps[0]?.toFixed(2)}deg at the smallest, 0 refused while turning alike), so the line is not what refused them - the anchor's own heading is`);
   check(rows.length > 0, 'there are refused pad pairs to look at');
+  // THE FAMILY THE REPORT NAMED IS EMPTY TODAY, AND THAT IS REPORTED RATHER THAN PINNED. MEASURED: 0 of
+  // these refused pairs walk six IDENTICAL translation numbers. `identicalLine.length > 0` was a claim
+  // about the CORPUS wearing the clothes of a claim about the connect - the same re-authoring that made
+  // the ancestor's boundary exactly 90deg-symmetric (see below) took this family with it. Asserting it
+  // would pin the corpus's shape, and the two claims that CHARACTERISE the family are vacuous when there
+  // is no family, so they are conditional and say so when the branch is not taken.
+  if (identicalLine.length > 0) {
+    check(sameTurnRefused.length === 0,
+      `and every one of them is a REAL difference of turn (${turnGaps[0].toFixed(2)}deg at the smallest, 0 refused while turning alike), so the line is not what refused them - the anchor's own heading is`);
+  } else {
+    console.log('     NOTE: no refused pair walks an identical line, so there is no "same line, different turn" family left to characterise - the witness the report named has gone from the corpus');
+  }
 }
 
 // ---------------------------------------------------------------- the symmetry of the two sets
@@ -485,7 +494,14 @@ console.log('\n== the symmetry of the boundary, and of every formation offered =
   console.log(`   of the ${names.length} formations offered: ${n180} are 180deg-symmetric, ${n90} are 90deg-symmetric`);
   if (fourFold.length) console.log(`     the 90deg-symmetric ones: ${fourFold.slice(0, 8).join(', ')}${fourFold.length > 8 ? ' ...' : ''}`);
   check(n180 > n90, `the opposite pairs agree because the 180deg symmetry is COMMON (${n180} of ${names.length} formations have it) while the 90deg symmetry is rare (${n90})`);
-  check(!b90.ok, `and the ancestor's own boundary is not exactly 90deg-symmetric either: ${b90.pos.toFixed(4)} units out - the corpus's own first move gives its two \`Eighth Left\` paths \`offsetX=".59"\` and \`offsetX=".5"\``);
+  // MEASURED: the boundary's 90deg symmetry error is 0.0000 units / 0.0000deg - the ancestor's own first
+  // boundary IS exactly 90deg-symmetric, so the claim this check used to make (`!b90.ok`, supported by the
+  // corpus's two `Eighth Left` paths carrying `offsetX=".59"` against `".5"`) is false and its supporting
+  // detail describes nothing. It was the probe's example of "the boundary lacks the symmetry the pairs
+  // need", and the re-authoring removed it. Asserting the NEW fact would pin the corpus's symmetry just as
+  // surely, so it is reported. The check the DIAGNOSIS actually rests on is the one above - 180deg
+  // symmetry common, 90deg rare - and it still holds.
+  console.log(`   NOTE: the boundary is 90deg-symmetric to ${b90.pos.toExponential(1)} units today (180deg to ${b180.pos.toExponential(1)}), so it is no longer an example of the asymmetry a 90deg pair runs into - the formation counts above are now the whole of that argument`);
 
   // THE DECISIVE ONE: onto a formation that IS 90deg-symmetric, do the 90deg pairs agree? If they do,
   // the remaining disagreement is the boundary's own 0.09 units; if they do not, it is the assignment.

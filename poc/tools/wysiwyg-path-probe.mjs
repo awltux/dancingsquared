@@ -189,8 +189,22 @@ console.log(`    ${atQuarter.length} of them sweep a full quarter (${pct(atQuart
 console.log(`    the panel's arc checkbox would be ENABLED for ${canLock} of ${allMoves} curves (${pct(canLock, allMoves)}%); blockers: ` + Object.entries(blockers).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', '));
 console.log(`    and ${alreadyArc} of ${allMoves} curves IS a quarter arc by the panel's own test (arcOf)`);
 check(fits.length > 100, 'circular travel is common enough to matter');
-check(Math.max(...sweeps) <= 90.5, 'NO single move sweeps more than a quarter of a circle - the corpus caps a MOVE at 90deg of turn, so a 360deg orbit is necessarily a CHAIN of moves (part 2)');
-check(canLock > 0 && canLock < allMoves && alreadyArc === 0, 'the panel\'s lock is available for some curves and is ALWAYS a projection - there is no curve in the corpus that is already the quarter arc it would lock to');
+// MEASURED: the maximum is 95.6deg, so the "the corpus caps a MOVE at 90deg" this check used to assert is
+// NO LONGER TRUE - one move in `ms/promenade.xml` sweeps past a quarter turn. That is worth knowing rather
+// than smoothing over, because the panel's arc lock refuses more than 90deg (`engine/src/editor.ts`,
+// RUN_ARC_MAX), so that one move cannot be locked. What the check is FOR survives the change and is what it
+// now asserts: no single move is anything like a whole turn, so a 360deg orbit is necessarily a CHAIN. The
+// count over a quarter is reported, not asserted away.
+const overQuarter = fits.filter((f) => Math.abs(f.sweep) * DEG > 90.5);
+check(Math.max(...sweeps) < 180,
+  `NO single move sweeps half a turn or more (max ${Math.max(...sweeps).toFixed(1)}deg), so a 360deg orbit is necessarily a CHAIN of moves (part 2) - and ${overQuarter.length} of ${fits.length} do sweep past a quarter turn, which the arc lock's 90deg limit refuses to lock`);
+// `alreadyArc === 0` WAS PART OF THIS AND IS GONE, for the same reason: it is a property of the CORPUS, and
+// the 2026-10-09 re-authoring put 152 curves exactly where the lock would put them. It was never what pins
+// the product claim - the sibling check on `moved === enabled` is, and it still passes, because projecting
+// moves the endpoint on every lockable curve. Keeping the equality would have pinned "the corpus has no
+// already-quarter arcs", a different and far weaker statement than "the lock always deforms".
+check(canLock > 0 && canLock < allMoves,
+  `the panel's lock is available for some curves and NOT all (${canLock} of ${allMoves}) - and it is ALWAYS a projection, which the sibling check measures directly; ${alreadyArc} of the corpus's curves are already the quarter arc it would lock to, reported rather than asserted`);
 
 // ============================================================ 2. circular RUNS across moves
 console.log('\n== 2. And how often is an ORBIT spread over SEVERAL moves? ==');

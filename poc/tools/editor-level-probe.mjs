@@ -17,10 +17,18 @@
 // Run: node tools/editor-level-probe.mjs   (from anywhere)
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(POC_DIR, p), 'utf8').replace(/\r\n/g, '\n');
+// THE LEVEL ORDER IS IMPORTED FROM THE ENGINE, NOT GREPPED OUT OF THE APP. It used to be read out of
+// `src/data.ts` with `/levelOrder = \[([^\]]*)\]/`, which matched while the class carried the list as a
+// literal. `data.ts` was then refactored to `levelOrder: readonly string[] = PERMISSION_LEVELS`, the regex
+// matched NOTHING, and the probe silently went on measuring an EMPTY list - so the default check below
+// failed while the app was correct, and its own negative control (a level the catalogue does not carry)
+// passed trivially against the empty list, which is why the broken instrument could not see itself. The
+// rule lives in `engine/src/sequencer/permissions.ts` and is exported; a probe imports it (§5).
+const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -101,12 +109,18 @@ check(/'rotation' \| 'travel'/.test(read('../engine/src/core.ts')), 'the ENGINE 
 // nothing (see `populateLevels`), so it is checked against the catalogue's own level list rather than
 // against the request that asked for it.
 console.log('\n== the default is a level the catalogue really carries ==');
-const levelOrder = (/levelOrder = \[([^\]]*)\]/.exec(read('src/data.ts'))?.[1].match(/'([^']+)'/g) || []).map((s) => s.slice(1, -1));
+const levelOrder = engine.PERMISSION_LEVELS;
 const def = /const DEFAULT_LEVEL = '([^']+)'/.exec(src['editor-ui.ts'])?.[1] ?? '';
 const offersLevel = (lv) => {
   const dir = path.join(POC_DIR, 'src/assets', lv);
   return levelOrder.includes(lv) && fs.existsSync(dir) && fs.readdirSync(dir).some((f) => f.endsWith('.xml'));
 };
+// AND THE APP STILL USES THAT ONE ORDER rather than a second copy of it. This is what the deleted regex was
+// reaching for, stated where it cannot go stale: the identifier is checked, not the list's contents.
+check(/levelOrder[^=]*= PERMISSION_LEVELS/.test(read('src/data.ts')),
+  'the catalogue takes its level order from the engine\'s `PERMISSION_LEVELS` rather than restating it');
+check(!/levelOrder[^=]*= PERMISSION_LEVELS/.test(read('src/data.ts').replace('= PERMISSION_LEVELS', "= ['ms', 'plus']")),
+  'and a catalogue that grew its OWN level list again is caught - the divergence the import exists to prevent');
 check(def !== '' && offersLevel(def), `the default \`${def}\` is in the catalogue's level order and has calls under src/assets/${def}`);
 check(!offersLevel('mainstream') && !offersLevel(''), 'and a default naming a programme the catalogue does not carry is caught, as is an empty one');
 

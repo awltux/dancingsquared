@@ -17,6 +17,8 @@ import { corpusFormationsOfSize } from './tam-xml';
 import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
 import { el, esc } from './dom';
 import { filterNames } from './call-filter';
+import { stepSource } from './step-source';
+import type { CallSource } from './step-source';
 import type { KeyBinding } from './keys';
 import type { Stage, WalkCycle } from './scene';
 
@@ -177,6 +179,34 @@ export class SequencerController implements SequencerUI {
    * grouped calls through the same `subsetGroups`, so dropping them there would take the call with them.
    */
   private static readonly SYNONYM_SUBSETS = new Set(['Men', 'Women', 'Ladies']);
+  /**
+   * WHERE A ROW'S CALL COMES FROM, as a two-or-three-character badge. Asked for as: "add a small marker to
+   * indicate if a call used in a sequence is a CodedMove or from the catalogue."
+   *
+   * THE SENTENCES ARE THE POINT AND THE BADGE IS THE SHORTHAND. `D/C` on its own would read as "both", which
+   * is not the fact: the fact is WHICH is tried first and WHEN it declines. The rule that decides which of the
+   * five a step gets is `step-source.ts` - this table is only what each answer is called on screen, which is
+   * why it lives here and the rule does not.
+   */
+  private static readonly SOURCE_MARK: Record<CallSource, { mark: string; cls: string; label: string }> = {
+    derived: {
+      mark: 'D', cls: 'src-derived',
+      label: 'Derived: the engine computes this call from a coded rule; no authored tam is consulted.',
+    },
+    'derived+catalogue': {
+      mark: 'D/C', cls: 'src-both',
+      label: 'Derived FIRST, catalogue as the fallback: the coded rule is tried first and declines to the authored tam on a board it cannot read.',
+    },
+    catalogue: { mark: 'C', cls: 'src-cat', label: 'Catalogue: this call is danced from an authored tam.' },
+    mixed: {
+      mark: '\u00b1', cls: 'src-mixed',
+      label: 'Several calls with different sources, so no one badge describes the row.',
+    },
+    module: {
+      mark: 'M', cls: 'src-module',
+      label: 'A stored module: a sequence of calls, which has no single source at all.',
+    },
+  };
   /**
    * The DANCER IDS those names resolve to, kept because `applyView` runs on every mode and tab change and
    * has to gate the rings without re-resolving the selections - see `applySubsetMarks`.
@@ -1421,6 +1451,7 @@ export class SequencerController implements SequencerUI {
       return `<div class="${cls}" role="listitem" tabindex="0" data-idx="${i}"${i === active ? ' aria-current="step"' : ''} title="${esc(title)}">`
         + `<span class="seq-idx">${i + 1}</span>`
         + (figure ? '<span class="seq-fig-mark" aria-label="figure">⇄</span>' : '')
+        + this.sourceMark(step)
         + `<span class="seq-name">${esc(stepLabel(step))}</span>`
         + `<span class="seq-beats">${perStep[i] > 0 ? `${perStep[i].toFixed(1)} b` : '—'}</span>`
         + `<span class="seq-bar-track"><span class="seq-bar-fill" style="width:${bar}%"></span></span>`
@@ -1429,6 +1460,22 @@ export class SequencerController implements SequencerUI {
     });
     this.seqListEl.innerHTML = rows.join('');
     if (this.selectedStep >= n) this.selectedStep = n - 1;
+  }
+
+  /**
+   * THE MARKER ON A TIMELINE ROW: where this step's call comes from.
+   *
+   * A `mixed` "while" NAMES ITS LANES, because the row is several calls at once and "mixed" alone is not an
+   * answer to the question the marker asks. Everything else is one call, and its badge is the whole answer.
+   */
+  private sourceMark(step: ModuleStep): string {
+    const { source, calls } = stepSource(step, (n) => this.seq.isModule(n));
+    const meta = SequencerController.SOURCE_MARK[source];
+    const detail = source === 'mixed'
+      ? ` ${calls.map((c) => `${c.call} (${SequencerController.SOURCE_MARK[c.source].mark})`).join(', ')}`
+      : '';
+    const label = meta.label + detail;
+    return `<span class="seq-src ${meta.cls}" title="${esc(label)}" aria-label="${esc(label)}">${esc(meta.mark)}</span>`;
   }
 
   /**

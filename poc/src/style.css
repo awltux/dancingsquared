@@ -411,6 +411,19 @@ html, body {
 /* A FIGURE ROW IS THE ONE ROW WHOSE CLICK DOES MORE THAN SEEK, so it carries a mark: `⇄` for a step that is
    several groups dancing at once, which is also what the banner badges while it is being edited. */
 #seqPanel .seq-row .seq-fig-mark { flex: 0 0 auto; color: #4d9fff; font-size: 11px; align-self: center; }
+/* WHERE THE CALL COMES FROM. `D` is a rule in the engine, `C` an authored tam, `D/C` a rule that declines to
+   the catalogue on a board it cannot read, `M` a stored module and `±` a "while" whose calls disagree. The
+   LETTER carries the meaning, so the badge still reads without colour; the colour is a second cue. */
+#seqPanel .seq-row .seq-src {
+  flex: 0 0 auto; align-self: center; font-size: 9px; line-height: 1; letter-spacing: 0.02em;
+  padding: 1px 3px; border-radius: 3px; border: 1px solid currentColor; opacity: 0.7;
+}
+#seqPanel .seq-row .seq-src.src-derived { color: #4d9fff; }
+/* THE SAME HUE, DIMMER: `D/C` is the same rule with a condition on it, not a third kind of thing. */
+#seqPanel .seq-row .seq-src.src-both { color: #4d9fff; opacity: 0.45; }
+#seqPanel .seq-row .seq-src.src-cat { color: var(--dim); }
+#seqPanel .seq-row .seq-src.src-mixed { color: var(--warn); }
+#seqPanel .seq-row .seq-src.src-module { color: var(--dim); border-style: dashed; }
 /* How full each lane of the figure in progress is, beside the lane it belongs to: `6.0/16.0 b · 10.0 free`. */
 #seqPanel .seq-bar .seq-fig-fill { color: var(--dim); }
 #seqPanel .seq-row .seq-name { flex: 1 1 auto; min-width: 0; }

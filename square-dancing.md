@@ -3768,6 +3768,26 @@ for a pane to disagree about. Nothing parses the label (it is a message, and a r
 NUL), so the punctuation was free to change; the three harnesses that pinned the old words were updated
 with it.
 
+THE TIMELINE ROW SAYS WHERE ITS CALL COMES FROM. Asked for as: "add a small marker to indicate if a call
+used in a sequence is a CodedMove or from the catalogue." The badge is two or three characters, and it is
+THREE-WAY rather than two-way because the registry is: MEASURED, of the 23 coded moves **11 also have catalogue
+authorings** and **5 declare `catalogueFallback`** - `Do Sa Do`, `Swing Thru`, `Left Swing Thru`, `Fan the Top`,
+`Forward and Back`, which is the whole list. `D` is a coded rule the catalogue is never consulted for, `D/C` is
+that rule with the catalogue as a DECLARED fallback, `C` is an authored tam, `M` is a stored module - a SEQUENCE
+of calls, which is its own answer because the plausible two-way rule
+(`findCodedMove(name) ? ... : 'catalogue'`) would call a module an authored tam - and the fifth is a "while"
+whose lanes disagree, whose tooltip names which lane is which because the row is several calls and "mixed"
+alone is not an answer.
+The rule is `poc/src/step-source.ts`, DOM-free so `poc/tools/step-source-probe.mjs` runs it over the REAL
+registry instead of reading the panel's source; the badge and its sentences are `SOURCE_MARK` in the panel,
+because what an answer is CALLED on screen is not the rule. The probe also pins the three counts, so an overlap
+that appears or vanishes is re-pinned deliberately rather than absorbed.
+GATES: `npx tsc -p poc --noEmit` clean; `node poc/tools/step-source-probe.mjs` green, and registered by
+residence in `poc/tools/` (51 probes, the same 13 pre-existing reds and no others). `poc/verify.cjs` is still
+red at the pre-existing `selectTam` throw ("2 tams match 'Circle Left' [Static Square]"), which is untouched.
+NOT OBSERVED IN A BROWSER: a Vite build needs wider access than this sandbox gives (the esbuild EPERM), so the
+badge is verified as markup and wiring and not as pixels.
+
 A STEP THAT APPLIES MUST ANIMATE SOMETHING, and this is the second real defect the request turned up.
 `Heads Do Sa Do` applied legally, charged its full 8 beats and drew NOTHING: a scoped CODED call was drawn
 as `interpolateSegment(board, after)`, and a call that RETURNS HOME has `after === board` for every dancer,

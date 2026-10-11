@@ -73,11 +73,15 @@ const fate = (start, end) => {
   return 'elsewhere';
 };
 
-// ------------------------------------------------------------------ 0. the two calls
-console.log('== 0. the TWO step calls, and only one of them depends on others ==');
+// ------------------------------------------------------------------ 0. the step calls
+console.log('== 0. the STEP calls, and which of them depends on others ==');
 {
   const simple = findCodedMove('Step Forward');
   const round = findCodedMove('Step Forward and Back if Possible');
+  // THE SAME ROUND TRIP UNDER THE NAME A CALLER ACTUALLY SAYS, and the one the reported "Heads Forward and
+  // Back does nothing" used. `Forward and Back` is CALLERLAB's own call; scoped to a group it is this identical
+  // motion, which is why it is a second ENTRY on the same rule rather than an alias (see `coded-moves.ts`).
+  const corpusRound = findCodedMove('Forward and Back');
   check(!!simple && !!round, 'Step Forward and Step Forward and Back if Possible are both coded moves');
   check(simple?.deferred !== true && round?.deferred === true,
     'the plain step is INDEPENDENT and the "and back if possible" one is the DEFERRED one - only its answer depends on the other groups of the step');
@@ -87,12 +91,19 @@ console.log('== 0. the TWO step calls, and only one of them depends on others ==
     'both have a rule for a DESIGNATED GROUP (applyToSelection) and no whole-set reading');
   check(!!round?.deferredHalf && !simple?.deferredHalf,
     'and only the deferred one carries the half-way board the applicator resolves it from');
-  check(CODED_MOVES.filter((m) => m.deferred).length === 1,
-    'exactly one coded move is deferred, so "at most one dependent group" is a rule about a real singular case');
+  // THE DEFERRED SET IS TWO SPELLINGS OF ONE RULE, which is what keeps "at most one dependent group per step"
+  // a rule about ONE knob rather than a count of names. MEASURED: both spellings put the same
+  // `applyToSelection` on `CODED_MOVES`, and a "while" step holding one of each is refused as two dependent
+  // groups - which is the answer that rule wants.
+  const deferred = CODED_MOVES.filter((m) => m.deferred);
+  check(deferred.length === 2 && new Set(deferred.map((m) => m.applyToSelection)).size === 1,
+    `the ${deferred.length} deferred coded moves (${deferred.map((m) => m.name).join(', ')}) are spellings of ONE round trip, so "at most one dependent group" is still a rule about one rule`);
+  check(corpusRound?.applyToSelection === round?.applyToSelection && corpusRound !== round,
+    'and `Forward and Back` is that same rule as a SECOND entry, not an alias - so the whole-set reading it shares a name with keeps its own catalogue fallback');
   check(simple?.precondition?.(null)?.includes('names a group') === true && round?.precondition?.(null)?.includes('names a group') === true,
     'both refuse the bare name with the reason, because a step that displaces some dancers has no whole-set reading');
   check(!callsByTitle(assets)['Step Forward'] && !callsByTitle(assets)['Step Forward and Back if Possible'],
-    'the corpus has NEITHER call - both are derived geometry, not a matched catalogue setup');
+    'the corpus has NEITHER of the descriptive names - both are derived geometry, not a matched catalogue setup');
 }
 
 // ------------------------------------------------------------------ 1. the call itself
@@ -514,6 +525,95 @@ console.log('\n== 9. a deferred group that RETURNS is shown stepping in and back
   // The other group is on its own path at the same time: the sides are promenading, not standing.
   const sideMove = sides.map((id) => dist(atBeat(4), square, id));
   check(sideMove.every((d) => d > 2), `and the promenading dancers are well away from their own start at the halfway beat (${sideMove.map((d) => d.toFixed(2)).join(', ')} units)`);
+}
+
+// ------------------------------------------------------------------ 10. `Forward and Back` BY NAME
+//
+// REPORTED FROM USE: "in Static square, 'Heads Forward and Back' as a call in its own right does nothing."
+//
+// MEASURED BEFORE, on a Static Square: the call APPLIED (the catalogue's own scoped tam steps the heads out two
+// and back two, so its net board is the board it started on) but `sequenceBeats` was **0** and `sequenceStop`
+// named it - the walk matches the BASE name, and `Forward and Back`'s authorings are two-dancer setups
+// (`Facing Couples Compact`) that no four-dancer subset can match, so the step was recorded unwalkable with no
+// beats and the scrub froze. The catalogue's scoped tam is also a different TIMING from the round trip's: its
+// `ms/forward_and_back.xml` paths are `Forward 2` and `Back 2` at `beats="4"` each, i.e. 8 beats for a motion
+// this rule does in 4 - which is the owner's own number ("2 beats in and 2 out").
+//
+// WHAT THIS SECTION PINS, and it takes BOTH halves or the fix is not one: the standalone cost (2 beats out and
+// 2 back, the owner's own number) AND the sibling-driven span (the same round trip stretched over a partner
+// call, out at the start and back as the partner finishes). A gate on the first alone would pass a rule that
+// ignored the other group; a gate on the second alone would pass a rule with no standalone reading.
+console.log('\n== 10. `Forward and Back` is the round trip under the name a caller says ==');
+{
+  const square = at('Static Square');
+  const heads = seq.selectionIds(square, 'Heads') ?? [];
+  const dist = (board, ref, id) => Math.hypot(pose(board, id).x - pose(ref, id).x, pose(board, id).y - pose(ref, id).y);
+
+  // (a) THE STANDALONE TIMING: 2 beats out and 2 back, the owner's own number - and WALKABLE at all, which it was
+  // not before this entry, because the walk charged it 0 beats and `sequenceStop` returned its own start board.
+  const alone = ['Heads Forward and Back'];
+  const aloneBeats = seq.sequenceBeats(alone, square);
+  check(aloneBeats === 4, `a lone "Heads Forward and Back" costs ${aloneBeats} beats - two out and two back`);
+  check(seq.sequenceStop(alone, square) === null, 'and it does not stop the walk, so there is a timeline to animate over at all');
+  const aloneTrace = Array.from({ length: aloneBeats + 1 }, (_, b) => dist(seq.evaluateSequence(alone, b, square).board, square, heads[0]));
+  console.log(`    the stepping dancer's distance from its start at each beat: ${aloneTrace.map((d) => d.toFixed(2)).join(', ')}`);
+  check(Math.abs(aloneTrace[1] - 1) < 1e-9 && Math.abs(aloneTrace[2] - 2) < 1e-9
+    && Math.abs(aloneTrace[3] - 1) < 1e-9 && aloneTrace[4] === 0,
+    'and the scrub shows 1.00, 2.00, 1.00, 0.00 - a two-point interpolation between its two (identical) ends would show no movement at all');
+  seq.setBoard(square);
+  const appliedAlone = seq.apply('Heads Forward and Back');
+  check(appliedAlone.legal && heads.every((id) => dist(appliedAlone.board, square, id) < 1e-9),
+    `the apply agrees: legal, and the heads end where they started (${appliedAlone.reason ?? 'legal'})`);
+
+  // (b) THE SIBLING-DRIVEN SPAN. `Promenade 1/2 to Home` brings the sides back to their OWN four spots, so the
+  // way back is clear and the heads return - over the LAST two beats of an 8-beat step, not the first two.
+  const span = { groups: [{ selection: 'Sides', call: 'Promenade 1/2 to Home' }, { selection: 'Heads', call: 'Forward and Back' }] };
+  const spanBeats = seq.sequenceBeats([span], square);
+  const spanTrace = Array.from({ length: spanBeats + 1 }, (_, b) => dist(seq.evaluateSequence([span], b, square).board, square, heads[0]));
+  console.log(`    ${stepLabel(span)} - ${spanBeats} beats; the stepping dancer: ${spanTrace.map((d) => d.toFixed(2)).join(', ')}`);
+  check(spanBeats === 8, `the step costs the PARTNER's ${spanBeats} beats, not the round trip's 4`);
+  const out = spanTrace.findIndex((d) => d > 1.9);
+  const backAt = spanTrace.length - 1 - [...spanTrace].reverse().findIndex((d) => d > 1.9);
+  check(out === 2, `it is out at its own two beats (beat ${out}) and then stands still`);
+  check(backAt === spanBeats - 2 && spanTrace[spanBeats] === 0,
+    `and it steps BACK over the last two beats (from beat ${backAt} of ${spanBeats}), so the out-and-back spans the sibling rather than finishing early`);
+
+  // (c) THE SAME RULE AS THE OTHER SPELLING, on the same witness. This is the assertion that makes the entry a
+  // rename of a measured behaviour rather than a second implementation of it.
+  const other = { groups: [{ selection: 'Sides', call: 'Promenade 1/2 to Home' }, { selection: 'Heads', call: 'Step Forward and Back if Possible' }] };
+  const otherTrace = Array.from({ length: spanBeats + 1 }, (_, b) => dist(seq.evaluateSequence([other], b, square).board, square, heads[0]));
+  check(JSON.stringify(spanTrace) === JSON.stringify(otherTrace),
+    'and on that witness it moves the dancers exactly as `Step Forward and Back if Possible` does, beat for beat');
+
+  // (d) THE NEGATIVE CONTROLS. Three readings that must survive, because the entry is keyed on the BASE name:
+  // the bare call still refuses on a square, the corpus's WHOLE-SET tams still serve the formations they are
+  // authored for, and it is the CATALOGUE that serves them (the derived rule declines by precondition).
+  const bare = seq.sequenceStop(['Forward and Back'], square);
+  check(bare !== null && /No setup in this call matches the current formation/.test(bare.reason ?? ''),
+    `a bare "Forward and Back" still refuses on a square, and with the CATALOGUE's reason ("${bare?.reason}") - the derived rule declined it rather than shadowing it`);
+  check(findCodedMove('Forward and Back')?.catalogueFallback === true,
+    'because the entry declares catalogueFallback, which is the whole reason a second entry is needed here');
+  const lines = at('Normal Lines');
+  seq.setBoard(lines);
+  const wholeSet = seq.apply('Forward and Back');
+  check(wholeSet.legal && wholeSet.board.dancers.every((d) => dist(wholeSet.board, lines, d.id) < 1e-9),
+    'and the corpus\'s own whole-set reading (from `Normal Lines`) still applies and still ends where it started');
+  // THE COUNT IS THE GATE, not the one witness: without `catalogueFallback` the derivation would shadow the
+  // call on EVERY board and this would fall to zero. MEASURED over the engine's 136 named formations: five
+  // accept the whole-set reading and the derived precondition declines all five.
+  const wholeSetBoards = seq.listFormations().filter((n) => {
+    const b = seq.boardForFormation(n);
+    return !!b && seq.applyToBoard(b, 'Forward and Back').legal;
+  });
+  const declined = wholeSetBoards.filter((n) => {
+    const b = seq.boardForFormation(n);
+    return !!b && findCodedMove('Forward and Back')?.precondition?.(b) !== null;
+  });
+  console.log(`    the whole-set reading survives on ${wholeSetBoards.length} of ${seq.listFormations().length} named formations: ${wholeSetBoards.join(', ')}`);
+  check(wholeSetBoards.length === declined.length && wholeSetBoards.length === 5,
+    `and on all ${declined.length} of them it is the CATALOGUE that serves it - the derived rule declines every one, so the fallback is what keeps them`);
+  check(findCodedMove('Forward and Back') !== findCodedMove('Step Forward and Back if Possible'),
+    'SHOWN TO FAIL: the two names are SEPARATE entries sharing one rule - collapsing them into one alias would take the whole-set reading away with the fallback');
 }
 
 console.log('\n=================');

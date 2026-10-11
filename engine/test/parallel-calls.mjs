@@ -278,16 +278,30 @@ console.log('\n== 7. a call carrying its own selection still leaves a nameable r
     // lookup was hardcoded to `Centers`/`Ends` and guarded by "the base name is unknown". A group step
     // carries the decomposed form, so the picker's own `groupCanPerform` said legal while the step
     // refused - which is how the button came to do nothing.
+    //
+    // THE WITNESS MOVED OFF THE LONE GROUP, and that is the CALL rather than a re-pointing: `Forward and Back`
+    // is now the same DEFERRED round trip as `Step Forward and Back if Possible` (see `coded-moves.ts` and
+    // `step-forward.mjs` section 10), so a "while" step whose ONLY group is one of them is refused - its
+    // dancers resolve against the other groups' end poses and there are none. MEASURED, both spellings refuse
+    // with that same sentence, and the two-group step above still applies. The decomposed reading is therefore
+    // compared in the form a caller stores it in, which reaches the SAME applicator scoped-name lookup.
+    const sidesSpec = splitSelection('Sides Forward and Back');
     atSquare();
     const asString = seq.apply('Sides Forward and Back');
     atSquare();
-    const asScopedGroup = seq.applyStep({ groups: [{ selection: 'Sides', call: 'Forward and Back' }] });
-    check(asString.legal && asScopedGroup.legal,
-      `the decomposed reading agrees with the string one (${asScopedGroup.reason ?? 'both legal'})`);
-    if (asString.legal && asScopedGroup.legal) {
-      check(poseKey(asString.board) === poseKey(asScopedGroup.board),
+    const asScoped = seq.applyStep({ selection: sidesSpec.selection, call: sidesSpec.call });
+    check(asString.legal && asScoped.legal,
+      `the decomposed reading agrees with the string one (${asScoped.reason ?? 'both legal'})`);
+    if (asString.legal && asScoped.legal) {
+      check(poseKey(asString.board) === poseKey(asScoped.board),
         '...and produces the same board');
     }
+    // AND THE LONE GROUP IS THE ONE SHAPE THE DEFERRED RULE REFUSES, pinned here so that the moved witness
+    // above cannot be mistaken for the refusal having gone away.
+    atSquare();
+    const loneScoped = seq.applyStep({ groups: [{ selection: sidesSpec.selection, call: sidesSpec.call }] });
+    check(!loneScoped.legal && /resolves against the other dancers' end poses/.test(loneScoped.reason ?? ''),
+      `a lone "while" group of it is refused as dependent, with the deferred rule's own reason (${loneScoped.reason ?? 'APPLIED'})`);
     // `Sides Forward and Back` closes - it steps out and back onto the spot it left - so it contributes
     // no endpoint motion of its own. The remainder group must still be danced in the same slot.
     const t = touched(square, applied.board);

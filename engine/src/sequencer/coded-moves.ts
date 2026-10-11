@@ -273,6 +273,18 @@ export interface CodedMove {
   deferredHalf?: (b: Board, ids: number[]) => Board;
 }
 
+/**
+ * THE ROUND TRIP ITSELF, BOUND ONCE BECAUSE TWO NAMES CALL FOR IT.
+ *
+ * `Step Forward and Back if Possible` is the engine's own descriptive name for this rule; `Forward and Back`
+ * is CALLERLAB's name for the same motion when it is scoped to a group, and the two DEFs below must be the
+ * SAME rule rather than two lambdas that happen to agree. Bound here so that "one rule, two names" is a fact a
+ * probe can assert by identity (`engine/test/step-forward.mjs` section 0) instead of a claim in a comment.
+ */
+const stepForwardAndBackSelection = (b: Board, ids: number[]) => stepForwardAndBackRule(b, ids);
+/** The forward half on its own - the board the deferred group is on BEFORE the return-or-stay decision. */
+const stepForwardHalf = (b: Board, ids: number[]) => stepForwardSteps(b, ids);
+
 const DEFS: {
   aliases: string[];
   fn?: (b: Board) => Board;
@@ -501,9 +513,38 @@ const DEFS: {
     aliases: ['Step Forward and Back if Possible'],
     beats: STEP_FORWARD_AND_BACK_BEATS,
     precondition: () => 'Step Forward and Back if Possible names a group to step ("Heads Step Forward and Back if Possible"); it has no whole-set reading',
-    applyToSelection: (b, ids) => stepForwardAndBackRule(b, ids),
+    applyToSelection: stepForwardAndBackSelection,
     deferred: true,
-    deferredHalf: (b, ids) => stepForwardSteps(b, ids),
+    deferredHalf: stepForwardHalf,
+  },
+  // ...AND `Forward and Back` IS THAT SAME RULE UNDER THE NAME A CALLER ACTUALLY SAYS.
+  //
+  // REPORTED FROM USE: "in Static square, 'Heads Forward and Back' as a call in its own right does nothing."
+  // MEASURED on a Static Square before this entry: the call APPLIED - the catalogue's own scoped tam steps the
+  // heads out two and back two, so its net board is the board it started on - but `sequenceBeats` was **0** and
+  // `sequenceStop` named it. The walk matches the BASE name, and `Forward and Back`'s authorings are two-dancer
+  // setups (`Facing Couples Compact`) that cannot match a four-dancer subset, so `matchingVariantInfo` returned
+  // null, the step was recorded unwalkable with no beats, and the scrub froze on its own start board. The
+  // catalogue's scoped tam is also a different TIMING from the round trip's: its two paths are `Forward 2` and
+  // `Back 2` at `beats="4"` each - 8 beats for a motion this rule does in 4, which is the owner's own number.
+  //
+  // WHY A SECOND ENTRY RATHER THAN AN ALIAS OF `Step Forward and Back if Possible`, because the two spellings
+  // do NOT have the same catalogue underneath them: `Forward and Back` has a whole-set authoring (`Facing
+  // Couples` and `Lines`) that must keep working, and a derived entry SHADOWS the catalogue for the base name.
+  // So this one declares `catalogueFallback`, which is what declines a whole-set board back to those tams, while
+  // the sibling spelling - which no catalogue file authors - keeps refusing with its own message.
+  // MEASURED over the engine's own 136 named formations: the whole-set reading applies on FIVE of them
+  // (`Normal Lines`, `Normal Lines Compact`, `3 and 1 lines #1`, `Inverted Lines Ends Facing Out`, `Double Pass
+  // Thru`) and the derived precondition declines all five, so the catalogue is what serves every one. Without
+  // the flag those five would be refused; `engine/test/step-forward.mjs` section 10 pins the count.
+  {
+    aliases: ['Forward and Back'],
+    beats: STEP_FORWARD_AND_BACK_BEATS,
+    precondition: () => 'Forward and Back names a group to step ("Heads Forward and Back"); the whole-set reading belongs to the catalogue, so the derived round trip declines it',
+    applyToSelection: stepForwardAndBackSelection,
+    deferred: true,
+    deferredHalf: stepForwardHalf,
+    catalogueFallback: true,
   },
 ];
 

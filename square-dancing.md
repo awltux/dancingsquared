@@ -3463,8 +3463,60 @@ call." It is the same forward motion with no decision in it, and it is NOT defer
 as an ordinary group: its own two beats are charged (the step still costs the longer call), and the per-group
 pacing holds it at its stepped pose for the rest - measured in the app as `Sides Promenade 1/2 to Home while All
 Except Sides Step Forward` over 8 beats with the stepping dancer at 0.00, 1.00, 2.00, then 2.00 for every
-remaining beat. `engine/test/step-forward.mjs` section 0 pins the pair of them: exactly one coded move is
-deferred, the plain step costs 2 and the round trip 4, and both refuse the bare name.
+remaining beat. `engine/test/step-forward.mjs` section 0 pins the pair of them: the deferred coded moves are TWO
+SPELLINGS OF ONE RULE (`Step Forward and Back if Possible` and, below, `Forward and Back`, sharing one
+`applyToSelection`), the plain step costs 2 and the round trip 4, and all three refuse the bare name.
+
+`Forward and Back` IS THAT SAME ROUND TRIP UNDER THE NAME A CALLER ACTUALLY SAYS, and the report that found it
+was: "in Static square, 'Heads Forward and Back' as a call in its own right does nothing." MEASURED BEFORE, on a
+Static Square: the call APPLIED - the catalogue's own scoped tam (`ms/forward_and_back.xml`) steps the heads out
+two and back two, so its net board is the board it started on - but `sequenceBeats` was **0** and
+`sequenceStop` named it, so there was no timeline to animate over at all. The walk matches the BASE name, and
+the corpus's `Forward and Back` authorings are two-dancer setups (`Facing Couples Compact`) that no four-dancer
+subset can match; the step was recorded unwalkable. The scoped tam is also a different TIMING from the round
+trip's: its two paths are `Forward 2` and `Back 2` at `beats="4"` each, i.e. 8 beats authored for a motion this
+rule does in 4.
+RESOLVED BY A SECOND ENTRY ON THE SAME RULE, not by an alias. The rule is bound once
+(`stepForwardAndBackSelection` / `stepForwardHalf` in `coded-moves.ts`), so "one rule, two names" is a fact
+`engine/test/step-forward.mjs` section 0 asserts by identity rather than a claim in a comment. It has to be a
+second ENTRY because the registry is keyed on the BASE call name and would otherwise SHADOW the catalogue:
+`Forward and Back` HAS a whole-set authoring that must keep working, so this entry declares `catalogueFallback`,
+which declines that reading back to the tams. MEASURED over the engine's 136 named formations: the whole-set
+reading applies on FIVE (`Normal Lines`, `Normal Lines Compact`, `3 and 1 lines #1`, `Inverted Lines Ends Facing
+Out`, `Double Pass Thru`) and the derived precondition declines all five, so the catalogue serves every one;
+without the flag all five would be refused. The bare call still refuses on a square, with the CATALOGUE's
+reason, and `engine/test/step-forward.mjs` section 10 pins the count so the fallback cannot be dropped quietly.
+BOTH TIMINGS ARE GATED (section 10), because either alone would pass a wrong rule. Standalone, `Heads Forward
+and Back` costs **4** beats and the scrub reads 0.00, 1.00, 2.00, 1.00, 0.00 - two out and two back, where a
+two-point interpolation between its two IDENTICAL ends would draw nothing. Beside `Sides Promenade 1/2 to Home`
+the step costs the PARTNER's **8** beats, out at beat 2, still out through beat 6, and back over the last two -
+the owner's own description of why the timing exists ("they step out as the other group finishes"). On that
+witness it moves the dancers exactly as `Step Forward and Back if Possible` does, beat for beat, which is the
+assertion that makes this a rename of a measured behaviour rather than a second implementation of it.
+CONSEQUENCE, RECORDED RATHER THAN GLOSSED: the entry is DEFERRED, which is what makes the out-and-back span the
+sibling at all, so a "while" step whose ONLY group is `Forward and Back` is now refused with the deferred rule's
+own reason - the same answer `Step Forward and Back if Possible` gives, and the correct one (its dancers resolve
+against the other groups' end poses and there are none). `engine/test/parallel-calls.mjs` section 7 had pinned
+that lone group as part of its "the decomposed reading agrees with the string one" check; the witness moved to a
+`{selection, call}` CallStep, which reaches the same applicator scoped-name lookup, and the lone group is now
+pinned as a refusal beside it rather than being silently dropped.
+AND ONE CENSUS MOVED, by exactly the two calls this entry adds. `canonical-identity-probe.mjs` §3 counts
+`legalCalls` on each named registry key, and the IDENTIFIED column gains **+2** on SIX of the ten -
+`Eight Chain Thru` 320 → 322, `Ocean Waves` 484 → 486, `Two-Faced Lines` 321 → 323, `Two-Faced Lines LH`
+318 → 320, `Two-Faced Lines RH Compact` 91 → 93, `Ocean Waves RH BGGB Compact` 140 → 142 - while `Normal Lines`
+(432) and `Normal Lines Compact` (243) are unchanged, because on those two the heads already stand as the
+facing pairs the catalogue's scoped tam wants. The +2 is `Heads Forward and Back` and `Sides Forward and Back`,
+which now apply where the scoped tam cannot match. It is the FIX rather than a side effect: the applicator
+reaches the registry through `applySelected`'s `applyCodedToSelection`, whose contract is explicitly "strictly
+additive, it can only turn a refusal into an application". That pin was ALREADY red before this change (it
+expects `Eight Chain Thru` `[249,299]` against an actual `[269,320]`), so the movement is recorded here rather
+than re-pinned - re-pinning a census that is red for a stale corpus would hide the next real movement.
+THE REST IS UNCHANGED, measured before and after with `engine/src` + `engine/test` stashed for the baseline:
+the FIGURE census is identical (`figures 7 of 188`, and the same cause table - `98 catalogue tam has no setup`,
+`61 derived call refuses ("Promenade")`, ...), the full `npm run verify --prefix engine` run reports the same
+**83** `FAIL` lines before and after with the legal-call census above the single line that differs, and
+`node book/tools/check-links.mjs` is green. The census is that low in this tree for a pre-existing
+corpus/registration reason that is NOT this change: the baseline was taken with the same dirty tree.
 
 THE FORWARD HALF IS ONE DEFINITION (`stepForwardSteps`), which is what keeps the two calls from disagreeing about
 what a step is, and it is also what the APPLICATOR resolves the deferred group from - a deferred call declares its

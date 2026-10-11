@@ -41,6 +41,9 @@ engine.setParser(DOMParser);
 const movesXml = fs.readFileSync(path.join(POC_DIR, 'src/assets/moves.xml'), 'utf8');
 const formationsXml = fs.readFileSync(path.join(POC_DIR, 'src/assets/formations.xml'), 'utf8');
 const LEVELS = fs.readdirSync(path.join(POC_DIR, 'src/assets')).filter((d) => !d.includes('.') && d !== 'src');
+/** Every `.xml` under the level directories - the corpus's own count, so coverage can be an EQUALITY. */
+const CALL_FILES = LEVELS.reduce((n, level) => n
+  + fs.readdirSync(path.join(POC_DIR, 'src/assets', level)).filter((f) => f.endsWith('.xml')).length, 0);
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -48,10 +51,16 @@ const check = (cond, msg) => {
   else { failures++; console.log('  FAIL ' + msg); }
 };
 
+// WHICH FILES THE WALK ACTUALLY OPENED. `everyRotate` is a single traversal, so a count of what it found
+// cannot be checked against a second walk of the same thing - that would just be the same measurement
+// twice. What CAN be asserted is that it opened every file: recorded here as a side effect and checked
+// below, which catches a sweep that stops early however the corpus grows or shrinks.
+const filesVisited = new Set();
 function* everyRotate() {
   for (const level of LEVELS) {
     for (const f of fs.readdirSync(path.join(POC_DIR, 'src/assets', level))) {
       if (!f.endsWith('.xml')) continue;
+      filesVisited.add(`${level}/${f}`);
       let call;
       try {
         call = engine.normalizeInstance(engine.loadCallFromXml(
@@ -96,7 +105,13 @@ console.log('\n== 1. the rule: p3 carries c2; c2 leaves p3 alone ==');
     if (cNext.x2 === r.x2 && cNext.y2 === r.y2) p3Pinned += 1;
   }
   console.log(`    ${curves} facing curves in the corpus, each with three end-point drags and one control drag`);
-  check(curves > 4000, `the sweep covers every facing curve (${curves})`);
+  // COVERAGE IS AN EQUALITY ON FILES, NOT A FLOOR ON CURVES. This was `curves > 4000`, written when the
+  // corpus carried 4128 of them; `50d3e95` folded `b1`/`b2` into `ms` and it is 3602 now, so the floor went
+  // stale while the sweep was fine. A curve count is a property of the corpus rather than of the sweep -
+  // it drifts whenever the corpus is re-authored - so it is REPORTED above and the assertion is that every
+  // call file was opened, which no corpus change can invalidate and a truncated walk cannot satisfy.
+  check(filesVisited.size === CALL_FILES,
+    `the sweep opened every call file (${filesVisited.size} of ${CALL_FILES}), so the curve count above is the corpus's own`);
   check(offsetKept === curves * 3, `the end point lands EXACTLY where it was dragged (${offsetKept} of ${curves * 3})`);
   check(lenKept === curves * 3, `and the control-to-end distance is preserved to within rounding, which is the warp being fixed (${lenKept} of ${curves * 3})`);
   check(p3Pinned === curves, `dragging the CONTROL leaves the end point exactly where it was (${p3Pinned} of ${curves})`);

@@ -94,6 +94,9 @@ import { radialArcFit, radialCircleRadii, snapBoard } from './grid-magnet';
 // the rest of the selection is a rule a probe has to measure, so it is a pure module rather than a few lines
 // inside the pointer handler. See `board-transform.ts` for the rule and for why it is scale + translation.
 import { applyBoardTransform, boardTransformOf } from './board-transform';
+// WHERE THE SCRUB LANDS WHEN THE SETUP PICKER SWAPS THE AUTHORING is its own pure module, for the reason
+// `grid-magnet.ts` is: the rule is arithmetic, and a probe can only MEASURE it if it can import it.
+import { SCRUB_STEP, keptScrubBeat } from './scrub-keep';
 // THE KEYBOARD IS ONE TABLE, owned by `main.ts` and installed once (`keys.ts`). A panel hands over the
 // bindings it wants rather than owning a listener, so the four decisions every global key handler has to
 // make - modifiers, a field being typed into, auto-repeat, and whether this panel is on screen - are made
@@ -1068,14 +1071,21 @@ export class EditorController implements EditorUI {
    * the thing being compared vanishes just as it is reached.
    *
    * CHANGING THE CALL STILL RESETS, and must: a different call is a different dance of a different
-   * length, so the old beat is not a place in it. And when two authorings of ONE call have different
-   * lengths, the kept beat is CLAMPED to the new one rather than left out of range, so the bar, the
-   * readout and the playhead cannot point at three different places.
+   * length, so the old beat is not a place in it.
+   *
+   * WHERE THE KEPT BEAT LANDS IS NOT THIS METHOD'S RULE. Two authorings of ONE call can differ in
+   * length, and a bare beat is an absolute position - carrying one across a length change put a caller
+   * who was sitting on the LAST FRAME into the middle of a longer authoring. The rule is
+   * `keptScrubBeat` in `scrub-keep.ts`, which owns it, is DOM-free and is measured by
+   * `poc/tools/editor-setup-scrub-probe.mjs`.
    */
   private loadInstance(keepBeat = false) {
     const id = this.editCallSel.value;
     const tam = parseInt(this.editSetupSel.value || '0', 10);
     const wasAt = this.editBeat;
+    // The OUTGOING authoring's length, read BEFORE the load replaces `this.instance` below - the rule
+    // needs both ends of the change, and after the assignment this one is gone.
+    const wasBeats = this.instance ? this.instance.beats : 0;
     try {
       // `source` is the REFERENCE TRACK: what a clone re-bases away from and reconnects to.
       // A NEW CALL HAS NO HISTORY: the steps in the stack describe a different call, so putting one back
@@ -1118,7 +1128,7 @@ export class EditorController implements EditorUI {
       // A NEW instance starts at its own first beat, with the animation off - unless the caller is
       // stepping through the SETUPS of the call they already had open, where the beat is where they are
       // LOOKING. See `keepBeat` above.
-      this.editBeat = keepBeat ? Math.max(0, Math.min(this.instance.beats, wasAt)) : 0;
+      this.editBeat = keepBeat ? keptScrubBeat(wasAt, wasBeats, this.instance.beats) : 0;
       // The board is only borrowed while this panel is on screen; showInstance -> showAt is where that is decided.
       this.showInstance(this.instance);
       this.renderInstance();
@@ -1256,12 +1266,13 @@ export class EditorController implements EditorUI {
     // spends its first and last two beats on time in which no move happens - the dead intro and outro the
     // caller asked to be rid of. The moves run from 0 to `beats` on the call's own clock.
     const total = call.beats || 1;
-    this.scrubEl.max = String(total);
     // A HUNDREDTH OF A BEAT. The bar was in quarter beats, which is coarse for the job it does here -
     // placing a dancer while shaping a curve needs fine adjustment, and at this step a drag across
     // the bar is finer than one step per pixel (so the movement is smooth as well as precise) and the
-    // arrow keys nudge by 0.01 while Page Up/Down move by 0.1.
-    this.scrubEl.step = '0.01';
+    // arrow keys nudge by 0.01 while Page Up/Down move by 0.1. `SCRUB_STEP` is the same number
+    // `keptScrubBeat` uses to decide whether a scrub counts as being at the end, so the two cannot drift.
+    this.scrubEl.step = String(SCRUB_STEP);
+    this.scrubEl.max = String(total);
     const b = Math.max(0, Math.min(total, this.editBeat));
     // Never write into the control the caller is dragging: the value is theirs while the pointer is
     // down, and a write that lands mid-gesture is the classic way a scrubber starts fighting back.
@@ -5573,7 +5584,9 @@ export class EditorController implements EditorUI {
     });
     // THE SETUP KEEPS THE CALLER'S PLACE. This is the one control that swaps the AUTHORING while the
     // CALL stays the same, so it is the one place where resetting the scrub costs the caller the thing
-    // they came for; the call picker above still resets.
+    // they came for; the call picker above still resets. A scrub left AT THE END stays at the end of
+    // whatever authoring comes next, however long, so stepping the setups always shows the end
+    // formation - see `scrub-keep.ts`.
     this.editSetupSel.addEventListener('change', () => {
 
       this.loadEditSetup();

@@ -111,6 +111,15 @@ const SUITE = [
   // beats, and animate nothing - the walk could not find a variant for a scoped step, and the authored
   // motion (`Opposite Boy`, a closing circular path) was never followed. ~1s.
   { h: 'scoped-animation', light: true },
+  // EVERY SCOPED CODED STEP x the six whole-set selections, and it is the gate for the SENTENCE the entry
+  // above states. It was written with the `Do Sa Do` fix and then registered NOWHERE - which is the hole
+  // that let the next defect in the same class hide for a whole session: its metric took the MAX over every
+  // sampled beat, and the last sample IS the applied board, so a step that stands still for its whole
+  // duration and snaps on the final frame scored exactly like one that dances. MEASURED after the metric was
+  // repaired: 20 of the 51 steps that apply with non-zero beats moved NOTHING before the final frame - the
+  // whole scoped `Face *` family, reported from use as "Heads Face right has a single transition between
+  // frame 0.9 and 1.0". ~8s, 138 applies plus 33 samples each, so it is in `light`.
+  { h: 'scoped-coded-animation-probe', sub: 'tools', light: true },
   // A title authored TWICE, with the WRONG stance first in the file - `Single Circle Left Full` in
   // `ms/circle.xml`. `parallelApply` used to return on the first setup that tiled and discard its
   // error, so document order decided which of two readings of the same call was danced. In `light`

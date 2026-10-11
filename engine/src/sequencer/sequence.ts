@@ -968,11 +968,26 @@ export class SequenceAnalyzer {
               };
             }
           }
-          const movesSomeone = board.dancers.some((d) => {
+          // THE GUARD IS "DOES THE POSE CHANGE", NOT "DOES ANYBODY MOVE", and the difference is the whole
+          // `Face *` family. A pure pivot changes every designated dancer's HEADING and moves nobody's
+          // position, so a position-only test sent it past this branch and into the subset machinery below -
+          // whose re-apply is `applyToBoardInner` on the CENTRED SUBSET, a call the CATALOGUE has no authoring
+          // for (measured: `applicator.applyToBoard(centredHeads, "Face Right")` is ILLEGAL, "No setup in this
+          // call matches the current formation"). `animateParallelBoard` then returns the board unchanged, so
+          // the step stood still for its whole duration and jumped on the last frame.
+          // MEASURED over the 51 scoped coded steps that apply from a `Static Square` with beats > 0: **20 put
+          // their ENTIRE motion in the final frame** - `Heads`/`Sides`/`Boys`/`Girls` x `Face
+          // Right`/`Left`/`Half`/`In`/`Out`, every one of them 1 beat, 1.571 or 3.142 radians of travel.
+          // Reported from use as "Heads Face right has a single transition between frame 0.9 and 1.0".
+          //
+          // `interpolateSegment` already owns the pivot shape - it rotates every dancer's heading and leaves a
+          // dancer whose pose is unchanged exactly where it stands (see the PIVOT case in its own doc) - so
+          // including the heading here needs no new animation code, only the wider test.
+          const changesPose = board.dancers.some((d) => {
             const e = after.dancers.find((x) => x.id === d.id);
-            return !!e && Math.hypot(e.x - d.x, e.y - d.y) > 1e-9;
+            return !!e && (Math.hypot(e.x - d.x, e.y - d.y) > 1e-9 || Math.abs(normAngle(e.heading - d.heading)) > 1e-9);
           });
-          if (movesSomeone) {
+          if (changesPose) {
             const t = beats > 0 ? Math.max(0, Math.min(1, localBeat / beats)) : 1;
             return this.interpolateSegment(board, after, t, null);
           }

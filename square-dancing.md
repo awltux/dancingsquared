@@ -3778,17 +3778,40 @@ broke `Trade`, which IS coded and whose boards DO differ, and inside a lane the 
 nothing for it (the bare call does not apply to the 4-dancer side subset), so the third sub-call stood still
 for its 4 beats and snapped at the end. The new gate is
 `engine/test/tools/scoped-coded-animation-probe.mjs`: every coded move x the 6 whole-set selections from a
-`Static Square`, 138 rows of which 51 apply. Run against the PRE-FIX source it reports exactly the four
-`Do Sa Do` rows as standstills (8 beats, 0.000 travel, while the 24 heading-only `Face *` rows and the
-0-beat `Join Hands` are not standstills in this sense); with the fix it is green - 51 apply, 0 standstills,
-worst last-frame drift 0.00e+0, and `Heads Do Sa Do` travels 3.5 units where it previously moved nobody.
+`Static Square`, 138 rows of which 55 apply (51 of them with non-zero beats). Run against the PRE-FIX source it
+reports exactly the four `Do Sa Do` rows as standstills (8 beats, 0.000 travel); with the fix those four travel
+3.5 units and nothing else moved.
+**AND THAT PARAGRAPH'S NEXT CLAUSE WAS WRONG, AND IT IS THE REASON THE SAME GATE MISSED THE NEXT DEFECT IN THE
+SAME CLASS.** It read "the 24 heading-only `Face *` rows and the 0-beat `Join Hands` are not standstills in this
+sense" - which is true of the METRIC the probe used and false of the animation. That metric took the MAX over
+every sampled beat, and the LAST sample IS the applied board, so a step that stands still for its whole duration
+and snaps on the final frame scored exactly like one that dances. MEASURED with the metric repaired (`max` over
+the samples BEFORE the last): **20 of the 51 steps moved NOTHING until the final frame** - `Heads`/`Sides`/
+`Boys`/`Girls` x `Face Right`/`Left`/`Half`/`In`/`Out`, 1 beat each, 1.571 or 3.142 radians of travel. Reported
+from use as "Heads Face right has a single transition between frame 0.9 and 1.0" while the whole-set
+`Face Right` was smooth.
+THE CAUSE IS THE SAME GUARD ONE LEVEL DOWN. `evaluateCallAt`'s scoped-coded branch asked "did anyone MOVE"
+(POSITION only) before drawing the call with `interpolateSegment`, so a pure pivot - 0 travel by construction -
+fell past it into the subset machinery, whose re-apply is `applyToBoardInner` on the CENTRED SUBSET: a call the
+CATALOGUE has no authoring for, and MEASURED illegal there
+(`applicator.applyToBoard(centredHeads, "Face Right")` -> "No setup in this call matches the current
+formation"). `animateParallelBoard` then returned the board unchanged, so the step stood still and jumped on the
+last frame. The guard is now "does the POSE change", heading included, and `interpolateSegment` already owns the
+pivot shape - it rotates every heading and leaves a dancer whose pose is unchanged exactly where it stands - so
+no new animation code was needed. MEASURED after: 0 of the 51 dead, least of the move already done at the
+halfway beat **0.500**, and `Heads Face Right` turns 45.0 degrees by the halfway beat.
+**AND THE PROBE WAS REGISTERED NOWHERE**, which is the other half of why the class hid: §5's rule is that a
+probe nobody runs is already stale. It is now an entry in `engine/test/verify-suite.mjs`
+(`scoped-coded-animation-probe`, `sub: 'tools'`, `light` - ~8s, 138 applies plus 33 samples each), so the
+sentence it states is a gate rather than a file.
 
 ALSO FIXED BY THE SAME CHANGE, a harness that had been red: `engine/test/scoped-dosado.mjs` (2 failures at
 HEAD, "Heads Dosado moves exactly 1,2,5,6 (got none)") is now ALL GREEN - the same degenerate straight line
 is why a scoped dosado charged its beats and moved nobody.
 
 GATES: `npm run build --prefix engine`; `npx tsc -p poc --noEmit`;
-`node engine/test/tools/scoped-coded-animation-probe.mjs` (green with the fix, exactly 4 reds without it);
+`node engine/test/tools/scoped-coded-animation-probe.mjs` (green with the fix, exactly 4 reds without it -
+and it is a registered harness now, not a file, so it runs in the `light` tier);
 `node engine/test/scoped-dosado.mjs` (all green); `parallel-calls.mjs`, `modules.mjs`, `step-forward.mjs`,
 `scoped-animation.mjs` and `selection.mjs` (all green, with the label expectations updated to `||`/`+`);
 `behaviour-audit.mjs` at PASS 149 / FAIL 2 on BOTH revisions (the two reds are pre-existing and named);

@@ -1,4 +1,4 @@
-// A STEP THAT APPLIES MUST ANIMATE SOMETHING, and this probe is the gate for that sentence.
+// A STEP THAT APPLIES MUST ANIMATE SOMETHING - AND IT MUST ANIMATE IT BEFORE THE LAST FRAME.
 //
 // WHY IT EXISTS. `Heads Do Sa Do` applied legally, charged its full 8 beats, and drew NOTHING: the scoped
 // coded path drew `interpolateSegment(board, after)` in a straight line, and a call that RETURNS HOME has
@@ -6,14 +6,28 @@
 // the dancers don't move when I scrub". The fix falls through to the subset machinery when that line cannot
 // draw the call - see `evaluateCallAt`.
 //
-// THE MEASUREMENT THE FIX IS SIZED ON: every coded move x the 6 whole-set selections from a `Static Square`,
-// 138 rows of which 51 apply. BEFORE the fix 28 of those 51 were standstills; 24 of them are the heading-only
-// `Face *` family (0 position travel BY CONSTRUCTION - they pivot in place, and their boards differ, so they
-// keep the straight line) and `Join Hands` (0 beats), leaving the four `Do Sa Do` rows as the real ones.
-// AFTER: those four travel 3.5 units and nothing else moved, no legality or beat count changed, and every
-// last frame is still exactly the applied board.
+// THE MEASUREMENT THE FIRST FIX WAS SIZED ON: every coded move x the 6 whole-set selections from a `Static
+// Square`, of which 55 apply. BEFORE it, 28 were standstills; 24 of those are the heading-only `Face *`
+// family (0 position travel BY CONSTRUCTION - they pivot in place, and their boards differ, so they kept the
+// straight line) and `Join Hands` (0 beats), leaving the four `Do Sa Do` rows as the real ones. AFTER it, the
+// four `Do Sa Do` rows travelled, nothing else moved, no legality or beat count changed, and every last frame
+// was still exactly the applied board.
 //
-// SO THE GATE IS: a legal, non-zero-beat step must move SOMETHING - position or heading.
+// AND THE GATE THAT FIX SHIPPED WITH COULD NOT SEE HALF THE PROBLEM, because it took the MAX over every
+// sampled beat and the LAST sample IS the applied board - so a step that stands still for its whole duration
+// and snaps on the final frame scored exactly the same as one that dances. MEASURED with the metric repaired
+// (`max` over the samples BEFORE the last): **20 of the 51 steps that apply with non-zero beats moved NOTHING
+// until the final frame** - `Heads`/`Sides`/`Boys`/`Girls` x `Face Right`/`Left`/`Half`/`In`/`Out`, 1 beat
+// each, 1.571 or 3.142 radians of travel. Reported from use as "Heads Face right has a single transition
+// between frame 0.9 and 1.0". The cause was `evaluateCallAt`'s scoped-coded guard testing POSITION only, so a
+// pure pivot fell through to a subset re-apply the catalogue cannot author (measured:
+// `applicator.applyToBoard(centredHeads, "Face Right")` is ILLEGAL) and the animation returned the board
+// unchanged.
+//
+// SO THE GATE IS: a legal, non-zero-beat step must move something - position or heading - BEFORE its last
+// frame. The midpoint ratio is printed beside it, because "how much of the move is done by half way" is what
+// separates a paced animation from one that merely starts late; it is a REPORT rather than an assertion,
+// since the honest floor for a reshaped path is a pacing question and not a fixed number.
 //
 // Usage: node engine/test/tools/scoped-coded-animation-probe.mjs   (wants `npm run build --prefix engine`)
 import { readFileSync } from 'node:fs';
@@ -36,11 +50,21 @@ const seq = new Sequencer(
 const home = seq.boardForFormation('Static Square');
 const SELECTIONS = ['Heads', 'Sides', 'Centers', 'Ends', 'Boys', 'Girls'];
 const angDiff = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+/** How far the board at `b` is from the board the step started on - WORST dancer, position or heading. */
+const travel = (b) => b.dancers.reduce((m, d) => {
+  const s = home.dancers.find((x) => x.id === d.id);
+  return s ? Math.max(m, Math.hypot(d.x - s.x, d.y - s.y), angDiff(d.heading, s.heading)) : m;
+}, 0);
+const SAMPLES = 32;
 
 let applied = 0;
-let standstills = 0;
+let timed = 0;          // ...of which have beats, so a timeline to animate over
+let standstills = 0;    // motion ANYWHERE, including the last frame
+let snaps = 0;          // motion ONLY in the last frame - the shape this gate exists to catch
 let worstDrift = 0;
+let worstHalfRatio = Infinity;
 const dead = [];
+const snapRows = [];
 for (const call of CODED_MOVE_NAMES) {
   for (const selection of SELECTIONS) {
     const raw = `${selection} ${call}`;
@@ -49,34 +73,52 @@ for (const call of CODED_MOVE_NAMES) {
     applied++;
     const beats = seq.sequenceBeats([raw], home);
     if (beats <= 0) continue; // a 0-beat step is not asked to draw anything
-    let move = 0;
-    for (let i = 0; i <= 32; i++) {
-      const b = seq.evaluateSequence([raw], (i / 32) * beats, home).board;
-      for (const d of b.dancers) {
-        const s = home.dancers.find((x) => x.id === d.id);
-        move = Math.max(move, Math.hypot(d.x - s.x, d.y - s.y), angDiff(d.heading, s.heading));
-      }
+    timed++;
+    const at = (i) => seq.evaluateSequence([raw], (i / SAMPLES) * beats, home).board;
+    let anywhere = 0;
+    let beforeLast = 0;
+    for (let i = 0; i <= SAMPLES; i++) {
+      const t = travel(at(i));
+      anywhere = Math.max(anywhere, t);
+      // THE SAMPLE AT `i === SAMPLES` IS THE APPLIED BOARD ITSELF, so it is excluded here. That exclusion is
+      // the whole repair: including it is what let 20 snapping steps read as animated.
+      if (i < SAMPLES) beforeLast = Math.max(beforeLast, t);
     }
+    const half = beats > 0 ? travel(at(SAMPLES / 2)) : 1;
+    if (anywhere > 1e-6) worstHalfRatio = Math.min(worstHalfRatio, half / anywhere);
     // The last frame must still be the board the apply produced - the fix must not move the endpoint.
-    const last = seq.evaluateSequence([raw], beats, home).board;
+    const last = at(SAMPLES);
     for (const d of last.dancers) {
       const e = r.board.dancers.find((x) => x.id === d.id);
       worstDrift = Math.max(worstDrift, Math.hypot(d.x - e.x, d.y - e.y));
     }
-    if (move < 1e-6) { standstills++; dead.push(`${raw} (${beats} beats)`); }
+    if (anywhere < 1e-6) { standstills++; dead.push(`${raw} (${beats} beats)`); }
+    else if (beforeLast < 1e-6) { snaps++; dead.push(`${raw} (${beats} beats) - all ${anywhere.toFixed(3)} of its motion is in the FINAL frame`); snapRows.push(raw); }
   }
 }
 
 console.log(`${applied} of ${CODED_MOVE_NAMES.length * SELECTIONS.length} scoped combinations apply from a Static Square`);
-console.log(`${standstills} of those steps animate NOTHING (neither position nor heading)`);
+console.log(`${timed} of those have beats to animate over; ${standstills} animate NOTHING at all and ${snaps} animate ONLY on the final frame`);
 console.log(`worst last-frame drift from the applied board: ${worstDrift.toExponential(2)}`);
-for (const d of dead) console.log(`  standstill: ${d}`);
-if (standstills) {
-  console.log(`\nscoped-coded-animation: ${standstills} FAILURE(S) - a step that applies must animate something`);
+console.log(`least of the move already done at the halfway beat: ${worstHalfRatio === Infinity ? 'n/a' : worstHalfRatio.toFixed(3)}`);
+for (const d of dead) console.log(`  dead step: ${d}`);
+if (standstills || snaps) {
+  console.log(`\nscoped-coded-animation-probe: ${standstills + snaps} FAILURE(S) - a step that applies must animate something, and must do it before its last frame`);
   process.exit(1);
 }
 if (worstDrift > 1e-6) {
-  console.log(`\nscoped-coded-animation: FAILED - the animation does not converge on the applied board`);
+  console.log(`\nscoped-coded-animation-probe: FAILED - the animation does not converge on the applied board`);
   process.exit(1);
 }
-console.log('\nscoped-coded-animation: all green.');
+// SHOWN TO FAIL: with the position-only guard this probe used to pass, `Heads Face Right` is one of the rows
+// above - its heading went 270 -> 180 degrees entirely on the final sample. The named witness is asserted so
+// the family cannot regress behind a green count.
+const watch = seq.evaluateSequence(['Heads Face Right'], 0.5, home).board;
+const watchStart = home.dancers.find((d) => d.id === 1);
+const watchHalf = watch.dancers.find((d) => d.id === 1);
+if (Math.abs(angDiff(watchHalf.heading, watchStart.heading)) < 1e-6) {
+  console.log('\nscoped-coded-animation-probe: FAILED - "Heads Face Right" has not turned by the halfway beat');
+  process.exit(1);
+}
+console.log(`\n"Heads Face Right" turns ${(angDiff(watchHalf.heading, watchStart.heading) * 180 / Math.PI).toFixed(1)} degrees by the halfway beat - the reported single-transition case`);
+console.log('\nscoped-coded-animation-probe: all green.');

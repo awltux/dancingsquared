@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, buildCallVariants, boardAtBeat, formationToXml, parseFormations, parseCallXml, parseMoves, buildCall, normalizeInstance } from '../dist/index.js';
+import { setParser, Sequencer, buildCallVariants, boardAtBeat, formationToXml, parseFormations, parseCallXml, parseMoves, buildCall, normalizeInstance, faceInOutStates } from '../dist/index.js';
 import { roleUniformMotions, segsEqual } from '../dist/sequencer/matcher.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
@@ -256,6 +256,46 @@ console.log('== Sequencer: Face In / Face Out is a QUARTER TURN, not "point at t
     }).length;
     const n = r.board.dancers.length;
     check(facingInward === n, `${call} leaves every dancer facing ${toward ? 'inward' : 'outward'} (${facingInward}/${n}) — Facing Lines / Lines Back-to-Back`);
+  }
+  // AND THE TURN STOPS AT THE FIRST 90-DEGREE FACING IT CROSSES. Asked for as: "turn 90 deg towards the
+  // origin ... but stop turning if they reach adjacent to the axis before they turn 90 deg ... this
+  // refinement is for dancers not starting from square, e.g. after a `dosado your corner`."
+  //
+  // The order of these two checks is the point, and the SECOND is the negative control for the first: the
+  // plausible wrong implementation is a `>=` on "have I reached a grid facing", which stops EVERY dancer
+  // where it stands and turns `Face In` on a squared set into a call that does nothing.
+  {
+    const D = Math.PI / 180;
+    const isGrid = (h) => Math.abs(h / QUARTER - Math.round(h / QUARTER)) < 1e-6;
+    const turned = (from, to) => ((to - from) / D + 540) % 360 - 180;
+    // A synthetic two-dancer set so the centre is the origin and the start facing is the only variable.
+    const pair = (heading) => [
+      { id: 1, x: 3, y: 1, heading },
+      { id: 2, x: -3, y: -1, heading: 0 },
+    ];
+    const OFF_GRID = [
+      [30 * D, 90 * D], [200 * D, 180 * D], [350 * D, 270 * D],
+    ];
+    let capped = 0, gridEnd = 0;
+    for (const [from, want] of OFF_GRID) {
+      const [end] = faceInOutStates(pair(from), true);
+      if (Math.abs(norm(end.heading - want)) < 1e-9) capped++;
+      if (isGrid(end.heading)) gridEnd++;
+      check(Math.abs(turned(from, end.heading)) <= 90 + 1e-9,
+        `an off-grid facing (${(from / D).toFixed(0)}°) turns at most a quarter — measured ${turned(from, end.heading).toFixed(1)}°`);
+    }
+    check(capped === OFF_GRID.length, `every off-grid facing stops at the first 90° direction in its sweep (${capped}/${OFF_GRID.length})`);
+    check(gridEnd === OFF_GRID.length, `and every one of them ends grid-aligned (${gridEnd}/${OFF_GRID.length})`);
+    // THE NEGATIVE CONTROL, stated as the PROPERTY and not as a copy of the rule: a grid dancer's sweep
+    // contains no OTHER grid facing, so it takes a full quarter turn. A `>=` in `firstGridFacing` would
+    // stop it where it stands, and this is the one check that catches that - the three above it only look
+    // at off-grid starts, and the boards further up are unchanged by either implementation.
+    let fullQuarter = 0;
+    for (const h of [0, QUARTER, Math.PI, -QUARTER]) {
+      const [end] = faceInOutStates(pair(h), true);
+      if (Math.abs(Math.abs(turned(h, end.heading)) - 90) < 1e-9) fullQuarter++;
+    }
+    check(fullQuarter === 4, `a dancer already ON the grid still turns a FULL quarter, not a stop where it stands (${fullQuarter}/4)`);
   }
 }
 

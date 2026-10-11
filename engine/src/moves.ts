@@ -84,6 +84,9 @@ export function moveMatrix(d: DancerState, move: Move): Mat5 {
   return dancerMatrix(d.x, d.y, d.heading, end.x, end.y, end.heading);
 }
 
+/** The quarter turn itself, in radians: `Face In`/`Face Out` is one of these, never a partial step. */
+const QUARTER = Math.PI / 2;
+
 /**
  * Turn each of the given dancers to face the set centre (Face In) or away from
  * it (Face Out). Which way each dancer turns depends on its angle about the
@@ -108,6 +111,19 @@ export function moveMatrix(d: DancerState, move: Move): Mat5 {
  * counter-clockwise of the dancer's facing, right when it is clockwise. Facing exactly away leaves
  * the two senses equivalent and the left one is taken; `Face In` is called from dancers facing out,
  * where the centre is never behind them along their own axis.
+ *
+ * AND THE TURN STOPS AT THE FIRST 90-DEGREE FACING IT CROSSES, which is the refinement asked for as:
+ * "turn 90 deg towards the origin ... but stop turning if they reach adjacent to the axis before they
+ * turn 90 deg ... this refinement is for dancers not starting from square, e.g. after a `dosado your
+ * corner`." A dancer on the grid is unaffected - its start IS a 90-degree facing and its end is the
+ * next one, so nothing lies strictly between them and the full quarter turn is taken. A dancer that
+ * starts OFF the grid (`Dosado your Corner` leaves one at a diagonal) is the case it exists for: on a
+ * 30-degree facing a quarter turn toward the centre sweeps through north, and the dancer stops THERE
+ * rather than ending 60 degrees past it on a bearing no later call can read.
+ *
+ * THE CAP CANNOT OVERSHOOT THE QUARTER TURN, which is CALLERLAB's own sentence and is pinned on the
+ * `Completed Double Pass Thru` by `sequencer.mjs`: the stop is the first grid facing STRICTLY inside a
+ * sweep of at most 90 degrees, so the turn is always <= 90 and the end is always grid-aligned.
  */
 export function faceInOutStates(
   dancers: DancerState[],
@@ -115,14 +131,37 @@ export function faceInOutStates(
 ): DancerState[] {
   const cx = dancers.reduce((a, d) => a + d.x, 0) / dancers.length;
   const cy = dancers.reduce((a, d) => a + d.y, 0) / dancers.length;
-  const QUARTER = Math.PI / 2;
   return dancers.map((d) => {
     const toCentre = Math.atan2(cy - d.y, cx - d.x);
     const signed = normAngle(toCentre - d.heading);
     const left = signed >= 0;
     const turn = QUARTER * ((towardCentre ? left : !left) ? 1 : -1);
-    return { x: d.x, y: d.y, heading: normAngle(d.heading + turn) };
+    // AT MOST ONE 90-degree facing lies strictly inside a sweep this short, so the loop order does not
+    // matter and `firstGridFacing` is a search rather than a comparison of candidates.
+    return { x: d.x, y: d.y, heading: normAngle(firstGridFacing(d.heading, turn) ?? d.heading + turn) };
   });
+}
+
+/**
+ * The first multiple of 90 degrees reached by sweeping `turn` from `from`, or null when the sweep
+ * reaches the end without crossing one - which is every dancer that starts ON the grid.
+ *
+ * STRICTLY INSIDE, so a dancer already facing a grid direction does not "stop" where it stands: the
+ * start is excluded, and the end of a quarter turn from a grid facing is a grid facing too, so it is
+ * excluded as well and the full turn is taken. That is what keeps this invisible on a squared set, a
+ * line and a column, and it is the whole reason the cap could be added without touching them.
+ */
+function firstGridFacing(from: number, turn: number): number | null {
+  const dir = Math.sign(turn);
+  if (dir === 0) return null;
+  const limit = Math.abs(turn);
+  const lo = Math.floor(from / QUARTER) - 1;
+  const hi = Math.ceil((from + turn) / QUARTER) + 1;
+  for (let k = lo; k <= hi; k++) {
+    const ahead = dir * normAngle(k * QUARTER - from);
+    if (ahead > 1e-9 && ahead < limit - 1e-9) return normAngle(k * QUARTER);
+  }
+  return null;
 }
 
 // ------------------------------------------------------------------ board apply

@@ -1060,10 +1060,22 @@ export class EditorController implements EditorUI {
    * space, and letting a caller edit those numbers would move a dancer to the mirror image
    * of the spot that was typed. The engine's test proves the normalization does not move
    * anybody (worst pose gap 2.3e-15 units).
+   *
+   * `keepBeat` IS FOR THE SETUP PICKER, AND ONLY FOR IT. Asked for as: "When in the call editor, changing
+   * setup shouldn't reset the scrub time. Sometimes I want to compare the end formation while stepping
+   * through the setups." One call has several AUTHORINGS (`<tam>`), and comparing their end formations
+   * means holding the scrub at the same place in each - which a reset to 0 destroys on every change, so
+   * the thing being compared vanishes just as it is reached.
+   *
+   * CHANGING THE CALL STILL RESETS, and must: a different call is a different dance of a different
+   * length, so the old beat is not a place in it. And when two authorings of ONE call have different
+   * lengths, the kept beat is CLAMPED to the new one rather than left out of range, so the bar, the
+   * readout and the playhead cannot point at three different places.
    */
-  private loadInstance() {
+  private loadInstance(keepBeat = false) {
     const id = this.editCallSel.value;
     const tam = parseInt(this.editSetupSel.value || '0', 10);
+    const wasAt = this.editBeat;
     try {
       // `source` is the REFERENCE TRACK: what a clone re-bases away from and reconnects to.
       // A NEW CALL HAS NO HISTORY: the steps in the stack describe a different call, so putting one back
@@ -1103,8 +1115,10 @@ export class EditorController implements EditorUI {
       this.endFormationSel.value = '';
       this.endTarget = null;
       this.endOverride = null;
-      // A NEW instance starts at its own first beat, with the animation off.
-      this.editBeat = 0;
+      // A NEW instance starts at its own first beat, with the animation off - unless the caller is
+      // stepping through the SETUPS of the call they already had open, where the beat is where they are
+      // LOOKING. See `keepBeat` above.
+      this.editBeat = keepBeat ? Math.max(0, Math.min(this.instance.beats, wasAt)) : 0;
       // The board is only borrowed while this panel is on screen; showInstance -> showAt is where that is decided.
       this.showInstance(this.instance);
       this.renderInstance();
@@ -5557,10 +5571,13 @@ export class EditorController implements EditorUI {
       this.loadEditSetup();
       this.loadInstance();
     });
+    // THE SETUP KEEPS THE CALLER'S PLACE. This is the one control that swaps the AUTHORING while the
+    // CALL stays the same, so it is the one place where resetting the scrub costs the caller the thing
+    // they came for; the call picker above still resets.
     this.editSetupSel.addEventListener('change', () => {
 
       this.loadEditSetup();
-      this.loadInstance();
+      this.loadInstance(true);
     });
     this.postCallSel.addEventListener('change', () => {
       this.fillSetupSelect(this.postSetupSel, this.postCallSel.value);

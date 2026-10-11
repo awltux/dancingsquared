@@ -348,12 +348,20 @@ check(worstTurn < 1, 'and the run keeps the turn it had, so the call still goes 
 // the right size and in the wrong place. Naming a centre can, and it needs no radius field at all: the run's
 // start is pinned, so |start - centre| IS the radius.
 console.log('\n== 7. Do the eight dancers\' orbits come back onto the ring they started on? ==');
+// THE WITNESS IS NAMED, NOT TAKEN BY POSITION. This loop used to take the FIRST tam whose formation is
+// `Circle` and break. That was `Circle Left` when it was written; `ms/circle.xml` now carries SIXTEEN tams
+// with `formation="Circle"` and the first of them is `Circle Left - Stop at Home`, a different call whose
+// moves `fitCircleRun` refuses. `before` was therefore all `null` and line 369's `f.cx` threw, which killed
+// the run before this section's last EIGHT checks - the whole named-centre validation - could execute.
+// AGENTS.md §8 trap 7: a position into an authored list is not an identity. The `check` below already
+// names `Circle Left`, so this selects what it names.
 const circleTams = engine.parseCallXml(asset('ms/circle.xml'));
 let ring = null;
 for (const tam of circleTams) {
   let call;
   try { call = engine.normalizeInstance(engine.buildCall(tam, engine.parseFormations(formationsXml), engine.parseMoves(movesXml), true)); } catch { continue; }
   if (call.dancers.length !== 8) continue;
+  if (tam.title !== 'Circle Left') continue;
   if (!/^circle$/i.test((tam.formationAttr ?? '').trim())) continue;
   ring = call;
   break;

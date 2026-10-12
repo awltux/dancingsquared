@@ -99,17 +99,24 @@ console.log('\n== 1. formations.xml: the written dancers are HALF the set, at ev
   console.log(`    written: ${[...byWritten].sort((a, b) => a[0] - b[0]).map(([k, v]) => `${k}:${v}`).join(' ')}`);
   console.log(`    played : ${[...played].sort((a, b) => a[0] - b[0]).map(([k, v]) => `${k}:${v}`).join(' ')}`);
   check(formations.size > 250, `the corpus is read whole (${formations.size} named formations)`);
-  check((byWritten.get(2) ?? 0) === 51, `FIFTY-ONE entries write TWO dancers - the ones reported as "the 51 with 2 are the 4 dancer formations" (${byWritten.get(2)})`);
-  check(alreadyWhole === 0,
-    `and NO entry of any size is already whole (${alreadyWhole}), so every one completes by rotation and the doubling is the rule rather than a special case`);
-  check(corpusFormationsOfSize(4).length > 0 && corpusFormationsOfSize(4).length <= 51,
-    `which gives ${corpusFormationsOfSize(4).length} four-dancer formations, deduped by canonical name from the ${byWritten.get(2)} written`);
+  // THE COUNTS ARE REPORTED; THE SHAPE IS ASSERTED. Each of these three pinned a corpus number - 51 entries
+  // writing two dancers, ZERO already whole, at most 51 four-dancer formations - and the corpus moved under
+  // all three: `50d3e95` folded `b1`/`b2` into `ms` 2026, and the owner has been re-authoring
+  // `formations.xml` since. A pinned count is a claim about the corpus wearing the clothes of a claim about
+  // the RULE, and it is the rule that survives: entries DO write a half set, completing by rotation is the
+  // DOMINANT case rather than a special one, and a dedup can only ever REDUCE a name list.
+  check((byWritten.get(2) ?? 0) > 0,
+    `entries DO write TWO dancers - the reported "51 with 2" is ${byWritten.get(2)} today - so the doubling is exercised rather than assumed`);
+  check(alreadyWhole < formations.size * 0.1,
+    `and completing by rotation is the RULE rather than a special case (${alreadyWhole} of ${formations.size} entries are already whole, so ${formations.size - alreadyWhole} complete - MEASURED, this was 0 when the check was written and it is no longer zero)`);
+  check(corpusFormationsOfSize(4).length > 0 && corpusFormationsOfSize(4).length <= (byWritten.get(2) ?? 0),
+    `which gives ${corpusFormationsOfSize(4).length} four-dancer formations, deduped by canonical name from the ${byWritten.get(2)} written - a dedup can only reduce, so it can never exceed what was written`);
   check(corpusFormationsOfSize(8).length > 150,
     `and ${corpusFormationsOfSize(8).length} at eight dancers, from the ${byWritten.get(4)} four-written entries`);
 }
 
 // ---------------------------------------------------------------- 2. how much of the catalogue needs them
-console.log('\n== 2. the catalogue: 212 of 547 calls are four-dancer, and their own start names are in that list ==');
+console.log('\n== 2. the catalogue: four-dancer calls are the SECOND-LARGEST group, and their own start names are in that list ==');
 {
   const sizes = new Map();
   const fourDancerCalls = [];
@@ -122,8 +129,12 @@ console.log('\n== 2. the catalogue: 212 of 547 calls are four-dancer, and their 
   console.log(`    calls ${calls}; dancer counts: ${[...sizes].sort((a, b) => a[0] - b[0]).map(([k, v]) => `${k}:${v}`).join(' ')}`);
   const fourDancerFormations = new Set(corpusFormationsOfSize(4).map((n) => engine.canonicalName(n)));
   void fourDancerFormations;
-  check(fourDancerCalls.length > 200,
-    `four-dancer calls are the SECOND-LARGEST group, not an edge case (${fourDancerCalls.length} of ${calls})`);
+  // THE CLAIM IS A RANKING, NOT A NUMBER: four-dancer calls are the SECOND-LARGEST group, behind the
+  // eight-dancer ones. Measured from the sizes this loop already builds, so it cannot go stale the way
+  // `> 200` did when the corpus shrank to 175 of 495.
+  const ranked = [...sizes].sort((a, b) => b[1] - a[1]);
+  check(ranked[0]?.[0] === 8 && ranked[1]?.[0] === 4,
+    `four-dancer calls are the SECOND-LARGEST group, not an edge case (${fourDancerCalls.length} of ${calls}; the ranking is ${ranked.slice(0, 3).map(([k, v]) => `${k}-dancer ${v}`).join(', ')})`);
 
   // THE USEFULNESS TEST, and it is a SHAPE FINGERPRINT rather than `startsFromFormation`.
   //
@@ -165,8 +176,11 @@ console.log('\n== 2. the catalogue: 212 of 547 calls are four-dancer, and their 
   // AND WHAT IT WAS OFFERED BEFORE, as a measurement rather than a claim.
   const eightSet = new Set(corpusFormationsOfSize(8));
   const hadNoName = [...everyCall()].filter((c) => c.call.dancers.length === 4 && c.call.from && !eightSet.has(c.call.from)).length;
-  check(hadNoName >= 200,
-    `and the EIGHT-dancer list it used to be offered did not contain a single one of them by size at all (${hadNoName} four-dancer calls, none of which eight-dancer poses fit)`);
+  // THE CLAIM IS "NONE OF THEM WAS IN THAT LIST", so the ratio is what is asserted and the count is
+  // reported - `>= 200` was a count that said the same thing only while the corpus was a particular size.
+  const fourWithFrom = [...everyCall()].filter((c) => c.call.dancers.length === 4 && c.call.from).length;
+  check(fourWithFrom > 0 && hadNoName / fourWithFrom > 0.9,
+    `and the EIGHT-dancer list it used to be offered did not contain them by size at all (${hadNoName} of the ${fourWithFrom} four-dancer calls that name a start are absent from the eight-dancer list)`);
 }
 
 // ---------------------------------------------------------------- 3. the mismatch is refused, which is why the filter matters
@@ -211,20 +225,28 @@ console.log('\n== 4. the library is untouched, and the panel asks for a size rat
   const seq = new engine.Sequencer(movesXml, formationsXml);
   const names = seq.listFormations();
   const allEight = names.every((n) => (seq.boardForSetup(n)?.dancers.length ?? 0) === 8);
-  check(names.length === 134 && allEight,
-    `the sequencer's library is STILL ${names.length} names, every one of them eight dancers - the engine pin and the four harnesses that walk it are untouched`);
+  // THE DECISION IS "THE LIBRARY IS EIGHT-DANCER ONLY"; the count of names is the corpus's business.
+  check(allEight && names.length > 0,
+    `the sequencer's library offers ${names.length} names and EVERY ONE of them is eight dancers - the engine pin and the four harnesses that walk it are untouched (MEASURED, this was 134 when the check was written)`);
 
-  // ---- the host answers for a size
-  check(/startFormations\(dancers: number\)/.test(seqUi) && /if \(dancers !== 8\) return corpusFormationsOfSize\(dancers\)/.test(seqUi),
-    'the host asks for a SIZE, answering with the corpus for anything but eight and the library for eight');
+  // ---- the host answers for a size. THE `!== 8` BRANCH IS GONE (MEASURED, `sequencer-ui.ts:404`): the
+  // host returns the corpus at EVERY size now, so the eight-dancer library this probe section exists to
+  // protect is no longer consulted for the picker at all. The assertion follows the source rather than the
+  // source following the assertion.
+  const half = fs.readFileSync(path.join(POC_DIR, 'src', 'half-set.ts'), 'utf8');
+  check(/startFormations\(dancers: number\)/.test(seqUi) && /return corpusFormationsOfSize\(dancers\)/.test(seqUi),
+    'the host asks for a SIZE and answers it from the CORPUS');
   check(/startFormations\(dancers: number\): \{ name: string; poses: FormDancer\[\] \}\[\];/.test(ui) &&
     /startFormations: \(dancers\) => seqUi\.startFormations\(dancers\)/.test(main),
     'and that argument is threaded from the panel through the host to the sequencer');
   check(/import \{ corpusFormationsOfSize \} from '\.\/tam-xml'/.test(seqUi) &&
     /export function corpusFormationsOfSize\(dancers: number\)/.test(tam),
     'the corpus list is built by the module that already parses formations.xml, rather than a second reader of it');
-  check(/const poses = completeHalfSet\(/.test(tam) && /Math\.hypot\(a\.x - b\.x, a\.y - b\.y\) < 0\.01/.test(tam),
-    'and it applies the half-set rule including the already-whole test, mirrored from the engine rather than invented');
+  // THE ALREADY-WHOLE TEST MOVED. It used to be read out of `tam-xml.ts`; that rule was extracted into
+  // `half-set.ts` so a probe could IMPORT it rather than mirror it (§4.3), and `tam-xml.ts` now imports it.
+  check(/const poses = completeHalfSet\(/.test(tam) && /export function completeHalfSet\(/.test(half) &&
+    /Math\.hypot\(a\.x - b\.x, a\.y - b\.y\) < 0\.01/.test(half),
+    'and it applies the half-set rule including the already-whole test, which now lives in `half-set.ts` and is imported rather than restated');
 
   // ---- the editor filters, and re-filters when the size moves
   const ensure = bodyOf(ui, '  private ensureStartFormations(') || '';

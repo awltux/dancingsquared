@@ -17,6 +17,18 @@
 //      the tile already mirrors the format), so a gizmo that makes "the facing controls" draggable
 //      has to expose all five.
 //
+// RED ON PURPOSE IN PART, AND THE OWNER HAS RULED ON THE HARD HALF: the check that a no-op handle touch
+// exports BYTE-IDENTICALLY has never held and is not a corpus staleness. `requireDancer`
+// (`engine/src/editor.ts`) calls `normalizeInstance` whenever any dancer carries `mirror`, so ANY touch
+// rewrites the two mirrored dancers' start pose from `angle="270"` to `angle="-90"` - the SAME angle, on
+// lines that have nothing to do with the move that was edited (MEASURED: 2 of 64 exported lines differ,
+// witness `ms/alamo_style.xml` d0 m3, and the edited move's own numbers are untouched). PLAN.md:3213,
+// `poc/README.md:719` and `square-dancing.md:1724` all claim the whole export is byte-identical, which is
+// what this check was written from. Fixing it is an ENGINE change to the shared entry point for every
+// instance edit, gated by `engine/test/editor.mjs` 257-271 / 342-347 / 500, so the owner chose to LEAVE IT
+// FOR NOW: the red stands as a recorded decision, and the docs above are known to overstate. Do not narrow
+// the check without also correcting those three.
+//
 // Run: node tools/facing-handle-probe.mjs   (from poc/)
 import fs from 'node:fs';
 import path from 'node:path';

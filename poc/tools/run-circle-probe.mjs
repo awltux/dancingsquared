@@ -19,6 +19,32 @@
 // checks cost rather than a new expense. It stays in the fast tier: this probe is one of the slower ones
 // but it is not in the same class as `call-formations-probe.mjs` (461 s), which is the tier's only member.
 //
+// FOUR CHECKS ARE RED AND THE OWNER HAS RULED ON ALL OF THEM, so read this before "fixing" any of them.
+// Section 7's first two (`:371`, `:375`) are the OFFSET-orbit pins `PLAN.md:5022-5028` already records:
+// the corpus re-authoring took the offset out of those orbits and they now measure 0.000, so the
+// assertions are false about today's corpus. The other two are LIVE AND ATTRIBUTED, and they were
+// invisible until section 7 stopped crashing:
+//
+//   `:244` a run whose ends gap is EXACTLY 0 comes back with a gap of 3.831e-3.
+//   `:337` a re-laid run's radius drifts 7.766 -> 7.474 -> 7.183 and its refit sweep goes -29.9 -> -56.4.
+//
+// THEY ARE ONE MECHANISM, MEASURED. `setRunCircle` advances the re-laid frame with `h = atan2(P3 - P2)`
+// (`engine/src/editor.ts:877`) for a move with no `rotate` curve - it assumes the frame heading IS the
+// arc's tangent, which its own doc at `editor.ts:800-802` states as the intent. `poseFor`
+// (`engine/src/core.ts:130`), since `67bba6f`, advances the frame by the travel curve's RELATIVE turn
+// instead, so it no longer snaps a no-facing move onto its tangent. The two agree only while the dancer's
+// heading at the run's start is already tangent to the target circle. Letting `delta` be that mismatch,
+// on the `:244` witness (re-laid at twice its own radius, beats evened as the probe does):
+//
+//     delta = -0.077deg   BEFORE sweep -360.000deg, ends gap 0.000e+0
+//                         AFTER  sweep -359.923deg, ends gap 3.831e-3
+//
+// The sweep loses EXACTLY `delta`. On the `:337` witness the mismatch is 111.5deg and the composed path
+// is no longer an arc at all. THE OWNER'S RULING IS TO LEAVE IT RED AND RECORD IT rather than choose
+// between the three repairs (make `poseFor` snap again - what `67bba6f` deliberately removed; make
+// `setRunCircle` advance by the relative turn of the arc it wrote; or have it refuse a run whose start is
+// not tangent, as it already refuses one that is not ON the circle). Do not re-pin either check.
+//
 // Run: node tools/run-circle-probe.mjs   (from anywhere; reads engine/dist, so build the engine first)
 import fs from 'node:fs';
 import path from 'node:path';

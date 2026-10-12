@@ -22,6 +22,16 @@
 // panel's `explicit` box - which seeds the new facing curve by COPYING the travel curve - no longer changes
 // the animation, which is what makes that seed defensible.
 //
+// RED ON PURPOSE, AND THE OWNER HAS RULED: the two failing checks below assert that NO shipped heading
+// moves - "the corpus only ever walks forward along +X" - and the 2026-10-09 re-authoring of
+// `ms/swing.xml` and `ms/promenade.xml` put travel curves in the corpus that DEPART OFF-AXIS (worst 37.7deg
+// at `ms/swing.xml:31`). Under `67bba6f`'s relative-turn reading that is the intended behaviour: a
+// no-facing move no longer snaps its heading to the travel tangent, so those moves now turn. MEASURED: 22
+// offending moves in those two files, and 178 of 134480 sampled headings differ (worst 159.02deg at
+// `ms/swing.xml` beat 3.63). The owner chose to LEAVE IT FOR NOW rather than decide whether those swing
+// curves are intended, so the red stands as a recorded question rather than a defect: do NOT re-pin it to
+// a non-zero worst without that ruling, which would hide a possibly mis-authored swing.
+//
 // Run: node tools/start-facing-probe.mjs   (from poc/)
 
 import fs from 'node:fs';

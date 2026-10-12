@@ -75,7 +75,7 @@ second one: `process.env` appears in exactly ONE place in the whole engine, and 
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **11 (call, start) pairs + 9 formation names** (was 9 + 24 — THREE instrument bugs, rounds 24, 37/38, 39) | `node engine/test/tools/callerlab-diff.mjs` |
-| gates | `verify:light` green; `verify` green (**23 harnesses, ~1400 s, measured**); `verify:figures` **red by design** | `npm run verify --prefix engine` |
+| gates | `verify:light` green; `verify` **RED — FAILED at catalogue (46 harnesses, 2287 s, measured)**; `verify:figures` **red by design** | `npm run verify --prefix engine` |
 | walk-through (POC) | COINCIDENT **32**, of which ANIMATION fault **10** / APPLY fault **22** (was 72 / 42 / 30) | `node engine/test/tools/walkthrough-survey.mjs` |
 | … walk vs applicator, over 134 boards × 132 calls | agree **1920 of 1920**; silent no-ops **0**; phantoms **11**; dropped **6** (were 27 / 2466 / 400) | `node engine/test/anim-convergence.mjs` |
 | … ceder modules replayed from a start formation the corpus did not specify | **168 of 294** (Zero Line 108, Zero Box 71); the engine has neither formation | `node engine/test/tools/start-formation-probe.mjs` |
@@ -3370,10 +3370,13 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     it measured), and there is **no handle length to size from** (a `Stand` has every coordinate zero,
     so the panel says that rather than inventing a size; where only ONE handle is zero, the other's
     length is the hint and the arc comes out a circle). A third refusal — a facing curve whose start
-    handle points backwards — never fires on the corpus and is recorded as a guard. MEASURED over
-    b1/ms/a1's **4150** curves: **0** already quarter arcs, **690 (16.6%)** lockable, and blocked
-    **2968 (71.5%)** by the angle plus **492 (11.9%)** by having no handle length. So the disabled state
-    is the COMMON one, and a dead checkbox with no explanation would have been the normal experience.
+    handle points backwards — never fires on the corpus and is recorded as a guard. MEASURED over all
+    nine levels' **88432** curves: **280** are already quarter arcs — this was **0** when the figure
+    below was taken, and the 2026-10-09 re-authoring of `ms/promenade.xml` is what put them there, which
+    is why `wysiwyg-path-probe.mjs` no longer asserts `alreadyArc === 0` — **21288 (24.1%)** lockable,
+    and blocked **52792 (59.7%)** by the angle plus **14180 (16.0%)** by having no handle length. So the
+    disabled state is the COMMON one, and a dead checkbox with no explanation would have been the normal
+    experience.
     Two of the probe's own claims were killed by its first runs and are recorded: `arcOf` called the
     degenerate all-zero member of the family an arc and counted **138** corpus `Stand`s as "already
     arcs" (zero, once the no-shape case is refused), and the projection's circle test was an equality
@@ -4531,7 +4534,7 @@ definitions use: a **fraction of a circle**, about a named centre, as a unit - n
   walking backwards) - so facing is **not** derivable from the path;
 - joints are **two-thirds on a formation spot and one-third on none** - so pinning and freeing must both be
   first-class;
-- a circular **move** is always a **quarter** (max sweep 90.0deg over 10884 circle fits), while an **orbit is a
+- a circular **move** is always a **quarter** (max sweep 90.0deg over 11852 circle fits), while an **orbit is a
   chain** of them (**4589** runs, median 270deg, max 765deg).
 
 **D1. The JOINT is the editing unit, not the move.** A joint is `(position, facing)` at a move boundary. Every

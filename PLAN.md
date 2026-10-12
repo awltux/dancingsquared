@@ -3174,9 +3174,12 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     and the two ends measure worse (0.688deg, shrinking 4x) because a chord at an endpoint is a
     one-sided difference — first order, which is the INSTRUMENT and not the claim. The probe's first
     version failed its own check by asserting a single bound across all instants, and the second failure
-    in the same section was an assertion that every curve stays inside the floor: 4 of 4145 reach past
-    the floor's half-width, so the tail is reported rather than asserted away. Nine curves in ten reach
-    no more than **4.08** units from the dancer.
+    in the same section was an assertion that every curve stays inside the floor: **4 of 4145** reached
+    past the floor's half-width when it was written, so the tail is reported rather than asserted away.
+    The re-authoring of the corpus took that to **281 of 3605 (7.795%)**, an eightyfold increase and no
+    longer a tail anything can call negligible, which is why the bound is now GONE rather than moved -
+    `facing-handle-probe.mjs` asserts the claim that survives and prints this one. Nine curves in ten
+    reach no more than **4.08** units from the dancer, and that is unchanged.
   - **THE TRAVEL CURVE GETS NO DRAWN CURVE OF ITS OWN, AND THAT IS NOT AN OMISSION: IT IS THE TRAIL.**
     `sampleTrailRange` walks the very same cubic onto the floor, highlighted in amber for exactly this
     move, so a second copy would sit on top of it and say nothing new. That is the whole reason the
@@ -5023,12 +5026,29 @@ allowed to complete and one that is not, and the refusal. `engine/test/editor.mj
 side, including the six-dancer case. Engine suite: 31 harnesses green. `poc/verify.cjs`: all checks passed.
 
 **AND ONE POC PROBE IS RED AT HEAD FOR A REASON THAT IS NOT THIS WORK, REPORTED RATHER THAN RE-PINNED.**
-`run-circle-probe.mjs` fails 2 assertions that pin OFFSET orbits (`offsets.every(o => o > 0.5)`) and now measures
+`run-circle-probe.mjs` fails assertions that pin OFFSET orbits (`offsets.every(o => o > 0.5)`) and now measures
 `0.000`, i.e. the symptom it describes is gone. It is not this change: every hunk in `engine/src/editor.ts` is at line
 1839 or later while `fitCircleRun` is at 672 and `setRunCircle` at 752, and the probe's only asset input,
 `poc/src/assets/ms/circle.xml`, was last changed by the BOOK commit `3781730` (15 insertions, 21 deletions). The
 probe reads its symptom from that file, so re-authoring the asset is what invalidated the pin. Left red deliberately:
 re-pinning another workstream's symptom probe would hide the consequence of their change rather than record it.
+
+**UPDATED — THE NOTE ABOVE UNDERCOUNTS IT, because the probe was CRASHING and hid the rest.** It reported three
+FAIL lines and a `TypeError` at line 369, thrown because section 7 selected its witness as "the first tam whose
+formation is `Circle`" - which is now `Circle Left - Stop at Home`, a call `fitCircleRun` refuses - so the last EIGHT
+checks, the whole named-centre validation, never ran. With the witness named by title and formation, the probe runs
+to completion and reports FOUR red checks, not two: the two offset pins above, plus **two live engine regressions**
+that were invisible behind the crash. A run whose ends gap is exactly 0 comes back with a gap of **3.831e-3**, and a
+re-laid run's radius drifts **7.766 -> 7.474 -> 7.183** while its refit sweep goes **-29.9deg -> -56.4deg**. They are
+one mechanism, MEASURED: `setRunCircle` advances the re-laid frame with `h = atan2(P3 - P2)`
+(`engine/src/editor.ts:877`) for a move with no `rotate` curve, assuming the frame heading IS the arc's tangent -
+which its own doc at `editor.ts:800-802` states as the intent - while `poseFor` (`engine/src/core.ts:130`), since
+`67bba6f`, advances the frame by the travel curve's RELATIVE turn instead. The two agree only while the dancer's
+heading at the run's start is already tangent to the target circle; that mismatch is `-0.077deg` on the first
+witness, and the sweep loses EXACTLY that much. The owner has ruled: leave it red and record it rather than choose
+between the three repairs (make `poseFor` snap again, which `67bba6f` deliberately removed; make `setRunCircle`
+advance by the relative turn of the arc it wrote; or have it refuse a run whose start is not tangent, as it already
+refuses one that is not ON the circle). `run-circle-probe.mjs`'s header carries the same finding.
 ### A FACING EDIT HOLDS THE FOLLOWING TRACE (BUILT AND GATED)
 
 Reported twice, and the second report is the one that identified the real defect: *"The end facing control is

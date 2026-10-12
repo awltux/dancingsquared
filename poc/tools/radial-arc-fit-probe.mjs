@@ -35,6 +35,34 @@
 //      point" - and it was right: the fit alone carries a later end point 0.49 units off the ring, and the
 //      write path's hold is what pins it.
 //
+// TWO CHECKS ARE RED AND THE OWNER HAS RULED: LEAVE THEM AND RECORD THE ARITHMETIC. Both come from the
+// 2026-10-09 re-authoring of `ms/promenade.xml`, which put quarter-turns in the corpus measuring
+// 92.452deg and 93.498deg - about 3% PAST a right angle, against the 90.0003..90.0158deg spread the
+// slack was chosen for. That is roughly 200x the precision noise `RADIAL_ARC_SWEEP_TOL` exists to cover,
+// so calling it noise is what the measurement no longer supports.
+//
+//   `:437` "every dancer-move on a ring is offered the fit" measures 162 of 170; the eight refusals are
+//          the moves sweeping 92.45-93.50deg.
+//   `:359` "the limit sits in an EMPTY band wider than twice the slack" measures a band of 1.744deg.
+//
+// THEY CANNOT BOTH BE SATISFIED, AND THE INTERVAL IS EMPTY - this is arithmetic on the probe's own two
+// measured populations, not an opinion:
+//
+//     to OFFER the 93.498deg arc:      slack >= 93.498 - 90          = 3.4982deg
+//     to keep band > 2 x slack:        slack <  (100.389 - 93.498)/2 = 3.4454deg
+//
+// (100.389deg is the narrowest arc that is genuinely wider than a quarter.) No slack satisfies both, so
+// one of the two must give. WIDENING THE SLACK WAS TRIED AND MEASURED at 4deg, and it was REVERTED
+// because it fixes the caller-visible half at a price the probe also measures: the ring goes to 170 of
+// 170 and the limit clears the genuine arcs by 6.39deg, but the fitted cubic's error rises from 2.71e-4
+// of the radius at 90deg to 3.52e-4 at 94deg - 1.299x, past this file's own 1.1x bound and past the
+// 3e-4 that justifies "a quarter is the limit".
+//
+// SO THE QUESTION IS THE CORPUS'S, not the constant's: either those promenade quarters are INTENDED to be
+// wider than a quarter, in which case the lock should offer them and two safety guarantees have to be
+// restated in trade, or they are MIS-AUTHORED and the repair is in `ms/promenade.xml`. Do NOT settle it
+// by re-pinning either check: both are measuring something real, which is why they disagree.
+//
 // Run: node poc/tools/radial-arc-fit-probe.mjs   (from anywhere; build the engine first)
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';

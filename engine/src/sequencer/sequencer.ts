@@ -225,6 +225,12 @@ export class Sequencer {
     this.library.registerModule(name, calls);
   }
 
+  /** Drop a USER module again, so the picker stops offering it. See `CallLibrary.unregisterModule` for
+   *  why this is a `delete` rather than a library rebuild - a rebuild clears the caller's sequence. */
+  unregisterModule(name: string): void {
+    this.library.unregisterModule(name);
+  }
+
   listModules(): string[] {
     return this.library.listModules();
   }

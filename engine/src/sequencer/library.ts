@@ -214,6 +214,24 @@ export class CallLibrary {
   }
 
   /**
+   * TAKE A USER-DEFINED MODULE OUT AGAIN - the exact inverse of `registerModule`, on the same map.
+   *
+   * WHY AN EXPLICIT REMOVAL RATHER THAN A REBUILD. Dropping a registration by rebuilding the library is
+   * what the panel already does on a level change (`sequencer-ui.ts` `rebuildSeq`), and that path is
+   * unusable for deleting ONE saved module: it also clears the caller's history and resets the board, so
+   * tidying up a saved sequence would throw away the sequence being worked on. This is a `delete` and
+   * nothing else, and it is keyed CANONICALLY, so the name that removes a module is the name it was
+   * registered under however either side spelled it.
+   *
+   * IT ONLY EVER TOUCHES USER MODULES. `isModule` answers true for the CURATED set as well, and those
+   * ship with the engine: a curated name unregisters nothing, which is the right answer rather than a
+   * silent hole in the shipped catalogue.
+   */
+  unregisterModule(name: string): void {
+    this.modules.delete(canonicalName(name));
+  }
+
+  /**
    * Add a USER-DEFINED named formation to the recognition registry.
    *
    * A board the library cannot name is a real dead end for a caller - the engine will not say

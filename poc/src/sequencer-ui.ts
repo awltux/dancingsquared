@@ -582,17 +582,24 @@ export class SequencerController implements SequencerUI {
     for (const m of this.modules) this.seq.registerModule(m.name, m.calls);
   }
   /**
-   * The saved modules, each one CLICKABLE to load it.
+   * The saved modules, each one CLICKABLE to load it, with a `×` to delete it.
    *
    * A module could only be reached through the picker before, which lists it among 2206 calls; the library
    * drawer is where a caller looks for their own saved sequences, so the name is the action. Loading goes
    * through `openSequence`, the same entry point the browse view uses, so a module loaded from here and one
    * loaded from a call's "used by" list behave identically - including the start-formation handling.
+   *
+   * THE DELETE IS OUTSIDE THE CLICKABLE SPAN rather than inside it. The span IS the load action, so a
+   * `×` nested in it would have to stop the event to avoid doing both at once; as a sibling there is no
+   * propagation to fight, and the two controls cannot be hit by the same click.
    */
   private refreshModulesList() {
     this.modulesEl.innerHTML = this.modules.length
       ? this.modules.map((m, i) => `<span class="seq-module" data-mod="${i}" title="Load this module into the sequence">`
-        + `<b>${esc(m.name)}</b></span>: ${esc(m.calls.map(stepLabel).join(' · '))}`).join('<br>')
+        + `<b>${esc(m.name)}</b></span>: ${esc(m.calls.map(stepLabel).join(' · '))}`
+        + `<button class="seq-mod-del" data-mod-del="${i}" aria-label="Delete saved module ${esc(m.name)}"`
+        + ' title="Delete this saved module for good: it goes from this list, from this browser\'s storage,'
+        + ' and from the call picker. The sequence on the board is NOT touched, so Save module puts it back.">×</button>').join('<br>')
       : '<i>(no modules saved yet — Add calls and press Save module)</i>';
   }
 
@@ -915,6 +922,36 @@ export class SequencerController implements SequencerUI {
     this.refreshCallSelect();
     this.setStatus('ok', `Saved module "${name}"`);
     this.moduleNameInput.value = '';
+  }
+
+  /**
+   * DELETE A SAVED MODULE FOR GOOD.
+   *
+   * THREE THINGS HAVE TO GO, and leaving any one of them behind is a half-deletion the caller notices
+   * immediately: the entry in `this.modules`, which is what the drawer lists; the localStorage copy
+   * (`persistModules`), or it is back on the next reload; and the LIVE registration
+   * (`seq.unregisterModule`), without which the module stays in the call picker until something else
+   * happens to rebuild the library.
+   *
+   * THE LIBRARY REBUILD IS DELIBERATELY NOT USED, and that is why the engine grew an unregister:
+   * `rebuildSeq` also clears the history and resets the board (`history.length = 0`), so deleting one
+   * saved module would throw away the sequence the caller has open. Nothing here touches the sequence.
+   * That is also why the sequence is left alone rather than cleared with the module: the caller's board is
+   * their work, and pressing Save module puts the module back if the delete was a mistake.
+   *
+   * BY INDEX, READ FROM THE ROW THAT WAS CLICKED, rather than by name: two saved modules may legitimately
+   * share a name - `saveModule` does not check - and a name lookup would delete the first of them instead
+   * of the one under the pointer.
+   */
+  private deleteModule(index: number) {
+    const m = this.modules[index];
+    if (!m) return;
+    this.modules.splice(index, 1);
+    this.persistModules();
+    this.seq.unregisterModule(m.name);
+    this.refreshModulesList();
+    this.refreshCallSelect();
+    this.setStatus('ok', `Deleted saved module "${m.name}"`);
   }
 
   /** The identity a set of views is bound to, in ARRAY ORDER: which dancer (id), of which gender, in
@@ -2616,6 +2653,8 @@ export class SequencerController implements SequencerUI {
     // A module in the library drawer is a LOAD, and it goes through the same `openSequence` the browse view
     // uses - so there is one definition of what loading a stored sequence means.
     this.modulesEl.addEventListener('click', (e) => {
+      const del = (e.target as HTMLElement).closest('.seq-mod-del') as HTMLElement | null;
+      if (del?.dataset.modDel != null) { this.deleteModule(Number(del.dataset.modDel)); return; }
       const t = (e.target as HTMLElement).closest('.seq-module') as HTMLElement | null;
       if (t?.dataset.mod == null) return;
       const m = this.modules[Number(t.dataset.mod)];

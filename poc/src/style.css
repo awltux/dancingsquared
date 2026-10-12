@@ -455,6 +455,14 @@ html, body {
 #seqPanel .seq-row.on .seq-del { color: var(--dim); }
 #seqPanel .seq-empty { font-size: 12px; color: var(--dim); padding: 6px; line-height: 1.5; }
 #seqPanel .seq-empty b { color: var(--text); }
+/* THE DELETE ICON ON A SAVED MODULE. Same `×` and the same dim-to-warn hover as the timeline's step
+   delete, but a rule of its own rather than a shared one: that rule is scoped to `#seqPanel .seq-row`, and
+   a module row is not one - it is inline text separated by `<br>` inside `#seqModules`. */
+#seqPanel #seqModules .seq-mod-del {
+  padding: 0 5px; margin: 0 0 0 3px; border: 0; background: none; color: var(--dim);
+  font-size: 14px; line-height: 1; vertical-align: baseline; cursor: pointer;
+}
+#seqPanel #seqModules .seq-mod-del:hover { color: var(--warn); background: none; border: 0; }
 /* THE TRANSPORT IS PINNED, so play, position and speed are reachable from anywhere in the timeline - the
    old panel put them between the search buttons and the list, where a long sequence pushed them off the
    panel. */

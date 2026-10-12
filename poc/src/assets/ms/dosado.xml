@@ -150,6 +150,47 @@
     </path>
   </tam>
 
+
+
+
+<!-- exported by the dancing-squared web app: commit a443cdb, with uncommitted changes, built 2026-10-11 12:11Z -->
+  <tam title="Dosado your Partner" formation="Adjacent Dancers Close" parts="" asymmetric="true">
+    <path>
+      <movement hands="none" beats="2" cx1="0" cy1="0" cx2="0" cy2="0" x2="0" y2="0" cx3="0.4487" cx4="0.5" cy4="-0.5" x4="0.5" y4="-1"/>
+      <movement hands="none" beats="2" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="1" cx1="0.2761" cy1="0" cx2="0.5" cy2="-0.2239" x2="0.5" y2="-0.5" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="1" cx1="0" cy1="-0.2761" cx2="-0.2239" cy2="-0.5" x2="-0.5" y2="-0.5" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="2" cx1="-0.5" cy1="0" cx2="-0.5" cy2="0.5" x2="-1" y2="0.5" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+    </path>
+    <path>
+      <movement hands="none" beats="2" cx1="0" cy1="0" cx2="0" cy2="0" x2="0" y2="0" cx3="0.4487" cx4="0.5" cy4="0.5" x4="0.5" y4="1"/>
+      <movement hands="none" beats="2" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="1" cx1="0.2761" cy1="0" cx2="0.5" cy2="-0.2239" x2="0.5" y2="-0.5" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="1" cx1="0" cy1="-0.2761" cx2="-0.2239" cy2="-0.5" x2="-0.5" y2="-0.5" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="2" cx1="-0.5" cy1="0" cx2="-0.5" cy2="0.5" x2="-1" y2="0.5" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+    </path>
+  </tam>
+
+
+<!-- exported by the dancing-squared web app: commit a443cdb, with uncommitted changes, built 2026-10-11 12:35Z -->
+  <tam title="Dosado your Corner" formation="Corner Dancers Far" parts="" asymmetric="true">
+    <path>
+      <movement hands="none" beats="1" cx1="0" cy1="0" cx2="0" cy2="0" x2="0" y2="0" cx3="0.4487" cx4="1" cy4="0" x4="1.5" y4="-0.5"/>
+      <movement hands="none" beats="2" cx1="0.7071" cy1="0" cx2="0.7071" cy2="0.7071" x2="1.4142" y2="0.7071" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="1" cx1="0.3958" cy1="-0.0301" cx2="0.6392" cy2="-0.343" x2="0.7071" y2="-0.7071" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="1" cx1="-0.0244" cy1="-0.3574" cx2="-0.3286" cy2="-0.6442" x2="-0.7071" y2="-0.7071" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="2" cx1="-0.7071" cy1="0" cx2="-0.7071" cy2="0.7071" x2="-1.4142" y2="0.7071" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0" cy1="0" cx2="0" cy2="0" x2="0" y2="0" cx3="0.3697" cx4="1" cy4="0" x4="1.5" y4="0.5"/>
+      <movement hands="none" beats="2" cx1="0.7071" cy1="0" cx2="0.7071" cy2="0.7071" x2="1.4142" y2="0.7071" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="1" cx1="0.4212" cy1="0.0239" cx2="0.6906" cy2="-0.2977" x2="0.7071" y2="-0.7071" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="1" cx1="-0.0859" cy1="-0.4598" cx2="-0.3119" cy2="-0.6684" x2="-0.7071" y2="-0.7071" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+      <movement hands="none" beats="2" cx1="-0.7071" cy1="0" cx2="-0.7071" cy2="0.7071" x2="-1.4142" y2="0.7071" cx3="0.5" cx4="1" cy4="0" x4="1.5" y4="0"/>
+    </path>
+  </tam>
+
+
 <!-- exported by the dancing-squared web app: commit afaae4a, with uncommitted changes, built 2026-09-27 21:11Z -->
   <tam title="Dosado" formation="Opposite Boy" parts="" asymmetric="true" sequencer="gender-specific">
     <path>

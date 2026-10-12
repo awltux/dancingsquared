@@ -83,45 +83,63 @@
 
 
 
-<!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
-  <tam title="Promenade Full" formation="Facing Couples Far" parts="">
+<!-- exported by the dancing-squared web app: commit aeedfc9, with uncommitted changes, built 2026-10-12 09:10Z -->
+  <tam title="Promenade Full" from="Facing Couples Far" formation="Facing Couples Far" parts="">
     <path>
-      <movement hands="gripright" beats="4" cx1="1" cy1="0" cx2="-0.1097" cy2="-1.3787" x2="1.2322" y2="-2.7678" cx3="2" cx4="2.2807" cy4="-0.8927" x4="3.3572" y4="-1.9401"/>
-      <movement hands="right" beats="4" cx1="1.4536" cy1="0.013" cx2="2.5313" cy2="1.0193" x2="2.534" y2="2.4655"/>
-      <movement hands="gripright" beats="4" cx1="1.3989" cy1="-0.0021" cx2="2.5186" cy2="1.1112" x2="2.5071" y2="2.4929"/>
-      <movement hands="right" beats="4" cx1="1.3785" cy1="-0.0593" cx2="2.5175" cy2="1.0339" x2="2.5316" y2="2.468"/>
+      <movement hands="gripright" beats="2.875" cx1="1" cy1="0" cx2="-0.1097" cy2="-1.3787" x2="1.2322" y2="-2.7678" cx3="2" cx4="2.2807" cy4="-0.8927" x4="3.3572" y4="-1.9401"/>
+      <movement hands="right" beats="3.75" cx1="1.4536" cy1="0.013" cx2="2.5313" cy2="1.0193" x2="2.534" y2="2.4655"/>
+      <movement hands="gripright" beats="3.75" cx1="1.3989" cy1="-0.0021" cx2="2.5186" cy2="1.1112" x2="2.5071" y2="2.4929"/>
+      <movement hands="right" beats="3.75" cx1="1.3785" cy1="-0.0593" cx2="2.5175" cy2="1.0339" x2="2.5316" y2="2.468"/>
+      <movement hands="right" beats="1.875" cx1="0.6623" cy1="-0.0304" cx2="1.3095" cy2="0.2037" x2="1.7993" y2="0.6506"/>
     </path>
     <path>
-      <movement hands="gripleft" beats="4" cx1="0.5" cy1="0" cx2="-0.0819" cy2="-0.8545" x2="0.5251" y2="-1.4749" cx3="1.0723" cx4="1.4112" cy4="-0.7933" x4="2.5406" y4="-1.6854"/>
-      <movement hands="left" beats="4" cx1="1.991" cy1="-0.182" cx2="3.6115" cy2="1.1534" x2="3.8842" y2="3.0681"/>
-      <movement hands="gripleft" beats="4" cx1="1.9147" cy1="-0.1236" cx2="3.5834" cy2="1.3202" x2="3.7249" y2="3.2596"/>
-      <movement hands="left" beats="4" cx1="1.8937" cy1="-0.1014" cx2="3.5442" cy2="1.2763" x2="3.6975" y2="3.2906"/>
+      <movement hands="gripleft" beats="2.875" cx1="0.5" cy1="0" cx2="-0.0819" cy2="-0.8545" x2="0.5251" y2="-1.4749" cx3="1.0723" cx4="1.4112" cy4="-0.7933" x4="2.5406" y4="-1.6854"/>
+      <movement hands="left" beats="3.75" cx1="1.991" cy1="-0.182" cx2="3.6115" cy2="1.1534" x2="3.8842" y2="3.0681"/>
+      <movement hands="gripleft" beats="3.75" cx1="1.9147" cy1="-0.1236" cx2="3.5834" cy2="1.3202" x2="3.7249" y2="3.2596"/>
+      <movement hands="left" beats="3.75" cx1="1.8937" cy1="-0.1014" cx2="3.5442" cy2="1.2763" x2="3.6975" y2="3.2906"/>
+      <movement hands="left" beats="1.875" cx1="0.9276" cy1="-0.0331" cx2="1.8304" cy2="0.3036" x2="2.5098" y2="0.9361"/>
     </path>
   </tam>
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
   <tam title="Promenade 3/4" formation="Facing Couples Far" parts="">
     <path>
-      <movement hands="gripright" beats="4" cx1="1" cy1="0" cx2="-0.1097" cy2="-1.3787" x2="1.2322" y2="-2.7678" cx3="2" cx4="2.2807" cy4="-0.8927" x4="3.3572" y4="-1.9401"/>
-      <movement hands="right" beats="4" cx1="1.4536" cy1="0.013" cx2="2.5313" cy2="1.0193" x2="2.534" y2="2.4655"/>
-      <movement hands="right" beats="4" cx1="1.3785" cy1="-0.0593" cx2="2.5175" cy2="1.0339" x2="2.5316" y2="2.468"/>
+      <movement hands="gripright" beats="2.875" cx1="1" cy1="0" cx2="-0.1097" cy2="-1.3787" x2="1.2322" y2="-2.7678" cx3="2" cx4="2.2807" cy4="-0.8927" x4="3.3572" y4="-1.9401"/>
+      <movement hands="right" beats="3.75" cx1="1.4536" cy1="0.013" cx2="2.5313" cy2="1.0193" x2="2.534" y2="2.4655"/>
+      <movement hands="gripright" beats="3.75" cx1="1.3989" cy1="-0.0021" cx2="2.5186" cy2="1.1112" x2="2.5071" y2="2.4929"/>
+      <movement hands="right" beats="1.875" cx1="0.6623" cy1="-0.0304" cx2="1.3095" cy2="0.2037" x2="1.7993" y2="0.6506"/>
     </path>
     <path>
-      <movement hands="gripleft" beats="4" cx1="0.5" cy1="0" cx2="-0.0819" cy2="-0.8545" x2="0.5251" y2="-1.4749" cx3="1.0723" cx4="1.4112" cy4="-0.7933" x4="2.5406" y4="-1.6854"/>
-      <movement hands="left" beats="4" cx1="1.991" cy1="-0.182" cx2="3.6115" cy2="1.1534" x2="3.8842" y2="3.0681"/>
-      <movement hands="left" beats="4" cx1="1.8937" cy1="-0.1014" cx2="3.5442" cy2="1.2763" x2="3.6975" y2="3.2906"/>
+      <movement hands="gripleft" beats="2.875" cx1="0.5" cy1="0" cx2="-0.0819" cy2="-0.8545" x2="0.5251" y2="-1.4749" cx3="1.0723" cx4="1.4112" cy4="-0.7933" x4="2.5406" y4="-1.6854"/>
+      <movement hands="left" beats="3.75" cx1="1.991" cy1="-0.182" cx2="3.6115" cy2="1.1534" x2="3.8842" y2="3.0681"/>
+      <movement hands="gripleft" beats="3.75" cx1="1.9147" cy1="-0.1236" cx2="3.5834" cy2="1.3202" x2="3.7249" y2="3.2596"/>
+      <movement hands="left" beats="1.875" cx1="0.9276" cy1="-0.0331" cx2="1.8304" cy2="0.3036" x2="2.5098" y2="0.9361"/>
     </path>
   </tam>
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
   <tam title="Promenade 1/2" formation="Facing Couples Far" parts="">
     <path>
-      <movement hands="gripright" beats="4" cx1="1" cy1="0" cx2="-0.1097" cy2="-1.3787" x2="1.2322" y2="-2.7678" cx3="2" cx4="2.2807" cy4="-0.8927" x4="3.3572" y4="-1.9401"/>
-      <movement hands="right" beats="4" cx1="1.4536" cy1="0.013" cx2="2.5313" cy2="1.0193" x2="2.534" y2="2.4655"/>
+      <movement hands="gripright" beats="2.875" cx1="1" cy1="0" cx2="-0.1097" cy2="-1.3787" x2="1.2322" y2="-2.7678" cx3="2" cx4="2.2807" cy4="-0.8927" x4="3.3572" y4="-1.9401"/>
+      <movement hands="right" beats="3.75" cx1="1.4536" cy1="0.013" cx2="2.5313" cy2="1.0193" x2="2.534" y2="2.4655"/>
+      <movement hands="right" beats="1.875" cx1="0.6631" cy1="-0.0019" cx2="1.2997" cy2="0.2596" x2="1.7699" y2="0.7271"/>
     </path>
     <path>
-      <movement hands="gripleft" beats="4" cx1="0.5" cy1="0" cx2="-0.0819" cy2="-0.8545" x2="0.5251" y2="-1.4749" cx3="1.0723" cx4="1.4112" cy4="-0.7933" x4="2.5406" y4="-1.6854"/>
-      <movement hands="left" beats="4" cx1="1.991" cy1="-0.182" cx2="3.6115" cy2="1.1534" x2="3.8842" y2="3.0681"/>
+      <movement hands="gripleft" beats="2.875" cx1="0.5" cy1="0" cx2="-0.0819" cy2="-0.8545" x2="0.5251" y2="-1.4749" cx3="1.0723" cx4="1.6603" cy4="-0.887" x4="2.5406" y4="-1.6854"/>
+      <movement hands="left" beats="3.75" cx1="1.9988" cy1="-0.0461" cx2="3.5246" cy2="1.3965" x2="3.6664" y2="3.3253"/>
+      <movement hands="left" beats="1.875" cx1="0.9283" cy1="0.0014" cx2="1.8179" cy2="0.3716" x2="2.4733" y2="1.029"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit aeedfc9, with uncommitted changes, built 2026-10-12 09:10Z -->
+  <tam title="Promenade 1/4" from="Facing Couples Far" formation="Facing Couples Far" parts="">
+    <path>
+      <movement hands="gripright" beats="2.875" cx1="1" cy1="0" cx2="-0.1097" cy2="-1.3787" x2="1.2322" y2="-2.7678" cx3="2" cx4="2.2807" cy4="-0.8927" x4="3.3572" y4="-1.9401"/>
+      <movement hands="right" beats="1.875" cx1="0.663" cy1="-0.0091" cx2="1.3024" cy2="0.2456" x2="1.7776" y2="0.708"/>
+    </path>
+    <path>
+      <movement hands="gripleft" beats="2.875" cx1="0.5" cy1="0" cx2="-0.0819" cy2="-0.8545" x2="0.5251" y2="-1.4749" cx3="1.0723" cx4="1.6603" cy4="-0.887" x4="2.5406" y4="-1.6854"/>
+      <movement hands="left" beats="1.875" cx1="0.9272" cy1="-0.0452" cx2="1.8343" cy2="0.2797" x2="2.5219" y2="0.9033"/>
     </path>
   </tam>
 

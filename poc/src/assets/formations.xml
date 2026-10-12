@@ -365,7 +365,7 @@
     <dancer gender="girl" x="3" y="1" angle="270"/>
   </formation>
 
-  <formation name="Left and Right Grand Static Square">
+  <formation name="Wrong Way Grand Static Square">
     <dancer gender="girl" x="-1" y="-3" angle="0"/>
     <dancer gender="boy" x="1" y="-3" angle="180"/>
     <dancer gender="girl" x="3" y="-1" angle="90"/>
@@ -379,7 +379,7 @@
     <dancer gender="girl" x="2.414" y="1" angle="292.5"/>
   </formation>
 
-  <formation name="Left and Right Grand Circle">
+  <formation name="Wrong Way Grand Circle">
     <dancer gender="girl" x="-1" y="-2.414" angle="337.5"/>
     <dancer gender="boy" x="1" y="-2.414" angle="202.5"/>
     <dancer gender="girl" x="2.414" y="-1" angle="67.5"/>
@@ -422,17 +422,17 @@
   </formation>
 
   <formation name="Single File Promenade">
-    <dancer gender="boy" x="-3" y="1" angle="270"/>
-    <dancer gender="girl" x="-3" y="-1" angle="270"/>
-    <dancer gender="boy" x="1" y="3" angle="180"/>
-    <dancer gender="girl" x="-1" y="3" angle="180"/>
+    <dancer gender="boy" x="-2.414" y="1" angle="258"/>
+    <dancer gender="girl" x="-2.414" y="-1" angle="292"/>
+    <dancer gender="boy" x="1" y="2.414" angle="158"/>
+    <dancer gender="girl" x="-1" y="2.414" angle="202"/>
   </formation>
 
   <formation name="Single File Reverse Promenade">
-    <dancer gender="boy" x="-3" y="1" angle="90"/>
-    <dancer gender="girl" x="-3" y="-1" angle="90"/>
-    <dancer gender="boy" x="1" y="3" angle="0"/>
-    <dancer gender="girl" x="-1" y="3" angle="0"/>
+    <dancer gender="boy" x="-2.414" y="1" angle="90"/>
+    <dancer gender="girl" x="-2.414" y="-1" angle="90"/>
+    <dancer gender="boy" x="1" y="2.414" angle="0"/>
+    <dancer gender="girl" x="-1" y="2.414" angle="0"/>
   </formation>
 
   <formation name="Promenade">

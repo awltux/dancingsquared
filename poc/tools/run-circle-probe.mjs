@@ -14,10 +14,15 @@
 // The panel's rule is MIRRORED here rather than imported - it is private to the controller and the controller
 // needs a DOM - so section 1 audits the source to make sure the mirror is of the rule that is actually there.
 //
-// COST, recorded because it CHANGED and AGENTS.md §4.4 asks for it: 24.4 s before section 7's witness was
-// named, 44.6 s after - the crash used to kill the run at line 369, so this is the 20.2 s the last eight
-// checks cost rather than a new expense. It stays in the fast tier: this probe is one of the slower ones
-// but it is not in the same class as `call-formations-probe.mjs` (461 s), which is the tier's only member.
+// COST, RE-MEASURED BECAUSE THE FIRST ATTEMPT AT IT WAS WRONG. Section 7 used to crash at line 369, so its
+// last eight checks never ran; naming the witness restored them, and this header first claimed they cost
+// 20.2 s - "24.4 s before, 44.6 s after" - taken from two runs of `verify-probes.mjs`. THOSE WERE THE
+// RUNNER'S NUMBERS, and the runner shares ONE PROCESS across all 52 probes, so a per-probe delta between
+// two suite runs is not a measurement of that probe. Re-measured as a clean A/B, timing the pre-fix file
+// and the post-fix file back to back in the same directory on the same corpus: 28.6 s against 28.0 s. The
+// eight restored checks cost NOTHING MEASURABLE, and the probe stays in the fast tier - whose only member
+// is still `call-formations-probe.mjs` at 461 s. Recorded at this length because the wrong version is the
+// kind of number that gets quoted.
 //
 // FOUR CHECKS ARE RED AND THE OWNER HAS RULED ON ALL OF THEM, so read this before "fixing" any of them.
 // Section 7's first two (`:371`, `:375`) are the OFFSET-orbit pins `PLAN.md:5022-5028` already records:

@@ -463,6 +463,11 @@ html, body {
   font-size: 14px; line-height: 1; vertical-align: baseline; cursor: pointer;
 }
 #seqPanel #seqModules .seq-mod-del:hover { color: var(--warn); background: none; border: 0; }
+/* A MODULE THE ENGINE REFUSED: its name is already a call, so it is listed but not registered. It wears the
+   same warning colour as a delete, because it is the same kind of thing - a state the caller has to fix
+   rather than a decoration. It is NOT hidden: a module that cannot be registered is exactly the one the
+   caller has to see in order to delete it. */
+#seqPanel #seqModules .seq-mod-dead { color: var(--warn); font-style: italic; }
 /* THE TRANSPORT IS PINNED, so play, position and speed are reachable from anywhere in the timeline - the
    old panel put them between the search buttons and the list, where a long sequence pushed them off the
    panel. */

@@ -205,12 +205,33 @@ export class CallLibrary {
   }
 
   registerModule(name: string, calls: ModuleStep[]): void {
+    const key = canonicalName(name);
+    // A MODULE MAY NOT TAKE A CALL'S NAME. `flatten` resolves a name to a MODULE BEFORE a call, so
+    // registering one under a call's title makes the title mean the module's contents everywhere a
+    // sequence is flattened - `flatten(['Single File Promenade to Home'])` returned the module's steps
+    // rather than the call. MEASURED, on a module of that name whose content is `Pass Thru`:
+    // `flatten` returned `["Pass Thru"]`, and the call's own name no longer reached its variants at all.
+    // And when the module CONTAINED its own name the cycle guard dropped it, so `flatten` returned `[]`
+    // and the call became UNAPPLIABLE rather than merely shadowed. `legalWithResults` then dropped the
+    // name from both of its loops - it is in `callNames()` and in `moduleNames()` - so the title
+    // disappeared from the picker's call list AND from its module list at once, and `restoreModules`
+    // brought the damage back on every reload.
+    //
+    // REFUSED RATHER THAN RESOLVED IN FAVOUR OF THE CALL, which is the other defensible rule. Preferring
+    // the call would make the module unreachable - nothing could ever invoke it - so the caller's saved
+    // sequence would be silently unusable, which is the same class of silent loss from the other side.
+    // Throwing is the only outcome that discards nothing and tells the caller which name is the problem.
+    if (this.variants.has(key)) {
+      throw new Error(
+        `"${name}" is already a call, so it cannot also be a module. A module takes its name over, so every use of that name would mean the module instead of the call - give the module a name of its own.`,
+      );
+    }
     const norm = (c: ModuleStep): ModuleStep => {
       if (typeof c === 'string') return canonicalName(c);
       if (isGroupStep(c)) return { groups: c.groups.map((g) => ({ selection: g.selection, calls: groupCalls(g).map(canonicalName) })) };
       return { ...(c.selection ? { selection: c.selection } : {}), call: canonicalName(c.call) };
     };
-    this.modules.set(canonicalName(name), calls.map(norm));
+    this.modules.set(key, calls.map(norm));
   }
 
   /**

@@ -87,11 +87,18 @@ check(/class="seq-mod-del" data-mod-del="\$\{i\}"/.test(row),
 check(/aria-label="Delete saved module \$\{esc\(m\.name\)\}"/.test(row),
   'and it is labelled with the module it deletes, so the icon is not an unlabelled `×` to a screen reader');
 // THE ICON IS A SIBLING OF THE LOAD SPAN, NOT INSIDE IT. The span IS the load action; a `×` nested in it
-// would have to stop propagation to avoid loading AND deleting on one click.
-check(/<\/span>: \$\{esc\(m\.calls\.map\(stepLabel\)\.join\(' · '\)\)\}`\s*\n\s*\+ `<button class="seq-mod-del"/.test(row),
+// would have to stop propagation to avoid loading AND deleting on one click. Asserted as an ORDER, not as
+// adjacency: the row legitimately renders more than the name and the calls - it now also carries the "not
+// registered" marker - and a check pinning the button's exact neighbours went red when that marker was
+// added, without the button ever moving. What must hold is that the load span is CLOSED before it opens.
+const spanClose = row.indexOf('</span>');
+const delButton = row.indexOf('<button class="seq-mod-del"');
+check(spanClose >= 0 && delButton > spanClose,
   'and it is rendered AFTER the row, outside the clickable `.seq-module` span - so one click cannot be both a load and a delete');
-check(!/class="seq-module"[^>]*>\s*<b>\$\{esc\(m\.name\)\}<\/b><button/.test(row),
-  'the load span does not wrap the delete button');
+// The negative control for the check above: nest the button in the span and the order inverts, so THIS is
+// the check a plausible "put the × next to the name" edit fails, and the order check fails with it.
+check(delButton >= 0 && row.slice(0, spanClose).indexOf('<button') < 0,
+  'no button is opened at all inside the load span');
 
 console.log('\n== 4. the click cannot do both ==');
 const handler = (() => {

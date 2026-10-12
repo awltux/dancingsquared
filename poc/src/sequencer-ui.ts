@@ -332,8 +332,10 @@ export class SequencerController implements SequencerUI {
     this.registerUserFormations();
     for (const c of sequencerCallsUpTo('ms')) this.seq.register(c.name, c.xml);
     this.loadModules();
-    this.refreshModulesList();
+    // RESTORE BEFORE DRAWING, so the drawer can ask the library whether each module actually registered.
+    // It drew first, which made every row look live - including one the engine had refused.
     this.restoreModules();
+    this.refreshModulesList();
     this.registerCederModules();
 
     for (const lv of availableLevels()) this.levelSelect.add(new Option(lv.toUpperCase(), lv));
@@ -578,8 +580,24 @@ export class SequencerController implements SequencerUI {
   private persistModules() {
     localStorage.setItem(MODULES_STORAGE_KEY, JSON.stringify(this.modules));
   }
+  /**
+   * Put every stored module into the CURRENT library.
+   *
+   * A MODULE THE ENGINE REFUSES IS SKIPPED AND KEPT. `registerModule` throws when the name is already a
+   * call, and this runs from the constructor and again on every level change (`rebuildSeq`), so an
+   * unguarded loop would take the whole app down on startup for anyone who saved one before that rule
+   * existed - which is exactly the sort of stored value `stored-modules.ts` already drops bad entries
+   * for. It is NOT dropped here: the drawer still lists it, and that is the only way the caller can see
+   * it and delete it. `refreshModulesList` marks it, and the delete path does not care why it is dead.
+   */
   private restoreModules() {
-    for (const m of this.modules) this.seq.registerModule(m.name, m.calls);
+    for (const m of this.modules) {
+      try {
+        this.seq.registerModule(m.name, m.calls);
+      } catch {
+        // Left in `this.modules` on purpose; see above.
+      }
+    }
   }
   /**
    * The saved modules, each one CLICKABLE to load it, with a `×` to delete it.
@@ -594,12 +612,26 @@ export class SequencerController implements SequencerUI {
    * propagation to fight, and the two controls cannot be hit by the same click.
    */
   private refreshModulesList() {
-    this.modulesEl.innerHTML = this.modules.length
-      ? this.modules.map((m, i) => `<span class="seq-module" data-mod="${i}" title="Load this module into the sequence">`
+    const row = (m: { name: string; calls: ModuleStep[] }, i: number) => {
+      // NOT REGISTERED: the engine refused the name, because it is already a call. The row STAYS LISTED -
+      // that is the only way the caller can see it and delete it - and it SAYS SO, because a row that
+      // quietly does nothing when clicked is the same silent failure the refusal exists to end. The engine
+      // is asked rather than a flag remembered, so the marker cannot disagree with the library.
+      const live = this.seq.isModule(m.name);
+      // ESCAPED even though both branches are literals with no quote in them: the rule is that markup
+      // interpolates through `esc()`, and a future edit to a message is exactly how a quote gets in.
+      const title = live
+        ? 'Load this module into the sequence'
+        : 'This module is NOT registered: its name is already a call, and a module takes its name over, so the engine refused it. Delete it, or save it again under a name of its own.';
+      return `<span class="seq-module" data-mod="${i}" title="${esc(title)}">`
         + `<b>${esc(m.name)}</b></span>: ${esc(m.calls.map(stepLabel).join(' · '))}`
+        + (live ? '' : ' <i class="seq-mod-dead">not registered — its name is already a call</i>')
         + `<button class="seq-mod-del" data-mod-del="${i}" aria-label="Delete saved module ${esc(m.name)}"`
         + ' title="Delete this saved module for good: it goes from this list, from this browser\'s storage,'
-        + ' and from the call picker. The sequence on the board is NOT touched, so Save module puts it back.">×</button>').join('<br>')
+        + ' and from the call picker. The sequence on the board is NOT touched, so Save module puts it back.">×</button>';
+    };
+    this.modulesEl.innerHTML = this.modules.length
+      ? this.modules.map(row).join('<br>')
       : '<i>(no modules saved yet — Add calls and press Save module)</i>';
   }
 
@@ -614,7 +646,10 @@ export class SequencerController implements SequencerUI {
       // a call that NAMES its start formation is built when it is registered, and a reference to a
       // formation that is not in the library yet is a failure rather than a retry.
       this.seq = new Sequencer(movesXmlText, formationsXmlText, []);
-      for (const m of this.modules) this.seq.registerModule(m.name, m.calls);
+      // THROUGH `restoreModules`, so a module the engine refuses is skipped here exactly as it is at
+      // startup: this loop used to call `registerModule` directly, and it runs on every LEVEL CHANGE, so a
+      // saved module named after a call would throw out of the level selector.
+      this.restoreModules();
       this.registerCederModules();
       // THE USER'S FORMATIONS GO BACK IN WITH EVERYTHING ELSE. This is the SAME requirement as the
       // modules one line above, and leaving it out was a real bug: the library is REPLACED here, so a
@@ -915,7 +950,16 @@ export class SequencerController implements SequencerUI {
       this.setStatus('warn', 'Nothing to save — add calls first');
       return;
     }
-    this.seq.registerModule(name, [...this.history]);
+    // THE ENGINE CAN REFUSE THE NAME, and it says why. Registering is tried BEFORE anything is stored or
+    // listed, so a refusal leaves no trace: no entry in `this.modules`, nothing in localStorage, no row in
+    // the drawer. The message is the engine's own, because it is the engine that knows a module resolves
+    // before a call and what that would do to the call.
+    try {
+      this.seq.registerModule(name, [...this.history]);
+    } catch (err) {
+      this.setStatus('warn', `${(err as Error).message} Nothing was saved.`);
+      return;
+    }
     this.modules.push({ name, calls: [...this.history] });
     this.persistModules();
     this.refreshModulesList();

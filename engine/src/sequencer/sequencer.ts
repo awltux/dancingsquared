@@ -221,6 +221,9 @@ export class Sequencer {
     return [...this.library.registrationFailures(), ...this.registrationErrors];
   }
 
+  /** Register a user module. THROWS if the name is already a CALL - a module resolves before a call in
+   *  `flatten`, so the name would be taken over and the call left unappliable. See
+   *  `CallLibrary.registerModule` for the measurement. */
   registerModule(name: string, calls: ModuleStep[]): void {
     this.library.registerModule(name, calls);
   }

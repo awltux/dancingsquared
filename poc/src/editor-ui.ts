@@ -3646,6 +3646,30 @@ export class EditorController implements EditorUI {
   }
 
   /**
+   * WHICH HANDS THIS MOVE HOLDS, and whether the selected dancers agree.
+   *
+   * The sibling of `selectedBeats`, for the same reason: `hands` is a property of the MOVE rather than of a
+   * curve, so one value describes the whole selection - and the panel is the only thing that knows the
+   * dancers DISAGREED before a write flattens them. `varies` is what the warning is drawn from.
+   *
+   * A dancer with no move at this index is left out rather than counted as `none`, the rule every other
+   * group edit follows: the dancers of a call do not always have the same number of moves, so counting an
+   * absent move would invent a difference nobody authored.
+   */
+  private selectedHands(): { mine: Hands; values: Hands[]; varies: boolean } | null {
+    const call = this.instance;
+    if (!call) return null;
+    const mine = call.dancers[this.moveDancer]?.path[this.moveIndex]?.hands;
+    if (mine === undefined) return null;
+    const values: Hands[] = [];
+    for (const d of this.selectedSorted()) {
+      const seg = call.dancers[d]?.path[this.moveIndex];
+      if (seg) values.push(seg.hands);
+    }
+    return { mine, values, varies: new Set(values).size > 1 };
+  }
+
+  /**
    * SET THIS MOVE'S DURATION, on every selected dancer.
    *
    * THE TWO REFUSALS ARE THE WHOLE REASON THIS IS A METHOD. `commitMoveChange` will write whatever it
@@ -3683,6 +3707,27 @@ export class EditorController implements EditorUI {
     this.statusEl.textContent =
       `move ${this.moveIndex + 1} now lasts ${show(v)} beats for ${n} dancer${n === 1 ? '' : 's'}` +
       (before?.varies ? ' — that is ONE timing for all of them, and they did not all have the same before' : '');
+  }
+
+  /**
+   * SET THIS MOVE'S HANDS, on every selected dancer.
+   *
+   * THERE IS NO REFUSAL PATH, unlike `setMoveBeats`, and that is a property of the control: the selector
+   * offers the engine's own `Hands` union, so no value it can produce is one the track cannot carry. A TEXT
+   * field would need checking, because a mistyped hand state is read back as `none` by `mapHands`.
+   *
+   * IT REPORTS FLATTENING A DIFFERENCE for the same reason beats does: the panel is the only thing that
+   * knows the selected dancers disagreed before the write.
+   */
+  private setMoveHands(v: Hands) {
+    const before = this.selectedHands();
+    const was = this.instance;
+    this.commitMoveChange((s) => ({ ...s, hands: v }), `m${this.moveDancer}:${this.moveIndex}:hands`);
+    if (this.instance === was) return;
+    const n = before?.values.length ?? 0;
+    this.statusEl.textContent =
+      `move ${this.moveIndex + 1} now holds ${v} for ${n} dancer${n === 1 ? '' : 's'}` +
+      (before?.varies ? ' — that is ONE hand state for all of them, and they did not all have the same before' : '');
   }
 
   /** The move being edited: TRIPLE width, with its beats, hands, travel and facing.
@@ -3805,6 +3850,31 @@ export class EditorController implements EditorUI {
     );
     if (beats?.varies) beatsField.classList.add('mixed');
     tile.appendChild(beatsField);
+
+    // WHICH HANDS THE MOVE HOLDS, directly under its duration: both are properties of the MOVE rather
+    // than of a curve, so neither belongs in either shape tab's grid, and they belong beside each other.
+    //
+    // A LIST AND NOT A TEXT FIELD. The valid values are the engine's `Hands` union (engine/src/types.ts)
+    // - none, left, right, both, gripleft, gripright, gripboth - and `mapHands` reads them
+    // case-insensitively out of the tam XML. A text field could be mistyped, and `mapHands` reads an
+    // unknown value back as `none` WITHOUT SAYING SO; a list cannot make that mistake.
+    //
+    // MARKED, NOT LOCKED, when the selected dancers disagree - the rule the beats field above follows.
+    const hands = this.selectedHands();
+    const handsSel = document.createElement('select');
+    handsSel.dataset.key = `m${i}:${k}:hands`;
+    for (const h of HANDS) handsSel.add(new Option(h, h, false, h === seg.hands));
+    handsSel.title = hands?.varies
+      ? `The selected dancers do NOT all hold the same here: ${hands.values.join(', ')}. Choosing one gives every one of them that hand state.`
+      : 'Which hands this move holds, written to every selected dancer.';
+    handsSel.addEventListener('change', () => this.setMoveHands(handsSel.value as Hands));
+    const handsWrap = document.createElement('span');
+    handsWrap.className = 'ed-group';
+    const handsLabel = document.createElement('label');
+    handsLabel.textContent = 'hands';
+    handsWrap.append(handsLabel, handsSel);
+    if (hands?.varies) handsWrap.classList.add('mixed');
+    tile.appendChild(handsWrap);
 
     // WHICH HANDLES THE BOARD OFFERS, as a button, because the two sets overlap often enough that one of
     // them is unreachable when both are drawn (see `handleMode`: 5.5% of the corpus's curves have their

@@ -227,7 +227,11 @@ console.log('\n== 4. the field: in the tile, on the corpus key, refusing what th
     'a selection that disagrees is MARKED on the field rather than locked, because one timing for several dancers is a real edit');
   check(/NOT all last the same here/.test(ui),
     'and the field names the values themselves to the caller who hovers it, so the difference is visible before the write rather than after');
-  check(/#editorPanel \.ed-group\.mixed input \{[^}]*border-color: var\(--warn\)[^}]*\}/.test(css) &&
+  // THE SELECTOR IS A LIST AND THE CHECK SAYS SO. It used to require `... .mixed input {` exactly, which
+  // pinned the SHAPE of the stylesheet rather than its rule: the hands selector beside the beats field is a
+  // `<select>`, so the marker rule now names both, and the intent - a live rule that reaches the field with
+  // the warning colour - is what is asserted. `\b[^{]*\{` spans the rest of the selector list.
+  check(/#editorPanel \.ed-group\.mixed input\b[^{]*\{[^}]*border-color: var\(--warn\)[^}]*\}/.test(css) &&
     /#editorPanel \.ed-group\.mixed label \{[^}]*color: var\(--warn\)[^}]*\}/.test(css),
     'the marker is live CSS - a rule inside an unterminated comment is not a rule - and it is the warning colour, distinct from the dimming a locked field wears');
 

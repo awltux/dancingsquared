@@ -263,12 +263,15 @@ html, body {
 #editorPanel .ed-pick.focus { box-shadow: 0 0 0 1px #4d9fff inset; font-weight: 700; }
 /* A locked coordinate field: the selected dancers differ, so one number cannot describe them all. */
 #editorPanel .ed-group.locked input { opacity: 0.5; }
-/* A beats field whose selected dancers disagree: EDITABLE AND FLAGGED, the opposite choice to `locked`
-   just above. One number cannot describe several SHAPES, so those fields refuse - but one number CAN
-   describe a timing several dancers are to share, which is a legitimate group edit, so this one stays
-   live and warns instead. The warning is on the FIELD rather than in the status line because the caller
-   has to see it BEFORE the write: afterwards the difference is gone and nothing is left to notice. */
-#editorPanel .ed-group.mixed input { border-color: var(--warn); }
+/* A beats OR HANDS field whose selected dancers disagree: EDITABLE AND FLAGGED, the opposite choice to
+   `locked` just above. One number cannot describe several SHAPES, so those fields refuse - but one number
+   CAN describe a timing several dancers are to share, and one hand state CAN describe several of them
+   too, so both stay live and warn instead. The warning is on the FIELD rather than in the status line
+   because the caller has to see it BEFORE the write: afterwards the difference is gone and nothing is
+   left to notice. SELECT IS LISTED WITH INPUT because the hands field is a list, and a rule that named
+   only `input` would leave the one control it was written for unflagged. */
+#editorPanel .ed-group.mixed input,
+#editorPanel .ed-group.mixed select { border-color: var(--warn); }
 #editorPanel .ed-group.mixed label { color: var(--warn); }
 #legend { font-size: 12px; color: var(--dim); line-height: 1.5; margin-top: 2px; }
 #legend b { color: var(--text); }

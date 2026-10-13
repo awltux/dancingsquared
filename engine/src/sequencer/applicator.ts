@@ -11,7 +11,7 @@ import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX, canonicalName, isKnownCouple } from './constants.js';
 import { normAngle } from './identity.js';
-import { bodyGap, type BodyPair } from './bodies.js';
+import { bodyGap, worstBodyGap, type BodyPair } from './bodies.js';
 import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
 import { splitSelection } from './selection.js';
 import type { Board, CallStep, GroupStep, LaneRun, ModuleStep, SeqDancer, VariantMatch } from './types.js';
@@ -904,8 +904,58 @@ export class CallApplicator {
    * reading would itself be illegal (e.g. "Centers Pass Thru" from a squared set,
    * where nobody is facing anyone).
    *
-   * Returns legal=false if neither reading works. */
+   * Returns legal=false if neither reading works.
+   *
+   * AND EVERY READING'S ANSWER IS CHECKED FOR A CORRUPT BOARD, in one place, at this method's exit. A
+   * group-scoped call moves PART of the board, so its result is a merge: the selected dancers take poses
+   * from some reading and the rest keep the poses they already held. When the reading also relocates the
+   * dancers it did NOT select onto the movers' destinations, two of them end on one spot. MEASURED, that
+   * has TWO sources rather than one, which is why the check is not inside either reading:
+   *
+   *   - the WHOLE-FORMATION fallback's merge        `Girls Circulate` from a wave template gave
+   *                                                `i1&i2@-2.00,3.00` and `i5&i6@2.00,-3.00`
+   *   - the ISOLATED SUBSET reading's own apply     `Ends Box the Gnat` from an `Eight Chain Thru`
+   *                                                leaves `1&7` at gap -0.45 with `3&5` STACKED
+   *
+   * Over a sweep of 5 boards x 8 groups x 16 whole-set calls, 381 of the 608 combinations applied and 60 of
+   * those left overlapping bodies: 52 through the fallback and 8 through the isolated reading. Gating only
+   * the fallback therefore fixed 52 and left the `Ends`/`Leaders` cases corrupt.
+   *
+   * WHY NOT REFUSE THE FALLBACK OUTRIGHT, which was the first attempt and is NOT what this does. That was
+   * measured as a wash with a wider blast radius than it looked: corpus successes unchanged at 75, but five
+   * published lines moved from "stopped only at the finish" to an earlier body stop, and the ENGINE GAPS
+   * list grew from 25 to 31 names - including calls like `Star Thru` that the fallback serves for EVERY
+   * group-scoped call, so the extra names could not be distinguished from refusals the check introduced
+   * itself. On the same sweep, refusing the fallback outright would have refused 309 of the 381; this
+   * refuses 60, and every one of them is a board with two bodies in the same space, which is a board no
+   * reading was entitled to produce.
+   *
+   * WHAT THE THRESHOLD IS NOT: `BODY_COLLISION_MIN` (0.6). That guards the implicit ADJUSTMENT, which moves
+   * dancers a long way on purpose, and its own doc block says not to reuse it. This is an ENDPOINT check on
+   * a finished board, where `BODY_PATH_CLEARANCE` - contact, zero - is exactly right: bodies may touch, they
+   * may not occupy the same space.
+   *
+   * WHAT THIS CANNOT CATCH, deliberately: the squared-set `Boys`/`Girls Dosado`, whose endpoint gap is a
+   * clean 2.000 and whose body overlap (-0.390) exists only MID-MOTION. An endpoint check cannot see it at
+   * any threshold (see `BODY_PATH_CLEARANCE`'s note), which is why those stay with the `PERMISSION_RULES`
+   * denial and the path-level guard. */
   applySelected(board: Board, selection: string, callName: string, rebase: boolean, suppressScopedName?: string, stack: string[] = []): ApplyResult {
+    const r = this.applySelectedInner(board, selection, callName, rebase, suppressScopedName, stack);
+    if (!r.legal) return r;
+    const clash = worstBodyGap(r.board);
+    if (clash && clash.gap < BODY_PATH_CLEARANCE) {
+      return {
+        board: cloneBoard(board),
+        legal: false,
+        reason: `"${selection} ${callName}" is not legal for the selected dancers: it would leave ${clash.id1} and `
+          + `${clash.id2} on the same spot (body gap ${clash.gap.toFixed(2)}), because the reading moves the dancers it `
+          + `did not select onto the ones it did. Call it for the whole board, or pick a call this group can dance alone.`,
+      };
+    }
+    return r;
+  }
+
+  private applySelectedInner(board: Board, selection: string, callName: string, rebase: boolean, suppressScopedName?: string, stack: string[] = []): ApplyResult {
     const byId = new Map(board.dancers.map((d) => [d.id, d]));
     const ids = this.resolveSelection(board, selection);
     if (!ids || ids.length === 0) {
@@ -1025,22 +1075,10 @@ export class CallApplicator {
     if (whole.legal) {
       const moved = new Map(whole.board.dancers.map((d) => [d.id, d]));
       const picked = new Set(ids);
-      // KNOWN DEFECT, PINNED IN `selection.mjs` RATHER THAN PATCHED HERE. This reading keeps the
-      // non-selected dancers where they stand while the selected ones take their poses from the
-      // whole-formation motion, so when the call also relocates the NON-selected dancers onto the
-      // movers' destinations the merged board has two dancers on ONE spot. Measured: from the
-      // engine's two-parallel-wave template `Girls Circulate` gives `i1&i2@-2.00,3.00` and
-      // `i5&i6@2.00,-3.00` - 6 distinct spots for 8 dancers - and leaves the board "not a
-      // formation".
-      //
-      // Refusing here was tried and MEASURED as a wash with a wider blast radius than it looked:
-      // corpus successes unchanged at 75, but five lines moved from "stopped only at the finish"
-      // to an earlier body stop and the ENGINE GAPS list grew from 25 to 31 names - including
-      // calls like `Star Thru` that this path is used for by EVERY group-scoped call, so the extra
-      // names cannot be distinguished from refusals this check introduced itself. Trading a
-      // corrupt board for phantom gap attributions is the trade the decoder phase spent a whole
-      // commit undoing, so the check is not shipped on that evidence. The real fix is upstream:
-      // the wave circulate tam moves half the dancers ACROSS to the other wave (see below).
+      // THIS MERGE USED TO BE THE ONLY SOURCE OF A CORRUPT BOARD, and it is no longer the only one - see
+      // `applySelected`'s own doc block for the two and the single place both are now checked. The merge
+      // itself is unchanged: it keeps the non-selected dancers where they stand while the selected ones take
+      // their poses from the whole-formation motion.
       return {
         board: { dancers: board.dancers.map((d) => (d.isGhost || !picked.has(d.id) ? d : moved.get(d.id) ?? d)) },
         legal: true,

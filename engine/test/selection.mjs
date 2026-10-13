@@ -28,7 +28,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS, matchFormations, findCodedMove } from '../dist/index.js';
+import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS, matchFormations, findCodedMove, worstBodyGap, BODY_PATH_CLEARANCE } from '../dist/index.js';
 import { decodeLine } from '../dist/sequencer/all8-notation.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import { startBoardFor } from './lib/all8-boards.mjs';
@@ -565,6 +565,42 @@ console.log('\n== the wave circulate: the crossing is real, and the group readin
       ok(`${call} leaves 8 distinct spots - the group reading is fixed, tighten this gate`);
     } else {
       fail(`${call} left ${spots} distinct spots with no collision detected - inconsistent`);
+    }
+  }
+
+  // AND THE CORRUPT MERGE IS REFUSED NOW, at the ONE place every reading's answer passes through - see
+  // `CallApplicator.applySelected`. The group-scoped readings move PART of the board, so a result is a merge,
+  // and MEASURED over 5 boards x 8 groups x 16 whole-set calls, 381 of the 608 combinations applied and 60
+  // of them left overlapping bodies - from TWO sources, not one: 52 through the whole-formation fallback's
+  // merge and 8 through the ISOLATED subset reading's own apply. Gating the fallback alone fixed the 52 and
+  // left the `Ends`/`Leaders` family corrupt, which is why the check is at the method's exit rather than
+  // inside a reading. One witness per family, below.
+  //
+  // THE CONTROL IS THE COVERAGE, and it is the point of the exercise: refusing the fallback OUTRIGHT was
+  // measured as a wash with a wider blast radius (5 published lines moved to an earlier stop, the ENGINE
+  // GAPS list 25 -> 31), and on this sweep it would have refused 309 of the 381 applications. The two calls
+  // below apply ONLY by that fallback - their isolated subset reading is illegal - and leave clean boards,
+  // so they are exactly what a blanket refusal would have discarded.
+  {
+    const clean = (b) => { const w = worstBodyGap(b); return w ? w.gap : Infinity; };
+    for (const [bn, scoped, why] of [
+      ['Eight Chain Thru', 'Ends Box the Gnat', 'the ISOLATED subset reading left 1&7 at gap -0.45 with 3&5 STACKED'],
+      ['Normal Lines', 'Boys Swing Your Partner', 'the WHOLE-FORMATION fallback merge left 1&2 at gap -0.21'],
+    ]) {
+      const r = seq.applyToBoard(formationBoard(bn), scoped);
+      if (r.legal) fail(`"${scoped}" from ${bn} still applies - ${why}`);
+      else if (!/same spot/.test(r.reason ?? '')) fail(`"${scoped}" from ${bn} is refused for the wrong reason: ${r.reason}`);
+      else ok(`"${scoped}" from ${bn} is REFUSED - ${why}`);
+    }
+    for (const [bn, scoped] of [['Static Square', 'Heads Star Thru'], ['Ocean Waves', 'Centers Trade']]) {
+      const r = seq.applyToBoard(formationBoard(bn), scoped);
+      if (!r.legal) {
+        fail(`"${scoped}" from ${bn} is refused - the gate has become the blanket refusal it replaced: this call applies ONLY by the whole-formation fallback, and cleanly`);
+      } else if (clean(r.board) < BODY_PATH_CLEARANCE) {
+        fail(`"${scoped}" from ${bn} applied but left bodies overlapping (gap ${clean(r.board).toFixed(2)})`);
+      } else {
+        ok(`"${scoped}" from ${bn} still applies, cleanly (worst body gap ${clean(r.board).toFixed(2)}) - the gate is narrow`);
+      }
     }
   }
 }

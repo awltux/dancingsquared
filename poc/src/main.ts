@@ -12,6 +12,7 @@ import { Player } from './player';
 import { CallBrowser } from './browser';
 import { initSequencer } from './sequencer-ui';
 import { initEditor } from './editor-ui';
+import { initHudChrome } from './hud-chrome';
 import { renderFsmHtml, mergeFsmTables, type FsmEdgeData } from './fsm-view';
 import { el } from './dom';
 import { rememberLastSession } from './remember';
@@ -62,6 +63,11 @@ function applyViewInsets(): void {
 }
 applyViewInsets();
 if (hudEl && typeof ResizeObserver !== 'undefined') new ResizeObserver(applyViewInsets).observe(hudEl);
+
+// THE PANEL'S TEXT SIZE AND ITS GRAB HANDLE, BEFORE ANYTHING ELSE IS BUILT. Both are applied to `#hud`
+// itself, so they can be set once here rather than against each mode's panel - and the observer above is
+// already watching the element, so a resize re-frames the floor with no further wiring.
+initHudChrome();
 
 // Load the catalog over the network first; the UI initialisers below need it.
 await loadCatalog(updateLoading);

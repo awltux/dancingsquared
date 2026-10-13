@@ -296,6 +296,48 @@ console.log('== Sequencer: Face In / Face Out is a QUARTER TURN, not "point at t
       if (Math.abs(Math.abs(turned(h, end.heading)) - 90) < 1e-9) fullQuarter++;
     }
     check(fullQuarter === 4, `a dancer already ON the grid still turns a FULL quarter, not a stop where it stands (${fullQuarter}/4)`);
+
+    // AND A FACING A RESIDUE OFF THE GRID IS TREATED AS ON IT. That band was EMPTY here: `OFF_GRID` above
+    // starts at 30 degrees, so nothing tested the 0-to-15 range the corpus actually authors - which is how
+    // `Heads Circle Four Left Full` followed by `Heads Face In` came to turn every head by a hundredth of a
+    // degree and nothing else (reported as "only the Girls face in", on the variant that leaves 0.54 and
+    // 0.69 degrees). The corpus DOES NOT CLOSE ON THE GRID EXACTLY: a census of every authored heading the
+    // engine registers - 80452 headings over 2209 titles, each tam's own start and end - finds 78265 exactly
+    // on the grid, then 869 in [0,1), 147 in [1,2), 20 in [2,3), 12 in [3,4), one at 6.521, and NOTHING
+    // again until 15.876. The list below is that residue population, worst last.
+    {
+      const D = Math.PI / 180;
+      const isGrid = (h) => Math.abs(h / QUARTER - Math.round(h / QUARTER)) < 1e-6;
+      const turned = (from, to) => ((to - from) / D + 540) % 360 - 180;
+      const pair = (heading) => [
+        { id: 1, x: 3, y: 1, heading },
+        { id: 2, x: -3, y: -1, heading: 0 },
+      ];
+      const RESIDUE = [0.01, 0.54, 0.69, 0.94, 1.998, 2.564, 3.502, 6.521];
+      let full = 0, aligned = 0;
+      for (const r of RESIDUE) {
+        const [end] = faceInOutStates(pair(r * D), true);
+        // A QUARTER TURN FROM THE GRID IT SNAPPED TO, so the heading change is 90 plus or minus the residue
+        // it started with (90.01 at one end, 96.5 at the other). The assertion is therefore "a real quarter,
+        // not the residue" - which is exactly the distinction the defect turned on: with the band at zero
+        // these dancers turn by the residue itself, 0.01 to 6.5 degrees, and this check is what separates
+        // that from a quarter turn.
+        if (Math.abs(turned(r * D, end.heading)) > 89) full++;
+        if (isGrid(end.heading)) aligned++;
+      }
+      check(full === RESIDUE.length, `a facing a residue off the grid still turns a FULL quarter (${full}/${RESIDUE.length}) - the cap must not fire at the start of its own sweep`);
+      check(aligned === RESIDUE.length, `and every one of them lands grid-aligned (${aligned}/${RESIDUE.length}), so the residue does not survive into the board`);
+
+      // THE CONTROL SIZES THE BAND FROM ABOVE, and it is the smallest DELIBERATE off-grid facing the corpus
+      // authors: `Single File Promenade` at 15.876 degrees. The band must not reach it, or its own cap is
+      // skipped and it turns PAST a quarter - which is the `<= 90` assertion the loop above this block makes
+      // for every off-grid start, and the reason the band is 10 degrees rather than "anything under 45".
+      const DELIBERATE = 15.876;
+      const [end] = faceInOutStates(pair(DELIBERATE * D), true);
+      const t = turned(DELIBERATE * D, end.heading);
+      check(Math.abs(t) <= 90 + 1e-9, `the smallest DELIBERATE off-grid facing the corpus authors (${DELIBERATE}°) still turns at most a quarter (measured ${t.toFixed(3)}°) - the band does not reach it`);
+      check(Math.abs(t + DELIBERATE) < 1e-6, `and it still stops at the first grid facing in its sweep, at 0° (measured ${t.toFixed(3)}°)`);
+    }
   }
 }
 

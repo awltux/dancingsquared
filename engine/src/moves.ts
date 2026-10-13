@@ -88,6 +88,49 @@ export function moveMatrix(d: DancerState, move: Move): Mat5 {
 const QUARTER = Math.PI / 2;
 
 /**
+ * How close to a multiple of 90 degrees a facing must be before it IS that grid facing, for the
+ * `Face In`/`Face Out` turn below. It exists because the corpus's authored tams do NOT close on the grid
+ * exactly, and the cap used to compare with `1e-9`, so a board a fraction of a degree off the grid made
+ * the cap fire at the START of the sweep instead of the end: a dancer 0.5 degrees off a grid facing had
+ * that facing "strictly inside" its own quarter turn, so the whole turn collapsed to the residue.
+ *
+ * THE VALUE IS A MEASURED RANGE, from a census of every authored heading the engine registers - 80452
+ * headings over 2209 titles, taking each tam's own START and END heading:
+ *
+ *     exactly on the grid        78265
+ *     off-grid, banded by degree  [0,1) 869   [1,2) 147   [2,3) 20   [3,4) 12   [6,7) 1
+ *     the next population         [15,16) 2, then the deliberate facings (the 22.5-degree circle
+ *                                 ends, 656 of them, and the 45-degree diagonals)
+ *
+ * So the residue cluster ends at **6.521 degrees** (`Single Circle Left 1/2`) and the smallest DELIBERATE
+ * off-grid facing the corpus authors is **15.876 degrees** (`Single File Promenade`) - an empty band from
+ * 4 to 6 degrees and another from 7 to 15. The band is set at 10 degrees: above every authored residue
+ * with 1.5x of margin, and below every deliberate facing with 1.6x, so it can only ever absorb sloppiness
+ * and can never reinterpret a bearing the corpus meant. It is NOT a floating-point tolerance - `FACING_EPS`
+ * in sequence.ts is 1e-3 rad (0.057 degrees) and this is 175x larger, because the thing it absorbs is
+ * authoring error rather than arithmetic.
+ */
+const GRID_SNAP_EPS = (10 * Math.PI) / 180;
+
+/**
+ * The grid facing `h` is within `GRID_SNAP_EPS` of, or `h` itself when it is not near one.
+ *
+ * IT IS APPLIED TO THE FACING THE TURN STARTS FROM, and that is the whole fix. The cap below excludes
+ * the start and the end of the sweep, so a dancer already on the grid takes its full quarter turn - which
+ * is the case the cap was written for. A dancer a fraction of a degree OFF the grid used to fall outside
+ * that exclusion by `1e-9`, so the grid facing it was sitting on became "strictly inside" its own turn and
+ * the turn collapsed to the residue: MEASURED, `Heads Circle Four Left Full` leaves the heads 0.5 degrees
+ * off the grid and `Heads Face In` turned the two boys by 0.5 degrees while the two girls, whose turn runs
+ * the other way, took the full quarter - reported as "only the Girls face in". Snapping the reference
+ * facing first makes such a dancer ON the grid, so the cap sees exactly the case it was written for.
+ */
+function snapToGrid(h: number): number {
+  const k = Math.round(h / QUARTER);
+  const grid = normAngle(k * QUARTER);
+  return Math.abs(normAngle(h - grid)) <= GRID_SNAP_EPS ? grid : h;
+}
+
+/**
  * Turn each of the given dancers to face the set centre (Face In) or away from
  * it (Face Out). Which way each dancer turns depends on its angle about the
  * centre, so the moves are not fixed matrices — computed per dancer. Returns a
@@ -138,7 +181,12 @@ export function faceInOutStates(
     const turn = QUARTER * ((towardCentre ? left : !left) ? 1 : -1);
     // AT MOST ONE 90-degree facing lies strictly inside a sweep this short, so the loop order does not
     // matter and `firstGridFacing` is a search rather than a comparison of candidates.
-    return { x: d.x, y: d.y, heading: normAngle(firstGridFacing(d.heading, turn) ?? d.heading + turn) };
+    //
+    // THE TURN IS COMPUTED FROM THE SNAPPED FACING, and the SENSE is still decided by the dancer's REAL
+    // heading and the real bearing to the centre (`signed` above), so the direction is bit-for-bit what it
+    // was - only the facing the sweep starts from changes, and only when it was a residue off the grid.
+    const from = snapToGrid(d.heading);
+    return { x: d.x, y: d.y, heading: normAngle(firstGridFacing(from, turn) ?? from + turn) };
   });
 }
 
@@ -150,6 +198,11 @@ export function faceInOutStates(
  * start is excluded, and the end of a quarter turn from a grid facing is a grid facing too, so it is
  * excluded as well and the full turn is taken. That is what keeps this invisible on a squared set, a
  * line and a column, and it is the whole reason the cap could be added without touching them.
+ *
+ * `from` IS THE SNAPPED FACING, not the raw heading - see `GRID_SNAP_EPS` and `snapToGrid`. The
+ * strictness here stays exact (`1e-9`) because the residue that used to break it is removed before it
+ * arrives: a heading a fraction of a degree off the grid is the grid by the time this is called, so the
+ * "already on the grid" case above covers it.
  */
 function firstGridFacing(from: number, turn: number): number | null {
   const dir = Math.sign(turn);

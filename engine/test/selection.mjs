@@ -28,7 +28,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS, matchFormations, PROMENADE_COUPLE_MAX, findCodedMove } from '../dist/index.js';
+import { setParser, Sequencer, assignHomeIdentity, CODED_MOVES, RUN_TRADE_BEATS, matchFormations, findCodedMove } from '../dist/index.js';
 import { decodeLine } from '../dist/sequencer/all8-notation.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import { startBoardFor } from './lib/all8-boards.mjs';
@@ -1012,7 +1012,14 @@ console.log('\n== the SAME geometry, SIX authored pairings: an identity-blind ma
     if (sameFormation !== ids.length) fail(`only ${sameFormation}/6 of them recognise as Eight Chain Thru`);
     else ok('all six recognise as the same formation, so no positional test can separate them');
 
-    // (2) partner separations, by IDENTITY, using the band Promenade's own precondition uses.
+    // (2) partner separations, by IDENTITY. THE BAND IS LOCAL NOW: it used to be
+    // `PROMENADE_COUPLE_MAX` from `promenade.ts`, which was removed with the derived Promenade family
+    // (the family is hand-authored from tams). The VALUE is kept verbatim rather than re-chosen, so
+    // this gate measures exactly what it measured before - the band is the corpus's own reading of a
+    // healthy partner separation (every healthy pre-Prom state measure exactly 2.00, against 0.00, 4.00
+    // or 6.00 for the broken bodies), and it classifies "couple kept" vs "couple split" here. Nothing
+    // in this check is about the Promenade call.
+    const COUPLE_BAND_MAX = 3.0;
     const spreads = (b) => {
       const seen = new Set();
       let worst = 0;
@@ -1030,8 +1037,8 @@ console.log('\n== the SAME geometry, SIX authored pairings: an identity-blind ma
     };
 
     for (const call of ['Swing Thru', 'Touch a Quarter', 'Right and Left Thru']) {
-      const kept = ids.filter((id) => { const w = report(call, id); return w !== null && w <= PROMENADE_COUPLE_MAX; });
-      const split = ids.filter((id) => { const w = report(call, id); return w !== null && w > PROMENADE_COUPLE_MAX; });
+      const kept = ids.filter((id) => { const w = report(call, id); return w !== null && w <= COUPLE_BAND_MAX; });
+      const split = ids.filter((id) => { const w = report(call, id); return w !== null && w > COUPLE_BAND_MAX; });
       if (split.length === 0 || kept.length === 0) {
         fail(`${call}: expected it to keep couples on SOME of the six authored pairings and split them on others; kept ${kept.length}, split ${split.length} - the defect may be fixed (good) or the gate is stale`);
       } else {

@@ -5,10 +5,14 @@
 //
 // WHY TWO TIERS. The full suite is ~9 minutes and the time is very lopsided: measured on this
 // machine, the four corpus-scale harnesses (alignment-boards 128s, behaviour-audit 102s, selection
-// 60s, getout-convention 52s) plus four more (all8-format 44s, getout-behaviour 44s,
-// getout-conformance 39s, promenade 33s) are 91% of it, while the remaining ELEVEN harnesses finish
+// 60s, getout-convention 52s) plus three more (all8-format 44s, getout-behaviour 44s,
+// getout-conformance 39s) are 91% of it, while the remaining harnesses finish
 // in about 49 seconds together. Running all nine minutes to check that a small edit did not break
-// basic loading is the wrong trade, so `light` runs those eleven and `all` runs everything.
+// basic loading is the wrong trade, so `light` runs the cheap ones and `all` runs everything.
+//
+// `promenade` USED TO BE IN THIS LIST and is gone with its subject: it gated the geometry-derived
+// `Promenade` family, which is no longer derived (see `coded-moves.ts`). Six of its checks could only
+// fail, because they called the call by name.
 //
 // WHY ONE LIST. The tiers are a FIELD on each entry rather than two lists, because two lists is how
 // a harness gets added to one and forgotten in the other — the repo has been bitten by exactly that
@@ -199,7 +203,6 @@ const SUITE = [
   // is anonymous. ~20s, all of it building the sequencer.
   { h: 'ladies-sashay-probe', sub: 'tools', light: false, why: 'pins whether the Ladies In, Men Sashay figure can be danced, and what it cannot do' },
   { h: 'all8-formation-map', light: true },
-  { h: 'promenade', light: false, why: 'corpus-scale sweep' },
   { h: 'getout-conformance', light: false, why: 'decodes all 553 published lines' },
   { h: 'all8-format', light: false, why: 'imports all 188 figures and derives all 29 alignments' },
   { h: 'getout-behaviour', light: false, why: 'runs the 412-line corpus' },

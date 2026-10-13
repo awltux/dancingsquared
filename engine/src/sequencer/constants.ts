@@ -205,6 +205,13 @@ for (const n of [1, 2, 3, 4, 5, 6, 7]) {
 // cannot drift apart.
 //
 // Order matters only for which finish a search returns first when several apply.
+//
+// `Promenade` STAYS IN THIS LIST and is not danceable right now, which is not a contradiction: this is
+// CALLERLAB's own set of finishes and All8's `--Prom` is one of them, so the list is what a caller
+// WOULD resolve with. Whether the engine can actually take the edge is a separate question, asked
+// where the search applies a call - and it cannot, since the derived rule was removed and no tam
+// authors the bare name yet. Removing the name from here would silently redefine the convention; see
+// `solver.ts`'s header for the measured consequence.
 export const STANDARD_FINISHES = ['Allemande Left', 'Right and Left Grand', 'Promenade'];
 
 /** Resolve a name to its canonical form (checking call and formation synonyms

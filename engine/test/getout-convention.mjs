@@ -12,11 +12,20 @@
 // "apply getout", the older tests) keeps the contract it had. What changes is what the
 // search can REACH:
 //
-//   * `Promenade` is now a usable edge even though it is geometry-derived and absent
-//     from the catalog, which is what makes a promenade-finish get-out findable;
+//   * `Promenade` WAS a usable edge even though it is geometry-derived and absent
+//     from the catalog, which is what made a promenade-finish get-out findable;
 //   * a board one finish away is no longer a dead end.
 //
-// The safety property this gate exists for: adopting the convention must never make a
+// *** THE PROMENADE EDGE IS GONE, AND THE CHECKS THAT NEED IT NOW FAIL. *** The derived Promenade
+// family (`Promenade`, `Promenade Home`, `Promenade 1/2`) was removed so it can be hand-authored from
+// tams, and no shipped tam authors the bare names yet. Every check below that calls `Promenade` by
+// name therefore reports `Unknown call: Promenade`, and the boards whose ONLY published get-out is
+// `--Prom` / `--PromH` no longer resolve. That is the intended, measured cost of the removal rather
+// than a defect in the solver, and it is LEFT RED on purpose: re-pinning these numbers while the
+// corpus is mid-edit would bake an in-flight state into a gate, and the numbers must come back up on
+// their own when the tams land. This file is the acceptance instrument for that work.
+//
+// The safety property this gate exists for is unchanged: adopting the convention must never make a
 // path claim to resolve when it does not. Every path this file accepts is replayed
 // through the Sequencer's own interactive apply and must end on the home board with
 // every dancer back on its OWN spot and facing, compared by identity.
@@ -91,8 +100,9 @@ const boardFor = (id) => startBoardFor(seq, corpus.alignments.find((a) => a.id =
 
 console.log('== 1. a finish closes the getout, and is part of the path ==');
 // [L.F1p] is a two-faced line whose ONLY published get-out is `--PromH`: nothing else
-// in the catalog gets the set home from there, so this is the case that needs the
-// geometry-derived resolve to be a search edge at all.
+// in the catalog gets the set home from there. This used to be the case that needed the
+// geometry-derived resolve to be a search edge at all; with that edge removed (see this
+// file's header) `Promenade` is an unknown call and this section fails by design.
 {
   const start = boardFor('L.F1p');
   const before = seq.legalCalls(start).filter((c) => c === 'Promenade');

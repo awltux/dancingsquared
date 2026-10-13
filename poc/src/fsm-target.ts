@@ -18,9 +18,13 @@
 // CERTAINTY. Everything else falls back to the call's FIRST setup, which is what picking the call by
 // hand shows, and the panel says which setup it landed on.
 //
-// AND A CODED MOVE HAS NO ENTRY AT ALL. 136 of those 1961 edges name a call the catalogue does not hold -
-// 133 of them `Face Half`, 3 `Promenade` - because those are applied by rule rather than from a `<tam>`.
+// AND A CODED MOVE HAS NO ENTRY AT ALL. 133 of those 1961 edges name a call the catalogue does not hold -
+// all of them `Face Half` - because those are applied by rule rather than from a `<tam>`.
 // They resolve to nothing and the panel says so, instead of loading an unrelated call of a similar name.
+//
+// RE-MEASURED when the derived `Promenade` family was removed from the coded registry: this read "136 of
+// those 1961 edges ... 133 of them `Face Half`, 3 `Promenade`", and the 3 went with the family. The
+// remaining coded moves the catalogue cannot supply are the `Face *` pivots alone.
 
 /** The part of a catalogue entry this needs: the setups are what a formation names. */
 export interface FsmCatalogEntry {

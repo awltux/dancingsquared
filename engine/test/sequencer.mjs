@@ -967,6 +967,19 @@ console.log('\n== Sequencer: `Promenade 1/2` is the ring HALF WAY round, not hom
 // rotated square - and, seventy times over, as `Heads Promenade 1/2`, which is a CATALOGUE title.
 // The gates below pin the end state that makes this the call rather than a home snap, and pin that
 // registering it did NOT shadow those seventy.
+//
+// *** FOUR GATES IN THIS FILE ARE NOW RED BY DESIGN, NOT BY REGRESSION. *** `Promenade`, `Promenade Home`
+// and `Promenade 1/2` used to be geometry-derived coded moves, and this file measured the end state that
+// derivation produced. The derivation was REMOVED so the family can be hand-authored from tams instead, so:
+//   * the three checks below that pin "a half turn, not home" now measure the AUTHORED
+//     `Promenade 1/2` tams in `ms/promenade.xml`, whose travel is its own authoring rather than the
+//     derived ring sweep these numbers were written against (lines ~1031, ~1037 and the two rotation
+//     checks just above them);
+//   * `figm86`, `figm89` and `figm17` each END in a bare `Promenade`, which is now an unknown call until
+//     those tams are authored - so the three chain checks report `Unknown call: Promenade`.
+// They are left failing rather than re-pinned: the numbers have to be re-measured against the HAND-AUTHORED
+// tams, and pinning them now would freeze the state before that authoring exists. The subject of each is
+// still the right one; only its expected value is owed.
 {
   const square = scopedSeq.startBoard();
   const half = scopedSeq.applyToBoard(square, 'Promenade 1/2');

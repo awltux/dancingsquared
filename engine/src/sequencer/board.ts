@@ -63,11 +63,13 @@ export function cloneBoard(b: Board): Board {
  * from the previous step's board - which is why a rebuild that returns a board in its OWN order
  * scrambles the set on exactly the frame it lands on, while every position in it stays put.
  *
- * MEASURED, and the reason this exists: `promenadeHome` returns `makeSquaredSet()`, so a `Promenade`
- * appended to `ceder-7046` ends on the canonical board whose order is 1..8 while the frames before it
+ * MEASURED, and the reason this exists: the derived `promenadeHome` (since deleted - the Promenade
+ * family is hand-authored now) returned `makeSquaredSet()`, so a `Promenade`
+ * appended to `ceder-7046` ended on the canonical board whose order is 1..8 while the frames before it
  * are in the module's own 1,3,7,5,6,8,4,2 order. Reported as "if I apply a Promenade to the end the
  * Dancers switch position in the final static square ... they flip to setup arrangement for Static
- * Square on the last frame".
+ * Square on the last frame". The rule is general and outlives that call: any component that hands back
+ * a rebuilt board must carry the order it was given.
  *
  * Only the order is taken from `order`: every position, heading, couple and gender comes from
  * `rebuilt`, so a coded move's geometry and identity are unchanged. A dancer missing from either side

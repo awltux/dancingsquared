@@ -998,9 +998,12 @@ export class Sequencer {
      * PRECONDITION. The precondition rule is `searchLegalCalls`'s (legality.ts), for the same
      * reason: a coded PIVOT (`Face Left`, `U-Turn Back`, ...) is legal from every board and lands on
      * the formation it started in, so it would add one invisible self-loop per state (eight calls x
-     * every state) and can never be a step of a get-out. A coded RESOLVE is the opposite —
-     * `Promenade` is exactly the edge a get-out FSM exists to show and the catalogue cannot supply
-     * it — so leaving these out left the table unable to represent the thing it is for.
+     * every state) and can never be a step of a get-out. A coded RESOLVE is the opposite — `Promenade`
+     * WAS exactly that edge, the one a get-out FSM exists to show and the catalogue cannot supply, which
+     * is why leaving these out left the table unable to represent the thing it is for. The derived
+     * Promenade family has since been removed so it can be hand-authored from tams, so the example is
+     * history; the RULE it justifies is not, because the derived `Run`/`Trade`/`Sweep a Quarter` are
+     * still coded calls the catalogue's own list does not carry.
      *
      * Each result comes from the SAME application that admitted it: the applicator for a catalogue
      * call, the coded rule for a coded one. Not the sequencer's coded-first dispatch — 61 edges
@@ -1016,7 +1019,7 @@ export class Sequencer {
         if (have.has(n)) continue;
         const r = applyCodedMove(board, n);
         // A CODED MOVE HAS NO `parallel`, AND THAT IS THE ANSWER RATHER THAN A GAP. `coded-moves.ts` has
-        // no partition path at all - a coded pivot or resolve (Face Left, Promenade, ...) is a transform
+        // no partition path at all - a coded pivot or resolve (Face Left, Sweep a Quarter, ...) is a transform
         // of the whole board, so its reading is `whole` by construction, which is what `readingOf` below
         // reports for a result with no `parallel`.
         if (r?.legal) out.push({ call: n, res: r });

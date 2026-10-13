@@ -12,14 +12,19 @@
 // rotation from each dancer's current facing to the new one (positions do not
 // change: these are pivots and re-facings).
 //
-// A GEOMETRY-DERIVED call may also carry a PRECONDITION (`applies`): `Promenade`
-// is legal only from a set the dancers can wheel home from, and it is not a pivot
-// (it moves everybody). It is registered here because it needs exactly what this
-// registry provides — one definition shared by the Sequencer and the analyser, with
-// a beat count — and its rule lives in promenade.ts.
+// A GEOMETRY-DERIVED call may also carry a PRECONDITION (`applies`) and may MOVE the dancers rather
+// than pivot them — `Sweep a Quarter` and the derived `Run`/`Trade` both do. Those need exactly what
+// this registry provides: one definition shared by the Sequencer and the analyser, with a beat count.
+//
+// THE PROMENADE FAMILY IS NOT HERE ANY MORE, and its absence is the point of a change rather than an
+// oversight. `Promenade`, `Promenade Home` and `Promenade 1/2` were derived entries that wheeled the
+// whole set home from geometry (the rule in the deleted `promenade.ts`, plus the `ringMove` arc
+// interpolation in `SequenceAnalyzer`). The corpus authors the QUALIFIED forms as tams
+// (`ms/promenade.xml`), and the bare names are being hand-authored the same way — so the derived rule
+// is gone and those names now resolve through the catalogue like any other call. Measured cost and the
+// gates that moved with it: see the commit that removed them.
 
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf, normAngle } from '../moves.js';
-import { promenadeApplies, promenadeFraction, promenadeHome, promenadeProblem, PROMENADE_ALIASES, PROMENADE_BEATS } from './promenade.js';
 import { runRule, tradeRule } from './trade-run.js';
 import { foldRule } from './fold.js';
 import { STEP_FORWARD_AND_BACK_BEATS, STEP_FORWARD_BEATS, stepForwardAndBackRule, stepForwardRule, stepForwardSteps } from './step-forward.js';
@@ -218,17 +223,6 @@ export interface CodedMove {
    * board can see — neighbouring boxes overlapping once each rotates about its own centre. See
    * `sweepCollision`. */
   collisionCheck?: (b: Board) => string | null;
-  /** A move that WHEELS THE WHOLE SET around the ring (`Promenade` and its fractions). Such a move
-   * must be ANIMATED as an arc about the set centre, not as a straight line - see
-   * `SequenceAnalyzer.evaluateCodedAt`, where the linear form made every dancer cut through the
-   * middle of the square. */
-  ringMove?: boolean;
-  /** A ring move whose travel is TO HOME rather than to the board its fraction names, so its arc
-   * cannot be read off the start->end difference: `Promenade` / `Promenade Home`. See
-   * `promenadeSweep`, which also carries CALLERLAB's "add a full Promenade" rule for a trip of a
-   * quarter turn or less - the case that matters, because from home the trip is zero and the end
-   * board is the start board. */
-  ringHome?: boolean;
   /**
    * The INTERMEDIATE boards a multi-part coded move passes through, for the ANIMATION only.
    *
@@ -294,8 +288,6 @@ const DEFS: {
   catalogueFallback?: boolean;
   boxedBy?: string;
   collisionCheck?: (b: Board) => string | null;
-  ringMove?: boolean;
-  ringHome?: boolean;
   legs?: (b: Board) => Board[] | null;
   deferred?: boolean;
   deferredHalf?: (b: Board, ids: number[]) => Board;
@@ -323,16 +315,15 @@ const DEFS: {
   { aliases: ['Face Half', 'U-Turn Back', 'Face Back'], fn: (b) => applyMoveToBoard(b, FaceHalf) },
   { aliases: ['Face In', 'Turn In'], fn: (b) => applyFaceInOutToBoard(b, true) },
   { aliases: ['Face Out', 'Turn Out'], fn: (b) => applyFaceInOutToBoard(b, false) },
-  // Promenade: the standard finish. Unlike the pivots above it is NOT always
-  // legal, so it carries its precondition and reports the reason it fails.
-  { aliases: PROMENADE_ALIASES, beats: PROMENADE_BEATS, precondition: promenadeProblem, fn: (b) => promenadeHome(b).board, ringMove: true, ringHome: true },
-  // `Promenade 1/2` — the ring turned half way round instead of home (All8's `Pr1/2`). Only the half
-  // is registered, because only the half has a witness: `All Promenade 1/2` is `figm86`'s first call
-  // and the figure then runs end-to-end from the rotated square, while `Promenade 3/4` and
-  // `Promenade Full` (which `all8-notation.ts` also decodes) are reached by no figure, bare. The same
-  // rule serves all three — `promenadeFraction(board, fraction)` — so registering them is a one-line
-  // change the day a witness appears, and not before.
-  { aliases: ['Promenade 1/2'], beats: PROMENADE_BEATS / 2, precondition: promenadeProblem, fn: (b) => promenadeFraction(b, 0.5).board, ringMove: true },
+  // THE PROMENADE FAMILY IS NOT DERIVED HERE ANY MORE. `Promenade`, `Promenade Home` and
+  // `Promenade 1/2` used to be geometry-derived entries at this point, applied as a wheel of the whole
+  // set (`promenadeHome` / `promenadeFraction`), which is what `promenade.ts` implements. They are
+  // being HAND-AUTHORED as tams instead, so the derived rule is gone and the names resolve through the
+  // catalogue like any other call. Nothing in the corpus authors a bare `Promenade` today, so until
+  // those tams exist the name is simply unknown to the engine - that is the intended state, not a
+  // regression: the measured cost is in the commit message, and `test/promenade.mjs` that gated the
+  // derived rule went with it.
+  //
   // Run and Trade: derived because Taminations implements them in code and marks every
   // authored `Run` tam (32) and bare `Trade` not-for-sequencer — see trade-run.ts for the rule
   // and for the measurement that settled the facing half of it. Both REFUSE without a
@@ -558,8 +549,6 @@ export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({
   ...(d.catalogueFallback ? { catalogueFallback: true } : {}),
   ...(d.boxedBy ? { boxedBy: d.boxedBy } : {}),
   ...(d.collisionCheck ? { collisionCheck: d.collisionCheck } : {}),
-  ...(d.ringMove ? { ringMove: true } : {}),
-  ...(d.ringHome ? { ringHome: true } : {}),
   ...(d.legs ? { legs: d.legs } : {}),
   ...(d.deferred ? { deferred: true } : {}),
   ...(d.deferredHalf ? { deferredHalf: d.deferredHalf } : {}),

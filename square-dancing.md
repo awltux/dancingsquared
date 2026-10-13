@@ -756,8 +756,18 @@ runs to a full success (42 + 2 by the caller convention). `behaviour-audit` is u
   *split* call should keep each half in place. That is the shipped asset's behaviour, not
   something the new tams introduce, and if it needs correcting both calls need it together.
 
-**Step 4c is DONE — `Promenade`, the standard finish, is no longer a call the engine knows
-and cannot perform.** `assets/src/calls.xml` has always indexed it; `ms/promenade.xml`
+**Step 4c is DONE — and then UNDONE ON PURPOSE. `Promenade`, the standard finish, WAS a call the engine
+knows and performs; it is not any more.** The record below is what the geometry-derived rule did, and it
+is kept as history because it is the specification the hand-authored tams have to reproduce. What is no
+longer true is the present tense: `Promenade`, `Promenade Home` and `Promenade 1/2` were **removed from
+the coded-move registry** so the family can be authored from tams instead, `promenade.ts` and the
+ring-move interpolation went with them, and the bare names are now **declared catalogue gaps** — no
+shipped tam authors them, so `--Prom` and `--PromH` lines stop at their own finish again. `promenade.mjs`,
+the gate for the derived rule, was deleted with its subject; the get-out expectations it and
+`getout-convention.mjs`/`sequencer.mjs` pinned are deliberately LEFT RED to be re-measured against the
+hand-authored tams. See the commit that removed the family for the measured cost.
+
+`assets/src/calls.xml` has always indexed it; `ms/promenade.xml`
 implements only the *qualified* forms (`Heads Promenade 1/2`, `Sides Promenade Full`,
 `Star Promenade`, …). So every published get-out that ends `--Prom` ran its whole body and
 then stopped at its own finish with "Unknown call" — the single largest group of
@@ -1022,9 +1032,13 @@ the honest sample size; the twelve unread states are neither confirmed nor refut
    `Touch 1/4`, `Cast Off 3/4` and `Do Sa Do` resolve only because the test harness maps them.
    Anyone consuming published choreography needs that bridge in the engine, where
    `canonicalName()` already applies it.
-3. **Bare `Promenade` is DONE (step 4c).** Remaining from it: the `[B]` box promenade
-   disagreement with All8 (3 lines), the fixed 8-beat timing, and the fact that a
-   geometry-derived call is not in the precomputed FSM table (item 12).
+3. **Bare `Promenade` was DONE (step 4c) and has been RE-OPENED DELIBERATELY.** The derived rule was
+   removed so the family is hand-authored from tams (see the correction at step 4c), so this is open
+   again as an **authoring** task rather than an engine one: `Promenade` and `Promenade Home` are
+   declared catalogue gaps until a tam authors them, and the get-out gates that depended on the finish
+   edge stay red until then. What remains from the old item, still true: the `[B]` box promenade
+   disagreement with All8 (3 lines) and the fact that a geometry-derived call was never in the
+   precomputed FSM table (item 12).
    **`Cross Fold`** is still indexed with no implementation; `1/2 Circulate` and `Join Hands`
    are absent entirely.
 4. **Global corner fix (from step 2).** `analyzeFasr`'s `corner` returns the *opposite* girl

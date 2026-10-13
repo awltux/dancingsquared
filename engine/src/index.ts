@@ -193,17 +193,6 @@ export type { CodedMove } from './sequencer/coded-moves.js';
 // (and the gate) can ask the RULE a question rather than infer it from a board.
 export { stepForwardRule, stepForwardAndBackRule, stepForwardSteps, resolveStepForward, STEP_FORWARD_UNITS, STEP_FORWARD_BEATS, STEP_FORWARD_AND_BACK_BEATS } from './sequencer/step-forward.js';
 export type { StepForwardResolution } from './sequencer/step-forward.js';
-export {
-  promenadeHome,
-  promenadeApplies,
-  promenadeProblem,
-  promenadeAnchor,
-  PROMENADE_ALIASES,
-  PROMENADE_BEATS,
-  PROMENADE_COUPLE_MIN,
-  PROMENADE_COUPLE_MAX,
-} from './sequencer/promenade.js';
-export type { PromenadeResult } from './sequencer/promenade.js';
 export type { CallStep, GroupLane, LegacyGroupLane, GroupStep, ModuleStep } from './sequencer/types.js';
 export { isGroupStep, stepCall, stepSelection, stepLabel, groupCalls, normalizeGroupLane } from './sequencer/types.js';
 

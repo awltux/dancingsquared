@@ -5,12 +5,12 @@
 //
 // THE ANSWER IS THREE-WAY RATHER THAN TWO-WAY, and that is a fact about the registry rather than a taste in
 // presentation. MEASURED over the shipped catalogue (`poc/tools/step-source-probe.mjs` pins all three counts):
-// of the 23 coded moves, **11 also have catalogue authorings** and **5 declare `catalogueFallback`** - those
+// of the 21 coded moves, **10 also have catalogue authorings** and **5 declare `catalogueFallback`** - those
 // five are `Do Sa Do`, `Swing Thru`, `Left Swing Thru`, `Fan the Top` and `Forward and Back`, and they are the
 // whole list. `CodedMove.catalogueFallback` is the engine's own word for the difference: for those five the
 // derived rule is tried first and DECLINES to the catalogue on a board it cannot read (`catalogueFallback`'s
-// contract is stated in `sequencer.ts`). The other six overlapped names (the four `Face *` pivots,
-// `Promenade 1/2` and `Trade`) keep their authorings in the corpus but the engine never consults them for a
+// contract is stated in `sequencer.ts`). The other five overlapped names (the four `Face *` pivots and
+// `Trade`) keep their authorings in the corpus but the engine never consults them for a
 // step's reading, because the coded rule decides. So:
 //
 //   derived            a coded rule computes it; the catalogue is never consulted for the step's reading

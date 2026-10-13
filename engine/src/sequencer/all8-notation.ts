@@ -125,6 +125,9 @@ export const TOKENS: Record<string, string> = {
   // `Pr4/4` = "Promenade All The Way Around". The designator supplies who, so `H-Pr1/2` expands
   // through the group handler to "Heads Promenade 1/2" - which IS the catalogue's own title (as
   // are the Sides, 3/4 and Full forms). This one pattern is 41 of the 109 unread fig_m cells.
+  // THESE FRACTIONS ARE CATALOGUE CALLS, not derived ones: `ms/promenade.xml` authors `Promenade 1/2`,
+  // `Promenade 3/4` and `Promenade Full`, so a bare `Pr1/2` dances through the normal variant lookup.
+  // The bare `Prom` / `PromH` in the table above are the two that do NOT - see KNOWN_CATALOGUE_GAPS.
   'Pr1/2': 'Promenade 1/2',
   'Pr3/4': 'Promenade 3/4',
   'Pr4/4': 'Promenade Full',
@@ -592,10 +595,20 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   // are all real catalogue titles), so `H-Pr1/2` dances fine from the catalogue and this entry exists
   // so the designator handler has something to prefix.
   //
-  // `Promenade 1/2` IS NO LONGER A GAP (round 18): it is a DERIVED call (`promenadeFraction`), which is
-  // why it is absent here — the harness fails loudly if a name is declared a gap while the engine has
-  // come to implement it, and that is exactly what caught this. The other two stay: they decode, but
-  // the corpus reaches neither bare, so they wait for a witness rather than shipping inert.
+  // `Promenade 1/2` WAS REMOVED FROM THIS LIST in round 18 because it was a DERIVED call
+  // (`promenadeFraction`) - and it is back here in the list's history only; the derived rule is GONE
+  // as of the change that made the Promenade family authored, so the harness now measures what the
+  // CATALOGUE has. `Promenade 1/2` is authored (`ms/promenade.xml`), so it is implemented and must
+  // NOT be declared a gap; `Promenade 3/4` and `Promenade Full` are authored there too, so the
+  // stale-gap check below will ask for their removal as soon as that corpus lands.
+  //
+  // BARE `Promenade` AND `Promenade Home` ARE DECLARED GAPS NOW, and that is the deliberate cost of
+  // removing the derived rule: the engine used to COMPUTE both from geometry, and nothing authors
+  // either as a tam yet, so `--Prom` and `--PromH` figures decode to names the engine cannot dance.
+  // The harness's rule is "implemented, or explicitly declared here", and declaring them is the
+  // honest half of that - the alternative was a name the engine silently pretends to know.
+  'Promenade',
+  'Promenade Home',
   'Promenade 3/4',
   'Promenade Full',
   'Change Hands',

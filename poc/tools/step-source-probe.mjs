@@ -92,12 +92,19 @@ check(stepSource({ groups: [] }, isModule).source === 'mixed',
 console.log('\n== the counts, over the registry itself ==');
 // The three numbers the rule's own header states. A movement in EITHER direction fails, so an overlap that
 // appeared or vanished is re-pinned deliberately rather than absorbed.
+//
+// RE-PINNED 23 -> 21 AND 11 -> 10 when the derived Promenade family was removed from `coded-moves.ts` so it
+// could be hand-authored from tams: that took TWO registry entries with it (`Promenade`/`Promenade Home`,
+// which are one move, and `Promenade 1/2`). Only `Promenade 1/2` was among the overlapped names - the
+// catalogue authors it in `ms/promenade.xml` and authors no bare `Promenade`, which is exactly why the
+// overlap falls by one while the registry falls by two. The fallback count is unchanged at 5, and that is
+// the check that says so rather than a claim about it.
 const codedAlsoAuthored = engine.CODED_MOVES.filter((m) => seq.library.hasCall(m.name)).map((m) => m.name);
 const withFallback = engine.CODED_MOVES.filter((m) => m.catalogueFallback).map((m) => m.name);
 console.log(`    ${engine.CODED_MOVES.length} coded moves; ${codedAlsoAuthored.length} also authored; ${withFallback.length} with a catalogue fallback`);
 console.log(`    authored too: ${codedAlsoAuthored.join(', ')}`);
-check(engine.CODED_MOVES.length === 23, `the coded registry holds ${engine.CODED_MOVES.length} moves`);
-check(codedAlsoAuthored.length === 11, `${codedAlsoAuthored.length} of them ALSO have catalogue authorings`);
+check(engine.CODED_MOVES.length === 21, `the coded registry holds ${engine.CODED_MOVES.length} moves`);
+check(codedAlsoAuthored.length === 10, `${codedAlsoAuthored.length} of them ALSO have catalogue authorings`);
 check(withFallback.length === 5
   && ['Do Sa Do', 'Swing Thru', 'Left Swing Thru', 'Fan the Top', 'Forward and Back'].every((n) => withFallback.includes(n)),
   `and exactly ${withFallback.length} declare a catalogue fallback: ${withFallback.join(', ')}`);

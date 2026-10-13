@@ -13,8 +13,15 @@
 // one finish away from home, the search appends that finish to the path it returns.
 // A returned path therefore still ends on the literal home board, so every consumer
 // (the FSM amendment gate, the UI's "apply getout", the tests) keeps the contract it
-// already had — while the search gains the finishes, including the geometry-derived
-// `Promenade`, as edges it can actually use.
+// already had — while the search gains each finish the engine can DANCE, as an edge it
+// can actually use.
+//
+// `Promenade` IS STILL ONE OF `STANDARD_FINISHES` (it is CALLERLAB's third, and
+// `constants.ts` records it as such) but it is no longer an edge the search can take:
+// the derived rule that computed it was removed so the family could be hand-authored
+// from tams, and no shipped tam authors a bare `Promenade` yet. So a figure whose only
+// published get-out is `--Prom`/`--PromH` has no get-out here until those tams land —
+// measured, and recorded in the commit that removed the rule.
 
 import { fitRigidMatrix, identity5, mul5, type Mat5 } from '../matrix.js';
 import { matchFormations, type Matchable } from './match.js';
@@ -69,8 +76,9 @@ export class HomeSolver {
   }
 
   /** Apply a call the way the SEQUENCER would: a geometry-derived call first (the
-   * registry the Sequencer also uses, so `Promenade` is playable here), otherwise
-   * the catalog through the interactive apply path. */
+   * registry the Sequencer also uses), otherwise the catalog through the interactive
+   * apply path. The derived `Promenade` that used to make this the answer for a
+   * `--Prom` finish is gone — see this file's header. */
   private applyInteractive(board: Board, name: string): { board: Board; legal: boolean; reason?: string } {
     return applyCodedMove(board, name) ?? this.applicator.applyToBoard(board, name);
   }
@@ -195,8 +203,8 @@ export class HomeSolver {
    *   * a board that is a finish away from home yields `[...body, 'Allemande Left']`
    *     (or `Right and Left Grand` / `Promenade`), which is exactly how a caller -
    *     and All8's published get-outs - write it;
-   *   * `Promenade` is a usable final edge even though it is geometry-derived and
-   *     absent from the catalog.
+   *   * `Promenade` is NOT a usable final edge any more: it is geometry-derived no longer, and no
+   *     tam authors the bare name, so a `--Prom`-only board has no get-out here.
    */
   getout(board: Board, opts: { target?: string; maxCalls?: number; budget?: number } = {}): string[] | null {
     const started = this.beginStats();

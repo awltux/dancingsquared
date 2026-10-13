@@ -134,8 +134,10 @@ export function callsByTitle(assets) {
  * gap would point the work at the wrong thing.
  *
  * Deliberately NOT bridged: `Promenade Home` and bare `Promenade`. They are not two names for a
- * call the engine spells differently - they are ONE call, and the engine resolves both aliases
- * itself (src/sequencer/promenade.ts). Bridging them here would hide that.
+ * call the engine spells differently - they are ONE call, and the engine USED to resolve both aliases
+ * itself in `src/sequencer/promenade.ts`. That module is deleted (the family is hand-authored from
+ * tams now) and both names are declared catalogue gaps, so there is still nothing to bridge: the day a
+ * tam authors them they are catalogue calls, and until then they are gaps.
  */
 export const ALL8_TO_ENGINE = CALL_SYNONYMS;
 

@@ -56,6 +56,13 @@ const travel = (b) => b.dancers.reduce((m, d) => {
   return s ? Math.max(m, Math.hypot(d.x - s.x, d.y - s.y), angDiff(d.heading, s.heading)) : m;
 }, 0);
 const SAMPLES = 32;
+// THE FLOOR IS A VISIBLE ONE, NOT AN EPSILON, and that repair is the second half of this probe's subject.
+// With `1e-6` the probe was GREEN on `Heads Do Sa Do`, which is the very report it was written for: the step
+// moved 2.0e-3 over 8 beats (a rebase residue, not motion) and 3.68 is what a dancing Dosado makes. MEASURED
+// across the 47 applying scoped steps from a `Static Square`: the still rows move at most **2.060e-3**, the
+// smallest row that genuinely animates moves **1.571e+0** (a `Face *` quarter-turn pivot), so 0.05 sits in a
+// 762x gap. The probe now fails on anything below a tenth of a body-width.
+const VISIBLE_TRAVEL = 0.05;
 
 let applied = 0;
 let timed = 0;          // ...of which have beats, so a timeline to animate over
@@ -92,8 +99,8 @@ for (const call of CODED_MOVE_NAMES) {
       const e = r.board.dancers.find((x) => x.id === d.id);
       worstDrift = Math.max(worstDrift, Math.hypot(d.x - e.x, d.y - e.y));
     }
-    if (anywhere < 1e-6) { standstills++; dead.push(`${raw} (${beats} beats)`); }
-    else if (beforeLast < 1e-6) { snaps++; dead.push(`${raw} (${beats} beats) - all ${anywhere.toFixed(3)} of its motion is in the FINAL frame`); snapRows.push(raw); }
+    if (anywhere < VISIBLE_TRAVEL) { standstills++; dead.push(`${raw} (${beats} beats, moved ${anywhere.toExponential(2)})`); }
+    else if (beforeLast < VISIBLE_TRAVEL) { snaps++; dead.push(`${raw} (${beats} beats) - all ${anywhere.toFixed(3)} of its motion is in the FINAL frame`); snapRows.push(raw); }
   }
 }
 
@@ -121,4 +128,32 @@ if (Math.abs(angDiff(watchHalf.heading, watchStart.heading)) < 1e-6) {
   process.exit(1);
 }
 console.log(`\n"Heads Face Right" turns ${(angDiff(watchHalf.heading, watchStart.heading) * 180 / Math.PI).toFixed(1)} degrees by the halfway beat - the reported single-transition case`);
+
+// SHOWN TO FAIL: the reported second case, and the one the epsilon floor could not see. `Heads Do Sa Do`
+// charged its 8 beats and drew 2.0e-3 of a rebase residue, because `Do Sa Do` ends where it starts and the
+// straight line between two nearly-identical boards is a point. The four heads must travel, and the four
+// sides - who the call never touched - must not. The named witness is asserted so a future epsilon cannot
+// hide the family behind a green count.
+{
+  const beats = seq.sequenceBeats(['Heads Dosado'], home);
+  const mid = seq.evaluateSequence(['Heads Dosado'], beats / 2, home).board;
+  const groupTravel = (ids) => ids.reduce((m, id) => {
+    const s = home.dancers.find((d) => d.id === id);
+    const e = mid.dancers.find((d) => d.id === id);
+    return s && e ? Math.max(m, Math.hypot(e.x - s.x, e.y - s.y)) : m;
+  }, 0);
+  const HEADS = [1, 2, 5, 6];
+  const SIDES = [3, 4, 7, 8];
+  const headsMove = groupTravel(HEADS);
+  const sidesMove = groupTravel(SIDES);
+  if (headsMove < 1.0) {
+    console.log(`\nscoped-coded-animation-probe: FAILED - "Heads Dosado" moved the heads only ${headsMove.toFixed(4)} units by half way (${beats} beats charged)`);
+    process.exit(1);
+  }
+  if (sidesMove > 0.05) {
+    console.log(`\nscoped-coded-animation-probe: FAILED - "Heads Dosado" moved a SIDE dancer by ${sidesMove.toFixed(4)}; the call never touched them`);
+    process.exit(1);
+  }
+  console.log(`"Heads Dosado" moves the four heads ${headsMove.toFixed(3)} units by half way and leaves the sides still (worst ${sidesMove.toExponential(1)}) - the tiling, drawn`);
+}
 console.log('\nscoped-coded-animation-probe: all green.');

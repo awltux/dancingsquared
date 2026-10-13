@@ -42,6 +42,27 @@ const rot = (a: number, v: { x: number; y: number }) => ({
  * absorbs floating-point drift (~0.06 degrees). */
 const FACING_EPS = 1e-3;
 
+/**
+ * The pose change below which two boards are THE SAME BOARD for the animation's purposes - position or
+ * heading, whichever is larger. It exists because a call that COMES BACK (`Do Sa Do`) does not arrive on
+ * its start board EXACTLY: the apply re-bases the authored end onto the live board (`rebaseFactor`), so the
+ * fit leaves a residue, and a guard that asks "did anything change at all" reads that residue as motion -
+ * claiming the call for the straight line, which then draws a fraction of a millimetre over the call's
+ * whole length instead of falling through to the tiling that can actually draw it. That is the reported
+ * "`Heads Dosado` reserves 8 bars and the dancers don't move".
+ *
+ * MEASURED over the 47 scoped coded steps that apply from a `Static Square` with beats > 0 (worst dancer,
+ * position or heading, between the start board and the APPLIED board), split by whether the step animates:
+ *
+ *   the rows that stood still   `Heads`/`Sides Do Sa Do`   at most  **2.060e-3** rad
+ *   the smallest row that animates   the `Face *` pivots   **1.571e+0** rad
+ *
+ * That is **762x** of clear air between the two populations, so this is a range rather than a taste. Set at
+ * 1e-2: 4.9x above the largest residue and 157x below the smallest genuine change, which keeps a pivot's
+ * quarter turn and every real translation on the straight-line branch.
+ */
+const POSE_CHANGE_MIN = 1e-2;
+
 /** One flat step of a recorded replay. */
 interface ReplayStep {
   /** The raw step, kept so the applicator can be handed the same step form. */
@@ -925,9 +946,18 @@ export class SequenceAnalyzer {
           // `interpolateSegment` already owns the pivot shape - it rotates every dancer's heading and leaves a
           // dancer whose pose is unchanged exactly where it stands (see the PIVOT case in its own doc) - so
           // including the heading here needs no new animation code, only the wider test.
+          //
+          // AND THE TEST IS `POSE_CHANGE_MIN`, NOT `1e-9`, which is the second half of the `Heads Dosado`
+          // defect. A call that comes back does not land on its start board exactly - the apply re-bases the
+          // authored end, leaving a residue - so an exact comparison reads that residue as motion and returns
+          // the straight line, which draws `3.0e-4` over 8 beats. MEASURED on `Heads Dosado`: the residue is
+          // 3.013e-4 (position) / 2.060e-3 rad, against 1.571e+0 rad for the smallest step that genuinely
+          // animates; see `POSE_CHANGE_MIN` for the 762x separation and why the value sits where it does.
+          // Falling through instead lets the subset machinery tile the group - for `Heads Dosado`, the
+          // `Facing Dancers Far` tam applied twice, which is exactly the reading the applicator used.
           const changesPose = board.dancers.some((d) => {
             const e = after.dancers.find((x) => x.id === d.id);
-            return !!e && (Math.hypot(e.x - d.x, e.y - d.y) > 1e-9 || Math.abs(normAngle(e.heading - d.heading)) > 1e-9);
+            return !!e && (Math.hypot(e.x - d.x, e.y - d.y) > POSE_CHANGE_MIN || Math.abs(normAngle(e.heading - d.heading)) > POSE_CHANGE_MIN);
           });
           if (changesPose) {
             const t = beats > 0 ? Math.max(0, Math.min(1, localBeat / beats)) : 1;
@@ -1018,6 +1048,12 @@ export class SequenceAnalyzer {
       const sub = this.selectedSubBoard(board, step.selection);
       if (sub) {
         const subStep = { selection: undefined, call: name } as unknown as CallStep;
+        // `variant: null`, and the grouping comes from the SUB-BOARD APPLY's own `res.parallel`.
+        // HANDING `info` OVER HERE WAS TRIED AND IS NOT NEEDED - measured, `Heads Dosado` animates its
+        // 3.5 units either way, because once the guard below lets the step reach this method the
+        // sub-board apply reports the two groups itself. Passing the walk's variant would add a second
+        // grouping source (`animatorGrouping`) that only fires when `res.parallel` is absent - a path
+        // with no measured witness, which is the kind of branch this file's own comments warn about.
         const posed = this.animateParallelBoard(sub.board, subStep, { beats: info.beats, variant: null }, localBeat);
         const byId = new Map(posed.dancers.map((d) => [d.id, d]));
         return {

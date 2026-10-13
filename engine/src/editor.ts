@@ -2320,6 +2320,27 @@ export function startsFromFormation(call: CallBundle, poses: FormDancer[], tol =
   return true;
 }
 
+/**
+ * Whether `poses` is the formation `call` ENDS ON, dancer for dancer - the END-side twin of
+ * `startsFromFormation`, and the rule behind naming the End setup from a loaded call.
+ *
+ * THE END POSE IS NOT STORED, it is derived (`poseFor(d, beats)`), so this reads it at the call's own
+ * length rather than at 0. Everything else is the start rule and for the same reasons: INDEX FOR INDEX,
+ * because a tam's paths are assigned to the formation's dancers BY POSITION IN THE LIST, and GENDER IS
+ * PART OF THE FORMATION. The tolerance is the XML's own, as above.
+ */
+export function endsOnFormation(call: CallBundle, poses: FormDancer[], tol = 1e-3): boolean {
+  if (call.dancers.length !== poses.length) return false;
+  const beats = instanceBeats(call);
+  for (let i = 0; i < poses.length; i++) {
+    const d = call.dancers[i];
+    const p = poseFor(d, beats);
+    if (Math.abs(p.x - poses[i].x) > tol || Math.abs(p.y - poses[i].y) > tol) return false;
+    if (Math.abs(normAngleSafe(p.heading - poses[i].heading)) > tol) return false;
+    if (poses[i].gender !== undefined && d.gender !== poses[i].gender) return false;
+  }
+  return true;
+}
 
 /**
  * The `<tam>` for a call, NAMING its start formation when the app can resolve that name and the call

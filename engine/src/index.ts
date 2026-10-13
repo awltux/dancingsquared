@@ -260,6 +260,7 @@ export {
   facingProfile,
   sameFacing,
   startsFromFormation,
+  endsOnFormation,
   callToXmlNamed,
   halfSetReport,
 } from './editor.js';

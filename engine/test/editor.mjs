@@ -31,6 +31,7 @@ import {
   holdFollowingTrace,
   halfSetReport,
   startsFromFormation,
+  endsOnFormation,
   callToXmlNamed,
   endPoses,
   closureDiscrepancy,
@@ -1269,6 +1270,36 @@ console.log('\n== a created call can name its start formation (20) ==');
   const regendered = endShape.map((p, i) => (i === 0 ? { ...p, gender: p.gender === 'boy' ? 'girl' : 'boy' } : p));
   check(!startsFromFormation(starts, regendered), 'and so is the same shape with the arrangement (genders) changed: that is a different setup');
   check(startsFromFormation(starts, endShape.map((p) => ({ ...p, x: p.x + 5e-4 }))), "while the exporter's own rounding (5e-4) is inside the tolerance, so a formation that has been through the corpus once still matches");
+}
+
+// ---------------------------------------------------------------------------
+// 20b. the END pose can name its formation, and it is not the start's question
+// ---------------------------------------------------------------------------
+//
+// The editor opens its End setup picker on the formation a loaded call already lands on, which needs the
+// START rule asked at the call's own length instead of at beat 0 - `endsOnFormation`. Everything else about
+// it is `startsFromFormation` and for the same reasons (index for index, genders included); what has to be
+// measured separately is that it reads the END, because a rule that quietly compared beat 0 would name the
+// start's formation at the end.
+console.log('\n== the end pose can name its formation (20b) ==');
+{
+  // THE WITNESS IS TRUNCATED BY ONE MOVE, deliberately: "Circle Left - Stop at Home" comes back within
+  // 7e-4 of its own start, so it cannot separate the two questions by position at all.
+  const full = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
+  const cut = { ...full, dancers: full.dancers.map((d) => ({ ...d, path: d.path.slice(0, -1) })) };
+  const end = endPoses(cut);
+  const start = endPoses({ ...cut, dancers: cut.dancers.map((d) => ({ ...d, path: [] })) });
+  let spread = 0;
+  for (let i = 0; i < end.length; i++) spread = Math.max(spread, Math.hypot(end[i].x - start[i].x, end[i].y - start[i].y));
+  check(spread > 0.5, `the witness ends ${spread.toFixed(3)} units from where it starts, so the two questions are separable`);
+  check(endsOnFormation(cut, end), "the call's own end poses are recognised as its end formation");
+  check(!startsFromFormation(cut, end), "and NOT as its start formation: the end is read at the call's own length, not at beat 0");
+  check(endsOnFormation(cut, end.map((p) => ({ ...p, x: p.x + 5e-4 }))), "while the exporter's own rounding (5e-4) is inside the tolerance here too");
+  check(!endsOnFormation(cut, end.map((p) => ({ ...p, x: p.x + 3e-3 }))), 'a shape that is merely CLOSE is refused, so the picker stays on "keep the current" rather than naming the wrong setup');
+  check(!endsOnFormation(cut, end.map((p, i) => (i === 0 ? { ...p, heading: p.heading + 0.1 } : p))), 'and so is one whose heading is out: a setup name is about rotation as well as position');
+  check(!endsOnFormation(cut, end.map((p, i) => (i === 0 ? { ...p, gender: p.gender === 'boy' ? 'girl' : 'boy' } : p))), 'and one whose arrangement (genders) is changed: that is a different setup');
+  check(!endsOnFormation(cut, [end[1], end[0], ...end.slice(2)]), 'and the same spots in another ORDER are refused, because the paths are paired by index');
+  check(!endsOnFormation(cut, end.slice(0, -1)), 'a formation of the wrong SIZE is refused rather than matched spot by spot');
 }
 
 // ---------------------------------------------------------------------------

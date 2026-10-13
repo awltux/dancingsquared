@@ -68,6 +68,9 @@ import {
   halfSetReport,
   startsFromFormation,
 
+  // The END-side twin of `startsFromFormation`, for naming the End picker from the setup the call
+  // already lands on. See `namedSetup`.
+  endsOnFormation,
   placeDancerEnd,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
@@ -1122,10 +1125,14 @@ export class EditorController implements EditorUI {
       // formations this call can actually be re-based onto, so the list is a question about the
       // instance rather than about the app. See `ensureStartFormations`.
       this.ensureStartFormations(this.instance.dancers.length);
-
+      // AND THE PICKERS OPEN ON THE SETUP THE CALL IS ALREADY IN, when the corpus names it: the load
+      // has just decided what the two ends are, so the selector can say so rather than making the
+      // caller recognise the shape on the board. Only a NAME IS EVER CHOSEN - a setup that matches no
+      // formation, or only nearly, is left on "keep the current" - so this can inform but not lie.
+      this.startFormationSel.value = this.namedSetup(this.instance, 'start');
       // A NEW instance starts with no end target: both re-bases belong to the setup that was loaded, so
       // loading another one must not leave a stale target (or a stale pairing) behind.
-
+      this.endFormationSel.value = this.namedSetup(this.instance, 'end');
       this.endTarget = null;
       this.endOverride = null;
       // A NEW instance starts at its own first beat, with the animation off - unless the caller is
@@ -4708,6 +4715,24 @@ export class EditorController implements EditorUI {
     this.endFormationSel.title = why || this.endFormationTitle;
   }
 
+  /**
+   * THE NAME A PICKER OPENS ON: the corpus's name for the setup this call is already in at that end,
+   * or '' for "nothing to name".
+   *
+   * Asked for as: "Set the start and end setup selectors if the initialised start and end positions are
+   * known formations." `startsFromFormation` / `endsOnFormation` are the whole rule - index for index,
+   * positions, headings and genders - so a name is only ever shown when the shape really is that
+   * formation dancer for dancer and the reference would survive a round trip through the export. THE
+   * FAILURE MODE IS THEREFORE A PICKER LEFT ON "KEEP THE CURRENT", NEVER A WRONG NAME, which is why an
+   * unknown or merely-close setup is not reported as an error here; the Start picker had the same
+   * choice to make in `callToXmlNamed` and made it the same way.
+   *
+   * Both ends ask the SAME list, for the reason `ensureStartFormations` gives.
+   */
+  private namedSetup(call: CallBundle, end: 'start' | 'end'): string {
+    const isThatEnd = end === 'end' ? endsOnFormation : startsFromFormation;
+    return this.host.startFormations(call.dancers.length).find((f) => isThatEnd(call, f.poses))?.name ?? '';
+  }
 
   /** Start a NEW setup from the catalogue instance, rather than editing the existing one. */
   private doClone() {

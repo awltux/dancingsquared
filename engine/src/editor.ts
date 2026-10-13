@@ -1381,6 +1381,75 @@ export function setDancerEnd(call: CallBundle, index: number, pose: FormDancer):
   return retime({ ...base, dancers }, instanceBeats(base));
 }
 
+/**
+ * Move one dancer's LAST segment so the call finishes on `pose` - POSITION AND ROTATION - while KEEPING the
+ * way that move's facing is authored.
+ *
+ * WHY NOT `setDancerEnd`. That re-aims through `padSegment`, which carries the turn on a `rotate` curve over
+ * a STRAIGHT path - so a move authored to face along its travel (`rotate: null`, `types.ts`) comes out
+ * explicit, and the caller has silently changed what the tile MEANS. This is the placement behind the
+ * editor's "Place end" button, where moving the dancers is the whole intent and re-authoring the facing is
+ * not.
+ *
+ *   - `rotate !== null` (an authored facing curve): the turn goes on that curve, exactly as `padSegment`
+ *     builds it, because there the curve decides the heading and the path never does.
+ *   - `rotate === null` (the facing follows the path): the PATH is aimed instead. `core.ts` reads the
+ *     heading change as `bezierAngle(translate, 1) - bezierAngle(translate, 0)`, so a cubic that departs
+ *     along the dancer's own facing and ARRIVES along the target's realises exactly
+ *     `to.heading - pre.heading` with `rotate` left null. A straight line cannot: its direction never
+ *     changes, so re-aiming a straight path leaves the dancer facing where it already was.
+ *   - THE PLACEMENT ASKS FOR NO TRANSLATION (the spot is where the dancer already is, and only the rotation
+ *     changes): there is no path to aim, and a degenerate cubic's arrival tangent is `atan2(0, 0) = 0`, so
+ *     the turn would be silently LOST. The turn therefore goes on a facing curve - the ONE case where this
+ *     changes the move's facing mode - and it falls back to `padSegment`.
+ *
+ * THE CONDITION IS THE PLACEMENT'S OWN DISPLACEMENT, NOT THE MOVE'S. A move authored as a pivot that is
+ * asked to finish somewhere else gets the aimed path like any other travel move: the caller has asked for
+ * travel, so what the move did before is not the question.
+ *
+ * Beats and hands are held, every earlier move is untouched, and every other dancer is untouched - the same
+ * contract `setDancerEnd` documents. */
+export function placeDancerEnd(call: CallBundle, index: number, pose: FormDancer): CallBundle {
+  const base = requireDancer(call, index);
+  const d = base.dancers[index];
+  if (d.path.length === 0) {
+    throw new Error(`instance edit: dancer ${index} has no moves to place an end pose on`);
+  }
+  const last = d.path[d.path.length - 1];
+  const before = d.path.slice(0, -1);
+  const pre = poseFor({ ...d, path: before }, pathBeats(before));
+  const to = { x: pose.x, y: pose.y, heading: pose.heading };
+  let seg: Seg;
+  // THE LOCAL FRAME, the way `padSegment` builds it: the dancer's own facing is local +X, so the target is
+  // turned back by `pre.heading` and the departure handle lies along +X.
+  const local = rot(-pre.heading, { x: to.x - pre.x, y: to.y - pre.y });
+  const turn = normAngleSafe(to.heading - pre.heading);
+  const handle = Math.hypot(local.x, local.y) / 3;
+  if (last.rotate === null && handle >= 1e-9) {
+    seg = {
+      beats: last.beats,
+      hands: last.hands,
+      // THE ARRIVAL TANGENT IS THE TARGET HEADING: the derivative at t=1 is 3*(P3-P2), so putting P2 one
+      // handle back along `turn` from the target makes the path arrive already facing the way the spot
+      // faces, and the heading change the pose reads is exactly `turn`.
+      translate: {
+        cx1: handle,
+        cy1: 0,
+        cx2: local.x - handle * Math.cos(turn),
+        cy2: local.y - handle * Math.sin(turn),
+        x2: local.x,
+        y2: local.y,
+      },
+      rotate: null,
+    };
+  } else {
+    seg = padSegment({ x: pre.x, y: pre.y, heading: pre.heading }, to, last.beats);
+    seg.hands = last.hands;
+  }
+  const dancers = base.dancers.map((x, j) => (j === index ? { ...x, path: [...before, seg] } : x));
+  return retime({ ...base, dancers }, instanceBeats(base));
+}
+
 /** Replace one of dancer `index`'s moves. Beats are re-timed by `retime`. */
 export function setMove(call: CallBundle, index: number, moveIndex: number, seg: Seg): CallBundle {
   const base = requireDancer(call, index);
@@ -2250,6 +2319,7 @@ export function startsFromFormation(call: CallBundle, poses: FormDancer[], tol =
   }
   return true;
 }
+
 
 /**
  * The `<tam>` for a call, NAMING its start formation when the app can resolve that name and the call

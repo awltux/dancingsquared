@@ -233,6 +233,7 @@ export {
   setDancerStart,
   setDancerGender,
   setDancerEnd,
+  placeDancerEnd,
   setMove,
   addMove,
   removeMove,

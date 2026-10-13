@@ -67,6 +67,8 @@ import {
   // call can be written as one.
   halfSetReport,
   startsFromFormation,
+
+  placeDancerEnd,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
@@ -595,6 +597,7 @@ export class EditorController implements EditorUI {
   private connectBtn = el<HTMLButtonElement>('edConnect');
   private endFormationSel = el<HTMLSelectElement>('edEndFormation');
   private connectEndBtn = el<HTMLButtonElement>('edConnectEnd');
+  private placeEndBtn = el<HTMLButtonElement>('edPlaceEnd');
   private endAutoBtn = el<HTMLButtonElement>('edEndAuto');
   private endInfoEl = el<HTMLSpanElement>('edEndInfo');
   private endPairEl = el<HTMLDivElement>('edEndPair');
@@ -1119,10 +1122,10 @@ export class EditorController implements EditorUI {
       // formations this call can actually be re-based onto, so the list is a question about the
       // instance rather than about the app. See `ensureStartFormations`.
       this.ensureStartFormations(this.instance.dancers.length);
-      this.startFormationSel.value = '';
+
       // A NEW instance starts with no end target: both re-bases belong to the setup that was loaded, so
       // loading another one must not leave a stale target (or a stale pairing) behind.
-      this.endFormationSel.value = '';
+
       this.endTarget = null;
       this.endOverride = null;
       // A NEW instance starts at its own first beat, with the animation off - unless the caller is
@@ -4705,6 +4708,7 @@ export class EditorController implements EditorUI {
     this.endFormationSel.title = why || this.endFormationTitle;
   }
 
+
   /** Start a NEW setup from the catalogue instance, rather than editing the existing one. */
   private doClone() {
     this.loadInstance();
@@ -4822,6 +4826,44 @@ export class EditorController implements EditorUI {
       heading = Math.max(heading, Math.abs(Math.atan2(Math.sin(p.heading - t.heading), Math.cos(p.heading - t.heading))));
     });
     return { pos, heading };
+  }
+
+  /**
+   * MOVE the dancers onto the chosen end setup - position AND rotation - WITHOUT re-aiming the track.
+   *
+   * `Connect end` IS THE OTHER OPERATION AND STAYS: that one re-aims each dancer's last move so the call
+   * CONNECTS to the setup, which changes the motion. This one places the end pose and leaves the motion's
+   * authorship alone wherever the move has a facing curve to carry the turn - and aims the PATH where it
+   * does not. See `placeDancerEnd` for the three cases and why they differ.
+   */
+  private doPlaceEnd() {
+    const inst = this.instance;
+    const target = this.endTarget;
+    if (!inst) { this.statusEl.textContent = 'nothing to place'; return; }
+    if (!target) { this.statusEl.textContent = 'pick an end setup first'; return; }
+    const pairing = this.endPairing();
+    if (!pairing) { this.statusEl.textContent = `✗ no pairing between these dancers and "${target.name}"`; return; }
+    try {
+      let out = inst;
+      let placed = 0, aimed = 0, onTheCurve = 0;
+      for (let i = 0; i < inst.dancers.length; i++) {
+        const wasTravel = inst.dancers[i].path.length > 0 && inst.dancers[i].path[inst.dancers[i].path.length - 1].rotate === null;
+        if (inst.dancers[i].path.length === 0) continue;
+        out = placeDancerEnd(out, i, target.poses[pairing[i]]);
+        placed++;
+        // The one case that cannot keep the mode is a move that does not travel: there is no path to aim.
+        if (wasTravel) {
+          const after = out.dancers[i].path[out.dancers[i].path.length - 1];
+          if (after.rotate === null) aimed++; else onTheCurve++;
+        }
+      }
+      this.commit(out);
+      this.statusEl.textContent = `placed the end on "${target.name}" — ${placed} dancer(s)`
+        + (aimed ? `, ${aimed} travel move(s) aimed at their spot` : '')
+        + (onTheCurve ? `, ${onTheCurve} turn(s) written on a facing curve because the move does not travel` : '');
+    } catch (err) {
+      this.statusEl.textContent = `✗ ${(err as Error).message}`;
+    }
   }
 
   /**
@@ -5683,6 +5725,7 @@ export class EditorController implements EditorUI {
     this.connectBtn.addEventListener('click', () => this.doConnect());
     this.endFormationSel.addEventListener('change', () => this.doEndFormation());
     this.connectEndBtn.addEventListener('click', () => this.doConnectEnd());
+    this.placeEndBtn.addEventListener('click', () => this.doPlaceEnd());
     this.endAutoBtn.addEventListener('click', () => {
       this.endOverride = null;
       this.renderInstance();

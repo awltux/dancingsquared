@@ -32,6 +32,7 @@ import {
   halfSetReport,
   startsFromFormation,
   endsOnFormation,
+  rotateFormation,
   callToXmlNamed,
   endPoses,
   closureDiscrepancy,
@@ -1300,6 +1301,59 @@ console.log('\n== the end pose can name its formation (20b) ==');
   check(!endsOnFormation(cut, end.map((p, i) => (i === 0 ? { ...p, gender: p.gender === 'boy' ? 'girl' : 'boy' } : p))), 'and one whose arrangement (genders) is changed: that is a different setup');
   check(!endsOnFormation(cut, [end[1], end[0], ...end.slice(2)]), 'and the same spots in another ORDER are refused, because the paths are paired by index');
   check(!endsOnFormation(cut, end.slice(0, -1)), 'a formation of the wrong SIZE is refused rather than matched spot by spot');
+}
+
+// ---------------------------------------------------------------------------
+// 20c. the end setup can be TURNED, rigidly, about the board centre
+// ---------------------------------------------------------------------------
+//
+// The End setup picker offers the corpus's formations in the orientation `formations.xml` writes them, so a
+// call that finishes in a wave along the other axis lands on the named wave rotated - reported as "some
+// formations seem rotated compared with where I want the last move to terminate". `rotateFormation` is the
+// rigid turn behind the control that fixes it: positions AND facings, about the ORIGIN, which is the floor's
+// own centre and one of the eight orientations `deriveFormationMapping` already searches.
+console.log('\n== the end setup can be turned about the board centre (20c) ==');
+{
+  const STEP = 45 * DEG;
+  // OFF-CENTRE ON PURPOSE: these two spots sit at y = -3, which is what separates the board centre from the
+  // formation's own centre - a turn about the centroid swaps them where they stand instead of moving them.
+  const off = [{ x: -1, y: -3, heading: 0, gender: 'boy' }, { x: 1, y: -3, heading: Math.PI, gender: 'girl' }];
+  const turned = rotateFormation(off, STEP);
+  const spot = { x: off[0].x * Math.cos(STEP) - off[0].y * Math.sin(STEP), y: off[0].x * Math.sin(STEP) + off[0].y * Math.cos(STEP) };
+  check(Math.abs(turned[0].x - spot.x) < 1e-15 && Math.abs(turned[0].y - spot.y) < 1e-15,
+    'a step turns the SPOT about the origin by exactly the angle asked for');
+  check(Math.abs(normAngleSafe(turned[0].heading - STEP)) < 1e-15 && Math.abs(normAngleSafe(turned[1].heading - (Math.PI + STEP))) < 1e-15,
+    'and turns the FACING by the same angle, so the two never disagree');
+  check(turned[0].gender === 'boy' && turned[1].gender === 'girl' && turned.length === off.length,
+    'and carries the genders and the length: a turn is a rigid motion of the arrangement, not a new one');
+  const halfturn = rotateFormation(off, Math.PI);
+  check(Math.abs(halfturn[0].x - 1) < 1e-15 && Math.abs(halfturn[0].y - 3) < 1e-15,
+    'half a turn carries a spot at y = -3 across the board to y = +3');
+  // THE NEGATIVE CONTROL FOR THE PIVOT, measured rather than asserted: the centroid of these two is (0,-3),
+  // so a turn about it leaves spot 1 at (1,-3) - six units from where the origin turn puts it.
+  const centroidTurn = { x: 2 * 0 - off[0].x, y: 2 * -3 - off[0].y };
+  check(Math.hypot(halfturn[0].x - centroidTurn.x, halfturn[0].y - centroidTurn.y) > 5.9,
+    'and that is 6 units from where a turn about the formation\'s own centre would put it, so the pivot is pinned by a measurement');
+  // THE NEGATIVE CONTROL FOR "FACINGS ONLY": a rule that moved nobody would fail the spot check above.
+  check(Math.hypot(turned[0].x - off[0].x, turned[0].y - off[0].y) > 1,
+    'and the spot really moves, so a facings-only rule is a different board rather than the same one');
+  const zero = rotateFormation(off, 0);
+  check(zero.every((p, i) => p.x === off[i].x && p.y === off[i].y && p.heading === off[i].heading),
+    'the identity step is bit-for-bit inert, so an unturned target is the formation the corpus authored');
+  let worst = 0;
+  let inRange = 0;
+  let spots = 0;
+  for (const [, ds] of parseFormations(formationsXml)) {
+    const poses = ds.map((p) => ({ x: p.x, y: p.y, heading: p.angleDeg * DEG, gender: p.gender }));
+    const round = rotateFormation(poses, 8 * STEP);
+    for (let i = 0; i < poses.length; i++) {
+      spots++;
+      if (round[i].heading > -Math.PI && round[i].heading <= Math.PI + 1e-15) inRange++;
+      worst = Math.max(worst, Math.hypot(round[i].x - poses[i].x, round[i].y - poses[i].y), Math.abs(normAngleSafe(round[i].heading - poses[i].heading)));
+    }
+  }
+  check(worst < 1e-12, `eight steps return every authored formation to where it started (worst ${worst.toExponential(1)} over ${spots} spots)`);
+  check(inRange === spots, `and every heading comes back in the range \`poseFor\` reports, (-pi, pi] (${inRange} of ${spots})`);
 }
 
 // ---------------------------------------------------------------------------

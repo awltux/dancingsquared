@@ -97,6 +97,14 @@ html, body {
    reads as a heading with its actions under it. */
 #hud .row.ed-formation .part { flex: 1 0 100%; }
 #hud .wide { flex: 2; }
+/* THE END SETUP'S ROTATION CONTROL is a −/readout/+ group that must not be taken apart by the row's own
+   wrapping: the three parts are one control, so the group refuses to shrink and the READOUT is wide enough
+   for "315°" - a readout that changes width would shuffle the two buttons under the pointer on the step
+   that gained a digit. It is dim at 0° and accented otherwise, which is how a rotation left in force from
+   an earlier step is visible without opening a tooltip. */
+#hud .end-spin { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+#hud .end-spin > span { font-size: calc(13px * var(--hud-text)); color: var(--accent); min-width: 3.4em; text-align: center; font-variant-numeric: tabular-nums; }
+#hud .end-spin > span.off { color: var(--dim); }
 /* A CONTROL THAT CANNOT BE HONOURED IS NOT A STATUS LINE. The `asymmetric` selector's reason for refusing an
    export used to be written here in the panel's ordinary text and it was not read; it is now amber, bold, and
    in the same `--warn` that "track incomplete" and "cannot pair" already use for the same kind of news. */

@@ -261,6 +261,7 @@ export {
   sameFacing,
   startsFromFormation,
   endsOnFormation,
+  rotateFormation,
   callToXmlNamed,
   halfSetReport,
 } from './editor.js';

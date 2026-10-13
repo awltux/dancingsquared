@@ -67,10 +67,13 @@ import {
   // call can be written as one.
   halfSetReport,
   startsFromFormation,
-
   // The END-side twin of `startsFromFormation`, for naming the End picker from the setup the call
   // already lands on. See `namedSetup`.
   endsOnFormation,
+  // The rigid whole-set turn behind the End setup's rotation control: the rule lives in the engine so the
+  // probe measures THAT rather than a copy of it, and `DEG` with it, which is the engine's own conversion.
+  rotateFormation,
+  DEG,
   placeDancerEnd,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
@@ -161,6 +164,17 @@ export interface EditorHost {
 // Warning threshold for a "large" closure correction.
 const HEADING_WARN = 0.35; // rad (~20deg)
 const POS_WARN = 2.0; // units
+
+/**
+ * THE END SETUP'S ROTATION CONTROL TURNS IN THIS MANY DEGREES, and this many steps close the circle.
+ *
+ * EIGHT IS NOT A COINCIDENCE: `deriveFormationMapping` tries exactly the eight multiples of 45 degrees
+ * about the origin when it derives which spot each dancer finishes on, so every orientation this control
+ * can reach is one the correspondence already looks for - `poc/tools/end-spin-probe.mjs` measures what
+ * that buys and what it cannot.
+ */
+const END_SPIN_DEG = 45;
+const END_SPIN_STEPS = 8;
 
 /** The level the editor's call lists open on. See `populateLevels`. */
 const DEFAULT_LEVEL = 'ms';
@@ -601,6 +615,10 @@ export class EditorController implements EditorUI {
   private endFormationSel = el<HTMLSelectElement>('edEndFormation');
   private connectEndBtn = el<HTMLButtonElement>('edConnectEnd');
   private placeEndBtn = el<HTMLButtonElement>('edPlaceEnd');
+  // The End setup's rotation control: a 45-degree step either way, and the readout between them.
+  private endSpinMinus = el<HTMLButtonElement>('edEndSpinMinus');
+  private endSpinPlus = el<HTMLButtonElement>('edEndSpinPlus');
+  private endSpinEl = el<HTMLSpanElement>('edEndSpin');
   private endAutoBtn = el<HTMLButtonElement>('edEndAuto');
   private endInfoEl = el<HTMLSpanElement>('edEndInfo');
   private endPairEl = el<HTMLDivElement>('edEndPair');
@@ -696,6 +714,17 @@ export class EditorController implements EditorUI {
    */
   private endTarget: { name: string; poses: FormDancer[] } | null = null;
   private endOverride: number[] | null = null;
+  /**
+   * HOW FAR THE CHOSEN END SETUP HAS BEEN TURNED, in 45-degree steps from the way `formations.xml`
+   * writes it. Zero is as authored.
+   *
+   * IT IS NOT STORED ON THE TARGET. The target keeps the formation's OWN poses and `endTargetPoses`
+   * applies this, so there is one place the turn happens and no second copy of the poses to keep in
+   * step with the first - and stepping back to zero is exactly the authored formation rather than eight
+   * accumulated turns of floating-point arithmetic.
+   */
+  private endSpinSteps = 0;
+
   /** WHICH SIZE the two formation pickers currently hold, or null before they are filled. The count
    *  rather than a flag, because the list is only still correct while the instance's size has not
    *  moved - see `ensureStartFormations`. */
@@ -1135,6 +1164,9 @@ export class EditorController implements EditorUI {
       this.endFormationSel.value = this.namedSetup(this.instance, 'end');
       this.endTarget = null;
       this.endOverride = null;
+      // AND UNTURNED: the step belongs to the end setup that was just loaded, so a new one starts as
+      // authored rather than inheriting a rotation chosen for the call that was on screen.
+      this.endSpinSteps = 0;
       // A NEW instance starts at its own first beat, with the animation off - unless the caller is
       // stepping through the SETUPS of the call they already had open, where the beat is where they are
       // LOOKING. See `keepBeat` above.
@@ -3013,6 +3045,7 @@ export class EditorController implements EditorUI {
       this.endPairEl.hidden = true;
       this.endAutoBtn.hidden = true;
       this.connectEndBtn.disabled = true;
+      this.renderEndSpin(false);
       return;
     }
     const pairing = this.endPairing();
@@ -3023,9 +3056,11 @@ export class EditorController implements EditorUI {
       this.endPairEl.hidden = true;
       this.endAutoBtn.hidden = true;
       this.connectEndBtn.disabled = true;
+      this.renderEndSpin(false);
       return;
     }
     this.connectEndBtn.disabled = false;
+    this.renderEndSpin(true);
     this.endAutoBtn.hidden = this.endOverride === null;
     const gap = this.endTargetGap(pairing);
     const deg = toDeg(gap.heading);
@@ -3041,7 +3076,8 @@ export class EditorController implements EditorUI {
   /** The pairing editor: one picker per dancer, `# -> spot`, over the chosen formation's spots. */
   private renderEndPairing(pairing: number[]) {
     const target = this.endTarget;
-    if (!target) return;
+    const poses = this.endTargetPoses();
+    if (!target || !poses) return;
     pairing.forEach((spot, i) => {
       const wrap = document.createElement('span');
       wrap.className = 'ed-pair';
@@ -3050,7 +3086,7 @@ export class EditorController implements EditorUI {
       lab.title = `Which spot of "${target.name}" dancer ${i + 1} finishes on`;
       const sel = document.createElement('select');
       sel.dataset.key = `r${i}:end`;
-      target.poses.forEach((p, j) => {
+      poses.forEach((p, j) => {
         const holder = pairing.indexOf(j);
         const opt = new Option(
           `#${j + 1} ${(p.gender ?? '?').charAt(0).toUpperCase()} (${show(p.x)}, ${show(p.y)}) ${toDeg(p.heading).toFixed(0)}°` +
@@ -4798,6 +4834,67 @@ export class EditorController implements EditorUI {
   // ---- finishing on a named end formation ----
 
   /**
+   * THE CHOSEN END FORMATION AS TURNED - the poses every consumer of `endTarget` has to use, the pairing
+   * alone excepted (see `endPairing` for why that one reads the formation as authored).
+   *
+   * ONE PLACE APPLIES THE TURN, which is the whole reason the step is not written into `endTarget`: a
+   * rotation applied at four call sites is four chances for one of them to be missed, and the symptom
+   * would be a gap readout that agrees with the board while the placement disagrees with both.
+   *
+   * The identity step returns the authored array ITSELF rather than a rotated copy: rotations about the
+   * origin are exact enough to be invisible here, but a caller that never turns the control should get
+   * bit-for-bit the behaviour this panel had before the control existed.
+   */
+  private endTargetPoses(): FormDancer[] | null {
+    const target = this.endTarget;
+    if (!target) return null;
+    const theta = this.endSpinSteps * END_SPIN_DEG * DEG;
+    return this.endSpinSteps === 0 ? target.poses : rotateFormation(target.poses, theta);
+  }
+
+  /**
+   * SAY HOW FAR THE END SETUP IS TURNED, and make a rotation in force visible without a tooltip.
+   *
+   * 0 degrees is dim and every other step is in the panel's accent colour: a caller who turned the setup
+   * and then went to do something else has to be able to see that it is still turned when they come back
+   * to Place end. The buttons are DISABLED with no end setup chosen, in the same block that disables
+   * `Connect end` and for the same reason - there is nothing for them to act on.
+   */
+  private renderEndSpin(enabled: boolean) {
+    const deg = this.endSpinSteps * END_SPIN_DEG;
+    this.endSpinEl.textContent = `${deg}°`;
+    this.endSpinEl.classList.toggle('off', this.endSpinSteps === 0);
+    this.endSpinEl.title = !enabled
+      ? 'Nothing to turn: choose an end setup first. Every setup is offered as formations.xml writes it.'
+      : this.endSpinSteps === 0
+        ? 'The end setup is as formations.xml writes it - 0 degrees. Either step turns it about the board centre.'
+        : `The end setup is turned ${deg} degrees counter-clockwise from the way formations.xml writes it, about the board centre. Place end and Connect end both finish on the turned setup.`;
+    this.endSpinMinus.disabled = !enabled;
+    this.endSpinPlus.disabled = !enabled;
+  }
+
+  /**
+   * TURN THE CHOSEN END SETUP BY ONE 45-DEGREE STEP: positions and facings together, about the board
+   * centre, which is the rigid turn that changes the ORIENTATION the call finishes in without deforming
+   * the formation.
+   *
+   * THE PAIRING IS LEFT ALONE, both halves of it. A turn does not renumber the formation's spots, so a
+   * correspondence the caller fixed by hand (`endOverride`) still says the same thing about the same spot,
+   * and the DERIVED one is not re-derived either: `endPairing` reads the formation as authored, so the
+   * whole correspondence is out of the turn's reach and a step rotates the board under it.
+   */
+  private bumpEndSpin(by: number) {
+    const target = this.endTarget;
+    if (!target) return;
+    this.endSpinSteps = (this.endSpinSteps + by + END_SPIN_STEPS) % END_SPIN_STEPS;
+    this.renderInstance();
+    const deg = this.endSpinSteps * END_SPIN_DEG;
+    this.statusEl.textContent = deg === 0
+      ? `end setup "${target.name}" is back to the way formations.xml writes it`
+      : `end setup "${target.name}" turned ${deg}° counter-clockwise — press Place end or Connect end`;
+  }
+
+  /**
    * The pairing in force: WHICH SPOT OF THE END FORMATION EACH DANCER FINISHES ON.
    *
    * DERIVED, NEVER BY INDEX - and derived the way the START is, with the engine's own
@@ -4812,6 +4909,17 @@ export class EditorController implements EditorUI {
    * AN EXPLICIT PAIRING WINS and is kept: the automatic answer can be right by the geometry and wrong by
    * intent - a caller may want a particular dancer to take a particular spot - and then their correction IS
    * the data. `endOverride === null` means "ask the geometry".
+   *
+   * IT IS DERIVED FROM THE FORMATION AS AUTHORED, NOT FROM THE TURNED TARGET, and it is the ONE consumer
+   * that does not go through `endTargetPoses`. The correspondence is between the call's DANCERS and the
+   * formation's NUMBERED SPOTS, and turning the board moves the spots without renumbering them. Deriving it
+   * from the turned poses instead asks the wrong question, because the answer is a knife edge: this function
+   * searches all eight 45-degree rotations and keeps the ERRORS-EQUAL answer it meets first, so a turned
+   * target shuffles which of several equally-good correspondences wins. Reported exactly that way - with the
+   * End setup turned to "Right and Left Grand Circle", dancer 1 finished on 67.5, 22.5, 67.5, 22.5, 67.5,
+   * 202.5, 157.5, 22.5 degrees instead of marching round in 45-degree steps. MEASURED by
+   * `poc/tools/end-spin-probe.mjs` over the catalogue: the pairing that comes back from a turned target
+   * differs from the unturned one at some turn for almost every (call, formation) pair.
    */
   private endPairing(): number[] | null {
     const inst = this.instance;
@@ -4841,12 +4949,12 @@ export class EditorController implements EditorUI {
   /** How far the call's end still is from the end target, over the pairing in force. */
   private endTargetGap(pairing: number[]): { pos: number; heading: number } {
     const inst = this.instance!;
-    const target = this.endTarget!;
+    const poses = this.endTargetPoses()!;
     let pos = 0;
     let heading = 0;
     inst.dancers.forEach((d, i) => {
       const p = poseFor(d, inst.beats);
-      const t = target.poses[pairing[i]];
+      const t = poses[pairing[i]];
       pos = Math.max(pos, Math.hypot(p.x - t.x, p.y - t.y));
       heading = Math.max(heading, Math.abs(Math.atan2(Math.sin(p.heading - t.heading), Math.cos(p.heading - t.heading))));
     });
@@ -4867,14 +4975,15 @@ export class EditorController implements EditorUI {
     if (!inst) { this.statusEl.textContent = 'nothing to place'; return; }
     if (!target) { this.statusEl.textContent = 'pick an end setup first'; return; }
     const pairing = this.endPairing();
-    if (!pairing) { this.statusEl.textContent = `✗ no pairing between these dancers and "${target.name}"`; return; }
+    const poses = this.endTargetPoses();
+    if (!pairing || !poses) { this.statusEl.textContent = `✗ no pairing between these dancers and "${target.name}"`; return; }
     try {
       let out = inst;
       let placed = 0, aimed = 0, onTheCurve = 0;
       for (let i = 0; i < inst.dancers.length; i++) {
         const wasTravel = inst.dancers[i].path.length > 0 && inst.dancers[i].path[inst.dancers[i].path.length - 1].rotate === null;
         if (inst.dancers[i].path.length === 0) continue;
-        out = placeDancerEnd(out, i, target.poses[pairing[i]]);
+        out = placeDancerEnd(out, i, poses[pairing[i]]);
         placed++;
         // The one case that cannot keep the mode is a move that does not travel: there is no path to aim.
         if (wasTravel) {
@@ -4898,6 +5007,12 @@ export class EditorController implements EditorUI {
   private doEndFormation() {
     const name = this.endFormationSel.value;
     this.endOverride = null;
+    // A NEW TARGET STARTS AS AUTHORED. The turn belongs to the end setup it was chosen against, so
+    // carrying it to another formation would silently rotate one the caller never looked at - and the
+    // step buttons are disabled without a target, so an offset can only be found against a shape on
+    // screen. Re-picking the SAME name is a change of the select too, and resetting is still the right
+    // answer: the caller is asking for that setup, not for the turn they were part-way through.
+    this.endSpinSteps = 0;
     const inst = this.instance;
     if (!name) {
       this.endTarget = null;
@@ -4939,7 +5054,8 @@ export class EditorController implements EditorUI {
     const inst = this.instance;
     const target = this.endTarget;
     const pairing = this.endPairing();
-    if (!inst || !target || !pairing) {
+    const poses = this.endTargetPoses();
+    if (!inst || !target || !pairing || !poses) {
       this.statusEl.textContent = 'pick an end setup first';
       return;
     }
@@ -4951,7 +5067,7 @@ export class EditorController implements EditorUI {
           skipped.push(i + 1);
           continue;
         }
-        out = setDancerEnd(out, i, target.poses[pairing[i]]);
+        out = setDancerEnd(out, i, poses[pairing[i]]);
       }
     } catch (err) {
       this.statusEl.textContent = `✗ ${(err as Error).message}`;
@@ -5749,6 +5865,8 @@ export class EditorController implements EditorUI {
     this.startFormationSel.addEventListener('change', () => this.doStartFormation());
     this.connectBtn.addEventListener('click', () => this.doConnect());
     this.endFormationSel.addEventListener('change', () => this.doEndFormation());
+    this.endSpinMinus.addEventListener('click', () => this.bumpEndSpin(-1));
+    this.endSpinPlus.addEventListener('click', () => this.bumpEndSpin(1));
     this.connectEndBtn.addEventListener('click', () => this.doConnectEnd());
     this.placeEndBtn.addEventListener('click', () => this.doPlaceEnd());
     this.endAutoBtn.addEventListener('click', () => {

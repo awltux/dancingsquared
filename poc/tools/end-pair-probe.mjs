@@ -334,8 +334,16 @@ console.log('\n== 6. The ARRANGEMENT, and a knife edge in the library\'s naming 
 // ---------------------------------------------------------------- wiring
 console.log('\n== the panel uses the geometry, and keeps the caller\'s correction ==');
 const editorSrc = fs.readFileSync(path.join(POC_DIR, 'src', 'editor-ui.ts'), 'utf8');
+// THE PAIRING IS DERIVED FROM THE FORMATION AS AUTHORED, even though the End setup has a rotation control.
+// The correspondence is between the call's DANCERS and the formation's NUMBERED SPOTS, and a turn moves the
+// spots without renumbering them - so the pairing must not see the turn. Deriving it from the turned target
+// asks a question whose answer is a knife edge (this derivation searches all eight rotations and keeps the
+// first of any tie), which made the placed end headings jump between equally-good answers instead of
+// marching round. `poc/tools/end-spin-probe.mjs` section 4 reproduces that fault and measures the fix.
 check(/private endPairing\(\)[\s\S]*?deriveFormationMapping\(start, target\.poses, true\)/.test(editorSrc),
-  'the panel derives the pairing with the engine\'s `deriveFormationMapping`, preferring the formation\'s declared ARRANGEMENT - the same rule `setStartFormation` applies at the start');
+  'the panel derives the pairing with the engine\'s `deriveFormationMapping`, preferring the formation\'s declared ARRANGEMENT - the same rule `setStartFormation` applies at the start - and from the formation AS AUTHORED');
+check(!/const poses = this\.endTargetPoses\(\);[\s\S]{0,200}?deriveFormationMapping\(start, poses, true\)/.test(editorSrc),
+  'and NOT from the turned target: that was the fault, and it made the pairing - and so the placed headings - jump between equally-good correspondences');
 check(/const holder = next\.indexOf\(spot\)/.test(editorSrc) && /next\[holder\] = next\[dancer\]/.test(editorSrc),
   'and a spot another dancer holds is SWAPPED, so eight picks keep using every spot once');
 check(/this\.endOverride = null;\n(\s*)\/\/ A NEW instance/.test(editorSrc) || /this\.endOverride = null;/.test(editorSrc),

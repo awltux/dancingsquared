@@ -97,6 +97,39 @@ export function rigidFit(src: { x: number; y: number }[], dst: { x: number; y: n
 }
 
 /**
+ * Turn a whole formation about the BOARD CENTRE - every spot AND every facing.
+ *
+ * WHY THE ORIGIN. It is the floor's own centre, and it is the point the corpus's rotated shapes are
+ * related about: `deriveFormationMapping` tries every multiple of 45 degrees ABOUT THE ORIGIN when it
+ * derives a spot correspondence, so a target turned by one of those steps is still paired, and paired the
+ * same way (the correspondence centring in that function undoes any translation, so the pivot does not
+ * change WHICH spot a dancer gets - only where that spot is).
+ *
+ * POSITIVE `theta` IS COUNTER-CLOCKWISE in the board's own frame (0 = +X, positive = towards +Y), which is
+ * counter-clockwise on screen: the scene puts board +y at world -z and the camera's up is -z
+ * (`poc/src/scene.ts`).
+ *
+ * HEADINGS COME BACK WRAPPED into the range `poseFor` reports, (-pi, pi]. The two products and the sum are
+ * the same arithmetic `deriveFormationMapping` uses for its candidate rotations, which keeps its own copy
+ * ON PURPOSE - see the note there for the measured cost of making it call this instead.
+ *
+ * The editor's End setup picker offers the corpus's formations in the orientation `formations.xml` writes
+ * them, which is not always the orientation the call being edited finishes in - reported as "some
+ * formations seem rotated compared with where I want the last move to terminate". This is the rigid turn
+ * behind the control that fixes it.
+ */
+export function rotateFormation(poses: FormDancer[], theta: number): FormDancer[] {
+  const cos = Math.cos(theta);
+  const sin = Math.sin(theta);
+  return poses.map((p) => ({
+    x: p.x * cos - p.y * sin,
+    y: p.x * sin + p.y * cos,
+    heading: normAngleSafe(p.heading + theta),
+    gender: p.gender,
+  }));
+}
+
+/**
  * Derive the geometric correspondence between two equal-length dancer lists:
  * `result[i]` is the index in `formation` of the dancer that belongs to slot i
  * of `coreStart`. The correspondence is found by trying whole-set rotations about
@@ -129,7 +162,12 @@ export function deriveFormationMapping(
   for (const rot of ORIGIN_ROTS) {
     const cos = Math.cos(rot);
     const sin = Math.sin(rot);
-    // Rotate the formation about the ORIGIN (position + heading).
+    // Rotate the formation about the ORIGIN (position + heading). THE SAME ARITHMETIC AS `rotateFormation`,
+    // deliberately NOT that function: this one adds the angle to the heading WITHOUT wrapping it, and
+    // wrapping the candidate here is a real change to the answer - MEASURED by `poc/tools/end-pair-probe.mjs`,
+    // it flips one index-for-index agreement (82 -> 81 of 2208) and two (call, formation) pairings (1727 ->
+    // 1729 on the wrong gender) on near-ties, for no gain: the comparison below wraps the DIFFERENCE anyway
+    // (`normAngleSafe(moved - h)`), so the two forms are the same rule and differ only in the last ulp.
     const rotated: FormDancer[] = formation.map((f) => ({
       x: f.x * cos - f.y * sin,
       y: f.x * sin + f.y * cos,

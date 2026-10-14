@@ -8,7 +8,7 @@
 //
 // THE WORK IS SPLIT, so the probe imports both halves rather than mirroring either:
 //
-//   - `radialArcFit` (poc/src/grid-magnet.ts) decides WHETHER the grid can answer - same drawn circumference,
+//   - `radialArcFit` (packages/stage/grid-magnet.ts) decides WHETHER the grid can answer - same drawn circumference,
 //     chord under half a cell - and where the control goes. It is pure geometry with no DOM, so it is imported
 //     directly (the same reason `radial-grid-probe.mjs` imports it).
 //   - `arcBezierAbout` (engine/src/editor.ts) is the FIT itself: the cubic that passes through both ends and
@@ -70,7 +70,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const grid = await import(pathToFileURL(path.join(POC_DIR, 'src', 'grid-magnet.ts')).href);
+const grid = await import(pathToFileURL(path.join(POC_DIR, '..', 'packages', 'stage', 'grid-magnet.ts')).href);
 const { radialArcFit, radialCircleRadii, SNAP_HALF_TOL, RADIAL_ARC_MAX_SWEEP, RADIAL_ARC_SWEEP_TOL } = grid;
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { arcBezierAbout, bezierPoint, ARC_K } = engine;
@@ -247,7 +247,7 @@ console.log('\n== 5. the panel offers it, and only where the grid can answer =='
   const read = (rel) => path.join(POC_DIR, rel);
   const fs = await import('node:fs');
   const src = fs.readFileSync(read('src/editor-ui.ts'), 'utf8');
-  const magnet = fs.readFileSync(read('src/grid-magnet.ts'), 'utf8');
+  const magnet = fs.readFileSync(path.join(POC_DIR, '..', 'packages', 'stage', 'grid-magnet.ts'), 'utf8');
 
   check(/const fit = this\.gridMode === 'radial'/.test(src),
     'the control is offered only while the RADIAL grid is the one on the floor - a square-grid caller has no circle to fit');

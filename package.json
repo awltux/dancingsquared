@@ -5,6 +5,7 @@
   "description": "Square-dance engine + 3D PoC (npm workspaces monorepo)",
   "workspaces": [
     "engine",
+    "packages/stage",
     "poc",
     "poc-teacher",
     "poc-matrix"

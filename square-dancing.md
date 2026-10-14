@@ -1867,7 +1867,7 @@ exactly the failure a text assertion would wave through.
 THE TWO GRIDS ARE THE SAME RULER. The radial one is 16 spokes (one every 22.5°, the four cardinals in the
 bright centre-line colour the square grid gives x = 0 and y = 0) and a circle at every whole unit out to
 the floor's edge, with the even radii overlaid exactly as the square grid overlays its 2-unit lines.
-`scene.ts` draws it FROM the spec in `poc/src/grid-magnet.ts`, which is pure — no DOM, no `three` — so what
+`scene.ts` draws it FROM the spec in `packages/stage/grid-magnet.ts`, which is pure — no DOM, no `three` — so what
 is drawn and what a CTRL-drag snaps to cannot drift apart, and BOTH magnet probes now import that module
 instead of restating the rule. Exactly one grid is ever visible: `setGridMode` sets both visibility flags
 from one boolean, so there is no state in which the caller has to turn one off before the other on.

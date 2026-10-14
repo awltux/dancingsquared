@@ -579,7 +579,7 @@ console.log('\n== 5. the panel: handles, dispatch, the IMPORTED rule, live numbe
 
 const uiSrc = readSource('src/editor-ui.ts');
 const htmlSrc = readSource('index.html');
-const sceneSrc = readSource('src/scene.ts');
+const sceneSrc = readSource('../packages/stage/scene.ts');
 const ruleSrc = readSource('src/board-transform.ts');
 
 check(/id: `d\$\{d\}:dp`/.test(uiSrc), 'the POSITION handle is drawn for the focused dancer');

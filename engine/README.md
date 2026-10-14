@@ -110,7 +110,7 @@ npm run verify       # build + run the Node smoke test (loads real taminations d
 | Types | `type` | `CallBundle`, `DancerSpec`, `Pose`, `Seg`, `BezierData`, `Hands`, `HoldEdge`, `HoldMode`, `HeadingMode`, `Board`, `Fasr`, `SeqStep`, … |
 
 All pose output is 2D `(x, y, heading)` in the dance grid; a renderer maps it to
-its own world space (see `poc/src/scene.ts` for the Three.js 2D→3D mapping and
+its own world space (see `packages/stage/scene.ts` for the Three.js 2D→3D mapping and
 its chirality caveat).
 
 ## License

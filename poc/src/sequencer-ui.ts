@@ -14,13 +14,13 @@ import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } 
 import { parseStoredModules } from './stored-modules';
 import { loadUserFormations } from './formations';
 import { corpusFormationsOfSize } from './tam-xml';
-import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
+import { DancerView, buildHandConnectors, buildFlatMarker } from 'dancing-squared-stage';
 import { el, esc } from './dom';
 import { filterNames } from './call-filter';
 import { stepSource } from './step-source';
 import type { CallSource } from './step-source';
 import type { KeyBinding } from './keys';
-import type { Stage, WalkCycle } from './scene';
+import type { Stage, WalkCycle } from 'dancing-squared-stage';
 
 export interface SequencerUI {
   setActive(active: boolean): void;

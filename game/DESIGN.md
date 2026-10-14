@@ -1,0 +1,910 @@
+# DESIGN — the Dancing Squared call game
+
+**Status:** design for review. No code exists yet; this directory deliberately contains this file only, and
+nothing here is under source control. The implementation phases are in §13.
+
+**What it is.** A browser game that teaches square dancers and callers how calls *interconnect*: the player
+is shown a start setup and a goal setup and must supply the calls that connect them. Two modes share one
+engine contract, one level ladder and one scoring currency — a continuously-playable **Drill** and a
+once-a-day **Daily Challenge**. Login is backed by AWS Lambda in front of a cheap database so scores can be
+compared, and the game is monetised with Google Ads.
+
+**Where it lives.** A new workspace package, `game/`, alongside `engine/`, `poc/` and `poc-teacher/`. It
+consumes the engine **by package name** (`dancing-squared-engine`) and never reaches into `engine/src`, the
+same boundary `poc/` keeps (AGENTS.md §1, §4.3).
+
+---
+
+## 1. Decisions locked in this session
+
+These are settled. They are written down because the rest of the document is derived from them, and because
+a later reader must not re-open them by accident.
+
+| # | Decision | Consequence |
+|---|---|---|
+| 1 | The **three-option drill is the continuously playable mode**; the **daily challenge is a once-a-day extra**. | Two modes, one engine contract, two leaderboard partitions. They differ in **who decides the puzzle**: the Drill's order is authored and served (§7.2, §8), the Daily is derived from the date (§9). |
+| 2 | Drill: at each step three options — one correct, one legal-but-wrong, one illegal; a click gives instant feedback. | `DrillPuzzle` and `StepOptions`; the failure taxonomy in §8. |
+| 3 | Daily: the player selects **each call individually** from the moves the sequencer offers, with **undo/redo** until the puzzle is solved. | `PlaySession` with a move stack in §9. |
+| 4 | Failure is instructive: animate the player's own line, say why it failed, then offer a **"show me the answer" replay** of the correct line. | The review/replay flow, shared by both modes. |
+| 5 | Ladder: L1 is 10 calls and a one-call solution; the solution length rises to 3, then the pool widens by 5 every 3 levels. | `LevelSpec` and the level→spec function in §5. |
+| 6 | **Cognito User Pools** (email + password, JWT verified in Lambda) with anonymous play whose local scores can be claimed on login. | Auth and the bulk-claim endpoint in §11. |
+| 7 | Extract the POC's Three.js stage into a **shared renderer package first**, then build on it, offering **both 2D and 3D** views. | Phase 0 in §13. One package, consumed by the POC and by **both** game modes (§4). |
+| 8 | The daily is seeded from the **UTC date** — one challenge per day — **issued per level to all players**, with the leaderboard partitioned **per level**. | §9: with the challenge now level-scoped, its solution no longer has to be derivable from the level-1 pool. What remains fixed is that every player at a level gets the identical challenge. |
+| 9 | **Free exploration; the score penalises extra moves and time.** Offered calls are **legal now, not "still solvable"** — dead ends are the player's to discover. | Undo is free and unpunished; the clock and the move count carry the cost; §9 and §6 make "wander until the picture matches" a losing strategy. |
+| 10 | **The Drill is loaded from the database**, so every player at a level follows **the same regime in the same order**. | §7.2 and §8: a per-level ordered schedule of seeds is authored ahead of play and served as the canonical sequence; the client never decides *which* drill comes next. |
+| 11 | A player's **position** in the regime is their own, and a drill is **locked when it is issued**. | §8: everyone's first L1 drill is the same puzzle; a player who joined late starts at the beginning of the order rather than being skipped forward, and a schedule edit never rewrites a drill already served to someone. |
+| 12 | **The engine runs on both sides**: the server to *create* the problems and check the answers, the client to *play* them. | §4: the server generates every puzzle and validates every submission; the client runs a live sequencer for **both** modes. |
+| 13 | **The Drill's three options are danced, not shown as video** — the engine presents them, since it is already on the client for the Daily. | §8: the client runs the engine in this mode too. A published Drill entry is a **seed**, so nothing has to be rendered ahead of play and there is no media pipeline. |
+| 14 | **Both modes are interactive**: the Daily to add and remove calls and see the consequences, the Drill to watch an option and commit to an answer. | §4.4, §8, §9: the offering list comes from `legalNext`, every move is an `applyToBoard`, and each Drill option is a one-call `evaluateSequence` on the shared renderer. |
+| 15 | **Hints are earned on the drill line and spent on the Daily**: one per **10 successful Drill puzzles**, up to **three** held, at a **60-second time penalty** each. | §10: hints are a time penalty folded into `elapsed`, not a scoring factor of their own; the earning ledger counts ranked Drill successes; a hint names one call that reduces the distance to the goal from the player's *current* board. |
+
+**The one consequence worth stating out loud (decisions 3 and 9 together).** With only-legal offerings and
+free undo, a dead end can always be escaped — so declining to filter the offerings by solvability costs the
+player **time and moves**, which is exactly what the score already measures. That is why no separate
+dead-end warning is designed. The thing it changes is that a player *can* wander, so the Daily needs a
+**move allowance**; §9 fixes it as the shortest solution the generator found plus a cushion, with scoring
+built on **wasted moves**.
+
+**A second consequence, from decisions 10 and 11 together: the two modes have different sources of
+authority, and the design must not blur them.** The **Drill's order is data an operator curates and the
+server serves**; the **Daily's puzzle is derived from the date**. Both are still *generated* by the same pure
+function from a seed (§7) — what differs is who chose the seed and when. That is why the Drill is not "the
+daily without a date": its sequence is authored once, published per level, and then immutable in the sense
+that matters (§7.2, §8), where a date-seeded challenge is reproducible by anyone who knows the date.
+
+**And a third, from decisions 12 to 14: the engine is on both sides, and neither mode needs production
+infrastructure.** A published Drill entry is a **seed**; the client generates its three options and dances
+them on the renderer the Daily already needs. The mode that looked like the cheap one and the mode that
+looked like the expensive one turn out to need the same things — a `Sequencer` and a stage — and the only
+difference is what the player does with them.
+
+That is worth writing down because the arithmetic governs the phases (§12): the Drill is *not* front-loaded
+with a pipeline, so the two modes can be built in either order, and the shared pieces (the generator, the
+goal test, the stage) are built once and used twice.
+
+---
+
+## 2. Facts this design rests on
+
+Every claim below is a fact about the repository, with the file that owns it. Nothing in this document is a
+remembered number.
+
+- **The engine has the primitives both modes need**, all public: `Sequencer.apply`, `legalNext`,
+  `applyToBoard`, `recognize`, `fasr`, `evaluateSequence`, `sequenceBeats`, `sequenceStop`, `sequenceInfo`,
+  `getout`, `setActiveLevel` — `engine/src/sequencer/sequencer.ts`, re-exported through `engine/src/index.ts`.
+  - `evaluateSequence(flat, beat, startBoard)` returns `{ board, beats }` for a whole flat sequence from an
+    **arbitrary start board**, not only from home — this is the animation contract.
+  - `sequenceStop(flat, startBoard)` returns where a sequence stops being playable, so the last frame can
+    never silently render the board *before* a call that could not be played.
+- **Level scoping needs no engine change.** `engine/src/sequencer/library.ts` records that "the level IS the
+  call set", and `HomeSolver` requires the caller to pass the board rather than holding one. Constructing a
+  `Sequencer` per level from only that level's titles therefore gives correct scoping *and* a small
+  catalogue — which is what makes a **client-side** sequencer affordable for the Daily (§4.4), and what makes
+  server-side generation affordable for the schedule (§7.2). `sequencerCallsUpTo(level)` in `poc/src/data.ts`
+  is the existing precedent for pooling call authorings.
+- **The renderer extraction was clean, and small — and it is DONE (Phase 0, §13).** The two modules now live
+  in the shared package `packages/stage/` (`dancing-squared-stage`), exported as **source** rather than a
+  built `dist/` — which is not a style choice: `poc/`'s gate is `tsc --noEmit`, so a package pointing at a
+  build would have the app type-checking stale output, and `grid-magnet.ts` must stay loadable by path
+  because the probes import it to measure the rule rather than mirror it. Measured at the move: `scene.ts`
+  imports exactly `three` and `./grid-magnet`, `grid-magnet.ts` has **zero** imports, and the consumers were
+  **11, not the 7 this document first estimated** — 8 import statements across 4 app files (`main.ts`,
+  `browser.ts`, `editor-ui.ts`, `sequencer-ui.ts`) plus **4 probe files** that deep-import `grid-magnet.ts`
+  by path, one of them also reading it as text. The estimate was the one thing that was wrong.
+  - **And the stage only knows the engine, not the app.** Its imports are `three` and its own
+    `./grid-magnet.ts` — nothing from `poc/src/dom.ts`, `browser.ts` or the panels. That is why the same
+    file can serve two consumers (the POC and the game's two modes) as a package rather than a fork — and
+    why the extraction is what unblocks **both** modes at once (§4).
+- **Nothing in this repository renders off-browser, and the design no longer needs it to.** There is no
+  headless GL and no canvas backend anywhere in the tree (the only rendering is the browser `WebGLRenderer`
+  inside `createStage`, now in `packages/stage/scene.ts`). An earlier revision of this document had the
+  server rendering the Drill's options to video; **that plan is dropped** (decision 13), so the whole class
+  of work — headless render, an encoder, a media bucket, a staleness gate on rendered frames — is out of
+  scope rather than deferred.
+- **The engine's own search does not answer the Daily's question.** `HomeSolver.reachesTarget`,
+  `finishToHome` and `goalFinish` are **private**, and `goalFinish` treats every target other than
+  `Static Square` as "reached literally or not at all", with no finish appended. So an arbitrary named goal
+  board is not something the shipped search handles, and the game's goal test is a new, small, gated
+  addition rather than a reuse (§4.2).
+- **There is no shared renderer package, no date-seeded puzzle concept, no drill schedule, and no network
+  code anywhere in `poc/`.** `poc/` makes no network calls by rule (AGENTS.md §6), so every call the game
+  makes to AWS is new code in `game/` — and so is the authoring side of the regime in §7.2, which is a first
+  for this repository: nothing here currently serves an ordered list of puzzles to players.
+- **The Mainstream corpus is what the level-1 pool must be carved out of.** `poc/src/assets/` carries
+  `ms` (66 XML files) plus `plus`, `a1`, `a2`, `c1`, `c2`, `c3a`, `c3b`, `discovered` and the `src`
+  directory of shared definitions; `engine/test/mainstream.mjs` registers roughly 59 calls from those 66
+  files (it asserts ≥ 50), because a file can hold several titles and a file can fail to build. So a call
+  pool is **built from the catalogue**, never assumed — and a title, not a filename, is the identity
+  (AGENTS.md §8 trap 7).
+- **The animation is a known quantity.** `poc/src/player.ts` defaults to 500 ms per beat with a 2 s hold on
+  the start and end formations, so a short call is a few seconds on screen. That is why §11 forbids an ad
+  during the animation rather than merely discouraging one.
+
+---
+
+## 3. Product
+
+**Audience.** Dancers learning Mainstream who know the individual calls but not how they fit together, and
+callers who need to sight-resolve — to see a setup, see where they want the set to end, and know the calls
+that connect the two.
+
+**The learning objective, stated so it can be measured against.** The player must internalise *how a call
+connects one setup to the next*: which call can be called from here at all, which one moves the set towards
+the goal, and how two or three calls compose. The game does **not** teach a whole tip, and it does not teach
+the mechanics of an individual call's arm work — the POC already does that.
+
+**The surface.** A home screen with the day's challenge, the player's **next drill in the level's regime**,
+the player's level and progress through the current season, and the level's leaderboard. Two modes inside,
+one of which is issued once a day.
+
+---
+
+## 4. Where the engine runs, and the contract each side uses
+
+**The engine exists on both sides, and that is a requirement rather than an accident.** The server needs it
+to *create* the problems and to check the answers; the client needs it to *play* them. **Both modes need it
+on the client**, and for the same reason — the two modes present the same kind of thing (a board, a motion,
+a consequence), so the Drill's three options are *danced* rather than shown as video, using the renderer the
+Daily already needs. This section is the interface, because it decides what is bundled and what is
+version-locked.
+
+| | Server | Client |
+|---|---|---|
+| Engine | **yes** — every puzzle is generated here (§7) and every submission is re-derived | **yes, both modes** — the Drill to dance its three options, the Daily to play the moves (§4.4) |
+| Sequencer | **yes** — generation, validation, re-derivation for scoring | **yes, both modes** — `legalNext`/`applyToBoard` for the Daily's moves, and the Drill's options' endings |
+| Renderer | **no** | **yes** — 2D and 3D, for both modes |
+| Publish step | a seed and a level, and nothing else | — |
+
+**The consequence worth stating plainly: neither mode needs production infrastructure.** A published Drill
+entry is a **seed**, not a rendered artefact, so the same generator call that builds the Daily builds the
+Drill — on the client, in the browser, from the level's own call set. The engine being on both sides is what
+makes that possible, and it is why the two modes cost the same kind of thing rather than opposite ones.
+
+This section is the interface, so no implementer reinvents it. Everything here is stated in terms the git
+history can be checked against; the pieces the engine does **not** have today are named as such.
+
+### 4.1 Applying a call (both modes, and server-side generation)
+
+```ts
+// The board is the game's own state, recorded by the move stack.
+const result = seq.applyToBoard(currentBoard, callName);
+// { board, legal, reason? }  — reason is non-optional on a refusal, by the engine's contract.
+```
+
+`Sequencer.apply`/`applyStep` are the stateful form and are what the POC uses; the game holds its own board
+and uses `applyToBoard`, so undo and redo are pure data operations over a stack of boards rather than calls
+into a mutable sequencer. The refusal `reason` is **engine-owned prose** and is surfaced verbatim to the
+player; it is never re-worded by the game.
+
+**A fresh `Sequencer` per level is what makes this cheap and safe on a client.** `CallLibrary` treats "the
+level IS the call set", so a level's sequencer holds only that level's titles — which keeps the bundle and
+the legality scan small, and is what lets the offering list be exactly "legal from here, at my level" with
+no filtering that could drift (§4.2).
+
+### 4.2 The valid next moves, and the goal test (both modes)
+
+**Offered moves** are the level's registered titles intersected with `Sequencer.legalNext()` from the
+*current* board. The engine contract this leans on, from the method's own comment
+(`engine/src/sequencer/sequencer.ts`):
+
+- it lists a call only when it **actually applies interactively**;
+- it lists the whole-board reading of a call with no group prefix, and reaches group-named coded calls
+  (`Fold`, `Cross Fold`, `Trade`, `Run`, `Step Forward` refuse the bare name by design) through
+  `groupCanPerform`, which is the group-aware question;
+- it is pre-group and already passes through the permission layer, `mayOffer`.
+
+Because both modes' interaction is "a button that must work when clicked", this is pinned by a probe rather
+than assumed: **every call the game offers must apply from the board it was offered on** (§13). The Drill's
+options are subject to the same rule — an option that is not legal from the shared start board is not a
+wrong answer, it is a *broken question*, and the generator's gates reject it (§7.3).
+
+**The goal test** is an **identity-exact, per-dancer board comparison** against the generator's stored goal
+board, keyed on `SeqDancer.id` with a small position and heading tolerance. It is deliberately *not*
+`recognize`:
+
+- `recognize` and `knownFormation` **disagree on purpose** on a tie, and on a tie the winner is library scan
+  order (AGENTS.md §8 trap 10) — so making correctness depend on a name would make scoring depend on scan
+  order;
+- the engine's own resolve logic says the same thing in the other direction: "a resolve ends at home by
+  identity, not by shape" (`prd.md` §9.5.4).
+
+Naming a board is therefore **display-only**: the game shows the formation name as a teaching aid and never
+as the correctness test.
+
+**This is the one engine addition Phase 1 needs.** A public identity comparison (`sameBoardById`) belongs in
+the engine, next to `reorderLike` and `boardSig`, because it is a rule the engine owns and a probe must be
+able to import it, **and because all three consumers need the same test**: the server decides a submitted
+run's correctness with it, the Daily's client decides whether to show the win, and the Drill uses it to label
+its options. Three implementations of "did this board arrive" is exactly the drift this design is trying to
+avoid (AGENTS.md §4.3, §5: "import the rule; never mirror it").
+
+### 4.3 Animating a call or a list (both modes)
+
+One call and a whole list are the same mechanism:
+
+```ts
+const { board, beats } = seq.evaluateSequence(chosenCalls, beat, startBoard);
+const stop = seq.sequenceStop(chosenCalls, startBoard);
+```
+
+- `evaluateSequence` is driven per animation frame, exactly as `poc/src/browser.ts` and
+  `poc/src/sequencer-ui.ts` drive it today, and the resulting board is handed to the shared renderer's
+  `DancerView.update(pose, targets, walk)`. **The Drill passes a one-call list** — its three options are
+  three single-call sequences — so the Drill and the Daily share this path rather than duplicating it.
+- `sequenceStop` is consulted **before** playback: if the sequence cannot be walked to the end, the game
+  shows the point it stopped at and the engine's own reason. A last frame that silently renders the board
+  before the call that failed is a defect the engine already has a name for. For the Drill's illegal option
+  this is the *point* of the option rather than an error path.
+- `sequenceBeats` supplies the total, so the progress indicator is not a second estimate of the same sum.
+
+### 4.4 The client sequencer is the same sequencer the server used
+
+The client's `Sequencer` is built from the level's call XML and the engine bundle, and the server builds the
+identical one to generate the puzzle and to validate the run. **That is a contract, not a coincidence**, and
+it has teeth:
+
+- **The call data must ship with the app, or behind the app's own version.** The client cannot ask the server
+  for a puzzle and then apply it with a different catalogue — a single missing or extra title changes the
+  offering list and can change whether the intended move is legal at all. So the level's call XML is part of
+  the *deployed* artefact, and the level's contents are versioned with it (§7's `poolVersion`).
+- **A run is therefore reproducible on both sides and verifiable without trusting the client.** The server
+  regenerates from `(seed, level, poolVersion)` and replays the submitted move list; it never accepts the
+  client's word for the final board (§10).
+- **The interaction is fully testable headless.** Move application, the offering list, undo/redo, the goal
+  test and a Drill option's ending are pure engine calls with no DOM, so a probe can play a whole Daily — and
+  answer a whole Drill — under Node. That is a better test than clicking through a browser, and it is
+  available here (§13).
+- **What the client does *not* need: any network call between moves.** The sequencer is local and pure, so a
+  move, an undo, a redo and a Drill option's dance are immediate; only starting a puzzle and submitting the
+  run touch the API.
+
+---
+
+## 5. Levels and the ladder
+
+```ts
+interface LevelSpec {
+  index: number;    // 1-based; the leaderboard partition
+  poolSize: number; // how many Mainstream titles exist at this level
+  depth: number;    // how long the intended solution is, in calls
+}
+```
+
+- **L1 = `{ poolSize: 10, depth: 1 }`.** That is decision 5's starting point.
+- `depth` rises 1 → 2 → 3 while `depth ≤ 3`.
+- Once depth has reached 3, `poolSize` grows by **5 every 3 levels**.
+- Every level's `Sequencer` is built from **only that level's titles**, so the engine's own legality scan is
+  already level-scoped and the "offered moves are limited to the level being played" rule is a property of
+  construction, not of a filter that could drift.
+- **The level id is the only leaderboard partition.** A player never compares against another level — that is
+  explicit in the brief and is why the leaderboard keys in §6 start with the level.
+
+**The pool is a curated teaching order, not an alphabetical slice.** `poolSize = N` means "the first N
+titles in this order", and the order is a checked-in data file ordered the way a class meets the calls. Two
+reasons it cannot be derived mechanically:
+
+1. A call is only usable in a puzzle once its prerequisites are known, and the corpus gives no such order
+   (`PERMISSION_LEVELS` in `engine/src/sequencer/permissions.ts` orders *programmes*, not calls within one).
+2. `poc/package.json` and `poc/src/` show the app already treats "the level is the call set" as the model;
+   adding a second, finer order is a game concept, and it belongs in the game's data.
+
+**Do not invent the ladder's ceiling.** The maximum `poolSize` is the number at which generation stops
+producing puzzles that pass the quality gates in §7 — or at which the offering list stops fitting a phone
+screen — and it is to be **measured**. The design states a floor rather than a ceiling: the ladder must
+comfortably exceed L1, and if it cannot reach a useful number of levels the finding is the design's problem,
+not the player's. The measurement lands with Phase 1.
+
+---
+
+## 6. Scoring
+
+One currency, so a player's progress reads the same in both modes:
+
+```
+score = base(level) × timeFactor(elapsed, par) × wasteFactor(moves, shortest)   [× attemptFactor(attempts)  — Drill only]
+
+elapsed = time-on-the-clock + 60s × hintsUsed        -- see §10
+```
+
+- `base(level)` grows with the level, so a harder level is worth more.
+- `par` is **derived**, never hand-set: the shortest solution the generator knows, times a stated per-call
+  allowance.
+- `wasteFactor` is where decision 9 lives. Wandering is legal and undo is free; what it costs is *moves
+  beyond the shortest the generator found*, so "try every call until the picture matches" is a losing
+  strategy even though nothing forbids it.
+- `attemptFactor` exists only in the Drill, where a wrong option is a discrete event.
+- **A hint is a time penalty, and that is the whole of its scoring effect** (§10): 60 seconds per hint,
+  folded into `elapsed` rather than given its own factor. One term, one place to tune, and it reads to the
+  player as what it is — a minute, not a multiplier.
+
+**All weights live in one checked-in config module** so retuning the game is one edit, not a hunt. The hint
+penalty is one of them, and the hint cap of 3 is another, so neither is a number buried in a screen.
+
+**The weights are proposed, not measured, and must be calibrated from playtest data before launch.** There
+is no playtest data in this repository and there cannot be one before the game runs; a document that
+presented these numbers as measured would be the exact fabrication AGENTS.md §4.1 forbids. **That includes
+the 60-second penalty**: it is chosen because it is legible, easy to explain and easy to tune, not because a
+minute was measured to be the right deterrent. It is worth noting that it is deliberately *dominant* at low
+levels, where `par` is one call and a minute dwarfs the solve — that is the intended shape, because a tip
+should be worth using and not worth relying on.
+
+**The server clamps every submission** to the maximum score the server can itself recompute from
+`(seed, level, elapsed, moves, attempts, hintsUsed)`. A modified client cannot post an impossible number,
+and **a client cannot claim a hint it did not spend or hide one it did** (§11) — the hint count is in the
+signed-off transcript of the run, not a display detail.
+
+**Two boards, both partitioned by level:**
+
+| Board | Key | Scope |
+|---|---|---|
+| Daily | `board#daily#<level>#<YYYY-MM-DD>` | One challenge per UTC day **per level**, issued to every player at that level (§9) |
+| Drill | `board#drill#<level>#<season>` | The **cumulative** score over the level's regime: the schedule is a progression (§7.2, §8), not a daily allowance, so the board accumulates across the season |
+
+**One entry per player per board — the player's best — and that is a rule, not a convention.** Without it,
+replaying an easy drill repeatedly would out-score one clean run, which is the same exploit the waste factor
+exists to prevent (§6). It also means a *repeated* drill cannot be farmed, so pressing "next" through the
+sequence and replaying a favourite costs the player nothing but cannot buy them anything either.
+
+**The season boundary is an open question, not an assumption** (§15): the Drill's board key needs a period,
+and whatever period is chosen, the schedule and the level ladder must only be re-authored **at a boundary**,
+never mid-season.
+
+---
+
+## 7. Puzzle generation
+
+A **pure, seeded, engine-only module**, shared by the client and the server:
+
+```
+generatePuzzle(seed, levelSpec, poolVersion) -> Puzzle
+```
+
+**The same function runs on both sides, for different jobs** (§4): the server runs it to *create* the problem
+and to validate a submission, and the client runs it for the Daily so it can put a board on screen without a
+round trip. That is only safe because it is pure and version-pinned, which is what the rest of this section
+establishes.
+
+- **Pure and deterministic in `(seed, levelSpec, poolVersion)`.** That is what makes a puzzle shareable by
+  seed and verifiable by the server without a puzzle database.
+- **`poolVersion` participates in the seed's meaning.** A leaderboard entry is only meaningful within one
+  pool version, so a catalogue or order change invalidates old boards **by design**. `poc/src/data.ts`'s
+  `dataVersion` is the precedent for a version key that invalidates persisted state.
+- **A schedule is a list of seeds, and nothing else.** Because a puzzle is derivable from
+  `(seed, levelSpec)`, publishing a regime does **not** require a table of puzzles: the Drill's schedule
+  (§7.2) is an ordered list of seeds and the serving layer calls `generatePuzzle` on the requested one. The
+  same property is what lets the server validate a Daily submission without storing the Daily.
+- **Forward exploration** from the start board under a node budget finds the solvable end boards.
+- **A reverse BFS from the goal** produces the distance-to-goal map. This is what gives all three consumers
+  what they need: the Daily's shortest-solution figure and move allowance, the Drill's option filtering, and
+  **the hint's "does this move make progress?"** best look-up (§10) — so the hint needs no search of its own
+  and is deterministic from the seed like everything else. It also makes an *arbitrary* goal cheap, which the
+  engine's own `getout` is not — that search is built around returning to `Static Square` and appending a
+  standard finish, and its frontier cost is the reason the plan records search shape carefully (AGENTS.md §3,
+  the L × C refutation).
+- **Quality gates — constraints that reject a seed and retry, never warnings:**
+  - the puzzle is solvable, and the shortest solution is exactly `depth`;
+  - every board along the intended path is **named** by `recognize` (an unnamed board is legal — the engine
+    says an unrecognised board is not a defect — but it is unteachable as a puzzle state, and the Daily
+    shows the goal as a picture);
+  - the start and goal boards are distinguishable at a glance, so the puzzle is not solvable by "they look
+    the same";
+  - at each step there are at least the number of distinct endings the mode needs (three for the Drill);
+  - the goal board is reachable by **more than one** call path where possible (see below).
+
+**Correctness is the goal board, not the generator's route.** A player who reaches the goal by a different
+sequence is correct and is scored as correct. The generator's own path exists to give the puzzle a shortest
+length, a par, and a "show me the answer" replay — not to constrain the player.
+
+**Both modes are published, not derived on the fly.** The Drill's seeds are curated into a schedule ahead of
+play (§7.2), and the Daily is generated ahead of the UTC boundary that publishes it (§9). In both cases the
+gate that the generator passes at authoring time is the gate it passes forever, because the function is
+pure — so "this seed is good" is decided once, by machine, and never by the player discovering a bad puzzle.
+
+**And a published entry is a seed and nothing else** (decision 13). The schedule stores no puzzle, no board
+and no media; the client regenerates the entry from `(seed, level, poolVersion)` with the same call it would
+use for the Daily, which is what keeps the two modes on one generator rather than two.
+
+### 7.1 Generation performance — the one real risk, so it is measured
+
+The call pool is small by construction (it is the level), and a published entry is a seed rather than a
+pre-built puzzle. The generator therefore runs **on both sides** — the server to create and to validate, the
+client to play — and the budget that matters most is the client's, because it runs in a browser. Phase 1
+must **measure generation time per level** and pin the node budget so the worst level generates within a
+stated time **on the client**; the server's copy can afford more, and the design must not assume they are the
+same number. No unmeasured budget ships.
+
+### 7.2 Authoring the regime (the schedule pipeline)
+
+The schedule is code-adjacent data, so it needs the gate every generated artefact in this repository needs
+(AGENTS.md §4.3: "a generated artefact needs the gate that fails when it goes stale"), plus the two checks
+that are about policy rather than mechanism:
+
+- **Every seed in the schedule passes the §7 quality gates for its level**, or the build fails. A schedule
+  published with one bad puzzle is a bad puzzle served to every player at that level simultaneously.
+- **A seed is valid only for the level it was validated at.** If a seed were reused at a level with a
+  different `poolSize`, `generatePuzzle` would return a *different* puzzle — same seed, different legal move
+  set — so the schedule stores the level beside each seed and a lint rejects reuse at another level rather
+  than trusting the author to remember.
+- **The order is the contract.** The gate pins that the schedule is non-empty, ordered, and advances; the
+  design does not pin a count, because the count is a season-length decision (§14).
+
+### 7.3 Drill question construction (the puzzle, as the engine presents it)
+
+The constraints the generator must satisfy, or the seed is rejected:
+
+- **Step 1** may be `1 correct + 1 legal-but-wrong + 1 illegal`. The illegal option is what teaches "that
+  call cannot be made from here", and it is only legible at the start, where the player is reading the
+  current board for the first time.
+- **Later steps** are `1 correct + 2 legal-but-wrong`. A dead end placed behind a call that *is* legal would
+  punish a player who has reasoned correctly so far, which is the wrong lesson.
+- **All three endings must be distinct boards.** A distractor that reaches the goal is **reclassified as
+  correct**, not offered as wrong — otherwise the game tells a player who found a genuine alternative that
+  they were wrong.
+- **The illegal option's reason is the engine's own string**, displayed verbatim.
+
+**Each option is a one-call `evaluateSequence` on a shared start board** (§4.3), so the question is the same
+board shown three ways. Four rules follow from the options being **computed on the client** rather than
+rendered ahead of time:
+
+- **All three options start from the identical board, with the identical camera, floor and dancer set.** Only
+  the motion differs. **This is a fairness rule, not a style rule**: it is what makes the three options
+  comparable, and it is why the options are generated as one puzzle rather than assembled from three
+  independent ones. It also falls out of the design rather than being maintained — they literally share the
+  generator's start board.
+- **The option order is shuffled per issue and stored nowhere**, because the client regenerates the entry
+  from the seed: the shuffle is part of what the seed determines, so it is reproducible without a published
+  index. (An earlier revision had to publish a `correctIndex` because the answer had to survive a video
+  cache; with the engine on the client there is nothing to survive.)
+- **Correctness is the goal board** (§4.2) for the same reason it is in the Daily: an option that reaches
+  the goal by any legal route is correct, and the generator's chosen route does not decide the answer.
+- **The endings are precomputed when the entry loads**, not when a button is pressed, so the interaction is
+  instant and the presentation scope stays open: a thumbnail of each ending, a caption naming the call, a
+  replay of all three back to back, or a reveal in sequence are all available from the same data with no
+  change to the engine contract.
+
+### 7.4 Why the presentation has room to move (and why that is a design goal)
+
+The options are *data* — three single-call sequences from one board — so the way they are shown is a UI
+decision rather than a pipeline decision. That is the practical argument for decision 13, and it is worth
+recording because an earlier revision of this document fixed the presentation in advance by rendering it to
+video: a caption, a slow-motion replay, a side-by-side of two endings, or a labelled motion are all
+presentation options that cost nothing to change, where a rendered artefact would have had to be re-rendered
+for each. **No rendered asset, and no encoder, is part of this design** (§2).
+
+---
+
+## 8. Mode A — the Drill (the level's regime, served in order, danced as options)
+
+**The order is not the player's to choose.** Per decision 10, every player at a level follows the same
+regime in the same order. The schedule from §7.2 is what the server serves, and the client's job is to
+advance through it — it never picks a seed, and it cannot skip one without the server having issued the next.
+
+**The client runs the engine here, exactly as it does for the Daily** (decision 13, §4). A published entry is
+a seed; the client generates the board and the three options and animates them with the stage it already
+needs. Nothing is pre-rendered, so the presentation is data rather than media (§7.4) and the answers cannot
+drift between the client and the server, because both derive them from the same seed with the same code.
+
+- **Two boards on screen — "you are here" and "get here" — and three answer buttons.** Pressing one *dances*
+  that option, then gives its verdict. The player can replay an option as often as they like before
+  committing, which is the presentation room the engine buys (§7.4): a replay, a caption, a slow pass and a
+  side-by-side are all the same data.
+- **The framing of the question is a teaching decision with two readings,** and both use the same three
+  options: *"which call is this?"* (name the motion) and *"which one gets you there?"* (choose the motion
+  that reaches the goal board). **Recommended for v1: the second**, because it is the skill the game exists
+  to teach and it needs no call-name vocabulary the player may not have.
+- **The illegal option is the lesson.** It stops part-way, and the engine's own refusal reason is shown
+  verbatim — the same reason string the Daily shows, from the same `applyToBoard` result (§4.1).
+- **The legal-but-wrong option is the discrimination.** It dances a real call that lands somewhere else, so
+  the player has to read the end board rather than spot a failure.
+- **A player's position in the regime is theirs** (decision 11). Everyone's first L1 drill is the same
+  puzzle; a player who arrives late starts at the beginning of the order rather than being thrown into the
+  middle of it, because the point is to follow the progression, not to catch up with it.
+- **A drill is locked when it is issued.** Resuming a part-finished drill the next day resumes *that* drill.
+  The consequence is deliberate and is stated because it is a real cost: a schedule edit cannot rewrite a
+  drill already handed out, so the fix for a bad puzzle is a new schedule entry, not an edit to an old one.
+  (This is also why §7.2's gate runs before publication rather than after.)
+- **Issuing a drill, resuming one, and fetching the next are server decisions.** The client asks for "the
+  drill I am on"; the serving layer answers with **the seed, the level and the option labels**. Which entry is
+  next, and whether the previous one is finished, are facts the server owns — which is why the endpoint in
+  §11 is not a `GET /puzzle` by seed for this mode, even though the client could apply one.
+- **The score is cumulative over the regime** and the board accumulates across a season (§6), with one entry
+  per player: their best. Re-playing a drill the player enjoyed cannot buy them a place.
+- **Anonymous play still gets the regime.** The Drill is the funnel — playable without an account — so the
+  local ledger holds the issued-drill id and the answer, and the progression is claimed along with the
+  scores on login. A non-member is following the same regime in the same order; they simply have not
+  published a score.
+- **Level changes mid-regime** move the player into the new level's regime at its start, because a drill
+  validated against one `poolSize` is not a drill at another (§7.2).
+- **A drill's answer is a single choice, so the timing rule is short.** The clock starts when the entry is
+  shown and stops on the answer; there is no move-by-move play to time beyond that (§6). Replaying the
+  options is not penalised separately — the clock already counts it, which is the same "wandering costs
+  time" rule the Daily's undo runs on.
+
+---
+
+## 9. Mode B — the Daily Challenge (once a day)
+
+**The Daily needs the engine and a sequencer on the client** (§4), because the player adds and removes calls
+and must see the consequences. Every board the player sees is computed in the browser from the level's own
+call set, with no round trip; the API is touched only to fetch the day's challenge and to submit the run.
+
+- **One challenge per UTC day *per level*, issued to every player at that level** (decision 8). The day is
+  computed in **UTC** so it flips at the same instant for everyone and a late-night player is not on a
+  different challenge from their friends. The seed therefore has to bind the level — `seed = hash(level,
+  YYYY-MM-DD)` — because the same date must produce a *different* puzzle at a different `poolSize` (§7.2).
+- **"The same challenge to all players" is per level, and that is the whole of it.** Each level's challenge is
+  generated from **that level's** pool and issued identically to every player at it, so the challenge always
+  sits inside the calls the level knows and `depth` is satisfied by construction. A player at L4 and a player
+  at L7 are given different puzzles on the same day; every player at L4 is given the same one. Nothing else in
+  the mode depends on the level, and nothing about it depends on another level.
+- **The offering list is what is legal now**, per decision 9 — not what is still solvable. Dead ends are the
+  player's to discover, and the score is what makes discovering them cost something.
+- **Add a call, remove a call, see the consequence.** The sequencer is local, so this is immediate: `legalNext`
+  offers the available calls from the board the player is standing on, `applyToBoard` advances it, and the
+  board is redrawn from the engine's own poses. This is the interaction the mode exists for, and it is the
+  Drill's counterpart: one mode *names the motion*, the other *builds the line*.
+- **Undo/redo is a standard move stack.** Undo pops the current board and pushes it to the redo stack; a new
+  call made after an undo truncates the redo branch. Both are free and unpunished; what they cost is the
+  clock and, ultimately, the waste factor.
+- **The move allowance** is the generator's shortest call count **plus a cushion** (a stated, calibrated
+  number). It exists because with free undo and honest offerings, an unlimited allowance would let a player
+  reach any displayed board by elimination — the allowance plus the waste factor is what makes that lose.
+- **The challenge is issued, so it is generated ahead of the boundary that publishes it.** A scheduled job
+  generates each level's challenge before 00:00 UTC and publishes it, so "the same challenge to all players"
+  is true at the moment the day changes rather than true once someone happens to load the page. It is
+  generated **once** and stored: the serving endpoint reads what the job published rather than generating per
+  request, so the cost is one generation per level per day and every reader sees the same artefact.
+  **There is deliberately no fallback**: if the job has not run, the challenge is unavailable and says so,
+  because the two alternatives are worse — serving an unvalidated puzzle to everyone at once, or letting each
+  request invent its own and quietly breaking the shared challenge.
+- **Past dailies stay playable** (each day's seed resolves to the same puzzle forever, by construction); only
+  *today* feeds *today's* board, so missing a day costs the entry and nothing else.
+- **Review**: on solving, or on giving up, the player can replay their own line and the generator's shortest
+  line, with the engine's own names and reasons. This is decision 4, and it is the same component the Drill
+  uses — the only difference is the input, since the Drill replays a single option where the Daily replays a
+  whole line.
+- **A hint is available for this mode** (§10), and the move allowance is what makes a hint *worth having*:
+  the allowance bounds how much elimination a player can do, so a nudge towards the answer is a real nudge.
+  Taking one adds a minute to the clock and is never refunded, so the hint appears **where the cost is paid**:
+  on the elapsed-time readout, not as a separate number to reconcile.
+
+---
+
+## 10. Hints
+
+**Concept: hints are earned on the drill line and spent on the Daily.** The regime is what you grind; the
+daily is where grinding pays off. All numbers below are in the one scoring config module (§6), so retuning
+them is one edit.
+
+**1. Earning.** **One hint per 10 successful Drill puzzles, to a maximum of three held at once.**
+
+- **What counts as "successful": a correct answer, whether first try or after replays.** The alternative — a
+  clean first attempt — was rejected because it makes the earner feel like a test rather than a reward, and
+  because the Drill already prices a wrong answer through `attemptFactor` (§6). Retrying to learn what a call
+  looks like is the *point* of the drill line, so it must not be the thing that forfeits the tip.
+- **Silent progress, announced grant.** The player can see "7 of 10" rather than discovering the requirement
+  when they cross it; the grant is announced once, because a reward nobody notices is not a reward.
+- **The cap is on the balance, not on the earning.** At 3 held, further successes accumulate nothing. The
+  cap is what keeps hints a tip rather than a resource to hoard.
+- **Only ranked Drill answers count.** The unranked practice mode (§15, open question 6) grants nothing, for
+  the obvious reason. The ledger records `successes` and `hints` separately so the rule is auditable and the
+  numbers can be retuned independently.
+
+**2. Spending.** **A hint may be taken on the Daily, costs a 60-second time penalty, and there is no undo.**
+- **The penalty is one minute per hint, and it is folded into the elapsed time** rather than given its own
+  factor (§6). It is charged once, when the hint is taken, and **undoing the move afterwards does not refund
+  it** — a hint is information, and information cannot be un-known. That is a rule rather than an oversight:
+  a refundable hint would be a free look at the answer, taken, used, and undone.
+- **The count is part of the run's signed transcript** (`hintsUsed`), so the server can clamp the score
+  correctly and neither side can quietly add or drop one (§11).
+- **The hint is not a move.** It reveals; the player may take its advice, ignore it, or leave the puzzle
+  unsolved. Ignoring it is a legitimate choice, so the penalty is not refunded when the hinted move is
+  *available but unused* either.
+- **The balance lives on the account, and an anonymous player's is claimed with the rest of the ledger**
+  (§11), so a signed-out player is not punished for being signed out.
+
+**3. What a hint reveals — and this needs deciding, so here is the recommendation.** *Recommend: one call
+name, marked in the offering list, valid from wherever the player is.*
+
+- **It names one call that reduces the distance to the goal**, taken from the reverse-BFS map (§7), so it is
+  correct from the player's *current* board and not only along the generator's route. If it named a move on
+  the generator's own path, a player who had taken a different-but-valid route would be told a move that is
+  illegal from where they are standing — a worse failure than no hint at all.
+- **The distance map decides it, not a second search.** "Which offered call has distance-to-goal one less
+  than here" is a table look-up over moves the client already has, so the hint is deterministic from the
+  seed, identical on both sides, and cannot drift.
+- **Ties break by the generator's stable order**, and the rule is pinned by a probe, because "which of two
+  equally good moves" must not depend on object iteration order.
+- **What is deliberately not revealed:** the whole solution. A tree of remaining calls is the answer, and
+  the game's job is the one call the player is stuck on. *This is the recommendation rather than a settled
+  decision* — see §15, open question 7.
+
+---
+
+## 11. Auth, API and the cheap database
+
+**Login: Cognito User Pools**, email + password, email verification, **no SMS** (cost, and to avoid a phone
+number field that older players find fiddly). The app holds no password and no secret; tokens are verified in
+Lambda by the API Gateway authorizer. Cognito's own hosted/password-reset flows are used rather than an
+invented one.
+
+**Anonymous play first.** The game is playable with no account, and anonymous runs are kept in a **local run
+ledger**. On login, the ledger is **claimed** with `POST /me/runs:bulk`, **idempotent on a client-generated
+`runId`**, so a retry or a double-submit cannot double-count. This is decision 6, and it is also the funnel:
+a player who has a score to lose is a player who signs up.
+
+**API** (API Gateway + Lambda):
+
+| Method and path | Mode | Purpose |
+|---|---|---|
+| `GET /drill/current?level` | Drill | **The drill this player is on** — the seed, the level, the option labels and the issue date. The server decides which entry: the first schedule entry the player has not finished, or their locked part-finished one. Not a `GET /puzzle` by seed for this mode, even though the client *could* apply one: the player does not choose their seed, and which entry is next is the server's fact (§8). |
+| `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. |
+| `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date — a read of the published artefact, not a generation per request (§9) |
+| `POST /runs` | both | One completed run. **Daily**: the level, seed, elapsed, move list, `hintsUsed` and client `runId`. **Drill**: the issued-drill id, the chosen option, elapsed and `runId` — and the server re-derives which option was correct rather than trusting the client's claim about it. |
+| `POST /me/runs:bulk` | both | Claim the anonymous ledger on login, **including the hint balance and the drill success count** (§10) |
+| `GET /leaderboard?mode&level&period` | both | The board for one mode, level and period |
+
+`GET /drill/current` must work **without an account**, because the Drill is the funnel (§8). An anonymous
+player therefore gets an issued drill keyed to a device id, and the progression is claimed with the scores on
+login — the same shape as `POST /me/runs:bulk`, and the reason the Progress row's key includes the player
+rather than the level alone.
+
+**DynamoDB, one table**, `PK`/`SK`, with a `GSI1 (GSI1PK, GSI1SK)` for the two leaderboard partitions and a
+`seed#playerId` dedup index so a replay does not spam a board with duplicate entries. The item shapes below
+are the storage form of decisions 10, 11 and 15, and of the two published sources of a puzzle:
+
+| Item | Purpose |
+|---|---|
+| **Schedule** (`schedule#<level>`) | The level's ordered seeds, published ahead of play (§7.2), with the level stored beside each seed and the schedule version. **A seed and its level: no puzzle, no board, no media.** |
+| **Progress** (`progress#<playerId>#<level>`) | The player's position: the issued drill id and issue date, and the set of finished ones. This is what makes "a drill is locked when issued" and "everyone follows the same order" both true. |
+| **Score** (`board#…`) | The leaderboard entry, one per player per board — their best |
+| **Published daily** (`daily#<level>#<date>`) | The generated-and-validated challenge for that level and day, written by the boundary job |
+| **Hints** (`hints#<playerId>`) | The balance and its earning progress: `hints` (0–3) and `successes` (0–9, reset on each grant), plus a `grantedAt` stamp so a grant can be shown once rather than re-announced on every load (§10). **One row per player, not per level** — hints are earned on one level's line and worth spending on another's. |
+
+There is deliberately **no media table and no asset bucket** (decision 13): nothing about a Drill entry is
+rendered ahead of play, so the only published artefacts in the system are a seed and a level.
+
+**The client never sees a seed it has not been issued.** For the Drill, `GET /drill/current` is the only way
+to learn a seed, and the server answers from the player's **Progress** row rather than from the schedule
+directly. That is not ceremony: the schedule is what every player at a level is working through, so a public
+"here is the whole schedule" read would let anyone pre-solve the regime and share answers, which is precisely
+the fairness decision 10 exists to create.
+
+**The server re-runs the same generator** to validate a submission: it recomputes `par`, the shortest
+solution and the maximum achievable score, and refuses anything above it. This is the reason the generator is
+a package-shared, engine-only, pure module (§7) rather than app code — it must run identically on both sides.
+For the Drill it re-checks **two** things: that the entry is the one the player was **issued**, and which
+option was actually correct — so neither a puzzle the player chose nor a client's claim about the answer can
+be published.
+
+**And the same treatment applies to hints (§10), because a hint is a currency.** The server credits a grant
+from its own record of scored Drill successes rather than from anything the client says, and it debits the
+balance from the `hintsUsed` the run claims — so a client can neither mint a hint by reporting successes it
+did not have, nor spend one and report zero. The balance is therefore **server-owned state that the client
+displays and requests against**, never a client-side counter that happens to be synced.
+
+**Publishing a schedule is an operator action, not a code path a player can reach**: the authoring pipeline
+in §7.2 writes the Schedule item (and, for the Daily, the boundary job writes the Published item), and there
+is no client-facing write to either.
+
+**Licence.** The engine is **AGPL-3.0** (`engine/README.md`) and the taminations data is GPL/AGPL. The design
+records where the obligation attaches — shipped front-end code that derives from the engine — and keeps
+backend logic separate. That is the scope of the claim; nothing more is asserted here, and **no secrets ever
+live in this repository** (AGENTS.md §6).
+
+---
+
+## 12. Monetisation (Google Ads)
+
+The rule that outranks the rest: **the ads must never come between the player and the lesson, and must never
+look like the game.**
+
+- **A banner below the play area** — never over the board, never over the answer buttons, never inside the
+  board's clickable area. A mis-click on an ad in a game whose whole interaction is choosing a call is the
+  one way this goes wrong for both the player and the account.
+- **A unit on the result/review panel**, where the player is between puzzles and the lesson is over.
+- **A unit on the leaderboard screen.**
+- **No ad during the animation.** `poc/src/player.ts` puts a short call at a few seconds on screen (500 ms
+  per beat, with 2 s holds); interrupting that breaks the lesson *and* the policy. The Drill makes this rule
+  sharper rather than softer: its options *are* the question, so an ad between an option's replay and the
+  answer is an ad inside the question.
+- **A certified CMP** with non-personalised ads until consent, for EEA/UK visitors; an `ads.txt` on the site
+  root; no ad styled as a control.
+- **The audience assumption is recorded as an assumption:** square dancers skew older, so child-directed
+  treatment is not the default — but it is a thing to confirm, not a fact to rely on, and the consent flow
+  must be right regardless.
+
+**No revenue is claimed.** None of it can be measured from this repository, and a projected number would be
+exactly the unmeasured claim AGENTS.md §4.1 forbids.
+
+---
+
+## 13. Architecture and phases
+
+```
+game/
+  src/
+    puzzle/     pure and engine-only: levels, generator, drill options, session state machine (move stack)
+    play/       the client sequencer shared by both modes: offered moves, apply, undo/redo, goal test
+    render/     the shared stage adapter; 2D and 3D
+    ui/         screens, panels, the offering list, the answer buttons, review
+    aws/        auth, the API client, the local run ledger
+  test/         `*-probe.mjs` — the list is the directory (AGENTS.md §5)
+```
+
+**Two shared packages, and the direction of the arrow matters.** The stage package depends on
+`dancing-squared-engine` (it imports the engine's `Pose`/`DancerSpec` types, which `scene.ts` already did when
+it lived in `poc/src/`), and `game/` depends on both. So:
+
+```
+dancing-squared-engine  ──►  packages/stage  ──►  poc/  and  game/
+```
+
+**The stage is `packages/stage/` today** — Phase 0 has landed: `scene.ts` and `grid-magnet.ts` live there
+under the name `dancing-squared-stage`, `poc/` consumes it by package name, and the four probes that load
+`grid-magnet.ts` by path were repointed with it. **The game's `render/` directory above is therefore a thin
+adapter over it, not a copy of it**, and Phase 1 adds `dancing-squared-stage` to `game/package.json` the same
+way `poc/` does.
+
+**And two of the three exist on the server**, which is the point of §4: the engine (to generate and to
+validate) and the game's `puzzle/` module (to generate the identical puzzle from the identical seed). **The
+stage does not** — nothing is rendered off-browser (decision 13), so the server has no need of `three` at
+all. The server's copy must still be the **same code at the same version** as the client's, which is why the
+generator is a package rather than an app-local file: a forked copy would silently produce a different
+puzzle, and the design's whole verification story depends on both sides agreeing.
+
+The rules this package inherits rather than re-derives: one concern per file and the rule in the module that
+owns it (AGENTS.md §4.3); the engine is consumed by package name and never by reaching into `engine/src`;
+probes are self-contained `.mjs` files that end in `process.exit(failures ? 1 : 0)`, each with a **negative
+control** — the plausible wrong rule, measured to fail exactly the check that rules it out (AGENTS.md §5).
+
+### Phases — one change, one gate, one commit each (AGENTS.md §0)
+
+**Phase 0 — extract the shared renderer (touches `poc/`). DONE.**
+The two files moved to `packages/stage/` (`dancing-squared-stage`) with their bodies unchanged (a move, not a
+fork — AGENTS.md §4.5), and the consumers were retargeted. **Retargeted 11, not the "seven" this document
+estimated**: 8 import statements across `main.ts`, `browser.ts`, `editor-ui.ts` and `sequencer-ui.ts`, plus
+**4 probe files** that load `grid-magnet.ts` by path — three by dynamic import and one that also reads it as
+text, which is the one that would have gone red silently if it had been missed. Gate:
+`npx tsc -p poc --noEmit` → `node poc/verify.cjs` → `node poc/tools/verify-probes.mjs`, because the change
+touches `poc/src/**` (AGENTS.md §3). One measured surprise for Phase 1: the package's root export needs a
+barrel, because `scene.ts` is not the only module the app imports from and a root entry pointing at it alone
+leaves `grid-magnet`'s names unexported — `tsc` failed on exactly that, and `index.ts` is the fix.
+
+**Phase 1 — the engine's goal test, and the pure game core.**
+`sameBoardById` in the engine, with an engine harness registered in `engine/test/verify-suite.mjs`
+(`light` field and a `why` if it is not in light), gated by `npm run verify:light --prefix engine` and
+before landing `npm run verify --prefix engine` in the background. Then `game/src/puzzle/`: `LevelSpec`, the
+generator with its quality gates, the **schedule lint** from §7.2, the three-option construction from §7.3,
+and `PlaySession` with undo/redo. Probes: every generated puzzle is solvable at its stated `depth`; the three
+options are distinct boards; **every offered call applies from the board it was offered on**; an illegal
+option carries the engine's own reason; a schedule seed fails its lint if moved to a level with a different
+`poolSize`; the generator is bit-identical on a repeat call (the property the server's verification rests on);
+a reverted fix turns a probe red. Plus the two measurements §5 and §7.1 demand: the ladder's ceiling and the
+generation-time budget, **measured on the client's constrained path**.
+
+**Phase 2 — the stage and the Drill UI, on a locally issued schedule.** The 2D view first, then the 3D view
+over the same contract (decision 7), and the mode itself: the two boards, the three answer buttons, an
+option's replay through `evaluateSequence`, the engine's own reason for the illegal option, the review, and
+the progression from a schedule read from a local fixture — so the mode is playable and testable before any
+AWS resource exists.
+
+**Phase 3 — the Daily UI, the hint, and the live animation.** The offering list built from `legalNext`,
+add/remove and undo/redo over the client sequencer (§4.4), the goal test, the allowance and waste counter, and
+the animation of the chosen list via `evaluateSequence` + `sequenceStop`, on **both** the 2D and 3D views.
+The hint lands here with the mode it is spent on: "which offered call has distance-to-goal one less" over the
+map from §7, the 60-second charge, and the no-refund rule.
+
+**Phase 4 — local persistence** and the anonymous run ledger, including the **issued-drill id**, the
+player's position, **and the hint balance with its earning progress**, so an anonymous player's regime and
+tips survive a reload and can be claimed later.
+
+**Phase 5 — AWS.** Cognito, the six endpoints, the DynamoDB table and its item shapes **including the Hints
+row**, the schedule publishing pipeline, the boundary job for the Daily, verification-by-regeneration and
+clamping, **the server-owned hint ledger**, and the deployment scripts — which live **outside `game/`**, so
+this directory's "DESIGN.md only" instruction stays literally true.
+
+**Phase 6 — ads and consent.**
+
+A note on the order: **the two modes can be built in either order**, because neither is front-loaded with a
+pipeline — the shared pieces (the generator, the goal test, the stage, the client sequencer) are built once in
+Phases 0–2 and used by both. The Drill goes first only because it is the funnel and because it is what earns
+the hints; if the Daily turns out to be the more urgent mode, Phases 2 and 3 swap cleanly, at the cost of the
+hint having nothing to spend until the Drill ships.
+
+---
+
+## 14. Testability, and what will not be checked
+
+- **Probeable headless, in Node.** The generator, the level specs, the scoring arithmetic, the hint rule and
+  the move stack are pure and take no DOM. The engine's data files are readable from `poc/src/assets/`
+  exactly as `engine/test/mainstream.mjs` does, and Node needs `setParser(DOMParser)` from `@xmldom/xmldom` —
+  the pattern that file already follows.
+- **The serving-side rules are probeable too, and should be**, because they are the new fairness surface:
+  "everyone at a level gets the same seed at the same position", "an issued drill does not change", and
+  **"the hint ledger grants on the tenth success and never on a client's word"** are decisions about plain
+  data, so they are tested as a pure function over a schedule, a run history and a fake progress record. The
+  scoring probe pins that a hint is **exactly** a 60-second charge — one added term, not a multiplier — and
+  that it is charged **once** and never refunded by an undo.
+- **The Drill's question is as probeable as the Daily's**, because both are engine data rather than media:
+  which option is correct, that the three options have distinct endings, that the illegal option's reason is
+  the engine's own, and that every option applies from the shared start board are all properties of the
+  generated puzzle. A probe can therefore **answer a whole Drill** under Node, exactly as it can play a whole
+  Daily (§4.4).
+- **Not checked, and said so rather than implied.** The renderer, the DOM, the ad and consent flow, and the
+  2D/3D switch will **not** be observed in a browser from this environment: the Vite app cannot be started
+  under the sandbox that `poc/tools/verify-probes.mjs` documents (AGENTS.md §8 trap 3). What that leaves
+  unverified is **presentation** — whether the board reads clearly, whether three buttons are legible at that
+  size — and not correctness, which is the improvement decision 13 bought. No AWS call is made or tested
+  either: the schedule pipeline, the boundary job, Cognito and the table are all designed here and
+  **unverified until they are deployed against a real account**. No live AdSense account is touched.
+- **Every citation in this document is a path or a relationship, never a drifting count**, per AGENTS.md
+  §4.2.
+
+---
+
+## 15. Open questions for the owner
+
+Each has a recommendation and the tradeoff, so this does not need another round to act on.
+
+1. **What question does a Drill ask?** *Recommend "which one gets you to the goal board"* (§8), because
+   it is the skill the game exists to teach and it needs no call-name vocabulary. The alternative —
+   *"which call is this?"* — drills memory instead of connection, and is the better framing for a later,
+   separate drill type.
+2. **When is an option danced — on press, or previewed first?** *Recommend on press*, with unlimited
+   replays, so the clock is the only cost. The alternative — a short preview of all three before the player
+   commits — is friendlier to a beginner but spends the question's tension before it is asked.
+3. **The schedule's cadence and length.** *Recommend one new drill per day per level and a season of a fixed
+   number of drills*, because a daily cadence is the simplest thing to promise and to operate. The tradeoff
+   is that the regime then advances at the speed of real time, so a player who plays twice in one day finds
+   nothing new — which is the same as the Daily's shape and makes both modes compete for the same visit.
+   **This is also the hint pipeline**: the cadence sets how long ten successes take, and so what a hint is
+   worth.
+4. **The season boundary.** *Recommend calendar months*, which makes the Drill board's period easy to explain
+   and easy to reset. The consequence to accept: a season boundary discards the cumulative board, and the
+   schedule and the ladder may only be re-authored there (§6). **Hint balances must not reset with it** —
+   they are earned effort, not a season statistic (§10).
+5. **Can a player skip a drill they cannot solve?** The design as written does not offer a skip, so a stuck
+   player is stuck in the regime. *Recommend allowing a mark-and-continue with no score for that drill*:
+   without it, one hard puzzle blocks the order that decision 10 made the whole point. Note the interaction
+   with §10: a skip grants no hint, so skipping is not a shortcut to tips.
+6. **Practice mode: puzzle generation the player controls?** *Recommend a clearly-labelled unranked "just
+   practice" that generates from the player's level pool.* The regime is authoritative and the Daily is
+   issued, so a third, unranked source costs no fairness — but it is the one place the client would choose a
+   seed, and it must never reach a board. **It grants no hints** (§10), which is what keeps the earning rule
+   a reward for the regime rather than for repetition.
+7. **What exactly does a hint reveal?** *Recommend one call name, from the player's current board* (§10),
+   because a whole remaining solution is just the answer. The alternatives — revealing the *next* move only
+   versus revealing the first two calls of the remainder — trade a bigger spend for a bigger nudge, and all
+   three are the same look-up, so this is a UI choice rather than an engine one.
+8. **Can hints be bought?** *Recommend no at v1*, matching Q11's ads-only stance. Note the reason it is a
+   real question rather than an obvious no: a hint is the one paid item that does not sell power in a
+   competitive mode, because it costs the *buyer* time and standing, and that is a legitimate model to
+   reconsider if ad revenue alone does not hold.
+9. **Is the Daily's allowance cushion published?** *Recommend yes, as "moves allowed: 3 of 4 used"*, because
+   a hidden budget is a trap; hiding it only helps if the board is also hidden, which it is not.
+10. **Is the goal board's formation name shown?** *Recommend yes at first*, then experiment with withholding
+    it: naming the goal is a big hint, but an older audience may need the anchor, and the name is only ever a
+    display either way (§4.2).
+11. **The level-curation order** — the actual first-N list. *Recommend authoring it with a teaching caller*,
+    because it is the one input the engine cannot supply.
+12. **Sound.** *Recommend none at v1.* Voice or music is a large surface (autoplay policy, accessibility, ad
+    interaction) and does not serve the objective.
+13. **Ads-only, or an ad-free tier?** *Recommend ads-only at v1*: a paid tier adds store fees, tax and a
+    cancellation flow for a game whose audience has to be earned first.
+14. **Hosting.** *Recommend S3 + CloudFront + Route 53 for the static front end and API Gateway in front of
+    the Lambdas* — no asset bucket is needed any more (decision 13). This app deliberately lifts the
+    repository's offline-frontend rule (AGENTS.md §6), so the decision to make a network call must be recorded
+    in the commit that adds it, with the endpoint named.
+15. **The workspace name**, for `game/package.json` when Phase 1 starts.
+
+---
+
+## 16. Explicitly not in this change
+
+- No game source, no `package.json`, no lockfile, no `.gitignore`, no CI, no submodule.
+- **Nothing is staged or committed.** The brief was "do not put them under source control at this point", so
+  this file is left as an untracked working-tree file. The tree also carries mid-edit corpus XML and engine
+  sources that belong to someone else's in-flight work and are **not** touched (AGENTS.md §8 trap 16).
+- No engine edit: `sameBoardById` and the renderer extraction are designed here and performed in Phases 0
+  and 1.

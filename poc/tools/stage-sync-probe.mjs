@@ -167,9 +167,11 @@ check(!!selectMove && selectMove.syncs && selectMove.mutations > 0,
 console.log('\n== The SELECTION is marked on the board: a ring per selected dancer, red per mismatch ==');
 {
   const read = (rel) => fs.readFileSync(path.join(POC_DIR, 'src', rel), 'utf8').replace(/\r\n/g, '\n');
+  // THE STAGE NO LONGER LIVES IN THIS APP: scene.ts and the magnet moved to packages/stage/,
+  // so the stage read takes its own path while the app files keep POC_DIR/src.
   const uiSrc = read('editor-ui.ts');
   const browserSrc = read('browser.ts');
-  const sceneSrc = read('scene.ts');
+  const sceneSrc = fs.readFileSync(path.join(POC_DIR, '..', 'packages', 'stage', 'scene.ts'), 'utf8').replace(/\r\n/g, '\n');
   const mainSrc = read('main.ts');
 
   check(/selectionMarks\(selected: number\[\], mismatched: number\[\]\): void;/.test(uiSrc),

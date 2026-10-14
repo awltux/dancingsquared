@@ -26,7 +26,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const grid = await import(pathToFileURL(path.join(POC_DIR, 'src', 'grid-magnet.ts')).href);
+const grid = await import(pathToFileURL(path.join(POC_DIR, '..', 'packages', 'stage', 'grid-magnet.ts')).href);
 const {
   SNAP_CELL, SNAP_TOL, SNAP_HALF_TOL,
   RADIAL_SPOKES, RADIAL_SPOKE_STEP, RADIAL_CARDINAL_EVERY,
@@ -269,7 +269,7 @@ console.log('\n== 4. The control: the radial magnet is not the square one wearin
 console.log('\n== 5. The switch: one state-driven button, told to both consumers, remembered ==');
 const read = (rel) => fs.readFileSync(path.join(POC_DIR, rel), 'utf8');
 const htmlSrc = read('index.html');
-const sceneSrc = read('src/scene.ts');
+const sceneSrc = fs.readFileSync(path.join(POC_DIR, '..', 'packages', 'stage', 'scene.ts'), 'utf8');
 const mainSrc = read('src/main.ts');
 const editorSrc = read('src/editor-ui.ts');
 const rememberSrc = read('src/remember.ts');

@@ -634,7 +634,7 @@ console.log('\n== 7. the flat camera is squared whatever the controls do ==');
 
 // And the wiring, so the rule cannot be dropped from the frame loop without this failing.
 {
-  const sceneSrc = fs.readFileSync(new URL('../src/scene.ts', import.meta.url), 'utf8');
+  const sceneSrc = fs.readFileSync(new URL('../../packages/stage/scene.ts', import.meta.url), 'utf8');
   check(/const squareCamera2D = \(\) => \{/.test(sceneSrc), 'the stage has ONE place that decides where the flat camera is');
   check(/updateControls:[\s\S]*?clampPan2D\(\);[\s\S]*?if \(out\.camera === camera2d\) squareCamera2D\(\);/.test(sceneSrc),
     'and it runs after the controls have been updated, so it is the last word on the camera each frame');
@@ -649,7 +649,7 @@ console.log('\n== 7. the flat camera is squared whatever the controls do ==');
 // is the same failure as the fixed floor size. Both files are only readable as text, and every claim above is
 // about arithmetic that a resize could stop calling.
 {
-  const sceneSrc = fs.readFileSync(new URL('../src/scene.ts', import.meta.url), 'utf8');
+  const sceneSrc = fs.readFileSync(new URL('../../packages/stage/scene.ts', import.meta.url), 'utf8');
   const mainSrc = fs.readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
   check(/const resize = \(\) => \{[\s\S]*?frame3D\(w, h, f\);/.test(sceneSrc),
     'one resize re-frames BOTH cameras from the same `frame(w, h)`, so the two views cannot disagree about where the board is');

@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "three": "^0.169.0",
-    "dancing-squared-engine": "file:../engine"
+    "dancing-squared-engine": "file:../engine",
+    "dancing-squared-stage": "file:../packages/stage"
   },
   "devDependencies": {
     "@types/three": "^0.169.0",

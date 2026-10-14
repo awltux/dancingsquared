@@ -1,0 +1,28 @@
+{
+  "name": "dancing-squared-stage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared render stage: the Three.js scene adapter and the pure square/radial grid+magnet rule. Consumed by poc/ and the game.",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "import": "./index.ts"
+    },
+    "./grid-magnet": {
+      "types": "./grid-magnet.ts",
+      "import": "./grid-magnet.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "dancing-squared-engine": "file:../../engine",
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.169.0",
+    "typescript": "^5.6.0"
+  }
+}

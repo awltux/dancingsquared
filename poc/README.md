@@ -910,9 +910,10 @@ order, an absolute 1.5:1 under them, and at least **30°** of hue between the tw
 trusting the figures in the comment. **VERIFIED IN THE BROWSER** (Chromium against `poc/dist`, the flat view,
 via the `W` key): the half rings are visible and read as lavender between the blue-grey divisions.
 
-It is drawn by `scene.ts` **from the same spec the magnet pulls to** (`src/grid-magnet.ts`, which is pure —
-no DOM and no `three`), so what is on the floor and what a CTRL-drag snaps to are one definition rather than
-two that happen to agree today. Both magnet probes (`snap-grid-probe.mjs` and `radial-grid-probe.mjs`) import
+It is drawn by `scene.ts` **from the same spec the magnet pulls to** (`packages/stage/grid-magnet.ts`, which is
+pure — no DOM and no `three`), so what is on the floor and what a CTRL-drag snaps to are one definition
+rather than two that happen to agree today. Both magnet probes (`snap-grid-probe.mjs` and
+`radial-grid-probe.mjs`) import
 that module instead of restating the rule.
 
 **Exactly one grid is ever visible.** `setGridMode` sets both flags from one boolean, so there is no state

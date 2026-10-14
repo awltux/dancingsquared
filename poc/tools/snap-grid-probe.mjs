@@ -38,7 +38,7 @@ const check = (cond, msg) => {
 // stripping loads it and this probe measures the rule the drags actually run. It used to restate the numbers
 // and the expression, which is one edit away from checking a copy - and now that the board has a second grid
 // (`radial-grid-probe.mjs`) there would be two copies of a rule that is meant to have one definition.
-const grid = await import(pathToFileURL(path.join(POC_DIR, 'src', 'grid-magnet.ts')).href);
+const grid = await import(pathToFileURL(path.join(POC_DIR, '..', 'packages', 'stage', 'grid-magnet.ts')).href);
 const { SNAP_CELL, SNAP_TOL, SNAP_HALF_TOL, snapToAxis } = grid;
 
 // ---------------------------------------------------------------- the home square

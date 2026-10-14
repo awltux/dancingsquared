@@ -91,13 +91,13 @@ import {
 import type { CallEdit, CallInfo } from './data';
 // The one place that decides whether an exported `<tam>` embeds its start formation or NAMES it.
 import { callTamXml, corpusFormationPoses } from './tam-xml';
-import type { Stage, CurveSpec, HandleSpec } from './scene';
-import { FLOOR_HALF, HANDLE_COLOR } from './scene';
+import type { Stage, CurveSpec, HandleSpec } from 'dancing-squared-stage';
+import { FLOOR_HALF, HANDLE_COLOR } from 'dancing-squared-stage';
 import { el, esc } from './dom';
 // THE MAGNET LIVES IN ITS OWN MODULE so a probe can import the rule rather than mirror it - see
 // `grid-magnet.ts`. The board has two grids, and this file owns neither: it only asks which one is showing.
-import type { GridMode } from './grid-magnet';
-import { radialArcFit, radialCircleRadii, snapBoard } from './grid-magnet';
+import type { GridMode } from 'dancing-squared-stage';
+import { radialArcFit, radialCircleRadii, snapBoard } from 'dancing-squared-stage';
 // AND THE START-POSE DRAG'S OWN ARITHMETIC, for the same reason and by the same split: what a drag does to
 // the rest of the selection is a rule a probe has to measure, so it is a pure module rather than a few lines
 // inside the pointer handler. See `board-transform.ts` for the rule and for why it is scale + translation.

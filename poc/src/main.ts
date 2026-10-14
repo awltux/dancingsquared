@@ -2,9 +2,9 @@
 // top-level mode switching and transport controls, delegating the browse UI and
 // the playhead state machine to CallBrowser and Player.
 
-import { createStage } from './scene';
+import { createStage } from 'dancing-squared-stage';
 // The floor's two grid modes, so the switch below cannot name a state the stage does not know.
-import type { GridMode } from './grid-magnet';
+import type { GridMode } from 'dancing-squared-stage';
 // The one keyboard table. See `keys.ts` for the policy it applies to every binding.
 import { installKeys } from './keys';
 import { loadCatalog } from './data';

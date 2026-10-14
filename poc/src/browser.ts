@@ -16,8 +16,8 @@ import type { UserFormation } from './formations';
 import { fsmTarget } from './fsm-target';
 import { filterCalls, matchCount } from './call-filter';
 import { modulesUsing, startsAwayFromHome } from './modules';
-import { DancerView, buildHandConnectors, buildFlatMarker } from './scene';
-import type { Stage } from './scene';
+import { DancerView, buildHandConnectors, buildFlatMarker } from 'dancing-squared-stage';
+import type { Stage } from 'dancing-squared-stage';
 import { Player } from './player';
 import type { BoardRead } from './sequencer-ui';
 

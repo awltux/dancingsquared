@@ -77,14 +77,36 @@ export function normaliseKey(key: string): string {
 }
 
 /**
+ * The `<input>` types the caller TYPES into - the allowlist behind `isTypingTarget` below.
+ *
+ * AN ALLOWLIST RATHER THAN A LIST OF THE EXCEPTIONS, because the rule is "the caller is typing", and the
+ * exceptions are the interesting set: `range`, `checkbox`, `radio`, `button`, `file` and `color` have no text
+ * to type into. `number`, `date` and `time` are ON the list: their arrow keys edit the value, so a binding
+ * must not steal them.
+ */
+const TEXT_ENTRY_TYPES = new Set([
+  'text', 'search', 'url', 'tel', 'email', 'password', 'number',
+  'date', 'datetime-local', 'month', 'week', 'time',
+]);
+
+/**
  * Whether a focused element is one the caller is TYPING into - the check every global handler needs and each
  * one writes differently. `select` counts: a bare letter jumps between its options, so stealing it there is
  * exactly as bad as stealing it from a text box.
+ *
+ * A SCRUB BAR IS NOT A FIELD. `edScrub`, `seqScrub` and `#scrub` are `<input type="range">`, and reading only
+ * `tagName` made every one of them a field: a click on the slider killed W, A/F, S, E, G/B and Ctrl+Z for as
+ * long as it held focus, which is the defect this type check fixes (`keys-probe.mjs` fires a bare `g` at a
+ * range and at a text input and requires the two to differ). Checkboxes had the same bug for the same
+ * reason. An input whose `type` is absent reads back as `'text'` in the DOM, and a probe object that omits it
+ * is a text field too, so the fallback is that same string rather than a special case.
  */
 export function isTypingTarget(el: unknown): boolean {
-  const t = el as { tagName?: string; isContentEditable?: boolean } | null | undefined;
+  const t = el as { tagName?: string; type?: string; isContentEditable?: boolean } | null | undefined;
   const tag = t?.tagName?.toLowerCase();
-  return tag === 'input' || tag === 'textarea' || tag === 'select' || t?.isContentEditable === true;
+  if (tag === 'textarea' || tag === 'select' || t?.isContentEditable === true) return true;
+  if (tag !== 'input') return false;
+  return TEXT_ENTRY_TYPES.has((t?.type ?? 'text').toLowerCase());
 }
 
 /**

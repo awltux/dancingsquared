@@ -115,6 +115,16 @@ console.log('\n== 3. A field being typed into keeps its keys ==');
   check(runs === 1, 'and it is live again the moment the focus is on the page');
   target.fire(keyEvent('Escape', { target: { tagName: 'INPUT' } }));
   check(runs === 11, 'while a binding that ASKS for it (`whileTyping`) does fire inside a field');
+
+  // A SCRUB BAR IS A CONTROL, NOT A FIELD, and this is the check the reported defect fails. `edScrub`,
+  // `seqScrub` and `#scrub` are `<input type="range">`, and while `isTypingTarget` read only `tagName` every
+  // click on one of them silenced W, A/F, S, E, G/B and Ctrl+Z. THE TWO LINES ARE ONE CHECK: a range that
+  // fires is only correct BECAUSE the text input under it does not, so a rule that simply deleted the guard
+  // passes the first `check` and fails the second.
+  target.fire(keyEvent('g', { target: { tagName: 'INPUT', type: 'range' } }));
+  check(runs === 12, 'but a SCRUB BAR IS NOT A FIELD: a bare letter fires while an <input type="range"> holds the focus');
+  target.fire(keyEvent('g', { target: { tagName: 'INPUT', type: 'text' } }));
+  check(runs === 12, 'and the text input beside it is the NEGATIVE CONTROL - the range fires only because this one does not');
 }
 
 console.log('\n== 4. Holding the key down flips once, not back and forth ==');
@@ -191,6 +201,10 @@ check(keys.isTypingTarget({ tagName: 'INPUT' }) && keys.isTypingTarget({ tagName
   'and a field is recognised by tag or by contenteditable');
 check(!keys.isTypingTarget({ tagName: 'BODY' }) && !keys.isTypingTarget(null) && !keys.isTypingTarget(undefined),
   'while the page, and nothing at all, are not fields');
+check(keys.isTypingTarget({ tagName: 'INPUT', type: 'text' }) && keys.isTypingTarget({ tagName: 'INPUT', type: 'number' }),
+  'a TEXT-ENTRY input is a field, whatever its type - a number edits by arrow key, so it is not up for grabs');
+check(!keys.isTypingTarget({ tagName: 'INPUT', type: 'range' }) && !keys.isTypingTarget({ tagName: 'INPUT', type: 'checkbox' }),
+  'and a scrub bar and a checkbox are CONTROLS rather than fields: the caller points at them, and the next key is a shortcut');
 
 // ============================================================ 8. the wiring, read from source
 console.log('\n== 8. The app uses the table, and no longer hand-rolls a listener ==');
@@ -200,6 +214,9 @@ const editorSrc = read('src/editor-ui.ts');
 // Read for the collision check below: two panels' tables are installed side by side, and first-match-wins
 // means a letter claimed twice is a binding that silently stops working.
 const seqSrc = read('src/sequencer-ui.ts');
+// Read for the scrub-bar check below: the reported defect names real controls, and the predicate above is
+// only about them if the markup really spells them as range inputs.
+const indexSrc = read('index.html');
 
 check(/installKeys\(\[/.test(mainSrc), 'main.ts installs the table, once, for the whole app');
 check(/\bid: 'grid-mode',\s*\n\s*key: 'w',/.test(mainSrc),
@@ -264,6 +281,10 @@ check(!/id: 'grid-mode'[\s\S]{0,80}?key: 'g'/.test(mainSrc),
   'with G no longer the grid toggle, so the two bindings cannot both claim it - the table is first-match-wins');
 check(!/window\.addEventListener\('keydown'/.test(editorSrc),
   'and the editor no longer hand-rolls its own keydown either - there is ONE listener in the app');
+// THE CONTROLS THE DEFECT WAS REPORTED AGAINST really are range inputs, so §3 and §7 are about the slider the
+// caller clicked rather than an element invented for the probe.
+check(/<input id="edScrub" type="range"/.test(indexSrc) && /<input id="seqScrub" type="range"/.test(indexSrc),
+  'and the two scrub bars are `<input type="range">` in the markup, which is why reading only the tag made them fields');
 
 console.log('\n=================');
 if (failures === 0) console.log('ALL CHECKS PASSED');

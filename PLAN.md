@@ -6,12 +6,13 @@ chronological record of what was built, refuted and measured on the way here —
 working rules, the measured state, the list of things that were refuted so nobody re-litigates them,
 and the phases that still have work in them.
 
-**Read in this order:** this file → `square-dancing.md` §9.1 for any claim below you want the derivation
-of. THIS IS THE ONLY PLACE THE STATE IS WRITTEN DOWN: §2 is the only scoreboard and §4 the only work queue,
-and there is no orientation document beside them any more. There used to be a `HANDOVER.md` for that, and
-the duplication is exactly how it went stale — a document that is only regenerated at the end of a session
-is read as current state by the session after it, so session 4 would quote session 3's "live task" long
-after it had been fixed and gated.
+**Read in this order:** `TODO.md` (the queue's front door: every open item in priority order, as a
+checklist, with the command that re-measures each) → this file → `square-dancing.md` §9.1 for any claim
+below you want the derivation of. THIS FILE OWNS THE EVIDENCE: §2 is the only scoreboard and §4 the only
+detail, and `TODO.md` carries an ORDER and a pointer and never a number this file does not already have.
+There used to be a `HANDOVER.md` for orientation as well, and the duplication is exactly how it went stale
+— a document that is only regenerated at the end of a session is read as current state by the session after
+it, so session 4 would quote session 3's "live task" long after it had been fixed and gated.
 
 ---
 
@@ -4788,6 +4789,10 @@ separation is only the call's scale.
 ---
 
 ## 6. Recommended order
+
+**`TODO.md` at the repo root is the CHECKLIST of this section** — the same order, item by item, each with
+the command that re-measures it. Work from there and keep the evidence here, so the order has one home and
+the measurements have another.
 
 **DONE: Phase A's head (`Heads Touch 1/4`), Phase E item 2 (the per-couple gender rule) and Phase E
 item 1 (the temporary couple number, +2 figures).** One attempted phase is REFUTED and recorded: the

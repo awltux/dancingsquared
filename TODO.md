@@ -1,0 +1,233 @@
+# TODO — the work queue
+
+**What this file is.** The open problems, in the order they are worth doing, as a checklist. It is the front
+door to the work: **`PLAN.md` owns the EVIDENCE** (§2 the scoreboard, §4 the detail, §5 blocked, §6 the long
+form of this order), and this file owns the ORDER and the STATUS. If a claim here and a claim in `PLAN.md`
+disagree, `PLAN.md` is right and this file is stale.
+
+**Why it exists.** `PLAN.md` §6 already recommends an order, but it is a thousand lines of prose at the
+bottom of a 478 KB file and it carries the DONE and REFUTED history inline, so it cannot be worked through
+item by item. This is the same content as a queue.
+
+**How to use it.** Tick `[x]` and add the commit sha when an item lands. An item is DONE when the command
+in it says so — not when the code looks right. When you tick one, put the measurement in `PLAN.md` §2 or in
+the harness that pins it, because commit messages are immutable and this file is a view.
+
+**Provenance marks — read these before trusting a line.**
+
+- `[measured]` — the command was run in this working tree and the output is quoted verbatim.
+- `[recorded]` — quoted from `PLAN.md`, `square-dancing.md` §9, `engine/test/fixtures/README.md` or
+  `poc/tools/guard-exclusions-broken.md`, and **NOT re-measured**. Re-measure before acting: the two
+  `HANDOVER.md` files were deleted for doing exactly this and being believed anyway.
+
+Last swept: **2026-10-14** (HEAD `29b0752`).
+
+**The commands this file leans on**, all from the repo root:
+
+| what | command |
+|---|---|
+| the whole engine gate | `npm run verify --prefix engine` |
+| the fast subset | `npm run verify:light --prefix engine` |
+| one engine harness | `node engine/test/<name>.mjs` |
+| the POC gate | `node poc/verify.cjs` |
+| every POC probe | `node poc/tools/verify-probes.mjs` |
+| the book gate | `npm run check:book` |
+
+---
+
+## P0 — silently wrong, or a gate that cannot run
+
+- [ ] **1. Fix the two ambiguous call selectors that abort whole gates.** `[measured]`
+  `poc/verify.cjs:175` selects `{ title: 'Allemande Left', from: 'Left-Hand Waves' }`, and the comment above
+  it claims *"from is what tells these thirteen Allemande Left tams apart, so it is the identity here"* — but
+  `poc/src/assets/ms/allemande.xml` has **two** such tams: line 183 (an embedded 4-dancer `<formation>`) and
+  line 441 (`formation="Ocean Waves LH GBBG"`). `selectTam` correctly refuses, the script **throws, and
+  `poc/verify.cjs` stops there** — everything after it is unmeasured. MEASURED: the run reports the two
+  pre-existing `Circle Left` ring failures and then
+  `2 tams match "Allemande Left" from "Left-Hand Waves", so the name is NOT unique`. Both tams are in HEAD
+  (`git show HEAD:poc/src/assets/ms/allemande.xml` has 2), so this is a committed defect and **not** the
+  corpus mid-edit. Same class in `engine/test/tools/ladies-sashay-probe.mjs`:
+  `FAIL the title resolves to 2 variants (two tams, Circle Left and Circle Right)`.
+  *Fix:* disambiguate by `formation` (or iterate every matching tam). One line each, and it unblocks the
+  rest of both gates — the cheapest high-value item in the repo.
+
+- [ ] **2. `Couple #N` on a wave reports a partner the engine elsewhere says is not the partner.** `[recorded]`
+  On Ocean Waves, `Couple #1 -> [5,6]` where **#6 is 4.00 away** from #5 while the adjacent girl #4 is 2.00
+  away, and `findCouplePairs` returns **0 pairs** for that board. Candidate A (beside, third pass) changes
+  `legalNext` on **19 of 263** boards (−20 `Beaus`/`Belles Trade`, +6 `Allemande Left`) and turns
+  `couples.mjs` 3 red; candidate B (beside for the NUMBER only) is **invisible to every gate (54 → 54)** but
+  leaves `Couple #1 = [4,5]` where `findCouplePairs` returns 0 — i.e. two contradictory definitions of
+  "current partner" in one engine. `Swing Your Partner` is unchanged by both (**0 of 263**). The unmeasured
+  consumer is `areCurrentPartners` → `trade-run.ts`'s Run/Trade preference, which is NOT in `legalNext`.
+
+- [ ] **3. A scoped apply can be LEGAL and move nobody.** `[recorded]`
+  `applySelected`'s last fallback can leave every selected dancer where it was and accept the step as a
+  **6-beat no-op**. The guard was written and left unshipped because the budget did not cover a full gate
+  run. Needs: refuse a scoped apply whose selected dancers all end where they started, measured either side
+  of the census.
+
+- [ ] **4. 22 apply-side pairs whose end board already has coincident dancers.** `[recorded]`
+  The walk-through's `COINCIDENT 32` splits into 10 animation faults and **22 APPLY faults**. These need the
+  call's own body fixed, i.e. they are census-side (Phases A/B), not animation-side.
+
+---
+
+## P1 — the red gates: decide per harness, re-pin or fix
+
+The engine suite is red **because the corpus is mid-edit**, and that currently makes a regression
+indistinguishable from corpus churn. Freeze the corpus, run the full gate once, then work this list.
+
+- [ ] **5. Freeze the corpus and take one clean measurement.** `[measured]`
+  `npm run verify --prefix engine` → **45 of 46 harnesses, `FAILED at catalogue`, 1604.9 s**;
+  `npm run verify:light --prefix engine` → **29 of 46, `FAILED at catalogue`, 121.7 s**.
+  Seven corpus XMLs are modified and uncommitted in the tree (`formations.xml`,
+  `ms/{alamo_style,allemande,circle,promenade,right_and_left_grand,star}.xml`). Nothing below can be
+  classified as defect-vs-stale until those are settled.
+
+- [ ] **6. `catalogue` — 3 checks, all on `Circle Left`.** `[measured]`
+  `node engine/test/catalogue.mjs`
+  - `FAIL Circle Left from a Static Square ROUND-TRIPS (worst position residual 0.5860, was 0.6140 under the ascending order)`
+  - `FAIL Circle Left leaves every facing where it found it (worst heading residual 22.50 deg, was 43.80)`
+  - `FAIL the board after Circle Left is still named Static Square (got Circle)`
+  The 22.50° residual and the `Circle` name both point at `ms/circle.xml` (mid-edit) — re-measure first.
+
+- [ ] **7. Pin-drift failures: each needs ONE decision, re-pin or fix.** `[measured]`
+  These are signals, not noise — a pinned number moved.
+  - `anim-convergence` — `the final-frame jump list changed: measured 20, pinned 7` and
+    `the phantom list changed: measured 18, pinned 11`.
+  - `cell-census` (`engine/test/tools/cell-census.mjs`) — `10 pinned number(s) moved - decide and re-pin`,
+    plus `84 geometries -> 121 cells` and `506 kept, 216 lost of 1372 targeted edges`.
+  - `level-census` (`engine/test/tools/level-census.mjs`) — `3 pinned number(s) moved - the
+    STRICT-vs-PERMISSIVE decision has to be taken again`.
+  - `fsm-asset` — `the asset was built from 274 catalog entries, the gate builds 288` and
+    `6 new-fact count(s) moved - decide and re-pin`.
+  - `reading-census` — `288 ms catalog entries, and the stored asset was built from 274`;
+    `40 edge(s) disagree about the reading`; `28 build edge(s) were NOT reproducible`.
+  - `selection` — `a board tied between two formations is still named "Right and Left Grand Static Square"
+    - a tied best match is not an identity`.
+  - `behaviour-audit` — 2, including `declared genders accept Circle Left from a Circle board`.
+  - `editor.mjs` — 4 (identical before and after this session's `Face In` and rotation work):
+    the `Circle Left` 1° heading discrepancy, the bounding-box check, the ms/a1 quarter-arc census, and
+    `the witness has both cases to measure`.
+
+- [ ] **8. `check:book` stops at a stale generated artefact.** `[measured]`
+  `npm run check:book` → `check-links.mjs` PASSES (108 pages), then
+  `DRIFT animations-index.json` / `1 file(s) differ`. Knowingly stale: **do not regenerate while the corpus
+  is mid-edit** (AGENTS §8 trap 9). Also note the line it prints: `start queries: 0 matched on a tam's own
+  declared formation (its "from" is empty); 11 resolved to nothing`.
+
+- [ ] **9. `getout-convention` and `getout-conformance`.** `[measured]`
+  `node engine/test/getout-convention.mjs` → **35 FAIL lines** (e.g. `[L1p]: returned path does not end home:
+  dancer 4 at (1.00,3.00), home is (3,1)`, and `[B2r]: refused for the wrong reason: Unknown call: Promenade`).
+  `node engine/test/getout-conformance.mjs` → `1 FIXTURE CHECK(S) FAILED`. Deliberately red since the
+  `Promenade` family was removed; it stays red until hand-authored tams replace them.
+
+- [ ] **10. The four owner-deferred probes.** `[measured]`
+  `node poc/tools/verify-probes.mjs` → **59 probes, 4 failed**: `facing-handle-probe`,
+  `radial-arc-fit-probe`, `run-circle-probe`, `start-facing-probe`. One more, `call-formations-probe`, is
+  SKIPPED in the default tier ("slow tier — run with `--all`").
+
+---
+
+## P2 — real defects, bounded reach
+
+- [ ] **11. `analyzeFasr`'s `corner` is wrong.** `[recorded]`
+  It agrees with CALLERLAB's corner **0 times out of 4** on the home square — it returns the opposite girl.
+  It feeds `fasrKey`, `isZero` and the solver's `Static Square` check, so it needs its own measured step.
+
+- [ ] **12. A formation's NAME is not stable at 1e-14 rad.** `[recorded]`
+  Adding 1e-14 rad to every heading changes the name for **5 of 16** formations (`Quarter Lines RH` →
+  `Quarter Lines LH`, `Quarter Tag` → `Quarter Tag LH`, `Tidal Line RH` → `Tidal Line LH`,
+  `Magic Column RH` → `Magic Column LH`). The connect end board differs by ~3e-15 rad. Not fixed.
+
+- [ ] **13. `Circulate` is illegal from facing lines.** `[recorded]`
+  The shipped variants are `Lines Facing In`/`Lines Facing Out`, so `Normal Lines` has no `Circulate`.
+
+- [ ] **14. The wave `Circulate` paths may themselves be wrong.** `[recorded]`
+  The `Split Circulate` wave tam moves half the dancers **4 units** between the two parallel waves, where a
+  split call should keep each half in place. "The paths are suspect."
+
+- [ ] **15. `boardSig` ignores facing.** `[recorded]`
+  The get-out BFS cannot tell a board from its re-faced twin. Decide whether the search should.
+
+- [ ] **16. `knownFormation`'s tolerance is the last loose one.** `[recorded]`
+  It uses **6.0** where interactive matching uses `DEFAULT_MATCH_MAX = 1.5`; it is deliberately permissive
+  for legality. Review whether it should follow the tight recognition threshold.
+
+- [ ] **17. `compliesWithSetup` has no production caller.** `[recorded]`
+  The FASR setup-matching half was built and wired nowhere; ditto the observation that the **`Circle` FSM
+  state is an island** — every edge into it comes from `Circle` itself, and `Static Square` has zero edges
+  to it, so "from Static Square, hold hands, ladies in, men sashay" is not a supported sequence.
+
+- [ ] **18. The `Facing Dancers Close` tam carries 6 beats of movement in a call charged 8.** `[recorded]`
+  Every dancer is STILL from t=6.5 to 8.0. "Left alone" deliberately.
+
+- [ ] **19. Two `sequencer.mjs` checks fail on the corpus's own swing tam.** `[recorded]`
+  The authored `Adjacent Dancers Close` swing ends partners **1.00** apart — a tandem, not CALLERLAB's
+  ~2.0 Normal Couple — so `figm86`/`figm89` report *"dancers 1 and 4 are 1.00 apart … nothing to promenade"*.
+
+- [ ] **20. 249 modules do not walk even with the guard off.** `[recorded]`
+  `poc/tools/guard-exclusions-broken.md` (untracked by design): **249 modules / 50 distinct failing calls**,
+  led by `Boys Run` 30, `Heads Lead Right` 28, `Centers In` 23, `Heads Pass the Ocean` 15. **101 of the 249**
+  fail at the module's own start, so there is no "path before failure" to look at. This is where invalid
+  calls in the corpus show up.
+
+- [ ] **21. The decoder's 4 unread cells.** `[recorded]`
+  `--1/2`, `--Keep`, `H-meet-T1/4`, `S-` are read by nothing, and the note says "do not guess". `-BRun` is
+  the table's only approximation; `Outsiders` composes but cannot be performed.
+
+---
+
+## P3 — structural: these block whole classes of work
+
+- [ ] **22. The FSM state drops the alignment.** `[recorded]`
+  It keys on the normalised formation only, so **up to 96 alignments per formation collapse into one
+  state**, and `c`/`r` boards are geometrically identical — no geometry-only matcher can separate them.
+
+- [ ] **23. Relationship is under-modelled.** `[recorded]`
+  All8 defines 4 relationship states; the engine records 2 (`partner`, `corner`), so `o` and `r` share one
+  `fasrKey`. Measured on the home square: 8/8 have a partner, 8/8 a corner, 0 neither.
+
+- [ ] **24. Canonical identity is the blocker for the cell key.** `[recorded]`
+  Re-keying FSM nodes geometry→CELL gives `70 geometries → 105 cells (1.50×)`, and of 1340 edges **219
+  (16.3%)** end on a declared pattern nothing declares; "22 of 396 cells fully readable".
+
+- [ ] **25. No PHRASE layer.** `[recorded]`
+  Blocks 5 `Centers Left Hand Star` figures and `Separate Around Two` — "blocked by the absence of a phrase
+  layer", not by anything the engine could infer.
+
+- [ ] **26. Active-set tracking is absent, and the Ocean Wave Rule is missing.** `[recorded]`
+  Phase C's item 2 ("active dancers continue") is the last convention left; item 3, the Ocean Wave Rule, is
+  "an unambiguously missing convention" and is BLOCKED on the scale defect — a `from="Facing Dancers"`
+  authoring changed **no** figure outcome (census 107 → 107). `Do Sa Do`'s own Ocean Wave Rule is a
+  documented gap with its CALLERLAB citation.
+
+- [ ] **27. The get-out search's residual cost.** `[recorded]`
+  The C term is now the whole cost (17 catalogue scans for 447 nodes on `[P4p]`), and
+  `library.allVariantSetups()` **still drops the call name it would need to carry**. An index attempt was
+  made and reverted: WeakMap object-identity keying is stricter than the string-keyed `matchMemo`, so
+  measure that first.
+
+---
+
+## P4 — hygiene, by design, or deferred by decision
+
+- [ ] **28. `callerlab-diff` cannot be green on a fresh clone.** `[recorded]`
+  It `readFileSync`s the deliberately-untracked `callerlab-ms.txt` with no fallback and throws rather than
+  skipping. Believed to be the only such dependency — keep it that way (AGENTS §6).
+
+- [ ] **29. The busy lock drops a second click.** `[recorded]`
+  A fast deliberate double-undo loses the second press. One line to make it queue; "the owner has not chosen".
+
+- [ ] **30. `fsm-view` is 352 lines of one template literal**, and its two layouts duplicate each other.
+  `[recorded]`
+  `[recorded]`
+
+- [ ] **31. Browser observations never made.** `[recorded]`
+  The start-pose drag "has not been seen on the board", and the reorganized HUD has not been checked at a
+  real viewport (layout, timeline scroll against a 40-beat sequence, keyboard against a focused control).
+
+- [ ] **32. `verify:figures` — the finish line, red BY DESIGN.** `[recorded]`
+  Re-measured at **116 of 188 figures**, **124 of 265** get-outs reaching a state the standard finish
+  resolves from, FSM **155 states (43 nohome, 19 dead `@embed#N`)**. The 72-figure gap is dominated by
+  **34 "catalogue tam has no setup"** and body errors. This is not a gate to make green; it is the target.

@@ -111,8 +111,7 @@ export const COUPLES_GROUP_NAMES: readonly string[] = [
  * category and forgotten here is a red rather than a name the picker cannot offer.
  */
 export const SUBSET_GROUP_NAMES: readonly string[] = [
-  'Heads', 'Sides', ...SINGLES_GROUP_NAMES,
-  'Couple #1', 'Couple #2', 'Couple #3', 'Couple #4',
+  ...COUPLES_GROUP_NAMES, ...SINGLES_GROUP_NAMES,
 ];
 
 /** The combinations - see `SUBSET_GROUP_NAMES` for the order and the three unreachable names. */

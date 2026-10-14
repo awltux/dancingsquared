@@ -31,7 +31,7 @@
 // consumers and creates NO local binding, which is why a rule could not reference `SINGLES_GROUP_NAMES`
 // while that line was there - TS2304, "Cannot find name". A module that USES a name has to import it, and
 // the public barrel for these is `index.ts`, not this file.
-import { COMBINED_GROUP_NAMES, SINGLES_GROUP_NAMES } from './selection.js';
+import { COMBINED_GROUP_NAMES, SINGLES_GROUP_NAMES, COUPLES_GROUP_NAMES } from './selection.js';
 
 /** The programme order, weakest first. A rule at a LATER index overrides one at an earlier index.
  *
@@ -262,32 +262,39 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
   },
   {
     call: 'Lead Right',
-    group: ['All 8', ...SINGLES_GROUP_NAMES, ...COMBINED_GROUP_NAMES],
-    board: 'Static Square',
     level: 'ms',
     decision: 'deny',
+    reason:
+      'START A WHITE LIST FOR LEAD RIGHT',
+  },
+  {
+    call: 'Lead Right',
+    group: [...COUPLES_GROUP_NAMES],
+    board: 'Static Square',
+    level: 'ms',
+    decision: 'allow',
     reason:
       'Lead Right is danced by one couple - the heads or the sides - so the whole square cannot lead '
       + 'right. `Heads Lead Right` and `Sides Lead Right` are the scoped forms, and choosing a group in '
       + 'the picker applies it as one.',
   },
   {
-    call: 'Lead Right from Close Couples',
-    group: ['All 8', ...SINGLES_GROUP_NAMES, ...COMBINED_GROUP_NAMES],
-    board: 'Static Square',
+    call: 'Lead Right',
+    group: ['All 8', ...COUPLES_GROUP_NAMES],
+    board: 'Eight Chain Thru',
     level: 'ms',
-    decision: 'deny',
+    decision: 'allow',
     reason:
       'Lead Right is danced by one couple - the heads or the sides - so the whole square cannot lead '
       + 'right. `Heads Lead Right` and `Sides Lead Right` are the scoped forms, and choosing a group in '
       + 'the picker applies it as one.',
   },
   {
-    call: 'Lead Right from Lines',
-    group: ['All 8', ...SINGLES_GROUP_NAMES, ...COMBINED_GROUP_NAMES],
-    board: 'Static Square',
+    call: 'Lead Right',
+    group: ['All 8', ...COUPLES_GROUP_NAMES],
+    board: 'Normal Lines',
     level: 'ms',
-    decision: 'deny',
+    decision: 'allow',
     reason:
       'Lead Right is danced by one couple - the heads or the sides - so the whole square cannot lead '
       + 'right. `Heads Lead Right` and `Sides Lead Right` are the scoped forms, and choosing a group in '

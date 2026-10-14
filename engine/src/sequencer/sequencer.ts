@@ -12,7 +12,7 @@ import { LegalityChecker } from './legality.js';
 import { SequenceAnalyzer, type SequenceStop } from './sequence.js';
 import { HomeSolver } from './solver.js';
 import { Grouping } from './grouping.js';
-import { splitSelection } from './selection.js';
+import { COMBINED_GROUP_NAMES, SUBSET_GROUP_NAMES, splitSelection } from './selection.js';
 import { FsmStore, type FsmAmendment } from './fsm-store.js';
 import { type FsmExport } from './fsm-export.js';
 import {
@@ -733,38 +733,16 @@ export class Sequencer {
    * The COMBINED selectors that resolve to a proper subset on `board` — the same rule
    * `subsetGroups` applies, over combinations rather than single groups.
    *
-   * WHY A FIXED OFFERED LIST RATHER THAN EVERY POSSIBLE COMBINATION. The grammar is general (any tokens
-   * intersect, any term unions, a negator subtracts — see `parseGroupExpression`), so the space is
-   * thousands of strings and most are nonsense ("Girls and Trailer Boys"). What a caller actually says
-   * is a short, well-known list, so this offers that and filters it by the board: a combination whose
-   * parts do not resolve where the dancers are standing is simply absent, exactly as `subsetGroups`
-   * omits `Centers` on a squared set.
-   *
-   * The order is the caller's own: the four named dancers a caller reaches for first, then the
-   * position/role pairs that depend on the formation, then the unions.
+   * THE NAMES ARE DATA (`COMBINED_GROUP_NAMES` in `selection.ts`) rather than spelled out here: that array
+   * is the vocabulary a permission rule's `group` may name, so the offered list and the declarable list
+   * have to be the same list. This method is the BOARD FILTER over it.
    */
   combinedGroups(board: Board): string[] {
-    const names: string[] = [];
-    // THE FOUR THE CALLER NAMES. "Head Boys" is two dancers, not the four heads.
-    for (const side of ['Head', 'Side']) {
-      for (const role of ['Boys', 'Girls', 'Men', 'Women', 'Beaus', 'Belles']) names.push(`${side} ${role}`);
-    }
-    // POSITION AND ROLE, which exist only in the formations that have them.
-    for (const pos of ['Center', 'End', 'Leader', 'Trailer', 'Very Center']) {
-      for (const role of ['Boys', 'Girls']) names.push(`${pos} ${role}`);
-    }
-    // UNIONS - the reference's `DoubleSelector`, e.g. the two diagonal pairs.
-    names.push(
-      'Head Boys and Side Girls',
-      'Head Girls and Side Boys',
-      'Head Boys and Head Girls',
-      'Side Boys and Side Girls',
-    );
-    return this.keepProperSubsets(board, names);
+    return this.keepProperSubsets(board, COMBINED_GROUP_NAMES);
   }
 
   /** Keep the selectors that resolve to a non-empty group smaller than the whole board. */
-  private keepProperSubsets(board: Board, names: string[]): string[] {
+  private keepProperSubsets(board: Board, names: readonly string[]): string[] {
     const n = board.dancers.filter((d) => !d.isGhost).length;
     return names.filter((s) => {
       const ids = this.grouping.resolveSelection(board, s);
@@ -772,15 +750,13 @@ export class Sequencer {
     });
   }
 
-  /** The acting-group selector strings that resolve to a proper (non-empty,
-   * not-everyone) subset on `board`. */
+  /**
+   * The acting-group selector strings that resolve to a proper (non-empty,
+   * not-everyone) subset on `board` — `SUBSET_GROUP_NAMES` filtered by the board, for the same reason
+   * `combinedGroups` filters `COMBINED_GROUP_NAMES`.
+   */
   subsetGroups(board: Board): string[] {
-    const names = [
-      'Heads', 'Sides', 'Boys', 'Girls', 'Men', 'Women', 'Ladies', 'Centers',
-      'Ends', 'Couples', 'Leaders', 'Trailers', 'Beaus', 'Belles',
-      'Couple #1', 'Couple #2', 'Couple #3', 'Couple #4',
-    ];
-    return this.keepProperSubsets(board, names);
+    return this.keepProperSubsets(board, SUBSET_GROUP_NAMES);
   }
 
 

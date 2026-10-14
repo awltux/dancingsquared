@@ -57,6 +57,55 @@ const N_BOYS_GIRL_RIGHT_RE = /^(one|two|three|four) (boy|girl)s? have (girl|boy)
 const N_SELECTION_RE = /^(one|two|three|four) (boys|girls|men|women|ladies)$/;
 const N_COUPLE_RE = /^couple #(\d+) and #(\d+)$/;
 
+/**
+ * EVERY GROUP NAME THE ENGINE CAN OFFER, as data - the single source for the picker's "Who" list, for a
+ * permission rule's `group`, and for anything that has to name all of them.
+ *
+ * WHY A LIST RATHER THAN A GENERATOR. The combination grammar is general (`parseGroupExpression`: tokens
+ * intersect within a side, sides union, a negator subtracts), so the space is thousands of strings and most
+ * are nonsense ("Girls and Trailer Boys"). What a caller actually says is a short, well-known list, so the
+ * engine offers that; `Sequencer.subsetGroups` / `combinedGroups` then keep only the names that resolve to
+ * a proper subset WHERE THE DANCERS ARE STANDING. These arrays are those candidates BEFORE the board
+ * filter, which is what makes them the vocabulary rather than one board's answer.
+ *
+ * THE ORDER IS THE PICKER'S, so it is not alphabetical and must not be re-sorted: the four named dancers a
+ * caller reaches for first, then the position/role pairs that depend on the formation, then the unions.
+ *
+ * THREE NAMES HERE RESOLVE ON NO NAMED FORMATION, and they are kept deliberately rather than pruned:
+ * `Couples` is everyone on a square (so never a PROPER subset there) and appears only on a board holding a
+ * couple among others, and `Very Center Boys` / `Very Center Girls` need a board whose very centres are one
+ * gender. MEASURED over the 138 named formations, 0 of them reach each; `test/group-calls.mjs` pins that
+ * count, so a fourth unreachable name is a red line instead of a rumour.
+ *
+ * `All 8` IS NOT A SELECTION - it is the whole-board reading, and the one spelling a request carries
+ * (`mayOffer` normalises an absent, null or `All 8` request group to it). It is first because it is the
+ * picker's default, and it is deliberately NOT in either half below: both are filtered as PROPER subsets,
+ * and the whole board is not one.
+ */
+export const SUBSET_GROUP_NAMES: readonly string[] = [
+  'Heads', 'Sides', 'Boys', 'Girls', 'Men', 'Women', 'Ladies', 'Centers',
+  'Ends', 'Couples', 'Leaders', 'Trailers', 'Beaus', 'Belles',
+  'Couple #1', 'Couple #2', 'Couple #3', 'Couple #4',
+];
+
+/** The combinations - see `SUBSET_GROUP_NAMES` for the order and the three unreachable names. */
+export const COMBINED_GROUP_NAMES: readonly string[] = [
+  // THE FOUR THE CALLER NAMES. "Head Boys" is two dancers, not the four heads.
+  'Head Boys', 'Head Girls', 'Head Men', 'Head Women', 'Head Beaus', 'Head Belles',
+  'Side Boys', 'Side Girls', 'Side Men', 'Side Women', 'Side Beaus', 'Side Belles',
+  // POSITION AND ROLE, which exist only in the formations that have them.
+  'Center Boys', 'Center Girls', 'End Boys', 'End Girls',
+  'Leader Boys', 'Leader Girls', 'Trailer Boys', 'Trailer Girls',
+  'Very Center Boys', 'Very Center Girls',
+  // UNIONS - the reference's `DoubleSelector`, e.g. the two diagonal pairs.
+  'Head Boys and Side Girls', 'Head Girls and Side Boys',
+  'Head Boys and Head Girls', 'Side Boys and Side Girls',
+];
+
+/** Every group name the engine offers: the whole-board reading, then the halves in picker order. */
+export const GROUP_NAMES: readonly string[] = ['All 8', ...SUBSET_GROUP_NAMES, ...COMBINED_GROUP_NAMES];
+
+
 /** Normalize a selection phrase for lookup. */
 export function normalizeSelection(s: string): string {
   return s.trim().toLowerCase().replace(/[.,;]/g, ' ').replace(/\s+/g, ' ').trim();

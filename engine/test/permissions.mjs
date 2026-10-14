@@ -37,6 +37,7 @@ import {
   levelRank,
   PERMISSION_LEVELS,
   PERMISSION_RULES,
+  GROUP_NAMES,
 } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
@@ -161,6 +162,12 @@ for (const r of PERMISSION_RULES) {
   check(typeof r.level === 'string' && r.level.length > 0, `rule for ${r.call ?? '*'} names a level`);
   check(r.decision === 'deny' ? !!r.reason : true, `a deny rule (${r.call ?? '*'}) carries a reason`);
   check(PERMISSION_LEVELS.includes(r.level), `rule level "${r.level}" is a known programme`);
+  // A GROUP NAME THE PICKER CANNOT PRODUCE IS A RULE THAT CANNOT FIRE, so a typo in a shipped rule is a
+  // rule that quietly does nothing. `GROUP_NAMES` is the one list of names the picker can offer, and the
+  // eight gender spellings are exactly the thing that used to be hand-typed into a rule.
+  for (const g of r.group ?? []) {
+    check(GROUP_NAMES.includes(g), `rule for ${r.call ?? '*'} names a group the picker offers ("${g}")`);
+  }
   // A GROUP LIST WITH NOTHING IN IT IS A RULE THAT CAN NEVER FIRE, and "any group" is still the ABSENT
   // field. Rejecting it here is what keeps the two from being confused for each other.
   check(r.group === undefined

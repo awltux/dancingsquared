@@ -180,6 +180,11 @@ const SUITE = [
   // by DECLARATION and not by reachability. Lives in `tools/` and is reached through `sub`, like the
   // determinism audit. ~25s, all of it the sweep.
   { h: 'cell-census', sub: 'tools', light: false, why: 'sweeps every legal application to classify its end against the lattice' },
+  // THE APPLY FAULTS, PINNED. Every (formation, call) application whose END board already has two dancers
+  // on one spot - which no animation can repair - with the split that says whose fault each is. It was a
+  // bare survey before this and the count went 22 -> 50 with no gate noticing. ~40s, all of it the sweep.
+  // Its pins are a CEILING and a "no non-congruent admission", both improvement-safe: fewer faults passes.
+  { h: 'apply-fault-gate', sub: 'tools', light: false, why: 'sweeps every named formation against the corpus calls to pin the apply faults and classify them' },
   // Stage 0b, and the gate for the LEVEL dimension: which formations a programme's calls may be used
   // from. It measures that the state set is the named formations the registered calls declare plus
   // their start setups, and it keeps the STRICT-vs-PERMISSIVE decision as a measurement - the

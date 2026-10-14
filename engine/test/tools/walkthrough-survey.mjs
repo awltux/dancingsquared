@@ -20,6 +20,7 @@ import { DOMParser } from '@xmldom/xmldom';
 import { Sequencer, setParser, findCodedMove, splitSelection } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { ALL8_FIGURE_START, figureEngineCalls, loadAll8Figures } from '../lib/all8-figures.mjs';
+import { APPLY_END_LIMIT, COINCIDENT_MAX, SURVEY_CALLS, classifyApplyFault, sweepApplyFaults } from '../lib/apply-faults.mjs';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -35,22 +36,7 @@ const minArg = process.argv.indexOf('--min');
 const THRESHOLD = minArg >= 0 ? Number(process.argv[minArg + 1]) : 1.0;
 const SAMPLES = 24;
 
-const closest = (b) => {
-  const ds = b.dancers;
-  let m = Infinity;
-  for (let i = 0; i < ds.length; i++) {
-    for (let j = i + 1; j < ds.length; j++) m = Math.min(m, Math.hypot(ds[i].x - ds[j].x, ds[i].y - ds[j].y));
-  }
-  return m;
-};
-
-const CALLS = [
-  'Right and Left Thru', 'Pass Thru', 'Trade By', 'Square Thru 3', 'Square Thru 4', 'Star Thru',
-  'Slide Thru', 'Wheel and Deal', 'Swing Thru', 'Box the Gnat', 'Dosado', 'Turn Thru', 'Lead Right',
-  'Circulate', 'Ferris Wheel', 'Zoom', 'Veer Left', 'Veer Right', 'Bend the Line', 'Couples Circulate',
-  'Flutterwheel', 'Sweep a Quarter', 'Fold', 'Rollaway', 'Promenade', 'Allemande Left', 'Right and Left Grand',
-  'Touch a Quarter', 'Scoot Back', 'Walk and Dodge', 'Chain Down the Line', 'Courtesy Turn', 'Pass the Ocean',
-];
+const CALLS = SURVEY_CALLS;
 
 const formations = seq.listFormations().filter((n) => {
   const b = seq.boardForFormation(n);
@@ -60,55 +46,41 @@ console.log(`=== ${formations.length} named 8-dancer formation(s) x ${CALLS.leng
 console.log(`    flagging any whose closest pair drops below ${THRESHOLD.toFixed(2)} units at some beat`);
 console.log(`    (the formations sit at 2.00, so below that is dancers converging)\n`);
 
-const hits = [];
-let applied = 0;
-let clean = 0;
-for (const formation of formations) {
-  const start = seq.boardForFormation(formation);
-  if (!start) continue;
-  for (const call of CALLS) {
-    const r = seq.applyToBoard(start, call);
-    if (!r.legal) continue;
-    applied++;
-    // Which route did it take? A whole-board match animates the authored path; otherwise the
-    // parallel path runs, which is where the RLT collapse lived.
-    const whole = seq.findMatchingVariant(start, call, 1.5);
-    const total = seq.sequenceBeats([call], start);
-    if (total <= 0) continue;
-    let worst = Infinity;
-    let worstBeat = 0;
-    for (let k = 0; k <= SAMPLES; k++) {
-      const b = (total * k) / SAMPLES;
-      const c = closest(seq.evaluateSequence([call], b, start).board);
-      if (c < worst) { worst = c; worstBeat = b; }
-    }
-    // The end board's own spacing is the fair floor: some formations legitimately stand closer.
-    const endGap = closest(r.board);
-    const floor = Math.min(2.0, endGap);
-    if (worst < floor - 0.4 || worst < THRESHOLD) {
-      hits.push({ formation, call, worst, worstBeat, total, route: whole ? 'whole' : 'PARALLEL', endGap });
-    } else {
-      clean++;
-    }
-  }
-}
-
-hits.sort((a, b) => a.worst - b.worst);
+// THE SWEEP AND THE CLASSIFICATION ARE A RULE AND LIVE IN `test/lib/apply-faults.mjs`, because
+// `apply-fault-gate.mjs` asserts on the same numbers and two copies of a threshold is how a gate stops
+// describing what the survey measures.
+const survey = sweepApplyFaults(seq, formations, CALLS, SAMPLES, THRESHOLD);
+const { hits, coincident, animFault, applyFault } = survey;
+const applied = survey.applied;
+const clean = survey.clean;
 console.log(`  ${applied} (formation, call) pair(s) applied; ${clean} animated without converging below the floor`);
 console.log(`  ${hits.length} pair(s) flagged:\n`);
 
 // Severity, then by CALL. "Coincident" is the unambiguous case: two dancers on the same spot, which
 // no dance path does. A near-miss may just be dancers passing.
-const coincident = hits.filter((h) => h.worst < 0.1);
-// TWO DIFFERENT DEFECTS SHARE THIS SYMPTOM. If the END board already has coincident dancers then the
-// APPLY is broken and the animation cannot be blamed; only the pairs with a healthy destination are
-// cases where the path is the fault.
-const animFault = coincident.filter((h) => h.endGap >= 1.9);
-const applyFault = coincident.filter((h) => h.endGap < 1.9);
-console.log(`  COINCIDENT (< 0.1 units): ${coincident.length}`);
-console.log(`    ... of which the END board is healthy (>= 1.9): ${animFault.length}  <- the ANIMATION is at fault`);
+console.log(`  COINCIDENT (< ${COINCIDENT_MAX} units): ${coincident.length}`);
+console.log(`    ... of which the END board is healthy (>= ${APPLY_END_LIMIT}): ${animFault.length}  <- the ANIMATION is at fault`);
 console.log(`    ... of which the END board is already broken:   ${applyFault.length}  <- the APPLY is at fault`);
-console.log(`  near-miss (< ${THRESHOLD.toFixed(2)}, >= 0.1): ${(hits.length - coincident.length)}\n`);
+console.log(`  near-miss (< ${THRESHOLD.toFixed(2)}, >= ${COINCIDENT_MAX}): ${(hits.length - coincident.length)}\n`);
+
+// THE APPLY FAULTS ARE NOT A WRONG-SEPARATION FAULT. Measured rather than argued: for every one of them,
+// ask how well the group the applicator used actually IS the variant's setup. A congruent admission means
+// the separation is right and the call's own body is what collides the dancers; the permissions that
+// could be withdrawn instead (mirrored reading, gender-blind admission, interactive tolerance) are
+// reported under their own names, in `test/lib/apply-faults.mjs`.
+console.log('  THE APPLY FAULTS, AND WHOSE FAULT THEY ARE:');
+const applyKinds = { body: 0, genderMiss: 0, mirrored: 0, loose: 0, noncongruent: 0 };
+const applyByCall = new Map();
+for (const h of applyFault) {
+  applyByCall.set(h.call, (applyByCall.get(h.call) ?? 0) + 1);
+  const c = classifyApplyFault(seq, h);
+  if (c) applyKinds[c.kind]++;
+}
+console.log(`    of ${applyFault.length}: ${applyKinds.body} BODY (congruent at the tightest 0.01, unreflected,`);
+console.log(`    gender-exact - no matching rule can refuse them), ${applyKinds.genderMiss} gender-miss,`);
+console.log(`    ${applyKinds.mirrored} mirrored, ${applyKinds.loose} loose, ${applyKinds.noncongruent} non-congruent`);
+console.log('    by CALL:');
+for (const [call, n] of [...applyByCall].sort((a, b) => b[1] - a[1])) console.log(`      ${String(n).padStart(3)}  ${call}`);
 
 const byCall = new Map();
 for (const h of animFault) byCall.set(h.call, (byCall.get(h.call) ?? 0) + 1);

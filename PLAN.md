@@ -78,7 +78,7 @@ second one: `process.env` appears in exactly ONE place in the whole engine, and 
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **11 (call, start) pairs + 9 formation names** (was 9 + 24 — THREE instrument bugs, rounds 24, 37/38, 39) | `node engine/test/tools/callerlab-diff.mjs` |
 | gates | `verify:light` green; `verify` **RED — FAILED at catalogue (46 harnesses, 2287 s, measured)**; `verify:figures` **red by design** | `npm run verify --prefix engine` |
-| walk-through (POC) | COINCIDENT **32**, of which ANIMATION fault **10** / APPLY fault **22** (was 72 / 42 / 30) | `node engine/test/tools/walkthrough-survey.mjs` |
+| walk-through (POC) | COINCIDENT **64**, of which ANIMATION fault **14** / APPLY fault **50** (was 72 / 42 / 30; all 50 apply faults are **geometrically congruent** with their setup — 0 non-congruent, worst separation disagreement 0.0000 — so no separation rule can refuse them) | `node engine/test/tools/walkthrough-survey.mjs`, gated by `node engine/test/tools/apply-fault-gate.mjs` |
 | … walk vs applicator, over 134 boards × 132 calls | agree **1920 of 1920**; silent no-ops **0**; phantoms **11**; dropped **6** (were 27 / 2466 / 400) | `node engine/test/anim-convergence.mjs` |
 | … ceder modules replayed from a start formation the corpus did not specify | **168 of 294** (Zero Line 108, Zero Box 71); the engine has neither formation | `node engine/test/tools/start-formation-probe.mjs` |
 
@@ -2441,13 +2441,27 @@ ever stands in**. The survey therefore marks every fault with whether real chore
 combination, and only then ranks. That filter is what made the target obvious — `Swing Thru` from
 `Ocean Waves` is Mainstream bread and butter, and it was measured at **0.00 units**.
 
-| metric | before | after |
-|---|---|---|
-| COINCIDENT pairs (< 0.1 units) | 72 | **32** |
-| … ANIMATION fault (end board healthy) | 42 | **10** |
-| … APPLY fault (end board already broken) | 30 | **22** |
-| `Swing Thru` animation faults | 12 | **2** |
-| `Right and Left Thru` animation faults | 8 | **0** |
+| metric | before | after | now |
+|---|---|---|---|
+| COINCIDENT pairs (< 0.1 units) | 72 | 32 | **64** |
+| … ANIMATION fault (end board healthy) | 42 | 10 | **14** |
+| … APPLY fault (end board already broken) | 30 | 22 | **50** |
+| `Swing Thru` animation faults | 12 | 2 | **2** |
+| `Right and Left Thru` animation faults | 8 | 0 | **0** |
+
+The counts rose because the sweep widened, not because anything regressed: the survey now covers every
+authoring of a call rather than one per title, and it is pinned by
+`engine/test/tools/apply-fault-gate.mjs`. **The APPLY faults are the correction that matters here.** They
+were recorded for months as "the call's body fixed, census-side" and that attribution was RIGHT, but the
+scope chosen for them — refuse a wrong-separation match — was measured before implementation and refuses
+**zero** of the 50: every one is an application whose admitted match is **geometrically congruent** with
+the setup it was applied through (0 non-congruent even at the loose 1.5 admission; worst per-pair
+separation disagreement across all 50 is 0.0000 units). The measured split is **29 body** (congruent at
+the tightest tolerance tested, 0.01, unreflected, gender-exact, mean error 0.0000 — no matching rule can
+refuse these), **11 gender-miss**, **5 mirrored** (congruent only through a permission the engine grants
+on purpose, which `engine/test/selection.mjs` requires to stay available), and **5 loose** (separated
+correctly in shape, congruent only at the loosest admission tested, 1.5). So the residue is corpus
+authoring, and the gate's ceiling is the work list.
 
 **Mechanism 1 — multi-cycle coded moves, CLOSED for `Swing Thru`.** The call is two EXCHANGES, and a
 dancer's path depends on which one it is doing, so a single straight line cannot express it; on an

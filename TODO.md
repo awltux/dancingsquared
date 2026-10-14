@@ -95,9 +95,28 @@ suite's count went 59 → 60 because it added `poc/tools/move-nav-probe.mjs`.
   no-op; `engine/test/sequencer.mjs` now pins that stop and measures `Girls Circulate 2` on the canonical wave.
   The gap it exposes is the heads' own `Lead Right` reading.
 
-- [ ] **4. 22 apply-side pairs whose end board already has coincident dancers.** `[recorded]`
-  The walk-through's `COINCIDENT 32` splits into 10 animation faults and **22 APPLY faults**. These need the
-  call's own body fixed, i.e. they are census-side (Phases A/B), not animation-side.
+- [ ] **4. RE-SCOPED, NOT FIXED — 50 apply-side pairs whose end board already has coincident dancers, and
+  they are BODY faults, not matching faults.** `[measured]`
+  The walk-through's `COINCIDENT 64` splits into **14 animation faults and 50 APPLY faults** (was
+  32 / 10 / 22). The sweep now lives in `engine/test/lib/apply-faults.mjs`, and
+  `node engine/test/tools/apply-fault-gate.mjs` pins it. **THE SCOPE THE OWNER PICKED FOR THIS ITEM IS
+  REFUTED BY MEASUREMENT, BEFORE IMPLEMENTATION.** "Refuse a wrong-separation match" would refuse **ZERO
+  of the 50**: every one is an application whose admitted match is **geometrically congruent** with the
+  setup it was applied through — `noncongruent 0` even at the loose 1.5 admission — and the worst per-pair
+  separation disagreement across all 50 is **0.0000 units**. What the faults actually are, measured:
+  **29 body** (congruent at the tightest tolerance tested, 0.01, unreflected, gender-exact, mean error
+  0.0000 — no matching rule can refuse these, the call's own body collides the dancers), **11 gender-miss**
+  and **5 mirrored** (congruent but only through a permission the engine grants on purpose — `requireGender`
+  is off wherever a variant is not declared `gender-specific`, and reflected readings are required to stay
+  available, pinned by `engine/test/selection.mjs`), and **5 loose** (separated correctly in SHAPE,
+  congruent only at the loosest admission tested, 1.5). The item's own attribution was therefore RIGHT —
+  the call's own body is what lands two dancers on one spot — so this is corpus authoring (Phases A/B),
+  except `Swing Thru`, which is coded.
+  Work list by call: `Lead Right` 15, `Touch a Quarter` 7, `Box the Gnat` 5, `Square Thru 3` 4,
+  `Chain Down the Line` 4, `Turn Thru` 4, `Square Thru 4` 3, then 1 each of `Star Thru`, `Swing Thru`,
+  `Veer Right`, `Allemande Left`, `Wheel and Deal`, `Veer Left`, `Scoot Back`, `Right and Left Thru` —
+  49 of the 50 are authored calls. The gate holds a ceiling of 50 and pins `noncongruent === 0`, so a fix
+  that trades a body fault for a wrong-separation admission cannot pass it.
 
 ---
 

@@ -255,28 +255,30 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       + 'through each other. `Heads Dosado` / `Sides Dosado` are the scoped forms and still available.',
   },
   {
-    // ALL-8 `Lead Right` FROM A STATIC SQUARE.
-    //
-    // Asked for: "how would I exclude All 8 from Lead Right when in Static Square", with the scope stated
-    // by the caller: "it is valid from heads and sides". Both are true and they are the same statement:
-    // CALLERLAB has `Heads Lead Right` and `Sides Lead Right`, and the whole-square reading is not a call.
-    //
-    // WHY A RULE AND NOT A TILING FIX, MEASURED. `Lead Right`'s authoring for this case is a TWO-dancer tam
-    // (`from="Adjacent Dancers"`, `formation="Adjacent Dancers Close"`), and the parallel path tiles the
-    // square with it four ways: MEASURED, `applyToBoard(StaticSquare, 'Lead Right')` is LEGAL and returns
-    // FOUR groups `[#5 #6] [#7 #8] [#1 #2] [#3 #4]`. The geometry is not wrong - each of those couples does
-    // lead right - so nothing geometric separates this from a legal call. What is wrong is that the CALL is
-    // danced by ONE couple and the tiling answers for eight. The designated readings already work:
-    // `Heads Lead Right` / `Sides Lead Right` go through `splitSelection` into `applySelected` and move
-    // exactly their own four dancers, MEASURED.
-    //
-    // `group: ['All 8']` is what keeps this narrow, and it is load-bearing: with the picker's group on
-    // `Heads` or `Sides` the request is a GROUP reading and this rule does not match, so the designated
-    // readings stay offered. It is a SQUARE-SET deny rather than a NEVER for the same reason the all-8
-    // `Dosado` rule is: an eight-dancer `Lead Right` authoring exists from `Normal Lines`, where the call is
-    // working as authored, so the rule must not follow it there.
     call: 'Lead Right',
-    group: ['All 8'],
+    group: ['All 8', 'Boys', 'Girls', 'Men', 'Women', 'Ladies', 'Beaus', 'Belles' ],
+    board: 'Static Square',
+    level: 'ms',
+    decision: 'deny',
+    reason:
+      'Lead Right is danced by one couple - the heads or the sides - so the whole square cannot lead '
+      + 'right. `Heads Lead Right` and `Sides Lead Right` are the scoped forms, and choosing a group in '
+      + 'the picker applies it as one.',
+  },
+  {
+    call: 'Lead Right from Close Couples',
+    group: ['All 8', 'Boys', 'Girls', 'Men', 'Women', 'Ladies', 'Beaus', 'Belles' ],
+    board: 'Static Square',
+    level: 'ms',
+    decision: 'deny',
+    reason:
+      'Lead Right is danced by one couple - the heads or the sides - so the whole square cannot lead '
+      + 'right. `Heads Lead Right` and `Sides Lead Right` are the scoped forms, and choosing a group in '
+      + 'the picker applies it as one.',
+  },
+  {
+    call: 'Lead Right from Lines',
+    group: ['All 8', 'Boys', 'Girls', 'Men', 'Women', 'Ladies', 'Beaus', 'Belles' ],
     board: 'Static Square',
     level: 'ms',
     decision: 'deny',

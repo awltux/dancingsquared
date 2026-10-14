@@ -905,13 +905,7 @@
     </path>
   </tam>
 
-  <tam title="Star Promenade" group=" ">
-     <formation>
-      <dancer gender="boy" x="0" y="1" angle="180"/>
-      <dancer gender="girl" x="-3" y="-1" angle="0"/>
-      <dancer gender="boy" x="1" y="0" angle="90"/>
-      <dancer gender="girl" x="-1" y="3" angle="270"/>
-    </formation>
+  <tam title="Star Promenade" formation="Four Dancer Star Promenade" group=" ">
     <path>
       <move select="Hinge Left" beats="3"/>
       <move select="Hinge Left" beats="3" hands="both"/>

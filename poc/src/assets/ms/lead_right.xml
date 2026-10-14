@@ -38,16 +38,18 @@
        formation="Normal Lines"
        fractions="" difficulty="2">
     <path>
-      <move select="Hinge Right" beats="4" scaleX=".5" scaleY=".5" offsetX="2.5" offsetY="-1.5" />
+      <movement hands="gripright" beats="2" cx1="0.275" cy1="0" cx2="0.7517" cy2="-0.7834" x2="1.3163" y2="-1.2644"/>
+      <movement hands="gripright" beats="2" cx1="0.8982" cy1="0.0097" cx2="1.4345" cy2="0.9126" x2="1.7587" y2="0.532" cx3="1.2882" cx4="1.3401" cy4="-0.122" x4="1.6655" y4="-0.5041"/>
     </path>
     <path>
-      <move select="Quarter Right" beats="4" hands="left" offsetX="1" />
+      <movement hands="left" beats="4" cx1="0" cy1="0" cx2="1" cy2="0" x2="1" y2="0" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
     </path>
     <path>
-      <move select="Hinge Right" beats="4" scaleX=".5" scaleY=".5" offsetX="2.5" offsetY="-1.5" />
+      <movement hands="gripright" beats="2" cx1="0.275" cy1="0" cx2="0.7517" cy2="-0.7834" x2="1.3163" y2="-1.2644"/>
+      <movement hands="gripright" beats="2" cx1="0.8982" cy1="0.0097" cx2="1.4345" cy2="0.9126" x2="1.7587" y2="0.532" cx3="1.2882" cx4="1.3401" cy4="-0.122" x4="1.6655" y4="-0.5041"/>
     </path>
     <path>
-      <move select="Quarter Right" beats="4" hands="left" offsetX="1" />
+      <movement hands="left" beats="4" cx1="0" cy1="0" cx2="1" cy2="0" x2="1" y2="0" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
     </path>
   </tam>
 

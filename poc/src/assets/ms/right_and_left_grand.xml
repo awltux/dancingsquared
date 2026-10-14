@@ -22,6 +22,39 @@
 -->
 <tamination title="Right and Left Grand Family">
 
+<!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
+  <tam title="Right and Left Grand" from="Right and Left Grand Circle" formation="Right and Left Grand Circle" parts="" sequencer="gender-specific">
+    <path>
+      <movement hands="right" beats="1" cx1="0.5" cy1="0" cx2="0.2654" cy2="0.7652" x2="0.7654" y2="0.7652" cx3="1" cx4="1" cy4="0.3" x4="2" y4="0.3"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.4453" cy2="0.1357" x2="2.0063" y2="0.6997"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="0.3311" cy2="1.6284" x2="0.7051" y2="2.0044"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.449" cy2="0.125" x2="2.01" y2="0.689"/>
+      <movement hands="right" beats="3" cx1="0.3863" cy1="0" cx2="0.4316" cy2="0.6474" x2="0.7069" y2="0.9183"/>
+    </path>
+    <path>
+      <movement hands="right" beats="1" cx1="0.5" cy1="0" cx2="0.6481" cy2="0.1587" x2="1.1481" y2="0.1587" cx3="1" cx4="1" cy4="0.3" x4="2" y4="0.3"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="0.3257" cy2="-1.6303" x2="0.6997" y2="-2.0063"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.4471" cy2="-0.1304" x2="2.0081" y2="-0.6944"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="0.3364" cy2="-1.6265" x2="0.7104" y2="-2.0025"/>
+      <movement hands="right" beats="3" cx1="0.3607" cy1="0" cx2="0.8251" cy2="0.2616" x2="1.0822" y2="0.0086"/>
+    </path>
+    <path>
+      <movement hands="right" beats="1" cx1="0.5" cy1="0" cx2="0.2654" cy2="0.7652" x2="0.7654" y2="0.7652" cx3="1" cx4="1" cy4="0.3" x4="2" y4="0.3"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.4453" cy2="0.1357" x2="2.0063" y2="0.6997"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="0.3311" cy2="1.6284" x2="0.7051" y2="2.0044"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.449" cy2="0.125" x2="2.01" y2="0.689"/>
+      <movement hands="right" beats="3" cx1="0.3863" cy1="0" cx2="0.4316" cy2="0.6474" x2="0.7069" y2="0.9183"/>
+    </path>
+    <path>
+      <movement hands="right" beats="1" cx1="0.5" cy1="0" cx2="0.6481" cy2="0.1587" x2="1.1481" y2="0.1587" cx3="1" cx4="1" cy4="0.3" x4="2" y4="0.3"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="0.3257" cy2="-1.6303" x2="0.6997" y2="-2.0063"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.4471" cy2="-0.1304" x2="2.0081" y2="-0.6944"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="0.3364" cy2="-1.6265" x2="0.7104" y2="-2.0025"/>
+      <movement hands="right" beats="3" cx1="0.3607" cy1="0" cx2="0.8251" cy2="0.2616" x2="1.0822" y2="0.0086"/>
+    </path>
+  </tam>
+
+
   <tam title="Right and Left Grand" from="Grand Circle" sequencer="gender-specific">
      <formation>
       <dancer gender="boy" x="-1" y="-3" angle="0"/>
@@ -98,40 +131,39 @@
   </tam>
 
   <tam title="Right and Left Grand" from="Eight Chain Thru" sequencer="gender-specific">
-     <formation>
-      <dancer gender="boy" x="3" y="1" angle="180"/>
-      <dancer gender="girl" x="1" y="1" angle="0"/>
-      <dancer gender="boy" x="-1" y="1" angle="180"/>
-      <dancer gender="girl" x="-3" y="1" angle="0"/>
+    <formation>
+        <dancer gender="boy" x="3" y="1" angle="180"/>
+        <dancer gender="girl" x="1" y="1" angle="0"/>
+        <dancer gender="boy" x="-1" y="1" angle="180"/>
+        <dancer gender="girl" x="-3" y="1" angle="0"/>
     </formation>
     <path>
-      <move select="Forward"/>
-      <move select="Forward" beats=".5" scaleX=".5"/>
-      <move select="Extend Right" beats="2.5" hands="left" scaleX="1.5" scaleY="2.75"/>
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="2"/>
+      <movement hands="none" beats="1" cx1="0.333" cy1="0" cx2="1.3208" cy2="-0.0978" x2="1.5858" y2="-0.4142"/>
+      <movement hands="left" beats="2.5" cx1="0.4121" cy1="0.0729" cx2="1.6422" cy2="-0.509" x2="2.1238" y2="0.066"/>
+      <movement hands="right" beats="3" cx1="0.5219" cy1="0.0924" cx2="0.8135" cy2="1.3725" x2="1.1162" y2="1.808"/>
+      <movement hands="left" beats="3" cx1="0.7828" cy1="0.1385" cx2="1.6565" cy2="-0.4086" x2="2.1107" y2="0.2446"/>
+      <movement hands="none" beats="2" cx1="0.3863" cy1="0" cx2="0.5597" cy2="0.5405" x2="0.8864" y2="0.7465"/>
     </path>
     <path>
-      <move select="Extend Left"/>
-      <move select="Lead Right" beats="3" hands="left" scaleX=".25" scaleY="2"/>
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" offsetX="1" offsetY=".5"/>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.7315" cy2="1.4466" x2="1.1213" y2="1.1213" cx3="1" cx4="1.0451" cy4="0.3592" x4="1.5993" y4="-0.2995"/>
+      <movement hands="left" beats="3" cx1="0.6517" cy1="-0.0193" cx2="0.7034" cy2="-0.7503" x2="1.5452" y2="-1.4585"/>
+      <movement hands="right" beats="3" cx1="0.7947" cy1="-0.0236" cx2="1.58" cy2="0.6387" x2="2.124" y2="0.0584"/>
+      <movement hands="left" beats="3" cx1="0.5298" cy1="-0.0157" cx2="1.0082" cy2="-1.2365" x2="1.3709" y2="-1.6234"/>
+      <movement hands="none" beats="2" cx1="0.3606" cy1="-0.0107" cx2="0.6798" cy2="0.5357" x2="1.0096" y2="0.3896"/>
     </path>
     <path>
-      <move select="Forward"/>
-      <move select="Lead Left" beats="3" hands="left" scaleX="1.75" scaleY="1"/>
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="2"/>
+      <movement hands="none" beats="1" cx1="0.333" cy1="0" cx2="0.3963" cy2="0.0276" x2="0.7293" y2="0.0276"/>
+      <movement hands="left" beats="3" cx1="0.9625" cy1="0" cx2="1.2707" cy2="0.4224" x2="1.2707" y2="0.9724"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0402" cy2="1.2098" x2="1.4142" y2="1.5858"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="-0.691" x2="2.121" y2="-0.127"/>
+      <movement hands="none" beats="2" cx1="0.3863" cy1="0" cx2="0.6453" cy2="0.4347" x2="1.003" y2="0.5806"/>
     </path>
     <path>
-      <move select="Extend Left"/>
-      <move select="Extend Left" beats="3" hands="left" scaleX="2" scaleY=".25"/>
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" offsetX="1" offsetY=".5"/>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.3787" cy2="1.1213" x2="0.8787" y2="1.1213" cx3="1" cx4="1" cy4="0.4" x4="2" y4="0.4"/>
+      <movement hands="left" beats="3" cx1="1" cy1="0" cx2="1.1213" cy2="-0.1213" x2="2.1213" y2="-0.1213" cx3="2" cx4="2" cy4="0.1" x4="4" y4="0.1"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.5603" cy2="0.6853" x2="2.1213" y2="0.1213"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="-1.206" x2="1.4184" y2="-1.582"/>
+      <movement hands="none" beats="2" cx1="0.3607" cy1="0" cx2="0.6636" cy2="0.5557" x2="0.9976" y2="0.4194"/>
     </path>
   </tam>
 
@@ -139,396 +171,329 @@
        formation="Ocean Waves RH GBBG"
        sequencer="gender-specific">
     <path>
-      <move select="Extend Right" beats="3" hands="left" scaleX="2" scaleY=".75"/>
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" offsetX="1" offsetY=".5"/>
+      <movement hands="left" beats="3" cx1="1" cy1="0" cx2="1.5227" cy2="-1.0121" x2="2" y2="-1" cx3="2" cx4="2" cy4="-0.3" x4="4" y4="-0.3"/>
+      <movement hands="right" beats="3" cx1="0.5091" cy1="-0.0015" cx2="1.75" cy2="0.4837" x2="2.1213" y2="0.1213"/>
+      <movement hands="left" beats="3" cx1="0.5299" cy1="-0.0095" cx2="1.0227" cy2="-1.2245" x2="1.3899" y2="-1.6071"/>
+      <movement hands="none" beats="2" cx1="0.6044" cy1="-0.0136" cx2="1.8398" cy2="0.3845" x2="2.1227" y2="0.0947"/>
+      <movement hands="none" beats="2" cx1="0.3863" cy1="0" cx2="0.6327" cy2="-0.4527" x2="0.9861" y2="-0.6087"/>
     </path>
     <path>
-      <move select="Lead Left" beats="3" hands="left" scaleX="1.75" scaleY="1"/>
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="2"/>
+      <movement hands="left" beats="3" cx1="0.4288" cy1="-0.0076" cx2="1.0015" cy2="0.5015" x2="1" y2="1"/>
+      <movement hands="right" beats="3" cx1="0.5299" cy1="-0.011" cx2="1.065" cy2="1.188" x2="1.4467" y2="1.5562"/>
+      <movement hands="left" beats="3" cx1="0.5487" cy1="0.0448" cx2="1.729" cy2="-0.4854" x2="2.1179" y2="-0.1709"/>
+      <movement hands="none" beats="2" cx1="0.5654" cy1="0.0916" cx2="0.8682" cy2="0.6411" x2="1.1375" y2="1.7946"/>
+      <movement hands="none" beats="2" cx1="0.3607" cy1="0" cx2="0.5218" cy2="-0.6906" x2="0.8779" y2="-0.6329"/>
     </path>
     <path>
-      <move select="Forward" beats=".5" scaleX=".5"/>
-      <move select="Extend Right" beats="2.5" hands="left" scaleX="1.5" scaleY="2.75"/>
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="2"/>
+      <movement hands="none" beats="0.5" cx1="0.3136" cy1="-0.0182" cx2="0.4763" cy2="-0.1206" x2="0.6955" y2="-0.3045"/>
+      <movement hands="left" beats="2.5" cx1="0.4228" cy1="-0.0111" cx2="1.7645" cy2="-0.7883" x2="2.0591" y2="-0.5801"/>
+      <movement hands="right" beats="3" cx1="0.4349" cy1="0.0404" cx2="1.0416" cy2="1.2086" x2="1.416" y2="1.5842"/>
+      <movement hands="left" beats="3" cx1="0.3934" cy1="0.0632" cx2="1.7402" cy2="-0.3423" x2="2.1236" y2="0.0699"/>
+      <movement hands="none" beats="2" cx1="0.5971" cy1="0.1494" cx2="0.5448" cy2="1.7442" x2="1.0466" y2="1.8491"/>
+      <movement hands="none" beats="2" cx1="0.3607" cy1="0" cx2="0.8143" cy2="0.2935" x2="0.8648" y2="0.6506"/>
     </path>
     <path>
-      <move select="Lead Right" beats="3" hands="left" scaleX=".25" scaleY="3"/>
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" offsetX="1" offsetY=".5"/>
+      <movement hands="left" beats="3" cx1="0.6621" cy1="0.0227" cx2="-0.0061" cy2="-2.4591" x2="0" y2="-3"/>
+      <movement hands="right" beats="3" cx1="0.4248" cy1="-0.0175" cx2="1.428" cy2="0.6395" x2="2.118" y2="0.1703"/>
+      <movement hands="left" beats="3" cx1="0.5185" cy1="-0.1098" cx2="0.7718" cy2="-1.3963" x2="1.0598" y2="-1.8416"/>
+      <movement hands="none" beats="2" cx1="0.4308" cy1="-0.1167" cx2="1.7138" cy2="0.1709" x2="2.1021" y2="-0.3097"/>
+      <movement hands="none" beats="2" cx1="0.3863" cy1="0" cx2="0.4461" cy2="-0.6374" x2="0.7275" y2="-0.9021"/>
     </path>
   </tam>
 
-  <tam title="Right and Left Grand" from="Trade By" sequencer="gender-specific">
-     <formation>
-      <dancer gender="boy" x="3" y="-1" angle="0"/>
-      <dancer gender="girl" x="3" y="1" angle="0"/>
-      <dancer gender="boy" x="1" y="1" angle="180"/>
-      <dancer gender="girl" x="-1" y="1" angle="0"/>
-    </formation>
-    <path>
-      <move select="Quarter Left" offsetY="1"/>
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
-    </path>
-    <path>
-      <move select="Lead Right"/>
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.92" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
-    </path>
-    <path>
-      <move select="Forward" beats="1.5" offsetY="-.1"/>
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-2.45" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
-    </path>
-    <path>
-      <move select="Extend Left" beats="1.5" offsetY=".1"/>
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-0.02" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
-    </path>
-  </tam>
-
-  <tam title="Right and Left Grand" from="T-Bones"
-       display="none"
-       sequencer="gender-specific">
+<!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
+  <tam title="Right and Left Grand" from="Trade By" parts="" sequencer="gender-specific">
     <formation>
-      <dancer gender="boy" x="3" y="-1" angle="90"/>
-      <dancer gender="girl" x="3" y="1" angle="270"/>
-      <dancer gender="boy" x="1" y="1" angle="180"/>
-      <dancer gender="girl" x="-1" y="1" angle="0"/>
+        <dancer gender="boy" x="3" y="-1" angle="0"/>
+        <dancer gender="girl" x="3" y="1" angle="0"/>
+        <dancer gender="boy" x="1" y="1" angle="180"/>
+        <dancer gender="girl" x="-1" y="1" angle="0"/>
     </formation>
     <path>
-      <move select="Forward" beats="1.5"/>
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
+      <movement hands="none" beats="1.5" cx1="-0.1576" cy1="-0.0182" cx2="-0.9742" cy2="0.4273" x2="-1" y2="1" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5603" cy2="-0.6853" x2="2.1213" y2="-0.1213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.9113" cy2="-1.0521" x2="2.4723" y2="-0.4881"/>
+      <movement hands="right" beats="2" cx1="0.492" cy1="0" cx2="0.5524" cy2="0.8932" x2="1.0085" y2="1.0779"/>
     </path>
     <path>
-      <move select="Extend Left" beats="1.5"/>
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.92" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
+      <movement hands="none" beats="1.5" cx1="0.55" cy1="0" cx2="0" cy2="-0.45" x2="0" y2="-1"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="2" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
     </path>
     <path>
-      <move select="Forward" beats="1.5" offsetY="-.1"/>
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-2.45" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
+      <movement hands="none" beats="1.5" cx1="0.333" cy1="0" cx2="0.6288" cy2="-0.7606" x2="1" y2="-1"/>
+      <movement hands="left" beats="3" cx1="0.6174" cy1="0.0015" cx2="1.6827" cy2="0.2697" x2="1.8485" y2="1.0477"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0.0013" cx2="1.0414" cy2="1.2086" x2="1.4145" y2="1.5855"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0.002" cx2="1.5614" cy2="-0.6928" x2="2.121" y2="-0.1274"/>
+      <movement hands="right" beats="2" cx1="0.3863" cy1="0" cx2="0.6454" cy2="0.4345" x2="1.0031" y2="0.5804"/>
     </path>
     <path>
-      <move select="Extend Left" beats="1.5" offsetY=".1"/>
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-0.02" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="2" x2="1" y2="2" cx3="1" cx4="1" cy4="0.4" x4="2" y4="0.4"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="2" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
     </path>
   </tam>
 
-  <tam title="Right and Left Grand" from="1/4 Tag" sequencer="gender-specific">
+<!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
+  <tam title="Right and Left Grand" from="T-Bones" parts="" sequencer="gender-specific">
     <formation>
-      <dancer gender="boy" x="3" y="-1" angle="180"/>
-      <dancer gender="girl" x="3" y="1" angle="180"/>
-      <dancer gender="boy" x="0" y="1" angle="180"/>
-      <dancer gender="girl" x="0" y="3" angle="0"/>
+        <dancer gender="boy" x="3" y="-1" angle="90"/>
+        <dancer gender="girl" x="3" y="1" angle="-90"/>
+        <dancer gender="boy" x="1" y="1" angle="180"/>
+        <dancer gender="girl" x="-1" y="1" angle="0"/>
     </formation>
     <path>
-      <move select="Quarter Right" offsetY="-1"/>
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
+      <movement hands="none" beats="1.5" cx1="0.333" cy1="0" cx2="0.667" cy2="1" x2="1" y2="1"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5603" cy2="-0.6853" x2="2.1213" y2="-0.1213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="1" cx1="0.3863" cy1="0" cx2="0.6464" cy2="0.433" x2="1.0045" y2="0.5779"/>
     </path>
     <path>
-      <move select="Quarter Left" offsetX="-1" offsetY="1"/>
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.92" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0" x2="1" y2="0" cx3="1" cx4="1" cy4="0.4" x4="2" y4="0.4"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="1" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
     </path>
     <path>
-      <move select="Lead Left 1/2" beats="4.5" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-2.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
+      <movement hands="none" beats="1.5" cx1="0.333" cy1="0" cx2="0.3" cy2="-0.9939" x2="1" y2="-1"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0.0069" cx2="1.5662" cy2="-0.6718" x2="2.1223" y2="-0.103"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0.0046" cx2="1.034" cy2="1.215" x2="1.4047" y2="1.5942"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0.0069" cx2="1.5656" cy2="-0.6831" x2="2.1217" y2="-0.1143"/>
+      <movement hands="right" beats="1" cx1="0.3863" cy1="0" cx2="0.6427" cy2="0.4385" x2="0.9995" y2="0.5866"/>
     </path>
     <path>
-      <move select="Lead Right 1/2" beats="4.5" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-.92" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="2" x2="1" y2="2" cx3="1" cx4="1" cy4="0.4" x4="2" y4="0.4"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="1" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
+  <tam title="Right and Left Grand" from="1/4 Tag" parts="" sequencer="gender-specific">
+    <formation>
+        <dancer gender="boy" x="3" y="-1" angle="180"/>
+        <dancer gender="girl" x="3" y="1" angle="180"/>
+        <dancer gender="boy" x="0" y="1" angle="180"/>
+        <dancer gender="girl" x="0" y="3" angle="0"/>
+    </formation>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.1788" cy1="0.0288" cx2="0.953" cy2="-0.2364" x2="1" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5603" cy2="-0.6853" x2="2.1213" y2="-0.1213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="1" cx1="0.3863" cy1="0" cx2="0.6464" cy2="0.433" x2="1.0045" y2="0.5779"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.0833" cy1="0.2364" cx2="0.0303" cy2="0.703" x2="0" y2="1" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="1" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
+    </path>
+    <path>
+      <movement hands="left" beats="4.5" cx1="0.795" cy1="0" cx2="1.5603" cy2="-1.6853" x2="2.1213" y2="-1.1213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="1" cx1="0.3863" cy1="0" cx2="0.6464" cy2="0.433" x2="1.0045" y2="0.5779"/>
+    </path>
+    <path>
+      <movement hands="left" beats="4.5" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="1" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
     </path>
   </tam>
 
   <tam title="Right and Left Grand" from="3/4 Tag" sequencer="gender-specific">
-     <formation>
-      <dancer gender="boy" x="3" y="-1" angle="0"/>
-      <dancer gender="girl" x="3" y="1" angle="0"/>
-      <dancer gender="boy" x="0" y="1" angle="180"/>
-      <dancer gender="girl" x="0" y="3" angle="0"/>
-    </formation>
-    <path>
-      <move select="Quarter Left" offsetY="1"/>
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
-    </path>
-    <path>
-      <move select="Lead Right"/>
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.92" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
-    </path>
-    <path>
-      <move select="Lead Left 1/2" beats="4.5" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-2.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
-    </path>
-    <path>
-      <move select="Lead Right 1/2" beats="4.5" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-.92" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
-    </path>
-  </tam>
-
-  <tam title="Right and Left Grand" from="Thar"
-       formation="Thar LH Boys" sequencer="gender-specific">
-    <path>
-      <move select="Lead Left 1/2" beats="4.5" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-2.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
-    </path>
-    <path>
-      <move select="Lead Right 1/2" beats="4.5" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-.92" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
-    </path>
-    <path>
-      <move select="Lead Left 1/2" beats="4.5" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-2.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
-    </path>
-    <path>
-      <move select="Lead Right 1/2" beats="4.5" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-.92" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
-    </path>
-  </tam>
-
-  <tam title="Right and Left Grand" display="none" from="after Allemande Left" sequencer="gender-specific" >
     <formation>
-      <dancer gender="boy" x="3.5" y="-1.5" angle="45"/>
-      <dancer gender="girl" x="3.5" y="1.5" angle="315"/>
-      <dancer gender="boy" x="1" y="1.5" angle="180"/>
-      <dancer gender="girl" x="-1" y="1.5" angle="0"/>
+        <dancer gender="boy" x="3" y="-1" angle="0"/>
+        <dancer gender="girl" x="3" y="1" angle="0"/>
+        <dancer gender="boy" x="0" y="1" angle="180"/>
+        <dancer gender="girl" x="0" y="3" angle="0"/>
     </formation>
     <path>
-      <move select="Lead Left 1/2" beats="1.5" offsetY="1.1"/>
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Quarter Left" beats="2" offsetX=".8" offsetY="-.1"/>
+      <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="-0.9636" cy2="0.353" x2="-1" y2="1" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5603" cy2="-0.6853" x2="2.1213" y2="-0.1213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="1" cx1="0.3863" cy1="0" cx2="0.6464" cy2="0.433" x2="1.0045" y2="0.5779"/>
     </path>
     <path>
-      <move select="Lead Right 1/2" beats="1.5" offsetX=".75" offsetY="-.45"/>
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.92" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Quarter Right" beats="1" offsetX=".1"/>
+      <movement hands="none" beats="1.5" cx1="0.55" cy1="0" cx2="0" cy2="-0.45" x2="0" y2="-1"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="1" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
     </path>
     <path>
-      <move select="Extend Left" beats="1.5" scaleY=".5"/>
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-2.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Quarter Left" beats="2" offsetX=".8" offsetY="-.1"/>
+      <movement hands="left" beats="4.5" cx1="0.795" cy1="0" cx2="1.5603" cy2="-1.6853" x2="2.1213" y2="-1.1213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="1" cx1="0.3863" cy1="0" cx2="0.6464" cy2="0.433" x2="1.0045" y2="0.5779"/>
     </path>
     <path>
-      <move select="Extend Left" beats="1.5" scaleY=".5"/>
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="0.08" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Quarter Right" beats="1" offsetX=".1"/>
+      <movement hands="left" beats="4.5" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="1" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
     </path>
   </tam>
 
-  <tam title="Right and Left Grand" from="Static Back-to-Back"
-       sequencer="gender-specific" display="none">
-    <formation name="Static BackToBack">
-      <dancer gender="boy" x="-3" y="-1" angle="270"/>
-      <dancer gender="girl" x="-1" y="-3" angle="180"/>
-      <dancer gender="boy" x="1" y="-3" angle="0"/>
-      <dancer gender="girl" x="3" y="-1" angle="270"/>
-    </formation>
-    <path>
-      <move select="Eighth Left" beats="0.2"/>
-      <move select="Extend Left" beats="1.5" scaleX="1.414" scaleY="0.5"/>
-      <move select="Eighth Left" beats="1.5" offsetX="1.414" offsetY="-.5"/>
-      <move select="Extend Right" offsetY="0.5"/>
-      <move select="Eighth Left" offsetX="1" offsetY=".5"/>
-      <move select="Extend Left" beats="1.5" scaleX="1.414" scaleY="0.5"/>
-      <move select="Eighth Left" beats="1.5" offsetX="1.414" offsetY="-.5"/>
-      <move select="Extend Right" offsetY="0.5"/>
-      <move select="Eighth Left" offsetX="1" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Eighth Right" beats="0.2"/>
-      <move select="Extend Left" beats="1.5" scaleX="1.414" scaleY="0.5"/>
-      <move select="Eighth Right" beats="1.5" offsetX="1.414" offsetY="-.5"/>
-      <move select="Extend Right" offsetY="0.5"/>
-      <move select="Eighth Right" offsetX="1" offsetY=".5"/>
-      <move select="Extend Left" beats="1.5" scaleX="1.414" scaleY="0.5"/>
-      <move select="Eighth Right" beats="1.5" offsetX="1.414" offsetY="-.5"/>
-      <move select="Extend Right" offsetY="0.5"/>
-      <move select="Eighth Right" offsetX="1" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Eighth Left" beats="0.2"/>
-      <move select="Extend Left" beats="1.5" scaleX="1.414" scaleY="0.5"/>
-      <move select="Eighth Left" beats="1.5" offsetX="1.414" offsetY="-.5"/>
-      <move select="Extend Right" offsetY="0.5"/>
-      <move select="Eighth Left" offsetX="1" offsetY=".5"/>
-      <move select="Extend Left" beats="1.5" scaleX="1.414" scaleY="0.5"/>
-      <move select="Eighth Left" beats="1.5" offsetX="1.414" offsetY="-.5"/>
-      <move select="Extend Right" offsetY="0.5"/>
-      <move select="Eighth Left" offsetX="1" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Eighth Right" beats="0.2"/>
-      <move select="Extend Left" beats="1.5" scaleX="1.414" scaleY="0.5"/>
-      <move select="Eighth Right" beats="1.5" offsetX="1.414" offsetY="-.5"/>
-      <move select="Extend Right" offsetY="0.5"/>
-      <move select="Eighth Right" offsetX="1" offsetY=".5"/>
-      <move select="Extend Left" beats="1.5" scaleX="1.414" scaleY="0.5"/>
-      <move select="Eighth Right" beats="1.5" offsetX="1.414" offsetY="-.5"/>
-      <move select="Extend Right" offsetY="0.5"/>
-      <move select="Eighth Right" offsetX="1" offsetY=".5"/>
-    </path>
-  </tam>
-
-  <tam title="Right and Left Grand" from="Quarter Tag Facing" display="none">
+<!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
+  <tam title="Right and Left Grand" from="Thar" parts="" sequencer="gender-specific">
     <formation>
-      <dancer gender="boy" x="3" y="-1" angle="90"/>
-      <dancer gender="girl" x="3" y="1" angle="270"/>
-      <dancer gender="boy" x="0" y="1" angle="180"/>
-      <dancer gender="girl" x="0" y="3" angle="0"/>
+        <dancer gender="boy" x="-1" y="0" angle="-90"/>
+        <dancer gender="girl" x="-3" y="0" angle="90"/>
+        <dancer gender="boy" x="0" y="-1" angle="0"/>
+        <dancer gender="girl" x="0" y="-3" angle="180"/>
     </formation>
     <path>
-      <move select="Forward" beats="1.5"/>
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
+      <movement hands="left" beats="4.5" cx1="0.795" cy1="0" cx2="1.5603" cy2="-1.6853" x2="2.1213" y2="-1.1213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="2" cx1="0.265" cy1="0" cx2="1.2399" cy2="1.3864" x2="1.4269" y2="1.5744"/>
+      <movement hands="none" beats="1" cx1="0.3607" cy1="0" cx2="0.6606" cy2="-0.5592" x2="0.9954" y2="-0.4247"/>
     </path>
     <path>
-      <move select="Extend Left" beats="1.5"/>
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.92" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
+      <movement hands="left" beats="4.5" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="2" cx1="0.265" cy1="0" cx2="1.9333" cy2="0.3263" x2="2.1203" y2="0.1383"/>
+      <movement hands="none" beats="1" cx1="0.3863" cy1="0" cx2="0.6476" cy2="-0.4312" x2="1.006" y2="-0.5752"/>
     </path>
     <path>
-      <move select="Lead Left 1/2" beats="4.5" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-2.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
+      <movement hands="left" beats="4.5" cx1="0.795" cy1="0" cx2="1.5603" cy2="-1.6853" x2="2.1213" y2="-1.1213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="2" cx1="0.265" cy1="0" cx2="1.2399" cy2="1.3864" x2="1.4269" y2="1.5744"/>
+      <movement hands="none" beats="1" cx1="0.3607" cy1="0" cx2="0.6606" cy2="-0.5592" x2="0.9954" y2="-0.4247"/>
     </path>
     <path>
-      <move select="Lead Right 1/2" beats="4.5" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-.92" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
+      <movement hands="left" beats="4.5" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="2" cx1="0.265" cy1="0" cx2="1.9333" cy2="0.3263" x2="2.1203" y2="0.1383"/>
+      <movement hands="none" beats="1" cx1="0.3863" cy1="0" cx2="0.6476" cy2="-0.4312" x2="1.006" y2="-0.5752"/>
     </path>
   </tam>
 
-  <tam title="Right and Left Grand" from="Outrigger" display="none">
+
+<!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
+  <tam title="Right and Left Grand" from="after Allemande Left" parts="" sequencer="gender-specific">
     <formation>
-      <dancer gender="boy" x="2.5" y="0" angle="90"/>
-      <dancer gender="girl" x="3.5" y="0" angle="270"/>
-      <dancer gender="boy" x="1" y="1" angle="180"/>
-      <dancer gender="girl" x="-1" y="1" angle="0"/>
+        <dancer gender="boy" x="3.5" y="-1.5" angle="45"/>
+        <dancer gender="girl" x="3.5" y="1.5" angle="-45"/>
+        <dancer gender="boy" x="1" y="1.5" angle="180"/>
+        <dancer gender="girl" x="-1" y="1.5" angle="0"/>
     </formation>
     <path>
-      <move select="Lead Left 1/2" beats="4" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.05" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
+      <movement hands="none" beats="1.5" cx1="0.265" cy1="0" cx2="-0.187" cy2="1.9333" x2="0" y2="2.1213"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="-0.691" x2="2.121" y2="-0.127"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="1.2022" x2="1.4227" y2="1.5782"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5593" cy2="-0.7023" x2="2.1203" y2="-0.1383"/>
+      <movement hands="right" beats="1" cx1="0.3863" cy1="0" cx2="0.6476" cy2="0.4312" x2="1.006" y2="0.5752"/>
     </path>
     <path>
-      <move select="Lead Right 1/2" beats="4" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.42" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
+      <movement hands="none" beats="1.5" cx1="0.265" cy1="0" cx2="0.5201" cy2="-1.2262" x2="0.7071" y2="-1.4142"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="-1.206" x2="1.4184" y2="-1.582"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="0.6966" x2="2.1206" y2="0.1326"/>
+      <movement hands="left" beats="2" cx1="0.53" cy1="0" cx2="1.0529" cy2="-1.1984" x2="1.4269" y2="-1.5744"/>
+      <movement hands="right" beats="2" cx1="0.3607" cy1="0" cx2="0.6606" cy2="0.5592" x2="0.9954" y2="0.4247"/>
     </path>
     <path>
-      <move select="Forward" beats="1.5" offsetY="-.1"/>
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-2.45" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="1" cx4="1" cy4="0.2" x4="2" y4="0.2"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5603" cy2="-1.6853" x2="2.1213" y2="-1.1213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="2" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="2" cx1="0.3863" cy1="0" cx2="0.6464" cy2="0.433" x2="1.0045" y2="0.5779"/>
     </path>
     <path>
-      <move select="Extend Left" beats="1.5" offsetY=".1"/>
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-0.02" />
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
-      <move select="Forward" scaleX=".1"/>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="1.5" x2="1" y2="1.5" cx3="1" cx4="1" cy4="0.2" x4="2" y4="0.2"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="1" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
+  <tam title="Right and Left Grand" from="Quarter Tag Facing" parts="">
+    <formation>
+        <dancer gender="boy" x="0" y="1" angle="180"/>
+        <dancer gender="girl" x="3" y="1" angle="-90"/>
+        <dancer gender="boy" x="3" y="-1" angle="90"/>
+        <dancer gender="girl" x="0" y="3" angle="0"/>
+    </formation>
+    <path>
+      <movement hands="left" beats="4.5" cx1="0.795" cy1="0" cx2="1.5603" cy2="-1.6853" x2="2.1213" y2="-1.1213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="1" cx1="0.3863" cy1="0" cx2="0.6464" cy2="0.433" x2="1.0045" y2="0.5779"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0" x2="1" y2="0" cx3="1" cx4="1" cy4="0.4" x4="2" y4="0.4"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="1" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.333" cy1="0" cx2="0.667" cy2="1" x2="1" y2="1"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5603" cy2="-0.6853" x2="2.1213" y2="-0.1213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="1" cx1="0.3863" cy1="0" cx2="0.6464" cy2="0.433" x2="1.0045" y2="0.5779"/>
+    </path>
+    <path>
+      <movement hands="left" beats="4.5" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.2098" x2="1.4142" y2="-1.5858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="1" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 95ddff2, with uncommitted changes, built 2026-10-13 16:34Z -->
+  <tam title="Right and Left Grand" from="Outrigger" parts="">
+    <formation>
+        <dancer gender="boy" x="2.5" y="0" angle="90"/>
+        <dancer gender="girl" x="3.5" y="0" angle="-90"/>
+        <dancer gender="boy" x="1" y="1" angle="180"/>
+        <dancer gender="girl" x="-1" y="1" angle="0"/>
+    </formation>
+    <path>
+      <movement hands="left" beats="4" cx1="0.795" cy1="0" cx2="1.5603" cy2="-0.1853" x2="2.1213" y2="0.3787"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="2" cx1="0.3863" cy1="0" cx2="0.6464" cy2="0.433" x2="1.0045" y2="0.5779"/>
+    </path>
+    <path>
+      <movement hands="left" beats="4" cx1="0.53" cy1="0" cx2="1.0402" cy2="-1.7098" x2="1.4142" y2="-2.0858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="2" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.333" cy1="0" cx2="0.667" cy2="-0.1" x2="1" y2="-0.1"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5603" cy2="-1.5853" x2="2.1213" y2="-1.0213"/>
+      <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
+      <movement hands="left" beats="3" cx1="0.795" cy1="0" cx2="1.5596" cy2="-0.6966" x2="2.1206" y2="-0.1326"/>
+      <movement hands="right" beats="2" cx1="0.3863" cy1="0" cx2="0.6464" cy2="0.433" x2="1.0045" y2="0.5779"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="1.5" x2="1" y2="1.5" cx3="1" cx4="1" cy4="0.4" x4="2" y4="0.4"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0402" cy2="-0.7098" x2="1.4142" y2="-1.0858"/>
+      <movement hands="right" beats="3" cx1="0.795" cy1="0" cx2="1.56" cy2="0.691" x2="2.121" y2="0.127"/>
+      <movement hands="left" beats="3" cx1="0.53" cy1="0" cx2="1.0487" cy2="-1.2022" x2="1.4227" y2="-1.5782"/>
+      <movement hands="right" beats="2" cx1="0.3607" cy1="0" cx2="0.6621" cy2="0.5574" x2="0.9965" y2="0.422"/>
     </path>
   </tam>
 

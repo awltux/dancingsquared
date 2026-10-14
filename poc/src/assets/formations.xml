@@ -449,6 +449,20 @@
     <dancer gender="girl" x="0" y="3" angle="180"/>
   </formation>
 
+  <formation name="Four Dancer Star Promenade">
+    <dancer gender="boy" x="0" y="1" angle="180"/>
+    <dancer gender="girl" x="-3" y="-1" angle="0"/>
+    <dancer gender="boy" x="1" y="0" angle="90"/>
+    <dancer gender="girl" x="-1" y="3" angle="270"/>
+  </formation>
+
+  <formation name="Wrong Way Four Dancer Star Promenade">
+    <dancer gender="girl" x="0" y="1" angle="0"/>
+    <dancer gender="boy" x="-3" y="1" angle="0"/>
+    <dancer gender="girl" x="1" y="0" angle="270"/>
+    <dancer gender="boy" x="1" y="3" angle="270"/>
+  </formation>
+
   <formation name="Star Promenade">
     <dancer gender="boy" x="1" y="0" angle="90"/>
     <dancer gender="girl" x="3" y="0" angle="90"/>

@@ -22,6 +22,80 @@
 -->
 <tamination title="Star Family">
 
+
+<!-- exported by the dancing-squared web app: commit 3d317fd, with uncommitted changes, built 2026-10-12 13:50Z -->
+  <tam title="Left Hand Star" formation="Opposite Boy" asymmetric="true">
+    <path>
+      <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2" cy2="0" x2="2" y2="-1"/>
+      <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+    </path>
+    <path>
+      <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2" cy2="0" x2="2" y2="-1"/>
+      <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 1d480f7, with uncommitted changes, built 2026-10-13 11:20Z -->
+  <tam title="Left Hand Star" formation="Opposite Girl" parts="" asymmetric="true">
+    <path>
+      <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2.5" cy2="0" x2="3" y2="0"/>
+      <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+    </path>
+    <path>
+      <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2.5" cy2="0" x2="3" y2="0"/>
+      <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 1d480f7, with uncommitted changes, built 2026-10-13 11:20Z -->
+  <tam title="Right Hand Star" formation="Opposite Boy" parts="" asymmetric="true">
+    <path>
+      <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2.5" cy2="0" x2="3" y2="0"/>
+      <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+    </path>
+    <path>
+      <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2.5" cy2="0" x2="3" y2="0"/>
+      <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 3d317fd, with uncommitted changes, built 2026-10-12 13:50Z -->
+  <tam title="Right Hand Star" formation="Opposite Girl" parts="" asymmetric="true">
+    <path>
+      <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2" cy2="0" x2="2" y2="1"/>
+      <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+    </path>
+    <path>
+      <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2" cy2="0" x2="2" y2="1"/>
+      <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+      <movement hands="both" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
+    </path>
+  </tam>
+
+
   <tam title="Right Hand Star"
        from="Facing Couples"
        formation="Facing Couples Compact">

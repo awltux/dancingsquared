@@ -27,33 +27,28 @@
        formation="Static Square"
        difficulty="1">
     <path>
-      <move select="Lead Left" beats="3" offsetX=".5" />
-      <move select="Swing Left" scaleX=".5" scaleY=".5" />
-      <move select="HalfHinge Left" scaleX=".5" scaleY=".5" offsetX=".646" offsetY="-.061" />
-      <move select="Sxtnth Left" hands="gripboth" />
+      <movement hands="none" beats="3" cx1="0.55" cy1="0" cx2="1.5" cy2="0.45" x2="1.5" y2="1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="gripleft" beats="2" cx1="0.1325" cy1="0" cx2="0.906" cy2="-0.0085" x2="0.9995" y2="0.0855" cx3="0.5379" cx4="0.9326" cy4="0.3354" x4="1.0419" y4="0.5905"/>
     </path>
     <path>
-      <move select="Lead Right" offsetX="-.5" />
-      <move select="Hinge Left" scaleX=".5" scaleY=".5" />
-      <move select="Swing Left" scaleX=".5" scaleY=".5" />
-      <move select="HalfHinge Left" scaleX=".5" scaleY=".5" offsetX=".061" offsetY="-.646" />
-      <move select="Sxtnth Right" hands="gripboth" />
+      <movement hands="none" beats="1" cx1="0.55" cy1="0" cx2="0.5" cy2="-0.45" x2="0.5" y2="-1"/>
+      <movement hands="gripleft" beats="2" cx1="0.275" cy1="0" cx2="0.5" cy2="0.225" x2="0.5" y2="0.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.275" cy1="0" cx2="0.5" cy2="0.225" x2="0.5" y2="0.5"/>
+      <movement hands="gripleft" beats="3" cx1="0.275" cy1="0" cx2="1.0031" cy2="0.675" x2="1.0031" y2="0.914" cx3="1.1488" cx4="0.6692" cy4="1.369" x4="0.5902" y4="1.5633"/>
     </path>
     <path>
-      <move select="Lead Left" beats="3" offsetX=".5" />
-      <move select="Swing Left" scaleX=".5" scaleY=".5" />
-      <move select="HalfHinge Left" scaleX=".5" scaleY=".5" offsetX=".646" offsetY="-.061" />
-      <move select="Sxtnth Left" hands="gripboth" />
+      <movement hands="none" beats="3" cx1="0.55" cy1="0" cx2="1.5" cy2="0.45" x2="1.5" y2="1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="gripleft" beats="2" cx1="0.1325" cy1="0" cx2="0.906" cy2="-0.0085" x2="0.9995" y2="0.0855" cx3="0.5379" cx4="0.9326" cy4="0.3354" x4="1.0419" y4="0.5905"/>
     </path>
     <path>
-      <move select="Lead Right" offsetX="-.5" />
-      <move select="Hinge Left" scaleX=".5" scaleY=".5" />
-      <move select="Swing Left" scaleX=".5" scaleY=".5" />
-      <move select="HalfHinge Left" scaleX=".5" scaleY=".5" offsetX=".061" offsetY="-.646" />
-      <move select="Sxtnth Right" hands="gripboth" />
+      <movement hands="none" beats="1" cx1="0.55" cy1="0" cx2="0.5" cy2="-0.45" x2="0.5" y2="-1"/>
+      <movement hands="gripleft" beats="2" cx1="0.275" cy1="0" cx2="0.5" cy2="0.225" x2="0.5" y2="0.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.275" cy1="0" cx2="0.5" cy2="0.225" x2="0.5" y2="0.5"/>
+      <movement hands="gripleft" beats="3" cx1="0.275" cy1="0" cx2="1.0031" cy2="0.675" x2="1.0031" y2="0.914" cx3="1.1488" cx4="0.6692" cy4="1.369" x4="0.5902" y4="1.5633"/>
     </path>
   </tam>
-
 
 
   <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of

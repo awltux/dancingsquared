@@ -306,28 +306,29 @@
     <path><move select="Stand" beats="2" /></path>
     <path><move select="Stand" beats="2" /></path>
   </tam>
-  <tam title="Allemande Left" from="Circle Left" formation="Circle" sequencer="gender-specific">
+
+  <tam title="Allemande Left" formation="Circle" sequencer="gender-specific">
     <path>
-      <move select="Eighth Left" beats="1.5" offsetX="1.1" offsetY=".4"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Left 1/2" beats="2.25" offsetX=".75" offsetY="-.2"/>
+      <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="0.4134" cy2="0.7649" x2="0.4134" y2="0.7649" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2.25" cx1="0.4998" cy1="0" cx2="0.4795" cy2="0.8938" x2="0.8338" y2="1.2463"/>
     </path>
     <path>
-      <move select="Quarter Right"  offsetY="-1" offsetX="-.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Left 1/2"/>
-      <move select="Quarter Right" offsetX=".9" offsetY="-.1"/>
+      <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="-0.5" cy2="-1" x2="-0.5" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="0.75" cx1="0.265" cy1="0" cx2="0.52" cy2="0.105" x2="0.707" y2="0.293"/>
+      <movement hands="none" beats="1.5" cx1="0.1178" cy1="-0.0206" cx2="0.2356" cy2="-0.0412" x2="0.3534" y2="-0.0618" cx3="0.2627" cx4="0.7381" cy4="-0.1977" x4="0.9234" y4="-0.3839"/>
     </path>
     <path>
-      <move select="Eighth Left" beats="1.5" offsetX="1.1" offsetY=".4"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Left 1/2" beats="2.25" offsetX=".75" offsetY="-.2"/>
+      <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="0.4134" cy2="0.7649" x2="0.4134" y2="0.7649" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2.25" cx1="0.4998" cy1="0" cx2="0.4795" cy2="0.8938" x2="0.8338" y2="1.2463"/>
     </path>
     <path>
-      <move select="Quarter Right"  offsetY="-1" offsetX="-.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Left 1/2"/>
-      <move select="Quarter Right" offsetX=".9" offsetY="-.1"/>
+      <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="-0.5" cy2="-1" x2="-0.5" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="0.75" cx1="0.265" cy1="0" cx2="0.52" cy2="0.105" x2="0.707" y2="0.293"/>
+      <movement hands="none" beats="1.5" cx1="0.1178" cy1="-0.0206" cx2="0.2356" cy2="-0.0412" x2="0.3534" y2="-0.0618" cx3="0.2627" cx4="0.7381" cy4="-0.1977" x4="0.9234" y4="-0.3839"/>
     </path>
   </tam>
 

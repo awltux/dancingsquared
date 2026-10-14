@@ -8,7 +8,7 @@ const { DOMParser } = require('@xmldom/xmldom');
 const eng = require('../engine/dist/index.js');
 eng.setParser(DOMParser);
 
-const { loadCallFromXml, callMeta, parseMoves } = eng;
+const { loadCallFromXml, callMeta, parseMoves, buildCallVariants } = eng;
 const { poseFor, dancerBeats, allPoses, computeHandholds } = eng;
 
 const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
@@ -21,6 +21,34 @@ function check(cond, msg) {
   else { failures++; console.log('  FAIL ' + msg); }
 }
 function isFiniteNum(n) { return typeof n === 'number' && Number.isFinite(n); }
+
+/**
+ * EVERY `<tam>` in a call file that BUILDS, with the `title` and `from` it declares.
+ *
+ * THE PLURAL READING OF THE LOADER'S SELECTOR, and it exists because a selector that names a call is
+ * not always unique. `from` distinguishes the Allemande Left tams from one another, but it does not
+ * make them unique: `50d3e95` ("retire b1/b2 into ms 2026") migrated a SECOND authoring of
+ * `Allemande Left` `from="Left-Hand Waves"` into `ms/allemande.xml`, so `{ title, from }` now matches
+ * two tams and `selectTam` refuses to guess which - correctly, and at the cost of the whole gate,
+ * which used to die at the throw with nothing after it measured.
+ *
+ * A probe asserting a property of a call wants the plural reading anyway: the property has to hold for
+ * every way the corpus dances it, not for whichever tam the resolver would have picked.
+ *
+ * A FILE THAT CANNOT BUILD AT ALL IS REPORTED, NOT THROWN. `buildCallVariants` has no per-tam
+ * tolerance (unlike the library's `loadVariants`, which records each failure), so one bad tam would
+ * otherwise kill the run - the same "the gate dies and measures nothing" fault this helper exists to
+ * undo. MEASURED: the only two un-buildable tams in the shipped corpus are `Ferris Wheel` and
+ * `Couples Circulate` (both naming `T-Bone Couples`), and neither is in a file this gate reads.
+ */
+function listAuthorings(file, xml, movesXml, formationsXml) {
+  try {
+    return buildCallVariants(xml, movesXml, formationsXml, true);
+  } catch (e) {
+    check(false, `${file} cannot be built at all: ${e.message}`);
+    return [];
+  }
+}
 
 // ------------------------------------------------------------- move resolution
 console.log('== Move registry resolution ==');
@@ -170,15 +198,23 @@ check(cdeg.every((d) => d === 2), 'every dancer holds exactly 2 neighbours (a ri
 // no cross-group connections (regression: wide side-tolerance used to over-connect).
 console.log('== Allemande Left (no cross-group holds) ==');
 const allemandeXml = read('src/assets/ms/allemande.xml');
+// EVERY AUTHORING from that board, not the first. `from` tells the Allemande Left tams apart from
+// each other but does NOT make one unique - see `listAuthorings` - and the hand-hold property below
+// has to hold for every way the corpus dances the call, so the plural reading is the one it wants.
+const allemande = listAuthorings('ms/allemande.xml', allemandeXml, movesXml, formationsXml);
 for (const from of ['Left-Hand 3/4 Tag', 'Left-Hand Waves', 'Static Square']) {
-  // BY NAME: rom is what tells these thirteen Allemande Left tams apart, so it is the identity here.
-  const al = loadCallFromXml(allemandeXml, movesXml, formationsXml, { title: 'Allemande Left', from }, true);
-  const aposes = al.dancers.map((d) => poseFor(d, al.beats * 0.55));
-  const aholds = computeHandholds(aposes, 'active');
-  const adeg = new Array(al.dancers.length).fill(0);
-  aholds.forEach((h) => { adeg[h.i]++; adeg[h.j]++; });
-  const maxDeg = Math.max(0, ...adeg);
-  check(maxDeg <= 1, `Allemande (${from}) each dancer holds at most 1 partner (maxDeg=${maxDeg})`);
+  const authored = allemande.filter((v) => v.title === 'Allemande Left' && v.from === from);
+  // AN EMPTY LIST IS A FAILURE, NOT A PASS: a `from` the corpus no longer authors would otherwise
+  // test nothing at all and read as green.
+  check(authored.length > 0, `the corpus authors Allemande Left from "${from}" (${authored.length} authoring(s))`);
+  authored.forEach((al, k) => {
+    const aposes = al.dancers.map((d) => poseFor(d, al.beats * 0.55));
+    const aholds = computeHandholds(aposes, 'active');
+    const adeg = new Array(al.dancers.length).fill(0);
+    aholds.forEach((h) => { adeg[h.i]++; adeg[h.j]++; });
+    const maxDeg = Math.max(0, ...adeg);
+    check(maxDeg <= 1, `Allemande (${from}${authored.length > 1 ? `, authoring ${k + 1} of ${authored.length}` : ''}) each dancer holds at most 1 partner (maxDeg=${maxDeg})`);
+  });
 }
 
 // Wheel Around: each couple wheels together and must NOT grab the opposite

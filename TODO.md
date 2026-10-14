@@ -79,11 +79,21 @@ suite's count went 59 → 60 because it added `poc/tools/move-nav-probe.mjs`.
   moved.
   **AND A THIRD, FILED NOT FIXED** — see item 34.
 
-- [ ] **3. A scoped apply can be LEGAL and move nobody.** `[recorded]`
-  `applySelected`'s last fallback can leave every selected dancer where it was and accept the step as a
-  **6-beat no-op**. The guard was written and left unshipped because the budget did not cover a full gate
-  run. Needs: refuse a scoped apply whose selected dancers all end where they started, measured either side
-  of the census.
+- [x] **3. DONE `d7147b5` — a scoped apply can be LEGAL and move nobody.** `[measured]`
+  The guard recorded in `square-dancing.md` §9 is shipped: `applySelected`'s last fallback refuses when the
+  whole-formation reading's `parallel` groups hold no selected dancer, because `parallelApply` leaves a dancer
+  it did not tile exactly where it stands - so the merge is an identity and the step was accepted as a no-op
+  that still charged its beats. THE CONDITION IS THE MECHANISM, NOT the "all end where they started" wording
+  this item first asked for: MEASURED over the ms catalogue x 4 boards x 6 selections, **81** scoped applies
+  are legal AND leave the board unchanged, and `Heads Forward and Back` is one of them, so the behavioural
+  phrasing would refuse real calls. The witness is pinned in `engine/test/selection.mjs` - `All Except Heads
+  Circle Four Left 3/4` on the ring `All Except Heads Step Forward` leaves, whose whole-board reading tiles the
+  heads `5+6+1+2` - as the refusal, its reason, the whole-board control and the no-op control. EITHER SIDE:
+  `figure-census.mjs` **1 -> 1** (the corpus's missing `Promenade` dominates it) and `getout-behaviour.mjs`
+  identical over 412 published lines; `selection.mjs` **2 -> 1** with the new checks in place. ON A TREE WHERE
+  `Promenade` EXISTS THE GUARD COSTS ONE FIGURE, `figm17`, whose chain was reaching its wave through this exact
+  no-op; `engine/test/sequencer.mjs` now pins that stop and measures `Girls Circulate 2` on the canonical wave.
+  The gap it exposes is the heads' own `Lead Right` reading.
 
 - [ ] **4. 22 apply-side pairs whose end board already has coincident dancers.** `[recorded]`
   The walk-through's `COINCIDENT 32` splits into 10 animation faults and **22 APPLY faults**. These need the

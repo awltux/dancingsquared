@@ -197,6 +197,9 @@ console.log('\n== 8. The app uses the table, and no longer hand-rolls a listener
 const read = (rel) => fs.readFileSync(path.join(POC_DIR, rel), 'utf8');
 const mainSrc = read('src/main.ts');
 const editorSrc = read('src/editor-ui.ts');
+// Read for the collision check below: two panels' tables are installed side by side, and first-match-wins
+// means a letter claimed twice is a binding that silently stops working.
+const seqSrc = read('src/sequencer-ui.ts');
 
 check(/installKeys\(\[/.test(mainSrc), 'main.ts installs the table, once, for the whole app');
 check(/\bid: 'grid-mode',\s*\n\s*key: 'w',/.test(mainSrc),
@@ -241,6 +244,22 @@ check(/private hasGender\(gender: Gender\): boolean \{[\s\S]{0,120}?this\.gender
   /this\.selBoysBtn\.disabled = !this\.hasGender\('boy'\);/.test(editorSrc) &&
   /this\.selGirlsBtn\.disabled = !this\.hasGender\('girl'\);/.test(editorSrc),
   'and that test is ONE function the button state reads too, rather than a second copy of the rule');
+// THE MOVE STRIP'S TWO KEYS, pinned on the same three facts the gender pair is: the letters, the ONE method
+// they run (so the key and the strip cannot disagree about which slot is next), and the `when` that makes them
+// live exactly when the tile is.
+check(/id: 'editor-move-prev',[\s\S]{0,60}?key: 'a',/.test(editorSrc) &&
+  /id: 'editor-move-next',[\s\S]{0,60}?key: 'f',/.test(editorSrc),
+  'A and F are the two move-step keys');
+check(/id: 'editor-move-prev',[\s\S]{0,200}?run: \(\) => this\.stepMove\(-1\)/.test(editorSrc) &&
+  /id: 'editor-move-next',[\s\S]{0,200}?run: \(\) => this\.stepMove\(1\)/.test(editorSrc),
+  'and each runs the one `stepMove`, whose wrap is the imported rule in `move-nav.ts` (`move-nav-probe.mjs`)');
+check(/id: 'editor-move-prev',[\s\S]{0,120}?when: \(\) => this\.hasSelectedMove\(\)/.test(editorSrc) &&
+  /id: 'editor-move-next',[\s\S]{0,120}?when: \(\) => this\.hasSelectedMove\(\)/.test(editorSrc),
+  'live by the SAME `hasSelectedMove` test `S` uses, so a step cannot be taken with no strip on screen');
+// AND NOTHING ELSE MAY CLAIM EITHER LETTER: the table is first-match-wins, so a second binding on `a` or `f`
+// would leave one of the two silently dead rather than reporting a conflict.
+check(!/key: 'a',/.test(mainSrc) && !/key: 'f',/.test(mainSrc) && !/key: 'a',/.test(seqSrc) && !/key: 'f',/.test(seqSrc),
+  'and no binding outside the editor claims A or F, so first-match-wins cannot kill a step key');
 check(!/id: 'grid-mode'[\s\S]{0,80}?key: 'g'/.test(mainSrc),
   'with G no longer the grid toggle, so the two bindings cannot both claim it - the table is first-match-wins');
 check(!/window\.addEventListener\('keydown'/.test(editorSrc),

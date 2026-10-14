@@ -110,6 +110,9 @@ import { SCRUB_STEP, keptScrubBeat } from './scrub-keep';
 // make - modifiers, a field being typed into, auto-repeat, and whether this panel is on screen - are made
 // once for all of them.
 import type { KeyBinding } from './keys';
+// STEPPING THE MOVE STRIP IS ITS OWN PURE MODULE, for the reason `scrub-keep.ts` is: the wrap is arithmetic,
+// and a probe can only MEASURE it if it can import it rather than read this panel for the expression.
+import { stepMoveIndex } from './move-nav';
 
 export interface EditorUI {
   setActive(a: boolean): void;
@@ -3667,6 +3670,25 @@ export class EditorController implements EditorUI {
   }
 
   /**
+   * STEP THE SELECTED MOVE SLOT ONE ALONG, WRAPPING AT BOTH ENDS - what the A and F keys run.
+   *
+   * IT GOES THROUGH `selectMove`, THE SAME CALL A TILE CLICK MAKES, so the highlight, the board's handles and
+   * the `move k/n` readout cannot disagree with what the key did - and the wrap itself is the imported rule
+   * rather than a second copy of the arithmetic (`move-nav.ts`), which is also what makes it measurable.
+   *
+   * `null` MEANS "NOWHERE TO STEP" rather than slot 0: a dancer with no moves has no strip, and the key is
+   * already dead there (`hasSelectedMove`), so this is the second lock on the same door rather than the rule.
+   *
+   * A PLAIN STEP COLLAPSES AN OPEN RUN, exactly as a plain click does: the run is a range anchored at the
+   * selected move, so moving the cursor while leaving it open would show a range the caller never chose.
+   */
+  private stepMove(direction: -1 | 1) {
+    const next = stepMoveIndex(this.moveIndex, direction, this.currentMoves().length);
+    if (next === null) return;
+    this.selectMove(next);
+  }
+
+  /**
    * What the SELECTED dancers' same-numbered move lasts, and whether they agree.
    *
    * ASKED BEFORE THE FIELD IS DRAWN, because the answer changes what the field has to say. MEASURED
@@ -6019,6 +6041,22 @@ export class EditorController implements EditorUI {
         key: 's',
         when: () => this.hasSelectedMove(),
         run: () => this.toggleHandleMode(),
+      },
+      // THE MOVE STRIP, WALKED ONE SLOT AT A TIME. A and F step the selection the tile is showing, WRAPPING at
+      // both ends, and they are live by the same test `S` uses: without a tile there is no strip to walk. They
+      // run ONE method for the two directions, so the key and the strip cannot disagree about which slot is
+      // next, and that method delegates the wrap to `move-nav.ts` rather than spelling it out here.
+      {
+        id: 'editor-move-prev',
+        key: 'a',
+        when: () => this.hasSelectedMove(),
+        run: () => this.stepMove(-1),
+      },
+      {
+        id: 'editor-move-next',
+        key: 'f',
+        when: () => this.hasSelectedMove(),
+        run: () => this.stepMove(1),
       },
       {
         id: 'editor-edit-scope',

@@ -800,7 +800,7 @@ editor's panel and a shortcut bound to it would only work while that panel happe
 ### The keyboard: one table, one listener
 
 **Every shortcut in the app is a line in one table**, installed by `installKeys` in `poc/src/main.ts`.
-There are six:
+There are eight:
 
 - **`W`** — the floor grid, on every board in every tab.
 - **Ctrl/Cmd+Z** — undo, in the editor while it is editing an instance.
@@ -826,6 +826,15 @@ There are six:
   live by the **same test the button's `disabled` reads** (`hasGender`), so a key can never select a set the
   button would have refused to click. The tooltips name the key, because that is the only place in the app
   the shortcut is written down.
+- **`A`** and **`F`** — step the selected **move slot** one along, **wrapping at both ends**: `A` from move 0
+  goes to the last move, and `F` from the last goes back to 0. Asked for as *"Add keyboard shortcuts to change
+  the currently selected Move slot. Use A-KEY to select the previous move (lower index), rotating to the end
+  after it reaches 0 index. Similarly use F-KEY to select the next move (higher index), rotating to the start
+  after last index."* They run the one **`stepMove`**, which goes through **`selectMove`** — the same call a
+  tile click makes — so the move tile, the handles on the board and the `move k/n` readout cannot disagree
+  with the key; the wrap itself is the imported rule in `poc/src/move-nav.ts`, measured by
+  `poc/tools/move-nav-probe.mjs` rather than restated. Their `when` is **`hasSelectedMove()`**, the same test
+  `S` uses, so they are live exactly when there is a strip to walk.
 
   **They are why the grid toggle moved from `G` to `W`**, and the move is not cosmetic: the table is
   first-match-wins with the grid binding ahead of every panel's, so `G` on both would have left the girls

@@ -17,9 +17,10 @@
 //
 // THIS MODULE DERIVES THE SECOND NOTION from the board it is given, on demand:
 //
-//   * a COUPLE is a boy and a girl standing adjacent — twice `COUPLE_WIDTH` apart and facing the same
-//     way, which is the same test `boardHasCoupleGenderPairs` already used for "the board is a set of
-//     man-and-woman couples";
+//   * a COUPLE is a boy and a girl standing as one, in any of the three arrangements the corpus
+//     authors - side by side facing the same way, facing each other front-on, or ACROSS their facing
+//     side by side (a wave's own pair). `findCouplePairs` states all three and why the third was
+//     missing;
 //   * the couple's NUMBER is the BOY's. A boy keeps his own number; a girl adopts the number of the
 //     boy she is currently beside. That is the caller's own vocabulary ("couple 1" names the pair
 //     containing dancer 1) and it needs no new field on the dancer.
@@ -84,24 +85,36 @@ function inFrame(from: SeqDancer, to: SeqDancer): { forward: number; lateral: nu
 /**
  * The boy-girl couples standing on this board.
  *
- * TWO KINDS OF COUPLE, because the corpus defines two partial boards and they are not the same shape:
+ * THREE KINDS OF COUPLE, because the corpus defines three arrangements and they are not the same
+ * shape:
  *
- *   `Facing Couples*`  a couple standing SIDE BY SIDE (co-facing, `COUPLE_WIDTH` apart) which is
- *                      itself facing another such couple. The couple is the side-by-side pair; the
- *                      "facing" in the name is between the TWO couples, not within one.
- *   `Facing Dancers*`  a SINGLE couple facing each other — authored at several distances (Close 2,
- *                      Compact 3, 4, Far 6), so a facing couple is a range and not one width.
+ *   side by side   a couple standing SIDE BY SIDE facing the SAME way (a squared set, an Eight Chain
+ *                  Thru, a formed promenade position), `COUPLE_WIDTH` apart. `Facing Couples*` names
+ *                  a couple of this shape: the "facing" is between the TWO couples, not within one.
+ *   facing         a SINGLE couple facing each other, front-on. `Facing Dancers*` is authored at
+ *                  several distances (Close 2, Compact 3, 4, Far 6), so a facing couple is a RANGE.
+ *   wave           a couple standing ACROSS its own facing: opposite gender, one couple width apart,
+ *                  facing OPPOSITE ways, with the line between them perpendicular to that facing.
+ *                  This is what a wave is made of - each adjacent boy-girl pair in the wave - and the
+ *                  vocabulary it follows is the corpus's own: "Couples / Waves - dancers that are
+ *                  couples (facing the same direction), or dancers in waves or mini-waves (facing
+ *                  opposite directions)" (`taminations-flutter/assets/info/designators.md`).
  *
- * SIDE-BY-SIDE IS TRIED FIRST and the two are disjoint, because it is the reading that cannot
- * over-pair: in a wave nobody stands beside anyone, whereas a boy and a girl FACING each other at
- * wave width are everywhere (measured at 2.0 — Ocean Waves 4 such pairs, Eight Chain Thru 6, Trade By
- * 6, Double Pass Thru 2). Pairing on facing alone calls every wave neighbour a couple.
+ * WHY THE WAVE PASS EXISTS. Its absence was not neutral: with no pair recognised, every dancer kept
+ * its HOME couple, so on a wave `Couple #1` named the home pair - two dancers who can be SIX units
+ * apart on opposite sides of the set - which is exactly the failure `trade-run.ts` documents as its
+ * reason for calling `areCurrentPartners` ("a boy in a wave ended up with his partner six units away
+ * at the other end"). MEASURED over the 270 boards the catalogue reaches from a squared set: 53
+ * recognised NO couple and 27 answered `Couple #1` with two dancers more than 2.5 apart.
  *
- * THE FACING TEST IS FRONT-ON, and that is what separates a facing couple from a wave. In a facing
- * couple each dancer is STRAIGHT IN FRONT of the other: the offset is all `forward` and no `lateral`
- * in that dancer's own frame. A wave's boy-girl pair at 2.0 is an ADJACENT-COLUMN pair, so it has a
- * large lateral component and is rejected. (Measured without this: an `Ocean Waves` board returned
- * four pairs and a hand-built wave returned four more.)
+ * SIDE BY SIDE, THEN FACING, THEN WAVE, and the order is LOAD-BEARING rather than tidy: a board whose
+ * pairs are already side by side or facing is fully consumed by the first two passes, so a squared
+ * set, an Eight Chain Thru, a Trade By and a Double Pass Thru take NOTHING from the wave pass and
+ * their couple numbers and call legality cannot move. The passes are also disjoint by geometry, and
+ * deliberately so: pairing a wave's neighbours on "facing" ALONE is what the earlier rule refused -
+ * a boy and a girl facing each other at wave width are everywhere - so the wave pass is narrowed to
+ * `forward ~ 0`, which no front-on facing pair can satisfy, and to the couple-width band, which
+ * rejects the cross-wave pair four units away.
  *
  * Greedy and deterministic: boys in ascending id, each taking the nearest eligible girl. A dancer
  * with no eligible partner is left unpaired and keeps its home couple — this NEVER invents one.
@@ -109,7 +122,7 @@ function inFrame(from: SeqDancer, to: SeqDancer): { forward: number; lateral: nu
  *
  * THE SIDE-BY-SIDE PASS ALSO ADMITS A CO-FACING TANDEM, because it tests only distance and heading: two
  * dancers 2.0 apart facing the SAME way, one directly BEHIND the other, satisfy both. MEASURED over the
- * 187 boards reached from a squared set: 680 pairs stand side by side, 30 face each other, and 38 are
+ * boards reached from a squared set: 680 pairs stand side by side, 30 face each other, and 38 are
  * tandems spread over 12 boards — and 0 of those 38 renumber a girl off her home couple, so for the
  * couple NUMBER this function feeds the admission is inert. Left as it is ON PURPOSE: a tandem really is
  * "who is your partner", and only the ROLE readings need left/right — see `Grouping.beauBelle`, where a
@@ -123,7 +136,7 @@ export function findCouplePairs(board: Board): CouplePair[] {
   const takenBoy = new Set<number>();
   const pairs: CouplePair[] = [];
 
-  const tryPair = (wantsFacing: boolean): void => {
+  const tryPair = (mode: 'side' | 'facing' | 'wave'): void => {
     for (const boy of boys) {
       if (takenBoy.has(boy.id)) continue;
       let best: SeqDancer | null = null;
@@ -134,7 +147,7 @@ export function findCouplePairs(board: Board): CouplePair[] {
         const dh = Math.abs(
           Math.atan2(Math.sin(girl.heading - boy.heading), Math.cos(girl.heading - boy.heading)),
         );
-        if (wantsFacing) {
+        if (mode === 'facing') {
           // A facing couple: the two look AT each other, across the authored range, and are FRONT-ON
           // to within a small fraction of the separation. `LATERAL_FRACTION_SLOP` is a fraction so
           // the test scales with the distance: the corpus authors the same unit at 2, 3, 4 and 6, and
@@ -144,6 +157,16 @@ export function findCouplePairs(board: Board): CouplePair[] {
           const { forward, lateral } = inFrame(boy, girl);
           if (forward <= 0) continue;
           if (Math.abs(lateral) > dist * LATERAL_FRACTION_SLOP) continue;
+        } else if (mode === 'wave') {
+          // THE WAVE, and it is the MIRROR IMAGE of the facing pass: facing OPPOSITE at one couple
+          // width, but standing ACROSS that facing rather than in front of it. `forward ~ 0` is what
+          // separates the two - the facing pass needs `forward > 0` - and they cannot both claim a
+          // pair, because the facing pass allows at most a tenth of the separation laterally while a
+          // wave pair's lateral offset IS the separation.
+          if (Math.abs(dist - COUPLE_WIDTH) > COUPLE_WIDTH_TOL) continue;
+          if (Math.abs(dh - Math.PI) > COUPLE_FACING_TOL) continue;
+          const { forward } = inFrame(boy, girl);
+          if (Math.abs(forward) > dist * LATERAL_FRACTION_SLOP) continue;
         } else {
           if (Math.abs(dist - COUPLE_WIDTH) > COUPLE_WIDTH_TOL) continue;
           if (dh > COUPLE_FACING_TOL) continue;
@@ -157,8 +180,12 @@ export function findCouplePairs(board: Board): CouplePair[] {
     }
   };
 
-  tryPair(false);
-  tryPair(true);
+  // ORDER IS LOAD-BEARING. A board whose pairs are already side by side or facing is consumed by the
+  // first two passes, so a squared set, an Eight Chain Thru, a Trade By and a Double Pass Thru take
+  // nothing from the wave pass and their couple numbers and call legality cannot move.
+  tryPair('side');
+  tryPair('facing');
+  tryPair('wave');
   // Ascending boy id, so the order does not depend on the board's array order.
   return pairs.sort((a, b) => a.boy.id - b.boy.id);
 }

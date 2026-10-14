@@ -20,7 +20,9 @@ the harness that pins it, because commit messages are immutable and this file is
   `poc/tools/guard-exclusions-broken.md`, and **NOT re-measured**. Re-measure before acting: the two
   `HANDOVER.md` files were deleted for doing exactly this and being believed anyway.
 
-Last swept: **2026-10-14** (at HEAD `15d17ea`).
+Last swept: **2026-10-14**, from `15d17ea`. The tree moved to `a5668a2` MID-SWEEP — a POC-only commit by
+the owner (A/F step the selected move slot), so every engine measurement here still stands, and the probe
+suite's count went 59 → 60 because it added `poc/tools/move-nav-probe.mjs`.
 
 **The commands this file leans on**, all from the repo root:
 
@@ -54,14 +56,28 @@ Last swept: **2026-10-14** (at HEAD `15d17ea`).
   the code comments (`listAuthorings` in `poc/verify.cjs`, and the pin's own comment), not this file.
   The 2 remaining `poc/verify.cjs` failures are the `Circle Left` ring checks: filed under item 6.
 
-- [ ] **2. `Couple #N` on a wave reports a partner the engine elsewhere says is not the partner.** `[recorded]`
-  On Ocean Waves, `Couple #1 -> [5,6]` where **#6 is 4.00 away** from #5 while the adjacent girl #4 is 2.00
-  away, and `findCouplePairs` returns **0 pairs** for that board. Candidate A (beside, third pass) changes
-  `legalNext` on **19 of 263** boards (−20 `Beaus`/`Belles Trade`, +6 `Allemande Left`) and turns
-  `couples.mjs` 3 red; candidate B (beside for the NUMBER only) is **invisible to every gate (54 → 54)** but
-  leaves `Couple #1 = [4,5]` where `findCouplePairs` returns 0 — i.e. two contradictory definitions of
-  "current partner" in one engine. `Swing Your Partner` is unchanged by both (**0 of 263**). The unmeasured
-  consumer is `areCurrentPartners` → `trade-run.ts`'s Run/Trade preference, which is NOT in `legalNext`.
+- [x] **2. DONE — `Couple #N` on a wave named the home pair; a wave's adjacent pair is now the couple.**
+  `[measured]` _scope chosen by the owner: wave neighbours are couples EVERYWHERE, one definition._
+  The item as filed was `[recorded]`, and re-measuring it corrected three things. (a) The witness is not a
+  built board: `boardForFormation('Ocean Waves')` carries **no home identity**, so `Couple #N` answers
+  **null** there, not `[5,6]`. The defect needs a board **danced into** - `All 4 Couples Circle to a Wave`
+  answered `Couple #1 = [5,6]`, the home pair, **6.00** apart. (b) `findCouplePairs` returned 0 pairs on
+  **53** of the 270 boards the catalogue reaches from a squared set, and `Couple #1` was more than 2.5 apart
+  on **27** of them. (c) The recorded `19 of 263` / `−20` / `+6` numbers are stale; the measured delta is
+  **gained 7, lost 10** `legalNext` entries (`−Beaus/Belles Trade` and `+Allemande Left`, both directions).
+  **Fixed** by a THIRD pass in `findCouplePairs` (opposite gender, one couple width, facing OPPOSITE, offset
+  ACROSS that facing), run last so boards already paired side-by-side or facing cannot move. The authority
+  is the corpus's own vocabulary file: *"Couples / Waves - dancers that are couples (facing the same
+  direction), or dancers in waves or mini-waves (facing opposite directions)."*
+  MEASURED AFTER: `Ocean Waves` 0 → **4** pairs, each exactly **2.00**; `couples.mjs` §7's sweep **189
+  boards / 680 pairs → 223 boards / 816 pairs, 0 wrong** by its independent left/right truth; `Couple #1` on
+  the witness `[2,5]` at **2.00**.
+  **IT EXPOSED A SECOND DEFECT, FIXED WITH IT**: `beauBelle` took the left/right axis from whichever dancer
+  the board ARRAY listed first, which is invisible for a co-facing couple and ARBITRARY for a wave pair
+  (they face opposite ways). The truth test caught **39 of 816 pairs** wrong under the wave pass; the axis
+  now comes from the pair's BOY. The same test then reports **0 wrong**, and no board outside the wave ones
+  moved.
+  **AND A THIRD, FILED NOT FIXED** — see item 34.
 
 - [ ] **3. A scoped apply can be LEGAL and move nobody.** `[recorded]`
   `applySelected`'s last fallback can leave every selected dancer where it was and accept the step as a
@@ -244,10 +260,16 @@ indistinguishable from corpus churn. Freeze the corpus, run the full gate once, 
   The start-pose drag "has not been seen on the board", and the reorganized HUD has not been checked at a
   real viewport (layout, timeline scroll against a 40-beat sequence, keyboard against a focused control).
 
-- [ ] **32. `verify:figures` — the finish line, red BY DESIGN.** `[recorded]`
-  Re-measured at **116 of 188 figures**, **124 of 265** get-outs reaching a state the standard finish
-  resolves from, FSM **155 states (43 nohome, 19 dead `@embed#N`)**. The 72-figure gap is dominated by
-  **34 "catalogue tam has no setup"** and body errors. This is not a gate to make green; it is the target.
+- [ ] **32. `verify:figures` — the finish line, red BY DESIGN, and its census has COLLAPSED.** `[measured]`
+  Run today: `188 figures, 1717 call cells, 4 unread (0.2%)`; `FAIL 4 call cells across 4 distinct tokens are
+  not readable`; `164 distinct engine call names appear`, **`FAIL 16 of them are calls the engine does not
+  have`**; `180 get-out links captured`; and **`1 of 188 figures run end-to-end`**.
+  THAT LAST NUMBER WAS RECORDED AS **116 of 188** (and 13 missing calls, not 16) — so the figure census has
+  fallen by 115 in the current tree. **It is NOT this session's couples change**: measured before and after
+  that change and IDENTICAL on all four figures. It is the corpus mid-edit, and it is the largest single
+  signal in the repo right now — a census this low makes every other figure number incomparable with the
+  ones `PLAN.md` §2 records. Attribute it before trusting any census row, and re-measure the recorded 116 /
+  124-of-265 / FSM 155 rows once the corpus settles.
 
 - [ ] **33. Six more call selectors would die the same way item 1 did.** `[measured]`
   `poc/verify.cjs` has five further `{ title, … }` selector literals — `Brace Thru` (twice, lines 60 and 61),
@@ -257,3 +279,16 @@ indistinguishable from corpus churn. Freeze the corpus, run the full gate once, 
   authoring away from the same throw-at-the-gate failure, and the corpus is being edited. Cheapest
   prevention is to route them through the plural helper `listAuthorings` if and when one of them is touched
   for another reason; there is no reason to churn five working call sites now.
+
+- [ ] **34. `Beaus`/`Belles` is INCOMPLETE where only some of a board's couples are recognised.** `[measured]`
+  Found while fixing item 2, filed rather than fixed because it is a separate decision about the FALLBACK.
+  `beauBelle` groups dancers by their derived couple NUMBER and then requires each number to hold exactly two
+  dancers; on a partial board an unpaired dancer keeps its HOME number, so a number can hold three and that
+  whole pair then contributes **no** role. MEASURED on `Heads Single Rotate 1/2`, `Heads Reverse Single
+  Rotate 1/2` and `Sides Reverse Single Rotate 1/2`: the board recognises **three** couples but `Beaus` has
+  only **two** entries, and an independent left/right truth check reports the missing pair
+  (`engine beau #null truth #8`). It costs those boards `Beaus Trade` / `Belles Trade` legality — 5 of the 10
+  lost entries in item 2's delta — because the engine then has no complete designated set to trade.
+  The choice to take: derive the roles from `findCouplePairs`' own pairs (always one role per recognised
+  pair, complete by construction) rather than by re-grouping numbers — which also removes the fallback that
+  currently invents roles for UNRECOGNISED pairs out of home numbers, the same invention item 2 was about.

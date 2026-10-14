@@ -137,17 +137,32 @@ console.log('\n== (4) a board with no identity invents no couple ==');
     'and the derivation invents none either - every number stays 0');
   // Same-gender and wrongly-spaced dancers are not couples. Three dancers is NOT the test - a boy and
   // a girl two apart in the middle of a line really is a couple, and the derivation is right to say so.
-  const notCouples = {
-    dancers: [
-      { id: 1, couple: 0, gender: 'boy', x: -2, y: 1, heading: 0 },
-      { id: 2, couple: 0, gender: 'boy', x: 0, y: 1, heading: 0 },   // same gender
-      { id: 3, couple: 0, gender: 'girl', x: 8, y: 1, heading: 0 },  // too far to be a couple
-      { id: 4, couple: 0, gender: 'girl', x: -2, y: -1, heading: Math.PI }, // back to back, not co-facing
-    ],
-  };
-  check(findCouplePairs(notCouples).length === 0,
-    `two boys, a distant girl and a back-to-back girl yield no couple (got ${findCouplePairs(notCouples).length})`);
-  check(notCouples.dancers.every((d) => currentCoupleOf(notCouples, d.id) === d.couple),
+  // ONE BOARD PER FAULT, so a failure names the fault. They were one board until the wave pass landed,
+  // and its `girl #4` at (-2,-1)@pi against `boy #1` at (-2,1)@0 was mis-described as "back to back,
+  // not co-facing": those two are 2.0 apart, face OPPOSITE ways and stand ACROSS that facing, which is
+  // a wave pair and is now a couple by design. The replacement control is the one shape nothing may
+  // pair - a diagonal neighbour, where the offset is neither along the facing (a facing couple) nor
+  // across it (a wave), and both passes' fraction-of-the-separation bands reject it.
+  const mkBoard = (dancers) => ({ dancers });
+  const sameGender = mkBoard([
+    { id: 1, couple: 0, gender: 'boy', x: -2, y: 1, heading: 0 },
+    { id: 2, couple: 0, gender: 'boy', x: 0, y: 1, heading: 0 },
+  ]);
+  check(findCouplePairs(sameGender).length === 0,
+    `two boys 2.0 apart facing the same way yield no couple (got ${findCouplePairs(sameGender).length})`);
+  const tooFar = mkBoard([
+    { id: 1, couple: 0, gender: 'boy', x: -2, y: 1, heading: 0 },
+    { id: 2, couple: 0, gender: 'girl', x: 8, y: 1, heading: Math.PI },
+  ]);
+  check(findCouplePairs(tooFar).length === 0,
+    `a boy and a girl 10 units apart yield no couple (got ${findCouplePairs(tooFar).length})`);
+  const diagonal = mkBoard([
+    { id: 1, couple: 0, gender: 'boy', x: 0, y: 0, heading: 0 },
+    { id: 2, couple: 0, gender: 'girl', x: 1.4142, y: 1.4142, heading: Math.PI },
+  ]);
+  check(findCouplePairs(diagonal).length === 0,
+    `a DIAGONAL neighbour 2.0 away facing the opposite way yields no couple (got ${findCouplePairs(diagonal).length}) - the wave pass needs the offset ACROSS the facing, not at 45 degrees to it`);
+  check([...sameGender.dancers, ...tooFar.dancers, ...diagonal.dancers].every((d) => currentCoupleOf({ dancers: [d] }, d.id) === d.couple),
     'and each of them keeps its own (unknown) number');
 }
 
@@ -175,9 +190,11 @@ console.log('\n== (5) a facing couple pairs; a wave does not ==');
     const got = findCouplePairs(b).map((p) => `${p.boy.id}+${p.girl.id}`).join(' ');
     check(got === '1+2', `${label} (${sep} apart) is one facing couple (got "${got}")`);
   }
-  // A WAVE: two columns of dancers in a line, boy-girl facing at 2.0 ACROSS, adjacent in the line.
-  // This is the shape that made a naive "facing boy-girl" rule pair four wave neighbours on a real
-  // `Ocean Waves` board, so it is the negative control the rule has to keep passing.
+  // A CHAIN OF FRONT-ON PAIRS, which this comment used to call a wave. All four dancers sit on y = 0
+  // with the facings ALONG the line, so every pair here is front-on and the FACING pass claims them
+  // before the wave pass is reached. Kept as the control for "a front-on pair at 2.0 must not be
+  // cross-paired" - and it is NOT a wave: the real one is the `Ocean Waves` board below, whose pairs
+  // stand ACROSS their facing rather than in front of it.
   const wave = mk([
     { id: 1, couple: 0, gender: 'boy', x: -3, y: 0, heading: 0 },
     { id: 2, couple: 0, gender: 'girl', x: -1, y: 0, heading: Math.PI },
@@ -186,10 +203,21 @@ console.log('\n== (5) a facing couple pairs; a wave does not ==');
   ]);
   const wavePairs = findCouplePairs(wave).map((p) => `${p.boy.id}+${p.girl.id}`).join(' ');
   check(wavePairs === '1+2 3+4', `the wave's own facing pairs are returned, not a cross-pairing (got "${wavePairs}")`);
-  // And the real `Ocean Waves` board carries no side-by-side couple at all.
+  // A WAVE, and it is the POSITIVE case now rather than the control it used to be. The corpus's own
+  // `Ocean Waves` board is two columns of four at x = +-2, y = 3,1,-1,-3 with the headings alternating,
+  // so each adjacent boy-girl pair is 2.0 apart, faces OPPOSITE ways, and stands ACROSS that facing.
+  // `taminations-flutter/assets/info/designators.md` defines the vocabulary this follows: "Couples /
+  // Waves - dancers that are couples (facing the same direction), or dancers in waves or mini-waves
+  // (facing opposite directions)". MEASURED: the board yields ZERO couples before the wave pass and
+  // FOUR after, every one of them exactly 2.00 apart - and with zero, `Couple #N` fell back to the home
+  // pair, which on a wave can be six units away at the other end of the set.
   const ow = seq.boardForFormation('Ocean Waves');
-  check(findCouplePairs(ow).length === 0,
-    `an Ocean Waves board yields no couple (got ${findCouplePairs(ow).length}) - the front-on test`);
+  const owPairs = findCouplePairs(ow);
+  console.log(`  Ocean Waves pairs: ${owPairs.map((p) => `${p.boy.id}+${p.girl.id}@${Math.hypot(p.boy.x - p.girl.x, p.boy.y - p.girl.y).toFixed(2)}`).join(' ')}`);
+  check(owPairs.length === 4,
+    `an Ocean Waves board yields its FOUR wave couples (got ${owPairs.length})`);
+  check(owPairs.every((p) => Math.abs(Math.hypot(p.boy.x - p.girl.x, p.boy.y - p.girl.y) - 2) < 1e-9),
+    'and every one of them is exactly one couple width apart');
 }
 
 // ---- (6) the couple READINGS --------------------------------------------------------------------
@@ -237,6 +265,42 @@ console.log('\n== (6) `Couple #N` names the pair standing together; `Heads` stil
     const nl = seq.boardForFormation('Normal Lines');
     check(seq.selectionIds(nl, 'Couple #1') === null,
       'a board with no home identity resolves Couple #1 to null rather than inventing one');
+  }
+}
+
+// ---- (6b) THE REPORTED SYMPTOM: `Couple #N` on a WAVE ------------------------------------------
+//
+// REPORTED as "`Couple #N` on a wave reports a partner the engine elsewhere says is not the partner".
+// The witness has to be a board DANCED INTO rather than `boardForFormation('Ocean Waves')`: that one is
+// built from the formation file with no home identity at all, so `Couple #N` answers null there (the
+// check above pins that) and there is no home pair for the defect to name. MEASURED on this witness
+// before the wave pass: `Couple #1` was `[5,6]`, the home pair, whose two dancers stand **6.00** apart
+// on opposite sides of the set.
+console.log('\n== (6b) `Couple #N` on a wave names the pair standing there ==');
+{
+  const start = seq.boardForFormation('Static Square');
+  const r = seq.applyToBoard(start, 'All 4 Couples Circle to a Wave');
+  check(r.legal, `the wave witness applies (${r.reason ?? 'ok'})`);
+  if (r.legal) {
+    const b = r.board;
+    const pairs = findCouplePairs(b);
+    check(pairs.length === 4, `the witness is a wave: four couples recognised (got ${pairs.length})`);
+    const gap = (sel) => {
+      const g = seq.selectionIds(b, sel);
+      if (!g || g.length !== 2) return null;
+      const [x, y] = g.map((id) => b.dancers.find((d) => d.id === id));
+      return +Math.hypot(x.x - y.x, x.y - y.y).toFixed(3);
+    };
+    console.log(`  Couple #1 -> [${seq.selectionIds(b, 'Couple #1')}] gap ${gap('Couple #1')}   Couple #2 -> [${seq.selectionIds(b, 'Couple #2')}] gap ${gap('Couple #2')}`);
+    check(gap('Couple #1') === 2, `Couple #1 names the wave pair standing together (gap ${gap('Couple #1')}, was 6.00)`);
+    check(gap('Couple #2') === 2, `and Couple #2 does too (gap ${gap('Couple #2')})`);
+    // THE PAIR IT NAMES IS THE PAIR THE ENGINE ITSELF DERIVED - one definition, not two.
+    const asPairs = pairs.map((p) => [p.boy.id, p.girl.id].sort((a, c) => a - c).join(','));
+    const named = ['Couple #1', 'Couple #2', 'Couple #3', 'Couple #4']
+      .map((sel) => (seq.selectionIds(b, sel) ?? []).slice().sort((a, c) => a - c).join(','))
+      .filter(Boolean);
+    check(named.length === 4 && named.every((n) => asPairs.includes(n)),
+      `every Couple #N names a pair findCouplePairs derived (named ${named.join(' | ')} against ${asPairs.join(' | ')})`);
   }
 }
 

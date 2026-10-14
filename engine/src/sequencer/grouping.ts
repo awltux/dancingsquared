@@ -260,10 +260,22 @@ export class Grouping {
       // pair's order: that designation is undefined there rather than merely wrong, and this does not
       // invent one. (`findCouplePairs`'s side-by-side pass admits a co-facing tandem at 2.0 as a
       // "couple", so this case is reachable, not theoretical: 68 of the 748 pairs in that sweep.)
-      const leftX = -Math.sin(a.heading);
-      const leftY = Math.cos(a.heading);
-      const beau = (a.x - b.x) * leftX + (a.y - b.y) * leftY >= 0 ? a : b;
-      const belle = beau === a ? b : a;
+      // WHICH DANCER'S FRAME THE AXIS COMES FROM, and it has to be one frame for the PAIR rather than
+      // whichever dancer the board array happens to list first. Array order was that frame, and it is
+      // invisible while the two dancers face the same way - for a side-by-side couple the cos/sin of
+      // either heading are the same, so both frames give the same answer. It becomes ARBITRARY the moment
+      // they face OPPOSITE ways, which is exactly what a wave's pair does: MEASURED with the wave pass in
+      // place, 39 of the 816 pairs the sweep reaches got the wrong dancer and every one of them was a
+      // wave pair, the winner decided by nothing but array position - the same defect class this comment
+      // already records for the cross product. A couple's two dancers are a boy and a girl by
+      // construction, so the BOY's frame is the one both dancers' `couple` numbers already agree on, and
+      // it is the frame `couples.mjs` §7's independent left/right truth reads.
+      const from = a.gender === 'boy' ? a : b.gender === 'boy' ? b : a;
+      const to = from === a ? b : a;
+      const leftX = -Math.sin(from.heading);
+      const leftY = Math.cos(from.heading);
+      const beau = (from.x - to.x) * leftX + (from.y - to.y) * leftY >= 0 ? from : to;
+      const belle = beau === from ? to : from;
       out.push(role === 'beaus' ? beau.id : belle.id);
     }
     return out.length ? [[...out].sort((a, b) => a - b)] : null;

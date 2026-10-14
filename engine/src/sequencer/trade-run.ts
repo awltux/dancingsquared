@@ -71,6 +71,13 @@ function relative(a: D, b: D): { forward: number; lateral: number } {
  * dancers it names are no longer beside each other — a boy in a wave ended up with his "partner" six
  * units away at the other end. A Run's partner preference is about who is standing next to you.
  *
+ * AND THE DELEGATION ONLY STARTED WORKING ON A WAVE WHEN `couples.ts` LEARNED THE WAVE ARRANGEMENT.
+ * `findCouplePairs` recognised no pair at all on a wave, so `areCurrentPartners` answered false for the
+ * two dancers standing together there and every dancer fell back to its home couple — which is the very
+ * six-units-away answer this function was written to stop. MEASURED: 53 of the 270 boards the catalogue
+ * reaches from a squared set recognised no couple before that pass and 223 of 270 recognise all four
+ * after it.
+ *
  * Read from the board rather than from a stored pairing, so it follows the dancers as they move.
  */
 function arePartners(board: Board, a: D, b: D): boolean {

@@ -20,7 +20,7 @@ the harness that pins it, because commit messages are immutable and this file is
   `poc/tools/guard-exclusions-broken.md`, and **NOT re-measured**. Re-measure before acting: the two
   `HANDOVER.md` files were deleted for doing exactly this and being believed anyway.
 
-Last swept: **2026-10-14** (HEAD `29b0752`).
+Last swept: **2026-10-14** (at HEAD `15d17ea`).
 
 **The commands this file leans on**, all from the repo root:
 
@@ -37,19 +37,22 @@ Last swept: **2026-10-14** (HEAD `29b0752`).
 
 ## P0 — silently wrong, or a gate that cannot run
 
-- [ ] **1. Fix the two ambiguous call selectors that abort whole gates.** `[measured]`
-  `poc/verify.cjs:175` selects `{ title: 'Allemande Left', from: 'Left-Hand Waves' }`, and the comment above
-  it claims *"from is what tells these thirteen Allemande Left tams apart, so it is the identity here"* — but
-  `poc/src/assets/ms/allemande.xml` has **two** such tams: line 183 (an embedded 4-dancer `<formation>`) and
-  line 441 (`formation="Ocean Waves LH GBBG"`). `selectTam` correctly refuses, the script **throws, and
-  `poc/verify.cjs` stops there** — everything after it is unmeasured. MEASURED: the run reports the two
-  pre-existing `Circle Left` ring failures and then
-  `2 tams match "Allemande Left" from "Left-Hand Waves", so the name is NOT unique`. Both tams are in HEAD
-  (`git show HEAD:poc/src/assets/ms/allemande.xml` has 2), so this is a committed defect and **not** the
-  corpus mid-edit. Same class in `engine/test/tools/ladies-sashay-probe.mjs`:
-  `FAIL the title resolves to 2 variants (two tams, Circle Left and Circle Right)`.
-  *Fix:* disambiguate by `formation` (or iterate every matching tam). One line each, and it unblocks the
-  rest of both gates — the cheapest high-value item in the repo.
+- [x] **1. DONE `15d17ea` — the Allemande Left selector that aborted `poc/verify.cjs`.** `[measured]`
+  The Allemande Left loop's selector was `{ title: 'Allemande Left', from }`, and
+  `poc/src/assets/ms/allemande.xml`
+  has **two** such tams (lines 183 and 441), so `selectTam` refused, the script threw, and the gate stopped
+  there with everything after it unmeasured. **ROOT CAUSE, unattributed before this: `50d3e95`** ("corpus:
+  retire b1/b2 into ms 2026") — `50d3e95^` has ONE `Left-Hand Waves` tam, HEAD has two. The gate now
+  resolves EVERY authoring (`buildCallVariants` + filter on the bundle's own `title`/`from`) and treats an
+  empty list as a FAILURE. MEASURED AFTER: **43 ok / 2 FAIL**, reaching its own summary — the throw had been
+  hiding nothing (both `Left-Hand Waves` authorings pass with maxDeg=1; Wheel Around, motion sanity and
+  `all 490/490 catalog calls load without error` all pass). `ladies-sashay-probe` is all green.
+  **THIS ITEM WAS ALSO HALF WRONG AND THE CORRECTION MATTERS:** the `ladies-sashay-probe` half was a **STALE
+  PIN** (4 → 2), **not** an ambiguous selector, and `50d3e95` caused that too — `b1/sashay.xml` (2 tams) and
+  `ms/sashay.xml` (2 tams) were both pooled under the title until b1 was retired. Fixed in the same pass,
+  with the reason recorded in the probe so nobody re-pins it to 4. The durable record for both halves is now
+  the code comments (`listAuthorings` in `poc/verify.cjs`, and the pin's own comment), not this file.
+  The 2 remaining `poc/verify.cjs` failures are the `Circle Left` ring checks: filed under item 6.
 
 - [ ] **2. `Couple #N` on a wave reports a partner the engine elsewhere says is not the partner.** `[recorded]`
   On Ocean Waves, `Couple #1 -> [5,6]` where **#6 is 4.00 away** from #5 while the adjacent girl #4 is 2.00
@@ -83,13 +86,28 @@ indistinguishable from corpus churn. Freeze the corpus, run the full gate once, 
   Seven corpus XMLs are modified and uncommitted in the tree (`formations.xml`,
   `ms/{alamo_style,allemande,circle,promenade,right_and_left_grand,star}.xml`). Nothing below can be
   classified as defect-vs-stale until those are settled.
+  **SWEEP FOR MORE `50d3e95` DAMAGE — the pin drifts below are probably not all corpus churn.** Item 1 found
+  that the b1/b2 retirement broke TWO unrelated gates (an ambiguous selector and a stale count) and that
+  neither was attributed. That commit deleted the `b1/` and `b2/` level directories, so any gate counting,
+  pooling or listing tams across levels was pinned to a tree that no longer exists. The method: for each
+  currently-red harness, ask whether its pinned number was plausibly taken across b1/b2, and check with
+  `git show 50d3e95^:poc/src/assets/b1/<file>` whether the difference is exactly the retired copy. A red
+  whose delta equals a b1/b2 duplicate is a re-pin; a red that does not is a real change.
 
-- [ ] **6. `catalogue` — 3 checks, all on `Circle Left`.** `[measured]`
-  `node engine/test/catalogue.mjs`
+- [ ] **6. `Circle Left` fails in TWO gates — almost certainly one corpus edit.** `[measured]`
+  `node engine/test/catalogue.mjs` → 3 checks:
   - `FAIL Circle Left from a Static Square ROUND-TRIPS (worst position residual 0.5860, was 0.6140 under the ascending order)`
   - `FAIL Circle Left leaves every facing where it found it (worst heading residual 22.50 deg, was 43.80)`
   - `FAIL the board after Circle Left is still named Static Square (got Circle)`
-  The 22.50° residual and the `Circle` name both point at `ms/circle.xml` (mid-edit) — re-measure first.
+
+  `node poc/verify.cjs` → 2 checks, and these are the ENTIRE remaining failure list of that gate now that it
+  runs to completion:
+  - `FAIL Circle Left derives 0 holds (expect 8 for a ring)`
+  - `FAIL every dancer holds exactly 2 neighbours (a ring)`
+
+  The 22.50° residual, the `Circle` name and "0 holds" all point at one thing: `ms/circle.xml` is mid-edit and
+  its ring no longer closes. Treat the two gates as one investigation and re-measure once the corpus settles —
+  do NOT fix either gate's expectation first.
 
 - [ ] **7. Pin-drift failures: each needs ONE decision, re-pin or fix.** `[measured]`
   These are signals, not noise — a pinned number moved.
@@ -221,7 +239,6 @@ indistinguishable from corpus churn. Freeze the corpus, run the full gate once, 
 
 - [ ] **30. `fsm-view` is 352 lines of one template literal**, and its two layouts duplicate each other.
   `[recorded]`
-  `[recorded]`
 
 - [ ] **31. Browser observations never made.** `[recorded]`
   The start-pose drag "has not been seen on the board", and the reorganized HUD has not been checked at a
@@ -231,3 +248,12 @@ indistinguishable from corpus churn. Freeze the corpus, run the full gate once, 
   Re-measured at **116 of 188 figures**, **124 of 265** get-outs reaching a state the standard finish
   resolves from, FSM **155 states (43 nohome, 19 dead `@embed#N`)**. The 72-figure gap is dominated by
   **34 "catalogue tam has no setup"** and body errors. This is not a gate to make green; it is the target.
+
+- [ ] **33. Six more call selectors would die the same way item 1 did.** `[measured]`
+  `poc/verify.cjs` has five further `{ title, … }` selector literals — `Brace Thru` (twice, lines 60 and 61),
+  `Pass Thru` (166), `Circle Left` (188) and `Wheel Around` (224), as of `15d17ea` — and
+  `poc/tools/end-spin-probe.mjs` has one. All six resolve to exactly one tam **today**, so they were
+  deliberately left alone in `15d17ea` rather than rewritten speculatively. Each is one legitimate second
+  authoring away from the same throw-at-the-gate failure, and the corpus is being edited. Cheapest
+  prevention is to route them through the plural helper `listAuthorings` if and when one of them is touched
+  for another reason; there is no reason to churn five working call sites now.

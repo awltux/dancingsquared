@@ -151,8 +151,14 @@ console.log(`\n== the caller's sequence: Static Square -> hold hands -> ladies i
 }
 console.log(`\n== the answer, pinned ==`);
 void show;
-check(seq.getVariants(TITLE).length === 4,
-  `the title resolves to ${seq.getVariants(TITLE).length} variants (two tams, Circle Left and Circle Right)`);
+// TWO, NOT FOUR, and the four was never wrong about the tams - it was counting a SECOND LEVEL's copy of
+// them. This pinned 4 from `b52f5b5` while `b1/sashay.xml` (2 tams) and `ms/sashay.xml` (2 tams) both
+// existed and `callsByTitle` pools every level's tams under the title. `50d3e95` ("retire b1/b2 into ms
+// 2026") removed the b1 copy, so the answer is the 2 tams that are actually there: one per direction.
+// `loadVariants` builds exactly one variant per <tam> (`library.ts`), and `git grep -l` finds the title
+// in `ms/sashay.xml` alone. Do not "fix" this back to 4 without a second level to point at.
+check(seq.getVariants(TITLE).length === 2,
+  `the title resolves to ${seq.getVariants(TITLE).length} variants (one tam per direction: Circle Left, Circle Right)`);
 check(!!circle && circle.dancers.length === 8,
   'the engine has a named `Circle` formation to stand the figure up from');
 check(!!circle && seq.legalCalls(circle).includes(TITLE),

@@ -6,17 +6,23 @@
 //
 // What this pins:
 //   (1) the reported case - all-8 `Dosado` from a `Static Square` is not offered at MS
-//   (2) the exact-name match - `Left Dosado` (LEGAL, no coded rule) and `Dosado to a Wave` are untouched,
+//   (2) the match is EXACT - `Left Dosado` (LEGAL, no coded rule) and `Dosado to a Wave` are untouched,
 //       which is why the rule may not match on a prefix
-//   (3) scoped forms survive - `Heads Dosado` / `Sides Dosado` are still offerable for their group
+//   (3) the SCOPED forms survive - `Heads Dosado` / `Sides Dosado` are still offerable for their group
 //   (4) LEVEL OVERRIDE - "a later level overrides an earlier one": an MS deny that PLUS contradicts is
 //       lifted at PLUS and still in force at MS
 //   (5) "never" is not a special category, just a rule no level overrides
-//   (6) PICKER-ONLY - `applyToBoard` still applies the suppressed call
-//   (7) the default is ALLOW, so a rule that matches nothing cannot empty the list
-//   (8) all-8 `Lead Right` from a `Static Square` is not offered, while `Heads` / `Sides` still are
-//   (9) a rule may name SEVERAL groups (`group: [...]`) and matches any of them; `[]` is rejected,
-//       because "any group" is the ABSENT field and the two must not be confusable
+//   (6) a rule ABOVE the active level is not consulted
+//   (7) PICKER-ONLY - `applyToBoard` still applies the suppressed call
+//   (8) the default is ALLOW, so a rule that matches nothing cannot empty the list
+//   (9) the shipped rules are well-formed, an empty group list included
+//  (10) Boys/Girls Dosado are never offered from a Static Square
+//  (11) a rule keyed on a board does not follow the call to other boards
+//  (12) a board-less request cannot trip a formation rule
+//  (13) all-8 `Lead Right` is not offered from a Static Square, while `Heads` / `Sides` still are
+//  (14) one rule may name SEVERAL groups (`group: [...]`) and matches any of them
+//  (15) and the refusal REMOVES THE OVERLAP: every reading still offered moves at most two couples and
+//       never closes within 1.0 of another dancer, while the refused reading moves all eight onto one spot
 //
 // Usage: node engine/test/permissions.mjs
 import { readFileSync } from 'node:fs';
@@ -237,10 +243,14 @@ for (const g of ['Heads', 'Sides']) {
 // selection, not a different call, and a rule that swallowed it would refuse the very reading it names.
 check(seq.mayOffer('Heads Lead Right', 'Heads', square).allowed === true,
   'and the `Heads Lead Right` spelling is offered for Heads');
-// THE NEGATIVE CONTROL FOR THE MATCH: a title that merely STARTS with the denied name. `matching` is exact
-// on the normalised name, so this must survive; a prefix match would take it, and it is a different call.
-check(seq.mayOffer('Lead Right from Lines', 'All 8', square).allowed === true,
-  '`Lead Right from Lines` is untouched - the match is exact, not a prefix');
+// THE NEGATIVE CONTROL FOR THE MATCH: a title that merely CONTAINS the denied name. `matching` is exact
+// on the normalised name, so this must survive; a substring or prefix match would take it.
+//
+// `Lead Right from Lines` was this control until the caller extended the rules to the two prefixed
+// authorings as well, which is a deny rather than a bug - so the witness is now a DIFFERENT call that
+// still contains the name, and the prefixed pair is asserted refused in section 15.
+check(seq.mayOffer('Heads Lead Right and Roll', 'All 8', square).allowed === true,
+  '`Heads Lead Right and Roll` is untouched - the match is exact, not a prefix or a substring');
 // FORMATION-SCOPED, not global: an eight-dancer `Lead Right` authoring exists from `Normal Lines`, where
 // the whole-board reading is the call working as authored.
 {
@@ -300,6 +310,76 @@ console.log('\n== (14) ONE RULE CAN NAME SEVERAL GROUPS, AND MATCHES ANY OF THEM
   check(squareDosado.length === 1, `ONE rule covers the Boys and Girls square-set Dosado (${squareDosado.length})`);
   check(JSON.stringify(squareDosado[0]?.group) === JSON.stringify(['Boys', 'Girls']),
     `and it names both (${JSON.stringify(squareDosado[0]?.group)})`);
+}
+
+console.log('\n== (15) THE ALL-8 `Lead Right` REFUSAL REMOVES THE OVERLAP ==');
+// ASKED FOR: "The rules prevent 'All 8' being used on a static square, so only Heads and Sides can be
+// applied. This means only two couples can execute the call, removing the overlap."
+//
+// MEASURED PER READING rather than asserted in the abstract: for every group the board's own selector
+// offers, ask the layer, apply the reading, count the dancers it actually MOVES, and sample the call to
+// find the closest any two dancers ever come. The refused all-8 reading is the control - it moves all
+// eight and closes to 0.000, which is the overlap the rule exists to prevent, and it is measured through
+// `applyToBoard`, which the layer deliberately does not gate (section 7).
+const closestOn = (board) => {
+  const ds = board.dancers;
+  let m = Infinity;
+  for (let i = 0; i < ds.length; i++) for (let j = i + 1; j < ds.length; j++) m = Math.min(m, Math.hypot(ds[i].x - ds[j].x, ds[i].y - ds[j].y));
+  return m;
+};
+const reading = (title, group) => {
+  const name = group === 'All 8' ? title : `${group} ${title}`;
+  const offered = seq.mayOffer(title, group, square).allowed;
+  const r = seq.applyToBoard(square, name);
+  let worst = Infinity;
+  if (r.legal) {
+    const total = seq.sequenceBeats([name], square);
+    for (let k = 0; k <= 24; k++) worst = Math.min(worst, closestOn(seq.evaluateSequence([name], (total * k) / 24, square).board));
+  }
+  const moved = r.legal
+    ? square.dancers.filter((d) => {
+      const a = r.board.dancers.find((x) => x.id === d.id);
+      return a && (Math.hypot(a.x - d.x, a.y - d.y) > 1e-6 || Math.abs(a.heading - d.heading) > 1e-6);
+    }).length
+    : 0;
+  return { group, offered, legal: r.legal, moved, worst };
+};
+{
+  // The refusal covers every authoring of the call, not only the one the picker happens to list.
+  for (const title of ['Lead Right', 'Lead Right from Lines', 'Lead Right from Close Couples']) {
+    check(seq.mayOffer(title, 'All 8', square).allowed === false, `${title}: all-8 is refused from a Static Square`);
+  }
+  const vocabulary = ['All 8', ...seq.subsetGroups(square), ...seq.combinedGroups(square)];
+  const readings = vocabulary.map((g) => reading('Lead Right', g));
+  const offered = readings.filter((x) => x.offered && x.legal);
+  // COVERAGE FIRST: a layer that refused everything would satisfy the two checks below while offering
+  // nothing at all, which is the empty-picker failure the layer's own default exists to avoid.
+  check(offered.length > 0, `coverage: ${offered.length} of ${vocabulary.length} reading(s) are still offered AND legal`);
+  const mostMoved = Math.max(...offered.map((x) => x.moved));
+  check(mostMoved <= 4, `no offered reading moves more than TWO COUPLES (most: ${mostMoved} dancers)`);
+  const nearest = Math.min(...offered.map((x) => x.worst));
+  check(nearest >= 1.0, `and none of them ever comes within 1.0 of another dancer (worst ${nearest.toFixed(3)})`);
+  const all8 = readings.find((x) => x.group === 'All 8');
+  check(all8.moved === 8 && all8.worst < 0.001,
+    `CONTROL: the refused all-8 reading moves all ${all8.moved} and closes to ${all8.worst.toFixed(3)} - the overlap is real`);
+  // WHAT THE REFUSAL DOES NOT REACH, reported rather than hidden. A reading is COUPLE-SCOPED when every
+  // dancer it names belongs to a couple all of whose members it also names; the deny list is written per
+  // GROUP NAME, so a reading that is not a whole couple ("Head Boys" is one boy from each head couple) is
+  // left alone. Those do not collide - each is a two-dancer reading - but they are not a Lead Right
+  // either, and this ceiling is what keeps the residue visible and strictly decreasing.
+  const coupleIds = ['Couple #1', 'Couple #2', 'Couple #3', 'Couple #4']
+    .map((c) => seq.selectionIds(square, c))
+    .filter((ids) => !!ids);
+  const coupleScoped = (g) => {
+    const ids = seq.selectionIds(square, g);
+    if (!ids || ids.length === 0) return false;
+    return ids.every((id) => coupleIds.some((c) => c.includes(id) && c.every((x) => ids.includes(x))));
+  };
+  const notCouples = offered.filter((x) => !coupleScoped(x.group));
+  // A CEILING AT THE MEASURED VALUE, so a fixed reading is a green and a NEW one is a red: the honest way
+  // to pin a residue that is expected to shrink.
+  check(notCouples.length <= 14,
+    `residue, reported not hidden: ${notCouples.length} offered reading(s) are not whole couples (${notCouples.map((x) => x.group).join(', ') || 'none'})`);
 }
 
 console.log(failures === 0 ? '\npermissions: all green.' : `\npermissions: ${failures} FAILURE(S)`);

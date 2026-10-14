@@ -14,6 +14,7 @@
 //   (5) "never" is not a special category, just a rule no level overrides
 //   (6) PICKER-ONLY - `applyToBoard` still applies the suppressed call
 //   (7) the default is ALLOW, so a rule that matches nothing cannot empty the list
+//   (8) all-8 `Lead Right` from a `Static Square` is not offered, while `Heads` / `Sides` still are
 //
 // Usage: node engine/test/permissions.mjs
 import { readFileSync } from 'node:fs';
@@ -208,6 +209,55 @@ console.log('\n== (12) a board-less request cannot trip a formation rule ==');
   check(noBoard.allowed === true, 'with no board the formation-scoped deny does not match');
   const named = evaluatePermissions(PERMISSION_RULES, { call: 'Dosado', group: 'Boys', board: 'Static Square', level: 'ms' });
   check(named.allowed === false, 'and naming the board makes it match');
+}
+
+console.log('\n== (13) ALL-8 `Lead Right` FROM A STATIC SQUARE ==');
+// ASKED FOR: "how would I exclude All 8 from Lead Right when in Static Square", with the caller's own
+// scope: "it is valid from heads and sides". The rule is the square-set reading only - see the rule's
+// comment in permissions.ts for the measurement that made it a rule rather than a tiling fix.
+{
+  const r = seq.mayOffer('Lead Right', 'All 8', square);
+  check(r.allowed === false, 'all-8 Lead Right is NOT offered from a Static Square');
+  check(r.rule?.board === 'Static Square' && r.rule?.group === 'All 8',
+    `and it is the square-set rule that decided it (${r.rule?.call}/${r.rule?.group}/${r.rule?.board})`);
+  check(!!r.reason && /heads or the sides/.test(r.reason), 'the reason names the two readings that ARE the call');
+}
+// THE DESIGNATED READINGS SURVIVE, which is the whole point of a group-scoped deny.
+for (const g of ['Heads', 'Sides']) {
+  check(seq.mayOffer('Lead Right', g, square).allowed === true, `${g} Lead Right is still offered from a square`);
+}
+// `mayOffer` keys on the BARE call, so the prefixed spelling must survive: `Heads Lead Right` is a
+// selection, not a different call, and a rule that swallowed it would refuse the very reading it names.
+check(seq.mayOffer('Heads Lead Right', 'Heads', square).allowed === true,
+  'and the `Heads Lead Right` spelling is offered for Heads');
+// THE NEGATIVE CONTROL FOR THE MATCH: a title that merely STARTS with the denied name. `matching` is exact
+// on the normalised name, so this must survive; a prefix match would take it, and it is a different call.
+check(seq.mayOffer('Lead Right from Lines', 'All 8', square).allowed === true,
+  '`Lead Right from Lines` is untouched - the match is exact, not a prefix');
+// FORMATION-SCOPED, not global: an eight-dancer `Lead Right` authoring exists from `Normal Lines`, where
+// the whole-board reading is the call working as authored.
+{
+  const lines = seq.boardForFormation('Normal Lines');
+  check(seq.mayOffer('Lead Right', 'All 8', lines).allowed === true,
+    'all-8 Lead Right is still offered from Normal Lines');
+}
+// PICKER-ONLY, observed as the separation the layer rests on: the capability is untouched.
+{
+  const r = seq.applyToBoard(square, 'Lead Right');
+  check(r.legal === true, 'applyToBoard still applies all-8 Lead Right - the layer decides what is SUGGESTED');
+  check(!!r.parallel && r.parallel.groups.length === 4,
+    `and it still tiles the square four ways (${r.parallel?.groups.length} group(s))`);
+}
+// AND THE LIMIT OF THIS LAYER, MEASURED, because a consumer that offers `legalNext()` verbatim still hands
+// the player this call: `legalNext` keeps a call whose OWN reading was refused when some GROUP can perform
+// it, which is deliberate (it is what keeps `Head Boys Dosado` offerable). So the deny is authoritative for
+// `mayOffer`, and a picker must ask `mayOffer(call, 'All 8', board)` for its no-group reading.
+{
+  seq.setActiveLevel('ms');
+  seq.setBoard(square);
+  const legal = seq.legalNext();
+  check(legal.includes('Lead Right'), 'legalNext still lists Lead Right - it is "offerable in SOME reading"');
+  check(legal.includes('Dosado'), 'and still lists the already-denied all-8 Dosado, for the same reason');
 }
 
 console.log(failures === 0 ? '\npermissions: all green.' : `\npermissions: ${failures} FAILURE(S)`);

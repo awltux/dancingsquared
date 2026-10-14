@@ -15,6 +15,8 @@
 //   (6) PICKER-ONLY - `applyToBoard` still applies the suppressed call
 //   (7) the default is ALLOW, so a rule that matches nothing cannot empty the list
 //   (8) all-8 `Lead Right` from a `Static Square` is not offered, while `Heads` / `Sides` still are
+//   (9) a rule may name SEVERAL groups (`group: [...]`) and matches any of them; `[]` is rejected,
+//       because "any group" is the ABSENT field and the two must not be confusable
 //
 // Usage: node engine/test/permissions.mjs
 import { readFileSync } from 'node:fs';
@@ -96,8 +98,8 @@ console.log('\n== (4) LEVEL OVERRIDE: a later level lifts an earlier deny ==');
 {
   // The shape the provider described: "if never in MS, it might be overridden in PLUS".
   const chain = [
-    { call: 'Dosado', group: 'All 8', level: 'ms', decision: 'deny', reason: 'MS says no' },
-    { call: 'Dosado', group: 'All 8', level: 'plus', decision: 'allow', reason: 'PLUS introduces it' },
+    { call: 'Dosado', group: ['All 8'], level: 'ms', decision: 'deny', reason: 'MS says no' },
+    { call: 'Dosado', group: ['All 8'], level: 'plus', decision: 'allow', reason: 'PLUS introduces it' },
   ];
   const atMs = evaluatePermissions(chain, { call: 'Dosado', group: 'All 8', level: 'ms' });
   const atPlus = evaluatePermissions(chain, { call: 'Dosado', group: 'All 8', level: 'plus' });
@@ -153,6 +155,11 @@ for (const r of PERMISSION_RULES) {
   check(typeof r.level === 'string' && r.level.length > 0, `rule for ${r.call ?? '*'} names a level`);
   check(r.decision === 'deny' ? !!r.reason : true, `a deny rule (${r.call ?? '*'}) carries a reason`);
   check(PERMISSION_LEVELS.includes(r.level), `rule level "${r.level}" is a known programme`);
+  // A GROUP LIST WITH NOTHING IN IT IS A RULE THAT CAN NEVER FIRE, and "any group" is still the ABSENT
+  // field. Rejecting it here is what keeps the two from being confused for each other.
+  check(r.group === undefined
+    || (Array.isArray(r.group) && r.group.length > 0 && r.group.every((g) => typeof g === 'string' && g.trim() !== '')),
+    `rule for ${r.call ?? '*'} names no empty group list (${JSON.stringify(r.group)})`);
 }
 
 console.log('\n== (10) BOYS / GIRLS DOSADO ARE NEVER OFFERED FROM A STATIC SQUARE ==');
@@ -218,8 +225,8 @@ console.log('\n== (13) ALL-8 `Lead Right` FROM A STATIC SQUARE ==');
 {
   const r = seq.mayOffer('Lead Right', 'All 8', square);
   check(r.allowed === false, 'all-8 Lead Right is NOT offered from a Static Square');
-  check(r.rule?.board === 'Static Square' && r.rule?.group === 'All 8',
-    `and it is the square-set rule that decided it (${r.rule?.call}/${r.rule?.group}/${r.rule?.board})`);
+  check(r.rule?.board === 'Static Square' && r.rule?.group?.includes('All 8'),
+    `and it is the square-set rule that decided it (${r.rule?.call}/${r.rule?.group?.join('+')}/${r.rule?.board})`);
   check(!!r.reason && /heads or the sides/.test(r.reason), 'the reason names the two readings that ARE the call');
 }
 // THE DESIGNATED READINGS SURVIVE, which is the whole point of a group-scoped deny.
@@ -258,6 +265,41 @@ check(seq.mayOffer('Lead Right from Lines', 'All 8', square).allowed === true,
   const legal = seq.legalNext();
   check(legal.includes('Lead Right'), 'legalNext still lists Lead Right - it is "offerable in SOME reading"');
   check(legal.includes('Dosado'), 'and still lists the already-denied all-8 Dosado, for the same reason');
+}
+
+console.log('\n== (14) ONE RULE CAN NAME SEVERAL GROUPS, AND MATCHES ANY OF THEM ==');
+// THE ITERATION ITSELF, on a synthetic chain so the shape is pinned independently of the shipped rules.
+// ANY-OF, NOT ALL-OF: a request is about ONE reading, so a rule naming two groups applies to a request for
+// either - matching only a request that is somehow both would make the field useless.
+{
+  const chain = [{ call: 'Two Groups', group: ['Alpha', 'Beta'], level: 'ms', decision: 'deny', reason: 'either' }];
+  const ask = (group) => evaluatePermissions(chain, { call: 'Two Groups', group, level: 'ms' }).allowed;
+  check(ask('Alpha') === false, 'the FIRST named group matches');
+  check(ask('Beta') === false, 'and the SECOND does too');
+  check(ask('Gamma') === true, 'a group not in the list does not match');
+  check(ask(null) === true, 'and neither does a whole-board request, which is the empty group');
+  const reversed = [{ call: 'Two Groups', group: ['Beta', 'Alpha'], level: 'ms', decision: 'deny', reason: 'either' }];
+  check(evaluatePermissions(reversed, { call: 'Two Groups', group: 'Alpha', level: 'ms' }).allowed === false,
+    'order within the list does not matter');
+  // The normalisation is per name, so a rule may be written in the caller's own casing and spacing.
+  const scruffy = [{ call: 'Two Groups', group: ['  aLpHa ', 'BETA'], level: 'ms', decision: 'deny', reason: 'either' }];
+  check(evaluatePermissions(scruffy, { call: 'Two Groups', group: 'alpha', level: 'ms' }).allowed === false,
+    'and each name is normalised the way a single name was');
+  // THE EMPTY LIST IS THE FOOTGUN THIS PINS: `[]` matches nothing, which is a rule that can never fire.
+  // "Any group" is still the ABSENT field, and section (9) refuses a rule that writes `[]` instead.
+  const empty = [{ call: 'Two Groups', group: [], level: 'ms', decision: 'deny', reason: 'never' }];
+  check(evaluatePermissions(empty, { call: 'Two Groups', group: 'Alpha', level: 'ms' }).allowed === true,
+    'an empty list matches nothing - it is not a way to write "any group"');
+}
+// THE SHIPPED USE OF IT: the whole-square `Dosado` deny is ONE rule covering both genders, because the
+// restriction and its reason are the same for the two. Splitting it back into near-duplicate entries would
+// be silently allowed by the type, so the count is pinned rather than left to review.
+{
+  const squareDosado = PERMISSION_RULES.filter((r) => r.call === 'Dosado' && r.board === 'Static Square'
+    && r.group?.some((g) => ['boys', 'girls'].includes(g.trim().toLowerCase())));
+  check(squareDosado.length === 1, `ONE rule covers the Boys and Girls square-set Dosado (${squareDosado.length})`);
+  check(JSON.stringify(squareDosado[0]?.group) === JSON.stringify(['Boys', 'Girls']),
+    `and it names both (${JSON.stringify(squareDosado[0]?.group)})`);
 }
 
 console.log(failures === 0 ? '\npermissions: all green.' : `\npermissions: ${failures} FAILURE(S)`);

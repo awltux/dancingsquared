@@ -58,12 +58,26 @@ export type PermissionDecision = 'allow' | 'deny';
  * A rule matches a REQUEST - a call, optionally performed by a group - when every field it names agrees.
  * An absent field is a wildcard, so `{ call: 'Dosado', level: 'ms' }` covers every group.
  *
- * `group` is the selector the picker has chosen, or absent for a whole-board reading.
- * `call` is the bare call name.
+ * `call` is the bare call name. `group` is the READING the request is about - the selector the picker has
+ * chosen, or `All 8` for a whole-board reading - and it is matched against the request's own single group.
  */
 export interface PermissionRule {
   call?: string;
-  group?: string;
+  /**
+   * The groups this rule applies to, matched ANY-OF, or absent for every group.
+   *
+   * AN ARRAY RATHER THAN ONE NAME, because the same restriction usually holds for several groups: the
+   * whole-square `Dosado` rules below refuse `Boys` and `Girls` for one reason, and written as one rule
+   * that reason exists once instead of twice with the two copies kept in step by hand.
+   *
+   * IT IS NOT "ALL OF THESE". A request is about ONE reading, so a rule naming several groups applies to
+   * each of them, not only to a request that is somehow all of them at once.
+   *
+   * AN EMPTY ARRAY MATCHES NOTHING, which is a rule that can never fire rather than a way to write "any
+   * group" - that is still the absent field, and `test/permissions.mjs` rejects a rule with `[]` so the
+   * difference cannot be lost by accident.
+   */
+  group?: string[];
   /** The FORMATION this rule applies from, when it is formation-specific. Matched against the board's
    *  recognised name (`Sequencer.recognize`). Absent means every board. */
   board?: string;
@@ -105,13 +119,20 @@ const normCall = (s: string): string => norm(s);
  * make `{ call: 'Dosado' }` also cover `Left Dosado`, `Dosado to a Wave` and `Heads Dosado` - and
  * `Left Dosado` is LEGAL from a square set while `Dosado` is not, so a fuzzy match would break the very
  * distinction the rule exists to draw.
+ *
+ * THE GROUP LIST IS ITERATED ANY-OF, and the loop allocates nothing: the request's group is normalised
+ * once and compared against each name in turn. This runs for every candidate call when the picker builds
+ * its list (`legalNext`), so a `.map`/`.some` over the array per rule per call is the kind of per-call
+ * allocation this repository does not spend on a config lookup. An empty list matches nothing, which the
+ * harness pins as a rejected rule rather than a silent no-op.
  */
 function matches(rule: PermissionRule, req: PermissionRequest): boolean {
   if (rule.call !== undefined && normCall(rule.call) !== normCall(req.call)) return false;
   if (rule.group !== undefined) {
-    const want = norm(rule.group);
     const got = req.group ? norm(req.group) : '';
-    if (want !== got) return false;
+    let hit = false;
+    for (const g of rule.group) if (norm(g) === got) { hit = true; break; }
+    if (!hit) return false;
   }
   if (rule.board !== undefined) {
     const want = norm(rule.board);
@@ -200,26 +221,20 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
     //
     // The board condition is what keeps this narrow. `Boys Dosado` is a perfectly ordinary call from a
     // formation where the boys are together; only the Static Square reading is refused.
+    //
+    // ONE RULE FOR BOTH GROUPS, because the restriction and its reason are the same for the two: the
+    // whole-set form is refused whichever gender is named, and an array is what says so without a second
+    // near-identical entry whose prose has to be kept in step with this one. MEASURED for each group.
     call: 'Dosado',
-    group: 'Boys',
+    group: ['Boys', 'Girls'],
     board: 'Static Square',
     level: 'ms',
     decision: 'deny',
     reason:
-      'Every boy faces his partner, so both boy-pairs dance a Dosado at once - and from a Static Square '
-      + 'the two pairs are opposite each other, so all four couples converge on the middle together. Use '
-      + 'the per-couple forms (Heads Dosado, Sides Dosado) from this board.',
-  },
-  {
-    call: 'Dosado',
-    group: 'Girls',
-    board: 'Static Square',
-    level: 'ms',
-    decision: 'deny',
-    reason:
-      'Every girl faces her partner, so both girl-pairs dance a Dosado at once - and from a Static Square '
-      + 'the two pairs are opposite each other, so all four couples converge on the middle together. Use '
-      + 'the per-couple forms (Heads Dosado, Sides Dosado) from this board.',
+      'Every boy faces his partner and every girl faces hers, so a Boys or Girls Dosado dances both pairs '
+      + 'at once - and from a Static Square the two pairs are opposite each other, so all four couples '
+      + 'converge on the middle together. Use the per-couple forms (Heads Dosado, Sides Dosado) from this '
+      + 'board.',
   },
   {
     // ALL-8 `Dosado` FROM A NON-SQUARE BOARD.
@@ -230,7 +245,7 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
     // that is wrong. `Dosado` from a formation where the pairs genuinely face each other is the call
     // working as authored. The reported defect was always the square set specifically.
     call: 'Dosado',
-    group: 'All 8',
+    group: ['All 8'],
     board: 'Static Square',
     level: 'ms',
     decision: 'deny',
@@ -255,13 +270,13 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
     // `Heads Lead Right` / `Sides Lead Right` go through `splitSelection` into `applySelected` and move
     // exactly their own four dancers, MEASURED.
     //
-    // `group: 'All 8'` is what keeps this narrow, and it is load-bearing: with the picker's group on
+    // `group: ['All 8']` is what keeps this narrow, and it is load-bearing: with the picker's group on
     // `Heads` or `Sides` the request is a GROUP reading and this rule does not match, so the designated
     // readings stay offered. It is a SQUARE-SET deny rather than a NEVER for the same reason the all-8
     // `Dosado` rule is: an eight-dancer `Lead Right` authoring exists from `Normal Lines`, where the call is
     // working as authored, so the rule must not follow it there.
     call: 'Lead Right',
-    group: 'All 8',
+    group: ['All 8'],
     board: 'Static Square',
     level: 'ms',
     decision: 'deny',

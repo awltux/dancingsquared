@@ -872,7 +872,17 @@ export class SequencerController implements SequencerUI {
         // opposite of the question.
         const bare = splitSelection(n).call;
         const on = this.parallel ? this.parallel.board : this.seq.board;
-        if (!group || this.seq.groupCanPerform(on, group, bare)) whole.push(bare);
+        // WITH NO GROUP CHOSEN THIS IS THE WHOLE-BOARD READING, and the PERMISSION layer is what decides
+        // it - the engine's own question, asked on the board the offer is about. Asking only `!group`
+        // offered every call `legalNext` had kept, including ones whose own reading is DENIED: MEASURED,
+        // all-8 `Dosado` and all-8 `Lead Right` from a Static Square are both refused by `mayOffer` and
+        // were both offered here, because `legalNext` is "offerable in SOME reading" (it keeps a call any
+        // GROUP could perform, which is what keeps `Head Boys Dosado` offerable). The two readings are
+        // different questions and the picker must ask the one that matches what Apply will do.
+        const allowed = group
+          ? this.seq.groupCanPerform(on, group, bare)
+          : this.seq.mayOffer(bare, 'All 8', on).allowed;
+        if (allowed) whole.push(bare);
       }
     }
     // GROUP-NAMED CODED CALLS, WHICH `legalNext` CANNOT OFFER. `Fold`, `Cross Fold`, `Trade`, `Run` and
@@ -1710,6 +1720,23 @@ export class SequencerController implements SequencerUI {
       // must be resolved HERE rather than on the live board, which after the apply already shows the
       // dancers the call moved - see `parallel`.
       const from = this.seq.startBoard();
+      // AND THE PICKER'S PERMISSION LAYER IS DECIDED BEFORE THE CALL IS DANCED, not only before it is
+      // listed. Apply is reachable without the list: the name can be left selected from another board, a
+      // group can be changed under it, or a module can restore a figure - so a call the layer refuses is
+      // refused here too, with the engine's own reason. MEASURED: all-8 `Lead Right` from a Static Square
+      // applies and tiles the square four ways (`[#5 #6] [#7 #8] [#1 #2] [#3 #4]`), which is eight dancers
+      // dancing a one-couple call; the refusal reason names `Heads Lead Right` / `Sides Lead Right`.
+      //
+      // THE READING ASKED ABOUT IS THE ONE `name` CARRIES. A call the catalogue publishes with its own
+      // designator ("Heads Lead Left", which the picker offers by NAME) is applied with no group chosen,
+      // and asking the whole-board question for it would refuse a legitimate designated call the moment a
+      // rule exists for that call's all-8 reading. The composed name's own selection comes first, and only
+      // an unprefixed name is the whole-board reading.
+      const perm = this.seq.mayOffer(splitSelection(name).call, splitSelection(name).selection ?? group ?? 'All 8', from);
+      if (!perm.allowed) {
+        this.setStatus('error', `✗ ${name} — ${perm.reason ?? 'not offered from this board'}`);
+        return;
+      }
       const step = this.seq.apply(name);
       if (!step.legal) {
         this.setStatus('error', `✗ ${name}${step.reason ? ` — ${step.reason}` : ''}`);

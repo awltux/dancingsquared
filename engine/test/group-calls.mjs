@@ -14,7 +14,10 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
-import { Sequencer, setParser, splitSelection, GROUP_NAMES } from '../dist/index.js';
+import {
+  Sequencer, setParser, splitSelection,
+  GROUP_NAMES, SUBSET_GROUP_NAMES, SINGLES_GROUP_NAMES, COUPLES_GROUP_NAMES, COMBINED_GROUP_NAMES,
+} from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
@@ -96,6 +99,21 @@ console.log('\n== THE GROUP VOCABULARY IS ONE LIST ==');
   check(dupes.length === 0, `no duplicate names (${dupes.join(', ') || 'none'})`);
   check(names.every((n) => typeof n === 'string' && n.trim() === n && n.length > 0),
     'every entry is a trimmed, non-empty string');
+  // THE FLAT PICKER LIST IS EXACTLY THE TWO CATEGORIES, as a set. It is spelled out rather than composed
+  // on purpose (the picker wants an ORDER, a rule wants a CATEGORY), so a name added to a category and
+  // forgotten in the flat list would be a name the picker cannot offer - this is what stops that.
+  {
+    const flat = new Set(SUBSET_GROUP_NAMES);
+    const cat = new Set([...SINGLES_GROUP_NAMES, ...COUPLES_GROUP_NAMES]);
+    const onlyCat = [...cat].filter((n) => !flat.has(n));
+    const onlyFlat = [...flat].filter((n) => !cat.has(n));
+    check(onlyCat.length === 0 && onlyFlat.length === 0,
+      `SUBSET_GROUP_NAMES is exactly SINGLES + COUPLES (missing ${onlyCat.join(', ') || 'none'}; extra ${onlyFlat.join(', ') || 'none'})`);
+    check(SINGLES_GROUP_NAMES.every((n) => !COUPLES_GROUP_NAMES.includes(n)),
+      'and the two categories do not overlap');
+    check([...cat].every((n) => names.includes(n)), 'every name in a category is in GROUP_NAMES too');
+    console.log(`    categories: ${SINGLES_GROUP_NAMES.length} singles + ${COUPLES_GROUP_NAMES.length} couples = ${SUBSET_GROUP_NAMES.length} subset, + ${COMBINED_GROUP_NAMES.length} combined`);
+  }
   // NO OFFERED NAME MAY BE MISSING FROM THE LIST - the direction that matters, over every named formation
   // rather than one witness board.
   const boards = seq.listFormations().map((n) => seq.boardForFormation(n)).filter(Boolean);

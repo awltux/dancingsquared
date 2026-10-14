@@ -21,8 +21,9 @@
 //  (12) a board-less request cannot trip a formation rule
 //  (13) all-8 `Lead Right` is not offered from a Static Square, while `Heads` / `Sides` still are
 //  (14) one rule may name SEVERAL groups (`group: [...]`) and matches any of them
-//  (15) and the refusal REMOVES THE OVERLAP: every reading still offered moves at most two couples and
-//       never closes within 1.0 of another dancer, while the refused reading moves all eight onto one spot
+//  (15) and the refusal REMOVES THE OVERLAP: every reading still offered is a WHOLE COUPLE, moves at most
+//       two couples and never closes within 1.0 of another dancer, while the refused reading moves all
+//       eight onto one spot
 //
 // Usage: node engine/test/permissions.mjs
 import { readFileSync } from 'node:fs';
@@ -369,11 +370,11 @@ const reading = (title, group) => {
   const all8 = readings.find((x) => x.group === 'All 8');
   check(all8.moved === 8 && all8.worst < 0.001,
     `CONTROL: the refused all-8 reading moves all ${all8.moved} and closes to ${all8.worst.toFixed(3)} - the overlap is real`);
-  // WHAT THE REFUSAL DOES NOT REACH, reported rather than hidden. A reading is COUPLE-SCOPED when every
-  // dancer it names belongs to a couple all of whose members it also names; the deny list is written per
-  // GROUP NAME, so a reading that is not a whole couple ("Head Boys" is one boy from each head couple) is
-  // left alone. Those do not collide - each is a two-dancer reading - but they are not a Lead Right
-  // either, and this ceiling is what keeps the residue visible and strictly decreasing.
+  // WHAT IS LEFT, MEASURED AND PINNED TO NOTHING ELSE. The rule names the whole-set gender readings AND the
+  // combinations (`...SINGLES_GROUP_NAMES, ...COMBINED_GROUP_NAMES`), so the readings that survive are
+  // exactly the whole-couple ones - and a reading that is NOT a whole couple is now a red rather than a
+  // residue. A reading is COUPLE-SCOPED when every dancer it names belongs to a couple all of whose members
+  // it also names.
   const coupleIds = ['Couple #1', 'Couple #2', 'Couple #3', 'Couple #4']
     .map((c) => seq.selectionIds(square, c))
     .filter((ids) => !!ids);
@@ -383,10 +384,9 @@ const reading = (title, group) => {
     return ids.every((id) => coupleIds.some((c) => c.includes(id) && c.every((x) => ids.includes(x))));
   };
   const notCouples = offered.filter((x) => !coupleScoped(x.group));
-  // A CEILING AT THE MEASURED VALUE, so a fixed reading is a green and a NEW one is a red: the honest way
-  // to pin a residue that is expected to shrink.
-  check(notCouples.length <= 14,
-    `residue, reported not hidden: ${notCouples.length} offered reading(s) are not whole couples (${notCouples.map((x) => x.group).join(', ') || 'none'})`);
+  check(notCouples.length === 0,
+    `every offered reading is a WHOLE COUPLE (${notCouples.length} were not: ${notCouples.map((x) => x.group).join(', ') || 'none'})`);
+  console.log(`    offered here: ${offered.map((x) => `${x.group}(${x.moved} dancers)`).sort().join(', ')}`);
 }
 
 console.log(failures === 0 ? '\npermissions: all green.' : `\npermissions: ${failures} FAILURE(S)`);

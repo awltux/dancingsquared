@@ -68,8 +68,13 @@ const N_COUPLE_RE = /^couple #(\d+) and #(\d+)$/;
  * a proper subset WHERE THE DANCERS ARE STANDING. These arrays are those candidates BEFORE the board
  * filter, which is what makes them the vocabulary rather than one board's answer.
  *
- * THE ORDER IS THE PICKER'S, so it is not alphabetical and must not be re-sorted: the four named dancers a
- * caller reaches for first, then the position/role pairs that depend on the formation, then the unions.
+ * THREE ARRAYS, BECAUSE THEY HAVE TWO CONSUMERS WITH DIFFERENT NEEDS. A permission rule names a CATEGORY -
+ * "every single-group reading", "the couple selectors", "the combinations" - while the picker needs an
+ * ORDER. So the categories are `SINGLES_GROUP_NAMES` and `COUPLES_GROUP_NAMES`, the combinations are
+ * `COMBINED_GROUP_NAMES`, and `SUBSET_GROUP_NAMES` is the first two in picker order. A rule may spread any
+ * of them: `group: ['All 8', ...SINGLES_GROUP_NAMES]` denies every whole-set gender reading at once.
+ *
+ * THE ORDER IS THE PICKER'S, so it is not alphabetical and must not be re-sorted.
  *
  * THREE NAMES HERE RESOLVE ON NO NAMED FORMATION, and they are kept deliberately rather than pruned:
  * `Couples` is everyone on a square (so never a PROPER subset there) and appears only on a board holding a
@@ -79,12 +84,34 @@ const N_COUPLE_RE = /^couple #(\d+) and #(\d+)$/;
  *
  * `All 8` IS NOT A SELECTION - it is the whole-board reading, and the one spelling a request carries
  * (`mayOffer` normalises an absent, null or `All 8` request group to it). It is first because it is the
- * picker's default, and it is deliberately NOT in either half below: both are filtered as PROPER subsets,
- * and the whole board is not one.
+ * picker's default, and it is deliberately NOT in any of the arrays below: they are all filtered as PROPER
+ * subsets, and the whole board is not one.
+ */
+export const SINGLES_GROUP_NAMES: readonly string[] = [
+  'Boys', 'Girls', 'Men', 'Women', 'Ladies', 'Centers',
+  'Ends', 'Couples', 'Leaders', 'Trailers', 'Beaus', 'Belles',
+];
+
+/** The readings that name WHOLE COUPLES - the head and side pairs, and the numbered couples. */
+export const COUPLES_GROUP_NAMES: readonly string[] = [
+  'Heads', 'Sides',
+  'Couple #1', 'Couple #2', 'Couple #3', 'Couple #4',
+];
+
+/**
+ * The same eighteen names in the ORDER THE PICKER SHOWS THEM, which is the only order that matters here:
+ * `Sequencer.subsetGroups` returns this array filtered, and the group `<select>` is built from what it
+ * returns.
+ *
+ * IT IS SPELLED OUT RATHER THAN COMPOSED FROM THE TWO CATEGORIES, because the two serve different
+ * consumers - a permission rule wants a CATEGORY ("every single-group reading") while the picker wants an
+ * ORDER, and the caller's own order leads with `Heads` and `Sides`, not with `Boys`. Composing it as
+ * `[...SINGLES, ...COUPLES]` silently moved the two most-named groups to the end of the dropdown.
+ * `test/group-calls.mjs` pins that this list is exactly the two categories as a SET, so a name added to a
+ * category and forgotten here is a red rather than a name the picker cannot offer.
  */
 export const SUBSET_GROUP_NAMES: readonly string[] = [
-  'Heads', 'Sides', 'Boys', 'Girls', 'Men', 'Women', 'Ladies', 'Centers',
-  'Ends', 'Couples', 'Leaders', 'Trailers', 'Beaus', 'Belles',
+  'Heads', 'Sides', ...SINGLES_GROUP_NAMES,
   'Couple #1', 'Couple #2', 'Couple #3', 'Couple #4',
 ];
 

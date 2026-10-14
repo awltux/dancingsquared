@@ -27,6 +27,12 @@
 // overridden. That is what makes "this is a never can" auditable rather than a special case buried in
 // the picker - the reason string says which rule produced the answer.
 
+// THE GROUP NAMES ARE IMPORTED, NOT RE-EXPORTED. `export { X } from './selection.js'` publishes `X` for
+// consumers and creates NO local binding, which is why a rule could not reference `SINGLES_GROUP_NAMES`
+// while that line was there - TS2304, "Cannot find name". A module that USES a name has to import it, and
+// the public barrel for these is `index.ts`, not this file.
+import { COMBINED_GROUP_NAMES, SINGLES_GROUP_NAMES } from './selection.js';
+
 /** The programme order, weakest first. A rule at a LATER index overrides one at an earlier index.
  *
  * THE ENGINE OWNS THIS LIST and `poc/src/data.ts` imports it, because the app's level selector and the
@@ -256,7 +262,7 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
   },
   {
     call: 'Lead Right',
-    group: ['All 8', 'Boys', 'Girls', 'Men', 'Women', 'Ladies', 'Beaus', 'Belles' ],
+    group: ['All 8', ...SINGLES_GROUP_NAMES, ...COMBINED_GROUP_NAMES],
     board: 'Static Square',
     level: 'ms',
     decision: 'deny',
@@ -267,7 +273,7 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
   },
   {
     call: 'Lead Right from Close Couples',
-    group: ['All 8', 'Boys', 'Girls', 'Men', 'Women', 'Ladies', 'Beaus', 'Belles' ],
+    group: ['All 8', ...SINGLES_GROUP_NAMES, ...COMBINED_GROUP_NAMES],
     board: 'Static Square',
     level: 'ms',
     decision: 'deny',
@@ -278,7 +284,7 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
   },
   {
     call: 'Lead Right from Lines',
-    group: ['All 8', 'Boys', 'Girls', 'Men', 'Women', 'Ladies', 'Beaus', 'Belles' ],
+    group: ['All 8', ...SINGLES_GROUP_NAMES, ...COMBINED_GROUP_NAMES],
     board: 'Static Square',
     level: 'ms',
     decision: 'deny',

@@ -190,7 +190,7 @@ export { normalizeSelection, selectionGroup, splitSelection } from './sequencer/
 // THE WHOLE GROUP VOCABULARY, as one array: every name the picker can offer, which is also every name a
 // permission rule's `group` may usefully carry. Exported so a consumer names all of them from ONE list
 // rather than re-typing the eight gender spellings - the mistake the Lead Right rules made.
-export { GROUP_NAMES, SUBSET_GROUP_NAMES, COMBINED_GROUP_NAMES } from './sequencer/selection.js';
+export { GROUP_NAMES, SINGLES_GROUP_NAMES, COUPLES_GROUP_NAMES, SUBSET_GROUP_NAMES, COMBINED_GROUP_NAMES } from './sequencer/selection.js';
 export { findCodedMove, codedMoveApplies, CODED_MOVES, CODED_MOVE_NAMES, CODED_MOVE_BEATS, RUN_TRADE_BEATS, isDeferredCall } from './sequencer/coded-moves.js';
 export type { CodedMove } from './sequencer/coded-moves.js';
 // `Step Forward` and the return-or-stay rule a parallel step resolves it with. Exported so a caller

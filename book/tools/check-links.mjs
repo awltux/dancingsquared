@@ -156,7 +156,7 @@ const slashed = (p) => p.split('\\').join('/');
 // the ghost of a UTF-8 character that was misunderstood.
 //
 // A file whose SUBJECT is this corruption has to be able to write it down -- `clean-extract.mjs`
-// repairs it, `HANDOVER.md` and `AGENTS.md` document it, and `callerlab-diff.mjs` repairs extraction
+// repairs it, `AGENTS.md` documents it, and `callerlab-diff.mjs` repairs extraction
 // artefacts with it -- so those files, and only those, opt out with the sentinel below. The opt-out is a
 // visible line in the file, not a name hidden in a list here.
 //
@@ -197,13 +197,13 @@ for (const f of walk(REPO, WALK_SKIP).filter((f) => TEXT_FILE.test(f))) {
 //
 // Every word here has no honest reader-facing use in this book. "engine" is deliberately NOT in the
 // list: the Introduction tells the reader, in so many words, that an experimental engine draws the
-// animations, so the word has a legitimate place. Nor is `README.md` or `HANDOVER.md` checked -- those
-// two are workspace files, and they are supposed to talk about corpora and toolchains.
+// animations, so the word has a legitimate place. Nor is `README.md` checked -- it is a workspace file,
+// and it is supposed to talk about corpora and toolchains.
 const JARGON =
   /\b(boards?|preconditions?|corpus|corpora|sequencers?|rasterisers?|rasterizers?|metadata|authorings?|XML|JSON)\b|\+y\b/;
 for (const [file, text] of markdown) {
   const rel = slashed(relative(BOOK, file));
-  if (rel === 'README.md' || rel === 'HANDOVER.md') continue;
+  if (rel === 'README.md') continue;
   for (const m of text.matchAll(new RegExp(JARGON, 'g'))) {
     const line = text.slice(0, m.index).split('\n').length;
     problems.push(
@@ -331,7 +331,7 @@ if (existsSync(mapPath) && existsSync(animIndex)) {
 // gate instead of pages that quietly lose their navigation.
 for (const [file, text] of markdown) {
   const rel = slashed(relative(BOOK, file));
-  if (rel === 'HANDOVER.md' || rel === 'README.md') continue;
+  if (rel === 'README.md') continue;
   if (!text.includes('<!-- nav:start -->')) {
     problems.push(`${rel}: no navigation bar (run book/tools/make-nav.mjs)`);
   }

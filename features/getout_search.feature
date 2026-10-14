@@ -75,9 +75,9 @@ Feature: The Get-out Search
     # Engine: Sequencer.getout(opts) has NO board parameter and calls solver.getout(this.board, opts),
     #          while HomeSolver.getout(board, opts) DOES take one. Writing
     #          `seq.getout(someBoard, { ... })` therefore does not error and does not search
-    #          someBoard - it searches this.board. That mistake is recorded in HANDOVER section 6
-    #          because it invalidated a whole round of measurements here and then a conclusion built
-    #          on top of them. Call setBoard(board) first, and check the arity rather than the intent.
+    #          someBoard - it searches this.board. That mistake invalidated a whole round of measurements
+    #          here and then a conclusion built on top of them, which is why this scenario exists. Call
+    #          setBoard(board) first, and check the arity rather than the intent.
 
   @bind:getout @bind:STANDARD_FINISHES
   Scenario: A geometry-derived finish is a usable final edge

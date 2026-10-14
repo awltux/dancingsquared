@@ -3,8 +3,8 @@
 // `poc/src/data.ts` `registrationXml` indexed tams with a RAW-TEXT regex while `entry.tamIndices`
 // came from a DOM walk (which skips `<!-- -->`). At HEAD `ms/circle.xml` carries 142 raw tams and
 // only 104 live ones - 38 commented - so the two lists drift and the app registers whatever sits at
-// the SHIFTED index. `afaae4a` stripped comments first. The HANDOVER records that the change was
-// never shown to alter this call's registration, which is why it did not fix the report.
+// the SHIFTED index. `afaae4a` stripped comments first. That change was never shown to alter this
+// call's registration, which is why it did not fix the report.
 //
 // This probe closes that gap: it registers the SHIFTED tam and reports whether the engine then
 // produces the reported symptom (a `Normal Lines` pair circling about mirrored centres).

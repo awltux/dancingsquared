@@ -3,5 +3,3 @@ dist/
 .npm-cache/
 dist-test/
 *.local
-# A session handover note: working notes for whoever picks the work up next, not source.
-HANDOVER.md

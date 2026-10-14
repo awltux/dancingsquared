@@ -6,11 +6,12 @@ chronological record of what was built, refuted and measured on the way here —
 working rules, the measured state, the list of things that were refuted so nobody re-litigates them,
 and the phases that still have work in them.
 
-**Read in this order:** `HANDOVER.md` §1 and §3 (what the repo is, and the working rules) → this file →
-`square-dancing.md` §9.1 for any claim below you want the derivation of. `HANDOVER.md` is the
-orientation document and deliberately carries **no scoreboard**: §2 here is the only scoreboard, and
-this file is the only work queue. It was the duplication of those two that made an earlier revision of
-`HANDOVER.md` stale by four workstreams, so the numbers are not copied back into it.
+**Read in this order:** this file → `square-dancing.md` §9.1 for any claim below you want the derivation
+of. THIS IS THE ONLY PLACE THE STATE IS WRITTEN DOWN: §2 is the only scoreboard and §4 the only work queue,
+and there is no orientation document beside them any more. There used to be a `HANDOVER.md` for that, and
+the duplication is exactly how it went stale — a document that is only regenerated at the end of a session
+is read as current state by the session after it, so session 4 would quote session 3's "live task" long
+after it had been fixed and gated.
 
 ---
 
@@ -2784,9 +2785,8 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     into the band** — all five that deepen were already inside 1.0 — and the two that deepen are
     bodies where a stored "couple" is split across the set, so the counter-clockwise route sends one
     partner the long way. **That is the next item's job** — the ring these calls should be read from
-    is the FACING pairs' (see the `7046` Alamo-ring entry in `HANDOVER.md` §4.2 and
-    `tools/ring-facing-probe.mjs`), and the stored `couple` labels are the FASR `o` reading, which
-    pairs dancers 180° apart with the same heading.
+    is the FACING pairs' (see `engine/test/tools/ring-facing-probe.mjs`), and the stored `couple` labels are
+    the FASR `o` reading, which pairs dancers 180° apart with the same heading.
   - **GATED IN THE SAME COMMIT**: `promenade.mjs` now pins the shape, the direction and the magnitude
     exactly — from home, a quarter of the way in every dancer is a quarter turn counter-clockwise
     (tolerance 1e-9), half way in every dancer is on the opposite side and has travelled **6.32**
@@ -2912,7 +2912,7 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     the save/apply-as-`kind: 'instance'` path are reasoned from the code — what IS measured is
     every geometric decision they call. **The pre-existing `editor-ui.ts` TS2739 is fixed in
     passing**, so `npx --prefix poc tsc -p poc --noEmit` is now **CLEAN**, and a POC typecheck
-    is a real signal from here on (it is trap 18 in `HANDOVER.md`). `node poc/verify.cjs` still
+    is a real signal from here on. `node poc/verify.cjs` still
     fails the same **three** pre-existing `Pass Thru` checks and loads all **542** catalogue
     calls.
   - **THE MOVES ROW DRIVES THE STAGE, and the beat range comes from the ENGINE.** The moves of

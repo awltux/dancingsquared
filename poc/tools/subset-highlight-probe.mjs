@@ -22,7 +22,7 @@
 // wiring is read from the source, and the ENGINE half it depends on is checked against the engine itself.
 //
 // OBSERVED IN A REAL BROWSER once the sandbox allowed it, which is the part no source check can do. Serving
-// the built `poc/dist` from `node:http` and driving it with chromium (the recipe in `HANDOVER.md`), the line
+// the built `poc/dist` from `node:http` and driving it with chromium, the line
 // reads "Subsets present: Heads · Sides · Boys · Girls · Men · Women · Ladies · Beaus · Belles"; pressing
 // HEADS lights that link and draws FOUR rings on the floor - the top and bottom pairs - with none on the four
 // sides, in the 2D view the panel opens in; pressing it again takes them off. MEASURED on the screenshots:

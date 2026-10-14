@@ -3,9 +3,9 @@
 <!-- mojibake-check:allow — §8 trap 1 quotes the corruption on purpose, as its signature. -->
 
 **What this file is.** The durable rules for working here: the loop, the gates, the house style, and the
-traps that have already cost hours. It is deliberately **not** the state of the work — that is `PLAN.md` §2
-(the scoreboard) and `HANDOVER.md` (the orientation a session regenerates). A rule here should still be
-true in ten sessions; the moment one is disproved, fix it **in the same commit** that disproved it.
+traps that have already cost hours. It is deliberately **not** the state of the work — that is `PLAN.md`
+(the scoreboard in §2, the work queue in §4, what is refuted in §3). A rule here should still be true in
+ten sessions; the moment one is disproved, fix it **in the same commit** that disproved it.
 
 **If you read nothing else:** §0 (the loop) and §3 (the gates). Everything else is a reason for one of them.
 
@@ -62,15 +62,14 @@ they may deep-import `engine/dist/index.js`, because they run outside any bundle
 ## 2. Authorities, and the order to read them
 
 1. `README.md` — the workspace in five lines.
-2. `HANDOVER.md` — the orientation: §1 the map, §3 how to work here, §5 decisions already made, §6 traps.
-3. `PLAN.md` — the state: §2 the scoreboard, **§3 what is refuted**, §5 what is blocked. **Read §3 before
+2. `PLAN.md` — the state: §2 the scoreboard, **§3 what is refuted**, §5 what is blocked. **Read §3 before
    proposing an idea**; several attractive-looking next steps are in that table with the measurement that
    killed them.
-4. `square-dancing.md` — the spec (§1–§8) and §9 the open-items log.
-5. `engine/test/fixtures/README.md` — where each oracle comes from and how to re-fetch it.
+3. `square-dancing.md` — the spec (§1–§8) and §9 the open-items log.
+4. `engine/test/fixtures/README.md` — where each oracle comes from and how to re-fetch it.
 
-**Do not relitigate a recorded decision without new evidence.** `HANDOVER.md` §5 and `PLAN.md` §3 exist so
-that a settled question stays settled. New evidence means a measurement, not an argument.
+**Do not relitigate a recorded decision without new evidence.** `PLAN.md` §3 and §5 exist so that a settled
+question stays settled. New evidence means a measurement, not an argument.
 
 ---
 
@@ -255,13 +254,15 @@ This codebase's comments are load-bearing and are the reason a stranger can chan
   the harness header (§4.2).
 - **Stage explicit paths.** The tree regularly carries someone else's in-flight work; `git add -A` will
   commit it.
-- **No `HANDOVER.md` updates during work** — it is regenerated when a session ends and the user asks.
 
 ---
 
 ## 8. Traps that have already bitten
 
-One line each; the full list with the measurements is `HANDOVER.md` §6 and `book/HANDOVER.md`.
+One line each, and THIS IS THE WHOLE LIST: the two `HANDOVER.md` files that used to carry a longer version
+with the measurements were deleted, because an orientation document that is only regenerated when a session
+ends was routinely read as current state by the session after it. A trap that costs an hour belongs here,
+with its measurement, in the same commit that found it.
 
 1. **Read bytes, not the console, when checking text encoding.** `Get-Content` decodes UTF-8 as
    windows-1252 and prints a genuine `—` as `â€”`, inventing corruption in every file that contains one.

@@ -32,11 +32,10 @@ const START = '<!-- nav:start -->';
 const END = '<!-- nav:end -->';
 
 /**
- * Files that are deliberately outside the reading flow: the plan document and the build README.
- * Both are written for whoever maintains the book, not for a dancer, and neither is reachable
- * from the reading order.
+ * Files that are deliberately outside the reading flow: the build README. It is written for whoever
+ * maintains the book, not for a dancer, and it is not reachable from the reading order.
  */
-const EXCLUDED = new Set(['HANDOVER.md', 'README.md']);
+const EXCLUDED = new Set(['README.md']);
 
 /**
  * The reading order, chapter by chapter. `front` is the material before the numbered chapters.

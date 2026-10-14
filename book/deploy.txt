@@ -7,8 +7,8 @@
 #   2. $BOOK_S3_BUCKET / $BOOK_S3_PREFIX / $BOOK_CLOUDFRONT_DISTRIBUTION_ID
 #   3. this file
 #
-# Nothing here is a secret: the bucket name is in `book/HANDOVER.md` too, and a
-# CloudFront distribution id is an identifier rather than a credential. The AWS
+# Nothing here is a secret: a bucket name and a CloudFront distribution id are
+# identifiers rather than credentials. The AWS
 # credentials themselves come from the CLI's own configuration and never live here.
 #
 # `distribution` is no longer optional, though it used to be. The note that stood here said skipping

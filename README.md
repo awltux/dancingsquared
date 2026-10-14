@@ -49,8 +49,8 @@ the old engine. Never rebuild `dist` while a suite is running.
 
 ## Docs
 
-- **How to work here**: [`AGENTS.md`](AGENTS.md) — the rules, the gates and the traps; [`HANDOVER.md`](HANDOVER.md)
-  — the orientation; [`PLAN.md`](PLAN.md) — the state, and what has been refuted.
+- **How to work here**: [`AGENTS.md`](AGENTS.md) — the rules, the gates and the traps; [`PLAN.md`](PLAN.md)
+  — the state, and what has been refuted.
 - Engine API: [`engine/README.md`](engine/README.md)
 - PoC usage: [`poc/README.md`](poc/README.md)
 - Product/architecture: [`prd.md`](prd.md) and [`square-dancing.md`](square-dancing.md)

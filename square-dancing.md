@@ -361,9 +361,7 @@ Two rules, both enforced by `features/index_independence.feature`:
 
 Remaining planned work, in the order agreed. **`PLAN.md` at the repo root is the consolidated version
 of this section**: the measured state (§2, with the command for every row), what is refuted (§3), what
-remains (§4, §6) and what is blocked (§5). `HANDOVER.md` is the *orientation* document — the repo map,
-the working rules, the decisions already made and the traps that have already bitten — and it
-deliberately holds no numbers of its own, because duplicating them is how it went stale.
+remains (§4, §6) and what is blocked (§5).
 
 ### 9.1 Get-out conformance (the active workstream)
 
@@ -1282,7 +1280,7 @@ deepen, and a twentieth board outside that set, the body ceder-10530's `Right an
 leaves (the known limit recorded at 0.303 when the ring arc landed), goes **0.303 → 0.187**.
 **No board moves from a clean pass into the band** — every one that deepens was already inside
 1.0 — and they are all bodies whose stored "couple" is split across the set, whose fix is the
-facing-pair ring recorded in `HANDOVER.md` §4.2.
+facing-pair ring.
 
 Two mechanisms had to be separated by measurement rather than argument. **(a)** The
 CALLERLAB lap is decided ONCE for the whole set: being the same number for all eight it

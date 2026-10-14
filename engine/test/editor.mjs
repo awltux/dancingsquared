@@ -1450,6 +1450,26 @@ console.log('\n== the correspondence can keep the formation\'s arrangement (21) 
     threw = true;
   }
   check(threw, 'a formation with the wrong number of dancers still throws rather than pairing the rest by index');
+
+  // 6. AN INERT REQUEST IS REFUSED, NOT SILENTLY DEGRADED. `preferGender` is a preference only when BOTH
+  //    lists declare genders - the assignment skips a spot on a gender mismatch - so with the start poses
+  //    carrying no gender the flag did nothing at all and no caller could tell. MEASURED on the reported
+  //    witness ("Right and Left Grand" from "1/4 Tag" onto "Right and Left Grand Circle"): the inert flag
+  //    paired 4 of 8 dancers with a spot the formation declares for the other gender - the panel's boys on
+  //    the girls' spots, facing the girls' way - which is why the panel's call site now passes them.
+  const genderless = pairs[0].start.map(({ gender, ...rest }) => rest);
+  let inertThrew = false;
+  try {
+    deriveFormationMapping(genderless, pairs[0].end, true);
+  } catch {
+    inertThrew = true;
+  }
+  check(inertThrew, 'preferGender with a start that declares no gender is REFUSED rather than quietly ignored');
+  // ...and the negative control: the flag OFF still pairs the same input, so the refusal is about the
+  // REQUEST rather than about the data being unusable.
+  const geometry = deriveFormationMapping(genderless, pairs[0].end);
+  check(geometry.length === pairs[0].end.length && new Set(geometry).size === pairs[0].end.length,
+    'and the same input with the flag OFF still pairs, so the refusal is the request rather than the data');
 }
 
 // ---------------------------------------------------------------------------

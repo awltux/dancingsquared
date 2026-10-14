@@ -4929,7 +4929,14 @@ export class EditorController implements EditorUI {
     if (this.endOverride && this.endOverride.length === inst.dancers.length) return this.endOverride;
     const start = inst.dancers.map((d) => {
       const p = poseFor(d, 0);
-      return { x: p.x, y: p.y, heading: p.heading };
+      // THE GENDERS ARE PART OF THE ARGUMENT, not decoration on it: `preferGender` is a preference over the
+      // formation's DECLARED ARRANGEMENT, and it can only be applied against a start that declares one. With
+      // this field missing the flag degrades silently to the geometry alone - MEASURED on the reported
+      // witness, "Right and Left Grand" from "1/4 Tag" onto "Right and Left Grand Circle": 4 of the 8 dancers
+      // were paired with a spot the formation declares for the other gender, so the placed end had the boys
+      // on the girls' spots facing the girls' way. Adding the field takes that to 0, and the same witness is
+      // the negative control in `poc/tools/end-pair-probe.mjs`.
+      return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
     });
     try {
       // `preferGender` is what makes the pairing the CALLER'S formation rather than its shape: a

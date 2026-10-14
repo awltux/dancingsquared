@@ -33,6 +33,9 @@ const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'di
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
+// THE CORPUS'S HALF-SET RULE, imported rather than re-spelled: the panel's end target is the formation as
+// `corpusFormationsOfSize` builds it, so the witness below has to be the same shape the picker offers.
+const half = await import(pathToFileURL(path.join(POC_DIR, 'src', 'half-set.ts')).href);
 
 const assets = path.join(POC_DIR, 'src', 'assets');
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
@@ -329,6 +332,62 @@ console.log('\n== 6. The ARRANGEMENT, and a knife edge in the library\'s naming 
   console.log(`    the recogniser names ${named} of the ${formations.length} formations; ${unstable} of those change their NAME when every heading is nudged by 1e-14 rad`);
   for (const x of flipped) console.log(`      ${x}`);
   check(unstable > 0, 'the knife edge is real and is REPORTED rather than worked around: this is a property of the read, so nothing here asserts a name across it');
+}
+
+// ---------------------------------------------------------------- 7. the panel's own pairing argument
+console.log('\n== 7. The panel\'s own argument, and the reported witness ==');
+{
+  // THE START POSES ARE THE ARGUMENT. `preferGender` is a preference over the formation's DECLARED
+  // arrangement, and it can only be applied against a start that declares one - so a start built without
+  // `gender` made the flag inert and the pairing a pure-geometry one. This check turns red if the field is
+  // dropped again; everything below measures what dropping it costs.
+  const ui = fs.readFileSync(path.join(POC_DIR, 'src', 'editor-ui.ts'), 'utf8');
+  // The map's OWN body, bounded by the indented close, so the field has to be inside the start poses rather
+  // than anywhere in the following lines.
+  const startMap = /const start = inst\.dancers\.map\(\(d\) => \{[\s\S]*?\n    \}\);/.exec(ui);
+  check(!!startMap && /gender: d\.gender/.test(startMap[0]),
+    'the panel builds the end-pairing start poses WITH the dancers\' genders, so `preferGender` is not inert');
+
+  // THE REPORTED WITNESS, named the way the corpus names a tam - by title and `from`, never by list position.
+  // Reported: "loaded 'Right and Left Grand' call, Setup '1/4 Tag' ... applied End setup 'Right and Left Grand
+  // Circle' ... flipped boys and girls as they end up facing opposite direction", and then "none of the
+  // rotations give a correct direction" - which is the currency of this check, because the turn rotates the
+  // spots WITHOUT renumbering them, so a gender-correct pairing is correct at every one of the eight steps.
+  const call = engine.normalizeInstance(engine.loadCallFromXml(
+    asset('ms/right_and_left_grand.xml'), movesXml, formationsXml,
+    { title: 'Right and Left Grand', from: '1/4 Tag' }));
+  const ds = engine.parseFormations(formationsXml).get('Right and Left Grand Circle');
+  const target = half.completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * engine.DEG, gender: d.gender })));
+  check(target.length === call.dancers.length, `the reported end setup is offered at the call's own size (${target.length} dancers)`);
+  const genders = call.dancers.map((d) => d.gender);
+  const startNoGender = call.dancers.map((d) => { const q = engine.poseFor(d, 0); return { x: q.x, y: q.y, heading: q.heading }; });
+  const startWithGender = startNoGender.map((q, i) => ({ ...q, gender: genders[i] }));
+  const wrong = (pairing) => pairing.filter((s, i) => target[s].gender !== genders[i]).length;
+
+  // THE NEGATIVE CONTROL IS THE FAULT ITSELF. The flag OFF is exactly what the panel ran while its start
+  // poses carried no gender, and it puts 4 of the 8 dancers on a spot the formation declares for the other
+  // gender - the boys on the girls' spots, facing the girls' way.
+  const geometryOnly = engine.deriveFormationMapping(startNoGender, target);
+  check(wrong(geometryOnly) === 4,
+    `the geometry alone - the panel's behaviour while the flag was inert - pairs ${wrong(geometryOnly)} of 8 dancers with a spot declared for the other gender`);
+  const kept = engine.deriveFormationMapping(startWithGender, target, true);
+  check(wrong(kept) === 0, `and the panel's own argument, with the genders, leaves ${wrong(kept)} of 8 there`);
+
+  // A REQUEST THAT CANNOT BE HONOURED IS REFUSED, not degraded: the refusal is what makes the defect
+  // non-recurrable, and it fails this check if it is ever softened back to a silent no-op.
+  let refused = false;
+  try { engine.deriveFormationMapping(startNoGender, target, true); } catch { refused = true; }
+  check(refused, 'and the engine REFUSES `preferGender` when the start poses declare no gender');
+
+  // ALL EIGHT DIRECTIONS. `rotateFormation` turns every spot and its facing together and does not renumber
+  // them, so every step keeps each spot's declared gender - which is why the fix makes all eight steps
+  // correct arrangements rather than moving the fault round the ring.
+  let turnedWrong = 0;
+  for (let k = 0; k < 8; k++) {
+    const turned = k === 0 ? target : engine.rotateFormation(target, (k * Math.PI) / 4);
+    for (let s = 0; s < turned.length; s++) if (turned[s].gender !== target[s].gender) turnedWrong++;
+  }
+  check(turnedWrong === 0, 'and every one of the eight 45-degree steps keeps each spot\'s declared gender, so all eight finish directions are correct arrangements');
 }
 
 // ---------------------------------------------------------------- wiring

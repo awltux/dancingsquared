@@ -145,9 +145,15 @@ export function rotateFormation(poses: FormDancer[], theta: number): FormDancer[
  * every existing caller keeps the pure geometry it has always had. See
  * `greedyAssignEditor` for why the ARRANGEMENT is part of a correspondence and
  * what the flag changes.
+ *
+ * `coreStart` DECLARES THE FIELDS THE RULE READS. It used to be typed `{x, y}[]`, which is what let the
+ * panel's `endPairing` pass positions only and have `preferGender` silently do NOTHING: the assignment skips
+ * a spot only when BOTH sides declare a gender, so a caller that forgot the field got the geometry alone and
+ * no error. Widened to the same shape `greedyAssignEditor` takes, plus the guard below, so the request is
+ * either honoured or refused rather than quietly degraded.
  */
 export function deriveFormationMapping(
-  coreStart: { x: number; y: number }[],
+  coreStart: { x: number; y: number; heading?: number; gender?: Gender }[],
   formation: FormDancer[],
   preferGender = false,
 ): number[] {
@@ -155,6 +161,21 @@ export function deriveFormationMapping(
     throw new Error(
       `deriveFormationMapping: cannot align ${formation.length} dancers to a ${coreStart.length}-dancer core — refusing to pair them by array index`,
     );
+  }
+  // A PREFERENCE OVER NOTHING IS A BUG IN THE CALLER, NOT A TOLERANCE. MEASURED: with the start poses carrying
+  // no gender the flag is inert and the panel paired 4 of 8 dancers with a spot the formation declares for
+  // the other gender, which is the reported "boys and girls flipped, facing the opposite way".
+  if (preferGender) {
+    const sexes = (list: { gender?: Gender }[]) => list.some((p) => p.gender !== undefined);
+    const missing = [
+      sexes(coreStart) ? null : 'the start poses',
+      sexes(formation) ? null : 'the formation',
+    ].filter((s): s is string => s !== null);
+    if (missing.length > 0) {
+      throw new Error(
+        `deriveFormationMapping: preferGender was asked for but no gender is declared on ${missing.join(' or ')} — the preference would be inert; pass the dancers' genders`,
+      );
+    }
   }
   const cCore = centroid(coreStart);
   let bestMap: number[] | null = null; // bestMap[j] = core slot for formation dancer j

@@ -302,7 +302,10 @@ console.log('\n== 4. the reported fault: the placed end MARCHES round in 45-degr
   check(!!base && base.length === src.dancers.length, "the corpus still offers the reported end setup at the call's own size");
   if (base) {
     const D = 0; // dancer 1 in the panel's own numbering
-    const start = src.dancers.map((d) => { const p = engine.poseFor(d, 0); return { x: p.x, y: p.y, heading: p.heading }; });
+    // THE GENDERS ARE PART OF THE ARGUMENT, and the engine now refuses `preferGender` without them: the
+    // panel's `endPairing` supplies them, so a witness that measured an inert flag would be measuring
+    // behaviour the panel no longer has. See `end-pair-probe.mjs` §7 for what dropping them cost.
+    const start = src.dancers.map((d) => { const p = engine.poseFor(d, 0); return { x: p.x, y: p.y, heading: p.heading, gender: d.gender }; });
     const turnedAt = (k) => (k === 0 ? base : engine.rotateFormation(base, k * STEP));
     let held = null;
     try { held = engine.deriveFormationMapping(start, base, true); } catch { /* a refusal here is another probe's business */ }

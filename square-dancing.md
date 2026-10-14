@@ -4193,14 +4193,34 @@ GATES BEFORE THE REMOVAL: `npm run build --prefix engine`; `engine/test/circle-f
 its SEVEN pre-existing reds on both revisions (measured by stashing the three engine files and re-running);
 `poc/tools/verify-probes.mjs` at the same 13 pre-existing reds and no others (45 probes).
 
-ONE PIECE OF THE PLAN WAS NOT DONE, and is recorded rather than quietly dropped: the plan's item A - refusing a
-scoped apply that returns LEGAL BUT CHANGES NOTHING. The mechanism is now known exactly: `applySelected`'s last
-fallback applies the call "as the WHOLE formation performs it" and keeps only the selected dancers' poses, so
-when the whole-board reading's parallel groups hold OTHER dancers (`Circle Four Left 3/4` on the lane board
-grouped `5+6+1+2`, the heads) every selected dancer is left exactly where they were and the step is accepted as
-a 6-beat no-op. The guard is one condition - refuse when `whole.parallel` exists and no group contains a
-selected dancer - and it was left unshipped because the ring rule fixes the reported case and the guard changes
-engine behaviour broadly enough to want its own full gate run, which the remaining budget did not cover.
+THE PLAN'S ITEM A IS SHIPPED, and it was the last piece of the ring work that was not: refusing a scoped apply
+that returns LEGAL BUT CHANGES NOTHING. The mechanism is exact: `applySelected`'s last fallback applies the call
+"as the WHOLE formation performs it" and keeps only the selected dancers' poses, while `parallelApply` leaves
+every dancer it did not tile exactly where they stand (its own merge is `movedById.get(d.id) ?? d`) - so when no
+reported group holds a selected dancer the merge is an identity and the step is accepted as a legal no-op that
+still charges its beats.
+
+THE GUARD IS ONE CONDITION - refuse when `whole.parallel` exists and no group contains a selected dancer - and
+it is that MECHANISM rather than "the selected dancers all end where they started", because a real call can do
+exactly that. MEASURED over the ms catalogue x 4 boards x 6 selections: **81** scoped applies are legal AND
+leave the board unchanged, and `Heads Forward and Back` is one of them (it is asserted as a control), so the
+behavioural phrasing would refuse real calls.
+
+THE WITNESS is the reported slot, pinned in `engine/test/selection.mjs`: from a Static Square,
+`All Except Heads Step Forward` puts the sides on a 2x2 ring, and `All Except Heads Circle Four Left 3/4` on
+that board has a whole-board reading that tiles the HEADS (`5+6+1+2`) and holds none of the selected 3,4,7,8 -
+so before the guard the scoped apply came back LEGAL with the board UNCHANGED. It is REFUSED now, with the
+whole-board reading of the same call on the same board still applying as the control, and the sibling fallback
+controls (`Heads Star Thru`, `Centers Trade`) still applying cleanly.
+
+MEASURED EITHER SIDE: `figure-census.mjs` **1 of 188 -> 1 of 188**, and `selection.mjs` **2 -> 1** with the new
+checks in place (the survivor is the pre-existing tied-name red). The census does not move because it is
+dominated by the corpus's missing `Promenade` (72 "unknown call" blocks); ON A TREE WHERE `Promenade` EXISTS
+THE GUARD COSTS ONE FIGURE, `figm17`: its chain's `Heads Lead Right` was a silent no-op - from the board
+`Heads Promenade 1/2` leaves, the whole-board `Lead Right` tiles the SIDES (`3+4 | 7+8`) - and the chain
+"reached the wave" by skipping it. `engine/test/sequencer.mjs` now pins that stop rather than carrying it, and
+the `Girls Circulate 2` reading that block exists for is measured on the canonical `Ocean Waves` board. THE GAP
+THE FIGURE NOW EXPOSES is the heads' own `Lead Right` reading, which is a matcher/tiling question of its own.
 
 ONE NUMBER THAT DID NOT REPRODUCE, recorded because it was in the same report: the status line read
 `= 6 of 12 beats` for that lane, and this tree answers **10 of 12** - `Step Forward` 2 + `Dosado` 8, which is

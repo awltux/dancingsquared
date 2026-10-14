@@ -1075,6 +1075,30 @@ export class CallApplicator {
     if (whole.legal) {
       const moved = new Map(whole.board.dancers.map((d) => [d.id, d]));
       const picked = new Set(ids);
+      // A WHOLE-FORMATION READING THAT NEVER TOUCHES THE SELECTION IS NOT AN ANSWER. `parallelApply` reports the
+      // groups it tiled, and a dancer it did not tile keeps its OWN pose (its merge is `movedById.get(d.id) ?? d`),
+      // so when no reported group holds a selected dancer the merge below copies every selected dancer's ORIGINAL
+      // pose: the board comes back unchanged and the apply is still LEGAL, so the caller charges the beats for a
+      // step that moved nobody. Reported as TODO.md P0.3; the witness is `Circle Four Left 3/4` scoped to the sides
+      // of the lane board `All Except Heads Step Forward` leaves, where the whole-board reading tiles the heads
+      // (`5+6+1+2`) and holds none of the selected 3,4,7,8.
+      //
+      // WHY THIS CONDITION AND NOT "the selected dancers all end where they started": a real call can end exactly
+      // where it began (`Heads Forward and Back`, which `selection.mjs` asserts as the control), and refusing
+      // those is a different, larger bug. MEASURED over the ms catalogue x 4 boards x 6 selections: 81 scoped
+      // applies are legal AND leave the board unchanged, and that call is one of them. This condition fires only
+      // where the mechanism makes the no-op INEVITABLE - the selected dancers are in no group at all - so it
+      // refuses the defect and nothing else.
+      if (whole.parallel && !whole.parallel.groups.some((g) => g.some((d) => picked.has(d.id)))) {
+        return {
+          board: cloneBoard(board),
+          legal: false,
+          reason: `"${selection} ${callName}" is not legal for the selected dancers: the whole-formation reading tiles `
+            + `the board into ${whole.parallel.groups.map((g) => g.map((d) => d.id).join('+')).join(' | ')}, and no group `
+            + `holds a selected dancer, so every selected dancer would be left exactly where they stand. Call it for the `
+            + `whole board, or pick a call this group can dance alone.`,
+        };
+      }
       // THIS MERGE USED TO BE THE ONLY SOURCE OF A CORRUPT BOARD, and it is no longer the only one - see
       // `applySelected`'s own doc block for the two and the single place both are now checked. The merge
       // itself is unchanged: it keeps the non-selected dancers where they stand while the selected ones take

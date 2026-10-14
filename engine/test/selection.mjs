@@ -605,6 +605,56 @@ console.log('\n== the wave circulate: the crossing is real, and the group readin
   }
 }
 
+console.log('\n== a whole-formation reading that never touches the selection is REFUSED ==');
+// REPORTED as TODO.md P0.3: "A scoped apply can be LEGAL and move nobody." The mechanism is exact, and so is the
+// guard: `applySelected`'s last fallback applies the call "as the WHOLE formation performs it" and keeps only the
+// selected dancers' poses, while `parallelApply` leaves every dancer it did not tile exactly where they stand - so
+// when the tiling holds no selected dancer at all the merge is an identity and the step is accepted as a legal
+// no-op that still charges its beats.
+//
+// THE WITNESS IS THE REPORTED SLOT. `Step Forward` leaves the sides on a 2x2 ring; `Circle Four Left 3/4` on that
+// ring tiles the HEADS (`5+6+1+2`) and holds none of the selected 3,4,7,8, so the scoped apply came back LEGAL
+// with the board completely unchanged (MEASURED before the guard: the result board equalled the input board).
+{
+  const ringStep = seq.applyToBoard(formationBoard('Static Square'), 'All Except Heads Step Forward');
+  if (!ringStep.legal) {
+    fail(`the witness no longer sets up: All Except Heads Step Forward from a Static Square - ${ringStep.reason}`);
+  } else {
+    const ring = ringStep.board;
+    const whole = seq.applyToBoard(ring, 'Circle Four Left 3/4');
+    const groups = whole.parallel ? whole.parallel.groups.map((g) => g.map((d) => d.id).join('+')).join(' | ') : 'none';
+    if (!whole.legal || groups !== '5+6+1+2') {
+      fail(`the witness board's whole-board reading is no longer the heads-only tiling (${whole.legal ? groups : whole.reason})`);
+    } else {
+      ok(`the witness board's whole-board reading tiles ${groups} - and the selection is 3,4,7,8, which is in no group`);
+    }
+    const scoped = seq.applyToBoard(ring, 'All Except Heads Circle Four Left 3/4');
+    if (scoped.legal) fail('"All Except Heads Circle Four Left 3/4" still APPLIES on that board - the reported legal no-op');
+    else if (!/left exactly where they stand/.test(scoped.reason ?? '')) fail(`...but it is refused for the wrong reason: ${scoped.reason}`);
+    else ok('...and the scoped apply is REFUSED, because it would have moved nobody');
+    // THE GUARD IS ON THE SCOPED READING, NOT ON THE CALL: the whole-board reading of the same call on the same
+    // board must still apply, or the refusal is too wide.
+    if (!whole.legal) fail('the whole-board reading is refused too - the guard is too wide');
+    else ok('while the whole-board reading of the same call on the same board still applies');
+  }
+  // A NO-OP IS NOT THE RULE, and this is the control that says so: `Heads Forward and Back` really does leave the
+  // heads exactly where they stand, and it must keep applying. The guard phrased as "refuse when the selected
+  // dancers end where they started" would fail here, and it is the phrasing this condition deliberately is not.
+  {
+    const before = formationBoard('Static Square');
+    const r = seq.applyToBoard(before, 'Heads Forward and Back');
+    if (!r.legal) fail(`Heads Forward and Back is refused - the guard has become "refuse a no-op": ${r.reason}`);
+    else {
+      const still = before.dancers.every((d) => {
+        const e = r.board.dancers.find((x) => x.id === d.id);
+        return Math.hypot(e.x - d.x, e.y - d.y) < 1e-9 && Math.abs(e.heading - d.heading) < 1e-9;
+      });
+      if (!still) fail('Heads Forward and Back no longer ends where it began - the control is not a no-op any more');
+      else ok('Heads Forward and Back still applies, and still ends exactly where it began (a legal no-op is NOT the rule)');
+    }
+  }
+}
+
 console.log('\n== partial coverage: a call acts on the boxes it applies to, not on all-or-nothing ==');
 // `parallelApply` used to require the setup to tile the WHOLE board, so a call whose setup matches
 // some boxes and not others was refused outright. That is a whole family rather than a corner case,

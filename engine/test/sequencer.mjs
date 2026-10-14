@@ -1109,13 +1109,24 @@ console.log('\n== Sequencer: a MULTIPLE of a catalogue call, and the guard that 
     }
     return { ok: true, board: b };
   };
-  const before = replay(['Heads Promenade 1/2', 'Heads Lead Right', 'Circle to a Line',
-    'Forward and Back', 'Pass the Ocean', 'Spin Chain Thru']);
-  check(before.ok, `figm17 reaches the circulate multiple on a wave: ${before.ok ? scopedSeq.knownFormation(before.board) : before.reason}`);
-  if (before.ok) {
-    const once = scopedSeq.applyToBoard(before.board, 'Girls Circulate');
+  // FIGM17'S OWN CHAIN STOPS AT A SILENT NO-OP IT USED TO CARRY, and that is now RECORDED rather than walked
+  // around. `Heads Lead Right` has no catalogue title, and from the board `Heads Promenade 1/2` leaves, the
+  // whole-formation fallback's tiling holds the SIDES (`7+8 | 3+4`) and none of the selected heads - so the
+  // merge kept every head exactly where it stood and the call came back LEGAL with the board UNCHANGED. The
+  // step was a no-op and the chain "reached the wave" by skipping it; `CallApplicator.applySelected` refuses
+  // that now (TODO.md P0.3), so the figure stops here until the heads' own `Lead Right` reading exists. The
+  // ENGINE GAP is that reading, not this check.
+  const before = replay(['Heads Promenade 1/2', 'Heads Lead Right']);
+  check(!before.ok && before.call === 'Heads Lead Right' && /left exactly where they stand/.test(before.reason ?? ''),
+    `figm17 stops where it used to no-op instead of carrying the step: ${before.ok ? 'the chain applied' : before.reason}`);
+  // THE MULTIPLE IS MEASURED ON THE CANONICAL WAVE, so the feature keeps its coverage whether or not the
+  // figure's own chain can be walked - the property below is about the reading, not about figm17.
+  {
+    const wave = scopedSeq.boardForFormation('Ocean Waves');
+    check(!!wave, 'the canonical Ocean Waves board is in the library');
+    const once = scopedSeq.applyToBoard(wave, 'Girls Circulate');
     const twice = once.legal ? scopedSeq.applyToBoard(once.board, 'Girls Circulate') : { legal: false };
-    const multiple = scopedSeq.applyToBoard(before.board, 'Girls Circulate 2');
+    const multiple = scopedSeq.applyToBoard(wave, 'Girls Circulate 2');
     check(multiple.legal === true, `Girls Circulate 2 applies: ${multiple.reason ?? 'ok'}`);
     check(twice.legal && multiple.legal,
       '...and the base call itself applies twice, which is what the multiple is composed from');
@@ -1140,8 +1151,8 @@ console.log('\n== Sequencer: a MULTIPLE of a catalogue call, and the guard that 
       `a registered "… 2" title keeps its OWN authoring: Square Thru 2 applies from a Static Square: ${st2.reason ?? 'ok'}`);
     check(bare.legal === false,
       `...while bare Square Thru does NOT there, which is what would have made the multiple branch fail instead: ${bare.legal ? 'APPLIED' : bare.reason}`);
-    // THE WITNESS: the rest of figm17.
-    let b = multiple.legal ? multiple.board : before.board;
+    // THE WITNESS: the rest of figm17, from the multiple the reading produced.
+    let b = multiple.legal ? multiple.board : wave;
     let ok = true;
     for (const call of ['Turn Thru', 'Allemande Left', 'Promenade']) {
       const r = scopedSeq.applyToBoard(b, call);
